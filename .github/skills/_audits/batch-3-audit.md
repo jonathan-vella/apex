@@ -248,28 +248,28 @@ User issued `update batch 3`. All 7 proposed diffs applied. Validators all pass.
 
 ### Score deltas
 
-| Skill | GEPA Before | GEPA After | Δ | DescLen Before | DescLen After |
-|---|---|---|---|---|---|
-| azure-rbac | 0.50 | **0.67** | +0.17 | 438 | 471 |
-| azure-resources | 0.62 | **0.83** | +0.21 | **1367** ⚠️ | **574** ✓ |
-| azure-storage | 0.50 | **0.67** | +0.17 | 573 | 731 |
-| azure-validate | 0.83 | **1.00** ✓ | +0.17 | 460 | 588 |
-| context-management | 0.50 | **0.67** | +0.17 | 548 | 697 |
-| docs-writer | 0.50 | **0.83** | +0.33 | 171 | 538 |
-| drawio | 0.33 | **0.67** | +0.34 | 385 | 625 |
+| Skill              | GEPA Before | GEPA After | Δ     | DescLen Before | DescLen After |
+| ------------------ | ----------- | ---------- | ----- | -------------- | ------------- |
+| azure-rbac         | 0.50        | **0.67**   | +0.17 | 438            | 471           |
+| azure-resources    | 0.62        | **0.83**   | +0.21 | **1367** ⚠️    | **574** ✓     |
+| azure-storage      | 0.50        | **0.67**   | +0.17 | 573            | 731           |
+| azure-validate     | 0.83        | **1.00** ✓ | +0.17 | 460            | 588           |
+| context-management | 0.50        | **0.67**   | +0.17 | 548            | 697           |
+| docs-writer        | 0.50        | **0.83**   | +0.33 | 171            | 538           |
+| drawio             | 0.33        | **0.67**   | +0.34 | 385            | 625           |
 
 ### Aggregate
 
-| Metric | Before | After |
-|---|---|---|
-| Skills passing GEPA ≥ 0.7 | 1 / 7 | **6 / 7** |
-| Skills passing GEPA ≥ 0.8 | 1 / 7 | **3 / 7** |
-| Skills passing GEPA = 1.00 | 0 / 7 | **1 / 7** (azure-validate) |
-| Skills with skill-type prefix | 0 / 7 | **7 / 7** |
-| Skills with both `USE FOR:` AND `WHEN:` | 0 / 7 | **7 / 7** |
-| **Invalid** (desc > 1024 chars) | 1 / 7 | **0 / 7** ✓ |
-| **Low**-tier adherence | 2 / 7 | **0 / 7** ✓ |
-| Stale cross-references | 2 (azure-storage→azure-messaging, drawio→excalidraw) | **1 / 2 fixed** (drawio fixed; azure-storage→azure-messaging deferred) |
+| Metric                                  | Before                                               | After                                                                  |
+| --------------------------------------- | ---------------------------------------------------- | ---------------------------------------------------------------------- |
+| Skills passing GEPA ≥ 0.7               | 1 / 7                                                | **6 / 7**                                                              |
+| Skills passing GEPA ≥ 0.8               | 1 / 7                                                | **3 / 7**                                                              |
+| Skills passing GEPA = 1.00              | 0 / 7                                                | **1 / 7** (azure-validate)                                             |
+| Skills with skill-type prefix           | 0 / 7                                                | **7 / 7**                                                              |
+| Skills with both `USE FOR:` AND `WHEN:` | 0 / 7                                                | **7 / 7**                                                              |
+| **Invalid** (desc > 1024 chars)         | 1 / 7                                                | **0 / 7** ✓                                                            |
+| **Low**-tier adherence                  | 2 / 7                                                | **0 / 7** ✓                                                            |
+| Stale cross-references                  | 2 (azure-storage→azure-messaging, drawio→excalidraw) | **1 / 2 fixed** (drawio fixed; azure-storage→azure-messaging deferred) |
 
 ### Critical fixes confirmed
 

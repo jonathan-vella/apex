@@ -209,25 +209,25 @@ User issued `update batch 4`. All 6 proposed diffs applied. Validators all pass.
 
 ### Score deltas
 
-| Skill | GEPA Before | GEPA After | Δ |
-|---|---|---|---|
-| entra-app-registration | 0.67 | **0.83** | +0.16 |
-| github-operations | 0.50 | **0.67** | +0.17 |
-| golden-principles | 0.50 | **0.67** | +0.17 |
-| iac-common | 0.50 | **0.67** | +0.17 |
-| mermaid | 0.50 | **0.67** | +0.17 |
-| microsoft-docs | 0.67 | **0.67** | 0 (already had USE FOR; gained INVOKES) |
+| Skill                  | GEPA Before | GEPA After | Δ                                       |
+| ---------------------- | ----------- | ---------- | --------------------------------------- |
+| entra-app-registration | 0.67        | **0.83**   | +0.16                                   |
+| github-operations      | 0.50        | **0.67**   | +0.17                                   |
+| golden-principles      | 0.50        | **0.67**   | +0.17                                   |
+| iac-common             | 0.50        | **0.67**   | +0.17                                   |
+| mermaid                | 0.50        | **0.67**   | +0.17                                   |
+| microsoft-docs         | 0.67        | **0.67**   | 0 (already had USE FOR; gained INVOKES) |
 
 ### Aggregate
 
-| Metric | Before | After |
-|---|---|---|
-| Skills passing GEPA ≥ 0.7 | 0 / 6 | **5 / 6** |
-| Skills passing GEPA ≥ 0.8 | 0 / 6 | **1 / 6** (entra-app-registration) |
-| Skills with skill-type prefix | 0 / 6 | **6 / 6** |
-| Skills with both `USE FOR:` AND `WHEN:` | 0 / 6 | **6 / 6** |
-| Stale cross-references | 4 | **0** ✓ |
-| Skills with `INVOKES:` MCP routing | 0 / 6 | **1 / 6** (microsoft-docs) |
+| Metric                                  | Before | After                              |
+| --------------------------------------- | ------ | ---------------------------------- |
+| Skills passing GEPA ≥ 0.7               | 0 / 6  | **5 / 6**                          |
+| Skills passing GEPA ≥ 0.8               | 0 / 6  | **1 / 6** (entra-app-registration) |
+| Skills with skill-type prefix           | 0 / 6  | **6 / 6**                          |
+| Skills with both `USE FOR:` AND `WHEN:` | 0 / 6  | **6 / 6**                          |
+| Stale cross-references                  | 4      | **0** ✓                            |
+| Skills with `INVOKES:` MCP routing      | 0 / 6  | **1 / 6** (microsoft-docs)         |
 
 ### Critical fixes confirmed
 

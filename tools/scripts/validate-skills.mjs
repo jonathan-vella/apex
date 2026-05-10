@@ -333,12 +333,7 @@ function runCrossSkillReferenceValidation() {
 
   // Allowlist: tools/MCPs that show up in `(use ...)` redirects but aren't
   // skills or agents. Keep this small and explicit.
-  const NON_SKILL_REDIRECTS = new Set([
-    "azure-pricing MCP",
-    "drawio",
-    "mermaid",
-    "python-diagrams",
-  ]);
+  const NON_SKILL_REDIRECTS = new Set(["azure-pricing MCP", "drawio", "mermaid", "python-diagrams"]);
 
   const REDIRECT_PATTERN = /\(use\s+([a-z][a-z0-9-]*(?:\s+MCP)?)\)/gi;
 

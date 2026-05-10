@@ -333,28 +333,28 @@ User issued `update batch 1`. All 7 proposed before/after diffs were applied. Va
 
 ### Score deltas
 
-| Skill | GEPA Before | GEPA After | Δ | Tokens Before | Tokens After | Δ Tokens |
-|---|---|---|---|---|---|---|
-| azure-adr | 0.50 | **0.67** | +0.17 | 1783 | 1801 | +18 |
-| azure-artifacts | 0.33† | **0.50** | +0.17 | 1516 | 1546 | +30 |
-| azure-bicep-patterns | 0.50 | **0.67** | +0.17 | 1434 | 1479 | +45 |
-| azure-cloud-migrate | 0.83 | **1.00** ✓ | +0.17 | 547 | 590 | +43 |
-| azure-compliance | 0.50 | **0.67** | +0.17 | 1337 | 1333 | -4 |
-| azure-compute | 0.67 | **0.83** | +0.16 | 2642 | 2600 | -42 |
-| azure-cost-optimization | 0.67 | **0.83** | +0.16 | 1922 | 1895 | -27 |
+| Skill                   | GEPA Before | GEPA After | Δ     | Tokens Before | Tokens After | Δ Tokens |
+| ----------------------- | ----------- | ---------- | ----- | ------------- | ------------ | -------- |
+| azure-adr               | 0.50        | **0.67**   | +0.17 | 1783          | 1801         | +18      |
+| azure-artifacts         | 0.33†       | **0.50**   | +0.17 | 1516          | 1546         | +30      |
+| azure-bicep-patterns    | 0.50        | **0.67**   | +0.17 | 1434          | 1479         | +45      |
+| azure-cloud-migrate     | 0.83        | **1.00** ✓ | +0.17 | 547           | 590          | +43      |
+| azure-compliance        | 0.50        | **0.67**   | +0.17 | 1337          | 1333         | -4       |
+| azure-compute           | 0.67        | **0.83**   | +0.16 | 2642          | 2600         | -42      |
+| azure-cost-optimization | 0.67        | **0.83**   | +0.16 | 1922          | 1895         | -27      |
 
 > † azure-artifacts 0.33 baseline included a false-positive (TODO/FIXME regex misfiring on quality-checklist text); the underlying baseline was effectively 0.50, so the +0.17 delta is genuine.
 
 ### Aggregate post-update
 
-| Metric | Before | After |
-|---|---|---|
-| Skills passing GEPA ≥ 0.7 | 1 / 7 | 4 / 7 |
-| Skills passing GEPA ≥ 0.8 | 1 / 7 | 3 / 7 |
-| Skills with skill-type prefix | 1 / 7 | 7 / 7 |
-| Skills with both `USE FOR:` AND `WHEN:` | 0 / 7 | 7 / 7 |
-| Skills with `azure-security` reference bug | 1 / 7 | 0 / 7 ✓ |
-| Net token delta across batch | — | +63 tokens (across 7 skills, ~9/skill) |
+| Metric                                     | Before | After                                  |
+| ------------------------------------------ | ------ | -------------------------------------- |
+| Skills passing GEPA ≥ 0.7                  | 1 / 7  | 4 / 7                                  |
+| Skills passing GEPA ≥ 0.8                  | 1 / 7  | 3 / 7                                  |
+| Skills with skill-type prefix              | 1 / 7  | 7 / 7                                  |
+| Skills with both `USE FOR:` AND `WHEN:`    | 0 / 7  | 7 / 7                                  |
+| Skills with `azure-security` reference bug | 1 / 7  | 0 / 7 ✓                                |
+| Net token delta across batch               | —      | +63 tokens (across 7 skills, ~9/skill) |
 
 ### Wrapper classifier note
 

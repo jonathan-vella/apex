@@ -1,6 +1,6 @@
 ---
 name: azure-prepare
-description: "**WORKFLOW SKILL** — Prepare Azure apps for deployment (infra Bicep/Terraform, azure.yaml, Dockerfiles). Covers create, modernize, and create+deploy. WHEN: \"create app\", \"build web app\", \"create API\", \"deploy to Azure\", \"deploy to Azure using Terraform\", \"generate Bicep\", \"generate Terraform\", \"function app\", \"add authentication\", \"managed identity\", \"add caching\", \"containerized Node.js app\". USE FOR: scaffolding new Azure apps, modernizing existing apps, generating IaC + azure.yaml. DO NOT USE FOR: cross-cloud migration (use azure-cloud-migrate), executing deployments of already-prepared apps (use azure-deploy), pre-deployment validation (use azure-validate)."
+description: '**WORKFLOW SKILL** — Prepare Azure apps for deployment (infra Bicep/Terraform, azure.yaml, Dockerfiles). Covers create, modernize, and create+deploy. WHEN: "create app", "build web app", "create API", "deploy to Azure", "deploy to Azure using Terraform", "generate Bicep", "generate Terraform", "function app", "add authentication", "managed identity", "add caching", "containerized Node.js app". USE FOR: scaffolding new Azure apps, modernizing existing apps, generating IaC + azure.yaml. DO NOT USE FOR: cross-cloud migration (use azure-cloud-migrate), executing deployments of already-prepared apps (use azure-deploy), pre-deployment validation (use azure-validate).'
 license: MIT
 metadata:
   author: Microsoft
@@ -18,6 +18,7 @@ metadata:
 ## Triggers
 
 Activate this skill when user wants to:
+
 - Create a new application
 - Add services or components to an existing app
 - Make updates or changes to existing application
@@ -56,14 +57,14 @@ Activate this skill when user wants to:
 
 **BEFORE starting Phase 1**, check if the user's prompt mentions a specialized technology that has a dedicated skill with tested templates. If matched, **invoke that skill FIRST** — then resume azure-prepare for validation and deployment.
 
-| Prompt keywords | Invoke FIRST |
-|----------------|-------------|
-| Lambda, AWS Lambda, migrate AWS, migrate GCP, Lambda to Functions, migrate from AWS, migrate from GCP | **azure-cloud-migrate** |
-| copilot SDK, copilot app, copilot-powered, @github/copilot-sdk, CopilotClient | **azure-hosted-copilot-sdk** |
-| Azure Functions, function app, serverless function, timer trigger, HTTP trigger, func new | Stay in **azure-prepare** — prefer Azure Functions templates in Step 4 |
-| APIM, API Management, API gateway, deploy APIM | Stay in **azure-prepare** — see [APIM Deployment Guide](references/apim.md) |
-| AI gateway, AI gateway policy, AI gateway backend, AI gateway configuration | **azure-aigateway** |
-| workflow, orchestration, multi-step, pipeline, fan-out/fan-in, saga, long-running process, durable | Stay in **azure-prepare** — select **durable** recipe in Step 4. **MUST** load [durable.md](references/services/functions/durable.md) and [DTS reference](references/services/durable-task-scheduler/README.md). Generate `Microsoft.DurableTask/schedulers` + `taskHubs` Bicep resources. |
+| Prompt keywords                                                                                       | Invoke FIRST                                                                                                                                                                                                                                                                               |
+| ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Lambda, AWS Lambda, migrate AWS, migrate GCP, Lambda to Functions, migrate from AWS, migrate from GCP | **azure-cloud-migrate**                                                                                                                                                                                                                                                                    |
+| copilot SDK, copilot app, copilot-powered, @github/copilot-sdk, CopilotClient                         | **azure-hosted-copilot-sdk**                                                                                                                                                                                                                                                               |
+| Azure Functions, function app, serverless function, timer trigger, HTTP trigger, func new             | Stay in **azure-prepare** — prefer Azure Functions templates in Step 4                                                                                                                                                                                                                     |
+| APIM, API Management, API gateway, deploy APIM                                                        | Stay in **azure-prepare** — see [APIM Deployment Guide](references/apim.md)                                                                                                                                                                                                                |
+| AI gateway, AI gateway policy, AI gateway backend, AI gateway configuration                           | **azure-aigateway**                                                                                                                                                                                                                                                                        |
+| workflow, orchestration, multi-step, pipeline, fan-out/fan-in, saga, long-running process, durable    | Stay in **azure-prepare** — select **durable** recipe in Step 4. **MUST** load [durable.md](references/services/functions/durable.md) and [DTS reference](references/services/durable-task-scheduler/README.md). Generate `Microsoft.DurableTask/schedulers` + `taskHubs` Bicep resources. |
 
 > ⚠️ Check the user's **prompt text** — not just existing code. Critical for greenfield projects with no codebase to scan. See [full routing table](references/specialized-routing.md).
 
@@ -75,17 +76,17 @@ After the specialized skill completes, **resume azure-prepare** at Phase 1 Step 
 
 Create `infra/{iac}/{project}/.azure/plan.md` by completing these steps. Do NOT generate any artifacts until the plan is approved.
 
-| # | Action | Reference |
-|---|--------|-----------|
-| 0 | **❌ Check Prompt for Specialized Tech** — If user mentions copilot SDK, Azure Functions, etc., invoke that skill first | [specialized-routing.md](references/specialized-routing.md) |
-| 1 | **Analyze Workspace** — Determine mode: NEW, MODIFY, or MODERNIZE | [analyze.md](references/analyze.md) |
-| 2 | **Gather Requirements** — Classification, scale, budget | [requirements.md](references/requirements.md) |
-| 3 | **Scan Codebase** — Identify components, technologies, dependencies | [scan.md](references/scan.md) |
-| 4 | **Select Recipe** — Choose AZD (default), AZCLI, Bicep, or Terraform | [recipe-selection.md](references/recipe-selection.md) |
-| 5 | **Plan Architecture** — Select stack + map components to Azure services | [architecture.md](references/architecture.md) |
-| 6 | **Write Plan** — Generate `infra/{iac}/{project}/.azure/plan.md` with all decisions | [plan-template.md](references/plan-template.md) |
-| 7 | **Present Plan** — Show plan to user and ask for approval | `infra/{iac}/{project}/.azure/plan.md` |
-| 8 | **Destructive actions require `ask_user`** | [Global Rules](references/global-rules.md) |
+| #   | Action                                                                                                                  | Reference                                                   |
+| --- | ----------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| 0   | **❌ Check Prompt for Specialized Tech** — If user mentions copilot SDK, Azure Functions, etc., invoke that skill first | [specialized-routing.md](references/specialized-routing.md) |
+| 1   | **Analyze Workspace** — Determine mode: NEW, MODIFY, or MODERNIZE                                                       | [analyze.md](references/analyze.md)                         |
+| 2   | **Gather Requirements** — Classification, scale, budget                                                                 | [requirements.md](references/requirements.md)               |
+| 3   | **Scan Codebase** — Identify components, technologies, dependencies                                                     | [scan.md](references/scan.md)                               |
+| 4   | **Select Recipe** — Choose AZD (default), AZCLI, Bicep, or Terraform                                                    | [recipe-selection.md](references/recipe-selection.md)       |
+| 5   | **Plan Architecture** — Select stack + map components to Azure services                                                 | [architecture.md](references/architecture.md)               |
+| 6   | **Write Plan** — Generate `infra/{iac}/{project}/.azure/plan.md` with all decisions                                     | [plan-template.md](references/plan-template.md)             |
+| 7   | **Present Plan** — Show plan to user and ask for approval                                                               | `infra/{iac}/{project}/.azure/plan.md`                      |
+| 8   | **Destructive actions require `ask_user`**                                                                              | [Global Rules](references/global-rules.md)                  |
 
 ---
 
@@ -97,25 +98,25 @@ Create `infra/{iac}/{project}/.azure/plan.md` by completing these steps. Do NOT 
 
 Execute the approved plan. Update `infra/{iac}/{project}/.azure/plan.md` status after each step.
 
-| # | Action | Reference |
-|---|--------|-----------|
-| 1 | **Research Components** — Load service references + invoke related skills | [research.md](references/research.md) |
-| 2 | **Confirm Azure Context** — Detect and confirm subscription + location and check the resource provisioning limit | [Azure Context](references/azure-context.md) |
-| 3 | **Generate Artifacts** — Create infrastructure and configuration files | [generate.md](references/generate.md) |
-| 4 | **Harden Security** — Apply security best practices | [security.md](references/security.md) |
-| 5 | **⛔ Update Plan (MANDATORY before hand-off)** — Use the `edit` tool to change the Status in `infra/{iac}/{project}/.azure/plan.md` to `Ready for Validation`. You **MUST** complete this edit **BEFORE** invoking azure-validate. Do NOT skip this step. | `infra/{iac}/{project}/.azure/plan.md` |
-| 6 | **⚠️ Hand Off** — Invoke **azure-validate** skill. Your preparation work is done. Deployment execution is handled by azure-deploy. **PREREQUISITE:** Step 5 must be completed first — `infra/{iac}/{project}/.azure/plan.md` status must say `Ready for Validation`. | — |
+| #   | Action                                                                                                                                                                                                                                                               | Reference                                    |
+| --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
+| 1   | **Research Components** — Load service references + invoke related skills                                                                                                                                                                                            | [research.md](references/research.md)        |
+| 2   | **Confirm Azure Context** — Detect and confirm subscription + location and check the resource provisioning limit                                                                                                                                                     | [Azure Context](references/azure-context.md) |
+| 3   | **Generate Artifacts** — Create infrastructure and configuration files                                                                                                                                                                                               | [generate.md](references/generate.md)        |
+| 4   | **Harden Security** — Apply security best practices                                                                                                                                                                                                                  | [security.md](references/security.md)        |
+| 5   | **⛔ Update Plan (MANDATORY before hand-off)** — Use the `edit` tool to change the Status in `infra/{iac}/{project}/.azure/plan.md` to `Ready for Validation`. You **MUST** complete this edit **BEFORE** invoking azure-validate. Do NOT skip this step.            | `infra/{iac}/{project}/.azure/plan.md`       |
+| 6   | **⚠️ Hand Off** — Invoke **azure-validate** skill. Your preparation work is done. Deployment execution is handled by azure-deploy. **PREREQUISITE:** Step 5 must be completed first — `infra/{iac}/{project}/.azure/plan.md` status must say `Ready for Validation`. | —                                            |
 
 ---
 
 ## Outputs
 
-| Artifact | Location |
-|----------|----------|
-| **Plan** | `infra/{iac}/{project}/.azure/plan.md` |
-| Infrastructure | `infra/{iac}/{project}/` |
-| AZD Config | `infra/{iac}/{project}/azure.yaml` (AZD only) |
-| Dockerfiles | `src/<component>/Dockerfile` |
+| Artifact       | Location                                      |
+| -------------- | --------------------------------------------- |
+| **Plan**       | `infra/{iac}/{project}/.azure/plan.md`        |
+| Infrastructure | `infra/{iac}/{project}/`                      |
+| AZD Config     | `infra/{iac}/{project}/azure.yaml` (AZD only) |
+| Dockerfiles    | `src/<component>/Dockerfile`                  |
 
 ---
 
@@ -145,22 +146,22 @@ Execute the approved plan. Update `infra/{iac}/{project}/.azure/plan.md` status 
 
 Load these on demand — do NOT read all at once:
 
-| Reference | When to Load |
-| --------- | ------------ |
-| `references/analyze.md` | Analyze |
-| `references/apim.md` | Apim |
-| `references/architecture.md` | Architecture |
-| `references/aspire.md` | Aspire |
-| `references/auth-best-practices.md` | Auth Best Practices |
-| `references/azure-context.md` | Azure Context |
-| `references/generate.md` | Generate |
-| `references/global-rules.md` | Global Rules |
-| `references/plan-template.md` | Plan Template |
-| `references/recipe-selection.md` | Recipe Selection |
-| `references/region-availability.md` | Region Availability |
-| `references/requirements.md` | Requirements |
-| `references/research.md` | Research |
+| Reference                               | When to Load            |
+| --------------------------------------- | ----------------------- |
+| `references/analyze.md`                 | Analyze                 |
+| `references/apim.md`                    | Apim                    |
+| `references/architecture.md`            | Architecture            |
+| `references/aspire.md`                  | Aspire                  |
+| `references/auth-best-practices.md`     | Auth Best Practices     |
+| `references/azure-context.md`           | Azure Context           |
+| `references/generate.md`                | Generate                |
+| `references/global-rules.md`            | Global Rules            |
+| `references/plan-template.md`           | Plan Template           |
+| `references/recipe-selection.md`        | Recipe Selection        |
+| `references/region-availability.md`     | Region Availability     |
+| `references/requirements.md`            | Requirements            |
+| `references/research.md`                | Research                |
 | `references/resources-limits-quotas.md` | Resources Limits Quotas |
-| `references/scan.md` | Scan |
-| `references/security.md` | Security |
-| `references/specialized-routing.md` | Specialized Routing |
+| `references/scan.md`                    | Scan                    |
+| `references/security.md`                | Security                |
+| `references/specialized-routing.md`     | Specialized Routing     |

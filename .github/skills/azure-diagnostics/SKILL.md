@@ -1,6 +1,6 @@
 ---
 name: azure-diagnostics
-description: "**WORKFLOW SKILL** — Debug and troubleshoot Azure production issues: Container Apps + Function Apps diagnostics, KQL log analysis, health checks. WHEN: \"debug production issues\", \"troubleshoot container apps\", \"troubleshoot function apps\", \"image pull failures\", \"cold start issues\", \"health probe failures\". USE FOR: post-deployment troubleshooting, root-cause analysis, log triage. DO NOT USE FOR: pre-deployment validation (use azure-validate), cost analysis (use azure-cost-optimization)."
+description: '**WORKFLOW SKILL** — Debug and troubleshoot Azure production issues: Container Apps + Function Apps diagnostics, KQL log analysis, health checks. WHEN: "debug production issues", "troubleshoot container apps", "troubleshoot function apps", "image pull failures", "cold start issues", "health probe failures". USE FOR: post-deployment troubleshooting, root-cause analysis, log triage. DO NOT USE FOR: pre-deployment validation (use azure-validate), cost analysis (use azure-cost-optimization).'
 license: MIT
 metadata:
   author: Microsoft
@@ -145,10 +145,10 @@ az monitor activity-log list -g RG --max-events 20
 
 Load these on demand — do NOT read all at once:
 
-| Reference | When to Load |
-| --------- | ------------ |
-| `references/azure-resource-graph.md` | Azure Resource Graph |
-| `references/infraops-health-checks.md` | Infraops Health Checks |
-| `references/infraops-kql-templates.md` | Infraops Kql Templates |
+| Reference                                      | When to Load                   |
+| ---------------------------------------------- | ------------------------------ |
+| `references/azure-resource-graph.md`           | Azure Resource Graph           |
+| `references/infraops-health-checks.md`         | Infraops Health Checks         |
+| `references/infraops-kql-templates.md`         | Infraops Kql Templates         |
 | `references/infraops-remediation-playbooks.md` | Infraops Remediation Playbooks |
-| `references/kql-queries.md` | Kql Queries |
+| `references/kql-queries.md`                    | Kql Queries                    |

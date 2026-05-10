@@ -9,46 +9,46 @@
 
 ## Scope
 
-| # | Skill | Path |
-|---|---|---|
-| 1 | `azure-defaults` | [.github/skills/azure-defaults/SKILL.md](../azure-defaults/SKILL.md) |
-| 2 | `azure-deploy` | [.github/skills/azure-deploy/SKILL.md](../azure-deploy/SKILL.md) |
-| 3 | `azure-diagnostics` | [.github/skills/azure-diagnostics/SKILL.md](../azure-diagnostics/SKILL.md) |
-| 4 | `azure-governance-discovery` | [.github/skills/azure-governance-discovery/SKILL.md](../azure-governance-discovery/SKILL.md) |
-| 5 | `azure-kusto` | [.github/skills/azure-kusto/SKILL.md](../azure-kusto/SKILL.md) |
-| 6 | `azure-prepare` | [.github/skills/azure-prepare/SKILL.md](../azure-prepare/SKILL.md) |
-| 7 | `azure-quotas` | [.github/skills/azure-quotas/SKILL.md](../azure-quotas/SKILL.md) |
+| #   | Skill                        | Path                                                                                         |
+| --- | ---------------------------- | -------------------------------------------------------------------------------------------- |
+| 1   | `azure-defaults`             | [.github/skills/azure-defaults/SKILL.md](../azure-defaults/SKILL.md)                         |
+| 2   | `azure-deploy`               | [.github/skills/azure-deploy/SKILL.md](../azure-deploy/SKILL.md)                             |
+| 3   | `azure-diagnostics`          | [.github/skills/azure-diagnostics/SKILL.md](../azure-diagnostics/SKILL.md)                   |
+| 4   | `azure-governance-discovery` | [.github/skills/azure-governance-discovery/SKILL.md](../azure-governance-discovery/SKILL.md) |
+| 5   | `azure-kusto`                | [.github/skills/azure-kusto/SKILL.md](../azure-kusto/SKILL.md)                               |
+| 6   | `azure-prepare`              | [.github/skills/azure-prepare/SKILL.md](../azure-prepare/SKILL.md)                           |
+| 7   | `azure-quotas`               | [.github/skills/azure-quotas/SKILL.md](../azure-quotas/SKILL.md)                             |
 
 ## Summary
 
-| Skill | Adherence | GEPA Score | Tokens | Top Issue | Recommended Action |
-|---|---|---|---|---|---|
-| azure-defaults | Medium-High | 0.50 | 2044 | No skill-type prefix; missing `WHEN:` | Add `**UTILITY SKILL**` prefix + `WHEN:` triggers |
-| azure-deploy | **Medium** | 0.83 | 2375 | 830-char desc, missing `USE FOR:` literal | Trim preamble; add `**WORKFLOW SKILL**` prefix + `USE FOR:` |
-| azure-diagnostics | **Medium** | 0.67 | 1305 | Missing `USE FOR:`; no skill-type prefix | Add `**WORKFLOW SKILL**` prefix + `USE FOR:`; minor trim |
-| azure-governance-discovery | Medium-High | 0.50 | 1527 | Missing `WHEN:`; no skill-type prefix | Add `**ANALYSIS SKILL**` prefix + `WHEN:` triggers |
-| azure-kusto | Medium-High | 0.50 | 1783 | No `USE FOR:`, no anti-triggers, no prefix | Add `**ANALYSIS SKILL**` prefix + `USE FOR:` + `DO NOT USE FOR:` |
-| azure-prepare | **Medium** | 0.67 | 2611 | **1019-char desc near 1024 spec limit**; 28 quoted triggers | Aggressive trim; add `**WORKFLOW SKILL**` prefix + `USE FOR:` |
-| azure-quotas | Medium-High | 0.50 | 2693 | No `USE FOR:`, no anti-triggers, no prefix; largest body | Add `**UTILITY SKILL**` prefix + `USE FOR:` + redirects |
+| Skill                      | Adherence   | GEPA Score | Tokens | Top Issue                                                   | Recommended Action                                               |
+| -------------------------- | ----------- | ---------- | ------ | ----------------------------------------------------------- | ---------------------------------------------------------------- |
+| azure-defaults             | Medium-High | 0.50       | 2044   | No skill-type prefix; missing `WHEN:`                       | Add `**UTILITY SKILL**` prefix + `WHEN:` triggers                |
+| azure-deploy               | **Medium**  | 0.83       | 2375   | 830-char desc, missing `USE FOR:` literal                   | Trim preamble; add `**WORKFLOW SKILL**` prefix + `USE FOR:`      |
+| azure-diagnostics          | **Medium**  | 0.67       | 1305   | Missing `USE FOR:`; no skill-type prefix                    | Add `**WORKFLOW SKILL**` prefix + `USE FOR:`; minor trim         |
+| azure-governance-discovery | Medium-High | 0.50       | 1527   | Missing `WHEN:`; no skill-type prefix                       | Add `**ANALYSIS SKILL**` prefix + `WHEN:` triggers               |
+| azure-kusto                | Medium-High | 0.50       | 1783   | No `USE FOR:`, no anti-triggers, no prefix                  | Add `**ANALYSIS SKILL**` prefix + `USE FOR:` + `DO NOT USE FOR:` |
+| azure-prepare              | **Medium**  | 0.67       | 2611   | **1019-char desc near 1024 spec limit**; 28 quoted triggers | Aggressive trim; add `**WORKFLOW SKILL**` prefix + `USE FOR:`    |
+| azure-quotas               | Medium-High | 0.50       | 2693   | No `USE FOR:`, no anti-triggers, no prefix; largest body    | Add `**UTILITY SKILL**` prefix + `USE FOR:` + redirects          |
 
 ### Aggregate observations
 
-| Metric | Value |
-|---|---|
-| Skills passing GEPA ≥ 0.7 | 2 / 7 (`azure-deploy`, `azure-prepare` via partial signals) |
-| Skills passing GEPA ≥ 0.8 | 1 / 7 (`azure-deploy` only, 0.83) |
-| Skills with skill-type prefix (`**WORKFLOW/UTILITY/ANALYSIS SKILL**`) | 0 / 7 |
-| Skills with both `USE FOR:` AND `WHEN:` | 0 / 7 |
-| Skills with `DO NOT USE FOR:` redirect anti-triggers | 3 / 7 (`azure-defaults`, `azure-governance-discovery`, plus `azure-deploy` uses non-standard `DO NOT USE WHEN:`) |
-| Skills over 500-token soft limit | 7 / 7 |
-| Skills over 1500 tokens (3× soft) | 6 / 7 |
-| Skills over 2500 tokens (5× soft) | 2 / 7 (`azure-prepare`, `azure-quotas`) |
-| Skills with `INVOKES:` routing | 0 / 7 |
-| Skills with description near 1024-char spec hard limit | 1 / 7 (`azure-prepare` at 1019) |
+| Metric                                                                | Value                                                                                                            |
+| --------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| Skills passing GEPA ≥ 0.7                                             | 2 / 7 (`azure-deploy`, `azure-prepare` via partial signals)                                                      |
+| Skills passing GEPA ≥ 0.8                                             | 1 / 7 (`azure-deploy` only, 0.83)                                                                                |
+| Skills with skill-type prefix (`**WORKFLOW/UTILITY/ANALYSIS SKILL**`) | 0 / 7                                                                                                            |
+| Skills with both `USE FOR:` AND `WHEN:`                               | 0 / 7                                                                                                            |
+| Skills with `DO NOT USE FOR:` redirect anti-triggers                  | 3 / 7 (`azure-defaults`, `azure-governance-discovery`, plus `azure-deploy` uses non-standard `DO NOT USE WHEN:`) |
+| Skills over 500-token soft limit                                      | 7 / 7                                                                                                            |
+| Skills over 1500 tokens (3× soft)                                     | 6 / 7                                                                                                            |
+| Skills over 2500 tokens (5× soft)                                     | 2 / 7 (`azure-prepare`, `azure-quotas`)                                                                          |
+| Skills with `INVOKES:` routing                                        | 0 / 7                                                                                                            |
+| Skills with description near 1024-char spec hard limit                | 1 / 7 (`azure-prepare` at 1019)                                                                                  |
 
 ### Common patterns (carried over from Batch 1)
 
-1. **Missing dual-trigger** — Same as Batch 1: most skills have either `USE FOR:` *or* `WHEN:`, not both.
+1. **Missing dual-trigger** — Same as Batch 1: most skills have either `USE FOR:` _or_ `WHEN:`, not both.
 2. **No skill-type prefix** — 0 / 7 in this batch (worse than Batch 1's 1/7).
 3. **Body token bloat** — All 7 over the 500-token soft limit; `azure-prepare` and `azure-quotas` over 2500.
 4. **No INVOKES: routing** — None declare which MCPs they invoke.
@@ -71,14 +71,14 @@ Azure infrastructure defaults: regions, tags, naming (CAF), AVM-first policy, se
 
 **Scoring breakdown**:
 
-| Check | Result |
-|---|---|
-| description_length (150-1024) | ✓ 1.0 |
-| has_use_for | ✓ 1.0 |
-| no_bad_patterns | ✓ 1.0 |
-| has_rules | ✗ 0.0 |
-| has_steps | ✗ 0.0 |
-| has_when | ✗ 0.0 |
+| Check                         | Result |
+| ----------------------------- | ------ |
+| description_length (150-1024) | ✓ 1.0  |
+| has_use_for                   | ✓ 1.0  |
+| no_bad_patterns               | ✓ 1.0  |
+| has_rules                     | ✗ 0.0  |
+| has_steps                     | ✗ 0.0  |
+| has_when                      | ✗ 0.0  |
 
 **Adherence**: Medium-High. Already has redirect anti-triggers; just needs prefix + `WHEN:`.
 
@@ -105,14 +105,14 @@ Execute Azure deployments for ALREADY-PREPARED applications that have existing i
 
 **Scoring breakdown**:
 
-| Check | Result |
-|---|---|
-| description_length (150-1024) | ✓ 1.0 |
-| has_when | ✓ 1.0 |
-| has_rules | ✓ 1.0 (body has `## Rules`) |
-| has_steps | ✓ 1.0 (body has `## Steps`) |
-| no_bad_patterns | ✓ 1.0 |
-| has_use_for | ✗ 0.0 |
+| Check                         | Result                      |
+| ----------------------------- | --------------------------- |
+| description_length (150-1024) | ✓ 1.0                       |
+| has_when                      | ✓ 1.0                       |
+| has_rules                     | ✓ 1.0 (body has `## Rules`) |
+| has_steps                     | ✓ 1.0 (body has `## Steps`) |
+| no_bad_patterns               | ✓ 1.0                       |
+| has_use_for                   | ✗ 0.0                       |
 
 **Adherence**: Medium (description >60 words, ~131 words).
 
@@ -141,14 +141,14 @@ Debug and troubleshoot production issues on Azure. Covers Container Apps and Fun
 
 **Scoring breakdown**:
 
-| Check | Result |
-|---|---|
-| description_length (150-1024) | ✓ 1.0 |
-| has_when | ✓ 1.0 |
-| has_rules | ✓ 1.0 (body has `## Rules`) |
-| no_bad_patterns | ✓ 1.0 |
-| has_steps | ✗ 0.0 |
-| has_use_for | ✗ 0.0 |
+| Check                         | Result                      |
+| ----------------------------- | --------------------------- |
+| description_length (150-1024) | ✓ 1.0                       |
+| has_when                      | ✓ 1.0                       |
+| has_rules                     | ✓ 1.0 (body has `## Rules`) |
+| no_bad_patterns               | ✓ 1.0                       |
+| has_steps                     | ✗ 0.0                       |
+| has_use_for                   | ✗ 0.0                       |
 
 **Adherence**: Medium (~84 words).
 
@@ -175,14 +175,14 @@ Deterministic Azure Policy discovery: lists effective policy assignments at subs
 
 **Scoring breakdown**:
 
-| Check | Result |
-|---|---|
-| description_length (150-1024) | ✓ 1.0 |
-| has_use_for | ✓ 1.0 |
-| no_bad_patterns | ✓ 1.0 |
-| has_rules | ✗ 0.0 |
-| has_steps | ✗ 0.0 |
-| has_when | ✗ 0.0 |
+| Check                         | Result |
+| ----------------------------- | ------ |
+| description_length (150-1024) | ✓ 1.0  |
+| has_use_for                   | ✓ 1.0  |
+| no_bad_patterns               | ✓ 1.0  |
+| has_rules                     | ✗ 0.0  |
+| has_steps                     | ✗ 0.0  |
+| has_when                      | ✗ 0.0  |
 
 **Adherence**: Medium-High. Has redirect anti-triggers; needs prefix + `WHEN:`.
 
@@ -209,14 +209,14 @@ Query and analyze data in Azure Data Explorer (Kusto/ADX) using KQL for log anal
 
 **Scoring breakdown**:
 
-| Check | Result |
-|---|---|
-| description_length (150-1024) | ✓ 1.0 |
-| has_when | ✓ 1.0 |
-| no_bad_patterns | ✓ 1.0 |
-| has_rules | ✗ 0.0 |
-| has_steps | ✗ 0.0 |
-| has_use_for | ✗ 0.0 |
+| Check                         | Result |
+| ----------------------------- | ------ |
+| description_length (150-1024) | ✓ 1.0  |
+| has_when                      | ✓ 1.0  |
+| no_bad_patterns               | ✓ 1.0  |
+| has_rules                     | ✗ 0.0  |
+| has_steps                     | ✗ 0.0  |
+| has_use_for                   | ✗ 0.0  |
 
 **Adherence**: Medium-High.
 
@@ -243,14 +243,14 @@ Prepare Azure apps for deployment (infra Bicep/Terraform, azure.yaml, Dockerfile
 
 **Scoring breakdown**:
 
-| Check | Result |
-|---|---|
+| Check                         | Result                              |
+| ----------------------------- | ----------------------------------- |
 | description_length (150-1024) | ✓ 1.0 (1019 chars — **borderline**) |
-| has_when | ✓ 1.0 |
-| has_rules | ✓ 1.0 (body has `## Rules`) |
-| no_bad_patterns | ✓ 1.0 |
-| has_steps | ✗ 0.0 |
-| has_use_for | ✗ 0.0 |
+| has_when                      | ✓ 1.0                               |
+| has_rules                     | ✓ 1.0 (body has `## Rules`)         |
+| no_bad_patterns               | ✓ 1.0                               |
+| has_steps                     | ✗ 0.0                               |
+| has_use_for                   | ✗ 0.0                               |
 
 **Adherence**: Medium (~122 words; near spec hard limit).
 
@@ -281,14 +281,14 @@ Check/manage Azure quotas and usage across providers. For deployment planning, c
 
 **Scoring breakdown**:
 
-| Check | Result |
-|---|---|
-| description_length (150-1024) | ✓ 1.0 |
-| has_when | ✓ 1.0 |
-| no_bad_patterns | ✓ 1.0 |
-| has_rules | ✗ 0.0 |
-| has_steps | ✗ 0.0 |
-| has_use_for | ✗ 0.0 |
+| Check                         | Result |
+| ----------------------------- | ------ |
+| description_length (150-1024) | ✓ 1.0  |
+| has_when                      | ✓ 1.0  |
+| no_bad_patterns               | ✓ 1.0  |
+| has_rules                     | ✗ 0.0  |
+| has_steps                     | ✗ 0.0  |
+| has_use_for                   | ✗ 0.0  |
 
 **Adherence**: Medium-High.
 
@@ -336,30 +336,30 @@ User issued `update batch 2`. All 7 proposed before/after diffs were applied, in
 
 ### Score deltas
 
-| Skill | GEPA Before | GEPA After | Δ | Tokens Before | Tokens After | DescLen Before | DescLen After |
-|---|---|---|---|---|---|---|---|
-| azure-defaults | 0.50 | **0.67** | +0.17 | 2044 | 2081 | 312 | 461 |
-| azure-deploy | 0.83 | **1.00** ✓ | +0.17 | 2375 | 2305 | 830 | 550 |
-| azure-diagnostics | 0.67 | **0.83** | +0.16 | 1305 | 1279 | 605 | 504 |
-| azure-governance-discovery | 0.50 | **0.67** | +0.17 | 1527 | 1544 | 509 | 576 |
-| azure-kusto | 0.50 | **0.67** | +0.17 | 1783 | 1843 | 268 | 508 |
-| azure-prepare | 0.67 | **0.83** | +0.16 | 2611 | 2530 | **1019** | **693** ⚠️→✓ |
-| azure-quotas | 0.50 | **0.67** | +0.17 | 2693 | 2738 | 348 | 529 |
+| Skill                      | GEPA Before | GEPA After | Δ     | Tokens Before | Tokens After | DescLen Before | DescLen After |
+| -------------------------- | ----------- | ---------- | ----- | ------------- | ------------ | -------------- | ------------- |
+| azure-defaults             | 0.50        | **0.67**   | +0.17 | 2044          | 2081         | 312            | 461           |
+| azure-deploy               | 0.83        | **1.00** ✓ | +0.17 | 2375          | 2305         | 830            | 550           |
+| azure-diagnostics          | 0.67        | **0.83**   | +0.16 | 1305          | 1279         | 605            | 504           |
+| azure-governance-discovery | 0.50        | **0.67**   | +0.17 | 1527          | 1544         | 509            | 576           |
+| azure-kusto                | 0.50        | **0.67**   | +0.17 | 1783          | 1843         | 268            | 508           |
+| azure-prepare              | 0.67        | **0.83**   | +0.16 | 2611          | 2530         | **1019**       | **693** ⚠️→✓  |
+| azure-quotas               | 0.50        | **0.67**   | +0.17 | 2693          | 2738         | 348            | 529           |
 
 ### Aggregate post-update
 
-| Metric | Before | After |
-|---|---|---|
-| Skills passing GEPA ≥ 0.7 | 2 / 7 | **6 / 7** |
-| Skills passing GEPA ≥ 0.8 | 1 / 7 | **3 / 7** |
-| Skills passing GEPA = 1.00 | 0 / 7 | **1 / 7** (`azure-deploy`) |
-| Skills with skill-type prefix | 0 / 7 | **7 / 7** |
-| Skills with both `USE FOR:` AND `WHEN:` | 0 / 7 | **7 / 7** |
-| Skills with `INVOKES:` MCP routing | 0 / 7 | **2 / 7** (`azure-kusto`, `azure-quotas`) |
-| Skills using non-standard `DO NOT USE WHEN:` | 1 / 7 | 0 / 7 ✓ |
-| Skills near 1024-char spec limit | 1 / 7 (1019) | 0 / 7 ✓ |
-| Net description-length delta | — | -177 chars across 7 skills |
-| Net token delta | — | -19 tokens across 7 skills |
+| Metric                                       | Before       | After                                     |
+| -------------------------------------------- | ------------ | ----------------------------------------- |
+| Skills passing GEPA ≥ 0.7                    | 2 / 7        | **6 / 7**                                 |
+| Skills passing GEPA ≥ 0.8                    | 1 / 7        | **3 / 7**                                 |
+| Skills passing GEPA = 1.00                   | 0 / 7        | **1 / 7** (`azure-deploy`)                |
+| Skills with skill-type prefix                | 0 / 7        | **7 / 7**                                 |
+| Skills with both `USE FOR:` AND `WHEN:`      | 0 / 7        | **7 / 7**                                 |
+| Skills with `INVOKES:` MCP routing           | 0 / 7        | **2 / 7** (`azure-kusto`, `azure-quotas`) |
+| Skills using non-standard `DO NOT USE WHEN:` | 1 / 7        | 0 / 7 ✓                                   |
+| Skills near 1024-char spec limit             | 1 / 7 (1019) | 0 / 7 ✓                                   |
+| Net description-length delta                 | —            | -177 chars across 7 skills                |
+| Net token delta                              | —            | -19 tokens across 7 skills                |
 
 ### Critical fix confirmed
 

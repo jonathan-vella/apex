@@ -27,10 +27,7 @@ import path from "node:path";
 const REPO_ROOT = process.cwd();
 const SKILLS_DIR = path.join(REPO_ROOT, ".github/skills");
 const SENSEI_DIR = path.join(SKILLS_DIR, "sensei");
-const GEPA_SCRIPT = path.join(
-  SENSEI_DIR,
-  "scripts/src/gepa/auto_evaluator.py",
-);
+const GEPA_SCRIPT = path.join(SENSEI_DIR, "scripts/src/gepa/auto_evaluator.py");
 // Per-batch skill manifest (alphabetical) — must mirror the programme plan.
 // Single source of truth; if you change batches in the prompt file, change here too.
 const BATCHES = {
@@ -61,14 +58,7 @@ const BATCHES = {
     "docs-writer",
     "drawio",
   ],
-  4: [
-    "entra-app-registration",
-    "github-operations",
-    "golden-principles",
-    "iac-common",
-    "mermaid",
-    "microsoft-docs",
-  ],
+  4: ["entra-app-registration", "github-operations", "golden-principles", "iac-common", "mermaid", "microsoft-docs"],
   5: [
     "python-diagrams",
     "terraform-patterns",
@@ -88,9 +78,7 @@ function parseArgs(argv) {
     else if (a === "--all") args.all = true;
     else if (a === "--output") args.output = argv[++i];
     else if (a === "--help" || a === "-h") {
-      console.log(
-        "Usage: run-sensei-audit.mjs [--batch N | --skills a,b | --all] [--output file.json]",
-      );
+      console.log("Usage: run-sensei-audit.mjs [--batch N | --skills a,b | --all] [--output file.json]");
       process.exit(0);
     }
   }
@@ -115,16 +103,13 @@ function resolveTargets(args) {
 function countTokens(skillName) {
   // Use the sensei token CLI; it lives inside the submodule so cd into it.
   const skillMd = path.join("..", skillName, "SKILL.md");
-  const result = spawnSync(
-    "npm",
-    ["run", "tokens", "--silent", "--", "count", skillMd],
-    { cwd: SENSEI_DIR, encoding: "utf8" },
-  );
+  const result = spawnSync("npm", ["run", "tokens", "--silent", "--", "count", skillMd], {
+    cwd: SENSEI_DIR,
+    encoding: "utf8",
+  });
   if (result.status !== 0) return null;
   // Parse: "../azure-adr/SKILL.md      1786      7144     168"
-  const line = result.stdout
-    .split("\n")
-    .find((l) => l.includes(skillMd) && /\s+\d+\s+\d+\s+\d+\s*$/.test(l));
+  const line = result.stdout.split("\n").find((l) => l.includes(skillMd) && /\s+\d+\s+\d+\s+\d+\s*$/.test(l));
   if (!line) return null;
   const cols = line.trim().split(/\s+/);
   return {
@@ -138,17 +123,7 @@ function gepaScore(skillName) {
   // GEPA score subcommand is deterministic — no LLM calls, no gepa pkg needed.
   const result = spawnSync(
     "python3",
-    [
-      GEPA_SCRIPT,
-      "score",
-      "--skill",
-      skillName,
-      "--skills-dir",
-      ".github/skills",
-      "--tests-dir",
-      "tests",
-      "--json",
-    ],
+    [GEPA_SCRIPT, "score", "--skill", skillName, "--skills-dir", ".github/skills", "--tests-dir", "tests", "--json"],
     { cwd: REPO_ROOT, encoding: "utf8" },
   );
   if (result.status !== 0) {
@@ -186,9 +161,7 @@ function classifyAdherence(score, fmDescription) {
   const hasWhen = /\bWHEN:/i.test(fmDescription);
   const hasUseFor = /\bUSE FOR:/i.test(fmDescription);
   const hasInvokes = /\bINVOKES:/i.test(fmDescription);
-  const hasPrefix = /\*\*(WORKFLOW|UTILITY|ANALYSIS) SKILL\*\*/i.test(
-    fmDescription,
-  );
+  const hasPrefix = /\*\*(WORKFLOW|UTILITY|ANALYSIS) SKILL\*\*/i.test(fmDescription);
   if (!hasWhen && !hasUseFor) return "Low";
   if (wordCount > 60) return "Medium";
   if (hasInvokes && hasPrefix) return "High";

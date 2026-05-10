@@ -1,6 +1,6 @@
 ---
 name: drawio
-description: "**WORKFLOW SKILL** — Generate Azure architecture diagrams in .drawio format via the simonkurtz-MSFT MCP server (700+ Azure icons, batch creation, transactional mode). Covers architecture, dependency, runtime flow, and as-built diagrams. WHEN: \"draw.io diagram\", \"Azure architecture diagram\", \"as-built diagram\", \"runtime flow diagram\", \"dependency diagram\". USE FOR: production Azure architecture visuals, multi-resource layouts, design-stage and as-built artifacts. DO NOT USE FOR: WAF/cost charts (use python-diagrams), inline Mermaid (use mermaid). INVOKES: drawio MCP (search-shapes, add-cells, finish-diagram)."
+description: '**WORKFLOW SKILL** — Generate Azure architecture diagrams in .drawio format via the simonkurtz-MSFT MCP server (700+ Azure icons, batch creation, transactional mode). Covers architecture, dependency, runtime flow, and as-built diagrams. WHEN: "draw.io diagram", "Azure architecture diagram", "as-built diagram", "runtime flow diagram", "dependency diagram". USE FOR: production Azure architecture visuals, multi-resource layouts, design-stage and as-built artifacts. DO NOT USE FOR: WAF/cost charts (use python-diagrams), inline Mermaid (use mermaid). INVOKES: drawio MCP (search-shapes, add-cells, finish-diagram).'
 compatibility: Works with VS Code Copilot, Claude Code, and any MCP-compatible tool. Uses simonkurtz-MSFT/drawio-mcp-server configured in .vscode/mcp.json.
 license: MIT
 metadata:
@@ -178,19 +178,19 @@ validation checklist live in `references/validation-checklist.md`.
 
 ## Reference Index
 
-| File                                 | Purpose                                                 |
-| ------------------------------------ | ------------------------------------------------------- |
-| `references/style-reference.md`      | Draw.io style properties for AI-generated files         |
-| `references/azure-patterns.md`       | Reusable MCP tool call patterns for Azure architectures |
-| `references/validation-checklist.md` | Validation rules for AI-generated `.drawio` files       |
-| `references/abstraction-rules.md`    | Diagram abstraction and data-flow clarity rules         |
-| `references/iac-to-diagram.md`       | Generate diagrams from Bicep/Terraform/ARM templates    |
-| `references/quality-rubric.md`       | Canonical 0–4 quality rubric (7 dimensions, thresholds) |
-| `references/semantic-zones.md`       | Subscription / region / trust-boundary / external zone templates |
-| `references/diagram-types.md`        | Logical / network / sequence / deployment selection + signatures |
-| `references/legend-template.md`      | Copy-pasteable legend block (inline + two-column variants)         |
-| `references/icon-variants.md`        | Service tier / SKU disambiguation + single-batch contract         |
-| `references/large-architecture-decomposition.md` | Tier S/M/L/XL breakpoints, decomposition, density target |
+| File                                             | Purpose                                                          |
+| ------------------------------------------------ | ---------------------------------------------------------------- |
+| `references/style-reference.md`                  | Draw.io style properties for AI-generated files                  |
+| `references/azure-patterns.md`                   | Reusable MCP tool call patterns for Azure architectures          |
+| `references/validation-checklist.md`             | Validation rules for AI-generated `.drawio` files                |
+| `references/abstraction-rules.md`                | Diagram abstraction and data-flow clarity rules                  |
+| `references/iac-to-diagram.md`                   | Generate diagrams from Bicep/Terraform/ARM templates             |
+| `references/quality-rubric.md`                   | Canonical 0–4 quality rubric (7 dimensions, thresholds)          |
+| `references/semantic-zones.md`                   | Subscription / region / trust-boundary / external zone templates |
+| `references/diagram-types.md`                    | Logical / network / sequence / deployment selection + signatures |
+| `references/legend-template.md`                  | Copy-pasteable legend block (inline + two-column variants)       |
+| `references/icon-variants.md`                    | Service tier / SKU disambiguation + single-batch contract        |
+| `references/large-architecture-decomposition.md` | Tier S/M/L/XL breakpoints, decomposition, density target         |
 
 ### Quality Reference Examples
 

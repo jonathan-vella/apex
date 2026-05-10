@@ -123,8 +123,8 @@ When the user issues `update post-gepa` or per-skill `update <skill>`:
 ## Resolved considerations
 
 1. **GEPA `score`-mode is shared by both stages** — `tools/scripts/run-sensei-audit.mjs` calls GEPA `score` per skill on every Stage A batch run; `npm run audit:skills:gepa` calls GEPA `score-all` once across all 33 skills for Stage B. Same algorithm, different scope. The two stages differ in the **deliverable**:
-    - Stage A → per-batch report with proposed before/after diffs and recommended actions per skill.
-    - Stage B → single global report with cross-skill rankings, baseline-vs-current deltas, and aggregate trends.
+   - Stage A → per-batch report with proposed before/after diffs and recommended actions per skill.
+   - Stage B → single global report with cross-skill rankings, baseline-vs-current deltas, and aggregate trends.
 2. **No LLM dependency** — GEPA `score` and `score-all` are deterministic regex-based content checks. No API calls, no `gh auth token`, no `OPENAI_API_KEY`.
 3. **No test harness** — neither stage requires `tests/{skill}/triggers.test.ts`. The harness scaffolding work is removed from the plan entirely.
 4. **No `gepa` Python package** — the `score`/`score-all` subcommands use only Python stdlib + the regex-based content quality scorer in `auto_evaluator.py` from the upstream sensei submodule.

@@ -203,24 +203,24 @@ User issued `update batch 5`. All 6 proposed diffs applied. Validators all pass.
 
 ### Score deltas
 
-| Skill | GEPA Before | GEPA After | Δ |
-|---|---|---|---|
-| python-diagrams | 0.50 | **0.67** | +0.17 |
-| terraform-patterns | 0.50 | **0.67** | +0.17 |
-| terraform-search-import | 0.83 | **0.83** | 0 (already strong; gained prefix) |
-| terraform-test | 0.67 | **0.67** | 0 (already strong; gained prefix) |
-| vendor-prompting | 0.50 | **0.67** | +0.17 |
-| workflow-engine | 0.50 | **0.67** | +0.17 |
+| Skill                   | GEPA Before | GEPA After | Δ                                 |
+| ----------------------- | ----------- | ---------- | --------------------------------- |
+| python-diagrams         | 0.50        | **0.67**   | +0.17                             |
+| terraform-patterns      | 0.50        | **0.67**   | +0.17                             |
+| terraform-search-import | 0.83        | **0.83**   | 0 (already strong; gained prefix) |
+| terraform-test          | 0.67        | **0.67**   | 0 (already strong; gained prefix) |
+| vendor-prompting        | 0.50        | **0.67**   | +0.17                             |
+| workflow-engine         | 0.50        | **0.67**   | +0.17                             |
 
 ### Aggregate
 
-| Metric | Before | After |
-|---|---|---|
-| Skills passing GEPA ≥ 0.7 | 1 / 6 | **6 / 6** ✓ |
-| Skills passing GEPA ≥ 0.8 | 1 / 6 | **1 / 6** |
-| Skills with skill-type prefix | 0 / 6 | **6 / 6** |
-| Skills with both `USE FOR:` AND `WHEN:` | 2 / 6 | **6 / 6** |
-| Stale cross-references | 1 | **0** ✓ |
+| Metric                                  | Before | After       |
+| --------------------------------------- | ------ | ----------- |
+| Skills passing GEPA ≥ 0.7               | 1 / 6  | **6 / 6** ✓ |
+| Skills passing GEPA ≥ 0.8               | 1 / 6  | **1 / 6**   |
+| Skills with skill-type prefix           | 0 / 6  | **6 / 6**   |
+| Skills with both `USE FOR:` AND `WHEN:` | 2 / 6  | **6 / 6**   |
+| Stale cross-references                  | 1      | **0** ✓     |
 
 ### Critical fixes confirmed
 

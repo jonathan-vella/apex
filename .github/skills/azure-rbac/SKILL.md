@@ -1,12 +1,13 @@
 ---
 name: azure-rbac
-description: "**ANALYSIS SKILL** — Find the right Azure RBAC role for an identity with least-privilege access; generate CLI + Bicep code to assign it. WHEN: \"what role should I assign\", \"least privilege role\", \"RBAC role for\", \"role for managed identity\", \"custom role definition\", \"assign role to identity\". USE FOR: role discovery, RBAC scaffolding, least-privilege analysis. DO NOT USE FOR: deploying resources (use azure-deploy), security audits (use azure-compliance)."
+description: '**ANALYSIS SKILL** — Find the right Azure RBAC role for an identity with least-privilege access; generate CLI + Bicep code to assign it. WHEN: "what role should I assign", "least privilege role", "RBAC role for", "role for managed identity", "custom role definition", "assign role to identity". USE FOR: role discovery, RBAC scaffolding, least-privilege analysis. DO NOT USE FOR: deploying resources (use azure-deploy), security audits (use azure-compliance).'
 license: MIT
 metadata:
   author: Microsoft
   version: "1.0.1"
 ---
-Use the 'azure__documentation' tool to find the minimal role definition that matches the desired permissions the user wants to assign to an identity. If no built-in role matches the desired permissions, use the 'azure__extension_cli_generate' tool to create a custom role definition with the desired permissions. Then use the 'azure__extension_cli_generate' tool to generate the CLI commands needed to assign that role to the identity. Finally, use the 'azure__bicepschema' and 'azure__get_azure_bestpractices' tools to provide a Bicep code snippet for adding the role assignment. If user is asking about role necessary to set access, refer to Prerequisites for Granting Roles down below:
+
+Use the `azure__documentation` tool to find the minimal role definition that matches the desired permissions the user wants to assign to an identity. If no built-in role matches the desired permissions, use the `azure__extension_cli_generate` tool to create a custom role definition with the desired permissions. Then use the `azure__extension_cli_generate` tool to generate the CLI commands needed to assign that role to the identity. Finally, use the `azure__bicepschema` and `azure__get_azure_bestpractices` tools to provide a Bicep code snippet for adding the role assignment. If user is asking about role necessary to set access, refer to Prerequisites for Granting Roles down below:
 
 ## Prerequisites for Granting Roles
 

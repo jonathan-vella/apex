@@ -1,6 +1,6 @@
 ---
 name: azure-resources
-description: "**ANALYSIS SKILL** — List, find, and visualize existing Azure resources via Azure Resource Graph (LOOKUP) or Mermaid diagrams (VISUALIZE). WHEN: \"list resources\", \"list VMs\", \"find orphaned resources\", \"resource inventory\", \"cross-subscription query\", \"visualize Azure resources\", \"diagram my resources\". USE FOR: resource lookup, tag analysis, architecture visualization. DO NOT USE FOR: deploying resources (use azure-deploy), cost optimization (use azure-cost-optimization), security scanning (use azure-compliance), troubleshooting (use azure-diagnostics)."
+description: '**ANALYSIS SKILL** — List, find, and visualize existing Azure resources via Azure Resource Graph (LOOKUP) or Mermaid diagrams (VISUALIZE). WHEN: "list resources", "list VMs", "find orphaned resources", "resource inventory", "cross-subscription query", "visualize Azure resources", "diagram my resources". USE FOR: resource lookup, tag analysis, architecture visualization. DO NOT USE FOR: deploying resources (use azure-deploy), cost optimization (use azure-cost-optimization), security scanning (use azure-compliance), troubleshooting (use azure-diagnostics).'
 license: MIT
 metadata:
   author: Microsoft
@@ -42,21 +42,21 @@ Use this mode when the user wants to **list / find / show** Azure resources.
 
 ## Quick Reference
 
-| Property           | Value                                                     |
-| ------------------ | --------------------------------------------------------- |
-| **Query Language** | KQL (Kusto Query Language subset)                         |
-| **CLI Command**    | `az graph query -q "<KQL>" -o table`                      |
-| **Extension**      | `az extension add --name resource-graph`                  |
-| **MCP Tool**       | `extension_cli_generate` with intent for `az graph query` |
+| Property           | Value                                                      |
+| ------------------ | ---------------------------------------------------------- |
+| **Query Language** | KQL (Kusto Query Language subset)                          |
+| **CLI Command**    | `az graph query -q "<KQL>" -o table`                       |
+| **Extension**      | `az extension add --name resource-graph`                   |
+| **MCP Tool**       | `extension_cli_generate` with intent for `az graph query`  |
 | **Best For**       | Cross-subscription queries, orphaned resources, tag audits |
 
 ## MCP Tools
 
-| Tool                              | Purpose                            | When to Use                                              |
-| --------------------------------- | ---------------------------------- | -------------------------------------------------------- |
-| `extension_cli_generate`          | Generate `az graph query` commands | Primary — generate ARG queries from user intent          |
-| `mcp_azure_mcp_subscription_list` | List available subscriptions       | Discover subscription scope before querying              |
-| `mcp_azure_mcp_group_list`        | List resource groups               | Narrow query scope                                        |
+| Tool                              | Purpose                            | When to Use                                     |
+| --------------------------------- | ---------------------------------- | ----------------------------------------------- |
+| `extension_cli_generate`          | Generate `az graph query` commands | Primary — generate ARG queries from user intent |
+| `mcp_azure_mcp_subscription_list` | List available subscriptions       | Discover subscription scope before querying     |
+| `mcp_azure_mcp_group_list`        | List resource groups               | Narrow query scope                              |
 
 ## Lookup Workflow
 
@@ -64,19 +64,19 @@ Use this mode when the user wants to **list / find / show** Azure resources.
 
 For single-resource-type queries, check if a dedicated MCP tool can handle it:
 
-| Resource Type         | MCP Tool      | Coverage                                |
-| --------------------- | ------------- | --------------------------------------- |
-| Virtual Machines      | `compute`     | ✅ Full — list, details, sizes          |
-| Storage Accounts      | `storage`     | ✅ Full — accounts, blobs, tables       |
-| Cosmos DB             | `cosmos`      | ✅ Full — accounts, databases, queries  |
-| Key Vault             | `keyvault`    | ⚠️ Partial — secrets/keys only          |
-| SQL Databases         | `sql`         | ⚠️ Partial — requires resource group     |
-| Container Registries  | `acr`         | ✅ Full — list registries               |
-| Kubernetes (AKS)      | `aks`         | ✅ Full — clusters, node pools          |
-| App Service / Web Apps | `appservice` | ❌ No list command — use ARG            |
-| Container Apps        | —             | ❌ No MCP tool — use ARG                |
-| Event Hubs            | `eventhubs`   | ✅ Full — namespaces, hubs              |
-| Service Bus           | `servicebus`  | ✅ Full — queues, topics                |
+| Resource Type          | MCP Tool     | Coverage                               |
+| ---------------------- | ------------ | -------------------------------------- |
+| Virtual Machines       | `compute`    | ✅ Full — list, details, sizes         |
+| Storage Accounts       | `storage`    | ✅ Full — accounts, blobs, tables      |
+| Cosmos DB              | `cosmos`     | ✅ Full — accounts, databases, queries |
+| Key Vault              | `keyvault`   | ⚠️ Partial — secrets/keys only         |
+| SQL Databases          | `sql`        | ⚠️ Partial — requires resource group   |
+| Container Registries   | `acr`        | ✅ Full — list registries              |
+| Kubernetes (AKS)       | `aks`        | ✅ Full — clusters, node pools         |
+| App Service / Web Apps | `appservice` | ❌ No list command — use ARG           |
+| Container Apps         | —            | ❌ No MCP tool — use ARG               |
+| Event Hubs             | `eventhubs`  | ✅ Full — namespaces, hubs             |
+| Service Bus            | `servicebus` | ✅ Full — queues, topics               |
 
 If a dedicated tool is available with full coverage, use it. Otherwise proceed to Step 2.
 
@@ -112,12 +112,12 @@ Use `--first N` to limit results. Use `--subscriptions` to scope.
 
 ## Lookup Error Handling
 
-| Error                                | Cause                          | Fix                                                            |
-| ------------------------------------ | ------------------------------ | -------------------------------------------------------------- |
-| `resource-graph extension not found` | Extension not installed        | `az extension add --name resource-graph`                       |
-| `AuthorizationFailed`                | No read access to subscription | Check RBAC — need Reader role                                  |
-| `BadRequest` on query                | Invalid KQL syntax             | Verify table/column names; use `=~` for case-insensitive match |
-| Empty results                        | No matching resources or wrong scope | Check `--subscriptions` flag; verify resource type spelling |
+| Error                                | Cause                                | Fix                                                            |
+| ------------------------------------ | ------------------------------------ | -------------------------------------------------------------- |
+| `resource-graph extension not found` | Extension not installed              | `az extension add --name resource-graph`                       |
+| `AuthorizationFailed`                | No read access to subscription       | Check RBAC — need Reader role                                  |
+| `BadRequest` on query                | Invalid KQL syntax                   | Verify table/column names; use `=~` for case-insensitive match |
+| Empty results                        | No matching resources or wrong scope | Check `--subscriptions` flag; verify resource type spelling    |
 
 ---
 
@@ -272,8 +272,8 @@ and create a markdown file named `[resource-group-name]-architecture.md` with:
 
 Load these on demand — do NOT read all at once:
 
-| Reference                            | Mode      | When to Load                                         |
-| ------------------------------------ | --------- | ---------------------------------------------------- |
-| `references/azure-resource-graph.md` | Both      | KQL patterns, ARG query examples                     |
-| `assets/example-diagram.md`          | Visualize | Sample completed Mermaid architecture diagram        |
-| `assets/template-architecture.md`    | Visualize | Markdown template for the generated documentation   |
+| Reference                            | Mode      | When to Load                                      |
+| ------------------------------------ | --------- | ------------------------------------------------- |
+| `references/azure-resource-graph.md` | Both      | KQL patterns, ARG query examples                  |
+| `assets/example-diagram.md`          | Visualize | Sample completed Mermaid architecture diagram     |
+| `assets/template-architecture.md`    | Visualize | Markdown template for the generated documentation |

@@ -1,6 +1,6 @@
 ---
 name: context-management
-description: "**UTILITY SKILL** — Two-mode context window management for agents. RUNTIME mode: tier-based compression (full/summarized/minimal) used by orchestrator and codegen agents before loading large artifacts. AUDIT mode: post-mortem analysis of Copilot debug logs, token profiling, redundancy detection, and hand-off gap analysis used by the 11-Context Optimizer agent. WHEN: \"context optimization\", \"token budget management\", \"runtime compression\", \"log parsing\", \"redundancy detection\". USE FOR: context optimization, token budget management, runtime compression, log parsing, redundancy detection. DO NOT USE FOR: Azure infrastructure, Bicep/Terraform code, architecture design, deployments."
+description: '**UTILITY SKILL** — Two-mode context window management for agents. RUNTIME mode: tier-based compression (full/summarized/minimal) used by orchestrator and codegen agents before loading large artifacts. AUDIT mode: post-mortem analysis of Copilot debug logs, token profiling, redundancy detection, and hand-off gap analysis used by the 11-Context Optimizer agent. WHEN: "context optimization", "token budget management", "runtime compression", "log parsing", "redundancy detection". USE FOR: context optimization, token budget management, runtime compression, log parsing, redundancy detection. DO NOT USE FOR: Azure infrastructure, Bicep/Terraform code, architecture design, deployments.'
 compatibility: Audit mode requires Python 3.14 for log parser script
 ---
 
@@ -9,9 +9,9 @@ compatibility: Audit mode requires Python 3.14 for log parser script
 Unified context window management for agents in this repository. Covers two
 distinct lifecycles:
 
-- **Runtime Compression** — what an agent does *before loading* a large artifact
+- **Runtime Compression** — what an agent does _before loading_ a large artifact
   to stay under the model context limit (used during workflow execution).
-- **Diagnostic Audit** — what the 11-Context Optimizer agent does *after the fact*
+- **Diagnostic Audit** — what the 11-Context Optimizer agent does _after the fact_
   to find waste in agent definitions, instructions, and skill loads.
 
 Pick the section that matches your need. The two modes do not depend on each
@@ -163,10 +163,10 @@ The audit mode contains **no project-specific logic**. To use in another project
 
 Load these on demand — do NOT read all at once:
 
-| Reference                            | Mode    | When to Load                                                               |
-| ------------------------------------ | ------- | -------------------------------------------------------------------------- |
+| Reference                             | Mode    | When to Load                                                               |
+| ------------------------------------- | ------- | -------------------------------------------------------------------------- |
 | `references/compression-templates.md` | Runtime | Per-artifact H2 sections per tier                                          |
-| `references/token-estimation.md`     | Audit   | When estimating token counts for context optimization                      |
-| `references/analysis-methodology.md` | Audit   | Log format, 5-step methodology, optimization patterns, baseline comparison |
-| `scripts/parse-chat-logs.py`         | Audit   | Log parser producing structured JSON                                       |
-| `templates/optimization-report.md`   | Audit   | Report output template                                                     |
+| `references/token-estimation.md`      | Audit   | When estimating token counts for context optimization                      |
+| `references/analysis-methodology.md`  | Audit   | Log format, 5-step methodology, optimization patterns, baseline comparison |
+| `scripts/parse-chat-logs.py`          | Audit   | Log parser producing structured JSON                                       |
+| `templates/optimization-report.md`    | Audit   | Report output template                                                     |

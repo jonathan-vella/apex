@@ -1,6 +1,6 @@
 ---
 name: azure-compute
-description: "**ANALYSIS SKILL** — Recommend Azure VM sizes and Scale Sets (VMSS) for workload requirements, performance, and budget. Uses public docs and the Azure Retail Prices API. WHEN: \"recommend VM size\", \"choose Azure VM\", \"GPU VM\", \"compare VM sizes\", \"VMSS vs VM\", \"autoscale VMs\". USE FOR: VM family selection, VMSS sizing, confidential computing recommendations. DO NOT USE FOR: provisioning VMs (use azure-prepare), VM pricing for budgets (use azure-pricing MCP directly)."
+description: '**ANALYSIS SKILL** — Recommend Azure VM sizes and Scale Sets (VMSS) for workload requirements, performance, and budget. Uses public docs and the Azure Retail Prices API. WHEN: "recommend VM size", "choose Azure VM", "GPU VM", "compare VM sizes", "VMSS vs VM", "autoscale VMs". USE FOR: VM family selection, VMSS sizing, confidential computing recommendations. DO NOT USE FOR: provisioning VMs (use azure-prepare), VM pricing for budgets (use azure-pricing MCP directly).'
 license: MIT
 metadata:
   author: Microsoft
@@ -91,16 +91,18 @@ Needs autoscaling?
 
 1. Review [VM Family Guide](references/vm-families.md) to identify 2-3 candidate VM families that match the workload requirements
 2. **REQUIRED: verify specifications** for your chosen candidates by fetching current documentation:
+
    ```bash
    web_fetch https://learn.microsoft.com/en-us/azure/virtual-machines/sizes/<family-category>/<series-name>
    ```
-   
+
    Examples:
    - B-series: `https://learn.microsoft.com/en-us/azure/virtual-machines/sizes/general-purpose/b-family`
    - D-series: `https://learn.microsoft.com/en-us/azure/virtual-machines/sizes/general-purpose/ddsv5-series`
    - GPU: `https://learn.microsoft.com/en-us/azure/virtual-machines/sizes/gpu-accelerated/nc-family`
 
 3. **If considering Spot VMs**, also fetch:
+
    ```bash
    web_fetch https://learn.microsoft.com/en-us/azure/virtual-machine-scale-sets/use-spot
    ```
@@ -130,9 +132,10 @@ Provide **2–3 options** with trade-offs:
 | Why            | Fit for the workload                            |
 | Trade-off      | What the user gives up                          |
 
-> **Tip:** Always explain *why* a family fits and what the user trades off (cost vs cores, burstable vs dedicated, single VM simplicity vs VMSS scalability, etc.).
+> **Tip:** Always explain _why_ a family fits and what the user trades off (cost vs cores, burstable vs dedicated, single VM simplicity vs VMSS scalability, etc.).
 
 For VMSS recommendations, also mention:
+
 - Recommended orchestration mode (Flexible for most new workloads)
 - Autoscale strategy (metric-based, schedule-based, or both)
 - Load balancer type (Azure Load Balancer for L4, Application Gateway for L7/TLS)
@@ -163,8 +166,8 @@ For VMSS recommendations, also mention:
 
 Load these on demand — do NOT read all at once:
 
-| Reference | When to Load |
-| --------- | ------------ |
+| Reference                         | When to Load      |
+| --------------------------------- | ----------------- |
 | `references/retail-prices-api.md` | Retail Prices Api |
-| `references/vm-families.md` | Vm Families |
-| `references/vmss-guide.md` | Vmss Guide |
+| `references/vm-families.md`       | Vm Families       |
+| `references/vmss-guide.md`        | Vmss Guide        |
