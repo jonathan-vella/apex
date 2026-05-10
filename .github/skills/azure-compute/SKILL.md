@@ -1,6 +1,6 @@
 ---
 name: azure-compute
-description: "Recommend Azure VM sizes, VM Scale Sets (VMSS), and configurations based on workload requirements, performance needs, and budget constraints. No Azure account required — uses public documentation and the Azure Retail Prices API. WHEN: recommend VM size, which VM should I use, choose Azure VM, VM for web/database/ML/batch/HPC, GPU VM, compare VM sizes, cheapest VM, best VM for workload, VM pricing, cost estimate, burstable/compute/memory/storage optimized VM, confidential computing, VM trade-offs, VM families, VMSS, scale set recommendation, autoscale VMs, load balanced VMs, VMSS vs VM, scale out, horizontal scaling, flexible orchestration."
+description: "**ANALYSIS SKILL** — Recommend Azure VM sizes and Scale Sets (VMSS) for workload requirements, performance, and budget. Uses public docs and the Azure Retail Prices API. WHEN: \"recommend VM size\", \"choose Azure VM\", \"GPU VM\", \"compare VM sizes\", \"VMSS vs VM\", \"autoscale VMs\". USE FOR: VM family selection, VMSS sizing, confidential computing recommendations. DO NOT USE FOR: provisioning VMs (use azure-prepare), VM pricing for budgets (use azure-pricing MCP directly)."
 license: MIT
 metadata:
   author: Microsoft

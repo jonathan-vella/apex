@@ -1,6 +1,6 @@
 ---
 name: azure-compliance
-description: "Comprehensive Azure compliance and security auditing capabilities including best practices assessment, Key Vault expiration monitoring, and resource configuration validation. WHEN: compliance scan, security audit, BEFORE running azqr (compliance cli tool), Azure best practices, Key Vault expiration check, compliance assessment, resource review, configuration validation, expired certificates, expiring secrets, orphaned resources, policy compliance, security posture evaluation."
+description: "**ANALYSIS SKILL** — Azure compliance and security auditing: best practices, Key Vault expiration monitoring, resource validation. WHEN: \"compliance scan\", \"security audit\", \"Key Vault expiration check\", \"expired certificates\", \"orphaned resources\". USE FOR: pre-azqr compliance assessment, Key Vault audits, security posture evaluation. DO NOT USE FOR: cost analysis (use azure-cost-optimization), governance discovery (use azure-governance-discovery)."
 license: MIT
 metadata:
   author: Microsoft

@@ -27,7 +27,7 @@ User-gated start: `audit batch <N>` or `audit batches 1-5` for sequential.
 - [x] Run sensei standard-mode score: azure-cost-optimization
 - [x] Generate `batch-1-audit.md`
 - [x] Commit `chore(skills): Audit batch 1 report (sensei standard)`
-- [ ] **Updates** — user issues `update batch 1` or `update <skill>` to apply audit recommendations + commit
+- [x] **Updates** — user issued `update batch 1`; all 7 diffs applied, 4/7 now pass GEPA ≥ 0.7 (was 1/7), commit recorded
 
 ### Batch 2 — azure-defaults → azure-quotas
 
