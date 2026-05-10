@@ -230,6 +230,14 @@ User triggers: `optimize batch <N>` or `optimize <skill>`. Prerequisite: Stage 4
 > Reference Index, SDK References) because GEPA's fitness function doesn't probe them.
 > Candidate rolled back; SHA `81a6ac46` restored. **0 / 33 skills accepted; 1 / 33 evaluated and rejected.**
 > See [`04-gepa-optimize.md`](./04-gepa-optimize.md). Awaiting user direction.
+>
+> **Stage 5-Audit added (2026-05-10)**: deterministic structural-regression detector
+> [`tools/scripts/audit-gepa-candidate.mjs`](../../../tools/scripts/audit-gepa-candidate.mjs)
+> with 7 rules (3 REJECT, 4 REVIEW) — calibrated against the rejected `azure-prepare`
+> snapshot, correctly returns `REJECT` with the exact regression set we manually identified
+> (5 H2 losses, 7 reference orphans, `azure-cloud-migrate` hand-off lost). Audit mode never
+> writes to `.github/skills/{skill}/SKILL.md`; awaiting `audit batch <N>` or `audit <skill>`
+> to run a per-skill audit pass and append verdicts to `04-gepa-optimize.md`.
 
 ### Stage 6 — Final cross-skill report
 
