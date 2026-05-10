@@ -11,40 +11,14 @@ metadata:
 
 Execute KQL queries and manage Azure Data Explorer resources for fast, scalable big data analytics on log, telemetry, and time series data.
 
-## Skill Activation Triggers
-
-**Use this skill immediately when the user asks to:**
-
-- "Query my Kusto database for [data pattern]"
-- "Show me events in the last hour from Azure Data Explorer"
-- "Analyze logs in my ADX cluster"
-- "Run a KQL query on [database]"
-- "What tables are in my Kusto database?"
-- "Show me the schema for [table]"
-- "List my Azure Data Explorer clusters"
-- "Aggregate telemetry data by [dimension]"
-- "Create a time series chart from my logs"
-
-**Key Indicators:**
-
-- Mentions "Kusto", "Azure Data Explorer", "ADX", or "KQL"
-- Log analytics or telemetry analysis requests
-- Time series data exploration
-- IoT data analysis queries
-- SIEM or security analytics tasks
-- Requests for data aggregation on large datasets
-- Performance monitoring or APM queries
+> **When to use**: see the `WHEN:` and `USE FOR:` triggers in the frontmatter `description`. The same triggers feed Copilot's skill-routing — duplicating them in the body adds tokens without adding signal.
 
 ## Overview
 
-This skill enables querying and managing Azure Data Explorer (Kusto), a fast and highly scalable data exploration service optimized for log and telemetry data. Azure Data Explorer provides sub-second query performance on billions of records using the Kusto Query Language (KQL).
-
-Key capabilities:
-
-- **Query Execution**: Run KQL queries against massive datasets
-- **Schema Exploration**: Discover tables, columns, and data types
-- **Resource Management**: List clusters and databases
-- **Analytics**: Aggregations, time series, anomaly detection, machine learning
+Azure Data Explorer (Kusto) provides sub-second query performance on billions of records using
+the Kusto Query Language (KQL). This skill covers query execution, schema exploration,
+resource management (cluster/database listing), and analytics patterns (aggregation, time
+series, anomaly detection).
 
 ## Steps
 

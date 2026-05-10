@@ -70,46 +70,13 @@ After the specialized skill completes, resume at Phase 1 Step 4 (Select Recipe).
 
 ## Steps
 
-Two-phase workflow (full detail in [Phase 1: Planning](#phase-1-planning-blocking--complete-before-any-execution) and [Phase 2: Execution](#phase-2-execution-only-after-plan-approval) below):
+Two-phase workflow (full step tables in [`references/phases.md`](references/phases.md)):
 
 1. **Step 0** — Specialized Technology Check (route to `azure-cloud-migrate`, `azure-hosted-copilot-sdk`, etc., before continuing)
 2. **Phase 1 (Planning, BLOCKING)** — Analyze workspace → gather requirements → scan codebase → select recipe (AZD/AZCLI/Bicep/Terraform) → plan architecture → write `infra/{iac}/{project}/.azure/plan.md` → present plan + ask for approval
 3. **⛔ Approval gate** — do NOT proceed until the user approves the plan
 4. **Phase 2 (Execution, post-approval)** — Research components → confirm Azure context → generate artifacts → harden security → mark plan `Ready for Validation`
 5. **Hand off to `azure-validate`** — prerequisite: plan status is `Ready for Validation`. Deployment of the validated artifacts is `azure-deploy`'s job.
-
-## Phase 1: Planning (BLOCKING — Complete Before Any Execution)
-
-Create `infra/{iac}/{project}/.azure/plan.md` by completing these steps. Do NOT generate any artifacts until the plan is approved.
-
-| #   | Action                                                           | Reference                                                   |
-| --- | ---------------------------------------------------------------- | ----------------------------------------------------------- |
-| 0   | **Specialized Tech Check** — see Step 0 above                    | [specialized-routing.md](references/specialized-routing.md) |
-| 1   | **Analyze Workspace** — NEW, MODIFY, or MODERNIZE                | [analyze.md](references/analyze.md)                         |
-| 2   | **Gather Requirements** — classification, scale, budget          | [requirements.md](references/requirements.md)               |
-| 3   | **Scan Codebase** — components, technologies, dependencies       | [scan.md](references/scan.md)                               |
-| 4   | **Select Recipe** — AZD (default), AZCLI, Bicep, or Terraform    | [recipe-selection.md](references/recipe-selection.md)       |
-| 5   | **Plan Architecture** — stack + Azure service mapping            | [architecture.md](references/architecture.md)               |
-| 6   | **Write Plan** — populate `infra/{iac}/{project}/.azure/plan.md` | [plan-template.md](references/plan-template.md)             |
-| 7   | **Present Plan** — show plan + ask for approval                  | `infra/{iac}/{project}/.azure/plan.md`                      |
-| 8   | **Destructive actions require `ask_user`**                       | [Global Rules](references/global-rules.md)                  |
-
-> **❌ STOP** — do NOT proceed to Phase 2 until the user approves the plan.
-
----
-
-## Phase 2: Execution (Only After Plan Approval)
-
-Update `infra/{iac}/{project}/.azure/plan.md` status after each step.
-
-| #   | Action                                                                                                                 | Reference                                       |
-| --- | ---------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
-| 1   | **Research Components** — load service references + invoke related skills                                              | [research.md](references/research.md)           |
-| 2   | **Confirm Azure Context** — subscription + location + provisioning limits                                              | [azure-context.md](references/azure-context.md) |
-| 3   | **Generate Artifacts** — infrastructure + config files                                                                 | [generate.md](references/generate.md)           |
-| 4   | **Harden Security** — apply security best practices                                                                    | [security.md](references/security.md)           |
-| 5   | **⛔ Update plan status to `Ready for Validation`** (mandatory before hand-off; use the `edit` tool)                   | `infra/{iac}/{project}/.azure/plan.md`          |
-| 6   | **⚠️ Hand off** — invoke **azure-validate**. Prerequisite: Step 5 complete. Deployment is handled by **azure-deploy**. | —                                               |
 
 ---
 

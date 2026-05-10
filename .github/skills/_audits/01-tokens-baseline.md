@@ -221,3 +221,43 @@ heuristic savings (~25 tokens each) were below the noise floor and skipped.
 | `npm run validate:agents` | ✅ pass (incl. workflow-handoffs and registry shape) |
 | `npm run lint:vendor-prompting` | ✅ pass (48 prompts/agents) |
 | `tokens check` (repo-root limits) | ✅ 33 / 33 within limits |
+
+## Stage 2 — Token squeeze (batch 2)
+
+**Trigger**: `tokens squeeze batch 2` (2026-05-10).
+**Skills**: `azure-defaults`, `azure-deploy`, `azure-diagnostics`,
+`azure-governance-discovery`, `azure-kusto`, `azure-prepare`, `azure-quotas`.
+
+### Relocations
+
+| Skill | Section moved | New reference file |
+| --- | --- | --- |
+| `azure-prepare` | `## Phase 1: Planning` + `## Phase 2: Execution` (full step tables, ~50 lines) | [`references/phases.md`](../azure-prepare/references/phases.md) |
+| `azure-defaults` | Deprecated services table (~14 lines) | [`references/deprecated-services.md`](../azure-defaults/references/deprecated-services.md) |
+| `azure-kusto` | `## Skill Activation Triggers` (24 lines) — duplicated frontmatter `WHEN:`; collapsed `## Overview` (11 lines → 5 lines) | inline trim only |
+
+`azure-deploy`, `azure-diagnostics`, `azure-governance-discovery`, `azure-quotas`
+were already well-shaped after Plan 1 Round 2 (1,323–2,034 tokens, all under their
+soft limits) and had no high-value relocation candidates.
+
+### Per-skill token deltas
+
+| Skill | Before | After | Δ | Δ% |
+| --- | ---: | ---: | ---: | ---: |
+| `azure-defaults` | 2,591 | 2,421 | -170 | -6.6% |
+| `azure-deploy` | 2,034 | 2,034 | 0 | 0.0% |
+| `azure-diagnostics` | 1,323 | 1,323 | 0 | 0.0% |
+| `azure-governance-discovery` | 1,822 | 1,822 | 0 | 0.0% |
+| `azure-kusto` | 1,835 | 1,625 | -210 | -11.4% |
+| `azure-prepare` | 2,482 | 1,622 | -860 | -34.6% |
+| `azure-quotas` | 1,906 | 1,906 | 0 | 0.0% |
+| **Batch 2 totals** | **13,993** | **12,753** | **-1,240** | **-8.9%** |
+
+### Validators
+
+| Validator | Status |
+| --- | --- |
+| `npm run validate:skills` | ✅ pass (34 skills, 0 errors, 0 warnings) |
+| `npm run validate:agents` | ✅ pass |
+| `npm run lint:vendor-prompting` | ✅ pass |
+| `tokens check` (repo-root limits) | ✅ 33 / 33 within limits |
