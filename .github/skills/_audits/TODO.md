@@ -44,39 +44,39 @@ User-gated start: `audit batch <N>` or `audit batches 1-5` for sequential.
 
 ### Batch 3 — azure-rbac → drawio
 
-- [ ] Run sensei standard-mode score: azure-rbac
-- [ ] Run sensei standard-mode score: azure-resources
-- [ ] Run sensei standard-mode score: azure-storage
-- [ ] Run sensei standard-mode score: azure-validate
-- [ ] Run sensei standard-mode score: context-management
-- [ ] Run sensei standard-mode score: docs-writer
-- [ ] Run sensei standard-mode score: drawio
-- [ ] Generate `batch-3-audit.md`
-- [ ] Commit `chore(skills): Audit batch 3 report (sensei standard)`
+- [x] Run sensei standard-mode score: azure-rbac
+- [x] Run sensei standard-mode score: azure-resources
+- [x] Run sensei standard-mode score: azure-storage
+- [x] Run sensei standard-mode score: azure-validate
+- [x] Run sensei standard-mode score: context-management
+- [x] Run sensei standard-mode score: docs-writer
+- [x] Run sensei standard-mode score: drawio
+- [x] Generate `batch-3-audit.md`
+- [x] Commit `chore(skills): Audit batch 3 report (sensei standard)`
 - [ ] **Updates** — user issues `update batch 3` or `update <skill>` to apply audit recommendations + commit
 
 ### Batch 4 — entra-app-registration → microsoft-docs
 
-- [ ] Run sensei standard-mode score: entra-app-registration
-- [ ] Run sensei standard-mode score: github-operations
-- [ ] Run sensei standard-mode score: golden-principles
-- [ ] Run sensei standard-mode score: iac-common
-- [ ] Run sensei standard-mode score: mermaid
-- [ ] Run sensei standard-mode score: microsoft-docs
-- [ ] Generate `batch-4-audit.md`
-- [ ] Commit `chore(skills): Audit batch 4 report (sensei standard)`
+- [x] Run sensei standard-mode score: entra-app-registration
+- [x] Run sensei standard-mode score: github-operations
+- [x] Run sensei standard-mode score: golden-principles
+- [x] Run sensei standard-mode score: iac-common
+- [x] Run sensei standard-mode score: mermaid
+- [x] Run sensei standard-mode score: microsoft-docs
+- [x] Generate `batch-4-audit.md`
+- [x] Commit `chore(skills): Audit batch 4 report (sensei standard)`
 - [ ] **Updates** — user issues `update batch 4` or `update <skill>` to apply audit recommendations + commit
 
 ### Batch 5 — python-diagrams → workflow-engine
 
-- [ ] Run sensei standard-mode score: python-diagrams
-- [ ] Run sensei standard-mode score: terraform-patterns
-- [ ] Run sensei standard-mode score: terraform-search-import
-- [ ] Run sensei standard-mode score: terraform-test
-- [ ] Run sensei standard-mode score: vendor-prompting
-- [ ] Run sensei standard-mode score: workflow-engine
-- [ ] Generate `batch-5-audit.md`
-- [ ] Commit `chore(skills): Audit batch 5 report (sensei standard)`
+- [x] Run sensei standard-mode score: python-diagrams
+- [x] Run sensei standard-mode score: terraform-patterns
+- [x] Run sensei standard-mode score: terraform-search-import
+- [x] Run sensei standard-mode score: terraform-test
+- [x] Run sensei standard-mode score: vendor-prompting
+- [x] Run sensei standard-mode score: workflow-engine
+- [x] Generate `batch-5-audit.md`
+- [x] Commit `chore(skills): Audit batch 5 report (sensei standard)`
 - [ ] **Updates** — user issues `update batch 5` or `update <skill>` to apply audit recommendations + commit
 
 ## Stage B — GEPA-mode audit (single global pass, read-only)
