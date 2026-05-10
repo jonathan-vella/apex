@@ -1,0 +1,520 @@
+Iteration 0: Base program full valset score: 0.9166666666666666 over 48 / 48 examples
+Iteration 1: Selected program 0 score: 0.9166666666666666
+Iteration 1: Proposed new text for current_candidate: ---
+name: azure-adr
+description: '**ANALYSIS SKILL** — Drafts Azure Architecture Decision Records (ADRs) for Azure solutions with Well‑Architected Framework (WAF) pillar mapping, alternatives, and consequences. WHEN: create ADR; document decision; architecture decision record; record rationale/why we chose; WAF pillar justification; trade‑off analysis; design ADR (step 3); as‑built ADR (step 7); capture deviations between proposed and implemented. Outputs markdown ADRs with correct naming and status for design or as‑built phases.'
+compatibility: Works with GitHub Copilot, Claude Code, VS Code, and any Agent Skills compatible tool; no external dependencies required.
+license: MIT
+metadata:
+  author: jonathan-vella
+  version: "1.1"
+  category: document-creation
+---
+
+# Azure Architecture Decision Records (ADR)
+
+Create formal, consistent ADRs for significant Azure architecture decisions, including WAF pillar impacts, considered alternatives, consequences, and implementation notes.
+
+## Rules
+
+- Scope: One significant architectural decision per ADR.
+- Phases:
+  - Design ADRs: planning/proposal stage, status "Proposed".
+  - As‑built ADRs: implemented decisions, status "Accepted".
+- Alternatives: Document at least 2–3 options with rejection reasons.
+- WAF mapping: Assess impact across all pillars (Reliability, Security, Cost Optimization, Operational Excellence, Performance Efficiency).
+- Traceability: Link to requirements, assumptions, risks, and related ADRs.
+- Concision: Target a 5‑minute read; move details to references if needed.
+- Not for: IaC code authoring, visualization, or pricing exercises; hand off to the appropriate specialized skills or tools.
+
+## Steps
+
+1. Prepare inputs
+   - Problem/goal statement and decision drivers.
+   - Candidate options and constraints.
+   - Stakeholders and reviewers.
+   - Evidence (benchmarks, tests, assessments).
+
+2. Select ADR type and filename
+   - Design prefix: `03-des-adr-`.
+   - As‑built prefix: `07-ab-adr-`.
+   - Sequence: next 4‑digit number per project (e.g., 0001).
+   - Title slug: lowercase, hyphenated (e.g., `use-cosmos-db-for-state`).
+   - Path: `agent-output/{project}/{prefix}{NNNN}-{title}.md`.
+
+3. Draft the ADR (recommended sections)
+   - Title, Status, Date, Owners/Reviewers.
+   - Context and decision drivers.
+   - Decision (clear, imperative statement).
+   - Options considered (2–3+) with pros/cons and rejection reasons.
+   - WAF pillar impact analysis (all pillars; note trade‑offs).
+   - Consequences (positive and negative).
+   - Implementation notes (scope, rollout, dependencies, guardrails).
+   - Links and references (requirements, assessments, tests, related ADRs).
+
+4. Validate quality
+   - Filename and numbering are correct and unique.
+   - Status and date are set appropriately.
+   - Decision is unambiguous; context is sufficient for a new reader.
+   - At least one positive and one negative consequence are listed.
+   - All WAF pillars are addressed (even if “minimal impact”).
+   - Alternatives are complete with explicit rejection reasons.
+
+5. Save and cross‑link
+   - Write the ADR to the project output path.
+   - Link this ADR from related ADRs and design docs.
+   - For as‑built ADRs that differ from design, call out deviations in Implementation notes.
+
+## Output Conventions
+
+- Directory: `agent-output/{project}/`
+- Filenames:
+  - Design: `03-des-adr-NNNN-{short-title}.md` (Status: Proposed)
+  - As‑built: `07-ab-adr-NNNN-{short-title}.md` (Status: Accepted)
+- Numbering: Increment per project; no gaps if possible.
+
+## Quality Checklist
+
+- Sequential number and correct prefix.
+- Status reflects phase; date in YYYY-MM-DD.
+- Clear problem framing and decision statement.
+- 2–3+ alternatives with rejection reasons.
+- WAF analysis covers all pillars and trade‑offs.
+- Consequences include upside and downside.
+- Implementation notes provide actionable guidance.
+- References and links to sources and related ADRs.
+
+## Guardrails and References
+
+- Guardrails: `references/guardrails.md` (do/don’t rules, anti‑patterns).
+- Template: `references/adr-template.md` (full section guidance).
+- Load references on demand; do not preload large files.
+
+## MCP Tools
+
+- filesystem:
+  - list/read existing ADRs to determine next sequence number.
+  - write the new ADR file to `agent-output/{project}/`.
+- datetime (or runtime clock):
+  - set current date in ADR header.
+- optional text/slug utility (or inline logic):
+  - generate `{short-title}` from the decision statement.
+- If filesystem or slug utilities are unavailable, request the next ADR number and provide the filename draft inline for manual save.
+Iteration 1: New subsample score 2.625 is not better than old score 2.75, skipping
+Iteration 2: Selected program 0 score: 0.9166666666666666
+Iteration 2: Proposed new text for current_candidate: ---
+name: azure-adr
+description: 'ANALYSIS SKILL — Drafts Azure Architecture Decision Records (ADRs) that capture context, decision, alternatives, consequences, and Azure Well-Architected (WAF) pillar impacts. WHEN: create ADR; architecture decision record; document/record a technology or pattern decision; explain why we chose X vs Y; justify against WAF pillars; perform trade‑off analysis; capture as‑built deviations. Produces design ADRs (Step 3) and as‑built ADRs (Step 7) with correct naming and numbering.'
+compatibility: Works with Claude Code, GitHub Copilot, VS Code, and any Agent Skills compatible tool; no external dependencies required.
+license: MIT
+metadata:
+  author: jonathan-vella
+  version: "1.1"
+  category: document-creation
+---
+
+# Azure Architecture Decision Records (ADR) Skill
+
+Create formal ADRs for significant Azure architecture choices, including rationale, alternatives, consequences, and WAF pillar analysis.
+
+## Output Location and Naming
+
+- Directory: agent-output/{project}/
+- Prefix by phase:
+  - Design: 03-des-adr-
+  - As-built: 07-ab-adr-
+- Sequence: 4 digits (0001, 0002, ...)
+- Title slug: lowercase, hyphenated (e.g., use-cosmos-db-for-state)
+- Example: agent-output/{project}/03-des-adr-0001-use-cosmos-db-for-state.md
+
+## Rules
+
+- Scope
+  - One decision per ADR; cross-link related ADRs instead of combining.
+  - Use for documenting design-time and implemented decisions.
+  - Not for implementation artifacts, visuals, or spend modeling; focus on rationale and analysis.
+- Content
+  - Clearly state the decision and the problem/requirement it addresses.
+  - Include at least 2–3 credible alternatives and why they were not chosen.
+  - Map impacts to all five WAF pillars (Security, Reliability, Performance Efficiency, Operational Excellence, Cost Optimization).
+  - Record both positive and negative consequences and identify risks with mitigations.
+  - Keep concise and skimmable; target a 5-minute read.
+- Governance
+  - Number sequentially and set status appropriately (Proposed for design, Accepted for as-built).
+  - Link to related requirements, tickets, and tests.
+
+## Steps
+
+1. Collect inputs
+   - Business/technical drivers, constraints, compliance, SLAs/SLOs.
+   - Stakeholders and approval expectations.
+   - Candidate options and prior experiments or benchmarks.
+2. Determine phase and status
+   - Design phase → Proposed; As-built → Accepted (or Superseded if replacing).
+3. Calculate next sequence number
+   - List existing ADRs in agent-output/{project}/, filter by phase prefix, increment highest sequence.
+4. Draft ADR (use references/adr-template.md)
+   - Title, Status, Date, Context.
+   - Decision statement (unambiguous, time-bound if applicable).
+   - Alternatives considered (≥2) with rejection reasons.
+   - WAF analysis: per pillar, note benefits, trade-offs, and mitigations.
+   - Consequences: positive, negative, unknowns.
+   - Implementation notes and links to requirements, PRs, tests.
+5. Name and save
+   - Build filename from phase prefix + sequence + title slug; write to output directory.
+6. Validate quality (see checklist) and request review from stakeholders.
+7. For as-built deviations
+   - If design ADR exists, either update with a Superseded chain or create a new as-built ADR explaining divergences and rationale.
+
+## WAF Analysis Guidance (quick cues)
+
+- Security: identity boundaries, secrets, isolation, encryption, threat model, blast radius.
+- Reliability: failure modes, multi-zone/region, RPO/RTO, retry/backoff, health probes.
+- Performance Efficiency: throughput/latency targets, scaling strategy, cache, data patterns.
+- Operational Excellence: observability, rollout/rollback, runbooks, SRE toil, governance.
+- Cost Optimization: capacity drivers, elasticity, rightsizing, lifecycle policies, measurements.
+
+## Numbering & Status
+
+- Sequence is per phase prefix; do not reuse numbers.
+- Status values:
+  - Proposed (design), Accepted (as-built), Rejected, Superseded (link to replacement).
+- Include Date in YYYY-MM-DD.
+
+## MCP Tools
+
+- filesystem.readDir: list ADR files to determine next sequence.
+- filesystem.readFile: load references/adr-template.md and references/guardrails.md on demand.
+- filesystem.writeFile: create the ADR in agent-output/{project}/.
+- path.join/normalize: ensure cross-platform safe paths.
+- text.slugify: generate {title-slug} from the decision title.
+
+## Quality Checklist
+
+- [ ] Correct phase prefix and next sequence number.
+- [ ] Filename format: {prefix}{NNNN}-{title-slug}.md.
+- [ ] Status and date set correctly.
+- [ ] Context clearly states problem, drivers, and constraints.
+- [ ] Decision is explicit and testable.
+- [ ] ≥2 alternatives with clear rejection reasons.
+- [ ] WAF analysis covers all five pillars with trade-offs and mitigations.
+- [ ] Consequences include both benefits and downsides.
+- [ ] Links to requirements/issues and related ADRs included.
+- [ ] Implementation notes actionable and environment-specific if needed.
+
+## References (load on demand)
+
+- references/adr-template.md — Full ADR section guidance.
+- references/guardrails.md — DO/DON’T rules and common anti-patterns.
+Iteration 2: New subsample score 2.5 is not better than old score 2.75, skipping
+Iteration 3: Selected program 0 score: 0.9166666666666666
+Iteration 3: Proposed new text for current_candidate: ---
+name: azure-adr
+description: '**ANALYSIS SKILL** — Creates Azure Architecture Decision Records (ADRs) with Well‑Architected (WAF) pillar analysis, alternatives, consequences, and implementation notes. WHEN: create ADR; document decision; architecture decision record; record why we chose; WAF pillar justification; trade‑off analysis; design ADR (Step 3); as‑built ADR (Step 7). Produces numbered files following project naming conventions.'
+compatibility: Works with Claude Code, GitHub Copilot, VS Code, and any Agent Skills compatible tool; no external dependencies required.
+license: MIT
+metadata:
+  author: jonathan-vella
+  version: "1.1"
+  category: document-creation
+---
+
+# Azure Architecture Decision Records (ADR) Skill
+
+Produce formal ADRs for Azure that capture a single significant decision, its context, alternatives, WAF pillar impacts, and consequences.
+
+## Rules
+
+- Scope: One decision per ADR; keep it concise and auditable.
+- Phases: Use “Design” for pre‑implementation; “As‑Built” for implemented decisions.
+- Evidence: Cite requirements, assumptions, constraints, risks, and supporting data.
+- WAF coverage: Address Reliability, Security, Cost Optimization, Operational Excellence, and Performance Efficiency.
+- Alternatives: Document at least two credible options with reasons for rejection.
+- Status: Design ADRs default to Proposed; As‑Built default to Accepted; link superseded items where relevant.
+- Not for: Infrastructure code generation, deployment operations, detailed cost modeling, or diagramming.
+
+## Output Conventions
+
+- Folder: agent-output/{project}/
+- Prefix:
+  - Design: 03-des-adr-
+  - As‑Built: 07-ab-adr-
+- Sequence: 4 digits (0001, 0002, …)
+- Title slug: lowercase, hyphenated (e.g., use-cosmos-db-for-state)
+- Example:
+  - agent-output/{project}/03-des-adr-0001-use-cosmos-db-for-state.md
+  - agent-output/{project}/07-ab-adr-0002-adopt-front-door.md
+
+## ADR Template (use these sections)
+
+- Title
+- Status (Proposed | Accepted | Rejected | Superseded)
+- Date (YYYY‑MM‑DD)
+- Decision
+- Context (requirements, constraints, assumptions, risks, stakeholders)
+- Alternatives Considered (≥2; pros/cons; rejection reasons)
+- WAF Pillar Analysis
+  - Reliability
+  - Security
+  - Cost Optimization
+  - Operational Excellence
+  - Performance Efficiency
+- Consequences (positive and negative; near‑/long‑term; operational impact)
+- Implementation Notes (guidance, dependencies, rollout, observability)
+- Links (related ADRs, tickets, docs, evidence)
+
+## Steps
+
+1. Determine Phase and Number
+   - Inspect agent-output/{project}/ for existing ADRs.
+   - Choose prefix (03-des-adr- or 07-ab-adr-) and next 4‑digit number.
+   - Create a clear slug from the decision.
+2. Gather Inputs
+   - Drivers: goals, non‑functional requirements, compliance.
+   - Constraints and assumptions.
+   - Stakeholders and decision owner.
+   - Candidate alternatives (2–3) and evaluation criteria.
+   - Evidence: benchmarks, tests, incidents, cost projections, risks.
+3. Draft the ADR
+   - Write a precise Decision statement.
+   - Explain Context clearly for future readers.
+   - Fill Alternatives with concise pros/cons and rejection rationale.
+4. Map WAF Pillars
+   - For each pillar: impact, mitigations, metrics/SLIs, and trade‑offs.
+5. Document Consequences
+   - Capture both benefits and liabilities; include ops/process effects.
+6. Set Status and Links
+   - Design: Proposed. As‑Built: Accepted (or Rejected/Superseded with links).
+7. Finalize and Save
+   - Validate against the checklist.
+   - Save file to the correct path and name.
+
+## Quality Checklist
+
+- [ ] File path, prefix, number, and slug follow conventions.
+- [ ] Status aligns with phase; date is YYYY‑MM‑DD.
+- [ ] Single clear decision; unambiguous wording.
+- [ ] Context covers drivers, constraints, assumptions, and risks.
+- [ ] ≥2 alternatives with pros/cons and rejection reasons.
+- [ ] WAF analysis addresses all 5 pillars with specific impacts/mitigations.
+- [ ] Consequences include at least one positive and one negative outcome.
+- [ ] Implementation notes provide actionable guidance and dependencies.
+- [ ] Links to related requirements, tickets, or ADRs are included.
+
+## MCP Tools
+
+- None required.
+- Optional (if available):
+  - file-system/repo browser: list and read agent-output/{project}/ to compute sequence numbers and locate related ADRs.
+  - references loader: read references/adr-template.md and references/guardrails.md when present.
+
+## References (optional)
+
+- references/adr-template.md – full ADR structure and examples.
+- references/guardrails.md – DO/DON’T rules and anti‑patterns for Azure decisions.
+Iteration 3: New subsample score 2.65625 is not better than old score 2.75, skipping
+Iteration 4: Selected program 0 score: 0.9166666666666666
+Iteration 4: Proposed new text for current_candidate: ---
+name: azure-adr
+description: "Creates Azure Architecture Decision Records (ADRs) for Azure solutions with context, decision, alternatives, consequences, and Azure Well-Architected Framework (WAF) pillar analysis. WHEN: create ADR; write architecture decision record; document decision/rationale; trade-off analysis; WAF pillar justification; design or as-built ADR. Outputs design ADRs (03-des-adr-*) and as-built ADRs (07-ab-adr-*), with correct naming, numbering, and concise, auditable outcomes."
+compatibility: Works with Claude Code, GitHub Copilot, VS Code, and any Agent Skills compatible tool; no external dependencies required.
+license: MIT
+metadata:
+  author: jonathan-vella
+  version: "1.1"
+  category: document-creation
+---
+
+# Azure Architecture Decision Records (ADR) Skill
+
+Create formal, auditable ADRs for Azure architecture decisions with WAF pillar mapping and clear trade-off documentation.
+
+## Rules
+
+- Use when:
+  - Capturing a single, significant Azure architecture decision.
+  - Recording design-time choices (Design ADR) or implemented choices (As-Built ADR).
+  - You need to explain rationale, alternatives, and consequences tied to WAF pillars.
+- Do not use when:
+  - Authoring infrastructure code or scripts.
+  - Producing visual design artifacts.
+  - Performing pricing or deployment operations.
+- Scope:
+  - One decision per ADR; link related ADRs rather than combining.
+  - Keep the ADR readable in ~5 minutes; move deep detail to referenced docs.
+
+## Steps
+
+1. Gather inputs:
+   - Problem/context, drivers and constraints, decision owner, stakeholders, date.
+   - Candidate options (at least 3 if possible) and key evaluation criteria.
+   - Azure-specific considerations (regions, compliance, platform limits).
+2. Determine ADR type and status:
+   - Design ADR: prefix 03-des-adr-, Status = Proposed.
+   - As-Built ADR: prefix 07-ab-adr-, Status = Accepted.
+3. Assign sequence and filename:
+   - Scan agent-output/{project}/ for existing ADRs with the chosen prefix.
+   - Next sequence is the next 4-digit number (0001 if none).
+   - Create a short, hyphenated slug (e.g., use-cosmos-db-for-catalog).
+   - Filename: {prefix}{NNNN}-{slug}.md (e.g., 03-des-adr-0003-use-cosmos-db-for-catalog.md).
+4. Draft the ADR content (recommended structure):
+   - Title, Status, Date, Owners, Stakeholders.
+   - Related requirements/epics/tickets and links.
+   - Context: problem, constraints, assumptions.
+   - Decision: concise, unambiguous statement.
+   - Options considered: at least 2–3, with pros/cons and rejection reasons.
+   - Consequences: positive and negative impacts.
+   - WAF analysis: Reliability, Security, Cost Optimization, Operational Excellence, Performance Efficiency (note key Azure aspects per pillar).
+   - Compliance and risk: data residency, identity, backup/DR, policy.
+   - Implementation notes: high-level guidance, rollout/migration, observability.
+5. Save and link:
+   - Write the file to agent-output/{project}/ with the correct name.
+   - Cross-reference related ADRs and source materials.
+6. Review and finalize:
+   - Perform the quality checklist below.
+   - For As-Built, note any deviations from prior Design ADRs.
+
+## Quality Checklist
+
+- [ ] Correct prefix (03-des-adr- or 07-ab-adr-) and sequential number.
+- [ ] Filename matches pattern {prefix}{NNNN}-{slug}.md.
+- [ ] Status: Proposed (design) or Accepted (as-built).
+- [ ] Date in YYYY-MM-DD.
+- [ ] Clear context and single, explicit decision statement.
+- [ ] At least one positive and one negative consequence.
+- [ ] Minimum 2 alternatives with rejection reasons (3 preferred).
+- [ ] WAF analysis addresses all five pillars with Azure-specific notes.
+- [ ] Links to requirements, tickets, benchmarks, or proofs.
+- [ ] Implementation notes provide actionable guidance.
+
+## MCP Tools
+
+- files (optional but recommended):
+  - list agent-output/{project}/ to find next sequence number.
+  - write the ADR file at the correct path.
+  - read references/adr-template.md or references/guardrails.md if present.
+- git (optional):
+  - stage/commit ADR files as part of change control.
+- Fallback (no tools):
+  - Ask user for the project path and current highest ADR number, or start at 0001.
+  - Provide the ADR content in-line and instruct the user where to save it.
+
+## References
+
+- references/adr-template.md — full section guidance and examples.
+- references/guardrails.md — DO/DON’T rules and anti-patterns.
+Iteration 4: New subsample score 2.75 is not better than old score 2.75, skipping
+Iteration 5: Selected program 0 score: 0.9166666666666666
+Iteration 5: Proposed new text for current_candidate: ---
+name: azure-adr
+description: "**ANALYSIS SKILL** — Create Azure Architecture Decision Records (ADRs) with Well-Architected (WAF) pillar mapping, alternatives, consequences, and implementation notes. WHEN: \"create ADR\", \"architecture decision record\", \"document decision\", \"record rationale\", \"trade-off analysis\", \"why we chose\", \"design vs as-built\". USE FOR: ADR scaffolding and authoring for design (Step 3) and as-built (Step 7), including numbering, naming, and template completion. Outputs Markdown under agent-output/{project}/ using 03-des-adr- or 07-ab-adr- prefixes."
+compatibility: Works with GitHub Copilot, VS Code, Claude Code, and Agent Skills compatible tools; no external dependencies required.
+license: MIT
+metadata:
+  author: jonathan-vella
+  version: "1.1"
+  category: document-creation
+---
+
+# Azure Architecture Decision Records (ADR) Skill
+
+Author formal ADRs for Azure solutions, capturing context, rationale, options, WAF pillar impacts, and concise implementation notes.
+
+## Rules (when to use / not use)
+- One decision per ADR; keep focused and under ~2 pages.
+- Use Azure context and service names consistently.
+- Always include at least 2 alternatives with rejection reasons.
+- Map impacts across Azure Well-Architected pillars:
+  - Security, Reliability, Cost Optimization, Operational Excellence, Performance Efficiency.
+- Link to requirements/tickets and related docs.
+- Choose phase:
+  - Design ADR (prefix 03-des-): status = Proposed.
+  - As-Built ADR (prefix 07-ab-): status = Accepted.
+- Scope boundaries:
+  - Do not produce deployment scripts, diagrams, or cost models here; reference or link instead.
+
+## Steps (how to execute)
+1. Identify phase and status:
+   - Design (planning/proposal) → 03-des-adr-, status Proposed.
+   - Implemented/current state → 07-ab-adr-, status Accepted.
+2. Determine filename and number:
+   - Inspect agent-output/{project}/ for existing ADRs.
+   - Next 4‑digit sequence (0001, 0002, ...).
+   - Title slug: lowercase, hyphenated (e.g., use-cosmos-db-for-state).
+3. Gather inputs:
+   - Problem/goal, constraints, non-functional requirements, stakeholders.
+   - Candidate options (≥3 preferred), evaluation criteria.
+   - Evidence (benchmarks, assessments, incidents).
+4. Draft ADR (Markdown):
+   - Header: Title, ADR ID, Status, Date, Authors, Stakeholders, References.
+   - Context: problem, scope, constraints, assumptions.
+   - Decision: explicit statement and scope boundaries.
+   - Options Considered: brief summary per option with pros/cons.
+   - Rationale: why chosen option meets goals and trade-offs.
+   - WAF Pillar Analysis:
+     - Security: impacts, controls, risks.
+     - Reliability: HA/DR, failure modes, SLAs.
+     - Cost Optimization: expected spend drivers, efficiency levers.
+     - Operational Excellence: deploy/operate, observability.
+     - Performance Efficiency: latency/throughput/scaling.
+   - Consequences:
+     - Positive outcomes and benefits.
+     - Negative outcomes, risks, mitigations.
+   - Compliance & Risk: standards, regulatory considerations.
+   - Implementation Notes: high-level steps, dependencies, rollout/backout, validation.
+   - Links: tickets, runbooks, tests, diagrams, code repos.
+5. Validate naming and content:
+   - Prefix matches phase; number is sequential; title slug is clear.
+   - Status and date (YYYY-MM-DD) set correctly.
+6. Save artifact:
+   - agent-output/{project}/03-des-adr-NNNN-{title}.md or
+     agent-output/{project}/07-ab-adr-NNNN-{title}.md.
+7. Cross-link:
+   - Reference related ADRs, requirements, and implementation artifacts.
+   - If superseding/updating a prior ADR, state relation explicitly.
+
+## Output conventions
+- Prefix: 03-des-adr- (design) or 07-ab-adr- (as-built).
+- Number: 4-digit sequence (0001, 0002, ...).
+- Title: lowercase-hyphenated short slug.
+- Example:
+  - agent-output/{project}/03-des-adr-0001-use-cosmos-db-for-state.md
+
+## Quality checklist
+- [ ] Sequential ADR number and correct prefix.
+- [ ] Clear Context and unambiguous Decision statement.
+- [ ] ≥2 alternatives with explicit rejection reasons.
+- [ ] WAF analysis covers all five pillars with concrete impacts.
+- [ ] At least one positive and one negative consequence with mitigations.
+- [ ] Links to requirements and supporting evidence.
+- [ ] Implementation notes provide actionable guidance.
+- [ ] Status (Proposed/Accepted) and date set correctly.
+
+## MCP Tools (tool dependencies)
+- None required.
+- Optional (if available):
+  - Filesystem: read references/adr-template.md and references/guardrails.md.
+  - Project indexer: locate existing ADRs to determine next sequence.
+
+## References (load on demand)
+- references/adr-template.md — full section outline and examples.
+- references/guardrails.md — DO/DON'T rules and anti-patterns.
+Iteration 5: New subsample score 2.875 is better than old score 2.75. Continue to full eval and add to candidate pool.
+Iteration 5: Found a better program on the valset with score 0.9583333333333334.
+Iteration 5: Valset score for new program: 0.9583333333333334 (coverage 48 / 48)
+Iteration 5: Val aggregate for new program: 0.9583333333333334
+Iteration 5: Individual valset scores for new program: {0: 0.9583333333333333, 1: 0.9583333333333333, 2: 0.9583333333333333, 3: 0.9583333333333333, 4: 0.9583333333333333, 5: 0.9583333333333333, 6: 0.9583333333333333, 7: 0.9583333333333333, 8: 0.9583333333333333, 9: 0.9583333333333333, 10: 0.9583333333333333, 11: 0.9583333333333333, 12: 0.9583333333333333, 13: 0.9583333333333333, 14: 0.9583333333333333, 15: 0.9583333333333333, 16: 0.9583333333333333, 17: 0.9583333333333333, 18: 0.9583333333333333, 19: 0.9583333333333333, 20: 0.9583333333333333, 21: 0.9583333333333333, 22: 0.9583333333333333, 23: 0.9583333333333333, 24: 0.9583333333333333, 25: 0.9583333333333333, 26: 0.9583333333333333, 27: 0.9583333333333333, 28: 0.9583333333333333, 29: 0.9583333333333333, 30: 0.9583333333333333, 31: 0.9583333333333333, 32: 0.9583333333333333, 33: 0.9583333333333333, 34: 0.9583333333333333, 35: 0.9583333333333333, 36: 0.9583333333333333, 37: 0.9583333333333333, 38: 0.9583333333333333, 39: 0.9583333333333333, 40: 0.9583333333333333, 41: 0.9583333333333333, 42: 0.9583333333333333, 43: 0.9583333333333333, 44: 0.9583333333333333, 45: 0.9583333333333333, 46: 0.9583333333333333, 47: 0.9583333333333333}
+Iteration 5: New valset pareto front scores: {0: 0.9583333333333333, 1: 0.9583333333333333, 2: 0.9583333333333333, 3: 0.9583333333333333, 4: 0.9583333333333333, 5: 0.9583333333333333, 6: 0.9583333333333333, 7: 0.9583333333333333, 8: 0.9583333333333333, 9: 0.9583333333333333, 10: 0.9583333333333333, 11: 0.9583333333333333, 12: 0.9583333333333333, 13: 0.9583333333333333, 14: 0.9583333333333333, 15: 0.9583333333333333, 16: 0.9583333333333333, 17: 0.9583333333333333, 18: 0.9583333333333333, 19: 0.9583333333333333, 20: 0.9583333333333333, 21: 0.9583333333333333, 22: 0.9583333333333333, 23: 0.9583333333333333, 24: 0.9583333333333333, 25: 0.9583333333333333, 26: 0.9583333333333333, 27: 0.9583333333333333, 28: 0.9583333333333333, 29: 0.9583333333333333, 30: 0.9583333333333333, 31: 0.9583333333333333, 32: 0.9583333333333333, 33: 0.9583333333333333, 34: 0.9583333333333333, 35: 0.9583333333333333, 36: 0.9583333333333333, 37: 0.9583333333333333, 38: 0.9583333333333333, 39: 0.9583333333333333, 40: 0.9583333333333333, 41: 0.9583333333333333, 42: 0.9583333333333333, 43: 0.9583333333333333, 44: 0.9583333333333333, 45: 0.9583333333333333, 46: 0.9583333333333333, 47: 0.9583333333333333}
+Iteration 5: Valset pareto front aggregate score: 0.9583333333333334
+Iteration 5: Updated valset pareto front programs: {0: {1}, 1: {1}, 2: {1}, 3: {1}, 4: {1}, 5: {1}, 6: {1}, 7: {1}, 8: {1}, 9: {1}, 10: {1}, 11: {1}, 12: {1}, 13: {1}, 14: {1}, 15: {1}, 16: {1}, 17: {1}, 18: {1}, 19: {1}, 20: {1}, 21: {1}, 22: {1}, 23: {1}, 24: {1}, 25: {1}, 26: {1}, 27: {1}, 28: {1}, 29: {1}, 30: {1}, 31: {1}, 32: {1}, 33: {1}, 34: {1}, 35: {1}, 36: {1}, 37: {1}, 38: {1}, 39: {1}, 40: {1}, 41: {1}, 42: {1}, 43: {1}, 44: {1}, 45: {1}, 46: {1}, 47: {1}}
+Iteration 5: Best valset aggregate score so far: 0.9583333333333334
+Iteration 5: Best program as per aggregate score on valset: 1
+Iteration 5: Best score on valset: 0.9583333333333334
+Iteration 5: Linear pareto front program index: 1
+Iteration 5: New program candidate index: 1
+{
+  "skill": "azure-adr",
+  "original": "# Azure Architecture Decision Records (ADR) Skill\n\nCreate formal Architecture Decision Records that document significant infrastructure\ndecisions with Azure-specific context, WAF pillar analysis, and implementation guidance.\n\n## When to Use This Skill\n\n| Trigger Phrase                        | Use Case                                   |\n| ------------------------------------- | ------------------------------------------ |\n| \"Create an ADR for...\"                | Document a specific architectural decision |\n| \"Document the decision to use...\"     | Record technology/pattern choice           |\n| \"Record why we chose...\"              | Capture decision rationale                 |\n| \"Architecture decision record for...\" | Formal ADR creation                        |\n\n## Output Format\n\nADRs are saved to the project's agent-output folder:\n\n```text\nagent-output/{project}/\n\u251c\u2500\u2500 03-des-adr-0001-{short-title}.md    # Design phase ADRs\n\u2514\u2500\u2500 07-ab-adr-0001-{short-title}.md     # As-built phase ADRs\n```\n\n### Naming Convention\n\n- **Prefix**: `03-des-adr-` (design) or `07-ab-adr-` (as-built)\n- **Number**: 4-digit sequence (0001, 0002, etc.)\n- **Title**: Lowercase with hyphens (e.g., `use-cosmos-db-for-state`)\n\n## ADR Template Structure\n\n\ud83d\udccb **Reference**: Read `references/adr-template.md` for the full ADR template\nwith all sections (Context, Decision, Alternatives, Consequences,\nWAF Pillar Analysis, Compliance, Implementation Notes).\n\n## Example Prompts\n\n### Design Phase ADR\n\n```text\nCreate an ADR documenting our decision to use Azure Cosmos DB\ninstead of Azure SQL for the e-commerce catalog service.\nConsider WAF implications and cost trade-offs.\n```\n\n### As-Built ADR\n\n```text\nDocument the architectural decision we made during implementation\nto use Azure Front Door instead of Application Gateway.\nInclude the performance testing results that informed this choice.\n```\n\n### From Assessment\n\n```text\nUse the azure-adr skill to document the database decision from\nthe architecture assessment above as a formal ADR.\n```\n\n## Integration with Workflow\n\n| Step                | Context                      | ADR Type                     |\n| ------------------- | ---------------------------- | ---------------------------- |\n| Step 2 (Architect)  | After WAF assessment         | Design ADR (`03-des-adr-*`)  |\n| Step 5 (Bicep Code) | After implementation choices | As-built ADR (`07-ab-adr-*`) |\n| Step 6 (Deploy)     | After deployment decisions   | As-built ADR (`07-ab-adr-*`) |\n\n## Rules\n\n1. **One decision per ADR** - Keep ADRs focused on a single decision\n2. **Include alternatives** - Always document what was considered and rejected\n3. **Map to WAF pillars** - Show impact on each Well-Architected pillar\n4. **Link to requirements** - Reference the requirement that drove the decision\n5. **Keep it concise** - ADRs should be readable in 5 minutes\n\n## Common ADR Topics\n\n| Category        | Example Decisions                                    |\n| --------------- | ---------------------------------------------------- |\n| **Compute**     | AKS vs App Service, Container Apps vs Functions      |\n| **Data**        | Cosmos DB vs SQL, Redis vs Table Storage             |\n| **Networking**  | Hub-spoke vs flat, Private Link vs Service Endpoints |\n| **Security**    | Managed Identity vs SPN, Key Vault vs App Config     |\n| **Integration** | Event Grid vs Service Bus, API Management tiers      |\n\n## What This Skill Does NOT Do\n\n- \u274c Generate Bicep or Terraform code\n- \u274c Create architecture diagrams (use `drawio` skill)\n- \u274c Deploy resources (use `deploy` agent)\n- \u274c Create implementation plans (use `iac-planner` agent)\n\n## Workflow Integration\n\nThis skill produces artifacts in **Step 3** (design) or **Step 7** (as-built).\n\n| Workflow Step     | ADR Prefix    | Status Default | Purpose                         |\n| ----------------- | ------------- | -------------- | ------------------------------- |\n| Step 3 (Design)   | `03-des-adr-` | Proposed       | Document decisions before build |\n| Step 7 (As-Built) | `07-ab-adr-`  | Accepted       | Document implemented decisions  |\n\n### Artifact Suffix Rules\n\n1. When called from Architect \u2192 use `03-des-adr-` prefix\n2. When called after deployment (Step 6) \u2192 use `07-ab-adr-` prefix\n3. When called standalone:\n   - Design/proposal/planning language \u2192 use `03-des-adr-`\n   - Deployed/implemented/current state language \u2192 use `07-ab-adr-`\n\n**Important**: The `07-ab-adr-` ADR may differ from `03-des-adr-` if implementation required changes.\nDocument any deviations in the \"Implementation Notes\" section.\n\n## Steps\n\nFollow these steps when creating ADRs:\n\n1. **Gather Information** - Collect decision context, alternatives, stakeholders\n2. **Determine Number** - Check existing ADRs in `agent-output/{project}/` for next sequence\n3. **Determine Phase** - Design (`03-des-`) or As-Built (`07-ab-`) based on context\n4. **Generate Document** - Create ADR following template structure\n5. **Include WAF Analysis** - Map decision impact to all 5 WAF pillars\n6. **Document Alternatives** - List at least 2-3 alternatives with rejection reasons\n\n## Quality Checklist\n\nBefore finalizing the ADR, verify:\n\n- [ ] ADR number is sequential and correct\n- [ ] File name follows naming convention (`{step}-adr-NNNN-{title-slug}.md`)\n- [ ] Status is set appropriately (Proposed for design, Accepted for as-built)\n- [ ] Date is in YYYY-MM-DD format\n- [ ] Context clearly explains the problem/opportunity\n- [ ] Decision is stated clearly and unambiguously\n- [ ] At least 1 positive consequence documented\n- [ ] At least 1 negative consequence documented\n- [ ] At least 1 alternative documented with rejection reasons\n- [ ] WAF pillar analysis includes all 5 pillars\n- [ ] Implementation notes provide actionable guidance\n\n## Guardrails\n\n\ud83d\udccb **Reference**: Read `references/guardrails.md` for detailed DO/DON'T rules and anti-pattern table.\n\n**Key rules**: Always include WAF analysis, document 2-3 alternatives,\ninclude both positive and negative consequences, use specific decision statements.\n\n## Reference Index\n\nLoad these on demand \u2014 do NOT read all at once:\n\n| Reference                    | When to Load                              |\n| ---------------------------- | ----------------------------------------- |\n| `references/adr-template.md` | Full ADR template with all sections       |\n| `references/guardrails.md`   | Guardrails, DO/DON'T rules, anti-patterns |",
+  "optimized": "---\nname: azure-adr\ndescription: \"**ANALYSIS SKILL** \u2014 Create Azure Architecture Decision Records (ADRs) with Well-Architected (WAF) pillar mapping, alternatives, consequences, and implementation notes. WHEN: \\\"create ADR\\\", \\\"architecture decision record\\\", \\\"document decision\\\", \\\"record rationale\\\", \\\"trade-off analysis\\\", \\\"why we chose\\\", \\\"design vs as-built\\\". USE FOR: ADR scaffolding and authoring for design (Step 3) and as-built (Step 7), including numbering, naming, and template completion. Outputs Markdown under agent-output/{project}/ using 03-des-adr- or 07-ab-adr- prefixes.\"\ncompatibility: Works with GitHub Copilot, VS Code, Claude Code, and Agent Skills compatible tools; no external dependencies required.\nlicense: MIT\nmetadata:\n  author: jonathan-vella\n  version: \"1.1\"\n  category: document-creation\n---\n\n# Azure Architecture Decision Records (ADR) Skill\n\nAuthor formal ADRs for Azure solutions, capturing context, rationale, options, WAF pillar impacts, and concise implementation notes.\n\n## Rules (when to use / not use)\n- One decision per ADR; keep focused and under ~2 pages.\n- Use Azure context and service names consistently.\n- Always include at least 2 alternatives with rejection reasons.\n- Map impacts across Azure Well-Architected pillars:\n  - Security, Reliability, Cost Optimization, Operational Excellence, Performance Efficiency.\n- Link to requirements/tickets and related docs.\n- Choose phase:\n  - Design ADR (prefix 03-des-): status = Proposed.\n  - As-Built ADR (prefix 07-ab-): status = Accepted.\n- Scope boundaries:\n  - Do not produce deployment scripts, diagrams, or cost models here; reference or link instead.\n\n## Steps (how to execute)\n1. Identify phase and status:\n   - Design (planning/proposal) \u2192 03-des-adr-, status Proposed.\n   - Implemented/current state \u2192 07-ab-adr-, status Accepted.\n2. Determine filename and number:\n   - Inspect agent-output/{project}/ for existing ADRs.\n   - Next 4\u2011digit sequence (0001, 0002, ...).\n   - Title slug: lowercase, hyphenated (e.g., use-cosmos-db-for-state).\n3. Gather inputs:\n   - Problem/goal, constraints, non-functional requirements, stakeholders.\n   - Candidate options (\u22653 preferred), evaluation criteria.\n   - Evidence (benchmarks, assessments, incidents).\n4. Draft ADR (Markdown):\n   - Header: Title, ADR ID, Status, Date, Authors, Stakeholders, References.\n   - Context: problem, scope, constraints, assumptions.\n   - Decision: explicit statement and scope boundaries.\n   - Options Considered: brief summary per option with pros/cons.\n   - Rationale: why chosen option meets goals and trade-offs.\n   - WAF Pillar Analysis:\n     - Security: impacts, controls, risks.\n     - Reliability: HA/DR, failure modes, SLAs.\n     - Cost Optimization: expected spend drivers, efficiency levers.\n     - Operational Excellence: deploy/operate, observability.\n     - Performance Efficiency: latency/throughput/scaling.\n   - Consequences:\n     - Positive outcomes and benefits.\n     - Negative outcomes, risks, mitigations.\n   - Compliance & Risk: standards, regulatory considerations.\n   - Implementation Notes: high-level steps, dependencies, rollout/backout, validation.\n   - Links: tickets, runbooks, tests, diagrams, code repos.\n5. Validate naming and content:\n   - Prefix matches phase; number is sequential; title slug is clear.\n   - Status and date (YYYY-MM-DD) set correctly.\n6. Save artifact:\n   - agent-output/{project}/03-des-adr-NNNN-{title}.md or\n     agent-output/{project}/07-ab-adr-NNNN-{title}.md.\n7. Cross-link:\n   - Reference related ADRs, requirements, and implementation artifacts.\n   - If superseding/updating a prior ADR, state relation explicitly.\n\n## Output conventions\n- Prefix: 03-des-adr- (design) or 07-ab-adr- (as-built).\n- Number: 4-digit sequence (0001, 0002, ...).\n- Title: lowercase-hyphenated short slug.\n- Example:\n  - agent-output/{project}/03-des-adr-0001-use-cosmos-db-for-state.md\n\n## Quality checklist\n- [ ] Sequential ADR number and correct prefix.\n- [ ] Clear Context and unambiguous Decision statement.\n- [ ] \u22652 alternatives with explicit rejection reasons.\n- [ ] WAF analysis covers all five pillars with concrete impacts.\n- [ ] At least one positive and one negative consequence with mitigations.\n- [ ] Links to requirements and supporting evidence.\n- [ ] Implementation notes provide actionable guidance.\n- [ ] Status (Proposed/Accepted) and date set correctly.\n\n## MCP Tools (tool dependencies)\n- None required.\n- Optional (if available):\n  - Filesystem: read references/adr-template.md and references/guardrails.md.\n  - Project indexer: locate existing ADRs to determine next sequence.\n\n## References (load on demand)\n- references/adr-template.md \u2014 full section outline and examples.\n- references/guardrails.md \u2014 DO/DON'T rules and anti-patterns.",
+  "best_score": null
+}

@@ -1,0 +1,871 @@
+Iteration 0: Base program full valset score: 0.7270114942528736 over 58 / 58 examples
+Iteration 1: Selected program 0 score: 0.7270114942528736
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+Iteration 1: Exception during reflection/proposal: litellm.RateLimitError: RateLimitError: OpenAIException - Too many requests. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service).
+Traceback (most recent call last):
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/llms/openai/openai.py", line 852, in completion
+    raise e
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/llms/openai/openai.py", line 780, in completion
+    ) = self.make_sync_openai_chat_completion_request(
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        openai_client=openai_client,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        logging_obj=logging_obj,
+        ^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/litellm_core_utils/logging_utils.py", line 344, in sync_wrapper
+    result = func(*args, **kwargs)
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/llms/openai/openai.py", line 503, in make_sync_openai_chat_completion_request
+    raise e
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/llms/openai/openai.py", line 478, in make_sync_openai_chat_completion_request
+    raw_response = openai_client.chat.completions.with_raw_response.create(
+        **data, timeout=timeout
+    )
+  File "/usr/local/python/current/lib/python3.14/site-packages/openai/_legacy_response.py", line 367, in wrapped
+    return cast(LegacyAPIResponse[R], func(*args, **kwargs))
+                                      ~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/current/lib/python3.14/site-packages/openai/_utils/_utils.py", line 286, in wrapper
+    return func(*args, **kwargs)
+  File "/usr/local/python/current/lib/python3.14/site-packages/openai/resources/chat/completions/completions.py", line 1211, in create
+    return self._post(
+           ~~~~~~~~~~^
+        "/chat/completions",
+        ^^^^^^^^^^^^^^^^^^^^
+    ...<47 lines>...
+        stream_cls=Stream[ChatCompletionChunk],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/usr/local/python/current/lib/python3.14/site-packages/openai/_base_client.py", line 1297, in post
+    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))
+                           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/current/lib/python3.14/site-packages/openai/_base_client.py", line 1070, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.RateLimitError: Too many requests. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service).
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/main.py", line 2698, in completion
+    raise e
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/main.py", line 2670, in completion
+    response = openai_chat_completions.completion(
+        model=model,
+    ...<16 lines>...
+        shared_session=shared_session,
+    )
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/llms/openai/openai.py", line 863, in completion
+    raise OpenAIError(
+    ...<4 lines>...
+    )
+litellm.llms.openai.common_utils.OpenAIError: Too many requests. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service).
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/python/current/lib/python3.14/site-packages/gepa/proposer/reflective_mutation/reflective_mutation.py", line 297, in propose
+    new_texts = self.propose_new_texts(curr_prog, reflective_dataset, predictor_names_to_update)
+  File "/usr/local/python/current/lib/python3.14/site-packages/gepa/proposer/reflective_mutation/reflective_mutation.py", line 128, in propose_new_texts
+    new_texts[name] = InstructionProposalSignature.run(
+                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        lm=self.reflection_lm,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        },
+        ^^
+    )["new_instruction"]
+    ^
+  File "/usr/local/python/current/lib/python3.14/site-packages/gepa/proposer/reflective_mutation/base.py", line 48, in run
+    lm_res = lm(full_prompt)
+  File "/usr/local/python/current/lib/python3.14/site-packages/gepa/optimize_anything.py", line 859, in _lm
+    completion = litellm.completion(model=model_name, messages=messages)
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/utils.py", line 1769, in wrapper
+    raise e
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/utils.py", line 1590, in wrapper
+    result = original_function(*args, **kwargs)
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/main.py", line 4411, in completion
+    raise exception_type(
+          ~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        extra_kwargs=kwargs,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2456, in exception_type
+    raise e
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 579, in exception_type
+    raise RateLimitError(
+    ...<5 lines>...
+    )
+litellm.exceptions.RateLimitError: litellm.RateLimitError: RateLimitError: OpenAIException - Too many requests. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service).
+
+Iteration 1: Reflective mutation did not propose a new candidate
+Iteration 2: Selected program 0 score: 0.7270114942528736
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+Iteration 2: Exception during reflection/proposal: litellm.RateLimitError: RateLimitError: OpenAIException - Too many requests. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service).
+Traceback (most recent call last):
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/llms/openai/openai.py", line 852, in completion
+    raise e
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/llms/openai/openai.py", line 780, in completion
+    ) = self.make_sync_openai_chat_completion_request(
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        openai_client=openai_client,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        logging_obj=logging_obj,
+        ^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/litellm_core_utils/logging_utils.py", line 344, in sync_wrapper
+    result = func(*args, **kwargs)
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/llms/openai/openai.py", line 503, in make_sync_openai_chat_completion_request
+    raise e
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/llms/openai/openai.py", line 478, in make_sync_openai_chat_completion_request
+    raw_response = openai_client.chat.completions.with_raw_response.create(
+        **data, timeout=timeout
+    )
+  File "/usr/local/python/current/lib/python3.14/site-packages/openai/_legacy_response.py", line 367, in wrapped
+    return cast(LegacyAPIResponse[R], func(*args, **kwargs))
+                                      ~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/current/lib/python3.14/site-packages/openai/_utils/_utils.py", line 286, in wrapper
+    return func(*args, **kwargs)
+  File "/usr/local/python/current/lib/python3.14/site-packages/openai/resources/chat/completions/completions.py", line 1211, in create
+    return self._post(
+           ~~~~~~~~~~^
+        "/chat/completions",
+        ^^^^^^^^^^^^^^^^^^^^
+    ...<47 lines>...
+        stream_cls=Stream[ChatCompletionChunk],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/usr/local/python/current/lib/python3.14/site-packages/openai/_base_client.py", line 1297, in post
+    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))
+                           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/current/lib/python3.14/site-packages/openai/_base_client.py", line 1070, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.RateLimitError: Too many requests. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service).
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/main.py", line 2698, in completion
+    raise e
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/main.py", line 2670, in completion
+    response = openai_chat_completions.completion(
+        model=model,
+    ...<16 lines>...
+        shared_session=shared_session,
+    )
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/llms/openai/openai.py", line 863, in completion
+    raise OpenAIError(
+    ...<4 lines>...
+    )
+litellm.llms.openai.common_utils.OpenAIError: Too many requests. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service).
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/python/current/lib/python3.14/site-packages/gepa/proposer/reflective_mutation/reflective_mutation.py", line 297, in propose
+    new_texts = self.propose_new_texts(curr_prog, reflective_dataset, predictor_names_to_update)
+  File "/usr/local/python/current/lib/python3.14/site-packages/gepa/proposer/reflective_mutation/reflective_mutation.py", line 128, in propose_new_texts
+    new_texts[name] = InstructionProposalSignature.run(
+                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        lm=self.reflection_lm,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        },
+        ^^
+    )["new_instruction"]
+    ^
+  File "/usr/local/python/current/lib/python3.14/site-packages/gepa/proposer/reflective_mutation/base.py", line 48, in run
+    lm_res = lm(full_prompt)
+  File "/usr/local/python/current/lib/python3.14/site-packages/gepa/optimize_anything.py", line 859, in _lm
+    completion = litellm.completion(model=model_name, messages=messages)
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/utils.py", line 1769, in wrapper
+    raise e
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/utils.py", line 1590, in wrapper
+    result = original_function(*args, **kwargs)
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/main.py", line 4411, in completion
+    raise exception_type(
+          ~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        extra_kwargs=kwargs,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2456, in exception_type
+    raise e
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 579, in exception_type
+    raise RateLimitError(
+    ...<5 lines>...
+    )
+litellm.exceptions.RateLimitError: litellm.RateLimitError: RateLimitError: OpenAIException - Too many requests. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service).
+
+Iteration 2: Reflective mutation did not propose a new candidate
+Iteration 3: Selected program 0 score: 0.7270114942528736
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+Iteration 3: Exception during reflection/proposal: litellm.RateLimitError: RateLimitError: OpenAIException - Too many requests. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service).
+Traceback (most recent call last):
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/llms/openai/openai.py", line 852, in completion
+    raise e
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/llms/openai/openai.py", line 780, in completion
+    ) = self.make_sync_openai_chat_completion_request(
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        openai_client=openai_client,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        logging_obj=logging_obj,
+        ^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/litellm_core_utils/logging_utils.py", line 344, in sync_wrapper
+    result = func(*args, **kwargs)
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/llms/openai/openai.py", line 503, in make_sync_openai_chat_completion_request
+    raise e
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/llms/openai/openai.py", line 478, in make_sync_openai_chat_completion_request
+    raw_response = openai_client.chat.completions.with_raw_response.create(
+        **data, timeout=timeout
+    )
+  File "/usr/local/python/current/lib/python3.14/site-packages/openai/_legacy_response.py", line 367, in wrapped
+    return cast(LegacyAPIResponse[R], func(*args, **kwargs))
+                                      ~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/current/lib/python3.14/site-packages/openai/_utils/_utils.py", line 286, in wrapper
+    return func(*args, **kwargs)
+  File "/usr/local/python/current/lib/python3.14/site-packages/openai/resources/chat/completions/completions.py", line 1211, in create
+    return self._post(
+           ~~~~~~~~~~^
+        "/chat/completions",
+        ^^^^^^^^^^^^^^^^^^^^
+    ...<47 lines>...
+        stream_cls=Stream[ChatCompletionChunk],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/usr/local/python/current/lib/python3.14/site-packages/openai/_base_client.py", line 1297, in post
+    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))
+                           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/current/lib/python3.14/site-packages/openai/_base_client.py", line 1070, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.RateLimitError: Too many requests. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service).
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/main.py", line 2698, in completion
+    raise e
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/main.py", line 2670, in completion
+    response = openai_chat_completions.completion(
+        model=model,
+    ...<16 lines>...
+        shared_session=shared_session,
+    )
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/llms/openai/openai.py", line 863, in completion
+    raise OpenAIError(
+    ...<4 lines>...
+    )
+litellm.llms.openai.common_utils.OpenAIError: Too many requests. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service).
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/python/current/lib/python3.14/site-packages/gepa/proposer/reflective_mutation/reflective_mutation.py", line 297, in propose
+    new_texts = self.propose_new_texts(curr_prog, reflective_dataset, predictor_names_to_update)
+  File "/usr/local/python/current/lib/python3.14/site-packages/gepa/proposer/reflective_mutation/reflective_mutation.py", line 128, in propose_new_texts
+    new_texts[name] = InstructionProposalSignature.run(
+                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        lm=self.reflection_lm,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        },
+        ^^
+    )["new_instruction"]
+    ^
+  File "/usr/local/python/current/lib/python3.14/site-packages/gepa/proposer/reflective_mutation/base.py", line 48, in run
+    lm_res = lm(full_prompt)
+  File "/usr/local/python/current/lib/python3.14/site-packages/gepa/optimize_anything.py", line 859, in _lm
+    completion = litellm.completion(model=model_name, messages=messages)
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/utils.py", line 1769, in wrapper
+    raise e
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/utils.py", line 1590, in wrapper
+    result = original_function(*args, **kwargs)
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/main.py", line 4411, in completion
+    raise exception_type(
+          ~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        extra_kwargs=kwargs,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2456, in exception_type
+    raise e
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 579, in exception_type
+    raise RateLimitError(
+    ...<5 lines>...
+    )
+litellm.exceptions.RateLimitError: litellm.RateLimitError: RateLimitError: OpenAIException - Too many requests. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service).
+
+Iteration 3: Reflective mutation did not propose a new candidate
+Iteration 4: Selected program 0 score: 0.7270114942528736
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+Iteration 4: Exception during reflection/proposal: litellm.RateLimitError: RateLimitError: OpenAIException - Too many requests. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service).
+Traceback (most recent call last):
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/llms/openai/openai.py", line 852, in completion
+    raise e
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/llms/openai/openai.py", line 780, in completion
+    ) = self.make_sync_openai_chat_completion_request(
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        openai_client=openai_client,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        logging_obj=logging_obj,
+        ^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/litellm_core_utils/logging_utils.py", line 344, in sync_wrapper
+    result = func(*args, **kwargs)
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/llms/openai/openai.py", line 503, in make_sync_openai_chat_completion_request
+    raise e
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/llms/openai/openai.py", line 478, in make_sync_openai_chat_completion_request
+    raw_response = openai_client.chat.completions.with_raw_response.create(
+        **data, timeout=timeout
+    )
+  File "/usr/local/python/current/lib/python3.14/site-packages/openai/_legacy_response.py", line 367, in wrapped
+    return cast(LegacyAPIResponse[R], func(*args, **kwargs))
+                                      ~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/current/lib/python3.14/site-packages/openai/_utils/_utils.py", line 286, in wrapper
+    return func(*args, **kwargs)
+  File "/usr/local/python/current/lib/python3.14/site-packages/openai/resources/chat/completions/completions.py", line 1211, in create
+    return self._post(
+           ~~~~~~~~~~^
+        "/chat/completions",
+        ^^^^^^^^^^^^^^^^^^^^
+    ...<47 lines>...
+        stream_cls=Stream[ChatCompletionChunk],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/usr/local/python/current/lib/python3.14/site-packages/openai/_base_client.py", line 1297, in post
+    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))
+                           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/current/lib/python3.14/site-packages/openai/_base_client.py", line 1070, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.RateLimitError: Too many requests. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service).
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/main.py", line 2698, in completion
+    raise e
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/main.py", line 2670, in completion
+    response = openai_chat_completions.completion(
+        model=model,
+    ...<16 lines>...
+        shared_session=shared_session,
+    )
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/llms/openai/openai.py", line 863, in completion
+    raise OpenAIError(
+    ...<4 lines>...
+    )
+litellm.llms.openai.common_utils.OpenAIError: Too many requests. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service).
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/python/current/lib/python3.14/site-packages/gepa/proposer/reflective_mutation/reflective_mutation.py", line 297, in propose
+    new_texts = self.propose_new_texts(curr_prog, reflective_dataset, predictor_names_to_update)
+  File "/usr/local/python/current/lib/python3.14/site-packages/gepa/proposer/reflective_mutation/reflective_mutation.py", line 128, in propose_new_texts
+    new_texts[name] = InstructionProposalSignature.run(
+                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        lm=self.reflection_lm,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        },
+        ^^
+    )["new_instruction"]
+    ^
+  File "/usr/local/python/current/lib/python3.14/site-packages/gepa/proposer/reflective_mutation/base.py", line 48, in run
+    lm_res = lm(full_prompt)
+  File "/usr/local/python/current/lib/python3.14/site-packages/gepa/optimize_anything.py", line 859, in _lm
+    completion = litellm.completion(model=model_name, messages=messages)
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/utils.py", line 1769, in wrapper
+    raise e
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/utils.py", line 1590, in wrapper
+    result = original_function(*args, **kwargs)
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/main.py", line 4411, in completion
+    raise exception_type(
+          ~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        extra_kwargs=kwargs,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2456, in exception_type
+    raise e
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 579, in exception_type
+    raise RateLimitError(
+    ...<5 lines>...
+    )
+litellm.exceptions.RateLimitError: litellm.RateLimitError: RateLimitError: OpenAIException - Too many requests. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service).
+
+Iteration 4: Reflective mutation did not propose a new candidate
+Iteration 5: Selected program 0 score: 0.7270114942528736
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+Iteration 5: Exception during reflection/proposal: litellm.RateLimitError: RateLimitError: OpenAIException - Too many requests. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service).
+Traceback (most recent call last):
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/llms/openai/openai.py", line 852, in completion
+    raise e
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/llms/openai/openai.py", line 780, in completion
+    ) = self.make_sync_openai_chat_completion_request(
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        openai_client=openai_client,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        logging_obj=logging_obj,
+        ^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/litellm_core_utils/logging_utils.py", line 344, in sync_wrapper
+    result = func(*args, **kwargs)
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/llms/openai/openai.py", line 503, in make_sync_openai_chat_completion_request
+    raise e
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/llms/openai/openai.py", line 478, in make_sync_openai_chat_completion_request
+    raw_response = openai_client.chat.completions.with_raw_response.create(
+        **data, timeout=timeout
+    )
+  File "/usr/local/python/current/lib/python3.14/site-packages/openai/_legacy_response.py", line 367, in wrapped
+    return cast(LegacyAPIResponse[R], func(*args, **kwargs))
+                                      ~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/current/lib/python3.14/site-packages/openai/_utils/_utils.py", line 286, in wrapper
+    return func(*args, **kwargs)
+  File "/usr/local/python/current/lib/python3.14/site-packages/openai/resources/chat/completions/completions.py", line 1211, in create
+    return self._post(
+           ~~~~~~~~~~^
+        "/chat/completions",
+        ^^^^^^^^^^^^^^^^^^^^
+    ...<47 lines>...
+        stream_cls=Stream[ChatCompletionChunk],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/usr/local/python/current/lib/python3.14/site-packages/openai/_base_client.py", line 1297, in post
+    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))
+                           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/current/lib/python3.14/site-packages/openai/_base_client.py", line 1070, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.RateLimitError: Too many requests. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service).
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/main.py", line 2698, in completion
+    raise e
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/main.py", line 2670, in completion
+    response = openai_chat_completions.completion(
+        model=model,
+    ...<16 lines>...
+        shared_session=shared_session,
+    )
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/llms/openai/openai.py", line 863, in completion
+    raise OpenAIError(
+    ...<4 lines>...
+    )
+litellm.llms.openai.common_utils.OpenAIError: Too many requests. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service).
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/python/current/lib/python3.14/site-packages/gepa/proposer/reflective_mutation/reflective_mutation.py", line 297, in propose
+    new_texts = self.propose_new_texts(curr_prog, reflective_dataset, predictor_names_to_update)
+  File "/usr/local/python/current/lib/python3.14/site-packages/gepa/proposer/reflective_mutation/reflective_mutation.py", line 128, in propose_new_texts
+    new_texts[name] = InstructionProposalSignature.run(
+                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        lm=self.reflection_lm,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        },
+        ^^
+    )["new_instruction"]
+    ^
+  File "/usr/local/python/current/lib/python3.14/site-packages/gepa/proposer/reflective_mutation/base.py", line 48, in run
+    lm_res = lm(full_prompt)
+  File "/usr/local/python/current/lib/python3.14/site-packages/gepa/optimize_anything.py", line 859, in _lm
+    completion = litellm.completion(model=model_name, messages=messages)
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/utils.py", line 1769, in wrapper
+    raise e
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/utils.py", line 1590, in wrapper
+    result = original_function(*args, **kwargs)
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/main.py", line 4411, in completion
+    raise exception_type(
+          ~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        extra_kwargs=kwargs,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2456, in exception_type
+    raise e
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 579, in exception_type
+    raise RateLimitError(
+    ...<5 lines>...
+    )
+litellm.exceptions.RateLimitError: litellm.RateLimitError: RateLimitError: OpenAIException - Too many requests. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service).
+
+Iteration 5: Reflective mutation did not propose a new candidate
+Iteration 6: Selected program 0 score: 0.7270114942528736
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+Iteration 6: Exception during reflection/proposal: litellm.RateLimitError: RateLimitError: OpenAIException - Too many requests. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service).
+Traceback (most recent call last):
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/llms/openai/openai.py", line 852, in completion
+    raise e
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/llms/openai/openai.py", line 780, in completion
+    ) = self.make_sync_openai_chat_completion_request(
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        openai_client=openai_client,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        logging_obj=logging_obj,
+        ^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/litellm_core_utils/logging_utils.py", line 344, in sync_wrapper
+    result = func(*args, **kwargs)
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/llms/openai/openai.py", line 503, in make_sync_openai_chat_completion_request
+    raise e
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/llms/openai/openai.py", line 478, in make_sync_openai_chat_completion_request
+    raw_response = openai_client.chat.completions.with_raw_response.create(
+        **data, timeout=timeout
+    )
+  File "/usr/local/python/current/lib/python3.14/site-packages/openai/_legacy_response.py", line 367, in wrapped
+    return cast(LegacyAPIResponse[R], func(*args, **kwargs))
+                                      ~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/current/lib/python3.14/site-packages/openai/_utils/_utils.py", line 286, in wrapper
+    return func(*args, **kwargs)
+  File "/usr/local/python/current/lib/python3.14/site-packages/openai/resources/chat/completions/completions.py", line 1211, in create
+    return self._post(
+           ~~~~~~~~~~^
+        "/chat/completions",
+        ^^^^^^^^^^^^^^^^^^^^
+    ...<47 lines>...
+        stream_cls=Stream[ChatCompletionChunk],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/usr/local/python/current/lib/python3.14/site-packages/openai/_base_client.py", line 1297, in post
+    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))
+                           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/current/lib/python3.14/site-packages/openai/_base_client.py", line 1070, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.RateLimitError: Too many requests. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service).
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/main.py", line 2698, in completion
+    raise e
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/main.py", line 2670, in completion
+    response = openai_chat_completions.completion(
+        model=model,
+    ...<16 lines>...
+        shared_session=shared_session,
+    )
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/llms/openai/openai.py", line 863, in completion
+    raise OpenAIError(
+    ...<4 lines>...
+    )
+litellm.llms.openai.common_utils.OpenAIError: Too many requests. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service).
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/python/current/lib/python3.14/site-packages/gepa/proposer/reflective_mutation/reflective_mutation.py", line 297, in propose
+    new_texts = self.propose_new_texts(curr_prog, reflective_dataset, predictor_names_to_update)
+  File "/usr/local/python/current/lib/python3.14/site-packages/gepa/proposer/reflective_mutation/reflective_mutation.py", line 128, in propose_new_texts
+    new_texts[name] = InstructionProposalSignature.run(
+                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        lm=self.reflection_lm,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        },
+        ^^
+    )["new_instruction"]
+    ^
+  File "/usr/local/python/current/lib/python3.14/site-packages/gepa/proposer/reflective_mutation/base.py", line 48, in run
+    lm_res = lm(full_prompt)
+  File "/usr/local/python/current/lib/python3.14/site-packages/gepa/optimize_anything.py", line 859, in _lm
+    completion = litellm.completion(model=model_name, messages=messages)
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/utils.py", line 1769, in wrapper
+    raise e
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/utils.py", line 1590, in wrapper
+    result = original_function(*args, **kwargs)
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/main.py", line 4411, in completion
+    raise exception_type(
+          ~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        extra_kwargs=kwargs,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2456, in exception_type
+    raise e
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 579, in exception_type
+    raise RateLimitError(
+    ...<5 lines>...
+    )
+litellm.exceptions.RateLimitError: litellm.RateLimitError: RateLimitError: OpenAIException - Too many requests. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service).
+
+Iteration 6: Reflective mutation did not propose a new candidate
+Iteration 7: Selected program 0 score: 0.7270114942528736
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+Iteration 7: Exception during reflection/proposal: litellm.RateLimitError: RateLimitError: OpenAIException - Too many requests. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service).
+Traceback (most recent call last):
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/llms/openai/openai.py", line 852, in completion
+    raise e
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/llms/openai/openai.py", line 780, in completion
+    ) = self.make_sync_openai_chat_completion_request(
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        openai_client=openai_client,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        logging_obj=logging_obj,
+        ^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/litellm_core_utils/logging_utils.py", line 344, in sync_wrapper
+    result = func(*args, **kwargs)
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/llms/openai/openai.py", line 503, in make_sync_openai_chat_completion_request
+    raise e
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/llms/openai/openai.py", line 478, in make_sync_openai_chat_completion_request
+    raw_response = openai_client.chat.completions.with_raw_response.create(
+        **data, timeout=timeout
+    )
+  File "/usr/local/python/current/lib/python3.14/site-packages/openai/_legacy_response.py", line 367, in wrapped
+    return cast(LegacyAPIResponse[R], func(*args, **kwargs))
+                                      ~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/current/lib/python3.14/site-packages/openai/_utils/_utils.py", line 286, in wrapper
+    return func(*args, **kwargs)
+  File "/usr/local/python/current/lib/python3.14/site-packages/openai/resources/chat/completions/completions.py", line 1211, in create
+    return self._post(
+           ~~~~~~~~~~^
+        "/chat/completions",
+        ^^^^^^^^^^^^^^^^^^^^
+    ...<47 lines>...
+        stream_cls=Stream[ChatCompletionChunk],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/usr/local/python/current/lib/python3.14/site-packages/openai/_base_client.py", line 1297, in post
+    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))
+                           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/current/lib/python3.14/site-packages/openai/_base_client.py", line 1070, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.RateLimitError: Too many requests. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service).
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/main.py", line 2698, in completion
+    raise e
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/main.py", line 2670, in completion
+    response = openai_chat_completions.completion(
+        model=model,
+    ...<16 lines>...
+        shared_session=shared_session,
+    )
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/llms/openai/openai.py", line 863, in completion
+    raise OpenAIError(
+    ...<4 lines>...
+    )
+litellm.llms.openai.common_utils.OpenAIError: Too many requests. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service).
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/python/current/lib/python3.14/site-packages/gepa/proposer/reflective_mutation/reflective_mutation.py", line 297, in propose
+    new_texts = self.propose_new_texts(curr_prog, reflective_dataset, predictor_names_to_update)
+  File "/usr/local/python/current/lib/python3.14/site-packages/gepa/proposer/reflective_mutation/reflective_mutation.py", line 128, in propose_new_texts
+    new_texts[name] = InstructionProposalSignature.run(
+                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        lm=self.reflection_lm,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        },
+        ^^
+    )["new_instruction"]
+    ^
+  File "/usr/local/python/current/lib/python3.14/site-packages/gepa/proposer/reflective_mutation/base.py", line 48, in run
+    lm_res = lm(full_prompt)
+  File "/usr/local/python/current/lib/python3.14/site-packages/gepa/optimize_anything.py", line 859, in _lm
+    completion = litellm.completion(model=model_name, messages=messages)
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/utils.py", line 1769, in wrapper
+    raise e
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/utils.py", line 1590, in wrapper
+    result = original_function(*args, **kwargs)
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/main.py", line 4411, in completion
+    raise exception_type(
+          ~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        extra_kwargs=kwargs,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2456, in exception_type
+    raise e
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 579, in exception_type
+    raise RateLimitError(
+    ...<5 lines>...
+    )
+litellm.exceptions.RateLimitError: litellm.RateLimitError: RateLimitError: OpenAIException - Too many requests. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service).
+
+Iteration 7: Reflective mutation did not propose a new candidate
+Iteration 8: Selected program 0 score: 0.7270114942528736
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+Iteration 8: Exception during reflection/proposal: litellm.RateLimitError: RateLimitError: OpenAIException - Too many requests. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service).
+Traceback (most recent call last):
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/llms/openai/openai.py", line 852, in completion
+    raise e
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/llms/openai/openai.py", line 780, in completion
+    ) = self.make_sync_openai_chat_completion_request(
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        openai_client=openai_client,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        logging_obj=logging_obj,
+        ^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/litellm_core_utils/logging_utils.py", line 344, in sync_wrapper
+    result = func(*args, **kwargs)
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/llms/openai/openai.py", line 503, in make_sync_openai_chat_completion_request
+    raise e
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/llms/openai/openai.py", line 478, in make_sync_openai_chat_completion_request
+    raw_response = openai_client.chat.completions.with_raw_response.create(
+        **data, timeout=timeout
+    )
+  File "/usr/local/python/current/lib/python3.14/site-packages/openai/_legacy_response.py", line 367, in wrapped
+    return cast(LegacyAPIResponse[R], func(*args, **kwargs))
+                                      ~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/current/lib/python3.14/site-packages/openai/_utils/_utils.py", line 286, in wrapper
+    return func(*args, **kwargs)
+  File "/usr/local/python/current/lib/python3.14/site-packages/openai/resources/chat/completions/completions.py", line 1211, in create
+    return self._post(
+           ~~~~~~~~~~^
+        "/chat/completions",
+        ^^^^^^^^^^^^^^^^^^^^
+    ...<47 lines>...
+        stream_cls=Stream[ChatCompletionChunk],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/usr/local/python/current/lib/python3.14/site-packages/openai/_base_client.py", line 1297, in post
+    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))
+                           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/current/lib/python3.14/site-packages/openai/_base_client.py", line 1070, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.RateLimitError: Too many requests. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service).
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/main.py", line 2698, in completion
+    raise e
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/main.py", line 2670, in completion
+    response = openai_chat_completions.completion(
+        model=model,
+    ...<16 lines>...
+        shared_session=shared_session,
+    )
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/llms/openai/openai.py", line 863, in completion
+    raise OpenAIError(
+    ...<4 lines>...
+    )
+litellm.llms.openai.common_utils.OpenAIError: Too many requests. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service).
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/python/current/lib/python3.14/site-packages/gepa/proposer/reflective_mutation/reflective_mutation.py", line 297, in propose
+    new_texts = self.propose_new_texts(curr_prog, reflective_dataset, predictor_names_to_update)
+  File "/usr/local/python/current/lib/python3.14/site-packages/gepa/proposer/reflective_mutation/reflective_mutation.py", line 128, in propose_new_texts
+    new_texts[name] = InstructionProposalSignature.run(
+                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        lm=self.reflection_lm,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        },
+        ^^
+    )["new_instruction"]
+    ^
+  File "/usr/local/python/current/lib/python3.14/site-packages/gepa/proposer/reflective_mutation/base.py", line 48, in run
+    lm_res = lm(full_prompt)
+  File "/usr/local/python/current/lib/python3.14/site-packages/gepa/optimize_anything.py", line 859, in _lm
+    completion = litellm.completion(model=model_name, messages=messages)
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/utils.py", line 1769, in wrapper
+    raise e
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/utils.py", line 1590, in wrapper
+    result = original_function(*args, **kwargs)
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/main.py", line 4411, in completion
+    raise exception_type(
+          ~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        extra_kwargs=kwargs,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2456, in exception_type
+    raise e
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 579, in exception_type
+    raise RateLimitError(
+    ...<5 lines>...
+    )
+litellm.exceptions.RateLimitError: litellm.RateLimitError: RateLimitError: OpenAIException - Too many requests. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service).
+
+Iteration 8: Reflective mutation did not propose a new candidate
+{
+  "skill": "azure-resources",
+  "original": "# Azure Resources\n\nDiscover, inventory, and visualize existing Azure resources. Combines two\nrelated capabilities:\n\n- **Lookup mode** \u2014 query and list resources (single type or cross-cutting via\n  Azure Resource Graph). Replaces the legacy `azure-resource-lookup` skill.\n- **Visualize mode** \u2014 analyze a resource group and generate a detailed Mermaid\n  architecture diagram. Replaces the legacy `azure-resource-visualizer` skill.\n\nBoth modes share `references/azure-resource-graph.md` for KQL patterns.\n\n---\n\n# Mode A: Lookup\n\nUse this mode when the user wants to **list / find / show** Azure resources.\n\n## When to Use Lookup\n\n- **List resources** of any type (VMs, web apps, storage accounts, container apps, databases, etc.)\n- **Show resources** in a specific subscription or resource group\n- Query resources **across multiple subscriptions** or resource types\n- Find **orphaned resources** (unattached disks, unused NICs, idle IPs)\n- Discover resources **missing required tags** or configurations\n- Get a **resource inventory** spanning multiple types\n- Find resources in a **specific state** (unhealthy, failed provisioning, stopped)\n- Answer \"**what resources do I have?**\" or \"**show me my Azure resources**\"\n\n> \ud83d\udca1 **Tip:** For single-resource-type queries, first check if a dedicated MCP\n> tool can handle it (see routing table below). If none exists, use Azure\n> Resource Graph (ARG).\n\n## Quick Reference\n\n| Property           | Value                                                      |\n| ------------------ | ---------------------------------------------------------- |\n| **Query Language** | KQL (Kusto Query Language subset)                          |\n| **CLI Command**    | `az graph query -q \"<KQL>\" -o table`                       |\n| **Extension**      | `az extension add --name resource-graph`                   |\n| **MCP Tool**       | `extension_cli_generate` with intent for `az graph query`  |\n| **Best For**       | Cross-subscription queries, orphaned resources, tag audits |\n\n## MCP Tools\n\n| Tool                              | Purpose                            | When to Use                                     |\n| --------------------------------- | ---------------------------------- | ----------------------------------------------- |\n| `extension_cli_generate`          | Generate `az graph query` commands | Primary \u2014 generate ARG queries from user intent |\n| `mcp_azure_mcp_subscription_list` | List available subscriptions       | Discover subscription scope before querying     |\n| `mcp_azure_mcp_group_list`        | List resource groups               | Narrow query scope                              |\n\n## Rules\n\n- **Prefer dedicated MCP tools** for single-resource-type queries (`compute`, `storage`, `cosmos`, etc.) before falling back to Azure Resource Graph\n- **Use ARG for cross-cutting queries** \u2014 cross-subscription, cross-type, orphaned resources, tag audits\n- **Generate queries via `extension_cli_generate`** \u2014 do not hand-author KQL when intent-based generation is available\n- **Shape output with `--query` JMESPath** for tabular display; do not load raw JSON dumps into context\n- **Mode A is read-only** \u2014 lookup never modifies resources; remediation is out of scope (use `azure-deploy`)\n- **Mode B (Visualize) is for documentation** \u2014 emit Mermaid only when the user explicitly asks for a diagram; do not auto-visualize lookup results\n- **Out of scope**: deploying resources (use `azure-deploy`), cost optimization (use `azure-cost-optimization`), security scanning (use `azure-compliance`), troubleshooting (use `azure-diagnostics`)\n\n## Lookup Workflow\n\nThree-step procedure: (1) check for a dedicated MCP tool by resource type\n(`compute` / `storage` / `cosmos` / `keyvault` / `sql` / `acr` / `aks` /\n`appservice` / `eventhubs` / `servicebus`); (2) if no full-coverage tool, generate an\nAzure Resource Graph query via `extension_cli_generate`; (3) execute with `--query`\nJMESPath shaping. Full per-resource-type tool table and example commands in\n[`references/lookup-workflow.md`](references/lookup-workflow.md).\n\n## Lookup Constraints\n\n- \u2705 **Always** use `=~` for case-insensitive type matching (types are lowercase)\n- \u2705 **Always** scope queries with `--subscriptions` or `--first` for large tenants\n- \u2705 **Prefer** dedicated MCP tools for single-resource-type queries\n- \u274c **Never** use ARG for real-time monitoring (data has slight delay)\n- \u274c **Never** attempt mutations through ARG (read-only)\n\n## Lookup Error Handling\n\n| Error                                | Cause                                | Fix                                                            |\n| ------------------------------------ | ------------------------------------ | -------------------------------------------------------------- |\n| `resource-graph extension not found` | Extension not installed              | `az extension add --name resource-graph`                       |\n| `AuthorizationFailed`                | No read access to subscription       | Check RBAC \u2014 need Reader role                                  |\n| `BadRequest` on query                | Invalid KQL syntax                   | Verify table/column names; use `=~` for case-insensitive match |\n| Empty results                        | No matching resources or wrong scope | Check `--subscriptions` flag; verify resource type spelling    |\n\n---\n\n# Mode B: Visualize\n\nUse this mode when the user asks for a **diagram** of a resource group, or to\nunderstand how individual resources fit together.\n\n## When to Use Visualize\n\nThe user wants to:\n\n- Create an architecture diagram of an existing resource group\n- See how resources connect (VNets, private endpoints, identities, app settings)\n- Document deployed infrastructure with embedded Mermaid\n\nFor the full Visualize-mode procedure (resource discovery, diagram construction, file creation, quality standards, constraints, edge cases, and output format), load **[references/visualize.md](references/visualize.md)**.\n\n---\n\n## Reference Index\n\nLoad these on demand \u2014 do NOT read all at once:\n\n| Reference                            | Mode      | When to Load                                          |\n| ------------------------------------ | --------- | ----------------------------------------------------- |\n| `references/azure-resource-graph.md` | Both      | KQL patterns, ARG query examples                      |\n| `references/visualize.md`            | Visualize | Full Visualize-mode workflow (Steps 2\u20134, constraints) |\n| `assets/example-diagram.md`          | Visualize | Sample completed Mermaid architecture diagram         |\n| `assets/template-architecture.md`    | Visualize | Markdown template for the generated documentation     |",
+  "optimized": "---\nname: azure-resources\ndescription: '**ANALYSIS SKILL** \u2014 List, find, and visualize existing Azure resources via Azure Resource Graph (LOOKUP) or Mermaid diagrams (VISUALIZE). WHEN: \"list resources\", \"list VMs\", \"find orphaned resources\", \"resource inventory\", \"cross-subscription query\", \"visualize Azure resources\", \"diagram my resources\". USE FOR: resource lookup, tag analysis, architecture visualization. DO NOT USE FOR: deploying resources (use azure-deploy), cost optimization (use azure-cost-optimization), security scanning (use azure-compliance), troubleshooting (use azure-diagnostics).'\nlicense: MIT\nmetadata:\n  author: Microsoft\n  version: \"1.0.0\"\n---\n\n# Azure Resources\n\nDiscover, inventory, and visualize existing Azure resources. Combines two\nrelated capabilities:\n\n- **Lookup mode** \u2014 query and list resources (single type or cross-cutting via\n  Azure Resource Graph). Replaces the legacy `azure-resource-lookup` skill.\n- **Visualize mode** \u2014 analyze a resource group and generate a detailed Mermaid\n  architecture diagram. Replaces the legacy `azure-resource-visualizer` skill.\n\nBoth modes share `references/azure-resource-graph.md` for KQL patterns.\n\n---\n\n# Mode A: Lookup\n\nUse this mode when the user wants to **list / find / show** Azure resources.\n\n## When to Use Lookup\n\n- **List resources** of any type (VMs, web apps, storage accounts, container apps, databases, etc.)\n- **Show resources** in a specific subscription or resource group\n- Query resources **across multiple subscriptions** or resource types\n- Find **orphaned resources** (unattached disks, unused NICs, idle IPs)\n- Discover resources **missing required tags** or configurations\n- Get a **resource inventory** spanning multiple types\n- Find resources in a **specific state** (unhealthy, failed provisioning, stopped)\n- Answer \"**what resources do I have?**\" or \"**show me my Azure resources**\"\n\n> \ud83d\udca1 **Tip:** For single-resource-type queries, first check if a dedicated MCP\n> tool can handle it (see routing table below). If none exists, use Azure\n> Resource Graph (ARG).\n\n## Quick Reference\n\n| Property           | Value                                                      |\n| ------------------ | ---------------------------------------------------------- |\n| **Query Language** | KQL (Kusto Query Language subset)                          |\n| **CLI Command**    | `az graph query -q \"<KQL>\" -o table`                       |\n| **Extension**      | `az extension add --name resource-graph`                   |\n| **MCP Tool**       | `extension_cli_generate` with intent for `az graph query`  |\n| **Best For**       | Cross-subscription queries, orphaned resources, tag audits |\n\n## MCP Tools\n\n| Tool                              | Purpose                            | When to Use                                     |\n| --------------------------------- | ---------------------------------- | ----------------------------------------------- |\n| `extension_cli_generate`          | Generate `az graph query` commands | Primary \u2014 generate ARG queries from user intent |\n| `mcp_azure_mcp_subscription_list` | List available subscriptions       | Discover subscription scope before querying     |\n| `mcp_azure_mcp_group_list`        | List resource groups               | Narrow query scope                              |\n\n## Rules\n\n- **Prefer dedicated MCP tools** for single-resource-type queries (`compute`, `storage`, `cosmos`, etc.) before falling back to Azure Resource Graph\n- **Use ARG for cross-cutting queries** \u2014 cross-subscription, cross-type, orphaned resources, tag audits\n- **Generate queries via `extension_cli_generate`** \u2014 do not hand-author KQL when intent-based generation is available\n- **Shape output with `--query` JMESPath** for tabular display; do not load raw JSON dumps into context\n- **Mode A is read-only** \u2014 lookup never modifies resources; remediation is out of scope (use `azure-deploy`)\n- **Mode B (Visualize) is for documentation** \u2014 emit Mermaid only when the user explicitly asks for a diagram; do not auto-visualize lookup results\n- **Out of scope**: deploying resources (use `azure-deploy`), cost optimization (use `azure-cost-optimization`), security scanning (use `azure-compliance`), troubleshooting (use `azure-diagnostics`)\n\n## Lookup Workflow\n\nThree-step procedure: (1) check for a dedicated MCP tool by resource type\n(`compute` / `storage` / `cosmos` / `keyvault` / `sql` / `acr` / `aks` /\n`appservice` / `eventhubs` / `servicebus`); (2) if no full-coverage tool, generate an\nAzure Resource Graph query via `extension_cli_generate`; (3) execute with `--query`\nJMESPath shaping. Full per-resource-type tool table and example commands in\n[`references/lookup-workflow.md`](references/lookup-workflow.md).\n\n## Lookup Constraints\n\n- \u2705 **Always** use `=~` for case-insensitive type matching (types are lowercase)\n- \u2705 **Always** scope queries with `--subscriptions` or `--first` for large tenants\n- \u2705 **Prefer** dedicated MCP tools for single-resource-type queries\n- \u274c **Never** use ARG for real-time monitoring (data has slight delay)\n- \u274c **Never** attempt mutations through ARG (read-only)\n\n## Lookup Error Handling\n\n| Error                                | Cause                                | Fix                                                            |\n| ------------------------------------ | ------------------------------------ | -------------------------------------------------------------- |\n| `resource-graph extension not found` | Extension not installed              | `az extension add --name resource-graph`                       |\n| `AuthorizationFailed`                | No read access to subscription       | Check RBAC \u2014 need Reader role                                  |\n| `BadRequest` on query                | Invalid KQL syntax                   | Verify table/column names; use `=~` for case-insensitive match |\n| Empty results                        | No matching resources or wrong scope | Check `--subscriptions` flag; verify resource type spelling    |\n\n---\n\n# Mode B: Visualize\n\nUse this mode when the user asks for a **diagram** of a resource group, or to\nunderstand how individual resources fit together.\n\n## When to Use Visualize\n\nThe user wants to:\n\n- Create an architecture diagram of an existing resource group\n- See how resources connect (VNets, private endpoints, identities, app settings)\n- Document deployed infrastructure with embedded Mermaid\n\nFor the full Visualize-mode procedure (resource discovery, diagram construction, file creation, quality standards, constraints, edge cases, and output format), load **[references/visualize.md](references/visualize.md)**.\n\n---\n\n## Reference Index\n\nLoad these on demand \u2014 do NOT read all at once:\n\n| Reference                            | Mode      | When to Load                                          |\n| ------------------------------------ | --------- | ----------------------------------------------------- |\n| `references/azure-resource-graph.md` | Both      | KQL patterns, ARG query examples                      |\n| `references/visualize.md`            | Visualize | Full Visualize-mode workflow (Steps 2\u20134, constraints) |\n| `assets/example-diagram.md`          | Visualize | Sample completed Mermaid architecture diagram         |\n| `assets/template-architecture.md`    | Visualize | Markdown template for the generated documentation     |\n",
+  "best_score": null
+}

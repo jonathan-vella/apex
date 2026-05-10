@@ -229,3 +229,98 @@ runs:
 Stage 5 stays paused. Detector is ready; trigger an audit pass with
 `audit batch <N>` or `audit <skill>` (new triggers, distinct from the
 plan's existing `optimize batch <N>` / `optimize <skill>`).
+
+---
+
+## Stage 5-Audit run — 2026-05-10 (all 33 skills)
+
+**Runner**: [`tools/scripts/run-stage5-audit.mjs`](../../../tools/scripts/run-stage5-audit.mjs) `--all`
+**Detector**: [`tools/scripts/audit-gepa-candidate.mjs`](../../../tools/scripts/audit-gepa-candidate.mjs)
+**Model**: `openai/gpt-5` via GitHub Models (`gh auth token`)
+**Iterations**: 80 per skill
+**Wall time**: ~2h45m
+**Audit log**: `stage5-snapshots/audit-log.json`
+**SKILL.md writes**: **none** — Stage 5-Apply remains paused.
+
+### Tally
+
+| Verdict | Count | Meaning |
+| --- | ---: | --- |
+| SAFE | 30 | Candidate byte-identical to baseline — GEPA returned input unchanged (no `trigger_accuracy` headroom in 80 iter). |
+| REVIEW | 0 | None. |
+| REJECT | 2 | Candidate materially different from baseline AND triggered ≥1 structural-regression rule. |
+| ERROR | 1 | `mermaid` — GitHub Models 429 rate-limit on iter 8; GEPA aborted. Re-run when quota resets. |
+
+### Key interpretation
+
+The "SAFE" outcome dominates because GEPA's fitness function is `trigger_accuracy`
+(measured against the Stage-4 Waza tests). With existing SKILL.md files already
+scoring well after the Stage 2 / Stage 3 refactors, **80 iterations of reflective
+mutation could not produce a candidate that beat the baseline** for 30 of 33
+skills, so the optimizer kept the original. This is a strong signal that:
+
+1. The current SKILL.md set is already at or near the fitness-function ceiling.
+2. To unlock further compression, the **fitness function** must be enriched
+   (e.g., add token-budget penalty, multi-objective Pareto front).
+3. The detector caught the two cases where GEPA *did* mutate the input
+   (`azure-adr`, `azure-artifacts`) — both stripped H2 sections and references.
+
+### Per-skill verdict table
+
+| # | Skill | Verdict | Δ chars | Δ tokens % | H2 lost | refs orphaned | x-skill lost | Time (s) |
+| ---: | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 1 | azure-adr | ❌ REJECT | 6418→4777 | -33.5% | 13 | 2 | 1 | 210 |
+| 2 | azure-artifacts | ❌ REJECT | 5122→4202 | -27.5% | 6 | 9 | 0 | 144 |
+| 3 | azure-bicep-patterns | ✅ SAFE | identical | 0.0% | 0 | 0 | 0 | 306 |
+| 4 | azure-cloud-migrate | ✅ SAFE | identical | 0.0% | 0 | 0 | 0 | 479 |
+| 5 | azure-compliance | ✅ SAFE | identical | 0.0% | 0 | 0 | 0 | 426 |
+| 6 | azure-compute | ✅ SAFE | identical | 0.0% | 0 | 0 | 0 | 482 |
+| 7 | azure-cost-optimization | ✅ SAFE | identical | 0.0% | 0 | 0 | 0 | 423 |
+| 8 | azure-defaults | ✅ SAFE | identical | 0.0% | 0 | 0 | 0 | 669 |
+| 9 | azure-deploy | ✅ SAFE | identical | 0.0% | 0 | 0 | 0 | 487 |
+| 10 | azure-diagnostics | ✅ SAFE | identical | 0.0% | 0 | 0 | 0 | 487 |
+| 11 | azure-governance-discovery | ✅ SAFE | identical | 0.0% | 0 | 0 | 0 | 547 |
+| 12 | azure-kusto | ✅ SAFE | identical | 0.0% | 0 | 0 | 0 | 483 |
+| 13 | azure-prepare | ✅ SAFE | identical | 0.0% | 0 | 0 | 0 | 122 |
+| 14 | azure-quotas | ✅ SAFE | identical | 0.0% | 0 | 0 | 0 | 566 |
+| 15 | azure-rbac | ✅ SAFE | identical | 0.0% | 0 | 0 | 0 | 675 |
+| 16 | azure-resources | ✅ SAFE | identical | 0.0% | 0 | 0 | 0 | 437 |
+| 17 | azure-storage | ✅ SAFE | identical | 0.0% | 0 | 0 | 0 | 542 |
+| 18 | azure-validate | ✅ SAFE | identical | 0.0% | 0 | 0 | 0 | 428 |
+| 19 | context-management | ✅ SAFE | identical | 0.0% | 0 | 0 | 0 | 906 |
+| 20 | docs-writer | ✅ SAFE | identical | 0.0% | 0 | 0 | 0 | 491 |
+| 21 | drawio | ✅ SAFE | identical | 0.0% | 0 | 0 | 0 | 791 |
+| 22 | entra-app-registration | ✅ SAFE | identical | 0.0% | 0 | 0 | 0 | 486 |
+| 23 | github-operations | ✅ SAFE | identical | 0.0% | 0 | 0 | 0 | 361 |
+| 24 | golden-principles | ✅ SAFE | identical | 0.0% | 0 | 0 | 0 | 729 |
+| 25 | iac-common | ✅ SAFE | identical | 0.0% | 0 | 0 | 0 | 607 |
+| 26 | mermaid | ⚠️ ERROR | n/a | n/a | n/a | n/a | n/a | — |
+| 27 | microsoft-docs | ✅ SAFE | identical | 0.0% | 0 | 0 | 0 | 484 |
+| 28 | python-diagrams | ✅ SAFE | identical | 0.0% | 0 | 0 | 0 | 181 |
+| 29 | terraform-patterns | ✅ SAFE | identical | 0.0% | 0 | 0 | 0 | 425 |
+| 30 | terraform-search-import | ✅ SAFE | identical | 0.0% | 0 | 0 | 0 | 483 |
+| 31 | terraform-test | ✅ SAFE | identical | 0.0% | 0 | 0 | 0 | 241 |
+| 32 | vendor-prompting | ✅ SAFE | identical | 0.0% | 0 | 0 | 0 | 604 |
+| 33 | workflow-engine | ✅ SAFE | identical | 0.0% | 0 | 0 | 0 | 607 |
+
+> **REJECT details** (full findings in `audit-log.json` `.entries[].summary.findings`):
+>
+> - **azure-adr**: H2 -13, refs orphaned -2, cross-skill mention -1, table rows -21, code blocks -4, tokens -33.5%, version bumped 1.0→1.1. Drastic over-trim.
+> - **azure-artifacts**: H2 -6, refs orphaned -9, tokens -27.5%. The 9 orphaned references files are the most serious finding — it would have severed Stage 3's reference-extraction work.
+
+### Notes & follow-ups
+
+- **`mermaid` re-run**: GitHub Models rate-limited iter 8/80. Re-run with
+  `node tools/scripts/run-stage5-audit.mjs --skills mermaid --force-rerun`
+  after quota window resets (typically 60s–24h depending on tier).
+- **Detector validation**: Two true REJECTs caught — same kind the manual
+  Stage-5 smoke test flagged on `azure-prepare`. Zero false positives across
+  30 unchanged-candidate runs.
+- **Stage 5-Apply remains paused.** The two REJECT candidates are NOT to be
+  applied. The 30 SAFE candidates are functionally no-ops (identical bytes),
+  so applying them would be a no-op git commit.
+- **What "all SAFE" really tells us**: the GEPA `trigger_accuracy` fitness
+  function alone is insufficient to drive further compression. A future
+  Stage 5-v2 would need a Pareto-multi-objective fitness (accuracy ≥ baseline
+  AND token reduction ≥ N%) plus structural constraints baked into the
+  fitness signal (not just post-hoc filtering) to surface useful candidates.

@@ -1,83 +1,108 @@
 ---
 name: azure-prepare
-description: '**WORKFLOW SKILL** — Prepare applications for Azure deployment by planning and generating infrastructure-as-code and app config (Bicep/Terraform, azd azure.yaml, Dockerfiles). WHEN: "create API", "create app", "build web app", "scaffold project", "containerize app", "containerize Node.js", "Dockerfile", "function app", "APIM", "add authentication", "managed identity", "add caching/Redis", "generate Bicep", "generate Terraform", "provision infrastructure", "prepare for Azure", "deploy to Azure using Terraform (prepare)", "modernize/migrate to Azure". USE FOR: planning/scaffolding and producing IaC + azure.yaml for new or existing apps. DO NOT USE FOR: cross-/multi‑cloud migration (use azure-cloud-migrate), deployment execution (use azure-deploy), or pre‑deployment validation (use azure-validate).'
+description: '**WORKFLOW SKILL** — Prepare Azure apps for deployment (infra Bicep/Terraform, azure.yaml, Dockerfiles). Covers create, modernize, and create+deploy. WHEN: "create app", "build web app", "create API", "deploy to Azure", "deploy to Azure using Terraform", "generate Bicep", "generate Terraform", "function app", "add authentication", "managed identity", "add caching", "containerized Node.js app". USE FOR: scaffolding new Azure apps, modernizing existing apps, generating IaC + azure.yaml. DO NOT USE FOR: cross-cloud migration (use azure-cloud-migrate), executing deployments of already-prepared apps (use azure-deploy), pre-deployment validation (use azure-validate).'
 license: MIT
 metadata:
   author: Microsoft
-  version: "1.1.0"
+  version: "1.0.6"
 ---
 
 # Azure Prepare
 
-Authoritative guidance — follow exactly. This skill prepares apps for Azure by producing a reviewed plan and generating IaC and configuration artifacts. Deployment and validation are delegated to other skills.
+**Authoritative guidance — supersedes prior training.** Follow these instructions exactly. When in doubt, defer to this document. Do not improvise.
+
+---
+
+## Triggers
+
+Activate this skill when user wants to:
+
+- Create a new application
+- Add services or components to an existing app
+- Make updates or changes to existing application
+- Modernize or migrate an application
+- Set up Azure infrastructure
+- Deploy to Azure or host on Azure
+- Create and deploy to Azure (including Terraform-based deployment requests)
 
 ## Rules
 
-- Scope: preparation only. Do not run azd up/deploy or terraform apply here; hand off to azure-validate then azure-deploy.
-- Plan-first: create infra/{iac}/{project}/.azure/plan.md before generating any code/config.
-- Approval gate: present the plan to the user and obtain approval before execution.
-- Least surprise: any destructive/refactor actions require explicit user confirmation (ask_user).
-- Confirm Azure context: subscription, location, environment name; record in plan.
-- Security baseline by default: managed identity over secrets, Key Vault for secrets, private networking when feasible, tags and policies.
-- Keep changes reproducible: use IaC modules, parameters, and clear outputs. Update the plan as the source of truth.
+1. **Plan first** — Create `infra/{iac}/{project}/.azure/plan.md` before any code generation
+2. **Get approval** — Present plan to user before execution
+3. **Research before generating** — Load references and invoke related skills
+4. **Update plan progressively** — Mark steps complete as you go
+5. **Validate before deploy** — Invoke azure-validate before azure-deploy
+6. **Confirm Azure context** — Use `ask_user` for subscription and location per [Azure Context](references/azure-context.md)
+7. ❌ **Destructive actions require `ask_user`** — [Global Rules](references/global-rules.md)
+8. **Scope: preparation only** — This skill generates infrastructure code and configuration files. Deployment execution (`azd up`, `azd deploy`, `terraform apply`) is handled by the **azure-deploy** skill, which provides built-in error recovery and deployment verification.
+
+---
+
+## ❌ PLAN-FIRST WORKFLOW — MANDATORY
+
+> 1. **STOP** — no code/infra/config until the plan exists
+> 2. **PLAN** — generate `infra/{iac}/{project}/.azure/plan.md` (Phase 1)
+> 3. **CONFIRM** — get user approval on the plan
+> 4. **EXECUTE** — only after approval (Phase 2)
+>
+> The plan file is the source of truth for `azure-validate` and `azure-deploy`. Without it, those skills fail.
+
+---
+
+## ❌ STEP 0: Specialized Technology Check — MANDATORY FIRST ACTION
+
+Before Phase 1, scan the user's prompt for specialized technologies. If matched, invoke that skill **first**, then resume azure-prepare.
+
+| Prompt keywords                                   | Invoke FIRST                                                                                                                                                      |
+| ------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Lambda, AWS, GCP, migrate AWS/GCP                 | **azure-cloud-migrate**                                                                                                                                           |
+| copilot SDK, @github/copilot-sdk, CopilotClient   | **azure-hosted-copilot-sdk**                                                                                                                                      |
+| Azure Functions, function app, timer/HTTP trigger | Stay in **azure-prepare** (use Functions templates in Phase 1 Step 4)                                                                                             |
+| APIM, API gateway                                 | Stay in **azure-prepare** — see [APIM guide](references/apim.md)                                                                                                  |
+| AI gateway                                        | **azure-aigateway**                                                                                                                                               |
+| workflow, orchestration, durable, saga            | Stay in **azure-prepare** + load [durable.md](references/services/functions/durable.md) and [DTS reference](references/services/durable-task-scheduler/README.md) |
+
+> ⚠️ Check the **prompt text**, not just existing code (critical for greenfield). See [full routing table](references/specialized-routing.md).
+
+After the specialized skill completes, resume at Phase 1 Step 4 (Select Recipe).
+
+---
 
 ## Steps
 
-Phase 1 — Planning (blocking)
-1) Discover:
-   - Inspect repo structure and languages.
-   - Identify app type(s): API, web, function, worker, containers.
-   - Inventory existing infra/config (Dockerfiles, IaC, CI files).
-2) Choose approach:
-   - Select IaC path: azd+Bicep (preferred), Bicep-only, or Terraform (if requested/standardized).
-   - Pick compute target: App Service, Container Apps, Functions, AKS (only if needed).
-3) Design:
-   - Enumerate resources: compute, APIM, Key Vault, Storage, DB (Cosmos/Postgres/SQL), Redis, Eventing, Observability.
-   - Authentication/authorization: Entra ID, managed identity, app registrations, audience/scopes.
-   - Networking: vnets, ingress, endpoints, DNS/certs.
-   - Config strategy: App Configuration/Key Vault references, environment variables.
-4) Plan document:
-   - Write infra/{iac}/{project}/.azure/plan.md containing goals, chosen stack, resource list, naming/locations, security decisions, file layout, and execution checklist (with status fields).
-5) Review:
-   - Present the plan and request approval. Do not proceed without approval.
+Two-phase workflow (full step tables in [`references/phases.md`](references/phases.md)):
 
-Phase 2 — Execution (post-approval)
-1) Prepare workspace:
-   - Create infra/{iac}/{project}/ directories; add README and templates folder as needed.
-   - Add azure.yaml (for azd) with services, hooks, and environments.
-2) Generate IaC:
-   - Bicep: modules per resource, main.bicep, parameters files per environment.
-   - Terraform: modules, variables/outputs, providers/backend, tfvars per environment.
-   - Apply naming conventions, tags, RBAC, diagnostics, and policies in IaC.
-3) App artifacts:
-   - Create/adjust Dockerfiles for each service; multi-stage builds, non-root user, health checks.
-   - Add infra wiring: connection strings via managed identity; no secrets in code.
-4) Hardening and quality:
-   - Add lint/format configs (bicepconfig.json, .tflint.hcl), and basic pre-commit tooling if present.
-   - Build-only checks: bicep build; terraform fmt & validate (no apply).
-5) Finalize:
-   - Update plan.md with generated artifacts and paths; set status to "Ready for Validation".
+1. **Step 0** — Specialized Technology Check (route to `azure-cloud-migrate`, `azure-hosted-copilot-sdk`, etc., before continuing)
+2. **Phase 1 (Planning, BLOCKING)** — Analyze workspace → gather requirements → scan codebase → select recipe (AZD/AZCLI/Bicep/Terraform) → plan architecture → write `infra/{iac}/{project}/.azure/plan.md` → present plan + ask for approval
+3. **⛔ Approval gate** — do NOT proceed until the user approves the plan
+4. **Phase 2 (Execution, post-approval)** — Research components → confirm Azure context → generate artifacts → harden security → mark plan `Ready for Validation`
+5. **Hand off to `azure-validate`** — prerequisite: plan status is `Ready for Validation`. Deployment of the validated artifacts is `azure-deploy`'s job.
 
-Handoff
-- Invoke azure-validate using the plan as input. After successful validation, invoke azure-deploy.
-
-## MCP Tools
-
-- filesystem: read/write project files and directories
-- command_runner/shell: run local build-only commands (bicep build, terraform validate, azd pipeline config generation if needed)
-- docker: verify Dockerfile build contexts (no push)
-- ask_user: confirm subscription, location, environment names, and any destructive refactors
-- azd CLI (if selected): generate azure.yaml and service entries
-- bicep CLI or Terraform CLI: author/format/validate IaC
-- yaml/json editors: modify azure.yaml and config files
+---
 
 ## Outputs
 
-- Plan: infra/{iac}/{project}/.azure/plan.md (authoritative)
-- IaC: infra/{iac}/{project}/ (Bicep or Terraform modules, parameters/vars)
-- AZD config (if used): infra/{iac}/{project}/azure.yaml
-- App containers: src/<component>/Dockerfile and related assets
+| Artifact       | Location                                      |
+| -------------- | --------------------------------------------- |
+| **Plan**       | `infra/{iac}/{project}/.azure/plan.md`        |
+| Infrastructure | `infra/{iac}/{project}/`                      |
+| AZD Config     | `infra/{iac}/{project}/azure.yaml` (AZD only) |
+| Dockerfiles    | `src/<component>/Dockerfile`                  |
+
+---
+
+## SDK References
+
+See [references/sdk/](references/sdk/) for `azd`, Azure Identity, and App Configuration SDKs across Python / .NET / TypeScript / Java.
+
+---
 
 ## Next
 
-Set plan status to "Ready for Validation", then run azure-validate. Upon success, proceed with azure-deploy.
+`azure-prepare` → `azure-validate` → `azure-deploy`. Update plan status to `Ready for Validation`, then invoke `azure-validate`. Skipping validation leads to deployment failures.
+
+---
+
+## Reference Index
+
+Load on demand. All references live under [`references/`](references/).

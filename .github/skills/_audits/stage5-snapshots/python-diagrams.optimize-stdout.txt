@@ -1,0 +1,439 @@
+Iteration 0: Base program full valset score: 0.9714285714285714 over 70 / 70 examples
+Iteration 1: Selected program 0 score: 0.9714285714285714
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+Iteration 1: Exception during reflection/proposal: litellm.RateLimitError: RateLimitError: OpenAIException - Too many requests. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service).
+Traceback (most recent call last):
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/llms/openai/openai.py", line 852, in completion
+    raise e
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/llms/openai/openai.py", line 780, in completion
+    ) = self.make_sync_openai_chat_completion_request(
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        openai_client=openai_client,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        logging_obj=logging_obj,
+        ^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/litellm_core_utils/logging_utils.py", line 344, in sync_wrapper
+    result = func(*args, **kwargs)
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/llms/openai/openai.py", line 503, in make_sync_openai_chat_completion_request
+    raise e
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/llms/openai/openai.py", line 478, in make_sync_openai_chat_completion_request
+    raw_response = openai_client.chat.completions.with_raw_response.create(
+        **data, timeout=timeout
+    )
+  File "/usr/local/python/current/lib/python3.14/site-packages/openai/_legacy_response.py", line 367, in wrapped
+    return cast(LegacyAPIResponse[R], func(*args, **kwargs))
+                                      ~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/current/lib/python3.14/site-packages/openai/_utils/_utils.py", line 286, in wrapper
+    return func(*args, **kwargs)
+  File "/usr/local/python/current/lib/python3.14/site-packages/openai/resources/chat/completions/completions.py", line 1211, in create
+    return self._post(
+           ~~~~~~~~~~^
+        "/chat/completions",
+        ^^^^^^^^^^^^^^^^^^^^
+    ...<47 lines>...
+        stream_cls=Stream[ChatCompletionChunk],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/usr/local/python/current/lib/python3.14/site-packages/openai/_base_client.py", line 1297, in post
+    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))
+                           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/current/lib/python3.14/site-packages/openai/_base_client.py", line 1070, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.RateLimitError: Too many requests. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service).
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/main.py", line 2698, in completion
+    raise e
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/main.py", line 2670, in completion
+    response = openai_chat_completions.completion(
+        model=model,
+    ...<16 lines>...
+        shared_session=shared_session,
+    )
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/llms/openai/openai.py", line 863, in completion
+    raise OpenAIError(
+    ...<4 lines>...
+    )
+litellm.llms.openai.common_utils.OpenAIError: Too many requests. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service).
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/python/current/lib/python3.14/site-packages/gepa/proposer/reflective_mutation/reflective_mutation.py", line 297, in propose
+    new_texts = self.propose_new_texts(curr_prog, reflective_dataset, predictor_names_to_update)
+  File "/usr/local/python/current/lib/python3.14/site-packages/gepa/proposer/reflective_mutation/reflective_mutation.py", line 128, in propose_new_texts
+    new_texts[name] = InstructionProposalSignature.run(
+                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        lm=self.reflection_lm,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        },
+        ^^
+    )["new_instruction"]
+    ^
+  File "/usr/local/python/current/lib/python3.14/site-packages/gepa/proposer/reflective_mutation/base.py", line 48, in run
+    lm_res = lm(full_prompt)
+  File "/usr/local/python/current/lib/python3.14/site-packages/gepa/optimize_anything.py", line 859, in _lm
+    completion = litellm.completion(model=model_name, messages=messages)
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/utils.py", line 1769, in wrapper
+    raise e
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/utils.py", line 1590, in wrapper
+    result = original_function(*args, **kwargs)
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/main.py", line 4411, in completion
+    raise exception_type(
+          ~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        extra_kwargs=kwargs,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2456, in exception_type
+    raise e
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 579, in exception_type
+    raise RateLimitError(
+    ...<5 lines>...
+    )
+litellm.exceptions.RateLimitError: litellm.RateLimitError: RateLimitError: OpenAIException - Too many requests. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service).
+
+Iteration 1: Reflective mutation did not propose a new candidate
+Iteration 2: Selected program 0 score: 0.9714285714285714
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+Iteration 2: Exception during reflection/proposal: litellm.RateLimitError: RateLimitError: OpenAIException - Too many requests. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service).
+Traceback (most recent call last):
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/llms/openai/openai.py", line 852, in completion
+    raise e
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/llms/openai/openai.py", line 780, in completion
+    ) = self.make_sync_openai_chat_completion_request(
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        openai_client=openai_client,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        logging_obj=logging_obj,
+        ^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/litellm_core_utils/logging_utils.py", line 344, in sync_wrapper
+    result = func(*args, **kwargs)
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/llms/openai/openai.py", line 503, in make_sync_openai_chat_completion_request
+    raise e
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/llms/openai/openai.py", line 478, in make_sync_openai_chat_completion_request
+    raw_response = openai_client.chat.completions.with_raw_response.create(
+        **data, timeout=timeout
+    )
+  File "/usr/local/python/current/lib/python3.14/site-packages/openai/_legacy_response.py", line 367, in wrapped
+    return cast(LegacyAPIResponse[R], func(*args, **kwargs))
+                                      ~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/current/lib/python3.14/site-packages/openai/_utils/_utils.py", line 286, in wrapper
+    return func(*args, **kwargs)
+  File "/usr/local/python/current/lib/python3.14/site-packages/openai/resources/chat/completions/completions.py", line 1211, in create
+    return self._post(
+           ~~~~~~~~~~^
+        "/chat/completions",
+        ^^^^^^^^^^^^^^^^^^^^
+    ...<47 lines>...
+        stream_cls=Stream[ChatCompletionChunk],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/usr/local/python/current/lib/python3.14/site-packages/openai/_base_client.py", line 1297, in post
+    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))
+                           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/current/lib/python3.14/site-packages/openai/_base_client.py", line 1070, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.RateLimitError: Too many requests. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service).
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/main.py", line 2698, in completion
+    raise e
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/main.py", line 2670, in completion
+    response = openai_chat_completions.completion(
+        model=model,
+    ...<16 lines>...
+        shared_session=shared_session,
+    )
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/llms/openai/openai.py", line 863, in completion
+    raise OpenAIError(
+    ...<4 lines>...
+    )
+litellm.llms.openai.common_utils.OpenAIError: Too many requests. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service).
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/python/current/lib/python3.14/site-packages/gepa/proposer/reflective_mutation/reflective_mutation.py", line 297, in propose
+    new_texts = self.propose_new_texts(curr_prog, reflective_dataset, predictor_names_to_update)
+  File "/usr/local/python/current/lib/python3.14/site-packages/gepa/proposer/reflective_mutation/reflective_mutation.py", line 128, in propose_new_texts
+    new_texts[name] = InstructionProposalSignature.run(
+                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        lm=self.reflection_lm,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        },
+        ^^
+    )["new_instruction"]
+    ^
+  File "/usr/local/python/current/lib/python3.14/site-packages/gepa/proposer/reflective_mutation/base.py", line 48, in run
+    lm_res = lm(full_prompt)
+  File "/usr/local/python/current/lib/python3.14/site-packages/gepa/optimize_anything.py", line 859, in _lm
+    completion = litellm.completion(model=model_name, messages=messages)
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/utils.py", line 1769, in wrapper
+    raise e
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/utils.py", line 1590, in wrapper
+    result = original_function(*args, **kwargs)
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/main.py", line 4411, in completion
+    raise exception_type(
+          ~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        extra_kwargs=kwargs,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2456, in exception_type
+    raise e
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 579, in exception_type
+    raise RateLimitError(
+    ...<5 lines>...
+    )
+litellm.exceptions.RateLimitError: litellm.RateLimitError: RateLimitError: OpenAIException - Too many requests. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service).
+
+Iteration 2: Reflective mutation did not propose a new candidate
+Iteration 3: Selected program 0 score: 0.9714285714285714
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+Iteration 3: Exception during reflection/proposal: litellm.RateLimitError: RateLimitError: OpenAIException - Too many requests. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service).
+Traceback (most recent call last):
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/llms/openai/openai.py", line 852, in completion
+    raise e
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/llms/openai/openai.py", line 780, in completion
+    ) = self.make_sync_openai_chat_completion_request(
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        openai_client=openai_client,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        logging_obj=logging_obj,
+        ^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/litellm_core_utils/logging_utils.py", line 344, in sync_wrapper
+    result = func(*args, **kwargs)
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/llms/openai/openai.py", line 503, in make_sync_openai_chat_completion_request
+    raise e
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/llms/openai/openai.py", line 478, in make_sync_openai_chat_completion_request
+    raw_response = openai_client.chat.completions.with_raw_response.create(
+        **data, timeout=timeout
+    )
+  File "/usr/local/python/current/lib/python3.14/site-packages/openai/_legacy_response.py", line 367, in wrapped
+    return cast(LegacyAPIResponse[R], func(*args, **kwargs))
+                                      ~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/current/lib/python3.14/site-packages/openai/_utils/_utils.py", line 286, in wrapper
+    return func(*args, **kwargs)
+  File "/usr/local/python/current/lib/python3.14/site-packages/openai/resources/chat/completions/completions.py", line 1211, in create
+    return self._post(
+           ~~~~~~~~~~^
+        "/chat/completions",
+        ^^^^^^^^^^^^^^^^^^^^
+    ...<47 lines>...
+        stream_cls=Stream[ChatCompletionChunk],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/usr/local/python/current/lib/python3.14/site-packages/openai/_base_client.py", line 1297, in post
+    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))
+                           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/current/lib/python3.14/site-packages/openai/_base_client.py", line 1070, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.RateLimitError: Too many requests. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service).
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/main.py", line 2698, in completion
+    raise e
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/main.py", line 2670, in completion
+    response = openai_chat_completions.completion(
+        model=model,
+    ...<16 lines>...
+        shared_session=shared_session,
+    )
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/llms/openai/openai.py", line 863, in completion
+    raise OpenAIError(
+    ...<4 lines>...
+    )
+litellm.llms.openai.common_utils.OpenAIError: Too many requests. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service).
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/python/current/lib/python3.14/site-packages/gepa/proposer/reflective_mutation/reflective_mutation.py", line 297, in propose
+    new_texts = self.propose_new_texts(curr_prog, reflective_dataset, predictor_names_to_update)
+  File "/usr/local/python/current/lib/python3.14/site-packages/gepa/proposer/reflective_mutation/reflective_mutation.py", line 128, in propose_new_texts
+    new_texts[name] = InstructionProposalSignature.run(
+                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        lm=self.reflection_lm,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        },
+        ^^
+    )["new_instruction"]
+    ^
+  File "/usr/local/python/current/lib/python3.14/site-packages/gepa/proposer/reflective_mutation/base.py", line 48, in run
+    lm_res = lm(full_prompt)
+  File "/usr/local/python/current/lib/python3.14/site-packages/gepa/optimize_anything.py", line 859, in _lm
+    completion = litellm.completion(model=model_name, messages=messages)
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/utils.py", line 1769, in wrapper
+    raise e
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/utils.py", line 1590, in wrapper
+    result = original_function(*args, **kwargs)
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/main.py", line 4411, in completion
+    raise exception_type(
+          ~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        extra_kwargs=kwargs,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2456, in exception_type
+    raise e
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 579, in exception_type
+    raise RateLimitError(
+    ...<5 lines>...
+    )
+litellm.exceptions.RateLimitError: litellm.RateLimitError: RateLimitError: OpenAIException - Too many requests. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service).
+
+Iteration 3: Reflective mutation did not propose a new candidate
+Iteration 4: Selected program 0 score: 0.9714285714285714
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+Iteration 4: Exception during reflection/proposal: litellm.RateLimitError: RateLimitError: OpenAIException - Too many requests. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service).
+Traceback (most recent call last):
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/llms/openai/openai.py", line 852, in completion
+    raise e
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/llms/openai/openai.py", line 780, in completion
+    ) = self.make_sync_openai_chat_completion_request(
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        openai_client=openai_client,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        logging_obj=logging_obj,
+        ^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/litellm_core_utils/logging_utils.py", line 344, in sync_wrapper
+    result = func(*args, **kwargs)
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/llms/openai/openai.py", line 503, in make_sync_openai_chat_completion_request
+    raise e
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/llms/openai/openai.py", line 478, in make_sync_openai_chat_completion_request
+    raw_response = openai_client.chat.completions.with_raw_response.create(
+        **data, timeout=timeout
+    )
+  File "/usr/local/python/current/lib/python3.14/site-packages/openai/_legacy_response.py", line 367, in wrapped
+    return cast(LegacyAPIResponse[R], func(*args, **kwargs))
+                                      ~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/current/lib/python3.14/site-packages/openai/_utils/_utils.py", line 286, in wrapper
+    return func(*args, **kwargs)
+  File "/usr/local/python/current/lib/python3.14/site-packages/openai/resources/chat/completions/completions.py", line 1211, in create
+    return self._post(
+           ~~~~~~~~~~^
+        "/chat/completions",
+        ^^^^^^^^^^^^^^^^^^^^
+    ...<47 lines>...
+        stream_cls=Stream[ChatCompletionChunk],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/usr/local/python/current/lib/python3.14/site-packages/openai/_base_client.py", line 1297, in post
+    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))
+                           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/current/lib/python3.14/site-packages/openai/_base_client.py", line 1070, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.RateLimitError: Too many requests. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service).
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/main.py", line 2698, in completion
+    raise e
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/main.py", line 2670, in completion
+    response = openai_chat_completions.completion(
+        model=model,
+    ...<16 lines>...
+        shared_session=shared_session,
+    )
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/llms/openai/openai.py", line 863, in completion
+    raise OpenAIError(
+    ...<4 lines>...
+    )
+litellm.llms.openai.common_utils.OpenAIError: Too many requests. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service).
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/python/current/lib/python3.14/site-packages/gepa/proposer/reflective_mutation/reflective_mutation.py", line 297, in propose
+    new_texts = self.propose_new_texts(curr_prog, reflective_dataset, predictor_names_to_update)
+  File "/usr/local/python/current/lib/python3.14/site-packages/gepa/proposer/reflective_mutation/reflective_mutation.py", line 128, in propose_new_texts
+    new_texts[name] = InstructionProposalSignature.run(
+                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        lm=self.reflection_lm,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        },
+        ^^
+    )["new_instruction"]
+    ^
+  File "/usr/local/python/current/lib/python3.14/site-packages/gepa/proposer/reflective_mutation/base.py", line 48, in run
+    lm_res = lm(full_prompt)
+  File "/usr/local/python/current/lib/python3.14/site-packages/gepa/optimize_anything.py", line 859, in _lm
+    completion = litellm.completion(model=model_name, messages=messages)
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/utils.py", line 1769, in wrapper
+    raise e
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/utils.py", line 1590, in wrapper
+    result = original_function(*args, **kwargs)
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/main.py", line 4411, in completion
+    raise exception_type(
+          ~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        extra_kwargs=kwargs,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2456, in exception_type
+    raise e
+  File "/usr/local/python/current/lib/python3.14/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 579, in exception_type
+    raise RateLimitError(
+    ...<5 lines>...
+    )
+litellm.exceptions.RateLimitError: litellm.RateLimitError: RateLimitError: OpenAIException - Too many requests. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service).
+
+Iteration 4: Reflective mutation did not propose a new candidate
+{
+  "skill": "python-diagrams",
+  "original": "# Python Diagrams & Charts\n\nSkill for generating diagrams and charts using Python libraries: `matplotlib`\nfor WAF/cost/compliance visualizations, `diagrams` for architecture diagrams,\nand `graphviz` for ERDs, swimlanes, timelines, and wireframes.\n\n## Prerequisites\n\n```bash\npip install diagrams matplotlib pillow && apt-get install -y graphviz\n```\n\n## Routing Guide\n\n| Diagram type                        | Library    | Output         |\n| ----------------------------------- | ---------- | -------------- |\n| WAF bar charts                      | matplotlib | `.py` + `.png` |\n| Cost donut / projection charts      | matplotlib | `.py` + `.png` |\n| Compliance gap charts               | matplotlib | `.py` + `.png` |\n| Architecture diagrams (non-Draw.io) | diagrams   | `.py` + `.png` |\n| Swimlane / business process         | graphviz   | `.py` + `.png` |\n| Entity-relationship diagrams        | graphviz   | `.py` + `.png` |\n| Timeline / Gantt charts             | matplotlib | `.py` + `.png` |\n| UI wireframes                       | graphviz   | `.py` + `.png` |\n\n## Required Outputs (Workflow Integration)\n\n| Step | Python chart files                                                   |\n| ---- | -------------------------------------------------------------------- |\n| 2    | `02-waf-scores.py/.png`                                              |\n| 3    | `03-des-cost-distribution.py/.png`, `03-des-cost-projection.py/.png` |\n| 4    | `04-dependency-diagram.py/.png`, `04-runtime-diagram.py/.png`        |\n| 7    | `07-ab-cost-*.py/.png`, `07-ab-compliance-gaps.py/.png`              |\n\nSuffix rules: `-des` for design (Step 3), `-ab` for as-built (Step 7).\n\n## Steps\n\nSave `.py` source in `agent-output/{project}/`, then run to produce `.png`:\n\n```bash\npython3 agent-output/{project}/03-des-cost-distribution.py\n```\n\n## Chart Design Tokens\n\n**Background & grid:** Background `#F8F9FA` \u00b7 Grid `#E0E0E0` \u00b7 DPI 150.\n\n**Azure colors:** Azure blue `#0078D4` \u00b7 Min line `#DC3545` \u00b7\nTarget line `#28A745` \u00b7 Trend `#FF8C00`.\n\n**WAF pillar colors:** Security `#C00000` \u00b7 Reliability `#107C10` \u00b7\nPerformance `#FF8C00` \u00b7 Cost `#FFB900` \u00b7 Operational Excellence `#8764B8`.\n\n## Architecture Diagram Conventions (diagrams library)\n\nFollow this pattern for architecture diagram generation:\n\n```python\n\"\"\"Brief description of what the diagram shows.\"\"\"\n\nfrom diagrams import Cluster, Diagram\nfrom diagrams.azure.compute import AppServices\nfrom diagrams.azure.network import FrontDoors\n\nwith Diagram(\"Diagram Title\", show=False, filename=\"output-name\", direction=\"TB\"):\n    with Cluster(\"Resource Group\"):\n        # Resources...\n        pass\n```\n\n- Always set `show=False` to prevent auto-opening\n- Use `direction=\"TB\"` (top-to-bottom) for consistency\n- Group resources in `Cluster` blocks matching Azure resource groups\n- Set explicit `filename` parameter to control output location\n\n## Professional Output Standards\n\nCritical settings for clean output \u2014 use `labelloc=\"t\"` to keep labels inside clusters:\n\n```python\nnode_attr = {\"fontname\": \"Arial Bold\", \"fontsize\": \"11\", \"labelloc\": \"t\"}\ngraph_attr = {\"bgcolor\": \"white\", \"pad\": \"0.8\", \"nodesep\": \"0.9\", \"ranksep\": \"0.9\",\n              \"splines\": \"spline\", \"fontname\": \"Arial Bold\", \"fontsize\": \"16\", \"dpi\": \"150\"}\ncluster_style = {\"margin\": \"30\", \"fontname\": \"Arial Bold\", \"fontsize\": \"14\"}\n```\n\nRequirements: `labelloc='t'` \u00b7 `Arial Bold` fonts \u00b7\nfull resource names from IaC \u00b7 `dpi=\"150\"+` \u00b7 `margin=\"30\"+` \u00b7\nCIDR blocks in VNet/Subnet labels.\n\n## Rules\n\n**DO:** Set `show=False` \u00b7 Use `direction=\"TB\"` \u00b7 Group in `Cluster` blocks \u00b7\nSet explicit `filename` \u00b7 Use DPI \u2265150 \u00b7 Apply design tokens consistently \u00b7\nGenerate WAF scores PNG when WAF scores are assigned.\n\n**DON'T:** Use Mermaid for charts (use matplotlib) \u00b7 Use Python `diagrams` for\nprimary architecture diagrams (use Draw.io skill) \u00b7 Let `show=True` open\na viewer \u00b7 Omit `filename` (produces non-deterministic output names) \u00b7\nUse grouped list-to-list edge operators (`[a, b] >> [c, d]`) \u2014 use explicit\nnode-to-node edges instead (the `diagrams` library may reject grouped\nexpressions with a `TypeError`) \u00b7 Use emoji or Unicode glyphs in chart\nlabels \u2014 keep labels ASCII-safe for portability across container fonts.\n\n## Scope Exclusions\n\nDoes NOT: generate Draw.io architecture diagrams \u00b7 produce Mermaid diagrams \u00b7\ngenerate Bicep/Terraform \u00b7 create ADRs \u00b7 deploy resources.\n\n## Scripts\n\n`scripts/generate_diagram.py` (interactive diagram generation) \u00b7\n`scripts/multi_diagram_generator.py` (multi-type: process, ERD, timeline, wireframe) \u00b7\n`scripts/ascii_to_diagram.py` (ASCII art \u2192 diagram conversion) \u00b7\n`scripts/verify_installation.py` (prerequisites check)\n\n## Reference Index\n\n| File                                         | Content                                                             |\n| -------------------------------------------- | ------------------------------------------------------------------- |\n| `references/python-charts.md`                | Chart execution, design tokens, output standards                    |\n| `references/waf-cost-charts.md`              | WAF pillar bar, cost donut & projection chart implementations       |\n| `references/azure-components.md`             | Complete list of 700+ Azure diagram components                      |\n| `references/common-patterns.md`              | Ready-to-use Python architecture patterns (3-tier, hub-spoke, etc.) |\n| `references/business-process-flows.md`       | Workflow and swimlane diagram patterns                              |\n| `references/entity-relationship-diagrams.md` | Database ERD patterns                                               |\n| `references/integration-services.md`         | Integration service diagram patterns                                |\n| `references/migration-patterns.md`           | Migration architecture patterns                                     |\n| `references/sequence-auth-flows.md`          | Authentication flow sequence patterns                               |\n| `references/timeline-gantt-diagrams.md`      | Project timeline and Gantt diagrams                                 |\n| `references/ui-wireframe-diagrams.md`        | UI mockup and wireframe patterns                                    |\n| `references/iac-to-diagram.md`               | Generate diagrams from Bicep/Terraform/ARM templates                |",
+  "optimized": "---\nname: python-diagrams\ndescription: '**UTILITY SKILL** \u2014 Python diagram generation: WAF/cost/compliance charts (matplotlib), architecture diagrams (diagrams library), ERDs, swimlanes, timelines, wireframes (graphviz). WHEN: \"WAF bar chart\", \"cost donut chart\", \"compliance gap chart\", \"Python architecture diagram\", \"ERD diagram\", \"swimlane\", \"UI wireframe\". USE FOR: WAF bar charts, cost donut/projection charts, compliance gap charts, Python architecture diagrams, ERD diagrams, business process flows, timeline/Gantt charts, UI wireframes. DO NOT USE FOR: Draw.io architecture diagrams (use drawio), inline Mermaid (use mermaid).'\ncompatibility: Works with VS Code Copilot, Claude Code, and any tool capable of running Python scripts.\nlicense: MIT\nmetadata:\n  author: apex\n  version: \"1.0\"\n---\n\n# Python Diagrams & Charts\n\nSkill for generating diagrams and charts using Python libraries: `matplotlib`\nfor WAF/cost/compliance visualizations, `diagrams` for architecture diagrams,\nand `graphviz` for ERDs, swimlanes, timelines, and wireframes.\n\n## Prerequisites\n\n```bash\npip install diagrams matplotlib pillow && apt-get install -y graphviz\n```\n\n## Routing Guide\n\n| Diagram type                        | Library    | Output         |\n| ----------------------------------- | ---------- | -------------- |\n| WAF bar charts                      | matplotlib | `.py` + `.png` |\n| Cost donut / projection charts      | matplotlib | `.py` + `.png` |\n| Compliance gap charts               | matplotlib | `.py` + `.png` |\n| Architecture diagrams (non-Draw.io) | diagrams   | `.py` + `.png` |\n| Swimlane / business process         | graphviz   | `.py` + `.png` |\n| Entity-relationship diagrams        | graphviz   | `.py` + `.png` |\n| Timeline / Gantt charts             | matplotlib | `.py` + `.png` |\n| UI wireframes                       | graphviz   | `.py` + `.png` |\n\n## Required Outputs (Workflow Integration)\n\n| Step | Python chart files                                                   |\n| ---- | -------------------------------------------------------------------- |\n| 2    | `02-waf-scores.py/.png`                                              |\n| 3    | `03-des-cost-distribution.py/.png`, `03-des-cost-projection.py/.png` |\n| 4    | `04-dependency-diagram.py/.png`, `04-runtime-diagram.py/.png`        |\n| 7    | `07-ab-cost-*.py/.png`, `07-ab-compliance-gaps.py/.png`              |\n\nSuffix rules: `-des` for design (Step 3), `-ab` for as-built (Step 7).\n\n## Steps\n\nSave `.py` source in `agent-output/{project}/`, then run to produce `.png`:\n\n```bash\npython3 agent-output/{project}/03-des-cost-distribution.py\n```\n\n## Chart Design Tokens\n\n**Background & grid:** Background `#F8F9FA` \u00b7 Grid `#E0E0E0` \u00b7 DPI 150.\n\n**Azure colors:** Azure blue `#0078D4` \u00b7 Min line `#DC3545` \u00b7\nTarget line `#28A745` \u00b7 Trend `#FF8C00`.\n\n**WAF pillar colors:** Security `#C00000` \u00b7 Reliability `#107C10` \u00b7\nPerformance `#FF8C00` \u00b7 Cost `#FFB900` \u00b7 Operational Excellence `#8764B8`.\n\n## Architecture Diagram Conventions (diagrams library)\n\nFollow this pattern for architecture diagram generation:\n\n```python\n\"\"\"Brief description of what the diagram shows.\"\"\"\n\nfrom diagrams import Cluster, Diagram\nfrom diagrams.azure.compute import AppServices\nfrom diagrams.azure.network import FrontDoors\n\nwith Diagram(\"Diagram Title\", show=False, filename=\"output-name\", direction=\"TB\"):\n    with Cluster(\"Resource Group\"):\n        # Resources...\n        pass\n```\n\n- Always set `show=False` to prevent auto-opening\n- Use `direction=\"TB\"` (top-to-bottom) for consistency\n- Group resources in `Cluster` blocks matching Azure resource groups\n- Set explicit `filename` parameter to control output location\n\n## Professional Output Standards\n\nCritical settings for clean output \u2014 use `labelloc=\"t\"` to keep labels inside clusters:\n\n```python\nnode_attr = {\"fontname\": \"Arial Bold\", \"fontsize\": \"11\", \"labelloc\": \"t\"}\ngraph_attr = {\"bgcolor\": \"white\", \"pad\": \"0.8\", \"nodesep\": \"0.9\", \"ranksep\": \"0.9\",\n              \"splines\": \"spline\", \"fontname\": \"Arial Bold\", \"fontsize\": \"16\", \"dpi\": \"150\"}\ncluster_style = {\"margin\": \"30\", \"fontname\": \"Arial Bold\", \"fontsize\": \"14\"}\n```\n\nRequirements: `labelloc='t'` \u00b7 `Arial Bold` fonts \u00b7\nfull resource names from IaC \u00b7 `dpi=\"150\"+` \u00b7 `margin=\"30\"+` \u00b7\nCIDR blocks in VNet/Subnet labels.\n\n## Rules\n\n**DO:** Set `show=False` \u00b7 Use `direction=\"TB\"` \u00b7 Group in `Cluster` blocks \u00b7\nSet explicit `filename` \u00b7 Use DPI \u2265150 \u00b7 Apply design tokens consistently \u00b7\nGenerate WAF scores PNG when WAF scores are assigned.\n\n**DON'T:** Use Mermaid for charts (use matplotlib) \u00b7 Use Python `diagrams` for\nprimary architecture diagrams (use Draw.io skill) \u00b7 Let `show=True` open\na viewer \u00b7 Omit `filename` (produces non-deterministic output names) \u00b7\nUse grouped list-to-list edge operators (`[a, b] >> [c, d]`) \u2014 use explicit\nnode-to-node edges instead (the `diagrams` library may reject grouped\nexpressions with a `TypeError`) \u00b7 Use emoji or Unicode glyphs in chart\nlabels \u2014 keep labels ASCII-safe for portability across container fonts.\n\n## Scope Exclusions\n\nDoes NOT: generate Draw.io architecture diagrams \u00b7 produce Mermaid diagrams \u00b7\ngenerate Bicep/Terraform \u00b7 create ADRs \u00b7 deploy resources.\n\n## Scripts\n\n`scripts/generate_diagram.py` (interactive diagram generation) \u00b7\n`scripts/multi_diagram_generator.py` (multi-type: process, ERD, timeline, wireframe) \u00b7\n`scripts/ascii_to_diagram.py` (ASCII art \u2192 diagram conversion) \u00b7\n`scripts/verify_installation.py` (prerequisites check)\n\n## Reference Index\n\n| File                                         | Content                                                             |\n| -------------------------------------------- | ------------------------------------------------------------------- |\n| `references/python-charts.md`                | Chart execution, design tokens, output standards                    |\n| `references/waf-cost-charts.md`              | WAF pillar bar, cost donut & projection chart implementations       |\n| `references/azure-components.md`             | Complete list of 700+ Azure diagram components                      |\n| `references/common-patterns.md`              | Ready-to-use Python architecture patterns (3-tier, hub-spoke, etc.) |\n| `references/business-process-flows.md`       | Workflow and swimlane diagram patterns                              |\n| `references/entity-relationship-diagrams.md` | Database ERD patterns                                               |\n| `references/integration-services.md`         | Integration service diagram patterns                                |\n| `references/migration-patterns.md`           | Migration architecture patterns                                     |\n| `references/sequence-auth-flows.md`          | Authentication flow sequence patterns                               |\n| `references/timeline-gantt-diagrams.md`      | Project timeline and Gantt diagrams                                 |\n| `references/ui-wireframe-diagrams.md`        | UI mockup and wireframe patterns                                    |\n| `references/iac-to-diagram.md`               | Generate diagrams from Bicep/Terraform/ARM templates                |\n",
+  "best_score": null
+}
