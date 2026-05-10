@@ -14,12 +14,20 @@ metadata:
 Search and retrieve official Microsoft documentation from learn.microsoft.com.
 Covers Azure, .NET, Microsoft 365, Windows, Power Platform, and all Microsoft technologies.
 
+## Prerequisites
+
+- **Microsoft Learn MCP server** reachable at `https://learn.microsoft.com/api/mcp`
+  (no auth, no install — declared in `.vscode/mcp.json`)
+- **Outbound HTTPS** to `learn.microsoft.com`
+- **Node.js ≥ 18** for the `mslearn` CLI fallback (via `npx @microsoft/learn-cli ...`)
+
 ## Tools
 
-| Tool                    | Use For                                                         |
-| ----------------------- | --------------------------------------------------------------- |
-| `microsoft_docs_search` | Find documentation — concepts, guides, tutorials, configuration |
-| `microsoft_docs_fetch`  | Get full page content (when search excerpts aren't enough)      |
+| Tool                          | Use For                                                         |
+| ----------------------------- | --------------------------------------------------------------- |
+| `microsoft_docs_search`       | Find documentation — concepts, guides, tutorials, configuration |
+| `microsoft_docs_fetch`        | Get full page content (when search excerpts aren't enough)      |
+| `microsoft_code_sample_search` | Find runnable code samples in official docs                    |
 
 ## Rules
 

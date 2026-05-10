@@ -19,6 +19,11 @@ The MCP server's own `src/instructions.md` is the authoritative tool reference;
 it is auto-sent to the client at startup. This skill captures project-specific
 conventions that complement (not duplicate) it.
 
+> **Naming note**: "drawio" can refer to (a) this skill, (b) the MCP server slug
+> `simonkurtz-MSFT/drawio-mcp-server`, or (c) the `mcp_drawio_*` tool family. In
+> agent-facing references, disambiguate explicitly — say "the `drawio` skill" or
+> "the drawio MCP server", not bare `drawio`.
+
 ## Prerequisites
 
 - **MCP server**: `simonkurtz-MSFT/drawio-mcp-server` (Deno, stdio) configured in `.vscode/mcp.json`
@@ -27,16 +32,32 @@ conventions that complement (not duplicate) it.
 
 ## MCP Workflow Summary
 
-The MCP server's startup instructions are the authoritative tool reference.
-This skill captures only the repo-specific sequence and guardrails:
+The MCP server's startup `src/instructions.md` is the authoritative tool reference. The
+table below lists the most-used tools and the repo-specific batch sequence. Reusable call
+patterns: [`references/azure-patterns.md`](references/azure-patterns.md).
 
-- `search-shapes` — resolve all Azure icons up front in one batch
-- `create-groups` — create VNets, subnets, resource groups, or app environments
-- `add-cells` — add all vertices and edges in one batch (use `shape_name` + `temp_id`)
-- `add-cells-to-group` — assign all children to groups in one batch
-- `finish-diagram` or `export-diagram` — emit final XML with `compress: true`
+| Tool                  | Purpose                                                             |
+| --------------------- | ------------------------------------------------------------------- |
+| `search-shapes`       | Fuzzy-search the 700+ Azure icon library; resolves names to shapes  |
+| `create-groups`       | Create container cells (VNets, subnets, resource groups, envs)      |
+| `add-cells`           | Add vertices + edges in a single batch (use `shape_name`, `temp_id`)|
+| `add-cells-to-group`  | Assign children to group containers                                 |
+| `edit-cells` / `edit-edges` | Update cell or edge properties post-creation                  |
+| `validate-group-containment` | Detect children that exceed group bounds                     |
+| `finish-diagram`      | Resolve transactional placeholders + emit final compressed XML      |
+| `export-diagram`      | Non-transactional export with `compress: true`                      |
 
-Reusable call patterns: [`references/azure-patterns.md`](references/azure-patterns.md).
+Standard sequence: `search-shapes` → `create-groups` → `add-cells` → `add-cells-to-group`
+→ (optional `edit-*`) → `validate-group-containment` → `finish-diagram` /
+`export-diagram` (`compress: true`).
+
+## CLI Fallback
+
+**There is no programmatic CLI fallback for diagram authoring.** The Draw.io desktop app
+is the only manual alternative; if the MCP server is unavailable, stop and surface the
+failure rather than hand-rolling XML. The `tools/scripts/save-drawio.py` and
+`cleanup-drawio.py` helpers are post-processing utilities for MCP output, not authoring
+fallbacks.
 
 ## Icon Handling
 

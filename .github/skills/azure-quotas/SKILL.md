@@ -39,6 +39,16 @@ Invoke this skill when:
 - **Comparing regional capacity** - Find regions with available quota
 - **Validating provisioning limits** - Ensure deployment won't exceed quotas
 
+## Prerequisites
+
+- **Azure CLI** ≥ 2.50 authenticated (`az login`)
+- **CLI extension**: `az extension add --name quota` (install once per machine)
+- **RBAC**: `Reader` to view quotas; `Quota Request Operator` to submit increases
+- **MCP server (optional augmentation)**: Azure MCP server in `.vscode/mcp.json` for the
+  `mcp_azure_mcp_quota` namespace — see [MCP Tools (Optional Augmentation)](#mcp-tools-optional-augmentation)
+  below. The CLI is the **primary** path; the MCP server is only for cases where an agent
+  is already inside the Azure MCP namespace.
+
 ## Quick Reference
 
 | Property            | Details                                                                                                       |
@@ -85,6 +95,23 @@ See [troubleshooting.md](references/troubleshooting.md) for common errors (`Exte
 - [Azure subscription limits](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits)
 - [Request quota increases](https://learn.microsoft.com/en-us/azure/quotas/quickstart-increase-quota-portal)
 - [Portal — My quotas](https://portal.azure.com/#blade/Microsoft_Azure_Capacity/QuotaMenuBlade/myQuotas)
+
+## MCP Tools (Optional Augmentation)
+
+Frontmatter declares `INVOKES: azure-quota MCP` because Azure MCP exposes a `quota`
+namespace that mirrors a subset of `az quota` commands. **The CLI remains the primary
+path** (see Quick Reference above); the MCP namespace is only useful when an agent is
+already operating inside Azure MCP and wants to avoid shelling out.
+
+| MCP tool                                | CLI equivalent (preferred)         |
+| --------------------------------------- | ---------------------------------- |
+| `mcp_azure_mcp_quota` `check`           | `az quota show` / `az quota list`  |
+| `mcp_azure_mcp_quota` `region-availability` | `az quota list --scope ... -o table` per region |
+
+If the MCP namespace is available **and** the user has not asked for shell-level output,
+prefer it for a tighter agent loop. If `az quota` returns `BadRequest`, fall back to the
+[Azure service limits docs](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits)
+— never to the REST API or Portal.
 
 ## Rules
 

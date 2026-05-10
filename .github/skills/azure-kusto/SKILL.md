@@ -20,6 +20,16 @@ the Kusto Query Language (KQL). This skill covers query execution, schema explor
 resource management (cluster/database listing), and analytics patterns (aggregation, time
 series, anomaly detection).
 
+## Prerequisites
+
+- **Azure CLI** authenticated (`az login`) with a subscription containing Kusto resources
+- **RBAC**: at minimum `AllDatabasesViewer` on the target cluster (or `Database Viewer` per
+  database) — required for both `kusto_query` and `kusto_table_schema_get`
+- **Azure MCP server** configured in `.vscode/mcp.json` (the `mcp_azure_mcp_kusto` namespace
+  exposes the tools listed below); fall back to the Azure CLI commands in
+  [`references/fallback-strategy.md`](references/fallback-strategy.md) when the MCP server
+  is unavailable
+
 ## Steps
 
 1. **Discover Resources**: List available clusters and databases in subscription

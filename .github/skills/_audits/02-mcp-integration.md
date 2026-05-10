@@ -167,5 +167,53 @@ When the user issues `mcp update` (or `mcp update <skill>`):
 
 ## Status
 
-Audit complete; **0 diffs applied**. Awaiting `mcp update` (or
-`mcp update <skill>`) to start the remediation pass.
+Audit complete. **Stage 3 remediation diffs applied (2026-05-10)** — see Post-update
+section below.
+
+## Post-update — Stage 3 remediation applied (2026-05-10)
+
+User trigger: `apply Stage 3 remediation diffs`. All four skills updated; validators green;
+33/33 SKILL.md within `.token-limits.json` soft limits.
+
+### Diffs applied
+
+| Skill | Change |
+| --- | --- |
+| `azure-kusto` | Added `## Prerequisites` (Azure CLI auth, `AllDatabasesViewer` RBAC, Azure MCP `kusto` namespace) |
+| `azure-quotas` | Added `## Prerequisites` (CLI ≥ 2.50, `quota` extension, RBAC, optional MCP server); added `## MCP Tools (Optional Augmentation)` resolving the INVOKES contradiction (CLI is primary; MCP namespace augments) |
+| `microsoft-docs` | Added `## Prerequisites` (Learn MCP endpoint, outbound HTTPS, Node ≥ 18 for CLI fallback); added `microsoft_code_sample_search` to `## Tools` table |
+| `drawio` | Added 3-way name-collision note (skill / MCP server slug / tool prefix) at the top; merged `## MCP Workflow Summary` with new `## MCP Tools` table to avoid duplication; added `## CLI Fallback` section explicitly stating no programmatic fallback exists |
+
+### Per-skill token deltas
+
+Estimates were +60 / +120 / +50 / +90 = +320 tokens; actuals are +138 / +405 / +104 / +366
+= +1,013 tokens. The `azure-quotas` Prerequisites + Optional Augmentation pair came in
+larger than estimated because resolving the INVOKES contradiction needed explanatory prose
+about why CLI is primary. `drawio` came in larger than estimated even after merging
+duplication; an initial draft hit 3,015 tokens (+441) and breached its 3,000 override; the
+merge of `## MCP Workflow Summary` and the new `## MCP Tools` table brought it to 2,940
+tokens (+366), under the limit.
+
+| Skill | Stage 2 end | Post-update | Δ vs Stage 2 end | Limit | Within limit? |
+| --- | ---: | ---: | ---: | ---: | :---: |
+| `azure-kusto` | 1,625 | 1,763 | +138 (+8.5%) | 2,500 | ✅ |
+| `azure-quotas` | 1,906 | 2,311 | +405 (+21.2%) | 2,500 | ✅ |
+| `microsoft-docs` | 1,206 | 1,310 | +104 (+8.6%) | 2,500 | ✅ |
+| `drawio` | 2,574 | 2,940 | +366 (+14.2%) | 3,000 | ✅ |
+| **Stage 3 totals** | **7,311** | **8,324** | **+1,013** | — | — |
+
+### Validators
+
+| Validator | Status |
+| --- | --- |
+| `npm run validate:skills` | ✅ pass (34 skills, 0 errors, 0 warnings) |
+| `npm run validate:agents` | ✅ pass |
+| `npm run lint:vendor-prompting` | ✅ pass |
+| `tokens check` (repo-root limits) | ✅ 33 / 33 within limits |
+
+### Cumulative token impact (Stage 2 squeeze + Stage 3 update)
+
+33 SKILL.md files: **60,351 (Stage 1 baseline) → 53,364 (Stage 2 end) → 54,377 (Stage 3
+post-update)**. Net delta vs Stage 1 baseline: **-5,974 tokens (-9.9%)**.
+
+Stage 3 fully complete. Awaiting Stage 4 trigger (`tests batch <N>`).
