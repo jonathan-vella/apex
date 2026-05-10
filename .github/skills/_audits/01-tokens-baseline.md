@@ -352,3 +352,75 @@ relocation comment notes this for separate reconciliation.
 | `npm run validate:agents` | ✅ pass |
 | `npm run lint:vendor-prompting` | ✅ pass |
 | `tokens check` (repo-root limits) | ✅ 33 / 33 within limits |
+
+## Stage 2 — Token squeeze (batch 5)
+
+**Trigger**: `tokens squeeze batch 5` (2026-05-10).
+**Skills**: `python-diagrams`, `terraform-patterns`, `terraform-search-import`,
+`terraform-test`, `vendor-prompting`, `workflow-engine`.
+
+### Relocations
+
+| Skill | Section moved | New / extended reference file |
+| --- | --- | --- |
+| `terraform-search-import` | `## Manual Discovery Workflow (Primary)` (38 lines, 3-step procedure + Azure-type ↔ Terraform-resource ↔ az-CLI mapping table) | already covered by [`references/manual-import.md`](../terraform-search-import/references/manual-import.md); SKILL.md collapsed to 3-step summary |
+| `workflow-engine` | `## Core Concepts` (39 lines, DAG model + node types + edge conditions + IaC routing tables) | [`references/dag-concepts.md`](../workflow-engine/references/dag-concepts.md) |
+| `terraform-patterns` | `## Canonical Example — Module Composition` (26 lines of HCL + rationale) | [`references/module-composition.md`](../terraform-patterns/references/module-composition.md) |
+| `vendor-prompting` | `## Model-Family Detection` table (22 lines) | already covered by [`references/family-support.md`](../vendor-prompting/references/family-support.md); SKILL.md collapsed to 3-line summary + pointer |
+
+`python-diagrams` (1,789 tokens) and `terraform-test` (1,519 tokens) were already
+well under their soft limits and had no high-value relocation candidates after
+Plan 1 Round 2.
+
+### Per-skill token deltas
+
+| Skill | Before | After | Δ | Δ% |
+| --- | ---: | ---: | ---: | ---: |
+| `python-diagrams` | 1,789 | 1,789 | 0 | 0.0% |
+| `terraform-patterns` | 1,882 | 1,830 | -52 | -2.8% |
+| `terraform-search-import` | 1,560 | 1,284 | -276 | -17.7% |
+| `terraform-test` | 1,519 | 1,519 | 0 | 0.0% |
+| `vendor-prompting` | 2,334 | 2,157 | -177 | -7.6% |
+| `workflow-engine` | 1,802 | 1,509 | -293 | -16.3% |
+| **Batch 5 totals** | **10,886** | **10,088** | **-798** | **-7.3%** |
+
+### Validators
+
+| Validator | Status |
+| --- | --- |
+| `npm run validate:skills` | ✅ pass (34 skills, 0 errors, 0 warnings) |
+| `npm run validate:agents` | ✅ pass |
+| `npm run lint:vendor-prompting` | ✅ pass |
+| `tokens check` (repo-root limits) | ✅ 33 / 33 within limits |
+
+## Stage 2 grand totals (all 33 skills)
+
+| Metric | Stage 1 baseline | Stage 2 final | Δ |
+| --- | ---: | ---: | ---: |
+| Total tokens (33 SKILL.md) | 60,351 | 53,364 | **-6,987 (-11.6%)** |
+| Mean tokens per SKILL.md | 1,829 | 1,617 | -212 |
+| Max tokens (drawio) | 2,806 | 2,574 | -232 |
+| Min tokens (azure-cloud-migrate) | 642 | 642 | 0 |
+| Skills > 500-token soft default | 33 / 33 | 33 / 33 | 0 |
+| Skills > repo-root `.token-limits.json` limits | n/a | 0 / 33 | — |
+
+**Squeeze coverage**: 17 skills decreased, 1 skill increased by ≤ 11 tokens
+(`azure-bicep-patterns` +0.6% — structural relocation traded inline tokens for
+load-on-demand reference), 15 skills unchanged (no high-value relocation
+candidates after Plan 1 Round 2 already shaped them).
+
+**Per-batch summary**:
+
+| Batch | Skills | Before | After | Δ | Δ% |
+| ---: | ---: | ---: | ---: | ---: | ---: |
+| 1 | 7 | 11,141 | 10,074 | -1,067 | -9.6% |
+| 2 | 7 | 13,993 | 12,753 | -1,240 | -8.9% |
+| 3 | 7 | 13,105 | 11,766 | -1,339 | -10.2% |
+| 4 | 6 | 11,226 | 8,683 | -2,543 | -22.7% |
+| 5 | 6 | 10,886 | 10,088 | -798 | -7.3% |
+| **All** | **33** | **60,351** | **53,364** | **-6,987** | **-11.6%** |
+
+**Reference files created or extended in Stage 2**: 13 files (10 new, 3 extended).
+
+Stage 2 complete; awaiting Stage 3 trigger (`mcp audit`) per
+[`plan-gepa-pipeline.prompt.md`](../../prompts/sensei/plan-gepa-pipeline.prompt.md).

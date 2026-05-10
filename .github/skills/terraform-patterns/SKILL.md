@@ -31,27 +31,10 @@ Composable architecture building blocks for Azure Terraform. Complements
 
 ## Canonical Example — Module Composition
 
-Wire AVM child modules by passing outputs as inputs; never hardcode IDs:
-
-```hcl
-module "resource_group" {
-  source  = "Azure/avm-res-resources-resourcegroup/azurerm"
-  version = "~> 0.1"
-  name     = "rg-${var.project}-${var.environment}"
-  location = var.location
-  tags     = local.tags
-}
-
-module "key_vault" {
-  source  = "Azure/avm-res-keyvault-vault/azurerm"
-  version = "~> 0.9"
-  name                = local.kv_name
-  resource_group_name = module.resource_group.name  # ← output wiring
-  location            = var.location
-  tenant_id           = data.azurerm_client_config.current.tenant_id
-  tags                = local.tags
-}
-```
+Wire AVM child modules by passing outputs as inputs (`module.<name>.<output>`); never
+hardcode IDs. Pin module versions with `~> X.Y` to allow patches but block surprise major
+bumps. Full code sample (resource group + key vault) and rationale in
+[`references/module-composition.md`](references/module-composition.md).
 
 ---
 
@@ -116,3 +99,4 @@ Applying a Terraform pattern in a root module:
 | `references/project-scaffold.md`           | Project scaffolding structure                                     |
 | `references/avm-authoring-requirements.md` | AVM certification: 37 requirements, compliance checklist          |
 | `references/refactor-module.md`            | Module extraction, state migration, refactoring patterns          |
+| `references/module-composition.md`         | Canonical AVM module composition example with output wiring       |

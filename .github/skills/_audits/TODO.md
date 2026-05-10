@@ -170,9 +170,15 @@ User trigger: `tokens squeeze batch <N>` (1–5).
 
 - [x] Batch 1 — squeeze + validators + commit (`fcd5ae7`) — net -1,067 tokens (-9.6%); largest savings: `azure-cost-optimization` -766 (-35%), `azure-artifacts` -312 (-18%); 33/33 within new repo-root `.token-limits.json` limits
 - [x] Batch 2 — squeeze + validators + commit (`0805f3c`) — net -1,240 tokens (-8.9%); largest savings: `azure-prepare` -860 (-35%), `azure-kusto` -210 (-11%), `azure-defaults` -170 (-7%)
-- [x] Batch 3 — squeeze + validators + commit — net -1,339 tokens (-10.2%); largest savings: `docs-writer` -525 (-23%), `azure-resources` -361 (-16%), `drawio` -232 (-8%), `context-management` -221 (-11%)
-- [x] Batch 4 — squeeze + validators + commit — net -2,543 tokens (-22.7%, biggest batch); largest savings: `golden-principles` -993 (-58%), `iac-common` -771 (-35%), `github-operations` -411 (-18%), `entra-app-registration` -368 (-15%)
-- [ ] Batch 5 — squeeze + validators + commit
+- [x] Batch 3 — squeeze + validators + commit (`c9ee2c9`) — net -1,339 tokens (-10.2%); largest savings: `docs-writer` -525 (-23%), `azure-resources` -361 (-16%), `drawio` -232 (-8%), `context-management` -221 (-11%)
+- [x] Batch 4 — squeeze + validators + commit (`134a186`) — net -2,543 tokens (-22.7%, biggest batch); largest savings: `golden-principles` -993 (-58%), `iac-common` -771 (-35%), `github-operations` -411 (-18%), `entra-app-registration` -368 (-15%)
+- [x] Batch 5 — squeeze + validators + commit — net -798 tokens (-7.3%); largest savings: `workflow-engine` -293 (-16%), `terraform-search-import` -276 (-18%), `vendor-prompting` -177 (-8%)
+
+> **Stage 2 grand totals (2026-05-10)**: 33 SKILL.md files **60,351 → 53,364 tokens (-6,987, -11.6%)**.
+> 17 skills decreased; 1 skill +0.6% (structural relocation, token-neutral); 15 unchanged.
+> 13 reference files created or extended (10 new, 3 extended).
+> 33 / 33 within repo-root `.token-limits.json` soft limits. Validators all green.
+> Awaiting `mcp audit` to start Stage 3.
 
 ### Stage 3 — MCP-integration audit (read-only) + updates
 

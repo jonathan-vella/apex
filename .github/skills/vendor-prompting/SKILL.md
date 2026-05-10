@@ -57,27 +57,17 @@ I am editing or reviewing a *.agent.md / *.prompt.md ...
     → load references/audit-procedure.md and assets/audit-template.md
 ```
 
-## Model-Family Detection (mirrors validate-agents.mjs `classifyModel`)
+## Model-Family Detection
 
-The validator and this skill agree on family classification by lower-casing
-the `model:` value and matching substrings in this order:
+`classifyModel()` lower-cases the `model:` value and matches substrings in priority order
+to assign a family (`claude-opus` / `claude-sonnet` / `claude-haiku` / `claude` / `gpt-5.5`
+/ `gpt-5.4` / `gpt-codex` / `gpt-4o` / `unknown`). For agents with `model:` as an array,
+the first entry decides the family; bareword qualifiers (`Claude Foo (suffix)`) are
+forbidden — see rule `frontmatter-model-style-001` in [`rules.json`](rules.json).
 
-| Match (case-insensitive) | Family          | Notes                               |
-| ------------------------ | --------------- | ----------------------------------- |
-| `claude opus`            | `claude-opus`   | Highest reasoning Anthropic models  |
-| `claude sonnet`          | `claude-sonnet` | Balanced Anthropic models           |
-| `claude haiku`           | `claude-haiku`  | Fast Anthropic models               |
-| `claude` (otherwise)     | `claude`        | Generic — flag for explicit version |
-| `gpt-5.5`                | `gpt-5.5`       | Current OpenAI default              |
-| `gpt-5.4`                | `gpt-5.4`       | Deprecated 2026-05 (cohort retired) |
-| `gpt-5.3` or `codex`     | `gpt-codex`     | Specialized, high-throughput        |
-| `gpt-4o`                 | `gpt-4o`        | Legacy                              |
-| Anything else            | `unknown`       | Validator emits ERROR               |
-
-If `model:` is an array (agents only), the **first entry** decides the
-family. Bareword YAML for labels with parenthetical qualifiers (e.g.,
-`model: Claude Foo (suffix)`) is forbidden — see
-[rule frontmatter-model-style-001](rules.json).
+Full match table, severity status per family (`enforced` / `warn-only` / `reviewer-only` /
+`out-of-scope`), and rule subsets per family live in
+[`references/family-support.md`](references/family-support.md).
 
 ## Reference Index
 
