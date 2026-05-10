@@ -77,6 +77,9 @@ TODO.md
 Copilot-Processing.md
 scratch/
 
+# Skills audit programme tracker is a committed artifact — negate the TODO.md ignore.
+!.github/skills/_audits/TODO.md
+
 # Extracted sample apps (use .zip files instead to avoid Dependabot alerts)
 scenarios/S06-sbom-generator/sample-app/
 freshness-report.json
