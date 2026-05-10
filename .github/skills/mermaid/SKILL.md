@@ -1,6 +1,6 @@
 ---
 name: mermaid
-description: "Mermaid diagram generation for inline markdown documentation: flowcharts, sequence diagrams, Gantt charts, class diagrams, state diagrams, ER diagrams, and architecture visualizations. USE FOR: inline markdown diagrams, flowcharts, sequence diagrams, Gantt charts, state diagrams, ER diagrams, Azure resource visualization. DO NOT USE FOR: architecture diagrams with Azure icons (use drawio), WAF/cost charts (use python-diagrams), Draw.io diagrams (use drawio)."
+description: "**UTILITY SKILL** — Mermaid diagram generation for inline markdown documentation: flowcharts, sequence diagrams, Gantt, class, state, ER. WHEN: \"mermaid flowchart\", \"sequence diagram\", \"Gantt chart\", \"state diagram\", \"ER diagram\", \"inline markdown diagram\". USE FOR: inline markdown diagrams, flowcharts, sequence diagrams, Gantt charts, state diagrams, ER diagrams. DO NOT USE FOR: architecture diagrams with Azure icons (use drawio), WAF/cost charts (use python-diagrams)."
 compatibility: Works with VS Code Copilot, Claude Code, and any tool that renders Mermaid in markdown.
 license: MIT
 metadata:

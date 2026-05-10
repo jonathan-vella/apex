@@ -8,36 +8,36 @@
 
 ## Scope
 
-| # | Skill | Path |
-|---|---|---|
-| 1 | `entra-app-registration` | [.github/skills/entra-app-registration/SKILL.md](../entra-app-registration/SKILL.md) |
-| 2 | `github-operations` | [.github/skills/github-operations/SKILL.md](../github-operations/SKILL.md) |
-| 3 | `golden-principles` | [.github/skills/golden-principles/SKILL.md](../golden-principles/SKILL.md) |
-| 4 | `iac-common` | [.github/skills/iac-common/SKILL.md](../iac-common/SKILL.md) |
-| 5 | `mermaid` | [.github/skills/mermaid/SKILL.md](../mermaid/SKILL.md) |
-| 6 | `microsoft-docs` | [.github/skills/microsoft-docs/SKILL.md](../microsoft-docs/SKILL.md) |
+| #   | Skill                    | Path                                                                                 |
+| --- | ------------------------ | ------------------------------------------------------------------------------------ |
+| 1   | `entra-app-registration` | [.github/skills/entra-app-registration/SKILL.md](../entra-app-registration/SKILL.md) |
+| 2   | `github-operations`      | [.github/skills/github-operations/SKILL.md](../github-operations/SKILL.md)           |
+| 3   | `golden-principles`      | [.github/skills/golden-principles/SKILL.md](../golden-principles/SKILL.md)           |
+| 4   | `iac-common`             | [.github/skills/iac-common/SKILL.md](../iac-common/SKILL.md)                         |
+| 5   | `mermaid`                | [.github/skills/mermaid/SKILL.md](../mermaid/SKILL.md)                               |
+| 6   | `microsoft-docs`         | [.github/skills/microsoft-docs/SKILL.md](../microsoft-docs/SKILL.md)                 |
 
 ## Summary
 
-| Skill | Adherence | GEPA Score | Tokens | Top Issue | Recommended Action |
-|---|---|---|---|---|---|
-| entra-app-registration | **Medium** | 0.67 | 2196 | Missing `WHEN:`; **2 stale refs** (`azure-keyvault-expiration-audit`, `azure-security`) | Add prefix + `WHEN:`; **fix bug refs to `azure-compliance`** |
-| github-operations | Medium-High | 0.50 | 2143 | Missing `WHEN:`; no skill-type prefix | Add `**WORKFLOW SKILL**` prefix + `WHEN:` |
-| golden-principles | Medium-High | 0.50 | 1318 | Missing `WHEN:`; no skill-type prefix | Add `**ANALYSIS SKILL**` prefix + `WHEN:` |
-| iac-common | Medium-High | 0.50 | 1755 | Missing `WHEN:`; no skill-type prefix | Add `**UTILITY SKILL**` prefix + `WHEN:` |
-| mermaid | Medium-High | 0.50 | 1235 | Missing `WHEN:`; no skill-type prefix | Add `**UTILITY SKILL**` prefix + `WHEN:` |
-| microsoft-docs | Medium-High | 0.67 | 832 | No skill-type prefix; **2 stale refs** (`microsoft-code-reference`, `microsoft-skill-creator`) | Add prefix + `WHEN:`; drop or replace stale refs |
+| Skill                  | Adherence   | GEPA Score | Tokens | Top Issue                                                                                      | Recommended Action                                           |
+| ---------------------- | ----------- | ---------- | ------ | ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| entra-app-registration | **Medium**  | 0.67       | 2196   | Missing `WHEN:`; **2 stale refs** (`azure-keyvault-expiration-audit`, `azure-security`)        | Add prefix + `WHEN:`; **fix bug refs to `azure-compliance`** |
+| github-operations      | Medium-High | 0.50       | 2143   | Missing `WHEN:`; no skill-type prefix                                                          | Add `**WORKFLOW SKILL**` prefix + `WHEN:`                    |
+| golden-principles      | Medium-High | 0.50       | 1318   | Missing `WHEN:`; no skill-type prefix                                                          | Add `**ANALYSIS SKILL**` prefix + `WHEN:`                    |
+| iac-common             | Medium-High | 0.50       | 1755   | Missing `WHEN:`; no skill-type prefix                                                          | Add `**UTILITY SKILL**` prefix + `WHEN:`                     |
+| mermaid                | Medium-High | 0.50       | 1235   | Missing `WHEN:`; no skill-type prefix                                                          | Add `**UTILITY SKILL**` prefix + `WHEN:`                     |
+| microsoft-docs         | Medium-High | 0.67       | 832    | No skill-type prefix; **2 stale refs** (`microsoft-code-reference`, `microsoft-skill-creator`) | Add prefix + `WHEN:`; drop or replace stale refs             |
 
 ### Aggregate observations
 
-| Metric | Value |
-|---|---|
-| Skills passing GEPA ≥ 0.7 | 0 / 6 |
-| Skills with skill-type prefix | 0 / 6 |
-| Skills with both `USE FOR:` AND `WHEN:` | 0 / 6 |
-| Skills over 1500 tokens | 4 / 6 |
-| Stale cross-references found | 4 across 2 skills |
-| Smallest body in repo so far | `microsoft-docs` (832 tokens) |
+| Metric                                  | Value                         |
+| --------------------------------------- | ----------------------------- |
+| Skills passing GEPA ≥ 0.7               | 0 / 6                         |
+| Skills with skill-type prefix           | 0 / 6                         |
+| Skills with both `USE FOR:` AND `WHEN:` | 0 / 6                         |
+| Skills over 1500 tokens                 | 4 / 6                         |
+| Stale cross-references found            | 4 across 2 skills             |
+| Smallest body in repo so far            | `microsoft-docs` (832 tokens) |
 
 ### Critical findings (batch 4)
 
@@ -202,3 +202,34 @@ This audit is read-only. To proceed, reply with one of:
 - `update <skill-name>` — single-skill update (e.g., `update entra-app-registration` to fix bug refs first)
 - `audit batch 5` — continue Stage A (final 6 skills)
 - `gepa audit` — skip ahead to Stage B
+
+## Post-update — Stage A (2026-05-10)
+
+User issued `update batch 4`. All 6 proposed diffs applied. Validators all pass.
+
+### Score deltas
+
+| Skill | GEPA Before | GEPA After | Δ |
+|---|---|---|---|
+| entra-app-registration | 0.67 | **0.83** | +0.16 |
+| github-operations | 0.50 | **0.67** | +0.17 |
+| golden-principles | 0.50 | **0.67** | +0.17 |
+| iac-common | 0.50 | **0.67** | +0.17 |
+| mermaid | 0.50 | **0.67** | +0.17 |
+| microsoft-docs | 0.67 | **0.67** | 0 (already had USE FOR; gained INVOKES) |
+
+### Aggregate
+
+| Metric | Before | After |
+|---|---|---|
+| Skills passing GEPA ≥ 0.7 | 0 / 6 | **5 / 6** |
+| Skills passing GEPA ≥ 0.8 | 0 / 6 | **1 / 6** (entra-app-registration) |
+| Skills with skill-type prefix | 0 / 6 | **6 / 6** |
+| Skills with both `USE FOR:` AND `WHEN:` | 0 / 6 | **6 / 6** |
+| Stale cross-references | 4 | **0** ✓ |
+| Skills with `INVOKES:` MCP routing | 0 / 6 | **1 / 6** (microsoft-docs) |
+
+### Critical fixes confirmed
+
+- **entra-app-registration**: 2 stale refs (`azure-keyvault-expiration-audit`, `azure-security`) replaced with `azure-compliance` ✓
+- **microsoft-docs**: 2 stale refs (`microsoft-code-reference`, `microsoft-skill-creator`) dropped; INVOKES added for Microsoft Learn MCP ✓

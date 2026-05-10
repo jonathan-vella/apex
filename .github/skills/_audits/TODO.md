@@ -65,7 +65,7 @@ User-gated start: `audit batch <N>` or `audit batches 1-5` for sequential.
 - [x] Run sensei standard-mode score: microsoft-docs
 - [x] Generate `batch-4-audit.md`
 - [x] Commit `chore(skills): Audit batch 4 report (sensei standard)`
-- [ ] **Updates** — user issues `update batch 4` or `update <skill>` to apply audit recommendations + commit
+- [x] **Updates** — user issued `update batch 4`; all 6 diffs applied, 4 stale refs fixed, 5/6 now pass GEPA ≥ 0.7 (was 0/6), microsoft-docs gained INVOKES for Microsoft Learn MCP, commit recorded
 
 ### Batch 5 — python-diagrams → workflow-engine
 

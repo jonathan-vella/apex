@@ -1,6 +1,6 @@
 ---
 name: iac-common
-description: "Shared IaC deploy patterns for Bicep and Terraform deploy agents: deployment strategies, circuit breaker, known deploy issues. For preflight validation (auth, governance, stop rules), see azure-validate. USE FOR: Phased deployment, circuit breaker, deploy-specific known issues. DO NOT USE FOR: Preflight validation (use azure-validate), code generation (use azure-bicep-patterns or terraform-patterns)."
+description: "**UTILITY SKILL** — Shared IaC deploy patterns for Bicep + Terraform deploy agents: deployment strategies, circuit breaker, known deploy issues. WHEN: \"phased deployment\", \"circuit breaker\", \"deploy strategy\", \"deploy issue\", \"shared IaC pattern\". USE FOR: phased deployment, circuit breaker patterns, deploy-specific known issues. DO NOT USE FOR: preflight validation (use azure-validate), code generation (use azure-bicep-patterns or terraform-patterns)."
 ---
 
 # IaC Common Skill
