@@ -1,0 +1,3 @@
+[submodule ".github/skills/sensei"]
+	path = .github/skills/sensei
+	url = https://github.com/spboyer/sensei.git
