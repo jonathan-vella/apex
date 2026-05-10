@@ -184,10 +184,16 @@ User trigger: `tokens squeeze batch <N>` (1–5).
 
 User triggers: `mcp audit`, then `mcp update` or `mcp update <skill>`.
 
-- [ ] Audit `azure-kusto`, `azure-quotas`, `microsoft-docs`, `drawio` (+ any new INVOKES from Stage 2)
-- [ ] Generate `02-mcp-integration.md`
-- [ ] Commit `chore(skills): MCP-integration audit (stage 3)`
+- [x] Audit `azure-kusto`, `azure-quotas`, `microsoft-docs`, `drawio` (+ any new INVOKES from Stage 2)
+- [x] Generate `02-mcp-integration.md`
+- [x] Commit `chore(skills): MCP-integration audit (stage 3)`
 - [ ] Apply remediation diffs (user-gated) + commit
+
+> **Stage 3 audit summary (2026-05-10)**: 4 INVOKES skills audited (no new ones from Stage 2).
+> Traffic-light: `azure-kusto` 3✅ / 1⚠️; `azure-quotas` 1✅ / 1✅(CLI-primary inverse) / 1⚠️ / 1❌;
+> `microsoft-docs` 2✅ / 2⚠️; `drawio` 1✅ / 2⚠️ / 1❌ (name collision).
+> Estimated remediation: +320 tokens total — all four skills stay well within `.token-limits.json`.
+> Awaiting `mcp update` to start the remediation pass.
 
 ### Stage 4 — Waza trigger-test scaffolding (per-batch, user-gated)
 
