@@ -90,77 +90,46 @@ data via terminal commands to avoid inflating the context window.
 
 ## Batch-Only Workflow (CRITICAL)
 
-**Every tool that accepts an array MUST be called exactly ONCE with ALL items.**
-Never call a tool repeatedly for individual items.
+**Every tool that accepts an array MUST be called exactly ONCE with all items.** Never call a tool repeatedly for individual items.
 
-1. **`search-shapes`** — ONE call with ALL queries in the `queries` array (main flow + cross-cutting)
-2. **`create-groups`** — ONE call with ALL groups. Set `text: ""` for groups; create separate text vertex above.
-3. **`add-cells`** — ONE call with ALL vertices AND edges. Vertices before edges.
-   Use `temp_id` for cross-refs, `shape_name` for icons.
-4. **`add-cells-to-group`** — ONE call with ALL assignments. Server auto-converts absolute → group-relative coords.
-5. **`edit-cells`/`edit-edges`** — ONE call if adjustments needed.
-6. **`finish-diagram`** (transactional) or **`export-diagram`** (default) — with `compress: true`.
+1. `search-shapes` — ONE call with all queries (main flow + cross-cutting)
+2. `create-groups` — ONE call with all groups. Set `text: ""` and create a separate text vertex above each group
+3. `add-cells` — ONE call with all vertices AND edges, **vertices first**. Use `temp_id` for cross-refs, `shape_name` for icons
+4. `add-cells-to-group` — ONE call with all assignments
+5. `edit-cells` / `edit-edges` — ONE call if adjustments are needed
+6. `finish-diagram` (transactional) or `export-diagram` (default) — with `compress: true`
 
-After group assignments, call `validate-group-containment` to detect any children that exceed group bounds.
+After group assignments, call `validate-group-containment` to detect children that exceed group bounds.
 
-### Token Efficiency
+### Token efficiency
 
-- **The MCP server is NOT stateful** between tool calls. You MUST pass
-  `diagram_xml` from the previous call's response on every subsequent call.
-  Save the XML to a temp file between steps and read it back rather than
-  inflating the LLM context with the full XML in every turn.
-- **Do NOT read back large MCP responses through the LLM**. When a tool result
-  is written to a temp file, extract only the data you need via a terminal
-  command (e.g., cell IDs) rather than reading the entire JSON into context.
-- **Target 8–10 model turns** for a complete diagram. Pre-compute the full
-  layout (all vertices, edges, groups, assignments) before making any MCP
-  calls, then execute the batch workflow in sequence.
+- **MCP server is NOT stateful** — pass `diagram_xml` from the previous call on every subsequent call. Save XML to a temp file between steps; read only the IDs you need rather than the whole JSON.
+- **Never read back large MCP responses through the LLM** — extract data via terminal commands.
+- **Target 8–10 model turns** for a complete diagram. Pre-compute the full layout before making any MCP calls.
 
 ## Layout Conventions
 
-- **Primary flow**: left-to-right; parallel services stacked vertically per column.
-- **Spacing minimums**: 120px between columns, 80px between rows, 40px around each cell;
-  groups need ≥ 150px width per icon (labels are ~130px wide).
-- **Page**: US Letter 850×1100px (extend to 1300px if a legend is included);
-  keep content within 40px margins.
-- **Edges**: orthogonal only (`edgeStyle=orthogonalEdgeStyle`); never set `entryX`/`entryY`/
-  `exitX`/`exitY` and never add `<Array as="points">` waypoints. Target specific icons,
-  not groups, when a service inside a group is the endpoint.
-- **Cross-cutting services** (Azure Monitor, Entra ID, Key Vault, Defender, etc.):
-  place in a single light-grey rounded container at the bottom, 120px apart,
-  with no edges into them.
-- **Legend**: required on every diagram, placed below the cross-cutting box.
-  Use inline HTML for arrow indicators; explicitly set `text: ""` on shape samples.
-- **External actors** (Users, Operators): positioned outside all group boundaries
-  so they aren't visually swallowed by container fill.
+Concise summary; load [`references/style-reference.md`](references/style-reference.md) → "Layout Conventions (extended)" for full detail (numbered callouts, fan-out staggering, legend HTML, group sizing, non-Azure component styling).
 
-> **CRITICAL — Edge post-processing**: The MCP server's auto-router injects
-> anchor points and waypoints. After `finish-diagram`, the agent **MUST** run
-> `tools/scripts/save-drawio.py` to strip these so Draw.io's renderer can
-> calculate clean orthogonal paths client-side.
+- **Primary flow**: left-to-right; parallel services stacked vertically per column
+- **Spacing minimums**: 120px between columns, 80px between rows, 40px around each cell; groups need ≥150px width per icon
+- **Page**: US Letter 850×1100px (extend to 1300px if a legend is included); 40px margins
+- **Edges**: orthogonal only (`edgeStyle=orthogonalEdgeStyle`); never set `entryX/Y` / `exitX/Y` and never add `<Array as="points">` waypoints. Target specific icons inside groups, not the group cell
+- **Cross-cutting services** (Azure Monitor, Entra ID, Key Vault, Defender): single light-grey rounded container at the bottom, 120px apart, no edges into them
+- **Legend**: required on every diagram, below the cross-cutting box; use inline HTML for arrow indicators; explicitly set `text: ""` on shape samples
+- **External actors** (Users, Operators): outside all group boundaries
 
-For full detail (layout patterns, numbered callouts, non-Azure component styling,
-group-sizing rules, fan-out staggering, legend HTML), see
-[`references/style-reference.md`](references/style-reference.md) under
-"Layout Conventions (extended)".
+> **Edge post-processing (CRITICAL)**: After `finish-diagram`, run `tools/scripts/save-drawio.py` to strip auto-router anchors and waypoints so Draw.io can recalculate clean orthogonal paths.
 
-### Post-Save Cleanup
+### Post-save cleanup
 
-After `save-drawio.py`, run the cleanup script to fix known MCP artifacts:
+After `save-drawio.py`, run the cleanup script for known MCP artifacts:
 
 ```bash
 python3 .github/skills/drawio/scripts/cleanup-drawio.py '<output-path>.drawio'
 ```
 
-The script fixes:
-
-- `value="New Cell"` → `value=""` (MCP default for vertices without explicit text)
-- Watermark cell height ≥ 70px (so all 4 lines of APEX attribution show)
-- Reports any cross-cutting icons spaced less than 120px apart
-
-Use the Azure-aligned color palette from `get-style-presets` and the style
-examples in `references/style-reference.md`. Standard output filenames and the
-validation checklist live in `references/validation-checklist.md`.
+Fixes: `value="New Cell"` → `value=""`, watermark cell height ≥70px, reports cross-cutting icons spaced <120px apart.
 
 ## Gotchas
 
