@@ -91,7 +91,7 @@ See `references/mock-providers.md` for full mock patterns and examples.
 See `references/test-examples.md` for: conditional resources, tag validation,
 resource count with for_each, variables precedence, and prior run references.
 
-## Running Tests
+## Steps
 
 ```bash
 terraform test                              # All tests
@@ -101,7 +101,7 @@ terraform test -filter=test_resource_group  # Filter by name
 terraform test -no-cleanup                  # Debug: keep resources
 ```
 
-## Best Practices
+## Rules
 
 1. **Naming**: `*_unit_test.tftest.hcl` / `*_integration_test.tftest.hcl`
 2. **Plan mode first**: Use `command = plan` for fast, cost-free validation

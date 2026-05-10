@@ -38,6 +38,15 @@ is TBD. Use Manual Discovery as the reliable default.
 
 ---
 
+## Rules
+
+- **Manual Discovery is the primary path** — always works with `azurerm ~> 4.0` and Azure CLI; Terraform Search is experimental and provider support is TBD
+- **Pin provider to `~> 4.0`** — azurerm 4.x renamed many attributes (`allow_blob_public_access` → `allow_nested_items_to_be_public`, etc.); pinning to anything else causes drift after import
+- **Plan before apply** — always run `terraform plan` after generating import blocks; the plan should show import actions ONLY (no creates / destroys)
+- **Adopt AVM modules post-import** — raw `azurerm_*` is acceptable as a temporary state; refactor to `Azure/avm-res-*` modules with `moved {}` blocks (see `terraform-patterns` `references/refactor-module.md`)
+- **Document the source** — in the imported `resource` block, comment the originating `az resource list` query so future runs can be reproduced
+- **Out of scope**: Bicep code (use `azure-bicep-patterns`), new resource creation (use `terraform-patterns`), architecture decisions (use `azure-adr`)
+
 ## Manual Discovery Workflow (Primary)
 
 ### Step 1: Discover Resources with az CLI

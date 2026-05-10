@@ -225,3 +225,40 @@ User issued `update batch 5`. All 6 proposed diffs applied. Validators all pass.
 ### Critical fixes confirmed
 
 - **vendor-prompting**: non-standard `Triggers:` literal normalized to `WHEN:`; stale `copilot-customization` reference dropped ✓
+
+---
+
+## Post-update — Round 2 (2026-05-10)
+
+User issued `update post-gepa` for the body-section pass. Hybrid heading strategy applied.
+
+### Edits applied
+
+| Skill                   | `## Rules` source             | `## Steps` source              |
+| ----------------------- | ----------------------------- | ------------------------------ |
+| python-diagrams         | Rename `## Guardrails`        | Rename `## Execution`          |
+| terraform-patterns      | Rename `## Key Rules`         | **Author** (7-step pattern application flow) |
+| terraform-search-import | **Author** (6-rule list — Manual primary, provider pin, post-import AVM) | _already present_ (`## Manual Discovery Workflow` with `### Step N`) |
+| terraform-test          | Rename `## Best Practices`    | Rename `## Running Tests`      |
+| vendor-prompting        | **Author** (8-rule list — rules.json source of truth, model-family rules) | Rename `## How to Use This Skill for an Audit` |
+| workflow-engine         | **Author** (8-rule list — DAG, gates, IaC routing, fan-out, schema evolution) | **Author** (8-step orchestrator routing flow) |
+
+### Score deltas
+
+| Skill                   | Round 1 | Round 2     | Δ     |
+| ----------------------- | ------- | ----------- | ----- |
+| python-diagrams         | 0.67    | **1.00** ✓  | +0.33 |
+| terraform-patterns      | 0.67    | **1.00** ✓  | +0.33 |
+| terraform-search-import | 0.83    | **1.00** ✓  | +0.17 |
+| terraform-test          | 0.67    | **1.00** ✓  | +0.33 |
+| vendor-prompting        | 0.67    | **1.00** ✓  | +0.33 |
+| workflow-engine         | 0.67    | **1.00** ✓  | +0.33 |
+
+### Aggregate (batch 5)
+
+| Metric                 | Round 1 | Round 2     |
+| ---------------------- | ------- | ----------- |
+| Skills at score = 1.00 | 0 / 6   | **6 / 6** ✓ |
+| Skills at score ≥ 0.83 | 1 / 6   | **6 / 6** ✓ |
+
+Validators: all pass.

@@ -44,7 +44,7 @@ pip install diagrams matplotlib pillow && apt-get install -y graphviz
 
 Suffix rules: `-des` for design (Step 3), `-ab` for as-built (Step 7).
 
-## Execution
+## Steps
 
 Save `.py` source in `agent-output/{project}/`, then run to produce `.png`:
 
@@ -99,7 +99,7 @@ Requirements: `labelloc='t'` · `Arial Bold` fonts ·
 full resource names from IaC · `dpi="150"+` · `margin="30"+` ·
 CIDR blocks in VNet/Subnet labels.
 
-## Guardrails
+## Rules
 
 **DO:** Set `show=False` · Use `direction="TB"` · Group in `Cluster` blocks ·
 Set explicit `filename` · Use DPI ≥150 · Apply design tokens consistently ·

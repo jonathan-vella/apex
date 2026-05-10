@@ -93,7 +93,18 @@ Load only the references your task needs. Most audits need 1-2.
 | [checklists.md](references/checklists.md)                       | Performing a manual pass-through audit                                 |
 | [audit-procedure.md](references/audit-procedure.md)             | Executing the full 6-step audit                                        |
 
-## How to Use This Skill for an Audit
+## Rules
+
+- **Source of truth is `rules.json`** — every rule has an ID, severity, source citation, applies-to, and validator-check binding; this skill prose only references it
+- **Model family is decided by the FIRST entry** in a model array (agents); the table in [Model-Family Detection](#model-family-detection-mirrors-validate-agentsmjs-classifymodel) is canonical
+- **`unknown` family = ERROR** — always require an explicit `model:` value that the validator can classify
+- **Bareword YAML for parenthetical model labels is forbidden** (`model: Claude Foo (suffix)` — see rule `frontmatter-model-style-001`)
+- **Do NOT load this skill for routine edits** — the auto-loaded thin instruction `vendor-prompting.instructions.md` carries the hard-rule shortlist
+- **Run `npm run lint:vendor-prompting`** before opening a PR; every finding includes a `ruleId` that maps to a `rules.json` entry
+- **Verdict thresholds** — APPROVED if zero `error`s and ≤ 5 `warn`s; otherwise NEEDS_REVISION with per-rule remediation
+- **Out of scope**: routine prompt edits where rules are already known, generic markdown style (see `markdown.instructions.md`)
+
+## Steps
 
 This is the canonical audit procedure (full version with templates lives
 in [audit-procedure.md](references/audit-procedure.md)).

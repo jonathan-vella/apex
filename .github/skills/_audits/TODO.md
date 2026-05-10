@@ -129,11 +129,11 @@ User explicitly approved expanding scope beyond the original frontmatter-only pr
 
 ### Batch 5 — python-diagrams → workflow-engine (6 skills)
 
-- [ ] Sensei pre-audit (Round 2)
-- [ ] Apply hybrid heading edits (python-diagrams, terraform-patterns, terraform-search-import, terraform-test, vendor-prompting, workflow-engine)
-- [ ] Validators + batch re-score
-- [ ] Append "Post-update — Round 2" to `batch-5-audit.md`
-- [ ] Commit `feat(skills): Add ## Rules / ## Steps body sections (batch 5, round 2)`
+- [x] Sensei pre-audit (Round 2)
+- [x] Apply hybrid heading edits (python-diagrams, terraform-patterns, terraform-search-import, terraform-test, vendor-prompting, workflow-engine)
+- [x] Validators + batch re-score
+- [x] Append "Post-update — Round 2" to `batch-5-audit.md`
+- [x] Commit `feat(skills): Add ## Rules / ## Steps body sections (batch 5, round 2)` — all 6 → 1.00 ✓
 
 ### Final — global GEPA score-all (Round 2)
 
