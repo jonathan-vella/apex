@@ -1,6 +1,6 @@
 ---
 name: azure-storage
-description: "**UTILITY SKILL** — Azure Storage Services including Blob Storage, File Shares, Queue Storage, Table Storage, and Data Lake. Provides object storage, SMB file shares, async messaging, NoSQL key-value, and big data analytics capabilities. Includes access tiers (hot, cool, archive) and lifecycle management. WHEN: \"blob storage\", \"file shares\", \"queue storage\", \"table storage\", \"data lake\", \"access tiers\", \"lifecycle management\". USE FOR: blob storage, file shares, queue storage, table storage, data lake, upload files, download blobs, storage accounts, access tiers, lifecycle management. DO NOT USE FOR: SQL databases, Cosmos DB (use azure-prepare), messaging with Event Hubs or Service Bus (use azure-messaging)."
+description: '**UTILITY SKILL** — Azure Storage Services including Blob Storage, File Shares, Queue Storage, Table Storage, and Data Lake. Provides object storage, SMB file shares, async messaging, NoSQL key-value, and big data analytics capabilities. Includes access tiers (hot, cool, archive) and lifecycle management. WHEN: "blob storage", "file shares", "queue storage", "table storage", "data lake", "access tiers", "lifecycle management". USE FOR: blob storage, file shares, queue storage, table storage, data lake, upload files, download blobs, storage accounts, access tiers, lifecycle management. DO NOT USE FOR: SQL databases, Cosmos DB (use azure-prepare), messaging with Event Hubs or Service Bus.'
 license: MIT
 metadata:
   author: Microsoft
@@ -11,13 +11,13 @@ metadata:
 
 ## Services
 
-| Service | Use When | MCP Tools | CLI |
-|---------|----------|-----------|-----|
-| Blob Storage | Objects, files, backups, static content | `azure__storage` | `az storage blob` |
-| File Shares | SMB file shares, lift-and-shift | - | `az storage file` |
-| Queue Storage | Async messaging, task queues | - | `az storage queue` |
-| Table Storage | NoSQL key-value (consider Cosmos DB) | - | `az storage table` |
-| Data Lake | Big data analytics, hierarchical namespace | - | `az storage fs` |
+| Service       | Use When                                   | MCP Tools        | CLI                |
+| ------------- | ------------------------------------------ | ---------------- | ------------------ |
+| Blob Storage  | Objects, files, backups, static content    | `azure__storage` | `az storage blob`  |
+| File Shares   | SMB file shares, lift-and-shift            | -                | `az storage file`  |
+| Queue Storage | Async messaging, task queues               | -                | `az storage queue` |
+| Table Storage | NoSQL key-value (consider Cosmos DB)       | -                | `az storage table` |
+| Data Lake     | Big data analytics, hierarchical namespace | -                | `az storage fs`    |
 
 ## MCP Server (Preferred)
 
@@ -52,28 +52,28 @@ az storage blob upload --account-name ACCOUNT --container-name CONTAINER --name 
 
 ## Storage Account Tiers
 
-| Tier | Use Case | Performance |
-|------|----------|-------------|
-| Standard | General purpose, backup | Milliseconds |
-| Premium | Databases, high IOPS | Sub-millisecond |
+| Tier     | Use Case                | Performance     |
+| -------- | ----------------------- | --------------- |
+| Standard | General purpose, backup | Milliseconds    |
+| Premium  | Databases, high IOPS    | Sub-millisecond |
 
 ## Blob Access Tiers
 
-| Tier | Access Frequency | Cost |
-|------|-----------------|------|
-| Hot | Frequent | Higher storage, lower access |
-| Cool | Infrequent (30+ days) | Lower storage, higher access |
-| Cold | Rare (90+ days) | Lower still |
-| Archive | Rarely (180+ days) | Lowest storage, rehydration required |
+| Tier    | Access Frequency      | Cost                                 |
+| ------- | --------------------- | ------------------------------------ |
+| Hot     | Frequent              | Higher storage, lower access         |
+| Cool    | Infrequent (30+ days) | Lower storage, higher access         |
+| Cold    | Rare (90+ days)       | Lower still                          |
+| Archive | Rarely (180+ days)    | Lowest storage, rehydration required |
 
 ## Redundancy Options
 
-| Type | Durability | Use Case |
-|------|------------|----------|
-| LRS | 11 nines | Dev/test, recreatable data |
-| ZRS | 12 nines | Regional high availability |
-| GRS | 16 nines | Disaster recovery |
-| GZRS | 16 nines | Best durability |
+| Type | Durability | Use Case                   |
+| ---- | ---------- | -------------------------- |
+| LRS  | 11 nines   | Dev/test, recreatable data |
+| ZRS  | 12 nines   | Regional high availability |
+| GRS  | 16 nines   | Disaster recovery          |
+| GZRS | 16 nines   | Best durability            |
 
 ## Service Details
 
@@ -103,7 +103,7 @@ For building applications that interact with Azure Storage programmatically, Azu
 
 Load these on demand — do NOT read all at once:
 
-| Reference | When to Load |
-| --------- | ------------ |
+| Reference                           | When to Load        |
+| ----------------------------------- | ------------------- |
 | `references/auth-best-practices.md` | Auth Best Practices |
-| `references/sdk-usage.md` | Sdk Usage |
+| `references/sdk-usage.md`           | Sdk Usage           |

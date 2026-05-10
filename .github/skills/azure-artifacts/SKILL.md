@@ -1,6 +1,6 @@
 ---
 name: azure-artifacts
-description: "**UTILITY SKILL** — Artifact template structures, H2 compliance rules, and documentation styling for agent outputs (Steps 1-7). WHEN: \"generate artifact\", \"check H2 structure\", \"artifact template\", \"step 7 as-built\". USE FOR: generating any agent artifact, checking H2 structure compliance. DO NOT USE FOR: Azure resource configuration (use azure-defaults), Bicep/Terraform patterns (use azure-bicep-patterns or terraform-patterns)."
+description: '**UTILITY SKILL** — Artifact template structures, H2 compliance rules, and documentation styling for agent outputs (Steps 1-7). WHEN: "generate artifact", "check H2 structure", "artifact template", "step 7 as-built". USE FOR: generating any agent artifact, checking H2 structure compliance. DO NOT USE FOR: Azure resource configuration (use azure-defaults), Bicep/Terraform patterns (use azure-bicep-patterns or terraform-patterns).'
 compatibility: Works with Claude Code, GitHub Copilot, VS Code, and any Agent Skills compatible tool.
 license: MIT
 metadata:
@@ -116,7 +116,7 @@ npm run validate:all              # All validators together
 
 - [ ] H2 headings match template exactly (text + order)
 - [ ] Attribution header present with agent name and date
-- [ ] No placeholder text ("TBD", "Insert here", "TODO")
+- [ ] No placeholder text (e.g. "TBD", "Insert here", task markers)
 - [ ] File saved to `agent-output/{project}/` with correct name
 - [ ] Collapsible TOC present (`<details open>` block after badge row)
 - [ ] Cross-navigation table present (header with ⬅️ Previous / 📑 Index / Next ➡️)
