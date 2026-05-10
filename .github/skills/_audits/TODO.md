@@ -31,15 +31,15 @@ User-gated start: `audit batch <N>` or `audit batches 1-5` for sequential.
 
 ### Batch 2 — azure-defaults → azure-quotas
 
-- [ ] Run sensei standard-mode score: azure-defaults
-- [ ] Run sensei standard-mode score: azure-deploy
-- [ ] Run sensei standard-mode score: azure-diagnostics
-- [ ] Run sensei standard-mode score: azure-governance-discovery
-- [ ] Run sensei standard-mode score: azure-kusto
-- [ ] Run sensei standard-mode score: azure-prepare
-- [ ] Run sensei standard-mode score: azure-quotas
-- [ ] Generate `batch-2-audit.md`
-- [ ] Commit `chore(skills): Audit batch 2 report (sensei standard)`
+- [x] Run sensei standard-mode score: azure-defaults
+- [x] Run sensei standard-mode score: azure-deploy
+- [x] Run sensei standard-mode score: azure-diagnostics
+- [x] Run sensei standard-mode score: azure-governance-discovery
+- [x] Run sensei standard-mode score: azure-kusto
+- [x] Run sensei standard-mode score: azure-prepare
+- [x] Run sensei standard-mode score: azure-quotas
+- [x] Generate `batch-2-audit.md`
+- [x] Commit `chore(skills): Audit batch 2 report (sensei standard)`
 - [ ] **Updates** — user issues `update batch 2` or `update <skill>` to apply audit recommendations + commit
 
 ### Batch 3 — azure-rbac → drawio
