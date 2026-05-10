@@ -6,11 +6,11 @@
 
 ## Phase 0 — Scaffolding (no user gate)
 
-- [ ] Create `.github/skills/_audits/` directory
-- [ ] Author `TODO.md` (this file)
-- [ ] Add `tools/scripts/run-sensei-audit.mjs` wrapper
-- [ ] Add `audit:skills:gepa` npm script
-- [ ] Commit `chore(skills): Phase 0 scaffolding for skills audit programme`
+- [x] Create `.github/skills/_audits/` directory
+- [x] Author `TODO.md` (this file)
+- [x] Add `tools/scripts/run-sensei-audit.mjs` wrapper
+- [x] Add `audit:skills:gepa` npm script
+- [x] Commit `chore(skills): Phase 0 scaffolding for skills audit programme`
 - [ ] **Action item**: Note for accelerator workflow — extend `EXCLUDE_PATHS` in `weekly-upstream-sync.yml` to include `.github/skills/_audits/` and `tests/` (apply later when accelerator-side changes are batched)
 
 ## Phase 1 — Standard-mode audit (read-only, per batch)
