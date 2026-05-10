@@ -137,9 +137,9 @@ User explicitly approved expanding scope beyond the original frontmatter-only pr
 
 ### Final — global GEPA score-all (Round 2)
 
-- [ ] Run `npm run audit:skills:gepa`
-- [ ] Append "Post-update — Round 2" section to `gepa-audit.md`
-- [ ] Commit `chore(skills): GEPA audit report (round 2)`
+- [x] Run `npm run audit:skills:gepa`
+- [x] Append "Post-update — Round 2" section to `gepa-audit.md`
+- [x] Commit `chore(skills): GEPA audit report (round 2)` — **33 / 33 skills at 1.00, average 1.00 ✓**
 
 ## Out-of-band action items
 

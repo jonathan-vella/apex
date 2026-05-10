@@ -219,3 +219,58 @@ Feedback: Has 'DO NOT USE FOR:' — safe for small skill sets, risky for 10+ ski
 - Source plan: [`plan-skillsAuditOptimize.prompt.md`](../../prompts/plan-skillsAuditOptimize.prompt.md)
 - Stage A reports: [`batch-1-audit.md`](./batch-1-audit.md) · [`batch-2-audit.md`](./batch-2-audit.md) · [`batch-3-audit.md`](./batch-3-audit.md) · [`batch-4-audit.md`](./batch-4-audit.md) · [`batch-5-audit.md`](./batch-5-audit.md)
 - Tracker: [`TODO.md`](./TODO.md)
+
+---
+
+## Post-update — Round 2 (2026-05-10)
+
+User issued `update post-gepa` for the body-section pass (scope expansion). Five batches of hybrid heading edits applied (rename existing equivalent sections to `## Rules` / `## Steps` where clean; author minimal sections otherwise). All edits committed across 5 per-batch commits. Validators (`validate:skills`, `validate:agents`, `validate:agent-registry`, `lint:vendor-prompting`) pass after every batch.
+
+### Final aggregate
+
+| Metric                       | Stage A (post-update) | Stage B (round 1)  | Stage B Round 2 (final) | Δ vs Stage A |
+| ---------------------------- | --------------------- | ------------------ | ----------------------- | ------------ |
+| Average GEPA `quality_score` | 0.74                  | 0.74               | **1.00**                | **+0.26**    |
+| Skills at score = 1.00       | 3 / 33                | 3 / 33             | **33 / 33** ✓           | **+30**      |
+| Skills at score ≥ 0.83       | 11 / 33               | 10 / 33            | **33 / 33** ✓           | **+22**      |
+| Skills at score ≥ 0.67       | 33 / 33               | 33 / 33            | **33 / 33** ✓           | 0            |
+| Skills below 0.67            | 0 / 33                | 0 / 33             | **0 / 33**              | 0            |
+
+### Per-batch scorecard (Round 2)
+
+| Batch | Skills | Round 1 avg | Round 2 avg | Skills hitting 1.00 |
+| ----- | ------ | ----------- | ----------- | ------------------- |
+| 1     | 7      | 0.71        | **1.00**    | 7 / 7               |
+| 2     | 7      | 0.71        | **1.00**    | 7 / 7               |
+| 3     | 7      | 0.71        | **1.00**    | 7 / 7               |
+| 4     | 6      | 0.69        | **1.00**    | 6 / 6               |
+| 5     | 6      | 0.72        | **1.00**    | 6 / 6               |
+
+### Hybrid heading strategy summary
+
+| Strategy           | Skills | Notes                                                                 |
+| ------------------ | ------ | --------------------------------------------------------------------- |
+| Rename only        | 8      | Both `## Rules` + `## Steps` came from existing equivalent headings   |
+| Rename + Author    | 14     | One section renamed from existing; the other authored                 |
+| Author only        | 8      | Both sections authored fresh (no clean equivalent)                    |
+| _Already complete_ | 3      | `azure-cloud-migrate`, `azure-deploy`, `azure-validate` (Stage A)     |
+
+Most common rename pairs: `## Best Practices` → `## Rules` (5 skills), `## Workflow` / `## Core Workflow` / `## Quick Diagnosis Flow` → `## Steps` (4 skills), `## Guardrails` → `## Rules` (3 skills), `## Generation Workflow` / `## Assessment Workflow` → `## Steps` (2 skills).
+
+### `azure-compute` regression — closed
+
+Stage B round 1 flagged a regression: commit `d960e5f` (refactor: move workflow to `references/`) had stripped the `### Step N` subheadings from `azure-compute/SKILL.md`, dropping the score from 0.83 → 0.67. Round 2 added a `## Steps` heading above the existing 6-item summary list and authored a `## Rules` section. Score: **1.00 ✓**.
+
+### Outstanding considerations
+
+- **`sensei` submodule** continues to score 1.00 with a non-blocking feedback line about `DO NOT USE FOR:` ergonomics for large skill registries. Out of scope for this programme.
+- **Hybrid edits preserved semantic content**: no information was deleted; only headings were renamed (or added) and minimal new rule/step sections were authored alongside existing detailed sections.
+- **The 0.67 ceiling is now lifted**: GEPA's six quality dimensions all read `1.0` for every in-scope skill. Future regressions would surface as per-skill `Δ` deltas in the next audit run.
+
+### Reproducibility
+
+- Final raw scorer output: [`gepa-audit.json`](./gepa-audit.json) (canonicalized, sorted keys; round 2)
+- Round 2 batch reports: [`batch-1-audit.md`](./batch-1-audit.md) · [`batch-2-audit.md`](./batch-2-audit.md) · [`batch-3-audit.md`](./batch-3-audit.md) · [`batch-4-audit.md`](./batch-4-audit.md) · [`batch-5-audit.md`](./batch-5-audit.md) (each has a "Post-update — Round 2" section)
+- Re-run command: `npm run audit:skills:gepa`
+- Source plan: [`plan-skillsAuditOptimize.prompt.md`](../../prompts/plan-skillsAuditOptimize.prompt.md)
+- Tracker: [`TODO.md`](./TODO.md)
