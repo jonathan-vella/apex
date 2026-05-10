@@ -200,7 +200,7 @@ User triggers: `mcp audit`, then `mcp update` or `mcp update <skill>`.
 
 User trigger: `tests batch <N>`.
 
-- [ ] Batch 1 — author `tests/{skill}/trigger_tests.yaml` + verify trigger_accuracy + commit
+- [x] Batch 1 — author `tests/{skill}/trigger_tests.yaml` + verify trigger_accuracy + commit
 - [ ] Batch 2 — same
 - [ ] Batch 3 — same
 - [ ] Batch 4 — same
