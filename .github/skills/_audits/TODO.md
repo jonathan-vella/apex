@@ -19,15 +19,15 @@ User-gated start: **explicit `audit batch <N>` or auto-run after Phase 0 complet
 
 ### Batch 1 — azure-adr → azure-cost-optimization
 
-- [ ] Run sensei standard-mode score: azure-adr
-- [ ] Run sensei standard-mode score: azure-artifacts
-- [ ] Run sensei standard-mode score: azure-bicep-patterns
-- [ ] Run sensei standard-mode score: azure-cloud-migrate
-- [ ] Run sensei standard-mode score: azure-compliance
-- [ ] Run sensei standard-mode score: azure-compute
-- [ ] Run sensei standard-mode score: azure-cost-optimization
-- [ ] Generate `batch-1-audit.md`
-- [ ] Commit `chore(skills): Audit batch 1 report (sensei standard)`
+- [x] Run sensei standard-mode score: azure-adr
+- [x] Run sensei standard-mode score: azure-artifacts
+- [x] Run sensei standard-mode score: azure-bicep-patterns
+- [x] Run sensei standard-mode score: azure-cloud-migrate
+- [x] Run sensei standard-mode score: azure-compliance
+- [x] Run sensei standard-mode score: azure-compute
+- [x] Run sensei standard-mode score: azure-cost-optimization
+- [x] Generate `batch-1-audit.md`
+- [x] Commit `chore(skills): Audit batch 1 report (sensei standard)`
 
 ### Batch 2 — azure-defaults → azure-quotas
 
