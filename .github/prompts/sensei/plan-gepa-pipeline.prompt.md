@@ -22,10 +22,30 @@ If you're a new agent session with no carried context, read these files in order
    - Stage 2 → `01-tokens-baseline.md` post-update sections
    - Stage 3 → `02-mcp-integration.md`
    - Stage 4 → `03-trigger-tests.md`
-   - Stage 5 → `04-gepa-optimize.md`
+   - Stage 5 / 5-Audit → `04-gepa-optimize.md`
    - Stage 6 → `05-pipeline-final.md`
 5. Run `git status` and `git log --oneline -5` to confirm the branch and HEAD.
 6. **Wait for the user trigger** (the trigger phrase for each stage is listed in the table below). Never auto-start a stage.
+
+### Quick start for a Stage 5-Audit "audit all 33 skills" run
+
+If the user's first message is "audit all" / "audit batch <N>" / "audit <skill>", the new session can run end-to-end via the resumable runner. The runner is **idempotent and resumable**: re-invoking it skips skills already recorded in `audit-log.json`.
+
+```bash
+# One-time per session
+unset GH_TOKEN GITHUB_TOKEN
+gh auth login --hostname github.com --web --git-protocol https   # interactive, ~30s
+pip install --quiet gepa>=0.3.0 litellm
+export OPENAI_API_BASE=https://models.github.ai/inference
+export OPENAI_API_KEY=$(gh auth token)
+
+# Run (audit ONLY — never writes to .github/skills/{skill}/SKILL.md)
+node tools/scripts/run-stage5-audit.mjs --batch 1
+node tools/scripts/run-stage5-audit.mjs --all       # 100–165 min wall time
+node tools/scripts/run-stage5-audit.mjs --resume    # recover from interrupts
+```
+
+After the runner exits, append a verdict table to `04-gepa-optimize.md` and commit `chore(skills): Stage 5-Audit (audit-only) — N skills evaluated`. **No SKILL.md changes.** See "Stage 5-Audit" section below for full detail.
 
 ## Predecessor
 
@@ -40,7 +60,8 @@ This plan picks up where [`plan-skillsAuditOptimize.prompt.md`](../plan-skillsAu
 |     3 | `mcp audit`                                  | Read-only audit of `INVOKES:` skills' MCP integration                      |
 |       | `mcp update` / `mcp update <skill>`          | Apply remediation diffs from Stage 3 audit                                 |
 |     4 | `tests batch <N>`                            | Author `tests/{skill}/trigger_tests.yaml` (Waza format) for the batch      |
-|     5 | `optimize batch <N>` / `optimize <skill>`    | LLM-driven GEPA `optimize` with validator gate; per-skill commits          |
+|  5-A  | `audit batch <N>` / `audit <skill>` / `audit all` | Audit-only: run optimize, save candidate, run structural detector. **No writes to `.github/skills/{skill}/SKILL.md`.** |
+|  5-B  | `optimize <skill>`                           | Stage 5-Apply: gated apply (detector verdict SAFE + 4 validators); per-skill commit |
 |     6 | `final report`                               | Cross-skill aggregate: GEPA score-all + tokens count + trigger accuracy    |
 
 If the user types something other than a listed trigger, ask which stage they want to run rather than guessing.
@@ -169,6 +190,82 @@ For each skill:
 6. Stop after each batch/skill and wait.
 
 > **Cost note**: GEPA optimize uses LLM credits. The user may pause mid-batch with `pause`; the agent records the partial-state in `04-gepa-optimize.md` and waits.
+
+### Stage 5-Audit — audit-only structural-regression detection (per-batch, user-gated)
+
+User trigger: `audit batch <N>`, `audit <skill>`, or `audit all`.
+
+**Added 2026-05-10** after the rejected `azure-prepare` smoke test demonstrated that GEPA's fitness function does not probe functional hand-off rules, cross-skill mention preservation, or reference-file linkage — meaning Stage 5-Apply can produce candidates that pass all four validators yet drop critical behavior. Stage 5-Audit slots between Stage 4 (complete) and Stage 5-Apply (now optional).
+
+**Audit mode never writes to `.github/skills/{skill}/SKILL.md`.** It only generates candidates into `.github/skills/_audits/stage5-snapshots/` and classifies each as `SAFE` / `REVIEW` / `REJECT` via a deterministic structural detector.
+
+**Prerequisites** (set up once per session):
+
+```bash
+# 1. Switch from PAT (no models:read) to web session token
+unset GH_TOKEN GITHUB_TOKEN
+gh auth login --hostname github.com --web --git-protocol https
+# Pick "Y" to git auth, copy the one-time code, authorize in browser.
+
+# 2. Install Python deps for the GEPA optimize loop
+pip install --quiet gepa>=0.3.0 litellm
+
+# 3. Export inference endpoint env (auto-evaluator.py uses these via litellm)
+export OPENAI_API_BASE=https://models.github.ai/inference
+export OPENAI_API_KEY=$(gh auth token)
+```
+
+**Run the resumable runner**:
+
+```bash
+node tools/scripts/run-stage5-audit.mjs --batch 1     # one alphabetical batch
+node tools/scripts/run-stage5-audit.mjs --skills foo bar
+node tools/scripts/run-stage5-audit.mjs --all          # all 33 skills (~100–165 min wall time)
+node tools/scripts/run-stage5-audit.mjs --resume       # re-runs only skills not yet in audit-log.json
+```
+
+The runner is **resumable** — it tracks completed skills in `stage5-snapshots/audit-log.json` and skips any skill already audited. Network drops, container reboots, or `Ctrl-C` mid-batch are recoverable: a follow-up `--resume` picks up where it left off. To re-evaluate a skill (e.g., after editing its trigger tests), use `--force-rerun`.
+
+**Per-skill workflow** (executed by the runner):
+
+1. Snapshot SKILL.md to `stage5-snapshots/{skill}.before.md` (idempotent).
+2. Run GEPA `optimize` (default model `openai/gpt-5`, 80 iterations) and parse the trailing JSON.
+3. Save the candidate to `stage5-snapshots/{skill}.candidate.md`. Persist raw stdout to `{skill}.optimize-stdout.txt` for debugging.
+4. Run [`tools/scripts/audit-gepa-candidate.mjs`](../../../tools/scripts/audit-gepa-candidate.mjs) to classify the candidate.
+5. Append a single-row entry to `audit-log.json` (verdict, findings summary, elapsed time).
+
+**Detector rules** (locked 2026-05-10):
+
+| # | Rule | Severity | Catches |
+| ---: | --- | --- | --- |
+| 1 | H2 section preservation | REJECT | Any `## H2` in `before` missing in `candidate` |
+| 2 | Reference orphans | REJECT | Any `references/*.md` link in `before` missing in `candidate` AND that file exists on disk |
+| 3 | Cross-skill mentions | REJECT | Any in-scope skill name mentioned in `before` body absent from `candidate` body |
+| 4 | Table row count | REVIEW | A markdown table loses rows |
+| 5 | Fenced code blocks | REVIEW | A fenced code block disappears |
+| 6 | Version bump | REVIEW | Frontmatter `version:` changes |
+| 7 | Aggressive trim | REVIEW | Token reduction > 25% |
+
+Verdict precedence: `REJECT` > `REVIEW` > `SAFE` (highest severity wins).
+
+**After the runner completes**:
+
+1. Read `stage5-snapshots/audit-log.json` for the verdict tally.
+2. Append a per-skill verdict table to `.github/skills/_audits/04-gepa-optimize.md` summarizing findings.
+3. Commit `chore(skills): Stage 5-Audit (audit-only) — N skills evaluated` with the audit log + report.
+4. **No SKILL.md changes**. Stage 5-Apply stays paused; the user reviews the verdicts and decides per-skill whether to proceed.
+
+### Stage 5-Apply — gated apply (per-skill, user-gated)
+
+User trigger: `optimize <skill>` (Stage 5's existing trigger, but now gated).
+
+A candidate is applied only if:
+
+1. Stage 5-Audit verdict is `SAFE` (or user explicit override on `REVIEW`).
+2. All four validators pass (`validate:skills` + `validate:agents` + `validate:agent-registry` + `lint:vendor-prompting`).
+3. Tokens check shows the skill stays within `.token-limits.json` soft limits.
+
+Per-skill commit per the existing Stage 5 plan; rollback is a single `git revert`.
 
 ### Stage 6 — Final cross-skill report
 
