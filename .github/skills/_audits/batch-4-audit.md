@@ -233,3 +233,40 @@ User issued `update batch 4`. All 6 proposed diffs applied. Validators all pass.
 
 - **entra-app-registration**: 2 stale refs (`azure-keyvault-expiration-audit`, `azure-security`) replaced with `azure-compliance` ✓
 - **microsoft-docs**: 2 stale refs (`microsoft-code-reference`, `microsoft-skill-creator`) dropped; INVOKES added for Microsoft Learn MCP ✓
+
+---
+
+## Post-update — Round 2 (2026-05-10)
+
+User issued `update post-gepa` for the body-section pass. Hybrid heading strategy applied.
+
+### Edits applied
+
+| Skill                  | `## Rules` source                                | `## Steps` source                       |
+| ---------------------- | ------------------------------------------------ | --------------------------------------- |
+| entra-app-registration | **Author** (6-rule list — IaC, Key Vault, least privilege) | _already present_ (`## Core Workflow` with `### Step N`) |
+| github-operations      | Rename `## Tool Priority Protocol (Mandatory)`   | Rename `## Contribution Lifecycle`      |
+| golden-principles      | **Author** (10-line summary of the 10 principles) | Rename `## How to Apply These Principles` |
+| iac-common             | **Author** (7-rule list — preflight, azd, phased deploy, circuit breaker) | **Author** (7-step deploy flow) |
+| mermaid                | Rename `## Guardrails`                           | **Author** (7-step authoring flow)      |
+| microsoft-docs         | **Author** (6-rule list — search-first, specificity, CLI fallback) | **Author** (6-step query/fetch flow) |
+
+### Score deltas
+
+| Skill                  | Round 1 | Round 2     | Δ     |
+| ---------------------- | ------- | ----------- | ----- |
+| entra-app-registration | 0.83    | **1.00** ✓  | +0.17 |
+| github-operations      | 0.67    | **1.00** ✓  | +0.33 |
+| golden-principles      | 0.67    | **1.00** ✓  | +0.33 |
+| iac-common             | 0.67    | **1.00** ✓  | +0.33 |
+| mermaid                | 0.67    | **1.00** ✓  | +0.33 |
+| microsoft-docs         | 0.67    | **1.00** ✓  | +0.33 |
+
+### Aggregate (batch 4)
+
+| Metric                 | Round 1 | Round 2     |
+| ---------------------- | ------- | ----------- |
+| Skills at score = 1.00 | 0 / 6   | **6 / 6** ✓ |
+| Skills at score ≥ 0.83 | 1 / 6   | **6 / 6** ✓ |
+
+Validators: all pass.

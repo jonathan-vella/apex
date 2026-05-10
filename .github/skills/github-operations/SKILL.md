@@ -15,7 +15,18 @@ Full contribution lifecycle — from branch creation to PR merge.
 for operations with no `gh` equivalent (e.g., rich PR review thread management,
 bulk GraphQL queries).
 
-## Contribution Lifecycle
+## Steps
+
+```text
+1. Create branch (naming convention) →
+2. Make changes →
+3. Commit (conventional commits) →
+4. Push (pre-push hooks validate branch + scope) →
+5. Create PR (gh CLI) →
+6. Review + Merge
+```
+
+## Contribution Lifecycle Detail
 
 ```text
 1. Create branch (naming convention) →
@@ -69,23 +80,22 @@ Scopes: `agents`, `skills`, `instructions`, `bicep`, `terraform`, `mcp`, `docs`,
 📋 **Full workflow**: Read `references/commit-conventions.md` for staging,
 breaking changes, best practices, and safety protocol.
 
-## Tool Priority Protocol (Mandatory)
+## Rules
 
-1. Identify required operation (issue, PR, search, Actions, release, etc.)
-2. Use `gh` CLI by default — it is always available in this dev container and
-   is the more stable primitive
-3. Fall back to MCP tools only when the operation has no `gh` CLI equivalent
-   (e.g., rich PR review thread management, bulk GraphQL queries, Copilot
-   code review requests)
+1. **Identify the operation** (issue, PR, search, Actions, release, etc.)
+2. **Use `gh` CLI by default** — always available in this dev container; the more stable primitive
+3. **Fall back to MCP only** when `gh` cannot satisfy the operation (rich PR review threads, bulk GraphQL, Copilot review requests)
 
 ### Devcontainer Reliability Rule
 
 - Do not run `gh auth login` in devcontainer workflows
 - `GH_TOKEN` must be set via VS Code User Settings (`terminal.integrated.env.linux`)
-- `gh` CLI authenticates automatically via `GH_TOKEN`; prefer it for issue/PR
-  creation by default
-- If a fallback to MCP is required and MCP write tools are missing, report
-  explicitly
+- `gh` CLI authenticates automatically via `GH_TOKEN`; prefer it for issue/PR creation by default
+- If a fallback to MCP is required and MCP write tools are missing, report explicitly
+
+## Tool Priority Protocol (Mandatory)
+
+See the [Rules](#rules) section above for the priority order. Detailed CLI/MCP fallback tables below.
 
 ---
 

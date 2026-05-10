@@ -157,7 +157,7 @@ graph LR
 ```
 ````
 
-## Guardrails
+## Rules
 
 **DO:** Use fenced code blocks with `mermaid` language tag · Include theme
 directives for dark mode · Use `graph TB` for vertical layouts · Use subgraphs
@@ -168,6 +168,16 @@ committing.
 for primary architecture diagrams with Azure icons (use `drawio`) · Omit
 theme directives · Create overly complex diagrams that don't render well ·
 Use inline Mermaid for diagrams that need icon embedding.
+
+## Steps
+
+1. **Pick the diagram type** — flowchart, sequence, Gantt, state, ER, class — see [Syntax Reference](#syntax-reference)
+2. **Choose the layout** — `graph TB` (vertical) or `graph LR` (horizontal); use subgraphs for logical grouping
+3. **Author the diagram** inside a triple-backtick `mermaid` fence in your markdown
+4. **Add theming** — include dark-mode-compatible theme directives (see [Theming](#theming-dark-mode-compatible))
+5. **Apply node styling** — use descriptive labels and consistent shapes for like roles
+6. **Validate** — render in VS Code preview or Starlight build; check that all nodes resolve and edges have labels
+7. **Commit** — the rendered Mermaid stays inline; no separate `.drawio` / `.png` artifact needed
 
 ## Scope Exclusions
 

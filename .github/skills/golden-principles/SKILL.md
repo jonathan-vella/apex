@@ -11,6 +11,31 @@ infrastructure development.
 
 ---
 
+## Rules
+
+These 10 principles are the agent operating rules. Detailed explanations follow in [The 10 Principles](#the-10-principles).
+
+1. **Repository Is the System of Record** — all context lives in-repo
+2. **Map, Not Manual** — instructions point to deeper sources
+3. **Enforce Invariants, Not Implementations** — set boundaries, allow autonomous expression
+4. **Parse at Boundaries** — validate inputs and outputs at module edges
+5. **AVM-First, Security Baseline Always** — prefer Azure Verified Modules + non-negotiable security baseline
+6. **Golden Path Pattern** — prefer shared utilities over hand-rolled helpers
+7. **Composable Workflows** — small, well-bounded steps that compose
+8. **Human Approval at Critical Gates** — explicit gates between steps
+9. **Adversarial Review** — challenger subagents stress-test creative outputs
+10. **Continuous Lessons** — capture observations and feed back into the system
+
+## Steps
+
+Applying the principles to a new agent or skill:
+
+1. **Read all 10 principles** before designing the agent or skill
+2. **For each design decision**, ask which principles apply (typically 2–3 will dominate)
+3. **Run the per-principle test** listed in [The 10 Principles](#the-10-principles)
+4. **Where a principle conflicts with an implementation choice**, change the implementation — principles are non-negotiable
+5. **Document deviations** in an ADR if a principle was knowingly relaxed
+
 ## The 10 Principles
 
 ### 1. Repository Is the System of Record

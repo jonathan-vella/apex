@@ -31,6 +31,15 @@ Microsoft Entra ID (formerly Azure AD) is Microsoft's cloud-based identity and a
 | **Single Page App (SPA)** | JavaScript/React/Angular apps |
 | **Daemon/Service**        | Background services, APIs     |
 
+## Rules
+
+- **Prefer IaC** for managing app registrations when the project already uses IaC, scales to many apps, or needs audit history (see [`references/BICEP-EXAMPLE.bicep`](references/BICEP-EXAMPLE.bicep))
+- **Prefer certificates or federated identity credentials over client secrets** in production environments
+- **Store client secrets in Key Vault** — never commit them to source; rotate regularly; copy the value immediately on creation (only shown once)
+- **Grant least-privilege API permissions** — add only the scopes the app actually uses
+- **Out of scope**: Azure RBAC / role assignments (use `azure-rbac`); Key Vault audits (use `azure-compliance`); Azure resource security scanning (use `azure-compliance`)
+- **CLI for ad-hoc**, **IaC for production** — see [`references/cli-commands.md`](references/cli-commands.md) for `az ad app create` patterns
+
 ## Core Workflow
 
 ### Step 1: Register the Application

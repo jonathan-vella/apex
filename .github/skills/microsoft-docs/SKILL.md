@@ -21,6 +21,24 @@ Covers Azure, .NET, Microsoft 365, Windows, Power Platform, and all Microsoft te
 | `microsoft_docs_search` | Find documentation — concepts, guides, tutorials, configuration |
 | `microsoft_docs_fetch`  | Get full page content (when search excerpts aren't enough)      |
 
+## Rules
+
+- **Search first, fetch second** — always start with `microsoft_docs_search`; only fetch the full page when the search excerpt is insufficient
+- **Be specific** — include version (`.NET 8`, `EF Core 8`), task intent (`quickstart`, `tutorial`, `overview`, `limits`), and platform (`Linux`, `Windows`) where relevant
+- **Live docs over training data** — prefer this skill over model knowledge for accuracy and freshness
+- **Out of scope**: Azure pricing (use Azure Pricing MCP directly)
+- **CLI fallback** — use the `mslearn` CLI when the Learn MCP server is unavailable: `npx @microsoft/learn-cli search "..."`
+- **Avoid loading entire docs trees** — fetch single pages, not full sub-trees, to control context size
+
+## Steps
+
+1. **Frame the question** — identify service, version, and intent (quickstart / configuration / limits / best practice)
+2. **Run `microsoft_docs_search`** with a specific query (see [Query Effectiveness](#query-effectiveness) examples)
+3. **Read the excerpts** — if they cover the question, stop here
+4. **Run `microsoft_docs_fetch`** on the most relevant URL when the excerpt is cut off or you need the full step list
+5. **Cross-reference code samples** with `microsoft_code_sample_search` when the user wants runnable examples
+6. **Cite sources** — include the `learn.microsoft.com` URL in your response
+
 ## When to Use
 
 - **Understanding concepts** — "How does Cosmos DB partitioning work?"

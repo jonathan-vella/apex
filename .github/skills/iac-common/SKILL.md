@@ -13,6 +13,28 @@ Shared deployment patterns used by both Bicep and Terraform deploy agents
 
 ---
 
+## Rules
+
+- **Preflight first** — always run `azure-validate` before invoking any deploy strategy in this skill
+- **azd by default** — use `azd provision` / `azd up` for all new projects; `deploy.ps1` is deprecated and retained only for legacy projects without `azure.yaml`
+- **Phased deployment for high-risk changes** — split into Foundation → Security → Data → Compute → Edge with user approval at each gate
+- **Circuit breaker** — stop deployment automatically when policy violations, governance failures, or budget breaches are detected; surface to user before retrying
+- **Set environment values before `--no-prompt`** — `AZURE_SUBSCRIPTION_ID`, `AZURE_RESOURCE_GROUP`, `AZURE_ENV_NAME`, `AZURE_LOCATION` must all be present (`azd env get-values`)
+- **Use `azd env new {project}-{env}`** to avoid environment-name collisions across projects
+- **Out of scope**: preflight (use `azure-validate`); code generation (use `azure-bicep-patterns` or `terraform-patterns`)
+
+## Steps
+
+Standard deploy flow used by `07b-Bicep Deploy` and `07t-Terraform Deploy`:
+
+1. **Preflight** — run `azure-validate` (auth, governance, plan, what-if review)
+2. **Set environment** — `azd env set AZURE_SUBSCRIPTION_ID/RESOURCE_GROUP/LOCATION` + verify via `azd env get-values`
+3. **Preview** — `azd provision --preview` (Bicep) or `terraform plan` (Terraform); user reviews destructive operations
+4. **Approve gate** — user explicitly approves the preview before any apply
+5. **Apply** — `azd provision` / `azd up` (Bicep) or `terraform apply` (Terraform); for high-risk projects, deploy in phases (Foundation → Security → Data → Compute → Edge)
+6. **Circuit-break on failure** — stop on policy/governance/budget violations; surface diagnostics to user
+7. **Hand off** to `08-As-Built` for documentation
+
 ## Deployment Strategies
 
 ### azd Deployment (default for all projects)
