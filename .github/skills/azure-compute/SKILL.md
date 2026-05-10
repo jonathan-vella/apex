@@ -56,9 +56,9 @@ The full 6-step procedure (with all decision tables, dichotomy tree, and `web_fe
 
 Load these on demand — do NOT read all at once:
 
-| Reference                                | When to Load                                                                  |
-| ---------------------------------------- | ----------------------------------------------------------------------------- |
-| `references/recommendation-workflow.md`  | Full Steps 1–6 (decision tables, web_fetch URLs)                              |
-| `references/retail-prices-api.md`        | Pricing queries (Step 4)                                                      |
-| `references/vm-families.md`              | VM family selection (Step 3)                                                  |
-| `references/vmss-guide.md`               | VMSS vs VM decision (Step 2)                                                  |
+| Reference                               | When to Load                                     |
+| --------------------------------------- | ------------------------------------------------ |
+| `references/recommendation-workflow.md` | Full Steps 1–6 (decision tables, web_fetch URLs) |
+| `references/retail-prices-api.md`       | Pricing queries (Step 4)                         |
+| `references/vm-families.md`             | VM family selection (Step 3)                     |
+| `references/vmss-guide.md`              | VMSS vs VM decision (Step 2)                     |

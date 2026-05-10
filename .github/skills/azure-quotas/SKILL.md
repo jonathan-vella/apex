@@ -41,24 +41,24 @@ Invoke this skill when:
 
 ## Quick Reference
 
-| Property | Details |
-|---|---|
-| Primary tool | Azure CLI (`az quota`) — **always use first** |
-| Extension | `az extension add --name quota` (install once) |
-| Key commands | `az quota list`, `az quota show`, `az quota usage list`, `az quota usage show` |
-| Full CLI reference | [commands.md](./references/commands.md) |
-| Azure Portal | [My quotas](https://portal.azure.com/#blade/Microsoft_Azure_Capacity/QuotaMenuBlade/myQuotas) — fallback only |
-| REST API | Microsoft.Quota provider — **unreliable, do NOT use first** |
-| Required permission | Reader (view) or Quota Request Operator (manage) |
+| Property            | Details                                                                                                       |
+| ------------------- | ------------------------------------------------------------------------------------------------------------- |
+| Primary tool        | Azure CLI (`az quota`) — **always use first**                                                                 |
+| Extension           | `az extension add --name quota` (install once)                                                                |
+| Key commands        | `az quota list`, `az quota show`, `az quota usage list`, `az quota usage show`                                |
+| Full CLI reference  | [commands.md](./references/commands.md)                                                                       |
+| Azure Portal        | [My quotas](https://portal.azure.com/#blade/Microsoft_Azure_Capacity/QuotaMenuBlade/myQuotas) — fallback only |
+| REST API            | Microsoft.Quota provider — **unreliable, do NOT use first**                                                   |
+| Required permission | Reader (view) or Quota Request Operator (manage)                                                              |
 
 > **CLI-first is mandatory.** REST API and Portal show misleading data: `"No Limit"` and `"Unlimited"` typically mean the quota API does not support the resource type, **not** that capacity is unlimited. Service-specific hard limits still apply. Always start with `az quota list` / `az quota show` / `az quota usage show`. If CLI returns `BadRequest`, fall back to [Azure service limits docs](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits) — never to REST API or Portal.
 
 ## Quota Types
 
-| Type | Adjustability | Approval | Examples |
-|---|---|---|---|
-| Adjustable | Increase via Portal/CLI/API | Usually auto-approved | VM vCPUs, Public IPs, Storage accounts |
-| Non-adjustable | Fixed | Cannot be changed | Subscription-wide hard limits |
+| Type           | Adjustability               | Approval              | Examples                               |
+| -------------- | --------------------------- | --------------------- | -------------------------------------- |
+| Adjustable     | Increase via Portal/CLI/API | Usually auto-approved | VM vCPUs, Public IPs, Storage accounts |
+| Non-adjustable | Fixed                       | Cannot be changed     | Subscription-wide hard limits          |
 
 Requesting quota increases is **free** — you only pay for resources you use.
 
