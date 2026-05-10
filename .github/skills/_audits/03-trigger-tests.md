@@ -104,3 +104,27 @@ keyword stemmer — Stage 5 GEPA optimize is designed to lift these.
 All 7 skills exceed the plan's 10/5 minimum and trigger_accuracy is non-null.
 
 Awaiting `tests batch 3` to continue.
+
+## Stage 4 — Trigger tests (batch 3)
+
+**Trigger**: `tests batch 3` (2026-05-10).
+**Skills**: `azure-rbac`, `azure-resources`, `azure-storage`, `azure-validate`,
+`context-management`, `docs-writer`, `drawio`.
+
+| Skill | shouldTriggerPrompts | shouldNotTriggerPrompts | trigger_accuracy | quality_score |
+| --- | ---: | ---: | ---: | ---: |
+| `azure-rbac` | 36 | 10 | 0.91 | 1.00 |
+| `azure-resources` | 40 | 18 | 0.76 | 0.83 |
+| `azure-storage` | 40 | 10 | 0.68 | 1.00 |
+| `azure-validate` | 40 | 10 | 0.72 | 1.00 |
+| `context-management` | 20 | 10 | 0.47 | 1.00 |
+| `docs-writer` | 44 | 8 | 0.62 | 1.00 |
+| `drawio` | 32 | 10 | 0.62 | 1.00 |
+
+`azure-resources` `quality_score: 0.83` is a Stage-2-squeeze artifact from the
+44-line Lookup Workflow relocation; will be addressed by Stage 5.
+`context-management` `trigger_accuracy: 0.47` is the lowest in this batch —
+the WHEN phrases ("context optimization", "token budget management", etc.) are
+pure prose without strong Azure keyword stems.
+
+All 7 trigger_accuracy non-null. Awaiting `tests batch 4` to continue.
