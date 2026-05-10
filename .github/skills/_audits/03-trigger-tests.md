@@ -77,3 +77,30 @@ so the generated coverage is proportional to source signal.
 | `npm run lint:safe-shell` | ✅ pass (227 files, 0 violations) |
 
 Stage 4 / batch 1 complete. Awaiting `tests batch 2` to continue.
+
+## Stage 4 — Trigger tests (batch 2)
+
+**Trigger**: `tests batch 2` (2026-05-10).
+**Skills**: `azure-defaults`, `azure-deploy`, `azure-diagnostics`,
+`azure-governance-discovery`, `azure-kusto`, `azure-prepare`, `azure-quotas`.
+
+| Skill | shouldTriggerPrompts | shouldNotTriggerPrompts | trigger_accuracy | quality_score |
+| --- | ---: | ---: | ---: | ---: |
+| `azure-defaults` | 28 | 8 | 0.56 | 1.00 |
+| `azure-deploy` | 32 | 12 | 0.39 | 1.00 |
+| `azure-diagnostics` | 36 | 10 | 0.91 | 1.00 |
+| `azure-governance-discovery` | 28 | 10 | 0.67 | 1.00 |
+| `azure-kusto` | 40 | 10 | 0.60 | 1.00 |
+| `azure-prepare` | 60 | 14 | 0.32 | 1.00 |
+| `azure-quotas` | 40 | 10 | 0.84 | 1.00 |
+
+`azure-prepare` has 12 `WHEN:` phrases (the most of any skill), which produces 60
+shouldTriggerPrompts. Its 0.32 accuracy reflects how poorly plain-English
+phrases like "create app" / "build web app" / "function app" match the GEPA
+keyword stemmer — Stage 5 GEPA optimize is designed to lift these.
+
+`azure-deploy` 0.39 same root cause.
+
+All 7 skills exceed the plan's 10/5 minimum and trigger_accuracy is non-null.
+
+Awaiting `tests batch 3` to continue.
