@@ -144,7 +144,6 @@ The user wants to:
 - See how resources connect (VNets, private endpoints, identities, app settings)
 - Document deployed infrastructure with embedded Mermaid
 
-
 For the full Visualize-mode procedure (resource discovery, diagram construction, file creation, quality standards, constraints, edge cases, and output format), load **[references/visualize.md](references/visualize.md)**.
 
 ---
