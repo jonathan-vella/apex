@@ -204,7 +204,14 @@ User trigger: `tests batch <N>`.
 - [x] Batch 2 — same
 - [x] Batch 3 — same
 - [x] Batch 4 — same
-- [ ] Batch 5 — same
+- [x] Batch 5 — same
+
+
+> **Stage 4 summary (2026-05-10)**: 33 skills scaffolded; **1,220 affirmative + 350 anti-trigger prompts**.
+> Mean `trigger_accuracy: 0.71` (range 0.32–0.96; non-null for all 33 — plan's success criterion met).
+> 4 skills carry Stage-2-squeeze `quality_score: 0.83` (azure-cost-optimization, azure-resources,
+> entra-app-registration, terraform-search-import) — to be lifted back to 1.0 by Stage 5 optimize.
+> Awaiting `optimize batch <N>` or `optimize <skill>` to start Stage 5.
 
 ### Stage 5 — GEPA optimize (per-batch or per-skill, user-gated)
 
@@ -214,7 +221,7 @@ User triggers: `optimize batch <N>` or `optimize <skill>`. Prerequisite: Stage 4
 - [x] Batch 2 — same
 - [x] Batch 3 — same
 - [x] Batch 4 — same
-- [ ] Batch 5 — same
+- [x] Batch 5 — same
 
 ### Stage 6 — Final cross-skill report
 

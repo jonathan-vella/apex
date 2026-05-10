@@ -152,3 +152,55 @@ reflects the prose-heavy WHEN phrases (`Microsoft Learn`, `Azure docs`,
 hints; still meets the 5-minimum.
 
 All 6 trigger_accuracy non-null. Awaiting `tests batch 5` to continue.
+
+## Stage 4 — Trigger tests (batch 5)
+
+**Trigger**: `tests batch 5` (2026-05-10).
+**Skills**: `python-diagrams`, `terraform-patterns`, `terraform-search-import`,
+`terraform-test`, `vendor-prompting`, `workflow-engine`.
+
+| Skill | shouldTriggerPrompts | shouldNotTriggerPrompts | trigger_accuracy | quality_score |
+| --- | ---: | ---: | ---: | ---: |
+| `python-diagrams` | 60 | 10 | 0.74 | 1.00 |
+| `terraform-patterns` | 32 | 16 | 0.62 | 1.00 |
+| `terraform-search-import` | 36 | 14 | 0.72 | 0.83 |
+| `terraform-test` | 52 | 10 | 0.94 | 1.00 |
+| `vendor-prompting` | 32 | 6 | 0.84 | 1.00 |
+| `workflow-engine` | 28 | 8 | 0.83 | 1.00 |
+
+`terraform-search-import` `quality_score: 0.83` is a Stage-2-squeeze artifact
+(38-line Manual Discovery Workflow collapse).
+
+All 6 trigger_accuracy non-null.
+
+## Stage 4 grand totals (all 33 skills)
+
+| Metric | Value |
+| --- | ---: |
+| Total `shouldTriggerPrompts` across 33 skills | **1,220** |
+| Total `shouldNotTriggerPrompts` across 33 skills | **350** |
+| Mean shouldTrigger per skill | 37 |
+| Mean shouldNotTrigger per skill | 11 |
+| `trigger_accuracy` minimum | 0.32 (`azure-prepare`) |
+| `trigger_accuracy` maximum | 0.96 (`azure-cost-optimization`) |
+| `trigger_accuracy` mean | 0.71 |
+| Skills with `trigger_accuracy ≥ 0.70` | 19 / 33 |
+| Skills with `trigger_accuracy ≥ 0.50` | 28 / 33 |
+| Skills with `quality_score < 1.00` (Stage-2 artifacts) | 4 / 33 |
+
+The 4 skills at `quality_score: 0.83` (`azure-cost-optimization`,
+`azure-resources`, `entra-app-registration`, `terraform-search-import`) are
+all Stage-2-squeeze artifacts where the relocation moved enough body content
+to references that the GEPA content-quality scorer dropped them. Plan 1 closed
+with all 33 at 1.00; Stage 5 GEPA optimize is designed to lift them back.
+
+The plan's success criterion ("`trigger_accuracy` is non-null") is met for
+all 33 skills. The 14 skills below 0.70 (`azure-defaults`, `azure-deploy`,
+`azure-kusto`, `azure-prepare`, `azure-resources`, `azure-storage`,
+`context-management`, `docs-writer`, `drawio`, `entra-app-registration`,
+`github-operations`, `microsoft-docs`, `terraform-patterns`, `terraform-search-import`)
+are the prime candidates for Stage 5 LLM-driven optimization — most have
+prose-heavy WHEN phrases that don't tokenize to Azure keyword stems.
+
+Stage 4 fully complete; awaiting Stage 5 trigger
+(`optimize batch <N>` or `optimize <skill>`).
