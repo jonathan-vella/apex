@@ -163,3 +163,61 @@ Plan 2 / `TODO.md`. For each skill in the batch:
 - [`tokens-baseline.json`](./tokens-baseline.json) — `tokens count` JSON for all 33 SKILL.md files (canonical-sorted)
 - [`tokens-compare-main-head.json`](./tokens-compare-main-head.json) — `tokens compare main HEAD`
   filtered to the in-scope tree
+
+## Stage 2 — Token squeeze (batch 1)
+
+**Trigger**: `tokens squeeze batch 1` (2026-05-10).
+**Skills**: `azure-adr`, `azure-artifacts`, `azure-bicep-patterns`, `azure-cloud-migrate`,
+`azure-compliance`, `azure-compute`, `azure-cost-optimization`.
+
+### Repo-root token limits
+
+Created [`/.token-limits.json`](../../../.token-limits.json) with realistic SKILL.md targets
+(default 2,500; per-skill overrides for the 9 outliers). The sensei submodule's own config
+under `.github/skills/sensei/.token-limits.json` is left untouched (5,000 default) — it is
+read-only and consumed by the submodule's own scoring.
+
+Run `node --import ./.github/skills/sensei/scripts/node_modules/tsx/dist/loader.mjs
+./.github/skills/sensei/scripts/src/tokens/cli.ts check <files…>` from the repo root to
+exercise the new limits. After Stage 2 batch 1, **33 / 33 in-scope SKILL.md files pass**
+their soft limits.
+
+### Relocations
+
+| Skill | Section moved | New reference file | Char delta |
+| --- | --- | --- | ---: |
+| `azure-cost-optimization` | `## Instructions` (Steps 0–3, 127 lines) | [`references/workflow-steps.md`](../azure-cost-optimization/references/workflow-steps.md) | -3,114 |
+| `azure-artifacts` | `## Revision Workflow (Targeted Edits)` (39 lines) | [`references/revision-workflow.md`](../azure-artifacts/references/revision-workflow.md) | -1,256 |
+| `azure-bicep-patterns` | `## Canonical Example — Module Interface` (19 lines) | [`references/module-interface.md`](../azure-bicep-patterns/references/module-interface.md) | structural (token-neutral) |
+
+In addition, redundant `---` horizontal-rule separators between H2 sections were removed
+from `azure-artifacts` and `azure-bicep-patterns` (10 occurrences trimmed total).
+
+### Per-skill token deltas
+
+| Skill | Before | After | Δ | Δ% |
+| --- | ---: | ---: | ---: | ---: |
+| `azure-adr` | 1,795 | 1,795 | 0 | 0.0% |
+| `azure-artifacts` | 1,763 | 1,451 | -312 | -17.7% |
+| `azure-bicep-patterns` | 1,726 | 1,737 | +11 | +0.6% |
+| `azure-cloud-migrate` | 642 | 642 | 0 | 0.0% |
+| `azure-compliance` | 1,677 | 1,677 | 0 | 0.0% |
+| `azure-compute` | 1,355 | 1,355 | 0 | 0.0% |
+| `azure-cost-optimization` | 2,183 | 1,417 | -766 | -35.1% |
+| **Batch 1 totals** | **11,141** | **10,074** | **-1,067** | **-9.6%** |
+
+`azure-bicep-patterns` registered a marginal +11 token tick because the new pointer text +
+reference-index row is slightly denser than the pure code block it replaced; the structural
+goal (load the example only when explicitly needed) is achieved regardless. Four batch-1
+skills (`azure-adr`, `azure-cloud-migrate`, `azure-compliance`, `azure-compute`) had no
+high-value relocation candidates after Round 2 of Plan 1 already shaped them; their
+heuristic savings (~25 tokens each) were below the noise floor and skipped.
+
+### Validators
+
+| Validator | Status |
+| --- | --- |
+| `npm run validate:skills` | ✅ pass (34 skills, 0 errors, 0 warnings) |
+| `npm run validate:agents` | ✅ pass (incl. workflow-handoffs and registry shape) |
+| `npm run lint:vendor-prompting` | ✅ pass (48 prompts/agents) |
+| `tokens check` (repo-root limits) | ✅ 33 / 33 within limits |

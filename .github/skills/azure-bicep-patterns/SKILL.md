@@ -9,8 +9,6 @@ compatibility: Requires Azure CLI with Bicep extension
 Reusable infrastructure patterns for Azure Bicep templates. Complements
 `iac-bicep-best-practices.instructions.md` (style) and `azure-defaults` skill (naming, tags, regions).
 
----
-
 ## Quick Reference
 
 | Pattern                  | When to Use                                      | Reference                                                          |
@@ -24,26 +22,14 @@ Reusable infrastructure patterns for Azure Bicep templates. Complements
 | Budget & Cost Monitoring | Every deployment (mandatory)                     | [budget-pattern](references/budget-pattern.md)                     |
 | What-If / AVM Pitfalls   | Pre-deployment validation & AVM gotchas          | [avm-pitfalls](references/avm-pitfalls.md)                         |
 
----
-
 ## Canonical Example — Module Interface
 
-```bicep
-// modules/storage.bicep — every module follows this contract
-@description('Storage account name')
-param name string
-param location string
-param tags object
-param logAnalyticsWorkspaceName string
+Every Bicep module in this repo follows the same input/output contract:
 
-output resourceId string = storageAccount.id
-output resourceName string = storageAccount.name
-output principalId string = storageAccount.identity.?principalId ?? ''
-```
+- **Inputs (required)**: `name`, `location`, `tags`, `logAnalyticsWorkspaceName`
+- **Outputs (required)**: `resourceId`, `resourceName`, `principalId` (use `.?principalId ?? ''` so modules without managed identity still expose the output)
 
-Accept `name`, `location`, `tags`, `logAnalyticsWorkspaceName`; output `resourceId`, `resourceName`, `principalId`.
-
----
+Full code sample and rationale: [`references/module-interface.md`](references/module-interface.md).
 
 ## Steps
 
@@ -83,8 +69,6 @@ Applying a pattern in a Bicep template:
   query `mcr.microsoft.com/v2/bicep/{module}/tags/list` for authoritative
   published versions.
 
----
-
 ## Reference Index
 
 | File                                                                  | Content                                                               |
@@ -94,8 +78,7 @@ Applying a pattern in a Bicep template:
 | [common-patterns.md](references/common-patterns.md)                   | Diagnostics, conditional deploy, module composition, managed identity |
 | [budget-pattern.md](references/budget-pattern.md)                     | Consumption budget, forecast alerts, anomaly detection                |
 | [avm-pitfalls.md](references/avm-pitfalls.md)                         | What-if interpretation, AVM gotchas, learn more links                 |
-
----
+| [module-interface.md](references/module-interface.md)                 | Canonical module input/output contract                                |
 
 ## Learn More
 

@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json.schemastore.org/package.json",
+  "description": "Token-budget soft limits for in-scope skills under .github/skills/. Used by `npm run tokens check`. Per Plan 2 / Stage 2 of the Sensei GEPA Pipeline (.github/prompts/sensei/plan-gepa-pipeline.prompt.md). Limits target SKILL.md only — references/ and templates/ are loaded on demand.",
+  "defaults": {
+    "SKILL.md": 2500,
+    "references/*.md": 3000,
+    "references/**/*.md": 3000,
+    "templates/*.md": 2000,
+    "*.md": 4000
+  },
+  "overrides": {
+    ".github/skills/drawio/SKILL.md": 3000,
+    ".github/skills/azure-defaults/SKILL.md": 2700,
+    ".github/skills/azure-prepare/SKILL.md": 2600,
+    ".github/skills/entra-app-registration/SKILL.md": 2500,
+    ".github/skills/vendor-prompting/SKILL.md": 2400,
+    ".github/skills/docs-writer/SKILL.md": 2400,
+    ".github/skills/github-operations/SKILL.md": 2400,
+    ".github/skills/iac-common/SKILL.md": 2400,
+    ".github/skills/azure-resources/SKILL.md": 2300
+  }
+}

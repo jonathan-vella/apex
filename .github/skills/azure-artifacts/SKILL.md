@@ -15,8 +15,6 @@ Single source of truth for artifact template structures and styling.
 Per-step H2 definitions live in `references/` — load only the step
 you are generating.
 
----
-
 ## Rules
 
 ### Mandatory Compliance
@@ -39,8 +37,6 @@ you are generating.
 - **DON'T**: Use placeholder text like "TBD" or "Insert here"
 - **DON'T**: Add custom H2 sections BEFORE the last required H2
 
----
-
 ## Mandatory: Project README
 
 Every project in `agent-output/{project}/` **MUST** have a
@@ -51,8 +47,6 @@ After saving step artifact(s), update the README:
 1. Mark your step as **complete** in `## ✅ Workflow Progress`
 2. Add artifact files to `## 📄 Generated Artifacts`
 3. Update `Last Updated` date and progress bar percentage
-
----
 
 ## Steps
 
@@ -66,48 +60,11 @@ Artifact generation flow (per Step N):
 6. **Update README** — mark step complete, list artifacts, refresh `Last Updated` date
 7. **Validate** — run `npm run lint:artifact-templates` and `npm run lint:h2-sync`
 
-For revisions (challenger findings, user-decision Apply/Skip/Defer, approval-gate fixes), see [Revision Workflow](#revision-workflow-targeted-edits) below — bundle all fixes into a single `multi_replace_string_in_file` call.
-
----
+For revisions (challenger findings, user-decision Apply/Skip/Defer, approval-gate fixes), see [`references/revision-workflow.md`](./references/revision-workflow.md) — bundle all fixes into a single `multi_replace_string_in_file` call.
 
 ## Revision Workflow (Targeted Edits)
 
-First-time artifact creation uses `create_file`. **All subsequent
-revisions** — including challenger-finding fixes, per-finding user
-decisions (Apply / Skip / Defer), and approval-gate revisions — MUST
-use targeted edit tools.
-
-| Situation                                   | Tool                             |
-| ------------------------------------------- | -------------------------------- |
-| Initial draft of the artifact               | `create_file`                    |
-| Single-spot fix                             | `replace_string_in_file`         |
-| Multiple fixes (one or more files)          | `multi_replace_string_in_file`   |
-| Restructuring ≥ 50 % of file or H2 ordering | `create_file` (rationale logged) |
-
-**One pass, one tool call**: bundle every accepted fix from a review
-pass into a single `multi_replace_string_in_file` call. A 24-finding
-revision is one tool call, not 24.
-
-**Why**: a full rewrite of a 200-line markdown artifact emits 8–18 K
-output tokens that re-enter the context on every subsequent turn; a
-multi-edit patch list emits 200–800 tokens. Empirically, a single
-rev-2 full rewrite of `02-architecture-assessment.md` plus
-`03-des-cost-estimate.md` consumed >40 K output tokens of permanent
-conversation history and was the dominant cause of one Step-2 session
-breaching the 200 K context window. Targeted edits eliminate this
-bloat.
-
-**Exception**: structural rewrites (H2 reordering, template version
-bump, > 50 % of lines changed). When taking the exception, log it:
-
-```bash
-apex-recall decide <project> \
-  --decision "Full rewrite of <artifact-filename>" \
-  --rationale "<H2 reorder | template bump | >50% lines changed>" \
-  --step <N> --json
-```
-
----
+**Initial draft** uses `create_file`. **All subsequent revisions** MUST use targeted edit tools. Bundle every accepted fix from a review pass into a single `multi_replace_string_in_file` call (a 24-finding revision is one tool call, not 24). Full procedure, rationale, and structural-rewrite exception in [`references/revision-workflow.md`](./references/revision-workflow.md).
 
 ## Placeholder Syntax
 
@@ -116,8 +73,6 @@ All templates use single-brace `{placeholder-name}` syntax:
 - Lowercase, hyphen-separated: `{project-name}`, `{monthly-cost}`
 - No Mustache/Handlebars `{{double-braces}}`
 
----
-
 ## Automated Validation
 
 ```bash
@@ -125,8 +80,6 @@ npm run lint:artifact-templates   # H2 order and required headings
 npm run lint:h2-sync              # Template ↔ artifact sync
 npm run validate:all              # All validators together
 ```
-
----
 
 ## Quality Checklist
 
@@ -139,8 +92,6 @@ npm run validate:all              # All validators together
 - [ ] Mermaid diagram included (if template contains one)
 - [ ] Traffic-light indicators used (✅ / ⚠️ / ❌ where template shows status columns)
 - [ ] Collapsible `<details>` blocks present (if template contains them)
-
----
 
 ## Reference Index
 
@@ -156,3 +107,4 @@ When generating a Step N artifact, read the corresponding template:
 | `references/07-docs-template.md`         | Generating Step 7 workload documentation             |
 | `references/styling-standards.md`        | Applying callouts, badges, emoji, navigation         |
 | `references/cost-estimate-sections.md`   | Cost estimate H2 structure and formatting rules      |
+| `references/revision-workflow.md`        | Detailed targeted-edit revision procedure (Step 7+)  |
