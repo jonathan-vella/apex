@@ -70,47 +70,12 @@ Use this mode when the user wants to **list / find / show** Azure resources.
 
 ## Lookup Workflow
 
-### Step 1: Check for a Dedicated MCP Tool
-
-For single-resource-type queries, check if a dedicated MCP tool can handle it:
-
-| Resource Type          | MCP Tool     | Coverage                               |
-| ---------------------- | ------------ | -------------------------------------- |
-| Virtual Machines       | `compute`    | ✅ Full — list, details, sizes         |
-| Storage Accounts       | `storage`    | ✅ Full — accounts, blobs, tables      |
-| Cosmos DB              | `cosmos`     | ✅ Full — accounts, databases, queries |
-| Key Vault              | `keyvault`   | ⚠️ Partial — secrets/keys only         |
-| SQL Databases          | `sql`        | ⚠️ Partial — requires resource group   |
-| Container Registries   | `acr`        | ✅ Full — list registries              |
-| Kubernetes (AKS)       | `aks`        | ✅ Full — clusters, node pools         |
-| App Service / Web Apps | `appservice` | ❌ No list command — use ARG           |
-| Container Apps         | —            | ❌ No MCP tool — use ARG               |
-| Event Hubs             | `eventhubs`  | ✅ Full — namespaces, hubs             |
-| Service Bus            | `servicebus` | ✅ Full — queues, topics               |
-
-If a dedicated tool is available with full coverage, use it. Otherwise proceed to Step 2.
-
-### Step 2: Generate the ARG Query
-
-Use `extension_cli_generate` to build the `az graph query` command:
-
-```yaml
-mcp_azure_mcp_extension_cli_generate
-  intent: "query Azure Resource Graph to <user's request>"
-  cli-type: "az"
-```
-
-See [Azure Resource Graph Query Patterns](references/azure-resource-graph.md) for common KQL patterns.
-
-### Step 3: Execute and Format Results
-
-Run the generated command. Use `--query` (JMESPath) to shape output:
-
-```bash
-az graph query -q "<KQL>" --query "data[].{name:name, type:type, rg:resourceGroup}" -o table
-```
-
-Use `--first N` to limit results. Use `--subscriptions` to scope.
+Three-step procedure: (1) check for a dedicated MCP tool by resource type
+(`compute` / `storage` / `cosmos` / `keyvault` / `sql` / `acr` / `aks` /
+`appservice` / `eventhubs` / `servicebus`); (2) if no full-coverage tool, generate an
+Azure Resource Graph query via `extension_cli_generate`; (3) execute with `--query`
+JMESPath shaping. Full per-resource-type tool table and example commands in
+[`references/lookup-workflow.md`](references/lookup-workflow.md).
 
 ## Lookup Constraints
 

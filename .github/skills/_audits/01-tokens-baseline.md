@@ -261,3 +261,48 @@ soft limits) and had no high-value relocation candidates.
 | `npm run validate:agents` | ✅ pass |
 | `npm run lint:vendor-prompting` | ✅ pass |
 | `tokens check` (repo-root limits) | ✅ 33 / 33 within limits |
+
+## Stage 2 — Token squeeze (batch 3)
+
+**Trigger**: `tokens squeeze batch 3` (2026-05-10).
+**Skills**: `azure-rbac`, `azure-resources`, `azure-storage`, `azure-validate`,
+`context-management`, `docs-writer`, `drawio`.
+
+### Relocations
+
+| Skill | Section moved | New reference file |
+| --- | --- | --- |
+| `docs-writer` | `## Step-by-Step Workflows` (Workflows 1–4 detail, ~36 lines) | merged into existing [`references/extended-workflows.md`](../docs-writer/references/extended-workflows.md) |
+| `drawio` | `## Diagram Creation Workflows` (Workflow A/B + save procedure, ~38 lines) | [`references/creation-workflows.md`](../drawio/references/creation-workflows.md) |
+| `azure-resources` | `## Lookup Workflow` (3-step procedure, 44 lines) | [`references/lookup-workflow.md`](../azure-resources/references/lookup-workflow.md) |
+| `context-management` | `## Audit Capabilities` table + `## Audit Prerequisites` + `## Portability` (~30 lines combined) | [`references/audit-setup.md`](../context-management/references/audit-setup.md) |
+
+`azure-rbac` (863 tokens), `azure-storage` (1,817 tokens), `azure-validate` (1,166
+tokens) were already well under their soft limits and had no high-value
+relocation candidates after Plan 1 Round 2.
+
+### Per-skill token deltas
+
+| Skill | Before | After | Δ | Δ% |
+| --- | ---: | ---: | ---: | ---: |
+| `azure-rbac` | 863 | 863 | 0 | 0.0% |
+| `azure-resources` | 2,204 | 1,843 | -361 | -16.4% |
+| `azure-storage` | 1,817 | 1,817 | 0 | 0.0% |
+| `azure-validate` | 1,166 | 1,166 | 0 | 0.0% |
+| `context-management` | 1,973 | 1,752 | -221 | -11.2% |
+| `docs-writer` | 2,276 | 1,751 | -525 | -23.1% |
+| `drawio` | 2,806 | 2,574 | -232 | -8.3% |
+| **Batch 3 totals** | **13,105** | **11,766** | **-1,339** | **-10.2%** |
+
+`drawio` is the largest SKILL.md in the repo; even after relocating the creation
+workflows, it sits at 2,574 tokens — well under its 3,000-token override but the
+biggest remaining target for any future tightening pass.
+
+### Validators
+
+| Validator | Status |
+| --- | --- |
+| `npm run validate:skills` | ✅ pass (34 skills, 0 errors, 0 warnings) |
+| `npm run validate:agents` | ✅ pass |
+| `npm run lint:vendor-prompting` | ✅ pass |
+| `tokens check` (repo-root limits) | ✅ 33 / 33 within limits |

@@ -168,9 +168,9 @@ User trigger: `tokens baseline`.
 
 User trigger: `tokens squeeze batch <N>` (1–5).
 
-- [ ] Batch 1 — squeeze + validators + commit
-- [ ] Batch 2 — squeeze + validators + commit
-- [ ] Batch 3 — squeeze + validators + commit
+- [x] Batch 1 — squeeze + validators + commit (`fcd5ae7`) — net -1,067 tokens (-9.6%); largest savings: `azure-cost-optimization` -766 (-35%), `azure-artifacts` -312 (-18%); 33/33 within new repo-root `.token-limits.json` limits
+- [x] Batch 2 — squeeze + validators + commit (`0805f3c`) — net -1,240 tokens (-8.9%); largest savings: `azure-prepare` -860 (-35%), `azure-kusto` -210 (-11%), `azure-defaults` -170 (-7%)
+- [x] Batch 3 — squeeze + validators + commit — net -1,339 tokens (-10.2%); largest savings: `docs-writer` -525 (-23%), `azure-resources` -361 (-16%), `drawio` -232 (-8%), `context-management` -221 (-11%)
 - [ ] Batch 4 — squeeze + validators + commit
 - [ ] Batch 5 — squeeze + validators + commit
 

@@ -52,41 +52,14 @@ Icons are resolved automatically by the MCP server from its built-in library
 
 ## Diagram Creation Workflows
 
-**Workflow A — Non-Transactional** (small diagrams): each tool call returns full XML
-with complete SVG image data.
+Two modes — **non-transactional** (small diagrams, full XML each call) and
+**transactional** (recommended for multi-step; lightweight placeholders during
+the loop, real SVGs resolved by `finish-diagram` at the end). Full call chains,
+the `save-drawio.py` save procedure, and the post-save cleanup script live in
+[`references/creation-workflows.md`](references/creation-workflows.md).
 
-```text
-search-shapes → add-cells → export-diagram(compress: true) → save .drawio
-```
-
-**Workflow B — Transactional** (recommended for multi-step): intermediate responses use
-lightweight placeholders (~2KB vs ~200KB); real SVGs resolve once at the end.
-
-```text
-search-shapes
-→ create-groups(transactional: true)
-→ add-cells(transactional: true)
-→ add-cells-to-group(transactional: true)
-→ edit-cells(transactional: true)     [if needed]
-→ finish-diagram(compress: true)       [resolves all placeholders]
-→ save .drawio via terminal command
-```
-
-### Saving `.drawio` Files
-
-When `finish-diagram` or `export-diagram` returns XML in a JSON response, use
-the helper script to decompress, strip edge anchors, and save:
-
-```bash
-python3 tools/scripts/save-drawio.py '<temp-content-json-path>' '<output-path>.drawio'
-node tools/scripts/validate-drawio-files.mjs '<output-path>.drawio'
-```
-
-The script handles: compressed content decompression, `mxGraphModel` embedding
-(repo validator format), edge anchor/waypoint stripping, and directory creation.
-
-**Do NOT** read the large MCP JSON response back through the LLM — extract
-data via terminal commands to avoid inflating the context window.
+> **Critical**: transactional mode MUST end with `finish-diagram(compress: true)`
+> or the saved diagram keeps placeholder cells instead of real Azure icons.
 
 ## Rules
 
@@ -130,17 +103,7 @@ Concise summary; load [`references/style-reference.md`](references/style-referen
 - **Legend**: required on every diagram, below the cross-cutting box; use inline HTML for arrow indicators; explicitly set `text: ""` on shape samples
 - **External actors** (Users, Operators): outside all group boundaries
 
-> **Edge post-processing (CRITICAL)**: After `finish-diagram`, run `tools/scripts/save-drawio.py` to strip auto-router anchors and waypoints so Draw.io can recalculate clean orthogonal paths.
-
-### Post-save cleanup
-
-After `save-drawio.py`, run the cleanup script for known MCP artifacts:
-
-```bash
-python3 .github/skills/drawio/scripts/cleanup-drawio.py '<output-path>.drawio'
-```
-
-Fixes: `value="New Cell"` → `value=""`, watermark cell height ≥70px, reports cross-cutting icons spaced <120px apart.
+> **Edge post-processing (CRITICAL)**: After `finish-diagram`, run `tools/scripts/save-drawio.py` to strip auto-router anchors and waypoints so Draw.io can recalculate clean orthogonal paths. The post-save cleanup script (`cleanup-drawio.py`) is documented in [`references/creation-workflows.md`](references/creation-workflows.md).
 
 ## Gotchas
 
