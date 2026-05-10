@@ -203,7 +203,7 @@ User trigger: `tests batch <N>`.
 - [x] Batch 1 — author `tests/{skill}/trigger_tests.yaml` + verify trigger_accuracy + commit
 - [x] Batch 2 — same
 - [x] Batch 3 — same
-- [ ] Batch 4 — same
+- [x] Batch 4 — same
 - [ ] Batch 5 — same
 
 ### Stage 5 — GEPA optimize (per-batch or per-skill, user-gated)
@@ -213,7 +213,7 @@ User triggers: `optimize batch <N>` or `optimize <skill>`. Prerequisite: Stage 4
 - [ ] Batch 1 — per-skill optimize + validator gate + per-skill commits
 - [x] Batch 2 — same
 - [x] Batch 3 — same
-- [ ] Batch 4 — same
+- [x] Batch 4 — same
 - [ ] Batch 5 — same
 
 ### Stage 6 — Final cross-skill report

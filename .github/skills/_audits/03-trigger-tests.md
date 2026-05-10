@@ -128,3 +128,27 @@ the WHEN phrases ("context optimization", "token budget management", etc.) are
 pure prose without strong Azure keyword stems.
 
 All 7 trigger_accuracy non-null. Awaiting `tests batch 4` to continue.
+
+## Stage 4 — Trigger tests (batch 4)
+
+**Trigger**: `tests batch 4` (2026-05-10).
+**Skills**: `entra-app-registration`, `github-operations`, `golden-principles`,
+`iac-common`, `mermaid`, `microsoft-docs`.
+
+| Skill | shouldTriggerPrompts | shouldNotTriggerPrompts | trigger_accuracy | quality_score |
+| --- | ---: | ---: | ---: | ---: |
+| `entra-app-registration` | 40 | 12 | 0.62 | 0.83 |
+| `github-operations` | 52 | 8 | 0.53 | 1.00 |
+| `golden-principles` | 20 | 10 | 0.80 | 1.00 |
+| `iac-common` | 28 | 10 | 0.84 | 1.00 |
+| `mermaid` | 48 | 10 | 0.86 | 1.00 |
+| `microsoft-docs` | 48 | 6 | 0.33 | 1.00 |
+
+`entra-app-registration` `quality_score: 0.83` is a Stage-2-squeeze artifact
+(64-line Core Workflow relocation). `microsoft-docs` `trigger_accuracy: 0.33`
+reflects the prose-heavy WHEN phrases (`Microsoft Learn`, `Azure docs`,
+`quickstart guide`) — most don't tokenize to Azure keyword stems.
+`github-operations` only has 8 anti-triggers because it has 0 competing-skill
+hints; still meets the 5-minimum.
+
+All 6 trigger_accuracy non-null. Awaiting `tests batch 5` to continue.
