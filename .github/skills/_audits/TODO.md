@@ -141,6 +141,70 @@ User explicitly approved expanding scope beyond the original frontmatter-only pr
 - [x] Append "Post-update — Round 2" section to `gepa-audit.md`
 - [x] Commit `chore(skills): GEPA audit report (round 2)` — **33 / 33 skills at 1.00, average 1.00 ✓**
 
+## Plan 1 — Status: COMPLETE (2026-05-10)
+
+[`plan-skillsAuditOptimize.prompt.md`](../../prompts/plan-skillsAuditOptimize.prompt.md) finalized. All 33 in-scope skills at GEPA `quality_score: 1.00`. The remaining sensei capabilities (token squeeze, MCP integration, trigger tests, GEPA `optimize`) move to Plan 2.
+
+## Plan 2 — Sensei GEPA Pipeline (end-to-end)
+
+Source plan: [`.github/prompts/sensei/plan-gepa-pipeline.prompt.md`](../../prompts/sensei/plan-gepa-pipeline.prompt.md). Six stages, user-gated.
+
+### Stage 1 — Token-budget baseline (read-only)
+
+User trigger: `tokens baseline`.
+
+- [ ] Run `tokens count` for all 33 skills
+- [ ] Run `tokens compare main HEAD` to capture Round 2 delta
+- [ ] Generate `01-tokens-baseline.md`
+- [ ] Commit `chore(skills): Token-budget baseline (stage 1)`
+
+### Stage 2 — Token squeeze (per-batch, user-gated)
+
+User trigger: `tokens squeeze batch <N>` (1–5).
+
+- [ ] Batch 1 — squeeze + validators + commit
+- [ ] Batch 2 — squeeze + validators + commit
+- [ ] Batch 3 — squeeze + validators + commit
+- [ ] Batch 4 — squeeze + validators + commit
+- [ ] Batch 5 — squeeze + validators + commit
+
+### Stage 3 — MCP-integration audit (read-only) + updates
+
+User triggers: `mcp audit`, then `mcp update` or `mcp update <skill>`.
+
+- [ ] Audit `azure-kusto`, `azure-quotas`, `microsoft-docs`, `drawio` (+ any new INVOKES from Stage 2)
+- [ ] Generate `02-mcp-integration.md`
+- [ ] Commit `chore(skills): MCP-integration audit (stage 3)`
+- [ ] Apply remediation diffs (user-gated) + commit
+
+### Stage 4 — Waza trigger-test scaffolding (per-batch, user-gated)
+
+User trigger: `tests batch <N>`.
+
+- [ ] Batch 1 — author `tests/{skill}/trigger_tests.yaml` + verify trigger_accuracy + commit
+- [ ] Batch 2 — same
+- [ ] Batch 3 — same
+- [ ] Batch 4 — same
+- [ ] Batch 5 — same
+
+### Stage 5 — GEPA optimize (per-batch or per-skill, user-gated)
+
+User triggers: `optimize batch <N>` or `optimize <skill>`. Prerequisite: Stage 4 complete for the target skills.
+
+- [ ] Batch 1 — per-skill optimize + validator gate + per-skill commits
+- [ ] Batch 2 — same
+- [ ] Batch 3 — same
+- [ ] Batch 4 — same
+- [ ] Batch 5 — same
+
+### Stage 6 — Final cross-skill report
+
+User trigger: `final report`.
+
+- [ ] Run final `audit:skills:gepa` + `tokens count` + trigger-accuracy check
+- [ ] Generate `05-pipeline-final.md`
+- [ ] Commit `chore(skills): Sensei GEPA pipeline final report (stage 6)`
+
 ## Out-of-band action items
 
 - [ ] **Accelerator-side**: extend `EXCLUDE_PATHS` in `azure-agentic-infraops-accelerator/.github/workflows/weekly-upstream-sync.yml` with `.github/skills/_audits/` (alongside the prior sensei exclusions)

@@ -8,6 +8,8 @@ argument-hint: "audit batch N | update batch N | update <skill> | gepa audit | u
 
 # Plan: Skills audit-then-update programme
 
+> **Status: COMPLETE (2026-05-10)** — all 33 in-scope skills at GEPA `quality_score: 1.00`. Stage A → Stage B Round 1 → Round 2 finalized. Tracker: [`TODO.md`](../skills/_audits/TODO.md). Final report: [`gepa-audit.md`](../skills/_audits/gepa-audit.md). Successor programme: [`sensei/plan-gepa-pipeline.prompt.md`](sensei/plan-gepa-pipeline.prompt.md).
+
 **TL;DR** — Two read-only audit stages, with user-driven updates in between. Stage A: per-batch sensei standard scoring + GEPA `score`-mode signal (deterministic, no LLM). Stage B: a single global GEPA `score-all` cross-skill report. Both stages share the same underlying GEPA `score` algorithm; the difference is **scope** (per-batch vs all-skills) and **deliverable** (per-batch reports vs global delta report). The user decides when and what to update; the agent never applies changes automatically.
 
 ## Locked decisions
