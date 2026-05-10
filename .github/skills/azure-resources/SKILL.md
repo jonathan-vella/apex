@@ -58,6 +58,16 @@ Use this mode when the user wants to **list / find / show** Azure resources.
 | `mcp_azure_mcp_subscription_list` | List available subscriptions       | Discover subscription scope before querying     |
 | `mcp_azure_mcp_group_list`        | List resource groups               | Narrow query scope                              |
 
+## Rules
+
+- **Prefer dedicated MCP tools** for single-resource-type queries (`compute`, `storage`, `cosmos`, etc.) before falling back to Azure Resource Graph
+- **Use ARG for cross-cutting queries** — cross-subscription, cross-type, orphaned resources, tag audits
+- **Generate queries via `extension_cli_generate`** — do not hand-author KQL when intent-based generation is available
+- **Shape output with `--query` JMESPath** for tabular display; do not load raw JSON dumps into context
+- **Mode A is read-only** — lookup never modifies resources; remediation is out of scope (use `azure-deploy`)
+- **Mode B (Visualize) is for documentation** — emit Mermaid only when the user explicitly asks for a diagram; do not auto-visualize lookup results
+- **Out of scope**: deploying resources (use `azure-deploy`), cost optimization (use `azure-cost-optimization`), security scanning (use `azure-compliance`), troubleshooting (use `azure-diagnostics`)
+
 ## Lookup Workflow
 
 ### Step 1: Check for a Dedicated MCP Tool

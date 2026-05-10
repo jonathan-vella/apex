@@ -280,3 +280,40 @@ User issued `update batch 3`. All 7 proposed diffs applied. Validators all pass.
 ### Items still outstanding
 
 - **azure-storage `azure-messaging` reference**: kept as-is (stale skill doesn't exist but the redirect intent is correct). Either create `azure-messaging` skill OR replace with `azure-eventhubs`/`azure-servicebus` redirects in a separate pass.
+
+---
+
+## Post-update — Round 2 (2026-05-10)
+
+User issued `update post-gepa` for the body-section pass. Hybrid heading strategy applied.
+
+### Edits applied
+
+| Skill              | `## Rules` source                        | `## Steps` source                           |
+| ------------------ | ---------------------------------------- | ------------------------------------------- |
+| azure-rbac         | **Author** (7-rule list — least privilege, scope, MCP-first) | **Author** (6-step role-discovery flow) |
+| azure-resources    | **Author** (7-rule list — MCP-first, ARG for cross-cutting, read-only) | _already present_ (`### Step N` under `## Lookup Workflow`) |
+| azure-storage      | **Author** (8-rule list — Managed Identity, tiers, redundancy, MCP-first) | **Author** (7-step storage flow) |
+| context-management | Rename `## Action Rules`                 | Rename `## Tier Selection Protocol`         |
+| docs-writer        | **Author** (8-rule list — out-of-scope, H1 rule, line limit, version source) | _already present_ (`## Step-by-Step Workflows`) |
+| drawio             | **Author** (8-rule list — batch-only, shape_name, transactional, no-LLM-pipe) | Rename `## Batch-Only Workflow (CRITICAL)` |
+
+### Score deltas
+
+| Skill              | Round 1 | Round 2     | Δ     |
+| ------------------ | ------- | ----------- | ----- |
+| azure-rbac         | 0.67    | **1.00** ✓  | +0.33 |
+| azure-resources    | 0.83    | **1.00** ✓  | +0.17 |
+| azure-storage      | 0.67    | **1.00** ✓  | +0.33 |
+| context-management | 0.67    | **1.00** ✓  | +0.33 |
+| docs-writer        | 0.83    | **1.00** ✓  | +0.17 |
+| drawio             | 0.67    | **1.00** ✓  | +0.33 |
+
+### Aggregate (batch 3)
+
+| Metric                 | Round 1 | Round 2     |
+| ---------------------- | ------- | ----------- |
+| Skills at score = 1.00 | 1 / 7 (azure-validate already) | **7 / 7** ✓ |
+| Skills at score ≥ 0.83 | 3 / 7   | **7 / 7** ✓ |
+
+Validators: all pass.

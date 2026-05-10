@@ -54,6 +54,17 @@ All markdown documentation **except** `agent-output/**/*.md`:
 | `.github/skills/azure-artifacts/templates/` | Read-only reference (do not modify)            |
 | `**/*.bicep`                                | `iac-bicep-best-practices.instructions.md`     |
 
+## Rules
+
+- **Out of scope, always** — `agent-output/**/*.md` (governed by `azure-artifacts.instructions.md`), `.github/agents/*.agent.md` (governed by `agent-authoring.instructions.md`), `**/*.bicep` (governed by `iac-bicep-best-practices.instructions.md`), `azure-artifacts/templates/` (read-only)
+- **Single H1 rule** — the title is the only H1; everything else is H2 or deeper
+- **120-char line limit** — CI enforces this on docs and instruction files
+- **Version source of truth** is `VERSION.md`; never hard-code version numbers in prose
+- **No hard-coded counts** — use descriptive language for entity counts (per `no-hardcoded-counts.instructions.md`); `count-manifest.json` is the source of truth
+- **Verify links** — all relative links must resolve to existing files; run `npm run lint:links` before committing
+- **Run validators** — `npm run lint:md` for style, `npm run lint:links` for link integrity
+- **Match adjacent patterns** when adding entries to existing tables (column format, emoji, description style)
+
 ## Step-by-Step Workflows
 
 ### Workflow 1: Update Existing Documentation

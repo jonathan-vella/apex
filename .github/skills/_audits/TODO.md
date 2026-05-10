@@ -113,11 +113,11 @@ User explicitly approved expanding scope beyond the original frontmatter-only pr
 
 ### Batch 3 — azure-rbac → drawio (6 skills, azure-validate already 1.00)
 
-- [ ] Sensei pre-audit (Round 2)
-- [ ] Apply hybrid heading edits (azure-rbac, azure-resources, azure-storage, context-management, docs-writer, drawio)
-- [ ] Validators + batch re-score
-- [ ] Append "Post-update — Round 2" to `batch-3-audit.md`
-- [ ] Commit `feat(skills): Add ## Rules / ## Steps body sections (batch 3, round 2)`
+- [x] Sensei pre-audit (Round 2)
+- [x] Apply hybrid heading edits (azure-rbac, azure-resources, azure-storage, context-management, docs-writer, drawio)
+- [x] Validators + batch re-score
+- [x] Append "Post-update — Round 2" to `batch-3-audit.md`
+- [x] Commit `feat(skills): Add ## Rules / ## Steps body sections (batch 3, round 2)` — all 6 → 1.00 ✓
 
 ### Batch 4 — entra-app-registration → microsoft-docs (6 skills)
 

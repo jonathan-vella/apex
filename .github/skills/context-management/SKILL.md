@@ -41,7 +41,7 @@ files and select the appropriate compression tier.
 | `summarized` | 60-80%        | Load key H2 sections only                  |
 | `minimal`    | > 80%         | Load decision summaries only (< 500 chars) |
 
-## Action Rules
+## Rules
 
 Before loading any artifact file:
 
@@ -50,7 +50,7 @@ Before loading any artifact file:
 3. **Apply compression template** from `references/compression-templates.md`
 4. If loading multiple artifacts, compress the older/less-critical ones first
 
-## Tier Selection Protocol
+## Steps
 
 ```text
 1. Estimate current context usage (rough: 1 token ≈ 4 chars)

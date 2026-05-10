@@ -75,6 +75,27 @@ az storage blob upload --account-name ACCOUNT --container-name CONTAINER --name 
 | GRS  | 16 nines   | Disaster recovery          |
 | GZRS | 16 nines   | Best durability            |
 
+## Rules
+
+- **Use Managed Identity over shared keys** — connect via `DefaultAzureCredential` (or equivalent SDK helper) instead of account keys or SAS where possible
+- **Disable public blob access** by default; use private endpoints + Entra-only access for prod data
+- **Match the access tier to the access pattern** — Hot for active, Cool for 30+ days, Cold for 90+ days, Archive for 180+ days (rehydration required to read)
+- **Pick redundancy by RPO/RTO** — LRS for dev, ZRS for regional HA, GRS/GZRS for DR
+- **MCP server first** for storage-account / container / blob operations; CLI fallback only when MCP is unavailable
+- **Apply lifecycle management** to auto-tier blobs based on age and last access
+- **Premium tier** is for sub-millisecond latency / high-IOPS workloads; default is Standard
+- **Out of scope**: SQL / Cosmos DB (use `azure-prepare`), messaging via Event Hubs / Service Bus
+
+## Steps
+
+1. **Identify the storage service** for the workload — see [Services](#services) (Blob / File / Queue / Table / Data Lake)
+2. **Choose redundancy** — LRS / ZRS / GRS / GZRS based on RPO/RTO requirements
+3. **Choose access tier** — Hot / Cool / Cold / Archive based on expected access frequency
+4. **Apply security baseline** — HTTPS-only, TLS 1.2+, public blob disabled, Managed Identity for app access
+5. **Use MCP tools** for routine list / get / put operations (`storage_account_list`, `storage_blob_get`, `storage_blob_put`)
+6. **Fall back to CLI** when MCP is unavailable — see [CLI Fallback](#cli-fallback)
+7. **Wire lifecycle management** for long-lived data to auto-tier and reduce cost
+
 ## Service Details
 
 For deep documentation on specific services:

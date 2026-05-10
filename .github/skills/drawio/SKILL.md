@@ -88,7 +88,18 @@ The script handles: compressed content decompression, `mxGraphModel` embedding
 **Do NOT** read the large MCP JSON response back through the LLM — extract
 data via terminal commands to avoid inflating the context window.
 
-## Batch-Only Workflow (CRITICAL)
+## Rules
+
+- **Batch-only workflow** — every tool that accepts an array MUST be called exactly ONCE with all items; never call a tool repeatedly for individual items (see [Batch-Only Workflow (CRITICAL)](#batch-only-workflow-critical) below)
+- **Use `shape_name` for Azure icons** — do NOT pass `width`, `height`, or `style` alongside it; the server applies them
+- **Every shaped vertex MUST have a `text` label or omit `text` entirely** — never pass `""`
+- **Vertices first in `add-cells`** — edges must be ordered after the vertices they reference
+- **Transactional mode for multi-step diagrams** — use placeholders + `finish-diagram` at the end (~2KB intermediate vs ~200KB)
+- **Use `compress: true`** on `export-diagram` / `finish-diagram` to keep `.drawio` files small
+- **Do NOT pipe large MCP JSON back through the LLM** — use `python3 tools/scripts/save-drawio.py` to extract via terminal
+- **Out of scope**: WAF / cost charts (use `python-diagrams`), inline Mermaid (use `mermaid`)
+
+## Steps
 
 **Every tool that accepts an array MUST be called exactly ONCE with all items.** Never call a tool repeatedly for individual items.
 
