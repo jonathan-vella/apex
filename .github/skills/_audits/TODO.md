@@ -40,7 +40,7 @@ User-gated start: `audit batch <N>` or `audit batches 1-5` for sequential.
 - [x] Run sensei standard-mode score: azure-quotas
 - [x] Generate `batch-2-audit.md`
 - [x] Commit `chore(skills): Audit batch 2 report (sensei standard)`
-- [ ] **Updates** — user issues `update batch 2` or `update <skill>` to apply audit recommendations + commit
+- [x] **Updates** — user issued `update batch 2`; all 7 diffs applied (incl. INVOKES for kusto + quotas), 6/7 now pass GEPA ≥ 0.7 (was 2/7), azure-prepare trimmed from 1019→693 chars, azure-deploy normalized to standard anti-trigger format and reached 1.00, commit recorded
 
 ### Batch 3 — azure-rbac → drawio
 

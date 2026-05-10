@@ -1,6 +1,6 @@
 ---
 name: azure-kusto
-description: "Query and analyze data in Azure Data Explorer (Kusto/ADX) using KQL for log analytics, telemetry, and time series analysis. WHEN: KQL queries, Kusto database queries, Azure Data Explorer, ADX clusters, log analytics, time series data, IoT telemetry, anomaly detection."
+description: "**ANALYSIS SKILL** — Query and analyze data in Azure Data Explorer (Kusto/ADX) using KQL. WHEN: \"KQL queries\", \"Kusto database queries\", \"Azure Data Explorer\", \"ADX clusters\", \"time series data\", \"IoT telemetry\", \"anomaly detection\". USE FOR: KQL authoring, ADX cluster queries, telemetry analysis. DO NOT USE FOR: Application Insights/Log Analytics troubleshooting (use azure-diagnostics), cost analysis (use azure-cost-optimization). INVOKES: azure-kusto MCP (queries, sample, list-clusters)."
 license: MIT
 metadata:
   author: Microsoft

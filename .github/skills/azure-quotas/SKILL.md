@@ -1,6 +1,6 @@
 ---
 name: azure-quotas
-description: 'Check/manage Azure quotas and usage across providers. For deployment planning, capacity validation, region selection. WHEN: "check quotas", "service limits", "current usage", "request quota increase", "quota exceeded", "validate capacity", "regional availability", "provisioning limits", "vCPU limit", "how many vCPUs available in my subscription".'
+description: '**UTILITY SKILL** — Check and manage Azure quotas and usage across providers for deployment planning, capacity validation, and region selection. WHEN: "check quotas", "service limits", "request quota increase", "quota exceeded", "validate capacity", "regional availability", "vCPU limit". USE FOR: pre-deployment capacity checks, region selection, quota increase requests. DO NOT USE FOR: deployment execution (use azure-deploy), cost analysis (use azure-cost-optimization). INVOKES: azure-quota MCP (check, region-availability).'
 license: MIT
 metadata:
   author: Microsoft
