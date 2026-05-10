@@ -10,9 +10,40 @@ argument-hint: "stage <N> | tokens baseline | tokens squeeze batch <N> | mcp aud
 
 **TL;DR** — Six stages on `feat/skills-sensei` (or successor branch). Stages 1–3 are deterministic and cheap (token squeeze + MCP audit). Stage 4 authors Waza trigger tests. Stage 5 runs LLM-driven GEPA `optimize` per skill (~80 candidates each, ~2,640 LLM calls total via GitHub Models / `gh auth token`). Stage 6 produces the final cross-skill report. Each stage is user-gated; the agent never advances past a gate without an explicit trigger.
 
+## Resuming in a fresh chat session
+
+If you're a new agent session with no carried context, read these files in order before doing anything else (do NOT auto-start any stage):
+
+1. `/memories/repo/sensei-skills-audit.md` — auto-loaded; gives current status and locked decisions.
+2. [`.github/skills/_audits/TODO.md`](../../skills/_audits/TODO.md) — single source of truth for what's checked off. Find the first unchecked box under the "Plan 2 — Sensei GEPA Pipeline" section.
+3. This plan file — read the stage section matching the first unchecked box.
+4. Stage-specific prior reports under `.github/skills/_audits/`:
+   - Stage 1 → `01-tokens-baseline.md`
+   - Stage 2 → `01-tokens-baseline.md` post-update sections
+   - Stage 3 → `02-mcp-integration.md`
+   - Stage 4 → `03-trigger-tests.md`
+   - Stage 5 → `04-gepa-optimize.md`
+   - Stage 6 → `05-pipeline-final.md`
+5. Run `git status` and `git log --oneline -5` to confirm the branch and HEAD.
+6. **Wait for the user trigger** (the trigger phrase for each stage is listed in the table below). Never auto-start a stage.
+
 ## Predecessor
 
 This plan picks up where [`plan-skillsAuditOptimize.prompt.md`](../plan-skillsAuditOptimize.prompt.md) finished. That programme (Stage A → Stage B Round 1 → Round 2) brought all 33 in-scope skills to GEPA `quality_score: 1.00`. This plan layers in the remaining sensei capabilities (token budgets, MCP integration, trigger tests, GEPA `optimize`).
+
+## Stage trigger map
+
+| Stage | User trigger phrase                          | Agent action summary                                                       |
+| ----: | -------------------------------------------- | -------------------------------------------------------------------------- |
+|     1 | `tokens baseline`                            | Read-only token-count baseline for all 33 skills + `compare main HEAD`     |
+|     2 | `tokens squeeze batch <N>`                   | Per-batch SKILL.md → `references/` relocations for skills > 500 tokens     |
+|     3 | `mcp audit`                                  | Read-only audit of `INVOKES:` skills' MCP integration                      |
+|       | `mcp update` / `mcp update <skill>`          | Apply remediation diffs from Stage 3 audit                                 |
+|     4 | `tests batch <N>`                            | Author `tests/{skill}/trigger_tests.yaml` (Waza format) for the batch      |
+|     5 | `optimize batch <N>` / `optimize <skill>`    | LLM-driven GEPA `optimize` with validator gate; per-skill commits          |
+|     6 | `final report`                               | Cross-skill aggregate: GEPA score-all + tokens count + trigger accuracy    |
+
+If the user types something other than a listed trigger, ask which stage they want to run rather than guessing.
 
 ## Locked decisions
 
