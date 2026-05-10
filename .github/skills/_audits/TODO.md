@@ -83,10 +83,12 @@ User-gated start: `audit batch <N>` or `audit batches 1-5` for sequential.
 
 User-gated start: `gepa audit`. May run at any time, but recommended after Stage A is fully done.
 
-- [ ] Run `npm run audit:skills:gepa` across all 33 skills
-- [ ] Generate `gepa-audit.md` (summary table + per-skill `quality_detail` breakdown + deltas vs Stage A)
-- [ ] Commit `chore(skills): GEPA audit report`
+- [x] Run `npm run audit:skills:gepa` across all 33 skills
+- [x] Generate `gepa-audit.md` (summary table + per-skill `quality_detail` breakdown + deltas vs Stage A)
+- [x] Commit `chore(skills): GEPA audit report`
 - [ ] **Updates** — user issues `update post-gepa` or `update <skill>` to apply GEPA-derived recommendations + commit
+
+> **Stage B summary (2026-05-10)**: 33 skills audited via `score-all`. 3 at 1.00, 7 at 0.83, 23 at 0.67. Average 0.74 (unchanged vs Stage A). Two non-zero deltas: `azure-artifacts` 0.50 → 0.67 (+0.17), `azure-compute` 0.83 → 0.67 (−0.16, regression — investigate). Residual gap: 28× missing `## Rules`, 25× missing `## Steps` body sections — explicitly out-of-scope per the source plan. See [`gepa-audit.md`](./gepa-audit.md) for details. Awaiting `update post-gepa` or `update <skill>` to proceed.
 
 ## Out-of-band action items
 
