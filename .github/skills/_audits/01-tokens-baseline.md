@@ -306,3 +306,49 @@ biggest remaining target for any future tightening pass.
 | `npm run validate:agents` | ✅ pass |
 | `npm run lint:vendor-prompting` | ✅ pass |
 | `tokens check` (repo-root limits) | ✅ 33 / 33 within limits |
+
+## Stage 2 — Token squeeze (batch 4)
+
+**Trigger**: `tokens squeeze batch 4` (2026-05-10).
+**Skills**: `entra-app-registration`, `github-operations`, `golden-principles`,
+`iac-common`, `mermaid`, `microsoft-docs`.
+
+### Relocations
+
+| Skill | Section moved | New reference file |
+| --- | --- | --- |
+| `golden-principles` | `## The 10 Principles` (118 lines) + `## How to Apply These Principles` (20 lines) | [`references/principles.md`](../golden-principles/references/principles.md) (new file; this skill had no `references/` folder before) |
+| `iac-common` | `## Deployment Strategies` (azd path, deprecated `deploy.ps1` table, decision matrix; 89 lines) | [`references/deployment-strategies.md`](../iac-common/references/deployment-strategies.md) |
+| `entra-app-registration` | `## Core Workflow` (Steps 1–5 with portal/CLI/IaC branches, 64 lines) | [`references/core-workflow.md`](../entra-app-registration/references/core-workflow.md) |
+| `github-operations` | `## Issues (gh CLI primary, MCP fallback)` + `## Pull Requests (gh CLI primary, MCP fallback)` (~53 lines combined) | [`references/issues-and-prs.md`](../github-operations/references/issues-and-prs.md) |
+
+`mermaid` (1,422 tokens) and `microsoft-docs` (1,206 tokens) were already
+well under their soft limits and had no high-value relocation candidates.
+
+### Per-skill token deltas
+
+| Skill | Before | After | Δ | Δ% |
+| --- | ---: | ---: | ---: | ---: |
+| `entra-app-registration` | 2,431 | 2,063 | -368 | -15.1% |
+| `github-operations` | 2,245 | 1,834 | -411 | -18.3% |
+| `golden-principles` | 1,707 | 714 | -993 | -58.2% |
+| `iac-common` | 2,215 | 1,444 | -771 | -34.8% |
+| `mermaid` | 1,422 | 1,422 | 0 | 0.0% |
+| `microsoft-docs` | 1,206 | 1,206 | 0 | 0.0% |
+| **Batch 4 totals** | **11,226** | **8,683** | **-2,543** | **-22.7%** |
+
+`golden-principles` -58.2% is the largest single-skill reduction in Stage 2; the
+118-line "## The 10 Principles" section was the largest non-reference content in
+the entire in-scope tree. The Rules summary in SKILL.md and the canonical detail
+in `references/principles.md` currently disagree on the names of principles
+#7–#10 (a pre-existing inconsistency between two distinct philosophies); the
+relocation comment notes this for separate reconciliation.
+
+### Validators
+
+| Validator | Status |
+| --- | --- |
+| `npm run validate:skills` | ✅ pass (34 skills, 0 errors, 0 warnings) |
+| `npm run validate:agents` | ✅ pass |
+| `npm run lint:vendor-prompting` | ✅ pass |
+| `tokens check` (repo-root limits) | ✅ 33 / 33 within limits |
