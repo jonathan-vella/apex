@@ -1,40 +1,40 @@
 ---
-description: 'Two-stage audit programme for skills frontmatter compliance: sensei standard mode (read-only) per batch, then GEPA score-all (read-only). User applies updates between stages on demand. No LLM calls, no trigger-harness, no optimize subcommand.'
+description: "Two-stage audit programme for skills frontmatter compliance. Stage A: per-batch read-only audit using sensei standard scoring + GEPA score-mode (deterministic, no LLM). Stage B: a single global GEPA score-all cross-skill report. User applies updates between stages on demand. No `optimize` subcommand, no LLM calls, no trigger-harness."
 agent: agent
-model: 'Claude Opus 4.7'
+model: "Claude Opus 4.7"
 tools: vscode, execute, read, agent, search, terminal
-argument-hint: 'audit batch N | update batch N | update <skill> | gepa audit | update post-gepa'
+argument-hint: "audit batch N | update batch N | update <skill> | gepa audit | update post-gepa"
 ---
 
 # Plan: Skills audit-then-update programme
 
-**TL;DR** — Two read-only audit stages, with user-driven updates in between. Stage A: sensei standard-mode audit per batch (5 batches). Stage B: a single GEPA score-all audit across all skills (deterministic, no LLM, no harness). The user decides when and what to update; the agent never applies changes automatically.
+**TL;DR** — Two read-only audit stages, with user-driven updates in between. Stage A: per-batch sensei standard scoring + GEPA `score`-mode signal (deterministic, no LLM). Stage B: a single global GEPA `score-all` cross-skill report. Both stages share the same underlying GEPA `score` algorithm; the difference is **scope** (per-batch vs all-skills) and **deliverable** (per-batch reports vs global delta report). The user decides when and what to update; the agent never applies changes automatically.
 
 ## Locked decisions
 
-| Topic | Decision |
-|---|---|
-| Scope | All 33 active skills under `.github/skills/`, excluding `sensei` (submodule) and `archived_skills/` |
-| Stage A batching | 5 alphabetical chunks of 6–7 skills each (per-batch reports + commits) |
-| Stage B | Single global GEPA score-all pass across all skills |
-| Audit semantics | Strict read-only — no skill-file edits during audit runs |
-| Update trigger | `update batch <N>`, `update <skill>`, or `update post-gepa` — explicit, user-issued |
-| Files location | `.github/skills/_audits/` |
-| Tracker format | Single `TODO.md` with checkboxes per skill per stage |
-| Report format | Both — concise summary table + detailed appendix per batch and one for Stage B |
-| Commit cadence | Per-batch: 1 audit commit, then optional 1 update commit. Stage B: 1 audit commit, then optional 1 update commit. |
-| LLM usage | **None.** GEPA is run in `score` mode only. |
-| Test harness | **None.** GEPA `score` does not require `tests/{skill}/triggers.test.ts`. |
+| Topic            | Decision                                                                                                          |
+| ---------------- | ----------------------------------------------------------------------------------------------------------------- |
+| Scope            | All 33 active skills under `.github/skills/`, excluding `sensei` (submodule) and `archived_skills/`               |
+| Stage A batching | 5 alphabetical chunks of 6–7 skills each (per-batch reports + commits)                                            |
+| Stage B          | Single global GEPA score-all pass across all skills                                                               |
+| Audit semantics  | Strict read-only — no skill-file edits during audit runs                                                          |
+| Update trigger   | `update batch <N>`, `update <skill>`, or `update post-gepa` — explicit, user-issued                               |
+| Files location   | `.github/skills/_audits/`                                                                                         |
+| Tracker format   | Single `TODO.md` with checkboxes per skill per stage                                                              |
+| Report format    | Both — concise summary table + detailed appendix per batch and one for Stage B                                    |
+| Commit cadence   | Per-batch: 1 audit commit, then optional 1 update commit. Stage B: 1 audit commit, then optional 1 update commit. |
+| LLM usage        | **None.** GEPA is run in `score` mode only.                                                                       |
+| Test harness     | **None.** GEPA `score` does not require `tests/{skill}/triggers.test.ts`.                                         |
 
 ## Batch composition (Stage A only)
 
-| Batch | Skills | Count |
-|---|---|---|
-| 1 | azure-adr, azure-artifacts, azure-bicep-patterns, azure-cloud-migrate, azure-compliance, azure-compute, azure-cost-optimization | 7 |
-| 2 | azure-defaults, azure-deploy, azure-diagnostics, azure-governance-discovery, azure-kusto, azure-prepare, azure-quotas | 7 |
-| 3 | azure-rbac, azure-resources, azure-storage, azure-validate, context-management, docs-writer, drawio | 7 |
-| 4 | entra-app-registration, github-operations, golden-principles, iac-common, mermaid, microsoft-docs | 6 |
-| 5 | python-diagrams, terraform-patterns, terraform-search-import, terraform-test, vendor-prompting, workflow-engine | 6 |
+| Batch | Skills                                                                                                                          | Count |
+| ----- | ------------------------------------------------------------------------------------------------------------------------------- | ----- |
+| 1     | azure-adr, azure-artifacts, azure-bicep-patterns, azure-cloud-migrate, azure-compliance, azure-compute, azure-cost-optimization | 7     |
+| 2     | azure-defaults, azure-deploy, azure-diagnostics, azure-governance-discovery, azure-kusto, azure-prepare, azure-quotas           | 7     |
+| 3     | azure-rbac, azure-resources, azure-storage, azure-validate, context-management, docs-writer, drawio                             | 7     |
+| 4     | entra-app-registration, github-operations, golden-principles, iac-common, mermaid, microsoft-docs                               | 6     |
+| 5     | python-diagrams, terraform-patterns, terraform-search-import, terraform-test, vendor-prompting, workflow-engine                 | 6     |
 
 ## Stages
 
@@ -46,7 +46,7 @@ argument-hint: 'audit batch N | update batch N | update <skill> | gepa audit | u
 4. Add npm scripts: `audit:skills` (wrapper) and `audit:skills:gepa` (raw GEPA `score-all`).
 5. Commit Phase 0 artifacts only.
 
-### Stage A — Standard-mode audit per batch (5 batches, read-only)
+### Stage A — Per-batch audit (read-only) using sensei standard + GEPA `score`-mode
 
 For each batch (in order, on user trigger `audit batch <N>` or auto-sequenced if user says `audit batches 1-5`):
 
@@ -104,13 +104,13 @@ When the user issues `update post-gepa` or per-skill `update <skill>`:
 
 ## Verification
 
-| Stage | Check |
-|---|---|
-| 0 (done) | `ls .github/skills/_audits/TODO.md`; `npm run audit:skills -- --skills azure-adr` returns valid JSON |
-| Stage A audit | `npm run validate:skills` (no skill files changed during audit); `batch-<N>-audit.md` parses as markdown |
+| Stage          | Check                                                                                                                                                   |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 0 (done)       | `ls .github/skills/_audits/TODO.md`; `npm run audit:skills -- --skills azure-adr` returns valid JSON                                                    |
+| Stage A audit  | `npm run validate:skills` (no skill files changed during audit); `batch-<N>-audit.md` parses as markdown                                                |
 | Stage A update | After each update: `npm run validate:agents`, `validate:agent-registry`, `validate:skills`, `lint:vendor-prompting`; re-score deltas appended to report |
-| Stage B audit | `npm run audit:skills:gepa` returns valid JSON; `gepa-audit.md` parses as markdown |
-| Stage B update | Same validators as Stage A update; final `audit:skills:gepa` run shows ≥ target improvement |
+| Stage B audit  | `npm run audit:skills:gepa` returns valid JSON; `gepa-audit.md` parses as markdown                                                                      |
+| Stage B update | Same validators as Stage A update; final `audit:skills:gepa` run shows ≥ target improvement                                                             |
 
 ## Decisions / scope boundaries
 
@@ -122,7 +122,10 @@ When the user issues `update post-gepa` or per-skill `update <skill>`:
 
 ## Resolved considerations
 
-1. **No LLM dependency** — Stage B runs GEPA in `score` mode only (`auto_evaluator.py score-all ...`). Deterministic, instant, free.
-2. **No test harness** — `score-all` does not require `tests/{skill}/triggers.test.ts`. The harness scaffolding work is removed from the plan entirely.
-3. **No `gepa` Python package** — the `score` subcommand uses only Python stdlib + the regex-based content quality scorer in `auto_evaluator.py`.
-4. **Accelerator sync exclusion** — Phase 0 added an action item to `TODO.md` for extending `EXCLUDE_PATHS` in the accelerator's `weekly-upstream-sync.yml` to include `.github/skills/_audits/` (alongside earlier sensei exclusions). Applied to the accelerator repo separately when the user is ready.
+1. **GEPA `score`-mode is shared by both stages** — `tools/scripts/run-sensei-audit.mjs` calls GEPA `score` per skill on every Stage A batch run; `npm run audit:skills:gepa` calls GEPA `score-all` once across all 33 skills for Stage B. Same algorithm, different scope. The two stages differ in the **deliverable**:
+    - Stage A → per-batch report with proposed before/after diffs and recommended actions per skill.
+    - Stage B → single global report with cross-skill rankings, baseline-vs-current deltas, and aggregate trends.
+2. **No LLM dependency** — GEPA `score` and `score-all` are deterministic regex-based content checks. No API calls, no `gh auth token`, no `OPENAI_API_KEY`.
+3. **No test harness** — neither stage requires `tests/{skill}/triggers.test.ts`. The harness scaffolding work is removed from the plan entirely.
+4. **No `gepa` Python package** — the `score`/`score-all` subcommands use only Python stdlib + the regex-based content quality scorer in `auto_evaluator.py` from the upstream sensei submodule.
+5. **Accelerator sync exclusion** — Phase 0 added an action item to `TODO.md` for extending `EXCLUDE_PATHS` in the accelerator's `weekly-upstream-sync.yml` to include `.github/skills/_audits/` (alongside earlier sensei exclusions). Applied to the accelerator repo separately when the user is ready.
