@@ -22,7 +22,17 @@ Recommend Azure VM sizes, VM Scale Sets (VMSS), and configurations by analyzing 
 - User needs autoscaling, high availability, or load-balanced VM recommendations
 - User asks about VMSS orchestration modes (Flexible vs Uniform)
 
-## Workflow
+## Rules
+
+- **Always verify against live docs** — call `web_fetch` against `learn.microsoft.com` before finalizing recommendations; warn the user when `web_fetch` fails
+- **Default to General Purpose D-series** when workload type is unclear
+- **Default region** is `eastus` when none is specified; note that prices vary by region
+- **Default to single VM** when scaling needs are unclear; recommend VMSS only when autoscale, fleet, or mixed-size requirements are explicit
+- **VMSS pricing** = VM pricing × instance count (no extra VMSS charge)
+- **Reservation pricing** is recommended for long-lived production VMs (1y/3y commitments)
+- **No deployment** — this skill recommends sizes; for provisioning use `azure-prepare`
+
+## Steps
 
 The full 6-step procedure (with all decision tables, dichotomy tree, and `web_fetch` URLs) lives in **[references/recommendation-workflow.md](references/recommendation-workflow.md)**. Load it on demand. Summary:
 

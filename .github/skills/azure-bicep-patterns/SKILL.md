@@ -45,7 +45,19 @@ Accept `name`, `location`, `tags`, `logAnalyticsWorkspaceName`; output `resource
 
 ---
 
-## Key Rules Summary
+## Steps
+
+Applying a pattern in a Bicep template:
+
+1. **Identify the pattern** — match your need to a row in [Quick Reference](#quick-reference) (hub-spoke, private endpoint, diagnostics, conditional, identity, budget)
+2. **Load the reference** — read the linked `references/*.md` for the chosen pattern; do not load all at once
+3. **Compose the module** — follow the Module Interface contract above (`name`/`location`/`tags`/`logAnalyticsWorkspaceName` in; `resourceId`/`resourceName`/`principalId` out)
+4. **Pin AVM versions** — when using AVM modules, pin to a specific published version; verify via MCR tag listing if helpers fail
+5. **Add diagnostics + budget** — every deployed resource gets a diagnostic setting; every deployment gets a budget with 80%/100%/120% forecast alerts
+6. **What-if before deploy** — run `az deployment group what-if` and review for unexpected deletes, SKU downgrades, or auth changes
+7. **Validate** — `bicep build` + `bicep lint` + `npm run validate:iac-security-baseline`
+
+## Rules
 
 - **Hub-Spoke**: Hub holds shared infra; spokes peer to hub only; NSGs per subnet
 - **Private Endpoints**: Always wire PE + DNS Zone Group + DNS Zone; see group ID table in reference

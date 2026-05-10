@@ -23,6 +23,17 @@ Use this skill when the user asks to:
 - Identify where they're overspending in Azure
 - **Optimize Redis costs specifically** - See [Azure Redis Cost Optimization](./references/azure-redis.md) for Redis-specific analysis
 
+## Rules
+
+- **Read-only analysis first** — never delete or modify resources during the assessment phase; remediation is a separate user-approved step
+- **Validate prerequisites** before starting (Azure CLI authenticated, `costmanagement` + `resource-graph` extensions, `azqr` installed, Cost Management Reader + Monitoring Reader + Reader roles)
+- **Use real data** — recommendations must be grounded in actual cost queries and utilization metrics, not assumptions
+- **Cite sources** — every savings estimate must reference the underlying cost query or pricing API result (audit trail in `output/cost-query-result<timestamp>.json`)
+- **Classify safely** — mark recommendations as Safe / Review / Risky; never auto-apply destructive operations
+- **Redis-specific scope** — when the user asks about Redis only, follow [Azure Redis Cost Optimization](./references/azure-redis.md) instead of the general subscription workflow
+- **Save artifacts** to `output/costoptimizereport<timestamp>.md` and the audit trail JSON
+- **Out of scope**: deploying resources (use `azure-deploy`), security issues (use `azure-compliance`), general diagnostics (use `azure-diagnostics`)
+
 ## Instructions
 
 Follow these steps in conversation with the user:

@@ -78,7 +78,7 @@ the architecture assessment above as a formal ADR.
 | Step 5 (Bicep Code) | After implementation choices | As-built ADR (`07-ab-adr-*`) |
 | Step 6 (Deploy)     | After deployment decisions   | As-built ADR (`07-ab-adr-*`) |
 
-## Best Practices
+## Rules
 
 1. **One decision per ADR** - Keep ADRs focused on a single decision
 2. **Include alternatives** - Always document what was considered and rejected
@@ -123,7 +123,7 @@ This skill produces artifacts in **Step 3** (design) or **Step 7** (as-built).
 **Important**: The `07-ab-adr-` ADR may differ from `03-des-adr-` if implementation required changes.
 Document any deviations in the "Implementation Notes" section.
 
-## Generation Workflow
+## Steps
 
 Follow these steps when creating ADRs:
 

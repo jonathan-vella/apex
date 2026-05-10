@@ -368,3 +368,41 @@ User issued `update batch 1`. All 7 proposed before/after diffs were applied. Va
 
 - **azure-compute body-token bloat** — body remains at ~2400 tokens after the description trim. Body restructuring (move "Best Practices" + "Family Reference" sections to `references/`) is out of scope for this Stage A frontmatter pass and warrants a separate ticket.
 - **No `INVOKES:` routing** — none of these 7 skills declare which MCPs they invoke. Adding `INVOKES:` would unlock the High-tier classifier score; deferred until the second pass.
+
+---
+
+## Post-update — Round 2 (2026-05-10)
+
+User issued `update post-gepa` for the body-section pass (scope expansion). Hybrid heading strategy applied: rename existing equivalent sections where clean rename preserves semantics; author minimal `## Rules` / `## Steps` sections otherwise.
+
+### Edits applied
+
+| Skill                   | `## Rules` source           | `## Steps` source           |
+| ----------------------- | --------------------------- | --------------------------- |
+| azure-adr               | Rename `## Best Practices`  | Rename `## Generation Workflow` |
+| azure-artifacts         | Rename `## Artifact Generation Rules` | **Author** (7-step generation flow) |
+| azure-bicep-patterns    | Rename `## Key Rules Summary` | **Author** (7-step pattern application flow) |
+| azure-compliance        | Rename `## Best Practices`  | Rename `## Assessment Workflow` |
+| azure-compute           | **Author** (regression fix — body trim removed inline rules) | Rename `## Workflow` |
+| azure-cost-optimization | **Author** (8-rule list — read-only, prerequisites, audit trail) | Already present (`### Step N` under `## Instructions`) |
+
+### Score deltas
+
+| Skill                   | Round 1 (Stage A after) | Round 2 (current) | Δ     |
+| ----------------------- | ----------------------- | ----------------- | ----- |
+| azure-adr               | 0.67                    | **1.00** ✓        | +0.33 |
+| azure-artifacts         | 0.50                    | **1.00** ✓        | +0.50 |
+| azure-bicep-patterns    | 0.67                    | **1.00** ✓        | +0.33 |
+| azure-compliance        | 0.67                    | **1.00** ✓        | +0.33 |
+| azure-compute           | 0.83 → 0.67 (regression) | **1.00** ✓       | +0.33 |
+| azure-cost-optimization | 0.83                    | **1.00** ✓        | +0.17 |
+
+### Aggregate (batch 1)
+
+| Metric                    | Round 1 | Round 2     |
+| ------------------------- | ------- | ----------- |
+| Skills at score = 1.00    | 1 / 7   | **7 / 7** ✓ |
+| Skills at score ≥ 0.83    | 3 / 7   | **7 / 7** ✓ |
+| `azure-compute` regression | open   | **closed** ✓ (re-added `## Steps` heading) |
+
+Validators: `validate:agents`, `validate:agent-registry`, `validate:skills`, `lint:vendor-prompting` — all pass.

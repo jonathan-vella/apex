@@ -66,7 +66,7 @@ Activate this skill when user wants to:
 | `keyvault_certificate_list`       | List all certificates in vault               |
 | `keyvault_certificate_get`        | Get certificate details including expiration |
 
-## Assessment Workflow
+## Steps
 
 1. Select scope (subscription or resource group) for Comprehensive Resources Assessment.
 2. Run azqr and capture output artifacts.
@@ -91,7 +91,7 @@ Activate this skill when user wants to:
 | Access denied           | "Forbidden"    | Confirm permissions and fix role assignments     |
 | Missing resource        | "Not found"    | Verify subscription and resource group selection |
 
-## Best Practices
+## Rules
 
 - Run compliance scans on a regular schedule (weekly or monthly)
 - Track findings over time and verify remediation effectiveness
