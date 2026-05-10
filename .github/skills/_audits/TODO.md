@@ -153,10 +153,16 @@ Source plan: [`.github/prompts/sensei/plan-gepa-pipeline.prompt.md`](../../promp
 
 User trigger: `tokens baseline`.
 
-- [ ] Run `tokens count` for all 33 skills
-- [ ] Run `tokens compare main HEAD` to capture Round 2 delta
-- [ ] Generate `01-tokens-baseline.md`
-- [ ] Commit `chore(skills): Token-budget baseline (stage 1)`
+- [x] Run `tokens count` for all 33 skills
+- [x] Run `tokens compare main HEAD` to capture Round 2 delta
+- [x] Generate `01-tokens-baseline.md`
+- [x] Commit `chore(skills): Token-budget baseline (stage 1)`
+
+> **Stage 1 summary (2026-05-10)**: 33 SKILL.md files total **60,351 tokens** (mean 1,829, max 2,806 `drawio`).
+> All 33 exceed the 500-token soft limit; **0 / 33** exceed the 5,000-token hard limit. Round 2 delta vs `main`:
+> **+3,095 tokens** net across 33 SKILL.md files (28 increased from body-section additions; 5 decreased from
+> Round 1 trims that survived). See [`01-tokens-baseline.md`](./01-tokens-baseline.md). Awaiting
+> `tokens squeeze batch <N>` to start Stage 2.
 
 ### Stage 2 — Token squeeze (per-batch, user-gated)
 
