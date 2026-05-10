@@ -1,6 +1,6 @@
 ---
 name: vendor-prompting
-description: "Audit-grade reference for Anthropic Claude and OpenAI GPT-5.5 prompting best practices. Use when authoring or auditing custom agents and prompts to verify vendor-specific patterns (Claude XML structuring, GPT-5.5 outcome-first skeleton), to review .agent.md or .prompt.md files for compliance, or to understand why npm run lint:vendor-prompting flagged a finding. Triggers: claude prompting, gpt-5.5 prompting, agent authoring, audit agent, review prompt, vendor best practices, prompting guide, anthropic best practices, openai prompting. DO NOT USE FOR: deciding which customization mechanism to create (use copilot-customization), routine edits where the rules are already known, or generic markdown style (use markdown.instructions.md)."
+description: "**ANALYSIS SKILL** — Audit-grade reference for Anthropic Claude and OpenAI GPT-5.5 prompting best practices. WHEN: \"claude prompting\", \"gpt-5.5 prompting\", \"audit agent\", \"review prompt\", \"vendor best practices\", \"anthropic best practices\", \"openai prompting\". USE FOR: authoring or auditing .agent.md / .prompt.md files; verifying vendor-specific patterns (Claude XML, GPT-5.5 outcome-first); investigating lint:vendor-prompting findings. DO NOT USE FOR: routine prompt edits where rules are already known, generic markdown style (see markdown.instructions.md)."
 license: MIT
 ---
 

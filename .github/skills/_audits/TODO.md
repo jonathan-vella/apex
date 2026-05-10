@@ -77,7 +77,7 @@ User-gated start: `audit batch <N>` or `audit batches 1-5` for sequential.
 - [x] Run sensei standard-mode score: workflow-engine
 - [x] Generate `batch-5-audit.md`
 - [x] Commit `chore(skills): Audit batch 5 report (sensei standard)`
-- [ ] **Updates** — user issues `update batch 5` or `update <skill>` to apply audit recommendations + commit
+- [x] **Updates** — user issued `update batch 5`; all 6 diffs applied, vendor-prompting `Triggers:` → `WHEN:` normalized, all 6/6 now pass GEPA ≥ 0.7 (was 1/6), commit recorded
 
 ## Stage B — GEPA-mode audit (single global pass, read-only)
 
