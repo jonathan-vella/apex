@@ -206,7 +206,6 @@ User trigger: `tests batch <N>`.
 - [x] Batch 4 — same
 - [x] Batch 5 — same
 
-
 > **Stage 4 summary (2026-05-10)**: 33 skills scaffolded; **1,220 affirmative + 350 anti-trigger prompts**.
 > Mean `trigger_accuracy: 0.71` (range 0.32–0.96; non-null for all 33 — plan's success criterion met).
 > 4 skills carry Stage-2-squeeze `quality_score: 0.83` (azure-cost-optimization, azure-resources,
@@ -218,10 +217,19 @@ User trigger: `tests batch <N>`.
 User triggers: `optimize batch <N>` or `optimize <skill>`. Prerequisite: Stage 4 complete for the target skills.
 
 - [ ] Batch 1 — per-skill optimize + validator gate + per-skill commits
-- [x] Batch 2 — same
-- [x] Batch 3 — same
-- [x] Batch 4 — same
-- [x] Batch 5 — same
+- [ ] Batch 2 — same
+- [ ] Batch 3 — same
+- [ ] Batch 4 — same
+- [ ] Batch 5 — same
+
+> **Stage 5 status (2026-05-10)**: **paused after one rejected smoke test.** Auth path resolved
+> (`gh auth login --web` → `gho_*` session token reaches all 41 GitHub Models inference catalog models).
+> Smoke test on `azure-prepare` with `openai/gpt-5` at 80 iterations: candidate lifted
+> `trigger_accuracy` 0.32 → 0.68 (×2.1) and passed all four validators, but **dropped functional
+> hand-off rules** (cross-cloud routing to `azure-cloud-migrate`, PLAN-FIRST workflow H2,
+> Reference Index, SDK References) because GEPA's fitness function doesn't probe them.
+> Candidate rolled back; SHA `81a6ac46` restored. **0 / 33 skills accepted; 1 / 33 evaluated and rejected.**
+> See [`04-gepa-optimize.md`](./04-gepa-optimize.md). Awaiting user direction.
 
 ### Stage 6 — Final cross-skill report
 

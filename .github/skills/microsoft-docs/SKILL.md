@@ -23,11 +23,11 @@ Covers Azure, .NET, Microsoft 365, Windows, Power Platform, and all Microsoft te
 
 ## Tools
 
-| Tool                          | Use For                                                         |
-| ----------------------------- | --------------------------------------------------------------- |
-| `microsoft_docs_search`       | Find documentation — concepts, guides, tutorials, configuration |
-| `microsoft_docs_fetch`        | Get full page content (when search excerpts aren't enough)      |
-| `microsoft_code_sample_search` | Find runnable code samples in official docs                    |
+| Tool                           | Use For                                                         |
+| ------------------------------ | --------------------------------------------------------------- |
+| `microsoft_docs_search`        | Find documentation — concepts, guides, tutorials, configuration |
+| `microsoft_docs_fetch`         | Get full page content (when search excerpts aren't enough)      |
+| `microsoft_code_sample_search` | Find runnable code samples in official docs                     |
 
 ## Rules
 

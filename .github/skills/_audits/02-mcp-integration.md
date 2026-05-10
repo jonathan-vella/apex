@@ -19,23 +19,23 @@ Stage 2 are pure relocations and do not change MCP-tool surface area.
 
 ## Skill summary
 
-| Skill | MCP server | Frontmatter `INVOKES:` claim | Body declares MCP tools? |
-| --- | --- | --- | --- |
-| `azure-kusto` | Azure MCP (`mcp_azure_mcp_kusto`) | "azure-kusto MCP (queries, sample, list-clusters)" | Yes — `## MCP Tools Used` |
-| `azure-quotas` | Azure MCP (`mcp_azure_mcp_quota`) | "azure-quota MCP (check, region-availability)" | **No** — body says CLI is primary |
-| `microsoft-docs` | Microsoft Learn MCP (`mcp_microsoft-lea_*`) | "microsoft-learn MCP (microsoft_docs_search, microsoft_code_sample_search, microsoft_docs_fetch)" | Yes — `## Tools` (2 of 3 tools listed) |
-| `drawio` | simonkurtz-MSFT/drawio-mcp-server (`mcp_drawio_*`) | "drawio MCP (search-shapes, add-cells, finish-diagram)" | Partial — `## MCP Workflow Summary` (no parameter table) |
+| Skill            | MCP server                                         | Frontmatter `INVOKES:` claim                                                                      | Body declares MCP tools?                                 |
+| ---------------- | -------------------------------------------------- | ------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| `azure-kusto`    | Azure MCP (`mcp_azure_mcp_kusto`)                  | "azure-kusto MCP (queries, sample, list-clusters)"                                                | Yes — `## MCP Tools Used`                                |
+| `azure-quotas`   | Azure MCP (`mcp_azure_mcp_quota`)                  | "azure-quota MCP (check, region-availability)"                                                    | **No** — body says CLI is primary                        |
+| `microsoft-docs` | Microsoft Learn MCP (`mcp_microsoft-lea_*`)        | "microsoft-learn MCP (microsoft_docs_search, microsoft_code_sample_search, microsoft_docs_fetch)" | Yes — `## Tools` (2 of 3 tools listed)                   |
+| `drawio`         | simonkurtz-MSFT/drawio-mcp-server (`mcp_drawio_*`) | "drawio MCP (search-shapes, add-cells, finish-diagram)"                                           | Partial — `## MCP Workflow Summary` (no parameter table) |
 
 ## Traffic-light per skill
 
 Legend: ✅ pass · ⚠️ partial · ❌ missing or contradictory.
 
-| Skill | (1) MCP Tools section | (2) Prerequisites | (3) CLI fallback | (4) No collision |
-| --- | :---: | :---: | :---: | :---: |
-| `azure-kusto` | ✅ | ⚠️ | ✅ | ✅ |
-| `azure-quotas` | ❌ | ⚠️ | ✅ (CLI is primary) | ✅ |
-| `microsoft-docs` | ⚠️ | ⚠️ | ✅ | ✅ |
-| `drawio` | ⚠️ | ✅ | ❌ | ❌ |
+| Skill            | (1) MCP Tools section | (2) Prerequisites |  (3) CLI fallback   | (4) No collision |
+| ---------------- | :-------------------: | :---------------: | :-----------------: | :--------------: |
+| `azure-kusto`    |          ✅           |        ⚠️         |         ✅          |        ✅        |
+| `azure-quotas`   |          ❌           |        ⚠️         | ✅ (CLI is primary) |        ✅        |
+| `microsoft-docs` |          ⚠️           |        ⚠️         |         ✅          |        ✅        |
+| `drawio`         |          ⚠️           |        ✅         |         ❌          |        ❌        |
 
 ### azure-kusto
 
@@ -81,7 +81,7 @@ Legend: ✅ pass · ⚠️ partial · ❌ missing or contradictory.
   the relevant Azure MCP `quota` tools (`mcp_azure_mcp_quota` check / region-availability /
   usage).
 - Add a `## Prerequisites` section listing: Azure CLI ≥ 2.50; `az extension add --name
-  quota`; Reader role minimum; (optional) Azure MCP server for the augmentation path.
+quota`; Reader role minimum; (optional) Azure MCP server for the augmentation path.
 - Reconcile `azure-quota` vs `azure-quotas` plural in the `INVOKES:` claim.
 
 ### microsoft-docs
@@ -144,13 +144,13 @@ Legend: ✅ pass · ⚠️ partial · ❌ missing or contradictory.
 
 Estimated SKILL.md token impact (rough):
 
-| Skill | Sections to add | Estimated +tokens |
-| --- | --- | ---: |
-| `azure-kusto` | `## Prerequisites` | +60 |
-| `azure-quotas` | `## MCP Tools (Optional Augmentation)` + `## Prerequisites` | +120 |
-| `microsoft-docs` | Add 3rd tool to `## Tools`; new `## Prerequisites` | +50 |
-| `drawio` | `## MCP Tools` (concise) + `## CLI fallback` (no-fallback notice) + collision note | +90 |
-| **Total** | — | **+320** |
+| Skill            | Sections to add                                                                    | Estimated +tokens |
+| ---------------- | ---------------------------------------------------------------------------------- | ----------------: |
+| `azure-kusto`    | `## Prerequisites`                                                                 |               +60 |
+| `azure-quotas`   | `## MCP Tools (Optional Augmentation)` + `## Prerequisites`                        |              +120 |
+| `microsoft-docs` | Add 3rd tool to `## Tools`; new `## Prerequisites`                                 |               +50 |
+| `drawio`         | `## MCP Tools` (concise) + `## CLI fallback` (no-fallback notice) + collision note |               +90 |
+| **Total**        | —                                                                                  |          **+320** |
 
 This stays well within the repo-root [`.token-limits.json`](../../../.token-limits.json)
 soft limits. None of the four skills will breach their limit after Stage 3 updates.
@@ -177,12 +177,12 @@ User trigger: `apply Stage 3 remediation diffs`. All four skills updated; valida
 
 ### Diffs applied
 
-| Skill | Change |
-| --- | --- |
-| `azure-kusto` | Added `## Prerequisites` (Azure CLI auth, `AllDatabasesViewer` RBAC, Azure MCP `kusto` namespace) |
-| `azure-quotas` | Added `## Prerequisites` (CLI ≥ 2.50, `quota` extension, RBAC, optional MCP server); added `## MCP Tools (Optional Augmentation)` resolving the INVOKES contradiction (CLI is primary; MCP namespace augments) |
-| `microsoft-docs` | Added `## Prerequisites` (Learn MCP endpoint, outbound HTTPS, Node ≥ 18 for CLI fallback); added `microsoft_code_sample_search` to `## Tools` table |
-| `drawio` | Added 3-way name-collision note (skill / MCP server slug / tool prefix) at the top; merged `## MCP Workflow Summary` with new `## MCP Tools` table to avoid duplication; added `## CLI Fallback` section explicitly stating no programmatic fallback exists |
+| Skill            | Change                                                                                                                                                                                                                                                      |
+| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `azure-kusto`    | Added `## Prerequisites` (Azure CLI auth, `AllDatabasesViewer` RBAC, Azure MCP `kusto` namespace)                                                                                                                                                           |
+| `azure-quotas`   | Added `## Prerequisites` (CLI ≥ 2.50, `quota` extension, RBAC, optional MCP server); added `## MCP Tools (Optional Augmentation)` resolving the INVOKES contradiction (CLI is primary; MCP namespace augments)                                              |
+| `microsoft-docs` | Added `## Prerequisites` (Learn MCP endpoint, outbound HTTPS, Node ≥ 18 for CLI fallback); added `microsoft_code_sample_search` to `## Tools` table                                                                                                         |
+| `drawio`         | Added 3-way name-collision note (skill / MCP server slug / tool prefix) at the top; merged `## MCP Workflow Summary` with new `## MCP Tools` table to avoid duplication; added `## CLI Fallback` section explicitly stating no programmatic fallback exists |
 
 ### Per-skill token deltas
 
@@ -194,22 +194,22 @@ duplication; an initial draft hit 3,015 tokens (+441) and breached its 3,000 ove
 merge of `## MCP Workflow Summary` and the new `## MCP Tools` table brought it to 2,940
 tokens (+366), under the limit.
 
-| Skill | Stage 2 end | Post-update | Δ vs Stage 2 end | Limit | Within limit? |
-| --- | ---: | ---: | ---: | ---: | :---: |
-| `azure-kusto` | 1,625 | 1,763 | +138 (+8.5%) | 2,500 | ✅ |
-| `azure-quotas` | 1,906 | 2,311 | +405 (+21.2%) | 2,500 | ✅ |
-| `microsoft-docs` | 1,206 | 1,310 | +104 (+8.6%) | 2,500 | ✅ |
-| `drawio` | 2,574 | 2,940 | +366 (+14.2%) | 3,000 | ✅ |
-| **Stage 3 totals** | **7,311** | **8,324** | **+1,013** | — | — |
+| Skill              | Stage 2 end | Post-update | Δ vs Stage 2 end | Limit | Within limit? |
+| ------------------ | ----------: | ----------: | ---------------: | ----: | :-----------: |
+| `azure-kusto`      |       1,625 |       1,763 |     +138 (+8.5%) | 2,500 |      ✅       |
+| `azure-quotas`     |       1,906 |       2,311 |    +405 (+21.2%) | 2,500 |      ✅       |
+| `microsoft-docs`   |       1,206 |       1,310 |     +104 (+8.6%) | 2,500 |      ✅       |
+| `drawio`           |       2,574 |       2,940 |    +366 (+14.2%) | 3,000 |      ✅       |
+| **Stage 3 totals** |   **7,311** |   **8,324** |       **+1,013** |     — |       —       |
 
 ### Validators
 
-| Validator | Status |
-| --- | --- |
-| `npm run validate:skills` | ✅ pass (34 skills, 0 errors, 0 warnings) |
-| `npm run validate:agents` | ✅ pass |
-| `npm run lint:vendor-prompting` | ✅ pass |
-| `tokens check` (repo-root limits) | ✅ 33 / 33 within limits |
+| Validator                         | Status                                    |
+| --------------------------------- | ----------------------------------------- |
+| `npm run validate:skills`         | ✅ pass (34 skills, 0 errors, 0 warnings) |
+| `npm run validate:agents`         | ✅ pass                                   |
+| `npm run lint:vendor-prompting`   | ✅ pass                                   |
+| `tokens check` (repo-root limits) | ✅ 33 / 33 within limits                  |
 
 ### Cumulative token impact (Stage 2 squeeze + Stage 3 update)
 

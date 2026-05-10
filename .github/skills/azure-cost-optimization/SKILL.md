@@ -39,15 +39,15 @@ Use this skill when the user asks to:
 High-level step list (full procedure in
 [`references/workflow-steps.md`](./references/workflow-steps.md)):
 
-| # | Step | Reference |
-| ---: | --- | --- |
-| 0 | Validate prerequisites (Azure CLI, `costmanagement` + `resource-graph` extensions, azqr, RBAC) | [`workflow-steps.md`](./references/workflow-steps.md) |
-| 1 | Load Azure cost-optimization best practices via `mcp_azure_mcp_get_azure_bestpractices` | [`workflow-steps.md`](./references/workflow-steps.md) |
-| 1.5 | (Conditional) Redis-specific analysis branch | [`azure-redis.md`](./references/azure-redis.md) |
-| 1.6 | (Redis branch) Choose analysis scope (subscription / prefix / tenant-wide) | [`azure-redis.md`](./references/azure-redis.md) |
-| 2 | Run Azure Quick Review (`extension_azqr`) for orphaned-resource discovery | [`azure-quick-review.md`](./references/azure-quick-review.md) |
-| 3 | Discover resources cross-subscription via Azure Resource Graph | [`azure-resource-graph.md`](./references/azure-resource-graph.md) |
-| 4–9 | Cost queries, pricing validation, metrics, report, audit trail, cleanup | [`detailed-workflow-steps.md`](./references/detailed-workflow-steps.md) |
+|   # | Step                                                                                           | Reference                                                               |
+| --: | ---------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+|   0 | Validate prerequisites (Azure CLI, `costmanagement` + `resource-graph` extensions, azqr, RBAC) | [`workflow-steps.md`](./references/workflow-steps.md)                   |
+|   1 | Load Azure cost-optimization best practices via `mcp_azure_mcp_get_azure_bestpractices`        | [`workflow-steps.md`](./references/workflow-steps.md)                   |
+| 1.5 | (Conditional) Redis-specific analysis branch                                                   | [`azure-redis.md`](./references/azure-redis.md)                         |
+| 1.6 | (Redis branch) Choose analysis scope (subscription / prefix / tenant-wide)                     | [`azure-redis.md`](./references/azure-redis.md)                         |
+|   2 | Run Azure Quick Review (`extension_azqr`) for orphaned-resource discovery                      | [`azure-quick-review.md`](./references/azure-quick-review.md)           |
+|   3 | Discover resources cross-subscription via Azure Resource Graph                                 | [`azure-resource-graph.md`](./references/azure-resource-graph.md)       |
+| 4–9 | Cost queries, pricing validation, metrics, report, audit trail, cleanup                        | [`detailed-workflow-steps.md`](./references/detailed-workflow-steps.md) |
 
 > **Branching rule**: when the user mentions Redis, Azure Cache for Redis, or Azure Managed
 > Redis, follow the Redis-specific path (Steps 1.5 → 1.6 → Redis-only analysis) instead of
@@ -79,12 +79,12 @@ The skill generates:
 
 Load these on demand — do NOT read all at once:
 
-| Reference                               | When to Load                                                      |
-| --------------------------------------- | ----------------------------------------------------------------- |
-| `references/auth-best-practices.md`     | Auth Best Practices                                               |
-| `references/azure-quick-review.md`      | Azure Quick Review                                                |
-| `references/azure-redis.md`             | Azure Redis                                                       |
-| `references/azure-resource-graph.md`    | Azure Resource Graph                                              |
+| Reference                               | When to Load                                                       |
+| --------------------------------------- | ------------------------------------------------------------------ |
+| `references/auth-best-practices.md`     | Auth Best Practices                                                |
+| `references/azure-quick-review.md`      | Azure Quick Review                                                 |
+| `references/azure-redis.md`             | Azure Redis                                                        |
+| `references/azure-resource-graph.md`    | Azure Resource Graph                                               |
 | `references/workflow-steps.md`          | Steps 0–3: prerequisites, best practices, azqr, resource discovery |
-| `references/detailed-workflow-steps.md` | Steps 4-9: cost queries, pricing, metrics, report, audit, cleanup |
-| `references/best-practices-notes.md`    | Data classification, best practices, pitfalls, safety             |
+| `references/detailed-workflow-steps.md` | Steps 4-9: cost queries, pricing, metrics, report, audit, cleanup  |
+| `references/best-practices-notes.md`    | Data classification, best practices, pitfalls, safety              |

@@ -103,9 +103,9 @@ namespace that mirrors a subset of `az quota` commands. **The CLI remains the pr
 path** (see Quick Reference above); the MCP namespace is only useful when an agent is
 already operating inside Azure MCP and wants to avoid shelling out.
 
-| MCP tool                                | CLI equivalent (preferred)         |
-| --------------------------------------- | ---------------------------------- |
-| `mcp_azure_mcp_quota` `check`           | `az quota show` / `az quota list`  |
+| MCP tool                                    | CLI equivalent (preferred)                      |
+| ------------------------------------------- | ----------------------------------------------- |
+| `mcp_azure_mcp_quota` `check`               | `az quota show` / `az quota list`               |
 | `mcp_azure_mcp_quota` `region-availability` | `az quota list --scope ... -o table` per region |
 
 If the MCP namespace is available **and** the user has not asked for shell-level output,

@@ -36,16 +36,16 @@ The MCP server's startup `src/instructions.md` is the authoritative tool referen
 table below lists the most-used tools and the repo-specific batch sequence. Reusable call
 patterns: [`references/azure-patterns.md`](references/azure-patterns.md).
 
-| Tool                  | Purpose                                                             |
-| --------------------- | ------------------------------------------------------------------- |
-| `search-shapes`       | Fuzzy-search the 700+ Azure icon library; resolves names to shapes  |
-| `create-groups`       | Create container cells (VNets, subnets, resource groups, envs)      |
-| `add-cells`           | Add vertices + edges in a single batch (use `shape_name`, `temp_id`)|
-| `add-cells-to-group`  | Assign children to group containers                                 |
-| `edit-cells` / `edit-edges` | Update cell or edge properties post-creation                  |
-| `validate-group-containment` | Detect children that exceed group bounds                     |
-| `finish-diagram`      | Resolve transactional placeholders + emit final compressed XML      |
-| `export-diagram`      | Non-transactional export with `compress: true`                      |
+| Tool                         | Purpose                                                              |
+| ---------------------------- | -------------------------------------------------------------------- |
+| `search-shapes`              | Fuzzy-search the 700+ Azure icon library; resolves names to shapes   |
+| `create-groups`              | Create container cells (VNets, subnets, resource groups, envs)       |
+| `add-cells`                  | Add vertices + edges in a single batch (use `shape_name`, `temp_id`) |
+| `add-cells-to-group`         | Assign children to group containers                                  |
+| `edit-cells` / `edit-edges`  | Update cell or edge properties post-creation                         |
+| `validate-group-containment` | Detect children that exceed group bounds                             |
+| `finish-diagram`             | Resolve transactional placeholders + emit final compressed XML       |
+| `export-diagram`             | Non-transactional export with `compress: true`                       |
 
 Standard sequence: `search-shapes` → `create-groups` → `add-cells` → `add-cells-to-group`
 → (optional `edit-*`) → `validate-group-containment` → `finish-diagram` /
