@@ -298,6 +298,79 @@ function runStaleReferenceDetection() {
 }
 
 // ============================================================================
+// Part 4: Cross-Skill Frontmatter Reference Validation
+// ============================================================================
+// Detects `(use foo)` redirects in SKILL.md frontmatter descriptions where
+// `foo` refers to a skill that does not exist in `.github/skills/`. This
+// covers the failure mode that retired-skill detection misses: descriptions
+// pointing at skills that were never created or were archived.
+
+function runCrossSkillReferenceValidation() {
+  const r = new Reporter("Cross-Skill Frontmatter Reference Validator");
+  r.header();
+
+  const skills = getSkills();
+  const validSkillNames = new Set(skills.keys());
+
+  // Agents and subagents (under `.github/agents/` and `.github/agents/_subagents/`)
+  // are valid redirect targets even though they aren't skills. Discover them
+  // so the allowlist stays in sync with the filesystem.
+  const validAgentNames = new Set();
+  const agentsDir = path.join(".github", "agents");
+  if (fs.existsSync(agentsDir)) {
+    for (const entry of fs.readdirSync(agentsDir, { withFileTypes: true })) {
+      if (entry.isFile() && entry.name.endsWith(".agent.md")) {
+        validAgentNames.add(entry.name.replace(/\.agent\.md$/, ""));
+      } else if (entry.isDirectory() && entry.name === "_subagents") {
+        for (const sub of fs.readdirSync(path.join(agentsDir, "_subagents"))) {
+          if (sub.endsWith(".agent.md")) {
+            validAgentNames.add(sub.replace(/\.agent\.md$/, ""));
+          }
+        }
+      }
+    }
+  }
+
+  // Allowlist: tools/MCPs that show up in `(use ...)` redirects but aren't
+  // skills or agents. Keep this small and explicit.
+  const NON_SKILL_REDIRECTS = new Set([
+    "azure-pricing MCP",
+    "drawio",
+    "mermaid",
+    "python-diagrams",
+  ]);
+
+  const REDIRECT_PATTERN = /\(use\s+([a-z][a-z0-9-]*(?:\s+MCP)?)\)/gi;
+
+  for (const [skillName, skill] of skills) {
+    r.tick();
+    if (!skill.frontmatter?.description) continue;
+
+    const desc = skill.frontmatter.description;
+    let match;
+    REDIRECT_PATTERN.lastIndex = 0;
+    while ((match = REDIRECT_PATTERN.exec(desc)) !== null) {
+      const target = match[1].trim();
+      if (NON_SKILL_REDIRECTS.has(target) || target.endsWith(" MCP")) continue;
+      if (target === skillName) continue;
+      if (validSkillNames.has(target) || validAgentNames.has(target)) continue;
+      r.error(
+        skillName,
+        `frontmatter description references missing skill/agent "${target}" — fix the (use ${target}) redirect`,
+      );
+    }
+  }
+
+  r.summary();
+  if (r.errors > 0) {
+    overallFailed = true;
+    console.log("❌ Cross-skill frontmatter reference validation FAILED\n");
+  } else {
+    console.log("✅ Cross-skill frontmatter reference validation passed\n");
+  }
+}
+
+// ============================================================================
 // Main entry point
 // ============================================================================
 
@@ -312,6 +385,9 @@ function main() {
 
   console.log("═══ Part 3: Stale Skill References ═══");
   runStaleReferenceDetection();
+
+  console.log("═══ Part 4: Cross-Skill Frontmatter References ═══");
+  runCrossSkillReferenceValidation();
 
   if (overallFailed) {
     console.log("❌ Skill validation FAILED");
