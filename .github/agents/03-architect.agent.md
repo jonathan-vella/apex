@@ -255,8 +255,13 @@ The subagent uses these Azure Pricing MCP tools on your behalf:
 | `azure_cost_estimate`    | Fallback for single resource if bulk fails          | Avoid     |
 | `azure_sku_discovery`    | Only if SKU name is unknown                         | Avoid     |
 
-**Tip**: The subagent targets ≤ 5 MCP calls total. When providing the resource list,
-include service_name, SKU, region, and quantity so it can use `azure_bulk_estimate` in one call.
+**Tip**: The subagent targets ≤ 10 MCP calls total (1 bulk + up to 8
+per-line `azure_price_search` fallbacks + optional region/RI). When
+providing the resource list, include service_name, SKU, region, and
+quantity so it can use `azure_bulk_estimate` in one call. The subagent
+returns only `COMPLETE` or `FAILED` — it never returns `PARTIAL`; treat
+`FAILED` as a hard stop and surface the `unresolved_items[]` list to the
+user.
 
 Refer to azure-defaults skill for exact `service_name` values.
 
