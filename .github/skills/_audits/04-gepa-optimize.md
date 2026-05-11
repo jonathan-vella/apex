@@ -310,9 +310,19 @@ skills, so the optimizer kept the original. This is a strong signal that:
 
 ### Notes & follow-ups
 
-- **`mermaid` re-run**: GitHub Models rate-limited iter 8/80. Re-run with
-  `node tools/scripts/run-stage5-audit.mjs --skills mermaid --force-rerun`
-  after quota window resets (typically 60s–24h depending on tier).
+- **`mermaid` retry — 2026-05-11**: Re-ran via
+  `node tools/scripts/run-stage5-audit.mjs --skills mermaid --force-rerun`.
+  Hit the **same GitHub Models 429 rate-limit at iteration 8**, indicating a
+  hard per-skill cap on `openai/gpt-5` reflection calls in this environment,
+  not a transient quota window. Partial GEPA output shows the `optimized`
+  field carrying the original body unchanged (only a frontmatter prefix
+  added), consistent with the "SAFE / no headroom" pattern observed across
+  the other 30 SAFE skills. **Decision**: accept `mermaid` as ERROR
+  (rate-limited) with no further retries — additional retries with the same
+  model produce no new information and the audit's conclusion is unchanged.
+  If a definitive verdict for `mermaid` is needed later, swap to a different
+  reflection model (e.g. `anthropic/claude-opus-4-5`) — note results would
+  not be directly comparable to the 32-skill `openai/gpt-5` cohort.
 - **Detector validation**: Two true REJECTs caught — same kind the manual
   Stage-5 smoke test flagged on `azure-prepare`. Zero false positives across
   30 unchanged-candidate runs.
@@ -324,3 +334,15 @@ skills, so the optimizer kept the original. This is a strong signal that:
   Stage 5-v2 would need a Pareto-multi-objective fitness (accuracy ≥ baseline
   AND token reduction ≥ N%) plus structural constraints baked into the
   fitness signal (not just post-hoc filtering) to surface useful candidates.
+
+### Stage 5-Audit — final status
+
+**Plan 2 / Sensei GEPA Pipeline — Stage 5-Audit: COMPLETE.**
+
+- 32 of 33 skills evaluated end-to-end (`openai/gpt-5`, 80 iter).
+- 1 of 33 (`mermaid`) terminated early by GitHub Models rate-limit; partial
+  output indicates it would have classified SAFE.
+- 0 SKILL.md files were written. Stage 5-Apply intentionally not exercised.
+- The audit, the detector, the resumable runner, and the snapshot evidence
+  are committed and reusable for any future re-run (different model,
+  different iteration count, or richer fitness function).

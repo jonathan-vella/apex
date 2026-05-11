@@ -643,14 +643,6 @@
       "completedAt": "2026-05-10T20:10:50.325Z"
     },
     {
-      "skill": "mermaid",
-      "startedAt": "2026-05-10T20:10:50.326Z",
-      "beforeSha": "8eca35348e122a97ddba387d87848f6e15ff077d",
-      "beforePath": ".github/skills/_audits/stage5-snapshots/mermaid.before.md",
-      "status": "ERROR",
-      "error": "JSON parse failed: Expected property name or '}' in JSON at position 2 (line 1 column 3)"
-    },
-    {
       "skill": "microsoft-docs",
       "startedAt": "2026-05-10T20:16:53.145Z",
       "beforeSha": "44edaa5ec155bf99f676529e0eec31ca58b44cbb",
@@ -810,7 +802,15 @@
       },
       "elapsedMs": 607526,
       "completedAt": "2026-05-10T21:07:21.365Z"
+    },
+    {
+      "skill": "mermaid",
+      "startedAt": "2026-05-11T06:04:41.274Z",
+      "beforeSha": "8eca35348e122a97ddba387d87848f6e15ff077d",
+      "beforePath": ".github/skills/_audits/stage5-snapshots/mermaid.before.md",
+      "status": "ERROR",
+      "error": "JSON parse failed: Expected property name or '}' in JSON at position 2 (line 1 column 3)"
     }
   ],
-  "lastUpdated": "2026-05-10T21:07:21.365Z"
+  "lastUpdated": "2026-05-11T06:10:49.164Z"
 }
