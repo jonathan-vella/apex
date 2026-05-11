@@ -73,6 +73,13 @@ deployment failures.
   the workflow baseline.
 - Adversarial review (challenger) has run before Gate 2.5; findings are
   recorded via `apex-recall finding`.
+- **Mandatory inline confirmations (Phase 2.7) have been asked via
+  `askQuestions` and answered in the same chat session** before the
+  Approval Gate. The three required confirmations are: required RG tag
+  keys + casing, `swedencentral` allow-list status, and RG/resource
+  same-region enforcement. Answers are recorded via `apex-recall decide`
+  and reflected in the JSON (`governance_gate_status.resolved_confirmations`,
+  `tag_contract`, `location_constraints`).
 - Session state at completion shows `steps.3_5.status: complete` with
   `decisions` reflecting any waivers or allowed-location overrides.
 
@@ -112,6 +119,9 @@ skill).
 
 - Stop after Phase 2.5 challenger review — do not auto-advance to Gate 2.5
   until the user approves.
+- **Stop and present the Phase 2.7 `askQuestions` panel after the challenger
+  pass — never present the Approval Gate without the three inline
+  confirmations being answered in the same chat session.**
 - Stop after the gate is presented; the Orchestrator owns Gate 2.5
   approval flow.
 - Stop and surface the failure if any discovery sub-step returns a
@@ -128,24 +138,26 @@ governance artifacts, and get them reviewed before handing off to IaC Planning.
 
 ## Read Skills First
 
-Before doing any work, read:
+Before doing any work, read these references (load order matters —
+terminal-commands and iac-policy-compliance MUST be loaded before
+Phase 1 / Phase 2 respectively to prevent rework):
 
-1. Read `.github/skills/azure-defaults/SKILL.digest.md` — Governance Discovery section, regions, tags
-2. Read `.github/skills/azure-defaults/references/governance-discovery.md` (section:
-   "L0 Discovery Envelope") — envelope shape, self-check, refresh contract
-3. Read `.github/skills/azure-governance-discovery/SKILL.digest.md` — `discover.py` CLI contract
-4. Read `.github/skills/azure-governance-discovery/references/terminal-commands.md` — **MANDATORY**.
-   Pre-built batched terminal commands (Cmd 1–7) for the entire governance phase.
-   Copy-paste these instead of composing your own `jq` queries.
-5. Read `.github/skills/azure-artifacts/SKILL.digest.md` — H2 template for `04-governance-constraints.md`
-6. Read the template: `.github/skills/azure-artifacts/templates/04-governance-constraints.template.md`
-7. Read `.github/skills/iac-common/references/governance-drift-routing.md` — four-layer drift routing
-   matrix; consumed when a downstream agent traverses `▶ Refresh Governance`
-8. Read `.github/instructions/references/iac-policy-compliance.md` — **MANDATORY before writing JSON**.
-   This defines the downstream JSON contract (`discovery_status`, `policies` array,
-   dot-separated `azurePropertyPath`, `bicepPropertyPath` formats) that Step 4/5 agents
-   and review subagents consume. Loading this reference before Phase 2 prevents iterative
-   contract-mismatch rework.
+1. `.github/skills/azure-defaults/SKILL.digest.md` — Governance Discovery, regions, tags.
+2. `.github/skills/azure-defaults/references/governance-discovery.md`
+   ("L0 Discovery Envelope") — envelope shape, self-check, refresh contract.
+3. `.github/skills/azure-governance-discovery/SKILL.digest.md` — `discover.py` CLI contract.
+4. `.github/skills/azure-governance-discovery/references/terminal-commands.md`
+   — **MANDATORY**. Pre-built batched commands (Cmd 1–7) for the entire phase.
+5. `.github/skills/azure-governance-discovery/references/inline-resolution-gate.md`
+   — **MANDATORY** Phase 2.7 protocol (three inline confirmations).
+6. `.github/skills/azure-artifacts/SKILL.digest.md` and
+   `templates/04-governance-constraints.template.md` — H2 template.
+7. `.github/skills/iac-common/references/governance-drift-routing.md` —
+   four-layer drift routing matrix.
+8. `.github/instructions/references/iac-policy-compliance.md` —
+   **MANDATORY before writing JSON**. Defines the downstream JSON contract
+   (`discovery_status`, `policies` array, `azurePropertyPath`, `bicepPropertyPath`)
+   that Step 4/5 agents and review subagents consume.
 
 ## Prerequisites
 
@@ -161,7 +173,7 @@ Run `apex-recall show <project> --json` for full project context. Do not read `0
 - **Context budget**: Read `02-architecture-assessment.md` at startup
 - **My step**: 3_5
 - **Sub-step checkpoints**: `phase_0_4_resume_check` → `phase_1_discovery` →
-  `phase_2_artifacts` → `phase_2_5_challenger` → `phase_3_gate`
+  `phase_2_artifacts` → `phase_2_5_challenger` → `phase_2_7_resolution` → `phase_3_gate`
 - **Resume**: Use the `apex-recall show` output to detect resume point.
 - **Checkpoints**: `apex-recall checkpoint <project> 3_5 <phase_name> --json`
 - **Decisions**: `apex-recall decide <project> --decision "<text>" --rationale "<why>" --step 3_5 --json`
@@ -183,35 +195,25 @@ types, honour that; otherwise proceed.
 
 ### Phase 0.4: Resume-Complete Short-Circuit
 
-Before any discovery, check whether Step 3.5 is already finished. This guards
-against cold-boot re-entry (e.g., subagent dispatch, resumed session, or
-challenger re-invocation) where the parent context knows the work is done but
-the current turn does not.
+Before any discovery, check whether Step 3.5 is already finished — guards
+against cold-boot re-entry (subagent dispatch, resumed session, challenger
+re-invocation) where the current turn does not know prior work exists.
 
-> **`▶ Refresh Governance` handoff is non-skippable**: when the
-> invocation prompt contains `Refresh Governance`, `re-run`, or
-> `rediscover` — or when a downstream agent traversed the refresh
-> handoff per `iac-common/references/governance-drift-routing.md` — the
-> short-circuit is **disabled**. Skip directly to Phase 1 and call
-> `discover.py --refresh` regardless of cache state. Stale-cache
-> returns are exactly the failure mode this rule prevents.
+> **`▶ Refresh Governance` is non-skippable**: when the invocation prompt
+> contains `Refresh Governance`, `re-run`, or `rediscover`, or when a downstream
+> agent traversed the refresh handoff per `governance-drift-routing.md`, this
+> short-circuit is **disabled**. Skip to Phase 1 and call `discover.py --refresh`
+> regardless of cache state.
 
 1. Run `apex-recall show <project> --json`.
-2. If **all** of the following are true, skip to Phase 3 (Approval Gate) and
-   hand off — do NOT re-run discovery or regenerate artifacts:
+2. Skip to Phase 3 (Approval Gate) only if **all** of:
    - step `3_5` shows `status == "complete"`
-   - `agent-output/{project}/04-governance-constraints.json` exists
-   - `agent-output/{project}/04-governance-constraints.md` exists
-   - The JSON's `discovery_status` is `"COMPLETE"`
-   - The JSON contains a non-empty `discovery_metadata` object and
-     `age_days = (now - discovery_metadata.discovered_at) / 86400 <
-discovery_metadata.ttl_days` (L0 staleness check)
-   - The user did NOT explicitly ask for `refresh`, `re-run`, or `rediscover`
+   - both `04-governance-constraints.{md,json}` exist under `agent-output/{project}/`
+   - JSON `discovery_status == "COMPLETE"`
+   - JSON contains a non-empty `discovery_metadata` object and
+     `age_days = (now - discovery_metadata.discovered_at) / 86400 < discovery_metadata.ttl_days`
+   - The user did NOT explicitly ask for `refresh`, `re-run`, or `rediscover`.
 3. Otherwise proceed to Phase 0.45.
-
-This is the single biggest latency win when this agent is re-entered after a
-challenger review or as a subagent — both artifacts are already on disk, so
-there is nothing to do except present the gate.
 
 ### Phase 0.45: Baseline Check
 
@@ -284,28 +286,16 @@ Append `--refresh` if the user requested it. Append `--include-defender-auto`
 only if the user explicitly asks to keep Defender-for-Cloud auto-assignments
 (they are filtered by default).
 
-1. **Read the first stdout line only** — it is a single JSON status object:
-
-   ```json
-   {
-     "status": "COMPLETE",
-     "cache_hit": false,
-     "assignment_total": 247,
-     "blockers": 18,
-     "auto_remediate": 12,
-     "exempted": 3
-   }
-   ```
-
-   The remaining stdout lines are a human-readable Markdown preview **for the
-   user**, not for LLM re-ingestion. Do NOT pipe them back into the model.
-
-   The script also writes a **`discovery_metadata` envelope** at the
-   top of the output JSON (L0 attestation). Do NOT hand-author this
-   object — `discover.py` computes it deterministically (signature =
-   sha256 over stable-sorted `(policy_id, effect, scope, params)`
-   tuples). The envelope is what every downstream consumer (Planner,
-   CodeGen, Deploy) reads first to decide whether to proceed.
+1. **Read the first stdout line only** — it is a single JSON status object
+   with `status`, `cache_hit`, `assignment_total`, `blockers`,
+   `auto_remediate`, and `exempted` fields. The remaining stdout lines
+   are a human-readable Markdown preview **for the user**, not for LLM
+   re-ingestion. Do NOT pipe them back into the model. The script also
+   writes a **`discovery_metadata` envelope** at the top of the output
+   JSON (L0 attestation) \u2014 do NOT hand-author this object. `discover.py`
+   computes it deterministically (signature = sha256 over stable-sorted
+   `(policy_id, effect, scope, params)` tuples). Every downstream
+   consumer (Planner, CodeGen, Deploy) reads it first.
 
 2. **Gate on status**:
    - `COMPLETE` → proceed to Phase 2 (envelope self-check passed inside `discover.py`)
@@ -319,20 +309,18 @@ only if the user explicitly asks to keep Defender-for-Cloud auto-assignments
    `apex-recall finding <project> --add "Deny: <policy_display_name> — blocks <resource_types>" --json`
 5. **Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 3_5 phase_1_discovery --json`
 
-> **Anti-pattern — DO NOT improvise discovery**: Do NOT run `az rest`,
-> `execution_subagent`, or inline Python REST scripts. ALL Azure Policy REST
-> work goes through `discover.py`. If the script fails with exit code 2,
-> surface the error — do not reinvent the discovery path.
-
-> **Anti-pattern — DO NOT call `mcp_azure_mcp_get_azure_bestpractices`**:
-> Governance discovers constraints from live Azure Policy data, not from
-> best-practice recommendations. The MCP bestpractices tool adds ~21s and
-> returns generic guidance that is irrelevant to policy discovery.
-
-> **Anti-pattern — DO NOT read `tmp/{project}-governance-live.json`**:
-> This file is a legacy intermediate. The authoritative governance data is
-> `agent-output/{project}/04-governance-constraints.json`, which discover.py
-> writes directly. Reading the tmp file wastes ~2-3 min on 920+ lines of raw data.
+> **Phase 1 anti-patterns**:
+>
+> - Do NOT improvise discovery via `az rest`, `execution_subagent`, or inline
+>   Python REST scripts. ALL Azure Policy REST work goes through `discover.py`.
+>   If the script fails with exit code 2, surface the error — do not reinvent
+>   the discovery path.
+> - Do NOT call `mcp_azure_mcp_get_azure_bestpractices`. Governance discovers
+>   constraints from live Azure Policy data, not best-practice recommendations
+>   (~21s overhead, irrelevant output).
+> - Do NOT read `tmp/{project}-governance-live.json`. That legacy intermediate
+>   wastes ~2–3 min on 920+ lines of raw data. The authoritative governance
+>   file is `agent-output/{project}/04-governance-constraints.json`.
 
 **Auto-proceed**: After discover.py or render_cached_governance.py exits 0
 (`COMPLETE`), proceed directly to Phase 2 without asking the user any questions.
@@ -414,7 +402,36 @@ policies. Do not re-run Phase 1 between challenger passes.
 5. **Review audit** (MANDATORY): `apex-recall review-audit <project> 3_5 --passes-executed 1 --json`
 6. **Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 3_5 phase_2_5_challenger --json`
 
+### Phase 2.7: Inline Resolution Gate (MANDATORY — every run)
+
+The Approval Gate cannot be presented until three inherited policy
+parameters are confirmed by the user in the same chat session:
+required RG tag keys + casing, allowed locations, and RG/resource
+same-region enforcement. These are unreliable in REST output for
+inherited management-group assignments, so they are always confirmed
+inline — even when `discover.py` reports them resolved, on resumed
+sessions, and on `▶ Refresh Governance` re-entries. The only valid
+bypass is the Phase 0.4 short-circuit when prior resolutions are
+already in `governance_gate_status.resolved_confirmations`.
+
+Read
+[`inline-resolution-gate.md`](../skills/azure-governance-discovery/references/inline-resolution-gate.md)
+before running this phase — it contains the jq defaults query, the
+single `vscode_askQuestions` call (all three questions together), the
+artifact multi-replace shape, three `apex-recall decide` calls, the
+`Unknown — block` handling, validation, and the `phase_2_7_resolution`
+checkpoint.
+
+> **Anti-pattern**: Do NOT skip Phase 2.7 even when discover.py reports
+> tag/location contracts as `CONFIRMED`. Do NOT split the three
+> questions across multiple `vscode_askQuestions` calls or chat turns.
+
 ### Phase 3: Approval Gate
+
+**Pre-requisite**: Phase 2.7 (Inline Resolution Gate) has completed with
+the three required confirmations answered in the same chat session, and
+the artifacts have been updated to reflect them. Do not proceed to this
+phase without the `phase_2_7_resolution` checkpoint recorded.
 
 **Present governance summary directly in chat** before asking the user to decide:
 
@@ -473,12 +490,23 @@ If the user provides a custom response at an approval gate, interpret it as inst
 - **Always**: Invoke `discover.py` (live) or `render_cached_governance.py`
   (cached baseline) via `run_in_terminal`, validate the first-line JSON status,
   produce both `.md` and `.json`
+- **Always**: Run Phase 2.7 (inline `askQuestions` for the three required
+  confirmations — RG tag keys + casing, allowed locations, RG/resource
+  same-region) on every invocation, in a single `vscode_askQuestions`
+  call, before presenting the Approval Gate. The only valid bypass is
+  the Phase 0.4 resume short-circuit when prior resolutions are already
+  recorded in `governance_gate_status.resolved_confirmations`.
 - **Always**: Let `discover.py` handle cache-first behaviour; pass `--refresh`
   only when the user asks
 - **Always**: When using cached baseline mode, re-render a fresh `.preview.md` —
   never reuse prior annotated markdown from other projects or past runs
 - **Ask first**: Manual policy overrides; choice between baseline and live
-  discovery (Phase 0.45)
+  discovery (Phase 0.45); the three required confirmations in Phase 2.7
+- **Never**: Skip Phase 2.7 because discover.py reported the tag or
+  location contracts as `CONFIRMED` — inherited MG policy parameters are
+  not reliably exposed via REST
+- **Never**: Split the three Phase 2.7 questions across multiple
+  `vscode_askQuestions` calls or chat turns — they must appear together
 - **Never**: Generate IaC code, skip discovery entirely on first run, assume policy state from best practices
 - **Never**: Re-run Phase 1 discovery on challenger feedback loops — only artifact content changes
 - **Never**: Read the full `04-governance-constraints.json` snapshot back into
@@ -498,36 +526,12 @@ If the user provides a custom response at an approval gate, interpret it as inst
 
 ## Policy Override Pattern
 
-When a user requests an override of a `deny`-effect policy finding (e.g., "deploy
-to a region blocked by Allowed Locations policy"), **do not silently drop the
-finding** and do not hard-gate the deployment. Emit a structured override in
-`04-governance-constraints.json` and carry it forward:
-
-```json
-{
-  "policy_id": "<policy definition or assignment id>",
-  "original_effect": "deny",
-  "override": {
-    "requested_at": "<ISO-8601 timestamp>",
-    "requested_by": "<user principal or 'unknown' for non-interactive>",
-    "reason": "<one-line justification; must not be empty>",
-    "issue_link": "<GitHub issue or ADR URL; required>",
-    "expiry": "<ISO-8601 date, max +90 days from requested_at>"
-  }
-}
-```
-
-Downstream consumers (`06b-Bicep CodeGen`, `06t-Terraform CodeGen`, their deploy
-counterparts) MUST:
-
-1. Treat findings with a non-null `override` as informational warnings, not blockers.
-2. Emit a banner comment in generated IaC: `// OVERRIDE <policy_id> until <expiry> — see <issue_link>`.
-3. Refuse to proceed if `reason` or `issue_link` is empty, or if `expiry` is in the
-   past. In those cases re-prompt the user or halt.
-
-Unchanged behaviour (no override field) continues to hard-gate as before.
-
-**Schema**: The full shape of `04-governance-constraints.json` is defined in
-[`tools/schemas/governance-constraints.schema.json`](../../tools/schemas/governance-constraints.schema.json)
-(`schema_version: governance-constraints-v1`). Emit outputs conforming to that
-schema; future validator upgrades will enforce it via AJV.
+When a user requests an override of a `deny`-effect policy finding,
+do not silently drop the finding and do not hard-gate the deployment.
+Emit a structured `override` object on the finding in
+`04-governance-constraints.json` so downstream agents treat it as an
+auditable, expiring waiver. See
+[`policy-override-pattern.md`](../skills/azure-governance-discovery/references/policy-override-pattern.md)
+for the object shape, consumer requirements, and the
+[`governance-constraints.schema.json`](../../tools/schemas/governance-constraints.schema.json)
+contract.

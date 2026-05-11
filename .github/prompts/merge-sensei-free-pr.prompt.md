@@ -1,7 +1,7 @@
 ---
 description: "Open a sensei-free PR from feat/skills-sensei (or any sensei-bearing branch) into main. Dynamically discovers sensei-coupled files, classifies them into tiers, asks for approval, then creates a clean chore/merge-{source}-to-{target} branch and PR."
 agent: agent
-model: "Claude Opus 4.7"
+model: "Claude Sonnet 4.6"
 tools: [vscode, execute, read, edit, search, terminal, todo]
 argument-hint: "[source-branch] [target-branch] — defaults: feat/skills-sensei to main"
 ---
@@ -13,6 +13,7 @@ feature branch (skill content, scripts, tests, infra changes) while **excluding 
 sensei plugin tooling and shim artifacts** that are not yet ready for `main`.
 
 <investigate_before_answering>
+
 - Confirm the source branch exists locally and is checked out or fetchable.
   Do not guess the branch name; if `${input:sourceBranch}` is missing, fall
   back to the active branch when it matches `feat/skills-sensei*`, otherwise
@@ -21,7 +22,7 @@ sensei plugin tooling and shim artifacts** that are not yet ready for `main`.
   yourself in a devcontainer; ask the user if auth is missing.
 - Confirm working tree is clean OR all changes are committed on the source
   branch. Refuse to proceed if uncommitted edits exist outside `agent-output/`.
-</investigate_before_answering>
+  </investigate_before_answering>
 
 <context>
 - House convention: sensei is in-flight tooling pinned as a git submodule at
@@ -62,26 +63,26 @@ Expectations.
 
 ## Inputs
 
-| Variable                  | Default                | Purpose                                       |
-| ------------------------- | ---------------------- | --------------------------------------------- |
-| `${input:sourceBranch}`   | `feat/skills-sensei`   | Branch containing the work product            |
-| `${input:targetBranch}`   | `main`                 | Branch to merge into                          |
-| `${input:mergeBranchName}`| `chore/merge-{source}-to-{target}` | Working branch for the PR     |
+| Variable                   | Default                            | Purpose                            |
+| -------------------------- | ---------------------------------- | ---------------------------------- |
+| `${input:sourceBranch}`    | `feat/skills-sensei`               | Branch containing the work product |
+| `${input:targetBranch}`    | `main`                             | Branch to merge into               |
+| `${input:mergeBranchName}` | `chore/merge-{source}-to-{target}` | Working branch for the PR          |
 
 ## Tier Reference
 
 The discovery step (Workflow §3) classifies every changed path into one tier:
 
-| Tier   | What it is                                              | Action     |
-| ------ | ------------------------------------------------------- | ---------- |
-| Tier 1 | Sensei plugin tooling proper (submodule, bootstrap,     | **Exclude** |
-|        | sensei wrapper scripts, package.json sensei script      |            |
-|        | entries, devcontainer sensei bootstrap)                 |            |
-| Tier 2 | Sensei work-product shims that are inert without the    | **Exclude** |
-|        | plugin (trigger test files, `_audits/` reports, token-  |            |
-|        | budget config, audit-programme prompts)                 |            |
-| Tier 3 | Skill content + unrelated features (SKILL.md edits,     | **Include** |
-|        | archive renames, MCP code, agent refinements)           |            |
+| Tier   | What it is                                             | Action      |
+| ------ | ------------------------------------------------------ | ----------- |
+| Tier 1 | Sensei plugin tooling proper (submodule, bootstrap,    | **Exclude** |
+|        | sensei wrapper scripts, package.json sensei script     |             |
+|        | entries, devcontainer sensei bootstrap)                |             |
+| Tier 2 | Sensei work-product shims that are inert without the   | **Exclude** |
+|        | plugin (trigger test files, `_audits/` reports, token- |             |
+|        | budget config, audit-programme prompts)                |             |
+| Tier 3 | Skill content + unrelated features (SKILL.md edits,    | **Include** |
+|        | archive renames, MCP code, agent refinements)          |             |
 
 A file is **Tier 1** if its path contains `sensei` OR it is the sensei
 submodule pointer / `.gitmodules` / sensei npm script entries / sensei
@@ -266,13 +267,13 @@ The PR body must include:
 
 ## Failure Modes and Recovery
 
-| Failure                                              | Recovery                                                                                |
-| ---------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| Pre-push validator catches an orphan reference       | Edit the offending file in the exclusion commit; do not bypass with `--no-verify`.      |
-| Discovery flags a file the user wants to keep        | Re-classify as Tier 3 manually; document the override in the commit body.               |
-| `gh auth status` fails inside the devcontainer       | Stop. Ask the user to set `GH_TOKEN` in VS Code User Settings → `terminal.integrated.env.linux`. Do not run `gh auth login` automatically. |
-| Source branch is not fetchable                       | Stop. Ask the user to push or rename the branch.                                        |
-| Working tree has uncommitted non-`agent-output/` edits | Stop. Ask whether to stash, commit on source branch, or abort.                        |
+| Failure                                                | Recovery                                                                                                                                   |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| Pre-push validator catches an orphan reference         | Edit the offending file in the exclusion commit; do not bypass with `--no-verify`.                                                         |
+| Discovery flags a file the user wants to keep          | Re-classify as Tier 3 manually; document the override in the commit body.                                                                  |
+| `gh auth status` fails inside the devcontainer         | Stop. Ask the user to set `GH_TOKEN` in VS Code User Settings → `terminal.integrated.env.linux`. Do not run `gh auth login` automatically. |
+| Source branch is not fetchable                         | Stop. Ask the user to push or rename the branch.                                                                                           |
+| Working tree has uncommitted non-`agent-output/` edits | Stop. Ask whether to stash, commit on source branch, or abort.                                                                             |
 
 ## Related References
 

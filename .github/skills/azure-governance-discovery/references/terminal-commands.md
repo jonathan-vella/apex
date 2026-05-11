@@ -3,7 +3,8 @@
 # Terminal Command Reference — Governance Phase
 
 Pre-built terminal commands for each phase of the governance workflow.
-Copy-paste with `{project}` substituted. Target: **≤8 terminal calls total**.
+Copy-paste with `{project}` substituted. Target: **≤8 terminal calls total**
+(Phase 2.7 inline confirmations add 3 `apex-recall decide` calls).
 
 ## Cmd 1: Phase 1 — Run discovery
 
@@ -75,6 +76,14 @@ If lint fails, fix and re-run this command (count as cmd 6).
 ## Cmd 6: Phase 3 — Gate summary
 
 Run **once** to prepare the approval gate presentation.
+
+> Phase 2.7 (Inline Resolution Gate) must run before this command. The
+> three required confirmations (RG tag keys + casing, allowed
+> locations, RG/resource same-region) are asked via
+> `vscode_askQuestions` in a single call and the answers are written
+> back to the JSON before this summary is read. The agent records each
+> decision with `apex-recall decide --key … --value …` (3 calls), then
+> runs this `jq` summary to drive the Approval Gate presentation.
 
 ```bash
 jq '{
