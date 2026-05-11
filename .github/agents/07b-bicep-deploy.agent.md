@@ -4,7 +4,7 @@ model: ["GPT-5.5"]
 description: Executes Azure deployments using generated Bicep templates. Uses azd provision (default). deploy.ps1 is deprecated and retained only as a fallback for legacy projects without azure.yaml. Performs what-if analysis and manages deployment lifecycle. Step 6 of the agentic workflow.
 argument-hint: Deploy the Bicep templates for a specific project
 user-invocable: true
-agents: ["bicep-whatif-subagent", "challenger-review-subagent"]
+agents: ["bicep-whatif-subagent", "policy-precheck-subagent", "challenger-review-subagent"]
 tools:
   [
     vscode,
@@ -142,6 +142,10 @@ are required here.
 2. Read `.github/skills/azure-artifacts/SKILL.digest.md` — H2 template for `06-deployment-summary.md`
 3. Read `.github/skills/iac-common/references/circuit-breaker.md` — failure taxonomy and stopping rules
 4. Read `.github/skills/iac-common/references/deploy-shared-workflow.md` — shared deploy protocol
+5. Read `.github/skills/iac-common/references/policy-precheck-contract.md` — L3 subagent I/O contract
+   (required before invoking `policy-precheck-subagent`)
+6. Read `.github/skills/iac-common/references/governance-drift-routing.md` — four-layer drift routing
+   matrix; consumed on every precheck result
 
 ## Shared Deploy Protocol
 
@@ -300,6 +304,59 @@ Then use `askQuestions` to gather the decision:
   **Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 6 phase_2_preview --json`
   **Decisions** (MANDATORY):
   `apex-recall decide <project> --decision "Deploy approved" --rationale "<change summary>" --step 6 --json`
+
+### Step 5.6: Live Policy Precheck (L3 — MANDATORY before deploy)
+
+Before executing `az deployment ... create` or `azd provision`, invoke
+`policy-precheck-subagent` via `#runSubagent`. This is the L3
+attestation in the four-layer governance stack — the only layer that
+talks to the live Azure Policy API, so the only layer that catches
+"discovery was wrong" failures.
+
+Pass these inputs per
+[`iac-common/references/policy-precheck-contract.md`](../skills/iac-common/references/policy-precheck-contract.md):
+
+- `project` = `{project}`
+- `iac_tool` = `bicep`
+- `template_path` = `infra/bicep/{project}/main.bicep`
+- `parameter_file` = `infra/bicep/{project}/main.bicepparam`
+- `target_scope` = derived from `main.bicep` `targetScope`
+- `resource_group` = `rg-{project}-{env}` (rg-scope only)
+- `subscription_id` = `az account show --query id -o tsv`
+- `location` = chosen deploy region
+- `constraints_path` = `agent-output/{project}/04-governance-constraints.json`
+- `phase` = current phase label (when phased)
+- `output_path` = `agent-output/{project}/06-policy-precheck.json`
+
+The subagent writes the JSON file and returns a compact
+`POLICY PRECHECK RESULT` block. Route per the verdict using
+[`iac-common/references/governance-drift-routing.md`](../skills/iac-common/references/governance-drift-routing.md)
+(L3 rows):
+
+| Verdict   | Action                                                                                                                       |
+| --------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `CLEAN`   | Proceed to Deployment Execution.                                                                                             |
+| `DRIFT`   | STOP and traverse `▶ Refresh Governance` (live policy missing / envelope stale).                                             |
+| `BLOCKED` | If the violating policy has a matrix row → `↩ Fix Deployment Issues` to 06b-Bicep CodeGen; otherwise → `↩ Return to Step 4`. |
+| `FAILED`  | STOP, surface the precheck error to the user; do not deploy.                                                                 |
+
+**Governance trace attestation (MANDATORY on `CLEAN`)** — before any
+`az deployment ... create` or `azd provision`, emit the full L0→L3
+attestation chain:
+
+```bash
+apex-recall decide <project> \
+  --key governance_trace \
+  --value "L0-pass,L1-mapped:<N>,L2-validated:<N>,L3-precheck:clean" \
+  --rationale "<envelope_sig>+<matrix_row_count>+<whatif_clean>" \
+  --step 6 \
+  --json
+```
+
+Replace `<N>` with the matrix row count from
+`04-implementation-plan.md` and the validator output count from Step 5. **Deploy is blocked until this decision is recorded.**
+`validate-governance-trace.mjs` enforces the chain before
+`complete-step 6`.
 
 ## Deployment Execution
 

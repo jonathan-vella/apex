@@ -96,6 +96,14 @@ Review Summary:
 ⚠️ Warnings:
   {list of non-blocking issues}
 
+Governance (L2 attestation):
+  Matrix rows checked: {count}
+  Satisfied: {count}
+  Mismatched: {count}
+  Property path missing in AVM module: {count}
+  Per-row results:
+    - resource_id={...} policy_id={...} property={...} expected={...} actual={...} verdict=[satisfied|mismatch|avm-gap]
+
 Detailed Findings:
 {for each issue: file, line, severity, description, recommendation}
 
@@ -106,7 +114,12 @@ Recommendation: {specific next action}
 Severity vocabulary: `CRITICAL` (security risk or build failure), `HIGH`
 (standards violation), `MEDIUM` (best practice), `LOW` (code quality).
 Verdict mapping: any critical → `FAILED`; high-only → `NEEDS_REVISION`;
-otherwise → `APPROVED`.
+otherwise → `APPROVED`. A non-zero `Governance.Mismatched` count
+forces `Overall Status: FAILED` and the parent agent applies the
+drift routing matrix in
+[`iac-common/references/governance-drift-routing.md`](../../skills/iac-common/references/governance-drift-routing.md)
+(L2 rows): mechanical mismatch → CodeGen self-fix; matrix-missing → return
+to Planner; AVM property gap → return to Planner + 04g-Governance.
 </output_contract>
 
 <investigate_before_answering>
@@ -203,6 +216,24 @@ Read `04-governance-constraints.md` from `agent-output/{project}/` and
 verify the resource config against every Deny policy listed in the
 constraints envelope. Translate each `azurePropertyPath` entry to its
 Bicep property and confirm the value satisfies the policy.
+
+**L2 attestation (MANDATORY)**: this subagent is the L2 owner in the
+four-layer governance stack. Read the `## 🛡️ Governance Compliance
+Matrix` H2 section from `agent-output/{project}/04-implementation-plan.md`
+and, for **every** matrix row, verify that the declared property path
+exists in the rendered Bicep with the `required_value`. Populate the
+`Governance (L2 attestation)` block in the output contract with per-row
+results. Routing:
+
+- Mismatched value (code violates a row) → severity `CRITICAL`,
+  classification `mechanical mismatch` (parent CodeGen self-fixes).
+- Property path doesn't exist in the AVM module / resource schema →
+  severity `CRITICAL`, classification `avm-gap` (parent routes back
+  to Planner + 04g-Governance per drift matrix).
+- Matrix missing entirely → severity `CRITICAL`, classification
+  `matrix-missing` (parent routes back to Planner).
+
+Any of the three forces `Overall Status: FAILED`.
 
 - Tag count matches governance constraints (four baseline + discovered).
 - Every Deny policy is satisfied in the resource config.

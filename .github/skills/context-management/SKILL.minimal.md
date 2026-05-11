@@ -6,10 +6,13 @@
 
 **Compression Tiers**:
 
-**Action Rules**:
+**Hard Token Checkpoints (model-specific)**:
+Percentages are advisory; absolute input-token counts override them for the
+
+**Rules**:
 Before loading any artifact file:
 
-**Tier Selection Protocol**:
+**Steps**:
 ```text
 
 **Skill Loading Tiers**:
@@ -18,9 +21,10 @@ Skills have three compression tiers. The default for context-window-optimized
 **When to Use Diagnostic Audit**:
 
 **Audit Capabilities**:
+Audit mode covers log parsing, turn-cost profiling, redundancy detection, hand-off gap
 
 **Audit Prerequisites**:
-### Enabling Debug Logs
+Python 3.14, access to VS Code Copilot Chat debug logs, and `.github/agents/*.agent.md` (or
 
 **Analysis Methodology**:
 📋 **Reference**: Read `references/analysis-methodology.md` for the complete

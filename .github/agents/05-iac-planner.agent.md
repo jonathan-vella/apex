@@ -99,7 +99,16 @@ Always specify Azure Storage Account backend only.
 2. **Read** `.github/skills/azure-artifacts/SKILL.digest.md` — H2 templates for `04-implementation-plan.md` and `04-governance-constraints.md`
 3. **Read** artifact template files: `azure-artifacts/templates/04-implementation-plan.template.md` + `04-governance-constraints.template.md`
 4. **Read** `.github/skills/python-diagrams/SKILL.digest.md` — diagram conventions, design tokens, Azure component imports
-5. **IaC-specific skill** (read on-demand during Phase 2):
+5. **Read** `.github/skills/iac-common/references/plan-consistency-checks.md` — the 6 deterministic Phase 2.5
+   rules (zone-redundancy, RBAC ordering, deployment-script identity/image, public-edge auth, phased-param
+   wiring, phase monotonicity)
+6. **Read** `.github/skills/iac-common/references/governance-drift-routing.md` — four-layer drift routing
+   matrix; consulted on every L0/L1 drift signal
+7. **Read** `.github/skills/azure-defaults/references/plan-design-decisions.md` — canonical 4-question
+   Phase 3.5 structured panel (identity_model / public_edge_auth / script_runtime_image / az_posture)
+8. **Read** `.github/skills/azure-defaults/references/governance-discovery.md` (section:
+   "L0 Discovery Envelope") — envelope shape + consumer protocol
+9. **IaC-specific skill** (read on-demand during Phase 2):
    - Bicep → `.github/skills/azure-bicep-patterns/SKILL.digest.md` — hub-spoke, PE, diagnostics, module composition
    - Terraform → `.github/skills/terraform-patterns/SKILL.digest.md` — hub-spoke, PE, diagnostics, AVM-TF patterns
 
@@ -139,7 +148,8 @@ Run `apex-recall show <project> --json` for full project context. Do not read `0
 - **Context budget**: Read `02-architecture-assessment.md` + `04-governance-constraints.json` at startup
 - **My step**: 4
 - **Sub-step checkpoints**: `phase_1_prereqs` → `phase_2_avm` →
-  `phase_3_plan` → `phase_3.5_strategy` → `phase_3.6_compacted` → `phase_4_diagrams` →
+  `phase_2_5_consistency` → `phase_3_plan` → `phase_3.5_strategy` →
+  `phase_3.6_compacted` → `phase_4_diagrams` →
   `phase_5_challenger` → `phase_6_artifact`
 - **Resume**: Use the `apex-recall show` output to detect resume point.
 - **Checkpoints**: `apex-recall checkpoint <project> 4 <phase_name> --json`
@@ -154,14 +164,26 @@ Run `apex-recall show <project> --json` for full project context. Do not read `0
 ### Phase 1: Prerequisites and Governance Integration
 
 1. Read `04-governance-constraints.md` and `04-governance-constraints.json` (produced by Step 3.5)
-2. **Validate governance completeness (MANDATORY)**:
-   - File exists and is non-empty
-   - JSON is well-formed (parse succeeds)
-   - `discovery_status` field is `"COMPLETE"` (not `"PARTIAL"` or missing)
-   - Policy array is present (empty array is valid if discovery_status is COMPLETE)
-   - If ANY of these checks fail: **STOP.** Present the Refresh Governance handoff to user.
-3. Extract all `Deny` policies — these are hard blockers for the plan
-4. Extract `Modify`/`DeployIfNotExists` policies — note auto-remediation behavior
+2. **L0 envelope enforcement (MANDATORY)** — read `discovery_metadata`
+   from the JSON FIRST. STOP and traverse the `▶ Refresh Governance`
+   handoff to 04g-Governance if **any** of:
+   - File missing or `discovery_metadata` absent (legacy projects: see
+     30-day rollout note in `azure-defaults/references/governance-discovery.md`).
+   - `discovery_metadata.discovery_status != "COMPLETE"`.
+   - `age_days = (now - discovered_at) / 86400 > discovery_metadata.ttl_days`.
+   - `policies[]` empty AND any `page_counts.*` > 0 (silent drop).
+   - `discovery_metadata.completeness_signature` differs from a cached
+     `discovery_signature` decision (signature drift mid-flight).
+     This replaces the legacy `discovery_status` field check; the
+     envelope is the new source of truth. Routing follows
+     `iac-common/references/governance-drift-routing.md` (L0 row).
+3. **Record the signature** — on first successful L0 check, run
+   `apex-recall decide <project> --key discovery_signature --value
+"<sig>" --rationale "L0 envelope cached" --step 4 --json`. CodeGen
+   and Deploy agents cross-check this value on boot.
+4. Extract all `Deny` policies — these are hard blockers AND the source
+   of L1 matrix rows.
+5. Extract `Modify`/`DeployIfNotExists` policies — note auto-remediation behavior
 
 **Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 4 phase_1_prereqs --json`
 
@@ -169,17 +191,14 @@ Run `apex-recall show <project> --json` for full project context. Do not read `0
 
 ### Phase 1.5: Deployment Context Discovery
 
-**Use the `askQuestions` tool** to collect deployment context
-before AVM verification. Build a single form:
-
-- header: "Deployment Context"
-- question: "Any specific deployment concerns, constraints, or sequencing
-  requirements I should consider for the implementation plan?"
-- `allowFreeformInput: true`, 0 options (pure freeform)
-
-This captures user knowledge that artifacts may not contain (e.g. maintenance
-windows, team preferences, existing CI/CD constraints). **NEVER** skip this
-step — the user's input feeds directly into Phase 3.5 (Deployment Strategy).
+> [!NOTE]
+> The previous freeform Phase 1.5 `askQuestions` prompt is deprecated.
+> Structured deployment-design questions now live in the **Phase 3.5
+> batched panel** (see `azure-defaults/references/plan-design-decisions.md`).
+> Skip Phase 1.5 entirely unless the user volunteers a deployment
+> constraint the architecture assessment did not capture (e.g., a
+> maintenance window). If they do, persist via
+> `apex-recall decide --key deployment_note --value "<text>" --step 4`.
 
 ### Phase 2: AVM Module Verification
 
@@ -207,20 +226,61 @@ Only for non-AVM resources and custom SKU overrides. Check Azure Updates for
 retirement notices, verify SKU availability in target region, scan for
 Classic/v1/Basic patterns.
 
-### Phase 3.5: Deployment Strategy Gate
+### Phase 2.5: Plan Self-Consistency Lint (MANDATORY)
+
+Run the 6 deterministic rules in
+`iac-common/references/plan-consistency-checks.md` against the draft
+plan. For each triggered rule:
+
+- **Auto-pick safe default** (mechanical rules: `rbac_phase_ordering`,
+  `phased_param_wiring`, `phase_monotonicity`) — apply the fix to the
+  draft and record via
+  `apex-recall decide --key <rule_id> --value <choice>
+ --rationale "Phase 2.5 auto-fix" --step 4 --json`.
+- **Defer to Phase 3.5 batched panel** (architectural rules:
+  `zone_redundancy`, `deployment_script`, `public_edge_auth`) — add
+  the corresponding question from `plan-design-decisions.md` to the
+  Phase 3.5 panel.
+
+Re-run all six checks once the Phase 3.5 panel resolves. The Phase 4.3
+challenger pass 1 (security-governance lens) verifies that no
+triggered rule remains unresolved.
+
+**Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 4 phase_2_5_consistency --json`
+
+### Phase 3.5: Deployment Strategy + Design Decisions + Design Decisions Gate
 
 **Required gate.** Ask the user BEFORE generating the plan. Do NOT assume single or phased.
 
-Use `askQuestions` to present:
+Build **one structured `askQuestions` panel** combining:
 
-- **Phased** (recommended, pre-selected) — logical phases with approval gates. For >5 resources or production/compliance.
-- **Single** — one operation. Only for small dev/test (<5 resources).
+1. **Deployment strategy** — `Phased` (recommended for >5 resources or
+   prod/compliance) vs `Single` (small dev/test <5 resources). If
+   phased, follow up with grouping question: `Standard` (Foundation →
+   Security → Data → Compute → Edge) or `Custom`.
+2. **The 4 canonical design questions** from
+   `azure-defaults/references/plan-design-decisions.md`:
+   `identity_model`, `public_edge_auth`, `script_runtime_image`,
+   `az_posture`.
+3. **Any deferred Phase 2.5 architectural rules** (subset of the 4
+   above that auto-triggered — do not duplicate; the matching
+   `plan-design-decisions.md` question already covers it).
 
-If phased, ask grouping: **Standard** (Foundation → Security → Data → Compute → Edge) or **Custom**.
-Record choice for `## Deployment Phases` section.
+This is a single-shot panel: one `askQuestions` call with all
+questions. Recommended defaults are pre-selected per
+`plan-design-decisions.md`. Omit any question whose key already
+appears in `apex-recall show <project>` decisions (resume support).
 
-**Decisions** (MANDATORY):
-`apex-recall decide <project> --decision "Deployment strategy: <phased|single>" --rationale "<why>" --step 4 --json`
+Persist each answer (MANDATORY):
+
+```bash
+apex-recall decide <project> --key deployment_strategy --value <phased|single> --rationale "Phase 3.5 panel" --step 4 --json
+apex-recall decide <project> --key identity_model --value <choice> --rationale "Phase 3.5 panel" --step 4 --json
+apex-recall decide <project> --key public_edge_auth --value <choice> --rationale "Phase 3.5 panel" --step 4 --json
+apex-recall decide <project> --key script_runtime_image --value <choice> --rationale "Phase 3.5 panel" --step 4 --json
+apex-recall decide <project> --key az_posture --value <choice> --rationale "Phase 3.5 panel" --step 4 --json
+```
+
 **Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 4 phase_3.5_strategy --json`
 
 **Terraform-specific**: Phased deployment uses `var.deployment_phase` + `count` conditionals
@@ -252,6 +312,25 @@ Include: resource inventory, module structure, tasks in dependency order,
 deployment phases (from Phase 3.5 choice), diagram artifacts
 (`04-dependency-diagram.py/.png`, `04-runtime-diagram.py/.png` using Python `diagrams` library),
 naming conventions table, security config matrix, estimated time.
+
+**L1 attestation — Governance Compliance Matrix (MANDATORY)**: emit the
+`## 🛡️ Governance Compliance Matrix` H2 section directly from the
+parsed `04-governance-constraints.json`. One row per Deny policy ×
+matching resource. Columns: `resource_id`, `policy_id`, `effect`,
+`satisfied_by_property`, `required_value`, `status` (✅ satisfied / ⚠️
+pending / ❌ unsatisfiable). **Every Deny policy MUST have at least
+one row.** Coverage is verified by Phase 4.3 challenger pass 1
+(security-governance lens). If a row is `❌ unsatisfiable`, STOP and
+traverse the `▶ Refresh Governance` handoff per
+`iac-common/references/governance-drift-routing.md` (L1 row).
+
+**L1 attestation — Code-Generation Contract (MANDATORY)**: emit the
+`## 📤 Code-Generation Contract` H2 section per the template. For
+every planned resource enumerate: required params, secret refs
+(Key Vault URIs only — never inline), env-vars, managed-identity
+bindings (using the `identity_model` decision), and peer resource
+refs. This contract is frozen with the plan at gate-3; CodeGen
+refuses to invent parameters absent from this section.
 
 **Bicep-specific**: Module structure is `main.bicep` + `modules/`.
 **Terraform-specific**: Include backend config template (Azure Storage Account).
@@ -373,6 +452,24 @@ on the remaining `should_fix` set only:
 Present the final aggregated summary (counts of accept/reject/defer/edit
 for must_fix + should_fix) and the handoff to the appropriate CodeGen
 agent (Bicep or Terraform based on `decisions.iac_tool`).
+
+**Plan-status attestation (MANDATORY)** — before completing the step,
+verify (a) every challenger pass returned `APPROVED`, (b) the
+Governance Compliance Matrix is complete (every Deny has a row,
+no `❌ unsatisfiable`), and (c) the Code-Generation Contract section
+is present for every resource. Then emit:
+
+```bash
+apex-recall decide <project> \
+  --key plan_status \
+  --value APPROVED \
+  --rationale "<challenger summary> + matrix:<N rows> + contract:<N resources>" \
+  --step 4 \
+  --json
+```
+
+**`complete-step` is forbidden before this decision is recorded.**
+CodeGen Plan-Readiness Precondition cross-checks this value at boot.
 
 **On completion** (MANDATORY): `apex-recall complete-step <project> 4 --json`
 

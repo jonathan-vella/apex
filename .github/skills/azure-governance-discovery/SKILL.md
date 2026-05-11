@@ -98,6 +98,26 @@ Top-level envelope also includes:
 - `policies` — alias (same reference) of `findings`; provided for downstream consumers.
 - `tags_required` — extracted tag-enforcement findings as `[{name, source_policy}]`.
 - `allowed_locations` — extracted from location-constraint policies.
+- `discovery_metadata` — **L0 attestation envelope (MANDATORY)**. See
+  [governance-discovery.md](../azure-defaults/references/governance-discovery.md#l0-discovery-envelope-mandatory)
+  for the full shape. Includes `discovery_status`, `discovered_at`,
+  `scope`, `api_versions`, `page_counts`, `completeness_signature`,
+  `ttl_days`. Downstream consumers (Planner, CodeGen, Deploy) read
+  this object FIRST and STOP on staleness, signature drift, or
+  non-COMPLETE status.
+
+### End-of-discovery self-check
+
+After writing the envelope, `discover.py` MUST re-fetch page 1 of
+`policyAssignments` (cheapest call) and confirm the count matches
+`page_counts.policyAssignments`. Mismatch → set `discovery_status:
+"PARTIAL"` and append a stderr warning naming the drifted REST
+surface.
+
+### Refresh handoff is non-skippable
+
+When invoked via the `▶ Refresh Governance` handoff, `discover.py`
+MUST be called with `--refresh` so cached results are bypassed.
 
 Property paths (`azurePropertyPath`, `bicepPropertyPath`) are always strings —
 empty `""` when unresolvable, never `null`.

@@ -144,6 +144,36 @@ wiring form. Use the canonical SKILL[.tier].md pattern for explicit wiring.
 - [ ] Scripts include help docs and error handling
 - [ ] No hardcoded credentials
 
+## Per-Step File Re-Read Budget (HARD LIMIT)
+
+Agents driving a workflow step (`.github/agents/0*-*.agent.md`) MUST treat
+predecessor artifacts as session-cached. The rule:
+
+- Read `agent-output/{project}/04-implementation-plan.md`,
+  `agent-output/{project}/04-governance-constraints.{md,json}`, and
+  `agent-output/{project}/02-architecture-assessment.md` at most **twice**
+  per Step (once at boot, once during a re-validation pass at most). Every
+  further lookup against these artifacts MUST use
+  `apex-recall show <project> --json` (or
+  `apex-recall search <project> '<term>' --json`) against the cached
+  session state — NOT a fresh `read_file` of the disk artifact.
+- Subagents (`bicep-validate-subagent`, `terraform-validate-subagent`,
+  `challenger-review-subagent`) receive a **compressed digest** of the
+  plan + governance constraints from their parent agent — they do not
+  re-read the source artifacts unless the parent explicitly omits the
+  digest and the prompt instructs them to.
+- The May 2026 nordic-foods retro showed `04-implementation-plan.md` read
+  6× and `04-governance-constraints.md` read 4× in a single Step 5 run.
+  Each redundant read shipped ~7 KB into a 200 K context. The cache
+  contract closes that hole.
+
+**Validator**: `npm run validate:context-budget` enforces a structural
+floor — every agent that declares one of the frozen artifacts under a
+"Prerequisites Check" / "Read at startup" / "Context budget" heading must
+also reference `apex-recall show` (the cached read path) and contain a
+phrase forbidding redundant reads ("do not re-read predecessor artifacts",
+"frozen_inputs", or "plan_readonly").
+
 ## Resources
 
 - [Agent Skills Specification](https://agentskills.io/)

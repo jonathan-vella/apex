@@ -31,8 +31,10 @@ export const ARTIFACT_HEADINGS = {
   "04-implementation-plan.md": [
     "## 📋 Overview",
     "## 📦 Resource Inventory",
+    "## 🛡️ Governance Compliance Matrix",
     "## 🗂️ Module Structure",
     "## 🔨 Implementation Tasks",
+    "## 📤 Code-Generation Contract",
     "## 🚀 Deployment Phases",
     "## 🔗 Dependency Graph",
     "## 🔄 Runtime Flow Diagram",

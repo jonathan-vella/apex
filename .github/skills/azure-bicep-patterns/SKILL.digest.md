@@ -6,41 +6,44 @@ Compact reference for agent startup. Read full `SKILL.md` for details.
 
 ## Quick Reference
 
-| Pattern                 | When to Use                                      | Reference                                                          |
-| ----------------------- | ------------------------------------------------ | ------------------------------------------------------------------ |
-| Hub-Spoke Networking    | Multi-workload environments with shared services | [hub-spoke-pattern](references/hub-spoke-pattern.md)               |
-| Private Endpoint Wiring | Any PaaS service requiring private connectivity  | [private-endpoint-pattern](references/private-endpoint-pattern.md) |
-| Diagnostic Settings     | Every deployed resource (mandatory)              | [common-patterns](references/common-patterns.md)                   |
-| Conditional Deployment  | Optional resources controlled by parameters      | [common-patterns](references/common-patterns.md)                   |
-
+| Pattern                  | When to Use                                      | Reference                                                          |
+| ------------------------ | ------------------------------------------------ | ------------------------------------------------------------------ |
+| Hub-Spoke Networking     | Multi-workload environments with shared services | [hub-spoke-pattern](references/hub-spoke-pattern.md)               |
+| Private Endpoint Wiring  | Any PaaS service requiring private connectivity  | [private-endpoint-pattern](references/private-endpoint-pattern.md) |
+| Diagnostic Settings      | Every deployed resource (mandatory)              | [common-patterns](references/common-patterns.md)                   |
 > _See SKILL.md for full content._
 
 ## Canonical Example — Module Interface
 
-```bicep
-// modules/storage.bicep — every module follows this contract
-@description('Storage account name')
-param name string
-param location string
-param tags object
-```
+Every Bicep module in this repo follows the same input/output contract:
 
-## Key Rules Summary
-
-- **Hub-Spoke**: Hub holds shared infra; spokes peer to hub only
-- **Private Endpoints**: PE + DNS Zone Group + DNS Zone; see group ID table
-- **Diagnostics**: `categoryGroup: 'allLogs'` + `AllMetrics`; pass workspace **name** not ID
-- **Identity**: `guid()` for idempotent role names; scope narrowly
-
+- **Inputs (required)**: `name`, `location`, `tags`, `logAnalyticsWorkspaceName`
+- **Outputs (required)**: `resourceId`, `resourceName`, `principalId` (use `.?principalId ?? ''` so modules without managed identity still expose the output)
 > _See SKILL.md for full content._
 
-## Reference Index
+## Steps
 
-| File                                                                  | Content                                                               |
-| --------------------------------------------------------------------- | --------------------------------------------------------------------- |
-| [hub-spoke-pattern.md](references/hub-spoke-pattern.md)               | Hub-spoke VNet orchestration with peering                             |
-| [private-endpoint-pattern.md](references/private-endpoint-pattern.md) | PE wiring + DNS zone groups + group ID table                          |
-| [common-patterns.md](references/common-patterns.md)                   | Diagnostics, conditional deploy, module composition, managed identity |
-| [avm-pitfalls.md](references/avm-pitfalls.md)                         | What-if interpretation, AVM gotchas, learn more links                 |
+Applying a pattern in a Bicep template:
 
+1. **Identify the pattern** — match your need to a row in [Quick Reference](#quick-reference) (hub-spoke, private endpoint, diagnostics, conditional, identity, budget)
+2. **Load the reference** — read the linked `references/*.md` for the chosen pattern; do not load all at once
+3. **Compose the module** — follow the Module Interface contract above (`name`/`location`/`tags`/`logAnalyticsWorkspaceName` in; `resourceId`/`resourceName`/`principalId` out)
+> _See SKILL.md for full content._
+
+## Rules
+
+- **Hub-Spoke**: Hub holds shared infra; spokes peer to hub only; NSGs per subnet
+- **Private Endpoints**: Always wire PE + DNS Zone Group + DNS Zone; see group ID table in reference
+- **Diagnostics**: `categoryGroup: 'allLogs'` + `AllMetrics`; pass workspace **name** not ID
+- **Conditional**: `bool` params with defaults; guard outputs with ternary
+- **Identity**: `guid()` for idempotent role names; `principalType: 'ServicePrincipal'`; scope narrowly
+> _See SKILL.md for full content._
+
+## Gotchas
+
+- **AVM output shapes vary across modules** — Different AVM modules expose different
+  outputs. Always check the module README before referencing outputs.
+- **Tag merging in AVM modules** — Some AVM modules merge tags internally.
+  Verify deployed tags include all required policy tags after deployment.
+- **What-If red flags** — Watch for unexpected deletes, SKU downgrades,
 > _See SKILL.md for full content._

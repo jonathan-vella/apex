@@ -41,6 +41,39 @@ files and select the appropriate compression tier.
 | `summarized` | 60-80%        | Load key H2 sections only                  |
 | `minimal`    | > 80%         | Load decision summaries only (< 500 chars) |
 
+## Hard Token Checkpoints (model-specific)
+
+Percentages are advisory; absolute input-token counts override them for the
+models below. When any LLM round-trip would ship more than the threshold,
+the agent MUST emit a context-compaction checkpoint **before** the next
+tool call and switch every further read to the `minimal` tier.
+
+| Model                | Context limit | Hard checkpoint at | Action                                                                                        |
+| -------------------- | ------------- | ------------------ | --------------------------------------------------------------------------------------------- |
+| `gpt-5.5`            | 200K          | **≥150K input**    | Swap full plan + governance artifacts for `apex-recall show <project> --json` summaries; pin further skill reads to `SKILL.minimal.md`. |
+| `claude-opus-4.7`    | 200K          | ≥160K input        | Same protocol; prefer the digest tier over re-reading source artifacts.                       |
+| `claude-sonnet-4.6`  | 200K          | ≥150K input        | Same protocol.                                                                                |
+| `gpt-5.3-codex`      | 128K          | ≥95K input         | Same protocol.                                                                                |
+
+Checkpoint procedure when a hard threshold is hit:
+
+1. Emit a single ≤500-token message summarising every still-relevant
+   artifact (plan resource list, governance Deny map, deployment phase,
+   open decisions).
+2. Replace any further reads of `04-implementation-plan.md`,
+   `04-governance-constraints.md/.json`, or `02-architecture-assessment.md`
+   with `apex-recall show <project> --json` (then `apex-recall search
+   <project> '<term>' --json` for targeted lookups).
+3. Pin every subsequent skill read to `SKILL.minimal.md`. Do not load
+   `SKILL.digest.md` or `SKILL.md`.
+4. Record the event: `apex-recall checkpoint <project> <step>
+   context_compacted_<threshold>K --json`.
+
+Step 5 CodeGen agents (`06b-Bicep CodeGen`, `06t-Terraform CodeGen`) must
+honour this rule \u2014 the gpt-5.5 main agent saturated at 200K+ inputs in the
+nordic-foods retro (May 2026); the 150K hard checkpoint is the trip-wire
+that prevents recurrence.
+
 ## Rules
 
 Before loading any artifact file:

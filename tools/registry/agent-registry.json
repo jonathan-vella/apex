@@ -129,6 +129,11 @@
       "agent": ".github/agents/_subagents/terraform-plan-subagent.agent.md",
       "model": "Claude Sonnet 4.6",
       "invokable": false
+    },
+    "policy-precheck-subagent": {
+      "agent": ".github/agents/_subagents/policy-precheck-subagent.agent.md",
+      "model": "Claude Sonnet 4.6",
+      "invokable": false
     }
   }
 }

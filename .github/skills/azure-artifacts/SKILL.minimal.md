@@ -2,21 +2,22 @@
 
 # Azure Artifacts Skill (Minimal)
 
-**Artifact Generation Rules**:
+**Rules**:
 ### Mandatory Compliance
 
 **Mandatory: Project README**:
 Every project in `agent-output/{project}/` **MUST** have a
+
+**Steps**:
+Artifact generation flow (per Step N):
+
+**Revision Workflow (Targeted Edits)**:
+**Initial draft** uses `create_file`. **All subsequent revisions** MUST use targeted edit tools. Bundle every accepted f
 
 **Placeholder Syntax**:
 All templates use single-brace `{placeholder-name}` syntax:
 
 **Automated Validation**:
 ```bash
-
-**Quality Checklist**:
-
-**Reference Index**:
-When generating a Step N artifact, read the corresponding template:
 
 Read `SKILL.md` or `SKILL.digest.md` for full content.

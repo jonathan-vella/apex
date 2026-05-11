@@ -57,6 +57,17 @@ deployment failures.
   pass `npm run lint:artifact-templates`, and follow the
   `iac-policy-compliance.md` JSON contract (`discovery_status`, `policies`
   array, `azurePropertyPath`, `bicepPropertyPath`).
+- **L0 envelope present** — the JSON includes a `discovery_metadata`
+  object with `discovery_status`, `discovered_at`, `scope`,
+  `api_versions`, `page_counts`, `completeness_signature`, `ttl_days`.
+  Emitted automatically by `discover.py`; agent never hand-authors
+  this object. Schema enforced by
+  `tools/schemas/governance-constraints.schema.json` and validated
+  against `.vscode/settings.json` mapping.
+- **End-of-discovery self-check passed** — `discover.py` re-fetched page
+  1 of `policyAssignments` and confirmed the count matches
+  `page_counts.policyAssignments`. On mismatch `discovery_status`
+  downgrades to `PARTIAL` and the self-check warning lands in stderr.
 - Discovery covers the assignment scope **and** all inherited management-group
   scopes; cached results are only used when the user has explicitly opted into
   the workflow baseline.
@@ -120,13 +131,17 @@ governance artifacts, and get them reviewed before handing off to IaC Planning.
 Before doing any work, read:
 
 1. Read `.github/skills/azure-defaults/SKILL.digest.md` — Governance Discovery section, regions, tags
-2. Read `.github/skills/azure-governance-discovery/SKILL.digest.md` — `discover.py` CLI contract
-3. Read `.github/skills/azure-governance-discovery/references/terminal-commands.md` — **MANDATORY**.
+2. Read `.github/skills/azure-defaults/references/governance-discovery.md` (section:
+   "L0 Discovery Envelope") — envelope shape, self-check, refresh contract
+3. Read `.github/skills/azure-governance-discovery/SKILL.digest.md` — `discover.py` CLI contract
+4. Read `.github/skills/azure-governance-discovery/references/terminal-commands.md` — **MANDATORY**.
    Pre-built batched terminal commands (Cmd 1–7) for the entire governance phase.
    Copy-paste these instead of composing your own `jq` queries.
-4. Read `.github/skills/azure-artifacts/SKILL.digest.md` — H2 template for `04-governance-constraints.md`
-5. Read the template: `.github/skills/azure-artifacts/templates/04-governance-constraints.template.md`
-6. Read `.github/instructions/references/iac-policy-compliance.md` — **MANDATORY before writing JSON**.
+5. Read `.github/skills/azure-artifacts/SKILL.digest.md` — H2 template for `04-governance-constraints.md`
+6. Read the template: `.github/skills/azure-artifacts/templates/04-governance-constraints.template.md`
+7. Read `.github/skills/iac-common/references/governance-drift-routing.md` — four-layer drift routing
+   matrix; consumed when a downstream agent traverses `▶ Refresh Governance`
+8. Read `.github/instructions/references/iac-policy-compliance.md` — **MANDATORY before writing JSON**.
    This defines the downstream JSON contract (`discovery_status`, `policies` array,
    dot-separated `azurePropertyPath`, `bicepPropertyPath` formats) that Step 4/5 agents
    and review subagents consume. Loading this reference before Phase 2 prevents iterative
@@ -173,6 +188,14 @@ against cold-boot re-entry (e.g., subagent dispatch, resumed session, or
 challenger re-invocation) where the parent context knows the work is done but
 the current turn does not.
 
+> **`▶ Refresh Governance` handoff is non-skippable**: when the
+> invocation prompt contains `Refresh Governance`, `re-run`, or
+> `rediscover` — or when a downstream agent traversed the refresh
+> handoff per `iac-common/references/governance-drift-routing.md` — the
+> short-circuit is **disabled**. Skip directly to Phase 1 and call
+> `discover.py --refresh` regardless of cache state. Stale-cache
+> returns are exactly the failure mode this rule prevents.
+
 1. Run `apex-recall show <project> --json`.
 2. If **all** of the following are true, skip to Phase 3 (Approval Gate) and
    hand off — do NOT re-run discovery or regenerate artifacts:
@@ -180,6 +203,9 @@ the current turn does not.
    - `agent-output/{project}/04-governance-constraints.json` exists
    - `agent-output/{project}/04-governance-constraints.md` exists
    - The JSON's `discovery_status` is `"COMPLETE"`
+   - The JSON contains a non-empty `discovery_metadata` object and
+     `age_days = (now - discovery_metadata.discovered_at) / 86400 <
+discovery_metadata.ttl_days` (L0 staleness check)
    - The user did NOT explicitly ask for `refresh`, `re-run`, or `rediscover`
 3. Otherwise proceed to Phase 0.45.
 
@@ -274,9 +300,19 @@ only if the user explicitly asks to keep Defender-for-Cloud auto-assignments
    The remaining stdout lines are a human-readable Markdown preview **for the
    user**, not for LLM re-ingestion. Do NOT pipe them back into the model.
 
+   The script also writes a **`discovery_metadata` envelope** at the
+   top of the output JSON (L0 attestation). Do NOT hand-author this
+   object — `discover.py` computes it deterministically (signature =
+   sha256 over stable-sorted `(policy_id, effect, scope, params)`
+   tuples). The envelope is what every downstream consumer (Planner,
+   CodeGen, Deploy) reads first to decide whether to proceed.
+
 2. **Gate on status**:
-   - `COMPLETE` → proceed to Phase 2
-   - `PARTIAL` → present the partial state to the user and ask whether to continue
+   - `COMPLETE` → proceed to Phase 2 (envelope self-check passed inside `discover.py`)
+   - `PARTIAL` → present the partial state to the user and ask whether to continue.
+     `PARTIAL` is also emitted when the end-of-discovery self-check (re-fetch
+     page 1 of `policyAssignments`) detected a count drift — see
+     `discover.py` stderr for the surface that drifted.
    - `FAILED` → STOP and surface the error (typically `az login` needed)
 3. **Exit codes** mirror status: `0` COMPLETE, `1` PARTIAL, `2` FAILED, `3` bad args.
 4. **Record findings** (MANDATORY): For each Deny-policy blocker discovered, run:

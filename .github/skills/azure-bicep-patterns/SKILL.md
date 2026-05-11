@@ -11,16 +11,17 @@ Reusable infrastructure patterns for Azure Bicep templates. Complements
 
 ## Quick Reference
 
-| Pattern                  | When to Use                                      | Reference                                                          |
-| ------------------------ | ------------------------------------------------ | ------------------------------------------------------------------ |
-| Hub-Spoke Networking     | Multi-workload environments with shared services | [hub-spoke-pattern](references/hub-spoke-pattern.md)               |
-| Private Endpoint Wiring  | Any PaaS service requiring private connectivity  | [private-endpoint-pattern](references/private-endpoint-pattern.md) |
-| Diagnostic Settings      | Every deployed resource (mandatory)              | [common-patterns](references/common-patterns.md)                   |
-| Conditional Deployment   | Optional resources controlled by parameters      | [common-patterns](references/common-patterns.md)                   |
-| Module Composition       | Breaking main.bicep into reusable modules        | [common-patterns](references/common-patterns.md)                   |
-| Managed Identity Binding | Any service-to-service authentication            | [common-patterns](references/common-patterns.md)                   |
-| Budget & Cost Monitoring | Every deployment (mandatory)                     | [budget-pattern](references/budget-pattern.md)                     |
-| What-If / AVM Pitfalls   | Pre-deployment validation & AVM gotchas          | [avm-pitfalls](references/avm-pitfalls.md)                         |
+| Pattern                  | When to Use                                      | Reference                                                              |
+| ------------------------ | ------------------------------------------------ | ---------------------------------------------------------------------- |
+| Hub-Spoke Networking     | Multi-workload environments with shared services | [hub-spoke-pattern](references/hub-spoke-pattern.md)                   |
+| Private Endpoint Wiring  | Any PaaS service requiring private connectivity  | [private-endpoint-pattern](references/private-endpoint-pattern.md)     |
+| Diagnostic Settings      | Every deployed resource (mandatory)              | [common-patterns](references/common-patterns.md)                       |
+| Conditional Deployment   | Optional resources controlled by parameters      | [common-patterns](references/common-patterns.md)                       |
+| Module Composition       | Breaking main.bicep into reusable modules        | [common-patterns](references/common-patterns.md)                       |
+| Managed Identity Binding | Any service-to-service authentication            | [common-patterns](references/common-patterns.md)                       |
+| Budget & Cost Monitoring | Every deployment (mandatory)                     | [budget-pattern](references/budget-pattern.md)                         |
+| What-If / AVM Pitfalls   | Pre-deployment validation & AVM gotchas          | [avm-pitfalls](references/avm-pitfalls.md)                             |
+| Batch Bicep Formatting   | After generating/editing the Bicep tree          | `npm run format:bicep -- infra/bicep/{project}` (wraps `bicep format`) |
 
 ## Canonical Example — Module Interface
 

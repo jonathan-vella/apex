@@ -100,19 +100,19 @@ numbers; results land in
 
 All knobs are env-var driven; defaults are tuned for typical agent flows.
 
-| Env var                            | Default                                         | Purpose                                               |
-| ---------------------------------- | ----------------------------------------------- | ----------------------------------------------------- |
-| `AZURE_PRICING_HTTP_TIMEOUT`       | 30.0 s                                          | Per-request timeout for the Retail Prices API.        |
-| `AZURE_PRICING_HTTP_POOL_SIZE`     | 20                                              | Total connections in the aiohttp pool.                |
-| `AZURE_PRICING_HTTP_POOL_PER_HOST` | 10                                              | Per-host cap (Azure Retail Prices is a single host).  |
-| `AZURE_PRICING_DEDUP_TTL`          | 300 s                                           | Reuse window for successful pricing responses.        |
-| `AZURE_PRICING_NEG_TTL`            | 60 s                                            | Short reuse window for empty (`Items: []`) responses. |
-| `AZURE_PRICING_DEDUP_MAX_ENTRIES`  | 512                                             | LRU cap for the in-memory dedup cache.                |
-| `AZURE_PRICING_CACHE_DIR`          | `${XDG_CACHE_HOME:-~/.cache}/azure-pricing-mcp` | Disk-backed retirement + pricing cache root.          |
-| `AZURE_PRICING_DISK_CACHE_ENABLED` | `true`                                          | Mirror successful pricing responses to disk.          |
-| `AZURE_PRICING_DISK_CACHE_TTL`     | 86400 s (24 h)                                  | TTL for disk-cached pricing responses.                |
-| `AZURE_PRICING_DISK_CACHE_MAX_BYTES` | 524288000 (500 MB)                            | Size cap for the disk pricing cache.                  |
-| `AZURE_PRICING_SSL_VERIFY`         | `true`                                          | Set to `false` behind a proxy with self-signed certs. |
+| Env var                              | Default                                         | Purpose                                               |
+| ------------------------------------ | ----------------------------------------------- | ----------------------------------------------------- |
+| `AZURE_PRICING_HTTP_TIMEOUT`         | 30.0 s                                          | Per-request timeout for the Retail Prices API.        |
+| `AZURE_PRICING_HTTP_POOL_SIZE`       | 20                                              | Total connections in the aiohttp pool.                |
+| `AZURE_PRICING_HTTP_POOL_PER_HOST`   | 10                                              | Per-host cap (Azure Retail Prices is a single host).  |
+| `AZURE_PRICING_DEDUP_TTL`            | 300 s                                           | Reuse window for successful pricing responses.        |
+| `AZURE_PRICING_NEG_TTL`              | 60 s                                            | Short reuse window for empty (`Items: []`) responses. |
+| `AZURE_PRICING_DEDUP_MAX_ENTRIES`    | 512                                             | LRU cap for the in-memory dedup cache.                |
+| `AZURE_PRICING_CACHE_DIR`            | `${XDG_CACHE_HOME:-~/.cache}/azure-pricing-mcp` | Disk-backed retirement + pricing cache root.          |
+| `AZURE_PRICING_DISK_CACHE_ENABLED`   | `true`                                          | Mirror successful pricing responses to disk.          |
+| `AZURE_PRICING_DISK_CACHE_TTL`       | 86400 s (24 h)                                  | TTL for disk-cached pricing responses.                |
+| `AZURE_PRICING_DISK_CACHE_MAX_BYTES` | 524288000 (500 MB)                              | Size cap for the disk pricing cache.                  |
+| `AZURE_PRICING_SSL_VERIFY`           | `true`                                          | Set to `false` behind a proxy with self-signed certs. |
 
 In-flight request coalescing is automatic: N concurrent calls with the same
 `(filter, currency, limit)` key share one HTTP round-trip via an
