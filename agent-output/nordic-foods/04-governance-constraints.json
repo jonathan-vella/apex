@@ -1,0 +1,1705 @@
+{
+  "schema_version": "governance-constraints-v1",
+  "project": "nordic-foods",
+  "subscription_id": "00858ffc-dded-4f0f-8bbf-e17fff0d47d9",
+  "discovered_at": "2026-05-11T16:14:34Z",
+  "source": "azure-policy-rest-api",
+  "discovery_status": "COMPLETE",
+  "discovery_metadata": {
+    "discovery_status": "COMPLETE",
+    "discovered_at": "2026-05-11T16:14:34Z",
+    "scope": {
+      "subscription_id": "00858ffc-dded-4f0f-8bbf-e17fff0d47d9",
+      "management_groups": [
+        "2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+        "alz",
+        "alz-sandboxes"
+      ]
+    },
+    "api_versions": {
+      "policyAssignments": "2022-06-01",
+      "policyDefinitions": "2021-06-01",
+      "policyExemptions": "2022-07-01-preview"
+    },
+    "page_counts": {
+      "policyAssignments": 36,
+      "policyDefinitions": 3947,
+      "policyExemptions": 0
+    },
+    "completeness_signature": "sha256:c1f2a6c8561869c2765567c229e78251d0094d0627004f21908ab71838a67cc9",
+    "ttl_days": 7
+  },
+  "discovery_summary": {
+    "assignment_total": 36,
+    "assignment_kept": 33,
+    "defender_auto_filtered": 3,
+    "subscription_scope_count": 3,
+    "management_group_inherited_count": 30,
+    "blocker_count": 10,
+    "auto_remediate_count": 18,
+    "informational_count": 0,
+    "audit_count": 25,
+    "disabled_count": 0,
+    "exempted_count": 0
+  },
+  "assignment_inventory": [
+    {
+      "displayName": "Microsoft Azure Multi Factor Authentication Enforcement for Resource Delete Actions",
+      "scope": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+      "assignmentType": "management-group",
+      "policyDefinitionId": "/providers/microsoft.authorization/policydefinitions/f69cd8b8-9a6e-46b4-be84-244e8b127944"
+    },
+    {
+      "displayName": "Azure Security Baseline",
+      "scope": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+      "assignmentType": "management-group",
+      "policyDefinitionId": "/providers/microsoft.authorization/policysetdefinitions/1f3afdf9-d0c9-4c3d-847f-89da613e70a8"
+    },
+    {
+      "displayName": "MCAPSGov Deny Policies",
+      "scope": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+      "assignmentType": "management-group",
+      "policyDefinitionId": "/providers/microsoft.management/managementgroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/microsoft.authorization/policysetdefinitions/mcapsgovdenypolicies"
+    },
+    {
+      "displayName": "MCAPSGov Audit Policies",
+      "scope": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+      "assignmentType": "management-group",
+      "policyDefinitionId": "/providers/microsoft.management/managementgroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/microsoft.authorization/policysetdefinitions/mcapsgovauditpolicies"
+    },
+    {
+      "displayName": "MCAPSGov Deploy and Modify Policies",
+      "scope": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+      "assignmentType": "management-group",
+      "policyDefinitionId": "/providers/microsoft.management/managementgroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/microsoft.authorization/policysetdefinitions/mcapsgovdeploypolicies"
+    },
+    {
+      "displayName": "JV - Inherit Multiple Tags from Resource Group",
+      "scope": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+      "assignmentType": "management-group",
+      "policyDefinitionId": "/providers/microsoft.management/managementgroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/microsoft.authorization/policydefinitions/965dc15a-655c-46be-b95e-72c2b6821ec6"
+    },
+    {
+      "displayName": "Block Azure RM Resource Creation",
+      "scope": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+      "assignmentType": "management-group",
+      "policyDefinitionId": "/providers/microsoft.management/managementgroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/microsoft.authorization/policydefinitions/f0b6d104-1292-4b81-a05d-c2d8db5a651d"
+    },
+    {
+      "displayName": "Microsoft Azure Multi Factor Authentication Enforcement for Resource Write Actions",
+      "scope": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+      "assignmentType": "management-group",
+      "policyDefinitionId": "/providers/microsoft.authorization/policydefinitions/54f51f64-eaa5-44cf-8674-830bcfd14d21"
+    },
+    {
+      "displayName": "JV-Enforce Resource Group Tags v3",
+      "scope": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+      "assignmentType": "management-group",
+      "policyDefinitionId": "/providers/microsoft.management/managementgroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/microsoft.authorization/policydefinitions/27833bcf-5909-4a37-891c-16a3cb06856d"
+    },
+    {
+      "displayName": "JV - Deny ML Clusters",
+      "scope": "/providers/Microsoft.Management/managementGroups/alz",
+      "assignmentType": "management-group",
+      "policyDefinitionId": "/providers/microsoft.authorization/policydefinitions/6c112d4e-5bc7-47ae-a041-ea2d9dccd749"
+    },
+    {
+      "displayName": "JV - Allowed Locations",
+      "scope": "/providers/Microsoft.Management/managementGroups/alz",
+      "assignmentType": "management-group",
+      "policyDefinitionId": "/providers/microsoft.authorization/policydefinitions/e56962a6-4747-49cd-b67b-bf8b01975c4c"
+    },
+    {
+      "displayName": "Deny the deployment of classic resources",
+      "scope": "/providers/Microsoft.Management/managementGroups/alz",
+      "assignmentType": "management-group",
+      "policyDefinitionId": "/providers/microsoft.authorization/policydefinitions/6c112d4e-5bc7-47ae-a041-ea2d9dccd749"
+    },
+    {
+      "displayName": "Deny virtual machines and virtual machine scale sets that do not use managed disk",
+      "scope": "/providers/Microsoft.Management/managementGroups/alz",
+      "assignmentType": "management-group",
+      "policyDefinitionId": "/providers/microsoft.authorization/policydefinitions/06a78e20-9358-41c9-923c-fb736d382a4d"
+    },
+    {
+      "displayName": "Audit virtual machines for Trusted Launch support",
+      "scope": "/providers/Microsoft.Management/managementGroups/alz",
+      "assignmentType": "management-group",
+      "policyDefinitionId": "/providers/microsoft.management/managementgroups/alz/providers/microsoft.authorization/policysetdefinitions/audit-trustedlaunch"
+    },
+    {
+      "displayName": "Resource Group and Resource locations should match",
+      "scope": "/providers/Microsoft.Management/managementGroups/alz",
+      "assignmentType": "management-group",
+      "policyDefinitionId": "/providers/microsoft.authorization/policydefinitions/0a914e76-4921-4c19-b460-a2d36003525a"
+    },
+    {
+      "displayName": "Unused resources driving cost should be avoided",
+      "scope": "/providers/Microsoft.Management/managementGroups/alz",
+      "assignmentType": "management-group",
+      "policyDefinitionId": "/providers/microsoft.management/managementgroups/alz/providers/microsoft.authorization/policysetdefinitions/audit-unusedresourcescostoptimization"
+    },
+    {
+      "displayName": "Resources should be Zone Resilient",
+      "scope": "/providers/Microsoft.Management/managementGroups/alz",
+      "assignmentType": "management-group",
+      "policyDefinitionId": "/providers/microsoft.authorization/policysetdefinitions/130fb88f-0fc9-4678-bfe1-31022d71c7d5"
+    },
+    {
+      "displayName": "Enforce Azure Compute Security Baseline compliance auditing",
+      "scope": "/providers/Microsoft.Management/managementGroups/alz",
+      "assignmentType": "management-group",
+      "policyDefinitionId": "/providers/microsoft.management/managementgroups/alz/providers/microsoft.authorization/policysetdefinitions/enforce-acsb"
+    },
+    {
+      "displayName": "Deploy Azure Monitor Baseline Alerts for Service Health",
+      "scope": "/providers/Microsoft.Management/managementGroups/alz",
+      "assignmentType": "management-group",
+      "policyDefinitionId": "/providers/microsoft.management/managementgroups/alz/providers/microsoft.authorization/policysetdefinitions/alerting-servicehealth"
+    },
+    {
+      "displayName": "Deploy Azure Monitor Baseline Alerts - Notification Assets",
+      "scope": "/providers/Microsoft.Management/managementGroups/alz",
+      "assignmentType": "management-group",
+      "policyDefinitionId": "/providers/microsoft.management/managementgroups/alz/providers/microsoft.authorization/policysetdefinitions/notification-assets"
+    },
+    {
+      "displayName": "Deploy Microsoft Defender for Cloud configuration",
+      "scope": "/providers/Microsoft.Management/managementGroups/alz",
+      "assignmentType": "management-group",
+      "policyDefinitionId": "/providers/microsoft.management/managementgroups/alz/providers/microsoft.authorization/policysetdefinitions/deploy-mdfc-config_20240319"
+    },
+    {
+      "displayName": "Configure Azure Defender to be enabled on SQL Servers and SQL Managed Instances",
+      "scope": "/providers/Microsoft.Management/managementGroups/alz",
+      "assignmentType": "management-group",
+      "policyDefinitionId": "/providers/microsoft.authorization/policysetdefinitions/9cb3cc7a-b39b-4b82-bc89-e5a5d9ff7b97"
+    },
+    {
+      "displayName": "Microsoft Cloud Security Benchmark",
+      "scope": "/providers/Microsoft.Management/managementGroups/alz",
+      "assignmentType": "management-group",
+      "policyDefinitionId": "/providers/microsoft.authorization/policysetdefinitions/1f3afdf9-d0c9-4c3d-847f-89da613e70a8"
+    },
+    {
+      "displayName": "Configure Advanced Threat Protection to be enabled on open-source relational databases",
+      "scope": "/providers/Microsoft.Management/managementGroups/alz",
+      "assignmentType": "management-group",
+      "policyDefinitionId": "/providers/microsoft.authorization/policysetdefinitions/e77fc0b3-f7e9-4c58-bc13-cb753ed8e46e"
+    },
+    {
+      "displayName": "Enable allLogs category group resource logging for supported resources to Log Analytics",
+      "scope": "/providers/Microsoft.Management/managementGroups/alz",
+      "assignmentType": "management-group",
+      "policyDefinitionId": "/providers/microsoft.authorization/policysetdefinitions/0884adba-2312-4468-abeb-5422caed1038"
+    },
+    {
+      "displayName": "[Preview]: Deploy Microsoft Defender for Endpoint agent",
+      "scope": "/providers/Microsoft.Management/managementGroups/alz",
+      "assignmentType": "management-group",
+      "policyDefinitionId": "/providers/microsoft.authorization/policysetdefinitions/e20d08c5-6d64-656d-6465-ce9e37fd0ebc"
+    },
+    {
+      "displayName": "Configure multiple Microsoft Defender for Endpoint integration settings with Microsoft Defender for Cloud",
+      "scope": "/providers/Microsoft.Management/managementGroups/alz",
+      "assignmentType": "management-group",
+      "policyDefinitionId": "/providers/microsoft.authorization/policysetdefinitions/77b391e3-2d5d-40c3-83bf-65c846b3c6a3"
+    },
+    {
+      "displayName": "Configure Azure Activity logs to stream to specified Log Analytics workspace",
+      "scope": "/providers/Microsoft.Management/managementGroups/alz",
+      "assignmentType": "management-group",
+      "policyDefinitionId": "/providers/microsoft.authorization/policydefinitions/2465583e-4e78-4c15-b6be-a36cbc7c8b0f"
+    },
+    {
+      "displayName": "JV - Inherit Tags from Resource Group",
+      "scope": "/providers/Microsoft.Management/managementGroups/alz",
+      "assignmentType": "management-group",
+      "policyDefinitionId": "/providers/microsoft.management/managementgroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/microsoft.authorization/policysetdefinitions/4102605c4a2f4acd8c2ae19c"
+    },
+    {
+      "displayName": "Enforce ALZ Sandbox Guardrails",
+      "scope": "/providers/Microsoft.Management/managementGroups/alz-sandboxes",
+      "assignmentType": "management-group",
+      "policyDefinitionId": "/providers/microsoft.management/managementgroups/alz/providers/microsoft.authorization/policysetdefinitions/enforce-alz-sandbox"
+    },
+    {
+      "displayName": "EU General Data Protection Regulation (GDPR) 2016/679",
+      "scope": "/subscriptions/00858ffc-dded-4f0f-8bbf-e17fff0d47d9",
+      "assignmentType": "subscription",
+      "policyDefinitionId": "/providers/microsoft.authorization/policysetdefinitions/7326812a-86a4-40c8-af7c-8945de9c4913"
+    },
+    {
+      "displayName": "PCI DSS v4",
+      "scope": "/subscriptions/00858ffc-dded-4f0f-8bbf-e17fff0d47d9",
+      "assignmentType": "subscription",
+      "policyDefinitionId": "/providers/microsoft.authorization/policysetdefinitions/c676748e-3af9-4e22-bc28-50feed564afb"
+    },
+    {
+      "displayName": "SMB LZ: Auto-Backup VMs with Backup Tag",
+      "scope": "/subscriptions/00858ffc-dded-4f0f-8bbf-e17fff0d47d9",
+      "assignmentType": "subscription",
+      "policyDefinitionId": "/providers/microsoft.authorization/policydefinitions/345fa903-145c-4fe1-8bcd-93ec2adccde8"
+    }
+  ],
+  "findings": [
+    {
+      "policy_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyDefinitions/VirtualMachine_SKU_Deny",
+      "display_name": "Block VM SKU Sizes",
+      "effect": "deny",
+      "scope": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+      "assignment_display_name": "MCAPSGov Deny Policies",
+      "assignment_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyAssignments/MCAPSGovDenyPolicies",
+      "classification": "blocker",
+      "category": "Compute",
+      "resource_types": [],
+      "required_value": null,
+      "azurePropertyPath": "",
+      "bicepPropertyPath": "",
+      "exemption": null,
+      "override": null
+    },
+    {
+      "policy_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyDefinitions/VirtualMachine_SKU_Deny",
+      "display_name": "Block VM SKU Sizes",
+      "effect": "deny",
+      "scope": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+      "assignment_display_name": "MCAPSGov Deny Policies",
+      "assignment_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyAssignments/MCAPSGovDenyPolicies",
+      "classification": "blocker",
+      "category": "Compute",
+      "resource_types": [],
+      "required_value": null,
+      "azurePropertyPath": "",
+      "bicepPropertyPath": "",
+      "exemption": null,
+      "override": null
+    },
+    {
+      "policy_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyDefinitions/VirtualMachine_SKU_Deny",
+      "display_name": "Block VM SKU Sizes",
+      "effect": "deny",
+      "scope": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+      "assignment_display_name": "MCAPSGov Deny Policies",
+      "assignment_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyAssignments/MCAPSGovDenyPolicies",
+      "classification": "blocker",
+      "category": "Compute",
+      "resource_types": [],
+      "required_value": null,
+      "azurePropertyPath": "",
+      "bicepPropertyPath": "",
+      "exemption": null,
+      "override": null
+    },
+    {
+      "policy_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyDefinitions/AKS_LimitNodeCount_Deny",
+      "display_name": "Deny AKS deployment with agent pool count greater than 10",
+      "effect": "deny",
+      "scope": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+      "assignment_display_name": "MCAPSGov Deny Policies",
+      "assignment_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyAssignments/MCAPSGovDenyPolicies",
+      "classification": "blocker",
+      "category": "Compute",
+      "resource_types": [
+        "Microsoft.ContainerService/managedClusters"
+      ],
+      "required_value": null,
+      "azurePropertyPath": "managedClusters.agentPoolProfiles[*]",
+      "bicepPropertyPath": "managedClusters::agentPoolProfiles[*]",
+      "exemption": null,
+      "override": null
+    },
+    {
+      "policy_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyDefinitions/VMSS_LimitNodesCount_Deny",
+      "display_name": "Deny VMSS deployment with instance count greater than 10",
+      "effect": "deny",
+      "scope": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+      "assignment_display_name": "MCAPSGov Deny Policies",
+      "assignment_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyAssignments/MCAPSGovDenyPolicies",
+      "classification": "blocker",
+      "category": "Compute",
+      "resource_types": [
+        "Microsoft.Compute/virtualMachineScaleSets"
+      ],
+      "required_value": null,
+      "azurePropertyPath": "virtualMachineScaleSets.sku.capacity",
+      "bicepPropertyPath": "virtualMachineScaleSets::sku.capacity",
+      "exemption": null,
+      "override": null
+    },
+    {
+      "policy_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyDefinitions/AzureOpenAI_ProvisionedCapacity_Deny",
+      "display_name": "Block Azure OpenAI Provisioned Capacity",
+      "effect": "deny",
+      "scope": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+      "assignment_display_name": "MCAPSGov Deny Policies",
+      "assignment_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyAssignments/MCAPSGovDenyPolicies",
+      "classification": "blocker",
+      "category": "Cognitive Services",
+      "resource_types": [
+        "Microsoft.CognitiveServices/accounts/deployments"
+      ],
+      "required_value": null,
+      "azurePropertyPath": "accounts/deployments.sku.name",
+      "bicepPropertyPath": "accounts/deployments::sku.name",
+      "exemption": null,
+      "override": null
+    },
+    {
+      "policy_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyDefinitions/Sentinel_Commitment_Deny",
+      "display_name": "Block Azure Sentinel Commitment over 100",
+      "effect": "deny",
+      "scope": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+      "assignment_display_name": "MCAPSGov Deny Policies",
+      "assignment_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyAssignments/MCAPSGovDenyPolicies",
+      "classification": "blocker",
+      "category": "Monitoring",
+      "resource_types": [
+        "Microsoft.OperationalInsights/workspaces"
+      ],
+      "required_value": null,
+      "azurePropertyPath": "workspaces.sku.capacityReservationLevel",
+      "bicepPropertyPath": "workspaces::sku.capacityReservationLevel",
+      "exemption": null,
+      "override": null
+    },
+    {
+      "policy_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyDefinitions/KeyVaultManagedHSM_PurgeProtectionEnabled_Deny",
+      "display_name": "Deny Azure Key Vault Managed HSM with Purge Protection Enabled",
+      "effect": "deny",
+      "scope": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+      "assignment_display_name": "MCAPSGov Deny Policies",
+      "assignment_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyAssignments/MCAPSGovDenyPolicies",
+      "classification": "blocker",
+      "category": "Key Vault",
+      "resource_types": [
+        "Microsoft.KeyVault/managedHSMs"
+      ],
+      "required_value": null,
+      "azurePropertyPath": "",
+      "bicepPropertyPath": "",
+      "exemption": null,
+      "override": null
+    },
+    {
+      "policy_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyDefinitions/VirtualMachine_GuestExtnforWindowsClient_Deploy",
+      "display_name": "Deploy the Windows Guest Configuration extension to enable Guest Configuration assignments on Windows VMs",
+      "effect": "deployIfNotExists",
+      "scope": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+      "assignment_display_name": "MCAPSGov Deploy and Modify Policies",
+      "assignment_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyAssignments/MCAPSGovDeployPolicies",
+      "classification": "auto-remediate",
+      "category": "Guest Configuration",
+      "resource_types": [
+        "Microsoft.Compute/virtualMachines"
+      ],
+      "required_value": null,
+      "azurePropertyPath": "virtualMachines.extensions/provisioningState",
+      "bicepPropertyPath": "virtualMachines::extensions/provisioningState",
+      "exemption": null,
+      "override": null
+    },
+    {
+      "policy_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyDefinitions/VirtualMachine_ManagedIdentity_Deploy",
+      "display_name": "Add system-assigned managed identity to enable Guest Configuration assignments on virtual machines with no identities",
+      "effect": "modify",
+      "scope": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+      "assignment_display_name": "MCAPSGov Deploy and Modify Policies",
+      "assignment_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyAssignments/MCAPSGovDeployPolicies",
+      "classification": "auto-remediate",
+      "category": "Managed Identity for Guest Configuration",
+      "resource_types": [
+        "Microsoft.Compute/virtualMachines"
+      ],
+      "required_value": "SystemAssigned",
+      "azurePropertyPath": "virtualMachines.storageProfile.osDisk.osType",
+      "bicepPropertyPath": "virtualMachines::storageProfile.osDisk.osType",
+      "exemption": null,
+      "override": null
+    },
+    {
+      "policy_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyDefinitions/VirtualMachine_ManagedIdentityonUserIdentity_Deploy",
+      "display_name": "Add system-assigned managed identity to enable Guest Configuration assignments on VMs with a user-assigned identity",
+      "effect": "modify",
+      "scope": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+      "assignment_display_name": "MCAPSGov Deploy and Modify Policies",
+      "assignment_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyAssignments/MCAPSGovDeployPolicies",
+      "classification": "auto-remediate",
+      "category": "Managed identity for Guest Configuration",
+      "resource_types": [
+        "Microsoft.Compute/virtualMachines"
+      ],
+      "required_value": "[concat(field('identity.type'), ',SystemAssigned')]",
+      "azurePropertyPath": "virtualMachines.storageProfile.osDisk.osType",
+      "bicepPropertyPath": "virtualMachines::storageProfile.osDisk.osType",
+      "exemption": null,
+      "override": null
+    },
+    {
+      "policy_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyDefinitions/StorageAccount_BlobAnonymousAccess_Modify",
+      "display_name": "Ensure secure access to storage account containers",
+      "effect": "modify",
+      "scope": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+      "assignment_display_name": "MCAPSGov Deploy and Modify Policies",
+      "assignment_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyAssignments/MCAPSGovDeployPolicies",
+      "classification": "auto-remediate",
+      "category": "Modify Allow Blob anonymous access",
+      "resource_types": [
+        "Microsoft.Storage/storageAccounts"
+      ],
+      "required_value": false,
+      "azurePropertyPath": "resourceGroup.tags",
+      "bicepPropertyPath": "resourceGroups::tags",
+      "exemption": null,
+      "override": null,
+      "pathSemantics": "tag-policy-non-property"
+    },
+    {
+      "policy_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyDefinitions/ResourceGroup_New_Deploy",
+      "display_name": "Deploy Resource Group McapsGovernance",
+      "effect": "deployIfNotExists",
+      "scope": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+      "assignment_display_name": "MCAPSGov Deploy and Modify Policies",
+      "assignment_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyAssignments/MCAPSGovDeployPolicies",
+      "classification": "auto-remediate",
+      "category": "Uncategorized",
+      "resource_types": [
+        "Microsoft.Resources/Subscriptions"
+      ],
+      "required_value": null,
+      "azurePropertyPath": "",
+      "bicepPropertyPath": "",
+      "exemption": null,
+      "override": null
+    },
+    {
+      "policy_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyDefinitions/StorageAccount_New_Deploy",
+      "display_name": "Deploy Storage Account for Diagnostic Settings",
+      "effect": "deployIfNotExists",
+      "scope": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+      "assignment_display_name": "MCAPSGov Deploy and Modify Policies",
+      "assignment_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyAssignments/MCAPSGovDeployPolicies",
+      "classification": "auto-remediate",
+      "category": "Uncategorized",
+      "resource_types": [
+        "Microsoft.Resources/subscriptions"
+      ],
+      "required_value": null,
+      "azurePropertyPath": "",
+      "bicepPropertyPath": "",
+      "exemption": null,
+      "override": null
+    },
+    {
+      "policy_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyDefinitions/965dc15a-655c-46be-b95e-72c2b6821ec6",
+      "display_name": "JV - Inherit Multiple Tags from Resource Group",
+      "effect": "modify",
+      "scope": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+      "assignment_display_name": "JV - Inherit Multiple Tags from Resource Group",
+      "assignment_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyAssignments/558bced8a4e7433e8662e202",
+      "classification": "auto-remediate",
+      "category": "Tags",
+      "resource_types": [],
+      "required_value": null,
+      "azurePropertyPath": "",
+      "bicepPropertyPath": "",
+      "exemption": null,
+      "override": null,
+      "assignment_parameters": {
+        "tagName1": "environment",
+        "tagName2": "owner",
+        "tagName3": "costcenter",
+        "tagName4": "application",
+        "tagName5": "workload",
+        "tagName6": "sla",
+        "tagName7": "backup-policy",
+        "tagName8": "maint-window",
+        "tagName9": "tech-contact"
+      }
+    },
+    {
+      "policy_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyDefinitions/f0b6d104-1292-4b81-a05d-c2d8db5a651d",
+      "display_name": "Block Azure RM Resource Creation",
+      "effect": "deny",
+      "scope": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+      "assignment_display_name": "Block Azure RM Resource Creation",
+      "assignment_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyAssignments/918465337cff47588b23a6e9",
+      "classification": "blocker",
+      "category": "Uncategorized",
+      "resource_types": [
+        "Microsoft.ClassicCompute/domainNames",
+        "Microsoft.ClassicCompute/virtualMachines",
+        "Microsoft.ClassicNetwork/networkSecurityGroups",
+        "Microsoft.ClassicNetwork/reservedIps",
+        "Microsoft.ClassicNetwork/virtualNetworks",
+        "Microsoft.ClassicStorage/storageAccounts",
+        "Microsoft.MarketplaceApps/classicDevServices"
+      ],
+      "required_value": null,
+      "azurePropertyPath": "",
+      "bicepPropertyPath": "",
+      "exemption": null,
+      "override": null
+    },
+    {
+      "policy_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyDefinitions/27833bcf-5909-4a37-891c-16a3cb06856d",
+      "display_name": "JV-Enforce Resource Group Tags",
+      "effect": "deny",
+      "scope": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+      "assignment_display_name": "JV-Enforce Resource Group Tags v3",
+      "assignment_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyAssignments/b1ad1a690a5148ec8707ff17",
+      "classification": "blocker",
+      "category": "Tags",
+      "resource_types": [
+        "Microsoft.Resources/subscriptions/resourceGroups"
+      ],
+      "required_value": null,
+      "azurePropertyPath": "resourceGroup.tags",
+      "bicepPropertyPath": "resourceGroups::tags",
+      "exemption": null,
+      "override": null,
+      "pathSemantics": "tag-policy-non-property"
+    },
+    {
+      "policy_id": "/providers/Microsoft.Authorization/policyDefinitions/3cf2ab00-13f1-4d0c-8971-2ac904541a7e",
+      "display_name": "Add system-assigned managed identity to enable Guest Configuration assignments on virtual machines with no identities",
+      "effect": "modify",
+      "scope": "/providers/Microsoft.Management/managementGroups/alz",
+      "assignment_display_name": "Enforce Azure Compute Security Baseline compliance auditing",
+      "assignment_id": "/providers/Microsoft.Management/managementGroups/alz/providers/Microsoft.Authorization/policyAssignments/Enforce-ACSB",
+      "classification": "auto-remediate",
+      "category": "Guest Configuration",
+      "resource_types": [
+        "Microsoft.Compute/virtualMachines"
+      ],
+      "required_value": "SystemAssigned",
+      "azurePropertyPath": "virtualMachines.storageProfile.osDisk.osType",
+      "bicepPropertyPath": "virtualMachines::storageProfile.osDisk.osType",
+      "exemption": null,
+      "override": null
+    },
+    {
+      "policy_id": "/providers/Microsoft.Authorization/policyDefinitions/331e8ea8-378a-410f-a2e5-ae22f38bb0da",
+      "display_name": "Deploy the Linux Guest Configuration extension to enable Guest Configuration assignments on Linux VMs",
+      "effect": "deployIfNotExists",
+      "scope": "/providers/Microsoft.Management/managementGroups/alz",
+      "assignment_display_name": "Enforce Azure Compute Security Baseline compliance auditing",
+      "assignment_id": "/providers/Microsoft.Management/managementGroups/alz/providers/Microsoft.Authorization/policyAssignments/Enforce-ACSB",
+      "classification": "auto-remediate",
+      "category": "Guest Configuration",
+      "resource_types": [
+        "Microsoft.Compute/virtualMachines"
+      ],
+      "required_value": null,
+      "azurePropertyPath": "virtualMachines.extensions/provisioningState",
+      "bicepPropertyPath": "virtualMachines::extensions/provisioningState",
+      "exemption": null,
+      "override": null
+    },
+    {
+      "policy_id": "/providers/Microsoft.Authorization/policyDefinitions/385f5831-96d4-41db-9a3c-cd3af78aaae6",
+      "display_name": "Deploy the Windows Guest Configuration extension to enable Guest Configuration assignments on Windows VMs",
+      "effect": "deployIfNotExists",
+      "scope": "/providers/Microsoft.Management/managementGroups/alz",
+      "assignment_display_name": "Enforce Azure Compute Security Baseline compliance auditing",
+      "assignment_id": "/providers/Microsoft.Management/managementGroups/alz/providers/Microsoft.Authorization/policyAssignments/Enforce-ACSB",
+      "classification": "auto-remediate",
+      "category": "Guest Configuration",
+      "resource_types": [
+        "Microsoft.Compute/virtualMachines"
+      ],
+      "required_value": null,
+      "azurePropertyPath": "virtualMachines.extensions/provisioningState",
+      "bicepPropertyPath": "virtualMachines::extensions/provisioningState",
+      "exemption": null,
+      "override": null
+    },
+    {
+      "policy_id": "/providers/Microsoft.Management/managementGroups/alz/providers/Microsoft.Authorization/policyDefinitions/Deploy_ServiceHealth_ActionGroups",
+      "display_name": "Deploy Service Health Action Group",
+      "effect": "deployIfNotExists",
+      "scope": "/providers/Microsoft.Management/managementGroups/alz",
+      "assignment_display_name": "Deploy Azure Monitor Baseline Alerts for Service Health",
+      "assignment_id": "/providers/Microsoft.Management/managementGroups/alz/providers/Microsoft.Authorization/policyAssignments/Deploy-AMBA-SvcHealth",
+      "classification": "auto-remediate",
+      "category": "Monitoring",
+      "resource_types": [
+        "Microsoft.Resources/subscriptions"
+      ],
+      "required_value": null,
+      "azurePropertyPath": "",
+      "bicepPropertyPath": "",
+      "exemption": null,
+      "override": null,
+      "assignment_parameters": {
+        "ALZMonitorResourceGroupName": "rg-amba-monitoring-001",
+        "ALZMonitorResourceGroupTags": {
+          "Project": "amba-monitoring"
+        },
+        "ALZMonitorResourceGroupLocation": "swedencentral",
+        "ALZMonitorDisableTagName": "MonitorDisable",
+        "ALZMonitorDisableTagValues": [
+          "true",
+          "Test",
+          "Dev",
+          "Sandbox"
+        ],
+        "ALZMonitorActionGroupEmail": [
+          "vella.jonathan@outlook.com"
+        ],
+        "ALZLogicappResourceId": "",
+        "ALZLogicappCallbackUrl": "",
+        "ALZArmRoleId": [
+          "8e3af657-a8ff-443c-a75c-2fe8c4bcb635"
+        ],
+        "ALZEventHubResourceId": [],
+        "ALZWebhookServiceUri": [
+          ""
+        ],
+        "ALZFunctionResourceId": "",
+        "ALZFunctionTriggerUrl": "",
+        "BYOActionGroup": [],
+        "BYOAlertProcessingRule": ""
+      }
+    },
+    {
+      "policy_id": "/providers/Microsoft.Management/managementGroups/alz/providers/Microsoft.Authorization/policyDefinitions/Deploy_AlertProcessing_Rule",
+      "display_name": "Deploy AMBA Notification Assets",
+      "effect": "deployIfNotExists",
+      "scope": "/providers/Microsoft.Management/managementGroups/alz",
+      "assignment_display_name": "Deploy Azure Monitor Baseline Alerts - Notification Assets",
+      "assignment_id": "/providers/Microsoft.Management/managementGroups/alz/providers/Microsoft.Authorization/policyAssignments/Deploy-AMBA-Notification",
+      "classification": "auto-remediate",
+      "category": "Monitoring",
+      "resource_types": [
+        "Microsoft.Resources/subscriptions"
+      ],
+      "required_value": null,
+      "azurePropertyPath": "",
+      "bicepPropertyPath": "",
+      "exemption": null,
+      "override": null,
+      "assignment_parameters": {
+        "ALZMonitorResourceGroupName": "rg-amba-monitoring-001",
+        "ALZMonitorResourceGroupTags": {
+          "Project": "amba-monitoring"
+        },
+        "ALZMonitorResourceGroupLocation": "swedencentral",
+        "ALZMonitorDisableTagName": "MonitorDisable",
+        "ALZMonitorDisableTagValues": [
+          "true",
+          "Test",
+          "Dev",
+          "Sandbox"
+        ],
+        "ALZMonitorActionGroupEmail": [
+          "vella.jonathan@outlook.com"
+        ],
+        "ALZLogicappResourceId": "",
+        "ALZLogicappCallbackUrl": "",
+        "ALZArmRoleId": [
+          "8e3af657-a8ff-443c-a75c-2fe8c4bcb635"
+        ],
+        "ALZEventHubResourceId": [],
+        "ALZWebhookServiceUri": [
+          ""
+        ],
+        "ALZFunctionResourceId": "",
+        "ALZFunctionTriggerUrl": "",
+        "BYOActionGroup": [],
+        "BYOAlertProcessingRule": ""
+      }
+    },
+    {
+      "policy_id": "/providers/Microsoft.Management/managementGroups/alz/providers/Microsoft.Authorization/policyDefinitions/Deploy_Suppression_AlertProcessing_Rule",
+      "display_name": "Deploy AMBA Notification Suppression Asset",
+      "effect": "deployIfNotExists",
+      "scope": "/providers/Microsoft.Management/managementGroups/alz",
+      "assignment_display_name": "Deploy Azure Monitor Baseline Alerts - Notification Assets",
+      "assignment_id": "/providers/Microsoft.Management/managementGroups/alz/providers/Microsoft.Authorization/policyAssignments/Deploy-AMBA-Notification",
+      "classification": "auto-remediate",
+      "category": "Monitoring",
+      "resource_types": [
+        "Microsoft.Resources/subscriptions"
+      ],
+      "required_value": null,
+      "azurePropertyPath": "",
+      "bicepPropertyPath": "",
+      "exemption": null,
+      "override": null,
+      "assignment_parameters": {
+        "ALZMonitorResourceGroupName": "rg-amba-monitoring-001",
+        "ALZMonitorResourceGroupTags": {
+          "Project": "amba-monitoring"
+        },
+        "ALZMonitorResourceGroupLocation": "swedencentral",
+        "ALZMonitorDisableTagName": "MonitorDisable",
+        "ALZMonitorDisableTagValues": [
+          "true",
+          "Test",
+          "Dev",
+          "Sandbox"
+        ],
+        "ALZMonitorActionGroupEmail": [
+          "vella.jonathan@outlook.com"
+        ],
+        "ALZLogicappResourceId": "",
+        "ALZLogicappCallbackUrl": "",
+        "ALZArmRoleId": [
+          "8e3af657-a8ff-443c-a75c-2fe8c4bcb635"
+        ],
+        "ALZEventHubResourceId": [],
+        "ALZWebhookServiceUri": [
+          ""
+        ],
+        "ALZFunctionResourceId": "",
+        "ALZFunctionTriggerUrl": "",
+        "BYOActionGroup": [],
+        "BYOAlertProcessingRule": ""
+      }
+    },
+    {
+      "policy_id": "/providers/Microsoft.Authorization/policyDefinitions/ffb6f416-7bd2-4488-8828-56585fef2be9",
+      "display_name": "Deploy export to Log Analytics workspace for Microsoft Defender for Cloud data",
+      "effect": "deployIfNotExists",
+      "scope": "/providers/Microsoft.Management/managementGroups/alz",
+      "assignment_display_name": "Deploy Microsoft Defender for Cloud configuration",
+      "assignment_id": "/providers/Microsoft.Management/managementGroups/alz/providers/Microsoft.Authorization/policyAssignments/Deploy-MDFC-Config-H224",
+      "classification": "auto-remediate",
+      "category": "Security Center",
+      "resource_types": [
+        "Microsoft.Resources/subscriptions"
+      ],
+      "required_value": null,
+      "azurePropertyPath": "",
+      "bicepPropertyPath": "",
+      "exemption": null,
+      "override": null,
+      "assignment_parameters": {
+        "emailSecurityContact": "vella.jonathan@outlook.com",
+        "logAnalytics": "/subscriptions/4d4d9df0-45be-4400-b5e0-cc16ca2ce541/resourceGroups/alz-mgmt/providers/Microsoft.OperationalInsights/workspaces/alz-law",
+        "ascExportResourceGroupName": "alz-asc-export",
+        "ascExportResourceGroupLocation": "swedencentral",
+        "enableAscForServers": "DeployIfNotExists",
+        "enableAscForServersVulnerabilityAssessments": "DeployIfNotExists",
+        "enableAscForSql": "DeployIfNotExists",
+        "enableAscForAppServices": "DeployIfNotExists",
+        "enableAscForStorage": "DeployIfNotExists",
+        "enableAscForContainers": "DeployIfNotExists",
+        "enableAscForKeyVault": "DeployIfNotExists",
+        "enableAscForSqlOnVm": "DeployIfNotExists",
+        "enableAscForArm": "DeployIfNotExists",
+        "enableAscForOssDb": "DeployIfNotExists",
+        "enableAscForCosmosDbs": "DeployIfNotExists",
+        "enableAscForCspm": "DeployIfNotExists"
+      }
+    },
+    {
+      "policy_id": "/providers/Microsoft.Authorization/policyDefinitions/36d49e87-48c4-4f2e-beed-ba4ed02b71f5",
+      "display_name": "Configure Azure Defender to be enabled on SQL servers",
+      "effect": "deployIfNotExists",
+      "scope": "/providers/Microsoft.Management/managementGroups/alz",
+      "assignment_display_name": "Configure Azure Defender to be enabled on SQL Servers and SQL Managed Instances",
+      "assignment_id": "/providers/Microsoft.Management/managementGroups/alz/providers/Microsoft.Authorization/policyAssignments/Deploy-MDFC-SqlAtp",
+      "classification": "auto-remediate",
+      "category": "SQL",
+      "resource_types": [
+        "Microsoft.Sql/servers"
+      ],
+      "required_value": null,
+      "azurePropertyPath": "",
+      "bicepPropertyPath": "",
+      "exemption": null,
+      "override": null
+    },
+    {
+      "policy_id": "/providers/Microsoft.Authorization/policyDefinitions/cd3aa116-8754-49c9-a813-ad46512ece54",
+      "display_name": "Inherit a tag from the resource group",
+      "effect": "modify",
+      "scope": "/providers/Microsoft.Management/managementGroups/alz",
+      "assignment_display_name": "JV - Inherit Tags from Resource Group",
+      "assignment_id": "/providers/Microsoft.Management/managementGroups/alz/providers/Microsoft.Authorization/policyAssignments/a41c0a8723164870846e97fd",
+      "classification": "auto-remediate",
+      "category": "Tags",
+      "resource_types": [],
+      "required_value": "[resourceGroup().tags[parameters('tagName')]]",
+      "azurePropertyPath": "",
+      "bicepPropertyPath": "",
+      "exemption": null,
+      "override": null
+    },
+    {
+      "policy_id": "/providers/Microsoft.Authorization/policyDefinitions/cd3aa116-8754-49c9-a813-ad46512ece54",
+      "display_name": "Inherit a tag from the resource group",
+      "effect": "modify",
+      "scope": "/providers/Microsoft.Management/managementGroups/alz",
+      "assignment_display_name": "JV - Inherit Tags from Resource Group",
+      "assignment_id": "/providers/Microsoft.Management/managementGroups/alz/providers/Microsoft.Authorization/policyAssignments/a41c0a8723164870846e97fd",
+      "classification": "auto-remediate",
+      "category": "Tags",
+      "resource_types": [],
+      "required_value": "[resourceGroup().tags[parameters('tagName')]]",
+      "azurePropertyPath": "",
+      "bicepPropertyPath": "",
+      "exemption": null,
+      "override": null
+    },
+    {
+      "policy_id": "/providers/Microsoft.Authorization/policyDefinitions/cd3aa116-8754-49c9-a813-ad46512ece54",
+      "display_name": "Inherit a tag from the resource group",
+      "effect": "modify",
+      "scope": "/providers/Microsoft.Management/managementGroups/alz",
+      "assignment_display_name": "JV - Inherit Tags from Resource Group",
+      "assignment_id": "/providers/Microsoft.Management/managementGroups/alz/providers/Microsoft.Authorization/policyAssignments/a41c0a8723164870846e97fd",
+      "classification": "auto-remediate",
+      "category": "Tags",
+      "resource_types": [],
+      "required_value": "[resourceGroup().tags[parameters('tagName')]]",
+      "azurePropertyPath": "",
+      "bicepPropertyPath": "",
+      "exemption": null,
+      "override": null
+    }
+  ],
+  "policies": [
+    {
+      "policy_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyDefinitions/VirtualMachine_SKU_Deny",
+      "display_name": "Block VM SKU Sizes",
+      "effect": "deny",
+      "scope": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+      "assignment_display_name": "MCAPSGov Deny Policies",
+      "assignment_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyAssignments/MCAPSGovDenyPolicies",
+      "classification": "blocker",
+      "category": "Compute",
+      "resource_types": [],
+      "required_value": null,
+      "azurePropertyPath": "",
+      "bicepPropertyPath": "",
+      "exemption": null,
+      "override": null
+    },
+    {
+      "policy_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyDefinitions/VirtualMachine_SKU_Deny",
+      "display_name": "Block VM SKU Sizes",
+      "effect": "deny",
+      "scope": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+      "assignment_display_name": "MCAPSGov Deny Policies",
+      "assignment_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyAssignments/MCAPSGovDenyPolicies",
+      "classification": "blocker",
+      "category": "Compute",
+      "resource_types": [],
+      "required_value": null,
+      "azurePropertyPath": "",
+      "bicepPropertyPath": "",
+      "exemption": null,
+      "override": null
+    },
+    {
+      "policy_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyDefinitions/VirtualMachine_SKU_Deny",
+      "display_name": "Block VM SKU Sizes",
+      "effect": "deny",
+      "scope": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+      "assignment_display_name": "MCAPSGov Deny Policies",
+      "assignment_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyAssignments/MCAPSGovDenyPolicies",
+      "classification": "blocker",
+      "category": "Compute",
+      "resource_types": [],
+      "required_value": null,
+      "azurePropertyPath": "",
+      "bicepPropertyPath": "",
+      "exemption": null,
+      "override": null
+    },
+    {
+      "policy_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyDefinitions/AKS_LimitNodeCount_Deny",
+      "display_name": "Deny AKS deployment with agent pool count greater than 10",
+      "effect": "deny",
+      "scope": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+      "assignment_display_name": "MCAPSGov Deny Policies",
+      "assignment_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyAssignments/MCAPSGovDenyPolicies",
+      "classification": "blocker",
+      "category": "Compute",
+      "resource_types": [
+        "Microsoft.ContainerService/managedClusters"
+      ],
+      "required_value": null,
+      "azurePropertyPath": "managedClusters.agentPoolProfiles[*]",
+      "bicepPropertyPath": "managedClusters::agentPoolProfiles[*]",
+      "exemption": null,
+      "override": null
+    },
+    {
+      "policy_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyDefinitions/VMSS_LimitNodesCount_Deny",
+      "display_name": "Deny VMSS deployment with instance count greater than 10",
+      "effect": "deny",
+      "scope": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+      "assignment_display_name": "MCAPSGov Deny Policies",
+      "assignment_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyAssignments/MCAPSGovDenyPolicies",
+      "classification": "blocker",
+      "category": "Compute",
+      "resource_types": [
+        "Microsoft.Compute/virtualMachineScaleSets"
+      ],
+      "required_value": null,
+      "azurePropertyPath": "virtualMachineScaleSets.sku.capacity",
+      "bicepPropertyPath": "virtualMachineScaleSets::sku.capacity",
+      "exemption": null,
+      "override": null
+    },
+    {
+      "policy_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyDefinitions/AzureOpenAI_ProvisionedCapacity_Deny",
+      "display_name": "Block Azure OpenAI Provisioned Capacity",
+      "effect": "deny",
+      "scope": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+      "assignment_display_name": "MCAPSGov Deny Policies",
+      "assignment_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyAssignments/MCAPSGovDenyPolicies",
+      "classification": "blocker",
+      "category": "Cognitive Services",
+      "resource_types": [
+        "Microsoft.CognitiveServices/accounts/deployments"
+      ],
+      "required_value": null,
+      "azurePropertyPath": "accounts/deployments.sku.name",
+      "bicepPropertyPath": "accounts/deployments::sku.name",
+      "exemption": null,
+      "override": null
+    },
+    {
+      "policy_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyDefinitions/Sentinel_Commitment_Deny",
+      "display_name": "Block Azure Sentinel Commitment over 100",
+      "effect": "deny",
+      "scope": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+      "assignment_display_name": "MCAPSGov Deny Policies",
+      "assignment_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyAssignments/MCAPSGovDenyPolicies",
+      "classification": "blocker",
+      "category": "Monitoring",
+      "resource_types": [
+        "Microsoft.OperationalInsights/workspaces"
+      ],
+      "required_value": null,
+      "azurePropertyPath": "workspaces.sku.capacityReservationLevel",
+      "bicepPropertyPath": "workspaces::sku.capacityReservationLevel",
+      "exemption": null,
+      "override": null
+    },
+    {
+      "policy_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyDefinitions/KeyVaultManagedHSM_PurgeProtectionEnabled_Deny",
+      "display_name": "Deny Azure Key Vault Managed HSM with Purge Protection Enabled",
+      "effect": "deny",
+      "scope": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+      "assignment_display_name": "MCAPSGov Deny Policies",
+      "assignment_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyAssignments/MCAPSGovDenyPolicies",
+      "classification": "blocker",
+      "category": "Key Vault",
+      "resource_types": [
+        "Microsoft.KeyVault/managedHSMs"
+      ],
+      "required_value": null,
+      "azurePropertyPath": "",
+      "bicepPropertyPath": "",
+      "exemption": null,
+      "override": null
+    },
+    {
+      "policy_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyDefinitions/VirtualMachine_GuestExtnforWindowsClient_Deploy",
+      "display_name": "Deploy the Windows Guest Configuration extension to enable Guest Configuration assignments on Windows VMs",
+      "effect": "deployIfNotExists",
+      "scope": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+      "assignment_display_name": "MCAPSGov Deploy and Modify Policies",
+      "assignment_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyAssignments/MCAPSGovDeployPolicies",
+      "classification": "auto-remediate",
+      "category": "Guest Configuration",
+      "resource_types": [
+        "Microsoft.Compute/virtualMachines"
+      ],
+      "required_value": null,
+      "azurePropertyPath": "virtualMachines.extensions/provisioningState",
+      "bicepPropertyPath": "virtualMachines::extensions/provisioningState",
+      "exemption": null,
+      "override": null
+    },
+    {
+      "policy_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyDefinitions/VirtualMachine_ManagedIdentity_Deploy",
+      "display_name": "Add system-assigned managed identity to enable Guest Configuration assignments on virtual machines with no identities",
+      "effect": "modify",
+      "scope": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+      "assignment_display_name": "MCAPSGov Deploy and Modify Policies",
+      "assignment_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyAssignments/MCAPSGovDeployPolicies",
+      "classification": "auto-remediate",
+      "category": "Managed Identity for Guest Configuration",
+      "resource_types": [
+        "Microsoft.Compute/virtualMachines"
+      ],
+      "required_value": "SystemAssigned",
+      "azurePropertyPath": "virtualMachines.storageProfile.osDisk.osType",
+      "bicepPropertyPath": "virtualMachines::storageProfile.osDisk.osType",
+      "exemption": null,
+      "override": null
+    },
+    {
+      "policy_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyDefinitions/VirtualMachine_ManagedIdentityonUserIdentity_Deploy",
+      "display_name": "Add system-assigned managed identity to enable Guest Configuration assignments on VMs with a user-assigned identity",
+      "effect": "modify",
+      "scope": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+      "assignment_display_name": "MCAPSGov Deploy and Modify Policies",
+      "assignment_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyAssignments/MCAPSGovDeployPolicies",
+      "classification": "auto-remediate",
+      "category": "Managed identity for Guest Configuration",
+      "resource_types": [
+        "Microsoft.Compute/virtualMachines"
+      ],
+      "required_value": "[concat(field('identity.type'), ',SystemAssigned')]",
+      "azurePropertyPath": "virtualMachines.storageProfile.osDisk.osType",
+      "bicepPropertyPath": "virtualMachines::storageProfile.osDisk.osType",
+      "exemption": null,
+      "override": null
+    },
+    {
+      "policy_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyDefinitions/StorageAccount_BlobAnonymousAccess_Modify",
+      "display_name": "Ensure secure access to storage account containers",
+      "effect": "modify",
+      "scope": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+      "assignment_display_name": "MCAPSGov Deploy and Modify Policies",
+      "assignment_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyAssignments/MCAPSGovDeployPolicies",
+      "classification": "auto-remediate",
+      "category": "Modify Allow Blob anonymous access",
+      "resource_types": [
+        "Microsoft.Storage/storageAccounts"
+      ],
+      "required_value": false,
+      "azurePropertyPath": "resourceGroup.tags",
+      "bicepPropertyPath": "resourceGroups::tags",
+      "exemption": null,
+      "override": null,
+      "pathSemantics": "tag-policy-non-property"
+    },
+    {
+      "policy_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyDefinitions/ResourceGroup_New_Deploy",
+      "display_name": "Deploy Resource Group McapsGovernance",
+      "effect": "deployIfNotExists",
+      "scope": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+      "assignment_display_name": "MCAPSGov Deploy and Modify Policies",
+      "assignment_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyAssignments/MCAPSGovDeployPolicies",
+      "classification": "auto-remediate",
+      "category": "Uncategorized",
+      "resource_types": [
+        "Microsoft.Resources/Subscriptions"
+      ],
+      "required_value": null,
+      "azurePropertyPath": "",
+      "bicepPropertyPath": "",
+      "exemption": null,
+      "override": null
+    },
+    {
+      "policy_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyDefinitions/StorageAccount_New_Deploy",
+      "display_name": "Deploy Storage Account for Diagnostic Settings",
+      "effect": "deployIfNotExists",
+      "scope": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+      "assignment_display_name": "MCAPSGov Deploy and Modify Policies",
+      "assignment_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyAssignments/MCAPSGovDeployPolicies",
+      "classification": "auto-remediate",
+      "category": "Uncategorized",
+      "resource_types": [
+        "Microsoft.Resources/subscriptions"
+      ],
+      "required_value": null,
+      "azurePropertyPath": "",
+      "bicepPropertyPath": "",
+      "exemption": null,
+      "override": null
+    },
+    {
+      "policy_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyDefinitions/965dc15a-655c-46be-b95e-72c2b6821ec6",
+      "display_name": "JV - Inherit Multiple Tags from Resource Group",
+      "effect": "modify",
+      "scope": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+      "assignment_display_name": "JV - Inherit Multiple Tags from Resource Group",
+      "assignment_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyAssignments/558bced8a4e7433e8662e202",
+      "classification": "auto-remediate",
+      "category": "Tags",
+      "resource_types": [],
+      "required_value": null,
+      "azurePropertyPath": "",
+      "bicepPropertyPath": "",
+      "exemption": null,
+      "override": null,
+      "assignment_parameters": {
+        "tagName1": "environment",
+        "tagName2": "owner",
+        "tagName3": "costcenter",
+        "tagName4": "application",
+        "tagName5": "workload",
+        "tagName6": "sla",
+        "tagName7": "backup-policy",
+        "tagName8": "maint-window",
+        "tagName9": "tech-contact"
+      }
+    },
+    {
+      "policy_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyDefinitions/f0b6d104-1292-4b81-a05d-c2d8db5a651d",
+      "display_name": "Block Azure RM Resource Creation",
+      "effect": "deny",
+      "scope": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+      "assignment_display_name": "Block Azure RM Resource Creation",
+      "assignment_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyAssignments/918465337cff47588b23a6e9",
+      "classification": "blocker",
+      "category": "Uncategorized",
+      "resource_types": [
+        "Microsoft.ClassicCompute/domainNames",
+        "Microsoft.ClassicCompute/virtualMachines",
+        "Microsoft.ClassicNetwork/networkSecurityGroups",
+        "Microsoft.ClassicNetwork/reservedIps",
+        "Microsoft.ClassicNetwork/virtualNetworks",
+        "Microsoft.ClassicStorage/storageAccounts",
+        "Microsoft.MarketplaceApps/classicDevServices"
+      ],
+      "required_value": null,
+      "azurePropertyPath": "",
+      "bicepPropertyPath": "",
+      "exemption": null,
+      "override": null
+    },
+    {
+      "policy_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyDefinitions/27833bcf-5909-4a37-891c-16a3cb06856d",
+      "display_name": "JV-Enforce Resource Group Tags",
+      "effect": "deny",
+      "scope": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b",
+      "assignment_display_name": "JV-Enforce Resource Group Tags v3",
+      "assignment_id": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyAssignments/b1ad1a690a5148ec8707ff17",
+      "classification": "blocker",
+      "category": "Tags",
+      "resource_types": [
+        "Microsoft.Resources/subscriptions/resourceGroups"
+      ],
+      "required_value": null,
+      "azurePropertyPath": "resourceGroup.tags",
+      "bicepPropertyPath": "resourceGroups::tags",
+      "exemption": null,
+      "override": null,
+      "pathSemantics": "tag-policy-non-property"
+    },
+    {
+      "policy_id": "/providers/Microsoft.Authorization/policyDefinitions/3cf2ab00-13f1-4d0c-8971-2ac904541a7e",
+      "display_name": "Add system-assigned managed identity to enable Guest Configuration assignments on virtual machines with no identities",
+      "effect": "modify",
+      "scope": "/providers/Microsoft.Management/managementGroups/alz",
+      "assignment_display_name": "Enforce Azure Compute Security Baseline compliance auditing",
+      "assignment_id": "/providers/Microsoft.Management/managementGroups/alz/providers/Microsoft.Authorization/policyAssignments/Enforce-ACSB",
+      "classification": "auto-remediate",
+      "category": "Guest Configuration",
+      "resource_types": [
+        "Microsoft.Compute/virtualMachines"
+      ],
+      "required_value": "SystemAssigned",
+      "azurePropertyPath": "virtualMachines.storageProfile.osDisk.osType",
+      "bicepPropertyPath": "virtualMachines::storageProfile.osDisk.osType",
+      "exemption": null,
+      "override": null
+    },
+    {
+      "policy_id": "/providers/Microsoft.Authorization/policyDefinitions/331e8ea8-378a-410f-a2e5-ae22f38bb0da",
+      "display_name": "Deploy the Linux Guest Configuration extension to enable Guest Configuration assignments on Linux VMs",
+      "effect": "deployIfNotExists",
+      "scope": "/providers/Microsoft.Management/managementGroups/alz",
+      "assignment_display_name": "Enforce Azure Compute Security Baseline compliance auditing",
+      "assignment_id": "/providers/Microsoft.Management/managementGroups/alz/providers/Microsoft.Authorization/policyAssignments/Enforce-ACSB",
+      "classification": "auto-remediate",
+      "category": "Guest Configuration",
+      "resource_types": [
+        "Microsoft.Compute/virtualMachines"
+      ],
+      "required_value": null,
+      "azurePropertyPath": "virtualMachines.extensions/provisioningState",
+      "bicepPropertyPath": "virtualMachines::extensions/provisioningState",
+      "exemption": null,
+      "override": null
+    },
+    {
+      "policy_id": "/providers/Microsoft.Authorization/policyDefinitions/385f5831-96d4-41db-9a3c-cd3af78aaae6",
+      "display_name": "Deploy the Windows Guest Configuration extension to enable Guest Configuration assignments on Windows VMs",
+      "effect": "deployIfNotExists",
+      "scope": "/providers/Microsoft.Management/managementGroups/alz",
+      "assignment_display_name": "Enforce Azure Compute Security Baseline compliance auditing",
+      "assignment_id": "/providers/Microsoft.Management/managementGroups/alz/providers/Microsoft.Authorization/policyAssignments/Enforce-ACSB",
+      "classification": "auto-remediate",
+      "category": "Guest Configuration",
+      "resource_types": [
+        "Microsoft.Compute/virtualMachines"
+      ],
+      "required_value": null,
+      "azurePropertyPath": "virtualMachines.extensions/provisioningState",
+      "bicepPropertyPath": "virtualMachines::extensions/provisioningState",
+      "exemption": null,
+      "override": null
+    },
+    {
+      "policy_id": "/providers/Microsoft.Management/managementGroups/alz/providers/Microsoft.Authorization/policyDefinitions/Deploy_ServiceHealth_ActionGroups",
+      "display_name": "Deploy Service Health Action Group",
+      "effect": "deployIfNotExists",
+      "scope": "/providers/Microsoft.Management/managementGroups/alz",
+      "assignment_display_name": "Deploy Azure Monitor Baseline Alerts for Service Health",
+      "assignment_id": "/providers/Microsoft.Management/managementGroups/alz/providers/Microsoft.Authorization/policyAssignments/Deploy-AMBA-SvcHealth",
+      "classification": "auto-remediate",
+      "category": "Monitoring",
+      "resource_types": [
+        "Microsoft.Resources/subscriptions"
+      ],
+      "required_value": null,
+      "azurePropertyPath": "",
+      "bicepPropertyPath": "",
+      "exemption": null,
+      "override": null,
+      "assignment_parameters": {
+        "ALZMonitorResourceGroupName": "rg-amba-monitoring-001",
+        "ALZMonitorResourceGroupTags": {
+          "Project": "amba-monitoring"
+        },
+        "ALZMonitorResourceGroupLocation": "swedencentral",
+        "ALZMonitorDisableTagName": "MonitorDisable",
+        "ALZMonitorDisableTagValues": [
+          "true",
+          "Test",
+          "Dev",
+          "Sandbox"
+        ],
+        "ALZMonitorActionGroupEmail": [
+          "vella.jonathan@outlook.com"
+        ],
+        "ALZLogicappResourceId": "",
+        "ALZLogicappCallbackUrl": "",
+        "ALZArmRoleId": [
+          "8e3af657-a8ff-443c-a75c-2fe8c4bcb635"
+        ],
+        "ALZEventHubResourceId": [],
+        "ALZWebhookServiceUri": [
+          ""
+        ],
+        "ALZFunctionResourceId": "",
+        "ALZFunctionTriggerUrl": "",
+        "BYOActionGroup": [],
+        "BYOAlertProcessingRule": ""
+      }
+    },
+    {
+      "policy_id": "/providers/Microsoft.Management/managementGroups/alz/providers/Microsoft.Authorization/policyDefinitions/Deploy_AlertProcessing_Rule",
+      "display_name": "Deploy AMBA Notification Assets",
+      "effect": "deployIfNotExists",
+      "scope": "/providers/Microsoft.Management/managementGroups/alz",
+      "assignment_display_name": "Deploy Azure Monitor Baseline Alerts - Notification Assets",
+      "assignment_id": "/providers/Microsoft.Management/managementGroups/alz/providers/Microsoft.Authorization/policyAssignments/Deploy-AMBA-Notification",
+      "classification": "auto-remediate",
+      "category": "Monitoring",
+      "resource_types": [
+        "Microsoft.Resources/subscriptions"
+      ],
+      "required_value": null,
+      "azurePropertyPath": "",
+      "bicepPropertyPath": "",
+      "exemption": null,
+      "override": null,
+      "assignment_parameters": {
+        "ALZMonitorResourceGroupName": "rg-amba-monitoring-001",
+        "ALZMonitorResourceGroupTags": {
+          "Project": "amba-monitoring"
+        },
+        "ALZMonitorResourceGroupLocation": "swedencentral",
+        "ALZMonitorDisableTagName": "MonitorDisable",
+        "ALZMonitorDisableTagValues": [
+          "true",
+          "Test",
+          "Dev",
+          "Sandbox"
+        ],
+        "ALZMonitorActionGroupEmail": [
+          "vella.jonathan@outlook.com"
+        ],
+        "ALZLogicappResourceId": "",
+        "ALZLogicappCallbackUrl": "",
+        "ALZArmRoleId": [
+          "8e3af657-a8ff-443c-a75c-2fe8c4bcb635"
+        ],
+        "ALZEventHubResourceId": [],
+        "ALZWebhookServiceUri": [
+          ""
+        ],
+        "ALZFunctionResourceId": "",
+        "ALZFunctionTriggerUrl": "",
+        "BYOActionGroup": [],
+        "BYOAlertProcessingRule": ""
+      }
+    },
+    {
+      "policy_id": "/providers/Microsoft.Management/managementGroups/alz/providers/Microsoft.Authorization/policyDefinitions/Deploy_Suppression_AlertProcessing_Rule",
+      "display_name": "Deploy AMBA Notification Suppression Asset",
+      "effect": "deployIfNotExists",
+      "scope": "/providers/Microsoft.Management/managementGroups/alz",
+      "assignment_display_name": "Deploy Azure Monitor Baseline Alerts - Notification Assets",
+      "assignment_id": "/providers/Microsoft.Management/managementGroups/alz/providers/Microsoft.Authorization/policyAssignments/Deploy-AMBA-Notification",
+      "classification": "auto-remediate",
+      "category": "Monitoring",
+      "resource_types": [
+        "Microsoft.Resources/subscriptions"
+      ],
+      "required_value": null,
+      "azurePropertyPath": "",
+      "bicepPropertyPath": "",
+      "exemption": null,
+      "override": null,
+      "assignment_parameters": {
+        "ALZMonitorResourceGroupName": "rg-amba-monitoring-001",
+        "ALZMonitorResourceGroupTags": {
+          "Project": "amba-monitoring"
+        },
+        "ALZMonitorResourceGroupLocation": "swedencentral",
+        "ALZMonitorDisableTagName": "MonitorDisable",
+        "ALZMonitorDisableTagValues": [
+          "true",
+          "Test",
+          "Dev",
+          "Sandbox"
+        ],
+        "ALZMonitorActionGroupEmail": [
+          "vella.jonathan@outlook.com"
+        ],
+        "ALZLogicappResourceId": "",
+        "ALZLogicappCallbackUrl": "",
+        "ALZArmRoleId": [
+          "8e3af657-a8ff-443c-a75c-2fe8c4bcb635"
+        ],
+        "ALZEventHubResourceId": [],
+        "ALZWebhookServiceUri": [
+          ""
+        ],
+        "ALZFunctionResourceId": "",
+        "ALZFunctionTriggerUrl": "",
+        "BYOActionGroup": [],
+        "BYOAlertProcessingRule": ""
+      }
+    },
+    {
+      "policy_id": "/providers/Microsoft.Authorization/policyDefinitions/ffb6f416-7bd2-4488-8828-56585fef2be9",
+      "display_name": "Deploy export to Log Analytics workspace for Microsoft Defender for Cloud data",
+      "effect": "deployIfNotExists",
+      "scope": "/providers/Microsoft.Management/managementGroups/alz",
+      "assignment_display_name": "Deploy Microsoft Defender for Cloud configuration",
+      "assignment_id": "/providers/Microsoft.Management/managementGroups/alz/providers/Microsoft.Authorization/policyAssignments/Deploy-MDFC-Config-H224",
+      "classification": "auto-remediate",
+      "category": "Security Center",
+      "resource_types": [
+        "Microsoft.Resources/subscriptions"
+      ],
+      "required_value": null,
+      "azurePropertyPath": "",
+      "bicepPropertyPath": "",
+      "exemption": null,
+      "override": null,
+      "assignment_parameters": {
+        "emailSecurityContact": "vella.jonathan@outlook.com",
+        "logAnalytics": "/subscriptions/4d4d9df0-45be-4400-b5e0-cc16ca2ce541/resourceGroups/alz-mgmt/providers/Microsoft.OperationalInsights/workspaces/alz-law",
+        "ascExportResourceGroupName": "alz-asc-export",
+        "ascExportResourceGroupLocation": "swedencentral",
+        "enableAscForServers": "DeployIfNotExists",
+        "enableAscForServersVulnerabilityAssessments": "DeployIfNotExists",
+        "enableAscForSql": "DeployIfNotExists",
+        "enableAscForAppServices": "DeployIfNotExists",
+        "enableAscForStorage": "DeployIfNotExists",
+        "enableAscForContainers": "DeployIfNotExists",
+        "enableAscForKeyVault": "DeployIfNotExists",
+        "enableAscForSqlOnVm": "DeployIfNotExists",
+        "enableAscForArm": "DeployIfNotExists",
+        "enableAscForOssDb": "DeployIfNotExists",
+        "enableAscForCosmosDbs": "DeployIfNotExists",
+        "enableAscForCspm": "DeployIfNotExists"
+      }
+    },
+    {
+      "policy_id": "/providers/Microsoft.Authorization/policyDefinitions/36d49e87-48c4-4f2e-beed-ba4ed02b71f5",
+      "display_name": "Configure Azure Defender to be enabled on SQL servers",
+      "effect": "deployIfNotExists",
+      "scope": "/providers/Microsoft.Management/managementGroups/alz",
+      "assignment_display_name": "Configure Azure Defender to be enabled on SQL Servers and SQL Managed Instances",
+      "assignment_id": "/providers/Microsoft.Management/managementGroups/alz/providers/Microsoft.Authorization/policyAssignments/Deploy-MDFC-SqlAtp",
+      "classification": "auto-remediate",
+      "category": "SQL",
+      "resource_types": [
+        "Microsoft.Sql/servers"
+      ],
+      "required_value": null,
+      "azurePropertyPath": "",
+      "bicepPropertyPath": "",
+      "exemption": null,
+      "override": null
+    },
+    {
+      "policy_id": "/providers/Microsoft.Authorization/policyDefinitions/cd3aa116-8754-49c9-a813-ad46512ece54",
+      "display_name": "Inherit a tag from the resource group",
+      "effect": "modify",
+      "scope": "/providers/Microsoft.Management/managementGroups/alz",
+      "assignment_display_name": "JV - Inherit Tags from Resource Group",
+      "assignment_id": "/providers/Microsoft.Management/managementGroups/alz/providers/Microsoft.Authorization/policyAssignments/a41c0a8723164870846e97fd",
+      "classification": "auto-remediate",
+      "category": "Tags",
+      "resource_types": [],
+      "required_value": "[resourceGroup().tags[parameters('tagName')]]",
+      "azurePropertyPath": "",
+      "bicepPropertyPath": "",
+      "exemption": null,
+      "override": null
+    },
+    {
+      "policy_id": "/providers/Microsoft.Authorization/policyDefinitions/cd3aa116-8754-49c9-a813-ad46512ece54",
+      "display_name": "Inherit a tag from the resource group",
+      "effect": "modify",
+      "scope": "/providers/Microsoft.Management/managementGroups/alz",
+      "assignment_display_name": "JV - Inherit Tags from Resource Group",
+      "assignment_id": "/providers/Microsoft.Management/managementGroups/alz/providers/Microsoft.Authorization/policyAssignments/a41c0a8723164870846e97fd",
+      "classification": "auto-remediate",
+      "category": "Tags",
+      "resource_types": [],
+      "required_value": "[resourceGroup().tags[parameters('tagName')]]",
+      "azurePropertyPath": "",
+      "bicepPropertyPath": "",
+      "exemption": null,
+      "override": null
+    },
+    {
+      "policy_id": "/providers/Microsoft.Authorization/policyDefinitions/cd3aa116-8754-49c9-a813-ad46512ece54",
+      "display_name": "Inherit a tag from the resource group",
+      "effect": "modify",
+      "scope": "/providers/Microsoft.Management/managementGroups/alz",
+      "assignment_display_name": "JV - Inherit Tags from Resource Group",
+      "assignment_id": "/providers/Microsoft.Management/managementGroups/alz/providers/Microsoft.Authorization/policyAssignments/a41c0a8723164870846e97fd",
+      "classification": "auto-remediate",
+      "category": "Tags",
+      "resource_types": [],
+      "required_value": "[resourceGroup().tags[parameters('tagName')]]",
+      "azurePropertyPath": "",
+      "bicepPropertyPath": "",
+      "exemption": null,
+      "override": null
+    }
+  ],
+  "governance_gate_status": {
+    "status": "READY_FOR_PLANNING",
+    "reason": "Live discovery completed and the three outstanding manual confirmations (tag keys, swedencentral allow-list, same-region enforcement) were resolved by the project owner on 2026-05-11.",
+    "blocks_before": null,
+    "resolved_confirmations": [
+      {
+        "topic": "required_resource_group_tags",
+        "decision": "Emit all 9 discovered lowercase tag keys on the resource group and propagate to taggable resources.",
+        "decided_at": "2026-05-11T16:30:00Z"
+      },
+      {
+        "topic": "allowed_locations",
+        "decision": "swedencentral is allowed by JV - Allowed Locations for subscription 00858ffc-dded-4f0f-8bbf-e17fff0d47d9.",
+        "decided_at": "2026-05-11T16:30:00Z"
+      },
+      {
+        "topic": "rg_resource_same_region",
+        "decision": "Resource group and all regional resources must be deployed in swedencentral.",
+        "decided_at": "2026-05-11T16:30:00Z"
+      }
+    ]
+  },
+  "tag_contract": {
+    "resolution_status": "CONFIRMED",
+    "required_for_resource_group": true,
+    "required_for_child_resources": true,
+    "casing_guidance": "Use the 9 lowercase, hyphenated tag keys exactly as listed. Do not emit PascalCase or alternate-casing variants for the same semantic key.",
+    "required_tag_keys": [
+      "environment",
+      "owner",
+      "costcenter",
+      "application",
+      "workload",
+      "sla",
+      "backup-policy",
+      "maint-window",
+      "tech-contact"
+    ],
+    "resolved_sources": [
+      "JV-Enforce Resource Group Tags v3 (project owner confirmation 2026-05-11)",
+      "JV - Inherit Multiple Tags from Resource Group (key list extracted from policy parameters)",
+      "JV - Inherit Tags from Resource Group (per-resource inheritance retained)"
+    ],
+    "planner_action": "Emit all 9 required tag keys on the resource group; propagate to every taggable workload resource. Do not invent additional tag keys or alternate casing."
+  },
+  "location_constraints": {
+    "resolution_status": "CONFIRMED",
+    "target_region": "swedencentral",
+    "allowed_locations": ["swedencentral"],
+    "rg_and_resource_locations_must_match": true,
+    "related_assignments": [
+      "JV - Allowed Locations",
+      "Resource Group and Resource locations should match"
+    ],
+    "planner_action": "Deploy all resources in swedencentral. Set the resource group location to swedencentral and ensure every regional resource matches."
+  },
+  "planner_constraints": [
+    {
+      "policy": "Block VM SKU Sizes",
+      "deny_type": "skuDenied",
+      "applicability": "not_applicable_current_architecture",
+      "resource_types": ["Microsoft.Compute/virtualMachines"],
+      "planner_action": "Do not add VM resources unless the SKU allow/deny parameters are resolved before planning."
+    },
+    {
+      "policy": "Deny AKS deployment with agent pool count greater than 10",
+      "deny_type": "propertyLimit",
+      "applicability": "not_applicable_current_architecture",
+      "resource_types": ["Microsoft.ContainerService/managedClusters"],
+      "azurePropertyPath": "managedClusters.agentPoolProfiles[*]",
+      "planner_action": "Do not add AKS for MVP; future AKS pools must stay at 10 nodes or fewer."
+    },
+    {
+      "policy": "Deny VMSS deployment with instance count greater than 10",
+      "deny_type": "propertyLimit",
+      "applicability": "not_applicable_current_architecture",
+      "resource_types": ["Microsoft.Compute/virtualMachineScaleSets"],
+      "azurePropertyPath": "virtualMachineScaleSets.sku.capacity",
+      "planner_action": "Do not add VMSS for MVP; future scale sets must cap capacity at 10 or fewer."
+    },
+    {
+      "policy": "Block Azure OpenAI Provisioned Capacity",
+      "deny_type": "skuDenied",
+      "applicability": "not_applicable_current_architecture",
+      "resource_types": ["Microsoft.CognitiveServices/accounts/deployments"],
+      "azurePropertyPath": "accounts/deployments.sku.name",
+      "planner_action": "Do not use Azure OpenAI provisioned deployments unless an exemption is approved."
+    },
+    {
+      "policy": "Block Azure Sentinel Commitment over 100",
+      "deny_type": "propertyLimit",
+      "applicability": "applicable_if_sentinel_enabled",
+      "resource_types": ["Microsoft.OperationalInsights/workspaces"],
+      "azurePropertyPath": "workspaces.sku.capacityReservationLevel",
+      "planner_action": "Keep Log Analytics/Sentinel commitment capacity unset or at 100 or below."
+    },
+    {
+      "policy": "Deny Azure Key Vault Managed HSM with Purge Protection Enabled",
+      "deny_type": "resourceTypeDenied",
+      "applicability": "not_applicable_current_architecture",
+      "resource_types": ["Microsoft.KeyVault/managedHSMs"],
+      "planner_action": "Use standard Key Vault; do not deploy Managed HSM."
+    },
+    {
+      "policy": "Block Azure RM Resource Creation",
+      "deny_type": "resourceTypeDenied",
+      "applicability": "applicable_global_guardrail",
+      "resource_types": [
+        "Microsoft.ClassicCompute/domainNames",
+        "Microsoft.ClassicCompute/virtualMachines",
+        "Microsoft.ClassicNetwork/networkSecurityGroups",
+        "Microsoft.ClassicNetwork/reservedIps",
+        "Microsoft.ClassicNetwork/virtualNetworks",
+        "Microsoft.ClassicStorage/storageAccounts",
+        "Microsoft.MarketplaceApps/classicDevServices"
+      ],
+      "planner_action": "Use only ARM-based resource providers."
+    },
+    {
+      "policy": "JV-Enforce Resource Group Tags",
+      "deny_type": "missingRequiredTags",
+      "applicability": "applicable_current_architecture",
+      "resource_types": ["Microsoft.Resources/subscriptions/resourceGroups"],
+      "azurePropertyPath": "resourceGroup.tags",
+      "planner_action": "Block Step 4 until required resource group tag keys and casing are confirmed; then emit all keys on the resource group."
+    }
+  ],
+  "security_property_hints": [
+    {
+      "policy": "Ensure secure access to storage account containers",
+      "resource_type": "Microsoft.Storage/storageAccounts",
+      "azurePropertyPath": "storageAccount.properties.allowBlobPublicAccess",
+      "bicepPropertyPath": "storageAccounts::properties.allowBlobPublicAccess",
+      "required_value": false,
+      "planner_action": "Declare blob public access disabled in workload IaC; do not rely solely on Modify remediation."
+    }
+  ],
+  "auto_remediation_ownership": [
+    {
+      "policy": "Deploy Resource Group McapsGovernance",
+      "owner": "subscription-governance",
+      "planner_action": "Do not duplicate this resource group in workload IaC."
+    },
+    {
+      "policy": "Deploy Storage Account for Diagnostic Settings",
+      "owner": "subscription-governance",
+      "planner_action": "Do not duplicate this diagnostics storage account in workload IaC."
+    },
+    {
+      "policy": "Deploy Service Health Action Group",
+      "owner": "subscription-governance",
+      "planner_action": "Keep workload-specific alerts separate from subscription Service Health alerts."
+    },
+    {
+      "policy": "Deploy AMBA Notification Assets",
+      "owner": "subscription-governance",
+      "planner_action": "Do not assume AMBA replaces workload-specific App Service, SQL, and availability alerts."
+    },
+    {
+      "policy": "Configure Azure Defender to be enabled on SQL servers",
+      "owner": "shared-security",
+      "planner_action": "Carry Defender for SQL behavior and any cost impact into Step 4 cost notes."
+    }
+  ],
+  "tags_required": [
+    {
+      "name": "environment",
+      "source_policy": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyDefinitions/27833bcf-5909-4a37-891c-16a3cb06856d",
+      "source_assignment": "JV-Enforce Resource Group Tags v3",
+      "unresolved": "false"
+    },
+    {
+      "name": "owner",
+      "source_policy": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyDefinitions/27833bcf-5909-4a37-891c-16a3cb06856d",
+      "source_assignment": "JV-Enforce Resource Group Tags v3",
+      "unresolved": "false"
+    },
+    {
+      "name": "costcenter",
+      "source_policy": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyDefinitions/27833bcf-5909-4a37-891c-16a3cb06856d",
+      "source_assignment": "JV-Enforce Resource Group Tags v3",
+      "unresolved": "false"
+    },
+    {
+      "name": "application",
+      "source_policy": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyDefinitions/965dc15a-655c-46be-b95e-72c2b6821ec6",
+      "source_assignment": "JV - Inherit Multiple Tags from Resource Group",
+      "unresolved": "false"
+    },
+    {
+      "name": "workload",
+      "source_policy": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyDefinitions/965dc15a-655c-46be-b95e-72c2b6821ec6",
+      "source_assignment": "JV - Inherit Multiple Tags from Resource Group",
+      "unresolved": "false"
+    },
+    {
+      "name": "sla",
+      "source_policy": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyDefinitions/965dc15a-655c-46be-b95e-72c2b6821ec6",
+      "source_assignment": "JV - Inherit Multiple Tags from Resource Group",
+      "unresolved": "false"
+    },
+    {
+      "name": "backup-policy",
+      "source_policy": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyDefinitions/965dc15a-655c-46be-b95e-72c2b6821ec6",
+      "source_assignment": "JV - Inherit Multiple Tags from Resource Group",
+      "unresolved": "false"
+    },
+    {
+      "name": "maint-window",
+      "source_policy": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyDefinitions/965dc15a-655c-46be-b95e-72c2b6821ec6",
+      "source_assignment": "JV - Inherit Multiple Tags from Resource Group",
+      "unresolved": "false"
+    },
+    {
+      "name": "tech-contact",
+      "source_policy": "/providers/Microsoft.Management/managementGroups/2d04cb4c-999b-4e60-a3a7-e8993edc768b/providers/Microsoft.Authorization/policyDefinitions/965dc15a-655c-46be-b95e-72c2b6821ec6",
+      "source_assignment": "JV - Inherit Multiple Tags from Resource Group",
+      "unresolved": "false"
+    }
+  ],
+  "allowed_locations": ["swedencentral"],
+  "_out_path": "agent-output/nordic-foods/04-governance-constraints.json"
+}

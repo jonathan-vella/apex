@@ -1,0 +1,87 @@
+{
+  "challenged_artifact": "agent-output/nordic-foods/04-governance-constraints.md",
+  "companion_json": "agent-output/nordic-foods/04-governance-constraints.json",
+  "artifact_type": "governance-constraints",
+  "review_focus": "comprehensive",
+  "pass_number": 1,
+  "challenge_summary": "Governance discovery has a COMPLETE L0 envelope, but the artifacts are not yet reliable enough for IaC planning: required tag data is unresolved or contradictory, allowed-location assignments are inventoried but not mapped, several blocker rows lack enforceable values/paths, and markdown/json drift obscures which constraints must shape Nordic Foods Bicep.",
+  "compact_for_parent": "Pass 1 (comprehensive) | HIGH | 3 must_fix, 4 should_fix | Key: Resolve mandatory tag policy envelope; Map allowed-location policies; Make deny blockers machine-actionable",
+  "risk_level": "high",
+  "must_fix_count": 3,
+  "should_fix_count": 4,
+  "suggestion_count": 1,
+  "issues": [
+    {
+      "severity": "must_fix",
+      "category": "governance_gap",
+      "title": "Resolve mandatory tag policy envelope before IaC planning",
+      "description": "The required tag contract is internally inconsistent. The markdown Discovery Source says 4 tags required, the Required Tags section lists nine concrete lowercase tags plus unresolved entries, while the JSON top-level tags_required array contains only four unresolved placeholder names. The blocking JV-Enforce Resource Group Tags finding has required_value null, and the JSON does not expose a canonical ordered tag list that Step 4 can apply to the resource group and child resources.",
+      "failure_scenario": "Step 4 generates Bicep with only baseline tags, only the nine markdown tags, or placeholder tag names. Resource group creation is then denied by JV-Enforce Resource Group Tags, or child resources inherit incomplete/ambiguous tags and fail subsequent policy evaluation.",
+      "artifact_section": "Required Tags; Deployment Blockers; companion JSON tags_required",
+      "suggested_mitigation": "Make the governance artifact authoritative: either populate tags_required with the exact required tag keys from discovered policy parameters and align the markdown table to that list, or mark the governance gate blocked/unactionable until those tag keys are resolved. Include explicit casing guidance for Bicep tag keys so downstream code does not mix lowercase governance tags with PascalCase defaults."
+    },
+    {
+      "severity": "must_fix",
+      "category": "hidden_dependency",
+      "title": "Map allowed-location policies into actionable constraints",
+      "description": "The JSON assignment inventory includes JV - Allowed Locations and Resource Group and Resource locations should match, but allowed_locations is empty and the markdown says no network-specific policies discovered without surfacing a location constraint section. Nordic Foods is explicitly region-pinned to swedencentral, so location policy compatibility is a deployment gate, not background inventory.",
+      "failure_scenario": "The IaC Planner assumes swedencentral is allowed and plans all resources there. If the inherited Allowed Locations assignment excludes swedencentral, or requires resource and resource-group locations to match in a way the plan violates, the first resource group or regional resource deployment is denied.",
+      "artifact_section": "Discovery Source; companion JSON assignment_inventory.allowed_locations",
+      "suggested_mitigation": "Promote location-related assignments from inventory into findings or an explicit location_constraints block. State whether swedencentral is allowed, whether any services must use alternate EU regions, and how the resource group location must match resource locations. If parameter resolution is unavailable, mark Step 4 as blocked on location-policy resolution rather than leaving allowed_locations empty."
+    },
+    {
+      "severity": "must_fix",
+      "category": "scope_risk",
+      "title": "Make deny blockers machine-actionable for planner and codegen",
+      "description": "Several deny/blocker findings have empty azurePropertyPath/bicepPropertyPath and null required_value, including Block VM SKU Sizes, Deny Azure Key Vault Managed HSM with Purge Protection Enabled, Block Azure RM Resource Creation, and the tag-enforcement blocker. The markdown resolutions are human-readable but not enough for downstream tooling to build a policy-to-resource compliance matrix.",
+      "failure_scenario": "Step 4 cannot distinguish a resource-type deny from a property-value deny, cannot validate future SKU choices, and cannot generate a precise compliance matrix. A later plan change, such as adding compute, managed HSM, or a restricted regional/SKU resource, proceeds with no machine-readable blocker and fails during deployment.",
+      "artifact_section": "Deployment Blockers; Policy Definition Analysis; companion JSON findings",
+      "suggested_mitigation": "For each deny blocker, provide at least one of: target resource_types with a deny_type such as resourceTypeDenied, azurePropertyPath plus required/forbidden values, or a parameter_resolution_status that explicitly blocks downstream planning. Add a planner-facing mitigation field that says exactly what Bicep must avoid or set."
+    },
+    {
+      "severity": "should_fix",
+      "category": "governance_gap",
+      "title": "Correct storage anonymous-access policy path semantics",
+      "description": "The StorageAccount_BlobAnonymousAccess_Modify finding is labeled as ensuring secure access to storage account containers and the markdown tells IaC to disable blob public access, but the JSON azurePropertyPath is resourceGroup.tags and bicepPropertyPath is resourceGroups::tags with pathSemantics tag-policy-non-property. That machine-readable path does not point to the storage account property that enforces anonymous blob access.",
+      "failure_scenario": "A code generator trusts the JSON path, treats this as a tag-only policy, and omits allowBlobPublicAccess/similar storage hardening in the storage account module. The workload then depends on auto-remediation instead of declaring the security baseline, increasing drift and public data exposure risk for images/invoices.",
+      "artifact_section": "Azure Policy Compliance; Auto-Modified Configurations; companion JSON StorageAccount_BlobAnonymousAccess_Modify",
+      "suggested_mitigation": "Split tag-path metadata from storage security metadata. Add a storageAccount.properties.allowBlobPublicAccess or equivalent enforcement hint for Bicep/Terraform, and keep the tag-policy path only if it is genuinely part of policy parameter evaluation."
+    },
+    {
+      "severity": "should_fix",
+      "category": "missing_failure_mode",
+      "title": "Reconcile markdown and JSON counts/status semantics",
+      "description": "The markdown Discovery Source reports 33 policies discovered, 4 tags required, 1 security constraint, and 8 deployment blockers. The JSON discovery_summary reports 36 assignments, 33 kept, 10 blocker findings, 18 auto-remediate findings, and an empty allowed_locations array. The markdown also marks not-applicable blockers with a red status icon, which can be read as noncompliant rather than avoided-by-design.",
+      "failure_scenario": "The IaC Planner or a human reviewer uses the markdown counts as the source of truth, misses duplicate blocker rows and filtered assignments, or treats avoided resource types as unresolved failures. Gate decisions become inconsistent depending on whether the markdown or JSON is read first.",
+      "artifact_section": "Discovery Source; Azure Policy Compliance; Deployment Blockers; companion JSON discovery_summary",
+      "suggested_mitigation": "Add a concise reconciliation note: assignment_total, assignment_kept, duplicate/consolidated blocker count, unique blocker count, filtered Defender auto-assignments, and tag-policy resolution status. Replace red blocker status for out-of-scope resource types with explicit states such as Avoided by current architecture, Action required, or Blocked pending parameters."
+    },
+    {
+      "severity": "should_fix",
+      "category": "waf_blind_spot",
+      "title": "Map audit initiatives to Nordic Foods controls, not just framework names",
+      "description": "The artifacts list Azure Security Baseline, Microsoft Cloud Security Benchmark, GDPR, and PCI DSS v4 assignments, but the mapping does not reconcile them with Nordic Foods requirements. Step 1 says PCI DSS is not applicable for MVP, while governance says PCI DSS v4 is assigned at subscription scope. The artifact does not say which audit findings are workload-actionable for SQL, Storage, Key Vault, App Service, logging, or identity.",
+      "failure_scenario": "Step 4 assumes PCI and benchmark initiatives are informational only and omits controls that are expected by assigned audit policies. Later compliance scans show avoidable audit failures for diagnostic logging, secure transfer, Defender, encryption, or identity configuration even though the governance phase had the assignments available.",
+      "artifact_section": "Compliance Frameworks; Azure Policy Compliance",
+      "suggested_mitigation": "Add a policy-to-architecture matrix for active audit initiatives covering planned resource types: App Service, SQL, Storage, Key Vault, Log Analytics, private endpoints, and Entra integration. Explicitly distinguish business applicability from subscription audit assignment: PCI may be not business-applicable, but its Azure Policy controls still generate compliance signals."
+    },
+    {
+      "severity": "should_fix",
+      "category": "hidden_dependency",
+      "title": "Carry auto-remediation cost and ownership into Step 4 inputs",
+      "description": "Several DeployIfNotExists policies can create or configure governance-owned assets: AMBA notification assets, Service Health action groups, Defender export, Defender for SQL, and diagnostic storage. The markdown says not to duplicate governance-owned resources, but it does not provide a planner-ready ownership/cost/interaction model for the Nordic Foods workload budget and monitoring design.",
+      "failure_scenario": "The IaC plan either duplicates governance resources, omits workload alerts because it assumes AMBA covers them, or misses Defender for SQL cost/behavior in the budget and operational model. This can produce cost drift or alerting gaps even when deployment succeeds.",
+      "artifact_section": "Auto-Applied Resources; Cost Policies; Compliance Frameworks",
+      "suggested_mitigation": "For each DeployIfNotExists policy, state whether the resource is subscription-owned or workload-owned, whether Nordic Foods should reference it, avoid duplicating it, or add workload-specific alerts, and whether any expected cost needs to be carried into the Step 4 plan or cost model."
+    },
+    {
+      "severity": "suggestion",
+      "category": "untested_assumption",
+      "title": "Expose L0 envelope health in the markdown summary",
+      "description": "The companion JSON has useful L0 metadata: COMPLETE status, management groups, API versions, page counts, completeness signature, and ttl_days. The markdown cites REST discovery and management-group inheritance, but does not surface the L0 attestation fields that downstream reviewers use to understand freshness and coverage.",
+      "failure_scenario": "A future reviewer reads only the markdown, cannot tell whether discovery is stale, which management groups were included, or whether the completeness signature changed since planning. They may proceed without checking the JSON envelope.",
+      "artifact_section": "Discovery Source; companion JSON discovery_metadata",
+      "suggested_mitigation": "Add a compact L0 attestation table to the markdown with discovery_status, discovered_at, ttl_days, management groups, page counts, and completeness_signature. Keep the JSON as the authoritative source for automation."
+    }
+  ]
+}
