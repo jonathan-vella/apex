@@ -18,7 +18,15 @@ Compact reference for agent startup. Read full `SKILL.md` for details.
 | `summarized` | 60-80%        | Load key H2 sections only                  |
 | `minimal`    | > 80%         | Load decision summaries only (< 500 chars) |
 
-## Action Rules
+## Hard Token Checkpoints (model-specific)
+
+Percentages are advisory; absolute input-token counts override them for the
+models below. When any LLM round-trip would ship more than the threshold,
+the agent MUST emit a context-compaction checkpoint **before** the next
+tool call and switch every further read to the `minimal` tier.
+> _See SKILL.md for full content._
+
+## Rules
 
 Before loading any artifact file:
 
@@ -27,7 +35,7 @@ Before loading any artifact file:
 3. **Apply compression template** from `references/compression-templates.md`
 > _See SKILL.md for full content._
 
-## Tier Selection Protocol
+## Steps
 > _See SKILL.md for full content._
 
 ## Skill Loading Tiers
@@ -50,21 +58,16 @@ debugging contexts where the digest is insufficient.
 
 ## Audit Capabilities
 
-| Capability            | Description                                                  |
-| --------------------- | ------------------------------------------------------------ |
-| Log Parsing           | Extract structured data from Copilot Chat debug logs         |
-| Turn-Cost Profiling   | Estimate token spend per turn from timing and model metadata |
-| Redundancy Detection  | Find duplicate file reads, overlapping instructions          |
-> _See SKILL.md for full content._
+Audit mode covers log parsing, turn-cost profiling, redundancy detection, hand-off gap
+analysis, instruction audit, and structured report generation. Full capability matrix and
+the portability checklist for porting the audit to another project live in
+[`references/audit-setup.md`](references/audit-setup.md).
 
 ## Audit Prerequisites
 
-- Python 3.14 (for log parser script)
-- Access to VS Code Copilot Chat debug logs
-- Agent definitions in `.github/agents/*.agent.md` (or equivalent)
-
-### Enabling Debug Logs
-> _See SKILL.md for full content._
+Python 3.14, access to VS Code Copilot Chat debug logs, and `.github/agents/*.agent.md` (or
+equivalent agent definitions). To find the latest debug logs and enable verbose tool-call
+output, see [`references/audit-setup.md`](references/audit-setup.md).
 
 ## Analysis Methodology
 
@@ -81,9 +84,10 @@ See `templates/optimization-report.md` for the full output template.
 
 ## Portability
 
-The audit mode contains **no project-specific logic**. To use in another project:
+Audit mode is project-agnostic — see [`references/audit-setup.md`](references/audit-setup.md)
+for the 6-step copy-and-adjust checklist when reusing it in another repo.
 
-1. Copy `.github/skills/context-management/` to the target repo
-2. Copy `.github/agents/11-context-optimizer.agent.md`
-3. Copy `.github/instructions/context-optimization.instructions.md`
+---
+
+## Reference Index
 > _See SKILL.md for full content._

@@ -127,6 +127,11 @@ complete and list the artifacts (per the azure-artifacts skill).
   configurations to the challenger.
 - Stop after Phase 6 artifact emission and hand off to Deploy
   (07t-Terraform Deploy). Do not auto-deploy.
+- **Plan-lock stop**: STOP and traverse the `↩ Return to Step 4` handoff if
+  any challenger pass surfaces a `must_fix` whose root cause is in
+  `04-implementation-plan.md` / `04-governance-constraints.*`. Do NOT edit
+  the frozen artifacts in place — that is a defect and breaks workflow
+  resume.
 
 ## Investigate Before Answering
 
@@ -164,7 +169,8 @@ Before doing any work, read these skills:
 3. Read artifact template files: `azure-artifacts/templates/04-preflight-check.template.md` + `05-implementation-reference.template.md`
 4. Read `.github/skills/terraform-patterns/SKILL.digest.md` — patterns, AVM Known Pitfalls, module composition
 5. Read `.github/instructions/iac-terraform-best-practices.instructions.md` — governance mandate, translation table
-6. Read `.github/skills/context-management/SKILL.digest.md` — runtime compression for large plan/governance artifacts (Mode A)
+6. Read `.github/skills/context-management/SKILL.digest.md` — runtime
+   compression for large plan/governance artifacts (Mode A)
 
 ## Do
 
@@ -185,6 +191,16 @@ Before doing any work, read these skills:
 - Start coding before preflight check
 - Silently halt on blockers without telling the user why
 - List blockers in chat and wait for a reply (wastes a round-trip)
+- Edit `agent-output/{project}/04-implementation-plan.md`,
+  `04-governance-constraints.md`, or `04-governance-constraints.json` —
+  frozen after gate-3 per `metadata.plan_lock` in the workflow graph;
+  plan-level must_fix returns to Step 4 instead
+- Invoke `challenger-review-subagent` with
+  `artifact_type = "implementation-plan"` from Step 5 (plan-level reviews
+  run at Step 4 only; Step 5 uses `artifact_type = "iac-code"`)
+- Issue more than one `askQuestions` call per challenger pass — batch all
+  open decisions into one inline form (see `codegen-shared-workflow.md` →
+  Batched User Decisions)
 - Write raw `azurerm` when AVM-TF exists
 - Hardcode unique strings
 - Use hardcoded tag maps ignoring governance
@@ -194,6 +210,11 @@ Before doing any work, read these skills:
 - Put hyphens in Storage Account names
 - Deploy — that's the Deploy agent's job
 - Proceed without checking AVM-TF variable types (known issues exist)
+- Generate variables not declared in the plan's Code-Generation
+  Contract section. If a needed variable is missing, STOP and traverse
+  `↩ Return to Step 4` per
+  `iac-common/references/governance-drift-routing.md`. CodeGen does
+  NOT invent inputs.
 
 ## Prerequisites Check
 
@@ -204,6 +225,33 @@ Before starting, validate these files exist in `agent-output/{project}/`:
 3. `04-governance-constraints.md` — **REQUIRED**. Human-readable governance constraints
 
 Also read `02-architecture-assessment.md` for tier/SKU context.
+
+### Plan-Readiness Precondition (MANDATORY)
+
+Run `apex-recall show <project> --json` and verify, in order:
+
+1. `session.current_step` is at or past Step 4.
+2. `decisions.iac_tool == "Terraform"`.
+3. `decisions.plan_status == "APPROVED"` (recorded by Planner Phase 5
+   Stage 3 after every challenger pass returned APPROVED and the
+   Governance Compliance Matrix + Code-Generation Contract sections
+   are complete). If absent, the plan is not gate-3 approved.
+4. Every plan-level challenger pass under
+   `review_audit[step=4]` returned `overall_assessment == "APPROVED"` (no
+   `NEEDS_REVISION` or `BLOCKED` plan-level entries remain open).
+5. `metadata.plan_lock.frozen_artifacts` exist on disk (the three Step 4
+   artifacts above).
+6. **L0 envelope cross-check** — read `discovery_metadata` from
+   `04-governance-constraints.json` and verify (a) status is
+   `COMPLETE`, (b) age `<= ttl_days`, and (c) the
+   `completeness_signature` matches `decisions.discovery_signature`
+   recorded by the Planner. If any check fails, STOP and traverse
+   `▶ Refresh Governance` per
+   `iac-common/references/governance-drift-routing.md` (L0 row).
+
+If any condition fails, STOP and present the `↩ Return to Step 4` handoff.
+Do not enter Phase 1 with an open plan-level finding — that is the defect
+the plan-lock contract exists to prevent.
 
 ## Session State
 
@@ -253,19 +301,23 @@ For EACH resource in `04-implementation-plan.md`:
 
 **HARD GATE**. Do NOT proceed to Phase 2 with unresolved policy violations.
 
-1. Read `04-governance-constraints.json` — extract all `Deny` policies
-2. Translate `azurePropertyPath` → Terraform argument (use translation table in `.github/instructions/references/iac-policy-compliance.md`)
-3. Build compliance map: resource type → TF argument → required value
-4. Merge governance tags with 4 baseline defaults (governance wins)
-5. Validate every planned resource can comply
-6. If any Deny policy is unsatisfiable, use the `askQuestions` tool
-   to present the unresolved policies. Build one question with:
-   - header: "Unresolved Governance Policy Violations"
-   - question: List each unsatisfiable Deny policy name and affected resource
-   - Options: **Return to Planner** (recommended) / **Override and proceed** (advanced)
-     Do not list governance violations in chat text and ask the user to reply.
-     If the user chooses to return, STOP and present the Return to Step 4 handoff.
-7. If `04-governance-constraints.json` contains a structured `override` block
+The Planner emitted the `## 🛡️ Governance Compliance Matrix` H2
+section inside `04-implementation-plan.md` (L1 attestation — one row
+per Deny policy × resource). **Read that matrix; do NOT rebuild it
+from scratch.**
+
+1. Open `04-implementation-plan.md` and locate the
+   `## 🛡️ Governance Compliance Matrix` section.
+2. If the section is **missing** or any row has `status !=
+"✅ satisfied"`, STOP and traverse `↩ Return to Step 4` per
+   `iac-common/references/governance-drift-routing.md` (L1 rows).
+3. For each matrix row, translate the Bicep property path to its
+   Terraform argument (use the table in
+   `.github/instructions/references/iac-policy-compliance.md`) and
+   record the required value — these become the L2 attestations the
+   `terraform-validate-subagent` will check after code generation.
+4. Merge governance tags with 4 baseline defaults (governance wins).
+5. If `04-governance-constraints.json` contains a structured `override` block
    for a Deny finding (see `04g-governance.agent.md` → Policy Override Pattern),
    validate that `reason`, `issue_link`, and a future-dated `expiry` are all
    present. If valid, treat the finding as informational and emit
@@ -369,8 +421,24 @@ Check `decisions.complexity` from `apex-recall show <project> --json` to determi
 - `complex`: up to 3 passes (same early exit rules; use batch subagent
   for passes 2+3 if pass 1 triggers them)
 
-Invoke challenger subagents with `artifact_type = "iac-code"`,
+Invoke challenger subagents with `artifact_type = "iac-code"` (NEVER
+`"implementation-plan"` — that scope belongs to Step 4),
 rotating `review_focus` per protocol.
+
+**Plan-rooted findings**: if any returned `must_fix` traces back to the
+plan (e.g. "resource missing", "wrong SKU per architecture",
+"governance map is wrong"), STOP and traverse `↩ Return to Step 4`.
+Fix only code-level issues (variable wiring, AVM-TF version, security
+baseline) inline; the plan is frozen.
+
+**Mechanical auto-fix before exit**: before declaring Step 5 complete,
+apply the mechanical-fix pass from
+`iac-common/references/codegen-shared-workflow.md` →
+"Mechanical Auto-Fix Before Exiting" (LAW `depends_on` wiring, CIDR
+parameterization via `variables.tf`, missing `description` on variables,
+tag map completion) and re-run `terraform-validate-subagent` until it
+returns `APPROVED`. Exiting Step 5 with `NEEDS_REVISION` for any
+mechanical MEDIUM finding is a defect.
 
 **Read** `azure-defaults/references/challenger-selection-rules.md` for the
 pass routing table, model selection, and conditional skip rules.

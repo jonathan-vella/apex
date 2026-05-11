@@ -1,0 +1,85 @@
+{
+  "challenged_artifact": "agent-output/nordic-foods/01-requirements.md",
+  "review_pass": 1,
+  "decided_at": "2026-05-11T07:10:00Z",
+  "decisions": [
+    {
+      "issue_id": "REQ-C-01",
+      "severity": "must_fix",
+      "title": "Environment scope conflicts with production MVP requirements",
+      "decision": "Apply",
+      "rationale": "Bound Dev environment to production-equivalent sizing so all NFRs (99.9% SLA, 500 peak users) are testable; defer separate Production env to post-MVP per user direction.",
+      "applied_change_summary": "Added Target Environment row to Project Overview; bound NFR SLA/RTO/RPO entries to Dev-with-prod-equivalent-sizing; updated Complexity Classification rationale; updated Handoff Summary."
+    },
+    {
+      "issue_id": "REQ-C-02",
+      "severity": "must_fix",
+      "title": "Business-record retention conflicts with blob recovery requirements",
+      "decision": "Defer",
+      "rationale": "User opted to defer blob retention class split; flagged in Open Risks for the Architect to surface in Step 2 cost estimate.",
+      "applied_change_summary": "Recovery Targets matrix notes retention TBD by data class; Open Risks lists REQ-C-02 as deferred."
+    },
+    {
+      "issue_id": "REQ-C-03",
+      "severity": "should_fix",
+      "title": "Public endpoint protection is left below a clear minimum baseline",
+      "decision": "Apply",
+      "rationale": "WAF made optional only if Public-Edge Baseline (auth, rate limiting, TLS, logging, alerting, access restrictions) is fully implemented as compensating controls.",
+      "applied_change_summary": "Added Public-Edge Baseline table under Network Security; updated WAF row in Network Security; reflected in Recommended Security Controls priority tiers."
+    },
+    {
+      "issue_id": "REQ-C-04",
+      "severity": "should_fix",
+      "title": "Security control set may exceed the MVP budget envelope",
+      "decision": "Apply",
+      "rationale": "Added Non-negotiable / Cost-sensitive / Post-MVP priority tiers and required Step 2 to deliver baseline vs secure-plus cost options.",
+      "applied_change_summary": "Re-tabled Recommended Security Controls with a Priority column; added explicit cost-estimate requirement (baseline + secure-plus) in note below table; updated Handoff Summary Key Decisions."
+    },
+    {
+      "issue_id": "REQ-C-05",
+      "severity": "should_fix",
+      "title": "External farm API authentication remains ambiguous",
+      "decision": "Apply",
+      "rationale": "Entra External ID OAuth required for supplier writes; API keys are exception-only with rotation, scope, and audit.",
+      "applied_change_summary": "Updated Integrations table for farm inventory feeds; added Supplier Write Access row in Authentication & Authorization; updated External ID assumption to include suppliers."
+    },
+    {
+      "issue_id": "REQ-C-06",
+      "severity": "should_fix",
+      "title": "RPO target is not scoped across data stores",
+      "decision": "Apply",
+      "rationale": "Added per-component RTO/RPO matrix covering SQL, Storage, Key Vault, App Service config, and regional outage (deferred).",
+      "applied_change_summary": "New Recovery Targets by Component subsection added under NFRs; NFR top-level RTO/RPO rows now reference the matrix."
+    },
+    {
+      "issue_id": "REQ-C-07",
+      "severity": "should_fix",
+      "title": "Budget control lacks enforceable monitoring requirements",
+      "decision": "Apply",
+      "rationale": "Added explicit Cost Monitoring & Enforcement requirements: Azure Budget at envelope, 80/100/120% forecast+actual alerts, anomaly detection, parameterized recipients.",
+      "applied_change_summary": "New Cost Monitoring & Enforcement table added in Budget section."
+    },
+    {
+      "issue_id": "REQ-C-08",
+      "severity": "suggestion",
+      "title": "Entra External ID substitution is acceptable but should cite the assumption",
+      "decision": "Apply",
+      "rationale": "Documented the External ID tenant provisioning assumption with sizing context (10K consumers, 500 restaurants, 50-200 suppliers).",
+      "applied_change_summary": "Added Assumption note under Authentication & Authorization."
+    },
+    {
+      "issue_id": "REQ-C-09",
+      "severity": "suggestion",
+      "title": "Complexity classification undercounts supporting resource types",
+      "decision": "Apply",
+      "rationale": "Refined the rationale to enumerate supporting resources Step 2 must include (VNet, NSG, PEs, Private DNS, Action Groups, Budget, RBAC, External ID).",
+      "applied_change_summary": "Rewrote Complexity Classification rationale with primary vs supporting resource breakdown."
+    }
+  ],
+  "summary": {
+    "applied": 8,
+    "deferred": 1,
+    "skipped": 0,
+    "deferred_ids": ["REQ-C-02"]
+  }
+}

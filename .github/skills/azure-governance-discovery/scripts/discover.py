@@ -13,6 +13,7 @@ preview follows on later lines. Stderr carries warnings and filter notes.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import subprocess
@@ -33,6 +34,11 @@ API_ASSIGNMENTS = "2022-06-01"
 API_DEFINITIONS = "2021-06-01"
 API_EXEMPTIONS = "2022-07-01-preview"
 ARM = "https://management.azure.com"
+
+# L0 envelope: staleness threshold (days). Downstream consumers (Planner,
+# CodeGen, Deploy) treat envelopes older than this as STALE and refuse to
+# proceed without a fresh `--refresh` discovery.
+DEFAULT_TTL_DAYS = 7
 
 # Only these effects are plan-blocking. Everything else lives in the summary.
 BLOCKER_EFFECTS = {"Deny"}
@@ -500,6 +506,78 @@ def _extract_allowed_locations(findings: list[dict[str, Any]]) -> list[str]:
 
 
 # --------------------------------------------------------------------------- #
+# L0 envelope helpers                                                         #
+# --------------------------------------------------------------------------- #
+
+
+def _completeness_signature(findings: list[dict[str, Any]]) -> str:
+    """Return a deterministic sha256 over the stable-sorted policy tuples.
+
+    The signature is the L0 attestation used by downstream consumers
+    (Planner, CodeGen, Deploy) to detect that a constraints file has
+    drifted from the snapshot they validated against. Algorithm:
+
+    1. Build `(policy_id, effect, scope, params)` tuples for each finding.
+    2. Sort by `policy_id`.
+    3. Serialise each tuple as a compact JSON object with sorted keys.
+    4. Join with `\n` and sha256.
+    """
+    tuples: list[dict[str, Any]] = []
+    for f in findings:
+        tuples.append(
+            {
+                "policy_id": f.get("policy_id") or "",
+                "effect": f.get("effect") or "",
+                "scope": f.get("scope") or "",
+                "params": f.get("assignment_parameters") or {},
+            }
+        )
+    tuples.sort(key=lambda t: t["policy_id"])
+    serialized = "\n".join(json.dumps(t, sort_keys=True, separators=(",", ":")) for t in tuples)
+    return "sha256:" + hashlib.sha256(serialized.encode("utf-8")).hexdigest()
+
+
+def _extract_management_groups(kept_assignments: list[dict[str, Any]]) -> list[str]:
+    """Return MG ancestry referenced by kept assignment scopes (ordered)."""
+    seen: dict[str, None] = {}
+    for a in kept_assignments:
+        scope = ((a.get("properties") or {}).get("scope") or "").lower()
+        marker = "/providers/microsoft.management/managementgroups/"
+        if marker not in scope:
+            continue
+        mg = scope.split(marker, 1)[1].split("/", 1)[0]
+        if mg and mg not in seen:
+            seen[mg] = None
+    return list(seen.keys())
+
+
+def _self_check_assignments(
+    az_rest: Callable[[str], dict[str, Any]],
+    subscription_id: str,
+    expected_count: int,
+) -> tuple[bool, int]:
+    """Re-fetch the first page of policyAssignments and verify count.
+
+    Returns (ok, actual_count). On any network/parse failure, returns
+    (False, -1) so the caller can downgrade `discovery_status` to
+    `PARTIAL` without crashing.
+    """
+    try:
+        url = (
+            f"{ARM}/subscriptions/{subscription_id}/providers/Microsoft.Authorization/"
+            f"policyAssignments?$filter=atScope()&api-version={API_ASSIGNMENTS}"
+        )
+        # We deliberately re-use _default_az_rest here via the caller's
+        # az_rest, which is the same surface that just produced the original
+        # list — any drift now is real (filter change, RBAC drop, paging bug).
+        first = az_rest(url) or {}
+        items = first.get("value") or []
+        return len(items) == expected_count, len(items)
+    except Exception:  # noqa: BLE001 — self-check must never crash discovery
+        return False, -1
+
+
+# --------------------------------------------------------------------------- #
 # Core                                                                        #
 # --------------------------------------------------------------------------- #
 
@@ -708,13 +786,55 @@ def discover(
     auto_remediate = sum(1 for f in findings if f["classification"] == "auto-remediate")
     exempted = sum(1 for f in findings if f["exemption"] is not None)
 
+    # L0 envelope: signature, scope, and self-check.
+    signature = _completeness_signature(findings)
+    management_groups = _extract_management_groups(kept_assignments)
+    discovery_status = "COMPLETE"
+    # Re-fetch page 1 of assignments and verify the count matches the
+    # initial pull. Drift here indicates RBAC change, filter mutation, or
+    # a paginated REST surface change between the two calls.
+    self_check_ok, self_check_count = _self_check_assignments(az_rest, subscription_id, len(assignments))
+    if not self_check_ok:
+        discovery_status = "PARTIAL"
+        print(
+            f"self-check: policyAssignments count drift "
+            f"(expected={len(assignments)}, observed={self_check_count}); "
+            f"marking discovery_status=PARTIAL",
+            file=sys.stderr,
+        )
+
+    discovered_at = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
     envelope = {
         "schema_version": "governance-constraints-v1",
         "project": project,
         "subscription_id": subscription_id,
-        "discovered_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "discovered_at": discovered_at,
         "source": "azure-policy-rest-api",
-        "discovery_status": "COMPLETE",
+        "discovery_status": discovery_status,
+        "discovery_metadata": {
+            "discovery_status": discovery_status,
+            "discovered_at": discovered_at,
+            "scope": {
+                "subscription_id": subscription_id,
+                "management_groups": management_groups,
+            },
+            "api_versions": {
+                "policyAssignments": API_ASSIGNMENTS,
+                "policyDefinitions": API_DEFINITIONS,
+                "policyExemptions": API_EXEMPTIONS,
+            },
+            "page_counts": {
+                # `_parallel_list` collapses pagination, so we record the
+                # final item counts per REST surface. The self-check above
+                # validates these against a fresh page-1 fetch.
+                "policyAssignments": len(assignments),
+                "policyDefinitions": len(defs),
+                "policyExemptions": len(exemptions),
+            },
+            "completeness_signature": signature,
+            "ttl_days": DEFAULT_TTL_DAYS,
+        },
         "discovery_summary": {
             "assignment_total": len(assignments),
             "assignment_kept": len(kept_assignments),

@@ -122,6 +122,7 @@
       "bicep-whatif-subagent.agent.md": "Claude Sonnet 4.6",
       "challenger-review-subagent.agent.md": "GPT-5.5",
       "cost-estimate-subagent.agent.md": "GPT-5.3-Codex",
+      "policy-precheck-subagent.agent.md": "Claude Sonnet 4.6",
       "terraform-plan-subagent.agent.md": "Claude Sonnet 4.6",
       "terraform-validate-subagent.agent.md": "Claude Sonnet 4.6"
     }

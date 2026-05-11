@@ -1,0 +1,86 @@
+{
+  "challenged_artifact": "agent-output/nordic-foods/04-implementation-plan.md",
+  "artifact_type": "implementation-plan",
+  "review_focus": "architecture-reliability",
+  "pass_number": 2,
+  "challenge_summary": "The r2 plan closes the previous deploymentPhase blocker and materially improves identity, Easy Auth, autoscale, and recovery coverage. Remaining architecture-reliability risk is still high because the App Service plan declares zone redundancy while configuring one-instance capacity and autoscale minimums, which conflicts with Microsoft reliability requirements. Other risks are mostly unresolved deployable detail around web-to-API access restrictions, load validation, backup retention, alert coverage, diagnostic ingestion controls, and idempotent phase recovery.",
+  "compact_for_parent": "Pass 2 (architecture-reliability) | HIGH | 1 must_fix, 7 should_fix | Key: Zone-redundant App Service plan uses one instance",
+  "risk_level": "high",
+  "must_fix_count": 1,
+  "should_fix_count": 7,
+  "suggestion_count": 0,
+  "issues": [
+    {
+      "severity": "must_fix",
+      "category": "architectural_weakness",
+      "title": "Zone-redundant App Service plan uses one instance",
+      "description": "The plan repeatedly claims App Service P1v3 with availability-zone resilience and sets the App Service Plan to zoneRedundant: true, but it also specifies skuCapacity: 1 and autoscale capacity minimum/default/maximum of 1/1/3. Microsoft reliability guidance for App Service states that zone redundancy requires a minimum of two plan instances. With one instance, the plan either fails deployment/validation when zone redundancy is enabled or deploys without the AZ resilience and 99.95 percent compute SLA assumed by the architecture and decisions.",
+      "failure_scenario": "Phase 4 deploys the App Service Plan with zoneRedundant true and capacity 1. Azure rejects the configuration or the generated code lowers/removes zone redundancy to make deployment pass. In either case, the approval gate can show compute AZ readiness while the runtime has only one worker instance, so a zone or worker failure can take down the web/API/admin apps and the 99.9 percent workload SLA depends on a false resilience assumption.",
+      "artifact_section": "Resource Inventory; Task 7: modules/webapps.bicep; Deployment Phases - Phase 4",
+      "suggested_mitigation": "Choose one explicit design before CodeGen: either keep zoneRedundant true and set App Service Plan skuCapacity plus autoscale minimum/default to at least 2, then update cost and budget headroom; or keep the 1-instance MVP cost profile and remove the AZ/99.95 percent compute claim from the plan, WAF scores, and approval gate. If zone redundancy stays, add validation that the deployed plan reports zoneRedundant true and capacity >= 2."
+    },
+    {
+      "severity": "should_fix",
+      "category": "hidden_dependency",
+      "title": "API allow-list depends on unstable web outbound IPs",
+      "description": "The API App is planned with deny-all access restrictions and an allow-list of Web App outbound IPs described as regional VNet integration NAT, but the plan does not include a NAT Gateway, stable egress IP resource, or private service-to-service endpoint for the web-to-API path. App Service outbound addresses can vary across platform changes, scale behavior, and networking configuration. Using them as the only web-to-API allow-list source creates a hidden runtime dependency that can block the web portal from reaching the API even when both apps are healthy.",
+      "failure_scenario": "After Phase 4 succeeds, App Service scale-out or platform movement changes the web app outbound IP set. The API App access restriction still allows only the old addresses and corp ranges, so customer web requests receive API 403/timeout failures. The health checks may pass independently, but the core order flow fails until operators rediscover and update the allow-list.",
+      "artifact_section": "Task 7: modules/webapps.bicep; Runtime Flow Diagram",
+      "suggested_mitigation": "Make the service-to-service path deterministic. Options include adding NAT Gateway with a static public IP on the VNet integration subnet and allowing that IP, exposing the API through a private endpoint/internal path consumed by the web app, or relaxing IP restrictions for the web-to-API path and relying on Easy Auth plus app-level authorization while keeping the admin app corp-only. Document the selected mechanism and its validation."
+    },
+    {
+      "severity": "should_fix",
+      "category": "untested_assumption",
+      "title": "P1v3 plus SQL S3 capacity lacks a load-validation gate",
+      "description": "The plan carries forward P1v3 and SQL Standard S3 for 500 concurrent users, 3x seasonal peak, p95 API latency under 500 ms, and page load under 2.5 s, but Step 4 still only describes smoke testing and per-resource validation. The architecture assessment marked performance confidence as medium and called out DTU saturation risk. Without a concrete load-test gate, the implementation can be approved before the sizing assumption is tested against the actual NFRs.",
+      "failure_scenario": "FreshConnect reaches peak-season load and SQL DTU remains above 80 percent while API p95 exceeds 500 ms. The deployment technically completed, but there was no pre-go-live k6 or Azure Load Testing gate to detect that SQL S3, the app plan, or the missing cache layer could not satisfy the stated traffic profile.",
+      "artifact_section": "Resource Inventory; Task 6: modules/sql.bicep; Task 7: modules/webapps.bicep; Estimated Implementation Time; Approval Gate",
+      "suggested_mitigation": "Add a Step 6 load-validation gate to the plan: 500 concurrent users plus the seasonal spike profile, API p95 < 500 ms, web p95 < 2.5 s, error rate threshold, SQL DTU sustained threshold, and clear mitigation triggers such as S3-to-S4, P1v3 capacity increase, or Redis introduction."
+    },
+    {
+      "severity": "should_fix",
+      "category": "waf_blind_spot",
+      "title": "Backup and retention plan stops at short-term recovery",
+      "description": "The plan defines SQL PITR for 7 days and blob soft-delete/versioning for 30 days, but the requirements include 7-year retention for customer PII, orders, invoices, and delivery records. The architecture also called out SQL long-term retention and data-class lifecycle closure. The revised implementation plan does not specify SQL LTR policy or full blob lifecycle rules beyond invoice tiering to Cool at 90 days, leaving legal retention and recovery beyond the PITR window unresolved.",
+      "failure_scenario": "A customer dispute, audit, or accidental deletion investigation needs order or invoice data older than 7 days. SQL PITR cannot restore the required point and no LTR policy was deployed. Blob invoices may exist, but lifecycle/retention behavior differs by data class and is not enforceable from the plan, so recovery is manual and uncertain.",
+      "artifact_section": "Task 5: modules/storage.bicep; Task 6: modules/sql.bicep; Security Configuration",
+      "suggested_mitigation": "Add SQL long-term retention settings that match the retention requirement, or explicitly document the non-backup system of record that satisfies 7-year retention. Expand storage lifecycle rules by data class, including invoice/archive retention and inventory snapshot deletion, and make the retention design part of Phase 3 validation."
+    },
+    {
+      "severity": "should_fix",
+      "category": "missing_failure_mode",
+      "title": "Alert resources still omit required outage signals",
+      "description": "The module tree now names availability test alerts and auth-failure alerts, but Task 8 still defines only four metric alerts: web 5xx, API p95, SQL DTU, and Key Vault throttling. Requirements and architecture call for Application Insights availability tests, availability-test failure alerts, auth-failure spike alerts, unusual geo alerts, budget notifications, and signals for private data-path failures. The plan therefore asserts broader observability than the deployable alert module actually specifies.",
+      "failure_scenario": "Private DNS or a private endpoint breaks SQL connectivity, or Easy Auth starts rejecting valid users after a configuration drift. The four listed metric alerts may not clearly identify the outage source, and no synthetic availability failure or auth-failure alert reaches the Action Group before customers report impact.",
+      "artifact_section": "Task 2: modules/observability.bicep; Task 8: modules/alerts.bicep; Deployment Phases - Phase 5",
+      "suggested_mitigation": "Make the alert module match the stated requirements: include Microsoft.Insights/webtests where applicable, availability-test failure alert rules, auth failure spike or suspicious-pattern queries, budget notification alignment, and dependency/private data-path failure signals. Then update Phase 5 validation to test those alerts, not only generic metric alerts."
+    },
+    {
+      "severity": "should_fix",
+      "category": "untested_assumption",
+      "title": "AllLogs diagnostics lack ingestion controls",
+      "description": "The plan sends categoryGroup allLogs plus AllMetrics from every supported resource to Log Analytics while the cost envelope assumes only 5 GB/month for Log Analytics and 5 GB/month for Application Insights. It does not define Application Insights sampling targets, Log Analytics daily caps, table-level volume expectations, or alerts on ingestion growth. This creates a reliability trade-off: either logging costs can exceed budget during load tests/incidents, or a reactive cap can drop the diagnostic data needed for recovery.",
+      "failure_scenario": "App Service HTTP logs, SQL diagnostics, storage logs, availability tests, and platform diagnostics exceed the 5 GB/month assumption during the first realistic load test. Operators add a daily cap to protect budget, but during an incident the cap suppresses the very logs needed to diagnose degraded API and SQL dependency behavior.",
+      "artifact_section": "Task 2: modules/observability.bicep; Diagnostic Settings matrix references; Cost envelope in Overview",
+      "suggested_mitigation": "Define ingestion controls in the implementation plan: expected tables, expected monthly GB per source, Application Insights sampling percentage, alerts at 80/100 percent of the assumed ingestion budget, and any intentional category exclusions. If daily cap is used, document the operational risk and alert before cap exhaustion."
+    },
+    {
+      "severity": "should_fix",
+      "category": "missing_failure_mode",
+      "title": "Phase recovery is not idempotent for SQL grants",
+      "description": "The new Phase Failure Recovery table tells operators to re-run the same phase after partial success, but sqlgrant.bicep uses forceUpdateTag: utcNow() and SQL statements with plain CREATE USER / ALTER ROLE operations. That combination is not reliably idempotent: a recovery re-run can execute the grant script again after users or role memberships already exist. The plan also says forceUpdateTag makes the script re-run only on intentional updates, but utcNow changes on each deployment if wired directly or through a defaulted parameter.",
+      "failure_scenario": "Phase 4 creates the SQL users and then fails later on app settings or alerts. The operator follows the recovery table and re-runs Phase 4. The deploymentScript runs again, CREATE USER finds existing users, exits non-zero, and Phase 4 remains stuck even though the original failed component was unrelated to SQL grants.",
+      "artifact_section": "Task 6a: modules/sqlgrant.bicep; Phase Failure Recovery",
+      "suggested_mitigation": "Make SQL grant recovery idempotent. Use a parameterized forceUpdateTag that changes only when the operator intentionally reruns grants, and write SQL guards such as IF NOT EXISTS around CREATE USER plus role membership checks before ALTER ROLE. Add a validation note that repeated Phase 4 deployments do not fail when grants already exist."
+    },
+    {
+      "severity": "should_fix",
+      "category": "missing_failure_mode",
+      "title": "Rollback guidance deletes deployment records, not resources",
+      "description": "The Phase Failure Recovery table says to roll back a partial phase with az deployment sub delete for the failed deployment and then redeploy a lower-N phase parameter file. Deleting an ARM/Bicep deployment record does not delete the resources created by that deployment. The same table also points to az containerapp logs for deploymentScript troubleshooting even though deploymentScripts run on Azure Container Instances, not Container Apps. These recovery commands can mislead operators during the highest-risk part of a failed phased deployment.",
+      "failure_scenario": "Phase 4 partially creates public App Service resources and then fails. An operator runs az deployment sub delete expecting rollback, but the apps and networking resources remain. They then deploy a lower phase and believe the environment is clean, while partially configured public endpoints or stale role assignments still exist and affect the next attempt.",
+      "artifact_section": "Phase Failure Recovery",
+      "suggested_mitigation": "Replace rollback prose with accurate roll-forward and cleanup guidance: explain that deployment record deletion is not rollback, list resource-group scoped cleanup commands or Bicep complete-mode constraints where appropriate, and use the correct deploymentScript/ACI log retrieval path. Add a rule that lower-phase redeploys do not remove higher-phase resources unless an explicit cleanup step has run."
+    }
+  ]
+}

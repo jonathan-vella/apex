@@ -5,6 +5,33 @@
 Shared workflow phases for both Bicep and Terraform code generation agents.
 Each agent reads this reference and substitutes its IaC-specific tools.
 
+## Plan-Lock Contract (HARD GATE, applies to all phases)
+
+After gate-3 (Plan Approval), these artifacts are **read-only** for the
+CodeGen agents (06b / 06t):
+
+- `agent-output/{project}/04-implementation-plan.md`
+- `agent-output/{project}/04-governance-constraints.md`
+- `agent-output/{project}/04-governance-constraints.json`
+
+Rules:
+
+1. **No self-edit.** CodeGen agents MUST NOT write to any frozen artifact via
+   `apply_patch`, `replace_string_in_file`, `multi_replace_string_in_file`, or
+   `create_file`. Apex-recall `decide` / `finding` entries are allowed (they
+   write to session state, not the artifacts).
+2. **No plan-level challenger.** Challenger subagents invoked from Step 5 MUST
+   use `artifact_type = "iac-code"` and target `infra/{tool}/{project}/`. Do
+   NOT pass `artifact_type = "implementation-plan"` from Step 5.
+3. **Plan must_fix → Return to Planner.** If a code-review pass surfaces a
+   finding whose root cause is in the plan (missing resource, wrong topology,
+   unsatisfiable governance), STOP Step 5 and traverse the `↩ Return to
+   Step 4` handoff. Do not patch the plan in place.
+4. **Plan readiness precondition.** Before entering Phase 1, confirm
+   `apex-recall show <project> --json` shows Step 4 complete AND every
+   plan-level challenger pass returned APPROVED. If any plan-level pass is
+   open (NEEDS_REVISION / BLOCKED), STOP and return to Planner.
+
 ## Phase 1: Preflight Check
 
 For each resource in `04-implementation-plan.md`:
@@ -62,3 +89,51 @@ Write results to `challenge-findings-iac-code-pass{N}.json`.
 Fix any `must_fix` items, re-validate, re-run failing pass.
 Save validation status in `05-implementation-reference.md`.
 Run `npm run lint:artifact-templates`.
+
+### Batched User Decisions
+
+When a challenger pass surfaces findings that require user input, build a
+**single** `vscode_askQuestions` invocation with one question per decision —
+do NOT issue sequential prompts. Pattern:
+
+1. Group findings into decision buckets (e.g. `must_fix_A`, `must_fix_B`,
+   `should_fix_C`, …) and assign each a stable `header` slug for answer
+   mapping.
+2. Emit one `askQuestions` call with the full list. The user fills the
+   inline form once.
+3. Persist the answers via `apex-recall decide --key <header> --value <choice>`
+   for each non-skipped answer.
+
+Two `askQuestions` calls inside a single Step 5 run is a defect — fold the
+second into the first. The 06b/06t agents must batch their preflight,
+governance, and code-review prompts the same way.
+
+### Mechanical Auto-Fix Before Exiting (MANDATORY)
+
+Before emitting the Step 5 completion handoff, run a mechanical fix pass on
+the IaC tree. NEEDS_REVISION must not exit Step 5 if any MEDIUM finding is
+in this set — fix them in place and re-validate:
+
+- **LAW `dependsOn` wiring** — when a module reads from
+  `logAnalyticsWorkspaceResourceId` but the module is not in `dependsOn`,
+  inject the dependency. Same rule for App Insights → LAW and any
+  diagnostic-settings consumer.
+- **CIDR parameterization** — replace hardcoded `10.x.x.x/yy` strings in
+  module bodies with parameters declared in `main.bicep` /
+  `variables.tf`, defaulted to the original value so callers stay
+  unchanged.
+- **Missing `@description` on parameters** — add a one-line description
+  derived from the parameter name.
+- **Tag map / object completion** — when a tag key in the baseline (four
+  defaults + governance) is missing on a resource, inject it from the
+  central `tags` map / variable rather than asking the user.
+
+These fixes are mechanical and do not change the architecture; they DO
+NOT trigger a return to Planner. After applying, re-run
+`bicep-validate-subagent` / `terraform-validate-subagent`. Re-run the
+failing challenger pass only if any non-mechanical finding remains.
+
+Exit-state contract: Step 5 may exit only when the validator returns
+`APPROVED`, or when remaining findings are explicitly accepted via an
+`apex-recall decide` override entry with `--rationale`.
+

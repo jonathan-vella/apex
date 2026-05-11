@@ -158,6 +158,9 @@ Before requesting review, confirm:
 
 - **Questions** — [GitHub Discussions][discussions]
 - **Bugs and feature requests** — [GitHub Issues][issues]
+- **Working on `feat/skills-sensei`** — see the
+  [Sensei Branch guide](sensei-branch/) for the audit-tooling submodule
+  and the sensei-free PR workflow
 - **Full development workflow** — [Workflow guide](../../concepts/workflow/)
 
 ## Code of conduct

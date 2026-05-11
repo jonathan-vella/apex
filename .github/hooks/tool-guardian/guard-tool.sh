@@ -229,7 +229,24 @@ if [[ $THREAT_COUNT -gt 0 ]]; then
   if [[ "$MODE" == "block" ]]; then
     echo "🚫 Operation blocked: resolve the threats above or adjust TOOL_GUARD_ALLOWLIST."
     echo "   Set GUARD_MODE=warn to log without blocking."
-    exit 1
+
+    # Build a human-readable summary for `permissionDecisionReason` so VS Code
+    # surfaces *why* the call was blocked. Empty `status.message` on PreToolUse
+    # spans is what made hook errors in the May 2026 nordic-foods debug log
+    # unattributable; emitting structured JSON here is the fix.
+    REASONS=""
+    for threat in "${THREATS[@]}"; do
+      IFS=$'\t' read -r category severity match suggestion <<< "$threat"
+      if [[ -n "$REASONS" ]]; then
+        REASONS+=" | "
+      fi
+      REASONS+="[${severity}] ${category}: \"${match}\" — ${suggestion}"
+    done
+    REASON_MSG="tool-guardian blocked ${TOOL_NAME} (${THREAT_COUNT} threat(s)): ${REASONS}. Set GUARD_MODE=warn to log without blocking, or add a pattern to TOOL_GUARD_ALLOWLIST."
+
+    printf '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"%s","threatCount":%d,"threats":%s,"hook":"tool-guardian"}}\n' \
+      "$(json_escape "$REASON_MSG")" "$THREAT_COUNT" "$FINDINGS_JSON"
+    exit 0
   else
     echo "⚠️  Threats logged in warn mode. Set GUARD_MODE=block to prevent dangerous operations."
   fi

@@ -9,8 +9,10 @@
 
 - [📋 Overview](#-overview)
 - [📦 Resource Inventory](#-resource-inventory)
+- [�️ Governance Compliance Matrix](#-governance-compliance-matrix)
 - [🗂️ Module Structure](#-module-structure)
 - [🔨 Implementation Tasks](#-implementation-tasks)
+- [📤 Code-Generation Contract](#-code-generation-contract)
 - [🚀 Deployment Phases](#-deployment-phases)
 - [🔗 Dependency Graph](#-dependency-graph)
 - [🔄 Runtime Flow Diagram](#-runtime-flow-diagram)
@@ -41,6 +43,34 @@ Brief description of what will be implemented.
 | Resource 1 | Microsoft.Provider/resourceType |     | ✅ AVM                |              | ⬜ Todo |
 | Resource 2 | Microsoft.Provider/resourceType |     | ⚠️ Requires Approval  |              | ⬜ Todo |
 | Resource 3 | Microsoft.Provider/resourceType |     | ❌ No AVM (Justified) |              | ⬜ Todo |
+
+---
+
+## 🛡️ Governance Compliance Matrix
+
+> [!IMPORTANT]
+> L1 attestation in the four-layer governance stack. Every Deny policy
+> from `04-governance-constraints.json` MUST appear as at least one row
+> here, bound to a specific resource and property. Generated from the
+> constraints JSON; do not hand-author.
+
+| Resource ID  | Policy ID                                 | Effect | Satisfied By Property            | Required Value | Status       |
+| ------------ | ----------------------------------------- | ------ | -------------------------------- | -------------- | ------------ |
+| `resource_1` | `/providers/.../policyDefinitions/{guid}` | Deny   | `properties.publicNetworkAccess` | `Disabled`     | ✅ satisfied |
+| `resource_2` | `/providers/.../policyDefinitions/{guid}` | Deny   | `properties.minimalTlsVersion`   | `TLS1_2`       | ✅ satisfied |
+| `resource_n` | `/providers/.../policyDefinitions/{guid}` | Deny   | `properties.{path}`              | `{value}`      | ⚠️ pending   |
+
+**Status legend**:
+
+- ✅ `satisfied` — property is wired in the plan with the required value
+- ⚠️ `pending` — property declared but value not yet finalised
+- ❌ `unsatisfiable` — no plan shape satisfies this Deny; **return to
+  04g-Governance** via `▶ Refresh Governance` per
+  [governance-drift-routing.md](../../.github/skills/iac-common/references/governance-drift-routing.md)
+
+**Coverage check**: every Deny policy in
+`04-governance-constraints.json` MUST appear in at least one row. The
+Phase 4.3 challenger pass 1 (security-governance lens) verifies coverage.
 
 ---
 
@@ -120,6 +150,42 @@ Example configuration snippet
 - What-If preview
 - Deployment execution
 - Output display
+
+---
+
+## 📤 Code-Generation Contract
+
+> [!IMPORTANT]
+> Per-resource enumeration of inputs CodeGen (Step 5) MUST wire. This
+> contract is frozen with the plan at gate-3; CodeGen refuses to invent
+> parameters not listed here and returns to Planner if a needed param is
+> missing.
+
+### {resource_id}
+
+- **Required parameters**:
+  - `{param_name}` — `{type}` — `{description}`
+- **Secrets** (Key Vault references only — never inline):
+  - `{secret_name}` — `{kv_secret_uri_pattern}`
+- **Environment variables** (for compute resources):
+  - `{ENV_VAR_NAME}` — `{source}` (e.g. `keyVault://{secret_name}`)
+- **Managed identity bindings**:
+  - Type: `{system-assigned | user-assigned-shared | user-assigned-per-resource}`
+  - Identity ref: `{identity_resource_id_or_principal_id}`
+- **External dependencies** (peer resource refs CodeGen must wire):
+  - `{peer_resource_id}` — `{role / scope / property}`
+
+_(Repeat one block per resource in the plan. Resources with no
+requirements still appear with a single `\_None._` line so the contract
+is explicit about coverage.)\_
+
+**Contract enforcement**:
+
+- CodeGen Phase 2 reads this section ONCE; agents do not invent
+  parameters absent from this list.
+- If a needed input is missing, CodeGen returns to Planner via
+  `↩ Return to Step 4` per
+  [governance-drift-routing.md](../../.github/skills/iac-common/references/governance-drift-routing.md).
 
 ---
 

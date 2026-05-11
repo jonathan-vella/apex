@@ -1,0 +1,77 @@
+{
+  "challenged_artifact": "agent-output/nordic-foods/02-architecture-assessment.md",
+  "artifact_type": "architecture",
+  "review_focus": "security-governance",
+  "pass_number": 1,
+  "challenge_summary": "Security/governance review found high-risk gaps in the architecture handoff: the artifact declares readiness for IaC before mandatory live governance discovery exists, the public-edge WAF substitute is not yet testable enough to justify WAF deferral, and the SQL managed-identity access model is over-privileged and technically imprecise. Additional should-fix items cover EU Data Boundary blind spots in telemetry/identity, GDPR retention/erasure design, and API-key exception controls.",
+  "compact_for_parent": "Pass 1 (security-governance) | HIGH | 3 must_fix, 3 should_fix | Key: Governance discovery gate is bypassed; Public-Edge Baseline lacks enforceable design; SQL MI access model is over-privileged",
+  "risk_level": "high",
+  "must_fix_count": 3,
+  "should_fix_count": 3,
+  "suggestion_count": 1,
+  "issues": [
+    {
+      "severity": "must_fix",
+      "category": "governance_gap",
+      "title": "Governance discovery gate is bypassed in the handoff",
+      "description": "No 04-governance-constraints artifact exists yet, but the architecture states it is ready for iac-planner and includes hardcoded tag values plus assumed baseline controls. Repository governance rules require live Azure Policy discovery, including management group-inherited assignments, before implementation planning or code generation. If the architecture handoff lets Step 4 proceed directly, Deny or required-tag policies can be missed.",
+      "failure_scenario": "A management-group Deny policy requires additional tags, disables public network access on a property not listed here, or requires diagnostic deployment through DeployIfNotExists. The IaC plan follows the Step 2 hardcoded values, Azure Policy denies deployment, and the project stalls during implementation rather than discovering the constraint at the required gate.",
+      "artifact_section": "🚀 Implementation Handoff / Ready for iac-planner",
+      "suggested_mitigation": "Change the handoff to make 04-governance-constraints.md/json a mandatory gate before iac-planner. Replace fixed tag assumptions with a statement that governance-discovered tags and Deny/Modify/DeployIfNotExists constraints override the baseline values. Carry the governance JSON into Step 4 as an explicit prerequisite."
+    },
+    {
+      "severity": "must_fix",
+      "category": "untested_assumption",
+      "title": "Public-Edge Baseline lacks enforceable design",
+      "description": "The architecture treats the Public-Edge Baseline as a full compensating control for deferring Front Door/WAF, but it does not identify concrete implementation mechanisms for every control. The highest-risk gap is rate limiting: App Service alone does not provide a complete per-IP and per-identity API throttling layer equivalent to an edge protection control. Access restrictions also protect admin endpoints only if those endpoints are separately routable and not mixed with the public customer API.",
+      "failure_scenario": "The team proceeds without WAF or APIM/Front Door and implements only application authentication. A credential-stuffing or high-volume order API attack reaches the public App Service endpoint, bypasses the intended throttling because no enforceable component owns it, and causes account abuse or availability degradation for GDPR-regulated user workflows.",
+      "artifact_section": "🔒 Security Assessment / Public-Edge Baseline; 🎯 Architecture Decision Summary / Network posture",
+      "suggested_mitigation": "For Step 2, specify the control owner for each baseline item: application middleware or gateway for per-IP/per-identity throttling, exact App Service access restriction scope for admin routes, authentication enforcement pattern for all write APIs, and deploy-time tests or policy checks that fail if any baseline control is absent. If no concrete rate-limit mechanism is selected, move WAF/API gateway back into MVP scope."
+    },
+    {
+      "severity": "must_fix",
+      "category": "security_governance",
+      "title": "SQL MI access model is over-privileged and imprecise",
+      "description": "The handoff assigns the App Service managed identity to 'SQL DB Contributor (via AAD)' for runtime database access. SQL DB Contributor is an Azure control-plane role, not a least-privilege SQL data-plane authorization model for application queries. It also grants broader management permissions than the app needs, conflicting with the stated least-privilege and GDPR posture.",
+      "failure_scenario": "IaC grants the app identity SQL DB Contributor but does not create contained database users and roles for the managed identity. The application cannot authenticate correctly to the database at runtime, or it receives unnecessary database management permissions that expand blast radius if the app identity is compromised.",
+      "artifact_section": "🚀 Implementation Handoff / RBAC role assignments",
+      "suggested_mitigation": "Revise the architecture to separate Azure control-plane deployment roles from runtime data-plane permissions. Use managed identity with Microsoft Entra-only SQL auth, create contained database users for the web/API identities, and assign only required database roles or custom least-privilege permissions for order/inventory operations. Limit SQL Contributor-like roles to deployment identities, not the running app."
+    },
+    {
+      "severity": "should_fix",
+      "category": "waf_blind_spot",
+      "title": "EU Data Boundary coverage is incomplete for identity and telemetry",
+      "description": "The artifact pins Azure resources and the Log Analytics workspace to swedencentral, but it leaves two EU Data Boundary surfaces under-specified: Entra External ID tenant region/ownership and telemetry content/location controls. It also calls for availability tests from three regions without constraining those test locations to the EU. Application Insights traces, URLs, custom dimensions, and exception payloads can accidentally contain customer PII even when the workspace is in Sweden.",
+      "failure_scenario": "The External ID tenant is created with unsuitable residency settings, availability tests run from non-EU locations, or application logs include names, addresses, order notes, or tokens. The workload then stores or processes GDPR-relevant data outside the intended boundary or retains PII in telemetry beyond the application retention model.",
+      "artifact_section": "✅ Requirements Validation / Data residency; 🔒 Security Assessment / Diagnostic settings; Monitoring Requirements",
+      "suggested_mitigation": "Add explicit Step 3/4 requirements to create or select an EU-aligned Entra External ID tenant, constrain availability-test locations to EU regions where possible, and define telemetry data minimization controls: no PII in logs, token/header redaction, sampling, Data Collection Rules or ingestion transformations where applicable, and short retention aligned to GDPR purpose limitation."
+    },
+    {
+      "severity": "should_fix",
+      "category": "governance_gap",
+      "title": "GDPR retention and erasure controls are not yet architectural",
+      "description": "The requirements include seven-year retention for customer PII, orders, invoices, and receipts plus right-to-erasure support, but the architecture defers REQ-C-02 and only names Storage lifecycle-to-cool, soft delete, and SQL PITR. Those controls do not define data-class retention, legal-hold exceptions, erasure workflows, or backup/PITR handling for deleted personal data.",
+      "failure_scenario": "The implementation stores invoices, receipts, product images, and customer records without data-class lifecycle rules or erasure semantics. Later, a data-subject deletion request cannot be reconciled with seven-year commercial retention and PITR backups, creating manual remediation risk and potentially non-compliant over-retention.",
+      "artifact_section": "🔧 Operational Excellence Assessment / REQ-C-02; Resource SKU Recommendations / Storage Account",
+      "suggested_mitigation": "Promote REQ-C-02 from a cost-only Step 4 deliverable to an architecture governance requirement. Define data classes, retention periods, lifecycle actions, legal basis for retention, deletion/anonymization behavior, and how PITR/soft-delete backups are handled when a GDPR erasure request is accepted."
+    },
+    {
+      "severity": "should_fix",
+      "category": "hidden_dependency",
+      "title": "Supplier API-key exception controls are not complete enough",
+      "description": "The architecture permits supplier API keys as an exception path and says they must be scoped, time-boxed, rotated, and audited, but it does not define where expiry is enforced, how rotation is triggered, which logs prove per-supplier usage, or what prevents API keys from becoming long-lived shared secrets. This weakens the otherwise strong Entra External ID default.",
+      "failure_scenario": "A farm integration receives an API key during onboarding. Because expiry and rotation are documented but not tied to Key Vault metadata, alerting, or API authorization checks, the key remains valid indefinitely and is reused across suppliers. A leaked key allows unauthorized stock updates that affect order fulfillment.",
+      "artifact_section": "🔒 Security Assessment / Supplier API-key exception path; Compliance & Security Requirements / Authentication & Authorization",
+      "suggested_mitigation": "Define the exception pattern now: per-supplier Key Vault secret with expiration, automated alert before expiry, scoped claim or key identifier mapped to one supplier, write-only API permissions, audit log fields for supplier ID/key ID/source IP, and an explicit sunset path to Entra External ID OAuth."
+    },
+    {
+      "severity": "suggestion",
+      "category": "waf_blind_spot",
+      "title": "Deferred CMK decision needs a trigger and ownership model",
+      "description": "The CMK deferral is reasonable for the MVP budget and GDPR does not automatically require CMK, but the artifact does not define what future condition would make CMK necessary or who owns the key-management operating model. Without a trigger, Challenge 4 may revisit cost without a security decision framework.",
+      "failure_scenario": "A future customer contract or internal policy requires customer-managed encryption keys, but the team has not planned key rotation, break-glass access, purge protection operations, or service-specific CMK support. The adoption path becomes a rushed redesign rather than a controlled post-MVP enhancement.",
+      "artifact_section": "🎯 Architecture Decision Summary / Cost-driven deferrals",
+      "suggested_mitigation": "Add a post-MVP decision trigger for CMK, such as enterprise contract requirement, internal key-ownership policy, or elevated data classification, and capture the future operating assumptions for Key Vault Premium, rotation cadence, break-glass roles, and service compatibility."
+    }
+  ]
+}

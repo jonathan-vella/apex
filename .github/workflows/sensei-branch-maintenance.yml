@@ -1,0 +1,205 @@
+# Sensei Branch Maintenance
+#
+# Keeps `feat/skills-sensei` healthy as a long-lived branch:
+#   1. Merges the latest `main` into it weekly (no force-push, no rebase) so
+#      the divergence stays manageable.
+#   2. Runs the full skills/agent validator suite to catch upstream sensei
+#      breakage early.
+#   3. Verifies the branch still exists; opens a tracking issue if it does
+#      not (catches the rare case where branch protection is bypassed).
+#
+# Companion to:
+#   - `.github/prompts/merge-sensei-free-pr.prompt.md` (sensei → main egress)
+#   - Ruleset "Protect feat/skills-sensei" (configured via gh api, not in
+#     this repo). The ruleset blocks deletion + force-push; this workflow
+#     handles the day-to-day keep-alive work.
+
+name: Sensei Branch Maintenance
+
+on:
+  schedule:
+    # Mondays at 08:00 UTC, staggered after weekly-maintenance (07:00).
+    - cron: "0 8 * * 1"
+  workflow_dispatch:
+    inputs:
+      skip_merge:
+        description: "Skip the main→sensei merge step (validation only)"
+        required: false
+        default: false
+        type: boolean
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write       # required to merge main into the sensei branch
+  issues: write         # required to open a tracking issue on failure
+
+jobs:
+  verify-branch-exists:
+    name: Verify feat/skills-sensei still exists
+    runs-on: ubuntu-latest
+    outputs:
+      exists: ${{ steps.check.outputs.exists }}
+    steps:
+      - name: Check branch existence
+        id: check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          # The branches REST endpoint is path-based, so the ref must be
+          # URL-encoded (slashes → %2F) or feat/skills-sensei resolves
+          # to a 404 even when the branch exists.
+          branch_name='feat/skills-sensei'
+          encoded_branch_name="${branch_name//\//%2F}"
+          if gh api "repos/${{ github.repository }}/branches/${encoded_branch_name}" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Fail loudly if branch is missing
+        if: steps.check.outputs.exists != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          gh issue create \
+            --title "ALERT: feat/skills-sensei branch is missing" \
+            --label "automation,sensei,critical" \
+            --body "$(cat <<'EOF'
+          The scheduled `Sensei Branch Maintenance` workflow could not find
+          `feat/skills-sensei` in this repository. This usually means branch
+          protection was bypassed or the branch was deleted by mistake.
+
+          Recovery:
+          1. Check the [Activity log](../../actions) for recent deletions.
+          2. Restore the branch from any local clone with
+             `git push origin feat/skills-sensei`.
+          3. Confirm the ruleset "Protect feat/skills-sensei" is still
+             active under repository Settings → Rules.
+
+          This issue was opened automatically by
+          `.github/workflows/sensei-branch-maintenance.yml`.
+          EOF
+          )"
+          exit 1
+
+  merge-main-into-sensei:
+    name: Merge main into feat/skills-sensei
+    needs: verify-branch-exists
+    # `inputs.*` is only populated for workflow_dispatch / workflow_call; on
+    # scheduled runs it is undefined. `github.event.inputs.*` safely
+    # resolves to empty string for non-dispatch events.
+    if: needs.verify-branch-exists.outputs.exists == 'true' && github.event.inputs.skip_merge != 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout feat/skills-sensei
+        uses: actions/checkout@v6
+        with:
+          ref: feat/skills-sensei
+          fetch-depth: 0       # full history required for merge
+          submodules: false    # don't pull the sensei submodule into CI
+
+      - name: Configure git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Attempt non-fast-forward merge from origin/main
+        id: merge
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          if git merge --no-ff --no-edit origin/main; then
+            echo "merged=true" >> "$GITHUB_OUTPUT"
+          else
+            # Abort the dirty state so we can fall back to a PR.
+            git merge --abort || true
+            echo "merged=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Push merge commit
+        if: steps.merge.outputs.merged == 'true'
+        run: git push origin feat/skills-sensei
+
+      - name: Open conflict-resolution issue
+        if: steps.merge.outputs.merged != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          # We cannot open a PR carrying the conflicted merge: `git commit`
+          # refuses to land while the index has unmerged paths, and any
+          # `--allow-empty` workaround would push a misleading no-op commit.
+          # Open an issue with a copy-pastable recovery recipe instead — a
+          # human resolves the merge locally and pushes a real merge commit
+          # via the normal protected push path.
+          gh issue create \
+            --title "Sensei branch: weekly main→sensei merge has conflicts ($(date +%Y-%m-%d))" \
+            --label "automation,sensei" \
+            --body "$(cat <<'EOF'
+          The scheduled `Sensei Branch Maintenance` workflow attempted to
+          merge `origin/main` into `feat/skills-sensei` and hit conflicts.
+          The workflow aborted the merge cleanly; no partial state was
+          pushed.
+
+          Resolve locally:
+
+          ```bash
+          git fetch origin
+          git checkout feat/skills-sensei
+          git merge --no-ff origin/main
+          # resolve conflicts, then:
+          git commit
+          git push origin feat/skills-sensei
+          ```
+
+          See [run logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for the merge output. Opened automatically by
+          `.github/workflows/sensei-branch-maintenance.yml`.
+          EOF
+          )"
+
+  validate-sensei-branch:
+    name: Validate skills + agents on feat/skills-sensei
+    needs: [verify-branch-exists, merge-main-into-sensei]
+    # Run even if merge step was skipped via workflow_dispatch.
+    if: always() && needs.verify-branch-exists.outputs.exists == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout feat/skills-sensei (post-merge)
+        uses: actions/checkout@v6
+        with:
+          ref: feat/skills-sensei
+          submodules: recursive  # need sensei submodule for any plugin-aware checks
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: "npm"
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Validate skills
+        run: npm run validate:skills
+
+      - name: Validate agents
+        run: npm run validate:agents
+
+      - name: Lint markdown
+        run: npm run lint:md
+
+      - name: Open issue on failure
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          gh issue create \
+            --title "Sensei branch validation failed ($(date +%Y-%m-%d))" \
+            --label "automation,sensei" \
+            --body "Weekly validation on `feat/skills-sensei` failed. See [run logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details. Opened by `.github/workflows/sensei-branch-maintenance.yml`."

@@ -36,10 +36,11 @@
       "url": "./tools/schemas/lesson-log.schema.json"
     },
     {
-      "fileMatch": [
-        "agent-output/*/08-iteration-log.json",
-        "agent-output/_bench/*/*/08-iteration-log.json"
-      ],
+      "fileMatch": ["agent-output/*/04-governance-constraints.json"],
+      "url": "./tools/schemas/governance-constraints.schema.json"
+    },
+    {
+      "fileMatch": ["agent-output/*/08-iteration-log.json", "agent-output/_bench/*/*/08-iteration-log.json"],
       "url": "./tools/schemas/iteration-log.schema.json"
     },
     {

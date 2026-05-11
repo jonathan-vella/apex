@@ -87,6 +87,8 @@
       "requires": ["gate-2_5"],
       "produces": [
         "04-implementation-plan.md",
+        "04-implementation-plan.md#governance-compliance-matrix",
+        "04-implementation-plan.md#code-generation-contract",
         "04-dependency-diagram.py",
         "04-dependency-diagram.png",
         "04-runtime-diagram.py",
@@ -94,10 +96,11 @@
       ],
       "gate": "approval",
       "challenger": {
-        "default_passes": 0,
-        "opt_in": true,
+        "default_passes": 1,
+        "default_lenses": ["security-governance"],
+        "opt_in_multi_pass": true,
         "complexity_matrix": {
-          "simple": { "passes": 1, "lenses": ["comprehensive"] },
+          "simple": { "passes": 1, "lenses": ["security-governance"] },
           "standard": {
             "passes": 2,
             "lenses": ["security-governance", "architecture-reliability"]
@@ -106,7 +109,8 @@
             "passes": 2,
             "lenses": ["security-governance", "architecture-reliability"]
           }
-        }
+        },
+        "exit_criteria": "all-passes-APPROVED"
       }
     },
     "gate-3": {
@@ -114,7 +118,15 @@
       "type": "gate",
       "name": "Plan Approval",
       "requires": ["step-4"],
-      "gate": "approval"
+      "gate": "approval",
+      "preconditions": [
+        {
+          "id": "plan-readiness",
+          "description": "All plan-level challenger passes returned APPROVED. CodeGen agents (06b/06t) must not run plan-level adversarial review or self-edit 04-implementation-plan.md; any plan must_fix returns to step-4.",
+          "check": "challenger.exit_criteria == 'all-passes-APPROVED' for step-4",
+          "on_fail": "stay-at-step-4"
+        }
+      ]
     },
     "step-5b": {
       "id": "step-5b",
@@ -125,9 +137,12 @@
       "condition": { "field": "decisions.iac_tool", "equals": "Bicep" },
       "produces": ["infra/bicep/{project}/"],
       "gate": "validation",
+      "plan_readonly": true,
+      "frozen_inputs": ["04-implementation-plan.md", "04-governance-constraints.md", "04-governance-constraints.json"],
       "challenger": {
         "default_passes": 0,
         "opt_in": true,
+        "artifact_scope": "iac-code",
         "complexity_matrix": {
           "simple": { "passes": 1, "lenses": ["comprehensive"] },
           "standard": {
@@ -150,9 +165,12 @@
       "condition": { "field": "decisions.iac_tool", "equals": "Terraform" },
       "produces": ["infra/terraform/{project}/"],
       "gate": "validation",
+      "plan_readonly": true,
+      "frozen_inputs": ["04-implementation-plan.md", "04-governance-constraints.md", "04-governance-constraints.json"],
       "challenger": {
         "default_passes": 0,
         "opt_in": true,
+        "artifact_scope": "iac-code",
         "complexity_matrix": {
           "simple": { "passes": 1, "lenses": ["comprehensive"] },
           "standard": {
@@ -181,8 +199,16 @@
       "agent": "07b-Bicep Deploy",
       "requires": ["gate-4"],
       "condition": { "field": "decisions.iac_tool", "equals": "Bicep" },
-      "produces": ["06-deployment-summary.md"],
+      "produces": ["06-deployment-summary.md", "06-policy-precheck.json"],
       "gate": "approval",
+      "preconditions": [
+        {
+          "id": "governance-trace",
+          "description": "L0→L1→L2→L3 attestation chain present in apex-recall decisions (key: governance_trace) before az deployment create / azd provision. Validator: validate-governance-trace.mjs.",
+          "check": "decisions.governance_trace present at step-6 OR human-override decision recorded",
+          "on_fail": "stay-at-step-6b"
+        }
+      ],
       "challenger": null
     },
     "step-6t": {
@@ -192,8 +218,16 @@
       "agent": "07t-Terraform Deploy",
       "requires": ["gate-4"],
       "condition": { "field": "decisions.iac_tool", "equals": "Terraform" },
-      "produces": ["06-deployment-summary.md"],
+      "produces": ["06-deployment-summary.md", "06-policy-precheck.json"],
       "gate": "approval",
+      "preconditions": [
+        {
+          "id": "governance-trace",
+          "description": "L0→L1→L2→L3 attestation chain present in apex-recall decisions (key: governance_trace) before terraform apply / azd provision. Validator: validate-governance-trace.mjs.",
+          "check": "decisions.governance_trace present at step-6 OR human-override decision recorded",
+          "on_fail": "stay-at-step-6t"
+        }
+      ],
       "challenger": null
     },
     "gate-5": {
@@ -363,6 +397,24 @@
     "iac_tracks": ["Bicep", "Terraform"],
     "total_gates": 6,
     "total_steps": 7,
+    "plan_lock": {
+      "description": "Once gate-3 (Plan Approval) is passed, 04-implementation-plan.md (including the new Governance Compliance Matrix and Code-Generation Contract H2 sections), 04-governance-constraints.md, and 04-governance-constraints.json (including its discovery_metadata L0 envelope) are read-only for step-5b and step-5t. CodeGen agents that find plan-level must_fix issues MUST traverse the return_edge to step-4 (Planner) rather than self-edit the plan. Plan-level adversarial review (security-governance, architecture-reliability, cost-feasibility against the PLAN artifact) runs only at step-4; step-5* challenger passes use artifact_scope: iac-code. The four-layer governance attestation chain (L0 envelope → L1 plan matrix → L2 code attestation → L3 live precheck) is enforced end-to-end and audited via the apex-recall `governance_trace` decision before complete-step 6.",
+      "frozen_artifacts": [
+        "04-implementation-plan.md",
+        "04-governance-constraints.md",
+        "04-governance-constraints.json"
+      ],
+      "plan_h2_sections": [
+        "✅ ## 🛡️ Governance Compliance Matrix (L1 attestation)",
+        "✅ ## 📤 Code-Generation Contract (frozen inputs for Step 5)"
+      ],
+      "attestation_chain": {
+        "L0": "discovery_metadata envelope in 04-governance-constraints.json (owner: 04g-Governance)",
+        "L1": "Governance Compliance Matrix H2 in 04-implementation-plan.md (owner: 05-IaC Planner)",
+        "L2": "Per-row property attestation in *-validate-subagent output (owner: 06b/06t)",
+        "L3": "policy-precheck-subagent live policy check (owner: 07b/07t)"
+      }
+    },
     "complexity_routing": {
       "description": "Deterministic formula for selecting challenger-review pass counts. Orchestrator computes `score` at gate-1, stores result in session state `decisions.complexity`, and agents read from session state instead of re-deriving. Weights calibrated on existing agent-output projects; adjust via PR with rationale.",
       "formula": "score = (resource_count / 3) + (policy_violations / 2) + (iac_tool == 'terraform' ? 0.5 : 0)",

@@ -48,6 +48,48 @@ that must be addressed in the Bicep implementation.
 > If this section shows "UNVERIFIED" or is empty, governance constraints were
 > assumed rather than discovered. Deployment may fail due to undiscovered policies.
 
+### L0 Discovery Envelope (MANDATORY)
+
+The companion `04-governance-constraints.json` MUST include a
+`discovery_metadata` envelope. This is the L0 attestation in the
+four-layer governance stack — every downstream consumer (Planner,
+CodeGen, Deploy) reads it first and STOPS on staleness or signature
+drift. See
+[governance-discovery.md](../../azure-defaults/references/governance-discovery.md#l0-discovery-envelope-mandatory)
+for the full envelope shape and consumer protocol.
+
+```jsonc
+{
+  "discovery_metadata": {
+    "discovery_status": "COMPLETE",       // COMPLETE | PARTIAL | FAILED
+    "discovered_at": "{ISO-8601}",
+    "scope": {
+      "subscription_id": "{subscription-id}",
+      "management_groups": ["{mg-1}", "{mg-2}"]
+    },
+    "api_versions": {
+      "policyAssignments": "2022-06-01",
+      "policyDefinitions": "2021-06-01",
+      "policyExemptions": "2022-07-01-preview"
+    },
+    "page_counts": {
+      "policyAssignments": {X},
+      "policyDefinitions": {X},
+      "policyExemptions": {X}
+    },
+    "completeness_signature": "sha256:...",  // hash of stable-sorted policy tuples
+    "ttl_days": 7                            // staleness threshold for consumers
+  },
+  "policies": [ ... ],
+  "findings": [ ... ]
+}
+```
+
+**Mandatory fields**: `discovery_status`, `discovered_at`, `scope`,
+`api_versions`, `page_counts`, `completeness_signature`, `ttl_days`.
+Schema enforced by
+[`tools/schemas/governance-constraints.schema.json`](../../../../tools/schemas/governance-constraints.schema.json).
+
 ### Policy Definition Analysis
 
 > [!IMPORTANT]

@@ -1,0 +1,239 @@
+{
+  "schema_version": "3.0",
+  "project": "nordic-foods",
+  "iac_tool": "",
+  "region": "swedencentral",
+  "branch": "main",
+  "updated": "2026-05-11T16:00:00Z",
+  "current_step": 3,
+  "decisions": {
+    "region": "swedencentral",
+    "compliance": "GDPR,EU Data Boundary",
+    "budget": "~€500/month MVP",
+    "architecture_pattern": "N-Tier",
+    "deployment_strategy": "Phased: Foundation→Security→Data→Compute→Edge",
+    "complexity": "standard",
+    "iac_tool": "Bicep",
+    "workload_pattern": "N-Tier",
+    "auth": "Entra ID + Entra External ID"
+  },
+  "open_findings": [
+    "Deny: Block VM SKU Sizes — blocks VM SKU sizes (assignment instance 1; resource types unresolved)",
+    "Deny: Block VM SKU Sizes — blocks VM SKU sizes (assignment instance 2; resource types unresolved)",
+    "Deny: Block VM SKU Sizes — blocks VM SKU sizes (assignment instance 3; resource types unresolved)",
+    "Deny: Deny AKS deployment with agent pool count greater than 10 — blocks Microsoft.ContainerService/managedClusters",
+    "Deny: Deny VMSS deployment with instance count greater than 10 — blocks Microsoft.Compute/virtualMachineScaleSets",
+    "Deny: Block Azure OpenAI Provisioned Capacity — blocks Microsoft.CognitiveServices/accounts/deployments",
+    "Deny: Block Azure Sentinel Commitment over 100 — blocks Microsoft.OperationalInsights/workspaces",
+    "Deny: Deny Azure Key Vault Managed HSM with Purge Protection Enabled — blocks Microsoft.KeyVault/managedHSMs",
+    "Deny: Block Azure RM Resource Creation — blocks classic compute/network/storage resource types",
+    "Deny: JV-Enforce Resource Group Tags — blocks Microsoft.Resources/subscriptions/resourceGroups without required tags",
+    "Governance challenger pass 1 returned NEEDS_REVISION with 6 must-fix, 8 should-fix, 3 suggestions; revision pass deduplicated JSON findings, corrected storage/VM/HSM mappings, and surfaced RG tag confirmation as the remaining manual blocker."
+  ],
+  "decision_log": [
+    {
+      "decision": "Step 1 Requirements approved on Pass 2 with 8 accepted fixes (REQ-C-01,03..09) and 1 deferred (REQ-C-02 blob retention class split)",
+      "timestamp": "2026-05-11T07:12:27Z",
+      "rationale": "Challenger pass 2 returned APPROVED / low risk; deferred item flagged in Open Risks for Architect to address in Step 2 cost estimate",
+      "step": "1"
+    },
+    {
+      "decision": "App Service Plan P1v3 Linux with AZ for 99.95% compute SLA and VNet integration",
+      "timestamp": "2026-05-11T09:12:30Z",
+      "rationale": "P1v3 supports AZ + VNet integration + HTTP/2 + Always-On; required to meet 500-peak-user + p95<500ms NFR",
+      "step": "2"
+    },
+    {
+      "decision": "Azure SQL DB Standard S3 (100 DTU, 250 GB) DTU-based tier replacing initial Serverless plan",
+      "timestamp": "2026-05-11T09:12:30Z",
+      "rationale": "Pricing MCP could not resolve GP Serverless Gen5 in swedencentral; user directed switch to DTU model. S3 gives 100 DTU headroom for 3x peak; S2 (50 DTU) tracked as 3.56/mo budget-saver alternative",
+      "step": "2"
+    },
+    {
+      "decision": "Storage Account Standard_ZRS Hot (NOT GRS) with lifecycle to Cool at 90 days",
+      "timestamp": "2026-05-11T09:12:30Z",
+      "rationale": "ZRS satisfies EU Data Boundary residency by avoiding cross-region replication; soft-delete + versioning meets RPO 24h",
+      "step": "2"
+    },
+    {
+      "decision": "Three private endpoints (SQL/Blob/KV) as secure-plus baseline; defer Front Door WAF in favor of Public-Edge Baseline compensating controls",
+      "timestamp": "2026-05-11T09:12:30Z",
+      "rationale": "Within budget; PE protects PII. WAF deferred per REQ network table; auth + rate-limit + access restrictions + diagnostics replace Front Door for MVP",
+      "step": "2"
+    },
+    {
+      "decision": "Defer CMK, DDoS Standard, multi-region DR to post-MVP / Challenge 4",
+      "timestamp": "2026-05-11T09:12:30Z",
+      "rationale": "Not required for GDPR MVP scope; preserves €500 envelope; revisit when budget rises to €700",
+      "step": "2"
+    },
+    {
+      "decision": "Architecture diagram generated using transactional Draw.io MCP workflow",
+      "timestamp": "2026-05-11T09:56:17Z",
+      "rationale": "Single add-cells call with 30 cells (22 vertices + 8 edges), finish-diagram resolves 12 Azure icons; file passes validation 0 errors",
+      "step": "3"
+    },
+    {
+      "decision": "Deployment strategy: phased (standard grouping); environment=dev",
+      "timestamp": "2026-05-11T10:15:42Z",
+      "rationale": "10 resources + RG tag Deny gate + 3 PEs warrant per-phase approval; user confirmed dev environment",
+      "step": "4"
+    },
+    {
+      "decision": "Plan revision r2 auto-applied 4 must_fix findings (UAMI phase 1, Easy Auth + admin split, PE-safe SQL grant, per-phase bicepparam)",
+      "timestamp": "2026-05-11T10:49:01Z",
+      "rationale": "must_fix is mandatory per adversarial-review-protocol Stage 1; user requested revision against approved governance constraints",
+      "step": "4"
+    },
+    {
+      "decision": "Plan r2 Stage 2 decided: 8 should_fix accepted, 3 deferred (rate-limit, load-test, SQL LTR). 11 total findings closed.",
+      "timestamp": "2026-05-11T11:07:58Z",
+      "rationale": "User-directed per askQuestions batch; deferrals carried into Open Risks table for Step 5/6 visibility.",
+      "step": "4"
+    },
+    {
+      "decision": "Step 5 governance gate override: proceed with resolved 9-key resource-group tag minimum for JV-Enforce Resource Group Tags.",
+      "timestamp": "2026-05-11T11:15:08Z",
+      "rationale": "The Deny policy did not expose exact parameters, but Step 3.5 resolved the inherited Modify tag set and the user selected Override and proceed in the Step 5 governance gate.",
+      "step": "5"
+    },
+    {
+      "decision": "Project restart: next step set to 04g-Governance; steps 4 (IaC Plan) and 5 (IaC Code) reset to pending",
+      "timestamp": "2026-05-11T16:00:00Z",
+      "rationale": "User-directed restart at the Governance phase; prior plan/code artifacts will be regenerated against fresh governance constraints. Historical decisions retained in the audit trail.",
+      "step": "3_5"
+    }
+  ],
+  "review_audit": {
+    "step_1": {
+      "complexity": "",
+      "passes_planned": 0,
+      "passes_executed": 0,
+      "skipped": [],
+      "skip_reasons": [],
+      "models_used": []
+    },
+    "step_2": {
+      "complexity": "standard",
+      "passes_planned": 2,
+      "passes_executed": 2,
+      "skipped": [],
+      "skip_reasons": [],
+      "models_used": []
+    },
+    "step_3_5": {
+      "complexity": "",
+      "passes_planned": 0,
+      "passes_executed": 1,
+      "skipped": [],
+      "skip_reasons": [],
+      "models_used": []
+    },
+    "step_4": {
+      "complexity": "",
+      "passes_planned": 0,
+      "passes_executed": 2,
+      "skipped": [],
+      "skip_reasons": [],
+      "models_used": []
+    },
+    "step_5": {
+      "complexity": "",
+      "passes_planned": 0,
+      "passes_executed": 1,
+      "skipped": [],
+      "skip_reasons": [],
+      "models_used": []
+    },
+    "step_6": {
+      "complexity": "",
+      "passes_planned": 0,
+      "passes_executed": 0,
+      "skipped": [],
+      "skip_reasons": [],
+      "models_used": []
+    }
+  },
+  "steps": {
+    "1": {
+      "name": "Requirements",
+      "agent": "02-Requirements",
+      "status": "complete",
+      "sub_step": null,
+      "started": null,
+      "completed": "2026-05-11T07:12:27Z",
+      "artifacts": [],
+      "context_files_used": []
+    },
+    "2": {
+      "name": "Architecture",
+      "agent": "03-Architect",
+      "status": "complete",
+      "sub_step": null,
+      "started": null,
+      "completed": "2026-05-11T09:56:10Z",
+      "artifacts": [],
+      "context_files_used": []
+    },
+    "3": {
+      "name": "Design",
+      "agent": "04-Design",
+      "status": "complete",
+      "sub_step": null,
+      "started": null,
+      "completed": "2026-05-11T09:56:10Z",
+      "artifacts": [],
+      "context_files_used": []
+    },
+    "3_5": {
+      "name": "Governance",
+      "agent": "04g-Governance",
+      "status": "pending",
+      "sub_step": null,
+      "started": null,
+      "completed": null,
+      "artifacts": [],
+      "context_files_used": []
+    },
+    "4": {
+      "name": "IaC Plan",
+      "agent": "",
+      "status": "pending",
+      "sub_step": null,
+      "started": null,
+      "completed": null,
+      "artifacts": [],
+      "context_files_used": []
+    },
+    "5": {
+      "name": "IaC Code",
+      "agent": "",
+      "status": "pending",
+      "sub_step": null,
+      "started": null,
+      "completed": null,
+      "artifacts": [],
+      "context_files_used": []
+    },
+    "6": {
+      "name": "Deploy",
+      "agent": "",
+      "status": "pending",
+      "sub_step": null,
+      "started": null,
+      "completed": null,
+      "artifacts": [],
+      "context_files_used": []
+    },
+    "7": {
+      "name": "As-Built",
+      "agent": "08-As-Built",
+      "status": "pending",
+      "sub_step": null,
+      "started": null,
+      "completed": null,
+      "artifacts": [],
+      "context_files_used": []
+    }
+  }
+}

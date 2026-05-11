@@ -2,14 +2,9 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/jonathan-vella/azure-agentic-infraops/schemas/governance-constraints.schema.json",
   "title": "APEX Governance Constraints",
-  "description": "Shape of agent-output/{project}/04-governance-constraints.json produced by 04g-Governance. Used by 06b/06t codegen agents and enforced in CI by scripts/validate-artifacts.mjs (Step 5b).",
+  "description": "Shape of agent-output/{project}/04-governance-constraints.json produced by 04g-Governance. Used by 06b/06t codegen agents and enforced in CI by scripts/validate-artifacts.mjs (Step 5b). The optional discovery_metadata envelope is the L0 attestation in the four-layer governance stack (L0 envelope → L1 plan matrix → L2 code attestation → L3 live precheck). discovery_metadata is warn-only for 30 days after rollout, then required.",
   "type": "object",
-  "required": [
-    "schema_version",
-    "subscription_id",
-    "discovered_at",
-    "findings"
-  ],
+  "required": ["schema_version", "subscription_id", "discovered_at", "findings"],
   "additionalProperties": true,
   "properties": {
     "schema_version": {
@@ -25,6 +20,71 @@
       "type": "string",
       "enum": ["azure-policy-rest-api", "az-cli", "static", "partial", "github-actions-baseline"]
     },
+    "discovery_metadata": {
+      "description": "L0 attestation envelope. Mandatory after 30-day rollout window; warn-only before then. Every downstream consumer (05-IaC Planner, 06b/06t CodeGen, 07b/07t Deploy) reads this first and STOPS on staleness, signature drift, or non-COMPLETE status.",
+      "type": "object",
+      "required": [
+        "discovery_status",
+        "discovered_at",
+        "scope",
+        "api_versions",
+        "page_counts",
+        "completeness_signature",
+        "ttl_days"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "discovery_status": {
+          "type": "string",
+          "enum": ["COMPLETE", "PARTIAL", "FAILED"]
+        },
+        "discovered_at": { "type": "string", "format": "date-time" },
+        "scope": {
+          "type": "object",
+          "required": ["subscription_id", "management_groups"],
+          "additionalProperties": true,
+          "properties": {
+            "subscription_id": {
+              "type": "string",
+              "pattern": "^[0-9a-fA-F-]{36}$|^unknown$"
+            },
+            "management_groups": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          }
+        },
+        "api_versions": {
+          "type": "object",
+          "required": ["policyAssignments", "policyDefinitions"],
+          "additionalProperties": { "type": "string" },
+          "properties": {
+            "policyAssignments": { "type": "string" },
+            "policyDefinitions": { "type": "string" },
+            "policyExemptions": { "type": "string" }
+          }
+        },
+        "page_counts": {
+          "type": "object",
+          "required": ["policyAssignments", "policyDefinitions"],
+          "additionalProperties": { "type": "integer", "minimum": 0 },
+          "properties": {
+            "policyAssignments": { "type": "integer", "minimum": 0 },
+            "policyDefinitions": { "type": "integer", "minimum": 0 },
+            "policyExemptions": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "completeness_signature": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "ttl_days": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 90
+        }
+      }
+    },
     "findings": {
       "type": "array",
       "items": {
@@ -36,15 +96,7 @@
           "display_name": { "type": "string", "minLength": 1 },
           "effect": {
             "type": "string",
-            "enum": [
-              "deny",
-              "audit",
-              "auditIfNotExists",
-              "append",
-              "modify",
-              "deployIfNotExists",
-              "disabled"
-            ]
+            "enum": ["deny", "audit", "auditIfNotExists", "append", "modify", "deployIfNotExists", "disabled"]
           },
           "scope": { "type": "string" },
           "azurePropertyPath": { "type": "string" },

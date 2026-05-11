@@ -5,12 +5,15 @@
 **Quick Reference**:
 
 **Canonical Example — Module Interface**:
-```bicep
+Every Bicep module in this repo follows the same input/output contract:
 
-**Key Rules Summary**:
+**Steps**:
+Applying a pattern in a Bicep template:
 
-**Reference Index**:
+**Rules**:
+(`mcr.microsoft.com/v2/bicep/{module}/tags/list`) to discover authoritative published versions
 
-**Learn More**:
+**Gotchas**:
+outputs. Always check the module README before referencing outputs.
 
 Read `SKILL.md` or `SKILL.digest.md` for full content.

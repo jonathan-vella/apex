@@ -2,12 +2,14 @@
 
 # IaC Common Skill (Minimal)
 
+**Rules**:
+
+**Steps**:
+Standard deploy flow used by `07b-Bicep Deploy` and `07t-Terraform Deploy`:
+
 **Deployment Strategies**:
-### azd Deployment (recommended for Bicep projects with azure.yaml)
+**Default**: use `azd` for every project. Each project is a self-contained azd project
 
 **Reference Index**:
-
-**Circuit Breaker**:
-Deploy agents MUST read `references/circuit-breaker.md` before starting
 
 Read `SKILL.md` or `SKILL.digest.md` for full content.

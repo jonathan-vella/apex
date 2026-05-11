@@ -1,68 +1,78 @@
 <!-- digest:auto-generated from SKILL.md — do not edit manually -->
 
----
+# Azure Governance Discovery Skill (Digest)
 
-name: azure-governance-discovery
-description: "Deterministic Azure Policy discovery script (discover.py) used by 04g-Governance Phase 1."
-compatibility: Python 3.14, Azure CLI on PATH.
+Compact reference for agent startup. Read full `SKILL.md` for details.
 
----
+## When to Use
 
-# Azure Governance Discovery — Digest
-
-Deterministic replacement for the legacy `governance-discovery-subagent`.
+- Step 3.5 governance discovery for a project
+- Refreshing the governance snapshot after policy changes
+- Regenerating inputs for Step 4 (IaC Plan) and Step 5 (IaC Code)
 
 ## When NOT to Use
 
-- Writing `04-governance-constraints.md` — stays in parent agent
-- Architecture cross-reference — parent-side LLM work
-- Challenger orchestration — parent-side LLM work
+- Writing `04-governance-constraints.md` — that stays in the parent agent
+- Cross-referencing architecture resources — parent-side LLM work
+- Challenger review orchestration — parent-side LLM work
+- Any workflow that is not 04g-Governance
 
-## Usage
+## Rules
+
+- **Stay deterministic** — the discovery script is a single batched REST traversal; no LLM calls, no retries that hide errors, no inferred policy effects
+- **Never pull raw Azure REST responses into LLM context** — stdout is exactly one machine-readable JSON status line; the parent agent reads only this line
+- **Schema compliance is mandatory** — envelope MUST conform to `tools/schemas/governance-constraints.schema.json` (`schema_version: governance-constraints-v1`)
+- **Property paths are always strings** — use `""` for unresolvable paths, never `null`
+- **Filter Defender auto-assignments by default** — they create policy noise that masks real governance constraints; opt-in via `--include-defender-auto`
+- **Exit codes are contract** — `0` = COMPLETE, `1` = PARTIAL, `2` = FAILED, `3` = invalid args; the parent agent routes solely on these codes
+- **No artifact writing** — the script emits JSON + a `.preview.md`; the agent owns the final `04-governance-constraints.md` content and traffic-light rendering
+> _See SKILL.md for full content._
+
+## Steps
 
 ```bash
 python .github/skills/azure-governance-discovery/scripts/discover.py \
-    --project $PROJECT \
-    --out agent-output/$PROJECT/04-governance-constraints.json
+    --project my-project \
+    --out agent-output/my-project/04-governance-constraints.json
 ```
 
-Optional: `--refresh`, `--include-defender-auto`, `--subscription <id>`.
+Flags:
+> _See SKILL.md for full content._
 
 ## Output Contract
 
-- Stdout line 1 = JSON: `{"status":"COMPLETE|PARTIAL|FAILED","cache_hit":bool,"assignment_total":N,"blockers":N,"auto_remediate":N,"exempted":N,"out_path":"..."}`
-- Exit 0/1/2/3 = COMPLETE / PARTIAL / FAILED / bad args
-- File output conforms to `tools/schemas/governance-constraints.schema.json`
-- Also writes `04-governance-constraints.preview.md` sibling (H2-structured markdown)
+The script writes a JSON envelope conforming to
+[`tools/schemas/governance-constraints.schema.json`](../../../tools/schemas/governance-constraints.schema.json)
+(`schema_version: governance-constraints-v1`). Findings include both
+`bicepPropertyPath` and `azurePropertyPath`, plus three additive fields:
 
-Envelope top-level keys:
-
-- `findings` — all Deny/Modify/DINE findings
-- `policies` — alias (same reference) of `findings`
-- `tags_required` — extracted tag-enforcement findings `[{name, source_policy}]`
-- `allowed_locations` — from location-constraint policies
-- `assignment_inventory` — all kept assignments for audit trail
-- Property paths are always `""` (empty string) when unresolvable, never `null`
-- `tags_required[].name` = actual tag key from assignment params (e.g., "Environment"),
-  or `[unresolved: {policy}]` when params unavailable
-- `allowed_locations` = actual location values from assignment params
-
-Additive fields per finding:
-
-- `category` — from `properties.metadata.category` (default `"Uncategorized"`)
-- `exemption` — nullable; populated when a `policyExemptions` record matches
-- `classification` — `"blocker"` | `"auto-remediate"` | `"informational"`
-  (exempted blockers downgrade to informational)
+- `category` — `properties.metadata.category` from the definition; `"Uncategorized"` if absent.
+- `exemption` — nullable object with `exemptionCategory` (`Waiver`|`Mitigated`),
+> _See SKILL.md for full content._
 
 ## Reference Index
 
-- `references/terminal-commands.md` — **MANDATORY**: pre-built batched commands (Cmd 1–7)
-  for the entire governance phase. Use these instead of composing jq queries.
-- `references/effect-classification.md` — policy effect → classification mapping
-- `references/schema.md` — JSON schema documentation
+- `references/effect-classification.md` — effect-to-classification mapping, exemption downgrade, Defender filter rationale
+- `references/schema.md` — output JSON envelope, `findings[]` structure, additive fields
 
 ## Design Notes
 
-Defender filter: assignments with `properties.metadata.assignedBy == "Security Center"`
-are excluded by default. Use `--include-defender-auto` to retain them. Every
-filtered assignment is logged to stderr.
+- Three batched REST list calls only: `policyAssignments?$filter=atScope()`,
+  `policyDefinitions` (subscription + tenant built-ins), `policySetDefinitions`.
+  One more list for `policyExemptions?$filter=atScope()`.
+- In-process classification and property-path extraction; no per-assignment GETs.
+- Caches on the presence of `<out>` unless `--refresh` passed.
+- Defender auto-assignments (`properties.metadata.assignedBy == "Security Center"`)
+  are filtered by default — matches EPAC's default and trims typical tenant row
+> _See SKILL.md for full content._
+
+## Testing
+
+```bash
+pytest .github/skills/azure-governance-discovery/scripts/test_discover.py
+# or
+npm run test:governance-discovery
+```
+
+Fixtures live in `scripts/fixtures/` and simulate `az rest` responses via
+> _See SKILL.md for full content._

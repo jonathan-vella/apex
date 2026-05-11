@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import gzip
 import json
 import os
@@ -176,6 +177,11 @@ class TestClientIntegration:
             result = await client.fetch_prices(filter_conditions=filt, currency_code="USD", limit=5)
         assert result == _SAMPLE_RESPONSE
         mock_http.assert_called_once()
+        # The persist step is fire-and-forget (asyncio.create_task), so wait
+        # for all pending tasks to drain before asserting on-disk state.
+        pending = [t for t in asyncio.all_tasks() if t is not asyncio.current_task()]
+        if pending:
+            await asyncio.gather(*pending, return_exceptions=True)
         # Now cached on disk.
         assert disk_cache.get(filt, "USD", 5) == _SAMPLE_RESPONSE
 
