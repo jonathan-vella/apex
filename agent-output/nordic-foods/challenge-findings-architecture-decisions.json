@@ -1,0 +1,113 @@
+{
+  "$schema": "../schemas/challenge-findings-decisions.schema.json",
+  "project_name": "nordic-foods",
+  "artifact_type": "architecture",
+  "step": 2,
+  "decided_at": "2026-05-11T09:28:00Z",
+  "decided_by": "user (via per-finding decision protocol)",
+  "merge_order": [
+    "challenge-findings-cost-estimate.json",
+    "challenge-findings-architecture-pass1.json"
+  ],
+  "decisions": [
+    {
+      "issue_id": "CE-01",
+      "source_file": "challenge-findings-cost-estimate.json",
+      "severity": "should_fix",
+      "title": "Autoscale 1-to-3 App Service burst cost is not sensitivity-priced",
+      "decision": "Apply",
+      "applied_to": "agent-output/nordic-foods/03-des-cost-estimate.md",
+      "implementation": "Added 'App Service Autoscale Burst-Cost Sensitivity' subsection with 4 scenarios (low / shoulder / peak / sustained) and orientation cost deltas; representative peak scenario at ~+$135/mo briefly overruns envelope as expected per soft-limit REQ"
+    },
+    {
+      "issue_id": "CE-02",
+      "source_file": "challenge-findings-cost-estimate.json",
+      "severity": "should_fix",
+      "title": "Non-MCP orientation prices appear outside the stated disclaimer scope",
+      "decision": "Apply",
+      "applied_to": "agent-output/nordic-foods/03-des-cost-estimate.md",
+      "implementation": "Promoted disclaimer to a document-level [!IMPORTANT] block immediately after the metadata header; lists every section where `~` orientation figures appear; existing section-level disclaimer kept and back-references the top-level one"
+    },
+    {
+      "issue_id": "CE-03",
+      "source_file": "challenge-findings-cost-estimate.json",
+      "severity": "should_fix",
+      "title": "Deferred blob-retention rules are flagged but not sensitivity-priced",
+      "decision": "Apply",
+      "applied_to": "agent-output/nordic-foods/03-des-cost-estimate.md",
+      "implementation": "Added 'Storage Growth Sensitivity (REQ-C-02 Deferred)' subsection with today (200 GB / $5.60 MCP) + 6-mo (~250 GB / ~$6.50) + 12-mo (~500 GB / ~$11.50) + 7-yr tail (~$110-$220) projections; Step 4 IaC plan instructed to close REQ-C-02 with per-data-class lifecycle policies"
+    },
+    {
+      "issue_id": "CE-04",
+      "source_file": "challenge-findings-cost-estimate.json",
+      "severity": "suggestion",
+      "title": "Private Link data processing and DNS query assumptions could be made explicit",
+      "decision": "Apply",
+      "applied_to": "agent-output/nordic-foods/03-des-cost-estimate.md",
+      "implementation": "Added two new bullets in Detailed Cost Breakdown -> Assumptions: PE data processing (<5 TB worst case, <$1/mo realistic) and Private DNS queries (<1M/mo under free allowance)"
+    },
+    {
+      "issue_id": "A-01",
+      "source_file": "challenge-findings-architecture-pass1.json",
+      "severity": "must_fix",
+      "title": "Governance discovery gate is bypassed in the handoff",
+      "decision": "Apply",
+      "applied_to": "agent-output/nordic-foods/02-architecture-assessment.md",
+      "implementation": "Inserted a [!WARNING] 'Mandatory Gate — Step 3.5 Governance Discovery' block at the top of the Implementation Handoff section; states architecture is NOT handed off until 04-governance-constraints.{md,json} exists; declares that conflicting policies require revision before iac-planner"
+    },
+    {
+      "issue_id": "A-02",
+      "source_file": "challenge-findings-architecture-pass1.json",
+      "severity": "must_fix",
+      "title": "Public-Edge Baseline lacks enforceable design",
+      "decision": "Apply",
+      "applied_to": "agent-output/nordic-foods/02-architecture-assessment.md",
+      "implementation": "Added 'Public-Edge Baseline — Enforceable Design' [!IMPORTANT] table under Security Assessment Recommendations specifying per-control mechanism + owner + verification test for each of the 7 controls (auth, per-IP rate limit, per-identity rate limit, TLS, diagnostics, alerts, admin endpoint isolation). Declared mandatory for Step 4/5 with fallback to Front Door WAF if any row not implementable. Also added admin/customer endpoint split to Security Strengths."
+    },
+    {
+      "issue_id": "A-03",
+      "source_file": "challenge-findings-architecture-pass1.json",
+      "severity": "must_fix",
+      "title": "SQL MI access model is over-privileged and imprecise",
+      "decision": "Apply",
+      "applied_to": "agent-output/nordic-foods/02-architecture-assessment.md",
+      "implementation": "Updated Security Strengths and 'Resources to Provision' table row 16 to replace 'SQL DB Contributor (via AAD)' with 'AAD database user with db_datareader + db_datawriter + EXECUTE on named stored procedures'; explicitly noted SQL DB Contributor is control-plane and over-privileged"
+    },
+    {
+      "issue_id": "A-04",
+      "source_file": "challenge-findings-architecture-pass1.json",
+      "severity": "should_fix",
+      "title": "EU Data Boundary coverage is incomplete for identity and telemetry",
+      "decision": "Apply",
+      "applied_to": "agent-output/nordic-foods/02-architecture-assessment.md",
+      "implementation": "Added 'EU Data Boundary Completeness Controls' table covering Entra External ID tenant region pin, Application Insights PII redaction telemetry processor, Log Analytics PII workbook redaction, availability tests restricted to W. Europe / N. Europe / France Central only, and no non-EU diagnostic targets"
+    },
+    {
+      "issue_id": "A-05",
+      "source_file": "challenge-findings-architecture-pass1.json",
+      "severity": "should_fix",
+      "title": "GDPR retention and erasure controls are not yet architectural",
+      "decision": "Apply",
+      "applied_to": "agent-output/nordic-foods/02-architecture-assessment.md",
+      "implementation": "Added '🔐 Data Lifecycle, Retention & Erasure (GDPR)' subsection after Operational Excellence with per-data-class table (PII / orders / inventory / images / invoices / secrets) including storage / retention / backup-PITR handling / erasure workflow columns; documented 30-day DSAR SLA; legal-hold exception via blob immutability + SQL legal_hold flag"
+    },
+    {
+      "issue_id": "A-06",
+      "source_file": "challenge-findings-architecture-pass1.json",
+      "severity": "should_fix",
+      "title": "Supplier API-key exception controls are not complete enough",
+      "decision": "Apply",
+      "applied_to": "agent-output/nordic-foods/02-architecture-assessment.md",
+      "implementation": "Added 'Supplier API-Key Exception Controls' table specifying KV storage with expires-on + supplier-id tags, 90-day max lifetime, daily Logic App / Function rotation job, per-key-id audit via diagnostic logs + KQL workbook, scope limited to inventory.write, revocation via KV secret disable + 5-min cache TTL"
+    },
+    {
+      "issue_id": "A-07",
+      "source_file": "challenge-findings-architecture-pass1.json",
+      "severity": "suggestion",
+      "title": "Deferred CMK decision needs a trigger and ownership model",
+      "decision": "Apply",
+      "applied_to": "agent-output/nordic-foods/02-architecture-assessment.md",
+      "implementation": "Added 'CMK Deferral Trigger + Ownership' table under Security Gaps: trigger (enterprise customer contract OR regulator mandate OR Challenge 4 + either prior); owner = Security Lead (CTO interim); affected resources = Storage + SQL TDE + KV Premium; indicative ~+$15/mo delta marked as orientation not MCP-verified"
+    }
+  ]
+}

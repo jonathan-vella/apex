@@ -1,0 +1,144 @@
+{
+  "status": "COMPLETE",
+  "project_name": "nordic-foods",
+  "region": "swedencentral",
+  "currency": "USD",
+  "monthly_total": 434.65,
+  "yearly_total": 5215.8,
+  "resources": [
+    {
+      "name": "app_service_plan",
+      "service_name": "Azure App Service",
+      "sku": "P1 v3",
+      "region": "swedencentral",
+      "quantity": 1,
+      "hourly_rate": 0.338,
+      "monthly_cost": 246.74,
+      "notes": "normalized_sku_from:'Premium v3 P1v3 Linux'; shape:{service_name:Azure App Service, sku_name:P1 v3, product_filter:none, usage:none, quantity:1}; resolved via azure_bulk_estimate"
+    },
+    {
+      "name": "sql_database_s3",
+      "service_name": "SQL Database",
+      "sku": "S3",
+      "region": "swedencentral",
+      "quantity": 1,
+      "hourly_rate": 0.201613,
+      "monthly_cost": 147.18,
+      "notes": "shape:{service_name:SQL Database, sku_name:S3, product_filter:none, usage:none, quantity:1}; resolved via azure_price_search(service_family:Databases) meter 'S3 DTUs' at $4.8387 per 1/Day, projected monthly=(730/24)*4.8387"
+    },
+    {
+      "name": "storage_account_blob",
+      "service_name": "Storage",
+      "sku": "Standard ZRS",
+      "region": "swedencentral",
+      "quantity": 1,
+      "hourly_rate": 0.007671,
+      "monthly_cost": 5.6,
+      "notes": "shape:{service_name:Storage, sku_name:Standard ZRS, product_filter:General Block Blob, usage:{gb_stored:200,transactions_per_month:10000}, quantity:1}; resolved via azure_bulk_estimate"
+    },
+    {
+      "name": "key_vault",
+      "service_name": "Key Vault",
+      "sku": "Standard",
+      "region": "swedencentral",
+      "quantity": 1,
+      "hourly_rate": 0.000041,
+      "monthly_cost": 0.03,
+      "notes": "shape:{service_name:Key Vault, sku_name:Standard, product_filter:Key Vault, usage:{transactions_per_month:10000}, quantity:1}; resolved via azure_bulk_estimate"
+    },
+    {
+      "name": "application_insights",
+      "service_name": "Application Insights",
+      "sku": "Basic",
+      "region": "swedencentral",
+      "quantity": 1,
+      "hourly_rate": 0.000685,
+      "monthly_cost": 0.5,
+      "notes": "shape:{service_name:Application Insights, sku_name:Basic, product_filter:Application Insights, usage:{gb_stored:5}, quantity:1}; resolved via azure_bulk_estimate"
+    },
+    {
+      "name": "log_analytics_workspace",
+      "service_name": "Log Analytics",
+      "sku": "Standard",
+      "region": "swedencentral",
+      "quantity": 1,
+      "hourly_rate": 0.015753,
+      "monthly_cost": 11.5,
+      "notes": "bulk returned projection_warning; retry via azure_price_search found meter 'Standard Data Analyzed' at $2.3 per 1 GB; projected monthly=2.3*5GB"
+    },
+    {
+      "name": "private_endpoints",
+      "service_name": "Virtual Network",
+      "sku": "Private Endpoint Standard",
+      "region": "swedencentral",
+      "quantity": 3,
+      "hourly_rate": 0.029589,
+      "monthly_cost": 21.6,
+      "notes": "shape:{service_name:Virtual Network, sku_name:Private Endpoint, product_filter:none, usage:none, quantity:3}; resolved via azure_bulk_estimate static fallback ($7.20/endpoint/month baseline)"
+    },
+    {
+      "name": "private_dns_zones",
+      "service_name": "Azure DNS",
+      "sku": "Private",
+      "region": "swedencentral",
+      "quantity": 3,
+      "hourly_rate": 0.002055,
+      "monthly_cost": 1.5,
+      "notes": "retry via azure_price_search (validate_sku:false, no region filter) returned meter 'Private Zone' at $0.50 per zone/month (tierMinimumUnits 0); projected monthly=3 zones*0.50 with queries assumed <1M/month"
+    },
+    {
+      "name": "bandwidth_egress_zone1",
+      "service_name": "Bandwidth",
+      "sku": "Standard",
+      "region": "swedencentral",
+      "quantity": 1,
+      "hourly_rate": 0.0,
+      "monthly_cost": 0.0,
+      "notes": "static_fallback: first 100 GB/month outbound free; requirement is ~50 GB/month"
+    }
+  ],
+  "alternative_skus": [
+    {
+      "name": "sql_database_s2",
+      "sku": "S2",
+      "monthly_cost": 73.62,
+      "savings_vs_primary": 73.56,
+      "trade_off_notes": "Budget downgrade option from S3 (100 DTU) to S2 (50 DTU); halves DTU headroom and may reduce peak throughput margin. Not included in baseline totals."
+    }
+  ],
+  "reporting_views": {
+    "baseline_mvp": {
+      "included_item_numbers": [1, 2, 3, 4, 5, 6, 9],
+      "monthly_total": 411.55,
+      "yearly_total": 4938.6,
+      "unresolved_items": [],
+      "notes": "Excludes items 7 and 8 by definition; totals include only resolved priced lines"
+    },
+    "secure_plus": {
+      "included_item_numbers": [1, 2, 3, 4, 5, 6, 7, 8, 9],
+      "monthly_total": 434.65,
+      "yearly_total": 5215.8,
+      "unresolved_items": [],
+      "notes": "Recommended scope; totals include only resolved priced lines"
+    }
+  },
+  "optimization_notes": [
+    "Region comparison skipped: compare_regions=false and primary region is pinned to swedencentral for GDPR/EU Data Boundary.",
+    "RI/savings pricing queries skipped: include_ri_savings=false; commitment options are qualitatively applicable after workload stabilization.",
+    "Potentially eligible later: App Service and SQL reservations/savings plans once steady-state utilization is observed.",
+    "Alternative SKU tracked: SQL Database S2 at $73.62/month (not included in totals); savings vs primary S3 is $73.56/month."
+  ],
+  "savings_status": "NOT_QUANTIFIED",
+  "savings_reason": "include_ri_savings=false; run requested consumption-leaning baseline without reservation pricing calls",
+  "eligible_strategies": [
+    "Reserved Instances for steady App Service compute",
+    "Azure Savings Plan for predictable compute baseline",
+    "Right-sizing after production telemetry stabilization"
+  ],
+  "data_source": "Azure Pricing MCP",
+  "queried_at": "2026-05-11T12:00:00Z",
+  "confidence": "Medium",
+  "unresolved_items": [],
+  "mcp_calls_used": 9,
+  "budget_exceeded": false
+}

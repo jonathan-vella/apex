@@ -1,0 +1,50 @@
+{
+  "challenged_artifact": "agent-output/nordic-foods/03-des-cost-estimate.md",
+  "artifact_type": "cost-estimate",
+  "review_focus": "comprehensive",
+  "pass_number": 1,
+  "challenge_summary": "The MCP-priced baseline total, sum cross-check, EUR conversion approximation, top-5 driver math, SQL S2 alternative, and RI non-quantification are mostly coherent. The main risks are that autoscale burst costs for the 1-to-3 App Service plan are not quantified, several non-MCP orientation prices appear outside the stated disclaimer scope, and storage growth tied to deferred REQ-C-02 is flagged but not sensitivity-priced against the documented 6- and 12-month data projections.",
+  "compact_for_parent": "Pass 1 (comprehensive) | MEDIUM | 0 must_fix, 3 should_fix | Key: none",
+  "risk_level": "medium",
+  "must_fix_count": 0,
+  "should_fix_count": 3,
+  "suggestion_count": 1,
+  "issues": [
+    {
+      "severity": "should_fix",
+      "category": "hidden_dependency",
+      "title": "Autoscale 1-to-3 App Service burst cost is not sensitivity-priced",
+      "description": "The estimate prices App Service P1v3 as one instance for 730 hours, but the requirements and architecture depend on autoscale from 1 to 3 instances during seasonal peaks. The artifact mentions autoscale in requirements mapping and architecture rationale, yet the monthly total and cost-risk table do not show the incremental cost if two extra P1v3 instances run during peak hours. This makes the EUR 500 envelope look more stable than it is during the exact scenario the design is sized to survive.",
+      "failure_scenario": "If the service scales to 3 P1v3 instances for a sustained peak period, compute spend increases above the 434.65 USD baseline. Even a partial-month peak can consume much of the stated 97 EUR budget headroom, while a full-month 3-instance peak would exceed the MVP envelope before SQL upsize, WAF, or DR add-ons are considered.",
+      "artifact_section": "Cost At-a-Glance; Requirements -> Cost Mapping; Top 5 Cost Drivers; Detailed Cost Breakdown",
+      "suggested_mitigation": "Add an autoscale sensitivity table that keeps the MCP one-instance baseline but shows added monthly cost for representative peak durations, for example 3 instances for 10 percent, 25 percent, and 100 percent of the month. Include the resulting USD and EUR totals and add this as a cost-risk indicator tied to autoscale alerts and peak-season budget monitoring."
+    },
+    {
+      "severity": "should_fix",
+      "category": "price_source_verification",
+      "title": "Non-MCP orientation prices appear outside the stated disclaimer scope",
+      "description": "The artifact correctly sources the nine baseline line items from 02-cost-estimate.json and prefixes many non-MCP values with '~'. However, the explicit pricing-source disclaimer is scoped to the Quick Decision Matrix and tier-comparison tables, while orientation values also appear in Cost At-a-Glance, Decision Summary, Requirements -> Cost Mapping, Key Design Decisions, What We Are Not Paying For Yet, Cost Driver Details, and Savings Opportunities. This conflicts with the later statement that all dollar figures are sourced from 02-cost-estimate.json with no parametric pricing.",
+      "failure_scenario": "A stakeholder may treat values such as WAF +~45 USD/mo, DR +~200 USD/mo, Redis ~16 USD/mo, DDoS ~2944 USD/mo, S4 ~+147 USD/mo, and RI savings ~74/~140 USD/mo as MCP-verified even though the source JSON only prices the nine baseline lines plus SQL S2. That weakens traceability and can lead to budget approvals based on unverified add-on or savings numbers.",
+      "artifact_section": "Cost At-a-Glance; Decision Summary; Requirements -> Cost Mapping; Architecture Overview; What We Are Not Paying For Yet; Savings Opportunities; Detailed Cost Breakdown Notes",
+      "suggested_mitigation": "Replace the narrow disclaimer with a global price-source note near Cost At-a-Glance: exact '$' values in the baseline and SQL S2 alternative are MCP-sourced from 02-cost-estimate.json; '~$' values anywhere in the artifact are orientation-only public list-price estimates unless separately present in the JSON. Adjust the Detailed Cost Breakdown note so it does not claim all dollar figures are MCP-sourced."
+    },
+    {
+      "severity": "should_fix",
+      "category": "consumption_assumptions",
+      "title": "Deferred blob-retention rules are flagged but not sensitivity-priced",
+      "description": "The storage line is MCP-priced for 200 GB and the artifact flags REQ-C-02 as a deferred unbounded-growth risk. The requirements, however, already document 6-month and 12-month projections of about 250 GB and 500 GB blob data, plus 7-year retention for invoices and orders and indefinite product-image retention. The artifact does not translate those known projections into alternate storage totals, so the apparent 1 percent storage share may understate a known cost trajectory.",
+      "failure_scenario": "If Step 4 does not close REQ-C-02 before launch, invoices, receipts, product images, and operational data can exceed the 200 GB assumption. The monthly overrun may be modest at first, but without a sensitivity view the team has no budget trigger for when lifecycle, archive, or retention policy changes become necessary.",
+      "artifact_section": "Assumptions & Uncertainty; Cost Risk Indicators; Detailed Cost Breakdown",
+      "suggested_mitigation": "Add storage sensitivity rows for the documented 250 GB and 500 GB projections, and optionally a 1 TB guardrail, using the same storage pricing basis or marking them as orientation-only if not MCP-priced. Tie each row to the required Step 4 lifecycle policy by data class: product images, invoices/receipts, inventory snapshots, logs, and soft-delete/version retention."
+    },
+    {
+      "severity": "suggestion",
+      "category": "missing_line_items",
+      "title": "Private Link data processing and DNS query assumptions could be made explicit",
+      "description": "The estimate includes private endpoint hourly cost and private DNS zone base cost, and it assumes DNS queries below 1 million per month. It does not explicitly call out Private Link data processing charges or DNS query overage as separate hidden-cost assumptions. At the current 50 GB egress scale these are likely small, but naming them would make the hidden-cost checklist easier to audit.",
+      "failure_scenario": "If traffic grows or chatty services send significant data through private endpoints, small per-GB or per-query charges could appear as unexplained deltas in Cost Management even though the architecture itself has not changed.",
+      "artifact_section": "Detailed Cost Breakdown; Assumptions & Uncertainty",
+      "suggested_mitigation": "Add a short hidden-cost note that Private Link data processing and Private DNS query overage are assumed negligible at MVP volume, and define the traffic or query threshold at which they should be re-estimated."
+    }
+  ]
+}

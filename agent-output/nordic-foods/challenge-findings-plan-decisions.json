@@ -1,0 +1,85 @@
+{
+  "artifact_type": "plan",
+  "artifact_path": "agent-output/nordic-foods/04-implementation-plan.md",
+  "project": "nordic-foods",
+  "step": "4",
+  "schema_version": "1.0",
+  "decisions": [
+    {
+      "finding_id": "plan-pass1-mf1",
+      "severity": "must_fix",
+      "title": "Key Vault RBAC targets do not exist in Phase 2",
+      "action": "accept",
+      "note": "auto-applied (must_fix is mandatory); UAMIs (web, api, deploy) now created in Phase 1 via new identity.bicep; KV RBAC role assignments moved into webapps.bicep (Phase 4) where principalIds are stable Phase 1 outputs",
+      "applied_at": "2026-05-11T10:30:00Z",
+      "source": "challenge-findings-plan-pass1.json"
+    },
+    {
+      "finding_id": "plan-pass1-mf2",
+      "severity": "must_fix",
+      "title": "Public-edge baseline is not enforceable from the infra plan",
+      "action": "accept",
+      "note": "auto-applied (must_fix is mandatory); Easy Auth v2 with Return401 configured declaratively on web + API + admin apps; admin endpoints split into a dedicated App Service (api-admin) with corp-only IP allow-list; rate-limiting documented as APIM/AFD upgrade path",
+      "applied_at": "2026-05-11T10:30:00Z",
+      "source": "challenge-findings-plan-pass1.json"
+    },
+    {
+      "finding_id": "plan-pass1-mf3",
+      "severity": "must_fix",
+      "title": "SQL grant deployment script lacks PE-safe identity and network path",
+      "action": "accept",
+      "note": "auto-applied (must_fix is mandatory); new sqlgrant.bicep runs a deploymentScript bound to snet-deploy with UAMI-deploy identity; SQL publicNetworkAccess remains Disabled throughout; AAD SQL admin group membership for UAMI-deploy added as Phase 1 manual prereq",
+      "applied_at": "2026-05-11T10:30:00Z",
+      "source": "challenge-findings-plan-pass1.json"
+    },
+    {
+      "finding_id": "plan-pass2-mf1",
+      "severity": "must_fix",
+      "title": "azd phases lack deploymentPhase parameter path",
+      "action": "accept",
+      "note": "auto-applied (must_fix is mandatory); deploymentPhase default changed to 1; per-phase main.phase{N}.bicepparam files added; azure.yaml env renamed to nordic-foods-dev; explicit operator runbook documents the per-phase azd provision invocation",
+      "applied_at": "2026-05-11T10:30:00Z",
+      "source": "challenge-findings-plan-pass2.json"
+    },
+    {
+      "finding_id": "plan-pass1-iter2-mf1",
+      "severity": "must_fix",
+      "title": "SQL grant script lacks sqlcmd runtime",
+      "action": "accept",
+      "note": "auto-applied (must_fix is mandatory, iter 2 of 2 cap); azure-cli image pinned to 2.61.0 and sqlgrant.bicep script body prepends an mssql-tools18 bootstrap from packages.microsoft.com before invoking sqlcmd; bootstrap validates with command -v sqlcmd",
+      "applied_at": "2026-05-11T10:52:00Z",
+      "source": "challenge-findings-plan-pass1.json"
+    },
+    {
+      "finding_id": "plan-pass1-iter3-mf1",
+      "severity": "must_fix",
+      "title": "SQL grant bootstrap targets wrong OS (Alpine vs Debian)",
+      "action": "accept",
+      "note": "user-directed (option 1 of 3): replaced ad-hoc apt bootstrap with a prebuilt custom container image (parameter customGrantImage) that bundles az + sqlcmd; image build instructions documented inline in the plan; CodeGen selects the matching base+package-manager at build time",
+      "applied_at": "2026-05-11T11:05:00Z",
+      "source": "challenge-findings-plan-pass1.json",
+      "user_choice": "Custom prebuilt image with az + sqlcmd"
+    },
+    {
+      "finding_id": "plan-pass2-iter2-mf1",
+      "severity": "must_fix",
+      "title": "Zone-redundant App Service plan uses one instance",
+      "action": "accept",
+      "note": "user-directed (option 2 of 2): dropped zoneRedundant=true to preserve the 1-instance MVP cost envelope; explicitly downgraded the compute SLA claim from 99.95% (AZ) to 99.9% (single-instance); documented the upgrade path (capacity=2 + zoneRedundant=true) as a load-test-triggered post-MVP action",
+      "applied_at": "2026-05-11T11:05:00Z",
+      "source": "challenge-findings-plan-pass2.json",
+      "user_choice": "Drop zoneRedundant; keep 1-instance MVP cost profile"
+    },
+    { "finding_id": "plan-pass1-sf1", "severity": "should_fix", "title": "Public-edge rate limiting remains non-deployable", "action": "defer", "note": "User deferred; Easy Auth covers anonymous blocking. Documented gap; revisit if peak load proves rate-limit necessary (APIM Consumption or AFD Standard as upgrade path).", "applied_at": "2026-05-11T11:10:00Z", "source": "challenge-findings-plan-pass1.json" },
+    { "finding_id": "plan-pass1-sf2", "severity": "should_fix", "title": "Security table contradicts UAMI design", "action": "accept", "note": "Security Configuration table row for Identity updated to UAMI; Public ingress and Admin surface rows revised to reflect Easy Auth + dedicated admin app.", "applied_at": "2026-05-11T11:10:00Z", "source": "challenge-findings-plan-pass1.json" },
+    { "finding_id": "plan-pass1-sf3", "severity": "should_fix", "title": "snet-deploy output wiring incomplete", "action": "accept", "note": "network.bicep outputs expanded to include snetDeployId/snetDeployName and corresponding snetApp/snetPe names for completeness.", "applied_at": "2026-05-11T11:10:00Z", "source": "challenge-findings-plan-pass1.json" },
+    { "finding_id": "plan-pass1-sf4", "severity": "should_fix", "title": "Project defaults weaken template repeatability", "action": "accept", "note": "projectName parameter no longer has a default; main.bicep requires explicit value.", "applied_at": "2026-05-11T11:10:00Z", "source": "challenge-findings-plan-pass1.json" },
+    { "finding_id": "plan-pass2-sf1", "severity": "should_fix", "title": "API allow-list depends on unstable web outbound IPs", "action": "accept_alt", "note": "Chose token-based service-to-service authz (Easy Auth + caller-claim check on uamiWebPrincipalId) instead of NAT Gateway; no cost impact; web->API IP restriction dropped.", "applied_at": "2026-05-11T11:10:00Z", "source": "challenge-findings-plan-pass2.json" },
+    { "finding_id": "plan-pass2-sf2", "severity": "should_fix", "title": "P1v3 + SQL S3 capacity lacks load-validation gate", "action": "defer", "note": "User deferred; load test will be ad-hoc post-deploy. Documented S3->S4/Redis trigger remains in Step 2 artifact.", "applied_at": "2026-05-11T11:10:00Z", "source": "challenge-findings-plan-pass2.json" },
+    { "finding_id": "plan-pass2-sf3", "severity": "should_fix", "title": "Backup plan stops at short-term recovery", "action": "defer", "note": "User deferred; retain 7-day PITR + 30-day blob soft-delete for MVP. Gap vs REQ-C-02 7-year retention explicitly carried as open risk into Step 5 handoff.", "applied_at": "2026-05-11T11:10:00Z", "source": "challenge-findings-plan-pass2.json" },
+    { "finding_id": "plan-pass2-sf4", "severity": "should_fix", "title": "Alert set misses availability/auth/PE/budget signals", "action": "accept", "note": "alerts.bicep expanded with 2 webtests + availability alerts, auth-failure scheduledQueryRule, PE/DNS health KQL, budget-aligned action group wiring.", "applied_at": "2026-05-11T11:10:00Z", "source": "challenge-findings-plan-pass2.json" },
+    { "finding_id": "plan-pass2-sf5", "severity": "should_fix", "title": "AllLogs diagnostics lack ingestion controls", "action": "accept", "note": "observability.bicep adds dailyQuotaGb=5, AI samplingPercentage=25, noisy-category exclusions documented, two ingestion-cap scheduledQueryRules at 80%/100%.", "applied_at": "2026-05-11T11:10:00Z", "source": "challenge-findings-plan-pass2.json" },
+    { "finding_id": "plan-pass2-sf6", "severity": "should_fix", "title": "SQL grant script not idempotent", "action": "accept", "note": "sqlgrant.bicep script body wraps CREATE USER and ALTER ROLE statements with IF NOT EXISTS / sys.database_principals + database_role_members checks so re-runs are safe.", "applied_at": "2026-05-11T11:10:00Z", "source": "challenge-findings-plan-pass2.json" },
+    { "finding_id": "plan-pass2-sf7", "severity": "should_fix", "title": "Rollback guidance deletes deployment records, not resources", "action": "accept", "note": "Phase Failure Recovery table updated: explicit reverse-dependency deletion order; az deployment sub delete guidance replaced with per-resource cleanup; RG retained because of tag-Deny policy expense.", "applied_at": "2026-05-11T11:10:00Z", "source": "challenge-findings-plan-pass2.json" }
+  ]
+}

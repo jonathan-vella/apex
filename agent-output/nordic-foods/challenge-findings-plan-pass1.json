@@ -1,0 +1,68 @@
+{
+  "challenged_artifact": "agent-output/nordic-foods/04-implementation-plan.md",
+  "artifact_type": "implementation-plan",
+  "review_focus": "security-governance",
+  "pass_number": 1,
+  "challenge_summary": "Final re-validation confirms the previous sqlcmd runtime finding was addressed in intent, but the revised fix still has one deployment-blocking runtime mismatch: Azure CLI container tag 2.61.0 is Alpine-based while the bootstrap uses Debian apt packages. The plan otherwise maps the discovered Deny policies, required tags, private endpoints, Easy Auth, UAMI path, and phased Bicep execution into concrete implementation tasks. Remaining non-blocking issues are contradictions or incomplete deployable detail around rate limiting, identity wording, snet-deploy output wiring, and repeatability defaults.",
+  "compact_for_parent": "Pass 1 (security-governance) | HIGH | 1 must_fix, 4 should_fix | Key: SQL grant bootstrap targets wrong OS",
+  "risk_level": "high",
+  "must_fix_count": 1,
+  "should_fix_count": 4,
+  "suggestion_count": 1,
+  "issues": [
+    {
+      "severity": "must_fix",
+      "category": "hidden_dependency",
+      "title": "SQL grant bootstrap targets wrong OS",
+      "description": "The revised plan pins the SQL grant deployment script to mcr.microsoft.com/azure-cli:2.61.0 and adds a Debian 12 apt-based mssql-tools18 bootstrap before invoking sqlcmd. Microsoft Azure CLI container documentation states Azure CLI 2.63.0 was the final Alpine-based Docker image, which means 2.61.0 is Alpine-based rather than Debian-based. The bootstrap therefore depends on apt-get, gpg/deb repository setup, and Debian package paths that will not exist in the selected container runtime. The added command -v sqlcmd fail-fast check is useful, but with the current OS/package-manager mismatch it will fail every Phase 4 run before grants are applied.",
+      "failure_scenario": "Phase 4 starts the VNet-attached deploymentScript in snet-deploy with UAMI-deploy. The script reaches the bootstrap prologue and fails on apt-get or Debian package repository setup because the selected Azure CLI 2.61.0 container is Alpine-based. No sqlcmd binary is installed, CREATE USER and ALTER ROLE statements never run, UAMI-web and UAMI-api cannot access Azure SQL, and the private SQL smoke test fails while SQL publicNetworkAccess remains Disabled.",
+      "artifact_section": "Task 6a: modules/sqlgrant.bicep (NEW - Phase 4, runs AFTER webapps)",
+      "suggested_mitigation": "Change the deployment script runtime to an OS/package-manager combination that matches the bootstrap. Options: use a supported Azure Linux Azure CLI tag and install Microsoft ODBC/sqlcmd with the matching rpm/tdnf flow, use an explicit custom deployment container image that already contains az plus sqlcmd, or rewrite the bootstrap for the actual Alpine package flow if Microsoft supports the needed sqlcmd packages there. Keep the pinned version and command -v sqlcmd validation, but align the install commands with the image base before Step 5 CodeGen."
+    },
+    {
+      "severity": "should_fix",
+      "category": "governance_gap",
+      "title": "Public-edge rate limiting remains non-deployable",
+      "description": "The plan fixes the previous anonymous-access blocker by making Easy Auth v2 and the dedicated admin app deployable, but the Public-Edge Baseline still treats rate limiting as partly deferred. It references App Service IP restrictions and Easy Auth token behavior as if they provide rate limiting, then says APIM or Front Door is a future upgrade. The upstream architecture made per-IP and per-identity rate limiting part of the compensating control set for deferring WAF, so the Step 4 plan should give CodeGen a concrete deployable mechanism or explicitly gate the decision.",
+      "failure_scenario": "The API deploys with Easy Auth and admin isolation, but no per-IP or per-identity throttling is enforced. An authenticated or scripted client can generate high request volume against order or inventory endpoints, causing availability or cost impact while the deployment still appears compliant because the plan claimed rate limiting was covered.",
+      "artifact_section": "Task 7: modules/webapps.bicep; Public-Edge Baseline enforceability",
+      "suggested_mitigation": "Pick one MVP mechanism and make it deployable in the plan: APIM Consumption policy, application middleware with explicit thresholds and tests, or Front Door/APIM if WAF compensation requires an Azure edge control. If rate limiting is intentionally deferred, record it as an accepted security risk and adjust the approval gate rather than listing it as implemented."
+    },
+    {
+      "severity": "should_fix",
+      "category": "hidden_dependency",
+      "title": "Security table contradicts the UAMI design",
+      "description": "The revised tasks correctly move to user-assigned managed identities created in Phase 1 and reused by App Service, Key Vault RBAC, and SQL grants. However, the Security Configuration table still says Web App and API App identity is System-assigned MSI. That contradiction is risky because CodeGen could follow the summary table and produce apps whose runtime identity does not match the Key Vault role assignments, keyVaultReferenceIdentity, or database users described elsewhere.",
+      "failure_scenario": "Step 5 authors App Services with only system-assigned identities based on the Security Configuration table, while RBAC assignments and SQL grants target the Phase 1 UAMIs. The apps deploy, but Key Vault references and SQL authentication fail because the active runtime principal differs from the principal granted access.",
+      "artifact_section": "Security Configuration; Task 3a: modules/identity.bicep; Task 7: modules/webapps.bicep",
+      "suggested_mitigation": "Update the Security Configuration table to say user-assigned managed identity for Web/API/Admin apps, with uamiWebId for Web and uamiApiId for API/Admin. If system-assigned identity is also desired, state it separately and clarify it is not the identity used for Key Vault references or SQL grants."
+    },
+    {
+      "severity": "should_fix",
+      "category": "hidden_dependency",
+      "title": "snet-deploy output wiring is incomplete",
+      "description": "The SQL grant design depends on a deploymentScript bound to snet-deploy, and the resource inventory plus phase validation mention the delegated subnet. In Task 3, however, the network module resource list only spells out snet-app and snet-pe, and the outputs list only vnetId, snetAppId, and snetPeId. Without a deployable snetDeployId output, sqlgrant.bicep has no explicit module contract for the subnetIds binding that keeps SQL grants on the private endpoint path.",
+      "failure_scenario": "CodeGen implements network.bicep outputs exactly as listed, then sqlgrant.bicep cannot receive the delegated subnet resource ID needed for deploymentScripts subnetIds. The Phase 4 script either fails template validation or is implemented without VNet attachment, reintroducing the private SQL connectivity failure the revision was meant to close.",
+      "artifact_section": "Task 3: modules/network.bicep; Task 6a: modules/sqlgrant.bicep",
+      "suggested_mitigation": "Make snet-deploy part of the Task 3 resource list with Microsoft.ContainerInstance delegation and output snetDeployId. Add snetDeployId to the main.bicep module contract and pass it explicitly to sqlgrant.bicep."
+    },
+    {
+      "severity": "should_fix",
+      "category": "governance_gap",
+      "title": "Project defaults weaken template repeatability",
+      "description": "The implementation-plan rules require generated templates to deploy without source modification across tenants, subscriptions, regions, and customers, and state that projectName should have no default. The plan currently sets projectName default 'nordic-foods', environment default 'dev', and embeds several nordic-foods-specific names in parameter defaults/examples. This is not a security blocker for this project, but it conflicts with the repository repeatability invariant and can lead to copied templates deploying with stale names or tags.",
+      "failure_scenario": "A future project reuses the Bicep module set and misses a defaulted projectName or hardcoded short name. Resources deploy with nordic-foods naming/tagging into the wrong workload context, confusing governance reporting, budget filtering, and ownership tags.",
+      "artifact_section": "Task 1: main.bicep (subscription-scope orchestration); Naming Conventions; Task 9: modules/budget.bicep",
+      "suggested_mitigation": "Remove defaults from projectName and other project-specific deployable parameters, derive short names from parameters, and keep nordic-foods values only in the project-specific .bicepparam files. Ensure budget filters and required tag values come from parameters rather than template source defaults."
+    },
+    {
+      "severity": "suggestion",
+      "category": "governance_gap",
+      "title": "Capture RG tag confirmation as approval evidence",
+      "description": "The plan correctly carries the unresolved JV-Enforce Resource Group Tags ambiguity as a pre-deploy manual gate and applies the 9-key minimum from the Modify policy. To make the gate auditable for Step 5, the confirmation should be captured as a small artifact or approval note rather than remaining only as prose in the implementation plan.",
+      "failure_scenario": "The owner verbally confirms the tag set, but Step 5 or a later reviewer has no durable evidence of the exact confirmed keys. If the Deny assignment expects another tag, resource group creation may still fail and the team has to rediscover the decision trail.",
+      "artifact_section": "Pre-Deploy Manual Gate; Naming Conventions; Approval Gate",
+      "suggested_mitigation": "Before CodeGen, record the subscription owner's confirmation in apex-recall or a small agent-output note that lists the exact required RG tag keys. Keep the current 9-key set in the .bicepparam file and block deployment if any owner-supplied additional key is missing."
+    }
+  ]
+}
