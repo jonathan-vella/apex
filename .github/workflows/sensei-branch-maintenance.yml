@@ -35,7 +35,6 @@ concurrency:
 permissions:
   contents: write       # required to merge main into the sensei branch
   issues: write         # required to open a tracking issue on failure
-  pull-requests: write  # required to open a fallback PR on merge conflict
 
 jobs:
   verify-branch-exists:
@@ -50,7 +49,12 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
-          if gh api "repos/${{ github.repository }}/branches/feat/skills-sensei" >/dev/null 2>&1; then
+          # The branches REST endpoint is path-based, so the ref must be
+          # URL-encoded (slashes → %2F) or feat/skills-sensei resolves
+          # to a 404 even when the branch exists.
+          branch_name='feat/skills-sensei'
+          encoded_branch_name="${branch_name//\//%2F}"
+          if gh api "repos/${{ github.repository }}/branches/${encoded_branch_name}" >/dev/null 2>&1; then
             echo "exists=true" >> "$GITHUB_OUTPUT"
           else
             echo "exists=false" >> "$GITHUB_OUTPUT"
@@ -86,7 +90,10 @@ jobs:
   merge-main-into-sensei:
     name: Merge main into feat/skills-sensei
     needs: verify-branch-exists
-    if: needs.verify-branch-exists.outputs.exists == 'true' && inputs.skip_merge != true
+    # `inputs.*` is only populated for workflow_dispatch / workflow_call; on
+    # scheduled runs it is undefined. `github.event.inputs.*` safely
+    # resolves to empty string for non-dispatch events.
+    if: needs.verify-branch-exists.outputs.exists == 'true' && github.event.inputs.skip_merge != 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout feat/skills-sensei
@@ -118,27 +125,42 @@ jobs:
         if: steps.merge.outputs.merged == 'true'
         run: git push origin feat/skills-sensei
 
-      - name: Open conflict-resolution PR
+      - name: Open conflict-resolution issue
         if: steps.merge.outputs.merged != 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
-          BRANCH="chore/sensei-main-sync-$(date +%Y%m%d)"
-          git checkout -B "$BRANCH"
-          git fetch origin main
-          # Re-attempt with conflicts left in the index so a human can resolve.
-          git merge --no-commit --no-ff origin/main || true
-          git add -A
-          git commit -m "chore(sensei): merge main into feat/skills-sensei (conflicts)" \
-            --allow-empty
-          git push -u origin "$BRANCH"
-          gh pr create \
-            --base feat/skills-sensei \
-            --head "$BRANCH" \
-            --title "chore(sensei): resolve main→sensei merge conflicts" \
+          # We cannot open a PR carrying the conflicted merge: `git commit`
+          # refuses to land while the index has unmerged paths, and any
+          # `--allow-empty` workaround would push a misleading no-op commit.
+          # Open an issue with a copy-pastable recovery recipe instead — a
+          # human resolves the merge locally and pushes a real merge commit
+          # via the normal protected push path.
+          gh issue create \
+            --title "Sensei branch: weekly main→sensei merge has conflicts ($(date +%Y-%m-%d))" \
             --label "automation,sensei" \
-            --body "Automated weekly merge of `main` into `feat/skills-sensei` failed with conflicts. Resolve the conflicts in this PR and merge. Opened by `.github/workflows/sensei-branch-maintenance.yml`."
+            --body "$(cat <<'EOF'
+          The scheduled `Sensei Branch Maintenance` workflow attempted to
+          merge `origin/main` into `feat/skills-sensei` and hit conflicts.
+          The workflow aborted the merge cleanly; no partial state was
+          pushed.
+
+          Resolve locally:
+
+          ```bash
+          git fetch origin
+          git checkout feat/skills-sensei
+          git merge --no-ff origin/main
+          # resolve conflicts, then:
+          git commit
+          git push origin feat/skills-sensei
+          ```
+
+          See [run logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for the merge output. Opened automatically by
+          `.github/workflows/sensei-branch-maintenance.yml`.
+          EOF
+          )"
 
   validate-sensei-branch:
     name: Validate skills + agents on feat/skills-sensei
