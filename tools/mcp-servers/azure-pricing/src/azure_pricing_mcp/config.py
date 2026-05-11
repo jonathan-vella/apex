@@ -59,6 +59,25 @@ RETIREMENT_DISK_CACHE_DIR = os.environ.get(
 )
 RETIREMENT_DISK_CACHE_FILE = "retirement.json"
 
+# Disk-backed pricing-response cache (v5.5).
+#
+# Mirrors successful Retail Prices API responses to ``<CACHE_DIR>/prices/``
+# keyed by a hash of ``(filter, currency, limit)``. Survives process restart,
+# so cold-start tool calls in CI / fresh dev containers skip the HTTP round-
+# trip (~200-800 ms) for any filter seen in a prior run. Sits *below* the
+# in-memory dedup cache: in-memory hits are still served first; disk is
+# checked only on in-memory miss. Empty (``Items: []``) responses are NOT
+# persisted to avoid baking typos into the cache for days.
+PRICE_DISK_CACHE_ENABLED = os.environ.get("AZURE_PRICING_DISK_CACHE_ENABLED", "true").lower() != "false"
+# 24h matches the retirement-cache cadence and the Retail Prices API's
+# practical update frequency (hourly at most, but most SKUs change <1x/week).
+PRICE_DISK_CACHE_TTL = timedelta(seconds=int(os.environ.get("AZURE_PRICING_DISK_CACHE_TTL", str(24 * 3600))))
+# Total cache size cap. On overflow, oldest entries (by mtime) are evicted
+# at write time. 500 MB covers ~10000 typical filtered responses; raise for
+# heavier workloads.
+PRICE_DISK_CACHE_MAX_BYTES = int(os.environ.get("AZURE_PRICING_DISK_CACHE_MAX_BYTES", str(500 * 1024 * 1024)))
+PRICE_DISK_CACHE_SUBDIR = "prices"
+
 # SSL verification configuration
 # Set to False if behind a corporate proxy with self-signed certificates
 # Can also be set via environment variable AZURE_PRICING_SSL_VERIFY=false
