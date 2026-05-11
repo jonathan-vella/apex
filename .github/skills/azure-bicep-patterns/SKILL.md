@@ -1,6 +1,6 @@
 ---
 name: azure-bicep-patterns
-description: "Reusable Azure Bicep patterns: hub-spoke, private endpoints, diagnostics, AVM composition. USE FOR: Bicep template design, hub-spoke networking, private endpoint patterns, AVM modules. DO NOT USE FOR: Terraform code, architecture decisions, troubleshooting, diagram generation."
+description: '**UTILITY SKILL** — Reusable Azure Bicep patterns: hub-spoke, private endpoints, diagnostics, AVM composition. WHEN: "hub-spoke Bicep", "private endpoint module", "diagnostic settings", "AVM Bicep composition". USE FOR: Bicep template design, hub-spoke networking, private endpoint patterns, AVM modules. DO NOT USE FOR: Terraform code (use terraform-patterns), architecture decisions (use azure-adr), troubleshooting, diagram generation (use drawio).'
 compatibility: Requires Azure CLI with Bicep extension
 ---
 
@@ -8,8 +8,6 @@ compatibility: Requires Azure CLI with Bicep extension
 
 Reusable infrastructure patterns for Azure Bicep templates. Complements
 `iac-bicep-best-practices.instructions.md` (style) and `azure-defaults` skill (naming, tags, regions).
-
----
 
 ## Quick Reference
 
@@ -24,28 +22,28 @@ Reusable infrastructure patterns for Azure Bicep templates. Complements
 | Budget & Cost Monitoring | Every deployment (mandatory)                     | [budget-pattern](references/budget-pattern.md)                     |
 | What-If / AVM Pitfalls   | Pre-deployment validation & AVM gotchas          | [avm-pitfalls](references/avm-pitfalls.md)                         |
 
----
-
 ## Canonical Example — Module Interface
 
-```bicep
-// modules/storage.bicep — every module follows this contract
-@description('Storage account name')
-param name string
-param location string
-param tags object
-param logAnalyticsWorkspaceName string
+Every Bicep module in this repo follows the same input/output contract:
 
-output resourceId string = storageAccount.id
-output resourceName string = storageAccount.name
-output principalId string = storageAccount.identity.?principalId ?? ''
-```
+- **Inputs (required)**: `name`, `location`, `tags`, `logAnalyticsWorkspaceName`
+- **Outputs (required)**: `resourceId`, `resourceName`, `principalId` (use `.?principalId ?? ''` so modules without managed identity still expose the output)
 
-Accept `name`, `location`, `tags`, `logAnalyticsWorkspaceName`; output `resourceId`, `resourceName`, `principalId`.
+Full code sample and rationale: [`references/module-interface.md`](references/module-interface.md).
 
----
+## Steps
 
-## Key Rules Summary
+Applying a pattern in a Bicep template:
+
+1. **Identify the pattern** — match your need to a row in [Quick Reference](#quick-reference) (hub-spoke, private endpoint, diagnostics, conditional, identity, budget)
+2. **Load the reference** — read the linked `references/*.md` for the chosen pattern; do not load all at once
+3. **Compose the module** — follow the Module Interface contract above (`name`/`location`/`tags`/`logAnalyticsWorkspaceName` in; `resourceId`/`resourceName`/`principalId` out)
+4. **Pin AVM versions** — when using AVM modules, pin to a specific published version; verify via MCR tag listing if helpers fail
+5. **Add diagnostics + budget** — every deployed resource gets a diagnostic setting; every deployment gets a budget with 80%/100%/120% forecast alerts
+6. **What-if before deploy** — run `az deployment group what-if` and review for unexpected deletes, SKU downgrades, or auth changes
+7. **Validate** — `bicep build` + `bicep lint` + `npm run validate:iac-security-baseline`
+
+## Rules
 
 - **Hub-Spoke**: Hub holds shared infra; spokes peer to hub only; NSGs per subnet
 - **Private Endpoints**: Always wire PE + DNS Zone Group + DNS Zone; see group ID table in reference
@@ -71,8 +69,6 @@ Accept `name`, `location`, `tags`, `logAnalyticsWorkspaceName`; output `resource
   query `mcr.microsoft.com/v2/bicep/{module}/tags/list` for authoritative
   published versions.
 
----
-
 ## Reference Index
 
 | File                                                                  | Content                                                               |
@@ -82,8 +78,7 @@ Accept `name`, `location`, `tags`, `logAnalyticsWorkspaceName`; output `resource
 | [common-patterns.md](references/common-patterns.md)                   | Diagnostics, conditional deploy, module composition, managed identity |
 | [budget-pattern.md](references/budget-pattern.md)                     | Consumption budget, forecast alerts, anomaly detection                |
 | [avm-pitfalls.md](references/avm-pitfalls.md)                         | What-if interpretation, AVM gotchas, learn more links                 |
-
----
+| [module-interface.md](references/module-interface.md)                 | Canonical module input/output contract                                |
 
 ## Learn More
 

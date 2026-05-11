@@ -1,6 +1,6 @@
 ---
 name: azure-kusto
-description: "Query and analyze data in Azure Data Explorer (Kusto/ADX) using KQL for log analytics, telemetry, and time series analysis. WHEN: KQL queries, Kusto database queries, Azure Data Explorer, ADX clusters, log analytics, time series data, IoT telemetry, anomaly detection."
+description: '**ANALYSIS SKILL** — Query and analyze data in Azure Data Explorer (Kusto/ADX) using KQL. WHEN: "KQL queries", "Kusto database queries", "Azure Data Explorer", "ADX clusters", "time series data", "IoT telemetry", "anomaly detection". USE FOR: KQL authoring, ADX cluster queries, telemetry analysis. DO NOT USE FOR: Application Insights/Log Analytics troubleshooting (use azure-diagnostics), cost analysis (use azure-cost-optimization). INVOKES: azure-kusto MCP (queries, sample, list-clusters).'
 license: MIT
 metadata:
   author: Microsoft
@@ -11,42 +11,26 @@ metadata:
 
 Execute KQL queries and manage Azure Data Explorer resources for fast, scalable big data analytics on log, telemetry, and time series data.
 
-## Skill Activation Triggers
-
-**Use this skill immediately when the user asks to:**
-
-- "Query my Kusto database for [data pattern]"
-- "Show me events in the last hour from Azure Data Explorer"
-- "Analyze logs in my ADX cluster"
-- "Run a KQL query on [database]"
-- "What tables are in my Kusto database?"
-- "Show me the schema for [table]"
-- "List my Azure Data Explorer clusters"
-- "Aggregate telemetry data by [dimension]"
-- "Create a time series chart from my logs"
-
-**Key Indicators:**
-
-- Mentions "Kusto", "Azure Data Explorer", "ADX", or "KQL"
-- Log analytics or telemetry analysis requests
-- Time series data exploration
-- IoT data analysis queries
-- SIEM or security analytics tasks
-- Requests for data aggregation on large datasets
-- Performance monitoring or APM queries
+> **When to use**: see the `WHEN:` and `USE FOR:` triggers in the frontmatter `description`. The same triggers feed Copilot's skill-routing — duplicating them in the body adds tokens without adding signal.
 
 ## Overview
 
-This skill enables querying and managing Azure Data Explorer (Kusto), a fast and highly scalable data exploration service optimized for log and telemetry data. Azure Data Explorer provides sub-second query performance on billions of records using the Kusto Query Language (KQL).
+Azure Data Explorer (Kusto) provides sub-second query performance on billions of records using
+the Kusto Query Language (KQL). This skill covers query execution, schema exploration,
+resource management (cluster/database listing), and analytics patterns (aggregation, time
+series, anomaly detection).
 
-Key capabilities:
+## Prerequisites
 
-- **Query Execution**: Run KQL queries against massive datasets
-- **Schema Exploration**: Discover tables, columns, and data types
-- **Resource Management**: List clusters and databases
-- **Analytics**: Aggregations, time series, anomaly detection, machine learning
+- **Azure CLI** authenticated (`az login`) with a subscription containing Kusto resources
+- **RBAC**: at minimum `AllDatabasesViewer` on the target cluster (or `Database Viewer` per
+  database) — required for both `kusto_query` and `kusto_table_schema_get`
+- **Azure MCP server** configured in `.vscode/mcp.json` (the `mcp_azure_mcp_kusto` namespace
+  exposes the tools listed below); fall back to the Azure CLI commands in
+  [`references/fallback-strategy.md`](references/fallback-strategy.md) when the MCP server
+  is unavailable
 
-## Core Workflow
+## Steps
 
 1. **Discover Resources**: List available clusters and databases in subscription
 2. **Explore Schema**: Retrieve table structures to understand data model
@@ -94,7 +78,7 @@ Query results include:
 
 📋 **Reference**: Read `references/query-patterns.md` for complete function reference and performance tips.
 
-## Best Practices
+## Rules
 
 - Always include time range filters to optimize query performance
 - Use `take` or `limit` for exploratory queries to avoid large result sets

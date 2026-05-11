@@ -192,6 +192,7 @@ export default defineConfig({
           collapsed: true,
           items: [
             { label: "Contributing", slug: "project/contributing" },
+            { label: "Sensei Branch", slug: "project/sensei-branch" },
             { label: "Changelog", slug: "project/changelog" },
           ],
         },

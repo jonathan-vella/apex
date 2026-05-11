@@ -105,21 +105,22 @@ Always specify Azure Storage Account backend only.
 
 ## DO / DON'T
 
-| DO                                                                                                         | DON'T                                                                 |
-| ---------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
-| Verify Azure connectivity (`az account show`) FIRST                                                        | Write ANY IaC code — this agent plans only                            |
-| Read `04-governance-constraints.md/.json` — prerequisite input                                             | Skip reading governance constraints                                   |
-| Check AVM for EVERY resource (Bicep: `mcp_bicep_list_avm_metadata`; Terraform: `terraform/search_modules`) | Generate plan before asking deployment strategy (Phase 3.5 mandatory) |
-| Use AVM defaults for SKUs; deprecation research only for overrides                                         | Hardcode SKUs without AVM verification                                |
-| Define tasks as YAML specs (resource, module, dependencies, config)                                        | Proceed to code generation without explicit user approval             |
-| Generate `04-implementation-plan.md`                                                                       | Ignore policy `effect` — `Deny` = blocker, `Audit` = warning only     |
-| Auto-generate `04-dependency-diagram.py/.png` + `04-runtime-diagram.py/.png`                               | Generate governance from best-practice assumptions                    |
-| Match H2 headings from azure-artifacts templates exactly                                                   | Re-run governance discovery (already done in Step 3.5)                |
-| Ask user for deployment strategy — **MANDATORY GATE**                                                      | Add H2 headings not in the template                                   |
-| Use `askQuestions` in Phase 5 to present findings and gather approval                                      |                                                                       |
-| **Terraform only**: use `azurePropertyPath` (not `bicepPropertyPath`)                                      | **Terraform only**: Plan HCP/cloud backends                           |
-| **Terraform only**: use `terraform/get_module_details` for variables                                       | **Terraform only**: Use archived tool names (`moduleSearch` etc.)     |
-| Update `agent-output/{project}/README.md` — mark Step 4 complete                                           |                                                                       |
+| DO                                                                                                         | DON'T                                                                   |
+| ---------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| Verify Azure connectivity (`az account show`) FIRST                                                        | Write ANY IaC code — this agent plans only                              |
+| Read `04-governance-constraints.md/.json` — prerequisite input                                             | Skip reading governance constraints                                     |
+| Check AVM for EVERY resource (Bicep: `mcp_bicep_list_avm_metadata`; Terraform: `terraform/search_modules`) | Generate plan before asking deployment strategy (Phase 3.5 mandatory)   |
+| Use AVM defaults for SKUs; deprecation research only for overrides                                         | Hardcode SKUs without AVM verification                                  |
+| Define tasks as YAML specs (resource, module, dependencies, config)                                        | Proceed to code generation without explicit user approval               |
+| Generate `04-implementation-plan.md`                                                                       | Ignore policy `effect` — `Deny` = blocker, `Audit` = warning only       |
+| Auto-generate `04-dependency-diagram.py/.png` + `04-runtime-diagram.py/.png`                               | Generate governance from best-practice assumptions                      |
+| Match H2 headings from azure-artifacts templates exactly                                                   | Re-run governance discovery (already done in Step 3.5)                  |
+| Ask user for deployment strategy — **MANDATORY GATE**                                                      | Add H2 headings not in the template                                     |
+| Auto-apply every `must_fix` finding in Phase 5 (mandatory — blocks deployment); re-run challenger after    | Ask the user whether to accept `must_fix` findings — they are mandatory |
+| Use `askQuestions` in Phase 5 to gather `should_fix` decisions in the same chat session                    |                                                                         |
+| **Terraform only**: use `azurePropertyPath` (not `bicepPropertyPath`)                                      | **Terraform only**: Plan HCP/cloud backends                             |
+| **Terraform only**: use `terraform/get_module_details` for variables                                       | **Terraform only**: Use archived tool names (`moduleSearch` etc.)       |
+| Update `agent-output/{project}/README.md` — mark Step 4 complete                                           |                                                                         |
 
 ## Prerequisites Check
 
@@ -299,7 +300,7 @@ from disk only if you need full finding details for the Gate presentation.
 
 ### Phase 5: Approval Gate
 
-**Present findings directly in chat** before asking the user to decide:
+**Present findings directly in chat** before any auto-fix or interactive flow:
 
 1. Print plan summary: resource count (AVM vs custom/raw), governance
    blockers/warnings, deployment strategy, estimated time
@@ -309,26 +310,71 @@ from disk only if you need full finding details for the Gate presentation.
 3. Show aggregate totals: `N must-fix, N should-fix`
 4. Reference the JSON file paths for machine-readable details
 
-Then run the **Per-Finding Decision Protocol** from
-[.github/skills/azure-defaults/references/adversarial-review-protocol.md](../skills/azure-defaults/references/adversarial-review-protocol.md).
+Then run the **two-stage gate**:
+
+#### Stage 1 — Auto-apply every `must_fix` (mandatory)
+
+All `must_fix` findings would block deployment, violate the security
+baseline, or break a hard governance constraint. They are **not
+negotiable** and **must not** be presented as user choices.
+
+For every `must_fix` finding across all passes:
+
+1. Apply the `suggested_mitigation` to `04-implementation-plan.md` using a
+   **single `multi_replace_string_in_file` call** that bundles every
+   `must_fix` edit (do NOT re-emit the plan via `create_file`). See
+   azure-artifacts skill "Revision Workflow".
+2. Persist each in
+   `agent-output/{project}/challenge-findings-plan-decisions.json` with
+   `action: "accept"`, `note: "auto-applied (must_fix is mandatory)"`,
+   following the sidecar schema in adversarial-review-protocol section 2a.
+3. Re-run every executed challenger pass with `overwrite: true` to
+   confirm the fixes landed (no new `must_fix` should remain). If any
+   `must_fix` returns, **repeat Stage 1** for the new findings — up to a
+   hard cap of 2 auto-fix iterations, then STOP and surface a chat
+   warning listing the unresolved finding(s) so the user can intervene.
+4. **Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 4 phase_5_must_fix_applied --json`
+
+**Unattended mode (`APEX_UNATTENDED=1`)**: skip auto-apply; defer all
+`must_fix` per adversarial-review-protocol section 2d (the unattended
+orchestrator owns mandatory-fix handling for benchmark runs).
+
+#### Stage 2 — Interactive `should_fix` decisions (same chat session)
+
+Only `should_fix` findings carry trade-offs (cost vs reliability,
+coverage vs ingestion, etc.) where the user must choose. Run the
+**Per-Finding Decision Protocol** from
+[.github/skills/azure-defaults/references/adversarial-review-protocol.md](../skills/azure-defaults/references/adversarial-review-protocol.md)
+on the remaining `should_fix` set only:
 
 - **Sources merged for the panel** (per protocol section 2e): in this
   order — `challenge-findings-plan-pass1.json` → `pass2.json`
-  (omit passes that did not run; max 2 passes per Phase 4.3–4.4).
-- **Sidecar**:
-  `agent-output/{project}/challenge-findings-plan-decisions.json`
-  (`artifact_type: "plan"`).
-- **On Revise** (matrix row 4): apply Accepted fixes to
-  `04-implementation-plan.md` using a **single
-  `multi_replace_string_in_file` call** that bundles every Accepted
-  finding's edit — do NOT re-emit the plan via `create_file`. See
-  azure-artifacts skill "Revision Workflow". Then re-run all relevant
-  passes of the challenger (`overwrite: true`), then re-build the
-  panel skipping issues whose `issue_id` already has a sidecar entry
-  (protocol section 2c).
-- **On Proceed**: present final handoff to the appropriate CodeGen
-  agent (Bicep or Terraform based on `decisions.iac_tool`).
-  **On completion** (MANDATORY): `apex-recall complete-step <project> 4 --json`
+  (omit passes that did not run; max 2 passes per Phase 4.3–4.4),
+  filtered to `severity == "should_fix"` only. `must_fix` are excluded
+  because Stage 1 already resolved them.
+- **Sidecar**: append (never overwrite) the same
+  `agent-output/{project}/challenge-findings-plan-decisions.json` that
+  Stage 1 created (`artifact_type: "plan"`).
+- **Panel cap** (protocol section 2f): still 12 questions max; if
+  `should_fix > 12`, auto-defer the overflow with the standard note.
+- **Single batched `askQuestions` call** with one question per
+  `should_fix`, four-option payload per protocol section 2g
+  (recommended = `Defer` for `should_fix`).
+- After the user replies, apply every Accepted finding's edit via a
+  **single `multi_replace_string_in_file` call** (same revision workflow
+  as Stage 1), then re-run the relevant challenger passes
+  (`overwrite: true`) once to verify the should_fix edits did not
+  introduce new `must_fix`. If they did, return to Stage 1 (within the
+  2-iteration cap).
+- **Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 4 phase_5_should_fix_decided --json`
+
+#### Stage 3 — Final proceed gate
+
+Present the final aggregated summary (counts of accept/reject/defer/edit
+for must_fix + should_fix) and the handoff to the appropriate CodeGen
+agent (Bicep or Terraform based on `decisions.iac_tool`).
+
+**On completion** (MANDATORY): `apex-recall complete-step <project> 4 --json`
 
 ## Output Files
 
@@ -353,8 +399,11 @@ Include attribution header from the template file (do not hardcode).
 ## Boundaries
 
 - **Always**: Read governance constraints, verify AVM modules, ask deployment strategy, generate Python diagrams
-- **Ask first**: Non-standard phase groupings, deviation from architecture assessment
-- **Never**: Write IaC code, re-run governance discovery, assume deployment strategy
+- **Always**: Auto-apply every `must_fix` finding in Phase 5 Stage 1 (mandatory) and re-run challenger to confirm
+- **Ask first**: `should_fix` findings only (Stage 2 batched `askQuestions`),
+  non-standard phase groupings, deviation from architecture assessment
+- **Never**: Write IaC code, re-run governance discovery, assume deployment strategy,
+  ask the user whether to accept `must_fix` findings
 - **Terraform-specific never**: Plan HCP/cloud backends, use `terraform -target`
 
 ## Validation Checklist
@@ -368,6 +417,8 @@ Include attribution header from the template file (do not hardcode).
 - [ ] All 4 required tags listed for every resource
 - [ ] Security configuration includes managed identity where applicable
 - [ ] Approval gate presented before handoff
+- [ ] Phase 5 Stage 1: every `must_fix` finding auto-applied and re-validated (or unattended-mode deferral logged)
+- [ ] Phase 5 Stage 2: every remaining `should_fix` finding decided via `askQuestions` in the same chat session
 - [ ] Implementation plan and governance artifacts saved to `agent-output/{project}/`
 - [ ] Diagrams generated and referenced in plan
 - [ ] **Terraform only**: `azurePropertyPath` used (not `bicepPropertyPath`)

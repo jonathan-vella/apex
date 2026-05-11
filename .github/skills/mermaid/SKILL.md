@@ -1,6 +1,6 @@
 ---
 name: mermaid
-description: "Mermaid diagram generation for inline markdown documentation: flowcharts, sequence diagrams, Gantt charts, class diagrams, state diagrams, ER diagrams, and architecture visualizations. USE FOR: inline markdown diagrams, flowcharts, sequence diagrams, Gantt charts, state diagrams, ER diagrams, Azure resource visualization. DO NOT USE FOR: architecture diagrams with Azure icons (use drawio), WAF/cost charts (use python-diagrams), Draw.io diagrams (use drawio)."
+description: '**UTILITY SKILL** — Mermaid diagram generation for inline markdown documentation: flowcharts, sequence diagrams, Gantt, class, state, ER. WHEN: "mermaid flowchart", "sequence diagram", "Gantt chart", "state diagram", "ER diagram", "inline markdown diagram". USE FOR: inline markdown diagrams, flowcharts, sequence diagrams, Gantt charts, state diagrams, ER diagrams. DO NOT USE FOR: architecture diagrams with Azure icons (use drawio), WAF/cost charts (use python-diagrams).'
 compatibility: Works with VS Code Copilot, Claude Code, and any tool that renders Mermaid in markdown.
 license: MIT
 metadata:
@@ -157,7 +157,7 @@ graph LR
 ```
 ````
 
-## Guardrails
+## Rules
 
 **DO:** Use fenced code blocks with `mermaid` language tag · Include theme
 directives for dark mode · Use `graph TB` for vertical layouts · Use subgraphs
@@ -168,6 +168,16 @@ committing.
 for primary architecture diagrams with Azure icons (use `drawio`) · Omit
 theme directives · Create overly complex diagrams that don't render well ·
 Use inline Mermaid for diagrams that need icon embedding.
+
+## Steps
+
+1. **Pick the diagram type** — flowchart, sequence, Gantt, state, ER, class — see [Syntax Reference](#syntax-reference)
+2. **Choose the layout** — `graph TB` (vertical) or `graph LR` (horizontal); use subgraphs for logical grouping
+3. **Author the diagram** inside a triple-backtick `mermaid` fence in your markdown
+4. **Add theming** — include dark-mode-compatible theme directives (see [Theming](#theming-dark-mode-compatible))
+5. **Apply node styling** — use descriptive labels and consistent shapes for like roles
+6. **Validate** — render in VS Code preview or Starlight build; check that all nodes resolve and edges have labels
+7. **Commit** — the rendered Mermaid stays inline; no separate `.drawio` / `.png` artifact needed
 
 ## Scope Exclusions
 

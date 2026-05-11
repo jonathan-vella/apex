@@ -1,6 +1,6 @@
 ---
 name: context-management
-description: "Two-mode context window management for agents. RUNTIME mode: tier-based compression (full/summarized/minimal) used by orchestrator and codegen agents before loading large artifacts. AUDIT mode: post-mortem analysis of Copilot debug logs, token profiling, redundancy detection, and hand-off gap analysis used by the 11-Context Optimizer agent. USE FOR: context optimization, token budget management, runtime compression, log parsing, redundancy detection. DO NOT USE FOR: Azure infrastructure, Bicep/Terraform code, architecture design, deployments."
+description: '**UTILITY SKILL** — Two-mode context window management for agents. RUNTIME mode: tier-based compression (full/summarized/minimal) used by orchestrator and codegen agents before loading large artifacts. AUDIT mode: post-mortem analysis of Copilot debug logs, token profiling, redundancy detection, and hand-off gap analysis used by the 11-Context Optimizer agent. WHEN: "context optimization", "token budget management", "runtime compression", "log parsing", "redundancy detection". USE FOR: context optimization, token budget management, runtime compression, log parsing, redundancy detection. DO NOT USE FOR: Azure infrastructure, Bicep/Terraform code, architecture design, deployments.'
 compatibility: Audit mode requires Python 3.14 for log parser script
 ---
 
@@ -9,9 +9,9 @@ compatibility: Audit mode requires Python 3.14 for log parser script
 Unified context window management for agents in this repository. Covers two
 distinct lifecycles:
 
-- **Runtime Compression** — what an agent does *before loading* a large artifact
+- **Runtime Compression** — what an agent does _before loading_ a large artifact
   to stay under the model context limit (used during workflow execution).
-- **Diagnostic Audit** — what the 11-Context Optimizer agent does *after the fact*
+- **Diagnostic Audit** — what the 11-Context Optimizer agent does _after the fact_
   to find waste in agent definitions, instructions, and skill loads.
 
 Pick the section that matches your need. The two modes do not depend on each
@@ -41,7 +41,7 @@ files and select the appropriate compression tier.
 | `summarized` | 60-80%        | Load key H2 sections only                  |
 | `minimal`    | > 80%         | Load decision summaries only (< 500 chars) |
 
-## Action Rules
+## Rules
 
 Before loading any artifact file:
 
@@ -50,7 +50,7 @@ Before loading any artifact file:
 3. **Apply compression template** from `references/compression-templates.md`
 4. If loading multiple artifacts, compress the older/less-critical ones first
 
-## Tier Selection Protocol
+## Steps
 
 ```text
 1. Estimate current context usage (rough: 1 token ≈ 4 chars)
@@ -101,33 +101,16 @@ prioritized optimization reports.
 
 ## Audit Capabilities
 
-| Capability            | Description                                                  |
-| --------------------- | ------------------------------------------------------------ |
-| Log Parsing           | Extract structured data from Copilot Chat debug logs         |
-| Turn-Cost Profiling   | Estimate token spend per turn from timing and model metadata |
-| Redundancy Detection  | Find duplicate file reads, overlapping instructions          |
-| Hand-Off Gap Analysis | Identify agents that should delegate to subagents            |
-| Instruction Audit     | Flag overly broad globs and oversized instruction files      |
-| Report Generation     | Structured markdown report with prioritized recommendations  |
+Audit mode covers log parsing, turn-cost profiling, redundancy detection, hand-off gap
+analysis, instruction audit, and structured report generation. Full capability matrix and
+the portability checklist for porting the audit to another project live in
+[`references/audit-setup.md`](references/audit-setup.md).
 
 ## Audit Prerequisites
 
-- Python 3.14 (for log parser script)
-- Access to VS Code Copilot Chat debug logs
-- Agent definitions in `.github/agents/*.agent.md` (or equivalent)
-
-### Enabling Debug Logs
-
-Copilot Chat writes debug logs automatically to the VS Code log directory.
-To find the latest logs:
-
-```bash
-find ~/.vscode-server/data/logs/ -name "GitHub Copilot Chat.log" -newer /tmp/marker 2>/dev/null \
-  | sort | tail -5
-```
-
-For richer output, set `github.copilot.advanced.debug.overrideLogLevels`
-in VS Code settings to capture verbose tool-call data.
+Python 3.14, access to VS Code Copilot Chat debug logs, and `.github/agents/*.agent.md` (or
+equivalent agent definitions). To find the latest debug logs and enable verbose tool-call
+output, see [`references/audit-setup.md`](references/audit-setup.md).
 
 ## Analysis Methodology
 
@@ -147,15 +130,8 @@ See `templates/optimization-report.md` for the full output template.
 
 ## Portability
 
-The audit mode contains **no project-specific logic**. To use in another project:
-
-1. Copy `.github/skills/context-management/` to the target repo
-2. Copy `.github/agents/11-context-optimizer.agent.md`
-3. Copy `.github/instructions/context-optimization.instructions.md`
-4. Copy `tools/scripts/snapshot-agent-context.sh` and
-   `tools/scripts/diff-context-baseline.sh`
-5. Adjust agent numbering if needed (11 is the slot used in this repo)
-6. The log parser auto-discovers VS Code log directories
+Audit mode is project-agnostic — see [`references/audit-setup.md`](references/audit-setup.md)
+for the 6-step copy-and-adjust checklist when reusing it in another repo.
 
 ---
 
@@ -163,10 +139,11 @@ The audit mode contains **no project-specific logic**. To use in another project
 
 Load these on demand — do NOT read all at once:
 
-| Reference                            | Mode    | When to Load                                                               |
-| ------------------------------------ | ------- | -------------------------------------------------------------------------- |
+| Reference                             | Mode    | When to Load                                                               |
+| ------------------------------------- | ------- | -------------------------------------------------------------------------- |
 | `references/compression-templates.md` | Runtime | Per-artifact H2 sections per tier                                          |
-| `references/token-estimation.md`     | Audit   | When estimating token counts for context optimization                      |
-| `references/analysis-methodology.md` | Audit   | Log format, 5-step methodology, optimization patterns, baseline comparison |
-| `scripts/parse-chat-logs.py`         | Audit   | Log parser producing structured JSON                                       |
-| `templates/optimization-report.md`   | Audit   | Report output template                                                     |
+| `references/token-estimation.md`      | Audit   | When estimating token counts for context optimization                      |
+| `references/analysis-methodology.md`  | Audit   | Log format, 5-step methodology, optimization patterns, baseline comparison |
+| `references/audit-setup.md`           | Audit   | Prerequisites, enabling debug logs, audit capabilities, portability        |
+| `scripts/parse-chat-logs.py`          | Audit   | Log parser producing structured JSON                                       |
+| `templates/optimization-report.md`    | Audit   | Report output template                                                     |

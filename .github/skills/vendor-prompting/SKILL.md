@@ -1,6 +1,6 @@
 ---
 name: vendor-prompting
-description: "Audit-grade reference for Anthropic Claude and OpenAI GPT-5.5 prompting best practices. Use when authoring or auditing custom agents and prompts to verify vendor-specific patterns (Claude XML structuring, GPT-5.5 outcome-first skeleton), to review .agent.md or .prompt.md files for compliance, or to understand why npm run lint:vendor-prompting flagged a finding. Triggers: claude prompting, gpt-5.5 prompting, agent authoring, audit agent, review prompt, vendor best practices, prompting guide, anthropic best practices, openai prompting. DO NOT USE FOR: deciding which customization mechanism to create (use copilot-customization), routine edits where the rules are already known, or generic markdown style (use markdown.instructions.md)."
+description: '**ANALYSIS SKILL** — Audit-grade reference for Anthropic Claude and OpenAI GPT-5.5 prompting best practices. WHEN: "claude prompting", "gpt-5.5 prompting", "audit agent", "review prompt", "vendor best practices", "anthropic best practices", "openai prompting". USE FOR: authoring or auditing .agent.md / .prompt.md files; verifying vendor-specific patterns (Claude XML, GPT-5.5 outcome-first); investigating lint:vendor-prompting findings. DO NOT USE FOR: routine prompt edits where rules are already known, generic markdown style (see markdown.instructions.md).'
 license: MIT
 ---
 
@@ -57,27 +57,17 @@ I am editing or reviewing a *.agent.md / *.prompt.md ...
     → load references/audit-procedure.md and assets/audit-template.md
 ```
 
-## Model-Family Detection (mirrors validate-agents.mjs `classifyModel`)
+## Model-Family Detection
 
-The validator and this skill agree on family classification by lower-casing
-the `model:` value and matching substrings in this order:
+`classifyModel()` lower-cases the `model:` value and matches substrings in priority order
+to assign a family (`claude-opus` / `claude-sonnet` / `claude-haiku` / `claude` / `gpt-5.5`
+/ `gpt-5.4` / `gpt-codex` / `gpt-4o` / `unknown`). For agents with `model:` as an array,
+the first entry decides the family; bareword qualifiers (`Claude Foo (suffix)`) are
+forbidden — see rule `frontmatter-model-style-001` in [`rules.json`](rules.json).
 
-| Match (case-insensitive) | Family          | Notes                               |
-| ------------------------ | --------------- | ----------------------------------- |
-| `claude opus`            | `claude-opus`   | Highest reasoning Anthropic models  |
-| `claude sonnet`          | `claude-sonnet` | Balanced Anthropic models           |
-| `claude haiku`           | `claude-haiku`  | Fast Anthropic models               |
-| `claude` (otherwise)     | `claude`        | Generic — flag for explicit version |
-| `gpt-5.5`                | `gpt-5.5`       | Current OpenAI default              |
-| `gpt-5.4`                | `gpt-5.4`       | Deprecated 2026-05 (cohort retired) |
-| `gpt-5.3` or `codex`     | `gpt-codex`     | Specialized, high-throughput        |
-| `gpt-4o`                 | `gpt-4o`        | Legacy                              |
-| Anything else            | `unknown`       | Validator emits ERROR               |
-
-If `model:` is an array (agents only), the **first entry** decides the
-family. Bareword YAML for labels with parenthetical qualifiers (e.g.,
-`model: Claude Foo (suffix)`) is forbidden — see
-[rule frontmatter-model-style-001](rules.json).
+Full match table, severity status per family (`enforced` / `warn-only` / `reviewer-only` /
+`out-of-scope`), and rule subsets per family live in
+[`references/family-support.md`](references/family-support.md).
 
 ## Reference Index
 
@@ -93,7 +83,18 @@ Load only the references your task needs. Most audits need 1-2.
 | [checklists.md](references/checklists.md)                       | Performing a manual pass-through audit                                 |
 | [audit-procedure.md](references/audit-procedure.md)             | Executing the full 6-step audit                                        |
 
-## How to Use This Skill for an Audit
+## Rules
+
+- **Source of truth is `rules.json`** — every rule has an ID, severity, source citation, applies-to, and validator-check binding; this skill prose only references it
+- **Model family is decided by the FIRST entry** in a model array (agents); the table in [Model-Family Detection](#model-family-detection-mirrors-validate-agentsmjs-classifymodel) is canonical
+- **`unknown` family = ERROR** — always require an explicit `model:` value that the validator can classify
+- **Bareword YAML for parenthetical model labels is forbidden** (`model: Claude Foo (suffix)` — see rule `frontmatter-model-style-001`)
+- **Do NOT load this skill for routine edits** — the auto-loaded thin instruction `vendor-prompting.instructions.md` carries the hard-rule shortlist
+- **Run `npm run lint:vendor-prompting`** before opening a PR; every finding includes a `ruleId` that maps to a `rules.json` entry
+- **Verdict thresholds** — APPROVED if zero `error`s and ≤ 5 `warn`s; otherwise NEEDS_REVISION with per-rule remediation
+- **Out of scope**: routine prompt edits where rules are already known, generic markdown style (see `markdown.instructions.md`)
+
+## Steps
 
 This is the canonical audit procedure (full version with templates lives
 in [audit-procedure.md](references/audit-procedure.md)).

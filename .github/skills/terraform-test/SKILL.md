@@ -1,6 +1,6 @@
 ---
 name: terraform-test
-description: "Write and run Terraform tests (.tftest.hcl). USE FOR: test files, run blocks, assertions, mock providers, plan-mode unit tests, apply-mode integration tests, test troubleshooting. WHEN: create test, write test, terraform test, .tftest.hcl, mock provider, test module, validate infrastructure, test assertion. DO NOT USE FOR: Bicep code, architecture decisions, deployment."
+description: '**WORKFLOW SKILL** — Write and run Terraform tests (.tftest.hcl). WHEN: "create terraform test", "write tftest", ".tftest.hcl", "mock provider", "test module", "test assertion". USE FOR: test files, run blocks, assertions, mock providers, plan-mode unit tests, apply-mode integration tests, test troubleshooting. DO NOT USE FOR: Bicep code, architecture decisions, deployment (use azure-deploy).'
 compatibility: Requires Terraform >= 1.6 (test blocks), >= 1.7 (mock providers), >= 1.9 (parallel execution)
 ---
 
@@ -91,7 +91,7 @@ See `references/mock-providers.md` for full mock patterns and examples.
 See `references/test-examples.md` for: conditional resources, tag validation,
 resource count with for_each, variables precedence, and prior run references.
 
-## Running Tests
+## Steps
 
 ```bash
 terraform test                              # All tests
@@ -101,7 +101,7 @@ terraform test -filter=test_resource_group  # Filter by name
 terraform test -no-cleanup                  # Debug: keep resources
 ```
 
-## Best Practices
+## Rules
 
 1. **Naming**: `*_unit_test.tftest.hcl` / `*_integration_test.tftest.hcl`
 2. **Plan mode first**: Use `command = plan` for fast, cost-free validation

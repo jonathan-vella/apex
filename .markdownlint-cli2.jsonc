@@ -176,40 +176,22 @@
     // Agent-generated output (validated by artifact-templates validator)
     "agent-output/**",
 
-    // Skill reference docs (MCP-fetched, auto-generated — not hand-authored)
-    ".github/skills/**/references/**",
+    // All skill content is excluded from markdown linting:
+    //  - SKILL.md files are validated structurally by validate:skills-format
+    //    (frontmatter, body sections, cross-references), not by markdownlint.
+    //  - references/ are MCP-fetched or hand-authored long-form prose where
+    //    120-char line-length and other style rules don't apply uniformly.
+    //  - templates/ are example/sample content.
+    //  - SKILL.digest.md / SKILL.minimal.md are auto-generated.
+    //  - Plugin skills imported from VS Code extensions and MCP tools are
+    //    not hand-authored.
+    // When adding a new hand-authored skill whose SKILL.md should be linted,
+    // either narrow this glob or add a targeted include.
+    ".github/skills/**",
 
-    // Skill digest/minimal files (auto-generated from SKILL.md by generate:digests)
-    ".github/skills/**/SKILL.digest.md",
-    ".github/skills/**/SKILL.minimal.md",
-
-    // Skill template files (example/sample content from plugin skills)
-    ".github/skills/**/templates/**",
-
-    // Plugin skill content (imported from VS Code extensions and MCP tools;
-    // validated structurally by validate:skills-format, not by markdownlint).
-    // When adding a new plugin skill, add its ignore entry here.
-    // Cannot use a glob because hand-authored skills in the same parent dir must be linted.
-    ".github/skills/azure-prepare/**",
-    ".github/skills/azure-deploy/**",
-    ".github/skills/azure-validate/**",
-    ".github/skills/azure-compute/**",
-    ".github/skills/azure-compliance/**",
-    ".github/skills/azure-cost-optimization/**",
-    ".github/skills/azure-diagnostics/**",
-    ".github/skills/azure-messaging/**",
-    ".github/skills/azure-storage/**",
-    ".github/skills/azure-quotas/**",
-    ".github/skills/azure-rbac/**",
-    ".github/skills/azure-resource-lookup/**",
-    ".github/skills/azure-resource-visualizer/**",
-    ".github/skills/azure-hosted-copilot-sdk/**",
-    ".github/skills/azure-ai/**",
-    ".github/skills/azure-kusto/**",
-    ".github/skills/azure-cloud-migrate/**",
-    ".github/skills/appinsights-instrumentation/**",
-    ".github/skills/entra-app-registration/**",
-    ".github/skills/microsoft-foundry/**",
+    // Archived content (deprecated skills moved out of the active tree).
+    // Read-only history; not subject to lint rules.
+    ".archive/**",
 
     // E2E test input documents (long-form RFQ/RFP prose, not production docs)
     "tools/tests/e2e-inputs/**",

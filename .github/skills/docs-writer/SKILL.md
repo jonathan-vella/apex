@@ -1,6 +1,6 @@
 ---
 name: docs-writer
-description: Maintains repository documentation accuracy and freshness; use for doc updates, agent or skill changes, staleness checks, changelog entries, and repo explanation requests.
+description: '**WORKFLOW SKILL** — Maintains repository documentation accuracy and freshness across the docs site, agent files, and changelog. WHEN: "update docs", "doc gardening", "staleness check", "changelog entry", "repo explanation", "agent change docs", "skill change docs". USE FOR: post-merge doc updates, agent/skill freshness audits, changelog drafting, README/CONTRIBUTING gardening. DO NOT USE FOR: agent definitions themselves (edit `.agent.md` directly), authoring skill SKILL.md content (out of scope), site theme/build (out of scope).'
 license: MIT
 compatibility: Works with GitHub Copilot, VS Code, and any Agent Skills compatible tool; no external dependencies required.
 metadata:
@@ -54,79 +54,32 @@ All markdown documentation **except** `agent-output/**/*.md`:
 | `.github/skills/azure-artifacts/templates/` | Read-only reference (do not modify)            |
 | `**/*.bicep`                                | `iac-bicep-best-practices.instructions.md`     |
 
+## Rules
+
+- **Out of scope, always** — `agent-output/**/*.md` (governed by `azure-artifacts.instructions.md`), `.github/agents/*.agent.md` (governed by `agent-authoring.instructions.md`), `**/*.bicep` (governed by `iac-bicep-best-practices.instructions.md`), `azure-artifacts/templates/` (read-only)
+- **Single H1 rule** — the title is the only H1; everything else is H2 or deeper
+- **120-char line limit** — CI enforces this on docs and instruction files
+- **Version source of truth** is `VERSION.md`; never hard-code version numbers in prose
+- **No hard-coded counts** — use descriptive language for entity counts (per `no-hardcoded-counts.instructions.md`); `count-manifest.json` is the source of truth
+- **Verify links** — all relative links must resolve to existing files; run `npm run lint:links` before committing
+- **Run validators** — `npm run lint:md` for style, `npm run lint:links` for link integrity
+- **Match adjacent patterns** when adding entries to existing tables (column format, emoji, description style)
+
 ## Step-by-Step Workflows
 
-### Workflow 1: Update Existing Documentation
+The skill exposes seven workflows. Full per-step procedure for all seven lives in
+[`references/extended-workflows.md`](references/extended-workflows.md); the SKILL.md keeps a
+one-line summary so the agent knows which one to load.
 
-1. **Identify target files**: Determine which files in `site/src/content/docs/` need updates.
-2. **Read latest version**: Always read the current file before editing.
-3. **Load standards**: Read `references/doc-standards.md` for conventions.
-4. **Apply changes**: Follow the doc-standards conventions strictly:
-   - 120-char line limit (CI enforced)
-   - Single H1 rule (title only)
-   - File header: `# {Title}` + `> Version {X.Y.Z} | {description}`
-   - Version number from `VERSION.md` (single source of truth)
-5. **Verify links**: Check all relative links resolve to existing files.
-6. **Run validation**: Offer to run `npm run lint:md` and `npm run lint:links`.
-
-### Workflow 2: Add Documentation for New Entity
-
-When a new agent or skill is added to the repo:
-
-1. **Read architecture**: Load `references/repo-architecture.md` for current
-   entity inventory and naming conventions.
-2. **Identify all files needing updates**:
-   - New agent → update `README.md` (root) agent references
-   - New skill → update `README.md` (root) skill references
-3. **Match existing patterns**: Study adjacent entries in each table
-   to match column format, emoji conventions, and description style.
-4. **Update references**: Use descriptive language per the
-   `no-hardcoded-counts` instruction — never hard-code entity totals.
-5. **Cross-reference check**: Search for other files referencing the
-   entity and add it to the appropriate tables.
-
-### Workflow 3: Freshness Audit (Staleness Check)
-
-1. **Load checklist**: Read `references/freshness-checklist.md`.
-2. **Scan each audit target**:
-   - Version numbers match `VERSION.md`
-   - Agent/skill counts match filesystem
-   - Tables list all entities present in filesystem
-   - No references to removed/renamed agents
-3. **Check project health files**:
-   - Read `QUALITY_SCORE.md` — verify grades still reflect reality
-   - Read `tools/tests/exec-plans/tech-debt-tracker.md` — verify items still relevant
-4. **Report findings**: Present a table of issues found with:
-   - File path, line number, issue description, suggested fix
-5. **Auto-fix**: For each issue, propose the exact edit and apply it
-   after user confirmation (or immediately if user said "fix all").
-6. **Update health metrics**: If fixes change quality grades, update `QUALITY_SCORE.md`.
-
-### Workflow 4: Explain the Repo Architecture
-
-1. **Load architecture**: Read `references/repo-architecture.md`.
-2. **Answer questions**: Use the reference to explain how components
-   connect — agents, skills, instructions, templates, artifacts,
-   and the multi-step workflow.
-3. **Cite sources**: Point to specific files when answering.
-4. **Stay current**: If the reference seems outdated vs. filesystem,
-   note the discrepancy and offer to update the reference.
-
-### Workflow 5: Generate Changelog Entry
-
-Classify commits by conventional commit type, format as Keep a Changelog entry,
-determine version bump. See `references/extended-workflows.md` for full steps.
-
-### Workflow 6: Proofread Documentation
-
-Three-layer review: language quality (Vale + manual), tone/terminology
-(glossary), technical accuracy (filesystem ground truth).
-See `references/extended-workflows.md` for full steps.
-
-### Workflow 7: Process Freshness Issues
-
-**Trigger**: "Fix the docs freshness issue" or `docs-freshness` label.
-Read issue body → apply fixes → run `npm run lint:docs-freshness` → summarize.
+|   # | Workflow                          | Trigger                             | Reference                                                                                                                   |
+| --: | --------------------------------- | ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+|   1 | Update Existing Documentation     | "Update the docs for X"             | [`extended-workflows.md`](references/extended-workflows.md)                                                                 |
+|   2 | Add Documentation for New Entity  | New agent/skill added to the repo   | [`extended-workflows.md`](references/extended-workflows.md)                                                                 |
+|   3 | Freshness Audit (Staleness Check) | "Audit docs for staleness"          | [`freshness-checklist.md`](references/freshness-checklist.md) + [`extended-workflows.md`](references/extended-workflows.md) |
+|   4 | Explain the Repo Architecture     | "How do agents connect to skills?"  | [`repo-architecture.md`](references/repo-architecture.md) + [`extended-workflows.md`](references/extended-workflows.md)     |
+|   5 | Generate Changelog Entry          | Pre-release / `chore: changelog`    | [`extended-workflows.md`](references/extended-workflows.md)                                                                 |
+|   6 | Proofread Documentation           | "Proofread docs/X.md"               | [`extended-workflows.md`](references/extended-workflows.md)                                                                 |
+|   7 | Process Freshness Issues          | `docs-freshness` GitHub issue label | [`extended-workflows.md`](references/extended-workflows.md)                                                                 |
 
 ## Guardrails
 

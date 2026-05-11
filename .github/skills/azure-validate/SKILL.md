@@ -1,6 +1,6 @@
 ---
 name: azure-validate
-description: "Pre-deployment validation for Azure readiness. Run deep checks on configuration, infrastructure (Bicep or Terraform), permissions, and prerequisites before deploying. WHEN: validate my app, check deployment readiness, run preflight checks, verify configuration, check if ready to deploy, validate azure.yaml, validate Bicep, test before deploying, troubleshoot deployment errors, validate Azure Functions, validate function app, validate serverless deployment."
+description: '**WORKFLOW SKILL** — Pre-deployment validation for Azure readiness. Run deep checks on configuration, infrastructure (Bicep or Terraform), permissions, and prerequisites before deploying. WHEN: "validate my app", "check deployment readiness", "run preflight checks", "validate azure.yaml", "validate Bicep", "test before deploying", "validate Azure Functions". USE FOR: pre-deployment readiness checks, Bicep + Terraform preflight, Azure Functions validation. DO NOT USE FOR: post-deployment troubleshooting (use azure-diagnostics), executing deployments (use azure-deploy).'
 license: MIT
 metadata:
   author: Microsoft
@@ -38,15 +38,15 @@ metadata:
 
 ## Steps
 
-| #   | Action                                                                                                   | Reference                                         |
-| --- | -------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
-| 1   | **Load Plan** — Read `infra/{iac}/{project}/.azure/plan.md` for recipe and configuration. If missing → run azure-prepare first | `infra/{iac}/{project}/.azure/plan.md`                                  |
-| 2   | **Run Validation** — Execute recipe-specific validation commands                                         | [recipes/README.md](references/recipes/README.md) |
-| 3   | **Build Verification** — Build the project and fix any errors before proceeding                          | See recipe                                        |
-| 4   | **Record Proof** — Populate **Section 7: Validation Proof** with commands run and results                | `infra/{iac}/{project}/.azure/plan.md`                                  |
-| 5   | **Resolve Errors** — Fix failures before proceeding                                                      | See recipe's `errors.md`                          |
-| 6   | **Update Status** — Only after ALL checks pass, set status to `Validated`                                | `infra/{iac}/{project}/.azure/plan.md`                                  |
-| 7   | **Deploy** — Invoke **azure-deploy** skill                                                               | —                                                 |
+| #   | Action                                                                                                                         | Reference                                         |
+| --- | ------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------- |
+| 1   | **Load Plan** — Read `infra/{iac}/{project}/.azure/plan.md` for recipe and configuration. If missing → run azure-prepare first | `infra/{iac}/{project}/.azure/plan.md`            |
+| 2   | **Run Validation** — Execute recipe-specific validation commands                                                               | [recipes/README.md](references/recipes/README.md) |
+| 3   | **Build Verification** — Build the project and fix any errors before proceeding                                                | See recipe                                        |
+| 4   | **Record Proof** — Populate **Section 7: Validation Proof** with commands run and results                                      | `infra/{iac}/{project}/.azure/plan.md`            |
+| 5   | **Resolve Errors** — Fix failures before proceeding                                                                            | See recipe's `errors.md`                          |
+| 6   | **Update Status** — Only after ALL checks pass, set status to `Validated`                                                      | `infra/{iac}/{project}/.azure/plan.md`            |
+| 7   | **Deploy** — Invoke **azure-deploy** skill                                                                                     | —                                                 |
 
 > **⛔ VALIDATION AUTHORITY**
 >
@@ -73,9 +73,9 @@ metadata:
 
 Load these on demand — do NOT read all at once:
 
-| Reference | When to Load |
-| --------- | ------------ |
-| `references/global-rules.md` | Global Rules |
-| `references/infraops-preflight.md` | Infraops Preflight |
-| `references/policy-validation.md` | Policy Validation |
+| Reference                           | When to Load        |
+| ----------------------------------- | ------------------- |
+| `references/global-rules.md`        | Global Rules        |
+| `references/infraops-preflight.md`  | Infraops Preflight  |
+| `references/policy-validation.md`   | Policy Validation   |
 | `references/region-availability.md` | Region Availability |

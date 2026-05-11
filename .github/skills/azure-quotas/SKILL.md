@@ -1,6 +1,6 @@
 ---
 name: azure-quotas
-description: 'Check/manage Azure quotas and usage across providers. For deployment planning, capacity validation, region selection. WHEN: "check quotas", "service limits", "current usage", "request quota increase", "quota exceeded", "validate capacity", "regional availability", "provisioning limits", "vCPU limit", "how many vCPUs available in my subscription".'
+description: '**UTILITY SKILL** — Check and manage Azure quotas and usage across providers for deployment planning, capacity validation, and region selection. WHEN: "check quotas", "service limits", "request quota increase", "quota exceeded", "validate capacity", "regional availability", "vCPU limit". USE FOR: pre-deployment capacity checks, region selection, quota increase requests. DO NOT USE FOR: deployment execution (use azure-deploy), cost analysis (use azure-cost-optimization). INVOKES: azure-quota MCP (check, region-availability).'
 license: MIT
 metadata:
   author: Microsoft
@@ -39,146 +39,105 @@ Invoke this skill when:
 - **Comparing regional capacity** - Find regions with available quota
 - **Validating provisioning limits** - Ensure deployment won't exceed quotas
 
+## Prerequisites
+
+- **Azure CLI** ≥ 2.50 authenticated (`az login`)
+- **CLI extension**: `az extension add --name quota` (install once per machine)
+- **RBAC**: `Reader` to view quotas; `Quota Request Operator` to submit increases
+- **MCP server (optional augmentation)**: Azure MCP server in `.vscode/mcp.json` for the
+  `mcp_azure_mcp_quota` namespace — see [MCP Tools (Optional Augmentation)](#mcp-tools-optional-augmentation)
+  below. The CLI is the **primary** path; the MCP server is only for cases where an agent
+  is already inside the Azure MCP namespace.
+
 ## Quick Reference
 
-| **Property**               | **Details**                                                                                                          |
-| -------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| **Primary Tool**           | Azure CLI (`az quota`) - **USE THIS FIRST, ALWAYS**                                                                  |
-| **Extension Required**     | `az extension add --name quota` (MUST install first)                                                                 |
-| **Key Commands**           | `az quota list`, `az quota show`, `az quota usage list`, `az quota usage show`                                       |
-| **Complete CLI Reference** | [commands.md](./references/commands.md)                                                                              |
-| **Azure Portal**           | [My quotas](https://portal.azure.com/#blade/Microsoft_Azure_Capacity/QuotaMenuBlade/myQuotas) - Use only as fallback |
-| **REST API**               | Microsoft.Quota provider - **Unreliable, do NOT use first**                                                          |
-| **Required Permission**    | Reader (view) or Quota Request Operator (manage)                                                                     |
+| Property            | Details                                                                                                       |
+| ------------------- | ------------------------------------------------------------------------------------------------------------- |
+| Primary tool        | Azure CLI (`az quota`) — **always use first**                                                                 |
+| Extension           | `az extension add --name quota` (install once)                                                                |
+| Key commands        | `az quota list`, `az quota show`, `az quota usage list`, `az quota usage show`                                |
+| Full CLI reference  | [commands.md](./references/commands.md)                                                                       |
+| Azure Portal        | [My quotas](https://portal.azure.com/#blade/Microsoft_Azure_Capacity/QuotaMenuBlade/myQuotas) — fallback only |
+| REST API            | Microsoft.Quota provider — **unreliable, do NOT use first**                                                   |
+| Required permission | Reader (view) or Quota Request Operator (manage)                                                              |
 
-> **⚠️ CRITICAL: ALWAYS USE CLI FIRST**
->
-> **Azure CLI (`az quota`) is the ONLY reliable method** for checking quotas. **Use CLI FIRST, always.**
->
-> **DO NOT use REST API or Portal as your first approach.** They are unreliable and misleading.
->
-> **Why you must use CLI first:**
->
-> - REST API is unreliable and shows misleading results
-> - REST API "No Limit" or "Unlimited" values **DO NOT mean unlimited capacity**
-> - "No Limit" typically means the resource doesn't support quota API (not unlimited!)
-> - CLI provides clear `BadRequest` errors when providers aren't supported
-> - CLI has consistent output format and better error messages
-> - Portal may show incomplete or cached data
->
-> **Mandatory workflow:**
->
-> 1. **FIRST:** Try `az quota list` / `az quota show` / `az quota usage show`
-> 2. **If CLI returns `BadRequest`:** Then use [Azure service limits docs](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits)
-> 3. **Never start with REST API or Portal** - only use as last resort
->
-> **If you see "No Limit" in REST API/Portal:** This is NOT unlimited capacity. It means:
->
-> - The quota API doesn't support that resource type, OR
-> - The quota isn't enforced via the API, OR
-> - Service-specific limits still apply (check documentation)
->
-> For complete CLI command reference and examples, see [commands.md](./references/commands.md).
+> **CLI-first is mandatory.** REST API and Portal show misleading data: `"No Limit"` and `"Unlimited"` typically mean the quota API does not support the resource type, **not** that capacity is unlimited. Service-specific hard limits still apply. Always start with `az quota list` / `az quota show` / `az quota usage show`. If CLI returns `BadRequest`, fall back to [Azure service limits docs](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits) — never to REST API or Portal.
 
 ## Quota Types
 
-| **Type**           | **Adjustability**               | **Approval**          | **Examples**                           |
-| ------------------ | ------------------------------- | --------------------- | -------------------------------------- |
-| **Adjustable**     | Can increase via Portal/CLI/API | Usually auto-approved | VM vCPUs, Public IPs, Storage accounts |
-| **Non-adjustable** | Fixed limits                    | Cannot be changed     | Subscription-wide hard limits          |
+| Type           | Adjustability               | Approval              | Examples                               |
+| -------------- | --------------------------- | --------------------- | -------------------------------------- |
+| Adjustable     | Increase via Portal/CLI/API | Usually auto-approved | VM vCPUs, Public IPs, Storage accounts |
+| Non-adjustable | Fixed                       | Cannot be changed     | Subscription-wide hard limits          |
 
-**Important:** Requesting quota increases is **free**. You only pay for resources you actually use, not for quota allocation.
+Requesting quota increases is **free** — you only pay for resources you use.
 
 ## Understanding Resource Name Mapping
 
-**⚠️ CRITICAL:** There is **NO 1:1 mapping** between ARM resource types and quota resource names. Never assume the quota resource name from the ARM type.
-
-📋 **Reference**: Read `references/resource-name-mapping.md` for example mappings and the discovery workflow.
+⚠️ There is **NO 1:1 mapping** between ARM resource types and quota resource names. Never assume; always discover via `az quota list`. See [resource-name-mapping.md](references/resource-name-mapping.md) for examples and the discovery workflow.
 
 ## Core Workflows
 
-📋 **Reference**: Read `references/core-workflows.md` for 4 detailed workflows with full bash scripts:
+See [core-workflows.md](references/core-workflows.md) for the 4 detailed workflows with full bash scripts:
 
-1. **Check Quota for a Specific Resource** — Verify limit and usage before deployment
-2. **Compare Quotas Across Regions** — Find the best region based on available capacity
-3. **Request Quota Increase** — Submit increase requests with approval process
-4. **List All Quotas for Planning** — Inventory quotas for a provider in a region
+1. **Check Quota for a Specific Resource** — verify limit + usage before deployment
+2. **Compare Quotas Across Regions** — find the best region by available capacity
+3. **Request Quota Increase** — submit + track approval
+4. **List All Quotas for Planning** — inventory quotas for a provider in a region
 
 ## Troubleshooting
 
-📋 **Reference**: Read `references/troubleshooting.md` for common errors (ExtensionNotFound, BadRequest, QuotaExceeded, InvalidScope) and supported/unsupported resource providers.
+See [troubleshooting.md](references/troubleshooting.md) for common errors (`ExtensionNotFound`, `BadRequest`, `QuotaExceeded`, `InvalidScope`) and supported / unsupported resource providers.
 
 ## Additional Resources
 
-| Resource                         | Link                                                                                                                                     |
-| -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| **CLI Commands Reference**       | [commands.md](./references/commands.md) - Complete syntax, parameters, examples                                                          |
-| **Azure Quotas Overview**        | [Microsoft Learn](https://learn.microsoft.com/en-us/azure/quotas/quotas-overview)                                                        |
-| **Service Limits Documentation** | [Azure subscription limits](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits) |
-| **Azure Portal - My Quotas**     | [Portal Link](https://portal.azure.com/#blade/Microsoft_Azure_Capacity/QuotaMenuBlade/myQuotas)                                          |
-| **Request Quota Increases**      | [How to request increases](https://learn.microsoft.com/en-us/azure/quotas/quickstart-increase-quota-portal)                              |
+- [Azure Quotas Overview](https://learn.microsoft.com/en-us/azure/quotas/quotas-overview)
+- [Azure subscription limits](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits)
+- [Request quota increases](https://learn.microsoft.com/en-us/azure/quotas/quickstart-increase-quota-portal)
+- [Portal — My quotas](https://portal.azure.com/#blade/Microsoft_Azure_Capacity/QuotaMenuBlade/myQuotas)
 
-## Best Practices
+## MCP Tools (Optional Augmentation)
 
-1. ✅ **Always check quotas before deployment** - Prevent quota exceeded errors
-2. ✅ **Run `az quota list` first** - Discover correct quota resource names
-3. ✅ **Compare regions** - Find regions with available capacity
-4. ✅ **Account for growth** - Request 20% buffer above immediate needs
-5. ✅ **Use table output for overview** - `--output table` for quick scanning
-6. ✅ **Document quota sources** - Track whether from quota API or official docs
-7. ✅ **Monitor usage trends** - Set up alerts at 80% threshold (via Portal)
+Frontmatter declares `INVOKES: azure-quota MCP` because Azure MCP exposes a `quota`
+namespace that mirrors a subset of `az quota` commands. **The CLI remains the primary
+path** (see Quick Reference above); the MCP namespace is only useful when an agent is
+already operating inside Azure MCP and wants to avoid shelling out.
 
-## Workflow Summary
+| MCP tool                                    | CLI equivalent (preferred)                      |
+| ------------------------------------------- | ----------------------------------------------- |
+| `mcp_azure_mcp_quota` `check`               | `az quota show` / `az quota list`               |
+| `mcp_azure_mcp_quota` `region-availability` | `az quota list --scope ... -o table` per region |
 
-```
-┌─────────────────────────────────────────┐
-│  1. Install quota extension             │
-│     az extension add --name quota       │
-└─────────────────┬───────────────────────┘
-                  │
-                  ▼
-┌─────────────────────────────────────────┐
-│  2. Discover quota resource names       │
-│     az quota list --scope ...           │
-│     (Match by localizedValue)           │
-└─────────────────┬───────────────────────┘
-                  │
-                  ▼
-┌─────────────────────────────────────────┐
-│  3. Check current usage                 │
-│     az quota usage show                 │
-│     --resource-name <name>              │
-└─────────────────┬───────────────────────┘
-                  │
-                  ▼
-┌─────────────────────────────────────────┐
-│  4. Check quota limit                   │
-│     az quota show                       │
-│     --resource-name <name>              │
-└─────────────────┬───────────────────────┘
-                  │
-                  ▼
-┌─────────────────────────────────────────┐
-│  5. Validate capacity                   │
-│     Available = Limit - (Usage + Need)  │
-└─────────────────┬───────────────────────┘
-                  │
-                  ▼
-         ┌────────┴────────┐
-         │                 │
-    ✅ Sufficient     ❌ Insufficient
-         │                 │
-         ▼                 ▼
-    Proceed          Request increase
-                     or change region
-```
+If the MCP namespace is available **and** the user has not asked for shell-level output,
+prefer it for a tighter agent loop. If `az quota` returns `BadRequest`, fall back to the
+[Azure service limits docs](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits)
+— never to the REST API or Portal.
+
+## Rules
+
+1. ✅ Always check quotas before deployment
+2. ✅ Run `az quota list` first to discover correct quota resource names
+3. ✅ Compare regions to find available capacity
+4. ✅ Request a 20% buffer above immediate needs
+5. ✅ Use `--output table` for quick scanning
+6. ✅ Document quota sources (CLI vs docs)
+7. ✅ Monitor usage; alert at 80% threshold (Portal)
+
+## Steps
+
+1. Install: `az extension add --name quota`
+2. Discover quota resource names: `az quota list --scope ...` (match by `localizedValue`)
+3. Check current usage: `az quota usage show --resource-name <name>`
+4. Check quota limit: `az quota show --resource-name <name>`
+5. Validate capacity: `Available = Limit - (Usage + Need)`
+6. If sufficient → proceed; if insufficient → request increase or change region
 
 ## Gotchas
 
-- **"No Limit" is misleading** — REST API shows `"No Limit"` or `"Unlimited"` but service-specific hard limits still apply. Usually means the resource doesn't support the quota API.
-- **REST API data is unreliable** — DO NOT use REST API or Portal as first approach. CLI (`az quota`) is the ONLY reliable method. REST API shows incomplete/cached/misleading data.
-- **No 1:1 ARM-to-quota mapping** — ARM resource type name ≠ quota resource name. Never assume. MUST discover via `az quota list` each time.
-- **CLI-first workflow is mandatory** — Try `az quota list` first → if `BadRequest` → then use docs. Never start with REST API/Portal.
+- **"No Limit" is misleading** — usually means the resource doesn't support the quota API; service-specific hard limits still apply.
+- **REST API data is unreliable** — never use REST API or Portal as first approach.
+- **No 1:1 ARM-to-quota mapping** — ARM resource type name ≠ quota resource name. Always discover via `az quota list`.
+- **CLI-first workflow is mandatory** — `az quota list` → if `BadRequest` → docs. Never start with REST API or Portal.
 
 ## Reference Index
 

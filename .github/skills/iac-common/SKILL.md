@@ -1,6 +1,6 @@
 ---
 name: iac-common
-description: "Shared IaC deploy patterns for Bicep and Terraform deploy agents: deployment strategies, circuit breaker, known deploy issues. For preflight validation (auth, governance, stop rules), see azure-validate. USE FOR: Phased deployment, circuit breaker, deploy-specific known issues. DO NOT USE FOR: Preflight validation (use azure-validate), code generation (use azure-bicep-patterns or terraform-patterns)."
+description: '**UTILITY SKILL** — Shared IaC deploy patterns for Bicep + Terraform deploy agents: deployment strategies, circuit breaker, known deploy issues. WHEN: "phased deployment", "circuit breaker", "deploy strategy", "deploy issue", "shared IaC pattern". USE FOR: phased deployment, circuit breaker patterns, deploy-specific known issues. DO NOT USE FOR: preflight validation (use azure-validate), code generation (use azure-bicep-patterns or terraform-patterns).'
 ---
 
 # IaC Common Skill
@@ -13,92 +13,42 @@ Shared deployment patterns used by both Bicep and Terraform deploy agents
 
 ---
 
+## Rules
+
+- **Preflight first** — always run `azure-validate` before invoking any deploy strategy in this skill
+- **azd by default** — use `azd provision` / `azd up` for all new projects; `deploy.ps1` is deprecated and retained only for legacy projects without `azure.yaml`
+- **Phased deployment for high-risk changes** — split into Foundation → Security → Data → Compute → Edge with user approval at each gate
+- **Circuit breaker** — stop deployment automatically when policy violations, governance failures, or budget breaches are detected; surface to user before retrying
+- **Set environment values before `--no-prompt`** — `AZURE_SUBSCRIPTION_ID`, `AZURE_RESOURCE_GROUP`, `AZURE_ENV_NAME`, `AZURE_LOCATION` must all be present (`azd env get-values`)
+- **Use `azd env new {project}-{env}`** to avoid environment-name collisions across projects
+- **Out of scope**: preflight (use `azure-validate`); code generation (use `azure-bicep-patterns` or `terraform-patterns`)
+
+## Steps
+
+Standard deploy flow used by `07b-Bicep Deploy` and `07t-Terraform Deploy`:
+
+1. **Preflight** — run `azure-validate` (auth, governance, plan, what-if review)
+2. **Set environment** — `azd env set AZURE_SUBSCRIPTION_ID/RESOURCE_GROUP/LOCATION` + verify via `azd env get-values`
+3. **Preview** — `azd provision --preview` (Bicep) or `terraform plan` (Terraform); user reviews destructive operations
+4. **Approve gate** — user explicitly approves the preview before any apply
+5. **Apply** — `azd provision` / `azd up` (Bicep) or `terraform apply` (Terraform); for high-risk projects, deploy in phases (Foundation → Security → Data → Compute → Edge)
+6. **Circuit-break on failure** — stop on policy/governance/budget violations; surface diagnostics to user
+7. **Hand off** to `08-As-Built` for documentation
+
 ## Deployment Strategies
 
-### azd Deployment (default for all projects)
+**Default**: use `azd` for every project. Each project is a self-contained azd project
+(`azure.yaml` + `.azure/` inside `infra/{iac}/{project}/`). Phased deployment is now done
+via azd hooks (`preprovision` / `postprovision`); the legacy `deploy.ps1` phased path is
+deprecated and retained only for projects that predate `azure.yaml` adoption.
 
-Use `azd` for all projects. Each project is a self-contained
-azd project with `azure.yaml` and `.azure/` inside `infra/{iac}/{project}/`.
+Full procedure (`azd up` / `azd provision --preview`, environment preflight checklist for
+`--no-prompt` deploys, deprecated phased table, single-deployment fallback, and the azd vs
+deploy.ps1 decision matrix) lives in
+[`references/deployment-strategies.md`](references/deployment-strategies.md).
 
-```bash
-# Navigate to the project directory (azure.yaml must be here)
-cd infra/{iac}/{project}
-
-# Or use -C flag from repo root
-azd -C infra/{iac}/{project} env list
-
-# Create/select environment (use {project}-{env} naming to avoid collisions)
-azd env new {project}-{env}
-azd env set AZURE_LOCATION swedencentral
-
-# Preview changes (replaces what-if)
-azd provision --preview
-
-# Deploy infrastructure
-azd provision
-
-# Full provision + deploy in one step
-azd up
-```
-
-**azd hooks** replace the deprecated deploy.ps1 pre/post steps:
-
-- `preprovision` — auth validation, banner, prerequisite checks
-- `postprovision` — resource verification, diagnostic setup
-
-**Environment management** replaces manual parameterization:
-
-- `azd env new prod` / `azd env new dev`
-- `azd env set AZURE_LOCATION swedencentral`
-
-### azd Environment Preflight (MANDATORY for --no-prompt Deploys)
-
-Before `azd provision --no-prompt`, verify these environment values are set:
-
-- `AZURE_SUBSCRIPTION_ID` — from `az account show --query id -o tsv`
-- `AZURE_RESOURCE_GROUP` — target resource group name
-- `AZURE_ENV_NAME` — environment name
-- `AZURE_LOCATION` — target region
-
-Run `azd env get-values` and check for missing values. If any are empty,
-set them via `azd env set {KEY} {VALUE}` before attempting `--no-prompt`.
-
-### Phased Deployment via deploy.ps1 (deprecated)
-
-> **⚠️ Deprecated.** Use azd hooks (`preprovision`/`postprovision`) for phased
-> deployment workflows instead. `deploy.ps1` is retained only for backward
-> compatibility with projects that predate `azure.yaml` adoption.
-
-| Phase      | Resources                             | Gate          |
-| ---------- | ------------------------------------- | ------------- |
-| Foundation | Resource group, networking, Key Vault | User approval |
-| Security   | Identity, RBAC, certificates          | User approval |
-| Data       | Storage, databases, messaging         | User approval |
-| Compute    | App Service, Functions, containers    | User approval |
-| Edge       | CDN, Front Door, DNS                  | User approval |
-
-- **Bicep**: Pass `-Phase {name}` to `deploy.ps1`
-- **Terraform**: Pass `-var deployment_phase={name}` to plan/apply
-
-### Single Deployment (only for <5 resources, dev/test)
-
-Deploy everything in one operation. Still requires user approval.
-
-### Decision: azd vs deploy.ps1
-
-> **Full guide**: [azd-vs-deploy-guide.md](references/azd-vs-deploy-guide.md) — comparison,
-> per-project conventions, workflow, hooks, troubleshooting.
-
-| Factor                 | azd                                                         | deploy.ps1                                      |
-| ---------------------- | ----------------------------------------------------------- | ----------------------------------------------- |
-| Cross-platform         | Yes                                                         | PowerShell only                                 |
-| Environment management | Built-in (`azd env`)                                        | Manual parameters                               |
-| Hooks (pre/post)       | `azure.yaml` hooks                                          | Custom script logic                             |
-| Phased deployment      | Use hooks (`preprovision`/`postprovision`)                  | Fine-grained phases *(deprecated)*              |
-| New projects           | **Use azd**                                                 | **Deprecated — do not use for new projects** |
-| Existing projects      | Use azd (generate `azure.yaml` if missing)                  | Deprecated fallback if no `azure.yaml`          |
-| Project isolation      | Per-project: `infra/{iac}/{project}/azure.yaml` + `.azure/` | Per-project: `infra/{iac}/{project}/deploy.ps1` |
-| Env naming             | `{project}-{env}` (e.g., `hub-spoke-dev`)                   | Manual parameter per invocation                 |
+> **Single-deployment exception**: for projects with < 5 resources in dev/test, a single
+> azd deployment is acceptable. All deploys still require explicit user approval.
 
 ---
 
@@ -106,6 +56,7 @@ Deploy everything in one operation. Still requires user approval.
 
 | Reference                     | Location                                                                                                                              |
 | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| **Deployment strategies**     | `references/deployment-strategies.md`                                                                                                 |
 | **azd vs deploy.ps1 guide**   | `references/azd-vs-deploy-guide.md`                                                                                                   |
 | Preflight validation          | `azure-validate/references/infraops-preflight.md`                                                                                     |
 | CLI auth validation procedure | `azure-defaults/references/azure-cli-auth-validation.md`                                                                              |

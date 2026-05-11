@@ -1,6 +1,6 @@
 ---
 name: workflow-engine
-description: "Machine-readable workflow DAG for the multi-step agent pipeline. Defines node types, edge conditions, gates, and fan-out patterns. USE FOR: Orchestrator step routing, resume-from-graph, workflow validation. DO NOT USE FOR: Azure infrastructure, code generation, troubleshooting."
+description: '**UTILITY SKILL** — Machine-readable workflow DAG for the multi-step agent pipeline. Defines node types, edge conditions, gates, and fan-out patterns. WHEN: "orchestrator step routing", "resume from graph", "workflow validation", "workflow DAG", "workflow gate", "fan-out pattern". USE FOR: orchestrator step routing, resume-from-graph, workflow validation. DO NOT USE FOR: Azure infrastructure, code generation, troubleshooting.'
 ---
 
 # Workflow Engine Skill
@@ -15,44 +15,45 @@ reads instead of relying on hardcoded step logic.
 - Validating that all steps have proper dependencies and outputs
 - Understanding fan-out (parallel sub-steps) and conditional routing
 
+## Rules
+
+- **DAG only** — the workflow is a Directed Acyclic Graph; no cycles, no back-edges
+- **Source of truth is `templates/workflow-graph.json`** — the orchestrator reads this directly; do not encode workflow logic in agent prose
+- **Gates are blocking** — a `gate` node halts downstream execution until human approval is recorded in session state
+- **IaC routing is conditional on `decisions.iac_tool`** — Step 3 → Step 4 / 5 / 6 routes to `*-b` (Bicep) or `*-t` (Terraform)
+- **Fan-out children execute in parallel** — Step 7 docs is the canonical example; do not serialize parallel children
+- **Edge conditions** — use exactly one of `on_complete`, `on_skip`, `on_fail` per edge; ambiguity is a validation error
+- **Schema evolution** — bump `metadata.version` and follow `references/schema-evolution.md` rollback rules when changing the graph
+- **Validation is enforced at three points** — graph shape (`validate-workflow-graph.mjs`), handoff buttons (`validate-agents.mjs --only=workflow-handoffs`), and gate-companion H2 sync (`validate-artifacts.mjs`)
+
+## Steps
+
+Orchestrator protocol for routing the next step:
+
+1. **Load** `templates/workflow-graph.json`
+2. **Read current state** — `apex-recall show <project> --json` → `current_step`
+3. **Find the matching node** in the graph
+4. **Check node status**:
+   - `complete` → follow `on_complete` edges → find next node
+   - `in_progress` → resume from `sub_step` checkpoint
+   - `pending` → execute this node
+   - `skipped` → follow `on_skip` edges
+5. **Apply IaC routing** when present — read `decisions.iac_tool` and pick the `*-b` or `*-t` branch
+6. **If next is a `gate`** — present to user, wait for approval, record decision in session state
+7. **If next is a `subagent-fan-out`** — dispatch all children in parallel; collect results before continuing
+8. **Repeat** until all nodes are complete or blocked
+
 ## Core Concepts
 
-### DAG Model
+The workflow is a Directed Acyclic Graph (DAG): **nodes** (agent-step, gate,
+subagent-fan-out, validation), **edges** with conditions (`on_complete`, `on_skip`,
+`on_fail`), **gates** (human approvals), and **fan-out** (parallel sub-steps such as Step 7
+doc generation). IaC routing edges from Step 3 forward conditionally branch on
+`decisions.iac_tool` (Bicep → `step-4b`, Terraform → `step-4t`); the pattern repeats for
+Steps 5 and 6.
 
-The workflow is a Directed Acyclic Graph (DAG) with:
-
-| Concept     | Description                                                     |
-| ----------- | --------------------------------------------------------------- |
-| **Node**    | A unit of work (agent step, gate, validation, or fan-out)       |
-| **Edge**    | A dependency between nodes with a condition                     |
-| **Gate**    | A human approval point that blocks downstream nodes             |
-| **Fan-out** | Parallel execution of independent sub-steps (e.g., Step 7 docs) |
-
-### Node Types
-
-| Type               | Description                              | Example                 |
-| ------------------ | ---------------------------------------- | ----------------------- |
-| `agent-step`       | A step executed by a specific agent      | Step 1: Requirements    |
-| `gate`             | Human approval checkpoint                | Gate after Step 1       |
-| `subagent-fan-out` | Parallel sub-step execution              | Step 7 doc generation   |
-| `validation`       | Automated validation (lint, build, etc.) | Bicep lint after Step 5 |
-
-### Edge Conditions
-
-| Condition     | Trigger                                         |
-| ------------- | ----------------------------------------------- |
-| `on_complete` | Source node finished successfully               |
-| `on_skip`     | Source node was skipped (e.g., optional Step 3) |
-| `on_fail`     | Source node failed — routes to error handling   |
-
-### IaC Routing
-
-Edges from Step 3 → Step 4 are conditional on `decisions.iac_tool`:
-
-- `iac_tool: "Bicep"` → routes to `step-4b` (IaC Planner)
-- `iac_tool: "Terraform"` → routes to `step-4t` (IaC Planner)
-
-This pattern repeats for Steps 5 and 6.
+Full node-type table, edge-condition matrix, and IaC routing rules in
+[`references/dag-concepts.md`](references/dag-concepts.md).
 
 ## Workflow Graph
 

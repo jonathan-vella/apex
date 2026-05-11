@@ -10,6 +10,7 @@ from typing import Any
 
 import aiohttp
 
+from . import disk_cache
 from .config import (
     AZURE_PRICING_BASE_URL,
     DEFAULT_API_VERSION,
@@ -136,6 +137,18 @@ class AzurePricingClient:
     ) -> dict[str, Any]:
         """Fetch prices from Azure Pricing API.
 
+        A disk-backed cache (see ``disk_cache``) is checked first when
+        enabled. Cache hits skip the HTTP round-trip entirely; misses fall
+        through to the live API and persist the successful response. The
+        cache is best-effort — any I/O error is swallowed and logged so a
+        broken cache never breaks pricing lookups.
+
+        Disk-cache reads and writes run via ``asyncio.to_thread`` so the
+        synchronous filesystem + gzip/JSON work never blocks the event
+        loop under concurrent tool calls. Writes are dispatched as
+        background tasks so a cache miss does not wait on the persist
+        step before returning.
+
         Args:
             filter_conditions: List of OData filter conditions
             currency_code: Currency code for prices
@@ -144,6 +157,11 @@ class AzurePricingClient:
         Returns:
             API response with Items and metadata
         """
+        if disk_cache.is_enabled():
+            cached = await asyncio.to_thread(disk_cache.get, filter_conditions, currency_code, limit)
+            if cached is not None:
+                return cached
+
         params: dict[str, str] = {
             "api-version": self._api_version,
             "currencyCode": currency_code,
@@ -155,7 +173,15 @@ class AzurePricingClient:
         if limit and limit < MAX_RESULTS_PER_REQUEST:
             params["$top"] = str(limit)
 
-        return await self.make_request(params=params)
+        response = await self.make_request(params=params)
+
+        if disk_cache.is_enabled():
+            # Fire-and-forget: don't block the caller on the persist step.
+            # ``asyncio.create_task`` keeps the write off the hot path
+            # while still running it through the to_thread executor.
+            asyncio.create_task(asyncio.to_thread(disk_cache.put, filter_conditions, currency_code, limit, response))
+
+        return response
 
     async def fetch_text(self, url: str, timeout: float = 10.0) -> str:
         """Fetch text content from a URL.

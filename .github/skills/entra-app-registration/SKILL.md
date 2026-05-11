@@ -1,6 +1,6 @@
 ---
 name: entra-app-registration
-description: "Guides Microsoft Entra ID app registration, OAuth 2.0 authentication, and MSAL integration. USE FOR: create app registration, register Azure AD app, configure OAuth, set up authentication, add API permissions, generate service principal, MSAL example, console app auth, Entra ID setup, Azure AD authentication. DO NOT USE FOR: Azure RBAC or role assignments (use azure-rbac), Key Vault secrets (use azure-keyvault-expiration-audit), Azure resource security (use azure-security)."
+description: '**WORKFLOW SKILL** — Guides Microsoft Entra ID app registration, OAuth 2.0 authentication, and MSAL integration. WHEN: "create app registration", "register Azure AD app", "configure OAuth", "add API permissions", "generate service principal", "MSAL example", "Entra ID setup". USE FOR: app registration creation, OAuth + MSAL scaffolding, service principal generation. DO NOT USE FOR: Azure RBAC or role assignments (use azure-rbac), Key Vault secrets / certificate audits (use azure-compliance), Azure resource security scanning (use azure-compliance).'
 license: MIT
 metadata:
   author: Microsoft
@@ -31,69 +31,28 @@ Microsoft Entra ID (formerly Azure AD) is Microsoft's cloud-based identity and a
 | **Single Page App (SPA)** | JavaScript/React/Angular apps |
 | **Daemon/Service**        | Background services, APIs     |
 
+## Rules
+
+- **Prefer IaC** for managing app registrations when the project already uses IaC, scales to many apps, or needs audit history (see [`references/BICEP-EXAMPLE.bicep`](references/BICEP-EXAMPLE.bicep))
+- **Prefer certificates or federated identity credentials over client secrets** in production environments
+- **Store client secrets in Key Vault** — never commit them to source; rotate regularly; copy the value immediately on creation (only shown once)
+- **Grant least-privilege API permissions** — add only the scopes the app actually uses
+- **Out of scope**: Azure RBAC / role assignments (use `azure-rbac`); Key Vault audits (use `azure-compliance`); Azure resource security scanning (use `azure-compliance`)
+- **CLI for ad-hoc**, **IaC for production** — see [`references/cli-commands.md`](references/cli-commands.md) for `az ad app create` patterns
+
 ## Core Workflow
 
-### Step 1: Register the Application
+Five-step procedure (full per-step detail in
+[`references/core-workflow.md`](references/core-workflow.md)):
 
-Create an app registration in the Azure portal or using Azure CLI.
+1. **Register the Application** — portal, CLI ([`cli-commands.md`](references/cli-commands.md)), or IaC ([`BICEP-EXAMPLE.bicep`](references/BICEP-EXAMPLE.bicep))
+2. **Configure Authentication** — redirect URIs / token settings per app type (Web / SPA / Mobile / Service)
+3. **Configure API Permissions** — Graph and custom-API scopes ([`api-permissions.md`](references/api-permissions.md))
+4. **Create Client Credentials** — secret / certificate / federated identity (Key Vault for storage)
+5. **Implement OAuth Flow** — code integration ([`oauth-flows.md`](references/oauth-flows.md), [`console-app-example.md`](references/console-app-example.md))
 
-**Portal Method:**
-
-1. Navigate to Azure Portal → Microsoft Entra ID → App registrations
-2. Click "New registration"
-3. Provide name, supported account types, and redirect URI
-4. Click "Register"
-
-**CLI Method:** See [references/cli-commands.md](references/cli-commands.md)
-**IaC Method:** See [references/BICEP-EXAMPLE.bicep](references/BICEP-EXAMPLE.bicep)
-
-It's highly recommended to use the IaC to manage Entra app registration if you already use IaC in your project, need a scalable solution for managing lots of app registrations or need fine-grained audit history of the configuration changes.
-
-### Step 2: Configure Authentication
-
-Set up authentication settings based on your application type.
-
-- **Web Apps**: Add redirect URIs, enable ID tokens if needed
-- **SPAs**: Add redirect URIs, enable implicit grant flow if necessary
-- **Mobile/Desktop**: Use `http://localhost` or custom URI scheme
-- **Services**: No redirect URI needed for client credentials flow
-
-### Step 3: Configure API Permissions
-
-Grant your application permission to access Microsoft APIs or your own APIs.
-
-**Common Microsoft Graph Permissions:**
-
-- `User.Read` - Read user profile
-- `User.ReadWrite.All` - Read and write all users
-- `Directory.Read.All` - Read directory data
-- `Mail.Send` - Send mail as a user
-
-**Details:** See [references/api-permissions.md](references/api-permissions.md)
-
-### Step 4: Create Client Credentials (if needed)
-
-For confidential client applications (web apps, services), create a client secret, certificate or federated identity credential.
-
-**Client Secret:**
-
-- Navigate to "Certificates & secrets"
-- Create new client secret
-- Copy the value immediately (only shown once)
-- Store securely (Key Vault recommended)
-
-**Certificate:** For production environments, use certificates instead of secrets for enhanced security. Upload certificate via "Certificates & secrets" section.
-
-**Federated Identity Credential:** For dynamically authenticating the confidential client to Entra platform.
-
-### Step 5: Implement OAuth Flow
-
-Integrate the OAuth flow into your application code.
-
-**See:**
-
-- [references/oauth-flows.md](references/oauth-flows.md) - OAuth 2.0 flow details
-- [references/console-app-example.md](references/console-app-example.md) - Console app implementation
+> **IaC preference**: when the project already uses IaC, manage app registrations through
+> Bicep / Terraform for audit history and scale (see Step 1 reference).
 
 ## Common Patterns
 

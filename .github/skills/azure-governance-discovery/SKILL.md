@@ -1,6 +1,6 @@
 ---
 name: azure-governance-discovery
-description: "Deterministic Azure Policy discovery: lists effective policy assignments at subscription scope (including MG-inherited), pulls definitions and exemptions, classifies effects, filters Defender auto-assignments, and emits the governance-constraints JSON envelope via a Python script. USE FOR: 04g-Governance Phase 1 discovery, refreshing `04-governance-constraints.json`. DO NOT USE FOR: artifact writing, architecture mapping, traffic-light rendering, challenger orchestration — those stay in the parent agent."
+description: '**ANALYSIS SKILL** — Deterministic Azure Policy discovery: lists effective assignments (incl. MG-inherited), pulls definitions/exemptions, classifies effects, filters Defender auto-assignments, emits governance-constraints JSON via Python. WHEN: "Azure policy discovery", "effective policy assignments", "governance constraints", "04g-Governance Phase 1", "refresh governance JSON". USE FOR: 04g Phase 1 discovery, refreshing `04-governance-constraints.json`. DO NOT USE FOR: artifact writing, architecture mapping, traffic-light rendering, challenger orchestration.'
 compatibility: Requires Python 3.14, Azure CLI on PATH, read access to the target subscription.
 ---
 
@@ -26,7 +26,18 @@ pulling raw Azure REST responses into LLM context.
 - Challenger review orchestration — parent-side LLM work
 - Any workflow that is not 04g-Governance
 
-## Usage
+## Rules
+
+- **Stay deterministic** — the discovery script is a single batched REST traversal; no LLM calls, no retries that hide errors, no inferred policy effects
+- **Never pull raw Azure REST responses into LLM context** — stdout is exactly one machine-readable JSON status line; the parent agent reads only this line
+- **Schema compliance is mandatory** — envelope MUST conform to `tools/schemas/governance-constraints.schema.json` (`schema_version: governance-constraints-v1`)
+- **Property paths are always strings** — use `""` for unresolvable paths, never `null`
+- **Filter Defender auto-assignments by default** — they create policy noise that masks real governance constraints; opt-in via `--include-defender-auto`
+- **Exit codes are contract** — `0` = COMPLETE, `1` = PARTIAL, `2` = FAILED, `3` = invalid args; the parent agent routes solely on these codes
+- **No artifact writing** — the script emits JSON + a `.preview.md`; the agent owns the final `04-governance-constraints.md` content and traffic-light rendering
+- **Re-run with `--refresh`** when policy state has changed; otherwise honor the existing JSON
+
+## Steps
 
 ```bash
 python .github/skills/azure-governance-discovery/scripts/discover.py \

@@ -164,7 +164,8 @@ Before doing any work, read these skills:
 3. Read artifact template files: `azure-artifacts/templates/04-preflight-check.template.md` + `05-implementation-reference.template.md`
 4. Read `.github/skills/terraform-patterns/SKILL.digest.md` — patterns, AVM Known Pitfalls, module composition
 5. Read `.github/instructions/iac-terraform-best-practices.instructions.md` — governance mandate, translation table
-6. Read `.github/skills/context-management/SKILL.digest.md` — runtime compression for large plan/governance artifacts (Mode A)
+6. Read `.github/skills/context-management/SKILL.digest.md` — runtime
+   compression for large plan/governance artifacts (Mode A)
 
 ## Do
 

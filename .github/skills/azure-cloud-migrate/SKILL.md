@@ -1,6 +1,6 @@
 ---
 name: azure-cloud-migrate
-description: "Assess and migrate cross-cloud workloads to Azure. Generates assessment reports and converts code from AWS, GCP, or other providers to Azure services. WHEN: migrate Lambda to Azure Functions, migrate AWS to Azure, Lambda migration assessment, convert AWS serverless to Azure, migration readiness report, migrate from AWS, migrate from GCP, cross-cloud migration."
+description: '**WORKFLOW SKILL** — Assess and migrate cross-cloud workloads to Azure. Generates assessment reports and converts code from AWS, GCP, or other providers to Azure services. WHEN: "migrate Lambda to Azure Functions", "migrate AWS to Azure", "convert AWS serverless to Azure", "migration readiness report", "cross-cloud migration". USE FOR: cross-cloud assessment, AWS-to-Azure code conversion, GCP-to-Azure code conversion. DO NOT USE FOR: greenfield Azure deployment (use azure-prepare), Azure-only refactor (use azure-prepare).'
 license: MIT
 metadata:
   author: Microsoft
@@ -22,8 +22,8 @@ metadata:
 
 ## Migration Scenarios
 
-| Source | Target | Reference |
-|--------|--------|-----------|
+| Source     | Target          | Reference                                                                      |
+| ---------- | --------------- | ------------------------------------------------------------------------------ |
 | AWS Lambda | Azure Functions | [lambda-to-functions.md](references/services/functions/lambda-to-functions.md) |
 
 > No matching scenario? Use `mcp_azure_mcp_documentation` and `mcp_azure_mcp_get_bestpractices` tools.
@@ -46,6 +46,6 @@ Track progress in `migration-status.md` — see [workflow-details.md](references
 
 Load these on demand — do NOT read all at once:
 
-| Reference | When to Load |
-| --------- | ------------ |
+| Reference                        | When to Load     |
+| -------------------------------- | ---------------- |
 | `references/workflow-details.md` | Workflow Details |

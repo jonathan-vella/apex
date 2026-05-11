@@ -1,6 +1,6 @@
 ---
 name: drawio
-description: "Use this skill to generate Azure architecture diagrams in .drawio format via the simonkurtz-MSFT MCP server (700+ Azure icons, batch creation, transactional mode). Covers architecture diagrams, dependency diagrams, runtime flow diagrams, and as-built diagrams. Do NOT use for WAF/cost charts (use python-diagrams), inline Mermaid (use mermaid), or Excalidraw diagrams (use excalidraw)."
+description: '**WORKFLOW SKILL** — Generate Azure architecture diagrams in .drawio format via the simonkurtz-MSFT MCP server (700+ Azure icons, batch creation, transactional mode). Covers architecture, dependency, runtime flow, and as-built diagrams. WHEN: "draw.io diagram", "Azure architecture diagram", "as-built diagram", "runtime flow diagram", "dependency diagram". USE FOR: production Azure architecture visuals, multi-resource layouts, design-stage and as-built artifacts. DO NOT USE FOR: WAF/cost charts (use python-diagrams), inline Mermaid (use mermaid). INVOKES: drawio MCP (search-shapes, add-cells, finish-diagram).'
 compatibility: Works with VS Code Copilot, Claude Code, and any MCP-compatible tool. Uses simonkurtz-MSFT/drawio-mcp-server configured in .vscode/mcp.json.
 license: MIT
 metadata:
@@ -19,6 +19,11 @@ The MCP server's own `src/instructions.md` is the authoritative tool reference;
 it is auto-sent to the client at startup. This skill captures project-specific
 conventions that complement (not duplicate) it.
 
+> **Naming note**: "drawio" can refer to (a) this skill, (b) the MCP server slug
+> `simonkurtz-MSFT/drawio-mcp-server`, or (c) the `mcp_drawio_*` tool family. In
+> agent-facing references, disambiguate explicitly — say "the `drawio` skill" or
+> "the drawio MCP server", not bare `drawio`.
+
 ## Prerequisites
 
 - **MCP server**: `simonkurtz-MSFT/drawio-mcp-server` (Deno, stdio) configured in `.vscode/mcp.json`
@@ -27,16 +32,32 @@ conventions that complement (not duplicate) it.
 
 ## MCP Workflow Summary
 
-The MCP server's startup instructions are the authoritative tool reference.
-This skill captures only the repo-specific sequence and guardrails:
+The MCP server's startup `src/instructions.md` is the authoritative tool reference. The
+table below lists the most-used tools and the repo-specific batch sequence. Reusable call
+patterns: [`references/azure-patterns.md`](references/azure-patterns.md).
 
-- `search-shapes` — resolve all Azure icons up front in one batch
-- `create-groups` — create VNets, subnets, resource groups, or app environments
-- `add-cells` — add all vertices and edges in one batch (use `shape_name` + `temp_id`)
-- `add-cells-to-group` — assign all children to groups in one batch
-- `finish-diagram` or `export-diagram` — emit final XML with `compress: true`
+| Tool                         | Purpose                                                              |
+| ---------------------------- | -------------------------------------------------------------------- |
+| `search-shapes`              | Fuzzy-search the 700+ Azure icon library; resolves names to shapes   |
+| `create-groups`              | Create container cells (VNets, subnets, resource groups, envs)       |
+| `add-cells`                  | Add vertices + edges in a single batch (use `shape_name`, `temp_id`) |
+| `add-cells-to-group`         | Assign children to group containers                                  |
+| `edit-cells` / `edit-edges`  | Update cell or edge properties post-creation                         |
+| `validate-group-containment` | Detect children that exceed group bounds                             |
+| `finish-diagram`             | Resolve transactional placeholders + emit final compressed XML       |
+| `export-diagram`             | Non-transactional export with `compress: true`                       |
 
-Reusable call patterns: [`references/azure-patterns.md`](references/azure-patterns.md).
+Standard sequence: `search-shapes` → `create-groups` → `add-cells` → `add-cells-to-group`
+→ (optional `edit-*`) → `validate-group-containment` → `finish-diagram` /
+`export-diagram` (`compress: true`).
+
+## CLI Fallback
+
+**There is no programmatic CLI fallback for diagram authoring.** The Draw.io desktop app
+is the only manual alternative; if the MCP server is unavailable, stop and surface the
+failure rather than hand-rolling XML. The `tools/scripts/save-drawio.py` and
+`cleanup-drawio.py` helpers are post-processing utilities for MCP output, not authoring
+fallbacks.
 
 ## Icon Handling
 
@@ -52,115 +73,58 @@ Icons are resolved automatically by the MCP server from its built-in library
 
 ## Diagram Creation Workflows
 
-**Workflow A — Non-Transactional** (small diagrams): each tool call returns full XML
-with complete SVG image data.
+Two modes — **non-transactional** (small diagrams, full XML each call) and
+**transactional** (recommended for multi-step; lightweight placeholders during
+the loop, real SVGs resolved by `finish-diagram` at the end). Full call chains,
+the `save-drawio.py` save procedure, and the post-save cleanup script live in
+[`references/creation-workflows.md`](references/creation-workflows.md).
 
-```text
-search-shapes → add-cells → export-diagram(compress: true) → save .drawio
-```
+> **Critical**: transactional mode MUST end with `finish-diagram(compress: true)`
+> or the saved diagram keeps placeholder cells instead of real Azure icons.
 
-**Workflow B — Transactional** (recommended for multi-step): intermediate responses use
-lightweight placeholders (~2KB vs ~200KB); real SVGs resolve once at the end.
+## Rules
 
-```text
-search-shapes
-→ create-groups(transactional: true)
-→ add-cells(transactional: true)
-→ add-cells-to-group(transactional: true)
-→ edit-cells(transactional: true)     [if needed]
-→ finish-diagram(compress: true)       [resolves all placeholders]
-→ save .drawio via terminal command
-```
+- **Batch-only workflow** — every tool that accepts an array MUST be called exactly ONCE with all items; never call a tool repeatedly for individual items (see [Batch-Only Workflow (CRITICAL)](#batch-only-workflow-critical) below)
+- **Use `shape_name` for Azure icons** — do NOT pass `width`, `height`, or `style` alongside it; the server applies them
+- **Every shaped vertex MUST have a `text` label or omit `text` entirely** — never pass `""`
+- **Vertices first in `add-cells`** — edges must be ordered after the vertices they reference
+- **Transactional mode for multi-step diagrams** — use placeholders + `finish-diagram` at the end (~2KB intermediate vs ~200KB)
+- **Use `compress: true`** on `export-diagram` / `finish-diagram` to keep `.drawio` files small
+- **Do NOT pipe large MCP JSON back through the LLM** — use `python3 tools/scripts/save-drawio.py` to extract via terminal
+- **Out of scope**: WAF / cost charts (use `python-diagrams`), inline Mermaid (use `mermaid`)
 
-### Saving `.drawio` Files
+## Steps
 
-When `finish-diagram` or `export-diagram` returns XML in a JSON response, use
-the helper script to decompress, strip edge anchors, and save:
+**Every tool that accepts an array MUST be called exactly ONCE with all items.** Never call a tool repeatedly for individual items.
 
-```bash
-python3 tools/scripts/save-drawio.py '<temp-content-json-path>' '<output-path>.drawio'
-node tools/scripts/validate-drawio-files.mjs '<output-path>.drawio'
-```
+1. `search-shapes` — ONE call with all queries (main flow + cross-cutting)
+2. `create-groups` — ONE call with all groups. Set `text: ""` and create a separate text vertex above each group
+3. `add-cells` — ONE call with all vertices AND edges, **vertices first**. Use `temp_id` for cross-refs, `shape_name` for icons
+4. `add-cells-to-group` — ONE call with all assignments
+5. `edit-cells` / `edit-edges` — ONE call if adjustments are needed
+6. `finish-diagram` (transactional) or `export-diagram` (default) — with `compress: true`
 
-The script handles: compressed content decompression, `mxGraphModel` embedding
-(repo validator format), edge anchor/waypoint stripping, and directory creation.
+After group assignments, call `validate-group-containment` to detect children that exceed group bounds.
 
-**Do NOT** read the large MCP JSON response back through the LLM — extract
-data via terminal commands to avoid inflating the context window.
+### Token efficiency
 
-## Batch-Only Workflow (CRITICAL)
-
-**Every tool that accepts an array MUST be called exactly ONCE with ALL items.**
-Never call a tool repeatedly for individual items.
-
-1. **`search-shapes`** — ONE call with ALL queries in the `queries` array (main flow + cross-cutting)
-2. **`create-groups`** — ONE call with ALL groups. Set `text: ""` for groups; create separate text vertex above.
-3. **`add-cells`** — ONE call with ALL vertices AND edges. Vertices before edges.
-   Use `temp_id` for cross-refs, `shape_name` for icons.
-4. **`add-cells-to-group`** — ONE call with ALL assignments. Server auto-converts absolute → group-relative coords.
-5. **`edit-cells`/`edit-edges`** — ONE call if adjustments needed.
-6. **`finish-diagram`** (transactional) or **`export-diagram`** (default) — with `compress: true`.
-
-After group assignments, call `validate-group-containment` to detect any children that exceed group bounds.
-
-### Token Efficiency
-
-- **The MCP server is NOT stateful** between tool calls. You MUST pass
-  `diagram_xml` from the previous call's response on every subsequent call.
-  Save the XML to a temp file between steps and read it back rather than
-  inflating the LLM context with the full XML in every turn.
-- **Do NOT read back large MCP responses through the LLM**. When a tool result
-  is written to a temp file, extract only the data you need via a terminal
-  command (e.g., cell IDs) rather than reading the entire JSON into context.
-- **Target 8–10 model turns** for a complete diagram. Pre-compute the full
-  layout (all vertices, edges, groups, assignments) before making any MCP
-  calls, then execute the batch workflow in sequence.
+- **MCP server is NOT stateful** — pass `diagram_xml` from the previous call on every subsequent call. Save XML to a temp file between steps; read only the IDs you need rather than the whole JSON.
+- **Never read back large MCP responses through the LLM** — extract data via terminal commands.
+- **Target 8–10 model turns** for a complete diagram. Pre-compute the full layout before making any MCP calls.
 
 ## Layout Conventions
 
-- **Primary flow**: left-to-right; parallel services stacked vertically per column.
-- **Spacing minimums**: 120px between columns, 80px between rows, 40px around each cell;
-  groups need ≥ 150px width per icon (labels are ~130px wide).
-- **Page**: US Letter 850×1100px (extend to 1300px if a legend is included);
-  keep content within 40px margins.
-- **Edges**: orthogonal only (`edgeStyle=orthogonalEdgeStyle`); never set `entryX`/`entryY`/
-  `exitX`/`exitY` and never add `<Array as="points">` waypoints. Target specific icons,
-  not groups, when a service inside a group is the endpoint.
-- **Cross-cutting services** (Azure Monitor, Entra ID, Key Vault, Defender, etc.):
-  place in a single light-grey rounded container at the bottom, 120px apart,
-  with no edges into them.
-- **Legend**: required on every diagram, placed below the cross-cutting box.
-  Use inline HTML for arrow indicators; explicitly set `text: ""` on shape samples.
-- **External actors** (Users, Operators): positioned outside all group boundaries
-  so they aren't visually swallowed by container fill.
+Concise summary; load [`references/style-reference.md`](references/style-reference.md) → "Layout Conventions (extended)" for full detail (numbered callouts, fan-out staggering, legend HTML, group sizing, non-Azure component styling).
 
-> **CRITICAL — Edge post-processing**: The MCP server's auto-router injects
-> anchor points and waypoints. After `finish-diagram`, the agent **MUST** run
-> `tools/scripts/save-drawio.py` to strip these so Draw.io's renderer can
-> calculate clean orthogonal paths client-side.
+- **Primary flow**: left-to-right; parallel services stacked vertically per column
+- **Spacing minimums**: 120px between columns, 80px between rows, 40px around each cell; groups need ≥150px width per icon
+- **Page**: US Letter 850×1100px (extend to 1300px if a legend is included); 40px margins
+- **Edges**: orthogonal only (`edgeStyle=orthogonalEdgeStyle`); never set `entryX/Y` / `exitX/Y` and never add `<Array as="points">` waypoints. Target specific icons inside groups, not the group cell
+- **Cross-cutting services** (Azure Monitor, Entra ID, Key Vault, Defender): single light-grey rounded container at the bottom, 120px apart, no edges into them
+- **Legend**: required on every diagram, below the cross-cutting box; use inline HTML for arrow indicators; explicitly set `text: ""` on shape samples
+- **External actors** (Users, Operators): outside all group boundaries
 
-For full detail (layout patterns, numbered callouts, non-Azure component styling,
-group-sizing rules, fan-out staggering, legend HTML), see
-[`references/style-reference.md`](references/style-reference.md) under
-"Layout Conventions (extended)".
-
-### Post-Save Cleanup
-
-After `save-drawio.py`, run the cleanup script to fix known MCP artifacts:
-
-```bash
-python3 .github/skills/drawio/scripts/cleanup-drawio.py '<output-path>.drawio'
-```
-
-The script fixes:
-
-- `value="New Cell"` → `value=""` (MCP default for vertices without explicit text)
-- Watermark cell height ≥ 70px (so all 4 lines of APEX attribution show)
-- Reports any cross-cutting icons spaced less than 120px apart
-
-Use the Azure-aligned color palette from `get-style-presets` and the style
-examples in `references/style-reference.md`. Standard output filenames and the
-validation checklist live in `references/validation-checklist.md`.
+> **Edge post-processing (CRITICAL)**: After `finish-diagram`, run `tools/scripts/save-drawio.py` to strip auto-router anchors and waypoints so Draw.io can recalculate clean orthogonal paths. The post-save cleanup script (`cleanup-drawio.py`) is documented in [`references/creation-workflows.md`](references/creation-workflows.md).
 
 ## Gotchas
 
@@ -178,19 +142,19 @@ validation checklist live in `references/validation-checklist.md`.
 
 ## Reference Index
 
-| File                                 | Purpose                                                 |
-| ------------------------------------ | ------------------------------------------------------- |
-| `references/style-reference.md`      | Draw.io style properties for AI-generated files         |
-| `references/azure-patterns.md`       | Reusable MCP tool call patterns for Azure architectures |
-| `references/validation-checklist.md` | Validation rules for AI-generated `.drawio` files       |
-| `references/abstraction-rules.md`    | Diagram abstraction and data-flow clarity rules         |
-| `references/iac-to-diagram.md`       | Generate diagrams from Bicep/Terraform/ARM templates    |
-| `references/quality-rubric.md`       | Canonical 0–4 quality rubric (7 dimensions, thresholds) |
-| `references/semantic-zones.md`       | Subscription / region / trust-boundary / external zone templates |
-| `references/diagram-types.md`        | Logical / network / sequence / deployment selection + signatures |
-| `references/legend-template.md`      | Copy-pasteable legend block (inline + two-column variants)         |
-| `references/icon-variants.md`        | Service tier / SKU disambiguation + single-batch contract         |
-| `references/large-architecture-decomposition.md` | Tier S/M/L/XL breakpoints, decomposition, density target |
+| File                                             | Purpose                                                          |
+| ------------------------------------------------ | ---------------------------------------------------------------- |
+| `references/style-reference.md`                  | Draw.io style properties for AI-generated files                  |
+| `references/azure-patterns.md`                   | Reusable MCP tool call patterns for Azure architectures          |
+| `references/validation-checklist.md`             | Validation rules for AI-generated `.drawio` files                |
+| `references/abstraction-rules.md`                | Diagram abstraction and data-flow clarity rules                  |
+| `references/iac-to-diagram.md`                   | Generate diagrams from Bicep/Terraform/ARM templates             |
+| `references/quality-rubric.md`                   | Canonical 0–4 quality rubric (7 dimensions, thresholds)          |
+| `references/semantic-zones.md`                   | Subscription / region / trust-boundary / external zone templates |
+| `references/diagram-types.md`                    | Logical / network / sequence / deployment selection + signatures |
+| `references/legend-template.md`                  | Copy-pasteable legend block (inline + two-column variants)       |
+| `references/icon-variants.md`                    | Service tier / SKU disambiguation + single-batch contract        |
+| `references/large-architecture-decomposition.md` | Tier S/M/L/XL breakpoints, decomposition, density target         |
 
 ### Quality Reference Examples
 

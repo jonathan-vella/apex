@@ -1,6 +1,6 @@
 ---
 name: python-diagrams
-description: "Python diagram generation: WAF/cost/compliance charts (matplotlib), architecture diagrams (diagrams library), ERDs, swimlanes, timelines, wireframes (graphviz). USE FOR: WAF bar charts, cost donut/projection charts, compliance gap charts, Python architecture diagrams, ERD diagrams, business process flows, timeline/Gantt charts, UI wireframes. DO NOT USE FOR: Draw.io architecture diagrams (use drawio), inline Mermaid (use mermaid)."
+description: '**UTILITY SKILL** — Python diagram generation: WAF/cost/compliance charts (matplotlib), architecture diagrams (diagrams library), ERDs, swimlanes, timelines, wireframes (graphviz). WHEN: "WAF bar chart", "cost donut chart", "compliance gap chart", "Python architecture diagram", "ERD diagram", "swimlane", "UI wireframe". USE FOR: WAF bar charts, cost donut/projection charts, compliance gap charts, Python architecture diagrams, ERD diagrams, business process flows, timeline/Gantt charts, UI wireframes. DO NOT USE FOR: Draw.io architecture diagrams (use drawio), inline Mermaid (use mermaid).'
 compatibility: Works with VS Code Copilot, Claude Code, and any tool capable of running Python scripts.
 license: MIT
 metadata:
@@ -44,7 +44,7 @@ pip install diagrams matplotlib pillow && apt-get install -y graphviz
 
 Suffix rules: `-des` for design (Step 3), `-ab` for as-built (Step 7).
 
-## Execution
+## Steps
 
 Save `.py` source in `agent-output/{project}/`, then run to produce `.png`:
 
@@ -99,7 +99,7 @@ Requirements: `labelloc='t'` · `Arial Bold` fonts ·
 full resource names from IaC · `dpi="150"+` · `margin="30"+` ·
 CIDR blocks in VNet/Subnet labels.
 
-## Guardrails
+## Rules
 
 **DO:** Set `show=False` · Use `direction="TB"` · Group in `Cluster` blocks ·
 Set explicit `filename` · Use DPI ≥150 · Apply design tokens consistently ·

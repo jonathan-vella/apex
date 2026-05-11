@@ -1,6 +1,6 @@
 ---
 name: azure-compute
-description: "Recommend Azure VM sizes, VM Scale Sets (VMSS), and configurations based on workload requirements, performance needs, and budget constraints. No Azure account required — uses public documentation and the Azure Retail Prices API. WHEN: recommend VM size, which VM should I use, choose Azure VM, VM for web/database/ML/batch/HPC, GPU VM, compare VM sizes, cheapest VM, best VM for workload, VM pricing, cost estimate, burstable/compute/memory/storage optimized VM, confidential computing, VM trade-offs, VM families, VMSS, scale set recommendation, autoscale VMs, load balanced VMs, VMSS vs VM, scale out, horizontal scaling, flexible orchestration."
+description: '**ANALYSIS SKILL** — Recommend Azure VM sizes and Scale Sets (VMSS) for workload requirements, performance, and budget. Uses public docs and the Azure Retail Prices API. WHEN: "recommend VM size", "choose Azure VM", "GPU VM", "compare VM sizes", "VMSS vs VM", "autoscale VMs". USE FOR: VM family selection, VMSS sizing, confidential computing recommendations. DO NOT USE FOR: provisioning VMs (use azure-prepare), VM pricing for budgets (use azure-pricing MCP directly).'
 license: MIT
 metadata:
   author: Microsoft
@@ -22,126 +22,28 @@ Recommend Azure VM sizes, VM Scale Sets (VMSS), and configurations by analyzing 
 - User needs autoscaling, high availability, or load-balanced VM recommendations
 - User asks about VMSS orchestration modes (Flexible vs Uniform)
 
-## Workflow
+## Rules
 
-> Use reference files for initial filtering
+- **Always verify against live docs** — call `web_fetch` against `learn.microsoft.com` before finalizing recommendations; warn the user when `web_fetch` fails
+- **Default to General Purpose D-series** when workload type is unclear
+- **Default region** is `eastus` when none is specified; note that prices vary by region
+- **Default to single VM** when scaling needs are unclear; recommend VMSS only when autoscale, fleet, or mixed-size requirements are explicit
+- **VMSS pricing** = VM pricing × instance count (no extra VMSS charge)
+- **Reservation pricing** is recommended for long-lived production VMs (1y/3y commitments)
+- **No deployment** — this skill recommends sizes; for provisioning use `azure-prepare`
 
-> **CRITICAL: then always verify with live documentation** from learn.microsoft.com before making final recommendations. If `web_fetch` fails, use reference files as fallback but warn the user the information may be stale.
+## Steps
 
-### Step 1: Gather Requirements
+The full 6-step procedure (with all decision tables, dichotomy tree, and `web_fetch` URLs) lives in **[references/recommendation-workflow.md](references/recommendation-workflow.md)**. Load it on demand. Summary:
 
-Ask the user for (infer when possible):
+1. **Gather requirements** — workload type, vCPU/RAM, GPU, storage, budget, OS, region, instance count, scaling, HA, load balancing
+2. **Determine VM vs VMSS** — VMSS for autoscale / fleet / mixed sizes (Flexible orchestration); VM for single long-lived servers, jumpboxes, AD DCs. Default to single VM when unsure
+3. **Select VM family** — pick 2–3 candidates from [vm-families.md](references/vm-families.md), then verify specs via `web_fetch` against `learn.microsoft.com`
+4. **Look up pricing** — Azure Retail Prices API per [retail-prices-api.md](references/retail-prices-api.md); for VMSS multiply by instance count
+5. **Present 2–3 recommendations** — include hosting model, VM size, vCPU/RAM, instance count, $/hr, fit, trade-off
+6. **Offer next steps** — reservation pricing, [Azure Pricing Calculator](https://azure.microsoft.com/pricing/calculator/), VMSS autoscale + networking docs
 
-| Requirement            | Examples                                                           |
-| ---------------------- | ------------------------------------------------------------------ |
-| **Workload type**      | Web server, relational DB, ML training, batch processing, dev/test |
-| **vCPU / RAM needs**   | "4 cores, 16 GB RAM" or "lightweight" / "heavy"                    |
-| **GPU needed?**        | Yes → GPU families; No → general/compute/memory                    |
-| **Storage needs**      | High IOPS, large temp disk, premium SSD                            |
-| **Budget priority**    | Cost-sensitive, performance-first, balanced                        |
-| **OS**                 | Linux or Windows (affects pricing)                                 |
-| **Region**             | Affects availability and price                                     |
-| **Instance count**     | Single instance, fixed count, or variable/dynamic                  |
-| **Scaling needs**      | None, manual scaling, autoscale based on metrics or schedule       |
-| **Availability needs** | Best-effort, fault-domain isolation, cross-zone HA                 |
-| **Load balancing**     | Not needed, Azure Load Balancer (L4), Application Gateway (L7)     |
-
-### Step 2: Determine VM vs VMSS
-
-**Workflow:**
-
-1. Review [VMSS Guide](references/vmss-guide.md) to understand when VMSS vs single VM is appropriate
-2. Use the gathered requirements to decide which approach fits best
-3. **REQUIRED: If recommending VMSS**, fetch current documentation to verify capabilities:
-   ```bash
-   web_fetch https://learn.microsoft.com/en-us/azure/virtual-machine-scale-sets/overview
-   web_fetch https://learn.microsoft.com/en-us/azure/virtual-machine-scale-sets/virtual-machine-scale-sets-autoscale-overview
-   ```
-4. **If `web_fetch` fails**, proceed with reference file guidance but include this warning:
-   > Unable to verify against latest Azure documentation. Recommendation based on reference material that may not reflect recent updates.
-
-```text
-Needs autoscaling?
-├─ Yes → VMSS
-├─ No
-│  ├─ Multiple identical instances needed?
-│  │  ├─ Yes → VMSS
-│  │  └─ No
-│  │     ├─ High availability across fault domains / zones?
-│  │     │  ├─ Yes, many instances → VMSS
-│  │     │  └─ Yes, 1-2 instances → VM + Availability Zone
-│  │     └─ Single instance sufficient? → VM
-```
-
-| Signal                                        | Recommendation                | Why                                                                   |
-| --------------------------------------------- | ----------------------------- | --------------------------------------------------------------------- |
-| Autoscale on CPU, memory, or schedule         | **VMSS**                      | Built-in autoscale; no custom automation needed                       |
-| Stateless web/API tier behind a load balancer | **VMSS**                      | Homogeneous fleet with automatic distribution                         |
-| Batch / parallel processing across many nodes | **VMSS**                      | Scale out on demand, scale to zero when idle                          |
-| Mixed VM sizes in one group                   | **VMSS (Flexible)**           | Flexible orchestration supports mixed SKUs                            |
-| Single long-lived server (jumpbox, AD DC)     | **VM**                        | No scaling benefit; simpler management                                |
-| Unique per-instance config required           | **VM**                        | Scale sets assume homogeneous configuration                           |
-| Stateful workload, tightly-coupled cluster    | **VM** (or VMSS case-by-case) | Evaluate carefully; VMSS Flexible can work for some stateful patterns |
-
-> **Warning:** If the user is unsure, default to **single VM** for simplicity. Recommend VMSS only when scaling, HA, or fleet management is clearly needed.
-
-### Step 3: Select VM Family
-
-**Workflow:**
-
-1. Review [VM Family Guide](references/vm-families.md) to identify 2-3 candidate VM families that match the workload requirements
-2. **REQUIRED: verify specifications** for your chosen candidates by fetching current documentation:
-   ```bash
-   web_fetch https://learn.microsoft.com/en-us/azure/virtual-machines/sizes/<family-category>/<series-name>
-   ```
-   
-   Examples:
-   - B-series: `https://learn.microsoft.com/en-us/azure/virtual-machines/sizes/general-purpose/b-family`
-   - D-series: `https://learn.microsoft.com/en-us/azure/virtual-machines/sizes/general-purpose/ddsv5-series`
-   - GPU: `https://learn.microsoft.com/en-us/azure/virtual-machines/sizes/gpu-accelerated/nc-family`
-
-3. **If considering Spot VMs**, also fetch:
-   ```bash
-   web_fetch https://learn.microsoft.com/en-us/azure/virtual-machine-scale-sets/use-spot
-   ```
-
-4. **If `web_fetch` fails**, proceed with reference file guidance but include this warning:
-   > Unable to verify against latest Azure documentation. Recommendation based on reference material that may not reflect recent updates or limitations (e.g., Spot VM compatibility).
-
-This step applies to both single VMs and VMSS since scale sets use the same VM SKUs.
-
-### Step 4: Look Up Pricing
-
-Query the Azure Retail Prices API — [Retail Prices API Guide](references/retail-prices-api.md)
-
-> **Tip:** VMSS has no extra charge — pricing is per-VM instance. Use the same VM pricing from the API and multiply by the expected instance count to estimate VMSS cost. For autoscaling workloads, estimate cost at both the minimum and maximum instance count.
-
-### Step 5: Present Recommendations
-
-Provide **2–3 options** with trade-offs:
-
-| Column         | Purpose                                         |
-| -------------- | ----------------------------------------------- |
-| Hosting Model  | VM or VMSS (with orchestration mode if VMSS)    |
-| VM Size        | ARM SKU name (e.g., `Standard_D4s_v5`)          |
-| vCPUs / RAM    | Core specs                                      |
-| Instance Count | 1 for VM; min–max range for VMSS with autoscale |
-| Estimated $/hr | Per-instance pay-as-you-go from API             |
-| Why            | Fit for the workload                            |
-| Trade-off      | What the user gives up                          |
-
-> **Tip:** Always explain *why* a family fits and what the user trades off (cost vs cores, burstable vs dedicated, single VM simplicity vs VMSS scalability, etc.).
-
-For VMSS recommendations, also mention:
-- Recommended orchestration mode (Flexible for most new workloads)
-- Autoscale strategy (metric-based, schedule-based, or both)
-- Load balancer type (Azure Load Balancer for L4, Application Gateway for L7/TLS)
-
-### Step 6: Offer Next Steps
-
-- Compare reservation / savings plan pricing (query API with `priceType eq 'Reservation'`)
-- Suggest [Azure Pricing Calculator](https://azure.microsoft.com/pricing/calculator/) for full estimates
-- For VMSS: suggest reviewing [autoscale best practices](https://learn.microsoft.com/en-us/azure/azure-monitor/autoscale/autoscale-best-practices) and [VMSS networking](https://learn.microsoft.com/en-us/azure/virtual-machine-scale-sets/virtual-machine-scale-sets-networking)
+> **Critical**: always verify recommendations against live `learn.microsoft.com` docs via `web_fetch`. If `web_fetch` fails, proceed with reference-file guidance and warn the user data may be stale.
 
 ## Error Handling
 
@@ -155,6 +57,7 @@ For VMSS recommendations, also mention:
 
 ## References
 
+- [Recommendation Workflow](references/recommendation-workflow.md) — Full 6-step procedure with decision tables and `web_fetch` URLs
 - [VM Family Guide](references/vm-families.md) — Family-to-workload mapping and selection
 - [Retail Prices API Guide](references/retail-prices-api.md) — Query patterns, filters, and examples
 - [VMSS Guide](references/vmss-guide.md) — When to use VMSS, orchestration modes, and autoscale patterns
@@ -163,8 +66,9 @@ For VMSS recommendations, also mention:
 
 Load these on demand — do NOT read all at once:
 
-| Reference | When to Load |
-| --------- | ------------ |
-| `references/retail-prices-api.md` | Retail Prices Api |
-| `references/vm-families.md` | Vm Families |
-| `references/vmss-guide.md` | Vmss Guide |
+| Reference                               | When to Load                                     |
+| --------------------------------------- | ------------------------------------------------ |
+| `references/recommendation-workflow.md` | Full Steps 1–6 (decision tables, web_fetch URLs) |
+| `references/retail-prices-api.md`       | Pricing queries (Step 4)                         |
+| `references/vm-families.md`             | VM family selection (Step 3)                     |
+| `references/vmss-guide.md`              | VMSS vs VM decision (Step 2)                     |
