@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-05-09T21:11:56.146Z",
+  "generatedAt": "2026-05-11T10:44:09.089Z",
   "categories": [
     {
       "id": "agent",
@@ -40,7 +40,7 @@
       "label": "Prompt",
       "color": "#ec4899",
       "shape": "tag",
-      "count": 23
+      "count": 24
     },
     {
       "id": "validator",
@@ -67,8 +67,8 @@
       "count": 6
     }
   ],
-  "nodeCount": 159,
-  "edgeCount": 672,
+  "nodeCount": 160,
+  "edgeCount": 697,
   "nodes": [
     {
       "id": "agent:01-orchestrator-fast-path",
@@ -560,7 +560,7 @@
       "id": "skill:azure-adr",
       "category": "skill",
       "label": "azure-adr",
-      "description": "Creates Azure Architecture Decision Records with WAF mapping, alternatives, and consequences. USE FOR: ADR creation, architecture decisions, trade-off analysis, WAF pillar justification. DO NOT USE FOR: Bicep/Terraform code generation, diagram creation, cost estimates.",
+      "description": "**ANALYSIS SKILL** — Creates Azure Architecture Decision Records (ADRs) with WAF pillar mapping, alternatives, and consequences. WHEN: \"create ADR\", \"document decision\", \"architecture decision record\", \"record why we chose\", \"WAF pillar justification\", \"trade-off analysis\". USE FOR: ADR scaffolding, design ADRs (Step 3), as-built ADRs (Step 7). DO NOT USE FOR: Bicep/Terraform code (use 06b/06t agents), architecture diagrams (use drawio), cost estimates (use cost-estimate-subagent).",
       "path": ".github/skills/azure-adr/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-adr/SKILL.md"
@@ -571,7 +571,7 @@
       "id": "skill:azure-artifacts",
       "category": "skill",
       "label": "azure-artifacts",
-      "description": "Artifact template structures, H2 compliance rules, and documentation styling for agent outputs (Steps 1-7). USE FOR: generating any agent artifact, checking H2 structure compliance. DO NOT USE FOR: Azure resource configuration (use azure-defaults), Bicep/Terraform patterns (use bicep-patterns or terraform-patterns).",
+      "description": "**UTILITY SKILL** — Artifact template structures, H2 compliance rules, and documentation styling for agent outputs (Steps 1-7). WHEN: \"generate artifact\", \"check H2 structure\", \"artifact template\", \"step 7 as-built\". USE FOR: generating any agent artifact, checking H2 structure compliance. DO NOT USE FOR: Azure resource configuration (use azure-defaults), Bicep/Terraform patterns (use azure-bicep-patterns or terraform-patterns).",
       "path": ".github/skills/azure-artifacts/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-artifacts/SKILL.md"
@@ -582,7 +582,7 @@
       "id": "skill:azure-bicep-patterns",
       "category": "skill",
       "label": "azure-bicep-patterns",
-      "description": "Reusable Azure Bicep patterns: hub-spoke, private endpoints, diagnostics, AVM composition. USE FOR: Bicep template design, hub-spoke networking, private endpoint patterns, AVM modules. DO NOT USE FOR: Terraform code, architecture decisions, troubleshooting, diagram generation.",
+      "description": "**UTILITY SKILL** — Reusable Azure Bicep patterns: hub-spoke, private endpoints, diagnostics, AVM composition. WHEN: \"hub-spoke Bicep\", \"private endpoint module\", \"diagnostic settings\", \"AVM Bicep composition\". USE FOR: Bicep template design, hub-spoke networking, private endpoint patterns, AVM modules. DO NOT USE FOR: Terraform code (use terraform-patterns), architecture decisions (use azure-adr), troubleshooting, diagram generation (use drawio).",
       "path": ".github/skills/azure-bicep-patterns/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-bicep-patterns/SKILL.md"
@@ -593,7 +593,7 @@
       "id": "skill:azure-cloud-migrate",
       "category": "skill",
       "label": "azure-cloud-migrate",
-      "description": "Assess and migrate cross-cloud workloads to Azure. Generates assessment reports and converts code from AWS, GCP, or other providers to Azure services. WHEN: migrate Lambda to Azure Functions, migrate AWS to Azure, Lambda migration assessment, convert AWS serverless to Azure, migration readiness report, migrate from AWS, migrate from GCP, cross-cloud migration.",
+      "description": "**WORKFLOW SKILL** — Assess and migrate cross-cloud workloads to Azure. Generates assessment reports and converts code from AWS, GCP, or other providers to Azure services. WHEN: \"migrate Lambda to Azure Functions\", \"migrate AWS to Azure\", \"convert AWS serverless to Azure\", \"migration readiness report\", \"cross-cloud migration\". USE FOR: cross-cloud assessment, AWS-to-Azure code conversion, GCP-to-Azure code conversion. DO NOT USE FOR: greenfield Azure deployment (use azure-prepare), Azure-only refactor (use azure-prepare).",
       "path": ".github/skills/azure-cloud-migrate/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-cloud-migrate/SKILL.md"
@@ -604,7 +604,7 @@
       "id": "skill:azure-compliance",
       "category": "skill",
       "label": "azure-compliance",
-      "description": "Comprehensive Azure compliance and security auditing capabilities including best practices assessment, Key Vault expiration monitoring, and resource configuration validation. WHEN: compliance scan, security audit, BEFORE running azqr (compliance cli tool), Azure best practices, Key Vault expiration check, compliance assessment, resource review, configuration validation, expired certificates, expiring secrets, orphaned resources, policy compliance, security posture evaluation.",
+      "description": "**ANALYSIS SKILL** — Azure compliance and security auditing: best practices, Key Vault expiration monitoring, resource validation. WHEN: \"compliance scan\", \"security audit\", \"Key Vault expiration check\", \"expired certificates\", \"orphaned resources\". USE FOR: pre-azqr compliance assessment, Key Vault audits, security posture evaluation. DO NOT USE FOR: cost analysis (use azure-cost-optimization), governance discovery (use azure-governance-discovery).",
       "path": ".github/skills/azure-compliance/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-compliance/SKILL.md"
@@ -615,7 +615,7 @@
       "id": "skill:azure-compute",
       "category": "skill",
       "label": "azure-compute",
-      "description": "Recommend Azure VM sizes, VM Scale Sets (VMSS), and configurations based on workload requirements, performance needs, and budget constraints. No Azure account required — uses public documentation and the Azure Retail Prices API. WHEN: recommend VM size, which VM should I use, choose Azure VM, VM for web/database/ML/batch/HPC, GPU VM, compare VM sizes, cheapest VM, best VM for workload, VM pricing, cost estimate, burstable/compute/memory/storage optimized VM, confidential computing, VM trade-offs, VM families, VMSS, scale set recommendation, autoscale VMs, load balanced VMs, VMSS vs VM, scale out, horizontal scaling, flexible orchestration.",
+      "description": "**ANALYSIS SKILL** — Recommend Azure VM sizes and Scale Sets (VMSS) for workload requirements, performance, and budget. Uses public docs and the Azure Retail Prices API. WHEN: \"recommend VM size\", \"choose Azure VM\", \"GPU VM\", \"compare VM sizes\", \"VMSS vs VM\", \"autoscale VMs\". USE FOR: VM family selection, VMSS sizing, confidential computing recommendations. DO NOT USE FOR: provisioning VMs (use azure-prepare), VM pricing for budgets (use azure-pricing MCP directly).",
       "path": ".github/skills/azure-compute/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-compute/SKILL.md"
@@ -626,7 +626,7 @@
       "id": "skill:azure-cost-optimization",
       "category": "skill",
       "label": "azure-cost-optimization",
-      "description": "Identify and quantify cost savings across Azure subscriptions by analyzing actual costs, utilization metrics, and generating actionable optimization recommendations. USE FOR: optimize Azure costs, reduce Azure spending, reduce Azure expenses, analyze Azure costs, find cost savings, generate cost optimization report, find orphaned resources, rightsize VMs, cost analysis, reduce waste, Azure spending analysis, find unused resources, optimize Redis costs. DO NOT USE FOR: deploying resources (use azure-deploy), general Azure diagnostics (use azure-diagnostics), security issues (use azure-security)",
+      "description": "**ANALYSIS SKILL** — Identify cost savings across Azure subscriptions via cost + utilization analysis. WHEN: \"optimize Azure costs\", \"reduce Azure spending\", \"find cost savings\", \"rightsize VMs\", \"find orphaned resources\", \"optimize Redis costs\". USE FOR: cost reduction reports, orphaned-resource discovery, rightsizing recommendations. DO NOT USE FOR: deploying resources (use azure-deploy), general diagnostics (use azure-diagnostics), security issues (use azure-compliance).",
       "path": ".github/skills/azure-cost-optimization/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-cost-optimization/SKILL.md"
@@ -637,7 +637,7 @@
       "id": "skill:azure-defaults",
       "category": "skill",
       "label": "azure-defaults",
-      "description": "Azure infrastructure defaults: regions, tags, naming (CAF), AVM-first policy, security baseline, unique suffix patterns. USE FOR: any agent generating or planning Azure resources. DO NOT USE FOR: artifact template structures (use azure-artifacts), pricing lookups (read references/pricing-guidance.md on demand).",
+      "description": "**UTILITY SKILL** — Azure infrastructure defaults: regions, tags, naming (CAF), AVM-first policy, security baseline, unique suffix patterns. WHEN: \"Azure naming convention\", \"CAF naming\", \"resource tags\", \"AVM module\", \"security baseline\", \"region default\". USE FOR: any agent generating or planning Azure resources. DO NOT USE FOR: artifact template structures (use azure-artifacts), pricing lookups (read references/pricing-guidance.md on demand).",
       "path": ".github/skills/azure-defaults/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-defaults/SKILL.md"
@@ -648,7 +648,7 @@
       "id": "skill:azure-deploy",
       "category": "skill",
       "label": "azure-deploy",
-      "description": "Execute Azure deployments for ALREADY-PREPARED applications that have existing infra/{iac}/{project}/.azure/plan.md and infrastructure files. DO NOT use this skill when the user asks to CREATE a new application — use azure-prepare instead. This skill runs azd up, azd deploy, terraform apply, and az deployment commands with built-in error recovery. Requires infra/{iac}/{project}/.azure/plan.md from azure-prepare and validated status from azure-validate. WHEN: \"run azd up\", \"run azd deploy\", \"execute deployment\", \"push to production\", \"push to cloud\", \"go live\", \"ship it\", \"bicep deploy\", \"terraform apply\", \"publish to Azure\", \"launch on Azure\". DO NOT USE WHEN: \"create and deploy\", \"build and deploy\", \"create a new app\", \"set up infrastructure\", \"create and deploy to Azure using Terraform\" — use azure-prepare for these.",
+      "description": "**WORKFLOW SKILL** — Execute Azure deployments for ALREADY-PREPARED apps. Runs azd up, azd deploy, terraform apply with built-in error recovery. Requires plan.md from azure-prepare and validated status from azure-validate. WHEN: \"run azd up\", \"run azd deploy\", \"push to production\", \"go live\", \"bicep deploy\", \"terraform apply\", \"publish to Azure\". USE FOR: deploying validated infra; lifting existing IaC to cloud. DO NOT USE FOR: creating new apps (use azure-prepare), generating IaC (use azure-prepare), pre-deployment checks (use azure-validate).",
       "path": ".github/skills/azure-deploy/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-deploy/SKILL.md"
@@ -659,7 +659,7 @@
       "id": "skill:azure-diagnostics",
       "category": "skill",
       "label": "azure-diagnostics",
-      "description": "Debug and troubleshoot production issues on Azure. Covers Container Apps and Function Apps diagnostics, log analysis with KQL, health checks, and common issue resolution for image pulls, cold starts, health probes, and function invocation failures. WHEN: debug production issues, troubleshoot container apps, troubleshoot function apps, troubleshoot Azure Functions, analyze logs with KQL, fix image pull failures, resolve cold start issues, investigate health probe failures, check resource health, view application logs, find root cause of errors, function app not working, function invocation failures.",
+      "description": "**WORKFLOW SKILL** — Debug and troubleshoot Azure production issues: Container Apps + Function Apps diagnostics, KQL log analysis, health checks. WHEN: \"debug production issues\", \"troubleshoot container apps\", \"troubleshoot function apps\", \"image pull failures\", \"cold start issues\", \"health probe failures\". USE FOR: post-deployment troubleshooting, root-cause analysis, log triage. DO NOT USE FOR: pre-deployment validation (use azure-validate), cost analysis (use azure-cost-optimization).",
       "path": ".github/skills/azure-diagnostics/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-diagnostics/SKILL.md"
@@ -670,7 +670,7 @@
       "id": "skill:azure-governance-discovery",
       "category": "skill",
       "label": "azure-governance-discovery",
-      "description": "Deterministic Azure Policy discovery: lists effective policy assignments at subscription scope (including MG-inherited), pulls definitions and exemptions, classifies effects, filters Defender auto-assignments, and emits the governance-constraints JSON envelope via a Python script. USE FOR: 04g-Governance Phase 1 discovery, refreshing `04-governance-constraints.json`. DO NOT USE FOR: artifact writing, architecture mapping, traffic-light rendering, challenger orchestration — those stay in the parent agent.",
+      "description": "**ANALYSIS SKILL** — Deterministic Azure Policy discovery: lists effective assignments (incl. MG-inherited), pulls definitions/exemptions, classifies effects, filters Defender auto-assignments, emits governance-constraints JSON via Python. WHEN: \"Azure policy discovery\", \"effective policy assignments\", \"governance constraints\", \"04g-Governance Phase 1\", \"refresh governance JSON\". USE FOR: 04g Phase 1 discovery, refreshing `04-governance-constraints.json`. DO NOT USE FOR: artifact writing, architecture mapping, traffic-light rendering, challenger orchestration.",
       "path": ".github/skills/azure-governance-discovery/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-governance-discovery/SKILL.md"
@@ -681,7 +681,7 @@
       "id": "skill:azure-kusto",
       "category": "skill",
       "label": "azure-kusto",
-      "description": "Query and analyze data in Azure Data Explorer (Kusto/ADX) using KQL for log analytics, telemetry, and time series analysis. WHEN: KQL queries, Kusto database queries, Azure Data Explorer, ADX clusters, log analytics, time series data, IoT telemetry, anomaly detection.",
+      "description": "**ANALYSIS SKILL** — Query and analyze data in Azure Data Explorer (Kusto/ADX) using KQL. WHEN: \"KQL queries\", \"Kusto database queries\", \"Azure Data Explorer\", \"ADX clusters\", \"time series data\", \"IoT telemetry\", \"anomaly detection\". USE FOR: KQL authoring, ADX cluster queries, telemetry analysis. DO NOT USE FOR: Application Insights/Log Analytics troubleshooting (use azure-diagnostics), cost analysis (use azure-cost-optimization). INVOKES: azure-kusto MCP (queries, sample, list-clusters).",
       "path": ".github/skills/azure-kusto/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-kusto/SKILL.md"
@@ -692,7 +692,7 @@
       "id": "skill:azure-prepare",
       "category": "skill",
       "label": "azure-prepare",
-      "description": "Prepare Azure apps for deployment (infra Bicep/Terraform, azure.yaml, Dockerfiles). Use for create/modernize or create+deploy; not cross-cloud migration (use azure-cloud-migrate). WHEN: \\\"create app\\\", \\\"build web app\\\", \\\"create API\\\", \\\"create serverless HTTP API\\\", \\\"create frontend\\\", \\\"create back end\\\", \\\"build a service\\\", \\\"modernize application\\\", \\\"update application\\\", \\\"add authentication\\\", \\\"add caching\\\", \\\"host on Azure\\\", \\\"create and deploy\\\", \\\"deploy to Azure\\\", \\\"deploy to Azure using Terraform\\\", \\\"deploy to Azure App Service\\\", \\\"deploy to Azure App Service using Terraform\\\", \\\"deploy to Azure Container Apps\\\", \\\"deploy to Azure Container Apps using Terraform\\\", \\\"generate Terraform\\\", \\\"generate Bicep\\\", \\\"function app\\\", \\\"timer trigger\\\", \\\"service bus trigger\\\", \\\"event-driven function\\\", \\\"containerized Node.js app\\\", \\\"social media app\\\", \\\"static portfolio website\\\", \\\"todo list with frontend and API\\\", \\\"prepare my Azure application to use Key Vault\\\", \\\"managed identity\\\".",
+      "description": "**WORKFLOW SKILL** — Prepare Azure apps for deployment (infra Bicep/Terraform, azure.yaml, Dockerfiles). Covers create, modernize, and create+deploy. WHEN: \"create app\", \"build web app\", \"create API\", \"deploy to Azure\", \"deploy to Azure using Terraform\", \"generate Bicep\", \"generate Terraform\", \"function app\", \"add authentication\", \"managed identity\", \"add caching\", \"containerized Node.js app\". USE FOR: scaffolding new Azure apps, modernizing existing apps, generating IaC + azure.yaml. DO NOT USE FOR: cross-cloud migration (use azure-cloud-migrate), executing deployments of already-prepared apps (use azure-deploy), pre-deployment validation (use azure-validate).",
       "path": ".github/skills/azure-prepare/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-prepare/SKILL.md"
@@ -703,7 +703,7 @@
       "id": "skill:azure-quotas",
       "category": "skill",
       "label": "azure-quotas",
-      "description": "Check/manage Azure quotas and usage across providers. For deployment planning, capacity validation, region selection. WHEN: \"check quotas\", \"service limits\", \"current usage\", \"request quota increase\", \"quota exceeded\", \"validate capacity\", \"regional availability\", \"provisioning limits\", \"vCPU limit\", \"how many vCPUs available in my subscription\".",
+      "description": "**UTILITY SKILL** — Check and manage Azure quotas and usage across providers for deployment planning, capacity validation, and region selection. WHEN: \"check quotas\", \"service limits\", \"request quota increase\", \"quota exceeded\", \"validate capacity\", \"regional availability\", \"vCPU limit\". USE FOR: pre-deployment capacity checks, region selection, quota increase requests. DO NOT USE FOR: deployment execution (use azure-deploy), cost analysis (use azure-cost-optimization). INVOKES: azure-quota MCP (check, region-availability).",
       "path": ".github/skills/azure-quotas/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-quotas/SKILL.md"
@@ -714,7 +714,7 @@
       "id": "skill:azure-rbac",
       "category": "skill",
       "label": "azure-rbac",
-      "description": "Helps users find the right Azure RBAC role for an identity with least privilege access, then generate CLI commands and Bicep code to assign it. Also provides guidance on permissions required to grant roles. WHEN: what role should I assign, least privilege role, RBAC role for, role to read blobs, role for managed identity, custom role definition, assign role to identity, what role do I need to grant access, permissions to assign roles.",
+      "description": "**ANALYSIS SKILL** — Find the right Azure RBAC role for an identity with least-privilege access; generate CLI + Bicep code to assign it. WHEN: \"what role should I assign\", \"least privilege role\", \"RBAC role for\", \"role for managed identity\", \"custom role definition\", \"assign role to identity\". USE FOR: role discovery, RBAC scaffolding, least-privilege analysis. DO NOT USE FOR: deploying resources (use azure-deploy), security audits (use azure-compliance).",
       "path": ".github/skills/azure-rbac/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-rbac/SKILL.md"
@@ -725,7 +725,7 @@
       "id": "skill:azure-resources",
       "category": "skill",
       "label": "azure-resources",
-      "description": "List, find, and visualize existing Azure resources. Two modes: LOOKUP for query/inventory work (list VMs, find orphaned resources, tag audits, cross-subscription queries via Azure Resource Graph) and VISUALIZE for generating Mermaid architecture diagrams of a resource group. USE FOR: list resources, list virtual machines, list VMs, list storage accounts, list websites, list web apps, list container apps, show resources, find resources, what resources do I have, list resources in resource group, list resources in subscription, find resources by tag, find orphaned resources, resource inventory, count resources by type, cross-subscription resource query, Azure Resource Graph, resource discovery, list container registries, list SQL servers, list Key Vaults, show resource groups, list app services, find resources across subscriptions, find unattached disks, tag analysis, create architecture diagram, visualize Azure resources, show resource relationships, generate Mermaid diagram, analyze resource group, diagram my resources, architecture visualization, resource topology, map Azure infrastructure. DO NOT USE FOR: deploying or modifying resources (use azure-deploy), cost optimization (use azure-cost-optimization), security scanning (use azure-compliance), performance troubleshooting (use azure-diagnostics), code generation (use relevant service skill).",
+      "description": "**ANALYSIS SKILL** — List, find, and visualize existing Azure resources via Azure Resource Graph (LOOKUP) or Mermaid diagrams (VISUALIZE). WHEN: \"list resources\", \"list VMs\", \"find orphaned resources\", \"resource inventory\", \"cross-subscription query\", \"visualize Azure resources\", \"diagram my resources\". USE FOR: resource lookup, tag analysis, architecture visualization. DO NOT USE FOR: deploying resources (use azure-deploy), cost optimization (use azure-cost-optimization), security scanning (use azure-compliance), troubleshooting (use azure-diagnostics).",
       "path": ".github/skills/azure-resources/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-resources/SKILL.md"
@@ -736,7 +736,7 @@
       "id": "skill:azure-storage",
       "category": "skill",
       "label": "azure-storage",
-      "description": "Azure Storage Services including Blob Storage, File Shares, Queue Storage, Table Storage, and Data Lake. Provides object storage, SMB file shares, async messaging, NoSQL key-value, and big data analytics capabilities. Includes access tiers (hot, cool, archive) and lifecycle management. USE FOR: blob storage, file shares, queue storage, table storage, data lake, upload files, download blobs, storage accounts, access tiers, lifecycle management. DO NOT USE FOR: SQL databases, Cosmos DB (use azure-prepare), messaging with Event Hubs or Service Bus (use azure-messaging).",
+      "description": "**UTILITY SKILL** — Azure Storage Services including Blob Storage, File Shares, Queue Storage, Table Storage, and Data Lake. Provides object storage, SMB file shares, async messaging, NoSQL key-value, and big data analytics capabilities. Includes access tiers (hot, cool, archive) and lifecycle management. WHEN: \"blob storage\", \"file shares\", \"queue storage\", \"table storage\", \"data lake\", \"access tiers\", \"lifecycle management\". USE FOR: blob storage, file shares, queue storage, table storage, data lake, upload files, download blobs, storage accounts, access tiers, lifecycle management. DO NOT USE FOR: SQL databases, Cosmos DB (use azure-prepare), messaging with Event Hubs or Service Bus.",
       "path": ".github/skills/azure-storage/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-storage/SKILL.md"
@@ -747,7 +747,7 @@
       "id": "skill:azure-validate",
       "category": "skill",
       "label": "azure-validate",
-      "description": "Pre-deployment validation for Azure readiness. Run deep checks on configuration, infrastructure (Bicep or Terraform), permissions, and prerequisites before deploying. WHEN: validate my app, check deployment readiness, run preflight checks, verify configuration, check if ready to deploy, validate azure.yaml, validate Bicep, test before deploying, troubleshoot deployment errors, validate Azure Functions, validate function app, validate serverless deployment.",
+      "description": "**WORKFLOW SKILL** — Pre-deployment validation for Azure readiness. Run deep checks on configuration, infrastructure (Bicep or Terraform), permissions, and prerequisites before deploying. WHEN: \"validate my app\", \"check deployment readiness\", \"run preflight checks\", \"validate azure.yaml\", \"validate Bicep\", \"test before deploying\", \"validate Azure Functions\". USE FOR: pre-deployment readiness checks, Bicep + Terraform preflight, Azure Functions validation. DO NOT USE FOR: post-deployment troubleshooting (use azure-diagnostics), executing deployments (use azure-deploy).",
       "path": ".github/skills/azure-validate/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-validate/SKILL.md"
@@ -758,7 +758,7 @@
       "id": "skill:context-management",
       "category": "skill",
       "label": "context-management",
-      "description": "Two-mode context window management for agents. RUNTIME mode: tier-based compression (full/summarized/minimal) used by orchestrator and codegen agents before loading large artifacts. AUDIT mode: post-mortem analysis of Copilot debug logs, token profiling, redundancy detection, and hand-off gap analysis used by the 11-Context Optimizer agent. USE FOR: context optimization, token budget management, runtime compression, log parsing, redundancy detection. DO NOT USE FOR: Azure infrastructure, Bicep/Terraform code, architecture design, deployments.",
+      "description": "**UTILITY SKILL** — Two-mode context window management for agents. RUNTIME mode: tier-based compression (full/summarized/minimal) used by orchestrator and codegen agents before loading large artifacts. AUDIT mode: post-mortem analysis of Copilot debug logs, token profiling, redundancy detection, and hand-off gap analysis used by the 11-Context Optimizer agent. WHEN: \"context optimization\", \"token budget management\", \"runtime compression\", \"log parsing\", \"redundancy detection\". USE FOR: context optimization, token budget management, runtime compression, log parsing, redundancy detection. DO NOT USE FOR: Azure infrastructure, Bicep/Terraform code, architecture design, deployments.",
       "path": ".github/skills/context-management/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/context-management/SKILL.md"
@@ -769,7 +769,7 @@
       "id": "skill:docs-writer",
       "category": "skill",
       "label": "docs-writer",
-      "description": "Maintains repository documentation accuracy and freshness; use for doc updates, agent or skill changes, staleness checks, changelog entries, and repo explanation requests.",
+      "description": "**WORKFLOW SKILL** — Maintains repository documentation accuracy and freshness across the docs site, agent files, and changelog. WHEN: \"update docs\", \"doc gardening\", \"staleness check\", \"changelog entry\", \"repo explanation\", \"agent change docs\", \"skill change docs\". USE FOR: post-merge doc updates, agent/skill freshness audits, changelog drafting, README/CONTRIBUTING gardening. DO NOT USE FOR: agent definitions themselves (edit `.agent.md` directly), authoring skill SKILL.md content (out of scope), site theme/build (out of scope).",
       "path": ".github/skills/docs-writer/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/docs-writer/SKILL.md"
@@ -780,7 +780,7 @@
       "id": "skill:drawio",
       "category": "skill",
       "label": "drawio",
-      "description": "Use this skill to generate Azure architecture diagrams in .drawio format via the simonkurtz-MSFT MCP server (700+ Azure icons, batch creation, transactional mode). Covers architecture diagrams, dependency diagrams, runtime flow diagrams, and as-built diagrams. Do NOT use for WAF/cost charts (use python-diagrams), inline Mermaid (use mermaid), or Excalidraw diagrams (use excalidraw).",
+      "description": "**WORKFLOW SKILL** — Generate Azure architecture diagrams in .drawio format via the simonkurtz-MSFT MCP server (700+ Azure icons, batch creation, transactional mode). Covers architecture, dependency, runtime flow, and as-built diagrams. WHEN: \"draw.io diagram\", \"Azure architecture diagram\", \"as-built diagram\", \"runtime flow diagram\", \"dependency diagram\". USE FOR: production Azure architecture visuals, multi-resource layouts, design-stage and as-built artifacts. DO NOT USE FOR: WAF/cost charts (use python-diagrams), inline Mermaid (use mermaid). INVOKES: drawio MCP (search-shapes, add-cells, finish-diagram).",
       "path": ".github/skills/drawio/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/drawio/SKILL.md"
@@ -791,7 +791,7 @@
       "id": "skill:entra-app-registration",
       "category": "skill",
       "label": "entra-app-registration",
-      "description": "Guides Microsoft Entra ID app registration, OAuth 2.0 authentication, and MSAL integration. USE FOR: create app registration, register Azure AD app, configure OAuth, set up authentication, add API permissions, generate service principal, MSAL example, console app auth, Entra ID setup, Azure AD authentication. DO NOT USE FOR: Azure RBAC or role assignments (use azure-rbac), Key Vault secrets (use azure-keyvault-expiration-audit), Azure resource security (use azure-security).",
+      "description": "**WORKFLOW SKILL** — Guides Microsoft Entra ID app registration, OAuth 2.0 authentication, and MSAL integration. WHEN: \"create app registration\", \"register Azure AD app\", \"configure OAuth\", \"add API permissions\", \"generate service principal\", \"MSAL example\", \"Entra ID setup\". USE FOR: app registration creation, OAuth + MSAL scaffolding, service principal generation. DO NOT USE FOR: Azure RBAC or role assignments (use azure-rbac), Key Vault secrets / certificate audits (use azure-compliance), Azure resource security scanning (use azure-compliance).",
       "path": ".github/skills/entra-app-registration/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/entra-app-registration/SKILL.md"
@@ -802,7 +802,7 @@
       "id": "skill:github-operations",
       "category": "skill",
       "label": "github-operations",
-      "description": "Full contribution lifecycle: branch naming, conventional commits, GitHub issues, PRs, Actions, and releases. gh CLI-first with MCP fallback. USE FOR: commit, push, PR, branch, issue, release, GitHub operations. DO NOT USE FOR: Azure infrastructure, Bicep/Terraform code, architecture decisions.",
+      "description": "**WORKFLOW SKILL** — Full GitHub contribution lifecycle: branch naming, conventional commits, issues, PRs, Actions, and releases. gh CLI-first with MCP fallback. WHEN: \"commit\", \"push\", \"open PR\", \"create branch\", \"create issue\", \"cut release\", \"GitHub operation\". USE FOR: commit/push, PR creation, branch lifecycle, issues, releases, Actions config. DO NOT USE FOR: Azure infrastructure, Bicep/Terraform code, architecture decisions.",
       "path": ".github/skills/github-operations/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/github-operations/SKILL.md"
@@ -813,7 +813,7 @@
       "id": "skill:golden-principles",
       "category": "skill",
       "label": "golden-principles",
-      "description": "The 10 agent-first operating principles governing how agents work in this repository. USE FOR: agent behavior rules, operating philosophy, principle lookup, governance invariants. DO NOT USE FOR: Azure infrastructure, code generation, troubleshooting, diagram creation.",
+      "description": "**ANALYSIS SKILL** — The agent-first operating principles governing how agents work in this repository. WHEN: \"golden principles\", \"agent behavior rules\", \"operating philosophy\", \"principle lookup\", \"governance invariants\". USE FOR: agent behavior rules, operating philosophy, principle lookup, governance invariants. DO NOT USE FOR: Azure infrastructure, code generation, troubleshooting, diagram creation.",
       "path": ".github/skills/golden-principles/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/golden-principles/SKILL.md"
@@ -824,7 +824,7 @@
       "id": "skill:iac-common",
       "category": "skill",
       "label": "iac-common",
-      "description": "Shared IaC deploy patterns for Bicep and Terraform deploy agents: deployment strategies, circuit breaker, known deploy issues. For preflight validation (auth, governance, stop rules), see azure-validate. USE FOR: Phased deployment, circuit breaker, deploy-specific known issues. DO NOT USE FOR: Preflight validation (use azure-validate), code generation (use azure-bicep-patterns or terraform-patterns).",
+      "description": "**UTILITY SKILL** — Shared IaC deploy patterns for Bicep + Terraform deploy agents: deployment strategies, circuit breaker, known deploy issues. WHEN: \"phased deployment\", \"circuit breaker\", \"deploy strategy\", \"deploy issue\", \"shared IaC pattern\". USE FOR: phased deployment, circuit breaker patterns, deploy-specific known issues. DO NOT USE FOR: preflight validation (use azure-validate), code generation (use azure-bicep-patterns or terraform-patterns).",
       "path": ".github/skills/iac-common/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/iac-common/SKILL.md"
@@ -835,7 +835,7 @@
       "id": "skill:mermaid",
       "category": "skill",
       "label": "mermaid",
-      "description": "Mermaid diagram generation for inline markdown documentation: flowcharts, sequence diagrams, Gantt charts, class diagrams, state diagrams, ER diagrams, and architecture visualizations. USE FOR: inline markdown diagrams, flowcharts, sequence diagrams, Gantt charts, state diagrams, ER diagrams, Azure resource visualization. DO NOT USE FOR: architecture diagrams with Azure icons (use drawio), WAF/cost charts (use python-diagrams), Draw.io diagrams (use drawio).",
+      "description": "**UTILITY SKILL** — Mermaid diagram generation for inline markdown documentation: flowcharts, sequence diagrams, Gantt, class, state, ER. WHEN: \"mermaid flowchart\", \"sequence diagram\", \"Gantt chart\", \"state diagram\", \"ER diagram\", \"inline markdown diagram\". USE FOR: inline markdown diagrams, flowcharts, sequence diagrams, Gantt charts, state diagrams, ER diagrams. DO NOT USE FOR: architecture diagrams with Azure icons (use drawio), WAF/cost charts (use python-diagrams).",
       "path": ".github/skills/mermaid/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/mermaid/SKILL.md"
@@ -846,7 +846,7 @@
       "id": "skill:microsoft-docs",
       "category": "skill",
       "label": "microsoft-docs",
-      "description": "Query official Microsoft documentation to understand concepts, find tutorials, and learn how services work. USE FOR: Azure service overviews, quickstarts, configuration guides, limits and quotas, best practices, architecture patterns, WAF pillar references. DO NOT USE FOR: code sample lookups (use microsoft-code-reference), skill creation (use microsoft-skill-creator), Azure pricing (use azure-pricing MCP).",
+      "description": "**ANALYSIS SKILL** — Query official Microsoft documentation to understand concepts, find tutorials, and learn how services work. WHEN: \"Microsoft Learn\", \"Azure docs\", \"quickstart guide\", \"limits and quotas\", \"WAF reference\", \"architecture pattern docs\". USE FOR: Azure service overviews, quickstarts, configuration guides, limits and quotas, best practices, architecture patterns, WAF pillar references. DO NOT USE FOR: Azure pricing (use azure-pricing MCP). INVOKES: microsoft-learn MCP (microsoft_docs_search, microsoft_code_sample_search, microsoft_docs_fetch).",
       "path": ".github/skills/microsoft-docs/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/microsoft-docs/SKILL.md"
@@ -857,7 +857,7 @@
       "id": "skill:python-diagrams",
       "category": "skill",
       "label": "python-diagrams",
-      "description": "Python diagram generation: WAF/cost/compliance charts (matplotlib), architecture diagrams (diagrams library), ERDs, swimlanes, timelines, wireframes (graphviz). USE FOR: WAF bar charts, cost donut/projection charts, compliance gap charts, Python architecture diagrams, ERD diagrams, business process flows, timeline/Gantt charts, UI wireframes. DO NOT USE FOR: Draw.io architecture diagrams (use drawio), inline Mermaid (use mermaid).",
+      "description": "**UTILITY SKILL** — Python diagram generation: WAF/cost/compliance charts (matplotlib), architecture diagrams (diagrams library), ERDs, swimlanes, timelines, wireframes (graphviz). WHEN: \"WAF bar chart\", \"cost donut chart\", \"compliance gap chart\", \"Python architecture diagram\", \"ERD diagram\", \"swimlane\", \"UI wireframe\". USE FOR: WAF bar charts, cost donut/projection charts, compliance gap charts, Python architecture diagrams, ERD diagrams, business process flows, timeline/Gantt charts, UI wireframes. DO NOT USE FOR: Draw.io architecture diagrams (use drawio), inline Mermaid (use mermaid).",
       "path": ".github/skills/python-diagrams/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/python-diagrams/SKILL.md"
@@ -868,7 +868,7 @@
       "id": "skill:terraform-patterns",
       "category": "skill",
       "label": "terraform-patterns",
-      "description": "Reusable Azure Terraform patterns: hub-spoke, private endpoints, diagnostics, AVM-TF modules. USE FOR: Terraform template design, hub-spoke networking, AVM modules, plan interpretation. DO NOT USE FOR: Bicep code, architecture decisions, troubleshooting, diagram generation.",
+      "description": "**UTILITY SKILL** — Reusable Azure Terraform patterns: hub-spoke, private endpoints, diagnostics, AVM-TF modules. WHEN: \"hub-spoke Terraform\", \"private endpoint module\", \"AVM-TF composition\", \"diagnostic settings\", \"plan interpretation\". USE FOR: Terraform template design, hub-spoke networking, AVM modules, plan interpretation. DO NOT USE FOR: Bicep code (use azure-bicep-patterns), architecture decisions (use azure-adr), troubleshooting, diagram generation (use drawio).",
       "path": ".github/skills/terraform-patterns/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/terraform-patterns/SKILL.md"
@@ -879,7 +879,7 @@
       "id": "skill:terraform-search-import",
       "category": "skill",
       "label": "terraform-search-import",
-      "description": "Discover existing Azure resources and bulk import them into Terraform management. USE FOR: import Azure resources, bring unmanaged infra under Terraform, audit Azure resources, migrate to IaC, terraform import, bulk import. WHEN: import existing resources, discover Azure infrastructure, adopt Terraform for existing resources, generate import blocks. DO NOT USE FOR: Bicep code, new resource creation, architecture decisions.",
+      "description": "**WORKFLOW SKILL** — Discover existing Azure resources and bulk import them into Terraform management. WHEN: \"terraform import\", \"import Azure resources\", \"bring unmanaged infra under Terraform\", \"adopt Terraform for existing resources\", \"generate import blocks\". USE FOR: importing Azure resources, audit, migration to IaC, bulk import. DO NOT USE FOR: Bicep code (use azure-bicep-patterns), new resource creation (use terraform-patterns), architecture decisions (use azure-adr).",
       "path": ".github/skills/terraform-search-import/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/terraform-search-import/SKILL.md"
@@ -890,7 +890,7 @@
       "id": "skill:terraform-test",
       "category": "skill",
       "label": "terraform-test",
-      "description": "Write and run Terraform tests (.tftest.hcl). USE FOR: test files, run blocks, assertions, mock providers, plan-mode unit tests, apply-mode integration tests, test troubleshooting. WHEN: create test, write test, terraform test, .tftest.hcl, mock provider, test module, validate infrastructure, test assertion. DO NOT USE FOR: Bicep code, architecture decisions, deployment.",
+      "description": "**WORKFLOW SKILL** — Write and run Terraform tests (.tftest.hcl). WHEN: \"create terraform test\", \"write tftest\", \".tftest.hcl\", \"mock provider\", \"test module\", \"test assertion\". USE FOR: test files, run blocks, assertions, mock providers, plan-mode unit tests, apply-mode integration tests, test troubleshooting. DO NOT USE FOR: Bicep code, architecture decisions, deployment (use azure-deploy).",
       "path": ".github/skills/terraform-test/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/terraform-test/SKILL.md"
@@ -901,7 +901,7 @@
       "id": "skill:vendor-prompting",
       "category": "skill",
       "label": "vendor-prompting",
-      "description": "Audit-grade reference for Anthropic Claude and OpenAI GPT-5.5 prompting best practices. Use when authoring or auditing custom agents and prompts to verify vendor-specific patterns (Claude XML structuring, GPT-5.5 outcome-first skeleton), to review .agent.md or .prompt.md files for compliance, or to understand why npm run lint:vendor-prompting flagged a finding. Triggers: claude prompting, gpt-5.5 prompting, agent authoring, audit agent, review prompt, vendor best practices, prompting guide, anthropic best practices, openai prompting. DO NOT USE FOR: deciding which customization mechanism to create (use copilot-customization), routine edits where the rules are already known, or generic markdown style (use markdown.instructions.md).",
+      "description": "**ANALYSIS SKILL** — Audit-grade reference for Anthropic Claude and OpenAI GPT-5.5 prompting best practices. WHEN: \"claude prompting\", \"gpt-5.5 prompting\", \"audit agent\", \"review prompt\", \"vendor best practices\", \"anthropic best practices\", \"openai prompting\". USE FOR: authoring or auditing .agent.md / .prompt.md files; verifying vendor-specific patterns (Claude XML, GPT-5.5 outcome-first); investigating lint:vendor-prompting findings. DO NOT USE FOR: routine prompt edits where rules are already known, generic markdown style (see markdown.instructions.md).",
       "path": ".github/skills/vendor-prompting/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/vendor-prompting/SKILL.md"
@@ -912,7 +912,7 @@
       "id": "skill:workflow-engine",
       "category": "skill",
       "label": "workflow-engine",
-      "description": "Machine-readable workflow DAG for the multi-step agent pipeline. Defines node types, edge conditions, gates, and fan-out patterns. USE FOR: Orchestrator step routing, resume-from-graph, workflow validation. DO NOT USE FOR: Azure infrastructure, code generation, troubleshooting.",
+      "description": "**UTILITY SKILL** — Machine-readable workflow DAG for the multi-step agent pipeline. Defines node types, edge conditions, gates, and fan-out patterns. WHEN: \"orchestrator step routing\", \"resume from graph\", \"workflow validation\", \"workflow DAG\", \"workflow gate\", \"fan-out pattern\". USE FOR: orchestrator step routing, resume-from-graph, workflow validation. DO NOT USE FOR: Azure infrastructure, code generation, troubleshooting.",
       "path": ".github/skills/workflow-engine/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/workflow-engine/SKILL.md"
@@ -1467,6 +1467,17 @@
       "path": ".github/prompts/git-commit-push.prompt.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/prompts/git-commit-push.prompt.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "prompt:merge-sensei-free-pr",
+      "category": "prompt",
+      "label": "merge-sensei-free-pr",
+      "description": "Open a sensei-free PR from feat/skills-sensei (or any sensei-bearing branch) into main. Dynamically discovers sensei-coupled files, classifies them into tiers, asks for approval, then creates a clean chore/merge-{source}-to-{target} branch and PR.",
+      "path": ".github/prompts/merge-sensei-free-pr.prompt.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/prompts/merge-sensei-free-pr.prompt.md"
       },
       "meta": {}
     },
@@ -3178,6 +3189,12 @@
       "id": "instruction:agent-authoring--applies-to->prompt:git-commit-push",
       "source": "instruction:agent-authoring",
       "target": "prompt:git-commit-push",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->prompt:merge-sensei-free-pr",
+      "source": "instruction:agent-authoring",
+      "target": "prompt:merge-sensei-free-pr",
       "kind": "applies-to"
     },
     {
@@ -5005,6 +5022,12 @@
       "kind": "applies-to"
     },
     {
+      "id": "instruction:no-interactive-shell--applies-to->prompt:merge-sensei-free-pr",
+      "source": "instruction:no-interactive-shell",
+      "target": "prompt:merge-sensei-free-pr",
+      "kind": "applies-to"
+    },
+    {
       "id": "instruction:no-interactive-shell--applies-to->prompt:plan-azurepricingmcpv5",
       "source": "instruction:no-interactive-shell",
       "target": "prompt:plan-azurepricingmcpv5",
@@ -5146,6 +5169,12 @@
       "id": "instruction:prompt--applies-to->prompt:git-commit-push",
       "source": "instruction:prompt",
       "target": "prompt:git-commit-push",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:prompt--applies-to->prompt:merge-sensei-free-pr",
+      "source": "instruction:prompt",
+      "target": "prompt:merge-sensei-free-pr",
       "kind": "applies-to"
     },
     {
@@ -5416,6 +5445,12 @@
       "id": "instruction:vendor-prompting--applies-to->prompt:git-commit-push",
       "source": "instruction:vendor-prompting",
       "target": "prompt:git-commit-push",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->prompt:merge-sensei-free-pr",
+      "source": "instruction:vendor-prompting",
+      "target": "prompt:merge-sensei-free-pr",
       "kind": "applies-to"
     },
     {
@@ -6031,6 +6066,12 @@
       "kind": "refs"
     },
     {
+      "id": "skill:azure-artifacts--refs->skill:azure-bicep-patterns",
+      "source": "skill:azure-artifacts",
+      "target": "skill:azure-bicep-patterns",
+      "kind": "refs"
+    },
+    {
       "id": "skill:azure-artifacts--refs->skill:azure-defaults",
       "source": "skill:azure-artifacts",
       "target": "skill:azure-defaults",
@@ -6043,15 +6084,57 @@
       "kind": "refs"
     },
     {
+      "id": "skill:azure-bicep-patterns--refs->skill:azure-adr",
+      "source": "skill:azure-bicep-patterns",
+      "target": "skill:azure-adr",
+      "kind": "refs"
+    },
+    {
       "id": "skill:azure-bicep-patterns--refs->skill:azure-defaults",
       "source": "skill:azure-bicep-patterns",
       "target": "skill:azure-defaults",
       "kind": "refs"
     },
     {
+      "id": "skill:azure-bicep-patterns--refs->skill:drawio",
+      "source": "skill:azure-bicep-patterns",
+      "target": "skill:drawio",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:azure-bicep-patterns--refs->skill:terraform-patterns",
+      "source": "skill:azure-bicep-patterns",
+      "target": "skill:terraform-patterns",
+      "kind": "refs"
+    },
+    {
       "id": "skill:azure-cloud-migrate--refs->skill:azure-prepare",
       "source": "skill:azure-cloud-migrate",
       "target": "skill:azure-prepare",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:azure-compliance--refs->skill:azure-cost-optimization",
+      "source": "skill:azure-compliance",
+      "target": "skill:azure-cost-optimization",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:azure-compliance--refs->skill:azure-governance-discovery",
+      "source": "skill:azure-compliance",
+      "target": "skill:azure-governance-discovery",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:azure-compute--refs->skill:azure-prepare",
+      "source": "skill:azure-compute",
+      "target": "skill:azure-prepare",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:azure-cost-optimization--refs->skill:azure-compliance",
+      "source": "skill:azure-cost-optimization",
+      "target": "skill:azure-compliance",
       "kind": "refs"
     },
     {
@@ -6091,9 +6174,33 @@
       "kind": "refs"
     },
     {
+      "id": "skill:azure-diagnostics--refs->skill:azure-cost-optimization",
+      "source": "skill:azure-diagnostics",
+      "target": "skill:azure-cost-optimization",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:azure-diagnostics--refs->skill:azure-validate",
+      "source": "skill:azure-diagnostics",
+      "target": "skill:azure-validate",
+      "kind": "refs"
+    },
+    {
       "id": "skill:azure-governance-discovery--refs->skill:azure-artifacts",
       "source": "skill:azure-governance-discovery",
       "target": "skill:azure-artifacts",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:azure-kusto--refs->skill:azure-cost-optimization",
+      "source": "skill:azure-kusto",
+      "target": "skill:azure-cost-optimization",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:azure-kusto--refs->skill:azure-diagnostics",
+      "source": "skill:azure-kusto",
+      "target": "skill:azure-diagnostics",
       "kind": "refs"
     },
     {
@@ -6112,6 +6219,30 @@
       "id": "skill:azure-prepare--refs->skill:azure-validate",
       "source": "skill:azure-prepare",
       "target": "skill:azure-validate",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:azure-quotas--refs->skill:azure-cost-optimization",
+      "source": "skill:azure-quotas",
+      "target": "skill:azure-cost-optimization",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:azure-quotas--refs->skill:azure-deploy",
+      "source": "skill:azure-quotas",
+      "target": "skill:azure-deploy",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:azure-rbac--refs->skill:azure-compliance",
+      "source": "skill:azure-rbac",
+      "target": "skill:azure-compliance",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:azure-rbac--refs->skill:azure-deploy",
+      "source": "skill:azure-rbac",
+      "target": "skill:azure-deploy",
       "kind": "refs"
     },
     {
@@ -6139,12 +6270,6 @@
       "kind": "refs"
     },
     {
-      "id": "skill:azure-resources--refs->skill:mermaid",
-      "source": "skill:azure-resources",
-      "target": "skill:mermaid",
-      "kind": "refs"
-    },
-    {
       "id": "skill:azure-storage--refs->skill:azure-prepare",
       "source": "skill:azure-storage",
       "target": "skill:azure-prepare",
@@ -6154,6 +6279,12 @@
       "id": "skill:azure-validate--refs->skill:azure-deploy",
       "source": "skill:azure-validate",
       "target": "skill:azure-deploy",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:azure-validate--refs->skill:azure-diagnostics",
+      "source": "skill:azure-validate",
+      "target": "skill:azure-diagnostics",
       "kind": "refs"
     },
     {
@@ -6181,21 +6312,15 @@
       "kind": "refs"
     },
     {
+      "id": "skill:entra-app-registration--refs->skill:azure-compliance",
+      "source": "skill:entra-app-registration",
+      "target": "skill:azure-compliance",
+      "kind": "refs"
+    },
+    {
       "id": "skill:entra-app-registration--refs->skill:azure-rbac",
       "source": "skill:entra-app-registration",
       "target": "skill:azure-rbac",
-      "kind": "refs"
-    },
-    {
-      "id": "skill:golden-principles--refs->skill:azure-artifacts",
-      "source": "skill:golden-principles",
-      "target": "skill:azure-artifacts",
-      "kind": "refs"
-    },
-    {
-      "id": "skill:golden-principles--refs->skill:azure-defaults",
-      "source": "skill:golden-principles",
-      "target": "skill:azure-defaults",
       "kind": "refs"
     },
     {
@@ -6253,15 +6378,51 @@
       "kind": "refs"
     },
     {
+      "id": "skill:terraform-patterns--refs->skill:azure-adr",
+      "source": "skill:terraform-patterns",
+      "target": "skill:azure-adr",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:terraform-patterns--refs->skill:azure-bicep-patterns",
+      "source": "skill:terraform-patterns",
+      "target": "skill:azure-bicep-patterns",
+      "kind": "refs"
+    },
+    {
       "id": "skill:terraform-patterns--refs->skill:azure-defaults",
       "source": "skill:terraform-patterns",
       "target": "skill:azure-defaults",
       "kind": "refs"
     },
     {
+      "id": "skill:terraform-patterns--refs->skill:drawio",
+      "source": "skill:terraform-patterns",
+      "target": "skill:drawio",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:terraform-search-import--refs->skill:azure-adr",
+      "source": "skill:terraform-search-import",
+      "target": "skill:azure-adr",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:terraform-search-import--refs->skill:azure-bicep-patterns",
+      "source": "skill:terraform-search-import",
+      "target": "skill:azure-bicep-patterns",
+      "kind": "refs"
+    },
+    {
       "id": "skill:terraform-search-import--refs->skill:terraform-patterns",
       "source": "skill:terraform-search-import",
       "target": "skill:terraform-patterns",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:terraform-test--refs->skill:azure-deploy",
+      "source": "skill:terraform-test",
+      "target": "skill:azure-deploy",
       "kind": "refs"
     }
   ]
