@@ -154,28 +154,6 @@ git config --global --add safe.directory "${PWD}"
 git config --global core.autocrlf input
 step_done "Git configured, cache dirs created"
 
-# ─── Step 5b: Sensei skill plugin (submodule) ────────────────────────────────
-# The sensei plugin (https://github.com/spboyer/sensei) is pinned as a git
-# submodule at .github/skills/sensei on branches dedicated to skills work.
-# Init/update it idempotently and install its token-CLI dependencies so
-# `npm run tokens -- check` works out of the box. Skipped silently when the
-# submodule is not declared (e.g. on branches that don't ship sensei).
-
-step_start "🥋" "Bootstrapping sensei skill plugin..."
-if [ -f "${PWD}/.gitmodules" ] && grep -q '\.github/skills/sensei' "${PWD}/.gitmodules" 2>/dev/null; then
-    git submodule update --init --recursive .github/skills/sensei 2>&1 | tail -3 || true
-    SENSEI_SCRIPTS="${PWD}/.github/skills/sensei/scripts"
-    if [ -f "$SENSEI_SCRIPTS/package.json" ]; then
-        (cd "$SENSEI_SCRIPTS" && npm install --loglevel=error >/dev/null 2>&1) \
-            && step_done "sensei submodule initialized and deps installed" \
-            || step_warn "sensei submodule initialized but npm install had issues"
-    else
-        step_warn "sensei submodule initialized but scripts/package.json missing"
-    fi
-else
-    step_done "sensei submodule not declared on this branch — skipped"
-fi
-
 # ─── Step 6: Python packages ─────────────────────────────────────────────────
 
 step_start "🐍" "Installing Python packages..."

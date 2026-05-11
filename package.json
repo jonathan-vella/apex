@@ -92,8 +92,6 @@
     "validate:_external": "run-p lint:md lint:python lint:terraform-fmt validate:terraform test:apex-recall test:azure-pricing-mcp",
     "validate:all": "run-p --continue-on-error validate:_node validate:_external && echo '✅ All validations passed'",
     "audit:quarterly": "run-p lint:glob-audit lint:orphaned-content lint:docs-freshness",
-    "audit:skills": "node tools/scripts/run-sensei-audit.mjs",
-    "audit:skills:gepa": "python3 .github/skills/sensei/scripts/src/gepa/auto_evaluator.py score-all --skills-dir .github/skills --tests-dir tests --json",
     "check:azure-icons-freshness": "node tools/scripts/check-azure-icons-freshness.mjs",
     "bench:drawio-quality": "node tools/scripts/run-drawio-quality-bench.mjs",
     "bench:drawio-diff": "node tools/scripts/render-golden-diff.mjs",
