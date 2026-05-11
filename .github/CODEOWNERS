@@ -26,3 +26,18 @@ docs/                       @jonathan-vella
 
 # Scenarios and examples
 scenarios/                  @jonathan-vella
+
+# Sensei plugin tooling — must stay on feat/skills-sensei only.
+# Any PR that touches these paths against main needs explicit maintainer review
+# (they should be excluded via the /merge-sensei-free-pr prompt instead).
+.gitmodules                                       @jonathan-vella
+.github/skills/sensei/                            @jonathan-vella
+.github/skills/_audits/                           @jonathan-vella
+.github/prompts/sensei/                           @jonathan-vella
+.github/prompts/plan-skillsAuditOptimize.prompt.md @jonathan-vella
+.github/prompts/merge-sensei-free-pr.prompt.md    @jonathan-vella
+tools/scripts/run-sensei-audit.mjs                @jonathan-vella
+tools/scripts/scaffold-trigger-tests.mjs          @jonathan-vella
+tools/scripts/audit-gepa-candidate.mjs            @jonathan-vella
+tools/scripts/run-stage5-audit.mjs                @jonathan-vella
+.token-limits.json                                @jonathan-vella
