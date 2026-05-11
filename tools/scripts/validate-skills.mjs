@@ -332,10 +332,14 @@ function runCrossSkillReferenceValidation() {
   }
 
   // Allowlist: tools/MCPs that show up in `(use ...)` redirects but aren't
-  // skills or agents. Keep this small and explicit.
+  // skills or agents. Keep this small and explicit. Entries ending in " MCP"
+  // are validated against this set rather than blanket-accepted so typos
+  // (e.g. "azure-pricng MCP") are still flagged.
   const NON_SKILL_REDIRECTS = new Set(["azure-pricing MCP", "drawio", "mermaid", "python-diagrams"]);
 
-  const REDIRECT_PATTERN = /\(use\s+([a-z][a-z0-9-]*(?:\s+MCP)?)\)/gi;
+  // Allow digit-prefixed agent ids like "03-architect" or "04g-governance"
+  // (leading [a-z0-9]) and optionally a trailing " MCP" suffix.
+  const REDIRECT_PATTERN = /\(use\s+([a-z0-9][a-z0-9-]*(?:\s+MCP)?)\)/gi;
 
   for (const [skillName, skill] of skills) {
     r.tick();
@@ -346,7 +350,7 @@ function runCrossSkillReferenceValidation() {
     REDIRECT_PATTERN.lastIndex = 0;
     while ((match = REDIRECT_PATTERN.exec(desc)) !== null) {
       const target = match[1].trim();
-      if (NON_SKILL_REDIRECTS.has(target) || target.endsWith(" MCP")) continue;
+      if (NON_SKILL_REDIRECTS.has(target)) continue;
       if (target === skillName) continue;
       if (validSkillNames.has(target) || validAgentNames.has(target)) continue;
       r.error(
