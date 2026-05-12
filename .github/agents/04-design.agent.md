@@ -50,7 +50,13 @@ This is a large agent definition. Before loading skill files, check whether
 `SKILL.digest.md` variants exist. At >60% context, load digest variants; at
 
 > 80% switch to `SKILL.minimal.md` and stop re-reading predecessor artifacts.
-> </context_awareness>
+
+Review-depth opt-in: read `decisions.review_depth` via
+`apex-recall show <project> --json` before invoking the challenger in
+Phase 5. Default to `"default"` if absent. Phase 5 is **skipped** when
+`review_depth == "default"`; `"deep"` triggers single-pass comprehensive
+review of each generated ADR.
+</context_awareness>
 
 <scope_fencing>
 You generate design artifacts only: architecture diagrams, ADRs, and
@@ -452,6 +458,24 @@ XML or JSON into subsequent turns. Pattern:
 Diagram complete: {filename}.drawio saved ({N} resources, quality {score}/10).
 Proceeding to {next artifact}.
 ```
+
+## Phase 5: ADR Review (opt-in, default-skip)
+
+Phase 5 fires only when this run produced one or more `03-des-adr-*.md`
+files AND `decisions.review_depth == "deep"` (read via
+`apex-recall show <project> --json`; default `"default"`). Otherwise
+skip Phase 5 entirely — zero cost in the common path.
+
+When Phase 5 fires, invoke `challenger-review-subagent` once per ADR
+with `artifact_type = "design-adr"`, `review_focus = "comprehensive"`,
+and `output_path =
+agent-output/{project}/challenge-findings-design-adr-<n>.json`. The
+design step does not gate on findings — present them informationally.
+Surface any `requires_step == "step-2"` finding explicitly so the user
+can decide whether to re-open the architecture.
+
+Detailed invocation contract:
+[`azure-adr/references/step-3-adr-review.md`](../skills/azure-adr/references/step-3-adr-review.md).
 
 ## Boundaries
 

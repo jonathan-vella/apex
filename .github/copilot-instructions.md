@@ -33,9 +33,13 @@ The Steps 1–7 + Post-Lessons table is in [AGENTS.md](../AGENTS.md#agent-workfl
 the machine-readable source is
 [`.github/skills/workflow-engine/templates/workflow-graph.json`](skills/workflow-engine/templates/workflow-graph.json).
 Each step's outputs land in `agent-output/{project}/`; context flows via artifact
-files + handoffs. Reviews are adversarial passes by challenger subagents
-(1-pass default; multi-pass opt-in for complex projects). Reviews target AI-
-generated creative decisions only (Steps 1, 2, 3.5, 4, 5).
+files + handoffs. Reviews are adversarial passes by challenger subagents —
+**default flow is single-pass `comprehensive`** (mandatory at Steps 1, 2, 4;
+Step 3.5 uses `governance-reconciliation`). Multi-pass deep review is **opt-in
+only** via `decisions.review_depth = "deep"` or an explicit `10-Challenger`
+invocation; never auto-fires by complexity tier. Reviews target AI-generated
+creative decisions only (Steps 1, 2, 3.5, 4, with Step 3 ADRs and Step 5 code
+as opt-in).
 
 ## Skills
 

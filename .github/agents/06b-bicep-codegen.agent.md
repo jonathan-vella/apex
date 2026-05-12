@@ -53,6 +53,15 @@ handoffs:
 
 # Bicep Code Agent
 
+<context_awareness>
+Review-depth opt-in: read `decisions.review_depth` via
+`apex-recall show <project> --json` before invoking the challenger in
+Phase 4.5. Default to `"default"` if absent. `"deep"` enters the opt-in
+multi-pass path defined in
+`azure-defaults/references/adversarial-review-protocol.md` without
+re-prompting the user; `"default"` keeps Phase 4.5 skipped.
+</context_awareness>
+
 Role: Bicep IaC specialist that turns the approved implementation plan plus governance
 constraints into AVM-first, lint-clean, security-baseline-compliant Bicep templates ready
 for the Deploy agent.
@@ -394,18 +403,31 @@ Await both results. Both must pass before Phase 4.5.
 Run `npm run validate:iac-security-baseline` on `infra/bicep/{project}/` —
 violations are a hard gate (fix before Phase 4.5).
 
-### Phase 4.5: Adversarial Code Review (1–3 passes, complexity-based)
+### Phase 4.5: Adversarial Code Review (opt-in, default-skip)
 
-Read `azure-defaults/references/adversarial-review-protocol.md` for lens table and invocation template.
-Check `decisions.complexity` from `apex-recall show <project> --json` to determine pass count per the review matrix in `adversarial-review-protocol.md`.
+Read `azure-defaults/references/adversarial-review-protocol.md` for lens
+table and invocation template.
 
-**Complexity routing**:
+**Default**: Phase 4.5 is **skipped**. Step 5 challenger review is
+opt-in (`step-5b.challenger.default_passes = 0` in `workflow-graph.json`).
 
-- `simple`: 1 pass only (comprehensive lens) — skip passes 2 and 3
-- `standard`: up to 3 passes (early exit: skip pass 2 if pass 1 has
-  0 `must_fix` and <2 `should_fix`; skip pass 3 if pass 2 has 0 `must_fix`)
-- `complex`: up to 3 passes (same early exit rules; use batch subagent
-  for passes 2+3 if pass 1 triggers them)
+**Opt-in triggers** (any one):
+
+- `decisions.review_depth == "deep"` (project-scoped, set by 01-Orchestrator).
+- User explicitly requests code review via `10-Challenger`.
+
+When opted in, follow the recommended shape from
+`step-5b.opt_in_matrix` in `workflow-graph.json` for the current
+`decisions.complexity`:
+
+- `simple` → 1× `comprehensive`
+- `standard` → 2 passes (`security-governance` → `architecture-reliability`)
+- `complex` → 3 passes (`security-governance` → `architecture-reliability` → `cost-feasibility`)
+
+Apply the cascade early-exit rules from
+`adversarial-review-protocol.md → ## Opt-in: Deep adversarial review`:
+skip pass 2 if pass 1 has 0 `must_fix` AND <2 `should_fix`; skip pass 3
+if pass 2 has 0 `must_fix`.
 
 Invoke challenger subagents with `artifact_type = "iac-code"` (NEVER
 `"implementation-plan"` — that scope belongs to Step 4),
@@ -424,13 +446,6 @@ apply the mechanical-fix pass from
 parameterization, missing `@description`, tag completion) and re-run
 `bicep-validate-subagent` until it returns `APPROVED`. Exiting Step 5
 with `NEEDS_REVISION` for any mechanical MEDIUM finding is a defect.
-
-**Read** `azure-defaults/references/challenger-selection-rules.md` for the
-pass routing table, model selection, and conditional skip rules.
-
-Follow the conditional pass rules from `adversarial-review-protocol.md` —
-skip pass 2 if pass 1 has 0 `must_fix` and <2 `should_fix`;
-skip pass 3 if pass 2 has 0 `must_fix`.
 
 For each pass, pass these inputs to the subagent:
 

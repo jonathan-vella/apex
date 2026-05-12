@@ -1,0 +1,22 @@
+{
+  "generated_at": "2026-05-12T08:39:28.456Z",
+  "sidecars_scanned": 0,
+  "total_findings": 0,
+  "must_fix_rate_per_pass": {
+    "overall": 0,
+    "by_artifact_type": {}
+  },
+  "pass_count_distribution": {},
+  "pass2_vs_pass1_must_fix": {
+    "samples": 0,
+    "pass1_total": 0,
+    "pass2_total": 0
+  },
+  "pass3_vs_pass1_must_fix": {
+    "samples": 0,
+    "pass1_total": 0,
+    "pass3_total": 0
+  },
+  "artifact_type_breakdown": {},
+  "wrapper_invocations": 0
+}

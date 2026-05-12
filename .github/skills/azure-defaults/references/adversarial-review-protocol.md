@@ -1,4 +1,4 @@
-<!-- ref:adversarial-review-protocol-v2 -->
+<!-- ref:adversarial-review-protocol-v3 -->
 
 # Adversarial Review Protocol
 
@@ -7,59 +7,137 @@ all agents. Each agent specifies its own `artifact_path`,
 `artifact_type`, pass count, and review focus — this reference
 defines the shared mechanics.
 
-## Multi-Model Convention
+## Lenses
 
-Agent `agents:` arrays list the `challenger-review-subagent`.
-All review passes use the same subagent — the selection rules in
-`challenger-selection-rules.md` determine which pass runs
-based on the lens type and complexity tier.
+Single source of truth for adversarial review lenses. Agents and the
+`workflow-graph.json` MUST reference lens names from this table only;
+new lenses are added here first and registered in
+`tools/scripts/validate-workflow-graph.mjs` (`VALID_LENSES`) and the
+`review_focus` enum of
+`.github/agents/_subagents/challenger-review-subagent.agent.md`.
 
-## Review Default: Single-Pass Comprehensive
+| Lens                        | Applies to (`artifact_type`)                                                         | Description                                                                            | Checklist anchor                                                                                        |
+| --------------------------- | ------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `comprehensive`             | requirements, architecture, cost-estimate, implementation-plan, iac-code, design-adr | Single-pass merged lens. Used by the **default flow** at every mandatory step.         | [Lens: comprehensive](adversarial-checklists.md#lens-comprehensive-single-pass-default)                 |
+| `security-governance`       | architecture, implementation-plan, iac-code                                          | Policy compliance, identity, network isolation, encryption. Opt-in deep-review pass 1. | [Per-Category Checklists → Governance & Compliance](adversarial-checklists.md#governance--compliance)   |
+| `architecture-reliability`  | architecture, implementation-plan, iac-code                                          | WAF balance, SLA feasibility, failure modes, dependencies. Opt-in deep-review pass 2.  | [Per-Category Checklists → Architecture & WAF](adversarial-checklists.md#architecture--waf)             |
+| `cost-feasibility`          | architecture, cost-estimate, implementation-plan                                     | SKU sizing, pricing realism, RI / Savings-Plan math, budget alignment. Opt-in pass 3.  | [Cost-Estimate-Specific](adversarial-checklists.md#cost-estimate-specific-artifact_type--cost-estimate) |
+| `governance-reconciliation` | governance-constraints                                                               | Drift between approved architecture and discovered constraints. Mandatory at Step 3.5. | [Lens: governance-reconciliation](adversarial-checklists.md#lens-governance-reconciliation)             |
 
-By default, all steps use a **1-pass comprehensive review**. Multi-pass rotating
-lens reviews are **opt-in** — recommended for complex projects but not required.
+## Default flow: 1-pass comprehensive
 
-At each gate, the Orchestrator checks `decisions.complexity`:
+By default, every step that runs adversarial review runs **one
+comprehensive pass**. No early-exit logic. No complexity-tier routing.
 
-- **simple/standard**: Present single-pass result directly
-- **complex**: Ask: "Run additional adversarial review? (recommended for complex projects)"
-
-If the user opts in, the full complexity matrix applies (see below).
-
-## Multi-Pass Rotating Lenses (Opt-In)
-
-Available for critical artifacts (architecture, implementation plan, code)
-when explicitly requested or when the Orchestrator recommends it for complex projects.
-
-| Pass | `review_focus`             | Lens Description                                            |
-| ---- | -------------------------- | ----------------------------------------------------------- |
-| 1    | `security-governance`      | Policy compliance, identity, network isolation, encryption  |
-| 2    | `architecture-reliability` | WAF balance, SLA feasibility, failure modes, dependencies   |
-| 3    | `cost-feasibility`         | SKU sizing, pricing realism, budget alignment, reservations |
-
-> **Pass 2 is conditional**: Only invoke pass 2 if pass 1 returned ≥1 `must_fix` OR ≥2 `should_fix`.
-> If pass 1 returns 0 `must_fix` and <2 `should_fix`, skip pass 2 and proceed to approval gate.
->
-> **Pass 3 is conditional**: Only invoke pass 3 if pass 2 returned ≥1 `must_fix` item.
-> If pass 2 returns zero `must_fix`, skip pass 3 and proceed. This saves ~4 min per review cycle.
-
-### Early Exit
-
-Passes cascade — each gate checks the previous pass's severity:
-
-1. **After pass 1**: If 0 `must_fix` AND <2 `should_fix` → skip passes 2 and 3. Approve.
-2. **After pass 2**: If 0 `must_fix` → skip pass 3. Approve with pass 1+2 findings.
-3. **After pass 3**: Full 3-pass review complete. Approve with all findings.
-
-Log skipped passes and reasons via `apex-recall review-audit <project> <step> --json` (when available).
-
-## 1-Pass Comprehensive
-
-Used for requirements (Step 1). Always runs, regardless of complexity.
-
-- `review_focus` = `comprehensive`
+- `review_focus` = `comprehensive` (or `governance-reconciliation` at Step 3.5)
 - `pass_number` = `1`
 - `prior_findings` = `null`
+- Subagent writes one sidecar JSON file (`challenge-findings-{artifact_type}.json`).
+- Parent agent presents the per-finding decision panel (see
+  `## Per-Finding Decision Protocol`) and then the aggregated proceed /
+  revise gate.
+
+Tier annotations in `workflow-graph.json` (`opt_in_matrix`) are
+**recommendations only** — they never auto-fire. The Orchestrator never
+auto-triggers a multi-pass run based on `decisions.complexity`. The user
+opts in explicitly (`decisions.review_depth = "deep"`, see "Project-scoped
+opt-in" below) or via an ad-hoc handoff to `10-Challenger`.
+
+### Mandatory floor
+
+| Step | Default review                                                              | Skip condition                |
+| ---- | --------------------------------------------------------------------------- | ----------------------------- |
+| 1    | 1× `comprehensive`                                                          | —                             |
+| 2    | 1× `comprehensive` + 1 cost audit (`cost-feasibility` lens on the estimate) | —                             |
+| 3    | none (Step 3 is optional)                                                   | (skipped when Step 3 skipped) |
+| 3.5  | 1× `governance-reconciliation`                                              | `constraints.count == 0`      |
+| 4    | 1× `comprehensive`                                                          | —                             |
+| 5    | none (default-skip)                                                         | always                        |
+| 6    | none (`## Policy precheck summary` folded into deployment artifact)         | always                        |
+| 7    | none                                                                        | always                        |
+
+> **Step 2 cost audit** is produced by the **existing**
+> `cost-feasibility` lens of `challenger-review-subagent` against the
+> `02-cost-estimate.json` / `03-des-cost-estimate.md` artifacts.
+> `cost-estimate-subagent` is **not** modified — it remains the
+> cost-breakdown emitter consumed by 03-Architect.
+
+### Project-scoped opt-in
+
+01-Orchestrator captures `decisions.review_depth` once at boot via
+`apex-recall decide <project> --key review_depth --value default|deep`.
+Every parent agent reads this on each invocation (survives resumed
+sessions) and enters the opt-in deep-review path below when the value is
+`deep`. Default value: `default`.
+
+## Opt-in: Deep adversarial review
+
+Triggered when **any** of these conditions hold:
+
+- `decisions.review_depth == "deep"` (project-scoped, captured by 01-Orchestrator).
+- User explicitly invokes `10-Challenger` with multi-pass arguments.
+- User picks the deep-review option at a gate prompt (only offered at
+  Step 2, Step 4, Step 5b/5t).
+
+### Rotating-lens passes
+
+| Pass | `review_focus`             | Condition                                                 |
+| ---- | -------------------------- | --------------------------------------------------------- |
+| 1    | `security-governance`      | Always required when deep review is active                |
+| 2    | `architecture-reliability` | Skip if pass 1 returns 0 `must_fix` AND `<2` `should_fix` |
+| 3    | `cost-feasibility`         | Skip if pass 2 returns 0 `must_fix`                       |
+
+Pass 1 is always run when deep review is active; passes 2 and 3 cascade
+per the early-exit gate above. Log skipped passes via
+`apex-recall review-audit <project> <step> --json`.
+
+### Recommended tier shape (read from `opt_in_matrix`)
+
+`workflow-graph.json` carries `opt_in_matrix` per step. **Treat the
+matrix as a recommendation**, not a forced shape:
+
+| Tier (`decisions.complexity`) | Recommended deep-review shape                                                      |
+| ----------------------------- | ---------------------------------------------------------------------------------- |
+| `simple`                      | 1 pass (`comprehensive`)                                                           |
+| `standard`                    | 2 passes (`security-governance` → `architecture-reliability`)                      |
+| `complex`                     | 3 passes (`security-governance` → `architecture-reliability` → `cost-feasibility`) |
+
+The orchestrator does **not** auto-fire any of these — they apply only
+when deep review is already active. `opt_in_matrix` MAY be partial — a
+missing tier means "no recommended multi-pass shape; run the standard
+deep-review cascade above".
+
+### Batch invocation (deep review on complex projects)
+
+When `decisions.review_depth == "deep"` AND `decisions.complexity ==
+"complex"` AND pass 1 returns ≥ 1 `must_fix` (guaranteeing all three
+passes), **batch passes 2 + 3** into a single subagent call:
+
+1. Invoke `challenger-review-subagent` with:
+   - `batch_lenses`: `[{pass 2: architecture-reliability}, {pass 3: cost-feasibility}]`
+   - `prior_findings`: compact string from pass 1
+2. The subagent runs lenses internally in sequence (pass 3 sees pass 2 findings)
+3. Returns `{ "batch_results": [{pass2_json}, {pass3_json}] }`
+4. Parent writes each result to its own `challenge-findings-*-pass{N}.json` file
+5. Extract both `compact_for_parent` strings for the approval gate summary
+
+**When NOT to batch**: for `standard` projects, continue with sequential
+single-pass invocations — the early-exit cascade is more valuable than
+batching.
+
+### Subagent invocation template (deep review)
+
+For each pass, invoke `challenger-review-subagent` via `#runSubagent`:
+
+- `artifact_path` = `agent-output/{project}/{artifact-filename}`
+- `project_name` = `{project}`
+- `artifact_type` = per-artifact value
+- `review_focus` = per-pass value from the rotating-lens table
+- `pass_number` = `1` / `2` / `3`
+- `prior_findings` = `null` for pass 1; compact string for 2-3
+
+Write each result to
+`agent-output/{project}/challenge-findings-{artifact_type}-pass{N}.json`.
 
 ## Severity Guardrails
 
@@ -76,8 +154,10 @@ Challengers MUST apply strict severity definitions:
 
 ## Complexity Classification Criteria
 
-Read `decisions.complexity` from `apex-recall show <project> --json`. The Requirements agent classifies;
-the Orchestrator validates. If missing from old sessions, default to `"standard"`.
+`decisions.complexity` is a **deep-review shape hint only** (see
+"Recommended tier shape" above). The Orchestrator does not use it to
+auto-trigger reviews. The Requirements agent classifies; if missing from
+old sessions, default to `"standard"`.
 
 | Tier         | Criteria                                                                             |
 | ------------ | ------------------------------------------------------------------------------------ |
@@ -85,48 +165,11 @@ the Orchestrator validates. If missing from old sessions, default to `"standard"
 | **Standard** | 4–8 resource types, multi-region OR multi-env (not both extreme), ≤3 custom policies |
 | **Complex**  | >8 resource types, multi-region + multi-env, >3 custom policies, hub-spoke topology  |
 
-## Review Matrix (Complexity-Based Pass Counts)
-
-**Default**: All steps use 1-pass comprehensive review. Multi-pass is opt-in.
-
-| Complexity | Step 1 (Req)     | Step 2 (Arch)                                   | Step 4 (Plan)                   | Step 5 (Code)                   |
-| ---------- | ---------------- | ----------------------------------------------- | ------------------------------- | ------------------------------- |
-| simple     | 1× comprehensive | 1× comprehensive + 1 cost                       | skip (opt-in: 1× comprehensive) | skip (opt-in: 1× comprehensive) |
-| standard   | 1× comprehensive | 1× comprehensive + 1 cost (opt-in: 2× rotating) | skip (opt-in: 2× rotating)      | skip (opt-in: 2× rotating)      |
-| complex    | 1× comprehensive | 1× comprehensive + 1 cost (opt-in: 3× rotating) | ask user (opt-in: 2× rotating)  | ask user (opt-in: 3× rotating)  |
-
-> **Opt-in prompt**: At Steps 4 and 5 for complex projects, the Orchestrator asks:
-> "Run additional adversarial review? (recommended for complex projects)"
-> For simple/standard projects, challenger review at Steps 4 and 5 is skipped by default.
-
-> **Steps without adversarial review**: Step 3 (Design), Step 3.5 (Governance),
-> Step 6 (Deploy), Step 7 (As-Built). Governance is machine-discovered data;
-> deploy previews are validated by Azure tooling (what-if / terraform plan);
-> the human approves at each gate.
-
-## Subagent Invocation Template
-
-For each pass, invoke `challenger-review-subagent` via `#runSubagent`:
-
-- `artifact_path` = `agent-output/{project}/{artifact-filename}`
-- `project_name` = `{project}`
-- `artifact_type` = per-artifact value
-- `review_focus` = per-pass value from table above
-- `pass_number` = `1` / `2` / `3`
-- `prior_findings` = `null` for pass 1; compact string for 2-3
-
-Write each result to
-`agent-output/{project}/challenge-findings-{artifact_type}-pass{N}.json`.
-
 ## Model Routing
 
-The model used for each review lens is determined by the `challenger-review-subagent` frontmatter (source of truth):
-
-| Pass                   | Lens                                | Subagent                     | Rationale                                                                  |
-| ---------------------- | ----------------------------------- | ---------------------------- | -------------------------------------------------------------------------- |
-| Pass 1 / Comprehensive | security-governance / comprehensive | `challenger-review-subagent` | Deep logical reasoning for policy cross-reference, finding inconsistencies |
-| Pass 2                 | architecture-reliability            | `challenger-review-subagent` | WAF/failure mode analysis. Structured checklist-driven.                    |
-| Pass 3                 | cost-feasibility                    | `challenger-review-subagent` | Quantitative SKU analysis. Matches cost-estimate-subagent model.           |
+The model used for each review lens is determined by the
+`challenger-review-subagent` frontmatter (source of truth). All lenses
+share the same subagent; the `review_focus` field rotates per pass.
 
 ## Parallel Invocation (Cross-Artifact Reviews)
 
@@ -150,23 +193,6 @@ when they target different artifacts AND both use `prior_findings = null`.
 
 > **Do NOT parallelize** rotating-lens passes (1→2→3) within the same
 > artifact — each pass depends on `prior_findings` from the previous pass.
-
-## Batch Invocation (Complex Projects Only)
-
-When `decisions.complexity == "complex"` AND pass 1 returns ≥1 `must_fix`
-(guaranteeing all 3 passes), **batch passes 2+3** into a single subagent call:
-
-1. Invoke `challenger-review-subagent` with:
-   - `batch_lenses`: `[{pass 2: architecture-reliability}, {pass 3: cost-feasibility}]`
-   - `prior_findings`: compact string from pass 1
-2. The batch subagent runs lenses internally in sequence (pass 3 sees pass 2 findings)
-3. Returns `{ "batch_results": [{pass2_json}, {pass3_json}] }`
-4. Parent writes each result to its own `challenge-findings-*-pass{N}.json` file
-5. Extract both `compact_for_parent` strings for the approval gate summary
-
-**When NOT to batch**: For `standard` projects, continue with sequential
-single-pass invocations — conditional gating (skip pass 3 if pass 2 has
-0 must_fix) is more valuable than batching at that tier.
 
 ## Context Efficiency — Compact prior_findings
 
@@ -210,11 +236,51 @@ After all passes, present a merged summary:
   must_fix: {total} | should_fix: {total} | suggestions: {total}
   Key concerns: {top 2-3 must_fix titles across all passes}
   Findings:
-    - agent-output/{project}/challenge-findings-{type}-pass1.json
-    - ...
+    - agent-output/{project}/challenge-findings-{type}.json (single-pass) or
+    - agent-output/{project}/challenge-findings-{type}-pass1.json … (deep-review)
 ```
 
 For per-finding decisions before the summary, follow `## Per-Finding Decision Protocol`.
+
+## Findings Cache (REVISE-loop optimization)
+
+Subagent output includes a `cache_inputs` block:
+
+```json
+{
+  "cache_inputs": {
+    "artifact_sha": "<sha256 of challenged artifact bytes>",
+    "checklists_sha": "<sha256 of adversarial-checklists.md bytes>",
+    "protocol_sha": "<sha256 of this file bytes>",
+    "subagent_sha": "<sha256 of challenger-review-subagent.agent.md bytes>",
+    "model": "<challenger-review-subagent.frontmatter.model[0]>",
+    "artifact_hash": "<sha256 of artifact_sha ‖ \"\\n---\\n\" ‖ checklists_sha ‖ \"\\n---\\n\" ‖ protocol_sha ‖ \"\\n---\\n\" ‖ subagent_sha ‖ \"\\n---\\n\" ‖ model>"
+  }
+}
+```
+
+**Cache lookup on REVISE / retry**: before invoking the subagent again,
+the parent computes the current `cache_inputs` and compares **every
+component** to the cached value. **All five** must match for a cache
+hit. Any single component mismatch invalidates the cache and forces a
+fresh invocation:
+
+| Mismatch trigger                                     | Result                |
+| ---------------------------------------------------- | --------------------- |
+| Artifact bytes changed (the common case)             | Re-invoke             |
+| `adversarial-checklists.md` updated                  | Re-invoke             |
+| This protocol doc updated                            | Re-invoke             |
+| `challenger-review-subagent.agent.md` prompt updated | Re-invoke             |
+| `challenger-review-subagent` model rolled            | Re-invoke             |
+| **All five match** (rare on real REVISE loops)       | Reuse cached findings |
+
+The cache protects against three classes of staleness: prompt drift
+(checklist or protocol or subagent edits), model drift, and downstream
+revisions that did not actually touch the challenged artifact.
+
+> **Decisions sidecars are never cached.** Cache only applies to the
+> findings JSON. The `challenge-findings-{type}-decisions.json` sidecar
+> is owned by the parent agent and always rewritten on REVISE.
 
 ## Per-Finding Decision Protocol
 
@@ -332,25 +398,25 @@ The cap is a constant. Agents do not override it.
 
 Per finding:
 
-| Field | Value |
-| --- | --- |
-| `header` | `{artifact-type}-pass{N}-{idx}` (≤50 chars). Examples: `architecture-pass1-3`, `cost-estimate-pass1-0`. **Hard rule** — must be unique across the merged batched call. |
-| `question` | `title` (≤200 chars; truncate with `…`). |
-| `message` | Markdown block with severity badge + `category` + `description` + `failure_scenario` + `artifact_section` + `suggested_mitigation`. |
-| `options` | Four fixed labels (in this order): `Accept (apply mitigation)`, `Reject (accept risk)`, `Defer (carry to handoff)`, `Edit (custom guidance)`. |
-| `recommended` | `Accept` for `must_fix`; `Defer` for `should_fix`. |
-| `allowFreeformInput` | `true` (enables Edit + per-finding notes). |
+| Field                | Value                                                                                                                                                                  |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `header`             | `{artifact-type}-pass{N}-{idx}` (≤50 chars). Examples: `architecture-pass1-3`, `cost-estimate-pass1-0`. **Hard rule** — must be unique across the merged batched call. |
+| `question`           | `title` (≤200 chars; truncate with `…`).                                                                                                                               |
+| `message`            | Markdown block with severity badge + `category` + `description` + `failure_scenario` + `artifact_section` + `suggested_mitigation`.                                    |
+| `options`            | Four fixed labels (in this order): `Accept (apply mitigation)`, `Reject (accept risk)`, `Defer (carry to handoff)`, `Edit (custom guidance)`.                          |
+| `recommended`        | `Accept` for `must_fix`; `Defer` for `should_fix`.                                                                                                                     |
+| `allowFreeformInput` | `true` (enables Edit + per-finding notes).                                                                                                                             |
 
 ### 2h. Edit / freeText / skipped semantics
 
 Deterministic — no agent-level interpretation:
 
-| User input | Resulting `action` | Resulting `note` |
-| --- | --- | --- |
-| `Edit` selected + non-empty `freeText` | `edit` | `<freeText>` |
-| `Edit` selected + empty `freeText` | `defer` | `"Edit selected without guidance — auto-deferred."` |
-| `Accept` / `Reject` / `Defer` selected (with or without `freeText`) | matches selection | `<freeText>` if present, else `null` |
-| `skipped: true` | `defer` | `"User skipped — auto-deferred."` |
+| User input                                                          | Resulting `action` | Resulting `note`                                    |
+| ------------------------------------------------------------------- | ------------------ | --------------------------------------------------- |
+| `Edit` selected + non-empty `freeText`                              | `edit`             | `<freeText>`                                        |
+| `Edit` selected + empty `freeText`                                  | `defer`            | `"Edit selected without guidance — auto-deferred."` |
+| `Accept` / `Reject` / `Defer` selected (with or without `freeText`) | matches selection  | `<freeText>` if present, else `null`                |
+| `skipped: true`                                                     | `defer`            | `"User skipped — auto-deferred."`                   |
 
 ### 2i. Persist decisions (sidecar + apex-recall)
 
@@ -378,12 +444,12 @@ If `must_fix + should_fix == 0`:
 
 ### 2k. Revise behavior matrix
 
-| Agent | On user `Revise` final-gate choice |
-| --- | --- |
+| Agent           | On user `Revise` final-gate choice                                                                                                             |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
 | 02-Requirements | Apply Accepted fixes → re-run challenger (`overwrite: true`) → re-build panel (skipping issues with prior decisions per 2c) → re-present gate. |
-| 03-Architect | Same as Requirements; re-run all relevant passes per the configured pass count. |
-| 04g-Governance | Apply Accepted fixes → **DO NOT re-run challenger** (cap = 1 pass) → re-present final aggregated gate only with the existing decision sidecar. |
-| 05-IaC Planner | Same as Requirements. |
+| 03-Architect    | Same as Requirements; re-run all relevant passes per the configured pass count.                                                                |
+| 04g-Governance  | Apply Accepted fixes → **DO NOT re-run challenger** (cap = 1 pass) → re-present final aggregated gate only with the existing decision sidecar. |
+| 05-IaC Planner  | Same as Requirements.                                                                                                                          |
 
 ### 2l. Final aggregated gate
 
@@ -398,7 +464,6 @@ After the per-finding panel completes (or is skipped per 2j / 2d):
    ```
 
 2. Present a single `askQuestions` with options:
-
    - `Revise (apply Accepted findings)` —
      `recommended: true` if any `must_fix` had `action == "accept"`;
      otherwise not recommended.

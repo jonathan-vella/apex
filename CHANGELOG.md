@@ -20,6 +20,63 @@ for full details on this and all prior releases.
 
 ### Changed
 
+- refactor(agents)!: simplify challenger reviews — default flow is now
+  **single-pass `comprehensive`** at every mandatory step (1, 2, 4); Step 3.5
+  runs `governance-reconciliation`; multi-pass rotating-lens review is
+  **opt-in only** (`decisions.review_depth = "deep"` or explicit
+  `10-Challenger` invocation). Tier-driven auto-fire is removed.
+  **Breaking schema changes** (no alias, no deprecation window — single
+  monorepo, no external consumers):
+  - Rename per-step `complexity_matrix` → `opt_in_matrix` in
+    `workflow-graph.json` (4 occurrences: step-2, step-4, step-5b, step-5t),
+    `tools/schemas/workflow-graph.schema.json` (dropped the `required:
+["simple","standard","complex"]` array under the matrix to reflect opt-in
+    semantics — partial tier subsets are now allowed),
+    `tools/scripts/validate-workflow-graph.mjs` (`validateChallenger()`),
+    `.github/skills/workflow-engine/references/orchestrator-handoff-guide.md`,
+    `orchestrator-handoff-guide.digest.md`,
+    `tools/tests/subagent-file-contract.test.mjs`,
+    `tools/tests/fixtures/subagent-file-contract/challenger-review.findings.json`,
+    `tools/tests/bats/subagent-validation.bats`.
+  - Step 4 default lens: `security-governance` → `comprehensive`.
+  - New `governance-reconciliation` lens (added to `VALID_LENSES` and
+    `challenger-review-subagent` `review_focus` enum).
+  - New return_edges in `workflow-graph.json`: `step-4 → step-2` on
+    `on_architecture_must_fix` and `step-3_5 → step-2` on
+    `on_must_fix_governance_conflict` (closes gate-3 livelock when a
+    finding carries `requires_step == "step-2"`; reconciliation never
+    self-edits the approved architecture).
+  - New challenger findings JSON shape (`schema_version: "1.0"`): adds
+    `traces_to: string[]`, `suggested_fix: { artifact_path, line_range?,
+proposed_edit }`, `requires_step: string`, and a `cache_inputs` block
+    holding individual `artifact_sha`, `checklists_sha`, `protocol_sha`,
+    `subagent_sha`, `model` plus the combined `artifact_hash`. Validated by
+    new `tools/scripts/validate-challenger-findings.mjs`
+    (`npm run validate:challenger-findings`).
+  - Legacy `agent-output/nordic-foods/challenge-findings-*.json` (9 files)
+    migrated once via `tools/scripts/migrate-legacy-findings.mjs`
+    (`issues→findings`, `title→claim`, `description→evidence`,
+    `failure_scenario→impact`, `suggested_mitigation→suggested_fix.proposed_edit`).
+    The dangling `$schema` pointer is removed by the migration.
+  - `.github/skills/azure-defaults/references/challenger-selection-rules.md`
+    deleted (folded into `adversarial-review-protocol.md → ## Opt-in: Deep
+adversarial review`). Inbound refs repointed in 06b/06t CodeGen agents,
+    `iac-common/references/codegen-shared-workflow.md`, and the site doc.
+  - New `decisions.review_depth ∈ {"default", "deep"}`, captured **once**
+    per project by `01-Orchestrator` only (02-Requirements reads but never
+    writes). Validated by `tools/scripts/validate-session-state.mjs`.
+  - New artifact-hash findings cache: parent agents reuse prior findings
+    when ALL of `artifact_sha`, `checklists_sha`, `protocol_sha`,
+    `subagent_sha`, and `model` match the cached `cache_inputs`.
+  - New scripts: `tools/scripts/lessons-to-checklists.mjs`
+    (`npm run report:challenger-gaps`),
+    `tools/scripts/challenger-telemetry.mjs`
+    (`npm run challenger-telemetry`),
+    `tools/scripts/validate-lens-references.mjs`
+    (`npm run validate:lens-references`, wired into `validate:all`).
+  - `10-Challenger` wrapper now defaults to `comprehensive`; multi-pass
+    and batch mode is the explicit opt-in entry point. Retirement-review
+    trigger documented (≥ 20 invocations OR 30 days post-merge).
 - chore(catalog): drop the `(High reasoning)` suffix from the Opus 4.7 label.
   `Claude Opus 4.7 (High reasoning)` and `Claude Opus 4.7` were two distinct
   catalog entries pointing at the same SKU. Reasoning-effort policy is now a

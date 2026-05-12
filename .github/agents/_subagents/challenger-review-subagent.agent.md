@@ -56,7 +56,7 @@ summary that lets the parent decide gates without loading the full payload.
 
 - Single-lens mode: a single finding set whose schema matches the parent's
   expected fields (`challenged_artifact`, `artifact_type`, `review_focus`,
-  `risk_level`, `must_fix_count`, `should_fix_count`, `issues[]`) is
+  `risk_level`, `must_fix_count`, `should_fix_count`, `findings[]`) is
   written atomically to `output_path`.
 - Batch mode: a `batch_results` array (one entry per requested lens, in
   the order provided) is written atomically to `output_path`.
@@ -126,7 +126,7 @@ The parent agent provides:
 - `artifact_type`: One of `requirements`, `architecture`, `implementation-plan`,
   `governance-constraints`, `iac-code`, `cost-estimate`, `deployment-preview` (required)
 - `review_focus`: One of `security-governance`, `architecture-reliability`,
-  `cost-feasibility`, `comprehensive` (required for single-lens mode)
+  `cost-feasibility`, `comprehensive`, `governance-reconciliation` (required for single-lens mode)
 - `pass_number`: 1, 2, or 3 — which adversarial pass this is (required for single-lens mode)
 - `prior_findings`: JSON from previous passes, or null if this is pass 1 (optional)
 - `output_path`: **REQUIRED**. The full file path where the findings JSON will be
@@ -217,7 +217,14 @@ When `review_focus` is set, concentrate adversarial energy on that lens:
 - **`architecture-reliability`** — SLA achievability, RTO/RPO validation, SPOF analysis, dependency ordering, WAF balance
 - **`cost-feasibility`** — SKU-to-requirement mismatch,
   hidden costs (egress/transactions/logs), free-tier risk, budget alignment
-- **`comprehensive`** — All three lenses applied broadly (used for single-pass reviews at Steps 1, 6)
+- **`comprehensive`** — Single-pass merged lens combining the three above.
+  Default for the orchestrated flow at Steps 1, 2, 4. Accepts
+  `artifact_type` of `requirements`, `architecture`, `cost-estimate`,
+  `implementation-plan`, `iac-code`, `design-adr`.
+- **`governance-reconciliation`** — Drift between approved architecture and
+  freshly discovered governance constraints. Mandatory single-pass at
+  Step 3.5 against `governance-constraints` artifacts. Checklist:
+  `adversarial-checklists.md → ## Lens: governance-reconciliation`.
 
 ## Analysis Categories
 
@@ -260,14 +267,24 @@ per-category and per-artifact-type checklists, plus Azure Infrastructure Skeptic
 
 Return ONLY valid JSON matching the schema below. No markdown wrapper, no explanation outside JSON.
 
-**Single-lens mode**: Required top-level fields: challenged_artifact, artifact_type, review_focus, pass_number,
-challenge_summary, compact_for_parent, risk_level, must_fix_count, should_fix_count, suggestion_count, issues[].
+**Single-lens mode**: Required top-level fields: `schema_version`,
+`challenged_artifact`, `artifact_type`, `review_focus`, `pass_number`,
+`challenge_summary`, `compact_for_parent`, `risk_level`,
+`must_fix_count`, `should_fix_count`, `suggestion_count`, `findings[]`,
+`cache_inputs`.
 
-**Batch mode**: Required top-level field: batch_results[] — each element matches the single-lens schema.
+**Batch mode**: Required top-level field: `batch_results[]` — each
+element matches the single-lens schema (including `schema_version` and
+`cache_inputs`).
 
-Each issue must have: severity, category, title, description, failure_scenario, artifact_section, suggested_mitigation.
+Each finding must have: `id`, `severity`, `category`, `claim`,
+`evidence`, `impact`, `artifact_section`, `traces_to`.
+For `must_fix` findings, `suggested_fix` (with `artifact_path` and
+`proposed_edit`) is REQUIRED; for `should_fix` and `suggestion`, it is
+OPTIONAL.
+`traces_to` defaults to `[]`. `requires_step` is OPTIONAL.
 If `artifact_path` does not exist or is empty, return error JSON:
-`{"status": "artifact_not_found", "artifact_path": "...", "issues": []}`.
+`{"status": "artifact_not_found", "artifact_path": "...", "findings": []}`.
 
 ## Empty-Result Recovery
 
@@ -284,9 +301,10 @@ The on-disk JSON has no markdown wrapper:
 
 ```json
 {
+  "schema_version": "1.0",
   "challenged_artifact": "agent-output/{project}/{artifact-file}",
-  "artifact_type": "requirements | architecture | implementation-plan | governance-constraints | iac-code | cost-estimate | deployment-preview",
-  "review_focus": "security-governance | architecture-reliability | cost-feasibility | comprehensive",
+  "artifact_type": "requirements | architecture | implementation-plan | governance-constraints | iac-code | cost-estimate | deployment-preview | design-adr",
+  "review_focus": "security-governance | architecture-reliability | cost-feasibility | comprehensive | governance-reconciliation",
   "pass_number": 1,
   "challenge_summary": "Brief summary of key risks and concerns found",
   "compact_for_parent": "Pass 1 (security-governance) | HIGH | 3 must_fix, 2 should_fix | Key: [title1]; [title2]; [title3]",
@@ -294,19 +312,49 @@ The on-disk JSON has no markdown wrapper:
   "must_fix_count": 0,
   "should_fix_count": 0,
   "suggestion_count": 0,
-  "issues": [
+  "findings": [
     {
+      "id": "<8-char hex; sha256(category|claim|artifact_section)[0:8]>",
       "severity": "must_fix | should_fix | suggestion",
       "category": "untested_assumption | missing_failure_mode | hidden_dependency | scope_risk | architectural_weakness | governance_gap | waf_blind_spot",
-      "title": "Brief title (max 100 chars)",
-      "description": "Detailed explanation of the risk or weakness",
-      "failure_scenario": "Specific scenario where this could cause the plan to fail",
+      "claim": "Brief claim / title (max 100 chars)",
+      "evidence": "Detailed explanation of the risk or weakness (formerly `description`)",
+      "impact": "Specific scenario where this could cause the plan to fail (formerly `failure_scenario`)",
       "artifact_section": "Which H2/H3 section of the artifact has this issue",
-      "suggested_mitigation": "Specific, actionable way to address this risk"
+      "suggested_fix": {
+        "artifact_path": "agent-output/{project}/{artifact}.md",
+        "line_range": [42, 45],
+        "proposed_edit": "Exact replacement text or unified diff snippet (REQUIRED for must_fix; OPTIONAL for should_fix/suggestion — carries human-readable mitigation guidance when set)."
+      },
+      "traces_to": ["<finding-id-from-prior-pass>"],
+      "requires_step": "step-2 | step-3_5 | step-4 (OPTIONAL: lowest workflow-graph step that must resolve this finding)"
     }
-  ]
+  ],
+  "cache_inputs": {
+    "artifact_sha": "<sha256 of the challenged artifact bytes>",
+    "checklists_sha": "<sha256 of adversarial-checklists.md bytes>",
+    "protocol_sha": "<sha256 of adversarial-review-protocol.md bytes>",
+    "subagent_sha": "<sha256 of challenger-review-subagent.agent.md bytes>",
+    "model": "<challenger-review-subagent.frontmatter.model[0]>",
+    "artifact_hash": "<sha256 of the concatenated string artifact_sha\\n---\\nchecklists_sha\\n---\\nprotocol_sha\\n---\\nsubagent_sha\\n---\\nmodel>"
+  }
 }
 ```
+
+> **`schema_version` is required** and must equal `"1.0"` for the
+> current contract. Validators reject any sidecar that omits this field;
+> see `tools/scripts/validate-challenger-findings.mjs`.
+>
+> **`cache_inputs.artifact_hash`** is the cache key for the parent-side
+> findings cache (see
+> `azure-defaults/references/adversarial-review-protocol.md` and the
+> per-agent `<context_awareness>` blocks). Every component hash MUST
+> match on cache lookup; a single mismatch invalidates the cache.
+>
+> **`requires_step`** is the lowest workflow-graph step ID required to
+> resolve the finding. When set, the parent agent must follow the
+> matching `return_edge` (step-4 → step-2 on `on_architecture_must_fix`;
+> step-3_5 → step-2 on `on_must_fix_governance_conflict`).
 
 ### `compact_for_parent` Format
 
@@ -350,7 +398,7 @@ The on-disk JSON has the shape:
       "must_fix_count": 0,
       "should_fix_count": 0,
       "suggestion_count": 0,
-      "issues": []
+      "findings": []
     },
     {
       "challenged_artifact": "agent-output/{project}/{artifact-file}",
@@ -363,7 +411,7 @@ The on-disk JSON has the shape:
       "must_fix_count": 0,
       "should_fix_count": 0,
       "suggestion_count": 0,
-      "issues": []
+      "findings": []
     }
   ]
 }

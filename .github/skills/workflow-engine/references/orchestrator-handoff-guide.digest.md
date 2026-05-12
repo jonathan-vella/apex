@@ -30,8 +30,10 @@ After Step 1, read `decisions.complexity` from
   if yes, follow the full matrix in `adversarial-review-protocol.md`;
   otherwise proceed with single-pass.
 
-If `complexity_matrix` in `workflow-graph.json` lacks an entry for the
+If `opt_in_matrix` in `workflow-graph.json` lacks an entry for the
 current complexity, STOP and ask the user to classify the project.
+(Opt-in semantics: matrix MAY be partial — a missing tier means no
+recommended multi-pass shape for that tier.)
 
 ## Gate Template Skeleton
 

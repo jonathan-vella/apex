@@ -135,6 +135,17 @@ function validateStateFile(filePath, isTemplate) {
         );
       }
     }
+
+    // Validate optional review_depth field (Phase 9 of simplifyChallengerReviews)
+    if ("review_depth" in state.decisions) {
+      const validReviewDepth = ["default", "deep", ""];
+      if (!validReviewDepth.includes(state.decisions.review_depth)) {
+        error(
+          label,
+          `Invalid decisions.review_depth: "${state.decisions.review_depth}" (expected ${validReviewDepth.join(", ")})`,
+        );
+      }
+    }
   }
 
   // Validate optional review_audit (don't break old sessions)

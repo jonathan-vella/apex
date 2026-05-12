@@ -429,6 +429,26 @@ Bicep-specific: what-if fails if RG doesn't exist (create first); RBAC errors �
 `agent-output/{project}/06-deployment-summary.md` — copy-then-fill from template.
 Validation: `npm run lint:artifact-templates`.
 
+### `## Policy precheck summary` H2 (informational)
+
+After deployment completes (or fails), fold the
+`06-policy-precheck.json` produced by Step 5.6 into a
+`## Policy precheck summary` H2 section appended to
+`06-deployment-summary.md`. This is **not an adversarial review** —
+purely traceability for deploy-time drift between Step 3.5 discovery
+(L0) and live Azure Policy state (L3). Fields to include:
+
+- Verdict (`CLEAN` / `DRIFT` / `BLOCKED` / `FAILED`).
+- Count of policies evaluated vs. blocked vs. drifted.
+- Per-blocked-policy: policy display name, scope, the resource(s) that
+  tripped it, and the matrix-row reference (if any) from
+  `04-implementation-plan.md`.
+- The `governance_trace` decision value recorded via apex-recall
+  (`L0-pass,L1-mapped:<N>,L2-validated:<N>,L3-precheck:<verdict>`).
+
+The H2 is **never** gated on user approval — it is informational and
+read by the As-Built agent (Step 7) to populate the compliance matrix.
+
 **On completion** (MANDATORY): `apex-recall complete-step <project> 6 --json`
 
 ## Validation Checklist

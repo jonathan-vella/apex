@@ -112,8 +112,9 @@ It operates with rotating lenses:
 Pass 1 (security-governance) always uses `challenger-review-subagent`.
 Additional passes also use `challenger-review-subagent` for
 architecture-reliability and cost-feasibility lenses.
-See `.github/skills/azure-defaults/references/challenger-selection-rules.md`
-for the full routing table and conditional skip rules.
+See `.github/skills/azure-defaults/references/adversarial-review-protocol.md`
+(`## Lenses`, `## Default flow`, `## Opt-in: Deep adversarial review`) for
+the full routing table and conditional skip rules.
 :::
 
 - **1-pass review** (comprehensive): A single review covering all dimensions. This is the

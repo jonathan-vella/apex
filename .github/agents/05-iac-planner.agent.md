@@ -79,6 +79,15 @@ Audit your output against the 04-implementation-plan.template.md. Do not add sec
 features, or analysis beyond what the template specifies. Code generation belongs to Step 5.
 </scope_fencing>
 
+<context_awareness>
+Review-depth opt-in: read `decisions.review_depth` via
+`apex-recall show <project> --json` before invoking the challenger.
+Default to `"default"` if absent. `"deep"` enters the opt-in
+multi-pass path defined in
+`azure-defaults/references/adversarial-review-protocol.md`
+without re-prompting the user.
+</context_awareness>
+
 ## IaC Track Detection
 
 Run `apex-recall show <project> --json` and check `decisions.iac_tool`:
@@ -236,15 +245,15 @@ plan. For each triggered rule:
   `phased_param_wiring`, `phase_monotonicity`) — apply the fix to the
   draft and record via
   `apex-recall decide --key <rule_id> --value <choice>
- --rationale "Phase 2.5 auto-fix" --step 4 --json`.
+--rationale "Phase 2.5 auto-fix" --step 4 --json`.
 - **Defer to Phase 3.5 batched panel** (architectural rules:
   `zone_redundancy`, `deployment_script`, `public_edge_auth`) — add
   the corresponding question from `plan-design-decisions.md` to the
   Phase 3.5 panel.
 
 Re-run all six checks once the Phase 3.5 panel resolves. The Phase 4.3
-challenger pass 1 (security-governance lens) verifies that no
-triggered rule remains unresolved.
+challenger comprehensive review verifies that no triggered rule remains
+unresolved.
 
 **Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 4 phase_2_5_consistency --json`
 
@@ -319,8 +328,8 @@ parsed `04-governance-constraints.json`. One row per Deny policy ×
 matching resource. Columns: `resource_id`, `policy_id`, `effect`,
 `satisfied_by_property`, `required_value`, `status` (✅ satisfied / ⚠️
 pending / ❌ unsatisfiable). **Every Deny policy MUST have at least
-one row.** Coverage is verified by Phase 4.3 challenger pass 1
-(security-governance lens). If a row is `❌ unsatisfiable`, STOP and
+one row.** Coverage is verified by Phase 4.3 challenger comprehensive
+review. If a row is `❌ unsatisfiable`, STOP and
 traverse the `▶ Refresh Governance` handoff per
 `iac-common/references/governance-drift-routing.md` (L1 row).
 
@@ -341,39 +350,78 @@ For patterns, read `terraform-patterns/references/tf-best-practices-examples.md`
 > with amount aligned to the Step 2 cost estimate, plus Forecast alerts at 80%/100%/120%
 > thresholds and Anomaly Detection. See `.github/instructions/references/iac-cost-monitoring.md`.
 
-### Phase 4.3–4.4: Adversarial Plan Review (2 lenses max)
+### Phase 4.3: Adversarial Plan Review (1 pass, comprehensive — default)
 
-Read `azure-defaults/references/adversarial-review-protocol.md` for lens table,
-prior_findings format, and invocation template.
-Check `decisions.complexity` from `apex-recall show <project> --json`
-to determine pass count
-per the review matrix in `adversarial-review-protocol.md`.
+Read `azure-defaults/references/adversarial-review-protocol.md` for the
+lens table, prior_findings format, and invocation template.
+
+**Default flow (always runs)**: 1× `comprehensive` review of
+`04-implementation-plan.md`. No tier-driven multi-pass auto-fires; the
+`opt_in_matrix` in `workflow-graph.json` is a recommendation, never an
+auto-trigger.
+
+**Deep-review opt-in**: if `decisions.review_depth == "deep"`, enter the
+opt-in rotating-lens cascade defined in
+`adversarial-review-protocol.md → ## Opt-in: Deep adversarial review`.
+Do NOT prompt — the project-scoped `review_depth` decision is the
+opt-in trigger.
 
 > **Governance review is NOT needed here** — it was already done in Step 3.5.
-> Plan reviews focus on **security-governance** and **architecture-reliability** only.
+> The comprehensive lens already cross-references `04-governance-constraints.json`
+> (per the Plan ↔ governance-mapping line item in
+> `adversarial-checklists.md → Lens: comprehensive`).
 
-Invoke challenger subagents on `04-implementation-plan.md`
-(up to 2 passes: security-governance + architecture-reliability).
-Follow the conditional pass rules from `adversarial-review-protocol.md` —
-skip pass 2 if pass 1 has 0 `must_fix` and <2 `should_fix`.
-**Model routing**: Pass 1 (security-governance) → `challenger-review-subagent`.
-Pass 2 → `challenger-review-subagent` with `review_focus = "architecture-reliability"`.
+#### Architecture-escalation rule (anti-livelock)
 
-For each pass, pass these inputs to the subagent:
+If any finding has `requires_step == "step-2"`, halt and return to
+03-Architect via the `step-4 → step-2` return_edge — do not mask or
+self-edit the plan. Max **2 attempts** per pass; after the second
+NEEDS_REVISION on the same `finding_id` (the `requires_step == "step-2"`
+flag persists across re-runs), present the user with
+**REVISE / OVERRIDE-WITH-RATIONALE / ABORT**.
+
+OVERRIDE captures the rationale and `finding_id` via apex-recall:
+
+```bash
+apex-recall decide <project> \
+  --key accepted_risks \
+  --value '{"finding_id":"<id>","override_rationale":"<text>","step":"step-4","requires_step":"step-2"}' \
+  --rationale "User OVERRIDE after 2 NEEDS_REVISION attempts" \
+  --step 4 \
+  --json
+```
+
+#### Subagent invocation
+
+Invoke `challenger-review-subagent` once with:
 
 - `artifact_path` = `agent-output/{project}/04-implementation-plan.md`
 - `project_name` = `{project}`
 - `artifact_type` = `implementation-plan`
-- `review_focus` = per-pass value (security-governance / architecture-reliability)
-- `pass_number` = `1` / `2`
-- `prior_findings` = `null` for pass 1; pass 1's `compact_for_parent` for pass 2
-- `output_path` = `agent-output/{project}/challenge-findings-plan-pass{N}.json`
+- `review_focus` = `comprehensive`
+- `pass_number` = `1`
+- `prior_findings` = `null`
+- `output_path` = `agent-output/{project}/challenge-findings-plan.json`
 - `overwrite` = `false` (set to `true` only when re-running after revisions)
 
 The subagent writes the JSON file at `output_path` and returns a compact
 summary (≤15 lines). **Do NOT paste subagent JSON inline.** Read the file
 from disk only if you need full finding details for the Gate presentation.
-**Checkpoint** (MANDATORY) after each pass: `apex-recall checkpoint <project> 4 phase_4_challenger_pass{N} --json`
+**Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 4 phase_4_challenger --json`
+
+#### Deep-review path (opt-in, when `decisions.review_depth == "deep"`)
+
+Replace the single comprehensive pass with the rotating-lens cascade
+recommended by the `opt_in_matrix` for step-4 in `workflow-graph.json`:
+
+1. Pass 1 — `security-governance` (always)
+2. Pass 2 — `architecture-reliability` (skip if pass 1 has 0 `must_fix` AND <2 `should_fix`)
+
+For each pass:
+
+- `output_path` = `agent-output/{project}/challenge-findings-plan-pass{N}.json`
+- All other fields per the rotating-lens invocation template in the
+  protocol doc.
 
 **Review audit** (MANDATORY): `apex-recall review-audit <project> 4 --passes-executed <N> --json`
 
@@ -389,69 +437,14 @@ from disk only if you need full finding details for the Gate presentation.
 3. Show aggregate totals: `N must-fix, N should-fix`
 4. Reference the JSON file paths for machine-readable details
 
-Then run the **two-stage gate**:
+Then run the **two-stage gate** documented in
+[`iac-common/references/iac-planner-approval-gate.md`](../skills/iac-common/references/iac-planner-approval-gate.md):
 
-#### Stage 1 — Auto-apply every `must_fix` (mandatory)
-
-All `must_fix` findings would block deployment, violate the security
-baseline, or break a hard governance constraint. They are **not
-negotiable** and **must not** be presented as user choices.
-
-For every `must_fix` finding across all passes:
-
-1. Apply the `suggested_mitigation` to `04-implementation-plan.md` using a
-   **single `multi_replace_string_in_file` call** that bundles every
-   `must_fix` edit (do NOT re-emit the plan via `create_file`). See
-   azure-artifacts skill "Revision Workflow".
-2. Persist each in
-   `agent-output/{project}/challenge-findings-plan-decisions.json` with
-   `action: "accept"`, `note: "auto-applied (must_fix is mandatory)"`,
-   following the sidecar schema in adversarial-review-protocol section 2a.
-3. Re-run every executed challenger pass with `overwrite: true` to
-   confirm the fixes landed (no new `must_fix` should remain). If any
-   `must_fix` returns, **repeat Stage 1** for the new findings — up to a
-   hard cap of 2 auto-fix iterations, then STOP and surface a chat
-   warning listing the unresolved finding(s) so the user can intervene.
-4. **Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 4 phase_5_must_fix_applied --json`
-
-**Unattended mode (`APEX_UNATTENDED=1`)**: skip auto-apply; defer all
-`must_fix` per adversarial-review-protocol section 2d (the unattended
-orchestrator owns mandatory-fix handling for benchmark runs).
-
-#### Stage 2 — Interactive `should_fix` decisions (same chat session)
-
-Only `should_fix` findings carry trade-offs (cost vs reliability,
-coverage vs ingestion, etc.) where the user must choose. Run the
-**Per-Finding Decision Protocol** from
-[.github/skills/azure-defaults/references/adversarial-review-protocol.md](../skills/azure-defaults/references/adversarial-review-protocol.md)
-on the remaining `should_fix` set only:
-
-- **Sources merged for the panel** (per protocol section 2e): in this
-  order — `challenge-findings-plan-pass1.json` → `pass2.json`
-  (omit passes that did not run; max 2 passes per Phase 4.3–4.4),
-  filtered to `severity == "should_fix"` only. `must_fix` are excluded
-  because Stage 1 already resolved them.
-- **Sidecar**: append (never overwrite) the same
-  `agent-output/{project}/challenge-findings-plan-decisions.json` that
-  Stage 1 created (`artifact_type: "plan"`).
-- **Panel cap** (protocol section 2f): still 12 questions max; if
-  `should_fix > 12`, auto-defer the overflow with the standard note.
-- **Single batched `askQuestions` call** with one question per
-  `should_fix`, four-option payload per protocol section 2g
-  (recommended = `Defer` for `should_fix`).
-- After the user replies, apply every Accepted finding's edit via a
-  **single `multi_replace_string_in_file` call** (same revision workflow
-  as Stage 1), then re-run the relevant challenger passes
-  (`overwrite: true`) once to verify the should_fix edits did not
-  introduce new `must_fix`. If they did, return to Stage 1 (within the
-  2-iteration cap).
-- **Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 4 phase_5_should_fix_decided --json`
-
-#### Stage 3 — Final proceed gate
-
-Present the final aggregated summary (counts of accept/reject/defer/edit
-for must_fix + should_fix) and the handoff to the appropriate CodeGen
-agent (Bicep or Terraform based on `decisions.iac_tool`).
+- **Stage 1** auto-applies every `must_fix` (mandatory; 2-iteration cap;
+  unattended mode defers).
+- **Stage 2** runs the Per-Finding Decision Protocol over remaining
+  `should_fix` items only.
+- **Stage 3** presents the final proceed gate + handoff to 06b/06t.
 
 **Plan-status attestation (MANDATORY)** — before completing the step,
 verify (a) every challenger pass returned `APPROVED`, (b) the

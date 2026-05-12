@@ -109,15 +109,21 @@ understand what has already been reviewed and which decisions to scrutinize.
    | `06-deployment*` | `deployment-preview` |
 3. **Extract `project_name`** from the artifact path (the folder name under `agent-output/`)
 4. **Determine review parameters** from user input or defaults:
-   - `review_focus`: If user specifies a lens (e.g., "security review", "cost review"), map it:
+   - `review_focus`: **Default: `comprehensive`**. If the user specifies a
+     lens (e.g., "security review", "cost review"), map it:
      | User Intent | `review_focus` |
      | --- | --- |
+     | (default / unspecified) | `comprehensive` |
      | security, governance, policy | `security-governance` |
      | architecture, reliability, resilience | `architecture-reliability` |
      | cost, pricing, budget | `cost-feasibility` |
-     | (default / unspecified) | `comprehensive` |
+     | governance reconciliation, drift | `governance-reconciliation` |
    - `pass_number`: Default `1`. If user says "pass 2" or "second pass", use `2`. For "pass 3", use `3`.
-   - `total_passes`: Default `1`. If user requests multi-pass, set to requested count (max 3).
+   - `total_passes`: **Default `1` (comprehensive single pass)**. Multi-pass
+     is an explicit user request. If user requests multi-pass or asks for a
+     "deep review", set to requested count (max 3) and use the rotating-lens
+     cascade from
+     `azure-defaults/references/adversarial-review-protocol.md → ## Opt-in: Deep adversarial review`.
 5. **Route to the appropriate subagent** based on pass configuration:
 
 ### Single-Pass Review (total_passes = 1)
@@ -169,7 +175,7 @@ Expected output: JSON written by the subagent at the caller-supplied `output_pat
 (canonical pattern: `agent-output/{project}/challenge-findings-{artifact_type}.json`
 or `…-pass{N}.json` for multi-pass).
 Format: See challenger-review-subagent output format specification.
-Fields: challenged_artifact, artifact_type, review_focus, risk_level, must_fix_count, should_fix_count, issues[].
+Fields: challenged_artifact, artifact_type, review_focus, risk_level, must_fix_count, should_fix_count, findings[].
 Presentation: Render findings as markdown table in chat (ID, Severity, Title, WAF Pillar, Recommendation).
 
 **Input Fallback**: If the artifact path does not match any known filename pattern in the workflow table,

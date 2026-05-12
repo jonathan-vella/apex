@@ -324,6 +324,40 @@ agent reads the same value instead of re-deriving. If `04-governance-constraints
 is not yet generated (pre-Gate-2_5), set `policy_violations = 0` and refresh the
 score after governance approval.
 
+### Computing `decisions.review_depth` (project-scoped opt-in)
+
+Capture this **once at project boot** (or during the first gate after
+project init), then never re-prompt. Allowed values:
+
+| Value     | Meaning                                                                                          |
+| --------- | ------------------------------------------------------------------------------------------------ |
+| `default` | Single-pass `comprehensive` reviews at Steps 1, 2, 4; `governance-reconciliation` at Step 3.5    |
+| `deep`    | All challenger reviews use the opt-in rotating-lens cascade per `adversarial-review-protocol.md` |
+
+**01-Orchestrator is the ONLY writer.** 02-Requirements (and every other
+parent agent) reads `decisions.review_depth` via
+`apex-recall show <project> --json` at every invocation but never writes
+it. Default value when absent: `"default"`.
+
+Capture via `askQuestions`:
+
+```text
+Run adversarial reviews at the default depth (single comprehensive pass per step) or deep depth (rotating multi-lens passes per step)?
+- "Default — single-pass comprehensive (recommended)"
+- "Deep — multi-pass rotating lenses (opt-in)"
+```
+
+Persist:
+
+```bash
+apex-recall decide <project> --key review_depth --value default|deep \
+  --rationale "User selection at project boot" --json
+```
+
+When `decisions.review_depth == "deep"`, parent agents automatically
+enter the opt-in rotating-lens path. The Orchestrator does NOT re-ask at
+each gate.
+
 ### Gate behaviour
 
 At each approval gate:
@@ -334,17 +368,22 @@ At each approval gate:
    challenger completes counts as the gate's review entry. The pass is
    required at every gate by default — it is not optional and must not be
    skipped to save tokens or turns.
-2. Check `decisions.complexity` from `apex-recall show <project> --json`
-3. **simple/standard**: Present the single-pass result directly — no additional review
-4. **complex**: Ask the user via `askQuestions`:
-   _"Run additional adversarial review? (recommended for complex projects)"_
-   Options: "Yes — run full multi-pass review" / "No — proceed with single-pass result"
-5. If user opts in, re-present the **Run Challenger Review** handoff for each
-   additional lens from the matrix in `adversarial-review-protocol.md`.
+2. Read `decisions.review_depth` from `apex-recall show <project> --json`.
+   When `review_depth == "deep"`, the underlying parent agent already
+   entered the rotating-lens path before reaching the gate — **do NOT
+   re-prompt** the user. Surface the multi-pass summary directly.
+3. When `review_depth == "default"` (the common case), present the
+   single-pass result directly. No per-gate complexity opt-in prompt.
+4. Steps 4 and 5 (Plan and Code) **skip challenger review entirely**
+   when `review_depth == "default"` (`step-5{b,t}.challenger.default_passes = 0`
+   in `workflow-graph.json`). When `review_depth == "deep"`, Step 5
+   automatically uses the recommended shape from `opt_in_matrix` for the
+   current `decisions.complexity`.
 
-Steps 4 and 5 (Plan and Code) skip challenger review entirely by default (`default_passes: 0`
-in `workflow-graph.json`). For complex projects, the Orchestrator asks whether to enable it
-and surfaces the **Run Challenger Review** handoff button if the user opts in.
+Legacy gate question — _"Run additional adversarial review? (recommended
+for complex projects)"_ — is **removed**. Multi-pass review is enabled
+exclusively via `decisions.review_depth = "deep"` (set once at project
+boot) or via a direct `10-Challenger` invocation by the user.
 
 ## DO / DON'T
 

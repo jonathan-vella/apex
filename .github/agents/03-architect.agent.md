@@ -58,6 +58,13 @@ Do not rely on parametric knowledge for pricing — delegate to cost-estimate-su
 
 <context_awareness>
 Context tiers: follow context-management skill (Mode A: Runtime Compression). At >80% switch to SKILL.minimal.md.
+
+Review-depth opt-in: read `decisions.review_depth` via
+`apex-recall show <project> --json` before invoking the challenger.
+Default to `"default"` if absent. `"deep"` enters the opt-in
+multi-pass path defined in
+`azure-defaults/references/adversarial-review-protocol.md`
+without re-prompting the user.
 </context_awareness>
 
 <output_contract>
@@ -271,69 +278,90 @@ If `cost-estimate-subagent` fails or is unavailable, STOP and notify the user.
 Do NOT write dollar figures from memory. Do NOT proceed to artifact generation
 without subagent-verified prices.
 
-## Adversarial Review — 3-Pass Architecture + 1-Pass Cost Estimate
+## Adversarial Review — 1-Pass Comprehensive Architecture + 1-Pass Cost Estimate (default)
 
 After generating the assessment and cost estimate, run adversarial reviews.
 Read `azure-defaults/references/adversarial-review-protocol.md` for the
 lens table, compact prior_findings guidance, and invocation template.
 
-Check `decisions.complexity` from `apex-recall show <project> --json` to determine pass count per the review matrix in `adversarial-review-protocol.md`.
+**Default flow (always run)**: 1× `comprehensive` review of the
+architecture artifact + 1× `cost-feasibility` review of the cost-estimate
+artifact, in parallel. No tier-driven multi-pass auto-fires.
 
-### Architecture Review (3 passes — rotating lenses)
+**Deep-review opt-in**: if `decisions.review_depth == "deep"`, enter the
+opt-in rotating-lens cascade defined in
+`adversarial-review-protocol.md → ## Opt-in: Deep adversarial review`.
+Use the recommended shape from `opt_in_matrix` for the architect's step
+in `workflow-graph.json` based on `decisions.complexity`. Do NOT prompt
+the user — the project-scoped `review_depth` decision is the opt-in
+trigger.
 
-> **Conditional passes**: Follow the conditional pass rules from `adversarial-review-protocol.md` —
-> skip pass 2 if pass 1 has 0 `must_fix` and <2 `should_fix`; skip pass 3 if pass 2 has 0 `must_fix`.
+### Architecture Review (default: 1 pass, comprehensive)
 
-> **Model routing**: For pass 1 (security-governance) or comprehensive reviews:
-> invoke `challenger-review-subagent`.
-> For pass 2 (architecture-reliability) and pass 3 (cost-feasibility):
-> invoke `challenger-review-subagent` with the appropriate `review_focus`
-> (model routing is handled internally by the subagent).
+Invoke `challenger-review-subagent`:
 
-### Cost Estimate Review (1 pass)
+- `artifact_path` = `agent-output/{project}/02-architecture-assessment.md`
+- `project_name` = `{project}`
+- `artifact_type` = `architecture`
+- `review_focus` = `comprehensive`
+- `pass_number` = `1`
+- `prior_findings` = `null`
+- `output_path` = `agent-output/{project}/challenge-findings-architecture.json`
+- `overwrite` = `false` (set to `true` only when re-running after revisions)
+
+### Cost Estimate Review (1 pass — cost-feasibility lens)
 
 Invoke `challenger-review-subagent`:
 
 - `artifact_path` = `agent-output/{project}/03-des-cost-estimate.md`
 - `project_name` = `{project}`
 - `artifact_type` = `cost-estimate`
-- `review_focus` = `comprehensive`
+- `review_focus` = `cost-feasibility`
 - `pass_number` = `1`
 - `prior_findings` = `null`
 - `output_path` = `agent-output/{project}/challenge-findings-cost-estimate.json`
-- `overwrite` = `false` (set to `true` only when re-running after revisions)
+- `overwrite` = `false`
 
 The subagent writes the JSON file at `output_path` and returns a compact
 summary (≤15 lines). **Do NOT paste subagent JSON inline.** Read the file
 from disk only if you need full finding details for the Gate presentation.
 
+> Note: `cost-estimate-subagent` is **not** invoked for this review — it
+> remains the cost-BREAKDOWN emitter consumed earlier in the workflow.
+> The cost-audit findings come from `challenger-review-subagent` with
+> `review_focus: cost-feasibility`.
+
 ### Parallel Execution Strategy
 
-> **Architecture pass 1** and **Cost Estimate review** are independent
-> (different artifacts, both `prior_findings=null`). Invoke both via
-> `#runSubagent` **in parallel**, then await both results before
-> proceeding to conditional architecture pass 2.
+> **Architecture comprehensive review** and **Cost Estimate review** are
+> independent (different artifacts, both `prior_findings=null`). Invoke
+> both via `#runSubagent` **in parallel**, then await both results
+> before proceeding to the approval gate.
 
-1. **Parallel**: Invoke architecture pass 1 + cost estimate review simultaneously
-2. **Sequential**: If architecture pass 1 triggers pass 2, invoke it with pass 1's `compact_for_parent`
-3. **Sequential**: If pass 2 triggers pass 3, invoke it with passes 1+2 compact strings
+**Checkpoint** (MANDATORY) after each pass:
+`apex-recall checkpoint <project> 2 phase_6_challenger_pass{N} --json`
 
-For each architecture pass, invoke the appropriate challenger subagent via `#runSubagent`:
+### Deep-review path (opt-in, when `decisions.review_depth == "deep"`)
+
+When deep review is active, replace the single comprehensive architecture
+pass with the rotating-lens cascade:
+
+1. Pass 1 — `security-governance` (always)
+2. Pass 2 — `architecture-reliability` (skip if pass 1 has 0 `must_fix` AND <2 `should_fix`)
+3. Pass 3 — `cost-feasibility` (skip if pass 2 has 0 `must_fix`)
+
+For each pass, invoke `challenger-review-subagent` with:
 
 - `artifact_path` = `agent-output/{project}/02-architecture-assessment.md`
 - `project_name` = `{project}`
 - `artifact_type` = `architecture`
-- `review_focus` = per-pass value from protocol lens table
+- `review_focus` = per-pass value from the protocol cascade
 - `pass_number` = `1` / `2` / `3`
 - `prior_findings` = `null` for pass 1; compact string for passes 2-3
 - `output_path` = `agent-output/{project}/challenge-findings-architecture-pass{N}.json`
 - `overwrite` = `false` (set to `true` only when re-running after revisions)
 
-The subagent writes each pass's JSON file at `output_path` and returns a compact
-summary (≤15 lines). **Do NOT paste subagent JSON inline.** Read each file
-from disk only if you need full finding details for the Gate presentation.
-**Checkpoint** (MANDATORY) after each pass:
-`apex-recall checkpoint <project> 2 phase_6_challenger_pass{N} --json`
+The cost-estimate review still runs once, in parallel with pass 1.
 
 ## Approval Gate
 
@@ -351,8 +379,10 @@ Then run the **Per-Finding Decision Protocol** from
 [.github/skills/azure-defaults/references/adversarial-review-protocol.md](../skills/azure-defaults/references/adversarial-review-protocol.md).
 
 - **Sources merged for the panel** (per protocol section 2e): in this
-  order — `challenge-findings-cost-estimate.json` → `challenge-findings-architecture-pass1.json` → `pass2.json` → `pass3.json`
-  (omit passes that did not run).
+  order — `challenge-findings-cost-estimate.json` →
+  `challenge-findings-architecture.json` (default single-pass) **or**
+  `challenge-findings-architecture-pass1.json` → `pass2.json` →
+  `pass3.json` (deep-review path; omit passes that did not run).
 - **Sidecar**:
   `agent-output/{project}/challenge-findings-architecture-decisions.json`.
   All decisions across cost-estimate and architecture passes land in this

@@ -217,44 +217,15 @@ re-invocation) where the current turn does not know prior work exists.
 
 ### Phase 0.45: Baseline Check
 
-Check whether a committed governance baseline can satisfy the request, avoiding
-live Azure calls entirely. This phase runs only if Phase 0.4 did NOT short-circuit.
+Before any live discovery, check whether a committed governance
+baseline at `.github/data/governance-policy-baseline.json` can satisfy
+the request — eligibility, user prompt, and `render_cached_governance.py`
+invocation are documented in
+[`baseline-check.md`](../skills/azure-governance-discovery/references/baseline-check.md).
 
-> Baseline freshness is branch-local: on feature branches that lag `main`, the
-> visible baseline will also lag.
-
-1. Check if `.github/data/governance-policy-baseline.json` exists.
-2. If it exists, read the target subscription ID from the project's
-   `02-architecture-assessment.md` or session state.
-3. **All** eligibility conditions must be true:
-   - The target subscription exists as a key in `subscriptions`.
-   - The target subscription is NOT in `subscriptions_skipped` or `subscriptions_excluded`.
-   - The subscription entry has `discovery_status == "COMPLETE"`.
-   - The top-level `coverage_status == "COMPLETE"` OR the target subscription
-     is individually present and complete despite partial overall coverage.
-4. If eligible, use `askQuestions` to ask the user:
-   _"A governance baseline from {date} is available for subscription {id}.
-   Use the cached baseline or run fresh live discovery?"_
-   Options: **Use baseline** (recommended) | **Run live discovery**
-5. If the user chooses baseline:
-   - Extract the subscription entry from the baseline JSON.
-   - Write it to a temporary file.
-   - Run `render_cached_governance.py`:
-
-     ```bash
-     set +H && python .github/skills/azure-governance-discovery/scripts/render_cached_governance.py \
-         --in /tmp/{project}-baseline-sub.json \
-         --out agent-output/{project}/04-governance-constraints.json \
-         --arch agent-output/{project}/02-architecture-assessment.md
-     ```
-
-   - Read the first stdout line for status JSON.
-   - Copy `.preview.md` to `04-governance-constraints.md` — treat it as freshly
-     generated. Do NOT reuse any prior annotated markdown from the agent-output folder.
-   - Proceed directly to Phase 2 (Generate Artifacts / validation).
-
-6. If the baseline file is missing, eligibility fails, or the user chooses live
-   discovery, proceed to Phase 0.5.
+This phase runs only if Phase 0.4 did NOT short-circuit. If the
+baseline is missing, ineligible, or the user picks live discovery,
+proceed to Phase 0.5.
 
 ### Phase 0.5: Cache-First Check
 
@@ -372,24 +343,27 @@ The only user interaction point is the Phase 3 Approval Gate.
 
 **Policy Effect Reference**: `azure-defaults/references/policy-effect-decision-tree.md`
 
-### Phase 2.5: Challenger Review (max 1 pass)
+### Phase 2.5: Reconciliation Review (mandatory, 1 pass)
 
-Run a single comprehensive adversarial review on the governance artifacts.
-**Cap**: Maximum 1 challenger pass. If must-fix findings remain after
-pass 1, present them to the user at the approval gate rather than looping further.
+Run a single-pass `governance-reconciliation` adversarial review on the
+governance artifacts. The lens asks: "**does the approved architecture
+still satisfy the newly discovered constraints?**" Lens checklist:
+`adversarial-checklists.md → ## Lens: governance-reconciliation`.
 
-**Skip condition**: When `blockers + auto_remediate == 0` (trivial subscription
-with no actionable policies), skip the challenger entirely and proceed to Phase 3.
+**Skip condition**: When `constraints.count == 0` (trivial subscription with
+no actionable policies — `blockers + auto_remediate + warnings == 0`), skip
+the challenger entirely and proceed to Phase 3. The `step-3_5` node in
+`workflow-graph.json` declares this skip_condition.
 
-**Performance note**: When re-invoked to address challenger findings, this agent
-MUST hit the Phase 0.5 cache — fixing artifact content never requires rediscovering
-policies. Do not re-run Phase 1 between challenger passes.
+**Performance note**: When re-invoked to address challenger findings, this
+agent MUST hit the Phase 0.5 cache — fixing artifact content never requires
+rediscovering policies. Do not re-run Phase 1 between challenger passes.
 
 1. Delegate to `challenger-review-subagent` via `#runSubagent`:
    - `artifact_path` = `agent-output/{project}/04-governance-constraints.md`
    - `project_name` = `{project}`
-   - `artifact_type` = `governance`
-   - `review_focus` = `comprehensive`
+   - `artifact_type` = `governance-constraints`
+   - `review_focus` = `governance-reconciliation`
    - `pass_number` = `1`
    - `prior_findings` = `null`
    - `output_path` = `agent-output/{project}/challenge-findings-governance-constraints-pass1.json`
@@ -397,8 +371,21 @@ policies. Do not re-run Phase 1 between challenger passes.
 2. The subagent writes the JSON file at `output_path` and returns a compact
    summary (≤15 lines). **Do NOT paste subagent JSON inline.** Read the file
    from disk only if you need full finding details for the Gate 2.5 summary.
-3. If any `must_fix` findings: batch-fix ALL findings in one edit pass.
-4. Include challenger findings summary in the Gate 2.5 presentation below
+3. **Reconciliation disposition rule (anti-ambiguity)** — if any
+   reconciliation finding is `must_fix` AND references an approved
+   architecture decision (typically signalled by
+   `requires_step == "step-2"`), follow the three-step escalation in
+   [`reconciliation-disposition.md`](../skills/azure-governance-discovery/references/reconciliation-disposition.md):
+   record the conflict via `apex-recall decide`, emit a typed handoff
+   to `03-Architect` via the `step-3_5 → step-2` return_edge, and keep
+   Gate-2_5 closed until Architect re-approves. **Do NOT self-edit
+   `02-architecture-assessment.md`.**
+
+   For governance-only `must_fix` findings (no architecture conflict),
+   batch-fix in the governance artifact in one edit pass and re-run the
+   challenger with `overwrite: true`.
+
+4. Include challenger findings summary in the Gate 2.5 presentation below.
 5. **Review audit** (MANDATORY): `apex-recall review-audit <project> 3_5 --passes-executed 1 --json`
 6. **Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 3_5 phase_2_5_challenger --json`
 
