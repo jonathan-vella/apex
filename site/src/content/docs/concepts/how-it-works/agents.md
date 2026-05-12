@@ -57,7 +57,6 @@ and routing to the next step. At approval gates, the Orchestrator writes a
 | Agent                       | Role                                            | Primary Skills                                 |
 | --------------------------- | ----------------------------------------------- | ---------------------------------------------- |
 | 01-Orchestrator             | Master orchestrator                             | workflow-engine, apex-recall                   |
-| 01-Orchestrator (Fast Path) | Simplified path for ≤3 resources                | apex-recall, azure-defaults                    |
 | 02-Requirements             | Captures project requirements                   | azure-defaults, azure-artifacts                |
 | 03-Architect                | WAF assessment and cost estimation              | azure-defaults                                 |
 | 04-Design                   | Diagrams and ADRs                               | drawio, python-diagrams, azure-adr             |
@@ -77,12 +76,6 @@ For a live, always-current roster, see the
 [Architecture Explorer](../../../reference/architecture-explorer/). The count is
 computed from `tools/registry/count-manifest.json` and the source of truth is the
 `.github/agents/*.agent.md` files on disk.
-
-:::note[Fast Path Variant]
-01-Orchestrator (Fast Path) is an experimental variant for simple projects
-(≤3 resources, single environment, no custom policies). For standard or
-complex projects, use the main 01-Orchestrator.
-:::
 
 ## Subagents
 
@@ -196,7 +189,7 @@ Model selection depends on the task. Use `tools/registry/agent-registry.json` as
 source of truth, but the current repo pattern is:
 
 - **Planning agents** (accuracy-first) — typically `Claude Opus 4.7` at high reasoning effort
-- **Orchestrator + Fast Path** — `GPT-5.5` with the OpenAI outcome-first prompting style
+- **Orchestrator** — `GPT-5.5` with the OpenAI outcome-first prompting style
   (Role / Personality / Goal / Success / Constraints / Output / Stop)
 - **Design + Governance + Code generation + Challenger** — `GPT-5.5` for balanced
   execution quality with explicit retrieval budgets and stopping conditions

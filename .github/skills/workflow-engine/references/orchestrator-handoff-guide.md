@@ -152,7 +152,7 @@ Header: `# {Project} — Handoff (Step {N} complete)` with metadata line (`Updat
 
 ## Step Delegation
 
-The orchestrator (`01-Orchestrator` and `01-Orchestrator (Fast Path)`) runs
+The orchestrator (`01-Orchestrator`) runs
 at **codex** tier. Per the VS Code [subagent cost-tier rule](https://code.visualstudio.com/docs/copilot/agents/subagents),
 `#runSubagent` cannot raise the subagent above the parent's tier — higher-tier
 targets silently fall back to codex.

@@ -50,10 +50,10 @@ tool call and switch every further read to the `minimal` tier.
 
 | Model               | Context limit | Hard checkpoint at | Action                                                                                                                          |
 | ------------------- | ------------- | ------------------ | ------------------------------------------------------------------------------------------------------------------------------- |
-| `gpt-5.5`           | 200K          | **≥150K input**    | Swap full plan + governance artifacts for `apex-recall show <project> --json` summaries; pin further skill reads to `SKILL.md`. |
-| `claude-opus-4.7`   | 200K          | ≥160K input        | Same protocol; prefer the digest tier over re-reading source artifacts.                                                         |
+| `gpt-5.5`           | 400K          | **≥300K input**    | Swap full plan + governance artifacts for `apex-recall show <project> --json` summaries; pin further skill reads to `SKILL.md`. |
+| `gpt-5.3-codex`     | 400K          | ≥300K input        | Same protocol.                                                                                                                  |
+| `claude-opus-4.7`   | 200K          | ≥160K input        | Same protocol; prefer `references/` lookups over re-reading source artifacts.                                                   |
 | `claude-sonnet-4.6` | 200K          | ≥150K input        | Same protocol.                                                                                                                  |
-| `gpt-5.3-codex`     | 128K          | ≥95K input         | Same protocol.                                                                                                                  |
 
 Checkpoint procedure when a hard threshold is hit:
 
@@ -72,9 +72,9 @@ Checkpoint procedure when a hard threshold is hit:
 context_compacted_<threshold>K --json`.
 
 Step 5 CodeGen agents (`06b-Bicep CodeGen`, `06t-Terraform CodeGen`) must
-honour this rule \u2014 the gpt-5.5 main agent saturated at 200K+ inputs in the
-nordic-foods retro (May 2026); the 150K hard checkpoint is the trip-wire
-that prevents recurrence.
+honour this rule \u2014 the gpt-5.5 main agent saturated at very large inputs in
+the nordic-foods retro (May 2026); the 300K hard checkpoint is the trip-wire
+that prevents recurrence on the 400K GPT-5 family budget.
 
 ## Rules
 
@@ -89,7 +89,7 @@ Before loading any artifact file:
 
 ```text
 1. Estimate current context usage (rough: 1 token ≈ 4 chars)
-2. Check model limit (Opus: 200K, GPT-5.3-Codex: 128K)
+2. Check model limit (Claude family: 200K, GPT-5 family: 400K)
 3. Calculate usage percentage
 4. Select tier:
    < 60%  → full (no compression needed)

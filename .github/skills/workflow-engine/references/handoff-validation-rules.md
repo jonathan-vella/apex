@@ -57,7 +57,7 @@ still works using `edges[]` only.
 `error` severity**, regardless of any other match.
 
 **Excluded as sources** (skipped entirely): `01-Orchestrator`,
-`01-Orchestrator (Fast Path)`, `09-Diagnose`, `11-Context Optimizer`,
+`09-Diagnose`, `11-Context Optimizer`,
 `10-Challenger`. **`E2E Orchestrator` is NOT excluded** (per
 S6 — its handoffs SHOULD align with the DAG).
 

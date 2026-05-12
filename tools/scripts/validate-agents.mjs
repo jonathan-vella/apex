@@ -1056,8 +1056,6 @@ const WORKFLOW_HANDOFF_RULES = [
 /** B1a: agent names whose `handoffs[]` are skipped entirely as sources. */
 const HANDOFF_TARGET_EXCLUDED_SOURCES = new Set([
   "01-Orchestrator",
-  "01-Orchestrator (Fast Path)",
-  "01-Orchestrator-fastpath",
   "09-Diagnose",
   "11-Context Optimizer",
   "11-Context-Optimizer",
@@ -1118,10 +1116,6 @@ const CHALLENGER_DISPATCHER_ALLOWLIST = new Set([
   // for surfacing review findings to the user. It doesn't own a primary
   // artifact — it dispatches to step agents who do.
   "01-Orchestrator",
-  // 01-Orchestrator (Fast Path) is the lower-tier sibling that handles
-  // the same handoff routing but at codex tier; it dispatches the same
-  // challenger flow.
-  "01-Orchestrator (Fast Path)",
   // 10-Challenger is the standalone wrapper agent for ad-hoc adversarial
   // reviews. Its entire purpose is to dispatch the challenger subagent.
   // Retirement decision pending (see

@@ -217,16 +217,6 @@ Supports both Bicep and Terraform IaC tracks. Invoked via prompt files, not dire
 
 📁 **See**: [.github/agents/e2e-orchestrator.agent.md](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/e2e-orchestrator.agent.md)
 
-## F
-
-### Fast Path
-
-An experimental orchestrator variant (`01-Orchestrator (Fast Path)`) optimized for simple Azure
-projects with 3 or fewer resources, single environment, and no custom policies. Combines
-the Plan and Code steps with a single-pass review for faster delivery.
-
-📁 **See**: [.github/agents/01-orchestrator-fastpath.agent.md](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/01-orchestrator-fastpath.agent.md)
-
 ## G
 
 ### Governance Constraints

@@ -1,15 +1,9 @@
 {
   "$schema": "../schemas/agent-registry.schema.json",
-  "description": "Machine-readable registry mapping agent roles to their definitions, models, and workflow steps. Skills are wired by the agent body's `Read .github/skills/{name}/SKILL[.digest|.minimal].md` line (discovered at runtime by tools/scripts/validate-orphaned-content.mjs), not by an entry in this registry.",
+  "description": "Machine-readable registry mapping agent roles to their definitions, models, and workflow steps. Skills are wired by the agent body's `Read .github/skills/{name}/SKILL.md` line (discovered at runtime by tools/scripts/validate-orphaned-content.mjs), not by an entry in this registry.",
   "agents": {
     "orchestrator": {
       "agent": ".github/agents/01-orchestrator.agent.md",
-      "model": "GPT-5.3-Codex",
-      "invokable": true,
-      "step": null
-    },
-    "orchestrator-fast-path": {
-      "agent": ".github/agents/01-orchestrator-fastpath.agent.md",
       "model": "GPT-5.3-Codex",
       "invokable": true,
       "step": null

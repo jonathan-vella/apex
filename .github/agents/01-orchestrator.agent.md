@@ -65,10 +65,6 @@ handoffs:
     agent: 08-As-Built
     prompt: "Generate the complete Step 7 documentation suite for the deployed project. Input: all prior artifacts (01-06) in `agent-output/{project}/` plus deployed resource state. Output: `07-*.md` documentation suite (design doc, runbook, cost estimate, compliance matrix, resource inventory)."
     send: true
-  - label: "⚡ Switch to Fast Path"
-    agent: 01-Orchestrator (Fast Path)
-    prompt: "Switch to fast-path orchestrator for simple projects (≤3 resources, single env, no custom policies). Input: current agent-output/{project}/00-session-state.json. Output: session state retargeted at orchestrator-fast-path."
-    send: false
   - label: "🔧 Diagnose Issues"
     agent: 09-Diagnose
     prompt: "Troubleshoot issues with the current workflow or Azure resources. Input: deployed resource state + agent-output/{project}/. Output: agent-output/{project}/diagnose-report-*.md."
@@ -533,7 +529,7 @@ Orchestrator with the project name — no special resume prompt needed.
 | `high`   | Claude Opus 4.7   | Requirements, Architecture, Planning, Diagnose, Context Optimizer                |
 | `medium` | GPT-5.5           | Governance, CodeGen, Deploy, As-Built, Challenger, E2E orchestrator + loop       |
 | `medium` | Claude Sonnet 4.6 | Design, Bicep/Terraform validate + preview subagents (Anthropic prompting style) |
-| `codex`  | GPT-5.3-Codex     | **Orchestrator + Fast Path** (handoff-only routing), Cost estimate subagent      |
+| `codex`  | GPT-5.3-Codex     | **Orchestrator** (handoff-only routing), Cost estimate subagent                  |
 
 > The canonical assignments live in
 > [tools/registry/agent-registry.json](../../tools/registry/agent-registry.json) and

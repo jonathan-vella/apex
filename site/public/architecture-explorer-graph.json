@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-05-12T11:29:05.175Z",
+  "generatedAt": "2026-05-12T12:36:50.809Z",
   "categories": [
     {
       "id": "agent",
@@ -8,7 +8,7 @@
       "label": "Agent",
       "color": "#3b82f6",
       "shape": "round-rectangle",
-      "count": 16
+      "count": 15
     },
     {
       "id": "subagent",
@@ -40,7 +40,7 @@
       "label": "Prompt",
       "color": "#ec4899",
       "shape": "tag",
-      "count": 17
+      "count": 16
     },
     {
       "id": "validator",
@@ -67,44 +67,9 @@
       "count": 6
     }
   ],
-  "nodeCount": 159,
-  "edgeCount": 687,
+  "nodeCount": 157,
+  "edgeCount": 657,
   "nodes": [
-    {
-      "id": "agent:01-orchestrator-fast-path",
-      "category": "agent",
-      "label": "01-Orchestrator (Fast Path)",
-      "description": "Experimental fast-path orchestrator for simple Azure projects (<=3 resources, single env, no custom policies). Combines Plan+Code steps with 1-pass review. For standard/complex projects, use the main 01-Orchestrator agent.",
-      "path": ".github/agents/01-orchestrator-fastpath.agent.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/01-orchestrator-fastpath.agent.md"
-      },
-      "meta": {
-        "model": "GPT-5.3-Codex",
-        "invocable": true,
-        "subagents": [
-          "02-Requirements",
-          "03-Architect",
-          "05-IaC Planner",
-          "06b-Bicep CodeGen",
-          "07b-Bicep Deploy",
-          "08-As-Built",
-          "06t-Terraform CodeGen",
-          "07t-Terraform Deploy",
-          "10-Challenger"
-        ],
-        "handoffTargets": [
-          "01-Orchestrator (Fast Path)",
-          "02-Requirements",
-          "03-Architect",
-          "05-IaC Planner",
-          "07b-Bicep Deploy",
-          "08-As-Built",
-          "10-Challenger",
-          "01-Orchestrator"
-        ]
-      }
-    },
     {
       "id": "agent:01-orchestrator",
       "category": "agent",
@@ -141,7 +106,6 @@
           "06b-Bicep CodeGen",
           "07b-Bicep Deploy",
           "08-As-Built",
-          "01-Orchestrator (Fast Path)",
           "09-Diagnose",
           "10-Challenger",
           "06t-Terraform CodeGen",
@@ -1299,17 +1263,6 @@
       }
     },
     {
-      "id": "prompt:01-orchestrator",
-      "category": "prompt",
-      "label": "01-orchestrator",
-      "description": "Kick off a new Azure platform engineering project through the full multi-step workflow with the Orchestrator agent.",
-      "path": ".github/prompts/01-orchestrator.prompt.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/prompts/01-orchestrator.prompt.md"
-      },
-      "meta": {}
-    },
-    {
       "id": "prompt:02-requirements",
       "category": "prompt",
       "label": "02-requirements",
@@ -2247,60 +2200,6 @@
   ],
   "edges": [
     {
-      "id": "agent:01-orchestrator-fast-path--delegates->agent:02-requirements",
-      "source": "agent:01-orchestrator-fast-path",
-      "target": "agent:02-requirements",
-      "kind": "delegates"
-    },
-    {
-      "id": "agent:01-orchestrator-fast-path--delegates->agent:03-architect",
-      "source": "agent:01-orchestrator-fast-path",
-      "target": "agent:03-architect",
-      "kind": "delegates"
-    },
-    {
-      "id": "agent:01-orchestrator-fast-path--delegates->agent:05-iac-planner",
-      "source": "agent:01-orchestrator-fast-path",
-      "target": "agent:05-iac-planner",
-      "kind": "delegates"
-    },
-    {
-      "id": "agent:01-orchestrator-fast-path--delegates->agent:06b-bicep-codegen",
-      "source": "agent:01-orchestrator-fast-path",
-      "target": "agent:06b-bicep-codegen",
-      "kind": "delegates"
-    },
-    {
-      "id": "agent:01-orchestrator-fast-path--delegates->agent:07b-bicep-deploy",
-      "source": "agent:01-orchestrator-fast-path",
-      "target": "agent:07b-bicep-deploy",
-      "kind": "delegates"
-    },
-    {
-      "id": "agent:01-orchestrator-fast-path--delegates->agent:08-as-built",
-      "source": "agent:01-orchestrator-fast-path",
-      "target": "agent:08-as-built",
-      "kind": "delegates"
-    },
-    {
-      "id": "agent:01-orchestrator-fast-path--delegates->agent:06t-terraform-codegen",
-      "source": "agent:01-orchestrator-fast-path",
-      "target": "agent:06t-terraform-codegen",
-      "kind": "delegates"
-    },
-    {
-      "id": "agent:01-orchestrator-fast-path--delegates->agent:07t-terraform-deploy",
-      "source": "agent:01-orchestrator-fast-path",
-      "target": "agent:07t-terraform-deploy",
-      "kind": "delegates"
-    },
-    {
-      "id": "agent:01-orchestrator-fast-path--delegates->agent:10-challenger",
-      "source": "agent:01-orchestrator-fast-path",
-      "target": "agent:10-challenger",
-      "kind": "delegates"
-    },
-    {
       "id": "agent:01-orchestrator--delegates->agent:02-requirements",
       "source": "agent:01-orchestrator",
       "target": "agent:02-requirements",
@@ -2565,48 +2464,6 @@
       "kind": "delegates"
     },
     {
-      "id": "agent:01-orchestrator-fast-path--hands-off->agent:02-requirements",
-      "source": "agent:01-orchestrator-fast-path",
-      "target": "agent:02-requirements",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:01-orchestrator-fast-path--hands-off->agent:03-architect",
-      "source": "agent:01-orchestrator-fast-path",
-      "target": "agent:03-architect",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:01-orchestrator-fast-path--hands-off->agent:05-iac-planner",
-      "source": "agent:01-orchestrator-fast-path",
-      "target": "agent:05-iac-planner",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:01-orchestrator-fast-path--hands-off->agent:07b-bicep-deploy",
-      "source": "agent:01-orchestrator-fast-path",
-      "target": "agent:07b-bicep-deploy",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:01-orchestrator-fast-path--hands-off->agent:08-as-built",
-      "source": "agent:01-orchestrator-fast-path",
-      "target": "agent:08-as-built",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:01-orchestrator-fast-path--hands-off->agent:10-challenger",
-      "source": "agent:01-orchestrator-fast-path",
-      "target": "agent:10-challenger",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:01-orchestrator-fast-path--hands-off->agent:01-orchestrator",
-      "source": "agent:01-orchestrator-fast-path",
-      "target": "agent:01-orchestrator",
-      "kind": "hands-off"
-    },
-    {
       "id": "agent:01-orchestrator--hands-off->agent:02-requirements",
       "source": "agent:01-orchestrator",
       "target": "agent:02-requirements",
@@ -2652,12 +2509,6 @@
       "id": "agent:01-orchestrator--hands-off->agent:08-as-built",
       "source": "agent:01-orchestrator",
       "target": "agent:08-as-built",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:01-orchestrator--hands-off->agent:01-orchestrator-fast-path",
-      "source": "agent:01-orchestrator",
-      "target": "agent:01-orchestrator-fast-path",
       "kind": "hands-off"
     },
     {
@@ -2907,12 +2758,6 @@
       "kind": "hands-off"
     },
     {
-      "id": "prompt:01-orchestrator--invokes->agent:01-orchestrator",
-      "source": "prompt:01-orchestrator",
-      "target": "agent:01-orchestrator",
-      "kind": "invokes"
-    },
-    {
       "id": "prompt:02-requirements--invokes->agent:02-requirements",
       "source": "prompt:02-requirements",
       "target": "agent:02-requirements",
@@ -2971,12 +2816,6 @@
       "source": "prompt:08-as-built",
       "target": "agent:08-as-built",
       "kind": "invokes"
-    },
-    {
-      "id": "instruction:agent-authoring--applies-to->agent:01-orchestrator-fast-path",
-      "source": "instruction:agent-authoring",
-      "target": "agent:01-orchestrator-fast-path",
-      "kind": "applies-to"
     },
     {
       "id": "instruction:agent-authoring--applies-to->agent:01-orchestrator",
@@ -3108,12 +2947,6 @@
       "id": "instruction:agent-authoring--applies-to->subagent:terraform-validate-subagent",
       "source": "instruction:agent-authoring",
       "target": "subagent:terraform-validate-subagent",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:agent-authoring--applies-to->prompt:01-orchestrator",
-      "source": "instruction:agent-authoring",
-      "target": "prompt:01-orchestrator",
       "kind": "applies-to"
     },
     {
@@ -3408,12 +3241,6 @@
       "id": "instruction:agent-skills--applies-to->skill:workflow-engine",
       "source": "instruction:agent-skills",
       "target": "skill:workflow-engine",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:context-optimization--applies-to->agent:01-orchestrator-fast-path",
-      "source": "instruction:context-optimization",
-      "target": "agent:01-orchestrator-fast-path",
       "kind": "applies-to"
     },
     {
@@ -3750,12 +3577,6 @@
       "id": "instruction:context-optimization--applies-to->instruction:instructions",
       "source": "instruction:context-optimization",
       "target": "instruction:instructions",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:docs-trigger--applies-to->agent:01-orchestrator-fast-path",
-      "source": "instruction:docs-trigger",
-      "target": "agent:01-orchestrator-fast-path",
       "kind": "applies-to"
     },
     {
@@ -4251,12 +4072,6 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:lesson-collection--applies-to->agent:01-orchestrator-fast-path",
-      "source": "instruction:lesson-collection",
-      "target": "agent:01-orchestrator-fast-path",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:lesson-collection--applies-to->agent:01-orchestrator",
       "source": "instruction:lesson-collection",
       "target": "agent:01-orchestrator",
@@ -4584,12 +4399,6 @@
       "id": "instruction:markdown--applies-to->skill:workflow-engine",
       "source": "instruction:markdown",
       "target": "skill:workflow-engine",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:no-interactive-shell--applies-to->agent:01-orchestrator-fast-path",
-      "source": "instruction:no-interactive-shell",
-      "target": "agent:01-orchestrator-fast-path",
       "kind": "applies-to"
     },
     {
@@ -4923,12 +4732,6 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:no-interactive-shell--applies-to->prompt:01-orchestrator",
-      "source": "instruction:no-interactive-shell",
-      "target": "prompt:01-orchestrator",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:no-interactive-shell--applies-to->prompt:02-requirements",
       "source": "instruction:no-interactive-shell",
       "target": "prompt:02-requirements",
@@ -5031,12 +4834,6 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:prompt--applies-to->prompt:01-orchestrator",
-      "source": "instruction:prompt",
-      "target": "prompt:01-orchestrator",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:prompt--applies-to->prompt:02-requirements",
       "source": "instruction:prompt",
       "target": "prompt:02-requirements",
@@ -5130,12 +4927,6 @@
       "id": "instruction:prompt--applies-to->prompt:review-imported-iac",
       "source": "instruction:prompt",
       "target": "prompt:review-imported-iac",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:vendor-prompting--applies-to->agent:01-orchestrator-fast-path",
-      "source": "instruction:vendor-prompting",
-      "target": "agent:01-orchestrator-fast-path",
       "kind": "applies-to"
     },
     {
@@ -5268,12 +5059,6 @@
       "id": "instruction:vendor-prompting--applies-to->subagent:terraform-validate-subagent",
       "source": "instruction:vendor-prompting",
       "target": "subagent:terraform-validate-subagent",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:vendor-prompting--applies-to->prompt:01-orchestrator",
-      "source": "instruction:vendor-prompting",
-      "target": "prompt:01-orchestrator",
       "kind": "applies-to"
     },
     {
@@ -5617,18 +5402,6 @@
       "source": "workflow:weekly-maintenance",
       "target": "validator:lint-docs-freshness",
       "kind": "runs"
-    },
-    {
-      "id": "agent:01-orchestrator-fast-path--uses-mcp->mcp:github",
-      "source": "agent:01-orchestrator-fast-path",
-      "target": "mcp:github",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:01-orchestrator-fast-path--uses-mcp->mcp:terraform",
-      "source": "agent:01-orchestrator-fast-path",
-      "target": "mcp:terraform",
-      "kind": "uses-mcp"
     },
     {
       "id": "agent:01-orchestrator--uses-mcp->mcp:github",

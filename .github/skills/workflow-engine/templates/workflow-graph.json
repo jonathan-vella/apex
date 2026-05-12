@@ -427,7 +427,7 @@
     "wrapper_agent": "10-Challenger",
     "review_subagent": "challenger-review-subagent"
   },
-  "orchestrator_targets": ["01-Orchestrator", "01-Orchestrator (Fast Path)"],
+  "orchestrator_targets": ["01-Orchestrator"],
   "ui_pseudo_targets": ["agent"],
   "metadata": {
     "version": "2.3",

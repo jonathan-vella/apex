@@ -40,9 +40,11 @@ Fields:
 
 ### Latency Heuristics
 
-Latency correlates with context size (input tokens) and output length:
+Latency correlates with context size (input tokens) and output length.
+Thresholds below are Claude-family-centric (200K limit); double the
+"near limit" band on GPT-5 family models (400K limit).
 
-| Latency Band | Likely Context Size          | Signal                      |
+| Latency Band | Likely Context Size (Claude) | Signal                      |
 | ------------ | ---------------------------- | --------------------------- |
 | < 3s         | Small (< 10K tokens)         | Efficient turn              |
 | 3-8s         | Medium (10-50K tokens)       | Normal agent turn           |

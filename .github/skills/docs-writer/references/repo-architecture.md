@@ -44,7 +44,6 @@ See `tools/registry/count-manifest.json` for canonical counts.
 | Agent               | File                                | Model                     | Step | Artifacts                       |
 | ------------------- | ----------------------------------- | ------------------------- | ---- | ------------------------------- |
 | Orchestrator        | `01-orchestrator.agent.md`          | GPT-5.5                   | All  | Orchestration                   |
-| Orchestrator (Fast) | `01-orchestrator-fastpath.agent.md` | GPT-5.5                   | All  | Fast-path orchestration         |
 | Requirements        | `02-requirements.agent.md`          | Opus 4.7 (High reasoning) | 1    | `01-requirements.md`            |
 | Architect           | `03-architect.agent.md`             | Opus 4.7 (High reasoning) | 2    | `02-architecture-assessment.md` |
 | Design              | `04-design.agent.md`                | Sonnet 4.6                | 3    | `03-des-*.{drawio,py,png,md}`   |

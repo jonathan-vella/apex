@@ -42,7 +42,7 @@
         "iac-validation",
         "deployment-preview"
       ],
-      "notes": "Active for Step 3 Design and the IaC validation/preview subagents (bicep-validate, bicep-whatif, terraform-validate, terraform-plan) after the 2026-05 GPT-5.4 → Sonnet 4.6 subagent migration. The Anthropic prompting style (XML-tagged blocks, role-first, quote-grounded review, checklist-driven structured output) suits both ADR + diagram authoring and the structured PASS/FAIL findings produced by the validation subagents. Other Sonnet-cohort agents (Orchestrator Fast Path, Governance, CodeGen, Challenger) moved to GPT-5.5 in the same cohort migration."
+      "notes": "Active for Step 3 Design and the IaC validation/preview subagents (bicep-validate, bicep-whatif, terraform-validate, terraform-plan) after the 2026-05 GPT-5.4 → Sonnet 4.6 subagent migration. The Anthropic prompting style (XML-tagged blocks, role-first, quote-grounded review, checklist-driven structured output) suits both ADR + diagram authoring and the structured PASS/FAIL findings produced by the validation subagents. Other Sonnet-cohort agents (Governance, CodeGen, Challenger) moved to GPT-5.5 in the same cohort migration."
     },
     "GPT-5.4": {
       "vendor": "OpenAI",
@@ -100,7 +100,6 @@
     "generated_by": "tools/scripts/generate-model-catalog.mjs",
     "description": "Auto-generated inventory of agent → model assignments derived from frontmatter (canonical source). Do not edit by hand; run `node tools/scripts/generate-model-catalog.mjs` or let the lefthook pre-commit hook refresh it when frontmatter changes.",
     "agents": {
-      "01-orchestrator-fastpath.agent.md": "GPT-5.3-Codex",
       "01-orchestrator.agent.md": "GPT-5.3-Codex",
       "02-requirements.agent.md": "Claude Opus 4.7",
       "03-architect.agent.md": "Claude Opus 4.7",
