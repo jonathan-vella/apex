@@ -26,7 +26,7 @@ Rules:
 3. **Plan must_fix → Return to Planner.** If a code-review pass surfaces a
    finding whose root cause is in the plan (missing resource, wrong topology,
    unsatisfiable governance), STOP Step 5 and traverse the `↩ Return to
-   Step 4` handoff. Do not patch the plan in place.
+Step 4` handoff. Do not patch the plan in place.
 4. **Plan readiness precondition.** Before entering Phase 1, confirm
    `apex-recall show <project> --json` shows Step 4 complete AND every
    plan-level challenger pass returned APPROVED. If any plan-level pass is
@@ -67,7 +67,9 @@ Context reaches ~80% after preflight and governance mapping. Compact before code
 
 1. Summarize prior phases in a single concise message (preflight result, governance map,
    deployment strategy, resource list with module paths/sources)
-2. Switch to `SKILL.md` variants for further skill reads
+2. Stop loading additional skills after this point; rely on what's already in context.
+   Do not re-read any `SKILL.md` you have already consumed this session
+   (skills are single-tier — there are no digest/minimal variants to switch to).
 3. Do not re-read predecessor artifacts — rely on the summary and saved files on disk
 4. Update session state: `sub_step: "phase_1.6_compacted"`
 

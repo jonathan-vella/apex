@@ -33,11 +33,12 @@ Multi-pass adversarial review is **opt-in** — at each gate, check `decisions.c
   If the user opts in, use the full complexity matrix from `adversarial-review-protocol.md`.
   If declined, proceed with the single-pass result.
 
-**Runtime validation**: If the current complexity value has no matching entry in
-`opt_in_matrix` for the step under consideration, STOP with error and ask user
-to classify the project. `opt_in_matrix` MAY contain a subset of `{simple,
+**Runtime validation**: `opt_in_matrix` MAY contain a subset of `{simple,
 standard, complex}` — a missing tier means "no recommended multi-pass shape
-for that tier; default single-pass comprehensive applies".
+for that tier; default single-pass comprehensive applies". Treat a missing
+entry as a fall-through to default behaviour, not as a STOP condition.
+Only stop and ask the user to classify the project when `decisions.complexity`
+itself is unset AND the session has progressed past Step 1.
 
 **Write `00-handoff.md` at every gate before presenting it to the user.**
 See [Phase Handoff Document](#phase-handoff-document) for the format.
