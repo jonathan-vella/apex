@@ -174,7 +174,7 @@ handoffs are legal but bounded:
 **B4. `workflow-handoff-track-parity-001` (warn)** (M5/S2) — For
 dual-track agents (06b/07b vs 06t/07t):
 
-Compare normalized handoff *structure*, not raw strings:
+Compare normalized handoff _structure_, not raw strings:
 
 1. Strip `Bicep|Terraform|terraform|bicep|TF|tf` tokens from labels
 2. Map track-specific subagent names:
@@ -216,7 +216,7 @@ complete. **Parallel with**: C2.
 - Add `00-handoff.md` to the artifact templates table
 - Required H2 sections from `orchestrator-handoff-guide.md`:
   `## Completed Steps`, `## Key Decisions`, `## Open Challenger Findings
-  (must_fix only)`, `## Context for Next Step`, `## Skill Context`,
+(must_fix only)`, `## Context for Next Step`, `## Skill Context`,
   `## Artifacts`
 - ≤60 line cap (configurable, but default to spec)
 
@@ -263,7 +263,7 @@ C1's wire-up to `validate:_node-ci`:
 - Add `references/handoff-validation-rules.md` listing each rule, its
   severity, and the DAG fields it consults
 - Add `references/track-parity-spec.md` (the B4 normalization spec)
-- Update `SKILL.md` and `SKILL.digest.md` to mention the new
+- Update `SKILL.md` to mention the new
   validation surface
 - Do NOT add to `vendor-prompting/rules.json` — keeps audit boundary
   clean

@@ -77,7 +77,7 @@ Streamlined orchestrator for **simple** Azure platform engineering projects.
 
 ## Context awareness
 
-Before loading skill files, check whether `SKILL.digest.md` variants exist.
+Before loading skill files, check whether `SKILL.md` variants exist.
 Fast-path projects are small — prefer digest variants to preserve context for
 the combined Plan+Code step.
 
@@ -150,9 +150,9 @@ If the project is `standard` or `complex`, hand off to the main
 
 ## MANDATORY: Read Skills First
 
-1. **Read** `.github/skills/golden-principles/SKILL.digest.md`
-2. **Read** `.github/skills/azure-defaults/SKILL.digest.md`
-3. **Read** `.github/skills/azure-artifacts/SKILL.digest.md`
+1. **Read** `.github/skills/golden-principles/SKILL.md`
+2. **Read** `.github/skills/azure-defaults/SKILL.md`
+3. **Read** `.github/skills/azure-artifacts/SKILL.md`
 
 ## Fast-Path Workflow (5 Steps)
 

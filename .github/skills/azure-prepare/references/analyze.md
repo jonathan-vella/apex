@@ -1,4 +1,5 @@
 <!-- ref:analyze-v1 -->
+
 # Analyze Workspace
 
 ## ⛔ MANDATORY FIRST — Specialized Technology Delegation
@@ -6,11 +7,11 @@
 **STOP. Before choosing a mode, check the user's prompt for specialized technology keywords.**
 If matched, invoke the corresponding skill **immediately** — it has tested templates and correct SDK usage.
 
-> ⚠️ **Re-entry guard**: If azure-prepare was invoked as a **resume** from a specialized skill (e.g., azure-hosted-copilot-sdk Step 4), **skip this check** and go directly to Step 4.
+> ⚠️ **Re-entry guard**: If azure-prepare was invoked as a **resume** from a specialized skill (e.g., azure-cloud-migrate), **skip this check** and go directly to Step 4.
 
-| User prompt mentions | Action |
-|---------------------|--------|
-| copilot SDK, copilot app, copilot-powered, copilot-sdk-service, @github/copilot-sdk, CopilotClient, sendAndWait | **Invoke azure-hosted-copilot-sdk skill NOW** → then resume azure-prepare at Step 4 |
+| User prompt mentions                                                        | Action                                                                                                                                 |
+| --------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| Lambda, AWS Lambda, migrate AWS, migrate GCP, Lambda to Functions           | **Invoke azure-cloud-migrate skill NOW** → then resume azure-prepare at Step 4                                                         |
 | Azure Functions, function app, serverless function, timer trigger, func new | Stay in **azure-prepare**. When selecting compute, **prefer Azure Functions** templates and best practices, then continue from Step 4. |
 
 > ⚠️ Check the user's **prompt text** — not just existing code. This is critical for greenfield projects with no codebase. See [full routing table](specialized-routing.md).
@@ -23,11 +24,11 @@ If no match, continue below.
 
 > **⛔ IMPORTANT**: Always go through one of these three paths. Having `azure.yaml` does NOT mean you skip to validate — the user may want to modify or extend the app.
 
-| Mode | When to Use |
-|------|-------------|
-| **NEW** | Empty workspace, or user wants to create a new app |
-| **MODIFY** | Existing Azure app, user wants to add features/components |
-| **MODERNIZE** | Existing non-Azure app, user wants to migrate to Azure |
+| Mode          | When to Use                                               |
+| ------------- | --------------------------------------------------------- |
+| **NEW**       | Empty workspace, or user wants to create a new app        |
+| **MODIFY**    | Existing Azure app, user wants to add features/components |
+| **MODERNIZE** | Existing non-Azure app, user wants to migrate to Azure    |
 
 ## Decision Tree
 
@@ -50,6 +51,7 @@ What does the user want to do?
 Creating a new Azure application from scratch.
 
 **Actions:**
+
 1. Confirm project type with user
 2. Gather requirements → [requirements.md](requirements.md)
 3. Select technology stack
@@ -60,6 +62,7 @@ Creating a new Azure application from scratch.
 Adding components/services to an existing Azure application.
 
 **Actions:**
+
 1. Scan existing codebase → [scan.md](scan.md)
 2. Identify existing Azure configuration
 3. Gather requirements for new components
@@ -70,6 +73,7 @@ Adding components/services to an existing Azure application.
 Converting an existing application to run on Azure.
 
 **Actions:**
+
 1. Full codebase scan → [scan.md](scan.md)
 2. Analyze existing infrastructure (Docker, CI/CD, etc.)
 3. Gather requirements → [requirements.md](requirements.md)
@@ -78,13 +82,13 @@ Converting an existing application to run on Azure.
 
 ## Detection Signals
 
-| Signal | Indicates |
-|--------|-----------|
-| `azure.yaml` exists | AZD project (MODIFY mode likely) |
-| `infra/*.bicep` exists | Bicep IaC |
-| `infra/*.tf` exists | Terraform IaC |
-| `Dockerfile` exists | Containerized app |
-| No Azure files | NEW or MODERNIZE mode |
+| Signal                 | Indicates                        |
+| ---------------------- | -------------------------------- |
+| `azure.yaml` exists    | AZD project (MODIFY mode likely) |
+| `infra/*.bicep` exists | Bicep IaC                        |
+| `infra/*.tf` exists    | Terraform IaC                    |
+| `Dockerfile` exists    | Containerized app                |
+| No Azure files         | NEW or MODERNIZE mode            |
 
 ---
 

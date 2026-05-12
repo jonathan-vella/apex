@@ -1,3 +1,4 @@
+<!-- ref:workflow-steps-v1 -->
 # Workflow Steps (full instructions)
 
 > Full step-by-step procedure for Azure cost optimization analysis.

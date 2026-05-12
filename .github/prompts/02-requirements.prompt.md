@@ -16,7 +16,7 @@ questions, then write the artifact.
   `.github/skills/azure-artifacts/templates/00-session-state.template.json`.
 - Read `.github/skills/azure-artifacts/references/01-requirements-template.md`
   and replicate its H2 structure exactly.
-- Read `.github/skills/azure-defaults/SKILL.digest.md` for region, tag,
+- Read `.github/skills/azure-defaults/SKILL.md` for region, tag,
   naming, and security defaults.
 - `{project}` is the folder name under `agent-output/`.
 </context>

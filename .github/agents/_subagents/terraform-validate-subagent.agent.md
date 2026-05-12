@@ -43,12 +43,12 @@ PASS/FAIL diagnostic and verdict for the parent IaC agent.
 <context_awareness>
 Skill loading tiers (apply per the `context-management` skill, Mode A):
 
-- Default — read `.github/skills/azure-defaults/SKILL.digest.md` and
-  `.github/skills/iac-common/SKILL.digest.md`. The digest is sufficient
+- Default — read `.github/skills/azure-defaults/SKILL.md` and
+  `.github/skills/iac-common/SKILL.md`. The digest is sufficient
   for AVM versions, CAF naming, security baseline, and IaC review checks.
 - ≥80% context utilization — escalate to
-  `.github/skills/azure-defaults/SKILL.minimal.md` and
-  `.github/skills/iac-common/SKILL.minimal.md`.
+  `.github/skills/azure-defaults/SKILL.md` and
+  `.github/skills/iac-common/SKILL.md`.
 - Full `SKILL.md` is reserved for skill-authoring or debugging contexts
   where the digest is insufficient — not for production reviews.
 

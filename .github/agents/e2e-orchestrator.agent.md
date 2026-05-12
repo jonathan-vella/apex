@@ -273,8 +273,8 @@ across both tracks. Only Steps 4–6 diverge based on the IaC tool decision.
 
 Before executing any step, read:
 
-1. `.github/skills/azure-defaults/SKILL.digest.md` — regions, tags, naming
-2. `.github/skills/azure-artifacts/SKILL.digest.md` — artifact structure
+1. `.github/skills/azure-defaults/SKILL.md` — regions, tags, naming
+2. `.github/skills/azure-artifacts/SKILL.md` — artifact structure
 
 ## State Management
 

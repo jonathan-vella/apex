@@ -54,14 +54,13 @@ handoffs:
 
 # Terraform Code Agent
 
-<context_awareness>
-Review-depth opt-in: read `decisions.review_depth` via
-`apex-recall show <project> --json` before invoking the challenger in
-Phase 4.5. Default to `"default"` if absent. `"deep"` enters the opt-in
-multi-pass path defined in
+## Review-depth opt-in
+
+Read `decisions.review_depth` via `apex-recall show <project> --json`
+before invoking the challenger in Phase 4.5. Default to `"default"` if
+absent. `"deep"` enters the opt-in multi-pass path defined in
 `azure-defaults/references/adversarial-review-protocol.md` without
 re-prompting the user; `"default"` keeps Phase 4.5 skipped.
-</context_awareness>
 
 Role: Terraform IaC specialist that turns the approved implementation plan plus governance
 constraints into AVM-TF-first, fmt+validate-clean, security-baseline-compliant Terraform
@@ -150,8 +149,9 @@ Do not assume resource configurations — validate against actual Terraform Regi
 
 ## Context Awareness
 
-This is a large agent definition (~590 lines). At >60% context, load SKILL.digest.md variants.
-At >80% context, switch to SKILL.minimal.md and do not re-read predecessor artifacts.
+This is a large agent definition (~590 lines). Read each `SKILL.md` only once;
+do not re-read predecessor artifacts after the boot read — use
+`apex-recall show <project> --json` for cached lookups instead.
 
 ## Scope Fencing
 
@@ -173,12 +173,12 @@ deployment — use `var.deployment_phase` with `count` conditionals instead.
 
 Before doing any work, read these skills:
 
-1. Read `.github/skills/azure-defaults/SKILL.digest.md` — regions, tags, naming, AVM-TF, unique suffix, Terraform Conventions
-2. Read `.github/skills/azure-artifacts/SKILL.digest.md` — H2 templates for `04-preflight-check.md` and `05-implementation-reference.md`
+1. Read `.github/skills/azure-defaults/SKILL.md` — regions, tags, naming, AVM-TF, unique suffix, Terraform Conventions
+2. Read `.github/skills/azure-artifacts/SKILL.md` — H2 templates for `04-preflight-check.md` and `05-implementation-reference.md`
 3. Read artifact template files: `azure-artifacts/templates/04-preflight-check.template.md` + `05-implementation-reference.template.md`
-4. Read `.github/skills/terraform-patterns/SKILL.digest.md` — patterns, AVM Known Pitfalls, module composition
+4. Read `.github/skills/terraform-patterns/SKILL.md` — patterns, AVM Known Pitfalls, module composition
 5. Read `.github/instructions/iac-terraform-best-practices.instructions.md` — governance mandate, translation table
-6. Read `.github/skills/context-management/SKILL.digest.md` — runtime
+6. Read `.github/skills/context-management/SKILL.md` — runtime
    compression for large plan/governance artifacts (Mode A)
 
 ## Do
@@ -321,9 +321,11 @@ from scratch.**
 "✅ satisfied"`, STOP and traverse `↩ Return to Step 4` per
    `iac-common/references/governance-drift-routing.md` (L1 rows).
 3. For each matrix row, translate the Bicep property path to its
-   Terraform argument (use the table in
-   `.github/instructions/references/iac-policy-compliance.md`) and
-   record the required value — these become the L2 attestations the
+   Terraform argument: read the row's `azurePropertyPath` field (the
+   provider-neutral ARM property path) and map it to the corresponding
+   `azurerm_*` argument using the table in
+   `.github/instructions/references/iac-policy-compliance.md`. Record
+   the required value — these become the L2 attestations the
    `terraform-validate-subagent` will check after code generation.
 4. Merge governance tags with 4 baseline defaults (governance wins).
 5. If `04-governance-constraints.json` contains a structured `override` block
@@ -349,8 +351,8 @@ Compact the conversation before proceeding to code generation.
    - Governance compliance map (Deny policies mapped, unsatisfied count)
    - Deployment strategy from `04-implementation-plan.md` (phased/single)
    - Resource list with module sources, version pins, and key variables
-2. **Switch to minimal skill loading** — for any further skill reads, use
-   `SKILL.minimal.md` variants (see `context-management` skill, Mode A, >80% tier)
+2. **Stop loading additional skills** — once context is compacted, do not load
+   any new skill files; rely on summaries already in context
 3. **Do NOT re-read predecessor artifacts** — rely on the summary above
    and the saved `04-preflight-check.md` + `04-governance-constraints.json` on disk
 4. **Update session state** — run `apex-recall checkpoint <project> 5 phase_1.6_compacted --json`

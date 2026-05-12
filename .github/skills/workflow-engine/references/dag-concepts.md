@@ -1,3 +1,4 @@
+<!-- ref:dag-concepts-v1 -->
 # Workflow DAG — Core Concepts
 
 > Loaded by `workflow-engine` SKILL.md. Defines node types, edge

@@ -26,7 +26,7 @@ Recommend Azure VM sizes, VM Scale Sets (VMSS), and configurations by analyzing 
 
 - **Always verify against live docs** — call `web_fetch` against `learn.microsoft.com` before finalizing recommendations; warn the user when `web_fetch` fails
 - **Default to General Purpose D-series** when workload type is unclear
-- **Default region** is `eastus` when none is specified; note that prices vary by region
+- **Default region** follows the canonical declaration in [copilot-instructions.md](../../copilot-instructions.md#azure-defaults-canonical); prices vary by region
 - **Default to single VM** when scaling needs are unclear; recommend VMSS only when autoscale, fleet, or mixed-size requirements are explicit
 - **VMSS pricing** = VM pricing × instance count (no extra VMSS charge)
 - **Reservation pricing** is recommended for long-lived production VMs (1y/3y commitments)
@@ -47,13 +47,13 @@ The full 6-step procedure (with all decision tables, dichotomy tree, and `web_fe
 
 ## Error Handling
 
-| Scenario                        | Action                                                                         |
-| ------------------------------- | ------------------------------------------------------------------------------ |
-| API returns empty results       | Broaden filters — check `armRegionName`, `serviceName`, `armSkuName` spelling  |
-| User unsure of workload type    | Ask clarifying questions; default to General Purpose D-series                  |
-| Region not specified            | Use `eastus` as default; note prices vary by region                            |
-| Unclear if VM or VMSS needed    | Ask about scaling and instance count; default to single VM if unsure           |
-| User asks VMSS pricing directly | Use same VM pricing API — VMSS has no extra charge; multiply by instance count |
+| Scenario                        | Action                                                                                                                                  |
+| ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| API returns empty results       | Broaden filters — check `armRegionName`, `serviceName`, `armSkuName` spelling                                                           |
+| User unsure of workload type    | Ask clarifying questions; default to General Purpose D-series                                                                           |
+| Region not specified            | Use the canonical default from [copilot-instructions.md](../../copilot-instructions.md#azure-defaults-canonical); prices vary by region |
+| Unclear if VM or VMSS needed    | Ask about scaling and instance count; default to single VM if unsure                                                                    |
+| User asks VMSS pricing directly | Use same VM pricing API — VMSS has no extra charge; multiply by instance count                                                          |
 
 ## References
 

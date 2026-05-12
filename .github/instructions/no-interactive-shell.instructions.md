@@ -1,6 +1,6 @@
 ---
 description: "Prevents interactive shell prompts and long-output terminal replays from being injected into chat. Forbids -i flags on mv/rm/cp, read -p, and confirm prompts (incl. inside bash -c '...'). Pipe long output to files. Scoped to chat-context-loaded files; skill references/ and templates/ are exempt because they hold standalone scripts users run locally."
-applyTo: "**/.github/agents/**/*.agent.md, **/.github/skills/**/SKILL.md, **/.github/skills/**/SKILL.digest.md, **/.github/skills/**/SKILL.minimal.md, **/.github/instructions/**/*.instructions.md, **/.github/prompts/**/*.prompt.md, **/AGENTS.md, **/.github/copilot-instructions.md, **/README.md"
+applyTo: "**/.github/agents/**/*.agent.md, **/.github/skills/**/SKILL.md, **/.github/instructions/**/*.instructions.md, **/.github/prompts/**/*.prompt.md, **/AGENTS.md, **/.github/copilot-instructions.md, **/README.md"
 ---
 
 # MANDATORY: No Interactive Shell, No Long-Output Replay

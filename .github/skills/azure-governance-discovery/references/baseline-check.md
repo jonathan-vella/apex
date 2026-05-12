@@ -1,3 +1,4 @@
+<!-- ref:baseline-check-v1 -->
 # 04g-Governance Phase 0.45 — Committed-Baseline Check
 
 Detailed procedure for the cached-governance baseline short-circuit. The
@@ -49,5 +50,6 @@ same subscription and for offline / sandboxed environments.
      freshly generated. Do NOT reuse any prior annotated markdown from
      the agent-output folder.
    - Proceed directly to Phase 2 (Generate Artifacts / validation).
+
 6. If the baseline file is missing, eligibility fails, or the user
    chooses live discovery, proceed to Phase 0.5 (Cache-First Check).

@@ -135,7 +135,7 @@ prefer it for a tighter agent loop. If `az quota` returns `BadRequest`, fall bac
 ## Gotchas
 
 - **"No Limit" is misleading** — usually means the resource doesn't support the quota API; service-specific hard limits still apply.
-- **REST API data is unreliable** — never use REST API or Portal as first approach.
+- **REST API data is unreliable** — the Quota REST API does not cover every resource provider, so coverage gaps appear as `"No Limit"` instead of an explicit error; never use the REST API or the Portal as the first approach.
 - **No 1:1 ARM-to-quota mapping** — ARM resource type name ≠ quota resource name. Always discover via `az quota list`.
 - **CLI-first workflow is mandatory** — `az quota list` → if `BadRequest` → docs. Never start with REST API or Portal.
 

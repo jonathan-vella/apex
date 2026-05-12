@@ -57,7 +57,9 @@ Do not rely on parametric knowledge for pricing — delegate to cost-estimate-su
 </investigate_before_answering>
 
 <context_awareness>
-Context tiers: follow context-management skill (Mode A: Runtime Compression). At >80% switch to SKILL.minimal.md.
+Read each `SKILL.md` only once. For predecessor artifacts in `agent-output/`,
+follow the artifact tier system from the `context-management` skill
+(Mode A: Runtime Compression).
 
 Review-depth opt-in: read `decisions.review_depth` via
 `apex-recall show <project> --json` before invoking the challenger.
@@ -111,13 +113,13 @@ Run `apex-recall show <project> --json` for full project context. Do not read `0
 
 **After prerequisites are confirmed**, read these skills for configuration and template structure:
 
-1. **Read** `.github/skills/azure-defaults/SKILL.digest.md` — regions, tags, pricing MCP names, WAF criteria, service lifecycle
-2. **Read** `.github/skills/azure-artifacts/SKILL.digest.md` — H2 templates for `02-architecture-assessment.md` and `03-des-cost-estimate.md`
+1. **Read** `.github/skills/azure-defaults/SKILL.md` — regions, tags, pricing MCP names, WAF criteria, service lifecycle
+2. **Read** `.github/skills/azure-artifacts/SKILL.md` — H2 templates for `02-architecture-assessment.md` and `03-des-cost-estimate.md`
 3. **Read** the template files for your artifacts:
    - `.github/skills/azure-artifacts/templates/02-architecture-assessment.template.md`
    - `.github/skills/azure-artifacts/templates/03-des-cost-estimate.template.md`
      Use as structural skeletons (replicate badges, TOC, navigation, attribution exactly).
-4. **Read** `.github/skills/context-management/SKILL.digest.md` — runtime
+4. **Read** `.github/skills/context-management/SKILL.md` — runtime
    compression tiers for loading large artifacts (Mode A)
 
 These skills are your single source of truth. Do NOT use hardcoded values.
@@ -189,7 +191,7 @@ in your WAF assessment recommendations (still produce the identical artifact str
    and doc lookups. Before pricing delegation, compact the conversation:
    - Write a single concise summary: WAF pillar scores, resource list with SKUs,
      key architecture decisions, compliance requirements from `01-requirements.md`
-   - Switch to `SKILL.minimal.md` variants for any further skill reads (>80% tier)
+   - Stop loading additional skills; if you need a previously read skill, do not re-read it
    - Do NOT re-read `01-requirements.md` or doc search results — rely on the
      summary and the saved `02-waf-research.tmp.md` on disk
    - Update session state: `sub_step: "phase_2.5_compacted"`

@@ -31,9 +31,9 @@ project subscription so the IaC Planner can design within policy boundaries.
   subscription ID, and complexity; confirm Step 2 is complete.
 - Read `agent-output/{project}/02-architecture-assessment.md` for the resource
   list and compliance requirements.
-- Read `.github/skills/azure-defaults/SKILL.digest.md` (Governance Discovery
+- Read `.github/skills/azure-defaults/SKILL.md` (Governance Discovery
   section, regions, tags, security baseline).
-- Read `.github/skills/azure-artifacts/SKILL.digest.md` for the H2 template.
+- Read `.github/skills/azure-artifacts/SKILL.md` for the H2 template.
 - Read template
   `.github/skills/azure-artifacts/templates/04-governance-constraints.template.md`.
 - Use `.github/skills/azure-governance-discovery/scripts/discover.py` (invoke

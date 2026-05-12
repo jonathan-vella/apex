@@ -9,6 +9,13 @@ compatibility: Requires Azure CLI with Bicep extension
 Reusable infrastructure patterns for Azure Bicep templates. Complements
 `iac-bicep-best-practices.instructions.md` (style) and `azure-defaults` skill (naming, tags, regions).
 
+> **Canonical sources** — the security baseline, AVM-first mandate, naming
+> conventions, required tags, and unique-suffix rule live in
+> [`azure-defaults/SKILL.md`](../azure-defaults/SKILL.md) and
+> [`iac-policy-compliance.md`](../../instructions/references/iac-policy-compliance.md).
+> This skill restates the rules tersely below for IaC-output convenience
+> only; in conflict, the canonical sources win.
+
 ## Quick Reference
 
 | Pattern                  | When to Use                                      | Reference                                                              |

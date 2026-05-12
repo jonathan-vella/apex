@@ -142,15 +142,15 @@ Before doing any work, read these references (load order matters —
 terminal-commands and iac-policy-compliance MUST be loaded before
 Phase 1 / Phase 2 respectively to prevent rework):
 
-1. `.github/skills/azure-defaults/SKILL.digest.md` — Governance Discovery, regions, tags.
+1. `.github/skills/azure-defaults/SKILL.md` — Governance Discovery, regions, tags.
 2. `.github/skills/azure-defaults/references/governance-discovery.md`
    ("L0 Discovery Envelope") — envelope shape, self-check, refresh contract.
-3. `.github/skills/azure-governance-discovery/SKILL.digest.md` — `discover.py` CLI contract.
+3. `.github/skills/azure-governance-discovery/SKILL.md` — `discover.py` CLI contract.
 4. `.github/skills/azure-governance-discovery/references/terminal-commands.md`
    — **MANDATORY**. Pre-built batched commands (Cmd 1–7) for the entire phase.
 5. `.github/skills/azure-governance-discovery/references/inline-resolution-gate.md`
    — **MANDATORY** Phase 2.7 protocol (three inline confirmations).
-6. `.github/skills/azure-artifacts/SKILL.digest.md` and
+6. `.github/skills/azure-artifacts/SKILL.md` and
    `templates/04-governance-constraints.template.md` — H2 template.
 7. `.github/skills/iac-common/references/governance-drift-routing.md` —
    four-layer drift routing matrix.

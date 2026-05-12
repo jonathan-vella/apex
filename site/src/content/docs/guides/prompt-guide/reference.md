@@ -220,8 +220,8 @@ Use the parent agent to repair the artifact that failed validation or preview.
 3. Re-check the generated files before moving to the next gate.
 
 For environment or auth failures, start with
-[Troubleshooting](../../guides/troubleshooting/) and
-[Validation & Linting](../../reference/validation-reference/).
+[Troubleshooting](../../troubleshooting/) and
+[Validation & Linting](../../../reference/validation-reference/).
 
 ## Tips and Patterns
 
@@ -257,8 +257,8 @@ control over each step.
 ## Next Steps
 
 - [Workflow Prompts](../workflow-prompts/) — follow the step-by-step workflow templates
-- [Troubleshooting](../../guides/troubleshooting/) — recover from validation, auth, and setup failures
-- [Validation & Linting](../../reference/validation-reference/) — understand the checks behind each gate
+- [Troubleshooting](../../troubleshooting/) — recover from validation, auth, and setup failures
+- [Validation & Linting](../../../reference/validation-reference/) — understand the checks behind each gate
 
 **Terraform track**:
 

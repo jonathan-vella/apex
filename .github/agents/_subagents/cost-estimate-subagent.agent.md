@@ -86,7 +86,7 @@ and `03-des-cost-estimate.md` only when `status == COMPLETE`. On
   budget on per-line `azure_price_search` fallbacks for every line the bulk
   call didn't resolve. Don't loop `azure_cost_estimate` per resource.
 - Use exact `service_name` values from
-  `.github/skills/azure-defaults/SKILL.digest.md`, or use fuzzy aliases
+  `.github/skills/azure-defaults/SKILL.md`, or use fuzzy aliases
   (the MCP server resolves them).
 - Pricing provenance. Every figure the parent writes into the cost
   artifacts comes from the JSON you persist. The parent is prohibited
@@ -130,7 +130,7 @@ or return `FAILED` with the explicit blocker list.
 Before the first MCP call, read the two skill files in a single parallel
 batch — not sequentially:
 
-- `.github/skills/azure-defaults/SKILL.digest.md` — exact `service_name`
+- `.github/skills/azure-defaults/SKILL.md` — exact `service_name`
   values for the Pricing MCP.
 - `.github/skills/azure-defaults/references/pricing-guidance.md` —
   **mandatory** — the `product_filter` table for multi-product services

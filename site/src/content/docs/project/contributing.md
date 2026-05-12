@@ -16,14 +16,14 @@ The guide below is for contributing changes **back to this upstream repo**.
 
 ## Where to contribute
 
-| Area                        | What to change                       | Branch prefix             |
-| --------------------------- | ------------------------------------ | ------------------------- |
-| Agent prompts and handoffs  | `.github/agents/*.agent.md`          | `agents/`                 |
-| Skills and domain knowledge | `.github/skills/*/SKILL.md`          | `skills/`                 |
-| Bicep or Terraform patterns | `infra/bicep/` or `infra/terraform/` | `infra/`                  |
-| Validation scripts          | `tools/scripts/*.mjs`, `package.json`      | `tools/scripts/`                |
-| Published documentation     | `site/src/content/docs/`             | `docs/`                   |
-| Cross-cutting improvements  | Any files                            | `feat/`, `fix/`, `chore/` |
+| Area                        | What to change                        | Branch prefix             |
+| --------------------------- | ------------------------------------- | ------------------------- |
+| Agent prompts and handoffs  | `.github/agents/*.agent.md`           | `agents/`                 |
+| Skills and domain knowledge | `.github/skills/*/SKILL.md`           | `skills/`                 |
+| Bicep or Terraform patterns | `infra/bicep/` or `infra/terraform/`  | `infra/`                  |
+| Validation scripts          | `tools/scripts/*.mjs`, `package.json` | `tools/scripts/`          |
+| Published documentation     | `site/src/content/docs/`              | `docs/`                   |
+| Cross-cutting improvements  | Any files                             | `feat/`, `fix/`, `chore/` |
 
 ## Before you start
 
@@ -159,7 +159,7 @@ Before requesting review, confirm:
 - **Questions** — [GitHub Discussions][discussions]
 - **Bugs and feature requests** — [GitHub Issues][issues]
 - **Working on `feat/skills-sensei`** — see the
-  [Sensei Branch guide](sensei-branch/) for the audit-tooling submodule
+  [Sensei Branch guide](../sensei-branch/) for the audit-tooling submodule
   and the sensei-free PR workflow
 - **Full development workflow** — [Workflow guide](../../concepts/workflow/)
 

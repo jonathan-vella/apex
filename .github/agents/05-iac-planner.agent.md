@@ -104,10 +104,10 @@ Always specify Azure Storage Account backend only.
 
 **Before doing ANY work**, read these skills:
 
-1. **Read** `.github/skills/azure-defaults/SKILL.digest.md` — regions, tags, AVM, governance, naming
-2. **Read** `.github/skills/azure-artifacts/SKILL.digest.md` — H2 templates for `04-implementation-plan.md` and `04-governance-constraints.md`
+1. **Read** `.github/skills/azure-defaults/SKILL.md` — regions, tags, AVM, governance, naming
+2. **Read** `.github/skills/azure-artifacts/SKILL.md` — H2 templates for `04-implementation-plan.md` and `04-governance-constraints.md`
 3. **Read** artifact template files: `azure-artifacts/templates/04-implementation-plan.template.md` + `04-governance-constraints.template.md`
-4. **Read** `.github/skills/python-diagrams/SKILL.digest.md` — diagram conventions, design tokens, Azure component imports
+4. **Read** `.github/skills/python-diagrams/SKILL.md` — diagram conventions, design tokens, Azure component imports
 5. **Read** `.github/skills/iac-common/references/plan-consistency-checks.md` — the 6 deterministic Phase 2.5
    rules (zone-redundancy, RBAC ordering, deployment-script identity/image, public-edge auth, phased-param
    wiring, phase monotonicity)
@@ -118,8 +118,8 @@ Always specify Azure Storage Account backend only.
 8. **Read** `.github/skills/azure-defaults/references/governance-discovery.md` (section:
    "L0 Discovery Envelope") — envelope shape + consumer protocol
 9. **IaC-specific skill** (read on-demand during Phase 2):
-   - Bicep → `.github/skills/azure-bicep-patterns/SKILL.digest.md` — hub-spoke, PE, diagnostics, module composition
-   - Terraform → `.github/skills/terraform-patterns/SKILL.digest.md` — hub-spoke, PE, diagnostics, AVM-TF patterns
+   - Bicep → `.github/skills/azure-bicep-patterns/SKILL.md` — hub-spoke, PE, diagnostics, module composition
+   - Terraform → `.github/skills/terraform-patterns/SKILL.md` — hub-spoke, PE, diagnostics, AVM-TF patterns
 
 ## DO / DON'T
 
@@ -305,8 +305,8 @@ Context usage reaches ~80% by the end of the deployment strategy gate.
    - AVM module verification summary (AVM vs custom/raw count)
    - Deployment strategy choice (phased/single, phase grouping)
    - Key decisions from `02-architecture-assessment.md` (resource list, SKUs)
-2. **Switch to minimal skill loading** — for any further skill reads, use
-   `SKILL.minimal.md` variants (see `context-management` skill, Mode A, >80% tier)
+2. **Stop loading additional skills** — once context is compacted, do not load
+   any new skill files; rely on summaries already in context
 3. **Do NOT re-read predecessor artifacts** — rely on the summary above
    and the saved files on disk (`04-governance-constraints.md/json`)
 4. **Update session state** — run `apex-recall checkpoint <project> 4 phase_3.6_compacted --json`

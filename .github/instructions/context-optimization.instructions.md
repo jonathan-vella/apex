@@ -130,14 +130,18 @@ so the choice is auditable.
 
 ## Runtime Compression
 
-When loading an artifact file, check conversation length. If estimated context
-usage exceeds 60% of the model limit, use the compression tier system from the
-`context-management` skill (Mode A: Runtime Compression):
+When loading an artifact file (under `agent-output/`), check conversation length.
+If estimated context usage exceeds 60% of the model limit, use the artifact
+compression tier system from the `context-management` skill (Mode A: Runtime
+Compression):
 
-1. **Read** `.github/skills/context-management/SKILL.md` for tier definitions
+1. **Read** `.github/skills/context-management/SKILL.md` for artifact tier definitions
 2. Select tier: `full` (<60%), `summarized` (60-80%), `minimal` (>80%)
 3. Apply compression template for the specific artifact being loaded
 4. Compress older/less-critical artifacts first when loading multiple files
+
+The tier system applies to artifacts in `agent-output/`. Skills are
+single-tier (`SKILL.md`); never re-read a skill that is already in context.
 
 ## Skill Loading
 

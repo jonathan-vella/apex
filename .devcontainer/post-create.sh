@@ -291,6 +291,28 @@ else
     step_warn "Go not found — Terraform MCP Server not installed"
 fi
 
+# ─── Step 9.5: Terraform CLI hardening ──────────────────────────────────────
+# The Terraform plugin-cache directory must exist before `terraform init` runs;
+# the CLI refuses to operate when TF_PLUGIN_CACHE_DIR points at a missing path.
+# devcontainer.json sets the env var; this step ensures the directory exists
+# and runs a `terraform version` smoke test to fail fast on misconfiguration.
+
+step_start "🪨" "Hardening Terraform CLI environment..."
+TF_CACHE_DIR="${TF_PLUGIN_CACHE_DIR:-$HOME/.terraform.d/plugin-cache}"
+if mkdir -p "$TF_CACHE_DIR" 2>/dev/null; then
+    if command -v terraform &>/dev/null; then
+        if terraform version > /dev/null 2>&1; then
+            step_done "plugin-cache=$TF_CACHE_DIR · $(terraform version | head -1)"
+        else
+            step_warn "terraform binary present but 'terraform version' failed"
+        fi
+    else
+        step_warn "Terraform not on PATH — plugin-cache dir created but CLI unverified"
+    fi
+else
+    step_warn "Could not create plugin-cache dir at $TF_CACHE_DIR"
+fi
+
 # ─── Step 10: Python dependencies (authoritative) ───────────────────────────
 
 step_start "📦" "Verifying Python dependencies..."

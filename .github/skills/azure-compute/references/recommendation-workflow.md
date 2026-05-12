@@ -1,3 +1,4 @@
+<!-- ref:recommendation-workflow-v1 -->
 # VM Recommendation Workflow Reference
 
 > Loaded by the **azure-compute** skill when you need the full step-by-step recommendation procedure (Steps 1–6 with all decision tables and `web_fetch` URLs). The skill's main `SKILL.md` keeps a 6-step summary; this file has the verbose forms.

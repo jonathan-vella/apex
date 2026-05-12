@@ -53,14 +53,13 @@ handoffs:
 
 # Bicep Code Agent
 
-<context_awareness>
-Review-depth opt-in: read `decisions.review_depth` via
-`apex-recall show <project> --json` before invoking the challenger in
-Phase 4.5. Default to `"default"` if absent. `"deep"` enters the opt-in
-multi-pass path defined in
+## Review-depth opt-in
+
+Read `decisions.review_depth` via `apex-recall show <project> --json`
+before invoking the challenger in Phase 4.5. Default to `"default"` if
+absent. `"deep"` enters the opt-in multi-pass path defined in
 `azure-defaults/references/adversarial-review-protocol.md` without
 re-prompting the user; `"default"` keeps Phase 4.5 skipped.
-</context_awareness>
 
 Role: Bicep IaC specialist that turns the approved implementation plan plus governance
 constraints into AVM-first, lint-clean, security-baseline-compliant Bicep templates ready
@@ -141,8 +140,9 @@ Do not assume resource configurations — validate against actual Azure API sche
 
 ## Context Awareness
 
-This is a large agent definition (~590 lines). At >60% context, load SKILL.digest.md variants.
-At >80% context, switch to SKILL.minimal.md and do not re-read predecessor artifacts.
+This is a large agent definition (~590 lines). Read each `SKILL.md` only once;
+do not re-read predecessor artifacts after the boot read — use
+`apex-recall show <project> --json` for cached lookups instead.
 
 ## Scope Fencing
 
@@ -160,12 +160,12 @@ Use challenger-review-subagent only for adversarial review after validation pass
 
 Before doing any work, read these skills:
 
-1. Read `.github/skills/azure-defaults/SKILL.digest.md` — regions, tags, naming, AVM, security, unique suffix
-2. Read `.github/skills/azure-artifacts/SKILL.digest.md` — H2 templates for `04-preflight-check.md` and `05-implementation-reference.md`
+1. Read `.github/skills/azure-defaults/SKILL.md` — regions, tags, naming, AVM, security, unique suffix
+2. Read `.github/skills/azure-artifacts/SKILL.md` — H2 templates for `04-preflight-check.md` and `05-implementation-reference.md`
 3. Read artifact template files: `azure-artifacts/templates/04-preflight-check.template.md` + `05-implementation-reference.template.md`
-4. Read `.github/skills/azure-bicep-patterns/SKILL.digest.md` — hub-spoke, PE, diagnostics, managed identity, module composition
+4. Read `.github/skills/azure-bicep-patterns/SKILL.md` — hub-spoke, PE, diagnostics, managed identity, module composition
 5. Read `.github/instructions/iac-bicep-best-practices.instructions.md` — governance mandate, dynamic tag list
-6. Read `.github/skills/context-management/SKILL.digest.md` — runtime
+6. Read `.github/skills/context-management/SKILL.md` — runtime
    compression for large plan/governance artifacts (Mode A)
 
 ## Do
@@ -342,8 +342,8 @@ Compact the conversation before proceeding to code generation.
    - Governance compliance map (Deny policies mapped, unsatisfied count)
    - Deployment strategy from `04-implementation-plan.md` (phased/single)
    - Resource list with module paths and key parameters
-2. **Switch to minimal skill loading** — for any further skill reads, use
-   `SKILL.minimal.md` variants (see `context-management` skill, Mode A, >80% tier)
+2. **Stop loading additional skills** — once context is compacted, do not load
+   any new skill files; rely on summaries already in context
 3. **Do NOT re-read predecessor artifacts** — rely on the summary above
    and the saved `04-preflight-check.md` + `04-governance-constraints.json` on disk
 4. **Update session state** — run `apex-recall checkpoint <project> 5 phase_1.6_compacted --json`

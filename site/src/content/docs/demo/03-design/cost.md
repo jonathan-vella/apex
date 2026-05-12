@@ -8,7 +8,7 @@ sidebar:
 **Generated**: 2026-04-14
 **Region**: swedencentral
 **Environment**: Development
-**Architecture Reference**: [02-architecture-assessment](../02-architecture/waf-assessment/)
+**Architecture Reference**: [02-architecture-assessment](../../02-architecture/waf-assessment/)
 
 ## Cost At-a-Glance
 

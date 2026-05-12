@@ -36,7 +36,7 @@ security baseline.
   constraints always win over design preferences.
 - Read `.github/skills/terraform-patterns/SKILL.md` for Terraform patterns
   and AVM-TF conventions.
-- Read `.github/skills/azure-defaults/SKILL.digest.md` for naming, tags,
+- Read `.github/skills/azure-defaults/SKILL.md` for naming, tags,
   and security baseline.
 - Provider pin: `~> 4.0` (AzureRM). Backend: Azure Storage Account.
 - Security baseline is non-negotiable: TLS 1.2, HTTPS-only, no public blob

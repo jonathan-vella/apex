@@ -141,8 +141,8 @@ diagnostics (e.g., which resources were deployed, which SKUs were chosen).
 
 **After Phase 1 resource confirmation**, read:
 
-1. **Read** `.github/skills/azure-defaults/SKILL.digest.md` — regions, tags, security baseline
-2. **Read** `.github/skills/azure-diagnostics/SKILL.digest.md` — KQL templates, per-resource health checks,
+1. **Read** `.github/skills/azure-defaults/SKILL.md` — regions, tags, security baseline
+2. **Read** `.github/skills/azure-diagnostics/SKILL.md` — KQL templates, per-resource health checks,
    severity classification, remediation playbooks
 
 ## 6-Phase Diagnostic Workflow

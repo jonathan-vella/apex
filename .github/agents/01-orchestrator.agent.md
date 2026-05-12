@@ -179,9 +179,10 @@ Master orchestrator for the multi-step Azure platform engineering workflow.
 
 ## Context Awareness
 
-Before loading large skill files, check if SKILL.digest.md or SKILL.minimal.md variants exist.
-If context approaches 80%, switch to compressed variants per the context-management skill (Mode A: Runtime Compression).
-At gates, write 00-handoff.md to preserve state for potential session breaks.
+Read each `SKILL.md` only once. If context approaches 80%, apply the artifact
+compression tiers from the context-management skill (Mode A: Runtime Compression)
+to predecessor artifacts in `agent-output/`. At gates, write 00-handoff.md to
+preserve state for potential session breaks.
 
 ## Subagent Budget
 
@@ -257,10 +258,10 @@ after Step 1 completes.
 
 **After confirming the project name**, read:
 
-1. **Read** `.github/skills/golden-principles/SKILL.digest.md` — foundational quality principles for all agents
-2. **Read** `.github/skills/azure-defaults/SKILL.digest.md` — regions, tags
-3. **Read** `.github/skills/azure-artifacts/SKILL.digest.md` — artifact file naming and structure overview
-4. **Read** `.github/skills/workflow-engine/SKILL.digest.md` — DAG model, node types, edge conditions
+1. **Read** `.github/skills/golden-principles/SKILL.md` — foundational quality principles for all agents
+2. **Read** `.github/skills/azure-defaults/SKILL.md` — regions, tags
+3. **Read** `.github/skills/azure-artifacts/SKILL.md` — artifact file naming and structure overview
+4. **Read** `.github/skills/workflow-engine/SKILL.md` — DAG model, node types, edge conditions
 
 After reading skills, extract key facts (region, tags, naming, security baseline,
 complexity, AVM-first) into the `## Skill Context` section of `00-handoff.md`.

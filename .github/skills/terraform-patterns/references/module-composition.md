@@ -1,3 +1,4 @@
+<!-- ref:module-composition-v1 -->
 # Module Composition — Canonical Example
 
 > Loaded by `terraform-patterns` SKILL.md when authoring or auditing a

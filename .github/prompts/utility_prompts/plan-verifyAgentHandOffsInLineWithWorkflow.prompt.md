@@ -104,20 +104,20 @@ A2, A3, A3b.
 
 Populate from a live audit of every `↩` button in agent files:
 
-| from    | to      | condition                    | source UI button                     |
-| ------- | ------- | ---------------------------- | ------------------------------------ |
-| step-2  | step-1  | `on_refine`                  | 03-Architect "↩ Return to Step 1"    |
-| step-4  | step-2  | `on_refine`                  | 05-IaC Planner "↩ Return to Step 2"  |
-| step-5b | step-4  | `on_refine`                  | 06b "↩ Return to Step 4"             |
-| step-5t | step-4  | `on_refine`                  | 06t "↩ Return to Step 4"             |
-| step-6b | step-5b | `on_fail`                    | 07b "↩ Fix Deployment Issues"        |
-| step-6b | step-2  | `on_refine`                  | 07b "↩ Return to Step 2"             |
-| step-6t | step-5t | `on_fail`                    | 07t "↩ Fix Deployment Issues"        |
-| step-6t | step-2  | `on_refine`                  | 07t "↩ Return to Step 2"             |
-| step-1  | step-1  | `on_refine`                  | 02-Requirements "▶ Refine …"         |
-| step-2  | step-2  | `on_refine`                  | 03-Architect "▶ Refresh Cost …"      |
-| step-3_5| step-3_5| `on_refine`                  | 04g-Governance "▶ Refresh …"         |
-| step-4  | step-4  | `on_refine`                  | 05-IaC Planner "▶ Revise Plan"       |
+| from     | to       | condition   | source UI button                    |
+| -------- | -------- | ----------- | ----------------------------------- |
+| step-2   | step-1   | `on_refine` | 03-Architect "↩ Return to Step 1"   |
+| step-4   | step-2   | `on_refine` | 05-IaC Planner "↩ Return to Step 2" |
+| step-5b  | step-4   | `on_refine` | 06b "↩ Return to Step 4"            |
+| step-5t  | step-4   | `on_refine` | 06t "↩ Return to Step 4"            |
+| step-6b  | step-5b  | `on_fail`   | 07b "↩ Fix Deployment Issues"       |
+| step-6b  | step-2   | `on_refine` | 07b "↩ Return to Step 2"            |
+| step-6t  | step-5t  | `on_fail`   | 07t "↩ Fix Deployment Issues"       |
+| step-6t  | step-2   | `on_refine` | 07t "↩ Return to Step 2"            |
+| step-1   | step-1   | `on_refine` | 02-Requirements "▶ Refine …"        |
+| step-2   | step-2   | `on_refine` | 03-Architect "▶ Refresh Cost …"     |
+| step-3_5 | step-3_5 | `on_refine` | 04g-Governance "▶ Refresh …"        |
+| step-4   | step-4   | `on_refine` | 05-IaC Planner "▶ Revise Plan"      |
 
 `to` is modeled as the **step** (matches handoff button landing).
 **Hard depends on**: A0. **Parallel with**: A1, A3, A3b.
@@ -197,7 +197,7 @@ const PARTS = {
   structural: runAgentChecks,
   "model-alignment": runModelAlignment,
   "vendor-prompting": runVendorPrompting,
-  "workflow-handoffs": runWorkflowHandoffs,  // NEW
+  "workflow-handoffs": runWorkflowHandoffs, // NEW
 };
 ```
 
@@ -236,14 +236,14 @@ align with the DAG).
 When a `handoffs[]` entry includes a `kind:` field, validate it
 matches the DAG-derived edge type:
 
-| `kind` value  | Required DAG match                                      |
-| ------------- | ------------------------------------------------------- |
-| `forward`     | `forwardReachable(source_step, target_step)` true       |
-| `self-refine` | source agent == target agent                            |
-| `return`      | `return_edges[]` contains the edge                      |
-| `challenger`  | target == `challenger.wrapper_agent`                    |
-| `meta`        | target ∈ `orchestrator_targets[]`                       |
-| `ui`          | target ∈ `ui_pseudo_targets[]`                          |
+| `kind` value  | Required DAG match                                |
+| ------------- | ------------------------------------------------- |
+| `forward`     | `forwardReachable(source_step, target_step)` true |
+| `self-refine` | source agent == target agent                      |
+| `return`      | `return_edges[]` contains the edge                |
+| `challenger`  | target == `challenger.wrapper_agent`              |
+| `meta`        | target ∈ `orchestrator_targets[]`                 |
+| `ui`          | target ∈ `ui_pseudo_targets[]`                    |
 
 Initial severity = `info` (kind field is opt-in for now). Documented
 upgrade path: when ≥80% of handoffs in repo carry `kind:`, raise to
@@ -272,7 +272,7 @@ Self-loop handoffs are legal but bounded:
   (Input + Output references). **De-duplication**: if a self-loop
   already failed `handoff-enrichment-001` in the vendor-prompting
   PART, B3 references that finding (`see also: handoff-enrichment-001
-  at line N`) instead of re-emitting.
+at line N`) instead of re-emitting.
 
 **Hard depends on**: B0. **Parallel with**: B1a, B1b, B2, B5.
 
@@ -363,7 +363,7 @@ merging C1's wire-up to `validate:_node-ci`:
 
 1. Run baseline:
    `node tools/scripts/validate-agents.mjs --format=json
-   --only=workflow-handoffs > tmp/workflow-handoffs-baseline.json`
+--only=workflow-handoffs > tmp/workflow-handoffs-baseline.json`
 2. **Decision branch**:
    - If 0 `error` findings (no cross-track jumps in live repo) →
      proceed with B1a cross-track at `error`.
@@ -382,10 +382,10 @@ merging C1's wire-up to `validate:_node-ci`:
   (B1a, B1b, B2, B3, B4, B5), severity, DAG fields consulted, and
   escalation rules (e.g., B1b kind taxonomy).
 - Add `references/track-parity-spec.md` (the B4 normalization spec).
-- Update `SKILL.md` and `SKILL.digest.md` to mention the new
+- Update `SKILL.md` to mention the new
   validation surface.
 - Do NOT add to `vendor-prompting/rules.json` — `WORKFLOW_HANDOFF_
-  RULES` is its own registry (D-C5), keeps audit boundary clean.
+RULES` is its own registry (D-C5), keeps audit boundary clean.
 
 **Hard depends on**: C1, C2. **Parallel with**: C3, C4.
 
@@ -459,11 +459,11 @@ file a campaign issue to backfill remaining handoffs.
    under a new `workflow-handoffs` section, distinct from
    `vendor-prompting`.
 4. `node tools/scripts/validate-agents.mjs
-   --only=workflow-handoffs` runs cleanly on the synthetic fixtures
+--only=workflow-handoffs` runs cleanly on the synthetic fixtures
    (C3); each of the 6 fixtures trips exactly its target rule, and
    no fixture trips a different rule.
 5. `node tools/scripts/validate-agents.mjs --suggest
-   --only=workflow-handoffs` prints unified-diff patch comments
+--only=workflow-handoffs` prints unified-diff patch comments
    and writes nothing (verify with `git status` clean post-run).
 6. `npm run lint:artifact-templates` after C2 enforces
    `00-handoff.md` H2 structure on the 3 synthetic fixtures
@@ -545,7 +545,7 @@ file a campaign issue to backfill remaining handoffs.
 5. **`agents[]` vs `handoffs[]`**: validated as separate surfaces
    (M1).
 6. **Challenger model**: structured `{wrapper_agent,
-   review_subagent}` block at top level, NOT replacing per-node
+review_subagent}` block at top level, NOT replacing per-node
    `challenger` (which carries passes/lenses).
 7. **`forwardReachable` algorithm**: defined as "path of length
    ≤ 2 over `step → gate → step` with `on_complete` edges, OR
@@ -565,8 +565,8 @@ file a campaign issue to backfill remaining handoffs.
     spec in `track-parity-spec.md` (S2).
 14. **Step 3 (Design) skip path**: `forwardReachable` allows
     `on_skip` length-1 edges, so `03-Architect →
-    04g-Governance` is legal via existing `step-3 → step-3_5
-    (on_skip)` edge (S3).
+04g-Governance` is legal via existing `step-3 → step-3_5
+(on_skip)` edge (S3).
 15. **Patch suggestion format**: unified diff (`git diff -u`
     style) with file path + line numbers (S4).
 16. **CI gating risk**: C4 baseline gates the `error` severity
@@ -576,7 +576,7 @@ file a campaign issue to backfill remaining handoffs.
     documented; includes `ui` for pseudo-targets (D-A2c).
 19. **Companion-file checks** (Sg2): in `validate-artifacts.mjs`.
 20. **Dependency tracking** (Sg3): each substep lists `Hard
-    depends on` and `Parallel with`.
+depends on` and `Parallel with`.
 21. **Schema evolution & rollback** (Sg4): D1 + D2 — semver-
     style `metadata.version` (single source of truth, D-A0),
     additive-by-default, breaking changes require major bump

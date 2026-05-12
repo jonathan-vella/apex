@@ -35,7 +35,7 @@ const SCAN_GLOBS = [
   { dir: ".github/prompts", suffix: ".md" },
 ];
 // For skills, only the canonical SKILL files (not nested references/).
-const SKILL_FILE_NAMES = new Set(["SKILL.md", "SKILL.digest.md", "SKILL.minimal.md"]);
+const SKILL_FILE_NAMES = new Set(["SKILL.md"]);
 const SCAN_ROOT_FILES = ["AGENTS.md", "README.md", ".github/copilot-instructions.md"];
 
 // Each rule:

@@ -233,6 +233,16 @@ async function main() {
     console.log(`   ${f.issue}\n`);
   }
 
+  // LOW findings are informational only — they surface drift candidates
+  // (e.g., reference files without a canary marker) but do not gate CI.
+  // Only HIGH and MEDIUM findings fail the build.
+  const blockingFindings = findings.filter((f) => f.severity !== "LOW");
+  if (blockingFindings.length === 0) {
+    console.log(`✅ No blocking findings (${findings.length} LOW informational)\n`);
+    process.exit(0);
+  }
+
+  console.log(`❌ ${blockingFindings.length} blocking finding(s) (HIGH/MEDIUM)\n`);
   process.exit(1);
 }
 

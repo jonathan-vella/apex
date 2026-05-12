@@ -36,6 +36,22 @@ metadata:
 2. All checks must pass—do not deploy with failures
 3. ⛔ **Destructive actions require `ask_user`** — [global-rules](references/global-rules.md)
 
+## Validation Commands (per recipe)
+
+The per-recipe validation commands are bundled in
+[`references/recipes/`](references/recipes/README.md). Common ones:
+
+```bash
+azd provision --preview                 # AZD recipes
+bicep build infra/bicep/{project}/main.bicep && bicep lint infra/bicep/{project}/main.bicep
+terraform fmt -check && terraform validate && npm run validate:terraform
+npm run validate:iac-security-baseline  # cross-cutting baseline
+npm run validate:all                    # full repo validator suite
+```
+
+Load the recipe-specific README to confirm the exact command set for the
+project's IaC tool.
+
 ## Steps
 
 | #   | Action                                                                                                                         | Reference                                         |

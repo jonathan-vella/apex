@@ -98,8 +98,9 @@ and preserved verbatim, so no parsing changes are required here.
 
 ## Context Awareness
 
-**This is a large agent definition (~405 lines).** At >60% context, load SKILL.digest.md variants.
-At >80% context, switch to SKILL.minimal.md and do not re-read predecessor artifacts.
+**This is a large agent definition (~405 lines).** Read each `SKILL.md` only
+once; do not re-read predecessor artifacts after the boot read — use
+`apex-recall show <project> --json` for cached lookups instead.
 
 ## Scope
 
@@ -111,11 +112,11 @@ Do not modify deployed infrastructure, change IaC templates, or skip prior artif
 
 Before doing any work, read these skills:
 
-1. Read `.github/skills/azure-defaults/SKILL.digest.md` — regions, tags, naming, pricing MCP names
-2. Read `.github/skills/azure-artifacts/SKILL.digest.md` — H2 templates for all 07-\* artifacts
-3. Read `.github/skills/drawio/SKILL.digest.md` — diagram generation contract
-4. Read `.github/skills/python-diagrams/SKILL.digest.md` — WAF/cost chart generation
-5. Read `.github/skills/context-management/SKILL.digest.md` — runtime compression for predecessor artifacts (Mode A)
+1. Read `.github/skills/azure-defaults/SKILL.md` — regions, tags, naming, pricing MCP names
+2. Read `.github/skills/azure-artifacts/SKILL.md` — H2 templates for all 07-\* artifacts
+3. Read `.github/skills/drawio/SKILL.md` — diagram generation contract
+4. Read `.github/skills/python-diagrams/SKILL.md` — WAF/cost chart generation
+5. Read `.github/skills/context-management/SKILL.md` — runtime compression for predecessor artifacts (Mode A)
 6. Read the template files for your artifacts (all in `.github/skills/azure-artifacts/templates/`):
    - `07-design-document.template.md`
    - `07-operations-runbook.template.md`
@@ -241,8 +242,8 @@ Compact before generating the 7-document suite.
    - Deployment result from `06-deployment-summary.md` (success/partial, resource count)
    - Compliance requirements from `01-requirements.md`
    - Cost estimate baseline from `03-des-cost-estimate.md` (monthly total)
-2. **Switch to minimal skill loading** — for any further skill reads, use
-   `SKILL.minimal.md` variants (see `context-management` skill, Mode A, >80% tier)
+2. **Stop loading additional skills** — once context is compacted, do not load
+   any new skill files; rely on summaries already in context
 3. **Do NOT re-read predecessor artifacts during doc generation** — rely on
    the summary above and query Azure CLI for specific resource details as needed
 4. **Update session state** — run `apex-recall checkpoint <project> 7 phase_1.5_compacted --json`

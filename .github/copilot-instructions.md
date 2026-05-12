@@ -3,6 +3,39 @@
 > VS Code Copilot-specific orchestration instructions.
 > For general project conventions, build commands, and code style, see the root `AGENTS.md`.
 
+## Azure Defaults (canonical)
+
+This section is the canonical declaration of Azure infrastructure defaults.
+Every skill, agent, and prompt must reference this section — never restate
+the values inline. The IaC-flavoured mirror with CAF naming, AVM modules,
+and reference index lives in
+[`.github/skills/azure-defaults/SKILL.md`](skills/azure-defaults/SKILL.md).
+
+### Default Regions
+
+| Service             | Default Region       | Reason                         |
+| ------------------- | -------------------- | ------------------------------ |
+| **All resources**   | `swedencentral`      | EU GDPR-compliant              |
+| **Static Web Apps** | `westeurope`         | Not available in swedencentral |
+| **Failover**        | `germanywestcentral` | EU paired alternative          |
+
+### Required Tags (Azure Policy Enforced)
+
+Minimum baseline (PascalCase, exact casing): `Environment`, `ManagedBy`,
+`Project`, `Owner`. Always defer to `04-governance-constraints.md` for the
+project's actual required tag list. See
+[`azure-defaults/SKILL.md`](skills/azure-defaults/SKILL.md) for the full
+table and the `AmbiguousPolicyEvaluationPaths` casing rule.
+
+### Security baseline + AVM mandate
+
+Non-negotiable: HTTPS-only, TLS 1.2 minimum, no public blob, public network
+disabled for prod data services, Managed Identity over keys, AVM-first.
+Full rules:
+[`iac-policy-compliance.md`](instructions/references/iac-policy-compliance.md)
+and
+[`iac-security-baseline.md`](instructions/references/iac-security-baseline.md).
+
 ## Session State — apex-recall
 
 All session state flows through `apex-recall`. Do not read or write
@@ -44,15 +77,13 @@ as opt-in).
 ## Skills
 
 Skills auto-discover via the `description` field in `.github/skills/{name}/SKILL.md`.
-Agents wire skills by reading the file directly. Default tier is
-`SKILL.digest.md`; `SKILL.minimal.md` is the >80%-utilization escalation;
-full `SKILL.md` is reserved for skill-authoring/debugging. See the
-`context-management` skill for tier selection.
+Agents read `SKILL.md` files on demand and load `references/*.md` only when the
+body explicitly points to one. There is one tier — no digest, no minimal.
 
 ## Chat Triggers
 
 - Messages starting with `gh` are GitHub operations (e.g., `gh pr create`,
-  `gh workflow run`, `gh api`). Follow `.github/skills/github-operations/SKILL.digest.md`
+  `gh workflow run`, `gh api`). Follow `.github/skills/github-operations/SKILL.md`
   (`gh` CLI-first, MCP fallback).
 
 ### GitHub Tool Priority (Mandatory)

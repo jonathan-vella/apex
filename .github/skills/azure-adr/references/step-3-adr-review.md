@@ -1,3 +1,4 @@
+<!-- ref:step-3-adr-review-v1 -->
 # Step 3 ADR Review (opt-in, default-skip)
 
 Detailed prose for the 04-Design Phase 5 ADR review. The agent

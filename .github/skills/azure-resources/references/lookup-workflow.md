@@ -1,3 +1,4 @@
+<!-- ref:lookup-workflow-v1 -->
 # Lookup Workflow (azure-resources)
 
 > Loaded by `azure-resources` SKILL.md when the agent is performing a

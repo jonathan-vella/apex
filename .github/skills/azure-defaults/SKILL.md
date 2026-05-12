@@ -11,8 +11,14 @@ metadata:
 
 # Azure Defaults Skill
 
-Single source of truth for Azure infrastructure configuration.
+IaC-flavoured mirror of the canonical Azure defaults declared in
+[`.github/copilot-instructions.md`](../../copilot-instructions.md#azure-defaults-canonical).
 Deep-dive content lives in `references/` — load on demand.
+
+> **Canonical source rule**: if the tables below disagree with
+> [`copilot-instructions.md`](../../copilot-instructions.md#azure-defaults-canonical),
+> the canonical declaration wins. This skill restates them for IaC-output
+> convenience only.
 
 ---
 

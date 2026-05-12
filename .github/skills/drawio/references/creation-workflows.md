@@ -1,3 +1,4 @@
+<!-- ref:creation-workflows-v1 -->
 # Drawio Diagram Creation Workflows
 
 > Loaded by `drawio` SKILL.md. Two workflow modes for the

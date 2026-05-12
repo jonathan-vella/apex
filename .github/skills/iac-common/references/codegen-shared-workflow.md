@@ -67,7 +67,7 @@ Context reaches ~80% after preflight and governance mapping. Compact before code
 
 1. Summarize prior phases in a single concise message (preflight result, governance map,
    deployment strategy, resource list with module paths/sources)
-2. Switch to `SKILL.minimal.md` variants for further skill reads
+2. Switch to `SKILL.md` variants for further skill reads
 3. Do not re-read predecessor artifacts — rely on the summary and saved files on disk
 4. Update session state: `sub_step: "phase_1.6_compacted"`
 

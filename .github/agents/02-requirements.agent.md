@@ -56,8 +56,8 @@ or analysis beyond what the template specifies. Architecture decisions belong to
 </scope_fencing>
 
 <context_awareness>
-Before loading skill files in Phase 5, check if SKILL.digest.md variants exist.
-Only load skills after completing Phases 1-4 questioning — not before.
+Defer all skill reads until after Phases 1-4 questioning is complete — not before.
+Read each `SKILL.md` only once.
 </context_awareness>
 
 **This agent completes ALL work in ONE turn.** Call `askQuestions` for each phase
@@ -236,9 +236,9 @@ its questions now.
 
 ### Read Skills (ONLY NOW — not before)
 
-1. **Read** `.github/skills/azure-defaults/SKILL.digest.md` — regions, tags,
+1. **Read** `.github/skills/azure-defaults/SKILL.md` — regions, tags,
    naming, AVM, security, service matrix
-2. **Read** `.github/skills/azure-artifacts/SKILL.digest.md` — H2 template for `01-requirements.md`
+2. **Read** `.github/skills/azure-artifacts/SKILL.md` — H2 template for `01-requirements.md`
 3. **Read** `.github/skills/azure-artifacts/templates/01-requirements.template.md`
    — use as structural skeleton (replicate badges, TOC, navigation, attribution)
 4. **Read** `.github/skills/azure-artifacts/templates/PROJECT-README.template.md`

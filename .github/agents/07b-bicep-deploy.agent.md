@@ -138,8 +138,8 @@ are required here.
 
 ## Read Skills First
 
-1. Read `.github/skills/azure-defaults/SKILL.digest.md` — regions, tags, security baseline
-2. Read `.github/skills/azure-artifacts/SKILL.digest.md` — H2 template for `06-deployment-summary.md`
+1. Read `.github/skills/azure-defaults/SKILL.md` — regions, tags, security baseline
+2. Read `.github/skills/azure-artifacts/SKILL.md` — H2 template for `06-deployment-summary.md`
 3. Read `.github/skills/iac-common/references/circuit-breaker.md` — failure taxonomy and stopping rules
 4. Read `.github/skills/iac-common/references/deploy-shared-workflow.md` — shared deploy protocol
 5. Read `.github/skills/iac-common/references/policy-precheck-contract.md` — L3 subagent I/O contract

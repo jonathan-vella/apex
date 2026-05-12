@@ -1,3 +1,4 @@
+<!-- ref:deployment-strategies-v1 -->
 # IaC Deployment Strategies
 
 > Loaded by `iac-common` SKILL.md. Covers the default `azd` deployment

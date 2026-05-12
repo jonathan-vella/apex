@@ -25,7 +25,7 @@ state and an initial handoff, then route control to Step 1 (Requirements).
 
 - No prior project artifacts required (this is the entry point).
 - `{project}` is kebab-case derived from user description, max 30 chars.
-- Read `.github/skills/azure-defaults/SKILL.digest.md` for region, naming,
+- Read `.github/skills/azure-defaults/SKILL.md` for region, naming,
   and security defaults.
 - Read `.github/skills/workflow-engine/templates/workflow-graph.json` for the DAG model.
 - Initialize session state from

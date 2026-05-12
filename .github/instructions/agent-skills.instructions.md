@@ -116,24 +116,18 @@ the canonical pattern:
 
 ```text
 .github/skills/{name}/SKILL.md
-.github/skills/{name}/SKILL.digest.md
-.github/skills/{name}/SKILL.minimal.md
 ```
 
-Any of these three filenames count as a wiring reference. Use whichever
-tier matches the agent's context budget — `SKILL.digest.md` is the default
-for context-window-optimized agents; `SKILL.minimal.md` is reserved for
->80% utilization or explicit minimal-mode flags; full `SKILL.md` is for
-skill-authoring or debugging contexts.
+There is one tier. Use this filename for every wiring reference.
 
 The validator also accepts:
 
 - References without the leading `.github/` prefix (`skills/{name}/SKILL.md`)
-- References inside fenced shell code blocks (e.g., `cat .github/skills/{name}/SKILL.digest.md`)
+- References inside fenced shell code blocks (e.g., `cat .github/skills/{name}/SKILL.md`)
 
 References to `references/` or `templates/` subpaths inside the same skill
 are picked up via fallback containment checks but are not the preferred
-wiring form. Use the canonical SKILL[.tier].md pattern for explicit wiring.
+wiring form. Use the canonical `SKILL.md` pattern for explicit wiring.
 
 ## Validation Checklist
 

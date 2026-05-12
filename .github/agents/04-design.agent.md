@@ -46,10 +46,9 @@ to Step 3.5 (Governance) or Step 4 (IaC Planning).
 </role>
 
 <context_awareness>
-This is a large agent definition. Before loading skill files, check whether
-`SKILL.digest.md` variants exist. At >60% context, load digest variants; at
-
-> 80% switch to `SKILL.minimal.md` and stop re-reading predecessor artifacts.
+This is a large agent definition. Read each `SKILL.md` only once at boot.
+Do not re-read predecessor artifacts — use
+`apex-recall show <project> --json` for cached lookups instead.
 
 Review-depth opt-in: read `decisions.review_depth` via
 `apex-recall show <project> --json` before invoking the challenger in
@@ -102,11 +101,11 @@ the architecture assessment is missing.
    architecture (resources, WAF analysis, boundaries, flows).
 2. `agent-output/{project}/01-requirements.md` — business-critical paths and
    actor context (used to prioritise what gets emphasised in the diagram).
-3. `.github/skills/azure-defaults/SKILL.digest.md` — regions, tags, naming.
-4. `.github/skills/azure-artifacts/SKILL.digest.md` — H2 templates for
+3. `.github/skills/azure-defaults/SKILL.md` — regions, tags, naming.
+4. `.github/skills/azure-artifacts/SKILL.md` — H2 templates for
    `03-des-cost-estimate.md`.
-5. `.github/skills/drawio/SKILL.digest.md` — Draw.io diagram generation contract.
-6. `.github/skills/azure-adr/SKILL.digest.md` — ADR format and conventions.
+5. `.github/skills/drawio/SKILL.md` — Draw.io diagram generation contract.
+6. `.github/skills/azure-adr/SKILL.md` — ADR format and conventions.
 
 Load reference files (e.g. swim-lane layouts, edge-label rules, Python chart
 templates) on demand, not at startup.
@@ -203,7 +202,7 @@ For each non-trivial architectural decision in the architecture assessment:
 
 1. Read the relevant section of `02-architecture-assessment.md` and quote it
    in the ADR `## Context` section. Do not paraphrase from memory.
-2. Follow the format in `.github/skills/azure-adr/SKILL.digest.md` (Context →
+2. Follow the format in `.github/skills/azure-adr/SKILL.md` (Context →
    Decision → Consequences) and include WAF pillar trade-offs in the
    `## Decision` rationale.
 3. Number ADRs sequentially: `03-des-adr-0001-{slug}.md`,

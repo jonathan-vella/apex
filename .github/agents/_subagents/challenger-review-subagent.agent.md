@@ -107,8 +107,8 @@ down in this agent.
 
 **Before doing ANY work**, read these skills in order:
 
-1. **Read** `.github/skills/golden-principles/SKILL.digest.md` — agent operating principles and invariants
-2. **Read** `.github/skills/azure-defaults/SKILL.digest.md` — regions, tags, naming, AVM, security baselines, governance
+1. **Read** `.github/skills/golden-principles/SKILL.md` — agent operating principles and invariants
+2. **Read** `.github/skills/azure-defaults/SKILL.md` — regions, tags, naming, AVM, security baselines, governance
 3. **Read** `.github/skills/azure-defaults/references/adversarial-checklists.md` — per-category and per-artifact-type checklists
 4. **Read** `.github/instructions/references/iac-policy-compliance.md` — governance enforcement rules
 
@@ -261,7 +261,7 @@ per-category and per-artifact-type checklists, plus Azure Infrastructure Skeptic
 | Adversarial checklists & skepticism surfaces | `.github/skills/azure-defaults/references/adversarial-checklists.md`      |
 | Artifact-type-specific categories            | `.github/skills/azure-defaults/references/artifact-type-categories.md`    |
 | Adversarial review protocol                  | `.github/skills/azure-defaults/references/adversarial-review-protocol.md` |
-| Golden Principles                            | `.github/skills/golden-principles/SKILL.digest.md`                        |
+| Golden Principles                            | `.github/skills/golden-principles/SKILL.md`                               |
 
 ## Output Contract
 
@@ -347,8 +347,8 @@ The on-disk JSON has no markdown wrapper:
 >
 > **`cache_inputs.artifact_hash`** is the cache key for the parent-side
 > findings cache (see
-> `azure-defaults/references/adversarial-review-protocol.md` and the
-> per-agent `<context_awareness>` blocks). Every component hash MUST
+> `azure-defaults/references/adversarial-review-protocol.md` and each
+> parent agent's review-depth opt-in section). Every component hash MUST
 > match on cache lookup; a single mismatch invalidates the cache.
 >
 > **`requires_step`** is the lowest workflow-graph step ID required to

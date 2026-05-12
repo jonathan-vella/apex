@@ -1,6 +1,6 @@
 ---
 name: context-management
-description: '**UTILITY SKILL** — Two-mode context window management for agents. RUNTIME mode: tier-based compression (full/summarized/minimal) used by orchestrator and codegen agents before loading large artifacts. AUDIT mode: post-mortem analysis of Copilot debug logs, token profiling, redundancy detection, and hand-off gap analysis used by the 11-Context Optimizer agent. WHEN: "context optimization", "token budget management", "runtime compression", "log parsing", "redundancy detection". USE FOR: context optimization, token budget management, runtime compression, log parsing, redundancy detection. DO NOT USE FOR: Azure infrastructure, Bicep/Terraform code, architecture design, deployments.'
+description: '**UTILITY SKILL** — Two-mode context window management for agents. RUNTIME mode: artifact compression (full/summarized/minimal) used by orchestrator and codegen agents before loading large artifacts in `agent-output/`. AUDIT mode: post-mortem analysis of Copilot debug logs, token profiling, redundancy detection, and hand-off gap analysis used by the 11-Context Optimizer agent. WHEN: "context optimization", "token budget management", "runtime compression", "log parsing", "redundancy detection". USE FOR: context optimization, token budget management, runtime compression, log parsing, redundancy detection. DO NOT USE FOR: Azure infrastructure, Bicep/Terraform code, architecture design, deployments.'
 compatibility: Audit mode requires Python 3.14 for log parser script
 ---
 
@@ -48,12 +48,12 @@ models below. When any LLM round-trip would ship more than the threshold,
 the agent MUST emit a context-compaction checkpoint **before** the next
 tool call and switch every further read to the `minimal` tier.
 
-| Model                | Context limit | Hard checkpoint at | Action                                                                                        |
-| -------------------- | ------------- | ------------------ | --------------------------------------------------------------------------------------------- |
-| `gpt-5.5`            | 200K          | **≥150K input**    | Swap full plan + governance artifacts for `apex-recall show <project> --json` summaries; pin further skill reads to `SKILL.minimal.md`. |
-| `claude-opus-4.7`    | 200K          | ≥160K input        | Same protocol; prefer the digest tier over re-reading source artifacts.                       |
-| `claude-sonnet-4.6`  | 200K          | ≥150K input        | Same protocol.                                                                                |
-| `gpt-5.3-codex`      | 128K          | ≥95K input         | Same protocol.                                                                                |
+| Model               | Context limit | Hard checkpoint at | Action                                                                                                                          |
+| ------------------- | ------------- | ------------------ | ------------------------------------------------------------------------------------------------------------------------------- |
+| `gpt-5.5`           | 200K          | **≥150K input**    | Swap full plan + governance artifacts for `apex-recall show <project> --json` summaries; pin further skill reads to `SKILL.md`. |
+| `claude-opus-4.7`   | 200K          | ≥160K input        | Same protocol; prefer the digest tier over re-reading source artifacts.                                                         |
+| `claude-sonnet-4.6` | 200K          | ≥150K input        | Same protocol.                                                                                                                  |
+| `gpt-5.3-codex`     | 128K          | ≥95K input         | Same protocol.                                                                                                                  |
 
 Checkpoint procedure when a hard threshold is hit:
 
@@ -63,11 +63,13 @@ Checkpoint procedure when a hard threshold is hit:
 2. Replace any further reads of `04-implementation-plan.md`,
    `04-governance-constraints.md/.json`, or `02-architecture-assessment.md`
    with `apex-recall show <project> --json` (then `apex-recall search
-   <project> '<term>' --json` for targeted lookups).
-3. Pin every subsequent skill read to `SKILL.minimal.md`. Do not load
-   `SKILL.digest.md` or `SKILL.md`.
+<project> '<term>' --json` for targeted lookups).
+3. Stop loading additional skills. Skills are single-tier (`SKILL.md`);
+   if the parent skill is already in context, do not re-read it. Read only
+   specific `references/` files when the SKILL.md body explicitly points
+   to one.
 4. Record the event: `apex-recall checkpoint <project> <step>
-   context_compacted_<threshold>K --json`.
+context_compacted_<threshold>K --json`.
 
 Step 5 CodeGen agents (`06b-Bicep CodeGen`, `06t-Terraform CodeGen`) must
 honour this rule \u2014 the gpt-5.5 main agent saturated at 200K+ inputs in the
@@ -96,22 +98,20 @@ Before loading any artifact file:
 5. Load artifact/skill using the appropriate variant
 ```
 
-## Skill Loading Tiers
+## Skill Loading
 
-Skills have three compression tiers. The default for context-window-optimized
-agents is `SKILL.digest.md` (no longer `SKILL.md`). `SKILL.minimal.md` is the
-escalation for >80% context utilization or when the caller passes an explicit
-minimal-mode flag. The full `SKILL.md` is reserved for skill-authoring or
-debugging contexts where the digest is insufficient.
+Skills are single-tier: each skill has exactly one file, `SKILL.md`. There is
+no digest or minimal variant. To stay under context budget:
 
-| Context Usage / Mode              | Skill Variant      | Approx Tokens |
-| --------------------------------- | ------------------ | ------------- |
-| **Default** (any utilization)     | `SKILL.digest.md`  | 150-320       |
-| > 80% utilization or minimal flag | `SKILL.minimal.md` | 40-100        |
-| Skill authoring / debugging only  | `SKILL.md`         | 400-800       |
+1. **Load each `SKILL.md` only once per session.** Do not re-read a skill
+   that is already in context.
+2. **Read only the H2 sections needed.** Use `read_file` with a line range
+   for known sections rather than loading the full body.
+3. **Defer `references/*.md`** — load on demand only when the SKILL.md body
+   explicitly points to one.
 
-All skill directories in this repository ship a `SKILL.digest.md` file, so
-no missing-digest fallback path is needed.
+See Mode A (Runtime Compression) above for artifact-loading tiers; the
+tier system applies to artifacts in `agent-output/`, not to skills.
 
 ---
 

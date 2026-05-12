@@ -1,3 +1,4 @@
+<!-- ref:revision-workflow-v1 -->
 # Revision Workflow (Targeted Edits)
 
 > Detailed revision-tooling rules for `azure-artifacts`. Loaded when an

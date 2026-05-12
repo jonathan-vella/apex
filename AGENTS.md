@@ -45,8 +45,8 @@ terraform fmt -check -recursive infra/terraform/ && npm run validate:terraform
 
 Code style (CAF naming, required tags, default region, AVM-first, unique
 suffix pattern) is documented in
-[.github/skills/azure-defaults/SKILL.digest.md](.github/skills/azure-defaults/SKILL.digest.md).
-Agents read that digest as part of their mandatory skill load; this file
+[.github/skills/azure-defaults/SKILL.md](.github/skills/azure-defaults/SKILL.md).
+Agents read that file as part of their mandatory skill load; this file
 no longer duplicates the tables.
 
 ## Security Baseline
@@ -103,6 +103,6 @@ For deeper guidance, agents read these on demand:
 - azd multi-project rules: `.github/instructions/azure-yaml.instructions.md` (auto-loaded for `azure.yaml`)
 - Terminal hygiene (no `mv -i`/`rm -i`/`read -p`, pipe long output to file):
   `.github/instructions/no-interactive-shell.instructions.md` (enforced by `lint:safe-shell`)
-- Azure defaults: `.github/skills/azure-defaults/SKILL.digest.md`
+- Azure defaults: `.github/skills/azure-defaults/SKILL.md`
 - Workflow DAG: `.github/skills/workflow-engine/templates/workflow-graph.json`
 - Full validation reference: <https://jonathan-vella.github.io/azure-agentic-infraops/reference/validation-reference/>

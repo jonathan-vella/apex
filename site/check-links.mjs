@@ -5,8 +5,13 @@
  */
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const DIST = resolve("dist");
+// Resolve dist/ relative to this script so the check works whether invoked
+// from site/ (`node check-links.mjs`) or from the repo root
+// (`node site/check-links.mjs`).
+const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
+const DIST = resolve(SCRIPT_DIR, "dist");
 const BASE = "/azure-agentic-infraops";
 
 // Collect all HTML files
@@ -24,11 +29,18 @@ function walkHtml(dir) {
 }
 
 // Extract href values from HTML
+// Strip <script>…</script> and <style>…</style> blocks first — their bodies
+// contain JavaScript/CSS source that often includes literal href="…" patterns
+// (e.g., template literals inside Astro define:vars scripts) which are not
+// real rendered links. Matching them produces false-positive broken links.
 function extractHrefs(html) {
+  const cleaned = html
+    .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, "")
+    .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, "");
   const re = /href="([^"]+)"/g;
   const hrefs = [];
   let m;
-  while ((m = re.exec(html))) hrefs.push(m[1]);
+  while ((m = re.exec(cleaned))) hrefs.push(m[1]);
   return hrefs;
 }
 

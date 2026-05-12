@@ -24,7 +24,7 @@ cost estimates.
 - Read `agent-output/{project}/01-requirements.md` for the Step 1 requirements.
 - Read `.github/skills/azure-artifacts/references/02-architecture-template.md`
   for the H2 structure.
-- Read `.github/skills/azure-defaults/SKILL.digest.md` for region defaults,
+- Read `.github/skills/azure-defaults/SKILL.md` for region defaults,
   naming, security baseline, and AVM-first rules.
 - `{project}` is the folder name under `agent-output/`.
 </context>

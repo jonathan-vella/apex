@@ -1,4 +1,5 @@
 <!-- ref:research-v1 -->
+
 # Research Components
 
 After architecture planning, research each selected component to gather best practices before generating artifacts.
@@ -17,38 +18,38 @@ After architecture planning, research each selected component to gather best pra
 
 ## Service-to-Reference Mapping
 
-| Azure Service | Reference | Related Skills |
-|---------------|-----------|----------------|
-| **Hosting** | | |
-| Container Apps | [Container Apps](services/container-apps/README.md) | `azure-diagnostics`, `azure-observability`, `azure-nodejs-production` |
-| App Service | [App Service](services/app-service/README.md) | `azure-diagnostics`, `azure-observability`, `azure-nodejs-production` |
-| Azure Functions | [Functions](services/functions/README.md) | — |
-| Static Web Apps | [Static Web Apps](services/static-web-apps/README.md) | — |
-| AKS | [AKS](services/aks/README.md) | `azure-networking`, `azure-security-hardening` |
-| **Data** | | |
-| Azure SQL | [SQL Database](services/sql-database/README.md) | `azure-security` |
-| Cosmos DB | [Cosmos DB](services/cosmos-db/README.md) | `azure-security` |
-| PostgreSQL | — | — |
-| Storage (Blob/Files) | [Storage](services/storage/README.md) | `azure-storage`, `azure-security-hardening` |
-| **Messaging** | | |
-| Service Bus | [Service Bus](services/service-bus/README.md) | — |
-| Event Grid | [Event Grid](services/event-grid/README.md) | — |
-| Event Hubs | — | — |
-| **Integration** | | |
-| API Management | [APIM](apim.md) | `azure-aigateway` (invoke for AI Gateway policies) |
-| Logic Apps | [Logic Apps](services/logic-apps/README.md) | — |
-| **Workflow & Orchestration** | | |
-| Durable Functions | [Durable Functions](services/functions/durable.md), [Durable Task Scheduler](services/durable-task-scheduler/README.md) | — |
-| Durable Task Scheduler | [Durable Task Scheduler](services/durable-task-scheduler/README.md) | — |
-| **Security & Identity** | | |
-| Key Vault | [Key Vault](services/key-vault/README.md) | `azure-security`, `azure-keyvault-expiration-audit` |
-| Managed Identity | — | `azure-security`, `entra-app-registration` |
-| **Observability** | | |
-| Application Insights | [App Insights](services/app-insights/README.md) | `appinsights-instrumentation` (invoke for instrumentation) |
-| Log Analytics | — | `azure-observability`, `azure-kusto` |
-| **AI Services** | | |
-| Azure OpenAI | [Foundry](services/foundry/README.md) | `microsoft-foundry` (invoke for AI patterns and model guidance) |
-| AI Search | — | `azure-ai` (invoke for search configuration) |
+| Azure Service                | Reference                                                                                                               | Related Skills                                                                                                                   |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| **Hosting**                  |                                                                                                                         |                                                                                                                                  |
+| Container Apps               | [Container Apps](services/container-apps/README.md)                                                                     | `azure-diagnostics`, `azure-observability`, `azure-nodejs-production`                                                            |
+| App Service                  | [App Service](services/app-service/README.md)                                                                           | `azure-diagnostics`, `azure-observability`, `azure-nodejs-production`                                                            |
+| Azure Functions              | [Functions](services/functions/README.md)                                                                               | —                                                                                                                                |
+| Static Web Apps              | [Static Web Apps](services/static-web-apps/README.md)                                                                   | —                                                                                                                                |
+| AKS                          | [AKS](services/aks/README.md)                                                                                           | `azure-networking`, `azure-security-hardening`                                                                                   |
+| **Data**                     |                                                                                                                         |                                                                                                                                  |
+| Azure SQL                    | [SQL Database](services/sql-database/README.md)                                                                         | `azure-security`                                                                                                                 |
+| Cosmos DB                    | [Cosmos DB](services/cosmos-db/README.md)                                                                               | `azure-security`                                                                                                                 |
+| PostgreSQL                   | —                                                                                                                       | —                                                                                                                                |
+| Storage (Blob/Files)         | [Storage](services/storage/README.md)                                                                                   | `azure-storage`, `azure-security-hardening`                                                                                      |
+| **Messaging**                |                                                                                                                         |                                                                                                                                  |
+| Service Bus                  | [Service Bus](services/service-bus/README.md)                                                                           | —                                                                                                                                |
+| Event Grid                   | [Event Grid](services/event-grid/README.md)                                                                             | —                                                                                                                                |
+| Event Hubs                   | —                                                                                                                       | —                                                                                                                                |
+| **Integration**              |                                                                                                                         |                                                                                                                                  |
+| API Management               | [APIM](apim.md)                                                                                                         | — (AI Gateway policies: see [APIM AI Gateway docs](https://learn.microsoft.com/azure/api-management/genai-gateway-capabilities)) |
+| Logic Apps                   | [Logic Apps](services/logic-apps/README.md)                                                                             | —                                                                                                                                |
+| **Workflow & Orchestration** |                                                                                                                         |                                                                                                                                  |
+| Durable Functions            | [Durable Functions](services/functions/durable.md), [Durable Task Scheduler](services/durable-task-scheduler/README.md) | —                                                                                                                                |
+| Durable Task Scheduler       | [Durable Task Scheduler](services/durable-task-scheduler/README.md)                                                     | —                                                                                                                                |
+| **Security & Identity**      |                                                                                                                         |                                                                                                                                  |
+| Key Vault                    | [Key Vault](services/key-vault/README.md)                                                                               | `azure-security`, `azure-keyvault-expiration-audit`                                                                              |
+| Managed Identity             | —                                                                                                                       | `azure-security`, `entra-app-registration`                                                                                       |
+| **Observability**            |                                                                                                                         |                                                                                                                                  |
+| Application Insights         | [App Insights](services/app-insights/README.md)                                                                         | `appinsights-instrumentation` (invoke for instrumentation)                                                                       |
+| Log Analytics                | —                                                                                                                       | `azure-observability`, `azure-kusto`                                                                                             |
+| **AI Services**              |                                                                                                                         |                                                                                                                                  |
+| Azure OpenAI                 | [Foundry](services/foundry/README.md)                                                                                   | `microsoft-foundry` (invoke for AI patterns and model guidance)                                                                  |
+| AI Search                    | —                                                                                                                       | `azure-ai` (invoke for search configuration)                                                                                     |
 
 ## Research Instructions
 
@@ -76,24 +77,26 @@ Selected: Container Apps, Cosmos DB, Key Vault
 
 Invoke related skills for specialized scenarios:
 
-| Scenario | Action |
-|----------|--------|
-| **Using GitHub Copilot SDK** | **Invoke `azure-hosted-copilot-sdk`** (scaffold + config, then resume azure-prepare) |
-| Using Azure Functions | Stay in **azure-prepare** — load [selection.md](services/functions/templates/selection.md) → Follow [composition.md](services/functions/templates/recipes/composition.md) algorithm |
-| PostgreSQL with passwordless auth | Handle directly without a separate skill |
-| Need detailed security hardening | `azure-security-hardening` |
-| Setting up App Insights instrumentation | `appinsights-instrumentation` |
-| Building AI applications | `microsoft-foundry` |
-| Cost-sensitive deployment | `azure-cost-optimization` |
+| Scenario                                        | Action                                                                                                                                                                              |
+| ----------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Migrating AWS Lambda / cross-cloud workload** | **Invoke `azure-cloud-migrate`** (assessment + code conversion, then resume azure-prepare)                                                                                          |
+| Using Azure Functions                           | Stay in **azure-prepare** — load [selection.md](services/functions/templates/selection.md) → Follow [composition.md](services/functions/templates/recipes/composition.md) algorithm |
+| PostgreSQL with passwordless auth               | Handle directly without a separate skill                                                                                                                                            |
+| Need detailed security hardening                | `azure-security-hardening`                                                                                                                                                          |
+| Setting up App Insights instrumentation         | `appinsights-instrumentation`                                                                                                                                                       |
+| Building AI applications                        | `microsoft-foundry`                                                                                                                                                                 |
+| Cost-sensitive deployment                       | `azure-cost-optimization`                                                                                                                                                           |
 
 **Skill/Reference Invocation Pattern:**
 
 For **Azure Functions**:
+
 1. Load: [selection.md](services/functions/templates/selection.md) (decision tree)
 2. Follow: [composition.md](services/functions/templates/recipes/composition.md) (algorithm)
 3. Result: Base template + recipe composition (never synthesize IaC)
 
 For **PostgreSQL**:
+
 1. Handle passwordless auth patterns directly without a separate skill
 
 ### Step 3: Document in Plan
@@ -123,11 +126,6 @@ Add research findings to `infra/{iac}/{project}/.azure/plan.md` under a `## Rese
 2. Load: [services/container-apps/README.md](services/container-apps/README.md) → [bicep.md](services/container-apps/bicep.md)
 3. Load: [services/cosmos-db/README.md](services/cosmos-db/README.md) → [partitioning.md](services/cosmos-db/partitioning.md) (vector storage)
 4. Invoke: `azure-security` (API key management)
-
-### GitHub Copilot SDK Application
-
-1. Invoke: `azure-hosted-copilot-sdk` skill (scaffold, infra, model config)
-2. After it completes, resume azure-prepare workflow (validate → deploy)
 
 ## After Research
 

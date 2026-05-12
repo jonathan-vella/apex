@@ -74,7 +74,7 @@ and routing to the next step. At approval gates, the Orchestrator writes a
 | e2e-orchestrator            | Prompt-invoked end-to-end validation driver     | workflow-engine, apex-recall                   |
 
 For a live, always-current roster, see the
-[Architecture Explorer](../../reference/architecture-explorer/). The count is
+[Architecture Explorer](../../../reference/architecture-explorer/). The count is
 computed from `tools/registry/count-manifest.json` and the source of truth is the
 `.github/agents/*.agent.md` files on disk.
 

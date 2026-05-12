@@ -1,3 +1,4 @@
+<!-- ref:issues-and-prs-v1 -->
 # Issues & Pull Requests — gh CLI + MCP Fallback
 
 > Loaded by `github-operations` SKILL.md. Tool tables and creation
