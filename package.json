@@ -113,7 +113,7 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-formatter-compact": "^8.40.0",
     "eslint-plugin-n": "^17.15.1",
-    "fast-xml-parser": "^5.7.3",
+    "fast-xml-parser": "^5.8.0",
     "js-yaml": "^4.1.1",
     "jsdom": "^29.1.1",
     "lefthook": "^2.1.6",
