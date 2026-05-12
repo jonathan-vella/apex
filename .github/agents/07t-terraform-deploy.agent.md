@@ -206,6 +206,36 @@ Run `apex-recall show <project> --json` for full project context. Do not read `0
   Record: deployment blockers, plan warnings, policy violations found during deploy.
 - **On completion**: `apex-recall complete-step <project> 6 --json`
 
+## SKU Manifest — Pre-Flight Quota / Region SKU Check
+
+Before `terraform apply` / `azd provision`, for every entry in
+`agent-output/{project}/sku-manifest.json` `services[]`:
+
+1. For each `(env, region)` pair (base `regions[]` + per-env
+   `environment_overrides`), call the **`azure-quotas` skill** to confirm
+   the SKU is available and quota is sufficient.
+2. Set `decisions.sku_manifest_status = "deploying"` via `apex-recall decide`.
+
+### Block-with-escalation pattern (no deadlock)
+
+When a quota / region SKU check fails, do **not** silently substitute.
+Escalate via the orchestrator:
+
+1. Surface the conflict to the human with the available substitutes
+   (call `azure-quotas` for the same service family in the same region
+   and the failover region).
+2. The human (via the Orchestrator) responds with one of the four
+   `sku_conflict_resolution` enum values:
+   `revert_to_plan` │ `accept_substitute` │ `change_region` │ `abort`.
+3. After **N=3 orchestrator round-trips without an acceptable substitute**,
+   surface `abort` as an explicit option to break deadlock.
+4. On resolution, append one entry to `decisions.sku_overrides[]`
+   (array — never use dynamic keys) and write a new manifest revision
+   with `source: "deploy-substitute"`, `source_step: "6"`.
+5. `abort` returns control to `01-Orchestrator` without applying.
+
+On full success, set `decisions.sku_manifest_status = "deployed"`.
+
 ## Deployment Workflow
 
 ### Step 1: Azure CLI Authentication Validation

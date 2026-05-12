@@ -1,0 +1,50 @@
+{
+  "$schema": "../../../tools/schemas/sku-manifest.schema.json",
+  "schema_version": "sku-manifest-v1",
+  "project": "fixture-duplicate-id",
+  "default_region": "swedencentral",
+  "created_at": "2026-05-12T09:00:00Z",
+  "updated_at": "2026-05-12T09:00:00Z",
+  "current_revision": 1,
+  "environments": ["prod"],
+  "revisions": [
+    {
+      "rev": 1,
+      "created_at": "2026-05-12T09:00:00Z",
+      "agent": "02-Requirements",
+      "step": "1",
+      "summary": "Should fail: duplicate id",
+      "changed_ids": ["app-plan-web"]
+    }
+  ],
+  "services": [
+    {
+      "id": "app-plan-web",
+      "service": "App Service Plan",
+      "size": "P1v3",
+      "iac_logical_names": { "bicep": "a", "terraform": "module.a" },
+      "capacity": { "mode": "fixed", "default": 1 },
+      "zonal": true,
+      "regions": ["swedencentral"],
+      "sla_target": "99.95%",
+      "commitment": { "type": "on-demand" },
+      "source": "user-pin",
+      "source_step": "1",
+      "last_modified_rev": 1
+    },
+    {
+      "id": "app-plan-web",
+      "service": "App Service Plan",
+      "size": "P2v3",
+      "iac_logical_names": { "bicep": "b", "terraform": "module.b" },
+      "capacity": { "mode": "fixed", "default": 1 },
+      "zonal": true,
+      "regions": ["swedencentral"],
+      "sla_target": "99.95%",
+      "commitment": { "type": "on-demand" },
+      "source": "user-pin",
+      "source_step": "1",
+      "last_modified_rev": 1
+    }
+  ]
+}

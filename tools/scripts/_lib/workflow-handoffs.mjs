@@ -267,7 +267,7 @@ export function isProducedArtifact(name, producedSet) {
   if (producedSet.has(name)) return true;
   for (const p of producedSet) {
     if (!p.includes("*")) continue;
-    const re = new RegExp("^" + p.replace(/[.+^${}()|[\]\\]/g, "\\$&").replace(/\*/g, ".*") + "$");
+    const re = new RegExp(`^${p.replace(/[.+^${}()|[\]\\]/g, "\\$&").replace(/\*/g, ".*")}$`);
     if (re.test(name)) return true;
   }
   return false;

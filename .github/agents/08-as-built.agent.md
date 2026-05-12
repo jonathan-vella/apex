@@ -218,6 +218,29 @@ Run `apex-recall show <project> --json` for full project context. Do not read `0
   Record: documentation scope decisions, resource inventory inclusions/exclusions.
 - **On completion**: `apex-recall complete-step <project> 7 --json`
 
+## SKU Manifest — Bidirectional Drift Detection
+
+After deployment, `08-As-Built` is responsible for closing the loop:
+
+1. Load `agent-output/{project}/sku-manifest.json` `services[]`.
+2. For each `(id, env, region)`, query the deployed Azure resource (via
+   `az resource show` / Resource Graph) and read the live SKU.
+3. Populate `services[].actual_sku.{env}.{region}` with the observed value.
+4. Cross-check against IaC source (Bicep templates / Terraform state) so
+   drift is detected in **three directions**:
+   - manifest ↔ Azure live
+   - manifest ↔ IaC code
+   - IaC code ↔ Azure live
+5. Emit one finding per mismatch via `apex-recall finding`. Reference the
+   manifest `id` and which directions diverged.
+6. Set `decisions.sku_manifest_status = "drift"` if any mismatch exists,
+   otherwise leave `deployed`.
+7. Append a new manifest revision (`agent: "08-As-Built"`, `step: "7"`)
+   capturing the `actual_sku` writes. **Do not change `services[].size`
+   or `services[].source`** — drift is reported, not auto-healed.
+8. The `07-resource-inventory.md` H2 table includes the `actual_sku`
+   column per env/region rendered from the manifest.
+
 ## Core Workflow
 
 ### Phase 1: Context Gathering

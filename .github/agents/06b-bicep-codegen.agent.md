@@ -274,6 +274,25 @@ Run `apex-recall show <project> --json` for full project context. Do not read `0
 - **Review audit**: `apex-recall review-audit <project> 5 ... --json`
 - **On completion**: `apex-recall complete-step <project> 5 --json`
 
+## SKU Manifest — Read JSON First
+
+`agent-output/{project}/sku-manifest.json` is the source of truth for
+every creative SKU. Read it programmatically — never re-derive a SKU
+from `04-implementation-plan.md` prose.
+
+- Resolve each Bicep resource via `services[].iac_logical_names.bicep`.
+  Every manifest entry MUST map to exactly one Bicep symbolic name.
+- Per-environment overrides come from `services[].environment_overrides.{env}`.
+  Use parameter files (`main.bicepparam`) per env; do not duplicate
+  modules.
+- Use `services[].capacity` for sku/capacity properties (autoscale-aware:
+  `mode == "autoscale"` → wire `min`/`max` into the appropriate scale
+  rule; `mode == "fixed"` → set capacity to `default`).
+- Use `services[].zonal` for `zones: ['1','2','3']` or omit accordingly.
+- Out-of-scope resources (bandwidth, Log Analytics, vnet, subnet, NSG,
+  route table, public IP, diagnostics) are NOT in the manifest and
+  follow the plan's narrative directly.
+
 ## Workflow
 
 Shared phase contract for both IaC tracks:

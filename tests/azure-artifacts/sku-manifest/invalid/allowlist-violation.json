@@ -1,0 +1,43 @@
+{
+  "$schema": "../../../tools/schemas/sku-manifest.schema.json",
+  "schema_version": "sku-manifest-v1",
+  "project": "fixture-allowlist-violation",
+  "default_region": "swedencentral",
+  "created_at": "2026-05-12T09:00:00Z",
+  "updated_at": "2026-05-12T09:00:00Z",
+  "current_revision": 1,
+  "environments": ["prod"],
+  "revisions": [
+    {
+      "rev": 1,
+      "created_at": "2026-05-12T09:00:00Z",
+      "agent": "03-Architect",
+      "step": "2",
+      "summary": "Should fail: services[].size not in allowed_skus list",
+      "changed_ids": ["app-plan"]
+    }
+  ],
+  "services": [
+    {
+      "id": "app-plan",
+      "service": "App Service Plan",
+      "size": "B1",
+      "iac_logical_names": { "bicep": "p", "terraform": "module.p" },
+      "capacity": { "mode": "fixed", "default": 2 },
+      "zonal": true,
+      "regions": ["swedencentral"],
+      "sla_target": "99.95%",
+      "commitment": { "type": "on-demand" },
+      "source": "architect-derived",
+      "source_step": "2",
+      "last_modified_rev": 1
+    }
+  ],
+  "sku_allowlist_snapshot": {
+    "discovered_at": "2026-05-12T09:00:00Z",
+    "source": "04-governance-constraints.json",
+    "allowed_skus": {
+      "App Service Plan": ["P1v3", "P2v3", "P3v3"]
+    }
+  }
+}

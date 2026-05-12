@@ -98,6 +98,24 @@ Run `apex-recall show <project> --json` for full project context. Do not read `0
 - **My step**: 1
 - **Sub-step checkpoints**: `phase_1_discovery` → `phase_2_workload` →
   `phase_3_nfr` → `phase_4_technical` → `phase_5_artifact`
+
+## SKU Manifest — User Pins Only
+
+Step 1 creates `agent-output/{project}/sku-manifest.json` + `.md` at rev 1.
+
+- **Capture only hard constraints the user volunteers** — region pins,
+  tier requirements driven by compliance, reserved-instance commitments
+  the user has already purchased. **Do not exhaustively enumerate SKUs.**
+- Empty `services[]` at rev 1 is the **common case** and is valid.
+- Every entry you write has `source: "user-pin"`, `source_step: "1"`,
+  `last_modified_rev: 1`.
+- Schema: [`tools/schemas/sku-manifest.schema.json`](../../tools/schemas/sku-manifest.schema.json).
+  Template: [`.github/skills/azure-artifacts/templates/sku-manifest.template.json`](../skills/azure-artifacts/templates/sku-manifest.template.json).
+  Authoring rules: [`.github/instructions/sku-manifest.instructions.md`](../instructions/sku-manifest.instructions.md).
+- After writing rev 1, set `decisions.sku_manifest_status = "draft"` and
+  `decisions.sku_manifest_revision = 1` via `apex-recall decide`.
+- The bulk of `services[]` is populated by **03-Architect at Step 2**, not here.
+
 - **Checkpoints**: After each phase, run:
   `apex-recall checkpoint <project> 1 <phase_name> --json`
 - **Decisions**: Record captured values with:

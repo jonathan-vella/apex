@@ -8,7 +8,7 @@
       "name": "Requirements",
       "agent": "02-Requirements",
       "requires": [],
-      "produces": ["01-requirements.md"],
+      "produces": ["01-requirements.md", "sku-manifest.json", "sku-manifest.md"],
       "gate": "approval",
       "challenger": { "passes": 1, "lenses": ["comprehensive"] }
     },
@@ -26,6 +26,7 @@
       "agent": "03-Architect",
       "requires": ["gate-1"],
       "produces": ["02-architecture-assessment.md", "03-des-cost-estimate.md", "03-des-sku-comparison.md"],
+      "mutates": ["sku-manifest.json", "sku-manifest.md"],
       "gate": "approval",
       "challenger": {
         "default_passes": 1,
@@ -111,6 +112,7 @@
         "04-runtime-diagram.py",
         "04-runtime-diagram.png"
       ],
+      "mutates": ["sku-manifest.json", "sku-manifest.md"],
       "gate": "approval",
       "challenger": {
         "default_passes": 1,
@@ -223,6 +225,7 @@
       "requires": ["gate-4"],
       "condition": { "field": "decisions.iac_tool", "equals": "Bicep" },
       "produces": ["06-deployment-summary.md", "06-policy-precheck.json"],
+      "mutates": ["sku-manifest.json", "sku-manifest.md"],
       "gate": "approval",
       "preconditions": [
         {
@@ -242,6 +245,7 @@
       "requires": ["gate-4"],
       "condition": { "field": "decisions.iac_tool", "equals": "Terraform" },
       "produces": ["06-deployment-summary.md", "06-policy-precheck.json"],
+      "mutates": ["sku-manifest.json", "sku-manifest.md"],
       "gate": "approval",
       "preconditions": [
         {
@@ -276,6 +280,7 @@
         "07-resource-inventory.md",
         "07-documentation-index.md"
       ],
+      "mutates": ["sku-manifest.json", "sku-manifest.md"],
       "gate": null,
       "parallel_substeps": [
         "design-document",

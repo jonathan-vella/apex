@@ -36,6 +36,14 @@ Full rules:
 and
 [`iac-security-baseline.md`](instructions/references/iac-security-baseline.md).
 
+### SKU source of truth
+
+Creative SKU decisions (App Service, VM, SQL, Cosmos, AKS pools, Redis,
+APIM, App Gateway, Storage replication) flow through
+`agent-output/{project}/sku-manifest.{json,md}` — never re-derive SKUs
+from artifact prose. Authoring rules:
+[`sku-manifest.instructions.md`](instructions/sku-manifest.instructions.md).
+
 ## Session State — apex-recall
 
 All session state flows through `apex-recall`. Do not read or write

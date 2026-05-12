@@ -1,0 +1,141 @@
+{
+  "$schema": "../../../../tools/schemas/sku-manifest.schema.json",
+  "schema_version": "sku-manifest-v1",
+  "project": "{project-name}",
+  "default_region": "swedencentral",
+  "created_at": "2026-05-12T09:00:00Z",
+  "updated_at": "2026-05-12T11:30:00Z",
+  "current_revision": 2,
+  "environments": ["dev", "test", "prod"],
+  "revisions": [
+    {
+      "rev": 1,
+      "created_at": "2026-05-12T09:00:00Z",
+      "agent": "02-Requirements",
+      "step": "1",
+      "commit_sha": "abc1234",
+      "apex_recall_checkpoint": "project-name:1:phase_5_artifact",
+      "summary": "Initial user pins: prod region pinned to swedencentral; reserved capacity required for App Service.",
+      "changed_ids": ["app-plan-web"]
+    },
+    {
+      "rev": 2,
+      "created_at": "2026-05-12T11:30:00Z",
+      "agent": "03-Architect",
+      "step": "2",
+      "commit_sha": "def5678",
+      "apex_recall_checkpoint": "project-name:2:phase_4_sku_authoring",
+      "summary": "Architect-derived SKUs for SQL and Storage; cost-estimate writeback applied.",
+      "changed_ids": ["sql-db-core", "storage-data"]
+    }
+  ],
+  "services": [
+    {
+      "id": "app-plan-web",
+      "service": "App Service Plan",
+      "size": "P1v3",
+      "iac_logical_names": {
+        "bicep": "appServicePlanWeb",
+        "terraform": "module.app_service_plan_web"
+      },
+      "capacity": {
+        "mode": "autoscale",
+        "min": 2,
+        "max": 10,
+        "default": 2
+      },
+      "zonal": true,
+      "regions": ["swedencentral", "germanywestcentral"],
+      "environment_overrides": {
+        "dev": {
+          "size": "B1",
+          "capacity": { "mode": "fixed", "default": 1 },
+          "zonal": false
+        },
+        "test": {
+          "size": "S1",
+          "capacity": { "mode": "fixed", "default": 1 }
+        }
+      },
+      "sla_target": "99.95%",
+      "sla_achieved": "99.99%",
+      "commitment": {
+        "type": "reserved-1yr",
+        "term_years": 1
+      },
+      "requires": ["vnet-integration", "managed-identity"],
+      "notes": "User pinned reserved capacity at Step 1; Architect upgraded to P1v3 + AZ-redundant for prod SLA.",
+      "source": "user-pin",
+      "source_step": "1",
+      "last_modified_rev": 2,
+      "cost_estimate_monthly_usd": 142.5,
+      "cost_estimated_at": "2026-05-12T11:30:00Z"
+    },
+    {
+      "id": "sql-db-core",
+      "service": "SQL Database",
+      "size": "GP_S_Gen5_2",
+      "iac_logical_names": {
+        "bicep": "sqlDbCore",
+        "terraform": "module.sql_db_core"
+      },
+      "capacity": {
+        "mode": "fixed",
+        "default": 1
+      },
+      "zonal": true,
+      "regions": ["swedencentral"],
+      "environment_overrides": {
+        "dev": {
+          "size": "GP_S_Gen5_1",
+          "zonal": false
+        }
+      },
+      "sla_target": "99.99%",
+      "sla_achieved": "99.99%",
+      "commitment": {
+        "type": "on-demand"
+      },
+      "requires": ["private-endpoints", "managed-identity"],
+      "notes": "Architect-chosen serverless tier. Reserved pricing not yet cost-effective at expected utilization.",
+      "source": "architect-derived",
+      "source_step": "2",
+      "last_modified_rev": 2,
+      "cost_estimate_monthly_usd": 218.0,
+      "cost_estimated_at": "2026-05-12T11:30:00Z"
+    },
+    {
+      "id": "storage-data",
+      "service": "Storage Account",
+      "size": "Standard_ZRS",
+      "iac_logical_names": {
+        "bicep": "storageData",
+        "terraform": "module.storage_data"
+      },
+      "capacity": {
+        "mode": "fixed",
+        "default": 1
+      },
+      "zonal": true,
+      "regions": ["swedencentral"],
+      "environment_overrides": {
+        "dev": {
+          "size": "Standard_LRS",
+          "zonal": false
+        }
+      },
+      "sla_target": "99.9%",
+      "sla_achieved": "99.99%",
+      "commitment": {
+        "type": "on-demand"
+      },
+      "requires": ["private-endpoints"],
+      "notes": "ZRS for prod, LRS for dev to reduce cost.",
+      "source": "architect-derived",
+      "source_step": "2",
+      "last_modified_rev": 2,
+      "cost_estimate_monthly_usd": 38.2,
+      "cost_estimated_at": "2026-05-12T11:30:00Z"
+    }
+  ]
+}

@@ -277,6 +277,27 @@ Run `apex-recall show <project> --json` for full project context. Do not read `0
 - **Review audit**: `apex-recall review-audit <project> 5 ... --json`
 - **On completion**: `apex-recall complete-step <project> 5 --json`
 
+## SKU Manifest — Read JSON First
+
+`agent-output/{project}/sku-manifest.json` is the source of truth for
+every creative SKU. Read it programmatically — never re-derive a SKU
+from `04-implementation-plan.md` prose.
+
+- Resolve each Terraform resource via
+  `services[].iac_logical_names.terraform`. Every manifest entry MUST
+  map to exactly one Terraform address (e.g. `module.app_plan` or
+  `azurerm_service_plan.web`).
+- Per-environment overrides come from `services[].environment_overrides.{env}`.
+  Use tfvars / workspaces per env; do not duplicate module blocks.
+- Use `services[].capacity` for `sku_name` / `capacity` arguments
+  (autoscale-aware: `mode == "autoscale"` → wire `min`/`max` into
+  `azurerm_monitor_autoscale_setting`; `mode == "fixed"` → set capacity
+  to `default`).
+- Use `services[].zonal` for `zones = ["1","2","3"]` or omit accordingly.
+- Out-of-scope resources (bandwidth, Log Analytics, vnet, subnet, NSG,
+  route table, public IP, diagnostics) are NOT in the manifest and
+  follow the plan's narrative directly.
+
 ## Workflow
 
 Shared phase contract for both IaC tracks:

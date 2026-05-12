@@ -124,6 +124,46 @@ Run `apex-recall show <project> --json` for full project context. Do not read `0
 
 These skills are your single source of truth. Do NOT use hardcoded values.
 
+## SKU Manifest — Step 2 Authoring (Bulk Population)
+
+`agent-output/{project}/sku-manifest.{json,md}` already exists from Step 1
+(may have empty `services[]` if the user had no hard pins). Step 2 is when
+the bulk is authored.
+
+**Authoring workflow**:
+
+1. **Build `candidate_sets[]`** — for each creative SKU decision (App
+   Service plan, VM, SQL, Cosmos, AKS pools, Redis, APIM, App Gateway,
+   Storage replication), enumerate 2–3 viable SKUs across base + per-env
+   shapes.
+2. **Call `cost-estimate-subagent` in `candidate_sets[]` mode** to price
+   A-vs-B _before_ committing. See its dual input contract for
+   `manifest_path` vs `candidate_sets[]`.
+3. **Pick winners** for each decision; never carry user-pinned entries
+   (`source: user-pin`) — they are locked.
+4. **Compute `sla_achieved`** from SKU baseline SLA + zonal + region
+   (single-region vs paired-region) per Microsoft's SLA composer rules.
+5. **Write rev 2** to `sku-manifest.json` with new entries:
+   `source: "architect-derived"`, `source_step: "2"`,
+   `last_modified_rev: 2`. Append to `revisions[]`.
+6. **Invoke `cost-estimate-subagent` again in `manifest_path` mode** so
+   it patches `cost_estimate_monthly_usd` per service via
+   `manifest_writeback[]`. Do **not** type prices yourself.
+7. The summary SKU table in `02-architecture-assessment.md` (the existing
+   `## 📦 Resource SKU Recommendations` H2) is **kept** — render it from
+   the manifest. The manifest is the source; the H2 is the rendering.
+8. Set `decisions.sku_manifest_status = "reviewed"` and
+   `decisions.sku_manifest_revision = 2` via `apex-recall decide`.
+
+**Out of scope for `services[]`**: bandwidth, Log Analytics, vnet,
+subnet, NSG, route table, public IP, diagnostics. These remain in the
+architecture assessment narrative but never enter the manifest. See
+[`.github/instructions/sku-manifest.instructions.md`](../instructions/sku-manifest.instructions.md).
+
+**Trade-off matrix lives elsewhere**: `03-des-sku-comparison.md` remains
+the WAF trade-off matrix per the existing `▶ Compare SKU Options`
+handoff. The manifest is the _decision record_, not the comparison.
+
 ## DO / DON'T
 
 ### DO

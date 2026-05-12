@@ -1,0 +1,21 @@
+{
+  "$schema": "../../../tools/schemas/sku-manifest.schema.json",
+  "schema_version": "sku-manifest-v1",
+  "project": "fixture-empty-pins",
+  "default_region": "swedencentral",
+  "created_at": "2026-05-12T09:00:00Z",
+  "updated_at": "2026-05-12T09:00:00Z",
+  "current_revision": 1,
+  "environments": ["dev", "prod"],
+  "revisions": [
+    {
+      "rev": 1,
+      "created_at": "2026-05-12T09:00:00Z",
+      "agent": "02-Requirements",
+      "step": "1",
+      "summary": "No user pins recorded — common case",
+      "changed_ids": []
+    }
+  ],
+  "services": []
+}

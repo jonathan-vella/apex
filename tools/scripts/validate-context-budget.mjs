@@ -50,7 +50,9 @@ function bodyMentions(content, needle) {
   return content.toLowerCase().includes(needle.toLowerCase());
 }
 
-function referencesFrozen(content) {
+// Helper retained for future use by the consumer-detection logic below.
+// Currently unused; the `_` prefix satisfies the no-unused-vars rule.
+function _referencesFrozen(content) {
   return FROZEN_ARTIFACTS.some((a) => content.includes(a));
 }
 
@@ -67,9 +69,7 @@ function isFrozenArtifactConsumer(content) {
     // Look for "`artifact` — **REQUIRED**" or "**REQUIRED**. … artifact"
     // patterns on the same line.
     const lines = content.split("\n");
-    return lines.some(
-      (line) => line.includes(artifact) && line.includes("**REQUIRED**"),
-    );
+    return lines.some((line) => line.includes(artifact) && line.includes("**REQUIRED**"));
   });
 }
 

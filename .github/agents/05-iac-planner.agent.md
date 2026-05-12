@@ -168,6 +168,19 @@ Run `apex-recall show <project> --json` for full project context. Do not read `0
 - **Review audit**: `apex-recall review-audit <project> 4 ... --json`
 - **On completion**: `apex-recall complete-step <project> 4 --json`
 
+## SKU Manifest — Reconciliation + Feature Cross-Check
+
+The plan's `## 📦 Resource Inventory` H2 is rendered from
+`agent-output/{project}/sku-manifest.json` — never re-derive SKUs from
+prose. Reconcile governance findings into rev 3 (`agent: "05-IaC Planner"`,
+`step: "4"`, `last_modified_rev: 3`); user pins stay user pins
+(escalate to Architect via the step-2 return edge when a pin must drop).
+Run the `requires[]` feature cross-check (e.g. `vnet-integration`
+needs App Service ≥ Standard; `private-endpoints` needs Storage GPv2);
+unmet entries are `must_fix`. Set
+`decisions.sku_manifest_status = "locked"`. Full rules:
+[`.github/instructions/sku-manifest.instructions.md`](../instructions/sku-manifest.instructions.md).
+
 ## Core Workflow
 
 ### Phase 1: Prerequisites and Governance Integration

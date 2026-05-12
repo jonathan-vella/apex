@@ -183,6 +183,19 @@ Run `apex-recall show <project> --json` for full project context. Do not read `0
 - **Review audit**: `apex-recall review-audit <project> 3_5 ... --json`
 - **On completion**: `apex-recall complete-step <project> 3_5 --json`
 
+## SKU Manifest — Read-Only Findings + Allowlist Projection
+
+If `agent-output/{project}/sku-manifest.json` exists, read it during
+Phase 2 and emit findings when `services[].size` violates a Deny/Audit
+policy (reference the manifest's `services[].id`). Do **not** mutate
+`services[]` or `revisions[]`. After Phase 2 findings are persisted,
+invoke `node tools/scripts/derive-sku-allowlist.mjs <project>` — it
+projects SKU-restriction Deny policies into the manifest's
+`sku_allowlist_snapshot` (idempotent). Downstream
+`validate-sku-manifest.mjs` cross-checks `services[].size` against the
+projection. Full rules:
+[`.github/instructions/sku-manifest.instructions.md`](../instructions/sku-manifest.instructions.md).
+
 ## Core Workflow
 
 ### Phase 0: Scope

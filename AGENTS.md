@@ -73,7 +73,7 @@ relevant validations before committing.
 
 | Step | Phase        | Output                                                   | Review                                                    |
 | ---- | ------------ | -------------------------------------------------------- | --------------------------------------------------------- |
-| 1    | Requirements | `01-requirements.md`                                     | 1× comprehensive (mandatory)                              |
+| 1    | Requirements | `01-requirements.md` + `sku-manifest.{json,md}` (rev 1)  | 1× comprehensive (mandatory)                              |
 | 2    | Architecture | `02-architecture-assessment.md` + cost estimate          | 1× comprehensive + 1 cost-feasibility (opt-in: deep)      |
 | 3    | Design (opt) | `03-des-*.{py,png,md}` diagrams and ADRs                 | opt-in: 1× comprehensive on ADRs (skipped when no Step 3) |
 | 3.5  | Governance   | `04-governance-constraints.md/.json`                     | 1× governance-reconciliation (skip when no constraints)   |
@@ -93,6 +93,14 @@ multi-pass. Multi-pass reviews are an explicit opt-in via
 `decisions.review_depth = "deep"` (captured once per project by
 01-Orchestrator) or via direct `10-Challenger` invocation. Reviews target
 AI-generated creative decisions — not tool output (what-if/plan previews).
+
+`sku-manifest.{json,md}` is created at Step 1 (user pins only — empty
+`services[]` is the common case) and mutated through Step 7: Step 2
+authoring, Step 3.5 read-only findings, Step 4 reconciliation +
+`requires[]` cross-check, Step 6 substitution on quota/region conflict
+(via the block-with-escalation pattern), Step 7 bidirectional drift
+detection. Authoring rules:
+[`.github/instructions/sku-manifest.instructions.md`](.github/instructions/sku-manifest.instructions.md).
 
 ## Conventions Detail
 
