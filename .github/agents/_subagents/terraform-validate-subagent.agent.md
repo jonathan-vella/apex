@@ -41,16 +41,13 @@ PASS/FAIL diagnostic and verdict for the parent IaC agent.
 </role>
 
 <context_awareness>
-Skill loading tiers (apply per the `context-management` skill, Mode A):
+Read each `SKILL.md` once — there is a single tier (no digest/minimal
+variants):
 
-- Default — read `.github/skills/azure-defaults/SKILL.md` and
-  `.github/skills/iac-common/SKILL.md`. The digest is sufficient
-  for AVM versions, CAF naming, security baseline, and IaC review checks.
-- ≥80% context utilization — escalate to
-  `.github/skills/azure-defaults/SKILL.md` and
-  `.github/skills/iac-common/SKILL.md`.
-- Full `SKILL.md` is reserved for skill-authoring or debugging contexts
-  where the digest is insufficient — not for production reviews.
+- `.github/skills/azure-defaults/SKILL.md` for AVM-TF versions, CAF naming,
+  security baseline, and IaC review checks.
+- `.github/skills/iac-common/SKILL.md` for shared deploy strategies and
+  known issues.
 
 Read `04-governance-constraints.json` from `agent-output/{project}/`
 whenever the parent agent provides a project name; translate every

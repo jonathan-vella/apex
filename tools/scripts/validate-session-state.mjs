@@ -138,11 +138,13 @@ function validateStateFile(filePath, isTemplate) {
 
     // Validate optional review_depth field (Phase 9 of simplifyChallengerReviews)
     if ("review_depth" in state.decisions) {
-      const validReviewDepth = ["default", "deep", ""];
+      // Contract: "default" or "deep" only. "Unset" is represented by
+      // the key being absent from decisions — not by an empty string.
+      const validReviewDepth = ["default", "deep"];
       if (!validReviewDepth.includes(state.decisions.review_depth)) {
         error(
           label,
-          `Invalid decisions.review_depth: "${state.decisions.review_depth}" (expected ${validReviewDepth.join(", ")})`,
+          `Invalid decisions.review_depth: "${state.decisions.review_depth}" (expected ${validReviewDepth.join(", ")}, or omit the key)`,
         );
       }
     }

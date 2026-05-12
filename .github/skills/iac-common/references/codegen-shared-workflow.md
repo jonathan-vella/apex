@@ -26,7 +26,7 @@ Rules:
 3. **Plan must_fix → Return to Planner.** If a code-review pass surfaces a
    finding whose root cause is in the plan (missing resource, wrong topology,
    unsatisfiable governance), STOP Step 5 and traverse the `↩ Return to
-Step 4` handoff. Do not patch the plan in place.
+   Step 4` handoff. Do not patch the plan in place.
 4. **Plan readiness precondition.** Before entering Phase 1, confirm
    `apex-recall show <project> --json` shows Step 4 complete AND every
    plan-level challenger pass returned APPROVED. If any plan-level pass is

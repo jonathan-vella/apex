@@ -109,7 +109,10 @@ if (gaps.length === 0) {
   report.push("| Project | Severity | Category | Lesson | Source |");
   report.push("| ------- | -------- | -------- | ------ | ------ |");
   for (const g of gaps) {
-    const title = String(g.title).replace(/\|/g, "\\|").slice(0, 100);
+    // Markdown table cell escaping: backslashes must be escaped FIRST,
+    // otherwise the subsequent `\|` substitution doubles back over its
+    // own output (CodeQL "Incomplete string escaping or encoding").
+    const title = String(g.title).replace(/\\/g, "\\\\").replace(/\|/g, "\\|").slice(0, 100);
     report.push(`| ${g.project} | ${g.severity} | ${g.category} | ${title} | ${g.source} |`);
   }
 }

@@ -33,10 +33,23 @@ function walkHtml(dir) {
 // contain JavaScript/CSS source that often includes literal href="…" patterns
 // (e.g., template literals inside Astro define:vars scripts) which are not
 // real rendered links. Matching them produces false-positive broken links.
+//
+// Sanitizer notes (CodeQL):
+// - The end-tag pattern allows optional attributes/whitespace before `>`
+//   (e.g. `</script >` or `</style id="x">`) which CodeQL's
+//   "Bad HTML filtering regexp" rule otherwise flags.
+// - The replacement runs in a fixpoint loop so nested or overlapping
+//   `<script>`/`<style>` fragments that the first pass exposes are also
+//   stripped — closes CodeQL's "Incomplete multi-character sanitization".
 function extractHrefs(html) {
-  const cleaned = html
-    .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, "")
-    .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, "");
+  let cleaned = html;
+  let previous;
+  do {
+    previous = cleaned;
+    cleaned = cleaned
+      .replace(/<script\b[^>]*>[\s\S]*?<\/script(?:\s[^>]*)?>/gi, "")
+      .replace(/<style\b[^>]*>[\s\S]*?<\/style(?:\s[^>]*)?>/gi, "");
+  } while (cleaned !== previous);
   const re = /href="([^"]+)"/g;
   const hrefs = [];
   let m;
