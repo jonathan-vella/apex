@@ -28,33 +28,45 @@ function walkHtml(dir) {
   return results;
 }
 
+// Strip every `<tag>…</tag>` block from `input` using non-regex string
+// scanning. This avoids the well-known CodeQL traps around incomplete
+// multi-character HTML sanitizers (js/incomplete-multi-character-sanitization,
+// js/bad-tag-filter): there is no regex to mis-handle whitespace/newlines
+// inside an end tag, no unanchored fallback that can leave `<tag` substrings
+// behind, and the scan is provably complete.
+function stripBlocks(input, tagName) {
+  const open = `<${tagName}`;
+  const close = `</${tagName}`;
+  const lower = input.toLowerCase();
+  let out = "";
+  let i = 0;
+  while (i < input.length) {
+    const start = lower.indexOf(open, i);
+    if (start === -1) {
+      out += input.slice(i);
+      break;
+    }
+    out += input.slice(i, start);
+    const endTag = lower.indexOf(close, start + open.length);
+    if (endTag === -1) {
+      // No closing tag — strip the rest of the input to guarantee no
+      // `<tag` substring survives.
+      break;
+    }
+    const gt = input.indexOf(">", endTag + close.length);
+    if (gt === -1) break;
+    i = gt + 1;
+  }
+  return out;
+}
+
 // Extract href values from HTML
 // Strip <script>…</script> and <style>…</style> blocks first — their bodies
 // contain JavaScript/CSS source that often includes literal href="…" patterns
 // (e.g., template literals inside Astro define:vars scripts) which are not
 // real rendered links. Matching them produces false-positive broken links.
-//
-// Two-stage sanitizer (closes CodeQL "Incomplete multi-character
-// sanitization" + "Bad HTML filtering regexp"):
-//   Stage 1 — strip well-formed `<script>…</script>` and `<style>…</style>`
-//             blocks (fixpoint loop handles nested fragments).
-//   Stage 2 — final guaranteed sweep on `<script` and `<style` tokens
-//             themselves, which removes any malformed/unclosed remnants
-//             and provably eliminates those substrings from the output.
 function extractHrefs(html) {
-  let cleaned = html;
-  // Stage 1: well-formed blocks.
-  let previous;
-  do {
-    previous = cleaned;
-    cleaned = cleaned.replace(/<script\b[\s\S]*?<\/script\s*>/gi, "");
-    cleaned = cleaned.replace(/<style\b[\s\S]*?<\/style\s*>/gi, "");
-  } while (cleaned !== previous);
-  // Stage 2: token-level sweep — matches only `<script` / `</script` /
-  // `<style` / `</style` (no trailing `>` required), so no `<script` or
-  // `<style` substring can survive.
-  cleaned = cleaned.replace(/<\/?script/gi, "");
-  cleaned = cleaned.replace(/<\/?style/gi, "");
+  const cleaned = stripBlocks(stripBlocks(html, "script"), "style");
   const re = /href="([^"]+)"/g;
   const hrefs = [];
   let m;
