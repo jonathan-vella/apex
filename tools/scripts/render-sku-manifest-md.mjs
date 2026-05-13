@@ -110,7 +110,8 @@ function fmtRequires(svc) {
 
 function mdEscape(s) {
   if (s == null) return "";
-  return String(s).replace(/\|/g, "\\|");
+  // Escape backslashes first, then pipes, so we don't double-escape.
+  return String(s).replace(/\\/g, "\\\\").replace(/\|/g, "\\|");
 }
 
 // ── Section builders ────────────────────────────────────────────────────────

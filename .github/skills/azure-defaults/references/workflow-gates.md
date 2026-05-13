@@ -1,3 +1,5 @@
+<!-- ref:workflow-gates-v1 -->
+
 # Workflow Gates (cross-agent reference)
 
 Canonical specification for the user-facing gates introduced by the

@@ -194,3 +194,5 @@ Load these on demand — do NOT read all at once:
 | `references/azure-cli-auth-validation.md`   | Validating Azure CLI auth before deployments            |
 | `references/terraform-conventions.md`       | Generating Terraform (HCL) code                         |
 | `references/research-workflow.md`           | Following the standard 4-step research pattern          |
+| `references/tag-strategy.md`                | Choosing the greenfield CAF tag fallback (no policy)    |
+| `references/workflow-gates.md`              | Looking up cross-agent gate protocols (SKU/budget/etc.) |

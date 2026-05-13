@@ -1,3 +1,5 @@
+<!-- ref:tag-strategy-v1 -->
+
 # Azure Tag Strategy — Greenfield Defaults
 
 > Source-of-truth reference for the **greenfield lowercase fallback**
@@ -30,12 +32,12 @@ Key facts Microsoft states explicitly:
 
 When `04-governance-constraints.json` reports an empty `tag_contract.tags[]`:
 
-| Tag key       | Purpose                                              | Example value     |
-| ------------- | ---------------------------------------------------- | ----------------- |
-| `environment` | Lifecycle stage — drives policy scoping and SLA tier | `prod`, `dev`     |
-| `owner`       | Accountable team or individual email                 | `team-platform@`  |
-| `costcenter`  | Finance attribution code                             | `cc-12345`        |
-| `project`     | Workload identifier — matches `apex-recall` project  | `nordic-foods`    |
+| Tag key       | Purpose                                              | Example value    |
+| ------------- | ---------------------------------------------------- | ---------------- |
+| `environment` | Lifecycle stage — drives policy scoping and SLA tier | `prod`, `dev`    |
+| `owner`       | Accountable team or individual email                 | `team-platform@` |
+| `costcenter`  | Finance attribution code                             | `cc-12345`       |
+| `project`     | Workload identifier — matches `apex-recall` project  | `nordic-foods`   |
 
 All keys are **lowercase**. The IaC code emitted by 06b-Bicep CodeGen
 and 06t-Terraform CodeGen MUST use this exact casing when no policy
