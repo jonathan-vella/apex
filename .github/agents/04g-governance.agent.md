@@ -75,11 +75,17 @@ deployment failures.
   recorded via `apex-recall finding`.
 - **Mandatory inline confirmations (Phase 2.7) have been asked via
   `askQuestions` and answered in the same chat session** before the
-  Approval Gate. The three required confirmations are: required RG tag
-  keys + casing, `swedencentral` allow-list status, and RG/resource
-  same-region enforcement. Answers are recorded via `apex-recall decide`
-  and reflected in the JSON (`governance_gate_status.resolved_confirmations`,
-  `tag_contract`, `location_constraints`).
+  Approval Gate. The two required confirmations are: required RG tag
+  keys + casing, and `swedencentral` allow-list status. Answers are
+  recorded via `apex-recall decide` and reflected in the JSON
+  (`governance_gate_status.resolved_confirmations`, `tag_contract`).
+  Same-region enforcement is **no longer** an inline question — it is
+  a silent default (`location_constraints.same_region: true`) set by
+  `discover.py` and audit-tagged (`source: "default-assumption"`,
+  `auditable: true`) so Step 4 challenger and Step 7 As-Built see the
+  assumption explicitly. The question is only raised when discovery
+  finds a policy that explicitly **allows** cross-region AND the
+  assessment includes multi-region resources.
 - Session state at completion shows `steps.3_5.status: complete` with
   `decisions` reflecting any waivers or allowed-location overrides.
 
@@ -404,27 +410,17 @@ rediscovering policies. Do not re-run Phase 1 between challenger passes.
 
 ### Phase 2.7: Inline Resolution Gate (MANDATORY — every run)
 
-The Approval Gate cannot be presented until three inherited policy
-parameters are confirmed by the user in the same chat session:
-required RG tag keys + casing, allowed locations, and RG/resource
-same-region enforcement. These are unreliable in REST output for
-inherited management-group assignments, so they are always confirmed
-inline — even when `discover.py` reports them resolved, on resumed
-sessions, and on `▶ Refresh Governance` re-entries. The only valid
-bypass is the Phase 0.4 short-circuit when prior resolutions are
-already in `governance_gate_status.resolved_confirmations`.
-
-Read
+Two inherited policy parameters require inline user confirmation:
+required RG tag keys + casing, and allowed locations. Same-region is
+a silent default; tag schema is policy-only. Full protocol +
+anti-patterns in
+[`workflow-gates.md`](../skills/azure-defaults/references/workflow-gates.md#governance-step-35--phase-27-inline-resolution-gate).
+Also read
 [`inline-resolution-gate.md`](../skills/azure-governance-discovery/references/inline-resolution-gate.md)
 before running this phase — it contains the jq defaults query, the
-single `vscode_askQuestions` call (all three questions together), the
-artifact multi-replace shape, three `apex-recall decide` calls, the
-`Unknown — block` handling, validation, and the `phase_2_7_resolution`
-checkpoint.
-
-> **Anti-pattern**: Do NOT skip Phase 2.7 even when discover.py reports
-> tag/location contracts as `CONFIRMED`. Do NOT split the three
-> questions across multiple `vscode_askQuestions` calls or chat turns.
+single `vscode_askQuestions` call (two questions together), the
+artifact multi-replace shape, two `apex-recall decide` calls, the
+`Unknown — block` handling, and the `phase_2_7_resolution` checkpoint.
 
 ### Phase 3: Approval Gate
 
@@ -490,23 +486,29 @@ If the user provides a custom response at an approval gate, interpret it as inst
 - **Always**: Invoke `discover.py` (live) or `render_cached_governance.py`
   (cached baseline) via `run_in_terminal`, validate the first-line JSON status,
   produce both `.md` and `.json`
-- **Always**: Run Phase 2.7 (inline `askQuestions` for the three required
-  confirmations — RG tag keys + casing, allowed locations, RG/resource
-  same-region) on every invocation, in a single `vscode_askQuestions`
-  call, before presenting the Approval Gate. The only valid bypass is
-  the Phase 0.4 resume short-circuit when prior resolutions are already
-  recorded in `governance_gate_status.resolved_confirmations`.
+- **Always**: Run Phase 2.7 (inline `askQuestions` for the **two**
+  required confirmations — RG tag keys + casing, allowed locations)
+  on every invocation, in a single `vscode_askQuestions` call, before
+  presenting the Approval Gate. Same-region is a silent default set by
+  `discover.py`; do not include it in the question panel. The only
+  valid bypass for Phase 2.7 itself is the Phase 0.4 resume
+  short-circuit when prior resolutions are already recorded in
+  `governance_gate_status.resolved_confirmations`.
 - **Always**: Let `discover.py` handle cache-first behaviour; pass `--refresh`
   only when the user asks
 - **Always**: When using cached baseline mode, re-render a fresh `.preview.md` —
   never reuse prior annotated markdown from other projects or past runs
 - **Ask first**: Manual policy overrides; choice between baseline and live
-  discovery (Phase 0.45); the three required confirmations in Phase 2.7
+  discovery (Phase 0.45); the two required confirmations in Phase 2.7
 - **Never**: Skip Phase 2.7 because discover.py reported the tag or
   location contracts as `CONFIRMED` — inherited MG policy parameters are
   not reliably exposed via REST
-- **Never**: Split the three Phase 2.7 questions across multiple
+- **Never**: Split the two Phase 2.7 questions across multiple
   `vscode_askQuestions` calls or chat turns — they must appear together
+- **Never**: Treat `tag_contract.source: "baseline-default"` as a valid
+  value — the contract is **always** sourced from live policy
+  (`source: "policy"`); an empty discovered set is recorded as
+  `tags: []`, not silently filled from a hard-coded baseline
 - **Never**: Generate IaC code, skip discovery entirely on first run, assume policy state from best practices
 - **Never**: Re-run Phase 1 discovery on challenger feedback loops — only artifact content changes
 - **Never**: Read the full `04-governance-constraints.json` snapshot back into

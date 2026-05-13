@@ -1,6 +1,6 @@
 ---
 name: policy-precheck-subagent
-description: "Live Azure Policy precheck subagent (L3). Cross-checks live policy state vs governance constraints, runs what-if/plan policy validation, and returns a structured CLEAN|DRIFT|BLOCKED|FAILED verdict so Deploy agents (07b/07t) can route via the governance drift matrix before az deployment ... create or terraform apply."
+description: "Live Azure Policy precheck subagent (L3). Cross-checks live policy state vs governance constraints, runs what-if/plan policy validation, and returns a deterministic deploy_gate (PROCEED|BLOCK) plus a status classification (CLEAN|INFORMATIONAL|BLOCKED|FAILED) so Deploy agents (07b/07t) can route via the governance drift matrix before az deployment ... create or terraform apply."
 model: ["Claude Sonnet 4.6"]
 user-invocable: false
 disable-model-invocation: false
@@ -72,16 +72,25 @@ This subagent does not:
   </scope_fencing>
 
 <output_contract>
-Return results in this exact text shape. The status keyword and section
-order are part of the contract; the parent deploy agent parses them.
+Return results in this exact text shape. The `Deploy gate` keyword is
+the authoritative apply decision the parent deploy agent reads; the
+section order is part of the contract.
 
 ```text
 POLICY PRECHECK RESULT
-Status: [CLEAN|DRIFT|BLOCKED|FAILED]
+Deploy gate: [PROCEED|BLOCK]
+Status: [CLEAN|INFORMATIONAL|BLOCKED|FAILED]
+Reason: {short rationale, e.g. "no blocking policies, no what-if violations"}
 Project: {project}
 IaC Tool: {bicep|terraform}
 Target Scope: {resourceGroup|subscription|managementGroup}
 Output JSON: {output_path}
+
+Drift signal:
+  Severity: {NONE|INFORMATIONAL|BLOCKING}
+  Accepted by residual_drift_acceptance policy: {true|false}
+  Missing from constraints: {count}
+  Newer than envelope: {count}
 
 Envelope (L0):
   Status: {FRESH|STALE|MISSING}
@@ -89,10 +98,6 @@ Envelope (L0):
   Age (days): {float}
   TTL (days): {int}
   Signature: {sha256:...}
-
-Live cross-check:
-  Live policies missing from constraints: {count}
-  Live policies newer than envelope: {count}
 
 What-if validation:
   Creates: {count}
@@ -108,22 +113,33 @@ Policies that will block deploy:
 
 Drift routing (per iac-common/references/governance-drift-routing.md):
   {recommended next agent and handoff label, e.g.
-   "▶ Refresh Governance" / "↩ Return to Step 4" / "↩ Fix Deployment Issues"}
+   "▶ Refresh Governance" / "↩ Return to Step 4" / "↩ Fix Deployment Issues" /
+   "Proceed (no handoff) — INFORMATIONAL drift"}
 
-Verdict: {CLEAN|DRIFT|BLOCKED|FAILED}
 Recommendation: {specific next action}
 ```
 
-Status mapping:
+`deploy_gate` and `status` derivation (deterministic, in order):
 
-- Any entry in `Policies that will block deploy` OR
-  `What-if validation.Policy violations in what-if > 0` → `BLOCKED`.
-- Else any `Live cross-check.* > 0` OR `Envelope.Status != FRESH` →
-  `DRIFT`.
-- Render-stage or REST-stage failure → `FAILED` with a `reason` line
-  under `Recommendation`.
-- Otherwise → `CLEAN`.
-  </output_contract>
+1. Render or REST-stage failure → `deploy_gate=BLOCK`, `status=FAILED`.
+2. `Policies that will block deploy` non-empty OR
+   `Policy violations in what-if > 0` →
+   `deploy_gate=BLOCK`, `status=BLOCKED`.
+3. Envelope `STALE` → `deploy_gate=BLOCK`, `status=INFORMATIONAL`,
+   route to `▶ Refresh Governance`.
+4. `Drift signal.Severity == INFORMATIONAL` AND
+   `Accepted by residual_drift_acceptance policy == true` →
+   `deploy_gate=PROCEED`, `status=CLEAN`.
+5. `Drift signal.Severity == INFORMATIONAL` AND not accepted →
+   `deploy_gate=PROCEED`, `status=INFORMATIONAL`. The parent deploy
+   agent surfaces the drift as informational context only; it does not
+   block apply on this alone.
+6. Otherwise → `deploy_gate=PROCEED`, `status=CLEAN`.
+
+Legacy `Status: DRIFT` (schema_version `policy-precheck-v1`) is
+deprecated. Emit `schema_version: "policy-precheck-v2"` and the new
+status enum.
+</output_contract>
 
 <investigate_before_answering>
 Before composing the verdict:

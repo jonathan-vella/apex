@@ -52,6 +52,21 @@ Standard sequence: `search-shapes` → `create-groups` → `add-cells` → `add-
 → (optional `edit-*`) → `validate-group-containment` → `finish-diagram` /
 `export-diagram` (`compress: true`).
 
+> **`import-diagram` input contract (CRITICAL — Phase D3 of nordic-foods
+> lessons plan)**: when calling `import-diagram` (or any tool whose schema
+> declares an `xml` parameter), the field **MUST be XML content as a
+> string** — never a file path. Passing a bare `path/to/file.drawio`
+> string produces `INVALID_XML` from the server and burns an MCP round
+> trip. If you have a path on disk:
+>
+> ```text
+> WRONG: import-diagram(xml="agent-output/foo/03-des-diagram.drawio")
+> RIGHT: read_file("agent-output/foo/03-des-diagram.drawio") → import-diagram(xml=<content>)
+> ```
+>
+> Mirror this warning in `04-design.agent.md` next to every
+> `import-diagram` reference. The two locations must stay in sync.
+
 ## CLI Fallback
 
 **There is no programmatic CLI fallback for diagram authoring.** The Draw.io desktop app

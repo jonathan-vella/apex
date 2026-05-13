@@ -174,17 +174,36 @@ apply these rules in order. Each rule maps to a section in
    is **not** considered resolved. Use sensible defaults from
    `pricing-guidance.md` when the parent didn't specify a volume.
 
-4. **Canonical SKU rewrite** — if the `sku_name` does not appear in
-   `pricing-guidance.md`'s "Common SKUs" column, rewrite it to the
-   canonical short form (e.g. `"vCore General Purpose Serverless Gen5 2 vCore"`
-   → `"2 vCore"` because SQL DB `skuName` values are just the vCore count;
-   `"P1v3 Linux"` → `"P1v3"` because App Service `skuName` doesn't include
-   OS). The verbose user-supplied form is preserved in the line's
-   `notes` field for audit.
+4. **Canonical SKU rewrite (MANDATORY)** — for every
+   `resource_list[].sku_name`, look the input up in the **Canonical
+   SKU Aliases** table in `pricing-guidance.md` and rewrite to the
+   canonical form before the bulk call. The rewrite is a **MUST** —
+   alias mismatches were the #1 cause of historical `status: FAILED`
+   runs. Worked examples: `2 vCore General Purpose Serverless Gen5` →
+   `2 vCore` (`product_filter: General Purpose - Serverless`);
+   `P1v3 Linux` → `P1 v3`; `Standard ZRS` → `Standard_ZRS`. The
+   verbose user-supplied form is preserved in the line's `notes` for
+   audit.
+
+   **Hard rule**: if the alias table does NOT contain the input
+   `sku_name`, **do not guess**. Record in `<unresolved_sku_triage>`
+   (see below) and proceed — never invent a canonical rewrite from
+   parametric knowledge.
 
 After normalization, log the final per-resource shape (service_name,
-sku_name, product_filter, usage, quantity) in the JSON line's
-`notes` so the audit trail shows why each meter resolved.
+sku_name, product_filter, usage, quantity) in the JSON line's `notes`
+so the audit trail shows why each meter resolved.
+
+## Unresolved SKU triage (`<unresolved_sku_triage>`)
+
+When rule 4 cannot match a `sku_name` against the Canonical SKU
+Aliases table, accumulate the input as a `<unresolved_sku_triage>`
+entry with `input_sku_name`, `resolved_product_filter`,
+`top_3_matches` (3 closest from `line_items[]`), and `proposed_alias`
+(marked as proposal). On terminal write, append as `proposed_aliases[]`
+(empty when no triage). `tools/scripts/promote-sku-aliases.mjs`
+(monthly cron) scans these and opens a PR — the only path for new
+aliases.
 
 ## Core workflow
 

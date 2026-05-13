@@ -21,11 +21,22 @@ and reference index lives in
 
 ### Required Tags (Azure Policy Enforced)
 
-Minimum baseline (PascalCase, exact casing): `Environment`, `ManagedBy`,
-`Project`, `Owner`. Always defer to `04-governance-constraints.md` for the
-project's actual required tag list. See
-[`azure-defaults/SKILL.md`](skills/azure-defaults/SKILL.md) for the full
-table and the `AmbiguousPolicyEvaluationPaths` casing rule.
+Tag schema is **whatever live Azure Policy enforces** in the target
+subscription. Governance Discovery (Step 3.5) discovers the real
+contract via `discover.py` and writes it to
+`04-governance-constraints.json` (`tag_contract.tags[]`,
+`tag_contract.source: "policy"`); that always wins.
+
+**Greenfield fallback** (no tag policy found at any inherited scope):
+`environment`, `owner`, `costcenter`, `project` — lowercase, per
+Microsoft's CAF tag-strategy guidance. Citation +
+greenfield decision checklist:
+[`azure-defaults/references/tag-strategy.md`](skills/azure-defaults/references/tag-strategy.md).
+
+> The PascalCase 4-tag set (`Environment`, `ManagedBy`, `Project`,
+> `Owner`) is a **deprecated convention** retained only for backward
+> compatibility on existing projects whose deployed resources already
+> carry that casing. Do not propagate it to new projects.
 
 ### Security baseline + AVM mandate
 
@@ -67,6 +78,12 @@ apex-recall finding <project> --add "<text>" --json
 
 If `apex-recall` returns useful context, skip redundant file reads.
 If empty/errored, continue normally — it's a convenience, not a blocker.
+
+Canonical `show --json` schema (including the `session.steps` shape and
+jq query templates) lives at
+[`tools/apex-recall/docs/show-schema.md`](../tools/apex-recall/docs/show-schema.md).
+The valid decision-keys registry lives at
+[`tools/apex-recall/docs/decision-keys.md`](../tools/apex-recall/docs/decision-keys.md).
 
 ## Multi-Step Workflow
 

@@ -206,6 +206,27 @@ Run `apex-recall show <project> --json` for full project context. Do not read `0
   Record: deployment blockers, plan warnings, policy violations found during deploy.
 - **On completion**: `apex-recall complete-step <project> 6 --json`
 
+> Canonical jq query for step-status reads (keys are **strings** — no
+> `tonumber` coercion). Defaults safely on a fresh project because
+> `steps` is `{}`:
+>
+> ```bash
+> apex-recall show <project> --json \
+>   | jq -r '.session.steps["5"].status // "missing"'
+> ```
+>
+> Returns `"complete"`, `"pending"`, or `"missing"`. Full schema:
+> [`tools/apex-recall/docs/show-schema.md`](../../tools/apex-recall/docs/show-schema.md).
+> For multi-step reads:
+>
+> ```bash
+> apex-recall show <project> --json \
+>   | jq '.session.steps
+>         | to_entries[]
+>         | select(.key == "5" or .key == "6")
+>         | {step: .key, status: .value.status, sub_step: .value.sub_step}'
+> ```
+
 ## SKU Manifest — Pre-Flight Quota / Region SKU Check
 
 Before `terraform apply` / `azd provision`, for every entry in
@@ -383,16 +404,20 @@ Pass these inputs per
 - `output_path` = `agent-output/{project}/06-policy-precheck.json`
 
 The subagent writes the JSON file and returns a compact
-`POLICY PRECHECK RESULT` block. Route per the verdict using
+`POLICY PRECHECK RESULT` block. **Read `Deploy gate` first — it is the
+authoritative apply decision**. `Status` is informational and may show
+`INFORMATIONAL` while `Deploy gate=PROCEED` (this is the expected state
+when non-deny drift exists without an acceptance policy). Route per
 [`iac-common/references/governance-drift-routing.md`](../skills/iac-common/references/governance-drift-routing.md)
 (L3 rows):
 
-| Verdict   | Action                                                                                                                           |
-| --------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| `CLEAN`   | Proceed to `terraform apply`.                                                                                                    |
-| `DRIFT`   | STOP and traverse `▶ Refresh Governance` (live policy missing / envelope stale).                                                 |
-| `BLOCKED` | If the violating policy has a matrix row → `↩ Fix Deployment Issues` to 06t-Terraform CodeGen; otherwise → `↩ Return to Step 4`. |
-| `FAILED`  | STOP, surface the precheck error to the user; do not apply.                                                                      |
+| `Deploy gate` | `Status`        | Action                                                                                                              |
+| ------------- | --------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `PROCEED`     | `CLEAN`         | Proceed to `terraform apply`.                                                                                       |
+| `PROCEED`     | `INFORMATIONAL` | Proceed; surface the drift signal summary to the user as informational context only. No handoff.                   |
+| `BLOCK`       | `INFORMATIONAL` | STOP — envelope is STALE. Traverse `▶ Refresh Governance`.                                                          |
+| `BLOCK`       | `BLOCKED`       | If violating policy has a matrix row → `↩ Fix Deployment Issues` to 06t-Terraform CodeGen; otherwise `▶ Refresh Governance` + `↩ Return to Step 4`. |
+| `BLOCK`       | `FAILED`        | STOP, surface the precheck error to the user; do not apply.                                                         |
 
 **Governance trace attestation (MANDATORY on `CLEAN`)** — before
 `terraform apply` or `azd provision`, emit the full L0→L3 attestation

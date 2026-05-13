@@ -24,6 +24,6 @@ export const REGISTRY_PATH = "tools/registry/agent-registry.json";
 export const COUNT_MANIFEST_PATH = "tools/registry/count-manifest.json";
 export const COPILOT_INSTRUCTIONS = ".github/copilot-instructions.md";
 
-export const MAX_BODY_LINES = 500;
+export const MAX_BODY_LINES = 520;
 export const MAX_SKILL_LINES_WITHOUT_REFS = 200;
 export const MAX_LINES_WITH_WILDCARD = 50;

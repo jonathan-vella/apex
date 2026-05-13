@@ -262,6 +262,26 @@ If errors → STOP, report, hand off to Bicep Code agent.
 > Step 5, you may skip `bicep build` and `bicep lint` to avoid redundant
 > validation. The generated `deploy.ps1` should include a `-SkipValidation`
 > switch parameter for this purpose.
+>
+> Canonical jq query (keys are **strings** — no `tonumber` coercion):
+>
+> ```bash
+> apex-recall show <project> --json \
+>   | jq -r '.session.steps["5"].status // "missing"'
+> ```
+>
+> Returns `"complete"`, `"pending"`, or `"missing"` — never errors on an
+> absent step. Full schema:
+> [`tools/apex-recall/docs/show-schema.md`](../../tools/apex-recall/docs/show-schema.md).
+> For multi-step status reads (e.g. checking both Steps 5 and 6):
+>
+> ```bash
+> apex-recall show <project> --json \
+>   | jq '.session.steps
+>         | to_entries[]
+>         | select(.key == "5" or .key == "6")
+>         | {step: .key, status: .value.status, sub_step: .value.sub_step}'
+> ```
 
 ### Step 2.5: Scan for Unresolved Placeholders
 
@@ -359,16 +379,20 @@ Pass these inputs per
 - `output_path` = `agent-output/{project}/06-policy-precheck.json`
 
 The subagent writes the JSON file and returns a compact
-`POLICY PRECHECK RESULT` block. Route per the verdict using
+`POLICY PRECHECK RESULT` block. **Read `Deploy gate` first — it is the
+authoritative apply decision**. `Status` is informational and may show
+`INFORMATIONAL` while `Deploy gate=PROCEED` (this is the expected state
+when non-deny drift exists without an acceptance policy). Route per
 [`iac-common/references/governance-drift-routing.md`](../skills/iac-common/references/governance-drift-routing.md)
 (L3 rows):
 
-| Verdict   | Action                                                                                                                       |
-| --------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| `CLEAN`   | Proceed to Deployment Execution.                                                                                             |
-| `DRIFT`   | STOP and traverse `▶ Refresh Governance` (live policy missing / envelope stale).                                             |
-| `BLOCKED` | If the violating policy has a matrix row → `↩ Fix Deployment Issues` to 06b-Bicep CodeGen; otherwise → `↩ Return to Step 4`. |
-| `FAILED`  | STOP, surface the precheck error to the user; do not deploy.                                                                 |
+| `Deploy gate` | `Status`        | Action                                                                                                          |
+| ------------- | --------------- | --------------------------------------------------------------------------------------------------------------- |
+| `PROCEED`     | `CLEAN`         | Proceed to Deployment Execution.                                                                                |
+| `PROCEED`     | `INFORMATIONAL` | Proceed; surface the drift signal summary to the user as informational context only. No handoff.               |
+| `BLOCK`       | `INFORMATIONAL` | STOP — envelope is STALE. Traverse `▶ Refresh Governance`.                                                      |
+| `BLOCK`       | `BLOCKED`       | If violating policy has a matrix row → `↩ Fix Deployment Issues` to 06b-Bicep CodeGen; otherwise `▶ Refresh Governance` + `↩ Return to Step 4`. |
+| `BLOCK`       | `FAILED`        | STOP, surface the precheck error to the user; do not deploy.                                                    |
 
 **Governance trace attestation (MANDATORY on `CLEAN`)** — before any
 `az deployment ... create` or `azd provision`, emit the full L0→L3

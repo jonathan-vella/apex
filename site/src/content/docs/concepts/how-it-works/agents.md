@@ -54,28 +54,65 @@ and routing to the next step. At approval gates, the Orchestrator writes a
 
 ## Top-Level Agents
 
-| Agent                       | Role                                            | Primary Skills                                 |
-| --------------------------- | ----------------------------------------------- | ---------------------------------------------- |
-| 01-Orchestrator             | Master orchestrator                             | workflow-engine, apex-recall                   |
-| 02-Requirements             | Captures project requirements                   | azure-defaults, azure-artifacts                |
-| 03-Architect                | WAF assessment and cost estimation              | azure-defaults                                 |
-| 04-Design                   | Diagrams and ADRs                               | drawio, python-diagrams, azure-adr             |
-| 04g-Governance              | Policy discovery and compliance                 | azure-defaults                                 |
-| 05-IaC Planner              | IaC implementation planning (Bicep & Terraform) | azure-bicep-patterns, terraform-patterns       |
-| 06b-Bicep CodeGen           | Bicep template generation                       | azure-bicep-patterns                           |
-| 06t-Terraform CodeGen       | Terraform configuration generation              | terraform-patterns                             |
-| 07b-Bicep Deploy            | Bicep deployment execution                      | azure-validate, iac-common                     |
-| 07t-Terraform Deploy        | Terraform deployment execution                  | azure-validate, iac-common, terraform-patterns |
-| 08-As-Built                 | Post-deployment documentation                   | azure-artifacts, drawio, python-diagrams       |
-| 09-Diagnose                 | Azure resource troubleshooting                  | azure-diagnostics                              |
-| 10-Challenger               | Standalone adversarial review                   | —                                              |
-| 11-Context Optimizer        | Context window audit and optimisation           | context-management                             |
-| e2e-orchestrator            | Prompt-invoked end-to-end validation driver     | workflow-engine, apex-recall                   |
+| Agent                 | Role                                            | Primary Skills                                 |
+| --------------------- | ----------------------------------------------- | ---------------------------------------------- |
+| 01-Orchestrator       | Master orchestrator                             | workflow-engine, apex-recall                   |
+| 02-Requirements       | Captures project requirements                   | azure-defaults, azure-artifacts                |
+| 03-Architect          | WAF assessment and cost estimation              | azure-defaults                                 |
+| 04-Design             | Diagrams and ADRs                               | drawio, python-diagrams, azure-adr             |
+| 04g-Governance        | Policy discovery and compliance                 | azure-defaults                                 |
+| 05-IaC Planner        | IaC implementation planning (Bicep & Terraform) | azure-bicep-patterns, terraform-patterns       |
+| 06b-Bicep CodeGen     | Bicep template generation                       | azure-bicep-patterns                           |
+| 06t-Terraform CodeGen | Terraform configuration generation              | terraform-patterns                             |
+| 07b-Bicep Deploy      | Bicep deployment execution                      | azure-validate, iac-common                     |
+| 07t-Terraform Deploy  | Terraform deployment execution                  | azure-validate, iac-common, terraform-patterns |
+| 08-As-Built           | Post-deployment documentation                   | azure-artifacts, drawio, python-diagrams       |
+| 09-Diagnose           | Azure resource troubleshooting                  | azure-diagnostics                              |
+| 10-Challenger         | Standalone adversarial review                   | —                                              |
+| 11-Context Optimizer  | Context window audit and optimisation           | context-management                             |
+| e2e-orchestrator      | Prompt-invoked end-to-end validation driver     | workflow-engine, apex-recall                   |
 
 For a live, always-current roster, see the
 [Architecture Explorer](../../../reference/architecture-explorer/). The count is
 computed from `tools/registry/count-manifest.json` and the source of truth is the
 `.github/agents/*.agent.md` files on disk.
+
+## Per-Step User Gates (Architect, Design, Governance)
+
+Each user-facing step raises a small, predictable set of questions
+before continuing to the next step. The questions exist to keep
+creative AI decisions in the user's hands; the agent never
+silently assumes a non-default value.
+
+| Step | Gate                              | Question type                                                    | Decision key recorded               |
+| ---- | --------------------------------- | ---------------------------------------------------------------- | ----------------------------------- |
+| 2    | SKU confirmation (before pricing) | Approve / Revise / Discuss                                       | `sku_confirmation_status`           |
+| 2    | Budget gate (after pricing)       | Approve / Revise SKUs / Revise requirements                      | `budget_decision`                   |
+| 2    | Per-finding decisions             | Accept / Skip / Defer (one question per finding — never batched) | `decision_log`                      |
+| 3    | Diagram tool choice (one-time)    | Draw.io (default) / Python diagrams                              | `diagram_tool`                      |
+| 3.5  | Phase 2.7 resolution              | RG tag keys + casing, allowed locations (two questions)          | `tag_contract`, `governance_status` |
+
+The full registry of valid decision keys lives at
+`tools/apex-recall/docs/decision-keys.md`; the validator
+`tools/scripts/validate-decision-keys.mjs` enforces that every
+`apex-recall decide --key` reference in an agent file appears in the
+registry.
+
+**Tag schema (greenfield projects)**: when Governance Discovery finds
+no tag policy at any inherited scope, projects use the lowercase
+`environment, owner, costcenter, project` set per CAF tag-strategy
+guidance (see `.github/skills/azure-defaults/references/tag-strategy.md`).
+The legacy PascalCase 4-tag set (`Environment`, `ManagedBy`,
+`Project`, `Owner`) is a deprecated convention retained only for
+backward compatibility on existing projects.
+
+**SKU manifest MD ↔ JSON sync**: the human-readable
+`agent-output/{project}/sku-manifest.md` is rendered deterministically
+from `sku-manifest.json` via
+`node tools/scripts/render-sku-manifest-md.mjs <project>`. Agents
+mutate the JSON; the renderer (wired into `lefthook` pre-commit and
+CI) re-emits the MD. Hand-editing the MD is forbidden and reverted on
+the next commit.
 
 ## Subagents
 

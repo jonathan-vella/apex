@@ -1,0 +1,38 @@
+[
+  {
+    "id": "iac-planner-handoff",
+    "regex": "Reply approve[^\\n]*hand off to[^\\n]*IaC Planner",
+    "origin": "nordic-p1 architect",
+    "fixed_by": "Phase A5 of nordic-foods lessons plan"
+  },
+  {
+    "id": "drawio-invalid-xml",
+    "regex": "INVALID_XML",
+    "origin": "nordic-p1 drawio",
+    "fixed_by": "Phase D3 import-diagram contract guard"
+  },
+  {
+    "id": "jq-null-iteration",
+    "regex": "Cannot iterate over null",
+    "origin": "nordic-p1 bicep-deploy",
+    "fixed_by": "Phase F1a show.py steps fix + F1b jq query template"
+  },
+  {
+    "id": "pascalcase-baseline",
+    "regex": "4 PascalCase tag baseline",
+    "origin": "nordic-p1 governance",
+    "fixed_by": "Phase E3 copilot-instructions rewrite + E4 tag-strategy.md"
+  },
+  {
+    "id": "same-region-question",
+    "regex": "Must the resource group[^\\n]*same region",
+    "origin": "nordic-p1 governance",
+    "fixed_by": "Phase E1 silent same-region default + banned-phrase lint"
+  },
+  {
+    "id": "drawio-surrogate-crash",
+    "regex": "failed to decode message[^\\n]*surrogate",
+    "origin": "nordic-p1 drawio",
+    "fixed_by": "Phase D5 surrogate-pair reproducer (root-cause fix WIP)"
+  }
+]

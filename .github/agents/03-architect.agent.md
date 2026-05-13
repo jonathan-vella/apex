@@ -154,6 +154,13 @@ the bulk is authored.
    the manifest. The manifest is the source; the H2 is the rendering.
 8. Set `decisions.sku_manifest_status = "reviewed"` and
    `decisions.sku_manifest_revision = 2` via `apex-recall decide`.
+9. **Render the MD view** via
+   `node tools/scripts/render-sku-manifest-md.mjs <project>`. The
+   renderer is the only legitimate writer of
+   `agent-output/{project}/sku-manifest.md`; agents MUST NOT hand-edit
+   that file. The renderer fails hard if MD's "Current revision" cell
+   does not match JSON `current_revision` — surface any non-zero exit
+   to the user.
 
 **Out of scope for `services[]`**: bandwidth, Log Analytics, vnet,
 subnet, NSG, route table, public IP, diagnostics. These remain in the
@@ -175,8 +182,12 @@ handoff. The manifest is the _decision record_, not the comparison.
 - ✅ **Generate WAF + cost charts** — run `.py` scripts per `python-diagrams` skill → `references/waf-cost-charts.md`
 - ✅ Include Service Maturity Assessment table in every WAF assessment
 - ✅ Ask clarifying questions when critical requirements are missing
-- ✅ Wait for user approval before handoff to IaC Planner
-- ✅ Use `askQuestions` in approval gate to present findings and gather proceed/revise decision
+- ✅ Wait for user approval before handoff to the next step (Design when
+  `decisions.skip_design == false`, else Governance Discovery —
+  **never directly to IaC Planner**)
+- ✅ Use `askQuestions` in approval gate to present findings — **one
+  question per finding** (Accept / Skip / Defer). MUST NOT batch findings
+  into a single question with `multiSelect`.
 - ✅ Match H2 headings from azure-artifacts skill exactly
 - ✅ Include collapsible TOC (`<details open>` block), cross-navigation table, and badge row from the template
 - ✅ Include at least one Mermaid diagram (architecture overview from template or actual design)
@@ -236,11 +247,18 @@ in your WAF assessment recommendations (still produce the identical artifact str
      summary and the saved `02-waf-research.tmp.md` on disk
    - Update session state: `sub_step: "phase_2.5_compacted"`
      **Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 2 phase_2.5_compacted --json`
-7. **Delegate pricing** — Send resource list to `cost-estimate-subagent`; receive verified prices
+
+6a. **SKU confirmation gate (MANDATORY — before pricing)** — follow the
+    protocol in [`workflow-gates.md`](../skills/azure-defaults/references/workflow-gates.md#architect-step-2--phase-6a-sku-confirmation-gate).
+7. **Delegate pricing** — Send resource list to `cost-estimate-subagent`; receive verified prices.
+   Precondition guard: refuse to invoke unless
+   `decisions.sku_confirmation_status == "approved"`.
 8. **Generate assessment** — Save `02-architecture-assessment.md` with subagent-sourced prices
    **Decisions** (MANDATORY): Record key architecture choices:
    `apex-recall decide <project> --decision "<pattern/SKU/trade-off>" --rationale "<why>" --step 2 --json`
 9. **Generate cost estimate** — Save `03-des-cost-estimate.md` with subagent-sourced prices
+9a. **Budget gate (MANDATORY — after pricing)** — follow the protocol in
+    [`workflow-gates.md`](../skills/azure-defaults/references/workflow-gates.md#architect-step-2--phase-9a-budget-gate).
 10. **Generate charts** — Read `.github/skills/python-diagrams/references/waf-cost-charts.md`
     and produce three matplotlib PNGs in `agent-output/{project}/`:
     - `02-waf-scores.py` + `02-waf-scores.png` — one horizontal bar per WAF
@@ -253,6 +271,10 @@ in your WAF assessment recommendations (still produce the identical artifact str
 
 11. **Self-validate** — Run `npm run lint:artifact-templates` and fix any errors
     for your artifacts
+11a. **Render SKU manifest MD** — `node tools/scripts/render-sku-manifest-md.mjs <project>`.
+     The renderer is the only legitimate writer of `sku-manifest.md`
+     and fails hard on `current_revision` mismatch. Surface any
+     non-zero exit to the user.
 12. **Pricing sanity check** — Verify no dollar figures in your artifacts were
     written from memory (grep for `$` and confirm each matches subagent output)
     **Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 2 phase_5_artifact --json`
@@ -403,7 +425,12 @@ For each pass, invoke `challenger-review-subagent` with:
 - `output_path` = `agent-output/{project}/challenge-findings-architecture-pass{N}.json`
 - `overwrite` = `false` (set to `true` only when re-running after revisions)
 
-The cost-estimate review still runs once, in parallel with pass 1.
+### Cost-feasibility review gate + Challenger empty-output diagnostic
+
+Follow the protocols in
+[`workflow-gates.md`](../skills/azure-defaults/references/workflow-gates.md#architect-step-2--cost-feasibility-review-gate)
+and
+[`workflow-gates.md`](../skills/azure-defaults/references/workflow-gates.md#challenger-empty-output-diagnostic--bounded-retry).
 
 ## Approval Gate
 
@@ -419,6 +446,12 @@ The cost-estimate review still runs once, in parallel with pass 1.
 
 Then run the **Per-Finding Decision Protocol** from
 [.github/skills/azure-defaults/references/adversarial-review-protocol.md](../skills/azure-defaults/references/adversarial-review-protocol.md).
+
+> **Per-finding askMe (mandatory)**: present **one `vscode_askQuestions`
+> call per finding** with three options — `Accept` / `Skip` / `Defer` —
+> plus a free-form rationale field. **MUST NOT batch findings into a
+> single question with `multiSelect`.** Worked example: 5 findings →
+> 5 sequential questions, in must_fix → should_fix → suggestion order.
 
 - **Sources merged for the panel** (per protocol section 2e): in this
   order — `challenge-findings-cost-estimate.json` →
@@ -439,7 +472,10 @@ Then run the **Per-Finding Decision Protocol** from
   pass count (`overwrite: true`), then re-build the panel skipping
   issues whose `issue_id` already has a sidecar entry (protocol
   section 2c).
-- **On Proceed**: present final handoff to IaC Planner agent.
+- **On Proceed**: emit the final handoff template per
+  [`workflow-gates.md`](../skills/azure-defaults/references/workflow-gates.md#architect-step-2--approval-gate-handoff-template).
+  Routing is **always** Design or Governance — never IaC Planner
+  directly. Enforced by `tools/scripts/validate-banned-phrases.mjs`.
 
 ## Output Files
 

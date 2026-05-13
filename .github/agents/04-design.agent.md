@@ -129,9 +129,23 @@ that default for the work this agent does:
   discard the raw MCP JSON / XML payloads — do not carry them into subsequent
   turns.
 
+## Phase 0 — Diagram tool choice (one-time gate)
+
+Follow [`workflow-gates.md`](../skills/azure-defaults/references/workflow-gates.md#design-step-3--phase-0-diagram-tool-choice-one-time-gate)
+to record `decisions.diagram_tool`. Drawio is the recommended default.
+
 ## Workflow
 
+When `decisions.diagram_tool == "python"`, use the
+[`python-diagrams`](../skills/python-diagrams/SKILL.md) skill in place
+of section 1 below. Read that skill ONLY on the Python path. Sections
+2 (ADR) and beyond are tool-agnostic.
+
 ### 1. Diagram generation (Draw.io)
+
+Drawio contract guards (timing budget + `import-diagram` input
+contract) live in
+[`workflow-gates.md`](../skills/azure-defaults/references/workflow-gates.md#design-step-3--drawio-contract-guards).
 
 The Draw.io MCP server is **not stateful between calls**. You must pass
 `diagram_xml` from each tool response into the next call. The server returns

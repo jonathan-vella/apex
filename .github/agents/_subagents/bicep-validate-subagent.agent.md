@@ -64,6 +64,30 @@ This subagent does not:
 - Re-run governance discovery — it consumes the constraints artifact only.
   </scope_fencing>
 
+<sku_default_render_check>
+After `bicep build` succeeds in Phase 1 and before Phase 2 returns its verdict,
+inspect the **compiled ARM** (the JSON produced by `bicep build`) for AVM
+SKU-default mismatches. These never show up in source lint, security-baseline
+regex, or `what-if`, but Azure rejects them at deploy time.
+
+For every AVM module call in the template, derive the SKU/tier and fail the
+review as `CRITICAL` when any of the following render-level conditions hold:
+
+- `Microsoft.ContainerRegistry/registries` with `sku.name != 'Premium'` and the
+  resource properties contain `networkRuleSet`, `networkRuleBypassOptions`,
+  `dataEndpointEnabled: true`, or `zoneRedundancy: 'Enabled'`.
+- Any resource whose AVM module description for a property says
+  *“requires the 'sku' to be 'Premium'”* (or equivalent) and that property is
+  emitted with a non-`null` value while the chosen SKU is not Premium.
+
+Report each hit under `❌ Failed Checks` with severity `CRITICAL`, the
+resource type, the offending property path, the chosen SKU, and a
+recommendation that points at the `SKU-Default Mismatch` section in
+[`azure-bicep-patterns/references/avm-pitfalls.md`](../../skills/azure-bicep-patterns/references/avm-pitfalls.md).
+This forces `Overall Status: FAILED` and routes back to CodeGen instead of
+letting the parent agent advance to `bicep-whatif-subagent` or deploy.
+</sku_default_render_check>
+
 <output_contract>
 Return results in this exact text shape. Field names and section order are
 part of the contract; the parent agent parses them.

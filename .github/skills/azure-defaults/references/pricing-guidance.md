@@ -44,6 +44,53 @@ Exact names for the Azure Pricing MCP tool. Using wrong names returns
 - **DON'T**: Use "Azure SQL" (returns 0 results) — use "SQL Database"
 - **DON'T**: Use "Web App" — use "Azure App Service"
 
+## Canonical SKU Aliases
+
+Authoritative mapping from common variant input forms to the canonical
+`sku_name` value the Azure Retail Prices MCP server returns. The
+`cost-estimate-subagent` MUST normalize `resource_list[].sku_name`
+through this table before calling `azure_bulk_estimate` — alias
+mismatches are the #1 historical cause of `unresolved_items` and
+`status: FAILED` runs (Phase C of the nordic-foods lessons plan).
+
+The table is the **only** legitimate source of alias rewrites. New
+aliases are added via `tools/scripts/promote-sku-aliases.mjs` (monthly
+cron + on-demand) which scans recent `cost-estimate-*.json` files for
+`proposed_aliases[]` and opens a PR.
+
+| Service              | Variant input                                       | Canonical `sku_name`         | `product_filter`                       | Notes                                                       |
+| -------------------- | --------------------------------------------------- | ---------------------------- | -------------------------------------- | ----------------------------------------------------------- |
+| SQL Database         | `2 vCore General Purpose Serverless Gen5`           | `2 vCore`                    | `General Purpose - Serverless`         | `skuName` is just vCore count; tier in `productName`.       |
+| SQL Database         | `GP_S_Gen5_2`                                       | `2 vCore`                    | `General Purpose - Serverless`         | Bicep/Terraform CAF form; strip prefix.                     |
+| SQL Database         | `GP_Gen5_2`                                         | `2 vCore`                    | `General Purpose - Compute Gen5`       | Provisioned variant — pick the non-Serverless filter.       |
+| SQL Database         | `BC_Gen5_2`                                         | `2 vCore`                    | `Business Critical - Compute Gen5`     | Business Critical tier.                                     |
+| App Service Plan     | `P1v3 Linux`                                        | `P1 v3`                      | `Premium v3 Plan`                      | Strip OS suffix; `skuName` has a space before `v3`.         |
+| App Service Plan     | `P0v3`                                              | `P0 v3`                      | `Premium v3 Plan`                      | Premium v3 entry-tier.                                      |
+| App Service Plan     | `P2v3`, `P3v3`                                      | `P2 v3`, `P3 v3`             | `Premium v3 Plan`                      | Same space-before-v3 rule.                                  |
+| App Service Plan     | `P1mv3`, `P3mv3`                                    | `P1mv3`, `P3mv3`             | `Premium v3 Plan`                      | Memory-optimized has **no space** — exception to the v3 rule. |
+| App Service Plan     | `B1`, `B2`, `B3`                                    | `B1`, `B2`, `B3`             | `Basic Plan`                           | No rewrite needed; product_filter required.                 |
+| App Service Plan     | `S1 Linux`                                          | `S1`                         | `Standard Plan`                        | Strip OS suffix.                                            |
+| Storage Account      | `Standard ZRS`                                      | `Standard_ZRS`               | `General Block Blob`                   | Underscore form is canonical.                               |
+| Storage Account      | `Standard LRS`                                      | `Standard_LRS`               | `General Block Blob`                   | Same pattern.                                               |
+| Storage Account      | `Standard GRS`                                      | `Standard_GRS`               | `General Block Blob`                   | Same pattern.                                               |
+| Storage Account      | `Premium LRS`                                       | `Premium_LRS`                | `Premium Block Blob`                   | Premium block blob carries `Premium_LRS` only.              |
+| Container Registry   | `Basic`, `Standard`, `Premium`                      | `Basic`, `Standard`, `Premium` | `Container Registry`                 | No rewrite; product_filter required.                        |
+| Virtual Machine      | `D2sv5`, `D4sv5`                                    | `D2s_v5`, `D4s_v5`           | `Dsv5 Series`                          | VM SKUs use underscore-v5 in `armSkuName`.                  |
+| Virtual Machine      | `Standard_D2s_v5`                                   | `D2s_v5`                     | `Dsv5 Series`                          | Strip `Standard_` prefix; bare ARM form is canonical.       |
+| Log Analytics        | `PerGB2018`                                         | `Standard`                   | `Log Analytics`                        | API name; PAYG SKU is `skuName: Standard`.                  |
+| Application Insights | `Workspace-based`                                   | `Basic`                      | `Application Insights`                 | Classic AI; workspace-based bills via Log Analytics.        |
+
+**Resolution rule**: if the input `sku_name` exactly matches a "Variant
+input" cell or matches case-insensitively after stripping leading/trailing
+whitespace, rewrite to the "Canonical `sku_name`" value and also set the
+`product_filter` from the same row. Preserve the original verbose form in
+the line's `notes` field for audit.
+
+**No partial matches.** If the input doesn't appear in this table, the
+subagent MUST NOT guess — record it in `<unresolved_sku_triage>` with the
+top-3 closest matches and proceed with `status: FAILED` if pricing
+cannot resolve.
+
 ## SKU naming gotchas (verified against the Retail Prices API)
 
 | Common error           | Canonical Azure API skuName        | Notes                                                                                  |

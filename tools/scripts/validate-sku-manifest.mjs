@@ -233,6 +233,38 @@ function checkFreshness(data, fileRel, r, now = new Date()) {
   }
 }
 
+function checkMdSync(filePath, data, fileRel, r) {
+  // Sibling .md companion. Required to exist and to declare a Current
+  // revision cell matching JSON `current_revision`. The MD is the
+  // deterministic output of tools/scripts/render-sku-manifest-md.mjs;
+  // any mismatch indicates a stale rendering or hand-edit.
+  const mdPath = filePath.replace(/\.json$/, ".md");
+  const mdRel = path.relative(ROOT, mdPath);
+  if (!fs.existsSync(mdPath)) {
+    r.error(fileRel, `Companion MD missing: ${mdRel} — run 'node tools/scripts/render-sku-manifest-md.mjs <project>'`);
+    return;
+  }
+  let md;
+  try {
+    md = fs.readFileSync(mdPath, "utf-8");
+  } catch (err) {
+    r.error(mdRel, `Failed to read MD companion: ${err.message}`);
+    return;
+  }
+  const m = md.match(/\|\s*Current revision\s*\|\s*`(\d+)`/);
+  if (!m) {
+    r.error(mdRel, `MD missing 'Current revision' Overview cell — re-render via render-sku-manifest-md.mjs`);
+    return;
+  }
+  const mdRev = Number(m[1]);
+  if (mdRev !== data.current_revision) {
+    r.error(
+      mdRel,
+      `MD Current revision (${mdRev}) != JSON current_revision (${data.current_revision}) — re-render via 'node tools/scripts/render-sku-manifest-md.mjs <project>'`,
+    );
+  }
+}
+
 function validateFile(filePath, validate, r) {
   const rel = path.relative(ROOT, filePath);
   let data;
@@ -264,6 +296,7 @@ function validateFile(filePath, validate, r) {
   checkStamps(data, rel, r);
   checkAllowlist(data, rel, r);
   if (!isTemplateOrFixture) checkFreshness(data, rel, r);
+  if (!isTemplateOrFixture) checkMdSync(filePath, data, rel, r);
   if (r.errors === before) r.ok(rel);
   r.tick();
 }

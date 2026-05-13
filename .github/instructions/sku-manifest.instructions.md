@@ -202,6 +202,32 @@ The validator checks `id` uniqueness, environment subset, and that
 `service_overrides` keys reference real `services[].id` entries. When
 `stamps[]` is absent the manifest behaves as a single-stamp project.
 
+## MD ↔ JSON Sync
+
+The companion `sku-manifest.md` is a **deterministic rendering** of
+`sku-manifest.json`, produced by
+[`tools/scripts/render-sku-manifest-md.mjs`](../../tools/scripts/render-sku-manifest-md.mjs).
+
+**Rules**:
+
+- Agents write **JSON only**. The renderer is the only legitimate writer
+  of `sku-manifest.md`. Hand-editing the MD is forbidden and will be
+  overwritten on the next commit (lefthook pre-commit auto-stages the
+  re-rendered MD).
+- After any rev-N JSON mutation (Architect at Step 2, Planner at Step 4,
+  Deploy at Step 6, As-Built at Step 7), the author MUST run
+  `node tools/scripts/render-sku-manifest-md.mjs <project>` and stage
+  the MD change in the same commit.
+- The renderer is idempotent: running it twice on the same JSON yields
+  byte-equal output.
+- `validate:sku-manifest` hard-fails when MD is missing, its "Current
+  revision" Overview cell is absent, or that cell does not equal the
+  JSON's `current_revision`. Re-render to fix.
+
+CI enforcement: a `.github/workflows/*` job runs the renderer and
+`git diff --exit-code` on `**/sku-manifest.md` — the PR fails if MD
+drifted out of sync with JSON.
+
 ## Anti-Patterns
 
 | Don't                                                | Do                                                  |
