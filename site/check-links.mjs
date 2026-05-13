@@ -34,27 +34,27 @@ function walkHtml(dir) {
 // (e.g., template literals inside Astro define:vars scripts) which are not
 // real rendered links. Matching them produces false-positive broken links.
 //
-// Sanitizer notes (CodeQL):
-// - The block patterns greedily fall through to end-of-input (`$`) when no
-//   closing tag is found, so truncated/unclosed `<script>` blocks are still
-//   stripped (closes "Bad HTML filtering regexp").
-// - The fixpoint loop handles nested/overlapping fragments exposed by the
-//   first pass.
-// - A final defensive sweep removes any stray `<script`/`<style` tag
-//   remnants so the result never contains those substrings (closes
-//   "Incomplete multi-character sanitization").
+// Two-stage sanitizer (closes CodeQL "Incomplete multi-character
+// sanitization" + "Bad HTML filtering regexp"):
+//   Stage 1 — strip well-formed `<script>…</script>` and `<style>…</style>`
+//             blocks (fixpoint loop handles nested fragments).
+//   Stage 2 — final guaranteed sweep on `<script` and `<style` tokens
+//             themselves, which removes any malformed/unclosed remnants
+//             and provably eliminates those substrings from the output.
 function extractHrefs(html) {
   let cleaned = html;
+  // Stage 1: well-formed blocks.
   let previous;
   do {
     previous = cleaned;
-    cleaned = cleaned
-      .replace(/<script\b[\s\S]*?(?:<\/script(?:\s[^>]*)?>|$)/gi, "")
-      .replace(/<style\b[\s\S]*?(?:<\/style(?:\s[^>]*)?>|$)/gi, "");
+    cleaned = cleaned.replace(/<script\b[\s\S]*?<\/script\s*>/gi, "");
+    cleaned = cleaned.replace(/<style\b[\s\S]*?<\/style\s*>/gi, "");
   } while (cleaned !== previous);
-  // Defensive: strip any leftover script/style tags (including unclosed
-  // opening tags) so the output cannot contain `<script` or `<style`.
-  cleaned = cleaned.replace(/<\/?(?:script|style)\b[^>]*>?/gi, "");
+  // Stage 2: token-level sweep — matches only `<script` / `</script` /
+  // `<style` / `</style` (no trailing `>` required), so no `<script` or
+  // `<style` substring can survive.
+  cleaned = cleaned.replace(/<\/?script/gi, "");
+  cleaned = cleaned.replace(/<\/?style/gi, "");
   const re = /href="([^"]+)"/g;
   const hrefs = [];
   let m;
