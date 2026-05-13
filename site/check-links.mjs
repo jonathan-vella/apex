@@ -35,21 +35,26 @@ function walkHtml(dir) {
 // real rendered links. Matching them produces false-positive broken links.
 //
 // Sanitizer notes (CodeQL):
-// - The end-tag pattern allows optional attributes/whitespace before `>`
-//   (e.g. `</script >` or `</style id="x">`) which CodeQL's
-//   "Bad HTML filtering regexp" rule otherwise flags.
-// - The replacement runs in a fixpoint loop so nested or overlapping
-//   `<script>`/`<style>` fragments that the first pass exposes are also
-//   stripped — closes CodeQL's "Incomplete multi-character sanitization".
+// - The block patterns greedily fall through to end-of-input (`$`) when no
+//   closing tag is found, so truncated/unclosed `<script>` blocks are still
+//   stripped (closes "Bad HTML filtering regexp").
+// - The fixpoint loop handles nested/overlapping fragments exposed by the
+//   first pass.
+// - A final defensive sweep removes any stray `<script`/`<style` tag
+//   remnants so the result never contains those substrings (closes
+//   "Incomplete multi-character sanitization").
 function extractHrefs(html) {
   let cleaned = html;
   let previous;
   do {
     previous = cleaned;
     cleaned = cleaned
-      .replace(/<script\b[^>]*>[\s\S]*?<\/script(?:\s[^>]*)?>/gi, "")
-      .replace(/<style\b[^>]*>[\s\S]*?<\/style(?:\s[^>]*)?>/gi, "");
+      .replace(/<script\b[\s\S]*?(?:<\/script(?:\s[^>]*)?>|$)/gi, "")
+      .replace(/<style\b[\s\S]*?(?:<\/style(?:\s[^>]*)?>|$)/gi, "");
   } while (cleaned !== previous);
+  // Defensive: strip any leftover script/style tags (including unclosed
+  // opening tags) so the output cannot contain `<script` or `<style`.
+  cleaned = cleaned.replace(/<\/?(?:script|style)\b[^>]*>?/gi, "");
   const re = /href="([^"]+)"/g;
   const hrefs = [];
   let m;
