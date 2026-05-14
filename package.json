@@ -123,7 +123,8 @@
     "lint:js:json": "eslint --cache --cache-location node_modules/.cache/eslint/ --quiet --format=json",
     "lint:js:ci": "npm run lint:js -- --max-warnings=0 tools/scripts tools/tests",
     "format": "prettier --write --cache --cache-location node_modules/.cache/prettier/ --log-level warn .",
-    "format:check": "prettier --check --cache --cache-location node_modules/.cache/prettier/ --log-level warn ."
+    "format:check": "prettier --check --cache --cache-location node_modules/.cache/prettier/ --log-level warn .",
+    "format:bicep": "bash tools/scripts/format-bicep-tree.sh"
   },
   "devDependencies": {
     "@commitlint/cli": "^20.5.0",

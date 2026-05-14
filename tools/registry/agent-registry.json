@@ -70,7 +70,7 @@
     },
     "diagnose": {
       "agent": ".github/agents/09-diagnose.agent.md",
-      "model": "Claude Opus 4.7",
+      "model": "GPT-5.5",
       "invokable": true,
       "step": null
     },

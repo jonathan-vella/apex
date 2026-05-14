@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-05-14T15:37:40.979Z",
+  "generatedAt": "2026-05-14T16:22:00.690Z",
   "categories": [
     {
       "id": "agent",
@@ -361,7 +361,7 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/09-diagnose.agent.md"
       },
       "meta": {
-        "model": "Claude Opus 4.7",
+        "model": "GPT-5.5",
         "invocable": true,
         "subagents": [],
         "handoffTargets": [

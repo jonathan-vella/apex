@@ -30,7 +30,7 @@ Applies when frontmatter `model:` matches `claude` (case-insensitive).
 
 - **`legacy-003`** — Body > 350 lines requires `<context_awareness>`.
 - **`legacy-004`** — Research agents (Architect, IaC Planner,
-  Diagnose, Context Optimizer) include `<investigate_before_answering>`.
+  Context Optimizer) include `<investigate_before_answering>`.
 - **`claude-oneshot-001`** — ONE-SHOT agents (Requirements,
   Challenger subagent) MUST NOT include
   `<investigate_before_answering>`.

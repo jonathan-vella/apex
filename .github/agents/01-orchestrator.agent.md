@@ -526,8 +526,8 @@ Orchestrator with the project name — no special resume prompt needed.
 
 | Tier     | Model             | Used For                                                                         |
 | -------- | ----------------- | -------------------------------------------------------------------------------- |
-| `high`   | Claude Opus 4.7   | Requirements, Architecture, Planning, Diagnose, Context Optimizer                |
-| `medium` | GPT-5.5           | Governance, CodeGen, Deploy, As-Built, Challenger, E2E orchestrator + loop       |
+| `high`   | Claude Opus 4.7   | Requirements, Architecture, Planning, Context Optimizer                          |
+| `medium` | GPT-5.5           | Governance, CodeGen, Deploy, As-Built, Diagnose, Challenger, E2E orchestrator    |
 | `medium` | Claude Sonnet 4.6 | Design, Bicep/Terraform validate + preview subagents (Anthropic prompting style) |
 | `codex`  | GPT-5.3-Codex     | **Orchestrator** (handoff-only routing), Cost estimate subagent                  |
 

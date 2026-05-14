@@ -129,11 +129,10 @@ frontmatter loading. Always quote (or use the array form for agents).
 
 Agents that specify `Claude Opus 4.7` as priority model do so deliberately:
 
-- **Opus-first agents** (requirements, architect, iac-plan, context-optimizer,
-  diagnose) use `Claude Opus 4.7` for architecture decisions, WAF assessments,
-  planning accuracy, and complex analysis. Reasoning effort is a per-agent
-  policy (see "Reasoning-effort policy" below) — not encoded in the model
-  label.
+- **Opus-first agents** (requirements, architect, iac-plan, context-optimizer)
+  use `Claude Opus 4.7` for architecture decisions, WAF assessments, planning
+  accuracy, and complex analysis. Reasoning effort is a per-agent policy (see
+  "Reasoning-effort policy" below) — not encoded in the model label.
 - **Claude Sonnet 4.6 agents** (design, plus the four IaC validation/preview
   subagents `bicep-validate`, `bicep-whatif`, `terraform-validate`,
   `terraform-plan`): Anthropic prompting style (XML-tagged blocks, role-first,
@@ -144,7 +143,7 @@ Agents that specify `Claude Opus 4.7` as priority model do so deliberately:
   raise it for large change sets.
 - **GPT-5.5 agents** (orchestrator, orchestrator fast path, governance,
   bicep codegen, terraform codegen, challenger wrapper, challenger-review-subagent,
-  deploy (Bicep + Terraform), as-built, e2e-orchestrator)
+  deploy (Bicep + Terraform), as-built, diagnose, e2e-orchestrator)
   use the OpenAI GPT-5.5 prompting style: explicit Role / Personality / Goal /
   Success / Constraints / Output / Stop sections, retrieval budgets, decision rules
   over absolutes, and stopping conditions. GPT-5.5 reasons more efficiently than
@@ -170,25 +169,25 @@ The migrated GPT-5.5 cohort follows the OpenAI GPT-5.5 prompting guide:
 
 Current model assignments:
 
-| Agent / Group                       | Model             | Rationale                                    |
-| ----------------------------------- | ----------------- | -------------------------------------------- |
-| Orchestrator                        | GPT-5.5           | Outcome-first orchestration                  |
-| Orchestrator (Fast Path)            | GPT-5.5           | Streamlined orchestration                    |
-| Requirements                        | Claude Opus 4.7   | Deep understanding (high effort)             |
-| Architect                           | Claude Opus 4.7   | WAF analysis + cost (high effort)            |
-| Design                              | Claude Sonnet 4.6 | Diagram + ADR (Anthropic style)              |
-| Governance                          | GPT-5.5           | Procedural discovery                         |
-| IaC Planner (unified)               | Claude Opus 4.7   | Planning accuracy (high effort)              |
-| Bicep / Terraform Code              | GPT-5.5           | Code generation                              |
-| Deploy (Bicep + TF)                 | GPT-5.5           | Deployment execution (outcome-first)         |
-| As-Built                            | GPT-5.5           | Documentation generation (outcome-first)     |
-| Diagnose                            | Claude Opus 4.7   | Interactive troubleshooting (default effort) |
-| Context Optimizer                   | Claude Opus 4.7   | Deep analysis (high effort)                  |
-| E2E Orchestrator                    | GPT-5.5           | Autonomous benchmark loop                    |
-| Challenger wrapper                  | GPT-5.5           | Structured review                            |
-| Challenger subagent                 | GPT-5.5           | Structured review                            |
-| Bicep/TF validate+preview subagents | Claude Sonnet 4.6 | Isolated validation (Anthropic style)        |
-| Cost estimate subagent              | GPT-5.3-Codex     | High-throughput pricing                      |
+| Agent / Group                       | Model             | Rationale                                |
+| ----------------------------------- | ----------------- | ---------------------------------------- |
+| Orchestrator                        | GPT-5.5           | Outcome-first orchestration              |
+| Orchestrator (Fast Path)            | GPT-5.5           | Streamlined orchestration                |
+| Requirements                        | Claude Opus 4.7   | Deep understanding (high effort)         |
+| Architect                           | Claude Opus 4.7   | WAF analysis + cost (high effort)        |
+| Design                              | Claude Sonnet 4.6 | Diagram + ADR (Anthropic style)          |
+| Governance                          | GPT-5.5           | Procedural discovery                     |
+| IaC Planner (unified)               | Claude Opus 4.7   | Planning accuracy (high effort)          |
+| Bicep / Terraform Code              | GPT-5.5           | Code generation                          |
+| Deploy (Bicep + TF)                 | GPT-5.5           | Deployment execution (outcome-first)     |
+| As-Built                            | GPT-5.5           | Documentation generation (outcome-first) |
+| Diagnose                            | GPT-5.5           | Approval-first diagnostics               |
+| Context Optimizer                   | Claude Opus 4.7   | Deep analysis (high effort)              |
+| E2E Orchestrator                    | GPT-5.5           | Autonomous benchmark loop                |
+| Challenger wrapper                  | GPT-5.5           | Structured review                        |
+| Challenger subagent                 | GPT-5.5           | Structured review                        |
+| Bicep/TF validate+preview subagents | Claude Sonnet 4.6 | Isolated validation (Anthropic style)    |
+| Cost estimate subagent              | GPT-5.3-Codex     | High-throughput pricing                  |
 
 #### Reasoning-effort policy
 
@@ -202,10 +201,9 @@ effort is documented in this section and inferred from the agent's role:
   reasoning produces measurably better outcomes (WAF trade-offs, plan
   accuracy, deep audits). Sonnet-tier agents pin to `medium` for typical work
   and only escalate for large change sets.
-- **Default effort** — Diagnose. The interactive approval-first flow benefits
-  from default effort: Diagnose alternates short reasoning bursts with user
-  confirmations, so deep multi-step deliberation per turn would just slow the
-  flow without improving accuracy.
+- **Default effort** — Diagnose. The interactive approval-first GPT-5.5 flow
+  alternates short reasoning bursts with user confirmations, so deep multi-step
+  deliberation per turn would just slow the flow without improving accuracy.
 - **Effort tuning is a per-call concern** — Copilot Chat / VS Code respects
   the user's per-turn reasoning-effort selector and any harness-level
   override. The policy above is the project's recommended default; no
@@ -446,14 +444,14 @@ Sources: [Anthropic Claude Prompting Best Practices][claude-guide].
 Add XML blocks only where they serve the agent's actual role. Each block should
 be 3-5 lines. Place them after the first `#` heading, before the body content.
 
-| Block                            | Add when                                                         | Do NOT add when                                                      |
-| -------------------------------- | ---------------------------------------------------------------- | -------------------------------------------------------------------- |
-| `<investigate_before_answering>` | Agent researches before deciding (Architect, Planners, Diagnose) | ONE-SHOT agents (Requirements), procedural wrappers (lint subagents) |
-| `<output_contract>`              | Agent produces a formal artifact with defined structure          | Agent has no structured output                                       |
-| `<context_awareness>`            | Agent definition exceeds ~350 lines                              | Small agents, subagents                                              |
-| `<scope_fencing>`                | Agent produces scoped artifacts where creep is a risk            | Agents whose job is comprehensive analysis (Architect)               |
-| `<empty_result_recovery>`        | Agent queries Azure APIs that may return empty results           | Agents that don't call external APIs                                 |
-| `<subagent_budget>`              | Agent orchestrates 3+ subagents                                  | Leaf agents that don't delegate                                      |
+| Block                            | Add when                                                                  | Do NOT add when                                                      |
+| -------------------------------- | ------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| `<investigate_before_answering>` | Agent researches before deciding (Architect, Planners, Context Optimizer) | ONE-SHOT agents (Requirements), procedural wrappers (lint subagents) |
+| `<output_contract>`              | Agent produces a formal artifact with defined structure                   | Agent has no structured output                                       |
+| `<context_awareness>`            | Agent definition exceeds ~350 lines                                       | Small agents, subagents                                              |
+| `<scope_fencing>`                | Agent produces scoped artifacts where creep is a risk                     | Agents whose job is comprehensive analysis (Architect)               |
+| `<empty_result_recovery>`        | Agent queries Azure APIs that may return empty results                    | Agents that don't call external APIs                                 |
+| `<subagent_budget>`              | Agent orchestrates 3+ subagents                                           | Leaf agents that don't delegate                                      |
 
 **Never add**: `<use_parallel_tool_calls>` (Claude does this natively),
 `<avoid_overengineering>` on comprehensive-analysis agents.

@@ -20,6 +20,9 @@ for full details on this and all prior releases.
 
 ### Changed
 
+- feat(agents): migrate `09-Diagnose` to `GPT-5.5` and convert
+  `diagnose-resource.prompt.md` to the outcome-first GPT-5.5 skeleton while
+  preserving approval-first Azure diagnostics and report output.
 - refactor(agents)!: simplify challenger reviews — default flow is now
   **single-pass `comprehensive`** at every mandatory step (1, 2, 4); Step 3.5
   runs `governance-reconciliation`; multi-pass rotating-lens review is

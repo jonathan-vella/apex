@@ -28,6 +28,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- feat(agents): migrate `09-Diagnose` to `GPT-5.5` and convert
+  `diagnose-resource.prompt.md` to the outcome-first GPT-5.5 skeleton while
+  preserving approval-first Azure diagnostics and report output.
 - chore(catalog): drop the `(High reasoning)` suffix from the Opus 4.7 label.
   `Claude Opus 4.7 (High reasoning)` and `Claude Opus 4.7` were two distinct
   catalog entries pointing at the same SKU. Reasoning-effort policy is now a

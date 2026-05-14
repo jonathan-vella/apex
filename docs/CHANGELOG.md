@@ -25,6 +25,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- feat(agents): migrate `09-Diagnose` to `GPT-5.5` and convert
+  `diagnose-resource.prompt.md` to the outcome-first GPT-5.5 skeleton while
+  preserving approval-first Azure diagnostics and report output.
 - feat(pricing-mcp): **Azure Pricing MCP v5.0 → v5.2 — independent fork**
   modernization, shipped as three commits on the same
   `feat/azure-pricing-mcp-v5` branch. Re-attributes the server (formerly
