@@ -96,12 +96,12 @@ Workflows run these project validators:
 
 ## Patterns to Avoid
 
-| Anti-Pattern                    | Solution                                   |
-| ------------------------------- | ------------------------------------------ |
-| Pinning to `@main` or `@latest` | Use `@v6` major version tags               |
-| `npm install` in CI             | Use `npm ci` for deterministic installs    |
-| Missing `permissions` block     | Always declare least-privilege permissions |
-| Broad triggers (no path filter) | Scope with `paths:` to relevant files      |
-| Duplicate validation logic      | Reuse existing validator scripts           |
-| `actions/upload-artifact@v3`    | Use `@v4` (v3 is deprecated)               |
+| Anti-Pattern                    | Solution                                                  |
+| ------------------------------- | --------------------------------------------------------- |
+| Pinning to `@main` or `@latest` | Use `@v6` major version tags                              |
+| `npm install` in CI             | Use `npm ci` for deterministic installs                   |
+| Missing `permissions` block     | Always declare least-privilege permissions                |
+| Broad triggers (no path filter) | Scope with `paths:` to relevant files                     |
+| Duplicate validation logic      | Reuse existing validator scripts                          |
+| `actions/upload-artifact@v3`    | Use `@v4` (v3 is deprecated)                              |
 | `node-version: "20"` or older   | Use `node-version: "24"` — Node.js 20 is EOL (April 2026) |

@@ -8,12 +8,13 @@ agent: "09-Diagnose"
 Interactive diagnostic workflow for Azure resource health assessment.
 
 <investigate_before_answering>
+
 - Diagnostics is investigative work. Before running any check, confirm:
   (a) which resource (name, resource group, or resource ID) is in scope;
   (b) what symptom the user is reporting; (c) which subscription is active.
 - If the user describes a symptom without naming a resource, ask which
   resource to investigate first; do not bulk-scan.
-</investigate_before_answering>
+  </investigate_before_answering>
 
 <context>
 - User has an active Azure CLI session (`az account show` succeeds).
@@ -49,8 +50,9 @@ Interactive diagnostic workflow for Azure resource health assessment.
 </rules>
 
 <output_contract>
+
 - `agent-output/{project}/diagnostic-report-{resource}.md` with: scope,
   checks run, findings (severity-tagged), KQL queries used, recommended
   remediations.
 - A short summary returned to the user (top findings + next-step options).
-</output_contract>
+  </output_contract>

@@ -9,56 +9,53 @@ Replace the contents of `src/functions/` with these files.
 ## src/functions/timerTrigger.ts
 
 ```typescript
-import { app, InvocationContext, Timer } from '@azure/functions';
+import { app, InvocationContext, Timer } from "@azure/functions";
 
 export async function timerTrigger(timer: Timer, context: InvocationContext): Promise<void> {
-    const utcTimestamp = new Date().toISOString();
-    
-    if (timer.isPastDue) {
-        context.log('Timer is past due!');
-    }
-    
-    context.log(`Timer trigger executed at ${utcTimestamp}`);
-    
-    // Add your scheduled task logic here
-    // Examples:
-    // - Call an external API
-    // - Process queued items
-    // - Generate reports
-    // - Clean up old data
+  const utcTimestamp = new Date().toISOString();
+
+  if (timer.isPastDue) {
+    context.log("Timer is past due!");
+  }
+
+  context.log(`Timer trigger executed at ${utcTimestamp}`);
+
+  // Add your scheduled task logic here
+  // Examples:
+  // - Call an external API
+  // - Process queued items
+  // - Generate reports
+  // - Clean up old data
 }
 
-app.timer('timerTrigger', {
-    schedule: '%TIMER_SCHEDULE%',
-    runOnStartup: false,
-    useMonitor: true,
-    handler: timerTrigger,
+app.timer("timerTrigger", {
+  schedule: "%TIMER_SCHEDULE%",
+  runOnStartup: false,
+  useMonitor: true,
+  handler: timerTrigger,
 });
 ```
 
 ## src/functions/healthCheck.ts
 
 ```typescript
-import { app, HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions';
+import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 
-export async function healthCheck(
-    request: HttpRequest,
-    context: InvocationContext
-): Promise<HttpResponseInit> {
-    return {
-        status: 200,
-        jsonBody: {
-            status: 'healthy',
-            schedule: process.env.TIMER_SCHEDULE || 'not-set'
-        }
-    };
+export async function healthCheck(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+  return {
+    status: 200,
+    jsonBody: {
+      status: "healthy",
+      schedule: process.env.TIMER_SCHEDULE || "not-set",
+    },
+  };
 }
 
-app.http('healthCheck', {
-    methods: ['GET'],
-    route: 'health',
-    authLevel: 'function',
-    handler: healthCheck,
+app.http("healthCheck", {
+  methods: ["GET"],
+  route: "health",
+  authLevel: "function",
+  handler: healthCheck,
 });
 ```
 
@@ -75,6 +72,7 @@ app.http('healthCheck', {
 ## Local Testing
 
 Set these in `local.settings.json`:
+
 ```json
 {
   "Values": {

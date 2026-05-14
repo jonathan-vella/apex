@@ -4,14 +4,14 @@
 
 ## Common Quota Errors
 
-| Error | Cause | Quick Fix |
-|-------|-------|-----------|
-| `QuotaExceeded` | Regional quota consumed (TPM or PTU) | Delete unused deployments or request increase |
-| `InsufficientQuota` | Not enough available for requested capacity | Reduce deployment capacity or free quota |
-| `DeploymentLimitReached` | Too many deployment slots used | Delete unused deployments to free slots |
-| `429 Rate Limit` | TPM capacity too low for traffic (Standard only) | Increase TPM capacity or migrate to PTU |
-| `PTU capacity unavailable` | No PTU quota in region | Request PTU quota or try different region |
-| `SKU not supported` | PTU not available for model/region | Check model availability or use Standard TPM |
+| Error                      | Cause                                            | Quick Fix                                     |
+| -------------------------- | ------------------------------------------------ | --------------------------------------------- |
+| `QuotaExceeded`            | Regional quota consumed (TPM or PTU)             | Delete unused deployments or request increase |
+| `InsufficientQuota`        | Not enough available for requested capacity      | Reduce deployment capacity or free quota      |
+| `DeploymentLimitReached`   | Too many deployment slots used                   | Delete unused deployments to free slots       |
+| `429 Rate Limit`           | TPM capacity too low for traffic (Standard only) | Increase TPM capacity or migrate to PTU       |
+| `PTU capacity unavailable` | No PTU quota in region                           | Request PTU quota or try different region     |
+| `SKU not supported`        | PTU not available for model/region               | Check model availability or use Standard TPM  |
 
 ## Detailed Error Resolution
 
@@ -22,6 +22,7 @@ All available TPM or PTU quota consumed in the region.
 **Resolution:**
 
 1. **Check current quota usage:**
+
    ```bash
    subId=$(az account show --query id -o tsv)
    region="eastus"
@@ -43,6 +44,7 @@ Available quota less than requested capacity.
 **Resolution:**
 
 1. **Check available quota:**
+
    ```bash
    # Calculate available: limit - currentValue
    subId=$(az account show --query id -o tsv)
@@ -65,6 +67,7 @@ Resource reached maximum deployment slot limit (10-20 slots).
 **Resolution:**
 
 1. **List existing deployments:**
+
    ```bash
    az cognitiveservices account deployment list \
      --name <resource-name> \
@@ -74,6 +77,7 @@ Resource reached maximum deployment slot limit (10-20 slots).
    ```
 
 2. **Delete unused deployments:**
+
    ```bash
    az cognitiveservices account deployment delete \
      --name <resource-name> \
@@ -96,6 +100,7 @@ TPM capacity insufficient for traffic volume (Standard TPM only).
 **Resolution:**
 
 1. **Check deployment capacity:**
+
    ```bash
    az cognitiveservices account deployment show \
      --name <resource-name> \
@@ -123,6 +128,7 @@ No PTU quota allocated in region, or PTU not available for model/region.
 **Resolution:**
 
 1. **Check PTU quota:**
+
    ```bash
    subId=$(az account show --query id -o tsv)
    region="eastus"

@@ -4,11 +4,11 @@ Package: `azure-messaging-servicebus` | [README](https://github.com/Azure/azure-
 
 ## Common Errors
 
-| Exception | Cause | Fix |
-|-----------|-------|-----|
-| `AmqpException` (unauthorized-access) | Bad credentials or missing permissions | Verify connection string, SAS, or RBAC roles |
-| `AmqpException` (connection:forced) | Idle connection or transient network issue | Auto-recovers; no action needed |
-| `ServiceBusException` (MESSAGE_LOCK_LOST) | Lock expired during processing | Reduce processing time, disable auto-complete, settle manually |
+| Exception                                 | Cause                                      | Fix                                                            |
+| ----------------------------------------- | ------------------------------------------ | -------------------------------------------------------------- |
+| `AmqpException` (unauthorized-access)     | Bad credentials or missing permissions     | Verify connection string, SAS, or RBAC roles                   |
+| `AmqpException` (connection:forced)       | Idle connection or transient network issue | Auto-recovers; no action needed                                |
+| `ServiceBusException` (MESSAGE_LOCK_LOST) | Lock expired during processing             | Reduce processing time, disable auto-complete, settle manually |
 
 ## Key Issues
 
@@ -19,10 +19,12 @@ Package: `azure-messaging-servicebus` | [README](https://github.com/Azure/azure-
 **Cause**: Thread starvation when thread pool size ≤ `maxConcurrentCalls`.
 
 **Fix**:
+
 ```bash
 # Increase reactor thread pool
 -Dreactor.schedulers.defaultBoundedElasticSize=<value greater than concurrency>
 ```
+
 Also set `prefetchCount(0)` to disable prefetch. This is more frequent in AKS environments.
 
 ### Implicit prefetch in ServiceBusReceiverClient
@@ -38,6 +40,7 @@ Autocomplete and auto-lock-renewal have known issues with buffered/prefetched me
 ## Enable Logging
 
 Configure via SLF4J:
+
 ```xml
 <logger name="com.azure.messaging.servicebus" level="DEBUG"/>
 ```

@@ -6,29 +6,29 @@ Compact reference for agent startup. Read full `SKILL.md` for details.
 
 ## When to Use This Skill
 
-| Category | Triggers |
-|----------|----------|
-| **Model Governance** | "semantic caching", "token limits", "load balance AI", "track token usage" |
-| **Tool Governance** | "rate limit MCP", "protect my tools", "configure my tool", "convert API to MCP" |
-| **Agent Governance** | "content safety", "jailbreak detection", "filter harmful content" |
-| **Configuration** | "add Azure OpenAI backend", "configure my model", "add AI Foundry model" |
+| Category             | Triggers                                                                        |
+| -------------------- | ------------------------------------------------------------------------------- |
+| **Model Governance** | "semantic caching", "token limits", "load balance AI", "track token usage"      |
+| **Tool Governance**  | "rate limit MCP", "protect my tools", "configure my tool", "convert API to MCP" |
+| **Agent Governance** | "content safety", "jailbreak detection", "filter harmful content"               |
+| **Configuration**    | "add Azure OpenAI backend", "configure my model", "add AI Foundry model"        |
 
 > _See SKILL.md for full content._
 
 ## Quick Reference
 
-| Policy | Purpose | Details |
-|--------|---------|---------|
-| `azure-openai-token-limit` | Cost control | [Model Policies](references/policies.md#token-rate-limiting) |
-| `azure-openai-semantic-cache-lookup/store` | 60-80% cost savings | [Model Policies](references/policies.md#semantic-caching) |
-| `azure-openai-emit-token-metric` | Observability | [Model Policies](references/policies.md#token-metrics) |
-| `llm-content-safety` | Safety & compliance | [Agent Policies](references/policies.md#content-safety) |
+| Policy                                     | Purpose             | Details                                                      |
+| ------------------------------------------ | ------------------- | ------------------------------------------------------------ |
+| `azure-openai-token-limit`                 | Cost control        | [Model Policies](references/policies.md#token-rate-limiting) |
+| `azure-openai-semantic-cache-lookup/store` | 60-80% cost savings | [Model Policies](references/policies.md#semantic-caching)    |
+| `azure-openai-emit-token-metric`           | Observability       | [Model Policies](references/policies.md#token-metrics)       |
+| `llm-content-safety`                       | Safety & compliance | [Agent Policies](references/policies.md#content-safety)      |
 
 > _See SKILL.md for full content._
 
 ## Get Gateway Details
 
-```bash
+````bash
 # Get gateway URL
 az apim show --name <apim-name> --resource-group <rg> --query "gatewayUrl" -o tsv
 
@@ -77,3 +77,4 @@ See [references/patterns.md](references/patterns.md#pattern-1-add-ai-model-backe
 - [**Troubleshooting**](references/troubleshooting.md) - Common issues
 - [AI-Gateway Samples](https://github.com/Azure-Samples/AI-Gateway)
 - [GenAI Gateway Docs](https://learn.microsoft.com/azure/api-management/genai-gateway-capabilities)
+````

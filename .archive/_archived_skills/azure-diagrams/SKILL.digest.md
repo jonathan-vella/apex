@@ -4,10 +4,11 @@
 
 ## Routing Table
 
-| Diagram type                                   | Target skill      | Output format     |
-| ---------------------------------------------- | ----------------- | ----------------- |
-| Architecture diagrams (default)                | `drawio`          | `.drawio`         |
-| Dependency / runtime diagrams                  | `drawio`          | `.drawio`         |
+| Diagram type                    | Target skill | Output format |
+| ------------------------------- | ------------ | ------------- |
+| Architecture diagrams (default) | `drawio`     | `.drawio`     |
+| Dependency / runtime diagrams   | `drawio`     | `.drawio`     |
+
 > _See SKILL.md for full content._
 
 ## How to Use

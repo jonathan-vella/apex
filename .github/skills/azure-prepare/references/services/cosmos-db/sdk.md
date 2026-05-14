@@ -12,7 +12,7 @@ const container = database.container("items");
 // Query example
 const { resources } = await container.items
   .query("SELECT * FROM c WHERE c.userId = @userId", {
-    parameters: [{ name: "@userId", value: userId }]
+    parameters: [{ name: "@userId", value: userId }],
   })
   .fetchAll();
 ```
@@ -51,9 +51,9 @@ var iterator = container.GetItemQueryIterator<dynamic>(query);
 
 ## Best Practices
 
-| Practice | Reason |
-|----------|--------|
-| Reuse client instances | Connection pooling |
-| Use parameterized queries | SQL injection prevention |
-| Set appropriate timeouts | Handle transient failures |
-| Enable diagnostics in dev | Debug RU consumption |
+| Practice                  | Reason                    |
+| ------------------------- | ------------------------- |
+| Reuse client instances    | Connection pooling        |
+| Use parameterized queries | SQL injection prevention  |
+| Set appropriate timeouts  | Handle transient failures |
+| Enable diagnostics in dev | Debug RU consumption      |

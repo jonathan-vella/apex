@@ -3,6 +3,7 @@
 ## Dependencies
 
 **pom.xml:**
+
 ```xml
 <dependency>
     <groupId>com.microsoft</groupId>
@@ -19,6 +20,7 @@
 ## Source Code
 
 **src/main/java/com/function/DurableFunctions.java:**
+
 ```java
 package com.function;
 
@@ -37,19 +39,19 @@ public class DurableFunctions {
             HttpRequestMessage<Optional<String>> request,
             @DurableClientInput(name = "durableContext") DurableClientContext durableContext,
             final ExecutionContext context) {
-        
+
         context.getLogger().info("Starting orchestration...");
-        
+
         String instanceId = durableContext.getClient().scheduleNewOrchestrationInstance("HelloOrchestrator");
         context.getLogger().info("Created orchestration with ID: " + instanceId);
-        
+
         return durableContext.createCheckStatusResponse(request, instanceId);
     }
 
     @FunctionName("HelloOrchestrator")
     public List<String> helloOrchestrator(
             @DurableOrchestrationTrigger(name = "ctx") TaskOrchestrationContext ctx) {
-        
+
         List<String> results = new ArrayList<>();
         results.add(ctx.callActivity("SayHello", "Seattle", String.class).await());
         results.add(ctx.callActivity("SayHello", "Tokyo", String.class).await());
@@ -70,7 +72,7 @@ public class DurableFunctions {
             @HttpTrigger(name = "req", methods = {HttpMethod.GET}, authLevel = AuthorizationLevel.ANONYMOUS)
             HttpRequestMessage<Optional<String>> request,
             final ExecutionContext context) {
-        
+
         return request.createResponseBuilder(HttpStatus.OK)
                 .header("Content-Type", "application/json")
                 .body("{\"status\":\"healthy\",\"type\":\"durable\"}")

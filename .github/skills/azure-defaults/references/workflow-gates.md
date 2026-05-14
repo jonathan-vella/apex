@@ -101,10 +101,33 @@ missing or empty (zero bytes):
    user inline. Do NOT advance to the Approval Gate. Do NOT invent
    findings. Do NOT call the subagent a third time.
 
+## Design (Step 3) — Phase 00: Artifact scope (one-time gate)
+
+Runs **before** Phase 0. Read `decisions.design_scope`. If set, skip
+silently. If absent, raise a single `vscode_askQuestions` with three
+options:
+
+- **Diagrams only** — produce `03-des-diagram.{drawio|py}` (+ `.png`);
+  skip ADR generation.
+- **ADRs only** — produce `03-des-adr-NNNN-{slug}.md` for each
+  non-trivial decision; skip Phase 0 and diagram generation entirely.
+- **Both (diagrams + ADRs)** — full Step 3 output.
+
+Record `apex-recall decide --key design_scope --value <diagrams|adrs|both> --step 3 --json`.
+
+Routing rules after the gate:
+
+- `design_scope == "adrs"` → skip Phase 0 and Section 1 (Diagram
+  generation); run Section 2 (ADRs) only.
+- `design_scope == "diagrams"` → run Phase 0 + Section 1; skip
+  Section 2 (ADRs).
+- `design_scope == "both"` → run Phase 0 + Section 1 + Section 2.
+
 ## Design (Step 3) — Phase 0: Diagram tool choice (one-time gate)
 
-Read `decisions.diagram_tool`. If set, skip silently. If absent, raise
-a single `vscode_askQuestions` with two options:
+Skipped when `decisions.design_scope == "adrs"`. Otherwise read
+`decisions.diagram_tool`. If set, skip silently. If absent, raise a
+single `vscode_askQuestions` with two options:
 
 - **Draw.io** (Azure-brand icons, higher visual quality) — recommended;
   every existing artifact in `agent-output/*/` uses Draw.io.

@@ -3,17 +3,17 @@
 ## Node.js (mssql)
 
 ```javascript
-const sql = require('mssql');
+const sql = require("mssql");
 
 const config = {
   server: process.env.SQL_SERVER,
   database: process.env.SQL_DATABASE,
   authentication: {
-    type: 'azure-active-directory-default'
+    type: "azure-active-directory-default",
   },
   options: {
-    encrypt: true
-  }
+    encrypt: true,
+  },
 };
 
 const pool = await sql.connect(config);
@@ -41,6 +41,7 @@ conn = pyodbc.connect(
 ## .NET (Entity Framework Core)
 
 **Required NuGet Packages:**
+
 ```bash
 dotnet add package Microsoft.EntityFrameworkCore.SqlServer
 dotnet add package Microsoft.Data.SqlClient --version 5.1.0
@@ -48,11 +49,13 @@ dotnet add package Azure.Identity
 ```
 
 **Connection string (Entra ID):**
+
 ```
 Server=tcp:{server}.database.windows.net,1433;Database={database};Authentication=Active Directory Default;Encrypt=True;
 ```
 
 **Configuration:**
+
 ```csharp
 services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(
@@ -62,6 +65,7 @@ services.AddDbContext<AppDbContext>(options =>
 ```
 
 **appsettings.json:**
+
 ```json
 {
   "ConnectionStrings": {

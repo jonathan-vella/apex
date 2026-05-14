@@ -4,15 +4,15 @@ Package: `Azure.Messaging.ServiceBus` | [README](https://github.com/Azure/azure-
 
 ## Common Errors
 
-| Exception | Reason | Fix |
-|-----------|--------|-----|
-| `ServiceBusException` (ServiceTimeout) | Service didn't respond | Transient — auto-retried. For session accept, means no unlocked sessions |
-| `ServiceBusException` (MessageLockLost) | Lock expired or link detached | Renew lock, reduce processing time, check network |
-| `ServiceBusException` (SessionLockLost) | Session lock expired | Re-accept session, renew lock before expiry |
-| `ServiceBusException` (QuotaExceeded) | Too many concurrent receives | Reduce receivers or use batch receives |
-| `ServiceBusException` (MessageSizeExceeded) | Message or batch too large | Reduce payload. Premium tier supports individual messages up to 100MB. Batch limit is artificially computed on the client from the max message size sent by the service, so batches can also be impacted |
-| `ServiceBusException` (ServiceBusy) | Request throttled | Auto-retried with 10s backoff. See [throttling docs](https://learn.microsoft.com/azure/service-bus-messaging/service-bus-throttling) |
-| `UnauthorizedAccessException` | Bad credentials | Verify connection string, SAS, or RBAC roles |
+| Exception                                   | Reason                        | Fix                                                                                                                                                                                                      |
+| ------------------------------------------- | ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ServiceBusException` (ServiceTimeout)      | Service didn't respond        | Transient — auto-retried. For session accept, means no unlocked sessions                                                                                                                                 |
+| `ServiceBusException` (MessageLockLost)     | Lock expired or link detached | Renew lock, reduce processing time, check network                                                                                                                                                        |
+| `ServiceBusException` (SessionLockLost)     | Session lock expired          | Re-accept session, renew lock before expiry                                                                                                                                                              |
+| `ServiceBusException` (QuotaExceeded)       | Too many concurrent receives  | Reduce receivers or use batch receives                                                                                                                                                                   |
+| `ServiceBusException` (MessageSizeExceeded) | Message or batch too large    | Reduce payload. Premium tier supports individual messages up to 100MB. Batch limit is artificially computed on the client from the max message size sent by the service, so batches can also be impacted |
+| `ServiceBusException` (ServiceBusy)         | Request throttled             | Auto-retried with 10s backoff. See [throttling docs](https://learn.microsoft.com/azure/service-bus-messaging/service-bus-throttling)                                                                     |
+| `UnauthorizedAccessException`               | Bad credentials               | Verify connection string, SAS, or RBAC roles                                                                                                                                                             |
 
 ## Exception Filtering
 

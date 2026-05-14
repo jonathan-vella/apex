@@ -118,6 +118,25 @@ Two `askQuestions` calls inside a single Step 5 run is a defect — fold the
 second into the first. The 06b/06t agents must batch their preflight,
 governance, and code-review prompts the same way.
 
+### Preflight Blocker Form
+
+When Phase 1 preflight finds blockers (AVM schema mismatch, region
+limitation, version pin conflict), surface them via a single
+`askQuestions` call:
+
+- **header**: `Preflight Blockers Found`
+- **question**: 1-line summary referencing `04-preflight-check.md` for
+  details (e.g. "2 AVM schema mismatches, 1 region limitation. See
+  04-preflight-check.md for details.")
+- **options**:
+  - `Fix and re-run preflight` (recommended) — agent revises the plan
+    inputs or substitutes an alternative module, then re-enters Phase 1.
+  - `Abort — return to Planner` — STOP, present the Return to Step 4
+    handoff, leave session state at Step 5 awaiting Planner rev.
+
+Never enumerate the blockers in chat prose and ask the user to reply;
+always use the form so a single-shot answer captures intent.
+
 ### Mechanical Auto-Fix Before Exiting (MANDATORY)
 
 Before emitting the Step 5 completion handoff, run a mechanical fix pass on

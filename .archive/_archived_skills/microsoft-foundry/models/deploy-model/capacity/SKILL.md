@@ -13,13 +13,13 @@ Finds available Azure OpenAI model capacity across all accessible regions and pr
 
 ## Quick Reference
 
-| Property | Description |
-|----------|-------------|
-| **Purpose** | Find where you can deploy a model with sufficient capacity |
-| **Scope** | All regions and projects the user has access to |
-| **Output** | Ranked table of regions/projects with available capacity |
-| **Action** | Read-only analysis — does NOT deploy. Hands off to preset or customize |
-| **Authentication** | Azure CLI (`az login`) |
+| Property           | Description                                                            |
+| ------------------ | ---------------------------------------------------------------------- |
+| **Purpose**        | Find where you can deploy a model with sufficient capacity             |
+| **Scope**          | All regions and projects the user has access to                        |
+| **Output**         | Ranked table of regions/projects with available capacity               |
+| **Action**         | Read-only analysis — does NOT deploy. Hands off to preset or customize |
+| **Authentication** | Azure CLI (`az login`)                                                 |
 
 ## When to Use This Skill
 
@@ -35,12 +35,12 @@ Finds available Azure OpenAI model capacity across all accessible regions and pr
 
 Pre-built scripts handle the complex REST API calls and data processing. Use these instead of constructing commands manually.
 
-| Script | Purpose | Usage |
-|--------|---------|-------|
-| `scripts/discover_and_rank.ps1` | Full discovery: capacity + projects + ranking | Primary script for capacity discovery |
-| `scripts/discover_and_rank.sh` | Same as above (bash) | Primary script for capacity discovery |
-| `scripts/query_capacity.ps1` | Raw capacity query (no project matching) | Quick capacity check or version listing |
-| `scripts/query_capacity.sh` | Same as above (bash) | Quick capacity check or version listing |
+| Script                          | Purpose                                       | Usage                                   |
+| ------------------------------- | --------------------------------------------- | --------------------------------------- |
+| `scripts/discover_and_rank.ps1` | Full discovery: capacity + projects + ranking | Primary script for capacity discovery   |
+| `scripts/discover_and_rank.sh`  | Same as above (bash)                          | Primary script for capacity discovery   |
+| `scripts/query_capacity.ps1`    | Raw capacity query (no project matching)      | Quick capacity check or version listing |
+| `scripts/query_capacity.sh`     | Same as above (bash)                          | Quick capacity check or version listing |
 
 ## Workflow
 
@@ -57,6 +57,7 @@ Extract model name from user prompt. If version is unknown, query available vers
 ```powershell
 .\scripts\query_capacity.ps1 -ModelName <model-name>
 ```
+
 ```bash
 ./scripts/query_capacity.sh <model-name>
 ```
@@ -70,6 +71,7 @@ Run the full discovery script with model name, version, and minimum capacity tar
 ```powershell
 .\scripts\discover_and_rank.ps1 -ModelName <model-name> -ModelVersion <version> -MinCapacity <target>
 ```
+
 ```bash
 ./scripts/discover_and_rank.sh <model-name> <version> <min-capacity>
 ```
@@ -94,6 +96,7 @@ if ($usageEntry) {
   $quotaAvailable = 0  # No quota allocated
 }
 ```
+
 ```bash
 # For each candidate region from discovery results:
 usage_json=$(az cognitiveservices usage list --location <region> --subscription "$SUBSCRIPTION_ID" -o json 2>/dev/null)
@@ -107,11 +110,11 @@ quota_available=$(echo "$usage_json" | jq -r --arg name "OpenAI.<SKU>.<model-nam
 
 Add a "Quota Available" column to the ranked output from Phase 3:
 
-| Region | Available Capacity | Meets Target | Projects | Quota Available |
-|--------|-------------------|--------------|----------|-----------------|
-| eastus2 | 120K TPM | ✅ | 3 | ✅ 80K |
-| westus3 | 90K TPM | ✅ | 1 | ❌ 0 (at limit) |
-| swedencentral | 100K TPM | ✅ | 0 | ✅ 100K |
+| Region        | Available Capacity | Meets Target | Projects | Quota Available |
+| ------------- | ------------------ | ------------ | -------- | --------------- |
+| eastus2       | 120K TPM           | ✅           | 3        | ✅ 80K          |
+| westus3       | 90K TPM            | ✅           | 1        | ❌ 0 (at limit) |
+| swedencentral | 100K TPM           | ✅           | 0        | ✅ 100K         |
 
 Regions/SKUs where `quotaAvailable = 0` should be marked with ❌ in the results. If no region has available quota, hand off to the [quota skill](../../../quota/quota.md) for increase requests and troubleshooting.
 
@@ -132,12 +135,12 @@ If the discovery table shows a sample project for the chosen region, suggest it 
 
 ## Error Handling
 
-| Error | Cause | Resolution |
-|-------|-------|------------|
+| Error               | Cause                               | Resolution                                                                                   |
+| ------------------- | ----------------------------------- | -------------------------------------------------------------------------------------------- |
 | "No capacity found" | Model not available or all at quota | Hand off to [quota skill](../../../quota/quota.md) for increase requests and troubleshooting |
-| Script auth error | `az login` expired | Re-run `az login` |
-| Empty version list | Model not in region catalog | Try a different region: `./scripts/query_capacity.sh <model> "" eastus` |
-| "No projects found" | No AI Services resources | Guide to `project/create` skill or Azure Portal |
+| Script auth error   | `az login` expired                  | Re-run `az login`                                                                            |
+| Empty version list  | Model not in region catalog         | Try a different region: `./scripts/query_capacity.sh <model> "" eastus`                      |
+| "No projects found" | No AI Services resources            | Guide to `project/create` skill or Azure Portal                                              |
 
 ## Related Skills
 

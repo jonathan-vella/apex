@@ -115,14 +115,14 @@ Capture `AZURE_AI_PROJECT_ID`, `AZURE_AI_PROJECT_ENDPOINT`, and `AZURE_RESOURCE_
 
 ## Troubleshooting
 
-| Problem | Solution |
-|---------|----------|
-| `azd: command not found` | Install from https://aka.ms/azure-dev/install |
-| `ERROR: Failed to authenticate` | Run `azd auth login`; verify subscription with `az account list` |
-| `environment name '' is invalid` | Name must be alphanumeric + hyphens only |
-| `ERROR: Insufficient permissions` | Request Contributor or Azure AI Owner role from admin |
-| Region not supported for hosted agents | Use `azd config set defaults.location northcentralus` |
-| Provisioning timeout | Check region availability, verify connectivity, retry `azd provision` |
+| Problem                                | Solution                                                              |
+| -------------------------------------- | --------------------------------------------------------------------- |
+| `azd: command not found`               | Install from https://aka.ms/azure-dev/install                         |
+| `ERROR: Failed to authenticate`        | Run `azd auth login`; verify subscription with `az account list`      |
+| `environment name '' is invalid`       | Name must be alphanumeric + hyphens only                              |
+| `ERROR: Insufficient permissions`      | Request Contributor or Azure AI Owner role from admin                 |
+| Region not supported for hosted agents | Use `azd config set defaults.location northcentralus`                 |
+| Provisioning timeout                   | Check region availability, verify connectivity, retry `azd provision` |
 
 ## Related Skills
 

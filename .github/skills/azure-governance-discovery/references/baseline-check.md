@@ -1,4 +1,5 @@
 <!-- ref:baseline-check-v1 -->
+
 # 04g-Governance Phase 0.45 — Committed-Baseline Check
 
 Detailed procedure for the cached-governance baseline short-circuit. The

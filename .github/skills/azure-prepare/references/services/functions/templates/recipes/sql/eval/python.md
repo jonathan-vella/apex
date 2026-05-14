@@ -2,13 +2,13 @@
 
 ## Test Summary
 
-| Test | Status | Notes |
-|------|--------|-------|
-| Code Syntax | ✅ PASS | Python v2 model decorator pattern |
-| SQL Input | ✅ PASS | Uses `@app.sql_input` decorator |
-| SQL Output | ✅ PASS | Uses `@app.sql_output` decorator |
-| SQL Trigger | ✅ PASS | Change tracking with `@app.sql_trigger` |
-| Health Endpoint | ✅ PASS | Anonymous auth |
+| Test            | Status  | Notes                                   |
+| --------------- | ------- | --------------------------------------- |
+| Code Syntax     | ✅ PASS | Python v2 model decorator pattern       |
+| SQL Input       | ✅ PASS | Uses `@app.sql_input` decorator         |
+| SQL Output      | ✅ PASS | Uses `@app.sql_output` decorator        |
+| SQL Trigger     | ✅ PASS | Change tracking with `@app.sql_trigger` |
+| Health Endpoint | ✅ PASS | Anonymous auth                          |
 
 ## Code Validation
 

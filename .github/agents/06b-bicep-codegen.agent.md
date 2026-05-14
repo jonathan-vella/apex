@@ -227,8 +227,16 @@ Before doing any work, read these skills:
 Before starting, validate these files exist in `agent-output/{project}/`:
 
 1. `04-implementation-plan.md` — **REQUIRED**. If missing, STOP → handoff to Bicep Plan agent
-2. `04-governance-constraints.json` — **REQUIRED**. If missing, STOP → request governance discovery
-3. `04-governance-constraints.md` — **REQUIRED**. Human-readable governance constraints
+2. `04-governance-constraints.json` + `.md` — **REQUIRED**. If missing, STOP → request governance discovery
+3. **Wave 1+ contract artifacts** — `04-iac-contract.json`,
+   `04-policy-property-map.json`, and `04-environment-manifest.json`
+   (when identity / app regs / alerts / budgets are used). See
+   [`iac-common/references/contract-emission-and-handoff.md`](../skills/iac-common/references/contract-emission-and-handoff.md)
+   → "Inputs from Step 4". Bicep param shape:
+   [`bicepparam-pattern.md`](../skills/azure-bicep-patterns/references/bicepparam-pattern.md).
+   Identity rules:
+   [`identity-resolution.md`](../skills/azure-defaults/references/identity-resolution.md).
+   If any required Wave 1+ artifact is missing, STOP → handoff to Planner.
 
 Also read `02-architecture-assessment.md` for SKU/tier context.
 
@@ -301,22 +309,29 @@ This agent substitutes Bicep-specific tools below.
 
 ### Phase 1: Preflight Check (MANDATORY)
 
-For EACH resource in `04-implementation-plan.md`:
+For EACH resource in `04-iac-contract.json#resources[]` (canonical
+source; `04-implementation-plan.md` is the prose mirror):
 
 1. `mcp_bicep_list_avm_metadata` → check AVM availability
 2. `mcp_bicep_resolve_avm_module` → retrieve parameter schema
-3. Cross-check planned parameters against schema; flag type mismatches (see AVM Known Pitfalls)
+3. Cross-check `04-iac-contract.json#modules.bicep[]` source + version
+   pins against schema; flag type mismatches (see AVM Known Pitfalls)
 4. Check region limitations
 5. Save to `agent-output/{project}/04-preflight-check.md`
-6. If blockers found, use the `askQuestions` tool to present
-   them in a single interactive form. Build one question with:
-   - header: "Preflight Blockers Found"
-   - question: Brief summary of blockers (e.g. "2 AVM schema mismatches,
-     1 region limitation. See 04-preflight-check.md for details.")
-   - Options: **Fix and re-run preflight** (recommended) / **Abort — return to Planner**
-     Do not list blockers in chat text and ask the user to reply.
-     The `askQuestions` tool presents an inline form the user fills out in one shot.
-     If the user chooses to abort, STOP and present the Return to Step 4 handoff.
+6. If blockers found, use the `askQuestions` tool with a single
+   form (header `Preflight Blockers Found`, options **Fix and re-run
+   preflight** / **Abort — return to Planner**) per
+   [`iac-common/references/codegen-shared-workflow.md`](../skills/iac-common/references/codegen-shared-workflow.md)
+   → "Preflight Blocker Form". On abort, STOP and present the Return
+   to Step 4 handoff.
+
+**Contract integrity gate (MANDATORY, Wave 1+)** — before exiting
+Phase 1, run the three contract validators
+(`validate:iac-contract`, `validate:iac-contract-consistency`,
+`validate:policy-property-map`) per
+[`iac-common/references/contract-emission-and-handoff.md`](../skills/iac-common/references/contract-emission-and-handoff.md)
+→ "Phase 1". Any non-zero exit ⇒ STOP and traverse `↩ Return to Step 4`.
+CodeGen never patches the contract.
 
 **Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 5 phase_1_preflight --json`
 
@@ -482,7 +497,20 @@ from disk only if you need full finding details for fix triage. Fix any
 
 Save validation status in `05-implementation-reference.md`. Run `npm run lint:artifact-templates`.
 
-**On completion** (MANDATORY): `apex-recall complete-step <project> 5 --json`
+### Phase 4.6 + Phase 6: Validate Gate & IaC Handoff (MANDATORY, Wave 1+)
+
+Documented end-to-end in
+[`iac-common/references/contract-emission-and-handoff.md`](../skills/iac-common/references/contract-emission-and-handoff.md).
+Bicep specifics:
+
+- **Phase 4.6** — `az deployment sub validate` against
+  `main.bicep` + env-rendered `*.bicepparam` (shared ref → Phase 4.6 → Bicep).
+- **Phase 6** — emit `agent-output/{project}/05-iac-handoff.json` with
+  `entrypoint.kind = bicep-main` and `tree_hash` root `infra/bicep/{project}/`
+  (shared ref → Phase 6). `npm run validate:iac-handoff` must pass.
+
+**Checkpoints**: `phase_4.6_validate_gate` then `phase_6_handoff`.
+**On completion**: `apex-recall complete-step <project> 5 --json`
 
 ## File Structure
 
@@ -513,8 +541,12 @@ In `agent-output/{project}/`:
 
 - `04-preflight-check.md` — Preflight validation results
 - `05-implementation-reference.md` — Template structure and validation status
+- `05-iac-handoff.json` — **Wave 3+** machine-readable handoff
+  (deploy agent reads this, not the prose reference)
 
-Validation: `bicep build main.bicep` + `bicep lint main.bicep` + `npm run lint:artifact-templates`.
+Validation: `bicep build main.bicep` + `bicep lint main.bicep` +
+`az deployment sub validate` (Phase 4.6) + `npm run validate:iac-handoff` +
+`npm run lint:artifact-templates`.
 
 ## User Updates
 

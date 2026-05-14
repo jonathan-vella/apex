@@ -1,4 +1,5 @@
 <!-- ref:api-permissions-v1 -->
+
 # API Permissions Guide
 
 This document explains how to configure and manage API permissions for your Microsoft Entra app registration.
@@ -10,11 +11,13 @@ This document explains how to configure and manage API permissions for your Micr
 **What:** Application acts on behalf of a signed-in user
 
 **When to use:**
+
 - User is present and can consent
 - App needs to access resources as the user
 - Interactive authentication flows
 
 **Examples:**
+
 - Read user's email
 - Update user's calendar
 - Access user's OneDrive files
@@ -26,11 +29,13 @@ This document explains how to configure and manage API permissions for your Micr
 **What:** Application acts with its own identity (no user)
 
 **When to use:**
+
 - Background services, daemons
 - Scheduled jobs
 - API-to-API calls without user
 
 **Examples:**
+
 - Read all users in organization
 - Send mail as any user
 - Access all SharePoint sites
@@ -44,6 +49,7 @@ This document explains how to configure and manage API permissions for your Micr
 **Scope:** A string that defines what access is granted
 
 **Format:**
+
 ```
 {resource}/{permission_name}
 
@@ -63,6 +69,7 @@ api://your-api-id/.default
 ```
 
 **When to use:**
+
 - Client credentials flow (always)
 - Want all pre-configured permissions
 - Migrating from v1.0 endpoint
@@ -71,34 +78,34 @@ api://your-api-id/.default
 
 ### Common Delegated Permissions
 
-| Permission | What it allows | Admin Consent Required |
-|------------|---------------|----------------------|
-| `User.Read` | Read signed-in user's profile | No |
-| `User.ReadWrite` | Read and update user profile | No |
-| `User.ReadBasic.All` | Read basic info of all users | No |
-| `User.Read.All` | Read all users' full profiles | Yes |
-| `Mail.Read` | Read user's mail | No |
-| `Mail.ReadWrite` | Read and write user's mail | No |
-| `Mail.Send` | Send mail as user | No |
-| `Calendars.Read` | Read user's calendars | No |
-| `Calendars.ReadWrite` | Read and write calendars | No |
-| `Files.Read.All` | Read all files user can access | No |
-| `Sites.Read.All` | Read items in all site collections | Yes |
-| `Directory.Read.All` | Read directory data | Yes |
-| `Directory.ReadWrite.All` | Read and write directory data | Yes |
+| Permission                | What it allows                     | Admin Consent Required |
+| ------------------------- | ---------------------------------- | ---------------------- |
+| `User.Read`               | Read signed-in user's profile      | No                     |
+| `User.ReadWrite`          | Read and update user profile       | No                     |
+| `User.ReadBasic.All`      | Read basic info of all users       | No                     |
+| `User.Read.All`           | Read all users' full profiles      | Yes                    |
+| `Mail.Read`               | Read user's mail                   | No                     |
+| `Mail.ReadWrite`          | Read and write user's mail         | No                     |
+| `Mail.Send`               | Send mail as user                  | No                     |
+| `Calendars.Read`          | Read user's calendars              | No                     |
+| `Calendars.ReadWrite`     | Read and write calendars           | No                     |
+| `Files.Read.All`          | Read all files user can access     | No                     |
+| `Sites.Read.All`          | Read items in all site collections | Yes                    |
+| `Directory.Read.All`      | Read directory data                | Yes                    |
+| `Directory.ReadWrite.All` | Read and write directory data      | Yes                    |
 
 ### Common Application Permissions
 
-| Permission | What it allows | Admin Consent Required |
-|------------|---------------|----------------------|
-| `User.Read.All` | Read all users' full profiles | Yes (Always) |
-| `User.ReadWrite.All` | Read and write all users' profiles | Yes (Always) |
-| `Mail.Read` | Read mail in all mailboxes | Yes (Always) |
-| `Mail.Send` | Send mail as any user | Yes (Always) |
-| `Calendars.Read` | Read calendars in all mailboxes | Yes (Always) |
-| `Directory.Read.All` | Read directory data | Yes (Always) |
-| `Directory.ReadWrite.All` | Read and write directory data | Yes (Always) |
-| `Group.ReadWrite.All` | Read and write all groups | Yes (Always) |
+| Permission                | What it allows                     | Admin Consent Required |
+| ------------------------- | ---------------------------------- | ---------------------- |
+| `User.Read.All`           | Read all users' full profiles      | Yes (Always)           |
+| `User.ReadWrite.All`      | Read and write all users' profiles | Yes (Always)           |
+| `Mail.Read`               | Read mail in all mailboxes         | Yes (Always)           |
+| `Mail.Send`               | Send mail as any user              | Yes (Always)           |
+| `Calendars.Read`          | Read calendars in all mailboxes    | Yes (Always)           |
+| `Directory.Read.All`      | Read directory data                | Yes (Always)           |
+| `Directory.ReadWrite.All` | Read and write directory data      | Yes (Always)           |
+| `Group.ReadWrite.All`     | Read and write all groups          | Yes (Always)           |
 
 ## Adding Permissions
 
@@ -153,11 +160,13 @@ az ad sp list --filter "appId eq '00000003-0000-0000-c000-000000000000'" \
 ### When Admin Consent is Required
 
 **Always required for:**
+
 - All application permissions
 - High-privilege delegated permissions
 - When organization disables user consent
 
 **Examples requiring admin consent:**
+
 - `User.Read.All` (read all users)
 - `Directory.Read.All` (read directory)
 - `Mail.Read` (application permission)
@@ -166,12 +175,14 @@ az ad sp list --filter "appId eq '00000003-0000-0000-c000-000000000000'" \
 ### How to Grant Admin Consent
 
 **Portal Method:**
+
 1. Go to API permissions
 2. Click **"Grant admin consent for [Your Org]"**
 3. Confirm the action
 4. Check for green checkmarks next to permissions
 
 **CLI Method:**
+
 ```bash
 az ad app permission admin-consent --id $APP_ID
 ```
@@ -181,6 +192,7 @@ az ad app permission admin-consent --id $APP_ID
 **Portal:** Look for green checkmarks in "Status" column
 
 **CLI:**
+
 ```bash
 az ad app permission list --id $APP_ID
 ```
@@ -210,6 +222,7 @@ If you're building an API that other apps will call:
 **Delegated permissions:** Intersection of user's permissions and app's permissions
 
 Example:
+
 - User can: Read all users
 - App granted: User.Read.All
 - **Effective:** Read all users ✅
@@ -225,12 +238,14 @@ Example:
 ### "Insufficient privileges" Error
 
 **Causes:**
+
 - Permission not added to app registration
 - Admin consent not granted
 - User lacks permission in directory
 - Accessing resource outside permission scope
 
 **Solutions:**
+
 1. Check API permissions in portal
 2. Grant admin consent if needed
 3. Verify user has access to resource
@@ -239,11 +254,13 @@ Example:
 ### "Consent required" Error
 
 **Causes:**
+
 - User hasn't consented to permissions
 - Admin consent required but not granted
 - Token obtained before permission added
 
 **Solutions:**
+
 1. Request user consent (interactive flow)
 2. Admin grants consent (portal or CLI)
 3. Acquire new token after adding permissions
@@ -251,12 +268,14 @@ Example:
 ### Permission Appears Granted but Doesn't Work
 
 **Possible issues:**
+
 - Using old cached token (get new one)
 - Permission is delegated but user lacks rights
 - API requires additional configuration
 - Permission deprecated (use new one)
 
 **Debug steps:**
+
 1. Decode access token: https://jwt.ms
 2. Check `scp` claim (delegated) or `roles` claim (application)
 3. Verify permission is present in token
@@ -267,12 +286,14 @@ Example:
 ### Development
 
 ✅ **Do:**
+
 - Start with minimal permissions
 - Add incrementally as features require
 - Test with non-admin accounts
 - Document why each permission is needed
 
 ❌ **Don't:**
+
 - Request all permissions "just in case"
 - Use admin account for testing only
 - Forget to grant admin consent for app permissions
@@ -280,6 +301,7 @@ Example:
 ### Production
 
 ✅ **Do:**
+
 - Review permissions quarterly
 - Remove unused permissions
 - Use least privilege principle
@@ -287,6 +309,7 @@ Example:
 - Document all permissions in README
 
 ❌ **Don't:**
+
 - Grant excessive permissions for convenience
 - Use application permissions when delegated would work
 - Forget to rotate admin consent approvals
@@ -294,12 +317,14 @@ Example:
 ### Security
 
 ✅ **Do:**
+
 - Prefer delegated over application permissions
 - Implement proper scope validation
 - Log permission usage
 - Handle consent errors gracefully
 
 ❌ **Don't:**
+
 - Hardcode permission scopes in multiple places
 - Skip token validation
 - Ignore scope mismatches
@@ -310,6 +335,7 @@ Example:
 ### Microsoft Graph Permission IDs
 
 **Delegated Permissions:**
+
 ```
 User.Read                     : e1fe6dd8-ba31-4d61-89e7-88639da4683d
 User.ReadWrite                : b4e74841-8e56-480b-be8b-910348b18b4c
@@ -323,6 +349,7 @@ Files.Read.All                : df85f4d6-205c-4ac5-a5ea-6bf408dba283
 ```
 
 **Application Permissions:**
+
 ```
 User.Read.All                 : df021288-bdef-4463-88db-98f22de89214
 User.ReadWrite.All            : 741f803b-c850-494e-b5df-cde7c675a1ca

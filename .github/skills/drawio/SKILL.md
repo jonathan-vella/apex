@@ -150,6 +150,13 @@ Concise summary; load [`references/style-reference.md`](references/style-referen
   when using `shape_name`; the MCP server auto-applies correct values.
 - **Transactional mode MUST end with `finish-diagram`** — otherwise the diagram
   keeps ~2KB placeholders instead of real SVG icons.
+- **`shape=image` + `image=data:image/svg+xml;base64,…` is the RESOLVED form** —
+  do NOT confuse it with `placeholder=1`. After `finish-diagram(compress: true)`,
+  every Azure icon appears as `shape=image;…;image=data:image/svg+xml;base64,<svg>`
+  with a multi-path Azure-brand SVG inside. The validator counts these as
+  `totalImages` (real icons). The `placeholder=1` style attribute is the ONLY
+  marker of an unresolved transactional cell — count it with
+  `grep -c 'placeholder=1' file.drawio` before declaring a diagram broken.
 - **Never read large MCP responses through the LLM** — extract data via terminal
   (Python script) to avoid context-window inflation.
 - **Batch-only workflow** — every tool accepting arrays is called ONCE with ALL items.

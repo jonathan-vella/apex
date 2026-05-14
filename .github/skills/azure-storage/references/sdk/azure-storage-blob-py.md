@@ -5,9 +5,11 @@
 > in the **azure-storage-blob-py** plugin skill if installed.
 
 ## Install
+
 pip install azure-storage-blob azure-identity
 
 ## Quick Start
+
 ```python
 from azure.storage.blob import BlobServiceClient
 from azure.identity import DefaultAzureCredential
@@ -15,6 +17,7 @@ blob_service_client = BlobServiceClient("https://<account>.blob.core.windows.net
 ```
 
 ## Best Practices
+
 - Use DefaultAzureCredential for **local development only** — in production, use ManagedIdentityCredential. See [auth-best-practices.md](../auth-best-practices.md)
 - Use context managers for async clients
 - Set `overwrite=True` explicitly when re-uploading

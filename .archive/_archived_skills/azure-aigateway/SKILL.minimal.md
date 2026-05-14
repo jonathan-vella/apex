@@ -7,7 +7,8 @@
 **Quick Reference**:
 
 **Get Gateway Details**:
-```bash
+
+````bash
 
 **Test AI Endpoint**:
 ```bash
@@ -26,3 +27,4 @@ See [references/troubleshooting.md](references/troubleshooting.md) for details.
 Load these on demand — do NOT read all at once:
 
 Read `SKILL.md` or `SKILL.digest.md` for full content.
+````

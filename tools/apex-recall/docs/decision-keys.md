@@ -61,6 +61,7 @@ Specifically:
 
 | Key                       | Valid values                                          | Default behaviour if absent       | Set by         | Read by                                |
 | ------------------------- | ----------------------------------------------------- | --------------------------------- | -------------- | -------------------------------------- |
+| `design_scope`            | `diagrams` \| `adrs` \| `both`                        | Design Phase 00 gate raises question | 04-Design   | 04-Design workflow routing (Phase 0 + Sections 1/2) |
 | `diagram_tool`            | `drawio` \| `python`                                  | Design Phase 0 gate raises question | 04-Design     | 04-Design workflow routing             |
 
 ### Step 3.5 (Governance) keys

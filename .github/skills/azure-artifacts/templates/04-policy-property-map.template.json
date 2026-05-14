@@ -1,0 +1,25 @@
+{
+  "$schema": "../../../../tools/schemas/policy-property-map.schema.json",
+  "schema_version": "policy-property-map-v1",
+  "project": "{project-name}",
+  "generated_at": "{ISO-8601 timestamp}",
+  "governance_depth": "full",
+  "constraints_ref": {
+    "path": "04-governance-constraints.json",
+    "sha256": "{sha256 of governance constraints}"
+  },
+  "policies": [
+    {
+      "policy_id": "404c3081-a854-4457-ae30-26a93ef643f9",
+      "display_name": "Secure transfer to storage accounts should be enabled",
+      "effect": "Deny",
+      "target_property": {
+        "resource_type": "Microsoft.Storage/storageAccounts",
+        "property_path": "properties.supportsHttpsTrafficOnly",
+        "expected_value": true
+      },
+      "evidence_required": "AVM module call avm/res/storage/storage-account must set supportsHttpsTrafficOnly: true (default) — attest via L2 row.",
+      "rationale": "WAF Security: enforces HTTPS-only data plane access; required by APEX security baseline."
+    }
+  ]
+}

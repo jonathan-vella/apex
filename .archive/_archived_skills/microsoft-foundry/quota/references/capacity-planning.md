@@ -7,10 +7,12 @@ Comprehensive guide for planning Azure AI Foundry capacity, including cost analy
 ## Cost Comparison: TPM vs PTU
 
 > **Official Pricing Sources:**
+>
 > - [Azure OpenAI Service Pricing](https://azure.microsoft.com/en-us/pricing/details/cognitive-services/openai-service/) - Official pay-per-token rates
 > - [PTU Costs and Billing Guide](https://learn.microsoft.com/en-us/azure/ai-foundry/openai/how-to/provisioned-throughput-onboarding) - PTU hourly rates and capacity planning
 
 **TPM (Standard) Pricing:**
+
 - Pay-per-token for input/output
 - No upfront commitment
 - **Rates**: See [Azure OpenAI Pricing](https://azure.microsoft.com/en-us/pricing/details/cognitive-services/openai-service/)
@@ -20,6 +22,7 @@ Comprehensive guide for planning Azure AI Foundry capacity, including cost analy
 - **Best for**: Variable workloads, unpredictable traffic
 
 **PTU (Provisioned) Pricing:**
+
 - Hourly billing: `$/PTU/hr × PTUs × 730 hrs/month`
 - Monthly commitment with Reservations discounts
 - **Rates**: See [PTU Billing Guide](https://learn.microsoft.com/en-us/azure/ai-foundry/openai/how-to/provisioned-throughput-onboarding)
@@ -58,12 +61,12 @@ Scenario: 1M requests/day, average 1,000 tokens per request
 
 Real-world production scenarios with capacity calculations for gpt-4, version 0613 (from Azure Foundry Portal calculator):
 
-| Workload Type | Calls/Min | Prompt Tokens | Response Tokens | Cache Hit % | Total Tokens/Min | PTU Required | TPM Equivalent |
-|---------------|-----------|---------------|-----------------|-------------|------------------|--------------|----------------|
-| **RAG Chat** | 10 | 3,500 | 300 | 20% | 38,000 | 100 | 38K TPM |
-| **Basic Chat** | 10 | 500 | 100 | 20% | 6,000 | 100 | 6K TPM |
-| **Summarization** | 10 | 5,000 | 300 | 20% | 53,000 | 100 | 53K TPM |
-| **Classification** | 10 | 3,800 | 10 | 20% | 38,100 | 100 | 38K TPM |
+| Workload Type      | Calls/Min | Prompt Tokens | Response Tokens | Cache Hit % | Total Tokens/Min | PTU Required | TPM Equivalent |
+| ------------------ | --------- | ------------- | --------------- | ----------- | ---------------- | ------------ | -------------- |
+| **RAG Chat**       | 10        | 3,500         | 300             | 20%         | 38,000           | 100          | 38K TPM        |
+| **Basic Chat**     | 10        | 500           | 100             | 20%         | 6,000            | 100          | 6K TPM         |
+| **Summarization**  | 10        | 5,000         | 300             | 20%         | 53,000           | 100          | 53K TPM        |
+| **Classification** | 10        | 3,800         | 10              | 20%         | 38,100           | 100          | 38K TPM        |
 
 **How to Calculate Your Needs:**
 
@@ -76,6 +79,7 @@ Real-world production scenarios with capacity calculations for gpt-4, version 06
    - **PTU (Provisioned)**: Use Azure AI Foundry portal PTU calculator for exact PTU count (Microsoft Foundry → Operate → Quota → Provisioned Throughput Unit tab)
 
 **Example Calculation (RAG Chat Production):**
+
 - Peak: 10 calls/min
 - Prompt: 3,500 tokens (context + question)
 - Response: 300 tokens (answer)
@@ -91,29 +95,30 @@ For the combined workload (40 calls/min, 135K tokens/min total), use **200 PTU**
 ## Model Selection and Deployment Type Guidance
 
 > **Official Documentation:**
+>
 > - [Choose the Right AI Model for Your Workload](https://learn.microsoft.com/en-us/azure/architecture/ai-ml/guide/choose-ai-model) - Microsoft Architecture Center
 > - [Azure OpenAI Models](https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/models) - Model capabilities, regions, and quotas
 > - [Understanding Deployment Types](https://learn.microsoft.com/en-us/azure/ai-foundry/foundry-models/concepts/deployment-types) - Standard vs Provisioned guidance
 
 **Model Characteristics** (from [official Azure OpenAI documentation](https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/models)):
 
-| Model | Key Characteristics | Best For |
-|-------|---------------------|----------|
-| **GPT-4o** | Matches GPT-4 Turbo performance in English text/coding, superior in non-English and vision tasks. Cheaper and faster than GPT-4 Turbo. | Multimodal tasks, cost-effective general purpose, high-volume production workloads |
-| **GPT-4 Turbo** | Superior reasoning capabilities, larger context window (128K tokens) | Complex reasoning tasks, long-context analysis |
-| **GPT-3.5 Turbo** | Most cost-effective, optimized for chat and completions, fast response time | Simple tasks, customer service, high-volume low-cost scenarios |
-| **GPT-4o mini** | Fastest response time, low latency | Latency-sensitive applications requiring immediate responses |
-| **text-embedding-3-large** | Purpose-built for vector embeddings | RAG applications, semantic search, document similarity |
+| Model                      | Key Characteristics                                                                                                                    | Best For                                                                           |
+| -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| **GPT-4o**                 | Matches GPT-4 Turbo performance in English text/coding, superior in non-English and vision tasks. Cheaper and faster than GPT-4 Turbo. | Multimodal tasks, cost-effective general purpose, high-volume production workloads |
+| **GPT-4 Turbo**            | Superior reasoning capabilities, larger context window (128K tokens)                                                                   | Complex reasoning tasks, long-context analysis                                     |
+| **GPT-3.5 Turbo**          | Most cost-effective, optimized for chat and completions, fast response time                                                            | Simple tasks, customer service, high-volume low-cost scenarios                     |
+| **GPT-4o mini**            | Fastest response time, low latency                                                                                                     | Latency-sensitive applications requiring immediate responses                       |
+| **text-embedding-3-large** | Purpose-built for vector embeddings                                                                                                    | RAG applications, semantic search, document similarity                             |
 
 **Deployment Type Selection** (from [official deployment types guide](https://learn.microsoft.com/en-us/azure/ai-foundry/foundry-models/concepts/deployment-types)):
 
-| Traffic Pattern | Recommended Deployment Type | Reason |
-|-----------------|---------------------------|---------|
-| **Variable, bursty traffic** | Standard or Global Standard (pay-per-token) | No commitment, pay only for usage |
-| **Consistent high volume** | Provisioned types (PTU) | Reserved capacity, predictable costs |
-| **Large batch jobs (non-time-sensitive)** | Global Batch or DataZone Batch | 50% cost savings vs Standard |
-| **Low latency variance required** | Provisioned types | Guaranteed throughput, no rate limits |
-| **No regional restrictions** | Global Standard or Global Provisioned | Access to best available capacity |
+| Traffic Pattern                           | Recommended Deployment Type                 | Reason                                |
+| ----------------------------------------- | ------------------------------------------- | ------------------------------------- |
+| **Variable, bursty traffic**              | Standard or Global Standard (pay-per-token) | No commitment, pay only for usage     |
+| **Consistent high volume**                | Provisioned types (PTU)                     | Reserved capacity, predictable costs  |
+| **Large batch jobs (non-time-sensitive)** | Global Batch or DataZone Batch              | 50% cost savings vs Standard          |
+| **Low latency variance required**         | Provisioned types                           | Guaranteed throughput, no rate limits |
+| **No regional restrictions**              | Global Standard or Global Provisioned       | Access to best available capacity     |
 
 **Capacity Planning Approach** (from [PTU onboarding guide](https://learn.microsoft.com/en-us/azure/ai-foundry/openai/how-to/provisioned-throughput-onboarding)):
 

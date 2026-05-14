@@ -8,6 +8,7 @@
 Use `microsoft_code_sample_search` to get official, working examples:
 
 **API Lookups**:
+
 ```text
 
 **Error Troubleshooting**:
@@ -23,3 +24,4 @@ Before generating code using Microsoft SDKs, verify it's correct:
 If the Learn MCP server is not available, use the `mslearn` CLI via Bash instead:
 
 Read `SKILL.md` or `SKILL.digest.md` for full content.
+```

@@ -7,21 +7,23 @@
 
 ## Deployment
 
-| Property | Value |
-|----------|-------|
-| Function App | `func-api-jrfqkfm6l63is` |
-| Resource Group | `rg-mcp-func-dev` |
-| Region | eastus2 |
-| Base Template | `functions-quickstart-python-http-azd` |
+| Property       | Value                                  |
+| -------------- | -------------------------------------- |
+| Function App   | `func-api-jrfqkfm6l63is`               |
+| Resource Group | `rg-mcp-func-dev`                      |
+| Region         | eastus2                                |
+| Base Template  | `functions-quickstart-python-http-azd` |
 
 ## Test Results
 
 ### Health Endpoint
+
 ```json
-{"status": "healthy", "type": "mcp", "tools": ["get_weather", "search_docs"]}
+{ "status": "healthy", "type": "mcp", "tools": ["get_weather", "search_docs"] }
 ```
 
 ### tools/list
+
 ```json
 {
   "jsonrpc": "2.0",
@@ -33,7 +35,7 @@
         "parameters": {...}
       },
       {
-        "name": "search_docs", 
+        "name": "search_docs",
         "description": "Search documentation for a query",
         "parameters": {...}
       }
@@ -44,6 +46,7 @@
 ```
 
 ### tools/call - get_weather
+
 ```json
 {
   "jsonrpc": "2.0",
@@ -57,26 +60,26 @@
 ```
 
 ### tools/call - search_docs
+
 ```json
 {
   "jsonrpc": "2.0",
   "result": {
-    "results": [
-      "Doc 1 about Azure Functions",
-      "Doc 2 about Azure Functions"
-    ]
+    "results": ["Doc 1 about Azure Functions", "Doc 2 about Azure Functions"]
   },
   "id": 3
 }
 ```
 
 ## Functions Deployed
+
 - `mcp_handler` - POST /api/mcp (JSON-RPC endpoint)
 - `health_check` - GET /api/health
 
 ## Verdict
 
 ✅ **PASS** - MCP recipe works correctly:
+
 - JSON-RPC 2.0 protocol implemented
 - `tools/list` returns tool definitions with schemas
 - `tools/call` executes tools and returns results

@@ -1,15 +1,17 @@
 <!-- ref:aspnetcore-v1 -->
+
 ## Modify code
 
 Make these necessary changes to the app.
 
 - Install client library
+
 ```
 dotnet add package Azure.Monitor.OpenTelemetry.AspNetCore
 ```
 
 - Configure the app to use Azure Monitor
-An ASP.NET Core app typically has a Program.cs file that "builds" the app. Find this file and apply these changes.
+  An ASP.NET Core app typically has a Program.cs file that "builds" the app. Find this file and apply these changes.
   - Add `using Azure.Monitor.OpenTelemetry.AspNetCore;` at the top
   - Before calling `builder.Build()`, add this line `builder.Services.AddOpenTelemetry().UseAzureMonitor();`.
 

@@ -5,6 +5,7 @@
 > in the **azure-identity-dotnet** plugin skill if installed.
 
 ## Install
+
 dotnet add package Azure.Identity
 
 ## Quick Start
@@ -17,6 +18,7 @@ var credential = new DefaultAzureCredential();
 ```
 
 ## Best Practices
+
 - Use DefaultAzureCredential for **local development only**. In production, use deterministic credentials (ManagedIdentityCredential) — see [auth-best-practices.md](../auth-best-practices.md)
 - Reuse credential instances — single instance shared across clients
 - Configure retry policies for credential operations

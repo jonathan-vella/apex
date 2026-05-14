@@ -64,6 +64,7 @@ IF integration IN [cosmosdb, sql, servicebus, eventhubs, blob]:
 ### Step 3: Add IaC Module (for full recipes only)
 
 **Bicep:**
+
 1. Copy `recipes/{integration}/bicep/*.bicep` → `infra/app/`
 2. Add module reference in `infra/main.bicep`:
    ```bicep
@@ -84,6 +85,7 @@ IF integration IN [cosmosdb, sql, servicebus, eventhubs, blob]:
    ```
 
 **Terraform:**
+
 1. Copy `recipes/{integration}/terraform/*.tf` → `infra/`
 2. Merge `locals.{integration}_app_settings` into function app's `app_setting` block in `main.tf`
 3. Networking is conditional (uses `count = var.vnet_enabled ? 1 : 0`)
@@ -110,6 +112,7 @@ Read the recipe's `README.md` for required app settings. Add them to the functio
 > Without these, the function will fail with 500/Unauthorized errors.
 
 **Bicep Example (Cosmos DB):**
+
 ```bicep
 appSettings: {
   COSMOS_CONNECTION__accountEndpoint: cosmos.outputs.cosmosAccountEndpoint
@@ -121,6 +124,7 @@ appSettings: {
 ```
 
 **Bicep Example (Event Hubs):**
+
 ```bicep
 appSettings: {
   EventHubConnection__fullyQualifiedNamespace: eventhubs.outputs.fullyQualifiedNamespace
@@ -132,6 +136,7 @@ appSettings: {
 ```
 
 **Terraform:** Merge recipe locals into function app:
+
 ```hcl
 app_setting = merge(local.base_app_settings, local.cosmos_app_settings)
 ```
@@ -140,13 +145,14 @@ app_setting = merge(local.base_app_settings, local.cosmos_app_settings)
 
 **Before proceeding, verify these UAMI settings exist for EVERY service binding:**
 
-| Setting Pattern | Required? | Example |
-|-----------------|-----------|---------|
-| `{Connection}__fullyQualifiedNamespace` or `{Connection}__accountEndpoint` | ✅ Yes | `EventHubConnection__fullyQualifiedNamespace` |
-| `{Connection}__credential` | ✅ Yes | `EventHubConnection__credential: 'managedidentity'` |
-| `{Connection}__clientId` | ✅ Yes | `EventHubConnection__clientId: uamiClientId` |
+| Setting Pattern                                                            | Required? | Example                                             |
+| -------------------------------------------------------------------------- | --------- | --------------------------------------------------- |
+| `{Connection}__fullyQualifiedNamespace` or `{Connection}__accountEndpoint` | ✅ Yes    | `EventHubConnection__fullyQualifiedNamespace`       |
+| `{Connection}__credential`                                                 | ✅ Yes    | `EventHubConnection__credential: 'managedidentity'` |
+| `{Connection}__clientId`                                                   | ✅ Yes    | `EventHubConnection__clientId: uamiClientId`        |
 
 **Validation Checklist:**
+
 - [ ] Each service binding has all THREE settings (namespace/endpoint + credential + clientId)
 - [ ] `credential` value is exactly `'managedidentity'` (not `'ManagedIdentity'` or other)
 - [ ] `clientId` references the UAMI from base template (e.g., `apiUserAssignedIdentity.outputs.clientId`)
@@ -167,9 +173,11 @@ app_setting = merge(local.base_app_settings, local.cosmos_app_settings)
 > See [common/nodejs-entry-point.md](common/nodejs-entry-point.md).
 
 > ⛔ **Node.js GLOB PATTERN REQUIRED**: The `package.json` `main` field MUST use the glob pattern:
+>
 > ```json
 > { "main": "src/{index.js,functions/*.js}" }
 > ```
+>
 > Using `"main": "src/index.js"` alone will result in 404 on ALL endpoints because functions won't be discovered.
 
 > ⛔ **Node.js Project Structure**: `package.json` MUST be at project ROOT (same level as `azure.yaml`), NOT inside `src/`.
@@ -187,6 +195,7 @@ app_setting = merge(local.base_app_settings, local.cosmos_app_settings)
 ### Step 6: Update azure.yaml (if needed)
 
 Some recipes require hooks (e.g., Cosmos firewall scripts for VNet):
+
 ```yaml
 hooks:
   postprovision:
@@ -201,6 +210,7 @@ hooks:
 ### Step 7: Validate and Deploy
 
 **Required Environment Setup:**
+
 ```bash
 azd env set AZURE_LOCATION eastus2      # Required: deployment region
 azd env set VNET_ENABLED false          # Required: VNet isolation (true/false)
@@ -209,11 +219,13 @@ azd env set VNET_ENABLED false          # Required: VNet isolation (true/false)
 **Deployment Strategy — Two Options:**
 
 **Option A: Single command** (fast, may fail on first deploy due to RBAC propagation)
+
 ```bash
 azd up --no-prompt
 ```
 
 **Option B: Two-phase** (recommended for reliability)
+
 ```bash
 azd provision --no-prompt     # Create resources + RBAC assignments
 sleep 60                       # Wait for RBAC propagation (Azure AD needs 30-60s)
@@ -225,14 +237,14 @@ azd deploy --no-prompt        # Deploy code (RBAC now active)
 
 ## Base Template Lookup
 
-| Language | Bicep Template | Terraform Template |
-|----------|---------------|-------------------|
-| dotnet | `functions-quickstart-dotnet-azd` | `functions-quickstart-dotnet-azd-tf` |
-| typescript | `functions-quickstart-typescript-azd` | `functions-quickstart-dotnet-azd-tf` * |
-| javascript | `functions-quickstart-javascript-azd` | `functions-quickstart-dotnet-azd-tf` * |
-| python | `functions-quickstart-python-http-azd` | `functions-quickstart-dotnet-azd-tf` * |
-| java | `azure-functions-java-flex-consumption-azd` | `functions-quickstart-dotnet-azd-tf` * |
-| powershell | `functions-quickstart-powershell-azd` | `functions-quickstart-dotnet-azd-tf` * |
+| Language   | Bicep Template                              | Terraform Template                      |
+| ---------- | ------------------------------------------- | --------------------------------------- |
+| dotnet     | `functions-quickstart-dotnet-azd`           | `functions-quickstart-dotnet-azd-tf`    |
+| typescript | `functions-quickstart-typescript-azd`       | `functions-quickstart-dotnet-azd-tf` \* |
+| javascript | `functions-quickstart-javascript-azd`       | `functions-quickstart-dotnet-azd-tf` \* |
+| python     | `functions-quickstart-python-http-azd`      | `functions-quickstart-dotnet-azd-tf` \* |
+| java       | `azure-functions-java-flex-consumption-azd` | `functions-quickstart-dotnet-azd-tf` \* |
+| powershell | `functions-quickstart-powershell-azd`       | `functions-quickstart-dotnet-azd-tf` \* |
 
 ### Terraform: Language Configuration
 
@@ -249,13 +261,13 @@ variable "function_runtime_version" {
 }
 ```
 
-| Language | `function_runtime` | Version Source |
-|----------|-------------------|----------------|
-| C# (.NET) | `dotnet-isolated` | Latest LTS from docs |
-| TypeScript/JS | `node` | Latest LTS from docs |
-| Python | `python` | Latest GA from docs |
-| Java | `java` | Latest LTS from docs |
-| PowerShell | `powershell` | Latest GA from docs |
+| Language      | `function_runtime` | Version Source       |
+| ------------- | ------------------ | -------------------- |
+| C# (.NET)     | `dotnet-isolated`  | Latest LTS from docs |
+| TypeScript/JS | `node`             | Latest LTS from docs |
+| Python        | `python`           | Latest GA from docs  |
+| Java          | `java`             | Latest LTS from docs |
+| PowerShell    | `powershell`       | Latest GA from docs  |
 
 > **⚠️ ALWAYS QUERY OFFICIAL DOCUMENTATION** — Do NOT use hardcoded versions.
 >
@@ -297,20 +309,20 @@ project-root/
 
 Some integrations require additional storage endpoints. Toggle these in `main.bicep` BEFORE provisioning:
 
-| Integration | enableBlob | enableQueue | enableTable | Notes |
-|-------------|:----------:|:-----------:|:-----------:|-------|
-| HTTP        | ✓          | -           | -           | Default |
-| Timer       | ✓          | -           | -           | Checkpointing uses blob |
-| Cosmos DB   | ✓          | -           | -           | Standard |
-| **Durable** | ✓          | -           | -           | Uses Durable Task Scheduler (not Storage queues/tables) |
-| **MCP**     | ✓          | **✓**       | -           | Queue=state mgmt + backplane |
+| Integration | enableBlob | enableQueue | enableTable | Notes                                                   |
+| ----------- | :--------: | :---------: | :---------: | ------------------------------------------------------- |
+| HTTP        |     ✓      |      -      |      -      | Default                                                 |
+| Timer       |     ✓      |      -      |      -      | Checkpointing uses blob                                 |
+| Cosmos DB   |     ✓      |      -      |      -      | Standard                                                |
+| **Durable** |     ✓      |      -      |      -      | Uses Durable Task Scheduler (not Storage queues/tables) |
+| **MCP**     |     ✓      |    **✓**    |      -      | Queue=state mgmt + backplane                            |
 
 ## Recipe Classification
 
-| Category | Integrations | What Recipe Provides |
-|----------|-------------|---------------------|
-| **Source-only** | timer, mcp | Source code snippet; may require minimal parameter toggles (e.g., `enableQueue`) but no new IaC modules |
-| **Full recipe** | cosmosdb, sql, servicebus, eventhubs, blob, durable | IaC modules + RBAC + networking + source code |
+| Category        | Integrations                                        | What Recipe Provides                                                                                    |
+| --------------- | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| **Source-only** | timer, mcp                                          | Source code snippet; may require minimal parameter toggles (e.g., `enableQueue`) but no new IaC modules |
+| **Full recipe** | cosmosdb, sql, servicebus, eventhubs, blob, durable | IaC modules + RBAC + networking + source code                                                           |
 
 ## Critical Rules
 
@@ -349,6 +361,7 @@ resource "azurerm_storage_account" "storage" {
 > The AzureRM provider doesn't yet support FC1's `functionAppConfig` block. See examples below.
 
 **Standard Consumption/Premium (azurerm)**
+
 ```hcl
 provider "azurerm" {
   features {}
@@ -358,20 +371,21 @@ provider "azurerm" {
 resource "azurerm_linux_function_app" "function" {
   # ... standard config ...
   storage_uses_managed_identity = true   # Use MI instead of access key
-  
+
   # When using MI storage, assign RBAC BEFORE creating function:
   depends_on = [azurerm_role_assignment.storage_blob_owner]
 }
 ```
 
 **Flex Consumption FC1 (azapi) — REQUIRED for FC1**
+
 ```hcl
 resource "azapi_resource" "function_app" {
   type      = "Microsoft.Web/sites@2023-12-01"
   name      = "func-${local.name}"
   location  = azurerm_resource_group.rg.location
   parent_id = azurerm_resource_group.rg.id
-  
+
   body = {
     kind = "functionapp,linux"
     properties = {
@@ -397,10 +411,11 @@ resource "azapi_resource" "function_app" {
 ```
 
 # RBAC for deploying user (required to create function with MI storage)
+
 resource "azurerm_role_assignment" "storage_blob_owner" {
-  scope                = azurerm_storage_account.storage.id
-  role_definition_name = "Storage Blob Data Owner"
-  principal_id         = data.azurerm_client_config.current.object_id
+scope = azurerm_storage_account.storage.id
+role_definition_name = "Storage Blob Data Owner"
+principal_id = data.azurerm_client_config.current.object_id
 }
 
 ### RBAC Propagation Delay (CRITICAL)
@@ -408,6 +423,7 @@ resource "azurerm_role_assignment" "storage_blob_owner" {
 Azure RBAC assignments take 30-60 seconds to propagate through Azure AD. Terraform's `depends_on` only waits for the **resource** to be created, not for RBAC to propagate. This causes 403 errors on first deployment.
 
 **Solution 1: Add `time_sleep` resource**
+
 ```hcl
 resource "time_sleep" "rbac_propagation" {
   depends_on      = [azurerm_role_assignment.storage_blob_owner]
@@ -421,6 +437,7 @@ resource "azapi_resource" "function_app" {
 ```
 
 **Solution 2: Create deployment container explicitly**
+
 ```hcl
 resource "azurerm_storage_container" "deployment" {
   name                  = "deploymentpackage"
@@ -431,6 +448,7 @@ resource "azurerm_storage_container" "deployment" {
 ```
 
 > ⚠️ **Common Failures Without These Fixes:**
+>
 > - `403 Forbidden` — RBAC not yet propagated
 > - `404 Container Not Found` — deployment container not created
 > - `Tag Not Found: azd-service-name` — Azure resource tags take time to be queryable

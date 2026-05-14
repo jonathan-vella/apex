@@ -14,12 +14,12 @@ Azure CLI workflow for imperative Azure deployments.
 
 **REQUIRED: Research best practices before generating any files.**
 
-| Artifact | Research Action |
-|----------|-----------------|
-| Bicep files | Call `mcp_bicep_get_bicep_best_practices` |
-| Bicep modules | Call `mcp_bicep_list_avm_metadata` and follow [AVM module order](../azd/iac-rules.md#avm-module-selection-order-mandatory) |
-| Azure CLI commands | Call `activate_azure_cli_management_tools` |
-| Azure best practices | Call `mcp_azure_mcp_get_bestpractices` |
+| Artifact             | Research Action                                                                                                            |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| Bicep files          | Call `mcp_bicep_get_bicep_best_practices`                                                                                  |
+| Bicep modules        | Call `mcp_bicep_list_avm_metadata` and follow [AVM module order](../azd/iac-rules.md#avm-module-selection-order-mandatory) |
+| Azure CLI commands   | Call `activate_azure_cli_management_tools`                                                                                 |
+| Azure best practices | Call `mcp_azure_mcp_get_bestpractices`                                                                                     |
 
 ## Generation Steps
 
@@ -28,6 +28,7 @@ Azure CLI workflow for imperative Azure deployments.
 Create Bicep templates in the project directory (co-located with `azure.yaml`).
 
 **Structure:**
+
 ```
 infra/
 ├── main.bicep
@@ -48,13 +49,13 @@ Manual Dockerfile creation required.
 
 ## Output Checklist
 
-| Artifact | Path |
-|----------|------|
-| Main Bicep | `./main.bicep` |
-| Parameters | `./main.parameters.json` |
-| Modules | `./modules/*.bicep` |
+| Artifact      | Path                                  |
+| ------------- | ------------------------------------- |
+| Main Bicep    | `./main.bicep`                        |
+| Parameters    | `./main.parameters.json`              |
+| Modules       | `./modules/*.bicep`                   |
 | Deploy script | `./scripts/deploy.sh` or `deploy.ps1` |
-| Dockerfiles | `src/<service>/Dockerfile` |
+| Dockerfiles   | `src/<service>/Dockerfile`            |
 
 ## Deployment Commands
 
@@ -63,6 +64,7 @@ See [commands.md](commands.md) for common patterns.
 ## Naming Convention
 
 Resources: `{prefix}{token}{instance}`
+
 - Alphanumeric only, no special characters
 - Prefix ≤3 chars (e.g., `kv` for Key Vault)
 - Token = 5 char random string

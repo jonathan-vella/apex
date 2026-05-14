@@ -3,6 +3,7 @@
 ## Dependencies
 
 **.csproj:**
+
 ```xml
 <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.*" />
 <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http" Version="3.*" />
@@ -12,6 +13,7 @@
 ## Source Code
 
 **McpTools.cs:**
+
 ```csharp
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -24,7 +26,7 @@ namespace McpFunctions;
 public class McpTools
 {
     private readonly ILogger<McpTools> _logger;
-    
+
     private static readonly object[] Tools = new[]
     {
         new {

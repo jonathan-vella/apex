@@ -46,6 +46,7 @@ Criteria for deletion candidates:
 - **Duplicate models**: Multiple deployments of same model/version in same region
 
 **Example pattern matching for stale deployments:**
+
 ```bash
 # Find deployments with test/temp naming
 az cognitiveservices account deployment list --name <resource> --resource-group <rg> \
@@ -64,12 +65,12 @@ az cognitiveservices account deployment delete --name <resource> --resource-grou
 
 **Cost Impact Analysis:**
 
-| Deployment Type | Capacity (TPM) | Quota Freed | Cost Impact (TPM) | Cost Impact (PTU) |
-|-----------------|----------------|-------------|-------------------|-------------------|
-| Test deployment | 10K TPM | 10K TPM | $0 (pay-per-use) | N/A |
-| Unused production | 100K TPM | 100K TPM | $0 (pay-per-use) | N/A |
-| Abandoned PTU deployment | 100 PTU | ~40K TPM equivalent | $0 TPM | **$3,650/month saved** (100 PTU × 730h × $0.05/h) |
-| High-capacity test | 450K TPM | 450K TPM | $0 (pay-per-use) | N/A |
+| Deployment Type          | Capacity (TPM) | Quota Freed         | Cost Impact (TPM) | Cost Impact (PTU)                                 |
+| ------------------------ | -------------- | ------------------- | ----------------- | ------------------------------------------------- |
+| Test deployment          | 10K TPM        | 10K TPM             | $0 (pay-per-use)  | N/A                                               |
+| Unused production        | 100K TPM       | 100K TPM            | $0 (pay-per-use)  | N/A                                               |
+| Abandoned PTU deployment | 100 PTU        | ~40K TPM equivalent | $0 TPM            | **$3,650/month saved** (100 PTU × 730h × $0.05/h) |
+| High-capacity test       | 450K TPM       | 450K TPM            | $0 (pay-per-use)  | N/A                                               |
 
 **Key Insight:** For TPM (Standard) deployments, deletion frees quota but has no direct cost impact (you pay per token used). For PTU (Provisioned) deployments, deletion **immediately stops hourly charges** and can save thousands per month.
 
@@ -78,11 +79,13 @@ az cognitiveservices account deployment delete --name <resource> --resource-grou
 ## 2. Right-Size Over-Provisioned Deployments
 
 **Identify over-provisioned deployments:**
+
 - Check Azure Monitor metrics for actual token usage
 - Compare allocated TPM vs. peak usage
 - Look for deployments with <50% utilization
 
 **Right-sizing example:**
+
 ```bash
 # Update deployment to lower capacity
 az cognitiveservices account deployment update --name <resource> --resource-group <rg> \
@@ -90,6 +93,7 @@ az cognitiveservices account deployment update --name <resource> --resource-grou
 ```
 
 **Cost Optimization:**
+
 - **TPM (Standard)**: Reduces regional quota consumption (no direct cost savings, pay-per-token)
 - **PTU (Provisioned)**: Direct cost reduction (40% capacity reduction = 40% cost reduction)
 
@@ -100,11 +104,13 @@ az cognitiveservices account deployment update --name <resource> --resource-grou
 **Pattern:** Multiple 10K TPM deployments → One 30-50K TPM deployment
 
 **Benefits:**
+
 - Fewer deployment slots consumed
 - Simpler management
 - Same total capacity, better utilization
 
 **Example:**
+
 - **Before**: 3 deployments @ 10K TPM each = 30K TPM total, 3 slots used
 - **After**: 1 deployment @ 30K TPM = 30K TPM total, 1 slot used
 - **Savings**: 2 deployment slots freed for other models

@@ -9,21 +9,21 @@ stages:
               steps:
                 - task: AzureCLI@2
                   inputs:
-                    azureSubscription: 'azure-dev'
-                    scriptType: 'bash'
+                    azureSubscription: "azure-dev"
+                    scriptType: "bash"
                     inlineScript: azd up --no-prompt --environment dev
 
   - stage: Prod
     dependsOn: Dev
     jobs:
       - deployment: DeployProd
-        environment: prod  # Configure approval in Azure DevOps
+        environment: prod # Configure approval in Azure DevOps
         strategy:
           runOnce:
             deploy:
               steps:
                 - task: AzureCLI@2
                   inputs:
-                    azureSubscription: 'azure-prod'
-                    scriptType: 'bash'
+                    azureSubscription: "azure-prod"
+                    scriptType: "bash"
                     inlineScript: azd up --no-prompt --environment prod

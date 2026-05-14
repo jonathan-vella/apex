@@ -2,13 +2,13 @@
 
 ## Test Summary
 
-| Test | Status | Notes |
-|------|--------|-------|
-| Code Syntax | ✅ PASS | Python v2 model decorator pattern |
+| Test              | Status  | Notes                                 |
+| ----------------- | ------- | ------------------------------------- |
+| Code Syntax       | ✅ PASS | Python v2 model decorator pattern     |
 | Event Hub Trigger | ✅ PASS | Uses `@app.event_hub_message_trigger` |
-| Batch Processing | ✅ PASS | Cardinality.MANY for throughput |
-| Output Binding | ✅ PASS | `@app.event_hub_output` decorator |
-| Health Endpoint | ✅ PASS | Anonymous auth |
+| Batch Processing  | ✅ PASS | Cardinality.MANY for throughput       |
+| Output Binding    | ✅ PASS | `@app.event_hub_output` decorator     |
+| Health Endpoint   | ✅ PASS | Anonymous auth                        |
 
 ## Code Validation
 

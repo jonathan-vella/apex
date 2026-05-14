@@ -22,10 +22,10 @@ No external resource or project connection is required. The web search tool work
 
 ## Configuration Options
 
-| Parameter | Description | Default |
-|-----------|-------------|---------|
-| `user_location` | Approximate location (country/region/city) for localized results | None |
-| `search_context_size` | Context window space for search: `low`, `medium`, `high` | `medium` |
+| Parameter             | Description                                                      | Default  |
+| --------------------- | ---------------------------------------------------------------- | -------- |
+| `user_location`       | Approximate location (country/region/city) for localized results | None     |
+| `search_context_size` | Context window space for search: `low`, `medium`, `high`         | `medium` |
 
 ## Administrator Control
 
@@ -41,14 +41,14 @@ Admins can enable or disable web search at the subscription level via Azure CLI.
 
 ## Troubleshooting
 
-| Issue | Cause | Resolution |
-|-------|-------|------------|
-| No citations appear | Model didn't determine web search was needed | Update instructions to explicitly allow web search; ask queries requiring current info |
-| Requests fail after enabling | Web search disabled at subscription level | Ask admin to enable — see Administrator Control above |
-| Authentication errors (REST) | Bearer token missing, expired, or insufficient | Refresh token; confirm project/agent access |
-| Outdated results | Content not recently indexed by Bing | Refine query to request most recent info |
-| No results for specific topics | Query too narrow | Broaden query; niche topics may have limited coverage |
-| Rate limiting (429) | Too many requests | Implement exponential backoff; space out requests |
+| Issue                          | Cause                                          | Resolution                                                                             |
+| ------------------------------ | ---------------------------------------------- | -------------------------------------------------------------------------------------- |
+| No citations appear            | Model didn't determine web search was needed   | Update instructions to explicitly allow web search; ask queries requiring current info |
+| Requests fail after enabling   | Web search disabled at subscription level      | Ask admin to enable — see Administrator Control above                                  |
+| Authentication errors (REST)   | Bearer token missing, expired, or insufficient | Refresh token; confirm project/agent access                                            |
+| Outdated results               | Content not recently indexed by Bing           | Refine query to request most recent info                                               |
+| No results for specific topics | Query too narrow                               | Broaden query; niche topics may have limited coverage                                  |
+| Rate limiting (429)            | Too many requests                              | Implement exponential backoff; space out requests                                      |
 
 ## References
 

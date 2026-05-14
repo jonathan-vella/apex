@@ -1,4 +1,5 @@
 <!-- ref:patterns-v1 -->
+
 # AI Gateway Configuration Patterns
 
 Step-by-step patterns for configuring Azure API Management as an AI Gateway.

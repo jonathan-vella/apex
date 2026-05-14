@@ -10,19 +10,22 @@
 ## 1. Problem Statement
 
 ### Current State
+
 The skill system references **~50+ standalone AZD templates** (10 trigger types × 5 languages), each a separate GitHub repo with full IaC. Adding Terraform doubles this to **100+**. Maintaining, propagating changes, and keeping IaC secure/correct across this fleet is unsustainable ("combinatorix hell").
 
 ### Failure Modes (Why Synthetic IaC Fails)
+
 1. **Bicep/Terraform generation from docs** produces subtly wrong IaC — missing `allowSharedKeyAccess: false`, wrong RBAC role GUIDs, incorrect `functionAppConfig` shapes for Flex Consumption
 2. **LLM-generated RBAC** picks wrong roles or forgets `principalType: 'ServicePrincipal'`
 3. **Networking (VNet/subnet)** is easy to misconfigure — private endpoints, NSG rules, service endpoints are template-specific
 4. **Agent fallback loops** — when IaC fails validation, the agent asks the user for more info or tries alternative approaches, wasting time
 
 ### Success Metrics (Our Evals)
-| Metric | Target |
-|--------|--------|
-| **Reliability** | 100% `azd up` success rate with zero user intervention or fallback |
-| **Speed** | Shortest time from prompt to deployed endpoint |
+
+| Metric             | Target                                                                     |
+| ------------------ | -------------------------------------------------------------------------- |
+| **Reliability**    | 100% `azd up` success rate with zero user intervention or fallback         |
+| **Speed**          | Shortest time from prompt to deployed endpoint                             |
 | **No elicitation** | Agent never asks user for more information or tries alternative approaches |
 
 ---
@@ -30,15 +33,16 @@ The skill system references **~50+ standalone AZD templates** (10 trigger types 
 ## 2. Hypothesis: HTTP Base + Composable Recipes
 
 ### Core Insight
+
 The HTTP templates (6 languages) are the **proven, battle-tested foundation**. They contain:
 
-| Layer | What HTTP Base Provides | Quality |
-|-------|------------------------|---------|
-| **Function Source Code** | HTTP GET/POST handlers per language | ✅ Working, tested |
-| **IaC — Core Resources** | Storage (no local auth), App Insights (no local auth), Flex Consumption plan, UAMI | ✅ Secure by default |
-| **IaC — Identity/RBAC** | `Storage Blob Data Owner` for Function→Storage, SystemAssigned identity for deployment | ✅ Correct role GUIDs |
-| **IaC — Networking** | VNet, subnet, private endpoints (VNET_ENABLED flag) | ✅ Tested |
-| **AZD Config** | `azure.yaml`, `main.parameters.json`, abbreviations | ✅ Working |
+| Layer                    | What HTTP Base Provides                                                                | Quality               |
+| ------------------------ | -------------------------------------------------------------------------------------- | --------------------- |
+| **Function Source Code** | HTTP GET/POST handlers per language                                                    | ✅ Working, tested    |
+| **IaC — Core Resources** | Storage (no local auth), App Insights (no local auth), Flex Consumption plan, UAMI     | ✅ Secure by default  |
+| **IaC — Identity/RBAC**  | `Storage Blob Data Owner` for Function→Storage, SystemAssigned identity for deployment | ✅ Correct role GUIDs |
+| **IaC — Networking**     | VNet, subnet, private endpoints (VNET_ENABLED flag)                                    | ✅ Tested             |
+| **AZD Config**           | `azure.yaml`, `main.parameters.json`, abbreviations                                    | ✅ Working            |
 
 ### Delta Analysis: What Integration Templates Add
 
@@ -59,30 +63,33 @@ where DELTA = {
 
 ### Template Decomposition Matrix
 
-| Template | Source Code Delta | IaC New Resources | RBAC Additions | Network Additions | App Settings |
-|----------|------------------|-------------------|----------------|-------------------|--------------|
-| **HTTP** (base) | — | — | — | — | — |
-| **Cosmos DB** | CosmosDBTrigger + leases | CosmosDB account + DB + containers(2) | `Cosmos DB Account Reader` + `SQL Data Contributor` on Cosmos→Function | Cosmos private endpoint + DNS zone | `COSMOS_CONNECTION__accountEndpoint`, `COSMOS_DATABASE_NAME`, `COSMOS_CONTAINER_NAME` |
-| **Azure SQL** | SqlTrigger | SQL Server + DB + firewall rules | Function identity as SQL admin | SQL private endpoint + DNS zone | `SQL_CONNECTION_STRING` (managed identity) |
-| **Service Bus** | ServiceBusTrigger | SB Namespace + Queue/Topic | `Service Bus Data Receiver` on SB→Function | SB private endpoint + DNS zone | `SERVICEBUS__fullyQualifiedNamespace`, queue name |
-| **Event Hubs** | EventHubTrigger | EH Namespace + Hub + consumer group + Storage for checkpoints | `Event Hubs Data Receiver` + `Storage Blob Data Contributor` for checkpoints | EH private endpoint + DNS zone | `EVENTHUB__fullyQualifiedNamespace`, hub name |
-| **Timer** | TimerTrigger | (none) | (none) | (none) | `TIMER_SCHEDULE` (cron) |
-| **Blob (EventGrid)** | BlobTrigger via EventGrid | EventGrid subscription + system topic | `Storage Blob Data Reader` on trigger storage | EventGrid endpoint | `BLOB_CONNECTION__blobServiceUri` |
-| **Durable** | DurableOrchestrationTrigger + Activities + Client | (none — uses existing Storage) | (none) | (none) | (none) |
-| **MCP** | MCPTrigger / `@app.mcp_tool` | (none extra beyond HTTP) | (none) | (none) | (none) |
+| Template             | Source Code Delta                                 | IaC New Resources                                             | RBAC Additions                                                               | Network Additions                  | App Settings                                                                          |
+| -------------------- | ------------------------------------------------- | ------------------------------------------------------------- | ---------------------------------------------------------------------------- | ---------------------------------- | ------------------------------------------------------------------------------------- |
+| **HTTP** (base)      | —                                                 | —                                                             | —                                                                            | —                                  | —                                                                                     |
+| **Cosmos DB**        | CosmosDBTrigger + leases                          | CosmosDB account + DB + containers(2)                         | `Cosmos DB Account Reader` + `SQL Data Contributor` on Cosmos→Function       | Cosmos private endpoint + DNS zone | `COSMOS_CONNECTION__accountEndpoint`, `COSMOS_DATABASE_NAME`, `COSMOS_CONTAINER_NAME` |
+| **Azure SQL**        | SqlTrigger                                        | SQL Server + DB + firewall rules                              | Function identity as SQL admin                                               | SQL private endpoint + DNS zone    | `SQL_CONNECTION_STRING` (managed identity)                                            |
+| **Service Bus**      | ServiceBusTrigger                                 | SB Namespace + Queue/Topic                                    | `Service Bus Data Receiver` on SB→Function                                   | SB private endpoint + DNS zone     | `SERVICEBUS__fullyQualifiedNamespace`, queue name                                     |
+| **Event Hubs**       | EventHubTrigger                                   | EH Namespace + Hub + consumer group + Storage for checkpoints | `Event Hubs Data Receiver` + `Storage Blob Data Contributor` for checkpoints | EH private endpoint + DNS zone     | `EVENTHUB__fullyQualifiedNamespace`, hub name                                         |
+| **Timer**            | TimerTrigger                                      | (none)                                                        | (none)                                                                       | (none)                             | `TIMER_SCHEDULE` (cron)                                                               |
+| **Blob (EventGrid)** | BlobTrigger via EventGrid                         | EventGrid subscription + system topic                         | `Storage Blob Data Reader` on trigger storage                                | EventGrid endpoint                 | `BLOB_CONNECTION__blobServiceUri`                                                     |
+| **Durable**          | DurableOrchestrationTrigger + Activities + Client | (none — uses existing Storage)                                | (none)                                                                       | (none)                             | (none)                                                                                |
+| **MCP**              | MCPTrigger / `@app.mcp_tool`                      | (none extra beyond HTTP)                                      | (none)                                                                       | (none)                             | (none)                                                                                |
 
 ### Symmetry Classification
 
 **High Symmetry (minimal delta from HTTP — only source code change):**
+
 - Timer — swap HTTP trigger for TimerTrigger, add cron schedule
 - Durable — add orchestrator, activity, client patterns
 - MCP — swap HTTP for MCP trigger attribute
 
 **Medium Symmetry (source + new resource + RBAC):**
+
 - Cosmos DB — add Cosmos account + RBAC + connection settings
 - Service Bus — add SB namespace + RBAC + connection settings
 
 **Lower Symmetry (source + multiple new resources + complex networking):**
+
 - Azure SQL — SQL server, firewall, managed identity SQL admin
 - Event Hubs — EH namespace + checkpoint storage + consumer groups
 - Blob (EventGrid) — EventGrid subscription + system topic
@@ -200,14 +207,14 @@ ALGORITHM:
 
 ### Key Design Principles
 
-| Principle | Rationale |
-|-----------|-----------|
-| **Never synthesize base IaC** | Always fetch from proven AZD template repos |
-| **Never modify base; only extend** | Recipe modules are additive — reduces risk of breaking core |
-| **Recipes carry their own RBAC** | Each recipe knows its exact role GUIDs — no LLM guessing |
-| **Recipes carry their own networking** | Private endpoints are per-service, recipe owns the config |
-| **Source code is per-language snippets** | Small, testable, deterministic code blocks |
-| **Same algorithm for Bicep and Terraform** | Only the IaC files differ, not the composition logic |
+| Principle                                  | Rationale                                                   |
+| ------------------------------------------ | ----------------------------------------------------------- |
+| **Never synthesize base IaC**              | Always fetch from proven AZD template repos                 |
+| **Never modify base; only extend**         | Recipe modules are additive — reduces risk of breaking core |
+| **Recipes carry their own RBAC**           | Each recipe knows its exact role GUIDs — no LLM guessing    |
+| **Recipes carry their own networking**     | Private endpoints are per-service, recipe owns the config   |
+| **Source code is per-language snippets**   | Small, testable, deterministic code blocks                  |
+| **Same algorithm for Bicep and Terraform** | Only the IaC files differ, not the composition logic        |
 
 ---
 
@@ -217,27 +224,28 @@ ALGORITHM:
 
 After analyzing both alternatives:
 
-| Approach | Pros | Cons |
-|----------|------|------|
-| **A: Peer `-tf` repos** (e.g., `functions-quickstart-dotnet-azd-tf`) | Clean separation, independent CI, clear `azd init -t`, already exists for .NET | More repos to maintain (but recipes reduce count) |
-| **B: Bicep+TF in same repo** (PR #24 approach: `infra/infra-tf/` subfolder) | Single repo, share source code | Confusing azure.yaml switching, complex CI, `azd init` gets both |
+| Approach                                                                    | Pros                                                                           | Cons                                                             |
+| --------------------------------------------------------------------------- | ------------------------------------------------------------------------------ | ---------------------------------------------------------------- |
+| **A: Peer `-tf` repos** (e.g., `functions-quickstart-dotnet-azd-tf`)        | Clean separation, independent CI, clear `azd init -t`, already exists for .NET | More repos to maintain (but recipes reduce count)                |
+| **B: Bicep+TF in same repo** (PR #24 approach: `infra/infra-tf/` subfolder) | Single repo, share source code                                                 | Confusing azure.yaml switching, complex CI, `azd init` gets both |
 
 **Recommendation: Approach A** — separate `-tf` repos for the **HTTP base only** (6 repos, one per language). Recipes provide the delta `.tf` files exactly as they do for Bicep.
 
 ### Template Count: Before vs After
 
-| Dimension | Current (Monolithic) | New (Composable) |
-|-----------|---------------------|-------------------|
-| HTTP base (Bicep) | 6 repos | 6 repos (keep as-is) |
-| HTTP base (Terraform) | 0-1 repos | 6 repos (new) |
-| Integration templates (Bicep) | ~30 repos (6 langs × 5 integrations) | 0 repos (replaced by recipes) |
-| Integration templates (Terraform) | 0 | 0 (same recipes) |
-| **Recipe modules** | N/A | 7 recipes (Cosmos, SQL, SB, EH, Timer, Blob, Durable) |
-| **Total to maintain** | **~36+ repos** | **12 base repos + 7 recipes** |
+| Dimension                         | Current (Monolithic)                 | New (Composable)                                      |
+| --------------------------------- | ------------------------------------ | ----------------------------------------------------- |
+| HTTP base (Bicep)                 | 6 repos                              | 6 repos (keep as-is)                                  |
+| HTTP base (Terraform)             | 0-1 repos                            | 6 repos (new)                                         |
+| Integration templates (Bicep)     | ~30 repos (6 langs × 5 integrations) | 0 repos (replaced by recipes)                         |
+| Integration templates (Terraform) | 0                                    | 0 (same recipes)                                      |
+| **Recipe modules**                | N/A                                  | 7 recipes (Cosmos, SQL, SB, EH, Timer, Blob, Durable) |
+| **Total to maintain**             | **~36+ repos**                       | **12 base repos + 7 recipes**                         |
 
 ### How Recipes Eliminate Repos
 
 Instead of `functions-quickstart-dotnet-azd-cosmosdb`, `functions-quickstart-python-azd-cosmosdb`, etc., we have:
+
 - One `cosmosdb` recipe with `bicep/` and `terraform/` modules
 - Per-language source snippets in `source/`
 - The skill composes: `HTTP base (dotnet)` + `cosmosdb recipe` → complete CosmosDB function project
@@ -254,23 +262,24 @@ Instead of `functions-quickstart-dotnet-azd-cosmosdb`, `functions-quickstart-pyt
 Adds Cosmos DB trigger/binding to a Functions base template.
 
 ## Integration Type
+
 - **Trigger**: CosmosDBTrigger (change feed)
-- **Connection**: Managed identity (COSMOS_CONNECTION__accountEndpoint)
+- **Connection**: Managed identity (COSMOS_CONNECTION\_\_accountEndpoint)
 - **Containers**: Application data + leases
 
 ## App Settings to Add
 
-| Setting | Value |
-|---------|-------|
+| Setting                              | Value                   |
+| ------------------------------------ | ----------------------- |
 | `COSMOS_CONNECTION__accountEndpoint` | Cosmos account endpoint |
-| `COSMOS_DATABASE_NAME` | Database name |
-| `COSMOS_CONTAINER_NAME` | Container name |
+| `COSMOS_DATABASE_NAME`               | Database name           |
+| `COSMOS_CONTAINER_NAME`              | Container name          |
 
 ## RBAC Roles Required
 
-| Role | Scope | GUID |
-|------|-------|------|
-| Cosmos DB Account Reader | Cosmos account | `fbdf93bf-df7d-467e-a4d2-9458aa1360c8` |
+| Role                                | Scope          | GUID                                   |
+| ----------------------------------- | -------------- | -------------------------------------- |
+| Cosmos DB Account Reader            | Cosmos account | `fbdf93bf-df7d-467e-a4d2-9458aa1360c8` |
 | Cosmos DB Built-in Data Contributor | Cosmos account | `00000000-0000-0000-0000-000000000002` |
 
 ## Networking (when VNET_ENABLED=true)
@@ -446,29 +455,29 @@ User Prompt → Detect Language → Detect Integration → Select IaC Provider
 
 ### Skill Reference Files to Update
 
-| File | Change |
-|------|--------|
-| `templates/README.md` | Add recipes section, update selection table |
-| `templates/selection.md` | Add recipe composition logic |
-| `templates/http.md` | Add note: "HTTP is the base for all recipes" |
-| `templates/integrations.md` | Replace gallery links with recipe references |
-| New: `templates/recipes/` | Full recipe directory structure |
-| `services/functions/bicep.md` | Add recipe injection patterns |
+| File                          | Change                                       |
+| ----------------------------- | -------------------------------------------- |
+| `templates/README.md`         | Add recipes section, update selection table  |
+| `templates/selection.md`      | Add recipe composition logic                 |
+| `templates/http.md`           | Add note: "HTTP is the base for all recipes" |
+| `templates/integrations.md`   | Replace gallery links with recipe references |
+| New: `templates/recipes/`     | Full recipe directory structure              |
+| `services/functions/bicep.md` | Add recipe injection patterns                |
 
 ### Updated template selection table
 
 ```markdown
-| Priority | Integration | Action |
-|----------|-------------|--------|
-| 1 | MCP Server | HTTP base + MCP source snippet (no IaC delta) |
-| 2 | Cosmos DB | HTTP base + cosmosdb recipe |
-| 3 | Azure SQL | HTTP base + sql recipe |
-| 4 | Service Bus | HTTP base + servicebus recipe |
-| 5 | Event Hubs | HTTP base + eventhubs recipe |
-| 6 | Blob (EventGrid) | HTTP base + blob-eventgrid recipe |
-| 7 | Timer | HTTP base + timer source snippet (no IaC delta) |
-| 8 | Durable | HTTP base + durable source snippet (no IaC delta) |
-| 9 | HTTP (default) | HTTP base only |
+| Priority | Integration      | Action                                            |
+| -------- | ---------------- | ------------------------------------------------- |
+| 1        | MCP Server       | HTTP base + MCP source snippet (no IaC delta)     |
+| 2        | Cosmos DB        | HTTP base + cosmosdb recipe                       |
+| 3        | Azure SQL        | HTTP base + sql recipe                            |
+| 4        | Service Bus      | HTTP base + servicebus recipe                     |
+| 5        | Event Hubs       | HTTP base + eventhubs recipe                      |
+| 6        | Blob (EventGrid) | HTTP base + blob-eventgrid recipe                 |
+| 7        | Timer            | HTTP base + timer source snippet (no IaC delta)   |
+| 8        | Durable          | HTTP base + durable source snippet (no IaC delta) |
+| 9        | HTTP (default)   | HTTP base only                                    |
 ```
 
 ---
@@ -479,46 +488,46 @@ User Prompt → Detect Language → Detect Integration → Select IaC Provider
 
 **Goal:** Validate the composable architecture end-to-end.
 
-| Step | Task | Output |
-|------|------|--------|
-| 1.1 | Create recipe directory structure under `templates/recipes/cosmosdb/` | Directory skeleton |
-| 1.2 | Extract Cosmos Bicep module from `functions-quickstart-dotnet-azd-cosmosdb` | `cosmosdb/bicep/cosmos.bicep` |
-| 1.3 | Create Cosmos Terraform module (port from Bicep) | `cosmosdb/terraform/cosmos.tf` |
-| 1.4 | Create source snippets for all 5 languages | `cosmosdb/source/{lang}.md` |
-| 1.5 | Create recipe README with settings, RBAC, networking | `cosmosdb/README.md` |
-| 1.6 | Update skill workflow to use composition algorithm | Updated SKILL.md refs |
-| 1.7 | Test: `azd init -t functions-quickstart-dotnet-azd` + apply Cosmos recipe | Working `azd up` |
-| 1.8 | Test: Same with Terraform base | Working `azd up` |
+| Step | Task                                                                        | Output                         |
+| ---- | --------------------------------------------------------------------------- | ------------------------------ |
+| 1.1  | Create recipe directory structure under `templates/recipes/cosmosdb/`       | Directory skeleton             |
+| 1.2  | Extract Cosmos Bicep module from `functions-quickstart-dotnet-azd-cosmosdb` | `cosmosdb/bicep/cosmos.bicep`  |
+| 1.3  | Create Cosmos Terraform module (port from Bicep)                            | `cosmosdb/terraform/cosmos.tf` |
+| 1.4  | Create source snippets for all 5 languages                                  | `cosmosdb/source/{lang}.md`    |
+| 1.5  | Create recipe README with settings, RBAC, networking                        | `cosmosdb/README.md`           |
+| 1.6  | Update skill workflow to use composition algorithm                          | Updated SKILL.md refs          |
+| 1.7  | Test: `azd init -t functions-quickstart-dotnet-azd` + apply Cosmos recipe   | Working `azd up`               |
+| 1.8  | Test: Same with Terraform base                                              | Working `azd up`               |
 
 ### Phase 2: Remaining Recipes
 
-| Step | Task |
-|------|------|
-| 2.1 | Service Bus recipe (Bicep + TF + 5 language snippets) |
-| 2.2 | Azure SQL recipe |
-| 2.3 | Event Hubs recipe |
-| 2.4 | Timer recipe (source only) |
-| 2.5 | Blob/EventGrid recipe |
-| 2.6 | Durable recipe (source only) |
-| 2.7 | MCP recipe (source only) |
+| Step | Task                                                  |
+| ---- | ----------------------------------------------------- |
+| 2.1  | Service Bus recipe (Bicep + TF + 5 language snippets) |
+| 2.2  | Azure SQL recipe                                      |
+| 2.3  | Event Hubs recipe                                     |
+| 2.4  | Timer recipe (source only)                            |
+| 2.5  | Blob/EventGrid recipe                                 |
+| 2.6  | Durable recipe (source only)                          |
+| 2.7  | MCP recipe (source only)                              |
 
 ### Phase 3: Terraform Base Templates
 
-| Step | Task |
-|------|------|
-| 3.1 | Create/validate `-tf` repos for JS, TS, Python, Java, PowerShell |
-| 3.2 | Ensure all TF bases pass `azd up` |
-| 3.3 | Validate Cosmos recipe works with all TF bases |
+| Step | Task                                                             |
+| ---- | ---------------------------------------------------------------- |
+| 3.1  | Create/validate `-tf` repos for JS, TS, Python, Java, PowerShell |
+| 3.2  | Ensure all TF bases pass `azd up`                                |
+| 3.3  | Validate Cosmos recipe works with all TF bases                   |
 
 ### Phase 4: Fleet Migration PRs
 
-| Step | Task |
-|------|------|
-| 4.1 | Update `templates/README.md` to new composition model |
-| 4.2 | Update `templates/selection.md` |
-| 4.3 | Update SKILL.md execution phase to use recipes |
-| 4.4 | Deprecate direct links to integration template repos |
-| 4.5 | Create eval test suite: for each {language × integration × iac}, verify `azd up` succeeds |
+| Step | Task                                                                                      |
+| ---- | ----------------------------------------------------------------------------------------- |
+| 4.1  | Update `templates/README.md` to new composition model                                     |
+| 4.2  | Update `templates/selection.md`                                                           |
+| 4.3  | Update SKILL.md execution phase to use recipes                                            |
+| 4.4  | Deprecate direct links to integration template repos                                      |
+| 4.5  | Create eval test suite: for each {language × integration × iac}, verify `azd up` succeeds |
 
 ---
 
@@ -536,31 +545,32 @@ FOR EACH language IN [dotnet, typescript, javascript, python, java, powershell]:
 
 ### Eval Criteria
 
-| Eval | Pass Condition |
-|------|----------------|
-| **Reliability** | `azd up` exits 0 with no errors across ALL matrix cells |
-| **No elicitation** | Agent produces complete project in one shot — zero `ask_user` calls |
-| **Speed** | Total time (compose + azd up) < 10 minutes per deployment |
-| **Correctness** | Deployed function responds to trigger (HTTP 200, Cosmos change feed fires, etc.) |
-| **Security** | No connection strings in app settings, RBAC-only auth, VNET works when enabled |
+| Eval               | Pass Condition                                                                   |
+| ------------------ | -------------------------------------------------------------------------------- |
+| **Reliability**    | `azd up` exits 0 with no errors across ALL matrix cells                          |
+| **No elicitation** | Agent produces complete project in one shot — zero `ask_user` calls              |
+| **Speed**          | Total time (compose + azd up) < 10 minutes per deployment                        |
+| **Correctness**    | Deployed function responds to trigger (HTTP 200, Cosmos change feed fires, etc.) |
+| **Security**       | No connection strings in app settings, RBAC-only auth, VNET works when enabled   |
 
 ---
 
 ## 9. Risks and Mitigations
 
-| Risk | Impact | Mitigation |
-|------|--------|------------|
-| Bicep module injection breaks main.bicep | Deploy fails | All recipes tested against each base; base is read-only |
-| Terraform module injection breaks state | Deploy fails | Recipes are self-contained .tf files, no module references |
-| Cosmos RBAC changes upstream | Auth fails | Pin API versions in recipe modules |
-| New languages added | 12 base repos | Propagation workflow already exists for HTTP templates |
-| Recipe becomes stale vs. Awesome AZD | Drift | Monthly sync job; recipes track upstream template versions |
+| Risk                                     | Impact        | Mitigation                                                 |
+| ---------------------------------------- | ------------- | ---------------------------------------------------------- |
+| Bicep module injection breaks main.bicep | Deploy fails  | All recipes tested against each base; base is read-only    |
+| Terraform module injection breaks state  | Deploy fails  | Recipes are self-contained .tf files, no module references |
+| Cosmos RBAC changes upstream             | Auth fails    | Pin API versions in recipe modules                         |
+| New languages added                      | 12 base repos | Propagation workflow already exists for HTTP templates     |
+| Recipe becomes stale vs. Awesome AZD     | Drift         | Monthly sync job; recipes track upstream template versions |
 
 ---
 
 ## 10. Decision: Start with Proof of Concept
 
 **Next action:** Build the Cosmos DB recipe (Bicep + Terraform + C# source) and validate it composes correctly with the HTTP dotnet base template. If this works:
+
 1. Expand to all 5 languages for Cosmos
 2. Build remaining recipes
 3. Create PRs to migrate skill references
@@ -572,26 +582,26 @@ FOR EACH language IN [dotnet, typescript, javascript, python, java, powershell]:
 
 ### HTTP Base Templates (KEEP — these are the foundation)
 
-| Language | Bicep Repo | TF Repo |
-|----------|-----------|---------|
-| C# (.NET) | `functions-quickstart-dotnet-azd` | `functions-quickstart-dotnet-azd-tf` (new, 5 days old) |
-| TypeScript | `functions-quickstart-typescript-azd` | (to create) |
-| JavaScript | `functions-quickstart-javascript-azd` | (to create) |
-| Python | `functions-quickstart-python-http-azd` | (to create) |
-| Java | `azure-functions-java-flex-consumption-azd` | (to create) |
-| PowerShell | `functions-quickstart-powershell-azd` | (to create) |
+| Language   | Bicep Repo                                  | TF Repo                                                |
+| ---------- | ------------------------------------------- | ------------------------------------------------------ |
+| C# (.NET)  | `functions-quickstart-dotnet-azd`           | `functions-quickstart-dotnet-azd-tf` (new, 5 days old) |
+| TypeScript | `functions-quickstart-typescript-azd`       | (to create)                                            |
+| JavaScript | `functions-quickstart-javascript-azd`       | (to create)                                            |
+| Python     | `functions-quickstart-python-http-azd`      | (to create)                                            |
+| Java       | `azure-functions-java-flex-consumption-azd` | (to create)                                            |
+| PowerShell | `functions-quickstart-powershell-azd`       | (to create)                                            |
 
 ### Integration Templates (REPLACE with recipes)
 
-| Integration | Existing Repos | Replacement |
-|-------------|---------------|-------------|
-| Cosmos DB | dotnet, python, typescript (3 repos) | `recipes/cosmosdb/` |
-| Azure SQL | dotnet, python, typescript (3 repos) | `recipes/sql/` |
-| Service Bus | dotnet, python, typescript, java (4 repos) | `recipes/servicebus/` |
-| Timer | dotnet (1 repo) | `recipes/timer/` |
-| Blob/EventGrid | dotnet, python, typescript, javascript, java, powershell (6 repos) | `recipes/blob-eventgrid/` |
-| Durable | dotnet (1 repo) | `recipes/durable/` |
-| **Total repos to deprecate** | **~18 repos** | **6 recipe directories** |
+| Integration                  | Existing Repos                                                     | Replacement               |
+| ---------------------------- | ------------------------------------------------------------------ | ------------------------- |
+| Cosmos DB                    | dotnet, python, typescript (3 repos)                               | `recipes/cosmosdb/`       |
+| Azure SQL                    | dotnet, python, typescript (3 repos)                               | `recipes/sql/`            |
+| Service Bus                  | dotnet, python, typescript, java (4 repos)                         | `recipes/servicebus/`     |
+| Timer                        | dotnet (1 repo)                                                    | `recipes/timer/`          |
+| Blob/EventGrid               | dotnet, python, typescript, javascript, java, powershell (6 repos) | `recipes/blob-eventgrid/` |
+| Durable                      | dotnet (1 repo)                                                    | `recipes/durable/`        |
+| **Total repos to deprecate** | **~18 repos**                                                      | **6 recipe directories**  |
 
 ### Flex Consumption IaC Samples (REFERENCE for recipe IaC patterns)
 
@@ -602,12 +612,12 @@ FOR EACH language IN [dotnet, typescript, javascript, python, java, powershell]:
 
 ## Appendix B: IaC Provider Comparison for Recipes
 
-| Aspect | Bicep Recipe Module | Terraform Recipe Module |
-|--------|-------------------|----------------------|
-| **Injection method** | `module` reference in `main.bicep` | Additional `.tf` files in `infra/` |
-| **Naming** | Uses same `uniqueString()` pattern as base | Uses same `azurecaf_name` as base |
-| **Tags** | Inherits `tags` param from base | Inherits `var.tags` from base |
-| **RBAC** | `Microsoft.Authorization/roleAssignments` | `azurerm_role_assignment` |
-| **Networking** | `Microsoft.Network/privateEndpoints` | `azurerm_private_endpoint` |
-| **Identity reference** | `functionApp.identity.principalId` | `azurerm_function_app_flex_consumption.*.identity[0].principal_id` |
-| **azure.yaml change** | None (Bicep is default) | `infra.provider: terraform` already set in TF base |
+| Aspect                 | Bicep Recipe Module                        | Terraform Recipe Module                                            |
+| ---------------------- | ------------------------------------------ | ------------------------------------------------------------------ |
+| **Injection method**   | `module` reference in `main.bicep`         | Additional `.tf` files in `infra/`                                 |
+| **Naming**             | Uses same `uniqueString()` pattern as base | Uses same `azurecaf_name` as base                                  |
+| **Tags**               | Inherits `tags` param from base            | Inherits `var.tags` from base                                      |
+| **RBAC**               | `Microsoft.Authorization/roleAssignments`  | `azurerm_role_assignment`                                          |
+| **Networking**         | `Microsoft.Network/privateEndpoints`       | `azurerm_private_endpoint`                                         |
+| **Identity reference** | `functionApp.identity.principalId`         | `azurerm_function_app_flex_consumption.*.identity[0].principal_id` |
+| **azure.yaml change**  | None (Bicep is default)                    | `infra.provider: terraform` already set in TF base                 |

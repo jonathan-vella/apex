@@ -4,13 +4,13 @@ Package: `Azure.Messaging.EventHubs` | [README](https://github.com/Azure/azure-s
 
 ## Common Errors
 
-| Exception | Reason | Fix |
-|-----------|--------|-----|
-| `EventHubsException` (ServiceTimeout) | Service didn't respond in time | Transient — retried automatically. Verify state if persists |
-| `EventHubsException` (QuotaExceeded) | Too many active readers per consumer group | Reduce concurrent receivers or upgrade tier |
-| `EventHubsException` (ConsumerDisconnected) | Higher priority consumer took ownership | Expected during load balancing; check if scaling |
-| `EventHubsException` (MessageSizeExceeded) | Event too large | Reduce event payload; unlikely in practice since the client caps at the service link limit |
-| `UnauthorizedAccessException` | Bad credentials | Verify connection string, SAS token, or RBAC roles |
+| Exception                                   | Reason                                     | Fix                                                                                        |
+| ------------------------------------------- | ------------------------------------------ | ------------------------------------------------------------------------------------------ |
+| `EventHubsException` (ServiceTimeout)       | Service didn't respond in time             | Transient — retried automatically. Verify state if persists                                |
+| `EventHubsException` (QuotaExceeded)        | Too many active readers per consumer group | Reduce concurrent receivers or upgrade tier                                                |
+| `EventHubsException` (ConsumerDisconnected) | Higher priority consumer took ownership    | Expected during load balancing; check if scaling                                           |
+| `EventHubsException` (MessageSizeExceeded)  | Event too large                            | Reduce event payload; unlikely in practice since the client caps at the service link limit |
+| `UnauthorizedAccessException`               | Bad credentials                            | Verify connection string, SAS token, or RBAC roles                                         |
 
 ## Exception Filtering
 
@@ -63,6 +63,7 @@ processor.ProcessEventAsync += async (args) =>
 ```
 
 **Common issues:**
+
 - **Soft delete / blob versioning**: Disable both on the storage account — they cause delays during load balancing.
 - **HTTP 412/409 from storage**: Normal during partition ownership negotiation; not an error.
 - **Checkpoint frequency**: Call `UpdateCheckpointAsync()` per batch, not per event, to reduce storage calls.

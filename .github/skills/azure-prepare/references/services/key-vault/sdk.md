@@ -8,10 +8,7 @@
 const { SecretClient } = require("@azure/keyvault-secrets");
 const { DefaultAzureCredential } = require("@azure/identity");
 
-const client = new SecretClient(
-  process.env.KEY_VAULT_URL,
-  new DefaultAzureCredential()
-);
+const client = new SecretClient(process.env.KEY_VAULT_URL, new DefaultAzureCredential());
 
 const secret = await client.getSecret("database-connection-string");
 console.log(secret.value);

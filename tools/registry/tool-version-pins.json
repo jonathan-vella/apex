@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Minimum tool versions required by the APEX Step 5 validate gate and Step 6 deploy. Bump pins via PR with rationale.",
+  "pins": {
+    "bicep": {
+      "min": "0.21.0",
+      "check_cmd": "bicep --version",
+      "parser": "bicep"
+    },
+    "terraform": {
+      "min": "1.6.0",
+      "check_cmd": "terraform version -json",
+      "parser": "terraform-json"
+    },
+    "az": {
+      "min": "2.55.0",
+      "check_cmd": "az version --output json",
+      "parser": "az-json"
+    },
+    "node": {
+      "min": "20.0.0",
+      "check_cmd": "node --version",
+      "parser": "node"
+    },
+    "tfsec": {
+      "min": "1.28.0",
+      "check_cmd": "tfsec --version",
+      "parser": "tfsec",
+      "optional": true
+    }
+  }
+}

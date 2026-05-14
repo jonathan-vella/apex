@@ -191,15 +191,24 @@ edge routing, group sizing, and cross-cutting service placement.
 
 Before starting, validate these artifacts exist in `agent-output/{project}/`:
 
-| Artifact                         | Required | Purpose                      |
-| -------------------------------- | -------- | ---------------------------- |
-| `01-requirements.md`             | Yes      | Original requirements        |
-| `02-architecture-assessment.md`  | Yes      | WAF assessment and decisions |
-| `04-implementation-plan.md`      | Yes      | Planned architecture         |
-| `06-deployment-summary.md`       | Yes      | Deployment results           |
-| `03-des-cost-estimate.md`        | No       | Original cost estimate       |
-| `04-governance-constraints.md`   | No       | Governance findings          |
-| `05-implementation-reference.md` | No       | Bicep validation results     |
+| Artifact                         | Required | Purpose                                                           |
+| -------------------------------- | -------- | ----------------------------------------------------------------- |
+| `01-requirements.md`             | Yes      | Original requirements                                             |
+| `02-architecture-assessment.md`  | Yes      | WAF assessment and decisions                                      |
+| `04-implementation-plan.md`      | Yes      | Planned architecture (prose mirror)                               |
+| `04-iac-contract.json`           | Yes¹     | Machine-readable plan shape (Wave 1+); preferred over prose       |
+| `04-policy-property-map.json`    | Yes¹     | L1m governance attestation                                        |
+| `04-environment-manifest.json`   | Yes¹     | Per-environment values (redaction-aware reads only)               |
+| `05-iac-handoff.json`            | Yes¹     | CodeGen → Deploy handoff with validation + governance attestation |
+| `06-deployment-summary.md`       | Yes      | Deployment results                                                |
+| `03-des-cost-estimate.md`        | No       | Original cost estimate                                            |
+| `04-governance-constraints.md`   | No       | Governance findings                                               |
+| `05-implementation-reference.md` | No       | Bicep validation results (legacy projects only)                   |
+
+¹ Wave 1+/Wave 3+ artifacts. **Prefer reading these over the prose
+mirrors** — `04-iac-contract.json` and `05-iac-handoff.json` are
+canonical and validator-checked. Fall back to prose only for legacy
+projects predating Wave 1.
 
 If `06-deployment-summary.md` is missing, STOP — deployment has not completed.
 

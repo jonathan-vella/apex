@@ -21,26 +21,26 @@ services:
 
 ## Required Supporting Resources
 
-| Resource | Purpose |
-|----------|---------|
-| None required | Static Web Apps is fully managed |
-| Application Insights | Monitoring (optional) |
+| Resource             | Purpose                          |
+| -------------------- | -------------------------------- |
+| None required        | Static Web Apps is fully managed |
+| Application Insights | Monitoring (optional)            |
 
 ## SKU Selection
 
-| SKU | Features |
-|-----|----------|
-| Free | 2 custom domains, 0.5GB storage, shared bandwidth |
+| SKU      | Features                                               |
+| -------- | ------------------------------------------------------ |
+| Free     | 2 custom domains, 0.5GB storage, shared bandwidth      |
 | Standard | 5 custom domains, 2GB storage, SLA, auth customization |
 
 ## Build Configuration
 
-| Framework | outputLocation |
-|-----------|----------------|
-| React | `build` |
-| Vue | `dist` |
-| Angular | `dist/my-app` |
-| Next.js (Static) | `out` |
+| Framework        | outputLocation |
+| ---------------- | -------------- |
+| React            | `build`        |
+| Vue              | `dist`         |
+| Angular          | `dist/my-app`  |
+| Next.js (Static) | `out`          |
 
 ## API Integration
 

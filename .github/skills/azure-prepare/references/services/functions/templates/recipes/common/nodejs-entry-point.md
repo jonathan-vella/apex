@@ -29,10 +29,10 @@ project-root/                # ← azure.yaml project: "."
 **This file MUST exist and MUST NOT be removed when replacing trigger files.**
 
 ```javascript
-const { app } = require('@azure/functions');
+const { app } = require("@azure/functions");
 
 app.setup({
-    enableHttpStream: true,
+  enableHttpStream: true,
 });
 ```
 
@@ -41,10 +41,10 @@ app.setup({
 **This file MUST exist and MUST NOT be removed when replacing trigger files.**
 
 ```typescript
-import { app } from '@azure/functions';
+import { app } from "@azure/functions";
 
 app.setup({
-    enableHttpStream: true,
+  enableHttpStream: true,
 });
 ```
 
@@ -57,6 +57,7 @@ The `package.json` MUST be at the project root (same level as `azure.yaml`).
 > You MUST use the glob pattern that includes function files.
 
 ### JavaScript (REQUIRED pattern)
+
 ```json
 {
   "main": "src/{index.js,functions/*.js}",
@@ -67,6 +68,7 @@ The `package.json` MUST be at the project root (same level as `azure.yaml`).
 ```
 
 ### TypeScript (REQUIRED pattern)
+
 ```json
 {
   "main": "dist/src/{index.js,functions/*.js}",
@@ -88,8 +90,8 @@ The `package.json` MUST be at the project root (same level as `azure.yaml`).
 ```yaml
 services:
   api:
-    project: .           # ← ROOT directory, not ./src/
-    language: js         # or ts for TypeScript
+    project: . # ← ROOT directory, not ./src/
+    language: js # or ts for TypeScript
     host: function
 ```
 
@@ -107,14 +109,14 @@ This outputs JavaScript to `dist/` which is what Azure Functions actually runs.
 
 ## Common Mistakes
 
-| Mistake | Symptom | Fix |
-|---------|---------|-----|
+| Mistake                                         | Symptom                  | Fix                                               |
+| ----------------------------------------------- | ------------------------ | ------------------------------------------------- |
 | **Using `"main": "src/index.js"` without glob** | **404 on all endpoints** | **Use `"main": "src/{index.js,functions/*.js}"`** |
-| Missing `src/index.js` | 404 on all endpoints | Add the entry point file with `app.setup()` |
-| Deleting `src/index.js` when replacing triggers | 404 after recipe applied | Keep index.js, only replace function files |
-| `package.json` in `src/` instead of root | 404, functions not found | Move `package.json` to project root |
-| `project: ./src/` in azure.yaml | Deployment fails or 404 | Use `project: .` |
-| Missing `npm run build` for TypeScript | 404 or old code runs | Run build before deploy |
+| Missing `src/index.js`                          | 404 on all endpoints     | Add the entry point file with `app.setup()`       |
+| Deleting `src/index.js` when replacing triggers | 404 after recipe applied | Keep index.js, only replace function files        |
+| `package.json` in `src/` instead of root        | 404, functions not found | Move `package.json` to project root               |
+| `project: ./src/` in azure.yaml                 | Deployment fails or 404  | Use `project: .`                                  |
+| Missing `npm run build` for TypeScript          | 404 or old code runs     | Run build before deploy                           |
 
 > ⛔ **#1 CAUSE OF 404 ERRORS**: Using `"main": "src/index.js"` instead of the glob pattern.
 > The glob `src/{index.js,functions/*.js}` is **REQUIRED** — it's not optional!
@@ -124,6 +126,7 @@ This outputs JavaScript to `dist/` which is what Azure Functions actually runs.
 The Node.js source code and `package.json` are **exactly the same** for both IaC types.
 
 Only the `infra/` folder differs:
+
 - Bicep: `infra/*.bicep`
 - Terraform: `infra/*.tf`
 

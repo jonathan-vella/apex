@@ -1,4 +1,5 @@
 <!-- ref:oauth-flows-v1 -->
+
 # OAuth 2.0 Flows
 
 This document provides an illustration of OAuth 2.0 authentication flows supported by Microsoft Entra ID.
@@ -34,6 +35,7 @@ https://login.microsoftonline.com/{tenant}/oauth2/v2.0/authorize?
 ```
 
 **Parameters:**
+
 - `tenant`: Your tenant ID or `common` for multi-tenant
 - `client_id`: Application (client) ID from app registration
 - `redirect_uri`: Must match exactly what's registered
@@ -47,6 +49,7 @@ User is redirected to Microsoft login page, authenticates, and grants consent.
 #### 3. Receive Authorization Code
 
 App receives callback at redirect URI:
+
 ```
 https://your-app.com/callback?
   code={authorization_code}
@@ -54,6 +57,7 @@ https://your-app.com/callback?
 ```
 
 **Validation:**
+
 - Verify `state` matches what you sent
 - Extract `code` parameter
 
@@ -72,6 +76,7 @@ client_id={application_id}
 ```
 
 **Response:**
+
 ```json
 {
   "access_token": "eyJ0eXAi...",
@@ -111,12 +116,14 @@ PKCE (Proof Key for Code Exchange) adds security for public clients that cannot 
 #### 1. Generate PKCE Values
 
 **Code Verifier:** 43-128 character random string
+
 ```javascript
 // JavaScript example
 const codeVerifier = generateRandomString(128);
 ```
 
 **Code Challenge:** Base64URL-encoded SHA256 hash of verifier
+
 ```javascript
 const codeChallenge = base64URLEncode(sha256(codeVerifier));
 ```
@@ -164,11 +171,13 @@ client_id={application_id}
 #### 1. Configure Application Permissions
 
 In app registration:
+
 1. Go to "API permissions"
 2. Add **Application** permissions (not delegated)
 3. Grant admin consent (required for app permissions)
 
 **Example permissions:**
+
 - `User.Read.All` (application) - Read all users
 - `Directory.Read.All` (application) - Read directory
 
@@ -185,11 +194,13 @@ client_id={application_id}
 ```
 
 **Parameters:**
+
 - `scope`: Use `{resource}/.default` format
   - For Microsoft Graph: `https://graph.microsoft.com/.default`
   - For your API: `api://{api_app_id}/.default`
 
 **Response:**
+
 ```json
 {
   "access_token": "eyJ0eXAi...",
@@ -234,6 +245,7 @@ client_id={application_id}
 ```
 
 **Response:**
+
 ```json
 {
   "user_code": "GTHK-QPMN",
@@ -266,6 +278,7 @@ client_id={application_id}
 **Poll every 5 seconds (use `interval` from response)**
 
 **Pending Response (user hasn't completed auth yet):**
+
 ```json
 {
   "error": "authorization_pending",
@@ -274,6 +287,7 @@ client_id={application_id}
 ```
 
 **Success Response:**
+
 ```json
 {
   "access_token": "eyJ0eXAi...",
@@ -310,6 +324,7 @@ client_id={application_id}
 **Note:** `client_secret` only required for confidential clients
 
 **Response:**
+
 ```json
 {
   "access_token": "eyJ0eXAi...",
@@ -332,6 +347,7 @@ client_id={application_id}
 - Format: JWT (JSON Web Token)
 
 **Sample claims:**
+
 ```json
 {
   "aud": "https://graph.microsoft.com",
@@ -356,6 +372,7 @@ client_id={application_id}
 - Format: JWT
 
 **Sample claims:**
+
 ```json
 {
   "sub": "{user_object_id}",
@@ -371,28 +388,30 @@ client_id={application_id}
 ### Scope Format
 
 **Microsoft Graph:**
+
 ```
 https://graph.microsoft.com/User.Read
 https://graph.microsoft.com/Mail.Send
 ```
 
 **Custom API:**
+
 ```
 api://{api_application_id}/access_as_user
 ```
 
 ## Security Considerations
 
-| Practice | Why |
-|----------|-----|
-| **Use state parameter** | Prevents CSRF attacks |
-| **Use PKCE for public clients** | Prevents authorization code interception |
-| **Validate tokens** | Verify signature, issuer, audience, expiration |
-| **Use HTTPS only** | Protect tokens in transit |
-| **Store tokens securely** | Use secure storage, never in localStorage for sensitive apps |
-| **Implement token refresh** | Seamless UX without repeated logins |
-| **Handle token expiration** | Gracefully refresh or re-authenticate |
-| **Minimal scope principle** | Request only necessary permissions |
+| Practice                        | Why                                                          |
+| ------------------------------- | ------------------------------------------------------------ |
+| **Use state parameter**         | Prevents CSRF attacks                                        |
+| **Use PKCE for public clients** | Prevents authorization code interception                     |
+| **Validate tokens**             | Verify signature, issuer, audience, expiration               |
+| **Use HTTPS only**              | Protect tokens in transit                                    |
+| **Store tokens securely**       | Use secure storage, never in localStorage for sensitive apps |
+| **Implement token refresh**     | Seamless UX without repeated logins                          |
+| **Handle token expiration**     | Gracefully refresh or re-authenticate                        |
+| **Minimal scope principle**     | Request only necessary permissions                           |
 
 ## Additional Resources
 

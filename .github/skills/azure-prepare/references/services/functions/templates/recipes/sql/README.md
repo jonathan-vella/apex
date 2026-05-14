@@ -8,42 +8,42 @@ This recipe creates functions that respond to row changes in Azure SQL Database 
 
 ## Integration Type
 
-| Aspect | Value |
-|--------|-------|
+| Aspect      | Value                          |
+| ----------- | ------------------------------ |
 | **Trigger** | `SqlTrigger` (change tracking) |
-| **Output** | `SqlOutput` (insert/upsert) |
-| **Auth** | Entra ID (Managed Identity) |
-| **IaC** | ✅ Full template available |
+| **Output**  | `SqlOutput` (insert/upsert)    |
+| **Auth**    | Entra ID (Managed Identity)    |
+| **IaC**     | ✅ Full template available     |
 
 ## AZD Templates (Recommended)
 
 Use these templates directly instead of composing from HTTP base:
 
-| Language | Template |
-|----------|----------|
-| Python | `azd init -t functions-quickstart-python-azd-sql` |
+| Language   | Template                                              |
+| ---------- | ----------------------------------------------------- |
+| Python     | `azd init -t functions-quickstart-python-azd-sql`     |
 | TypeScript | `azd init -t functions-quickstart-typescript-azd-sql` |
-| C# (.NET) | `azd init -t functions-quickstart-dotnet-azd-sql` |
+| C# (.NET)  | `azd init -t functions-quickstart-dotnet-azd-sql`     |
 
 ## Composition Steps (Alternative)
 
 If composing from HTTP base template:
 
-| # | Step | Details |
-|---|------|---------|
-| 1 | **Add IaC** | Add SQL Server, Database, firewall rules from `bicep/` |
-| 2 | **Add extension** | Add SQL binding extension package |
-| 3 | **Enable change tracking** | Run SQL script to enable on table |
-| 4 | **Replace source code** | Add trigger + output from `source/{lang}.md` |
-| 5 | **Configure app settings** | Add `AZURE_SQL_CONNECTION_STRING_KEY` |
+| #   | Step                       | Details                                                |
+| --- | -------------------------- | ------------------------------------------------------ |
+| 1   | **Add IaC**                | Add SQL Server, Database, firewall rules from `bicep/` |
+| 2   | **Add extension**          | Add SQL binding extension package                      |
+| 3   | **Enable change tracking** | Run SQL script to enable on table                      |
+| 4   | **Replace source code**    | Add trigger + output from `source/{lang}.md`           |
+| 5   | **Configure app settings** | Add `AZURE_SQL_CONNECTION_STRING_KEY`                  |
 
 ## Extension Packages
 
-| Language | Package |
-|----------|---------|
-| Python | `azure-functions` (built-in) |
-| TypeScript/JavaScript | `@azure/functions` (built-in) |
-| C# (.NET) | `Microsoft.Azure.Functions.Worker.Extensions.Sql` |
+| Language              | Package                                           |
+| --------------------- | ------------------------------------------------- |
+| Python                | `azure-functions` (built-in)                      |
+| TypeScript/JavaScript | `@azure/functions` (built-in)                     |
+| C# (.NET)             | `Microsoft.Azure.Functions.Worker.Extensions.Sql` |
 
 ## Required App Settings
 
@@ -55,18 +55,18 @@ AZURE_SQL_CONNECTION_STRING_KEY: 'Server=${sqlServer.properties.fullyQualifiedDo
 
 ## Files
 
-| Path | Description |
-|------|-------------|
-| [bicep/sql.bicep](bicep/sql.bicep) | Bicep module for SQL Server + Database |
-| [terraform/sql.tf](terraform/sql.tf) | Terraform module for SQL Server + Database |
-| [source/python.md](source/python.md) | Python SQL trigger + output |
-| [source/typescript.md](source/typescript.md) | TypeScript SQL trigger + output |
-| [source/javascript.md](source/javascript.md) | JavaScript SQL trigger + output |
-| [source/dotnet.md](source/dotnet.md) | C# (.NET) SQL trigger + output |
-| [source/java.md](source/java.md) | Java SQL trigger + output |
-| [source/powershell.md](source/powershell.md) | PowerShell SQL trigger + output |
-| [eval/summary.md](eval/summary.md) | Evaluation summary |
-| [eval/python.md](eval/python.md) | Python evaluation results |
+| Path                                         | Description                                |
+| -------------------------------------------- | ------------------------------------------ |
+| [bicep/sql.bicep](bicep/sql.bicep)           | Bicep module for SQL Server + Database     |
+| [terraform/sql.tf](terraform/sql.tf)         | Terraform module for SQL Server + Database |
+| [source/python.md](source/python.md)         | Python SQL trigger + output                |
+| [source/typescript.md](source/typescript.md) | TypeScript SQL trigger + output            |
+| [source/javascript.md](source/javascript.md) | JavaScript SQL trigger + output            |
+| [source/dotnet.md](source/dotnet.md)         | C# (.NET) SQL trigger + output             |
+| [source/java.md](source/java.md)             | Java SQL trigger + output                  |
+| [source/powershell.md](source/powershell.md) | PowerShell SQL trigger + output            |
+| [eval/summary.md](eval/summary.md)           | Evaluation summary                         |
+| [eval/python.md](eval/python.md)             | Python evaluation results                  |
 
 ## SQL Change Tracking
 

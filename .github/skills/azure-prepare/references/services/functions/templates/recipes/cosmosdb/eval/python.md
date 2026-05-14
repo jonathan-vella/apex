@@ -2,12 +2,12 @@
 
 ## Test Summary
 
-| Test | Status | Notes |
-|------|--------|-------|
-| Code Syntax | ✅ PASS | Python v2 model decorator pattern |
+| Test              | Status  | Notes                                   |
+| ----------------- | ------- | --------------------------------------- |
+| Code Syntax       | ✅ PASS | Python v2 model decorator pattern       |
 | Cosmos DB Trigger | ✅ PASS | Uses `@app.cosmos_db_trigger` decorator |
-| Change Feed | ✅ PASS | Processes DocumentList |
-| Lease Container | ✅ PASS | Auto-creates lease container |
+| Change Feed       | ✅ PASS | Processes DocumentList                  |
+| Lease Container   | ✅ PASS | Auto-creates lease container            |
 
 ## Code Validation
 
@@ -22,7 +22,7 @@
 ## Configuration Validated
 
 - `COSMOS_CONNECTION__accountEndpoint` - Cosmos endpoint
-- `COSMOS_DATABASE_NAME` - Database name  
+- `COSMOS_DATABASE_NAME` - Database name
 - `COSMOS_CONTAINER_NAME` - Container name
 - Uses extension bundle v4 (no pip package needed)
 

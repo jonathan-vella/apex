@@ -51,11 +51,13 @@ resource sqlFirewallAzure 'Microsoft.Sql/servers/firewallRules@2022-05-01-previe
 **Set Entra admin parameters:**
 
 1. Get current user info:
+
 ```bash
 az ad signed-in-user show --query "{id:id, name:displayName}" -o json
 ```
 
 2. Set as azd environment variables:
+
 ```bash
 PRINCIPAL_INFO=$(az ad signed-in-user show --query "{id:id, name:displayName}" -o json)
 azd env set AZURE_PRINCIPAL_ID $(echo $PRINCIPAL_INFO | jq -r '.id')
@@ -110,7 +112,7 @@ resource sqlPrivateEndpoint 'Microsoft.Network/privateEndpoints@2023-05-01' = {
 ## Legacy SQL Authentication (⛔ DO NOT USE)
 
 > ❌ **DEPRECATED - DO NOT USE FOR NEW DEPLOYMENTS**
-> 
+>
 > This authentication method is included for reference only. **DO NOT use SQL authentication for new Azure SQL deployments.** It will fail in any subscription with Entra-only authentication policies and violates Azure security best practices.
 >
 > **Always use Entra-only authentication (documented above) for all new deployments.**

@@ -3,6 +3,7 @@
 ## Dependencies
 
 **host.json:**
+
 ```json
 {
   "version": "2.0",
@@ -16,6 +17,7 @@
 ## Source Code
 
 **mcp/function.json:**
+
 ```json
 {
   "bindings": [
@@ -36,6 +38,7 @@
 ```
 
 **mcp/run.ps1:**
+
 ```powershell
 using namespace System.Net
 
@@ -87,7 +90,7 @@ if ($method -eq "tools/list") {
 if ($method -eq "tools/call") {
     $toolName = $body.params.name
     $args = $body.params.arguments
-    
+
     $toolResult = switch ($toolName) {
         "get_weather" {
             @{ temperature = 72; conditions = "sunny"; city = $args.city }
@@ -104,7 +107,7 @@ if ($method -eq "tools/call") {
             return
         }
     }
-    
+
     $result = @{
         jsonrpc = "2.0"
         id = $id
@@ -130,6 +133,7 @@ Push-OutputBinding -Name Response -Value ([HttpResponseContext]@{
 ```
 
 **health/function.json:**
+
 ```json
 {
   "bindings": [
@@ -150,6 +154,7 @@ Push-OutputBinding -Name Response -Value ([HttpResponseContext]@{
 ```
 
 **health/run.ps1:**
+
 ```powershell
 param($Request, $TriggerMetadata)
 

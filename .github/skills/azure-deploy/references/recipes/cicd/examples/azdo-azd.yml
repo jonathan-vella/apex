@@ -3,7 +3,7 @@ trigger:
     include: [main]
 
 pool:
-  vmImage: 'ubuntu-latest'
+  vmImage: "ubuntu-latest"
 
 stages:
   - stage: Deploy
@@ -14,8 +14,8 @@ stages:
 
           - task: AzureCLI@2
             inputs:
-              azureSubscription: 'azure-service-connection'
-              scriptType: 'bash'
+              azureSubscription: "azure-service-connection"
+              scriptType: "bash"
               inlineScript: azd up --no-prompt
             env:
               AZURE_ENV_NAME: $(AZURE_ENV_NAME)

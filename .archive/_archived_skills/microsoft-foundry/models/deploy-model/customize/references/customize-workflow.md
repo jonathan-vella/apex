@@ -11,6 +11,7 @@ az account show --query "{Subscription:name, User:user.name}" -o table
 If not logged in: `az login`
 
 Set subscription if needed:
+
 ```bash
 az account list --query "[].[name,id,state]" -o table
 az account set --subscription <subscription-id>
@@ -38,6 +39,7 @@ $PROJECT_NAME = ($PROJECT_RESOURCE_ID -split '/')[10]
 ```
 
 Verify project exists and get region:
+
 ```bash
 az account set --subscription $SUBSCRIPTION_ID
 az cognitiveservices account show \
@@ -51,6 +53,7 @@ az cognitiveservices account show \
 ## Phase 4: Get Model Name
 
 List available models if not provided:
+
 ```bash
 az cognitiveservices account list-models \
   --name $ACCOUNT_NAME \
@@ -74,6 +77,7 @@ echo "Model format: $MODEL_FORMAT"
 ```
 
 > 💡 **Model format determines the deployment path:**
+>
 > - `OpenAI` — Standard CLI, TPM-based capacity, RAI policies, version upgrade policies
 > - `Anthropic` — REST API with `modelProviderData`, capacity=1, no RAI, no version upgrade
 > - All other formats (`Meta-Llama`, `Mistral`, `Cohere`, etc.) — Standard CLI, capacity=1 (MaaS), no RAI, no version upgrade
@@ -98,6 +102,7 @@ Recommend latest version (first in list). Default to `"latest"` if no versions f
 > ⚠️ **Warning:** Never hardcode SKU lists — always query live data.
 
 **Step A — Query model-supported SKUs:**
+
 ```bash
 az cognitiveservices model list \
   --location $PROJECT_REGION \
@@ -107,6 +112,7 @@ az cognitiveservices model list \
 Filter: `model.name == $MODEL_NAME && model.version == $MODEL_VERSION`, extract `model.skus[].name`.
 
 **Step B — Check subscription quota per SKU:**
+
 ```bash
 az cognitiveservices usage list \
   --location $PROJECT_REGION \
@@ -124,6 +130,7 @@ Quota key pattern: `OpenAI.<SKU>.<model-name>`. Calculate `available = limit - c
 > ⚠️ **Non-OpenAI models (MaaS):** If `MODEL_FORMAT != "OpenAI"`, capacity is always `1` (pay-per-token billing). Skip capacity configuration and set `DEPLOY_CAPACITY=1`. Proceed to Phase 7c (Anthropic) or Phase 8.
 
 **For OpenAI models only — query capacity via REST API:**
+
 ```bash
 # Current region capacity
 az rest --method GET --url \
@@ -134,16 +141,17 @@ Filter result for `properties.skuName == $SELECTED_SKU`. Read `properties.availa
 
 **Capacity defaults by SKU (OpenAI only):**
 
-| SKU | Unit | Min | Max | Step | Default |
-|-----|------|-----|-----|------|---------|
-| ProvisionedManaged | PTU | 50 | 1000 | 50 | 100 |
-| Others (TPM-based) | TPM | 1000 | min(available, 300000) | 1000 | min(10000, available/2) |
+| SKU                | Unit | Min  | Max                    | Step | Default                 |
+| ------------------ | ---- | ---- | ---------------------- | ---- | ----------------------- |
+| ProvisionedManaged | PTU  | 50   | 1000                   | 50   | 100                     |
+| Others (TPM-based) | TPM  | 1000 | min(available, 300000) | 1000 | min(10000, available/2) |
 
 Validate user input: must be >= min, <= max, multiple of step. On invalid input, explain constraints.
 
 ### Phase 7b: Cross-Region Fallback
 
 If no capacity in current region, query ALL regions:
+
 ```bash
 az rest --method GET --url \
   "https://management.azure.com/subscriptions/$SUBSCRIPTION_ID/providers/Microsoft.CognitiveServices/modelCapacities?api-version=2024-10-01&modelFormat=$MODEL_FORMAT&modelName=$MODEL_NAME&modelVersion=$MODEL_VERSION"
@@ -152,6 +160,7 @@ az rest --method GET --url \
 Filter: `properties.skuName == $SELECTED_SKU && properties.availableCapacity > 0`. Sort descending by capacity.
 
 Present available regions. After user selects region, find existing projects there:
+
 ```bash
 az cognitiveservices account list \
   --query "[?kind=='AIProject' && location=='$PROJECT_REGION'].{Name:name, ResourceGroup:resourceGroup}" \
@@ -213,7 +222,8 @@ COUNTRY_CODE=$(echo "$TENANT_INFO" | jq -r '.countryCode')
 ORG_NAME=$(echo "$TENANT_INFO" | jq -r '.displayName')
 ```
 
-*PowerShell version:*
+_PowerShell version:_
+
 ```powershell
 $tenantInfo = az rest --method GET `
   --url "https://management.azure.com/tenants?api-version=2024-11-01" `
@@ -232,6 +242,7 @@ Store `COUNTRY_CODE` and `ORG_NAME` for use in Phase 13.
 > ⚠️ **Note:** RAI policies only apply to OpenAI models. Skip this phase if `MODEL_FORMAT != "OpenAI"` (Anthropic, Meta-Llama, Mistral, Cohere, etc. do not use RAI policies).
 
 Present options:
+
 1. `Microsoft.DefaultV2` — Balanced filtering (recommended). Filters hate, violence, sexual, self-harm.
 2. `Microsoft.Prompt-Shield` — Enhanced prompt injection/jailbreak protection.
 3. Custom policies — Organization-specific (configured in Azure Portal).
@@ -245,22 +256,27 @@ Default: `Microsoft.DefaultV2`.
 Options are SKU-dependent:
 
 **A. Dynamic Quota** (GlobalStandard only)
+
 - Auto-scales beyond base allocation when capacity available
 - Default: enabled
 
 **B. Priority Processing** (ProvisionedManaged only)
+
 - Prioritizes requests during high load; additional charges apply
 - Default: disabled
 
 **C. Spillover** (any SKU)
+
 - Redirects requests to backup deployment at capacity
 - Requires existing deployment; list with:
+
 ```bash
 az cognitiveservices account deployment list \
   --name $ACCOUNT_NAME \
   --resource-group $RESOURCE_GROUP \
   --query "[].name" -o json
 ```
+
 - Default: disabled
 
 ---
@@ -269,11 +285,11 @@ az cognitiveservices account deployment list \
 
 > ⚠️ **Note:** Version upgrade policies only apply to OpenAI models. Skip this phase if `MODEL_FORMAT != "OpenAI"`.
 
-| Policy | Description |
-|--------|-------------|
+| Policy                           | Description                               |
+| -------------------------------- | ----------------------------------------- |
 | `OnceNewDefaultVersionAvailable` | Auto-upgrade to new default (Recommended) |
-| `OnceCurrentVersionExpired` | Upgrade only when current expires |
-| `NoAutoUpgrade` | Manual upgrade only |
+| `OnceCurrentVersionExpired`      | Upgrade only when current expires         |
+| `NoAutoUpgrade`                  | Manual upgrade only                       |
 
 Default: `OnceNewDefaultVersionAvailable`.
 
@@ -282,6 +298,7 @@ Default: `OnceNewDefaultVersionAvailable`.
 ## Phase 11: Generate Deployment Name
 
 List existing deployments to avoid conflicts:
+
 ```bash
 az cognitiveservices account deployment list \
   --name $ACCOUNT_NAME \
@@ -296,6 +313,7 @@ Auto-generate: use model name as base, append `-2`, `-3` etc. if taken. Allow cu
 ## Phase 12: Review Configuration
 
 Display summary of all selections for user confirmation before proceeding:
+
 - Model, version, deployment name
 - SKU, capacity (with unit), region
 - RAI policy, version upgrade policy
@@ -313,6 +331,7 @@ User confirms or cancels.
 ### Standard CLI deployment (non-Anthropic models):
 
 **Create deployment:**
+
 ```bash
 az cognitiveservices account deployment create \
   --name $ACCOUNT_NAME \
@@ -358,7 +377,8 @@ az rest --method PUT \
   }"
 ```
 
-*PowerShell version:*
+_PowerShell version:_
+
 ```powershell
 Write-Host "Creating Anthropic model deployment via REST API..."
 
@@ -389,6 +409,7 @@ az rest --method PUT `
 > 💡 **Note:** Anthropic models use `capacity: 1` (MaaS billing model), not TPM-based capacity. RAI policy is not applicable for Anthropic models.
 
 ### Monitor deployment status:
+
 ```bash
 az cognitiveservices account deployment show \
   --name $ACCOUNT_NAME \
@@ -400,6 +421,7 @@ az cognitiveservices account deployment show \
 Poll until `Succeeded` or `Failed`. Timeout after 5 minutes.
 
 **Get endpoint:**
+
 ```bash
 az cognitiveservices account show \
   --name $ACCOUNT_NAME \

@@ -5,6 +5,7 @@ These rules apply to ALL phases of the migration skill.
 ## Destructive Action Policy
 
 ⛔ **NEVER** perform destructive actions without explicit user confirmation via `ask_user`:
+
 - Deleting files or directories
 - Overwriting existing code
 - Deploying to production environments
@@ -14,6 +15,7 @@ These rules apply to ALL phases of the migration skill.
 ## User Confirmation Required
 
 Always use `ask_user` before:
+
 - Selecting Azure subscription
 - Selecting Azure region/location
 - Deploying infrastructure
@@ -38,7 +40,7 @@ Always use `ask_user` before:
 - **DefaultAzureCredential with UAMI**: When using User Assigned Managed Identity, always pass `managedIdentityClientId` explicitly:
   ```javascript
   const credential = new DefaultAzureCredential({
-    managedIdentityClientId: process.env.AZURE_CLIENT_ID
+    managedIdentityClientId: process.env.AZURE_CLIENT_ID,
   });
   ```
   Without this, `DefaultAzureCredential` tries SystemAssigned first and fails. Add `AZURE_CLIENT_ID` as an app setting mapped to the UAMI client ID.

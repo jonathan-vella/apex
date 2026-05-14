@@ -4,6 +4,7 @@
 > in the **azure-ai-document-intelligence-ts** plugin skill if installed.
 
 ## Install
+
 ```bash
 npm install @azure-rest/ai-document-intelligence @azure/identity
 ```
@@ -13,11 +14,16 @@ npm install @azure-rest/ai-document-intelligence @azure/identity
 > **Auth:** `DefaultAzureCredential` is for local development. See [auth-best-practices.md](../auth-best-practices.md) for production patterns.
 
 ```typescript
-import DocumentIntelligence, { isUnexpected, getLongRunningPoller, AnalyzeOperationOutput } from "@azure-rest/ai-document-intelligence";
+import DocumentIntelligence, {
+  isUnexpected,
+  getLongRunningPoller,
+  AnalyzeOperationOutput,
+} from "@azure-rest/ai-document-intelligence";
 const client = DocumentIntelligence(endpoint, new DefaultAzureCredential());
 ```
 
 ## Non-Obvious Patterns
+
 - REST client — `DocumentIntelligence` is a function, not a class
 - Analyze path: `client.path("/documentModels/{modelId}:analyze", "prebuilt-layout").post({...})`
 - Must use `getLongRunningPoller(client, initialResponse)` then `poller.pollUntilDone()`
@@ -25,6 +31,7 @@ const client = DocumentIntelligence(endpoint, new DefaultAzureCredential());
 - Pagination: `import { paginate } from "@azure-rest/ai-document-intelligence"`
 
 ## Best Practices
+
 1. Use `getLongRunningPoller()` — document analysis is async, always poll
 2. Check `isUnexpected()` — type guard for proper error handling
 3. Choose the right model — prebuilt when possible, custom for specialized docs

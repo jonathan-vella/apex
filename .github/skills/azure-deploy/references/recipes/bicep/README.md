@@ -11,12 +11,12 @@ Deploy to Azure using Bicep templates directly.
 
 ## Workflow
 
-| Step | Task | Command |
-|------|------|---------|
-| 1 | **[Pre-deploy checklist](../../pre-deploy-checklist.md)** | Confirm subscription/location with user |
-| 2 | Build (optional) | `az bicep build --file main.bicep` |
-| 3 | Deploy | `az deployment sub create` |
-| 4 | Verify | `az resource list` |
+| Step | Task                                                      | Command                                 |
+| ---- | --------------------------------------------------------- | --------------------------------------- |
+| 1    | **[Pre-deploy checklist](../../pre-deploy-checklist.md)** | Confirm subscription/location with user |
+| 2    | Build (optional)                                          | `az bicep build --file main.bicep`      |
+| 3    | Deploy                                                    | `az deployment sub create`              |
+| 4    | Verify                                                    | `az resource list`                      |
 
 ## Deployment Commands
 
@@ -71,11 +71,11 @@ az deployment sub show \
 
 ## MCP Tools
 
-| Tool | Purpose |
-|------|---------|
-| `mcp_bicep_get_bicep_best_practices` | Best practices |
-| `mcp_bicep_get_az_resource_type_schema` | Resource schemas |
-| `mcp_bicep_list_avm_metadata` | Azure Verified Modules |
+| Tool                                    | Purpose                |
+| --------------------------------------- | ---------------------- |
+| `mcp_bicep_get_bicep_best_practices`    | Best practices         |
+| `mcp_bicep_get_az_resource_type_schema` | Resource schemas       |
+| `mcp_bicep_list_avm_metadata`           | Azure Verified Modules |
 
 ## AVM Verification Before Deploy
 

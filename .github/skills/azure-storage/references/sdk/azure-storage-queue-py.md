@@ -5,6 +5,7 @@
 > in the **azure-storage-queue-py** plugin skill if installed.
 
 ## Install
+
 pip install azure-storage-queue azure-identity
 
 ## Quick Start
@@ -18,6 +19,7 @@ queue_client = QueueClient("https://<account>.queue.core.windows.net", "myqueue"
 ```
 
 ## Best Practices
+
 - Delete messages after processing to prevent reprocessing
 - Set appropriate visibility timeout based on processing time
 - Handle `dequeue_count` for poison message detection

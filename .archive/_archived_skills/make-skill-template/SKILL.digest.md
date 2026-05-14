@@ -49,3 +49,4 @@ my-awesome-skill/
    - Replace body content with your instructions
 
 > _See SKILL.md for full content._
+```

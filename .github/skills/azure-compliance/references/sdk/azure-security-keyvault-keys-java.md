@@ -5,6 +5,7 @@
 > in the **azure-security-keyvault-keys-java** plugin skill if installed.
 
 ## Install
+
 ```xml
 <dependency>
     <groupId>com.azure</groupId>
@@ -31,6 +32,7 @@ var keyClient = new KeyClientBuilder()
 ```
 
 ## Best Practices
+
 - Use HSM keys for production — set `setHardwareProtected(true)` for sensitive keys
 - Enable soft delete — protects against accidental deletion
 - Key rotation — set up automatic rotation policies

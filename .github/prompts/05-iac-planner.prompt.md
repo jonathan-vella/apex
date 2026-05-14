@@ -8,6 +8,7 @@ agent: "05-IaC Planner"
 Create a comprehensive, machine-readable implementation plan based on the approved architecture.
 
 <investigate_before_answering>
+
 - The implementation plan is the contract that Steps 5 (IaC Code) and 6
   (Deploy) execute against. Before drafting it, confirm: (a) which IaC tool
   was decided (`Bicep` or `Terraform`); (b) what governance constraints
@@ -16,7 +17,7 @@ Create a comprehensive, machine-readable implementation plan based on the approv
   deployment order or parallelism.
 - If governance constraints conflict with the approved architecture,
   surface the conflict and ask before drafting.
-</investigate_before_answering>
+  </investigate_before_answering>
 
 <context>
 - `{project}` is the folder under `agent-output/`.
@@ -62,6 +63,7 @@ Create a comprehensive, machine-readable implementation plan based on the approv
 </rules>
 
 <output_contract>
+
 - `agent-output/{project}/04-implementation-plan.md` (resource manifest,
   deployment order, parameter contract)
 - `agent-output/{project}/04-dependency-diagram.py` + `.png`
@@ -69,4 +71,4 @@ Create a comprehensive, machine-readable implementation plan based on the approv
 - Updated `agent-output/{project}/00-session-state.json`
 - Handoff: route control to Step 5 (`06b-Bicep CodeGen` OR
   `06t-Terraform CodeGen`) based on `decisions.iac_tool`.
-</output_contract>
+  </output_contract>

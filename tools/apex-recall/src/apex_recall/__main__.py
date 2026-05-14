@@ -76,6 +76,15 @@ def build_parser() -> argparse.ArgumentParser:
     p_cp.add_argument("sub_step", help="Sub-step identifier")
     p_cp.add_argument("--json", action="store_true", help="Output as JSON")
     p_cp.add_argument("--artifact", type=str, default=None, help="Artifact path to append")
+    # Telemetry (Wave 0 — measure-workflow-baseline.mjs consumes these)
+    p_cp.add_argument("--telemetry-step-start", type=str, default=None, help="ISO-8601 timestamp marking step start")
+    p_cp.add_argument("--telemetry-step-end", type=str, default=None, help="ISO-8601 timestamp marking step end")
+    p_cp.add_argument("--telemetry-elapsed-ms", type=int, default=None, help="Elapsed wall-clock ms for the step")
+    p_cp.add_argument("--telemetry-input-tokens", type=int, default=None, help="Input tokens consumed during the step")
+    p_cp.add_argument("--telemetry-output-tokens", type=int, default=None, help="Output tokens emitted during the step")
+    p_cp.add_argument("--telemetry-subagent-count", type=int, default=None, help="Number of subagent invocations")
+    p_cp.add_argument("--telemetry-validation-attempts", type=int, default=None, help="Validate-subagent retries (0+)")
+    p_cp.add_argument("--telemetry-cache-hits", type=int, default=None, help="Read-cache hits during the step")
 
     # complete-step
     p_complete = sub.add_parser("complete-step", help="Mark a step as complete")

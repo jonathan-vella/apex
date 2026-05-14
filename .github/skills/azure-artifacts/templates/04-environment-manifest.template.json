@@ -1,0 +1,39 @@
+{
+  "$schema": "../../../../tools/schemas/environment-manifest.schema.json",
+  "schema_version": "environment-manifest-v1",
+  "project": "{project-name}",
+  "generated_at": "{ISO-8601 timestamp}",
+  "environments": {
+    "dev": {
+      "subscription_id": "00000000-0000-0000-0000-000000000000",
+      "tenant_id": "00000000-0000-0000-0000-000000000000",
+      "primary_region": "swedencentral",
+      "failover_region": "germanywestcentral",
+      "deployer_object_id": "00000000-0000-0000-0000-000000000000",
+      "existing_app_reg_object_ids": {},
+      "principal_ids": {},
+      "alert_emails": ["platform@example.com"],
+      "budget_monthly_usd": 200
+    },
+    "prod": {
+      "subscription_id": "00000000-0000-0000-0000-000000000000",
+      "tenant_id": "00000000-0000-0000-0000-000000000000",
+      "primary_region": "swedencentral",
+      "failover_region": "germanywestcentral",
+      "deployer_object_id": "00000000-0000-0000-0000-000000000000",
+      "existing_app_reg_object_ids": {
+        "api": "00000000-0000-0000-0000-000000000000"
+      },
+      "principal_ids": {
+        "break_glass": "00000000-0000-0000-0000-000000000000"
+      },
+      "alert_emails": ["platform-prod@example.com"],
+      "budget_monthly_usd": 1500
+    }
+  },
+  "redaction_rules": {
+    "redact_object_ids": true,
+    "redact_emails": true,
+    "redact_subscription_id": false
+  }
+}

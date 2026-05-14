@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-05-12T12:36:50.809Z",
+  "generatedAt": "2026-05-14T15:37:40.979Z",
   "categories": [
     {
       "id": "agent",
@@ -32,7 +32,7 @@
       "label": "Instruction",
       "color": "#f59e0b",
       "shape": "rectangle",
-      "count": 28
+      "count": 29
     },
     {
       "id": "prompt",
@@ -48,7 +48,7 @@
       "label": "Validator",
       "color": "#8b5cf6",
       "shape": "hexagon",
-      "count": 42
+      "count": 48
     },
     {
       "id": "workflow",
@@ -67,8 +67,8 @@
       "count": 6
     }
   ],
-  "nodeCount": 157,
-  "edgeCount": 657,
+  "nodeCount": 164,
+  "edgeCount": 663,
   "nodes": [
     {
       "id": "agent:01-orchestrator",
@@ -500,7 +500,7 @@
       "id": "subagent:policy-precheck-subagent",
       "category": "subagent",
       "label": "policy-precheck-subagent",
-      "description": "Live Azure Policy precheck subagent (L3). Cross-checks live policy state vs governance constraints, runs what-if/plan policy validation, and returns a structured CLEAN|DRIFT|BLOCKED|FAILED verdict so Deploy agents (07b/07t) can route via the governance drift matrix before az deployment ... create or terraform apply.",
+      "description": "Live Azure Policy precheck subagent (L3). Cross-checks live policy state vs governance constraints, runs what-if/plan policy validation, and returns a deterministic deploy_gate (PROCEED|BLOCK) plus a status classification (CLEAN|INFORMATIONAL|BLOCKED|FAILED) so Deploy agents (07b/07t) can route via the governance drift matrix before az deployment ... create or terraform apply.",
       "path": ".github/agents/_subagents/policy-precheck-subagent.agent.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/_subagents/policy-precheck-subagent.agent.md"
@@ -627,7 +627,7 @@
       "id": "skill:azure-deploy",
       "category": "skill",
       "label": "azure-deploy",
-      "description": "**WORKFLOW SKILL** — Execute Azure deployments for ALREADY-PREPARED apps. Runs azd up, azd deploy, terraform apply with built-in error recovery. Requires plan.md from azure-prepare and validated status from azure-validate. WHEN: \"run azd up\", \"run azd deploy\", \"push to production\", \"go live\", \"bicep deploy\", \"terraform apply\", \"publish to Azure\". USE FOR: deploying validated infra; lifting existing IaC to cloud. DO NOT USE FOR: creating new apps (use azure-prepare), generating IaC (use azure-prepare), pre-deployment checks (use azure-validate). INVOKES: azd CLI, az deployment, mcp_microsoft-lea_microsoft_docs_search.",
+      "description": "**WORKFLOW SKILL** — Execute Azure deployments for ALREADY-PREPARED apps. Runs azd up, azd deploy, terraform apply with built-in error recovery. Requires plan.md from azure-prepare and validated status from azure-validate. WHEN: \"run azd up\", \"run azd deploy\", \"push to production\", \"go live\", \"bicep deploy\", \"terraform apply\", \"publish to Azure\". USE FOR: deploying validated infra; lifting existing IaC to cloud. DO NOT USE FOR: creating new apps (use azure-prepare), generating IaC (use azure-prepare), pre-deployment checks (use azure-validate). INVOKES: azd CLI, az deployment, microsoft_docs_search (Microsoft Learn MCP).",
       "path": ".github/skills/azure-deploy/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-deploy/SKILL.md"
@@ -704,7 +704,7 @@
       "id": "skill:azure-resources",
       "category": "skill",
       "label": "azure-resources",
-      "description": "**ANALYSIS SKILL** — List, find, and visualize existing Azure resources via Azure Resource Graph (LOOKUP) or Mermaid diagrams (VISUALIZE). WHEN: \"list resources\", \"list VMs\", \"find orphaned resources\", \"resource inventory\", \"cross-subscription query\", \"visualize Azure resources\", \"diagram my resources\". USE FOR: resource lookup, tag analysis, architecture visualization. DO NOT USE FOR: deploying resources (use azure-deploy), cost optimization (use azure-cost-optimization), security scanning (use azure-compliance), troubleshooting (use azure-diagnostics). INVOKES: az resource graph, az resource, mcp_microsoft-lea_microsoft_docs_search.",
+      "description": "**ANALYSIS SKILL** — List, find, and visualize existing Azure resources via Azure Resource Graph (LOOKUP) or Mermaid diagrams (VISUALIZE). WHEN: \"list resources\", \"list VMs\", \"find orphaned resources\", \"resource inventory\", \"cross-subscription query\", \"visualize Azure resources\", \"diagram my resources\". USE FOR: resource lookup, tag analysis, architecture visualization. DO NOT USE FOR: deploying resources (use azure-deploy), cost optimization (use azure-cost-optimization), security scanning (use azure-compliance), troubleshooting (use azure-diagnostics). INVOKES: az resource graph, az resource, microsoft_docs_search (Microsoft Learn MCP).",
       "path": ".github/skills/azure-resources/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-resources/SKILL.md"
@@ -1250,6 +1250,19 @@
       }
     },
     {
+      "id": "instruction:sku-manifest",
+      "category": "instruction",
+      "label": "sku-manifest",
+      "description": "Authoring rules for the SKU Manifest artifact (sku-manifest-v1)",
+      "path": ".github/instructions/sku-manifest.instructions.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/sku-manifest.instructions.md"
+      },
+      "meta": {
+        "applyTo": "**/sku-manifest.{md,json}"
+      }
+    },
+    {
       "id": "instruction:vendor-prompting",
       "category": "instruction",
       "label": "vendor-prompting",
@@ -1753,6 +1766,71 @@
       "parent": "group:validator-orphans"
     },
     {
+      "id": "validator:validate-policy-precheck",
+      "category": "validator",
+      "label": "validate:policy-precheck",
+      "description": "node tools/scripts/validate-policy-precheck.mjs",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
+      },
+      "meta": {
+        "command": "node tools/scripts/validate-policy-precheck.mjs"
+      }
+    },
+    {
+      "id": "validator:validate-sku-manifest",
+      "category": "validator",
+      "label": "validate:sku-manifest",
+      "description": "node tools/scripts/validate-sku-manifest.mjs",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
+      },
+      "meta": {
+        "command": "node tools/scripts/validate-sku-manifest.mjs"
+      }
+    },
+    {
+      "id": "validator:validate-sku-iac-coverage",
+      "category": "validator",
+      "label": "validate:sku-iac-coverage",
+      "description": "node tools/scripts/validate-sku-iac-coverage.mjs",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
+      },
+      "meta": {
+        "command": "node tools/scripts/validate-sku-iac-coverage.mjs"
+      }
+    },
+    {
+      "id": "validator:validate-decision-keys",
+      "category": "validator",
+      "label": "validate:decision-keys",
+      "description": "node tools/scripts/validate-decision-keys.mjs",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
+      },
+      "meta": {
+        "command": "node tools/scripts/validate-decision-keys.mjs"
+      }
+    },
+    {
+      "id": "validator:validate-banned-phrases",
+      "category": "validator",
+      "label": "validate:banned-phrases",
+      "description": "node tools/scripts/validate-banned-phrases.mjs",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
+      },
+      "meta": {
+        "command": "node tools/scripts/validate-banned-phrases.mjs"
+      }
+    },
+    {
       "id": "validator:validate-vscode",
       "category": "validator",
       "label": "validate:vscode",
@@ -1881,6 +1959,21 @@
       "meta": {
         "command": "node tools/scripts/safe-shell.mjs"
       }
+    },
+    {
+      "id": "validator:validate-tool-versions",
+      "category": "validator",
+      "label": "validate:tool-versions",
+      "description": "node tools/scripts/validate-tool-versions.mjs",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
+      },
+      "meta": {
+        "command": "node tools/scripts/validate-tool-versions.mjs",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
     },
     {
       "id": "validator:lint-md",
@@ -2180,11 +2273,11 @@
     {
       "id": "group:validator-orphans",
       "category": "validator",
-      "label": "Validator (unlinked, 5)",
-      "description": "5 validator nodes with no cross-references in the current graph.",
+      "label": "Validator (unlinked, 6)",
+      "description": "6 validator nodes with no cross-references in the current graph.",
       "isGroup": true,
       "meta": {
-        "groupSize": 5
+        "groupSize": 6
       }
     },
     {
@@ -4066,6 +4159,12 @@
       "kind": "applies-to"
     },
     {
+      "id": "instruction:instructions--applies-to->instruction:sku-manifest",
+      "source": "instruction:instructions",
+      "target": "instruction:sku-manifest",
+      "kind": "applies-to"
+    },
+    {
       "id": "instruction:instructions--applies-to->instruction:vendor-prompting",
       "source": "instruction:instructions",
       "target": "instruction:vendor-prompting",
@@ -5341,6 +5440,36 @@
       "id": "workflow:ci--runs->validator:validate-terminology",
       "source": "workflow:ci",
       "target": "validator:validate-terminology",
+      "kind": "runs"
+    },
+    {
+      "id": "workflow:ci--runs->validator:validate-sku-manifest",
+      "source": "workflow:ci",
+      "target": "validator:validate-sku-manifest",
+      "kind": "runs"
+    },
+    {
+      "id": "workflow:ci--runs->validator:validate-sku-iac-coverage",
+      "source": "workflow:ci",
+      "target": "validator:validate-sku-iac-coverage",
+      "kind": "runs"
+    },
+    {
+      "id": "workflow:ci--runs->validator:validate-decision-keys",
+      "source": "workflow:ci",
+      "target": "validator:validate-decision-keys",
+      "kind": "runs"
+    },
+    {
+      "id": "workflow:ci--runs->validator:validate-banned-phrases",
+      "source": "workflow:ci",
+      "target": "validator:validate-banned-phrases",
+      "kind": "runs"
+    },
+    {
+      "id": "workflow:ci--runs->validator:validate-policy-precheck",
+      "source": "workflow:ci",
+      "target": "validator:validate-policy-precheck",
       "kind": "runs"
     },
     {

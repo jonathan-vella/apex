@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/jonathan-vella/azure-agentic-infraops/schemas/environment-manifest.schema.json",
+  "title": "APEX Environment Manifest",
+  "description": "Records per-environment values (subscriptionId, tenant, deployer object ID, existing app reg object IDs, principal IDs, alert email lists) that MUST live outside the IaC tree to keep the committed source highly repeatable across environments and tenants. Artifact path: agent-output/{project}/04-environment-manifest.json. Consumed by deploy agents (07b/07t) at run time; never committed to infra/. Validator: validate-environment-manifest.mjs. Redaction rules: validate-environment-manifest.mjs --redact strips object IDs and email PII to a SHA256 hash prefix before transcripts/logs are written.",
+  "type": "object",
+  "required": ["schema_version", "project", "generated_at", "environments"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "schema_version": {
+      "type": "string",
+      "const": "environment-manifest-v1"
+    },
+    "project": { "type": "string", "minLength": 1 },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "environments": {
+      "type": "object",
+      "description": "Keyed by environment name (dev/test/stage/prod). Each entry holds all env-specific values resolved at deploy time. Object IDs are GUIDs; e-mail lists are arrays of strings.",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "object",
+        "required": ["subscription_id", "tenant_id", "primary_region"],
+        "additionalProperties": false,
+        "properties": {
+          "subscription_id": {
+            "type": "string",
+            "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+          },
+          "tenant_id": {
+            "type": "string",
+            "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+          },
+          "primary_region": { "type": "string", "minLength": 1 },
+          "failover_region": { "type": "string" },
+          "deployer_object_id": {
+            "type": "string",
+            "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+            "description": "objectId of the service principal or user that will run azd provision / terraform apply."
+          },
+          "existing_app_reg_object_ids": {
+            "type": "object",
+            "description": "Map of logical-name → object ID for app registrations created out-of-band. Used when identity.entra_app_creation == 'existing'.",
+            "additionalProperties": {
+              "type": "string",
+              "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+            }
+          },
+          "principal_ids": {
+            "type": "object",
+            "description": "Additional principals (admin groups, deployer SPN of pipelines, break-glass owners) keyed by purpose.",
+            "additionalProperties": {
+              "type": "string",
+              "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+            }
+          },
+          "alert_emails": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "email"
+            },
+            "description": "Budget + monitor action group e-mails. Redacted to sha256 prefix in transcripts."
+          },
+          "budget_monthly_usd": {
+            "type": "number",
+            "minimum": 0
+          },
+          "vnet_address_spaces": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Optional environment-specific CIDR overrides for hub-spoke topologies."
+          },
+          "kv_admin_object_id": {
+            "type": "string",
+            "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+          }
+        }
+      }
+    },
+    "redaction_rules": {
+      "type": "object",
+      "description": "Static guidance to the deploy agents about how to render this manifest into transcripts/logs.",
+      "additionalProperties": false,
+      "properties": {
+        "redact_object_ids": { "type": "boolean", "default": true },
+        "redact_emails": { "type": "boolean", "default": true },
+        "redact_subscription_id": { "type": "boolean", "default": false }
+      }
+    }
+  }
+}

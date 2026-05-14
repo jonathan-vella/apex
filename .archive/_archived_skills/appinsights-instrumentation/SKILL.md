@@ -26,7 +26,7 @@ This skill provides **guidance and reference material** for instrumenting webapp
 ## When to Use azure-prepare Instead
 
 - User says "add telemetry to my app"
-- User says "add App Insights" 
+- User says "add App Insights"
 - User wants to modify their project
 - Any request to change/add components
 
@@ -41,7 +41,7 @@ The app in the workspace must be one of these kinds
 
 ### Collect context information
 
-Find out the (programming language, application framework, hosting) tuple of the application the user is trying to add telemetry support in. This determines how the application can be instrumented. Read the source code to make an educated guess. Confirm with the user on anything you don't know. You must always ask the user where the application is hosted (e.g. on a personal computer, in an Azure App Service as code, in an Azure App Service as container, in an Azure Container App, etc.). 
+Find out the (programming language, application framework, hosting) tuple of the application the user is trying to add telemetry support in. This determines how the application can be instrumented. Read the source code to make an educated guess. Confirm with the user on anything you don't know. You must always ask the user where the application is hosted (e.g. on a personal computer, in an Azure App Service as code, in an Azure App Service as container, in an Azure Container App, etc.).
 
 ### Prefer auto-instrument if possible
 
@@ -49,7 +49,7 @@ If the app is a C# ASP.NET Core app hosted in Azure App Service, use [AUTO guide
 
 ### Manually instrument
 
-Manually instrument the app by creating the AppInsights resource and update the app's code. 
+Manually instrument the app by creating the AppInsights resource and update the app's code.
 
 #### Create AppInsights resource
 
@@ -75,9 +75,9 @@ No matter which option you choose, recommend the user to create the App Insights
 
 Load these on demand — do NOT read all at once:
 
-| Reference | When to Load |
-| --------- | ------------ |
-| `references/aspnetcore.md` | Aspnetcore |
-| `references/auto.md` | Auto |
-| `references/nodejs.md` | Nodejs |
-| `references/python.md` | Python |
+| Reference                  | When to Load |
+| -------------------------- | ------------ |
+| `references/aspnetcore.md` | Aspnetcore   |
+| `references/auto.md`       | Auto         |
+| `references/nodejs.md`     | Nodejs       |
+| `references/python.md`     | Python       |

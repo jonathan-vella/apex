@@ -454,6 +454,13 @@ printf "        %-15s %s\n" "Deno:" "$(deno --version 2>/dev/null | head -n1 || 
 printf "        %-15s %s\n" "gitleaks:" "$(gitleaks version 2>/dev/null || echo '❌ not installed')"
 printf "        %-15s %s\n" "terraform-mcp:" "$(( terraform-mcp-server --version 2>/dev/null || /go/bin/terraform-mcp-server --version 2>/dev/null ) | head -2 | tr '\n' ' ' || echo '❌ not installed')"
 
+# Wave 1+: assert minimum tool versions for IaC contract pipeline
+if [ -f "tools/scripts/validate-tool-versions.mjs" ]; then
+    node tools/scripts/validate-tool-versions.mjs --json > /tmp/tool-versions.json 2>/dev/null \
+        && echo "        Tool pins:      ✅ all ≥ minimum" \
+        || echo "        Tool pins:      ⚠️  one or more tools below pinned minimum (see tools/registry/tool-version-pins.json)"
+fi
+
 step_done "All verifications complete"
 
 # ─── Summary ─────────────────────────────────────────────────────────────────

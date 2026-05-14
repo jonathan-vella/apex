@@ -1,15 +1,17 @@
 <!-- ref:python-v1 -->
+
 ## Modify code
 
 Make these necessary changes to the app.
 
 - Install client library
+
 ```
 pip install azure-monitor-opentelemetry
 ```
 
 - Configure the app to use Azure Monitor
-Python applications send telemetry via the logger class in Python standard library. Create a module that configures and creates a logger that can send telemetry.
+  Python applications send telemetry via the logger class in Python standard library. Create a module that configures and creates a logger that can send telemetry.
 
 ```python
 import logging
@@ -38,12 +40,14 @@ If the app has IaC template such as Bicep or terraform files representing its cl
 ## Send data
 
 Create a logger that is configured to send telemetry.
+
 ```python
 logger = logging.getLogger("<your_logger_namespace>")
 logger.setLevel(logging.INFO)
 ```
 
 Then send telemetry events by calling its logging methods.
+
 ```python
 logger.info("info log")
 ```

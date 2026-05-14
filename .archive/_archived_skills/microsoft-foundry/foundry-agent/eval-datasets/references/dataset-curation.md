@@ -36,30 +36,30 @@ Each line includes a review status:
 
 Show candidates in a review table:
 
-| # | Status | Query (preview) | Source | Error | Duration | Eval Score |
-|---|--------|----------------|--------|-------|----------|------------|
-| 1 | ⏳ pending | "How do I reset my..." | error harvest | TimeoutError | 12.3s | — |
-| 2 | ⏳ pending | "What's the refund..." | latency harvest | — | 8.7s | — |
-| 3 | ⏳ pending | "Can you help me..." | low-eval harvest | — | 0.4s | 2.0 |
+| #   | Status     | Query (preview)        | Source           | Error        | Duration | Eval Score |
+| --- | ---------- | ---------------------- | ---------------- | ------------ | -------- | ---------- |
+| 1   | ⏳ pending | "How do I reset my..." | error harvest    | TimeoutError | 12.3s    | —          |
+| 2   | ⏳ pending | "What's the refund..." | latency harvest  | —            | 8.7s     | —          |
+| 3   | ⏳ pending | "Can you help me..."   | low-eval harvest | —            | 0.4s     | 2.0        |
 
 ### Review Actions
 
 For each candidate, the user can:
 
-| Action | Result |
-|--------|--------|
-| **Approve** | Include in dataset as-is |
-| **Approve + Edit** | Include with modified query/response/ground_truth |
-| **Add Ground Truth** | Approve and add the expected correct answer |
-| **Reject** | Exclude from dataset |
-| **Flag** | Mark for later review |
+| Action               | Result                                            |
+| -------------------- | ------------------------------------------------- |
+| **Approve**          | Include in dataset as-is                          |
+| **Approve + Edit**   | Include with modified query/response/ground_truth |
+| **Add Ground Truth** | Approve and add the expected correct answer       |
+| **Reject**           | Exclude from dataset                              |
+| **Flag**             | Mark for later review                             |
 
 ### Batch Operations
 
-- *"Approve all"* — include all pending candidates
-- *"Approve all errors"* — include all candidates from error harvest
-- *"Reject duplicates"* — exclude candidates with similar queries to existing dataset entries
-- *"Approve #1, #3, #5; reject #2, #4"* — selective approval by number
+- _"Approve all"_ — include all pending candidates
+- _"Approve all errors"_ — include all candidates from error harvest
+- _"Reject duplicates"_ — exclude candidates with similar queries to existing dataset entries
+- _"Approve #1, #3, #5; reject #2, #4"_ — selective approval by number
 
 ## Step 3 — Finalize Dataset
 
@@ -87,13 +87,13 @@ Mark the candidate file with final statuses:
 
 Before finalizing, verify dataset quality:
 
-| Check | Criteria |
-|-------|----------|
-| **No duplicates** | Ensure no query appears in both the new dataset and existing datasets |
-| **Balanced categories** | Verify reasonable distribution across categories (not all edge-cases) |
-| **Ground truth coverage** | Flag examples without ground_truth that may benefit from one |
-| **Minimum size** | Warn if dataset has fewer than 20 examples (may not be statistically meaningful) |
-| **Safety coverage** | Ensure safety-related test cases are included if the agent handles sensitive topics |
+| Check                     | Criteria                                                                            |
+| ------------------------- | ----------------------------------------------------------------------------------- |
+| **No duplicates**         | Ensure no query appears in both the new dataset and existing datasets               |
+| **Balanced categories**   | Verify reasonable distribution across categories (not all edge-cases)               |
+| **Ground truth coverage** | Flag examples without ground_truth that may benefit from one                        |
+| **Minimum size**          | Warn if dataset has fewer than 20 examples (may not be statistically meaningful)    |
+| **Safety coverage**       | Ensure safety-related test cases are included if the agent handles sensitive topics |
 
 ## Next Steps
 

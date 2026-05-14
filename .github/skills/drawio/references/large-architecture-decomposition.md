@@ -14,12 +14,12 @@ This is the canonical reference for **T-007 (density validator)**, **T-024
 
 Resource count is the primary tier signal. Page-density target is the secondary.
 
-| Tier | Resource count | Strategy | Circuit-breaker cap |
-| --- | :-: | --- | :-: |
-| **S** small | ≤ 8 | Single page, no zones beyond RG | 25 tool calls |
-| **M** medium | 9 – 20 | Single page, zones per [`semantic-zones.md`](semantic-zones.md) | 25 tool calls |
-| **L** large | 21 – 50 | Single page **or** decomposition (agent picks) | 40 tool calls |
-| **XL** extra-large | > 50 | **Mandatory** decomposition into multi-page | 60 tool calls |
+| Tier               | Resource count | Strategy                                                        | Circuit-breaker cap |
+| ------------------ | :------------: | --------------------------------------------------------------- | :-----------------: |
+| **S** small        |      ≤ 8       | Single page, no zones beyond RG                                 |    25 tool calls    |
+| **M** medium       |     9 – 20     | Single page, zones per [`semantic-zones.md`](semantic-zones.md) |    25 tool calls    |
+| **L** large        |    21 – 50     | Single page **or** decomposition (agent picks)                  |    40 tool calls    |
+| **XL** extra-large |      > 50      | **Mandatory** decomposition into multi-page                     |    60 tool calls    |
 
 Tier breakpoints feed [T-024 dynamic circuit-breaker](../../../agents/04-design.agent.md).
 
@@ -88,12 +88,12 @@ Page 4: Observability detail
 
 ## Per-page budget
 
-| Element | Budget per page |
-| --- | :-: |
-| Resources (image cells) | ≤ 30 |
-| Edges | ≤ 40 |
-| Zone cells (groups, containers) | ≤ 8 |
-| Total cells (ceiling) | ≤ 80 |
+| Element                         | Budget per page |
+| ------------------------------- | :-------------: |
+| Resources (image cells)         |      ≤ 30       |
+| Edges                           |      ≤ 40       |
+| Zone cells (groups, containers) |       ≤ 8       |
+| Total cells (ceiling)           |      ≤ 80       |
 
 Budgets feed the T-007 density-warning extension to `get-diagram-stats`.
 
@@ -180,12 +180,12 @@ it been enforced strictly.
 
 ## Anti-patterns from T-012 baseline
 
-| Anti-pattern | Captured in | Correction |
-| --- | --- | --- |
-| Tier-L scenario (>20) attempted single page; layout collapsed | G5 (~25 resources, scalability 1/4) | Apply Tier-L decomposition strategy |
-| Tier-XL scenario succeeded but with custom Python merger | G6 (~55 resources, scalability 4/4 — best so far) | Maintain pattern until T-037 lands |
-| Bottom 50% of canvas empty on Tier-S/M | G1, G3, G4, G5 (cross-cutting drift) | Use observability-zone container per [`semantic-zones.md`](semantic-zones.md) |
-| Wide horizontal flow with no row-fold | n/a in baseline | If horizontal extent > 1500 px, decompose by zone instead of widening canvas |
+| Anti-pattern                                                  | Captured in                                       | Correction                                                                    |
+| ------------------------------------------------------------- | ------------------------------------------------- | ----------------------------------------------------------------------------- |
+| Tier-L scenario (>20) attempted single page; layout collapsed | G5 (~25 resources, scalability 1/4)               | Apply Tier-L decomposition strategy                                           |
+| Tier-XL scenario succeeded but with custom Python merger      | G6 (~55 resources, scalability 4/4 — best so far) | Maintain pattern until T-037 lands                                            |
+| Bottom 50% of canvas empty on Tier-S/M                        | G1, G3, G4, G5 (cross-cutting drift)              | Use observability-zone container per [`semantic-zones.md`](semantic-zones.md) |
+| Wide horizontal flow with no row-fold                         | n/a in baseline                                   | If horizontal extent > 1500 px, decompose by zone instead of widening canvas  |
 
 ## Cross-references
 

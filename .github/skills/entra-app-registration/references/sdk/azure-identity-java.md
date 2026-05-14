@@ -5,6 +5,7 @@
 > in the **azure-identity-java** plugin skill if installed.
 
 ## Install
+
 ```xml
 <dependency>
     <groupId>com.azure</groupId>
@@ -14,6 +15,7 @@
 ```
 
 ## Quick Start
+
 > **Auth:** `DefaultAzureCredential` is for local development. See [auth-best-practices.md](../auth-best-practices.md) for production patterns.
 
 ```java
@@ -22,6 +24,7 @@ var credential = new DefaultAzureCredentialBuilder().build();
 ```
 
 ## Best Practices
+
 - Use DefaultAzureCredential for **local development only** (CLI, PowerShell, VS Code). In production, use ManagedIdentityCredential — see [auth-best-practices.md](../auth-best-practices.md)
 - Managed identity in production — no secrets to manage, automatic rotation
 - Azure CLI for local dev — run `az login` before running your app

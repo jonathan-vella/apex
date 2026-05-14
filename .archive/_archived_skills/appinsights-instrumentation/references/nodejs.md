@@ -1,15 +1,17 @@
 <!-- ref:nodejs-v1 -->
+
 ## Modify code
 
 Make these necessary changes to the app.
 
 - Install client library
+
 ```
 npm install @azure/monitor-opentelemetry
 ```
 
 - Configure the app to use Azure Monitor
-A Node.js app typically has an entry file that is listed as the "main" property in package.json. Find this file and apply these changes in it.
+  A Node.js app typically has an entry file that is listed as the "main" property in package.json. Find this file and apply these changes in it.
   - Require the client library at the top. `const { useAzureMonitor } = require("@azure/monitor-opentelemetry");`
   - Call the setup method. `useAzureMonitor();`
 

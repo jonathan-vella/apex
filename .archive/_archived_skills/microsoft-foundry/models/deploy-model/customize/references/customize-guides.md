@@ -8,14 +8,15 @@
 
 ### How to Choose SKU
 
-| SKU | Best For | Cost | Availability |
-|-----|----------|------|--------------|
-| **GlobalStandard** | Production, high availability | Medium | Multi-region |
-| **Standard** | Development, testing | Low | Single region |
+| SKU                    | Best For                           | Cost        | Availability      |
+| ---------------------- | ---------------------------------- | ----------- | ----------------- |
+| **GlobalStandard**     | Production, high availability      | Medium      | Multi-region      |
+| **Standard**           | Development, testing               | Low         | Single region     |
 | **ProvisionedManaged** | High-volume, predictable workloads | Fixed (PTU) | Reserved capacity |
-| **DataZoneStandard** | Data residency requirements | Medium | Specific zones |
+| **DataZoneStandard**   | Data residency requirements        | Medium      | Specific zones    |
 
 **Decision Tree:**
+
 ```
 Do you need guaranteed throughput?
 ├─ Yes → ProvisionedManaged (PTU)
@@ -28,21 +29,23 @@ Do you need guaranteed throughput?
 
 **For TPM-based SKUs (GlobalStandard, Standard):**
 
-| Workload | Recommended Capacity |
-|----------|---------------------|
-| Development/Testing | 1K - 5K TPM |
-| Small Production | 5K - 20K TPM |
-| Medium Production | 20K - 100K TPM |
-| Large Production | 100K+ TPM |
+| Workload            | Recommended Capacity |
+| ------------------- | -------------------- |
+| Development/Testing | 1K - 5K TPM          |
+| Small Production    | 5K - 20K TPM         |
+| Medium Production   | 20K - 100K TPM       |
+| Large Production    | 100K+ TPM            |
 
 **For PTU-based SKUs (ProvisionedManaged):**
 
 Use the PTU calculator based on:
+
 - Input tokens per minute
 - Output tokens per minute
 - Requests per minute
 
 **Capacity Planning Tips:**
+
 - Start with recommended capacity
 - Monitor usage and adjust
 - Enable dynamic quota for flexibility
@@ -50,11 +53,11 @@ Use the PTU calculator based on:
 
 ### How to Choose RAI Policy
 
-| Policy | Filtering Level | Use Case |
-|--------|----------------|----------|
-| **Microsoft.DefaultV2** | Balanced | Most applications |
-| **Microsoft.Prompt-Shield** | Enhanced | Security-sensitive apps |
-| **Custom** | Configurable | Specific requirements |
+| Policy                      | Filtering Level | Use Case                |
+| --------------------------- | --------------- | ----------------------- |
+| **Microsoft.DefaultV2**     | Balanced        | Most applications       |
+| **Microsoft.Prompt-Shield** | Enhanced        | Security-sensitive apps |
+| **Custom**                  | Configurable    | Specific requirements   |
 
 **Recommendation:** Start with `Microsoft.DefaultV2` and adjust based on application needs.
 
@@ -65,6 +68,7 @@ Use the PTU calculator based on:
 ### PTU (Provisioned Throughput Units) Deployments
 
 **What is PTU?**
+
 - Reserved capacity with guaranteed throughput
 - Measured in PTU units, not TPM
 - Fixed cost regardless of usage
@@ -86,6 +90,7 @@ PTU = (10,000 × 0.001) + (5,000 × 0.002) + (100 × 0.1)
 ```
 
 **PTU Deployment:**
+
 ```bash
 az cognitiveservices account deployment create \
   --name <account-name> \
@@ -101,12 +106,14 @@ az cognitiveservices account deployment create \
 ### Spillover Configuration
 
 **Spillover Workflow:**
+
 1. Primary deployment receives requests
 2. When capacity reached, requests overflow to spillover target
 3. Spillover target must be same model or compatible
 4. Configure via deployment properties
 
 **Best Practices:**
+
 - Use spillover for peak load handling
 - Spillover target should have sufficient capacity
 - Monitor both deployments
@@ -115,12 +122,14 @@ az cognitiveservices account deployment create \
 ### Priority Processing
 
 **What is Priority Processing?**
+
 - Prioritizes your requests during high load
 - Available for ProvisionedManaged SKU
 - Additional charges apply
 - Ensures consistent performance
 
 **When to Use:**
+
 - Mission-critical applications
 - SLA requirements
 - High-concurrency scenarios

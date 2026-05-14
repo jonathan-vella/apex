@@ -43,10 +43,11 @@ Generate visual architecture diagrams and formal ADRs based on the approved arch
 </rules>
 
 <output_contract>
+
 - `agent-output/{project}/03-des-diagram.drawio` (when not skipped)
 - `agent-output/{project}/03-des-cost-distribution.py` and rendered output
 - `agent-output/{project}/03-des-adr-*.md` (one ADR per major decision)
 - Updated `agent-output/{project}/00-session-state.json` with Step 3
   `complete` or `skipped`
 - Handoff: route control to Step 3.5 (Governance) per the workflow graph.
-</output_contract>
+  </output_contract>

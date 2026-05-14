@@ -1,4 +1,5 @@
 <!-- ref:kql-queries-v1 -->
+
 # KQL Query Reference
 
 Essential Kusto Query Language (KQL) queries for diagnosing Azure application issues.

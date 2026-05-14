@@ -354,6 +354,37 @@ bindings (using the `identity_model` decision), and peer resource
 refs. This contract is frozen with the plan at gate-3; CodeGen
 refuses to invent parameters absent from this section.
 
+**Machine-readable contract emission (MANDATORY, Wave 1)** — in
+addition to the prose H2 section above, emit two JSON artifacts so
+CodeGen agents (06b/06t) consume a deterministic shape instead of
+re-extracting from prose. Full schemas, templates, and validator
+commands:
+[`iac-common/references/contract-emission-and-handoff.md`](../skills/iac-common/references/contract-emission-and-handoff.md)
+→ "Inputs from Step 4".
+
+1. `agent-output/{project}/04-iac-contract.json` —
+   schema [`iac-contract-v0`/`v1`](../../tools/schemas/iac-contract.schema.json),
+   template
+   [`04-iac-contract.template.json`](../skills/azure-artifacts/templates/04-iac-contract.template.json).
+   Validate with `npm run validate:iac-contract` AND
+   `npm run validate:iac-contract-consistency`. `plan_ref.sha256`
+   MUST match `04-implementation-plan.md` at emit time.
+2. `agent-output/{project}/04-policy-property-map.json` (L1m) —
+   schema [`policy-property-map-v1`](../../tools/schemas/policy-property-map.schema.json),
+   template
+   [`04-policy-property-map.template.json`](../skills/azure-artifacts/templates/04-policy-property-map.template.json).
+   Always emitted; **every Deny policy** in
+   `04-governance-constraints.json` MUST be represented.
+   `decisions.governance_depth = light` omits prose rationale for
+   non-Deny entries only.
+
+If the workload uses identity, app regs, alerts, or budgets, also emit
+`agent-output/{project}/04-environment-manifest.json` from
+[`04-environment-manifest.template.json`](../skills/azure-artifacts/templates/04-environment-manifest.template.json)
+with **placeholder zero-GUIDs**; validate with
+`npm run validate:environment-manifest`. Identity rules:
+[`azure-defaults/references/identity-resolution.md`](../skills/azure-defaults/references/identity-resolution.md).
+
 **Bicep-specific**: Module structure is `main.bicep` + `modules/`.
 **Terraform-specific**: Include backend config template (Azure Storage Account).
 For patterns, read `terraform-patterns/references/tf-best-practices-examples.md`.
@@ -481,13 +512,16 @@ CodeGen Plan-Readiness Precondition cross-checks this value at boot.
 
 ## Output Files
 
-| File                      | Location                                           |
-| ------------------------- | -------------------------------------------------- |
-| Implementation Plan       | `agent-output/{project}/04-implementation-plan.md` |
-| Dependency Diagram Source | `agent-output/{project}/04-dependency-diagram.py`  |
-| Dependency Diagram Image  | `agent-output/{project}/04-dependency-diagram.png` |
-| Runtime Diagram Source    | `agent-output/{project}/04-runtime-diagram.py`     |
-| Runtime Diagram Image     | `agent-output/{project}/04-runtime-diagram.png`    |
+| File                      | Location                                                                                  |
+| ------------------------- | ----------------------------------------------------------------------------------------- |
+| Implementation Plan       | `agent-output/{project}/04-implementation-plan.md`                                        |
+| IaC Contract (machine)    | `agent-output/{project}/04-iac-contract.json` (v0 or v1)                                  |
+| Policy Property Map (L1m) | `agent-output/{project}/04-policy-property-map.json`                                      |
+| Environment Manifest      | `agent-output/{project}/04-environment-manifest.json` (when env-specific values required) |
+| Dependency Diagram Source | `agent-output/{project}/04-dependency-diagram.py`                                         |
+| Dependency Diagram Image  | `agent-output/{project}/04-dependency-diagram.png`                                        |
+| Runtime Diagram Source    | `agent-output/{project}/04-runtime-diagram.py`                                            |
+| Runtime Diagram Image     | `agent-output/{project}/04-runtime-diagram.png`                                           |
 
 > **Note**: `04-governance-constraints.md/.json` are produced by Step 3.5 (Governance agent),
 > not by this agent. They are consumed as prerequisites.
@@ -523,6 +557,7 @@ Include attribution header from the template file (do not hardcode).
 - [ ] Phase 5 Stage 1: every `must_fix` finding auto-applied and re-validated (or unattended-mode deferral logged)
 - [ ] Phase 5 Stage 2: every remaining `should_fix` finding decided via `askQuestions` in the same chat session
 - [ ] Implementation plan and governance artifacts saved to `agent-output/{project}/`
+- [ ] **Contract emission** (Wave 1+) — three artifacts saved + validators green (see "Output Files" above)
 - [ ] Diagrams generated and referenced in plan
 - [ ] **Terraform only**: `azurePropertyPath` used (not `bicepPropertyPath`)
 - [ ] **Terraform only**: Azure Storage backend template included

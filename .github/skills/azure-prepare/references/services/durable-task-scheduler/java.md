@@ -144,12 +144,12 @@ public String approvalWorkflow(
 
 ## Orchestration Determinism
 
-| ❌ NEVER | ✅ ALWAYS USE |
-|----------|--------------|
-| `System.currentTimeMillis()` | `ctx.getCurrentInstant()` |
-| `UUID.randomUUID()` | Pass random values from activities |
-| `Thread.sleep()` | `ctx.createTimer()` |
-| Direct I/O, HTTP, database | `ctx.callActivity()` |
+| ❌ NEVER                     | ✅ ALWAYS USE                      |
+| ---------------------------- | ---------------------------------- |
+| `System.currentTimeMillis()` | `ctx.getCurrentInstant()`          |
+| `UUID.randomUUID()`          | Pass random values from activities |
+| `Thread.sleep()`             | `ctx.createTimer()`                |
+| Direct I/O, HTTP, database   | `ctx.callActivity()`               |
 
 ### Replay-Safe Logging
 
@@ -240,4 +240,3 @@ public class App {
     }
 }
 ```
-

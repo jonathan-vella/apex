@@ -14,13 +14,13 @@ nesting. T-009 (semantic zone-presence validator) reads thresholds from
 
 ## When to use each zone type
 
-| Workload signal | Required zone | Rationale |
-| --- | --- | --- |
-| Single subscription, single region | RG only | Scopes match prompt; subscription/region implicit |
-| 2+ subscriptions OR 2+ regions | Subscription scope OR region zone | Multi-scope must be visually distinct |
-| Public ingress (Front Door, App Gateway, APIM, public IP) | Trust boundary | Internet-facing perimeter must be visible |
-| External SaaS / on-prem dependencies | External zone | "What we do not own" is a first-class concept |
-| Hub-spoke or landing zone | All four (sub + region + trust + external) | Enterprise patterns require the full set |
+| Workload signal                                           | Required zone                              | Rationale                                         |
+| --------------------------------------------------------- | ------------------------------------------ | ------------------------------------------------- |
+| Single subscription, single region                        | RG only                                    | Scopes match prompt; subscription/region implicit |
+| 2+ subscriptions OR 2+ regions                            | Subscription scope OR region zone          | Multi-scope must be visually distinct             |
+| Public ingress (Front Door, App Gateway, APIM, public IP) | Trust boundary                             | Internet-facing perimeter must be visible         |
+| External SaaS / on-prem dependencies                      | External zone                              | "What we do not own" is a first-class concept     |
+| Hub-spoke or landing zone                                 | All four (sub + region + trust + external) | Enterprise patterns require the full set          |
 
 The selection is **additive**: a hub-spoke landing zone in two regions has
 subscription scopes AND region zones AND trust boundary AND on-prem zone.
@@ -30,15 +30,15 @@ subscription scopes AND region zones AND trust boundary AND on-prem zone.
 These extend the APEX palette in
 [`style-reference.md`](style-reference.md#azure-architecture-palette-apex-convention):
 
-| Zone type | Fill | Stroke | Style modifier | Usage |
-| --- | --- | --- | --- | --- |
-| Management group | `#F5F5F5` | `#666666` | `dashed=1` | Hierarchy markers (Tenant Root, Platform, Landing Zones) |
-| Subscription scope | `#E7F5FF` | `#6C8EBF` | `dashed=1;dashPattern=8 4` | Subscription-level container |
-| Region zone | `#E6F5E6` | `#82B366` | `dashed=1;dashPattern=12 4` | Per-region container |
-| VNet | (transparent) | `#0078D4` | `strokeWidth=2` | Network boundary, no fill |
-| Trust boundary | (transparent) | `#B85450` | `dashed=1;strokeWidth=3;dashPattern=4 4` | Perimeter — public ingress, control-plane |
-| External / on-prem zone | `#FFF2CC` | `#D6B656` | `dashed=1` | Outside-tenant resources |
-| Observability zone | `#F5F5F5` | `#9673A6` | `dashed=1` | Cross-cutting Monitor/LA/AI/Sentinel |
+| Zone type               | Fill          | Stroke    | Style modifier                           | Usage                                                    |
+| ----------------------- | ------------- | --------- | ---------------------------------------- | -------------------------------------------------------- |
+| Management group        | `#F5F5F5`     | `#666666` | `dashed=1`                               | Hierarchy markers (Tenant Root, Platform, Landing Zones) |
+| Subscription scope      | `#E7F5FF`     | `#6C8EBF` | `dashed=1;dashPattern=8 4`               | Subscription-level container                             |
+| Region zone             | `#E6F5E6`     | `#82B366` | `dashed=1;dashPattern=12 4`              | Per-region container                                     |
+| VNet                    | (transparent) | `#0078D4` | `strokeWidth=2`                          | Network boundary, no fill                                |
+| Trust boundary          | (transparent) | `#B85450` | `dashed=1;strokeWidth=3;dashPattern=4 4` | Perimeter — public ingress, control-plane                |
+| External / on-prem zone | `#FFF2CC`     | `#D6B656` | `dashed=1`                               | Outside-tenant resources                                 |
+| Observability zone      | `#F5F5F5`     | `#9673A6` | `dashed=1`                               | Cross-cutting Monitor/LA/AI/Sentinel                     |
 
 **Rationale for palette choices:** subscription scope = compute family because
 subs hold compute; region zone = networking family because regions are transport
@@ -79,7 +79,10 @@ When using the MCP server's `create-groups` tool, pass:
 ```json
 {
   "text": "Connectivity Subscription",
-  "x": 40, "y": 40, "width": 320, "height": 600,
+  "x": 40,
+  "y": 40,
+  "width": 320,
+  "height": 600,
   "style": "rounded=1;whiteSpace=wrap;html=1;fillColor=#E7F5FF;strokeColor=#6C8EBF;dashed=1;dashPattern=8 4;fontSize=12;fontStyle=1;verticalAlign=top;align=left;spacingLeft=12;spacingTop=8"
 }
 ```
@@ -173,13 +176,13 @@ Default — **always include**:
 These regressions in G1–G7 motivated this reference. Each is now documented
 to prevent recurrence:
 
-| Pattern | Captured in | Correction |
-| --- | --- | --- |
-| Trust boundary mentioned in legend only, not rendered | G1, G3, G5, G6, G7 (5/7) | Use the trust-boundary snippet above; rendered as actual perimeter cell, not a legend item |
-| Cross-cutting services floating without zone | G1, G3, G4, G5 (4/7) | Use the observability-zone snippet; place at canvas bottom, span full width |
-| MG hierarchy collapsed one nesting level | G5 (Connectivity/Identity drawn as peers of Platform) | Use the canonical nesting hierarchy above; MGs nest under MGs, then subscriptions, then regions |
-| Region zone not used for multi-region | G7 used it correctly; G6 used per-page decomposition instead | When 2 regions, prefer region zones first; decompose into pages only at >50 resources (per T-023) |
-| Subscription scope omitted on multi-sub workloads | G2 used subscription scopes; later captures dropped them | Always include `subscription_scope` per subscription when ≥2 subscriptions |
+| Pattern                                               | Captured in                                                  | Correction                                                                                        |
+| ----------------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------- |
+| Trust boundary mentioned in legend only, not rendered | G1, G3, G5, G6, G7 (5/7)                                     | Use the trust-boundary snippet above; rendered as actual perimeter cell, not a legend item        |
+| Cross-cutting services floating without zone          | G1, G3, G4, G5 (4/7)                                         | Use the observability-zone snippet; place at canvas bottom, span full width                       |
+| MG hierarchy collapsed one nesting level              | G5 (Connectivity/Identity drawn as peers of Platform)        | Use the canonical nesting hierarchy above; MGs nest under MGs, then subscriptions, then regions   |
+| Region zone not used for multi-region                 | G7 used it correctly; G6 used per-page decomposition instead | When 2 regions, prefer region zones first; decompose into pages only at >50 resources (per T-023) |
+| Subscription scope omitted on multi-sub workloads     | G2 used subscription scopes; later captures dropped them     | Always include `subscription_scope` per subscription when ≥2 subscriptions                        |
 
 ## Validator hooks
 

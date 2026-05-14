@@ -1,9 +1,11 @@
 <!-- ref:vmss-guide-v1 -->
+
 # VMSS Guide
 
 Determine when to recommend a Virtual Machine Scale Set (VMSS) over a single VM, and which VMSS configuration to suggest.
 
 > **Note:** This reference provides quick guidance but may become stale. Always verify VMSS features, limitations, and orchestration mode capabilities by fetching the latest documentation from:
+>
 > - https://learn.microsoft.com/en-us/azure/virtual-machine-scale-sets/overview
 > - https://learn.microsoft.com/en-us/azure/virtual-machine-scale-sets/virtual-machine-scale-sets-autoscale-overview
 > - https://learn.microsoft.com/en-us/azure/virtual-machine-scale-sets/orchestration-modes-api-comparison
@@ -35,15 +37,15 @@ A VMSS creates and manages a group of load-balanced, identically configured VM i
 
 VMSS supports two orchestration modes. **Flexible** is recommended for all new workloads.
 
-| Feature                  | Flexible (recommended) | Uniform (legacy) |
-| ------------------------ | ---------------------- | ---------------- |
-| Mix VM sizes in one set  | ✅ Yes | ❌ No |
-| Add existing VMs to set  | ✅ Yes | ❌ No |
-| Availability Zone spread | ✅ Automatic | ✅ Automatic |
-| Fault domain control     | ✅ Yes | ✅ Yes |
-| Max instances            | 1,000 | 1,000 |
-| Spot instances           | ✅ Yes | ✅ Yes |
-| Single-instance VMSS     | ✅ Yes | ❌ No |
+| Feature                  | Flexible (recommended)     | Uniform (legacy)           |
+| ------------------------ | -------------------------- | -------------------------- |
+| Mix VM sizes in one set  | ✅ Yes                     | ❌ No                      |
+| Add existing VMs to set  | ✅ Yes                     | ❌ No                      |
+| Availability Zone spread | ✅ Automatic               | ✅ Automatic               |
+| Fault domain control     | ✅ Yes                     | ✅ Yes                     |
+| Max instances            | 1,000                      | 1,000                      |
+| Spot instances           | ✅ Yes                     | ✅ Yes                     |
+| Single-instance VMSS     | ✅ Yes                     | ❌ No                      |
 | VM model updates         | Automatic, Manual, Rolling | Automatic, Manual, Rolling |
 
 > **Warning:** Orchestration mode cannot be changed after creation. Always recommend Flexible unless the user has a specific Uniform requirement.

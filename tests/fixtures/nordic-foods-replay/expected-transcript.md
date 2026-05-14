@@ -56,6 +56,13 @@ Final handoff: `decisions.skip_design == false` → routing to **04-Design
 
 ## Step 3 — Design (04-Design)
 
+**Phase 00 — Artifact scope (one-time gate)**
+
+`decisions.design_scope` absent → raised vscode_askQuestions with options
+Diagrams only, ADRs only, and Both. User selected Both.
+
+`apex-recall decide --key design_scope --value both --step 3`
+
 **Phase 0 — Diagram tool choice (one-time gate)**
 
 `decisions.diagram_tool` absent → raised vscode_askQuestions with options

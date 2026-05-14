@@ -7,75 +7,75 @@ Replace the contents of `src/functions/` with these files.
 ## src/functions/serviceBusTrigger.js
 
 ```javascript
-const { app } = require('@azure/functions');
+const { app } = require("@azure/functions");
 
-app.serviceBusQueue('serviceBusTrigger', {
-    connection: 'ServiceBusConnection',
-    queueName: '%SERVICEBUS_QUEUE_NAME%',
-    handler: (message, context) => {
-        context.log('Service Bus trigger processed message:', message);
-        context.log('MessageId =', context.triggerMetadata.messageId);
-        context.log('DeliveryCount =', context.triggerMetadata.deliveryCount);
-        context.log('EnqueuedTimeUtc =', context.triggerMetadata.enqueuedTimeUtc);
-    },
+app.serviceBusQueue("serviceBusTrigger", {
+  connection: "ServiceBusConnection",
+  queueName: "%SERVICEBUS_QUEUE_NAME%",
+  handler: (message, context) => {
+    context.log("Service Bus trigger processed message:", message);
+    context.log("MessageId =", context.triggerMetadata.messageId);
+    context.log("DeliveryCount =", context.triggerMetadata.deliveryCount);
+    context.log("EnqueuedTimeUtc =", context.triggerMetadata.enqueuedTimeUtc);
+  },
 });
 ```
 
 ## src/functions/sendMessage.js
 
 ```javascript
-const { app, output } = require('@azure/functions');
+const { app, output } = require("@azure/functions");
 
 const serviceBusOutput = output.serviceBusQueue({
-    queueName: '%SERVICEBUS_QUEUE_NAME%',
-    connection: 'ServiceBusConnection',
+  queueName: "%SERVICEBUS_QUEUE_NAME%",
+  connection: "ServiceBusConnection",
 });
 
-app.http('sendMessage', {
-    methods: ['POST'],
-    route: 'send',
-    authLevel: 'function',
-    extraOutputs: [serviceBusOutput],
-    handler: async (request, context) => {
-        try {
-            const body = await request.json();
-            const messageContent = JSON.stringify(body);
-            
-            context.extraOutputs.set(serviceBusOutput, messageContent);
-            context.log(`Sent message to Service Bus: ${messageContent}`);
-            
-            return {
-                status: 200,
-                jsonBody: { status: 'sent', data: body }
-            };
-        } catch (error) {
-            return {
-                status: 400,
-                jsonBody: { error: 'Invalid JSON' }
-            };
-        }
-    },
+app.http("sendMessage", {
+  methods: ["POST"],
+  route: "send",
+  authLevel: "function",
+  extraOutputs: [serviceBusOutput],
+  handler: async (request, context) => {
+    try {
+      const body = await request.json();
+      const messageContent = JSON.stringify(body);
+
+      context.extraOutputs.set(serviceBusOutput, messageContent);
+      context.log(`Sent message to Service Bus: ${messageContent}`);
+
+      return {
+        status: 200,
+        jsonBody: { status: "sent", data: body },
+      };
+    } catch (error) {
+      return {
+        status: 400,
+        jsonBody: { error: "Invalid JSON" },
+      };
+    }
+  },
 });
 ```
 
 ## src/functions/healthCheck.js
 
 ```javascript
-const { app } = require('@azure/functions');
+const { app } = require("@azure/functions");
 
-app.http('healthCheck', {
-    methods: ['GET'],
-    route: 'health',
-    authLevel: 'function',
-    handler: async (request, context) => {
-        return {
-            status: 200,
-            jsonBody: {
-                status: 'healthy',
-                queue: process.env.SERVICEBUS_QUEUE_NAME || 'not-set'
-            }
-        };
-    },
+app.http("healthCheck", {
+  methods: ["GET"],
+  route: "health",
+  authLevel: "function",
+  handler: async (request, context) => {
+    return {
+      status: 200,
+      jsonBody: {
+        status: "healthy",
+        queue: process.env.SERVICEBUS_QUEUE_NAME || "not-set",
+      },
+    };
+  },
 });
 ```
 
@@ -96,6 +96,7 @@ app.http('healthCheck', {
 ## Local Testing
 
 Set these in `local.settings.json`:
+
 ```json
 {
   "Values": {

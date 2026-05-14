@@ -36,7 +36,12 @@
       }
       body {
         font-family:
-          "Inter", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+          "Inter",
+          system-ui,
+          -apple-system,
+          Segoe UI,
+          Roboto,
+          sans-serif;
         background: var(--bg);
         color: var(--text);
         overflow: hidden;
@@ -298,13 +303,7 @@
       #canvas-wrap {
         grid-area: canvas;
         position: relative;
-        background:
-          radial-gradient(
-            circle at 50% 50%,
-            rgba(56, 189, 248, 0.03),
-            transparent 70%
-          ),
-          var(--bg);
+        background: radial-gradient(circle at 50% 50%, rgba(56, 189, 248, 0.03), transparent 70%), var(--bg);
       }
       #cy {
         width: 100%;
@@ -552,9 +551,7 @@
     <div id="app">
       <header id="topbar" role="banner">
         <div id="brand">
-          <a href="/azure-agentic-infraops/" aria-label="Back to APEX home"
-            >APEX</a
-          >
+          <a href="/azure-agentic-infraops/" aria-label="Back to APEX home">APEX</a>
         </div>
         <div id="subbrand">Architecture Explorer</div>
         <div id="search-wrap" role="search">
@@ -569,43 +566,16 @@
             aria-controls="search-results"
             aria-expanded="false"
           />
-          <div
-            id="search-results"
-            role="listbox"
-            aria-label="Search results"
-          ></div>
+          <div id="search-results" role="listbox" aria-label="Search results"></div>
         </div>
         <div id="presets" role="group" aria-label="View presets">
-          <button
-            class="preset-btn"
-            data-preset="all"
-            aria-pressed="true"
-          >
-            All
-          </button>
-          <button class="preset-btn" data-preset="workflow" aria-pressed="false">
-            Workflow
-          </button>
-          <button class="preset-btn" data-preset="skills" aria-pressed="false">
-            Skills
-          </button>
-          <button class="preset-btn" data-preset="ci" aria-pressed="false">
-            CI / Lint
-          </button>
-          <button
-            class="preset-btn"
-            data-preset="instructions"
-            aria-pressed="false"
-          >
-            Instructions
-          </button>
+          <button class="preset-btn" data-preset="all" aria-pressed="true">All</button>
+          <button class="preset-btn" data-preset="workflow" aria-pressed="false">Workflow</button>
+          <button class="preset-btn" data-preset="skills" aria-pressed="false">Skills</button>
+          <button class="preset-btn" data-preset="ci" aria-pressed="false">CI / Lint</button>
+          <button class="preset-btn" data-preset="instructions" aria-pressed="false">Instructions</button>
         </div>
-        <a
-          id="github-link"
-          href="https://github.com/jonathan-vella/azure-agentic-infraops"
-          rel="noopener"
-          >GitHub ↗</a
-        >
+        <a id="github-link" href="https://github.com/jonathan-vella/azure-agentic-infraops" rel="noopener">GitHub ↗</a>
       </header>
 
       <aside id="sidebar" aria-label="Filters and stats">
@@ -630,16 +600,14 @@
 
         <div class="panel-heading">Keyboard</div>
         <div class="meta-item" style="font-size: 11px; line-height: 1.6">
-          <kbd>/</kbd> search &middot; <kbd>Tab</kbd> focus canvas &middot;
-          <kbd>Esc</kbd> clear &middot; <kbd>F</kbd> fit &middot;
-          <kbd>+</kbd>/<kbd>-</kbd> zoom
+          <kbd>/</kbd> search &middot; <kbd>Tab</kbd> focus canvas &middot; <kbd>Esc</kbd> clear &middot;
+          <kbd>F</kbd> fit &middot; <kbd>+</kbd>/<kbd>-</kbd> zoom
         </div>
 
         <div class="panel-heading">Legend</div>
         <div class="meta-item" style="font-size: 11px">
-          Edge colour reflects relationship kind. Dashed = delegation,
-          solid = uses-primary, dotted = uses-secondary, arrowed solid =
-          workflow handoff.
+          Edge colour reflects relationship kind. Dashed = delegation, solid = uses-primary, dotted = uses-secondary,
+          arrowed solid = workflow handoff.
         </div>
       </aside>
 
@@ -654,26 +622,18 @@
         ></div>
         <div id="toolbar" role="group" aria-label="Canvas controls">
           <button class="tool-btn" id="zoom-in" aria-label="Zoom in">+</button>
-          <button class="tool-btn" id="zoom-out" aria-label="Zoom out">
-            −
-          </button>
-          <button class="tool-btn" id="fit" aria-label="Fit to screen">
-            ⤢
-          </button>
-          <button class="tool-btn" id="relayout" aria-label="Re-run layout">
-            ⟳
-          </button>
+          <button class="tool-btn" id="zoom-out" aria-label="Zoom out">−</button>
+          <button class="tool-btn" id="fit" aria-label="Fit to screen">⤢</button>
+          <button class="tool-btn" id="relayout" aria-label="Re-run layout">⟳</button>
         </div>
       </main>
 
       <aside id="drawer" aria-label="Node details" aria-live="polite">
         <div class="empty">
-          <p style="font-size: 14px; color: var(--text); margin-bottom: 8px">
-            Click a node to explore.
-          </p>
+          <p style="font-size: 14px; color: var(--text); margin-bottom: 8px">Click a node to explore.</p>
           <p>
-            Hover to highlight connections. Use the search bar or keyboard
-            shortcuts above to navigate. Filter categories from the left panel.
+            Hover to highlight connections. Use the search bar or keyboard shortcuts above to navigate. Filter
+            categories from the left panel.
           </p>
         </div>
       </aside>
@@ -690,9 +650,7 @@
     <script>
       (function () {
         "use strict";
-        const reduceMotion = window.matchMedia(
-          "(prefers-reduced-motion: reduce)",
-        ).matches;
+        const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
         const GRAPH_URL = "./architecture-explorer-graph.json";
 
         const state = {
@@ -738,21 +696,14 @@
             else state.enabledCategories.delete(cat);
             applyFilters();
           });
-          qs("filter-all").onclick = () =>
-            toggleAllCategories(true, graph.categories);
-          qs("filter-none").onclick = () =>
-            toggleAllCategories(false, graph.categories);
-          qs("filter-invert").onclick = () =>
-            invertCategories(graph.categories);
+          qs("filter-all").onclick = () => toggleAllCategories(true, graph.categories);
+          qs("filter-none").onclick = () => toggleAllCategories(false, graph.categories);
+          qs("filter-invert").onclick = () => invertCategories(graph.categories);
         }
 
         function toggleAllCategories(on, categories) {
-          state.enabledCategories = new Set(
-            on ? categories.map((c) => c.id) : [],
-          );
-          for (const cb of document.querySelectorAll(
-            '#categories input[type="checkbox"]',
-          )) {
+          state.enabledCategories = new Set(on ? categories.map((c) => c.id) : []);
+          for (const cb of document.querySelectorAll('#categories input[type="checkbox"]')) {
             cb.checked = on;
           }
           applyFilters();
@@ -763,9 +714,7 @@
             if (!state.enabledCategories.has(c.id)) next.add(c.id);
           }
           state.enabledCategories = next;
-          for (const cb of document.querySelectorAll(
-            '#categories input[type="checkbox"]',
-          )) {
+          for (const cb of document.querySelectorAll('#categories input[type="checkbox"]')) {
             cb.checked = next.has(cb.dataset.cat);
           }
           applyFilters();
@@ -778,8 +727,7 @@
               style: {
                 label: "data(label)",
                 "font-size": 10,
-                "font-family":
-                  "Inter, system-ui, sans-serif",
+                "font-family": "Inter, system-ui, sans-serif",
                 color: "#e2e8f0",
                 "text-valign": "bottom",
                 "text-halign": "center",
@@ -1003,7 +951,8 @@
           wireCyEvents(cy);
           qs("stat-nodes").textContent = graph.nodeCount;
           qs("stat-edges").textContent = graph.edgeCount;
-          qs("status").textContent = `${graph.nodeCount} nodes · ${graph.edgeCount} edges · generated ${new Date(graph.generatedAt).toLocaleDateString()}`;
+          qs("status").textContent =
+            `${graph.nodeCount} nodes · ${graph.edgeCount} edges · generated ${new Date(graph.generatedAt).toLocaleDateString()}`;
           qs("loading").classList.add("hidden");
           applyUrlHash();
         }
@@ -1083,9 +1032,7 @@
             const visible = cy.nodes(":visible");
             if (!visible.length) return;
             ev.preventDefault();
-            const idx = visible.toArray().findIndex(
-              (n) => n.id() === state.selectedId,
-            );
+            const idx = visible.toArray().findIndex((n) => n.id() === state.selectedId);
             const step = ev.shiftKey ? -1 : 1;
             const next = visible[(idx + step + visible.length) % visible.length];
             selectNode(next.id());
@@ -1160,8 +1107,7 @@
             metaHtml += `<div class="meta-item"><strong>Model:</strong>${escapeHtml(d.meta.model)}</div>`;
           if (d.meta?.applyTo)
             metaHtml += `<div class="meta-item"><strong>Applies to:</strong><code>${escapeHtml(String(d.meta.applyTo))}</code></div>`;
-          if (d.meta?.type)
-            metaHtml += `<div class="meta-item"><strong>Type:</strong>${escapeHtml(d.meta.type)}</div>`;
+          if (d.meta?.type) metaHtml += `<div class="meta-item"><strong>Type:</strong>${escapeHtml(d.meta.type)}</div>`;
           if (d.path)
             metaHtml += `<div class="meta-item"><strong>Path:</strong><code>${escapeHtml(d.path)}</code></div>`;
 
@@ -1226,16 +1172,14 @@
               e.style("display", s && t ? "element" : "none");
             });
           });
-          qs("status").textContent = `${cy.nodes(":visible").length} visible nodes · ${cy.edges(":visible").length} visible edges`;
+          qs("status").textContent =
+            `${cy.nodes(":visible").length} visible nodes · ${cy.edges(":visible").length} visible edges`;
         }
 
         function applyPreset(preset) {
           state.preset = preset;
           for (const btn of document.querySelectorAll(".preset-btn")) {
-            btn.setAttribute(
-              "aria-pressed",
-              btn.dataset.preset === preset ? "true" : "false",
-            );
+            btn.setAttribute("aria-pressed", btn.dataset.preset === preset ? "true" : "false");
           }
           const catMap = {
             all: null,
@@ -1248,13 +1192,9 @@
           if (keep) {
             state.enabledCategories = new Set(keep);
           } else {
-            state.enabledCategories = new Set(
-              state.graph.categories.map((c) => c.id),
-            );
+            state.enabledCategories = new Set(state.graph.categories.map((c) => c.id));
           }
-          for (const cb of document.querySelectorAll(
-            '#categories input[type="checkbox"]',
-          )) {
+          for (const cb of document.querySelectorAll('#categories input[type="checkbox"]')) {
             cb.checked = state.enabledCategories.has(cb.dataset.cat);
           }
           applyFilters();
@@ -1263,9 +1203,7 @@
 
         function wirePresets() {
           for (const btn of document.querySelectorAll(".preset-btn")) {
-            btn.addEventListener("click", () =>
-              applyPreset(btn.dataset.preset),
-            );
+            btn.addEventListener("click", () => applyPreset(btn.dataset.preset));
           }
         }
 
@@ -1306,9 +1244,7 @@
             const matches = state.graph.nodes
               .filter(
                 (n) =>
-                  !n.isGroup &&
-                  (n.label.toLowerCase().includes(q) ||
-                    (n.description || "").toLowerCase().includes(q)),
+                  !n.isGroup && (n.label.toLowerCase().includes(q) || (n.description || "").toLowerCase().includes(q)),
               )
               .sort((a, b) => {
                 const al = a.label.toLowerCase().startsWith(q) ? 0 : 1;
@@ -1318,9 +1254,7 @@
             open(matches);
           });
           input.addEventListener("keydown", (ev) => {
-            const items = results.querySelectorAll(
-              ".search-result[data-id]",
-            );
+            const items = results.querySelectorAll(".search-result[data-id]");
             if (ev.key === "ArrowDown") {
               ev.preventDefault();
               if (!items.length) return;
@@ -1332,8 +1266,7 @@
               activeIndex = (activeIndex - 1 + items.length) % items.length;
               updateActive(items);
             } else if (ev.key === "Enter") {
-              const target =
-                activeIndex >= 0 ? items[activeIndex] : items[0];
+              const target = activeIndex >= 0 ? items[activeIndex] : items[0];
               if (target) {
                 selectNode(target.dataset.id);
                 input.blur();
@@ -1345,12 +1278,7 @@
             }
           });
           function updateActive(items) {
-            items.forEach((el, i) =>
-              el.setAttribute(
-                "aria-selected",
-                i === activeIndex ? "true" : "false",
-              ),
-            );
+            items.forEach((el, i) => el.setAttribute("aria-selected", i === activeIndex ? "true" : "false"));
             if (activeIndex >= 0) items[activeIndex].scrollIntoView({ block: "nearest" });
           }
           results.addEventListener("click", (ev) => {
@@ -1365,11 +1293,7 @@
           });
           // Global "/" hotkey
           document.addEventListener("keydown", (ev) => {
-            if (
-              ev.key === "/" &&
-              document.activeElement !== input &&
-              !ev.target.matches("input, textarea")
-            ) {
+            if (ev.key === "/" && document.activeElement !== input && !ev.target.matches("input, textarea")) {
               ev.preventDefault();
               input.focus();
               input.select();
@@ -1400,8 +1324,7 @@
               },
             });
           qs("fit").onclick = () => state.cy.fit(undefined, 40);
-          qs("relayout").onclick = () =>
-            state.cy.layout(layoutForPreset(state.preset)).run();
+          qs("relayout").onclick = () => state.cy.layout(layoutForPreset(state.preset)).run();
         }
 
         // ---------- URL hash ----------
@@ -1436,7 +1359,8 @@
             wireSearch();
             wireToolbar();
           } catch (e) {
-            qs("loading").innerHTML = `<div style="color:var(--danger)">Failed to load graph: ${escapeHtml(e.message)}<br><br>Run <code>npm run build:explorer-graph</code> to regenerate.</div>`;
+            qs("loading").innerHTML =
+              `<div style="color:var(--danger)">Failed to load graph: ${escapeHtml(e.message)}<br><br>Run <code>npm run build:explorer-graph</code> to regenerate.</div>`;
             console.error(e);
           }
         }

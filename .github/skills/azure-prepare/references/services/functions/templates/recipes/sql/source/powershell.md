@@ -3,6 +3,7 @@
 ## Dependencies
 
 **host.json:**
+
 ```json
 {
   "version": "2.0",
@@ -16,6 +17,7 @@
 ## Source Code
 
 **SqlTriggerToDo/function.json:**
+
 ```json
 {
   "bindings": [
@@ -31,6 +33,7 @@
 ```
 
 **SqlTriggerToDo/run.ps1:**
+
 ```powershell
 param($changes)
 
@@ -44,6 +47,7 @@ foreach ($change in $changes) {
 ```
 
 **HttpTriggerSqlOutput/function.json:**
+
 ```json
 {
   "bindings": [
@@ -71,6 +75,7 @@ foreach ($change in $changes) {
 ```
 
 **HttpTriggerSqlOutput/run.ps1:**
+
 ```powershell
 using namespace System.Net
 
@@ -99,6 +104,7 @@ Push-OutputBinding -Name Response -Value ([HttpResponseContext]@{
 ```
 
 **health/function.json:**
+
 ```json
 {
   "bindings": [
@@ -119,6 +125,7 @@ Push-OutputBinding -Name Response -Value ([HttpResponseContext]@{
 ```
 
 **health/run.ps1:**
+
 ```powershell
 param($Request, $TriggerMetadata)
 

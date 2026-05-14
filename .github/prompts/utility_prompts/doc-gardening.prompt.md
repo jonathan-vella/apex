@@ -2,19 +2,7 @@
 description: "Scan for stale docs, instruction drift, quality score degradation, and tech debt. Updates QUALITY_SCORE.md and tech-debt-tracker.md."
 agent: agent
 model: "Claude Opus 4.7"
-tools:
-  [
-    vscode,
-    execute,
-    read,
-    agent,
-    browser,
-    edit,
-    search,
-    web,
-    azure-mcp/search,
-    todo,
-  ]
+tools: [vscode, execute, read, agent, browser, edit, search, web, azure-mcp/search, todo]
 ---
 
 # Doc Gardening
@@ -23,13 +11,14 @@ Scan the repository for entropy and update health metrics. All counts cited in o
 must come from `tools/registry/count-manifest.json` — never hard-code numbers.
 
 <investigate_before_answering>
+
 - Doc gardening is investigative work. Before producing recommendations,
   confirm that the source-of-truth files exist (see Pre-flight) and that
   the user wants a full sweep vs. a single area (freshness, drift, counts,
   explorer graph, quality score, or tech-debt).
 - If freshness baseline (`freshness-report.json`) is missing, note that the
   first run will create it and flag files relative to current mtime only.
-</investigate_before_answering>
+  </investigate_before_answering>
 
 <context>
 - Required source-of-truth files: `QUALITY_SCORE.md`,
@@ -63,13 +52,14 @@ silently). Produce the outputs listed below.
 </rules>
 
 <output_contract>
+
 - Updated `QUALITY_SCORE.md` with revised grades and change-log entries.
 - Updated `tools/tests/exec-plans/tech-debt-tracker.md` with new and
   resolved items.
 - Summary report to the user covering: freshness diff totals,
   count-manifest conflicts (if any), explorer-graph staleness status,
   validator results, and prioritised follow-ups.
-</output_contract>
+  </output_contract>
 
 ## Pre-flight
 

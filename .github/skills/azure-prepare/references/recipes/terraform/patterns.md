@@ -126,9 +126,9 @@ az storage container create \
 
 ## Security Requirements
 
-| Requirement | Pattern |
-|-------------|---------|
-| No hardcoded secrets | Use Key Vault data sources |
-| Managed Identity | `identity { type = "UserAssigned" }` |
-| State encryption | Azure Storage encryption |
-| State locking | Azure Blob lease |
+| Requirement          | Pattern                              |
+| -------------------- | ------------------------------------ |
+| No hardcoded secrets | Use Key Vault data sources           |
+| Managed Identity     | `identity { type = "UserAssigned" }` |
+| State encryption     | Azure Storage encryption             |
+| State locking        | Azure Blob lease                     |

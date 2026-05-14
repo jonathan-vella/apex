@@ -24,16 +24,16 @@ handoffs:
     send: true
   - label: "▶ Generate Architecture Diagram"
     agent: 04-Design
-    prompt: "Use the drawio skill and MCP tools to generate an Azure architecture diagram for the assessed design. Use transactional mode. Include required resources, boundaries, auth/data/telemetry flows, and output `agent-output/{project}/03-des-diagram.drawio` with quality score >= 9/10. Follow batch-only workflow from the drawio skill. Input: agent-output/{project}/02-architecture-assessment.md. Output: agent-output/{project}/03-des-diagram.drawio + .png."
+    prompt: "This handoff implies `design_scope=diagrams` and `diagram_tool=drawio` — record both via `apex-recall decide <project> --key design_scope --value diagrams --step 3 --json` and `apex-recall decide <project> --key diagram_tool --value drawio --step 3 --json` BEFORE any other work (this silent-skips the Phase 0 askMe gates per workflow-gates.md). Then use the drawio skill and MCP tools to generate an Azure architecture diagram for the assessed design. Use transactional mode. Include required resources, boundaries, auth/data/telemetry flows, and output `agent-output/{project}/03-des-diagram.drawio` with quality score >= 9/10. Follow batch-only workflow from the drawio skill. Input: agent-output/{project}/02-architecture-assessment.md. Output: agent-output/{project}/03-des-diagram.drawio + .png."
     send: true
   - label: "▶ Create ADR from Assessment"
     agent: 04-Design
-    prompt: "Use the azure-adr skill to document the architectural decision and recommendations from the assessment above as a formal ADR. Include the WAF trade-offs and recommendations as part of the decision rationale. Input: agent-output/{project}/02-architecture-assessment.md decisions block. Output: agent-output/{project}/03-des-adr-*.md (one ADR per decision)."
+    prompt: "This handoff implies `design_scope=adrs` — record via `apex-recall decide <project> --key design_scope --value adrs --step 3 --json` BEFORE any other work (this silent-skips the Phase 0 askMe gates and the diagram-tool gate per workflow-gates.md). Then use the azure-adr skill to document the architectural decision and recommendations from the assessment above as a formal ADR. Include the WAF trade-offs and recommendations as part of the decision rationale. Input: agent-output/{project}/02-architecture-assessment.md decisions block. Output: agent-output/{project}/03-des-adr-*.md (one ADR per decision)."
     send: true
   - label: "Step 3: Design Artifacts"
     agent: 04-Design
-    prompt: "Generate architecture diagrams and/or ADRs based on the architecture assessment in `agent-output/{project}/02-architecture-assessment.md`. For diagrams, use Draw.io (default) and save `agent-output/{project}/03-des-diagram.drawio`; ADRs remain `03-des-*.md`."
-    send: false
+    prompt: "Begin Step 3 (Design) for the architecture in `agent-output/{project}/02-architecture-assessment.md`. This handoff is the explicit **fresh-start entry** — it OVERRIDES the silent-skip rule in `workflow-gates.md`. You MUST raise both askMe panels even if `decisions.design_scope` / `decisions.diagram_tool` are already set; show any stored value as the recommended option but let the user change it. **Phase 00 (always ask)**: raise `vscode_askQuestions` with **Diagrams only**, **ADRs only**, **Both**; then `apex-recall decide <project> --key design_scope --value <diagrams|adrs|both> --step 3 --json`. **Phase 0 (always ask if diagrams in scope)**: raise `vscode_askQuestions` with **Draw.io** (Azure-brand icons, recommended) vs **Python diagrams** (faster, generic icons); then `apex-recall decide <project> --key diagram_tool --value <drawio|python> --step 3 --json`. Outputs: Drawio → `03-des-diagram.drawio` (+ `.png`); Python → `03-des-diagram.py` (+ `.png`); ADRs → `03-des-adr-NNNN-{slug}.md`. Do not proceed to any artifact work until both panels have user answers."
+    send: true
   - label: "Step 3.5: Governance Discovery"
     agent: 04g-Governance
     prompt: "Discover Azure Policy constraints for `agent-output/{project}/`. Query REST API (including management-group inherited policies), produce 04-governance-constraints.md/.json, and run adversarial review. Use when skipping Step 3 (Design) or after Design is complete."
@@ -249,32 +249,25 @@ in your WAF assessment recommendations (still produce the identical artifact str
      **Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 2 phase_2.5_compacted --json`
 
 6a. **SKU confirmation gate (MANDATORY — before pricing)** — follow the
-    protocol in [`workflow-gates.md`](../skills/azure-defaults/references/workflow-gates.md#architect-step-2--phase-6a-sku-confirmation-gate).
-7. **Delegate pricing** — Send resource list to `cost-estimate-subagent`; receive verified prices.
-   Precondition guard: refuse to invoke unless
-   `decisions.sku_confirmation_status == "approved"`.
-8. **Generate assessment** — Save `02-architecture-assessment.md` with subagent-sourced prices
-   **Decisions** (MANDATORY): Record key architecture choices:
-   `apex-recall decide <project> --decision "<pattern/SKU/trade-off>" --rationale "<why>" --step 2 --json`
-9. **Generate cost estimate** — Save `03-des-cost-estimate.md` with subagent-sourced prices
+protocol in [`workflow-gates.md`](../skills/azure-defaults/references/workflow-gates.md#architect-step-2--phase-6a-sku-confirmation-gate). 7. **Delegate pricing** — Send resource list to `cost-estimate-subagent`; receive verified prices.
+Precondition guard: refuse to invoke unless
+`decisions.sku_confirmation_status == "approved"`. 8. **Generate assessment** — Save `02-architecture-assessment.md` with subagent-sourced prices
+**Decisions** (MANDATORY): Record key architecture choices:
+`apex-recall decide <project> --decision "<pattern/SKU/trade-off>" --rationale "<why>" --step 2 --json` 9. **Generate cost estimate** — Save `03-des-cost-estimate.md` with subagent-sourced prices
 9a. **Budget gate (MANDATORY — after pricing)** — follow the protocol in
-    [`workflow-gates.md`](../skills/azure-defaults/references/workflow-gates.md#architect-step-2--phase-9a-budget-gate).
-10. **Generate charts** — Read `.github/skills/python-diagrams/references/waf-cost-charts.md`
-    and produce three matplotlib PNGs in `agent-output/{project}/`:
-    - `02-waf-scores.py` + `02-waf-scores.png` — one horizontal bar per WAF
-      pillar, WAF brand colours
-    - `03-des-cost-distribution.py` + `03-des-cost-distribution.png` — donut
-      chart of cost categories
-    - `03-des-cost-projection.py` + `03-des-cost-projection.png` —\n 6-month bar and trend chart
+[`workflow-gates.md`](../skills/azure-defaults/references/workflow-gates.md#architect-step-2--phase-9a-budget-gate). 10. **Generate charts** — Read `.github/skills/python-diagrams/references/waf-cost-charts.md`
+and produce three matplotlib PNGs in `agent-output/{project}/`: - `02-waf-scores.py` + `02-waf-scores.png` — one horizontal bar per WAF
+pillar, WAF brand colours - `03-des-cost-distribution.py` + `03-des-cost-distribution.png` — donut
+chart of cost categories - `03-des-cost-projection.py` + `03-des-cost-projection.png` —\n 6-month bar and trend chart
 
     Execute each `.py` file and verify the PNGs exist before continuing.
 
 11. **Self-validate** — Run `npm run lint:artifact-templates` and fix any errors
     for your artifacts
-11a. **Render SKU manifest MD** — `node tools/scripts/render-sku-manifest-md.mjs <project>`.
-     The renderer is the only legitimate writer of `sku-manifest.md`
-     and fails hard on `current_revision` mismatch. Surface any
-     non-zero exit to the user.
+    11a. **Render SKU manifest MD** — `node tools/scripts/render-sku-manifest-md.mjs <project>`.
+    The renderer is the only legitimate writer of `sku-manifest.md`
+    and fails hard on `current_revision` mismatch. Surface any
+    non-zero exit to the user.
 12. **Pricing sanity check** — Verify no dollar figures in your artifacts were
     written from memory (grep for `$` and confirm each matches subagent output)
     **Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 2 phase_5_artifact --json`

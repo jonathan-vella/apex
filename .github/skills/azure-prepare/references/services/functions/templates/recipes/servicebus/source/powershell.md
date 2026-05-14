@@ -148,6 +148,7 @@ Ensure your `host.json` includes the Service Bus extension:
 ## Local Testing
 
 Set these in `local.settings.json`:
+
 ```json
 {
   "Values": {

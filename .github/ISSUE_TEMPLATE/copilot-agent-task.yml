@@ -8,10 +8,10 @@ body:
     attributes:
       value: |
         ## 🤖 Copilot Coding Agent Task
-        
+
         Use this template to create tasks that GitHub Copilot Coding Agent can implement autonomously.
         The more detail you provide, the better the results!
-        
+
         **After submitting:** Assign this issue to `Copilot` to start autonomous implementation.
 
   - type: textarea
@@ -37,7 +37,7 @@ body:
         2. Memory Alert: > 85% for 5 minutes
         3. HTTP 5xx Alert: > 10 errors in 5 minutes
         4. Response Time Alert: > 3 seconds average
-        
+
         **Action Group:**
         - Email notifications with configurable address
     validations:
@@ -51,11 +51,11 @@ body:
       placeholder: |
         **New files:**
         - `modules/monitoring-alerts.bicep`
-        
+
         **Modify:**
         - `main.bicep` - Add module reference
         - `README.md` - Add documentation
-        
+
         **Follow patterns in:**
         - `modules/app-service.bicep` for naming conventions
     validations:

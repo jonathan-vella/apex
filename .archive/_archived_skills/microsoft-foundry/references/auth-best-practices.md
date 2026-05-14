@@ -1,4 +1,5 @@
 <!-- ref:auth-best-practices-v1 -->
+
 # Azure Authentication Best Practices
 
 > Source: [Microsoft — Passwordless connections for Azure services](https://learn.microsoft.com/azure/developer/intro/passwordless-overview) and [Azure Identity client libraries](https://learn.microsoft.com/dotnet/azure/sdk/authentication/).
@@ -11,12 +12,12 @@ Use **managed identities** and **Azure RBAC** in production. Reserve `DefaultAzu
 
 ## Authentication by Environment
 
-| Environment | Recommended Credential | Why |
-|---|---|---|
-| **Production (Azure-hosted)** | `ManagedIdentityCredential` (system- or user-assigned) | No secrets to manage; auto-rotated by Azure |
-| **Production (on-premises)** | `ClientCertificateCredential` or `WorkloadIdentityCredential` | Deterministic; no fallback chain overhead |
-| **CI/CD pipelines** | `AzurePipelinesCredential` / `WorkloadIdentityCredential` | Scoped to pipeline identity |
-| **Local development** | `DefaultAzureCredential` | Chains CLI, PowerShell, and VS Code credentials for convenience |
+| Environment                   | Recommended Credential                                        | Why                                                             |
+| ----------------------------- | ------------------------------------------------------------- | --------------------------------------------------------------- |
+| **Production (Azure-hosted)** | `ManagedIdentityCredential` (system- or user-assigned)        | No secrets to manage; auto-rotated by Azure                     |
+| **Production (on-premises)**  | `ClientCertificateCredential` or `WorkloadIdentityCredential` | Deterministic; no fallback chain overhead                       |
+| **CI/CD pipelines**           | `AzurePipelinesCredential` / `WorkloadIdentityCredential`     | Scoped to pipeline identity                                     |
+| **Local development**         | `DefaultAzureCredential`                                      | Chains CLI, PowerShell, and VS Code credentials for convenience |
 
 ## Why Not `DefaultAzureCredential` in Production?
 
@@ -43,9 +44,10 @@ var credential = Environment.GetEnvironmentVariable("AZURE_FUNCTIONS_ENVIRONMENT
 ```typescript
 import { DefaultAzureCredential, ManagedIdentityCredential } from "@azure/identity";
 
-const credential = process.env.NODE_ENV === "development"
-  ? new DefaultAzureCredential()                          // local dev — uses CLI/VS credentials
-  : new ManagedIdentityCredential();                      // production — deterministic, no fallback chain
+const credential =
+  process.env.NODE_ENV === "development"
+    ? new DefaultAzureCredential() // local dev — uses CLI/VS credentials
+    : new ManagedIdentityCredential(); // production — deterministic, no fallback chain
 // For user-assigned identity: new ManagedIdentityCredential("<client-id>")
 ```
 
@@ -102,11 +104,11 @@ import { DefaultAzureCredential, ManagedIdentityCredential } from "@azure/identi
 
 function getCredential() {
   if (process.env.NODE_ENV === "development") {
-    return new DefaultAzureCredential();          // picks up az login / VS Code creds
+    return new DefaultAzureCredential(); // picks up az login / VS Code creds
   }
   return process.env.AZURE_CLIENT_ID
-    ? new ManagedIdentityCredential(process.env.AZURE_CLIENT_ID)  // user-assigned
-    : new ManagedIdentityCredential();                            // system-assigned
+    ? new ManagedIdentityCredential(process.env.AZURE_CLIENT_ID) // user-assigned
+    : new ManagedIdentityCredential(); // system-assigned
 }
 ```
 

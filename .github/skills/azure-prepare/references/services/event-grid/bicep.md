@@ -48,15 +48,17 @@ const { EventGridPublisherClient, AzureKeyCredential } = require("@azure/eventgr
 const client = new EventGridPublisherClient(
   process.env.EVENTGRID_TOPIC_ENDPOINT,
   "EventGrid",
-  new AzureKeyCredential(process.env.EVENTGRID_TOPIC_KEY)
+  new AzureKeyCredential(process.env.EVENTGRID_TOPIC_KEY),
 );
 
-await client.send([{
-  eventType: "Order.Created",
-  subject: "/orders/12345",
-  dataVersion: "1.0",
-  data: { orderId: "12345" }
-}]);
+await client.send([
+  {
+    eventType: "Order.Created",
+    subject: "/orders/12345",
+    dataVersion: "1.0",
+    data: { orderId: "12345" },
+  },
+]);
 ```
 
 ### Python

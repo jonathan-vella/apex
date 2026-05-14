@@ -12,32 +12,32 @@ Serverless event routing for event-driven architectures.
 
 ## Required Supporting Resources
 
-| Resource | Purpose |
-|----------|---------|
+| Resource      | Purpose                  |
+| ------------- | ------------------------ |
 | None required | Event Grid is serverless |
-| Key Vault | Store topic keys |
+| Key Vault     | Store topic keys         |
 
 ## Event Sources
 
-| Type | Description |
-|------|-------------|
+| Type          | Description                                      |
+| ------------- | ------------------------------------------------ |
 | System Topics | Azure resource events (Storage, Key Vault, etc.) |
-| Custom Topics | Your application events |
-| Event Domains | Multi-tenant event management |
+| Custom Topics | Your application events                          |
+| Event Domains | Multi-tenant event management                    |
 
 ## Event Schemas
 
-| Schema | Use Case |
-|--------|----------|
-| Event Grid Schema | Azure native format |
-| CloudEvents 1.0 | CNCF standard, cross-platform |
+| Schema            | Use Case                      |
+| ----------------- | ----------------------------- |
+| Event Grid Schema | Azure native format           |
+| CloudEvents 1.0   | CNCF standard, cross-platform |
 
 ## Environment Variables
 
-| Variable | Value |
-|----------|-------|
-| `EVENTGRID_TOPIC_ENDPOINT` | Topic endpoint URL |
-| `EVENTGRID_TOPIC_KEY` | Topic access key (Key Vault) |
+| Variable                   | Value                        |
+| -------------------------- | ---------------------------- |
+| `EVENTGRID_TOPIC_ENDPOINT` | Topic endpoint URL           |
+| `EVENTGRID_TOPIC_KEY`      | Topic access key (Key Vault) |
 
 ## References
 

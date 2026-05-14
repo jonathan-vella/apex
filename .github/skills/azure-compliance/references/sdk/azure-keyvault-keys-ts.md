@@ -5,9 +5,11 @@
 > in the **azure-keyvault-keys-ts** plugin skill if installed.
 
 ## Install
+
 npm install @azure/keyvault-keys @azure/identity
 
 ## Quick Start
+
 ```typescript
 import { KeyClient } from "@azure/keyvault-keys";
 import { DefaultAzureCredential } from "@azure/identity";
@@ -15,6 +17,7 @@ const keyClient = new KeyClient(`https://${vaultName}.vault.azure.net`, new Defa
 ```
 
 ## Best Practices
+
 - Use DefaultAzureCredential for **local development only**. In production, use ManagedIdentityCredential — see [auth-best-practices.md](../auth-best-practices.md)
 - Enable soft-delete — required for production vaults
 - Set expiration dates on keys

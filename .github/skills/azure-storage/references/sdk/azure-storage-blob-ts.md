@@ -5,9 +5,11 @@
 > in the **azure-storage-blob-ts** plugin skill if installed.
 
 ## Install
+
 npm install @azure/storage-blob @azure/identity
 
 ## Quick Start
+
 ```typescript
 import { BlobServiceClient } from "@azure/storage-blob";
 import { DefaultAzureCredential } from "@azure/identity";
@@ -15,6 +17,7 @@ const client = new BlobServiceClient(`https://${accountName}.blob.core.windows.n
 ```
 
 ## Best Practices
+
 - Use DefaultAzureCredential for **local development only** — in production, use ManagedIdentityCredential. See [auth-best-practices.md](../auth-best-practices.md)
 - Use streaming for large files — `uploadStream`/`downloadToFile` for files > 256MB
 - Set appropriate content types — use `setHTTPHeaders` for correct MIME types

@@ -18,25 +18,25 @@
 
 Analyze every row in the results. Group failures into clusters:
 
-| Cluster | Description |
-|---------|-------------|
+| Cluster                         | Description                               |
+| ------------------------------- | ----------------------------------------- |
 | Incorrect / hallucinated answer | Agent gave a wrong or fabricated response |
-| Incomplete answer | Agent missed key parts |
-| Tool call failure | Agent failed to invoke or misused a tool |
-| Safety / content violation | Flagged by safety evaluators |
-| Runtime error | Agent crashed or returned an error |
-| Off-topic / refusal | Agent refused or went off-topic |
+| Incomplete answer               | Agent missed key parts                    |
+| Tool call failure               | Agent failed to invoke or misused a tool  |
+| Safety / content violation      | Flagged by safety evaluators              |
+| Runtime error                   | Agent crashed or returned an error        |
+| Off-topic / refusal             | Agent refused or went off-topic           |
 
 Produce a **prioritized action table**:
 
-| Priority | Cluster | Suggested Action |
-|----------|---------|------------------|
-| P0 | Runtime errors | Check container logs |
-| P1 | Incorrect answers | Optimize prompt ([Step 6](optimize-deploy.md)) |
-| P2 | Incomplete answers | Optimize prompt ([Step 6](optimize-deploy.md)) |
-| P3 | Tool call failures | Fix tool definitions or instructions |
-| P4 | Safety violations | Add guardrails to instructions |
-| P5 | Off-topic / refusal | Clarify scope in instructions |
+| Priority | Cluster             | Suggested Action                               |
+| -------- | ------------------- | ---------------------------------------------- |
+| P0       | Runtime errors      | Check container logs                           |
+| P1       | Incorrect answers   | Optimize prompt ([Step 6](optimize-deploy.md)) |
+| P2       | Incomplete answers  | Optimize prompt ([Step 6](optimize-deploy.md)) |
+| P3       | Tool call failures  | Fix tool definitions or instructions           |
+| P4       | Safety violations   | Add guardrails to instructions                 |
+| P5       | Off-topic / refusal | Clarify scope in instructions                  |
 
 **Rule:** Runtime errors first (P0), then by count × severity.
 

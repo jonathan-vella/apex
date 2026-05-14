@@ -207,6 +207,21 @@
             "context_files_used": {
               "type": "array",
               "items": { "type": "string" }
+            },
+            "telemetry": {
+              "type": "object",
+              "description": "Wave-0 telemetry merged in via `apex-recall checkpoint --telemetry-*` flags. Consumed by tools/scripts/measure-workflow-baseline.mjs to produce per-tier averages so subsequent waves' savings claims are falsifiable.",
+              "additionalProperties": false,
+              "properties": {
+                "step_start_iso": { "type": "string", "format": "date-time" },
+                "step_end_iso": { "type": "string", "format": "date-time" },
+                "elapsed_ms": { "type": "integer", "minimum": 0 },
+                "input_tokens": { "type": "integer", "minimum": 0 },
+                "output_tokens": { "type": "integer", "minimum": 0 },
+                "subagent_count": { "type": "integer", "minimum": 0 },
+                "validation_attempts": { "type": "integer", "minimum": 0 },
+                "cache_hits": { "type": "integer", "minimum": 0 }
+              }
             }
           }
         }

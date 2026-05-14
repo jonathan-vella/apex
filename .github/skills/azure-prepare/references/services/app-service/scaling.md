@@ -45,20 +45,20 @@ resource autoScale 'Microsoft.Insights/autoscalesettings@2022-10-01' = {
 
 ## Common Metrics
 
-| Metric | Use Case |
-|--------|----------|
-| CpuPercentage | CPU-bound workloads |
+| Metric           | Use Case              |
+| ---------------- | --------------------- |
+| CpuPercentage    | CPU-bound workloads   |
 | MemoryPercentage | Memory-intensive apps |
-| HttpQueueLength | Request queue depth |
-| Requests | Request volume |
+| HttpQueueLength  | Request queue depth   |
+| Requests         | Request volume        |
 
 ## Recommendations
 
-| Workload | Min | Max | Metric |
-|----------|-----|-----|--------|
-| Production API | 2 | 10 | CPU + Requests |
-| Dev/Test | 1 | 3 | CPU |
-| High-traffic | 3 | 20 | HTTP Queue |
+| Workload       | Min | Max | Metric         |
+| -------------- | --- | --- | -------------- |
+| Production API | 2   | 10  | CPU + Requests |
+| Dev/Test       | 1   | 3   | CPU            |
+| High-traffic   | 3   | 20  | HTTP Queue     |
 
 ## SKU Requirements
 

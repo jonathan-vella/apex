@@ -17,15 +17,15 @@ Both deploy agents (07b-Bicep, 07t-Terraform) load this guide on demand.
 
 ## Quick Decision
 
-| Scenario                              | Use                          | Why                                                            |
-| ------------------------------------- | ---------------------------- | -------------------------------------------------------------- |
-| New Bicep project                     | **azd**                      | Default, cross-platform, built-in env management               |
-| New Terraform project                 | **azd**                      | `infra.provider: terraform` gives TF + azd simplicity          |
-| Existing project with `azure.yaml`    | **azd**                      | Already configured                                             |
-| Existing project without `azure.yaml` | **azd** (generate azure.yaml) | Generate `azure.yaml` via azure-prepare, then use azd          |
-| Need fine-grained phased deployment   | **azd** with hooks           | Use `preprovision`/`postprovision` hooks for phased logic      |
-| CI/CD pipeline (non-interactive)      | **azd**                      | `azd provision --no-prompt` with env vars                      |
-| Legacy project with deploy.ps1 only   | deploy.ps1 *(deprecated)*    | Migrate to azd when possible                                   |
+| Scenario                              | Use                           | Why                                                       |
+| ------------------------------------- | ----------------------------- | --------------------------------------------------------- |
+| New Bicep project                     | **azd**                       | Default, cross-platform, built-in env management          |
+| New Terraform project                 | **azd**                       | `infra.provider: terraform` gives TF + azd simplicity     |
+| Existing project with `azure.yaml`    | **azd**                       | Already configured                                        |
+| Existing project without `azure.yaml` | **azd** (generate azure.yaml) | Generate `azure.yaml` via azure-prepare, then use azd     |
+| Need fine-grained phased deployment   | **azd** with hooks            | Use `preprovision`/`postprovision` hooks for phased logic |
+| CI/CD pipeline (non-interactive)      | **azd**                       | `azd provision --no-prompt` with env vars                 |
+| Legacy project with deploy.ps1 only   | deploy.ps1 _(deprecated)_     | Migrate to azd when possible                              |
 
 **Default: azd** for all projects. `deploy.ps1` is deprecated and retained only for backward compatibility.
 
@@ -33,21 +33,21 @@ Both deploy agents (07b-Bicep, 07t-Terraform) load this guide on demand.
 
 ## Comparison
 
-| Factor                      | azd                                                                                                                         | deploy.ps1                                                          |
-| --------------------------- | --------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
-| **Cross-platform**          | Yes (Linux, macOS, Windows)                                                                                                 | PowerShell only                                                     |
-| **Environment management**  | Built-in (`azd env new/set/list`)                                                                                           | Manual parameters per invocation                                    |
-| **Hooks (pre/post deploy)** | `azure.yaml` hooks (`preprovision`, `postprovision`)                                                                        | Custom script logic in deploy.ps1                                   |
-| **Phased deployment**       | Use `preprovision`/`postprovision` hooks for phased logic                                                                   | Fine-grained phases *(deprecated — migrate to azd hooks)*           |
-| **Preview / what-if**       | `azd provision --preview`                                                                                                   | `deploy.ps1 -WhatIf`                                                |
-| **IaC providers**           | Bicep (default) or Terraform (`infra.provider: terraform`)                                                                  | Bicep only                                                          |
-| **Secret management**       | `azd env set-secret` (Key Vault-backed)                                                                                     | Manual parameters                                                   |
-| **CI/CD generation**        | `azd pipeline config` generates GitHub Actions / Azure Pipelines                                                            | Manual workflow authoring                                           |
-| **Service deployment**      | `azd deploy` (app code to Azure resources)                                                                                  | Not supported (infra only)                                          |
-| **Install**                 | Pre-installed in devcontainer (`azd version`)                                                                               | PowerShell pre-installed                                            |
-| **Project isolation**       | Per-project: `infra/{iac}/{project}/azure.yaml` + `.azure/`                                                                 | Per-project: `infra/{iac}/{project}/deploy.ps1`                     |
-| **Env naming**              | `{project}-{env}` (e.g., `hub-spoke-dev`)                                                                                   | Manual per invocation                                               |
-| **Official docs**           | [learn.microsoft.com/azure/developer/azure-developer-cli](https://learn.microsoft.com/azure/developer/azure-developer-cli/) | N/A (custom script)                                                 |
+| Factor                      | azd                                                                                                                         | deploy.ps1                                                |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| **Cross-platform**          | Yes (Linux, macOS, Windows)                                                                                                 | PowerShell only                                           |
+| **Environment management**  | Built-in (`azd env new/set/list`)                                                                                           | Manual parameters per invocation                          |
+| **Hooks (pre/post deploy)** | `azure.yaml` hooks (`preprovision`, `postprovision`)                                                                        | Custom script logic in deploy.ps1                         |
+| **Phased deployment**       | Use `preprovision`/`postprovision` hooks for phased logic                                                                   | Fine-grained phases _(deprecated — migrate to azd hooks)_ |
+| **Preview / what-if**       | `azd provision --preview`                                                                                                   | `deploy.ps1 -WhatIf`                                      |
+| **IaC providers**           | Bicep (default) or Terraform (`infra.provider: terraform`)                                                                  | Bicep only                                                |
+| **Secret management**       | `azd env set-secret` (Key Vault-backed)                                                                                     | Manual parameters                                         |
+| **CI/CD generation**        | `azd pipeline config` generates GitHub Actions / Azure Pipelines                                                            | Manual workflow authoring                                 |
+| **Service deployment**      | `azd deploy` (app code to Azure resources)                                                                                  | Not supported (infra only)                                |
+| **Install**                 | Pre-installed in devcontainer (`azd version`)                                                                               | PowerShell pre-installed                                  |
+| **Project isolation**       | Per-project: `infra/{iac}/{project}/azure.yaml` + `.azure/`                                                                 | Per-project: `infra/{iac}/{project}/deploy.ps1`           |
+| **Env naming**              | `{project}-{env}` (e.g., `hub-spoke-dev`)                                                                                   | Manual per invocation                                     |
+| **Official docs**           | [learn.microsoft.com/azure/developer/azure-developer-cli](https://learn.microsoft.com/azure/developer/azure-developer-cli/) | N/A (custom script)                                       |
 
 ---
 

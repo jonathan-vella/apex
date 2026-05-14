@@ -9,6 +9,7 @@
 **MCP Tools**:
 
 **Diagnosis Workflow**:
+
 1. **Identify the SDK and version** — Ask which language SDK and version the user is on
 
 **Connectivity Troubleshooting**:

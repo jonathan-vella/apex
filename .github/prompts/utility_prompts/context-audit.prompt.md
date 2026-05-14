@@ -9,13 +9,14 @@ Analyze Copilot Chat debug logs to identify context bloat, redundant file reads,
 opportunities across agents.
 
 <investigate_before_answering>
+
 - Context audits depend on real telemetry. Before producing recommendations,
   confirm: (a) the source debug log path or content; (b) which agents and
   skills are in scope; (c) whether the user wants per-invocation findings
   or repo-wide patterns.
 - If the log is missing, partial, or stale, ask before proceeding. Do not
   fabricate token counts.
-</investigate_before_answering>
+  </investigate_before_answering>
 
 <context>
 - Copilot Chat debug logging must be enabled in VS Code.
@@ -52,10 +53,11 @@ opportunities across agents.
 </rules>
 
 <output_contract>
+
 - `agent-output/_baselines/ctx-opt-{timestamp}/report.md` (top findings,
   per-agent breakdown, prioritized recommendations).
 - Optional supporting JSON
   `agent-output/_baselines/ctx-opt-{timestamp}/raw-counts.json` with the
   parsed telemetry.
 - Summary returned to the user with the top 3 optimizations.
-</output_contract>
+  </output_contract>

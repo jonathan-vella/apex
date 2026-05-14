@@ -17,12 +17,12 @@ resource stagingSlot 'Microsoft.Web/sites/slots@2022-09-01' = {
 
 ## Slot Requirements
 
-| SKU Tier | Slots Supported |
-|----------|-----------------|
-| Free/Shared | 0 |
-| Basic | 0 |
-| Standard | 5 |
-| Premium | 20 |
+| SKU Tier    | Slots Supported |
+| ----------- | --------------- |
+| Free/Shared | 0               |
+| Basic       | 0               |
+| Standard    | 5               |
+| Premium     | 20              |
 
 ## Deployment Flow
 

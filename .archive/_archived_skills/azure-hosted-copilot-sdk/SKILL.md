@@ -11,13 +11,13 @@ metadata:
 
 ## Step 1: Route
 
-| User wants | Action |
-|------------|--------|
-| Build new (empty project) | Step 2A (scaffold) |
-| Add new SDK service to existing repo | Step 2B (scaffold alongside) |
-| Deploy existing SDK app to Azure | Step 2C (add infra to existing SDK app) |
-| Add SDK to existing app code | [Integrate SDK](references/existing-project-integration.md) |
-| Use Azure/own model | Step 3 (BYOM config) |
+| User wants                           | Action                                                      |
+| ------------------------------------ | ----------------------------------------------------------- |
+| Build new (empty project)            | Step 2A (scaffold)                                          |
+| Add new SDK service to existing repo | Step 2B (scaffold alongside)                                |
+| Deploy existing SDK app to Azure     | Step 2C (add infra to existing SDK app)                     |
+| Add SDK to existing app code         | [Integrate SDK](references/existing-project-integration.md) |
+| Use Azure/own model                  | Step 3 (BYOM config)                                        |
 
 ## Step 2A: Scaffold New (Greenfield)
 
@@ -37,11 +37,11 @@ User already has a working Copilot SDK app and needs Azure infra. See [deploy ex
 
 Three model paths (layers on top of 2A/2B):
 
-| Path | Config |
-|------|--------|
-| **GitHub default** | No `model` param — SDK picks default |
-| **GitHub specific** | `model: "<name>"` — use `listModels()` to discover |
-| **Azure BYOM** | `model` + `provider` with `bearerToken` via `DefaultAzureCredential` |
+| Path                | Config                                                               |
+| ------------------- | -------------------------------------------------------------------- |
+| **GitHub default**  | No `model` param — SDK picks default                                 |
+| **GitHub specific** | `model: "<name>"` — use `listModels()` to discover                   |
+| **Azure BYOM**      | `model` + `provider` with `bearerToken` via `DefaultAzureCredential` |
 
 See [model config ref](references/azure-model-config.md).
 
@@ -58,10 +58,10 @@ Invoke **azure-prepare** (skip its Step 0 routing — scaffolding is done) → *
 
 Load these on demand — do NOT read all at once:
 
-| Reference | When to Load |
-| --------- | ------------ |
-| `references/auth-best-practices.md` | Auth Best Practices |
-| `references/azure-model-config.md` | Azure Model Config |
-| `references/copilot-sdk.md` | Copilot Sdk |
-| `references/deploy-existing.md` | Deploy Existing |
+| Reference                                    | When to Load                 |
+| -------------------------------------------- | ---------------------------- |
+| `references/auth-best-practices.md`          | Auth Best Practices          |
+| `references/azure-model-config.md`           | Azure Model Config           |
+| `references/copilot-sdk.md`                  | Copilot Sdk                  |
+| `references/deploy-existing.md`              | Deploy Existing              |
 | `references/existing-project-integration.md` | Existing Project Integration |

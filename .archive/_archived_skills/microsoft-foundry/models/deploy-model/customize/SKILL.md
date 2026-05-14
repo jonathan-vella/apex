@@ -13,14 +13,14 @@ Interactive guided workflow for deploying Azure OpenAI models with full customiz
 
 ## Quick Reference
 
-| Property | Description |
-|----------|-------------|
-| **Flow** | Interactive step-by-step guided deployment |
-| **Customization** | Version, SKU, Capacity, RAI Policy, Advanced Options |
-| **SKU Support** | GlobalStandard, Standard, ProvisionedManaged, DataZoneStandard |
-| **Best For** | Precise control over deployment configuration |
-| **Authentication** | Azure CLI (`az login`) |
-| **Tools** | Azure CLI, MCP tools (optional) |
+| Property           | Description                                                    |
+| ------------------ | -------------------------------------------------------------- |
+| **Flow**           | Interactive step-by-step guided deployment                     |
+| **Customization**  | Version, SKU, Capacity, RAI Policy, Advanced Options           |
+| **SKU Support**    | GlobalStandard, Standard, ProvisionedManaged, DataZoneStandard |
+| **Best For**       | Precise control over deployment configuration                  |
+| **Authentication** | Azure CLI (`az login`)                                         |
+| **Tools**          | Azure CLI, MCP tools (optional)                                |
 
 ## When to Use This Skill
 
@@ -37,15 +37,15 @@ Use this skill when you need **precise control** over deployment configuration:
 
 ### Comparison: customize vs preset
 
-| Feature | customize | preset |
-|---------|---------------------|----------------------------|
-| **Focus** | Full customization control | Optimal region selection |
-| **Version Selection** | User chooses from available | Uses latest automatically |
-| **SKU Selection** | User chooses (GlobalStandard/Standard/PTU) | GlobalStandard only |
-| **Capacity** | User specifies exact value | Auto-calculated (50% of available) |
-| **RAI Policy** | User selects from options | Default policy only |
-| **Region** | Current region first, falls back to all regions if no capacity | Checks capacity across all regions upfront |
-| **Use Case** | Precise deployment requirements | Quick deployment to best region |
+| Feature               | customize                                                      | preset                                     |
+| --------------------- | -------------------------------------------------------------- | ------------------------------------------ |
+| **Focus**             | Full customization control                                     | Optimal region selection                   |
+| **Version Selection** | User chooses from available                                    | Uses latest automatically                  |
+| **SKU Selection**     | User chooses (GlobalStandard/Standard/PTU)                     | GlobalStandard only                        |
+| **Capacity**          | User specifies exact value                                     | Auto-calculated (50% of available)         |
+| **RAI Policy**        | User selects from options                                      | Default policy only                        |
+| **Region**            | Current region first, falls back to all regions if no capacity | Checks capacity across all regions upfront |
+| **Use Case**          | Precise deployment requirements                                | Quick deployment to best region            |
 
 ## Prerequisites
 
@@ -83,24 +83,23 @@ If user accepts all defaults (latest version, GlobalStandard SKU, recommended ca
 
 ## Phase Summaries
 
-> ⚠️ **MUST READ:** Before executing any phase, load [references/customize-workflow.md](references/customize-workflow.md) for the full scripts and implementation details. The summaries below describe *what* each phase does — the reference file contains the *how* (CLI commands, quota patterns, capacity formulas, cross-region fallback logic).
+> ⚠️ **MUST READ:** Before executing any phase, load [references/customize-workflow.md](references/customize-workflow.md) for the full scripts and implementation details. The summaries below describe _what_ each phase does — the reference file contains the _how_ (CLI commands, quota patterns, capacity formulas, cross-region fallback logic).
 
-| Phase | Action | Key Details |
-|-------|--------|-------------|
-| **1. Verify Auth** | Check `az account show`; prompt `az login` if needed | Verify correct subscription is active |
-| **2. Get Project ID** | Read `PROJECT_RESOURCE_ID` env var or prompt user | ARM resource ID format required |
-| **3. Verify Project** | Parse resource ID, call `az cognitiveservices account show` | Extracts subscription, RG, account, project, region |
-| **4. Get Model** | List models via `az cognitiveservices account list-models` | User selects from available or enters custom name |
-| **5. Select Version** | Query versions for chosen model | Recommend latest; user picks from list |
-| **6. Select SKU** | Query model catalog + subscription quota, show only deployable SKUs | ⚠️ Never hardcode SKU lists — always query live data |
-| **7. Configure Capacity** | Query capacity API, validate min/max/step, user enters value | Cross-region fallback if no capacity in current region |
-| **8. Select RAI Policy** | Present content filter options | Default: `Microsoft.DefaultV2` |
-| **9. Advanced Options** | Dynamic quota (GlobalStandard), priority processing (PTU), spillover | SKU-dependent availability |
-| **10. Upgrade Policy** | Choose: OnceNewDefaultVersionAvailable / OnceCurrentVersionExpired / NoAutoUpgrade | Default: auto-upgrade on new default |
-| **11. Deployment Name** | Auto-generate unique name, allow custom override | Validates format: `^[\w.-]{2,64}$` |
-| **12. Review** | Display full config summary, confirm before proceeding | User approves or cancels |
-| **13. Deploy & Monitor** | `az cognitiveservices account deployment create`, poll status | Timeout after 5 min; show endpoint + portal link |
-
+| Phase                     | Action                                                                             | Key Details                                            |
+| ------------------------- | ---------------------------------------------------------------------------------- | ------------------------------------------------------ |
+| **1. Verify Auth**        | Check `az account show`; prompt `az login` if needed                               | Verify correct subscription is active                  |
+| **2. Get Project ID**     | Read `PROJECT_RESOURCE_ID` env var or prompt user                                  | ARM resource ID format required                        |
+| **3. Verify Project**     | Parse resource ID, call `az cognitiveservices account show`                        | Extracts subscription, RG, account, project, region    |
+| **4. Get Model**          | List models via `az cognitiveservices account list-models`                         | User selects from available or enters custom name      |
+| **5. Select Version**     | Query versions for chosen model                                                    | Recommend latest; user picks from list                 |
+| **6. Select SKU**         | Query model catalog + subscription quota, show only deployable SKUs                | ⚠️ Never hardcode SKU lists — always query live data   |
+| **7. Configure Capacity** | Query capacity API, validate min/max/step, user enters value                       | Cross-region fallback if no capacity in current region |
+| **8. Select RAI Policy**  | Present content filter options                                                     | Default: `Microsoft.DefaultV2`                         |
+| **9. Advanced Options**   | Dynamic quota (GlobalStandard), priority processing (PTU), spillover               | SKU-dependent availability                             |
+| **10. Upgrade Policy**    | Choose: OnceNewDefaultVersionAvailable / OnceCurrentVersionExpired / NoAutoUpgrade | Default: auto-upgrade on new default                   |
+| **11. Deployment Name**   | Auto-generate unique name, allow custom override                                   | Validates format: `^[\w.-]{2,64}$`                     |
+| **12. Review**            | Display full config summary, confirm before proceeding                             | User approves or cancels                               |
+| **13. Deploy & Monitor**  | `az cognitiveservices account deployment create`, poll status                      | Timeout after 5 min; show endpoint + portal link       |
 
 ---
 
@@ -108,17 +107,17 @@ If user accepts all defaults (latest version, GlobalStandard SKU, recommended ca
 
 ### Common Issues and Resolutions
 
-| Error | Cause | Resolution |
-|-------|-------|------------|
-| **Model not found** | Invalid model name | List available models with `az cognitiveservices account list-models` |
-| **Version not available** | Version not supported for SKU | Select different version or SKU |
-| **Insufficient quota** | Capacity > available quota | Skill auto-searches all regions; fails only if no region has quota |
-| **SKU not supported** | SKU not available in region | Cross-region fallback searches other regions automatically |
-| **Capacity out of range** | Invalid capacity value | **PREVENTED**: Skill validates min/max/step at input (Phase 7) |
-| **Deployment name exists** | Name conflict | Auto-incremented name generation |
-| **Authentication failed** | Not logged in | Run `az login` |
-| **Permission denied** | Insufficient permissions | Assign Cognitive Services Contributor role |
-| **Capacity query fails** | API/permissions/network error | **DEPLOYMENT BLOCKED**: Will not proceed without valid quota data |
+| Error                      | Cause                         | Resolution                                                            |
+| -------------------------- | ----------------------------- | --------------------------------------------------------------------- |
+| **Model not found**        | Invalid model name            | List available models with `az cognitiveservices account list-models` |
+| **Version not available**  | Version not supported for SKU | Select different version or SKU                                       |
+| **Insufficient quota**     | Capacity > available quota    | Skill auto-searches all regions; fails only if no region has quota    |
+| **SKU not supported**      | SKU not available in region   | Cross-region fallback searches other regions automatically            |
+| **Capacity out of range**  | Invalid capacity value        | **PREVENTED**: Skill validates min/max/step at input (Phase 7)        |
+| **Deployment name exists** | Name conflict                 | Auto-incremented name generation                                      |
+| **Authentication failed**  | Not logged in                 | Run `az login`                                                        |
+| **Permission denied**      | Insufficient permissions      | Assign Cognitive Services Contributor role                            |
+| **Capacity query fails**   | API/permissions/network error | **DEPLOYMENT BLOCKED**: Will not proceed without valid quota data     |
 
 ### Troubleshooting Commands
 

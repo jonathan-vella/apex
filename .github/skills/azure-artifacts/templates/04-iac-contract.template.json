@@ -1,0 +1,69 @@
+{
+  "$schema": "../../../../tools/schemas/iac-contract.schema.json",
+  "schema_version": "iac-contract-v0",
+  "project": "{project-name}",
+  "iac_tool": "Bicep",
+  "generated_at": "{ISO-8601 timestamp}",
+  "plan_ref": {
+    "path": "04-implementation-plan.md",
+    "sha256": "{sha256 of plan file}"
+  },
+  "l1m_ref": {
+    "path": "04-policy-property-map.json",
+    "sha256": "{sha256 of policy property map}"
+  },
+  "resources": [
+    {
+      "logical_name": "log-platform",
+      "type": "Microsoft.OperationalInsights/workspaces",
+      "sku": "PerGB2018",
+      "purpose": "Diagnostic landing zone — WAF Operational Excellence."
+    },
+    {
+      "logical_name": "kv-secrets",
+      "type": "Microsoft.KeyVault/vaults",
+      "sku": "standard",
+      "purpose": "Secret store with RBAC + private endpoint — WAF Security.",
+      "depends_on": ["log-platform"]
+    }
+  ],
+  "modules": {
+    "bicep": [
+      {
+        "resource_logical_name": "log-platform",
+        "source": "br/public:avm/res/operational-insights/workspace",
+        "version": "0.7.0"
+      },
+      {
+        "resource_logical_name": "kv-secrets",
+        "source": "br/public:avm/res/key-vault/vault",
+        "version": "0.9.0"
+      }
+    ],
+    "terraform": []
+  },
+  "params": [
+    {
+      "name": "deployerObjectId",
+      "type": "string",
+      "description": "objectId of the deploy principal; resolved at deploy time from 04-environment-manifest.json."
+    },
+    {
+      "name": "logAnalyticsWorkspaceId",
+      "type": "string",
+      "description": "Resource ID of the Log Analytics workspace used by diagnostics."
+    }
+  ],
+  "diagnostics": {
+    "mode": "avm",
+    "workspace_id_param": "logAnalyticsWorkspaceId",
+    "log_categories": ["allLogs"],
+    "metric_categories": ["AllMetrics"],
+    "retention_days": 30
+  },
+  "identity": {
+    "type": "user_assigned",
+    "uami_logical_names": [],
+    "entra_app_creation": "existing"
+  }
+}

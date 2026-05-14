@@ -41,24 +41,24 @@
 
 ## Comparison Matrix
 
-| Scenario | Model | SKU | Capacity | Dynamic Quota | Priority | Spillover | Use Case |
-|----------|-------|-----|----------|:---:|:---:|:---:|----------|
-| Ex 1 | gpt-4o | GlobalStandard | 10K TPM | ✓ | - | - | Quick setup |
-| Ex 2 | gpt-4o | GlobalStandard | 50K TPM | ✓ | - | - | Production |
-| Ex 3 | gpt-4o | ProvisionedManaged | 200 PTU | - | ✓ | - | Predictable workload |
-| Ex 4 | gpt-4o-mini | Standard | 1K TPM | - | - | - | Dev/testing |
-| Ex 5 | gpt-4o | GlobalStandard | 20K TPM | ✓ | - | ✓ | Peak load |
-| Ex 6 | claude-sonnet-4-6 | GlobalStandard | 1 (MaaS) | - | - | - | Anthropic model |
+| Scenario | Model             | SKU                | Capacity | Dynamic Quota | Priority | Spillover | Use Case             |
+| -------- | ----------------- | ------------------ | -------- | :-----------: | :------: | :-------: | -------------------- |
+| Ex 1     | gpt-4o            | GlobalStandard     | 10K TPM  |       ✓       |    -     |     -     | Quick setup          |
+| Ex 2     | gpt-4o            | GlobalStandard     | 50K TPM  |       ✓       |    -     |     -     | Production           |
+| Ex 3     | gpt-4o            | ProvisionedManaged | 200 PTU  |       -       |    ✓     |     -     | Predictable workload |
+| Ex 4     | gpt-4o-mini       | Standard           | 1K TPM   |       -       |    -     |     -     | Dev/testing          |
+| Ex 5     | gpt-4o            | GlobalStandard     | 20K TPM  |       ✓       |    -     |     ✓     | Peak load            |
+| Ex 6     | claude-sonnet-4-6 | GlobalStandard     | 1 (MaaS) |       -       |    -     |     -     | Anthropic model      |
 
 ## Common Patterns
 
 ### Dev → Staging → Production
 
-| Stage | Model | SKU | Capacity | Extras |
-|-------|-------|-----|----------|--------|
-| Dev | gpt-4o-mini | Standard | 1K TPM | — |
-| Staging | gpt-4o | GlobalStandard | 10K TPM | — |
-| Production | gpt-4o | GlobalStandard | 50K TPM | Dynamic Quota + Spillover |
+| Stage      | Model       | SKU            | Capacity | Extras                    |
+| ---------- | ----------- | -------------- | -------- | ------------------------- |
+| Dev        | gpt-4o-mini | Standard       | 1K TPM   | —                         |
+| Staging    | gpt-4o      | GlobalStandard | 10K TPM  | —                         |
+| Production | gpt-4o      | GlobalStandard | 50K TPM  | Dynamic Quota + Spillover |
 
 ### Cost Optimization
 
@@ -83,8 +83,8 @@
 
 ## Troubleshooting
 
-| Problem | Solution |
-|---------|----------|
-| `QuotaExceeded` | Check usage with `az cognitiveservices usage list`, reduce capacity, try different SKU, check other regions, or use the [quota skill](../../../quota/quota.md) to request an increase |
-| Version not available for SKU | Check `az cognitiveservices account list-models --query "[?name=='gpt-4o'].version"`, use latest |
-| Deployment name exists | Skill auto-generates unique name (e.g., `gpt-4o-2`), or specify custom name |
+| Problem                       | Solution                                                                                                                                                                              |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `QuotaExceeded`               | Check usage with `az cognitiveservices usage list`, reduce capacity, try different SKU, check other regions, or use the [quota skill](../../../quota/quota.md) to request an increase |
+| Version not available for SKU | Check `az cognitiveservices account list-models --query "[?name=='gpt-4o'].version"`, use latest                                                                                      |
+| Deployment name exists        | Skill auto-generates unique name (e.g., `gpt-4o-2`), or specify custom name                                                                                                           |

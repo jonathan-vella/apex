@@ -39,6 +39,7 @@ az keyvault secret set --vault-name <vault-name> --name swa-deployment-token --v
 ```
 
 **Do NOT do this** (exposes token in deployment history):
+
 ```bicep
 // ❌ INSECURE - token visible in deployment history
 // output deploymentToken string = staticWebApp.listSecrets().properties.apiKey

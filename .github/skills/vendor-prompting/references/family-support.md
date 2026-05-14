@@ -20,17 +20,17 @@ Family status determines per-rule severity overrides.
 
 ## Matrix
 
-| Family          | v1 status     | Rule subset                                        | Examples                           |
-| --------------- | ------------- | -------------------------------------------------- | ---------------------------------- |
-| `claude-opus`   | enforced      | All Claude rules at default severity               | `Claude Opus 4.7`                  |
-| `claude-sonnet` | enforced      | All Claude rules at default severity               | `Claude Sonnet 4.6`                |
-| `claude-haiku`  | warn-only     | XML structuring + few-shot rules; rest downgraded  | `Claude Haiku 4.5`                 |
-| `claude`        | warn-only     | Generic Claude — flag at warn for explicit version | `Claude`                           |
-| `gpt-5.5`       | enforced      | All GPT-5.5 rules at default severity              | `GPT-5.5`                          |
-| `gpt-5.4`       | deprecated    | Retired 2026-05; no active assignments             | `GPT-5.4`                          |
-| `gpt-codex`     | reviewer-only | Decision-log only; no automated enforcement        | `GPT-5.3-Codex`                    |
-| `gpt-4o`        | reviewer-only | Legacy; no new enforcement                         | `GPT-4o`                           |
-| `unknown`       | enforced      | Raises ERROR to force explicit `model:` value      | (anything else)                    |
+| Family          | v1 status     | Rule subset                                        | Examples            |
+| --------------- | ------------- | -------------------------------------------------- | ------------------- |
+| `claude-opus`   | enforced      | All Claude rules at default severity               | `Claude Opus 4.7`   |
+| `claude-sonnet` | enforced      | All Claude rules at default severity               | `Claude Sonnet 4.6` |
+| `claude-haiku`  | warn-only     | XML structuring + few-shot rules; rest downgraded  | `Claude Haiku 4.5`  |
+| `claude`        | warn-only     | Generic Claude — flag at warn for explicit version | `Claude`            |
+| `gpt-5.5`       | enforced      | All GPT-5.5 rules at default severity              | `GPT-5.5`           |
+| `gpt-5.4`       | deprecated    | Retired 2026-05; no active assignments             | `GPT-5.4`           |
+| `gpt-codex`     | reviewer-only | Decision-log only; no automated enforcement        | `GPT-5.3-Codex`     |
+| `gpt-4o`        | reviewer-only | Legacy; no new enforcement                         | `GPT-4o`            |
+| `unknown`       | enforced      | Raises ERROR to force explicit `model:` value      | (anything else)     |
 
 ## How severity is computed
 

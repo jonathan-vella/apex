@@ -3,6 +3,7 @@
 ## Dependencies
 
 **pom.xml:**
+
 ```xml
 <dependency>
     <groupId>com.microsoft.azure.functions</groupId>
@@ -19,6 +20,7 @@
 ## Source Code
 
 **src/main/java/com/function/McpTools.java:**
+
 ```java
 package com.function;
 
@@ -31,9 +33,9 @@ import java.util.*;
 public class McpTools {
 
     private static final Gson gson = new Gson();
-    
+
     private static final List<Map<String, Object>> TOOLS = Arrays.asList(
-        createTool("get_weather", "Get weather for a city", 
+        createTool("get_weather", "Get weather for a city",
             Map.of("city", Map.of("type", "string", "description", "City name")),
             List.of("city")),
         createTool("search_docs", "Search documentation",
@@ -41,7 +43,7 @@ public class McpTools {
             List.of("query"))
     );
 
-    private static Map<String, Object> createTool(String name, String description, 
+    private static Map<String, Object> createTool(String name, String description,
             Map<String, Object> properties, List<String> required) {
         Map<String, Object> tool = new HashMap<>();
         tool.put("name", name);
@@ -59,7 +61,7 @@ public class McpTools {
             @HttpTrigger(name = "req", methods = {HttpMethod.POST}, authLevel = AuthorizationLevel.FUNCTION)
             HttpRequestMessage<Optional<String>> request,
             final ExecutionContext context) {
-        
+
         JsonObject body = JsonParser.parseString(request.getBody().orElse("{}")).getAsJsonObject();
         String method = body.get("method").getAsString();
         int id = body.get("id").getAsInt();
@@ -134,7 +136,7 @@ public class McpTools {
             @HttpTrigger(name = "req", methods = {HttpMethod.GET}, authLevel = AuthorizationLevel.ANONYMOUS)
             HttpRequestMessage<Optional<String>> request,
             final ExecutionContext context) {
-        
+
         return request.createResponseBuilder(HttpStatus.OK)
                 .header("Content-Type", "application/json")
                 .body("{\"status\":\"healthy\",\"type\":\"mcp\"}")

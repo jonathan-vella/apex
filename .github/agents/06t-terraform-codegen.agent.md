@@ -230,8 +230,16 @@ Before doing any work, read these skills:
 Before starting, validate these files exist in `agent-output/{project}/`:
 
 1. `04-implementation-plan.md` — **REQUIRED**. If missing, STOP → handoff to Terraform Plan agent
-2. `04-governance-constraints.json` — **REQUIRED**. If missing, STOP → request governance discovery
-3. `04-governance-constraints.md` — **REQUIRED**. Human-readable governance constraints
+2. `04-governance-constraints.json` + `.md` — **REQUIRED**. If missing, STOP → request governance discovery
+3. **Wave 1+ contract artifacts** — `04-iac-contract.json`,
+   `04-policy-property-map.json`, and `04-environment-manifest.json`
+   (when identity / app regs / alerts / budgets are used). See
+   [`iac-common/references/contract-emission-and-handoff.md`](../skills/iac-common/references/contract-emission-and-handoff.md)
+   → "Inputs from Step 4". `azuread_*` rules:
+   [`azuread-pattern.md`](../skills/terraform-patterns/references/azuread-pattern.md).
+   Identity rules:
+   [`identity-resolution.md`](../skills/azure-defaults/references/identity-resolution.md).
+   If any required Wave 1+ artifact is missing, STOP → handoff to Planner.
 
 Also read `02-architecture-assessment.md` for tier/SKU context.
 
@@ -306,24 +314,31 @@ This agent substitutes Terraform-specific tools below.
 
 ### Phase 1: Preflight Check (MANDATORY)
 
-For EACH resource in `04-implementation-plan.md`:
+For EACH resource in `04-iac-contract.json#resources[]` (canonical
+source; `04-implementation-plan.md` is the prose mirror):
 
 1. `terraform/search_modules` → confirm AVM-TF exists (namespace `Azure`)
 2. `terraform/get_module_details` → retrieve variable schema
-3. Cross-check planned variables against schema; flag type mismatches (see AVM Known Pitfalls in terraform-patterns skill)
+3. Cross-check `04-iac-contract.json#modules.terraform[]` source + version
+   pins against schema; flag type mismatches (see AVM Known Pitfalls in terraform-patterns skill)
 4. `terraform/get_latest_module_version` → pin version band (`~> X.Y`)
 5. For non-AVM resources: verify `azurerm` provider arguments via `terraform/search_providers`
 6. Check region limitations
 7. Save to `agent-output/{project}/04-preflight-check.md`
-8. If blockers found, use the `askQuestions` tool to present
-   them in a single interactive form. Build one question with:
-   - header: "Preflight Blockers Found"
-   - question: Brief summary of blockers (e.g. "2 AVM-TF variable mismatches,
-     1 region limitation. See 04-preflight-check.md for details.")
-   - Options: **Fix and re-run preflight** (recommended) / **Abort — return to Planner**
-     Do not list blockers in chat text and ask the user to reply.
-     The `askQuestions` tool presents an inline form the user fills out in one shot.
-     If the user chooses to abort, STOP and present the Return to Step 4 handoff.
+8. If blockers found, use the `askQuestions` tool with a single
+   form (header `Preflight Blockers Found`, options **Fix and re-run
+   preflight** / **Abort — return to Planner**) per
+   [`iac-common/references/codegen-shared-workflow.md`](../skills/iac-common/references/codegen-shared-workflow.md)
+   → "Preflight Blocker Form". On abort, STOP and present the Return
+   to Step 4 handoff.
+
+**Contract integrity gate (MANDATORY, Wave 1+)** — before exiting
+Phase 1, run the three contract validators
+(`validate:iac-contract`, `validate:iac-contract-consistency`,
+`validate:policy-property-map`) per
+[`iac-common/references/contract-emission-and-handoff.md`](../skills/iac-common/references/contract-emission-and-handoff.md)
+→ "Phase 1". Any non-zero exit ⇒ STOP and traverse `↩ Return to Step 4`.
+CodeGen never patches the contract.
 
 **Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 5 phase_1_preflight --json`
 
@@ -402,31 +417,15 @@ Generate `bootstrap-backend.sh` + `bootstrap-backend.ps1`. Read
 
 ### Phase 3: Deploy Scripts and azd Manifest
 
-Generate `infra/terraform/{project}/azure.yaml` (azd manifest — **primary deployment method**) with:
+Generate `infra/terraform/{project}/azure.yaml` (azd manifest —
+**primary deployment method**) with `name: {project}`,
+`infra.provider: terraform`, `infra.path: .`. This enables
+`azd provision` as the default (preferred over raw `terraform apply`).
 
-```yaml
-name: { project }
-infra:
-  provider: terraform
-  path: .
-```
-
-This enables `azd provision` as the default deployment method (preferred over raw `terraform apply`).
-
-Also generate `deploy.sh` + `deploy.ps1` (deprecated fallback scripts). Read
-`terraform-patterns/references/deploy-script-template.md` for templates.
-
-Also generate `infra/terraform/{project}/main.tfvars.json` to map azd environment
-variables to Terraform variables:
-
-```json
-{
-  "location": "${AZURE_LOCATION}",
-  "environment_name": "${AZURE_ENV_NAME}"
-}
-```
-
-Add additional variable mappings as needed for the project's `variables.tf`.
+Also generate `deploy.sh` + `deploy.ps1` (deprecated fallback) per
+`terraform-patterns/references/deploy-script-template.md`, and
+`main.tfvars.json` mapping `${AZURE_LOCATION}` / `${AZURE_ENV_NAME}`
+(plus project-specific variables) to TF variables.
 
 ### Phase 4: Validation (Subagent-Driven — Parallel)
 
@@ -501,7 +500,21 @@ from disk only if you need full finding details for fix triage. Fix any
 
 Save validation status in `05-implementation-reference.md`. Run `npm run lint:artifact-templates`.
 
-**On completion** (MANDATORY): `apex-recall complete-step <project> 5 --json`
+### Phase 4.6 + Phase 6: Validate Gate & IaC Handoff (MANDATORY, Wave 1+)
+
+Documented end-to-end in
+[`iac-common/references/contract-emission-and-handoff.md`](../skills/iac-common/references/contract-emission-and-handoff.md).
+Terraform specifics:
+
+- **Phase 4.6** — `terraform validate` + `terraform plan -refresh=false`
+  with env-rendered `*.tfvars.json` (shared ref → Phase 4.6 → Terraform).
+- **Phase 6** — emit `agent-output/{project}/05-iac-handoff.json` with
+  `entrypoint.kind = terraform-root` and `tree_hash` root
+  `infra/terraform/{project}/` (shared ref → Phase 6).
+  `npm run validate:iac-handoff` must pass.
+
+**Checkpoints**: `phase_4.6_validate_gate` then `phase_6_handoff`.
+**On completion**: `apex-recall complete-step <project> 5 --json`
 
 ## Project Structure & Patterns
 
@@ -525,8 +538,12 @@ In `agent-output/{project}/`:
 
 - `04-preflight-check.md` — Preflight validation results
 - `05-implementation-reference.md` — Configuration structure and validation status
+- `05-iac-handoff.json` — **Wave 3+** machine-readable handoff
+  (deploy agent reads this, not the prose reference)
 
-Validation: `terraform validate` + `terraform fmt -check` + `npm run lint:artifact-templates`.
+Validation: `terraform validate` + `terraform fmt -check` +
+`terraform plan -refresh=false` (Phase 4.6) +
+`npm run validate:iac-handoff` + `npm run lint:artifact-templates`.
 
 ## User Updates
 

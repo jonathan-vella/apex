@@ -46,12 +46,12 @@ template: {
 
 ## Common Variables
 
-| Variable | Source | Notes |
-|----------|--------|-------|
-| `APPLICATIONINSIGHTS_CONNECTION_STRING` | App Insights | Telemetry |
-| `AZURE_CLIENT_ID` | Managed Identity | SDK auth |
-| `DATABASE_URL` | Key Vault secret | Connection string |
-| `REDIS_URL` | Key Vault secret | Cache connection |
+| Variable                                | Source           | Notes             |
+| --------------------------------------- | ---------------- | ----------------- |
+| `APPLICATIONINSIGHTS_CONNECTION_STRING` | App Insights     | Telemetry         |
+| `AZURE_CLIENT_ID`                       | Managed Identity | SDK auth          |
+| `DATABASE_URL`                          | Key Vault secret | Connection string |
+| `REDIS_URL`                             | Key Vault secret | Cache connection  |
 
 ## Best Practices
 

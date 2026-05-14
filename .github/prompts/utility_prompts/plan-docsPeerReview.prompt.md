@@ -15,6 +15,7 @@ Orchestrate a peer review of every published documentation page in
 context, then reconciliation into a prioritised triage report.
 
 <investigate_before_answering>
+
 - Docs peer review depends on a stable file inventory and on
   `tools/registry/count-manifest.json` as the count source-of-truth. Before
   spinning up reviewers, confirm: (a) the `sidebar` from
@@ -23,7 +24,7 @@ context, then reconciliation into a prioritised triage report.
   argument-hint).
 - Do not rely on hard-coded page lists; the sidebar is the source of truth
   and changes over time.
-</investigate_before_answering>
+  </investigate_before_answering>
 
 <context>
 - In scope: all `.md` / `.mdx` pages under `site/src/content/docs/`
@@ -51,7 +52,7 @@ Run the three-reviewer pipeline detailed in the body below:
    produces additional / contested findings.
 4. Reconciliation step merges the three findings sets into a single
    prioritised triage report.
-</task>
+   </task>
 
 <rules>
 - Never hard-code entity counts; compute them at review time from
@@ -64,13 +65,14 @@ Run the three-reviewer pipeline detailed in the body below:
 </rules>
 
 <output_contract>
+
 - `agent-output/_baselines/docs-peer-review-{timestamp}/reviewer-a.json`
 - `agent-output/_baselines/docs-peer-review-{timestamp}/reviewer-b.json`
 - `agent-output/_baselines/docs-peer-review-{timestamp}/reviewer-c-adversarial.json`
 - `agent-output/_baselines/docs-peer-review-{timestamp}/triage-report.md`
   (prioritised, one row per finding, severity-tagged)
 - Summary returned to user: counts per severity + top 5 must-fix items.
-</output_contract>
+  </output_contract>
 
 ## Scope
 

@@ -4,12 +4,12 @@ Create Dockerfiles for containerized services.
 
 ## When to Containerize
 
-| Include | Exclude |
-|---------|---------|
+| Include             | Exclude                               |
+| ------------------- | ------------------------------------- |
 | APIs, microservices | Static websites (use Static Web Apps) |
-| Web apps (SSR) | Azure Functions (native deploy) |
-| Background workers | Database services |
-| Message processors | Logic Apps |
+| Web apps (SSR)      | Azure Functions (native deploy)       |
+| Background workers  | Database services                     |
+| Message processors  | Logic Apps                            |
 
 ## Templates by Language
 
@@ -111,6 +111,6 @@ __pycache__
 
 For production settings specific to each runtime:
 
-| Runtime | Reference |
-|---------|-----------| 
+| Runtime         | Reference                                      |
+| --------------- | ---------------------------------------------- |
 | Node.js/Express | [runtimes/nodejs.md](../../runtimes/nodejs.md) |

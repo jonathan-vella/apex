@@ -5,6 +5,7 @@
 > in the **azure-appconfiguration-py** plugin skill if installed.
 
 ## Install
+
 pip install azure-appconfiguration azure-identity
 
 ## Quick Start
@@ -18,8 +19,9 @@ client = AzureAppConfigurationClient(base_url="https://<name>.azconfig.io", cred
 ```
 
 ## Best Practices
+
 - Use labels for environment separation (dev, staging, prod)
-- Use key prefixes for logical grouping (app:database:*, app:cache:*)
+- Use key prefixes for logical grouping (app:database:_, app:cache:_)
 - Make production settings read-only to prevent accidental changes
 - Create snapshots before deployments for rollback capability
 - Use Entra ID instead of connection strings in production

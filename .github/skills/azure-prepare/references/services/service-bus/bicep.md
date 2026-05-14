@@ -138,6 +138,7 @@ resource serviceBusSenderRole 'Microsoft.Authorization/roleAssignments@2022-04-0
 ```
 
 > 💡 **Role Selection:**
+>
 > - Use **Data Receiver** for Function triggers or message consumers
 > - Use **Data Sender** for applications that send messages
 > - Use **both roles** for bidirectional communication

@@ -5,6 +5,7 @@
 > in the **azure-storage-file-share-py** plugin skill if installed.
 
 ## Install
+
 pip install azure-storage-file-share azure-identity
 
 ## Quick Start
@@ -18,6 +19,7 @@ service = ShareServiceClient("https://<account>.file.core.windows.net", DefaultA
 ```
 
 ## Best Practices
+
 - Use connection string for simplest setup
 - Use Entra ID for production with RBAC
 - Stream large files using chunks() to avoid memory issues

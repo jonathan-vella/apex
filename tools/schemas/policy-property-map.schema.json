@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/jonathan-vella/azure-agentic-infraops/schemas/policy-property-map.schema.json",
+  "title": "APEX Policy Property Map (L1m)",
+  "description": "Machine-readable governance compliance matrix emitted alongside 04-implementation-plan.md as 04-policy-property-map.json. Always produced — in light governance mode, the prose H2 'Governance Compliance Matrix' section is skipped but this JSON file is still emitted so 06b/06t and policy-precheck-subagent (L3) can attest Deny-effect policies deterministically. Mirrors L1m in the four-layer governance attestation chain (L0 envelope → L1 matrix → L2 attestation → L3 live precheck).",
+  "type": "object",
+  "required": ["schema_version", "project", "generated_at", "governance_depth", "policies"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "schema_version": {
+      "type": "string",
+      "const": "policy-property-map-v1"
+    },
+    "project": { "type": "string", "minLength": 1 },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "governance_depth": {
+      "type": "string",
+      "enum": ["light", "full"],
+      "description": "Source mode that produced this map. 'light' may omit detailed evidence/rationale per policy but MUST still include every Deny-effect entry."
+    },
+    "constraints_ref": {
+      "type": "object",
+      "description": "Pointer to the source 04-governance-constraints.json so reviewers can audit upstream provenance.",
+      "required": ["path", "sha256"],
+      "additionalProperties": false,
+      "properties": {
+        "path": { "type": "string" },
+        "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+      }
+    },
+    "policies": {
+      "type": "array",
+      "description": "One entry per effective policy assignment that the implementation must satisfy. MUST include every Deny-effect policy from 04-governance-constraints.json even in light mode.",
+      "items": {
+        "type": "object",
+        "required": ["policy_id", "display_name", "effect", "target_property"],
+        "additionalProperties": false,
+        "properties": {
+          "policy_id": {
+            "type": "string",
+            "description": "Definition GUID or built-in/custom identifier."
+          },
+          "display_name": { "type": "string" },
+          "effect": {
+            "type": "string",
+            "enum": ["Deny", "Audit", "AuditIfNotExists", "DeployIfNotExists", "Modify", "Append", "Disabled"]
+          },
+          "target_property": {
+            "type": "object",
+            "description": "The exact resource type + property path the policy enforces. Used by L2 validate-subagent attestation.",
+            "required": ["resource_type", "property_path"],
+            "additionalProperties": false,
+            "properties": {
+              "resource_type": {
+                "type": "string",
+                "pattern": "^Microsoft\\.[A-Za-z]+/[A-Za-z][A-Za-z0-9/]*$"
+              },
+              "property_path": {
+                "type": "string",
+                "description": "Dot-notation JSON Pointer (e.g. 'properties.supportsHttpsTrafficOnly')."
+              },
+              "expected_value": {
+                "description": "Required scalar/array/object the resource must declare."
+              }
+            }
+          },
+          "evidence_required": {
+            "type": "string",
+            "description": "Where Step 5 must surface the attestation (e.g. inline bicep param, terraform locals)."
+          },
+          "rationale": {
+            "type": "string",
+            "description": "WAF pillar mapping and reason. Optional in light mode; required for Deny-effect entries in full mode."
+          }
+        }
+      }
+    }
+  }
+}

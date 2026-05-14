@@ -91,13 +91,13 @@ def say_hello(name: str) -> str:
 @my_app.orchestration_trigger(context_name="context")
 def fan_out_fan_in(context: df.DurableOrchestrationContext):
     cities = ["Tokyo", "Seattle", "London", "Paris", "Berlin"]
-    
+
     # Fan-out: schedule all in parallel
     parallel_tasks = []
     for city in cities:
         task = context.call_activity("say_hello", city)
         parallel_tasks.append(task)
-    
+
     # Fan-in: wait for all
     results = yield context.task_all(parallel_tasks)
     return results
@@ -111,14 +111,14 @@ import datetime
 @my_app.orchestration_trigger(context_name="context")
 def approval_workflow(context: df.DurableOrchestrationContext):
     yield context.call_activity("send_approval_request", context.get_input())
-    
+
     # Wait for approval event with timeout
     timeout = context.current_utc_datetime + datetime.timedelta(days=3)
     approval_task = context.wait_for_external_event("ApprovalEvent")
     timeout_task = context.create_timer(timeout)
-    
+
     winner = yield context.task_any([approval_task, timeout_task])
-    
+
     if winner == approval_task:
         approved = approval_task.result
         return "Approved" if approved else "Rejected"
@@ -127,13 +127,13 @@ def approval_workflow(context: df.DurableOrchestrationContext):
 
 ## Orchestration Determinism
 
-| ❌ NEVER | ✅ ALWAYS USE |
-|----------|--------------|
-| `datetime.now()` | `context.current_utc_datetime` |
-| `uuid.uuid4()` | `context.new_uuid()` |
-| `random.random()` | Pass random values from activities |
-| `time.sleep()` | `context.create_timer()` |
-| Direct I/O, HTTP, database | `context.call_activity()` |
+| ❌ NEVER                   | ✅ ALWAYS USE                      |
+| -------------------------- | ---------------------------------- |
+| `datetime.now()`           | `context.current_utc_datetime`     |
+| `uuid.uuid4()`             | `context.new_uuid()`               |
+| `random.random()`          | Pass random values from activities |
+| `time.sleep()`             | `context.create_timer()`           |
+| Direct I/O, HTTP, database | `context.call_activity()`          |
 
 ### Replay-Safe Logging
 
@@ -163,8 +163,8 @@ retry_options = df.RetryOptions(
 def workflow_with_retry(context: df.DurableOrchestrationContext):
     try:
         result = yield context.call_activity_with_retry(
-            "unreliable_service", 
-            retry_options, 
+            "unreliable_service",
+            retry_options,
             context.get_input()
         )
         return result
@@ -216,4 +216,3 @@ async def main():
 if __name__ == "__main__":
     asyncio.run(main())
 ```
-

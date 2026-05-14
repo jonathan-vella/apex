@@ -76,13 +76,13 @@ var acrName = replace('cr${environmentName}${resourceToken}', '-', '')
 
 ## Security Requirements
 
-| Requirement | Pattern |
-|-------------|---------|
-| No hardcoded secrets | Use Key Vault references |
-| Managed Identity | `identity: { type: 'UserAssigned' }` |
-| HTTPS only | `httpsOnly: true` |
-| TLS 1.2+ | `minTlsVersion: '1.2'` |
-| No public blob access | `allowBlobPublicAccess: false` |
+| Requirement           | Pattern                              |
+| --------------------- | ------------------------------------ |
+| No hardcoded secrets  | Use Key Vault references             |
+| Managed Identity      | `identity: { type: 'UserAssigned' }` |
+| HTTPS only            | `httpsOnly: true`                    |
+| TLS 1.2+              | `minTlsVersion: '1.2'`               |
+| No public blob access | `allowBlobPublicAccess: false`       |
 
 ## Common Modules
 
@@ -126,4 +126,3 @@ resource keyVault 'Microsoft.KeyVault/vaults@2023-07-01' = {
   }
 }
 ```
-

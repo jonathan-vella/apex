@@ -46,7 +46,7 @@ dependencies
 Present as:
 
 | Operation | Model | P50 (ms) | P95 (ms) | P99 (ms) | Avg (ms) | Count |
-|-----------|-------|---------|---------|---------|---------|-------|
+| --------- | ----- | -------- | -------- | -------- | -------- | ----- |
 
 ## Step 3 — Bottleneck Breakdown
 
@@ -65,6 +65,7 @@ dependencies
 ```
 
 Common bottleneck patterns:
+
 - **`chat` spans dominate** → LLM inference is slow (consider smaller model or caching)
 - **`execute_tool` spans dominate** → Tool execution is slow (optimize tool implementation)
 - **`invoke_agent` has long gaps** → Orchestration overhead (check agent framework)
@@ -87,6 +88,7 @@ dependencies
 ```
 
 High token counts often correlate with high latency. If confirmed, suggest:
+
 - Reduce system prompt length
 - Limit conversation history window
 - Use a faster model for simpler queries

@@ -64,12 +64,12 @@ Migrate AWS Lambda function code to Azure Functions.
 
 When migrating S3 event triggers to Azure blob triggers with `source: 'EventGrid'`, the following infrastructure must be configured **at the IaC level** (not code level). Failure to set these up results in silent trigger failures.
 
-| Requirement | Why | Consequence of Missing |
-|------------|-----|----------------------|
-| **Queue endpoint** (`AzureWebJobsStorage__queueServiceUri`) | Blob extension uses queues internally for poison-message tracking with EventGrid source | Function fails to index: "Unable to find matching constructor...QueueServiceClient" |
-| **Always-ready instances** (Flex Consumption only) | Blob trigger group must be running to register the Event Grid webhook | Trigger group never starts → webhook never registered → events never delivered |
-| **Event Grid subscription via Bicep/ARM** | CLI-based webhook validation handshake times out on Flex Consumption | Use `listKeys()` in Bicep to obtain the `blobs_extension` system key at deployment time |
-| **Storage Queue Data Contributor** RBAC | Identity-based queue access for poison messages | 403 errors during blob trigger indexing |
+| Requirement                                                 | Why                                                                                     | Consequence of Missing                                                                  |
+| ----------------------------------------------------------- | --------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| **Queue endpoint** (`AzureWebJobsStorage__queueServiceUri`) | Blob extension uses queues internally for poison-message tracking with EventGrid source | Function fails to index: "Unable to find matching constructor...QueueServiceClient"     |
+| **Always-ready instances** (Flex Consumption only)          | Blob trigger group must be running to register the Event Grid webhook                   | Trigger group never starts → webhook never registered → events never delivered          |
+| **Event Grid subscription via Bicep/ARM**                   | CLI-based webhook validation handshake times out on Flex Consumption                    | Use `listKeys()` in Bicep to obtain the `blobs_extension` system key at deployment time |
+| **Storage Queue Data Contributor** RBAC                     | Identity-based queue access for poison messages                                         | 403 errors during blob trigger indexing                                                 |
 
 See [lambda-to-functions.md](lambda-to-functions.md#flex-consumption--blob-trigger-with-eventgrid-source) for Bicep patterns.
 
@@ -79,7 +79,7 @@ When using User Assigned Managed Identity (UAMI), `DefaultAzureCredential()` wit
 
 ```javascript
 const credential = new DefaultAzureCredential({
-  managedIdentityClientId: process.env.AZURE_CLIENT_ID
+  managedIdentityClientId: process.env.AZURE_CLIENT_ID,
 });
 ```
 
@@ -112,14 +112,14 @@ Add `AZURE_CLIENT_ID` as an app setting in Bicep pointing to the UAMI client ID.
 
 Load the appropriate runtime reference for the target language:
 
-| Runtime | Reference |
-|---------|----------|
+| Runtime                 | Reference                                        |
+| ----------------------- | ------------------------------------------------ |
 | JavaScript (Node.js v4) | [runtimes/javascript.md](runtimes/javascript.md) |
-| TypeScript (v4) | [runtimes/typescript.md](runtimes/typescript.md) |
-| Python (v2) | [runtimes/python.md](runtimes/python.md) |
-| C# (Isolated Worker) | [runtimes/csharp.md](runtimes/csharp.md) |
-| Java | [runtimes/java.md](runtimes/java.md) |
-| PowerShell | [runtimes/powershell.md](runtimes/powershell.md) |
+| TypeScript (v4)         | [runtimes/typescript.md](runtimes/typescript.md) |
+| Python (v2)             | [runtimes/python.md](runtimes/python.md)         |
+| C# (Isolated Worker)    | [runtimes/csharp.md](runtimes/csharp.md)         |
+| Java                    | [runtimes/java.md](runtimes/java.md)             |
+| PowerShell              | [runtimes/powershell.md](runtimes/powershell.md) |
 
 ## Scenario-Specific Guidance
 

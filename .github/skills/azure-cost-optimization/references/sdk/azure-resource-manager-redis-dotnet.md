@@ -5,6 +5,7 @@
 > in the **azure-resource-manager-redis-dotnet** plugin skill if installed.
 
 ## Install
+
 dotnet add package Azure.ResourceManager.Redis
 dotnet add package Azure.Identity
 
@@ -19,6 +20,7 @@ var armClient = new ArmClient(new DefaultAzureCredential());
 ```
 
 ## Best Practices
+
 - Use `WaitUntil.Completed` for operations that must finish before proceeding
 - Use `WaitUntil.Started` when you want to poll manually or run operations in parallel
 - Use DefaultAzureCredential for **local development only**. In production, use ManagedIdentityCredential — see [auth-best-practices.md](../auth-best-practices.md)

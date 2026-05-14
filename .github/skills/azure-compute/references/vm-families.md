@@ -1,4 +1,5 @@
 <!-- ref:vm-families-v1 -->
+
 # VM Family Guide
 
 Select a VM family by matching the user's workload to the right category. Families describe hardware intent — not individual SKUs.

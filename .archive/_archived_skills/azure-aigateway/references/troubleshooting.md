@@ -1,4 +1,5 @@
 <!-- ref:troubleshooting-v1 -->
+
 # AI Gateway Troubleshooting
 
 Common issues when using Azure API Management as an AI Gateway.
@@ -13,12 +14,12 @@ Common issues when using Azure API Management as an AI Gateway.
 
 **Causes & Solutions**:
 
-| Cause | Fix |
-|-------|-----|
-| Managed identity not enabled on APIM | `az apim update --name <apim> --resource-group <rg> --set identity.type=SystemAssigned` |
-| Missing RBAC role | `az role assignment create --assignee <apim-principal-id> --role "Cognitive Services User" --scope <aoai-resource-id>` |
-| Wrong auth resource | Ensure `resource="https://cognitiveservices.azure.com"` (not the endpoint URL) |
-| RBAC propagation delay | Wait 5-10 minutes after role assignment |
+| Cause                                | Fix                                                                                                                    |
+| ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
+| Managed identity not enabled on APIM | `az apim update --name <apim> --resource-group <rg> --set identity.type=SystemAssigned`                                |
+| Missing RBAC role                    | `az role assignment create --assignee <apim-principal-id> --role "Cognitive Services User" --scope <aoai-resource-id>` |
+| Wrong auth resource                  | Ensure `resource="https://cognitiveservices.azure.com"` (not the endpoint URL)                                         |
+| RBAC propagation delay               | Wait 5-10 minutes after role assignment                                                                                |
 
 **Diagnostic**:
 
@@ -82,12 +83,12 @@ az role assignment list --scope "$AOAI_ID" --query "[?principalType=='ServicePri
 
 **Causes & Solutions**:
 
-| Cause | Fix |
-|-------|-----|
-| `score-threshold` too high | Lower from 0.9 to 0.7 (more matches) |
-| Embeddings backend misconfigured | Verify backend URL and auth |
-| Redis not configured | Deploy Azure Cache for Redis Enterprise with RediSearch |
-| Streaming requests | Semantic caching doesn't work with `"stream": true` |
+| Cause                            | Fix                                                     |
+| -------------------------------- | ------------------------------------------------------- |
+| `score-threshold` too high       | Lower from 0.9 to 0.7 (more matches)                    |
+| Embeddings backend misconfigured | Verify backend URL and auth                             |
+| Redis not configured             | Deploy Azure Cache for Redis Enterprise with RediSearch |
+| Streaming requests               | Semantic caching doesn't work with `"stream": true`     |
 
 **Verify caching is working**:
 
@@ -161,12 +162,12 @@ curl -v -X POST "${GATEWAY_URL}/openai/deployments/<deployment>/chat/completions
 
 **Causes**:
 
-| Cause | Fix |
-|-------|-----|
-| Content Safety resource not deployed | Deploy Azure AI Content Safety resource |
-| Backend URL wrong | Check `contentsafety-backend` URL matches resource endpoint |
-| Missing RBAC | Grant APIM "Cognitive Services User" on the Content Safety resource |
-| Region mismatch | Content Safety must be in a supported region |
+| Cause                                | Fix                                                                 |
+| ------------------------------------ | ------------------------------------------------------------------- |
+| Content Safety resource not deployed | Deploy Azure AI Content Safety resource                             |
+| Backend URL wrong                    | Check `contentsafety-backend` URL matches resource endpoint         |
+| Missing RBAC                         | Grant APIM "Cognitive Services User" on the Content Safety resource |
+| Region mismatch                      | Content Safety must be in a supported region                        |
 
 ---
 

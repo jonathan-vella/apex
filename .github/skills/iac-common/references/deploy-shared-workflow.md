@@ -62,3 +62,47 @@ Do not re-confirm. If the user provides a custom response, interpret as instruct
 - Always: use `askQuestions` for deployment approval gates
 - Ask first: non-standard parameters, skipping preview, deploying to production
 - Do not: deploy without user approval, modify IaC configurations, skip preview for production
+
+---
+
+## Slim Deploy Loop (Wave 3, all workloads)
+
+Replaces the prior practice of re-reading the full
+`04-implementation-plan.md` + every IaC file. The deploy agents
+(07b / 07t) now follow a fixed 8-step loop that reads only the compact
+`05-iac-handoff.json` and `04-environment-manifest.json`.
+
+```text
+1. read   agent-output/{project}/05-iac-handoff.json
+2. read   agent-output/{project}/04-environment-manifest.json
+3. assert validation_summary.verdict == APPROVED
+4. recompute tree_hash under iac-handoff.tree_hash.root
+   ├─ match    → proceed
+   └─ mismatch → invoke compact validate-subagent rerun
+                 (lint-only, no full code review). If subagent re-approves
+                 and the new tree_hash matches the recompute → continue.
+                 Otherwise BLOCK and return to step-5.
+5. resolve required_inputs[] from environment-manifest;
+   render *.bicepparam / *.tfvars.json via redaction rules
+6. policy-precheck-subagent (L3) using policy_precheck_inputs
+7. what-if (Bicep) / plan (Terraform) → human approval gate
+8. azd provision / terraform apply → write 06-deployment-summary.md
+```
+
+The handoff carries the L2 attestation rows so the deploy agent does
+not re-derive policy mapping from the IaC tree. A `tree_hash` mismatch
+is the only condition under which the deploy agent reads source files —
+and even then it delegates to validate-subagent rather than self-review.
+
+Schema + validator: `tools/schemas/iac-handoff.schema.json`,
+`tools/scripts/validate-iac-handoff.mjs`.
+
+## Hash-Match Gate Failure Modes
+
+| Symptom                                           | Cause                                  | Action                                                                                                    |
+| ------------------------------------------------- | -------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `tree_hash` mismatch                              | IaC tree edited after Step 5 exit      | Run compact validate-subagent. If APPROVED + new hash matches recompute, continue. Else return to step-5. |
+| `validation_summary.verdict != APPROVED`          | Step 5 exited NEEDS_REVISION or FAILED | BLOCK deploy; return to step-5 with reason recorded in apex-recall finding.                               |
+| `entrypoint.path` missing on disk                 | IaC tree deleted / moved               | BLOCK; return to step-5.                                                                                  |
+| `l1m_ref.sha256` mismatch                         | Plan was re-emitted after handoff      | BLOCK; return to step-4 (planner) — anti-livelock return edge.                                            |
+| `required_inputs[].source_field` resolves to null | Environment manifest incomplete        | BLOCK with explicit user prompt listing missing keys.                                                     |

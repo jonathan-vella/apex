@@ -4,12 +4,12 @@ Package: `azure-eventhub` | [README](https://github.com/Azure/azure-sdk-for-pyth
 
 ## Common Errors
 
-| Exception | Cause | Fix |
-|-----------|-------|-----|
-| `EventHubError` | Base exception wrapping AMQP errors | Check `message`, `error`, `details` fields |
-| `ConnectionLostError` | Idle connection disconnected | Auto-recovers on next operation; no action needed |
-| `AuthenticationError` | Bad credentials or expired SAS | Regenerate key, check RBAC roles, verify connection string |
-| `OperationTimeoutError` | Network or throttling | Check firewall, try WebSockets (port 443), increase timeout |
+| Exception               | Cause                               | Fix                                                         |
+| ----------------------- | ----------------------------------- | ----------------------------------------------------------- |
+| `EventHubError`         | Base exception wrapping AMQP errors | Check `message`, `error`, `details` fields                  |
+| `ConnectionLostError`   | Idle connection disconnected        | Auto-recovers on next operation; no action needed           |
+| `AuthenticationError`   | Bad credentials or expired SAS      | Regenerate key, check RBAC roles, verify connection string  |
+| `OperationTimeoutError` | Network or throttling               | Check firewall, try WebSockets (port 443), increase timeout |
 
 ## Retry Configuration
 
@@ -80,6 +80,7 @@ client = EventHubConsumerClient(
 ```
 
 **Common issues:**
+
 - **Soft delete / blob versioning**: Disable both on the storage account — they cause large delays during load balancing.
 - **HTTP 412/409 from storage**: Normal during partition ownership negotiation; not an error.
 - **Checkpoint frequency**: Checkpoint after processing each batch, not each event, to avoid storage throttling.

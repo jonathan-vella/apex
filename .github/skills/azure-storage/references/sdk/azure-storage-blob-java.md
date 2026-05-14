@@ -5,6 +5,7 @@
 > in the **azure-storage-blob-java** plugin skill if installed.
 
 ## Install
+
 ```xml
 <dependency>
     <groupId>com.azure</groupId>
@@ -18,6 +19,7 @@
 ```
 
 ## Quick Start
+
 ```java
 import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.azure.identity.DefaultAzureCredentialBuilder;
@@ -28,6 +30,7 @@ var serviceClient = new BlobServiceClientBuilder()
 ```
 
 ## Best Practices
+
 - Use DefaultAzureCredential for **local development only** — in production, use ManagedIdentityCredential. See [auth-best-practices.md](../auth-best-practices.md)
 - Use `BinaryData.fromString()` for string uploads
 - Use `createIfNotExists()` for idempotent container creation

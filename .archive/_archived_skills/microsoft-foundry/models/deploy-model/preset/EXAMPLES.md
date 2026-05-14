@@ -19,6 +19,7 @@
 
 **Scenario:** Deploy gpt-4 but all regions have exhausted quota.
 **Result:** Graceful failure with actionable guidance:
+
 1. Request quota increase via the [quota skill](../../../quota/quota.md)
 2. List existing deployments consuming quota
 3. Suggest alternative models (gpt-4o, gpt-4o-mini)
@@ -47,16 +48,16 @@
 
 ## Summary of Scenarios
 
-| Scenario | Duration | Key Features |
-|----------|----------|--------------|
-| **1: Fast Path** | ~45s | Current region has capacity, direct deploy |
-| **2: Alt Region** | ~2m | Region selection, project switch |
-| **3: New Project** | ~4m | Project creation in optimal region |
-| **4: No Quota** | N/A | Graceful failure, actionable guidance |
-| **5: First-Time** | ~5m | Complete onboarding |
-| **6: Name Conflict** | ~1m | Auto-retry with suffix |
-| **7: Multi-Version** | ~1m | Latest version auto-selected |
-| **8: Anthropic** | ~2m | Industry prompt, tenant info, REST API deploy |
+| Scenario             | Duration | Key Features                                  |
+| -------------------- | -------- | --------------------------------------------- |
+| **1: Fast Path**     | ~45s     | Current region has capacity, direct deploy    |
+| **2: Alt Region**    | ~2m      | Region selection, project switch              |
+| **3: New Project**   | ~4m      | Project creation in optimal region            |
+| **4: No Quota**      | N/A      | Graceful failure, actionable guidance         |
+| **5: First-Time**    | ~5m      | Complete onboarding                           |
+| **6: Name Conflict** | ~1m      | Auto-retry with suffix                        |
+| **7: Multi-Version** | ~1m      | Latest version auto-selected                  |
+| **8: Anthropic**     | ~2m      | Industry prompt, tenant info, REST API deploy |
 
 ## Common Patterns
 

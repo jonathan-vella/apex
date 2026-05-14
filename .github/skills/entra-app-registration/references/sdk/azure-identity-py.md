@@ -5,11 +5,13 @@
 > in the **azure-identity-py** plugin skill if installed.
 
 ## Install
+
 ```bash
 pip install azure-identity
 ```
 
 ## Quick Start
+
 > **Auth:** `DefaultAzureCredential` is for local development. See [auth-best-practices.md](../auth-best-practices.md) for production patterns.
 
 ```python
@@ -18,6 +20,7 @@ credential = DefaultAzureCredential()
 ```
 
 ## Best Practices
+
 - Use DefaultAzureCredential for **local development only** (CLI, PowerShell, VS Code). In production, use ManagedIdentityCredential — see [auth-best-practices.md](../auth-best-practices.md)
 - Never hardcode credentials — use environment variables or managed identity
 - Prefer managed identity in production Azure deployments

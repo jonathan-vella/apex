@@ -53,9 +53,10 @@ questions, then write the artifact.
 </rules>
 
 <output_contract>
+
 - `agent-output/{project}/01-requirements.md` (H2 structure matches template)
 - Updated `agent-output/{project}/00-session-state.json` with Step 1 complete
   and `decisions.complexity` set
 - Findings file from challenger-review-subagent (when `must_fix` items exist)
 - Handoff: hand control to Step 2 (Architecture) via the Orchestrator
-</output_contract>
+  </output_contract>

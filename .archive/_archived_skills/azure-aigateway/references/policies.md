@@ -1,4 +1,5 @@
 <!-- ref:policies-v1 -->
+
 # AI Gateway Policies
 
 Complete reference for Azure API Management AI governance policies.
@@ -35,13 +36,13 @@ Control costs by limiting token consumption per minute.
     remaining-tokens-header-name="x-tokens-remaining" />
 ```
 
-| Attribute | Purpose | Default |
-|-----------|---------|---------|
-| `tokens-per-minute` | Max tokens per counter window | Required |
-| `counter-key` | Grouping key (subscription, IP, custom) | Required |
-| `estimate-prompt-tokens` | Count prompt tokens toward limit | `true` |
-| `tokens-consumed-header-name` | Response header with consumed count | — |
-| `remaining-tokens-header-name` | Response header with remaining count | — |
+| Attribute                      | Purpose                                 | Default  |
+| ------------------------------ | --------------------------------------- | -------- |
+| `tokens-per-minute`            | Max tokens per counter window           | Required |
+| `counter-key`                  | Grouping key (subscription, IP, custom) | Required |
+| `estimate-prompt-tokens`       | Count prompt tokens toward limit        | `true`   |
+| `tokens-consumed-header-name`  | Response header with consumed count     | —        |
+| `remaining-tokens-header-name` | Response header with remaining count    | —        |
 
 **Usage tiers example:**
 
@@ -78,14 +79,15 @@ Cache AI responses for semantically similar prompts. Saves 60-80% on repeated qu
 <azure-openai-semantic-cache-store duration="3600" />
 ```
 
-| Attribute | Purpose | Recommended |
-|-----------|---------|-------------|
-| `score-threshold` | Similarity threshold (0-1) | 0.8 (lower = more cache hits) |
-| `embeddings-backend-id` | Backend for embedding generation | Required |
-| `embeddings-backend-auth` | Auth to embeddings backend | `system-assigned` |
-| `duration` | Cache TTL in seconds | 3600 (1 hour) |
+| Attribute                 | Purpose                          | Recommended                   |
+| ------------------------- | -------------------------------- | ----------------------------- |
+| `score-threshold`         | Similarity threshold (0-1)       | 0.8 (lower = more cache hits) |
+| `embeddings-backend-id`   | Backend for embedding generation | Required                      |
+| `embeddings-backend-auth` | Auth to embeddings backend       | `system-assigned`             |
+| `duration`                | Cache TTL in seconds             | 3600 (1 hour)                 |
 
 **Prerequisites:**
+
 - An embeddings model deployed (e.g., `text-embedding-ada-002`)
 - A separate backend pointing to the embeddings endpoint
 - Azure Cache for Redis Enterprise with RediSearch module (for vector storage)
@@ -115,6 +117,7 @@ Emit token usage metrics for monitoring and chargeback.
 ```
 
 Emits to Azure Monitor with these metrics:
+
 - `Total Tokens` — prompt + completion combined
 - `Prompt Tokens` — input tokens
 - `Completion Tokens` — output tokens
@@ -147,14 +150,15 @@ Filter harmful, violent, or inappropriate content from AI inputs and outputs.
 </llm-content-safety>
 ```
 
-| Category | Description | Threshold Range |
-|----------|-------------|-----------------|
-| Hate | Discrimination, slurs | 0 (block all) - 6 (allow most) |
-| Sexual | Explicit content | 0-6 |
-| SelfHarm | Self-injury content | 0-6 |
-| Violence | Violent content | 0-6 |
+| Category | Description           | Threshold Range                |
+| -------- | --------------------- | ------------------------------ |
+| Hate     | Discrimination, slurs | 0 (block all) - 6 (allow most) |
+| Sexual   | Explicit content      | 0-6                            |
+| SelfHarm | Self-injury content   | 0-6                            |
+| Violence | Violent content       | 0-6                            |
 
 **Prerequisites:**
+
 - Azure AI Content Safety resource deployed
 - Backend configured for the Content Safety endpoint:
 
@@ -293,15 +297,15 @@ Complete inbound policy example with all governance layers:
 
 ## Policy Quick-Decision Table
 
-| Need | Policy | Section |
-|------|--------|---------|
-| Control token spend | `azure-openai-token-limit` | `<inbound>` |
-| Cache similar prompts | `azure-openai-semantic-cache-lookup/store` | `<inbound>` / `<outbound>` |
-| Track token usage | `azure-openai-emit-token-metric` | `<inbound>` |
-| Block harmful content | `llm-content-safety` | `<inbound>` |
-| Rate limit API calls | `rate-limit-by-key` | `<inbound>` |
-| Authenticate to backend | `authentication-managed-identity` | `<inbound>` |
-| Load balance backends | `set-backend-service` + retry | `<inbound>` |
+| Need                    | Policy                                     | Section                    |
+| ----------------------- | ------------------------------------------ | -------------------------- |
+| Control token spend     | `azure-openai-token-limit`                 | `<inbound>`                |
+| Cache similar prompts   | `azure-openai-semantic-cache-lookup/store` | `<inbound>` / `<outbound>` |
+| Track token usage       | `azure-openai-emit-token-metric`           | `<inbound>`                |
+| Block harmful content   | `llm-content-safety`                       | `<inbound>`                |
+| Rate limit API calls    | `rate-limit-by-key`                        | `<inbound>`                |
+| Authenticate to backend | `authentication-managed-identity`          | `<inbound>`                |
+| Load balance backends   | `set-backend-service` + retry              | `<inbound>`                |
 
 ---
 

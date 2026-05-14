@@ -32,6 +32,7 @@ Choices: [
 If user confirms → skip to **Verify Configuration**. Otherwise → continue to Step 2.
 
 **If NO environment exists or none is selected:**
+
 - Continue to Step 2
 
 ---
@@ -45,11 +46,13 @@ If user confirms → skip to **Verify Configuration**. Otherwise → continue to
 ### Generate Suggested Name
 
 Use this pattern:
+
 ```
 {project-name}-{random-4-chars}
 ```
 
 **Examples:**
+
 - `dadjokes-x7k2`
 - `todoapp-m3p9`
 - `myapi-q5w8`
@@ -69,6 +72,7 @@ Would you like to use this name or enter a custom one?
 ### Create Environment
 
 After user confirms:
+
 ```bash
 azd env new <environment-name>
 ```
@@ -93,6 +97,7 @@ azd env get-values
 ```
 
 Confirm these values are set:
+
 - `AZURE_ENV_NAME`
 - `AZURE_SUBSCRIPTION_ID`
 - `AZURE_LOCATION`

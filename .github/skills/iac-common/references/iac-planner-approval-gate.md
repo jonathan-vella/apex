@@ -1,4 +1,5 @@
 <!-- ref:iac-planner-approval-gate-v1 -->
+
 # IaC Planner — Approval Gate (Phase 5)
 
 Detailed prose for the 05-IaC Planner Phase 5 approval gate. The agent

@@ -27,7 +27,7 @@ public class EventHubFunctions {
                 cardinality = Cardinality.MANY
             ) String[] events,
             final ExecutionContext context) {
-        
+
         for (String event : events) {
             context.getLogger().info("Event Hub trigger processed event: " + event);
         }
@@ -50,12 +50,12 @@ public class EventHubFunctions {
                 connection = "EventHubConnection"
             ) OutputBinding<String> outputEvent,
             final ExecutionContext context) {
-        
+
         String body = request.getBody().orElse("{\"message\": \"Hello Event Hub!\"}");
-        
+
         outputEvent.setValue(body);
         context.getLogger().info("Sent event to Event Hub: " + body);
-        
+
         return request.createResponseBuilder(HttpStatus.OK)
             .header("Content-Type", "application/json")
             .body("{\"status\": \"sent\", \"data\": " + body + "}")
@@ -74,7 +74,7 @@ public class EventHubFunctions {
                 route = "health"
             ) HttpRequestMessage<Optional<String>> request,
             final ExecutionContext context) {
-        
+
         return request.createResponseBuilder(HttpStatus.OK)
             .body("OK")
             .build();

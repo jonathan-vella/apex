@@ -1,0 +1,165 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/jonathan-vella/azure-agentic-infraops/schemas/iac-handoff.schema.json",
+  "title": "APEX IaC Handoff (Step 5 → Step 6)",
+  "description": "Compact handoff record emitted by 06b/06t CodeGen at the end of Step 5. Replaces the prior practice of deploy agents re-reading the full plan + every IaC file. Contains: tree_hash (sha256 of the committed infra/ subtree), entrypoint, validation_summary (validate-subagent + plan-readonly attestation), governance_attestation (L2 attestation per L1m policy), required_inputs (param names the deploy agent must resolve from environment-manifest), and policy_precheck_inputs (so L3 policy-precheck-subagent can fast-path).",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "project",
+    "iac_tool",
+    "generated_at",
+    "tree_hash",
+    "entrypoint",
+    "validation_summary",
+    "governance_attestation",
+    "required_inputs"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "schema_version": {
+      "type": "string",
+      "const": "iac-handoff-v1"
+    },
+    "project": { "type": "string", "minLength": 1 },
+    "iac_tool": {
+      "type": "string",
+      "enum": ["Bicep", "Terraform"]
+    },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "tree_hash": {
+      "type": "object",
+      "description": "Content hash of the IaC tree. Deploy agents recompute this and compare; a mismatch triggers a compact validate-subagent rerun and blocks the deploy.",
+      "required": ["algorithm", "root", "value", "file_count"],
+      "additionalProperties": false,
+      "properties": {
+        "algorithm": { "const": "sha256-of-sorted-file-hashes" },
+        "root": {
+          "type": "string",
+          "description": "Repo-relative root (e.g. 'infra/bicep/{project}/' or 'infra/terraform/{project}/')."
+        },
+        "value": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "file_count": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "entrypoint": {
+      "type": "object",
+      "required": ["path", "kind"],
+      "additionalProperties": false,
+      "properties": {
+        "path": { "type": "string" },
+        "kind": {
+          "type": "string",
+          "enum": ["bicep-main", "bicepparam", "terraform-root", "terraform-module"]
+        },
+        "scope": {
+          "type": "string",
+          "enum": ["subscription", "resourceGroup", "managementGroup", "tenant"]
+        }
+      }
+    },
+    "validation_summary": {
+      "type": "object",
+      "description": "Captures the validate-subagent verdict frozen at Step 5 exit, plus the validate-gate command output digest. Deploy agents do NOT rerun the full validate-subagent unless tree_hash mismatches.",
+      "required": ["verdict", "tool_versions", "validate_gate"],
+      "additionalProperties": false,
+      "properties": {
+        "verdict": {
+          "type": "string",
+          "enum": ["APPROVED", "NEEDS_REVISION", "FAILED"]
+        },
+        "tool_versions": {
+          "type": "object",
+          "description": "Pinned tool versions used for validate (bicep, terraform, az, tfsec, etc.)",
+          "additionalProperties": { "type": "string" }
+        },
+        "validate_gate": {
+          "type": "object",
+          "required": ["command", "exit_code", "stdout_sha256"],
+          "additionalProperties": false,
+          "properties": {
+            "command": { "type": "string" },
+            "exit_code": { "type": "integer" },
+            "stdout_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+            "duration_ms": { "type": "integer", "minimum": 0 }
+          }
+        }
+      }
+    },
+    "governance_attestation": {
+      "type": "object",
+      "description": "L2 attestation: every Deny-effect policy from L1m (04-policy-property-map.json) maps to the IaC line that satisfies it. Deploy agents read this instead of re-deriving from policy state.",
+      "required": ["l1m_ref", "rows"],
+      "additionalProperties": false,
+      "properties": {
+        "l1m_ref": {
+          "type": "object",
+          "required": ["path", "sha256"],
+          "additionalProperties": false,
+          "properties": {
+            "path": { "type": "string" },
+            "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+          }
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["policy_id", "resource_logical_name", "iac_ref"],
+            "additionalProperties": false,
+            "properties": {
+              "policy_id": { "type": "string" },
+              "resource_logical_name": { "type": "string" },
+              "iac_ref": {
+                "type": "object",
+                "required": ["file", "line"],
+                "additionalProperties": false,
+                "properties": {
+                  "file": { "type": "string" },
+                  "line": { "type": "integer", "minimum": 1 },
+                  "snippet": { "type": "string" }
+                }
+              },
+              "status": {
+                "type": "string",
+                "enum": ["satisfied", "exempt", "n/a"]
+              }
+            }
+          }
+        }
+      }
+    },
+    "required_inputs": {
+      "type": "array",
+      "description": "Param names the deploy agent must resolve from 04-environment-manifest.json before kicking off azd provision / terraform apply.",
+      "items": {
+        "type": "object",
+        "required": ["param_name", "source_field"],
+        "additionalProperties": false,
+        "properties": {
+          "param_name": { "type": "string" },
+          "source_field": {
+            "type": "string",
+            "description": "Dot-path into environment-manifest (e.g. 'environments.{env}.deployer_object_id')."
+          },
+          "required": { "type": "boolean", "default": true },
+          "redact": { "type": "boolean", "default": false }
+        }
+      }
+    },
+    "policy_precheck_inputs": {
+      "type": "object",
+      "description": "Optional fast-path inputs for L3 policy-precheck-subagent so it does not re-walk the IaC tree.",
+      "additionalProperties": false,
+      "properties": {
+        "what_if_command": { "type": "string" },
+        "plan_command": { "type": "string" },
+        "expected_policy_ids": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    }
+  }
+}

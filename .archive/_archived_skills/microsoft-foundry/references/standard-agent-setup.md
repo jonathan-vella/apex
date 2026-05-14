@@ -1,4 +1,5 @@
 <!-- ref:standard-agent-setup-v1 -->
+
 # Standard Agent Setup
 
 > **MANDATORY:** Read [Standard Agent Setup docs](https://learn.microsoft.com/en-us/azure/foundry/agents/concepts/standard-agent-setup?view=foundry) before proceeding with standard setup.
@@ -7,19 +8,19 @@
 
 Azure AI Foundry supports two agent setup configurations:
 
-| Setup | Capability Host | Description |
-|-------|----------------|-------------|
-| **Basic** | None | Default setup. All resources are Microsoft-managed. No additional connections required. |
+| Setup        | Capability Host   | Description                                                                                                     |
+| ------------ | ----------------- | --------------------------------------------------------------------------------------------------------------- |
+| **Basic**    | None              | Default setup. All resources are Microsoft-managed. No additional connections required.                         |
 | **Standard** | Azure AI Services | Advanced setup. Bring-your-own storage and search connections for full control over data residency and scaling. |
 
 ## Standard Setup Connections
 
-| Connection | Service | Required | Purpose |
-|------------|---------|----------|---------|
-| Thread storage | Azure Cosmos DB | ✅ Yes | Store conversation threads in your own Cosmos DB instance |
-| File storage | Azure Storage | ✅ Yes | Store uploaded files in your own Azure Storage account |
-| Vector store | Azure AI Search | ✅ Yes | Use your own Azure AI Search instance for vector/knowledge retrieval |
-| Azure AI Services | Azure AI Services | ❌ Optional | Use OpenAI models from a different AI Services resource |
+| Connection        | Service           | Required    | Purpose                                                              |
+| ----------------- | ----------------- | ----------- | -------------------------------------------------------------------- |
+| Thread storage    | Azure Cosmos DB   | ✅ Yes      | Store conversation threads in your own Cosmos DB instance            |
+| File storage      | Azure Storage     | ✅ Yes      | Store uploaded files in your own Azure Storage account               |
+| Vector store      | Azure AI Search   | ✅ Yes      | Use your own Azure AI Search instance for vector/knowledge retrieval |
+| Azure AI Services | Azure AI Services | ❌ Optional | Use OpenAI models from a different AI Services resource              |
 
 > 💡 **Tip:** Standard setup is recommended for production workloads that require control over data storage, custom vector search, or integration with models from a separate AI Services resource.
 

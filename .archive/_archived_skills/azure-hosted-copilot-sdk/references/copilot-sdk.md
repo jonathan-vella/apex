@@ -1,4 +1,5 @@
 <!-- ref:copilot-sdk-v1 -->
+
 # Copilot SDK Reference
 
 ## Template
@@ -11,16 +12,16 @@ azd init --template azure-samples/copilot-sdk-service
 
 ## Documentation
 
-| Resource | URL |
-|----------|-----|
-| Overview & Getting Started | https://github.com/github/copilot-sdk |
-| Getting Started Guide | https://github.com/github/copilot-sdk/blob/main/docs/getting-started.md |
-| Node.js SDK | https://github.com/github/copilot-sdk/tree/main/nodejs |
-| Python SDK | https://github.com/github/copilot-sdk/tree/main/python |
-| Go SDK | https://github.com/github/copilot-sdk/tree/main/go |
-| .NET SDK | https://github.com/github/copilot-sdk/tree/main/dotnet |
-| Debugging | https://github.com/github/copilot-sdk/blob/main/docs/debugging.md |
-| Compatibility | https://github.com/github/copilot-sdk/blob/main/docs/compatibility.md |
+| Resource                   | URL                                                                     |
+| -------------------------- | ----------------------------------------------------------------------- |
+| Overview & Getting Started | https://github.com/github/copilot-sdk                                   |
+| Getting Started Guide      | https://github.com/github/copilot-sdk/blob/main/docs/getting-started.md |
+| Node.js SDK                | https://github.com/github/copilot-sdk/tree/main/nodejs                  |
+| Python SDK                 | https://github.com/github/copilot-sdk/tree/main/python                  |
+| Go SDK                     | https://github.com/github/copilot-sdk/tree/main/go                      |
+| .NET SDK                   | https://github.com/github/copilot-sdk/tree/main/dotnet                  |
+| Debugging                  | https://github.com/github/copilot-sdk/blob/main/docs/debugging.md       |
+| Compatibility              | https://github.com/github/copilot-sdk/blob/main/docs/compatibility.md   |
 
 ## Getting Current Examples
 
@@ -34,13 +35,14 @@ Use **context7** MCP tools as the PRIMARY way to get SDK documentation and code 
 
 ## Three Model Paths
 
-| Path | Config | Auth |
-|------|--------|------|
-| GitHub default | No `model` param | `GITHUB_TOKEN` |
-| GitHub specific | `model: "<name>"` | `GITHUB_TOKEN` |
-| Azure BYOM | `model` + `provider` with `bearerToken` | `DefaultAzureCredential` (local dev) / `ManagedIdentityCredential` (production) |
+| Path            | Config                                  | Auth                                                                            |
+| --------------- | --------------------------------------- | ------------------------------------------------------------------------------- |
+| GitHub default  | No `model` param                        | `GITHUB_TOKEN`                                                                  |
+| GitHub specific | `model: "<name>"`                       | `GITHUB_TOKEN`                                                                  |
+| Azure BYOM      | `model` + `provider` with `bearerToken` | `DefaultAzureCredential` (local dev) / `ManagedIdentityCredential` (production) |
 
 **Model discovery:**
+
 - GitHub models: call `listModels()` on the SDK client
 - Azure deployments: `az cognitiveservices account deployment list`
 
@@ -61,19 +63,19 @@ Read `AGENTS.md` FIRST — it lists every source file with its purpose. Then:
 
 ## Testing
 
-| Check | Command |
-|-------|---------|
-| Run locally | `azd app run` — starts API + UI |
-| Health check | `curl -s http://localhost:3000/health` |
+| Check         | Command                                                                                                          |
+| ------------- | ---------------------------------------------------------------------------------------------------------------- |
+| Run locally   | `azd app run` — starts API + UI                                                                                  |
+| Health check  | `curl -s http://localhost:3000/health`                                                                           |
 | Test endpoint | `curl -s -X POST http://localhost:3000/api/<endpoint> -H "Content-Type: application/json" -d '{"input":"test"}'` |
 
 ## Errors
 
-| Error | Fix |
-|-------|-----|
-| `docker info` fails | Install Docker Desktop and start it |
-| `gh auth token` fails | Run `gh auth login` then `gh auth refresh --scopes copilot` |
-| `ECONNREFUSED` on JSON-RPC | Set autoStart or start CLI manually |
-| `Model not available` | Check model name; for BYOM verify provider config |
-| Session hangs | Set a max turns limit or add a hook to break |
-| `504 Gateway Timeout` | Increase `proxy_read_timeout` in `nginx.conf.template` to 300s |
+| Error                      | Fix                                                            |
+| -------------------------- | -------------------------------------------------------------- |
+| `docker info` fails        | Install Docker Desktop and start it                            |
+| `gh auth token` fails      | Run `gh auth login` then `gh auth refresh --scopes copilot`    |
+| `ECONNREFUSED` on JSON-RPC | Set autoStart or start CLI manually                            |
+| `Model not available`      | Check model name; for BYOM verify provider config              |
+| Session hangs              | Set a max turns limit or add a hook to break                   |
+| `504 Gateway Timeout`      | Increase `proxy_read_timeout` in `nginx.conf.template` to 300s |

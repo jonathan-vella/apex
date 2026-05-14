@@ -15,7 +15,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
 public class Function {
-    
+
     /**
      * Timer trigger - runs on the schedule defined in TIMER_SCHEDULE.
      * Default: every 5 minutes (0 *&#47;5 * * * *)
@@ -27,10 +27,10 @@ public class Function {
                 schedule = "%TIMER_SCHEDULE%"
             ) String timerInfo,
             final ExecutionContext context) {
-        
+
         String utcTimestamp = LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME);
         context.getLogger().info("Timer trigger executed at " + utcTimestamp);
-        
+
         // Add your scheduled task logic here
         // Examples:
         // - Call an external API
@@ -51,10 +51,10 @@ public class Function {
                 authLevel = AuthorizationLevel.FUNCTION
             ) HttpRequestMessage<Optional<String>> request,
             final ExecutionContext context) {
-        
+
         String schedule = System.getenv("TIMER_SCHEDULE");
         if (schedule == null) schedule = "not-set";
-        
+
         return request.createResponseBuilder(HttpStatus.OK)
                 .header("Content-Type", "application/json")
                 .body("{\"status\":\"healthy\",\"schedule\":\"" + schedule + "\"}")
@@ -76,6 +76,7 @@ public class Function {
 ## Local Testing
 
 Set these in `local.settings.json`:
+
 ```json
 {
   "Values": {

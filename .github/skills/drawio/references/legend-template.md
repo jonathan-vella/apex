@@ -125,13 +125,13 @@ For each category, include only the encodings actually used.
 
 ## Anti-patterns from T-012 baseline
 
-| Anti-pattern | Captured in | Correction |
-| --- | --- | --- |
-| Legend mentioned in cell value but no actual perimeter rendered | G1, G3, G5, G6, G7 (5/7 — trust boundary in legend only) | Render the boundary as a real cell per [`semantic-zones.md`](semantic-zones.md), then reference it in the legend |
-| Legend uses literal `&#xa;` instead of `<br>` | G6 (legend reads as one long line) | Use `&lt;br&gt;` in `value` when `style` has `html=1` |
-| Legend ad-hoc per scenario | G4, G6, G7 each used different formats | Pick variant A (inline) or variant B (two-column) per entry count; do not freestyle |
-| Legend on detail pages of a decomposed set | n/a in baseline (G6 had legend on overview only — correct) | Maintain: overview only |
-| Legend rendered for sequence type | n/a in baseline (G3 correctly omitted) | Per OQ-2 carve-out, sequence omits legend |
+| Anti-pattern                                                    | Captured in                                                | Correction                                                                                                       |
+| --------------------------------------------------------------- | ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| Legend mentioned in cell value but no actual perimeter rendered | G1, G3, G5, G6, G7 (5/7 — trust boundary in legend only)   | Render the boundary as a real cell per [`semantic-zones.md`](semantic-zones.md), then reference it in the legend |
+| Legend uses literal `&#xa;` instead of `<br>`                   | G6 (legend reads as one long line)                         | Use `&lt;br&gt;` in `value` when `style` has `html=1`                                                            |
+| Legend ad-hoc per scenario                                      | G4, G6, G7 each used different formats                     | Pick variant A (inline) or variant B (two-column) per entry count; do not freestyle                              |
+| Legend on detail pages of a decomposed set                      | n/a in baseline (G6 had legend on overview only — correct) | Maintain: overview only                                                                                          |
+| Legend rendered for sequence type                               | n/a in baseline (G3 correctly omitted)                     | Per OQ-2 carve-out, sequence omits legend                                                                        |
 
 ## Generation strategies
 

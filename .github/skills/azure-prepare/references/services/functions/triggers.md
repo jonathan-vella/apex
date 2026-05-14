@@ -4,7 +4,7 @@
 
 ```javascript
 module.exports = async function (context, req) {
-    context.res = { body: "Hello from Azure Functions" };
+  context.res = { body: "Hello from Azure Functions" };
 };
 ```
 
@@ -13,11 +13,13 @@ module.exports = async function (context, req) {
 ```json
 // function.json
 {
-  "bindings": [{
-    "name": "timer",
-    "type": "timerTrigger",
-    "schedule": "0 */5 * * * *"
-  }]
+  "bindings": [
+    {
+      "name": "timer",
+      "type": "timerTrigger",
+      "schedule": "0 */5 * * * *"
+    }
+  ]
 }
 ```
 
@@ -44,6 +46,7 @@ def process_queue_message(msg: func.ServiceBusMessage):
 ```
 
 **Required app settings:**
+
 - `SERVICEBUS__fullyQualifiedNamespace`: `<namespace>.servicebus.windows.net`
 - Function App must have `Azure Service Bus Data Receiver` role on namespace
 
@@ -52,12 +55,14 @@ def process_queue_message(msg: func.ServiceBusMessage):
 ```json
 // function.json
 {
-  "bindings": [{
-    "name": "msg",
-    "type": "serviceBusTrigger",
-    "queueName": "orders",
-    "connection": "SERVICEBUS"
-  }]
+  "bindings": [
+    {
+      "name": "msg",
+      "type": "serviceBusTrigger",
+      "queueName": "orders",
+      "connection": "SERVICEBUS"
+    }
+  ]
 }
 ```
 
@@ -75,19 +80,21 @@ def main(msg: func.ServiceBusMessage):
 ```json
 // function.json
 {
-  "bindings": [{
-    "name": "message",
-    "type": "serviceBusTrigger",
-    "queueName": "orders",
-    "connection": "SERVICEBUS"
-  }]
+  "bindings": [
+    {
+      "name": "message",
+      "type": "serviceBusTrigger",
+      "queueName": "orders",
+      "connection": "SERVICEBUS"
+    }
+  ]
 }
 ```
 
 ```javascript
 // index.js
 module.exports = async function (context, message) {
-    context.log('Processing message:', message);
+  context.log("Processing message:", message);
 };
 ```
 
@@ -96,7 +103,7 @@ module.exports = async function (context, message) {
 ```csharp
 [Function("ServiceBusProcessor")]
 public void Run(
-    [ServiceBusTrigger("orders", Connection = "SERVICEBUS")] 
+    [ServiceBusTrigger("orders", Connection = "SERVICEBUS")]
     ServiceBusReceivedMessage message,
     FunctionContext context)
 {
@@ -106,6 +113,7 @@ public void Run(
 ```
 
 > 💡 **Managed Identity Configuration:**
+>
 > - Connection name (e.g., `SERVICEBUS`) maps to `<name>__fullyQualifiedNamespace` app setting
 > - Use double underscore (`__`) to signal managed identity authentication
 > - No connection strings needed when proper RBAC roles are assigned
@@ -128,12 +136,14 @@ def process_topic_message(msg: func.ServiceBusMessage):
 ```json
 // function.json
 {
-  "bindings": [{
-    "name": "queueItem",
-    "type": "serviceBusTrigger",
-    "queueName": "orders",
-    "connection": "ServiceBusConnection"
-  }]
+  "bindings": [
+    {
+      "name": "queueItem",
+      "type": "serviceBusTrigger",
+      "queueName": "orders",
+      "connection": "ServiceBusConnection"
+    }
+  ]
 }
 ```
 
@@ -146,11 +156,13 @@ def process_topic_message(msg: func.ServiceBusMessage):
 ```json
 // function.json
 {
-  "bindings": [{
-    "name": "blob",
-    "type": "blobTrigger",
-    "path": "uploads/{name}",
-    "connection": "StorageConnection"
-  }]
+  "bindings": [
+    {
+      "name": "blob",
+      "type": "blobTrigger",
+      "path": "uploads/{name}",
+      "connection": "StorageConnection"
+    }
+  ]
 }
 ```

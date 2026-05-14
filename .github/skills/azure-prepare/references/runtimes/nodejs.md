@@ -50,9 +50,7 @@ Azure Container Apps and App Service check your app's health:
 
 ```javascript
 app.get("/health", (req, res) => {
-  res
-    .status(200)
-    .json({ status: "healthy", timestamp: new Date().toISOString() });
+  res.status(200).json({ status: "healthy", timestamp: new Date().toISOString() });
 });
 ```
 
@@ -146,9 +144,7 @@ app.get("/", (req, res) => {
 // Error handler
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res
-    .status(500)
-    .json({ error: isProduction ? "Internal error" : err.message });
+  res.status(500).json({ error: isProduction ? "Internal error" : err.message });
 });
 
 // Start server
@@ -218,10 +214,7 @@ CMD ["node", "app.js"]
 const TRUSTED_HOST = process.env.APP_PUBLIC_HOSTNAME;
 
 app.use((req, res, next) => {
-  if (
-    req.get("x-forwarded-proto") !== "https" &&
-    process.env.NODE_ENV === "production"
-  ) {
+  if (req.get("x-forwarded-proto") !== "https" && process.env.NODE_ENV === "production") {
     if (!TRUSTED_HOST) return next();
     return res.redirect(`https://${TRUSTED_HOST}${req.originalUrl}`);
   }

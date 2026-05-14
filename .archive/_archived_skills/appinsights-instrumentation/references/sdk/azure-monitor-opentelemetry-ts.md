@@ -5,19 +5,22 @@
 > in the **azure-monitor-opentelemetry-ts** plugin skill if installed.
 
 ## Install
+
 npm install @azure/monitor-opentelemetry
 
 ## Quick Start
+
 ```typescript
 import { useAzureMonitor } from "@azure/monitor-opentelemetry";
 useAzureMonitor({
   azureMonitorExporterOptions: {
-    connectionString: process.env.APPLICATIONINSIGHTS_CONNECTION_STRING
-  }
+    connectionString: process.env.APPLICATIONINSIGHTS_CONNECTION_STRING,
+  },
 });
 ```
 
 ## Best Practices
+
 - Call useAzureMonitor() first — before importing other modules
 - Use ESM loader for ESM projects — `--import @azure/monitor-opentelemetry/loader`
 - Enable offline storage for reliable telemetry in disconnected scenarios

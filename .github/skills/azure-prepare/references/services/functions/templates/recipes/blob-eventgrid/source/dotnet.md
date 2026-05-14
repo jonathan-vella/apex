@@ -3,6 +3,7 @@
 ## Dependencies
 
 **.csproj:**
+
 ```xml
 <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.*" />
 <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Storage.Blobs" Version="6.*" />
@@ -11,6 +12,7 @@
 ## Source Code
 
 **ProcessBlobUpload.cs:**
+
 ```csharp
 using Azure.Storage.Blobs;
 using Microsoft.Azure.Functions.Worker;
@@ -63,6 +65,7 @@ public class ProcessBlobUpload
 ```
 
 **Health.cs:**
+
 ```csharp
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;

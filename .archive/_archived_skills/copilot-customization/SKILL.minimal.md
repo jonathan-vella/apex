@@ -6,6 +6,7 @@
 **Do NOT load this skill** for routine edits to existing files where you already know the format.
 
 **Quick Decision Tree**:
+
 ```text
 
 **The 7 Customization Mechanisms**:
@@ -25,3 +26,4 @@ Load only the reference file relevant to your current task:
 Content sourced from official VS Code docs (2026-03-08). Each reference file includes
 
 Read `SKILL.md` or `SKILL.digest.md` for full content.
+```

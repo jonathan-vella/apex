@@ -1,4 +1,5 @@
 <!-- ref:first-app-registration-v1 -->
+
 # First App Registration - Step-by-Step Guide
 
 This guide walks you through creating your first Microsoft Entra app registration from scratch.
@@ -6,6 +7,7 @@ This guide walks you through creating your first Microsoft Entra app registratio
 ## Overview
 
 You'll learn how to:
+
 1. Create an app registration in Azure Portal
 2. Configure authentication settings
 3. Add API permissions
@@ -30,6 +32,7 @@ You'll learn how to:
 You'll see a form with several fields:
 
 ### Application Name
+
 - **What to enter:** A descriptive name for your app
 - **Example:** "My First Console App" or "Product Inventory API"
 - **Tip:** Use a name that clearly identifies the purpose
@@ -38,12 +41,12 @@ You'll see a form with several fields:
 
 Choose who can use your application:
 
-| Option | When to Use |
-|--------|-------------|
-| **Accounts in this organizational directory only (Single tenant)** | Only users from the same tenant of this app registration need access |
-| **Accounts in any organizational directory (Multi-tenant)** | Users from multiple organization tenants need access |
-| **Accounts in any organizational directory + Personal Microsoft accounts** | Users from multiple organization tenants and MSA users need access |
-| **Personal Microsoft accounts only** | Only MSA users need access |
+| Option                                                                     | When to Use                                                          |
+| -------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| **Accounts in this organizational directory only (Single tenant)**         | Only users from the same tenant of this app registration need access |
+| **Accounts in any organizational directory (Multi-tenant)**                | Users from multiple organization tenants need access                 |
+| **Accounts in any organizational directory + Personal Microsoft accounts** | Users from multiple organization tenants and MSA users need access   |
+| **Personal Microsoft accounts only**                                       | Only MSA users need access                                           |
 
 **Note:** Once selected, users whose account type is not allowed will get errors when trying to get access token for the app registration.
 
@@ -52,11 +55,13 @@ Choose who can use your application:
 The redirect URI is where authentication responses are sent.
 
 **Platform:** Select the type:
+
 - **Web** - Server-side web apps
 - **Single-page application (SPA)** - React, Angular, Vue apps
 - **Public client/native** - Mobile, desktop, console apps
 
 **URI examples:**
+
 - Web app: `https://localhost:5001/signin-oidc`
 - SPA: `http://localhost:3000`
 - Console/Desktop: `http://localhost`
@@ -72,17 +77,20 @@ After clicking, you'll be redirected to your app's overview page.
 On the **Overview** page, you'll see critical information. **Copy and save these values:**
 
 ### Application (client) ID
+
 - **What it is:** Unique identifier for your app
 - **Format:** `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx` (GUID)
 - **When you need it:** Every time your app authenticates
 - **Where to save:** Environment variables, configuration file
 
 ### Directory (tenant) ID
+
 - **What it is:** Unique identifier for your Azure AD tenant
 - **Format:** `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx` (GUID)
 - **When you need it:** Constructing authentication URLs
 
 ### Example values to save:
+
 ```bash
 # Save these in a secure location
 APPLICATION_CLIENT_ID="12345678-1234-1234-1234-123456789012"
@@ -96,6 +104,7 @@ Click **"Authentication"** in the left menu.
 ### Advanced Settings
 
 **Allow public client flows:**
+
 - **What it is:** Enables device code flow, resource owner password flow
 - **For console apps:** Turn this **ON**
 - **For web apps:** Keep **OFF**
@@ -117,6 +126,7 @@ Click **"API permissions"** in the left menu.
 ### Default Permission
 
 You'll see one default permission:
+
 - **Microsoft Graph → User.Read (Delegated)**
 
 This allows your app to read the signed-in user's profile.
@@ -136,10 +146,12 @@ This allows your app to read the signed-in user's profile.
 ### Admin Consent
 
 Some permissions require admin consent:
+
 - If you're an admin: Click **"Grant admin consent for [Your Org]"**
 - If you're not: Ask your admin to grant consent
 
 **Status indicator:**
+
 - ✅ Green checkmark = Granted
 - ⚠️ Yellow warning = Not granted (may still work for user consent)
 
@@ -158,6 +170,7 @@ Some permissions require admin consent:
 5. Click **"Add"**
 
 **⚠️ CRITICAL:** Copy the secret **Value** immediately!
+
 - It's only shown once
 - You cannot retrieve it later
 - If you lose it, create a new one
@@ -168,6 +181,7 @@ CLIENT_SECRET="abc123~defGHI456jklMNO789pqrSTU"
 ```
 
 **Security tips:**
+
 - Never commit secrets to source control
 - Use Azure Key Vault for production
 - Use environment variables for development
@@ -195,12 +209,14 @@ See the complete code example in [console-app-example.md](console-app-example.md
 ### Expected Results
 
 **Success:**
+
 - Browser opens for authentication (or device code shown)
 - You authenticate with your Azure AD account
 - Access token is returned
 - You can call Microsoft Graph API
 
 **Common first-time issues:**
+
 - Redirect URI mismatch → Double-check URI in Authentication settings
 - Insufficient permissions → Add required API permissions
 - User consent required → Grant admin consent or user must consent
@@ -229,6 +245,7 @@ See the complete code example in [console-app-example.md](console-app-example.md
 ### Redirect URI mismatch"
 
 **Solution:**
+
 - Check Authentication → Redirect URIs
 - Ensure exact match (case-sensitive, trailing slash matters)
 - Ensure correct platform (Web vs SPA vs Public client)
@@ -236,6 +253,7 @@ See the complete code example in [console-app-example.md](console-app-example.md
 ### User consent required
 
 **Solution:**
+
 - Grant admin consent in API permissions
 - Or have user consent during first login
 

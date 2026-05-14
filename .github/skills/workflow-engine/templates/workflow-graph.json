@@ -107,6 +107,9 @@
         "04-implementation-plan.md",
         "04-implementation-plan.md#governance-compliance-matrix",
         "04-implementation-plan.md#code-generation-contract",
+        "04-iac-contract.json",
+        "04-policy-property-map.json",
+        "04-environment-manifest.json",
         "04-dependency-diagram.py",
         "04-dependency-diagram.png",
         "04-runtime-diagram.py",
@@ -160,10 +163,17 @@
       "agent": "06b-Bicep CodeGen",
       "requires": ["gate-3"],
       "condition": { "field": "decisions.iac_tool", "equals": "Bicep" },
-      "produces": ["infra/bicep/{project}/"],
+      "produces": ["infra/bicep/{project}/", "05-iac-handoff.json"],
       "gate": "validation",
       "plan_readonly": true,
-      "frozen_inputs": ["04-implementation-plan.md", "04-governance-constraints.md", "04-governance-constraints.json"],
+      "frozen_inputs": [
+        "04-implementation-plan.md",
+        "04-iac-contract.json",
+        "04-policy-property-map.json",
+        "04-environment-manifest.json",
+        "04-governance-constraints.md",
+        "04-governance-constraints.json"
+      ],
       "challenger": {
         "default_passes": 0,
         "opt_in": true,
@@ -188,10 +198,17 @@
       "agent": "06t-Terraform CodeGen",
       "requires": ["gate-3"],
       "condition": { "field": "decisions.iac_tool", "equals": "Terraform" },
-      "produces": ["infra/terraform/{project}/"],
+      "produces": ["infra/terraform/{project}/", "05-iac-handoff.json"],
       "gate": "validation",
       "plan_readonly": true,
-      "frozen_inputs": ["04-implementation-plan.md", "04-governance-constraints.md", "04-governance-constraints.json"],
+      "frozen_inputs": [
+        "04-implementation-plan.md",
+        "04-iac-contract.json",
+        "04-policy-property-map.json",
+        "04-environment-manifest.json",
+        "04-governance-constraints.md",
+        "04-governance-constraints.json"
+      ],
       "challenger": {
         "default_passes": 0,
         "opt_in": true,
@@ -443,6 +460,9 @@
       "description": "Once gate-3 (Plan Approval) is passed, 04-implementation-plan.md (including the new Governance Compliance Matrix and Code-Generation Contract H2 sections), 04-governance-constraints.md, and 04-governance-constraints.json (including its discovery_metadata L0 envelope) are read-only for step-5b and step-5t. CodeGen agents that find plan-level must_fix issues MUST traverse the return_edge to step-4 (Planner) rather than self-edit the plan. Plan-level adversarial review (security-governance, architecture-reliability, cost-feasibility against the PLAN artifact) runs only at step-4; step-5* challenger passes use artifact_scope: iac-code. The four-layer governance attestation chain (L0 envelope → L1 plan matrix → L2 code attestation → L3 live precheck) is enforced end-to-end and audited via the apex-recall `governance_trace` decision before complete-step 6.",
       "frozen_artifacts": [
         "04-implementation-plan.md",
+        "04-iac-contract.json",
+        "04-policy-property-map.json",
+        "04-environment-manifest.json",
         "04-governance-constraints.md",
         "04-governance-constraints.json"
       ],
@@ -469,6 +489,47 @@
         "resource_count": "Count of Azure resources declared in 02-architecture-assessment.md",
         "policy_violations": "Count of `deny`-effect findings from 04-governance-constraints.json",
         "iac_tool": "bicep or terraform, from decisions.iac_tool"
+      }
+    },
+    "decision_toggles": {
+      "description": "Project-scoped toggles set by 01-Orchestrator at session init. Each toggle has a default chosen to minimize latency/token cost; agents must honor session-state values when present. Read via `apex-recall show --json`; write via `apex-recall decide --key <toggle> --value <enum>`.",
+      "toggles": {
+        "governance_depth": {
+          "enum": ["light", "full"],
+          "default": "light",
+          "description": "Controls policy-property-map and governance prose detail. Both modes MUST emit 04-policy-property-map.json covering every Deny policy; `light` omits non-Deny rationale prose only.",
+          "owners": ["04g-Governance", "05-IaC Planner"]
+        },
+        "review_depth": {
+          "enum": ["standard", "deep"],
+          "default": "standard",
+          "description": "`standard` runs single-pass comprehensive at mandatory gates. `deep` opts into multi-pass rotating lenses and enables Phase 4.5 challenger at step-5b/5t.",
+          "owners": ["01-Orchestrator", "all challenger-invoking agents"]
+        },
+        "deployment_strategy": {
+          "enum": ["single", "phased"],
+          "default": "single",
+          "description": "`single` is one `az deployment ... create` / `terraform apply`. `phased` splits into platform → workload → consumers with stop gates per `iac-common/references/deploy-shared-workflow.md`.",
+          "owners": ["07b-Bicep Deploy", "07t-Terraform Deploy"]
+        },
+        "identity_resolution": {
+          "enum": ["auto", "manual"],
+          "default": "auto",
+          "description": "`auto` resolves UAMIs and app registrations from session decisions + manifest. `manual` requires user to fill 04-environment-manifest.json fields before deploy. See azure-defaults/references/identity-resolution.md.",
+          "owners": ["05-IaC Planner", "06b/06t CodeGen"]
+        },
+        "diagnostics_strategy": {
+          "enum": ["avm", "module", "auto"],
+          "default": "auto",
+          "description": "`avm` uses AVM's built-in diagnosticSettings parameter (lowest token cost). `module` emits a separate `modules/diagnostics.bicep|tf`. `auto` picks `avm` when the AVM module supports it, else falls back to `module`.",
+          "owners": ["06b/06t CodeGen"]
+        },
+        "entra_app_creation": {
+          "enum": ["existing", "create"],
+          "default": "existing",
+          "description": "`existing` consumes pre-created app registrations from 04-environment-manifest.json (Graph blast radius zero). `create` requires Graph preflight (Application.ReadWrite.All) and lifecycle.prevent_destroy on the Terraform resource. See terraform-patterns/references/azuread-pattern.md.",
+          "owners": ["05-IaC Planner", "06t Terraform CodeGen"]
+        }
       }
     }
   }

@@ -13,7 +13,7 @@ import java.util.Optional;
 import java.util.logging.Logger;
 
 public class Function {
-    
+
     /**
      * Service Bus Queue Trigger - processes messages from the queue.
      * Connection uses UAMI via ServiceBusConnection__fullyQualifiedNamespace + credential + clientId
@@ -26,7 +26,7 @@ public class Function {
                 connection = "ServiceBusConnection"
             ) String message,
             final ExecutionContext context) {
-        
+
         Logger logger = context.getLogger();
         logger.info("Service Bus trigger processed message: " + message);
     }
@@ -48,14 +48,14 @@ public class Function {
                 connection = "ServiceBusConnection"
             ) OutputBinding<String> output,
             final ExecutionContext context) {
-        
+
         Logger logger = context.getLogger();
-        
+
         String body = request.getBody().orElse("{}");
         output.setValue(body);
-        
+
         logger.info("Sent message to Service Bus: " + body);
-        
+
         return request.createResponseBuilder(HttpStatus.OK)
                 .header("Content-Type", "application/json")
                 .body("{\"status\": \"sent\", \"data\": " + body + "}")
@@ -74,12 +74,12 @@ public class Function {
                 authLevel = AuthorizationLevel.FUNCTION
             ) HttpRequestMessage<Optional<String>> request,
             final ExecutionContext context) {
-        
+
         String queueName = System.getenv("SERVICEBUS_QUEUE_NAME");
         if (queueName == null) {
             queueName = "not-set";
         }
-        
+
         return request.createResponseBuilder(HttpStatus.OK)
                 .header("Content-Type", "application/json")
                 .body("{\"status\": \"healthy\", \"queue\": \"" + queueName + "\"}")
@@ -107,6 +107,7 @@ Add these dependencies to your `pom.xml`:
 ## Local Testing
 
 Set these in `local.settings.json`:
+
 ```json
 {
   "Values": {

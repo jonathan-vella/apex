@@ -41,17 +41,18 @@ Server=tcp:{server}.database.windows.net,1433;Database={database};Authentication
 ```
 
 **Required packages:**
+
 - `Microsoft.Data.SqlClient` (v5.1.0+)
 - `Azure.Identity` (for local development)
 
 ## Database Roles
 
-| Role | Permissions | Use For |
-|------|------------|---------|
-| `db_datareader` | SELECT | Read operations |
-| `db_datawriter` | INSERT, UPDATE, DELETE | Write operations |
-| `db_ddladmin` | CREATE, ALTER, DROP schema | EF migrations |
-| `db_owner` | Full control | Admin (use sparingly) |
+| Role            | Permissions                | Use For               |
+| --------------- | -------------------------- | --------------------- |
+| `db_datareader` | SELECT                     | Read operations       |
+| `db_datawriter` | INSERT, UPDATE, DELETE     | Write operations      |
+| `db_ddladmin`   | CREATE, ALTER, DROP schema | EF migrations         |
+| `db_owner`      | Full control               | Admin (use sparingly) |
 
 ## Grant Managed Identity Access
 

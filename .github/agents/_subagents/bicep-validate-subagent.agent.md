@@ -77,7 +77,7 @@ review as `CRITICAL` when any of the following render-level conditions hold:
   resource properties contain `networkRuleSet`, `networkRuleBypassOptions`,
   `dataEndpointEnabled: true`, or `zoneRedundancy: 'Enabled'`.
 - Any resource whose AVM module description for a property says
-  *“requires the 'sku' to be 'Premium'”* (or equivalent) and that property is
+  _“requires the 'sku' to be 'Premium'”_ (or equivalent) and that property is
   emitted with a non-`null` value while the chosen SKU is not Premium.
 
 Report each hit under `❌ Failed Checks` with severity `CRITICAL`, the
@@ -190,7 +190,28 @@ Findings` entry naming the missing field — do not guess.
    bicep build {template_path} --stdout > /dev/null
    ```
 
-2. Classify the result using the table below. When `Phase 1 - Lint` is
+2. **Timeout-retry policy (Wave 1+)**: if either command times out or
+   exits with a transient network/HTTP error (5xx, ETIMEDOUT,
+   ECONNRESET, registry unreachable), retry **at most 2 times** with
+   exponential backoff (5s, 15s). After 2 retries, emit `Lint
+Status: FAIL` with `transient: true` in the JSON output and return.
+   Persistent compile errors are NOT retried.
+
+3. **Validate-gate command (Wave 1+, when invoked by CodeGen Phase 4.6
+   or Deploy hash-mismatch rerun)** — also run:
+
+   ```bash
+   az deployment sub validate \
+     --location <region> \
+     --template-file {template_path} \
+     --parameters <bicepparam_path>
+   ```
+
+   Same retry policy. Record `exit_code` and `stdout_sha256` in the
+   structured output's `validate_gate` block so it can be lifted into
+   `05-iac-handoff.json#validation_summary.validate_gate`.
+
+4. Classify the result using the table below. When `Phase 1 - Lint` is
    `FAIL`, set `Phase 2 - Review: SKIPPED`, `Overall Status: FAILED`, and
    skip Phase 2.
 

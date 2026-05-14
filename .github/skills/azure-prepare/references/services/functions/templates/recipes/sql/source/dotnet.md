@@ -3,6 +3,7 @@
 ## Dependencies
 
 **.csproj:**
+
 ```xml
 <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Sql" Version="3.*" />
 ```
@@ -10,6 +11,7 @@
 ## Source Code
 
 **ToDoItem.cs:**
+
 ```csharp
 namespace AzureSQL.ToDo;
 
@@ -24,6 +26,7 @@ public class ToDoItem
 ```
 
 **sql_trigger.cs:**
+
 ```csharp
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Extensions.Sql;
@@ -54,6 +57,7 @@ public static class ToDoTrigger
 ```
 
 **sql_output_http_trigger.cs:**
+
 ```csharp
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;

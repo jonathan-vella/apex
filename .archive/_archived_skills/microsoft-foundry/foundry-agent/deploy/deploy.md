@@ -4,14 +4,14 @@ Create and manage agent deployments in Azure AI Foundry. For hosted agents, this
 
 ## Quick Reference
 
-| Property | Value |
-|----------|-------|
-| Agent types | Prompt (LLM-based), Hosted (ACA based), Hosted (vNext) |
-| MCP server | `foundry-mcp` |
-| Key MCP tools | `agent_update`, `agent_container_control`, `agent_container_status_get` |
-| CLI tools | `docker`, `az acr` (hosted agents only) |
-| Container protocols | `a2a`, `responses`, `mcp` |
-| Supported languages | .NET, Node.js, Python, Go, Java |
+| Property            | Value                                                                   |
+| ------------------- | ----------------------------------------------------------------------- |
+| Agent types         | Prompt (LLM-based), Hosted (ACA based), Hosted (vNext)                  |
+| MCP server          | `foundry-mcp`                                                           |
+| Key MCP tools       | `agent_update`, `agent_container_control`, `agent_container_status_get` |
+| CLI tools           | `docker`, `az acr` (hosted agents only)                                 |
+| Container protocols | `a2a`, `responses`, `mcp`                                               |
+| Supported languages | .NET, Node.js, Python, Go, Java                                         |
 
 ## When to Use This Skill
 
@@ -21,41 +21,41 @@ USE FOR: deploy agent to foundry, push agent to foundry, ship my agent, build an
 
 ## MCP Tools
 
-| Tool | Description | Parameters |
-|------|-------------|------------|
-| `agent_definition_schema_get` | Get JSON schema for agent definitions | `projectEndpoint` (required), `schemaType` (`prompt`, `hosted`, `tools`, `all`) |
-| `agent_update` | Create, update, or clone an agent | `projectEndpoint`, `agentName` (required); `agentDefinition` (JSON), `isCloneRequest`, `cloneTargetAgentName`, `modelName`, `creationOptions` (JSON with `description` and `metadata`) |
-| `agent_get` | List all agents or get a specific agent | `projectEndpoint` (required), `agentName` (optional) |
-| `agent_delete` | Delete an agent with container cleanup | `projectEndpoint`, `agentName` (required) |
-| `agent_container_control` | Start or stop a hosted agent container | `projectEndpoint`, `agentName`, `action` (`start`/`stop`) (required); `agentVersion`, `minReplicas`, `maxReplicas` |
-| `agent_container_status_get` | Check container running status | `projectEndpoint`, `agentName` (required); `agentVersion` |
+| Tool                          | Description                             | Parameters                                                                                                                                                                             |
+| ----------------------------- | --------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `agent_definition_schema_get` | Get JSON schema for agent definitions   | `projectEndpoint` (required), `schemaType` (`prompt`, `hosted`, `tools`, `all`)                                                                                                        |
+| `agent_update`                | Create, update, or clone an agent       | `projectEndpoint`, `agentName` (required); `agentDefinition` (JSON), `isCloneRequest`, `cloneTargetAgentName`, `modelName`, `creationOptions` (JSON with `description` and `metadata`) |
+| `agent_get`                   | List all agents or get a specific agent | `projectEndpoint` (required), `agentName` (optional)                                                                                                                                   |
+| `agent_delete`                | Delete an agent with container cleanup  | `projectEndpoint`, `agentName` (required)                                                                                                                                              |
+| `agent_container_control`     | Start or stop a hosted agent container  | `projectEndpoint`, `agentName`, `action` (`start`/`stop`) (required); `agentVersion`, `minReplicas`, `maxReplicas`                                                                     |
+| `agent_container_status_get`  | Check container running status          | `projectEndpoint`, `agentName` (required); `agentVersion`                                                                                                                              |
 
 ## Workflow: Hosted Agent Deployment
-There are two types of hosted agent - ACA based and vNext. There is only one change in the deployment flow for vNext which is indicated in the steps below. You must use vNext experience only when user explicitly asks you to deploy the agent to vNext (or v2, or v-next, or similar words). For all other cases, use the ACA based deployment flow.
 
+There are two types of hosted agent - ACA based and vNext. There is only one change in the deployment flow for vNext which is indicated in the steps below. You must use vNext experience only when user explicitly asks you to deploy the agent to vNext (or v2, or v-next, or similar words). For all other cases, use the ACA based deployment flow.
 
 ### Step 1: Detect and Scan Project
 
 Get the project path from the project context (see Common: Project Context Resolution). Detect the project type by checking for these files:
 
-| Project Type | Detection Files |
-|--------------|-----------------|
-| .NET | `*.csproj`, `*.fsproj` |
-| Node.js | `package.json` |
-| Python | `requirements.txt`, `pyproject.toml`, `setup.py` |
-| Go | `go.mod` |
-| Java (Maven) | `pom.xml` |
-| Java (Gradle) | `build.gradle` |
+| Project Type  | Detection Files                                  |
+| ------------- | ------------------------------------------------ |
+| .NET          | `*.csproj`, `*.fsproj`                           |
+| Node.js       | `package.json`                                   |
+| Python        | `requirements.txt`, `pyproject.toml`, `setup.py` |
+| Go            | `go.mod`                                         |
+| Java (Maven)  | `pom.xml`                                        |
+| Java (Gradle) | `build.gradle`                                   |
 
 Delegate an environment variable scan to a sub-agent. Provide the project path and project type. Search source files for these patterns:
 
-| Project Type | Patterns to Search |
-|--------------|--------------------|
-| .NET (`*.cs`) | `Environment.GetEnvironmentVariable("...")`, `configuration["..."]`, `configuration.GetValue<T>("...")` |
-| Node.js (`*.js`, `*.ts`, `*.mjs`) | `process.env.VAR_NAME`, `process.env["..."]` |
-| Python (`*.py`) | `os.environ["..."]`, `os.environ.get("...")`, `os.getenv("...")` |
-| Go (`*.go`) | `os.Getenv("...")`, `os.LookupEnv("...")` |
-| Java (`*.java`) | `System.getenv("...")`, `@Value("${...}")` |
+| Project Type                      | Patterns to Search                                                                                      |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| .NET (`*.cs`)                     | `Environment.GetEnvironmentVariable("...")`, `configuration["..."]`, `configuration.GetValue<T>("...")` |
+| Node.js (`*.js`, `*.ts`, `*.mjs`) | `process.env.VAR_NAME`, `process.env["..."]`                                                            |
+| Python (`*.py`)                   | `os.environ["..."]`, `os.environ.get("...")`, `os.getenv("...")`                                        |
+| Go (`*.go`)                       | `os.Getenv("...")`, `os.LookupEnv("...")`                                                               |
+| Java (`*.java`)                   | `System.getenv("...")`, `@Value("${...}")`                                                              |
 
 Classification: if followed by a throw/error → required; if followed by a fallback value → optional with default; otherwise → assume required, ask user.
 
@@ -66,6 +66,7 @@ Classification: if followed by a throw/error → required; if followed by a fall
 Use azd environment values from the project context to pre-fill discovered variables. Merge with any user-provided values. Present all variables to the user for confirmation with variable name, value, and source (`azd`, `project default`, or `user`). Mask sensitive values.
 
 Loop until the user confirms or cancels:
+
 - `yes` → Proceed
 - `VAR_NAME=new_value` → Update the value, show updated table, ask again
 - `cancel` → Abort deployment
@@ -73,6 +74,7 @@ Loop until the user confirms or cancels:
 ### Step 3: Generate Dockerfile and Build Image
 
 Delegate Dockerfile creation to a sub-agent. Guidelines:
+
 - Use official base image for the detected language and runtime version
 - Use multi-stage builds for compiled languages
 - Use Alpine or slim variants for smaller images
@@ -88,11 +90,13 @@ Also generate `docker-compose.yml` and `.env` files for local development.
 Collect ACR details from project context. Let the user choose the build method:
 
 **Cloud Build (ACR Tasks) (Recommended)** — no local Docker required:
+
 ```bash
 az acr build --registry <acr-name> --image <repository>:<tag> --platform linux/amd64 --source-acr-auth-id "[caller]" --file Dockerfile .
 ```
 
 **Local Docker Build:**
+
 ```bash
 docker build --platform linux/amd64 -t <image>:<tag> -f Dockerfile .
 az acr login --name <acr-name>
@@ -105,6 +109,7 @@ docker push <acr-name>.azurecr.io/<repository>:<tag>
 ### Step 4: Collect Agent Configuration
 
 Use the project endpoint and ACR name from the project context. Ask the user only for values not already resolved:
+
 - **Agent name** — Unique name for the agent
 - **Model deployment** — Model deployment name (e.g., `gpt-4o`)
 
@@ -119,30 +124,28 @@ Use `agent_definition_schema_get` with `schemaType: hosted` to retrieve the curr
 Use `agent_update` with the agent definition:
 
 For ACA one:
+
 ```json
 {
   "kind": "hosted",
   "image": "<acr-name>.azurecr.io/<repository>:<tag>",
   "cpu": "<cpu-cores>",
   "memory": "<memory>",
-  "container_protocol_versions": [
-    { "protocol": "<protocol>", "version": "<version>" }
-  ],
+  "container_protocol_versions": [{ "protocol": "<protocol>", "version": "<version>" }],
   "environment_variables": { "<var>": "<value>" }
 }
 ```
 
 For vNext one:
+
 ```json
 {
-   "agentDefinition": {
+  "agentDefinition": {
     "kind": "hosted",
     "image": "<acr-name>.azurecr.io/<repository>:<tag>",
     "cpu": "<cpu-cores>",
     "memory": "<memory>",
-    "container_protocol_versions": [
-      { "protocol": "<protocol>", "version": "<version>" }
-    ],
+    "container_protocol_versions": [{ "protocol": "<protocol>", "version": "<version>" }],
     "environment_variables": { "<var>": "<value>" }
   },
   "creationOptions": {
@@ -162,6 +165,7 @@ Use `agent_container_control` with `action: start` to start the container.
 Delegate status polling to a sub-agent. Provide the project endpoint, agent name, and instruct it to use `agent_container_status_get` repeatedly until the status is `Running` or `Failed`.
 
 **Container status values:**
+
 - `Starting` — Container is initializing
 - `Running` — Container is active and ready ✅
 - `Stopped` — Container has been stopped
@@ -182,6 +186,7 @@ Follow [After Deployment — Auto-Create Evaluators & Dataset](#after-deployment
 ### Step 1: Collect Agent Configuration
 
 Use the project endpoint from the project context (see Common: Project Context Resolution). Ask the user only for values not already resolved:
+
 - **Agent name** — Unique name for the agent
 - **Model deployment** — Model deployment name (e.g., `gpt-4o`)
 - **Instructions** — System prompt (optional)
@@ -216,6 +221,7 @@ Read and follow the [invoke skill](../invoke/invoke.md) to send a test message a
 Follow [After Deployment — Auto-Create Evaluators & Dataset](#after-deployment--auto-create-evaluators--dataset) below.
 
 ## Display Agent Information
+
 Once deployment is done for either hosted or prompt agent, display the agent's details in a nicely formatted table.
 
 Below the table you MUST also display a Playground link for direct access to the agent in Azure AI Foundry:
@@ -232,12 +238,12 @@ python -c "import base64,uuid;print(base64.urlsafe_b64encode(uuid.UUID('<SUBSCRI
 
 After a successful deployment, persist the following to a `.env` or config file in the repo so future conversations (e.g., evaluation, monitoring) can pick them up automatically:
 
-| Variable | Purpose | Example |
-|----------|---------|---------|
-| `AZURE_AI_PROJECT_ENDPOINT` | Foundry project endpoint | `https://<account>.services.ai.azure.com/api/projects/<project>` |
-| `AZURE_AI_AGENT_NAME` | Deployed agent name | `my-support-agent` |
-| `AZURE_AI_AGENT_VERSION` | Current agent version | `1` |
-| `AZURE_CONTAINER_REGISTRY` | ACR resource (hosted agents) | `myregistry.azurecr.io` |
+| Variable                    | Purpose                      | Example                                                          |
+| --------------------------- | ---------------------------- | ---------------------------------------------------------------- |
+| `AZURE_AI_PROJECT_ENDPOINT` | Foundry project endpoint     | `https://<account>.services.ai.azure.com/api/projects/<project>` |
+| `AZURE_AI_AGENT_NAME`       | Deployed agent name          | `my-support-agent`                                               |
+| `AZURE_AI_AGENT_VERSION`    | Current agent version        | `1`                                                              |
+| `AZURE_CONTAINER_REGISTRY`  | ACR resource (hosted agents) | `myregistry.azurecr.io`                                          |
 
 If a `.env` file already exists, read it first and merge — do not overwrite existing values without confirmation.
 
@@ -251,10 +257,10 @@ Use **`agent_get`** (or local `agent.yaml`) to understand the agent's purpose an
 
 ### 2. Select Default Evaluators
 
-| Category | Evaluators |
-|----------|-----------|
-| **Quality (built-in)** | intent_resolution, task_adherence, coherence |
-| **Safety (include ≥2)** | violence, self_harm, hate_unfairness |
+| Category                | Evaluators                                   |
+| ----------------------- | -------------------------------------------- |
+| **Quality (built-in)**  | intent_resolution, task_adherence, coherence |
+| **Safety (include ≥2)** | violence, self_harm, hate_unfairness         |
 
 ### 3. Identify LLM-Judge Deployment
 
@@ -279,7 +285,7 @@ datasets/          # locally generated input datasets
 
 ### 6. Prompt User
 
-*"Your agent is deployed and running. Evaluators and a test dataset have been auto-configured. Would you like to run an evaluation to identify optimization opportunities?"*
+_"Your agent is deployed and running. Evaluators and a test dataset have been auto-configured. Would you like to run an evaluation to identify optimization opportunities?"_
 
 - **Yes** → follow the [observe skill](../observe/observe.md) starting at **Step 2 (Evaluate)** — evaluators and dataset are already prepared.
 - **No** → stop. The user can return later.
@@ -289,39 +295,39 @@ datasets/          # locally generated input datasets
 
 ### Prompt Agent
 
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `kind` | string | ✅ | Must be `"prompt"` |
-| `model` | string | ✅ | Model deployment name (e.g., `gpt-4o`) |
-| `instructions` | string | | System message for the model |
-| `temperature` | number | | Response randomness (0-2) |
-| `top_p` | number | | Nucleus sampling (0-1) |
-| `tools` | array | | Tools the model may call |
-| `tool_choice` | string/object | | Tool selection strategy |
-| `rai_config` | object | | Responsible AI configuration |
+| Property       | Type          | Required | Description                            |
+| -------------- | ------------- | -------- | -------------------------------------- |
+| `kind`         | string        | ✅       | Must be `"prompt"`                     |
+| `model`        | string        | ✅       | Model deployment name (e.g., `gpt-4o`) |
+| `instructions` | string        |          | System message for the model           |
+| `temperature`  | number        |          | Response randomness (0-2)              |
+| `top_p`        | number        |          | Nucleus sampling (0-1)                 |
+| `tools`        | array         |          | Tools the model may call               |
+| `tool_choice`  | string/object |          | Tool selection strategy                |
+| `rai_config`   | object        |          | Responsible AI configuration           |
 
 ### Hosted Agent
 
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `kind` | string | ✅ | Must be `"hosted"` |
-| `image` | string | ✅ | Container image URL |
-| `cpu` | string | ✅ | CPU allocation (e.g., `"0.5"`, `"1"`, `"2"`) |
-| `memory` | string | ✅ | Memory allocation (e.g., `"1Gi"`, `"2Gi"`) |
-| `container_protocol_versions` | array | ✅ | Protocol and version pairs |
-| `environment_variables` | object | | Key-value pairs for container env vars |
-| `tools` | array | | Tool configurations |
-| `rai_config` | object | | Responsible AI configuration |
+| Property                      | Type   | Required | Description                                  |
+| ----------------------------- | ------ | -------- | -------------------------------------------- |
+| `kind`                        | string | ✅       | Must be `"hosted"`                           |
+| `image`                       | string | ✅       | Container image URL                          |
+| `cpu`                         | string | ✅       | CPU allocation (e.g., `"0.5"`, `"1"`, `"2"`) |
+| `memory`                      | string | ✅       | Memory allocation (e.g., `"1Gi"`, `"2Gi"`)   |
+| `container_protocol_versions` | array  | ✅       | Protocol and version pairs                   |
+| `environment_variables`       | object |          | Key-value pairs for container env vars       |
+| `tools`                       | array  |          | Tool configurations                          |
+| `rai_config`                  | object |          | Responsible AI configuration                 |
 
 > **Reminder:** Always pass `creationOptions.metadata.enableVnextExperience: "true"` when creating vNext hosted agents.
 
 ### Container Protocols
 
-| Protocol | Description |
-|----------|-------------|
-| `a2a` | Agent-to-Agent protocol |
-| `responses` | OpenAI Responses API |
-| `mcp` | Model Context Protocol |
+| Protocol    | Description             |
+| ----------- | ----------------------- |
+| `a2a`       | Agent-to-Agent protocol |
+| `responses` | OpenAI Responses API    |
+| `mcp`       | Model Context Protocol  |
 
 ## Agent Management Operations
 
@@ -339,17 +345,17 @@ Use `agent_get` without `agentName` to list all agents, or with `agentName` to g
 
 ## Error Handling
 
-| Error | Cause | Resolution |
-|-------|-------|------------|
-| Project type not detected | No known project files found | Ask user to specify project type manually |
-| Docker not running | Docker Desktop not started or not installed | Start Docker Desktop, or use Cloud Build (ACR Tasks) instead |
-| ACR login failed | Not authenticated to Azure | Run `az login` first, then `az acr login --name <acr-name>` |
-| Build/push failed | Dockerfile errors or insufficient ACR permissions | Check Dockerfile syntax, verify Contributor or AcrPush role on registry |
-| Agent creation failed | Invalid definition or missing required fields | Use `agent_definition_schema_get` to verify schema, check all required fields |
-| Container start failed | Image not accessible or invalid configuration | Verify ACR image path, check cpu/memory values, confirm ACR permissions |
-| Container status: Failed | Runtime error in container | Check container logs, verify environment variables, ensure image runs correctly |
-| Permission denied | Insufficient Foundry project permissions | Verify Azure AI Owner or Contributor role on the project |
-| Schema fetch failed | Invalid project endpoint | Verify project endpoint URL format: `https://<resource>.services.ai.azure.com/api/projects/<project>` |
+| Error                     | Cause                                             | Resolution                                                                                            |
+| ------------------------- | ------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| Project type not detected | No known project files found                      | Ask user to specify project type manually                                                             |
+| Docker not running        | Docker Desktop not started or not installed       | Start Docker Desktop, or use Cloud Build (ACR Tasks) instead                                          |
+| ACR login failed          | Not authenticated to Azure                        | Run `az login` first, then `az acr login --name <acr-name>`                                           |
+| Build/push failed         | Dockerfile errors or insufficient ACR permissions | Check Dockerfile syntax, verify Contributor or AcrPush role on registry                               |
+| Agent creation failed     | Invalid definition or missing required fields     | Use `agent_definition_schema_get` to verify schema, check all required fields                         |
+| Container start failed    | Image not accessible or invalid configuration     | Verify ACR image path, check cpu/memory values, confirm ACR permissions                               |
+| Container status: Failed  | Runtime error in container                        | Check container logs, verify environment variables, ensure image runs correctly                       |
+| Permission denied         | Insufficient Foundry project permissions          | Verify Azure AI Owner or Contributor role on the project                                              |
+| Schema fetch failed       | Invalid project endpoint                          | Verify project endpoint URL format: `https://<resource>.services.ai.azure.com/api/projects/<project>` |
 
 ## Non-Interactive / YOLO Mode
 

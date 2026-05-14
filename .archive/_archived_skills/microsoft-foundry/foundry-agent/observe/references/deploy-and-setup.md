@@ -16,27 +16,27 @@ Use **`agent_get`** (or local `agent.yaml`) to understand the agent's purpose an
 
 Combine **built-in, custom, and safety evaluators**:
 
-| Category | Evaluators |
-|----------|-----------|
-| **Quality (built-in)** | intent_resolution, task_adherence, coherence, fluency, relevance |
-| **Safety (include ≥2)** | violence, self_harm, hate_unfairness, sexual, indirect_attack |
-| **Custom (create 1–2)** | Domain-specific via `evaluator_catalog_create` (see below) |
+| Category                | Evaluators                                                       |
+| ----------------------- | ---------------------------------------------------------------- |
+| **Quality (built-in)**  | intent_resolution, task_adherence, coherence, fluency, relevance |
+| **Safety (include ≥2)** | violence, self_harm, hate_unfairness, sexual, indirect_attack    |
+| **Custom (create 1–2)** | Domain-specific via `evaluator_catalog_create` (see below)       |
 
 ### 3. Create Custom Evaluators
 
 Use **`evaluator_catalog_create`** with:
 
-| Parameter | Required | Description |
-|-----------|----------|-------------|
-| `projectEndpoint` | ✅ | Azure AI Project endpoint |
-| `name` | ✅ | e.g., `domain_accuracy`, `citation_quality` |
-| `category` | ✅ | `quality`, `safety`, or `agents` |
-| `scoringType` | ✅ | `ordinal`, `continuous`, or `boolean` |
-| `promptText` | ✅* | Template with `{{query}}`, `{{response}}` placeholders |
-| `minScore` / `maxScore` | | Default: 1 / 5 |
-| `passThreshold` | | Scores ≥ this value pass |
+| Parameter               | Required | Description                                            |
+| ----------------------- | -------- | ------------------------------------------------------ |
+| `projectEndpoint`       | ✅       | Azure AI Project endpoint                              |
+| `name`                  | ✅       | e.g., `domain_accuracy`, `citation_quality`            |
+| `category`              | ✅       | `quality`, `safety`, or `agents`                       |
+| `scoringType`           | ✅       | `ordinal`, `continuous`, or `boolean`                  |
+| `promptText`            | ✅\*     | Template with `{{query}}`, `{{response}}` placeholders |
+| `minScore` / `maxScore` |          | Default: 1 / 5                                         |
+| `passThreshold`         |          | Scores ≥ this value pass                               |
 
-> **LLM-judge tip:** Include in the evaluator prompt: *"Do NOT penalize the response for mentioning dates or events beyond your training cutoff. The agent has real-time access."*
+> **LLM-judge tip:** Include in the evaluator prompt: _"Do NOT penalize the response for mentioning dates or events beyond your training cutoff. The agent has real-time access."_
 
 ### 4. Identify LLM-Judge Deployment
 
@@ -62,6 +62,6 @@ Save evaluator definitions to `evaluators/<name>.yaml` and test data to `dataset
 
 ### 7. Prompt User
 
-*"Your agent is deployed and running. Evaluators and a local test dataset have been auto-configured. Would you like to run an evaluation to identify optimization opportunities?"*
+_"Your agent is deployed and running. Evaluators and a local test dataset have been auto-configured. Would you like to run an evaluation to identify optimization opportunities?"_
 
 If yes → proceed to [Step 2: Evaluate](evaluate-step.md). If no → stop.

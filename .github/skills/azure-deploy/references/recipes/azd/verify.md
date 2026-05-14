@@ -9,6 +9,7 @@ azd show
 ```
 
 Expected output:
+
 ```
 Showing deployed resources:
   Resource Group: rg-myapp-dev
@@ -79,18 +80,19 @@ az containerapp logs show --name <app-name> --resource-group <resource-group> --
 ```
 
 **Look for:**
+
 - ✅ No SQL authentication errors
 - ✅ Successful database connection
 - ✅ Application started successfully
 
 ## Common Issues
 
-| Symptom | Cause | Fix |
-|---------|-------|-----|
-| HTTP 500 on startup | SQL authentication failure | See [sql-managed-identity.md](sql-managed-identity.md) |
-| "Invalid object name" errors | Migrations not applied | See [ef-migrations.md](ef-migrations.md) |
-| Endpoint not accessible | Service still starting | Wait 1-2 minutes, retry |
-| Health check fails | Application error | Check logs with `az webapp log tail` |
+| Symptom                      | Cause                      | Fix                                                    |
+| ---------------------------- | -------------------------- | ------------------------------------------------------ |
+| HTTP 500 on startup          | SQL authentication failure | See [sql-managed-identity.md](sql-managed-identity.md) |
+| "Invalid object name" errors | Migrations not applied     | See [ef-migrations.md](ef-migrations.md)               |
+| Endpoint not accessible      | Service still starting     | Wait 1-2 minutes, retry                                |
+| Health check fails           | Application error          | Check logs with `az webapp log tail`                   |
 
 ## References
 

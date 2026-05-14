@@ -4,7 +4,7 @@ After confirming the final agent version, prompt with two options:
 
 ## Option 1 — CI/CD Evaluations
 
-*"Would you like to add automated evaluations to your CI/CD pipeline so every deployment is evaluated before going live?"*
+_"Would you like to add automated evaluations to your CI/CD pipeline so every deployment is evaluated before going live?"_
 
 If yes, generate a GitHub Actions workflow (e.g., `.github/workflows/agent-eval.yml`) that:
 
@@ -18,7 +18,7 @@ Use repository secrets for `AZURE_AI_PROJECT_ENDPOINT` and Azure credentials. Co
 
 ## Option 2 — Continuous Production Monitoring
 
-*"Would you like to set up continuous evaluations to monitor your agent's quality in production?"*
+_"Would you like to set up continuous evaluations to monitor your agent's quality in production?"_
 
 If yes, generate a scheduled GitHub Actions workflow (e.g., `.github/workflows/agent-eval-scheduled.yml`) that:
 

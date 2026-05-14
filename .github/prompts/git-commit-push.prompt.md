@@ -84,6 +84,7 @@ Print a summary table at the end:
 | Commit       | `<hash>` `<subject>`                 |
 | Push         | `origin/<branch>` — pushed / skipped |
 | Pull request | `<URL>` / not created                |
+
 </output_contract>
 
 ## Scope & Preconditions

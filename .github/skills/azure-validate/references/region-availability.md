@@ -1,4 +1,5 @@
 <!-- ref:region-availability-v1 -->
+
 # Azure Region Availability Reference
 
 > **AUTHORITATIVE SOURCE** — Consult this file BEFORE recommending any region.
@@ -13,8 +14,8 @@
 
 ## MCP Tools Used
 
-| Tool | Purpose |
-|------|---------|
+| Tool                  | Purpose                                                                                                                   |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------- |
 | `mcp_azure_mcp_quota` | Check Azure region availability and quota by setting `command` to `quota_usage_check` or `quota_region_availability_list` |
 
 ---
@@ -26,14 +27,14 @@
 ⚠️ **NOT available in many common regions**
 
 | ✅ Available | ❌ NOT Available (will FAIL) |
-|-------------|------------------------------|
-| `westus2` | `eastus` |
-| `centralus` | `northeurope` |
-| `eastus2` | `southeastasia` |
-| `westeurope` | `uksouth` |
-| `eastasia` | `canadacentral` |
-| | `australiaeast` |
-| | `westus3` |
+| ------------ | ---------------------------- |
+| `westus2`    | `eastus`                     |
+| `centralus`  | `northeurope`                |
+| `eastus2`    | `southeastasia`              |
+| `westeurope` | `uksouth`                    |
+| `eastasia`   | `canadacentral`              |
+|              | `australiaeast`              |
+|              | `westus3`                    |
 
 ---
 
@@ -41,15 +42,15 @@
 
 ⚠️ **Very limited — varies by model**
 
-| Region | GPT-4o | GPT-4 | GPT-3.5 | Embeddings |
-|--------|:------:|:-----:|:-------:|:----------:|
-| `eastus` | ✅ | ✅ | ✅ | ✅ |
-| `eastus2` | ✅ | ✅ | ✅ | ✅ |
-| `westus` | ⚠️ | ⚠️ | ✅ | ✅ |
-| `westus3` | ✅ | ⚠️ | ✅ | ✅ |
-| `southcentralus` | ✅ | ✅ | ✅ | ✅ |
-| `swedencentral` | ✅ | ✅ | ✅ | ✅ |
-| `westeurope` | ⚠️ | ✅ | ✅ | ✅ |
+| Region           | GPT-4o | GPT-4 | GPT-3.5 | Embeddings |
+| ---------------- | :----: | :---: | :-----: | :--------: |
+| `eastus`         |   ✅   |  ✅   |   ✅    |     ✅     |
+| `eastus2`        |   ✅   |  ✅   |   ✅    |     ✅     |
+| `westus`         |   ⚠️   |  ⚠️   |   ✅    |     ✅     |
+| `westus3`        |   ✅   |  ⚠️   |   ✅    |     ✅     |
+| `southcentralus` |   ✅   |  ✅   |   ✅    |     ✅     |
+| `swedencentral`  |   ✅   |  ✅   |   ✅    |     ✅     |
+| `westeurope`     |   ⚠️   |  ✅   |   ✅    |     ✅     |
 
 > Check https://learn.microsoft.com/azure/ai-services/openai/concepts/models for current model availability.
 
@@ -86,15 +87,14 @@ These services are available in all major Azure regions — no special considera
 
 ## Common Architecture Patterns
 
-| Pattern | Recommended Regions |
-|---------|---------------------|
-| SWA only | `westus2`, `centralus`, `eastus2`, `westeurope`, `eastasia` |
-| SWA + backend services | `westus2`, `centralus`, `eastus2`, `westeurope`, `eastasia` |
-| Container Apps (no SWA) | `eastus`, `eastus2`, `westus2`, `centralus`, `westeurope` |
-| With Azure OpenAI (GPT-4o/4/3.5 + embeddings) | `eastus`, `eastus2`, `swedencentral` |
-| SWA + Azure OpenAI (GPT-4o/4/3.5 + embeddings) | `eastus2` (only region with full SWA + model overlap) |
+| Pattern                                        | Recommended Regions                                         |
+| ---------------------------------------------- | ----------------------------------------------------------- |
+| SWA only                                       | `westus2`, `centralus`, `eastus2`, `westeurope`, `eastasia` |
+| SWA + backend services                         | `westus2`, `centralus`, `eastus2`, `westeurope`, `eastasia` |
+| Container Apps (no SWA)                        | `eastus`, `eastus2`, `westus2`, `centralus`, `westeurope`   |
+| With Azure OpenAI (GPT-4o/4/3.5 + embeddings)  | `eastus`, `eastus2`, `swedencentral`                        |
+| SWA + Azure OpenAI (GPT-4o/4/3.5 + embeddings) | `eastus2` (only region with full SWA + model overlap)       |
 
 ---
 
 **Last updated:** 2026-03-02
-

@@ -109,10 +109,16 @@ SERVICE_NAME_MAPPINGS: dict[str, str] = {
     "blob storage": "Storage",
     "file storage": "Storage",
     "disk": "Storage",
-    "sql": "Azure SQL Database",
-    "sql database": "Azure SQL Database",
-    "database": "Azure SQL Database",
-    "sql server": "Azure SQL Database",
+    # v5.6 FIX — Azure Retail Prices API uses canonical `"SQL Database"`,
+    # NOT "Azure SQL Database". Filtering on the wrong serviceName returns
+    # zero rows for every SQL DB SKU (S0..S12, GP_S/GP_Gen5/BC, Hyperscale).
+    # Verified 2026-05 against the live API in swedencentral/westeurope/eastus.
+    "sql": "SQL Database",
+    "sql database": "SQL Database",
+    "database": "SQL Database",
+    "sql server": "SQL Database",
+    "azure sql": "SQL Database",
+    "azure sql database": "SQL Database",
     "cosmos": "Azure Cosmos DB",
     "cosmosdb": "Azure Cosmos DB",
     "cosmos db": "Azure Cosmos DB",

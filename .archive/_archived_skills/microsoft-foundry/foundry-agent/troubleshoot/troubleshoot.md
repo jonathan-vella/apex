@@ -4,14 +4,14 @@ Troubleshoot and debug Foundry agents by collecting container logs, discovering 
 
 ## Quick Reference
 
-| Property | Value |
-|----------|-------|
-| Agent types | Prompt (LLM-based), Hosted (container-based) |
-| MCP servers | `foundry-mcp` |
-| Key MCP tools | `agent_get`, `agent_container_status_get` |
-| Related skills | `trace` (telemetry analysis) |
+| Property             | Value                                                                                    |
+| -------------------- | ---------------------------------------------------------------------------------------- |
+| Agent types          | Prompt (LLM-based), Hosted (container-based)                                             |
+| MCP servers          | `foundry-mcp`                                                                            |
+| Key MCP tools        | `agent_get`, `agent_container_status_get`                                                |
+| Related skills       | `trace` (telemetry analysis)                                                             |
 | Preferred query tool | `monitor_resource_log_query` (Azure MCP) — preferred over `azure-kusto` for App Insights |
-| CLI references | `az cognitiveservices agent logs`, `az cognitiveservices account connection` |
+| CLI references       | `az cognitiveservices agent logs`, `az cognitiveservices account connection`             |
 
 ## When to Use This Skill
 
@@ -24,22 +24,24 @@ Troubleshoot and debug Foundry agents by collecting container logs, discovering 
 
 ## MCP Tools
 
-| Tool | Description | Parameters |
-|------|-------------|------------|
-| `agent_get` | Get agent details to determine type (prompt/hosted) | `projectEndpoint` (required), `agentName` (optional) |
-| `agent_container_status_get` | Check hosted agent container status | `projectEndpoint`, `agentName` (required); `agentVersion` |
+| Tool                         | Description                                         | Parameters                                                |
+| ---------------------------- | --------------------------------------------------- | --------------------------------------------------------- |
+| `agent_get`                  | Get agent details to determine type (prompt/hosted) | `projectEndpoint` (required), `agentName` (optional)      |
+| `agent_container_status_get` | Check hosted agent container status                 | `projectEndpoint`, `agentName` (required); `agentVersion` |
 
 ## Workflow
 
 ### Step 1: Collect Agent Information
 
 Use the project endpoint and agent name from the project context (see Common: Project Context Resolution). Ask the user only for values not already resolved:
+
 - **Project endpoint** — AI Foundry project endpoint URL
 - **Agent name** — Name of the agent to troubleshoot
 
 ### Step 2: Determine Agent Type
 
 Use `agent_get` with `projectEndpoint` and `agentName` to retrieve the agent definition. Check the `kind` field:
+
 - `"hosted"` → Proceed to Step 3 (Container Logs)
 - `"prompt"` → Skip to Step 4 (Discover Observability Connections)
 
@@ -72,6 +74,7 @@ Use `* contains "<response_id>"` or `* contains "<agent_name>"` filters to narro
 ### Step 6: Summarize Findings
 
 Present a summary to the user including:
+
 - **Agent type and status** — hosted/prompt, container status (if hosted)
 - **Container log errors** — key errors from logs (hosted only)
 - **Telemetry insights** — exceptions, failed requests, latency trends
@@ -79,13 +82,13 @@ Present a summary to the user including:
 
 ## Error Handling
 
-| Error | Cause | Resolution |
-|-------|-------|------------|
-| Agent not found | Invalid agent name or project endpoint | Use `agent_get` to list available agents and verify name |
-| Container logs unavailable | Agent is a prompt agent or container never started | Prompt agents don't have container logs — skip to telemetry |
-| No observability connection | Application Insights not configured for the project | Suggest configuring Application Insights for the Foundry project |
-| Kusto query failed | Invalid cluster/database or insufficient permissions | Verify Application Insights resource details and reader permissions |
-| No telemetry data | Agent not instrumented or too recent | Check if Application Insights SDK is configured; data may take a few minutes to appear |
+| Error                       | Cause                                                | Resolution                                                                             |
+| --------------------------- | ---------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| Agent not found             | Invalid agent name or project endpoint               | Use `agent_get` to list available agents and verify name                               |
+| Container logs unavailable  | Agent is a prompt agent or container never started   | Prompt agents don't have container logs — skip to telemetry                            |
+| No observability connection | Application Insights not configured for the project  | Suggest configuring Application Insights for the Foundry project                       |
+| Kusto query failed          | Invalid cluster/database or insufficient permissions | Verify Application Insights resource details and reader permissions                    |
+| No telemetry data           | Agent not instrumented or too recent                 | Check if Application Insights SDK is configured; data may take a few minutes to appear |
 
 ## Additional Resources
 

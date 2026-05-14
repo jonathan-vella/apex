@@ -2,13 +2,13 @@
 
 ## Test Summary
 
-| Test | Status | Notes |
-|------|--------|-------|
-| Code Syntax | ✅ PASS | Python v2 model decorator pattern |
-| EventGrid Trigger | ✅ PASS | Uses `@app.event_grid_trigger` |
-| Blob Input | ✅ PASS | `@app.blob_input` for reading |
-| Blob Output | ✅ PASS | `@app.blob_output` for writing |
-| Event Filtering | ✅ PASS | Filters BlobCreated events |
+| Test              | Status  | Notes                             |
+| ----------------- | ------- | --------------------------------- |
+| Code Syntax       | ✅ PASS | Python v2 model decorator pattern |
+| EventGrid Trigger | ✅ PASS | Uses `@app.event_grid_trigger`    |
+| Blob Input        | ✅ PASS | `@app.blob_input` for reading     |
+| Blob Output       | ✅ PASS | `@app.blob_output` for writing    |
+| Event Filtering   | ✅ PASS | Filters BlobCreated events        |
 
 ## Code Validation
 

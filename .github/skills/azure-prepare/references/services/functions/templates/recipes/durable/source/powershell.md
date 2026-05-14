@@ -3,6 +3,7 @@
 ## Dependencies
 
 **requirements.psd1:**
+
 ```powershell
 @{
     'Az.Accounts' = '2.*'
@@ -10,6 +11,7 @@
 ```
 
 **host.json:**
+
 ```json
 {
   "version": "2.0",
@@ -23,6 +25,7 @@
 ## Source Code
 
 **HttpStart/function.json:**
+
 ```json
 {
   "bindings": [
@@ -48,6 +51,7 @@
 ```
 
 **HttpStart/run.ps1:**
+
 ```powershell
 using namespace System.Net
 
@@ -61,6 +65,7 @@ Push-OutputBinding -Name Response -Value $Response
 ```
 
 **HelloOrchestrator/function.json:**
+
 ```json
 {
   "bindings": [
@@ -74,6 +79,7 @@ Push-OutputBinding -Name Response -Value $Response
 ```
 
 **HelloOrchestrator/run.ps1:**
+
 ```powershell
 param($Context)
 
@@ -86,6 +92,7 @@ return $outputs
 ```
 
 **SayHello/function.json:**
+
 ```json
 {
   "bindings": [
@@ -99,6 +106,7 @@ return $outputs
 ```
 
 **SayHello/run.ps1:**
+
 ```powershell
 param($name)
 
@@ -107,6 +115,7 @@ return "Hello $name"
 ```
 
 **health/function.json:**
+
 ```json
 {
   "bindings": [
@@ -127,6 +136,7 @@ return "Hello $name"
 ```
 
 **health/run.ps1:**
+
 ```powershell
 param($Request, $TriggerMetadata)
 

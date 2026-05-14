@@ -5,9 +5,11 @@
 > in the **azure-keyvault-secrets-rust** plugin skill if installed.
 
 ## Install
+
 cargo add azure_security_keyvault_secrets azure_identity
 
 ## Quick Start
+
 ```rust
 use azure_identity::DeveloperToolsCredential;
 use azure_security_keyvault_secrets::SecretClient;
@@ -16,6 +18,7 @@ let client = SecretClient::new("https://<vault>.vault.azure.net/", credential.cl
 ```
 
 ## Best Practices
+
 - Use Entra ID auth — `DeveloperToolsCredential` for dev, `ManagedIdentityCredential` for production
 - Use `into_model()?` to deserialize responses
 - Use `ResourceExt` trait for extracting names from IDs
@@ -25,6 +28,7 @@ let client = SecretClient::new("https://<vault>.vault.azure.net/", credential.cl
 - Version secrets — new values create new versions automatically
 
 ## Non-Obvious Patterns
+
 ```rust
 use azure_security_keyvault_secrets::models::SetSecretParameters;
 let params = SetSecretParameters { value: Some("secret-value".into()), ..Default::default() };
