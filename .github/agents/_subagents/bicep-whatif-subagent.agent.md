@@ -40,6 +40,16 @@ violations and cost impact, and returns a structured summary so the parent
 deploy agent can decide whether to proceed.
 </role>
 
+<input_contract>
+The parent agent passes **artifact paths plus the explicit input fields
+documented below — never the artifact bodies inline**. Re-read the
+template, parameter file, or `04-governance-constraints.md` from disk on
+demand with bounded `read_file` ranges, and consult
+`apex-recall show <project> --json` for decision/finding lookups. If a
+required input field is missing, fail fast with the standard error shape
+rather than asking the parent to paste content.
+</input_contract>
+
 <context_awareness>
 This subagent does not load APEX skills directly. Domain context comes from
 the what-if output itself plus the governance constraints the parent agent

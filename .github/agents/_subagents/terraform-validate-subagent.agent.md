@@ -40,6 +40,17 @@ privilege, and discovered governance constraints, returning a structured
 PASS/FAIL diagnostic and verdict for the parent IaC agent.
 </role>
 
+<input_contract>
+The parent agent passes **artifact paths plus the explicit input fields
+documented below — never the artifact bodies inline**. Re-read Terraform
+source (`.tf`, `.tfvars`), tfsec output, or
+`04-governance-constraints.json` from disk on demand with bounded
+`read_file` ranges, and consult `apex-recall show <project> --json` for
+decision/finding lookups. If a required input field is missing, fail
+fast with the standard error shape rather than asking the parent to
+paste content.
+</input_contract>
+
 <context_awareness>
 Read each `SKILL.md` once — there is a single tier (no digest/minimal
 variants):

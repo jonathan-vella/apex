@@ -257,14 +257,33 @@ After deployment, `08-As-Built` is responsible for closing the loop:
 
 ### Phase 1: Context Gathering
 
-1. **Read all prior artifacts** (01-06) from `agent-output/{project}/`
-2. **Read IaC source** — determine IaC tool from `01-requirements.md` (`iac_tool` field):
+Apply the **Predecessor Artifact Read Policy** below — do not default to
+"read all 01–06 in full". Compression tiers come from
+`.github/skills/context-management/SKILL.md` (Mode A).
+
+| Artifact                            | Read mode             | Why                                                              |
+| ----------------------------------- | --------------------- | ---------------------------------------------------------------- |
+| `01-requirements.md`                | summarized (Mode A)   | Need scope + NFRs only; decisions live in apex-recall            |
+| `02-architecture-assessment.md`     | summarized (Mode A)   | Cross-check WAF scores + cost baseline; not the source of truth  |
+| `03-des-*.md`                       | skip unless ADR cited | Fetch a specific ADR only if `04-implementation-plan.md` cites it |
+| `04-governance-constraints.md`      | summarized (Mode A)   | Use JSON below; prose only for narrative compliance matrix       |
+| `04-governance-constraints.json`    | **full**              | Drives `07-compliance-matrix.md` rows directly                   |
+| `04-implementation-plan.md`         | **full**              | Canonical planned→deployed mapping for `07-design-document.md`   |
+| `04-iac-contract.json`              | **full** (Wave 1+)    | Machine-readable plan shape; prefer over prose mirror            |
+| `05-implementation-reference.md`    | summarized (Mode A)   | Validation results only; skip entirely for non-legacy projects   |
+| `05-iac-handoff.json`               | **full** (Wave 3+)    | CodeGen → Deploy handoff + governance attestation                |
+| `06-deployment-summary.md`          | **full**              | Actual deployed state — primary truth for resource inventory    |
+| `sku-manifest.json`                 | **full**              | Small; required for bidirectional drift detection                |
+
+Then continue:
+
+1. **Read IaC source** — determine IaC tool from `01-requirements.md` (`iac_tool` field):
    - **Bicep path**: Read templates from `infra/bicep/{project}/` for resource details
    - **Terraform path**: Read configurations from
      `infra/terraform/{project}/` and run `terraform output -json`
      for deployed resource attributes
-3. **Query deployed resources** via Azure CLI / Resource Graph for actual state
-4. **Read deployment summary** for resource IDs, names, and endpoints
+2. **Query deployed resources** via Azure CLI / Resource Graph for actual state
+3. **Read deployment summary** for resource IDs, names, and endpoints
 
 ### Phase 1.5: Context Compaction
 
@@ -366,13 +385,13 @@ Follow the batch-only workflow from the drawio skill:
 
 ```bash
 # List all resources in the project resource group
-az resource list --resource-group {rg-name} --output table
+az resource list --resource-group {rg-name} --output table > /tmp/{project}-resources.txt && head -50 /tmp/{project}-resources.txt
 
 # Get resource details
 az resource show --ids {resource-id} --output json
 
 # Resource Graph query for deployed resources
-az graph query -q "resources | where resourceGroup == '{rg-name}' | project name, type, location, sku, properties"
+az graph query -q "resources | where resourceGroup == '{rg-name}' | project name, type, location, sku, properties" > /tmp/{project}-graph.json && head -100 /tmp/{project}-graph.json
 ```
 
 ## Output Files

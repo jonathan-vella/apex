@@ -417,6 +417,14 @@ When an agent's runbook lists several preparatory `read_file` calls (e.g.
 in a single parallel tool batch. One round-trip × N files is ~5–10× cheaper
 than N sequential turns because each turn replays the entire prior context.
 
+### Prefer targeted search over semantic search
+
+When you need to locate a known symbol, file path, or exact phrase,
+prefer `grep_search` (exact / regex) and bounded `read_file` ranges over
+`semantic_search`. Semantic search returns a wider, less predictable
+result set and inflates context. Reserve `semantic_search` for genuinely
+exploratory work where you do not yet know what to search for.
+
 ### Batched-question rule
 
 When an agent gathers structured input via `askQuestions`, group questions

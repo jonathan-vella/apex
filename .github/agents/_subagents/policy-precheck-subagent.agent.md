@@ -43,6 +43,16 @@ can route via `iac-common/references/governance-drift-routing.md` before
 `az deployment ... create` or `terraform apply`.
 </role>
 
+<input_contract>
+The parent agent passes **artifact paths plus the explicit input fields
+documented in `## Inputs` — never the artifact bodies inline**. Re-read
+predecessor files (`04-governance-constraints.json`, rendered ARM, plan
+output) from disk on demand with bounded `read_file` ranges, and consult
+`apex-recall show <project> --json` for decision/finding lookups. If a
+required input field is missing, fail fast with the standard error shape
+rather than asking the parent to paste content.
+</input_contract>
+
 <context_awareness>
 Skill loading tiers (apply per the `context-management` skill, Mode A):
 

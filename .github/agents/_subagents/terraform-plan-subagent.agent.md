@@ -40,6 +40,16 @@ policy errors, and returns a structured summary so the parent deploy
 agent can decide whether to proceed to `terraform apply`.
 </role>
 
+<input_contract>
+The parent agent passes **artifact paths plus the explicit input fields
+documented below — never the artifact bodies inline**. Re-read the
+working directory, plan file, or `04-governance-constraints.json` from
+disk on demand with bounded `read_file` ranges, and consult
+`apex-recall show <project> --json` for decision/finding lookups. If a
+required input field is missing, fail fast with the standard error shape
+rather than asking the parent to paste content.
+</input_contract>
+
 <context_awareness>
 This subagent does not load APEX skills directly. Domain context comes
 from the plan output itself plus the governance constraints the parent

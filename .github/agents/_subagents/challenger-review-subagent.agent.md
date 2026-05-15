@@ -117,6 +117,17 @@ down in this agent.
 > Apply context shredding (from `adversarial-review-protocol.md`) when loading
 > predecessor artifacts — use summarized tier if context is heavy.
 
+## Input Contract
+
+The parent agent passes **artifact paths plus the explicit input fields
+documented in `## Inputs` — never artifact bodies inline**. Re-read the
+challenged artifact, `prior_findings` JSON, governance constraints, and
+any supporting files from disk on demand with bounded `read_file` ranges,
+and consult `apex-recall show <project> --json` for decision/finding
+lookups. If a required input field is missing or `output_path` is not
+supplied, fail fast with an explicit error — do not ask the parent to
+paste content.
+
 ## Inputs
 
 The parent agent provides:

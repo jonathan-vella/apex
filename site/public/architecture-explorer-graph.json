@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-05-15T15:14:27.059Z",
+  "generatedAt": "2026-05-15T15:46:51.160Z",
   "categories": [
     {
       "id": "agent",
@@ -32,7 +32,7 @@
       "label": "Instruction",
       "color": "#f59e0b",
       "shape": "rectangle",
-      "count": 29
+      "count": 30
     },
     {
       "id": "prompt",
@@ -67,8 +67,8 @@
       "count": 6
     }
   ],
-  "nodeCount": 148,
-  "edgeCount": 589,
+  "nodeCount": 149,
+  "edgeCount": 590,
   "nodes": [
     {
       "id": "agent:01-orchestrator",
@@ -1143,6 +1143,19 @@
       },
       "meta": {
         "applyTo": "**/*orchestrator*.agent.md"
+      }
+    },
+    {
+      "id": "instruction:markdown-docs",
+      "category": "instruction",
+      "label": "markdown-docs",
+      "description": "Documentation site and human-authored markdown style guidance — visual styling, template H2 enforcement, audience-specific rules. Pairs with the broader markdown.instructions.md.",
+      "path": ".github/instructions/markdown-docs.instructions.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/markdown-docs.instructions.md"
+      },
+      "meta": {
+        "applyTo": "site/src/content/docs/**/*.{md,mdx}, docs/**/*.md"
       }
     },
     {
@@ -3776,6 +3789,12 @@
       "id": "instruction:instructions--applies-to->instruction:lesson-collection",
       "source": "instruction:instructions",
       "target": "instruction:lesson-collection",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:instructions--applies-to->instruction:markdown-docs",
+      "source": "instruction:instructions",
+      "target": "instruction:markdown-docs",
       "kind": "applies-to"
     },
     {

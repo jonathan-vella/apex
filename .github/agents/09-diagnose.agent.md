@@ -192,7 +192,7 @@ Ask user to identify the target:
 
 ```bash
 # Preferred: Azure Resource Graph query
-az graph query -q "Resources | where resourceGroup =~ '{rg-name}' | project name, type, location, id"
+az graph query -q "Resources | where resourceGroup =~ '{rg-name}' | project name, type, location, id" > /tmp/{project}-discovery.json && head -50 /tmp/{project}-discovery.json
 ```
 
 **Checkpoint**: Confirm resource details (name, type, RG, location, status) before proceeding.

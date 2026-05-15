@@ -36,6 +36,13 @@ deployed resource estimates).
   startup), batch the reads in one parallel call — don't read them one
   at a time.
 
+## Input contract
+
+Parent passes **paths + the explicit fields in `## Inputs` — never artifact
+bodies inline**. Re-read `sku-manifest.json` or other predecessor files from
+disk on demand; consult `apex-recall show <project> --json` for decisions.
+If a required field is missing, fail fast with `status: FAILED`.
+
 ## Inputs
 
 Exactly one of `resource_list`, `manifest_path`, or `candidate_sets`
@@ -510,17 +517,9 @@ Override defaults with values from `01-requirements.md` if available.
 
 ## Pricing provenance
 
-The Architect agent is required to use your prices verbatim. Every dollar
-figure that lands in `02-architecture-assessment.md` and `03-des-cost-estimate.md`
-comes from the JSON you persist at `output_path`. Accuracy is critical — the
-parent agent is prohibited from writing prices from its own knowledge.
-
-Include per-resource `hourly_rate` and `monthly_cost` in the JSON so the parent
-can populate both the Cost Assessment table (monthly) and the Detailed Cost
-Breakdown (hourly rate × hours).
-
-### Provenance fields (already in JSON schema)
-
-The JSON written to `output_path` already includes `data_source`, `queried_at`,
-`region`, `confidence`, and `unresolved_items` so the parent can attribute
-pricing data without re-querying.
+Include per-resource `hourly_rate` and `monthly_cost` in the JSON so the
+parent can populate both the monthly Cost Assessment table and the hourly
+Detailed Cost Breakdown. The persisted JSON also carries `data_source`,
+`queried_at`, `region`, `confidence`, and `unresolved_items` for full
+attribution without re-querying. The pricing-provenance invariant
+(parent uses your prices verbatim) is already enforced in `## Constraints`.
