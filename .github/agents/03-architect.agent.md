@@ -249,16 +249,28 @@ in your WAF assessment recommendations (still produce the identical artifact str
      **Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 2 phase_2.5_compacted --json`
 
 6a. **SKU confirmation gate (MANDATORY — before pricing)** — follow the
-protocol in [`workflow-gates.md`](../skills/azure-defaults/references/workflow-gates.md#architect-step-2--phase-6a-sku-confirmation-gate). 7. **Delegate pricing** — Send resource list to `cost-estimate-subagent`; receive verified prices.
-Precondition guard: refuse to invoke unless
-`decisions.sku_confirmation_status == "approved"`. 8. **Generate assessment** — Save `02-architecture-assessment.md` with subagent-sourced prices
-**Decisions** (MANDATORY): Record key architecture choices:
-`apex-recall decide <project> --decision "<pattern/SKU/trade-off>" --rationale "<why>" --step 2 --json` 9. **Generate cost estimate** — Save `03-des-cost-estimate.md` with subagent-sourced prices
+    protocol in
+    [`workflow-gates.md`](../skills/azure-defaults/references/workflow-gates.md#architect-step-2--phase-6a-sku-confirmation-gate).
+7. **Delegate pricing** — Send resource list to `cost-estimate-subagent`;
+    receive verified prices. Precondition guard: refuse to invoke unless
+    `decisions.sku_confirmation_status == "approved"`.
+8. **Generate assessment** — Save `02-architecture-assessment.md` with
+    subagent-sourced prices.
+    **Decisions** (MANDATORY): Record key architecture choices:
+    `apex-recall decide <project> --decision "<pattern/SKU/trade-off>" --rationale "<why>" --step 2 --json`
+9. **Generate cost estimate** — Save `03-des-cost-estimate.md` with
+    subagent-sourced prices.
 9a. **Budget gate (MANDATORY — after pricing)** — follow the protocol in
-[`workflow-gates.md`](../skills/azure-defaults/references/workflow-gates.md#architect-step-2--phase-9a-budget-gate). 10. **Generate charts** — Read `.github/skills/python-diagrams/references/waf-cost-charts.md`
-and produce three matplotlib PNGs in `agent-output/{project}/`: - `02-waf-scores.py` + `02-waf-scores.png` — one horizontal bar per WAF
-pillar, WAF brand colours - `03-des-cost-distribution.py` + `03-des-cost-distribution.png` — donut
-chart of cost categories - `03-des-cost-projection.py` + `03-des-cost-projection.png` —\n 6-month bar and trend chart
+    [`workflow-gates.md`](../skills/azure-defaults/references/workflow-gates.md#architect-step-2--phase-9a-budget-gate).
+10. **Generate charts** — Read
+    `.github/skills/python-diagrams/references/waf-cost-charts.md` and
+    produce three matplotlib PNGs in `agent-output/{project}/`:
+    - `02-waf-scores.py` + `02-waf-scores.png` — one horizontal bar per
+      WAF pillar, WAF brand colours
+    - `03-des-cost-distribution.py` + `03-des-cost-distribution.png` —
+      donut chart of cost categories
+    - `03-des-cost-projection.py` + `03-des-cost-projection.png` —
+      6-month bar and trend chart
 
     Execute each `.py` file and verify the PNGs exist before continuing.
 
