@@ -27,6 +27,20 @@ Generated templates deploy to any tenant, region, subscription, or
 customer without source code modification. Zero hardcoded project-specific
 values. `projectName`/`project_name` parameter has no default.
 
+## Diagram Artifacts
+
+If the plan references a `.png` diagram (e.g. `04-dependency-diagram.png`,
+`04-runtime-diagram.png`), the corresponding `.py` source MUST exist
+**and** the `.png` MUST be rendered from it before `apex-recall
+complete-step 4`. Do not defer rendering to Step 5 — `validate-artifacts.mjs`
+hard-fails on dangling references. Render with:
+
+```bash
+for py in agent-output/<project>/04-*-diagram.py; do
+  [ -f "${py%.py}.png" ] || python3 "$py"
+done
+```
+
 ## Cross-References
 
 - Policy compliance: `references/iac-policy-compliance.md`

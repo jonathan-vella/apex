@@ -198,6 +198,7 @@ function runAttestationChain(project, allowLegacy) {
   const root = process.cwd();
   const constraintsPath = path.join(root, "agent-output", project, "04-governance-constraints.json");
   const planPath = path.join(root, "agent-output", project, "04-implementation-plan.md");
+  const handoffPath = path.join(root, "agent-output", project, "05-iac-handoff.json");
   const validatorSummaryCandidates = [
     path.join(root, "agent-output", project, "05-implementation-reference.md"),
     path.join(root, "agent-output", project, "06-policy-precheck.json"),
@@ -300,23 +301,48 @@ function runAttestationChain(project, allowLegacy) {
   // L2 — validator output recorded (look for matrix verdict in 05-implementation-reference.md
   // or a 06-policy-precheck.json that shows zero mismatches).
   let l2Recorded = false;
-  for (const candidate of validatorSummaryCandidates) {
-    if (!fs.existsSync(candidate)) continue;
-    if (candidate.endsWith(".md")) {
-      const txt = fs.readFileSync(candidate, "utf-8");
-      if (/Governance.*L2 attestation/i.test(txt) && /Mismatched:\s*0/i.test(txt)) {
+
+  // Primary source: structured governance_attestation.l2_summary in 05-iac-handoff.json
+  // (preferred — emitted by 06b/06t CodeGen as part of the iac-handoff-v1 schema).
+  if (!l2Recorded && fs.existsSync(handoffPath)) {
+    try {
+      const handoff = JSON.parse(fs.readFileSync(handoffPath, "utf-8"));
+      const summary = handoff?.governance_attestation?.l2_summary;
+      if (summary && typeof summary.mismatched === "number" && summary.mismatched === 0) {
         l2Recorded = true;
-        break;
+        console.log(
+          `  ✅ L2 structured attestation: mismatched=0 verified_at=${summary.verified_at}${summary.verified_by ? ` by=${summary.verified_by}` : ""}`,
+        );
+      } else if (summary && typeof summary.mismatched === "number" && summary.mismatched > 0) {
+        // structured field present and explicitly non-zero — hard fail, do not fall back to prose
+        reporter.error("L2", `governance_attestation.l2_summary.mismatched = ${summary.mismatched} (must be 0)`);
+        l2Recorded = true; // mark as "evaluated" so prose fallback doesn't double-report
       }
-    } else if (candidate.endsWith(".json")) {
-      try {
-        const p = JSON.parse(fs.readFileSync(candidate, "utf-8"));
-        if (p?.status === "CLEAN") {
+    } catch {
+      /* ignore — will fall back to prose */
+    }
+  }
+
+  // Fallback: prose match in 05-implementation-reference.md or 06-policy-precheck.json
+  if (!l2Recorded) {
+    for (const candidate of validatorSummaryCandidates) {
+      if (!fs.existsSync(candidate)) continue;
+      if (candidate.endsWith(".md")) {
+        const txt = fs.readFileSync(candidate, "utf-8");
+        if (/Governance.*L2 attestation/i.test(txt) && /Mismatched:\s*0/i.test(txt)) {
           l2Recorded = true;
           break;
         }
-      } catch {
-        /* ignore */
+      } else if (candidate.endsWith(".json")) {
+        try {
+          const p = JSON.parse(fs.readFileSync(candidate, "utf-8"));
+          if (p?.status === "CLEAN") {
+            l2Recorded = true;
+            break;
+          }
+        } catch {
+          /* ignore */
+        }
       }
     }
   }
@@ -326,7 +352,7 @@ function runAttestationChain(project, allowLegacy) {
     } else {
       reporter.error(
         "L2",
-        "No validate-subagent governance attestation found (expected in 05-implementation-reference.md or 06-policy-precheck.json)",
+        "No validate-subagent governance attestation found (expected in 05-iac-handoff.json.governance_attestation.l2_summary, 05-implementation-reference.md, or 06-policy-precheck.json)",
       );
     }
   } else {

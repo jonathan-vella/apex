@@ -102,6 +102,32 @@
             "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
           }
         },
+        "l2_summary": {
+          "type": "object",
+          "description": "Optional structured L2 attestation summary. When present, validate-governance-trace consumes this instead of regex-matching prose in 05-implementation-reference.md.",
+          "required": ["mismatched", "verified_at"],
+          "additionalProperties": false,
+          "properties": {
+            "mismatched": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Number of L1m rows that could not be mapped to a satisfying IaC line. MUST be 0 for handoff verdict APPROVED."
+            },
+            "verified_at": {
+              "type": "string",
+              "format": "date-time",
+              "description": "ISO-8601 timestamp of the L2 verification run."
+            },
+            "policy_map_ref": {
+              "type": "string",
+              "description": "Relative path to the L1m artifact whose rows were verified (defaults to l1m_ref.path)."
+            },
+            "verified_by": {
+              "type": "string",
+              "description": "Validator identifier (e.g. 'bicep-validate-subagent@<sha>', 'terraform-validate-subagent@<sha>')."
+            }
+          }
+        },
         "rows": {
           "type": "array",
           "items": {

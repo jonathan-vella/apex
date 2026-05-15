@@ -38,6 +38,7 @@ Canonical H2 heading lists for all 15 artifact types live in the template files:
 | 05-implementation-reference          | `references/05-code-template.md`                                                                                                                                                               |
 | 06-deployment-summary                | `references/06-deploy-template.md`                                                                                                                                                             |
 | 07-\* (all Step 7 docs)              | `references/07-docs-template.md`                                                                                                                                                               |
+| project README (`agent-output/<project>/README.md`) | `references/PROJECT-README.template.md` — H2 set is byte-exact incl. emoji: `📋 Project Summary`, `✅ Workflow Progress`, `🏛️ Architecture`, `📄 Generated Artifacts`, `🔗 Related Resources` |
 | sku-manifest                         | `templates/sku-manifest.template.md` + [`sku-manifest.instructions.md`](sku-manifest.instructions.md) (authoritative; rendered from `sku-manifest.json` — schema-driven, not H2-sync-enforced) |
 
 ## Enforcement Layers

@@ -76,6 +76,31 @@ Applying a pattern in a Bicep template:
 - **MCR version discovery** — When AVM version helpers are incomplete,
   query `mcr.microsoft.com/v2/bicep/{module}/tags/list` for authoritative
   published versions.
+- **Cross-RG module `scope:` ARM ID split indexes** — Splitting a full
+  resource ID (`/subscriptions/{sub}/resourceGroups/{rg}/providers/...`)
+  on `/` yields `['', 'subscriptions', '{sub}', 'resourceGroups', '{rg}', ...]`.
+  Subscription is at **index 2**, RG name is at **index 4**. Use:
+  `scope: resourceGroup(split(resId, '/')[2], split(resId, '/')[4])`.
+  Indexes `[1]`/`[3]` are the literals `'subscriptions'`/`'resourceGroups'`
+  and only fail at `az deployment ... validate` time.
+- **AVM `insights/metric-alert:0.4.1+` requires `criteria.allof[].name`** —
+  Each entry in `criteria.allOf[]` needs a `name` field; omission passes
+  `bicep build` but fails `az deployment ... validate`:
+  ```bicep
+  allOf: [{
+    name: 'HighCpu'        // REQUIRED
+    metricName: 'Percentage CPU'
+    operator: 'GreaterThan'
+    threshold: 80
+    timeAggregation: 'Average'
+  }]
+  ```
+- **`bicep build` poisons tree-hash folders** — Running `bicep build main.bicep`
+  emits `main.json` next to the source. If the folder is hashed by
+  `validate-iac-handoff.mjs`, that compiled output drifts the hash. The
+  validator now excludes `<stem>.json` siblings of `<stem>.bicep`, but if
+  you must build manually inside a handoff tree, `rm -f main.json`
+  immediately after.
 
 ## Reference Index
 

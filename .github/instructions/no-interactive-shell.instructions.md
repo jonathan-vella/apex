@@ -45,6 +45,31 @@ my-cmd            # spews 800 lines into chat → repeated every turn
 When the caller needs specific content, read the file with the file
 tool, or extract the relevant lines (`grep`, `head`, `tail`, `awk`).
 
+### Sub-rule 2a — Azure CLI output budget
+
+`az` commands return large JSON envelopes by default. Choose one of:
+
+| Goal                                      | Recipe                                              |
+| ----------------------------------------- | --------------------------------------------------- |
+| Fire-and-check exit code                  | `az <command> --output none && echo OK`             |
+| Extract a single field                    | `az <command> --query "<jmespath>" --output tsv`    |
+| Capture full output for later inspection  | `az <command> > /tmp/<name>.json && wc -l /tmp/<name>.json` |
+| Preview deployment changes                | `az deployment ... what-if --result-format ResourceIdOnly` |
+
+Examples:
+
+```bash
+# Validate without dumping the deployment JSON
+az deployment sub validate --location swedencentral \
+  --template-file infra/bicep/<project>/main.bicep \
+  --parameters @infra/bicep/<project>/main.dev.bicepparam \
+  --output none && echo "validate OK"
+
+# Capture, then peek
+az resource list --resource-group myrg > /tmp/rg-resources.json
+echo "wrote /tmp/rg-resources.json ($(wc -l </tmp/rg-resources.json) lines)"
+```
+
 ## Rule 3 — If long output already escaped
 
 If a >50-line output was produced by mistake, do **not** attempt to

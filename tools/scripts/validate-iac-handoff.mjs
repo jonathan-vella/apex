@@ -54,7 +54,18 @@ function sha256File(filePath) {
 }
 
 function walkFiles(dir, files) {
-  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+  // First pass: collect the set of bicep stems in this directory so we can
+  // exclude their compiled JSON siblings (`bicep build main.bicep` writes
+  // `main.json` next to `main.bicep`, which would otherwise poison the
+  // tree hash with build output).
+  const entries = fs.readdirSync(dir, { withFileTypes: true });
+  const bicepStems = new Set();
+  for (const e of entries) {
+    if (e.isFile() && e.name.endsWith(".bicep")) {
+      bicepStems.add(e.name.slice(0, -".bicep".length));
+    }
+  }
+  for (const entry of entries) {
     const full = path.join(dir, entry.name);
     if (entry.isDirectory()) {
       if (entry.name === ".terraform" || entry.name === "node_modules" || entry.name === ".git") continue;
@@ -63,6 +74,11 @@ function walkFiles(dir, files) {
       // skip transient artifacts
       if (entry.name.endsWith(".tfstate") || entry.name.endsWith(".tfstate.backup")) continue;
       if (entry.name === "tfplan" || entry.name.endsWith(".tfplan")) continue;
+      // skip compiled bicep output next to a .bicep source (e.g. main.json next to main.bicep)
+      if (entry.name.endsWith(".json")) {
+        const stem = entry.name.slice(0, -".json".length);
+        if (bicepStems.has(stem)) continue;
+      }
       files.push(full);
     }
   }
@@ -117,7 +133,14 @@ function checkL1mRefHash(data, fileRel, r) {
   if (!ref || !ref.sha256) return;
   const refPath = path.resolve(path.dirname(path.join(ROOT, fileRel)), ref.path);
   if (!fs.existsSync(refPath)) {
-    r.warn(fileRel, `governance_attestation.l1m_ref.path not found on disk: ${ref.path} (skipping hash check)`);
+    // Hard fail — the L1m artifact is the bridge between the policy plan and
+    // the IaC code; if it's missing the L0→L3 chain is broken and deploy
+    // must be blocked. Previous behaviour (warn-and-skip) let the nordic
+    // chain ship in a degraded state.
+    r.error(
+      fileRel,
+      `governance_attestation.l1m_ref.path not found on disk: ${ref.path}. The L1m artifact is required for the governance attestation chain — re-run Step 4 to regenerate it before Step 5 handoff can be trusted.`,
+    );
     return;
   }
   const actual = sha256File(refPath);

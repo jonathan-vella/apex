@@ -408,6 +408,8 @@ After each subagent returns (autonomous steps 2, 3, 5, 6, 7), verify the step wa
    - Run `apex-recall complete-step <project> {N} --json` as a fallback
 3. If the step agent did NOT record key decisions (e.g., `decisions.iac_tool` after Step 1):
    - Extract the decision from the artifact and run `apex-recall decide <project> --key <k> --value <v> --json`
+4. Always emit a post-gate checkpoint as additional durability for session-state recovery:
+   - `apex-recall checkpoint <project> {N} after_gate_{N} --json`
 
 This ensures session state stays current even when step agents skip apex-recall calls.
 

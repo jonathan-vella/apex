@@ -117,7 +117,12 @@ function checkConstraintsRefHash(data, fileRel, r) {
   if (!ref || !ref.sha256) return;
   const refPath = path.resolve(path.dirname(path.join(ROOT, fileRel)), ref.path);
   if (!fs.existsSync(refPath)) {
-    r.warn(fileRel, `constraints_ref.path not found on disk: ${ref.path} (skipping hash check)`);
+    // Hard fail — the L0 governance constraints file is the basis for the
+    // L1 policy-property-map; if missing the chain is broken.
+    r.error(
+      fileRel,
+      `constraints_ref.path not found on disk: ${ref.path}. Re-run Step 3.5 governance discovery to regenerate 04-governance-constraints.json before proceeding.`,
+    );
     return;
   }
   const actual = sha256File(refPath);

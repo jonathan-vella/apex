@@ -491,10 +491,13 @@ Then run the **two-stage gate** documented in
 - **Stage 3** presents the final proceed gate + handoff to 06b/06t.
 
 **Plan-status attestation (MANDATORY)** — before completing the step,
-verify (a) every challenger pass returned `APPROVED`, (b) the
-Governance Compliance Matrix is complete (every Deny has a row,
-no `❌ unsatisfiable`), (c) the Code-Generation Contract section is
-present for every resource, and (d) AVM freeze gate passes (`validate:avm-versions:freeze`). Then emit:
+verify (a) every challenger pass returned `APPROVED`, (b) the Governance
+Compliance Matrix is complete (every Deny has a row, no `❌ unsatisfiable`),
+(c) the Code-Generation Contract section is present for every resource,
+(d) AVM freeze gate passes (`validate:avm-versions:freeze`), and (e) every
+required Step 3.5/Step 4 artifact + diagram `.png` exists per
+[`iac-common/references/step4-required-artifacts.md`](../skills/iac-common/references/step4-required-artifacts.md).
+Then emit:
 
 ```bash
 apex-recall decide <project> \
@@ -523,24 +526,20 @@ CodeGen Plan-Readiness Precondition cross-checks this value at boot.
 | Runtime Diagram Source    | `agent-output/{project}/04-runtime-diagram.py`                                            |
 | Runtime Diagram Image     | `agent-output/{project}/04-runtime-diagram.png`                                           |
 
-> **Note**: `04-governance-constraints.md/.json` are produced by Step 3.5 (Governance agent),
-> not by this agent. They are consumed as prerequisites.
+> **Note**: `04-governance-constraints.md/.json` from Step 3.5 (Governance) are prerequisites — not produced here.
 
 **`04-governance-constraints.json` is consumed** by CodeGen agents (Phase 1.5) and
 validation subagents. Each `Deny` policy MUST include `azurePropertyPath` +
 `requiredValue` to be machine-actionable. For Terraform targets,
 always use `azurePropertyPath` (not `bicepPropertyPath`) for property mapping.
-
 Include attribution header from the template file (do not hardcode).
 
 ## Boundaries
 
 - **Always**: Read governance constraints, verify AVM modules, ask deployment strategy, generate Python diagrams
 - **Always**: Auto-apply every `must_fix` finding in Phase 5 Stage 1 (mandatory) and re-run challenger to confirm
-- **Ask first**: `should_fix` findings only (Stage 2 batched `askQuestions`),
-  non-standard phase groupings, deviation from architecture assessment
-- **Never**: Write IaC code, re-run governance discovery, assume deployment strategy,
-  ask the user whether to accept `must_fix` findings
+- **Ask first**: `should_fix` findings (Stage 2 batched); non-standard phase grouping; deviation from arch assessment
+- **Never**: Write IaC code, re-run governance discovery, assume deployment strategy, ask user about `must_fix` findings
 - **Terraform-specific never**: Plan HCP/cloud backends, use `terraform -target`
 
 ## Validation Checklist
