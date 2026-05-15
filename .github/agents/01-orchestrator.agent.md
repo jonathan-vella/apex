@@ -526,12 +526,12 @@ Orchestrator with the project name — no special resume prompt needed.
 
 ## Model Selection
 
-| Tier     | Model             | Used For                                                                                       |
-| -------- | ----------------- | ---------------------------------------------------------------------------------------------- |
-| `high`   | Claude Opus 4.7   | Requirements, Architecture, Planning, Context Optimizer                                        |
-| `medium` | GPT-5.5           | Governance, Deploy, As-Built, Diagnose, Challenger, E2E orchestrator                           |
+| Tier     | Model             | Used For                                                                                        |
+| -------- | ----------------- | ----------------------------------------------------------------------------------------------- |
+| `high`   | Claude Opus 4.7   | Requirements, Architecture, Planning, Context Optimizer                                         |
+| `medium` | GPT-5.5           | Governance, Deploy, As-Built, Diagnose, Challenger, E2E orchestrator                            |
 | `medium` | Claude Sonnet 4.6 | Design, Bicep/Terraform CodeGen, Bicep/Terraform validate + preview subagents (Anthropic style) |
-| `codex`  | GPT-5.3-Codex     | **Orchestrator** (handoff-only routing), Cost estimate subagent                                |
+| `codex`  | GPT-5.3-Codex     | **Orchestrator** (handoff-only routing), Cost estimate subagent                                 |
 
 > The canonical assignments live in
 > [tools/registry/agent-registry.json](../../tools/registry/agent-registry.json) and
