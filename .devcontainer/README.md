@@ -24,7 +24,7 @@ with AI agents.
 | Deno                      | latest  | Draw.io MCP server runtime        |
 | Azure Developer CLI (azd) | latest  | Standardized Azure deployments    |
 
-### Tools Installed by `post-create.sh` (14 steps)
+### Tools Installed by `post-create.sh` (15 steps)
 
 | Step | Tool                           | Method                                                                       |
 | ---- | ------------------------------ | ---------------------------------------------------------------------------- |
@@ -35,8 +35,9 @@ with AI agents.
 | 5    | Git config and cache dirs      | `git config`, `mkdir`                                                        |
 | 6    | Python packages                | `uv pip install` — diagrams, matplotlib, pillow, checkov, ruff               |
 | 7    | PowerShell Az modules          | `Install-Module` — Accounts, Resources, Storage, Network, KeyVault, Websites |
-| 8    | Azure Pricing MCP Server       | `pip install -e .` in isolated venv                                          |
+| 8    | Azure Pricing MCP Server       | Clean `.venv` rebuild + `pip install -e .[admin]` (always, per policy)       |
 | 9    | Terraform MCP Server           | `git clone` + `go build` to `/go/bin/`                                       |
+| 9.5  | Terraform CLI hardening        | Ensures `TF_PLUGIN_CACHE_DIR` exists; `terraform version` smoke test         |
 | 10   | Python dependency verification | Validates imports against `requirements.txt`                                 |
 | 11   | apex-recall CLI                | `uv pip install -e` from `tools/apex-recall/`                                |
 | 12   | gitleaks                       | Binary from GitHub releases (pre-commit soft-skips if missing)               |
@@ -201,9 +202,18 @@ Runs once when the container is created. Installs `graphviz`, `dos2unix`, `bats`
 
 ### `postCreateCommand` — `post-create.sh`
 
-Runs once after container creation. Performs the 14-step setup (npm, Python, PowerShell modules,
+Runs once after container creation. Performs the 15-step setup (npm, Python, PowerShell modules,
 MCP servers, gitleaks, Git config, and tool verification). Output is logged to
 `~/.devcontainer-install.log`.
+
+> **Step 8 policy:** the Azure Pricing MCP venv is **always rebuilt from
+> scratch** in `post-create.sh` (not only on Python-minor drift). This guarantees
+> the venv matches the container's current Python and avoids stale, half-broken
+> pip state carrying over from a persisted workspace. The success message
+> always includes the rebuild reason — e.g. `(rebuilt: clean rebuild
+(post-create policy))` on a healthy container, or `(rebuilt: Python 3.13 →
+3.14 drift)` after a base-image Python bump. `post-start.sh` keeps the
+> conditional-rebuild path so day-to-day starts stay fast.
 
 ### `postStartCommand` — `post-start.sh`
 

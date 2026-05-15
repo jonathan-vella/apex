@@ -22,9 +22,6 @@ tools:
     "terraform/*",
     todo,
     vscode.mermaid-chat-features/renderMermaidDiagram,
-    ms-azuretools.vscode-azure-github-copilot/azure_query_azure_resource_graph,
-    ms-azuretools.vscode-azure-github-copilot/azure_get_auth_context,
-    ms-azuretools.vscode-azure-github-copilot/azure_set_auth_context,
     ms-azuretools.vscode-azureresourcegroups/azureActivityLog,
   ]
 handoffs:

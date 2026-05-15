@@ -99,8 +99,29 @@ npm install --loglevel=error 2>&1 | tail -1 \
     && printf "✅ ok\n" \
     || printf "⚠️  npm install failed (continuing)\n"
 
-# ─── Azure Developer CLI (azd) auth check ────────────────────────────────────
+# ─── Azure Developer CLI (azd) version + auth check ─────────────────────────
+# The devcontainer feature only runs at image-build time, so a cached rebuild
+# never refreshes azd. Compare installed version to the latest GitHub release
+# and run the official installer when behind. Network failures (rate limit,
+# offline) downgrade to a non-fatal skip so container start never blocks here.
 if command -v azd &>/dev/null; then
+    printf "    azd version           "
+    AZD_CURRENT=$(azd version 2>/dev/null | head -n1 | awk '{print $3}' | tr -d ',')
+    AZD_LATEST=$(curl -fsSL --max-time 5 https://api.github.com/repos/Azure/azure-dev/releases/latest 2>/dev/null \
+        | grep '"tag_name"' | head -1 | sed -E 's/.*"azure-dev-cli_([^"]+)".*/\1/')
+    if [ -z "$AZD_LATEST" ]; then
+        printf "⚠️  latest version lookup failed (have %s) — skipping\n" "${AZD_CURRENT:-unknown}"
+    elif [ "$AZD_CURRENT" = "$AZD_LATEST" ]; then
+        printf "✅ %s (latest)\n" "$AZD_CURRENT"
+    else
+        printf "⬆️  upgrading %s → %s ... " "${AZD_CURRENT:-unknown}" "$AZD_LATEST"
+        if curl -fsSL --max-time 60 https://aka.ms/install-azd.sh | bash >/dev/null 2>&1; then
+            printf "✅ done\n"
+        else
+            printf "⚠️  upgrade failed (have %s)\n" "${AZD_CURRENT:-unknown}"
+        fi
+    fi
+
     printf "    azd auth              "
     if azd auth token --output json &>/dev/null; then
         printf "✅ authenticated\n"

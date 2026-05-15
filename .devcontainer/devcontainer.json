@@ -81,7 +81,6 @@
         "ms-kubernetes-tools.vscode-aks-tools",
         "github.vscode-github-actions",
         "github.vscode-pull-request-github",
-        "ms-azuretools.vscode-azure-mcp-server",
         "esbenp.prettier-vscode",
         "mechatroner.rainbow-csv",
         "redhat.vscode-yaml",

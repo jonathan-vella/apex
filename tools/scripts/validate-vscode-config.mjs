@@ -25,12 +25,7 @@ const REQUIRED_SETTINGS = [
 ];
 
 // Required extensions for full orchestration support
-const REQUIRED_EXTENSIONS = [
-  "GitHub.copilot-chat",
-  "ms-azuretools.vscode-azure-mcp-server",
-  "ms-azuretools.vscode-bicep",
-  "DavidAnson.vscode-markdownlint",
-];
+const REQUIRED_EXTENSIONS = ["GitHub.copilot-chat", "ms-azuretools.vscode-bicep", "DavidAnson.vscode-markdownlint"];
 
 // Extensions intentionally installed only in devcontainer.json.
 // Keep this list explicit and minimal to avoid silent drift.

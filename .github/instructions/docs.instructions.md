@@ -53,9 +53,6 @@ Do NOT reference these removed agents/skills:
 - `github-issues` / `github-pull-requests` skills → Use `github-operations`
 - `gh-cli` skill → Merged into `github-operations`
 - `_shared/` directory → Use `azure-defaults` + `azure-artifacts` skills
-- `microsoft-docs` skill → Now bundled with `ms-azuretools.vscode-azure-github-copilot` extension
-- `microsoft-code-reference` skill → Now bundled with `ms-azuretools.vscode-azure-github-copilot` extension
-- `microsoft-skill-creator` skill → Now bundled with `ms-azuretools.vscode-azure-github-copilot` extension
 
 ## Admonitions (Starlight asides)
 

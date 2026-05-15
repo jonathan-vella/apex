@@ -49,6 +49,9 @@
       "pattern": "^https://code\\.visualstudio\\.com"
     },
     {
+      "pattern": "^https://www\\.npmjs\\.com"
+    },
+    {
       "pattern": "\\.(jpg|jpeg|png|gif|svg|webp)(\\?.*)?$"
     },
     {

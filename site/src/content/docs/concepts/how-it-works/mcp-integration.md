@@ -7,16 +7,16 @@ The Model Context Protocol (MCP) is an open standard that allows AI agents to
 discover and invoke external tools through a uniform JSON-RPC interface.
 This project integrates six core MCP servers, each providing specialised capabilities that
 agents invoke at runtime: Azure MCP, Azure Pricing MCP, Draw.io MCP, GitHub MCP,
-MS Learn MCP, and Terraform MCP. Five core servers are declared in `.vscode/mcp.json`; the sixth
-(Azure MCP) runs as a VS Code extension. A non-core `astro-docs` server is also declared in
-`.vscode/mcp.json` for documentation site development but is not part of the core agent
-toolchain.
+MS Learn MCP, and Terraform MCP. All six core servers are declared in `.vscode/mcp.json`.
+A non-core `astro-docs` server is also declared in `.vscode/mcp.json` for documentation
+site development but is not part of the core agent toolchain.
 
 ## MCP Architecture
 
-Five of the six core MCP servers are declared in `.vscode/mcp.json` and start automatically
-when VS Code invokes them. The sixth, the Azure MCP Server, runs as a VS Code extension
-(`ms-azuretools.vscode-azure-mcp-server`) and uses `az login` credentials. Agents never
+All six core MCP servers are declared in `.vscode/mcp.json` and start automatically
+when VS Code invokes them. The Azure MCP Server runs via the official
+[`@azure/mcp`](https://www.npmjs.com/package/@azure/mcp) npm package (launched
+through `npx`) and uses `az login` credentials. Agents never
 call cloud APIs directly; they call MCP tools, which handle authentication, caching,
 pagination, retries, and response formatting.
 
@@ -39,15 +39,16 @@ flowchart LR
 
 ## Azure MCP Server
 
-| Property  | Value                                        |
-| --------- | -------------------------------------------- |
-| Transport | VS Code Copilot Extension                    |
-| Extension | `ms-azuretools.vscode-azure-mcp-server`      |
-| Auth      | Azure CLI (`az login`) or managed identity   |
-| Purpose   | RBAC-aware Azure resource context for agents |
+| Property  | Value                                                                |
+| --------- | -------------------------------------------------------------------- |
+| Transport | stdio (via `npx @azure/mcp@latest`)                                  |
+| Package   | [`@azure/mcp`](https://www.npmjs.com/package/@azure/mcp) (Microsoft) |
+| Auth      | Azure CLI (`az login`) or managed identity                           |
+| Purpose   | RBAC-aware Azure resource context for agents                         |
 
-The Azure MCP Server is a **critical component** installed as a VS Code
-extension. It provides agents with direct, RBAC-aware access to
+The Azure MCP Server is a **critical component** declared in
+`.vscode/mcp.json` and launched on demand via `npx -y @azure/mcp@latest
+server start`. It provides agents with direct, RBAC-aware access to
 Azure Resource Manager for querying subscriptions, resource groups,
 resources, deployments, and policy assignments. Unlike the Azure Pricing
 MCP server (which queries public pricing APIs), this server operates
@@ -59,9 +60,9 @@ resource state) to as-built documentation (inventorying deployed resources).
 It is scoped as a **default server** alongside GitHub, meaning virtually every
 agent has access.
 
-Installation follows the [Azure MCP Server README](https://github.com/microsoft/mcp/blob/main/servers/Azure.Mcp.Server/README.md#installation)
-and is pre-configured in the dev container via the
-`ms-azuretools.vscode-azure-mcp-server` extension.
+Installation follows the [Azure MCP Server README](https://github.com/microsoft/mcp/blob/main/servers/Azure.Mcp.Server/README.md#npm)
+and is pre-configured in the dev container via `.vscode/mcp.json`. The first
+invocation triggers an `npx` download; subsequent runs use the npx cache.
 
 ## Azure Pricing MCP Server
 
@@ -217,17 +218,15 @@ handling, and adding custom MCP servers.
 
 ### Verifying MCP Servers
 
-Five of the six core MCP servers are configured in `.vscode/mcp.json` and
-start automatically when VS Code invokes them. Azure MCP is installed as a
-VS Code extension. To verify they are working:
+All six core MCP servers are configured in `.vscode/mcp.json` and
+start automatically when VS Code invokes them. To verify they are working:
 
 1. Open any agent chat (e.g. the Orchestrator)
 2. The agent's tool list should include MCP tools
 3. Run `npm run lint:mcp-config` to validate the configuration file
 
-The Azure MCP Server extension is installed via the dev container
-(`.devcontainer/devcontainer.json`). Verify it appears in the
-VS Code Extensions panel.
+The Azure MCP Server is launched on demand via `npx @azure/mcp@latest`.
+The first run downloads the package into the npx cache; later runs reuse it.
 
 ### Authentication Flows
 

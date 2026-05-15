@@ -27,6 +27,8 @@
  * Usage:
  *   node tools/scripts/validate-sku-manifest.mjs
  *   node tools/scripts/validate-sku-manifest.mjs <path-or-glob>
+ *   node tools/scripts/validate-sku-manifest.mjs <project>            # resolves to agent-output/<project>/sku-manifest.json
+ *   node tools/scripts/validate-sku-manifest.mjs agent-output/<proj>  # directory → sku-manifest.json inside it
  *
  * Tunables (env):
  *   APEX_SKU_PRICING_TTL_DAYS   (default 30)
@@ -305,6 +307,28 @@ function findManifests() {
   return globSync("agent-output/*/sku-manifest.json", { cwd: ROOT, nodir: true }).map((p) => path.join(ROOT, p));
 }
 
+/**
+ * Resolve a CLI arg into a manifest file path. Accepts:
+ *   - a direct file path (absolute or relative to repo root)
+ *   - a directory containing sku-manifest.json
+ *   - a bare project name → agent-output/<project>/sku-manifest.json
+ * Falls back to path.resolve so non-existent inputs surface as "File not found".
+ */
+function resolveTarget(arg) {
+  const abs = path.resolve(ROOT, arg);
+  if (fs.existsSync(abs)) {
+    const stat = fs.statSync(abs);
+    if (stat.isDirectory()) return path.join(abs, "sku-manifest.json");
+    return abs;
+  }
+  // Bare project name (no path separator, no .json extension) → agent-output/<arg>/sku-manifest.json
+  if (!arg.includes(path.sep) && !arg.includes("/") && !arg.endsWith(".json")) {
+    const projectGuess = path.join(ROOT, "agent-output", arg, "sku-manifest.json");
+    if (fs.existsSync(projectGuess)) return projectGuess;
+  }
+  return abs;
+}
+
 function main() {
   const r = new Reporter("SKU Manifest Validator");
   r.header();
@@ -317,7 +341,7 @@ function main() {
 
   const validate = loadValidator();
   const args = process.argv.slice(2);
-  const targets = args.length > 0 ? args.map((a) => path.resolve(ROOT, a)) : findManifests();
+  const targets = args.length > 0 ? args.map((a) => resolveTarget(a)) : findManifests();
 
   if (targets.length === 0) {
     console.log("  ℹ️  No sku-manifest.json files found under agent-output/ — nothing to validate.");
