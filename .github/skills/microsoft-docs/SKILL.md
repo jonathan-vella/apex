@@ -1,6 +1,6 @@
 ---
 name: microsoft-docs
-description: '**ANALYSIS SKILL** — Query official Microsoft documentation to understand concepts, find tutorials, and learn how services work. WHEN: "Microsoft Learn", "Azure docs", "quickstart guide", "limits and quotas", "WAF reference", "architecture pattern docs". USE FOR: Azure service overviews, quickstarts, configuration guides, limits and quotas, best practices, architecture patterns, WAF pillar references. DO NOT USE FOR: Azure pricing (use azure-pricing MCP). INVOKES: microsoft-learn MCP (microsoft_docs_search, microsoft_code_sample_search, microsoft_docs_fetch).'
+description: '**ANALYSIS SKILL** — Query official Microsoft documentation to understand concepts, find tutorials, and learn how services work. WHEN: "Microsoft Learn", "Azure docs", "quickstart guide", "limits and quotas", "WAF reference", "architecture pattern docs". DO NOT USE FOR: Azure pricing (use azure-pricing MCP).'
 compatibility: Works with Microsoft Learn MCP Server (https://learn.microsoft.com/api/mcp). Can also use the mslearn CLI as a fallback.
 license: MIT
 metadata:

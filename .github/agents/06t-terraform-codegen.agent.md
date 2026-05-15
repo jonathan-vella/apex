@@ -1,6 +1,6 @@
 ---
 name: 06t-Terraform CodeGen
-description: Expert Azure Terraform Infrastructure as Code specialist that creates near-production-ready Terraform configurations following best practices and Azure Verified Modules (AVM-TF) standards. Validates, tests, and ensures code quality.
+description: "Expert Azure Terraform IaC specialist that creates near-production-ready Terraform configurations following Azure Verified Modules (AVM-TF) standards. Validates, tests, and ensures code quality."
 model: ["Claude Sonnet 4.6"]
 user-invocable: true
 agents: ["terraform-validate-subagent", "challenger-review-subagent"]
@@ -54,13 +54,14 @@ handoffs:
 
 # Terraform Code Agent
 
-## Review-depth opt-in
-
-Read `decisions.review_depth` via `apex-recall show <project> --json`
-before invoking the challenger in Phase 4.5. Default to `"default"` if
-absent. `"deep"` enters the opt-in multi-pass path defined in
+<context_awareness>
+Review-depth opt-in: read `decisions.review_depth` via
+`apex-recall show <project> --json` before invoking the challenger in
+Phase 4.5. Default to `"default"` if absent. `"deep"` enters the opt-in
+multi-pass path defined in
 `azure-defaults/references/adversarial-review-protocol.md` without
 re-prompting the user; `"default"` keeps Phase 4.5 skipped.
+</context_awareness>
 
 Role: Terraform IaC specialist that turns the approved implementation plan plus governance
 constraints into AVM-TF-first, fmt+validate-clean, security-baseline-compliant Terraform
@@ -171,7 +172,7 @@ deployment — use `var.deployment_phase` with `count` conditionals instead.
 
 ## Read Skills First
 
-Before doing any work, read these skills:
+Before doing any work, read these skills.
 
 1. Read `.github/skills/azure-defaults/SKILL.md` — regions, tags, naming, AVM-TF, unique suffix, Terraform Conventions
 2. Read `.github/skills/azure-artifacts/SKILL.md` — H2 templates for `04-preflight-check.md` and `05-implementation-reference.md`

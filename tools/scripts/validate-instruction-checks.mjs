@@ -145,7 +145,7 @@ for (const [_fileName, instr] of instructions) {
 console.log(`\n${"─".repeat(60)}`);
 console.log("📄 Part 2: Instruction file references exist\n");
 
-const scanDirs = [".github/agents", ".github/skills", ".github/instructions", ".github/prompts"];
+const scanDirs = [".github/agents", ".github/skills", ".github/instructions", "tools/apex-prompts"];
 const scanExts = [".md"];
 const allMdFiles = collectFiles(scanDirs, scanExts);
 

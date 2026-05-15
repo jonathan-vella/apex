@@ -1,7 +1,7 @@
 ---
 name: 09-Diagnose
 model: ["GPT-5.5"]
-description: Interactive diagnostic agent that guides users through Azure resource health assessment, issue identification, and remediation planning. Uses approval-first execution for safety, analyzes single resources, and saves reports to agent-output/{project}/.
+description: Interactive diagnostic agent that guides users through Azure resource health assessment, issue identification, and remediation planning. Approval-first execution, single-resource scope, reports to agent-output/{project}/.
 user-invocable: true
 agents: []
 tools:
@@ -172,6 +172,10 @@ diagnostics (e.g., which resources were deployed, which SKUs were chosen).
 ## Read Skills (After Resource Confirmation, Before Diagnostics)
 
 **After Phase 1 resource confirmation**, read:
+
+Batch independent skill reads into one parallel `read_file` call. **Never re-read** a file
+already in your conversation history (see
+[Context Hygiene](../instructions/agent-authoring.instructions.md#context-hygiene-token-efficiency)).
 
 1. **Read** `.github/skills/azure-defaults/SKILL.md` — regions, tags, security baseline
 2. **Read** `.github/skills/azure-diagnostics/SKILL.md` — KQL templates, per-resource health checks,

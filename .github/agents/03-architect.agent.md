@@ -1,6 +1,6 @@
 ---
 name: 03-Architect
-description: Expert Architect providing guidance using Azure Well-Architected Framework principles and Microsoft best practices. Evaluates all decisions against WAF pillars (Security, Reliability, Performance, Cost, Operations) with Microsoft documentation lookups. Automatically generates cost estimates using Azure Pricing MCP tools. Saves WAF assessments and cost estimates to markdown documentation files.
+description: Expert Architect providing guidance using Azure Well-Architected Framework principles and Microsoft best practices. Evaluates decisions against WAF pillars (Security, Reliability, Performance, Cost, Operations). Auto-generates cost estimates via Azure Pricing MCP and writes WAF + cost markdown.
 model: ["Claude Opus 4.7"]
 user-invocable: true
 agents: ["cost-estimate-subagent", "challenger-review-subagent"]
@@ -111,7 +111,10 @@ Run `apex-recall show <project> --json` for full project context. Do not read `0
 
 ## Read Skills (After Prerequisites, Before Assessment)
 
-**After prerequisites are confirmed**, read these skills for configuration and template structure:
+**After prerequisites are confirmed**, read these skills for configuration and template structure.
+Issue all four `read_file` calls in **one parallel tool batch** and **never re-read** files
+already in conversation history (see
+[Context Hygiene](../instructions/agent-authoring.instructions.md#context-hygiene-token-efficiency)).
 
 1. **Read** `.github/skills/azure-defaults/SKILL.md` — regions, tags, pricing MCP names, WAF criteria, service lifecycle
 2. **Read** `.github/skills/azure-artifacts/SKILL.md` — H2 templates for `02-architecture-assessment.md` and `03-des-cost-estimate.md`

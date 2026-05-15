@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-05-15T13:48:03.776Z",
+  "generatedAt": "2026-05-15T15:14:27.059Z",
   "categories": [
     {
       "id": "agent",
@@ -40,7 +40,7 @@
       "label": "Prompt",
       "color": "#ec4899",
       "shape": "tag",
-      "count": 16
+      "count": 0
     },
     {
       "id": "validator",
@@ -67,14 +67,14 @@
       "count": 6
     }
   ],
-  "nodeCount": 164,
-  "edgeCount": 663,
+  "nodeCount": 148,
+  "edgeCount": 589,
   "nodes": [
     {
       "id": "agent:01-orchestrator",
       "category": "agent",
       "label": "01-Orchestrator",
-      "description": "Master orchestrator for the multi-step Azure platform engineering workflow. Coordinates specialized agents (Requirements, Architect, Design, IaC Plan, IaC Code, Deploy) through the complete development cycle with mandatory human approval gates. Routes to Bicep or Terraform agents based on the iac_tool field in 01-requirements.md. Maintains context efficiency by delegating to subagents and preserves human-in-the-loop control at critical decision points.",
+      "description": "Master orchestrator for the multi-step Azure platform engineering workflow. Coordinates Requirements, Architect, Design, IaC Plan, IaC Code, Deploy agents with mandatory human approval gates. Routes Bicep or Terraform tracks via decisions.iac_tool.",
       "path": ".github/agents/01-orchestrator.agent.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/01-orchestrator.agent.md"
@@ -141,7 +141,7 @@
       "id": "agent:03-architect",
       "category": "agent",
       "label": "03-Architect",
-      "description": "Expert Architect providing guidance using Azure Well-Architected Framework principles and Microsoft best practices. Evaluates all decisions against WAF pillars (Security, Reliability, Performance, Cost, Operations) with Microsoft documentation lookups. Automatically generates cost estimates using Azure Pricing MCP tools. Saves WAF assessments and cost estimates to markdown documentation files.",
+      "description": "Expert Architect providing guidance using Azure Well-Architected Framework principles and Microsoft best practices. Evaluates decisions against WAF pillars (Security, Reliability, Performance, Cost, Operations). Auto-generates cost estimates via Azure Pricing MCP and writes WAF + cost markdown.",
       "path": ".github/agents/03-architect.agent.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/03-architect.agent.md"
@@ -166,7 +166,7 @@
       "id": "agent:04-design",
       "category": "agent",
       "label": "04-Design",
-      "description": "Step 3 - Design Artifacts. Generates architecture diagrams and Architecture Decision Records (ADRs) for Azure infrastructure. Uses drawio skill for visual documentation and azure-adr skill for formal decision records. Optional step - users can skip to Implementation Planning.",
+      "description": "Step 3 — Design Artifacts. Generates architecture diagrams (drawio skill) and Architecture Decision Records (azure-adr skill) for Azure infrastructure. Optional step — users can skip to Implementation Planning.",
       "path": ".github/agents/04-design.agent.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/04-design.agent.md"
@@ -187,7 +187,7 @@
       "id": "agent:04g-governance",
       "category": "agent",
       "label": "04g-Governance",
-      "description": "Azure governance discovery agent. Queries Azure Policy assignments via REST API (including management group-inherited policies), classifies policy effects, produces governance constraint artifacts, and runs adversarial review. Step 3.5 of the workflow — runs after Architecture approval, before IaC Planning.",
+      "description": "Azure governance discovery agent. Queries Azure Policy assignments via REST API (incl. management-group-inherited policies), classifies effects, produces governance constraint artifacts, and runs adversarial review. Step 3.5: after Architecture, before IaC Planning.",
       "path": ".github/agents/04g-governance.agent.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/04g-governance.agent.md"
@@ -209,7 +209,7 @@
       "id": "agent:05-iac-planner",
       "category": "agent",
       "label": "05-IaC Planner",
-      "description": "Expert Azure Infrastructure as Code planner that creates comprehensive, machine-readable implementation plans. Consults Microsoft documentation, evaluates Azure Verified Modules (Bicep or Terraform), and designs complete infrastructure solutions with architecture diagrams. Routes to the appropriate IaC track based on decisions.iac_tool in session state.",
+      "description": "Expert Azure IaC planner that creates comprehensive machine-readable implementation plans. Consults Microsoft documentation, evaluates Azure Verified Modules (Bicep or Terraform), designs full infrastructure solutions with architecture diagrams. Routes by decisions.iac_tool.",
       "path": ".github/agents/05-iac-planner.agent.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/05-iac-planner.agent.md"
@@ -234,7 +234,7 @@
       "id": "agent:06b-bicep-codegen",
       "category": "agent",
       "label": "06b-Bicep CodeGen",
-      "description": "Expert Azure Bicep Infrastructure as Code specialist that creates near-production-ready Bicep templates following best practices and Azure Verified Modules standards. Validates, tests, and ensures code quality.",
+      "description": "Expert Azure Bicep IaC specialist that creates near-production-ready Bicep templates following Azure Verified Modules (AVM) standards. Validates, tests, and ensures code quality.",
       "path": ".github/agents/06b-bicep-codegen.agent.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/06b-bicep-codegen.agent.md"
@@ -258,7 +258,7 @@
       "id": "agent:06t-terraform-codegen",
       "category": "agent",
       "label": "06t-Terraform CodeGen",
-      "description": "Expert Azure Terraform Infrastructure as Code specialist that creates near-production-ready Terraform configurations following best practices and Azure Verified Modules (AVM-TF) standards. Validates, tests, and ensures code quality.",
+      "description": "Expert Azure Terraform IaC specialist that creates near-production-ready Terraform configurations following Azure Verified Modules (AVM-TF) standards. Validates, tests, and ensures code quality.",
       "path": ".github/agents/06t-terraform-codegen.agent.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/06t-terraform-codegen.agent.md"
@@ -282,7 +282,7 @@
       "id": "agent:07b-bicep-deploy",
       "category": "agent",
       "label": "07b-Bicep Deploy",
-      "description": "Executes Azure deployments using generated Bicep templates. Uses azd provision (default). deploy.ps1 is deprecated and retained only as a fallback for legacy projects without azure.yaml. Performs what-if analysis and manages deployment lifecycle. Step 6 of the agentic workflow.",
+      "description": "Executes Azure deployments using generated Bicep templates. Uses azd provision (default; deploy.ps1 retained only for legacy projects without azure.yaml). Performs what-if analysis and manages deployment lifecycle. Step 6 of the agentic workflow.",
       "path": ".github/agents/07b-bicep-deploy.agent.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/07b-bicep-deploy.agent.md"
@@ -334,7 +334,7 @@
       "id": "agent:08-as-built",
       "category": "agent",
       "label": "08-As-Built",
-      "description": "Generates Step 7 as-built documentation suite after successful deployment. Reads all prior artifacts (Steps 1-6) and deployed resource state to produce comprehensive workload documentation: design document, operations runbook, cost estimate, compliance matrix, backup/DR plan, resource inventory, and documentation index.",
+      "description": "Generates Step 7 as-built documentation suite after successful deployment. Reads all prior artifacts (Steps 1-6) and deployed resource state to produce: design document, operations runbook, cost estimate, compliance matrix, backup/DR plan, resource inventory, and documentation index.",
       "path": ".github/agents/08-as-built.agent.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/08-as-built.agent.md"
@@ -355,7 +355,7 @@
       "id": "agent:09-diagnose",
       "category": "agent",
       "label": "09-Diagnose",
-      "description": "Interactive diagnostic agent that guides users through Azure resource health assessment, issue identification, and remediation planning. Uses approval-first execution for safety, analyzes single resources, and saves reports to agent-output/{project}/.",
+      "description": "Interactive diagnostic agent that guides users through Azure resource health assessment, issue identification, and remediation planning. Approval-first execution, single-resource scope, reports to agent-output/{project}/.",
       "path": ".github/agents/09-diagnose.agent.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/09-diagnose.agent.md"
@@ -396,7 +396,7 @@
       "id": "agent:11-context-optimizer",
       "category": "agent",
       "label": "11-Context Optimizer",
-      "description": "Analyzes Copilot Chat debug logs to audit context window utilization across agents. Identifies bloated prompts, redundant file reads, missing hand-off points, and wasted tokens. Produces actionable optimization reports with specific agent/skill refactoring recommendations. Reusable across any project with custom agents. Does NOT modify agent definitions directly — produces recommendations only.",
+      "description": "Analyzes Copilot Chat debug logs to audit context-window utilization across agents. Identifies bloated prompts, redundant file reads, missing hand-off points, and wasted tokens. Produces actionable optimization reports. Recommendations only — never edits agents.",
       "path": ".github/agents/11-context-optimizer.agent.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/11-context-optimizer.agent.md"
@@ -416,7 +416,7 @@
       "id": "agent:e2e-orchestrator",
       "category": "agent",
       "label": "E2E Orchestrator",
-      "description": "Autonomous E2E evaluation orchestrator for the RALPH-style workflow loop. Executes the real workflow agents end to end, with live MCP-backed cost, Draw.io design, governance discovery, validation, and benchmark collection. Does NOT replace the production 01-Orchestrator.",
+      "description": "Autonomous E2E evaluation orchestrator for the RALPH-style workflow loop. Executes real workflow agents end-to-end with live MCP-backed cost, Draw.io design, governance discovery, validation, and benchmark collection. Does NOT replace 01-Orchestrator.",
       "path": ".github/agents/e2e-orchestrator.agent.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/e2e-orchestrator.agent.md"
@@ -448,7 +448,7 @@
       "id": "subagent:bicep-validate-subagent",
       "category": "subagent",
       "label": "bicep-validate-subagent",
-      "description": "Bicep validation subagent. Runs lint (bicep lint + build) first, then code review (AVM standards, naming, security baseline, governance compliance). Returns structured PASS/FAIL with diagnostics and APPROVED/NEEDS_REVISION/FAILED verdict.",
+      "description": "Bicep validation subagent. Runs lint (bicep lint + build) first, then code review (AVM standards, naming, security baseline, governance). Returns PASS/FAIL + APPROVED/NEEDS_REVISION/FAILED verdict.",
       "path": ".github/agents/_subagents/bicep-validate-subagent.agent.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/_subagents/bicep-validate-subagent.agent.md"
@@ -461,7 +461,7 @@
       "id": "subagent:bicep-whatif-subagent",
       "category": "subagent",
       "label": "bicep-whatif-subagent",
-      "description": "Bicep deployment preview subagent. Runs az deployment group what-if to preview changes before deployment. Analyzes policy violations, resource changes, and cost impact. Returns structured summary for parent agent review.",
+      "description": "Bicep deployment preview subagent. Runs az deployment group what-if to preview changes. Analyzes policy violations, resource changes, cost impact. Returns structured summary.",
       "path": ".github/agents/_subagents/bicep-whatif-subagent.agent.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/_subagents/bicep-whatif-subagent.agent.md"
@@ -474,7 +474,7 @@
       "id": "subagent:challenger-review-subagent",
       "category": "subagent",
       "label": "challenger-review-subagent",
-      "description": "Unified adversarial review subagent that challenges Azure infrastructure artifacts. Finds untested assumptions, governance gaps, WAF blind spots, and architectural weaknesses. Returns structured JSON findings to the parent agent. Supports single-pass and multi-pass rotating-lens reviews. Handles batch execution (multiple lenses per invocation) for complex projects.",
+      "description": "Unified adversarial review subagent that challenges Azure infrastructure artifacts. Finds untested assumptions, governance gaps, WAF blind spots, and architectural weaknesses. Returns structured JSON findings. Supports single-pass and multi-pass rotating-lens reviews; batches lenses per invocation.",
       "path": ".github/agents/_subagents/challenger-review-subagent.agent.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/_subagents/challenger-review-subagent.agent.md"
@@ -487,7 +487,7 @@
       "id": "subagent:cost-estimate-subagent",
       "category": "subagent",
       "label": "cost-estimate-subagent",
-      "description": "Azure cost estimation subagent. Queries Azure Pricing MCP tools for real-time SKU pricing, compares regions, and returns structured cost breakdown. Isolates pricing API calls from the parent Architect agent's context window.",
+      "description": "Azure cost estimation subagent. Queries Azure Pricing MCP tools for real-time SKU pricing, compares regions, returns structured cost breakdown. Isolates pricing API calls from the parent Architect's context window.",
       "path": ".github/agents/_subagents/cost-estimate-subagent.agent.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/_subagents/cost-estimate-subagent.agent.md"
@@ -500,7 +500,7 @@
       "id": "subagent:policy-precheck-subagent",
       "category": "subagent",
       "label": "policy-precheck-subagent",
-      "description": "Live Azure Policy precheck subagent (L3). Cross-checks live policy state vs governance constraints, runs what-if/plan policy validation, and returns a deterministic deploy_gate (PROCEED|BLOCK) plus a status classification (CLEAN|INFORMATIONAL|BLOCKED|FAILED) so Deploy agents (07b/07t) can route via the governance drift matrix before az deployment ... create or terraform apply.",
+      "description": "Live Azure Policy precheck subagent (L3). Cross-checks live policy state vs governance constraints, runs what-if/plan validation, returns deterministic deploy_gate (PROCEED|BLOCK) + status (CLEAN|INFORMATIONAL|BLOCKED|FAILED) for Deploy agents (07b/07t).",
       "path": ".github/agents/_subagents/policy-precheck-subagent.agent.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/_subagents/policy-precheck-subagent.agent.md"
@@ -513,7 +513,7 @@
       "id": "subagent:terraform-plan-subagent",
       "category": "subagent",
       "label": "terraform-plan-subagent",
-      "description": "Terraform deployment preview subagent. Runs terraform plan to preview infrastructure changes before deployment. Classifies resources into create/update/destroy/replace, highlights destructive operations requiring explicit approval, and returns a structured change summary.",
+      "description": "Terraform deployment preview subagent. Runs terraform plan to preview changes before deployment. Classifies resources into create/update/destroy/replace, highlights destructive ops, returns structured change summary.",
       "path": ".github/agents/_subagents/terraform-plan-subagent.agent.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/_subagents/terraform-plan-subagent.agent.md"
@@ -526,7 +526,7 @@
       "id": "subagent:terraform-validate-subagent",
       "category": "subagent",
       "label": "terraform-validate-subagent",
-      "description": "Terraform validation subagent. Runs lint (fmt -check, validate, tfsec) first, then code review (AVM-TF standards, naming, security baseline, RBAC, governance compliance). Returns structured PASS/FAIL with diagnostics and APPROVED/NEEDS_REVISION/FAILED verdict.",
+      "description": "Terraform validation subagent. Runs lint (fmt -check, validate, tfsec) first, then code review (AVM-TF standards, naming, security baseline, RBAC, governance). Returns PASS/FAIL + APPROVED/NEEDS_REVISION/FAILED verdict.",
       "path": ".github/agents/_subagents/terraform-validate-subagent.agent.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/_subagents/terraform-validate-subagent.agent.md"
@@ -539,7 +539,7 @@
       "id": "skill:azure-adr",
       "category": "skill",
       "label": "azure-adr",
-      "description": "**ANALYSIS SKILL** — Creates Azure Architecture Decision Records (ADRs) with WAF pillar mapping, alternatives, and consequences. WHEN: \"create ADR\", \"document decision\", \"architecture decision record\", \"record why we chose\", \"WAF pillar justification\", \"trade-off analysis\". USE FOR: ADR scaffolding, design ADRs (Step 3), as-built ADRs (Step 7). DO NOT USE FOR: Bicep/Terraform code (use 06b/06t agents), architecture diagrams (use drawio), cost estimates (use cost-estimate-subagent).",
+      "description": "**ANALYSIS SKILL** — Creates Azure Architecture Decision Records (ADRs) with WAF pillar mapping, alternatives, and consequences. WHEN: \"create ADR\", \"document decision\", \"architecture decision record\", \"record why we chose\", \"WAF pillar justification\", \"trade-off analysis\". DO NOT USE FOR: IaC code (06b/06t agents), architecture diagrams (drawio), cost estimates (cost-estimate-subagent).",
       "path": ".github/skills/azure-adr/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-adr/SKILL.md"
@@ -572,7 +572,7 @@
       "id": "skill:azure-cloud-migrate",
       "category": "skill",
       "label": "azure-cloud-migrate",
-      "description": "**WORKFLOW SKILL** — Assess and migrate cross-cloud workloads to Azure. Generates assessment reports and converts code from AWS, GCP, or other providers to Azure services. WHEN: \"migrate Lambda to Azure Functions\", \"migrate AWS to Azure\", \"convert AWS serverless to Azure\", \"migration readiness report\", \"cross-cloud migration\". USE FOR: cross-cloud assessment, AWS-to-Azure code conversion, GCP-to-Azure code conversion. DO NOT USE FOR: greenfield Azure deployment (use azure-prepare), Azure-only refactor (use azure-prepare).",
+      "description": "**WORKFLOW SKILL** — Assess and migrate cross-cloud workloads to Azure. Generates assessment reports and converts code from AWS, GCP, or other providers to Azure services. WHEN: \"migrate Lambda to Azure Functions\", \"migrate AWS to Azure\", \"convert AWS serverless to Azure\", \"migration readiness report\", \"cross-cloud migration\". DO NOT USE FOR: greenfield Azure deployment (azure-prepare), Azure-only refactor (azure-prepare).",
       "path": ".github/skills/azure-cloud-migrate/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-cloud-migrate/SKILL.md"
@@ -583,7 +583,7 @@
       "id": "skill:azure-compliance",
       "category": "skill",
       "label": "azure-compliance",
-      "description": "**ANALYSIS SKILL** — Azure compliance and security auditing: best practices, Key Vault expiration monitoring, resource validation. WHEN: \"compliance scan\", \"security audit\", \"Key Vault expiration check\", \"expired certificates\", \"orphaned resources\". USE FOR: pre-azqr compliance assessment, Key Vault audits, security posture evaluation. DO NOT USE FOR: cost analysis (use azure-cost-optimization), governance discovery (use azure-governance-discovery). INVOKES: azqr extension, az keyvault, az storage.",
+      "description": "**ANALYSIS SKILL** — Azure compliance and security auditing: best practices, Key Vault expiration monitoring, resource validation. WHEN: \"compliance scan\", \"security audit\", \"Key Vault expiration check\", \"expired certificates\", \"orphaned resources\". DO NOT USE FOR: cost analysis (azure-cost-optimization), governance discovery (azure-governance-discovery).",
       "path": ".github/skills/azure-compliance/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-compliance/SKILL.md"
@@ -605,7 +605,7 @@
       "id": "skill:azure-cost-optimization",
       "category": "skill",
       "label": "azure-cost-optimization",
-      "description": "**ANALYSIS SKILL** — Identify cost savings across Azure subscriptions via cost + utilization analysis. WHEN: \"optimize Azure costs\", \"reduce Azure spending\", \"find cost savings\", \"rightsize VMs\", \"find orphaned resources\", \"optimize Redis costs\". USE FOR: cost reduction reports, orphaned-resource discovery, rightsizing recommendations. DO NOT USE FOR: deploying resources (use azure-deploy), general diagnostics (use azure-diagnostics), security issues (use azure-compliance). INVOKES: az resource graph, az consumption.",
+      "description": "**ANALYSIS SKILL** — Identify cost savings across Azure subscriptions via cost + utilization analysis. WHEN: \"optimize Azure costs\", \"reduce Azure spending\", \"find cost savings\", \"rightsize VMs\", \"find orphaned resources\", \"optimize Redis costs\". DO NOT USE FOR: deploying (azure-deploy), general diagnostics (azure-diagnostics), security issues (azure-compliance).",
       "path": ".github/skills/azure-cost-optimization/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-cost-optimization/SKILL.md"
@@ -627,7 +627,7 @@
       "id": "skill:azure-deploy",
       "category": "skill",
       "label": "azure-deploy",
-      "description": "**WORKFLOW SKILL** — Execute Azure deployments for ALREADY-PREPARED apps. Runs azd up, azd deploy, terraform apply with built-in error recovery. Requires plan.md from azure-prepare and validated status from azure-validate. WHEN: \"run azd up\", \"run azd deploy\", \"push to production\", \"go live\", \"bicep deploy\", \"terraform apply\", \"publish to Azure\". USE FOR: deploying validated infra; lifting existing IaC to cloud. DO NOT USE FOR: creating new apps (use azure-prepare), generating IaC (use azure-prepare), pre-deployment checks (use azure-validate). INVOKES: azd CLI, az deployment, microsoft_docs_search (Microsoft Learn MCP).",
+      "description": "**WORKFLOW SKILL** — Execute Azure deployments for ALREADY-PREPARED apps. Runs azd up, azd deploy, terraform apply with built-in error recovery. Requires plan.md from azure-prepare and validated status from azure-validate. WHEN: 'run azd up', 'run azd deploy', 'push to production', 'go live', 'bicep deploy', 'terraform apply', 'publish to Azure'. DO NOT USE FOR: creating new apps (azure-prepare), generating IaC (azure-prepare), pre-deployment checks (azure-validate).",
       "path": ".github/skills/azure-deploy/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-deploy/SKILL.md"
@@ -638,7 +638,7 @@
       "id": "skill:azure-diagnostics",
       "category": "skill",
       "label": "azure-diagnostics",
-      "description": "**WORKFLOW SKILL** — Debug and troubleshoot Azure production issues: Container Apps + Function Apps diagnostics, KQL log analysis, health checks. WHEN: \"debug production issues\", \"troubleshoot container apps\", \"troubleshoot function apps\", \"image pull failures\", \"cold start issues\", \"health probe failures\". USE FOR: post-deployment troubleshooting, root-cause analysis, log triage. DO NOT USE FOR: pre-deployment validation (use azure-validate), cost analysis (use azure-cost-optimization). INVOKES: az monitor, az containerapp logs, az functionapp log, az resource graph.",
+      "description": "**WORKFLOW SKILL** — Debug and troubleshoot Azure production issues: Container Apps + Function Apps diagnostics, KQL log analysis, health checks. WHEN: 'debug production issues', 'troubleshoot container apps', 'troubleshoot function apps', 'image pull failures', 'cold start issues', 'health probe failures'. DO NOT USE FOR: pre-deployment validation (azure-validate), cost analysis (azure-cost-optimization).",
       "path": ".github/skills/azure-diagnostics/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-diagnostics/SKILL.md"
@@ -649,7 +649,7 @@
       "id": "skill:azure-governance-discovery",
       "category": "skill",
       "label": "azure-governance-discovery",
-      "description": "**ANALYSIS SKILL** — Deterministic Azure Policy discovery: lists effective assignments (incl. MG-inherited), pulls definitions/exemptions, classifies effects, filters Defender auto-assignments, emits governance-constraints JSON via Python. WHEN: \"Azure policy discovery\", \"effective policy assignments\", \"governance constraints\", \"04g-Governance Phase 1\", \"refresh governance JSON\". USE FOR: 04g Phase 1 discovery, refreshing `04-governance-constraints.json`. DO NOT USE FOR: artifact writing, architecture mapping, traffic-light rendering, challenger orchestration.",
+      "description": "**ANALYSIS SKILL** — Deterministic Azure Policy discovery: lists effective assignments (incl. MG-inherited), pulls definitions/exemptions, classifies effects, filters Defender auto-assignments, emits governance-constraints JSON via Python. WHEN: 'Azure policy discovery', 'effective policy assignments', 'governance constraints', '04g-Governance Phase 1', 'refresh governance JSON'. DO NOT USE FOR: artifact writing, architecture mapping, challenger orchestration.",
       "path": ".github/skills/azure-governance-discovery/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-governance-discovery/SKILL.md"
@@ -660,7 +660,7 @@
       "id": "skill:azure-kusto",
       "category": "skill",
       "label": "azure-kusto",
-      "description": "**ANALYSIS SKILL** — Query and analyze data in Azure Data Explorer (Kusto/ADX) using KQL. WHEN: \"KQL queries\", \"Kusto database queries\", \"Azure Data Explorer\", \"ADX clusters\", \"time series data\", \"IoT telemetry\", \"anomaly detection\". USE FOR: KQL authoring, ADX cluster queries, telemetry analysis. DO NOT USE FOR: Application Insights/Log Analytics troubleshooting (use azure-diagnostics), cost analysis (use azure-cost-optimization). INVOKES: azure-kusto MCP (queries, sample, list-clusters).",
+      "description": "**ANALYSIS SKILL** — Query and analyze data in Azure Data Explorer (Kusto/ADX) using KQL. WHEN: \"KQL queries\", \"Kusto database queries\", \"Azure Data Explorer\", \"ADX clusters\", \"time series data\", \"IoT telemetry\", \"anomaly detection\". DO NOT USE FOR: App Insights / Log Analytics troubleshooting (azure-diagnostics), cost analysis (azure-cost-optimization).",
       "path": ".github/skills/azure-kusto/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-kusto/SKILL.md"
@@ -671,7 +671,7 @@
       "id": "skill:azure-prepare",
       "category": "skill",
       "label": "azure-prepare",
-      "description": "**WORKFLOW SKILL** — Prepare Azure apps for deployment (infra Bicep/Terraform, azure.yaml, Dockerfiles). Covers create, modernize, and create+deploy. WHEN: \"create app\", \"build web app\", \"create API\", \"deploy to Azure\", \"deploy to Azure using Terraform\", \"generate Bicep\", \"generate Terraform\", \"function app\", \"add authentication\", \"managed identity\", \"add caching\", \"containerized Node.js app\". USE FOR: scaffolding new Azure apps, modernizing existing apps, generating IaC + azure.yaml. DO NOT USE FOR: cross-cloud migration (use azure-cloud-migrate), executing deployments of already-prepared apps (use azure-deploy), pre-deployment validation (use azure-validate).",
+      "description": "**WORKFLOW SKILL** — Prepare Azure apps for deployment (infra Bicep/Terraform, azure.yaml, Dockerfiles). Covers create, modernize, create+deploy. WHEN: \"create app\", \"build web app\", \"create API\", \"deploy to Azure\", \"generate Bicep\", \"generate Terraform\", \"function app\", \"add authentication\", \"managed identity\", \"containerized Node.js app\". DO NOT USE FOR: cross-cloud migration (azure-cloud-migrate), executing prepared deploys (azure-deploy), preflight (azure-validate).",
       "path": ".github/skills/azure-prepare/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-prepare/SKILL.md"
@@ -682,7 +682,7 @@
       "id": "skill:azure-quotas",
       "category": "skill",
       "label": "azure-quotas",
-      "description": "**UTILITY SKILL** — Check and manage Azure quotas and usage across providers for deployment planning, capacity validation, and region selection. WHEN: \"check quotas\", \"service limits\", \"request quota increase\", \"quota exceeded\", \"validate capacity\", \"regional availability\", \"vCPU limit\". USE FOR: pre-deployment capacity checks, region selection, quota increase requests. DO NOT USE FOR: deployment execution (use azure-deploy), cost analysis (use azure-cost-optimization). INVOKES: azure-quota MCP (check, region-availability).",
+      "description": "**UTILITY SKILL** — Check and manage Azure quotas and usage across providers for deployment planning, capacity validation, and region selection. WHEN: \"check quotas\", \"service limits\", \"request quota increase\", \"quota exceeded\", \"validate capacity\", \"regional availability\", \"vCPU limit\". DO NOT USE FOR: deployment execution (azure-deploy), cost analysis (azure-cost-optimization).",
       "path": ".github/skills/azure-quotas/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-quotas/SKILL.md"
@@ -693,7 +693,7 @@
       "id": "skill:azure-rbac",
       "category": "skill",
       "label": "azure-rbac",
-      "description": "**ANALYSIS SKILL** — Find the right Azure RBAC role for an identity with least-privilege access; generate CLI, Bicep, and Terraform code to assign it. WHEN: \"what role should I assign\", \"least privilege role\", \"RBAC role for\", \"role for managed identity\", \"custom role definition\", \"assign role to identity\". USE FOR: role discovery, RBAC scaffolding (Bicep + Terraform), least-privilege analysis. DO NOT USE FOR: deploying resources (use azure-deploy), security audits (use azure-compliance). INVOKES: microsoft-learn MCP, az CLI.",
+      "description": "**ANALYSIS SKILL** — Find the right Azure RBAC role for an identity with least-privilege access; generate CLI, Bicep, and Terraform code to assign it. WHEN: \"what role should I assign\", \"least privilege role\", \"RBAC role for\", \"role for managed identity\", \"custom role definition\", \"assign role to identity\". DO NOT USE FOR: deploying (azure-deploy), security audits (azure-compliance).",
       "path": ".github/skills/azure-rbac/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-rbac/SKILL.md"
@@ -704,7 +704,7 @@
       "id": "skill:azure-resources",
       "category": "skill",
       "label": "azure-resources",
-      "description": "**ANALYSIS SKILL** — List, find, and visualize existing Azure resources via Azure Resource Graph (LOOKUP) or Mermaid diagrams (VISUALIZE). WHEN: \"list resources\", \"list VMs\", \"find orphaned resources\", \"resource inventory\", \"cross-subscription query\", \"visualize Azure resources\", \"diagram my resources\". USE FOR: resource lookup, tag analysis, architecture visualization. DO NOT USE FOR: deploying resources (use azure-deploy), cost optimization (use azure-cost-optimization), security scanning (use azure-compliance), troubleshooting (use azure-diagnostics). INVOKES: az resource graph, az resource, microsoft_docs_search (Microsoft Learn MCP).",
+      "description": "**ANALYSIS SKILL** — List, find, and visualize existing Azure resources via Resource Graph (LOOKUP) or Mermaid diagrams (VISUALIZE). WHEN: 'list resources', 'list VMs', 'find orphaned resources', 'resource inventory', 'cross-subscription query', 'visualize Azure resources', 'diagram my resources'. DO NOT USE FOR: deploying (azure-deploy), cost optimization (azure-cost-optimization), security scanning (azure-compliance), troubleshooting (azure-diagnostics).",
       "path": ".github/skills/azure-resources/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-resources/SKILL.md"
@@ -715,7 +715,7 @@
       "id": "skill:azure-storage",
       "category": "skill",
       "label": "azure-storage",
-      "description": "**UTILITY SKILL** — Azure Storage Services including Blob Storage, File Shares, Queue Storage, Table Storage, and Data Lake. Provides object storage, SMB file shares, async messaging, NoSQL key-value, and big data analytics capabilities. Includes access tiers (hot, cool, archive) and lifecycle management. WHEN: \"blob storage\", \"file shares\", \"queue storage\", \"table storage\", \"data lake\", \"access tiers\", \"lifecycle management\". USE FOR: blob storage, file shares, queue storage, table storage, data lake, upload files, download blobs, storage accounts, access tiers, lifecycle management. DO NOT USE FOR: SQL databases, Cosmos DB (use azure-prepare), messaging with Event Hubs or Service Bus. INVOKES: az CLI, microsoft-learn MCP.",
+      "description": "**UTILITY SKILL** — Azure Storage Services: Blob, File Shares, Queue, Table, and Data Lake. Object storage, SMB shares, async messaging, NoSQL key-value, big-data analytics. Access tiers + lifecycle management. WHEN: \"blob storage\", \"file shares\", \"queue storage\", \"table storage\", \"data lake\", \"access tiers\", \"lifecycle management\". DO NOT USE FOR: SQL databases, Cosmos DB (use azure-prepare), Event Hubs / Service Bus messaging.",
       "path": ".github/skills/azure-storage/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-storage/SKILL.md"
@@ -726,7 +726,7 @@
       "id": "skill:azure-validate",
       "category": "skill",
       "label": "azure-validate",
-      "description": "**WORKFLOW SKILL** — Pre-deployment validation for Azure readiness. Run deep checks on configuration, infrastructure (Bicep or Terraform), permissions, and prerequisites before deploying. WHEN: \"validate my app\", \"check deployment readiness\", \"run preflight checks\", \"validate azure.yaml\", \"validate Bicep\", \"test before deploying\", \"validate Azure Functions\". USE FOR: pre-deployment readiness checks, Bicep + Terraform preflight, Azure Functions validation. DO NOT USE FOR: post-deployment troubleshooting (use azure-diagnostics), executing deployments (use azure-deploy).",
+      "description": "**WORKFLOW SKILL** — Pre-deployment validation for Azure readiness. Deep checks on configuration, infrastructure (Bicep or Terraform), permissions, and prerequisites before deploying. WHEN: 'validate my app', 'check deployment readiness', 'run preflight checks', 'validate azure.yaml', 'validate Bicep', 'test before deploying', 'validate Azure Functions'. DO NOT USE FOR: post-deployment troubleshooting (azure-diagnostics), executing deployments (azure-deploy).",
       "path": ".github/skills/azure-validate/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-validate/SKILL.md"
@@ -737,7 +737,7 @@
       "id": "skill:context-management",
       "category": "skill",
       "label": "context-management",
-      "description": "**UTILITY SKILL** — Two-mode context window management for agents. RUNTIME mode: artifact compression (full/summarized/minimal) used by orchestrator and codegen agents before loading large artifacts in `agent-output/`. AUDIT mode: post-mortem analysis of Copilot debug logs, token profiling, redundancy detection, and hand-off gap analysis used by the 11-Context Optimizer agent. WHEN: \"context optimization\", \"token budget management\", \"runtime compression\", \"log parsing\", \"redundancy detection\". USE FOR: context optimization, token budget management, runtime compression, log parsing, redundancy detection. DO NOT USE FOR: Azure infrastructure, Bicep/Terraform code, architecture design, deployments.",
+      "description": "**UTILITY SKILL** — Two-mode context-window management. RUNTIME: artifact compression (full/summarized/minimal) used by orchestrator and codegen agents. AUDIT: post-mortem analysis of Copilot debug logs (token profiling, redundancy + hand-off gap detection) used by 11-Context Optimizer. WHEN: \"context optimization\", \"token budget\", \"runtime compression\", \"log parsing\". DO NOT USE FOR: infra, IaC code, deployments.",
       "path": ".github/skills/context-management/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/context-management/SKILL.md"
@@ -748,7 +748,7 @@
       "id": "skill:docs-writer",
       "category": "skill",
       "label": "docs-writer",
-      "description": "**WORKFLOW SKILL** — Maintains repository documentation accuracy and freshness across the docs site, agent files, and changelog. WHEN: \"update docs\", \"doc gardening\", \"staleness check\", \"changelog entry\", \"repo explanation\", \"agent change docs\", \"skill change docs\". USE FOR: post-merge doc updates, agent/skill freshness audits, changelog drafting, README/CONTRIBUTING gardening. DO NOT USE FOR: agent definitions themselves (edit `.agent.md` directly), authoring skill SKILL.md content (out of scope), site theme/build (out of scope).",
+      "description": "**WORKFLOW SKILL** — Maintains repository documentation accuracy and freshness across the docs site, agent files, and changelog. WHEN: \"update docs\", \"doc gardening\", \"staleness check\", \"changelog entry\", \"repo explanation\", \"agent change docs\", \"skill change docs\". DO NOT USE FOR: agent definitions (edit `.agent.md` directly), SKILL.md content authoring, site theme/build.",
       "path": ".github/skills/docs-writer/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/docs-writer/SKILL.md"
@@ -759,7 +759,7 @@
       "id": "skill:drawio",
       "category": "skill",
       "label": "drawio",
-      "description": "**WORKFLOW SKILL** — Generate Azure architecture diagrams in .drawio format via the simonkurtz-MSFT MCP server (full Azure icon set bundled with the server, batch creation, transactional mode). Covers architecture, dependency, runtime flow, and as-built diagrams. WHEN: \"draw.io diagram\", \"Azure architecture diagram\", \"as-built diagram\", \"runtime flow diagram\", \"dependency diagram\". USE FOR: production Azure architecture visuals, multi-resource layouts, design-stage and as-built artifacts. DO NOT USE FOR: WAF/cost charts (use python-diagrams), inline Mermaid (use mermaid). INVOKES: drawio MCP (search-shapes, add-cells, finish-diagram).",
+      "description": "**WORKFLOW SKILL** — Generate Azure architecture diagrams in .drawio via simonkurtz-MSFT MCP server (full Azure icon set, batch creation, transactional mode). Covers architecture, dependency, runtime-flow, and as-built diagrams. WHEN: 'draw.io diagram', 'Azure architecture diagram', 'as-built diagram', 'runtime flow diagram', 'dependency diagram'. DO NOT USE FOR: WAF/cost charts (python-diagrams), inline Mermaid (mermaid).",
       "path": ".github/skills/drawio/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/drawio/SKILL.md"
@@ -770,7 +770,7 @@
       "id": "skill:entra-app-registration",
       "category": "skill",
       "label": "entra-app-registration",
-      "description": "**WORKFLOW SKILL** — Guides Microsoft Entra ID app registration, OAuth 2.0 authentication, and MSAL integration. WHEN: \"create app registration\", \"register Azure AD app\", \"configure OAuth\", \"add API permissions\", \"generate service principal\", \"MSAL example\", \"Entra ID setup\". USE FOR: app registration creation, OAuth + MSAL scaffolding, service principal generation. DO NOT USE FOR: Azure RBAC or role assignments (use azure-rbac), Key Vault secrets / certificate audits (use azure-compliance), Azure resource security scanning (use azure-compliance).",
+      "description": "**WORKFLOW SKILL** — Guides Microsoft Entra ID app registration, OAuth 2.0 authentication, and MSAL integration. WHEN: \"create app registration\", \"register Azure AD app\", \"configure OAuth\", \"add API permissions\", \"generate service principal\", \"MSAL example\", \"Entra ID setup\". DO NOT USE FOR: Azure RBAC (azure-rbac), Key Vault audits (azure-compliance), resource security scanning (azure-compliance).",
       "path": ".github/skills/entra-app-registration/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/entra-app-registration/SKILL.md"
@@ -825,7 +825,7 @@
       "id": "skill:microsoft-docs",
       "category": "skill",
       "label": "microsoft-docs",
-      "description": "**ANALYSIS SKILL** — Query official Microsoft documentation to understand concepts, find tutorials, and learn how services work. WHEN: \"Microsoft Learn\", \"Azure docs\", \"quickstart guide\", \"limits and quotas\", \"WAF reference\", \"architecture pattern docs\". USE FOR: Azure service overviews, quickstarts, configuration guides, limits and quotas, best practices, architecture patterns, WAF pillar references. DO NOT USE FOR: Azure pricing (use azure-pricing MCP). INVOKES: microsoft-learn MCP (microsoft_docs_search, microsoft_code_sample_search, microsoft_docs_fetch).",
+      "description": "**ANALYSIS SKILL** — Query official Microsoft documentation to understand concepts, find tutorials, and learn how services work. WHEN: \"Microsoft Learn\", \"Azure docs\", \"quickstart guide\", \"limits and quotas\", \"WAF reference\", \"architecture pattern docs\". DO NOT USE FOR: Azure pricing (use azure-pricing MCP).",
       "path": ".github/skills/microsoft-docs/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/microsoft-docs/SKILL.md"
@@ -836,7 +836,7 @@
       "id": "skill:python-diagrams",
       "category": "skill",
       "label": "python-diagrams",
-      "description": "**UTILITY SKILL** — Python diagram generation: WAF/cost/compliance charts (matplotlib), architecture diagrams (diagrams library), ERDs, swimlanes, timelines, wireframes (graphviz). WHEN: \"WAF bar chart\", \"cost donut chart\", \"compliance gap chart\", \"Python architecture diagram\", \"ERD diagram\", \"swimlane\", \"UI wireframe\". USE FOR: WAF bar charts, cost donut/projection charts, compliance gap charts, Python architecture diagrams, ERD diagrams, business process flows, timeline/Gantt charts, UI wireframes. DO NOT USE FOR: Draw.io architecture diagrams (use drawio), inline Mermaid (use mermaid).",
+      "description": "**UTILITY SKILL** — Python diagram generation: WAF/cost/compliance charts (matplotlib), architecture diagrams (diagrams lib), ERDs, swimlanes, timelines, wireframes (graphviz). WHEN: 'WAF bar chart', 'cost donut chart', 'compliance gap chart', 'Python architecture diagram', 'ERD diagram', 'swimlane', 'UI wireframe'. DO NOT USE FOR: Draw.io architecture diagrams (drawio), inline Mermaid (mermaid).",
       "path": ".github/skills/python-diagrams/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/python-diagrams/SKILL.md"
@@ -858,7 +858,7 @@
       "id": "skill:terraform-search-import",
       "category": "skill",
       "label": "terraform-search-import",
-      "description": "**WORKFLOW SKILL** — Discover existing Azure resources and bulk import them into Terraform management. WHEN: \"terraform import\", \"import Azure resources\", \"bring unmanaged infra under Terraform\", \"adopt Terraform for existing resources\", \"generate import blocks\". USE FOR: importing Azure resources, audit, migration to IaC, bulk import. DO NOT USE FOR: Bicep code (use azure-bicep-patterns), new resource creation (use terraform-patterns), architecture decisions (use azure-adr). INVOKES: terraform MCP (registry toolset), terraform CLI, az CLI.",
+      "description": "**WORKFLOW SKILL** — Discover existing Azure resources and bulk import them into Terraform management. WHEN: \"terraform import\", \"import Azure resources\", \"bring unmanaged infra under Terraform\", \"adopt Terraform for existing resources\", \"generate import blocks\". DO NOT USE FOR: Bicep code (azure-bicep-patterns), new resource creation (terraform-patterns), architecture decisions (azure-adr).",
       "path": ".github/skills/terraform-search-import/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/terraform-search-import/SKILL.md"
@@ -880,7 +880,7 @@
       "id": "skill:vendor-prompting",
       "category": "skill",
       "label": "vendor-prompting",
-      "description": "**ANALYSIS SKILL** — Audit-grade reference for Anthropic Claude and OpenAI GPT-5.5 prompting best practices. WHEN: \"claude prompting\", \"gpt-5.5 prompting\", \"audit agent\", \"review prompt\", \"vendor best practices\", \"anthropic best practices\", \"openai prompting\". USE FOR: authoring or auditing .agent.md / .prompt.md files; verifying vendor-specific patterns (Claude XML, GPT-5.5 outcome-first); investigating lint:vendor-prompting findings. DO NOT USE FOR: routine prompt edits where rules are already known, generic markdown style (see markdown.instructions.md).",
+      "description": "**ANALYSIS SKILL** — Audit-grade reference for Anthropic Claude and OpenAI GPT-5.5 prompting best practices. WHEN: \"claude prompting\", \"gpt-5.5 prompting\", \"audit agent\", \"review prompt\", \"vendor best practices\", \"anthropic best practices\", \"openai prompting\". DO NOT USE FOR: routine prompt edits where rules are already known, generic markdown style (markdown.instructions.md).",
       "path": ".github/skills/vendor-prompting/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/vendor-prompting/SKILL.md"
@@ -1155,7 +1155,7 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/markdown.instructions.md"
       },
       "meta": {
-        "applyTo": "site/src/content/docs/**/*.{md,mdx}, .github/copilot-instructions.md, .github/PULL_REQUEST_TEMPLATE.md, .github/plugins/**/*.md, .github/prompts/**/*.md, .github/skills/**/templates/**/*.md, agent-output/**/*.md, docs/**/*.md, infra/**/*.md, tools/mcp-servers/**/*.md, tools/scripts/**/*.md, tests/**/*.md, AGENTS.md, README.md, CHANGELOG.md, CONTRIBUTING.md, CONTRIBUTORS.md, QUALITY_SCORE.md, VERSION.md"
+        "applyTo": "site/src/content/docs/**/*.{md,mdx}, .github/copilot-instructions.md, .github/PULL_REQUEST_TEMPLATE.md, .github/plugins/**/*.md, tools/apex-prompts/**/*.md, .github/skills/**/templates/**/*.md, agent-output/**/*.md, docs/**/*.md, infra/**/*.md, tools/mcp-servers/**/*.md, tools/scripts/**/*.md, tests/**/*.md, AGENTS.md, README.md, CHANGELOG.md, CONTRIBUTING.md, CONTRIBUTORS.md, QUALITY_SCORE.md, VERSION.md"
       }
     },
     {
@@ -1194,7 +1194,7 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/no-interactive-shell.instructions.md"
       },
       "meta": {
-        "applyTo": "**/.github/agents/**/*.agent.md, **/.github/skills/**/SKILL.md, **/.github/instructions/**/*.instructions.md, **/.github/prompts/**/*.prompt.md, **/AGENTS.md, **/.github/copilot-instructions.md, **/README.md"
+        "applyTo": "**/.github/agents/**/*.agent.md, **/.github/skills/**/SKILL.md, **/.github/instructions/**/*.instructions.md, **/tools/apex-prompts/**/*.prompt.md, **/AGENTS.md, **/.github/copilot-instructions.md, **/README.md"
       }
     },
     {
@@ -1274,182 +1274,6 @@
       "meta": {
         "applyTo": "**/*.agent.md, **/*.prompt.md"
       }
-    },
-    {
-      "id": "prompt:02-requirements",
-      "category": "prompt",
-      "label": "02-requirements",
-      "description": "Gather Azure project requirements through structured discovery phases and produce 01-requirements.md.",
-      "path": ".github/prompts/02-requirements.prompt.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/prompts/02-requirements.prompt.md"
-      },
-      "meta": {}
-    },
-    {
-      "id": "prompt:03-architect",
-      "category": "prompt",
-      "label": "03-architect",
-      "description": "Perform a WAF assessment and generate cost estimates based on completed requirements.",
-      "path": ".github/prompts/03-architect.prompt.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/prompts/03-architect.prompt.md"
-      },
-      "meta": {}
-    },
-    {
-      "id": "prompt:04-design",
-      "category": "prompt",
-      "label": "04-design",
-      "description": "Generate architecture diagrams and Architecture Decision Records (ADRs). Optional step — can be skipped.",
-      "path": ".github/prompts/04-design.prompt.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/prompts/04-design.prompt.md"
-      },
-      "meta": {}
-    },
-    {
-      "id": "prompt:04g-governance",
-      "category": "prompt",
-      "label": "04g-governance",
-      "description": "Discover Azure Policy constraints for the project subscription and produce governance constraint artifacts.",
-      "path": ".github/prompts/04g-governance.prompt.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/prompts/04g-governance.prompt.md"
-      },
-      "meta": {}
-    },
-    {
-      "id": "prompt:05-iac-planner",
-      "category": "prompt",
-      "label": "05-iac-planner",
-      "description": "Create an IaC implementation plan with governance constraints, dependency and runtime diagrams.",
-      "path": ".github/prompts/05-iac-planner.prompt.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/prompts/05-iac-planner.prompt.md"
-      },
-      "meta": {}
-    },
-    {
-      "id": "prompt:06b-bicep-codegen",
-      "category": "prompt",
-      "label": "06b-bicep-codegen",
-      "description": "Generate near-production-ready Bicep templates from the implementation plan.",
-      "path": ".github/prompts/06b-bicep-codegen.prompt.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/prompts/06b-bicep-codegen.prompt.md"
-      },
-      "meta": {}
-    },
-    {
-      "id": "prompt:06t-terraform-codegen",
-      "category": "prompt",
-      "label": "06t-terraform-codegen",
-      "description": "Generate near-production-ready Terraform configurations from the implementation plan.",
-      "path": ".github/prompts/06t-terraform-codegen.prompt.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/prompts/06t-terraform-codegen.prompt.md"
-      },
-      "meta": {}
-    },
-    {
-      "id": "prompt:07b-bicep-deploy",
-      "category": "prompt",
-      "label": "07b-bicep-deploy",
-      "description": "Deploy Bicep templates to Azure with what-if analysis and deployment validation.",
-      "path": ".github/prompts/07b-bicep-deploy.prompt.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/prompts/07b-bicep-deploy.prompt.md"
-      },
-      "meta": {}
-    },
-    {
-      "id": "prompt:07t-terraform-deploy",
-      "category": "prompt",
-      "label": "07t-terraform-deploy",
-      "description": "Deploy Terraform configurations to Azure with plan preview and phased execution.",
-      "path": ".github/prompts/07t-terraform-deploy.prompt.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/prompts/07t-terraform-deploy.prompt.md"
-      },
-      "meta": {}
-    },
-    {
-      "id": "prompt:08-as-built",
-      "category": "prompt",
-      "label": "08-as-built",
-      "description": "Generate the as-built documentation suite from all prior artifacts and deployed state.",
-      "path": ".github/prompts/08-as-built.prompt.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/prompts/08-as-built.prompt.md"
-      },
-      "meta": {}
-    },
-    {
-      "id": "prompt:as-built-from-azure",
-      "category": "prompt",
-      "label": "as-built-from-azure",
-      "description": "Generate as-built documentation for an existing Azure deployment with no prior artifacts. Discovers resources, collects requirements interactively, synthesizes pseudo-artifacts, then hands off to 08-As-Built.",
-      "path": ".github/prompts/as-built-from-azure.prompt.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/prompts/as-built-from-azure.prompt.md"
-      },
-      "meta": {}
-    },
-    {
-      "id": "prompt:challenger-review",
-      "category": "prompt",
-      "label": "challenger-review",
-      "description": "Run an adversarial review against any agent-output artifact to find gaps and weaknesses.",
-      "path": ".github/prompts/challenger-review.prompt.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/prompts/challenger-review.prompt.md"
-      },
-      "meta": {}
-    },
-    {
-      "id": "prompt:diagnose-resource",
-      "category": "prompt",
-      "label": "diagnose-resource",
-      "description": "Diagnose Azure resource health issues with guided troubleshooting and remediation planning.",
-      "path": ".github/prompts/diagnose-resource.prompt.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/prompts/diagnose-resource.prompt.md"
-      },
-      "meta": {}
-    },
-    {
-      "id": "prompt:git-commit-push",
-      "category": "prompt",
-      "label": "git-commit-push",
-      "description": "Stage changes, create a conventional commit, push to the current branch, and optionally open a pull request to main using the GitHub MCP server.",
-      "path": ".github/prompts/git-commit-push.prompt.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/prompts/git-commit-push.prompt.md"
-      },
-      "meta": {}
-    },
-    {
-      "id": "prompt:resume-workflow",
-      "category": "prompt",
-      "label": "resume-workflow",
-      "description": "Resume the multi-step workflow from where it left off by reading session state and routing to the correct agent.",
-      "path": ".github/prompts/resume-workflow.prompt.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/prompts/resume-workflow.prompt.md"
-      },
-      "meta": {}
-    },
-    {
-      "id": "prompt:review-imported-iac",
-      "category": "prompt",
-      "label": "review-imported-iac",
-      "description": "Ingest pasted or existing Bicep or Terraform, normalize it into the repo, run static review plus AVM and governance checks, and generate WAF review artifacts.",
-      "path": ".github/prompts/review-imported-iac.prompt.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/prompts/review-imported-iac.prompt.md"
-      },
-      "meta": {}
     },
     {
       "id": "validator:validate-artifacts",
@@ -2851,66 +2675,6 @@
       "kind": "hands-off"
     },
     {
-      "id": "prompt:02-requirements--invokes->agent:02-requirements",
-      "source": "prompt:02-requirements",
-      "target": "agent:02-requirements",
-      "kind": "invokes"
-    },
-    {
-      "id": "prompt:03-architect--invokes->agent:03-architect",
-      "source": "prompt:03-architect",
-      "target": "agent:03-architect",
-      "kind": "invokes"
-    },
-    {
-      "id": "prompt:04-design--invokes->agent:04-design",
-      "source": "prompt:04-design",
-      "target": "agent:04-design",
-      "kind": "invokes"
-    },
-    {
-      "id": "prompt:04g-governance--invokes->agent:04g-governance",
-      "source": "prompt:04g-governance",
-      "target": "agent:04g-governance",
-      "kind": "invokes"
-    },
-    {
-      "id": "prompt:05-iac-planner--invokes->agent:05-iac-planner",
-      "source": "prompt:05-iac-planner",
-      "target": "agent:05-iac-planner",
-      "kind": "invokes"
-    },
-    {
-      "id": "prompt:06b-bicep-codegen--invokes->agent:06b-bicep-codegen",
-      "source": "prompt:06b-bicep-codegen",
-      "target": "agent:06b-bicep-codegen",
-      "kind": "invokes"
-    },
-    {
-      "id": "prompt:06t-terraform-codegen--invokes->agent:06t-terraform-codegen",
-      "source": "prompt:06t-terraform-codegen",
-      "target": "agent:06t-terraform-codegen",
-      "kind": "invokes"
-    },
-    {
-      "id": "prompt:07b-bicep-deploy--invokes->agent:07b-bicep-deploy",
-      "source": "prompt:07b-bicep-deploy",
-      "target": "agent:07b-bicep-deploy",
-      "kind": "invokes"
-    },
-    {
-      "id": "prompt:07t-terraform-deploy--invokes->agent:07t-terraform-deploy",
-      "source": "prompt:07t-terraform-deploy",
-      "target": "agent:07t-terraform-deploy",
-      "kind": "invokes"
-    },
-    {
-      "id": "prompt:08-as-built--invokes->agent:08-as-built",
-      "source": "prompt:08-as-built",
-      "target": "agent:08-as-built",
-      "kind": "invokes"
-    },
-    {
       "id": "instruction:agent-authoring--applies-to->agent:01-orchestrator",
       "source": "instruction:agent-authoring",
       "target": "agent:01-orchestrator",
@@ -3040,102 +2804,6 @@
       "id": "instruction:agent-authoring--applies-to->subagent:terraform-validate-subagent",
       "source": "instruction:agent-authoring",
       "target": "subagent:terraform-validate-subagent",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:agent-authoring--applies-to->prompt:02-requirements",
-      "source": "instruction:agent-authoring",
-      "target": "prompt:02-requirements",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:agent-authoring--applies-to->prompt:03-architect",
-      "source": "instruction:agent-authoring",
-      "target": "prompt:03-architect",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:agent-authoring--applies-to->prompt:04-design",
-      "source": "instruction:agent-authoring",
-      "target": "prompt:04-design",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:agent-authoring--applies-to->prompt:04g-governance",
-      "source": "instruction:agent-authoring",
-      "target": "prompt:04g-governance",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:agent-authoring--applies-to->prompt:05-iac-planner",
-      "source": "instruction:agent-authoring",
-      "target": "prompt:05-iac-planner",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:agent-authoring--applies-to->prompt:06b-bicep-codegen",
-      "source": "instruction:agent-authoring",
-      "target": "prompt:06b-bicep-codegen",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:agent-authoring--applies-to->prompt:06t-terraform-codegen",
-      "source": "instruction:agent-authoring",
-      "target": "prompt:06t-terraform-codegen",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:agent-authoring--applies-to->prompt:07b-bicep-deploy",
-      "source": "instruction:agent-authoring",
-      "target": "prompt:07b-bicep-deploy",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:agent-authoring--applies-to->prompt:07t-terraform-deploy",
-      "source": "instruction:agent-authoring",
-      "target": "prompt:07t-terraform-deploy",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:agent-authoring--applies-to->prompt:08-as-built",
-      "source": "instruction:agent-authoring",
-      "target": "prompt:08-as-built",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:agent-authoring--applies-to->prompt:as-built-from-azure",
-      "source": "instruction:agent-authoring",
-      "target": "prompt:as-built-from-azure",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:agent-authoring--applies-to->prompt:challenger-review",
-      "source": "instruction:agent-authoring",
-      "target": "prompt:challenger-review",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:agent-authoring--applies-to->prompt:diagnose-resource",
-      "source": "instruction:agent-authoring",
-      "target": "prompt:diagnose-resource",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:agent-authoring--applies-to->prompt:git-commit-push",
-      "source": "instruction:agent-authoring",
-      "target": "prompt:git-commit-push",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:agent-authoring--applies-to->prompt:resume-workflow",
-      "source": "instruction:agent-authoring",
-      "target": "prompt:resume-workflow",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:agent-authoring--applies-to->prompt:review-imported-iac",
-      "source": "instruction:agent-authoring",
-      "target": "prompt:review-imported-iac",
       "kind": "applies-to"
     },
     {
@@ -4831,201 +4499,9 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:no-interactive-shell--applies-to->prompt:02-requirements",
-      "source": "instruction:no-interactive-shell",
-      "target": "prompt:02-requirements",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:no-interactive-shell--applies-to->prompt:03-architect",
-      "source": "instruction:no-interactive-shell",
-      "target": "prompt:03-architect",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:no-interactive-shell--applies-to->prompt:04-design",
-      "source": "instruction:no-interactive-shell",
-      "target": "prompt:04-design",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:no-interactive-shell--applies-to->prompt:04g-governance",
-      "source": "instruction:no-interactive-shell",
-      "target": "prompt:04g-governance",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:no-interactive-shell--applies-to->prompt:05-iac-planner",
-      "source": "instruction:no-interactive-shell",
-      "target": "prompt:05-iac-planner",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:no-interactive-shell--applies-to->prompt:06b-bicep-codegen",
-      "source": "instruction:no-interactive-shell",
-      "target": "prompt:06b-bicep-codegen",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:no-interactive-shell--applies-to->prompt:06t-terraform-codegen",
-      "source": "instruction:no-interactive-shell",
-      "target": "prompt:06t-terraform-codegen",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:no-interactive-shell--applies-to->prompt:07b-bicep-deploy",
-      "source": "instruction:no-interactive-shell",
-      "target": "prompt:07b-bicep-deploy",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:no-interactive-shell--applies-to->prompt:07t-terraform-deploy",
-      "source": "instruction:no-interactive-shell",
-      "target": "prompt:07t-terraform-deploy",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:no-interactive-shell--applies-to->prompt:08-as-built",
-      "source": "instruction:no-interactive-shell",
-      "target": "prompt:08-as-built",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:no-interactive-shell--applies-to->prompt:as-built-from-azure",
-      "source": "instruction:no-interactive-shell",
-      "target": "prompt:as-built-from-azure",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:no-interactive-shell--applies-to->prompt:challenger-review",
-      "source": "instruction:no-interactive-shell",
-      "target": "prompt:challenger-review",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:no-interactive-shell--applies-to->prompt:diagnose-resource",
-      "source": "instruction:no-interactive-shell",
-      "target": "prompt:diagnose-resource",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:no-interactive-shell--applies-to->prompt:git-commit-push",
-      "source": "instruction:no-interactive-shell",
-      "target": "prompt:git-commit-push",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:no-interactive-shell--applies-to->prompt:resume-workflow",
-      "source": "instruction:no-interactive-shell",
-      "target": "prompt:resume-workflow",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:no-interactive-shell--applies-to->prompt:review-imported-iac",
-      "source": "instruction:no-interactive-shell",
-      "target": "prompt:review-imported-iac",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:no-interactive-shell--applies-to->instruction:instructions",
       "source": "instruction:no-interactive-shell",
       "target": "instruction:instructions",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:prompt--applies-to->prompt:02-requirements",
-      "source": "instruction:prompt",
-      "target": "prompt:02-requirements",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:prompt--applies-to->prompt:03-architect",
-      "source": "instruction:prompt",
-      "target": "prompt:03-architect",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:prompt--applies-to->prompt:04-design",
-      "source": "instruction:prompt",
-      "target": "prompt:04-design",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:prompt--applies-to->prompt:04g-governance",
-      "source": "instruction:prompt",
-      "target": "prompt:04g-governance",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:prompt--applies-to->prompt:05-iac-planner",
-      "source": "instruction:prompt",
-      "target": "prompt:05-iac-planner",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:prompt--applies-to->prompt:06b-bicep-codegen",
-      "source": "instruction:prompt",
-      "target": "prompt:06b-bicep-codegen",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:prompt--applies-to->prompt:06t-terraform-codegen",
-      "source": "instruction:prompt",
-      "target": "prompt:06t-terraform-codegen",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:prompt--applies-to->prompt:07b-bicep-deploy",
-      "source": "instruction:prompt",
-      "target": "prompt:07b-bicep-deploy",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:prompt--applies-to->prompt:07t-terraform-deploy",
-      "source": "instruction:prompt",
-      "target": "prompt:07t-terraform-deploy",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:prompt--applies-to->prompt:08-as-built",
-      "source": "instruction:prompt",
-      "target": "prompt:08-as-built",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:prompt--applies-to->prompt:as-built-from-azure",
-      "source": "instruction:prompt",
-      "target": "prompt:as-built-from-azure",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:prompt--applies-to->prompt:challenger-review",
-      "source": "instruction:prompt",
-      "target": "prompt:challenger-review",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:prompt--applies-to->prompt:diagnose-resource",
-      "source": "instruction:prompt",
-      "target": "prompt:diagnose-resource",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:prompt--applies-to->prompt:git-commit-push",
-      "source": "instruction:prompt",
-      "target": "prompt:git-commit-push",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:prompt--applies-to->prompt:resume-workflow",
-      "source": "instruction:prompt",
-      "target": "prompt:resume-workflow",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:prompt--applies-to->prompt:review-imported-iac",
-      "source": "instruction:prompt",
-      "target": "prompt:review-imported-iac",
       "kind": "applies-to"
     },
     {
@@ -5158,102 +4634,6 @@
       "id": "instruction:vendor-prompting--applies-to->subagent:terraform-validate-subagent",
       "source": "instruction:vendor-prompting",
       "target": "subagent:terraform-validate-subagent",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:vendor-prompting--applies-to->prompt:02-requirements",
-      "source": "instruction:vendor-prompting",
-      "target": "prompt:02-requirements",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:vendor-prompting--applies-to->prompt:03-architect",
-      "source": "instruction:vendor-prompting",
-      "target": "prompt:03-architect",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:vendor-prompting--applies-to->prompt:04-design",
-      "source": "instruction:vendor-prompting",
-      "target": "prompt:04-design",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:vendor-prompting--applies-to->prompt:04g-governance",
-      "source": "instruction:vendor-prompting",
-      "target": "prompt:04g-governance",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:vendor-prompting--applies-to->prompt:05-iac-planner",
-      "source": "instruction:vendor-prompting",
-      "target": "prompt:05-iac-planner",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:vendor-prompting--applies-to->prompt:06b-bicep-codegen",
-      "source": "instruction:vendor-prompting",
-      "target": "prompt:06b-bicep-codegen",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:vendor-prompting--applies-to->prompt:06t-terraform-codegen",
-      "source": "instruction:vendor-prompting",
-      "target": "prompt:06t-terraform-codegen",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:vendor-prompting--applies-to->prompt:07b-bicep-deploy",
-      "source": "instruction:vendor-prompting",
-      "target": "prompt:07b-bicep-deploy",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:vendor-prompting--applies-to->prompt:07t-terraform-deploy",
-      "source": "instruction:vendor-prompting",
-      "target": "prompt:07t-terraform-deploy",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:vendor-prompting--applies-to->prompt:08-as-built",
-      "source": "instruction:vendor-prompting",
-      "target": "prompt:08-as-built",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:vendor-prompting--applies-to->prompt:as-built-from-azure",
-      "source": "instruction:vendor-prompting",
-      "target": "prompt:as-built-from-azure",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:vendor-prompting--applies-to->prompt:challenger-review",
-      "source": "instruction:vendor-prompting",
-      "target": "prompt:challenger-review",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:vendor-prompting--applies-to->prompt:diagnose-resource",
-      "source": "instruction:vendor-prompting",
-      "target": "prompt:diagnose-resource",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:vendor-prompting--applies-to->prompt:git-commit-push",
-      "source": "instruction:vendor-prompting",
-      "target": "prompt:git-commit-push",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:vendor-prompting--applies-to->prompt:resume-workflow",
-      "source": "instruction:vendor-prompting",
-      "target": "prompt:resume-workflow",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:vendor-prompting--applies-to->prompt:review-imported-iac",
-      "source": "instruction:vendor-prompting",
-      "target": "prompt:review-imported-iac",
       "kind": "applies-to"
     },
     {

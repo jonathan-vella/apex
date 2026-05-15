@@ -1,6 +1,6 @@
 ---
 name: context-management
-description: '**UTILITY SKILL** — Two-mode context window management for agents. RUNTIME mode: artifact compression (full/summarized/minimal) used by orchestrator and codegen agents before loading large artifacts in `agent-output/`. AUDIT mode: post-mortem analysis of Copilot debug logs, token profiling, redundancy detection, and hand-off gap analysis used by the 11-Context Optimizer agent. WHEN: "context optimization", "token budget management", "runtime compression", "log parsing", "redundancy detection". USE FOR: context optimization, token budget management, runtime compression, log parsing, redundancy detection. DO NOT USE FOR: Azure infrastructure, Bicep/Terraform code, architecture design, deployments.'
+description: '**UTILITY SKILL** — Two-mode context-window management. RUNTIME: artifact compression (full/summarized/minimal) used by orchestrator and codegen agents. AUDIT: post-mortem analysis of Copilot debug logs (token profiling, redundancy + hand-off gap detection) used by 11-Context Optimizer. WHEN: "context optimization", "token budget", "runtime compression", "log parsing". DO NOT USE FOR: infra, IaC code, deployments.'
 compatibility: Audit mode requires Python 3.14 for log parser script
 ---
 

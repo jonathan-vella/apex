@@ -1,3 +1,4 @@
+<!-- ref:identity-resolution-v1 -->
 # Identity Resolution (Wave 2)
 
 Single source of truth for how APEX agents resolve **Azure identities** —

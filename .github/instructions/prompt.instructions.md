@@ -41,7 +41,9 @@ Every prompt file should include YAML frontmatter with the following fields:
 ## File Naming and Placement
 
 - Use kebab-case filenames ending with `.prompt.md`
-- Store them under `.github/prompts/` unless your workspace specifies otherwise
+- Store APEX prompts under `tools/apex-prompts/` (workspace-only, never
+  auto-loaded by VS Code Copilot discovery). Other workspaces may use
+  `.github/prompts/` if their policy permits auto-loading.
 - Provide a short filename that communicates the action
   (e.g., `generate-readme.prompt.md` rather than `prompt1.prompt.md`)
 

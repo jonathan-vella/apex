@@ -1,6 +1,6 @@
 ---
 name: terraform-validate-subagent
-description: "Terraform validation subagent. Runs lint (fmt -check, validate, tfsec) first, then code review (AVM-TF standards, naming, security baseline, RBAC, governance compliance). Returns structured PASS/FAIL with diagnostics and APPROVED/NEEDS_REVISION/FAILED verdict."
+description: "Terraform validation subagent. Runs lint (fmt -check, validate, tfsec) first, then code review (AVM-TF standards, naming, security baseline, RBAC, governance). Returns PASS/FAIL + APPROVED/NEEDS_REVISION/FAILED verdict."
 model: ["Claude Sonnet 4.6"]
 user-invocable: false
 disable-model-invocation: false

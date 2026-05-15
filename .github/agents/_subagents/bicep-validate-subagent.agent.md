@@ -1,6 +1,6 @@
 ---
 name: bicep-validate-subagent
-description: "Bicep validation subagent. Runs lint (bicep lint + build) first, then code review (AVM standards, naming, security baseline, governance compliance). Returns structured PASS/FAIL with diagnostics and APPROVED/NEEDS_REVISION/FAILED verdict."
+description: "Bicep validation subagent. Runs lint (bicep lint + build) first, then code review (AVM standards, naming, security baseline, governance). Returns PASS/FAIL + APPROVED/NEEDS_REVISION/FAILED verdict."
 model: ["Claude Sonnet 4.6"]
 user-invocable: false
 disable-model-invocation: false

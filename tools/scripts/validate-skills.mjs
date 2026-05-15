@@ -102,6 +102,22 @@ function runFormatValidation() {
       r.warn(skillName, `Description is too short (${frontmatter.description.length} chars)`);
     }
 
+    // Description length cap — see
+    // .github/instructions/agent-authoring.instructions.md#frontmatter-description-length
+    // The Copilot router only needs the WHEN: trigger keywords. Long
+    // USE FOR / INVOKES lines belong in the SKILL.md body.
+    if (frontmatter.description) {
+      const dlen = frontmatter.description.length;
+      if (dlen > 500) {
+        r.error(
+          skillName,
+          `description is ${dlen} chars (max 500). Trim USE FOR / INVOKES into body; keep WHEN keywords + short anti-scope.`,
+        );
+      } else if (dlen > 400) {
+        r.warn(skillName, `description is ${dlen} chars (recommend ≤ 400). Drop redundant USE FOR / INVOKES lines.`);
+      }
+    }
+
     const lineCount = content.split("\n").length;
     if (lineCount > MAX_SKILL_LINES_WITHOUT_REFS && !hasRefs) {
       if (KNOWN_OVERSIZED.has(skillName)) {

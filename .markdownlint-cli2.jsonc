@@ -168,7 +168,7 @@
     "docs/tf-support/**",
 
     // Planning prompts (long inline examples, not production code)
-    ".github/prompts/**",
+    "tools/apex-prompts/**",
 
     // Utility scripts with embedded examples
     "tools/scripts/markdown-prettifiers/**",

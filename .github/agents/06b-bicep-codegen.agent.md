@@ -1,6 +1,6 @@
 ---
 name: 06b-Bicep CodeGen
-description: Expert Azure Bicep Infrastructure as Code specialist that creates near-production-ready Bicep templates following best practices and Azure Verified Modules standards. Validates, tests, and ensures code quality.
+description: Expert Azure Bicep IaC specialist that creates near-production-ready Bicep templates following Azure Verified Modules (AVM) standards. Validates, tests, and ensures code quality.
 model: ["Claude Sonnet 4.6"]
 user-invocable: true
 agents: ["bicep-validate-subagent", "challenger-review-subagent"]
@@ -53,13 +53,14 @@ handoffs:
 
 # Bicep Code Agent
 
-## Review-depth opt-in
-
-Read `decisions.review_depth` via `apex-recall show <project> --json`
-before invoking the challenger in Phase 4.5. Default to `"default"` if
-absent. `"deep"` enters the opt-in multi-pass path defined in
+<context_awareness>
+Review-depth opt-in: read `decisions.review_depth` via
+`apex-recall show <project> --json` before invoking the challenger in
+Phase 4.5. Default to `"default"` if absent. `"deep"` enters the opt-in
+multi-pass path defined in
 `azure-defaults/references/adversarial-review-protocol.md` without
 re-prompting the user; `"default"` keeps Phase 4.5 skipped.
+</context_awareness>
 
 Role: Bicep IaC specialist that turns the approved implementation plan plus governance
 constraints into AVM-first, lint-clean, security-baseline-compliant Bicep templates ready
@@ -158,7 +159,7 @@ Use challenger-review-subagent only for adversarial review after validation pass
 
 ## Read Skills First
 
-Before doing any work, read these skills:
+Before doing any work, read these skills.
 
 1. Read `.github/skills/azure-defaults/SKILL.md` — regions, tags, naming, AVM, security, unique suffix
 2. Read `.github/skills/azure-artifacts/SKILL.md` — H2 templates for `04-preflight-check.md` and `05-implementation-reference.md`
@@ -550,13 +551,9 @@ Validation: `bicep build main.bicep` + `bicep lint main.bicep` +
 
 ## User Updates
 
-After completing each major phase, provide a brief status update in chat:
-
-- What was just completed (phase name, key results)
-- What comes next (next phase name)
-- Any blockers or decisions needed
-
-This keeps the user informed during multi-phase operations.
+After each major phase, provide a brief status update in chat: what was just completed
+(phase name, key results), what comes next (next phase name), and any blockers or
+decisions needed.
 
 ## Boundaries
 

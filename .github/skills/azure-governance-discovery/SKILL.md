@@ -1,6 +1,6 @@
 ---
 name: azure-governance-discovery
-description: '**ANALYSIS SKILL** — Deterministic Azure Policy discovery: lists effective assignments (incl. MG-inherited), pulls definitions/exemptions, classifies effects, filters Defender auto-assignments, emits governance-constraints JSON via Python. WHEN: "Azure policy discovery", "effective policy assignments", "governance constraints", "04g-Governance Phase 1", "refresh governance JSON". USE FOR: 04g Phase 1 discovery, refreshing `04-governance-constraints.json`. DO NOT USE FOR: artifact writing, architecture mapping, traffic-light rendering, challenger orchestration.'
+description: "**ANALYSIS SKILL** — Deterministic Azure Policy discovery: lists effective assignments (incl. MG-inherited), pulls definitions/exemptions, classifies effects, filters Defender auto-assignments, emits governance-constraints JSON via Python. WHEN: 'Azure policy discovery', 'effective policy assignments', 'governance constraints', '04g-Governance Phase 1', 'refresh governance JSON'. DO NOT USE FOR: artifact writing, architecture mapping, challenger orchestration."
 compatibility: Requires Python 3.14, Azure CLI on PATH, read access to the target subscription.
 ---
 

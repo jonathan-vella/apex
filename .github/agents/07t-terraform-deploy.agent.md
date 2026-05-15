@@ -142,6 +142,10 @@ changes are required here.
 
 ## Read Skills First
 
+Batch independent skill reads into one parallel `read_file` call. **Never re-read** a file
+already in your conversation history (see
+[Context Hygiene](../instructions/agent-authoring.instructions.md#context-hygiene-token-efficiency)).
+
 1. Read `.github/skills/azure-defaults/SKILL.md` — regions, tags, security baseline, Terraform Conventions
 2. Read `.github/skills/azure-artifacts/SKILL.md` — H2 template for `06-deployment-summary.md`
 3. Read `.github/skills/iac-common/references/circuit-breaker.md` — failure taxonomy and stopping rules

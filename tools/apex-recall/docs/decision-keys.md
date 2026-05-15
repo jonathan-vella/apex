@@ -44,6 +44,7 @@ Specifically:
 | `complexity`              | `low` \| `medium` \| `high`                           | `medium`                          | 02-Requirements | Challenger lens selection                     |
 | `review_depth`            | `default` \| `deep`                                   | `default` (single-pass reviews)   | 01-Orchestrator | All adversarial review invocations            |
 | `skip_design`             | `true` \| `false`                                     | `false` (Design runs)             | 01-Orchestrator | 03-Architect approval gate routing message    |
+| `relational_db`           | `azure-sql` \| `postgresql-flex` \| `mysql-flex` \| `sql-managed-instance` \| `none` \| `other` | n/a (Phase 3d question) | 02-Requirements | 03-Architect (SKU), 05-IaC Planner, 06b/06t CodeGen |
 
 ### Step 2 (Architecture) keys — new in this plan
 

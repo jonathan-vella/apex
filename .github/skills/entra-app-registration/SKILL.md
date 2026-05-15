@@ -1,6 +1,6 @@
 ---
 name: entra-app-registration
-description: '**WORKFLOW SKILL** — Guides Microsoft Entra ID app registration, OAuth 2.0 authentication, and MSAL integration. WHEN: "create app registration", "register Azure AD app", "configure OAuth", "add API permissions", "generate service principal", "MSAL example", "Entra ID setup". USE FOR: app registration creation, OAuth + MSAL scaffolding, service principal generation. DO NOT USE FOR: Azure RBAC or role assignments (use azure-rbac), Key Vault secrets / certificate audits (use azure-compliance), Azure resource security scanning (use azure-compliance).'
+description: '**WORKFLOW SKILL** — Guides Microsoft Entra ID app registration, OAuth 2.0 authentication, and MSAL integration. WHEN: "create app registration", "register Azure AD app", "configure OAuth", "add API permissions", "generate service principal", "MSAL example", "Entra ID setup". DO NOT USE FOR: Azure RBAC (azure-rbac), Key Vault audits (azure-compliance), resource security scanning (azure-compliance).'
 license: MIT
 metadata:
   author: Microsoft

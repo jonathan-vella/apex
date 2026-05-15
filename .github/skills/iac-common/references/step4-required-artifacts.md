@@ -1,3 +1,4 @@
+<!-- ref:step4-required-artifacts-v1 -->
 # Step 4 Required-Artifacts Presence Check
 
 **Owner**: `05-IaC Planner` (Phase 5 attestation block)

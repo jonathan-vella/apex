@@ -120,7 +120,7 @@ export function resetIndex() {
  * `body` is the markdown after the closing `---`.
  *
  * Scans every directory listed in `PROMPT_SOURCE_DIRS` (production prompts in
- * `.github/prompts/` plus E2E test prompts in `tools/tests/prompts/`).
+ * `tools/apex-prompts/` plus E2E test prompts in `tools/tests/prompts/`).
  */
 export function getPromptFiles() {
   if (_prompts) return _prompts;

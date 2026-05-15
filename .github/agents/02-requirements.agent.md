@@ -71,8 +71,14 @@ mandatory challenger review, and hand off to Architecture only after the Gate 1 
 - Step 1 captures intent and constraints. Architecture decisions, service SKU derivation, IaC code,
   Bicep snippets, and deployment actions belong to later steps.
 - Use `apex-recall` for session state. Do not read or write `00-session-state.json` directly.
-- Use `askQuestions` for structured discovery. If it is unavailable, gather the same answers through
-  chat questions before generating artifacts.
+- Use `askQuestions` for structured discovery. **Batch independent questions** into a single
+  `askQuestions` call via the `questions[]` array — issue separate calls only when a later
+  question's options depend on a prior answer (cascading inputs). One-at-a-time prompting is
+  forbidden when answers don't cascade (each extra call replays the full system prompt,
+  costing ~60k tokens). See
+  [Context Hygiene](../instructions/agent-authoring.instructions.md#context-hygiene-token-efficiency).
+  If `askQuestions` is unavailable, gather the same answers through chat questions before
+  generating artifacts.
 
 # Output
 
@@ -196,9 +202,28 @@ apex-recall decide <project> --key iac_tool --value <Bicep|Terraform> --json
 
 ## Phase 3: Service Recommendations
 
-This phase is required. Ask service-class questions one at a time so the user sees each decision
-as its own selection. Do not collapse all of Phase 3 into a single combined question. Use
-business-friendly descriptions with Azure service names in parentheses.
+This phase is required. Use **batched `askQuestions` calls** to gather service-class decisions.
+Group questions whose options/multiSelect/recommendations do not depend on a prior answer
+into a single batched call (the `questions[]` array accepts multiple entries). Only split
+into separate calls when a later question's option set or recommendation is computed from
+an earlier answer (see Step 3b's `application_layers` gating below).
+
+Required batching (saves ~10 turns per Phase 3):
+
+- **Batch A — NFR profile** (Step 3a): service_tier, availability_target, recovery_profile
+  in one call. All three are independent.
+- **Batch B — Topology + compute + data** (Steps 3b–3f): combine compute_host, relational_db,
+  non_relational_store, storage_needs into a single batched call. Conditionally include
+  application_layers in Batch B if the workload pattern is N-Tier or microservices
+  (set its `multiSelect: true`); otherwise omit it.
+- **Batch C — Integration + platform** (Steps 3g–3h): messaging_events and
+  supporting_services in one batched call. supporting_services pre-checks defaults
+  (Monitor, App Insights, Log Analytics, Key Vault) plus ACR when a container host was
+  selected in Batch B.
+- **Confirm step** (Step 3i): one final batched call with the consolidated service
+  list (`multiSelect: true`, all chosen preselected).
+
+Use business-friendly descriptions with Azure service names in parentheses.
 
 ### 3a. NFR profile and tier
 

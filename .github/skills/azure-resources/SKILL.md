@@ -1,6 +1,6 @@
 ---
 name: azure-resources
-description: '**ANALYSIS SKILL** — List, find, and visualize existing Azure resources via Azure Resource Graph (LOOKUP) or Mermaid diagrams (VISUALIZE). WHEN: "list resources", "list VMs", "find orphaned resources", "resource inventory", "cross-subscription query", "visualize Azure resources", "diagram my resources". USE FOR: resource lookup, tag analysis, architecture visualization. DO NOT USE FOR: deploying resources (use azure-deploy), cost optimization (use azure-cost-optimization), security scanning (use azure-compliance), troubleshooting (use azure-diagnostics). INVOKES: az resource graph, az resource, microsoft_docs_search (Microsoft Learn MCP).'
+description: "**ANALYSIS SKILL** — List, find, and visualize existing Azure resources via Resource Graph (LOOKUP) or Mermaid diagrams (VISUALIZE). WHEN: 'list resources', 'list VMs', 'find orphaned resources', 'resource inventory', 'cross-subscription query', 'visualize Azure resources', 'diagram my resources'. DO NOT USE FOR: deploying (azure-deploy), cost optimization (azure-cost-optimization), security scanning (azure-compliance), troubleshooting (azure-diagnostics)."
 license: MIT
 metadata:
   author: Microsoft

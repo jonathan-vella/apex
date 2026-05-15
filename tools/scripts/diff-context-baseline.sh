@@ -74,7 +74,7 @@ current_sha=$(git -C "${REPO_ROOT}" rev-parse --short HEAD 2>/dev/null || echo "
 readonly CATEGORIES=(
   ".github/agents:Agents"
   ".github/instructions:Instructions"
-  ".github/prompts:Prompts"
+  "tools/apex-prompts:Prompts"
   ".github/skills:Skills"
   "AGENTS.md:AGENTS.md"
 )

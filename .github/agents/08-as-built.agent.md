@@ -1,6 +1,6 @@
 ---
 name: 08-As-Built
-description: "Generates Step 7 as-built documentation suite after successful deployment. Reads all prior artifacts (Steps 1-6) and deployed resource state to produce comprehensive workload documentation: design document, operations runbook, cost estimate, compliance matrix, backup/DR plan, resource inventory, and documentation index."
+description: "Generates Step 7 as-built documentation suite after successful deployment. Reads all prior artifacts (Steps 1-6) and deployed resource state to produce: design document, operations runbook, cost estimate, compliance matrix, backup/DR plan, resource inventory, and documentation index."
 model: ["GPT-5.5"]
 user-invocable: true
 agents: ["cost-estimate-subagent"]
@@ -110,7 +110,10 @@ Do not modify deployed infrastructure, change IaC templates, or skip prior artif
 
 ## Read Skills First
 
-Before doing any work, read these skills:
+Before doing any work, read these skills. Issue the SKILL.md reads and the template-file
+reads in **one parallel `read_file` batch** to amortize cost. **Never re-read** a file
+already in your conversation history (see
+[Context Hygiene](../instructions/agent-authoring.instructions.md#context-hygiene-token-efficiency)).
 
 1. Read `.github/skills/azure-defaults/SKILL.md` — regions, tags, naming, pricing MCP names
 2. Read `.github/skills/azure-artifacts/SKILL.md` — H2 templates for all 07-\* artifacts

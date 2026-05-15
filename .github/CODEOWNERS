@@ -7,7 +7,7 @@
 # Agent definitions require additional review
 .github/agents/             @jonathan-vella
 .github/instructions/       @jonathan-vella
-.github/prompts/            @jonathan-vella
+tools/apex-prompts/         @jonathan-vella
 
 # Workflow changes require careful review
 .github/workflows/          @jonathan-vella

@@ -1,6 +1,6 @@
 ---
 name: azure-prepare
-description: '**WORKFLOW SKILL** — Prepare Azure apps for deployment (infra Bicep/Terraform, azure.yaml, Dockerfiles). Covers create, modernize, and create+deploy. WHEN: "create app", "build web app", "create API", "deploy to Azure", "deploy to Azure using Terraform", "generate Bicep", "generate Terraform", "function app", "add authentication", "managed identity", "add caching", "containerized Node.js app". USE FOR: scaffolding new Azure apps, modernizing existing apps, generating IaC + azure.yaml. DO NOT USE FOR: cross-cloud migration (use azure-cloud-migrate), executing deployments of already-prepared apps (use azure-deploy), pre-deployment validation (use azure-validate).'
+description: '**WORKFLOW SKILL** — Prepare Azure apps for deployment (infra Bicep/Terraform, azure.yaml, Dockerfiles). Covers create, modernize, create+deploy. WHEN: "create app", "build web app", "create API", "deploy to Azure", "generate Bicep", "generate Terraform", "function app", "add authentication", "managed identity", "containerized Node.js app". DO NOT USE FOR: cross-cloud migration (azure-cloud-migrate), executing prepared deploys (azure-deploy), preflight (azure-validate).'
 license: MIT
 metadata:
   author: Microsoft

@@ -1,6 +1,6 @@
 ---
 name: terraform-search-import
-description: '**WORKFLOW SKILL** — Discover existing Azure resources and bulk import them into Terraform management. WHEN: "terraform import", "import Azure resources", "bring unmanaged infra under Terraform", "adopt Terraform for existing resources", "generate import blocks". USE FOR: importing Azure resources, audit, migration to IaC, bulk import. DO NOT USE FOR: Bicep code (use azure-bicep-patterns), new resource creation (use terraform-patterns), architecture decisions (use azure-adr). INVOKES: terraform MCP (registry toolset), terraform CLI, az CLI.'
+description: '**WORKFLOW SKILL** — Discover existing Azure resources and bulk import them into Terraform management. WHEN: "terraform import", "import Azure resources", "bring unmanaged infra under Terraform", "adopt Terraform for existing resources", "generate import blocks". DO NOT USE FOR: Bicep code (azure-bicep-patterns), new resource creation (terraform-patterns), architecture decisions (azure-adr).'
 compatibility: Manual workflow requires azurerm ~> 4.0 + Azure CLI. Search workflow requires Terraform >= 1.14 (experimental for azurerm).
 ---
 

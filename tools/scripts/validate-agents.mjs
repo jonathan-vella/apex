@@ -67,6 +67,12 @@ const MAIN_AGENT_REQUIRED = ["name", "description", "user-invocable", "tools"];
 const SUBAGENT_REQUIRED = ["name", "description", "user-invocable", "tools"];
 const RECOMMENDED_FIELDS = ["agents", "model"];
 const BLOCK_SCALAR_PATTERN = /^description:\s*[>|][-\s]*$/m;
+// Description length cap: enforces concise routing-keyword-only descriptions.
+// See .github/instructions/agent-authoring.instructions.md#frontmatter-description-length.
+// Anti-scope language belongs in the body, not in the description field —
+// every char here ships with every model call (~10x compounding cost).
+const DESCRIPTION_MAX_LEN = 350;
+const DESCRIPTION_WARN_LEN = 300;
 
 const ALLOWED_NON_INVOCABLE_MAIN_AGENTS = new Set(["e2e-orchestrator.agent.md"]);
 
@@ -88,6 +94,21 @@ function runFrontmatterValidation() {
 
     if (BLOCK_SCALAR_PATTERN.test(content)) {
       r.error(relativePath, "description uses a YAML block scalar (>, >-, | or |-). Use a single-line inline string.");
+    }
+
+    if (frontmatter && typeof frontmatter.description === "string") {
+      const len = frontmatter.description.length;
+      if (len > DESCRIPTION_MAX_LEN) {
+        r.error(
+          relativePath,
+          `description is ${len} chars (max ${DESCRIPTION_MAX_LEN}). Trim USE FOR/INVOKES content into the body; keep WHEN keywords + a short anti-scope clause.`,
+        );
+      } else if (len > DESCRIPTION_WARN_LEN) {
+        r.warn(
+          relativePath,
+          `description is ${len} chars (recommend ≤ ${DESCRIPTION_WARN_LEN}). Drop redundant USE FOR / INVOKES lines.`,
+        );
+      }
     }
 
     if (!frontmatter) {

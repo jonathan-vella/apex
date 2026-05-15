@@ -1,6 +1,6 @@
 ---
 name: azure-validate
-description: '**WORKFLOW SKILL** — Pre-deployment validation for Azure readiness. Run deep checks on configuration, infrastructure (Bicep or Terraform), permissions, and prerequisites before deploying. WHEN: "validate my app", "check deployment readiness", "run preflight checks", "validate azure.yaml", "validate Bicep", "test before deploying", "validate Azure Functions". USE FOR: pre-deployment readiness checks, Bicep + Terraform preflight, Azure Functions validation. DO NOT USE FOR: post-deployment troubleshooting (use azure-diagnostics), executing deployments (use azure-deploy).'
+description: "**WORKFLOW SKILL** — Pre-deployment validation for Azure readiness. Deep checks on configuration, infrastructure (Bicep or Terraform), permissions, and prerequisites before deploying. WHEN: 'validate my app', 'check deployment readiness', 'run preflight checks', 'validate azure.yaml', 'validate Bicep', 'test before deploying', 'validate Azure Functions'. DO NOT USE FOR: post-deployment troubleshooting (azure-diagnostics), executing deployments (azure-deploy)."
 license: MIT
 metadata:
   author: Microsoft

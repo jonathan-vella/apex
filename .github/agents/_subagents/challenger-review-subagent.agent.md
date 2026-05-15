@@ -1,6 +1,6 @@
 ---
 name: challenger-review-subagent
-description: "Unified adversarial review subagent that challenges Azure infrastructure artifacts. Finds untested assumptions, governance gaps, WAF blind spots, and architectural weaknesses. Returns structured JSON findings to the parent agent. Supports single-pass and multi-pass rotating-lens reviews. Handles batch execution (multiple lenses per invocation) for complex projects."
+description: "Unified adversarial review subagent that challenges Azure infrastructure artifacts. Finds untested assumptions, governance gaps, WAF blind spots, and architectural weaknesses. Returns structured JSON findings. Supports single-pass and multi-pass rotating-lens reviews; batches lenses per invocation."
 model: ["GPT-5.5"]
 disable-model-invocation: false
 # Model rationale: GPT-5.5 for structured adversarial review with explicit

@@ -1,6 +1,6 @@
 ---
 name: drawio
-description: '**WORKFLOW SKILL** — Generate Azure architecture diagrams in .drawio format via the simonkurtz-MSFT MCP server (full Azure icon set bundled with the server, batch creation, transactional mode). Covers architecture, dependency, runtime flow, and as-built diagrams. WHEN: "draw.io diagram", "Azure architecture diagram", "as-built diagram", "runtime flow diagram", "dependency diagram". USE FOR: production Azure architecture visuals, multi-resource layouts, design-stage and as-built artifacts. DO NOT USE FOR: WAF/cost charts (use python-diagrams), inline Mermaid (use mermaid). INVOKES: drawio MCP (search-shapes, add-cells, finish-diagram).'
+description: "**WORKFLOW SKILL** — Generate Azure architecture diagrams in .drawio via simonkurtz-MSFT MCP server (full Azure icon set, batch creation, transactional mode). Covers architecture, dependency, runtime-flow, and as-built diagrams. WHEN: 'draw.io diagram', 'Azure architecture diagram', 'as-built diagram', 'runtime flow diagram', 'dependency diagram'. DO NOT USE FOR: WAF/cost charts (python-diagrams), inline Mermaid (mermaid)."
 compatibility: Works with VS Code Copilot, Claude Code, and any MCP-compatible tool. Uses simonkurtz-MSFT/drawio-mcp-server configured in .vscode/mcp.json.
 license: MIT
 metadata:

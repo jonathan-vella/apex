@@ -1,6 +1,6 @@
 ---
 name: azure-rbac
-description: '**ANALYSIS SKILL** — Find the right Azure RBAC role for an identity with least-privilege access; generate CLI, Bicep, and Terraform code to assign it. WHEN: "what role should I assign", "least privilege role", "RBAC role for", "role for managed identity", "custom role definition", "assign role to identity". USE FOR: role discovery, RBAC scaffolding (Bicep + Terraform), least-privilege analysis. DO NOT USE FOR: deploying resources (use azure-deploy), security audits (use azure-compliance). INVOKES: microsoft-learn MCP, az CLI.'
+description: '**ANALYSIS SKILL** — Find the right Azure RBAC role for an identity with least-privilege access; generate CLI, Bicep, and Terraform code to assign it. WHEN: "what role should I assign", "least privilege role", "RBAC role for", "role for managed identity", "custom role definition", "assign role to identity". DO NOT USE FOR: deploying (azure-deploy), security audits (azure-compliance).'
 license: MIT
 metadata:
   author: Microsoft

@@ -1,6 +1,6 @@
 ---
 name: azure-deploy
-description: '**WORKFLOW SKILL** — Execute Azure deployments for ALREADY-PREPARED apps. Runs azd up, azd deploy, terraform apply with built-in error recovery. Requires plan.md from azure-prepare and validated status from azure-validate. WHEN: "run azd up", "run azd deploy", "push to production", "go live", "bicep deploy", "terraform apply", "publish to Azure". USE FOR: deploying validated infra; lifting existing IaC to cloud. DO NOT USE FOR: creating new apps (use azure-prepare), generating IaC (use azure-prepare), pre-deployment checks (use azure-validate). INVOKES: azd CLI, az deployment, microsoft_docs_search (Microsoft Learn MCP).'
+description: "**WORKFLOW SKILL** — Execute Azure deployments for ALREADY-PREPARED apps. Runs azd up, azd deploy, terraform apply with built-in error recovery. Requires plan.md from azure-prepare and validated status from azure-validate. WHEN: 'run azd up', 'run azd deploy', 'push to production', 'go live', 'bicep deploy', 'terraform apply', 'publish to Azure'. DO NOT USE FOR: creating new apps (azure-prepare), generating IaC (azure-prepare), pre-deployment checks (azure-validate)."
 license: MIT
 metadata:
   author: Microsoft

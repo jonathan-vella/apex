@@ -1,6 +1,6 @@
 ---
 name: 05-IaC Planner
-description: Expert Azure Infrastructure as Code planner that creates comprehensive, machine-readable implementation plans. Consults Microsoft documentation, evaluates Azure Verified Modules (Bicep or Terraform), and designs complete infrastructure solutions with architecture diagrams. Routes to the appropriate IaC track based on decisions.iac_tool in session state.
+description: "Expert Azure IaC planner that creates comprehensive machine-readable implementation plans. Consults Microsoft documentation, evaluates Azure Verified Modules (Bicep or Terraform), designs full infrastructure solutions with architecture diagrams. Routes by decisions.iac_tool."
 model: ["Claude Opus 4.7"]
 user-invocable: true
 agents: ["challenger-review-subagent"]
@@ -102,7 +102,7 @@ Always specify Azure Storage Account backend only.
 
 ## Read Skills First
 
-**Before doing ANY work**, read these skills:
+**Before doing ANY work**, read these skills.
 
 1. **Read** `.github/skills/azure-defaults/SKILL.md` — regions, tags, AVM, governance, naming
 2. **Read** `.github/skills/azure-artifacts/SKILL.md` — H2 templates for `04-implementation-plan.md` and `04-governance-constraints.md`

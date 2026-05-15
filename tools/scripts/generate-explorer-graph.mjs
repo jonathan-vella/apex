@@ -220,7 +220,9 @@ function collectInstructions() {
 }
 
 function collectPrompts() {
-  const dir = join(REPO_ROOT, ".github/prompts");
+  // Prompts live in tools/apex-prompts/ (not .github/prompts/) so they are
+  // never auto-loaded by VS Code Copilot's prompt-file discovery.
+  const dir = join(REPO_ROOT, "tools/apex-prompts");
   const files = listFiles(dir, (f) => f.endsWith(".prompt.md"));
   return files.map((path) => {
     const content = readFileSync(path, "utf8");

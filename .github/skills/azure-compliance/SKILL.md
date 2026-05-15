@@ -1,6 +1,6 @@
 ---
 name: azure-compliance
-description: '**ANALYSIS SKILL** — Azure compliance and security auditing: best practices, Key Vault expiration monitoring, resource validation. WHEN: "compliance scan", "security audit", "Key Vault expiration check", "expired certificates", "orphaned resources". USE FOR: pre-azqr compliance assessment, Key Vault audits, security posture evaluation. DO NOT USE FOR: cost analysis (use azure-cost-optimization), governance discovery (use azure-governance-discovery). INVOKES: azqr extension, az keyvault, az storage.'
+description: '**ANALYSIS SKILL** — Azure compliance and security auditing: best practices, Key Vault expiration monitoring, resource validation. WHEN: "compliance scan", "security audit", "Key Vault expiration check", "expired certificates", "orphaned resources". DO NOT USE FOR: cost analysis (azure-cost-optimization), governance discovery (azure-governance-discovery).'
 license: MIT
 metadata:
   author: Microsoft
