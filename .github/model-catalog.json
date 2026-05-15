@@ -8,7 +8,12 @@
       "tier": "frontier",
       "released": "2026-05",
       "deprecated": false,
-      "use_for": ["orchestration", "architecture", "iac-planning", "context-optimization"],
+      "use_for": [
+        "orchestration",
+        "architecture",
+        "iac-planning",
+        "context-optimization"
+      ],
       "notes": "Active Opus 4.7 SKU. Reasoning-effort policy (high vs default) is a per-agent / per-call concern, NOT a separate model label. See `.github/instructions/agent-authoring.instructions.md` (\"Reasoning-effort policy\" section) for guidance on which agents run at high effort."
     },
     "Claude Opus 4.6": {
@@ -16,7 +21,13 @@
       "tier": "frontier",
       "released": "2026-01",
       "deprecated": true,
-      "use_for": ["orchestration", "architecture", "iac-planning", "diagnosis", "context-optimization"],
+      "use_for": [
+        "orchestration",
+        "architecture",
+        "iac-planning",
+        "diagnosis",
+        "context-optimization"
+      ],
       "notes": "Deprecated 2026-05 in favor of Claude Opus 4.7. Retained for audit history; not authorized for new agents."
     },
     "Claude Sonnet 4.6": {
@@ -24,15 +35,26 @@
       "tier": "balanced",
       "released": "2026-01",
       "deprecated": false,
-      "use_for": ["design-diagrams", "adr-authoring", "iac-validation", "deployment-preview"],
-      "notes": "Active for Step 3 Design and the IaC validation/preview subagents (bicep-validate, bicep-whatif, terraform-validate, terraform-plan) after the 2026-05 GPT-5.4 → Sonnet 4.6 subagent migration. The Anthropic prompting style (XML-tagged blocks, role-first, quote-grounded review, checklist-driven structured output) suits both ADR + diagram authoring and the structured PASS/FAIL findings produced by the validation subagents. Other Sonnet-cohort agents (Governance, CodeGen, Challenger) moved to GPT-5.5 in the same cohort migration."
+      "use_for": [
+        "design-diagrams",
+        "adr-authoring",
+        "iac-codegen",
+        "iac-validation",
+        "deployment-preview"
+      ],
+      "notes": "Active for Step 3 Design, Step 5 IaC code generation (Bicep + Terraform), and the IaC validation/preview subagents (bicep-validate, bicep-whatif, terraform-validate, terraform-plan). The Anthropic prompting style (XML-tagged blocks, role-first, quote-grounded review, checklist-driven structured output) suits both ADR + diagram authoring and the structured PASS/FAIL findings produced by the validation subagents. CodeGen joined this cohort 2026-05 (was GPT-5.5) for stronger verbatim invariant retention (security baseline, AVM contract, HARD GATE language) and family alignment with the validate subagents it dispatches. Other GPT-5.5 cohort members (Governance, Deploy, As-Built, Challenger, E2E, Diagnose) remain on GPT-5.5."
     },
     "GPT-5.4": {
       "vendor": "OpenAI",
       "tier": "standard",
       "released": "2026-02",
       "deprecated": true,
-      "use_for": ["deployment", "as-built", "validation-subagents", "whatif-interpretation"],
+      "use_for": [
+        "deployment",
+        "as-built",
+        "validation-subagents",
+        "whatif-interpretation"
+      ],
       "notes": "Deprecated 2026-05 in favor of GPT-5.5 after deploy + as-built migration. Retained for audit history; not authorized for new agents."
     },
     "GPT-5.5": {
@@ -44,21 +66,23 @@
         "orchestration",
         "fast-path-orchestration",
         "governance",
-        "iac-codegen",
         "deployment-execution",
         "as-built-documentation",
         "challenger-review",
         "diagnosis",
         "e2e-evaluation"
       ],
-      "notes": "Outcome-first prompting per the OpenAI GPT-5.5 prompting guide: explicit Role / Personality / Goal / Success / Constraints / Output / Stop sections, retrieval budgets, decision rules over absolutes, and stopping conditions. More efficient reasoning than predecessors — re-evaluate low/medium effort before escalating to high. After 2026-05 cohort migration, GPT-5.5 also covers deploy (Bicep + Terraform), as-built documentation, diagnostics, and the e2e-orchestrator (was GPT-5.4 / Opus 4.7 respectively)."
+      "notes": "Outcome-first prompting per the OpenAI GPT-5.5 prompting guide: explicit Role / Personality / Goal / Success / Constraints / Output / Stop sections, retrieval budgets, decision rules over absolutes, and stopping conditions. More efficient reasoning than predecessors — re-evaluate low/medium effort before escalating to high. After 2026-05 cohort migration, GPT-5.5 covers deploy (Bicep + Terraform), as-built documentation, diagnostics, and the e2e-orchestrator. IaC code generation (06b/06t) moved to Claude Sonnet 4.6 in a follow-up migration; everything else in the GPT-5.5 cohort is stable."
     },
     "GPT-5.3-Codex": {
       "vendor": "OpenAI",
       "tier": "codex",
       "released": "2025-12",
       "deprecated": false,
-      "use_for": ["cost-estimation", "parametric-calculations"],
+      "use_for": [
+        "cost-estimation",
+        "parametric-calculations"
+      ],
       "notes": "Code/maths-focused. Used by cost-estimate-subagent for numerical reasoning."
     }
   },
@@ -77,13 +101,14 @@
     "description": "Auto-generated inventory of agent → model assignments derived from frontmatter (canonical source). Do not edit by hand; run `node tools/scripts/generate-model-catalog.mjs` or let the lefthook pre-commit hook refresh it when frontmatter changes.",
     "agents": {
       "01-orchestrator.agent.md": "GPT-5.3-Codex",
+      "02-requirements-gpt.agent.md": "GPT-5.5",
       "02-requirements.agent.md": "Claude Opus 4.7",
       "03-architect.agent.md": "Claude Opus 4.7",
       "04-design.agent.md": "Claude Sonnet 4.6",
       "04g-governance.agent.md": "GPT-5.5",
       "05-iac-planner.agent.md": "Claude Opus 4.7",
-      "06b-bicep-codegen.agent.md": "GPT-5.5",
-      "06t-terraform-codegen.agent.md": "GPT-5.5",
+      "06b-bicep-codegen.agent.md": "Claude Sonnet 4.6",
+      "06t-terraform-codegen.agent.md": "Claude Sonnet 4.6",
       "07b-bicep-deploy.agent.md": "GPT-5.5",
       "07t-terraform-deploy.agent.md": "GPT-5.5",
       "08-as-built.agent.md": "GPT-5.5",

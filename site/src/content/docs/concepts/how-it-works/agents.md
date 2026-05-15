@@ -12,7 +12,7 @@ Every agent definition follows a standard structure:
 ---
 name: 06b-Bicep CodeGen
 description: Expert Azure Bicep IaC specialist...
-model: ["GPT-5.5"] # (1)!
+model: ["Claude Sonnet 4.6"] # (1)!
 tools: [list of allowed tools] # (2)!
 handoffs:
   - label: "Step 6: Deploy"
@@ -228,8 +228,11 @@ source of truth, but the current repo pattern is:
 - **Planning agents** (accuracy-first) — typically `Claude Opus 4.7` at high reasoning effort
 - **Orchestrator** — `GPT-5.5` with the OpenAI outcome-first prompting style
   (Role / Personality / Goal / Success / Constraints / Output / Stop)
-- **Design + Governance + Code generation + Challenger** — `GPT-5.5` for balanced
-  execution quality with explicit retrieval budgets and stopping conditions
+- **Design + Code generation** — `Claude Sonnet 4.6` for Anthropic XML-tagged
+  output contracts and stronger verbatim invariant retention (security baseline,
+  AVM contract, HARD GATE language)
+- **Governance + Challenger** — `GPT-5.5` for balanced execution quality with
+  explicit retrieval budgets and stopping conditions
 - **Execution, deploy, and validation subagents** — model varies; consult `tools/registry/agent-registry.json`
 - **Adversarial review** — use a different model family than the artifact author when possible
 

@@ -20,6 +20,19 @@ for full details on this and all prior releases.
 
 ### Changed
 
+- refactor(agents)!: migrate `06b-Bicep CodeGen` and `06t-Terraform CodeGen`
+  from `GPT-5.5` to `Claude Sonnet 4.6`. Frontmatter `model:` flipped,
+  `tools/registry/agent-registry.json` mirrored, `.github/model-catalog.json`
+  regenerated (Sonnet 4.6 `use_for` adds `iac-codegen`; GPT-5.5 drops it).
+  Bodies kept structurally GPT-5.5 outcome-first — only minimal change is the
+  existing `## Output Contract` heading converted to an `<output_contract>`
+  XML block to satisfy the Anthropic `claude-output-contract-001` rule.
+  All verbatim invariants (security baseline, AVM-first contract, Phase 1.5
+  HARD GATE language, `apex-recall` calls, subagent JSON consumption shape,
+  Do/Don't entries) preserved byte-exact. Rationale: family alignment with the
+  Sonnet validate/whatif/plan subagents these agents already dispatch, plus
+  stronger verbatim invariant retention under XML-tagged contracts. Does not
+  re-trigger QUALITY_SCORE 2026-05-12 (no `<context_awareness>` block added).
 - feat(agents): migrate `09-Diagnose` to `GPT-5.5` and convert
   `diagnose-resource.prompt.md` to the outcome-first GPT-5.5 skeleton while
   preserving approval-first Azure diagnostics and report output.

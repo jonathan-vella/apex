@@ -41,11 +41,11 @@
     "iac-code": {
       "bicep": {
         "agent": ".github/agents/06b-bicep-codegen.agent.md",
-        "model": "GPT-5.5"
+        "model": "Claude Sonnet 4.6"
       },
       "terraform": {
         "agent": ".github/agents/06t-terraform-codegen.agent.md",
-        "model": "GPT-5.5"
+        "model": "Claude Sonnet 4.6"
       },
       "invokable": true,
       "step": 5

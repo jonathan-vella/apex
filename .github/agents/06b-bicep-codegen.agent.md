@@ -1,7 +1,7 @@
 ---
 name: 06b-Bicep CodeGen
 description: Expert Azure Bicep Infrastructure as Code specialist that creates near-production-ready Bicep templates following best practices and Azure Verified Modules standards. Validates, tests, and ensures code quality.
-model: ["GPT-5.5"]
+model: ["Claude Sonnet 4.6"]
 user-invocable: true
 agents: ["bicep-validate-subagent", "challenger-review-subagent"]
 tools:
@@ -527,8 +527,7 @@ infra/bicep/{project}/
     └── ...
 ```
 
-## Output Contract
-
+<output_contract>
 Expected output in `infra/bicep/{project}/`:
 
 - `main.bicep` — Entry point with uniqueSuffix, orchestrates modules
@@ -547,6 +546,7 @@ In `agent-output/{project}/`:
 Validation: `bicep build main.bicep` + `bicep lint main.bicep` +
 `az deployment sub validate` (Phase 4.6) + `npm run validate:iac-handoff` +
 `npm run lint:artifact-templates`.
+</output_contract>
 
 ## User Updates
 

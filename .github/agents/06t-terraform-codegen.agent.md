@@ -1,7 +1,7 @@
 ---
 name: 06t-Terraform CodeGen
 description: Expert Azure Terraform Infrastructure as Code specialist that creates near-production-ready Terraform configurations following best practices and Azure Verified Modules (AVM-TF) standards. Validates, tests, and ensures code quality.
-model: ["GPT-5.5"]
+model: ["Claude Sonnet 4.6"]
 user-invocable: true
 agents: ["terraform-validate-subagent", "challenger-review-subagent"]
 tools:
@@ -521,8 +521,7 @@ Terraform specifics:
 Read `terraform-patterns/references/project-scaffold.md` for the standard
 file structure, `locals.tf` pattern, and phased deployment pattern.
 
-## Output Contract
-
+<output_contract>
 Expected output in `infra/terraform/{project}/`:
 
 - `versions.tf`, `providers.tf`, `backend.tf` — Provider and backend config
@@ -544,6 +543,7 @@ In `agent-output/{project}/`:
 Validation: `terraform validate` + `terraform fmt -check` +
 `terraform plan -refresh=false` (Phase 4.6) +
 `npm run validate:iac-handoff` + `npm run lint:artifact-templates`.
+</output_contract>
 
 ## User Updates
 
