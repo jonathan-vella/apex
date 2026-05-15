@@ -1,3 +1,5 @@
+<!-- ref:core-workflow-v1 -->
+
 # Core Entra App-Registration Workflow
 
 > Loaded by `entra-app-registration` SKILL.md when the agent is doing the

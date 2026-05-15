@@ -3,6 +3,7 @@
 import asyncio
 import json
 import logging
+import re
 from datetime import datetime
 from typing import Any
 
@@ -119,6 +120,16 @@ _SKU_SUFFIXES_TO_STRIP = (
     " v2",  # generic
 )
 
+# v5.6 FIX — App Service Premium v3/v4 plans carry SKU names like ``P0v3``,
+# ``P1v3``, ``P2v4`` in the Retail Prices API (no space). Users and
+# downstream agents frequently spell them ``P0 v3`` / ``P1 v3``. Without
+# collapsing the space, ``contains(skuName, 'P0 v3')`` returns zero rows.
+# The pattern is narrow on purpose: SKU code (P/I/B/S/E + 1-2 digits) +
+# space + ``v`` + 1-2 digits, end of string. ``Premium SSD v2`` still hits
+# the broader " v2" suffix-strip rule below and is normalised to
+# ``Premium SSD`` (existing behaviour preserved).
+_APP_SERVICE_VERSION_SPACE_RE = re.compile(r"^([PIBSE]\d{1,2})\s+(v\d{1,2})$", re.IGNORECASE)
+
 
 def _normalize_sku_for_search(sku_name: str) -> str:
     """Strip variant suffixes that the Retail Prices API doesn't carry in its
@@ -127,6 +138,11 @@ def _normalize_sku_for_search(sku_name: str) -> str:
     if not sku_name:
         return sku_name
     cleaned = sku_name
+    # v5.6 — collapse "P0 v3" / "P1 v4" → "P0v3" / "P1v4" BEFORE the generic
+    # " v2" suffix strip would over-match ("P0 v2" → "P0").
+    m = _APP_SERVICE_VERSION_SPACE_RE.match(cleaned.strip())
+    if m:
+        return f"{m.group(1)}{m.group(2).lower()}"
     for suffix in _SKU_SUFFIXES_TO_STRIP:
         if cleaned.lower().endswith(suffix.lower()):
             cleaned = cleaned[: -len(suffix)].rstrip()

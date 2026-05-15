@@ -5,9 +5,11 @@
 > in the **azure-keyvault-py** plugin skill if installed.
 
 ## Install
+
 pip install azure-keyvault-secrets azure-keyvault-keys azure-keyvault-certificates azure-identity
 
 ## Quick Start
+
 ```python
 from azure.identity import DefaultAzureCredential
 from azure.keyvault.secrets import SecretClient
@@ -15,6 +17,7 @@ client = SecretClient(vault_url="https://<vault>.vault.azure.net/", credential=D
 ```
 
 ## Best Practices
+
 - Use DefaultAzureCredential for **local development only**. In production, use ManagedIdentityCredential — see [auth-best-practices.md](../auth-best-practices.md)
 - Use managed identity in Azure-hosted applications
 - Enable soft-delete for recovery (enabled by default)

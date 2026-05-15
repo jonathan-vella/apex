@@ -19,18 +19,38 @@ policy precheck).
 
 ## Drift routing matrix
 
-| Detected at             | Drift type                                | Returns to                                       |
-| ----------------------- | ----------------------------------------- | ------------------------------------------------ |
-| L0 (any consumer)       | Envelope invalid / stale / partial        | 04g-Governance                                   |
-| L1 (Planner challenger) | Matrix row unsatisfiable                  | 04g-Governance                                   |
-| L1 (Planner challenger) | Matrix row missing for a Deny             | 05-IaC Planner                                   |
-| L2 (CodeGen validator)  | Code violates a matrix row                | 06b/06t (self-fix — mechanical)                  |
-| L2 (CodeGen validator)  | Code violates a policy not in matrix      | 05-IaC Planner                                   |
-| L2 (CodeGen validator)  | Property path doesn't exist in AVM module | 04g-Governance + 05-IaC Planner                  |
-| L3 (Deploy precheck)    | Live policy missing from constraints      | 04g-Governance                                   |
-| L3 (Deploy precheck)    | Live policy newer than `discovered_at`    | 04g-Governance                                   |
-| L3 (Deploy precheck)    | what-if returns ARM policy violation      | 04g-Governance + 05-IaC Planner                  |
-| Runtime (deployment)    | Policy denies a resource                  | Should be impossible after L3; escalate to human |
+| Detected at             | Drift type                                                        | Returns to                                       |
+| ----------------------- | ----------------------------------------------------------------- | ------------------------------------------------ |
+| L0 (any consumer)       | Envelope invalid / stale / partial                                | 04g-Governance                                   |
+| L1 (Planner challenger) | Matrix row unsatisfiable                                          | 04g-Governance                                   |
+| L1 (Planner challenger) | Matrix row missing for a Deny                                     | 05-IaC Planner                                   |
+| L2 (CodeGen validator)  | Code violates a matrix row                                        | 06b/06t (self-fix — mechanical)                  |
+| L2 (CodeGen validator)  | Code violates a policy not in matrix                              | 05-IaC Planner                                   |
+| L2 (CodeGen validator)  | Property path doesn't exist in AVM module                         | 04g-Governance + 05-IaC Planner                  |
+| L3 (Deploy precheck)    | Envelope STALE                                                    | 04g-Governance                                   |
+| L3 (Deploy precheck)    | INFORMATIONAL drift — non-deny effects missing or timestamp churn | Proceed (no handoff). Log to governance backlog. |
+| L3 (Deploy precheck)    | INFORMATIONAL drift accepted via `residual_drift_acceptance`      | Proceed (no handoff). Acceptance is the gate.    |
+| L3 (Deploy precheck)    | BLOCKING drift — Deny-effect policy missing from constraints      | 04g-Governance                                   |
+| L3 (Deploy precheck)    | BLOCKING drift — what-if returns ARM policy violation             | 04g-Governance + 05-IaC Planner                  |
+| Runtime (deployment)    | Policy denies a resource                                          | Should be impossible after L3; escalate to human |
+
+### Verdict precedence (L3)
+
+Deploy agents MUST read `deploy_gate` (PROCEED | BLOCK) from the L3
+JSON output and use it as the authoritative apply decision. `status`
+is informational only and may show `INFORMATIONAL` while `deploy_gate`
+remains `PROCEED`. See
+[`iac-common/references/policy-precheck-contract.md`](policy-precheck-contract.md)
+for the deterministic derivation rule.
+
+> **Why this split exists** — initiative assignments (MCSB, MCAPSGov,
+> ALZ) reference hundreds of child policy definitions. `az policy state
+list` returns child IDs; the constraints envelope's `findings[]`
+> filters to Deny + auto-remediate effects only. Without the split
+> rule, every deploy on a real subscription would loop indefinitely
+> through `▶ Refresh Governance` even when no blocking drift exists.
+> Discovery emits `member_policy_index` to suppress most of this noise
+> automatically; the routing split handles the residual.
 
 ## Handoff labels per route
 
@@ -64,10 +84,16 @@ policy precheck).
   return to 04g-Governance and 05-IaC Planner in parallel. The
   Planner needs a new property path candidate; Governance needs to
   record the AVM gap so the next refresh re-evaluates.
-- **L3 Deploy precheck flags live policy newer than
-  `discovered_at`** → never proceed; refresh governance. The reverse
-  (constraints contain a policy that the live API does not return) is
-  acceptable and treated as no-op.
+- **L3 Deploy precheck reports INFORMATIONAL drift** (audit /
+  auditIfNotExists / modify / deployIfNotExists / manual effects
+  missing OR timestamp churn) → `deploy_gate=PROCEED`. The parent
+  deploy agent surfaces the drift summary as informational context
+  and continues. No handoff. The governance team should refresh
+  discovery at the next scheduled cycle to expand `member_policy_index`
+  coverage.
+- **L3 Deploy precheck reports BLOCKING drift** (Deny effect missing
+  OR what-if violation) → `deploy_gate=BLOCK`, route to
+  `▶ Refresh Governance`. Never proceed.
 
 ## Anti-patterns
 

@@ -1,4 +1,5 @@
 <!-- ref:azure-keyvault-expiration-audit-v1 -->
+
 # Key Vault Expiration Audit & Compliance
 
 Automated auditing of Azure Key Vault resources to identify expired or expiring keys, secrets, and certificates before they cause service disruptions.
@@ -6,6 +7,7 @@ Automated auditing of Azure Key Vault resources to identify expired or expiring 
 ## Overview
 
 This skill monitors Azure Key Vault resources (keys, secrets, certificates) for expiration issues. It helps prevent service disruptions by identifying:
+
 - **Expired resources** causing active problems
 - **Expiring soon** (within customizable days threshold)
 - **Missing expiration dates** (security risk)
@@ -21,21 +23,25 @@ This skill monitors Azure Key Vault resources (keys, secrets, certificates) for 
 ## Audit Patterns
 
 ### Pattern 1: Single Vault Quick Scan
+
 Check one Key Vault for all expiration issues with configurable day threshold (default: 30 days).
 
 **Tools**: `keyvault_key_list`, `keyvault_key_get`, `keyvault_secret_list`, `keyvault_secret_get`, `keyvault_certificate_list`, `keyvault_certificate_get`
 
 ### Pattern 2: Multi-Vault Compliance Report
+
 Scan multiple vaults across subscription for comprehensive security review.
 
 **Use for**: Quarterly audits, organization-wide compliance checks
 
 ### Pattern 3: Resource Type Focus
+
 Audit only keys, secrets, OR certificates when specific resource type is mentioned.
 
 **Use for**: Certificate renewal planning, secret rotation tracking
 
 ### Pattern 4: Emergency Expired Finder
+
 Quick scan for already-expired resources (negative days) to troubleshoot active incidents.
 
 **Use for**: Production issues, authentication failures
@@ -43,6 +49,7 @@ Quick scan for already-expired resources (negative days) to troubleshoot active 
 ## Key Data Fields
 
 When retrieving resource details, analyze these fields:
+
 - **expiresOn**: Expiration timestamp (null = no expiration set - security risk!)
 - **enabled**: Resource is active (false = disabled/inactive)
 - **notBefore**: When resource becomes valid
@@ -52,6 +59,7 @@ When retrieving resource details, analyze these fields:
 ## Report Format
 
 Organize findings into:
+
 - **Summary Statistics**: Total count, expired count, expiring count, no-expiration count per resource type
 - **Critical Issues**: Expired resources requiring immediate action
 - **Warnings**: Expiring within threshold (e.g., 30 days)
@@ -77,14 +85,14 @@ Organize findings into:
 
 ## MCP Tools Used
 
-| Tool | Purpose |
-|------|---------|
-| `keyvault_key_list` | List all keys in a vault |
-| `keyvault_key_get` | Get key details including expiration |
-| `keyvault_secret_list` | List all secrets in a vault |
-| `keyvault_secret_get` | Get secret details including expiration |
-| `keyvault_certificate_list` | List all certificates in a vault |
-| `keyvault_certificate_get` | Get certificate details including expiration |
+| Tool                        | Purpose                                      |
+| --------------------------- | -------------------------------------------- |
+| `keyvault_key_list`         | List all keys in a vault                     |
+| `keyvault_key_get`          | Get key details including expiration         |
+| `keyvault_secret_list`      | List all secrets in a vault                  |
+| `keyvault_secret_get`       | Get secret details including expiration      |
+| `keyvault_certificate_list` | List all certificates in a vault             |
+| `keyvault_certificate_get`  | Get certificate details including expiration |
 
 **Required**: `vault` (Key Vault name)  
 **Optional**: `subscription`, `tenant`
@@ -95,18 +103,19 @@ If Azure MCP Key Vault tools fail, timeout, or are unavailable, use Azure CLI co
 
 ### CLI Command Reference
 
-| Operation | Azure CLI Command |
-|-----------|-------------------|
-| List secrets | `az keyvault secret list --vault-name <vault-name>` |
-| Get secret details | `az keyvault secret show --vault-name <vault-name> --name <secret-name>` |
-| List keys | `az keyvault key list --vault-name <vault-name>` |
-| Get key details | `az keyvault key show --vault-name <vault-name> --name <key-name>` |
-| List certificates | `az keyvault certificate list --vault-name <vault-name>` |
+| Operation               | Azure CLI Command                                                           |
+| ----------------------- | --------------------------------------------------------------------------- |
+| List secrets            | `az keyvault secret list --vault-name <vault-name>`                         |
+| Get secret details      | `az keyvault secret show --vault-name <vault-name> --name <secret-name>`    |
+| List keys               | `az keyvault key list --vault-name <vault-name>`                            |
+| Get key details         | `az keyvault key show --vault-name <vault-name> --name <key-name>`          |
+| List certificates       | `az keyvault certificate list --vault-name <vault-name>`                    |
 | Get certificate details | `az keyvault certificate show --vault-name <vault-name> --name <cert-name>` |
 
 ### When to Fallback
 
 Switch to Azure CLI when:
+
 - MCP tool returns timeout error
 - MCP tool returns "service unavailable" or connection errors
 - MCP tool takes longer than 30 seconds to respond

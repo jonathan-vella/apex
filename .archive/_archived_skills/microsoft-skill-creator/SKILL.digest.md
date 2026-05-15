@@ -38,7 +38,7 @@ skill-name/
 
 If the Learn MCP server is not available, use the `mslearn` CLI via Bash instead:
 
-```bash
+````bash
 # Run directly (no install needed)
 npx @microsoft/learn-cli search "semantic kernel overview"
 
@@ -60,7 +60,7 @@ Build deep understanding using Learn MCP tools in three phases:
 microsoft_docs_search(query="{technology} overview what is")
 microsoft_docs_search(query="{technology} concepts architecture")
 microsoft_docs_search(query="{technology} getting started tutorial")
-```
+````
 
 **Phase 2 — Core Content:**
 
@@ -81,3 +81,4 @@ Framework/Platform search query templates, plus a complete Semantic Kernel examp
 | ---------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
 | [references/skill-templates.md](references/skill-templates.md)               | Ready-to-use templates for SDK/Library, Azure Service, Framework, and API/Protocol skills |
 | [references/investigation-patterns.md](references/investigation-patterns.md) | Investigation query patterns and complete Semantic Kernel example                         |
+```

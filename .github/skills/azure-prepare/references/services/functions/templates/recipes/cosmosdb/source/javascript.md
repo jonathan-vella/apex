@@ -3,6 +3,7 @@
 ## Dependencies
 
 **package.json:**
+
 ```json
 {
   "dependencies": {
@@ -14,41 +15,43 @@
 ## Source Code
 
 **src/functions/cosmosDBTrigger.js:**
-```javascript
-const { app } = require('@azure/functions');
 
-app.cosmosDB('cosmosDBTrigger', {
-    connectionStringSetting: 'COSMOS_CONNECTION',
-    databaseName: '%COSMOS_DATABASE_NAME%',
-    containerName: '%COSMOS_CONTAINER_NAME%',
-    createLeaseContainerIfNotExists: true,
-    handler: async (documents, context) => {
-        context.log(`Cosmos DB trigger processed ${documents.length} documents`);
-        
-        for (const doc of documents) {
-            context.log(`Document ID: ${doc.id}`);
-            context.log(`Document content: ${JSON.stringify(doc)}`);
-        }
+```javascript
+const { app } = require("@azure/functions");
+
+app.cosmosDB("cosmosDBTrigger", {
+  connectionStringSetting: "COSMOS_CONNECTION",
+  databaseName: "%COSMOS_DATABASE_NAME%",
+  containerName: "%COSMOS_CONTAINER_NAME%",
+  createLeaseContainerIfNotExists: true,
+  handler: async (documents, context) => {
+    context.log(`Cosmos DB trigger processed ${documents.length} documents`);
+
+    for (const doc of documents) {
+      context.log(`Document ID: ${doc.id}`);
+      context.log(`Document content: ${JSON.stringify(doc)}`);
     }
+  },
 });
 ```
 
 **src/functions/healthCheck.js:**
-```javascript
-const { app } = require('@azure/functions');
 
-app.http('health', {
-    methods: ['GET'],
-    authLevel: 'anonymous',
-    handler: async (request, context) => {
-        return {
-            status: 200,
-            jsonBody: { 
-                status: 'healthy',
-                trigger: 'cosmosdb'
-            }
-        };
-    }
+```javascript
+const { app } = require("@azure/functions");
+
+app.http("health", {
+  methods: ["GET"],
+  authLevel: "anonymous",
+  handler: async (request, context) => {
+    return {
+      status: 200,
+      jsonBody: {
+        status: "healthy",
+        trigger: "cosmosdb",
+      },
+    };
+  },
 });
 ```
 

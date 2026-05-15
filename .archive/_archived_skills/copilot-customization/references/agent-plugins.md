@@ -1,4 +1,5 @@
 <!-- ref:agent-plugins-v1 -->
+
 # Agent Plugins Reference (Preview)
 
 > Source: https://code.visualstudio.com/docs/copilot/customization/agent-plugins

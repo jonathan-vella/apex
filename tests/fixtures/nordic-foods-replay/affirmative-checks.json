@@ -1,0 +1,32 @@
+[
+  {
+    "id": "sku-confirmation-before-pricing",
+    "regex": "SKU confirmation|sku_confirmation_status",
+    "intended_observation": "Architect raises Phase 6a SKU-confirmation gate before invoking cost-estimate-subagent.",
+    "source_phase": "A1"
+  },
+  {
+    "id": "per-finding-askme",
+    "regex": "vscode_askQuestions[\\s\\S]{0,200}per finding|one question per finding|Accept[\\s\\S]{0,40}Skip[\\s\\S]{0,40}Defer",
+    "intended_observation": "Architect runs per-finding askQuestions, never batched with multiSelect.",
+    "source_phase": "A3"
+  },
+  {
+    "id": "drawio-default",
+    "regex": "Draw\\.io[^\\n]*recommended|diagram_tool[^\\n]*drawio",
+    "intended_observation": "Design Phase 0 raises tool-choice gate; Drawio is the recommended default.",
+    "source_phase": "D1"
+  },
+  {
+    "id": "governance-two-questions",
+    "regex": "two\\s+required\\s+confirmations|two\\s+questions",
+    "intended_observation": "Governance Phase 2.7 panel has exactly 2 questions (RG tag keys, allowed locations).",
+    "source_phase": "E1"
+  },
+  {
+    "id": "budget-gate-conditional",
+    "regex": "budget_decision|monthly_total[^\\n]*budget_cap",
+    "intended_observation": "Architect raises Phase 9a budget gate when monthly_total > budget_cap.",
+    "source_phase": "A2"
+  }
+]

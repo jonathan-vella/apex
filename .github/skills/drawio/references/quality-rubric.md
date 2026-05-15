@@ -145,14 +145,14 @@ The validator extensions (T-006 through T-010 and T-031) read these
 thresholds from this file. **Do not change a threshold without updating
 the validator and the test fixtures.**
 
-| Threshold key                    | Value           | Consumed by | Pain point |
-| -------------------------------- | --------------- | ----------- | ---------- |
-| `overlap.fp_ceiling_pct`         | `5`             | T-006       | #2 layout |
-| `density.max_cells_per_sqpx`     | `1 / 2500`      | T-007, T-031 | #7 scaling |
-| `density.warn_cells_per_sqpx`    | `1 / 4000`      | T-007, T-031 | #7 scaling |
-| `semantics.min_resources_for_zone` | `10`          | T-009       | #4 semantics |
-| `labels.min_image_cells_for_legend` | `8`          | T-010       | #5 labels |
-| `type_fit.filename_patterns`     | see `diagram-types.md` | T-008 | #6 type-fit |
+| Threshold key                       | Value                  | Consumed by  | Pain point   |
+| ----------------------------------- | ---------------------- | ------------ | ------------ |
+| `overlap.fp_ceiling_pct`            | `5`                    | T-006        | #2 layout    |
+| `density.max_cells_per_sqpx`        | `1 / 2500`             | T-007, T-031 | #7 scaling   |
+| `density.warn_cells_per_sqpx`       | `1 / 4000`             | T-007, T-031 | #7 scaling   |
+| `semantics.min_resources_for_zone`  | `10`                   | T-009        | #4 semantics |
+| `labels.min_image_cells_for_legend` | `8`                    | T-010        | #5 labels    |
+| `type_fit.filename_patterns`        | see `diagram-types.md` | T-008        | #6 type-fit  |
 
 `overlap.fp_ceiling_pct` is fixed at 5 per the resolved decision **D-OQ3**
 in [`agent-output/_plans/drawio-quality-uplift/plan.md`](../../../../agent-output/_plans/drawio-quality-uplift/plan.md).
@@ -168,13 +168,13 @@ The benchmark (T-011) emits per-dimension and aggregate scores into
 
 ## Consumers
 
-| Consumer                                         | Reads                          | Status |
-| ------------------------------------------------ | ------------------------------ | ------ |
-| `tools/scripts/validate-drawio-files.mjs`        | Deterministic thresholds       | wired by T-006..T-010, T-031 |
-| `tools/scripts/benchmark-e2e.mjs`                | Aggregate formula + dimensions | wired by T-011 |
-| `tools/scripts/run-drawio-quality-bench.mjs`     | Acceptance bar                 | wired by T-033 |
-| `04-Design` agent self-check                     | Anchor descriptors             | wired by T-022 (legend), T-024 (decomposition) |
-| Golden-scenario fixtures (`tests/fixtures/drawio-golden/`) | Acceptance bar      | wired by T-002 |
+| Consumer                                                   | Reads                          | Status                                         |
+| ---------------------------------------------------------- | ------------------------------ | ---------------------------------------------- |
+| `tools/scripts/validate-drawio-files.mjs`                  | Deterministic thresholds       | wired by T-006..T-010, T-031                   |
+| `tools/scripts/benchmark-e2e.mjs`                          | Aggregate formula + dimensions | wired by T-011                                 |
+| `tools/scripts/run-drawio-quality-bench.mjs`               | Acceptance bar                 | wired by T-033                                 |
+| `04-Design` agent self-check                               | Anchor descriptors             | wired by T-022 (legend), T-024 (decomposition) |
+| Golden-scenario fixtures (`tests/fixtures/drawio-golden/`) | Acceptance bar                 | wired by T-002                                 |
 
 ## Baseline-capture procedure (T-012)
 
@@ -197,27 +197,27 @@ The baseline is the divisor in the post-change reduction formula
    a. Open VS Code Copilot Chat and select the **04-Design** agent.
 
    b. Paste the contents of `prompt.md` (e.g.,
-      `cat tools/tests/drawio-golden/g1-three-tier-web/prompt.md`).
+   `cat tools/tests/drawio-golden/g1-three-tier-web/prompt.md`).
 
    c. Run the agent end-to-end. Watch the tool-call log.
 
    d. Count **regeneration cycles** = the number of times after the first complete
-      `add-cells` batch that the agent issued a `clear-diagram`, full re-`add-cells`,
-      or ≥3 corrective `edit-cells`/`delete-cell-by-id` calls. A first-pass success
-      with only minor edits = `0` retries.
+   `add-cells` batch that the agent issued a `clear-diagram`, full re-`add-cells`,
+   or ≥3 corrective `edit-cells`/`delete-cell-by-id` calls. A first-pass success
+   with only minor edits = `0` retries.
 
    e. Edit [`tools/tests/drawio-baseline/_baseline-runs.json`](../../../../tools/tests/drawio-baseline/_baseline-runs.json):
-      set the scenario's `retries` to the integer count and add a one-line
-      `observations` note (what regenerated and why).
+   set the scenario's `retries` to the integer count and add a one-line
+   `observations` note (what regenerated and why).
 
    f. Run the capture helper:
 
-      ```bash
-      node tools/scripts/capture-drawio-baseline.mjs
-      ```
+   ```bash
+   node tools/scripts/capture-drawio-baseline.mjs
+   ```
 
-      It rewrites [`regen-baseline.json`](../../../../tools/tests/drawio-baseline/regen-baseline.json)
-      with the running mean.
+   It rewrites [`regen-baseline.json`](../../../../tools/tests/drawio-baseline/regen-baseline.json)
+   with the running mean.
 
 3. **After all 7 are captured**, run with `--check`:
 
@@ -238,13 +238,13 @@ above is the source of truth.
 
 ### Files
 
-| File | Purpose |
-| ---- | ------- |
-| [`tools/tests/drawio-baseline/_baseline-runs.json`](../../../../tools/tests/drawio-baseline/_baseline-runs.json) | User-edited working file (per-scenario retry counts + observations) |
+| File                                                                                                             | Purpose                                                                   |
+| ---------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| [`tools/tests/drawio-baseline/_baseline-runs.json`](../../../../tools/tests/drawio-baseline/_baseline-runs.json) | User-edited working file (per-scenario retry counts + observations)       |
 | [`tools/tests/drawio-baseline/regen-baseline.json`](../../../../tools/tests/drawio-baseline/regen-baseline.json) | Generated baseline (mean + per-scenario), consumed by `benchmark-e2e.mjs` |
-| [`tools/scripts/capture-drawio-baseline.mjs`](../../../../tools/scripts/capture-drawio-baseline.mjs) | Capture helper: `--status`, `--check`, default = compose + write |
-| [`tools/schemas/drawio-baseline-runs.schema.json`](../../../../tools/schemas/drawio-baseline-runs.schema.json) | Schema for the working file |
-| [`tools/schemas/drawio-regen-baseline.schema.json`](../../../../tools/schemas/drawio-regen-baseline.schema.json) | Schema for the generated baseline |
+| [`tools/scripts/capture-drawio-baseline.mjs`](../../../../tools/scripts/capture-drawio-baseline.mjs)             | Capture helper: `--status`, `--check`, default = compose + write          |
+| [`tools/schemas/drawio-baseline-runs.schema.json`](../../../../tools/schemas/drawio-baseline-runs.schema.json)   | Schema for the working file                                               |
+| [`tools/schemas/drawio-regen-baseline.schema.json`](../../../../tools/schemas/drawio-regen-baseline.schema.json) | Schema for the generated baseline                                         |
 
 ## Change control
 

@@ -4,11 +4,13 @@
 > in the **azure-ai-transcription-py** plugin skill if installed.
 
 ## Install
+
 ```bash
 pip install azure-ai-transcription
 ```
 
 ## Quick Start
+
 ```python
 import os
 from azure.ai.transcription import TranscriptionClient
@@ -17,11 +19,13 @@ client = TranscriptionClient(endpoint=os.environ["TRANSCRIPTION_ENDPOINT"],
 ```
 
 ## Non-Obvious Patterns
+
 - Auth uses subscription key string directly (not AzureKeyCredential); DefaultAzureCredential not supported
 - Batch: `client.begin_transcription(name=..., locale="en-US", content_urls=[...], diarization_enabled=True)`
 - Real-time: `stream = client.begin_stream_transcription(locale="en-US"); stream.send_audio_file("audio.wav")`
 
 ## Best Practices
+
 1. Enable diarization when multiple speakers are present
 2. Use batch transcription for long files stored in blob storage
 3. Capture timestamps for subtitle generation

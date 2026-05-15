@@ -1,0 +1,376 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/jonathan-vella/azure-agentic-infraops/schemas/sku-manifest.schema.json",
+  "title": "APEX SKU Manifest",
+  "description": "Shape of agent-output/{project}/sku-manifest.json — the single source of truth for creative SKU decisions (App Service, VM, SQL, Cosmos, AKS pools, Redis, APIM, App Gateway, Storage replication) across environments (dev/test/prod) and regions (primary + failover). Created at Step 1 (user-pins only), populated at Step 2 (Architect), reconciled at Step 3.5/Step 4, blocked-on-conflict at Step 6, drift-detected at Step 7. Enforced by tools/scripts/validate-sku-manifest.mjs. Out of scope (must not appear in services[]): bandwidth, Log Analytics, vnet, subnet, NSG, route table, public IP, diagnostics — see .github/instructions/sku-manifest.instructions.md exclude list.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "project",
+    "default_region",
+    "created_at",
+    "updated_at",
+    "current_revision",
+    "environments",
+    "revisions",
+    "services"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Optional JSON-Schema reference for editor tooling."
+    },
+    "schema_version": {
+      "type": "string",
+      "const": "sku-manifest-v1"
+    },
+    "project": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Project folder name under agent-output/."
+    },
+    "default_region": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Primary Azure region; per-service regions[] inherits this when omitted."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "current_revision": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Highest rev number in revisions[]."
+    },
+    "environments": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["dev", "test", "stage", "prod"]
+      },
+      "uniqueItems": true,
+      "minItems": 1,
+      "description": "Set of environments this manifest applies to. Per-service overrides keyed by these names."
+    },
+    "revisions": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Append-only revision metadata. Boundaries are git commits / apex-recall checkpoints — not a free-form changelog.",
+      "items": {
+        "type": "object",
+        "required": ["rev", "created_at", "agent", "step", "summary"],
+        "additionalProperties": false,
+        "properties": {
+          "rev": { "type": "integer", "minimum": 1 },
+          "created_at": { "type": "string", "format": "date-time" },
+          "agent": {
+            "type": "string",
+            "description": "Agent that authored this revision (e.g. 02-Requirements, 03-Architect, 05-IaC Planner)."
+          },
+          "step": {
+            "type": "string",
+            "enum": ["1", "2", "3.5", "4", "6", "7"],
+            "description": "Workflow step that produced this revision."
+          },
+          "commit_sha": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{7,40}$",
+            "description": "Git commit SHA stamped by post-write hook (may be absent until commit)."
+          },
+          "apex_recall_checkpoint": {
+            "type": "string",
+            "description": "apex-recall checkpoint identifier for this revision."
+          },
+          "summary": { "type": "string", "minLength": 1 },
+          "changed_ids": {
+            "type": "array",
+            "items": { "type": "string" },
+            "uniqueItems": true,
+            "description": "services[].id values added, modified, or removed in this revision."
+          }
+        }
+      }
+    },
+    "services": {
+      "type": "array",
+      "description": "Creative SKU decisions only. Excludes infrastructure-default resources (bandwidth, Log Analytics, vnet, subnet, NSG, route table, public IP, diagnostics) — see .github/instructions/sku-manifest.instructions.md.",
+      "items": { "$ref": "#/$defs/service" }
+    },
+    "stamps": {
+      "type": "array",
+      "description": "Optional multi-stamp / multi-deployment overlay. Each stamp represents an independent deployment of the same workload (e.g. per-tenant, per-region instance) and may override SKUs, regions, and environments for a subset of services[]. Stamps are additive: when absent, the manifest behaves as a single-stamp project. When present, the validator and consumers MUST apply per-stamp overrides on top of base services[] and environment_overrides.",
+      "items": { "$ref": "#/$defs/stamp" },
+      "uniqueItems": true
+    },
+    "sku_allowlist_snapshot": {
+      "type": "object",
+      "description": "Normalized SKU allowlist projection derived from 04-governance-constraints.json. Written by 04g-Governance after Phase 2 discovery; cross-checked by validate-sku-manifest.mjs against services[].size at Step 4 (Planner) and later. Empty / absent → no governance-side SKU restrictions applied to this project.",
+      "required": ["discovered_at", "source", "allowed_skus"],
+      "additionalProperties": false,
+      "properties": {
+        "discovered_at": { "type": "string", "format": "date-time" },
+        "source": {
+          "type": "string",
+          "description": "Origin of the projection (e.g. '04-governance-constraints.json', 'azure-policy-rest-api', 'static-fallback')."
+        },
+        "allowed_skus": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": { "type": "string" },
+            "uniqueItems": true
+          },
+          "description": "Map of canonical service name → allowed SKU patterns. Patterns support glob-style wildcards (e.g. 'GP_*', 'P1v3*')."
+        },
+        "denied_skus": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": { "type": "string" },
+            "uniqueItems": true
+          },
+          "description": "Map of canonical service name → explicitly denied SKU patterns. Takes precedence over allowed_skus when both are present."
+        }
+      }
+    }
+  },
+  "$defs": {
+    "environmentName": {
+      "type": "string",
+      "enum": ["dev", "test", "stage", "prod"]
+    },
+    "source": {
+      "type": "string",
+      "enum": ["user-pin", "architect-derived", "deploy-substitute"],
+      "description": "Provenance of this SKU choice. user-pin = locked by user at Step 1; architect-derived = chosen by Architect at Step 2; deploy-substitute = substituted at Step 6 due to quota/region conflict."
+    },
+    "commitmentType": {
+      "type": "string",
+      "enum": ["on-demand", "reserved-1yr", "reserved-3yr", "savings-plan"]
+    },
+    "capacity": {
+      "type": "object",
+      "required": ["mode", "default"],
+      "additionalProperties": false,
+      "properties": {
+        "mode": { "type": "string", "enum": ["fixed", "autoscale"] },
+        "min": { "type": "integer", "minimum": 0 },
+        "max": { "type": "integer", "minimum": 1 },
+        "default": { "type": "integer", "minimum": 1 }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "mode": { "const": "autoscale" } },
+            "required": ["mode"]
+          },
+          "then": { "required": ["mode", "min", "max", "default"] }
+        }
+      ]
+    },
+    "commitment": {
+      "type": "object",
+      "required": ["type"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "$ref": "#/$defs/commitmentType" },
+        "term_years": {
+          "type": "integer",
+          "enum": [1, 3]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "type": { "pattern": "^reserved-" } },
+            "required": ["type"]
+          },
+          "then": { "required": ["type", "term_years"] }
+        }
+      ]
+    },
+    "envOverride": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Sparse override map — include only the fields that differ from the base service entry.",
+      "properties": {
+        "size": { "type": "string", "minLength": 1 },
+        "capacity": { "$ref": "#/$defs/capacity" },
+        "zonal": { "type": "boolean" },
+        "regions": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "sla_target": { "type": "string" },
+        "sla_achieved": { "type": "string" },
+        "commitment": { "$ref": "#/$defs/commitment" },
+        "notes": { "type": "string" }
+      }
+    },
+    "actualSku": {
+      "type": "object",
+      "description": "Populated by 08-As-Built from deployed resource state. Keyed by environment, then region.",
+      "patternProperties": {
+        "^(dev|test|stage|prod)$": {
+          "type": "object",
+          "additionalProperties": { "type": "string" },
+          "description": "Map of region → deployed SKU string."
+        }
+      },
+      "additionalProperties": false
+    },
+    "service": {
+      "type": "object",
+      "required": [
+        "id",
+        "service",
+        "size",
+        "iac_logical_names",
+        "capacity",
+        "zonal",
+        "regions",
+        "sla_target",
+        "commitment",
+        "source",
+        "source_step",
+        "last_modified_rev"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]{0,62}[a-z0-9]$",
+          "description": "Unique within services[]. Lowercase kebab. Cross-checked by validator (JSON Schema uniqueItems on objects compares full identity, not just id)."
+        },
+        "service": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Azure service name (e.g. 'App Service Plan', 'SQL Database', 'Cosmos DB', 'AKS Node Pool')."
+        },
+        "size": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Base SKU/tier (e.g. 'P1v3', 'GP_S_Gen5_2', 'Standard_D4s_v5'). Per-env overrides in environment_overrides."
+        },
+        "iac_logical_names": {
+          "type": "object",
+          "required": ["bicep", "terraform"],
+          "additionalProperties": false,
+          "properties": {
+            "bicep": {
+              "type": "string",
+              "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
+              "description": "Bicep symbolic name (resource/module identifier)."
+            },
+            "terraform": {
+              "type": "string",
+              "pattern": "^[a-zA-Z_][a-zA-Z0-9_.]*$",
+              "description": "Terraform address (e.g. 'module.app_plan' or 'azurerm_service_plan.web')."
+            }
+          }
+        },
+        "capacity": { "$ref": "#/$defs/capacity" },
+        "zonal": {
+          "type": "boolean",
+          "description": "True when the SKU is deployed zone-redundantly (AZ 1/2/3)."
+        },
+        "regions": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 },
+          "description": "[primary, ...failover]. Inherits manifest default_region when a service entry omits this field — but JSON requires explicit value; planner sets it."
+        },
+        "environment_overrides": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "dev": { "$ref": "#/$defs/envOverride" },
+            "test": { "$ref": "#/$defs/envOverride" },
+            "stage": { "$ref": "#/$defs/envOverride" },
+            "prod": { "$ref": "#/$defs/envOverride" }
+          }
+        },
+        "sla_target": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Required SLA (e.g. '99.95%'). User/architect-set."
+        },
+        "sla_achieved": {
+          "type": "string",
+          "description": "Architect-computed SLA based on SKU + zonal + regions."
+        },
+        "commitment": { "$ref": "#/$defs/commitment" },
+        "requires": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true,
+          "description": "Feature dependencies (e.g. 'vnet-integration', 'private-endpoints', 'managed-identity'). Cross-checked at Step 4 against SKU capability matrix."
+        },
+        "notes": { "type": "string" },
+        "source": { "$ref": "#/$defs/source" },
+        "source_step": {
+          "type": "string",
+          "enum": ["1", "2", "3.5", "4", "6"]
+        },
+        "last_modified_rev": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Most recent revisions[].rev that touched this entry."
+        },
+        "cost_estimate_monthly_usd": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Populated by cost-estimate-subagent via manifest_writeback[]. Number, USD/month."
+        },
+        "cost_estimated_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp of the last cost-estimate-subagent writeback for this service. Used by validate-sku-manifest.mjs to flag stale pricing (>30 days)."
+        },
+        "actual_sku": { "$ref": "#/$defs/actualSku" }
+      }
+    },
+    "stamp": {
+      "type": "object",
+      "required": ["id", "regions"],
+      "additionalProperties": false,
+      "description": "Independent deployment overlay. Stamps may pin specific environments + regions for the same workload (e.g. one stamp per tenant / geography). Service-level overrides ride on top of the base services[] entries.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]{0,62}[a-z0-9]$",
+          "description": "Stamp identifier (e.g. 'tenant-acme', 'geo-eu', 'wave-1'). Unique within stamps[]."
+        },
+        "label": { "type": "string", "description": "Human-readable label for the stamp." },
+        "regions": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 1,
+          "uniqueItems": true,
+          "description": "Regions this stamp targets. May differ from the manifest default_region."
+        },
+        "environments": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/environmentName" },
+          "uniqueItems": true,
+          "description": "Subset of top-level environments[] this stamp is deployed to. When omitted, inherits all environments[]."
+        },
+        "service_overrides": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/envOverride" },
+          "description": "Map of services[].id → sparse override. Same shape as environment_overrides values; applied on top of (env override → base entry)."
+        },
+        "notes": { "type": "string" }
+      }
+    }
+  }
+}

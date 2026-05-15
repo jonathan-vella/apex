@@ -2,13 +2,13 @@
 
 ## Test Summary
 
-| Test | Status | Notes |
-|------|--------|-------|
-| Code Syntax | ✅ PASS | Python v2 model decorator pattern |
-| Queue Trigger | ✅ PASS | Uses `@app.service_bus_queue_trigger` |
-| Output Binding | ✅ PASS | `@app.service_bus_queue_output` decorator |
-| Health Endpoint | ✅ PASS | Returns queue name |
-| Message Metadata | ✅ PASS | Logs message_id, delivery_count |
+| Test             | Status  | Notes                                     |
+| ---------------- | ------- | ----------------------------------------- |
+| Code Syntax      | ✅ PASS | Python v2 model decorator pattern         |
+| Queue Trigger    | ✅ PASS | Uses `@app.service_bus_queue_trigger`     |
+| Output Binding   | ✅ PASS | `@app.service_bus_queue_output` decorator |
+| Health Endpoint  | ✅ PASS | Returns queue name                        |
+| Message Metadata | ✅ PASS | Logs message_id, delivery_count           |
 
 ## Code Validation
 

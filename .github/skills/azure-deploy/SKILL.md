@@ -1,6 +1,6 @@
 ---
 name: azure-deploy
-description: '**WORKFLOW SKILL** — Execute Azure deployments for ALREADY-PREPARED apps. Runs azd up, azd deploy, terraform apply with built-in error recovery. Requires plan.md from azure-prepare and validated status from azure-validate. WHEN: "run azd up", "run azd deploy", "push to production", "go live", "bicep deploy", "terraform apply", "publish to Azure". USE FOR: deploying validated infra; lifting existing IaC to cloud. DO NOT USE FOR: creating new apps (use azure-prepare), generating IaC (use azure-prepare), pre-deployment checks (use azure-validate).'
+description: '**WORKFLOW SKILL** — Execute Azure deployments for ALREADY-PREPARED apps. Runs azd up, azd deploy, terraform apply with built-in error recovery. Requires plan.md from azure-prepare and validated status from azure-validate. WHEN: "run azd up", "run azd deploy", "push to production", "go live", "bicep deploy", "terraform apply", "publish to Azure". USE FOR: deploying validated infra; lifting existing IaC to cloud. DO NOT USE FOR: creating new apps (use azure-prepare), generating IaC (use azure-prepare), pre-deployment checks (use azure-validate). INVOKES: azd CLI, az deployment, microsoft_docs_search (Microsoft Learn MCP).'
 license: MIT
 metadata:
   author: Microsoft
@@ -21,7 +21,7 @@ Activate this skill when user wants to:
 - Ship already-built code to production
 - Deploy an application that already includes API Management (APIM) gateway infrastructure
 
-> **Scope**: deployments only. For app/infra creation use **azure-prepare**. APIM/AI gateway infra changes: see [APIM docs](https://learn.microsoft.com/azure/api-management/get-started-create-service-instance) or invoke **azure-aigateway**.
+> **Scope**: deployments only. For app/infra creation use **azure-prepare**. APIM/AI gateway infra changes: see [APIM docs](https://learn.microsoft.com/azure/api-management/get-started-create-service-instance).
 
 ## Rules
 

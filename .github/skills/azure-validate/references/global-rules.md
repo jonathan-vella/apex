@@ -1,4 +1,5 @@
 <!-- ref:global-rules-v1 -->
+
 # Global Rules
 
 > **MANDATORY** — These rules apply to ALL skills. Violations are unacceptable.
@@ -9,13 +10,13 @@
 
 ### What is Destructive?
 
-| Category | Examples |
-|----------|----------|
-| **Delete** | `az group delete`, `azd down`, `rm -rf`, delete resource |
-| **Overwrite** | Replace existing files, overwrite config, reset settings |
-| **Irreversible** | Purge Key Vault, delete storage account, drop database |
-| **Cost Impact** | Provision expensive resources, scale up significantly |
-| **Security** | Expose secrets, change access policies, modify RBAC |
+| Category         | Examples                                                 |
+| ---------------- | -------------------------------------------------------- |
+| **Delete**       | `az group delete`, `azd down`, `rm -rf`, delete resource |
+| **Overwrite**    | Replace existing files, overwrite config, reset settings |
+| **Irreversible** | Purge Key Vault, delete storage account, drop database   |
+| **Cost Impact**  | Provision expensive resources, scale up significantly    |
+| **Security**     | Expose secrets, change access policies, modify RBAC      |
 
 ### How to Confirm
 
@@ -37,5 +38,6 @@ ask_user(
 ## Rule 2: Never Assume Subscription or Location
 
 ⛔ **ALWAYS use `ask_user`** to confirm:
+
 - Azure subscription (show actual name and ID)
 - Azure region/location

@@ -12,12 +12,12 @@ Use **`evaluation_agent_batch_eval_create`** to run evaluators against the agent
 
 ### Required Parameters
 
-| Parameter | Description |
-|-----------|-------------|
-| `projectEndpoint` | Azure AI Project endpoint |
-| `agentName` | Agent name |
-| `agentVersion` | Agent version (string, e.g. `"1"`) |
-| `evaluatorNames` | Array of evaluator names (NOT `evaluators`) |
+| Parameter         | Description                                 |
+| ----------------- | ------------------------------------------- |
+| `projectEndpoint` | Azure AI Project endpoint                   |
+| `agentName`       | Agent name                                  |
+| `agentVersion`    | Agent version (string, e.g. `"1"`)          |
+| `evaluatorNames`  | Array of evaluator names (NOT `evaluators`) |
 
 ### Test Data Options
 
@@ -27,11 +27,11 @@ Use **`evaluation_agent_batch_eval_create`** to run evaluators against the agent
 
 ### Additional Parameters
 
-| Parameter | When Needed |
-|-----------|-------------|
-| `deploymentName` | Required for quality evaluators (the LLM-judge model) |
-| `evaluationId` | Pass existing eval group ID to group runs for comparison |
-| `evaluationName` | Name for a new evaluation group |
+| Parameter        | When Needed                                              |
+| ---------------- | -------------------------------------------------------- |
+| `deploymentName` | Required for quality evaluators (the LLM-judge model)    |
+| `evaluationId`   | Pass existing eval group ID to group runs for comparison |
+| `evaluationName` | Name for a new evaluation group                          |
 
 > **Important:** Use `evaluationId` (NOT `evalId`) to group runs.
 

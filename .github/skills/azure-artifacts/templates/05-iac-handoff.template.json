@@ -1,0 +1,61 @@
+{
+  "$schema": "../../../../tools/schemas/iac-handoff.schema.json",
+  "schema_version": "iac-handoff-v1",
+  "project": "{project-name}",
+  "iac_tool": "Bicep",
+  "generated_at": "{ISO-8601 timestamp}",
+  "tree_hash": {
+    "algorithm": "sha256-of-sorted-file-hashes",
+    "root": "infra/bicep/{project-name}/",
+    "value": "{64-hex sha256}",
+    "file_count": 0
+  },
+  "entrypoint": {
+    "path": "infra/bicep/{project-name}/main.bicep",
+    "kind": "bicep-main",
+    "scope": "subscription"
+  },
+  "validation_summary": {
+    "verdict": "APPROVED",
+    "tool_versions": {
+      "bicep": "0.21.0",
+      "az": "2.55.0"
+    },
+    "validate_gate": {
+      "command": "az deployment sub validate --location swedencentral --template-file main.bicep --parameters main.dev.bicepparam",
+      "exit_code": 0,
+      "stdout_sha256": "{64-hex sha256}",
+      "duration_ms": 0
+    }
+  },
+  "governance_attestation": {
+    "l1m_ref": {
+      "path": "04-policy-property-map.json",
+      "sha256": "{64-hex sha256}"
+    },
+    "rows": [
+      {
+        "policy_id": "404c3081-a854-4457-ae30-26a93ef643f9",
+        "resource_logical_name": "st-data",
+        "iac_ref": {
+          "file": "infra/bicep/{project-name}/main.bicep",
+          "line": 42,
+          "snippet": "supportsHttpsTrafficOnly: true"
+        },
+        "status": "satisfied"
+      }
+    ]
+  },
+  "required_inputs": [
+    {
+      "param_name": "deployerObjectId",
+      "source_field": "environments.{env}.deployer_object_id",
+      "required": true,
+      "redact": true
+    }
+  ],
+  "policy_precheck_inputs": {
+    "what_if_command": "az deployment sub what-if --location swedencentral --template-file main.bicep --parameters main.dev.bicepparam",
+    "expected_policy_ids": ["404c3081-a854-4457-ae30-26a93ef643f9"]
+  }
+}

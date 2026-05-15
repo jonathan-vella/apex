@@ -11,12 +11,12 @@ Deploy to Azure using Azure CLI.
 
 ## Workflow
 
-| Step | Task | Command |
-|------|------|---------|
-| 1 | **[Pre-deploy checklist](../../pre-deploy-checklist.md)** | Confirm subscription/location with user |
-| 2 | Deploy infrastructure | `az deployment sub create` |
-| 3 | Deploy application | Service-specific commands |
-| 4 | Verify | `az resource list` |
+| Step | Task                                                      | Command                                 |
+| ---- | --------------------------------------------------------- | --------------------------------------- |
+| 1    | **[Pre-deploy checklist](../../pre-deploy-checklist.md)** | Confirm subscription/location with user |
+| 2    | Deploy infrastructure                                     | `az deployment sub create`              |
+| 3    | Deploy application                                        | Service-specific commands               |
+| 4    | Verify                                                    | `az resource list`                      |
 
 ## Infrastructure Deployment
 

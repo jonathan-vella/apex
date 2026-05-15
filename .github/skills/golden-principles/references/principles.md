@@ -1,3 +1,5 @@
+<!-- ref:principles-v1 -->
+
 # The 10 Golden Principles
 
 > Loaded by `golden-principles` SKILL.md. Each principle has a one-line

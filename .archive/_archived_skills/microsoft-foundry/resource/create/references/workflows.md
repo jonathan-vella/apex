@@ -7,6 +7,7 @@
 ### Step 1: Ask user preference
 
 Ask the user which option they prefer:
+
 1. Use an existing resource group
 2. Create a new resource group
 
@@ -25,10 +26,12 @@ az group list --query "[-5:].{Name:name, Location:location}" --out table
 **Handle based on count:**
 
 **If 0 resources found:**
+
 - Inform user: "No existing resource groups found"
 - Ask if they want to create a new one, then proceed to Step 2b
 
 **If 1-4 resources found:**
+
 - Display all X resource groups to the user
 - Let user select from the list
 - Fetch the selected resource group details:
@@ -38,6 +41,7 @@ az group list --query "[-5:].{Name:name, Location:location}" --out table
 - Display details to user, then proceed to create Foundry resource
 
 **If 5+ resources found:**
+
 - Display the 5 most recent resource groups
 - Present options:
   1. Select from the 5 displayed
@@ -62,6 +66,7 @@ az account list-locations --query "[].{Region:name}" --out table
 ```
 
 Common regions:
+
 - `eastus`, `eastus2` - US East Coast
 - `westus`, `westus2`, `westus3` - US West Coast
 - `centralus` - US Central
@@ -113,6 +118,7 @@ az account list-locations --query "[].{Region:name, DisplayName:displayName}" --
 ```
 
 Common regions for AI Services:
+
 - `eastus`, `eastus2` - US East Coast
 - `westus`, `westus2`, `westus3` - US West Coast
 - `centralus` - US Central
@@ -134,6 +140,7 @@ az cognitiveservices account create \
 ```
 
 **Parameters:**
+
 - `--name`: Unique resource name (globally unique across Azure)
 - `--resource-group`: Existing resource group name
 - `--kind`: **Must be `AIServices`** for multi-service resource
@@ -157,6 +164,7 @@ az cognitiveservices account show \
 ```
 
 Expected output:
+
 - `provisioningState: "Succeeded"`
 - Endpoint URL
 - SKU: S0
@@ -177,6 +185,7 @@ This returns `key1` and `key2` for API authentication.
 ### When Needed
 
 Required when:
+
 - First time creating Cognitive Services in subscription
 - Error: `ResourceProviderNotRegistered`
 - Insufficient permissions during resource creation
@@ -192,6 +201,7 @@ az provider show \
 ```
 
 Possible states:
+
 - `Registered`: Ready to use
 - `NotRegistered`: Needs registration
 - `Registering`: Registration in progress
@@ -223,15 +233,18 @@ az provider list --query "[?namespace=='Microsoft.CognitiveServices']"
 ### Required Permissions
 
 To register a resource provider, you need one of:
+
 - **Subscription Owner** role
 - **Contributor** role
 - **Custom role** with `Microsoft.*/register/action` permission
 
 **If you are not the subscription owner:**
+
 1. Ask someone with the **Owner** or **Contributor** role to register the provider for you
 2. Alternatively, ask them to grant you the `/register/action` privilege so you can register it yourself
 
 **Alternative registration methods:**
+
 - **Azure CLI** (recommended): `az provider register --namespace Microsoft.CognitiveServices`
 - **Azure Portal**: Navigate to Subscriptions → Resource providers → Microsoft.CognitiveServices → Register
 - **PowerShell**: `Register-AzResourceProvider -ProviderNamespace Microsoft.CognitiveServices`

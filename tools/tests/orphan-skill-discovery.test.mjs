@@ -1,11 +1,8 @@
 // Fixture test for the wired-skills regex used in
-// tools/scripts/validate-orphaned-content.mjs (Phase 2 of
-// context-window-optimization).
+// tools/scripts/validate-orphaned-content.mjs.
 //
 // Asserts that the regex correctly identifies skill references across:
-//   - SKILL.md (canonical)
-//   - SKILL.digest.md (Phase 4 default)
-//   - SKILL.minimal.md (>80% utilization escalation)
+//   - SKILL.md (canonical — the only tier)
 //   - Inside fenced code blocks
 //   - With or without the leading `.github/` prefix
 
@@ -15,7 +12,7 @@ import assert from "node:assert/strict";
 // Mirror of SKILL_REFERENCE_PATTERN in
 // tools/scripts/validate-orphaned-content.mjs. Keep in sync — the fixture
 // test exists specifically to detect drift in the regex.
-const SKILL_REFERENCE_PATTERN = /(?:\.github\/)?skills\/([a-z0-9]+(?:-[a-z0-9]+)*)\/SKILL(?:\.digest|\.minimal)?\.md/g;
+const SKILL_REFERENCE_PATTERN = /(?:\.github\/)?skills\/([a-z0-9]+(?:-[a-z0-9]+)*)\/SKILL\.md/g;
 
 function findSkillReferences(content) {
   const found = new Set();
@@ -33,18 +30,8 @@ describe("orphan-skill-discovery regex", () => {
     assert.deepEqual([...findSkillReferences(content)], ["azure-defaults"]);
   });
 
-  it("finds SKILL.digest.md references", () => {
-    const content = `Read .github/skills/golden-principles/SKILL.digest.md for invariants.`;
-    assert.deepEqual([...findSkillReferences(content)], ["golden-principles"]);
-  });
-
-  it("finds SKILL.minimal.md references", () => {
-    const content = `When >80% utilization, read .github/skills/azure-defaults/SKILL.minimal.md instead.`;
-    assert.deepEqual([...findSkillReferences(content)], ["azure-defaults"]);
-  });
-
   it("finds references inside fenced code blocks", () => {
-    const content = ["Run this:", "```bash", "cat .github/skills/microsoft-docs/SKILL.digest.md", "```"].join("\n");
+    const content = ["Run this:", "```bash", "cat .github/skills/microsoft-docs/SKILL.md", "```"].join("\n");
     assert.deepEqual([...findSkillReferences(content)], ["microsoft-docs"]);
   });
 
@@ -55,8 +42,8 @@ describe("orphan-skill-discovery regex", () => {
 
   it("collects multiple distinct skills in one document", () => {
     const content = `
-      Read .github/skills/azure-defaults/SKILL.digest.md
-      Read .github/skills/azure-artifacts/SKILL.minimal.md
+      Read .github/skills/azure-defaults/SKILL.md
+      Read .github/skills/azure-artifacts/SKILL.md
       Also: skills/golden-principles/SKILL.md
     `;
     const found = findSkillReferences(content);

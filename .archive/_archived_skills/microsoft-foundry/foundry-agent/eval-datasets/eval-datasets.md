@@ -12,27 +12,27 @@ USE FOR: create dataset from traces, harvest traces into dataset, build test dat
 
 ## Quick Reference
 
-| Property | Value |
-|----------|-------|
-| MCP server | `foundry-mcp` |
-| Key MCP tools | `evaluation_dataset_get`, `evaluation_get`, `evaluation_comparison_create`, `evaluation_comparison_get` |
-| Azure services | Application Insights (via `monitor_resource_log_query`) |
-| ⚠️ Not available | `evaluation_dataset_create` (dataset upload MCP not ready — use local JSONL + `inputData`) |
-| Prerequisites | Agent deployed, App Insights connected (see [trace skill](../trace/trace.md)) |
-| Artifact paths | `datasets/`, `results/`, `evaluators/` |
+| Property         | Value                                                                                                   |
+| ---------------- | ------------------------------------------------------------------------------------------------------- |
+| MCP server       | `foundry-mcp`                                                                                           |
+| Key MCP tools    | `evaluation_dataset_get`, `evaluation_get`, `evaluation_comparison_create`, `evaluation_comparison_get` |
+| Azure services   | Application Insights (via `monitor_resource_log_query`)                                                 |
+| ⚠️ Not available | `evaluation_dataset_create` (dataset upload MCP not ready — use local JSONL + `inputData`)              |
+| Prerequisites    | Agent deployed, App Insights connected (see [trace skill](../trace/trace.md))                           |
+| Artifact paths   | `datasets/`, `results/`, `evaluators/`                                                                  |
 
 ## Entry Points
 
-| User Intent | Start At |
-|-------------|----------|
-| "Create dataset from production traces" / "Harvest traces" | [Trace-to-Dataset Pipeline](references/trace-to-dataset.md) |
-| "Version my dataset" / "Tag dataset" / "Pin dataset version" | [Dataset Versioning](references/dataset-versioning.md) |
-| "Organize my datasets" / "Dataset splits" / "Filter datasets" | [Dataset Organization](references/dataset-organization.md) |
-| "Review trace candidates" / "Curate test cases" | [Dataset Curation](references/dataset-curation.md) |
-| "Show eval metrics over time" / "Evaluation trending" | [Eval Trending](references/eval-trending.md) |
-| "Did my agent regress?" / "Regression detection" | [Eval Regression](references/eval-regression.md) |
-| "Compare datasets" / "Experiment comparison" / "A/B test" | [Dataset Comparison](references/dataset-comparison.md) |
-| "Trace my evaluation lineage" / "Audit eval history" | [Eval Lineage](references/eval-lineage.md) |
+| User Intent                                                   | Start At                                                    |
+| ------------------------------------------------------------- | ----------------------------------------------------------- |
+| "Create dataset from production traces" / "Harvest traces"    | [Trace-to-Dataset Pipeline](references/trace-to-dataset.md) |
+| "Version my dataset" / "Tag dataset" / "Pin dataset version"  | [Dataset Versioning](references/dataset-versioning.md)      |
+| "Organize my datasets" / "Dataset splits" / "Filter datasets" | [Dataset Organization](references/dataset-organization.md)  |
+| "Review trace candidates" / "Curate test cases"               | [Dataset Curation](references/dataset-curation.md)          |
+| "Show eval metrics over time" / "Evaluation trending"         | [Eval Trending](references/eval-trending.md)                |
+| "Did my agent regress?" / "Regression detection"              | [Eval Regression](references/eval-regression.md)            |
+| "Compare datasets" / "Experiment comparison" / "A/B test"     | [Dataset Comparison](references/dataset-comparison.md)      |
+| "Trace my evaluation lineage" / "Audit eval history"          | [Eval Lineage](references/eval-lineage.md)                  |
 
 ## Before Starting — Detect Current State
 
@@ -72,10 +72,10 @@ Each cycle makes the test suite harder and more representative. Production failu
 
 ## Related Skills
 
-| User Intent | Skill |
-|-------------|-------|
-| "Run an evaluation" / "Optimize my agent" | [observe skill](../observe/observe.md) |
-| "Search traces" / "Analyze failures" / "Latency analysis" | [trace skill](../trace/trace.md) |
+| User Intent                                                          | Skill                                                                                                            |
+| -------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| "Run an evaluation" / "Optimize my agent"                            | [observe skill](../observe/observe.md)                                                                           |
+| "Search traces" / "Analyze failures" / "Latency analysis"            | [trace skill](../trace/trace.md)                                                                                 |
 | "Find eval scores for a response ID" / "Link eval results to traces" | [trace skill → Eval Correlation](../trace/references/eval-correlation.md) (in `foundry-agent/trace/references/`) |
-| "Deploy my agent" | [deploy skill](../deploy/deploy.md) |
-| "Debug container issues" | [troubleshoot skill](../troubleshoot/troubleshoot.md) |
+| "Deploy my agent"                                                    | [deploy skill](../deploy/deploy.md)                                                                              |
+| "Debug container issues"                                             | [troubleshoot skill](../troubleshoot/troubleshoot.md)                                                            |

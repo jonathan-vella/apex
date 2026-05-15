@@ -27,7 +27,7 @@ MCP_TOOLS = {
     "search_docs": {
         "description": "Search documentation for a query",
         "parameters": {
-            "type": "object", 
+            "type": "object",
             "properties": {
                 "query": {"type": "string", "description": "Search query"}
             },
@@ -53,17 +53,17 @@ def handle_tool_call(tool_name: str, arguments: dict) -> Any:
         city = arguments.get("city", "Unknown")
         # Demo implementation - replace with actual weather API
         return {"city": city, "temperature": 72, "conditions": "Sunny"}
-    
+
     elif tool_name == "search_docs":
         query = arguments.get("query", "")
         # Demo implementation - replace with actual search
         return {"results": [f"Doc 1 about {query}", f"Doc 2 about {query}"]}
-    
+
     elif tool_name == "run_query":
         sql = arguments.get("sql", "")
         # Demo implementation - replace with actual database query
         return {"rows": [], "message": f"Executed: {sql[:50]}..."}
-    
+
     else:
         raise ValueError(f"Unknown tool: {tool_name}")
 
@@ -79,21 +79,21 @@ def mcp_handler(req: func.HttpRequest) -> func.HttpResponse:
         method = body.get("method")
         params = body.get("params", {})
         request_id = body.get("id")
-        
+
         if method == "tools/list":
             # Return list of available tools
             tools = [
-                {"name": name, **spec} 
+                {"name": name, **spec}
                 for name, spec in MCP_TOOLS.items()
             ]
             result = {"tools": tools}
-        
+
         elif method == "tools/call":
             # Execute a tool
             tool_name = params.get("name")
             arguments = params.get("arguments", {})
             result = handle_tool_call(tool_name, arguments)
-        
+
         else:
             return func.HttpResponse(
                 json.dumps({
@@ -104,7 +104,7 @@ def mcp_handler(req: func.HttpRequest) -> func.HttpResponse:
                 mimetype="application/json",
                 status_code=400
             )
-        
+
         return func.HttpResponse(
             json.dumps({
                 "jsonrpc": "2.0",
@@ -113,7 +113,7 @@ def mcp_handler(req: func.HttpRequest) -> func.HttpResponse:
             }),
             mimetype="application/json"
         )
-    
+
     except Exception as e:
         logging.error(f"MCP error: {e}")
         return func.HttpResponse(
@@ -143,6 +143,7 @@ def health_check(req: func.HttpRequest) -> func.HttpResponse:
 ## Local Testing
 
 Set these in `local.settings.json`:
+
 ```json
 {
   "Values": {
@@ -155,6 +156,7 @@ Set these in `local.settings.json`:
 ## Test Commands
 
 List tools:
+
 ```bash
 curl -X POST "https://<func>.azurewebsites.net/api/mcp?code=<key>" \
   -H "Content-Type: application/json" \
@@ -162,6 +164,7 @@ curl -X POST "https://<func>.azurewebsites.net/api/mcp?code=<key>" \
 ```
 
 Call a tool:
+
 ```bash
 curl -X POST "https://<func>.azurewebsites.net/api/mcp?code=<key>" \
   -H "Content-Type: application/json" \

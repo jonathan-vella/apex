@@ -16,7 +16,7 @@ Shared deployment patterns used by both Bicep and Terraform deploy agents
 ## Rules
 
 - **Preflight first** — always run `azure-validate` before invoking any deploy strategy in this skill
-- **azd by default** — use `azd provision` / `azd up` for all new projects; `deploy.ps1` is deprecated and retained only for legacy projects without `azure.yaml`
+- **azd by default** — use `azd provision` / `azd up` for all new projects. The legacy `deploy.ps1` path is deprecated; full decision matrix in [`references/azd-vs-deploy-guide.md`](references/azd-vs-deploy-guide.md).
 - **Phased deployment for high-risk changes** — split into Foundation → Security → Data → Compute → Edge with user approval at each gate
 - **Circuit breaker** — stop deployment automatically when policy violations, governance failures, or budget breaches are detected; surface to user before retrying
 - **Set environment values before `--no-prompt`** — `AZURE_SUBSCRIPTION_ID`, `AZURE_RESOURCE_GROUP`, `AZURE_ENV_NAME`, `AZURE_LOCATION` must all be present (`azd env get-values`)
@@ -39,12 +39,11 @@ Standard deploy flow used by `07b-Bicep Deploy` and `07t-Terraform Deploy`:
 
 **Default**: use `azd` for every project. Each project is a self-contained azd project
 (`azure.yaml` + `.azure/` inside `infra/{iac}/{project}/`). Phased deployment is now done
-via azd hooks (`preprovision` / `postprovision`); the legacy `deploy.ps1` phased path is
-deprecated and retained only for projects that predate `azure.yaml` adoption.
+via azd hooks (`preprovision` / `postprovision`).
 
 Full procedure (`azd up` / `azd provision --preview`, environment preflight checklist for
-`--no-prompt` deploys, deprecated phased table, single-deployment fallback, and the azd vs
-deploy.ps1 decision matrix) lives in
+`--no-prompt` deploys, deprecated phased table, single-deployment fallback, and the legacy
+`deploy.ps1` decision matrix) lives in
 [`references/deployment-strategies.md`](references/deployment-strategies.md).
 
 > **Single-deployment exception**: for projects with < 5 resources in dev/test, a single
@@ -57,7 +56,7 @@ deploy.ps1 decision matrix) lives in
 | Reference                     | Location                                                                                                                              |
 | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
 | **Deployment strategies**     | `references/deployment-strategies.md`                                                                                                 |
-| **azd vs deploy.ps1 guide**   | `references/azd-vs-deploy-guide.md`                                                                                                   |
+| **azd vs `deploy.ps1` guide** | `references/azd-vs-deploy-guide.md`                                                                                                   |
 | Preflight validation          | `azure-validate/references/infraops-preflight.md`                                                                                     |
 | CLI auth validation procedure | `azure-defaults/references/azure-cli-auth-validation.md`                                                                              |
 | Policy effect decision tree   | `azure-defaults/references/policy-effect-decision-tree.md`                                                                            |

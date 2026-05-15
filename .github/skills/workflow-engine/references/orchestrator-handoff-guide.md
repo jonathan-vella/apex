@@ -33,8 +33,12 @@ Multi-pass adversarial review is **opt-in** — at each gate, check `decisions.c
   If the user opts in, use the full complexity matrix from `adversarial-review-protocol.md`.
   If declined, proceed with the single-pass result.
 
-**Runtime validation**: If `complexity_matrix` key in `workflow-graph.json` does not contain an
-entry for the current complexity value, STOP with error and ask user to classify the project.
+**Runtime validation**: `opt_in_matrix` MAY contain a subset of `{simple,
+standard, complex}` — a missing tier means "no recommended multi-pass shape
+for that tier; default single-pass comprehensive applies". Treat a missing
+entry as a fall-through to default behaviour, not as a STOP condition.
+Only stop and ask the user to classify the project when `decisions.complexity`
+itself is unset AND the session has progressed past Step 1.
 
 **Write `00-handoff.md` at every gate before presenting it to the user.**
 See [Phase Handoff Document](#phase-handoff-document) for the format.
@@ -149,7 +153,7 @@ Header: `# {Project} — Handoff (Step {N} complete)` with metadata line (`Updat
 
 ## Step Delegation
 
-The orchestrator (`01-Orchestrator` and `01-Orchestrator (Fast Path)`) runs
+The orchestrator (`01-Orchestrator`) runs
 at **codex** tier. Per the VS Code [subagent cost-tier rule](https://code.visualstudio.com/docs/copilot/agents/subagents),
 `#runSubagent` cannot raise the subagent above the parent's tier — higher-tier
 targets silently fall back to codex.

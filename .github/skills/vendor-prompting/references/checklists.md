@@ -40,7 +40,7 @@ Two parallel checklists: agent (`*.agent.md`) and prompt
 - [ ] **R-CL-3** If body > 350 lines, includes `<context_awareness>`.
       _(rule `legacy-003`)_
       Hint: `wc -l <file>` and `grep "<context_awareness>" <file>`.
-- [ ] **R-CL-2** Research agents (Architect, IaC Planner, Diagnose,
+- [ ] **R-CL-2** Research agents (Architect, IaC Planner,
       Context Optimizer) include `<investigate_before_answering>`.
       _(rule `legacy-004`)_
       Hint: `grep "<investigate_before_answering>" <file>`.

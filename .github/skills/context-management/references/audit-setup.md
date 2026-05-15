@@ -1,3 +1,5 @@
+<!-- ref:audit-setup-v1 -->
+
 # Audit Mode Prerequisites & Setup
 
 > Loaded by `context-management` SKILL.md (Audit mode). Covers what must be

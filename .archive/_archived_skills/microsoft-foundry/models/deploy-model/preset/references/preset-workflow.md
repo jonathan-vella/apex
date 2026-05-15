@@ -13,11 +13,13 @@ az account show --query "{Subscription:name, User:user.name}" -o table
 ```
 
 **If not logged in:**
+
 ```bash
 az login
 ```
 
 **Verify subscription is correct:**
+
 ```bash
 # List all subscriptions
 az account list --query "[].[name,id,state]" -o table
@@ -117,11 +119,13 @@ az cognitiveservices account list-models \
 Present the results to the user and let them choose, or enter a custom model name.
 
 **Store model:**
+
 ```bash
 MODEL_NAME="<selected-model>"
 ```
 
 **Get model version (latest stable):**
+
 ```bash
 # List available models and versions in the account
 az cognitiveservices account list-models \
@@ -132,6 +136,7 @@ az cognitiveservices account list-models \
 ```
 
 **Use latest version or let user specify:**
+
 ```bash
 MODEL_VERSION="<version-or-latest>"
 ```
@@ -152,6 +157,7 @@ echo "Model format: $MODEL_FORMAT"
 ```
 
 > 💡 **Model format determines the deployment path:**
+>
 > - `OpenAI` — Standard CLI deployment, TPM-based capacity, RAI policies apply
 > - `Anthropic` — REST API deployment with `modelProviderData`, capacity=1, no RAI
 > - All other formats (`Meta-Llama`, `Mistral`, `Cohere`, etc.) — Standard CLI deployment, capacity=1 (MaaS), no RAI
@@ -172,6 +178,7 @@ CURRENT_CAPACITY=$(echo "$CAPACITY_JSON" | jq -r '.value[] | select(.properties.
 ```
 
 **Check result:**
+
 ```bash
 if [ -n "$CURRENT_CAPACITY" ] && [ "$CURRENT_CAPACITY" -gt 0 ]; then
   echo "✓ Current region ($PROJECT_REGION) has capacity: $CURRENT_CAPACITY TPM"
@@ -191,6 +198,7 @@ fi
 Only execute this phase if current region has no capacity.
 
 **Query capacity across all regions:**
+
 ```bash
 # Get capacity for all regions in subscription
 ALL_REGIONS_JSON=$(az rest --method GET \
@@ -201,6 +209,7 @@ echo "$ALL_REGIONS_JSON" > /tmp/capacity_check.json
 ```
 
 **Parse and categorize regions:**
+
 ```bash
 # Extract available regions (capacity > 0)
 AVAILABLE_REGIONS=$(jq -r '.value[] | select(.properties.skuName=="GlobalStandard" and .properties.availableCapacity > 0) | "\(.location)|\(.properties.availableCapacity)"' /tmp/capacity_check.json)
@@ -210,6 +219,7 @@ UNAVAILABLE_REGIONS=$(jq -r '.value[] | select(.properties.skuName=="GlobalStand
 ```
 
 **Format and display regions:**
+
 ```bash
 # Format capacity (e.g., 120000 -> 120K)
 format_capacity() {
@@ -255,6 +265,7 @@ done
 ```
 
 **Handle no capacity anywhere:**
+
 ```bash
 if [ -z "$AVAILABLE_REGIONS" ]; then
   echo ""
@@ -284,16 +295,19 @@ fi
 **Ask user to select region from available options.**
 
 Example using AskUserQuestion:
+
 - Present available regions as options
 - Show capacity for each
 - User selects preferred region
 
 **Store selection:**
+
 ```bash
 SELECTED_REGION="<user-selected-region>"  # e.g., "eastus2"
 ```
 
 **Find projects in selected region:**
+
 ```bash
 PROJECTS_IN_REGION=$(az cognitiveservices account list \
   --query "[?kind=='AIProject' && location=='$SELECTED_REGION'].{Name:name, ResourceGroup:resourceGroup}" \
@@ -315,12 +329,14 @@ fi
 ```
 
 **Option A: Use existing project**
+
 ```bash
 PROJECT_NAME="<selected-project-name>"
 RESOURCE_GROUP="<resource-group>"
 ```
 
 **Option B: Create new project**
+
 ```bash
 # Generate project name
 USER_ALIAS=$(az account show --query user.name -o tsv | cut -d'@' -f1 | tr '.' '-')
@@ -374,7 +390,8 @@ The deployment name should match the model name (e.g., "gpt-4o"), but if a deplo
 
 Use the `generate_deployment_name` script to check existing deployments and generate a unique name:
 
-*Bash version:*
+_Bash version:_
+
 ```bash
 DEPLOYMENT_NAME=$(bash scripts/generate_deployment_name.sh \
   "$ACCOUNT_NAME" \
@@ -384,7 +401,8 @@ DEPLOYMENT_NAME=$(bash scripts/generate_deployment_name.sh \
 echo "Generated deployment name: $DEPLOYMENT_NAME"
 ```
 
-*PowerShell version:*
+_PowerShell version:_
+
 ```powershell
 $DEPLOYMENT_NAME = & .\scripts\generate_deployment_name.ps1 `
   -AccountName $ACCOUNT_NAME `
@@ -424,7 +442,8 @@ fi
 
 > 💡 **Note:** The Azure CLI supports all non-Anthropic model formats directly.
 
-*Bash version:*
+_Bash version:_
+
 ```bash
 echo "Creating deployment..."
 
@@ -439,7 +458,8 @@ az cognitiveservices account deployment create \
   --sku-capacity "$DEPLOY_CAPACITY"
 ```
 
-*PowerShell version:*
+_PowerShell version:_
+
 ```powershell
 Write-Host "Creating deployment..."
 
@@ -501,7 +521,8 @@ COUNTRY_CODE=$(echo "$TENANT_INFO" | jq -r '.countryCode')
 ORG_NAME=$(echo "$TENANT_INFO" | jq -r '.displayName')
 ```
 
-*PowerShell version:*
+_PowerShell version:_
+
 ```powershell
 $tenantInfo = az rest --method GET `
   --url "https://management.azure.com/tenants?api-version=2024-11-01" `
@@ -513,7 +534,8 @@ $orgName = $tenantInfo.displayName
 
 **Step 3: Deploy via ARM REST API**
 
-*Bash version:*
+_Bash version:_
+
 ```bash
 echo "Creating Anthropic model deployment via REST API..."
 
@@ -539,7 +561,8 @@ az rest --method PUT \
   }"
 ```
 
-*PowerShell version:*
+_PowerShell version:_
+
 ```powershell
 Write-Host "Creating Anthropic model deployment via REST API..."
 
@@ -570,6 +593,7 @@ az rest --method PUT `
 > 💡 **Note:** Anthropic models use `capacity: 1` (MaaS billing model), not TPM-based capacity.
 
 **Monitor deployment progress:**
+
 ```bash
 echo "Monitoring deployment status..."
 
@@ -628,6 +652,7 @@ fi
 ## Phase 8: Display Deployment Details
 
 **Show deployment information:**
+
 ```bash
 echo ""
 echo "═══════════════════════════════════════════"

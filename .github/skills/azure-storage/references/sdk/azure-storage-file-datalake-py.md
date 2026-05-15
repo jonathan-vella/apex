@@ -5,6 +5,7 @@
 > in the **azure-storage-file-datalake-py** plugin skill if installed.
 
 ## Install
+
 pip install azure-storage-file-datalake azure-identity
 
 ## Quick Start
@@ -18,6 +19,7 @@ service_client = DataLakeServiceClient("https://<account>.dfs.core.windows.net",
 ```
 
 ## Best Practices
+
 - Use hierarchical namespace for file system semantics
 - Use `append_data` + `flush_data` for large file uploads
 - Set ACLs at directory level and inherit to children
@@ -27,6 +29,7 @@ service_client = DataLakeServiceClient("https://<account>.dfs.core.windows.net",
 - Consider Blob API for simple object storage use cases
 
 ## Non-Obvious Patterns
+
 ```python
 # Large file upload requires append + flush
 offset = 0

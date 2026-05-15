@@ -23,7 +23,7 @@ def servicebus_trigger(msg: func.ServiceBusMessage) -> None:
     """Process messages from Service Bus queue."""
     message_body = msg.get_body().decode('utf-8')
     logging.info(f"Service Bus trigger processed message: {message_body}")
-    
+
     # Log message metadata
     logging.info(f"Message ID: {msg.message_id}")
     logging.info(f"Delivery count: {msg.delivery_count}")
@@ -85,6 +85,7 @@ azure-servicebus
 ## Local Testing
 
 Set these in `local.settings.json`:
+
 ```json
 {
   "Values": {

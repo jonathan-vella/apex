@@ -5,6 +5,7 @@
 > in the **azure-monitor-opentelemetry-exporter-java** plugin skill if installed.
 
 ## Install
+
 ```xml
 <dependency>
     <groupId>com.azure</groupId>
@@ -16,12 +17,14 @@
 > **DEPRECATED**: Migrate to `azure-monitor-opentelemetry-autoconfigure`.
 
 ## Quick Start
+
 ```java
 // Prefer autoconfigure instead:
 // <artifactId>azure-monitor-opentelemetry-autoconfigure</artifactId>
 ```
 
 ## Best Practices
+
 - Use autoconfigure — migrate to `azure-monitor-opentelemetry-autoconfigure`
 - Set meaningful span names — use descriptive operation names
 - Add relevant attributes — include contextual data for debugging

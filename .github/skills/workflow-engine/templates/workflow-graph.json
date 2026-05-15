@@ -8,7 +8,7 @@
       "name": "Requirements",
       "agent": "02-Requirements",
       "requires": [],
-      "produces": ["01-requirements.md"],
+      "produces": ["01-requirements.md", "sku-manifest.json", "sku-manifest.md"],
       "gate": "approval",
       "challenger": { "passes": 1, "lenses": ["comprehensive"] }
     },
@@ -26,12 +26,13 @@
       "agent": "03-Architect",
       "requires": ["gate-1"],
       "produces": ["02-architecture-assessment.md", "03-des-cost-estimate.md", "03-des-sku-comparison.md"],
+      "mutates": ["sku-manifest.json", "sku-manifest.md"],
       "gate": "approval",
       "challenger": {
         "default_passes": 1,
         "default_lenses": ["comprehensive"],
         "opt_in_multi_pass": true,
-        "complexity_matrix": {
+        "opt_in_matrix": {
           "simple": { "passes": 1, "lenses": ["comprehensive"] },
           "standard": {
             "passes": 2,
@@ -60,7 +61,12 @@
       "produces": ["03-des-diagram.drawio", "03-des-adr-*.md"],
       "gate": null,
       "optional": true,
-      "challenger": null
+      "challenger": {
+        "default_passes": 0,
+        "opt_in": true,
+        "artifact_scope": "design-adr",
+        "default_lenses": ["comprehensive"]
+      }
     },
     "step-3_5": {
       "id": "step-3_5",
@@ -70,14 +76,26 @@
       "requires": ["gate-2"],
       "produces": ["04-governance-constraints.md", "04-governance-constraints.json"],
       "gate": "approval",
-      "challenger": null
+      "challenger": {
+        "default_passes": 1,
+        "default_lenses": ["governance-reconciliation"],
+        "skip_condition": "constraints.count == 0"
+      }
     },
     "gate-2_5": {
       "id": "gate-2_5",
       "type": "gate",
       "name": "Governance Approval",
       "requires": ["step-3_5"],
-      "gate": "approval"
+      "gate": "approval",
+      "preconditions": [
+        {
+          "id": "governance-reconciliation",
+          "description": "Reconciliation review must be APPROVED before exit. If escalated_to_step-2, gate-2_5 stays closed until Architect re-approves and reconciliation re-runs APPROVED.",
+          "check": "governance_trace.reconciliation_status != 'escalated_to_step-2'",
+          "on_fail": "stay-at-step-3_5"
+        }
+      ]
     },
     "step-4": {
       "id": "step-4",
@@ -89,18 +107,22 @@
         "04-implementation-plan.md",
         "04-implementation-plan.md#governance-compliance-matrix",
         "04-implementation-plan.md#code-generation-contract",
+        "04-iac-contract.json",
+        "04-policy-property-map.json",
+        "04-environment-manifest.json",
         "04-dependency-diagram.py",
         "04-dependency-diagram.png",
         "04-runtime-diagram.py",
         "04-runtime-diagram.png"
       ],
+      "mutates": ["sku-manifest.json", "sku-manifest.md"],
       "gate": "approval",
       "challenger": {
         "default_passes": 1,
-        "default_lenses": ["security-governance"],
+        "default_lenses": ["comprehensive"],
         "opt_in_multi_pass": true,
-        "complexity_matrix": {
-          "simple": { "passes": 1, "lenses": ["security-governance"] },
+        "opt_in_matrix": {
+          "simple": { "passes": 1, "lenses": ["comprehensive"] },
           "standard": {
             "passes": 2,
             "lenses": ["security-governance", "architecture-reliability"]
@@ -125,6 +147,12 @@
           "description": "All plan-level challenger passes returned APPROVED. CodeGen agents (06b/06t) must not run plan-level adversarial review or self-edit 04-implementation-plan.md; any plan must_fix returns to step-4.",
           "check": "challenger.exit_criteria == 'all-passes-APPROVED' for step-4",
           "on_fail": "stay-at-step-4"
+        },
+        {
+          "id": "plan-architecture-escalation",
+          "description": "Anti-livelock: gate-3 may re-open when any step-4 finding has requires_step == 'step-2'. Control returns to 03-Architect via the step-4 → step-2 return_edge.",
+          "check": "no step-4 challenger finding has requires_step == 'step-2'",
+          "on_fail": "stay-at-step-4"
         }
       ]
     },
@@ -135,15 +163,22 @@
       "agent": "06b-Bicep CodeGen",
       "requires": ["gate-3"],
       "condition": { "field": "decisions.iac_tool", "equals": "Bicep" },
-      "produces": ["infra/bicep/{project}/"],
+      "produces": ["infra/bicep/{project}/", "05-iac-handoff.json"],
       "gate": "validation",
       "plan_readonly": true,
-      "frozen_inputs": ["04-implementation-plan.md", "04-governance-constraints.md", "04-governance-constraints.json"],
+      "frozen_inputs": [
+        "04-implementation-plan.md",
+        "04-iac-contract.json",
+        "04-policy-property-map.json",
+        "04-environment-manifest.json",
+        "04-governance-constraints.md",
+        "04-governance-constraints.json"
+      ],
       "challenger": {
         "default_passes": 0,
         "opt_in": true,
         "artifact_scope": "iac-code",
-        "complexity_matrix": {
+        "opt_in_matrix": {
           "simple": { "passes": 1, "lenses": ["comprehensive"] },
           "standard": {
             "passes": 2,
@@ -163,15 +198,22 @@
       "agent": "06t-Terraform CodeGen",
       "requires": ["gate-3"],
       "condition": { "field": "decisions.iac_tool", "equals": "Terraform" },
-      "produces": ["infra/terraform/{project}/"],
+      "produces": ["infra/terraform/{project}/", "05-iac-handoff.json"],
       "gate": "validation",
       "plan_readonly": true,
-      "frozen_inputs": ["04-implementation-plan.md", "04-governance-constraints.md", "04-governance-constraints.json"],
+      "frozen_inputs": [
+        "04-implementation-plan.md",
+        "04-iac-contract.json",
+        "04-policy-property-map.json",
+        "04-environment-manifest.json",
+        "04-governance-constraints.md",
+        "04-governance-constraints.json"
+      ],
       "challenger": {
         "default_passes": 0,
         "opt_in": true,
         "artifact_scope": "iac-code",
-        "complexity_matrix": {
+        "opt_in_matrix": {
           "simple": { "passes": 1, "lenses": ["comprehensive"] },
           "standard": {
             "passes": 2,
@@ -200,6 +242,7 @@
       "requires": ["gate-4"],
       "condition": { "field": "decisions.iac_tool", "equals": "Bicep" },
       "produces": ["06-deployment-summary.md", "06-policy-precheck.json"],
+      "mutates": ["sku-manifest.json", "sku-manifest.md"],
       "gate": "approval",
       "preconditions": [
         {
@@ -219,6 +262,7 @@
       "requires": ["gate-4"],
       "condition": { "field": "decisions.iac_tool", "equals": "Terraform" },
       "produces": ["06-deployment-summary.md", "06-policy-precheck.json"],
+      "mutates": ["sku-manifest.json", "sku-manifest.md"],
       "gate": "approval",
       "preconditions": [
         {
@@ -253,6 +297,7 @@
         "07-resource-inventory.md",
         "07-documentation-index.md"
       ],
+      "mutates": ["sku-manifest.json", "sku-manifest.md"],
       "gate": null,
       "parallel_substeps": [
         "design-document",
@@ -307,6 +352,20 @@
       "condition": "on_refine",
       "reason": "IaC Planner finds architecture rework needed",
       "ui_label_pattern": "^↩ Return to Step 2$"
+    },
+    {
+      "from": "step-4",
+      "to": "step-2",
+      "condition": "on_architecture_must_fix",
+      "reason": "Anti-livelock: step-4 comprehensive finding requires architecture-level resolution (requires_step == 'step-2'). Closes the gate-3 all-passes-APPROVED livelock.",
+      "ui_label_pattern": "^↩ Escalate to Architect$"
+    },
+    {
+      "from": "step-3_5",
+      "to": "step-2",
+      "condition": "on_must_fix_governance_conflict",
+      "reason": "Reconciliation review finds an approved-architecture-vs-newly-discovered-constraint conflict; 04g-Governance never self-edits 02-architecture-assessment.md.",
+      "ui_label_pattern": "^↩ Reconcile with Architect$"
     },
     {
       "from": "step-4",
@@ -390,10 +449,10 @@
     "wrapper_agent": "10-Challenger",
     "review_subagent": "challenger-review-subagent"
   },
-  "orchestrator_targets": ["01-Orchestrator", "01-Orchestrator (Fast Path)"],
+  "orchestrator_targets": ["01-Orchestrator"],
   "ui_pseudo_targets": ["agent"],
   "metadata": {
-    "version": "2.2",
+    "version": "2.3",
     "iac_tracks": ["Bicep", "Terraform"],
     "total_gates": 6,
     "total_steps": 7,
@@ -401,6 +460,9 @@
       "description": "Once gate-3 (Plan Approval) is passed, 04-implementation-plan.md (including the new Governance Compliance Matrix and Code-Generation Contract H2 sections), 04-governance-constraints.md, and 04-governance-constraints.json (including its discovery_metadata L0 envelope) are read-only for step-5b and step-5t. CodeGen agents that find plan-level must_fix issues MUST traverse the return_edge to step-4 (Planner) rather than self-edit the plan. Plan-level adversarial review (security-governance, architecture-reliability, cost-feasibility against the PLAN artifact) runs only at step-4; step-5* challenger passes use artifact_scope: iac-code. The four-layer governance attestation chain (L0 envelope → L1 plan matrix → L2 code attestation → L3 live precheck) is enforced end-to-end and audited via the apex-recall `governance_trace` decision before complete-step 6.",
       "frozen_artifacts": [
         "04-implementation-plan.md",
+        "04-iac-contract.json",
+        "04-policy-property-map.json",
+        "04-environment-manifest.json",
         "04-governance-constraints.md",
         "04-governance-constraints.json"
       ],
@@ -427,6 +489,47 @@
         "resource_count": "Count of Azure resources declared in 02-architecture-assessment.md",
         "policy_violations": "Count of `deny`-effect findings from 04-governance-constraints.json",
         "iac_tool": "bicep or terraform, from decisions.iac_tool"
+      }
+    },
+    "decision_toggles": {
+      "description": "Project-scoped toggles set by 01-Orchestrator at session init. Each toggle has a default chosen to minimize latency/token cost; agents must honor session-state values when present. Read via `apex-recall show --json`; write via `apex-recall decide --key <toggle> --value <enum>`.",
+      "toggles": {
+        "governance_depth": {
+          "enum": ["light", "full"],
+          "default": "light",
+          "description": "Controls policy-property-map and governance prose detail. Both modes MUST emit 04-policy-property-map.json covering every Deny policy; `light` omits non-Deny rationale prose only.",
+          "owners": ["04g-Governance", "05-IaC Planner"]
+        },
+        "review_depth": {
+          "enum": ["standard", "deep"],
+          "default": "standard",
+          "description": "`standard` runs single-pass comprehensive at mandatory gates. `deep` opts into multi-pass rotating lenses and enables Phase 4.5 challenger at step-5b/5t.",
+          "owners": ["01-Orchestrator", "all challenger-invoking agents"]
+        },
+        "deployment_strategy": {
+          "enum": ["single", "phased"],
+          "default": "single",
+          "description": "`single` is one `az deployment ... create` / `terraform apply`. `phased` splits into platform → workload → consumers with stop gates per `iac-common/references/deploy-shared-workflow.md`.",
+          "owners": ["07b-Bicep Deploy", "07t-Terraform Deploy"]
+        },
+        "identity_resolution": {
+          "enum": ["auto", "manual"],
+          "default": "auto",
+          "description": "`auto` resolves UAMIs and app registrations from session decisions + manifest. `manual` requires user to fill 04-environment-manifest.json fields before deploy. See azure-defaults/references/identity-resolution.md.",
+          "owners": ["05-IaC Planner", "06b/06t CodeGen"]
+        },
+        "diagnostics_strategy": {
+          "enum": ["avm", "module", "auto"],
+          "default": "auto",
+          "description": "`avm` uses AVM's built-in diagnosticSettings parameter (lowest token cost). `module` emits a separate `modules/diagnostics.bicep|tf`. `auto` picks `avm` when the AVM module supports it, else falls back to `module`.",
+          "owners": ["06b/06t CodeGen"]
+        },
+        "entra_app_creation": {
+          "enum": ["existing", "create"],
+          "default": "existing",
+          "description": "`existing` consumes pre-created app registrations from 04-environment-manifest.json (Graph blast radius zero). `create` requires Graph preflight (Application.ReadWrite.All) and lifecycle.prevent_destroy on the Terraform resource. See terraform-patterns/references/azuread-pattern.md.",
+          "owners": ["05-IaC Planner", "06t Terraform CodeGen"]
+        }
       }
     }
   }

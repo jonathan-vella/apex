@@ -11,6 +11,7 @@ Azure Functions base templates use **User Assigned Managed Identity (UAMI)**, no
 UAMI requires **explicit credential configuration** — the runtime cannot auto-detect the identity.
 
 **Without proper configuration**, functions fail with:
+
 - `500 Internal Server Error`
 - `401 Unauthorized`
 - `403 Forbidden`
@@ -20,11 +21,11 @@ UAMI requires **explicit credential configuration** — the runtime cannot auto-
 
 For **every** service binding using UAMI, you MUST configure THREE app settings:
 
-| Setting | Purpose | Example |
-|---------|---------|---------|
-| `{Connection}__fullyQualifiedNamespace` or `{Connection}__accountEndpoint` | Service endpoint | `myhub.servicebus.windows.net` |
-| `{Connection}__credential` | Auth method | `managedidentity` |
-| `{Connection}__clientId` | UAMI identity | `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx` |
+| Setting                                                                    | Purpose          | Example                                |
+| -------------------------------------------------------------------------- | ---------------- | -------------------------------------- |
+| `{Connection}__fullyQualifiedNamespace` or `{Connection}__accountEndpoint` | Service endpoint | `myhub.servicebus.windows.net`         |
+| `{Connection}__credential`                                                 | Auth method      | `managedidentity`                      |
+| `{Connection}__clientId`                                                   | UAMI identity    | `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx` |
 
 > **All three are required.** Missing any one causes auth failures.
 
@@ -119,13 +120,13 @@ Before deploying, verify:
 
 ## Common Mistakes
 
-| Mistake | Result | Fix |
-|---------|--------|-----|
-| Missing `__credential` setting | 401/403 errors | Add `{Connection}__credential: 'managedidentity'` |
-| Missing `__clientId` setting | 401/403 errors | Add `{Connection}__clientId: uamiClientId` |
-| Using wrong clientId | 403 Forbidden | Use `apiUserAssignedIdentity.outputs.clientId` from base template |
-| Using System MI pattern | Auth fails | UAMI requires explicit credential + clientId |
-| Hardcoding clientId | Works initially, breaks on redeploy | Reference identity module output |
+| Mistake                        | Result                              | Fix                                                               |
+| ------------------------------ | ----------------------------------- | ----------------------------------------------------------------- |
+| Missing `__credential` setting | 401/403 errors                      | Add `{Connection}__credential: 'managedidentity'`                 |
+| Missing `__clientId` setting   | 401/403 errors                      | Add `{Connection}__clientId: uamiClientId`                        |
+| Using wrong clientId           | 403 Forbidden                       | Use `apiUserAssignedIdentity.outputs.clientId` from base template |
+| Using System MI pattern        | Auth fails                          | UAMI requires explicit credential + clientId                      |
+| Hardcoding clientId            | Works initially, breaks on redeploy | Reference identity module output                                  |
 
 ## Why UAMI Instead of System MI?
 

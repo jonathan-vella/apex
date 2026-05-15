@@ -34,14 +34,14 @@ public class TimerFunctions
         TimerInfo timer)
     {
         var utcTimestamp = DateTime.UtcNow.ToString("o");
-        
+
         if (timer.IsPastDue)
         {
             _logger.LogWarning("Timer is past due!");
         }
-        
+
         _logger.LogInformation("Timer trigger executed at {timestamp}", utcTimestamp);
-        
+
         // Add your scheduled task logic here
         // Examples:
         // - Call an external API
@@ -59,10 +59,10 @@ public class TimerFunctions
     {
         var response = req.CreateResponse(HttpStatusCode.OK);
         response.Headers.Add("Content-Type", "application/json");
-        
+
         var schedule = Environment.GetEnvironmentVariable("TIMER_SCHEDULE") ?? "not-set";
         response.WriteString(JsonSerializer.Serialize(new { status = "healthy", schedule }));
-        
+
         return response;
     }
 }
@@ -82,6 +82,7 @@ public class TimerFunctions
 ## Local Testing
 
 Set these in `local.settings.json`:
+
 ```json
 {
   "Values": {

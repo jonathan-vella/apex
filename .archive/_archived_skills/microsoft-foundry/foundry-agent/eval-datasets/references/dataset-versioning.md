@@ -6,13 +6,14 @@ Manage dataset versions with naming conventions, tagging, and version pinning fo
 
 Use the pattern `<agent-name>-<source>-v<N>`:
 
-| Component | Values | Example |
-|-----------|--------|---------|
-| `<agent-name>` | Agent name from `.env` | `support-bot` |
-| `<source>` | `traces`, `synthetic`, `manual`, `combined` | `traces` |
-| `v<N>` | Incremental version number | `v3` |
+| Component      | Values                                      | Example       |
+| -------------- | ------------------------------------------- | ------------- |
+| `<agent-name>` | Agent name from `.env`                      | `support-bot` |
+| `<source>`     | `traces`, `synthetic`, `manual`, `combined` | `traces`      |
+| `v<N>`         | Incremental version number                  | `v3`          |
 
 **Full examples:**
+
 - `support-bot-traces-v1` — first dataset from trace harvesting
 - `support-bot-synthetic-v2` — second synthetic dataset
 - `support-bot-combined-v5` — fifth dataset combining traces + manual examples
@@ -21,13 +22,13 @@ Use the pattern `<agent-name>-<source>-v<N>`:
 
 Tags are stored in `datasets/manifest.json` alongside dataset metadata:
 
-| Tag | Meaning | When to Apply |
-|-----|---------|---------------|
-| `baseline` | Reference dataset for comparison | When establishing a new evaluation baseline |
-| `prod` | Dataset used for current production evaluation | After successful deployment |
-| `canary` | Dataset for canary/staging evaluation | During staged rollout |
-| `regression-<date>` | Dataset that caught a regression | When a regression is detected |
-| `deprecated` | Dataset no longer in active use | When replaced by a newer version |
+| Tag                 | Meaning                                        | When to Apply                               |
+| ------------------- | ---------------------------------------------- | ------------------------------------------- |
+| `baseline`          | Reference dataset for comparison               | When establishing a new evaluation baseline |
+| `prod`              | Dataset used for current production evaluation | After successful deployment                 |
+| `canary`            | Dataset for canary/staging evaluation          | During staged rollout                       |
+| `regression-<date>` | Dataset that caught a regression               | When a regression is detected               |
+| `deprecated`        | Dataset no longer in active use                | When replaced by a newer version            |
 
 ## Version Pinning
 

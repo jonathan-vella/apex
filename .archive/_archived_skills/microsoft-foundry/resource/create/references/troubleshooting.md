@@ -5,6 +5,7 @@
 ### ResourceProviderNotRegistered
 
 **Solution:**
+
 1. If you have Owner/Contributor role, register the provider:
    ```bash
    az provider register --namespace Microsoft.CognitiveServices
@@ -15,6 +16,7 @@
 ### InsufficientPermissions
 
 **Solution:**
+
 ```bash
 # Check your role assignments
 az role assignment list --assignee <your-user-id> --subscription <subscription-id>
@@ -27,6 +29,7 @@ Use `microsoft-foundry:rbac` skill to manage permissions.
 ### LocationNotAvailableForResourceType
 
 **Solution:**
+
 ```bash
 # List available regions for Cognitive Services
 az provider show --namespace Microsoft.CognitiveServices \
@@ -53,6 +56,7 @@ az cognitiveservices account create \
 ## Resource Shows as Failed
 
 **Check provisioning state:**
+
 ```bash
 az cognitiveservices account show \
   --name <resource-name> \
@@ -61,6 +65,7 @@ az cognitiveservices account show \
 ```
 
 If `Failed`, delete and recreate:
+
 ```bash
 # Delete failed resource
 az cognitiveservices account delete \

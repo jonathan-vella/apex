@@ -110,6 +110,7 @@ const VALID_LENSES = [
   "architecture-reliability",
   "cost-feasibility",
   "comprehensive",
+  "governance-reconciliation",
   // Legacy lens names (backward compat)
   "security",
   "reliability",
@@ -120,9 +121,18 @@ const VALID_LENSES = [
 
 const COMPLEXITY_TIERS = ["simple", "standard", "complex"];
 
-// Validate challenger field (supports old passes:N or new complexity_matrix)
+// Validate challenger field (supports old passes:N or new opt_in_matrix)
 function validateChallenger(nodeId, challenger) {
   if (!challenger) return;
+
+  // Validate default_lenses (post-Phase-1 default flow)
+  if (Array.isArray(challenger.default_lenses)) {
+    for (const lens of challenger.default_lenses) {
+      if (!VALID_LENSES.includes(lens)) {
+        r.error(`Node "${nodeId}" challenger.default_lenses has invalid lens: "${lens}"`);
+      }
+    }
+  }
 
   // Old format: { passes: N, lenses: [...] }
   if (typeof challenger.passes === "number") {
@@ -139,23 +149,22 @@ function validateChallenger(nodeId, challenger) {
     return;
   }
 
-  // New format: { complexity_matrix: { simple: {...}, standard: {...}, complex: {...} } }
-  if (challenger.complexity_matrix) {
+  // New format: { opt_in_matrix: { simple?: {...}, standard?: {...}, complex?: {...} } }
+  // Opt-in semantics: tiers MAY be partial (a missing tier just means no recommended
+  // multi-pass shape for that tier). Validate each present tier shape, no required[] check.
+  if (challenger.opt_in_matrix) {
     for (const tier of COMPLEXITY_TIERS) {
-      if (!challenger.complexity_matrix[tier]) {
-        r.error(`Node "${nodeId}" challenger.complexity_matrix missing required tier: "${tier}"`);
-        continue;
-      }
-      const entry = challenger.complexity_matrix[tier];
+      const entry = challenger.opt_in_matrix[tier];
+      if (!entry) continue;
       if (typeof entry.passes !== "number" || entry.passes < 1) {
-        r.error(`Node "${nodeId}" challenger.complexity_matrix.${tier}.passes must be a positive integer`);
+        r.error(`Node "${nodeId}" challenger.opt_in_matrix.${tier}.passes must be a positive integer`);
       }
       if (!Array.isArray(entry.lenses) || entry.lenses.length === 0) {
-        r.error(`Node "${nodeId}" challenger.complexity_matrix.${tier}.lenses must be a non-empty array`);
+        r.error(`Node "${nodeId}" challenger.opt_in_matrix.${tier}.lenses must be a non-empty array`);
       } else {
         for (const lens of entry.lenses) {
           if (!VALID_LENSES.includes(lens)) {
-            r.error(`Node "${nodeId}" challenger.complexity_matrix.${tier} has invalid lens: "${lens}"`);
+            r.error(`Node "${nodeId}" challenger.opt_in_matrix.${tier} has invalid lens: "${lens}"`);
           }
         }
       }
@@ -164,10 +173,12 @@ function validateChallenger(nodeId, challenger) {
 
   // Validate skip_condition references valid fields
   if (challenger.skip_condition && typeof challenger.skip_condition === "string") {
-    const allowedFields = ["complexity", "open_findings"];
+    const allowedFields = ["complexity", "open_findings", "constraints.count"];
     const hasValidRef = allowedFields.some((f) => challenger.skip_condition.includes(f));
     if (!hasValidRef) {
-      r.warn(`Node "${nodeId}" challenger.skip_condition does not reference known fields (complexity, open_findings)`);
+      r.warn(
+        `Node "${nodeId}" challenger.skip_condition does not reference known fields (complexity, open_findings, constraints.count)`,
+      );
     }
   }
 }
@@ -210,7 +221,14 @@ for (const [nodeId, node] of Object.entries(graph.nodes)) {
 
 // Validate edges
 const edgeTargets = new Set();
-const VALID_CONDITIONS = ["on_complete", "on_skip", "on_fail", "on_refine"];
+const VALID_CONDITIONS = [
+  "on_complete",
+  "on_skip",
+  "on_fail",
+  "on_refine",
+  "on_architecture_must_fix",
+  "on_must_fix_governance_conflict",
+];
 function validateCondition(label, value) {
   const values = Array.isArray(value) ? value : [value];
   if (values.length === 0) {
@@ -238,12 +256,14 @@ for (const edge of graph.edges) {
 
 // Validate metadata.version
 const expectedMajor = "2";
-const knownVersions = new Set(["2.1", "2.2"]);
+const knownVersions = new Set(["2.1", "2.2", "2.3"]);
 const metaVersion = graph.metadata?.version;
 if (metaVersion === undefined) {
   r.warn("metadata.version missing — older consumers may rely on it");
 } else if (!knownVersions.has(metaVersion)) {
-  r.error(`metadata.version "${metaVersion}" is not a known version (expected one of: ${[...knownVersions].join(", ")})`);
+  r.error(
+    `metadata.version "${metaVersion}" is not a known version (expected one of: ${[...knownVersions].join(", ")})`,
+  );
 } else if (!metaVersion.startsWith(`${expectedMajor}.`)) {
   r.error(`metadata.version major must be "${expectedMajor}" (got "${metaVersion}")`);
 }

@@ -38,15 +38,39 @@ a compact summary (≤15 lines) to the parent agent. JSON shape:
 
 ```jsonc
 {
-  "schema_version": "policy-precheck-v1",
+  "schema_version": "policy-precheck-v2",
   "project": "{project}",
   "checked_at": "2026-05-11T11:15:08Z",
-  "status": "CLEAN" | "DRIFT" | "BLOCKED" | "FAILED",
+
+  // ── GATE FIELDS ─────────────────────────────────────────────────
+  // `deploy_gate` is the authoritative apply decision. Deploy agents
+  // MUST read this field — not `status` — when deciding whether to
+  // invoke `az deployment ... create` or `terraform apply`.
+  "deploy_gate": "PROCEED" | "BLOCK",
+  "deploy_gate_reason": "no blocking policies, no what-if violations",
+
+  // `status` is the observed-state classification. It is informational
+  // and may co-exist with `deploy_gate=PROCEED` (e.g. INFORMATIONAL).
+  "status": "CLEAN" | "INFORMATIONAL" | "BLOCKED" | "FAILED",
+
+  // `drift_signal` separates noise from gating concerns. Severity is
+  // BLOCKING only when a deny-effect policy is actually missing or
+  // a what-if violation is detected. Audit/auditIfNotExists/modify/
+  // deployIfNotExists/manual entries are INFORMATIONAL at most.
+  "drift_signal": {
+    "severity": "NONE" | "INFORMATIONAL" | "BLOCKING",
+    "missing_from_constraints_count": 0,
+    "newer_than_envelope_count": 0,
+    "accepted_by_residual_drift_policy": true,
+    "details": "456 missing entries are child policy IDs inside already-captured initiatives; effect distribution: audit=88, auditIfNotExists=114, manual=242, deployIfNotExists=9, modify=3"
+  },
+
+  // ── EVIDENCE ────────────────────────────────────────────────────
   "live_policies_missing_from_constraints": [
     {
       "policy_definition_id": "/providers/.../policyDefinitions/...",
       "display_name": "...",
-      "effect": "deny",
+      "effect": "audit",
       "scope": "...",
       "discovered_at_live": "2026-05-10T08:00:00Z"
     }
@@ -81,25 +105,76 @@ a compact summary (≤15 lines) to the parent agent. JSON shape:
     "envelope_discovered_at": "...",
     "envelope_ttl_days": 7,
     "envelope_age_days": 1.2,
-    "envelope_status": "FRESH"
+    "envelope_status": "FRESH",
+    "residual_drift_acceptance_present": true,
+    "residual_drift_acceptance_expires_at": "2026-05-20T00:00:00Z"
   }
 }
 ```
 
+### `deploy_gate` derivation (deterministic, no ambiguity)
+
+`deploy_gate` is computed by the subagent using this exact rule, in order:
+
+1. Render or REST-stage failure → `deploy_gate=BLOCK`, `status=FAILED`.
+2. `policies_that_will_block_deploy` non-empty OR
+   `what_if_summary.policy_violations_in_what_if > 0` →
+   `deploy_gate=BLOCK`, `status=BLOCKED`.
+3. `attestation.envelope_status == "STALE"` → `deploy_gate=BLOCK`,
+   `status=INFORMATIONAL`, route to `▶ Refresh Governance`. Envelope
+   freshness is the only non-policy gate.
+4. `drift_signal.severity == "INFORMATIONAL"` AND
+   `drift_signal.accepted_by_residual_drift_policy == true` →
+   `deploy_gate=PROCEED`, `status=CLEAN`.
+5. `drift_signal.severity == "INFORMATIONAL"` AND not accepted →
+   `deploy_gate=PROCEED`, `status=INFORMATIONAL`. Deploy is not auto-
+   blocked; the parent surfaces the drift summary to the user as
+   informational context only.
+6. Otherwise → `deploy_gate=PROCEED`, `status=CLEAN`.
+
+> **Why a separate `deploy_gate`** — the prior contract conflated
+> observed-state (status) with the apply decision. A subscription with
+> initiative assignments (MCSB, MCAPSGov, ALZ) always shows hundreds of
+> child policy IDs in live state that are absent from the constraints
+> envelope's `findings[]` because findings only carries Deny + DeployIfNotExists +
+> Modify. That noise is unavoidable and non-gating, but the legacy
+> contract returned `DRIFT` → routing matrix → `▶ Refresh Governance` →
+> indefinite loop. `deploy_gate` makes the apply decision a single
+> boolean derived from real blockers only.
+
 ### `status` values
 
-| Status    | Meaning                                                                                            | Parent agent action                         |
-| --------- | -------------------------------------------------------------------------------------------------- | ------------------------------------------- |
-| `CLEAN`   | All four sub-checks passed; live state aligns with envelope.                                       | Proceed to deploy.                          |
-| `DRIFT`   | `live_policies_missing_from_constraints` OR `live_policies_newer_than_envelope` non-empty.         | `▶ Refresh Governance` handoff.             |
-| `BLOCKED` | `policies_that_will_block_deploy` non-empty OR `what_if_summary.policy_violations_in_what_if > 0`. | Route per drift matrix (CodeGen / Planner). |
-| `FAILED`  | Subagent could not complete (auth, missing files, what-if error). Includes `reason` field.         | Halt; surface to user.                      |
+| Status          | Meaning                                                            | `deploy_gate` |
+| --------------- | ------------------------------------------------------------------ | ------------- |
+| `CLEAN`         | No blockers, no informational drift OR drift accepted via policy.  | `PROCEED`     |
+| `INFORMATIONAL` | Non-blocking drift observed (audit/modify/DINE/AINE/manual noise). | `PROCEED`     |
+| `BLOCKED`       | Deny-effect policy missing OR what-if policy violation detected.   | `BLOCK`       |
+| `FAILED`        | Subagent could not complete (auth, render, REST). `reason` field.  | `BLOCK`       |
+
+> Envelope `STALE` produces `status=INFORMATIONAL` + `deploy_gate=BLOCK`
+>
+> - `▶ Refresh Governance` handoff. The envelope is the input contract,
+>   not policy state.
+
+### Legacy `DRIFT` status (deprecated)
+
+`schema_version: policy-precheck-v1` JSON files emitted before this
+revision may set `status=DRIFT`. Treat `DRIFT` as `INFORMATIONAL` unless
+`policies_that_will_block_deploy` is non-empty, in which case treat as
+`BLOCKED`. The validator
+[`validate-policy-precheck.mjs`](../../../../tools/scripts/validate-policy-precheck.mjs)
+flags `DRIFT` with no `deploy_gate` field as legacy and recommends a
+re-run.
 
 ### Compact summary returned to parent
 
 ```text
 POLICY PRECHECK RESULT
-Status: {CLEAN|DRIFT|BLOCKED|FAILED}
+Deploy gate: {PROCEED|BLOCK}
+Status: {CLEAN|INFORMATIONAL|BLOCKED|FAILED}
+Reason: {short rationale}
+Drift severity: {NONE|INFORMATIONAL|BLOCKING}
+Drift accepted: {true|false}
 Live missing from constraints: N
 Live newer than envelope: N
 What-if violations: N
@@ -141,14 +216,51 @@ across deploy invocations.
 
 ### Phase 3 — Cross-check live vs constraints
 
-1. Parse `{constraints_path}` and build a set of
-   `policy_definition_id` values from the `findings[]` array.
-2. For each live policy:
-   - If `policy_definition_id` not in constraints set → add to
-     `live_policies_missing_from_constraints`.
+1. Parse `{constraints_path}` and build a set of reference policy IDs.
+   Use BOTH sources, in this order:
+   - `envelope.member_policy_index[]` (if present) — the complete set
+     of every policy definition ID discovered, including
+     audit / auditIfNotExists / modify / deployIfNotExists / manual /
+     disabled effects. This is the authoritative match set.
+   - `envelope.findings[].policy_id` — fallback for older envelopes
+     without `member_policy_index`. Note that `findings[]` only contains
+     blocker + auto-remediate effects, so falling back will produce
+     noisy "missing" entries for non-blocking live policies. Recommend
+     refreshing governance to pick up `member_policy_index`.
+2. Parse `envelope.residual_drift_acceptance` (if present). The shape is:
+
+   ```jsonc
+   {
+     "accepted_effects": ["audit", "auditIfNotExists", "deployIfNotExists", "modify", "manual", "disabled"],
+     "accepted_by": "user:<principal>",
+     "accepted_at": "2026-05-13T10:00:00Z",
+     "expires_at": "2026-05-20T10:00:00Z",
+     "rationale": "Operator informed consent: non-blocking drift expected from initiative member policies and compliance re-evaluation timestamps.",
+   }
+   ```
+
+   The acceptance is valid when `expires_at > now`. Operators write
+   this block via `04g-Governance` (recommended) or by hand-editing
+   the constraints JSON. It is read-only to this subagent.
+
+3. For each live policy:
+   - If `policy_definition_id` not in the reference set →
+     add to `live_policies_missing_from_constraints`.
    - If live `lastModified` (or `time`) is newer than
-     `discovery_metadata.discovered_at` from the envelope → add to
+     `discovery_metadata.discovered_at` → add to
      `live_policies_newer_than_envelope`.
+4. Classify drift severity:
+   - `BLOCKING` if any `missing_from_constraints` entry has
+     `effect == "deny"`. (These rows also populate
+     `policies_that_will_block_deploy` after what-if confirms them.)
+   - `INFORMATIONAL` if all missing entries have non-deny effects
+     (audit / auditIfNotExists / modify / deployIfNotExists / manual /
+     disabled), OR all entries are `newer_than_envelope` timestamp
+     churn.
+   - `NONE` if both lists are empty.
+5. Set `drift_signal.accepted_by_residual_drift_policy = true` when:
+   - `residual_drift_acceptance` is present and unexpired, AND
+   - every drift entry's `effect` is in `accepted_effects`.
 
 ### Phase 4 — What-if validation
 
@@ -186,16 +298,28 @@ Read `discovery_metadata` from `{constraints_path}` and compute:
 
 ### Phase 6 — Emit JSON
 
-Combine all signals into the JSON shape above. Map status:
+Combine all signals into the JSON shape above. Derive `deploy_gate`
+and `status` using the **exact rule sequence** documented in
+`deploy_gate` derivation above. Pseudocode:
 
-- Any entry in `policies_that_will_block_deploy` OR
-  `what_if_summary.policy_violations_in_what_if > 0` → `BLOCKED`.
-- Else any entry in `live_policies_missing_from_constraints` OR
-  `live_policies_newer_than_envelope` OR
-  `envelope_status != "FRESH"` → `DRIFT`.
-- Else → `CLEAN`.
+```text
+if render_failed or rest_failed:
+    deploy_gate = "BLOCK"; status = "FAILED"
+elif policies_that_will_block_deploy or policy_violations_in_what_if > 0:
+    deploy_gate = "BLOCK"; status = "BLOCKED"
+elif envelope_status == "STALE":
+    deploy_gate = "BLOCK"; status = "INFORMATIONAL"
+    # route to ▶ Refresh Governance
+elif drift_signal.severity == "INFORMATIONAL" and drift_signal.accepted_by_residual_drift_policy:
+    deploy_gate = "PROCEED"; status = "CLEAN"
+elif drift_signal.severity == "INFORMATIONAL":
+    deploy_gate = "PROCEED"; status = "INFORMATIONAL"
+else:
+    deploy_gate = "PROCEED"; status = "CLEAN"
+```
 
-Write to `output_path`. Return the compact summary block. Stop.
+Write `schema_version: "policy-precheck-v2"` to `output_path`. Return
+the compact summary block. Stop.
 
 ## Boundaries
 

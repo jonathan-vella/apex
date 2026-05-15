@@ -5,6 +5,7 @@
 > in the **azure-appconfiguration-java** plugin skill if installed.
 
 ## Install
+
 ```xml
 <dependency>
     <groupId>com.azure</groupId>
@@ -31,6 +32,7 @@ var client = new ConfigurationClientBuilder()
 ```
 
 ## Best Practices
+
 - Use labels — separate configurations by environment (Dev, Staging, Production)
 - Use snapshots — create immutable snapshots for releases
 - Feature flags — use for gradual rollouts and A/B testing

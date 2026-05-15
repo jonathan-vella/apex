@@ -38,8 +38,8 @@ auto-validated (reviewer judgement). Existing repo patterns:
 > snippet).
 
 **Rule** (`legacy-004`): Claude Opus / Sonnet agents whose role is to
-research before deciding (Architect, IaC Planner, Diagnose, Context
-Optimizer) should include `<investigate_before_answering>`.
+research before deciding (Architect, IaC Planner, Context Optimizer)
+should include `<investigate_before_answering>`.
 
 **Counter-rule** (`claude-oneshot-001`): ONE-SHOT agents
 (Requirements, Challenger subagent — agents whose contract is "do it

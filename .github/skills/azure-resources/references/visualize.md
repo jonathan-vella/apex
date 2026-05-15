@@ -1,3 +1,5 @@
+<!-- ref:visualize-v1 -->
+
 # Visualize Workflow Reference
 
 > Loaded by the **azure-resources** skill when the user asks to visualize a resource group as a Mermaid architecture diagram. Do NOT read this file unless the request is a Visualize-mode task.
@@ -135,4 +137,3 @@ and create a markdown file named `[resource-group-name]-architecture.md` with:
 - Use code blocks with `mermaid` language tag for diagrams
 
 ---
-

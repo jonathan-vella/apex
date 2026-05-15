@@ -12,8 +12,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.10.0] — Unreleased
 
+### Removed
+
+- refactor(skills): **retire the `SKILL.digest.md` and `SKILL.minimal.md` tier
+  system.** Each skill is now a single `SKILL.md` file; deep content lives in
+  `references/` and is loaded on demand. Deletes every `SKILL.digest.md` and
+  every `SKILL.minimal.md` under `.github/skills/`, the
+  `tools/scripts/generate-skill-digests.mjs` generator, and the digest portion
+  of `tools/scripts/validate-skill-checks.mjs`. Updates the orphan-content
+  regex, `safe-shell.mjs`, the `no-interactive-shell` `applyTo` glob, and every
+  agent / prompt / instruction / site-doc reference from
+  `SKILL.digest.md` → `SKILL.md`. Centralizes Azure region defaults in
+  `.github/copilot-instructions.md` (canonical) with `azure-defaults/SKILL.md`
+  as the IaC mirror.
+
 ### Changed
 
+- feat(agents): migrate `09-Diagnose` to `GPT-5.5` and convert
+  `diagnose-resource.prompt.md` to the outcome-first GPT-5.5 skeleton while
+  preserving approval-first Azure diagnostics and report output.
 - chore(catalog): drop the `(High reasoning)` suffix from the Opus 4.7 label.
   `Claude Opus 4.7 (High reasoning)` and `Claude Opus 4.7` were two distinct
   catalog entries pointing at the same SKU. Reasoning-effort policy is now a

@@ -11,8 +11,14 @@ metadata:
 
 # Azure Defaults Skill
 
-Single source of truth for Azure infrastructure configuration.
+IaC-flavoured mirror of the canonical Azure defaults declared in
+[`.github/copilot-instructions.md`](../../copilot-instructions.md#azure-defaults-canonical).
 Deep-dive content lives in `references/` — load on demand.
+
+> **Canonical source rule**: if the tables below disagree with
+> [`copilot-instructions.md`](../../copilot-instructions.md#azure-defaults-canonical),
+> the canonical declaration wins. This skill restates them for IaC-output
+> convenience only.
 
 ---
 
@@ -100,17 +106,42 @@ For extended abbreviations and length-constraint examples, read
 ## Azure Verified Modules (AVM)
 
 1. **ALWAYS** check AVM availability first
-2. Use AVM defaults for SKUs when available
-3. **NEVER** write raw Bicep/TF for a resource that has an AVM module
+2. **ALWAYS pin to the latest published stable version** — query MCR (Bicep)
+   or `registry.terraform.io` (Terraform) at planning time; never reuse a
+   version from a prior project, a cached doc table, or training data
+3. Use AVM defaults for SKUs when available
+4. **NEVER** write raw Bicep/TF for a resource that has an AVM module
 
-For the full Bicep + Terraform AVM module registry, read
-`references/avm-modules.md`.
+**Looking up the latest version** (planner agents and humans):
+
+- **Bicep:** `curl -sf https://mcr.microsoft.com/v2/bicep/avm/res/{path}/tags/list`
+  — the highest non-prerelease semver in `tags[]` is the latest stable.
+  Filter out `-alpha`, `-beta`, `-preview`, `-rc`, `-next` tags.
+- **Terraform:** `curl -sf https://registry.terraform.io/v1/modules/Azure/avm-res-{path}/azurerm/versions`
+  — first entry in `modules[0].versions[]` (newest-first ordering).
+- **MCP equivalents** (preferred in Copilot Chat sessions): the
+  microsoft-foundry and terraform MCP toolsets surface the same data.
+- **Validator** (`npm run validate:avm-versions` / `:freeze`) does the same
+  lookup automatically with a cache fallback; planner agents MUST call it
+  before `apex-recall complete-step 4` (the Step 4 contract freeze gate).
+
+**Stale pins require structured justification** — when a project pins an
+older version on purpose (e.g. AVM 0.12.x emits a regression that
+breaks ACR Basic SKU defaults), the `04-iac-contract.json` module entry
+MUST include a `pin_policy` block with `mode: "exception"`, `rationale`,
+`evidence_url_or_file`, and `review_after`. The validator fails closed on
+stale pins without an accepted `pin_policy`. Schema:
+`tools/schemas/iac-contract.schema.json` → `$defs.pinPolicy`.
+
+For the Bicep + Terraform AVM module list (no version numbers — those
+live in the registry, not in this repo), read `references/avm-modules.md`.
 
 ---
 
 ## Rules
 
 - **AVM-first is non-negotiable** — NEVER write raw Bicep/Terraform for a resource that has an AVM module available
+- **Pin to the latest published AVM version at plan time** — query MCR (Bicep) or `registry.terraform.io` (Terraform); never reuse a version from a prior project, a cached doc table, or training data. Stale pins are allowed only via a structured `pin_policy.mode = "exception"` block in `04-iac-contract.json` with rationale + evidence + `review_after` date. Enforced by `npm run validate:avm-versions:freeze`.
 - **Default region** is `swedencentral` (EU GDPR-compliant); fail over to `germanywestcentral`; use `westeurope` for Static Web Apps
 - **Required tags** (PascalCase, exact casing): `Environment`, `ManagedBy`, `Project`, `Owner` — always defer to `04-governance-constraints.md` for the project's actual required tag list
 - **Tag casing is case-sensitive** — never emit both `owner` and `Owner` in the same template (`AmbiguousPolicyEvaluationPaths` error)
@@ -125,7 +156,7 @@ Applying defaults when generating Azure infrastructure:
 
 1. **Read Quick Reference** — confirm region, tags, suffix, and security baseline match this skill
 2. **Cross-check governance** — read `04-governance-constraints.md` for project-specific tag and policy requirements
-3. **Pick AVM modules** — query the AVM registry for every resource type before writing raw Bicep/Terraform
+3. **Pick AVM modules** — query the AVM registry for every resource type before writing raw Bicep/Terraform, AND resolve the latest stable version live (MCR for Bicep, `registry.terraform.io` for Terraform); never reuse a pinned version from a prior project
 4. **Apply naming** — use the CAF abbreviations table; load `references/naming-full-examples.md` for length-constrained resources
 5. **Apply tags** — emit all 4 required tags (PascalCase) on every taggable resource
 6. **Apply security baseline** — wire HTTPS-only, TLS 1.2, no public blob, Managed Identity, public network access settings
@@ -188,3 +219,5 @@ Load these on demand — do NOT read all at once:
 | `references/azure-cli-auth-validation.md`   | Validating Azure CLI auth before deployments            |
 | `references/terraform-conventions.md`       | Generating Terraform (HCL) code                         |
 | `references/research-workflow.md`           | Following the standard 4-step research pattern          |
+| `references/tag-strategy.md`                | Choosing the greenfield CAF tag fallback (no policy)    |
+| `references/workflow-gates.md`              | Looking up cross-agent gate protocols (SKU/budget/etc.) |

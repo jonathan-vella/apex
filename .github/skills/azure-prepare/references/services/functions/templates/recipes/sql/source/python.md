@@ -3,6 +3,7 @@
 ## Dependencies
 
 **requirements.txt:**
+
 ```
 azure-functions
 ```
@@ -10,6 +11,7 @@ azure-functions
 ## Source Code
 
 **function_app.py:**
+
 ```python
 import logging
 import json
@@ -20,23 +22,23 @@ from todo_item import ToDoItem
 app = func.FunctionApp()
 
 @app.sql_trigger(
-    arg_name="changes", 
+    arg_name="changes",
     table_name="[dbo].[ToDo]",
     connection_string_setting="AZURE_SQL_CONNECTION_STRING_KEY"
 )
 def sql_trigger_todo(changes: str) -> None:
     """SQL trigger function that responds to changes in the ToDo table."""
     logging.info("SQL trigger function processed changes")
-    
+
     try:
         changes_list = json.loads(changes)
-        
+
         for change in changes_list:
             operation = change.get('Operation', 'Unknown')
             item_data = change.get('Item', {})
-            
+
             todo_item = ToDoItem.from_dict(item_data)
-            
+
             logging.info(f"Change operation: {operation}")
             logging.info(f"Id: {todo_item.id}, Title: {todo_item.title}, "
                         f"Url: {todo_item.url}, Completed: {todo_item.completed}")
@@ -50,34 +52,34 @@ def sql_trigger_todo(changes: str) -> None:
 @app.route(route="httptriggersqloutput", methods=["POST"])
 @app.sql_output(
     arg_name="todo",
-    command_text="[dbo].[ToDo]", 
+    command_text="[dbo].[ToDo]",
     connection_string_setting="AZURE_SQL_CONNECTION_STRING_KEY"
 )
 def http_trigger_sql_output(
-    req: func.HttpRequest, 
+    req: func.HttpRequest,
     todo: func.Out[func.SqlRow]
 ) -> func.HttpResponse:
     """HTTP trigger with SQL output binding to insert ToDo items."""
     logging.info('HTTP trigger with SQL Output Binding processed a request.')
-    
+
     try:
         req_body = req.get_json()
-        
+
         if not req_body:
             return func.HttpResponse(
                 "Please pass a valid JSON object in the request body",
                 status_code=400
             )
-        
+
         row = func.SqlRow.from_dict(req_body)
         todo.set(row)
-        
+
         return func.HttpResponse(
             json.dumps(req_body),
             status_code=201,
             mimetype="application/json"
         )
-        
+
     except ValueError as e:
         logging.error(f"JSON parsing error: {e}")
         return func.HttpResponse("Invalid JSON in request body", status_code=400)
@@ -87,6 +89,7 @@ def http_trigger_sql_output(
 ```
 
 **todo_item.py:**
+
 ```python
 from dataclasses import dataclass
 from typing import Optional
@@ -100,15 +103,15 @@ class ToDoItem:
     url: str
     order: Optional[int] = None
     completed: Optional[bool] = None
-    
-    def __init__(self, id: str = None, title: str = "", url: str = "", 
+
+    def __init__(self, id: str = None, title: str = "", url: str = "",
                  order: Optional[int] = None, completed: Optional[bool] = None):
         self.id = id if id is not None else str(uuid.uuid4())
         self.title = title
         self.url = url
         self.order = order
         self.completed = completed
-        
+
     def to_dict(self):
         return {
             "id": self.id,
@@ -117,7 +120,7 @@ class ToDoItem:
             "order": self.order,
             "completed": self.completed
         }
-    
+
     @classmethod
     def from_dict(cls, data: dict):
         return cls(

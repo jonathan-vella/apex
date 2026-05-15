@@ -10,6 +10,7 @@
 The app in the workspace must be one of these kinds
 
 **Guidelines**:
+
 ### Collect context information
 
 Read `SKILL.md` or `SKILL.digest.md` for full content.

@@ -215,9 +215,9 @@ workflow from scratch.
   `what-if`, or `terraform plan` error back into the parent agent prompt so it can
   repair the generated code rather than guessing.
 - **Tooling or auth fails**: fix the environment first, then resume the same step.
-  Use [Quickstart](../../getting-started/quickstart/),
-  [Troubleshooting](../troubleshooting/), and
-  [Validation & Linting](../../reference/validation-reference/) as the primary recovery guides.
+  Use [Quickstart](../../../getting-started/quickstart/),
+  [Troubleshooting](../../troubleshooting/), and
+  [Validation & Linting](../../../reference/validation-reference/) as the primary recovery guides.
 
 ## Standalone Agents
 
@@ -275,4 +275,4 @@ and missing disaster recovery considerations.
 
 - [Best Practices](../best-practices/) — improve prompt quality before retrying a step
 - [Skill & Subagent Reference](../reference/) — interpret validator and preview output
-- [Troubleshooting](../../guides/troubleshooting/) — recover from auth, setup, and deployment issues
+- [Troubleshooting](../../troubleshooting/) — recover from auth, setup, and deployment issues

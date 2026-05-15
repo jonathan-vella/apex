@@ -7,6 +7,7 @@
 Microsoft Foundry offers two quota types:
 
 ### Standard TPM (Tokens Per Minute)
+
 - Pay-as-you-go model, charged per token
 - Each deployment consumes capacity units (e.g., 10K TPM, 50K TPM)
 - Total regional quota shared across all deployments
@@ -14,6 +15,7 @@ Microsoft Foundry offers two quota types:
 - Best for: Variable workloads, development, testing, bursty traffic
 
 ### Provisioned Throughput Units (PTU)
+
 - Monthly commitment for guaranteed throughput
 - No rate limiting, consistent latency
 - Measured in PTU units (not TPM)
@@ -22,17 +24,18 @@ Microsoft Foundry offers two quota types:
 
 ## When to Use PTU
 
-| Factor | Standard (TPM) | Provisioned (PTU) |
-|--------|----------------|-------------------|
-| **Best For** | Variable workloads, development, testing | Predictable production workloads |
-| **Pricing** | Pay-per-token | Monthly commitment (hourly rate per PTU) |
-| **Rate Limits** | Yes (429 errors possible) | No (guaranteed throughput) |
-| **Latency** | Variable | Consistent |
-| **Cost Decision** | Lower upfront commitment | More economical for consistent, high-volume usage |
-| **Flexibility** | Scale up/down instantly | Requires planning and commitment |
-| **Use Case** | Prototyping, bursty traffic | Production apps, high-volume APIs |
+| Factor            | Standard (TPM)                           | Provisioned (PTU)                                 |
+| ----------------- | ---------------------------------------- | ------------------------------------------------- |
+| **Best For**      | Variable workloads, development, testing | Predictable production workloads                  |
+| **Pricing**       | Pay-per-token                            | Monthly commitment (hourly rate per PTU)          |
+| **Rate Limits**   | Yes (429 errors possible)                | No (guaranteed throughput)                        |
+| **Latency**       | Variable                                 | Consistent                                        |
+| **Cost Decision** | Lower upfront commitment                 | More economical for consistent, high-volume usage |
+| **Flexibility**   | Scale up/down instantly                  | Requires planning and commitment                  |
+| **Use Case**      | Prototyping, bursty traffic              | Production apps, high-volume APIs                 |
 
 **Use PTU when:**
+
 - Consistent, predictable token usage where monthly commitment is cost-effective
 - Need guaranteed throughput (no 429 rate limit errors)
 - Require consistent latency with performance SLA
@@ -50,6 +53,7 @@ Compare your current pay-as-you-go costs with PTU pricing. PTU may be more econo
 Calculate PTU requirements using these official methods:
 
 **Method 1: Microsoft Foundry Portal**
+
 1. Navigate to Microsoft Foundry portal
 2. Go to **Operate** → **Quota**
 3. Select **Provisioned throughput unit** tab
@@ -58,6 +62,7 @@ Calculate PTU requirements using these official methods:
 6. Calculator returns exact PTU count needed
 
 **Method 2: Using Azure REST API**
+
 ```bash
 # Calculate required PTU capacity
 curl -X POST "https://management.azure.com/subscriptions/<subscription-id>/providers/Microsoft.CognitiveServices/calculateModelCapacity?api-version=2024-10-01" \
@@ -105,6 +110,7 @@ az cognitiveservices account deployment show \
 ```
 
 **Key Differences from Standard TPM:**
+
 - SKU name: `ProvisionedManaged` (not `Standard`)
 - Capacity: Measured in PTU units (not K TPM)
 - Billing: Monthly commitment regardless of usage
@@ -133,12 +139,14 @@ PTU quota is separate from TPM quota and requires specific justification:
 ## Understanding Region and Deployment Quotas
 
 ### Region Quota
+
 - Maximum PTU capacity available in an Azure region
 - Varies by model type (GPT-4, GPT-4o, etc.)
 - Shared across subscription resources in same region
 - Separate from TPM quota (you have both TPM and PTU quotas)
 
 ### Deployment Slots
+
 - Number of concurrent model deployments allowed
 - Typically 10-20 slots per resource
 - Each PTU deployment uses one slot (same as TPM deployments)

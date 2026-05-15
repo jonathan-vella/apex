@@ -1,13 +1,13 @@
 # Bicep Errors
 
-| Error | Resolution |
-|-------|------------|
-| Syntax error | `az bicep build` to check |
-| Missing parameter | Add to parameters file |
-| Invalid property | Check `mcp_bicep_get_az_resource_type_schema` |
-| Resource conflict | Check existing resources |
-| Deployment failed | `az deployment sub show --name <name>` |
-| Permission denied | Verify RBAC roles |
+| Error             | Resolution                                    |
+| ----------------- | --------------------------------------------- |
+| Syntax error      | `az bicep build` to check                     |
+| Missing parameter | Add to parameters file                        |
+| Invalid property  | Check `mcp_bicep_get_az_resource_type_schema` |
+| Resource conflict | Check existing resources                      |
+| Deployment failed | `az deployment sub show --name <name>`        |
+| Permission denied | Verify RBAC roles                             |
 
 ## Cleanup (DESTRUCTIVE)
 

@@ -45,12 +45,12 @@ dependencies
 
 Present results as:
 
-| Priority | Error Type | Operation | Count | Result Code | Suggested Action |
-|----------|-----------|-----------|-------|-------------|-----------------|
-| P0 | timeout | invoke_agent | 15 | 504 | Check agent container health, increase timeout |
-| P1 | rate_limited | chat | 8 | 429 | Check quota, add retry logic |
-| P2 | content_filter | chat | 5 | 400 | Review prompt for policy violations |
-| P3 | tool_error | execute_tool | 3 | 500 | Check tool implementation and permissions |
+| Priority | Error Type     | Operation    | Count | Result Code | Suggested Action                               |
+| -------- | -------------- | ------------ | ----- | ----------- | ---------------------------------------------- |
+| P0       | timeout        | invoke_agent | 15    | 504         | Check agent container health, increase timeout |
+| P1       | rate_limited   | chat         | 8     | 429         | Check quota, add retry logic                   |
+| P2       | content_filter | chat         | 5     | 400         | Review prompt for policy violations            |
+| P3       | tool_error     | execute_tool | 3     | 500         | Check tool implementation and permissions      |
 
 **Prioritization:** P0 = highest count or most severe (5xx), then by count × recency.
 

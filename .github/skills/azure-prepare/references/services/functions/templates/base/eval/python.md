@@ -2,12 +2,12 @@
 
 ## Test Summary
 
-| Test | Status | Notes |
-|------|--------|-------|
-| Code Syntax | ✅ PASS | AST parse successful |
-| Function Routes | ✅ PASS | /api/hello, /api/health defined |
-| v2 Model | ✅ PASS | Uses `func.FunctionApp()` decorator model |
-| Health Endpoint | ✅ PASS | Anonymous auth, JSON response |
+| Test            | Status  | Notes                                     |
+| --------------- | ------- | ----------------------------------------- |
+| Code Syntax     | ✅ PASS | AST parse successful                      |
+| Function Routes | ✅ PASS | /api/hello, /api/health defined           |
+| v2 Model        | ✅ PASS | Uses `func.FunctionApp()` decorator model |
+| Health Endpoint | ✅ PASS | Anonymous auth, JSON response             |
 
 ## Code Validation
 

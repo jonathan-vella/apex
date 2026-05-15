@@ -2,22 +2,22 @@
 
 ## Coverage Status
 
-| Language | Source | Eval | Status |
-|----------|--------|------|--------|
-| Python | ✅ | ✅ | PASS |
-| TypeScript | ✅ | 🔲 | Pending |
-| JavaScript | ✅ | 🔲 | Pending |
-| C# (.NET) | ✅ | 🔲 | Pending |
-| Java | ✅ | 🔲 | Pending |
-| PowerShell | ✅ | 🔲 | Pending |
+| Language   | Source | Eval | Status  |
+| ---------- | ------ | ---- | ------- |
+| Python     | ✅     | ✅   | PASS    |
+| TypeScript | ✅     | 🔲   | Pending |
+| JavaScript | ✅     | 🔲   | Pending |
+| C# (.NET)  | ✅     | 🔲   | Pending |
+| Java       | ✅     | 🔲   | Pending |
+| PowerShell | ✅     | 🔲   | Pending |
 
 ## Results
 
-| Test | Python | TypeScript | JavaScript | .NET | Java | PowerShell |
-|------|--------|------------|------------|------|------|------------|
-| Syntax Valid | ✅ | - | - | - | - | - |
-| Health Endpoint | ✅ | - | - | - | - | - |
-| HTTP Trigger | ✅ | - | - | - | - | - |
+| Test            | Python | TypeScript | JavaScript | .NET | Java | PowerShell |
+| --------------- | ------ | ---------- | ---------- | ---- | ---- | ---------- |
+| Syntax Valid    | ✅     | -          | -          | -    | -    | -          |
+| Health Endpoint | ✅     | -          | -          | -    | -    | -          |
+| HTTP Trigger    | ✅     | -          | -          | -    | -    | -          |
 
 ## Notes
 

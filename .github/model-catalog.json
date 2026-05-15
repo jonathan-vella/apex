@@ -1,7 +1,7 @@
 {
   "$schema": "../tools/schemas/model-catalog.schema.json",
   "description": "Authorized Copilot Chat model labels for APEX agents. Two-part design: `models` is hand-maintained metadata that authorizes which labels may appear in agent frontmatter; `assignments` is auto-generated from frontmatter (the canonical source) so the catalog can never drift from the agents themselves. The agent registry mirrors frontmatter via validate-model-consistency.mjs; the catalog enforces the label allow-list and assignment integrity via validate-model-catalog.mjs.",
-  "last_updated": "2026-05-08",
+  "last_updated": "2026-05-14",
   "models": {
     "Claude Opus 4.7": {
       "vendor": "Anthropic",
@@ -12,8 +12,7 @@
         "orchestration",
         "architecture",
         "iac-planning",
-        "context-optimization",
-        "diagnosis"
+        "context-optimization"
       ],
       "notes": "Active Opus 4.7 SKU. Reasoning-effort policy (high vs default) is a per-agent / per-call concern, NOT a separate model label. See `.github/instructions/agent-authoring.instructions.md` (\"Reasoning-effort policy\" section) for guidance on which agents run at high effort."
     },
@@ -39,10 +38,11 @@
       "use_for": [
         "design-diagrams",
         "adr-authoring",
+        "iac-codegen",
         "iac-validation",
         "deployment-preview"
       ],
-      "notes": "Active for Step 3 Design and the IaC validation/preview subagents (bicep-validate, bicep-whatif, terraform-validate, terraform-plan) after the 2026-05 GPT-5.4 → Sonnet 4.6 subagent migration. The Anthropic prompting style (XML-tagged blocks, role-first, quote-grounded review, checklist-driven structured output) suits both ADR + diagram authoring and the structured PASS/FAIL findings produced by the validation subagents. Other Sonnet-cohort agents (Orchestrator Fast Path, Governance, CodeGen, Challenger) moved to GPT-5.5 in the same cohort migration."
+      "notes": "Active for Step 3 Design, Step 5 IaC code generation (Bicep + Terraform), and the IaC validation/preview subagents (bicep-validate, bicep-whatif, terraform-validate, terraform-plan). The Anthropic prompting style (XML-tagged blocks, role-first, quote-grounded review, checklist-driven structured output) suits both ADR + diagram authoring and the structured PASS/FAIL findings produced by the validation subagents. CodeGen joined this cohort 2026-05 (was GPT-5.5) for stronger verbatim invariant retention (security baseline, AVM contract, HARD GATE language) and family alignment with the validate subagents it dispatches. Other GPT-5.5 cohort members (Governance, Deploy, As-Built, Challenger, E2E, Diagnose) remain on GPT-5.5."
     },
     "GPT-5.4": {
       "vendor": "OpenAI",
@@ -66,13 +66,13 @@
         "orchestration",
         "fast-path-orchestration",
         "governance",
-        "iac-codegen",
         "deployment-execution",
         "as-built-documentation",
         "challenger-review",
+        "diagnosis",
         "e2e-evaluation"
       ],
-      "notes": "Outcome-first prompting per the OpenAI GPT-5.5 prompting guide: explicit Role / Personality / Goal / Success / Constraints / Output / Stop sections, retrieval budgets, decision rules over absolutes, and stopping conditions. More efficient reasoning than predecessors — re-evaluate low/medium effort before escalating to high. After 2026-05 cohort migration, GPT-5.5 also covers deploy (Bicep + Terraform), as-built documentation, and the e2e-orchestrator (was GPT-5.4 / Opus 4.7 respectively)."
+      "notes": "Outcome-first prompting per the OpenAI GPT-5.5 prompting guide: explicit Role / Personality / Goal / Success / Constraints / Output / Stop sections, retrieval budgets, decision rules over absolutes, and stopping conditions. More efficient reasoning than predecessors — re-evaluate low/medium effort before escalating to high. After 2026-05 cohort migration, GPT-5.5 covers deploy (Bicep + Terraform), as-built documentation, diagnostics, and the e2e-orchestrator. IaC code generation (06b/06t) moved to Claude Sonnet 4.6 in a follow-up migration; everything else in the GPT-5.5 cohort is stable."
     },
     "GPT-5.3-Codex": {
       "vendor": "OpenAI",
@@ -100,19 +100,19 @@
     "generated_by": "tools/scripts/generate-model-catalog.mjs",
     "description": "Auto-generated inventory of agent → model assignments derived from frontmatter (canonical source). Do not edit by hand; run `node tools/scripts/generate-model-catalog.mjs` or let the lefthook pre-commit hook refresh it when frontmatter changes.",
     "agents": {
-      "01-orchestrator-fastpath.agent.md": "GPT-5.3-Codex",
       "01-orchestrator.agent.md": "GPT-5.3-Codex",
+      "02-requirements-gpt.agent.md": "GPT-5.5",
       "02-requirements.agent.md": "Claude Opus 4.7",
       "03-architect.agent.md": "Claude Opus 4.7",
       "04-design.agent.md": "Claude Sonnet 4.6",
       "04g-governance.agent.md": "GPT-5.5",
       "05-iac-planner.agent.md": "Claude Opus 4.7",
-      "06b-bicep-codegen.agent.md": "GPT-5.5",
-      "06t-terraform-codegen.agent.md": "GPT-5.5",
+      "06b-bicep-codegen.agent.md": "Claude Sonnet 4.6",
+      "06t-terraform-codegen.agent.md": "Claude Sonnet 4.6",
       "07b-bicep-deploy.agent.md": "GPT-5.5",
       "07t-terraform-deploy.agent.md": "GPT-5.5",
       "08-as-built.agent.md": "GPT-5.5",
-      "09-diagnose.agent.md": "Claude Opus 4.7",
+      "09-diagnose.agent.md": "GPT-5.5",
       "10-challenger.agent.md": "GPT-5.5",
       "11-context-optimizer.agent.md": "Claude Opus 4.7",
       "e2e-orchestrator.agent.md": "GPT-5.5"

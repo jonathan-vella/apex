@@ -42,14 +42,6 @@ The Orchestrator reads this graph instead of relying on hardcoded step logic:
 
 The Orchestrator resolves agent paths and models via `tools/registry/agent-registry.json`.
 
-### Fast-Path Variant
-
-For **simple projects** (≤3 resources, single environment, no custom policies), the
-**01-Orchestrator (Fast Path)** combines Plan and Code into a single step with 1-pass review.
-Before skipping governance discovery, it validates the subscription has no Deny-effect
-policies via Azure CLI. If Deny policies are found, it falls back to the full Orchestrator
-automatically.
-
 ## Agent Architecture
 
 ### The Orchestrator Pattern

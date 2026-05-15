@@ -149,8 +149,8 @@ Read `.github/agents/e2e-orchestrator.agent.md` for detailed procedures:
 
 Also read these skills before executing any step:
 
-1. `.github/skills/azure-defaults/SKILL.digest.md` — regions, tags, naming
-2. `.github/skills/azure-artifacts/SKILL.digest.md` — artifact structure
+1. `.github/skills/azure-defaults/SKILL.md` — regions, tags, naming
+2. `.github/skills/azure-artifacts/SKILL.md` — artifact structure
 
 ## Run Configuration
 

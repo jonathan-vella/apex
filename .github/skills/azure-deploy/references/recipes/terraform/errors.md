@@ -1,11 +1,11 @@
 # Terraform Errors
 
-| Error | Resolution |
-|-------|------------|
+| Error            | Resolution                                 |
+| ---------------- | ------------------------------------------ |
 | State lock error | Wait or `terraform force-unlock <lock-id>` |
-| Resource exists | `terraform import <resource>` |
-| Backend denied | Check storage permissions |
-| Provider error | `terraform init -upgrade` |
+| Resource exists  | `terraform import <resource>`              |
+| Backend denied   | Check storage permissions                  |
+| Provider error   | `terraform init -upgrade`                  |
 
 ## Cleanup (DESTRUCTIVE)
 
@@ -14,6 +14,7 @@ terraform destroy -auto-approve
 ```
 
 Selective:
+
 ```bash
 terraform destroy -target=azurerm_container_app.api
 ```

@@ -4,11 +4,13 @@
 > in the **azure-ai-vision-imageanalysis-py** plugin skill if installed.
 
 ## Install
+
 ```bash
 pip install azure-ai-vision-imageanalysis
 ```
 
 ## Quick Start
+
 ```python
 from azure.ai.vision.imageanalysis import ImageAnalysisClient
 from azure.ai.vision.imageanalysis.models import VisualFeatures
@@ -16,11 +18,13 @@ client = ImageAnalysisClient(endpoint=endpoint, credential=credential)
 ```
 
 ## Non-Obvious Patterns
+
 - `analyze_from_url(image_url=..., visual_features=[...])` for URL; `analyze(image_data=bytes)` for file
 - VisualFeatures enum: `CAPTION`, `DENSE_CAPTIONS`, `TAGS`, `OBJECTS`, `READ`, `PEOPLE`, `SMART_CROPS`
 - Async: `from azure.ai.vision.imageanalysis.aio import ImageAnalysisClient`
 
 ## Best Practices
+
 1. Select only needed visual features to optimize latency and cost
 2. Use async client for high-throughput scenarios
 3. Handle HttpResponseError for invalid images or auth issues

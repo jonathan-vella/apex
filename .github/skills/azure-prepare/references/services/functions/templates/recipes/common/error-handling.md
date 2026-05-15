@@ -20,12 +20,12 @@ except Exception as error:
 
 ```typescript
 try {
-    // Your function logic here
-    const result = await processData(data);
-    context.log(`Success: processed ${itemId}`);
+  // Your function logic here
+  const result = await processData(data);
+  context.log(`Success: processed ${itemId}`);
 } catch (error) {
-    context.error(`Error processing ${itemId}:`, error);
-    throw error;  // Re-raise to trigger retry/dead-letter
+  context.error(`Error processing ${itemId}:`, error);
+  throw error; // Re-raise to trigger retry/dead-letter
 }
 ```
 
@@ -33,12 +33,12 @@ try {
 
 ```javascript
 try {
-    // Your function logic here
-    const result = await processData(data);
-    context.log(`Success: processed ${itemId}`);
+  // Your function logic here
+  const result = await processData(data);
+  context.log(`Success: processed ${itemId}`);
 } catch (error) {
-    context.error(`Error processing ${itemId}:`, error);
-    throw error;  // Re-raise to trigger retry/dead-letter
+  context.error(`Error processing ${itemId}:`, error);
+  throw error; // Re-raise to trigger retry/dead-letter
 }
 ```
 

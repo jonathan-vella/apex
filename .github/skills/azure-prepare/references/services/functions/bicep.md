@@ -124,6 +124,7 @@ resource storageRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-
 ```
 
 > 💡 **Key Points:**
+>
 > - Use `AzureWebJobsStorage__blobServiceUri` instead of connection string
 > - Set `allowSharedKeyAccess: false` for enhanced security
 > - Use `SystemAssignedIdentity` for deployment authentication
@@ -230,6 +231,7 @@ resource serviceBusSenderRole 'Microsoft.Authorization/roleAssignments@2022-04-0
 ```
 
 > 💡 **Key Points:**
+>
 > - Use `SERVICEBUS__fullyQualifiedNamespace` (double underscore) for managed identity
 > - Grant `Service Bus Data Receiver` role for reading messages
 > - Grant `Service Bus Data Sender` role for sending messages (if needed)

@@ -3,6 +3,7 @@
 ## Dependencies
 
 **package.json:**
+
 ```json
 {
   "dependencies": {
@@ -15,70 +16,72 @@
 ## Source Code
 
 **src/functions/processBlobUpload.js:**
+
 ```javascript
-require('@azure/functions-extensions-blob');
-const { app, input } = require('@azure/functions');
+require("@azure/functions-extensions-blob");
+const { app, input } = require("@azure/functions");
 
 const blobInput = input.storageBlob({
-    path: 'processed-pdf',
-    connection: 'PDFProcessorSTORAGE',
-    sdkBinding: true,
+  path: "processed-pdf",
+  connection: "PDFProcessorSTORAGE",
+  sdkBinding: true,
 });
 
 async function processBlobUpload(sourceStorageBlobClient, context) {
-    const blobName = context.triggerMetadata?.name;
-    const props = await sourceStorageBlobClient.blobClient.getProperties();
-    const fileSize = props.contentLength;
-    
-    context.log(`Blob Trigger (Event Grid) processed blob\n Name: ${blobName} \n Size: ${fileSize} bytes`);
-    
-    try {
-        const destinationStorageBlobClient = context.extraInputs.get(blobInput);
+  const blobName = context.triggerMetadata?.name;
+  const props = await sourceStorageBlobClient.blobClient.getProperties();
+  const fileSize = props.contentLength;
 
-        if (!destinationStorageBlobClient) {
-            throw new Error('StorageBlobClient is not available.');
-        }
+  context.log(`Blob Trigger (Event Grid) processed blob\n Name: ${blobName} \n Size: ${fileSize} bytes`);
 
-        const newBlobName = `processed-${blobName}`;
-        const destinationBlobClient = destinationStorageBlobClient.containerClient.getBlobClient(newBlobName);
-        
-        const exists = await destinationBlobClient.exists();
-        if (exists) {
-            context.log(`Blob ${newBlobName} already exists. Skipping.`);
-            return;
-        }
+  try {
+    const destinationStorageBlobClient = context.extraInputs.get(blobInput);
 
-        const downloadResponse = await sourceStorageBlobClient.blobClient.downloadToBuffer();
-        await destinationStorageBlobClient.containerClient.uploadBlockBlob(newBlobName, downloadResponse, fileSize);
-        
-        context.log(`Processing complete for ${blobName}. Copied to ${newBlobName}.`);
-    } catch (error) {
-        context.error(`Error processing blob ${blobName}:`, error);
-        throw error;
+    if (!destinationStorageBlobClient) {
+      throw new Error("StorageBlobClient is not available.");
     }
+
+    const newBlobName = `processed-${blobName}`;
+    const destinationBlobClient = destinationStorageBlobClient.containerClient.getBlobClient(newBlobName);
+
+    const exists = await destinationBlobClient.exists();
+    if (exists) {
+      context.log(`Blob ${newBlobName} already exists. Skipping.`);
+      return;
+    }
+
+    const downloadResponse = await sourceStorageBlobClient.blobClient.downloadToBuffer();
+    await destinationStorageBlobClient.containerClient.uploadBlockBlob(newBlobName, downloadResponse, fileSize);
+
+    context.log(`Processing complete for ${blobName}. Copied to ${newBlobName}.`);
+  } catch (error) {
+    context.error(`Error processing blob ${blobName}:`, error);
+    throw error;
+  }
 }
 
-app.storageBlob('processBlobUpload', {
-    path: 'unprocessed-pdf/{name}',
-    connection: 'PDFProcessorSTORAGE',
-    extraInputs: [blobInput],
-    source: 'EventGrid',
-    sdkBinding: true,
-    handler: processBlobUpload
+app.storageBlob("processBlobUpload", {
+  path: "unprocessed-pdf/{name}",
+  connection: "PDFProcessorSTORAGE",
+  extraInputs: [blobInput],
+  source: "EventGrid",
+  sdkBinding: true,
+  handler: processBlobUpload,
 });
 ```
 
 **src/functions/health.js:**
-```javascript
-const { app } = require('@azure/functions');
 
-app.http('health', {
-    methods: ['GET'],
-    authLevel: 'anonymous',
-    handler: async () => ({
-        status: 200,
-        jsonBody: { status: 'healthy', trigger: 'blob-eventgrid' }
-    })
+```javascript
+const { app } = require("@azure/functions");
+
+app.http("health", {
+  methods: ["GET"],
+  authLevel: "anonymous",
+  handler: async () => ({
+    status: 200,
+    jsonBody: { status: "healthy", trigger: "blob-eventgrid" },
+  }),
 });
 ```
 

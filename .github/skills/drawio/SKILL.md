@@ -1,6 +1,6 @@
 ---
 name: drawio
-description: '**WORKFLOW SKILL** — Generate Azure architecture diagrams in .drawio format via the simonkurtz-MSFT MCP server (700+ Azure icons, batch creation, transactional mode). Covers architecture, dependency, runtime flow, and as-built diagrams. WHEN: "draw.io diagram", "Azure architecture diagram", "as-built diagram", "runtime flow diagram", "dependency diagram". USE FOR: production Azure architecture visuals, multi-resource layouts, design-stage and as-built artifacts. DO NOT USE FOR: WAF/cost charts (use python-diagrams), inline Mermaid (use mermaid). INVOKES: drawio MCP (search-shapes, add-cells, finish-diagram).'
+description: '**WORKFLOW SKILL** — Generate Azure architecture diagrams in .drawio format via the simonkurtz-MSFT MCP server (full Azure icon set bundled with the server, batch creation, transactional mode). Covers architecture, dependency, runtime flow, and as-built diagrams. WHEN: "draw.io diagram", "Azure architecture diagram", "as-built diagram", "runtime flow diagram", "dependency diagram". USE FOR: production Azure architecture visuals, multi-resource layouts, design-stage and as-built artifacts. DO NOT USE FOR: WAF/cost charts (use python-diagrams), inline Mermaid (use mermaid). INVOKES: drawio MCP (search-shapes, add-cells, finish-diagram).'
 compatibility: Works with VS Code Copilot, Claude Code, and any MCP-compatible tool. Uses simonkurtz-MSFT/drawio-mcp-server configured in .vscode/mcp.json.
 license: MIT
 metadata:
@@ -11,7 +11,8 @@ metadata:
 # Draw.io Architecture Diagrams
 
 Generate Azure architecture diagrams in `.drawio` format using the
-simonkurtz-MSFT Draw.io MCP server. The server has 700+ built-in Azure icons,
+simonkurtz-MSFT Draw.io MCP server. The server ships the full Azure icon set
+(see [`assets/azure-public-service-icons/`](../../../assets/drawio-libraries/azure-icons)),
 fuzzy shape search, batch operations, group/layer/page management, and
 transactional mode for efficient multi-step workflows.
 
@@ -38,7 +39,7 @@ patterns: [`references/azure-patterns.md`](references/azure-patterns.md).
 
 | Tool                         | Purpose                                                              |
 | ---------------------------- | -------------------------------------------------------------------- |
-| `search-shapes`              | Fuzzy-search the 700+ Azure icon library; resolves names to shapes   |
+| `search-shapes`              | Fuzzy-search the Azure icon library; resolves names to shapes        |
 | `create-groups`              | Create container cells (VNets, subnets, resource groups, envs)       |
 | `add-cells`                  | Add vertices + edges in a single batch (use `shape_name`, `temp_id`) |
 | `add-cells-to-group`         | Assign children to group containers                                  |
@@ -51,6 +52,21 @@ Standard sequence: `search-shapes` → `create-groups` → `add-cells` → `add-
 → (optional `edit-*`) → `validate-group-containment` → `finish-diagram` /
 `export-diagram` (`compress: true`).
 
+> **`import-diagram` input contract (CRITICAL — Phase D3 of nordic-foods
+> lessons plan)**: when calling `import-diagram` (or any tool whose schema
+> declares an `xml` parameter), the field **MUST be XML content as a
+> string** — never a file path. Passing a bare `path/to/file.drawio`
+> string produces `INVALID_XML` from the server and burns an MCP round
+> trip. If you have a path on disk:
+>
+> ```text
+> WRONG: import-diagram(xml="agent-output/foo/03-des-diagram.drawio")
+> RIGHT: read_file("agent-output/foo/03-des-diagram.drawio") → import-diagram(xml=<content>)
+> ```
+>
+> Mirror this warning in `04-design.agent.md` next to every
+> `import-diagram` reference. The two locations must stay in sync.
+
 ## CLI Fallback
 
 **There is no programmatic CLI fallback for diagram authoring.** The Draw.io desktop app
@@ -62,7 +78,7 @@ fallbacks.
 ## Icon Handling
 
 Icons are resolved automatically by the MCP server from its built-in library
-(700+ Azure icons from `assets/azure-public-service-icons/`).
+(the full Azure icon set bundled with the server).
 
 - `shape_name` in `add-cells` specifies an Azure icon (e.g., `"Front Doors"`).
   **Do NOT** pass `width`, `height`, or `style` alongside it — the server applies them.
@@ -134,6 +150,13 @@ Concise summary; load [`references/style-reference.md`](references/style-referen
   when using `shape_name`; the MCP server auto-applies correct values.
 - **Transactional mode MUST end with `finish-diagram`** — otherwise the diagram
   keeps ~2KB placeholders instead of real SVG icons.
+- **`shape=image` + `image=data:image/svg+xml;base64,…` is the RESOLVED form** —
+  do NOT confuse it with `placeholder=1`. After `finish-diagram(compress: true)`,
+  every Azure icon appears as `shape=image;…;image=data:image/svg+xml;base64,<svg>`
+  with a multi-path Azure-brand SVG inside. The validator counts these as
+  `totalImages` (real icons). The `placeholder=1` style attribute is the ONLY
+  marker of an unresolved transactional cell — count it with
+  `grep -c 'placeholder=1' file.drawio` before declaring a diagram broken.
 - **Never read large MCP responses through the LLM** — extract data via terminal
   (Python script) to avoid context-window inflation.
 - **Batch-only workflow** — every tool accepting arrays is called ONCE with ALL items.

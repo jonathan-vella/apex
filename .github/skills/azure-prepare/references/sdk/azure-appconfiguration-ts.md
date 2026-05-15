@@ -5,6 +5,7 @@
 > in the **azure-appconfiguration-ts** plugin skill if installed.
 
 ## Install
+
 npm install @azure/app-configuration @azure/identity
 
 ## Quick Start
@@ -18,6 +19,7 @@ const client = new AppConfigurationClient(process.env.AZURE_APPCONFIG_ENDPOINT!,
 ```
 
 ## Best Practices
+
 - Use provider for apps — @azure/app-configuration-provider for runtime config
 - Use low-level for management — @azure/app-configuration for CRUD operations
 - Enable refresh for dynamic configuration updates

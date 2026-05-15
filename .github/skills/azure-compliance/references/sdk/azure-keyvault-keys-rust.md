@@ -5,9 +5,11 @@
 > in the **azure-keyvault-keys-rust** plugin skill if installed.
 
 ## Install
+
 cargo add azure_security_keyvault_keys azure_identity
 
 ## Quick Start
+
 ```rust
 use azure_identity::DeveloperToolsCredential;
 use azure_security_keyvault_keys::KeyClient;
@@ -16,6 +18,7 @@ let client = KeyClient::new("https://<vault>.vault.azure.net/", credential.clone
 ```
 
 ## Best Practices
+
 - Use Entra ID auth — `DeveloperToolsCredential` for dev, `ManagedIdentityCredential` for production
 - Use HSM keys for sensitive workloads — hardware-protected keys
 - Use EC for signing — more efficient than RSA
@@ -25,6 +28,7 @@ let client = KeyClient::new("https://<vault>.vault.azure.net/", credential.clone
 - Use key rotation — create new versions periodically
 
 ## Non-Obvious Patterns
+
 ```rust
 use azure_security_keyvault_keys::models::{CreateKeyParameters, KeyType};
 let params = CreateKeyParameters { kty: KeyType::Rsa, key_size: Some(2048), ..Default::default() };

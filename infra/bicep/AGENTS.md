@@ -2,6 +2,16 @@
 
 Agent instructions specific to the `infra/bicep/` subtree.
 
+## SKU Source of Truth
+
+Read `agent-output/{project}/sku-manifest.json` first. Never re-derive
+creative SKUs (App Service plan, VM, SQL, Cosmos, AKS pool, Redis, APIM,
+App Gateway, Storage replication) from `04-implementation-plan.md`
+prose. Each Bicep resource maps to a `services[].iac_logical_names.bicep`
+entry; per-environment overrides come from
+`services[].environment_overrides.{env}`. See
+[`.github/instructions/sku-manifest.instructions.md`](../../.github/instructions/sku-manifest.instructions.md).
+
 ## Authentication Prerequisites
 
 `az` and `azd` use **independent** MSAL token caches. A valid `az` session does **not**

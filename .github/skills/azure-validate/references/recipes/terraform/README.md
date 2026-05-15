@@ -28,6 +28,7 @@ az version
 ```
 
 **If not installed:**
+
 ```
 mcp_azure_mcp_extension_cli_install(cli-type: "az")
 ```
@@ -39,6 +40,7 @@ az account show
 ```
 
 **If not logged in:**
+
 ```bash
 az login
 az account set --subscription <subscription-id>
@@ -58,6 +60,7 @@ terraform fmt -check -recursive
 ```
 
 **Fix if needed:**
+
 ```bash
 terraform fmt -recursive
 ```

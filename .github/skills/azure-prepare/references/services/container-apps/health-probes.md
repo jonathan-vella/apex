@@ -61,8 +61,8 @@ probes: [
 
 ## Recommendations
 
-| Probe | Path | Initial Delay | Period |
-|-------|------|---------------|--------|
-| Liveness | `/health` | 10s | 30s |
-| Readiness | `/ready` | 5s | 10s |
-| Startup | `/health` | 0s | 10s |
+| Probe     | Path      | Initial Delay | Period |
+| --------- | --------- | ------------- | ------ |
+| Liveness  | `/health` | 10s           | 30s    |
+| Readiness | `/ready`  | 5s            | 10s    |
+| Startup   | `/health` | 0s            | 10s    |

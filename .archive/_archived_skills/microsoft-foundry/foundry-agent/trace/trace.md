@@ -12,25 +12,25 @@ USE FOR: analyze agent traces, search agent conversations, find failing traces, 
 
 ## Quick Reference
 
-| Property | Value |
-|----------|-------|
-| Data source | Application Insights (App Insights) |
-| Query language | KQL (Kusto Query Language) |
-| Related skills | `troubleshoot` (container logs) |
-| Preferred query tool | `monitor_resource_log_query` (Azure MCP) — use for App Insights KQL queries |
-| OTel conventions | [GenAI Spans](https://opentelemetry.io/docs/specs/semconv/gen-ai/gen-ai-spans/), [Agent Spans](https://opentelemetry.io/docs/specs/semconv/gen-ai/gen-ai-agent-spans/) |
+| Property             | Value                                                                                                                                                                  |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Data source          | Application Insights (App Insights)                                                                                                                                    |
+| Query language       | KQL (Kusto Query Language)                                                                                                                                             |
+| Related skills       | `troubleshoot` (container logs)                                                                                                                                        |
+| Preferred query tool | `monitor_resource_log_query` (Azure MCP) — use for App Insights KQL queries                                                                                            |
+| OTel conventions     | [GenAI Spans](https://opentelemetry.io/docs/specs/semconv/gen-ai/gen-ai-spans/), [Agent Spans](https://opentelemetry.io/docs/specs/semconv/gen-ai/gen-ai-agent-spans/) |
 
 ## Entry Points
 
-| User Intent | Start At |
-|-------------|----------|
-| "Search agent conversations" / "Find traces" | [Search Traces](references/search-traces.md) |
-| "Tell me about response ID X" / "Look up response ID" | [Search Traces — Search by Response ID](references/search-traces.md#search-by-response-id) |
-| "Why is my agent failing?" / "Find errors" | [Analyze Failures](references/analyze-failures.md) |
-| "My agent is slow" / "Latency analysis" | [Analyze Latency](references/analyze-latency.md) |
-| "Show me this conversation" / "Trace detail" | [Conversation Detail](references/conversation-detail.md) |
-| "Find eval results for response ID" / "eval scores from traces" | [Eval Correlation](references/eval-correlation.md) |
-| "What KQL do I need?" | [KQL Templates](references/kql-templates.md) |
+| User Intent                                                     | Start At                                                                                   |
+| --------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| "Search agent conversations" / "Find traces"                    | [Search Traces](references/search-traces.md)                                               |
+| "Tell me about response ID X" / "Look up response ID"           | [Search Traces — Search by Response ID](references/search-traces.md#search-by-response-id) |
+| "Why is my agent failing?" / "Find errors"                      | [Analyze Failures](references/analyze-failures.md)                                         |
+| "My agent is slow" / "Latency analysis"                         | [Analyze Latency](references/analyze-latency.md)                                           |
+| "Show me this conversation" / "Trace detail"                    | [Conversation Detail](references/conversation-detail.md)                                   |
+| "Find eval results for response ID" / "eval scores from traces" | [Eval Correlation](references/eval-correlation.md)                                         |
+| "What KQL do I need?"                                           | [KQL Templates](references/kql-templates.md)                                               |
 
 ## Before Starting — Resolve App Insights Connection
 
@@ -38,10 +38,10 @@ USE FOR: analyze agent traces, search agent conversations, find failing traces, 
 2. If not found, use `project_connection_list` (foundry-mcp tool) to discover App Insights linked to the Foundry project — this is the most reliable way to find the correct App Insights resource. Filter results for Application Insights connection type.
 3. **IMMEDIATELY write back to `.env`** — as soon as `project_connection_list` returns App Insights info, write it to `.env` (or the same config file where `AZURE_AI_PROJECT_ENDPOINT` etc. live) BEFORE running any queries. Do not defer this step. This ensures future sessions skip discovery entirely.
 
-| Variable | Purpose | Example |
-|----------|---------|---------|
-| `APPLICATIONINSIGHTS_CONNECTION_STRING` | App Insights connection string | `InstrumentationKey=...;IngestionEndpoint=...` |
-| `AZURE_APPINSIGHTS_RESOURCE_ID` | ARM resource ID | `/subscriptions/.../Microsoft.Insights/components/...` |
+| Variable                                | Purpose                        | Example                                                |
+| --------------------------------------- | ------------------------------ | ------------------------------------------------------ |
+| `APPLICATIONINSIGHTS_CONNECTION_STRING` | App Insights connection string | `InstrumentationKey=...;IngestionEndpoint=...`         |
+| `AZURE_APPINSIGHTS_RESOURCE_ID`         | ARM resource ID                | `/subscriptions/.../Microsoft.Insights/components/...` |
 
 If a `.env` file already exists, read it first and merge — do not overwrite existing values without confirmation.
 

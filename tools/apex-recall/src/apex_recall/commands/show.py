@@ -30,6 +30,12 @@ def run(args) -> int:
                     "decisions": data.get("decisions", {}),
                     "open_findings": data.get("open_findings", []),
                     "decision_log": data.get("decision_log", []),
+                    # `steps` is the per-step status map keyed by string ids
+                    # ("1", "2", "3", "3_5", "4", "5", "6", "7"). Default to
+                    # {} so downstream `jq '.session.steps | to_entries[]'`
+                    # never iterates over null. Schema documented in
+                    # tools/apex-recall/docs/show-schema.md.
+                    "steps": data.get("steps", {}),
                 }
 
         # Get all artifacts for this project

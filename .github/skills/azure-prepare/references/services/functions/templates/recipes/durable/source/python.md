@@ -19,16 +19,16 @@ app = df.DFApp()
 async def http_start(req: func.HttpRequest, client: df.DurableOrchestrationClient) -> func.HttpResponse:
     """HTTP endpoint to start an orchestration."""
     function_name = req.route_params.get("name", "hello_orchestrator")
-    
+
     # Get input from request body
     try:
         input_data = req.get_json() if req.get_body() else None
     except:
         input_data = None
-    
+
     instance_id = await client.start_new(function_name, client_input=input_data)
     logging.info(f"Started orchestration with ID = '{instance_id}'")
-    
+
     return client.create_check_status_response(req, instance_id)
 
 
@@ -38,7 +38,7 @@ async def get_status(req: func.HttpRequest, client: df.DurableOrchestrationClien
     """Get orchestration status."""
     instance_id = req.route_params.get("instanceId")
     status = await client.get_status(instance_id)
-    
+
     return func.HttpResponse(
         json.dumps({
             "instanceId": status.instance_id,
@@ -60,17 +60,17 @@ def hello_orchestrator(context: df.DurableOrchestrationContext):
     """
     # Get input (optional)
     input_data = context.get_input() or {}
-    
+
     # Fan-out: Call activities in parallel
     tasks = [
         context.call_activity("say_hello", "Tokyo"),
         context.call_activity("say_hello", "Seattle"),
         context.call_activity("say_hello", "London"),
     ]
-    
+
     # Fan-in: Wait for all tasks to complete
     results = yield context.task_all(tasks)
-    
+
     return results
 
 
@@ -102,6 +102,7 @@ azure-functions-durable>=1.2.0
 ## Local Testing
 
 Set these in `local.settings.json`:
+
 ```json
 {
   "Values": {
@@ -114,11 +115,13 @@ Set these in `local.settings.json`:
 ## Usage
 
 Start an orchestration:
+
 ```bash
 curl -X POST "https://<func>.azurewebsites.net/api/orchestrators/hello_orchestrator"
 ```
 
 Check status:
+
 ```bash
 curl "https://<func>.azurewebsites.net/api/status/<instanceId>"
 ```

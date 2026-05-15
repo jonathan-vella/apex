@@ -78,7 +78,9 @@ function parseMarkdownH2Blocks(text) {
       .split("\n")
       .map((line) => line.trim())
       .filter((line) => line.startsWith("## "))
-      .map((h) => h.replace(/\s*<!--.*?-->\s*$/, "").trim());
+      // Strip trailing `<!-- ... -->` comments; `[\s\S]` so multi-line
+      // comments are matched too (closes CodeQL js/bad-tag-filter).
+      .map((h) => h.replace(/\s*<!--[\s\S]*?-->\s*$/, "").trim());
 
     if (headings.length > 0) {
       result.set(artifactName, headings);
@@ -893,7 +895,9 @@ function validateHandoffCompanion(relPath, text) {
     );
   }
   // Cohesion: `## Artifacts` must list at least one bulleted path.
-  const artifactsSection = text.match(/^##\s+Artifacts\s*$([\s\S]*?)(?=^## |\Z)/m);
+  // (?=^## |$(?![\s\S])) means "either next H2 line OR absolute end of input" —
+  // emulates Perl-style \Z in JS where \Z is not supported.
+  const artifactsSection = text.match(/^##\s+Artifacts\s*$([\s\S]*?)(?=^## |$(?![\s\S]))/m);
   if (artifactsSection) {
     const body = artifactsSection[1];
     const hasBullet = /^\s*[-*]\s+\S+/m.test(body);

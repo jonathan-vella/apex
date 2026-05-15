@@ -9,6 +9,7 @@ Resume the multi-step workflow at Step 2. Evaluate requirements against all 5 WA
 cost estimates.
 
 <investigate_before_answering>
+
 - Architecture decisions cascade into governance, IaC, and deployment.
   Before recommending services or SKUs, confirm: (a) the IaC tool, region,
   and compliance frameworks already chosen in Step 1; (b) the budget band
@@ -16,7 +17,7 @@ cost estimates.
   (SLA, RTO, RPO, peak TPS).
 - If any of these are missing or contradictory, surface the gap and ask
   before proceeding. Do not infer values from defaults.
-</investigate_before_answering>
+  </investigate_before_answering>
 
 <context>
 - Read `agent-output/{project}/00-session-state.json` for project name, IaC
@@ -24,7 +25,7 @@ cost estimates.
 - Read `agent-output/{project}/01-requirements.md` for the Step 1 requirements.
 - Read `.github/skills/azure-artifacts/references/02-architecture-template.md`
   for the H2 structure.
-- Read `.github/skills/azure-defaults/SKILL.digest.md` for region defaults,
+- Read `.github/skills/azure-defaults/SKILL.md` for region defaults,
   naming, security baseline, and AVM-first rules.
 - `{project}` is the folder name under `agent-output/`.
 </context>
@@ -60,6 +61,7 @@ cost estimates.
 </rules>
 
 <output_contract>
+
 - `agent-output/{project}/02-architecture-assessment.md` (WAF assessment,
   trade-offs, recommended services and SKUs)
 - `agent-output/{project}/03-des-cost-estimate.md` (steady-state + peak
@@ -69,4 +71,4 @@ cost estimates.
 - Findings file from challenger review (when `must_fix` items exist)
 - Handoff: route control to Step 3 (Design, optional) or Step 3.5
   (Governance) per the workflow graph.
-</output_contract>
+  </output_contract>

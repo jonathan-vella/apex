@@ -5,6 +5,7 @@
 > in the **azure-data-tables-py** plugin skill if installed.
 
 ## Install
+
 pip install azure-data-tables azure-identity
 
 ## Quick Start
@@ -18,6 +19,7 @@ table_client = TableClient("https://<account>.table.core.windows.net", "mytable"
 ```
 
 ## Best Practices
+
 - Design partition keys for query patterns and even distribution
 - Query within partitions whenever possible (cross-partition is expensive)
 - Use batch operations for multiple entities in same partition

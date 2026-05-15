@@ -10,6 +10,7 @@
 📋 **Reference**: Read `references/step-by-step-guide.md` for the detailed 4-step creation process:
 
 **Example: Complete Skill Structure**:
+
 ```text
 
 **Quick Start: Duplicate This Template**:
@@ -18,3 +19,4 @@
 **Validation Checklist**:
 
 Read `SKILL.md` or `SKILL.digest.md` for full content.
+```

@@ -17,32 +17,32 @@ def health(req: func.HttpRequest) -> func.HttpResponse:
 ## TypeScript
 
 ```typescript
-import { app, HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions';
+import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 
-app.http('health', {
-    methods: ['GET'],
-    authLevel: 'anonymous',
-    handler: async (request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> => {
-        return {
-            status: 200,
-            jsonBody: { status: 'healthy' }
-        };
-    }
+app.http("health", {
+  methods: ["GET"],
+  authLevel: "anonymous",
+  handler: async (request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> => {
+    return {
+      status: 200,
+      jsonBody: { status: "healthy" },
+    };
+  },
 });
 ```
 
 ## JavaScript
 
 ```javascript
-const { app } = require('@azure/functions');
+const { app } = require("@azure/functions");
 
-app.http('health', {
-    methods: ['GET'],
-    authLevel: 'anonymous',
-    handler: async () => ({
-        status: 200,
-        jsonBody: { status: 'healthy' }
-    })
+app.http("health", {
+  methods: ["GET"],
+  authLevel: "anonymous",
+  handler: async () => ({
+    status: 200,
+    jsonBody: { status: "healthy" },
+  }),
 });
 ```
 
@@ -71,7 +71,7 @@ public HttpResponseMessage health(
         @HttpTrigger(name = "req", methods = {HttpMethod.GET}, authLevel = AuthorizationLevel.ANONYMOUS)
         HttpRequestMessage<Optional<String>> request,
         final ExecutionContext context) {
-    
+
     return request.createResponseBuilder(HttpStatus.OK)
             .header("Content-Type", "application/json")
             .body("{\"status\":\"healthy\"}")
@@ -82,6 +82,7 @@ public HttpResponseMessage health(
 ## PowerShell
 
 **health/function.json:**
+
 ```json
 {
   "bindings": [
@@ -102,6 +103,7 @@ public HttpResponseMessage health(
 ```
 
 **health/run.ps1:**
+
 ```powershell
 param($Request, $TriggerMetadata)
 

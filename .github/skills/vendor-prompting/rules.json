@@ -112,12 +112,7 @@
     {
       "id": "legacy-003",
       "vendor": "anthropic",
-      "model_families": [
-        "claude-opus",
-        "claude-sonnet",
-        "claude-haiku",
-        "claude"
-      ],
+      "model_families": ["claude-opus", "claude-sonnet", "claude-haiku", "claude"],
       "applies_to": "agent",
       "severity": "warn",
       "summary": "Large Claude agents (>350 body lines) should include <context_awareness> block.",
@@ -145,12 +140,7 @@
     {
       "id": "claude-oneshot-001",
       "vendor": "anthropic",
-      "model_families": [
-        "claude-opus",
-        "claude-sonnet",
-        "claude-haiku",
-        "claude"
-      ],
+      "model_families": ["claude-opus", "claude-sonnet", "claude-haiku", "claude"],
       "applies_to": "agent",
       "severity": "warn",
       "summary": "ONE-SHOT Claude agents (Requirements, Challenger subagent) MUST NOT contain <investigate_before_answering>.",
@@ -220,12 +210,7 @@
     {
       "id": "claude-no-prefill-001",
       "vendor": "anthropic",
-      "model_families": [
-        "claude-opus",
-        "claude-sonnet",
-        "claude-haiku",
-        "claude"
-      ],
+      "model_families": ["claude-opus", "claude-sonnet", "claude-haiku", "claude"],
       "applies_to": "both",
       "severity": "warn",
       "summary": "Claude agents/prompts MUST NOT instruct prefilling the assistant turn.",

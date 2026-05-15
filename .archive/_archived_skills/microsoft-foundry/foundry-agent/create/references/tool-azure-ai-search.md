@@ -16,10 +16,10 @@ Ground agent responses with data from an Azure AI Search vector index. Requires 
 
 For **keyless authentication** (recommended), assign these roles to the **Foundry project's managed identity** on the Azure AI Search resource:
 
-| Role | Scope | Purpose |
-|------|-------|---------|
-| **Search Index Data Contributor** | AI Search resource | Read/write index data |
-| **Search Service Contributor** | AI Search resource | Manage search service config |
+| Role                              | Scope              | Purpose                      |
+| --------------------------------- | ------------------ | ---------------------------- |
+| **Search Index Data Contributor** | AI Search resource | Read/write index data        |
+| **Search Service Contributor**    | AI Search resource | Manage search service config |
 
 > **If RBAC assignment fails:** Ask the user to manually assign roles in Azure portal → AI Search resource → Access control (IAM). They need Owner or User Access Administrator on the search resource.
 
@@ -29,23 +29,23 @@ A project connection between your Foundry project and the Azure AI Search resour
 
 ## Query Types
 
-| Value | Description |
-|-------|-------------|
-| `SIMPLE` | Keyword search |
-| `VECTOR` | Vector similarity only |
-| `SEMANTIC` | Semantic ranking |
-| `VECTOR_SIMPLE_HYBRID` | Vector + keyword |
+| Value                    | Description                                        |
+| ------------------------ | -------------------------------------------------- |
+| `SIMPLE`                 | Keyword search                                     |
+| `VECTOR`                 | Vector similarity only                             |
+| `SEMANTIC`               | Semantic ranking                                   |
+| `VECTOR_SIMPLE_HYBRID`   | Vector + keyword                                   |
 | `VECTOR_SEMANTIC_HYBRID` | Vector + keyword + semantic (default, recommended) |
 
 ## Tool Parameters
 
-| Parameter | Required | Description |
-|-----------|----------|-------------|
-| `project_connection_id` | Yes | Connection ID (resolve via `foundry_connections_get`) |
-| `index_name` | Yes | Search index name |
-| `top_k` | No | Number of results (default: 5) |
-| `query_type` | No | Search type (default: `vector_semantic_hybrid`) |
-| `filter` | No | OData filter applied to all queries |
+| Parameter               | Required | Description                                           |
+| ----------------------- | -------- | ----------------------------------------------------- |
+| `project_connection_id` | Yes      | Connection ID (resolve via `foundry_connections_get`) |
+| `index_name`            | Yes      | Search index name                                     |
+| `top_k`                 | No       | Number of results (default: 5)                        |
+| `query_type`            | No       | Search type (default: `vector_semantic_hybrid`)       |
+| `filter`                | No       | OData filter applied to all queries                   |
 
 ## Limitations
 
@@ -55,12 +55,12 @@ A project connection between your Foundry project and the Azure AI Search resour
 
 ## Troubleshooting
 
-| Error | Cause | Fix |
-|-------|-------|-----|
-| 401/403 accessing index | Missing RBAC roles | Assign `Search Index Data Contributor` + `Search Service Contributor` to project managed identity |
-| Index not found | Name mismatch | Verify `AI_SEARCH_INDEX_NAME` matches exactly (case-sensitive) |
-| No citations in response | Instructions don't request them | Add citation instructions to agent prompt |
-| Wrong connection endpoint | Connection points to different search resource | Re-create connection with correct endpoint |
+| Error                     | Cause                                          | Fix                                                                                               |
+| ------------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| 401/403 accessing index   | Missing RBAC roles                             | Assign `Search Index Data Contributor` + `Search Service Contributor` to project managed identity |
+| Index not found           | Name mismatch                                  | Verify `AI_SEARCH_INDEX_NAME` matches exactly (case-sensitive)                                    |
+| No citations in response  | Instructions don't request them                | Add citation instructions to agent prompt                                                         |
+| Wrong connection endpoint | Connection points to different search resource | Re-create connection with correct endpoint                                                        |
 
 ## References
 

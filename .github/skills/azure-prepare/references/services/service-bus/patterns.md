@@ -97,6 +97,7 @@ foreach (var message in messages)
 ```
 
 > 💡 **Required Permissions:**
+>
 > - `Azure Service Bus Data Sender` (69a216fc-b8fb-44d8-bc22-1f3c2cd27a39) - for sending
 > - `Azure Service Bus Data Receiver` (4f6d3b9b-027b-4f4c-9142-0e5a2a2247e0) - for receiving
 
@@ -150,6 +151,6 @@ await sender.SendMessageAsync(new ServiceBusMessage("{\"orderId\": \"123\"}"));
 
 ```javascript
 const dlqReceiver = client.createReceiver("orders", {
-    subQueueType: "deadLetter"
+  subQueueType: "deadLetter",
 });
 ```

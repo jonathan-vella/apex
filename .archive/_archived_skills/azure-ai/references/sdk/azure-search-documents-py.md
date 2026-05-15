@@ -4,11 +4,13 @@
 > in the **azure-search-documents-py** plugin skill if installed.
 
 ## Install
+
 ```bash
 pip install azure-search-documents azure-identity
 ```
 
 ## Quick Start
+
 ```python
 from azure.search.documents import SearchClient
 from azure.search.documents.indexes import SearchIndexClient, SearchIndexerClient
@@ -16,12 +18,14 @@ from azure.search.documents.models import VectorizedQuery
 ```
 
 ## Non-Obvious Patterns
+
 - `SearchIndexingBufferedSender` for batch uploads with auto-batching/retries
 - Vector field type: `Collection(Edm.Single)` with `vector_search_dimensions` + `vector_search_profile_name`
 - Async client: `from azure.search.documents.aio import SearchClient`
 - `KnowledgeBaseRetrievalClient` for agentic retrieval with LLM-powered Q&A
 
 ## Best Practices
+
 1. Use hybrid search for best relevance combining vector and keyword
 2. Enable semantic ranking for natural language queries
 3. Index in batches of 100-1000 documents for efficiency

@@ -60,28 +60,12 @@
       "reason": "Agent file renamed to 01-orchestrator.agent.md"
     },
     {
-      "id": "conductor-fastpath-filename",
-      "pattern": "01-conductor-fastpath\\.agent\\.md",
-      "replacement": "01-orchestrator-fastpath.agent.md",
-      "severity": "error",
-      "isRegex": true,
-      "reason": "Agent file renamed to 01-orchestrator-fastpath.agent.md"
-    },
-    {
       "id": "e2e-conductor-filename",
       "pattern": "e2e-conductor\\.agent\\.md",
       "replacement": "e2e-orchestrator.agent.md",
       "severity": "error",
       "isRegex": true,
       "reason": "Agent file renamed to e2e-orchestrator.agent.md"
-    },
-    {
-      "id": "conductor-prompt-filename",
-      "pattern": "01-conductor\\.prompt\\.md",
-      "replacement": "01-orchestrator.prompt.md",
-      "severity": "error",
-      "isRegex": true,
-      "reason": "Prompt file renamed to 01-orchestrator.prompt.md"
     },
     {
       "id": "maestro-emoji",

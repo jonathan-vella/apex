@@ -10,16 +10,16 @@ Deploy to Azure using automated pipelines.
 
 ## GitHub Actions
 
-| Example | Description |
-|---------|-------------|
-| [github-azd.yml](examples/github-azd.yml) | AZD deployment workflow |
+| Example                                       | Description                     |
+| --------------------------------------------- | ------------------------------- |
+| [github-azd.yml](examples/github-azd.yml)     | AZD deployment workflow         |
 | [github-bicep.yml](examples/github-bicep.yml) | Bicep infrastructure deployment |
 
 ## Azure DevOps
 
-| Example | Description |
-|---------|-------------|
-| [azdo-azd.yml](examples/azdo-azd.yml) | Basic AZD pipeline |
+| Example                                             | Description                |
+| --------------------------------------------------- | -------------------------- |
+| [azdo-azd.yml](examples/azdo-azd.yml)               | Basic AZD pipeline         |
 | [azdo-multistage.yml](examples/azdo-multistage.yml) | Multi-stage with approvals |
 
 ## Setup Requirements

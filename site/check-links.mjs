@@ -5,8 +5,13 @@
  */
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const DIST = resolve("dist");
+// Resolve dist/ relative to this script so the check works whether invoked
+// from site/ (`node check-links.mjs`) or from the repo root
+// (`node site/check-links.mjs`).
+const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
+const DIST = resolve(SCRIPT_DIR, "dist");
 const BASE = "/azure-agentic-infraops";
 
 // Collect all HTML files
@@ -23,12 +28,49 @@ function walkHtml(dir) {
   return results;
 }
 
+// Strip every `<tag>…</tag>` block from `input` using non-regex string
+// scanning. This avoids the well-known CodeQL traps around incomplete
+// multi-character HTML sanitizers (js/incomplete-multi-character-sanitization,
+// js/bad-tag-filter): there is no regex to mis-handle whitespace/newlines
+// inside an end tag, no unanchored fallback that can leave `<tag` substrings
+// behind, and the scan is provably complete.
+function stripBlocks(input, tagName) {
+  const open = `<${tagName}`;
+  const close = `</${tagName}`;
+  const lower = input.toLowerCase();
+  let out = "";
+  let i = 0;
+  while (i < input.length) {
+    const start = lower.indexOf(open, i);
+    if (start === -1) {
+      out += input.slice(i);
+      break;
+    }
+    out += input.slice(i, start);
+    const endTag = lower.indexOf(close, start + open.length);
+    if (endTag === -1) {
+      // No closing tag — strip the rest of the input to guarantee no
+      // `<tag` substring survives.
+      break;
+    }
+    const gt = input.indexOf(">", endTag + close.length);
+    if (gt === -1) break;
+    i = gt + 1;
+  }
+  return out;
+}
+
 // Extract href values from HTML
+// Strip <script>…</script> and <style>…</style> blocks first — their bodies
+// contain JavaScript/CSS source that often includes literal href="…" patterns
+// (e.g., template literals inside Astro define:vars scripts) which are not
+// real rendered links. Matching them produces false-positive broken links.
 function extractHrefs(html) {
+  const cleaned = stripBlocks(stripBlocks(html, "script"), "style");
   const re = /href="([^"]+)"/g;
   const hrefs = [];
   let m;
-  while ((m = re.exec(html))) hrefs.push(m[1]);
+  while ((m = re.exec(cleaned))) hrefs.push(m[1]);
   return hrefs;
 }
 

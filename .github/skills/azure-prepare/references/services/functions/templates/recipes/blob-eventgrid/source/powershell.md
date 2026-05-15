@@ -3,6 +3,7 @@
 ## Dependencies
 
 **host.json:**
+
 ```json
 {
   "version": "2.0",
@@ -16,6 +17,7 @@
 ## Source Code
 
 **ProcessBlobUpload/function.json:**
+
 ```json
 {
   "bindings": [
@@ -39,6 +41,7 @@
 ```
 
 **ProcessBlobUpload/run.ps1:**
+
 ```powershell
 param([byte[]] $InputBlob, $TriggerMetadata, $ProcessedContainer)
 
@@ -72,6 +75,7 @@ catch {
 ```
 
 **health/function.json:**
+
 ```json
 {
   "bindings": [
@@ -92,6 +96,7 @@ catch {
 ```
 
 **health/run.ps1:**
+
 ```powershell
 param($Request, $TriggerMetadata)
 

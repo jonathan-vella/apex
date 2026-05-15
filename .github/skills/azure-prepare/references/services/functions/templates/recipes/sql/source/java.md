@@ -3,6 +3,7 @@
 ## Dependencies
 
 **pom.xml:**
+
 ```xml
 <dependency>
     <groupId>com.microsoft.azure.functions</groupId>
@@ -19,6 +20,7 @@
 ## Source Code
 
 **src/main/java/com/function/ToDoItem.java:**
+
 ```java
 package com.function;
 
@@ -32,6 +34,7 @@ public class ToDoItem {
 ```
 
 **src/main/java/com/function/SqlFunctions.java:**
+
 ```java
 package com.function;
 
@@ -51,9 +54,9 @@ public class SqlFunctions {
                 connectionStringSetting = "AZURE_SQL_CONNECTION_STRING_KEY")
             SqlChangeItem<ToDoItem>[] changes,
             final ExecutionContext context) {
-        
+
         context.getLogger().info("SQL trigger function processed " + changes.length + " changes");
-        
+
         for (SqlChangeItem<ToDoItem> change : changes) {
             ToDoItem item = change.getItem();
             context.getLogger().info("Change operation: " + change.getOperation());
@@ -75,18 +78,18 @@ public class SqlFunctions {
                 connectionStringSetting = "AZURE_SQL_CONNECTION_STRING_KEY")
             OutputBinding<ToDoItem> output,
             final ExecutionContext context) {
-        
+
         context.getLogger().info("HTTP trigger with SQL Output Binding processed a request.");
-        
+
         ToDoItem item = request.getBody().orElse(null);
         if (item == null || item.title == null || item.url == null) {
             return request.createResponseBuilder(HttpStatus.BAD_REQUEST)
                     .body("{\"error\":\"Missing required fields: title and url\"}")
                     .build();
         }
-        
+
         output.setValue(item);
-        
+
         return request.createResponseBuilder(HttpStatus.CREATED)
                 .header("Content-Type", "application/json")
                 .body(item)
@@ -98,7 +101,7 @@ public class SqlFunctions {
             @HttpTrigger(name = "req", methods = {HttpMethod.GET}, authLevel = AuthorizationLevel.ANONYMOUS)
             HttpRequestMessage<Optional<String>> request,
             final ExecutionContext context) {
-        
+
         return request.createResponseBuilder(HttpStatus.OK)
                 .header("Content-Type", "application/json")
                 .body("{\"status\":\"healthy\",\"trigger\":\"sql\"}")

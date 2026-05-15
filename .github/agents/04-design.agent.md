@@ -8,11 +8,11 @@ tools: [vscode/memory, vscode/runCommand, execute/runInTerminal, read, agent, ed
 handoffs:
   - label: "▶ Generate Diagram (Draw.io)"
     agent: 04-Design
-    prompt: "Generate an Azure architecture diagram using the drawio skill and MCP tools. Use transactional mode. CRITICAL: The MCP server is NOT stateful — you MUST pass `diagram_xml` from each response to the next call. (1) `search-shapes` with ALL Azure service names in one call. (2) `create-groups` for VNets/subnets/RGs in one call (text: '' for groups, separate label vertex above). (3) `add-cells` with ALL vertices AND edges in one call, transactional: true. Pass `diagram_xml` from step 2. Use `shape_name` for icons, `temp_id` for refs. Do NOT specify width/height/style for shaped vertices. (4) Extract cell IDs from the response via terminal command (do NOT read the full JSON through the LLM). (5) `add-cells-to-group` for all assignments in one call, passing `diagram_xml` from step 3. (6) `finish-diagram` with compress: true, passing `diagram_xml` from step 5. (7) Save via `python3 tools/scripts/save-drawio.py <json-path> agent-output/{project}/03-des-diagram.drawio` — this decompresses, strips server-injected edge anchors/waypoints, and embeds mxGraphModel. (8) Validate via `node tools/scripts/validate-drawio-files.mjs`. The diagram should be a conceptual enterprise Azure reference-architecture diagram with left-to-right flow, cross-cutting services at bottom (no edges to them), orthogonal edges, and quality score >= 9/10. Prioritize readability at 100% zoom. Input: agent-output/{project}/02-architecture-assessment.md. Output: agent-output/{project}/03-des-diagram.drawio + .png."
+    prompt: "This handoff implies `design_scope=diagrams` and `diagram_tool=drawio` — record both via `apex-recall decide <project> --key design_scope --value diagrams --step 3 --json` and `apex-recall decide <project> --key diagram_tool --value drawio --step 3 --json` BEFORE any other work (this silent-skips the Phase 0 askMe gates per workflow-gates.md). Then generate an Azure architecture diagram using the drawio skill and MCP tools. Use transactional mode. CRITICAL: The MCP server is NOT stateful — you MUST pass `diagram_xml` from each response to the next call. (1) `search-shapes` with ALL Azure service names in one call. (2) `create-groups` for VNets/subnets/RGs in one call (text: '' for groups, separate label vertex above). (3) `add-cells` with ALL vertices AND edges in one call, transactional: true. Pass `diagram_xml` from step 2. Use `shape_name` for icons, `temp_id` for refs. Do NOT specify width/height/style for shaped vertices. (4) Extract cell IDs from the response via terminal command (do NOT read the full JSON through the LLM). (5) `add-cells-to-group` for all assignments in one call, passing `diagram_xml` from step 3. (6) `finish-diagram` with compress: true, passing `diagram_xml` from step 5. (7) Save via `python3 tools/scripts/save-drawio.py <json-path> agent-output/{project}/03-des-diagram.drawio` — this decompresses, strips server-injected edge anchors/waypoints, and embeds mxGraphModel. (8) Validate via `node tools/scripts/validate-drawio-files.mjs`. The diagram should be a conceptual enterprise Azure reference-architecture diagram with left-to-right flow, cross-cutting services at bottom (no edges to them), orthogonal edges, and quality score >= 9/10. Prioritize readability at 100% zoom. Input: agent-output/{project}/02-architecture-assessment.md. Output: agent-output/{project}/03-des-diagram.drawio + .png."
     send: false
   - label: "▶ Generate ADR"
     agent: 04-Design
-    prompt: "Create an Architecture Decision Record using the azure-adr skill based on the architecture assessment in `agent-output/{project}/02-architecture-assessment.md`."
+    prompt: "This handoff implies `design_scope=adrs` — record via `apex-recall decide <project> --key design_scope --value adrs --step 3 --json` BEFORE any other work (this silent-skips both Phase 0 askMe gates per workflow-gates.md). Then create an Architecture Decision Record using the azure-adr skill based on the architecture assessment in `agent-output/{project}/02-architecture-assessment.md`."
     send: false
   - label: "▶ Generate Cost Estimate"
     agent: 03-Architect
@@ -46,11 +46,16 @@ to Step 3.5 (Governance) or Step 4 (IaC Planning).
 </role>
 
 <context_awareness>
-This is a large agent definition. Before loading skill files, check whether
-`SKILL.digest.md` variants exist. At >60% context, load digest variants; at
+This is a large agent definition. Read each `SKILL.md` only once at boot.
+Do not re-read predecessor artifacts — use
+`apex-recall show <project> --json` for cached lookups instead.
 
-> 80% switch to `SKILL.minimal.md` and stop re-reading predecessor artifacts.
-> </context_awareness>
+Review-depth opt-in: read `decisions.review_depth` via
+`apex-recall show <project> --json` before invoking the challenger in
+Phase 5. Default to `"default"` if absent. Phase 5 is **skipped** when
+`review_depth == "default"`; `"deep"` triggers single-pass comprehensive
+review of each generated ADR.
+</context_awareness>
 
 <scope_fencing>
 You generate design artifacts only: architecture diagrams, ADRs, and
@@ -96,11 +101,11 @@ the architecture assessment is missing.
    architecture (resources, WAF analysis, boundaries, flows).
 2. `agent-output/{project}/01-requirements.md` — business-critical paths and
    actor context (used to prioritise what gets emphasised in the diagram).
-3. `.github/skills/azure-defaults/SKILL.digest.md` — regions, tags, naming.
-4. `.github/skills/azure-artifacts/SKILL.digest.md` — H2 templates for
+3. `.github/skills/azure-defaults/SKILL.md` — regions, tags, naming.
+4. `.github/skills/azure-artifacts/SKILL.md` — H2 templates for
    `03-des-cost-estimate.md`.
-5. `.github/skills/drawio/SKILL.digest.md` — Draw.io diagram generation contract.
-6. `.github/skills/azure-adr/SKILL.digest.md` — ADR format and conventions.
+5. `.github/skills/drawio/SKILL.md` — Draw.io diagram generation contract.
+6. `.github/skills/azure-adr/SKILL.md` — ADR format and conventions.
 
 Load reference files (e.g. swim-lane layouts, edge-label rules, Python chart
 templates) on demand, not at startup.
@@ -124,9 +129,30 @@ that default for the work this agent does:
   discard the raw MCP JSON / XML payloads — do not carry them into subsequent
   turns.
 
+## Phase 0 — Scope & tool-choice gates (one-time)
+
+Two gates run before any artifact work; both are documented in
+[`workflow-gates.md`](../skills/azure-defaults/references/workflow-gates.md).
+
+1. **Artifact scope** — record `decisions.design_scope` (`diagrams` |
+   `adrs` | `both`). Routes: `adrs` → Section 2 only; `diagrams` →
+   Phase 0.2 + Section 1; `both` → all.
+2. **Diagram tool** (skipped when scope is `adrs`) — record
+   `decisions.diagram_tool` (`drawio` | `python`). Drawio is the
+   recommended default.
+
 ## Workflow
 
+When `decisions.diagram_tool == "python"`, use the
+[`python-diagrams`](../skills/python-diagrams/SKILL.md) skill in place
+of section 1 below. Read that skill ONLY on the Python path. Sections
+2 (ADR) and beyond are tool-agnostic.
+
 ### 1. Diagram generation (Draw.io)
+
+Drawio contract guards (timing budget + `import-diagram` input
+contract) live in
+[`workflow-gates.md`](../skills/azure-defaults/references/workflow-gates.md#design-step-3--drawio-contract-guards).
 
 The Draw.io MCP server is **not stateful between calls**. You must pass
 `diagram_xml` from each tool response into the next call. The server returns
@@ -197,7 +223,7 @@ For each non-trivial architectural decision in the architecture assessment:
 
 1. Read the relevant section of `02-architecture-assessment.md` and quote it
    in the ADR `## Context` section. Do not paraphrase from memory.
-2. Follow the format in `.github/skills/azure-adr/SKILL.digest.md` (Context →
+2. Follow the format in `.github/skills/azure-adr/SKILL.md` (Context →
    Decision → Consequences) and include WAF pillar trade-offs in the
    `## Decision` rationale.
 3. Number ADRs sequentially: `03-des-adr-0001-{slug}.md`,
@@ -452,6 +478,24 @@ XML or JSON into subsequent turns. Pattern:
 Diagram complete: {filename}.drawio saved ({N} resources, quality {score}/10).
 Proceeding to {next artifact}.
 ```
+
+## Phase 5: ADR Review (opt-in, default-skip)
+
+Phase 5 fires only when this run produced one or more `03-des-adr-*.md`
+files AND `decisions.review_depth == "deep"` (read via
+`apex-recall show <project> --json`; default `"default"`). Otherwise
+skip Phase 5 entirely — zero cost in the common path.
+
+When Phase 5 fires, invoke `challenger-review-subagent` once per ADR
+with `artifact_type = "design-adr"`, `review_focus = "comprehensive"`,
+and `output_path =
+agent-output/{project}/challenge-findings-design-adr-<n>.json`. The
+design step does not gate on findings — present them informationally.
+Surface any `requires_step == "step-2"` finding explicitly so the user
+can decide whether to re-open the architecture.
+
+Detailed invocation contract:
+[`azure-adr/references/step-3-adr-review.md`](../skills/azure-adr/references/step-3-adr-review.md).
 
 ## Boundaries
 

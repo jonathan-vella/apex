@@ -1,4 +1,5 @@
 <!-- ref:azure-quick-review-v1 -->
+
 # Azure Quick Review Compliance Assessment
 
 This skill enables comprehensive Azure compliance assessments using Azure Quick Review (azqr), analyzing findings against Azure best practices, and providing actionable remediation guidance.
@@ -14,11 +15,11 @@ This skill enables comprehensive Azure compliance assessments using Azure Quick 
 
 Ask the user or detect from context:
 
-| Scope | Use Case | Required Info |
-|-------|----------|---------------|
-| Subscription | Full subscription assessment | Subscription ID |
-| Resource Group | Targeted assessment | Subscription ID + Resource Group name |
-| Management Group | Enterprise-wide assessment | Management Group ID |
+| Scope            | Use Case                       | Required Info                          |
+| ---------------- | ------------------------------ | -------------------------------------- |
+| Subscription     | Full subscription assessment   | Subscription ID                        |
+| Resource Group   | Targeted assessment            | Subscription ID + Resource Group name  |
+| Management Group | Enterprise-wide assessment     | Management Group ID                    |
 | Specific Service | Deep-dive on one resource type | Subscription ID + Service abbreviation |
 
 ### Step 2: Run Compliance Scan
@@ -35,19 +36,20 @@ mcp_azure_mcp_extension_azqr
 
 The scan produces an Excel file with these sheets:
 
-| Sheet | Contents | Priority |
-|-------|----------|----------|
-| **Recommendations** | All recommendations with impacted resource count | High |
-| **ImpactedResources** | Resources with specific issues to address | High |
-| **Inventory** | All scanned resources with SKU, Tier, SLA details | Medium |
-| **Advisor** | Azure Advisor recommendations | Medium |
-| **DefenderRecommendations** | Microsoft Defender for Cloud findings | High |
-| **Azure Policy** | Non-compliant resources per Azure Policy | Medium |
-| **Costs** | 3-month cost history by subscription | Low |
-| **Defender** | Defender plan status and tiers | Medium |
-| **OutOfScope** | Resources not scanned | Low |
+| Sheet                       | Contents                                          | Priority |
+| --------------------------- | ------------------------------------------------- | -------- |
+| **Recommendations**         | All recommendations with impacted resource count  | High     |
+| **ImpactedResources**       | Resources with specific issues to address         | High     |
+| **Inventory**               | All scanned resources with SKU, Tier, SLA details | Medium   |
+| **Advisor**                 | Azure Advisor recommendations                     | Medium   |
+| **DefenderRecommendations** | Microsoft Defender for Cloud findings             | High     |
+| **Azure Policy**            | Non-compliant resources per Azure Policy          | Medium   |
+| **Costs**                   | 3-month cost history by subscription              | Low      |
+| **Defender**                | Defender plan status and tiers                    | Medium   |
+| **OutOfScope**              | Resources not scanned                             | Low      |
 
 **Focus analysis on:**
+
 1. High-severity recommendations from ImpactedResources
 2. Defender recommendations (security-critical)
 3. Advisor recommendations (reliability/performance)
@@ -57,17 +59,18 @@ The scan produces an Excel file with these sheets:
 
 Group findings by category for prioritized remediation:
 
-| Category | Examples | Severity |
-|----------|----------|----------|
-| **Security** | Public endpoints, missing encryption, no private endpoints | Critical |
-| **Reliability** | No zone redundancy, single instance, no backup | High |
-| **Performance** | Undersized SKUs, missing caching, no CDN | Medium |
-| **Cost** | Orphaned resources, oversized SKUs, unused reservations | Medium |
-| **Operations** | Missing diagnostics, no alerts, no tags | Low |
+| Category        | Examples                                                   | Severity |
+| --------------- | ---------------------------------------------------------- | -------- |
+| **Security**    | Public endpoints, missing encryption, no private endpoints | Critical |
+| **Reliability** | No zone redundancy, single instance, no backup             | High     |
+| **Performance** | Undersized SKUs, missing caching, no CDN                   | Medium   |
+| **Cost**        | Orphaned resources, oversized SKUs, unused reservations    | Medium   |
+| **Operations**  | Missing diagnostics, no alerts, no tags                    | Low      |
 
 ### Step 5: Generate Remediation Guidance
 
 For each high-priority finding:
+
 1. Explain the risk in plain language
 2. Provide remediation options (Portal, CLI, Bicep)
 3. Estimate effort and impact
@@ -87,11 +90,11 @@ Provide a structured summary:
 
 ### Key Findings
 
-| Severity | Count | Top Issues |
-|----------|-------|------------|
-| Critical | X | [List top 3] |
-| High | X | [List top 3] |
-| Medium | X | [List top 3] |
+| Severity | Count | Top Issues   |
+| -------- | ----- | ------------ |
+| Critical | X     | [List top 3] |
+| High     | X     | [List top 3] |
+| Medium   | X     | [List top 3] |
 
 ### Recommended Actions
 
@@ -100,6 +103,7 @@ Provide a structured summary:
 3. **[Issue]** - [Brief remediation]
 
 ### Next Steps
+
 - [ ] Address critical security findings
 - [ ] Review and remediate high-severity items
 - [ ] Schedule follow-up scan to verify fixes
@@ -129,19 +133,19 @@ azqr supports 70+ Azure resource types including:
 
 ## Tools Used
 
-| Tool | Purpose |
-|------|---------|
-| `mcp_azure_mcp_extension_azqr` | Run azqr scans via Azure MCP |
-| `mcp_azure_mcp_subscription_list` | List available subscriptions |
-| `mcp_azure_mcp_group_list` | List resource groups in subscription |
+| Tool                              | Purpose                              |
+| --------------------------------- | ------------------------------------ |
+| `mcp_azure_mcp_extension_azqr`    | Run azqr scans via Azure MCP         |
+| `mcp_azure_mcp_subscription_list` | List available subscriptions         |
+| `mcp_azure_mcp_group_list`        | List resource groups in subscription |
 
 ## Troubleshooting
 
-| Issue | Symptom | Solution |
-|-------|---------|----------|
+| Issue             | Symptom                | Solution                    |
+| ----------------- | ---------------------- | --------------------------- |
 | Permission denied | 403 errors during scan | Verify Reader role on scope |
-| Not authenticated | `AADSTS` errors | Run `az login` first |
-| Slow scan | Scan takes very long | Use resource group scope |
+| Not authenticated | `AADSTS` errors        | Run `az login` first        |
+| Slow scan         | Scan takes very long   | Use resource group scope    |
 
 ## Example Prompts
 

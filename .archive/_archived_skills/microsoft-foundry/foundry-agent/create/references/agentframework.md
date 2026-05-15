@@ -4,17 +4,17 @@ Best practices when building hosted agents with Microsoft Agent Framework for de
 
 ## Official Resources
 
-| Resource | URL |
-|----------|-----|
-| **GitHub Repo** | https://github.com/microsoft/agent-framework |
-| **MS Learn Overview** | https://learn.microsoft.com/agent-framework/overview/agent-framework-overview |
-| **Quick Start** | https://learn.microsoft.com/agent-framework/tutorials/quick-start |
-| **User Guide** | https://learn.microsoft.com/agent-framework/user-guide/overview |
-| **Hosted Agents Concepts** | https://learn.microsoft.com/azure/ai-foundry/agents/concepts/hosted-agents |
-| **Python Samples (MAF repo)** | https://github.com/microsoft/agent-framework/tree/main/python/samples |
-| **.NET Samples (MAF repo)** | https://github.com/microsoft/agent-framework/tree/main/dotnet/samples |
-| **PyPI** | https://pypi.org/project/agent-framework/ |
-| **NuGet** | https://www.nuget.org/profiles/MicrosoftAgentFramework/ |
+| Resource                      | URL                                                                           |
+| ----------------------------- | ----------------------------------------------------------------------------- |
+| **GitHub Repo**               | https://github.com/microsoft/agent-framework                                  |
+| **MS Learn Overview**         | https://learn.microsoft.com/agent-framework/overview/agent-framework-overview |
+| **Quick Start**               | https://learn.microsoft.com/agent-framework/tutorials/quick-start             |
+| **User Guide**                | https://learn.microsoft.com/agent-framework/user-guide/overview               |
+| **Hosted Agents Concepts**    | https://learn.microsoft.com/azure/ai-foundry/agents/concepts/hosted-agents    |
+| **Python Samples (MAF repo)** | https://github.com/microsoft/agent-framework/tree/main/python/samples         |
+| **.NET Samples (MAF repo)**   | https://github.com/microsoft/agent-framework/tree/main/dotnet/samples         |
+| **PyPI**                      | https://pypi.org/project/agent-framework/                                     |
+| **NuGet**                     | https://www.nuget.org/profiles/MicrosoftAgentFramework/                       |
 
 ## Installation
 
@@ -47,6 +47,7 @@ For **local development**, use `DefaultAzureCredential` from `azure.identity.aio
 Always use `load_dotenv(override=False)` so environment variables set by Foundry at runtime take precedence over local `.env` values.
 
 Required `.env` variables:
+
 - `FOUNDRY_PROJECT_ENDPOINT` — project endpoint URL
 - `FOUNDRY_MODEL_DEPLOYMENT_NAME` — model deployment name
 
@@ -84,9 +85,9 @@ For VS Code `launch.json` and `tasks.json` configuration templates, see [AI Tool
 
 ## Common Errors
 
-| Error | Cause | Fix |
-|-------|-------|-----|
-| `ModuleNotFoundError` | Missing SDK | `pip install agent-framework --pre` in venv |
-| Async credential error | Wrong import | Use `azure.identity.aio.DefaultAzureCredential` (local dev) or `azure.identity.aio.ManagedIdentityCredential` (production) |
-| Agent name validation error | Invalid characters | Use alphanumeric + hyphens, start/end alphanumeric, max 63 chars |
-| Hosting adapter not found | Missing package | Install `azure-ai-agentserver-agentframework` |
+| Error                       | Cause              | Fix                                                                                                                        |
+| --------------------------- | ------------------ | -------------------------------------------------------------------------------------------------------------------------- |
+| `ModuleNotFoundError`       | Missing SDK        | `pip install agent-framework --pre` in venv                                                                                |
+| Async credential error      | Wrong import       | Use `azure.identity.aio.DefaultAzureCredential` (local dev) or `azure.identity.aio.ManagedIdentityCredential` (production) |
+| Agent name validation error | Invalid characters | Use alphanumeric + hyphens, start/end alphanumeric, max 63 chars                                                           |
+| Hosting adapter not found   | Missing package    | Install `azure-ai-agentserver-agentframework`                                                                              |

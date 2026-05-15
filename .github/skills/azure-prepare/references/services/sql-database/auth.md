@@ -26,11 +26,13 @@ resource sqlServer 'Microsoft.Sql/servers@2022-05-01-preview' = {
 ```
 
 **Get signed-in user info:**
+
 ```bash
 az ad signed-in-user show --query "{id:id, name:displayName}" -o json
 ```
 
 **Set as azd environment variables:**
+
 ```bash
 PRINCIPAL_INFO=$(az ad signed-in-user show --query "{id:id, name:displayName}" -o json)
 azd env set AZURE_PRINCIPAL_ID $(echo $PRINCIPAL_INFO | jq -r '.id')
@@ -73,12 +75,12 @@ ALTER ROLE db_datawriter ADD MEMBER [my-container-app];
 
 ## Common Database Roles
 
-| Role | Permissions |
-|------|-------------|
-| `db_datareader` | Read all tables |
+| Role            | Permissions            |
+| --------------- | ---------------------- |
+| `db_datareader` | Read all tables        |
 | `db_datawriter` | Insert, update, delete |
-| `db_ddladmin` | Create/modify schema |
-| `db_owner` | Full access |
+| `db_ddladmin`   | Create/modify schema   |
+| `db_owner`      | Full access            |
 
 ## Connection Strings
 
@@ -89,13 +91,14 @@ Server=tcp:{server}.database.windows.net,1433;Database={database};Authentication
 ```
 
 **Required for .NET applications:**
+
 - `Microsoft.Data.SqlClient` (v5.1.0+)
 - `Azure.Identity` (for local development)
 
 ### Legacy SQL Authentication (⛔ DO NOT USE)
 
 > ❌ **DEPRECATED - DO NOT USE FOR NEW DEPLOYMENTS**
-> 
+>
 > This authentication method is included for reference only. **DO NOT use SQL authentication for new Azure SQL deployments.** It will fail in any subscription with Entra-only authentication policies and violates Azure security best practices.
 >
 > **Always use Entra-only authentication (documented above) for all new deployments.**

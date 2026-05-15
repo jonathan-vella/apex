@@ -1,4 +1,5 @@
 {
+  "schema_version": "1.0",
   "challenged_artifact": "agent-output/sample/02-architecture-assessment.md",
   "artifact_type": "architecture",
   "review_focus": "security-governance",
@@ -9,33 +10,58 @@
   "must_fix_count": 1,
   "should_fix_count": 2,
   "suggestion_count": 3,
-  "issues": [
+  "findings": [
     {
+      "id": "a1b2c3d4",
       "severity": "must_fix",
       "category": "governance_gap",
-      "title": "Storage account allows public blob access",
-      "description": "allowBlobPublicAccess is true; violates baseline.",
-      "failure_scenario": "Azure Policy Deny will block deployment.",
+      "claim": "Storage account allows public blob access",
+      "evidence": "allowBlobPublicAccess is true; violates baseline.",
+      "impact": "Azure Policy Deny will block deployment.",
       "artifact_section": "## Storage",
-      "suggested_mitigation": "Set allowBlobPublicAccess: false on all storage accounts."
+      "suggested_fix": {
+        "artifact_path": "agent-output/sample/02-architecture-assessment.md",
+        "line_range": [120, 122],
+        "proposed_edit": "Set allowBlobPublicAccess: false on all storage accounts."
+      },
+      "traces_to": [],
+      "requires_step": "step-2"
     },
     {
+      "id": "e5f6a7b8",
       "severity": "should_fix",
       "category": "waf_blind_spot",
-      "title": "Key Vault missing diagnostic settings",
-      "description": "No audit log retention defined.",
-      "failure_scenario": "Loss of audit visibility for secrets access.",
+      "claim": "Key Vault missing diagnostic settings",
+      "evidence": "No audit log retention defined.",
+      "impact": "Loss of audit visibility for secrets access.",
       "artifact_section": "## Key Vault",
-      "suggested_mitigation": "Add diagnosticSettings module with 90-day retention."
+      "suggested_fix": {
+        "artifact_path": "agent-output/sample/02-architecture-assessment.md",
+        "proposed_edit": "Add diagnosticSettings module with 90-day retention."
+      },
+      "traces_to": []
     },
     {
+      "id": "c9d0e1f2",
       "severity": "should_fix",
       "category": "governance_gap",
-      "title": "SQL admin auth not Entra-only",
-      "description": "SQL still allows username/password auth.",
-      "failure_scenario": "Credential leak risk.",
+      "claim": "SQL admin auth not Entra-only",
+      "evidence": "SQL still allows username/password auth.",
+      "impact": "Credential leak risk.",
       "artifact_section": "## SQL Database",
-      "suggested_mitigation": "Set azureADOnlyAuthentication: true."
+      "suggested_fix": {
+        "artifact_path": "agent-output/sample/02-architecture-assessment.md",
+        "proposed_edit": "Set azureADOnlyAuthentication: true."
+      },
+      "traces_to": []
     }
-  ]
+  ],
+  "cache_inputs": {
+    "artifact_sha": "0000000000000000000000000000000000000000000000000000000000000000",
+    "checklists_sha": "1111111111111111111111111111111111111111111111111111111111111111",
+    "protocol_sha": "2222222222222222222222222222222222222222222222222222222222222222",
+    "subagent_sha": "3333333333333333333333333333333333333333333333333333333333333333",
+    "model": "Claude Opus 4.7",
+    "artifact_hash": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+  }
 }

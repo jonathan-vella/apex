@@ -46,9 +46,9 @@ and prompt trimming — without losing any context that matters.
 
 Read these before doing ANY work:
 
-1. **Read** `.github/skills/golden-principles/SKILL.digest.md` — the 10 operating invariants
+1. **Read** `.github/skills/golden-principles/SKILL.md` — the 10 operating invariants
 2. **Read** `AGENTS.md` — project map and agent roster
-3. **Read** `.github/skills/context-management/SKILL.digest.md` — covers both runtime
+3. **Read** `.github/skills/context-management/SKILL.md` — covers both runtime
    compression (Mode A) and the diagnostic-audit methodology this agent uses (Mode B)
 
 ## What This Agent Does

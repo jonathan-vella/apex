@@ -1,3 +1,5 @@
+<!-- ref:deprecated-services-v1 -->
+
 # Deprecated Azure Services (Do NOT Recommend for Greenfield)
 
 > Loaded by `azure-defaults` SKILL.md when the agent encounters a service

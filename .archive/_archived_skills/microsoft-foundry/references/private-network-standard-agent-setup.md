@@ -1,4 +1,5 @@
 <!-- ref:private-network-standard-agent-setup-v1 -->
+
 # Private Network Standard Agent Setup
 
 > **MANDATORY:** Read [Standard Agent Setup with Network Isolation docs](https://learn.microsoft.com/en-us/azure/ai-foundry/how-to/configure-private-link?tabs=azure-portal&pivots=fdp-project) before proceeding. It covers RBAC requirements, resource provider registration, and role assignments.
@@ -11,10 +12,10 @@ Extends [standard agent setup](standard-agent-setup.md) with full VNet isolation
 
 Two subnets required:
 
-| Subnet | CIDR | Purpose | Delegation |
-|--------|------|---------|------------|
-| Agent Subnet | /24 (e.g., 192.168.0.0/24) | Agent workloads | `Microsoft.App/environments` (exclusive) |
-| Private Endpoint Subnet | /24 (e.g., 192.168.1.0/24) | Private endpoints | None |
+| Subnet                  | CIDR                       | Purpose           | Delegation                               |
+| ----------------------- | -------------------------- | ----------------- | ---------------------------------------- |
+| Agent Subnet            | /24 (e.g., 192.168.0.0/24) | Agent workloads   | `Microsoft.App/environments` (exclusive) |
+| Private Endpoint Subnet | /24 (e.g., 192.168.1.0/24) | Private endpoints | None                                     |
 
 - All Foundry resources **must be in the same region as the VNet**.
 - Agent subnet must be exclusive to one Foundry account.

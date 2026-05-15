@@ -68,12 +68,12 @@ module "key_vault" {
 
 ## Output Files
 
-| File                     | Location                                                |
-| ------------------------ | ------------------------------------------------------- |
-| Preflight Check          | `agent-output/{project}/04-preflight-check.md`          |
-| Implementation Ref       | `agent-output/{project}/05-implementation-reference.md` |
-| Terraform Configurations | `infra/terraform/{project}/`                            |
-| Bootstrap Backend (Bash) | `infra/terraform/{project}/bootstrap-backend.sh`        |
-| Bootstrap Backend (PS)   | `infra/terraform/{project}/bootstrap-backend.ps1`       |
-| Deploy Script (Bash)     | `infra/terraform/{project}/deploy.sh` *(deprecated — use azd)*  |
-| Deploy Script (PS)       | `infra/terraform/{project}/deploy.ps1` *(deprecated — use azd)* |
+| File                     | Location                                                        |
+| ------------------------ | --------------------------------------------------------------- |
+| Preflight Check          | `agent-output/{project}/04-preflight-check.md`                  |
+| Implementation Ref       | `agent-output/{project}/05-implementation-reference.md`         |
+| Terraform Configurations | `infra/terraform/{project}/`                                    |
+| Bootstrap Backend (Bash) | `infra/terraform/{project}/bootstrap-backend.sh`                |
+| Bootstrap Backend (PS)   | `infra/terraform/{project}/bootstrap-backend.ps1`               |
+| Deploy Script (Bash)     | `infra/terraform/{project}/deploy.sh` _(deprecated — use azd)_  |
+| Deploy Script (PS)       | `infra/terraform/{project}/deploy.ps1` _(deprecated — use azd)_ |

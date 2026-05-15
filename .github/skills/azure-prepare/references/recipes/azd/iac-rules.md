@@ -7,11 +7,13 @@ IaC rules for AZD projects. **Additive** — for Bicep, apply `mcp_bicep_get_bic
 Always prefer modules in provider-specific order:
 
 For **Bicep**:
+
 1. AVM Bicep Pattern Modules (AVM+AZD first when available)
 2. AVM Bicep Resource Modules
 3. AVM Bicep Utility Modules
 
 For **Terraform**:
+
 1. AVM Terraform Pattern Modules
 2. AVM Terraform Resource Modules
 3. AVM Terraform Utility Modules
@@ -35,12 +37,12 @@ Before finalizing generated guidance:
 
 ## File Structure
 
-| Requirement | Details |
-|-------------|---------|
-| Location | `.` (project root) folder |
-| Entry point | `main.bicep` with `targetScope = 'subscription'` |
-| Parameters | `main.parameters.json` |
-| Modules | `./modules/*.bicep` with `targetScope = 'resourceGroup'` |
+| Requirement | Details                                                  |
+| ----------- | -------------------------------------------------------- |
+| Location    | `.` (project root) folder                                |
+| Entry point | `main.bicep` with `targetScope = 'subscription'`         |
+| Parameters  | `main.parameters.json`                                   |
+| Modules     | `./modules/*.bicep` with `targetScope = 'resourceGroup'` |
 
 ## Naming Convention
 
@@ -63,9 +65,9 @@ var alphanumericName = replace('${name}${resourceSuffix}', '-', '')
 
 ## Required Tags
 
-| Tag | Apply To | Value |
-|-----|----------|-------|
-| `azd-env-name` | Resource group | `{environmentName}` |
+| Tag                | Apply To          | Value                        |
+| ------------------ | ----------------- | ---------------------------- |
+| `azd-env-name`     | Resource group    | `{environmentName}`          |
 | `azd-service-name` | Hosting resources | Service name from azure.yaml |
 
 ## Module Parameters
@@ -74,24 +76,24 @@ All modules must accept: `name` (string), `location` (string), `tags` (object)
 
 ## Security
 
-| Rule | Details |
-|------|---------|
-| No secrets | Use Key Vault references |
-| Managed Identity | Least privilege |
-| Diagnostics | Enable logging |
-| API versions | Use latest |
+| Rule             | Details                  |
+| ---------------- | ------------------------ |
+| No secrets       | Use Key Vault references |
+| Managed Identity | Least privilege          |
+| Diagnostics      | Enable logging           |
+| API versions     | Use latest               |
 
 ## Recommended Outputs
 
 `azd` reads `output` values from `main.bicep` and stores UPPERCASE names as environment variables (accessible via `azd env get-values`).
 
-| Output | When |
-|--------|------|
-| `AZURE_RESOURCE_GROUP` | Always (required) |
-| `AZURE_CONTAINER_REGISTRY_ENDPOINT` | If using containers |
-| `AZURE_KEY_VAULT_NAME` | If using secrets |
-| `AZURE_LOG_ANALYTICS_WORKSPACE_ID` | If using monitoring |
-| `API_URL`, `WEB_URL`, etc. | One per service endpoint |
+| Output                              | When                     |
+| ----------------------------------- | ------------------------ |
+| `AZURE_RESOURCE_GROUP`              | Always (required)        |
+| `AZURE_CONTAINER_REGISTRY_ENDPOINT` | If using containers      |
+| `AZURE_KEY_VAULT_NAME`              | If using secrets         |
+| `AZURE_LOG_ANALYTICS_WORKSPACE_ID`  | If using monitoring      |
+| `API_URL`, `WEB_URL`, etc.          | One per service endpoint |
 
 ## Templates
 

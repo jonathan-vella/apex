@@ -1,0 +1,355 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/jonathan-vella/azure-agentic-infraops/schemas/iac-contract.schema.json",
+  "title": "APEX IaC Contract",
+  "description": "Machine-readable contract emitted by Step 4 (05-IaC Planner) and consumed by Step 5 (06b/06t CodeGen). Replaces prose extraction from 04-implementation-plan.md. Two revisions are supported: contract-v0 (minimum viable — resources, modules, params, diagnostics, identity, l1m_ref) ships in Wave 1; contract-v1 (adds dependencies, network_topology, output_contract) ships in Wave 3. Artifact path: agent-output/{project}/04-iac-contract.json. Validators: validate-iac-contract.mjs (schema), validate-iac-contract-consistency.mjs (prose ↔ contract drift).",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "project",
+    "iac_tool",
+    "generated_at",
+    "plan_ref",
+    "resources",
+    "modules",
+    "diagnostics",
+    "identity",
+    "l1m_ref"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Optional JSON-Schema reference for editor tooling."
+    },
+    "schema_version": {
+      "type": "string",
+      "enum": ["iac-contract-v0", "iac-contract-v1"],
+      "description": "v0 = Wave-1 minimum viable; v1 = Wave-3 full contract with dependencies, network_topology, and output_contract."
+    },
+    "project": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Project folder name under agent-output/."
+    },
+    "iac_tool": {
+      "type": "string",
+      "enum": ["Bicep", "Terraform"]
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "plan_ref": {
+      "type": "object",
+      "description": "Pointer to the source 04-implementation-plan.md and its content hash, so 06b/06t can detect plan drift between contract emission and code generation.",
+      "required": ["path", "sha256"],
+      "additionalProperties": false,
+      "properties": {
+        "path": { "type": "string" },
+        "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+      }
+    },
+    "resources": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Every resource the CodeGen agent must materialise. logical_name is the contract-stable identifier (lowercase, dash-separated). type uses the Azure provider namespace (e.g. Microsoft.Storage/storageAccounts).",
+      "items": {
+        "type": "object",
+        "required": ["logical_name", "type", "sku"],
+        "additionalProperties": false,
+        "properties": {
+          "logical_name": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]{1,63}$"
+          },
+          "type": {
+            "type": "string",
+            "pattern": "^Microsoft\\.[A-Za-z]+/[A-Za-z][A-Za-z0-9/]*$"
+          },
+          "sku": {
+            "type": ["string", "null"],
+            "description": "SKU/tier identifier (e.g. Standard_LRS, Standard_B2ms). Null when the resource type has no SKU concept (e.g. resource groups)."
+          },
+          "purpose": {
+            "type": "string",
+            "description": "One-sentence WAF-pillar justification mirrored from 02-architecture-assessment.md."
+          },
+          "tags_inherit": {
+            "type": "boolean",
+            "default": true,
+            "description": "When true, the resource inherits required tags from the subscription/resource-group scope; when false, the contract caller is responsible for asserting tags explicitly."
+          },
+          "depends_on": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "logical_name references of resources this one depends on. Optional in v0, recommended in v1."
+          }
+        }
+      }
+    },
+    "modules": {
+      "type": "object",
+      "description": "AVM (Azure Verified Modules) and AVM-TF references the CodeGen agent must use. bicep[].source uses br/public:avm/res/* registry paths; terraform[].source uses Azure/avm-res-*/azurerm Registry paths. Pinned versions only — never ranges.",
+      "additionalProperties": false,
+      "properties": {
+        "bicep": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["resource_logical_name", "source", "version"],
+            "additionalProperties": false,
+            "properties": {
+              "resource_logical_name": { "type": "string" },
+              "source": {
+                "type": "string",
+                "pattern": "^br/public:avm/(res|ptn)/[a-z0-9-]+(/[a-z0-9-]+)+$"
+              },
+              "version": {
+                "type": "string",
+                "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+              },
+              "pin_policy": { "$ref": "#/$defs/pinPolicy" }
+            }
+          }
+        },
+        "terraform": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["resource_logical_name", "source", "version"],
+            "additionalProperties": false,
+            "properties": {
+              "resource_logical_name": { "type": "string" },
+              "source": {
+                "type": "string",
+                "description": "Either Azure/avm-res-*/azurerm Registry path or a verified Git source URL pinned to a tag."
+              },
+              "version": {
+                "type": "string",
+                "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+              },
+              "pin_policy": { "$ref": "#/$defs/pinPolicy" }
+            }
+          }
+        }
+      }
+    },
+    "params": {
+      "type": "array",
+      "description": "Parameters the CodeGen agent must surface on the root template. NEVER includes secrets or environment-specific values — those live in the environment manifest.",
+      "items": {
+        "type": "object",
+        "required": ["name", "type"],
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "^[a-z][a-zA-Z0-9]*$"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["string", "int", "bool", "object", "array", "secureString", "secureObject"]
+          },
+          "default": {
+            "description": "Optional default value. Must be a non-secret literal."
+          },
+          "description": { "type": "string" },
+          "allowed_values": {
+            "type": "array",
+            "description": "Constrained value set (Bicep @allowed / Terraform validation)."
+          }
+        }
+      }
+    },
+    "diagnostics": {
+      "type": "object",
+      "description": "Diagnostic settings strategy. mode=avm relies on the AVM module's built-in diagnosticSettings property (preferred). mode=module falls back to a project-owned diagnostics module per resource when an AVM does not expose diagnosticSettings. mode=auto lets the CodeGen agent pick per resource based on AVM capability — recorded in 05-iac-handoff.json.",
+      "required": ["mode", "workspace_id_param", "log_categories", "metric_categories"],
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["avm", "module", "auto"]
+        },
+        "workspace_id_param": {
+          "type": "string",
+          "description": "Name of the param that supplies the Log Analytics workspace resource ID."
+        },
+        "log_categories": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Either explicit category names or the string 'allLogs' for AVM passthrough."
+        },
+        "metric_categories": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Explicit metric category names or 'AllMetrics'."
+        },
+        "retention_days": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 730
+        }
+      }
+    },
+    "identity": {
+      "type": "object",
+      "description": "Identity contract for the workload. UAMI logical names map to resources[].logical_name entries of type Microsoft.ManagedIdentity/userAssignedIdentities. system_assigned applies to compute resources individually via per-resource flags emitted by CodeGen.",
+      "required": ["type"],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["none", "system_assigned", "user_assigned", "both"]
+        },
+        "uami_logical_names": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Required when type includes user_assigned."
+        },
+        "entra_app_creation": {
+          "type": "string",
+          "enum": ["existing", "create"],
+          "default": "existing",
+          "description": "When 'create', Terraform may use azuread_application — gated behind a permission preflight and prevent_destroy=true."
+        },
+        "entra_app_existing_id_param": {
+          "type": "string",
+          "description": "Name of the param supplying an existing app registration object ID (required when entra_app_creation == existing AND an app reg is needed)."
+        }
+      }
+    },
+    "l1m_ref": {
+      "type": "object",
+      "required": ["path"],
+      "additionalProperties": false,
+      "description": "Pointer to the machine-readable governance compliance matrix (04-policy-property-map.json) that the CodeGen agent must honour. L1m is mandatory in both light and full governance modes.",
+      "properties": {
+        "path": { "type": "string" },
+        "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+      }
+    },
+    "dependencies": {
+      "type": "array",
+      "description": "v1 only — explicit cross-resource dependency edges beyond what depends_on captures, for graph-based ordering.",
+      "items": {
+        "type": "object",
+        "required": ["from", "to", "kind"],
+        "additionalProperties": false,
+        "properties": {
+          "from": { "type": "string" },
+          "to": { "type": "string" },
+          "kind": {
+            "type": "string",
+            "enum": ["hard", "soft", "rbac", "diagnostic"]
+          }
+        }
+      }
+    },
+    "network_topology": {
+      "type": "object",
+      "description": "v1 only — topology hints (hub-spoke ids, vnet/subnet logical names) so CodeGen can compose private-endpoint and route-table patterns deterministically.",
+      "additionalProperties": false,
+      "properties": {
+        "topology": {
+          "type": "string",
+          "enum": ["none", "hub-spoke", "single-vnet", "multi-region"]
+        },
+        "vnets": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["logical_name", "address_space"],
+            "additionalProperties": false,
+            "properties": {
+              "logical_name": { "type": "string" },
+              "address_space": {
+                "type": "array",
+                "items": { "type": "string" }
+              },
+              "role": {
+                "type": "string",
+                "enum": ["hub", "spoke", "single"]
+              }
+            }
+          }
+        }
+      }
+    },
+    "output_contract": {
+      "type": "array",
+      "description": "v1 only — outputs the deployment must expose so downstream as-built (Step 7) and policy precheck (L3) can attest without re-reading the IaC tree.",
+      "items": {
+        "type": "object",
+        "required": ["name", "type", "purpose"],
+        "additionalProperties": false,
+        "properties": {
+          "name": { "type": "string" },
+          "type": {
+            "type": "string",
+            "enum": ["string", "object", "array"]
+          },
+          "purpose": { "type": "string" }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "pinPolicy": {
+      "type": "object",
+      "description": "Structured exception for non-latest AVM module pins. When mode='latest' the validator only checks the version exists; when mode='exception' the validator allows a stale pin if rationale + evidence + review_after are present and review_after is in the future. Enforced by validate-avm-module-versions.mjs.",
+      "required": ["mode", "latest_seen", "lookup_source", "lookup_timestamp"],
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["latest", "exception"],
+          "description": "'latest' = the pinned version was the latest stable at lookup_timestamp. 'exception' = an older verified version is intentionally pinned with rationale."
+        },
+        "latest_seen": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+          "description": "Latest stable version observed at lookup_timestamp. Should equal the module's `version` field when mode='latest'."
+        },
+        "lookup_source": {
+          "type": "string",
+          "enum": ["mcr", "terraform-registry", "mcp-bicep", "mcp-terraform", "cache"],
+          "description": "Where latest_seen came from. 'cache' means the resolver used the checked-in cache file because the live registry was unreachable."
+        },
+        "lookup_timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When latest_seen was observed. Validators may require this be within an acceptable freshness window."
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Required when mode='exception'. One-sentence reason for not using latest (e.g. 'AVM 0.12.x emits networkRuleSet for Basic SKU; pin to 0.11.x until 0.13.x ships the fix')."
+        },
+        "evidence_url_or_file": {
+          "type": "string",
+          "description": "Required when mode='exception'. Link to GitHub issue, release note, or repo path documenting the regression."
+        },
+        "review_after": {
+          "type": "string",
+          "format": "date",
+          "description": "Required when mode='exception'. Date after which the exception must be re-evaluated. Past dates make the validator fail."
+        },
+        "approved_by_step": {
+          "type": "string",
+          "enum": ["1", "2", "3", "3.5", "4", "5"],
+          "description": "Optional. Workflow step that approved the exception (typically 4 for plan-time decisions)."
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "mode": { "const": "exception" } } },
+          "then": {
+            "required": ["rationale", "evidence_url_or_file", "review_after"]
+          }
+        }
+      ]
+    }
+  }
+}

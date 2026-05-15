@@ -28,6 +28,7 @@ During assessment, show a **sneak peek** of what the migrated Azure Functions co
 ## Architecture Diagrams
 
 Generate two diagrams:
+
 1. **Current State** — AWS Lambda architecture with triggers and integrations
 2. **Target State** — Azure Functions architecture showing equivalent structure
 
@@ -42,54 +43,54 @@ The report MUST be saved as `migration-assessment-report.md` inside the output d
 
 ## 1. Executive Summary
 
-| Property | Value |
-|----------|-------|
-| **Total Functions** | <count> |
-| **Source Platform** | AWS Lambda |
-| **Source Runtime** | <runtime and version> |
-| **Target Platform** | Azure Functions |
-| **Target Runtime** | <runtime and version> |
+| Property                | Value                 |
+| ----------------------- | --------------------- |
+| **Total Functions**     | <count>               |
+| **Source Platform**     | AWS Lambda            |
+| **Source Runtime**      | <runtime and version> |
+| **Target Platform**     | Azure Functions       |
+| **Target Runtime**      | <runtime and version> |
 | **Migration Readiness** | <High / Medium / Low> |
-| **Estimated Effort** | <Low / Medium / High> |
-| **Assessment Date** | <date> |
+| **Estimated Effort**    | <Low / Medium / High> |
+| **Assessment Date**     | <date>                |
 
 ## 2. Functions Inventory
 
-| # | Function Name | Runtime | Trigger Type | Memory (MB) | Timeout (s) | Description |
-|---|--------------|---------|-------------- |-------------|-------------|-------------|
-| 1 | | | | | | |
+| #   | Function Name | Runtime | Trigger Type | Memory (MB) | Timeout (s) | Description |
+| --- | ------------- | ------- | ------------ | ----------- | ----------- | ----------- |
+| 1   |               |         |              |             |             |             |
 
 ## 3. Service Mapping
 
-| AWS Service | Azure Equivalent | Migration Complexity | Notes |
-|-------------|------------------|----------------------|-------|
-| Lambda | Azure Functions | | |
-| API Gateway | Azure Functions HTTP Trigger / APIM | | |
-| S3 | Azure Blob Storage | | |
-| DynamoDB | Cosmos DB | | |
-| SQS | Service Bus / Storage Queue | | |
-| SNS | Event Grid | | |
-| CloudWatch | Application Insights / Azure Monitor | | |
-| IAM Roles | Managed Identity + RBAC | | |
-| CloudFormation / SAM | Bicep / ARM Templates | | |
+| AWS Service          | Azure Equivalent                     | Migration Complexity | Notes |
+| -------------------- | ------------------------------------ | -------------------- | ----- |
+| Lambda               | Azure Functions                      |                      |       |
+| API Gateway          | Azure Functions HTTP Trigger / APIM  |                      |       |
+| S3                   | Azure Blob Storage                   |                      |       |
+| DynamoDB             | Cosmos DB                            |                      |       |
+| SQS                  | Service Bus / Storage Queue          |                      |       |
+| SNS                  | Event Grid                           |                      |       |
+| CloudWatch           | Application Insights / Azure Monitor |                      |       |
+| IAM Roles            | Managed Identity + RBAC              |                      |       |
+| CloudFormation / SAM | Bicep / ARM Templates                |                      |       |
 
 ## 4. Trigger & Binding Mapping
 
-| # | Function Name | AWS Trigger | Azure Trigger | AWS Inputs/Outputs | Azure Bindings | Notes |
-|---|--------------|-------------|---------------|--------------------| ---------------|-------|
-| 1 | | | | | | |
+| #   | Function Name | AWS Trigger | Azure Trigger | AWS Inputs/Outputs | Azure Bindings | Notes |
+| --- | ------------- | ----------- | ------------- | ------------------ | -------------- | ----- |
+| 1   |               |             |               |                    |                |       |
 
 ## 5. Dependencies Analysis
 
-| # | Package/Library | Version | AWS-Specific? | Azure Equivalent | Compatible? | Notes |
-|---|----------------|---------|---------------|------------------|-------------|-------|
-| 1 | | | | | | |
+| #   | Package/Library | Version | AWS-Specific? | Azure Equivalent | Compatible? | Notes |
+| --- | --------------- | ------- | ------------- | ---------------- | ----------- | ----- |
+| 1   |                 |         |               |                  |             |       |
 
 ## 6. Environment Variables & Configuration
 
-| # | AWS Variable | Purpose | Azure Equivalent | Auth Method | Notes |
-|---|-------------|---------|------------------|-------------|-------|
-| 1 | | | | Managed Identity / App Setting | |
+| #   | AWS Variable | Purpose | Azure Equivalent | Auth Method                    | Notes |
+| --- | ------------ | ------- | ---------------- | ------------------------------ | ----- |
+| 1   |              |         |                  | Managed Identity / App Setting |       |
 
 ## 7. Architecture Diagrams
 
@@ -104,37 +105,37 @@ The report MUST be saved as `migration-assessment-report.md` inside the output d
 ## 8. IAM & Security Mapping
 
 | AWS IAM Role/Policy | Azure RBAC Role | Scope | Notes |
-|---------------------|-----------------|-------|-------|
-| | | | |
+| ------------------- | --------------- | ----- | ----- |
+|                     |                 |       |       |
 
 ## 9. Monitoring & Observability Mapping
 
-| AWS Service | Azure Equivalent | Migration Notes |
-|-------------|------------------|-----------------|
-| CloudWatch Logs | Application Insights | |
-| CloudWatch Metrics | Azure Monitor Metrics | |
-| CloudWatch Alarms | Azure Monitor Alerts | |
-| X-Ray | Application Insights (distributed tracing) | |
+| AWS Service        | Azure Equivalent                           | Migration Notes |
+| ------------------ | ------------------------------------------ | --------------- |
+| CloudWatch Logs    | Application Insights                       |                 |
+| CloudWatch Metrics | Azure Monitor Metrics                      |                 |
+| CloudWatch Alarms  | Azure Monitor Alerts                       |                 |
+| X-Ray              | Application Insights (distributed tracing) |                 |
 
 ## 10. CI/CD & Deployment Mapping
 
-| AWS Tool | Azure Equivalent | Notes |
-|----------|------------------|-------|
-| SAM CLI | Azure Functions Core Tools / azd | |
-| CloudFormation | Bicep / ARM Templates | |
-| CodePipeline | Azure DevOps Pipelines / GitHub Actions | |
-| CodeBuild | Azure DevOps Build / GitHub Actions | |
+| AWS Tool       | Azure Equivalent                        | Notes |
+| -------------- | --------------------------------------- | ----- |
+| SAM CLI        | Azure Functions Core Tools / azd        |       |
+| CloudFormation | Bicep / ARM Templates                   |       |
+| CodePipeline   | Azure DevOps Pipelines / GitHub Actions |       |
+| CodeBuild      | Azure DevOps Build / GitHub Actions     |       |
 
 ## 11. Project Structure Comparison
 
-| AWS Lambda Structure | Azure Functions Structure |
-|---------------------|--------------------------|
-| `template.yaml` (SAM) | `host.json` |
-| `handler.js / handler.py` | `src/app.js` / `src/function_app.py` |
-| `requirements.txt` / `package.json` | `requirements.txt` / `package.json` |
+| AWS Lambda Structure                | Azure Functions Structure              |
+| ----------------------------------- | -------------------------------------- |
+| `template.yaml` (SAM)               | `host.json`                            |
+| `handler.js / handler.py`           | `src/app.js` / `src/function_app.py`   |
+| `requirements.txt` / `package.json` | `requirements.txt` / `package.json`    |
 | Per-function directories (optional) | Single entry point (v4 JS / v2 Python) |
-| `event` object | Trigger-specific parameter |
-| `context` object | `InvocationContext` |
+| `event` object                      | Trigger-specific parameter             |
+| `context` object                    | `InvocationContext`                    |
 
 ## 12. Recommendations
 

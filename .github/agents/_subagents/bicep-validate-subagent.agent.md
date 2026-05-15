@@ -41,16 +41,13 @@ parent IaC agent.
 </role>
 
 <context_awareness>
-Skill loading tiers (apply per the `context-management` skill, Mode A):
+Read each `SKILL.md` once — there is a single tier (no digest/minimal
+variants):
 
-- Default — read `.github/skills/azure-defaults/SKILL.digest.md` and
-  `.github/skills/iac-common/SKILL.digest.md`. The digest is sufficient
-  for AVM versions, CAF naming, security baseline, and IaC review checks.
-- ≥80% context utilization — escalate to
-  `.github/skills/azure-defaults/SKILL.minimal.md` and
-  `.github/skills/iac-common/SKILL.minimal.md`.
-- Full `SKILL.md` is reserved for skill-authoring or debugging contexts
-  where the digest is insufficient — not for production reviews.
+- `.github/skills/azure-defaults/SKILL.md` for AVM versions, CAF naming,
+  security baseline, and IaC review checks.
+- `.github/skills/iac-common/SKILL.md` for shared deploy strategies and
+  known issues.
 
 Read `04-governance-constraints.md` from `agent-output/{project}/` whenever
 the parent agent provides a project name; if absent, note the gap in findings
@@ -66,6 +63,30 @@ This subagent does not:
 - Deploy infrastructure or call `azd up` / `az deployment ... create`.
 - Re-run governance discovery — it consumes the constraints artifact only.
   </scope_fencing>
+
+<sku_default_render_check>
+After `bicep build` succeeds in Phase 1 and before Phase 2 returns its verdict,
+inspect the **compiled ARM** (the JSON produced by `bicep build`) for AVM
+SKU-default mismatches. These never show up in source lint, security-baseline
+regex, or `what-if`, but Azure rejects them at deploy time.
+
+For every AVM module call in the template, derive the SKU/tier and fail the
+review as `CRITICAL` when any of the following render-level conditions hold:
+
+- `Microsoft.ContainerRegistry/registries` with `sku.name != 'Premium'` and the
+  resource properties contain `networkRuleSet`, `networkRuleBypassOptions`,
+  `dataEndpointEnabled: true`, or `zoneRedundancy: 'Enabled'`.
+- Any resource whose AVM module description for a property says
+  _“requires the 'sku' to be 'Premium'”_ (or equivalent) and that property is
+  emitted with a non-`null` value while the chosen SKU is not Premium.
+
+Report each hit under `❌ Failed Checks` with severity `CRITICAL`, the
+resource type, the offending property path, the chosen SKU, and a
+recommendation that points at the `SKU-Default Mismatch` section in
+[`azure-bicep-patterns/references/avm-pitfalls.md`](../../skills/azure-bicep-patterns/references/avm-pitfalls.md).
+This forces `Overall Status: FAILED` and routes back to CodeGen instead of
+letting the parent agent advance to `bicep-whatif-subagent` or deploy.
+</sku_default_render_check>
 
 <output_contract>
 Return results in this exact text shape. Field names and section order are
@@ -169,7 +190,28 @@ Findings` entry naming the missing field — do not guess.
    bicep build {template_path} --stdout > /dev/null
    ```
 
-2. Classify the result using the table below. When `Phase 1 - Lint` is
+2. **Timeout-retry policy (Wave 1+)**: if either command times out or
+   exits with a transient network/HTTP error (5xx, ETIMEDOUT,
+   ECONNRESET, registry unreachable), retry **at most 2 times** with
+   exponential backoff (5s, 15s). After 2 retries, emit `Lint
+Status: FAIL` with `transient: true` in the JSON output and return.
+   Persistent compile errors are NOT retried.
+
+3. **Validate-gate command (Wave 1+, when invoked by CodeGen Phase 4.6
+   or Deploy hash-mismatch rerun)** — also run:
+
+   ```bash
+   az deployment sub validate \
+     --location <region> \
+     --template-file {template_path} \
+     --parameters <bicepparam_path>
+   ```
+
+   Same retry policy. Record `exit_code` and `stdout_sha256` in the
+   structured output's `validate_gate` block so it can be lifted into
+   `05-iac-handoff.json#validation_summary.validate_gate`.
+
+4. Classify the result using the table below. When `Phase 1 - Lint` is
    `FAIL`, set `Phase 2 - Review: SKIPPED`, `Overall Status: FAILED`, and
    skip Phase 2.
 

@@ -56,8 +56,8 @@ or analysis beyond what the template specifies. Architecture decisions belong to
 </scope_fencing>
 
 <context_awareness>
-Before loading skill files in Phase 5, check if SKILL.digest.md variants exist.
-Only load skills after completing Phases 1-4 questioning — not before.
+Defer all skill reads until after Phases 1-4 questioning is complete — not before.
+Read each `SKILL.md` only once.
 </context_awareness>
 
 **This agent completes ALL work in ONE turn.** Call `askQuestions` for each phase
@@ -98,6 +98,24 @@ Run `apex-recall show <project> --json` for full project context. Do not read `0
 - **My step**: 1
 - **Sub-step checkpoints**: `phase_1_discovery` → `phase_2_workload` →
   `phase_3_nfr` → `phase_4_technical` → `phase_5_artifact`
+
+## SKU Manifest — User Pins Only
+
+Step 1 creates `agent-output/{project}/sku-manifest.json` + `.md` at rev 1.
+
+- **Capture only hard constraints the user volunteers** — region pins,
+  tier requirements driven by compliance, reserved-instance commitments
+  the user has already purchased. **Do not exhaustively enumerate SKUs.**
+- Empty `services[]` at rev 1 is the **common case** and is valid.
+- Every entry you write has `source: "user-pin"`, `source_step: "1"`,
+  `last_modified_rev: 1`.
+- Schema: [`tools/schemas/sku-manifest.schema.json`](../../tools/schemas/sku-manifest.schema.json).
+  Template: [`.github/skills/azure-artifacts/templates/sku-manifest.template.json`](../skills/azure-artifacts/templates/sku-manifest.template.json).
+  Authoring rules: [`.github/instructions/sku-manifest.instructions.md`](../instructions/sku-manifest.instructions.md).
+- After writing rev 1, set `decisions.sku_manifest_status = "draft"` and
+  `decisions.sku_manifest_revision = 1` via `apex-recall decide`.
+- The bulk of `services[]` is populated by **03-Architect at Step 2**, not here.
+
 - **Checkpoints**: After each phase, run:
   `apex-recall checkpoint <project> 1 <phase_name> --json`
 - **Decisions**: Record captured values with:
@@ -236,9 +254,9 @@ its questions now.
 
 ### Read Skills (ONLY NOW — not before)
 
-1. **Read** `.github/skills/azure-defaults/SKILL.digest.md` — regions, tags,
+1. **Read** `.github/skills/azure-defaults/SKILL.md` — regions, tags,
    naming, AVM, security, service matrix
-2. **Read** `.github/skills/azure-artifacts/SKILL.digest.md` — H2 template for `01-requirements.md`
+2. **Read** `.github/skills/azure-artifacts/SKILL.md` — H2 template for `01-requirements.md`
 3. **Read** `.github/skills/azure-artifacts/templates/01-requirements.template.md`
    — use as structural skeleton (replicate badges, TOC, navigation, attribution)
 4. **Read** `.github/skills/azure-artifacts/templates/PROJECT-README.template.md`

@@ -4,11 +4,13 @@
 > in the **azure-ai-openai-dotnet** plugin skill if installed.
 
 ## Install
+
 ```bash
 dotnet add package Azure.AI.OpenAI
 ```
 
 ## Quick Start
+
 ```csharp
 using Azure.AI.OpenAI;
 using OpenAI.Chat;
@@ -17,12 +19,14 @@ ChatClient chatClient = azureClient.GetChatClient("gpt-4o-mini");
 ```
 
 ## Non-Obvious Patterns
+
 - Client hierarchy: `AzureOpenAIClient.GetChatClient()` / `GetEmbeddingClient()` / `GetImageClient()` / `GetAudioClient()`
 - Reasoning models (o1): use `DeveloperChatMessage` instead of `SystemChatMessage`, set `ReasoningEffortLevel`
 - RAG: `#pragma warning disable AOAI001` then `options.AddDataSource(new AzureSearchChatDataSource{...})`
 - Structured outputs: `ChatResponseFormat.CreateJsonSchemaFormat(...)`
 
 ## Best Practices
+
 1. Use Entra ID in production — avoid API keys
 2. Reuse client instances — create once, share across requests
 3. Handle rate limits — implement exponential backoff for 429 errors

@@ -107,12 +107,14 @@ For automated deployments with azd, see [cicd/README.md](../cicd/README.md) for 
 > ⚠️ **CRITICAL: `azd down` Data Loss Warning**
 >
 > `azd down` **permanently deletes ALL resources** in the environment, including:
+>
 > - **Function Apps** with all configuration and deployment slots
 > - **Storage accounts** with all blobs and files
 > - **Key Vault** with all secrets (use `--purge` to bypass soft-delete)
 > - **Databases** with all data (Cosmos DB, SQL, etc.)
 >
 > **Best practices:**
+>
 > - Always use `azd provision --preview` before `azd up`
 > - Use separate environments for dev/staging/production
 > - Back up important data before running `azd down`
@@ -120,6 +122,7 @@ For automated deployments with azd, see [cicd/README.md](../cicd/README.md) for 
 ## Next Steps
 
 After deployment:
+
 1. Verify functions are running
 2. Test endpoints
 3. Monitor Application Insights

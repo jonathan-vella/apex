@@ -5,9 +5,11 @@
 > in the **azure-keyvault-certificates-rust** plugin skill if installed.
 
 ## Install
+
 cargo add azure_security_keyvault_certificates azure_identity
 
 ## Quick Start
+
 ```rust
 use azure_identity::DeveloperToolsCredential;
 use azure_security_keyvault_certificates::CertificateClient;
@@ -16,6 +18,7 @@ let client = CertificateClient::new("https://<vault>.vault.azure.net/", credenti
 ```
 
 ## Best Practices
+
 - Use Entra ID auth — `DeveloperToolsCredential` for dev
 - Use managed certificates — auto-renewal with supported issuers
 - Set proper validity period — balance security and maintenance

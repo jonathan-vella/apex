@@ -124,7 +124,8 @@ MSAL is the recommended library for integrating Microsoft identity platform.
 
 Never hardcode secrets · Rotate secrets regularly · Use certificates over secrets in production ·
 Least privilege API permissions · Enable MFA · Use managed identity for Azure-hosted apps ·
-Validate tokens (issuer, audience, expiration) · HTTPS-only redirect URIs ·
+Validate tokens (issuer, audience, expiration) · HTTPS-only redirect URIs (per the canonical
+[security baseline](../../instructions/references/iac-security-baseline.md)) ·
 Monitor sign-ins via Entra ID logs. See `references/auth-best-practices.md` for details.
 
 ## SDK Quick References

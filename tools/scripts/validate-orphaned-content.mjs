@@ -58,19 +58,17 @@ function gatherReferenceContent() {
 
 const { corpus, perSkill } = gatherReferenceContent();
 
-// Skill reference regex (Phase 2 of context-window optimization).
+// Skill reference regex.
 //
-// Skill wiring is now discovered via this regex sweep over agent bodies
-// and other reference content rather than via tools/registry/agent-registry.json.
-// The pattern explicitly allows SKILL.md, SKILL.digest.md, and SKILL.minimal.md
-// so that context-management tier references count as wiring.
+// Skill wiring is discovered via this regex sweep over agent bodies and
+// other reference content rather than via tools/registry/agent-registry.json.
+// The repository has a single skill tier (`SKILL.md`); legacy `SKILL.digest.md`
+// and `SKILL.minimal.md` references are not recognized.
 //
 // Supported phrasings:
 //   - .github/skills/{name}/SKILL.md
-//   - .github/skills/{name}/SKILL.digest.md
-//   - .github/skills/{name}/SKILL.minimal.md
-// (skills/{name}/SKILL[.tier].md without the leading .github/ also matches.)
-const SKILL_REFERENCE_PATTERN = /(?:\.github\/)?skills\/([a-z0-9]+(?:-[a-z0-9]+)*)\/SKILL(?:\.digest|\.minimal)?\.md/g;
+//   - skills/{name}/SKILL.md (without the leading .github/)
+const SKILL_REFERENCE_PATTERN = /(?:\.github\/)?skills\/([a-z0-9]+(?:-[a-z0-9]+)*)\/SKILL\.md/g;
 
 function findSkillReferences(searchContent) {
   const found = new Set();

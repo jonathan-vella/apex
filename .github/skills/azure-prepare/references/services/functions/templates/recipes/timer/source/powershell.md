@@ -85,6 +85,7 @@ Push-OutputBinding -Name Response -Value ([HttpResponseContext]@{
 ## Local Testing
 
 Set these in `local.settings.json`:
+
 ```json
 {
   "Values": {

@@ -65,15 +65,14 @@
                   "items": { "type": "string" }
                 },
                 "opt_in_multi_pass": { "type": "boolean" },
-                "complexity_matrix": {
+                "opt_in_matrix": {
                   "type": "object",
-                  "description": "Per-complexity-tier review config.",
+                  "description": "Per-tier opt-in challenger config. MAY contain a subset of {simple, standard, complex} — opt-in semantics mean a tier without an entry simply has no recommended multi-pass shape. Never auto-fires by tier.",
                   "properties": {
                     "simple": { "$ref": "#/$defs/challengerTier" },
                     "standard": { "$ref": "#/$defs/challengerTier" },
                     "complex": { "$ref": "#/$defs/challengerTier" }
-                  },
-                  "required": ["simple", "standard", "complex"]
+                  }
                 },
                 "skip_condition": { "type": "string" }
               },
@@ -168,7 +167,7 @@
       "properties": {
         "version": {
           "type": "string",
-          "enum": ["2.1", "2.2"],
+          "enum": ["2.1", "2.2", "2.3"],
           "description": "Workflow graph schema version. Validators refuse unknown majors per D2 (graceful degradation)."
         }
       }
@@ -177,7 +176,14 @@
   "$defs": {
     "edgeCondition": {
       "type": "string",
-      "enum": ["on_complete", "on_skip", "on_fail", "on_refine"]
+      "enum": [
+        "on_complete",
+        "on_skip",
+        "on_fail",
+        "on_refine",
+        "on_architecture_must_fix",
+        "on_must_fix_governance_conflict"
+      ]
     },
     "challengerTier": {
       "type": "object",

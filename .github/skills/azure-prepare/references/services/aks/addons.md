@@ -50,9 +50,9 @@ addonProfiles: {
 
 ## Add-ons Summary
 
-| Add-on | Purpose |
-|--------|---------|
-| omsagent | Container Insights monitoring |
-| azureKeyvaultSecretsProvider | Mount Key Vault secrets as volumes |
-| ingressApplicationGateway | Application Gateway as ingress controller |
-| azurepolicy | Azure Policy for Kubernetes |
+| Add-on                       | Purpose                                   |
+| ---------------------------- | ----------------------------------------- |
+| omsagent                     | Container Insights monitoring             |
+| azureKeyvaultSecretsProvider | Mount Key Vault secrets as volumes        |
+| ingressApplicationGateway    | Application Gateway as ingress controller |
+| azurepolicy                  | Azure Policy for Kubernetes               |

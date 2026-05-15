@@ -4,13 +4,13 @@ Create new hosted agent applications for Microsoft Foundry, or convert existing 
 
 ## Quick Reference
 
-| Property | Value |
-|----------|-------|
-| **Samples Repo** | `microsoft-foundry/foundry-samples` |
-| **Python Samples** | `samples/python/hosted-agents/{framework}/` |
-| **C# Samples** | `samples/csharp/hosted-agents/{framework}/` |
+| Property               | Value                                                                      |
+| ---------------------- | -------------------------------------------------------------------------- |
+| **Samples Repo**       | `microsoft-foundry/foundry-samples`                                        |
+| **Python Samples**     | `samples/python/hosted-agents/{framework}/`                                |
+| **C# Samples**         | `samples/csharp/hosted-agents/{framework}/`                                |
 | **Hosted Agents Docs** | https://learn.microsoft.com/azure/ai-foundry/agents/concepts/hosted-agents |
-| **Best For** | Creating new or converting existing agent projects for Foundry |
+| **Best For**           | Creating new or converting existing agent projects for Foundry             |
 
 ## When to Use This Skill
 
@@ -34,11 +34,11 @@ If the user hasn't already specified, use `ask_user` to collect:
 
 **Framework:**
 
-| Framework | Python Path | C# Path |
-|-----------|------------|---------|
-| Microsoft Agent Framework (default) | `agent-framework` | `AgentFramework` |
-| LangGraph | `langgraph` | ❌ Python only |
-| Custom | `custom` | `AgentWithCustomFramework` |
+| Framework                           | Python Path       | C# Path                    |
+| ----------------------------------- | ----------------- | -------------------------- |
+| Microsoft Agent Framework (default) | `agent-framework` | `AgentFramework`           |
+| LangGraph                           | `langgraph`       | ❌ Python only             |
+| Custom                              | `custom`          | `AgentWithCustomFramework` |
 
 **Language:** Python (default) or C#.
 
@@ -61,6 +61,7 @@ If the user has specified any information on what they want their agent to do, j
 Download only the selected sample directory — do NOT clone the entire repo. Preserve the directory structure by creating subdirectories as needed.
 
 **Using `gh` CLI (preferred if available):**
+
 ```bash
 gh api repos/microsoft-foundry/foundry-samples/contents/samples/{language}/hosted-agents/{framework}/{sample} \
   --jq '.[] | select(.type=="file") | .download_url' | while read url; do
@@ -71,6 +72,7 @@ done
 ```
 
 **Using curl (fallback):**
+
 ```bash
 curl -s "https://api.github.com/repos/microsoft-foundry/foundry-samples/contents/samples/{language}/hosted-agents/{framework}/{sample}" | \
   jq -r '.[] | select(.type=="file") | .path + "\t" + .download_url' | while IFS=$'\t' read path url; do
@@ -102,6 +104,7 @@ For nested directories, recursively fetch the GitHub contents API for entries wh
 7. Once startup and test request succeed, stop the server to prevent resource usage
 
 **Guardrails:**
+
 - ✅ Perform real run to catch startup errors
 - ✅ Cleanup after verification (stop server)
 - ✅ Ignore auth/connection/timeout errors (expected without Azure config)
@@ -118,11 +121,11 @@ Scan the project to determine:
 1. **Language** — Python (look for `requirements.txt`, `pyproject.toml`, `*.py`) or C# (look for `*.csproj`, `*.cs`)
 2. **Framework** — Identify which agent framework is in use:
 
-| Indicator | Framework |
-|-----------|-----------|
-| Imports from `agent_framework` or `Microsoft.Agents.AI` | Microsoft Agent Framework |
-| Imports from `langgraph`, `langchain` | LangGraph |
-| No recognized framework imports, or other frameworks (e.g., Semantic Kernel, AutoGen) | Custom |
+| Indicator                                                                             | Framework                 |
+| ------------------------------------------------------------------------------------- | ------------------------- |
+| Imports from `agent_framework` or `Microsoft.Agents.AI`                               | Microsoft Agent Framework |
+| Imports from `langgraph`, `langchain`                                                 | LangGraph                 |
+| No recognized framework imports, or other frameworks (e.g., Semantic Kernel, AutoGen) | Custom                    |
 
 3. **Entry point** — Identify the main script/entrypoint that creates and runs the agent
 4. **Agent object** — Identify the agent instance that needs to be wrapped (e.g., a `BaseAgent` subclass, a compiled `StateGraph`, or an existing server/app)
@@ -133,18 +136,18 @@ Add the correct adapter package based on framework and language. Get the latest 
 
 **Python adapter packages:**
 
-| Framework | Package |
-|-----------|---------|
+| Framework                 | Package                               |
+| ------------------------- | ------------------------------------- |
 | Microsoft Agent Framework | `azure-ai-agentserver-agentframework` |
-| LangGraph | `azure-ai-agentserver-langgraph` |
-| Custom | `azure-ai-agentserver-core` |
+| LangGraph                 | `azure-ai-agentserver-langgraph`      |
+| Custom                    | `azure-ai-agentserver-core`           |
 
 **.NET adapter packages:**
 
-| Framework | Package |
-|-----------|---------|
+| Framework                 | Package                               |
+| ------------------------- | ------------------------------------- |
 | Microsoft Agent Framework | `Azure.AI.AgentServer.AgentFramework` |
-| Custom | `Azure.AI.AgentServer.Core` |
+| Custom                    | `Azure.AI.AgentServer.Core`           |
 
 Add the package to the project's dependency file (`requirements.txt`, `pyproject.toml`, or `.csproj`). For Python, also add `python-dotenv` if not present.
 
@@ -153,17 +156,20 @@ Add the package to the project's dependency file (`requirements.txt`, `pyproject
 Modify the project's main entrypoint to wrap the existing agent with the adapter. The approach differs by framework:
 
 **Microsoft Agent Framework (Python):**
+
 - Import `from_agent_framework` from the adapter package
 - Pass the agent instance (a `BaseAgent` subclass) to the adapter
 - Call `.run()` on the adapter as the default entrypoint
 - The agent must implement both `run()` and `run_stream()` methods
 
 **LangGraph (Python):**
+
 - Import `from_langgraph` from the adapter package
 - Pass the compiled `StateGraph` to the adapter
 - Call `.run()` on the adapter as the default entrypoint
 
 **Custom code (Python):**
+
 - Import `FoundryCBAgent` from the core adapter package
 - Create a class that extends `FoundryCBAgent`
 - Implement the `agent_run()` method which receives an `AgentRunContext` and returns either an `OpenAIResponse` (non-streaming) or `AsyncGenerator[ResponseStreamEvent]` (streaming)
@@ -171,6 +177,7 @@ Modify the project's main entrypoint to wrap the existing agent with the adapter
 - Instantiate and call `.run()` as the default entrypoint
 
 **Custom code (C#):**
+
 - Use `AgentServerApplication.RunAsync()` with dependency injection to register an `IAgentInvocation` implementation
 - Refer to the [C# custom sample](https://github.com/microsoft-foundry/foundry-samples/tree/main/samples/csharp/hosted-agents/AgentWithCustomFramework) for the exact interface
 
@@ -231,9 +238,9 @@ Apply these to both greenfield and brownfield projects:
 
 ## Error Handling
 
-| Error | Cause | Resolution |
-|-------|-------|------------|
-| GitHub API rate limit | Too many requests | Authenticate with `gh auth login` |
-| `gh` not available | CLI not installed | Use curl REST API fallback |
-| Sample not found | Path changed in repo | List parent directory to discover current samples |
-| Dependency install fails | Version conflicts | Use versions from sample's own dependency file |
+| Error                    | Cause                | Resolution                                        |
+| ------------------------ | -------------------- | ------------------------------------------------- |
+| GitHub API rate limit    | Too many requests    | Authenticate with `gh auth login`                 |
+| `gh` not available       | CLI not installed    | Use curl REST API fallback                        |
+| Sample not found         | Path changed in repo | List parent directory to discover current samples |
+| Dependency install fails | Version conflicts    | Use versions from sample's own dependency file    |

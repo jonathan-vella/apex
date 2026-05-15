@@ -53,13 +53,7 @@
     },
     "decisions": {
       "type": "object",
-      "required": [
-        "region",
-        "compliance",
-        "budget",
-        "architecture_pattern",
-        "deployment_strategy"
-      ],
+      "required": ["region", "compliance", "budget", "architecture_pattern", "deployment_strategy"],
       "additionalProperties": true,
       "properties": {
         "region": { "type": "string" },
@@ -71,6 +65,47 @@
           "type": "string",
           "enum": ["simple", "standard", "complex", ""],
           "description": "Project complexity tier. Empty until assessed."
+        },
+        "sku_manifest_status": {
+          "type": "string",
+          "enum": ["", "draft", "reviewed", "locked", "deploying", "deployed", "drift"],
+          "description": "Lifecycle status of agent-output/{project}/sku-manifest.json. Empty until Step 1 creates rev 1."
+        },
+        "sku_manifest_revision": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Highest revisions[].rev currently persisted in sku-manifest.json. 0 = not yet created."
+        },
+        "sku_overrides": {
+          "type": "array",
+          "description": "Append-only log of SKU substitutions resolved at Step 6 (Deploy) for quota/region/capacity conflicts. Array — not dynamic keys.",
+          "items": {
+            "type": "object",
+            "required": ["id", "old_size", "new_size", "reason", "region", "env", "resolution"],
+            "additionalProperties": false,
+            "properties": {
+              "id": { "type": "string", "description": "services[].id from sku-manifest.json." },
+              "old_size": { "type": "string" },
+              "new_size": { "type": "string" },
+              "reason": { "type": "string", "minLength": 1 },
+              "region": { "type": "string" },
+              "env": {
+                "type": "string",
+                "enum": ["dev", "test", "stage", "prod"]
+              },
+              "resolution": {
+                "type": "string",
+                "enum": ["revert_to_plan", "accept_substitute", "change_region", "abort"]
+              },
+              "resolved_at": { "type": "string", "format": "date-time" },
+              "manifest_revision": { "type": "integer", "minimum": 1 }
+            }
+          }
+        },
+        "sku_conflict_resolution": {
+          "type": "string",
+          "enum": ["", "revert_to_plan", "accept_substitute", "change_region", "abort"],
+          "description": "Most recent Step 6 SKU conflict resolution (escalation enum). Empty when no active conflict."
         }
       }
     },
@@ -172,6 +207,21 @@
             "context_files_used": {
               "type": "array",
               "items": { "type": "string" }
+            },
+            "telemetry": {
+              "type": "object",
+              "description": "Wave-0 telemetry merged in via `apex-recall checkpoint --telemetry-*` flags. Consumed by tools/scripts/measure-workflow-baseline.mjs to produce per-tier averages so subsequent waves' savings claims are falsifiable.",
+              "additionalProperties": false,
+              "properties": {
+                "step_start_iso": { "type": "string", "format": "date-time" },
+                "step_end_iso": { "type": "string", "format": "date-time" },
+                "elapsed_ms": { "type": "integer", "minimum": 0 },
+                "input_tokens": { "type": "integer", "minimum": 0 },
+                "output_tokens": { "type": "integer", "minimum": 0 },
+                "subagent_count": { "type": "integer", "minimum": 0 },
+                "validation_attempts": { "type": "integer", "minimum": 0 },
+                "cache_hits": { "type": "integer", "minimum": 0 }
+              }
             }
           }
         }

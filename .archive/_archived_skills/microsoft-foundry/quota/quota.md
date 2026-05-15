@@ -8,12 +8,12 @@ Quota and capacity management for Microsoft Foundry. Quotas are **subscription +
 
 ## Quota Types
 
-| Type | Description |
-|------|-------------|
-| **TPM** | Tokens Per Minute, pay-per-token, subject to rate limits |
-| **PTU** | Provisioned Throughput Units, monthly commitment, no rate limits |
-| **Region** | Max capacity per region, shared across subscription |
-| **Slots** | 10-20 deployment slots per resource |
+| Type       | Description                                                      |
+| ---------- | ---------------------------------------------------------------- |
+| **TPM**    | Tokens Per Minute, pay-per-token, subject to rate limits         |
+| **PTU**    | Provisioned Throughput Units, monthly commitment, no rate limits |
+| **Region** | Max capacity per region, shared across subscription              |
+| **Slots**  | 10-20 deployment slots per resource                              |
 
 **When to use PTU:** Consistent high-volume production workloads where monthly commitment is cost-effective.
 
@@ -33,6 +33,7 @@ Use this sub-skill when the user needs to:
 - **Free up quota** — identify and delete unused deployments
 
 **Key Points:**
+
 1. Isolated by region (East US ≠ West US)
 2. Regional capacity varies by model
 3. Multi-region enables failover and load distribution
@@ -54,6 +55,7 @@ az rest --method get \
 ```
 
 **Output interpretation:**
+
 - **Used**: Current TPM consumed (10000 = 10K TPM)
 - **Limit**: Maximum TPM quota (15000 = 15K TPM)
 - **Available**: Limit - Used (5K TPM available)
@@ -112,6 +114,7 @@ az rest --method get \
 Shows aggregate usage across ALL deployments by model type.
 
 **Optional:** List individual deployments:
+
 ```bash
 az cognitiveservices account list --query "[?kind=='AIServices'].{Name:name,RG:resourceGroup}" -o table
 
@@ -135,6 +138,7 @@ Quota freed **immediately**. Re-run Workflow #1 to verify.
 ### 6. Request Quota Increase
 
 **Azure Portal Process:**
+
 1. Navigate to [Azure Portal - All Resources](https://portal.azure.com/#view/HubsExtension/BrowseAll) → Filter "AI Services" → Click resource
 2. Select **Quotas** in left navigation
 3. Click **Request quota increase**
@@ -142,6 +146,7 @@ Quota freed **immediately**. Re-run Workflow #1 to verify.
 5. Wait for approval: **3-5 business days typically, up to 10 business days** ([source](https://learn.microsoft.com/en-us/azure/ai-foundry/openai/how-to/quota))
 
 **Justification template:**
+
 ```
 Production [workload type] using [model] in [region].
 Expected traffic: [X requests/day] with [Y tokens/request].
@@ -155,18 +160,19 @@ See [detailed quota request guide](./references/workflows.md#request-quota-incre
 
 ## Quick Troubleshooting
 
-| Error | Quick Fix | Detailed Guide |
-|-------|-----------|----------------|
-| `QuotaExceeded` | Delete unused deployments or request increase | [Error Resolution](./references/error-resolution.md#quotaexceeded) |
-| `InsufficientQuota` | Reduce capacity or try different region | [Error Resolution](./references/error-resolution.md#insufficientquota) |
-| `DeploymentLimitReached` | Delete unused deployments (10-20 slot limit) | [Error Resolution](./references/error-resolution.md#deploymentlimitreached) |
-| `429 Rate Limit` | Increase TPM or migrate to PTU | [Error Resolution](./references/error-resolution.md#429-errors) |
+| Error                    | Quick Fix                                     | Detailed Guide                                                              |
+| ------------------------ | --------------------------------------------- | --------------------------------------------------------------------------- |
+| `QuotaExceeded`          | Delete unused deployments or request increase | [Error Resolution](./references/error-resolution.md#quotaexceeded)          |
+| `InsufficientQuota`      | Reduce capacity or try different region       | [Error Resolution](./references/error-resolution.md#insufficientquota)      |
+| `DeploymentLimitReached` | Delete unused deployments (10-20 slot limit)  | [Error Resolution](./references/error-resolution.md#deploymentlimitreached) |
+| `429 Rate Limit`         | Increase TPM or migrate to PTU                | [Error Resolution](./references/error-resolution.md#429-errors)             |
 
 ---
 
 ## References
 
 **Detailed Guides:**
+
 - [Error Resolution Workflows](./references/error-resolution.md) - Detailed workflows for quota exhausted, 429 errors, insufficient quota, deployment limits
 - [Troubleshooting Guide](./references/troubleshooting.md) - Quick error fixes and diagnostic commands
 - [Quota Optimization Strategies](./references/optimization.md) - 5 strategies for freeing quota and reducing costs
@@ -175,6 +181,7 @@ See [detailed quota request guide](./references/workflows.md#request-quota-incre
 - [PTU Guide](./references/ptu-guide.md) - Provisioned throughput capacity planning
 
 **Official Microsoft Documentation:**
+
 - [Azure OpenAI Service Pricing](https://azure.microsoft.com/en-us/pricing/details/cognitive-services/openai-service/) - Official pay-per-token rates
 - [PTU Costs and Billing](https://learn.microsoft.com/en-us/azure/ai-foundry/openai/how-to/provisioned-throughput-onboarding) - PTU hourly rates
 - [Azure OpenAI Models](https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/models) - Model capabilities and regions
@@ -182,5 +189,6 @@ See [detailed quota request guide](./references/workflows.md#request-quota-incre
 - [Quotas and Limits](https://learn.microsoft.com/azure/ai-services/openai/quotas-limits) - Rate limits and quota details
 
 **Calculators:**
+
 - [Azure Pricing Calculator](https://azure.microsoft.com/pricing/calculator/) - Official pricing estimator
 - Azure AI Foundry PTU calculator (Microsoft Foundry → Operate → Quota → Provisioned Throughput Unit tab) - PTU capacity sizing

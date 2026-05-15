@@ -152,7 +152,7 @@ Blob Storage as JSON. Estimated additional cost: ~$1-2/month.
 - Key Vault per-operation pricing (negligible at low TPS)
 - Staging slot included in S1 tier (zero additional cost)
 
-Full cost breakdown available in the [Sizing & Pricing](./sizing-pricing/) page.
+Full cost breakdown available in the [Sizing & Pricing](../sizing-pricing/) page.
 
 ## Operational Excellence Assessment (7/10)
 

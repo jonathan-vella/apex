@@ -85,7 +85,7 @@ agent bodies in this branch.
 
 Current GPT-5.5 agents (per agent-authoring model assignment table):
 
-- `01-Orchestrator`, `01-Orchestrator (Fast Path)`
+- `01-Orchestrator`
 - `04-Design`, `04g-Governance`
 - `06b-Bicep CodeGen`, `06t-Terraform CodeGen`
 - `10-Challenger` wrapper, `challenger-review-subagent`

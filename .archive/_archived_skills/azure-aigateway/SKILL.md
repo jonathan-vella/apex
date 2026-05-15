@@ -16,25 +16,25 @@ Configure Azure API Management (APIM) as an AI Gateway for governing AI models, 
 
 ## When to Use This Skill
 
-| Category | Triggers |
-|----------|----------|
-| **Model Governance** | "semantic caching", "token limits", "load balance AI", "track token usage" |
-| **Tool Governance** | "rate limit MCP", "protect my tools", "configure my tool", "convert API to MCP" |
-| **Agent Governance** | "content safety", "jailbreak detection", "filter harmful content" |
-| **Configuration** | "add Azure OpenAI backend", "configure my model", "add AI Foundry model" |
-| **Testing** | "test AI gateway", "call OpenAI through gateway" |
+| Category             | Triggers                                                                        |
+| -------------------- | ------------------------------------------------------------------------------- |
+| **Model Governance** | "semantic caching", "token limits", "load balance AI", "track token usage"      |
+| **Tool Governance**  | "rate limit MCP", "protect my tools", "configure my tool", "convert API to MCP" |
+| **Agent Governance** | "content safety", "jailbreak detection", "filter harmful content"               |
+| **Configuration**    | "add Azure OpenAI backend", "configure my model", "add AI Foundry model"        |
+| **Testing**          | "test AI gateway", "call OpenAI through gateway"                                |
 
 ---
 
 ## Quick Reference
 
-| Policy | Purpose | Details |
-|--------|---------|---------|
-| `azure-openai-token-limit` | Cost control | [Model Policies](references/policies.md#token-rate-limiting) |
-| `azure-openai-semantic-cache-lookup/store` | 60-80% cost savings | [Model Policies](references/policies.md#semantic-caching) |
-| `azure-openai-emit-token-metric` | Observability | [Model Policies](references/policies.md#token-metrics) |
-| `llm-content-safety` | Safety & compliance | [Agent Policies](references/policies.md#content-safety) |
-| `rate-limit-by-key` | MCP/tool protection | [Tool Policies](references/policies.md#request-rate-limiting) |
+| Policy                                     | Purpose             | Details                                                       |
+| ------------------------------------------ | ------------------- | ------------------------------------------------------------- |
+| `azure-openai-token-limit`                 | Cost control        | [Model Policies](references/policies.md#token-rate-limiting)  |
+| `azure-openai-semantic-cache-lookup/store` | 60-80% cost savings | [Model Policies](references/policies.md#semantic-caching)     |
+| `azure-openai-emit-token-metric`           | Observability       | [Model Policies](references/policies.md#token-metrics)        |
+| `llm-content-safety`                       | Safety & compliance | [Agent Policies](references/policies.md#content-safety)       |
+| `rate-limit-by-key`                        | MCP/tool protection | [Tool Policies](references/policies.md#request-rate-limiting) |
 
 ---
 
@@ -104,12 +104,12 @@ See [references/policies.md](references/policies.md#combining-policies) for comp
 
 ## Troubleshooting
 
-| Issue | Solution |
-|-------|----------|
-| Token limit 429 | Increase `tokens-per-minute` or add load balancing |
-| No cache hits | Lower `score-threshold` to 0.7 |
-| Content false positives | Increase category thresholds (5-6) |
-| Backend auth 401 | Grant APIM "Cognitive Services User" role |
+| Issue                   | Solution                                           |
+| ----------------------- | -------------------------------------------------- |
+| Token limit 429         | Increase `tokens-per-minute` or add load balancing |
+| No cache hits           | Lower `score-threshold` to 0.7                     |
+| Content false positives | Increase category thresholds (5-6)                 |
+| Backend auth 401        | Grant APIM "Cognitive Services User" role          |
 
 See [references/troubleshooting.md](references/troubleshooting.md) for details.
 
@@ -132,9 +132,9 @@ See [references/troubleshooting.md](references/troubleshooting.md) for details.
 
 Load these on demand — do NOT read all at once:
 
-| Reference | When to Load |
-| --------- | ------------ |
+| Reference                           | When to Load        |
+| ----------------------------------- | ------------------- |
 | `references/auth-best-practices.md` | Auth Best Practices |
-| `references/patterns.md` | Patterns |
-| `references/policies.md` | Policies |
-| `references/troubleshooting.md` | Troubleshooting |
+| `references/patterns.md`            | Patterns            |
+| `references/policies.md`            | Policies            |
+| `references/troubleshooting.md`     | Troubleshooting     |

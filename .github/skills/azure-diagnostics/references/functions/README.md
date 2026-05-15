@@ -85,4 +85,3 @@ az rest --method get \
 ```
 
 Compare deployment timestamps against when errors started appearing in App Insights to identify if a deployment caused the issue.
-

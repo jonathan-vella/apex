@@ -5,17 +5,20 @@
 > in the **azure-monitor-opentelemetry-exporter-py** plugin skill if installed.
 
 ## Install
+
 ```bash
 pip install azure-monitor-opentelemetry-exporter
 ```
 
 ## Quick Start
+
 ```python
 from azure.monitor.opentelemetry.exporter import AzureMonitorTraceExporter
 exporter = AzureMonitorTraceExporter()  # reads APPLICATIONINSIGHTS_CONNECTION_STRING
 ```
 
 ## Best Practices
+
 - Use BatchSpanProcessor for production (not SimpleSpanProcessor)
 - Use ApplicationInsightsSampler for consistent sampling across services
 - Enable offline storage for reliability in production

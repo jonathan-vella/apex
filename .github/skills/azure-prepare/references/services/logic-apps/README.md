@@ -21,21 +21,21 @@ Logic Apps are typically deployed as infrastructure, not application services:
 
 ## Required Supporting Resources
 
-| Resource | Purpose |
-|----------|---------|
+| Resource        | Purpose                        |
+| --------------- | ------------------------------ |
 | Storage Account | Workflow state (Standard only) |
-| Log Analytics | Monitoring |
-| API Connections | External service connections |
+| Log Analytics   | Monitoring                     |
+| API Connections | External service connections   |
 
 ## Consumption vs Standard
 
-| Feature | Consumption | Standard |
-|---------|-------------|----------|
-| Pricing | Per execution | App Service Plan |
-| VNET | Limited | Full support |
-| State | Azure-managed | Custom storage |
-| Deployment | ARM/Bicep | VS Code deployment |
-| Multi-workflow | One per resource | Multiple per app |
+| Feature        | Consumption      | Standard           |
+| -------------- | ---------------- | ------------------ |
+| Pricing        | Per execution    | App Service Plan   |
+| VNET           | Limited          | Full support       |
+| State          | Azure-managed    | Custom storage     |
+| Deployment     | ARM/Bicep        | VS Code deployment |
+| Multi-workflow | One per resource | Multiple per app   |
 
 ## References
 

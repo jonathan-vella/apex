@@ -1,4 +1,5 @@
 <!-- ref:region-availability-v1 -->
+
 # Azure Region Availability Index
 
 > **AUTHORITATIVE SOURCE** — Consult service-specific files BEFORE recommending any region.
@@ -13,20 +14,20 @@
 
 ## MCP Tools Used
 
-| Tool | Purpose |
-|------|---------|
+| Tool                  | Purpose                                                                                                                   |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------- |
 | `mcp_azure_mcp_quota` | Check Azure region availability and quota by setting `command` to `quota_usage_check` or `quota_region_availability_list` |
 
 ---
 
 ## Services with LIMITED Region Availability
 
-| Service | Availability | Details |
-|---------|--------------|---------|
-| Static Web Apps | Limited (5 regions) | [Region Details](services/static-web-apps/region-availability.md) |
-| Azure AI Foundry | Very limited (by model) | [Region Details](services/foundry/region-availability.md) |
+| Service                        | Availability            | Details                                                                     |
+| ------------------------------ | ----------------------- | --------------------------------------------------------------------------- |
+| Static Web Apps                | Limited (5 regions)     | [Region Details](services/static-web-apps/region-availability.md)           |
+| Azure AI Foundry               | Very limited (by model) | [Region Details](services/foundry/region-availability.md)                   |
 | Azure Kubernetes Service (AKS) | Limited in some regions | To get available regions with enough quota, use `mcp_azure_mcp_quota` tool. |
-| Azure Database for PostgreSQL | Limited in some regions | To get available regions with enough quota, use `mcp_azure_mcp_quota` tool. |
+| Azure Database for PostgreSQL  | Limited in some regions | To get available regions with enough quota, use `mcp_azure_mcp_quota` tool. |
 
 ---
 
@@ -44,5 +45,3 @@ These services are available in all major Azure regions — no special considera
 - Service Bus
 - Event Grid
 - Application Insights / Log Analytics
-
-

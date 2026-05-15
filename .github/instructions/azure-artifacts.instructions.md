@@ -30,14 +30,15 @@ Copy-paste headings from the template files. Do not paraphrase.
 
 Canonical H2 heading lists for all 15 artifact types live in the template files:
 
-| Artifacts                            | Template Reference                       |
-| ------------------------------------ | ---------------------------------------- |
-| 01-requirements                      | `references/01-requirements-template.md` |
-| 02-architecture, 03-cost-estimate    | `references/02-architecture-template.md` |
-| 04-plan, 04-governance, 04-preflight | `references/04-plan-template.md`         |
-| 05-implementation-reference          | `references/05-code-template.md`         |
-| 06-deployment-summary                | `references/06-deploy-template.md`       |
-| 07-\* (all Step 7 docs)              | `references/07-docs-template.md`         |
+| Artifacts                            | Template Reference                                                                                                                                                                             |
+| ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 01-requirements                      | `references/01-requirements-template.md`                                                                                                                                                       |
+| 02-architecture, 03-cost-estimate    | `references/02-architecture-template.md`                                                                                                                                                       |
+| 04-plan, 04-governance, 04-preflight | `references/04-plan-template.md`                                                                                                                                                               |
+| 05-implementation-reference          | `references/05-code-template.md`                                                                                                                                                               |
+| 06-deployment-summary                | `references/06-deploy-template.md`                                                                                                                                                             |
+| 07-\* (all Step 7 docs)              | `references/07-docs-template.md`                                                                                                                                                               |
+| sku-manifest                         | `templates/sku-manifest.template.md` + [`sku-manifest.instructions.md`](sku-manifest.instructions.md) (authoritative; rendered from `sku-manifest.json` — schema-driven, not H2-sync-enforced) |
 
 ## Enforcement Layers
 

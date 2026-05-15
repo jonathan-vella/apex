@@ -5,6 +5,7 @@
 > in the **azure-security-keyvault-secrets-java** plugin skill if installed.
 
 ## Install
+
 ```xml
 <dependency>
     <groupId>com.azure</groupId>
@@ -31,6 +32,7 @@ var secretClient = new SecretClientBuilder()
 ```
 
 ## Best Practices
+
 - Enable soft delete — protects against accidental deletion
 - Use tags — tag secrets with environment, service, owner
 - Set expiration — use `setExpiresOn()` for credentials that should rotate

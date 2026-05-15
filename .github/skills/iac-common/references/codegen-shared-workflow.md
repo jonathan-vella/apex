@@ -26,7 +26,7 @@ Rules:
 3. **Plan must_fix → Return to Planner.** If a code-review pass surfaces a
    finding whose root cause is in the plan (missing resource, wrong topology,
    unsatisfiable governance), STOP Step 5 and traverse the `↩ Return to
-   Step 4` handoff. Do not patch the plan in place.
+Step 4` handoff. Do not patch the plan in place.
 4. **Plan readiness precondition.** Before entering Phase 1, confirm
    `apex-recall show <project> --json` shows Step 4 complete AND every
    plan-level challenger pass returned APPROVED. If any plan-level pass is
@@ -67,23 +67,33 @@ Context reaches ~80% after preflight and governance mapping. Compact before code
 
 1. Summarize prior phases in a single concise message (preflight result, governance map,
    deployment strategy, resource list with module paths/sources)
-2. Switch to `SKILL.minimal.md` variants for further skill reads
+2. Stop loading additional skills after this point; rely on what's already in context.
+   Do not re-read any `SKILL.md` you have already consumed this session
+   (skills are single-tier — there are no digest/minimal variants to switch to).
 3. Do not re-read predecessor artifacts — rely on the summary and saved files on disk
 4. Update session state: `sub_step: "phase_1.6_compacted"`
 
-## Phase 4.5: Adversarial Code Review
+## Phase 4.5: Adversarial Code Review (opt-in, default-skip)
 
-Read `azure-defaults/references/adversarial-review-protocol.md` for lens table and invocation template.
-Check `decisions.complexity` from `apex-recall show <project> --json` for pass count.
+Read `azure-defaults/references/adversarial-review-protocol.md` for the
+lens table and invocation template.
 
-Complexity routing:
+**Default**: Phase 4.5 is skipped (`step-5b/5t.challenger.default_passes = 0`).
+Opt-in triggers: `decisions.review_depth == "deep"` OR an explicit
+`10-Challenger` invocation.
 
-- `simple`: 1 pass (comprehensive lens) — skip passes 2 and 3
-- `standard`: up to 3 passes (early exit rules apply)
-- `complex`: up to 3 passes (use batch subagent for passes 2+3 if triggered)
+When opted in, follow the recommended shape from
+`step-5b.opt_in_matrix` / `step-5t.opt_in_matrix` in `workflow-graph.json`
+for the current `decisions.complexity`:
+
+- `simple` → 1× `comprehensive`
+- `standard` → 2 passes (`security-governance` → `architecture-reliability`)
+- `complex` → 3 passes (`security-governance` → `architecture-reliability` → `cost-feasibility`)
+
+Apply the cascade early-exit rules from
+`adversarial-review-protocol.md → ## Opt-in: Deep adversarial review`.
 
 Invoke challenger subagents with `artifact_type = "iac-code"`, rotating `review_focus` per protocol.
-Read `azure-defaults/references/challenger-selection-rules.md` for pass routing and model selection.
 
 Write results to `challenge-findings-iac-code-pass{N}.json`.
 Fix any `must_fix` items, re-validate, re-run failing pass.
@@ -107,6 +117,25 @@ do NOT issue sequential prompts. Pattern:
 Two `askQuestions` calls inside a single Step 5 run is a defect — fold the
 second into the first. The 06b/06t agents must batch their preflight,
 governance, and code-review prompts the same way.
+
+### Preflight Blocker Form
+
+When Phase 1 preflight finds blockers (AVM schema mismatch, region
+limitation, version pin conflict), surface them via a single
+`askQuestions` call:
+
+- **header**: `Preflight Blockers Found`
+- **question**: 1-line summary referencing `04-preflight-check.md` for
+  details (e.g. "2 AVM schema mismatches, 1 region limitation. See
+  04-preflight-check.md for details.")
+- **options**:
+  - `Fix and re-run preflight` (recommended) — agent revises the plan
+    inputs or substitutes an alternative module, then re-enters Phase 1.
+  - `Abort — return to Planner` — STOP, present the Return to Step 4
+    handoff, leave session state at Step 5 awaiting Planner rev.
+
+Never enumerate the blockers in chat prose and ask the user to reply;
+always use the form so a single-shot answer captures intent.
 
 ### Mechanical Auto-Fix Before Exiting (MANDATORY)
 
@@ -136,4 +165,3 @@ failing challenger pass only if any non-mechanical finding remains.
 Exit-state contract: Step 5 may exit only when the validator returns
 `APPROVED`, or when remaining findings are explicitly accepted via an
 `apex-recall decide` override entry with `--rationale`.
-

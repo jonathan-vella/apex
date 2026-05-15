@@ -24,7 +24,7 @@ public class SendMessageOutput
 {
     [ServiceBusOutput("%SERVICEBUS_QUEUE_NAME%", Connection = "ServiceBusConnection")]
     public string? ServiceBusMessage { get; set; }
-    
+
     public HttpResponseData? HttpResponse { get; set; }
 }
 
@@ -62,14 +62,14 @@ public class ServiceBusFunctions
     {
         var requestBody = await req.ReadAsStringAsync() ?? "{}";
         _logger.LogInformation("Sending message to Service Bus: {message}", requestBody);
-        
+
         // Create HTTP response
         var response = req.CreateResponse(HttpStatusCode.OK);
         response.Headers.Add("Content-Type", "application/json");
-        
+
         var responseBody = JsonSerializer.Serialize(new { status = "sent", data = JsonSerializer.Deserialize<object>(requestBody) });
         await response.WriteStringAsync(responseBody);
-        
+
         // Return both HTTP response and Service Bus message
         return new SendMessageOutput
         {
@@ -87,10 +87,10 @@ public class ServiceBusFunctions
     {
         var response = req.CreateResponse(HttpStatusCode.OK);
         response.Headers.Add("Content-Type", "application/json");
-        
+
         var queueName = Environment.GetEnvironmentVariable("SERVICEBUS_QUEUE_NAME") ?? "not-set";
         response.WriteString(JsonSerializer.Serialize(new { status = "healthy", queue = queueName }));
-        
+
         return response;
     }
 }
@@ -114,6 +114,7 @@ public class ServiceBusFunctions
 ## Local Testing
 
 Set these in `local.settings.json`:
+
 ```json
 {
   "Values": {

@@ -56,10 +56,8 @@ Before Phase 1, scan the user's prompt for specialized technologies. If matched,
 | Prompt keywords                                   | Invoke FIRST                                                                                                                                                      |
 | ------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Lambda, AWS, GCP, migrate AWS/GCP                 | **azure-cloud-migrate**                                                                                                                                           |
-| copilot SDK, @github/copilot-sdk, CopilotClient   | **azure-hosted-copilot-sdk**                                                                                                                                      |
 | Azure Functions, function app, timer/HTTP trigger | Stay in **azure-prepare** (use Functions templates in Phase 1 Step 4)                                                                                             |
 | APIM, API gateway                                 | Stay in **azure-prepare** — see [APIM guide](references/apim.md)                                                                                                  |
-| AI gateway                                        | **azure-aigateway**                                                                                                                                               |
 | workflow, orchestration, durable, saga            | Stay in **azure-prepare** + load [durable.md](references/services/functions/durable.md) and [DTS reference](references/services/durable-task-scheduler/README.md) |
 
 > ⚠️ Check the **prompt text**, not just existing code (critical for greenfield). See [full routing table](references/specialized-routing.md).
@@ -72,7 +70,7 @@ After the specialized skill completes, resume at Phase 1 Step 4 (Select Recipe).
 
 Two-phase workflow (full step tables in [`references/phases.md`](references/phases.md)):
 
-1. **Step 0** — Specialized Technology Check (route to `azure-cloud-migrate`, `azure-hosted-copilot-sdk`, etc., before continuing)
+1. **Step 0** — Specialized Technology Check (route to `azure-cloud-migrate` when the prompt matches; otherwise continue)
 2. **Phase 1 (Planning, BLOCKING)** — Analyze workspace → gather requirements → scan codebase → select recipe (AZD/AZCLI/Bicep/Terraform) → plan architecture → write `infra/{iac}/{project}/.azure/plan.md` → present plan + ask for approval
 3. **⛔ Approval gate** — do NOT proceed until the user approves the plan
 4. **Phase 2 (Execution, post-approval)** — Research components → confirm Azure context → generate artifacts → harden security → mark plan `Ready for Validation`

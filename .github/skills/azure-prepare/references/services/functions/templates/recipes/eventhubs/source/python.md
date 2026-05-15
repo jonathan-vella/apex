@@ -43,10 +43,10 @@ def send_event(req: func.HttpRequest, outputEvent: func.Out[str]) -> func.HttpRe
         body = req.get_json()
     except ValueError:
         body = {"message": req.get_body().decode('utf-8') or "Hello Event Hub!"}
-    
+
     event_data = json.dumps(body)
     outputEvent.set(event_data)
-    
+
     logging.info(f"Sent event to Event Hub: {event_data}")
     return func.HttpResponse(
         json.dumps({"status": "sent", "data": body}),

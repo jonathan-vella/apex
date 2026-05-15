@@ -12,13 +12,13 @@ Deploy to Azure using Terraform.
 
 ## Workflow
 
-| Step | Task | Command |
-|------|------|---------|
-| 1 | **[Pre-deploy checklist](../../pre-deploy-checklist.md)** | Confirm subscription/location with user |
-| 2 | Select workspace | `terraform workspace select <env>` |
-| 3 | Apply | `terraform apply tfplan` |
-| 4 | Get outputs | `terraform output` |
-| 5 | Deploy app | Service-specific commands |
+| Step | Task                                                      | Command                                 |
+| ---- | --------------------------------------------------------- | --------------------------------------- |
+| 1    | **[Pre-deploy checklist](../../pre-deploy-checklist.md)** | Confirm subscription/location with user |
+| 2    | Select workspace                                          | `terraform workspace select <env>`      |
+| 3    | Apply                                                     | `terraform apply tfplan`                |
+| 4    | Get outputs                                               | `terraform output`                      |
+| 5    | Deploy app                                                | Service-specific commands               |
 
 ## Deployment Commands
 

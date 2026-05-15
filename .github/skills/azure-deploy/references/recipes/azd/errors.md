@@ -4,17 +4,17 @@
 
 These errors occur **during** `azd up` execution:
 
-| Error | Cause | Resolution |
-|-------|-------|------------|
-| `unknown flag: --location` | `azd up` doesn't accept `--location` | Use `azd env set AZURE_LOCATION <region>` before `azd up` |
-| Provision failed | Bicep template errors | Check detailed error in output |
-| Deploy failed | Build or Docker errors | Check build logs |
-| Package failed | Missing Dockerfile or deps | Verify Dockerfile exists and dependencies |
-| Quota exceeded | Subscription limits | Request increase or change region |
-| `could not determine container registry endpoint` | Missing `AZURE_CONTAINER_REGISTRY_ENDPOINT` | See [Missing Container Registry Variables](#missing-container-registry-variables) |
-| `map has no entry for key "AZURE_CONTAINER_REGISTRY_MANAGED_IDENTITY_ID"` | Missing managed identity env vars | See [Missing Container Registry Variables](#missing-container-registry-variables) |
-| `map has no entry for key "MANAGED_IDENTITY_CLIENT_ID"` | Missing managed identity client ID | See [Missing Container Registry Variables](#missing-container-registry-variables) |
-| `found '2' resources tagged with 'azd-service-name: <name>'` | Previous deployment left duplicate-tagged resources in same RG | **Preferred**: Create fresh env with `azd env new <new-name>`, set subscription/location, redeploy. **Alternative**: Delete conflicting resources (requires `ask_user`). |
+| Error                                                                     | Cause                                                          | Resolution                                                                                                                                                               |
+| ------------------------------------------------------------------------- | -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `unknown flag: --location`                                                | `azd up` doesn't accept `--location`                           | Use `azd env set AZURE_LOCATION <region>` before `azd up`                                                                                                                |
+| Provision failed                                                          | Bicep template errors                                          | Check detailed error in output                                                                                                                                           |
+| Deploy failed                                                             | Build or Docker errors                                         | Check build logs                                                                                                                                                         |
+| Package failed                                                            | Missing Dockerfile or deps                                     | Verify Dockerfile exists and dependencies                                                                                                                                |
+| Quota exceeded                                                            | Subscription limits                                            | Request increase or change region                                                                                                                                        |
+| `could not determine container registry endpoint`                         | Missing `AZURE_CONTAINER_REGISTRY_ENDPOINT`                    | See [Missing Container Registry Variables](#missing-container-registry-variables)                                                                                        |
+| `map has no entry for key "AZURE_CONTAINER_REGISTRY_MANAGED_IDENTITY_ID"` | Missing managed identity env vars                              | See [Missing Container Registry Variables](#missing-container-registry-variables)                                                                                        |
+| `map has no entry for key "MANAGED_IDENTITY_CLIENT_ID"`                   | Missing managed identity client ID                             | See [Missing Container Registry Variables](#missing-container-registry-variables)                                                                                        |
+| `found '2' resources tagged with 'azd-service-name: <name>'`              | Previous deployment left duplicate-tagged resources in same RG | **Preferred**: Create fresh env with `azd env new <new-name>`, set subscription/location, redeploy. **Alternative**: Delete conflicting resources (requires `ask_user`). |
 
 > ℹ️ **Pre-flight validation**: Run `azure-validate` before deployment to catch configuration errors early. See [Pre-Deploy Checklist](../../pre-deploy-checklist.md).
 
@@ -61,6 +61,7 @@ azd env set MANAGED_IDENTITY_CLIENT_ID $(az identity list --resource-group <reso
 ```
 
 **PowerShell:**
+
 ```powershell
 # Set container registry endpoint
 azd env set AZURE_CONTAINER_REGISTRY_ENDPOINT (az acr list --resource-group <resource-group-name> --query "[0].loginServer" -o tsv)
@@ -73,6 +74,7 @@ azd env set MANAGED_IDENTITY_CLIENT_ID (az identity list --resource-group <resou
 ```
 
 After setting these variables, retry the deployment:
+
 ```bash
 azd deploy --no-prompt
 ```
@@ -82,6 +84,7 @@ azd deploy --no-prompt
 ## Retry
 
 After fixing the issue:
+
 ```bash
 azd up --no-prompt
 ```

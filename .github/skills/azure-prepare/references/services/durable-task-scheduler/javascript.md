@@ -127,19 +127,19 @@ df.app.orchestration("approvalWorkflow", function* (context) {
 
 ## Orchestration Determinism
 
-| ❌ NEVER | ✅ ALWAYS USE |
-|----------|--------------|
-| `new Date()` | `context.df.currentUtcDateTime` |
-| `Math.random()` | Pass random values from activities |
-| `setTimeout()` | `context.df.createTimer()` |
-| Direct I/O, HTTP, database | `context.df.callActivity()` |
+| ❌ NEVER                   | ✅ ALWAYS USE                      |
+| -------------------------- | ---------------------------------- |
+| `new Date()`               | `context.df.currentUtcDateTime`    |
+| `Math.random()`            | Pass random values from activities |
+| `setTimeout()`             | `context.df.createTimer()`         |
+| Direct I/O, HTTP, database | `context.df.callActivity()`        |
 
 ### Replay-Safe Logging
 
 ```javascript
 df.app.orchestration("myOrchestration", function* (context) {
   if (!context.df.isReplaying) {
-    console.log("Started");  // Only logs once, not on replay
+    console.log("Started"); // Only logs once, not on replay
   }
   const result = yield context.df.callActivity("myActivity", "input");
   return result;
@@ -155,11 +155,7 @@ df.app.orchestration("workflowWithRetry", function* (context) {
   retryOptions.maxRetryIntervalInMilliseconds = 60000;
 
   try {
-    const result = yield context.df.callActivityWithRetry(
-      "unreliableService",
-      retryOptions,
-      context.df.getInput()
-    );
+    const result = yield context.df.callActivityWithRetry("unreliableService", retryOptions, context.df.getInput());
     return result;
   } catch (ex) {
     context.df.setCustomStatus({ error: ex.message });
@@ -208,4 +204,3 @@ async function main() {
 
 main().catch(console.error);
 ```
-

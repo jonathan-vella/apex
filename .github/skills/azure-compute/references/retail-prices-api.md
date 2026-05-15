@@ -1,4 +1,5 @@
 <!-- ref:retail-prices-api-v1 -->
+
 # Azure Retail Prices API Guide
 
 The [Azure Retail Prices API](https://learn.microsoft.com/en-us/rest/api/cost-management/retail-prices/azure-retail-prices) is **unauthenticated** — no Azure account or subscription needed.
@@ -10,6 +11,7 @@ https://prices.azure.com/api/retail/prices
 ```
 
 Preview version (includes savings plan rates):
+
 ```text
 https://prices.azure.com/api/retail/prices?api-version=2023-01-01-preview
 ```
@@ -69,6 +71,7 @@ $response.Items | Select-Object armSkuName, retailPrice, reservationTerm, meterN
 ### Non-USD currency
 
 Append `currencyCode` parameter:
+
 ```http
 GET https://prices.azure.com/api/retail/prices?currencyCode='EUR'&$filter=serviceName eq 'Virtual Machines' and armSkuName eq 'Standard_D4s_v5'
 ```

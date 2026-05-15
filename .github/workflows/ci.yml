@@ -58,6 +58,23 @@ jobs:
       - name: Run hook tests
         run: npm run test:hooks
 
+      - name: Re-render SKU manifest MD and check for drift
+        run: |
+          # Deterministic renderer must produce byte-equal MD for every
+          # JSON. Drift here indicates an agent hand-edited the MD or
+          # forgot to re-render after mutating JSON — both forbidden.
+          # See: .github/instructions/sku-manifest.instructions.md
+          shopt -s nullglob
+          for json in agent-output/*/sku-manifest.json; do
+            project=$(basename "$(dirname "$json")")
+            echo "  rendering $project"
+            node tools/scripts/render-sku-manifest-md.mjs "$project"
+          done
+          if ! git diff --exit-code -- '**/sku-manifest.md'; then
+            echo "::error::sku-manifest.md is stale relative to JSON. Run 'node tools/scripts/render-sku-manifest-md.mjs <project>' and commit the result."
+            exit 1
+          fi
+
       - name: Validate handoff references
         run: |
           echo "Validating agent handoff references..."

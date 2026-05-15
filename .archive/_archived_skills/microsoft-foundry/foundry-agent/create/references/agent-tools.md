@@ -1,6 +1,7 @@
 # Agent Tools — Simple Tools
 
 Add tools to agents to extend capabilities. This file covers tools that work without external connections. For tools requiring connections/RBAC setup, see:
+
 - [Web Search tool](tool-web-search.md) — real-time public web search with citations (default for web search)
 - [Bing Grounding tool](tool-bing-grounding.md) — web search via dedicated Bing resource (only when explicitly requested)
 - [Azure AI Search tool](tool-azure-ai-search.md) — private data grounding with vector search
@@ -24,15 +25,15 @@ For code samples, see: [Function Calling tool documentation](https://learn.micro
 
 ## Tool Summary
 
-| Tool | Connection? | Reference |
-|------|-------------|-----------|
-| `CodeInterpreterTool` | No | This file |
-| `FileSearchTool` | No (vector store required) | [tool-file-search.md](tool-file-search.md) |
-| `FunctionTool` | No | This file |
-| `WebSearchPreviewTool` | No | [tool-web-search.md](tool-web-search.md) |
-| `BingGroundingAgentTool` | Yes (Bing) | [tool-bing-grounding.md](tool-bing-grounding.md) |
-| `AzureAISearchAgentTool` | Yes (Search) | [tool-azure-ai-search.md](tool-azure-ai-search.md) |
-| `MCPTool` | Optional | [tool-mcp.md](tool-mcp.md) |
+| Tool                     | Connection?                | Reference                                          |
+| ------------------------ | -------------------------- | -------------------------------------------------- |
+| `CodeInterpreterTool`    | No                         | This file                                          |
+| `FileSearchTool`         | No (vector store required) | [tool-file-search.md](tool-file-search.md)         |
+| `FunctionTool`           | No                         | This file                                          |
+| `WebSearchPreviewTool`   | No                         | [tool-web-search.md](tool-web-search.md)           |
+| `BingGroundingAgentTool` | Yes (Bing)                 | [tool-bing-grounding.md](tool-bing-grounding.md)   |
+| `AzureAISearchAgentTool` | Yes (Search)               | [tool-azure-ai-search.md](tool-azure-ai-search.md) |
+| `MCPTool`                | Optional                   | [tool-mcp.md](tool-mcp.md)                         |
 
 > ⚠️ **Default for web search:** Use `WebSearchPreviewTool` unless the user explicitly requests Bing Grounding or Bing Custom Search.
 

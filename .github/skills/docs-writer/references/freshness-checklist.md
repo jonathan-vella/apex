@@ -131,9 +131,9 @@ template counts.
 
 **Files to check**:
 
-| File                                    | What to verify                                      |
-| --------------------------------------- | --------------------------------------------------- |
-| `QUALITY_SCORE.md`                      | Grades reflect current state; change log up to date |
+| File                                          | What to verify                                      |
+| --------------------------------------------- | --------------------------------------------------- |
+| `QUALITY_SCORE.md`                            | Grades reflect current state; change log up to date |
 | `tools/tests/exec-plans/tech-debt-tracker.md` | Active items still relevant; resolved items moved   |
 
 **Auto-fix**: Update grades and log entries in `QUALITY_SCORE.md`. Mark resolved debt items

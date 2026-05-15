@@ -13,17 +13,18 @@ Azure Application Insights for telemetry, monitoring, and APM.
 > **→ Invoke the `appinsights-instrumentation` skill**
 >
 > This skill has detailed guides for:
+>
 > - Auto-instrumentation (ASP.NET Core on App Service)
 > - Manual instrumentation (Node.js, Python, C#)
 > - Bicep templates and CLI scripts
 
 ## Quick Reference
 
-| Aspect | Value |
-|--------|-------|
-| Resource | `Microsoft.Insights/components` |
-| Depends on | Log Analytics Workspace |
-| SKU | PerGB2018 (consumption-based) |
+| Aspect     | Value                           |
+| ---------- | ------------------------------- |
+| Resource   | `Microsoft.Insights/components` |
+| Depends on | Log Analytics Workspace         |
+| SKU        | PerGB2018 (consumption-based)   |
 
 ## Architecture Notes
 

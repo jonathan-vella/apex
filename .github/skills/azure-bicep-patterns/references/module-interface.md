@@ -1,3 +1,5 @@
+<!-- ref:module-interface-v1 -->
+
 # Module Interface — Canonical Example
 
 > The standard module-interface contract every Bicep module in this

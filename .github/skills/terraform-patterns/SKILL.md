@@ -9,6 +9,13 @@ compatibility: Requires Terraform >= 1.9, azurerm ~> 4.0, Azure CLI
 Composable architecture building blocks for Azure Terraform. Complements
 `iac-terraform-best-practices.instructions.md` (style) and `azure-defaults` skill (naming, tags, regions).
 
+> **Canonical sources** — the security baseline, AVM-first mandate, naming
+> conventions, required tags, and unique-suffix rule live in
+> [`azure-defaults/SKILL.md`](../azure-defaults/SKILL.md) and
+> [`iac-policy-compliance.md`](../../instructions/references/iac-policy-compliance.md).
+> This skill restates the rules tersely below for IaC-output convenience
+> only; in conflict, the canonical sources win.
+
 ---
 
 ## Quick Reference
@@ -32,8 +39,12 @@ Composable architecture building blocks for Azure Terraform. Complements
 ## Canonical Example — Module Composition
 
 Wire AVM child modules by passing outputs as inputs (`module.<name>.<output>`); never
-hardcode IDs. Pin module versions with `~> X.Y` to allow patches but block surprise major
-bumps. Full code sample (resource group + key vault) and rationale in
+hardcode IDs. **AVM-TF module versions in APEX-generated code MUST be exact semver
+(`version = "X.Y.Z"`)** — pinned at plan time from
+`registry.terraform.io` (newest stable in `modules[0].versions[]`). Range
+constraints (`~> X.Y`, `>= X.Y.Z`) are NOT allowed in `04-iac-contract.json` and
+will be flagged by `npm run validate:avm-versions`. Full code sample
+(resource group + key vault) and rationale in
 [`references/module-composition.md`](references/module-composition.md).
 
 ---
@@ -41,6 +52,7 @@ bumps. Full code sample (resource group + key vault) and rationale in
 ## Rules
 
 - **AVM-first**: Use `Azure/avm-res-*` registry modules over raw `azurerm_*` resources
+- **AVM-TF version pins**: Exact semver only (`version = "X.Y.Z"`) — resolve the latest stable via `registry.terraform.io/v1/modules/Azure/avm-res-{path}/azurerm/versions` at plan time. Stale pins need a `pin_policy.mode = "exception"` block in `04-iac-contract.json`. Range constraints (`~>`, `>=`) are flagged by `validate:avm-versions`.
 - **Hub-spoke**: Spokes peer to hub only; never spoke-to-spoke
 - **Private endpoints**: Three resources per service — PE, DNS zone, VNet link
 - **Diagnostics**: Every resource MUST have a diagnostic setting → Log Analytics

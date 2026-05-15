@@ -604,7 +604,27 @@ function effectiveSeverity(rule, family) {
   return base;
 }
 
-/** Names of agents whose contract is ONE-SHOT (single round, no investigate). */
+/**
+ * Names of agents whose contract is ONE-SHOT (single round, no investigate).
+ *
+ * Phase 12 (plan-simplifyChallengerReviews) — batch-mode resolution:
+ *
+ * `challenger-review-subagent` supports both single-lens mode (the
+ * orchestrated default) and batch mode (rotating-lens passes 2+3
+ * combined for deep reviews). Batch mode runs N lenses in ONE
+ * subagent invocation. The strict "one-shot" semantic was preserved
+ * via **Option A**: batch mode is implemented by the subagent
+ * **internally** — the parent dispatches a SINGLE \`#runSubagent\` call
+ * with `batch_lenses[]` and receives one `batch_results[]` response.
+ * From the dispatcher's perspective it is still one-shot (one call,
+ * one return). The subagent's internal lens sequencing is opaque to
+ * the dispatcher.
+ *
+ * Therefore: no `multi-shot batch` exception is needed; the existing
+ * one-shot rule continues to apply. If a future change ever exposes
+ * batch-mode as N separate sub-invocations from the parent, revisit
+ * this set or introduce a new `BATCH_ONE_SHOT_AGENT_NAMES` carve-out.
+ */
 const ONE_SHOT_AGENT_NAMES = new Set(["02-Requirements", "challenger-review-subagent"]);
 
 /** XML blocks that are Claude-only and forbidden in GPT agents. */
@@ -1036,8 +1056,6 @@ const WORKFLOW_HANDOFF_RULES = [
 /** B1a: agent names whose `handoffs[]` are skipped entirely as sources. */
 const HANDOFF_TARGET_EXCLUDED_SOURCES = new Set([
   "01-Orchestrator",
-  "01-Orchestrator (Fast Path)",
-  "01-Orchestrator-fastpath",
   "09-Diagnose",
   "11-Context Optimizer",
   "11-Context-Optimizer",
@@ -1085,11 +1103,27 @@ function buildArtifactProducerSet(graph, agents) {
 }
 
 /** Orchestrator-style agents that may dispatch the challenger-review subagent
- *  even when they don't produce artifacts directly. */
+ *  even when they don't produce artifacts directly.
+ *
+ *  Per Phase 12 (plan-simplifyChallengerReviews), every entry below is
+ *  documented with the reason it is allowed to dispatch the challenger.
+ *  Keep this list minimal — every new entry expands the set of agents
+ *  that can run adversarial review without owning an output artifact.
+ */
 const CHALLENGER_DISPATCHER_ALLOWLIST = new Set([
+  // 01-Orchestrator is the workflow conductor; it presents the
+  // "Run Challenger Review" handoff button at gates and is responsible
+  // for surfacing review findings to the user. It doesn't own a primary
+  // artifact — it dispatches to step agents who do.
   "01-Orchestrator",
-  "01-Orchestrator (Fast Path)",
+  // 10-Challenger is the standalone wrapper agent for ad-hoc adversarial
+  // reviews. Its entire purpose is to dispatch the challenger subagent.
+  // Retirement decision pending (see
+  // `tools/registry/challenger-effectiveness.md` + tracking issue per Phase 12).
   "10-Challenger",
+  // E2E Orchestrator runs the full pipeline unattended for benchmarks;
+  // it dispatches every step agent, including the challenger, on the
+  // user's behalf.
   "E2E Orchestrator",
 ]);
 

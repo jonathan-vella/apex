@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-05-11T10:44:09.089Z",
+  "generatedAt": "2026-05-15T12:25:36.645Z",
   "categories": [
     {
       "id": "agent",
@@ -16,7 +16,7 @@
       "label": "Subagent",
       "color": "#6366f1",
       "shape": "round-diamond",
-      "count": 6
+      "count": 7
     },
     {
       "id": "skill",
@@ -32,7 +32,7 @@
       "label": "Instruction",
       "color": "#f59e0b",
       "shape": "rectangle",
-      "count": 28
+      "count": 29
     },
     {
       "id": "prompt",
@@ -40,7 +40,7 @@
       "label": "Prompt",
       "color": "#ec4899",
       "shape": "tag",
-      "count": 24
+      "count": 16
     },
     {
       "id": "validator",
@@ -48,7 +48,7 @@
       "label": "Validator",
       "color": "#8b5cf6",
       "shape": "hexagon",
-      "count": 38
+      "count": 48
     },
     {
       "id": "workflow",
@@ -56,7 +56,7 @@
       "label": "CI Workflow",
       "color": "#06b6d4",
       "shape": "cut-rectangle",
-      "count": 9
+      "count": 10
     },
     {
       "id": "mcp",
@@ -67,44 +67,9 @@
       "count": 6
     }
   ],
-  "nodeCount": 160,
-  "edgeCount": 697,
+  "nodeCount": 165,
+  "edgeCount": 676,
   "nodes": [
-    {
-      "id": "agent:01-orchestrator-fast-path",
-      "category": "agent",
-      "label": "01-Orchestrator (Fast Path)",
-      "description": "Experimental fast-path orchestrator for simple Azure projects (<=3 resources, single env, no custom policies). Combines Plan+Code steps with 1-pass review. For standard/complex projects, use the main 01-Orchestrator agent.",
-      "path": ".github/agents/01-orchestrator-fastpath.agent.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/01-orchestrator-fastpath.agent.md"
-      },
-      "meta": {
-        "model": "GPT-5.3-Codex",
-        "invocable": true,
-        "subagents": [
-          "02-Requirements",
-          "03-Architect",
-          "05-IaC Planner",
-          "06b-Bicep CodeGen",
-          "07b-Bicep Deploy",
-          "08-As-Built",
-          "06t-Terraform CodeGen",
-          "07t-Terraform Deploy",
-          "10-Challenger"
-        ],
-        "handoffTargets": [
-          "01-Orchestrator (Fast Path)",
-          "02-Requirements",
-          "03-Architect",
-          "05-IaC Planner",
-          "07b-Bicep Deploy",
-          "08-As-Built",
-          "10-Challenger",
-          "01-Orchestrator"
-        ]
-      }
-    },
     {
       "id": "agent:01-orchestrator",
       "category": "agent",
@@ -141,11 +106,34 @@
           "06b-Bicep CodeGen",
           "07b-Bicep Deploy",
           "08-As-Built",
-          "01-Orchestrator (Fast Path)",
           "09-Diagnose",
           "10-Challenger",
           "06t-Terraform CodeGen",
           "07t-Terraform Deploy"
+        ]
+      }
+    },
+    {
+      "id": "agent:02-requirements-gpt",
+      "category": "agent",
+      "label": "02-Requirements GPT",
+      "description": "GPT-5.5 sibling of 02-Requirements for capturing Azure platform engineering project requirements. Generates the same Step 1 artifacts without replacing the canonical Requirements agent.",
+      "path": ".github/agents/02-requirements-gpt.agent.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/02-requirements-gpt.agent.md"
+      },
+      "meta": {
+        "model": "GPT-5.5",
+        "invocable": true,
+        "subagents": [
+          "challenger-review-subagent"
+        ],
+        "handoffTargets": [
+          "02-Requirements GPT",
+          "10-Challenger",
+          "03-Architect",
+          "agent",
+          "01-Orchestrator"
         ]
       }
     },
@@ -276,7 +264,7 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/06b-bicep-codegen.agent.md"
       },
       "meta": {
-        "model": "GPT-5.5",
+        "model": "Claude Sonnet 4.6",
         "invocable": true,
         "subagents": [
           "bicep-validate-subagent",
@@ -300,7 +288,7 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/06t-terraform-codegen.agent.md"
       },
       "meta": {
-        "model": "GPT-5.5",
+        "model": "Claude Sonnet 4.6",
         "invocable": true,
         "subagents": [
           "terraform-validate-subagent",
@@ -328,6 +316,7 @@
         "invocable": true,
         "subagents": [
           "bicep-whatif-subagent",
+          "policy-precheck-subagent",
           "challenger-review-subagent"
         ],
         "handoffTargets": [
@@ -353,6 +342,7 @@
         "invocable": true,
         "subagents": [
           "terraform-plan-subagent",
+          "policy-precheck-subagent",
           "challenger-review-subagent"
         ],
         "handoffTargets": [
@@ -395,7 +385,7 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/09-diagnose.agent.md"
       },
       "meta": {
-        "model": "Claude Opus 4.7",
+        "model": "GPT-5.5",
         "invocable": true,
         "subagents": [],
         "handoffTargets": [
@@ -531,6 +521,19 @@
       }
     },
     {
+      "id": "subagent:policy-precheck-subagent",
+      "category": "subagent",
+      "label": "policy-precheck-subagent",
+      "description": "Live Azure Policy precheck subagent (L3). Cross-checks live policy state vs governance constraints, runs what-if/plan policy validation, and returns a deterministic deploy_gate (PROCEED|BLOCK) plus a status classification (CLEAN|INFORMATIONAL|BLOCKED|FAILED) so Deploy agents (07b/07t) can route via the governance drift matrix before az deployment ... create or terraform apply.",
+      "path": ".github/agents/_subagents/policy-precheck-subagent.agent.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/_subagents/policy-precheck-subagent.agent.md"
+      },
+      "meta": {
+        "model": "Claude Sonnet 4.6"
+      }
+    },
+    {
       "id": "subagent:terraform-plan-subagent",
       "category": "subagent",
       "label": "terraform-plan-subagent",
@@ -604,7 +607,7 @@
       "id": "skill:azure-compliance",
       "category": "skill",
       "label": "azure-compliance",
-      "description": "**ANALYSIS SKILL** — Azure compliance and security auditing: best practices, Key Vault expiration monitoring, resource validation. WHEN: \"compliance scan\", \"security audit\", \"Key Vault expiration check\", \"expired certificates\", \"orphaned resources\". USE FOR: pre-azqr compliance assessment, Key Vault audits, security posture evaluation. DO NOT USE FOR: cost analysis (use azure-cost-optimization), governance discovery (use azure-governance-discovery).",
+      "description": "**ANALYSIS SKILL** — Azure compliance and security auditing: best practices, Key Vault expiration monitoring, resource validation. WHEN: \"compliance scan\", \"security audit\", \"Key Vault expiration check\", \"expired certificates\", \"orphaned resources\". USE FOR: pre-azqr compliance assessment, Key Vault audits, security posture evaluation. DO NOT USE FOR: cost analysis (use azure-cost-optimization), governance discovery (use azure-governance-discovery). INVOKES: azqr extension, az keyvault, az storage.",
       "path": ".github/skills/azure-compliance/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-compliance/SKILL.md"
@@ -626,7 +629,7 @@
       "id": "skill:azure-cost-optimization",
       "category": "skill",
       "label": "azure-cost-optimization",
-      "description": "**ANALYSIS SKILL** — Identify cost savings across Azure subscriptions via cost + utilization analysis. WHEN: \"optimize Azure costs\", \"reduce Azure spending\", \"find cost savings\", \"rightsize VMs\", \"find orphaned resources\", \"optimize Redis costs\". USE FOR: cost reduction reports, orphaned-resource discovery, rightsizing recommendations. DO NOT USE FOR: deploying resources (use azure-deploy), general diagnostics (use azure-diagnostics), security issues (use azure-compliance).",
+      "description": "**ANALYSIS SKILL** — Identify cost savings across Azure subscriptions via cost + utilization analysis. WHEN: \"optimize Azure costs\", \"reduce Azure spending\", \"find cost savings\", \"rightsize VMs\", \"find orphaned resources\", \"optimize Redis costs\". USE FOR: cost reduction reports, orphaned-resource discovery, rightsizing recommendations. DO NOT USE FOR: deploying resources (use azure-deploy), general diagnostics (use azure-diagnostics), security issues (use azure-compliance). INVOKES: az resource graph, az consumption.",
       "path": ".github/skills/azure-cost-optimization/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-cost-optimization/SKILL.md"
@@ -648,7 +651,7 @@
       "id": "skill:azure-deploy",
       "category": "skill",
       "label": "azure-deploy",
-      "description": "**WORKFLOW SKILL** — Execute Azure deployments for ALREADY-PREPARED apps. Runs azd up, azd deploy, terraform apply with built-in error recovery. Requires plan.md from azure-prepare and validated status from azure-validate. WHEN: \"run azd up\", \"run azd deploy\", \"push to production\", \"go live\", \"bicep deploy\", \"terraform apply\", \"publish to Azure\". USE FOR: deploying validated infra; lifting existing IaC to cloud. DO NOT USE FOR: creating new apps (use azure-prepare), generating IaC (use azure-prepare), pre-deployment checks (use azure-validate).",
+      "description": "**WORKFLOW SKILL** — Execute Azure deployments for ALREADY-PREPARED apps. Runs azd up, azd deploy, terraform apply with built-in error recovery. Requires plan.md from azure-prepare and validated status from azure-validate. WHEN: \"run azd up\", \"run azd deploy\", \"push to production\", \"go live\", \"bicep deploy\", \"terraform apply\", \"publish to Azure\". USE FOR: deploying validated infra; lifting existing IaC to cloud. DO NOT USE FOR: creating new apps (use azure-prepare), generating IaC (use azure-prepare), pre-deployment checks (use azure-validate). INVOKES: azd CLI, az deployment, microsoft_docs_search (Microsoft Learn MCP).",
       "path": ".github/skills/azure-deploy/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-deploy/SKILL.md"
@@ -659,7 +662,7 @@
       "id": "skill:azure-diagnostics",
       "category": "skill",
       "label": "azure-diagnostics",
-      "description": "**WORKFLOW SKILL** — Debug and troubleshoot Azure production issues: Container Apps + Function Apps diagnostics, KQL log analysis, health checks. WHEN: \"debug production issues\", \"troubleshoot container apps\", \"troubleshoot function apps\", \"image pull failures\", \"cold start issues\", \"health probe failures\". USE FOR: post-deployment troubleshooting, root-cause analysis, log triage. DO NOT USE FOR: pre-deployment validation (use azure-validate), cost analysis (use azure-cost-optimization).",
+      "description": "**WORKFLOW SKILL** — Debug and troubleshoot Azure production issues: Container Apps + Function Apps diagnostics, KQL log analysis, health checks. WHEN: \"debug production issues\", \"troubleshoot container apps\", \"troubleshoot function apps\", \"image pull failures\", \"cold start issues\", \"health probe failures\". USE FOR: post-deployment troubleshooting, root-cause analysis, log triage. DO NOT USE FOR: pre-deployment validation (use azure-validate), cost analysis (use azure-cost-optimization). INVOKES: az monitor, az containerapp logs, az functionapp log, az resource graph.",
       "path": ".github/skills/azure-diagnostics/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-diagnostics/SKILL.md"
@@ -714,7 +717,7 @@
       "id": "skill:azure-rbac",
       "category": "skill",
       "label": "azure-rbac",
-      "description": "**ANALYSIS SKILL** — Find the right Azure RBAC role for an identity with least-privilege access; generate CLI + Bicep code to assign it. WHEN: \"what role should I assign\", \"least privilege role\", \"RBAC role for\", \"role for managed identity\", \"custom role definition\", \"assign role to identity\". USE FOR: role discovery, RBAC scaffolding, least-privilege analysis. DO NOT USE FOR: deploying resources (use azure-deploy), security audits (use azure-compliance).",
+      "description": "**ANALYSIS SKILL** — Find the right Azure RBAC role for an identity with least-privilege access; generate CLI, Bicep, and Terraform code to assign it. WHEN: \"what role should I assign\", \"least privilege role\", \"RBAC role for\", \"role for managed identity\", \"custom role definition\", \"assign role to identity\". USE FOR: role discovery, RBAC scaffolding (Bicep + Terraform), least-privilege analysis. DO NOT USE FOR: deploying resources (use azure-deploy), security audits (use azure-compliance). INVOKES: microsoft-learn MCP, az CLI.",
       "path": ".github/skills/azure-rbac/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-rbac/SKILL.md"
@@ -725,7 +728,7 @@
       "id": "skill:azure-resources",
       "category": "skill",
       "label": "azure-resources",
-      "description": "**ANALYSIS SKILL** — List, find, and visualize existing Azure resources via Azure Resource Graph (LOOKUP) or Mermaid diagrams (VISUALIZE). WHEN: \"list resources\", \"list VMs\", \"find orphaned resources\", \"resource inventory\", \"cross-subscription query\", \"visualize Azure resources\", \"diagram my resources\". USE FOR: resource lookup, tag analysis, architecture visualization. DO NOT USE FOR: deploying resources (use azure-deploy), cost optimization (use azure-cost-optimization), security scanning (use azure-compliance), troubleshooting (use azure-diagnostics).",
+      "description": "**ANALYSIS SKILL** — List, find, and visualize existing Azure resources via Azure Resource Graph (LOOKUP) or Mermaid diagrams (VISUALIZE). WHEN: \"list resources\", \"list VMs\", \"find orphaned resources\", \"resource inventory\", \"cross-subscription query\", \"visualize Azure resources\", \"diagram my resources\". USE FOR: resource lookup, tag analysis, architecture visualization. DO NOT USE FOR: deploying resources (use azure-deploy), cost optimization (use azure-cost-optimization), security scanning (use azure-compliance), troubleshooting (use azure-diagnostics). INVOKES: az resource graph, az resource, microsoft_docs_search (Microsoft Learn MCP).",
       "path": ".github/skills/azure-resources/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-resources/SKILL.md"
@@ -736,7 +739,7 @@
       "id": "skill:azure-storage",
       "category": "skill",
       "label": "azure-storage",
-      "description": "**UTILITY SKILL** — Azure Storage Services including Blob Storage, File Shares, Queue Storage, Table Storage, and Data Lake. Provides object storage, SMB file shares, async messaging, NoSQL key-value, and big data analytics capabilities. Includes access tiers (hot, cool, archive) and lifecycle management. WHEN: \"blob storage\", \"file shares\", \"queue storage\", \"table storage\", \"data lake\", \"access tiers\", \"lifecycle management\". USE FOR: blob storage, file shares, queue storage, table storage, data lake, upload files, download blobs, storage accounts, access tiers, lifecycle management. DO NOT USE FOR: SQL databases, Cosmos DB (use azure-prepare), messaging with Event Hubs or Service Bus.",
+      "description": "**UTILITY SKILL** — Azure Storage Services including Blob Storage, File Shares, Queue Storage, Table Storage, and Data Lake. Provides object storage, SMB file shares, async messaging, NoSQL key-value, and big data analytics capabilities. Includes access tiers (hot, cool, archive) and lifecycle management. WHEN: \"blob storage\", \"file shares\", \"queue storage\", \"table storage\", \"data lake\", \"access tiers\", \"lifecycle management\". USE FOR: blob storage, file shares, queue storage, table storage, data lake, upload files, download blobs, storage accounts, access tiers, lifecycle management. DO NOT USE FOR: SQL databases, Cosmos DB (use azure-prepare), messaging with Event Hubs or Service Bus. INVOKES: az CLI, microsoft-learn MCP.",
       "path": ".github/skills/azure-storage/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-storage/SKILL.md"
@@ -758,7 +761,7 @@
       "id": "skill:context-management",
       "category": "skill",
       "label": "context-management",
-      "description": "**UTILITY SKILL** — Two-mode context window management for agents. RUNTIME mode: tier-based compression (full/summarized/minimal) used by orchestrator and codegen agents before loading large artifacts. AUDIT mode: post-mortem analysis of Copilot debug logs, token profiling, redundancy detection, and hand-off gap analysis used by the 11-Context Optimizer agent. WHEN: \"context optimization\", \"token budget management\", \"runtime compression\", \"log parsing\", \"redundancy detection\". USE FOR: context optimization, token budget management, runtime compression, log parsing, redundancy detection. DO NOT USE FOR: Azure infrastructure, Bicep/Terraform code, architecture design, deployments.",
+      "description": "**UTILITY SKILL** — Two-mode context window management for agents. RUNTIME mode: artifact compression (full/summarized/minimal) used by orchestrator and codegen agents before loading large artifacts in `agent-output/`. AUDIT mode: post-mortem analysis of Copilot debug logs, token profiling, redundancy detection, and hand-off gap analysis used by the 11-Context Optimizer agent. WHEN: \"context optimization\", \"token budget management\", \"runtime compression\", \"log parsing\", \"redundancy detection\". USE FOR: context optimization, token budget management, runtime compression, log parsing, redundancy detection. DO NOT USE FOR: Azure infrastructure, Bicep/Terraform code, architecture design, deployments.",
       "path": ".github/skills/context-management/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/context-management/SKILL.md"
@@ -780,7 +783,7 @@
       "id": "skill:drawio",
       "category": "skill",
       "label": "drawio",
-      "description": "**WORKFLOW SKILL** — Generate Azure architecture diagrams in .drawio format via the simonkurtz-MSFT MCP server (700+ Azure icons, batch creation, transactional mode). Covers architecture, dependency, runtime flow, and as-built diagrams. WHEN: \"draw.io diagram\", \"Azure architecture diagram\", \"as-built diagram\", \"runtime flow diagram\", \"dependency diagram\". USE FOR: production Azure architecture visuals, multi-resource layouts, design-stage and as-built artifacts. DO NOT USE FOR: WAF/cost charts (use python-diagrams), inline Mermaid (use mermaid). INVOKES: drawio MCP (search-shapes, add-cells, finish-diagram).",
+      "description": "**WORKFLOW SKILL** — Generate Azure architecture diagrams in .drawio format via the simonkurtz-MSFT MCP server (full Azure icon set bundled with the server, batch creation, transactional mode). Covers architecture, dependency, runtime flow, and as-built diagrams. WHEN: \"draw.io diagram\", \"Azure architecture diagram\", \"as-built diagram\", \"runtime flow diagram\", \"dependency diagram\". USE FOR: production Azure architecture visuals, multi-resource layouts, design-stage and as-built artifacts. DO NOT USE FOR: WAF/cost charts (use python-diagrams), inline Mermaid (use mermaid). INVOKES: drawio MCP (search-shapes, add-cells, finish-diagram).",
       "path": ".github/skills/drawio/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/drawio/SKILL.md"
@@ -802,7 +805,7 @@
       "id": "skill:github-operations",
       "category": "skill",
       "label": "github-operations",
-      "description": "**WORKFLOW SKILL** — Full GitHub contribution lifecycle: branch naming, conventional commits, issues, PRs, Actions, and releases. gh CLI-first with MCP fallback. WHEN: \"commit\", \"push\", \"open PR\", \"create branch\", \"create issue\", \"cut release\", \"GitHub operation\". USE FOR: commit/push, PR creation, branch lifecycle, issues, releases, Actions config. DO NOT USE FOR: Azure infrastructure, Bicep/Terraform code, architecture decisions.",
+      "description": "**WORKFLOW SKILL** — Full GitHub contribution lifecycle: branch naming, conventional commits, issues, PRs, Actions, and releases. gh CLI-first with MCP fallback. WHEN: \"commit\", \"push\", \"open PR\", \"create branch\", \"create issue\", \"cut release\", \"GitHub operation\". USE FOR: commit/push, PR creation, branch lifecycle, issues, releases, Actions config. DO NOT USE FOR: Azure infrastructure, Bicep/Terraform code, architecture decisions. INVOKES: gh CLI (primary), GitHub MCP (fallback).",
       "path": ".github/skills/github-operations/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/github-operations/SKILL.md"
@@ -879,7 +882,7 @@
       "id": "skill:terraform-search-import",
       "category": "skill",
       "label": "terraform-search-import",
-      "description": "**WORKFLOW SKILL** — Discover existing Azure resources and bulk import them into Terraform management. WHEN: \"terraform import\", \"import Azure resources\", \"bring unmanaged infra under Terraform\", \"adopt Terraform for existing resources\", \"generate import blocks\". USE FOR: importing Azure resources, audit, migration to IaC, bulk import. DO NOT USE FOR: Bicep code (use azure-bicep-patterns), new resource creation (use terraform-patterns), architecture decisions (use azure-adr).",
+      "description": "**WORKFLOW SKILL** — Discover existing Azure resources and bulk import them into Terraform management. WHEN: \"terraform import\", \"import Azure resources\", \"bring unmanaged infra under Terraform\", \"adopt Terraform for existing resources\", \"generate import blocks\". USE FOR: importing Azure resources, audit, migration to IaC, bulk import. DO NOT USE FOR: Bicep code (use azure-bicep-patterns), new resource creation (use terraform-patterns), architecture decisions (use azure-adr). INVOKES: terraform MCP (registry toolset), terraform CLI, az CLI.",
       "path": ".github/skills/terraform-search-import/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/terraform-search-import/SKILL.md"
@@ -1215,7 +1218,7 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/no-interactive-shell.instructions.md"
       },
       "meta": {
-        "applyTo": "**/.github/agents/**/*.agent.md, **/.github/skills/**/SKILL.md, **/.github/skills/**/SKILL.digest.md, **/.github/skills/**/SKILL.minimal.md, **/.github/instructions/**/*.instructions.md, **/.github/prompts/**/*.prompt.md, **/AGENTS.md, **/.github/copilot-instructions.md, **/README.md"
+        "applyTo": "**/.github/agents/**/*.agent.md, **/.github/skills/**/SKILL.md, **/.github/instructions/**/*.instructions.md, **/.github/prompts/**/*.prompt.md, **/AGENTS.md, **/.github/copilot-instructions.md, **/README.md"
       }
     },
     {
@@ -1271,6 +1274,19 @@
       }
     },
     {
+      "id": "instruction:sku-manifest",
+      "category": "instruction",
+      "label": "sku-manifest",
+      "description": "Authoring rules for the SKU Manifest artifact (sku-manifest-v1)",
+      "path": ".github/instructions/sku-manifest.instructions.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/sku-manifest.instructions.md"
+      },
+      "meta": {
+        "applyTo": "**/sku-manifest.{md,json}"
+      }
+    },
+    {
       "id": "instruction:vendor-prompting",
       "category": "instruction",
       "label": "vendor-prompting",
@@ -1282,17 +1298,6 @@
       "meta": {
         "applyTo": "**/*.agent.md, **/*.prompt.md"
       }
-    },
-    {
-      "id": "prompt:01-orchestrator",
-      "category": "prompt",
-      "label": "01-orchestrator",
-      "description": "Kick off a new Azure platform engineering project through the full multi-step workflow with the Orchestrator agent.",
-      "path": ".github/prompts/01-orchestrator.prompt.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/prompts/01-orchestrator.prompt.md"
-      },
-      "meta": {}
     },
     {
       "id": "prompt:02-requirements",
@@ -1427,17 +1432,6 @@
       "meta": {}
     },
     {
-      "id": "prompt:context-audit",
-      "category": "prompt",
-      "label": "context-audit",
-      "description": "Audit agent context window utilization from Copilot Chat debug logs and produce optimization recommendations.",
-      "path": ".github/prompts/context-audit.prompt.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/prompts/context-audit.prompt.md"
-      },
-      "meta": {}
-    },
-    {
       "id": "prompt:diagnose-resource",
       "category": "prompt",
       "label": "diagnose-resource",
@@ -1449,17 +1443,6 @@
       "meta": {}
     },
     {
-      "id": "prompt:doc-gardening",
-      "category": "prompt",
-      "label": "doc-gardening",
-      "description": "Scan for stale docs, instruction drift, quality score degradation, and tech debt. Updates QUALITY_SCORE.md and tech-debt-tracker.md.",
-      "path": ".github/prompts/doc-gardening.prompt.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/prompts/doc-gardening.prompt.md"
-      },
-      "meta": {}
-    },
-    {
       "id": "prompt:git-commit-push",
       "category": "prompt",
       "label": "git-commit-push",
@@ -1467,61 +1450,6 @@
       "path": ".github/prompts/git-commit-push.prompt.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/prompts/git-commit-push.prompt.md"
-      },
-      "meta": {}
-    },
-    {
-      "id": "prompt:merge-sensei-free-pr",
-      "category": "prompt",
-      "label": "merge-sensei-free-pr",
-      "description": "Open a sensei-free PR from feat/skills-sensei (or any sensei-bearing branch) into main. Dynamically discovers sensei-coupled files, classifies them into tiers, asks for approval, then creates a clean chore/merge-{source}-to-{target} branch and PR.",
-      "path": ".github/prompts/merge-sensei-free-pr.prompt.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/prompts/merge-sensei-free-pr.prompt.md"
-      },
-      "meta": {}
-    },
-    {
-      "id": "prompt:plan-azurepricingmcpv5",
-      "category": "prompt",
-      "label": "plan-azurePricingMcpV5",
-      "description": "",
-      "path": ".github/prompts/plan-azurePricingMcpV5.prompt.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/prompts/plan-azurePricingMcpV5.prompt.md"
-      },
-      "meta": {}
-    },
-    {
-      "id": "prompt:plan-docspeerreview",
-      "category": "prompt",
-      "label": "plan-docsPeerReview",
-      "description": "Review all published docs for accuracy, UX, and contradictions using three independent reviewers, then consolidate into an actionable triage report.",
-      "path": ".github/prompts/plan-docsPeerReview.prompt.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/prompts/plan-docsPeerReview.prompt.md"
-      },
-      "meta": {}
-    },
-    {
-      "id": "prompt:plan-verifyagenthandoffsinlinewithworkflow",
-      "category": "prompt",
-      "label": "plan-verifyAgentHandOffsInLineWithWorkflow",
-      "description": "",
-      "path": ".github/prompts/plan-verifyAgentHandOffsInLineWithWorkflow.prompt.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/prompts/plan-verifyAgentHandOffsInLineWithWorkflow.prompt.md"
-      },
-      "meta": {}
-    },
-    {
-      "id": "prompt:project-wide-review",
-      "category": "prompt",
-      "label": "project-wide-review",
-      "description": "Conduct a phased, dependency-aware review of the entire project. Builds a transient review-index first, then walks every domain in upstream-to-downstream order with explicit blast-radius analysis at each gate.",
-      "path": ".github/prompts/project-wide-review.prompt.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/prompts/project-wide-review.prompt.md"
       },
       "meta": {}
     },
@@ -1675,6 +1603,32 @@
       },
       "meta": {
         "command": "node tools/scripts/validate-workflow-graph.mjs"
+      }
+    },
+    {
+      "id": "validator:validate-lens-references",
+      "category": "validator",
+      "label": "validate:lens-references",
+      "description": "node tools/scripts/validate-lens-references.mjs",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
+      },
+      "meta": {
+        "command": "node tools/scripts/validate-lens-references.mjs"
+      }
+    },
+    {
+      "id": "validator:validate-challenger-findings",
+      "category": "validator",
+      "label": "validate:challenger-findings",
+      "description": "node tools/scripts/validate-challenger-findings.mjs",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
+      },
+      "meta": {
+        "command": "node tools/scripts/validate-challenger-findings.mjs"
       }
     },
     {
@@ -1836,6 +1790,71 @@
       "parent": "group:validator-orphans"
     },
     {
+      "id": "validator:validate-policy-precheck",
+      "category": "validator",
+      "label": "validate:policy-precheck",
+      "description": "node tools/scripts/validate-policy-precheck.mjs",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
+      },
+      "meta": {
+        "command": "node tools/scripts/validate-policy-precheck.mjs"
+      }
+    },
+    {
+      "id": "validator:validate-sku-manifest",
+      "category": "validator",
+      "label": "validate:sku-manifest",
+      "description": "node tools/scripts/validate-sku-manifest.mjs",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
+      },
+      "meta": {
+        "command": "node tools/scripts/validate-sku-manifest.mjs"
+      }
+    },
+    {
+      "id": "validator:validate-sku-iac-coverage",
+      "category": "validator",
+      "label": "validate:sku-iac-coverage",
+      "description": "node tools/scripts/validate-sku-iac-coverage.mjs",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
+      },
+      "meta": {
+        "command": "node tools/scripts/validate-sku-iac-coverage.mjs"
+      }
+    },
+    {
+      "id": "validator:validate-decision-keys",
+      "category": "validator",
+      "label": "validate:decision-keys",
+      "description": "node tools/scripts/validate-decision-keys.mjs",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
+      },
+      "meta": {
+        "command": "node tools/scripts/validate-decision-keys.mjs"
+      }
+    },
+    {
+      "id": "validator:validate-banned-phrases",
+      "category": "validator",
+      "label": "validate:banned-phrases",
+      "description": "node tools/scripts/validate-banned-phrases.mjs",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
+      },
+      "meta": {
+        "command": "node tools/scripts/validate-banned-phrases.mjs"
+      }
+    },
+    {
       "id": "validator:validate-vscode",
       "category": "validator",
       "label": "validate:vscode",
@@ -1927,6 +1946,19 @@
       }
     },
     {
+      "id": "validator:validate-region-canonical",
+      "category": "validator",
+      "label": "validate:region-canonical",
+      "description": "node tools/scripts/validate-region-canonical.mjs",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
+      },
+      "meta": {
+        "command": "node tools/scripts/validate-region-canonical.mjs"
+      }
+    },
+    {
       "id": "validator:test-classify-model",
       "category": "validator",
       "label": "test:classify-model",
@@ -1951,6 +1983,21 @@
       "meta": {
         "command": "node tools/scripts/safe-shell.mjs"
       }
+    },
+    {
+      "id": "validator:validate-tool-versions",
+      "category": "validator",
+      "label": "validate:tool-versions",
+      "description": "node tools/scripts/validate-tool-versions.mjs",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
+      },
+      "meta": {
+        "command": "node tools/scripts/validate-tool-versions.mjs",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
     },
     {
       "id": "validator:lint-md",
@@ -2035,6 +2082,21 @@
       "meta": {
         "command": "python3 -m pytest tools/mcp-servers/azure-pricing/tests -q"
       }
+    },
+    {
+      "id": "validator:lint-site-links",
+      "category": "validator",
+      "label": "lint:site-links",
+      "description": "npm run docs:build --silent && node site/check-links.mjs",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
+      },
+      "meta": {
+        "command": "npm run docs:build --silent && node site/check-links.mjs",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
     },
     {
       "id": "workflow:azure-deprecation-tracker",
@@ -2132,6 +2194,17 @@
       "parent": "group:workflow-orphans"
     },
     {
+      "id": "workflow:sensei-branch-maintenance",
+      "category": "workflow",
+      "label": "sensei-branch-maintenance",
+      "description": "",
+      "path": ".github/workflows/sensei-branch-maintenance.yml",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/workflows/sensei-branch-maintenance.yml"
+      },
+      "meta": {}
+    },
+    {
       "id": "workflow:weekly-maintenance",
       "category": "workflow",
       "label": "weekly-maintenance",
@@ -2224,11 +2297,11 @@
     {
       "id": "group:validator-orphans",
       "category": "validator",
-      "label": "Validator (unlinked, 4)",
-      "description": "4 validator nodes with no cross-references in the current graph.",
+      "label": "Validator (unlinked, 6)",
+      "description": "6 validator nodes with no cross-references in the current graph.",
       "isGroup": true,
       "meta": {
-        "groupSize": 4
+        "groupSize": 6
       }
     },
     {
@@ -2243,60 +2316,6 @@
     }
   ],
   "edges": [
-    {
-      "id": "agent:01-orchestrator-fast-path--delegates->agent:02-requirements",
-      "source": "agent:01-orchestrator-fast-path",
-      "target": "agent:02-requirements",
-      "kind": "delegates"
-    },
-    {
-      "id": "agent:01-orchestrator-fast-path--delegates->agent:03-architect",
-      "source": "agent:01-orchestrator-fast-path",
-      "target": "agent:03-architect",
-      "kind": "delegates"
-    },
-    {
-      "id": "agent:01-orchestrator-fast-path--delegates->agent:05-iac-planner",
-      "source": "agent:01-orchestrator-fast-path",
-      "target": "agent:05-iac-planner",
-      "kind": "delegates"
-    },
-    {
-      "id": "agent:01-orchestrator-fast-path--delegates->agent:06b-bicep-codegen",
-      "source": "agent:01-orchestrator-fast-path",
-      "target": "agent:06b-bicep-codegen",
-      "kind": "delegates"
-    },
-    {
-      "id": "agent:01-orchestrator-fast-path--delegates->agent:07b-bicep-deploy",
-      "source": "agent:01-orchestrator-fast-path",
-      "target": "agent:07b-bicep-deploy",
-      "kind": "delegates"
-    },
-    {
-      "id": "agent:01-orchestrator-fast-path--delegates->agent:08-as-built",
-      "source": "agent:01-orchestrator-fast-path",
-      "target": "agent:08-as-built",
-      "kind": "delegates"
-    },
-    {
-      "id": "agent:01-orchestrator-fast-path--delegates->agent:06t-terraform-codegen",
-      "source": "agent:01-orchestrator-fast-path",
-      "target": "agent:06t-terraform-codegen",
-      "kind": "delegates"
-    },
-    {
-      "id": "agent:01-orchestrator-fast-path--delegates->agent:07t-terraform-deploy",
-      "source": "agent:01-orchestrator-fast-path",
-      "target": "agent:07t-terraform-deploy",
-      "kind": "delegates"
-    },
-    {
-      "id": "agent:01-orchestrator-fast-path--delegates->agent:10-challenger",
-      "source": "agent:01-orchestrator-fast-path",
-      "target": "agent:10-challenger",
-      "kind": "delegates"
-    },
     {
       "id": "agent:01-orchestrator--delegates->agent:02-requirements",
       "source": "agent:01-orchestrator",
@@ -2370,6 +2389,12 @@
       "kind": "delegates"
     },
     {
+      "id": "agent:02-requirements-gpt--delegates->subagent:challenger-review-subagent",
+      "source": "agent:02-requirements-gpt",
+      "target": "subagent:challenger-review-subagent",
+      "kind": "delegates"
+    },
+    {
       "id": "agent:02-requirements--delegates->subagent:challenger-review-subagent",
       "source": "agent:02-requirements",
       "target": "subagent:challenger-review-subagent",
@@ -2430,6 +2455,12 @@
       "kind": "delegates"
     },
     {
+      "id": "agent:07b-bicep-deploy--delegates->subagent:policy-precheck-subagent",
+      "source": "agent:07b-bicep-deploy",
+      "target": "subagent:policy-precheck-subagent",
+      "kind": "delegates"
+    },
+    {
       "id": "agent:07b-bicep-deploy--delegates->subagent:challenger-review-subagent",
       "source": "agent:07b-bicep-deploy",
       "target": "subagent:challenger-review-subagent",
@@ -2439,6 +2470,12 @@
       "id": "agent:07t-terraform-deploy--delegates->subagent:terraform-plan-subagent",
       "source": "agent:07t-terraform-deploy",
       "target": "subagent:terraform-plan-subagent",
+      "kind": "delegates"
+    },
+    {
+      "id": "agent:07t-terraform-deploy--delegates->subagent:policy-precheck-subagent",
+      "source": "agent:07t-terraform-deploy",
+      "target": "subagent:policy-precheck-subagent",
       "kind": "delegates"
     },
     {
@@ -2550,48 +2587,6 @@
       "kind": "delegates"
     },
     {
-      "id": "agent:01-orchestrator-fast-path--hands-off->agent:02-requirements",
-      "source": "agent:01-orchestrator-fast-path",
-      "target": "agent:02-requirements",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:01-orchestrator-fast-path--hands-off->agent:03-architect",
-      "source": "agent:01-orchestrator-fast-path",
-      "target": "agent:03-architect",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:01-orchestrator-fast-path--hands-off->agent:05-iac-planner",
-      "source": "agent:01-orchestrator-fast-path",
-      "target": "agent:05-iac-planner",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:01-orchestrator-fast-path--hands-off->agent:07b-bicep-deploy",
-      "source": "agent:01-orchestrator-fast-path",
-      "target": "agent:07b-bicep-deploy",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:01-orchestrator-fast-path--hands-off->agent:08-as-built",
-      "source": "agent:01-orchestrator-fast-path",
-      "target": "agent:08-as-built",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:01-orchestrator-fast-path--hands-off->agent:10-challenger",
-      "source": "agent:01-orchestrator-fast-path",
-      "target": "agent:10-challenger",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:01-orchestrator-fast-path--hands-off->agent:01-orchestrator",
-      "source": "agent:01-orchestrator-fast-path",
-      "target": "agent:01-orchestrator",
-      "kind": "hands-off"
-    },
-    {
       "id": "agent:01-orchestrator--hands-off->agent:02-requirements",
       "source": "agent:01-orchestrator",
       "target": "agent:02-requirements",
@@ -2640,12 +2635,6 @@
       "kind": "hands-off"
     },
     {
-      "id": "agent:01-orchestrator--hands-off->agent:01-orchestrator-fast-path",
-      "source": "agent:01-orchestrator",
-      "target": "agent:01-orchestrator-fast-path",
-      "kind": "hands-off"
-    },
-    {
       "id": "agent:01-orchestrator--hands-off->agent:09-diagnose",
       "source": "agent:01-orchestrator",
       "target": "agent:09-diagnose",
@@ -2667,6 +2656,24 @@
       "id": "agent:01-orchestrator--hands-off->agent:07t-terraform-deploy",
       "source": "agent:01-orchestrator",
       "target": "agent:07t-terraform-deploy",
+      "kind": "hands-off"
+    },
+    {
+      "id": "agent:02-requirements-gpt--hands-off->agent:10-challenger",
+      "source": "agent:02-requirements-gpt",
+      "target": "agent:10-challenger",
+      "kind": "hands-off"
+    },
+    {
+      "id": "agent:02-requirements-gpt--hands-off->agent:03-architect",
+      "source": "agent:02-requirements-gpt",
+      "target": "agent:03-architect",
+      "kind": "hands-off"
+    },
+    {
+      "id": "agent:02-requirements-gpt--hands-off->agent:01-orchestrator",
+      "source": "agent:02-requirements-gpt",
+      "target": "agent:01-orchestrator",
       "kind": "hands-off"
     },
     {
@@ -2892,12 +2899,6 @@
       "kind": "hands-off"
     },
     {
-      "id": "prompt:01-orchestrator--invokes->agent:01-orchestrator",
-      "source": "prompt:01-orchestrator",
-      "target": "agent:01-orchestrator",
-      "kind": "invokes"
-    },
-    {
       "id": "prompt:02-requirements--invokes->agent:02-requirements",
       "source": "prompt:02-requirements",
       "target": "agent:02-requirements",
@@ -2958,15 +2959,15 @@
       "kind": "invokes"
     },
     {
-      "id": "instruction:agent-authoring--applies-to->agent:01-orchestrator-fast-path",
-      "source": "instruction:agent-authoring",
-      "target": "agent:01-orchestrator-fast-path",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:agent-authoring--applies-to->agent:01-orchestrator",
       "source": "instruction:agent-authoring",
       "target": "agent:01-orchestrator",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->agent:02-requirements-gpt",
+      "source": "instruction:agent-authoring",
+      "target": "agent:02-requirements-gpt",
       "kind": "applies-to"
     },
     {
@@ -3078,6 +3079,12 @@
       "kind": "applies-to"
     },
     {
+      "id": "instruction:agent-authoring--applies-to->subagent:policy-precheck-subagent",
+      "source": "instruction:agent-authoring",
+      "target": "subagent:policy-precheck-subagent",
+      "kind": "applies-to"
+    },
+    {
       "id": "instruction:agent-authoring--applies-to->subagent:terraform-plan-subagent",
       "source": "instruction:agent-authoring",
       "target": "subagent:terraform-plan-subagent",
@@ -3087,12 +3094,6 @@
       "id": "instruction:agent-authoring--applies-to->subagent:terraform-validate-subagent",
       "source": "instruction:agent-authoring",
       "target": "subagent:terraform-validate-subagent",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:agent-authoring--applies-to->prompt:01-orchestrator",
-      "source": "instruction:agent-authoring",
-      "target": "prompt:01-orchestrator",
       "kind": "applies-to"
     },
     {
@@ -3168,57 +3169,15 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:agent-authoring--applies-to->prompt:context-audit",
-      "source": "instruction:agent-authoring",
-      "target": "prompt:context-audit",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:agent-authoring--applies-to->prompt:diagnose-resource",
       "source": "instruction:agent-authoring",
       "target": "prompt:diagnose-resource",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:agent-authoring--applies-to->prompt:doc-gardening",
-      "source": "instruction:agent-authoring",
-      "target": "prompt:doc-gardening",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:agent-authoring--applies-to->prompt:git-commit-push",
       "source": "instruction:agent-authoring",
       "target": "prompt:git-commit-push",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:agent-authoring--applies-to->prompt:merge-sensei-free-pr",
-      "source": "instruction:agent-authoring",
-      "target": "prompt:merge-sensei-free-pr",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:agent-authoring--applies-to->prompt:plan-azurepricingmcpv5",
-      "source": "instruction:agent-authoring",
-      "target": "prompt:plan-azurepricingmcpv5",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:agent-authoring--applies-to->prompt:plan-docspeerreview",
-      "source": "instruction:agent-authoring",
-      "target": "prompt:plan-docspeerreview",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:agent-authoring--applies-to->prompt:plan-verifyagenthandoffsinlinewithworkflow",
-      "source": "instruction:agent-authoring",
-      "target": "prompt:plan-verifyagenthandoffsinlinewithworkflow",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:agent-authoring--applies-to->prompt:project-wide-review",
-      "source": "instruction:agent-authoring",
-      "target": "prompt:project-wide-review",
       "kind": "applies-to"
     },
     {
@@ -3432,15 +3391,15 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:context-optimization--applies-to->agent:01-orchestrator-fast-path",
-      "source": "instruction:context-optimization",
-      "target": "agent:01-orchestrator-fast-path",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:context-optimization--applies-to->agent:01-orchestrator",
       "source": "instruction:context-optimization",
       "target": "agent:01-orchestrator",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->agent:02-requirements-gpt",
+      "source": "instruction:context-optimization",
+      "target": "agent:02-requirements-gpt",
       "kind": "applies-to"
     },
     {
@@ -3549,6 +3508,12 @@
       "id": "instruction:context-optimization--applies-to->subagent:cost-estimate-subagent",
       "source": "instruction:context-optimization",
       "target": "subagent:cost-estimate-subagent",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->subagent:policy-precheck-subagent",
+      "source": "instruction:context-optimization",
+      "target": "subagent:policy-precheck-subagent",
       "kind": "applies-to"
     },
     {
@@ -3768,15 +3733,15 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:docs-trigger--applies-to->agent:01-orchestrator-fast-path",
-      "source": "instruction:docs-trigger",
-      "target": "agent:01-orchestrator-fast-path",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:docs-trigger--applies-to->agent:01-orchestrator",
       "source": "instruction:docs-trigger",
       "target": "agent:01-orchestrator",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->agent:02-requirements-gpt",
+      "source": "instruction:docs-trigger",
+      "target": "agent:02-requirements-gpt",
       "kind": "applies-to"
     },
     {
@@ -3885,6 +3850,12 @@
       "id": "instruction:docs-trigger--applies-to->subagent:cost-estimate-subagent",
       "source": "instruction:docs-trigger",
       "target": "subagent:cost-estimate-subagent",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->subagent:policy-precheck-subagent",
+      "source": "instruction:docs-trigger",
+      "target": "subagent:policy-precheck-subagent",
       "kind": "applies-to"
     },
     {
@@ -4254,21 +4225,27 @@
       "kind": "applies-to"
     },
     {
+      "id": "instruction:instructions--applies-to->instruction:sku-manifest",
+      "source": "instruction:instructions",
+      "target": "instruction:sku-manifest",
+      "kind": "applies-to"
+    },
+    {
       "id": "instruction:instructions--applies-to->instruction:vendor-prompting",
       "source": "instruction:instructions",
       "target": "instruction:vendor-prompting",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:lesson-collection--applies-to->agent:01-orchestrator-fast-path",
-      "source": "instruction:lesson-collection",
-      "target": "agent:01-orchestrator-fast-path",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:lesson-collection--applies-to->agent:01-orchestrator",
       "source": "instruction:lesson-collection",
       "target": "agent:01-orchestrator",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:lesson-collection--applies-to->agent:02-requirements-gpt",
+      "source": "instruction:lesson-collection",
+      "target": "agent:02-requirements-gpt",
       "kind": "applies-to"
     },
     {
@@ -4377,6 +4354,12 @@
       "id": "instruction:lesson-collection--applies-to->subagent:cost-estimate-subagent",
       "source": "instruction:lesson-collection",
       "target": "subagent:cost-estimate-subagent",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:lesson-collection--applies-to->subagent:policy-precheck-subagent",
+      "source": "instruction:lesson-collection",
+      "target": "subagent:policy-precheck-subagent",
       "kind": "applies-to"
     },
     {
@@ -4590,15 +4573,15 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:no-interactive-shell--applies-to->agent:01-orchestrator-fast-path",
-      "source": "instruction:no-interactive-shell",
-      "target": "agent:01-orchestrator-fast-path",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:no-interactive-shell--applies-to->agent:01-orchestrator",
       "source": "instruction:no-interactive-shell",
       "target": "agent:01-orchestrator",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:no-interactive-shell--applies-to->agent:02-requirements-gpt",
+      "source": "instruction:no-interactive-shell",
+      "target": "agent:02-requirements-gpt",
       "kind": "applies-to"
     },
     {
@@ -4707,6 +4690,12 @@
       "id": "instruction:no-interactive-shell--applies-to->subagent:cost-estimate-subagent",
       "source": "instruction:no-interactive-shell",
       "target": "subagent:cost-estimate-subagent",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:no-interactive-shell--applies-to->subagent:policy-precheck-subagent",
+      "source": "instruction:no-interactive-shell",
+      "target": "subagent:policy-precheck-subagent",
       "kind": "applies-to"
     },
     {
@@ -4920,12 +4909,6 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:no-interactive-shell--applies-to->prompt:01-orchestrator",
-      "source": "instruction:no-interactive-shell",
-      "target": "prompt:01-orchestrator",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:no-interactive-shell--applies-to->prompt:02-requirements",
       "source": "instruction:no-interactive-shell",
       "target": "prompt:02-requirements",
@@ -4998,57 +4981,15 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:no-interactive-shell--applies-to->prompt:context-audit",
-      "source": "instruction:no-interactive-shell",
-      "target": "prompt:context-audit",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:no-interactive-shell--applies-to->prompt:diagnose-resource",
       "source": "instruction:no-interactive-shell",
       "target": "prompt:diagnose-resource",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:no-interactive-shell--applies-to->prompt:doc-gardening",
-      "source": "instruction:no-interactive-shell",
-      "target": "prompt:doc-gardening",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:no-interactive-shell--applies-to->prompt:git-commit-push",
       "source": "instruction:no-interactive-shell",
       "target": "prompt:git-commit-push",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:no-interactive-shell--applies-to->prompt:merge-sensei-free-pr",
-      "source": "instruction:no-interactive-shell",
-      "target": "prompt:merge-sensei-free-pr",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:no-interactive-shell--applies-to->prompt:plan-azurepricingmcpv5",
-      "source": "instruction:no-interactive-shell",
-      "target": "prompt:plan-azurepricingmcpv5",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:no-interactive-shell--applies-to->prompt:plan-docspeerreview",
-      "source": "instruction:no-interactive-shell",
-      "target": "prompt:plan-docspeerreview",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:no-interactive-shell--applies-to->prompt:plan-verifyagenthandoffsinlinewithworkflow",
-      "source": "instruction:no-interactive-shell",
-      "target": "prompt:plan-verifyagenthandoffsinlinewithworkflow",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:no-interactive-shell--applies-to->prompt:project-wide-review",
-      "source": "instruction:no-interactive-shell",
-      "target": "prompt:project-wide-review",
       "kind": "applies-to"
     },
     {
@@ -5067,12 +5008,6 @@
       "id": "instruction:no-interactive-shell--applies-to->instruction:instructions",
       "source": "instruction:no-interactive-shell",
       "target": "instruction:instructions",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:prompt--applies-to->prompt:01-orchestrator",
-      "source": "instruction:prompt",
-      "target": "prompt:01-orchestrator",
       "kind": "applies-to"
     },
     {
@@ -5148,57 +5083,15 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:prompt--applies-to->prompt:context-audit",
-      "source": "instruction:prompt",
-      "target": "prompt:context-audit",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:prompt--applies-to->prompt:diagnose-resource",
       "source": "instruction:prompt",
       "target": "prompt:diagnose-resource",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:prompt--applies-to->prompt:doc-gardening",
-      "source": "instruction:prompt",
-      "target": "prompt:doc-gardening",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:prompt--applies-to->prompt:git-commit-push",
       "source": "instruction:prompt",
       "target": "prompt:git-commit-push",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:prompt--applies-to->prompt:merge-sensei-free-pr",
-      "source": "instruction:prompt",
-      "target": "prompt:merge-sensei-free-pr",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:prompt--applies-to->prompt:plan-azurepricingmcpv5",
-      "source": "instruction:prompt",
-      "target": "prompt:plan-azurepricingmcpv5",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:prompt--applies-to->prompt:plan-docspeerreview",
-      "source": "instruction:prompt",
-      "target": "prompt:plan-docspeerreview",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:prompt--applies-to->prompt:plan-verifyagenthandoffsinlinewithworkflow",
-      "source": "instruction:prompt",
-      "target": "prompt:plan-verifyagenthandoffsinlinewithworkflow",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:prompt--applies-to->prompt:project-wide-review",
-      "source": "instruction:prompt",
-      "target": "prompt:project-wide-review",
       "kind": "applies-to"
     },
     {
@@ -5214,15 +5107,15 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:vendor-prompting--applies-to->agent:01-orchestrator-fast-path",
-      "source": "instruction:vendor-prompting",
-      "target": "agent:01-orchestrator-fast-path",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:vendor-prompting--applies-to->agent:01-orchestrator",
       "source": "instruction:vendor-prompting",
       "target": "agent:01-orchestrator",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->agent:02-requirements-gpt",
+      "source": "instruction:vendor-prompting",
+      "target": "agent:02-requirements-gpt",
       "kind": "applies-to"
     },
     {
@@ -5334,6 +5227,12 @@
       "kind": "applies-to"
     },
     {
+      "id": "instruction:vendor-prompting--applies-to->subagent:policy-precheck-subagent",
+      "source": "instruction:vendor-prompting",
+      "target": "subagent:policy-precheck-subagent",
+      "kind": "applies-to"
+    },
+    {
       "id": "instruction:vendor-prompting--applies-to->subagent:terraform-plan-subagent",
       "source": "instruction:vendor-prompting",
       "target": "subagent:terraform-plan-subagent",
@@ -5343,12 +5242,6 @@
       "id": "instruction:vendor-prompting--applies-to->subagent:terraform-validate-subagent",
       "source": "instruction:vendor-prompting",
       "target": "subagent:terraform-validate-subagent",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:vendor-prompting--applies-to->prompt:01-orchestrator",
-      "source": "instruction:vendor-prompting",
-      "target": "prompt:01-orchestrator",
       "kind": "applies-to"
     },
     {
@@ -5424,57 +5317,15 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:vendor-prompting--applies-to->prompt:context-audit",
-      "source": "instruction:vendor-prompting",
-      "target": "prompt:context-audit",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:vendor-prompting--applies-to->prompt:diagnose-resource",
       "source": "instruction:vendor-prompting",
       "target": "prompt:diagnose-resource",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:vendor-prompting--applies-to->prompt:doc-gardening",
-      "source": "instruction:vendor-prompting",
-      "target": "prompt:doc-gardening",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:vendor-prompting--applies-to->prompt:git-commit-push",
       "source": "instruction:vendor-prompting",
       "target": "prompt:git-commit-push",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:vendor-prompting--applies-to->prompt:merge-sensei-free-pr",
-      "source": "instruction:vendor-prompting",
-      "target": "prompt:merge-sensei-free-pr",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:vendor-prompting--applies-to->prompt:plan-azurepricingmcpv5",
-      "source": "instruction:vendor-prompting",
-      "target": "prompt:plan-azurepricingmcpv5",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:vendor-prompting--applies-to->prompt:plan-docspeerreview",
-      "source": "instruction:vendor-prompting",
-      "target": "prompt:plan-docspeerreview",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:vendor-prompting--applies-to->prompt:plan-verifyagenthandoffsinlinewithworkflow",
-      "source": "instruction:vendor-prompting",
-      "target": "prompt:plan-verifyagenthandoffsinlinewithworkflow",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:vendor-prompting--applies-to->prompt:project-wide-review",
-      "source": "instruction:vendor-prompting",
-      "target": "prompt:project-wide-review",
       "kind": "applies-to"
     },
     {
@@ -5553,6 +5404,18 @@
       "id": "workflow:ci--runs->validator:validate-workflow-graph",
       "source": "workflow:ci",
       "target": "validator:validate-workflow-graph",
+      "kind": "runs"
+    },
+    {
+      "id": "workflow:ci--runs->validator:validate-lens-references",
+      "source": "workflow:ci",
+      "target": "validator:validate-lens-references",
+      "kind": "runs"
+    },
+    {
+      "id": "workflow:ci--runs->validator:validate-challenger-findings",
+      "source": "workflow:ci",
+      "target": "validator:validate-challenger-findings",
       "kind": "runs"
     },
     {
@@ -5640,6 +5503,12 @@
       "kind": "runs"
     },
     {
+      "id": "workflow:ci--runs->validator:validate-region-canonical",
+      "source": "workflow:ci",
+      "target": "validator:validate-region-canonical",
+      "kind": "runs"
+    },
+    {
       "id": "workflow:ci--runs->validator:test-classify-model",
       "source": "workflow:ci",
       "target": "validator:test-classify-model",
@@ -5655,6 +5524,36 @@
       "id": "workflow:ci--runs->validator:validate-terminology",
       "source": "workflow:ci",
       "target": "validator:validate-terminology",
+      "kind": "runs"
+    },
+    {
+      "id": "workflow:ci--runs->validator:validate-sku-manifest",
+      "source": "workflow:ci",
+      "target": "validator:validate-sku-manifest",
+      "kind": "runs"
+    },
+    {
+      "id": "workflow:ci--runs->validator:validate-sku-iac-coverage",
+      "source": "workflow:ci",
+      "target": "validator:validate-sku-iac-coverage",
+      "kind": "runs"
+    },
+    {
+      "id": "workflow:ci--runs->validator:validate-decision-keys",
+      "source": "workflow:ci",
+      "target": "validator:validate-decision-keys",
+      "kind": "runs"
+    },
+    {
+      "id": "workflow:ci--runs->validator:validate-banned-phrases",
+      "source": "workflow:ci",
+      "target": "validator:validate-banned-phrases",
+      "kind": "runs"
+    },
+    {
+      "id": "workflow:ci--runs->validator:validate-policy-precheck",
+      "source": "workflow:ci",
+      "target": "validator:validate-policy-precheck",
       "kind": "runs"
     },
     {
@@ -5682,6 +5581,24 @@
       "kind": "runs"
     },
     {
+      "id": "workflow:sensei-branch-maintenance--runs->validator:validate-skills",
+      "source": "workflow:sensei-branch-maintenance",
+      "target": "validator:validate-skills",
+      "kind": "runs"
+    },
+    {
+      "id": "workflow:sensei-branch-maintenance--runs->validator:validate-agents",
+      "source": "workflow:sensei-branch-maintenance",
+      "target": "validator:validate-agents",
+      "kind": "runs"
+    },
+    {
+      "id": "workflow:sensei-branch-maintenance--runs->validator:lint-md",
+      "source": "workflow:sensei-branch-maintenance",
+      "target": "validator:lint-md",
+      "kind": "runs"
+    },
+    {
       "id": "workflow:weekly-maintenance--runs->validator:lint-glob-audit",
       "source": "workflow:weekly-maintenance",
       "target": "validator:lint-glob-audit",
@@ -5700,18 +5617,6 @@
       "kind": "runs"
     },
     {
-      "id": "agent:01-orchestrator-fast-path--uses-mcp->mcp:github",
-      "source": "agent:01-orchestrator-fast-path",
-      "target": "mcp:github",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:01-orchestrator-fast-path--uses-mcp->mcp:terraform",
-      "source": "agent:01-orchestrator-fast-path",
-      "target": "mcp:terraform",
-      "kind": "uses-mcp"
-    },
-    {
       "id": "agent:01-orchestrator--uses-mcp->mcp:github",
       "source": "agent:01-orchestrator",
       "target": "mcp:github",
@@ -5727,6 +5632,24 @@
       "id": "agent:01-orchestrator--uses-mcp->mcp:drawio",
       "source": "agent:01-orchestrator",
       "target": "mcp:drawio",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:02-requirements-gpt--uses-mcp->mcp:github",
+      "source": "agent:02-requirements-gpt",
+      "target": "mcp:github",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:02-requirements-gpt--uses-mcp->mcp:terraform",
+      "source": "agent:02-requirements-gpt",
+      "target": "mcp:terraform",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:02-requirements-gpt--uses-mcp->mcp:microsoft-learn",
+      "source": "agent:02-requirements-gpt",
+      "target": "mcp:microsoft-learn",
       "kind": "uses-mcp"
     },
     {
@@ -5787,12 +5710,6 @@
       "id": "agent:04g-governance--uses-mcp->mcp:github",
       "source": "agent:04g-governance",
       "target": "mcp:github",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:04g-governance--uses-mcp->mcp:terraform",
-      "source": "agent:04g-governance",
-      "target": "mcp:terraform",
       "kind": "uses-mcp"
     },
     {
@@ -6024,6 +5941,24 @@
       "kind": "uses-mcp"
     },
     {
+      "id": "subagent:policy-precheck-subagent--uses-mcp->mcp:github",
+      "source": "subagent:policy-precheck-subagent",
+      "target": "mcp:github",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "subagent:policy-precheck-subagent--uses-mcp->mcp:terraform",
+      "source": "subagent:policy-precheck-subagent",
+      "target": "mcp:terraform",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "subagent:policy-precheck-subagent--uses-mcp->mcp:microsoft-learn",
+      "source": "subagent:policy-precheck-subagent",
+      "target": "mcp:microsoft-learn",
+      "kind": "uses-mcp"
+    },
+    {
       "id": "subagent:terraform-plan-subagent--uses-mcp->mcp:github",
       "source": "subagent:terraform-plan-subagent",
       "target": "mcp:github",
@@ -6126,6 +6061,12 @@
       "kind": "refs"
     },
     {
+      "id": "skill:azure-compute--refs->skill:azure-defaults",
+      "source": "skill:azure-compute",
+      "target": "skill:azure-defaults",
+      "kind": "refs"
+    },
+    {
       "id": "skill:azure-compute--refs->skill:azure-prepare",
       "source": "skill:azure-compute",
       "target": "skill:azure-prepare",
@@ -6189,6 +6130,12 @@
       "id": "skill:azure-governance-discovery--refs->skill:azure-artifacts",
       "source": "skill:azure-governance-discovery",
       "target": "skill:azure-artifacts",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:azure-governance-discovery--refs->skill:azure-defaults",
+      "source": "skill:azure-governance-discovery",
+      "target": "skill:azure-defaults",
       "kind": "refs"
     },
     {

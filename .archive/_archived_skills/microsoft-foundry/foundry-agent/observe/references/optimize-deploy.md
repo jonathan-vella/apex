@@ -6,14 +6,14 @@
 
 Use **`prompt_optimize`** with:
 
-| Parameter | Required | Description |
-|-----------|----------|-------------|
-| `developerMessage` | ✅ | Agent's current system prompt / instructions |
-| `deploymentName` | ✅ | Model for optimization (e.g., `gpt-4o-mini`) |
-| `projectEndpoint` or `foundryAccountResourceId` | ✅ | At least one required |
-| `requestedChanges` | | Concise improvement suggestions from cluster analysis |
+| Parameter                                       | Required | Description                                           |
+| ----------------------------------------------- | -------- | ----------------------------------------------------- |
+| `developerMessage`                              | ✅       | Agent's current system prompt / instructions          |
+| `deploymentName`                                | ✅       | Model for optimization (e.g., `gpt-4o-mini`)          |
+| `projectEndpoint` or `foundryAccountResourceId` | ✅       | At least one required                                 |
+| `requestedChanges`                              |          | Concise improvement suggestions from cluster analysis |
 
-**Example `requestedChanges`:** *"Be more specific when answering geography questions"*, *"Always cite sources when providing factual claims"*
+**Example `requestedChanges`:** _"Be more specific when answering geography questions"_, _"Always cite sources when providing factual claims"_
 
 > Use the optimized prompt returned by the tool. Do NOT manually rewrite.
 

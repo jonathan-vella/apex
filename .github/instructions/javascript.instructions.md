@@ -1,6 +1,6 @@
 ---
-description: 'JavaScript and Node.js conventions for validation scripts and tooling'
-applyTo: '**/*.{js,mjs,cjs}'
+description: "JavaScript and Node.js conventions for validation scripts and tooling"
+applyTo: "**/*.{js,mjs,cjs}"
 ---
 
 # JavaScript Guidelines

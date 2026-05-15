@@ -1,35 +1,37 @@
 <!-- ref:sdk-usage-v1 -->
+
 # Azure Storage SDK Usage
 
 SDK packages and quick start examples for Azure Storage services.
 
 ## Storage SDKs by Language
 
-| Language | Blob | Queue | File Share | Data Lake |
-|----------|------|-------|------------|----------|
-| .NET | `Azure.Storage.Blobs` | `Azure.Storage.Queues` | `Azure.Storage.Files.Shares` | `Azure.Storage.Files.DataLake` |
-| Java | `azure-storage-blob` | `azure-storage-queue` | `azure-storage-file-share` | `azure-storage-file-datalake` |
-| JavaScript | `@azure/storage-blob` | `@azure/storage-queue` | `@azure/storage-file-share` | `@azure/storage-file-datalake` |
-| Python | `azure-storage-blob` | `azure-storage-queue` | `azure-storage-file-share` | `azure-storage-file-datalake` |
-| Go | `azblob` | `azqueue` | `azfile` | `azdatalake` |
-| Rust | `azure_storage_blob` | `azure_storage_queue` | - | - |
+| Language   | Blob                  | Queue                  | File Share                   | Data Lake                      |
+| ---------- | --------------------- | ---------------------- | ---------------------------- | ------------------------------ |
+| .NET       | `Azure.Storage.Blobs` | `Azure.Storage.Queues` | `Azure.Storage.Files.Shares` | `Azure.Storage.Files.DataLake` |
+| Java       | `azure-storage-blob`  | `azure-storage-queue`  | `azure-storage-file-share`   | `azure-storage-file-datalake`  |
+| JavaScript | `@azure/storage-blob` | `@azure/storage-queue` | `@azure/storage-file-share`  | `@azure/storage-file-datalake` |
+| Python     | `azure-storage-blob`  | `azure-storage-queue`  | `azure-storage-file-share`   | `azure-storage-file-datalake`  |
+| Go         | `azblob`              | `azqueue`              | `azfile`                     | `azdatalake`                   |
+| Rust       | `azure_storage_blob`  | `azure_storage_queue`  | -                            | -                              |
 
 ## Installation Commands
 
-| Language | Install Blob SDK + Identity |
-|----------|-----------------------------|
-| .NET | `dotnet add package Azure.Storage.Blobs` `dotnet add package Azure.Identity` |
-| Java | Maven: `com.azure:azure-storage-blob` `com.azure:azure-identity` |
-| JavaScript | `npm install @azure/storage-blob @azure/identity` |
-| Python | `pip install azure-storage-blob azure-identity` |
-| Go | `go get github.com/Azure/azure-sdk-for-go/sdk/storage/azblob github.com/Azure/azure-sdk-for-go/sdk/azidentity` |
-| Rust | `cargo add azure_storage_blob azure_identity` |
+| Language   | Install Blob SDK + Identity                                                                                    |
+| ---------- | -------------------------------------------------------------------------------------------------------------- |
+| .NET       | `dotnet add package Azure.Storage.Blobs` `dotnet add package Azure.Identity`                                   |
+| Java       | Maven: `com.azure:azure-storage-blob` `com.azure:azure-identity`                                               |
+| JavaScript | `npm install @azure/storage-blob @azure/identity`                                                              |
+| Python     | `pip install azure-storage-blob azure-identity`                                                                |
+| Go         | `go get github.com/Azure/azure-sdk-for-go/sdk/storage/azblob github.com/Azure/azure-sdk-for-go/sdk/azidentity` |
+| Rust       | `cargo add azure_storage_blob azure_identity`                                                                  |
 
 ## Quick Start Examples
 
 All examples use `DefaultAzureCredential` for authentication, which is recommended for **local development only**. In production, use `ManagedIdentityCredential` — see [auth-best-practices.md](auth-best-practices.md). Rust uses `DeveloperToolsCredential` as it doesn't have a `DefaultAzureCredential` equivalent.
 
 **Python** - Upload Blob:
+
 ```python
 from azure.identity import DefaultAzureCredential
 from azure.storage.blob import BlobServiceClient
@@ -41,6 +43,7 @@ blob.upload_blob(b"Hello, Azure Storage!", overwrite=True)
 ```
 
 **JavaScript** - Upload Blob:
+
 ```javascript
 import { DefaultAzureCredential } from "@azure/identity";
 import { BlobServiceClient } from "@azure/storage-blob";
@@ -52,6 +55,7 @@ await blob.uploadData(Buffer.from("Hello, Azure Storage!"));
 ```
 
 **C#** - Upload Blob:
+
 ```csharp
 using Azure.Identity;
 using Azure.Storage.Blobs;
@@ -63,6 +67,7 @@ await blob.UploadAsync(BinaryData.FromString("Hello, Azure Storage!"), overwrite
 ```
 
 **Java** - Upload Blob:
+
 ```java
 import com.azure.identity.*;
 import com.azure.storage.blob.*;
@@ -78,6 +83,7 @@ blob.upload(BinaryData.fromString("Hello, Azure Storage!"), true);
 ```
 
 **Go** - Upload Blob:
+
 ```go
 package main
 
@@ -98,6 +104,7 @@ func main() {
 ```
 
 **Rust** - Upload Blob:
+
 ```rust
 use azure_identity::DeveloperToolsCredential;
 use azure_storage_blob::{BlobClient, BlobClientOptions};

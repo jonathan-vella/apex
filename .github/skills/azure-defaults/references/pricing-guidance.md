@@ -44,19 +44,66 @@ Exact names for the Azure Pricing MCP tool. Using wrong names returns
 - **DON'T**: Use "Azure SQL" (returns 0 results) — use "SQL Database"
 - **DON'T**: Use "Web App" — use "Azure App Service"
 
+## Canonical SKU Aliases
+
+Authoritative mapping from common variant input forms to the canonical
+`sku_name` value the Azure Retail Prices MCP server returns. The
+`cost-estimate-subagent` MUST normalize `resource_list[].sku_name`
+through this table before calling `azure_bulk_estimate` — alias
+mismatches are the #1 historical cause of `unresolved_items` and
+`status: FAILED` runs (Phase C of the nordic-foods lessons plan).
+
+The table is the **only** legitimate source of alias rewrites. New
+aliases are added via `tools/scripts/promote-sku-aliases.mjs` (monthly
+cron + on-demand) which scans recent `cost-estimate-*.json` files for
+`proposed_aliases[]` and opens a PR.
+
+| Service              | Variant input                             | Canonical `sku_name`           | `product_filter`                   | Notes                                                         |
+| -------------------- | ----------------------------------------- | ------------------------------ | ---------------------------------- | ------------------------------------------------------------- |
+| SQL Database         | `2 vCore General Purpose Serverless Gen5` | `2 vCore`                      | `General Purpose - Serverless`     | `skuName` is just vCore count; tier in `productName`.         |
+| SQL Database         | `GP_S_Gen5_2`                             | `2 vCore`                      | `General Purpose - Serverless`     | Bicep/Terraform CAF form; strip prefix.                       |
+| SQL Database         | `GP_Gen5_2`                               | `2 vCore`                      | `General Purpose - Compute Gen5`   | Provisioned variant — pick the non-Serverless filter.         |
+| SQL Database         | `BC_Gen5_2`                               | `2 vCore`                      | `Business Critical - Compute Gen5` | Business Critical tier.                                       |
+| App Service Plan     | `P1v3 Linux`                              | `P1 v3`                        | `Premium v3 Plan`                  | Strip OS suffix; `skuName` has a space before `v3`.           |
+| App Service Plan     | `P0v3`                                    | `P0 v3`                        | `Premium v3 Plan`                  | Premium v3 entry-tier.                                        |
+| App Service Plan     | `P2v3`, `P3v3`                            | `P2 v3`, `P3 v3`               | `Premium v3 Plan`                  | Same space-before-v3 rule.                                    |
+| App Service Plan     | `P1mv3`, `P3mv3`                          | `P1mv3`, `P3mv3`               | `Premium v3 Plan`                  | Memory-optimized has **no space** — exception to the v3 rule. |
+| App Service Plan     | `B1`, `B2`, `B3`                          | `B1`, `B2`, `B3`               | `Basic Plan`                       | No rewrite needed; product_filter required.                   |
+| App Service Plan     | `S1 Linux`                                | `S1`                           | `Standard Plan`                    | Strip OS suffix.                                              |
+| Storage Account      | `Standard ZRS`                            | `Standard_ZRS`                 | `General Block Blob`               | Underscore form is canonical.                                 |
+| Storage Account      | `Standard LRS`                            | `Standard_LRS`                 | `General Block Blob`               | Same pattern.                                                 |
+| Storage Account      | `Standard GRS`                            | `Standard_GRS`                 | `General Block Blob`               | Same pattern.                                                 |
+| Storage Account      | `Premium LRS`                             | `Premium_LRS`                  | `Premium Block Blob`               | Premium block blob carries `Premium_LRS` only.                |
+| Container Registry   | `Basic`, `Standard`, `Premium`            | `Basic`, `Standard`, `Premium` | `Container Registry`               | No rewrite; product_filter required.                          |
+| Virtual Machine      | `D2sv5`, `D4sv5`                          | `D2s_v5`, `D4s_v5`             | `Dsv5 Series`                      | VM SKUs use underscore-v5 in `armSkuName`.                    |
+| Virtual Machine      | `Standard_D2s_v5`                         | `D2s_v5`                       | `Dsv5 Series`                      | Strip `Standard_` prefix; bare ARM form is canonical.         |
+| Log Analytics        | `PerGB2018`                               | `Standard`                     | `Log Analytics`                    | API name; PAYG SKU is `skuName: Standard`.                    |
+| Application Insights | `Workspace-based`                         | `Basic`                        | `Application Insights`             | Classic AI; workspace-based bills via Log Analytics.          |
+
+**Resolution rule**: if the input `sku_name` exactly matches a "Variant
+input" cell or matches case-insensitively after stripping leading/trailing
+whitespace, rewrite to the "Canonical `sku_name`" value and also set the
+`product_filter` from the same row. Preserve the original verbose form in
+the line's `notes` field for audit.
+
+**No partial matches.** If the input doesn't appear in this table, the
+subagent MUST NOT guess — record it in `<unresolved_sku_triage>` with the
+top-3 closest matches and proceed with `status: FAILED` if pricing
+cannot resolve.
+
 ## SKU naming gotchas (verified against the Retail Prices API)
 
-| Common error           | Canonical Azure API skuName        | Notes                                                                                  |
-| ---------------------- | ---------------------------------- | -------------------------------------------------------------------------------------- |
-| `P1v3`, `P2v3`         | `P1 v3`, `P2 v3` (space)           | App Service Premium v3 SKUs have a space between digit and `v3` in `skuName`.          |
-| `P1v4`, `P2v4`         | `P1 v4`, `P2 v4` (space)           | Same rule for Premium v4.                                                              |
-| `P1mv3`, `P3mv3`       | `P1mv3`, `P3mv3` (no space)        | Memory-optimized Premium v3 SKUs (`m` for memory) have no space.                       |
-| `D2sv5`                | `D2s_v5` (underscore)              | VM SKUs use underscore-v5 in `armSkuName`.                                             |
-| `vCore General Purpose Serverless Gen5 2 vCore` | `2 vCore`         | SQL Database `skuName` is just the vCore count; tier is in `productName`.              |
-| `Premium v3 P1`        | `P1 v3`                            | The plan / tier wording is in `productName`, not `skuName`.                            |
-| `Standard ZRS Hot LRS` | `Standard ZRS`                     | Storage `skuName` carries redundancy only; access tier (Hot/Cool) is in `productName`. |
-| `PerGB2018`            | `Standard`                         | Log Analytics Pay-As-You-Go is `skuName: Standard`, productName `Log Analytics`.       |
-| `Workspace-based` (App Insights) | `Basic`                  | Application Insights Classic; workspace-based AI bills through Log Analytics instead.  |
+| Common error                                    | Canonical Azure API skuName | Notes                                                                                  |
+| ----------------------------------------------- | --------------------------- | -------------------------------------------------------------------------------------- |
+| `P1v3`, `P2v3`                                  | `P1 v3`, `P2 v3` (space)    | App Service Premium v3 SKUs have a space between digit and `v3` in `skuName`.          |
+| `P1v4`, `P2v4`                                  | `P1 v4`, `P2 v4` (space)    | Same rule for Premium v4.                                                              |
+| `P1mv3`, `P3mv3`                                | `P1mv3`, `P3mv3` (no space) | Memory-optimized Premium v3 SKUs (`m` for memory) have no space.                       |
+| `D2sv5`                                         | `D2s_v5` (underscore)       | VM SKUs use underscore-v5 in `armSkuName`.                                             |
+| `vCore General Purpose Serverless Gen5 2 vCore` | `2 vCore`                   | SQL Database `skuName` is just the vCore count; tier is in `productName`.              |
+| `Premium v3 P1`                                 | `P1 v3`                     | The plan / tier wording is in `productName`, not `skuName`.                            |
+| `Standard ZRS Hot LRS`                          | `Standard ZRS`              | Storage `skuName` carries redundancy only; access tier (Hot/Cool) is in `productName`. |
+| `PerGB2018`                                     | `Standard`                  | Log Analytics Pay-As-You-Go is `skuName: Standard`, productName `Log Analytics`.       |
+| `Workspace-based` (App Insights)                | `Basic`                     | Application Insights Classic; workspace-based AI bills through Log Analytics instead.  |
 
 ## Service-specific billing quirks
 
@@ -95,23 +142,23 @@ same `skuName`. Without a `product_filter` substring, `azure_bulk_estimate`
 and `azure_price_search` return ambiguous results and fail to project a
 monthly cost. **You MUST pass `product_filter` for these services.**
 
-| Service          | sku_name (canonical)     | Required `product_filter`                            | Typical meter             | Notes                                                                |
-| ---------------- | ------------------------ | ---------------------------------------------------- | ------------------------- | -------------------------------------------------------------------- |
-| SQL Database — GP Serverless | `1 vCore` (always; per vCore-second billing) | `General Purpose - Serverless`                       | per `Hour` (compute)      | Multiply hourly rate by max_vcore × utilization hours. Storage line is separate. Higher-vCore SKUs publish $0 "Free" meters only — see SQL Serverless quirk above. |
-| SQL Database — GP Provisioned | `N vCore` (Gen5) | `General Purpose - Compute Gen5`                     | per `Hour`                | For DTU model use sku `S0`/`S1`/`S2`/etc. with no `product_filter`   |
-| SQL Database — Business Critical | `N vCore` (Gen5) | `Business Critical - Compute Gen5`                   | per `Hour`                |                                                                      |
-| SQL Database — Hyperscale | `N vCore` (Gen5)    | `Hyperscale - Compute Gen5`                          | per `Hour`                |                                                                      |
-| Storage — Block Blob Hot   | `Standard ZRS` / `Standard LRS` / `Standard GRS` | `General Block Blob`                                 | `Hot {LRS,ZRS,GRS} Data Stored` per `GB/Month` | Pass `gb_stored` usage; tier (Hot/Cool/Cold/Archive) comes from `productName` |
-| Storage — Block Blob Cool  | `Standard ZRS` / `Standard LRS` / `Standard GRS` | `General Block Blob v2 Hierarchical Namespace` or `General Block Blob` | `Cool {LRS,ZRS,GRS} Data Stored` per `GB/Month` | Pass `gb_stored` usage                                              |
-| Storage — Tables           | `Standard LRS` etc.      | `Tables`                                             | `Data Stored` + transactions | Pass both `gb_stored` and `transactions_per_month`                |
-| Storage — Queues           | `Standard LRS` etc.      | `Queues v2`                                          | transactions             | Pass `transactions_per_month`                                       |
-| Storage — Files            | `Standard LRS` etc.      | `Files`                                              | `GB/Month`                |                                                                      |
-| Log Analytics — Pay-As-You-Go | `Standard`           | `Log Analytics`                                      | `Standard Data Analyzed` per `GB` | Pass `gb_stored` usage as ingested GB/month                       |
-| Log Analytics — Free       | `Free`                   | `Log Analytics`                                      | `Free Data Analyzed`      | $0 — included in Log Analytics product                              |
-| Bandwidth — Outbound Internet | `Standard`            | `Bandwidth - Routing Preference: Internet`           | `Standard Data Transfer Out` per `GB` | First 100 GB/month free; pass `gb_transferred` for >100 GB        |
-| Application Insights — Classic | `Basic`              | `Application Insights`                               | per `GB` ingestion       | Workspace-based AppInsights bills via Log Analytics, not here       |
-| Front Door — Standard      | `Standard`               | `Azure Front Door Standard` (NOT `Premium`)          | base + per `GB`           | Routing rules + requests + bandwidth — multiple meters             |
-| Front Door — Premium       | `Premium`                | `Azure Front Door Premium`                           | base + per `GB`           |                                                                      |
+| Service                          | sku_name (canonical)                             | Required `product_filter`                                              | Typical meter                                   | Notes                                                                                                                                                              |
+| -------------------------------- | ------------------------------------------------ | ---------------------------------------------------------------------- | ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| SQL Database — GP Serverless     | `1 vCore` (always; per vCore-second billing)     | `General Purpose - Serverless`                                         | per `Hour` (compute)                            | Multiply hourly rate by max_vcore × utilization hours. Storage line is separate. Higher-vCore SKUs publish $0 "Free" meters only — see SQL Serverless quirk above. |
+| SQL Database — GP Provisioned    | `N vCore` (Gen5)                                 | `General Purpose - Compute Gen5`                                       | per `Hour`                                      | For DTU model use sku `S0`/`S1`/`S2`/etc. with no `product_filter`                                                                                                 |
+| SQL Database — Business Critical | `N vCore` (Gen5)                                 | `Business Critical - Compute Gen5`                                     | per `Hour`                                      |                                                                                                                                                                    |
+| SQL Database — Hyperscale        | `N vCore` (Gen5)                                 | `Hyperscale - Compute Gen5`                                            | per `Hour`                                      |                                                                                                                                                                    |
+| Storage — Block Blob Hot         | `Standard ZRS` / `Standard LRS` / `Standard GRS` | `General Block Blob`                                                   | `Hot {LRS,ZRS,GRS} Data Stored` per `GB/Month`  | Pass `gb_stored` usage; tier (Hot/Cool/Cold/Archive) comes from `productName`                                                                                      |
+| Storage — Block Blob Cool        | `Standard ZRS` / `Standard LRS` / `Standard GRS` | `General Block Blob v2 Hierarchical Namespace` or `General Block Blob` | `Cool {LRS,ZRS,GRS} Data Stored` per `GB/Month` | Pass `gb_stored` usage                                                                                                                                             |
+| Storage — Tables                 | `Standard LRS` etc.                              | `Tables`                                                               | `Data Stored` + transactions                    | Pass both `gb_stored` and `transactions_per_month`                                                                                                                 |
+| Storage — Queues                 | `Standard LRS` etc.                              | `Queues v2`                                                            | transactions                                    | Pass `transactions_per_month`                                                                                                                                      |
+| Storage — Files                  | `Standard LRS` etc.                              | `Files`                                                                | `GB/Month`                                      |                                                                                                                                                                    |
+| Log Analytics — Pay-As-You-Go    | `Standard`                                       | `Log Analytics`                                                        | `Standard Data Analyzed` per `GB`               | Pass `gb_stored` usage as ingested GB/month                                                                                                                        |
+| Log Analytics — Free             | `Free`                                           | `Log Analytics`                                                        | `Free Data Analyzed`                            | $0 — included in Log Analytics product                                                                                                                             |
+| Bandwidth — Outbound Internet    | `Standard`                                       | `Bandwidth - Routing Preference: Internet`                             | `Standard Data Transfer Out` per `GB`           | First 100 GB/month free; pass `gb_transferred` for >100 GB                                                                                                         |
+| Application Insights — Classic   | `Basic`                                          | `Application Insights`                                                 | per `GB` ingestion                              | Workspace-based AppInsights bills via Log Analytics, not here                                                                                                      |
+| Front Door — Standard            | `Standard`                                       | `Azure Front Door Standard` (NOT `Premium`)                            | base + per `GB`                                 | Routing rules + requests + bandwidth — multiple meters                                                                                                             |
+| Front Door — Premium             | `Premium`                                        | `Azure Front Door Premium`                                             | base + per `GB`                                 |                                                                                                                                                                    |
 
 > **Pattern**: when in doubt, query the Retail Prices API directly first
 > (`https://prices.azure.com/api/retail/prices?$filter=serviceName eq '<name>' and armRegionName eq '<region>'`)
@@ -124,12 +171,12 @@ The MCP cannot project a monthly cost from a meter like
 `$0.023 per 1 GB/Month` without knowing how many GB. Pass the relevant
 `usage` field in every resource entry whose meter is **not** hourly:
 
-| Meter dimension | `usage` field          | Example value (defaults to plug in)                      |
-| --------------- | ---------------------- | -------------------------------------------------------- |
-| per GB/Month    | `gb_stored`            | Storage Hot Blob: from requirements; SQL data: 32        |
-| per GB egress   | `gb_transferred`       | Bandwidth: from requirements (default 100)               |
-| per 10K ops     | `transactions_per_month` | Key Vault: 10000; Storage Queues: 100000               |
-| per second      | `seconds_runtime`      | ACR Build, Logic Apps consumption-style                  |
+| Meter dimension | `usage` field            | Example value (defaults to plug in)               |
+| --------------- | ------------------------ | ------------------------------------------------- |
+| per GB/Month    | `gb_stored`              | Storage Hot Blob: from requirements; SQL data: 32 |
+| per GB egress   | `gb_transferred`         | Bandwidth: from requirements (default 100)        |
+| per 10K ops     | `transactions_per_month` | Key Vault: 10000; Storage Queues: 100000          |
+| per second      | `seconds_runtime`        | ACR Build, Logic Apps consumption-style           |
 
 Resources without a `usage` hint where the meter requires it will come
 back with `monthly_cost: 0.0` and a `projection_warning` — that is **not**
@@ -143,29 +190,28 @@ this project will ever produce. Record them as `monthly_cost: 0.0` with
 `hourly_rate: 0.0` and `notes: "static_fallback: <reason>"` **without**
 spending an MCP call:
 
-| Resource                              | Cost   | Reason                                                                            |
-| ------------------------------------- | ------ | --------------------------------------------------------------------------------- |
-| Virtual Network (base, no peering)    | $0.00  | VNet itself has no recurring charge — only data processed via gateway/peering    |
-| Network Security Group (NSG)          | $0.00  | NSGs are free                                                                     |
-| Route Table                           | $0.00  | Free                                                                              |
-| Microsoft Entra ID (workforce)        | $0.00  | Free tier; P1/P2 only if explicitly purchased per-user                            |
-| Microsoft Entra External ID (Free)    | $0.00  | First 50,000 MAU/month free                                                       |
-| Resource Group                        | $0.00  | Free                                                                              |
-| Managed Identity (system-assigned)    | $0.00  | Free                                                                              |
-| Action Group (email/SMS to ≤1 region) | $0.00  | First 1,000 emails + first 100 SMS free                                           |
-| Azure Budget                          | $0.00  | Free — no charge for cost management                                              |
-| Diagnostic settings                   | $0.00  | Free; ingestion charged via Log Analytics line                                    |
-| App Service Custom Domain             | $0.00  | Free; only TLS certificate has a cost (separate Storage line if SNI Cert is used) |
-| Bandwidth (≤ first 100 GB/month outbound) | $0.00 | Azure's free egress allowance applies before any per-GB charge                  |
-| Private DNS Zone — base                | $0.50/mo per zone | Use MCP for this — it returns a per-zone meter; included here for reference |
-| Private Endpoint                      | $7.20/mo each | Use MCP — Standard meter resolves cleanly under Virtual Network             |
+| Resource                                  | Cost              | Reason                                                                            |
+| ----------------------------------------- | ----------------- | --------------------------------------------------------------------------------- |
+| Virtual Network (base, no peering)        | $0.00             | VNet itself has no recurring charge — only data processed via gateway/peering     |
+| Network Security Group (NSG)              | $0.00             | NSGs are free                                                                     |
+| Route Table                               | $0.00             | Free                                                                              |
+| Microsoft Entra ID (workforce)            | $0.00             | Free tier; P1/P2 only if explicitly purchased per-user                            |
+| Microsoft Entra External ID (Free)        | $0.00             | First 50,000 MAU/month free                                                       |
+| Resource Group                            | $0.00             | Free                                                                              |
+| Managed Identity (system-assigned)        | $0.00             | Free                                                                              |
+| Action Group (email/SMS to ≤1 region)     | $0.00             | First 1,000 emails + first 100 SMS free                                           |
+| Azure Budget                              | $0.00             | Free — no charge for cost management                                              |
+| Diagnostic settings                       | $0.00             | Free; ingestion charged via Log Analytics line                                    |
+| App Service Custom Domain                 | $0.00             | Free; only TLS certificate has a cost (separate Storage line if SNI Cert is used) |
+| Bandwidth (≤ first 100 GB/month outbound) | $0.00             | Azure's free egress allowance applies before any per-GB charge                    |
+| Private DNS Zone — base                   | $0.50/mo per zone | Use MCP for this — it returns a per-zone meter; included here for reference       |
+| Private Endpoint                          | $7.20/mo each     | Use MCP — Standard meter resolves cleanly under Virtual Network                   |
 
 > The static-fallback whitelist is a closed list. If a resource is not on
 > this whitelist, you **must** attempt to price it through the MCP — do
 > not invent "free" entries.
 
 ## Bulk Estimates
-
 
 For multi-resource cost estimates, prefer `azure_bulk_estimate` over
 calling `azure_cost_estimate` per resource. It accepts a `resources`
@@ -277,13 +323,13 @@ and you should mark the line `Estimate unavailable`.
 
 ### Known MCP bugs (as of 2026-05)
 
-| Symptom                                                                         | Cause                                                                                                   | Workaround                                                                                                                  |
-| ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| `azure_price_search` returns `count: 0` for SQL Database `S2` / `S0` / `S1`     | Day-based DTU meters (`unitOfMeasure: '1/Day'`) are filtered out by the MCP's SKU validator             | Fetch the meter via direct Retail Prices API; multiply `retailPrice × 30` for monthly. Set `data_source` to include "+ direct API". |
-| `azure_bulk_estimate` returns `monthly_cost: 0` for multi-product services      | Missing `product_filter` per resource — `contains(skuName, …)` matches multiple products ambiguously   | Always pass `product_filter` per the table in `## Required: product_filter for multi-product services` above.               |
-| `azure_bulk_estimate` returns `monthly_cost: 0` + `projection_warning`          | Missing `usage` hint for a non-hourly meter (per-GB / per-transaction / per-second)                     | Pass the relevant `usage` field per `## Required: usage hints for non-hourly meters` above.                                 |
-| App Service Premium v3 `P1v3` / `P2v3` returns 0                                | Azure's canonical `skuName` has a space: `P1 v3`, `P2 v3`                                               | Use the space form. See `## SKU naming gotchas`.                                                                            |
-| SQL Database GP Serverless higher-vCore SKUs (e.g. `2 vCore`) return $0 meters  | Azure publishes the billable per-vCore-second meter only under `1 vCore`; higher SKUs show only the free pause meter | Query `sku_name: "1 vCore"` with `product_filter: "General Purpose - Serverless"`, then compute `hourly_rate × max_vcore × utilization × 730`. See `## Service-specific billing quirks → SQL Database Serverless`. |
+| Symptom                                                                        | Cause                                                                                                                | Workaround                                                                                                                                                                                                         |
+| ------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `azure_price_search` returns `count: 0` for SQL Database `S2` / `S0` / `S1`    | Day-based DTU meters (`unitOfMeasure: '1/Day'`) are filtered out by the MCP's SKU validator                          | Fetch the meter via direct Retail Prices API; multiply `retailPrice × 30` for monthly. Set `data_source` to include "+ direct API".                                                                                |
+| `azure_bulk_estimate` returns `monthly_cost: 0` for multi-product services     | Missing `product_filter` per resource — `contains(skuName, …)` matches multiple products ambiguously                 | Always pass `product_filter` per the table in `## Required: product_filter for multi-product services` above.                                                                                                      |
+| `azure_bulk_estimate` returns `monthly_cost: 0` + `projection_warning`         | Missing `usage` hint for a non-hourly meter (per-GB / per-transaction / per-second)                                  | Pass the relevant `usage` field per `## Required: usage hints for non-hourly meters` above.                                                                                                                        |
+| App Service Premium v3 `P1v3` / `P2v3` returns 0                               | Azure's canonical `skuName` has a space: `P1 v3`, `P2 v3`                                                            | Use the space form. See `## SKU naming gotchas`.                                                                                                                                                                   |
+| SQL Database GP Serverless higher-vCore SKUs (e.g. `2 vCore`) return $0 meters | Azure publishes the billable per-vCore-second meter only under `1 vCore`; higher SKUs show only the free pause meter | Query `sku_name: "1 vCore"` with `product_filter: "General Purpose - Serverless"`, then compute `hourly_rate × max_vcore × utilization × 730`. See `## Service-specific billing quirks → SQL Database Serverless`. |
 
 ### Recovery protocol (subagent + parent)
 
@@ -312,4 +358,3 @@ that works against the Retail Prices API, and a brief root-cause
 hypothesis. Link to a GitHub issue in
 `tools/mcp-servers/azure-pricing` so the underlying bug can be tracked
 and eventually closed.
-

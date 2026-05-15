@@ -859,6 +859,17 @@ def discover(
         # Fix E: canonical aliases so the agent never needs to reshape JSON.
         # `policies` is a reference alias of `findings` (not a copy).
         "policies": findings,
+        # Authoritative reference set for the L3 policy-precheck subagent.
+        # Contains every policy definition ID we resolved during this run
+        # (subscription-scope + tenant-scope, both initiative members and
+        # standalone assignments), regardless of effect. The L3 subagent
+        # uses this to suppress false-positive "live policies missing from
+        # constraints" noise caused by initiative child policies that the
+        # findings[] filter (Deny + DeployIfNotExists + Modify only) drops.
+        # Values are lowercase resource IDs to match `az policy state list`
+        # output. See iac-common/references/policy-precheck-contract.md
+        # Phase 3 step 1 for the comparison contract.
+        "member_policy_index": sorted(defs.keys()),
         "tags_required": _extract_tags_required(findings),
         "allowed_locations": _extract_allowed_locations(findings),
     }

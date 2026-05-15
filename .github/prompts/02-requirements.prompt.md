@@ -16,7 +16,7 @@ questions, then write the artifact.
   `.github/skills/azure-artifacts/templates/00-session-state.template.json`.
 - Read `.github/skills/azure-artifacts/references/01-requirements-template.md`
   and replicate its H2 structure exactly.
-- Read `.github/skills/azure-defaults/SKILL.digest.md` for region, tag,
+- Read `.github/skills/azure-defaults/SKILL.md` for region, tag,
   naming, and security defaults.
 - `{project}` is the folder name under `agent-output/`.
 </context>
@@ -53,9 +53,10 @@ questions, then write the artifact.
 </rules>
 
 <output_contract>
+
 - `agent-output/{project}/01-requirements.md` (H2 structure matches template)
 - Updated `agent-output/{project}/00-session-state.json` with Step 1 complete
   and `decisions.complexity` set
 - Findings file from challenger-review-subagent (when `must_fix` items exist)
 - Handoff: hand control to Step 2 (Architecture) via the Orchestrator
-</output_contract>
+  </output_contract>

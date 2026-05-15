@@ -12,12 +12,12 @@ This is the canonical reference for **T-008 (type-fit signature validator)** and
 
 ## The four types
 
-| Type | Filename pattern | When to use | Expected resources |
-| --- | --- | --- | --- |
-| **logical** | `03-des-diagram.drawio`, `04-dependency-diagram.drawio` | Architecture overviews, service relationships, single-flow web apps | Compute + data + cross-cutting; left-to-right flow; no network detail |
-| **network** | `03-des-diagram.drawio` (when prompt is network-led) | Hub-spoke, landing zones, VNet topology, security perimeters | VNets, subnets, peering, gateways; trust boundary always present |
-| **sequence** | `04-runtime-diagram.drawio` | Runtime flows, event-driven systems, request paths | Compute + messaging + persistence; logical zones (Ingress / Processing / Persistence); legend optional |
-| **deployment** | `07-ab-diagram.drawio` | As-built physical layout, ML/data pipelines, environment-specific | Workspace + compute + data + variant-specific tiers (GPU, Premium, Gen2) |
+| Type           | Filename pattern                                        | When to use                                                         | Expected resources                                                                                     |
+| -------------- | ------------------------------------------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| **logical**    | `03-des-diagram.drawio`, `04-dependency-diagram.drawio` | Architecture overviews, service relationships, single-flow web apps | Compute + data + cross-cutting; left-to-right flow; no network detail                                  |
+| **network**    | `03-des-diagram.drawio` (when prompt is network-led)    | Hub-spoke, landing zones, VNet topology, security perimeters        | VNets, subnets, peering, gateways; trust boundary always present                                       |
+| **sequence**   | `04-runtime-diagram.drawio`                             | Runtime flows, event-driven systems, request paths                  | Compute + messaging + persistence; logical zones (Ingress / Processing / Persistence); legend optional |
+| **deployment** | `07-ab-diagram.drawio`                                  | As-built physical layout, ML/data pipelines, environment-specific   | Workspace + compute + data + variant-specific tiers (GPU, Premium, Gen2)                               |
 
 ## Selection rule (canonical)
 
@@ -118,12 +118,12 @@ emit one diagram per "page" with its own complete chain (`create-groups` →
 
 ## Anti-patterns observed in T-012 baseline
 
-| Anti-pattern | Captured in | Correction |
-| --- | --- | --- |
-| Type forced to logical when prompt is sequence | G3 mostly avoided this (4/4 type-fit); G5 collapsed `logical+network` into a single page that scored layout 1/4 | Use the priority-1 explicit cue first; multi-type prompts go decomposed |
-| VNet zones used for logical/sequence diagrams | n/a in baseline — agents got this right | n/a; preserve current behaviour |
-| Legend rendered for sequence type | G3 correctly omitted (matches `expected_legend_required: false`) | Maintain the carve-out explicitly per T-022 handoff |
-| Wrong edge target | G3 drew `change feed` from Cosmos to Redis (should be Cosmos → Event Grid). Type-fit was correct; semantic-target was not | Out of scope for T-016 / T-008; needs `expected_edge_endpoints[]` schema extension |
+| Anti-pattern                                   | Captured in                                                                                                               | Correction                                                                         |
+| ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| Type forced to logical when prompt is sequence | G3 mostly avoided this (4/4 type-fit); G5 collapsed `logical+network` into a single page that scored layout 1/4           | Use the priority-1 explicit cue first; multi-type prompts go decomposed            |
+| VNet zones used for logical/sequence diagrams  | n/a in baseline — agents got this right                                                                                   | n/a; preserve current behaviour                                                    |
+| Legend rendered for sequence type              | G3 correctly omitted (matches `expected_legend_required: false`)                                                          | Maintain the carve-out explicitly per T-022 handoff                                |
+| Wrong edge target                              | G3 drew `change feed` from Cosmos to Redis (should be Cosmos → Event Grid). Type-fit was correct; semantic-target was not | Out of scope for T-016 / T-008; needs `expected_edge_endpoints[]` schema extension |
 
 ## Cross-references
 

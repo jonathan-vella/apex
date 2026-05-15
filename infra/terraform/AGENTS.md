@@ -2,6 +2,16 @@
 
 Agent instructions specific to the `infra/terraform/` subtree.
 
+## SKU Source of Truth
+
+Read `agent-output/{project}/sku-manifest.json` first. Never re-derive
+creative SKUs (App Service plan, VM, SQL, Cosmos, AKS pool, Redis, APIM,
+App Gateway, Storage replication) from `04-implementation-plan.md`
+prose. Each Terraform resource maps to a
+`services[].iac_logical_names.terraform` entry; per-environment overrides
+come from `services[].environment_overrides.{env}`. See
+[`.github/instructions/sku-manifest.instructions.md`](../../.github/instructions/sku-manifest.instructions.md).
+
 ## Build Commands
 
 ```bash

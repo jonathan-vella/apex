@@ -63,7 +63,7 @@ public class EventHubFunctions
 
         var eventData = JsonSerializer.Serialize(body);
         _logger.LogInformation("Sent event to Event Hub: {EventData}", eventData);
-        
+
         return eventData;
     }
 

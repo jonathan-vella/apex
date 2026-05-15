@@ -76,9 +76,9 @@ scale: {
 
 ## Recommendations
 
-| Workload | Min Replicas | Max Replicas | Rule Type |
-|----------|--------------|--------------|-----------|
-| Production API | 1 | 10-20 | HTTP |
-| Dev/Test API | 0 | 5 | HTTP |
-| Background Worker | 0 | 30+ | Queue/Event |
-| Scheduled Job | 0 | 1 | KEDA cron |
+| Workload          | Min Replicas | Max Replicas | Rule Type   |
+| ----------------- | ------------ | ------------ | ----------- |
+| Production API    | 1            | 10-20        | HTTP        |
+| Dev/Test API      | 0            | 5            | HTTP        |
+| Background Worker | 0            | 30+          | Queue/Event |
+| Scheduled Job     | 0            | 1            | KEDA cron   |

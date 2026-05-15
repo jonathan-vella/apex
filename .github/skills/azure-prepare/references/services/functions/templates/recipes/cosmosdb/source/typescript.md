@@ -10,27 +10,27 @@ Replace the HTTP trigger file(s) with this Cosmos DB trigger.
 import { app, InvocationContext } from "@azure/functions";
 
 interface MyDocument {
-    id: string;
-    Text: string;
-    Number: number;
-    Boolean: boolean;
+  id: string;
+  Text: string;
+  Number: number;
+  Boolean: boolean;
 }
 
 export async function cosmosTrigger(documents: MyDocument[], context: InvocationContext): Promise<void> {
-    context.log(`Cosmos DB trigger function processed ${documents.length} document(s)`);
+  context.log(`Cosmos DB trigger function processed ${documents.length} document(s)`);
 
-    for (const document of documents) {
-        context.log(`Document Id: ${document.id}`);
-    }
+  for (const document of documents) {
+    context.log(`Document Id: ${document.id}`);
+  }
 }
 
 app.cosmosDB("cosmosTrigger", {
-    connection: "COSMOS_CONNECTION",
-    databaseName: "%COSMOS_DATABASE_NAME%",
-    containerName: "%COSMOS_CONTAINER_NAME%",
-    createLeaseContainerIfNotExists: true,
-    leaseContainerName: "leases",
-    handler: cosmosTrigger,
+  connection: "COSMOS_CONNECTION",
+  databaseName: "%COSMOS_DATABASE_NAME%",
+  containerName: "%COSMOS_CONTAINER_NAME%",
+  createLeaseContainerIfNotExists: true,
+  leaseContainerName: "leases",
+  handler: cosmosTrigger,
 });
 ```
 

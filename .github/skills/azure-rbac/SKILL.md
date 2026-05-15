@@ -1,32 +1,96 @@
 ---
 name: azure-rbac
-description: '**ANALYSIS SKILL** — Find the right Azure RBAC role for an identity with least-privilege access; generate CLI + Bicep code to assign it. WHEN: "what role should I assign", "least privilege role", "RBAC role for", "role for managed identity", "custom role definition", "assign role to identity". USE FOR: role discovery, RBAC scaffolding, least-privilege analysis. DO NOT USE FOR: deploying resources (use azure-deploy), security audits (use azure-compliance).'
+description: '**ANALYSIS SKILL** — Find the right Azure RBAC role for an identity with least-privilege access; generate CLI, Bicep, and Terraform code to assign it. WHEN: "what role should I assign", "least privilege role", "RBAC role for", "role for managed identity", "custom role definition", "assign role to identity". USE FOR: role discovery, RBAC scaffolding (Bicep + Terraform), least-privilege analysis. DO NOT USE FOR: deploying resources (use azure-deploy), security audits (use azure-compliance). INVOKES: microsoft-learn MCP, az CLI.'
 license: MIT
 metadata:
   author: Microsoft
-  version: "1.0.1"
+  version: "1.1.0"
 ---
 
-Use the `azure__documentation` tool to find the minimal role definition that matches the desired permissions the user wants to assign to an identity. If no built-in role matches the desired permissions, use the `azure__extension_cli_generate` tool to create a custom role definition with the desired permissions. Then use the `azure__extension_cli_generate` tool to generate the CLI commands needed to assign that role to the identity. Finally, use the `azure__bicepschema` and `azure__get_azure_bestpractices` tools to provide a Bicep code snippet for adding the role assignment. If user is asking about role necessary to set access, refer to Prerequisites for Granting Roles down below:
+# Azure RBAC Skill
+
+Find the minimal built-in Azure role that grants the requested permissions to
+an identity, then generate the `az role assignment create` CLI and a Bicep
+`Microsoft.Authorization/roleAssignments` snippet. Custom roles only when no
+built-in fits.
 
 ## Rules
 
 - **Least privilege first** — prefer the most narrowly-scoped built-in role that satisfies the permissions; only define a custom role when no built-in fits
 - **Role assignment scope matters** — prefer resource-level or resource-group scope over subscription scope
-- **Use `azure__documentation` first** to discover built-in roles before generating any CLI or Bicep
-- **Use `azure__extension_cli_generate`** for `az role assignment create` and custom-role definitions
-- **Use `azure__bicepschema` + `azure__get_azure_bestpractices`** for Bicep `Microsoft.Authorization/roleAssignments` snippets (use `guid()` for idempotent assignment names)
+- **Discover roles via `mcp_microsoft-lea_microsoft_docs_search`** — query the Microsoft Learn MCP server for built-in role definitions before generating any CLI or Bicep
+- **Verify with `az role definition list`** — cross-check the discovered role against the live Azure RBAC catalogue
+- **Use `guid()` in Bicep** for `Microsoft.Authorization/roleAssignments` names so assignments are idempotent across re-deploys; set `principalType: 'ServicePrincipal'` for managed identities
 - **Granting roles requires elevated permission** — see [Prerequisites for Granting Roles](#prerequisites-for-granting-roles) below
 - **Out of scope**: deploying resources (use `azure-deploy`), security audits (use `azure-compliance`)
 
 ## Steps
 
 1. **Identify the operation** — what action does the identity need (read storage, manage keys, deploy resources, etc.)?
-2. **Find the minimal built-in role** — query `azure__documentation` for roles whose permissions match the operation
-3. **If no built-in fits** — use `azure__extension_cli_generate` to scaffold a custom role definition with only the required `actions` / `dataActions`
-4. **Generate the assignment CLI** — `azure__extension_cli_generate` for `az role assignment create --assignee <id> --role <name> --scope <scope>`
-5. **Generate the Bicep snippet** — `azure__bicepschema` + `azure__get_azure_bestpractices` for `Microsoft.Authorization/roleAssignments` with `guid()` name and `principalType: 'ServicePrincipal'`
-6. **Verify the caller has assignment permission** — cross-check with [Prerequisites for Granting Roles](#prerequisites-for-granting-roles)
+2. **Search Microsoft docs** — invoke `mcp_microsoft-lea_microsoft_docs_search` with a query such as `"Azure built-in role <operation>"` (e.g., `"Azure built-in role read blob storage"`); collect candidate role names + role IDs
+3. **Verify against the live catalogue** — `az role definition list --query "[?roleName=='<RoleName>'].{name:roleName,id:name,actions:permissions[0].actions}" -o table`
+4. **If no built-in fits** — scaffold a custom role definition with only the required `actions` / `dataActions`:
+
+   ```bash
+   cat > custom-role.json <<'JSON'
+   {
+     "Name": "<CustomRoleName>",
+     "Description": "<purpose>",
+     "Actions": ["<provider>/<resource>/<action>"],
+     "DataActions": [],
+     "AssignableScopes": ["/subscriptions/<sub-id>"]
+   }
+   JSON
+   az role definition create --role-definition custom-role.json
+   ```
+
+5. **Generate the assignment CLI** —
+
+   ```bash
+   az role assignment create \
+     --assignee <objectId|appId> \
+     --role "<RoleName>" \
+     --scope <scope>
+   ```
+
+6. **Generate the IaC snippet** —
+
+   **Bicep:**
+
+   ```bicep
+   resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+     name: guid(resourceId, principalId, roleDefinitionId)
+     scope: targetResource
+     properties: {
+       roleDefinitionId: subscriptionResourceId(
+         'Microsoft.Authorization/roleDefinitions',
+         '<role-id-guid>'
+       )
+       principalId: principalId
+       principalType: 'ServicePrincipal'
+     }
+   }
+   ```
+
+   **Terraform (raw `azurerm_role_assignment`):**
+
+   ```hcl
+   resource "azurerm_role_assignment" "this" {
+     scope                = azurerm_resource_group.target.id   # or any resource ID
+     role_definition_name = "<RoleName>"                       # e.g., "Storage Blob Data Reader"
+     principal_id         = azurerm_user_assigned_identity.app.principal_id
+     principal_type       = "ServicePrincipal"
+     # For idempotent imports/refreshes, lock to the role definition GUID instead:
+     # role_definition_id = "/subscriptions/${data.azurerm_subscription.current.subscription_id}/providers/Microsoft.Authorization/roleDefinitions/<role-id-guid>"
+   }
+   ```
+
+   AVM-TF callers should prefer the
+   [`Azure/avm-res-authorization-roleassignment`](https://registry.terraform.io/modules/Azure/avm-res-authorization-roleassignment/azurerm/latest)
+   module over raw `azurerm_role_assignment` when available — it wraps the
+   resource with the canonical AVM input/output contract.
+
+7. **Verify the caller has assignment permission** — cross-check with [Prerequisites for Granting Roles](#prerequisites-for-granting-roles)
 
 ## Prerequisites for Granting Roles
 

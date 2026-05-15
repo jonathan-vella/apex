@@ -7,6 +7,7 @@
 ### Step 1: Show Regional Quota Summary (REQUIRED APPROACH)
 
 > **CRITICAL AGENT INSTRUCTION:**
+>
 > - When showing quota: Query REGIONAL quota summary, NOT individual resources
 > - DO NOT run `az cognitiveservices account list` for quota queries
 > - DO NOT filter resources by username or name patterns
@@ -43,15 +44,18 @@ az cognitiveservices account deployment list \
 ```
 
 **Alternative - Use MCP Tools (Optional Wrappers):**
+
 ```
 foundry_models_deployments_list(
   resource-group="<rg>",
   azure-ai-services="<resource-name>"
 )
 ```
-*Note: MCP tools are convenience wrappers around the same control plane APIs shown above.*
+
+_Note: MCP tools are convenience wrappers around the same control plane APIs shown above._
 
 **Interpreting Results:**
+
 - `Used` (currentValue): Currently allocated quota
 - `Limit`: Maximum quota available in region
 - `Available`: Calculated as `limit - currentValue`
@@ -75,6 +79,7 @@ az rest --method get \
 ### Step 2: Check Multiple Regions (Common Regions)
 
 Check these regions in sequence by changing the `region` variable:
+
 - `eastus`, `eastus2` - US East Coast
 - `westus`, `westus2`, `westus3` - US West Coast
 - `swedencentral` - Europe (Sweden)
@@ -83,12 +88,15 @@ Check these regions in sequence by changing the `region` variable:
 - `japaneast` - Asia Pacific
 
 **Alternative - Use MCP Tool:**
+
 ```
 model_quota_list(region="eastus")
 ```
+
 Repeat for each target region.
 
 **Key Points:**
+
 - Query returns `currentValue` (used), `limit` (max), and calculated `Available`
 - Standard SKU format: `OpenAI.Standard.<model-name>`
 - For PTU: `OpenAI.ProvisionedManaged.<model-name>`
@@ -97,6 +105,7 @@ Repeat for each target region.
 ## Workflow 3: Check Quota Before Deployment - Detailed Steps
 
 **Steps:**
+
 1. Check current usage (workflow #1)
 2. Calculate available: `limit - currentValue`
 3. Compare: `available >= required_capacity`
@@ -166,11 +175,11 @@ az cognitiveservices account deployment delete \
 
 **Note:** All quota operations are control plane (management) operations. MCP tools are optional convenience wrappers around Azure CLI commands.
 
-| Tool | Purpose | Equivalent Azure CLI |
-|------|---------|---------------------|
-| `foundry_models_deployments_list` | List all deployments with capacity | `az cognitiveservices account deployment list` |
-| `model_quota_list` | List quota and usage across regions | `az rest` (Management API) |
-| `model_catalog_list` | List available models from catalog | `az rest` (Management API) |
-| `foundry_resource_get` | Get resource details and endpoint | `az cognitiveservices account show` |
+| Tool                              | Purpose                             | Equivalent Azure CLI                           |
+| --------------------------------- | ----------------------------------- | ---------------------------------------------- |
+| `foundry_models_deployments_list` | List all deployments with capacity  | `az cognitiveservices account deployment list` |
+| `model_quota_list`                | List quota and usage across regions | `az rest` (Management API)                     |
+| `model_catalog_list`              | List available models from catalog  | `az rest` (Management API)                     |
+| `foundry_resource_get`            | Get resource details and endpoint   | `az cognitiveservices account show`            |
 
 **Recommended:** Use Azure CLI commands directly for control plane operations.

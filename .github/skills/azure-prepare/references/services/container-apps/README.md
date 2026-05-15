@@ -23,20 +23,20 @@ services:
 
 ## Required Supporting Resources
 
-| Resource | Purpose |
-|----------|---------|
+| Resource                   | Purpose             |
+| -------------------------- | ------------------- |
 | Container Apps Environment | Hosting environment |
-| Container Registry | Image storage |
-| Log Analytics Workspace | Logging |
-| Application Insights | Monitoring |
+| Container Registry         | Image storage       |
+| Log Analytics Workspace    | Logging             |
+| Application Insights       | Monitoring          |
 
 ## Common Configurations
 
-| Workload Type | Ingress | Min Replicas | Scaling |
-|---------------|---------|--------------|---------|
-| API Service | External | 1 (avoid cold starts) | HTTP-based |
-| Background Worker | None | 0 (scale to zero) | Queue-based |
-| Web Application | External | 1 | HTTP-based |
+| Workload Type     | Ingress  | Min Replicas          | Scaling     |
+| ----------------- | -------- | --------------------- | ----------- |
+| API Service       | External | 1 (avoid cold starts) | HTTP-based  |
+| Background Worker | None     | 0 (scale to zero)     | Queue-based |
+| Web Application   | External | 1                     | HTTP-based  |
 
 ## References
 

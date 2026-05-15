@@ -34,7 +34,7 @@ honouring all governance constraints and the security baseline.
   constraints always win over design preferences.
 - Read `.github/skills/azure-bicep-patterns/SKILL.md` for Bicep patterns
   and AVM conventions.
-- Read `.github/skills/azure-defaults/SKILL.digest.md` for naming, tags,
+- Read `.github/skills/azure-defaults/SKILL.md` for naming, tags,
   and security baseline.
 - Security baseline is non-negotiable: TLS 1.2, HTTPS-only, no public blob
   access, Managed Identity over keys.

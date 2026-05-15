@@ -12,11 +12,11 @@ Enables agents to search through uploaded files using semantic and keyword searc
 
 ## Key Concepts
 
-| Concept | Description |
-|---------|-------------|
-| **Vector Store** | A container that indexes uploaded files for semantic search. Must be created first. |
+| Concept              | Description                                                                              |
+| -------------------- | ---------------------------------------------------------------------------------------- |
+| **Vector Store**     | A container that indexes uploaded files for semantic search. Must be created first.      |
 | **vector_store_ids** | Required parameter on the `file_search` tool — references the vector store(s) to search. |
-| **File upload** | Files are uploaded to the project, then attached to a vector store for indexing. |
+| **File upload**      | Files are uploaded to the project, then attached to a vector store for indexing.         |
 
 ## Setup Workflow
 
@@ -39,20 +39,20 @@ Enables agents to search through uploaded files using semantic and keyword searc
 
 When creating vector stores via `az rest`:
 
-| Parameter | Value |
-|-----------|-------|
-| **Endpoint** | `https://<resource>.services.ai.azure.com/api/projects/<project>/vector_stores` |
-| **API version** | `v1` |
-| **Auth resource** | `https://ai.azure.com` |
+| Parameter         | Value                                                                           |
+| ----------------- | ------------------------------------------------------------------------------- |
+| **Endpoint**      | `https://<resource>.services.ai.azure.com/api/projects/<project>/vector_stores` |
+| **API version**   | `v1`                                                                            |
+| **Auth resource** | `https://ai.azure.com`                                                          |
 
 ## Troubleshooting
 
-| Error | Cause | Fix |
-|-------|-------|-----|
-| `vector_store_ids` not present | Agent created without vector store | Create a vector store first, then pass its ID |
-| 401 Unauthorized | Wrong auth resource for REST API | Use `--resource "https://ai.azure.com"` with `az rest` |
-| Bad API version | Using ARM-style API version | Use `api-version=v1` for the data-plane vector store API |
-| No search results | Vector store is empty | Upload files to the vector store before querying |
+| Error                          | Cause                              | Fix                                                      |
+| ------------------------------ | ---------------------------------- | -------------------------------------------------------- |
+| `vector_store_ids` not present | Agent created without vector store | Create a vector store first, then pass its ID            |
+| 401 Unauthorized               | Wrong auth resource for REST API   | Use `--resource "https://ai.azure.com"` with `az rest`   |
+| Bad API version                | Using ARM-style API version        | Use `api-version=v1` for the data-plane vector store API |
+| No search results              | Vector store is empty              | Upload files to the vector store before querying         |
 
 ## References
 

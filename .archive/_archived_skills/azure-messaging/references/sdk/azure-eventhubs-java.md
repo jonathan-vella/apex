@@ -6,12 +6,12 @@ Package: `azure-messaging-eventhubs` | [README](https://github.com/Azure/azure-s
 
 ## Common Errors
 
-| Exception | Cause | Fix |
-|-----------|-------|-----|
-| `AmqpException` (connection:forced) | Idle connection disconnected | Auto-recovers; no action needed |
-| `AmqpException` (unauthorized-access) | Bad credentials or missing permissions | Verify connection string, SAS, or RBAC roles |
-| `AmqpException` (resource-limit-exceeded) | Too many concurrent receivers | Reduce receiver count or upgrade tier |
-| `OperationTimeoutException` | Network issue or throttling | Check firewall, try AMQP over WebSockets (port 443) |
+| Exception                                 | Cause                                  | Fix                                                 |
+| ----------------------------------------- | -------------------------------------- | --------------------------------------------------- |
+| `AmqpException` (connection:forced)       | Idle connection disconnected           | Auto-recovers; no action needed                     |
+| `AmqpException` (unauthorized-access)     | Bad credentials or missing permissions | Verify connection string, SAS, or RBAC roles        |
+| `AmqpException` (resource-limit-exceeded) | Too many concurrent receivers          | Reduce receiver count or upgrade tier               |
+| `OperationTimeoutException`               | Network issue or throttling            | Check firewall, try AMQP over WebSockets (port 443) |
 
 ## Enable Logging
 
@@ -22,6 +22,7 @@ Configure via SLF4J. Add `logback-classic` dependency and set level for `com.azu
 ```
 
 For AMQP frame tracing:
+
 ```xml
 <logger name="com.azure.core.amqp" level="DEBUG"/>
 ```
@@ -60,6 +61,7 @@ EventProcessorClient processor = new EventProcessorClientBuilder()
 ```
 
 **Common issues:**
+
 - **Soft delete / blob versioning**: Disable both on the storage account — they cause delays during load balancing.
 - **HTTP 412/409 from storage**: Normal during partition ownership negotiation; not an error.
 - **Checkpoint frequency**: Call `updateCheckpoint()` per batch, not per event, to reduce storage calls.

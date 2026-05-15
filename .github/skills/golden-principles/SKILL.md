@@ -38,13 +38,16 @@ Applying the principles to a new agent or skill:
 
 ## The 10 Principles
 
-Each principle has a non-negotiable rule and a quick test for compliance. Full text plus the
-"How to Apply These Principles" section (for agents, contributors, and code review) lives
-in [`references/principles.md`](references/principles.md). Always load that reference when
-applying the principles to a specific decision.
+Each principle has a non-negotiable rule and a quick test for compliance. The
+canonical detail (full text + per-principle tests + the "How to Apply These
+Principles" section for agents, contributors, and code review) lives in
+[`references/principles.md`](references/principles.md). The summary list above
+is a one-line index; for any decision-making use, load the reference. The
+two sources are kept in sync — if you spot drift, update the reference and
+sync the summary.
 
-> **Note**: when the Rules summary above and the detailed reference disagree (the summary
-> currently lists "Composable Workflows" / "Human Approval Gates" / "Adversarial Review" /
-> "Continuous Lessons" for #7–10, while the canonical detail uses the Harness Engineering
-> set), prefer the canonical detail in [`references/principles.md`](references/principles.md).
-> Reconciliation is tracked separately from this token-squeeze pass.
+## Reference Index
+
+| Reference                                              | When to Load                                                                                                    |
+| ------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------- |
+| [`references/principles.md`](references/principles.md) | Applying a principle to a specific design or implementation decision; running the per-principle compliance test |

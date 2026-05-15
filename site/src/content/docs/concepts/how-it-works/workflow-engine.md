@@ -142,7 +142,7 @@ validators) and `validate:_external` (external tool validators):
 | Explorer graph      | `validate:explorer-graph`                                                                                                                     |
 | Meta                | `lint:version-sync`, `lint:deprecated-refs`, `lint:docs-freshness`, `lint:glob-audit`, `validate:no-hardcoded-counts`, `validate:terminology` |
 
-See [`reference/validation-reference`](../../reference/validation-reference/)
+See [`reference/validation-reference`](../../../reference/validation-reference/)
 for the full authoritative list — it is generated from `package.json`.
 
 All validators run via `npm run validate:all`.
@@ -194,13 +194,10 @@ The context-shredding system defines three compression tiers for artifact loadin
 :::caution[Partially implemented — know the limits]
 **What works today:**
 
-- **Pre-built skill variants** — `SKILL.digest.md` and `SKILL.minimal.md` files
-  exist on disk for key skills, generated and validated by scripts
-  (`generate-skill-digests.mjs`, `validate-skill-digests.mjs`).
 - **Hardcoded compaction checkpoints** — agents like the Architect (Phase 2.5)
   and IaC Planner (Phase 3.6) have fixed points in their bodies where they
-  write a summary and switch to minimal skill loading. These are positional, not
-  dynamic.
+  write a summary and stop loading additional skills. These are positional,
+  not dynamic.
 - **`compact_for_parent` carry-forward** — the challenger subagent's JSON output
   contract limits inter-pass data to a ~200-character string, preventing context
   bloat across multi-pass reviews.
@@ -218,8 +215,10 @@ The context-shredding system defines three compression tiers for artifact loadin
   to read entire files.
 
 The hardcoded compaction checkpoints in agent bodies are the most reliable
-mechanism. The dynamic tier system is a design intent that nudges LLM behaviour
-but is not deterministic.
+mechanism. The dynamic artifact-tier system is a design intent that nudges
+LLM behaviour but is not deterministic. Skills themselves are single-tier
+(one `SKILL.md` per skill); the tier system applies only to artifacts in
+`agent-output/`.
 :::
 
 When the `challenger-review-subagent` loads predecessor artefacts for review, it is
@@ -232,7 +231,7 @@ the `compact_for_parent` carry-forward between passes is the part that reliably 
 ### Copilot Hooks
 
 Copilot hooks in `.github/hooks/` intercept agent actions at runtime. See the
-[Hooks guide](../../guides/hooks/) for the authoritative list; the current
+[Hooks guide](../../../guides/hooks/) for the authoritative list; the current
 set covers:
 
 | Hook                  | Trigger                                    | Purpose                                                             |

@@ -110,13 +110,13 @@ Track lineage in `datasets/manifest.json`:
 
 Update `datasets/manifest.json` at each step:
 
-| Event | Fields to Update |
-|-------|-----------------|
+| Event           | Fields to Update                                               |
+| --------------- | -------------------------------------------------------------- |
 | Dataset created | Add new entry with `name`, `version`, `source`, `exampleCount` |
-| Evaluation run | Append to `evalRuns[]` with `evalId`, `runId`, `agentVersion` |
-| Comparison | Append to `comparisons[]` with `insightId`, `result` |
-| Deployment | Append to `deployments[]` with `agentVersion`, `reason` |
-| Tag change | Update `tag` field |
+| Evaluation run  | Append to `evalRuns[]` with `evalId`, `runId`, `agentVersion`  |
+| Comparison      | Append to `comparisons[]` with `insightId`, `result`           |
+| Deployment      | Append to `deployments[]` with `agentVersion`, `reason`        |
+| Tag change      | Update `tag` field                                             |
 
 ## Next Steps
 

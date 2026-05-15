@@ -14,11 +14,11 @@ Standalone Bicep workflow (without AZD).
 
 **REQUIRED: Research best practices before generating any files.**
 
-| Artifact | Research Action |
-|----------|-----------------|
-| Bicep files | Call `mcp_bicep_get_bicep_best_practices` |
-| Bicep modules | Call `mcp_bicep_list_avm_metadata` and follow [AVM module order](../azd/iac-rules.md#avm-module-selection-order-mandatory) |
-| Resource schemas | Use `activate_azure_resource_schema_tools` if needed |
+| Artifact         | Research Action                                                                                                            |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| Bicep files      | Call `mcp_bicep_get_bicep_best_practices`                                                                                  |
+| Bicep modules    | Call `mcp_bicep_list_avm_metadata` and follow [AVM module order](../azd/iac-rules.md#avm-module-selection-order-mandatory) |
+| Resource schemas | Use `activate_azure_resource_schema_tools` if needed                                                                       |
 
 ## Generation Steps
 
@@ -29,6 +29,7 @@ Create Bicep templates in the project directory (co-located with `azure.yaml`).
 → [patterns.md](patterns.md)
 
 **Structure:**
+
 ```
 infra/
 ├── main.bicep
@@ -45,11 +46,11 @@ Manual Dockerfile creation required.
 
 ## Output Checklist
 
-| Artifact | Path |
-|----------|------|
-| Main Bicep | `./main.bicep` |
-| Parameters | `./main.parameters.json` |
-| Modules | `./modules/*.bicep` |
+| Artifact    | Path                       |
+| ----------- | -------------------------- |
+| Main Bicep  | `./main.bicep`             |
+| Parameters  | `./main.parameters.json`   |
+| Modules     | `./modules/*.bicep`        |
 | Dockerfiles | `src/<service>/Dockerfile` |
 
 ## References

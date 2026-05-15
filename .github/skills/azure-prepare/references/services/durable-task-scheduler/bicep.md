@@ -30,10 +30,10 @@ resource taskHub 'Microsoft.DurableTask/schedulers/taskHubs@2025-11-01' = {
 
 ## SKU Selection
 
-| SKU | Best For |
-|-----|----------|
-| **Consumption** | quickstarts, variable or bursty workloads, pay-per-use |
-| **Dedicated** | High-demand workloads, predictable throughput requirements |
+| SKU             | Best For                                                   |
+| --------------- | ---------------------------------------------------------- |
+| **Consumption** | quickstarts, variable or bursty workloads, pay-per-use     |
+| **Dedicated**   | High-demand workloads, predictable throughput requirements |
 
 > **💡 TIP**: Start with `Consumption` for development and variable workloads. Switch to `Dedicated` when you need consistent, high-throughput performance.
 

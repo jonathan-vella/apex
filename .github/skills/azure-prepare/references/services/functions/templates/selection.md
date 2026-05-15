@@ -74,9 +74,9 @@ Cross-reference with [top Azure Functions scenarios](https://learn.microsoft.com
 
 ## Recipe Types
 
-| Type | IaC Delta? | Examples |
-|------|-----------|----------|
-| **Full recipe** | Yes — Bicep module + Terraform module + RBAC + networking | cosmosdb, servicebus, eventhubs |
-| **Full recipe (Bicep only)** | Yes — Bicep module + RBAC | durable |
-| **AZD template** | Use dedicated AZD template from Awesome AZD | sql, blob-eventgrid |
-| **Source-only** | No — only replace function source code (may toggle storage params) | timer, mcp |
+| Type                         | IaC Delta?                                                         | Examples                        |
+| ---------------------------- | ------------------------------------------------------------------ | ------------------------------- |
+| **Full recipe**              | Yes — Bicep module + Terraform module + RBAC + networking          | cosmosdb, servicebus, eventhubs |
+| **Full recipe (Bicep only)** | Yes — Bicep module + RBAC                                          | durable                         |
+| **AZD template**             | Use dedicated AZD template from Awesome AZD                        | sql, blob-eventgrid             |
+| **Source-only**              | No — only replace function source code (may toggle storage params) | timer, mcp                      |

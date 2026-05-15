@@ -1,13 +1,13 @@
 # Azure CLI Errors
 
-| Error | Resolution |
-|-------|------------|
-| Not authenticated | `az login` |
-| Subscription not found | `az account list` |
-| Deployment failed | `az deployment sub show --name <name>` |
-| Template error | `az deployment sub validate` |
-| Permission denied | Verify RBAC roles |
-| Quota exceeded | Request increase or change region |
+| Error                  | Resolution                             |
+| ---------------------- | -------------------------------------- |
+| Not authenticated      | `az login`                             |
+| Subscription not found | `az account list`                      |
+| Deployment failed      | `az deployment sub show --name <name>` |
+| Template error         | `az deployment sub validate`           |
+| Permission denied      | Verify RBAC roles                      |
+| Quota exceeded         | Request increase or change region      |
 
 ## Cleanup (DESTRUCTIVE)
 

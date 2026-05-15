@@ -1,6 +1,7 @@
 # CI/CD Verification
 
 Check pipeline run status:
+
 - **GitHub**: Actions tab → workflow run
 - **Azure DevOps**: Pipelines → pipeline run
 

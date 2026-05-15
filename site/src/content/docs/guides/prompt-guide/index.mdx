@@ -85,13 +85,13 @@ validation or preview output.
 
 ### Subagents
 
-| Subagent                        | Called By         | Purpose                                              |
-| ------------------------------- | ----------------- | ---------------------------------------------------- |
-| `bicep-validate-subagent`       | Bicep CodeGen     | Runs lint plus AVM and security review               |
-| `bicep-whatif-subagent`         | Bicep Deploy      | Runs `az deployment group what-if` preview           |
-| `terraform-validate-subagent`   | Terraform CodeGen | Runs `terraform fmt`, `validate`, TFLint, and review |
-| `terraform-plan-subagent`       | Terraform Deploy  | Runs `terraform plan` change preview                 |
-| `cost-estimate-subagent`        | Architect         | Queries Azure Pricing MCP for real-time pricing      |
+| Subagent                      | Called By         | Purpose                                              |
+| ----------------------------- | ----------------- | ---------------------------------------------------- |
+| `bicep-validate-subagent`     | Bicep CodeGen     | Runs lint plus AVM and security review               |
+| `bicep-whatif-subagent`       | Bicep Deploy      | Runs `az deployment group what-if` preview           |
+| `terraform-validate-subagent` | Terraform CodeGen | Runs `terraform fmt`, `validate`, TFLint, and review |
+| `terraform-plan-subagent`     | Terraform Deploy  | Runs `terraform plan` change preview                 |
+| `cost-estimate-subagent`      | Architect         | Queries Azure Pricing MCP for real-time pricing      |
 
 ### Prompt Files
 
@@ -118,12 +118,12 @@ to see available prompts.
 
 #### Utility Prompts
 
-| Prompt File             | Purpose                                                             |
-| ----------------------- | ------------------------------------------------------------------- |
-| `git-commit-push`       | Diff-aware conventional commit and push                             |
-| `doc-gardening`         | Documentation maintenance and freshness                             |
-| `plan-docsPeerReview`   | Multi-pass documentation peer review                                |
-| `challenger-review`     | Standalone adversarial review of an artifact                        |
-| `context-audit`         | Agent context window utilization audit                              |
-| `resume-workflow`       | Resume an interrupted workflow session                              |
-| `merge-sensei-free-pr`  | Open a sensei-free PR from a sensei-bearing branch into `main` ([details](../../../project/sensei-branch/)) |
+| Prompt File            | Purpose                                                                                                  |
+| ---------------------- | -------------------------------------------------------------------------------------------------------- |
+| `git-commit-push`      | Diff-aware conventional commit and push                                                                  |
+| `doc-gardening`        | Documentation maintenance and freshness                                                                  |
+| `plan-docsPeerReview`  | Multi-pass documentation peer review                                                                     |
+| `challenger-review`    | Standalone adversarial review of an artifact                                                             |
+| `context-audit`        | Agent context window utilization audit                                                                   |
+| `resume-workflow`      | Resume an interrupted workflow session                                                                   |
+| `merge-sensei-free-pr` | Open a sensei-free PR from a sensei-bearing branch into `main` ([details](../../project/sensei-branch/)) |

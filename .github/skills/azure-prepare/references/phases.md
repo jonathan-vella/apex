@@ -1,3 +1,5 @@
+<!-- ref:phases-v1 -->
+
 # Phase 1 & Phase 2 Detail (azure-prepare)
 
 > Detailed step tables for the two-phase azure-prepare workflow. Loaded by

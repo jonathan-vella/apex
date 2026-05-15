@@ -3,6 +3,58 @@
 > VS Code Copilot-specific orchestration instructions.
 > For general project conventions, build commands, and code style, see the root `AGENTS.md`.
 
+## Azure Defaults (canonical)
+
+This section is the canonical declaration of Azure infrastructure defaults.
+Every skill, agent, and prompt must reference this section — never restate
+the values inline. The IaC-flavoured mirror with CAF naming, AVM modules,
+and reference index lives in
+[`.github/skills/azure-defaults/SKILL.md`](skills/azure-defaults/SKILL.md).
+
+### Default Regions
+
+| Service             | Default Region       | Reason                         |
+| ------------------- | -------------------- | ------------------------------ |
+| **All resources**   | `swedencentral`      | EU GDPR-compliant              |
+| **Static Web Apps** | `westeurope`         | Not available in swedencentral |
+| **Failover**        | `germanywestcentral` | EU paired alternative          |
+
+### Required Tags (Azure Policy Enforced)
+
+Tag schema is **whatever live Azure Policy enforces** in the target
+subscription. Governance Discovery (Step 3.5) discovers the real
+contract via `discover.py` and writes it to
+`04-governance-constraints.json` (`tag_contract.tags[]`,
+`tag_contract.source: "policy"`); that always wins.
+
+**Greenfield fallback** (no tag policy found at any inherited scope):
+`environment`, `owner`, `costcenter`, `project` — lowercase, per
+Microsoft's CAF tag-strategy guidance. Citation +
+greenfield decision checklist:
+[`azure-defaults/references/tag-strategy.md`](skills/azure-defaults/references/tag-strategy.md).
+
+> The PascalCase 4-tag set (`Environment`, `ManagedBy`, `Project`,
+> `Owner`) is a **deprecated convention** retained only for backward
+> compatibility on existing projects whose deployed resources already
+> carry that casing. Do not propagate it to new projects.
+
+### Security baseline + AVM mandate
+
+Non-negotiable: HTTPS-only, TLS 1.2 minimum, no public blob, public network
+disabled for prod data services, Managed Identity over keys, AVM-first.
+Full rules:
+[`iac-policy-compliance.md`](instructions/references/iac-policy-compliance.md)
+and
+[`iac-security-baseline.md`](instructions/references/iac-security-baseline.md).
+
+### SKU source of truth
+
+Creative SKU decisions (App Service, VM, SQL, Cosmos, AKS pools, Redis,
+APIM, App Gateway, Storage replication) flow through
+`agent-output/{project}/sku-manifest.{json,md}` — never re-derive SKUs
+from artifact prose. Authoring rules:
+[`sku-manifest.instructions.md`](instructions/sku-manifest.instructions.md).
+
 ## Session State — apex-recall
 
 All session state flows through `apex-recall`. Do not read or write
@@ -27,28 +79,36 @@ apex-recall finding <project> --add "<text>" --json
 If `apex-recall` returns useful context, skip redundant file reads.
 If empty/errored, continue normally — it's a convenience, not a blocker.
 
+Canonical `show --json` schema (including the `session.steps` shape and
+jq query templates) lives at
+[`tools/apex-recall/docs/show-schema.md`](../tools/apex-recall/docs/show-schema.md).
+The valid decision-keys registry lives at
+[`tools/apex-recall/docs/decision-keys.md`](../tools/apex-recall/docs/decision-keys.md).
+
 ## Multi-Step Workflow
 
 The Steps 1–7 + Post-Lessons table is in [AGENTS.md](../AGENTS.md#agent-workflow);
 the machine-readable source is
 [`.github/skills/workflow-engine/templates/workflow-graph.json`](skills/workflow-engine/templates/workflow-graph.json).
 Each step's outputs land in `agent-output/{project}/`; context flows via artifact
-files + handoffs. Reviews are adversarial passes by challenger subagents
-(1-pass default; multi-pass opt-in for complex projects). Reviews target AI-
-generated creative decisions only (Steps 1, 2, 3.5, 4, 5).
+files + handoffs. Reviews are adversarial passes by challenger subagents —
+**default flow is single-pass `comprehensive`** (mandatory at Steps 1, 2, 4;
+Step 3.5 uses `governance-reconciliation`). Multi-pass deep review is **opt-in
+only** via `decisions.review_depth = "deep"` or an explicit `10-Challenger`
+invocation; never auto-fires by complexity tier. Reviews target AI-generated
+creative decisions only (Steps 1, 2, 3.5, 4, with Step 3 ADRs and Step 5 code
+as opt-in).
 
 ## Skills
 
 Skills auto-discover via the `description` field in `.github/skills/{name}/SKILL.md`.
-Agents wire skills by reading the file directly. Default tier is
-`SKILL.digest.md`; `SKILL.minimal.md` is the >80%-utilization escalation;
-full `SKILL.md` is reserved for skill-authoring/debugging. See the
-`context-management` skill for tier selection.
+Agents read `SKILL.md` files on demand and load `references/*.md` only when the
+body explicitly points to one. There is one tier — no digest, no minimal.
 
 ## Chat Triggers
 
 - Messages starting with `gh` are GitHub operations (e.g., `gh pr create`,
-  `gh workflow run`, `gh api`). Follow `.github/skills/github-operations/SKILL.digest.md`
+  `gh workflow run`, `gh api`). Follow `.github/skills/github-operations/SKILL.md`
   (`gh` CLI-first, MCP fallback).
 
 ### GitHub Tool Priority (Mandatory)

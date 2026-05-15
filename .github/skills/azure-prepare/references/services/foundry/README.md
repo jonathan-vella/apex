@@ -18,27 +18,27 @@ Azure AI Foundry (formerly Azure OpenAI) for building AI-powered applications wi
 ```yaml
 services:
   my-ai-service:
-    host: containerapp  # AI services typically deployed via Container Apps
+    host: containerapp # AI services typically deployed via Container Apps
     project: ./src/ai-service
 ```
 
 ## Required Supporting Resources
 
-| Resource | Purpose |
-|----------|---------|
-| Azure AI Foundry account | Model hosting |
-| Model deployment | Specific model (GPT-4o, GPT-4, etc.) |
-| Key Vault | Store API keys securely |
-| Application Insights | Monitor usage and costs |
+| Resource                 | Purpose                              |
+| ------------------------ | ------------------------------------ |
+| Azure AI Foundry account | Model hosting                        |
+| Model deployment         | Specific model (GPT-4o, GPT-4, etc.) |
+| Key Vault                | Store API keys securely              |
+| Application Insights     | Monitor usage and costs              |
 
 ## Model Selection
 
-| Model | Best For | Context Window |
-|-------|----------|----------------|
-| GPT-4o | General purpose, vision, latest | 128K |
-| GPT-4 | Complex reasoning | 32K |
-| GPT-3.5-Turbo | Cost-effective, simple tasks | 16K |
-| text-embedding-ada-002 | Embeddings for RAG/search | 8K |
+| Model                  | Best For                        | Context Window |
+| ---------------------- | ------------------------------- | -------------- |
+| GPT-4o                 | General purpose, vision, latest | 128K           |
+| GPT-4                  | Complex reasoning               | 32K            |
+| GPT-3.5-Turbo          | Cost-effective, simple tasks    | 16K            |
+| text-embedding-ada-002 | Embeddings for RAG/search       | 8K             |
 
 ## References
 

@@ -5,6 +5,7 @@
 > in the **azure-data-tables-java** plugin skill if installed.
 
 ## Install
+
 ```xml
 <dependency>
     <groupId>com.azure</groupId>
@@ -31,6 +32,7 @@ var serviceClient = new TableServiceClientBuilder()
 ```
 
 ## Best Practices
+
 - Partition Key Design: choose keys that distribute load evenly
 - Batch Operations: use transactions for atomic multi-entity updates
 - Query Optimization: always filter by PartitionKey when possible

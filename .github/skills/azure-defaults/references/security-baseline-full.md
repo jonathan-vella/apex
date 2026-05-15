@@ -60,6 +60,21 @@ Known issues when using AVM modules — verify before coding:
 - **DO**: Use `Standard` SKU for reliable ARM deployment
 - **DON'T**: Assume Free tier works everywhere via Bicep
 
+**Container Registry** (`container-registry/registry`, AVM ≥ 0.12.x):
+
+- AVM defaults `networkRuleBypassOptions: 'AzureServices'` and
+  `networkRuleSetDefaultAction: 'Deny'`, which are Premium-only properties.
+  With `acrSku: 'Basic'` and `publicNetworkAccess: 'Enabled'`, the rendered
+  ARM still contains `networkRuleSet` and apply fails with
+  `NetworkRuleNotSupported` — even though `bicep build`, lint, and what-if
+  pass.
+- **DO**: Pass `networkRuleSetDefaultAction: 'Allow'` explicitly when the SKU
+  is `Basic`, or upgrade to Premium.
+- **DON'T**: Rely on `what-if` to catch SKU/feature mismatches — see the
+  `SKU-Default Mismatch` section in
+  [`../../azure-bicep-patterns/references/avm-pitfalls.md`](../../azure-bicep-patterns/references/avm-pitfalls.md)
+  for the generic pattern and detection rule.
+
 ## Service Lifecycle Validation
 
 ### AVM Default Trust

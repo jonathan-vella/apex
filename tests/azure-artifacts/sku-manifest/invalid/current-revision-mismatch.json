@@ -1,0 +1,21 @@
+{
+  "$schema": "../../../tools/schemas/sku-manifest.schema.json",
+  "schema_version": "sku-manifest-v1",
+  "project": "fixture-bad-current-revision",
+  "default_region": "swedencentral",
+  "created_at": "2026-05-12T09:00:00Z",
+  "updated_at": "2026-05-12T09:00:00Z",
+  "current_revision": 5,
+  "environments": ["prod"],
+  "revisions": [
+    {
+      "rev": 1,
+      "created_at": "2026-05-12T09:00:00Z",
+      "agent": "02-Requirements",
+      "step": "1",
+      "summary": "Should fail: current_revision=5 but max revisions[].rev=1",
+      "changed_ids": []
+    }
+  ],
+  "services": []
+}

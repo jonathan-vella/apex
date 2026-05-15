@@ -3,6 +3,7 @@
 ## Dependencies
 
 **requirements.txt:**
+
 ```
 azure-functions
 azurefunctions-extensions-bindings-blob
@@ -11,6 +12,7 @@ azurefunctions-extensions-bindings-blob
 ## Source Code
 
 **function_app.py:**
+
 ```python
 import logging
 import azure.functions as func
@@ -19,7 +21,7 @@ import azurefunctions.extensions.bindings.blob as blob
 app = func.FunctionApp()
 
 @app.blob_trigger(
-    arg_name="source_blob_client", 
+    arg_name="source_blob_client",
     path="unprocessed-pdf/{name}",
     connection="PDFProcessorSTORAGE",
     source=func.BlobSource.EVENT_GRID
@@ -30,23 +32,23 @@ app = func.FunctionApp()
     connection="PDFProcessorSTORAGE"
 )
 def process_blob_upload(
-    source_blob_client: blob.BlobClient, 
+    source_blob_client: blob.BlobClient,
     processed_container: blob.ContainerClient
 ) -> None:
     """
     Process blob upload event from Event Grid.
-    
+
     Triggers when a new blob is created in the unprocessed-pdf container.
     Copies the blob to the processed-pdf container with a "processed-" prefix.
     """
-    
+
     blob_name = source_blob_client.get_blob_properties().name
     file_size = source_blob_client.get_blob_properties().size
 
     logging.info(f'Blob Trigger (Event Grid) processed blob\n Name: {blob_name} \n Size: {file_size} bytes')
 
     processed_blob_name = f"processed-{blob_name}"
-    
+
     # Idempotency check - skip if already processed
     if processed_container.get_blob_client(processed_blob_name).exists():
         logging.info(f'Blob {processed_blob_name} already exists. Skipping.')

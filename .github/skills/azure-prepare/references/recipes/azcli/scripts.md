@@ -82,10 +82,10 @@ Write-Host "Deployment complete!"
 
 ## Script Best Practices
 
-| Practice | Description |
-|----------|-------------|
-| Fail fast | `set -euo pipefail` (bash) or `$ErrorActionPreference = "Stop"` (pwsh) |
-| Use variables | Environment-based configuration |
-| Idempotent | Safe to run multiple times |
-| Output logging | Clear progress messages |
-| Error handling | Capture and report failures |
+| Practice       | Description                                                            |
+| -------------- | ---------------------------------------------------------------------- |
+| Fail fast      | `set -euo pipefail` (bash) or `$ErrorActionPreference = "Stop"` (pwsh) |
+| Use variables  | Environment-based configuration                                        |
+| Idempotent     | Safe to run multiple times                                             |
+| Output logging | Clear progress messages                                                |
+| Error handling | Capture and report failures                                            |

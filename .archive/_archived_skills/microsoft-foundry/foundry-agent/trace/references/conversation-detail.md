@@ -49,6 +49,7 @@ invoke_agent (root) ─── 4200ms
 ```
 
 Present as an indented tree with:
+
 - **Operation type** and name
 - **Duration** (highlight if > P95 for that operation type)
 - **Model** and token counts (for chat operations)

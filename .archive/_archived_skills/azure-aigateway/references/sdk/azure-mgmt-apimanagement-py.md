@@ -5,9 +5,11 @@
 > in the **azure-mgmt-apimanagement-py** plugin skill if installed.
 
 ## Install
+
 pip install azure-mgmt-apimanagement azure-identity
 
 ## Quick Start
+
 > **Auth:** `DefaultAzureCredential` is for local development. See [auth-best-practices.md](../auth-best-practices.md) for production patterns.
 
 ```python
@@ -18,6 +20,7 @@ client = ApiManagementClient(DefaultAzureCredential(), os.environ["AZURE_SUBSCRI
 ```
 
 ## Best Practices
+
 - Use named values for secrets and configuration
 - Apply policies at appropriate scopes (global, product, API, operation)
 - Use products to bundle APIs and manage access

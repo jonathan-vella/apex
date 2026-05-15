@@ -1,0 +1,66 @@
+{
+  "$schema": "../../../tools/schemas/sku-manifest.schema.json",
+  "schema_version": "sku-manifest-v1",
+  "project": "fixture-multi-env",
+  "default_region": "swedencentral",
+  "created_at": "2026-05-12T09:00:00Z",
+  "updated_at": "2026-05-12T11:30:00Z",
+  "current_revision": 2,
+  "environments": ["dev", "test", "prod"],
+  "revisions": [
+    {
+      "rev": 1,
+      "created_at": "2026-05-12T09:00:00Z",
+      "agent": "02-Requirements",
+      "step": "1",
+      "summary": "User-pinned reserved-1yr commitment on App Service Plan",
+      "changed_ids": ["app-plan-web"]
+    },
+    {
+      "rev": 2,
+      "created_at": "2026-05-12T11:30:00Z",
+      "agent": "03-Architect",
+      "step": "2",
+      "summary": "Autoscale wiring + per-env overrides + reserved instance",
+      "changed_ids": ["app-plan-web"]
+    }
+  ],
+  "services": [
+    {
+      "id": "app-plan-web",
+      "service": "App Service Plan",
+      "size": "P1v3",
+      "iac_logical_names": {
+        "bicep": "appServicePlanWeb",
+        "terraform": "module.app_service_plan_web"
+      },
+      "capacity": {
+        "mode": "autoscale",
+        "min": 2,
+        "max": 10,
+        "default": 2
+      },
+      "zonal": true,
+      "regions": ["swedencentral", "germanywestcentral"],
+      "environment_overrides": {
+        "dev": {
+          "size": "B1",
+          "capacity": { "mode": "fixed", "default": 1 },
+          "zonal": false
+        },
+        "test": {
+          "size": "S1",
+          "capacity": { "mode": "fixed", "default": 1 }
+        }
+      },
+      "sla_target": "99.95%",
+      "sla_achieved": "99.99%",
+      "commitment": { "type": "reserved-1yr", "term_years": 1 },
+      "requires": ["vnet-integration", "managed-identity"],
+      "source": "user-pin",
+      "source_step": "1",
+      "last_modified_rev": 2,
+      "cost_estimate_monthly_usd": 142.5
+    }
+  ]
+}

@@ -1,4 +1,5 @@
 <!-- ref:security-v1 -->
+
 # Security Hardening
 
 Secure Azure resources following Zero Trust principles.
@@ -14,28 +15,13 @@ Secure Azure resources following Zero Trust principles.
 
 ## Security Services
 
-| Service | Use When | MCP Tools | CLI |
-|---------|----------|-----------|-----|
-| Key Vault | Secrets, keys, certificates | `azure__keyvault` | `az keyvault` |
-| Managed Identity | Credential-free authentication | — | `az identity` |
-| RBAC | Role-based access control | `azure__role` | `az role` |
-| Entra ID | Identity and access management | — | `az ad` |
-| Defender | Threat protection, security posture | — | `az security` |
-
-### MCP Tools (Preferred)
-
-When Azure MCP is enabled:
-
-**Key Vault:**
-- `azure__keyvault` with command `keyvault_list` — List Key Vaults
-- `azure__keyvault` with command `keyvault_secret_list` — List secrets
-- `azure__keyvault` with command `keyvault_secret_get` — Get secret value
-- `azure__keyvault` with command `keyvault_key_list` — List keys
-- `azure__keyvault` with command `keyvault_certificate_list` — List certificates
-
-**RBAC:**
-- `azure__role` with command `role_assignment_list` — List role assignments
-- `azure__role` with command `role_definition_list` — List role definitions
+| Service          | Use When                            | CLI           |
+| ---------------- | ----------------------------------- | ------------- |
+| Key Vault        | Secrets, keys, certificates         | `az keyvault` |
+| Managed Identity | Credential-free authentication      | `az identity` |
+| RBAC             | Role-based access control           | `az role`     |
+| Entra ID         | Identity and access management      | `az ad`       |
+| Defender         | Threat protection, security posture | `az security` |
 
 ### CLI Quick Reference
 
@@ -90,11 +76,11 @@ az role assignment create \
 
 > ⚠️ **Important**: To assign RBAC roles to identities, you need a role with the `Microsoft.Authorization/roleAssignments/write` permission.
 
-| Your Role | Permissions | Recommended For |
-|-----------|-------------|-----------------|
-| **User Access Administrator** | Assign roles (no data access) | ✅ Least privilege for role assignment |
-| **Owner** | Full access + assign roles | ❌ More permissions than needed |
-| **Custom Role** | Specific permissions including roleAssignments/write | ✅ Fine-grained control |
+| Your Role                     | Permissions                                          | Recommended For                        |
+| ----------------------------- | ---------------------------------------------------- | -------------------------------------- |
+| **User Access Administrator** | Assign roles (no data access)                        | ✅ Least privilege for role assignment |
+| **Owner**                     | Full access + assign roles                           | ❌ More permissions than needed        |
+| **Custom Role**               | Specific permissions including roleAssignments/write | ✅ Fine-grained control                |
 
 **Common Scenario**: Granting Storage Blob Data Owner to a Web App's managed identity
 
@@ -110,13 +96,13 @@ If you encounter `AuthorizationFailed` errors when assigning roles, you likely n
 
 ### RBAC Best Practices
 
-| Role | Use When |
-|------|----------|
-| Owner | Full access + assign roles |
-| Contributor | Full access except IAM |
-| Reader | View-only access |
-| Key Vault Secrets User | Read secrets only |
-| Storage Blob Data Reader | Read blobs only |
+| Role                     | Use When                   |
+| ------------------------ | -------------------------- |
+| Owner                    | Full access + assign roles |
+| Contributor              | Full access except IAM     |
+| Reader                   | View-only access           |
+| Key Vault Secrets User   | Read secrets only          |
+| Storage Blob Data Reader | Read blobs only            |
 
 ```bash
 # Grant minimal role at resource scope
@@ -229,6 +215,7 @@ az security pricing create \
 ### Security Assessment
 
 Use Microsoft Defender for Cloud for:
+
 - Security score
 - Recommendations
 - Compliance assessment
@@ -248,14 +235,14 @@ Use Microsoft Defender for Cloud for:
 
 All Azure SDKs use their language's Identity library for credential-free authentication. Use `DefaultAzureCredential` for **local development only**; in production, use `ManagedIdentityCredential` or another deterministic credential — see [auth-best-practices.md](auth-best-practices.md). Rust uses `DeveloperToolsCredential` as it doesn't have a `DefaultAzureCredential` equivalent.
 
-| Language | Package | Install |
-|----------|---------|---------|
-| .NET | `Azure.Identity` | `dotnet add package Azure.Identity` |
-| Java | `azure-identity` | Maven: `com.azure:azure-identity` |
-| JavaScript | `@azure/identity` | `npm install @azure/identity` |
-| Python | `azure-identity` | `pip install azure-identity` |
-| Go | `azidentity` | `go get github.com/Azure/azure-sdk-for-go/sdk/azidentity` |
-| Rust | `azure_identity` | `cargo add azure_identity` |
+| Language   | Package           | Install                                                   |
+| ---------- | ----------------- | --------------------------------------------------------- |
+| .NET       | `Azure.Identity`  | `dotnet add package Azure.Identity`                       |
+| Java       | `azure-identity`  | Maven: `com.azure:azure-identity`                         |
+| JavaScript | `@azure/identity` | `npm install @azure/identity`                             |
+| Python     | `azure-identity`  | `pip install azure-identity`                              |
+| Go         | `azidentity`      | `go get github.com/Azure/azure-sdk-for-go/sdk/azidentity` |
+| Rust       | `azure_identity`  | `cargo add azure_identity`                                |
 
 For Key Vault SDK examples, see: [Key Vault Reference](services/key-vault/README.md)
 

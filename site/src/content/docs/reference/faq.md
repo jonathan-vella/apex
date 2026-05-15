@@ -53,12 +53,6 @@ The generated templates are valid and ready to deploy.
     permissions to create resources. Step 2 (Architecture) optionally uses the Azure
     Pricing MCP server, which queries public pricing APIs and does not require a subscription.
 
-:::note[When should I use the Fast-Path Orchestrator?]
-Use the **01-Orchestrator (Fast Path)** for simple projects with ≤3 resources, a single
-environment, and no custom Azure policies. It combines Plan and Code into one step
-with a 1-pass review. For anything more complex, use the standard 01-Orchestrator.
-:::
-
 ---
 
 ## IaC Tracks

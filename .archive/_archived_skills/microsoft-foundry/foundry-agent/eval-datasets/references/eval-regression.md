@@ -46,13 +46,13 @@ Retrieve results with **`evaluation_comparison_get`** using the returned `insigh
 
 For each evaluator in the comparison results, apply regression thresholds:
 
-| Treatment Effect | Delta | Verdict | Action |
-|-----------------|-------|---------|--------|
-| `Improved` | > +2% | ✅ PASS | No action needed |
-| `Changed` | ±2% | ⚠️ NEUTRAL | Monitor, no immediate action |
-| `Degraded` | > -2% | 🔴 REGRESSION | Investigate and remediate |
-| `Inconclusive` | — | ❓ INCONCLUSIVE | Increase sample size and re-run |
-| `TooFewSamples` | — | ❓ INSUFFICIENT DATA | Need more test cases (≥30 recommended) |
+| Treatment Effect | Delta | Verdict              | Action                                 |
+| ---------------- | ----- | -------------------- | -------------------------------------- |
+| `Improved`       | > +2% | ✅ PASS              | No action needed                       |
+| `Changed`        | ±2%   | ⚠️ NEUTRAL           | Monitor, no immediate action           |
+| `Degraded`       | > -2% | 🔴 REGRESSION        | Investigate and remediate              |
+| `Inconclusive`   | —     | ❓ INCONCLUSIVE      | Increase sample size and re-run        |
+| `TooFewSamples`  | —     | ❓ INSUFFICIENT DATA | Need more test cases (≥30 recommended) |
 
 ### Example Regression Report
 
@@ -97,13 +97,13 @@ For each evaluator in the comparison results, apply regression thresholds:
 
 When regression is detected, provide actionable guidance:
 
-| Regression Type | Likely Cause | Recommended Action |
-|----------------|-------------|-------------------|
-| Relevance drop | Prompt changes reduced focus on user query | Review prompt diff, restore relevance instructions |
-| Coherence drop | Added conflicting instructions | Simplify prompt, use `prompt_optimize` |
-| Safety regression | Removed safety guardrails | Restore safety instructions, add safety test cases |
-| Task adherence drop | Tool configuration changed | Verify tool definitions, check for missing tools |
-| Across-the-board drop | Dataset drift or model change | Check if evaluation dataset changed, verify model deployment |
+| Regression Type       | Likely Cause                               | Recommended Action                                           |
+| --------------------- | ------------------------------------------ | ------------------------------------------------------------ |
+| Relevance drop        | Prompt changes reduced focus on user query | Review prompt diff, restore relevance instructions           |
+| Coherence drop        | Added conflicting instructions             | Simplify prompt, use `prompt_optimize`                       |
+| Safety regression     | Removed safety guardrails                  | Restore safety instructions, add safety test cases           |
+| Task adherence drop   | Tool configuration changed                 | Verify tool definitions, check for missing tools             |
+| Across-the-board drop | Dataset drift or model change              | Check if evaluation dataset changed, verify model deployment |
 
 ## CI/CD Integration
 

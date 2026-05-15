@@ -147,6 +147,36 @@ pre-commit:
         Checks: frontmatter syntax (description, applyTo only), cross-reference integrity
         📚 Run: npm run validate:instruction-checks
 
+    sku-manifest-render:
+      glob: "agent-output/*/sku-manifest.json"
+      run: |
+        STAGED_SKU=$(git diff --cached --name-only --diff-filter=ACM \
+          | grep -E '^agent-output/[^/]+/sku-manifest\.json$' || true)
+        if [ -n "$STAGED_SKU" ]; then
+          COUNT=$(echo "$STAGED_SKU" | wc -l | tr -d ' ')
+          echo "📦 Re-rendering $COUNT SKU manifest MD view(s) from JSON..."
+          echo "$STAGED_SKU" | while IFS= read -r json_path; do
+            project=$(basename "$(dirname "$json_path")")
+            node tools/scripts/render-sku-manifest-md.mjs "$project" || exit 1
+          done
+          # Re-stage rendered MD if changed
+          echo "$STAGED_SKU" | while IFS= read -r json_path; do
+            md_path="${json_path%.json}.md"
+            if [ -f "$md_path" ]; then
+              git add "$md_path"
+            fi
+          done
+        else
+          echo "ℹ️  No SKU manifest JSON staged — MD render skipped"
+        fi
+      stage_fixed: true
+      fail_text: |
+        ❌ SKU manifest MD render failed!
+
+        The MD view is rendered deterministically from JSON. Fix the JSON
+        (current_revision mismatch is the usual cause) and re-stage.
+        🔧 Run manually: node tools/scripts/render-sku-manifest-md.mjs <project>
+
     secrets-baseline:
       run: |
         if command -v gitleaks &>/dev/null; then
@@ -221,6 +251,41 @@ pre-commit:
         🔧 Fix: TLS 1.2+, HTTPS-only, no public blob access, managed identity
         📚 Reference: AGENTS.md Security Baseline section
 
+    js-lint:
+      glob: "**/*.{js,mjs,cjs}"
+      run: |
+        STAGED_JS=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(js|mjs|cjs)$' || true)
+        # Adopt-narrow scope: skip site/ until reassessment.
+        STAGED_JS=$(echo "$STAGED_JS" | grep -vE '^site/' || true)
+        if [ -n "$STAGED_JS" ]; then
+          COUNT=$(echo "$STAGED_JS" | wc -l | tr -d ' ')
+          echo "🧹 Linting $COUNT JS/MJS file(s) (--max-warnings=0)..."
+          echo "$STAGED_JS" | xargs npx eslint --cache --cache-location node_modules/.cache/eslint/ --quiet --format=compact --max-warnings=0
+        else
+          echo "ℹ️  No JS/MJS files to lint"
+        fi
+      fail_text: |
+        ❌ ESLint failed!
+
+        🔧 Fix: npm run lint:js -- --fix <files>
+        📚 Reference: eslint.config.mjs
+
+    js-format:
+      glob: "**/*.{js,mjs,cjs}"
+      run: |
+        STAGED_FMT=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(js|mjs|cjs)$' || true)
+        STAGED_FMT=$(echo "$STAGED_FMT" | grep -vE '^site/' || true)
+        if [ -n "$STAGED_FMT" ]; then
+          echo "💅 Checking Prettier on $(echo "$STAGED_FMT" | wc -l | tr -d ' ') file(s)..."
+          echo "$STAGED_FMT" | xargs npx prettier --check --log-level warn
+        else
+          echo "ℹ️  No JS/MJS files to format-check"
+        fi
+      fail_text: |
+        ❌ Prettier check failed!
+
+        🔧 Fix: npm run format
+
 commit-msg:
   commands:
     commitlint:
@@ -266,3 +331,11 @@ pre-push:
 
         🔧 Run the failing validator manually to see details.
         Only validators for changed file types were executed.
+
+# Stamp commit_sha onto sku-manifest revisions touched in the latest commit.
+# Best-effort: never blocks a commit. The stamped file is left modified in
+# the working tree for the user/CI to stage in a follow-up commit.
+post-commit:
+  commands:
+    stamp-sku-manifest:
+      run: node tools/scripts/stamp-sku-manifest-commit.mjs || true

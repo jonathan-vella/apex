@@ -38,20 +38,22 @@ deployed resource estimates).
 
 ## Inputs
 
-The parent agent provides:
+Exactly one of `resource_list`, `manifest_path`, or `candidate_sets`
+must be set. Multiple → fail fast (`status: FAILED`,
+`unresolved_items: ["multiple input modes supplied"]`). Common (all
+modes): `project_name`, `region`, `output_path` (Architect Step 2:
+`agent-output/{project}/02-cost-estimate.json`; As-Built Step 7:
+`agent-output/{project}/07-ab-cost-estimate.json`), `overwrite` (default
+`false`), optional `compare_regions`, `include_ri_savings`.
 
-- `resource_list`: Array of `{ service_name, sku, region, quantity }` (required)
-- `project_name`: Project identifier (required)
-- `region`: Primary region (required; e.g., `swedencentral`)
-- `output_path`: required. Full file path where the JSON will be written. Canonical
-  patterns:
-  - Architect (Step 2): `agent-output/{project}/02-cost-estimate.json`
-  - As-Built (Step 7): `agent-output/{project}/07-ab-cost-estimate.json`
-    The subagent does not compute the path.
-- `overwrite`: Optional boolean. Default `false`. If `false` and the target
-  file already exists, fail fast with an explicit error.
-- `compare_regions`: Optional. If `true`, run region recommendation for primary compute SKUs.
-- `include_ri_savings`: Optional. If `true`, query reserved-instance pricing.
+- **Mode A — `resource_list`** (back-compat): `[{ service_name, sku, region, quantity }]`.
+- **Mode B — `manifest_path`**: path to `sku-manifest.json`. Project each
+  `services[i]` to `{ service_name: .service, sku: .size, region: .regions[0],
+quantity: .capacity.default }`. Optional `manifest_writeback` (default `true`)
+  atomically patches `services[i].cost_estimate_monthly_usd` in `manifest_path`.
+- **Mode C — `candidate_sets`**: `[{ decision_id, candidates: [{ label,
+service_name, sku, region, quantity, notes? }] }]`. Output adds
+  `decisions[]`; no `manifest_writeback` — Architect picks via Mode C, writes via Mode B.
 
 ## Outcome
 
@@ -86,7 +88,7 @@ and `03-des-cost-estimate.md` only when `status == COMPLETE`. On
   budget on per-line `azure_price_search` fallbacks for every line the bulk
   call didn't resolve. Don't loop `azure_cost_estimate` per resource.
 - Use exact `service_name` values from
-  `.github/skills/azure-defaults/SKILL.digest.md`, or use fuzzy aliases
+  `.github/skills/azure-defaults/SKILL.md`, or use fuzzy aliases
   (the MCP server resolves them).
 - Pricing provenance. Every figure the parent writes into the cost
   artifacts comes from the JSON you persist. The parent is prohibited
@@ -130,7 +132,7 @@ or return `FAILED` with the explicit blocker list.
 Before the first MCP call, read the two skill files in a single parallel
 batch — not sequentially:
 
-- `.github/skills/azure-defaults/SKILL.digest.md` — exact `service_name`
+- `.github/skills/azure-defaults/SKILL.md` — exact `service_name`
   values for the Pricing MCP.
 - `.github/skills/azure-defaults/references/pricing-guidance.md` —
   **mandatory** — the `product_filter` table for multi-product services
@@ -172,17 +174,36 @@ apply these rules in order. Each rule maps to a section in
    is **not** considered resolved. Use sensible defaults from
    `pricing-guidance.md` when the parent didn't specify a volume.
 
-4. **Canonical SKU rewrite** — if the `sku_name` does not appear in
-   `pricing-guidance.md`'s "Common SKUs" column, rewrite it to the
-   canonical short form (e.g. `"vCore General Purpose Serverless Gen5 2 vCore"`
-   → `"2 vCore"` because SQL DB `skuName` values are just the vCore count;
-   `"P1v3 Linux"` → `"P1v3"` because App Service `skuName` doesn't include
-   OS). The verbose user-supplied form is preserved in the line's
-   `notes` field for audit.
+4. **Canonical SKU rewrite (MANDATORY)** — for every
+   `resource_list[].sku_name`, look the input up in the **Canonical
+   SKU Aliases** table in `pricing-guidance.md` and rewrite to the
+   canonical form before the bulk call. The rewrite is a **MUST** —
+   alias mismatches were the #1 cause of historical `status: FAILED`
+   runs. Worked examples: `2 vCore General Purpose Serverless Gen5` →
+   `2 vCore` (`product_filter: General Purpose - Serverless`);
+   `P1v3 Linux` → `P1 v3`; `Standard ZRS` → `Standard_ZRS`. The
+   verbose user-supplied form is preserved in the line's `notes` for
+   audit.
+
+   **Hard rule**: if the alias table does NOT contain the input
+   `sku_name`, **do not guess**. Record in `<unresolved_sku_triage>`
+   (see below) and proceed — never invent a canonical rewrite from
+   parametric knowledge.
 
 After normalization, log the final per-resource shape (service_name,
-sku_name, product_filter, usage, quantity) in the JSON line's
-`notes` so the audit trail shows why each meter resolved.
+sku_name, product_filter, usage, quantity) in the JSON line's `notes`
+so the audit trail shows why each meter resolved.
+
+## Unresolved SKU triage (`<unresolved_sku_triage>`)
+
+When rule 4 cannot match a `sku_name` against the Canonical SKU
+Aliases table, accumulate the input as a `<unresolved_sku_triage>`
+entry with `input_sku_name`, `resolved_product_filter`,
+`top_3_matches` (3 closest from `line_items[]`), and `proposed_alias`
+(marked as proposal). On terminal write, append as `proposed_aliases[]`
+(empty when no triage). `tools/scripts/promote-sku-aliases.mjs`
+(monthly cron) scans these and opens a PR — the only path for new
+aliases.
 
 ## Core workflow
 
@@ -387,6 +408,11 @@ Write the full breakdown to `output_path` atomically. The JSON shape:
 
 Use `response_format: "compact"` (the default in v5.0) when calling `azure_bulk_estimate` and aggregate
 the per-resource numbers into the JSON above.
+
+Mode B output adds `manifest_writeback: [{ id, cost_estimate_monthly_usd, cost_estimated_at }]`
+(subagent atomically patches both fields in `manifest_path`). Mode C
+output adds `decisions: [{ decision_id, winner_label,
+delta_monthly_usd, candidates }]` (winner = cheapest priced; ties: alphabetical).
 
 ### Parent-facing summary
 

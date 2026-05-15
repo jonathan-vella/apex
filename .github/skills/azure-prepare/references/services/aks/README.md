@@ -26,19 +26,19 @@ services:
 
 ## Required Supporting Resources
 
-| Resource | Purpose |
-|----------|---------|
-| Container Registry | Image storage |
-| Log Analytics Workspace | Monitoring |
-| Virtual Network | Network isolation (optional) |
-| Key Vault | Secrets management |
+| Resource                | Purpose                      |
+| ----------------------- | ---------------------------- |
+| Container Registry      | Image storage                |
+| Log Analytics Workspace | Monitoring                   |
+| Virtual Network         | Network isolation (optional) |
+| Key Vault               | Secrets management           |
 
 ## Node Pool Types
 
-| Pool | Purpose |
-|------|---------|
+| Pool   | Purpose                                 |
+| ------ | --------------------------------------- |
 | System | Cluster infrastructure, 3 nodes minimum |
-| User | Application workloads, auto-scaling |
+| User   | Application workloads, auto-scaling     |
 
 ## References
 

@@ -11,12 +11,12 @@ A good partition key should have:
 
 ## Examples by Scenario
 
-| Scenario | Partition Key | Reason |
-|----------|---------------|--------|
-| User-centric data | `/userId` | Queries typically filter by user |
-| Multi-tenant apps | `/tenantId` | Isolates tenant data |
-| E-commerce orders | `/customerId` | Orders queried by customer |
-| IoT telemetry | `/deviceId` | High cardinality, even distribution |
+| Scenario          | Partition Key | Reason                              |
+| ----------------- | ------------- | ----------------------------------- |
+| User-centric data | `/userId`     | Queries typically filter by user    |
+| Multi-tenant apps | `/tenantId`   | Isolates tenant data                |
+| E-commerce orders | `/customerId` | Orders queried by customer          |
+| IoT telemetry     | `/deviceId`   | High cardinality, even distribution |
 
 ## Hierarchical Partition Keys
 
@@ -33,9 +33,9 @@ partitionKey: {
 
 Avoid these partition key choices:
 
-| Bad Choice | Problem |
-|------------|---------|
-| Timestamp | Creates hot partitions |
-| Boolean values | Only 2 partitions |
-| Low cardinality enums | Uneven distribution |
-| Random GUID | Can't query efficiently |
+| Bad Choice            | Problem                 |
+| --------------------- | ----------------------- |
+| Timestamp             | Creates hot partitions  |
+| Boolean values        | Only 2 partitions       |
+| Low cardinality enums | Uneven distribution     |
+| Random GUID           | Can't query efficiently |

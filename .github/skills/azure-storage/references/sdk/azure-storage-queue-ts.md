@@ -5,9 +5,11 @@
 > in the **azure-storage-queue-ts** plugin skill if installed.
 
 ## Install
+
 npm install @azure/storage-queue @azure/identity
 
 ## Quick Start
+
 ```typescript
 import { QueueServiceClient } from "@azure/storage-queue";
 import { DefaultAzureCredential } from "@azure/identity";
@@ -15,6 +17,7 @@ const client = new QueueServiceClient(`https://${accountName}.queue.core.windows
 ```
 
 ## Best Practices
+
 - Use DefaultAzureCredential for **local development only** — in production, use ManagedIdentityCredential. See [auth-best-practices.md](../auth-best-practices.md)
 - Always delete after processing — prevent duplicate processing
 - Handle poison messages — move failed messages to a dead-letter queue

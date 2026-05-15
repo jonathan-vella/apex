@@ -12,34 +12,34 @@ Centralized secrets, keys, and certificate management.
 
 ## Required Supporting Resources
 
-| Resource | Purpose |
-|----------|---------|
-| None required | Key Vault is self-contained |
-| Private Endpoint | Secure access (optional) |
+| Resource         | Purpose                     |
+| ---------------- | --------------------------- |
+| None required    | Key Vault is self-contained |
+| Private Endpoint | Secure access (optional)    |
 
 ## SKU Selection
 
-| SKU | Features |
-|-----|----------|
+| SKU      | Features                |
+| -------- | ----------------------- |
 | Standard | Software-protected keys |
-| Premium | HSM-protected keys |
+| Premium  | HSM-protected keys      |
 
 ## RBAC Roles
 
-| Role | Permissions |
-|------|-------------|
-| Key Vault Administrator | Full access |
-| Key Vault Secrets Officer | Manage secrets |
-| Key Vault Secrets User | Read secrets |
+| Role                           | Permissions         |
+| ------------------------------ | ------------------- |
+| Key Vault Administrator        | Full access         |
+| Key Vault Secrets Officer      | Manage secrets      |
+| Key Vault Secrets User         | Read secrets        |
 | Key Vault Certificates Officer | Manage certificates |
-| Key Vault Crypto Officer | Manage keys |
+| Key Vault Crypto Officer       | Manage keys         |
 
 ## Environment Variables
 
-| Variable | Value |
-|----------|-------|
-| `KEY_VAULT_URL` | `https://{vault-name}.vault.azure.net/` |
-| `KEY_VAULT_NAME` | Vault name |
+| Variable         | Value                                   |
+| ---------------- | --------------------------------------- |
+| `KEY_VAULT_URL`  | `https://{vault-name}.vault.azure.net/` |
+| `KEY_VAULT_NAME` | Vault name                              |
 
 ## Best Practices
 

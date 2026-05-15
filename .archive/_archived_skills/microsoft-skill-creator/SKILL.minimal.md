@@ -6,9 +6,11 @@
 Skills are modular packages that extend agent capabilities with specialized
 
 **Learn MCP Tools**:
+
 ### CLI Alternative
 
 **Creation Process**:
+
 ### Step 1: Investigate the Topic
 
 **Common Investigation Patterns**:

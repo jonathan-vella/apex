@@ -1,6 +1,6 @@
 ---
-description: 'Guidelines for creating high-quality prompt files for GitHub Copilot'
-applyTo: '**/*.prompt.md'
+description: "Guidelines for creating high-quality prompt files for GitHub Copilot"
+applyTo: "**/*.prompt.md"
 ---
 
 # Copilot Prompt Files Guidelines
@@ -20,14 +20,14 @@ Every prompt file should include YAML frontmatter with the following fields:
 
 ### Required/Recommended Fields
 
-| Field | Required | Description |
-|-------|----------|-------------|
-| `description` | Recommended | Short description (single sentence, actionable outcome) |
-| `name` | Optional | Name shown after typing `/` in chat. Defaults to filename |
-| `agent` | Recommended | Agent to use: `ask`, `edit`, `agent`, or custom agent |
-| `model` | Optional | Language model to use. Defaults to currently selected model |
-| `tools` | Optional | List of tool/tool set names available for this prompt |
-| `argument-hint` | Optional | Hint text shown in chat input to guide user interaction |
+| Field           | Required    | Description                                                 |
+| --------------- | ----------- | ----------------------------------------------------------- |
+| `description`   | Recommended | Short description (single sentence, actionable outcome)     |
+| `name`          | Optional    | Name shown after typing `/` in chat. Defaults to filename   |
+| `agent`         | Recommended | Agent to use: `ask`, `edit`, `agent`, or custom agent       |
+| `model`         | Optional    | Language model to use. Defaults to currently selected model |
+| `tools`         | Optional    | List of tool/tool set names available for this prompt       |
+| `argument-hint` | Optional    | Hint text shown in chat input to guide user interaction     |
 
 ### Guidelines
 

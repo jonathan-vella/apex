@@ -12,13 +12,13 @@ Auto-poll for completion in a background terminal (same as [Step 2](evaluate-ste
 
 ### Required Parameters for `evaluation_comparison_create`
 
-| Parameter | Required | Description |
-|-----------|----------|-------------|
-| `insightRequest.displayName` | ✅ | Human-readable name. **Omitting causes BadRequest.** |
-| `insightRequest.state` | ✅ | Must be `"NotStarted"` |
-| `insightRequest.request.evalId` | ✅ | Eval group ID containing both runs |
-| `insightRequest.request.baselineRunId` | ✅ | Run ID of the baseline |
-| `insightRequest.request.treatmentRunIds` | ✅ | Array of treatment run IDs |
+| Parameter                                | Required | Description                                          |
+| ---------------------------------------- | -------- | ---------------------------------------------------- |
+| `insightRequest.displayName`             | ✅       | Human-readable name. **Omitting causes BadRequest.** |
+| `insightRequest.state`                   | ✅       | Must be `"NotStarted"`                               |
+| `insightRequest.request.evalId`          | ✅       | Eval group ID containing both runs                   |
+| `insightRequest.request.baselineRunId`   | ✅       | Run ID of the baseline                               |
+| `insightRequest.request.treatmentRunIds` | ✅       | Array of treatment run IDs                           |
 
 Use **`evaluation_comparison_create`** with a nested `insightRequest`:
 
