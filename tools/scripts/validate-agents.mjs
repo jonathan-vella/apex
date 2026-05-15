@@ -235,9 +235,24 @@ function runAgentChecks() {
 
   const agents = getAgents();
 
+  // Build the set of known subagent names from files under _subagents/.
+  // Used by the body-vs-frontmatter declaration check below.
+  const knownSubagents = new Set();
+  for (const [, agent] of agents) {
+    if (agent.isSubagent && agent.frontmatter?.name) {
+      knownSubagents.add(agent.frontmatter.name);
+    }
+  }
+
+  // Invocation verbs that imply a real subagent call (vs. a prose mention).
+  // Conservative on purpose — false negatives are preferable to false positives
+  // here; documentation references should not trigger errors.
+  const INVOCATION_VERB_RE =
+    /(?:invoke|delegate(?:\s+to)?|dispatch|call|run|hand[\s-]?off|@|#runSubagent|via\s+`?#runSubagent`?)/i;
+
   for (const [file, agent] of agents) {
     r.tick();
-    const { path: filePath, content } = agent;
+    const { path: filePath, content, isSubagent } = agent;
     const body = getBody(content);
     const bodyLines = body.split("\n").length;
 
@@ -259,6 +274,35 @@ function runAgentChecks() {
         `${file}: ${total} absolute-language keywords in ${lines} lines (${density.toFixed(1)}/100 > ${MAX_DENSITY_PER_100}/100). Breakdown: ${breakdown}`,
       );
       console.log(`  Fix: Soften language or extract content to skill references.`);
+    }
+
+    // Subagent invocation vs. `agents:` declaration consistency check.
+    // VS Code's subagent discovery uses the `agents:` frontmatter array;
+    // a body that invokes a subagent not declared there falls back to the
+    // generic runSubagent runner ("not registered in this VS Code agent list").
+    if (!isSubagent) {
+      const declared = new Set(Array.isArray(agent.frontmatter?.agents) ? agent.frontmatter.agents : []);
+      const missing = new Set();
+      for (const subagentName of knownSubagents) {
+        if (declared.has(subagentName)) continue;
+        // Look for invocation patterns within ±60 chars of the name.
+        const escaped = subagentName.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&");
+        const proximityRe = new RegExp(`.{0,60}\`?${escaped}\`?.{0,60}`, "gi");
+        const matches = body.match(proximityRe) || [];
+        for (const m of matches) {
+          if (INVOCATION_VERB_RE.test(m)) {
+            missing.add(subagentName);
+            break;
+          }
+        }
+      }
+      for (const name of missing) {
+        r.errorAnnotation(
+          filePath,
+          `${file} invokes \`${name}\` in body but does not declare it in \`agents:\` frontmatter (VS Code subagent discovery will fail)`,
+        );
+        console.log(`  Fix: Add "${name}" to the \`agents:\` array in the frontmatter.`);
+      }
     }
   }
 

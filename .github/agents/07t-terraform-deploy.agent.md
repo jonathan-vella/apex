@@ -4,7 +4,7 @@ model: ["GPT-5.5"]
 description: Executes Azure deployments using generated Terraform configurations. Runs bootstrap and deploy scripts, performs terraform plan preview, manages phase-aware deployment lifecycle. Step 6 of the agentic workflow.
 argument-hint: Deploy the Terraform configuration for a specific project
 user-invocable: true
-agents: ["terraform-plan-subagent", "policy-precheck-subagent", "challenger-review-subagent"]
+agents: ["terraform-plan-subagent", "terraform-validate-subagent", "policy-precheck-subagent", "challenger-review-subagent"]
 tools:
   [
     vscode,
