@@ -18,3 +18,15 @@ node_modules/.cache/
 
 # Build artefacts
 *.tsbuildinfo
+
+# AI-author markdown — Prettier's markdown printer collapses mixed-marker
+# numbered lists (6a. / 7. / 8. / 9a.) with 4-space sub-paragraph
+# continuations, which breaks agent definitions and instruction files.
+# Linting is handled by markdownlint-cli2; line length by MD013 (120 chars).
+# Run `npx prettier --check '.github/agents/**/*.md'` to verify the
+# disagreement is intentional before removing these globs.
+.github/agents/
+.github/instructions/
+.github/skills/
+tools/apex-prompts/
+AGENTS.md
