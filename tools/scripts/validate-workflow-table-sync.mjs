@@ -187,8 +187,10 @@ function validate() {
       if (!jsonStep) continue; // already flagged above
 
       const jsonGate = jsonStep.gate;
-      // Normalize for comparison: both sides to lowercase
-      if (gate.toLowerCase().replace("—", "—") !== jsonGate.toLowerCase().replace("—", "—")) {
+      // Normalize for comparison: both sides to lowercase. (Previously also
+      // ran a `.replace("—", "—")` no-op; removed to clear CodeQL
+      // js/identity-replacement — toLowerCase is sufficient.)
+      if (gate.toLowerCase() !== jsonGate.toLowerCase()) {
         r.error(file, `Step ${stepNum} gate mismatch: table="${gate}" vs graph="${jsonGate}"`);
       }
     }

@@ -7,7 +7,7 @@ proper Azure architecture diagrams using the diagrams library.
 
 Usage:
     python ascii_to_diagram.py <markdown_file> [--output-dir <dir>]
-    
+
 This script is designed to be used WITH Claude Code CLI. The script extracts
 ASCII diagrams, and Claude interprets them to generate the proper Python code.
 
@@ -34,7 +34,7 @@ class AsciiDiagram:
     end_line: int
     context_before: str  # Text before the diagram for context
     heading: Optional[str]  # Section heading if found
-    
+
     def __str__(self):
         return f"Lines {self.start_line}-{self.end_line}: {self.heading or 'Untitled'}"
 
@@ -42,29 +42,33 @@ class AsciiDiagram:
 def extract_ascii_diagrams(markdown_content: str) -> List[AsciiDiagram]:
     """
     Extract ASCII diagrams from markdown content.
-    
+
     Looks for:
     - Code blocks with ASCII art (boxes, arrows, lines)
     - Indented blocks with diagram-like characters
     """
     diagrams = []
     lines = markdown_content.split('\n')
-    
+
     # Pattern for ASCII art characters
     ascii_art_chars = set('─│┌┐└┘├┤┬┴┼═║╔╗╚╝╠╣╦╩╬+-|/\\<>^v*[](){}')
     box_drawing_pattern = re.compile(r'[─│┌┐└┘├┤┬┴┼═║╔╗╚╝╠╣╦╩╬\+\-\|]')
-    arrow_pattern = re.compile(r'(-->|<--|->|<-|=>|<=|>>|<<|\|>|<\||\.\.\.>|>\.\.\.)')
-    
+    # Arrow tokens used to detect ASCII diagrams. Kept as a literal tuple
+    # (matched via substring containment below) to sidestep CodeQL
+    # py/bad-tag-filter, which heuristically flags regexes that mix `<`/`>`
+    # alternations even when the pattern is not used to sanitize HTML.
+    arrow_tokens = ('-->', '<--', '->', '<-', '=>', '<=', '>>', '<<', '|>', '<|', '...>', '>...')
+
     in_code_block = False
     code_block_start = 0
     code_block_content = []
     current_heading = None
-    
+
     for i, line in enumerate(lines):
         # Track headings for context
         if line.startswith('#'):
             current_heading = line.lstrip('#').strip()
-        
+
         # Check for code block markers
         if line.strip().startswith('```'):
             if not in_code_block:
@@ -75,19 +79,19 @@ def extract_ascii_diagrams(markdown_content: str) -> List[AsciiDiagram]:
                 # End of code block - analyze content
                 in_code_block = False
                 content = '\n'.join(code_block_content)
-                
+
                 # Check if it looks like an ASCII diagram
                 has_box_chars = bool(box_drawing_pattern.search(content))
-                has_arrows = bool(arrow_pattern.search(content))
+                has_arrows = any(token in content for token in arrow_tokens)
                 has_multiple_lines = len(code_block_content) > 2
-                
+
                 # Heuristic: looks like a diagram if it has box chars or arrows
                 # and multiple lines
                 if (has_box_chars or has_arrows) and has_multiple_lines:
                     # Get context (previous paragraph)
                     context_start = max(0, code_block_start - 5)
                     context = '\n'.join(lines[context_start:code_block_start])
-                    
+
                     diagrams.append(AsciiDiagram(
                         content=content,
                         start_line=code_block_start + 1,
@@ -97,7 +101,7 @@ def extract_ascii_diagrams(markdown_content: str) -> List[AsciiDiagram]:
                     ))
         elif in_code_block:
             code_block_content.append(line)
-    
+
     return diagrams
 
 
@@ -140,7 +144,7 @@ def create_conversion_report(markdown_path: Path, diagrams: List[AsciiDiagram]) 
     for i, diagram in enumerate(diagrams):
         report += generate_diagram_prompt(diagram, i)
         report += "\n---\n\n"
-    
+
     return report
 
 
@@ -160,7 +164,7 @@ Workflow with Claude Code CLI:
   3. Claude will create PNG files and can update the original markdown
         """
     )
-    
+
     parser.add_argument("files", nargs="+", help="Markdown file(s) to process")
     parser.add_argument("-o", "--output-dir", default="./diagrams",
                         help="Output directory for generated diagrams")
@@ -168,18 +172,18 @@ Workflow with Claude Code CLI:
                         help="Output file for conversion report")
     parser.add_argument("--dry-run", action="store_true",
                         help="Only report findings, don't generate anything")
-    
+
     args = parser.parse_args()
-    
+
     all_diagrams = []
-    
+
     for file_pattern in args.files:
         for filepath in Path('.').glob(file_pattern):
             if filepath.suffix.lower() in ['.md', '.markdown']:
                 print(f"📄 Processing: {filepath}")
                 content = filepath.read_text(encoding='utf-8')
                 diagrams = extract_ascii_diagrams(content)
-                
+
                 if diagrams:
                     print(f"   Found {len(diagrams)} ASCII diagram(s)")
                     for d in diagrams:
@@ -187,17 +191,17 @@ Workflow with Claude Code CLI:
                         all_diagrams.append((filepath, d))
                 else:
                     print("   No ASCII diagrams found")
-    
+
     if not all_diagrams:
         print("\n⚠️  No ASCII diagrams found in the provided files.")
         return
-    
+
     print(f"\n📊 Total diagrams found: {len(all_diagrams)}")
-    
+
     if args.dry_run:
         print("\n[Dry run - no files generated]")
         return
-    
+
     # Generate conversion report
     report_content = f"""# ASCII Diagram Conversion Report
 
@@ -206,15 +210,15 @@ Workflow with Claude Code CLI:
 
 Use this report with Claude Code CLI:
 ```
-"Read this report and convert each ASCII diagram to a proper Azure architecture 
-diagram using the azure-architecture-diagrams skill. Save each diagram as PNG 
+"Read this report and convert each ASCII diagram to a proper Azure architecture
+diagram using the azure-architecture-diagrams skill. Save each diagram as PNG
 and provide updated markdown image links."
 ```
 
 ---
 
 """
-    
+
     for i, (filepath, diagram) in enumerate(all_diagrams):
         report_content += f"## Diagram {i + 1}\n"
         report_content += f"**Source:** `{filepath}`\n"
@@ -226,7 +230,7 @@ and provide updated markdown image links."
         safe_name = re.sub(r'[^\w\-]', '-', (diagram.heading or f'diagram-{i+1}').lower())
         report_content += f"`{safe_name}.png`\n\n"
         report_content += "---\n\n"
-    
+
     # Write report
     report_path = Path(args.report)
     report_path.write_text(report_content, encoding='utf-8')

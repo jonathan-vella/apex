@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-05-15T15:55:23.204Z",
+  "generatedAt": "2026-05-15T16:16:26.057Z",
   "categories": [
     {
       "id": "agent",
@@ -68,7 +68,7 @@
     }
   ],
   "nodeCount": 149,
-  "edgeCount": 590,
+  "edgeCount": 593,
   "nodes": [
     {
       "id": "agent:01-orchestrator",
@@ -174,7 +174,9 @@
       "meta": {
         "model": "Claude Sonnet 4.6",
         "invocable": true,
-        "subagents": [],
+        "subagents": [
+          "challenger-review-subagent"
+        ],
         "handoffTargets": [
           "04-Design",
           "03-Architect",
@@ -292,6 +294,7 @@
         "invocable": true,
         "subagents": [
           "bicep-whatif-subagent",
+          "bicep-validate-subagent",
           "policy-precheck-subagent",
           "challenger-review-subagent"
         ],
@@ -318,6 +321,7 @@
         "invocable": true,
         "subagents": [
           "terraform-plan-subagent",
+          "terraform-validate-subagent",
           "policy-precheck-subagent",
           "challenger-review-subagent"
         ],
@@ -2220,6 +2224,12 @@
       "kind": "delegates"
     },
     {
+      "id": "agent:04-design--delegates->subagent:challenger-review-subagent",
+      "source": "agent:04-design",
+      "target": "subagent:challenger-review-subagent",
+      "kind": "delegates"
+    },
+    {
       "id": "agent:04g-governance--delegates->subagent:challenger-review-subagent",
       "source": "agent:04g-governance",
       "target": "subagent:challenger-review-subagent",
@@ -2262,6 +2272,12 @@
       "kind": "delegates"
     },
     {
+      "id": "agent:07b-bicep-deploy--delegates->subagent:bicep-validate-subagent",
+      "source": "agent:07b-bicep-deploy",
+      "target": "subagent:bicep-validate-subagent",
+      "kind": "delegates"
+    },
+    {
       "id": "agent:07b-bicep-deploy--delegates->subagent:policy-precheck-subagent",
       "source": "agent:07b-bicep-deploy",
       "target": "subagent:policy-precheck-subagent",
@@ -2277,6 +2293,12 @@
       "id": "agent:07t-terraform-deploy--delegates->subagent:terraform-plan-subagent",
       "source": "agent:07t-terraform-deploy",
       "target": "subagent:terraform-plan-subagent",
+      "kind": "delegates"
+    },
+    {
+      "id": "agent:07t-terraform-deploy--delegates->subagent:terraform-validate-subagent",
+      "source": "agent:07t-terraform-deploy",
+      "target": "subagent:terraform-validate-subagent",
       "kind": "delegates"
     },
     {

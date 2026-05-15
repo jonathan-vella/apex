@@ -542,8 +542,17 @@ async function validateDrawioFile(filePath) {
         // 48-px-wide icons spaced 10 px apart, but their ~80-px label boxes
         // visually fused into "Web App 1Web App 2".
         const value = (cell["@_value"] || "").toString();
-        // Strip HTML tags + entities for a fair character count.
-        const valueLen = value.replace(/&[#a-zA-Z0-9]+;/g, "x").replace(/<[^>]+>/g, "").length;
+        // Strip HTML tags + entities for a fair character count. Run the tag
+        // strip in a fixed-point loop and exclude `<` from the inner class so
+        // nested/overlapping markup like `<<b>>` collapses cleanly — CodeQL
+        // js/incomplete-multi-character-sanitization.
+        let stripped = value.replace(/&[#a-zA-Z0-9]+;/g, "x");
+        let prevStripped;
+        do {
+          prevStripped = stripped;
+          stripped = stripped.replace(/<[^<>]*>/g, "");
+        } while (stripped !== prevStripped);
+        const valueLen = stripped.length;
         // Match font-size from style if explicitly set; default 11 (skill convention).
         const fsMatch = style.match(/fontSize\s*=\s*([0-9]+(?:\.[0-9]+)?)/i);
         const fontSize = fsMatch ? parseFloat(fsMatch[1]) : 11;
