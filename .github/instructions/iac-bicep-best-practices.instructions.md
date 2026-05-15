@@ -55,6 +55,20 @@ Pass to all modules. Use `take()` for length-constrained resources.
 Use AVM modules (`br/public:avm/res/{service}/{resource}:{version}`) for all
 resources where one exists. Raw Bicep only when no AVM exists and user approves.
 
+**Pin to the latest published stable version**, resolved at plan time:
+
+```bash
+curl -sf https://mcr.microsoft.com/v2/bicep/avm/res/{path}/tags/list \
+  | jq -r '.tags[]' | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1
+```
+
+Or use the `mcp_bicep_list_avm_metadata` MCP helper. Never copy a version
+from `azure-defaults/references/avm-modules.md` — versions are
+intentionally stripped from that table. Stale pins require a
+`pin_policy.mode = "exception"` block in `04-iac-contract.json` with
+rationale + evidence + `review_after` date. Enforced by
+`npm run validate:avm-versions:freeze` at Step 4 freeze gate.
+
 ## Module Outputs
 
 Every module outputs: `resourceId`, `resourceName`, `principalId` (if identity exists).
@@ -85,6 +99,7 @@ for the dynamic tag list rule.
 | S1 for zone redundancy | Use P1v3+                       |
 | Raw Bicep (no AVM)     | Use AVM modules or get approval |
 | No budget module       | Include `modules/budget.bicep`  |
+| Stale AVM version pin  | Resolve via MCR `tags/list` at plan time; stale pins require `pin_policy.mode = "exception"` |
 
 ## Validation
 

@@ -108,7 +108,8 @@
               "version": {
                 "type": "string",
                 "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
-              }
+              },
+              "pin_policy": { "$ref": "#/$defs/pinPolicy" }
             }
           }
         },
@@ -127,7 +128,8 @@
               "version": {
                 "type": "string",
                 "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
-              }
+              },
+              "pin_policy": { "$ref": "#/$defs/pinPolicy" }
             }
           }
         }
@@ -291,6 +293,63 @@
           "purpose": { "type": "string" }
         }
       }
+    }
+  },
+  "$defs": {
+    "pinPolicy": {
+      "type": "object",
+      "description": "Structured exception for non-latest AVM module pins. When mode='latest' the validator only checks the version exists; when mode='exception' the validator allows a stale pin if rationale + evidence + review_after are present and review_after is in the future. Enforced by validate-avm-module-versions.mjs.",
+      "required": ["mode", "latest_seen", "lookup_source", "lookup_timestamp"],
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["latest", "exception"],
+          "description": "'latest' = the pinned version was the latest stable at lookup_timestamp. 'exception' = an older verified version is intentionally pinned with rationale."
+        },
+        "latest_seen": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+          "description": "Latest stable version observed at lookup_timestamp. Should equal the module's `version` field when mode='latest'."
+        },
+        "lookup_source": {
+          "type": "string",
+          "enum": ["mcr", "terraform-registry", "mcp-bicep", "mcp-terraform", "cache"],
+          "description": "Where latest_seen came from. 'cache' means the resolver used the checked-in cache file because the live registry was unreachable."
+        },
+        "lookup_timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When latest_seen was observed. Validators may require this be within an acceptable freshness window."
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Required when mode='exception'. One-sentence reason for not using latest (e.g. 'AVM 0.12.x emits networkRuleSet for Basic SKU; pin to 0.11.x until 0.13.x ships the fix')."
+        },
+        "evidence_url_or_file": {
+          "type": "string",
+          "description": "Required when mode='exception'. Link to GitHub issue, release note, or repo path documenting the regression."
+        },
+        "review_after": {
+          "type": "string",
+          "format": "date",
+          "description": "Required when mode='exception'. Date after which the exception must be re-evaluated. Past dates make the validator fail."
+        },
+        "approved_by_step": {
+          "type": "string",
+          "enum": ["1", "2", "3", "3.5", "4", "5"],
+          "description": "Optional. Workflow step that approved the exception (typically 4 for plan-time decisions)."
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "mode": { "const": "exception" } } },
+          "then": {
+            "required": ["rationale", "evidence_url_or_file", "review_after"]
+          }
+        }
+      ]
     }
   }
 }

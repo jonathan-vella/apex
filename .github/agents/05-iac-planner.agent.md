@@ -493,14 +493,17 @@ Then run the **two-stage gate** documented in
 **Plan-status attestation (MANDATORY)** — before completing the step,
 verify (a) every challenger pass returned `APPROVED`, (b) the
 Governance Compliance Matrix is complete (every Deny has a row,
-no `❌ unsatisfiable`), and (c) the Code-Generation Contract section
-is present for every resource. Then emit:
+no `❌ unsatisfiable`), (c) the Code-Generation Contract section is
+present for every resource, and (d) AVM freeze gate passes
+(`npm run validate:avm-versions:freeze -- agent-output/{project}/04-iac-contract.json`;
+on fail → [`iac-common/references/avm-version-freeze-gate.md`](../skills/iac-common/references/avm-version-freeze-gate.md)).
+Then emit:
 
 ```bash
 apex-recall decide <project> \
   --key plan_status \
   --value APPROVED \
-  --rationale "<challenger summary> + matrix:<N rows> + contract:<N resources>" \
+  --rationale "<challenger summary> + matrix:<N rows> + contract:<N resources> + avm-freeze:clean" \
   --step 4 \
   --json
 ```

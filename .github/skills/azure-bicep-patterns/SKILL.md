@@ -46,7 +46,7 @@ Applying a pattern in a Bicep template:
 1. **Identify the pattern** — match your need to a row in [Quick Reference](#quick-reference) (hub-spoke, private endpoint, diagnostics, conditional, identity, budget)
 2. **Load the reference** — read the linked `references/*.md` for the chosen pattern; do not load all at once
 3. **Compose the module** — follow the Module Interface contract above (`name`/`location`/`tags`/`logAnalyticsWorkspaceName` in; `resourceId`/`resourceName`/`principalId` out)
-4. **Pin AVM versions** — when using AVM modules, pin to a specific published version; verify via MCR tag listing if helpers fail
+4. **Pin AVM versions to the latest stable** — at plan time, query MCR (`https://mcr.microsoft.com/v2/bicep/avm/res/{path}/tags/list`) and pin the highest non-prerelease semver; never reuse a version from training data, a prior project, or `references/avm-modules.md`. Stale pins require a `pin_policy.mode = "exception"` block in `04-iac-contract.json` (see `azure-defaults` skill). Enforced by `npm run validate:avm-versions:freeze`.
 5. **Add diagnostics + budget** — every deployed resource gets a diagnostic setting; every deployment gets a budget with 80%/100%/120% forecast alerts
 6. **What-if before deploy** — run `az deployment group what-if` and review for unexpected deletes, SKU downgrades, or auth changes
 7. **Validate** — `bicep build` + `bicep lint` + `npm run validate:iac-security-baseline`
@@ -60,9 +60,9 @@ Applying a pattern in a Bicep template:
 - **Identity**: `guid()` for idempotent role names; `principalType: 'ServicePrincipal'`; scope narrowly
 - **Budget**: 3 forecast thresholds (80%/100%/120%); amount and emails MUST be parameters
 - **What-If**: Run before every deploy; watch for unexpected deletes and SKU downgrades
-- **AVM**: Always pin versions; wrap modules to override defaults; verify outputs in README
-- **AVM Version Fallback**: When AVM version helpers are incomplete, query public MCR tag listings
-  (`mcr.microsoft.com/v2/bicep/{module}/tags/list`) to discover authoritative published versions
+- **AVM**: ALWAYS pin to the **latest published stable version** (resolve at plan time via MCR `tags/list`); wrap modules to override defaults; verify outputs in README. Stale pins require a `pin_policy` exception block — see `azure-defaults` skill.
+- **AVM Version Source of Truth**: MCR tag listing (`mcr.microsoft.com/v2/bicep/{module}/tags/list`) is authoritative.
+  Helpers and doc tables are NOT — they go stale. Validator: `npm run validate:avm-versions`.
 
 ## Gotchas
 

@@ -226,8 +226,17 @@ Merged from `security-governance` + `architecture-reliability` +
 - [ ] **Plan ↔ architecture mapping** — every resource in
       `02-architecture-assessment.md` has a corresponding row in the
       plan (no silent drops, no silent additions).
-- [ ] **AVM module versions pinned** — every module reference cites a
-      verified AVM version, not `latest` or `main`.
+- [ ] **AVM module versions pinned to latest stable** — every module
+      reference cites the **latest published stable version** at plan
+      time, NOT `latest`/`main`, NOT a version copied from
+      `azure-defaults/references/avm-modules.md`, NOT a version reused
+      from a prior project. Resolve via MCR (Bicep) or
+      `registry.terraform.io` (Terraform). Stale pins are accepted ONLY
+      when the contract entry has a `pin_policy.mode = "exception"`
+      block with `rationale`, `evidence_url_or_file`, and a future
+      `review_after` date. Pins >90 days behind the latest stable
+      without that exception block are an automatic must_fix. Validator:
+      `npm run validate:avm-versions:freeze`.
 - [ ] **Private endpoints + DNS** — every PE listed in the architecture
       appears in the plan with `privateLinkServiceConnections` AND a
       DNS-zone-group entry.
