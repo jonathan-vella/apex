@@ -5,7 +5,7 @@
     "ms-python.vscode-pylance",
     "ms-azuretools.vscode-azure-mcp-server",
     "ms-azuretools.vscode-bicep",
-    "davidanson.vscode-markdownlint",
+    "DavidAnson.vscode-markdownlint",
     "github.vscode-pull-request-github",
     "bierner.markdown-mermaid",
     "bierner.markdown-preview-github-styles",
@@ -14,7 +14,7 @@
     "ms-vscode.azurecli",
     "redhat.vscode-yaml",
     "esbenp.prettier-vscode",
-    "hashicorp.terraform",
+    "HashiCorp.terraform",
     "ms-azuretools.vscode-azureterraform",
     "denoland.vscode-deno",
     "hediet.vscode-drawio"
