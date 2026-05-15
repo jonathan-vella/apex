@@ -1,4 +1,5 @@
 <!-- ref:bicepparam-pattern-v1 -->
+
 # `*.bicepparam` Pattern (Wave 2)
 
 Records the **only** APEX-sanctioned shape for environment-specific

@@ -1,4 +1,5 @@
 <!-- ref:contract-emission-and-handoff-v1 -->
+
 # Contract Emission & IaC Handoff (Wave 1+ / Wave 3+)
 
 Shared CodeGen workflow for both 06b-Bicep and 06t-Terraform agents.

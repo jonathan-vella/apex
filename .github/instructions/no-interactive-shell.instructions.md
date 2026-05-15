@@ -49,12 +49,12 @@ tool, or extract the relevant lines (`grep`, `head`, `tail`, `awk`).
 
 `az` commands return large JSON envelopes by default. Choose one of:
 
-| Goal                                      | Recipe                                              |
-| ----------------------------------------- | --------------------------------------------------- |
-| Fire-and-check exit code                  | `az <command> --output none && echo OK`             |
-| Extract a single field                    | `az <command> --query "<jmespath>" --output tsv`    |
-| Capture full output for later inspection  | `az <command> > /tmp/<name>.json && wc -l /tmp/<name>.json` |
-| Preview deployment changes                | `az deployment ... what-if --result-format ResourceIdOnly` |
+| Goal                                     | Recipe                                                      |
+| ---------------------------------------- | ----------------------------------------------------------- |
+| Fire-and-check exit code                 | `az <command> --output none && echo OK`                     |
+| Extract a single field                   | `az <command> --query "<jmespath>" --output tsv`            |
+| Capture full output for later inspection | `az <command> > /tmp/<name>.json && wc -l /tmp/<name>.json` |
+| Preview deployment changes               | `az deployment ... what-if --result-format ResourceIdOnly`  |
 
 Examples:
 
