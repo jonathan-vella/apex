@@ -10,7 +10,7 @@
     },
     "requirements": {
       "agent": ".github/agents/02-requirements.agent.md",
-      "model": "Claude Opus 4.7",
+      "model": "GPT-5.5",
       "invokable": true,
       "step": 1
     },

@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-05-15T12:25:36.645Z",
+  "generatedAt": "2026-05-15T13:38:24.021Z",
   "categories": [
     {
       "id": "agent",
@@ -8,7 +8,7 @@
       "label": "Agent",
       "color": "#3b82f6",
       "shape": "round-rectangle",
-      "count": 16
+      "count": 15
     },
     {
       "id": "subagent",
@@ -67,8 +67,8 @@
       "count": 6
     }
   ],
-  "nodeCount": 165,
-  "edgeCount": 676,
+  "nodeCount": 164,
+  "edgeCount": 663,
   "nodes": [
     {
       "id": "agent:01-orchestrator",
@@ -114,30 +114,6 @@
       }
     },
     {
-      "id": "agent:02-requirements-gpt",
-      "category": "agent",
-      "label": "02-Requirements GPT",
-      "description": "GPT-5.5 sibling of 02-Requirements for capturing Azure platform engineering project requirements. Generates the same Step 1 artifacts without replacing the canonical Requirements agent.",
-      "path": ".github/agents/02-requirements-gpt.agent.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/02-requirements-gpt.agent.md"
-      },
-      "meta": {
-        "model": "GPT-5.5",
-        "invocable": true,
-        "subagents": [
-          "challenger-review-subagent"
-        ],
-        "handoffTargets": [
-          "02-Requirements GPT",
-          "10-Challenger",
-          "03-Architect",
-          "agent",
-          "01-Orchestrator"
-        ]
-      }
-    },
-    {
       "id": "agent:02-requirements",
       "category": "agent",
       "label": "02-Requirements",
@@ -147,7 +123,7 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/02-requirements.agent.md"
       },
       "meta": {
-        "model": "Claude Opus 4.7",
+        "model": "GPT-5.5",
         "invocable": true,
         "subagents": [
           "challenger-review-subagent"
@@ -2389,12 +2365,6 @@
       "kind": "delegates"
     },
     {
-      "id": "agent:02-requirements-gpt--delegates->subagent:challenger-review-subagent",
-      "source": "agent:02-requirements-gpt",
-      "target": "subagent:challenger-review-subagent",
-      "kind": "delegates"
-    },
-    {
       "id": "agent:02-requirements--delegates->subagent:challenger-review-subagent",
       "source": "agent:02-requirements",
       "target": "subagent:challenger-review-subagent",
@@ -2656,24 +2626,6 @@
       "id": "agent:01-orchestrator--hands-off->agent:07t-terraform-deploy",
       "source": "agent:01-orchestrator",
       "target": "agent:07t-terraform-deploy",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:02-requirements-gpt--hands-off->agent:10-challenger",
-      "source": "agent:02-requirements-gpt",
-      "target": "agent:10-challenger",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:02-requirements-gpt--hands-off->agent:03-architect",
-      "source": "agent:02-requirements-gpt",
-      "target": "agent:03-architect",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:02-requirements-gpt--hands-off->agent:01-orchestrator",
-      "source": "agent:02-requirements-gpt",
-      "target": "agent:01-orchestrator",
       "kind": "hands-off"
     },
     {
@@ -2962,12 +2914,6 @@
       "id": "instruction:agent-authoring--applies-to->agent:01-orchestrator",
       "source": "instruction:agent-authoring",
       "target": "agent:01-orchestrator",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:agent-authoring--applies-to->agent:02-requirements-gpt",
-      "source": "instruction:agent-authoring",
-      "target": "agent:02-requirements-gpt",
       "kind": "applies-to"
     },
     {
@@ -3397,12 +3343,6 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:context-optimization--applies-to->agent:02-requirements-gpt",
-      "source": "instruction:context-optimization",
-      "target": "agent:02-requirements-gpt",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:context-optimization--applies-to->agent:02-requirements",
       "source": "instruction:context-optimization",
       "target": "agent:02-requirements",
@@ -3736,12 +3676,6 @@
       "id": "instruction:docs-trigger--applies-to->agent:01-orchestrator",
       "source": "instruction:docs-trigger",
       "target": "agent:01-orchestrator",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:docs-trigger--applies-to->agent:02-requirements-gpt",
-      "source": "instruction:docs-trigger",
-      "target": "agent:02-requirements-gpt",
       "kind": "applies-to"
     },
     {
@@ -4243,12 +4177,6 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:lesson-collection--applies-to->agent:02-requirements-gpt",
-      "source": "instruction:lesson-collection",
-      "target": "agent:02-requirements-gpt",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:lesson-collection--applies-to->agent:02-requirements",
       "source": "instruction:lesson-collection",
       "target": "agent:02-requirements",
@@ -4576,12 +4504,6 @@
       "id": "instruction:no-interactive-shell--applies-to->agent:01-orchestrator",
       "source": "instruction:no-interactive-shell",
       "target": "agent:01-orchestrator",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:no-interactive-shell--applies-to->agent:02-requirements-gpt",
-      "source": "instruction:no-interactive-shell",
-      "target": "agent:02-requirements-gpt",
       "kind": "applies-to"
     },
     {
@@ -5113,12 +5035,6 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:vendor-prompting--applies-to->agent:02-requirements-gpt",
-      "source": "instruction:vendor-prompting",
-      "target": "agent:02-requirements-gpt",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:vendor-prompting--applies-to->agent:02-requirements",
       "source": "instruction:vendor-prompting",
       "target": "agent:02-requirements",
@@ -5632,24 +5548,6 @@
       "id": "agent:01-orchestrator--uses-mcp->mcp:drawio",
       "source": "agent:01-orchestrator",
       "target": "mcp:drawio",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:02-requirements-gpt--uses-mcp->mcp:github",
-      "source": "agent:02-requirements-gpt",
-      "target": "mcp:github",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:02-requirements-gpt--uses-mcp->mcp:terraform",
-      "source": "agent:02-requirements-gpt",
-      "target": "mcp:terraform",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:02-requirements-gpt--uses-mcp->mcp:microsoft-learn",
-      "source": "agent:02-requirements-gpt",
-      "target": "mcp:microsoft-learn",
       "kind": "uses-mcp"
     },
     {

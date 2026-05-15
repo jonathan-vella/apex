@@ -101,8 +101,7 @@
     "description": "Auto-generated inventory of agent → model assignments derived from frontmatter (canonical source). Do not edit by hand; run `node tools/scripts/generate-model-catalog.mjs` or let the lefthook pre-commit hook refresh it when frontmatter changes.",
     "agents": {
       "01-orchestrator.agent.md": "GPT-5.3-Codex",
-      "02-requirements-gpt.agent.md": "GPT-5.5",
-      "02-requirements.agent.md": "Claude Opus 4.7",
+      "02-requirements.agent.md": "GPT-5.5",
       "03-architect.agent.md": "Claude Opus 4.7",
       "04-design.agent.md": "Claude Sonnet 4.6",
       "04g-governance.agent.md": "GPT-5.5",
