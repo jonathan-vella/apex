@@ -1,3 +1,4 @@
+<!-- ref:adversarial-review-deep-v1 -->
 ---
 name: Adversarial Review — Deep Cascade
 description: Opt-in multi-pass deep-review cascade for the challenger-review-subagent

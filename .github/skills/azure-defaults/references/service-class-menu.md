@@ -1,3 +1,4 @@
+<!-- ref:service-class-menu-v1 -->
 ---
 name: Service Class Menu
 description: Phase 3 service-class question batches for the Requirements agent
