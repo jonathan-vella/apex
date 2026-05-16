@@ -530,11 +530,11 @@ CodeGen Plan-Readiness Precondition cross-checks this value at boot.
 
 > **Note**: `04-governance-constraints.md/.json` from Step 3.5 (Governance) are prerequisites — not produced here.
 
-**`04-governance-constraints.json`** is consumed by CodeGen agents
-(Phase 1.5) and validation subagents. Each `Deny` policy MUST include
-`azurePropertyPath` + `requiredValue`. For Terraform targets,
-always use `azurePropertyPath` (not `bicepPropertyPath`). Include
-attribution header from the template.
+**`04-governance-constraints.json` is consumed** by CodeGen agents (Phase 1.5) and
+validation subagents. Each `Deny` policy MUST include `azurePropertyPath` +
+`requiredValue` to be machine-actionable. For Terraform targets,
+always use `azurePropertyPath` (not `bicepPropertyPath`) for property mapping.
+Include attribution header from the template file (do not hardcode).
 
 ## Boundaries
 

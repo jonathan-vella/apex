@@ -39,12 +39,12 @@ flowchart LR
 
 ## Azure MCP Server
 
-| Property  | Value                                                                |
-| --------- | -------------------------------------------------------------------- |
-| Transport | stdio (via `npx @azure/mcp@latest`)                                  |
+| Property  | Value                                                          |
+| --------- | -------------------------------------------------------------- |
+| Transport | stdio (via `npx @azure/mcp@latest`)                            |
 | Package   | [`@azure/mcp`](https://github.com/Azure/azure-mcp) (Microsoft) |
-| Auth      | Azure CLI (`az login`) or managed identity                           |
-| Purpose   | RBAC-aware Azure resource context for agents                         |
+| Auth      | Azure CLI (`az login`) or managed identity                     |
+| Purpose   | RBAC-aware Azure resource context for agents                   |
 
 The Azure MCP Server is a **critical component** declared in
 `.vscode/mcp.json` and launched on demand via `npx -y @azure/mcp@latest

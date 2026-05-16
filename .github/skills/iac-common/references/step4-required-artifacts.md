@@ -16,15 +16,15 @@ This contract makes the presence check mandatory and explicit.
 
 Before `apex-recall complete-step <project> 4 --json`, every file below MUST exist on disk under `agent-output/<project>/`. If any is missing, BLOCK and remediate per the third column.
 
-| Artifact                         | Source phase | Remediation                                                             |
-| -------------------------------- | ------------ | ----------------------------------------------------------------------- |
-| `04-implementation-plan.md`      | Phase 4      | Re-run plan generation                                                  |
-| `04-iac-contract.json`           | Phase 4      | Re-run contract emission                                                |
-| `04-policy-property-map.json`    | Phase 4      | Re-run L1m emission                                                     |
-| `04-governance-constraints.json` | Step 3.5     | Traverse `▶ Refresh Governance` handoff to `04g-Governance`             |
-| `04-governance-constraints.md`   | Step 3.5     | Traverse `▶ Refresh Governance` handoff to `04g-Governance`             |
-| `04-dependency-diagram.png`      | Phase 4      | `python3 agent-output/<project>/04-dependency-diagram.py` (renders PNG) |
-| `04-runtime-diagram.png`         | Phase 4      | `python3 agent-output/<project>/04-runtime-diagram.py` (renders PNG)    |
+| Artifact                          | Source phase  | Remediation                                                              |
+| --------------------------------- | ------------- | ------------------------------------------------------------------------ |
+| `04-implementation-plan.md`       | Phase 4       | Re-run plan generation                                                   |
+| `04-iac-contract.json`            | Phase 4       | Re-run contract emission                                                 |
+| `04-policy-property-map.json`     | Phase 4       | Re-run L1m emission                                                      |
+| `04-governance-constraints.json`  | Step 3.5      | Traverse `▶ Refresh Governance` handoff to `04g-Governance`              |
+| `04-governance-constraints.md`    | Step 3.5      | Traverse `▶ Refresh Governance` handoff to `04g-Governance`              |
+| `04-dependency-diagram.png`       | Phase 4       | `python3 agent-output/<project>/04-dependency-diagram.py` (renders PNG)  |
+| `04-runtime-diagram.png`          | Phase 4       | `python3 agent-output/<project>/04-runtime-diagram.py` (renders PNG)     |
 
 ## Diagram-rendering rule
 
