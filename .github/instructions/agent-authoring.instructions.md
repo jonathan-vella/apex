@@ -510,8 +510,8 @@ invoke either from inside an agent body. Delegate to pre-commit + CI.
 
 `runSubagent { agentName: "challenger-review-subagent" }` has been
 observed at runtime to fail with `Error invoking subagent: Requested
-agent 'challenger-review-subagent' not found.` even when the parent
-+ subagent config matches the VS Code subagent docs
+agent 'challenger-review-subagent' not found.` even when the
+parent + subagent config matches the VS Code subagent docs
 (<https://code.visualstudio.com/docs/copilot/agents/subagents>) and
 `npm run validate:agents` passes. Verified once on
 `tmp/agent-debug-log-a3ca0888-f43d-4ab4-b06d-6d289a194942.json`
