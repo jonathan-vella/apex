@@ -24,7 +24,7 @@ with AI agents.
 | Deno                      | latest  | Draw.io MCP server runtime        |
 | Azure Developer CLI (azd) | latest  | Standardized Azure deployments    |
 
-### Tools Installed by `post-create.sh` (15 steps)
+### Tools Installed by `post-create.sh`
 
 | Step | Tool                           | Method                                                                       |
 | ---- | ------------------------------ | ---------------------------------------------------------------------------- |
@@ -202,7 +202,7 @@ Runs once when the container is created. Installs `graphviz`, `dos2unix`, `bats`
 
 ### `postCreateCommand` — `post-create.sh`
 
-Runs once after container creation. Performs the 15-step setup (npm, Python, PowerShell modules,
+Runs once after container creation. Performs multi-step setup (npm, Python, PowerShell modules,
 MCP servers, gitleaks, Git config, and tool verification). Output is logged to
 `~/.devcontainer-install.log`.
 

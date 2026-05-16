@@ -414,6 +414,12 @@ default_drawio = {
     "args": ["run", "-P", "--no-check", "--cached-only", "${workspaceFolder}/tools/mcp-servers/drawio/src/index.ts"],
 }
 
+default_azure_mcp = {
+    "type": "stdio",
+    "command": "npx",
+    "args": ["-y", "@azure/mcp@latest", "server", "start"],
+}
+
 data = {"servers": {}}
 
 if config_path.exists():
@@ -430,6 +436,7 @@ servers = data.setdefault("servers", {})
 servers.setdefault("azure-pricing", default_azure_pricing)
 servers.setdefault("github", default_github)
 servers.setdefault("drawio", default_drawio)
+servers.setdefault("azure-mcp", default_azure_mcp)
 config_path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
 PY
 

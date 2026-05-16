@@ -127,7 +127,7 @@ export function getPromptFiles() {
   _prompts = new Map();
   for (const dir of PROMPT_SOURCE_DIRS) {
     if (!fs.existsSync(dir)) continue;
-    for (const file of fs.readdirSync(dir)) {
+    for (const file of fs.readdirSync(dir, { recursive: true })) {
       if (!file.endsWith(".prompt.md")) continue;
       const filePath = path.join(dir, file);
       const content = fs.readFileSync(filePath, "utf-8");
