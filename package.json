@@ -19,6 +19,7 @@
     "lint:h2-sync": "node tools/scripts/validate-artifacts.mjs",
     "fix:artifact-h2": "node tools/scripts/validate-artifacts.mjs --fix",
     "check:h2-order": "node tools/scripts/check-h2-order.mjs",
+    "check:context-redundancy": "node tools/scripts/check-context-redundancy.mjs",
     "render:headings-summary": "node tools/scripts/render-headings-summary.mjs",
     "validate:headings-summary": "node tools/scripts/validate-headings-summary.mjs",
     "lint:version-sync": "node tools/scripts/validate-version-sync.mjs",
