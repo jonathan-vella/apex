@@ -458,7 +458,7 @@ When opted in, follow the recommended shape from
 - `complex` → 3 passes (`security-governance` → `architecture-reliability` → `cost-feasibility`)
 
 Apply the cascade early-exit rules from
-`adversarial-review-protocol.md → ## Opt-in: Deep adversarial review`:
+`adversarial-review-deep.md → ## Rotating-lens passes`:
 skip pass 2 if pass 1 has 0 `must_fix` AND <2 `should_fix`; skip pass 3
 if pass 2 has 0 `must_fix`.
 

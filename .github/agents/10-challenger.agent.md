@@ -121,7 +121,7 @@ understand what has already been reviewed and which decisions to scrutinize.
      is an explicit user request. If user requests multi-pass or asks for a
      "deep review", set to requested count (max 3) and use the rotating-lens
      cascade from
-     `azure-defaults/references/adversarial-review-protocol.md → ## Opt-in: Deep adversarial review`.
+     `azure-defaults/references/adversarial-review-deep.md` (sibling of `adversarial-review-protocol.md`).
 5. **Route to the appropriate subagent** based on pass configuration:
 
 ### Single-Pass Review (total_passes = 1)

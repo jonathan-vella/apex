@@ -365,7 +365,7 @@ artifact, in parallel. No tier-driven multi-pass auto-fires.
 
 **Deep-review opt-in**: if `decisions.review_depth == "deep"`, enter the
 opt-in rotating-lens cascade defined in
-`adversarial-review-protocol.md → ## Opt-in: Deep adversarial review`.
+`adversarial-review-deep.md` (sibling of `adversarial-review-protocol.md`).
 Use the recommended shape from `opt_in_matrix` for the architect's step
 in `workflow-graph.json` based on `decisions.complexity`. Do NOT prompt
 the user — the project-scoped `review_depth` decision is the opt-in

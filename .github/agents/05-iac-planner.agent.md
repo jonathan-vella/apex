@@ -407,7 +407,7 @@ auto-trigger.
 
 **Deep-review opt-in**: if `decisions.review_depth == "deep"`, enter the
 opt-in rotating-lens cascade defined in
-`adversarial-review-protocol.md → ## Opt-in: Deep adversarial review`.
+`adversarial-review-deep.md` (sibling of `adversarial-review-protocol.md`).
 Do NOT prompt — the project-scoped `review_depth` decision is the
 opt-in trigger.
 
