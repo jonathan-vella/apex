@@ -1,0 +1,170 @@
+{
+  "00-handoff.md": [
+    "## Completed Steps",
+    "## Key Decisions",
+    "## Open Challenger Findings (must_fix only)",
+    "## Context for Next Step",
+    "## Skill Context",
+    "## Artifacts"
+  ],
+  "01-requirements.md": [
+    "## 🎯 Project Overview",
+    "## 🚀 Functional Requirements",
+    "## ⚡ Non-Functional Requirements (NFRs)",
+    "## 🔒 Compliance & Security Requirements",
+    "## 💰 Budget",
+    "## 🔧 Operational Requirements",
+    "## 🌍 Regional Preferences",
+    "## 📊 Complexity Classification",
+    "## 📋 Summary for Architecture Assessment"
+  ],
+  "02-architecture-assessment.md": [
+    "## ✅ Requirements Validation",
+    "## 💎 Executive Summary",
+    "## 🏛️ WAF Pillar Assessment",
+    "## 📦 Resource SKU Recommendations",
+    "## 🎯 Architecture Decision Summary",
+    "## 🚀 Implementation Handoff",
+    "## 🔒 Approval Gate"
+  ],
+  "03-des-cost-estimate.md": [
+    "## 💵 Cost At-a-Glance",
+    "## ✅ Decision Summary",
+    "## 🔁 Requirements → Cost Mapping",
+    "## 📊 Top 5 Cost Drivers",
+    "## 🏛️ Architecture Overview",
+    "## 🧾 What We Are Not Paying For (Yet)",
+    "## ⚠️ Cost Risk Indicators",
+    "## 🎯 Quick Decision Matrix",
+    "## 💰 Savings Opportunities",
+    "## 🧾 Detailed Cost Breakdown"
+  ],
+  "04-governance-constraints.md": [
+    "## 🔍 Discovery Source",
+    "## 📋 Azure Policy Compliance",
+    "## 🔄 Plan Adaptations Based on Policies",
+    "## 🚫 Deployment Blockers",
+    "## 🏷️ Required Tags",
+    "## 🔐 Security Policies",
+    "## 💰 Cost Policies",
+    "## 🌐 Network Policies"
+  ],
+  "04-implementation-plan.md": [
+    "## 📋 Overview",
+    "## 📦 Resource Inventory",
+    "## 🛡️ Governance Compliance Matrix",
+    "## 🗂️ Module Structure",
+    "## 🔨 Implementation Tasks",
+    "## 📤 Code-Generation Contract",
+    "## 🚀 Deployment Phases",
+    "## 🔗 Dependency Graph",
+    "## 🔄 Runtime Flow Diagram",
+    "## 🏷️ Naming Conventions",
+    "## 🔐 Security Configuration",
+    "## ⏱️ Estimated Implementation Time",
+    "## 🔒 Approval Gate"
+  ],
+  "04-preflight-check.md": [
+    "## 🎯 Purpose",
+    "## ✅ AVM Schema Validation Results",
+    "## 🔎 Parameter Type Analysis",
+    "## 🌍 Region Limitations Identified",
+    "## ⚠️ Pitfalls Checklist",
+    "## 🚀 Ready for Implementation"
+  ],
+  "05-implementation-reference.md": [
+    "## 📁 IaC Templates Location",
+    "## 🗂️ File Structure",
+    "## ✅ Validation Status",
+    "## 🏗️ Resources Created",
+    "## 🚀 Deployment Instructions",
+    "## 📝 Key Implementation Notes"
+  ],
+  "06-deployment-summary.md": [
+    "## ✅ Preflight Validation",
+    "## 📋 Deployment Details",
+    "## 🏗️ Deployed Resources",
+    "## 📤 Outputs (Expected)",
+    "## 🚀 To Actually Deploy",
+    "## 📝 Post-Deployment Tasks"
+  ],
+  "07-ab-cost-estimate.md": [
+    "## 💵 Cost At-a-Glance",
+    "## ✅ Decision Summary",
+    "## 🔁 Requirements → Cost Mapping",
+    "## 📊 Top 5 Cost Drivers",
+    "## 🏛️ Architecture Overview",
+    "## 🧾 What We Are Not Paying For (Yet)",
+    "## ⚠️ Cost Risk Indicators",
+    "## 🎯 Quick Decision Matrix",
+    "## 💰 Savings Opportunities",
+    "## 🧾 Detailed Cost Breakdown"
+  ],
+  "07-backup-dr-plan.md": [
+    "## 📋 Executive Summary",
+    "## 🎯 1. Recovery Objectives",
+    "## 💾 2. Backup Strategy",
+    "## 🌍 3. Disaster Recovery Procedures",
+    "## 🧪 4. Testing Schedule",
+    "## 📢 5. Communication Plan",
+    "## 👥 6. Roles and Responsibilities",
+    "## 🔗 7. Dependencies",
+    "## 📖 8. Recovery Runbooks",
+    "## 📎 9. Appendix"
+  ],
+  "07-compliance-matrix.md": [
+    "## 📋 Executive Summary",
+    "## 🗺️ 1. Control Mapping",
+    "## 🔍 2. Gap Analysis",
+    "## 📁 3. Evidence Collection",
+    "## 📝 4. Audit Trail",
+    "## 🔧 5. Remediation Tracker",
+    "## 📎 6. Appendix"
+  ],
+  "07-design-document.md": [
+    "## 📝 1. Introduction",
+    "## 🏛️ 2. Azure Architecture Overview",
+    "## 🌐 3. Networking",
+    "## 💾 4. Storage",
+    "## 💻 5. Compute",
+    "## 👤 6. Identity & Access",
+    "## 🔐 7. Security & Compliance",
+    "## 🔄 8. Backup & Disaster Recovery",
+    "## 📊 9. Management & Monitoring",
+    "## 📎 10. Appendix"
+  ],
+  "07-documentation-index.md": [
+    "## 📦 1. Document Package Contents",
+    "## 📚 2. Source Artifacts",
+    "## 📋 3. Project Summary",
+    "## 🔗 4. Related Resources",
+    "## ⚡ 5. Quick Links"
+  ],
+  "07-operations-runbook.md": [
+    "## ⚡ Quick Reference",
+    "## 📋 1. Daily Operations",
+    "## 🚨 2. Incident Response",
+    "## 🔧 3. Common Procedures",
+    "## 🕐 4. Maintenance Windows",
+    "## 📞 5. Contacts & Escalation",
+    "## 📝 6. Change Log"
+  ],
+  "07-resource-inventory.md": [
+    "## 📊 Summary",
+    "## 📦 Resource Listing"
+  ],
+  "09-lessons-learned.md": [
+    "## 📋 Summary",
+    "## 📊 Lessons by Severity",
+    "## 🔍 Per-Step Findings",
+    "## 💡 Recommendations",
+    "## 📎 Appendix: Full Lesson Details"
+  ],
+  "README.md": [
+    "## 📋 Project Summary",
+    "## ✅ Workflow Progress",
+    "## 🏛️ Architecture",
+    "## 📄 Generated Artifacts",
+    "## 🔗 Related Resources"
+  ]
+}
