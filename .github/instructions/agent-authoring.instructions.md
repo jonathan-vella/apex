@@ -473,6 +473,26 @@ disables global scope as of writing. The only reliable mitigations are:
 This advisory is informational. Do not modify a contributor's dev
 container or user-scope settings as part of an agent change.
 
+### No-direct-markdownlint-on-agent-output rule
+
+Agents must **never** invoke `markdownlint-cli2 agent-output/...` (or
+any equivalent direct lint invocation against an `agent-output/**`
+path) from a tool span. The path is already excluded from
+`npm run lint:md` at
+[`.markdownlint-cli2.jsonc`](../../.markdownlint-cli2.jsonc) (global
+`ignores` list), and the artifact contract is enforced by the
+[`lefthook.yml`](../../lefthook.yml) `artifact-validation` pre-commit
+hook (which runs `npm run validate:artifacts` on staged
+`agent-output/**/*.md`) plus the
+[`10-Challenger`](../agents/10-challenger.agent.md) review step.
+Improvising a direct lint call wastes the user's context budget on
+work the pipeline already does, and `validate-agents` will fail the
+build if an agent body documents the forbidden invocation.
+
+Equivalent prohibition for `npm run lint:md` and
+`npm run lint:artifact-templates` against `agent-output/**`: do not
+invoke either from inside an agent body. Delegate to pre-commit + CI.
+
 ---
 
 ## Decision Logging
