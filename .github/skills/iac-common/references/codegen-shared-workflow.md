@@ -73,6 +73,58 @@ Context reaches ~80% after preflight and governance mapping. Compact before code
 3. Do not re-read predecessor artifacts — rely on the summary and saved files on disk
 4. Update session state: `sub_step: "phase_1.6_compacted"`
 
+## Phase 2: Output Cadence (MANDATORY — ONE FILE PER TURN)
+
+Generate **exactly one file per response turn** throughout Phase 2.
+Bundling multiple file bodies in a single response exceeds VS Code's
+per-response output-token ceiling and aborts the turn with
+*"Sorry, the response hit the length limit. Please rephrase your
+prompt."* — wasting the entire 200K+ output of the aborted turn and
+forcing the user to recover manually.
+
+The per-tool file-order tables in `06b-bicep-codegen.agent.md` /
+`06t-terraform-codegen.agent.md` define **dependency ordering only**.
+Each listed file is a separate response turn — never collapse a row
+into one response.
+
+### Cadence per file
+
+1. Announce on one short line: `Generating: <path> (n/total)`.
+2. Call the file-creation tool with the full file body.
+3. End the turn. Wait for the runtime to return control before the next file.
+
+### Build cadence (early-warning, not full validation)
+
+After every **3 files written**, invoke the toolchain build via
+`execution_subagent` to catch wiring errors early:
+
+- Bicep: `bicep build infra/bicep/{project}/main.bicep`
+- Terraform: `terraform -chdir=infra/terraform/{project} validate`
+
+This is in addition to — not a replacement for — the full
+`bicep-validate-subagent` / `terraform-validate-subagent` runs in Phase 4.
+
+### Resume after a length-limit abort
+
+If a prior turn aborted with the length-limit error:
+
+- Resume by emitting **only the next single file** that is not on disk.
+- Do **not** re-emit any file already on disk.
+- Do **not** summarise what was lost — continue the per-file cadence.
+- If state is unclear, list `infra/{tool}/{project}/` first to confirm
+  which files exist, then resume from the first missing entry in the
+  file-order table.
+
+### Anti-patterns (root causes of length-limit aborts)
+
+- Emitting `main.bicep` plus 5 modules plus `azure.yaml` plus `deploy.ps1`
+  in one response.
+- Treating a numbered "Round" in the file-order table as a single turn —
+  rounds are dependency groupings, not response units.
+- Calling `create_file` more than once in the same response turn.
+- Bundling file creation with verbose narration of all files at once
+  ("Here are all the modules: ...").
+
 ## Phase 4.5: Adversarial Code Review (opt-in, default-skip)
 
 Read `azure-defaults/references/adversarial-review-protocol.md` for the

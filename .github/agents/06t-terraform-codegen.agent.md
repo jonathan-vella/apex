@@ -207,6 +207,10 @@ Before doing any work, read these skills.
 - Issue more than one `askQuestions` call per challenger pass — batch all
   open decisions into one inline form (see `codegen-shared-workflow.md` →
   Batched User Decisions)
+- Bundle multiple file bodies in a single response — exceeds VS Code's
+  per-response output-token ceiling and aborts the turn with *"the
+  response hit the length limit"*. Emit ONE file per response turn
+  (see `codegen-shared-workflow.md` → Phase 2: Output Cadence)
 - Write raw `azurerm` when AVM-TF exists
 - Hardcode unique strings
 - Use hardcoded tag maps ignoring governance
@@ -398,14 +402,11 @@ Build configurations in dependency order from `04-implementation-plan.md`.
 If **phased**: add `variable "deployment_phase"` with `count` conditionals per module.
 If **single**: no `deployment_phase` variable needed.
 
-| Round | Files                                                                                                |
-| ----- | ---------------------------------------------------------------------------------------------------- |
-| 1     | `versions.tf`, `providers.tf`, `backend.tf`, `variables.tf`, `locals.tf`, `main.tf` (resource group) |
-| 2     | Networking (VNet, subnets, NSGs), Key Vault, Log Analytics + App Insights                            |
-| 3     | Compute, Data, Messaging — all via AVM-TF modules                                                    |
-| 4     | Diagnostic settings, role assignments, `outputs.tf`                                                  |
-
-After each round: `terraform validate` to catch errors early.
+**Output cadence (MANDATORY)**: one file per response turn. Full rule,
+anti-patterns, and resume-after-abort flow: `codegen-shared-workflow.md`
+→ Phase 2: Output Cadence. Per-file emission order + build cadence:
+`codegen-file-order.md` → Terraform. Adjust the set to match the plan's
+Code-Generation Contract; cadence stays one file per turn regardless.
 
 ### Phase 2.5: Bootstrap Scripts
 

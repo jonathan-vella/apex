@@ -200,11 +200,38 @@ Use `askQuestions` for:
 - Concurrent users for web/API patterns.
 - Transactions per second for database-heavy, analytics, event-driven, or IoT patterns.
 - IaC tool preference, defaulting to Bicep unless the handoff supplied a value.
+- **Cost alert recipients (`cost_alert_emails`)** — freeform multi-email
+  list (one per line or comma-separated). Pre-fill default
+  `[<git config user.email>]`; user may add or replace. These emails
+  receive cost-anomaly notifications and (when the Action Group is
+  created new) become Action Group email receivers. Do **not** include
+  routing prose here — that lives in 03-Architect's WAF Cost section.
+- **`cost_monitoring_mode`** — surface this prompt **only when the
+  selected environments include `dev` or `sandbox` and exclude
+  `prod`/`staging`**. Options: `enforced` (recommended; full
+  budget+AG+anomaly), `minimal` (budget only, no AG, no anomaly), or
+  `deferred` (no cost-monitoring resources). When `deferred` is
+  chosen, follow up with two required freeform prompts:
+  `cost_monitoring_exception.rationale` and
+  `cost_monitoring_exception.expiry_date` (YYYY-MM-DD). For
+  prod/staging environments, do not prompt — default `enforced` is
+  non-negotiable.
 
 After the IaC answer, record it:
 
 ```bash
 apex-recall decide <project> --key iac_tool --value <Bicep|Terraform> --json
+```
+
+Record the cost-monitoring answers:
+
+```bash
+apex-recall decide <project> --key cost_alert_emails --value '<json-array>' --json
+# Only when prompted (non-prod):
+apex-recall decide <project> --key cost_monitoring_mode --value <enforced|minimal|deferred> --json
+# Only when mode = deferred:
+apex-recall decide <project> --key cost_monitoring_exception \
+  --value '{"rationale":"<text>","expiry_date":"YYYY-MM-DD"}' --json
 ```
 
 ## Phase 3: Service Recommendations

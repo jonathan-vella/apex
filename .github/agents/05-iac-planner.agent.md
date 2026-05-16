@@ -247,6 +247,8 @@ For EACH resource in the architecture:
 
 AVM-TF naming: `Azure/avm-res-{service}-{resource}/azurerm`
 
+**Cost-monitoring AVM lookup (MANDATORY)**: also lookup Consumption Budget + Action Group AVM per [cost-alerts-baseline.md](../skills/azure-defaults/references/cost-alerts-baseline.md).
+
 ### Phase 3: Deprecation & Lifecycle Checks
 
 Only for non-AVM resources and custom SKU overrides. Check Azure Updates for
@@ -390,10 +392,11 @@ with **placeholder zero-GUIDs**; validate with
 **Terraform-specific**: Include backend config template (Azure Storage Account).
 For patterns, read `terraform-patterns/references/tf-best-practices-examples.md`.
 
-> **Important**: The plan must include an Azure Budget resource
-> (Bicep: `Microsoft.Consumption/budgets`; Terraform: `azurerm_consumption_budget_resource_group`)
-> with amount aligned to the Step 2 cost estimate, plus Forecast alerts at 80%/100%/120%
-> thresholds and Anomaly Detection. See `.github/instructions/references/iac-cost-monitoring.md`.
+> **Important**: Plan must include the **cost-monitoring baseline**
+> (budget + Action Group + sub-scoped anomaly) unless
+> `cost_monitoring_mode ∈ {minimal, deferred}`. Phase 4 preflight
+> (scope derivation, `az monitor action-group show`, Owner fallback,
+> governance precedence) + decision keys: [`cost-alerts-baseline.md`](../skills/azure-defaults/references/cost-alerts-baseline.md).
 
 ### Phase 4.3: Adversarial Plan Review (1 pass, comprehensive — default)
 

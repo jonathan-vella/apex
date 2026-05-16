@@ -259,6 +259,11 @@ in your WAF assessment recommendations (still produce the identical artifact str
     `decisions.sku_confirmation_status == "approved"`.
 8. **Generate assessment** — Save `02-architecture-assessment.md` with
     subagent-sourced prices.
+    The **WAF Cost** / **WAF Operational Excellence** sections MUST
+    contain a "Cost monitoring routing" sub-block as defined in
+    [`workflow-gates.md`](../skills/azure-defaults/references/workflow-gates.md#architect-step-2--cost-monitoring-routing-in-artifact)
+    (Owner RBAC + Action Group + anomaly + opt-down). Do NOT duplicate
+    this prose in 02-Requirements output.
     **Decisions** (MANDATORY): Record key architecture choices:
     `apex-recall decide <project> --decision "<pattern/SKU/trade-off>" --rationale "<why>" --step 2 --json`
 9. **Generate cost estimate** — Save `03-des-cost-estimate.md` with

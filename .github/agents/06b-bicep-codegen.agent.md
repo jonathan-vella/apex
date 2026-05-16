@@ -199,6 +199,10 @@ Before doing any work, read these skills.
 - Issue more than one `askQuestions` call per challenger pass — batch all
   open decisions into one inline form (see `codegen-shared-workflow.md` →
   Batched User Decisions)
+- Bundle multiple file bodies in a single response — exceeds VS Code's
+  per-response output-token ceiling and aborts the turn with *"the
+  response hit the length limit"*. Emit ONE file per response turn
+  (see `codegen-shared-workflow.md` → Phase 2: Output Cadence)
 - Write raw Bicep when AVM exists
 - Hardcode unique strings
 - Use hardcoded tag lists ignoring governance
@@ -387,14 +391,11 @@ Build templates in dependency order from `04-implementation-plan.md`.
 If **phased**: add `@allowed` `phase` parameter, wrap modules in `if phase == 'all' || phase == '{name}'`.
 If **single**: no phase parameter needed.
 
-| Round | Content                                                                                          |
-| ----- | ------------------------------------------------------------------------------------------------ |
-| 1     | `main.bicep` (params, vars, `uniqueSuffix`), `main.bicepparam`                                   |
-| 2     | Networking, Key Vault, Log Analytics + App Insights                                              |
-| 3     | Compute, Data, Messaging                                                                         |
-| 4     | Budget + alerts, Diagnostic settings, role assignments, `azure.yaml` + `deploy.ps1` (deprecated) |
-
-After each round: `bicep build` to catch errors early.
+**Output cadence (MANDATORY)**: one file per response turn. Full rule,
+anti-patterns, and resume-after-abort flow: `codegen-shared-workflow.md`
+→ Phase 2: Output Cadence. Per-file emission order + build cadence:
+`codegen-file-order.md` → Bicep. Adjust the set to match the plan's
+Code-Generation Contract; cadence stays one file per turn regardless.
 
 **Batch formatting (MANDATORY)**: when you need to reformat the tree, do
 NOT call `mcp_bicep_format_bicep_file` per file. Run the tree-wide
@@ -518,7 +519,7 @@ infra/bicep/{project}/
 ├── azure.yaml              # azd project manifest (infra.path: . — co-located) — PRIMARY
 ├── deploy.ps1              # PowerShell deployment script (DEPRECATED)
 └── modules/
-    ├── budget.bicep        # Azure Budget + forecast alerts + anomaly detection
+    ├── budget.bicep        # Consumption budget (scope-aware) + AG + anomaly per cost_monitoring_mode
     ├── key-vault.bicep     # Per-resource modules
     ├── networking.bicep
     └── ...

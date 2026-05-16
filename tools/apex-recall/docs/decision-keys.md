@@ -90,6 +90,22 @@ Specifically:
 | `deployment_strategy`     | `azd_provision` \| `az_deployment` \| `terraform_apply`               | n/a                         | 07b/07t Deploy | Step 7 As-Built |
 | `sku_conflict_resolution` | `revert_to_plan` \| `accept_substitute` \| `change_region` \| `abort` | n/a (per-conflict)          | Orchestrator   | 07b/07t Deploy  |
 
+### Cost monitoring baseline keys
+
+Owned by `.github/skills/azure-defaults/references/cost-alerts-baseline.md`.
+All keys are emitted by Planner Phase 4 (or 02-Requirements for the
+two user-facing keys) and consumed by 06b/06t CodeGen Wave 4.
+
+| Key                          | Valid values                                                                                       | Default behaviour if absent                | Set by                          | Read by                            |
+| ---------------------------- | -------------------------------------------------------------------------------------------------- | ------------------------------------------ | ------------------------------- | ---------------------------------- |
+| `cost_monitoring_scope`      | `rg` \| `sub` \| `mg`                                                                              | Planner derives from deployment topology   | 05-IaC Planner                  | 06b/06t CodeGen                    |
+| `cost_action_group_mode`     | `create` \| `existing`                                                                             | Planner runs preflight `az monitor action-group show` | 05-IaC Planner       | 06b/06t CodeGen                    |
+| `existing_action_group_id`   | Azure resource ID (string)                                                                         | n/a (required only when mode = `existing`) | 05-IaC Planner                  | 06b/06t CodeGen                    |
+| `action_group_short_name`    | string ≤12 chars                                                                                   | `cost${suffix}`                            | 02-Requirements (optional override) | 06b/06t CodeGen                |
+| `cost_alert_emails`          | list of email addresses                                                                            | `[<git config user.email>]`                | 02-Requirements                 | 06b/06t CodeGen, 03-Architect      |
+| `cost_monitoring_mode`       | `enforced` \| `minimal` \| `deferred`                                                              | `enforced` (prod); prompted in non-prod    | 02-Requirements                 | 05-IaC Planner, 06b/06t CodeGen    |
+| `cost_monitoring_exception`  | object `{ rationale: string, expiry_date: YYYY-MM-DD }`                                            | n/a (required only when mode = `deferred`) | 02-Requirements / 05-IaC Planner | 10-Challenger (D-7)               |
+
 ### Free-form decision-log entries
 
 The `apex-recall decide --decision "<text>" --rationale "<why>"` form

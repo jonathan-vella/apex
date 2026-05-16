@@ -608,8 +608,7 @@
 
     <div id="tooltip" role="status" aria-live="polite" style="display: none"></div>
 
-    <!-- 3d-force-graph + Three.js (UMD bundle exposes window.ForceGraph3D) -->
-    <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+    <!-- 3d-force-graph UMD bundle ships its own Three.js build (window.ForceGraph3D) -->
     <script src="https://cdn.jsdelivr.net/npm/3d-force-graph@1.73.4/dist/3d-force-graph.min.js"></script>
 
     <script>
@@ -856,20 +855,36 @@
           if (url) window.open(url, "_blank", "noopener");
         });
 
-        // Configure forces for a more spherical, dense layout.
+        // Configure forces for a tight, spherical "blob" layout. The default
+        // d3-force-3d charge is -30; we lower repulsion further and shorten
+        // links so the connected components collapse into one dense ball.
         const chargeForce = graph.d3Force("charge");
-        if (chargeForce) chargeForce.strength(-45);
+        if (chargeForce) chargeForce.strength(-18).distanceMax(140);
         const linkForce = graph.d3Force("link");
-        if (linkForce) linkForce.distance(28);
+        if (linkForce) linkForce.distance(16).strength(1.2);
 
-        // Auto-fit
-        setTimeout(() => {
-          try {
-            graph.zoomToFit(800, 60);
-          } catch (_) {
-            /* ignore */
-          }
-        }, 1200);
+        // Add a centering force to pull stragglers (low-degree nodes like
+        // some validators / CI workflows) back toward the cluster centroid.
+        if (typeof graph.d3Force === "function") {
+          // 3d-force-graph re-exports d3-force-3d's forceCenter via its API:
+          // we wrap it with a custom 'recenter' force.
+          graph.d3Force("recenter", (alpha) => {
+            const nodes = graph.graphData().nodes;
+            const k = 0.04 * alpha;
+            for (const n of nodes) {
+              n.vx = (n.vx || 0) - (n.x || 0) * k;
+              n.vy = (n.vy || 0) - (n.y || 0) * k;
+              n.vz = (n.vz || 0) - (n.z || 0) * k;
+            }
+          });
+        }
+
+        // Use a fixed camera distance instead of zoomToFit so a couple of
+        // far-flung outlier nodes don't make us zoom out to an empty canvas.
+        // We re-issue twice as the force layout settles.
+        const setCamera = (z) => graph.cameraPosition({ x: 0, y: 0, z }, { x: 0, y: 0, z: 0 }, 800);
+        setTimeout(() => setCamera(420), 1200);
+        setTimeout(() => setCamera(360), 3000);
 
         // Hide loader once we have a frame
         const hideLoader = () => {

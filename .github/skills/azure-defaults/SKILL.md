@@ -71,6 +71,25 @@ var uniqueSuffix = uniqueString(resourceGroup().id)
 For AVM pitfalls and deprecation patterns, read
 `references/security-baseline-full.md`.
 
+### Cost Monitoring Baseline (5-Line Summary)
+
+Non-negotiable for prod. Governance (`04-governance-constraints.json`
+`cost_monitoring.*`) always wins on conflict.
+
+| Setting              | Value                                         | Notes                              |
+| -------------------- | --------------------------------------------- | ---------------------------------- |
+| Budget thresholds    | Actual 80/100/125 + Forecast 100/125 (5 max)  | Azure Budget API hard limit        |
+| Budget scope         | `cost_monitoring_scope ∈ {rg, sub, mg}`       | Planner-set from topology          |
+| Notification routing | `contactRoles: ["Owner"]` + Action Group      | Owner-role fallback if no human Owner |
+| Action Group         | AVM module, create-or-reuse via preflight     | `cost_action_group_mode` decision  |
+| Anomaly alerts       | Subscription-scoped (Bicep + TF), daily       | RG-scope deferred (no shape today) |
+| Opt-out              | `cost_monitoring_mode ∈ {enforced, minimal, deferred}` | `minimal`/`deferred` non-prod only |
+
+For the full contract (scope-aware resource matrix, AVM lookup
+procedure, governance precedence, exception schema), read
+`references/cost-alerts-baseline.md`. For stack-specific snippets, read
+`references/cost-alerts-bicep.md` or `references/cost-alerts-terraform.md`.
+
 ### Deprecated Services (Do NOT Recommend for Greenfield)
 
 Azure AD B2C, Redis Enterprise E50, CDN WAF (classic), App Gateway v1, and CDN Standard
@@ -147,6 +166,7 @@ live in the registry, not in this repo), read `references/avm-modules.md`.
 - **Tag casing is case-sensitive** — never emit both `owner` and `Owner` in the same template (`AmbiguousPolicyEvaluationPaths` error)
 - **Unique suffix** — generate `uniqueString(resourceGroup().id)` ONCE per deployment and pass to all modules
 - **Security baseline** is non-negotiable: HTTPS-only, TLS 1.2 minimum, no public blob, public network disabled for prod data services, Managed Identity over keys
+- **Cost monitoring baseline** is non-negotiable for prod: every project plan emits a budget (5 notifications: actual 80/100/125 + forecast 100/125), an Action Group (AVM, created or reused via preflight), and a subscription-scoped cost-anomaly alert. Non-prod can opt down to `minimal` (budget only) or `deferred` (exception record with `rationale` + `expiry_date`) via `cost_monitoring_mode`. Governance (`04-governance-constraints.json` `cost_monitoring.*`) always wins. Full contract: `references/cost-alerts-baseline.md`.
 - **Never recommend deprecated services for greenfield** — Azure AD B2C, CDN WAF classic, App Gateway v1, Redis Enterprise E50; verify retirement timeline against multi-year RI commitments
 - **CAF naming** — follow the abbreviation + length-cap table; load `references/naming-full-examples.md` when generating length-constrained names
 
@@ -160,7 +180,8 @@ Applying defaults when generating Azure infrastructure:
 4. **Apply naming** — use the CAF abbreviations table; load `references/naming-full-examples.md` for length-constrained resources
 5. **Apply tags** — emit all 4 required tags (PascalCase) on every taggable resource
 6. **Apply security baseline** — wire HTTPS-only, TLS 1.2, no public blob, Managed Identity, public network access settings
-7. **Validate** — run `npm run validate:iac-security-baseline` and the appropriate `lint:bicep` / `terraform fmt && validate`
+7. **Apply cost monitoring baseline** — emit budget + Action Group + anomaly per the scope/stack/mode matrix in `references/cost-alerts-baseline.md`; load `references/cost-alerts-bicep.md` or `references/cost-alerts-terraform.md` on demand at code-gen
+8. **Validate** — run `npm run validate:iac-security-baseline` and the appropriate `lint:bicep` / `terraform fmt && validate`
 
 ---
 
@@ -221,3 +242,6 @@ Load these on demand — do NOT read all at once:
 | `references/research-workflow.md`           | Following the standard 4-step research pattern          |
 | `references/tag-strategy.md`                | Choosing the greenfield CAF tag fallback (no policy)    |
 | `references/workflow-gates.md`              | Looking up cross-agent gate protocols (SKU/budget/etc.) |
+| `references/cost-alerts-baseline.md`        | Full cost-monitoring contract (scope matrix, modes, governance) |
+| `references/cost-alerts-bicep.md`           | Bicep snippets for budget + Action Group + scheduledActions |
+| `references/cost-alerts-terraform.md`       | Terraform snippets for budget + Action Group + anomaly  |
