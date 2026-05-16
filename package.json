@@ -18,6 +18,7 @@
     "lint:artifact-templates": "node tools/scripts/validate-artifacts.mjs",
     "lint:h2-sync": "node tools/scripts/validate-artifacts.mjs",
     "fix:artifact-h2": "node tools/scripts/validate-artifacts.mjs --fix",
+    "check:h2-order": "node tools/scripts/check-h2-order.mjs",
     "lint:version-sync": "node tools/scripts/validate-version-sync.mjs",
     "lint:deprecated-refs": "node tools/scripts/validate-no-deprecated-refs.mjs",
     "lint:mcp-config": "node tools/scripts/validate-mcp-config.mjs",

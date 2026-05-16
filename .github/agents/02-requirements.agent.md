@@ -391,6 +391,16 @@ Delegate to `challenger-review-subagent` with:
 
 After the subagent returns, checkpoint `phase_6_challenger`.
 
+**Fallback rule (mandatory)**: if the runtime reports
+`challenger-review-subagent` as "not registered in this session" (a known
+VS Code subagent-discovery glitch), retry via the
+`#runSubagent challenger-review-subagent` chat syntax exactly once. Do
+**not** improvise an inline "autonomous review pass" in the parent's
+context window — that doubles input-token cost and is a validator-tracked
+anti-pattern (see [`agent-authoring.instructions.md`](../instructions/agent-authoring.instructions.md#challenger-subagent-fallback-rule)).
+If the retry also fails, surface the discovery glitch to the user and
+stop; do not produce a fabricated findings file.
+
 ### 6b. Render findings table
 
 Render every finding in chat with columns: ID, Severity, Title, WAF Pillar, Recommendation.

@@ -493,6 +493,28 @@ Equivalent prohibition for `npm run lint:md` and
 `npm run lint:artifact-templates` against `agent-output/**`: do not
 invoke either from inside an agent body. Delegate to pre-commit + CI.
 
+### Challenger-subagent fallback rule
+
+VS Code's subagent-discovery layer occasionally reports a declared
+subagent as "not registered in this session" at runtime even when the
+parent's `agents:` frontmatter and the `_subagents/` file are both
+correct (verified by `validate-agents` Part 2). When this happens with
+`challenger-review-subagent`, parent agents must:
+
+1. Retry **once** via the explicit `#runSubagent challenger-review-subagent`
+   chat-syntax form (bypasses the auto-handoff discovery path).
+2. If the retry also fails, surface the glitch to the user and **stop**
+   — do not improvise an "autonomous review pass" inline. Running the
+   review in the parent's context window doubles input-token cost
+   (~100–150k extra per Step 1 measured), produces findings that aren't
+   distinguishable from a real subagent result, and silently bypasses
+   the subagent's stop rules.
+
+Validator coverage of this rule is structural only — `validate-agents`
+verifies the parent's `agents:` declaration matches the subagent name,
+but cannot detect runtime discovery glitches. The fallback rule is the
+only mitigation until the underlying VS Code discovery bug is fixed.
+
 ---
 
 ## Decision Logging

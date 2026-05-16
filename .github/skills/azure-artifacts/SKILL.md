@@ -90,6 +90,25 @@ npm run lint:h2-sync              # Template ↔ artifact sync (pre-commit + CI 
 npm run validate:all              # All validators together (humans / CI only)
 ```
 
+### Fast H2-order sanity check (agent-safe)
+
+When an agent needs a quick "did I get the H2 structure right?" check
+*before* invoking the challenger, use the dedicated helper instead of
+improvising `node -e '…'` one-liners (which trip shell quoting and waste
+context on retries):
+
+```bash
+npm run check:h2-order -- <project>                       # defaults to 01-requirements.md
+npm run check:h2-order -- <project> 04-implementation-plan.md
+node tools/scripts/check-h2-order.mjs agent-output/<project>/02-architecture-assessment.md
+```
+
+Exit 0 = match (prints `OK: …`). Exit 1 = mismatch (prints structured
+JSON with `expected`/`got`/`missingAt`). Exit 2 = bad arguments or
+unknown artifact filename. The helper reads the canonical heading
+registry from [`tools/scripts/_lib/artifact-headings.mjs`](../../../tools/scripts/_lib/artifact-headings.mjs)
+so it never drifts from the template source of truth.
+
 ## Quality Checklist
 
 - [ ] H2 headings match template exactly (text + order)
