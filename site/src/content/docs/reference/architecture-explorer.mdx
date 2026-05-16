@@ -1,9 +1,9 @@
 ---
 title: "Architecture Explorer"
-description: "Interactive, data-driven map of APEX agents, skills, instructions, validators, CI workflows, and MCP servers."
+description: "Interactive 3D map of APEX agents, subagents, skills, instructions, prompts, validators, CI workflows, and MCP servers — with a natural-language 'Ask the Graph' search."
 ---
 
-The **Architecture Explorer** is a live map of every moving part in APEX —
+The **Architecture Explorer** is a live, 3D map of every moving part in APEX —
 agents, subagents, skills, instructions, prompts, validators, CI workflows,
 and MCP servers — with the relationships between them.
 
@@ -18,61 +18,63 @@ visual drill-down.
 
 <iframe
   src="/azure-agentic-infraops/architecture-explorer.html"
-  style="width: 100%; height: 80vh; border: 1px solid var(--sl-color-gray-5); border-radius: 0.75rem; background: #0f172a;"
+  style="width: 100%; height: 88vh; min-height: 720px; border: 1px solid var(--sl-color-gray-5); border-radius: 0.75rem; background: #08080f;"
   loading="lazy"
-  title="Architecture Explorer — interactive graph of APEX components"
+  title="Architecture Explorer — interactive 3D graph of APEX components"
 ></iframe>
 
 <small style="display: block; margin-top: 0.5rem; color: var(--sl-color-gray-3);">
-  Press <kbd>/</kbd> to focus search, <kbd>F</kbd> to fit the graph, <kbd>Tab</kbd> to cycle nodes.
-  <a
-    href="/azure-agentic-infraops/architecture-explorer.html"
-    target="_blank"
-    rel="noopener"
-  >
+  Drag to rotate the 3D graph, scroll to zoom, click a node to focus the camera, right-click a node to open its source
+  on GitHub. Press <kbd>/</kbd>
+  inside the explorer to focus the search box.
+  <a href="/azure-agentic-infraops/architecture-explorer.html" target="_blank" rel="noopener">
     Open full screen ↗
   </a>
 </small>
 
 ## What you can do
 
-- **Search** any node by name or description (press `/` to focus the search
-  box). Arrow keys navigate results, `Enter` selects.
-- **Filter by category** from the left panel. Use **All / None / Invert** for
-  bulk changes.
-- **View presets** in the top bar narrow the graph to a concern:
-  - `Workflow` — agents + subagents, left-to-right hand-off layout.
-  - `Skills` — agents and the skills they use (primary + secondary tiers).
-  - `CI / Lint` — validators and GitHub Actions workflows.
-  - `Instructions` — agents and instruction files that auto-apply to them.
-- **Click a node** to open the details drawer: description, model, path,
-  connections, plus direct links to the source file on GitHub.
+- **Ask the Graph.** Type a natural-language question (e.g. "how does
+  governance discovery work?" or "bicep deployment") into the search box and
+  hit `Run` — or pick one of the suggested chips. Matches rank across node
+  labels, descriptions, paths, categories, and metadata.
+- **Top matches.** The 10 most-relevant nodes for the current query are
+  rendered as cards with a category dot, relevance bar, two representative
+  symbols (related agents / skills / handoffs), and an approximate token
+  weight. Click a card to fly the camera to that node.
+- **Filter by category.** Click any item in the bottom legend to mute that
+  category — agents, subagents, skills, instructions, prompts, validators, CI
+  workflows, MCP servers. Click again to restore it.
+- **Right-click any node** (in the graph or on a match card) to open its
+  source file on GitHub in a new tab.
 - **Deep-link** to any node by appending `#node=<id>` to the URL — e.g.
   `architecture-explorer.html#node=agent:03-architect`.
-- **Keyboard**: `Tab` cycles nodes, `Enter` centres the selection, `+` / `-`
-  zoom, `F` fits, `Esc` clears.
+- **Keyboard**: `/` focuses search, `Esc` clears it, `Enter` runs the query.
 
 ## Node categories
 
-Colours and shapes are set in the generated graph JSON — so the legend inside
-the explorer is always authoritative. The categories tracked are:
+Colours come straight from the generated graph JSON, so the legend in the
+explorer is always authoritative. The categories tracked are:
 
 - Agent, Subagent, Skill, Instruction, Prompt, Validator, CI Workflow, MCP
   Server.
 
 ## Edge semantics
 
-| Edge style          | Meaning                                                              |
-| ------------------- | -------------------------------------------------------------------- |
-| Solid cyan, arrow   | Workflow **hand-off** between agents (`handoffs:` frontmatter).      |
-| Dashed purple       | Agent **delegates** to a subagent (`agents:` frontmatter).           |
-| Solid green         | Agent **uses a primary skill** (always loaded).                      |
-| Dotted grey         | Agent **uses a secondary skill** (on-demand).                        |
-| Solid pink, arrow   | Prompt **invokes** an agent (name-matched).                          |
-| Dashed amber        | Instruction **applies to** an agent/skill/prompt type.               |
-| Solid teal, arrow   | CI workflow **runs** a validator (`npm run …`).                      |
-| Dotted red          | Agent **uses an MCP server** (referenced in body).                   |
-| Dotted green        | Skill **references** another skill (e.g. routing/delegation).        |
+| Edge kind    | Meaning                                                     |
+| ------------ | ----------------------------------------------------------- |
+| `handsOff`   | Workflow hand-off between agents (`handoffs:` frontmatter). |
+| `delegates`  | Agent delegates to a subagent (`agents:` frontmatter).      |
+| `usesSkill`  | Agent uses a primary skill (always loaded).                 |
+| `usesSkill?` | Agent uses a secondary skill (on-demand).                   |
+| `invokes`    | Prompt invokes an agent (name-matched).                     |
+| `appliesTo`  | Instruction applies to an agent/skill/prompt type.          |
+| `runs`       | CI workflow runs a validator (`npm run …`).                 |
+| `usesMcp`    | Agent uses an MCP server (referenced in body).              |
+| `references` | Skill references another skill (e.g. routing/delegation).   |
+
+Hover any node to see its name, category, model (where applicable), and a
+short description tooltip.
 
 ## Data source
 
@@ -80,6 +82,11 @@ The explorer consumes `site/public/architecture-explorer-graph.json`,
 generated by `node tools/scripts/generate-explorer-graph.mjs` (wired into the
 site `prebuild` hook) and validated by `npm run validate:explorer-graph`.
 If the data looks stale, run the generator locally and commit the result.
+
+The graph is rendered with
+[`3d-force-graph`](https://github.com/vasturiano/3d-force-graph) on top of
+[Three.js](https://threejs.org/) — both loaded from CDN at runtime so the
+build pipeline stays pure-static.
 
 ## Next steps
 
