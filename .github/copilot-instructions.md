@@ -144,3 +144,9 @@ prompt-driven shell builtin (incl. inside `bash -c '...'`). Pipe >50-line
 output to a file. See `.github/instructions/no-interactive-shell.instructions.md`
 for the full ruleset; `npm run lint:safe-shell` enforces it on committed
 agent/skill/instruction snippets.
+
+**Artifact lint delegation**: Agents do not call `npm run lint:artifact-templates`
+or `markdownlint-cli2` directly against `agent-output/**`. The lefthook
+`artifact-validation` pre-commit hook and the `10-Challenger` review own the
+contract. Validator-tracked anti-pattern — see
+[`agent-authoring.instructions.md`](instructions/agent-authoring.instructions.md#no-direct-markdownlint-on-agent-output-rule).
