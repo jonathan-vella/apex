@@ -150,9 +150,9 @@ the check per resource family as new cases are discovered.
 
 ## Learn More
 
-| Topic                | How to Find                                                               |
-| -------------------- | ------------------------------------------------------------------------- |
-| AVM module catalog   | `microsoft_docs_search(query="Azure Verified Modules registry Bicep")`    |
-| Resource type schema | `microsoft_docs_search(query="{resource-type} Bicep template reference")` |
-| Networking patterns  | `microsoft_docs_search(query="Azure hub-spoke network topology Bicep")`   |
-| Security baseline    | `microsoft_docs_search(query="{service} security baseline")`              |
+| Topic                | How to Find                                                                                          |
+| -------------------- | ---------------------------------------------------------------------------------------------------- |
+| AVM module catalog   | `mcp_azure-mcp_documentation` — `command: "microsoft_docs_search"`, `query: "Azure Verified Modules registry Bicep"`    |
+| Resource type schema | `mcp_azure-mcp_documentation` — `command: "microsoft_docs_search"`, `query: "{resource-type} Bicep template reference"` |
+| Networking patterns  | `mcp_azure-mcp_documentation` — `command: "microsoft_docs_search"`, `query: "Azure hub-spoke network topology Bicep"`   |
+| Security baseline    | `mcp_azure-mcp_documentation` — `command: "microsoft_docs_search"`, `query: "{service} security baseline"`              |

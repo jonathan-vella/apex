@@ -4,7 +4,7 @@ description: Expert Architect providing guidance using Azure Well-Architected Fr
 model: ["Claude Opus 4.7"]
 user-invocable: true
 agents: ["cost-estimate-subagent", "challenger-review-subagent"]
-tools: [vscode, execute, read, agent, browser, edit, search, web, "microsoft-learn/*", todo]
+tools: [vscode, execute, read, agent, browser, edit, search, web, "azure-mcp/*", todo]
 handoffs:
   - label: "▶ Refresh Cost Estimate"
     agent: 03-Architect
@@ -259,6 +259,11 @@ in your WAF assessment recommendations (still produce the identical artifact str
     `decisions.sku_confirmation_status == "approved"`.
 8. **Generate assessment** — Save `02-architecture-assessment.md` with
     subagent-sourced prices.
+    The **WAF Cost** / **WAF Operational Excellence** sections MUST
+    contain a "Cost monitoring routing" sub-block as defined in
+    [`workflow-gates.md`](../skills/azure-defaults/references/workflow-gates.md#architect-step-2--cost-monitoring-routing-in-artifact)
+    (Owner RBAC + Action Group + anomaly + opt-down). Do NOT duplicate
+    this prose in 02-Requirements output.
     **Decisions** (MANDATORY): Record key architecture choices:
     `apex-recall decide <project> --decision "<pattern/SKU/trade-off>" --rationale "<why>" --step 2 --json`
 9. **Generate cost estimate** — Save `03-des-cost-estimate.md` with
@@ -277,8 +282,11 @@ in your WAF assessment recommendations (still produce the identical artifact str
 
     Execute each `.py` file and verify the PNGs exist before continuing.
 
-11. **Self-validate** — Run `npm run lint:artifact-templates` and fix any errors
-    for your artifacts
+11. **Delegate lint** — Do not invoke `npm run lint:artifact-templates` or
+    `markdownlint-cli2` directly against `agent-output/**`. The artifact
+    contract is enforced by the lefthook `artifact-validation` pre-commit
+    hook and the `10-Challenger` review. See
+    [`agent-authoring.instructions.md`](../instructions/agent-authoring.instructions.md#no-direct-markdownlint-on-agent-output-rule).
     11a. **Render SKU manifest MD** — `node tools/scripts/render-sku-manifest-md.mjs <project>`.
     The renderer is the only legitimate writer of `sku-manifest.md`
     and fails hard on `current_revision` mismatch. Surface any
@@ -362,7 +370,7 @@ artifact, in parallel. No tier-driven multi-pass auto-fires.
 
 **Deep-review opt-in**: if `decisions.review_depth == "deep"`, enter the
 opt-in rotating-lens cascade defined in
-`adversarial-review-protocol.md → ## Opt-in: Deep adversarial review`.
+`adversarial-review-deep.md` (sibling of `adversarial-review-protocol.md`).
 Use the recommended shape from `opt_in_matrix` for the architect's step
 in `workflow-graph.json` based on `decisions.complexity`. Do NOT prompt
 the user — the project-scoped `review_depth` decision is the opt-in

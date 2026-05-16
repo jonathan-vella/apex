@@ -304,6 +304,25 @@ function runAgentChecks() {
         console.log(`  Fix: Add "${name}" to the \`agents:\` array in the frontmatter.`);
       }
     }
+
+    // No-direct-markdownlint-on-agent-output rule.
+    // Agents must not improvise `markdownlint-cli2 agent-output/...` in a tool
+    // span. The path is globally excluded from `lint:md` and the contract is
+    // owned by lefthook + 10-Challenger. See agent-authoring.instructions.md.
+    // Match the literal CLI invocation form only — prose references that
+    // *describe* the prohibition are fine because they don't contain the
+    // bare command followed by the path token.
+    const directMdLintRe = /markdownlint(?:-cli2)?\s+agent-output\//g;
+    const directMdLintMatches = body.match(directMdLintRe);
+    if (directMdLintMatches) {
+      r.errorAnnotation(
+        filePath,
+        `${file} contains forbidden direct markdownlint invocation against agent-output/ (${directMdLintMatches.length} occurrence${directMdLintMatches.length === 1 ? "" : "s"}). The path is already excluded from lint:md; pre-commit + 10-Challenger own the artifact contract.`,
+      );
+      console.log(
+        `  Fix: Remove the direct \`markdownlint-cli2 agent-output/...\` call. See agent-authoring.instructions.md "No-direct-markdownlint-on-agent-output rule".`,
+      );
+    }
   }
 
   r.summary();

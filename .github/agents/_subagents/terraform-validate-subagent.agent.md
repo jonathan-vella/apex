@@ -21,7 +21,6 @@ tools:
     web,
     "terraform/*",
     "azure-mcp/*",
-    "microsoft-learn/*",
     todo,
     ms-azuretools.vscode-azureresourcegroups/azureActivityLog,
   ]

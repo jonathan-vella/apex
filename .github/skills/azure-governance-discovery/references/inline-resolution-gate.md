@@ -131,10 +131,13 @@ resolved — only `Revise` and `Refresh governance` remain available.
 ### Step 6: Re-validate
 
 ```bash
-python3 -m json.tool agent-output/{project}/04-governance-constraints.json > /dev/null \
-  && npm run lint:artifact-templates \
-  && npx markdownlint-cli2 agent-output/{project}/04-governance-constraints.md
+python3 -m json.tool agent-output/{project}/04-governance-constraints.json > /dev/null
 ```
+
+Artifact lint (H2 order, markdownlint) is owned by the lefthook
+`artifact-validation` pre-commit hook and the `10-Challenger` review — do not
+invoke `npm run lint:artifact-templates` or `markdownlint-cli2` here. See
+[`agent-authoring.instructions.md`](../../../instructions/agent-authoring.instructions.md#no-direct-markdownlint-on-agent-output-rule).
 
 ### Step 7: Checkpoint
 

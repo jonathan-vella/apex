@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-05-15T16:16:26.057Z",
+  "generatedAt": "2026-05-16T10:47:24.617Z",
   "categories": [
     {
       "id": "agent",
@@ -48,7 +48,7 @@
       "label": "Validator",
       "color": "#8b5cf6",
       "shape": "hexagon",
-      "count": 48
+      "count": 49
     },
     {
       "id": "workflow",
@@ -67,8 +67,8 @@
       "count": 6
     }
   ],
-  "nodeCount": 149,
-  "edgeCount": 593,
+  "nodeCount": 150,
+  "edgeCount": 591,
   "nodes": [
     {
       "id": "agent:01-orchestrator",
@@ -1371,6 +1371,19 @@
       }
     },
     {
+      "id": "validator:validate-extension-bloat",
+      "category": "validator",
+      "label": "validate:extension-bloat",
+      "description": "node tools/scripts/validate-extension-bloat.mjs",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
+      },
+      "meta": {
+        "command": "node tools/scripts/validate-extension-bloat.mjs"
+      }
+    },
+    {
       "id": "validator:validate-instruction-checks",
       "category": "validator",
       "label": "validate:instruction-checks",
@@ -2072,19 +2085,6 @@
       }
     },
     {
-      "id": "mcp:microsoft-learn",
-      "category": "mcp",
-      "label": "microsoft-learn",
-      "description": "HTTP: https://learn.microsoft.com/api/mcp?maxTokenBudget=4000",
-      "path": ".vscode/mcp.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.vscode/mcp.json"
-      },
-      "meta": {
-        "type": "http"
-      }
-    },
-    {
       "id": "mcp:astro-docs",
       "category": "mcp",
       "label": "astro-docs",
@@ -2103,6 +2103,19 @@
       "category": "mcp",
       "label": "drawio",
       "description": "stdio: deno",
+      "path": ".vscode/mcp.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.vscode/mcp.json"
+      },
+      "meta": {
+        "type": "stdio"
+      }
+    },
+    {
+      "id": "mcp:azure-mcp",
+      "category": "mcp",
+      "label": "azure-mcp",
+      "description": "stdio: npx",
       "path": ".vscode/mcp.json",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.vscode/mcp.json"
@@ -4720,6 +4733,12 @@
       "kind": "runs"
     },
     {
+      "id": "workflow:ci--runs->validator:validate-extension-bloat",
+      "source": "workflow:ci",
+      "target": "validator:validate-extension-bloat",
+      "kind": "runs"
+    },
+    {
       "id": "workflow:ci--runs->validator:lint-governance-refs",
       "source": "workflow:ci",
       "target": "validator:lint-governance-refs",
@@ -4984,9 +5003,9 @@
       "kind": "uses-mcp"
     },
     {
-      "id": "agent:02-requirements--uses-mcp->mcp:microsoft-learn",
+      "id": "agent:02-requirements--uses-mcp->mcp:azure-mcp",
       "source": "agent:02-requirements",
-      "target": "mcp:microsoft-learn",
+      "target": "mcp:azure-mcp",
       "kind": "uses-mcp"
     },
     {
@@ -5002,15 +5021,15 @@
       "kind": "uses-mcp"
     },
     {
-      "id": "agent:03-architect--uses-mcp->mcp:microsoft-learn",
-      "source": "agent:03-architect",
-      "target": "mcp:microsoft-learn",
-      "kind": "uses-mcp"
-    },
-    {
       "id": "agent:03-architect--uses-mcp->mcp:drawio",
       "source": "agent:03-architect",
       "target": "mcp:drawio",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:03-architect--uses-mcp->mcp:azure-mcp",
+      "source": "agent:03-architect",
+      "target": "mcp:azure-mcp",
       "kind": "uses-mcp"
     },
     {
@@ -5032,9 +5051,9 @@
       "kind": "uses-mcp"
     },
     {
-      "id": "agent:04g-governance--uses-mcp->mcp:microsoft-learn",
+      "id": "agent:04g-governance--uses-mcp->mcp:azure-mcp",
       "source": "agent:04g-governance",
-      "target": "mcp:microsoft-learn",
+      "target": "mcp:azure-mcp",
       "kind": "uses-mcp"
     },
     {
@@ -5050,9 +5069,9 @@
       "kind": "uses-mcp"
     },
     {
-      "id": "agent:05-iac-planner--uses-mcp->mcp:microsoft-learn",
+      "id": "agent:05-iac-planner--uses-mcp->mcp:azure-mcp",
       "source": "agent:05-iac-planner",
-      "target": "mcp:microsoft-learn",
+      "target": "mcp:azure-mcp",
       "kind": "uses-mcp"
     },
     {
@@ -5062,9 +5081,9 @@
       "kind": "uses-mcp"
     },
     {
-      "id": "agent:06b-bicep-codegen--uses-mcp->mcp:microsoft-learn",
+      "id": "agent:06b-bicep-codegen--uses-mcp->mcp:azure-mcp",
       "source": "agent:06b-bicep-codegen",
-      "target": "mcp:microsoft-learn",
+      "target": "mcp:azure-mcp",
       "kind": "uses-mcp"
     },
     {
@@ -5080,9 +5099,9 @@
       "kind": "uses-mcp"
     },
     {
-      "id": "agent:06t-terraform-codegen--uses-mcp->mcp:microsoft-learn",
+      "id": "agent:06t-terraform-codegen--uses-mcp->mcp:azure-mcp",
       "source": "agent:06t-terraform-codegen",
-      "target": "mcp:microsoft-learn",
+      "target": "mcp:azure-mcp",
       "kind": "uses-mcp"
     },
     {
@@ -5098,15 +5117,15 @@
       "kind": "uses-mcp"
     },
     {
-      "id": "agent:07b-bicep-deploy--uses-mcp->mcp:microsoft-learn",
-      "source": "agent:07b-bicep-deploy",
-      "target": "mcp:microsoft-learn",
-      "kind": "uses-mcp"
-    },
-    {
       "id": "agent:07b-bicep-deploy--uses-mcp->mcp:drawio",
       "source": "agent:07b-bicep-deploy",
       "target": "mcp:drawio",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:07b-bicep-deploy--uses-mcp->mcp:azure-mcp",
+      "source": "agent:07b-bicep-deploy",
+      "target": "mcp:azure-mcp",
       "kind": "uses-mcp"
     },
     {
@@ -5122,15 +5141,15 @@
       "kind": "uses-mcp"
     },
     {
-      "id": "agent:07t-terraform-deploy--uses-mcp->mcp:microsoft-learn",
-      "source": "agent:07t-terraform-deploy",
-      "target": "mcp:microsoft-learn",
-      "kind": "uses-mcp"
-    },
-    {
       "id": "agent:07t-terraform-deploy--uses-mcp->mcp:drawio",
       "source": "agent:07t-terraform-deploy",
       "target": "mcp:drawio",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:07t-terraform-deploy--uses-mcp->mcp:azure-mcp",
+      "source": "agent:07t-terraform-deploy",
+      "target": "mcp:azure-mcp",
       "kind": "uses-mcp"
     },
     {
@@ -5146,15 +5165,15 @@
       "kind": "uses-mcp"
     },
     {
-      "id": "agent:08-as-built--uses-mcp->mcp:microsoft-learn",
-      "source": "agent:08-as-built",
-      "target": "mcp:microsoft-learn",
-      "kind": "uses-mcp"
-    },
-    {
       "id": "agent:08-as-built--uses-mcp->mcp:drawio",
       "source": "agent:08-as-built",
       "target": "mcp:drawio",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:08-as-built--uses-mcp->mcp:azure-mcp",
+      "source": "agent:08-as-built",
+      "target": "mcp:azure-mcp",
       "kind": "uses-mcp"
     },
     {
@@ -5164,15 +5183,9 @@
       "kind": "uses-mcp"
     },
     {
-      "id": "agent:09-diagnose--uses-mcp->mcp:microsoft-learn",
+      "id": "agent:09-diagnose--uses-mcp->mcp:azure-mcp",
       "source": "agent:09-diagnose",
-      "target": "mcp:microsoft-learn",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:10-challenger--uses-mcp->mcp:github",
-      "source": "agent:10-challenger",
-      "target": "mcp:github",
+      "target": "mcp:azure-mcp",
       "kind": "uses-mcp"
     },
     {
@@ -5200,12 +5213,6 @@
       "kind": "uses-mcp"
     },
     {
-      "id": "agent:e2e-orchestrator--uses-mcp->mcp:microsoft-learn",
-      "source": "agent:e2e-orchestrator",
-      "target": "mcp:microsoft-learn",
-      "kind": "uses-mcp"
-    },
-    {
       "id": "agent:e2e-orchestrator--uses-mcp->mcp:drawio",
       "source": "agent:e2e-orchestrator",
       "target": "mcp:drawio",
@@ -5218,21 +5225,15 @@
       "kind": "uses-mcp"
     },
     {
-      "id": "subagent:bicep-validate-subagent--uses-mcp->mcp:microsoft-learn",
+      "id": "subagent:bicep-validate-subagent--uses-mcp->mcp:azure-mcp",
       "source": "subagent:bicep-validate-subagent",
-      "target": "mcp:microsoft-learn",
+      "target": "mcp:azure-mcp",
       "kind": "uses-mcp"
     },
     {
-      "id": "subagent:bicep-whatif-subagent--uses-mcp->mcp:github",
+      "id": "subagent:bicep-whatif-subagent--uses-mcp->mcp:azure-mcp",
       "source": "subagent:bicep-whatif-subagent",
-      "target": "mcp:github",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "subagent:bicep-whatif-subagent--uses-mcp->mcp:microsoft-learn",
-      "source": "subagent:bicep-whatif-subagent",
-      "target": "mcp:microsoft-learn",
+      "target": "mcp:azure-mcp",
       "kind": "uses-mcp"
     },
     {
@@ -5242,9 +5243,9 @@
       "kind": "uses-mcp"
     },
     {
-      "id": "subagent:challenger-review-subagent--uses-mcp->mcp:microsoft-learn",
+      "id": "subagent:challenger-review-subagent--uses-mcp->mcp:azure-mcp",
       "source": "subagent:challenger-review-subagent",
-      "target": "mcp:microsoft-learn",
+      "target": "mcp:azure-mcp",
       "kind": "uses-mcp"
     },
     {
@@ -5260,6 +5261,12 @@
       "kind": "uses-mcp"
     },
     {
+      "id": "subagent:cost-estimate-subagent--uses-mcp->mcp:azure-mcp",
+      "source": "subagent:cost-estimate-subagent",
+      "target": "mcp:azure-mcp",
+      "kind": "uses-mcp"
+    },
+    {
       "id": "subagent:policy-precheck-subagent--uses-mcp->mcp:github",
       "source": "subagent:policy-precheck-subagent",
       "target": "mcp:github",
@@ -5272,15 +5279,9 @@
       "kind": "uses-mcp"
     },
     {
-      "id": "subagent:policy-precheck-subagent--uses-mcp->mcp:microsoft-learn",
+      "id": "subagent:policy-precheck-subagent--uses-mcp->mcp:azure-mcp",
       "source": "subagent:policy-precheck-subagent",
-      "target": "mcp:microsoft-learn",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "subagent:terraform-plan-subagent--uses-mcp->mcp:github",
-      "source": "subagent:terraform-plan-subagent",
-      "target": "mcp:github",
+      "target": "mcp:azure-mcp",
       "kind": "uses-mcp"
     },
     {
@@ -5290,9 +5291,9 @@
       "kind": "uses-mcp"
     },
     {
-      "id": "subagent:terraform-plan-subagent--uses-mcp->mcp:microsoft-learn",
+      "id": "subagent:terraform-plan-subagent--uses-mcp->mcp:azure-mcp",
       "source": "subagent:terraform-plan-subagent",
-      "target": "mcp:microsoft-learn",
+      "target": "mcp:azure-mcp",
       "kind": "uses-mcp"
     },
     {
@@ -5308,9 +5309,9 @@
       "kind": "uses-mcp"
     },
     {
-      "id": "subagent:terraform-validate-subagent--uses-mcp->mcp:microsoft-learn",
+      "id": "subagent:terraform-validate-subagent--uses-mcp->mcp:azure-mcp",
       "source": "subagent:terraform-validate-subagent",
-      "target": "mcp:microsoft-learn",
+      "target": "mcp:azure-mcp",
       "kind": "uses-mcp"
     },
     {

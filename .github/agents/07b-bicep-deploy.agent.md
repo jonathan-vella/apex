@@ -17,7 +17,6 @@ tools:
     web,
     "azure-mcp/*",
     "bicep/*",
-    "microsoft-learn/*",
     todo,
     vscode.mermaid-chat-features/renderMermaidDiagram,
     ms-azuretools.vscode-azureresourcegroups/azureActivityLog,
@@ -516,7 +515,10 @@ Bicep-specific: what-if fails if RG doesn't exist (create first); RBAC errors â†
 ## Output
 
 `agent-output/{project}/06-deployment-summary.md` â€” copy-then-fill from template.
-Validation: `npm run lint:artifact-templates`.
+Validation: enforced by the lefthook `artifact-validation` pre-commit hook and
+the `10-Challenger` review. Do not invoke `npm run lint:artifact-templates` or
+`markdownlint-cli2` directly against `agent-output/**` (see
+[`agent-authoring.instructions.md`](../instructions/agent-authoring.instructions.md#no-direct-markdownlint-on-agent-output-rule)).
 
 ### `## Policy precheck summary` H2 (informational)
 

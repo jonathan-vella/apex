@@ -62,6 +62,16 @@
 
   "customizations": {
     "vscode": {
+      // Curated for minimal Copilot context bloat. Do NOT add extensions that
+      // contribute chatSkills / chatAgents / chatPromptFiles (notably the
+      // Azure GH Copilot helper `ms-azuretools.vscode-azure-github-copilot`,
+      // AI Toolkit `ms-windows-ai-studio`, AI Foundry
+      // `teamsdevapp.vscode-ai-foundry`) — they inflate per-turn input tokens
+      // by ~5-7k and APEX's own agent set already covers their scope. Those
+      // extensions are listed in `.vscode/extensions.json`
+      // `unwantedRecommendations` and rejected by
+      // `npm run validate:extension-bloat`. See `docs/devcontainer-hygiene.md`
+      // for the full rationale and per-developer cleanup checklist.
       "extensions": [
         "GitHub.copilot-chat",
         "ms-python.python",
@@ -93,13 +103,23 @@
       "settings": {
         "chat.useAgentsMdFile": true,
         "chat.useNestedAgentsMdFiles": true,
+        "chat.useClaudeMdFile": false,
         "chat.customAgentInSubagent.enabled": true,
         "chat.agentFilesLocations": {
           ".github/agents": true,
-          ".github/agents/_subagents": true
+          ".github/agents/_subagents": true,
+          "~/.copilot/agents": false,
+          "~/.claude/agents": false
         },
         "chat.agentSkillsLocations": {
-          ".github/skills": true
+          ".github/skills": true,
+          "~/.copilot/skills": false,
+          "~/.claude/skills": false
+        },
+        "chat.instructionsFilesLocations": {
+          ".github/instructions": true,
+          "~/.copilot/instructions": false,
+          "~/.claude/rules": false
         },
         "chat.hookFilesLocations": {
           ".github/hooks/tool-guardian": true,

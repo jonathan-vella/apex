@@ -94,6 +94,12 @@ multi-pass. Multi-pass reviews are an explicit opt-in via
 01-Orchestrator) or via direct `10-Challenger` invocation. Reviews target
 AI-generated creative decisions — not tool output (what-if/plan previews).
 
+Artifact lint is enforced by the lefthook `artifact-validation` pre-commit
+hook and the `10-Challenger` review — agents do not call
+`lint:artifact-templates` or `markdownlint-cli2` directly against
+`agent-output/**` (see
+[`.github/instructions/agent-authoring.instructions.md`](.github/instructions/agent-authoring.instructions.md#no-direct-markdownlint-on-agent-output-rule)).
+
 `sku-manifest.{json,md}` is created at Step 1 (user pins only — empty
 `services[]` is the common case) and mutated through Step 7: Step 2
 authoring, Step 3.5 read-only findings, Step 4 reconciliation +

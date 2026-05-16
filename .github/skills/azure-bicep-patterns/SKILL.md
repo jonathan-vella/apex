@@ -115,7 +115,7 @@ Applying a pattern in a Bicep template:
 
 ## Learn More
 
-| Topic                | How to Find                                                               |
-| -------------------- | ------------------------------------------------------------------------- |
-| AVM module catalog   | `microsoft_docs_search(query="Azure Verified Modules registry Bicep")`    |
-| Resource type schema | `microsoft_docs_search(query="{resource-type} Bicep template reference")` |
+| Topic                | How to Find                                                                                          |
+| -------------------- | ---------------------------------------------------------------------------------------------------- |
+| AVM module catalog   | `mcp_azure-mcp_documentation` — `command: "microsoft_docs_search"`, `query: "Azure Verified Modules registry Bicep"`    |
+| Resource type schema | `mcp_azure-mcp_documentation` — `command: "microsoft_docs_search"`, `query: "{resource-type} Bicep template reference"` |

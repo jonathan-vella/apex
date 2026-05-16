@@ -11,7 +11,6 @@ tools:
   - edit
   - todo
   - "azure-mcp/*"
-  - "microsoft-learn/*"
 argument-hint: "Optional: scope to one domain (validators, registries, agents, prompts, skills, instructions, iac, mcp, site, tests) or 'all'"
 ---
 

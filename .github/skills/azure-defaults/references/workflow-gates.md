@@ -28,8 +28,29 @@ unless `sku_confirmation_status == "approved"`.
 
 ## Architect (Step 2) — Phase 9a: Budget gate
 
-Run after pricing receive. Skip silently when `decisions.budget_cap_known == false`
-or `monthly_total <= budget_cap`. Otherwise call
+Run after pricing receive. Three cases:
+
+**Case A — `decisions.budget_cap_known == false` (no user-supplied
+budget)**: propose `round(monthly_total × 1.2)` and call
+`vscode_askQuestions` with **one blocking** question:
+
+- Question: "No budget cap was captured at requirements. Pricing
+  estimate is ${monthly_total}/month. Proposed budget cap:
+  ${round(monthly_total × 1.2)}/month (estimate × 1.2). Confirm,
+  revise, or defer?"
+- Options: `Confirm proposed cap` / `Enter a different amount`
+  (freeform numeric follow-up) / `Defer — escalate to user`.
+- On `Confirm` or numeric entry: record
+  `apex-recall decide --key budget_cap_known --value true --step 2`
+  and `apex-recall decide --decision "budget_cap=${value}" --rationale "Phase 9a proposed from monthly_total × 1.2" --step 2`.
+- On `Defer`: hard-stop and surface to the user. Do not proceed to
+  the cost-feasibility lens until a budget exists. This is **not** an
+  opt-out for prod.
+
+**Case B — `monthly_total <= budget_cap`**: skip silently and
+continue.
+
+**Case C — `monthly_total > budget_cap` (overage)**: call
 `vscode_askQuestions` with three options:
 
 1. `Approve overage` — record and continue to charts/artifact write.
@@ -43,6 +64,28 @@ Record via `apex-recall decide --key budget_decision --value <approve_overage|re
 **Loop cap**: the `revise_sku` branch may iterate at most **3 times**.
 Track via `decisions.budget_revise_count`. After the 3rd `revise_sku`
 decision, hard-stop and surface to the user — do not re-prompt.
+
+## Architect (Step 2) — Cost-monitoring routing in artifact
+
+When writing `02-architecture-assessment.md`, the **WAF Cost** /
+**WAF Operational Excellence** sections must include a "Cost
+monitoring routing" sub-block stating, in plain prose, how alerts
+will be delivered for this project:
+
+- Budget at `<cost_monitoring_scope>` scope (derived by Planner; if not
+  yet set, state "scope TBD at Step 4").
+- Notifications carry `contactRoles: ["Owner"]` (RBAC `Owner`
+  assignees at the budget scope) plus the project Action Group
+  (`ag-cost-${project}`).
+- Action Group will be created (new email receivers from
+  `cost_alert_emails`) or reused (discovered at Planner preflight).
+- Anomaly alert is subscription-scoped, daily.
+- Opt-down available in non-prod via `cost_monitoring_mode ∈
+  {minimal, deferred}`.
+
+This is the **only** place the routing prose appears in agent output —
+do **not** duplicate it in 02-Requirements. Source contract:
+[`cost-alerts-baseline.md`](cost-alerts-baseline.md).
 
 ## Architect (Step 2) — Per-finding askMe (Approval Gate)
 

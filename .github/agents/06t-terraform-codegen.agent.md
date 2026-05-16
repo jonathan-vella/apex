@@ -17,7 +17,6 @@ tools:
     web/fetch,
     web/githubRepo,
     "azure-mcp/*",
-    "microsoft-learn/*",
     "terraform/*",
     todo,
     ms-azuretools.vscode-azureresourcegroups/azureActivityLog,
@@ -208,6 +207,10 @@ Before doing any work, read these skills.
 - Issue more than one `askQuestions` call per challenger pass — batch all
   open decisions into one inline form (see `codegen-shared-workflow.md` →
   Batched User Decisions)
+- Bundle multiple file bodies in a single response — exceeds VS Code's
+  per-response output-token ceiling and aborts the turn with *"the
+  response hit the length limit"*. Emit ONE file per response turn
+  (see `codegen-shared-workflow.md` → Phase 2: Output Cadence)
 - Write raw `azurerm` when AVM-TF exists
 - Hardcode unique strings
 - Use hardcoded tag maps ignoring governance
@@ -399,14 +402,11 @@ Build configurations in dependency order from `04-implementation-plan.md`.
 If **phased**: add `variable "deployment_phase"` with `count` conditionals per module.
 If **single**: no `deployment_phase` variable needed.
 
-| Round | Files                                                                                                |
-| ----- | ---------------------------------------------------------------------------------------------------- |
-| 1     | `versions.tf`, `providers.tf`, `backend.tf`, `variables.tf`, `locals.tf`, `main.tf` (resource group) |
-| 2     | Networking (VNet, subnets, NSGs), Key Vault, Log Analytics + App Insights                            |
-| 3     | Compute, Data, Messaging — all via AVM-TF modules                                                    |
-| 4     | Diagnostic settings, role assignments, `outputs.tf`                                                  |
-
-After each round: `terraform validate` to catch errors early.
+**Output cadence (MANDATORY)**: one file per response turn. Full rule,
+anti-patterns, and resume-after-abort flow: `codegen-shared-workflow.md`
+→ Phase 2: Output Cadence. Per-file emission order + build cadence:
+`codegen-file-order.md` → Terraform. Adjust the set to match the plan's
+Code-Generation Contract; cadence stays one file per turn regardless.
 
 ### Phase 2.5: Bootstrap Scripts
 
@@ -459,7 +459,7 @@ When opted in, follow the recommended shape from
 - `complex` → 3 passes (`security-governance` → `architecture-reliability` → `cost-feasibility`)
 
 Apply the cascade early-exit rules from
-`adversarial-review-protocol.md → ## Opt-in: Deep adversarial review`:
+`adversarial-review-deep.md → ## Rotating-lens passes`:
 skip pass 2 if pass 1 has 0 `must_fix` AND <2 `should_fix`; skip pass 3
 if pass 2 has 0 `must_fix`.
 
@@ -496,7 +496,7 @@ from disk only if you need full finding details for fix triage. Fix any
 
 **Review audit** (MANDATORY): `apex-recall review-audit <project> 5 --passes-executed <N> --json`
 
-Save validation status in `05-implementation-reference.md`. Run `npm run lint:artifact-templates`.
+Save validation status in `05-implementation-reference.md`. Artifact lint owned by lefthook + `10-Challenger` (see [`agent-authoring.instructions.md`](../instructions/agent-authoring.instructions.md#no-direct-markdownlint-on-agent-output-rule)).
 
 ### Phase 4.6 + Phase 6: Validate Gate & IaC Handoff (MANDATORY, Wave 1+)
 
@@ -540,7 +540,7 @@ In `agent-output/{project}/`:
 
 Validation: `terraform validate` + `terraform fmt -check` +
 `terraform plan -refresh=false` (Phase 4.6) +
-`npm run validate:iac-handoff` + `npm run lint:artifact-templates`.
+`npm run validate:iac-handoff`. Artifact lint owned by lefthook + `10-Challenger` (see [`agent-authoring.instructions.md`](../instructions/agent-authoring.instructions.md#no-direct-markdownlint-on-agent-output-rule)).
 </output_contract>
 
 ## User Updates

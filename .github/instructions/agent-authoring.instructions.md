@@ -458,20 +458,93 @@ Cosmos DB extension, GitHub PR extension, AI Toolkit, and similar, the
 discovery layer injects 10–15 unrelated agents/skills into every system
 prompt (~10–15k baseline tokens per turn).
 
-There is **no documented workspace `settings.json` toggle** that
-disables global scope as of writing. The only reliable mitigations are:
+**Repo-level mitigations now in place** (see
+[`docs/devcontainer-hygiene.md`](../../docs/devcontainer-hygiene.md) for
+the full rationale + per-developer cleanup checklist):
 
-- Uninstall noisy extensions in the dev container (`devcontainer.json`
-  `customizations.vscode.extensions[]`) — touches all contributors, so
-  prefer per-developer settings.
-- Delete the user-scope customization directories the developer doesn't
-  need (`~/.agents/skills/<name>/`, `~/.copilot/instructions/`,
-  user-level Code prompts folder).
-- Treat the baseline injection as an immovable constant and prioritize
-  reducing per-turn replay (Batched-read / Batched-question rules above).
+- `.vscode/settings.json` and `.devcontainer/devcontainer.json` disable
+  user-scope discovery (`chat.instructionsFilesLocations` /
+  `chat.agentFilesLocations` / `chat.agentSkillsLocations` with
+  user-profile paths set to `false`) — workspace-scoped suppression of
+  `~/.copilot/*` and `~/.claude/*`.
+- `.vscode/extensions.json` `unwantedRecommendations` flags three heavy
+  Copilot-bloat extensions for one-click uninstall when this workspace
+  is opened.
+- `npm run validate:extension-bloat` (wired into `validate:_node` and
+  `validate:_node-ci`) rejects PR additions of denylisted extensions to
+  the dev-container `extensions[]`.
+
+What the repo **cannot** suppress: extension-contributed
+`chatSkills` / `chatAgents` / `chatPromptFiles` register via the
+extension contribution API, not file paths. The only durable removal is
+to not have the extension installed. The per-developer checklist in
+[`docs/devcontainer-hygiene.md`](../../docs/devcontainer-hygiene.md)
+covers `code --uninstall-extension` and host user-profile prompts-folder
+cleanup.
 
 This advisory is informational. Do not modify a contributor's dev
-container or user-scope settings as part of an agent change.
+container or user-scope settings as part of an agent change beyond the
+workspace-level mitigations already in place.
+
+### No-direct-markdownlint-on-agent-output rule
+
+Agents must **never** invoke `markdownlint-cli2 agent-output/...` (or
+any equivalent direct lint invocation against an `agent-output/**`
+path) from a tool span. The path is already excluded from
+`npm run lint:md` at
+[`.markdownlint-cli2.jsonc`](../../.markdownlint-cli2.jsonc) (global
+`ignores` list), and the artifact contract is enforced by the
+[`lefthook.yml`](../../lefthook.yml) `artifact-validation` pre-commit
+hook (which runs `npm run validate:artifacts` on staged
+`agent-output/**/*.md`) plus the
+[`10-Challenger`](../agents/10-challenger.agent.md) review step.
+Improvising a direct lint call wastes the user's context budget on
+work the pipeline already does, and `validate-agents` will fail the
+build if an agent body documents the forbidden invocation.
+
+Equivalent prohibition for `npm run lint:md` and
+`npm run lint:artifact-templates` against `agent-output/**`: do not
+invoke either from inside an agent body. Delegate to pre-commit + CI.
+
+### Challenger-subagent fallback rule
+
+`runSubagent { agentName: "challenger-review-subagent" }` has been
+observed at runtime to fail with `Error invoking subagent: Requested
+agent 'challenger-review-subagent' not found.` even when the
+parent + subagent config matches the VS Code subagent docs
+(<https://code.visualstudio.com/docs/copilot/agents/subagents>) and
+`npm run validate:agents` passes. Verified once on
+`tmp/agent-debug-log-a3ca0888-f43d-4ab4-b06d-6d289a194942.json`
+span #361.
+
+Root cause uncertain. Candidates: session-cache staleness in VS Code's
+agent discovery, an experimental-feature edge case
+(`chat.customAgentInSubagent.enabled` is experimental per the docs),
+or an undocumented naming/location constraint. **Do not** describe
+this as a "known VS Code glitch" in agent bodies until either a public
+upstream issue or a deterministic repro confirms the cause.
+
+Fallback (parent agents that delegate to `challenger-review-subagent`):
+
+1. Retry once via the `10-Challenger` user-invocable wrapper agent
+   ([`.github/agents/10-challenger.agent.md`](../agents/10-challenger.agent.md)).
+   It exists specifically as the standalone path-to-artifact wrapper
+   that delegates to `challenger-review-subagent`, and it is the
+   pre-declared auto-handoff target in every parent agent's frontmatter
+   (`agent: 10-Challenger`, `send: true`). This route is
+   `user-invocable: true` and avoids the failing model-driven
+   `runSubagent { agentName: "challenger-review-subagent" }` code path.
+2. If `10-Challenger` also fails, surface the verbatim runtime error
+   to the user and **stop**. Never improvise an inline "autonomous
+   review pass" in the parent's context window — that doubles
+   input-token cost (~100–150k extra per Step 1, measured on log
+   a3ca0888) and produces findings indistinguishable from a real
+   subagent result. The validator cannot detect such inline
+   fabrication structurally.
+
+Validator coverage of this rule is structural only — `validate-agents`
+verifies the parent's `agents:` declaration matches the subagent name,
+but cannot detect runtime resolution failures.
 
 ---
 

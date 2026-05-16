@@ -1,13 +1,23 @@
 {
   "chat.useAgentsMdFile": true,
   "chat.useNestedAgentsMdFiles": true,
+  "chat.useClaudeMdFile": false,
   "chat.customAgentInSubagent.enabled": true,
   "chat.agentFilesLocations": {
     ".github/agents": true,
-    ".github/agents/_subagents": true
+    ".github/agents/_subagents": true,
+    "~/.copilot/agents": false,
+    "~/.claude/agents": false
   },
   "chat.agentSkillsLocations": {
-    ".github/skills": true
+    ".github/skills": true,
+    "~/.copilot/skills": false,
+    "~/.claude/skills": false
+  },
+  "chat.instructionsFilesLocations": {
+    ".github/instructions": true,
+    "~/.copilot/instructions": false,
+    "~/.claude/rules": false
   },
   "chat.hookFilesLocations": {
     ".github/hooks/tool-guardian": true,

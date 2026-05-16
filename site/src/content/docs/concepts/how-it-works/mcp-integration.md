@@ -60,6 +60,13 @@ resource state) to as-built documentation (inventorying deployed resources).
 It is scoped as a **default server** alongside GitHub, meaning virtually every
 agent has access.
 
+Azure MCP also exposes the **Microsoft Learn documentation tools** through
+its `documentation` router (`mcp_azure-mcp_documentation`). The router
+accepts a `command` field (`microsoft_docs_search`, `microsoft_docs_fetch`,
+or `microsoft_code_sample_search`) and proxies to the Microsoft Learn
+backend, removing the need for a standalone MS Learn MCP server. The
+`microsoft-docs` skill packages this workflow for repeated use.
+
 Installation follows the [Azure MCP Server README](https://github.com/microsoft/mcp/blob/main/servers/Azure.Mcp.Server/README.md#npm)
 and is pre-configured in the dev container via `.vscode/mcp.json`. The first
 invocation triggers an `npx` download; subsequent runs use the npx cache.
@@ -152,46 +159,33 @@ Agents use it to create issues, open pull requests, search code, read file
 contents, manage branches, and automate the Smart PR Flow lifecycle. It is
 scoped as a default server, so every agent has access.
 
-## MS Learn MCP Server
+## Microsoft Learn Documentation (via Azure MCP)
 
-| Property  | Value                                                     |
-| --------- | --------------------------------------------------------- |
-| Transport | HTTP                                                      |
-| Endpoint  | `https://learn.microsoft.com/api/mcp?maxTokenBudget=4000` |
-| Auth      | None (public API)                                         |
-| Purpose   | Search and fetch official Microsoft documentation         |
+Microsoft Learn documentation access is exposed as the `documentation`
+router on the **Azure MCP server** (described above). There is no
+standalone MS Learn MCP server in `.vscode/mcp.json` — the Azure MCP
+router proxies the same Learn backend (`https://learn.microsoft.com/api/mcp`)
+without requiring auth.
 
-The MS Learn MCP server provides agents with access to official
-Microsoft and Azure documentation. Agents use it to look up service
-configurations, verify best practices, and ground architecture decisions
-in authoritative sources.
+Invoke via the `mcp_azure-mcp_documentation` tool with one of three
+`command` values:
 
-| Tool                           | Purpose                                    |
+| `command` value                | Purpose                                    |
 | ------------------------------ | ------------------------------------------ |
 | `microsoft_docs_search`        | Search docs, return concise content chunks |
 | `microsoft_docs_fetch`         | Fetch full page content as markdown        |
 | `microsoft_code_sample_search` | Search for code examples in Microsoft docs |
 
 Used across the workflow — the **Architect** agent (Step 2) searches
-documentation for each Azure service, **IaC Planner** (Step 4) looks
-up AVM module documentation, and the `copilot-customization` skill
-caches fetched pages for offline reference.
+documentation for each Azure service, and **IaC Planner** (Step 4) looks
+up AVM module documentation.
 
-Three skills also package this server for repeated use:
-
-| Skill                      | Purpose                                                        |
-| -------------------------- | -------------------------------------------------------------- |
-| `microsoft-docs`           | Search and fetch documentation — concepts, guides, limits      |
-| `microsoft-code-reference` | Verify SDK methods, find code samples, catch hallucinated APIs |
-| `microsoft-skill-creator`  | Generate new agent skills for Microsoft technologies           |
-
-The `maxTokenBudget=4000` parameter prevents oversized responses from consuming
-excessive context window space.
+The `microsoft-docs` skill packages this workflow for repeated use.
 
 :::tip[CLI fallback]
-If the Learn MCP server is unavailable, agents can use the `mslearn` CLI:
-`npx @microsoft/learn-cli search "azure functions timeout"`. The related
-skills include CLI fallback guidance.
+If the Azure MCP server is unavailable, agents can use the `mslearn` CLI:
+`npx @microsoft/learn-cli search "azure functions timeout"`. The
+`microsoft-docs` skill includes CLI fallback guidance.
 :::
 
 ## Terraform MCP Server

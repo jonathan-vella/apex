@@ -49,7 +49,10 @@ Each template defines:
 Templates and generated artifacts are validated by:
 
 - **Script**: `tools/scripts/validate-artifacts.mjs`
-- **npm script**: `npm run lint:artifact-templates`
+- **npm script**: `npm run lint:artifact-templates` *(invoked by the lefthook
+  `artifact-validation` pre-commit hook and CI \u2014 agents do not invoke this
+  directly; see
+  [`agent-authoring.instructions.md`](../../../instructions/agent-authoring.instructions.md#no-direct-markdownlint-on-agent-output-rule))*
 
 All 16 templates use `standard` strictness (missing/out-of-order headings
 are errors, not warnings).
