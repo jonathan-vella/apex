@@ -79,6 +79,13 @@ mandatory challenger review, and hand off to Architecture only after the Gate 1 
   [Context Hygiene](../instructions/agent-authoring.instructions.md#context-hygiene-token-efficiency).
   If `askQuestions` is unavailable, gather the same answers through chat questions before
   generating artifacts.
+- **Do not invoke** `npm run lint:artifact-templates`, `npm run lint:md`, or
+  `markdownlint-cli2` against any `agent-output/**` path. These checks are
+  owned by the lefthook `artifact-validation` pre-commit hook and the
+  `10-Challenger` review. Improvising a lint call wastes the user's context
+  budget and is a validator-tracked anti-pattern
+  (`tools/scripts/validate-agents.mjs`). See
+  [`agent-authoring.instructions.md`](../instructions/agent-authoring.instructions.md#no-direct-markdownlint-on-agent-output-rule).
 
 # Output
 

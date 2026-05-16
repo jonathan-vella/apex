@@ -507,7 +507,10 @@ backend state lock → `terraform force-unlock` (requires approval).
 ## Output
 
 `agent-output/{project}/06-deployment-summary.md` — copy-then-fill from template.
-Validation: `npm run lint:artifact-templates`.
+Validation: enforced by the lefthook `artifact-validation` pre-commit hook and
+the `10-Challenger` review. Do not invoke `npm run lint:artifact-templates` or
+`markdownlint-cli2` directly against `agent-output/**` (see
+[`agent-authoring.instructions.md`](../instructions/agent-authoring.instructions.md#no-direct-markdownlint-on-agent-output-rule)).
 
 ### `## Policy precheck summary` H2 (informational)
 

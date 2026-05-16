@@ -61,17 +61,20 @@ Use the output to plan your `apply_patch` calls (max 3 patches total).
 
 ## Cmd 5: Phase 2 — Validate artifacts
 
-Run **once** after all annotations are done. Combines JSON validation + lint.
+Run **once** after all annotations are done. Validates JSON parse +
+remaining-placeholder count. Artifact markdown lint (H2 order, etc.) is owned
+by the lefthook `artifact-validation` pre-commit hook and the `10-Challenger`
+review — do not run `npm run lint:artifact-templates` here (see
+[`agent-authoring.instructions.md`](../../../instructions/agent-authoring.instructions.md#no-direct-markdownlint-on-agent-output-rule)).
 
 ```bash
 python3 -m json.tool agent-output/{project}/04-governance-constraints.json > /dev/null \
-  && npm run lint:artifact-templates \
   && echo "=== Remaining placeholders ===" \
   && grep -c 'AGENT: annotate\|<!-- annotate -->' \
        agent-output/{project}/04-governance-constraints.md 2>/dev/null || echo "0"
 ```
 
-If lint fails, fix and re-run this command (count as cmd 6).
+If the JSON parse fails or placeholders remain, fix and re-run this command (count as cmd 6).
 
 ## Cmd 6: Phase 3 — Gate summary
 

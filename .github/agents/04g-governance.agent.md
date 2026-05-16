@@ -50,10 +50,13 @@ deployment failures.
 
 # Success criteria
 
-- `04-governance-constraints.json` and `04-governance-constraints.md` exist,
-  pass `npm run lint:artifact-templates`, and follow the
-  `iac-policy-compliance.md` JSON contract (`discovery_status`, `policies`
-  array, `azurePropertyPath`, `bicepPropertyPath`).
+- `04-governance-constraints.json` and `04-governance-constraints.md` exist
+  and follow the `iac-policy-compliance.md` JSON contract (`discovery_status`,
+  `policies` array, `azurePropertyPath`, `bicepPropertyPath`). Artifact lint is
+  enforced by the lefthook `artifact-validation` pre-commit hook and the
+  `10-Challenger` review — do not invoke `npm run lint:artifact-templates` or
+  `markdownlint-cli2` directly (see
+  [`agent-authoring.instructions.md`](../instructions/agent-authoring.instructions.md#no-direct-markdownlint-on-agent-output-rule)).
 - **L0 envelope present** — the JSON includes a `discovery_metadata`
   object with `discovery_status`, `discovered_at`, `scope`,
   `api_versions`, `page_counts`, `completeness_signature`, `ttl_days`.
@@ -352,9 +355,13 @@ The only user interaction point is the Phase 3 Approval Gate.
    source of truth. Only add an `architecture_mapping` section if the architecture
    assessment requires policy→resource mapping not already present.
 
-3. **Self-validate before challenger**: run `npm run lint:artifact-templates`, verify
-   JSON parses with `python3 -m json.tool`, and confirm the JSON has `discovery_status`
-   and `policies` keys. Fix any issues **before** invoking the challenger.
+3. **Self-validate before challenger**: verify the JSON parses with
+   `python3 -m json.tool` and confirm it has `discovery_status` and `policies`
+   keys. Fix any issues **before** invoking the challenger. Do **not** invoke
+   `npm run lint:artifact-templates` or `markdownlint-cli2` directly — lint is
+   owned by the lefthook `artifact-validation` pre-commit hook and the
+   `10-Challenger` review (see
+   [`agent-authoring.instructions.md`](../instructions/agent-authoring.instructions.md#no-direct-markdownlint-on-agent-output-rule)).
 4. **Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 3_5 phase_2_artifacts --json`
 
 **Policy Effect Reference**: `azure-defaults/references/policy-effect-decision-tree.md`
@@ -517,9 +524,12 @@ If the user provides a custom response at an approval gate, interpret it as inst
 - **Never**: Delegate the discovery script to `execution_subagent` or
   `#runSubagent`. It is a deterministic CLI; call it directly via
   `run_in_terminal` to avoid the 60-170s per-subagent-call overhead
-- **Never**: Delegate validation to `execution_subagent` (e.g. `npm run lint:artifact-templates`,
-  `python3 -m json.tool`, AJV schema checks). Run validation commands directly in the
-  terminal — each `execution_subagent` call adds 60-170s of overhead per invocation
+- **Never**: Invoke `npm run lint:artifact-templates` or `markdownlint-cli2`
+  against any `agent-output/**` path — lint is enforced by lefthook +
+  `10-Challenger`. For JSON parse / AJV schema checks (which agents *do* still
+  run), call them directly in the terminal; do not wrap them in
+  `execution_subagent` — each `execution_subagent` call adds 60-170s of
+  overhead per invocation
 - **Never**: Read JSON files >50 KB via `read_file` — use `jq` in terminal
   to extract specific fields from large files instead
 

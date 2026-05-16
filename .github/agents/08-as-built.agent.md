@@ -376,7 +376,10 @@ Follow the batch-only workflow from the drawio skill:
 ### Phase 4: Finalize
 
 1. **Update README.md** — Mark Step 7 complete in the project README
-2. **Self-validate** — Run `npm run lint:artifact-templates` and fix H2 errors
+2. **Delegate lint** — Do not invoke `npm run lint:artifact-templates` or
+   `markdownlint-cli2` directly. The lefthook `artifact-validation` pre-commit
+   hook and the `10-Challenger` review own the artifact contract (see
+   [`agent-authoring.instructions.md`](../instructions/agent-authoring.instructions.md#no-direct-markdownlint-on-agent-output-rule)).
 3. **Present summary** — List all generated documents with brief descriptions
 
 **On completion** (MANDATORY): `apex-recall complete-step <project> 7 --json`
@@ -425,7 +428,10 @@ agent-output/{project}/
 └── 07-ab-diagram.drawio      # As-built architecture diagram (Draw.io)
 ```
 
-Validation: `npm run lint:artifact-templates` must pass for all 07-\* files.
+Validation: enforced by the lefthook `artifact-validation` pre-commit hook and
+the `10-Challenger` review. Agents do not invoke `npm run lint:artifact-templates`
+or `markdownlint-cli2` directly against `agent-output/**` (see
+[`agent-authoring.instructions.md`](../instructions/agent-authoring.instructions.md#no-direct-markdownlint-on-agent-output-rule)).
 
 ## User Updates
 
@@ -458,4 +464,6 @@ This keeps the user informed during multi-phase operations.
 - [ ] DR plan includes control-plane state recovery for all PaaS services with declared RTO (APIM APIOps, identity config)
 - [ ] Operations runbook includes real endpoints and resource names
 - [ ] README.md updated with Step 7 completion status
-- [ ] `npm run lint:artifact-templates` passes for all 07-\* files
+- [ ] Artifact lint delegated to lefthook + `10-Challenger` (no direct
+      `npm run lint:artifact-templates` or `markdownlint-cli2` calls — see
+      [`agent-authoring.instructions.md`](../instructions/agent-authoring.instructions.md#no-direct-markdownlint-on-agent-output-rule))

@@ -277,8 +277,11 @@ in your WAF assessment recommendations (still produce the identical artifact str
 
     Execute each `.py` file and verify the PNGs exist before continuing.
 
-11. **Self-validate** — Run `npm run lint:artifact-templates` and fix any errors
-    for your artifacts
+11. **Delegate lint** — Do not invoke `npm run lint:artifact-templates` or
+    `markdownlint-cli2` directly against `agent-output/**`. The artifact
+    contract is enforced by the lefthook `artifact-validation` pre-commit
+    hook and the `10-Challenger` review. See
+    [`agent-authoring.instructions.md`](../instructions/agent-authoring.instructions.md#no-direct-markdownlint-on-agent-output-rule).
     11a. **Render SKU manifest MD** — `node tools/scripts/render-sku-manifest-md.mjs <project>`.
     The renderer is the only legitimate writer of `sku-manifest.md`
     and fails hard on `current_revision` mismatch. Surface any

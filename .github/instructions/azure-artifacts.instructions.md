@@ -7,12 +7,19 @@ description: "Template compliance rules for artifact generation"
 
 Use exact H2 headings from the template files. Violations block commits and PRs.
 
+The artifact contract is enforced at commit/CI time only — agents do not
+self-lint. Validated by the lefthook `artifact-validation` pre-commit hook
+(which wraps `npm run validate:artifacts`) and CI; see
+[`agent-authoring.instructions.md`](agent-authoring.instructions.md#no-direct-markdownlint-on-agent-output-rule).
+
 The `azure-artifacts/SKILL.md` is authoritative — read it for templates, workflow, styling.
 
 ## Structural Elements (Beyond H2 Headings)
 
 Templates define structural elements that agents reproduce.
-Validated by `npm run lint:artifact-templates`.
+Validated by the lefthook `artifact-validation` pre-commit hook (wraps
+`npm run validate:artifacts` / `lint:artifact-templates`) and CI — agents do
+not self-lint.
 
 | Element              | What to Copy from Template                               |
 | -------------------- | -------------------------------------------------------- |
@@ -43,12 +50,15 @@ Canonical H2 heading lists for all 15 artifact types live in the template files:
 
 ## Enforcement Layers
 
-| Layer           | Mechanism                                      | When                 |
-| --------------- | ---------------------------------------------- | -------------------- |
-| 1. Instructions | This file auto-applies to all agent-output     | Generation time      |
-| 2. Pre-commit   | `npm run lint:artifact-templates` via Lefthook | Before commit        |
-| 3. CI/CD        | Same validation in GitHub Actions              | Before merge         |
-| 4. Auto-fix     | `npm run fix:artifact-h2`                      | On-demand correction |
+| Layer           | Mechanism                                                                            | When                 |
+| --------------- | ------------------------------------------------------------------------------------ | -------------------- |
+| 1. Instructions | This file auto-applies to all agent-output                                           | Generation time      |
+| 2. Pre-commit   | `lefthook` `artifact-validation` hook — wraps `npm run lint:artifact-templates`     | Before commit        |
+| 3. CI/CD        | Same validation in GitHub Actions                                                    | Before merge         |
+| 4. Auto-fix     | `npm run fix:artifact-h2` (human-run / pre-commit, not agent-run)                    | On-demand correction |
+
+Agents do **not** invoke any of these scripts directly against `agent-output/**`
+(see [`agent-authoring.instructions.md`](agent-authoring.instructions.md#no-direct-markdownlint-on-agent-output-rule)).
 
 ## Quick Fix Command
 

@@ -496,7 +496,7 @@ from disk only if you need full finding details for fix triage. Fix any
 
 **Review audit** (MANDATORY): `apex-recall review-audit <project> 5 --passes-executed <N> --json`
 
-Save validation status in `05-implementation-reference.md`. Run `npm run lint:artifact-templates`.
+Save validation status in `05-implementation-reference.md`. Artifact lint owned by lefthook + `10-Challenger` (see [`agent-authoring.instructions.md`](../instructions/agent-authoring.instructions.md#no-direct-markdownlint-on-agent-output-rule)).
 
 ### Phase 4.6 + Phase 6: Validate Gate & IaC Handoff (MANDATORY, Wave 1+)
 
@@ -540,7 +540,7 @@ In `agent-output/{project}/`:
 
 Validation: `terraform validate` + `terraform fmt -check` +
 `terraform plan -refresh=false` (Phase 4.6) +
-`npm run validate:iac-handoff` + `npm run lint:artifact-templates`.
+`npm run validate:iac-handoff`. Artifact lint owned by lefthook + `10-Challenger` (see [`agent-authoring.instructions.md`](../instructions/agent-authoring.instructions.md#no-direct-markdownlint-on-agent-output-rule)).
 </output_contract>
 
 ## User Updates

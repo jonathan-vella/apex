@@ -446,4 +446,8 @@ All files saved to `agent-output/{project}/`:
 - All Azure resource data must come from live `az` CLI queries — never fabricated
 - NFR values must come from user answers — never assumed
 - The handoff to `08-As-Built` must include subscription and resource group details
-- Final validation: `npm run lint:artifact-templates` must pass for all `agent-output/{project}/` files
+- Final validation is owned by the lefthook `artifact-validation` pre-commit
+  hook and the `10-Challenger` review — do not invoke
+  `npm run lint:artifact-templates` or `markdownlint-cli2` directly against
+  `agent-output/{project}/` (see
+  [`agent-authoring.instructions.md`](../../../.github/instructions/agent-authoring.instructions.md#no-direct-markdownlint-on-agent-output-rule))
