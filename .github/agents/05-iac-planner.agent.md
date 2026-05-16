@@ -17,7 +17,6 @@ tools:
     web/fetch,
     web/githubRepo,
     "azure-mcp/*",
-    "microsoft-learn/*",
     "bicep/*",
     "terraform/*",
     todo,

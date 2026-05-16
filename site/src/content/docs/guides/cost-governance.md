@@ -166,8 +166,10 @@ documentation (Step 7). Key tools:
 | `find_orphaned_resources` | Detect unused resources with cost data |
 | `azure_ptu_sizing`        | Estimate PTUs for Azure OpenAI         |
 
-The **Microsoft Learn MCP** server provides `microsoft_docs_search()`
-for looking up service-specific pricing documentation.
+The **Microsoft Learn documentation tools** (exposed through the Azure MCP
+`documentation` router, e.g. `mcp_azure-mcp_documentation` with
+`command: "microsoft_docs_search"`) are used for looking up service-specific
+pricing documentation.
 
 ## Repeatability Rules
 

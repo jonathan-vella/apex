@@ -22,7 +22,6 @@ tools:
     "azure-mcp/*",
     "bicep/*",
     "terraform/*",
-    "microsoft-learn/*",
     todo,
     ms-azuretools.vscode-azureresourcegroups/azureActivityLog,
   ]

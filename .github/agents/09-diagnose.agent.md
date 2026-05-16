@@ -15,7 +15,6 @@ tools:
     search,
     web,
     "azure-mcp/*",
-    "microsoft-learn/*",
     todo,
     vscode.mermaid-chat-features/renderMermaidDiagram,
     ms-azuretools.vscode-azureresourcegroups/azureActivityLog,

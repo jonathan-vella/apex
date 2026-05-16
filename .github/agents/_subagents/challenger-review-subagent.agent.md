@@ -20,7 +20,6 @@ tools:
     search,
     web,
     "azure-mcp/*",
-    "microsoft-learn/*",
     todo,
     ms-azuretools.vscode-azureresourcegroups/azureActivityLog,
   ]

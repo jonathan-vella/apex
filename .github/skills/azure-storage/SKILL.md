@@ -38,8 +38,8 @@ az storage blob download --account-name ACCOUNT --container-name CONTAINER --nam
 az storage blob upload --account-name ACCOUNT --container-name CONTAINER --name BLOB --file LOCAL_PATH
 ```
 
-For deeper service docs and patterns, query
-`mcp_microsoft-lea_microsoft_docs_search` with the relevant Azure Storage
+For deeper service docs and patterns, call `mcp_azure-mcp_documentation`
+with `command: "microsoft_docs_search"` and the relevant Azure Storage
 topic, or follow the links in [Service Details](#service-details).
 
 ## Storage Account Tiers

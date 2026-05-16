@@ -18,7 +18,7 @@ built-in fits.
 
 - **Least privilege first** — prefer the most narrowly-scoped built-in role that satisfies the permissions; only define a custom role when no built-in fits
 - **Role assignment scope matters** — prefer resource-level or resource-group scope over subscription scope
-- **Discover roles via `mcp_microsoft-lea_microsoft_docs_search`** — query the Microsoft Learn MCP server for built-in role definitions before generating any CLI or Bicep
+- **Discover roles via `mcp_azure-mcp_documentation`** — invoke with `command: "microsoft_docs_search"` to query for built-in role definitions before generating any CLI or Bicep
 - **Verify with `az role definition list`** — cross-check the discovered role against the live Azure RBAC catalogue
 - **Use `guid()` in Bicep** for `Microsoft.Authorization/roleAssignments` names so assignments are idempotent across re-deploys; set `principalType: 'ServicePrincipal'` for managed identities
 - **Granting roles requires elevated permission** — see [Prerequisites for Granting Roles](#prerequisites-for-granting-roles) below
@@ -27,7 +27,7 @@ built-in fits.
 ## Steps
 
 1. **Identify the operation** — what action does the identity need (read storage, manage keys, deploy resources, etc.)?
-2. **Search Microsoft docs** — invoke `mcp_microsoft-lea_microsoft_docs_search` with a query such as `"Azure built-in role <operation>"` (e.g., `"Azure built-in role read blob storage"`); collect candidate role names + role IDs
+2. **Search Microsoft docs** — invoke `mcp_azure-mcp_documentation` with `command: "microsoft_docs_search"` and a query such as `"Azure built-in role <operation>"` (e.g., `"Azure built-in role read blob storage"`); collect candidate role names + role IDs
 3. **Verify against the live catalogue** — `az role definition list --query "[?roleName=='<RoleName>'].{name:roleName,id:name,actions:permissions[0].actions}" -o table`
 4. **If no built-in fits** — scaffold a custom role definition with only the required `actions` / `dataActions`:
 

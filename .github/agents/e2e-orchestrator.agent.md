@@ -209,7 +209,8 @@ A run where >50% of artifacts are copies is terminated with `E2E_BLOCKED`.
   estimate, not a hand-authored estimate.
   - When Azure Retail Prices API returns no rows for a service+region
     combination (notably Azure Managed Redis in Sweden Central), fall back
-    to the first-party pricing page via the microsoft-learn MCP tools.
+    to the first-party pricing page via the Azure MCP `documentation` tool
+    (e.g. `mcp_azure-mcp_documentation` with `command: "microsoft_docs_fetch"`).
     Document the fallback source in the cost estimate artifact.
   - After Step 2 completes, verify that `decisions.budget` is populated via
     `apex-recall show <project> --json`. If missing, log a lesson with

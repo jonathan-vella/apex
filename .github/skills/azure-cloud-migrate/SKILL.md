@@ -23,9 +23,9 @@ metadata:
 ## Migration Scenarios
 
 The scenarios documented today are listed below. For other source platforms
-(GCP, on-premises, etc.), use the `microsoft_docs_search` MCP tool (from the
-Microsoft Learn MCP server) to research the target Azure service and adapt
-the AWS-Lambda assessment workflow as a template.
+(GCP, on-premises, etc.), call `mcp_azure-mcp_documentation` with
+`command: "microsoft_docs_search"` to research the target Azure service and
+adapt the AWS-Lambda assessment workflow as a template.
 
 | Source     | Target          | Reference                                                                      |
 | ---------- | --------------- | ------------------------------------------------------------------------------ |

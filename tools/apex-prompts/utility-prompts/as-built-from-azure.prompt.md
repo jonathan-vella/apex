@@ -14,7 +14,6 @@ tools:
   - search
   - web
   - "azure-mcp/*"
-  - "microsoft-learn/*"
   - todo
 argument-hint: "Provide subscription name/ID, resource group(s), and workload name"
 ---

@@ -15,7 +15,7 @@ Check Azure resource availability during azure-prepare workflow. Validate after 
 
 Fixed service constraints (cannot be changed).
 
-**Check via**: `mcp_microsoft-lea_microsoft_docs_search` (query the relevant Azure service docs) or the azure-quotas skill
+**Check via**: `mcp_azure-mcp_documentation` with `command: "microsoft_docs_search"` (query the relevant Azure service docs) or the azure-quotas skill
 
 **Examples**: Cosmos DB item size (2 MB), Container Apps HTTP timeout (240s), App Service Free tier deployment slots (0)
 

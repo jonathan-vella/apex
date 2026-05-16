@@ -6,7 +6,7 @@ argument-hint: Describe the Azure workload or project you want to gather require
 target: vscode
 user-invocable: true
 agents: ["challenger-review-subagent"]
-tools: [vscode, execute, read, agent, browser, edit, search, web, "microsoft-learn/*", todo]
+tools: [vscode, execute, read, agent, browser, edit, search, web, "azure-mcp/*", todo]
 handoffs:
   - label: "▶ Refine Requirements"
     agent: 02-Requirements

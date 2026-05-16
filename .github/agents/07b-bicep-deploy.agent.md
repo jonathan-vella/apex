@@ -17,7 +17,6 @@ tools:
     web,
     "azure-mcp/*",
     "bicep/*",
-    "microsoft-learn/*",
     todo,
     vscode.mermaid-chat-features/renderMermaidDiagram,
     ms-azuretools.vscode-azureresourcegroups/azureActivityLog,

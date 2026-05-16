@@ -15,7 +15,6 @@ tools:
     search,
     web,
     "azure-mcp/*",
-    "microsoft-learn/*",
     "bicep/*",
     todo,
     vscode.mermaid-chat-features/renderMermaidDiagram,
