@@ -18,5 +18,9 @@
     "denoland.vscode-deno",
     "hediet.vscode-drawio"
   ],
-  "unwantedRecommendations": []
+  "unwantedRecommendations": [
+    "ms-azuretools.vscode-azure-github-copilot",
+    "ms-windows-ai-studio",
+    "teamsdevapp.vscode-ai-foundry"
+  ]
 }
