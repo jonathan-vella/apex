@@ -495,25 +495,43 @@ invoke either from inside an agent body. Delegate to pre-commit + CI.
 
 ### Challenger-subagent fallback rule
 
-VS Code's subagent-discovery layer occasionally reports a declared
-subagent as "not registered in this session" at runtime even when the
-parent's `agents:` frontmatter and the `_subagents/` file are both
-correct (verified by `validate-agents` Part 2). When this happens with
-`challenger-review-subagent`, parent agents must:
+`runSubagent { agentName: "challenger-review-subagent" }` has been
+observed at runtime to fail with `Error invoking subagent: Requested
+agent 'challenger-review-subagent' not found.` even when the parent
++ subagent config matches the VS Code subagent docs
+(<https://code.visualstudio.com/docs/copilot/agents/subagents>) and
+`npm run validate:agents` passes. Verified once on
+`tmp/agent-debug-log-a3ca0888-f43d-4ab4-b06d-6d289a194942.json`
+span #361.
 
-1. Retry **once** via the explicit `#runSubagent challenger-review-subagent`
-   chat-syntax form (bypasses the auto-handoff discovery path).
-2. If the retry also fails, surface the glitch to the user and **stop**
-   — do not improvise an "autonomous review pass" inline. Running the
-   review in the parent's context window doubles input-token cost
-   (~100–150k extra per Step 1 measured), produces findings that aren't
-   distinguishable from a real subagent result, and silently bypasses
-   the subagent's stop rules.
+Root cause uncertain. Candidates: session-cache staleness in VS Code's
+agent discovery, an experimental-feature edge case
+(`chat.customAgentInSubagent.enabled` is experimental per the docs),
+or an undocumented naming/location constraint. **Do not** describe
+this as a "known VS Code glitch" in agent bodies until either a public
+upstream issue or a deterministic repro confirms the cause.
+
+Fallback (parent agents that delegate to `challenger-review-subagent`):
+
+1. Retry once via the `10-Challenger` user-invocable wrapper agent
+   ([`.github/agents/10-challenger.agent.md`](../agents/10-challenger.agent.md)).
+   It exists specifically as the standalone path-to-artifact wrapper
+   that delegates to `challenger-review-subagent`, and it is the
+   pre-declared auto-handoff target in every parent agent's frontmatter
+   (`agent: 10-Challenger`, `send: true`). This route is
+   `user-invocable: true` and avoids the failing model-driven
+   `runSubagent { agentName: "challenger-review-subagent" }` code path.
+2. If `10-Challenger` also fails, surface the verbatim runtime error
+   to the user and **stop**. Never improvise an inline "autonomous
+   review pass" in the parent's context window — that doubles
+   input-token cost (~100–150k extra per Step 1, measured on log
+   a3ca0888) and produces findings indistinguishable from a real
+   subagent result. The validator cannot detect such inline
+   fabrication structurally.
 
 Validator coverage of this rule is structural only — `validate-agents`
 verifies the parent's `agents:` declaration matches the subagent name,
-but cannot detect runtime discovery glitches. The fallback rule is the
-only mitigation until the underlying VS Code discovery bug is fixed.
+but cannot detect runtime resolution failures.
 
 ---
 

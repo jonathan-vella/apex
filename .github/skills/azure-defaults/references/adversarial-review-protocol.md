@@ -39,19 +39,28 @@ comprehensive pass**. No early-exit logic. No complexity-tier routing.
 
 ### Subagent-discovery fallback (default + deep)
 
-VS Code's subagent-discovery layer occasionally reports
-`challenger-review-subagent` as "not registered in this session" even
-when the parent's `agents:` frontmatter and the `_subagents/` file are
-correct (verified by `npm run validate:agents` Part 2). If you hit this
-at runtime:
+`runSubagent { agentName: "challenger-review-subagent" }` has been
+observed to fail at runtime with `Error invoking subagent: Requested
+agent 'challenger-review-subagent' not found.` even when the parent +
+subagent config matches the VS Code subagent docs
+(<https://code.visualstudio.com/docs/copilot/agents/subagents>) and
+`npm run validate:agents` Part 2 passes. Root cause uncertain (likely
+session-cache staleness or an edge case in the experimental
+`chat.customAgentInSubagent.enabled` feature).
 
-1. Retry **once** via the explicit `#runSubagent challenger-review-subagent`
-   chat-syntax form. This bypasses the auto-handoff discovery path.
-2. If the retry also fails, surface the glitch to the user and **stop**.
-   Do **not** improvise an inline "autonomous review pass" — running the
-   review in the parent's context window doubles input-token cost
-   (~100–150k extra per Step 1 measured) and produces findings that
-   aren't distinguishable from a real subagent result. Forbidden by
+When you see that runtime error:
+
+1. Retry once via the `10-Challenger` user-invocable wrapper agent
+   instead of calling the subagent directly. `10-Challenger` is the
+   documented standalone path-to-artifact entry point and is the
+   pre-declared auto-handoff target in every parent agent's frontmatter
+   (`agent: 10-Challenger`, `send: true`), so it uses a different
+   resolution code path than direct `runSubagent { agentName }`.
+2. If `10-Challenger` also fails, surface the verbatim runtime error
+   to the user and **stop**. Do **not** improvise an inline
+   "autonomous review pass" — it runs the review in the parent's
+   context window (doubles input-token cost) and produces findings
+   indistinguishable from a real subagent result. Forbidden by
    [`agent-authoring.instructions.md#challenger-subagent-fallback-rule`](../../../instructions/agent-authoring.instructions.md#challenger-subagent-fallback-rule).
 
 Tier annotations in `workflow-graph.json` (`opt_in_matrix`) are
