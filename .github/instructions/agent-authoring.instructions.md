@@ -458,20 +458,33 @@ Cosmos DB extension, GitHub PR extension, AI Toolkit, and similar, the
 discovery layer injects 10–15 unrelated agents/skills into every system
 prompt (~10–15k baseline tokens per turn).
 
-There is **no documented workspace `settings.json` toggle** that
-disables global scope as of writing. The only reliable mitigations are:
+**Repo-level mitigations now in place** (see
+[`docs/devcontainer-hygiene.md`](../../docs/devcontainer-hygiene.md) for
+the full rationale + per-developer cleanup checklist):
 
-- Uninstall noisy extensions in the dev container (`devcontainer.json`
-  `customizations.vscode.extensions[]`) — touches all contributors, so
-  prefer per-developer settings.
-- Delete the user-scope customization directories the developer doesn't
-  need (`~/.agents/skills/<name>/`, `~/.copilot/instructions/`,
-  user-level Code prompts folder).
-- Treat the baseline injection as an immovable constant and prioritize
-  reducing per-turn replay (Batched-read / Batched-question rules above).
+- `.vscode/settings.json` and `.devcontainer/devcontainer.json` disable
+  user-scope discovery (`chat.instructionsFilesLocations` /
+  `chat.agentFilesLocations` / `chat.agentSkillsLocations` with
+  user-profile paths set to `false`) — workspace-scoped suppression of
+  `~/.copilot/*` and `~/.claude/*`.
+- `.vscode/extensions.json` `unwantedRecommendations` flags three heavy
+  Copilot-bloat extensions for one-click uninstall when this workspace
+  is opened.
+- `npm run validate:extension-bloat` (wired into `validate:_node` and
+  `validate:_node-ci`) rejects PR additions of denylisted extensions to
+  the dev-container `extensions[]`.
+
+What the repo **cannot** suppress: extension-contributed
+`chatSkills` / `chatAgents` / `chatPromptFiles` register via the
+extension contribution API, not file paths. The only durable removal is
+to not have the extension installed. The per-developer checklist in
+[`docs/devcontainer-hygiene.md`](../../docs/devcontainer-hygiene.md)
+covers `code --uninstall-extension` and host user-profile prompts-folder
+cleanup.
 
 This advisory is informational. Do not modify a contributor's dev
-container or user-scope settings as part of an agent change.
+container or user-scope settings as part of an agent change beyond the
+workspace-level mitigations already in place.
 
 ### No-direct-markdownlint-on-agent-output rule
 
