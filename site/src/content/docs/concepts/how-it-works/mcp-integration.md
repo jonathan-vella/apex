@@ -15,7 +15,7 @@ site development but is not part of the core agent toolchain.
 
 All six core MCP servers are declared in `.vscode/mcp.json` and start automatically
 when VS Code invokes them. The Azure MCP Server runs via the official
-[`@azure/mcp`](https://www.npmjs.com/package/@azure/mcp) npm package (launched
+[`@azure/mcp`](https://github.com/Azure/azure-mcp) npm package (launched
 through `npx`) and uses `az login` credentials. Agents never
 call cloud APIs directly; they call MCP tools, which handle authentication, caching,
 pagination, retries, and response formatting.
@@ -42,7 +42,7 @@ flowchart LR
 | Property  | Value                                                                |
 | --------- | -------------------------------------------------------------------- |
 | Transport | stdio (via `npx @azure/mcp@latest`)                                  |
-| Package   | [`@azure/mcp`](https://www.npmjs.com/package/@azure/mcp) (Microsoft) |
+| Package   | [`@azure/mcp`](https://github.com/Azure/azure-mcp) (Microsoft) |
 | Auth      | Azure CLI (`az login`) or managed identity                           |
 | Purpose   | RBAC-aware Azure resource context for agents                         |
 
