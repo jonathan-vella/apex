@@ -189,3 +189,112 @@ def test_cli_fail_on_baseline_outlier(tmp_path):
     assert r.returncode == 1
     assert "ACCEPTANCE FAILED" in r.stdout
     assert "FAIL" in r.stdout
+
+
+def test_jsonl_to_otel_basic_shape(tmp_path):
+    """A minimal JSONL with one llm_request converts to a profileable OTel envelope."""
+    mod = _load()
+    jsonl_path = tmp_path / "main.jsonl"
+    records = [
+        {
+            "ts": 1700000000000,
+            "dur": 0,
+            "sid": "fixture",
+            "type": "session_start",
+            "name": "session_start",
+            "spanId": "s0",
+            "status": "ok",
+        },
+        {
+            "ts": 1700000001000,
+            "dur": 1500,
+            "sid": "fixture",
+            "type": "llm_request",
+            "name": "chat:gpt-5.3-codex",
+            "spanId": "s1",
+            "status": "ok",
+            "attrs": {"model": "gpt-5.3-codex", "inputTokens": 12345, "outputTokens": 100},
+        },
+        {
+            "ts": 1700000002500,
+            "dur": 10,
+            "sid": "fixture",
+            "type": "tool_call",
+            "name": "read_file",
+            "spanId": "s2",
+            "status": "ok",
+            "attrs": {"args": '{"filePath":"path/REDACTED"}', "result": "{}"},
+        },
+    ]
+    jsonl_path.write_text("\n".join(json.dumps(r) for r in records))
+    envelope = mod.jsonl_to_otel(jsonl_path)
+    spans = envelope["resourceSpans"][0]["scopeSpans"][0]["spans"]
+    assert len(spans) == 3
+
+    # llm_request → chat: span with gen_ai.usage.input_tokens
+    chat_span = next(s for s in spans if s["name"] == "chat:gpt-5.3-codex")
+    keys = {a["key"] for a in chat_span["attributes"]}
+    assert "gen_ai.operation.name" in keys
+    assert "gen_ai.request.model" in keys
+    assert "gen_ai.usage.input_tokens" in keys
+
+    # tool_call → execute_tool with gen_ai.tool.name
+    tool_span = next(s for s in spans if s["name"] == "read_file")
+    keys = {a["key"] for a in tool_span["attributes"]}
+    assert "gen_ai.operation.name" in keys
+    assert "gen_ai.tool.name" in keys
+
+
+def test_jsonl_to_otel_normalizes_subagent_name(tmp_path):
+    """child_session_ref runSubagent-challenger-... → bare challenger-review-subagent."""
+    mod = _load()
+    jsonl_path = tmp_path / "main.jsonl"
+    record = {
+        "ts": 1700000000000,
+        "dur": 1000,
+        "sid": "fixture",
+        "type": "child_session_ref",
+        "name": "runSubagent-challenger-review-subagent",
+        "spanId": "s0",
+        "status": "ok",
+        "attrs": {"childSessionId": "x", "label": "x"},
+    }
+    jsonl_path.write_text(json.dumps(record))
+    envelope = mod.jsonl_to_otel(jsonl_path)
+    span = envelope["resourceSpans"][0]["scopeSpans"][0]["spans"][0]
+    assert span["name"] == "challenger-review-subagent"
+
+
+def test_jsonl_to_otel_then_profile_roundtrip(tmp_path):
+    """Convert JSONL → OTel → load via profile_debug_log: totals should match."""
+    mod = _load()
+    prof_spec = importlib.util.spec_from_file_location(
+        "profile_debug_log",
+        REPO_ROOT / "tools" / "scripts" / "profile_debug_log.py",
+    )
+    assert prof_spec and prof_spec.loader
+    profiler = importlib.util.module_from_spec(prof_spec)
+    prof_spec.loader.exec_module(profiler)  # type: ignore[union-attr]
+
+    jsonl_path = tmp_path / "main.jsonl"
+    records = [
+        {
+            "ts": 1700000001000,
+            "dur": 100,
+            "sid": "fixture",
+            "type": "llm_request",
+            "name": "chat:gpt-5.3-codex",
+            "spanId": "s1",
+            "status": "ok",
+            "attrs": {"model": "gpt-5.3-codex", "inputTokens": 5000, "outputTokens": 50},
+        },
+    ]
+    jsonl_path.write_text("\n".join(json.dumps(r) for r in records))
+
+    converted = tmp_path / "converted.json"
+    converted.write_text(json.dumps(mod.jsonl_to_otel(jsonl_path)))
+    spans = profiler.load_spans(converted)
+    metrics = profiler.profile(spans)
+    assert metrics["totals"]["input_tokens"] == 5000
+    assert metrics["totals"]["output_tokens"] == 50
+    assert metrics["totals"]["chat_calls"] == 1

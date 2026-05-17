@@ -88,6 +88,189 @@ def _load_module(path: Path, name: str):
     return module
 
 
+# ---------------------------------------------------------------------------
+# Auto-export: discover + convert VS Code Copilot Chat live debug logs
+# ---------------------------------------------------------------------------
+
+# Live debug logs live in JSONL under VS Code's workspaceStorage. The
+# command palette "Copilot: Export debug log" produces the OTel
+# resourceSpans envelope this script already understands; the live
+# JSONL is a different shape and needs translation before profiling.
+LIVE_LOG_GLOB = "~/.vscode-server/data/User/workspaceStorage/*/GitHub.copilot-chat/debug-logs/*/main.jsonl"
+
+
+def find_live_debug_log() -> Path | None:
+    """Return the newest live ``main.jsonl`` across all workspace sessions."""
+    import glob
+
+    candidates = [Path(p) for p in glob.glob(str(Path(LIVE_LOG_GLOB).expanduser()))]
+    if not candidates:
+        return None
+    return max(candidates, key=lambda p: p.stat().st_mtime)
+
+
+def _typed_attr(key: str, value: Any) -> dict[str, Any]:
+    """Wrap a value in the OTel typed-attribute shape the profiler expects."""
+    if isinstance(value, bool):
+        wrap = {"boolValue": value}
+    elif isinstance(value, int):
+        wrap = {"intValue": value}
+    elif isinstance(value, float):
+        wrap = {"doubleValue": value}
+    else:
+        wrap = {"stringValue": str(value)}
+    return {"key": key, "value": wrap}
+
+
+# Subagent name normalisation: the live JSONL emits
+# ``runSubagent-challenger-review-subagent`` as a ``child_session_ref``;
+# the canonical OTel exports use bare ``challenger-review-subagent`` as
+# the span name. The profiler + ceiling validator only look for the
+# canonical name, so we strip the prefix on import.
+_CANONICAL_SUBAGENT_NAMES = {
+    "challenger-review-subagent",
+    "execution_subagent",
+}
+
+
+def _normalize_span_name(rec: dict[str, Any]) -> str:
+    """Map JSONL ``name`` → OTel span name where translations differ."""
+    name = rec.get("name") or ""
+    if rec.get("type") == "child_session_ref" and name.startswith("runSubagent-"):
+        # runSubagent-challenger-review-subagent → challenger-review-subagent
+        stripped = name[len("runSubagent-") :]
+        if stripped in _CANONICAL_SUBAGENT_NAMES:
+            return stripped
+        # Otherwise treat as a generic execution subagent invocation so
+        # the profiler still counts the subagent_invocations metric.
+        return "execution_subagent"
+    return name
+
+
+def _build_otel_attrs(rec: dict[str, Any]) -> list[dict[str, Any]]:
+    """Translate JSONL ``attrs`` into the gen_ai.* keys the profiler reads."""
+    raw_attrs = rec.get("attrs") or {}
+    # Some attr blobs are serialised as a Python-repr string (e.g.
+    # ``"{'args': '{\\"operation\\":...}'}"``). json.loads can't parse
+    # that; eval would be unsafe. Best-effort: only consume dict-shaped
+    # attrs; otherwise emit a synthetic stringValue so the data still
+    # appears in the OTel form for diagnostics.
+    if isinstance(raw_attrs, str):
+        try:
+            raw_attrs = json.loads(raw_attrs)
+        except json.JSONDecodeError:
+            return [_typed_attr("copilot.raw_attrs", raw_attrs[:500])]
+    if not isinstance(raw_attrs, dict):
+        return []
+
+    out: list[dict[str, Any]] = []
+    rtype = rec.get("type") or ""
+
+    if rtype == "llm_request":
+        out.append(_typed_attr("gen_ai.operation.name", "chat"))
+        if "model" in raw_attrs:
+            out.append(_typed_attr("gen_ai.request.model", raw_attrs["model"]))
+        if "inputTokens" in raw_attrs:
+            with contextlib.suppress(TypeError, ValueError):
+                out.append(_typed_attr("gen_ai.usage.input_tokens", int(raw_attrs["inputTokens"])))
+        if "outputTokens" in raw_attrs:
+            with contextlib.suppress(TypeError, ValueError):
+                out.append(_typed_attr("gen_ai.usage.output_tokens", int(raw_attrs["outputTokens"])))
+    elif rtype == "tool_call":
+        out.append(_typed_attr("gen_ai.operation.name", "execute_tool"))
+        out.append(_typed_attr("gen_ai.tool.name", rec.get("name") or ""))
+        if "args" in raw_attrs:
+            out.append(_typed_attr("gen_ai.tool.call.arguments", raw_attrs["args"]))
+        if "result" in raw_attrs:
+            out.append(_typed_attr("gen_ai.tool.call.result", raw_attrs["result"]))
+
+    return out
+
+
+def jsonl_to_otel(jsonl_path: Path) -> dict[str, Any]:
+    """Convert a Copilot Chat live ``main.jsonl`` to the OTel envelope.
+
+    The output matches the shape produced by VS Code's
+    "Copilot: Export debug log" palette command, which is what
+    ``profile_debug_log.py`` already parses. This lets us skip the
+    manual export step entirely.
+    """
+    spans: list[dict[str, Any]] = []
+    session_id: str | None = None
+    with jsonl_path.open() as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                rec = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if session_id is None:
+                session_id = rec.get("sid")
+            ts_ms = int(rec.get("ts", 0))
+            dur_ms = int(rec.get("dur", 0))
+            ts_ns = ts_ms * 1_000_000
+            end_ns = (ts_ms + dur_ms) * 1_000_000
+            status_code = 0 if rec.get("status") == "ok" else 2
+            spans.append(
+                {
+                    "traceId": "",
+                    "spanId": rec.get("spanId", ""),
+                    "parentSpanId": rec.get("parentSpanId", ""),
+                    "name": _normalize_span_name(rec),
+                    "kind": 1,
+                    "startTimeUnixNano": str(ts_ns),
+                    "endTimeUnixNano": str(end_ns),
+                    "attributes": _build_otel_attrs(rec),
+                    "events": [],
+                    "status": {"code": status_code},
+                },
+            )
+
+    return {
+        "resourceSpans": [
+            {
+                "resource": {
+                    "attributes": [
+                        {"key": "service.name", "value": {"stringValue": "vscode.copilotChat"}},
+                        {"key": "copilot.source", "value": {"stringValue": "jsonl-import"}},
+                    ],
+                },
+                "scopeSpans": [
+                    {
+                        "scope": {"name": "copilotChat.jsonl-import"},
+                        "spans": spans,
+                    },
+                ],
+            },
+        ],
+        "copilotChat": {
+            "source": "jsonl",
+            "sessionId": session_id,
+            "sourceFile": str(jsonl_path),
+        },
+    }
+
+
+def auto_export_log(date_iso: str | None = None) -> Path | None:
+    """Locate the newest live JSONL, convert to OTel, save under logs/.
+
+    Returns the path to the converted log on success, or ``None`` if
+    no live debug log was discoverable.
+    """
+    src = find_live_debug_log()
+    if src is None:
+        return None
+    iso = date_iso or date.today().isoformat()
+    out_dir = REPO_ROOT / "logs"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    out_path = out_dir / f"smoke-{iso}.json"
+    envelope = jsonl_to_otel(src)
+    out_path.write_text(json.dumps(envelope, separators=(",", ":")) + "\n")
+    return out_path
+
+
 def find_newest_log() -> Path | None:
     """Return the newest .json log under ``logs/`` (excluding subfolders)."""
     logs_dir = REPO_ROOT / "logs"
@@ -228,7 +411,8 @@ def main(argv: list[str] | None = None) -> int:
         nargs="?",
         type=Path,
         default=None,
-        help="OTel log path (default: newest .json under logs/)",
+        help="OTel log path. If omitted, auto-export the newest live JSONL "
+        "debug log from VS Code Copilot Chat into logs/smoke-<date>.json.",
     )
     parser.add_argument(
         "--strict",
@@ -239,15 +423,28 @@ def main(argv: list[str] | None = None) -> int:
         "--out",
         type=Path,
         default=None,
-        help="Override output path (default: agent-output/_baselines/smoke-<date>.json)",
+        help="Override profiler-output path (default: agent-output/_baselines/smoke-<date>.json)",
+    )
+    parser.add_argument(
+        "--no-auto-export",
+        action="store_true",
+        help="Disable auto-export of the live JSONL debug log; require an explicit log path.",
     )
     args = parser.parse_args(argv)
 
-    log_path = args.log or find_newest_log()
+    today_iso = date.today().isoformat()
+    log_path = args.log
+    if log_path is None and not args.no_auto_export:
+        log_path = auto_export_log(today_iso)
+        if log_path is not None:
+            print(f"# Auto-exported live debug log → {log_path.relative_to(REPO_ROOT)}")
+    if log_path is None:
+        log_path = find_newest_log()
     if log_path is None:
         print(
-            "error: no log path given and no .json files found under logs/.\n"
-            "       export an OTel log via VS Code Copilot Chat first.",
+            "error: no log path given, no live debug log auto-exportable, and "
+            "no .json files under logs/.\n"
+            "       Run a workflow session first, or pass an explicit log path.",
             file=sys.stderr,
         )
         return 1
@@ -290,7 +487,7 @@ def main(argv: list[str] | None = None) -> int:
     print(verdict)
 
     # Persist.
-    out_path = args.out or (BASELINES_DIR / f"smoke-{date.today().isoformat()}.json")
+    out_path = args.out or (BASELINES_DIR / f"smoke-{today_iso}.json")
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(metrics, indent=2, sort_keys=True) + "\n")
     try:

@@ -82,19 +82,36 @@ Per workflow run:
 
 ### 4. Capture + verify
 
-One-shot verifier (profile + ceiling-budget + acceptance table + save):
+One-shot verifier — **auto-exports the live debug log** from VS Code
+Copilot Chat's on-disk JSONL, converts to OTel, profiles, runs the
+ceiling budget check, evaluates every acceptance target, and saves
+the result:
 
 ```sh
-# After exporting the OTel log from VS Code Copilot Chat:
-npm run smoke:verify -- logs/smoke-<date>.json
-
-# Or auto-pick the newest .json under logs/:
 npm run smoke:verify
 ```
 
-Prints a PASS / FAIL / WARN / SKIP row per acceptance target and a
-final verdict. Exits `0` on all-pass, `1` on any FAIL. Profiler output
-is saved to `agent-output/_baselines/smoke-<date>.json` automatically.
+That's it — no manual export, no date substitution. The script:
+
+1. Discovers the newest `main.jsonl` under
+   `~/.vscode-server/data/User/workspaceStorage/*/GitHub.copilot-chat/debug-logs/*/`.
+2. Converts JSONL → OTel envelope and writes
+   `logs/smoke-<today>.json`.
+3. Prints a PASS / FAIL / WARN / SKIP row per acceptance target and a
+   final verdict.
+4. Saves the full profiler+computed JSON to
+   `agent-output/_baselines/smoke-<today>.json`.
+
+Exits `0` on all-pass, `1` on any FAIL. WARN-only rows do not fail
+unless `--strict`.
+
+Variants:
+
+```sh
+npm run smoke:verify -- logs/older-export.json   # use a specific log
+npm run smoke:verify -- --no-auto-export         # require explicit path
+npm run smoke:verify -- --strict                 # WARN counts as FAIL
+```
 
 For ad-hoc spot checks, the underlying tools still work standalone:
 
