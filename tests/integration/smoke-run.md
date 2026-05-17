@@ -99,7 +99,7 @@ A smoke run is **green** when ALL of these are true:
 - **Phase 2a acceptance**: must pass before merging Phase 2a to `main`.
 - **Phase 2b acceptance**: must pass before merging Phase 2b to `main`.
 - **Phase 4 acceptance**: askQuestions count is the headline check.
-- **Phase 3 A/B pilot**: re-run on `pilot/challenger-sonnet` branch
+- **Phase 3 A/B pilot**: re-run on `test/challenger-sonnet` branch
   and compare findings to a baseline run on `main` — quality rubric
   is in `/memories/repo/codegen-model-mix-2026.md`.
 - **Quarterly regression**: re-run to catch silent drift.

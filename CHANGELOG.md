@@ -86,7 +86,7 @@ for full details on this and all prior releases.
     GPT-5.5 → GPT-5.3-Codex
   - 11-context-optimizer: Claude Opus 4.7 → Claude Sonnet 4.6
   - `challenger-review-subagent` (subagent): GPT-5.5 → Sonnet 4.6
-    is **A/B-gated** on the `pilot/challenger-sonnet` branch — not
+    is **A/B-gated** on the `test/challenger-sonnet` branch — not
     merged. Rollback path + quality rubric in
     `/memories/repo/codegen-model-mix-2026.md`.
 - **PR template**: added a "Token / latency impact" section so
