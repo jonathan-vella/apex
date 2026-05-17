@@ -62,6 +62,7 @@ Full procedure (`azd up` / `azd provision --preview`, environment preflight chec
 | **Codegen shared workflow**   | `references/codegen-shared-workflow.md` (Phase 2 output cadence loaded by `06b`/`06t` CodeGen agents)                                  |
 | **Codegen file-order**        | `references/codegen-file-order.md` (per-tool file emission order loaded by `06b`/`06t` CodeGen agents)                                 |
 | **Codegen DO / DON'T**        | `references/codegen-do-dont.md` (shared DO/DON'T bullets between `06b` + `06t`; tool-specific bullets stay in each agent body)         |
+| **Preflight policy checks**   | `references/preflight-policy-checks.md` (deploy-agent jq snippets, skip-validation shortcut, L3 precheck routing matrix, deprecation scan regex) |
 | Preflight validation          | `azure-validate/references/infraops-preflight.md`                                                                                     |
 | CLI auth validation procedure | `azure-defaults/references/azure-cli-auth-validation.md`                                                                              |
 | Policy effect decision tree   | `azure-defaults/references/policy-effect-decision-tree.md`                                                                            |
