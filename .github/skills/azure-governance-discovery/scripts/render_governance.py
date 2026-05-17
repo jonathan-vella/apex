@@ -9,9 +9,132 @@ envelope and writes Markdown.
 """
 from __future__ import annotations
 
+import hashlib
+import json
 import re
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+
+# --------------------------------------------------------------------------- #
+# Shared L0 envelope helpers                                                  #
+#                                                                             #
+# These are the canonical implementations consumed by BOTH discover.py        #
+# (live path) and render_cached_governance.py (cached baseline path). The     #
+# `completeness_signature` MUST be byte-identical for the same upstream       #
+# findings set across both paths — that invariant is the foundation of the    #
+# Phase 4 resume short-circuit + Phase 8 challenger guard, and is regression  #
+# tested in `test_signature_parity.py`.                                       #
+# --------------------------------------------------------------------------- #
+
+# L0 envelope: staleness threshold (days). Downstream consumers (Planner,
+# CodeGen, Deploy) treat envelopes older than this as STALE and refuse to
+# proceed without a fresh `--refresh` discovery.
+DEFAULT_TTL_DAYS = 7
+
+# API versions emitted into discovery_metadata.api_versions. Keep in sync
+# with the ARM REST calls in discover.py — these constants are the single
+# source of truth for both the live path and any cached-baseline synthesis
+# that needs to claim the version it was originally collected against.
+API_ASSIGNMENTS = "2022-06-01"
+API_DEFINITIONS = "2021-06-01"
+API_EXEMPTIONS = "2022-07-01-preview"
+
+
+def _completeness_signature(findings: list[dict[str, Any]]) -> str:
+    """Return a deterministic sha256 over the stable-sorted policy tuples.
+
+    The signature is the L0 attestation used by downstream consumers
+    (Planner, CodeGen, Deploy) to detect that a constraints file has
+    drifted from the snapshot they validated against. Algorithm:
+
+    1. Build `(policy_id, effect, scope, params)` tuples for each finding.
+    2. Sort by `policy_id`.
+    3. Serialise each tuple as a compact JSON object with sorted keys.
+    4. Join with `\\n` and sha256.
+    """
+    tuples: list[dict[str, Any]] = []
+    for f in findings:
+        tuples.append(
+            {
+                "policy_id": f.get("policy_id") or "",
+                "effect": f.get("effect") or "",
+                "scope": f.get("scope") or "",
+                "params": f.get("assignment_parameters") or {},
+            }
+        )
+    tuples.sort(key=lambda t: t["policy_id"])
+    serialized = "\n".join(json.dumps(t, sort_keys=True, separators=(",", ":")) for t in tuples)
+    return "sha256:" + hashlib.sha256(serialized.encode("utf-8")).hexdigest()
+
+
+def _extract_management_groups(kept_assignments: list[dict[str, Any]]) -> list[str]:
+    """Return MG ancestry referenced by kept assignment scopes (ordered)."""
+    seen: dict[str, None] = {}
+    for a in kept_assignments:
+        scope = ((a.get("properties") or {}).get("scope") or "").lower()
+        marker = "/providers/microsoft.management/managementgroups/"
+        if marker not in scope:
+            continue
+        mg = scope.split(marker, 1)[1].split("/", 1)[0]
+        if mg and mg not in seen:
+            seen[mg] = None
+    return list(seen.keys())
+
+
+def _build_discovery_metadata(
+    *,
+    findings: list[dict[str, Any]],
+    subscription_id: str,
+    management_groups: list[str],
+    page_counts: dict[str, int],
+    discovered_at: str,
+    discovery_status: str = "COMPLETE",
+    ttl_days: int = DEFAULT_TTL_DAYS,
+    source: str = "live",  # noqa: ARG001 — reserved for future per-source attestation; envelope-level `source` is the consumer-facing field
+    api_versions: dict[str, str] | None = None,
+) -> dict[str, Any]:
+    """Compose the L0 `discovery_metadata` envelope.
+
+    Used by both discover.py (live path, `source="live"`) and the cached
+    renderer (`source="github-actions-baseline"`). The returned dict is
+    byte-for-byte deterministic given the same inputs — the parity test
+    asserts this across both call sites.
+
+    `source` is currently informational; it is parameterised so future
+    revisions can record per-attestation provenance without changing
+    the helper signature. The envelope's top-level `source` field is
+    what consumers actually read today.
+    """
+    return {
+        "discovery_status": discovery_status,
+        "discovered_at": discovered_at,
+        "scope": {
+            "subscription_id": subscription_id,
+            "management_groups": list(management_groups),
+        },
+        "api_versions": dict(
+            api_versions
+            or {
+                "policyAssignments": API_ASSIGNMENTS,
+                "policyDefinitions": API_DEFINITIONS,
+                "policyExemptions": API_EXEMPTIONS,
+            }
+        ),
+        "page_counts": dict(page_counts),
+        "completeness_signature": _completeness_signature(findings),
+        "ttl_days": ttl_days,
+    }
+
+
+def _utc_now_iso() -> str:
+    """Return the current UTC instant in the ISO-8601 form used by discover.py."""
+    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+# --------------------------------------------------------------------------- #
+# Preview renderer (Markdown generation)                                      #
+# --------------------------------------------------------------------------- #
 
 
 def _infer_project_from_path(out_path: Path) -> str:
@@ -253,18 +376,34 @@ def emit_preview_md(envelope: dict[str, Any], out_path: Path, arch_resources: li
         a("> **Note**: No architecture assessment provided. IaC impact annotations will be populated during Step 4 (IaC Planning).\n")
     a("| Category | Constraint | Implementation | Status |")
     a("| --- | --- | --- | --- |")
+    # Implementation column is descriptive (not prescriptive): when an
+    # architecture is provided we redirect the reader to the structured JSON
+    # rather than emit an annotation placeholder the agent has to fill in.
+    # See plan-optimiseGovernanceAgent.prompt.md Phase 2.
     for cat, items in sorted(by_category.items()):
         for f in items:
             cls = f.get("classification", "")
             if cls == "blocker":
                 status_icon = "❌"
-                impl = "Blocked — must comply before deployment" if not has_arch else "<!-- annotate -->"
+                impl = (
+                    "Blocked — must comply before deployment"
+                    if not has_arch
+                    else "See JSON findings[] for structured value."
+                )
             elif cls == "auto-remediate":
                 status_icon = "✅"
-                impl = "Auto-applied by Azure Policy" if not has_arch else "<!-- annotate -->"
+                impl = (
+                    "Auto-applied by Azure Policy"
+                    if not has_arch
+                    else "See JSON findings[] for structured value."
+                )
             else:
                 status_icon = "⚠️"
-                impl = "Audit only — no enforcement" if not has_arch else "<!-- annotate -->"
+                impl = (
+                    "Audit only — no enforcement"
+                    if not has_arch
+                    else "See JSON findings[] for structured value."
+                )
             a(f"| {cat} | {f.get('display_name', '')} | {impl} | {status_icon} |")
     a("")
 
@@ -276,18 +415,25 @@ def emit_preview_md(envelope: dict[str, Any], out_path: Path, arch_resources: li
     if blockers and arch_resources:
         a("| Original Design | Blocking Policy | Effect | Target Resource Types | Adaptation Applied |")
         a("| --- | --- | --- | --- | --- |")
+        # Descriptive (not prescriptive) per-row text — the renderer no longer
+        # claims annotation work the agent has not done. See plan-
+        # optimiseGovernanceAgent.prompt.md Phase 2 for the rationale.
         for f in blockers:
             f_types = set(f.get("resource_types", []))
             matched = [r for r in arch_resources if r.get("arm_type", "") in f_types]
+            adaptation_note = (
+                "Deny effect — Step 4 must map to an explicit IaC control "
+                "or document an exception."
+            )
             if matched:
                 for r in matched:
                     a(f"| {r.get('name', '')} ({r.get('arm_type', '')}) "
                       f"| {f.get('display_name', '')} | {f.get('effect', '')} "
-                      f"| {', '.join(f_types)} | <!-- AGENT: annotate below --> |")
+                      f"| {', '.join(f_types)} | {adaptation_note} |")
             else:
-                a(f"| <!-- check applicability --> "
+                a(f"| Cross-check against architecture resource map (Step 4 input). "
                   f"| {f.get('display_name', '')} | {f.get('effect', '')} "
-                  f"| {', '.join(f_types)} | <!-- AGENT: annotate below --> |")
+                  f"| {', '.join(f_types)} | {adaptation_note} |")
     elif blockers:
         a("| Original Design | Blocking Policy | Effect | Adaptation Applied |")
         a("| --- | --- | --- | --- |")
@@ -303,9 +449,11 @@ def emit_preview_md(envelope: dict[str, Any], out_path: Path, arch_resources: li
     if dine_findings:
         a("| Policy | Effect | Auto-Applied Resource |")
         a("| --- | --- | --- |")
+        # DeployIfNotExists effects are platform-driven — the descriptor is
+        # the same whether or not architecture context is available, so we
+        # drop the conditional placeholder.
         for f in dine_findings:
-            note = "Auto-deployed by Azure Policy" if not has_arch else "<!-- AGENT: annotate below -->"
-            a(f"| {f.get('display_name', '')} | DeployIfNotExists | {note} |")
+            a(f"| {f.get('display_name', '')} | DeployIfNotExists | Auto-deployed by Azure Policy |")
     else:
         a("✅ No additional resources will be auto-deployed.\n")
     a("")
@@ -315,9 +463,9 @@ def emit_preview_md(envelope: dict[str, Any], out_path: Path, arch_resources: li
     if modify_findings:
         a("| Policy | Effect | Auto-Applied Change |")
         a("| --- | --- | --- |")
+        # Modify effects are platform-driven (see DINE comment above).
         for f in modify_findings:
-            note = "Auto-modified by Azure Policy" if not has_arch else "<!-- AGENT: annotate below -->"
-            a(f"| {f.get('display_name', '')} | Modify | {note} |")
+            a(f"| {f.get('display_name', '')} | Modify | Auto-modified by Azure Policy |")
     else:
         a("✅ No auto-modifications expected.\n")
     a("")
@@ -348,10 +496,13 @@ def emit_preview_md(envelope: dict[str, Any], out_path: Path, arch_resources: li
             constraint = _extract_constraint_value(f)
             a(f"- **Required Value**: {constraint or 'N/A — parameter values not available in cached baseline; run `--refresh` for live lookup'}")
             a("")
-            if has_arch:
-                a("<!-- AGENT: annotate resolution options below -->\n")
-            else:
-                a("> **Resolution**: Review during Step 4 IaC Planning — apply an exemption, use an allowed alternative, or update the policy scope.\n")
+            # Resolution guidance is uniform whether or not architecture
+            # context is present — the per-finding structured fields above
+            # already carry everything the Step 4 planner needs. The prior
+            # `<!-- AGENT: annotate resolution options below -->` block was
+            # dropped in plan-optimiseGovernanceAgent.prompt.md Phase 2 to
+            # remove the placeholder cascade.
+            a("> **Resolution**: Review during Step 4 IaC Planning — apply an exemption, use an allowed alternative, or update the policy scope.\n")
     a("")
 
     # Required Tags

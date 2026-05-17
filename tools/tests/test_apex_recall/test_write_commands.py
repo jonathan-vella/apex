@@ -220,6 +220,101 @@ class TestFinding:
         assert state["open_findings"].count("dup") == 1
 
 
+# ── finding --add-many ──────────────────────────────────────────────────────
+
+
+def _run_with_stdin(workspace: Path, argv: list[str], stdin_text: str) -> tuple[int, str]:
+    """Run CLI with synthetic stdin (for --add-many '-')."""
+    import io
+    import sys
+
+    old_cwd = os.getcwd()
+    os.chdir(workspace)
+    captured = io.StringIO()
+    old_stdout = sys.stdout
+    old_stdin = sys.stdin
+    sys.stdout = captured
+    sys.stdin = io.StringIO(stdin_text)
+    try:
+        rc = main(argv)
+    except SystemExit as e:
+        rc = e.code or 0
+    finally:
+        sys.stdout = old_stdout
+        sys.stdin = old_stdin
+        os.chdir(old_cwd)
+    return rc, captured.getvalue()
+
+
+class TestFindingAddMany:
+    """Phase 5 of plan-optimiseGovernanceAgent — locked S4 contract."""
+
+    def test_empty_array_is_noop(self, workspace: Path):
+        _run(workspace, ["init", "fnm", "--json"])
+        empty = workspace / "empty.json"
+        empty.write_text("[]")
+        rc, out = _run(workspace, ["finding", "fnm", "--add-many", str(empty), "--json"])
+        assert rc == 0
+        data = json.loads(out)
+        assert data["appended"] == 0
+        # State file must not have grown an open_findings entry.
+        state = json.loads((workspace / "agent-output" / "fnm" / "00-session-state.json").read_text())
+        assert state["open_findings"] == []
+
+    def test_three_strings_append_then_re_run_appends_again_no_dedup(self, workspace: Path):
+        _run(workspace, ["init", "fnm", "--json"])
+        src = workspace / "three.json"
+        src.write_text(json.dumps(["a", "b", "c"]))
+        rc1, _ = _run(workspace, ["finding", "fnm", "--add-many", str(src), "--json"])
+        rc2, _ = _run(workspace, ["finding", "fnm", "--add-many", str(src), "--json"])
+        assert rc1 == 0 and rc2 == 0
+        state = json.loads((workspace / "agent-output" / "fnm" / "00-session-state.json").read_text())
+        # Append-only — six entries total even though "a", "b", "c" repeated.
+        assert state["open_findings"] == ["a", "b", "c", "a", "b", "c"]
+
+    def test_mixed_strings_and_dicts(self, workspace: Path):
+        _run(workspace, ["init", "fnm", "--json"])
+        src = workspace / "mixed.json"
+        src.write_text(json.dumps(["str-finding", {"text": "dict-finding", "severity": "high"}]))
+        rc, _ = _run(workspace, ["finding", "fnm", "--add-many", str(src), "--json"])
+        assert rc == 0
+        state = json.loads((workspace / "agent-output" / "fnm" / "00-session-state.json").read_text())
+        assert state["open_findings"] == ["str-finding", "dict-finding"]
+
+    def test_malformed_json_exits_2(self, workspace: Path, capsys):
+        _run(workspace, ["init", "fnm", "--json"])
+        src = workspace / "bad.json"
+        src.write_text("not valid json{{")
+        rc, _ = _run(workspace, ["finding", "fnm", "--add-many", str(src), "--json"])
+        assert rc == 2
+        err = capsys.readouterr().err
+        assert "expected a JSON array" in err
+
+    def test_non_array_root_exits_2(self, workspace: Path, capsys):
+        _run(workspace, ["init", "fnm", "--json"])
+        src = workspace / "obj.json"
+        src.write_text(json.dumps({"not": "an array"}))
+        rc, _ = _run(workspace, ["finding", "fnm", "--add-many", str(src), "--json"])
+        assert rc == 2
+        err = capsys.readouterr().err
+        assert "expected a JSON array" in err
+
+    def test_dict_without_text_key_exits_2(self, workspace: Path, capsys):
+        _run(workspace, ["init", "fnm", "--json"])
+        src = workspace / "no-text.json"
+        src.write_text(json.dumps([{"severity": "high"}]))
+        rc, _ = _run(workspace, ["finding", "fnm", "--add-many", str(src), "--json"])
+        assert rc == 2
+        err = capsys.readouterr().err
+        assert "`text` key" in err
+
+    def test_stdin_dash_sentinel(self, workspace: Path):
+        _run(workspace, ["init", "fnm", "--json"])
+        rc, out = _run_with_stdin(workspace, ["finding", "fnm", "--add-many", "-", "--json"], "[]")
+        assert rc == 0
+        assert json.loads(out)["appended"] == 0
+
+
 # ── review-audit ────────────────────────────────────────────────────────────
 
 

@@ -395,12 +395,53 @@ function Process-Subscription {
     $tagsRequired = Get-TagsRequired $findings
     $allowedLocations = Get-AllowedLocations $findings
 
+    # L0 attestation envelope (plan-optimiseGovernanceAgent.prompt.md Phase 3b).
+    # We emit every field except `completeness_signature` here; the cached
+    # renderer recomputes the signature via the canonical Python helper so
+    # the cached path stays byte-identical to the live path for the same
+    # upstream findings (F2 decision — single signature algorithm).
+    $discoveredAtIso = (Get-Date -Format "yyyy-MM-ddTHH:mm:ssZ" -AsUTC)
+    $managementGroups = @(
+        $keptAssignments
+        | Where-Object { $_.properties.scope -and ($_.properties.scope.ToLower() -match '/providers/microsoft.management/managementgroups/') }
+        | ForEach-Object {
+            $marker = '/providers/microsoft.management/managementgroups/'
+            $scope = $_.properties.scope.ToLower()
+            ($scope -split [regex]::Escape($marker), 2)[1] -split '/', 2 | Select-Object -First 1
+        }
+        | Where-Object { $_ }
+        | Select-Object -Unique
+    )
+    $discoveryMetadata = [ordered]@{
+        discovery_status = "COMPLETE"
+        discovered_at = $discoveredAtIso
+        scope = [ordered]@{
+            subscription_id = $SubId
+            management_groups = @($managementGroups)
+        }
+        api_versions = [ordered]@{
+            policyAssignments = $API_ASSIGNMENTS
+            policyDefinitions = $API_DEFINITIONS
+            policyExemptions = $API_EXEMPTIONS
+        }
+        page_counts = [ordered]@{
+            policyAssignments = $assignments.Count
+            policyDefinitions = $defs.Count
+            policyExemptions = $exemptions.Count
+        }
+        # Left blank intentionally — render_cached_governance.py recomputes
+        # this via the canonical _completeness_signature helper.
+        completeness_signature = ""
+        ttl_days = 7
+    }
+
     return [ordered]@{
         schema_version = "governance-constraints-v1"
         subscription_id = $SubId
-        discovered_at = (Get-Date -Format "yyyy-MM-ddTHH:mm:ssZ" -AsUTC)
+        discovered_at = $discoveredAtIso
         source = "github-actions-baseline"
         discovery_status = "COMPLETE"
+        discovery_metadata = $discoveryMetadata
         discovery_summary = [ordered]@{
             assignment_total = $assignments.Count
             assignment_kept = $keptAssignments.Count

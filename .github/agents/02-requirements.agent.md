@@ -456,3 +456,16 @@ emit a chat warning listing every auto-deferred `must_fix`.
 - [ ] SKU manifest rev 1 contains only user pins or an empty `services[]`.
 - [ ] `sku-manifest.md` was rendered from JSON.
 - [ ] Challenger review ran and findings were presented in chat before handoff.
+
+## Completion Handoff
+
+When this step completes (after `apex-recall complete-step` and writing
+`00-handoff.md`), end the final chat message with this line, **verbatim**,
+on its own final line:
+
+```text
+Run `/clear` then reply `@01-Orchestrator resume <project>` to continue Step N+1.
+```
+
+This is the only mechanism that drops main-agent input tokens between
+steps. Validator: `npm run validate:orchestrator-handoff`.

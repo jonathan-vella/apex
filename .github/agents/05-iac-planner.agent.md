@@ -570,3 +570,16 @@ connection string) → 4 App Service (SQL + Key Vault + VNet integration).
 Output: YAML task specs in this order with explicit `depends_on`.
 Terraform uses `var.deployment_phase` + `count`; Bicep uses `dependsOn`.
 </example>
+
+## Completion Handoff
+
+When this step completes (after `apex-recall complete-step` and writing
+`00-handoff.md`), end the final chat message with this line, **verbatim**,
+on its own final line:
+
+```text
+Run `/clear` then reply `@01-Orchestrator resume <project>` to continue Step N+1.
+```
+
+This is the only mechanism that drops main-agent input tokens between
+steps. Validator: `npm run validate:orchestrator-handoff`.

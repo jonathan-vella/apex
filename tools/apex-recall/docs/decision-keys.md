@@ -87,14 +87,14 @@ The `<step>` suffix is the integer step number (`1`, `2`, `3_5`, `4`).
 
 ### Step 4 (IaC Plan) keys
 
-| Key                    | Valid values                                                                 | Default behaviour if absent | Set by         | Read by                                |
-| ---------------------- | ---------------------------------------------------------------------------- | --------------------------- | -------------- | -------------------------------------- |
-| `discovery_signature`  | string (commit-sha-like fingerprint of governance JSON)                      | n/a                         | 05-IaC Planner | 05-IaC Planner re-entry detection      |
-| `deployment_note`      | free-form text (e.g. quota workaround, region rationale)                     | n/a                         | 05-IaC Planner | 06b/06t Deploy, 08-As-Built            |
-| `identity_model`       | `managed-identity` \| `service-principal` \| `workload-identity` \| `hybrid` | n/a                         | 05-IaC Planner | 06b/06t CodeGen, 07b/07t Deploy        |
-| `public_edge_auth`     | `entra-only` \| `app-gateway-waf` \| `front-door` \| `apim` \| `none`        | n/a                         | 05-IaC Planner | 06b/06t CodeGen                        |
-| `script_runtime_image` | container image ref (e.g. `mcr.microsoft.com/azure-cli:2.x`)                 | n/a                         | 05-IaC Planner | 06b/06t CodeGen (deployment scripts)   |
-| `az_posture`           | `private-only` \| `hybrid` \| `public-restricted`                            | n/a                         | 05-IaC Planner | 06b/06t CodeGen, 04g-Governance review |
+| Key                    | Valid values                                                                 | Default behaviour if absent | Set by                         | Read by                                |
+| ---------------------- | ---------------------------------------------------------------------------- | --------------------------- | ------------------------------ | -------------------------------------- |
+| `discovery_signature`  | string (commit-sha-like fingerprint of governance JSON)                      | n/a                         | 05-IaC Planner, 04g-Governance | 05-IaC Planner, 04g-Governance         |
+| `deployment_note`      | free-form text (e.g. quota workaround, region rationale)                     | n/a                         | 05-IaC Planner                 | 06b/06t Deploy, 08-As-Built            |
+| `identity_model`       | `managed-identity` \| `service-principal` \| `workload-identity` \| `hybrid` | n/a                         | 05-IaC Planner                 | 06b/06t CodeGen, 07b/07t Deploy        |
+| `public_edge_auth`     | `entra-only` \| `app-gateway-waf` \| `front-door` \| `apim` \| `none`        | n/a                         | 05-IaC Planner                 | 06b/06t CodeGen                        |
+| `script_runtime_image` | container image ref (e.g. `mcr.microsoft.com/azure-cli:2.x`)                 | n/a                         | 05-IaC Planner                 | 06b/06t CodeGen (deployment scripts)   |
+| `az_posture`           | `private-only` \| `hybrid` \| `public-restricted`                            | n/a                         | 05-IaC Planner                 | 06b/06t CodeGen, 04g-Governance review |
 
 ### Step 6 (Deploy) keys
 

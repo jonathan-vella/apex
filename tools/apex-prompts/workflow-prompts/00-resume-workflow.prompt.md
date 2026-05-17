@@ -1,11 +1,15 @@
 ---
-description: "Resume the multi-step workflow from where it left off by reading session state and routing to the correct agent."
+description: "Resume the multi-step workflow after a `/clear` (or any fresh chat) by reading session state and routing to the correct agent."
 agent: "01-Orchestrator"
 ---
 
 # Resume Workflow
 
-Resume the multi-step Azure platform engineering workflow from the last checkpoint.
+Resume the multi-step Azure platform engineering workflow from the last
+checkpoint. **This is the canonical recovery path after the user runs
+`/clear`** — the step agents emit a verbatim handoff line
+(`Run /clear then reply @01-Orchestrator resume <project> to continue
+Step N+1.`) at completion, and this prompt is what runs next.
 
 # Goal
 
@@ -29,6 +33,14 @@ without re-executing completed work or losing earlier decisions.
 
 # Constraints
 
+- **Post-`/clear` invariant**: the chat ring is empty. Do NOT attempt to
+  recall prior turns, artifact contents, or subagent results from memory.
+  All recovery flows through `apex-recall show <project> --json` plus the
+  artifact files on disk under `agent-output/{project}/`.
+- **First tool call MUST be `apex-recall show <project> --json`** — never
+  start with `read_file` against `00-handoff.md`, `01-requirements.md`, or
+  any other artifact. Only read artifacts after `show` returns, and only
+  the ones the resolved next-node requires.
 - At least one project folder exists under `agent-output/` with
   `00-session-state.json`.
 - Read `agent-output/{project}/00-session-state.json` and the workflow graph
@@ -106,3 +118,30 @@ from the `01-Orchestrator` `handoffs:` frontmatter — never call
 If the resolved node has no matching handoff label (e.g., a custom or
 deprecated node), STOP and ask the user how to proceed instead of falling
 back to `#runSubagent`.
+
+## Recognising the `/clear`-handoff message
+
+When a step agent finishes, it ends its final message with this exact line:
+
+```text
+Run `/clear` then reply `@01-Orchestrator resume <project>` to continue Step N+1.
+```
+
+The user runs `/clear` (wiping chat context) and replies
+`@01-Orchestrator resume <project>` in the new chat. That reply invokes
+this prompt with `<project>` as the target. Treat any incoming message
+matching `@01-Orchestrator resume *` as the canonical entry point — no
+free-form preamble is needed before the `apex-recall show` call.
+
+Same flow applies to the mid-step variant emitted by the orchestrator
+between challenger passes:
+
+```text
+Run `/clear` then reply `@01-Orchestrator resume <project>` to continue challenger Pass <N+1>.
+```
+
+For the challenger-pass variant, `apex-recall show` will report
+`sub_step` at the pass-N checkpoint; resolve the next node to the same
+step and re-surface the Challenger handoff button rather than the
+next-step button.
+

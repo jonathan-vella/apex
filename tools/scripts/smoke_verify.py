@@ -47,7 +47,11 @@ BASELINES_DIR = REPO_ROOT / "agent-output" / "_baselines"
 # "Acceptance criteria" exactly. Keep this table in sync.
 TARGETS: dict[str, dict[str, Any]] = {
     "askquestions_count": {
-        "max": 10,
+        # Bumped 10 → 20 (2026-05-17): the per-finding decision protocol
+        # mandates one askQuestions per challenger finding (no multiSelect
+        # batching). Multi-pass review flows legitimately exceed 10 prompts.
+        # Keep in sync with tests/integration/smoke-run.md.
+        "max": 20,
         "label": "askQuestions count (Step 1)",
         "from": "totals.askquestions_count",
     },

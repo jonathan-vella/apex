@@ -20,6 +20,7 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 const ROOT = path.resolve(new URL("../..", import.meta.url).pathname);
 
@@ -43,6 +44,9 @@ const SCAN_ROOT_FILES = ["AGENTS.md", "README.md", ".github/copilot-instructions
 //   pattern: RegExp to match a forbidden snippet
 //   why: short explanation
 //   fix: what to do instead
+//   context: optional. "set-e" = only flag when inside a fenced bash block
+//            where `set -e` (or any `set -*e*` variant) has been emitted
+//            earlier in the same fence. Default is unscoped (every line).
 const RULES = [
   {
     id: "mv-interactive",
@@ -74,6 +78,17 @@ const RULES = [
     pattern: /\bbash\s+-c\s+['"][^'"]*\b(?:mv|rm|cp|read)\b[^'"]*-i[^'"]*['"]/,
     why: "interactive flag inside bash -c '...' still hangs the chat turn",
     fix: "remove the -i flag; use -f or vscode_askQuestions instead",
+  },
+  {
+    id: "grep-no-fallback-in-set-e",
+    // Bare grep with at least one flag and at least one operand, NOT
+    // piped (no `|` anywhere in the trailing args). Matches lines like
+    // `grep -n 'pat' file.md` or `grep -c pat file 2>/dev/null` but
+    // skips `grep ... | head`, `grep ... || true`, `grep ... || echo …`.
+    pattern: /\bgrep\s+-[a-zA-Z]+\s+[^|]+$/,
+    why: "grep returns exit 1 on no-match; under `set -e` this aborts the entire batch",
+    fix: 'append `|| true`, `|| echo "<fallback>"`, or pipe to another command',
+    context: "set-e",
   },
 ];
 
@@ -181,15 +196,20 @@ function lintFile(absPath) {
   // sit inside inline code spans (`...`).
   let inFence = false;
   let fenceLang = "";
+  // Per-fence context flag: did this bash block emit `set -e` (or any
+  // `set -*e*` variant) earlier? Reset on every fence close.
+  let setESeen = false;
   lines.forEach((line, idx) => {
     const fenceOpen = line.match(/^\s*```([a-zA-Z0-9_-]*)\s*$/);
     if (fenceOpen) {
       if (inFence) {
         inFence = false;
         fenceLang = "";
+        setESeen = false;
       } else {
         inFence = true;
         fenceLang = fenceOpen[1].toLowerCase();
+        setESeen = false;
       }
       return;
     }
@@ -205,8 +225,14 @@ function lintFile(absPath) {
     if (inFence) {
       const SHELL_FENCES = new Set(["", "bash", "sh", "zsh", "shell", "console"]);
       if (!SHELL_FENCES.has(fenceLang)) return;
+      // Detect `set -e`, `set -euo pipefail`, `set +H && set -e`, etc.
+      // Match any `set` with a `-` flag bundle containing `e`.
+      if (/\bset\s+[-+][a-zA-Z]*e[a-zA-Z]*\b/.test(toScan)) {
+        setESeen = true;
+      }
     }
     for (const rule of RULES) {
+      if (rule.context === "set-e" && !(inFence && setESeen)) continue;
       if (rule.pattern.test(toScan)) {
         findings.push({
           rule: rule.id,
@@ -243,4 +269,12 @@ function main() {
   process.exit(1);
 }
 
-main();
+// Export internals for fixture-based unit tests; only invoke main() when
+// this file is the process entrypoint (`node tools/scripts/safe-shell.mjs`).
+export { RULES, lintFile };
+
+const invokedAsScript =
+  process.argv[1] && path.resolve(process.argv[1]) === path.resolve(fileURLToPath(import.meta.url));
+if (invokedAsScript) {
+  main();
+}

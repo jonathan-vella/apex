@@ -183,13 +183,24 @@ class TestEmitPreviewMd:
         assert "<!-- annotate -->" not in content
 
     def test_annotation_placeholders_with_arch(self, tmp_path, envelope, arch_file):
-        """With arch_resources, preview should include placeholders for agent to fill."""
+        """With arch_resources, preview emits descriptive static text — never agent placeholders.
+
+        Phase 2 of plan-optimiseGovernanceAgent stripped the entire placeholder
+        cascade. The renderer now describes what is in the row (e.g. "Deny
+        effect — Step 4 must map to an explicit IaC control...") instead of
+        leaving `<!-- AGENT: annotate below -->` for the agent to fill.
+        """
         out_path = tmp_path / "04-governance-constraints.json"
         out_path.write_text(json.dumps(envelope))
         arch_resources = render_governance.extract_arch_resources(arch_file)
         result = render_governance.emit_preview_md(envelope, out_path, arch_resources=arch_resources)
         content = result.read_text()
-        assert "<!-- annotate -->" in content or "<!-- AGENT: annotate below -->" in content
+        assert "<!-- AGENT: annotate" not in content
+        assert "<!-- annotate -->" not in content
+        assert "<!-- check applicability" not in content
+        # Descriptive replacements must appear instead.
+        assert "See JSON findings[] for structured value." in content
+        assert "Deny effect — Step 4 must map to an explicit IaC control" in content
 
     def test_null_property_paths_normalized(self, tmp_path, envelope):
         """Null azurePropertyPath/bicepPropertyPath should be normalized to empty string."""
@@ -622,3 +633,82 @@ class TestCachedRenderer:
         render_cached_governance.main(["--in", str(in_path), "--out", str(out2)])
         assert out1.read_text() == out2.read_text()
         assert out1.with_suffix(".preview.md").read_text() == out2.with_suffix(".preview.md").read_text()
+
+    def test_synthesises_discovery_metadata_when_missing(self, tmp_path, envelope):
+        """Phase 3b: older baselines without discovery_metadata must get a synthesised L0 envelope.
+
+        Asserts the envelope is COMPLETE, carries a non-empty signature, and
+        is tagged with `source: github-actions-baseline` so consumers can
+        distinguish cached vs live attestation.
+        """
+        # Older baseline envelope — strip discovery_metadata if the fixture has it,
+        # and replace source with something else to verify the synthesis sets it.
+        baseline = copy.deepcopy(envelope)
+        baseline.pop("discovery_metadata", None)
+        baseline["source"] = ""  # blank so we can confirm the synthesiser fills it
+        in_path = tmp_path / "baseline.json"
+        in_path.write_text(json.dumps(baseline))
+        out_path = tmp_path / "agent-output" / "p" / "04-governance-constraints.json"
+        rc = render_cached_governance.main(["--in", str(in_path), "--out", str(out_path)])
+        assert rc == 0
+        written = json.loads(out_path.read_text())
+        meta = written.get("discovery_metadata")
+        assert meta is not None, "discovery_metadata must be synthesised"
+        assert meta["discovery_status"] == "COMPLETE"
+        assert meta["completeness_signature"].startswith("sha256:")
+        assert meta["ttl_days"] == 7
+        assert "scope" in meta and "subscription_id" in meta["scope"]
+        assert "api_versions" in meta and "policyAssignments" in meta["api_versions"]
+        assert "page_counts" in meta
+        assert written.get("source") == "github-actions-baseline"
+
+    def test_preserves_existing_discovery_metadata(self, tmp_path, envelope):
+        """Phase 3b: when the baseline already carries `discovery_metadata`, leave it alone."""
+        baseline = copy.deepcopy(envelope)
+        baseline["discovery_metadata"] = {
+            "discovery_status": "PARTIAL",
+            "discovered_at": "2025-01-01T00:00:00Z",
+            "scope": {"subscription_id": "preset", "management_groups": ["mg-preset"]},
+            "api_versions": {"policyAssignments": "2099-01-01"},
+            "page_counts": {"policyAssignments": 999},
+            "completeness_signature": "sha256:deadbeef",
+            "ttl_days": 42,
+        }
+        in_path = tmp_path / "baseline.json"
+        in_path.write_text(json.dumps(baseline))
+        out_path = tmp_path / "out" / "04-governance-constraints.json"
+        rc = render_cached_governance.main(["--in", str(in_path), "--out", str(out_path)])
+        assert rc == 0
+        written = json.loads(out_path.read_text())
+        assert written["discovery_metadata"]["ttl_days"] == 42
+        assert written["discovery_metadata"]["completeness_signature"] == "sha256:deadbeef"
+
+    def test_recomputes_signature_when_blank(self, tmp_path, envelope):
+        """Phase 3b: PowerShell collector emits metadata with blank signature; Python fills it."""
+        baseline = copy.deepcopy(envelope)
+        # Mirror the shape collect-governance-baseline.ps1 emits — full
+        # envelope but `completeness_signature` left blank for Python to fill.
+        baseline["discovery_metadata"] = {
+            "discovery_status": "COMPLETE",
+            "discovered_at": "2026-05-17T05:00:00Z",
+            "scope": {"subscription_id": baseline["subscription_id"], "management_groups": ["mg-root"]},
+            "api_versions": {
+                "policyAssignments": "2022-06-01",
+                "policyDefinitions": "2021-06-01",
+                "policyExemptions": "2022-07-01-preview",
+            },
+            "page_counts": {"policyAssignments": 8, "policyDefinitions": 12, "policyExemptions": 0},
+            "completeness_signature": "",
+            "ttl_days": 7,
+        }
+        in_path = tmp_path / "baseline.json"
+        in_path.write_text(json.dumps(baseline))
+        out_path = tmp_path / "out" / "04-governance-constraints.json"
+        rc = render_cached_governance.main(["--in", str(in_path), "--out", str(out_path)])
+        assert rc == 0
+        written = json.loads(out_path.read_text())
+        sig = written["discovery_metadata"]["completeness_signature"]
+        assert sig.startswith("sha256:") and sig != "sha256:"
+        # Other preset fields must be preserved verbatim.
+        assert written["discovery_metadata"]["discovered_at"] == "2026-05-17T05:00:00Z"
+        assert written["discovery_metadata"]["scope"]["management_groups"] == ["mg-root"]

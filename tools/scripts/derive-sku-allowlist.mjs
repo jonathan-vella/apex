@@ -173,23 +173,55 @@ function processProject(project) {
 
 function main() {
   const args = process.argv.slice(2);
-  console.log("\n🔧 SKU Allowlist Derivation\n");
+
+  // --check-only is a precheck mode for 04g-Governance Phase 2: silently
+  // probe whether any SKU-restriction policies apply for this project,
+  // exit 0 with no output when none do, and emit a one-line summary
+  // when they do. The agent gates the full (noisy) invocation on the
+  // presence of stdout content. See plan-optimiseGovernanceAgent.prompt.md
+  // Phase 6 — SKU RESTRICTION policies only (VM/VMSS quota policies are
+  // handled by the Step 4 Planner quota check, out of scope here).
+  const checkOnly = args.includes("--check-only");
+  const cliArgs = args.filter((a) => a !== "--check-only");
+
+  if (!checkOnly) {
+    console.log("\n🔧 SKU Allowlist Derivation\n");
+  }
 
   let projects;
-  if (args.includes("--all")) {
+  if (cliArgs.includes("--all")) {
     projects = globSync("agent-output/*/04-governance-constraints.json", {
       cwd: ROOT,
       nodir: true,
     }).map((p) => p.split("/")[1]);
-  } else if (args[0]) {
-    projects = [args[0]];
+  } else if (cliArgs[0]) {
+    projects = [cliArgs[0]];
   } else {
-    console.error("Usage: node tools/scripts/derive-sku-allowlist.mjs <project> | --all");
+    console.error("Usage: node tools/scripts/derive-sku-allowlist.mjs <project> [--check-only] | --all");
     process.exit(2);
   }
 
   if (projects.length === 0) {
-    console.log("  ℹ️  No projects to process.");
+    if (!checkOnly) console.log("  ℹ️  No projects to process.");
+    process.exit(0);
+  }
+
+  if (checkOnly) {
+    // Probe-only: walk projects, derive projection, emit a single
+    // summary line per project that has SKU-restriction policies.
+    // No banners, no per-project bookkeeping noise.
+    for (const project of projects) {
+      const governancePath = path.join(ROOT, "agent-output", project, "04-governance-constraints.json");
+      if (!fs.existsSync(governancePath)) continue;
+      const governance = readJson(governancePath);
+      const projection = deriveProjection(governance);
+      if (projection === null) continue;
+      const allowedCount = Object.keys(projection.allowed_skus ?? {}).length;
+      const deniedCount = Object.keys(projection.denied_skus ?? {}).length;
+      console.log(
+        `sku-precheck ${project}: SKU restriction policies present (allowed services: ${allowedCount}, denied services: ${deniedCount})`,
+      );
+    }
     process.exit(0);
   }
 

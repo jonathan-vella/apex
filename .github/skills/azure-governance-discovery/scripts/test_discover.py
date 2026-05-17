@@ -82,6 +82,45 @@ def test_defender_auto_assignments_filtered_by_default():
     assert env["findings"] == []
 
 
+def test_defender_filter_is_quiet_by_default(capsys):
+    """Phase 6: default-quiet mode emits zero `filter: skipping` lines on stderr."""
+    defender_assignment = {
+        "id": "/subscriptions/s/providers/Microsoft.Authorization/policyAssignments/defender-123",
+        "name": "defender-123",
+        "properties": {
+            "displayName": "ASC Default",
+            "policyDefinitionId": "/providers/Microsoft.Authorization/policySetDefinitions/asc",
+            "scope": "/subscriptions/s",
+            "metadata": {"assignedBy": "Security Center"},
+        },
+    }
+    mapping = {"policyAssignments": {"value": [defender_assignment]}}
+    discover.discover("s", project="p", az_rest=_router(mapping))
+    err = capsys.readouterr().err
+    matching = [line for line in err.splitlines() if line.startswith("filter: skipping")]
+    assert matching == [], f"expected zero filter announcements on stderr, got: {matching}"
+
+
+def test_defender_filter_is_verbose_when_opted_in(capsys):
+    """Phase 6: --verbose restores per-assignment filter announcements."""
+    defender_assignment = {
+        "id": "/subscriptions/s/providers/Microsoft.Authorization/policyAssignments/defender-123",
+        "name": "defender-123",
+        "properties": {
+            "displayName": "ASC Default",
+            "policyDefinitionId": "/providers/Microsoft.Authorization/policySetDefinitions/asc",
+            "scope": "/subscriptions/s",
+            "metadata": {"assignedBy": "Security Center"},
+        },
+    }
+    mapping = {"policyAssignments": {"value": [defender_assignment]}}
+    discover.discover("s", project="p", az_rest=_router(mapping), verbose=True)
+    err = capsys.readouterr().err
+    matching = [line for line in err.splitlines() if line.startswith("filter: skipping")]
+    assert len(matching) == 1
+    assert "ASC Default" in matching[0]
+
+
 def test_defender_auto_retained_with_opt_in():
     defender_assignment = {
         "id": "/subscriptions/s/providers/Microsoft.Authorization/policyAssignments/defender-123",

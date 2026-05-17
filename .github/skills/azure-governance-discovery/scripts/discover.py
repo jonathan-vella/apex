@@ -13,7 +13,6 @@ preview follows on later lines. Stderr carries warnings and filter notes.
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import os
 import subprocess
@@ -507,48 +506,16 @@ def _extract_allowed_locations(findings: list[dict[str, Any]]) -> list[str]:
 
 # --------------------------------------------------------------------------- #
 # L0 envelope helpers                                                         #
+#                                                                             #
+# The canonical implementations live in render_governance.py so the cached    #
+# baseline path (render_cached_governance.py) and the live discovery path     #
+# (this module) share one signature algorithm. Re-export under the legacy    #
+# private names so existing call sites and tests keep working unchanged.    #
 # --------------------------------------------------------------------------- #
 
-
-def _completeness_signature(findings: list[dict[str, Any]]) -> str:
-    """Return a deterministic sha256 over the stable-sorted policy tuples.
-
-    The signature is the L0 attestation used by downstream consumers
-    (Planner, CodeGen, Deploy) to detect that a constraints file has
-    drifted from the snapshot they validated against. Algorithm:
-
-    1. Build `(policy_id, effect, scope, params)` tuples for each finding.
-    2. Sort by `policy_id`.
-    3. Serialise each tuple as a compact JSON object with sorted keys.
-    4. Join with `\n` and sha256.
-    """
-    tuples: list[dict[str, Any]] = []
-    for f in findings:
-        tuples.append(
-            {
-                "policy_id": f.get("policy_id") or "",
-                "effect": f.get("effect") or "",
-                "scope": f.get("scope") or "",
-                "params": f.get("assignment_parameters") or {},
-            }
-        )
-    tuples.sort(key=lambda t: t["policy_id"])
-    serialized = "\n".join(json.dumps(t, sort_keys=True, separators=(",", ":")) for t in tuples)
-    return "sha256:" + hashlib.sha256(serialized.encode("utf-8")).hexdigest()
-
-
-def _extract_management_groups(kept_assignments: list[dict[str, Any]]) -> list[str]:
-    """Return MG ancestry referenced by kept assignment scopes (ordered)."""
-    seen: dict[str, None] = {}
-    for a in kept_assignments:
-        scope = ((a.get("properties") or {}).get("scope") or "").lower()
-        marker = "/providers/microsoft.management/managementgroups/"
-        if marker not in scope:
-            continue
-        mg = scope.split(marker, 1)[1].split("/", 1)[0]
-        if mg and mg not in seen:
-            seen[mg] = None
-    return list(seen.keys())
+from render_governance import _build_discovery_metadata  # noqa: E402,F401 — shared L0 helper
+from render_governance import _completeness_signature  # noqa: E402,F401 — shared L0 helper
+from render_governance import _extract_management_groups  # noqa: E402,F401 — shared L0 helper
 
 
 def _self_check_assignments(
@@ -596,8 +563,14 @@ def discover(
     project: str,
     include_defender_auto: bool = False,
     az_rest: Callable[[str], dict[str, Any]] | None = None,
+    verbose: bool = False,
 ) -> dict[str, Any]:
-    """Run discovery and return the full envelope (not written to disk)."""
+    """Run discovery and return the full envelope (not written to disk).
+
+    ``verbose`` gates noisy informational stderr (per-assignment Defender
+    filter announcements). The count is always recorded in
+    ``discovery_summary.defender_auto_filtered`` regardless.
+    """
     if az_rest is None:
         # Resolve at call time so tests can monkeypatch `_default_az_rest`.
         az_rest = _default_az_rest
@@ -683,7 +656,11 @@ def discover(
         kept_assignments.append(a)
 
     for name in filtered_defender:
-        print(f"filter: skipping Defender auto-assignment: {name}", file=sys.stderr)
+        # Per-assignment filter announcements are noise by default — the
+        # aggregate count lives in discovery_summary.defender_auto_filtered.
+        # Surface the names only when --verbose is passed (Phase 6 fix).
+        if verbose:
+            print(f"filter: skipping Defender auto-assignment: {name}", file=sys.stderr)
 
     assignment_inventory: list[dict[str, Any]] = []
     findings: list[dict[str, Any]] = []
@@ -787,7 +764,6 @@ def discover(
     exempted = sum(1 for f in findings if f["exemption"] is not None)
 
     # L0 envelope: signature, scope, and self-check.
-    signature = _completeness_signature(findings)
     management_groups = _extract_management_groups(kept_assignments)
     discovery_status = "COMPLETE"
     # Re-fetch page 1 of assignments and verify the count matches the
@@ -804,6 +780,22 @@ def discover(
         )
 
     discovered_at = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    discovery_metadata = _build_discovery_metadata(
+        findings=findings,
+        subscription_id=subscription_id,
+        management_groups=management_groups,
+        page_counts={
+            # `_parallel_list` collapses pagination, so we record the
+            # final item counts per REST surface. The self-check above
+            # validates these against a fresh page-1 fetch.
+            "policyAssignments": len(assignments),
+            "policyDefinitions": len(defs),
+            "policyExemptions": len(exemptions),
+        },
+        discovered_at=discovered_at,
+        discovery_status=discovery_status,
+        source="live",
+    )
 
     envelope = {
         "schema_version": "governance-constraints-v1",
@@ -812,29 +804,7 @@ def discover(
         "discovered_at": discovered_at,
         "source": "azure-policy-rest-api",
         "discovery_status": discovery_status,
-        "discovery_metadata": {
-            "discovery_status": discovery_status,
-            "discovered_at": discovered_at,
-            "scope": {
-                "subscription_id": subscription_id,
-                "management_groups": management_groups,
-            },
-            "api_versions": {
-                "policyAssignments": API_ASSIGNMENTS,
-                "policyDefinitions": API_DEFINITIONS,
-                "policyExemptions": API_EXEMPTIONS,
-            },
-            "page_counts": {
-                # `_parallel_list` collapses pagination, so we record the
-                # final item counts per REST surface. The self-check above
-                # validates these against a fresh page-1 fetch.
-                "policyAssignments": len(assignments),
-                "policyDefinitions": len(defs),
-                "policyExemptions": len(exemptions),
-            },
-            "completeness_signature": signature,
-            "ttl_days": DEFAULT_TTL_DAYS,
-        },
+        "discovery_metadata": discovery_metadata,
         "discovery_summary": {
             "assignment_total": len(assignments),
             "assignment_kept": len(kept_assignments),
@@ -936,6 +906,12 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="Retain Defender-for-Cloud auto-assignments (filtered by default).",
     )
+    parser.add_argument(
+        "--verbose",
+        action="store_true",
+        help="Emit informational stderr (per-assignment Defender filter announcements). "
+        "Aggregate counts are always recorded in discovery_summary regardless.",
+    )
     args = parser.parse_args(argv)
 
     out_path = Path(args.out)
@@ -997,6 +973,7 @@ def main(argv: list[str] | None = None) -> int:
             sub_id,
             project=args.project,
             include_defender_auto=args.include_defender_auto,
+            verbose=args.verbose,
         )
     except subprocess.CalledProcessError as e:
         _emit_status(

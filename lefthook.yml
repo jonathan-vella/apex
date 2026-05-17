@@ -98,6 +98,10 @@ pre-commit:
           # severity routing. Cheap (~100ms, 13 unit tests) and catches silent
           # rule-downgrade regressions in classifyModel().
           npm run test:classify-model
+          # /clear-handoff contract: orchestrator (strict) + every step agent
+          # (verbatim resume line). Direct-invocation flow depends on this; see
+          # tools/scripts/validate_orchestrator_handoff.py STEP_AGENTS.
+          npm run validate:orchestrator-handoff
         else
           echo "ℹ️  No agent/prompt files to validate"
         fi
@@ -105,7 +109,8 @@ pre-commit:
         ❌ Agent validation failed!
 
         Checks: frontmatter syntax, model-prompt alignment, body size (<500 lines),
-        language density (<5 absolute terms per 100 lines), classifier unit tests
+        language density (<5 absolute terms per 100 lines), classifier unit tests,
+        /clear-handoff contract (verbatim resume line in every step agent)
         📚 Reference: .github/instructions/agent-authoring.instructions.md
 
     model-catalog-sync:

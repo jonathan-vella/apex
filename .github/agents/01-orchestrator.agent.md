@@ -412,6 +412,7 @@ Lint: `npm run validate:review-ceiling`.
 | Write `00-handoff.md` at EVERY gate before presenting                | Skip `00-handoff.md` or session state updates                     |
 | Update session state via `apex-recall` at EVERY gate                 | Continue past a gate in the same chat — every gate ends with `/clear` |
 | End every accepted-gate message with the verbatim `/clear` line      | Paraphrase the resume line — validator greps it exactly           |
+| Emit `/clear` between challenger passes when more than 1 pass runs   | Chain multi-pass challenger reviews in one chat — span counter blows the ≤ 50 ceiling |
 
 ### Checkpoint Fallback (Safety Net)
 
@@ -602,3 +603,34 @@ New chat with `@01-Orchestrator resume <project>`: first tool call is
 gate-specific artifact path is needed; do not re-read completed-step
 artifacts unless the user asks. Lint:
 `npm run validate:orchestrator-handoff` greps for the verbatim line.
+
+### Mid-step compaction (multi-pass challenger reviews)
+
+When a challenger review requires more than one pass (`review_depth =
+"deep"`, or revision passes triggered by accepted findings),
+**every pass after Pass 1** must be preceded by a `/clear` handoff —
+not just the final gate. Without this, the inter-`/clear` chat-span
+counter climbs past the smoke-verify ceiling (≤ 50) and Step-2 input
+tokens blow past 110 k.
+
+Procedure between Pass N and Pass N+1:
+
+1. Persist Pass-N findings + decisions:
+
+   ```bash
+   apex-recall checkpoint <project> <step> after_challenger_pass_<N> --json
+   ```
+
+2. Apply accepted fixes to the artifact (still in current chat — fixes
+   are small targeted edits).
+3. End the message with this line, **verbatim**, on its own final line:
+
+   ```text
+   Run `/clear` then reply `@01-Orchestrator resume <project>` to continue challenger Pass <N+1>.
+   ```
+
+4. **Stop.** The next pass runs in a fresh chat, scoped to the
+   revised artifact only.
+
+Single-pass `comprehensive` reviews (the default) do not trigger this
+rule — they go straight to the gate-boundary `/clear`.

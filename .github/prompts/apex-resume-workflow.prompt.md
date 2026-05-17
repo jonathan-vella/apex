@@ -1,5 +1,5 @@
 ---
-description: "Simplified resume: pick a project, then either tell me the next step or let me detect it from session state. Surfaces a handoff button — never auto-invokes."
+description: "Simplified resume (post-`/clear` safe): pick a project, then either tell me the next step or let me detect it from session state. Surfaces a handoff button — never auto-invokes."
 agent: "01-Orchestrator"
 ---
 
@@ -8,6 +8,12 @@ agent: "01-Orchestrator"
 Pick the project to resume, then either tell me the next step or let me
 read session state and confirm what I find. End by surfacing the matching
 handoff button — never call `#runSubagent`.
+
+This prompt is **safe to invoke immediately after `/clear`**. Step agents
+emit a verbatim handoff line (`Run /clear then reply @01-Orchestrator
+resume <project> to continue Step N+1.`) at completion; the user runs
+`/clear` and replies with that line, which lands here in a fresh chat
+with zero memory of prior turns.
 
 # Goal
 
@@ -127,6 +133,13 @@ higher-tier step agents (see VS Code [subagent cost-tier rule][tier]).
 
 # Constraints
 
+- **Post-`/clear` invariant**: the chat ring is empty. Do NOT recall
+  artifact contents, prior decisions, or subagent results from memory.
+  Everything you need lives on disk under `agent-output/<project>/` and
+  in `apex-recall`. Branch A may skip state-reading entirely (user
+  supplies the step); Branch B's first tool call MUST be
+  `apex-recall show <project> --json` (or the `00-session-state.json`
+  fallback) — never start with `read_file` against artifacts.
 - At least one `agent-output/<project>/00-session-state.json` must exist.
 - Do not change earlier decisions (`decisions.iac_tool`, region, compliance).
 - Do not re-run completed steps unless the user picks one explicitly.
@@ -143,16 +156,42 @@ higher-tier step agents (see VS Code [subagent cost-tier rule][tier]).
 
 ## Graph Node → Handoff Button Label
 
-| Detected node | Handoff button label                                                                                  |
-| ------------- | ----------------------------------------------------------------------------------------------------- |
-| `step-1`      | `Step 1: Gather Requirements`                                                                         |
-| `step-2`      | `Step 2: Architecture Assessment`                                                                     |
-| `step-3`      | `Step 3: Design Artifacts`                                                                            |
-| `step-3_5`    | `Step 3.5: Governance Discovery`                                                                      |
-| `step-4`      | `Step 4: Implementation Plan` (Bicep) **or** `Step 4: IaC Plan (Terraform)` per `decisions.iac_tool`  |
-| `step-5b`     | `Step 5: Generate Bicep`                                                                              |
-| `step-5t`     | `Step 5: Generate Terraform`                                                                          |
-| `step-6b`     | `Step 6: Deploy`                                                                                      |
-| `step-6t`     | `Step 6: Deploy (Terraform)`                                                                          |
-| `step-7`      | `Step 7: As-Built Documentation`                                                                      |
-| any gate      | `🔍 Run Challenger Review`                                                                            |
+| Detected node | Handoff button label                                                                                 |
+| ------------- | ---------------------------------------------------------------------------------------------------- |
+| `step-1`      | `Step 1: Gather Requirements`                                                                        |
+| `step-2`      | `Step 2: Architecture Assessment`                                                                    |
+| `step-3`      | `Step 3: Design Artifacts`                                                                           |
+| `step-3_5`    | `Step 3.5: Governance Discovery`                                                                     |
+| `step-4`      | `Step 4: Implementation Plan` (Bicep) **or** `Step 4: IaC Plan (Terraform)` per `decisions.iac_tool` |
+| `step-5b`     | `Step 5: Generate Bicep`                                                                             |
+| `step-5t`     | `Step 5: Generate Terraform`                                                                         |
+| `step-6b`     | `Step 6: Deploy`                                                                                     |
+| `step-6t`     | `Step 6: Deploy (Terraform)`                                                                         |
+| `step-7`      | `Step 7: As-Built Documentation`                                                                     |
+| any gate      | `🔍 Run Challenger Review`                                                                           |
+
+## Recognising the `/clear`-handoff message
+
+When a step agent finishes, it ends its final chat message with this exact line:
+
+```text
+Run `/clear` then reply `@01-Orchestrator resume <project>` to continue Step N+1.
+```
+
+The user runs `/clear` (wiping chat context) and replies
+`@01-Orchestrator resume <project>` in the new chat. That reply invokes
+this prompt with `<project>` as the target. Skip Step 1 of the workflow
+above (project pick) when the user's reply already names the project —
+go directly to Step 2 (next-step-mode).
+
+Same flow applies to the mid-step variant emitted by the orchestrator
+between challenger passes:
+
+```text
+Run `/clear` then reply `@01-Orchestrator resume <project>` to continue challenger Pass <N+1>.
+```
+
+For the challenger-pass variant, prefer Branch B (detect from state):
+`apex-recall show` will report `sub_step` at the pass-N checkpoint —
+resolve to the same step and re-surface the `🔍 Run Challenger Review`
+button instead of the next-step button.

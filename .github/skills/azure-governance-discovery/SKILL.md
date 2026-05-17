@@ -99,8 +99,10 @@ Top-level envelope also includes:
 - `tags_required` — extracted tag-enforcement findings as `[{name, source_policy}]`.
 - `allowed_locations` — extracted from location-constraint policies.
 - `discovery_metadata` — **L0 attestation envelope (MANDATORY)**. See
-  [governance-discovery.md](../azure-defaults/references/governance-discovery.md#l0-discovery-envelope-mandatory)
-  for the full shape. Includes `discovery_status`, `discovered_at`,
+  [`references/l0-envelope.md`](references/l0-envelope.md) for the full
+  shape (envelope shape, field reference, completeness-signature
+  algorithm, self-check, refresh handoff, consumer protocol, backward
+  compatibility). Includes `discovery_status`, `discovered_at`,
   `scope`, `api_versions`, `page_counts`, `completeness_signature`,
   `ttl_days`. Downstream consumers (Planner, CodeGen, Deploy) read
   this object FIRST and STOP on staleness, signature drift, or
@@ -134,8 +136,26 @@ See `references/schema.md` for the output JSON envelope and per-finding fields.
 
 ## Reference Index
 
+References are split into two tiers so the agent loads only what it
+needs:
+
+**Load-always** (the minimum to drive the core workflow):
+
+- `references/terminal-commands.md` — pre-built batched commands
+  (Cmd 1–8) for the entire phase.
+
+**Load-on-demand** (read only when the relevant decision point is
+reached):
+
 - `references/effect-classification.md` — effect-to-classification mapping, exemption downgrade, Defender filter rationale
 - `references/schema.md` — output JSON envelope, `findings[]` structure, additive fields
+- `references/l0-envelope.md` — canonical L0 envelope spec (shape,
+  signature algorithm, self-check, refresh handoff, consumer protocol)
+- `references/inline-resolution-gate.md` — Phase 2.7 protocol +
+  signature/TTL short-circuit
+- `references/baseline-check.md` — Phase 0.45 cached-baseline procedure
+- `references/policy-override-pattern.md` — structured `override` object shape
+- `references/reconciliation-disposition.md` — Phase 2.5 disposition rules
 
 ## Design Notes
 

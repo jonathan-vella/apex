@@ -10,12 +10,76 @@ from __future__ import annotations
 
 import argparse
 import json
-import shutil
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 # Import shared renderer (no Azure dependencies)
-from render_governance import emit_preview_md, extract_arch_resources
+from render_governance import (
+    DEFAULT_TTL_DAYS,
+    _build_discovery_metadata,
+    _completeness_signature,
+    _extract_management_groups,
+    emit_preview_md,
+    extract_arch_resources,
+)
+
+
+def _baseline_mtime_iso(in_path: Path) -> str:
+    """Return the baseline file's mtime as ISO-8601 UTC.
+
+    Used as the `discovered_at` fallback when an older baseline envelope
+    pre-dates the per-subscription `discovery_metadata` contract (see
+    plan-optimiseGovernanceAgent.prompt.md Phase 3b). The workflow update
+    in `.github/workflows/governance-policy-baseline.yml` populates the
+    field on new runs; this fallback covers historical baselines until
+    the next scheduled refresh.
+    """
+    try:
+        ts = in_path.stat().st_mtime
+    except OSError:
+        ts = datetime.now(timezone.utc).timestamp()
+    return datetime.fromtimestamp(ts, tz=timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def _synthesise_discovery_metadata(envelope: dict, in_path: Path) -> dict:
+    """Build a `discovery_metadata` envelope for a cached baseline.
+
+    Older baselines (collected before the workflow contract was extended)
+    omit `discovery_metadata`. The cached path MUST still emit a complete
+    L0 envelope so downstream consumers (Planner, CodeGen, Deploy) can
+    short-circuit on signature match per Phase 4. The synthesised envelope
+    flows through the SAME `_build_discovery_metadata` + `_completeness_signature`
+    helpers as discover.py — see test_signature_parity.py.
+    """
+    findings = envelope.get("findings", []) or []
+    # Baselines do not carry the raw `kept_assignments` list, but the
+    # per-finding `scope` field captures the MG ancestry the live path
+    # would have extracted. Re-pack findings as pseudo-assignments so the
+    # shared helper resolves the same MG ids.
+    pseudo_assignments = [
+        {"properties": {"scope": f.get("scope", "")}}
+        for f in findings
+        if f.get("scope")
+    ]
+    management_groups = _extract_management_groups(pseudo_assignments)
+
+    discovered_at = envelope.get("discovered_at") or _baseline_mtime_iso(in_path)
+    page_counts = {
+        "policyAssignments": len(envelope.get("findings", []) or []),
+        "policyDefinitions": len(envelope.get("assignment_inventory", []) or []),
+        "policyExemptions": len(envelope.get("exemptions", []) or []),
+    }
+    return _build_discovery_metadata(
+        findings=findings,
+        subscription_id=envelope.get("subscription_id", "unknown"),
+        management_groups=management_groups,
+        page_counts=page_counts,
+        discovered_at=discovered_at,
+        discovery_status=envelope.get("discovery_status", "COMPLETE"),
+        ttl_days=envelope.get("ttl_days", DEFAULT_TTL_DAYS),
+        source="github-actions-baseline",
+    )
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -68,6 +132,27 @@ def main(argv: list[str] | None = None) -> int:
             if p == "agent-output" and i + 1 < len(parts):
                 envelope["project"] = parts[i + 1]
                 break
+
+    # Phase 3b: synthesise `discovery_metadata` when the baseline envelope
+    # predates the per-subscription contract. The workflow update populates
+    # it on new runs; this branch is the gap-filler for historical baselines.
+    if envelope.get("discovery_metadata") is None:
+        envelope["discovery_metadata"] = _synthesise_discovery_metadata(envelope, in_path)
+        # Tag the envelope so consumers can distinguish cached vs live
+        # attestation when reading the file directly. The synthesis branch
+        # always overrides any prior empty/blank source value because a
+        # cached path is, by definition, baseline-sourced.
+        envelope["source"] = "github-actions-baseline"
+    else:
+        # The PowerShell baseline collector emits the metadata fields but
+        # delegates signature computation to Python (the canonical helper)
+        # so the cached path is byte-identical to the live path for the
+        # same upstream findings. If the externally-supplied signature is
+        # empty, fill it in here. Pre-populated signatures (e.g. from
+        # tests or future PS upgrades) are preserved untouched.
+        meta = envelope["discovery_metadata"]
+        if not meta.get("completeness_signature"):
+            meta["completeness_signature"] = _completeness_signature(envelope.get("findings", []) or [])
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(envelope, indent=2, sort_keys=False) + "\n")

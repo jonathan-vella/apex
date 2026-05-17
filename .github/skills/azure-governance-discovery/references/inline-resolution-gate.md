@@ -34,7 +34,33 @@ failure.
 
 The only valid bypass is the Phase 0.4 resume short-circuit, which
 already verified that the three resolutions exist in
-`governance_gate_status.resolved_confirmations`.
+`governance_gate_status.resolved_confirmations` **and** the snapshot
+they were recorded against is still trusted (signature + TTL match).
+
+### Same-session signature + TTL short-circuit
+
+Even within a single live session, the Phase 2.7 prompt is skipped when:
+
+1. `governance_gate_status.resolved_confirmations` already contains all
+   three required topics from a prior pass in the same project, AND
+2. `discovery_metadata.completeness_signature` from the current
+   envelope equals `decisions.discovery_signature` in the apex-recall
+   snapshot, AND
+3. `age_days = (now - discovery_metadata.discovered_at) / 86400 <=
+   discovery_metadata.ttl_days` (default 7).
+
+All three checks must pass — signature match alone is insufficient
+(upstream policy drift between refreshes would silently ride on a
+stale confirmation). When the check passes, emit a single-line log:
+
+```text
+Phase 2.7 confirmations resolved from prior session (signature + TTL match)
+```
+
+If TTL is exceeded the prompt MUST be re-issued, even when the
+signature has not changed — the locked S3 decision is single-clock:
+confirmations age transitively with the snapshot they were recorded
+against.
 
 ## Protocol
 

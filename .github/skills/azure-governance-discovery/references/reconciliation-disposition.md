@@ -2,15 +2,27 @@
 
 # Governance Reconciliation Disposition Rule
 
-Anti-ambiguity rule for 04g-Governance Phase 2.5 when the
-`governance-reconciliation` review surfaces a `must_fix` finding that
-conflicts with an approved architecture decision.
+Anti-ambiguity rule for 04g-Governance **Phase 3 Revise handling**
+when the user has `Accept`ed (via the Per-Finding Decision Protocol
+`askQuestions` panel) a `governance-reconciliation` `must_fix` finding
+that conflicts with an approved architecture decision.
+
+> **Phase 2.5 never auto-routes.** This rule fires only after the user
+> has chosen `Accept (apply mitigation)` for the finding in Phase 3.
+> If the user picks `Reject`, `Defer`, or `Edit`, none of the steps
+> below run — the sidecar decision is the audit trail.
 
 ## When this rule fires
 
-A reconciliation finding is `must_fix` AND references an approved
-architecture decision (typically signalled by
-`requires_step == "step-2"` on the finding).
+All of the following must hold:
+
+1. The finding came from the Phase 2.5 `governance-reconciliation`
+   challenger pass.
+2. `severity == "must_fix"`.
+3. `requires_step == "step-2"` (the finding references an approved
+   architecture decision).
+4. The user selected `Accept (apply mitigation)` for the finding in
+   the Phase 3 Per-Finding Decision Protocol panel.
 
 ## Required disposition
 
@@ -42,17 +54,20 @@ this three-step escalation:
    reconciliation re-runs APPROVED. Do NOT advance the workflow;
    surface the conflict to the user and stop.
 
-## Non-architecture conflicts (governance-only `must_fix`)
+## Non-architecture conflicts (governance-only Accepted `must_fix`)
 
-For `must_fix` findings that do NOT reference an approved architecture
-decision (i.e. the fix is contained in
+For user-`Accept`ed `must_fix` findings that do NOT reference an
+approved architecture decision (i.e. the fix is contained in
 `04-governance-constraints.md/.json`):
 
 - Batch-fix in the governance artifact in one edit pass (single
-  `multi_replace_string_in_file` call).
-- Re-run the challenger with `overwrite: true` to confirm.
+  `multi_replace_string_in_file` call) during Phase 3 Revise handling.
+- Do **NOT** re-run the challenger — the 1-pass cap in Phase 2.5
+  applies to Revise loops as well. Re-present the Phase 3 final
+  aggregated gate with the existing decision sidecar.
 
 ## Pointer back to agent
 
-The 04g-Governance agent references this file from its Phase 2.5
-section — the body of the agent does not re-derive the rule.
+The 04g-Governance agent references this file from its Phase 3 Revise
+handling — the body of the agent does not re-derive the rule. Phase 2.5
+only records findings; it never applies dispositions.

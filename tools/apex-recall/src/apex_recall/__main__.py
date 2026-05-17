@@ -106,6 +106,15 @@ def build_parser() -> argparse.ArgumentParser:
     p_finding = sub.add_parser("finding", help="Manage open_findings")
     p_finding.add_argument("project", help="Project name")
     p_finding.add_argument("--add", type=str, default=None, help="Add a finding")
+    p_finding.add_argument(
+        "--add-many",
+        dest="add_many",
+        type=str,
+        default=None,
+        metavar="SOURCE",
+        help="Bulk add: pass a file path containing a JSON array, or `-` for stdin. "
+        "Strings or {text: ...} objects accepted. Append-only — no dedup.",
+    )
     p_finding.add_argument("--remove", type=str, default=None, help="Remove a finding")
     p_finding.add_argument("--json", action="store_true", help="Output as JSON")
 

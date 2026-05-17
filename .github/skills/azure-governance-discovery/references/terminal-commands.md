@@ -23,6 +23,11 @@ Read **only the first stdout line** (JSON status). Ignore the rest.
 Run **once** after discover.py completes. Returns everything needed for
 annotation decisions in a single query — do NOT issue follow-up jq queries.
 
+> **Capture overflow**: redirect the jq output to `/tmp/{project}-gov-cmd2.json`
+> and read the first ~120 lines with `sed`. The combined query returns
+> 2000+ lines on real subscriptions, which overflows VS Code's terminal
+> capture buffer and silently truncates the model's view.
+
 ```bash
 jq '{
   discovery_status,
@@ -38,15 +43,22 @@ jq '{
   informational_count: ([.findings[] | select(.classification == "informational")] | length),
   categories: ([.findings[] | .category] | unique),
   assignment_count: (.assignment_inventory | length)
-}' agent-output/{project}/04-governance-constraints.json
+}' agent-output/{project}/04-governance-constraints.json > /tmp/{project}-gov-cmd2.json \
+  && sed -n '1,120p' /tmp/{project}-gov-cmd2.json
 ```
 
 ## Cmd 3: Phase 2 — Copy preview.md (do NOT read it first)
 
 ```bash
-cp agent-output/{project}/04-governance-constraints.preview.md \
-   agent-output/{project}/04-governance-constraints.md
+\cp -f agent-output/{project}/04-governance-constraints.preview.md \
+       agent-output/{project}/04-governance-constraints.md
 ```
+
+> **Why `\cp -f`**: the dev container ships a `cp -i` shell alias that
+> still prompts even when `-f` is passed (the alias adds `-i` after your
+> flags). The leading backslash bypasses the alias entirely so the
+> command is non-interactive. Apply the same `\mv` pattern wherever
+> `mv` appears.
 
 ## Cmd 4: Phase 2 — Find annotation placeholders
 
@@ -56,6 +68,12 @@ Run **once** after cp. Shows exactly which lines need annotation.
 grep -n 'AGENT: annotate\|<!-- annotate -->\|<!-- check applicability -->' \
   agent-output/{project}/04-governance-constraints.md || echo "No placeholders found"
 ```
+
+> **Why the `|| echo ...` suffix is mandatory**: `grep` returns exit code
+> `1` on "no match", which under `set -e` aborts the entire batch.
+> The `|| echo "No placeholders found"` clause turns the no-match exit
+> into a successful zero exit so the runbook continues. See the
+> Anti-patterns section below.
 
 Use the output to plan your `apply_patch` calls (max 3 patches total).
 
@@ -70,11 +88,14 @@ review — do not run `npm run lint:artifact-templates` here (see
 ```bash
 python3 -m json.tool agent-output/{project}/04-governance-constraints.json > /dev/null \
   && echo "=== Remaining placeholders ===" \
-  && grep -c 'AGENT: annotate\|<!-- annotate -->' \
-       agent-output/{project}/04-governance-constraints.md 2>/dev/null || echo "0"
+  && (grep -c 'AGENT: annotate\|<!-- annotate -->' \
+       agent-output/{project}/04-governance-constraints.md 2>/dev/null || echo 0)
 ```
 
-If the JSON parse fails or placeholders remain, fix and re-run this command (count as cmd 6).
+The `2>/dev/null || echo 0` suffix protects against a missing artifact
+file or zero matches (both would otherwise exit 1 and abort `set -e`
+batches). If the JSON parse fails or placeholders remain, fix and re-run
+this command (count as cmd 6).
 
 ## Cmd 6: Phase 3 — Gate summary
 
@@ -110,6 +131,23 @@ jq '{
 apex-recall complete-step {project} 3_5 --json
 ```
 
+## Cmd 8: Phase 1 — Bulk-record blocker findings (Phase 5 optimisation)
+
+Replaces 10–30 per-finding `apex-recall finding --add` calls with a
+single pipe. Use immediately after Cmd 1 (discovery) on subscriptions
+with non-trivial Deny-policy counts.
+
+```bash
+# Substitute {project} with the actual project name.
+# The literal '-' arg means "read from stdin"; the pipe is mandatory.
+jq -c '[.findings[] | select(.classification=="blocker") | "Deny: " + .display_name]' \
+  agent-output/{project}/04-governance-constraints.json \
+  | apex-recall finding {project} --add-many - --json
+```
+
+Empty-blocker subscriptions are a no-op (`{"appended": 0}`). Findings
+are append-only — no de-duplication against existing entries.
+
 ## Anti-patterns
 
 - Do NOT run `jq '.tags_required'` and `jq '.allowed_locations'` as separate
@@ -119,3 +157,9 @@ apex-recall complete-step {project} 3_5 --json
 - Do NOT `sed` or `grep` the preview.md before copying — just run Cmd 3.
 - Do NOT run lint more than once unless the first run failed and you fixed something.
 - Do NOT run the JSON summary query (Cmd 2) more than once — cache the output mentally.
+- Do NOT use bare `grep` at the end of a `set -e` bash block — grep returns
+  exit 1 on no-match, which under `set -e` aborts the entire batch. Always
+  append `|| true`, `|| echo "<fallback>"`, or pipe to another command.
+- Do NOT use bare `cp` / `mv` in dev container runbooks — the `cp -i` /
+  `mv -i` shell aliases will prompt for overwrite even with `-f`. Use
+  `\cp -f` and `\mv -f` (leading backslash) to bypass aliases.
