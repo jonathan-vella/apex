@@ -180,6 +180,7 @@ Load these on demand — do NOT read all at once:
 | `references/avm-modules.md`                 | Looking up AVM module paths or versions                 |
 | `references/security-baseline-full.md`      | Debugging AVM parameter issues or checking deprecations |
 | `references/pricing-guidance.md`            | Running cost estimates with Azure Pricing MCP           |
+| `references/cost-estimate-parent-contract.md` | Parent-side delegation contract for `cost-estimate-subagent` (loaded by 03 + 08) |
 | `references/service-matrices.md`            | Mapping user requirements to Azure service tiers        |
 | `references/waf-criteria.md`                | Scoring WAF pillar assessments                          |
 | `references/governance-discovery.md`        | Discovering Azure Policy constraints                    |

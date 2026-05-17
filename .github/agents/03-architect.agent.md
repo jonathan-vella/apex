@@ -299,30 +299,16 @@ in your WAF assessment recommendations (still produce the identical artifact str
 
 ## Cost Estimation
 
-**Pricing Accuracy Gate**: Model evaluation found that the Architect agent
-hallucinated SKU prices (e.g., AKS Standard at $0.60/hr instead of $0.10/hr)
-when writing prices from parametric knowledge. ALL dollar figures MUST come from
-the `cost-estimate-subagent` (Codex-powered, MCP-verified). Never write a price
-that did not originate from a subagent response.
+> **Read** [`azure-defaults/references/cost-estimate-parent-contract.md`](../skills/azure-defaults/references/cost-estimate-parent-contract.md)
+> for the full Pricing Accuracy Gate, the 5-step delegation procedure,
+> the MCP-tools table, and the no-parametric-fallback rule. Architect-specific
+> usage notes only below.
 
-Delegate ALL pricing work to `cost-estimate-subagent` to keep your context focused on WAF analysis:
-
-1. **Prepare resource list** — compile resource types, SKUs, region, and quantities from your assessment
-2. **Delegate to `cost-estimate-subagent`** — provide:
-   - `resource_list`, `project_name`, `region`
-   - `output_path` = `agent-output/{project}/02-cost-estimate.json`
-   - `overwrite` = `false` (set to `true` only when re-running after revisions)
-   - Optional: `compare_regions: true`, `include_ri_savings: true`
-3. **Receive compact summary** — the subagent writes the full JSON breakdown to
-   `output_path` and returns a ≤15-line summary (status, region, monthly_total,
-   yearly_total, file_path, confidence). **Do NOT paste subagent JSON inline.**
-   **Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 2 phase_4_pricing --json`
-4. **Read the JSON file** from `output_path` to populate both
-   `02-architecture-assessment.md` (Cost Assessment table) and
-   `03-des-cost-estimate.md` line items. Copy figures verbatim — do NOT round,
-   adjust, or "correct" them.
-5. **Cross-check totals** — verify that the sum of `resources[].monthly_cost`
-   equals `monthly_total`. Flag any discrepancy to the user before proceeding.
+Use `output_path = agent-output/{project}/02-cost-estimate.json` and
+populate **both** `02-architecture-assessment.md` and
+`03-des-cost-estimate.md` from the subagent's JSON. Architect's own
+analysis remains qualitative only (Strengths/Gaps prose); WAF pillar
+prose carries **no dollar figures**.
 
 ### What Goes Where
 
@@ -332,31 +318,6 @@ Delegate ALL pricing work to `cost-estimate-subagent` to keep your context focus
 | `02-architecture-assessment.md` → Resource SKU Recommendations | Monthly Est. column                  | Subagent response        |
 | `03-des-cost-estimate.md` → all sections                       | Every dollar figure                  | Subagent response        |
 | WAF pillar prose (Strengths/Gaps)                              | Qualitative only — NO dollar figures | Architect's own analysis |
-
-The subagent uses these Azure Pricing MCP tools on your behalf:
-
-| Tool                     | Purpose                                             | Preferred |
-| ------------------------ | --------------------------------------------------- | --------- |
-| `azure_bulk_estimate`    | All resources in one call (**use this by default**) | ✅ Yes    |
-| `azure_region_recommend` | Find cheapest region for compute SKUs               | Optional  |
-| `azure_price_search`     | RI/SP pricing lookup only (not for base prices)     | Optional  |
-| `azure_cost_estimate`    | Fallback for single resource if bulk fails          | Avoid     |
-| `azure_sku_discovery`    | Only if SKU name is unknown                         | Avoid     |
-
-**Tip**: The subagent targets ≤ 10 MCP calls total (1 bulk + up to 8
-per-line `azure_price_search` fallbacks + optional region/RI). When
-providing the resource list, include service_name, SKU, region, and
-quantity so it can use `azure_bulk_estimate` in one call. The subagent
-returns only `COMPLETE` or `FAILED` — it never returns `PARTIAL`; treat
-`FAILED` as a hard stop and surface the `unresolved_items[]` list to the
-user.
-
-Refer to azure-defaults skill for exact `service_name` values.
-
-**No fallback to parametric knowledge or Azure Pricing Calculator.**
-If `cost-estimate-subagent` fails or is unavailable, STOP and notify the user.
-Do NOT write dollar figures from memory. Do NOT proceed to artifact generation
-without subagent-verified prices.
 
 ## Adversarial Review — 1-Pass Comprehensive Architecture + 1-Pass Cost Estimate (default)
 

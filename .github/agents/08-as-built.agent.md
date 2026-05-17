@@ -321,25 +321,21 @@ Generate these files IN ORDER (each builds on the previous):
 
 ## Cost Estimation (07-ab-cost-estimate.md)
 
-**Pricing Accuracy Gate**: Same policy as the Architect agent — ALL dollar
-figures MUST come from `cost-estimate-subagent` (Codex-powered, MCP-verified).
-Never write a price from parametric knowledge.
+> **Read** [`azure-defaults/references/cost-estimate-parent-contract.md`](../skills/azure-defaults/references/cost-estimate-parent-contract.md)
+> for the full Pricing Accuracy Gate, the 5-step delegation procedure,
+> the MCP-tools table, and the no-parametric-fallback rule. As-built-specific
+> usage notes only below.
 
-Delegate pricing to `cost-estimate-subagent`:
+As-built variants of the parent contract:
 
-1. **Query deployed resources** — use `az resource list` / Resource Graph to get actual SKUs, tiers, and quantities
-2. **Prepare resource list** — compile actual (not planned) resource types, SKUs, region, and quantities
-3. **Delegate to `cost-estimate-subagent`** — provide:
-   - `resource_list`, `project_name`, `region`
-   - `output_path` = `agent-output/{project}/07-ab-cost-estimate.json`
-   - `overwrite` = `false` (set to `true` only when re-running after revisions)
-4. **Receive compact summary** — the subagent writes the full JSON breakdown to
-   `output_path` and returns a ≤15-line summary (status, region, monthly_total,
-   yearly_total, file_path, confidence). **Do NOT paste subagent JSON inline.**
-   **Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 7 phase_3_pricing --json`
-5. **Read the JSON file** from `output_path` to populate `07-ab-cost-estimate.md`.
-   Copy figures verbatim — do NOT round, adjust, or "correct" them.
-6. **Cross-check with 03-des-cost-estimate.md** — note any delta between planned and as-built costs
+- **Resource source (step 1)**: query the **actually deployed**
+  environment via `az resource list` + Azure Resource Graph — never
+  re-use the planned resource list from Step 4.
+- **Output path (step 2)**: `agent-output/{project}/07-ab-cost-estimate.json`
+- **Checkpoint (step 3)**: `apex-recall checkpoint <project> 7 phase_3_pricing --json`
+- **Cross-check (step 5)**: also compare `monthly_total` against
+  `03-des-cost-estimate.md` and note any planned-vs-as-built delta
+  in `07-ab-cost-estimate.md`.
 
 ### Phase 3: As-Built Charts
 
