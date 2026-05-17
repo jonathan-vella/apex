@@ -14,7 +14,7 @@ applyTo: ".github/agents/*.agent.md"
 >
 > Each agent now ships a tight body-level `## Operating frame`
 > section (≤ 6 lines) that lists only the agent-specific subagents
-> + the one-line scope statement, and pulls everything else from
+> and the one-line scope statement, and pulls everything else from
 > here.
 
 ---
