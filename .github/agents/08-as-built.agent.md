@@ -284,21 +284,16 @@ Then continue:
 
 ### Phase 1.5: Context Compaction
 
-Context usage reaches ~80% after loading 6+ prior artifacts and IaC source.
-Compact before generating the 7-document suite.
+Context reaches ~80% after loading 6+ prior artifacts + IaC source.
+Apply Mode A runtime compression per
+[`context-management/SKILL.md`](../skills/context-management/SKILL.md):
+write one concise summary (resource inventory with IDs/SKUs,
+architecture decisions + WAF scores, deployment result, compliance
+requirements, cost estimate baseline) and stop loading additional
+skills before Phase 2. Do NOT re-read predecessor artifacts during
+doc generation — query Azure CLI for specific details as needed.
 
-1. **Summarize prior artifacts** — write a single concise message containing:
-   - Resource inventory (names, types, SKUs, resource IDs from deployment)
-   - Architecture decisions from `02-architecture-assessment.md` (WAF scores, pattern)
-   - Deployment result from `06-deployment-summary.md` (success/partial, resource count)
-   - Compliance requirements from `01-requirements.md`
-   - Cost estimate baseline from `03-des-cost-estimate.md` (monthly total)
-2. **Stop loading additional skills** — once context is compacted, do not load
-   any new skill files; rely on summaries already in context
-3. **Do NOT re-read predecessor artifacts during doc generation** — rely on
-   the summary above and query Azure CLI for specific resource details as needed
-4. **Update session state** — run `apex-recall checkpoint <project> 7 phase_1.5_compacted --json`
-   so resume skips re-loading prior context
+**Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 7 phase_1.5_compacted --json`
 
 ### Phase 2: Documentation Generation
 
@@ -352,19 +347,21 @@ Use the drawio skill and MCP tools to generate:
 
 - `agent-output/{project}/07-ab-diagram.drawio` — Editable Draw.io architecture diagram
 
-The diagram MUST reflect actual deployed resources (not just planned ones).
-Follow the batch-only workflow from the drawio skill:
+The diagram MUST reflect actual deployed resources (not just planned
+ones). Follow the batch-only workflow and style rules in
+[`drawio/SKILL.md`](../skills/drawio/SKILL.md) +
+[`drawio/references/style-reference.md`](../skills/drawio/references/style-reference.md)
+(left-to-right flow, cross-cutting at bottom, orthogonal edges, 120×80 px
+spacing, groups-with-empty-text + bold label above, etc.). As-built-specific
+rules only below:
 
-- Left-to-right flow, cross-cutting services at bottom (no edges)
-- Groups with empty text and separate bold label vertex above
-- Orthogonal edges, generous spacing (120px H, 80px V minimum)
-- Use actual deployed resource names where they improve traceability
-- Keep labels and deployed names readable at 100% zoom
-- Remove non-essential edge labels and low-value supporting groups that weaken hierarchy
-- Prefer service names and deployed resource names over SKU, tier, policy, or
-  count annotations unless a difference is architecturally significant
-- Save via `python3 tools/scripts/save-drawio.py <json-path> <output.drawio>` (strips edge anchors)
-- Validate via `node tools/scripts/validate-drawio-files.mjs`
+- Use the **actually deployed** resource names where they improve
+  traceability — not the plan's name placeholders.
+- Prefer service names + deployed names over SKU/tier/policy/count
+  annotations unless a difference is architecturally significant.
+- Save via `python3 tools/scripts/save-drawio.py <json-path> <output.drawio>`
+  (strips edge anchors).
+- Validate via `node tools/scripts/validate-drawio-files.mjs`.
 
 ### Phase 4: Finalize
 
