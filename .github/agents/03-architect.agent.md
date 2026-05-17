@@ -336,31 +336,36 @@ in `workflow-graph.json` based on `decisions.complexity`. Do NOT prompt
 the user — the project-scoped `review_depth` decision is the opt-in
 trigger.
 
+### Common invocation template
+
+All `challenger-review-subagent` calls below share these parameters; per-pass
+blocks list only the overrides:
+
+```text
+project_name    = {project}
+prior_findings  = null               # pass 1; compact string for pass 2-3 deep cascade
+overwrite       = false              # set to true only when re-running after revisions
+```
+
 ### Architecture Review (default: 1 pass, comprehensive)
 
-Invoke `challenger-review-subagent`:
+Overrides:
 
 - `artifact_path` = `agent-output/{project}/02-architecture-assessment.md`
-- `project_name` = `{project}`
 - `artifact_type` = `architecture`
-- `review_focus` = `comprehensive`
-- `pass_number` = `1`
-- `prior_findings` = `null`
-- `output_path` = `agent-output/{project}/challenge-findings-architecture.json`
-- `overwrite` = `false` (set to `true` only when re-running after revisions)
+- `review_focus`  = `comprehensive`
+- `pass_number`   = `1`
+- `output_path`   = `agent-output/{project}/challenge-findings-architecture.json`
 
 ### Cost Estimate Review (1 pass — cost-feasibility lens)
 
-Invoke `challenger-review-subagent`:
+Overrides:
 
 - `artifact_path` = `agent-output/{project}/03-des-cost-estimate.md`
-- `project_name` = `{project}`
 - `artifact_type` = `cost-estimate`
-- `review_focus` = `cost-feasibility`
-- `pass_number` = `1`
-- `prior_findings` = `null`
-- `output_path` = `agent-output/{project}/challenge-findings-cost-estimate.json`
-- `overwrite` = `false`
+- `review_focus`  = `cost-feasibility`
+- `pass_number`   = `1`
+- `output_path`   = `agent-output/{project}/challenge-findings-cost-estimate.json`
 
 The subagent writes the JSON file at `output_path` and returns a compact
 summary (≤15 lines). **Do NOT paste subagent JSON inline.** Read the file
@@ -383,23 +388,22 @@ from disk only if you need full finding details for the Gate presentation.
 
 ### Deep-review path (opt-in, when `decisions.review_depth == "deep"`)
 
-When deep review is active, replace the single comprehensive architecture
-pass with the rotating-lens cascade:
+Replace the single comprehensive architecture pass with the rotating-lens
+cascade. Per-pass overrides only — every other parameter follows the
+Common invocation template above.
 
 1. Pass 1 — `security-governance` (always)
 2. Pass 2 — `architecture-reliability` (skip if pass 1 has 0 `must_fix` AND <2 `should_fix`)
 3. Pass 3 — `cost-feasibility` (skip if pass 2 has 0 `must_fix`)
 
-For each pass, invoke `challenger-review-subagent` with:
+Per-pass overrides:
 
 - `artifact_path` = `agent-output/{project}/02-architecture-assessment.md`
-- `project_name` = `{project}`
 - `artifact_type` = `architecture`
-- `review_focus` = per-pass value from the protocol cascade
-- `pass_number` = `1` / `2` / `3`
-- `prior_findings` = `null` for pass 1; compact string for passes 2-3
-- `output_path` = `agent-output/{project}/challenge-findings-architecture-pass{N}.json`
-- `overwrite` = `false` (set to `true` only when re-running after revisions)
+- `review_focus`  = per-pass value above
+- `pass_number`   = `1` / `2` / `3`
+- `prior_findings`= `null` for pass 1; compact string for passes 2-3
+- `output_path`   = `agent-output/{project}/challenge-findings-architecture-pass{N}.json`
 
 ### Cost-feasibility review gate + Challenger empty-output diagnostic
 
@@ -410,48 +414,33 @@ and
 
 ## Approval Gate
 
-**Present findings directly in chat** before asking the user to decide:
+Full gate mechanics (findings table render, source-merge order,
+sidecar location, Revise loop with `multi_replace_string_in_file`,
+Proceed handoff template, banned-phrases enforcement) live in
+[`workflow-gates.md`](../skills/azure-defaults/references/workflow-gates.md#architect-step-2--approval-gate-handoff-template).
+Architect-step-2 specifics only below.
 
 1. Print WAF pillar scores (Security, Reliability, Performance, Cost,
-   Operations) with estimated monthly cost
-2. For each challenger pass, render a markdown table with columns:
-   **ID**, **Severity**, **Title**, **WAF Pillar**, **Recommendation**
-   — list every finding (must_fix first, then should_fix, then suggestion)
-3. Show aggregate totals across all passes: `N must-fix, N should-fix`
-4. Reference the JSON file paths for machine-readable details
-
-Then run the **Per-Finding Decision Protocol** from
-[.github/skills/azure-defaults/references/adversarial-review-protocol.md](../skills/azure-defaults/references/adversarial-review-protocol.md).
-
-> **Per-finding askMe (mandatory)**: present **one `vscode_askQuestions`
-> call per finding** with three options — `Accept` / `Skip` / `Defer` —
-> plus a free-form rationale field. **MUST NOT batch findings into a
-> single question with `multiSelect`.** Worked example: 5 findings →
-> 5 sequential questions, in must_fix → should_fix → suggestion order.
-
-- **Sources merged for the panel** (per protocol section 2e): in this
-  order — `challenge-findings-cost-estimate.json` →
-  `challenge-findings-architecture.json` (default single-pass) **or**
-  `challenge-findings-architecture-pass1.json` → `pass2.json` →
-  `pass3.json` (deep-review path; omit passes that did not run).
-- **Sidecar**:
-  `agent-output/{project}/challenge-findings-architecture-decisions.json`.
-  All decisions across cost-estimate and architecture passes land in this
-  single sidecar — `artifact_type: "architecture"`.
-- **On Revise** (matrix row 2): apply Accepted fixes to
-  `02-architecture-assessment.md` (and `02-cost-estimate.json` /
-  `03-des-cost-estimate.md` for cost-estimate findings) using a
-  **single `multi_replace_string_in_file` call** that bundles every
-  Accepted finding's edit — do NOT re-emit the artifact via
-  `create_file`. See azure-artifacts skill "Revision Workflow". Then
-  re-run **all relevant passes** of the challenger per the configured
-  pass count (`overwrite: true`), then re-build the panel skipping
-  issues whose `issue_id` already has a sidecar entry (protocol
-  section 2c).
-- **On Proceed**: emit the final handoff template per
-  [`workflow-gates.md`](../skills/azure-defaults/references/workflow-gates.md#architect-step-2--approval-gate-handoff-template).
-  Routing is **always** Design or Governance — never IaC Planner
-  directly. Enforced by `tools/scripts/validate-banned-phrases.mjs`.
+   Operations) with estimated monthly cost.
+2. Render the findings table per pass (must_fix → should_fix →
+   suggestion) and run the **Per-Finding Decision Protocol** from
+   [`adversarial-review-protocol.md`](../skills/azure-defaults/references/adversarial-review-protocol.md).
+   **One `vscode_askQuestions` call per finding** with three options
+   — `Accept` / `Skip` / `Defer` — plus a free-form rationale.
+   **MUST NOT batch findings into a single question with `multiSelect`.**
+3. Source-merge order for the panel: `challenge-findings-cost-estimate.json`
+   → `challenge-findings-architecture.json` (default single-pass) **or**
+   `challenge-findings-architecture-pass{1,2,3}.json` (deep-review path;
+   omit passes that did not run).
+4. Sidecar: `agent-output/{project}/challenge-findings-architecture-decisions.json`.
+   All decisions across cost-estimate and architecture passes land here
+   — `artifact_type: "architecture"`.
+5. **On Revise**: bundle all Accepted edits into a **single
+   `multi_replace_string_in_file` call** — do NOT re-emit the artifact
+   via `create_file`. Then re-run all relevant passes (`overwrite: true`)
+   and rebuild the panel skipping `issue_id`s already in the sidecar.
+6. **On Proceed**: routing is **always** Design or Governance, never
+   IaC Planner directly (enforced by `validate-banned-phrases.mjs`).
 
 ## Output Files
 
