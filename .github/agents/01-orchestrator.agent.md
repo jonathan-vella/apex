@@ -183,11 +183,8 @@ preserve state for potential session breaks.
 ## Subagent Budget
 
 The orchestrator does **not** invoke step agents or the challenger via
-`#runSubagent`. Every transition is delivered as a handoff button so the
-target agent runs at its own model tier. There is therefore no per-turn
-subagent budget for the orchestrator itself — step agents own their own
-subagent calls (cost-estimate, validate, what-if/plan, challenger) and run
-those at their own tiers.
+`#runSubagent`. See [Subagent Tier Rule](#subagent-tier-rule) below
+for the full rationale and the per-tier ceiling.
 
 ## Subagent Tier Rule
 
@@ -252,19 +249,19 @@ after Step 1 completes.
 
 ## Read Skills (After Project Name, Before Delegating)
 
-**After confirming the project name**, read the four skill files below
-**in a single parallel `read_file` batch** (one tool call, four files).
-**Never re-read** a file that is already in your conversation history
-(see [Context Hygiene](../instructions/agent-authoring.instructions.md#context-hygiene-token-efficiency)).
+After confirming the project name, read these four skill files in a
+**single parallel `read_file` batch** (one tool call, four files).
+Never re-read a file already in your conversation history
+(see [Context Hygiene](../instructions/agent-authoring.instructions.md#context-hygiene-token-efficiency)):
 
-1. **Read** `.github/skills/golden-principles/SKILL.md` — foundational quality principles for all agents
-2. **Read** `.github/skills/azure-defaults/SKILL.md` — regions, tags
-3. **Read** `.github/skills/azure-artifacts/SKILL.md` — artifact file naming and structure overview
-4. **Read** `.github/skills/workflow-engine/SKILL.md` — DAG model, node types, edge conditions
+1. `.github/skills/golden-principles/SKILL.md` — quality principles
+2. `.github/skills/azure-defaults/SKILL.md` — regions, tags
+3. `.github/skills/azure-artifacts/SKILL.md` — artifact structure
+4. `.github/skills/workflow-engine/SKILL.md` — DAG model
 
-After reading skills, extract key facts (region, tags, naming, security baseline,
-complexity, AVM-first) into the `## Skill Context` section of `00-handoff.md`.
-Step agents can use this pre-extracted context instead of re-reading skill files.
+Extract key facts (region, tags, naming, security baseline, complexity,
+AVM-first) into the `## Skill Context` section of `00-handoff.md` so
+step agents reuse that pre-extracted context instead of re-reading.
 
 ### Graph-Based Step Routing
 
@@ -384,6 +381,19 @@ Legacy gate question — _"Run additional adversarial review? (recommended
 for complex projects)"_ — is **removed**. Multi-pass review is enabled
 exclusively via `decisions.review_depth = "deep"` (set once at project
 boot) or via a direct `10-Challenger` invocation by the user.
+
+### Challenger-invocation ceiling (Plan 01 Phase 2b)
+
+Hard per-step ceiling: **default = 2**, **deep = 4** passes. Counter:
+`decisions.challenger_invocations_<step>` — increment before each
+Challenger handoff. When the ceiling would be exceeded, emit
+`vscode_askQuestions` with these labels verbatim:
+**"Accept findings"**, **"Override ceiling"**, **"Abort step"**. Persist
+via
+`apex-recall decide <project> --key challenger_decision_<step> --value <accept|override|abort> --json`
+(override flag: `challenger_override_<step>`). Keys registered in
+[`decision-keys.md`](../../tools/apex-recall/docs/decision-keys.md).
+Lint: `npm run validate:review-ceiling`.
 
 ## DO / DON'T
 
@@ -562,9 +572,9 @@ Orchestrator with the project name — no special resume prompt needed.
 ## Session Break Protocol
 
 Every accepted Gate (1, 2, 2.5, 3, 4, 5) ends with a mandatory
-`/clear`-handoff — the headline token-reduction mechanism. VS Code
-Copilot Chat owns the history; only a user `/clear` drops accumulated
-context. Re-entry is loss-free via `apex-recall`.
+`/clear`-handoff — the headline token-reduction mechanism. Full
+contract:
+[`compression-templates.md#gate-boundary-clear-handoff-contract`](../skills/context-management/references/compression-templates.md#gate-boundary-clear-handoff-contract).
 
 ### Gate-acceptance procedure (verbatim, every gate)
 
@@ -578,25 +588,18 @@ context. Re-entry is loss-free via `apex-recall`.
    ```
 
 3. Present gate summary (artifact paths + Challenger findings + next-step handoff button).
-4. End the message with this line, **verbatim**, on its own final
-   line — no paraphrase, no extra punctuation, no trailing commentary:
+4. End the message with this line, **verbatim**, on its own final line:
 
    ```text
    Run `/clear` then reply `@01-Orchestrator resume <project>` to continue Step N+1.
    ```
 
-5. **Stop.** Do not continue Step N+1 in the same chat, even if the
-   user types "ok proceed". The contract is non-negotiable.
+5. **Stop.** Do not continue Step N+1 in the same chat — the contract is non-negotiable.
 
 ### Resume path
 
-A new chat opened with `@01-Orchestrator resume <project>`:
-
-1. First tool call: `apex-recall show <project> --json`.
-2. Read `00-handoff.md` only if a gate-specific artifact path is needed.
-3. Do not re-read completed-step artifacts unless the user asks.
-
-Full contract (mechanism, validator, rationale):
-[`compression-templates.md`](../skills/context-management/references/compression-templates.md#gate-boundary-clear-handoff-contract).
-The lint `npm run validate:orchestrator-handoff` greps for the
-verbatim line — removing or paraphrasing it fails CI.
+New chat with `@01-Orchestrator resume <project>`: first tool call is
+`apex-recall show <project> --json`. Read `00-handoff.md` only if a
+gate-specific artifact path is needed; do not re-read completed-step
+artifacts unless the user asks. Lint:
+`npm run validate:orchestrator-handoff` greps for the verbatim line.

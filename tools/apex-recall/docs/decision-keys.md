@@ -46,6 +46,19 @@ Specifically:
 | `skip_design`   | `true` \| `false`                                                                               | `false` (Design runs)           | 01-Orchestrator | 03-Architect approval gate routing message          |
 | `relational_db` | `azure-sql` \| `postgresql-flex` \| `mysql-flex` \| `sql-managed-instance` \| `none` \| `other` | n/a (Phase 3d question)         | 02-Requirements | 03-Architect (SKU), 05-IaC Planner, 06b/06t CodeGen |
 
+### Challenger-loop keys (Plan 01 Phase 2b)
+
+Per-step counters + override flags that enforce the
+`review_depth`-aware challenger ceiling defined in
+`01-orchestrator.agent.md` ("Challenger-invocation ceiling").
+The `<step>` suffix is the integer step number (`1`, `2`, `3_5`, `4`).
+
+| Key                              | Valid values                          | Default behaviour if absent              | Set by           | Read by              |
+| -------------------------------- | ------------------------------------- | ---------------------------------------- | ---------------- | -------------------- |
+| `challenger_invocations_<step>`  | integer ≥ 0                           | `0` (no challenger pass yet for step)    | 01-Orchestrator  | 01-Orchestrator      |
+| `challenger_override_<step>`     | `true` \| `false`                     | `false` (no override authorised)         | 01-Orchestrator  | 01-Orchestrator      |
+| `challenger_decision_<step>`     | `accept` \| `override` \| `abort`     | n/a (only set when the ceiling-recovery askQuestions fires) | 01-Orchestrator | 01-Orchestrator |
+
 ### Step 2 (Architecture) keys — new in this plan
 
 | Key                       | Valid values                                                              | Default behaviour if absent        | Set by          | Read by                                  |

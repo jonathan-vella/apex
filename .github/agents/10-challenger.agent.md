@@ -71,6 +71,15 @@ the Orchestrator with an apply summary.
   - When invoked standalone, run exactly one adversarial pass per the
     requested `pass_number` / `total_passes`. Multi-pass is opt-in by the
     caller; do not auto-escalate.
+- **Challenger-invocation ceiling** (Plan 01 Phase 2b): when invoked
+  by the orchestrator, the orchestrator increments
+  `decisions.challenger_invocations_<step>` before the handoff. The
+  orchestrator's per-step ceiling (2 in `default`, 4 in `deep`)
+  blocks further invocations and triggers an Accept / Override
+  / Abort `askQuestions`. This challenger does not itself enforce the
+  ceiling — it executes whatever pass it is asked to run — but it
+  MUST surface the current invocation count in its chat summary
+  (e.g. _"Pass 2 of max 2 (default depth)"_) so the user can decide.
 - Apply-step rules:
   - Only findings with `action: "accept"` (or `action: "edit"` with a
     non-empty `note`) are applied to the artifact. `defer` and `reject`
