@@ -200,41 +200,43 @@ A run where >50% of artifacts are copies is terminated with `E2E_BLOCKED`.
 
 ## Real-Run Enforcement
 
-- Treat E2E prompts as scenario drivers, not as permission to synthesize full
-  workflow steps inline.
-- If a real workflow agent exists for a step, delegate to that agent.
-- Step 1 must go through `02-Requirements` with auto-filled answers from the
-  prompt defaults.
-- Step 2 must go through `03-Architect` and produce a pricing-backed cost
-  estimate, not a hand-authored estimate.
-  - When Azure Retail Prices API returns no rows for a service+region
-    combination (notably Azure Managed Redis in Sweden Central), fall back
-    to the first-party pricing page via the Azure MCP `documentation` tool
-    (e.g. `mcp_azure-mcp_documentation` with `command: "microsoft_docs_fetch"`).
-    Document the fallback source in the cost estimate artifact.
-  - After Step 2 completes, verify that `decisions.budget` is populated via
-    `apex-recall show <project> --json`. If missing, log a lesson with
-    `category: "artifact-quality"` and `severity: "medium"` and populate
-    the budget from the cost estimate before proceeding.
-- Step 3 should use the Draw.io path via `04-Design` and output `.drawio`
-  artifacts when Draw.io tools are available.
-- Step 3.5 must go through `04g-Governance` with live policy discovery when
+E2E prompts are scenario drivers, not permission to synthesize workflow
+steps inline. Delegate every step to its real agent; only orchestrator
+bookkeeping (session state, handoff, iteration log, benchmark report,
+lessons) is acceptable inline output. Real-run lint enforced by
+`tools/scripts/validate-e2e-step.mjs`.
+
+Per-step delegation contract:
+
+- **Step 1** → `02-Requirements` with auto-filled answers from prompt
+  defaults.
+- **Step 2** → `03-Architect`; produce a pricing-backed cost estimate
+  (never hand-authored). When Azure Retail Prices API returns no rows
+  for a service+region (notably Azure Managed Redis in Sweden Central),
+  fall back to the first-party pricing page via
+  `mcp_azure-mcp_documentation` (`command: "microsoft_docs_fetch"`) and
+  document the fallback source. Verify `decisions.budget` is populated
+  via `apex-recall show <project> --json` after Step 2; if missing, log
+  an `artifact-quality` / `medium` lesson and populate from the cost
+  estimate before proceeding.
+- **Step 3** → `04-Design` (Draw.io path; `.drawio` artifacts when
+  Draw.io tools are available).
+- **Step 3.5** → `04g-Governance` with live policy discovery when
   Azure authentication exists.
-- Step 4 must go through `05-IaC Planner`; inline plan generation is not an
+- **Step 4** → `05-IaC Planner`; inline plan generation is not an
   acceptable shortcut.
-- Step 5 must go through the real codegen agent. If concrete modules cannot be
-  generated, mark the run partial or blocked instead of claiming completion with
-  benchmark-only scaffolds.
-- Step 6 must use the real dry-run deployment path. Do not fabricate `what-if`
-  or plan results.
-- The only acceptable inline file generation is orchestrator bookkeeping such as
-  session state, handoff, iteration log, benchmark report, and lessons.
-- **Run isolation**: Never read, copy, or adapt artifacts from other runs
-  (`agent-output/{other-project}/`, `infra/{bicep|terraform}/{other-project}/`).
-  Each artifact must originate from the RFQ, prompt defaults, and this run's
-  own upstream outputs. See "Run Isolation" section above.
-- If a delegated agent asks follow-up questions, answer from the prompt's fixed
-  defaults and continue rather than waiting for the user.
+- **Step 5** → the real codegen agent. If concrete modules cannot be
+  generated, mark the run **partial** or **blocked** — do NOT claim
+  completion with benchmark-only scaffolds.
+- **Step 6** → the real dry-run deployment path; never fabricate
+  `what-if` / plan results.
+- **Run isolation** (MANDATORY): never read, copy, or adapt artifacts
+  from other runs (`agent-output/{other-project}/`,
+  `infra/{bicep|terraform}/{other-project}/`). Each artifact must
+  originate from the RFQ + prompt defaults + this run's own upstream
+  outputs. See §Run Isolation above.
+- If a delegated agent asks follow-up questions, answer from the
+  prompt's fixed defaults rather than waiting for the user.
 
 ## Subagent Runtime Fallback
 
@@ -397,14 +399,10 @@ For every step attempt, append to `08-iteration-log.json`:
 
 ## Benchmark Collection
 
-After each step, record to `08-benchmark-report.md`:
-
-- Step number and name
-- Pass/fail status
-- Iterations needed (1 = first-time pass)
-- Challenger findings count (must_fix + should_fix)
-- Approximate duration
-- Key quality indicators (e.g., WAF scores for Step 2, lint warnings for Step 5)
+After each step, record to `08-benchmark-report.md`: step number +
+name, pass/fail, iterations (1 = first-time pass), challenger findings
+count (`must_fix + should_fix`), approximate duration, key quality
+indicators (WAF scores for Step 2, lint warnings for Step 5, etc.).
 
 ## Timing Thresholds
 
