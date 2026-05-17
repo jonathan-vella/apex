@@ -21,6 +21,23 @@ Fixes #
 - [ ] ⚙️ Configuration/workflow change
 - [ ] 💰 MCP server enhancement (azure-pricing-mcp)
 
+## Token / latency impact (Plan 01 Phase 5)
+
+<!--
+Does this PR change input-token budget or per-turn latency for any
+agent or subagent? Default answer is NO — only opt in when you've
+changed agent bodies, skills, instructions, model assignments, or
+review-loop behaviour.
+-->
+
+This change affects input-token budget / per-call latency:
+
+- [ ] YES (provide a magnitude estimate below)
+- [ ] NO
+
+If YES, expected impact:
+<!-- e.g. "~30 K input tokens saved per Step 1 (askQuestions batching)" -->
+
 ## Workflow Used
 
 <!-- Which agent workflow was used to create these changes? -->

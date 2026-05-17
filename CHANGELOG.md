@@ -18,7 +18,82 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 See the [published changelog](https://jonathan-vella.github.io/azure-agentic-infraops/project/changelog/)
 for full details on this and all prior releases.
 
-### Changed
+### Added (Plan 01 — token-reduction workstream)
+
+- `tools/scripts/profile_debug_log.py` + `npm run profile:debug-log` —
+  OTel debug-log profiler extracting token totals, per-model splits,
+  askQuestions count + duration, subagent wall-time, duplicate
+  file-read map, tool-payload sizes, error counts, and compliance
+  warnings. Reference: `.github/skills/context-management/references/log-profiling.md`.
+- `agent-output/_baselines/multi-log-baseline.json` — multi-log
+  baseline (5 OTel sessions, p50/p90/max) used by Plan 01 Phase 5
+  targets. `.gitignore` updated to allow this single deliverable
+  through while keeping ephemeral snapshots ignored.
+- `tools/scripts/validate_orchestrator_handoff.py` +
+  `npm run validate:orchestrator-handoff` — Gate-boundary `/clear`
+  handoff contract lint (Plan 01 Phase 2a). Hard fail when the
+  verbatim resume line, the `apex-recall checkpoint` precondition, or
+  the resume-path first tool call is removed or paraphrased.
+- `tools/scripts/validate_review_ceiling.py` +
+  `npm run validate:review-ceiling` — dual-mode validator: contract
+  lint (default-depth ceiling = 2, deep-depth ceiling = 4 challenger
+  passes per step) and budget mode (`--budget LOGFILE`) that counts
+  per-step invocations in an OTel log.
+- `tools/scripts/validate_question_batching.py` +
+  `npm run validate:question-batching` — Plan 01 Phase 4 P0 directive
+  plus 6-question example lint for `02-requirements.agent.md`.
+- `tests/integration/smoke-run.md` — Plan 01 acceptance harness
+  (manual Steps 1 → 2 with `/clear` boundaries, captures askQuestions
+  count, challenger invocations, inter-`/clear` chat-span max,
+  post-`/clear` first input tokens).
+- `.github/ISSUE_TEMPLATE/copilot-chat-feedback.md` — upstream issue
+  template for Copilot Chat behaviour outside any agent's reach
+  (e.g. the parallel-retry race documented in
+  `docs/devcontainer-hygiene.md`).
+
+### Changed (Plan 01 — token-reduction workstream)
+
+- **Gate-boundary `/clear` handoff** is now mandatory at every
+  accepted Gate (1, 2, 2.5, 3, 4, 5) in `01-orchestrator.agent.md`.
+  The orchestrator must run `apex-recall checkpoint` first, present
+  the gate, then end the message with a verbatim resume line. The
+  full contract lives in
+  `.github/skills/context-management/references/compression-templates.md`.
+- **Challenger-invocation ceiling**: per-step cap of 2 passes
+  (`default` depth) or 4 passes (`deep` depth) with explicit
+  Accept / Override / Abort `askQuestions` recovery when exceeded.
+  New keys `challenger_invocations_<step>`, `challenger_override_<step>`,
+  `challenger_decision_<step>` registered in
+  `tools/apex-recall/docs/decision-keys.md`.
+- **Filesystem precheck**: `.github/instructions/azure-artifacts.instructions.md`
+  now scopes the "edit, don't `create_file`" rule explicitly to the
+  three high-frequency artifacts (`sku-manifest.json`, `00-handoff.md`,
+  `README.md`). General rule unchanged.
+- **`.digest.md` reconciliation**: deleted the stale
+  `orchestrator-handoff-guide.digest.md` reference in
+  `01-orchestrator.agent.md` (digest tier was retired in
+  commit `24a35809`). Decision captured in
+  `/memories/repo/codegen-model-mix-2026.md`.
+- **Orchestrator init**: `Starting a New Project` step 4 now
+  explicitly says `create_directory` (not a `create_file`
+  placeholder) for `agent-output/{project}/`.
+- **02-Requirements**: P0 directive subsection at top of Phase 1
+  with explicit 6-question numbered example for `askQuestions`
+  batching. Target: askQuestions count ≤ 10 per Step 1.
+- **Model mix swaps** (5 immediate, 1 A/B-gated):
+  - 05-iac-planner: Claude Opus 4.7 → Claude Sonnet 4.6
+  - 04g-governance, 07b-bicep-deploy, 07t-terraform-deploy, 10-challenger (wrapper):
+    GPT-5.5 → GPT-5.3-Codex
+  - 11-context-optimizer: Claude Opus 4.7 → Claude Sonnet 4.6
+  - `challenger-review-subagent` (subagent): GPT-5.5 → Sonnet 4.6
+    is **A/B-gated** on the `pilot/challenger-sonnet` branch — not
+    merged. Rollback path + quality rubric in
+    `/memories/repo/codegen-model-mix-2026.md`.
+- **PR template**: added a "Token / latency impact" section so
+  PR authors confirm whether the change moves the input-token or
+  per-turn-latency budget.
+
+### Changed (other)
 
 - refactor(agents)!: migrate `06b-Bicep CodeGen` and `06t-Terraform CodeGen`
   from `GPT-5.5` to `Claude Sonnet 4.6`. Frontmatter `model:` flipped,

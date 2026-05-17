@@ -1,3 +1,5 @@
+<!-- ref:log-profiling-v1 -->
+
 # Log profiling — `profile_debug_log.py`
 
 Profiles Copilot Chat OTel debug logs for the token-reduction
