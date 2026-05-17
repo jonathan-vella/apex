@@ -82,15 +82,26 @@ Per workflow run:
 
 ### 4. Capture + verify
 
+One-shot verifier (profile + ceiling-budget + acceptance table + save):
+
 ```sh
-# Export OTel log from the chat client first, then:
+# After exporting the OTel log from VS Code Copilot Chat:
+npm run smoke:verify -- logs/smoke-<date>.json
+
+# Or auto-pick the newest .json under logs/:
+npm run smoke:verify
+```
+
+Prints a PASS / FAIL / WARN / SKIP row per acceptance target and a
+final verdict. Exits `0` on all-pass, `1` on any FAIL. Profiler output
+is saved to `agent-output/_baselines/smoke-<date>.json` automatically.
+
+For ad-hoc spot checks, the underlying tools still work standalone:
+
+```sh
 npm run profile:debug-log -- logs/smoke-<date>.json
 npm run validate:review-ceiling -- --budget logs/smoke-<date>.json
 ```
-
-Compare results to the targets table above. Save the profiler output
-under `agent-output/_baselines/smoke-<date>.json` for diff-against-
-baseline tracking.
 
 ## Acceptance criteria
 

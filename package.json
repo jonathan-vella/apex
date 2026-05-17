@@ -61,6 +61,7 @@
     "snapshot:baseline": "bash tools/scripts/snapshot-agent-context.sh",
     "diff:baseline": "bash tools/scripts/diff-context-baseline.sh",
     "profile:debug-log": "python3 tools/scripts/profile_debug_log.py",
+    "smoke:verify": "python3 tools/scripts/smoke_verify.py",
     "validate:orchestrator-handoff": "python3 tools/scripts/validate_orchestrator_handoff.py",
     "validate:review-ceiling": "python3 tools/scripts/validate_review_ceiling.py",
     "validate:question-batching": "python3 tools/scripts/validate_question_batching.py",
