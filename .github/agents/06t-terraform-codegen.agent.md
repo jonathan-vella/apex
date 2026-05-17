@@ -180,51 +180,20 @@ Before doing any work, read these skills.
 
 ## Do
 
-- Run preflight check BEFORE writing any Terraform (Phase 1)
-- Use `askQuestions` to present blockers from Phase 1 + 1.5
-- Use AVM-TF modules for EVERY resource that has one
-- Generate unique suffix ONCE in `locals.tf`, pass to ALL resources
-- Apply baseline tags + governance extras via `local.tags`
-- Parse `04-governance-constraints.json` — map Deny policies to TF args
-- Apply security baseline (TLS 1.2, HTTPS, managed identity, no public)
+> **Read** [`iac-common/references/codegen-do-dont.md`](../skills/iac-common/references/codegen-do-dont.md)
+> for the shared DO/DON'T rules that apply to both `06b` and `06t`
+> (preflight first, AVM-first, governance mapping, security baseline,
+> plan-lock, no inventing inputs, etc.). Terraform-specific additions
+> only below.
+
 - Use `var.deployment_phase` + `count` for phased deployment
 - Generate bootstrap + deploy scripts (bash + PS)
 - Run `terraform validate` + `terraform fmt -check` after generation
-- Save `05-implementation-reference.md` + update project README
 
 ## Don't
 
-- Start coding before preflight check
-- Silently halt on blockers without telling the user why
-- List blockers in chat and wait for a reply (wastes a round-trip)
-- Edit `agent-output/{project}/04-implementation-plan.md`,
-  `04-governance-constraints.md`, or `04-governance-constraints.json` —
-  frozen after gate-3 per `metadata.plan_lock` in the workflow graph;
-  plan-level must_fix returns to Step 4 instead
-- Invoke `challenger-review-subagent` with
-  `artifact_type = "implementation-plan"` from Step 5 (plan-level reviews
-  run at Step 4 only; Step 5 uses `artifact_type = "iac-code"`)
-- Issue more than one `askQuestions` call per challenger pass — batch all
-  open decisions into one inline form (see `codegen-shared-workflow.md` →
-  Batched User Decisions)
-- Bundle multiple file bodies in a single response — exceeds VS Code's
-  per-response output-token ceiling and aborts the turn with *"the
-  response hit the length limit"*. Emit ONE file per response turn
-  (see `codegen-shared-workflow.md` → Phase 2: Output Cadence)
 - Write raw `azurerm` when AVM-TF exists
-- Hardcode unique strings
-- Use hardcoded tag maps ignoring governance
-- Skip governance compliance mapping (HARD GATE)
-- Use `APPINSIGHTS_INSTRUMENTATIONKEY` (use CONNECTION_STRING)
 - Use `terraform -target` or `terraform { cloud { } }` / `TFE_TOKEN`
-- Put hyphens in Storage Account names
-- Deploy — that's the Deploy agent's job
-- Proceed without checking AVM-TF variable types (known issues exist)
-- Generate variables not declared in the plan's Code-Generation
-  Contract section. If a needed variable is missing, STOP and traverse
-  `↩ Return to Step 4` per
-  `iac-common/references/governance-drift-routing.md`. CodeGen does
-  NOT invent inputs.
 
 ## Prerequisites Check
 

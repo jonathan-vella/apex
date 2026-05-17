@@ -61,6 +61,7 @@ Full procedure (`azd up` / `azd provision --preview`, environment preflight chec
 | **AVM version freeze gate**   | `references/avm-version-freeze-gate.md` (Phase 4.4 gate before `plan_status=APPROVED`)                                                |
 | **Codegen shared workflow**   | `references/codegen-shared-workflow.md` (Phase 2 output cadence loaded by `06b`/`06t` CodeGen agents)                                  |
 | **Codegen file-order**        | `references/codegen-file-order.md` (per-tool file emission order loaded by `06b`/`06t` CodeGen agents)                                 |
+| **Codegen DO / DON'T**        | `references/codegen-do-dont.md` (shared DO/DON'T bullets between `06b` + `06t`; tool-specific bullets stay in each agent body)         |
 | Preflight validation          | `azure-validate/references/infraops-preflight.md`                                                                                     |
 | CLI auth validation procedure | `azure-defaults/references/azure-cli-auth-validation.md`                                                                              |
 | Policy effect decision tree   | `azure-defaults/references/policy-effect-decision-tree.md`                                                                            |

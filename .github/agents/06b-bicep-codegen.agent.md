@@ -167,13 +167,12 @@ Before doing any work, read these skills.
 
 ## Do
 
-- Run preflight check BEFORE writing any Bicep (Phase 1)
-- Use `askQuestions` to present blockers from Phase 1 + 1.5
-- Use AVM modules for EVERY resource that has one
-- Generate `uniqueSuffix` ONCE in `main.bicep`, pass to ALL modules
-- Apply baseline tags + governance extras
-- Parse `04-governance-constraints.json` — map each Deny policy to Bicep
-- Apply security baseline (TLS 1.2, HTTPS, managed identity, no public)
+> **Read** [`iac-common/references/codegen-do-dont.md`](../skills/iac-common/references/codegen-do-dont.md)
+> for the shared DO/DON'T rules that apply to both `06b` and `06t`
+> (preflight first, AVM-first, governance mapping, security baseline,
+> plan-lock, no inventing inputs, etc.). Bicep-specific additions only
+> below.
+
 - PostgreSQL: set `activeDirectoryAuth: Enabled`, `passwordAuth: Disabled`
 - APIM: check SKU compatibility matrix before VNet config (common-patterns.md)
 - Front Door: use separate `location` (global) and `resourceLocation` (region)
@@ -182,46 +181,15 @@ Before doing any work, read these skills.
 - Use `resourceId(subscription().subscriptionId, ...)` for cross-RG refs at subscription scope
 - Generate `azure.yaml` (required) + `deploy.ps1` (deprecated fallback) + `.bicepparam` per environment
 - Run `bicep build` + `bicep lint` after generation
-- Save `05-implementation-reference.md` + update project README
 
 ## Don't
 
-- Start coding before preflight check
-- Silently halt on blockers without telling the user why
-- List blockers in chat and wait for a reply (wastes a round-trip)
-- Edit `agent-output/{project}/04-implementation-plan.md`,
-  `04-governance-constraints.md`, or `04-governance-constraints.json` —
-  frozen after gate-3 per `metadata.plan_lock` in the workflow graph;
-  plan-level must_fix returns to Step 4 instead
-- Invoke `challenger-review-subagent` with
-  `artifact_type = "implementation-plan"` from Step 5 (plan-level reviews
-  run at Step 4 only; Step 5 uses `artifact_type = "iac-code"`)
-- Issue more than one `askQuestions` call per challenger pass — batch all
-  open decisions into one inline form (see `codegen-shared-workflow.md` →
-  Batched User Decisions)
-- Bundle multiple file bodies in a single response — exceeds VS Code's
-  per-response output-token ceiling and aborts the turn with *"the
-  response hit the length limit"*. Emit ONE file per response turn
-  (see `codegen-shared-workflow.md` → Phase 2: Output Cadence)
 - Write raw Bicep when AVM exists
-- Hardcode unique strings
-- Use hardcoded tag lists ignoring governance
-- Skip governance compliance mapping (HARD GATE)
-- Use `APPINSIGHTS_INSTRUMENTATIONKEY` (use CONNECTION_STRING)
-- Allow password-only auth on any database (security baseline)
 - Use `virtualNetworkType` on Standard/Basic v2 (classic model only)
 - Share a single location param for both profile and Private Link
 - Set `bypass: 'None'` when enabledForDeployment/DiskEncryption/TemplateDeployment is true
-- Put hyphens in Storage Account names
 - Use bare `resourceId(rgName, type, name)` from subscription-scope modules
-- Deploy — that's the Deploy agent's job
-- Proceed without checking AVM parameter types (known issues exist)
 - Use phase parameter if plan specifies single deployment
-- Generate parameters not declared in the plan's Code-Generation
-  Contract section. If a needed param is missing, STOP and traverse
-  `↩ Return to Step 4` per
-  `iac-common/references/governance-drift-routing.md`. CodeGen does
-  NOT invent inputs.
 
 ## Prerequisites Check
 
