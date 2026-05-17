@@ -88,25 +88,22 @@ draw.io workflow is captured in `## Draw.io MCP-Driven Diagram Workflow`.
 - Stop and re-run the diagram workflow if quality score < 9/10; do not ship a
   failing diagram.
 
-## Subagent Budget
+## Operating frame
 
-This agent runs on `GPT-5.5` and delegates pricing-only work to a single
-subagent: `cost-estimate-subagent` on `GPT-5.3-Codex`. The cross-family call
-(OpenAI ↔ OpenAI Codex) is intentional — Codex is selected for numerical and
-parametric reasoning over SKU pricing. The subagent contract is JSON-shaped
-and preserved verbatim, so no parsing changes are required here.
+Shared agent rules (read each SKILL.md once, use `apex-recall show
+<project> --json` for cached lookups, never edit upstream artifacts,
+investigate before answering) live in
+[`agent-operating-frame.instructions.md`](../instructions/agent-operating-frame.instructions.md).
 
-## Context Awareness
-
-**This is a large agent definition (~405 lines).** Read each `SKILL.md` only
-once; do not re-read predecessor artifacts after the boot read — use
-`apex-recall show <project> --json` for cached lookups instead.
-
-## Scope
-
-**This agent generates as-built documentation only**: design document, operations runbook, cost estimate,
-compliance matrix, backup/DR plan, resource inventory, and documentation index.
-Do not modify deployed infrastructure, change IaC templates, or skip prior artifact review.
+- **Scope**: generate as-built documentation only (design document,
+  operations runbook, cost estimate, compliance matrix, backup/DR
+  plan, resource inventory, documentation index). Never modify
+  deployed infrastructure, change IaC templates, or skip prior
+  artifact review.
+- **Subagent budget (1)**: `cost-estimate-subagent` on `GPT-5.3-Codex`
+  (intentional cross-family call — Codex selected for numerical
+  reasoning over SKU pricing). The JSON-shaped contract is preserved
+  verbatim.
 
 ## Read Skills First
 

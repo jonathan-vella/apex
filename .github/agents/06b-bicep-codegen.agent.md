@@ -129,29 +129,22 @@ and list the artifacts (per the azure-artifacts skill).
   the frozen artifacts in place — that is a defect and breaks workflow
   resume.
 
-## Investigate Before Answering
+## Operating frame
 
-Read the implementation plan and governance constraints before generating any Bicep code.
-Verify AVM module availability and parameter schemas via preflight checks.
-Do not assume resource configurations — validate against actual Azure API schemas.
+Shared agent rules (read each SKILL.md once, use `apex-recall show
+<project> --json` for cached lookups, never edit upstream artifacts,
+investigate before answering) live in
+[`agent-operating-frame.instructions.md`](../instructions/agent-operating-frame.instructions.md).
 
-## Context Awareness
-
-This is a large agent definition (~590 lines). Read each `SKILL.md` only once;
-do not re-read predecessor artifacts after the boot read — use
-`apex-recall show <project> --json` for cached lookups instead.
-
-## Scope Fencing
-
-This agent generates Bicep templates and validation artifacts only.
-Do not deploy infrastructure — that is the Deploy agent's responsibility.
-Do not modify architecture decisions — hand back to the Planner if the plan needs changes.
-
-## Subagent Budget
-
-This agent orchestrates 2 subagents: bicep-validate-subagent (lint+review), challenger-review-subagent.
-Invoke bicep-validate-subagent for combined lint and code review.
-Use challenger-review-subagent only for adversarial review after validation passes.
+- **Scope**: generate Bicep templates + validation artifacts only.
+  Never deploy (hand off to `07b-bicep-deploy`); never modify
+  architecture (hand back to `05-iac-planner`).
+- **Subagent budget (2)**: `bicep-validate-subagent` (combined lint
+  + code review); `challenger-review-subagent` (post-validation
+  adversarial pass only).
+- **Schema verification**: validate AVM module availability and
+  parameter schemas via the preflight + bicep-validate-subagent
+  before generating code.
 
 ## Read Skills First
 

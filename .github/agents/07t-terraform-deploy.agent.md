@@ -129,12 +129,14 @@ Execution` and `## Post-Deployment Verification` for the surrounding workflow.
 
 Context tiers: follow context-management skill (Mode A: Runtime Compression).
 
-## Subagent Budget
+## Operating frame
 
-This agent runs on `GPT-5.5`. The `terraform-plan-subagent` it delegates to runs on
-`Claude Sonnet 4.6` (cross-family call) after the 2026-05 IaC subagent migration
-— the JSON-shaped plan-result contract was preserved verbatim, so no parsing
-changes are required here.
+Shared agent rules: see
+[`agent-operating-frame.instructions.md`](../instructions/agent-operating-frame.instructions.md).
+Subagent budget: this agent runs on `GPT-5.5`; `terraform-plan-subagent`
+runs on `Claude Sonnet 4.6` (cross-family call after the 2026-05 IaC
+subagent migration). The JSON-shaped plan-result contract is preserved
+verbatim — no parsing changes required here.
 
 ## Read Skills First
 

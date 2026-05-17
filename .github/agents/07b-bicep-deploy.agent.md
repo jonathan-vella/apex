@@ -125,12 +125,14 @@ Checklist`. Use the templates in `.github/skills/azure-artifacts/templates/` for
 
 Context tiers: follow context-management skill (Mode A: Runtime Compression).
 
-## Subagent Budget
+## Operating frame
 
-This agent runs on `GPT-5.5`. The `bicep-whatif-subagent` it delegates to runs on
-`Claude Sonnet 4.6` (cross-family call) after the 2026-05 IaC subagent migration
-— the JSON-shaped what-if contract was preserved verbatim, so no parsing changes
-are required here.
+Shared agent rules: see
+[`agent-operating-frame.instructions.md`](../instructions/agent-operating-frame.instructions.md).
+Subagent budget: this agent runs on `GPT-5.5`; `bicep-whatif-subagent`
+runs on `Claude Sonnet 4.6` (cross-family call after the 2026-05 IaC
+subagent migration). The JSON-shaped what-if contract is preserved
+verbatim — no parsing changes required here.
 
 ## Read Skills First
 

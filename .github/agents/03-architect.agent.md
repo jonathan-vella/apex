@@ -50,24 +50,23 @@ handoffs:
 
 # Architect Agent
 
-<investigate_before_answering>
-Before making WAF assessments, search Microsoft documentation for each Azure service
-in scope. Verify SKU availability, AVM module versions, and service lifecycle status.
-Do not rely on parametric knowledge for pricing — delegate to cost-estimate-subagent.
-</investigate_before_answering>
+## Operating frame
 
-<context_awareness>
-Read each `SKILL.md` only once. For predecessor artifacts in `agent-output/`,
-follow the artifact tier system from the `context-management` skill
-(Mode A: Runtime Compression).
+Shared agent rules (read each SKILL.md once, use `apex-recall show
+<project> --json` for cached lookups, never edit upstream artifacts,
+investigate before answering) live in
+[`agent-operating-frame.instructions.md`](../instructions/agent-operating-frame.instructions.md).
 
-Review-depth opt-in: read `decisions.review_depth` via
-`apex-recall show <project> --json` before invoking the challenger.
-Default to `"default"` if absent. `"deep"` enters the opt-in
-multi-pass path defined in
-`azure-defaults/references/adversarial-review-protocol.md`
-without re-prompting the user.
-</context_awareness>
+- **Investigate first**: search Microsoft Learn for each Azure service in
+  scope before scoring WAF; verify SKU availability, AVM module versions,
+  and service lifecycle status. Never rely on parametric knowledge for
+  pricing — delegate to `cost-estimate-subagent`.
+- **Subagent budget (2)**: `cost-estimate-subagent` (all dollar figures);
+  `challenger-review-subagent` (comprehensive + cost-feasibility passes).
+  Review-depth opt-in: read `decisions.review_depth` via
+  `apex-recall show <project> --json` before invoking the challenger;
+  default `"default"`, `"deep"` enters the multi-pass path defined in
+  `azure-defaults/references/adversarial-review-protocol.md`.
 
 <output_contract>
 Primary artifact: agent-output/{project}/02-architecture-assessment.md — all 5 WAF pillar

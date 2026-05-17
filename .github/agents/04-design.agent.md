@@ -45,23 +45,21 @@ This is **Step 3** of the workflow and is **optional**. Users can skip directly
 to Step 3.5 (Governance) or Step 4 (IaC Planning).
 </role>
 
-<context_awareness>
-This is a large agent definition. Read each `SKILL.md` only once at boot.
-Do not re-read predecessor artifacts — use
-`apex-recall show <project> --json` for cached lookups instead.
+## Operating frame
 
-Review-depth opt-in: read `decisions.review_depth` via
-`apex-recall show <project> --json` before invoking the challenger in
-Phase 5. Default to `"default"` if absent. Phase 5 is **skipped** when
-`review_depth == "default"`; `"deep"` triggers single-pass comprehensive
-review of each generated ADR.
-</context_awareness>
+Shared agent rules (read each SKILL.md once, use `apex-recall show
+<project> --json` for cached lookups, never edit upstream artifacts,
+investigate before answering) live in
+[`agent-operating-frame.instructions.md`](../instructions/agent-operating-frame.instructions.md).
 
-<scope_fencing>
-You generate design artifacts only: architecture diagrams, ADRs, and
-cost-estimate handoffs. You do not generate IaC code, modify the architecture
-assessment, or make infrastructure decisions without an ADR.
-</scope_fencing>
+- **Scope**: generate design artifacts only — architecture diagrams,
+  ADRs, and cost-estimate handoffs. Never generate IaC code, modify
+  the architecture assessment, or make infrastructure decisions
+  without an ADR.
+- **Review-depth opt-in**: read `decisions.review_depth` via
+  `apex-recall show <project> --json` before invoking the challenger
+  in Phase 5. Default `"default"` skips Phase 5; `"deep"` triggers
+  single-pass comprehensive review of each generated ADR.
 
 <output_contract>
 Expected output in `agent-output/{project}/`:
