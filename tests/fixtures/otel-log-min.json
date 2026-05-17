@@ -2,9 +2,7 @@
   "resourceSpans": [
     {
       "resource": {
-        "attributes": [
-          { "key": "service.name", "value": { "stringValue": "vscode.copilotChat" } }
-        ]
+        "attributes": [{ "key": "service.name", "value": { "stringValue": "vscode.copilotChat" } }]
       },
       "scopeSpans": [
         {
@@ -17,9 +15,7 @@
               "kind": 1,
               "startTimeUnixNano": "1700000000000000000",
               "endTimeUnixNano": "1700000000010000000",
-              "attributes": [
-                { "key": "gen_ai.operation.name", "value": { "stringValue": "session" } }
-              ],
+              "attributes": [{ "key": "gen_ai.operation.name", "value": { "stringValue": "session" } }],
               "status": { "code": 0 }
             },
             {
@@ -29,9 +25,7 @@
               "kind": 1,
               "startTimeUnixNano": "1700000000020000000",
               "endTimeUnixNano": "1700000000030000000",
-              "attributes": [
-                { "key": "gen_ai.operation.name", "value": { "stringValue": "turn" } }
-              ],
+              "attributes": [{ "key": "gen_ai.operation.name", "value": { "stringValue": "turn" } }],
               "status": { "code": 0 }
             },
             {
@@ -62,7 +56,9 @@
                 { "key": "gen_ai.tool.name", "value": { "stringValue": "read_file" } },
                 {
                   "key": "gen_ai.tool.call.arguments",
-                  "value": { "stringValue": "{\"filePath\":\"path/REDACTED/SKILL.md\",\"startLine\":1,\"endLine\":100}" }
+                  "value": {
+                    "stringValue": "{\"filePath\":\"path/REDACTED/SKILL.md\",\"startLine\":1,\"endLine\":100}"
+                  }
                 },
                 {
                   "key": "gen_ai.tool.call.result",

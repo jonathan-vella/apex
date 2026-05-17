@@ -400,7 +400,8 @@ boot) or via a direct `10-Challenger` invocation by the user.
 | Create `agent-output/{project}/` + init session via `apex-recall`    | Include raw subagent dumps                                        |
 | Ensure `README.md` exists (Requirements agent creates it)            | Combine multiple steps without approval between them              |
 | Write `00-handoff.md` at EVERY gate before presenting                | Skip `00-handoff.md` or session state updates                     |
-| Update session state via `apex-recall` at EVERY gate                 |                                                                   |
+| Update session state via `apex-recall` at EVERY gate                 | Continue past a gate in the same chat — every gate ends with `/clear` |
+| End every accepted-gate message with the verbatim `/clear` line      | Paraphrase the resume line — validator greps it exactly           |
 
 ### Checkpoint Fallback (Safety Net)
 
@@ -560,12 +561,42 @@ Orchestrator with the project name — no special resume prompt needed.
 
 ## Session Break Protocol
 
-At Gates 2 and 3, recommend starting a fresh chat session to prevent context exhaustion:
+Every accepted Gate (1, 2, 2.5, 3, 4, 5) ends with a mandatory
+`/clear`-handoff — the headline token-reduction mechanism. VS Code
+Copilot Chat owns the history; only a user `/clear` drops accumulated
+context. Re-entry is loss-free via `apex-recall`.
 
-1. Write `00-handoff.md` and update session state via `apex-recall` (as always)
-2. Present the gate with a session break recommendation (see gate templates above)
-3. If the user agrees: tell them to open a new chat and invoke `@01-Orchestrator` with the project name
-4. If the user prefers to continue: proceed in same session (warn context may degrade)
+### Gate-acceptance procedure (verbatim, every gate)
 
-At resumption, the Orchestrator runs `apex-recall show <project> --json` and restores full context
-from artifact paths — no information is lost. See [Resuming a Project](#resuming-a-project).
+1. Write `00-handoff.md` and update session state.
+2. Persist completion state **before** emitting the handoff line — the
+   `/clear` destroys anything not in `apex-recall`:
+
+   ```bash
+   apex-recall checkpoint <project> <step> after_gate_<N> --json
+   apex-recall complete-step <project> <step> --json  # if not already done
+   ```
+
+3. Present gate summary (artifact paths + Challenger findings + next-step handoff button).
+4. End the message with this line, **verbatim**, on its own final
+   line — no paraphrase, no extra punctuation, no trailing commentary:
+
+   ```text
+   Run `/clear` then reply `@01-Orchestrator resume <project>` to continue Step N+1.
+   ```
+
+5. **Stop.** Do not continue Step N+1 in the same chat, even if the
+   user types "ok proceed". The contract is non-negotiable.
+
+### Resume path
+
+A new chat opened with `@01-Orchestrator resume <project>`:
+
+1. First tool call: `apex-recall show <project> --json`.
+2. Read `00-handoff.md` only if a gate-specific artifact path is needed.
+3. Do not re-read completed-step artifacts unless the user asks.
+
+Full contract (mechanism, validator, rationale):
+[`compression-templates.md`](../skills/context-management/references/compression-templates.md#gate-boundary-clear-handoff-contract).
+The lint `npm run validate:orchestrator-handoff` greps for the
+verbatim line — removing or paraphrasing it fails CI.
