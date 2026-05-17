@@ -131,6 +131,8 @@ reached):
 - `references/baseline-check.md` — Phase 0.45 cached-baseline procedure
 - `references/policy-override-pattern.md` — structured `override` object shape
 - `references/reconciliation-disposition.md` — Phase 2.5 disposition rules
+- `references/resume-checks.md` — Phase 0.4 short-circuit conditions (signature, TTL, confirmations)
+- `references/discover-output.md` — `discover.py` stdout shape, exit codes, anti-patterns, discovery-signature persistence
 
 ## Design Notes
 

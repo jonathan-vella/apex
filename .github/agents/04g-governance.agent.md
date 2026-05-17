@@ -224,36 +224,23 @@ types, honour that; otherwise proceed.
 
 ### Phase 0.4: Resume-Complete Short-Circuit
 
-Before any discovery, check whether Step 3.5 is already finished — guards
-against cold-boot re-entry (subagent dispatch, resumed session, challenger
-re-invocation) where the current turn does not know prior work exists.
-
-> **`▶ Refresh Governance` is non-skippable**: when the invocation prompt
-> contains `Refresh Governance`, `re-run`, or `rediscover`, or when a downstream
-> agent traversed the refresh handoff per `governance-drift-routing.md`, this
-> short-circuit is **disabled**. Skip to Phase 1 and call `discover.py --refresh`
-> regardless of cache state.
+Before any discovery, check whether Step 3.5 is already finished. Full
+short-circuit conditions (8 checks: step status, both artifacts present,
+JSON `discovery_status == "COMPLETE"`, non-empty `discovery_metadata`,
+signature match, TTL freshness, confirmations reused, no explicit
+refresh request) and the locked-S3 single-clock rule live in
+[`resume-checks.md`](../skills/azure-governance-discovery/references/resume-checks.md).
 
 1. Run `apex-recall show <project> --json`.
-2. Skip to Phase 3 (Approval Gate) only if **all** of:
-   - step `3_5` shows `status == "complete"`
-   - both `04-governance-constraints.{md,json}` exist under `agent-output/{project}/`
-   - JSON `discovery_status == "COMPLETE"`
-   - JSON contains a non-empty `discovery_metadata` object
-   - **Signature match**: `discovery_metadata.completeness_signature`
-     equals the cached `decisions.discovery_signature` value in the
-     apex-recall snapshot
-   - **TTL fresh**: `age_days = (now - discovery_metadata.discovered_at) / 86400 <= discovery_metadata.ttl_days`
-     (default `ttl_days` is 7)
-   - `governance_gate_status.resolved_confirmations` already contains all
-     three required topics (RG tag keys, allowed locations, RG/resource
-     same-region) — Phase 2.7 prior resolutions are reused only when the
-     snapshot they were recorded against has NOT changed
-   - The user did NOT explicitly ask for `refresh`, `re-run`, or `rediscover`.
-3. Otherwise proceed to Phase 0.45. Signature drift OR TTL expiry forces a
-   full pass — the prior Phase 2.7 confirmations against a stale snapshot
-   are NOT trusted (locked S3 decision: single clock; confirmations age
-   transitively with the snapshot they were recorded against).
+2. If **all 8** conditions pass, skip to Phase 3 (Approval Gate).
+3. Otherwise proceed to Phase 0.45.
+
+> **`▶ Refresh Governance` is non-skippable**: when the invocation
+> prompt contains `Refresh Governance`, `re-run`, or `rediscover`, or
+> when a downstream agent traversed the refresh handoff per
+> `governance-drift-routing.md`, this short-circuit is **disabled**.
+> Skip to Phase 1 and call `discover.py --refresh` regardless of cache
+> state.
 
 ### Phase 0.45: Baseline Check
 
@@ -278,9 +265,9 @@ calling Azure. Pass `--refresh` only when the user explicitly asks for
 
 ### Phase 1: Governance Discovery
 
-Run the deterministic discovery script via `run_in_terminal`. Do NOT delegate
-this phase to a subagent — the script is pure ETL and adds no LLM value in a
-subagent wrapper.
+Run the deterministic discovery script via `run_in_terminal`. Do NOT
+delegate this phase to a subagent — the script is pure ETL and adds no
+LLM value in a subagent wrapper.
 
 ```bash
 set +H && python .github/skills/azure-governance-discovery/scripts/discover.py \
@@ -289,42 +276,29 @@ set +H && python .github/skills/azure-governance-discovery/scripts/discover.py \
     --arch agent-output/{project}/02-architecture-assessment.md
 ```
 
-> **Fix G — Bash history expansion**: Always prefix inline terminal commands
-> containing `!` with `set +H &&` to disable bash history expansion, which
-> causes `!` in JSON strings to trigger `event not found` errors.
-
 Append `--refresh` if the user requested it. Append `--include-defender-auto`
 only if the user explicitly asks to keep Defender-for-Cloud auto-assignments
-(they are filtered by default).
+(filtered by default). Full stdout shape, exit codes, anti-patterns, and
+the `set +H` bash-history fix:
+[`discover-output.md`](../skills/azure-governance-discovery/references/discover-output.md).
 
-1. **Read the first stdout line only** — it is a single JSON status object
-   with `status`, `cache_hit`, `assignment_total`, `blockers`,
-   `auto_remediate`, and `exempted` fields. The remaining stdout lines
-   are a human-readable Markdown preview **for the user**, not for LLM
-   re-ingestion. Do NOT pipe them back into the model. The script also
-   writes a **`discovery_metadata` envelope** at the top of the output
-   JSON (L0 attestation) \u2014 do NOT hand-author this object. `discover.py`
-   computes it deterministically (signature = sha256 over stable-sorted
-   `(policy_id, effect, scope, params)` tuples). Every downstream
-   consumer (Planner, CodeGen, Deploy) reads it first.
-
-2. **Gate on status**:
-   - `COMPLETE` → proceed to Phase 2 (envelope self-check passed inside `discover.py`)
-   - `PARTIAL` → present the partial state to the user and ask whether to continue.
-     `PARTIAL` is also emitted when the end-of-discovery self-check (re-fetch
-     page 1 of `policyAssignments`) detected a count drift — see
-     `discover.py` stderr for the surface that drifted.
-   - `FAILED` → STOP and surface the error (typically `az login` needed)
-3. **Exit codes** mirror status: `0` COMPLETE, `1` PARTIAL, `2` FAILED, `3` bad args.
-4. **Record findings** (MANDATORY): For each Deny-policy blocker discovered, run:
-   `apex-recall finding <project> --add "Deny: <policy_display_name> — blocks <resource_types>" --json`
-   For 10+ blockers, prefer the bulk pipe documented as **Cmd 8** in
-   `references/terminal-commands.md` (single `apex-recall finding --add-many -`
-   call replaces N per-finding invocations).
-5. **Record discovery signature** (MANDATORY — Phase 4 short-circuit contract):
-   Read `discovery_metadata.completeness_signature` from the freshly-written
-   envelope and persist it as a decision so Phase 0.4 / Phase 2.7 can detect
-   resume-eligibility on the next invocation:
+1. **Read the first stdout line only** — it is the JSON status object
+   (`status`, `cache_hit`, `assignment_total`, `blockers`,
+   `auto_remediate`, `exempted`). The remaining stdout lines are a
+   user-facing Markdown preview, NOT for LLM re-ingestion. The script
+   also writes the `discovery_metadata` envelope (L0 attestation) at
+   the top of the output JSON — never hand-author it.
+2. **Gate on status**: `COMPLETE` → Phase 2; `PARTIAL` → present partial
+   state and ask user to continue; `FAILED` → STOP and surface the
+   error (typically `az login`). Exit codes mirror status
+   (`0` / `1` / `2`; `3` = bad args). Full table in `discover-output.md`.
+3. **Record findings** (MANDATORY): for each Deny blocker, run
+   `apex-recall finding <project> --add "Deny: <policy_display_name> — blocks <resource_types>" --json`.
+   For 10+ blockers, prefer the bulk pipe (Cmd 8 in
+   `azure-governance-discovery/references/terminal-commands.md`).
+4. **Record discovery signature** (MANDATORY — Phase 4 short-circuit
+   contract). Read `discovery_metadata.completeness_signature` and
+   persist it so Phase 0.4 / Phase 2.7 can detect resume-eligibility:
 
    ```bash
    SIG=$(jq -r '.discovery_metadata.completeness_signature' \
@@ -332,28 +306,19 @@ only if the user explicitly asks to keep Defender-for-Cloud auto-assignments
    apex-recall decide {project} --key discovery_signature --value "$SIG" --json
    ```
 
-   This MUST run on BOTH the live `discover.py` path and the cached
-   `render_cached_governance.py` path. The 05-IaC Planner reads and
-   re-asserts the same key idempotently on entry; both writers are
-   registered in `tools/apex-recall/docs/decision-keys.md`.
-6. **Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 3_5 phase_1_discovery --json`
+   MUST run on BOTH live and cached paths. Full contract:
+   [`discover-output.md`](../skills/azure-governance-discovery/references/discover-output.md).
+5. **Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 3_5 phase_1_discovery --json`
 
-> **Phase 1 anti-patterns**:
->
-> - Do NOT improvise discovery via `az rest`, `execution_subagent`, or inline
->   Python REST scripts. ALL Azure Policy REST work goes through `discover.py`.
->   If the script fails with exit code 2, surface the error — do not reinvent
->   the discovery path.
-> - Do NOT call `mcp_azure_mcp_get_azure_bestpractices`. Governance discovers
->   constraints from live Azure Policy data, not best-practice recommendations
->   (~21s overhead, irrelevant output).
-> - Do NOT read `tmp/{project}-governance-live.json`. That legacy intermediate
->   wastes ~2–3 min on 920+ lines of raw data. The authoritative governance
->   file is `agent-output/{project}/04-governance-constraints.json`.
+> **Phase 1 anti-patterns**: do NOT improvise discovery via `az rest`,
+> `execution_subagent`, or inline Python REST; do NOT call
+> `mcp_azure_mcp_get_azure_bestpractices` (~21s overhead, irrelevant);
+> do NOT read `tmp/{project}-governance-live.json` (legacy intermediate).
+> Full rationale: [`discover-output.md`](../skills/azure-governance-discovery/references/discover-output.md) §Anti-patterns.
 
 **Auto-proceed**: After discover.py or render_cached_governance.py exits 0
-(`COMPLETE`), proceed directly to Phase 2 without asking the user any questions.
-The only user interaction point is the Phase 3 Approval Gate.
+(`COMPLETE`), proceed directly to Phase 2 without asking the user any
+questions. The only user interaction point is the Phase 3 Approval Gate.
 
 ### Phase 2: Generate Artifacts
 
