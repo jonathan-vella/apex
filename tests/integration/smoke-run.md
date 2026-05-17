@@ -23,9 +23,19 @@ Per workflow run:
 ### 0. Prep
 
 1. Fresh chat session — open VS Code Copilot Chat, no prior history.
-2. Set `decisions.review_depth = "default"` so the default ceiling
-   (2 challenger passes) applies; the deep path is not required for
-   this smoke run.
+2. **Review depth**: no action needed. `decisions.review_depth`
+   defaults to `"default"` when absent (per
+   `01-orchestrator.agent.md` → "Computing `decisions.review_depth`"
+   → _"Default value when absent: `default`."_). The 2-pass ceiling
+   applies automatically.
+
+   _Only if you want the deep (4-pass) path instead_, run **after**
+   the orchestrator initialises the project:
+
+   ```sh
+   apex-recall decide <project> --key review_depth --value deep \
+     --rationale "Multi-pass adversarial review required" --json
+   ```
 
 ### 1. Step 1 — Requirements (target Gate 1)
 
