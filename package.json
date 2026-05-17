@@ -95,6 +95,8 @@
     "validate:avm-versions:ci": "node tools/scripts/validate-avm-module-versions.mjs --mode=ci",
     "validate:avm-versions:freeze": "node tools/scripts/validate-avm-module-versions.mjs --mode=freeze",
     "validate:avm-versions:offline": "node tools/scripts/validate-avm-module-versions.mjs --mode=local --no-network",
+    "refresh:avm-module-index": "node tools/scripts/refresh-avm-module-index.mjs",
+    "refresh:avm-module-index:dry": "node tools/scripts/refresh-avm-module-index.mjs --no-version-refresh",
     "validate:policy-property-map": "node tools/scripts/validate-policy-property-map.mjs",
     "validate:environment-manifest": "node tools/scripts/validate-environment-manifest.mjs",
     "validate:iac-handoff": "node tools/scripts/validate-iac-handoff.mjs",

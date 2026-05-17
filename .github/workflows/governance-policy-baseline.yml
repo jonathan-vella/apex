@@ -2,8 +2,10 @@ name: Governance Policy Baseline
 
 on:
   schedule:
-    # Run daily at 04:00 UTC
-    - cron: "0 4 * * *"
+    # Weekly on Monday at 05:00 UTC. Moved from daily-04:00 (May 2026) because
+    # every drift PR now requires human review (auto-merge dropped, see
+    # workflows/README.md). Weekly is enough to keep the baseline fresh.
+    - cron: "0 5 * * 1"
   workflow_dispatch:
     inputs:
       force_update:
@@ -129,24 +131,19 @@ jobs:
             ${{ steps.mg-check.outputs.mg_changed == 'true' && 'needs-human-review' || '' }}
         id: cpr
 
-      - name: Enable auto-merge (MG ID unchanged only)
-        if: steps.cpr.outputs.pull-request-number != '' && steps.mg-check.outputs.mg_changed != 'true'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh pr merge ${{ steps.cpr.outputs.pull-request-number }} \
-            --auto --squash --delete-branch
-
+      # Auto-merge is intentionally NOT enabled: GitHub Free private repos
+      # do not support `gh pr merge --auto`. Every baseline-drift PR stays
+      # open for human review. MG ID changes are still surfaced via the
+      # `needs-human-review` label above + the warning log below.
       - name: Log MG change warning
         if: steps.cpr.outputs.pull-request-number != '' && steps.mg-check.outputs.mg_changed == 'true'
         run: |
-          echo "⚠️ Management Group ID changed — PR requires human review."
-          echo "Auto-merge is disabled for this PR."
+          echo "⚠️ Management Group ID changed — PR carries the 'needs-human-review' label."
 
       - name: Log pull request
         if: steps.cpr.outputs.pull-request-number != ''
         run: |
-          echo "✅ Created/updated PR #${{ steps.cpr.outputs.pull-request-number }}"
+          echo "✅ Opened/updated PR #${{ steps.cpr.outputs.pull-request-number }} — manual review + merge required."
           echo "🔗 ${{ steps.cpr.outputs.pull-request-url }}"
 
       - name: Log no changes

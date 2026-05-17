@@ -13,6 +13,12 @@ AVM module versions.
 Immediately before recording `plan_status=APPROVED` for the project and
 running `apex-recall complete-step 4`.
 
+> Module existence + lifecycle (`Available` vs `Proposed`/`Orphaned`) is
+> resolved earlier, in Phase 2, against the local AVM module index. See
+> [`avm-module-index.md`](avm-module-index.md) for the contract. This
+> freeze gate trusts that every module being pinned has already been
+> shown to exist; it only validates the **version**.
+
 ## Command
 
 ```bash

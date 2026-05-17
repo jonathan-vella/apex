@@ -1,0 +1,71 @@
+# Composite action: standard Node.js workflow prelude.
+#
+# Bundles the three steps that every Node-based job in
+# `.github/workflows/` was repeating:
+#   1. actions/checkout
+#   2. actions/setup-node (with npm cache)
+#   3. npm ci
+#
+# Bumping Node version, checkout version, or setup-node version is now a
+# single-file edit instead of a fan-out across every workflow.
+#
+# Use:
+#   - uses: ./.github/actions/setup-node-repo
+#   - uses: ./.github/actions/setup-node-repo
+#     with:
+#       fetch-depth: "0"          # full history (default: "1")
+#       submodules: "recursive"   # default: "false"
+#       install-deps: "false"     # skip npm ci (default: "true")
+#       ref: feat/skills-sensei   # checkout a specific ref
+#
+# Not used by:
+#   - governance-policy-baseline.yml — pwsh + azure/login, no Node
+#   - docs.yml — uses a non-root working-directory (site/)
+#   - branch-enforcement.yml — neither job needs Node
+#   - weekly-maintenance.yml drawio-* jobs — Deno/Python only
+
+name: Setup Node Repo
+description: Checkout + Node.js setup + npm ci (shared workflow prelude)
+
+inputs:
+  node-version:
+    description: Node.js major version (default 24)
+    required: false
+    default: "24"
+  fetch-depth:
+    description: Git fetch depth — "0" for full history, "1" for shallow
+    required: false
+    default: "1"
+  submodules:
+    description: Submodules option forwarded to actions/checkout
+    required: false
+    default: "false"
+  ref:
+    description: Ref to check out (default — empty, uses workflow default)
+    required: false
+    default: ""
+  install-deps:
+    description: Set to "false" to skip `npm ci` (e.g. matrix workflows that install per-job)
+    required: false
+    default: "true"
+
+runs:
+  using: composite
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v6
+      with:
+        ref: ${{ inputs.ref }}
+        fetch-depth: ${{ inputs.fetch-depth }}
+        submodules: ${{ inputs.submodules }}
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v6
+      with:
+        node-version: ${{ inputs.node-version }}
+        cache: npm
+
+    - name: Install Node dependencies
+      if: inputs.install-deps == 'true'
+      shell: bash
+      run: npm ci

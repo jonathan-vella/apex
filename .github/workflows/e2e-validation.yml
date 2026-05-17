@@ -12,7 +12,7 @@ on:
         required: false
         default: "contoso-service-hub-run-1"
   schedule:
-    - cron: "0 6 * * 1" # Weekly on Monday at 06:00 UTC
+    - cron: "0 9 * * 1" # Weekly on Monday at 09:00 UTC (staggered: see .github/workflows/README.md#weekly-cron-schedule)
 
 permissions:
   contents: read
@@ -22,24 +22,25 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  e2e-validate:
-    name: E2E Validation & Benchmark
+  validate:
+    name: Validate E2E artifacts
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: "24"
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci
+      - name: Setup repo + Node
+        uses: ./.github/actions/setup-node-repo
 
       - name: Validate E2E artifacts (all steps)
         run: npm run e2e:validate
+
+  benchmark:
+    # Benchmarks are informational — scoring drift shouldn't fail the build,
+    # but validation regressions do (see the `validate` job above).
+    name: Benchmark E2E projects
+    runs-on: ubuntu-latest
+    needs: validate
+    steps:
+      - name: Setup repo + Node
+        uses: ./.github/actions/setup-node-repo
 
       - name: Benchmark Bicep project
         run: npm run e2e:benchmark -- ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.project || 'contoso-service-hub-run-1' }}

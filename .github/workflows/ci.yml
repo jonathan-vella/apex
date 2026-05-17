@@ -24,19 +24,10 @@ jobs:
     name: ci
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
+      - name: Setup repo + Node
+        uses: ./.github/actions/setup-node-repo
         with:
-          fetch-depth: 0
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: "24"
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci
+          fetch-depth: "0"
 
       - name: Install bats
         run: sudo apt-get install -y bats
@@ -76,66 +67,20 @@ jobs:
           fi
 
       - name: Validate handoff references
-        run: |
-          echo "Validating agent handoff references..."
-
-          # Anchor on indented YAML frontmatter lines so prose like
-          # "subagent: foo" or "agent name:" in body markdown doesn't slip
-          # through. Real handoff entries always look like `    agent: NAME`
-          # under a `handoffs:` list.
-          grep -rhE "^[[:space:]]+agent:[[:space:]]" .github/agents/ --include="*.agent.md" 2>/dev/null | \
-            sed 's/^[[:space:]]*agent:[[:space:]]*//' | \
-            tr -d '"' | \
-            sort -u > /tmp/handoffs.txt
-
-          # `name:` lives at column 0 of the YAML frontmatter, so anchor
-          # to start-of-line with no leading whitespace.
-          grep -rhE "^name:[[:space:]]" .github/agents/ --include="*.agent.md" 2>/dev/null | \
-            sed 's/^name:[[:space:]]*//' | \
-            tr -d '"' | \
-            sort -u > /tmp/agents.txt
-
-          BUILTIN_AGENTS="agent"
-          ERRORS=0
-          while IFS= read -r handoff; do
-            [ -z "$handoff" ] && continue
-            if echo "$BUILTIN_AGENTS" | grep -qiw "$handoff"; then
-              continue
-            fi
-            if ! grep -qi "^${handoff}$" /tmp/agents.txt; then
-              echo "Invalid handoff reference: $handoff"
-              ERRORS=$((ERRORS + 1))
-            fi
-          done < /tmp/handoffs.txt
-
-          if [ $ERRORS -gt 0 ]; then
-            echo "Found $ERRORS invalid handoff reference(s)"
-            exit 1
-          else
-            echo "All handoff references are valid"
-          fi
+        run: bash tools/scripts/validate-handoff-references.sh
 
   external-tests:
     name: External Python tests (apex-recall + azure-pricing MCP)
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: "24"
-          cache: "npm"
+      - name: Setup repo + Node
+        uses: ./.github/actions/setup-node-repo
 
       - name: Setup Python
         uses: actions/setup-python@v6
         with:
           python-version: "3.14"
           cache: "pip"
-
-      - name: Install Node dependencies
-        run: npm ci
 
       - name: Install Python test dependencies
         run: |
