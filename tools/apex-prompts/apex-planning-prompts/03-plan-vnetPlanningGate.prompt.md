@@ -1,4 +1,12 @@
-# Plan: VNet Planning Gate in azure-defaults — Rev 2
+# Plan: VNet Planning Gate in azure-defaults — Rev 3
+
+> **Resume note (multi-device)**: This file is the single source of
+> truth for the plan. No session memory or `apex-recall` state is
+> required to continue — Rev 3 folds in every adversarial finding
+> from Rev 1 (M1–M4, S1–S4, G1) and Rev 2 (S2-A, S2-B, G3). G4 and
+> G5 are explicitly deferred (see Deferred / Out of scope). Implement
+> Phase A → E in order; the trailing "Adversarial Review" section is
+> historical audit only.
 
 Add an interactive VNet planning gate to the `azure-defaults` skill so
 that whenever the architecture includes resources that consume or
@@ -20,34 +28,48 @@ Resulting decisions (`vnet_mode`, `existing_vnet_id`,
 `vnet_address_space`, `subnet_plan`, `vnet_planning_mode`,
 `vnet_plan_decision`) flow to 05-IaC Planner via `apex-recall`.
 
-## Decisions captured (Rev 2 — incorporates adversarial findings)
+## Decisions captured (Rev 3 — incorporates Rev 1 + Rev 2 adversarial findings)
 
-- **Trigger contract (M1 fix)**: gate fires when **either** condition
-  holds for the in-scope architecture:
+- **Trigger contract (M1 + S2-A fix)**: gate fires when **either**
+  condition holds for the in-scope architecture:
   1. Any `services[].requires[]` row contains `vnet-integration` or
      `private-endpoints` (already-canonical tokens in
      [`sku-manifest.instructions.md`](.github/instructions/sku-manifest.instructions.md)).
   2. Any `services[].service_name` is in the **vnet-attached service
      whitelist**: `app-gateway`, `aks`, `vm`, `vmss`, `apim-internal`,
      `bastion`, `azure-firewall`, `vpn-gateway`, `expressroute-gateway`,
-     `nat-gateway`, `application-gateway-for-containers`. This whitelist
-     is owned by `vnet-planning.md` and validated by a new check in
-     `validate:sku-manifest` (warns when a whitelisted `service_name`
-     is present and no `vnet_mode` decision is recorded post-Step 2).
-     Public-edge-only workloads (Static Web Apps + Functions Consumption
-  - Storage public + Front Door) do not trigger the gate.
+     `nat-gateway`, `application-gateway-for-containers`.
+  **Single source of truth (S2-A)**: this whitelist is owned **only**
+  by [`vnet-planning.md`](.github/skills/azure-defaults/references/vnet-planning.md)
+  as a fenced ```yaml``` block under heading `## vnet-attached service
+  whitelist`. `validate:sku-manifest` parses that fenced block via the
+  workspace-relative path and does **not** redeclare the list — keeps
+  the whitelist DRY. Validator warns when a whitelisted `service_name`
+  is present and no `vnet_mode` decision is recorded post-Step 2.
+  Public-edge-only workloads (Static Web Apps + Functions Consumption
+  + Storage public + Front Door) do not trigger the gate.
 - **Owning agent**: 03-Architect, after Phase 6a (SKU confirmation),
   before Phase 7 (pricing).
-- **Existing-VNet flow (M4 fix)**: when `vnet_mode = use-existing`,
-  Architect MUST run a single CLI call at capture time:
-  `az network vnet show --ids "${existing_vnet_id}" --query "{addr:addressSpace.addressPrefixes,loc:location,name:name}" -o json`.
-  Three outcomes — (a) exists + reachable → store
-  `vnet_address_space` from the live `addressSpace.addressPrefixes[0]`
-  (overrides any user-typed value; that becomes authoritative for
-  subnet-overlap math); (b) NotFound / Forbidden → re-prompt with the
-  error inline; (c) tenant/subscription/region mismatch → block until
-  user supplies correct ID or switches to `create-new`. Implementation
-  detail in `vnet-planning.md` ("Existing-VNet validation").
+- **Existing-VNet flow (M4 + S2-B fix)**: when `vnet_mode = use-existing`,
+  Architect runs a **two-step** capture-time validation:
+  1. **Auth preamble (S2-B)** — `az account show -o none 2>/dev/null`.
+     On failure (no `az login`, expired token, missing CLI), fall back
+     to "trust user input, defer validation to Planner Phase 4" and
+     emit a Challenger-tagged informational finding
+     (`existing_vnet_validation_deferred`). This mirrors the auth
+     fallback in
+     [`azure-cli-auth-validation.md`](.github/skills/azure-defaults/references/azure-cli-auth-validation.md)
+     used by 04g-Governance.
+  2. **Resource probe (M4)** — when auth succeeds, run
+     `az network vnet show --ids "${existing_vnet_id}" --query "{addr:addressSpace.addressPrefixes,loc:location,name:name}" -o json`.
+     Three outcomes — (a) exists + reachable → store
+     `vnet_address_space` from the live `addressSpace.addressPrefixes[0]`
+     (overrides any user-typed value; that becomes authoritative for
+     subnet-overlap math); (b) NotFound / Forbidden → re-prompt with
+     the error inline; (c) tenant/subscription/region mismatch → block
+     until user supplies correct ID or switches to `create-new`.
+  Implementation detail in `vnet-planning.md` ("Existing-VNet
+  validation").
 - **Subnet recommendation style (S1 fix)**: propose a full subnet
   table upfront, then loop the standard per-finding askMe pattern —
   options `Apply edit (freeform diff)`, `Skip this row`, `Done`. After
@@ -201,19 +223,30 @@ deferred`; 03-Architect Phase 6b; read by 05-IaC Planner +
    - `vnet_plan_decision` (`confirmed | edited | deferred`; status
      marker for downstream agents).
 
-4. **Schema (S2 fix)** — create
+4. **Schema (S2 + G3 fix)** — create
    [`tools/schemas/subnet-plan.schema.json`](tools/schemas/subnet-plan.schema.json):
+   - **Top-level (G3)**: `$schema: "https://json-schema.org/draft/2020-12/schema"`,
+     `$id: "https://github.com/jonathan-vella/azure-agentic-infraops/schemas/subnet-plan/v1.json"`,
+     `version: "1.0.0"`, `title: "Subnet Plan v1"`. Future fields (IPv6
+     full support, NAT Gateway attachment, service-endpoint policies)
+     bump to v2 in a sibling file; v1 stays frozen so old artifacts
+     keep validating.
    - Array of objects.
    - Required fields: `name` (string), `address_prefix` (CIDR;
      pattern), `purpose` (enum: matches sizing matrix rows + `custom`).
    - Optional: `delegation` (enum of supported delegations + `none`),
      `nsg` (`auto | <name> | none`), `route_table` (`auto | <name> |
-none`), `service_endpoints` (string[]),
+     none`), `service_endpoints` (string[]),
      `private_endpoint_network_policies` (`Enabled | Disabled`),
      `ipv6_prefix` (CIDR or null).
    - Wire into `validate:decision-keys` (load schema; when a project
      has `decisions.subnet_plan`, parse JSON and validate against
      schema; soft warning when missing).
+   - Wire into `validate:sku-manifest` (whitelist enforcement, S2-A):
+     validator loads the fenced ```yaml``` block under
+     `vnet-planning.md`'s `## vnet-attached service whitelist` heading
+     using a workspace-relative path constant; fails with actionable
+     error if the heading or fence is missing.
 
 ## Phase C — Agent + gate wiring
 
@@ -222,8 +255,10 @@ none`), `service_endpoints` (string[]),
    "**Architect (Step 2) — Phase 6b: VNet planning gate**". Body
    describes when to fire (trigger contract), the
    `vnet_planning_mode` branch, the two-round askQuestions templates
-   (concise; defers full text to `vnet-planning.md`), the M4
-   validation call, and the recall write-backs.
+   (concise; defers full text to `vnet-planning.md`), the M4+S2-B
+   two-step validation (auth preamble → resource probe; reference
+   [`azure-cli-auth-validation.md`](.github/skills/azure-defaults/references/azure-cli-auth-validation.md)
+   for the auth-fallback pattern), and the recall write-backs.
 
 6. Edit [`.github/agents/03-architect.agent.md`](.github/agents/03-architect.agent.md):
    - Insert **one** numbered step between current 6a (SKU confirmation
@@ -306,17 +341,22 @@ none`), `service_endpoints` (string[]),
     invocations follow vendor rules (Round 1 multi-options OK; Round 2
     per-row askMe uses canonical 3-option pattern).
 15. `npm run validate:decision-keys` — confirms the 6 new keys are
-    registered AND the `subnet-plan.schema.json` schema is loaded.
+    registered AND the `subnet-plan.schema.json` schema is loaded
+    (with `$id`/`$schema`/`version` per G3).
 16. `npm run validate:sku-manifest` — confirms the new
     `vnet-attached service whitelist` enforcement (warn when whitelisted
-    `service_name` present without `vnet_mode` decision post-Step 2).
+    `service_name` present without `vnet_mode` decision post-Step 2)
+    AND that the validator successfully loads the whitelist from the
+    `vnet-planning.md` fenced block (S2-A — fails fast if heading or
+    fence is missing).
 17. **Manual smoke** (interactive): walk a fresh project through
     Architect Step 2 with an App Service + SQL workload using VNet
     integration + Private Endpoints + Bastion. Confirm: (a) gate fires
-    after Phase 6a; (b) M4 CLI runs when user provides
-    `existing_vnet_id`; (c) Bastion appears in Step 7 pricing call;
-    (d) `vnet_planning_mode = deferred` is blocked for prod;
-    (e) governance reconciliation fires when constraints conflict.
+    after Phase 6a; (b) auth preamble + M4 CLI runs when user provides
+    `existing_vnet_id`; (c) auth-fail fallback emits the informational
+    finding instead of erroring (S2-B); (d) Bastion appears in Step 7
+    pricing call; (e) `vnet_planning_mode = deferred` is blocked for
+    prod; (f) governance reconciliation fires when constraints conflict.
 
 ## Deferred / Out of scope
 
@@ -329,9 +369,14 @@ none`), `service_endpoints` (string[]),
 - Auto-detection of overlap with on-prem CIDR ranges (would require a
   separate "site networks" decision key).
 - IPv6 subnets (schema field reserved; behavior deferred until
-  governance requires it).
+  governance requires it; v2 schema bump).
 - `baselines.md` umbrella index in azure-defaults (G2 — separate
   cleanup PR).
+- `vnet_planning_mode` distribution telemetry (G4 — fold into
+  lesson-collection prompts in a follow-up PR; not blocking).
+- Microsoft Learn URL freshness sweep (G5 — add a TODO in
+  `vnet-planning.md` to revisit citations every release-train; the
+  existing link-check covers anchor rot but not URL reorganization).
 
 ---
 
@@ -408,12 +453,17 @@ use-existing` is chosen; on failure, fall back to "trust user input,
   citations every release-train (link-check already covers anchor
   rot, but Azure docs reorganize URLs without redirects sometimes).
 
-### Smallest viable Rev 3 patch
+### Smallest viable Rev 3 patch (applied — this is now Rev 3)
 
-1. Consolidate vnet-attached whitelist to `vnet-planning.md` only;
-   validator loads it from there (S2-A).
-2. Add `az account show` preamble + fallback to Phase 6b (S2-B).
-3. Add `$id`/`$schema` to `subnet-plan.schema.json` (G3).
+1. ✅ Consolidate vnet-attached whitelist to `vnet-planning.md` only;
+   validator loads it from there (S2-A) — see Decisions captured /
+   Phase B step 4.
+2. ✅ Add `az account show` preamble + fallback to Phase 6b (S2-B) —
+   see Decisions captured / Phase C step 5.
+3. ✅ Add `$id`/`$schema`/`version` to `subnet-plan.schema.json` (G3)
+   — see Phase B step 4.
+4. ✅ Move G4 (telemetry) and G5 (citation rot) to Deferred / Out of
+   scope so they don't block implementation.
 
-These are inline-during-implementation fixes — Phase A/B already
-touches the relevant files. No second adversarial round needed.
+Rev 3 is implementation-ready. No further adversarial round required
+before starting Phase A.

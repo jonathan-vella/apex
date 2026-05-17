@@ -57,6 +57,8 @@ Full procedure (`azd up` / `azd provision --preview`, environment preflight chec
 | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
 | **Deployment strategies**     | `references/deployment-strategies.md`                                                                                                 |
 | **azd vs `deploy.ps1` guide** | `references/azd-vs-deploy-guide.md`                                                                                                   |
+| **AVM module index**          | `references/avm-module-index.md` (canonical CSV + JSON list of AVM modules in `.github/data/`)                                        |
+| **AVM version freeze gate**   | `references/avm-version-freeze-gate.md` (Phase 4.4 gate before `plan_status=APPROVED`)                                                |
 | Preflight validation          | `azure-validate/references/infraops-preflight.md`                                                                                     |
 | CLI auth validation procedure | `azure-defaults/references/azure-cli-auth-validation.md`                                                                              |
 | Policy effect decision tree   | `azure-defaults/references/policy-effect-decision-tree.md`                                                                            |

@@ -181,3 +181,10 @@ resource "azurerm_cost_anomaly_alert" "this" {
 - AVM pattern module versions move forward — refresh the pin every
   time Planner Phase 2 runs; never bring a pin in from another
   project.
+- The Bicep stack has **four provider-side hard prerequisites** for
+  `Microsoft.CostManagement/scheduledActions` (sub-scope only,
+  `displayName` ≤ 25 chars, valid sub-scope `viewId`, ≤ 1-year
+  UTC-midnight schedule window) that do **not** apply here —
+  `azurerm_cost_anomaly_alert` hides the underlying shape. See
+  `cost-alerts-bicep.md` §6 if you are reviewing a mixed-stack
+  plan.

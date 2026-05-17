@@ -280,6 +280,27 @@ Merged from `security-governance` + `architecture-reliability` +
       `azurerm_cost_anomaly_alert` (subscription-scoped only, with
       `email_addresses = cost_alert_emails`). RG-scope anomaly is
       not expected (deferred).
+- [ ] **D-5a Cost monitoring — Bicep InsightAlert provider
+      constraints** (Bicep stack only; provider rejects at
+      what-if). All four must hold:
+      1. The module hosting `scheduledActions` declares
+         `targetScope = 'subscription'` and is called with
+         `scope: subscription()` from `main.bicep` — never nested
+         inside an RG-scoped module.
+      2. `properties.displayName` is ≤ 25 characters when fully
+         interpolated (verify against the resolved `project` /
+         `environment` values, not the template literal).
+      3. `properties.viewId` is a subscription-scope built-in
+         (`ms:DailyAnomalyByResource`,
+         `ms:DailyAnomalyBySubscription`, or `MS-DailyCosts`).
+         RG-scope views (e.g. `ms:DailyAnomalyByResourceGroup`) are
+         rejected.
+      4. `schedule.startDate` and `schedule.endDate` are UTC
+         midnight (`T00:00:00Z`) and `endDate − startDate` ≤ 1 year.
+         Hard-coded far-future dates (`2099-…`, `2036-…` with
+         non-midnight time) are rejected. Prefer
+         `utcNow('yyyy-MM-dd')` + `dateTimeAdd(..., 'P1Y', ...)`.
+      Cite `cost-alerts-bicep.md` §6 hard prerequisites.
 - [ ] **D-6 Cost monitoring — governance precedence** — any value in
       `04-governance-constraints.json` `cost_monitoring.*` (thresholds,
       required_scope, required_action_group_id, min_emails,

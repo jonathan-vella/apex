@@ -104,28 +104,92 @@ var actionGroupId = costActionGroupMode == 'existing' ? existingAg.id : actionGr
 
 ## 6. Cost Anomaly Alert (subscription-scoped)
 
+### Hard prerequisites (provider validation will reject otherwise)
+
+All four constraints are enforced by `Microsoft.CostManagement` at
+`what-if` / deployment time. Violating any of them blocks the entire
+subscription deployment.
+
+1. **Subscription scope only.** `kind: 'InsightAlert'` is **not**
+   accepted at resource-group scope. Declare the resource in a
+   dedicated module file with `targetScope = 'subscription'` and call
+   it from `main.bicep` with `scope: subscription()`. **Do not** place
+   it inside an RG-scoped foundation/wave module — the provider
+   returns `InvalidInsightAlertRequestScope`.
+2. **`properties.displayName` ≤ 25 characters.** The provider hard-
+   limits this field; long environment/project concatenations
+   (`'Cost Anomaly Alert — ${project} ${environment}'`) overflow and
+   return `InvalidScheduledActionDisplayName`. Use a short fixed
+   pattern such as `'CostAnomaly-${project}'` and cap `project` to
+   ≤ 12 characters in `01-requirements`.
+3. **`properties.viewId` must be a valid sub-scope view.** Only the
+   built-in subscription-scope views are accepted by `InsightAlert`.
+   RG-scope views (e.g. `ms:DailyAnomalyByResourceGroup`) return
+   `InvalidView`. Use one of:
+   - `/providers/Microsoft.CostManagement/views/ms:DailyAnomalyByResource` (recommended for anomaly insights)
+   - `/providers/Microsoft.CostManagement/views/ms:DailyAnomalyBySubscription`
+   - `/providers/Microsoft.CostManagement/views/MS-DailyCosts` (cost view, also valid)
+4. **`schedule.endDate` must be a near-future UTC datetime.** The
+   provider rejects `endDate` values more than ~1 year after
+   `startDate` and rejects non-midnight times for `InsightAlert`
+   (must be `T00:00:00Z`). Compute the window at deploy time rather
+   than hard-coding `2099-12-31T23:59:59Z`:
+
+   ```bicep
+   param utcNowDate string = utcNow('yyyy-MM-dd')
+   var anomalyStartDate = '${utcNowDate}T00:00:00Z'
+   var anomalyEndDate   = '${dateTimeAdd(utcNowDate, 'P1Y', 'yyyy-MM-dd')}T00:00:00Z'
+   ```
+
+### Canonical snippet
+
 ```bicep
-// module file targetScope = 'subscription'
-// API minimum 2022-10-01 (see baseline reference)
-resource anomaly 'Microsoft.CostManagement/scheduledActions@2022-10-01' = {
-  name: 'anomaly-${project}'
-  kind: 'InsightAlert'
+// File: modules/cost-anomaly.bicep
+// REQUIRED — declare at the top of the module file:
+targetScope = 'subscription'
+
+param project string
+param costAlertEmails array
+param senderEmail string
+param utcNowDate string = utcNow('yyyy-MM-dd')
+
+var anomalyStartDate = '${utcNowDate}T00:00:00Z'
+var anomalyEndDate   = '${dateTimeAdd(utcNowDate, 'P1Y', 'yyyy-MM-dd')}T00:00:00Z'
+
+// API minimum 2022-10-01; 2024-08-01 is current GA (see baseline reference).
+resource anomaly 'Microsoft.CostManagement/scheduledActions@2024-08-01' = {
+  name: 'anomaly-${project}'                            // unique per subscription
+  kind: 'InsightAlert'                                  // subscription scope only
   properties: {
-    displayName: 'Cost anomaly — ${project}'
+    displayName: 'CostAnomaly-${project}'               // MUST be ≤ 25 chars
     status: 'Enabled'
-    viewId: '/providers/Microsoft.CostManagement/views/MS-DailyCosts'
+    viewId: '/providers/Microsoft.CostManagement/views/ms:DailyAnomalyByResource'
     schedule: {
       frequency: 'Daily'
       hourOfDay: 7
       daysOfWeek: ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']
-      startDate: '2026-05-01T00:00:00Z'
-      endDate:   '2036-05-01T00:00:00Z'
+      startDate: anomalyStartDate                       // T00:00:00Z aligned
+      endDate:   anomalyEndDate                         // ≤ 1 year after startDate
     }
     notification: {
       to: costAlertEmails
       subject: '[Anomaly] ${project} daily cost spike'
     }
     notificationEmail: senderEmail
+  }
+}
+```
+
+Call site in `main.bicep`:
+
+```bicep
+module costAnomaly 'modules/cost-anomaly.bicep' = {
+  name: 'cost-anomaly'
+  scope: subscription()       // NOT resourceGroup(...) — provider rejects RG scope
+  params: {
+    project: project
+    costAlertEmails: costAlertEmails
+    senderEmail: senderEmail
   }
 }
 ```
@@ -147,3 +211,9 @@ resource group.
   Planner Phase 4 is what makes this safe.
 - `scheduledActions` `name` must be unique per subscription; prefix
   with project to avoid collisions.
+- The four §6 hard prerequisites (sub-scope only, displayName ≤ 25,
+  valid sub-scope `viewId`, ≤ 1-year UTC-midnight `endDate`) are
+  **provider-side**: `bicep build` + `bicep lint` will not catch
+  them. They surface only at `az deployment sub what-if` /
+  `az deployment sub create`. The 10-Challenger adversarial check
+  D-5 must verify all four before handoff to 07b-Bicep Deploy.

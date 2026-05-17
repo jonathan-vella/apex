@@ -1,161 +1,175 @@
 # Weekly Maintenance Workflow
-# Consolidates: avm-version-check, docs-freshness
-# Runs AVM version audit and docs freshness checks, creates issues on findings
+# Consolidated umbrella for low-frequency maintenance:
+#   - AVM module index refresh         (refresh-avm-module-index)
+#   - Azure deprecation tracking       (track-deprecations)
+#   - Quarterly docs / orphan audit    (docs-freshness)
+#   - Drawio MCP + icon converter      (drawio-mcp-tests, drawio-icon-converter-tests)
+#   - Weekly docs link safety net      (link-check)
+# Replaces standalone azure-deprecation-tracker.yml (folded Aug 2025) and the
+# standalone weekly cron of link-check.yml (folded May 2026).
+# Some jobs open PRs (data refresh); others fail loudly or open issues.
 
 name: Weekly Maintenance
 
 on:
   schedule:
-    # Run weekly on Mondays at 07:00 UTC (staggered from deprecation tracker at 06:00)
-    - cron: "0 7 * * 1"
+    # Run weekly on Mondays at 06:00 UTC.
+    - cron: "0 6 * * 1"
   workflow_dispatch:
     inputs:
       create_issue:
-        description: "Create GitHub issues for findings"
+        description: "Create GitHub issues for findings (audit jobs only)"
         required: false
         default: true
+        type: boolean
+      force_update:
+        description: "Force PR creation for refresh jobs even when no changes"
+        required: false
+        default: false
         type: boolean
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+# Default permissions are read-only with issue-creation for audit jobs.
+# PR-creating jobs (refresh-avm-module-index, track-deprecations) declare
+# their own elevated permissions block.
 permissions:
   contents: read
   issues: write
 
 jobs:
-  avm-versions:
-    name: Check AVM Versions
+  refresh-avm-module-index:
+    name: Refresh AVM Module Index
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
+      - name: Setup repo + Node
+        uses: ./.github/actions/setup-node-repo
         with:
-          node-version: "24"
-          cache: "npm"
+          ref: ${{ github.ref_name }}
+          fetch-depth: "0"
 
-      - name: Install dependencies
-        run: npm ci
+      - name: Refresh AVM module index + version cache
+        run: npm run refresh:avm-module-index
 
-      - name: Install Bicep CLI
+      - name: Detect changes
+        id: changes
         run: |
-          curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
-          chmod +x bicep
-          sudo mv bicep /usr/local/bin/
-          bicep --version
+          git add .github/data/avm-bicep-modules.csv \
+                  .github/data/avm-terraform-modules.csv \
+                  .github/data/avm-module-index.json \
+                  tools/scripts/_data/avm-module-cache.json
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
 
-      - name: Extract AVM versions from Bicep files
-        id: extract
-        run: |
-          echo "## Current AVM Versions in Repository" > current-versions.md
-          echo "" >> current-versions.md
-          echo "| File | Module Path | Current Version |" >> current-versions.md
-          echo "|------|-------------|-----------------|" >> current-versions.md
-
-          find infra/bicep -name "*.bicep" -type f 2>/dev/null | while read -r file; do
-            grep -oP "br/public:avm/res/[^'\"]+:[0-9]+\.[0-9]+\.[0-9]+" "$file" 2>/dev/null | while read -r module; do
-              path=$(echo "$module" | sed "s/:.*//")
-              version=$(echo "$module" | grep -oP "[0-9]+\.[0-9]+\.[0-9]+$")
-              echo "| $file | $path | $version |" >> current-versions.md
-            done
-          done || true
-
-          find agent-output -name "04-implementation-plan.md" -type f 2>/dev/null | while read -r file; do
-            grep -oP "br/public:avm/res/[^'\"]+:[0-9]+\.[0-9]+\.[0-9]+" "$file" 2>/dev/null | while read -r module; do
-              path=$(echo "$module" | sed "s/:.*//")
-              version=$(echo "$module" | grep -oP "[0-9]+\.[0-9]+\.[0-9]+$")
-              echo "| $file | $path | $version |" >> current-versions.md
-            done
-          done || true
-
-          module_count=$(awk 'BEGIN{c=0} /^\| / && $0 !~ /^\| File / && $0 !~ /^\|[-]+\|/{c++} END{print c}' current-versions.md)
-          echo "module_count=$module_count" >> "$GITHUB_OUTPUT"
-
-          cat current-versions.md
-
-      - name: Check for version updates
-        id: check
-        run: |
-          echo "## AVM Version Check Results" > version-report.md
-          echo "" >> version-report.md
-          echo "**Date:** $(date -u +"%Y-%m-%d %H:%M:%S UTC")" >> version-report.md
-          echo "" >> version-report.md
-          echo "### Manual Verification Required" >> version-report.md
-          echo "" >> version-report.md
-          echo "To check latest AVM versions:" >> version-report.md
-          echo "1. Use \`mcp_bicep_list_avm_metadata\` tool in GitHub Copilot" >> version-report.md
-          echo "2. Or visit https://aka.ms/avm/index" >> version-report.md
-          echo "3. Compare against versions in implementation plans" >> version-report.md
-          echo "" >> version-report.md
-
-          cat current-versions.md >> version-report.md
-          cat version-report.md
-
-      - name: Create issue if modules are found
-        if: ${{ github.event.inputs.create_issue != 'false' && steps.extract.outputs.module_count != '0' }}
-        uses: actions/github-script@v9
+      - name: Open pull request
+        if: steps.changes.outputs.changed == 'true' || github.event.inputs.force_update == 'true'
+        id: cpr
+        uses: peter-evans/create-pull-request@v8
         with:
-          script: |
-            const fs = require('fs');
-            const report = fs.readFileSync('version-report.md', 'utf8');
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore(data): Refresh AVM module index + version cache"
+          branch: "chore/avm-module-index-refresh"
+          delete-branch: true
+          title: "chore(data): Refresh AVM module index + version cache"
+          body: |
+            Automated refresh of the canonical AVM module index and the
+            per-module version cache that backs `validate:avm-versions:freeze`.
 
-            const { data: issues } = await github.rest.issues.listForRepo({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              state: 'open',
-              labels: 'avm-versions,automation'
-            });
+            Source CSVs:
+            - https://azure.github.io/Azure-Verified-Modules/module-indexes/BicepResourceModules.csv
+            - https://azure.github.io/Azure-Verified-Modules/module-indexes/TerraformResourceModules.csv
 
-            const existingIssue = issues.find(i => i.title.includes('AVM Module Version Check'));
-            const labels = ['avm-versions', 'automation'];
+            Generated by `Weekly Maintenance / refresh-avm-module-index` job.
+          labels: |
+            automation
+            avm-versions
 
-            if (existingIssue) {
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: existingIssue.number,
-                body: `## Weekly Version Check Update\n\n${report}\n\nModules detected: ${{ steps.extract.outputs.module_count }}`
-              });
-              console.log(`Updated existing issue #${existingIssue.number}`);
-            } else {
-              await github.rest.issues.create({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                title: 'AVM Module Version Check - Review Required',
-                body: `## AVM Version Audit\n\nThis automated check identifies Azure Verified Module versions in use.\n\n${report}\n\nModules detected: ${{ steps.extract.outputs.module_count }}\n\n### Action Required\n\n1. Review each module against the latest AVM versions\n2. Update \`04-implementation-plan.md\` files with current versions\n3. Use the **Refresh AVM Versions** handoff in the Bicep Plan agent\n\n### How to Check Latest Versions\n\n\`\`\`\nUse mcp_bicep_list_avm_metadata tool in GitHub Copilot Chat\n\`\`\`\n\nOr visit: https://aka.ms/avm/index`,
-                labels
-              });
-              console.log('Created new version check issue');
-            }
+      # Auto-merge is intentionally NOT enabled: GitHub Free private repos
+      # do not support `gh pr merge --auto`. The refresh PR stays open for
+      # a human review + manual merge. See workflows/README.md.
+      - name: Log PR
+        if: steps.cpr.outputs.pull-request-number != ''
+        run: |
+          echo "✅ Opened/updated PR #${{ steps.cpr.outputs.pull-request-number }} — manual review + merge required."
+          echo "🔗 ${{ steps.cpr.outputs.pull-request-url }}"
 
-      - name: Upload version report
-        uses: actions/upload-artifact@v7
+  track-deprecations:
+    name: Track Azure Deprecations
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Setup repo + Node
+        uses: ./.github/actions/setup-node-repo
         with:
-          name: avm-version-report
-          path: |
-            current-versions.md
-            version-report.md
-          retention-days: 30
+          ref: ${{ github.ref_name }}
+          fetch-depth: "0"
+
+      - name: Create data directory
+        run: mkdir -p .github/data
+
+      - name: Fetch Azure deprecation feed
+        run: node tools/scripts/fetch-azure-deprecations.mjs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Detect changes
+        id: changes
+        run: |
+          git add .github/data/azure-deprecations.json
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Open pull request
+        if: steps.changes.outputs.changed == 'true' || github.event.inputs.force_update == 'true'
+        id: cpr
+        uses: peter-evans/create-pull-request@v8
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore(data): Update Azure deprecation tracking"
+          branch: "chore/azure-deprecation-tracker"
+          delete-branch: true
+          title: "chore(data): Update Azure deprecation tracking"
+          body: |
+            Automated update of `.github/data/azure-deprecations.json` from Azure Updates RSS.
+
+            Generated by `Weekly Maintenance / track-deprecations` job
+            (folded in from the retired azure-deprecation-tracker.yml).
+          labels: |
+            automation
+            dependencies
+
+      # Auto-merge is intentionally NOT enabled — see refresh-avm-module-index above.
+      - name: Log PR
+        if: steps.cpr.outputs.pull-request-number != ''
+        run: |
+          echo "✅ Opened/updated PR #${{ steps.cpr.outputs.pull-request-number }} — manual review + merge required."
+          echo "🔗 ${{ steps.cpr.outputs.pull-request-url }}"
+
+      - name: Log deprecation summary
+        if: steps.changes.outputs.changed == 'true'
+        run: |
+          echo "📋 Deprecation data updated"
+          jq '.totalCount, .lastUpdated' .github/data/azure-deprecations.json
 
   docs-freshness:
     name: Quarterly Audit (glob, orphans, freshness)
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: "24"
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci
+      - name: Setup repo + Node
+        uses: ./.github/actions/setup-node-repo
 
       - name: Run quarterly audit (glob-audit + orphan-content + docs-freshness)
         id: freshness
@@ -165,7 +179,7 @@ jobs:
           echo "exit_code=$EXIT_CODE" >> "$GITHUB_OUTPUT"
 
       - name: Create issue for audit failures
-        if: steps.freshness.outputs.exit_code != '0'
+        if: steps.freshness.outputs.exit_code != '0' && github.event.inputs.create_issue != 'false'
         run: |
           BODY=$(cat freshness-output.txt)
           {
@@ -223,3 +237,16 @@ jobs:
 
       - name: Run icon converter tests
         run: npm run test:convert-drawio-icons
+
+  link-check:
+    # Folded in from the retired weekly cron of link-check.yml (May 2026).
+    # link-check.yml still runs on PR/push for docs paths — this job is the
+    # safety net that catches external link rot between docs edits.
+    name: Check docs links
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup repo + Node
+        uses: ./.github/actions/setup-node-repo
+
+      - name: Check links in docs/
+        run: npm run lint:links:docs

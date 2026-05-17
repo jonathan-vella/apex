@@ -1,3 +1,51 @@
+# Plan 01: Token-reduction (test04-01 findings)
+
+> **Series**: Plan 01 of 3 in the token-reduction workstream.
+> **Plan 02** ([`02-plan-subagent-isolation.prompt.md`](./02-plan-subagent-isolation.prompt.md))
+> is a dependent follow-up — do not start it until this plan merges.
+> **Plan 03** ([`03-plan-vnetPlanningGate.prompt.md`](./03-plan-vnetPlanningGate.prompt.md))
+> is an unrelated workstream.
+
+## Resume from a fresh chat session
+
+This section exists so a brand-new chat with no memory can pick up the work.
+
+- **Status**: NOT STARTED. Phase 0 has not run; no baseline JSON exists
+  in `agent-output/_baselines/`. The plan itself is the only deliverable
+  so far — nothing else has been merged.
+- **Working branch**: `feat/test04-token-reduction` — **does not exist
+  yet**. Create it from `main` as the first action.
+- **First action when resuming** (paste verbatim):
+  1. `git fetch origin && git checkout -b feat/test04-token-reduction origin/main`
+  2. Open this file (`tools/apex-prompts/apex-planning-prompts/01-plan-tokenreduction.prompt.md`)
+     and start Phase 0 ("Multi-log baselining") below.
+  3. Create `/memories/session/plan01-progress.md` and use it as the
+     live per-phase status tracker for the duration of the work (this
+     plan file stays frozen; the session memory file mutates).
+- **Progress tracking**: session memory only. **Do not** use
+  `apex-recall` — this is a meta-improvement plan, not an APEX workflow
+  project.
+- **Plan is frozen**: do not edit phases or targets without re-running
+  the adversarial review that produced them. Status notes go in the
+  session memory file, not here.
+
+## Related work already shipped
+
+Do not re-do these — they are committed on `main`:
+
+- **Commit `53dab573` (PR #390)** — codegen one-file-per-turn cadence
+  for `06b-bicep-codegen` and `06t-terraform-codegen` agents, plus the
+  new `.github/skills/iac-common/references/codegen-shared-workflow.md`
+  → "Phase 2: Output Cadence" section and
+  `codegen-file-order.md`. This is **not part of this plan** but is
+  the same workstream theme. It also retroactively validates the
+  per-turn isolation pattern that Plan 02 Phase 3b depends on.
+- **Repo memory** `/memories/repo/codegen-model-mix-2026.md` already
+  exists. Phase 3 of this plan UPDATES it (single file per S4); do not
+  create a duplicate.
+
+---
+
 # Plan v2: Address test04-01 findings (token + speed + quality)
 
 Revised plan incorporating findings from the adversarial review

@@ -1,6 +1,7 @@
 # Link Check Workflow
-# Validates all hyperlinks in docs/ are reachable
-# Separated from validate:all to isolate network-dependent checks from code quality gates
+# Validates all hyperlinks in docs/ are reachable on PRs that touch docs paths.
+# The standalone weekly cron was folded into weekly-maintenance.yml (May 2026)
+# so external link rot is still caught between docs edits.
 
 name: link-check
 
@@ -17,9 +18,6 @@ on:
       - "site/src/content/docs/**"
       - ".markdown-link-check.json"
       - ".markdown-link-check-site.json"
-  schedule:
-    # Run weekly on Monday at 08:00 UTC (staggered: deprecation 06:00, maintenance 07:00, links 08:00)
-    - cron: "0 8 * * 1"
   workflow_dispatch:
 
 permissions:
@@ -34,17 +32,8 @@ jobs:
     name: Check docs links
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: "24"
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci
+      - name: Setup repo + Node
+        uses: ./.github/actions/setup-node-repo
 
       - name: Check links in docs/
         run: npm run lint:links:docs

@@ -123,7 +123,7 @@ Always specify Azure Storage Account backend only.
 | ---------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
 | Verify Azure connectivity (`az account show`) FIRST                                                        | Write ANY IaC code — this agent plans only                              |
 | Read `04-governance-constraints.md/.json` — prerequisite input                                             | Skip reading governance constraints                                     |
-| Check AVM for EVERY resource (Bicep: `mcp_bicep_list_avm_metadata`; Terraform: `terraform/search_modules`) | Generate plan before asking deployment strategy (Phase 3.5 mandatory)   |
+| Check AVM for EVERY resource (Bicep: `mcp_bicep_list_avm_metadata`; Terraform: `terraform/search_modules`) — first confirm the module exists + is `Available` in `.github/data/avm-module-index.json` (see [`iac-common/references/avm-module-index.md`](../skills/iac-common/references/avm-module-index.md)) | Generate plan before asking deployment strategy (Phase 3.5 mandatory)   |
 | Use AVM defaults for SKUs; deprecation research only for overrides                                         | Hardcode SKUs without AVM verification                                  |
 | Define tasks as YAML specs (resource, module, dependencies, config)                                        | Proceed to code generation without explicit user approval               |
 | Generate `04-implementation-plan.md`                                                                       | Ignore policy `effect` — `Deny` = blocker, `Audit` = warning only       |
@@ -230,6 +230,13 @@ unmet entries are `must_fix`. Set
 ### Phase 2: AVM Module Verification
 
 For EACH resource in the architecture:
+
+> **Module existence + lifecycle check first.** Confirm the module is
+> present and `module_status: "Available"` in the local AVM module index
+> before invoking the MCP tools below. Refuse `Proposed` / `Orphaned`
+> modules — see
+> [`iac-common/references/avm-module-index.md`](../skills/iac-common/references/avm-module-index.md)
+> for file paths and the lifecycle decision table.
 
 **If Bicep:**
 

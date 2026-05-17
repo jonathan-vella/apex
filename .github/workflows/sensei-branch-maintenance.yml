@@ -18,7 +18,8 @@ name: Sensei Branch Maintenance
 
 on:
   schedule:
-    # Mondays at 08:00 UTC, staggered after weekly-maintenance (07:00).
+    # Mondays at 08:00 UTC. See .github/workflows/README.md#weekly-cron-schedule
+    # for the full Monday stagger (05:00 governance → 06:00 maintenance → 08:00 sensei → 09:00 e2e).
     - cron: "0 8 * * 1"
   workflow_dispatch:
     inputs:
@@ -169,20 +170,11 @@ jobs:
     if: always() && needs.verify-branch-exists.outputs.exists == 'true'
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout feat/skills-sensei (post-merge)
-        uses: actions/checkout@v6
+      - name: Setup repo + Node (sensei branch, recursive submodules)
+        uses: ./.github/actions/setup-node-repo
         with:
           ref: feat/skills-sensei
-          submodules: recursive # need sensei submodule for any plugin-aware checks
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: "24"
-          cache: "npm"
-
-      - name: Install Node dependencies
-        run: npm ci
+          submodules: recursive
 
       - name: Validate skills
         run: npm run validate:skills
