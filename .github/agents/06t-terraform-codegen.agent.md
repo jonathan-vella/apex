@@ -339,20 +339,15 @@ from scratch.**
 
 ### Phase 1.6: Context Compaction
 
-Context usage reaches ~80% after preflight checks and governance mapping.
-Compact the conversation before proceeding to code generation.
+Context reaches ~80% after preflight + governance mapping. Apply Mode A
+runtime compression per
+[`context-management/SKILL.md`](../skills/context-management/SKILL.md):
+write one concise summary (preflight result + AVM-TF/raw counts,
+governance compliance map status, deployment strategy, resource list
+with module sources + version pins + key variables) and stop loading
+additional skills before Phase 2. Do NOT re-read predecessor artifacts.
 
-1. **Summarize prior phases** — write a single concise message containing:
-   - Preflight check result (blockers, AVM-TF vs raw count)
-   - Governance compliance map (Deny policies mapped, unsatisfied count)
-   - Deployment strategy from `04-implementation-plan.md` (phased/single)
-   - Resource list with module sources, version pins, and key variables
-2. **Stop loading additional skills** — once context is compacted, do not load
-   any new skill files; rely on summaries already in context
-3. **Do NOT re-read predecessor artifacts** — rely on the summary above
-   and the saved `04-preflight-check.md` + `04-governance-constraints.json` on disk
-4. **Update session state** — run `apex-recall checkpoint <project> 5 phase_1.6_compacted --json`
-   so resume skips re-loading prior context
+**Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 5 phase_1.6_compacted --json`
 
 ### Phase 2: Progressive Implementation
 
