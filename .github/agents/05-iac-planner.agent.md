@@ -218,14 +218,7 @@ unmet entries are `must_fix`. Set
 
 ### Phase 1.5: Deployment Context Discovery
 
-> [!NOTE]
-> The previous freeform Phase 1.5 `askQuestions` prompt is deprecated.
-> Structured deployment-design questions now live in the **Phase 3.5
-> batched panel** (see `azure-defaults/references/plan-design-decisions.md`).
-> Skip Phase 1.5 entirely unless the user volunteers a deployment
-> constraint the architecture assessment did not capture (e.g., a
-> maintenance window). If they do, persist via
-> `apex-recall decide --key deployment_note --value "<text>" --step 4`.
+Phase 1.5 is skipped by default. Only capture a deployment constraint here if the user explicitly volunteers one, and persist it via `apex-recall decide --key deployment_note --value "<text>" --step 4`.
 
 ### Phase 2: AVM Module Verification
 
