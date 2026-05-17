@@ -504,13 +504,12 @@ Output: Include this table in 02-architecture-assessment.md under ## WAF Assessm
 
 ## Completion Handoff
 
-When this step completes (after `apex-recall complete-step` and writing
-`00-handoff.md`), end the final chat message with this line, **verbatim**,
-on its own final line:
+After `apex-recall complete-step` + writing `00-handoff.md`, end the
+final chat message with this line, **verbatim**, on its own final line
+(full contract:
+[`compression-templates.md`](../skills/context-management/references/compression-templates.md#gate-boundary-clear-handoff-contract);
+validator: `npm run validate:orchestrator-handoff`):
 
 ```text
 Run `/clear` then reply `@01-Orchestrator resume <project>` to continue Step N+1.
 ```
-
-This is the only mechanism that drops main-agent input tokens between
-steps. Validator: `npm run validate:orchestrator-handoff`.
