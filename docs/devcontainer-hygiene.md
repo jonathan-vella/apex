@@ -139,3 +139,45 @@ If you propose adding an extension to `.devcontainer/devcontainer.json`
 - [VS Code Agent Skills](https://code.visualstudio.com/docs/copilot/customization/agent-skills)
 - [.github/instructions/agent-authoring.instructions.md `User-scope customization bloat (advisory)`](../.github/instructions/agent-authoring.instructions.md)
 - [tmp/plan-input-token-reduction-v3.md](../tmp/plan-input-token-reduction-v3.md)
+
+## Parallel chat retry race (upstream)
+
+VS Code Copilot Chat occasionally fires the same model request twice
+in parallel — typically observed on slow or rate-limited turns — and
+the second response then **clobbers** the first into the chat
+history. Both calls bill against the user's input-token budget but
+only the latter is visible. There is no agent-side fix: the retry
+happens inside the chat client outside any agent's reach. This
+section captures the evidence for upstream triage so the symptom is
+not mistaken for an agent bug.
+
+### OTel evidence (test04-01 baseline)
+
+Spans observed in
+`logs/test04-01.json` (extracted via
+`tar -xzf .github/data/token-reduction-logs.tar.gz`):
+
+| Span ID                | Pattern                                                          |
+| ---------------------- | ---------------------------------------------------------------- |
+| span #564 / #565       | Two `chat:claude-opus-4.7` calls fire within ~50 ms of each other, both with identical `gen_ai.request.id` — the second supersedes the first in the rendered chat. |
+| span #1773             | A third occurrence later in the session — same agent, same step, no user input in between. |
+
+The pattern is reproducible from any saved OTel log by counting
+`chat:` spans whose `gen_ai.request.id` matches a prior span within
+500 ms. The Plan 01 profiler does not surface this signal directly
+yet; a future enhancement could add it.
+
+### Plan 01 v1 retry rule — REMOVED
+
+The original v1 plan had an agent-body retry directive ("if your
+response was truncated, do not retry immediately"). That directive is
+**removed** in v2 because the agent never sees the truncation — the
+retry happens at the chat-client layer. The only realistic path is
+upstream.
+
+### Filing an upstream issue
+
+Use the [`copilot-chat-feedback.md`](../.github/ISSUE_TEMPLATE/copilot-chat-feedback.md)
+issue template (one is filed at
+<https://github.com/microsoft/vscode-copilot-release/issues> — link
+this section so future contributors can pile on additional evidence).
