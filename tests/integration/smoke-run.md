@@ -9,14 +9,14 @@ the four headline signals that prove the plan landed.
 
 Per workflow run:
 
-| Signal                         | How to capture                                              | Plan 01 target                                  |
-| ------------------------------ | ----------------------------------------------------------- | ----------------------------------------------- |
-| OTel log                       | Export from VS Code Copilot Chat: cmd palette → "Copilot: Export debug log" | Save under `logs/smoke-<date>.json`            |
-| `apex-recall` state            | `apex-recall show <project> --json > tmp/smoke-state.json`  | Captures resume contract                        |
-| askQuestions count             | `npm run profile:debug-log -- logs/smoke-<date>.json --json \| jq '.totals.askquestions_count'` | ≤ 10 (Step 1 alone)            |
-| Challenger invocations         | Same profiler output: `.totals.challenger_invocations`      | ≤ 2 per step (default depth)                    |
-| Inter-`/clear` chat-span max   | `.compliance_metrics.max_chat_spans_between_clears`         | ≤ 50                                            |
-| Post-`/clear` first input tok  | First `chat:*` span's `gen_ai.usage.input_tokens`           | ≤ 45 000                                        |
+| Signal                        | How to capture                                                                                  | Plan 01 target                      |
+| ----------------------------- | ----------------------------------------------------------------------------------------------- | ----------------------------------- |
+| OTel log                      | Export from VS Code Copilot Chat: cmd palette → "Copilot: Export debug log"                     | Save under `logs/smoke-<date>.json` |
+| `apex-recall` state           | `apex-recall show <project> --json > tmp/smoke-state.json`                                      | Captures resume contract            |
+| askQuestions count            | `npm run profile:debug-log -- logs/smoke-<date>.json --json \| jq '.totals.askquestions_count'` | ≤ 10 (Step 1 alone)                 |
+| Challenger invocations        | Same profiler output: `.totals.challenger_invocations`                                          | ≤ 2 per step (default depth)        |
+| Inter-`/clear` chat-span max  | `.compliance_metrics.max_chat_spans_between_clears`                                             | ≤ 50                                |
+| Post-`/clear` first input tok | First `chat:*` span's `gen_ai.usage.input_tokens`                                               | ≤ 45 000                            |
 
 ## Steps
 

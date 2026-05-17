@@ -36,6 +36,7 @@ This change affects input-token budget / per-call latency:
 - [ ] NO
 
 If YES, expected impact:
+
 <!-- e.g. "~30 K input tokens saved per Step 1 (askQuestions batching)" -->
 
 ## Workflow Used

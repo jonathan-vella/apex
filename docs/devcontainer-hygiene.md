@@ -157,10 +157,10 @@ Spans observed in
 `logs/test04-01.json` (extracted via
 `tar -xzf .github/data/token-reduction-logs.tar.gz`):
 
-| Span ID                | Pattern                                                          |
-| ---------------------- | ---------------------------------------------------------------- |
-| span #564 / #565       | Two `chat:claude-opus-4.7` calls fire within ~50 ms of each other, both with identical `gen_ai.request.id` — the second supersedes the first in the rendered chat. |
-| span #1773             | A third occurrence later in the session — same agent, same step, no user input in between. |
+| Span ID          | Pattern                                                                                                                                                            |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| span #564 / #565 | Two `chat:claude-opus-4.7` calls fire within ~50 ms of each other, both with identical `gen_ai.request.id` — the second supersedes the first in the rendered chat. |
+| span #1773       | A third occurrence later in the session — same agent, same step, no user input in between.                                                                         |
 
 The pattern is reproducible from any saved OTel log by counting
 `chat:` spans whose `gen_ai.request.id` matches a prior span within
