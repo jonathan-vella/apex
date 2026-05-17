@@ -447,16 +447,12 @@ lessons narrative as a completion artifact.
 
 ## Approval Gates, Handoff Document & Delegation Rules
 
-**Read** `.github/skills/workflow-engine/references/orchestrator-handoff-guide.digest.md` for:
+**Read** `.github/skills/workflow-engine/references/orchestrator-handoff-guide.md` for:
 
 - IaC routing logic (Bicep vs Terraform agent mapping)
 - Complexity routing (review pass counts)
 - Gate template skeleton + which gates need a SESSION BREAK
 - Step delegation rules (interactive vs autonomous steps)
-
-If the digest is insufficient (e.g., authoring a new gate template, or
-debugging a routing decision the digest doesn't explain), escalate to
-the full `orchestrator-handoff-guide.md`.
 
 **Key rules** (always enforced regardless of reference file):
 
@@ -480,7 +476,10 @@ All steps below happen in **one turn** — do NOT end your turn between them.
 3. **Check for existing artifacts** in `agent-output/{project-name}/`.
    If `01-requirements.md` or other step artifacts already exist, follow
    [Resuming a Project](#resuming-a-project) instead of starting fresh.
-4. Create `agent-output/{project-name}/` and initialize session state:
+4. Create `agent-output/{project-name}/` via `create_directory` (not
+   via `create_file` of a placeholder — that causes ENOENT errors on
+   downstream artifact reads, per Plan 01 Phase 2c). Then initialize
+   session state:
    `apex-recall init {project-name} --json`
    Then set project-specific fields:
    `apex-recall decide {project-name} --key region --value swedencentral --json`

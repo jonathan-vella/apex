@@ -98,6 +98,30 @@ for the full anti-pattern table.
 `apex-recall decide <project> --decision "Full rewrite of <artifact>" --rationale "<why>" --step <N> --json`
 so the choice is auditable.
 
+### Scoped precheck rule (Plan 01 Phase 2c)
+
+For these specific artifacts, **revision-2+ writes MUST use
+`multi_replace_string_in_file`** (or `replace_string_in_file` for a
+single-spot fix). `create_file` is permitted only on the **first**
+write of each:
+
+- `agent-output/{project}/sku-manifest.json`
+- `agent-output/{project}/00-handoff.md`
+- `agent-output/{project}/README.md`
+
+These artifacts are mutated frequently across the workflow
+(every gate updates 00-handoff.md; sku-manifest evolves Step 1 → 7;
+README accumulates the workflow progress checklist). A full
+`create_file` on each revision re-emits the entire prior content
+into the assistant output and re-enters the context on every
+subsequent turn — the same anti-pattern as the general rule above,
+but acutely costly because of frequency.
+
+Do **NOT** generalise this rule to all artifacts: some templates
+(e.g. `01-requirements.md`, `02-architecture-assessment.md`) are
+correctly re-rendered from scratch per gate when their structure
+changes substantially.
+
 ## Common Errors and Fixes
 
 - `missing required H2 headings: ## Outputs (Expected)`
