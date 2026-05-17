@@ -33,6 +33,14 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+# Disable lefthook hooks on the runner — `npm ci` triggers the `prepare`
+# script (`lefthook install`), which registers a pre-commit hook that calls
+# `gitleaks`. gitleaks is not installed on the GitHub-hosted runner, so the
+# main → sensei merge commit fails with `gitleaks: not found`. Secrets
+# scanning still runs on every PR via ci.yml.
+env:
+  LEFTHOOK: "0"
+
 permissions:
   contents: write # required to merge main into the sensei branch
   issues: write # required to open a tracking issue on failure

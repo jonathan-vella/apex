@@ -32,6 +32,14 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+# Disable lefthook hooks on the runner — `npm ci` triggers the `prepare`
+# script (`lefthook install`), which registers a pre-commit hook that calls
+# `gitleaks`. gitleaks is not installed on the GitHub-hosted runner, so any
+# automated `git commit` (e.g. peter-evans/create-pull-request) fails with
+# `gitleaks: not found`. Secrets scanning still runs on every PR via ci.yml.
+env:
+  LEFTHOOK: "0"
+
 # Default permissions are read-only with issue-creation for audit jobs.
 # PR-creating jobs (refresh-avm-module-index, track-deprecations) declare
 # their own elevated permissions block.
