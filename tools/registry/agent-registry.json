@@ -28,13 +28,13 @@
     },
     "governance": {
       "agent": ".github/agents/04g-governance.agent.md",
-      "model": "GPT-5.5",
+      "model": "GPT-5.3-Codex",
       "invokable": true,
       "step": 3.5
     },
     "iac-plan": {
       "agent": ".github/agents/05-iac-planner.agent.md",
-      "model": "Claude Opus 4.7",
+      "model": "Claude Sonnet 4.6",
       "invokable": true,
       "step": 4
     },
@@ -53,11 +53,11 @@
     "deploy": {
       "bicep": {
         "agent": ".github/agents/07b-bicep-deploy.agent.md",
-        "model": "GPT-5.5"
+        "model": "GPT-5.3-Codex"
       },
       "terraform": {
         "agent": ".github/agents/07t-terraform-deploy.agent.md",
-        "model": "GPT-5.5"
+        "model": "GPT-5.3-Codex"
       },
       "invokable": true,
       "step": 6
@@ -76,13 +76,13 @@
     },
     "challenger": {
       "agent": ".github/agents/10-challenger.agent.md",
-      "model": "GPT-5.5",
+      "model": "GPT-5.3-Codex",
       "invokable": true,
       "step": null
     },
     "context-optimizer": {
       "agent": ".github/agents/11-context-optimizer.agent.md",
-      "model": "Claude Opus 4.7",
+      "model": "Claude Sonnet 4.6",
       "invokable": true,
       "step": null
     },

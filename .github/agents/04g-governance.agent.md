@@ -1,7 +1,7 @@
 ---
 name: 04g-Governance
 description: "Azure governance discovery agent. Queries Azure Policy assignments via REST API (incl. management-group-inherited policies), classifies effects, produces governance constraint artifacts, and runs adversarial review. Step 3.5: after Architecture, before IaC Planning."
-model: ["GPT-5.5"]
+model: ["GPT-5.3-Codex"]
 argument-hint: Discover governance constraints for a project
 user-invocable: true
 agents: ["challenger-review-subagent"]

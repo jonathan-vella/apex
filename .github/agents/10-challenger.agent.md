@@ -1,7 +1,7 @@
 ---
 name: "10-Challenger"
 description: "Standalone adversarial review wrapper. Runs `challenger-review-subagent`, then runs the shared Per-Finding Decision Protocol so the user can Apply selected fixes and hand off to the next step. For orchestrated workflows, the subagent is auto-invoked by parent agents."
-model: ["GPT-5.5"]
+model: ["GPT-5.3-Codex"]
 argument-hint: "Provide the path to the artifact to challenge (e.g. agent-output/my-project/04-implementation-plan.md)"
 user-invocable: true
 tools:
