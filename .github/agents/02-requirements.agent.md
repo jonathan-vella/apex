@@ -361,41 +361,29 @@ machine-readable detail.
 ### 6c. Per-finding decision panel
 
 Follow `## Per-Finding Decision Protocol` in
-[`.github/skills/azure-defaults/references/adversarial-review-protocol.md`](../skills/azure-defaults/references/adversarial-review-protocol.md).
+[`adversarial-review-protocol.md`](../skills/azure-defaults/references/adversarial-review-protocol.md)
+for question shape, option labels, deterministic action mapping,
+batched-`askQuestions` rules, and the 12-question cap. Requirements-step
+specifics:
 
-Present one batched `askQuestions` call where each in-scope finding (every `must_fix` and every
-`should_fix`) is its own question. Do not present a single combined accept/revise prompt.
-
-Per-finding question shape:
-
-- `header`: `requirements-pass1-{idx}` (unique across the batch, <=50 chars).
-- `question`: the finding title (truncate with an ellipsis at 200 chars).
-- `message`: markdown block including severity badge, category, description, failure scenario,
-  artifact section, and suggested mitigation.
-- `options` (fixed order, four labels):
-  1. `Accept (apply mitigation)`
-  2. `Reject (accept risk)`
-  3. `Defer (carry to handoff)`
-  4. `Edit (custom guidance)`
+- `header` namespace: `requirements-pass1-{idx}` (unique, ≤50 chars).
 - `recommended`: `Accept` for `must_fix`; `Defer` for `should_fix`.
-- `allowFreeformInput`: `true`.
-
-Skip the per-finding panel only when `must_fix + should_fix == 0`. Suggestions auto-defer and never
-appear in the panel. Cap the panel at 12 questions; auto-defer the rest with the standard
-`auto-deferred (panel cap; re-run gate after revising must_fix)` note.
+- Skip the panel when `must_fix + should_fix == 0`.
+- Suggestions auto-defer and never appear in the panel.
 
 ### 6d. Persist decisions
 
 For each answer:
 
-- Compute a stable `issue_id` as the first 8 hex chars of
-  `sha256(category + "|" + title + "|" + artifact_section)`.
+- `issue_id` = first 8 hex chars of
+  `sha256(category + "|" + title + "|" + artifact_section)` (formula
+  from the protocol).
 - Append a `decisions[]` entry to
-  `agent-output/{project}/challenge-findings-requirements-decisions.json` using an atomic write.
+  `agent-output/{project}/challenge-findings-requirements-decisions.json`
+  via atomic write.
 - Run
   `apex-recall finding <project> --add "{severity}|{action}|{issue_id}|{title}|{note}" --json`.
-- Map user input to action and note per the protocol's deterministic table (Edit with empty text
-  becomes a deferred entry with an auto-note).
+- Map user input to action + note per the protocol's deterministic table.
 
 ### 6e. Aggregated proceed/revise gate
 
@@ -420,30 +408,25 @@ emit a chat warning listing every auto-deferred `must_fix`.
 
 ## Required Information
 
-| Requirement         | Gathered In | Default                                  |
-| ------------------- | ----------- | ---------------------------------------- |
-| Project name        | Phase 1     | Required                                 |
-| Project description | Phase 1     | Required, one or two sentences           |
-| Industry / vertical | Phase 1     | Technology / SaaS                        |
-| Company size        | Phase 1     | Mid-Market                               |
-| System description  | Phase 1     | Required                                 |
-| Scenario            | Phase 1     | Greenfield                               |
-| Environments        | Phase 1     | Dev + Production                         |
-| Workload pattern    | Phase 2     | Agent-inferred                           |
-| Budget              | Phase 2     | Required                                 |
-| Scale               | Phase 2     | 100-1,000 users                          |
-| Concurrent users    | Phase 2     | Conditional for web/API                  |
-| TPS                 | Phase 2     | Conditional for database-heavy workloads |
-| Data sensitivity    | Phase 2     | Internal business data                   |
-| IaC tool            | Phase 2     | Bicep                                    |
-| Service tier        | Phase 3     | Balanced                                 |
-| SLA target          | Phase 3     | 99.9%                                    |
-| RTO / RPO           | Phase 3     | 4 hours / 1 hour                         |
-| Azure services      | Phase 3     | Based on workload pattern                |
-| Compliance          | Phase 4     | Based on industry                        |
-| Security controls   | Phase 4     | Managed Identity + Key Vault + TLS       |
-| Region              | Phase 4     | `swedencentral`                          |
-| Timeline            | Phase 5     | 1-3 months                               |
+Collected via `askQuestions` across Phases 1–5. Required inputs (must
+be provided by the user): `project_name`, `project_description`,
+`system_description`, `budget`. Everything else has a default and may
+be inferred or asked conditionally.
+
+Defaults (greenfield, Sweden Central, Tech/SaaS, mid-market):
+
+- Industry / Company size: `technology-saas` / `mid-market`
+- Scenario / Environments: `greenfield` / `dev + production`
+- Workload pattern: agent-inferred from system description
+- Scale / Sensitivity: `100–1,000 users` / `internal business data`
+- IaC tool: `bicep` · Service tier: `balanced` · SLA: `99.9%`
+- RTO/RPO: `4h / 1h` · Region: `swedencentral`
+- Security baseline: `Managed Identity + Key Vault + TLS 1.2`
+- Timeline: `1–3 months`
+
+Conditional questions: concurrent users (web/API workloads only), TPS
+(database-heavy workloads only), compliance frameworks (regulated
+industries only).
 
 ## Validation Checklist
 
