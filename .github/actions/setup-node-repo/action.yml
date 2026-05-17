@@ -1,22 +1,28 @@
 # Composite action: standard Node.js workflow prelude.
 #
-# Bundles the three steps that every Node-based job in
-# `.github/workflows/` was repeating:
-#   1. actions/checkout
-#   2. actions/setup-node (with npm cache)
-#   3. npm ci
+# IMPORTANT — local composite actions only resolve AFTER `actions/checkout`
+# has run in the calling job (the runner can't read `action.yml` from disk
+# before the repo is checked out). So this action deliberately does NOT
+# include the checkout step; every caller must run `actions/checkout@v6`
+# first. See https://github.com/actions/checkout#usage
 #
-# Bumping Node version, checkout version, or setup-node version is now a
-# single-file edit instead of a fan-out across every workflow.
+# This action bundles the two steps that every Node-based job in
+# `.github/workflows/` was repeating after checkout:
+#   1. actions/setup-node (with npm cache)
+#   2. npm ci
+#
+# Bumping Node version or setup-node version is now a single-file edit
+# instead of a fan-out across every workflow.
 #
 # Use:
+#   - uses: actions/checkout@v6
 #   - uses: ./.github/actions/setup-node-repo
+#   # Or with a custom Node version / skipping npm ci:
+#   - uses: actions/checkout@v6
 #   - uses: ./.github/actions/setup-node-repo
 #     with:
-#       fetch-depth: "0"          # full history (default: "1")
-#       submodules: "recursive"   # default: "false"
-#       install-deps: "false"     # skip npm ci (default: "true")
-#       ref: feat/skills-sensei   # checkout a specific ref
+#       node-version: "22"
+#       install-deps: "false"
 #
 # Not used by:
 #   - governance-policy-baseline.yml — pwsh + azure/login, no Node
@@ -25,25 +31,13 @@
 #   - weekly-maintenance.yml drawio-* jobs — Deno/Python only
 
 name: Setup Node Repo
-description: Checkout + Node.js setup + npm ci (shared workflow prelude)
+description: Node.js setup + npm ci (shared workflow prelude — caller must check out repo first)
 
 inputs:
   node-version:
     description: Node.js major version (default 24)
     required: false
     default: "24"
-  fetch-depth:
-    description: Git fetch depth — "0" for full history, "1" for shallow
-    required: false
-    default: "1"
-  submodules:
-    description: Submodules option forwarded to actions/checkout
-    required: false
-    default: "false"
-  ref:
-    description: Ref to check out (default — empty, uses workflow default)
-    required: false
-    default: ""
   install-deps:
     description: Set to "false" to skip `npm ci` (e.g. matrix workflows that install per-job)
     required: false
@@ -52,13 +46,6 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Checkout repository
-      uses: actions/checkout@v6
-      with:
-        ref: ${{ inputs.ref }}
-        fetch-depth: ${{ inputs.fetch-depth }}
-        submodules: ${{ inputs.submodules }}
-
     - name: Setup Node.js
       uses: actions/setup-node@v6
       with:

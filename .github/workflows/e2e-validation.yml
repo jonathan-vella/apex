@@ -26,7 +26,10 @@ jobs:
     name: Validate E2E artifacts
     runs-on: ubuntu-latest
     steps:
-      - name: Setup repo + Node
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Node
         uses: ./.github/actions/setup-node-repo
 
       - name: Validate E2E artifacts (all steps)
@@ -39,7 +42,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: validate
     steps:
-      - name: Setup repo + Node
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Node
         uses: ./.github/actions/setup-node-repo
 
       - name: Benchmark Bicep project

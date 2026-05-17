@@ -24,10 +24,13 @@ jobs:
     name: ci
     runs-on: ubuntu-latest
     steps:
-      - name: Setup repo + Node
-        uses: ./.github/actions/setup-node-repo
+      - name: Checkout repository
+        uses: actions/checkout@v6
         with:
-          fetch-depth: "0"
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: ./.github/actions/setup-node-repo
 
       - name: Install bats
         run: sudo apt-get install -y bats
@@ -73,7 +76,10 @@ jobs:
     name: External Python tests (apex-recall + azure-pricing MCP)
     runs-on: ubuntu-latest
     steps:
-      - name: Setup repo + Node
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Node
         uses: ./.github/actions/setup-node-repo
 
       - name: Setup Python

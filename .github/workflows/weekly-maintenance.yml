@@ -47,11 +47,14 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      - name: Setup repo + Node
-        uses: ./.github/actions/setup-node-repo
+      - name: Checkout repository
+        uses: actions/checkout@v6
         with:
           ref: ${{ github.ref_name }}
-          fetch-depth: "0"
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: ./.github/actions/setup-node-repo
 
       - name: Refresh AVM module index + version cache
         run: npm run refresh:avm-module-index
@@ -108,11 +111,14 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      - name: Setup repo + Node
-        uses: ./.github/actions/setup-node-repo
+      - name: Checkout repository
+        uses: actions/checkout@v6
         with:
           ref: ${{ github.ref_name }}
-          fetch-depth: "0"
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: ./.github/actions/setup-node-repo
 
       - name: Create data directory
         run: mkdir -p .github/data
@@ -168,7 +174,10 @@ jobs:
     name: Quarterly Audit (glob, orphans, freshness)
     runs-on: ubuntu-latest
     steps:
-      - name: Setup repo + Node
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Node
         uses: ./.github/actions/setup-node-repo
 
       - name: Run quarterly audit (glob-audit + orphan-content + docs-freshness)
@@ -245,7 +254,10 @@ jobs:
     name: Check docs links
     runs-on: ubuntu-latest
     steps:
-      - name: Setup repo + Node
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Node
         uses: ./.github/actions/setup-node-repo
 
       - name: Check links in docs/

@@ -32,7 +32,10 @@ jobs:
     name: Check docs links
     runs-on: ubuntu-latest
     steps:
-      - name: Setup repo + Node
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Node
         uses: ./.github/actions/setup-node-repo
 
       - name: Check links in docs/

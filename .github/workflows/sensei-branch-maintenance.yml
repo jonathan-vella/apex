@@ -170,11 +170,14 @@ jobs:
     if: always() && needs.verify-branch-exists.outputs.exists == 'true'
     runs-on: ubuntu-latest
     steps:
-      - name: Setup repo + Node (sensei branch, recursive submodules)
-        uses: ./.github/actions/setup-node-repo
+      - name: Checkout feat/skills-sensei (post-merge)
+        uses: actions/checkout@v6
         with:
           ref: feat/skills-sensei
           submodules: recursive
+
+      - name: Setup Node
+        uses: ./.github/actions/setup-node-repo
 
       - name: Validate skills
         run: npm run validate:skills
