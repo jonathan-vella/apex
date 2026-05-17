@@ -1,0 +1,147 @@
+{
+  "aggregate": {
+    "agent_count": 15,
+    "total_body_lines": 6940,
+    "over_350_count": 12,
+    "over_600_count": 0,
+    "guidance_line_threshold": 350,
+    "hard_max_body_lines": 600
+  },
+  "agents": [
+    {
+      "agent_id": "01-orchestrator",
+      "path": ".github/agents/01-orchestrator.agent.md",
+      "total_lines": 637,
+      "body_lines": 549,
+      "over_350": true,
+      "over_600": false,
+      "hypothesis_target_body_lines": 450
+    },
+    {
+      "agent_id": "02-requirements",
+      "path": ".github/agents/02-requirements.agent.md",
+      "total_lines": 472,
+      "body_lines": 432,
+      "over_350": true,
+      "over_600": false,
+      "hypothesis_target_body_lines": 345
+    },
+    {
+      "agent_id": "03-architect",
+      "path": ".github/agents/03-architect.agent.md",
+      "total_lines": 557,
+      "body_lines": 508,
+      "over_350": true,
+      "over_600": false,
+      "hypothesis_target_body_lines": 395
+    },
+    {
+      "agent_id": "04-design",
+      "path": ".github/agents/04-design.agent.md",
+      "total_lines": 565,
+      "body_lines": 532,
+      "over_350": true,
+      "over_600": false,
+      "hypothesis_target_body_lines": 385
+    },
+    {
+      "agent_id": "04g-governance",
+      "path": ".github/agents/04g-governance.agent.md",
+      "total_lines": 633,
+      "body_lines": 598,
+      "over_350": true,
+      "over_600": false,
+      "hypothesis_target_body_lines": 460
+    },
+    {
+      "agent_id": "05-iac-planner",
+      "path": ".github/agents/05-iac-planner.agent.md",
+      "total_lines": 627,
+      "body_lines": 572,
+      "over_350": true,
+      "over_600": false,
+      "hypothesis_target_body_lines": 440
+    },
+    {
+      "agent_id": "06b-bicep-codegen",
+      "path": ".github/agents/06b-bicep-codegen.agent.md",
+      "total_lines": 578,
+      "body_lines": 530,
+      "over_350": true,
+      "over_600": false,
+      "hypothesis_target_body_lines": 395
+    },
+    {
+      "agent_id": "06t-terraform-codegen",
+      "path": ".github/agents/06t-terraform-codegen.agent.md",
+      "total_lines": 579,
+      "body_lines": 530,
+      "over_350": true,
+      "over_600": false,
+      "hypothesis_target_body_lines": 395
+    },
+    {
+      "agent_id": "07b-bicep-deploy",
+      "path": ".github/agents/07b-bicep-deploy.agent.md",
+      "total_lines": 561,
+      "body_lines": 496,
+      "over_350": true,
+      "over_600": false,
+      "hypothesis_target_body_lines": 385
+    },
+    {
+      "agent_id": "07t-terraform-deploy",
+      "path": ".github/agents/07t-terraform-deploy.agent.md",
+      "total_lines": 552,
+      "body_lines": 488,
+      "over_350": true,
+      "over_600": false,
+      "hypothesis_target_body_lines": 385
+    },
+    {
+      "agent_id": "08-as-built",
+      "path": ".github/agents/08-as-built.agent.md",
+      "total_lines": 483,
+      "body_lines": 458,
+      "over_350": true,
+      "over_600": false,
+      "hypothesis_target_body_lines": 350
+    },
+    {
+      "agent_id": "09-diagnose",
+      "path": ".github/agents/09-diagnose.agent.md",
+      "total_lines": 307,
+      "body_lines": 256,
+      "over_350": false,
+      "over_600": false,
+      "hypothesis_target_body_lines": null
+    },
+    {
+      "agent_id": "10-challenger",
+      "path": ".github/agents/10-challenger.agent.md",
+      "total_lines": 293,
+      "body_lines": 268,
+      "over_350": false,
+      "over_600": false,
+      "hypothesis_target_body_lines": null
+    },
+    {
+      "agent_id": "11-context-optimizer",
+      "path": ".github/agents/11-context-optimizer.agent.md",
+      "total_lines": 336,
+      "body_lines": 305,
+      "over_350": false,
+      "over_600": false,
+      "hypothesis_target_body_lines": null
+    },
+    {
+      "agent_id": "e2e-orchestrator",
+      "path": ".github/agents/e2e-orchestrator.agent.md",
+      "total_lines": 455,
+      "body_lines": 418,
+      "over_350": true,
+      "over_600": false,
+      "hypothesis_target_body_lines": 355
+    }
+  ]
+}

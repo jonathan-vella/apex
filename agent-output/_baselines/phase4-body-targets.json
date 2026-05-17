@@ -1,0 +1,14 @@
+{
+  "01-orchestrator": 450,
+  "02-requirements": 345,
+  "03-architect": 395,
+  "04-design": 385,
+  "04g-governance": 460,
+  "05-iac-planner": 440,
+  "06b-bicep-codegen": 395,
+  "06t-terraform-codegen": 395,
+  "07b-bicep-deploy": 385,
+  "07t-terraform-deploy": 385,
+  "08-as-built": 350,
+  "e2e-orchestrator": 355
+}
