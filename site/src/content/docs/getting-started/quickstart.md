@@ -335,8 +335,8 @@ infra/terraform/my-webapp/
 Pick the path that matches your goal — then drop into the resource table below for more.
 
 - **Demo** — walk an end-to-end project: see
-  [Il-Pastizzeria ta’ Mario](../../demo/) (9 steps,
-  Requirements through As-Built).
+  [Il-Pastizzeria ta’ Mario](../../demo/) (a complete end-to-end walkthrough
+  from Requirements through As-Built).
 - **Learn** — understand the system before building:
   [Core Concepts](../../concepts/how-it-works/four-pillars/) →
   [Workflow](../../concepts/workflow/) →
