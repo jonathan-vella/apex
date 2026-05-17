@@ -163,6 +163,33 @@ Step 1 creates `agent-output/{project}/sku-manifest.json` and renders `sku-manif
 
 ## Phase 1: Business Discovery
 
+### P0 directive — batch independent questions (Plan 01 Phase 4)
+
+Every `askQuestions` call **MUST** bundle every independent question
+for the current phase into a single tool call via the `questions[]`
+array. Sequential calls are only permitted when a later question's
+wording depends on a prior answer. This is the largest user-wait
+reduction available — the test04 baseline fired 29 askQuestions calls
+across Step 1 (1,744 s of user-wait); the target is ≤10.
+
+**Numbered example — 6 questions in ONE call**:
+
+```jsonc
+askQuestions({
+  questions: [
+    { header: "project_name",  question: "Confirm or change the project folder." },
+    { header: "industry",      question: "Pick the industry that best matches.", options: [...] },
+    { header: "company_size",  question: "Startup / Mid-Market / Enterprise?", options: [...] },
+    { header: "region_pin",    question: "Any region pin (e.g. EU GDPR)?" },
+    { header: "compliance",    question: "Compliance / regulatory constraints?" },
+    { header: "iac_tool",      question: "Bicep or Terraform?", options: ["Bicep", "Terraform"] }
+  ]
+})
+```
+
+The validator `npm run validate:question-batching` greps this body
+for the P0 directive heading + the numbered example block.
+
 Use `askQuestions` for Round 1:
 
 - Project name, freeform.
