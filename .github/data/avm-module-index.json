@@ -1,7 +1,7 @@
 {
   "$schema": null,
   "schema_version": "avm-module-index-v1",
-  "generated_at": "2026-05-17T07:34:53.755Z",
+  "generated_at": "2026-05-17T07:41:09.791Z",
   "sources": {
     "bicep": "https://azure.github.io/Azure-Verified-Modules/module-indexes/BicepResourceModules.csv",
     "terraform": "https://azure.github.io/Azure-Verified-Modules/module-indexes/TerraformResourceModules.csv"
