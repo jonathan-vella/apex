@@ -370,7 +370,7 @@ cd tools/mcp-servers/azure-pricing && pip install -r requirements.txt
 :::tip[Graceful degradation]
 If MCP servers are temporarily unreachable, the workflow degrades gracefully.
 Steps 1-5 can proceed without MCP — agents skip real-time pricing lookups
-and use documented defaults. Governance discovery in Step 4 uses Azure CLI
+and use documented defaults. Governance discovery in Step 3.5 uses Azure CLI
 auth, not MCP. Only Step 2 cost estimation and Step 7 as-built cost updates
 depend directly on the Pricing MCP server.
 :::

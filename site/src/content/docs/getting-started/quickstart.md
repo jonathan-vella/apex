@@ -125,6 +125,13 @@ Azure setup is only required for Step 6 (Deploy) and the governance baseline
 workflow. You can explore the full agent workflow without it.
 :::
 
+:::tip[Plan for cost before you deploy]
+Deploying to a real subscription always costs money. Before Step 6, set
+budget alerts and anomaly detection per
+[Cost Governance](../../guides/cost-governance/) so a runaway deployment
+cannot drain a credit pool unnoticed.
+:::
+
 ## Step 5: Configure `GH_TOKEN` for the Dev Container
 
 This step is easy to miss, but it is required for reliable GitHub CLI and repository operations in
@@ -324,6 +331,21 @@ infra/terraform/my-webapp/
 ```
 
 ## Next Steps
+
+Pick the path that matches your goal — then drop into the resource table below for more.
+
+- **Demo** — walk an end-to-end project: see
+  [Il-Pastizzeria ta’ Mario](../../demo/) (9 steps,
+  Requirements through As-Built).
+- **Learn** — understand the system before building:
+  [Core Concepts](../../concepts/how-it-works/four-pillars/) →
+  [Workflow](../../concepts/workflow/) →
+  [Agent Architecture](../../concepts/how-it-works/agents/).
+- **Build** — run the Orchestrator on your own project:
+  [Prompt Guide](../../guides/prompt-guide/) for prompt patterns,
+  [Security Baseline](../../guides/security-baseline/) and
+  [Cost Governance](../../guides/cost-governance/) for the mandatory
+  guardrails.
 
 | Goal                            | Resource                                                                                                  |
 | ------------------------------- | --------------------------------------------------------------------------------------------------------- |

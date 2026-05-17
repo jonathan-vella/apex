@@ -16,6 +16,27 @@ Use this page when you want a system-wide map. For workflow behaviour and
 responsibilities, read the narrative docs first and use the explorer as a
 visual drill-down.
 
+## How to use the explorer
+
+Pick the lens that matches your goal:
+
+- **Architect / new contributor** — filter to `Agent` + `Subagent` to see
+  who calls whom; click a node to focus the camera on its neighbourhood.
+- **Skill builder** — filter to `Skill` + `Instruction` to see which
+  skills and instructions cluster together; cross-reference with the
+  [Skills & Instructions](../concepts/how-it-works/skills-and-instructions/)
+  page.
+- **Security / governance auditor** — filter to `Validator` +
+  `MCP Server` to see enforcement reach across the repo.
+- **CI maintainer** — filter to `CI Workflow` + `Validator` to see which
+  hooks back which scripts.
+
+Legend behaviour: each chip in the legend acts as a category toggle (click
+or `Enter`/`Space` to mute/unmute). Edges represent direct references
+(agent → subagent handoffs, prompt → agent slug matches, validator
+→ file globs). Node size is uniform; colour encodes category only — the
+legend lists every category and its current count.
+
 <iframe
   src="/azure-agentic-infraops/architecture-explorer.html"
   style="width:100%;height:88vh;border:1px solid var(--sl-color-gray-5);border-radius:0.75rem;"

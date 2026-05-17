@@ -250,6 +250,12 @@
         user-select: none;
         opacity: 1;
         transition: opacity 0.15s;
+        border-radius: 4px;
+      }
+      .legend-item:focus-visible,
+      .chip:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 3px;
       }
       .legend-item.muted {
         opacity: 0.35;
@@ -738,12 +744,24 @@
           item.className = "legend-item";
           item.dataset.cat = cat.id;
           item.title = `${cat.label} (${cat.count})`;
+          // a11y: legend items are keyboard-activatable category filters.
+          item.setAttribute("role", "button");
+          item.setAttribute("tabindex", "0");
+          item.setAttribute("aria-label", `Toggle ${cat.label} category (${cat.count} nodes)`);
+          item.setAttribute("aria-pressed", "true");
           item.innerHTML = `
             <span class="legend-dot" style="background:${cat.color};color:${cat.color}"></span>
             <span>${escapeHtml(cat.label)}</span>
             <small style="color:var(--text-faint);font-size:11px">${cat.count}</small>
           `;
-          item.addEventListener("click", () => toggleCategory(cat.id, item));
+          const toggle = () => toggleCategory(cat.id, item);
+          item.addEventListener("click", toggle);
+          item.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              toggle();
+            }
+          });
           el.appendChild(item);
         }
       }
@@ -752,9 +770,11 @@
         if (state.hiddenCategories.has(catId)) {
           state.hiddenCategories.delete(catId);
           itemEl.classList.remove("muted");
+          itemEl.setAttribute("aria-pressed", "true");
         } else {
           state.hiddenCategories.add(catId);
           itemEl.classList.add("muted");
+          itemEl.setAttribute("aria-pressed", "false");
         }
         refreshGraphVisibility();
       }

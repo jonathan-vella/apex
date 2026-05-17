@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-05-17T08:19:08.771Z",
+  "generatedAt": "2026-05-17T16:50:28.632Z",
   "categories": [
     {
       "id": "agent",
@@ -24,7 +24,7 @@
       "label": "Skill",
       "color": "#10b981",
       "shape": "ellipse",
-      "count": 33
+      "count": 34
     },
     {
       "id": "instruction",
@@ -48,7 +48,7 @@
       "label": "Validator",
       "color": "#8b5cf6",
       "shape": "hexagon",
-      "count": 50
+      "count": 53
     },
     {
       "id": "workflow",
@@ -67,8 +67,8 @@
       "count": 6
     }
   ],
-  "nodeCount": 150,
-  "edgeCount": 593,
+  "nodeCount": 154,
+  "edgeCount": 601,
   "nodes": [
     {
       "id": "agent:01-orchestrator",
@@ -195,7 +195,7 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/04g-governance.agent.md"
       },
       "meta": {
-        "model": "GPT-5.5",
+        "model": "GPT-5.3-Codex",
         "invocable": true,
         "subagents": [
           "challenger-review-subagent"
@@ -217,7 +217,7 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/05-iac-planner.agent.md"
       },
       "meta": {
-        "model": "Claude Opus 4.7",
+        "model": "Claude Sonnet 4.6",
         "invocable": true,
         "subagents": [
           "challenger-review-subagent"
@@ -290,7 +290,7 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/07b-bicep-deploy.agent.md"
       },
       "meta": {
-        "model": "GPT-5.5",
+        "model": "GPT-5.3-Codex",
         "invocable": true,
         "subagents": [
           "bicep-whatif-subagent",
@@ -317,7 +317,7 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/07t-terraform-deploy.agent.md"
       },
       "meta": {
-        "model": "GPT-5.5",
+        "model": "GPT-5.3-Codex",
         "invocable": true,
         "subagents": [
           "terraform-plan-subagent",
@@ -386,7 +386,7 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/10-challenger.agent.md"
       },
       "meta": {
-        "model": "GPT-5.5",
+        "model": "GPT-5.3-Codex",
         "invocable": true,
         "subagents": [
           "challenger-review-subagent"
@@ -406,7 +406,7 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/11-context-optimizer.agent.md"
       },
       "meta": {
-        "model": "Claude Opus 4.7",
+        "model": "Claude Sonnet 4.6",
         "invocable": true,
         "subagents": [
           "*"
@@ -598,7 +598,7 @@
       "id": "skill:azure-compute",
       "category": "skill",
       "label": "azure-compute",
-      "description": "**ANALYSIS SKILL** — Recommend Azure VM sizes and Scale Sets (VMSS) for workload requirements, performance, and budget. Uses public docs and the Azure Retail Prices API. WHEN: \"recommend VM size\", \"choose Azure VM\", \"GPU VM\", \"compare VM sizes\", \"VMSS vs VM\", \"autoscale VMs\". USE FOR: VM family selection, VMSS sizing, confidential computing recommendations. DO NOT USE FOR: provisioning VMs (use azure-prepare), VM pricing for budgets (use azure-pricing MCP directly).",
+      "description": "**ANALYSIS SKILL** — Recommend Azure VM sizes and VMSS for workload, performance, and budget. Uses public docs and the Azure Retail Prices API. WHEN: \"recommend VM size\", \"choose Azure VM\", \"GPU VM\", \"compare VM sizes\", \"VMSS vs VM\", \"autoscale VMs\". DO NOT USE FOR: provisioning VMs (azure-prepare), VM pricing for budgets (azure-pricing MCP).",
       "path": ".github/skills/azure-compute/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-compute/SKILL.md"
@@ -631,7 +631,7 @@
       "id": "skill:azure-deploy",
       "category": "skill",
       "label": "azure-deploy",
-      "description": "**WORKFLOW SKILL** — Execute Azure deployments for ALREADY-PREPARED apps. Runs azd up, azd deploy, terraform apply with built-in error recovery. Requires plan.md from azure-prepare and validated status from azure-validate. WHEN: 'run azd up', 'run azd deploy', 'push to production', 'go live', 'bicep deploy', 'terraform apply', 'publish to Azure'. DO NOT USE FOR: creating new apps (azure-prepare), generating IaC (azure-prepare), pre-deployment checks (azure-validate).",
+      "description": "**WORKFLOW SKILL** — Execute Azure deployments (azd up, azd deploy, terraform apply) for already-prepared apps with built-in error recovery. WHEN: 'run azd up', 'run azd deploy', 'push to production', 'go live', 'bicep deploy', 'terraform apply', 'publish to Azure'. DO NOT USE FOR: creating new apps (azure-prepare), pre-deploy checks (azure-validate).",
       "path": ".github/skills/azure-deploy/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-deploy/SKILL.md"
@@ -653,7 +653,7 @@
       "id": "skill:azure-governance-discovery",
       "category": "skill",
       "label": "azure-governance-discovery",
-      "description": "**ANALYSIS SKILL** — Deterministic Azure Policy discovery: lists effective assignments (incl. MG-inherited), pulls definitions/exemptions, classifies effects, filters Defender auto-assignments, emits governance-constraints JSON via Python. WHEN: 'Azure policy discovery', 'effective policy assignments', 'governance constraints', '04g-Governance Phase 1', 'refresh governance JSON'. DO NOT USE FOR: artifact writing, architecture mapping, challenger orchestration.",
+      "description": "**ANALYSIS SKILL** — Azure Policy discovery: effective assignments (incl. MG-inherited), definitions/exemptions, effect classification, emits governance-constraints JSON. WHEN: 'Azure policy discovery', 'effective policy assignments', 'governance constraints', '04g-Governance Phase 1', 'refresh governance JSON'. DO NOT USE FOR: artifact writing, architecture mapping.",
       "path": ".github/skills/azure-governance-discovery/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-governance-discovery/SKILL.md"
@@ -675,7 +675,7 @@
       "id": "skill:azure-prepare",
       "category": "skill",
       "label": "azure-prepare",
-      "description": "**WORKFLOW SKILL** — Prepare Azure apps for deployment (infra Bicep/Terraform, azure.yaml, Dockerfiles). Covers create, modernize, create+deploy. WHEN: \"create app\", \"build web app\", \"create API\", \"deploy to Azure\", \"generate Bicep\", \"generate Terraform\", \"function app\", \"add authentication\", \"managed identity\", \"containerized Node.js app\". DO NOT USE FOR: cross-cloud migration (azure-cloud-migrate), executing prepared deploys (azure-deploy), preflight (azure-validate).",
+      "description": "**WORKFLOW SKILL** — Prepare Azure apps for deployment (Bicep/Terraform, azure.yaml, Dockerfiles). WHEN: \"create app\", \"build web app\", \"create API\", \"deploy to Azure\", \"generate Bicep\", \"generate Terraform\", \"function app\", \"add authentication\", \"managed identity\". DO NOT USE FOR: cross-cloud migration (azure-cloud-migrate), executing deploys (azure-deploy), preflight (azure-validate).",
       "path": ".github/skills/azure-prepare/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-prepare/SKILL.md"
@@ -708,7 +708,7 @@
       "id": "skill:azure-resources",
       "category": "skill",
       "label": "azure-resources",
-      "description": "**ANALYSIS SKILL** — List, find, and visualize existing Azure resources via Resource Graph (LOOKUP) or Mermaid diagrams (VISUALIZE). WHEN: 'list resources', 'list VMs', 'find orphaned resources', 'resource inventory', 'cross-subscription query', 'visualize Azure resources', 'diagram my resources'. DO NOT USE FOR: deploying (azure-deploy), cost optimization (azure-cost-optimization), security scanning (azure-compliance), troubleshooting (azure-diagnostics).",
+      "description": "**ANALYSIS SKILL** — List, find, and visualize Azure resources via Resource Graph or Mermaid. WHEN: 'list resources', 'list VMs', 'find orphaned resources', 'resource inventory', 'cross-subscription query', 'visualize Azure resources', 'diagram my resources'. DO NOT USE FOR: deploys (azure-deploy), cost (azure-cost-optimization), security (azure-compliance), troubleshooting (azure-diagnostics).",
       "path": ".github/skills/azure-resources/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-resources/SKILL.md"
@@ -730,7 +730,7 @@
       "id": "skill:azure-validate",
       "category": "skill",
       "label": "azure-validate",
-      "description": "**WORKFLOW SKILL** — Pre-deployment validation for Azure readiness. Deep checks on configuration, infrastructure (Bicep or Terraform), permissions, and prerequisites before deploying. WHEN: 'validate my app', 'check deployment readiness', 'run preflight checks', 'validate azure.yaml', 'validate Bicep', 'test before deploying', 'validate Azure Functions'. DO NOT USE FOR: post-deployment troubleshooting (azure-diagnostics), executing deployments (azure-deploy).",
+      "description": "**WORKFLOW SKILL** — Pre-deployment validation for Azure: config, infrastructure (Bicep/Terraform), permissions, prerequisites. WHEN: 'validate my app', 'check deployment readiness', 'run preflight checks', 'validate azure.yaml', 'validate Bicep', 'test before deploying', 'validate Azure Functions'. DO NOT USE FOR: post-deploy troubleshooting (azure-diagnostics), executing deploys (azure-deploy).",
       "path": ".github/skills/azure-validate/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-validate/SKILL.md"
@@ -785,7 +785,7 @@
       "id": "skill:github-operations",
       "category": "skill",
       "label": "github-operations",
-      "description": "**WORKFLOW SKILL** — Full GitHub contribution lifecycle: branch naming, conventional commits, issues, PRs, Actions, and releases. gh CLI-first with MCP fallback. WHEN: \"commit\", \"push\", \"open PR\", \"create branch\", \"create issue\", \"cut release\", \"GitHub operation\". USE FOR: commit/push, PR creation, branch lifecycle, issues, releases, Actions config. DO NOT USE FOR: Azure infrastructure, Bicep/Terraform code, architecture decisions. INVOKES: gh CLI (primary), GitHub MCP (fallback).",
+      "description": "**WORKFLOW SKILL** — Full GitHub contribution lifecycle: branches, conventional commits, issues, PRs, Actions, releases. gh CLI-first with MCP fallback. WHEN: \"commit\", \"push\", \"open PR\", \"create branch\", \"create issue\", \"cut release\", \"GitHub operation\". DO NOT USE FOR: Azure infrastructure, Bicep/Terraform code, architecture decisions. INVOKES: gh CLI (primary), GitHub MCP (fallback).",
       "path": ".github/skills/github-operations/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/github-operations/SKILL.md"
@@ -807,7 +807,7 @@
       "id": "skill:iac-common",
       "category": "skill",
       "label": "iac-common",
-      "description": "**UTILITY SKILL** — Shared IaC deploy patterns for Bicep + Terraform deploy agents: deployment strategies, circuit breaker, known deploy issues. WHEN: \"phased deployment\", \"circuit breaker\", \"deploy strategy\", \"deploy issue\", \"shared IaC pattern\". USE FOR: phased deployment, circuit breaker patterns, deploy-specific known issues. DO NOT USE FOR: preflight validation (use azure-validate), code generation (use azure-bicep-patterns or terraform-patterns).",
+      "description": "**UTILITY SKILL** — Shared IaC deploy patterns for Bicep + Terraform agents: deployment strategies, circuit breaker, known deploy issues. WHEN: \"phased deployment\", \"circuit breaker\", \"deploy strategy\", \"deploy issue\", \"shared IaC pattern\". DO NOT USE FOR: preflight (azure-validate), code generation (azure-bicep-patterns / terraform-patterns).",
       "path": ".github/skills/iac-common/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/iac-common/SKILL.md"
@@ -818,7 +818,7 @@
       "id": "skill:mermaid",
       "category": "skill",
       "label": "mermaid",
-      "description": "**UTILITY SKILL** — Mermaid diagram generation for inline markdown documentation: flowcharts, sequence diagrams, Gantt, class, state, ER. WHEN: \"mermaid flowchart\", \"sequence diagram\", \"Gantt chart\", \"state diagram\", \"ER diagram\", \"inline markdown diagram\". USE FOR: inline markdown diagrams, flowcharts, sequence diagrams, Gantt charts, state diagrams, ER diagrams. DO NOT USE FOR: architecture diagrams with Azure icons (use drawio), WAF/cost charts (use python-diagrams).",
+      "description": "**UTILITY SKILL** — Mermaid diagrams for inline markdown: flowcharts, sequence, Gantt, class, state, ER. WHEN: \"mermaid flowchart\", \"sequence diagram\", \"Gantt chart\", \"state diagram\", \"ER diagram\", \"inline markdown diagram\". DO NOT USE FOR: Azure-icon architecture diagrams (drawio), WAF/cost charts (python-diagrams).",
       "path": ".github/skills/mermaid/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/mermaid/SKILL.md"
@@ -848,10 +848,21 @@
       "meta": {}
     },
     {
+      "id": "skill:sensei",
+      "category": "skill",
+      "label": "sensei",
+      "description": "**WORKFLOW SKILL** — Iteratively improve skill frontmatter compliance using the Ralph loop pattern. WHEN: \\\"run sensei\\\", \\\"sensei help\\\", \\\"improve skill\\\", \\\"fix frontmatter\\\", \\\"skill compliance\\\", \\\"frontmatter audit\\\", \\\"score skill\\\", \\\"check skill tokens\\\". INVOKES: token counting tools, test runners, git commands. FOR SINGLE OPERATIONS: use token CLI directly for counts/checks.",
+      "path": ".github/skills/sensei/SKILL.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/sensei/SKILL.md"
+      },
+      "meta": {}
+    },
+    {
       "id": "skill:terraform-patterns",
       "category": "skill",
       "label": "terraform-patterns",
-      "description": "**UTILITY SKILL** — Reusable Azure Terraform patterns: hub-spoke, private endpoints, diagnostics, AVM-TF modules. WHEN: \"hub-spoke Terraform\", \"private endpoint module\", \"AVM-TF composition\", \"diagnostic settings\", \"plan interpretation\". USE FOR: Terraform template design, hub-spoke networking, AVM modules, plan interpretation. DO NOT USE FOR: Bicep code (use azure-bicep-patterns), architecture decisions (use azure-adr), troubleshooting, diagram generation (use drawio).",
+      "description": "**UTILITY SKILL** — Reusable Azure Terraform patterns: hub-spoke, private endpoints, diagnostics, AVM-TF modules. WHEN: \"hub-spoke Terraform\", \"private endpoint module\", \"AVM-TF composition\", \"diagnostic settings\", \"plan interpretation\". DO NOT USE FOR: Bicep code (azure-bicep-patterns), ADRs (azure-adr), diagrams (drawio).",
       "path": ".github/skills/terraform-patterns/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/terraform-patterns/SKILL.md"
@@ -1316,6 +1327,45 @@
       },
       "meta": {
         "command": "node tools/scripts/validate-agents.mjs"
+      }
+    },
+    {
+      "id": "validator:validate-orchestrator-handoff",
+      "category": "validator",
+      "label": "validate:orchestrator-handoff",
+      "description": "python3 tools/scripts/validate_orchestrator_handoff.py",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
+      },
+      "meta": {
+        "command": "python3 tools/scripts/validate_orchestrator_handoff.py"
+      }
+    },
+    {
+      "id": "validator:validate-review-ceiling",
+      "category": "validator",
+      "label": "validate:review-ceiling",
+      "description": "python3 tools/scripts/validate_review_ceiling.py",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
+      },
+      "meta": {
+        "command": "python3 tools/scripts/validate_review_ceiling.py"
+      }
+    },
+    {
+      "id": "validator:validate-question-batching",
+      "category": "validator",
+      "label": "validate:question-batching",
+      "description": "python3 tools/scripts/validate_question_batching.py",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
+      },
+      "meta": {
+        "command": "python3 tools/scripts/validate_question_batching.py"
       }
     },
     {
@@ -3022,6 +3072,12 @@
       "kind": "applies-to"
     },
     {
+      "id": "instruction:agent-skills--applies-to->skill:sensei",
+      "source": "instruction:agent-skills",
+      "target": "skill:sensei",
+      "kind": "applies-to"
+    },
+    {
       "id": "instruction:agent-skills--applies-to->skill:terraform-patterns",
       "source": "instruction:agent-skills",
       "target": "skill:terraform-patterns",
@@ -3349,6 +3405,12 @@
       "id": "instruction:context-optimization--applies-to->skill:python-diagrams",
       "source": "instruction:context-optimization",
       "target": "skill:python-diagrams",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->skill:sensei",
+      "source": "instruction:context-optimization",
+      "target": "skill:sensei",
       "kind": "applies-to"
     },
     {
@@ -3685,6 +3747,12 @@
       "id": "instruction:docs-trigger--applies-to->skill:python-diagrams",
       "source": "instruction:docs-trigger",
       "target": "skill:python-diagrams",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->skill:sensei",
+      "source": "instruction:docs-trigger",
+      "target": "skill:sensei",
       "kind": "applies-to"
     },
     {
@@ -4192,6 +4260,12 @@
       "kind": "applies-to"
     },
     {
+      "id": "instruction:markdown--applies-to->skill:sensei",
+      "source": "instruction:markdown",
+      "target": "skill:sensei",
+      "kind": "applies-to"
+    },
+    {
       "id": "instruction:markdown--applies-to->skill:terraform-patterns",
       "source": "instruction:markdown",
       "target": "skill:terraform-patterns",
@@ -4522,6 +4596,12 @@
       "kind": "applies-to"
     },
     {
+      "id": "instruction:no-interactive-shell--applies-to->skill:sensei",
+      "source": "instruction:no-interactive-shell",
+      "target": "skill:sensei",
+      "kind": "applies-to"
+    },
+    {
       "id": "instruction:no-interactive-shell--applies-to->skill:terraform-patterns",
       "source": "instruction:no-interactive-shell",
       "target": "skill:terraform-patterns",
@@ -4705,6 +4785,24 @@
       "id": "workflow:ci--runs->validator:validate-agents",
       "source": "workflow:ci",
       "target": "validator:validate-agents",
+      "kind": "runs"
+    },
+    {
+      "id": "workflow:ci--runs->validator:validate-orchestrator-handoff",
+      "source": "workflow:ci",
+      "target": "validator:validate-orchestrator-handoff",
+      "kind": "runs"
+    },
+    {
+      "id": "workflow:ci--runs->validator:validate-review-ceiling",
+      "source": "workflow:ci",
+      "target": "validator:validate-review-ceiling",
+      "kind": "runs"
+    },
+    {
+      "id": "workflow:ci--runs->validator:validate-question-batching",
+      "source": "workflow:ci",
+      "target": "validator:validate-question-batching",
       "kind": "runs"
     },
     {
@@ -5464,12 +5562,6 @@
       "kind": "refs"
     },
     {
-      "id": "skill:azure-governance-discovery--refs->skill:azure-defaults",
-      "source": "skill:azure-governance-discovery",
-      "target": "skill:azure-defaults",
-      "kind": "refs"
-    },
-    {
       "id": "skill:azure-kusto--refs->skill:azure-cost-optimization",
       "source": "skill:azure-kusto",
       "target": "skill:azure-cost-optimization",
@@ -5653,6 +5745,12 @@
       "id": "skill:python-diagrams--refs->skill:mermaid",
       "source": "skill:python-diagrams",
       "target": "skill:mermaid",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:sensei--refs->skill:azure-deploy",
+      "source": "skill:sensei",
+      "target": "skill:azure-deploy",
       "kind": "refs"
     },
     {

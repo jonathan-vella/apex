@@ -42,7 +42,7 @@ const DEPRECATED_PATTERNS = [
   },
 ];
 
-const KNOWN_OVERSIZED = new Set(["azure-adr", "github-operations", "make-skill-template"]);
+const KNOWN_OVERSIZED = new Set(["azure-adr", "github-operations"]);
 
 function runFormatValidation() {
   const r = new Reporter("Skills Format Validator");

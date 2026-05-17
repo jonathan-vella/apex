@@ -23,7 +23,6 @@ r.header();
 const KNOWN_OVERSIZED = new Set([
   "azure-adr",
   "github-operations",
-  "make-skill-template",
   "azure-kusto",
   "azure-cost-optimization",
   "azure-quotas",

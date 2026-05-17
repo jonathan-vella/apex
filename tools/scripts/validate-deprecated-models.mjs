@@ -35,7 +35,6 @@ const ALLOWED_FILES = new Set([
   "site/src/content/docs/project/changelog.md",
   "QUALITY_SCORE.md",
   ".github/skills/docs-writer/references/freshness-checklist.md",
-  ".github/skills/copilot-customization/references/custom-agents.md",
   "tools/scripts/validate-deprecated-models.mjs",
 ]);
 

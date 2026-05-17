@@ -44,14 +44,16 @@ the latest Claude Opus model.
     See [GitHub Copilot plans](https://github.com/features/copilot/plans) for details.
 
 :::note[Do I need an Azure subscription?]
-**For learning**: No. You can run the full workflow through Steps 1-5 (requirements,
-architecture, design, planning, code generation) without an Azure subscription.
-The generated templates are valid and ready to deploy.
-:::
+**No** — for learning. You can run the full workflow through Steps 1–5
+(requirements, architecture, design, planning, code generation) without
+an Azure subscription. The generated templates are valid and ready to
+deploy.
 
-    **For deployment**: Yes. Step 6 (Deploy) requires an active Azure subscription with
-    permissions to create resources. Step 2 (Architecture) optionally uses the Azure
-    Pricing MCP server, which queries public pricing APIs and does not require a subscription.
+**Yes** — for deployment. Step 6 (Deploy) requires an active Azure
+subscription with permissions to create resources. Step 2 (Architecture)
+optionally uses the Azure Pricing MCP server, which queries public
+pricing APIs and does not require a subscription.
+:::
 
 ---
 
@@ -76,9 +78,26 @@ and organizational standards:
     See [How It Works](../concepts/how-it-works/) for a deeper comparison.
 
 :::note[Can I switch IaC tracks mid-workflow?]
-Not directly. The `iac_tool` field in `01-requirements.md` determines the track for
-Steps 4-6. To switch, update the `iac_tool` field in requirements and re-run from
-Step 4 (Planning). Steps 1-3 are shared and do not need to be repeated.
+Not directly. The `iac_tool` field in `01-requirements.md` determines the
+track for Steps 4–6. To switch, update the `iac_tool` field in
+requirements and re-run from Step 4 (Planning). Steps 1–3 are shared and
+do not need to be repeated.
+
+**What carries over without re-running:**
+
+- Step 3 ADRs (track-agnostic).
+- Step 3.5 governance constraints still apply — they describe Azure
+  Policy, not IaC tool.
+- The Step 2 cost estimate is track-neutral for most SKUs.
+
+**What to re-validate when switching:**
+
+- AVM module availability — some `avm-res-*` Terraform modules differ in
+  inputs/coverage from their `br/public:avm/res/*` Bicep counterparts.
+  The Step 4 planner will flag any module that does not have a parity
+  twin in the target track.
+- Provider-specific behaviour (Terraform state vs ARM-managed Bicep).
+
 :::
 
 ---

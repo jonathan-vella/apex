@@ -72,6 +72,14 @@ Five mandatory gates require explicit human confirmation before the workflow adv
 | 4    | Step 5 | Automated validation passes (lint, build, review) |
 | 5    | Step 6 | User approves deployment and verifies resources   |
 
+:::tip[Rejecting a gate]
+If a gate produces `must_fix` findings or you want to change direction,
+edit the upstream artefact under `agent-output/{project}/` and re-run the
+step, or restart from the previous step. Prior artefacts remain on disk
+and are reused on the next pass — you never lose context by rejecting a
+gate.
+:::
+
 ### IaC Routing
 
 The `iac_tool` field in `01-requirements.md` determines which track is activated.
@@ -181,9 +189,21 @@ The circuit breaker pattern protects against runaway agent loops during deployme
 | What-if oscillation | 2 cycles            | Halt, flag resource conflict   |
 | Auth failure loop   | 2 consecutive       | Halt, prompt re-authentication |
 
+:::note[Example — what “timeout cascade” looks like]
+The Deploy agent calls `azd provision` and the Azure Resource Provider
+returns 429 (rate-limit). The agent retries twice more without making
+progress. The circuit breaker writes a `blocked` finding and stops the
+step — it does **not** keep retrying. Recovery: wait 5 minutes, then
+re-run the step. The agent reads `00-handoff.md` and resumes from the
+last successful sub-step.
+:::
+
 ### Context Compression
 
-The context-shredding system defines three compression tiers for artifact loading:
+The [`context-management`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/context-management/SKILL.md)
+skill defines three runtime compression tiers for artifact loading (it replaces
+the legacy `context-shredding` and `context-optimizer` skills; for post-hoc
+analysis of past sessions, see the [`11-Context Optimizer`](./agents/) agent):
 
 | Tier         | Trigger    | Strategy                                   |
 | ------------ | ---------- | ------------------------------------------ |

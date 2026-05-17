@@ -108,7 +108,6 @@ Each subdirectory under `.github/skills/` with a `SKILL.md` is one skill.
 | `azure-storage`               | `azure-storage/`               | Storage             | "blob storage", "file shares"              |
 | `azure-validate`              | `azure-validate/`              | Validation          | "validate app", "preflight checks"         |
 | `context-management`          | `context-management/`          | Meta                | "context optimization", "compress context" |
-| `copilot-customization`       | `copilot-customization/`       | Meta                | "customization", "instructions", "agents"  |
 | `docs-writer`                 | `docs-writer/`                 | Documentation       | "update docs", "check staleness"           |
 | `entra-app-registration`      | `entra-app-registration/`      | Identity            | "app registration", "Entra ID"             |
 | `github-operations`           | `github-operations/`           | Workflow            | "commit", "create issue", "create PR"      |
@@ -260,7 +259,7 @@ Discovered purely by prompt keyword matching — no agent explicitly
 references them:
 
 - `docs-writer` — Triggered by "update docs", "check staleness" prompts
-- `make-skill-template` — Triggered by "create skill", "new skill" prompts
+- `sensei` — Triggered by "run sensei", "improve skill", "fix frontmatter" prompts
 
 ### Instruction Files (Separate Mechanism)
 

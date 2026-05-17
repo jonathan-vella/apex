@@ -245,7 +245,7 @@ re-do the rule patches.
   (extend Part 1 frontmatter section).
 - Mirror the existing `KNOWN_OVERSIZED` exception pattern from
   [tools/scripts/validate-skills.mjs](../tools/scripts/validate-skills.mjs)
-  line 45 (current set: `azure-adr`, `github-operations`, `make-skill-template`).
+  line 45 (current set: `azure-adr`, `github-operations`).
   Default empty for the new agent-side check.
 - Rewrite over-budget descriptions for **skills + primary agents only**
   (Committed Decision #1). Routing accuracy comes from keyword overlap, not

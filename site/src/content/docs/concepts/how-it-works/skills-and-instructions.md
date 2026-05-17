@@ -54,9 +54,12 @@ count is computed by `tools/registry/count-manifest.json`. A grouped overview:
 | Microsoft Learn      | `microsoft-docs`                                                                                                                                                                                                  |
 | Meta / Tooling       | `context-management`                                                                                                                                                                                              |
 
-The `copilot-customization` skill is an authoritative reference for VS Code Copilot
-customisation mechanisms: instructions, prompt files, custom agents, agent skills,
-MCP servers, hooks, and plugins.
+The skills domain table above is the live catalog. For the authoritative
+list of VS Code Copilot customization mechanisms (instructions, prompt
+files, custom agents, agent skills, MCP servers, hooks, plugins) see
+[`.github/copilot-instructions.md`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/copilot-instructions.md)
+and the per-mechanism files under
+[`.github/instructions/`](https://github.com/jonathan-vella/azure-agentic-infraops/tree/main/.github/instructions).
 
 ## Instruction System
 
@@ -131,13 +134,15 @@ This section walks through creating a new skill from scratch.
 
 ### Step 1: Scaffold
 
-Use the `make-skill-template` skill to generate the folder structure:
+Copy an existing skill (for example
+[`azure-defaults`](https://github.com/jonathan-vella/azure-agentic-infraops/tree/main/.github/skills/azure-defaults))
+as a starting point and rename the directory:
 
-```text
-@workspace /make-skill-template Create a skill called "my-new-skill"
+```bash
+cp -r .github/skills/azure-defaults .github/skills/my-new-skill
 ```
 
-This creates:
+The expected structure is:
 
 ```text
 .github/skills/my-new-skill/
@@ -146,8 +151,11 @@ This creates:
 └── templates/        # Template files for artifact generation
 ```
 
-For the full scaffolding guide, see
-`.github/skills/make-skill-template/references/step-by-step-guide.md`.
+Authoring rules live in
+[`agent-skills.instructions.md`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/agent-skills.instructions.md).
+After scaffolding, run the sensei skill to iteratively improve frontmatter
+quality, and `npm run
+lint:skills-format` plus `npm run validate:agents` to verify.
 
 ### Step 2: Write SKILL.md
 

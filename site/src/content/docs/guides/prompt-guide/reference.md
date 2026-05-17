@@ -93,13 +93,14 @@ Generates and maintains documentation following repository standards.
 Update the docs to reflect the new Diagnose agent we added.
 ```
 
-### make-skill-template
+### sensei
 
-Scaffolds a new skill directory from the template.
+Iteratively improves skill frontmatter compliance using the Ralph loop pattern.
+Use this skill after scaffolding a new skill, or to bring an existing skill
+back to compliance.
 
 ```text
-Create a new skill called 'azure-monitoring' for Application Insights
-and Log Analytics best practices.
+Run sensei on the azure-validate skill to fix its frontmatter.
 ```
 
 ### azure-artifacts
@@ -120,24 +121,17 @@ and redundancy detection. Produces optimisation recommendations.
 Analyse the last Copilot Chat debug log and identify context waste.
 ```
 
-### context-shredding
+### context-management
 
-Runtime context compression with 3 tiers (full/summarised/minimal)
-and per-artifact templates to keep agents within context limits.
+Unified context-window management. Two modes: **runtime compression**
+(full / summarised / minimal artefact tiers used by orchestrator and
+codegen agents) and **diagnostic audit** (post-mortem token profiling
+and hand-off gap analysis used by the 11-Context Optimizer agent).
+Replaces the legacy `context-shredding` and `context-optimizer` skills.
 
 ```text
-@workspace What compression tiers does context-shredding define
+@workspace What compression tiers does context-management define
 for the architecture assessment artifact?
-```
-
-### copilot-customization
-
-Authoritative reference for VS Code Copilot customisation mechanisms:
-instructions, prompt files, custom agents, skills, MCP servers, and hooks.
-
-```text
-I want to create a new custom agent for database migration tasks.
-Walk me through the steps using copilot-customization.
 ```
 
 ### golden-principles

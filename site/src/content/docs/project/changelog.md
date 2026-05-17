@@ -12,6 +12,61 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.10.0] — Unreleased
 
+### Fixed (Docs peer review — 2026-05-17)
+
+- Consolidate the `/docs/` directory. Delete the one-shot Plan-01
+  evidence artefacts (`docs/skills-assessment-2026-05-17.md`,
+  `docs/tooling-assessment-2026-05-17.md`). Convert `docs/CHANGELOG.md`
+  into a stub pointing at the root `CHANGELOG.md` and this published
+  version, ending the long-running three-way changelog drift. The
+  Pricing MCP v5.0 → v5.2 entry that previously lived only in
+  `docs/CHANGELOG.md` is preserved below under "### Changed".
+  `/docs/` now keeps only `CHANGELOG.md` (stub), `GLOSSARY.md` (stub),
+  and `devcontainer-hygiene.md` (active, linked from the Copilot-chat
+  feedback issue template).
+- Retire three phantom skill references that no longer exist on disk
+  (`make-skill-template`, `context-shredding`, `copilot-customization`).
+  All three were moved to `.archive/` previously but were still cited in
+  the skills catalog, the prompt-guide reference, the
+  `skills-and-instructions` and `workflow-engine` pages, and a handful of
+  validator allow-lists. `context-shredding` references are corrected to
+  the live `context-management` skill (with a back-pointer to the
+  `11-Context Optimizer` agent for post-hoc audits); the
+  `make-skill-template` scaffold flow is replaced by a
+  copy-an-existing-`SKILL.md` walkthrough that hands off to the `sensei`
+  skill for frontmatter polish.
+- Regenerate `site/public/architecture-explorer-graph.json`. The graph
+  was stuck at 33 skill nodes (missing `sensei`); re-running the
+  generator restores parity with disk (34 skills, 15 agents, 7
+  subagents, 30 instructions, 6 MCP servers).
+- Keyboard-accessible legend in the Architecture Explorer. Category
+  toggles gain `role="button"`, `tabindex="0"`, `aria-pressed` state, an
+  Enter / Space keydown handler, and a `:focus-visible` outline. Chips
+  are already `<button>` elements and pick up the same focus style.
+- Fix step-numbering typo in the Troubleshooting guide ("Governance
+  discovery in Step 4" → Step 3.5), matching the FAQ and `AGENTS.md`.
+- Quickstart polish: add a **Demo / Learn / Build** triage list above
+  the Next-Steps table and a cost-governance callout next to the
+  Azure-setup step so readers cannot reach Step 6 without seeing the
+  budget-alerts guidance.
+- Add a Terraform-track audience notice on the demo index page — the
+  walkthrough is a Bicep run end-to-end, and the banner points Terraform
+  readers at the 06t / 07t agents.
+- FAQ + security-baseline rephrasing. "Do I need an Azure subscription?"
+  now leads with a direct No-for-learning / Yes-for-deployment summary;
+  the IaC-track-switch answer adds stale-artefact and AVM-parity
+  caveats; Rule 6 of the security baseline is promoted into a
+  `:::caution[Rule 6 — production-only]` callout.
+- Workflow-engine clarifications: a "Rejecting a gate" tip explaining
+  the edit-and-resume contract, plus a concrete "timeout cascade"
+  example for the Circuit Breaker section.
+- Architecture Explorer reference page now opens with a "How to use"
+  section that maps four reader roles (architect / skill builder /
+  auditor / CI maintainer) to category filters.
+- Validation reference page opens with a 4-bullet quick-reference
+  (pre-commit, `validate:all`, CI, `lefthook.yml`) above the flowchart
+  and tables.
+
 ### Removed
 
 - refactor(skills): **retire the `SKILL.digest.md` and `SKILL.minimal.md` tier
@@ -31,6 +86,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - feat(agents): migrate `09-Diagnose` to `GPT-5.5` and convert
   `diagnose-resource.prompt.md` to the outcome-first GPT-5.5 skeleton while
   preserving approval-first Azure diagnostics and report output.
+- feat(pricing-mcp): **Azure Pricing MCP v5.0 → v5.2 — independent fork**
+  modernization, shipped as three commits on the same
+  `feat/azure-pricing-mcp-v5` branch. Re-attributes the server (formerly
+  upstream `msftnadavbh/AzurePricingMCP`) to
+  `jonathan-vella/azure-agentic-infraops`, introduces a `response_format`
+  parameter (`compact|table|full`, default `compact`) on 11 high-volume
+  read tools, deprecates `azure_discover_skus` to a thin alias of
+  `azure_sku_discovery`, splits `[azure]` extras → `[admin]` (with
+  deprecation alias + multi-import probe), extracts spot/orphaned tools
+  to `azure_pricing_mcp/admin/`, migrates `models.py` from `@dataclass`
+  to `pydantic.BaseModel`, attaches `outputSchema` + emits
+  structured-content envelopes on every in-scope tool, drops the HTTP
+  transport + Dockerfile entirely (every consumer is stdio per
+  `.vscode/mcp.json`), adds in-flight request coalescing + a 60 s
+  negative-result TTL + a disk-backed retirement cache, eliminates the
+  if/elif tool-dispatch ladder, and bumps the changelog dating policy.
+  Aggregate compact response is ~46 % of the v4 byte baseline (~12 KB /
+  ~3000 tokens saved per workload). Final test count: 216 tests pass
+  (208 from v5.1 + 8 new v5.2 schema tests). See
+  [`tools/mcp-servers/azure-pricing/CHANGELOG.md`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/tools/mcp-servers/azure-pricing/CHANGELOG.md)
+  for the full per-version entries. Cost-estimate-subagent prompts now
+  use `response_format: "compact"` (replaces the bogus `output_format`
+  argument that v4 silently dropped) and `azure_sku_discovery` (replaces
+  references to `azure_discover_skus`).
 - chore(catalog): drop the `(High reasoning)` suffix from the Opus 4.7 label.
   `Claude Opus 4.7 (High reasoning)` and `Claude Opus 4.7` were two distinct
   catalog entries pointing at the same SKU. Reasoning-effort policy is now a

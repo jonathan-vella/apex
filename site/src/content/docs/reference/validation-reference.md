@@ -5,6 +5,18 @@ description: "All validation scripts, linting, and CI workflows"
 
 > Central reference for all validation scripts, linting commands, git hooks, and CI workflows.
 
+:::tip[Quick reference]
+
+- Pre-commit runs the fastest, file-scoped checks (`markdown-lint`,
+  `agents`, `iac-security-baseline`, …).
+- `npm run validate:all` is the canonical “run everything locally” entry
+  point.
+- CI re-runs the full suite on every PR and push to `main`. A green
+  pre-push hook is a strong predictor of green CI.
+- All hooks are defined in [`lefthook.yml`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/lefthook.yml).
+
+:::
+
 **Jump to:** [Architecture](#validation-architecture) ·
 [Lefthook Hooks](#lefthook-hooks) ·
 [Validation Scripts](#validation-scripts) ·

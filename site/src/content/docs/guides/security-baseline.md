@@ -23,10 +23,12 @@ review gates. Violations block code generation and deployment.
 | 8   | App Service HTTP/2 enabled             | `http20Enabled: true`                  | `http2_enabled = true`                    | SE:07      |
 | 9   | Container Registry admin user disabled | `adminUserEnabled: false`              | `admin_enabled = false`                   | SE:05      |
 
-> **Rule 6 clarification**: Public network access is only required to be disabled for
-> **production** environments. Dev/test environments may keep public access enabled
-> for developer convenience, but must still enforce all other rules.
->
+:::caution[Rule 6 — production-only]
+Public network access is only required to be disabled for **production**
+environments. Dev/test environments may keep public access enabled for
+developer convenience, but must still enforce every other rule above.
+:::
+
 > **WAF pillar key**: SE:05 = Identity & access, SE:06 = Network security, SE:07 = Encryption.
 
 ## Extended Checks

@@ -2,7 +2,14 @@
 description: "Review all published docs for accuracy, UX, and contradictions using three independent reviewers, then consolidate into an actionable triage report."
 agent: agent
 model: "Claude Opus 4.7"
-tools: vscode, execute, read, agent, search, web, 'azure-mcp/*'
+tools:
+  - vscode
+  - read
+  - search
+  - execute
+  - agent
+  - web
+  - "azure-mcp/*"
 argument-hint: "Optional: scope to a specific docs section (e.g., 'how-it-works only')"
 ---
 
@@ -31,7 +38,8 @@ context, then reconciliation into a prioritised triage report.
   (includes `demo/`, `concepts/`, `guides/`, `getting-started/`,
   `reference/`, `project/`) plus `site/public/architecture-explorer.html`.
 - Out of scope: `tools/tests/exec-plans/`, `agent-output/`,
-  `site/public/demo/*` raw fixtures, `site/public/downloads/`.
+  `site/public/downloads/`, and any non-rendered assets under `site/public/`
+  (images, JSON fixtures consumed by the explorer).
 - Authoritative inputs:
   - `site/astro.config.mjs` (`sidebar` = published-page list)
   - `tools/registry/count-manifest.json` (computed entity counts)
@@ -83,8 +91,9 @@ Run the three-reviewer pipeline detailed in the body below:
 - `site/public/architecture-explorer.html` (interactive component — accuracy,
   a11y, responsive, legend vs. repo reality).
 
-**Out of scope:** `tools/tests/exec-plans/`, `agent-output/`, `site/public/demo/*` raw
-fixtures, `site/public/downloads/`.
+**Out of scope:** `tools/tests/exec-plans/`, `agent-output/`,
+`site/public/downloads/`, and any non-rendered assets under `site/public/`
+(images, JSON fixtures consumed by the explorer).
 
 ### Step 0 — Build file inventory dynamically
 
@@ -97,7 +106,7 @@ Expected sections (for reference, not as source of truth):
 - Landing, Getting Started, Concepts (How It Works + Workflow), Guides (Prompt Guide,
   Troubleshooting, Session Debugging, Security Baseline, Cost Governance, azd Deployment,
   Agent Hooks, E2E Testing), Reference (FAQ, Validation & Linting, Architecture Explorer,
-  Glossary, Resources & Downloads), Project (Contributing, Changelog),
+  Glossary, Resources & Downloads), Project (Contributing, Sensei Branch, Changelog),
   Demo (Il-Pastizzeria ta' Mario)
 
 Known filename note: `four-pillars.md` renders as "Core Concepts" in the nav.

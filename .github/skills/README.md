@@ -31,10 +31,10 @@ domain-specific knowledge modules that activate automatically based on prompt ke
 
 | Skill                 | Description                               | Triggers                                                                        |
 | --------------------- | ----------------------------------------- | ------------------------------------------------------------------------------- |
-| `github-operations`   | Branch naming, commits, PRs, CLI, Actions | "commit", "create PR", "gh command"                                             |
-| `docs-writer`         | Repo-aware documentation maintenance      | "update docs", "check staleness"                                                |
-| `make-skill-template` | Create new skills from template           | "create skill", "new skill"                                                     |
-| `vendor-prompting`    | Audit Claude / GPT-5.5 agents and prompts | "audit agent", "claude prompting", "gpt-5.5 prompting", "vendor best practices" |
+| `github-operations` | Branch naming, commits, PRs, CLI, Actions | "commit", "create PR", "gh command"                                             |
+| `docs-writer`       | Repo-aware documentation maintenance      | "update docs", "check staleness"                                                |
+| `sensei`            | Iteratively improve skill frontmatter     | "run sensei", "improve skill", "fix frontmatter"                                |
+| `vendor-prompting`  | Audit Claude / GPT-5.5 agents and prompts | "audit agent", "claude prompting", "gpt-5.5 prompting", "vendor best practices" |
 
 ## Usage
 
@@ -75,10 +75,15 @@ Architect agent → "▶ Generate Architecture Diagram" button
 
 ## Creating New Skills
 
-Use the `make-skill-template` skill or follow the structure in
-[agent-skills.instructions.md](../instructions/agent-skills.instructions.md).
+Follow the structure in
+[agent-skills.instructions.md](../instructions/agent-skills.instructions.md):
 
-```text
-"Create a new skill for generating cost reports"
-→ make-skill-template skill guides you through creation
-```
+1. Copy an existing `SKILL.md` (e.g. `azure-defaults/SKILL.md`) as a template.
+2. Update the frontmatter (`name`, `description`, `compatibility`) per
+   the instruction file's rules.
+3. Place deep reference material under `references/` (loaded on demand).
+4. Run `npm run lint:skills-format` and `npm run validate:agents` to verify.
+
+The [`sensei`](./sensei/SKILL.md) skill iteratively improves frontmatter
+quality (Ralph-loop pattern) once the new skill is in place. For
+documentation-side updates, invoke the `docs-writer` skill.
