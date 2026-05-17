@@ -60,7 +60,9 @@ file first.
   Phase 2: Output Cadence).
 - Hardcode unique strings (use the shared suffix).
 - Use hardcoded tag lists / maps that ignore governance.
-- Skip the governance compliance mapping step (HARD GATE).
+- Skip governance compliance mapping (HARD GATE). The
+  `Phase 1.5: Governance Compliance Mapping` H2 in the agent body is
+  mandatory — never bypass it.
 - Use `APPINSIGHTS_INSTRUMENTATIONKEY` — use `APPLICATIONINSIGHTS_CONNECTION_STRING`.
 - Put hyphens in Storage Account names.
 - **Deploy** — that's the Deploy agent's job (07b / 07t).

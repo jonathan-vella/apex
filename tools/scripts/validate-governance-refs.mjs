@@ -48,6 +48,11 @@ function check(description, condition) {
 // 1. Bicep Code Generator references governance constraints
 console.log("📄 06b-bicep-codegen.agent.md");
 const codeGenPath = ".github/agents/06b-bicep-codegen.agent.md";
+// Shared DO/DON'T bullets were extracted to iac-common/references/codegen-do-dont.md
+// in Plan 01 Phase 4 (A1) — accept presence in either the agent body or the
+// canonical shared reference.
+const codeGenDoDontPath = ".github/skills/iac-common/references/codegen-do-dont.md";
+const fileOrSharedRef = (pattern) => fileContains(codeGenPath, pattern) || fileContains(codeGenDoDontPath, pattern);
 check("References 04-governance-constraints", fileContains(codeGenPath, "04-governance-constraints"));
 check("Has Phase 1.5: Governance Compliance Mapping", fileContains(codeGenPath, "Phase 1.5"));
 check(
@@ -56,15 +61,10 @@ check(
 );
 check(
   "DO list includes governance constraint parsing",
-  fileContains(codeGenPath, "Parse") &&
-    fileContains(codeGenPath, "04-governance-constraints.json") &&
-    fileContains(codeGenPath, "Deny policy"),
+  fileOrSharedRef("Parse") && fileOrSharedRef("04-governance-constraints.json") && fileOrSharedRef("Deny policy"),
 );
-check("DON'T list warns against hardcoded tag lists", fileContains(codeGenPath, "hardcoded tag lists"));
-check(
-  "DON'T list warns against skipping governance mapping",
-  fileContains(codeGenPath, "Skip governance compliance mapping"),
-);
+check("DON'T list warns against hardcoded tag lists", fileOrSharedRef("hardcoded tag lists"));
+check("DON'T list warns against skipping governance mapping", fileOrSharedRef("Skip governance compliance mapping"));
 
 // 2. bicep-validate-subagent has Governance Compliance section
 console.log("\n📄 bicep-validate-subagent.agent.md");
