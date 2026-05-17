@@ -1,0 +1,4 @@
+50:function walk(dir) {
+53:  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+55:    if (entry.isDirectory()) out.push(...walk(full));
+64:    files.push(...walk(path.join(ROOT, g)));

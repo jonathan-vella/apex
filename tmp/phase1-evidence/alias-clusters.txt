@@ -1,0 +1,64 @@
+=== tools/scripts/validate-artifacts.mjs ===
+1299:  const args = process.argv.slice(2);
+=== tools/scripts/validate-agents.mjs ===
+1674:  const opts = { only: null, format: "text", listRules: false, color: true, suggest: false };
+1679:    else if (a.startsWith("--only=")) {
+1693:  const opts = parseArgs(process.argv.slice(2));
+1759:if (process.argv[1] === __filename) {
+=== tools/scripts/validate-skills.mjs ===
+=== validate-artifacts.mjs argv handling (lines 1290-1360) ===
+    console.log(`Found ${totalIssues} issue(s). Run with --apply to auto-fix where possible.`);
+  }
+}
+
+// ============================================================================
+// Main entry point
+// ============================================================================
+
+function main() {
+  const args = process.argv.slice(2);
+
+  // --fix mode: run the auto-fixer
+  if (args.includes("--fix")) {
+    const fixArgs = args.filter((a) => a !== "--fix");
+    runFixMode(fixArgs);
+    process.exit(0);
+  }
+
+  // Default: run all validations
+  console.log("🔍 Artifact Validators (consolidated)\n");
+
+  const syncResult = runH2Sync();
+  const templateResult = runTemplateValidation();
+
+  const exitCode = Math.max(syncResult, templateResult);
+
+  if (exitCode > 0) {
+    process.exit(1);
+  }
+}
+
+main();
+
+=== validate-skills.mjs argv handling ===
+=== npm scripts mentioning validate-artifacts/agents/skills ===
+validate:artifacts	=> node tools/scripts/validate-artifacts.mjs
+fix:artifacts	=> node tools/scripts/validate-artifacts.mjs --fix
+lint:artifact-templates	=> node tools/scripts/validate-artifacts.mjs
+lint:h2-sync	=> node tools/scripts/validate-artifacts.mjs
+fix:artifact-h2	=> node tools/scripts/validate-artifacts.mjs --fix
+validate:agents	=> node tools/scripts/validate-agents.mjs
+lint:agent-frontmatter	=> node tools/scripts/validate-agents.mjs
+lint:vendor-prompting	=> node tools/scripts/validate-agents.mjs --only=vendor-prompting
+lint:workflow-handoffs	=> node tools/scripts/validate-agents.mjs --only=workflow-handoffs
+lint:skills-format	=> node tools/scripts/validate-skills.mjs
+lint:agent-checks	=> node tools/scripts/validate-agents.mjs
+validate:model-consistency	=> node tools/scripts/validate-model-consistency.mjs
+validate:deprecated-models	=> node tools/scripts/validate-deprecated-models.mjs
+validate:model-catalog	=> node tools/scripts/validate-model-catalog.mjs
+validate:skills	=> node tools/scripts/validate-skills.mjs
+lint:skill-references	=> node tools/scripts/validate-skills.mjs
+validate:skill-checks	=> node tools/scripts/validate-skill-checks.mjs
+validate:stale-refs	=> node tools/scripts/validate-skills.mjs
+lint:model-alignment	=> node tools/scripts/validate-agents.mjs
+test:classify-model	=> node --test tools/tests/validate-agents/classify-model.test.mjs
