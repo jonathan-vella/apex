@@ -1,7 +1,10 @@
 {
-  "lastUpdated": "2026-04-20T08:17:42.745Z",
+  "lastUpdated": "2026-05-17T07:34:55.363Z",
   "totalCount": 6,
-  "sources": ["manual-known", "azure-updates-rss"],
+  "sources": [
+    "manual-known",
+    "azure-updates-rss"
+  ],
   "deprecations": [
     {
       "service": "Azure Container Registry",
