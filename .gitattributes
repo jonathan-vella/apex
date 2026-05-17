@@ -71,5 +71,11 @@ docker-compose*.yml text eol=lf
 .github/** text eol=lf
 azure-pipelines*.yml text eol=lf
 
+# Binary archives under .github/** (override the .github/** text rule above)
+.github/**/*.gz binary
+.github/**/*.tgz binary
+.github/**/*.tar binary
+.github/**/*.zip binary
+
 # Git hooks (husky)
 .husky/* text eol=lf
