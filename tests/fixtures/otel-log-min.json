@@ -1,0 +1,104 @@
+{
+  "resourceSpans": [
+    {
+      "resource": {
+        "attributes": [
+          { "key": "service.name", "value": { "stringValue": "vscode.copilotChat" } }
+        ]
+      },
+      "scopeSpans": [
+        {
+          "scope": { "name": "copilotChat.fixture" },
+          "spans": [
+            {
+              "traceId": "11111111111111111111111111111111",
+              "spanId": "0000000000000001",
+              "name": "SessionStart",
+              "kind": 1,
+              "startTimeUnixNano": "1700000000000000000",
+              "endTimeUnixNano": "1700000000010000000",
+              "attributes": [
+                { "key": "gen_ai.operation.name", "value": { "stringValue": "session" } }
+              ],
+              "status": { "code": 0 }
+            },
+            {
+              "traceId": "11111111111111111111111111111111",
+              "spanId": "0000000000000002",
+              "name": "turn_start:0",
+              "kind": 1,
+              "startTimeUnixNano": "1700000000020000000",
+              "endTimeUnixNano": "1700000000030000000",
+              "attributes": [
+                { "key": "gen_ai.operation.name", "value": { "stringValue": "turn" } }
+              ],
+              "status": { "code": 0 }
+            },
+            {
+              "traceId": "11111111111111111111111111111111",
+              "spanId": "0000000000000003",
+              "name": "chat:claude-opus-4.7",
+              "kind": 1,
+              "startTimeUnixNano": "1700000001000000000",
+              "endTimeUnixNano": "1700000004000000000",
+              "attributes": [
+                { "key": "gen_ai.operation.name", "value": { "stringValue": "chat" } },
+                { "key": "gen_ai.request.model", "value": { "stringValue": "claude-opus-4.7" } },
+                { "key": "gen_ai.usage.input_tokens", "value": { "intValue": 45000 } },
+                { "key": "gen_ai.usage.output_tokens", "value": { "intValue": 1200 } }
+              ],
+              "status": { "code": 0 }
+            },
+            {
+              "traceId": "11111111111111111111111111111111",
+              "spanId": "0000000000000004",
+              "parentSpanId": "0000000000000003",
+              "name": "read_file",
+              "kind": 1,
+              "startTimeUnixNano": "1700000004500000000",
+              "endTimeUnixNano": "1700000004600000000",
+              "attributes": [
+                { "key": "gen_ai.operation.name", "value": { "stringValue": "execute_tool" } },
+                { "key": "gen_ai.tool.name", "value": { "stringValue": "read_file" } },
+                {
+                  "key": "gen_ai.tool.call.arguments",
+                  "value": { "stringValue": "{\"filePath\":\"path/REDACTED/SKILL.md\",\"startLine\":1,\"endLine\":100}" }
+                },
+                {
+                  "key": "gen_ai.tool.call.result",
+                  "value": { "stringValue": "{\"content\":\"REDACTED\"}" }
+                }
+              ],
+              "status": { "code": 0 }
+            },
+            {
+              "traceId": "11111111111111111111111111111111",
+              "spanId": "0000000000000005",
+              "name": "list_dir",
+              "kind": 1,
+              "startTimeUnixNano": "1700000005000000000",
+              "endTimeUnixNano": "1700000005100000000",
+              "attributes": [
+                { "key": "gen_ai.operation.name", "value": { "stringValue": "execute_tool" } },
+                { "key": "gen_ai.tool.name", "value": { "stringValue": "list_dir" } },
+                {
+                  "key": "gen_ai.tool.call.arguments",
+                  "value": { "stringValue": "{\"path\":\"path/REDACTED/missing\"}" }
+                },
+                {
+                  "key": "gen_ai.tool.call.result",
+                  "value": { "stringValue": "ENOENT: no such file or directory" }
+                }
+              ],
+              "status": { "code": 2, "message": "" }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "copilotChat": {
+    "sessionId": "fixture-min-session",
+    "sessionTitle": "Minimal OTel fixture for profile_debug_log"
+  }
+}

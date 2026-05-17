@@ -143,7 +143,20 @@ Store the label for Phase 6.
      --output /tmp/context-audit.json
    ```
 
-3. Present session summary (total requests, models used, time range)
+3. For exported OTel debug logs (`logs/*.json` / `tmp/agent-debug-log-*.json`),
+   run the deeper profiler to extract token totals, per-model splits,
+   askQuestions counts, subagent wall-time, duplicate file reads, and
+   compliance warnings:
+
+   ```bash
+   npm run profile:debug-log -- logs/<session>.json
+   npm run profile:debug-log -- logs/<session>.json --json > /tmp/profile.json
+   ```
+
+   Full workflow + thresholds:
+   [`.github/skills/context-management/references/log-profiling.md`](../skills/context-management/references/log-profiling.md).
+
+4. Present session summary (total requests, models used, time range)
 
 **Checkpoint**: Confirm scope before deep analysis.
 

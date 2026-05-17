@@ -66,6 +66,7 @@ __pycache__/
 *.pyc
 .venv/
 venv/
+.pytest_cache/
 
 # Test results
 TestResults/
@@ -81,8 +82,13 @@ scratch/
 scenarios/S06-sbom-generator/sample-app/
 freshness-report.json
 
-# Baseline snapshots (local working data for context optimizer)
-agent-output/_baselines/
+# Baseline snapshots (local working data for context optimizer).
+# Use a contents-only ignore (rather than the directory itself) so
+# that single committed deliverables can be re-included with `!`.
+agent-output/_baselines/*
+# Exception: the multi-log token-reduction baseline is a canonical
+# deliverable (Plan 01 Phase 0) — keep it tracked.
+!agent-output/_baselines/multi-log-baseline.json
 
 # Draw.io quality bench runs (working data; commit only the canonical
 # baseline at tools/tests/drawio-baseline/regen-baseline.json)

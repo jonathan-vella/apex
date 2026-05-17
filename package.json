@@ -60,6 +60,7 @@
     "fetch:deprecations": "node tools/scripts/fetch-azure-deprecations.mjs",
     "snapshot:baseline": "bash tools/scripts/snapshot-agent-context.sh",
     "diff:baseline": "bash tools/scripts/diff-context-baseline.sh",
+    "profile:debug-log": "python3 tools/scripts/profile_debug_log.py",
     "lint:agent-checks": "node tools/scripts/validate-agents.mjs",
     "lint:glob-audit": "node tools/scripts/validate-glob-audit.mjs",
     "validate:model-consistency": "node tools/scripts/validate-model-consistency.mjs",
