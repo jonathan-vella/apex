@@ -334,7 +334,13 @@ The on-disk JSON has no markdown wrapper:
         "proposed_edit": "Exact replacement text or unified diff snippet (REQUIRED for must_fix; OPTIONAL for should_fix/suggestion — carries human-readable mitigation guidance when set)."
       },
       "traces_to": ["<finding-id-from-prior-pass>"],
-      "requires_step": "step-2 | step-3_5 | step-4 (OPTIONAL: lowest workflow-graph step that must resolve this finding)"
+      "requires_step": "step-2 | step-3_5 | step-4 (OPTIONAL: lowest workflow-graph step that must resolve this finding)",
+      "verification_anchors": [
+        "Resource Inventory table (line range)",
+        "Module Structure table (line range)",
+        "Implementation Tasks → Task N YAML block (line range)",
+        "04-iac-contract.json modules.bicep[].version (every entry)"
+      ]
     }
   ],
   "cache_inputs": {
@@ -430,16 +436,23 @@ lens bias severity calibration of another. For subsequent lenses, append the pre
 
 ## Rules
 
-1. **Be adversarial, not obstructive** — find real risks, not style preferences
-2. **Propose specific failure scenarios** — "if Deny policy X blocks resource Y, deployment fails at step Z"
-3. **Suggest mitigations, not just problems** — every issue must have an actionable mitigation
-4. **Focus on high-impact risks** — ignore purely theoretical issues with no evidence
-5. **Challenge assumptions, not decisions** — question the assumptions behind explicit choices
-6. **Calibrate severity carefully** — must_fix = likely fails; should_fix = significant risk; suggestion = worth considering
-7. **Verify before claiming** — use search tools to confirm assumptions before labelling as risks
-8. **Read prior artifacts** — avoid challenging something already resolved
-9. **Cross-reference governance** — verify artifact respects ALL discovered policies in `04-governance-constraints.json`
-10. **Do NOT duplicate prior_findings** — skip issues already identified in previous passes
+1. **Enumerate every applicable location** — when a rule applies to
+   multiple places in the artifact (e.g. AVM pins appearing in summary
+   tables AND in N task YAML blocks; diagnostic settings on every
+   resource family), the finding MUST list every location in
+   `verification_anchors[]`. A finding that only cites the first
+   occurrence is incomplete and causes partial-fix loops between
+   review passes. This applies in priority order for all rules.
+2. **Be adversarial, not obstructive** — find real risks, not style preferences
+3. **Propose specific failure scenarios** — "if Deny policy X blocks resource Y, deployment fails at step Z"
+4. **Suggest mitigations, not just problems** — every issue must have an actionable mitigation
+5. **Focus on high-impact risks** — ignore purely theoretical issues with no evidence
+6. **Challenge assumptions, not decisions** — question the assumptions behind explicit choices
+7. **Calibrate severity carefully** — must_fix = likely fails; should_fix = significant risk; suggestion = worth considering
+8. **Verify before claiming** — use search tools to confirm assumptions before labelling as risks
+9. **Read prior artifacts** — avoid challenging something already resolved
+10. **Cross-reference governance** — verify artifact respects ALL discovered policies in `04-governance-constraints.json`
+11. **Do NOT duplicate prior_findings** — skip issues already identified in previous passes
 
 ## You Are NOT Responsible For
 

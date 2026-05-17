@@ -44,60 +44,17 @@ pip install diagrams matplotlib pillow && apt-get install -y graphviz
 
 Suffix rules: `-des` for design (Step 3), `-ab` for as-built (Step 7).
 
-## Steps
+## Execution & Output Standards
 
-Save `.py` source in `agent-output/{project}/`, then run to produce `.png`:
+Save `.py` source in `agent-output/{project}/`, then run with `python3` to
+produce `.png`. For the full conventions — design tokens (Azure blue, WAF pillar
+colours, DPI 150), `graph_attr` / `node_attr` / `cluster_style` settings,
+`labelloc='t'`, Arial Bold fonts, CIDR labels — read
+[`references/python-charts.md`](references/python-charts.md).
 
-```bash
-python3 agent-output/{project}/03-des-cost-distribution.py
-```
-
-## Chart Design Tokens
-
-**Background & grid:** Background `#F8F9FA` · Grid `#E0E0E0` · DPI 150.
-
-**Azure colors:** Azure blue `#0078D4` · Min line `#DC3545` ·
-Target line `#28A745` · Trend `#FF8C00`.
-
-**WAF pillar colors:** Security `#C00000` · Reliability `#107C10` ·
-Performance `#FF8C00` · Cost `#FFB900` · Operational Excellence `#8764B8`.
-
-## Architecture Diagram Conventions (diagrams library)
-
-Follow this pattern for architecture diagram generation:
-
-```python
-"""Brief description of what the diagram shows."""
-
-from diagrams import Cluster, Diagram
-from diagrams.azure.compute import AppServices
-from diagrams.azure.network import FrontDoors
-
-with Diagram("Diagram Title", show=False, filename="output-name", direction="TB"):
-    with Cluster("Resource Group"):
-        # Resources...
-        pass
-```
-
-- Always set `show=False` to prevent auto-opening
-- Use `direction="TB"` (top-to-bottom) for consistency
-- Group resources in `Cluster` blocks matching Azure resource groups
-- Set explicit `filename` parameter to control output location
-
-## Professional Output Standards
-
-Critical settings for clean output — use `labelloc="t"` to keep labels inside clusters:
-
-```python
-node_attr = {"fontname": "Arial Bold", "fontsize": "11", "labelloc": "t"}
-graph_attr = {"bgcolor": "white", "pad": "0.8", "nodesep": "0.9", "ranksep": "0.9",
-              "splines": "spline", "fontname": "Arial Bold", "fontsize": "16", "dpi": "150"}
-cluster_style = {"margin": "30", "fontname": "Arial Bold", "fontsize": "14"}
-```
-
-Requirements: `labelloc='t'` · `Arial Bold` fonts ·
-full resource names from IaC · `dpi="150"+` · `margin="30"+` ·
-CIDR blocks in VNet/Subnet labels.
+For ready-to-use architecture diagram patterns (3-tier web app, hub-spoke, etc.)
+including the canonical `with Diagram(... show=False, direction="TB") as d:`
+template, read [`references/common-patterns.md`](references/common-patterns.md).
 
 ## Rules
 

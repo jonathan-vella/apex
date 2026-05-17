@@ -49,6 +49,115 @@ authentication mode changes, or identity removal.
 
 ---
 
+## Identity ↔ RBAC Circular Dependency
+
+A frequent Phase 2 (Security) anti-pattern: placing the role assignment **inside**
+`identity.bicep` so the identity module needs the Key Vault / Storage / SQL resource
+ID, while those resource modules need the managed identity `principalId`. The two
+modules end up depending on each other's outputs and the Bicep compiler emits a
+circular dependency error.
+
+### Symptom
+
+```text
+Error BCP073: The output "keyVaultId" cannot be referenced because the module
+"identity" depends on it (BCP176 cyclical dependency).
+```
+
+or (more subtly) `what-if` succeeds because the cycle is across module boundaries,
+but `bicep build` fails at compile time.
+
+### Rule
+
+**RBAC role assignments live in the *target resource's* module**, never in
+`identity.bicep`. The identity module's only job is to create the User Assigned
+Managed Identity and surface its `id`, `principalId`, and `clientId` outputs.
+
+### Correct shape
+
+```bicep
+// identity.bicep — creation-only, no role assignments
+module mi 'br/public:avm/res/managed-identity/user-assigned-identity:0.4.1' = {
+  params: { name: name, location: location, tags: tags }
+}
+output managedIdentityPrincipalId string = mi.outputs.principalId
+```
+
+```bicep
+// keyvault.bicep — RBAC scoped to THIS vault, after the vault exists
+module kv 'br/public:avm/res/key-vault/vault:0.13.3' = { ... }
+
+resource rbacMiKv 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  scope: kv  // explicit; depends_on is implicit via scope
+  name: guid(kv.id, managedIdentityPrincipalId, 'KeyVaultSecretsUser')
+  properties: {
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '4633458b-17de-408a-b874-0445c86b69e6')
+    principalId: managedIdentityPrincipalId
+    principalType: 'ServicePrincipal'
+  }
+}
+```
+
+Same rule applies to Storage Blob Data Contributor, SQL contained users, ACR pull,
+and any other data-plane RBAC: assign it in the resource module after creation.
+
+---
+
+## Runtime Managed Identity ≠ Data-Plane Admin
+
+A dangerous Phase 3 (Data) anti-pattern: using the application's shared User
+Assigned Managed Identity as the **Azure SQL Entra admin** (or Cosmos
+`Microsoft.DocumentDB/databaseAccounts/sqlRoleAssignments` admin, or any
+other data-plane admin role). It passes what-if but grants the runtime
+workload full DDL/DML, firewall, and admin-rotation rights over the data plane.
+
+### Rule
+
+- **Admin principal** = dedicated Entra security group or deployment principal
+  (not the app MI), passed in as `sqlEntraAdminObjectId` + `sqlEntraAdminLogin`.
+- **Runtime identity** = the app MI, added as a **contained database user** with
+  least-privilege roles after the database exists.
+
+### Correct shape (SQL)
+
+```bicep
+// database.bicep — dedicated admin, NOT the app MI
+module sql 'br/public:avm/res/sql/server:0.21.2' = {
+  params: {
+    administrators: {
+      administratorType: 'ActiveDirectory'
+      login: sqlEntraAdminLogin         // param
+      sid: sqlEntraAdminObjectId        // param
+      tenantId: tenant().tenantId
+      azureAdOnlyAuthentication: true
+    }
+  }
+}
+```
+
+Then a **post-deploy** step (deployment script, az CLI, or pipeline task) runs
+T-SQL against the database to grant the app MI least-privilege access:
+
+```sql
+CREATE USER [id-{project}-{env}] FROM EXTERNAL PROVIDER;
+ALTER ROLE db_datareader ADD MEMBER [id-{project}-{env}];
+ALTER ROLE db_datawriter ADD MEMBER [id-{project}-{env}];
+GRANT EXECUTE ON SCHEMA::dbo TO [id-{project}-{env}];
+```
+
+This step cannot be expressed in Bicep before the DB exists — record it in the
+`04-implementation-plan.md` post-deploy section and in the
+`06-deployment-summary.md` operations list.
+
+### Why this matters
+
+If the runtime MI is Entra admin, a compromised app principal can drop tables,
+rotate the SQL Entra admin, and (with `azureAdOnlyAuthentication: true`) lock
+out human operators. Splitting admin from runtime preserves a clean break-glass
+path via the dedicated admin group.
+
+---
+
 ## SKU-Default Mismatch (Premium-Only Properties on Lower SKUs)
 
 Many AVM modules ship with parameter defaults shaped for the **Premium** tier and

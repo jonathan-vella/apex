@@ -67,10 +67,6 @@ Artifact generation flow (per Step N):
 
 For revisions (challenger findings, user-decision Apply/Skip/Defer, approval-gate fixes), see [`references/revision-workflow.md`](./references/revision-workflow.md) — bundle all fixes into a single `multi_replace_string_in_file` call.
 
-## Revision Workflow (Targeted Edits)
-
-**Initial draft** uses `create_file`. **All subsequent revisions** MUST use targeted edit tools. Bundle every accepted fix from a review pass into a single `multi_replace_string_in_file` call (a 24-finding revision is one tool call, not 24). Full procedure, rationale, and structural-rewrite exception in [`references/revision-workflow.md`](./references/revision-workflow.md).
-
 ## Placeholder Syntax
 
 All templates use single-brace `{placeholder-name}` syntax:
@@ -111,15 +107,16 @@ so it never drifts from the template source of truth.
 
 ## Quality Checklist
 
+Critical (always check):
+
 - [ ] H2 headings match template exactly (text + order)
 - [ ] Attribution header present with agent name and date
 - [ ] No placeholder text (e.g. "TBD", "Insert here", task markers)
 - [ ] File saved to `agent-output/{project}/` with correct name
-- [ ] Collapsible TOC present (`<details open>` block after badge row)
-- [ ] Cross-navigation table present (header with ⬅️ Previous / 📑 Index / Next ➡️)
-- [ ] Mermaid diagram included (if template contains one)
-- [ ] Traffic-light indicators used (✅ / ⚠️ / ❌ where template shows status columns)
-- [ ] Collapsible `<details>` blocks present (if template contains them)
+
+For the full structural / styling checklist (TOC, cross-nav table, traffic
+lights, Mermaid, collapsible blocks) read
+[`references/styling-standards.md`](references/styling-standards.md).
 
 ## Reference Index
 

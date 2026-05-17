@@ -2,34 +2,7 @@
 
 # Azure Resource Graph Queries for Diagnostics
 
-Azure Resource Graph (ARG) enables fast, cross-subscription resource querying using KQL via `az graph query`. Use it to check resource health, find degraded resources, and correlate incidents.
-
-## How to Query
-
-Use the `extension_cli_generate` MCP tool to generate `az graph query` commands:
-
-```yaml
-mcp_azure_mcp_extension_cli_generate
-  intent: "query Azure Resource Graph to <describe what you want to diagnose>"
-  cli-type: "az"
-```
-
-Or construct directly:
-
-```bash
-az graph query -q "<KQL>" --query "data[].{name:name, type:type}" -o table
-```
-
-> ⚠️ **Prerequisite:** `az extension add --name resource-graph`
-
-## Key Tables
-
-| Table                    | Contains                                                   |
-| ------------------------ | ---------------------------------------------------------- |
-| `Resources`              | All ARM resources (name, type, location, properties, tags) |
-| `HealthResources`        | Resource health availability status                        |
-| `ServiceHealthResources` | Azure service health events and incidents                  |
-| `ResourceContainers`     | Subscriptions, resource groups, management groups          |
+> **Read first**: [`.github/skills/iac-common/references/azure-resource-graph-primer.md`](../../iac-common/references/azure-resource-graph-primer.md) — shared "How to Query", "Key Tables", and KQL essentials. This file contains only the workload-specific query patterns below.
 
 ## Diagnostics Query Patterns
 

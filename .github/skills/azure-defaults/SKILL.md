@@ -34,8 +34,10 @@ Deep-dive content lives in `references/` — load on demand.
 
 ### Required Tags (Azure Policy Enforced)
 
-**These 4 tags are the MINIMUM baseline.** Always defer to
-`04-governance-constraints.md` for the actual required tag list.
+**These 4 tags are the MINIMUM baseline** (PascalCase, case-sensitive —
+mixing `owner` + `Owner` triggers `AmbiguousPolicyEvaluationPaths`).
+Always defer to `04-governance-constraints.md` for the project's actual
+required list.
 
 | Tag           | Required | Example Values           |
 | ------------- | -------- | ------------------------ |
@@ -43,12 +45,6 @@ Deep-dive content lives in `references/` — load on demand.
 | `ManagedBy`   | Yes      | `Bicep` or `Terraform`   |
 | `Project`     | Yes      | Project identifier       |
 | `Owner`       | Yes      | Team or individual name  |
-
-> **Tag Casing Rule**: Use PascalCase exactly as shown above (`Environment`,
-> `ManagedBy`, `Project`, `Owner`). Never emit both `owner` and `Owner` or
-> `environment` and `Environment` in the same template — Azure Policy treats
-> case-variant tag keys as ambiguous evaluation paths
-> (`AmbiguousPolicyEvaluationPaths` error).
 
 ### Unique Suffix Pattern
 
@@ -71,30 +67,26 @@ var uniqueSuffix = uniqueString(resourceGroup().id)
 For AVM pitfalls and deprecation patterns, read
 `references/security-baseline-full.md`.
 
-### Cost Monitoring Baseline (5-Line Summary)
+### Cost Monitoring Baseline
 
 Non-negotiable for prod. Governance (`04-governance-constraints.json`
-`cost_monitoring.*`) always wins on conflict.
+`cost_monitoring.*`) always wins. Budget thresholds: 5 notifications
+(actual 80/100/125 + forecast 100/125). Required: budget + Action Group
+(AVM, create-or-reuse via preflight) + subscription-scoped anomaly alert.
+Opt-out via `cost_monitoring_mode ∈ {enforced, minimal, deferred}`
+(`minimal`/`deferred` non-prod only).
 
-| Setting              | Value                                         | Notes                              |
-| -------------------- | --------------------------------------------- | ---------------------------------- |
-| Budget thresholds    | Actual 80/100/125 + Forecast 100/125 (5 max)  | Azure Budget API hard limit        |
-| Budget scope         | `cost_monitoring_scope ∈ {rg, sub, mg}`       | Planner-set from topology          |
-| Notification routing | `contactRoles: ["Owner"]` + Action Group      | Owner-role fallback if no human Owner |
-| Action Group         | AVM module, create-or-reuse via preflight     | `cost_action_group_mode` decision  |
-| Anomaly alerts       | Subscription-scoped (Bicep + TF), daily       | RG-scope deferred (no shape today) |
-| Opt-out              | `cost_monitoring_mode ∈ {enforced, minimal, deferred}` | `minimal`/`deferred` non-prod only |
-
-For the full contract (scope-aware resource matrix, AVM lookup
-procedure, governance precedence, exception schema), read
-`references/cost-alerts-baseline.md`. For stack-specific snippets, read
-`references/cost-alerts-bicep.md` or `references/cost-alerts-terraform.md`.
+For the full contract, AVM lookup, governance precedence, and exception
+schema, read [`references/cost-alerts-baseline.md`](references/cost-alerts-baseline.md).
+For stack-specific snippets, read
+[`references/cost-alerts-bicep.md`](references/cost-alerts-bicep.md) or
+[`references/cost-alerts-terraform.md`](references/cost-alerts-terraform.md).
 
 ### Deprecated Services (Do NOT Recommend for Greenfield)
 
-Azure AD B2C, Redis Enterprise E50, CDN WAF (classic), App Gateway v1, and CDN Standard
-Microsoft are all in retirement timelines. Never recommend deprecated services for
-greenfield projects; for the full table with replacement guidance and EOL dates, read
+Never recommend deprecated services (Azure AD B2C, Redis Enterprise E50,
+CDN WAF classic, App Gateway v1, CDN Standard Microsoft) for greenfield.
+Full retirement table + replacement guidance:
 [`references/deprecated-services.md`](references/deprecated-services.md).
 
 ---
@@ -125,67 +117,44 @@ For extended abbreviations and length-constraint examples, read
 ## Azure Verified Modules (AVM)
 
 1. **ALWAYS** check AVM availability first
-2. **ALWAYS pin to the latest published stable version** — query MCR (Bicep)
-   or `registry.terraform.io` (Terraform) at planning time; never reuse a
-   version from a prior project, a cached doc table, or training data
+2. **ALWAYS pin to the latest published stable version** — resolve live
+   at plan time; never reuse a pin from a prior project or training data
 3. Use AVM defaults for SKUs when available
 4. **NEVER** write raw Bicep/TF for a resource that has an AVM module
 
-**Looking up the latest version** (planner agents and humans):
-
-- **Bicep:** `curl -sf https://mcr.microsoft.com/v2/bicep/avm/res/{path}/tags/list`
-  — the highest non-prerelease semver in `tags[]` is the latest stable.
-  Filter out `-alpha`, `-beta`, `-preview`, `-rc`, `-next` tags.
-- **Terraform:** `curl -sf https://registry.terraform.io/v1/modules/Azure/avm-res-{path}/azurerm/versions`
-  — first entry in `modules[0].versions[]` (newest-first ordering).
-- **MCP equivalents** (preferred in Copilot Chat sessions): the
-  microsoft-foundry and terraform MCP toolsets surface the same data.
-- **Validator** (`npm run validate:avm-versions` / `:freeze`) does the same
-  lookup automatically with a cache fallback; planner agents MUST call it
-  before `apex-recall complete-step 4` (the Step 4 contract freeze gate).
-
-**Stale pins require structured justification** — when a project pins an
-older version on purpose (e.g. AVM 0.12.x emits a regression that
-breaks ACR Basic SKU defaults), the `04-iac-contract.json` module entry
-MUST include a `pin_policy` block with `mode: "exception"`, `rationale`,
-`evidence_url_or_file`, and `review_after`. The validator fails closed on
-stale pins without an accepted `pin_policy`. Schema:
-`tools/schemas/iac-contract.schema.json` → `$defs.pinPolicy`.
-
-For the Bicep + Terraform AVM module list (no version numbers — those
-live in the registry, not in this repo), read `references/avm-modules.md`.
+For module paths, the live-lookup procedure (MCR for Bicep,
+`registry.terraform.io` for Terraform, MCP equivalents), the validator
+(`npm run validate:avm-versions:freeze` — MUST run before
+`apex-recall complete-step 4`), and the structured `pin_policy` schema
+for stale-pin exceptions, read
+[`references/avm-modules.md`](references/avm-modules.md).
 
 ---
 
 ## Rules
 
-- **AVM-first is non-negotiable** — NEVER write raw Bicep/Terraform for a resource that has an AVM module available
-- **Pin to the latest published AVM version at plan time** — query MCR (Bicep) or `registry.terraform.io` (Terraform); never reuse a version from a prior project, a cached doc table, or training data. Stale pins are allowed only via a structured `pin_policy.mode = "exception"` block in `04-iac-contract.json` with rationale + evidence + `review_after` date. Enforced by `npm run validate:avm-versions:freeze`.
-- **Default region** is `swedencentral` (EU GDPR-compliant); fail over to `germanywestcentral`; use `westeurope` for Static Web Apps
-- **Required tags** (PascalCase, exact casing): `Environment`, `ManagedBy`, `Project`, `Owner` — always defer to `04-governance-constraints.md` for the project's actual required tag list
-- **Tag casing is case-sensitive** — never emit both `owner` and `Owner` in the same template (`AmbiguousPolicyEvaluationPaths` error)
-- **Unique suffix** — generate `uniqueString(resourceGroup().id)` ONCE per deployment and pass to all modules
-- **Security baseline** is non-negotiable: HTTPS-only, TLS 1.2 minimum, no public blob, public network disabled for prod data services, Managed Identity over keys
-- **Cost monitoring baseline** is non-negotiable for prod: every project plan emits a budget (5 notifications: actual 80/100/125 + forecast 100/125), an Action Group (AVM, created or reused via preflight), and a subscription-scoped cost-anomaly alert. Non-prod can opt down to `minimal` (budget only) or `deferred` (exception record with `rationale` + `expiry_date`) via `cost_monitoring_mode`. Governance (`04-governance-constraints.json` `cost_monitoring.*`) always wins. Full contract: `references/cost-alerts-baseline.md`.
-- **Never recommend deprecated services for greenfield** — Azure AD B2C, CDN WAF classic, App Gateway v1, Redis Enterprise E50; verify retirement timeline against multi-year RI commitments
-- **CAF naming** — follow the abbreviation + length-cap table; load `references/naming-full-examples.md` when generating length-constrained names
+All baseline rules (region, tags, security, cost monitoring, deprecated
+services) are stated in **Quick Reference** above — that is the canonical
+form. The invariants below are gate-level / non-negotiable:
+
+- **AVM-first** — never write raw Bicep/TF for a resource that has an AVM module
+- **Pin AVM live at plan time** — stale pins require `pin_policy.mode = "exception"` in `04-iac-contract.json`; enforced by `npm run validate:avm-versions:freeze`
+- **Tag casing is case-sensitive** — never emit both `owner` and `Owner` (`AmbiguousPolicyEvaluationPaths` error)
+- **Unique suffix** — generate `uniqueString(resourceGroup().id)` ONCE per deployment
+- **Governance wins** — `04-governance-constraints.md` overrides any default in this skill (tags, regions, SKUs, cost monitoring)
 
 ## Steps
 
-Applying defaults when generating Azure infrastructure:
-
-1. **Read Quick Reference** — confirm region, tags, suffix, and security baseline match this skill
-2. **Cross-check governance** — read `04-governance-constraints.md` for project-specific tag and policy requirements
-3. **Pick AVM modules** — query the AVM registry for every resource type before writing raw Bicep/Terraform, AND resolve the latest stable version live (MCR for Bicep, `registry.terraform.io` for Terraform); never reuse a pinned version from a prior project
-4. **Apply naming** — use the CAF abbreviations table; load `references/naming-full-examples.md` for length-constrained resources
-5. **Apply tags** — emit all 4 required tags (PascalCase) on every taggable resource
-6. **Apply security baseline** — wire HTTPS-only, TLS 1.2, no public blob, Managed Identity, public network access settings
-7. **Apply cost monitoring baseline** — emit budget + Action Group + anomaly per the scope/stack/mode matrix in `references/cost-alerts-baseline.md`; load `references/cost-alerts-bicep.md` or `references/cost-alerts-terraform.md` on demand at code-gen
-8. **Validate** — run `npm run validate:iac-security-baseline` and the appropriate `lint:bicep` / `terraform fmt && validate`
+1. **Read Quick Reference** — region, tags, suffix, security baseline
+2. **Cross-check governance** — `04-governance-constraints.md` overrides defaults
+3. **Pick AVM modules** — resolve the latest stable version live (see [`references/avm-modules.md`](references/avm-modules.md))
+4. **Apply naming + tags** — CAF table above; load [`references/naming-full-examples.md`](references/naming-full-examples.md) for length-constrained resources
+5. **Apply security + cost monitoring** — see Quick Reference; load [`references/cost-alerts-baseline.md`](references/cost-alerts-baseline.md) for the full cost contract
+6. **Validate** — `npm run validate:iac-security-baseline` + `lint:bicep` / `terraform fmt && validate`
 
 ---
 
-## Template-First Output Rules
+## Output Rules & Checklist
 
 | Rule         | Requirement                                    |
 | ------------ | ---------------------------------------------- |
@@ -195,30 +164,9 @@ Applying defaults when generating Azure infrastructure:
 | No omissions | All template H2s must appear in output         |
 | Attribution  | `> Generated by {agent} agent \| {YYYY-MM-DD}` |
 
----
-
-## Validation Checklist
-
-- [ ] Output saved to `agent-output/{project}/`
-- [ ] All required H2 headings present and correctly ordered
-- [ ] All 4 required tags included in resource definitions
-- [ ] Unique suffix used for globally unique names
-- [ ] Security baseline settings applied
-- [ ] Region defaults correct
-
----
-
-## Gotchas
-
-- **Tag casing is case-sensitive** — Use PascalCase exactly: `Environment`,
-  `ManagedBy`, `Project`, `Owner`. Never emit both `owner` and `Owner` in the
-  same template — Azure Policy treats case-variant keys as ambiguous →
-  `AmbiguousPolicyEvaluationPaths` error.
-- **Never recommend deprecated services for greenfield** — Azure AD B2C
-  (retired May 2025), CDN WAF classic, App Gateway v1, etc. Check the
-  Deprecated Services list in Quick Reference.
-- **AVM-first is non-negotiable** — NEVER write raw Bicep/Terraform for a
-  resource that has an AVM module available.
+Before saving: confirm output path is `agent-output/{project}/`, all 4
+required tags are present, `uniqueSuffix` is wired into globally-unique
+names, and region defaults match the table above.
 
 ---
 

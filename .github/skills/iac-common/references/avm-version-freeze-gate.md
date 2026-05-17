@@ -22,12 +22,27 @@ running `apex-recall complete-step 4`.
 ## Command
 
 ```bash
+# Contract JSON validator (existing)
 npm run validate:avm-versions:freeze -- agent-output/{project}/04-iac-contract.json
+
+# Plan markdown validator (catches stale pins in Implementation Tasks YAML)
+npm run validate:plan-avm-pins -- agent-output/{project}/04-implementation-plan.md
 ```
 
-The validator script is `tools/scripts/validate-avm-module-versions.mjs`;
-the resolver lives in `tools/scripts/_lib/avm-module-resolver.mjs`. In
-`freeze` mode the validator fails closed when:
+Both validators are mandatory before `apex-recall complete-step 4`.
+The contract validator covers `modules.bicep[].version` and
+`modules.terraform[].version`; the plan validator covers every
+`avm: avm/res/...:X.Y.Z` line in the markdown (Resource Inventory table,
+Module Structure table, and the per-task YAML blocks). Each one alone
+is insufficient — the trace of a recent Step-4 run shows pass-1
+challenger fixed the summary tables but missed the 17 task-YAML pins;
+the dedicated plan validator catches that case in <1 s, with zero LLM
+tokens.
+
+The contract validator script is `tools/scripts/validate-avm-module-versions.mjs`;
+the plan validator script is `tools/scripts/validate-plan-avm-pins.mjs`;
+both share the resolver at `tools/scripts/_lib/avm-module-resolver.mjs`.
+In `freeze` mode the validator fails closed when:
 
 - Any `modules.bicep[].version` does not exist as a tag in MCR for its
   `source`

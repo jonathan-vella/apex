@@ -235,8 +235,22 @@ Merged from `security-governance` + `architecture-reliability` +
       when the contract entry has a `pin_policy.mode = "exception"`
       block with `rationale`, `evidence_url_or_file`, and a future
       `review_after` date. Pins >90 days behind the latest stable
-      without that exception block are an automatic must_fix. Validator:
-      `npm run validate:avm-versions:freeze`.
+      without that exception block are an automatic must_fix. Validators:
+      `npm run validate:avm-versions:freeze` (contract JSON) **and**
+      `npm run validate:plan-avm-pins` (plan markdown).
+      **Enumeration requirement (anti partial-fix loop)**: when this
+      rule triggers, the finding's `verification_anchors[]` MUST list
+      every location the rule applies to in the plan, not just the
+      first match. For implementation-plan artifacts that includes:
+      (1) the Resource Inventory table, (2) the Module Structure table,
+      (3) **every `avm:` line inside the YAML blocks under Implementation
+      Tasks** (typically 15–25 occurrences), and (4) the
+      `modules.bicep[].version` / `modules.terraform[].version` arrays
+      in `04-iac-contract.json`. The same enumeration discipline
+      applies to **diagnostic settings** (every resource that supports
+      them — KV, Storage, SQL, App Service, networking — not just App
+      Service) and **`publicNetworkAccess: Disabled`** (every
+      data-plane resource that supports it).
 - [ ] **Private endpoints + DNS** — every PE listed in the architecture
       appears in the plan with `privateLinkServiceConnections` AND a
       DNS-zone-group entry.

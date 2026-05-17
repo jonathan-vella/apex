@@ -70,13 +70,60 @@ only. See `cost-alerts-baseline.md` for the rule text.
 ## Anomaly Detection
 
 - **Bicep**: `Microsoft.CostManagement/scheduledActions@2022-10-01`,
-  `kind: 'InsightAlert'`, subscription-scoped, daily schedule, default
-  `viewId = MS-DailyCosts`, `notification.to = cost_alert_emails`,
-  `notificationEmail = senderEmail`.
+  `kind: "InsightAlert"`, **subscription-scoped only**.
 - **Terraform**: `azurerm_cost_anomaly_alert`, subscription-scoped
   (only scope supported by the provider), `email_addresses =
   cost_alert_emails`.
 - RG-scoped anomaly is **deferred** — no current shape in either stack.
+
+### InsightAlert shape constraints (Bicep)
+
+The Azure REST API rejects InsightAlerts that violate these shape rules,
+even when `bicep build` and `what-if` pass. The IaC Planner must freeze
+every property below in the Code-Generation Contract:
+
+| Property | Constraint |
+| -------- | ---------- |
+| `scope` | Subscription only — module must use `targetScope = 'subscription'` and main.bicep invokes it with `scope: subscription()`. |
+| `displayName` | **≤ 25 characters** — `anomaly-{project}-{env}` only works for short slugs; use `anomaly-{short-slug}` if longer. |
+| `viewId` | Subscription-scope cost view, e.g. `/providers/Microsoft.CostManagement/views/ms:DailyAnomalyBySubscription` or `ms:DailyCosts`. **Never** `ms:DailyAnomalyByResourceGroup` (RG-scope view is rejected). |
+| `schedule.frequency` | `Daily`. |
+| `schedule.startDate` | ISO 8601 UTC midnight, e.g. `2026-05-17T00:00:00Z`. Must be present at deploy time. |
+| `schedule.endDate` | ISO 8601 UTC midnight, **≤ 365 days** after startDate. The API rejects ranges > 1 year. |
+| `notification.to` | Array of email addresses; CodeGen sources from `cost_alert_emails`. |
+| `notificationEmail` | The ARM-level sender field; freeze as `senderEmail` param even when `notification.to` is set. Both are required for legacy deployments. |
+
+### Module placement (Bicep)
+
+Because the InsightAlert is subscription-scoped but most of the project
+IaC is RG-scoped, the InsightAlert lives in its own module
+`modules/cost-anomaly.bicep`:
+
+```bicep
+// modules/cost-anomaly.bicep
+targetScope = 'subscription'
+
+param costAlertEmail string
+param senderEmail string
+param anomalyViewId string
+param anomalyStartDate string
+param anomalyEndDate string
+
+resource anomaly 'Microsoft.CostManagement/scheduledActions@2022-10-01' = { ... }
+```
+
+`main.bicep` (RG-scoped) calls it with `scope: subscription()`:
+
+```bicep
+module costAnomaly './modules/cost-anomaly.bicep' = {
+  scope: subscription()
+  name: 'cost-anomaly-${projectName}-${environmentName}'
+  params: { costAlertEmail: costAlertEmail, senderEmail: senderEmail, anomalyViewId: anomalyViewId, anomalyStartDate: anomalyStartDate, anomalyEndDate: anomalyEndDate }
+}
+```
+
+The budget itself remains in the RG-scoped cost-monitoring module — only
+the InsightAlert is subscription-scoped.
 
 ## Governance Precedence
 
