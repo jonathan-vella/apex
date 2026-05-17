@@ -69,6 +69,43 @@ Do not re-confirm. If the user provides a custom response, interpret as instruct
 
 ---
 
+## Deploy Agent — Shared DO / Pitfalls
+
+Shared DO/Pitfalls bullets that apply to both
+[`07b-bicep-deploy`](../../../agents/07b-bicep-deploy.agent.md) and
+[`07t-terraform-deploy`](../../../agents/07t-terraform-deploy.agent.md).
+Each agent appends only its tool-specific bullets (Bicep what-if
+`--output` rule, `bicep build` skip, `deploy.ps1 -SkipValidation`,
+deprecation scan — Terraform state-backend verification, `bootstrap-backend`
+offer, `terraform validate`/`fmt -check`, no `-target`).
+
+### DO — applies to both 07b and 07t
+
+- Run preflight validation (auth + governance + plan check) BEFORE any
+  deployment command.
+- Scan param / tfvars file for placeholders and use `askQuestions` to
+  collect missing values from the user.
+- Check `04-implementation-plan.md` for the chosen deployment strategy
+  (single shot vs. phased).
+- Deploy phases one at a time with an explicit user approval gate
+  between every phase.
+- Present the preview / what-if / plan summary and **wait** for user
+  approval before applying.
+- Require explicit user approval for any **destructive operation**
+  (Delete `-` in what-if, `- destroy` in plan).
+- Generate `06-deployment-summary.md` after the deploy completes
+  (success or partial-success).
+- Verify resources via Azure Resource Graph after the deploy.
+- Update `agent-output/{project}/README.md` — mark Step 6 complete.
+
+### Pitfalls — applies to both 07b and 07t
+
+- **Do not create or modify IaC templates from the Deploy agent** —
+  any template change unwinds to the matching Code agent (06b / 06t).
+  Drift here is a governance violation, not a deploy decision.
+
+---
+
 ## Slim Deploy Loop (Wave 3, all workloads)
 
 Replaces the prior practice of re-reading the full
