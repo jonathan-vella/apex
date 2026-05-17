@@ -248,194 +248,97 @@ Save to `agent-output/{project}/03-des-cost-estimate.md`.
 
 ## Diagram contract (T-012-baseline informed)
 
-Read these references before the first MCP tool call. Each rule resolves a
-failure mode observed in the T-012 baseline (see
-[`agent-output/_plans/drawio-quality-uplift/`](../../agent-output/_plans/drawio-quality-uplift/)).
+Every rule below resolves a failure mode observed in the T-012 baseline
+(see [`agent-output/_plans/drawio-quality-uplift/`](../../agent-output/_plans/drawio-quality-uplift/)).
+Read the linked drawio references before the first MCP tool call — the
+agent body keeps only the rule + the per-rule reference pointer.
 
-1. **Diagram type.** Pick one of `logical | network | sequence | deployment`
-   from the prompt cues in
-   [`drawio/references/diagram-types.md`](../skills/drawio/references/diagram-types.md).
-   Type determines zone palette, edge labels, and legend requirement.
+1. **Diagram type** — pick one of `logical | network | sequence | deployment`
+   per [`drawio/references/diagram-types.md`](../skills/drawio/references/diagram-types.md).
+   Type drives zone palette, edge labels, and legend requirement.
    Sequence diagrams omit the legend (OQ-2 carve-out, T-022).
-2. **Single-batch `search-shapes`.** The first `search-shapes` call MUST
-   contain every Azure icon you need. Splitting batches is workflow drift
-   (T-035) — measured as friction event #1 in 4 of 7 baseline captures. If
-   a follow-up shape is discovered later, add it via `shape_name` in
-   `add-cells` (the server resolves on demand).
-3. **Variant labels.** When the prompt names a tier/SKU (Premium, Hyperscale,
-   GZRS, NC24ads), put the variant in the cell **label** (e.g.,
-   `"Front Door Premium"`, `"GPU Cluster (A100)"`). The icon library uses
-   family icons — see
+2. **Single-batch `search-shapes`** — the first call MUST contain every
+   Azure icon you need. Late additions go via `shape_name` in `add-cells`
+   (server resolves on demand). Splitting batches is workflow drift
+   (T-035; friction event #1 in 4 of 7 baseline captures).
+3. **Variant labels** — put tier/SKU (Premium, Hyperscale, GZRS, NC24ads)
+   in the cell **label**, not the icon (library uses family icons). See
    [`drawio/references/icon-variants.md`](../skills/drawio/references/icon-variants.md).
-4. **Semantic zones.** Render boundary cells per
+4. **Semantic zones** — render boundary cells per
    [`drawio/references/semantic-zones.md`](../skills/drawio/references/semantic-zones.md):
    subscription scope (≥2 subs), region zone (≥2 regions), trust boundary
-   (any public ingress: Front Door / App Gateway / APIM), external/on-prem
-   zone (any external dependency), observability zone (≥2 cross-cutting
-   services). Trust boundary is a CONTAINER cell, not a legend entry —
-   T-008 validator checks for the container.
-5. **Legend.** When image-cell count > 8 and type is not sequence, include
-   the copy-pasteable legend block from
+   (any public ingress), external/on-prem zone (any external dependency),
+   observability zone (≥2 cross-cutting services). Trust boundary is a
+   CONTAINER cell — T-008 validator checks the container.
+5. **Legend** — when image-cell count > 8 and type ≠ sequence, include the
+   copy-pasteable block from
    [`drawio/references/legend-template.md`](../skills/drawio/references/legend-template.md).
    Use `<br>` in HTML-rendered cells; never `&#xa;`.
-6. **Decomposition.** At >50 resources, decompose per
-   [`drawio/references/large-architecture-decomposition.md`](../skills/drawio/references/large-architecture-decomposition.md):
-   one overview page + one detail page per region/workload. Per-page cell
-   ceiling = 30. Multi-page merge today uses the Python ElementTree pattern
-   in that reference (T-037 will replace it).
-7. **Dynamic circuit-breaker** (T-024). Cap tool calls based on resource
-   count: ≤20 → 25 calls, 21–50 → 40 calls, >50 → 60 calls (decomposition
-   inflates call count legitimately). Replaces the prior fixed 25-call cap.
-8. **Sibling spacing & validator-driven repair.** Paired sibling icons in
-   the same row need ≥120 px center-to-center spacing (≥1.2 × max label
-   width when labels are long); otherwise stack vertically (+80 px y) per
-   the rule in
+6. **Decomposition** — at >50 resources, follow
+   [`drawio/references/large-architecture-decomposition.md`](../skills/drawio/references/large-architecture-decomposition.md)
+   (overview + per region/workload pages; per-page ceiling 30 cells;
+   ElementTree multi-page merge — T-037 replacement pending).
+7. **Dynamic circuit-breaker** (T-024) — cap tool calls by resource count:
+   ≤20 → 25 calls, 21–50 → 40 calls, >50 → 60 calls (decomposition
+   inflates call count legitimately).
+8. **Sibling spacing & validator-driven repair** — ≥120 px horizontal
+   spacing (or ≥1.2×max label width) for sibling icons in the same row;
+   otherwise stack vertically (+80 px y). Rule:
    [`drawio/references/abstraction-rules.md`](../skills/drawio/references/abstraction-rules.md#sibling-icon-spacing-label-collision-rule).
 
    **NEVER** repair validator warnings via `sed`, `python`, file-level
-   `multi_replace_string_in_file`, or any other terminal-based edit on the
-   saved `.drawio`. The ONLY acceptable repair is a single MCP `edit-cells`
-   batch invoked on the live diagram state. File-level edits:
-   - bypass the diagram's cell-ID mapping (subsequent MCP calls cannot
-     find cells by `temp_id`),
-   - desynchronize the placeholder → SVG resolution state (your next
-     `finish-diagram` call may regenerate stale cells),
-   - violate the watermark integrity (re-export will rewrite the file
-     unpredictably).
+   `multi_replace_string_in_file`, or any terminal-based edit on the
+   saved `.drawio`. The ONLY acceptable repair is a single MCP
+   `edit-cells` batch on the live diagram state — file-level edits break
+   cell-ID mapping, desync placeholder → SVG resolution, and corrupt the
+   watermark. T-006/T-007/T-009 warnings are **always** an MCP
+   `edit-cells` batch, even for one-cell fixes.
 
-   Three of the seven post-uplift recaptures (G2, G4, G7) regressed the
-   cost metric specifically because the agent reached for `sed` /
-   `multi_replace_string_in_file` instead of `edit-cells`. Do not repeat
-   this. If the validator emits a `T-006` (overlap), `T-007` (density),
-   or `T-009` (zone) warning, the response is **always** an MCP
-   `edit-cells` batch that moves or restyles the offending cells — even
-   for one-cell fixes.
-
-9. **Edge labels must not pass through icon-label boxes.** Edge-label-on-
-   icon-label collisions (e.g., `orAMQPipi`, `AMIAML SDKace`,
-   `Connectivity MGtform`) are caused when an edge routes its waypoint
-   labels across the rendered text region of an icon. Two rules:
-   - Edge **labels** sit at the midpoint of an edge by default; if the
-     edge midpoint falls within ±40 px of any icon center, set
-     `labelBackgroundColor=#FFFFFF` AND nudge the label position via
-     `labelPosition` / `verticalLabelPosition` so it sits in clear space
-     (typically above or below the edge run, not on it).
-   - Long edges crossing zone boundaries must use elbow or single-bend
-     routing; never run a straight diagonal across an icon's label
-     region. See
-     [`drawio/references/abstraction-rules.md`](../skills/drawio/references/abstraction-rules.md#edge-labels-and-label-on-icon-collisions).
-
-10. **Always emit a diagram title.** Every architecture deliverable starts
-    with a top-of-canvas title cell using the page-title style preset:
-    `{Project / Workload Name} — {Region}` for single-region or
-    `{Workload} — Multi-Region` for multi-region; for decomposed sets,
-    append `· {Page Name}` to each page. The title is page 1 cell
-    `(title-page-1)` placed at `(canvas_width/2, 12)` with `align=center;
-fontSize=16; fontStyle=1`. G1 recapture missed this; do not repeat.
-11. **Observability zone is not optional when ≥2 cross-cutting services
-    appear.** When the prompt names two or more of {Application Insights,
-    Log Analytics, Azure Monitor, Microsoft Sentinel, Defender for Cloud,
-    Azure Policy, Container Registry as governance}, render an explicit
-    `Observability` container at the canvas bottom per the snippet in
+9. **Edge labels must not cross icon-label boxes** — set
+   `labelBackgroundColor=#FFFFFF` and nudge via `labelPosition` /
+   `verticalLabelPosition` when an edge midpoint falls within ±40 px of
+   an icon center; long cross-zone edges use elbow / single-bend
+   routing, never straight diagonals through an icon's label region.
+   See [`drawio/references/abstraction-rules.md`](../skills/drawio/references/abstraction-rules.md#edge-labels-and-label-on-icon-collisions).
+10. **Always emit a diagram title** — top-of-canvas title cell using the
+    page-title preset: `{Project} — {Region}` (single-region) or
+    `{Workload} — Multi-Region` (multi-region); decomposed sets append
+    `· {Page Name}` per page. Cell `(title-page-1)` at
+    `(canvas_width/2, 12)` with `align=center; fontSize=16; fontStyle=1`.
+11. **Observability zone is mandatory at ≥2 cross-cutting services** —
+    render an explicit `Observability` container at canvas bottom per
+    the snippet in
     [`drawio/references/semantic-zones.md`](../skills/drawio/references/semantic-zones.md#snippet--observability-zone-cross-cutting).
-    Do **not** leave them floating as bare icons — four of seven
-    post-uplift recaptures (G1, G3, G5, G6) left cross-cutting services
-    floating without a container.
+    Never leave cross-cutting services as floating bare icons.
 
-The diagram quality rubric (7 dimensions, 0–4 anchors, acceptance bar 3/4)
-lives in
+Diagram quality rubric (7 dimensions, 0–4 anchors, acceptance bar 3/4):
 [`drawio/references/quality-rubric.md`](../skills/drawio/references/quality-rubric.md).
 
 ## Style guidance for diagrams
 
-Aim for the enterprise reference-architecture look and the diagram quality
-rubric (≥ 9/10):
+Full style guide (left-to-right flow, orthogonal edges, generous spacing,
+few large tiles, Fabric vs Azure icons, etc.) lives in
+[`drawio/references/style-reference.md`](../skills/drawio/references/style-reference.md).
+Design-step gotchas only below:
 
-- Left-to-right flow with cross-cutting services at the bottom (no edges to
-  cross-cutting services).
-- Orthogonal edges, generous spacing (≥120 px horizontal, ≥80 px vertical).
-- Few large service tiles rather than many small cards. The diagram should
-  read clearly at 100 % zoom.
-- Conceptual content: service names and major boundaries belong in the
-  diagram. SKU, tier, node-count, and product-version detail belong in the
-  architecture assessment or the implementation plan.
-- Anchor ingress and perimeter services to the zone they serve. Do not leave
-  important tiles floating in leftover space between title, legend, and zone
+- Conceptual content in the diagram (service names, major boundaries);
+  SKU / tier / node-count / product-version detail belongs in
+  `02-architecture-assessment.md` or the implementation plan.
+- Connector annotations only where they materially aid comprehension —
+  most flows should be understandable without labels.
+- Anchor ingress + perimeter services to the zone they serve; never
+  leave important tiles floating between title, legend, and zone
   boundaries.
-- Connector annotations only where they materially aid comprehension. Most
-  flows should be understandable without labels.
-- Peer cards in the same supporting-services band share a card spec
-  (identical width, height, baseline) unless they represent different
-  classes of service.
-- Calm, orthogonal partner-share and integration routes — no looping or
-  detouring across the canvas.
-- Use Fabric icons for Fabric-native services when the architecture includes
-  Microsoft Fabric. Use Azure icons for Azure-native services.
+- If you find yourself writing more than two style points as inline
+  diagram notes, stop — the canvas is doing too much.
 
-If you find yourself writing more than two of these guidance points into the
-diagram itself (as inline notes), stop — the canvas is doing too much.
+## ADR template
 
-<example>
-A minimal ADR header (the `azure-adr` skill defines the full template):
-
-```markdown
-# ADR 0003 — Choose Azure Front Door over Application Gateway for ingress
-
-> Generated by design agent | 2026-05-04
-
-## Status
-
-Accepted
-
-## Context
-
-Quoted from `02-architecture-assessment.md` § Edge layer:
-
-> "All inbound public traffic terminates at a single global edge tier. The
-> workload spans two Azure regions (Sweden Central primary, Germany West
-> Central failover) and serves a globally distributed audience."
-
-## Decision
-
-Use Azure Front Door (Premium) as the global ingress, with WAF policy
-attached. Application Gateway is deferred to per-region L7 if a future
-workload requires private-only ingress.
-
-## Consequences
-
-- Reliability (WAF pillar): single global control plane simplifies failover.
-- Cost (WAF pillar): Front Door Premium is +$X / mo vs Standard but adds the
-  managed WAF rules required by `01-requirements.md` § Compliance.
-- Performance: Anycast routing wins on latency vs regional gateways.
-```
-
-A minimal Draw.io batch (`add-cells` payload, illustrative — actual icon
-names come from `search-shapes` results):
-
-```json
-{
-  "transactional": true,
-  "cells": [
-    {
-      "type": "vertex",
-      "temp_id": "fd",
-      "shape_name": "Front Doors",
-      "label": "Azure Front Door (Premium)"
-    },
-    {
-      "type": "vertex",
-      "temp_id": "app",
-      "shape_name": "App Services",
-      "label": "Web app (Sweden Central)"
-    },
-    { "type": "edge", "source": "fd", "target": "app", "label": "HTTPS" }
-  ]
-}
-```
-
-Note the absence of `width`, `height`, `style` on the shaped vertices, and
-the use of `temp_id` (not literal cell IDs) on the edge.
-</example>
+The canonical ADR skeleton (Status / Context / Decision / Consequences,
+the `> Generated by design agent` attribution line, and worked examples)
+lives in [`azure-adr/references/adr-template.md`](../skills/azure-adr/references/adr-template.md).
+The `azure-adr` skill loads it on demand — do not duplicate the skeleton
+in agent output.
 
 ## Prerequisites and resume
 
