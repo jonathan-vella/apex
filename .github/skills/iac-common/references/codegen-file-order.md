@@ -1,3 +1,5 @@
+<!-- ref:codegen-file-order-v1 -->
+
 # Codegen File-Order Reference
 
 Per-tool file emission order for Phase 2 of the CodeGen agents

@@ -147,6 +147,30 @@ pre-commit:
         Checks: frontmatter syntax (description, applyTo only), cross-reference integrity
         📚 Run: npm run validate:instruction-checks
 
+    skill-references:
+      # Catch missing canary markers (`<!-- ref:{slug}-v1 -->`) on skill
+      # references/*.md before they reach main. CI runs the same validator
+      # globally; this hook gives same-PR feedback when a new reference
+      # file is added.
+      glob: ".github/skills/*/references/*.md,.github/skills/*/SKILL.md"
+      run: |
+        STAGED_REFS=$(git diff --cached --name-only --diff-filter=ACM \
+          | grep -E '^\.github/skills/[^/]+/(references/.*\.md|SKILL\.md)$' || true)
+        if [ -n "$STAGED_REFS" ]; then
+          COUNT=$(echo "$STAGED_REFS" | wc -l | tr -d ' ')
+          echo "🔖 Validating $COUNT skill reference/SKILL file(s) (canary markers + size)..."
+          npm run validate:skill-checks
+        else
+          echo "ℹ️  No skill references/SKILL files staged"
+        fi
+      fail_text: |
+        ❌ Skill-references validation failed!
+
+        Every `.github/skills/*/references/*.md` must start with
+        `<!-- ref:{slug}-v1 -->` on the first non-blank line so
+        docs-freshness can detect stale references.
+        🔧 Run: npm run validate:skill-checks
+
     sku-manifest-render:
       glob: "agent-output/*/sku-manifest.json"
       run: |

@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-05-16T10:47:24.617Z",
+  "generatedAt": "2026-05-17T08:19:08.771Z",
   "categories": [
     {
       "id": "agent",
@@ -48,7 +48,7 @@
       "label": "Validator",
       "color": "#8b5cf6",
       "shape": "hexagon",
-      "count": 49
+      "count": 50
     },
     {
       "id": "workflow",
@@ -56,7 +56,7 @@
       "label": "CI Workflow",
       "color": "#06b6d4",
       "shape": "cut-rectangle",
-      "count": 10
+      "count": 9
     },
     {
       "id": "mcp",
@@ -68,7 +68,7 @@
     }
   ],
   "nodeCount": 150,
-  "edgeCount": 591,
+  "edgeCount": 593,
   "nodes": [
     {
       "id": "agent:01-orchestrator",
@@ -380,7 +380,7 @@
       "id": "agent:10-challenger",
       "category": "agent",
       "label": "10-Challenger",
-      "description": "Thin wrapper for standalone adversarial review. Delegates to challenger-review-subagent. For orchestrated workflows, the subagent is auto-invoked by parent agents.",
+      "description": "Standalone adversarial review wrapper. Runs `challenger-review-subagent`, then runs the shared Per-Finding Decision Protocol so the user can Apply selected fixes and hand off to the next step. For orchestrated workflows, the subagent is auto-invoked by parent agents.",
       "path": ".github/agents/10-challenger.agent.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/10-challenger.agent.md"
@@ -1384,6 +1384,19 @@
       }
     },
     {
+      "id": "validator:validate-headings-summary",
+      "category": "validator",
+      "label": "validate:headings-summary",
+      "description": "node tools/scripts/validate-headings-summary.mjs",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
+      },
+      "meta": {
+        "command": "node tools/scripts/validate-headings-summary.mjs"
+      }
+    },
+    {
       "id": "validator:validate-instruction-checks",
       "category": "validator",
       "label": "validate:instruction-checks",
@@ -1929,20 +1942,6 @@
       "parent": "group:validator-orphans"
     },
     {
-      "id": "workflow:azure-deprecation-tracker",
-      "category": "workflow",
-      "label": "azure-deprecation-tracker",
-      "description": "",
-      "path": ".github/workflows/azure-deprecation-tracker.yml",
-      "links": {
-        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/workflows/azure-deprecation-tracker.yml"
-      },
-      "meta": {
-        "orphan": true
-      },
-      "parent": "group:workflow-orphans"
-    },
-    {
       "id": "workflow:branch-enforcement",
       "category": "workflow",
       "label": "branch-enforcement",
@@ -2137,11 +2136,11 @@
     {
       "id": "group:workflow-orphans",
       "category": "workflow",
-      "label": "CI Workflow (unlinked, 6)",
-      "description": "6 ci workflow nodes with no cross-references in the current graph.",
+      "label": "CI Workflow (unlinked, 5)",
+      "description": "5 ci workflow nodes with no cross-references in the current graph.",
       "isGroup": true,
       "meta": {
-        "groupSize": 6
+        "groupSize": 5
       }
     }
   ],
@@ -4739,6 +4738,12 @@
       "kind": "runs"
     },
     {
+      "id": "workflow:ci--runs->validator:validate-headings-summary",
+      "source": "workflow:ci",
+      "target": "validator:validate-headings-summary",
+      "kind": "runs"
+    },
+    {
       "id": "workflow:ci--runs->validator:lint-governance-refs",
       "source": "workflow:ci",
       "target": "validator:lint-governance-refs",
@@ -5186,6 +5191,12 @@
       "id": "agent:09-diagnose--uses-mcp->mcp:azure-mcp",
       "source": "agent:09-diagnose",
       "target": "mcp:azure-mcp",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:10-challenger--uses-mcp->mcp:github",
+      "source": "agent:10-challenger",
+      "target": "mcp:github",
       "kind": "uses-mcp"
     },
     {
