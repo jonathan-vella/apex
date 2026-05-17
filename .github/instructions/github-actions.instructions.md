@@ -71,8 +71,7 @@ concurrency:
 | `ci.yml`                        | Required PR check: lint + all Node.js validators | PR + push to main/feature   |
 | `link-check.yml`                | Broken link detection in site docs               | Changes to site/ + weekly   |
 | `docs.yml`                      | Astro Starlight site deployment to Pages         | Push to main (site/)        |
-| `weekly-maintenance.yml`        | AVM version audit + docs freshness checks        | Weekly (Mon 07:00) + manual |
-| `azure-deprecation-tracker.yml` | Azure deprecation monitoring                     | Weekly (Mon 06:00) + manual |
+| `weekly-maintenance.yml`        | AVM version audit + docs freshness + Azure deprecation tracking (folds the retired `azure-deprecation-tracker.yml`) | Weekly (Mon 07:00) + manual |
 
 ## Validation Scripts
 
