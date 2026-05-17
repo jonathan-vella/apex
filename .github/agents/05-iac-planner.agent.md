@@ -123,7 +123,7 @@ Always specify Azure Storage Account backend only.
 | ---------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
 | Verify Azure connectivity (`az account show`) FIRST                                                        | Write ANY IaC code — this agent plans only                              |
 | Read `04-governance-constraints.md/.json` — prerequisite input                                             | Skip reading governance constraints                                     |
-| Check AVM for EVERY resource (Bicep: `mcp_bicep_list_avm_metadata`; Terraform: `terraform/search_modules`) — first confirm the module exists + is `Available` in `.github/data/avm-module-index.json` (see [`iac-common/references/avm-module-index.md`](../skills/iac-common/references/avm-module-index.md)) | Generate plan before asking deployment strategy (Phase 3.5 mandatory)   |
+| Check AVM for EVERY resource (Bicep: `mcp_bicep_list_avm_metadata`; Terraform: `terraform/search_modules`) | Generate plan before asking deployment strategy (Phase 3.5 mandatory)   |
 | Use AVM defaults for SKUs; deprecation research only for overrides                                         | Hardcode SKUs without AVM verification                                  |
 | Define tasks as YAML specs (resource, module, dependencies, config)                                        | Proceed to code generation without explicit user approval               |
 | Generate `04-implementation-plan.md`                                                                       | Ignore policy `effect` — `Deny` = blocker, `Audit` = warning only       |
@@ -218,18 +218,18 @@ unmet entries are `must_fix`. Set
 
 ### Phase 1.5: Deployment Context Discovery
 
-Phase 1.5 is skipped by default. Only capture a deployment constraint here if the user explicitly volunteers one, and persist it via `apex-recall decide --key deployment_note --value "<text>" --step 4`.
+> [!NOTE]
+> The previous freeform Phase 1.5 `askQuestions` prompt is deprecated.
+> Structured deployment-design questions now live in the **Phase 3.5
+> batched panel** (see `azure-defaults/references/plan-design-decisions.md`).
+> Skip Phase 1.5 entirely unless the user volunteers a deployment
+> constraint the architecture assessment did not capture (e.g., a
+> maintenance window). If they do, persist via
+> `apex-recall decide --key deployment_note --value "<text>" --step 4`.
 
 ### Phase 2: AVM Module Verification
 
 For EACH resource in the architecture:
-
-> **Module existence + lifecycle check first.** Confirm the module is
-> present and `module_status: "Available"` in the local AVM module index
-> before invoking the MCP tools below. Refuse `Proposed` / `Orphaned`
-> modules — see
-> [`iac-common/references/avm-module-index.md`](../skills/iac-common/references/avm-module-index.md)
-> for file paths and the lifecycle decision table.
 
 **If Bicep:**
 
