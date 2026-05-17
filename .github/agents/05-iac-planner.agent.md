@@ -217,27 +217,23 @@ unmet entries are `must_fix`. Set
 
 ### Phase 1: Prerequisites and Governance Integration
 
-1. Read `04-governance-constraints.md` and `04-governance-constraints.json` (produced by Step 3.5)
+1. Read `04-governance-constraints.md` and `04-governance-constraints.json` (produced by Step 3.5).
 2. **L0 envelope enforcement (MANDATORY)** — read `discovery_metadata`
    from the JSON FIRST. STOP and traverse the `▶ Refresh Governance`
-   handoff to 04g-Governance if **any** of:
-   - File missing or `discovery_metadata` absent (legacy projects: see
-     30-day rollout note in `azure-defaults/references/governance-discovery.md`).
-   - `discovery_metadata.discovery_status != "COMPLETE"`.
-   - `age_days = (now - discovered_at) / 86400 > discovery_metadata.ttl_days`.
-   - `policies[]` empty AND any `page_counts.*` > 0 (silent drop).
-   - `discovery_metadata.completeness_signature` differs from a cached
-     `discovery_signature` decision (signature drift mid-flight).
-     This replaces the legacy `discovery_status` field check; the
-     envelope is the new source of truth. Routing follows
-     `iac-common/references/governance-drift-routing.md` (L0 row).
+   handoff to 04g-Governance if any of the L0 envelope checks fail.
+   Full check list (file/metadata presence, `discovery_status ==
+   "COMPLETE"`, TTL freshness, silent-drop guard, signature drift) and
+   refresh-handoff routing live in
+   [`governance-discovery.md`](../skills/azure-defaults/references/governance-discovery.md)
+   and [`governance-drift-routing.md`](../skills/iac-common/references/governance-drift-routing.md)
+   (L0 row). The envelope is the source of truth — the legacy
+   `discovery_status` field check is deprecated.
 3. **Record the signature** — on first successful L0 check, run
    `apex-recall decide <project> --key discovery_signature --value
 "<sig>" --rationale "L0 envelope cached" --step 4 --json`. CodeGen
    and Deploy agents cross-check this value on boot.
-4. Extract all `Deny` policies — these are hard blockers AND the source
-   of L1 matrix rows.
-5. Extract `Modify`/`DeployIfNotExists` policies — note auto-remediation behavior
+4. Extract all `Deny` policies (hard blockers + source of L1 matrix rows).
+5. Extract `Modify` / `DeployIfNotExists` policies — note auto-remediation behavior.
 
 **Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 4 phase_1_prereqs --json`
 
@@ -306,26 +302,27 @@ unresolved.
 
 ### Phase 3.5: Deployment Strategy + Design Decisions + Design Decisions Gate
 
-**Required gate.** Ask the user BEFORE generating the plan. Do NOT assume single or phased.
+**Required gate.** Ask the user BEFORE generating the plan. Do NOT assume
+single or phased. Question template, recommended defaults, and skip rules
+live in
+[`plan-design-decisions.md`](../skills/azure-defaults/references/plan-design-decisions.md).
 
 Build **one structured `askQuestions` panel** combining:
 
 1. **Deployment strategy** — `Phased` (recommended for >5 resources or
    prod/compliance) vs `Single` (small dev/test <5 resources). If
-   phased, follow up with grouping question: `Standard` (Foundation →
-   Security → Data → Compute → Edge) or `Custom`.
-2. **The 4 canonical design questions** from
-   `azure-defaults/references/plan-design-decisions.md`:
-   `identity_model`, `public_edge_auth`, `script_runtime_image`,
-   `az_posture`.
-3. **Any deferred Phase 2.5 architectural rules** (subset of the 4
-   above that auto-triggered — do not duplicate; the matching
-   `plan-design-decisions.md` question already covers it).
+   phased, follow up with grouping: `Standard` (Foundation → Security
+   → Data → Compute → Edge) or `Custom`.
+2. **The 4 canonical design questions** (`identity_model`,
+   `public_edge_auth`, `script_runtime_image`, `az_posture`) from
+   the linked reference.
+3. **Any Phase 2.5 deferred architectural rules** — the matching
+   `plan-design-decisions.md` question already covers each one; do not
+   duplicate.
 
-This is a single-shot panel: one `askQuestions` call with all
-questions. Recommended defaults are pre-selected per
-`plan-design-decisions.md`. Omit any question whose key already
-appears in `apex-recall show <project>` decisions (resume support).
+Single-shot panel: one `askQuestions` call with all questions. Omit any
+question whose key already appears in `apex-recall show <project>`
+decisions (resume support).
 
 Persist each answer (MANDATORY) — one `apex-recall decide` call per key:
 
@@ -336,23 +333,20 @@ apex-recall decide <project> --key <key> --value <choice> --rationale "Phase 3.5
 
 **Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 4 phase_3.5_strategy --json`
 
-**Terraform-specific**: Phased deployment uses `var.deployment_phase` + `count` conditionals
-(not `terraform -target`).
+**Terraform-specific**: Phased deployment uses `var.deployment_phase` +
+`count` conditionals (not `terraform -target`).
 
 ### Phase 3.6: Context Compaction
 
-Context usage reaches ~80% by the end of the deployment strategy gate.
-**You must compact the conversation before proceeding to Phase 4.**
+Context reaches ~80% by the end of Phase 3.5. Apply Mode A runtime
+compression per [`context-management/SKILL.md`](../skills/context-management/SKILL.md):
+write one concise summary message (governance result, AVM verification
+summary, deployment-strategy choice, key architecture decisions) and
+stop loading additional skills before Phase 4 generation. The
+Predecessor Artifact Read Policy above already forbids re-reading
+prior artifacts.
 
-1. **Summarize prior phases** — write a single concise message containing:
-   - Governance discovery result (pass/fail, blocker count)
-   - AVM module verification summary (AVM vs custom/raw count)
-   - Deployment strategy choice (phased/single, phase grouping)
-   - Key decisions from `02-architecture-assessment.md` (resource list, SKUs)
-2. **Stop loading additional skills** — rely on summaries already in context.
-   The Predecessor Artifact Read Policy above already forbids re-reading
-   prior artifacts; this phase just confirms it before generation.
-3. **Update session state** — run `apex-recall checkpoint <project> 4 phase_3.6_compacted --json`
+**Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 4 phase_3.6_compacted --json`
    so resume skips re-loading prior context
 
 ### Phase 4: Implementation Plan Generation
