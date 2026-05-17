@@ -140,7 +140,7 @@ investigate before answering) live in
   Never deploy (hand off to `07b-bicep-deploy`); never modify
   architecture (hand back to `05-iac-planner`).
 - **Subagent budget (2)**: `bicep-validate-subagent` (combined lint
-  + code review); `challenger-review-subagent` (post-validation
+  and code review); `challenger-review-subagent` (post-validation
   adversarial pass only).
 - **Schema verification**: validate AVM module availability and
   parameter schemas via the preflight + bicep-validate-subagent
@@ -330,20 +330,15 @@ from scratch.**
 
 ### Phase 1.6: Context Compaction
 
-Context usage reaches ~80% after preflight checks and governance mapping.
-Compact the conversation before proceeding to code generation.
+Context reaches ~80% after preflight + governance mapping. Apply Mode A
+runtime compression per
+[`context-management/SKILL.md`](../skills/context-management/SKILL.md):
+write one concise summary (preflight result + AVM/custom counts,
+governance compliance map status, deployment strategy, resource list
+with module paths) and stop loading additional skills before Phase 2.
+Do NOT re-read predecessor artifacts.
 
-1. **Summarize prior phases** — write a single concise message containing:
-   - Preflight check result (blockers, AVM vs custom count)
-   - Governance compliance map (Deny policies mapped, unsatisfied count)
-   - Deployment strategy from `04-implementation-plan.md` (phased/single)
-   - Resource list with module paths and key parameters
-2. **Stop loading additional skills** — once context is compacted, do not load
-   any new skill files; rely on summaries already in context
-3. **Do NOT re-read predecessor artifacts** — rely on the summary above
-   and the saved `04-preflight-check.md` + `04-governance-constraints.json` on disk
-4. **Update session state** — run `apex-recall checkpoint <project> 5 phase_1.6_compacted --json`
-   so resume skips re-loading prior context
+**Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 5 phase_1.6_compacted --json`
 
 ### Phase 2: Progressive Implementation
 
@@ -371,18 +366,15 @@ and replaces what was previously 20+ sequential per-file format calls.
 
 ### Phase 3: Deployment Artifacts
 
-Generate `infra/bicep/{project}/azure.yaml` (azd manifest — **primary deployment method**) with:
-
-- `name: {project}`, `metadata.template`, `infra.provider: bicep`, `infra.path: .` (co-located), `infra.module`
-- `hooks.preprovision` — ARM token validation, banner
-- `hooks.postprovision` — resource verification via ARG
-
-Also generate `infra/bicep/{project}/deploy.ps1` (deprecated fallback) with:
-
-- Banner, parameter validation (ResourceGroup, Location, Environment, Phase)
-- `az group create` + `az deployment group create --template-file --parameters`
-- Phase-aware looping if phased; approval prompts between phases
-- Output parsing and error handling
+Generate `infra/bicep/{project}/azure.yaml` (azd manifest — **primary**)
+and `infra/bicep/{project}/deploy.ps1` (deprecated fallback). Full file
+contents and hook bodies:
+[`codegen-file-order.md`](../skills/iac-common/references/codegen-file-order.md) → Bicep.
+Mandatory `azure.yaml` keys: `name: {project}`, `metadata.template`,
+`infra.provider: bicep`, `infra.path: .` (co-located), `infra.module`,
+`hooks.preprovision` (ARM token validation), `hooks.postprovision`
+(resource verification via ARG). `deploy.ps1` must remain phase-aware
+when the plan selects phased deployment.
 
 ### Phase 4: Validation (Subagent-Driven — Parallel)
 
