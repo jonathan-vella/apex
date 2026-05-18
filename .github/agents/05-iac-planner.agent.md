@@ -347,7 +347,6 @@ Predecessor Artifact Read Policy above already forbids re-reading
 prior artifacts.
 
 **Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 4 phase_3.6_compacted --json`
-   so resume skips re-loading prior context
 
 ### Phase 4: Implementation Plan Generation
 

@@ -34,6 +34,9 @@ desktop.ini
 *.log
 logs/
 
+# Root decision snapshots are generated artifacts, not source files.
+decisions*.json
+
 # Environment
 .env
 .env.local
