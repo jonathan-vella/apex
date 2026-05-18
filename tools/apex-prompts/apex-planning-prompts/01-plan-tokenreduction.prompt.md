@@ -164,16 +164,18 @@ implementable mechanism.
 1. Add a "Gate-boundary handoff" contract to
    `.github/skills/context-management/references/compression-templates.md`:
    on every accepted Gate, the orchestrator's final assistant message
-   ends with a verbatim line — *"Run `/clear` then reply
-   `@01-Orchestrator resume <project>` to continue Step N+1."*
+   ends with a verbatim line — *"Run `/clear`, then switch the chat
+   agent picker to `01-Orchestrator` and send `resume <project>` to
+   continue Step N+1."*
 2. Edit `01-orchestrator.agent.md` Gate-acceptance section to require
    `apex-recall checkpoint <project> <step> <phase>` **before** the
    resume-line is emitted, and forbid the agent from continuing to
    Step N+1 in the same chat session.
-3. Resume path: a new chat starting with `@01-Orchestrator resume
-   <project>` runs `apex-recall show <project> --json` as its first
-   tool call, loads only the compact handoff JSON (~1–2 KB), and
-   skips re-reading completed-step artifacts unless explicitly needed.
+3. Resume path: in a new chat the user picks `01-Orchestrator` from
+   the agent picker and sends `resume <project>`, which runs
+   `apex-recall show <project> --json` as the first tool call, loads
+   only the compact handoff JSON (~1–2 KB), and skips re-reading
+   completed-step artifacts unless explicitly needed.
 4. Pre-action lint:
    `tools/scripts/validate_orchestrator_handoff.py` parses
    `01-orchestrator.agent.md` and asserts every Gate-acceptance

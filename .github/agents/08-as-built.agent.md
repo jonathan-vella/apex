@@ -10,7 +10,7 @@ handoffs:
     agent: 08-As-Built
     prompt: "Generate the complete Step 7 documentation suite for the deployed project. Read all prior artifacts in `agent-output/{project}/` and query deployed resources. Input: agent-output/{project}/06-deployment-summary.md + deployed resource state. Output: full as-built suite at agent-output/{project}/07-*.md."
     send: true
-  - label: "▶ Generate As-Built Diagram (Draw.io)"
+  - label: "▶ Generate As-Built Diagram"
     agent: 08-As-Built
     prompt: "Generate an as-built architecture diagram using the drawio skill and MCP tools. Use transactional mode. CRITICAL: The MCP server is NOT stateful — you MUST pass `diagram_xml` from each response to the next call. (1) `search-shapes` with ALL Azure service names in one call. (2) `create-groups` for VNets/subnets/RGs in one call (text: '' for groups, separate label vertex above). (3) `add-cells` with ALL vertices AND edges in one call, transactional: true. Pass `diagram_xml` from step 2. Use `shape_name` for icons, `temp_id` for refs. Do NOT specify width/height/style for shaped vertices. Use actual deployed resource names where they improve traceability. (4) Extract cell IDs via terminal command (do NOT read full JSON through the LLM). Save `diagram_xml` to temp file. (5) `add-cells-to-group` for all assignments in one call, passing `diagram_xml` from step 3. (6) `finish-diagram` with compress: true, passing `diagram_xml` from step 5. (7) Save via `python3 tools/scripts/save-drawio.py <json-path> agent-output/{project}/07-ab-diagram.drawio` — this decompresses, strips server-injected edge anchors/waypoints, and embeds mxGraphModel. (8) Validate via `node tools/scripts/validate-drawio-files.mjs`. Quality score >= 9/10. Input: deployed resource graph. Output: agent-output/{project}/07-as-built-diagram.drawio."
     send: true
@@ -107,10 +107,7 @@ investigate before answering) live in
 
 ## Read Skills First
 
-Before doing any work, read these skills. Issue the SKILL.md reads and the template-file
-reads in **one parallel `read_file` batch** to amortize cost. **Never re-read** a file
-already in your conversation history (see
-[Context Hygiene](../instructions/agent-authoring.instructions.md#context-hygiene-token-efficiency)).
+Before doing any work, read these skills. Issue the SKILL.md reads and the template-file reads in **one parallel `read_file` batch** to amortize cost.
 
 1. Read `.github/skills/azure-defaults/SKILL.md` — regions, tags, naming, pricing MCP names
 2. Read `.github/skills/azure-artifacts/SKILL.md` — H2 templates for all 07-\* artifacts
@@ -467,5 +464,5 @@ final chat message with this line, **verbatim**, on its own final line
 validator: `npm run validate:orchestrator-handoff`):
 
 ```text
-Run `/clear` then reply `@01-Orchestrator resume <project>` to continue Step N+1.
+Run `/clear`, then switch the chat agent picker to `01-Orchestrator` and send `resume <project>` to continue Step N+1.
 ```

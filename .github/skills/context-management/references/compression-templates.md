@@ -92,12 +92,16 @@ final assistant message **MUST** end with this line, verbatim — no
 paraphrase, no extra punctuation:
 
 ```text
-Run `/clear` then reply `@01-Orchestrator resume <project>` to continue Step N+1.
+Run `/clear`, then switch the chat agent picker to `01-Orchestrator` and send `resume <project>` to continue Step N+1.
 ```
 
 Substitute the real project name and step number. Place the line as
 the very last line of the message, on its own line, after the gate
 summary and the handoff button.
+
+> VS Code custom agents activate via the agent picker, not via `@name`
+> chat-participant syntax. See
+> <https://code.visualstudio.com/docs/copilot/customization/custom-agents>.
 
 ### Required precondition: durable checkpoint
 
@@ -109,7 +113,8 @@ state not in `apex-recall` is lost.
 
 ### Required resume path
 
-A new chat session starting with `@01-Orchestrator resume <project>`:
+In the new chat the user picks `01-Orchestrator` from the agent picker
+and sends `resume <project>`:
 
 1. First tool call: `apex-recall show <project> --json`.
 2. Loads only the compact handoff JSON (~1–2 KB).

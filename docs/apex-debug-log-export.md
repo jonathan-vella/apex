@@ -1,39 +1,65 @@
 # Exporting custom-agent debug logs (`/apex-debug-log-export`)
 
-This guide covers how to enable Copilot debug logging in the devcontainer,
-what information is captured, how to run the export prompt, and how to move
-the resulting archive from the devcontainer to OneDrive for Business.
+> Guide for enabling Copilot debug logging, running the export prompt, and
+> moving the resulting archive to OneDrive for Business.
+
+<details>
+<summary>Contents</summary>
+
+- [How debug logs are enabled](#how-debug-logs-are-enabled)
+- [What is collected](#what-is-collected)
+  - [How custom-agent activity is identified](#how-custom-agent-activity-is-identified)
+- [Using the export prompt](#using-the-export-prompt)
+- [Moving the archive from devcontainer to OneDrive](#moving-the-archive-from-devcontainer-to-onedrive)
+  - [Option A — VS Code Explorer](#option-a--vs-code-explorer-no-command-line)
+  - [Option B — docker cp](#option-b--docker-cp-from-your-local-terminal)
+- [Before uploading](#before-uploading)
+
+</details>
+
+---
 
 ## How debug logs are enabled
 
-No action is required. In this devcontainer, VS Code Copilot Chat writes a
-per-session debug log automatically. As soon as you open the devcontainer and
-start a chat, a session directory is created at:
+The devcontainer sets `github.copilot.chat.agentDebugLog.fileLogging.enabled: true`
+in `.devcontainer/devcontainer.json`, so debug logging is active as soon as you
+open the devcontainer. As soon as you start a chat, a session directory is
+created at:
 
 ```text
 ~/.vscode-server/data/User/workspaceStorage/<wsId>/GitHub.copilot-chat/debug-logs/<sessionId>/
-```text
+```
 
 The active session path is injected as the environment variable
 `$VSCODE_TARGET_SESSION_LOG`, so scripts can locate it without scanning the
 filesystem.
 
-If you are running VS Code outside a devcontainer and logs are not appearing,
-enable them via **VS Code Settings → search "Copilot" → enable
-`github.copilot-chat.experimental.logToFile`**, then restart VS Code.
+> **Tip — capturing end-to-end logs across an APEX run:** The `/clear` command
+> archives the current session and opens a **new chat session** with a fresh
+> context window. Use `/clear` between APEX workflow steps to keep the token
+> window lean and continue the workflow in the new session. When you are ready
+> to export, run `/apex-debug-log-export` and select **include older sessions**
+> at the prompt — the export will bundle all sessions from the run into a single
+> archive.
+
+> **Outside devcontainers:** enable **VS Code Settings →
+> `github.copilot.chat.agentDebugLog.fileLogging.enabled`**, then restart
+> VS Code. See the
+> [VS Code debug chat interactions guide](https://code.visualstudio.com/docs/copilot/chat/chat-debug-view)
+> for details on the Agent Debug Log panel and export/import options.
 
 ## What is collected
 
 Each session directory contains these files:
 
-| File | Contents |
-|---|---|
-| `main.jsonl` | Full turn-by-turn record: model, tools called, agent and skill files loaded, token counts, response latency |
-| `system_prompt_*.json` | The exact system prompt sent to the model each turn (agent definition + instructions + skills combined) |
-| `tools_*.json` | Tool schemas active during the session |
-| `models.json` | Model selection per turn |
-| `categorization-*.jsonl` | Intent-classification signals used to select the chat participant |
-| `title-*.jsonl` | Chat-session title derivation |
+| File                     | Contents                                                                                       |
+| ------------------------ | ---------------------------------------------------------------------------------------------- |
+| `main.jsonl`             | Full turn-by-turn record: model, tools called, agent/skill files loaded, token counts, latency |
+| `system_prompt_*.json`   | Exact system prompt sent each turn (agent definition + instructions + skills)                  |
+| `tools_*.json`           | Tool schemas active during the session                                                         |
+| `models.json`            | Model selection per turn                                                                       |
+| `categorization-*.jsonl` | Intent-classification signals used to select the chat participant                              |
+| `title-*.jsonl`          | Chat-session title derivation                                                                  |
 
 The file most useful for reviewing custom-agent behaviour is **`main.jsonl`**.
 It shows exactly when your `.github/agents/*.agent.md` files were loaded, which
@@ -61,14 +87,7 @@ In Copilot Chat, type:
 
 ```text
 /apex-debug-log-export
-```text
-
-To include a OneDrive share link in the printed upload instructions, pass it
-as the argument:
-
-```text
-/apex-debug-log-export https://contoso-my.sharepoint.com/:f:/...
-```text
+```
 
 The prompt will:
 
@@ -103,14 +122,14 @@ docker ps --format '{{.Names}}'
 
 # Copy the archive to your local machine
 docker cp <container-name>:/workspaces/azure-agentic-infraops/.apex-logs/<bundle>.tar.gz ~/Downloads/
-```text
+```
 
 Then upload from `~/Downloads/` via the share link in your browser.
 
 ## Before uploading
 
-The bundle includes the raw `main.jsonl` (unredacted). Review it briefly if
-your chat session referenced subscription IDs, connection strings, or other
-sensitive values. The filtered `*.custom-agents.jsonl` files are automatically
-scrubbed of common secret patterns, but the raw session tree is preserved
-verbatim for auditability.
+> **⚠️ Security review:** The bundle includes the raw `main.jsonl` (unredacted).
+> Review it briefly if your chat session referenced subscription IDs, connection
+> strings, or other sensitive values. The filtered `*.custom-agents.jsonl` files
+> are automatically scrubbed of common secret patterns, but the raw session tree
+> is preserved verbatim for auditability.

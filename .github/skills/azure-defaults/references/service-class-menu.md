@@ -32,6 +32,10 @@ Required batching (saves ~10 turns per Phase 3):
   a container host was selected in Batch B.
 - **Confirm step** (Step 3i): one final batched call with the consolidated
   service list (`multiSelect: true`, all chosen preselected).
+- **Batch D — SKU & sizing preferences** (Step 3j): one batched call per
+  service class confirmed at 3i, asking for pinned SKU/size, tier floor,
+  or explicit "no preference". Mandatory for every project (see
+  [`sku-manifest.instructions.md`](../../../instructions/sku-manifest.instructions.md#mandatory-elicitation-at-step-1)).
 
 Use business-friendly descriptions with Azure service names in parentheses.
 
@@ -136,3 +140,60 @@ Use `askQuestions` for required supporting platform services with
 After collecting per-class answers, present a final `askQuestions` summary
 list with `multiSelect: true`, preselected with all chosen services, so the
 user can add or remove items before artifact generation.
+
+## 3j. SKU and sizing preferences (mandatory for every project)
+
+This step is **required** for every project — the user must be asked, even
+when the expected answer is "no preference". The goal is to capture **hard
+preferences** the user already knows so Architect treats them as locked
+user-pins; everything else is left for Architect to evaluate at Step 2.
+
+Use one **batched `askQuestions` call (Batch D)** with one question per
+service class confirmed at 3i. For each in-scope class, present three
+options plus a freeform field:
+
+- **Pinned SKU/size** — freeform (e.g. `P1v3`, `GP_Standard_D2s_v3`,
+  `S2 (50 DTU)`, `Standard_DS3_v2`).
+- **Tier floor only** — freeform (e.g. `Standard or higher`,
+  `Premium_v3 family`).
+- **No preference — let Architect decide** (recommended default).
+
+Question mapping (only ask for classes confirmed in 3i):
+
+| Class confirmed at 3i           | `header`                | Question                                                                     |
+| ------------------------------- | ----------------------- | ---------------------------------------------------------------------------- |
+| Compute host (App Service)      | `sku_app_service`       | Preferred App Service Plan SKU or tier floor?                                |
+| Compute host (Container Apps)   | `sku_container_apps`    | Preferred Container Apps workload profile / consumption settings?            |
+| Compute host (AKS)              | `sku_aks_nodepool`      | Preferred AKS system & user node-pool VM SKU?                                |
+| Compute host (Functions)        | `sku_functions`         | Preferred Functions plan (Consumption / Premium EP / App Service Plan host)? |
+| Relational DB                   | `sku_sql`               | Preferred SQL/PostgreSQL/MySQL tier or compute size?                         |
+| Non-relational (Cosmos / Redis) | `sku_nosql`             | Preferred Cosmos throughput mode or Redis tier?                              |
+| Storage replication             | `sku_storage_repl`      | Preferred Storage replication (LRS / ZRS / GRS / RA-GRS)?                    |
+| Ingress (App Gateway / Front Door) | `sku_ingress`        | Preferred ingress SKU (App Gateway WAF_v2 / Front Door Premium / etc.)?      |
+| API Management                  | `sku_apim`              | Preferred APIM tier (Developer / Basic / Standard / Premium / Consumption)?  |
+| Reserved-instance commitment    | `sku_commitment`        | Reserved 1-yr, Reserved 3-yr, on-demand only, or no preference?              |
+| Per-environment override        | `sku_env_override`      | Apply preferences to all environments, or different SKU for `dev` / `prod`?  |
+
+Skip rows whose class was not selected in 3i. If no creative-SKU class was
+selected (e.g. static site only), still issue Batch D with just
+`sku_commitment` and `sku_env_override` so the elicitation is recorded.
+
+After the batch returns, persist outcomes:
+
+1. For each **Pinned SKU/size** or **Tier floor** answer, append a
+   `services[]` entry to `agent-output/{project}/sku-manifest.json` with
+   `source: "user-pin"`, `source_step: "1"`, `last_modified_rev: 1`. Use
+   tier-floor answers as a `notes` field plus a representative `size`.
+2. For **No preference** answers, do **not** add a manifest entry — the
+   elicitation is recorded by the decision flag below.
+3. Record the mandatory elicitation flag (always, regardless of pins):
+
+```bash
+apex-recall decide <project> --key sku_preferences_captured --value true --json
+```
+
+4. Record any pinned answers as durable decisions (one per pin):
+
+```bash
+apex-recall decide <project> --decision "User pinned <class>=<sku>" --rationale "<user note>" --step 1 --json
+```

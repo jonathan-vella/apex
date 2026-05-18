@@ -76,8 +76,9 @@ Artifact: agent-output/{project}/01-requirements.md
 Artifact: agent-output/{project}/02-architecture-assessment.md
 Cost Estimate: agent-output/{project}/03-des-cost-estimate.md
 ✅ Next: Governance Discovery (Step 3.5) or Design Artifacts (Step 3, optional)
-💡 SESSION BREAK RECOMMENDED: Context is growing. Consider opening a fresh chat
-   and running @01-Orchestrator with the project name to resume from Step 3.5.
+💡 SESSION BREAK RECOMMENDED: Context is growing. Consider opening a fresh chat,
+   switching the chat agent picker to `01-Orchestrator`, and sending
+   `resume <project>` to continue from Step 3.5.
 ❓ Review WAF assessment and confirm to proceed (same session or fresh chat)
 ```
 
@@ -106,7 +107,8 @@ Runtime Diagram: agent-output/{project}/04-runtime-diagram.drawio
 Deployment: {Phased (N phases) | Single}
 ✅ Next: IaC Implementation (Step 5)
 💡 SESSION BREAK RECOMMENDED: Start a fresh chat for IaC code generation.
-   Run @01-Orchestrator with the project name — context restores via `apex-recall show`.
+   Switch the chat agent picker to `01-Orchestrator` and send
+   `resume <project>` — context restores via `apex-recall show`.
 ❓ Review plan and confirm to proceed (same session or fresh chat)
 ```
 

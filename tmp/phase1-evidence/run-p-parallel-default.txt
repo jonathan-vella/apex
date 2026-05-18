@@ -1,6 +1,0 @@
-node_modules/npm-run-all2/lib/run-tasks.js:    const max = options.maxParallel
-node_modules/npm-run-all2/lib/index.js: * @param {number} options.maxParallel -
-node_modules/npm-run-all2/lib/index.js:  const maxParallel = parallel ? ((options && options.maxParallel) || 0) : 1
-node_modules/npm-run-all2/lib/index.js:    if (typeof maxParallel !== 'number' || !(maxParallel >= 0)) {
-node_modules/npm-run-all2/lib/index.js:      throw new Error('Invalid options.maxParallel')
-node_modules/npm-run-all2/lib/index.js:          maxParallel,

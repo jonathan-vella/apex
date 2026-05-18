@@ -15,6 +15,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import subprocess
 import sys
 import time
@@ -375,6 +376,41 @@ def _looks_like_tag_policy(rule: dict[str, Any]) -> bool:
     return False
 
 
+_TAG_FIELD_RE = re.compile(r"^tags\[(?:'|\")?([^'\"\]]+)(?:'|\")?\]$", re.IGNORECASE)
+
+
+def _extract_policy_rule_tag_keys(defn: dict[str, Any]) -> list[str]:
+    """Walk policyRule looking for hard-coded `tags['<key>']` field references.
+
+    Many custom deny-style tag policies (e.g. `JV-Enforce Resource Group Tags`)
+    hard-code the enforced tag list in `policyRule.if.allOf[*].anyOf[*].field`
+    instead of exposing it as `tagName*` assignment parameters. Without this
+    extraction the downstream `tag_contract.required_tag_keys` silently falls
+    back to a sibling Modify policy's keys, producing transcription drift
+    (e.g. `tech-contact` vs `technical-contact`). See
+    `tools/scripts/diagnose-governance-tag-drift.md` for the full root-cause.
+    """
+    rule = (defn.get("properties") or {}).get("policyRule") or {}
+    keys: list[str] = []
+    seen: set[str] = set()
+    stack: list[Any] = [rule.get("if")]
+    while stack:
+        node = stack.pop()
+        if isinstance(node, dict):
+            field = node.get("field")
+            if isinstance(field, str):
+                m = _TAG_FIELD_RE.match(field.strip())
+                if m:
+                    key = m.group(1).strip()
+                    if key and key not in seen:
+                        seen.add(key)
+                        keys.append(key)
+            stack.extend(node.values())
+        elif isinstance(node, list):
+            stack.extend(node)
+    return keys
+
+
 def _is_defender_auto(assignment: dict[str, Any]) -> bool:
     metadata = (assignment.get("properties") or {}).get("metadata") or {}
     assigned_by = metadata.get("assignedBy")
@@ -432,7 +468,14 @@ def _extract_tags_required(findings: list[dict[str, Any]]) -> list[dict[str, str
         params = f.get("assignment_parameters") or {}
         tag_keys: list[str] = []
 
-        # Common parameter names for tag policies
+        # Deny-style tag policies often hard-code keys in policyRule rather
+        # than exposing them via tagName* parameters. Prefer those — they are
+        # the authoritative enforced list.
+        for key in (f.get("extracted_tag_keys") or []):
+            if isinstance(key, str) and key:
+                tag_keys.append(key)
+
+        # Common parameter names for tag policies (Modify/Append style).
         for pname in ("tagName", "tagname", "tag_name"):
             val = params.get(pname)
             if isinstance(val, str) and val:
@@ -757,6 +800,18 @@ def discover(
                 }
             if paths.get("pathSemantics"):
                 finding["pathSemantics"] = paths["pathSemantics"]
+            # For Tags-category policies, extract enforced tag keys from the
+            # policyRule body. Deny-style tag policies often hard-code keys
+            # in `policyRule.if.allOf[*].anyOf[*].field` rather than exposing
+            # them as `tagName*` assignment parameters; without this we get
+            # silent drift to sibling Modify-policy keys.
+            if (
+                finding.get("pathSemantics") == "tag-policy-non-property"
+                or (finding.get("category") or "").lower() == "tags"
+            ):
+                rule_tag_keys = _extract_policy_rule_tag_keys(defn)
+                if rule_tag_keys:
+                    finding["extracted_tag_keys"] = rule_tag_keys
             findings.append(finding)
 
     blockers = sum(1 for f in findings if f["classification"] == "blocker")

@@ -42,7 +42,7 @@ handoffs:
     send: true
   - label: "Step 5: Generate Terraform"
     agent: 06t-Terraform CodeGen
-    prompt: "Implement the Terraform templates according to the implementation plan in `agent-output/{project}/04-implementation-plan.md`. Use AVM-TF modules, generate bootstrap scripts and deploy scripts, and save to `infra/terraform/{project}/`."
+    prompt: "Implement the Terraform configuration according to the implementation plan in `agent-output/{project}/04-implementation-plan.md`. Use AVM-TF modules, generate bootstrap scripts and deploy scripts, and save to `infra/terraform/{project}/`."
     send: true
   - label: "↩ Return to Step 2"
     agent: 03-Architect
@@ -615,5 +615,5 @@ final chat message with this line, **verbatim**, on its own final line
 validator: `npm run validate:orchestrator-handoff`):
 
 ```text
-Run `/clear` then reply `@01-Orchestrator resume <project>` to continue Step N+1.
+Run `/clear`, then switch the chat agent picker to `01-Orchestrator` and send `resume <project>` to continue Step N+1.
 ```

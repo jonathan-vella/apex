@@ -10,10 +10,11 @@ read session state and confirm what I find. End by surfacing the matching
 handoff button — never call `#runSubagent`.
 
 This prompt is **safe to invoke immediately after `/clear`**. Step agents
-emit a verbatim handoff line (`Run /clear then reply @01-Orchestrator
-resume <project> to continue Step N+1.`) at completion; the user runs
-`/clear` and replies with that line, which lands here in a fresh chat
-with zero memory of prior turns.
+emit a verbatim handoff line (`Run /clear, then switch the chat agent
+picker to 01-Orchestrator and send resume <project> to continue Step
+N+1.`) at completion; the user runs `/clear`, switches the agent picker
+back to `01-Orchestrator`, and sends `resume <project>`, which lands
+here in a fresh chat with zero memory of prior turns.
 
 # Goal
 
@@ -175,20 +176,25 @@ higher-tier step agents (see VS Code [subagent cost-tier rule][tier]).
 When a step agent finishes, it ends its final chat message with this exact line:
 
 ```text
-Run `/clear` then reply `@01-Orchestrator resume <project>` to continue Step N+1.
+Run `/clear`, then switch the chat agent picker to `01-Orchestrator` and send `resume <project>` to continue Step N+1.
 ```
 
-The user runs `/clear` (wiping chat context) and replies
-`@01-Orchestrator resume <project>` in the new chat. That reply invokes
-this prompt with `<project>` as the target. Skip Step 1 of the workflow
-above (project pick) when the user's reply already names the project —
-go directly to Step 2 (next-step-mode).
+The user runs `/clear` (wiping chat context), switches the chat agent
+picker back to `01-Orchestrator`, and sends `resume <project>` in the
+new chat. That reply invokes this prompt with `<project>` as the
+target. Skip Step 1 of the workflow above (project pick) when the
+user's reply already names the project — go directly to Step 2
+(next-step-mode).
+
+> VS Code custom agents activate via the agent picker, not via `@name`
+> chat-participant syntax. See
+> <https://code.visualstudio.com/docs/copilot/customization/custom-agents>.
 
 Same flow applies to the mid-step variant emitted by the orchestrator
 between challenger passes:
 
 ```text
-Run `/clear` then reply `@01-Orchestrator resume <project>` to continue challenger Pass <N+1>.
+Run `/clear`, then switch the chat agent picker to `01-Orchestrator` and send `resume <project>` to continue challenger Pass <N+1>.
 ```
 
 For the challenger-pass variant, prefer Branch B (detect from state):

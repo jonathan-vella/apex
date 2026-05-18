@@ -5,7 +5,14 @@ Plan 01 Phase 2a (Gate-boundary `/clear` handoff) requires that the
 orchestrator's Gate-acceptance procedure documents the verbatim resume
 line. Phase 2c extends the contract to every user-facing step agent:
 each must end its completion path with the same verbatim line so that
-direct invocation (`@03-Architect …`) still hands off cleanly.
+direct invocation (running a step agent on its own) still hands off
+cleanly via the agent picker.
+
+The line instructs the user to switch the VS Code chat agent picker
+back to `01-Orchestrator` and send `resume <project>` — VS Code custom
+agents are activated by selecting them in the picker, not by `@name`
+chat-participant syntax. See
+https://code.visualstudio.com/docs/copilot/customization/custom-agents.
 
 The verbatim contract is the only token-reduction primitive that
 actually drops main-agent input tokens, so the lint is hard-fail.
@@ -53,8 +60,8 @@ STEP_AGENTS = (
 # placeholders that survive into the rendered chat; agents substitute
 # them at runtime.
 REQUIRED_LINE = (
-    "Run `/clear` then reply `@01-Orchestrator resume <project>` "
-    "to continue Step N+1."
+    "Run `/clear`, then switch the chat agent picker to `01-Orchestrator` "
+    "and send `resume <project>` to continue Step N+1."
 )
 
 # Supporting contract fragments that must appear at least once in the

@@ -39,9 +39,9 @@ Per workflow run:
 
 ### 1. Step 1 — Requirements (target Gate 1)
 
-1. Invoke `@01-Orchestrator` with a tiny project description (e.g.
-   _"smoke-test, a small Node.js web app for an internal HR form,
-   Sweden Central, prod-grade, Bicep"_).
+1. Switch the chat agent picker to `01-Orchestrator` and send a tiny
+   project description (e.g. _"smoke-test, a small Node.js web app for
+   an internal HR form, Sweden Central, prod-grade, Bicep"_).
 2. Confirm the project name when prompted.
 3. Orchestrator hands off to `02-Requirements`.
 4. **Watch for the P0 batching directive** (Plan 01 Phase 4):
@@ -52,7 +52,7 @@ Per workflow run:
    line** (Plan 01 Phase 2a):
 
    ```text
-   Run `/clear` then reply `@01-Orchestrator resume smoke-test` to continue Step 2.
+   Run `/clear`, then switch the chat agent picker to `01-Orchestrator` and send `resume smoke-test` to continue Step 2.
    ```
 
    If the line is missing or paraphrased → **smoke run fails**.
@@ -60,7 +60,8 @@ Per workflow run:
 ### 2. `/clear` and resume
 
 1. Run `/clear` in the chat.
-2. Paste the resume line verbatim.
+2. Switch the chat agent picker back to `01-Orchestrator` and send
+   `resume smoke-test`.
 3. **Watch the first turn's input-token count** (visible in the OTel
    log after export). It MUST be ≤ 45 000 — confirms the `/clear`
    actually dropped context.

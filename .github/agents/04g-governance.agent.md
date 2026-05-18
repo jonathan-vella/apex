@@ -168,6 +168,27 @@ Phase 1 / Phase 2 respectively to prevent rework):
 
 1. `02-architecture-assessment.md` must exist — read for resource list and compliance requirements
 2. Run `apex-recall show <project> --json` to verify project context exists (project name, complexity, decisions)
+3. **Read the committed baseline subscription entry in full** (MANDATORY,
+   every run — live, cached, or refresh). After determining the target
+   subscription ID from the architecture, load the entire
+   `.github/data/governance-policy-baseline.json → subscriptions[<sub-id>]`
+   object into context — do not jq-filter to a small slice. The subscription
+   entry contains `assignment_inventory`, `findings`, `tags_required`,
+   `allowed_locations`, and `policies`; every Tags-category finding with
+   `extracted_tag_keys` is part of the authoritative tag contract, even
+   when its `assignment_parameters` is null. This read is non-negotiable
+   because Tag drift between Deny and Modify policies (e.g. `technical-contact`
+   vs `tech-contact`) is invisible to any single-field jq selector and
+   silently corrupts the downstream tag contract. Use:
+
+   ```bash
+   jq '.subscriptions["<sub-id>"]' .github/data/governance-policy-baseline.json \
+     > /tmp/{project}-baseline-sub.json
+   wc -c /tmp/{project}-baseline-sub.json  # confirm non-empty
+   ```
+
+   Then read `/tmp/{project}-baseline-sub.json` via `read_file` (no
+   line range) so the full structure enters context.
 
 If missing, STOP and request handoff to the appropriate prior agent.
 
@@ -592,5 +613,5 @@ final chat message with this line, **verbatim**, on its own final line
 validator: `npm run validate:orchestrator-handoff`):
 
 ```text
-Run `/clear` then reply `@01-Orchestrator resume <project>` to continue Step N+1.
+Run `/clear`, then switch the chat agent picker to `01-Orchestrator` and send `resume <project>` to continue Step N+1.
 ```

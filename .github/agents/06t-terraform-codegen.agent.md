@@ -527,5 +527,5 @@ final chat message with this line, **verbatim**, on its own final line
 validator: `npm run validate:orchestrator-handoff`):
 
 ```text
-Run `/clear` then reply `@01-Orchestrator resume <project>` to continue Step N+1.
+Run `/clear`, then switch the chat agent picker to `01-Orchestrator` and send `resume <project>` to continue Step N+1.
 ```

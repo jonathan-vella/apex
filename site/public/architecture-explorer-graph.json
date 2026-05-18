@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-05-17T16:50:28.632Z",
+  "generatedAt": "2026-05-18T10:02:47.425Z",
   "categories": [
     {
       "id": "agent",
@@ -24,7 +24,7 @@
       "label": "Skill",
       "color": "#10b981",
       "shape": "ellipse",
-      "count": 34
+      "count": 33
     },
     {
       "id": "instruction",
@@ -32,7 +32,7 @@
       "label": "Instruction",
       "color": "#f59e0b",
       "shape": "rectangle",
-      "count": 30
+      "count": 31
     },
     {
       "id": "prompt",
@@ -68,7 +68,7 @@
     }
   ],
   "nodeCount": 154,
-  "edgeCount": 601,
+  "edgeCount": 614,
   "nodes": [
     {
       "id": "agent:01-orchestrator",
@@ -105,11 +105,11 @@
           "05-IaC Planner",
           "06b-Bicep CodeGen",
           "07b-Bicep Deploy",
+          "06t-Terraform CodeGen",
+          "07t-Terraform Deploy",
           "08-As-Built",
           "09-Diagnose",
-          "10-Challenger",
-          "06t-Terraform CodeGen",
-          "07t-Terraform Deploy"
+          "10-Challenger"
         ]
       }
     },
@@ -132,7 +132,6 @@
           "02-Requirements",
           "10-Challenger",
           "03-Architect",
-          "agent",
           "01-Orchestrator"
         ]
       }
@@ -166,7 +165,7 @@
       "id": "agent:04-design",
       "category": "agent",
       "label": "04-Design",
-      "description": "Step 3 — Design Artifacts. Generates architecture diagrams (drawio skill) and Architecture Decision Records (azure-adr skill) for Azure infrastructure. Optional step — users can skip to Implementation Planning.",
+      "description": "Step 3 — Design Artifacts. Generates architecture diagrams (Draw.io or Python) and Architecture Decision Records (azure-adr skill) for Azure infrastructure. Optional step — users can skip to Implementation Planning.",
       "path": ".github/agents/04-design.agent.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/04-design.agent.md"
@@ -408,9 +407,7 @@
       "meta": {
         "model": "Claude Sonnet 4.6",
         "invocable": true,
-        "subagents": [
-          "*"
-        ],
+        "subagents": [],
         "handoffTargets": [
           "01-Orchestrator"
         ]
@@ -848,17 +845,6 @@
       "meta": {}
     },
     {
-      "id": "skill:sensei",
-      "category": "skill",
-      "label": "sensei",
-      "description": "**WORKFLOW SKILL** — Iteratively improve skill frontmatter compliance using the Ralph loop pattern. WHEN: \\\"run sensei\\\", \\\"sensei help\\\", \\\"improve skill\\\", \\\"fix frontmatter\\\", \\\"skill compliance\\\", \\\"frontmatter audit\\\", \\\"score skill\\\", \\\"check skill tokens\\\". INVOKES: token counting tools, test runners, git commands. FOR SINGLE OPERATIONS: use token CLI directly for counts/checks.",
-      "path": ".github/skills/sensei/SKILL.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/sensei/SKILL.md"
-      },
-      "meta": {}
-    },
-    {
       "id": "skill:terraform-patterns",
       "category": "skill",
       "label": "terraform-patterns",
@@ -924,6 +910,19 @@
       },
       "meta": {
         "applyTo": "**/*.agent.md, **/*.prompt.md"
+      }
+    },
+    {
+      "id": "instruction:agent-operating-frame",
+      "category": "instruction",
+      "label": "agent-operating-frame",
+      "description": "Shared operating frame for main step agents — read SKILL.md once, use apex-recall for cached lookups, never edit upstream artifacts. Pairs with each agent's body-level Operating frame H2.",
+      "path": ".github/instructions/agent-operating-frame.instructions.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/agent-operating-frame.instructions.md"
+      },
+      "meta": {
+        "applyTo": ".github/agents/*.agent.md"
       }
     },
     {
@@ -2520,6 +2519,18 @@
       "kind": "hands-off"
     },
     {
+      "id": "agent:01-orchestrator--hands-off->agent:06t-terraform-codegen",
+      "source": "agent:01-orchestrator",
+      "target": "agent:06t-terraform-codegen",
+      "kind": "hands-off"
+    },
+    {
+      "id": "agent:01-orchestrator--hands-off->agent:07t-terraform-deploy",
+      "source": "agent:01-orchestrator",
+      "target": "agent:07t-terraform-deploy",
+      "kind": "hands-off"
+    },
+    {
       "id": "agent:01-orchestrator--hands-off->agent:08-as-built",
       "source": "agent:01-orchestrator",
       "target": "agent:08-as-built",
@@ -2535,18 +2546,6 @@
       "id": "agent:01-orchestrator--hands-off->agent:10-challenger",
       "source": "agent:01-orchestrator",
       "target": "agent:10-challenger",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:01-orchestrator--hands-off->agent:06t-terraform-codegen",
-      "source": "agent:01-orchestrator",
-      "target": "agent:06t-terraform-codegen",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:01-orchestrator--hands-off->agent:07t-terraform-deploy",
-      "source": "agent:01-orchestrator",
-      "target": "agent:07t-terraform-deploy",
       "kind": "hands-off"
     },
     {
@@ -2904,6 +2903,138 @@
       "kind": "applies-to"
     },
     {
+      "id": "instruction:agent-operating-frame--applies-to->agent:01-orchestrator",
+      "source": "instruction:agent-operating-frame",
+      "target": "agent:01-orchestrator",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-operating-frame--applies-to->agent:02-requirements",
+      "source": "instruction:agent-operating-frame",
+      "target": "agent:02-requirements",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-operating-frame--applies-to->agent:03-architect",
+      "source": "instruction:agent-operating-frame",
+      "target": "agent:03-architect",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-operating-frame--applies-to->agent:04-design",
+      "source": "instruction:agent-operating-frame",
+      "target": "agent:04-design",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-operating-frame--applies-to->agent:04g-governance",
+      "source": "instruction:agent-operating-frame",
+      "target": "agent:04g-governance",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-operating-frame--applies-to->agent:05-iac-planner",
+      "source": "instruction:agent-operating-frame",
+      "target": "agent:05-iac-planner",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-operating-frame--applies-to->agent:06b-bicep-codegen",
+      "source": "instruction:agent-operating-frame",
+      "target": "agent:06b-bicep-codegen",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-operating-frame--applies-to->agent:06t-terraform-codegen",
+      "source": "instruction:agent-operating-frame",
+      "target": "agent:06t-terraform-codegen",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-operating-frame--applies-to->agent:07b-bicep-deploy",
+      "source": "instruction:agent-operating-frame",
+      "target": "agent:07b-bicep-deploy",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-operating-frame--applies-to->agent:07t-terraform-deploy",
+      "source": "instruction:agent-operating-frame",
+      "target": "agent:07t-terraform-deploy",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-operating-frame--applies-to->agent:08-as-built",
+      "source": "instruction:agent-operating-frame",
+      "target": "agent:08-as-built",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-operating-frame--applies-to->agent:09-diagnose",
+      "source": "instruction:agent-operating-frame",
+      "target": "agent:09-diagnose",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-operating-frame--applies-to->agent:10-challenger",
+      "source": "instruction:agent-operating-frame",
+      "target": "agent:10-challenger",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-operating-frame--applies-to->agent:11-context-optimizer",
+      "source": "instruction:agent-operating-frame",
+      "target": "agent:11-context-optimizer",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-operating-frame--applies-to->agent:e2e-orchestrator",
+      "source": "instruction:agent-operating-frame",
+      "target": "agent:e2e-orchestrator",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-operating-frame--applies-to->subagent:bicep-validate-subagent",
+      "source": "instruction:agent-operating-frame",
+      "target": "subagent:bicep-validate-subagent",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-operating-frame--applies-to->subagent:bicep-whatif-subagent",
+      "source": "instruction:agent-operating-frame",
+      "target": "subagent:bicep-whatif-subagent",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-operating-frame--applies-to->subagent:challenger-review-subagent",
+      "source": "instruction:agent-operating-frame",
+      "target": "subagent:challenger-review-subagent",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-operating-frame--applies-to->subagent:cost-estimate-subagent",
+      "source": "instruction:agent-operating-frame",
+      "target": "subagent:cost-estimate-subagent",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-operating-frame--applies-to->subagent:policy-precheck-subagent",
+      "source": "instruction:agent-operating-frame",
+      "target": "subagent:policy-precheck-subagent",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-operating-frame--applies-to->subagent:terraform-plan-subagent",
+      "source": "instruction:agent-operating-frame",
+      "target": "subagent:terraform-plan-subagent",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-operating-frame--applies-to->subagent:terraform-validate-subagent",
+      "source": "instruction:agent-operating-frame",
+      "target": "subagent:terraform-validate-subagent",
+      "kind": "applies-to"
+    },
+    {
       "id": "instruction:agent-skills--applies-to->skill:azure-adr",
       "source": "instruction:agent-skills",
       "target": "skill:azure-adr",
@@ -3069,12 +3200,6 @@
       "id": "instruction:agent-skills--applies-to->skill:python-diagrams",
       "source": "instruction:agent-skills",
       "target": "skill:python-diagrams",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:agent-skills--applies-to->skill:sensei",
-      "source": "instruction:agent-skills",
-      "target": "skill:sensei",
       "kind": "applies-to"
     },
     {
@@ -3405,12 +3530,6 @@
       "id": "instruction:context-optimization--applies-to->skill:python-diagrams",
       "source": "instruction:context-optimization",
       "target": "skill:python-diagrams",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:context-optimization--applies-to->skill:sensei",
-      "source": "instruction:context-optimization",
-      "target": "skill:sensei",
       "kind": "applies-to"
     },
     {
@@ -3750,12 +3869,6 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:docs-trigger--applies-to->skill:sensei",
-      "source": "instruction:docs-trigger",
-      "target": "skill:sensei",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:docs-trigger--applies-to->skill:terraform-patterns",
       "source": "instruction:docs-trigger",
       "target": "skill:terraform-patterns",
@@ -3789,6 +3902,12 @@
       "id": "instruction:instructions--applies-to->instruction:agent-authoring",
       "source": "instruction:instructions",
       "target": "instruction:agent-authoring",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:instructions--applies-to->instruction:agent-operating-frame",
+      "source": "instruction:instructions",
+      "target": "instruction:agent-operating-frame",
       "kind": "applies-to"
     },
     {
@@ -4260,12 +4379,6 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:markdown--applies-to->skill:sensei",
-      "source": "instruction:markdown",
-      "target": "skill:sensei",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:markdown--applies-to->skill:terraform-patterns",
       "source": "instruction:markdown",
       "target": "skill:terraform-patterns",
@@ -4593,12 +4706,6 @@
       "id": "instruction:no-interactive-shell--applies-to->skill:python-diagrams",
       "source": "instruction:no-interactive-shell",
       "target": "skill:python-diagrams",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:no-interactive-shell--applies-to->skill:sensei",
-      "source": "instruction:no-interactive-shell",
-      "target": "skill:sensei",
       "kind": "applies-to"
     },
     {
@@ -5088,12 +5195,6 @@
       "kind": "uses-mcp"
     },
     {
-      "id": "agent:01-orchestrator--uses-mcp->mcp:drawio",
-      "source": "agent:01-orchestrator",
-      "target": "mcp:drawio",
-      "kind": "uses-mcp"
-    },
-    {
       "id": "agent:02-requirements--uses-mcp->mcp:github",
       "source": "agent:02-requirements",
       "target": "mcp:github",
@@ -5214,18 +5315,6 @@
       "kind": "uses-mcp"
     },
     {
-      "id": "agent:07b-bicep-deploy--uses-mcp->mcp:terraform",
-      "source": "agent:07b-bicep-deploy",
-      "target": "mcp:terraform",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:07b-bicep-deploy--uses-mcp->mcp:drawio",
-      "source": "agent:07b-bicep-deploy",
-      "target": "mcp:drawio",
-      "kind": "uses-mcp"
-    },
-    {
       "id": "agent:07b-bicep-deploy--uses-mcp->mcp:azure-mcp",
       "source": "agent:07b-bicep-deploy",
       "target": "mcp:azure-mcp",
@@ -5241,12 +5330,6 @@
       "id": "agent:07t-terraform-deploy--uses-mcp->mcp:terraform",
       "source": "agent:07t-terraform-deploy",
       "target": "mcp:terraform",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:07t-terraform-deploy--uses-mcp->mcp:drawio",
-      "source": "agent:07t-terraform-deploy",
-      "target": "mcp:drawio",
       "kind": "uses-mcp"
     },
     {
@@ -5745,12 +5828,6 @@
       "id": "skill:python-diagrams--refs->skill:mermaid",
       "source": "skill:python-diagrams",
       "target": "skill:mermaid",
-      "kind": "refs"
-    },
-    {
-      "id": "skill:sensei--refs->skill:azure-deploy",
-      "source": "skill:sensei",
-      "target": "skill:azure-deploy",
       "kind": "refs"
     },
     {

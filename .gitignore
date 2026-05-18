@@ -127,3 +127,6 @@ crash.*.log
 # ESLint + Prettier caches
 .eslintcache
 node_modules/.cache/
+
+# Copilot debug-log bundles (apex-debug-log-export)
+.apex-logs/

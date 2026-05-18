@@ -130,6 +130,7 @@
         },
         "chat.useCustomAgentHooks": true,
         "chat.useAgentSkills": true,
+        "github.copilot.chat.agentDebugLog.fileLogging.enabled": true,
         "editor.formatOnSave": true,
         "editor.defaultFormatter": "esbenp.prettier-vscode",
         "editor.rulers": [120],

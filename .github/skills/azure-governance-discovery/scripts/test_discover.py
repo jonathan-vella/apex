@@ -761,7 +761,15 @@ def test_tags_required_populated_for_tag_policy():
 
 
 def test_tags_required_unresolved_when_no_params():
-    """Tag policy without assignment params should surface as [unresolved: ...]."""
+    """Tag policy without assignment params should resolve keys from policyRule.
+
+    Regression: previously surfaced as `[unresolved: ...]` when the deny policy
+    hard-coded tag keys in `policyRule.if.allOf[*].anyOf[*].field` rather than
+    in `assignment_parameters.tagName*`. That caused downstream agents to fall
+    back to sibling Modify-policy keys, producing transcription drift
+    (e.g. `tech-contact` vs `technical-contact`). discover.py now walks the
+    rule body and extracts hard-coded tag keys.
+    """
     assignment = {
         "id": "/subscriptions/s/providers/Microsoft.Authorization/policyAssignments/tags2",
         "name": "tags2",
@@ -792,7 +800,9 @@ def test_tags_required_unresolved_when_no_params():
     }
     env = discover.discover("s", project="p", az_rest=_router(mapping))
     assert len(env["tags_required"]) == 1
-    assert env["tags_required"][0]["name"].startswith("[unresolved:")
+    assert env["tags_required"][0]["name"] == "Owner"
+    finding = next(f for f in env["findings"] if (f.get("category") or "").lower() == "tags")
+    assert finding.get("extracted_tag_keys") == ["Owner"]
 
 
 def test_allowed_locations_from_assignment_params():

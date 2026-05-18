@@ -8,8 +8,9 @@ agent: "01-Orchestrator"
 Resume the multi-step Azure platform engineering workflow from the last
 checkpoint. **This is the canonical recovery path after the user runs
 `/clear`** — the step agents emit a verbatim handoff line
-(`Run /clear then reply @01-Orchestrator resume <project> to continue
-Step N+1.`) at completion, and this prompt is what runs next.
+(`Run /clear, then switch the chat agent picker to 01-Orchestrator and
+send resume <project> to continue Step N+1.`) at completion, and this
+prompt is what runs next.
 
 # Goal
 
@@ -124,20 +125,25 @@ back to `#runSubagent`.
 When a step agent finishes, it ends its final message with this exact line:
 
 ```text
-Run `/clear` then reply `@01-Orchestrator resume <project>` to continue Step N+1.
+Run `/clear`, then switch the chat agent picker to `01-Orchestrator` and send `resume <project>` to continue Step N+1.
 ```
 
-The user runs `/clear` (wiping chat context) and replies
-`@01-Orchestrator resume <project>` in the new chat. That reply invokes
-this prompt with `<project>` as the target. Treat any incoming message
-matching `@01-Orchestrator resume *` as the canonical entry point — no
-free-form preamble is needed before the `apex-recall show` call.
+The user runs `/clear` (wiping chat context), switches the chat agent
+picker back to `01-Orchestrator`, and sends `resume <project>` in the
+new chat. That reply invokes this prompt with `<project>` as the
+target. Treat any incoming message that begins by switching to
+`01-Orchestrator` and sending `resume *` as the canonical entry point —
+no free-form preamble is needed before the `apex-recall show` call.
+
+> VS Code custom agents activate via the agent picker, not via `@name`
+> chat-participant syntax. See
+> <https://code.visualstudio.com/docs/copilot/customization/custom-agents>.
 
 Same flow applies to the mid-step variant emitted by the orchestrator
 between challenger passes:
 
 ```text
-Run `/clear` then reply `@01-Orchestrator resume <project>` to continue challenger Pass <N+1>.
+Run `/clear`, then switch the chat agent picker to `01-Orchestrator` and send `resume <project>` to continue challenger Pass <N+1>.
 ```
 
 For the challenger-pass variant, `apex-recall show` will report

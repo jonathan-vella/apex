@@ -156,6 +156,10 @@ export default defineConfig({
                   slug: "guides/prompt-guide/workflow-prompts",
                 },
                 {
+                  label: "Repository Slash Prompts",
+                  slug: "guides/prompt-guide/repository-prompts",
+                },
+                {
                   label: "Skill & Subagent Reference",
                   slug: "guides/prompt-guide/reference",
                 },
@@ -163,6 +167,8 @@ export default defineConfig({
             },
             { label: "Troubleshooting", slug: "guides/troubleshooting" },
             { label: "Session Debugging", slug: "guides/session-debugging" },
+            { label: "Debug Log Export", slug: "guides/apex-debug-log-export" },
+            { label: "Dev Container Hygiene", slug: "guides/devcontainer-hygiene" },
             { label: "Security Baseline", slug: "guides/security-baseline" },
             { label: "Cost Governance", slug: "guides/cost-governance" },
             { label: "azd Deployment", slug: "guides/azd-deployment" },

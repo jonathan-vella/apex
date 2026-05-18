@@ -45,10 +45,6 @@ handoffs:
     agent: 08-As-Built
     prompt: "Generate the complete Step 7 documentation suite for the deployed project. Deployment succeeded; summary at `agent-output/{project}/06-deployment-summary.md`. Read all prior artifacts (01-06) in `agent-output/{project}/` and query deployed resources for actual state."
     send: true
-  - label: "▶ Generate As-Built Diagram"
-    agent: 08-As-Built
-    prompt: "Use the drawio skill and MCP tools to generate an as-built architecture diagram documenting deployed infrastructure. Use transactional mode. Output `agent-output/{project}/07-ab-diagram.drawio` with quality score >= 9/10. Follow batch-only workflow from the drawio skill. Input: deployed resource state via az resource list / terraform show. Output: agent-output/{project}/07-as-built-diagram.drawio + .png."
-    send: true
   - label: "↩ Fix Deployment Issues"
     agent: 06t-Terraform CodeGen
     prompt: "The deployment encountered errors. Review the error messages and fix the Terraform configurations in `infra/terraform/{project}/` to resolve the issues. Input: deployment error log. Output: patched infra files + new what-if/plan preview."
@@ -140,9 +136,7 @@ verbatim — no parsing changes required here.
 
 ## Read Skills First
 
-Batch independent skill reads into one parallel `read_file` call. **Never re-read** a file
-already in your conversation history (see
-[Context Hygiene](../instructions/agent-authoring.instructions.md#context-hygiene-token-efficiency)).
+Batch independent skill reads into one parallel `read_file` call.
 
 1. Read `.github/skills/azure-defaults/SKILL.md` — regions, tags, security baseline, Terraform Conventions
 2. Read `.github/skills/azure-artifacts/SKILL.md` — H2 template for `06-deployment-summary.md`
@@ -545,5 +539,5 @@ final chat message with this line, **verbatim**, on its own final line
 validator: `npm run validate:orchestrator-handoff`):
 
 ```text
-Run `/clear` then reply `@01-Orchestrator resume <project>` to continue Step N+1.
+Run `/clear`, then switch the chat agent picker to `01-Orchestrator` and send `resume <project>` to continue Step N+1.
 ```

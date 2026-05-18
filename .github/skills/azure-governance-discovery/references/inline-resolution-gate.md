@@ -78,6 +78,56 @@ jq '{
 }' agent-output/{project}/04-governance-constraints.json
 ```
 
+### Step 1a: Authoritative tag-key resolution (MANDATORY before Step 2)
+
+Before presenting the `Required RG Tag Keys` question, reconcile tag
+keys across ALL Tags-category policies in the discovery JSON. The
+discovery script populates `findings[*].extracted_tag_keys` for every
+Tags-category policy whose `policyRule` hard-codes tag keys (typical
+of Deny policies); Modify policies still expose keys via
+`assignment_parameters.tagName*`. **Deny-policy keys win** — they are
+the enforcement contract. Modify-policy keys must be unioned (not
+substituted) so resources satisfy both layers.
+
+```bash
+jq -r '
+  .findings // []
+  | map(select((.category // "" | ascii_downcase) == "tags"))
+  | map({
+      name: .display_name,
+      effect: .effect,
+      keys_from_rule: (.extracted_tag_keys // []),
+      keys_from_params: (
+        (.assignment_parameters // {})
+        | to_entries
+        | map(select(.key | test("^tagName"; "i")))
+        | map(.value)
+      )
+    })
+' agent-output/{project}/04-governance-constraints.json
+```
+
+Resolution rules:
+
+1. Collect the **deny-policy key set** = union of `keys_from_rule`
+   across all `effect: "deny"` Tags policies.
+2. Collect the **modify-policy key set** = union of `keys_from_params`
+   across all `effect: "modify"` Tags policies.
+3. If the two sets are **identical**, `required_tag_keys` =
+   deny-policy set.
+4. If they **differ** (transcription drift, e.g. `technical-contact`
+   vs `tech-contact`):
+   - `required_tag_keys` = **union** of both sets.
+   - Append a finding via `apex-recall finding <project> --add
+     "Tag policy drift: deny=<list> modify=<list>; deployment must emit
+     both sets to satisfy both layers." --json`.
+   - Set `tag_contract.drift_detected = true` in the artifact JSON.
+5. **NEVER** synthesise tag keys from parametric knowledge or
+   abbreviate (`technical-contact` → `tech-contact`) — every key
+   in `required_tag_keys` MUST trace back to either
+   `extracted_tag_keys` or `assignment_parameters.tagName*` in the
+   discovery JSON.
+
 ### Step 2: Ask all three questions in a single `vscode_askQuestions` call
 
 The three questions MUST appear together in one chat-session prompt.

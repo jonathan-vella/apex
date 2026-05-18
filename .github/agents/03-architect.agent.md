@@ -18,18 +18,6 @@ handoffs:
     agent: 03-Architect
     prompt: "Compare alternative SKU options for key resources. Analyze trade-offs between cost, performance, and features. Input: current SKU choices in agent-output/{project}/02-architecture-assessment.md. Output: SKU trade-off matrix written to agent-output/{project}/03-des-sku-comparison.md."
     send: true
-  - label: "▶ Save Assessment"
-    agent: 03-Architect
-    prompt: "Save the current architecture assessment to `agent-output/{project}/02-architecture-assessment.md`."
-    send: true
-  - label: "▶ Generate Architecture Diagram"
-    agent: 04-Design
-    prompt: "This handoff implies `design_scope=diagrams` and `diagram_tool=drawio` — record both via `apex-recall decide <project> --key design_scope --value diagrams --step 3 --json` and `apex-recall decide <project> --key diagram_tool --value drawio --step 3 --json` BEFORE any other work (this silent-skips the Phase 0 askMe gates per workflow-gates.md). Then use the drawio skill and MCP tools to generate an Azure architecture diagram for the assessed design. Use transactional mode. Include required resources, boundaries, auth/data/telemetry flows, and output `agent-output/{project}/03-des-diagram.drawio` with quality score >= 9/10. Follow batch-only workflow from the drawio skill. Input: agent-output/{project}/02-architecture-assessment.md. Output: agent-output/{project}/03-des-diagram.drawio + .png."
-    send: true
-  - label: "▶ Create ADR from Assessment"
-    agent: 04-Design
-    prompt: "This handoff implies `design_scope=adrs` — record via `apex-recall decide <project> --key design_scope --value adrs --step 3 --json` BEFORE any other work (this silent-skips the Phase 0 askMe gates and the diagram-tool gate per workflow-gates.md). Then use the azure-adr skill to document the architectural decision and recommendations from the assessment above as a formal ADR. Include the WAF trade-offs and recommendations as part of the decision rationale. Input: agent-output/{project}/02-architecture-assessment.md decisions block. Output: agent-output/{project}/03-des-adr-*.md (one ADR per decision)."
-    send: true
   - label: "Step 3: Design Artifacts"
     agent: 04-Design
     prompt: "Begin Step 3 (Design) for the architecture in `agent-output/{project}/02-architecture-assessment.md`. This handoff is the explicit **fresh-start entry** — it OVERRIDES the silent-skip rule in `workflow-gates.md`. You MUST raise both askMe panels even if `decisions.design_scope` / `decisions.diagram_tool` are already set; show any stored value as the recommended option but let the user change it. **Phase 00 (always ask)**: raise `vscode_askQuestions` with **Diagrams only**, **ADRs only**, **Both**; then `apex-recall decide <project> --key design_scope --value <diagrams|adrs|both> --step 3 --json`. **Phase 0 (always ask if diagrams in scope)**: raise `vscode_askQuestions` with **Draw.io** (Azure-brand icons, recommended) vs **Python diagrams** (faster, generic icons); then `apex-recall decide <project> --key diagram_tool --value <drawio|python> --step 3 --json`. Outputs: Drawio → `03-des-diagram.drawio` (+ `.png`); Python → `03-des-diagram.py` (+ `.png`); ADRs → `03-des-adr-NNNN-{slug}.md`. Do not proceed to any artifact work until both panels have user answers."
@@ -110,10 +98,7 @@ Run `apex-recall show <project> --json` for full project context. Do not read `0
 
 ## Read Skills (After Prerequisites, Before Assessment)
 
-**After prerequisites are confirmed**, read these skills for configuration and template structure.
-Issue all four `read_file` calls in **one parallel tool batch** and **never re-read** files
-already in conversation history (see
-[Context Hygiene](../instructions/agent-authoring.instructions.md#context-hygiene-token-efficiency)).
+**After prerequisites are confirmed**, read these skills for configuration and template structure. Issue all four `read_file` calls in **one parallel tool batch**.
 
 1. **Read** `.github/skills/azure-defaults/SKILL.md` — regions, tags, pricing MCP names, WAF criteria, service lifecycle
 2. **Read** `.github/skills/azure-artifacts/SKILL.md` — H2 templates for `02-architecture-assessment.md` and `03-des-cost-estimate.md`
@@ -500,5 +485,5 @@ final chat message with this line, **verbatim**, on its own final line
 validator: `npm run validate:orchestrator-handoff`):
 
 ```text
-Run `/clear` then reply `@01-Orchestrator resume <project>` to continue Step N+1.
+Run `/clear`, then switch the chat agent picker to `01-Orchestrator` and send `resume <project>` to continue Step N+1.
 ```

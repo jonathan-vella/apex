@@ -3,7 +3,7 @@ name: 11-Context Optimizer
 model: ["Claude Sonnet 4.6"]
 description: "Analyzes Copilot Chat debug logs to audit context-window utilization across agents. Identifies bloated prompts, redundant file reads, missing hand-off points, and wasted tokens. Produces actionable optimization reports. Recommendations only — never edits agents."
 user-invocable: true
-agents: ["*"]
+agents: []
 tools:
   [
     vscode/askQuestions,
@@ -46,9 +46,7 @@ and prompt trimming — without losing any context that matters.
 
 Read these before doing ANY work:
 
-Batch independent skill reads into one parallel `read_file` call. **Never re-read** a file
-already in your conversation history (see
-[Context Hygiene](../instructions/agent-authoring.instructions.md#context-hygiene-token-efficiency)).
+Batch independent skill reads into one parallel `read_file` call.
 
 1. **Read** `.github/skills/golden-principles/SKILL.md` — the 10 operating invariants
 2. **Read** `AGENTS.md` — project map and agent roster

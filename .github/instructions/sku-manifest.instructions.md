@@ -61,7 +61,9 @@ checkpoints — **not** a free-form changelog.
 
 `services[].source` is one of:
 
-- `user-pin` — Step 1 (Requirements). User volunteered a hard constraint.
+- `user-pin` — Step 1 (Requirements). Captured via the mandatory Phase 3j
+  SKU/sizing preference elicitation (see
+  [Mandatory Elicitation at Step 1](#mandatory-elicitation-at-step-1)).
   Never auto-changed by downstream agents. If a planner/deploy step
   needs to alter a user-pin SKU, escalate to Architect via the
   `step-N → step-2` return edge.
@@ -77,15 +79,40 @@ checkpoints — **not** a free-form changelog.
 
 ## Lifecycle (per `00-session-state.json` `decisions.sku_manifest_status`)
 
-| Status      | Set by            | Meaning                                      |
-| ----------- | ----------------- | -------------------------------------------- |
-| (empty)     | —                 | Manifest not yet created                     |
-| `draft`     | `02-Requirements` | Rev 1 written with user pins (or empty)      |
-| `reviewed`  | `03-Architect`    | Rev 2 written with architect-derived entries |
-| `locked`    | `05-IaC Planner`  | Rev 3 reconciled with governance findings    |
-| `deploying` | `07b`/`07t`       | Pre-flight quota/region check started        |
-| `deployed`  | `07b`/`07t`       | Deployment succeeded                         |
-| `drift`     | `08-As-Built`     | `actual_sku` differs from planned `size`     |
+| Status      | Set by            | Meaning                                                                                                |
+| ----------- | ----------------- | ------------------------------------------------------------------------------------------------------ |
+| (empty)     | —                 | Manifest not yet created                                                                               |
+| `draft`     | `02-Requirements` | Rev 1 written. Phase 3j SKU/sizing elicitation complete; `decisions.sku_preferences_captured = true`. |
+| `reviewed`  | `03-Architect`    | Rev 2 written with architect-derived entries                                                           |
+| `locked`    | `05-IaC Planner`  | Rev 3 reconciled with governance findings                                                              |
+| `deploying` | `07b`/`07t`       | Pre-flight quota/region check started                                                                  |
+| `deployed`  | `07b`/`07t`       | Deployment succeeded                                                                                   |
+| `drift`     | `08-As-Built`     | `actual_sku` differs from planned `size`                                                               |
+
+## Mandatory Elicitation at Step 1
+
+`02-Requirements` MUST elicit SKU and sizing preferences from the user
+for every project, regardless of complexity, workload pattern, or whether
+the user has any pins. The elicitation is the Phase 3j batched
+`askQuestions` call defined in
+[`service-class-menu.md` § 3j](../skills/azure-defaults/references/service-class-menu.md#3j-sku-and-sizing-preferences-mandatory-for-every-project).
+
+Outcomes:
+
+- Any **Pinned SKU/size** or **Tier floor** answer is written to
+  `services[]` with `source: "user-pin"`, `source_step: "1"`,
+  `last_modified_rev: 1`. Tier floors land in `notes` plus a
+  representative `size`.
+- **No preference** answers do not create manifest entries; Architect
+  fills them in at Step 2 with `source: "architect-derived"`.
+- After Phase 3j completes (regardless of pin count), the writer records
+  `decisions.sku_preferences_captured = true` via
+  `apex-recall decide`. This flag distinguishes "user opted out of every
+  pin" (valid) from "agent skipped the elicitation" (validator-blocked).
+
+An empty `services[]` at rev 1 is valid **only** when
+`decisions.sku_preferences_captured = true` is set. The validator may be
+tightened to enforce this; until then, missing flags trigger a WARN.
 
 ## Block-with-Escalation Pattern (Step 6)
 

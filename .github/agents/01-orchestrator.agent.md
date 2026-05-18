@@ -43,23 +43,35 @@ handoffs:
     send: true
   - label: "Step 3: Design Artifacts"
     agent: 04-Design
-    prompt: "Generate architecture diagrams and ADRs based on the architecture assessment in `agent-output/{project}/02-architecture-assessment.md`. Diagrams must be Draw.io outputs (`03-des-diagram.drawio`) with quality score >= 9/10. This step is optional - you can skip to Step 3.5."
+    prompt: "Generate architecture diagrams and ADRs based on the architecture assessment in `agent-output/{project}/02-architecture-assessment.md`. The 04-Design agent will ask which tool (Draw.io or Python) and which scope (diagrams, ADRs, or both). This step is optional — you can skip directly to Step 3.5."
     send: false
   - label: "Step 3.5: Governance Discovery"
     agent: 04g-Governance
     prompt: "Discover Azure Policy constraints for `agent-output/{project}/`. Query REST API (including management-group inherited policies), produce 04-governance-constraints.md/.json, and run adversarial review. Input: `02-architecture-assessment.md` resource list. Output: governance constraint artifacts for IaC planning. The governance agent is designed to run as a peer with shared session state \u2014 entering it via this handoff button preserves the discovery cache at `tmp/{project}-governance-live.json` and avoids cold-restarting skill/instruction loading."
     send: true
-  - label: "Step 4: Implementation Plan"
+  - label: "Step 4: IaC Plan (Bicep)"
     agent: 05-IaC Planner
-    prompt: "Create a detailed implementation plan based on the architecture in `agent-output/{project}/02-architecture-assessment.md`. Prerequisites: `04-governance-constraints.md/.json` from Step 3.5. Output: `04-implementation-plan.md` plus `04-dependency-diagram.py/.png` and `04-runtime-diagram.py/.png`. The IaC tool is set in session state decisions.iac_tool."
+    prompt: "Create a Bicep implementation plan based on the architecture in `agent-output/{project}/02-architecture-assessment.md`. Prerequisites: `04-governance-constraints.md/.json` from Step 3.5. Output: `04-implementation-plan.md` plus `04-dependency-diagram.py/.png` and `04-runtime-diagram.py/.png`. The IaC tool is Bicep — set decisions.iac_tool accordingly."
     send: true
   - label: "Step 5: Generate Bicep"
     agent: 06b-Bicep CodeGen
     prompt: "Implement the Bicep templates according to the plan in `agent-output/{project}/04-implementation-plan.md`. Save to `infra/bicep/{project}/`. Proceed directly to completion - Deploy agent will validate."
     send: true
-  - label: "Step 6: Deploy"
+  - label: "Step 6: Deploy (Bicep)"
     agent: 07b-Bicep Deploy
     prompt: "Deploy the Bicep templates in `infra/bicep/{project}/` to Azure after preflight validation. Input: `04-implementation-plan.md` for deployment strategy (phased or single). Output: `06-deployment-summary.md`."
+    send: false
+  - label: "Step 4: IaC Plan (Terraform)"
+    agent: 05-IaC Planner
+    prompt: "Create a detailed Terraform implementation plan based on the architecture in `agent-output/{project}/02-architecture-assessment.md`. Prerequisites: `04-governance-constraints.md/.json` from Step 3.5. Output: `04-implementation-plan.md` plus `04-dependency-diagram.py/.png` and `04-runtime-diagram.py/.png`. The IaC tool is Terraform — set decisions.iac_tool accordingly."
+    send: true
+  - label: "Step 5: Generate Terraform"
+    agent: 06t-Terraform CodeGen
+    prompt: "Implement the Terraform configuration according to the plan in `agent-output/{project}/04-implementation-plan.md`. Save to `infra/terraform/{project}/`. Proceed directly to completion - Deploy agent will validate."
+    send: true
+  - label: "Step 6: Deploy (Terraform)"
+    agent: 07t-Terraform Deploy
+    prompt: "Deploy the Terraform configuration in `infra/terraform/{project}/` to Azure after preflight validation. Input: `04-implementation-plan.md` for deployment strategy. Output: `06-deployment-summary.md`."
     send: false
   - label: "Step 7: As-Built Documentation"
     agent: 08-As-Built
@@ -73,18 +85,6 @@ handoffs:
     agent: 10-Challenger
     prompt: "Run an adversarial review on the artifact specified by the current gate (Requirements, Architecture, Governance, Plan, or Code). Input: artifact path passed by the orchestrator (e.g. agent-output/{project}/01-requirements.md). Output: agent-output/{project}/challenge-findings-{type}.json plus an inline summary. Re-enter the orchestrator after the user reviews the findings."
     send: true
-  - label: "Step 4: IaC Plan (Terraform)"
-    agent: 05-IaC Planner
-    prompt: "Create a detailed Terraform implementation plan based on the architecture in `agent-output/{project}/02-architecture-assessment.md`. Prerequisites: `04-governance-constraints.md/.json` from Step 3.5. Output: `04-implementation-plan.md` plus `04-dependency-diagram.py/.png` and `04-runtime-diagram.py/.png`. The IaC tool is Terraform — set decisions.iac_tool accordingly."
-    send: true
-  - label: "Step 5: Generate Terraform"
-    agent: 06t-Terraform CodeGen
-    prompt: "Implement the Terraform configuration according to the plan in `agent-output/{project}/04-implementation-plan.md`. Save to `infra/terraform/{project}/`. Proceed directly to completion - Deploy agent will validate."
-    send: true
-  - label: "Step 6: Deploy (Terraform)"
-    agent: 07t-Terraform Deploy
-    prompt: "Deploy the Terraform configuration in `infra/terraform/{project}/` to Azure after preflight validation. Input: `04-implementation-plan.md` for deployment strategy. Output: `06-deployment-summary.md`."
-    send: false
 ---
 
 # Orchestrator Agent
@@ -251,8 +251,6 @@ after Step 1 completes.
 
 After confirming the project name, read these four skill files in a
 **single parallel `read_file` batch** (one tool call, four files).
-Never re-read a file already in your conversation history
-(see [Context Hygiene](../instructions/agent-authoring.instructions.md#context-hygiene-token-efficiency)):
 
 1. `.github/skills/golden-principles/SKILL.md` — quality principles
 2. `.github/skills/azure-defaults/SKILL.md` — regions, tags
@@ -561,14 +559,19 @@ contract:
 4. End the message with this line, **verbatim**, on its own final line:
 
    ```text
-   Run `/clear` then reply `@01-Orchestrator resume <project>` to continue Step N+1.
+   Run `/clear`, then switch the chat agent picker to `01-Orchestrator` and send `resume <project>` to continue Step N+1.
    ```
+
+   > VS Code custom agents activate via the agent picker, not via
+   > `@name` chat-participant syntax. See
+   > <https://code.visualstudio.com/docs/copilot/customization/custom-agents>.
 
 5. **Stop.** Do not continue Step N+1 in the same chat — the contract is non-negotiable.
 
 ### Resume path
 
-New chat with `@01-Orchestrator resume <project>`: first tool call is
+In the new chat the user picks `01-Orchestrator` from the agent picker
+and sends `resume <project>`: the first tool call is
 `apex-recall show <project> --json`. Read `00-handoff.md` only if a
 gate-specific artifact path is needed; do not re-read completed-step
 artifacts unless the user asks. Lint:
@@ -592,7 +595,7 @@ apex-recall checkpoint <project> <step> after_challenger_pass_<N> --json
 then end the message with this line, **verbatim**, on its own final line:
 
 ```text
-Run `/clear` then reply `@01-Orchestrator resume <project>` to continue challenger Pass <N+1>.
+Run `/clear`, then switch the chat agent picker to `01-Orchestrator` and send `resume <project>` to continue challenger Pass <N+1>.
 ```
 
 Single-pass `comprehensive` reviews (the default) skip this rule and go
