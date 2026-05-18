@@ -6,9 +6,12 @@
 > sha256 `563784eb13ad1b44c3a592f940aa7ac2086ebeb97df3f4a09ba038b2f1564d39`.
 > Snapshot: [.snapshots/openai-upgrade-guide.md](.snapshots/openai-upgrade-guide.md).
 
-> **Status: HISTORICAL.** GPT-5.4 was retired 2026-05; the APEX cohort migration
-> is complete. New agents must use `GPT-5.5` directly. This file is preserved
-> for audit history and to document the migration patterns that were applied.
+> **Status: ACTIVE.** GPT-5.4 and GPT-5.5 are both active OpenAI cohorts as of
+> 2026-05 (`GPT-5.4` is the lower-cost standard tier alongside `GPT-5.5`; no
+> `GPT-5.5 mini` SKU exists, so the GPT-5.4 family is retained for utility +
+> CLI workloads via `GPT-5.4 mini`). This file documents the prompt-style
+> upgrade patterns to apply when voluntarily moving an agent from GPT-5.4 →
+> GPT-5.5 (e.g., for stronger long-context reasoning).
 
 This file normalizes the OpenAI GPT-5.5 upgrade guide for use when
 migrating repo agents from GPT-5.4 → GPT-5.5.

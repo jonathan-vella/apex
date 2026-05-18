@@ -91,7 +91,7 @@ Applies when frontmatter `model:` matches `gpt-5.5`.
 | `claude-sonnet` | enforced      | All Claude rules at default severity           |
 | `claude-haiku`  | warn-only     | Severity downgrades to warn                    |
 | `gpt-5.5`       | enforced      | All GPT-5.5 rules at default severity          |
-| `gpt-5.4`       | deprecated    | Retired 2026-05; no active assignments         |
+| `gpt-5.4`       | enforced      | GPT-5.5 rules apply (shared OpenAI cohort)     |
 | `gpt-codex`     | reviewer-only | No automated enforcement                       |
 | `gpt-4o`        | reviewer-only | No new enforcement                             |
 | `unknown`       | enforced      | ERROR — force explicit `model:` in frontmatter |

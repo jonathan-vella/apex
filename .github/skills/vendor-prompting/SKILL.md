@@ -45,7 +45,7 @@ I am editing or reviewing a *.agent.md / *.prompt.md ...
 │   ├── Claude Opus / Claude Sonnet → load references/claude-best-practices.md
 │   ├── Claude Haiku                → load references/claude-best-practices.md (warn-only)
 │   ├── GPT-5.5                     → load references/gpt-5-prompting.md
-│   ├── GPT-5.4                     → deprecated 2026-05; see references/gpt-5-upgrade.md (historical)
+│   ├── GPT-5.4                     → load references/gpt-5-prompting.md (shared OpenAI cohort)
 │   ├── GPT-Codex / GPT-4o          → reviewer-only; minimal automated rules
 │   └── Unknown / missing           → ERROR: force explicit model: in frontmatter
 │
@@ -77,7 +77,7 @@ Load only the references your task needs. Most audits need 1-2.
 | --------------------------------------------------------------- | ---------------------------------------------------------------------- |
 | [claude-best-practices.md](references/claude-best-practices.md) | Authoring or auditing a Claude agent                                   |
 | [gpt-5-prompting.md](references/gpt-5-prompting.md)             | Authoring or auditing a GPT-5.5 agent                                  |
-| [gpt-5-upgrade.md](references/gpt-5-upgrade.md)                 | Historical: GPT-5.4 → GPT-5.5 migration notes (cohort retired 2026-05) |
+| [gpt-5-upgrade.md](references/gpt-5-upgrade.md)                 | Migrating an agent from GPT-5.4 → GPT-5.5 (prompt-style upgrade patterns) |
 | [cross-model-rules.md](references/cross-model-rules.md)         | Handoff design, prompt↔agent sync, language calibration                |
 | [family-support.md](references/family-support.md)               | Picking a model family for a new agent                                 |
 | [checklists.md](references/checklists.md)                       | Performing a manual pass-through audit                                 |
