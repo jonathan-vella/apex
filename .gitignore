@@ -37,6 +37,13 @@ logs/
 # Root decision snapshots are generated artifacts, not source files.
 decisions*.json
 
+# Stray `apex-recall show --json` redirects captured at repo root.
+# Same anti-pattern as decisions*.json above — these are operator-debug
+# snapshots, never source. If you need to keep one, put it under tmp/
+# or agent-output/{project}/.
+show*.json
+*_output.json
+
 # Environment
 .env
 .env.local
