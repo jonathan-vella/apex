@@ -29,7 +29,11 @@
     "golden_principles": {
       "value": 10,
       "description": "Agent-first operating principles (static, unlikely to change)"
+    },
+    "vscode_prompts": {
+      "computed_from": ".github/prompts/*.prompt.md",
+      "description": "VS Code auto-loaded prompt files (discoverable via chat input /). Tracked separately from tools/apex-prompts/ which are non-auto-loaded APEX planning prompts."
     }
   },
-  "updated": "2026-03-25"
+  "updated": "2026-05-18"
 }

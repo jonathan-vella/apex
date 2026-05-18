@@ -129,5 +129,25 @@
       "model": "Claude Sonnet 4.6",
       "invokable": false
     }
+  },
+  "prompts": {
+    "apex-git-commit": {
+      "prompt": ".github/prompts/apex-git-commit.prompt.md",
+      "model": "GPT-5.4 mini",
+      "description": "Stage, commit, push, and optionally open a PR. CLI-only (git + gh).",
+      "invokable": true
+    },
+    "apex-resume-workflow": {
+      "prompt": ".github/prompts/apex-resume-workflow.prompt.md",
+      "model": null,
+      "description": "Resume the multi-step workflow after /clear. Detects project and next step from session state.",
+      "invokable": true
+    },
+    "apex-debug-log-export": {
+      "prompt": ".github/prompts/apex-debug-log-export.prompt.md",
+      "model": "GPT-5.4 mini",
+      "description": "Extract and compress custom-agent Copilot debug logs into .apex-logs/ for manual upload.",
+      "invokable": true
+    }
   }
 }
