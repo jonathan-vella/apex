@@ -392,6 +392,138 @@ the check per resource family as new cases are discovered.
 
 ---
 
+## Log Analytics Ingestion-Cap Alerts — KQL Column Safety
+
+A common Phase 1 (Observability) anti-pattern: authoring an
+ingestion-cap `Microsoft.Insights/scheduledQueryRules` whose KQL body
+references columns from the **wrong** Log Analytics table. The
+template builds, lints, and `what-if`-validates cleanly. Apply then
+fails at the resource provider with:
+
+```text
+BadRequest: 'where' operator: Failed to resolve column or scalar
+expression named 'OperationName'
+```
+
+(also seen for `Message`). The deployment is left in a partial state.
+
+### Rule
+
+For Log Analytics **ingestion / workspace meta** alerts (daily-cap
+warnings at 70/90/100%), query the workspace's own meta-table
+`_LogOperation` — never `AzureActivity`, `AzureDiagnostics`, or any
+data-plane table that happens to expose `OperationName` or `Message`
+for unrelated reasons.
+
+### Correct shape
+
+```bicep
+module la 'br/public:avm/res/operational-insights/workspace:<latest>' = {
+  // ...
+}
+
+// Each cap alert (70% / 90% / 100%) uses the same KQL skeleton
+var workspaceResourceId = la.outputs.resourceId
+var capQuery = '_LogOperation | where Category == "Ingestion" | where _ResourceId =~ "${workspaceResourceId}" | where TimeGenerated > ago(1d) | summarize Count = count()'
+
+module capAlert70 'br/public:avm/res/insights/scheduled-query-rule:<latest>' = {
+  params: {
+    name: 'sqr-la-cap-70'
+    criterias: {
+      allOf: [
+        {
+          query: capQuery
+          threshold: <70%-of-cap>
+          operator: 'GreaterThan'
+        }
+      ]
+    }
+    scopes: [ workspaceResourceId ]
+  }
+}
+```
+
+### Why build + what-if don't catch it
+
+- `bicep build` only validates the resource shape; the KQL body is an
+  opaque string.
+- `bicep lint` does not parse KQL.
+- `az deployment ... what-if` evaluates ARM-level idempotency; the
+  Log Analytics query parser only runs at create time.
+
+### Deterministic guard
+
+For every `Microsoft.Insights/scheduledQueryRules` resource in the
+rendered template, the 06b validator + 07b deploy agent must grep the
+KQL body for:
+
+| Token           | Allowed table(s)                                            | Action if mismatched                       |
+| --------------- | ----------------------------------------------------------- | ------------------------------------------ |
+| `OperationName` | `AzureActivity`, `AzureDiagnostics` (some resource types)   | Reject when KQL targets `_LogOperation`    |
+| `Message`       | `AppTraces`, `AppExceptions`, `Syslog`, `Event`             | Reject when KQL targets `_LogOperation`    |
+| `_LogOperation` | Workspace meta (`Operation`, `Category`, `Detail`)          | Allowed columns only — see Microsoft docs  |
+
+The deploy-side preflight is captured in
+[`deploy-validation-checklist.md` § KQL alert queries](../../iac-common/references/deploy-validation-checklist.md#kql-alert-queries-reference-valid-columns).
+
+---
+
+## SQL Entra Admin Object ID Resolution
+
+A frequent Phase 3 (Data) deploy-time failure mode:
+`Microsoft.Sql/servers.administrators.sid` is bound to a parameter
+(`sqlEntraAdminObjectId`) that Step 5 CodeGen left as a placeholder
+GUID, an empty string, or a stale ID copied from another project. The
+deployment fails at the SQL nested deployment with:
+
+```text
+InvalidExternalAdministratorSid: The provided ID '<value>' is not a
+valid Microsoft Entra ID.
+```
+
+### Rule
+
+`sqlEntraAdminObjectId` (and any analogous `*EntraAdminObjectId` /
+`*PrincipalId` param) MUST be resolved to a live Entra object ID at
+deploy time — never at code-gen time. CodeGen declares it as a
+required input in `04-environment-manifest.json` (shape:
+`entra-object-id`); it must not be baked into the bicepparam file.
+
+### Resolution recipes
+
+```bash
+# Deployer (works in dev and CI signed-in contexts)
+az ad signed-in-user show --query id -o tsv
+
+# Specific user by UPN
+az ad user show --id alice@contoso.com --query id -o tsv
+
+# Security group by display name
+az ad group show --group "FreshConnect SQL Admins" --query id -o tsv
+
+# Write back into the azd environment so subsequent deploys reuse it
+azd env set SQL_ADMIN_OBJECT_ID <resolved-guid>
+```
+
+### Why this lives at deploy time, not code-gen time
+
+- The signed-in deployer changes between developer machines and CI
+  service principals; the right SID is environment-specific.
+- Hard-coding a GUID in `04-environment-manifest.json` would tie the
+  IaC tree to one operator and fail other deployers fast.
+- Step 5 CodeGen has no Entra read permission by contract; only the
+  deploy agent runs in the human's CLI context.
+
+### Deterministic guard
+
+The deploy preflight (07b Phase 1.5) MUST call `az ad ... show` for
+every param flagged as `entra-object-id` in
+`04-environment-manifest.json` and fail-closed on empty / non-GUID
+responses. See
+[`deploy-validation-checklist.md` § Entra principal object IDs](../../iac-common/references/deploy-validation-checklist.md#entra-principal-object-ids-are-real).
+
+---
+
 ## Learn More
 
 | Topic                | How to Find                                                                                          |

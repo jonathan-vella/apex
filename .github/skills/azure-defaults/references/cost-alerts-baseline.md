@@ -137,6 +137,25 @@ budget scope (use `az role assignment list --scope <scope>
   (`existing` mode — Planner verifies).
 - `contactRoles: ['Owner']` becomes informational only.
 
+### Empty-array silent-skip (deploy-time hazard)
+
+When CodeGen guards the budget / Action Group modules with
+`length(costAlertEmails) > 0`, supplying `costAlertEmails = []` (or
+the env var `COST_ALERT_EMAILS = "[]"`) skips both modules. The
+deployment then reports `Succeeded` with the cost-monitoring contract
+**unmet** and no audit trail. Deploy agents MUST treat the empty case
+as one of:
+
+1. A preflight blocker (`cost_monitoring_mode = enforced`) — fail-
+   closed and prompt the human for emails via `askQuestions`.
+2. An explicit opt-out (`cost_monitoring_mode ∈ {minimal, deferred}`
+   recorded in `04-governance-constraints.json` with
+   `cost_monitoring_exception` for `deferred`).
+
+Never accept `[]` as an implicit default during apply. The matching
+deploy preflight rule lives in
+[`iac-common/references/deploy-validation-checklist.md` § Cost monitoring inputs](../../iac-common/references/deploy-validation-checklist.md#cost-monitoring-inputs-non-empty-when-enforced).
+
 ## Governance Precedence
 
 `04-governance-constraints.json` `cost_monitoring.*` always wins.
