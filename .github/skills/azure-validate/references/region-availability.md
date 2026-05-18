@@ -16,7 +16,7 @@
 
 | Tool                  | Purpose                                                                                                                   |
 | --------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| `mcp_azure_mcp_quota` | Check Azure region availability and quota by setting `command` to `quota_usage_check` or `quota_region_availability_list` |
+| `mcp_azure-mcp_quota` | Check Azure region availability and quota by setting `command` to `quota_usage_check` or `quota_region_availability_list` |
 
 ---
 
@@ -58,13 +58,13 @@
 
 ### Azure Kubernetes Service (AKS)
 
-It has limited quota in some regions, to get available regions with enough quota, use `mcp_azure_mcp_quota` tool.
+It has limited quota in some regions, to get available regions with enough quota, use `mcp_azure-mcp_quota` tool.
 
 ---
 
 ### Azure Database for PostgreSQL
 
-It has limited quota in some regions, to get available regions with enough quota, use `mcp_azure_mcp_quota` tool.
+It has limited quota in some regions, to get available regions with enough quota, use `mcp_azure-mcp_quota` tool.
 
 ---
 

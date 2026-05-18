@@ -55,8 +55,8 @@ Use this mode when the user wants to **list / find / show** Azure resources.
 | Tool                              | Purpose                            | When to Use                                     |
 | --------------------------------- | ---------------------------------- | ----------------------------------------------- |
 | `extension_cli_generate`          | Generate `az graph query` commands | Primary — generate ARG queries from user intent |
-| `mcp_azure_mcp_subscription_list` | List available subscriptions       | Discover subscription scope before querying     |
-| `mcp_azure_mcp_group_list`        | List resource groups               | Narrow query scope                              |
+| `mcp_azure-mcp_subscription_list` | List available subscriptions       | Discover subscription scope before querying     |
+| `mcp_azure-mcp_group_list`        | List resource groups               | Narrow query scope                              |
 
 ## Rules
 

@@ -27,7 +27,7 @@ Ask the user or detect from context:
 Use the Azure MCP tool to run the scan:
 
 ```
-mcp_azure_mcp_extension_azqr
+mcp_azure-mcp_extension_azqr
   subscription: <subscription-id>
   resource-group: <optional-rg-name>
 ```
@@ -135,9 +135,9 @@ azqr supports 70+ Azure resource types including:
 
 | Tool                              | Purpose                              |
 | --------------------------------- | ------------------------------------ |
-| `mcp_azure_mcp_extension_azqr`    | Run azqr scans via Azure MCP         |
-| `mcp_azure_mcp_subscription_list` | List available subscriptions         |
-| `mcp_azure_mcp_group_list`        | List resource groups in subscription |
+| `mcp_azure-mcp_extension_azqr`    | Run azqr scans via Azure MCP         |
+| `mcp_azure-mcp_subscription_list` | List available subscriptions         |
+| `mcp_azure-mcp_group_list`        | List resource groups in subscription |
 
 ## Troubleshooting
 

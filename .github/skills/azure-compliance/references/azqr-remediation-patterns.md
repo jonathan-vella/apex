@@ -388,7 +388,7 @@ foreach ($sa in $storageAccounts) {
 After applying fixes, re-run the azqr scan using the Azure MCP tool to verify the issues have been resolved:
 
 ```
-mcp_azure_mcp_extension_azqr
+mcp_azure-mcp_extension_azqr
   subscription: <subscription-id>
 ```
 

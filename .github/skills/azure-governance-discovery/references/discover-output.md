@@ -47,7 +47,7 @@ invocation in 04g body.
   inline Python REST scripts. ALL Azure Policy REST work goes through
   `discover.py`. If the script fails with exit code 2, surface the
   error — do not reinvent the discovery path.
-- Do NOT call `mcp_azure_mcp_get_azure_bestpractices`. Governance
+- Do NOT call `mcp_azure-mcp_get_azure_bestpractices`. Governance
   discovers constraints from live Azure Policy data, not best-practice
   recommendations (~21 s overhead, irrelevant output).
 - Do NOT read `tmp/{project}-governance-live.json`. That legacy

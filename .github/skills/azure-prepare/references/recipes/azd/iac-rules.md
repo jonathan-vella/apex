@@ -1,6 +1,6 @@
 # AZD IAC Rules
 
-IaC rules for AZD projects. **Additive** — for Bicep, apply `mcp_bicep_get_bicep_best_practices`, `mcp_bicep_list_avm_metadata`, and `mcp_bicep_get_az_resource_type_schema` first; for Terraform, apply `mcp_azure_mcp_azureterraformbestpractices` first; then apply these azd-specific rules.
+IaC rules for AZD projects. **Additive** — for Bicep, apply `mcp_bicep_get_bicep_best_practices`, `mcp_bicep_list_avm_metadata`, and `mcp_bicep_get_az_resource_type_schema` first; for Terraform, apply `mcp_azure-mcp_azureterraformbestpractices` first; then apply these azd-specific rules.
 
 ## AVM Module Selection Order (MANDATORY)
 
@@ -22,9 +22,9 @@ If no pattern module exists for the active provider, default immediately to AVM 
 
 ## Retrieval Strategy (Hybrid: azure-documentation MCP + Context7)
 
-- **Primary (authoritative):** Use `mcp_azure_mcp_documentation` (`azure-documentation`) for current Azure guidance and AVM integration documentation.
+- **Primary (authoritative):** Use `mcp_azure-mcp_documentation` (`azure-documentation`) for current Azure guidance and AVM integration documentation.
 - **Primary (module catalog):** Use `mcp_bicep_list_avm_metadata` plus official AVM indexes to select concrete modules.
-- **Secondary (supplemental):** Use Context7 only for implementation examples when `mcp_azure_mcp_documentation` does not provide enough detail.
+- **Secondary (supplemental):** Use Context7 only for implementation examples when `mcp_azure-mcp_documentation` does not provide enough detail.
 
 ## Validation Plan
 

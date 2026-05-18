@@ -8,6 +8,11 @@ Verify ALL items before marking Step 5 complete.
 
 - [ ] Preflight check saved to `04-preflight-check.md`
 - [ ] Governance compliance map complete — all Deny policies satisfied
+- [ ] **AVM param-shape summary** captured in the preflight: for every AVM module pinned in
+      `04-iac-contract.json`, the compiled `main.json` in `~/.bicep/br/mcr.microsoft.com/...`
+      was inspected and the actual param names + nested-type field names recorded.
+      Do **not** copy param names from docs, prior projects, or training data — see
+      [`avm-pitfalls.md` § Schema Drift in Pinned AVM Versions](avm-pitfalls.md#schema-drift-in-pinned-avm-versions-mandatory-pre-author-check).
 
 ## AVM & Code Structure
 

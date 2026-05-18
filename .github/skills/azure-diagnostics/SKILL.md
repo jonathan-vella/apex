@@ -79,7 +79,7 @@ az monitor app-insights query --apps APP-INSIGHTS -g RG \
 For AI-powered diagnostics, use:
 
 ```
-mcp_azure_mcp_applens
+mcp_azure-mcp_applens
   intent: "diagnose issues with <resource-name>"
   command: "diagnose"
   parameters:
@@ -96,7 +96,7 @@ Provides:
 For querying logs and metrics:
 
 ```
-mcp_azure_mcp_monitor
+mcp_azure-mcp_monitor
   intent: "query logs for <resource-name>"
   command: "logs_query"
   parameters:
@@ -113,7 +113,7 @@ See [kql-queries.md](references/kql-queries.md) for common diagnostic queries.
 ### Using MCP
 
 ```
-mcp_azure_mcp_resourcehealth
+mcp_azure-mcp_resourcehealth
   intent: "check health status of <resource-name>"
   command: "get"
   parameters:

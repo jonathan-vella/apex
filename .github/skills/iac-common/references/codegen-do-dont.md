@@ -34,6 +34,15 @@ file first.
 - Run the tool-specific lint/build step after generation
   (`bicep build` + `bicep lint` for Bicep, `terraform validate` +
   `terraform fmt -check` for Terraform).
+- **Inspect the compiled module schema before authoring an AVM call**.
+  For Bicep: read `~/.bicep/br/mcr.microsoft.com/bicep$<module-path>/<version>$/main.json`
+  and confirm every param name (and every nested object-type field name) you
+  intend to use exists in the schema. Drift between AVM minor versions is the
+  single biggest cause of `bicep build` failures — see
+  [`avm-pitfalls.md` § Schema Drift](../../azure-bicep-patterns/references/avm-pitfalls.md#schema-drift-in-pinned-avm-versions-mandatory-pre-author-check)
+  for the running catalogue of cases. For Terraform: use
+  `terraform providers schema -json` (or the upstream module README pinned to
+  the exact version) — never copy variable names from docs alone.
 - Save `05-implementation-reference.md` and update the project README.
 
 ## DON'T — applies to both 06b and 06t

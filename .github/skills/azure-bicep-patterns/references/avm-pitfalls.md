@@ -49,6 +49,141 @@ authentication mode changes, or identity removal.
 
 ---
 
+## Schema Drift in Pinned AVM Versions (mandatory pre-author check)
+
+The single biggest cause of repeated `bicep build` failures in Step 5 is
+**param-shape drift between AVM minor versions**. Param names you "know" from
+documentation, prior projects, or training data are frequently wrong for the
+exact pinned version. The plan's `04-iac-contract.json` pins the version; the
+schema inside the cached MCR tarball is the only source of truth.
+
+### Mandatory pre-author rule
+
+For every AVM module pinned in `04-iac-contract.json`, before writing the
+module call, **inspect the compiled JSON schema** in the local MCR cache:
+
+```bash
+# Cache path follows: ~/.bicep/br/mcr.microsoft.com/bicep$<module-path-$-encoded>/<version>$/main.json
+python3 - <<'EOF'
+import json, sys
+target = '/home/vscode/.bicep/br/mcr.microsoft.com/bicep$avm$res$<module>/$<version>$/main.json'
+d = json.load(open(target))
+# Top-level params:
+for k, v in d['parameters'].items():
+    print(f"  {k}: type={v.get('type')} nullable={v.get('nullable', False)}")
+# Nested object types:
+for tn, td in d.get('definitions', {}).items():
+    print(f"\n=== {tn} ===")
+    for k, v in td.get('properties', {}).items():
+        print(f"  {k}: {json.dumps(v)[:120]}")
+EOF
+```
+
+If the cache file does not exist, run a throwaway `bicep build` of a one-line
+module call to force MCR to populate it, then re-inspect.
+
+### Catalogue of drift we have hit (extend on every new occurrence)
+
+| Module | Pinned version | Wrong (from docs/older versions) | Correct |
+|---|---|---|---|
+| `avm/res/key-vault/vault` | `0.13.3` | `enabledForDeployment` / `enabledForTemplateDeployment` / `enabledForDiskEncryption` | `enableVaultForDeployment` / `enableVaultForTemplateDeployment` / `enableVaultForDiskEncryption` |
+| `avm/res/web/site` | `0.23.0` | `virtualNetworkSubnetId` | `virtualNetworkSubnetResourceId` |
+| `avm/res/web/site` | `0.23.0` | `appSettingsKeyValuePairs: { ... }` | `configs: [{ name: 'appsettings', properties: { ... } }]` |
+| `avm/res/web/site` | `0.23.0` | `authSettingV2Configuration: { ... }` on the module | Module has no auth-v2 param — author raw `Microsoft.Web/sites/config@authsettingsV2` child resource (see [Bicep `parent:` BCP120](#bicep-parent-bcp120-static-name-required-on-child-resources) below) |
+| `avm/res/sql/server` | `0.21.2` | `administrators: { ..., azureAdOnlyAuthentication: true }` (missing `principalType`) | Add `principalType: 'User'` (required by AVM schema) |
+| `avm/res/sql/server` | `0.21.2` | `databaseType: { ..., transparentDataEncryption: { state: 'Enabled' } }` | Remove — TDE is enabled by default; not in the AVM `databaseType` schema |
+| `avm/res/sql/server` | `0.21.2` | `databaseType: { ... }` without `availabilityZone` | `availabilityZone` is **required** (allowed values `-1`/`1`/`2`/`3`; use `-1` when zone-redundancy is not needed) |
+| `avm/res/sql/server` | `0.21.2` | Server-level `diagnosticSettings: [ ... ]` on the module | Not a server-level param — wire diagnostics on the database via `databaseType.diagnosticSettings` |
+| `avm/res/operational-insights/workspace` | `0.15.1` | `dailyQuotaGb: 1` (int) | `dailyQuotaGb: '1'` (string; default `'-1'`) |
+| `avm/res/insights/scheduled-query-rule` | `0.6.0` | `criteria: { allOf: [...] }` | `criterias: { allOf: [...] }` (pluralised) |
+| `avm/res/consumption/budget` | `0.3.8` | Nested `notifications`, `budgetCategory`, `timeGrain`, `filters` | Flat structure: `category`, `resetPeriod`, `thresholds: [int, int]`, `thresholdType: 'Actual' \| 'Forecasted'` (one per module instance), `actionGroups`, `contactEmails`, `contactRoles`, `operator`. To cover Actual + Forecasted, deploy **two budget module instances**. `startDate` has a built-in `utcNow()` default — do not pass it. |
+| `avm/res/consumption/budget` | `0.3.8` | Called from an RG-scoped module without `scope:` | Requires `scope: subscription()` on the module call |
+
+### Why what-if and lint don't catch this
+
+`bicep build` catches roughly half of these (missing required props,
+wrong types). The rest only fail during actual deploy or `what-if`. The
+**only deterministic guard** is the pre-author schema inspection above.
+
+### How to avoid in the future
+
+1. **Add a Phase 1 step** to the agent: for each AVM module in the contract,
+   inspect the cached `main.json` and emit a one-line param-shape summary
+   into `04-preflight-check.md`. Authors copy from that summary, not from docs.
+2. **Never copy param names** from older project codebases, training-data
+   defaults, or AVM README files written for a different minor version.
+3. **When a build error fires**, add a new row to the table above before
+   moving on — the next project will hit the same wall.
+
+---
+
+## Bicep Language Constraints (compiler-level, not AVM)
+
+These trip every project the first time. None are AVM-specific.
+
+### `utcNow()` is only valid as a parameter default
+
+```bicep
+// ❌ FAILS — BCP065: utcNow can only be used in parameter default values
+var now = utcNow('yyyy-MM-dd')
+
+// ✅ OK — parameter default
+param scheduleStartDate string = utcNow('yyyy-MM-dd')
+```
+
+Use this when emitting `Microsoft.CostManagement/scheduledActions` or any
+resource that needs a "today" date stamp. For an end-date that does not
+need to be dynamic, hard-code the literal (e.g. `'2027-01-01'`) rather
+than compute it.
+
+### Bicep `parent:` (BCP120) — static name required on child resources
+
+```bicep
+// ❌ FAILS — BCP120: parent property must be calculable at deployment start
+resource existingWebApp 'Microsoft.Web/sites@2023-12-01' existing = {
+  name: webApp.outputs.name   // module output ≠ static
+}
+resource authSettings 'Microsoft.Web/sites/config@2023-12-01' = {
+  parent: existingWebApp
+  name: 'authsettingsV2'
+  properties: { ... }
+}
+
+// ✅ OK — static name, explicit dependsOn for ordering
+resource existingWebApp 'Microsoft.Web/sites@2023-12-01' existing = {
+  name: 'app-web-${projectName}-${env}'   // statically computable from params
+}
+resource authSettings 'Microsoft.Web/sites/config@2023-12-01' = {
+  parent: existingWebApp
+  name: 'authsettingsV2'
+  properties: { ... }
+  dependsOn: [ webAppModule ]   // make ordering explicit since the existing ref is decoupled
+}
+```
+
+This pattern is needed whenever an AVM module does not expose a child-resource
+param (e.g. `Microsoft.Web/sites/config@authsettingsV2` is not in `avm/res/web/site`).
+
+### Subscription-scope sub-modules need `scope:` on the caller
+
+Anomaly-detection alerts (`Microsoft.CostManagement/insights/...`), budgets,
+policy assignments at subscription scope, and management-group resources
+**must** be in modules with `targetScope = 'subscription'`. If called from an
+RG-scoped parent, the parent must add `scope: subscription()`:
+
+```bicep
+module anomalyAlert 'modules/costmonitoring-anomaly.bicep' = {
+  name: 'anomaly'
+  scope: subscription()   // required — module declares targetScope = 'subscription'
+  params: { ... }
+}
+```
+
+This is also why we split `costmonitoring.bicep` (RG-scope: Action Group +
+Budgets) from `costmonitoring-anomaly.bicep` (sub-scope: InsightAlert).
+
+---
+
 ## Identity ↔ RBAC Circular Dependency
 
 A frequent Phase 2 (Security) anti-pattern: placing the role assignment **inside**

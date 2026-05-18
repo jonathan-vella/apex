@@ -11,7 +11,7 @@
 Use the Azure MCP tool to get current subscription:
 
 ```
-mcp_azure_mcp_subscription_list
+mcp_azure-mcp_subscription_list
 ```
 
 **CLI fallback:**
@@ -77,7 +77,7 @@ The environment name becomes part of the resource group name (`rg-<env-name>`).
 Use the Azure MCP tool to list resource groups:
 
 ```
-mcp_azure_mcp_group_list
+mcp_azure-mcp_group_list
   subscription: <subscription-id>
 ```
 

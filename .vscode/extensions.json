@@ -21,6 +21,8 @@
   "unwantedRecommendations": [
     "ms-azuretools.vscode-azure-github-copilot",
     "ms-windows-ai-studio",
-    "teamsdevapp.vscode-ai-foundry"
+    "teamsdevapp.vscode-ai-foundry",
+    "ms-azuretools.vscode-azure-mcp-server",
+    "ms-vscode.vscode-node-azure-pack"
   ]
 }

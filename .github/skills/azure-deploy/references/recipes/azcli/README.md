@@ -4,7 +4,7 @@ Deploy to Azure using Azure CLI.
 
 ## Prerequisites
 
-- `az` CLI installed → Run `mcp_azure_mcp_extension_cli_install` with `cli-type: az` if needed
+- `az` CLI installed → Run `mcp_azure-mcp_extension_cli_install` with `cli-type: az` if needed
 - `infra/{iac}/{project}/.azure/plan.md` exists with status `Validated`
 - Bicep/ARM templates exist in the project directory
 - **Subscription and location confirmed** → See [Pre-Deploy Checklist](../../pre-deploy-checklist.md)

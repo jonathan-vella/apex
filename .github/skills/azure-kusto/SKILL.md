@@ -16,7 +16,7 @@ analytics on log, telemetry, and time-series data.
 
 - **Azure CLI** authenticated (`az login`) with a subscription containing Kusto resources
 - **RBAC**: `AllDatabasesViewer` on the cluster, or `Database Viewer` per database
-- **Azure MCP server** configured in `.vscode/mcp.json` for the `mcp_azure_mcp_kusto`
+- **Azure MCP server** configured in `.vscode/mcp.json` for the `mcp_azure-mcp_kusto`
   namespace; CLI fallback in
   [`references/fallback-strategy.md`](references/fallback-strategy.md)
 

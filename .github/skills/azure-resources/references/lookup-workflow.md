@@ -32,7 +32,7 @@ If a dedicated tool is available with full coverage, use it. Otherwise proceed t
 Use `extension_cli_generate` to build the `az graph query` command:
 
 ```yaml
-mcp_azure_mcp_extension_cli_generate
+mcp_azure-mcp_extension_cli_generate
   intent: "query Azure Resource Graph to <user's request>"
   cli-type: "az"
 ```

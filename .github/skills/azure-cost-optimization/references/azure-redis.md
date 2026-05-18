@@ -46,7 +46,7 @@ See [redis-detailed-cache-analysis.md](../templates/redis-detailed-cache-analysi
 
 ## Tools & Commands
 
-**MCP Tool:** `mcp_azure_mcp_redis` with command `redis_list` (parameter: `subscription`)
+**MCP Tool:** `mcp_azure-mcp_redis` with command `redis_list` (parameter: `subscription`)
 
 **Azure CLI Equivalents:**
 

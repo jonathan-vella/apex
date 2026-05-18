@@ -12,7 +12,7 @@ in `.github/skills/{azure-compliance,azure-cost-optimization,azure-diagnostics}/
 Use the `extension_cli_generate` MCP tool to generate `az graph query` commands:
 
 ```yaml
-mcp_azure_mcp_extension_cli_generate
+mcp_azure-mcp_extension_cli_generate
   intent: "query Azure Resource Graph to <describe what you want to do>"
   cli-type: "az"
 ```

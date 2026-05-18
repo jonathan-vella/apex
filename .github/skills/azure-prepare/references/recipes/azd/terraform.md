@@ -278,7 +278,7 @@ When preparing a new azd+Terraform project:
 3. **Add required tags**:
    - Resource group: `azd-env-name`
    - Hosting resources: `azd-service-name` (matches azure.yaml services)
-4. **Research best practices** - Call `mcp_azure_mcp_azureterraformbestpractices`
+4. **Research best practices** - Call `mcp_azure-mcp_azureterraformbestpractices`
 
 ## AVM Terraform Module Priority
 
@@ -288,7 +288,7 @@ For Terraform module selection, enforce this order:
 2. AVM Terraform Resource Modules
 3. AVM Terraform Utility Modules
 
-Use `mcp_azure_mcp_documentation` (`azure-documentation`) for current guidance and AVM context first, then use Context7 only as supplemental examples if required.
+Use `mcp_azure-mcp_documentation` (`azure-documentation`) for current guidance and AVM context first, then use Context7 only as supplemental examples if required.
 
 ## Migration from Pure Terraform
 

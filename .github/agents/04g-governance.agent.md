@@ -333,7 +333,7 @@ the `set +H` bash-history fix:
 
 > **Phase 1 anti-patterns**: do NOT improvise discovery via `az rest`,
 > `execution_subagent`, or inline Python REST; do NOT call
-> `mcp_azure_mcp_get_azure_bestpractices` (~21s overhead, irrelevant);
+> `mcp_azure-mcp_get_azure_bestpractices` (~21s overhead, irrelevant);
 > do NOT read `tmp/{project}-governance-live.json` (legacy intermediate).
 > Full rationale: [`discover-output.md`](../skills/azure-governance-discovery/references/discover-output.md) §Anti-patterns.
 

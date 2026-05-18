@@ -22,7 +22,7 @@ azd version
 **If not installed:**
 
 ```
-mcp_azure_mcp_extension_cli_install(cli-type: "azd")
+mcp_azure-mcp_extension_cli_install(cli-type: "azd")
 ```
 
 ### 2. Schema Validation
@@ -30,7 +30,7 @@ mcp_azure_mcp_extension_cli_install(cli-type: "azd")
 Validate azure.yaml against official schema:
 
 ```
-mcp_azure_mcp_azd(command: "validate_azure_yaml", parameters: { path: "./azure.yaml" })
+mcp_azure-mcp_azd(command: "validate_azure_yaml", parameters: { path: "./azure.yaml" })
 ```
 
 ### 3. Environment Setup
@@ -62,13 +62,13 @@ azd env get-values
 Use Azure MCP tools to list subscriptions:
 
 ```
-mcp_azure_mcp_subscription_list
+mcp_azure-mcp_subscription_list
 ```
 
 Use Azure MCP tools to list resource groups (check for conflicts):
 
 ```
-mcp_azure_mcp_group_list
+mcp_azure-mcp_group_list
   subscription: <subscription-id>
 ```
 

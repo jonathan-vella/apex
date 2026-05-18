@@ -5,21 +5,7 @@ model: ["Claude Sonnet 4.6"]
 user-invocable: true
 agents: ["bicep-validate-subagent", "challenger-review-subagent"]
 tools:
-  [
-    vscode,
-    execute,
-    read,
-    agent,
-    browser,
-    edit,
-    search,
-    web,
-    "azure-mcp/*",
-    "bicep/*",
-    todo,
-    vscode.mermaid-chat-features/renderMermaidDiagram,
-    ms-azuretools.vscode-azureresourcegroups/azureActivityLog,
-  ]
+  [vscode/extensions, vscode/askQuestions, vscode/installExtension, vscode/memory, vscode/newWorkspace, vscode/resolveMemoryFileUri, vscode/runCommand, vscode/vscodeAPI, vscode/toolSearch, execute/getTerminalOutput, execute/killTerminal, execute/sendToTerminal, execute/createAndRunTask, execute/runTests, execute/runNotebookCell, execute/executionSubagent, execute/runInTerminal, read/terminalSelection, read/terminalLastCommand, read/getNotebookSummary, read/problems, read/readFile, read/viewImage, read/readNotebookCellOutput, agent/runSubagent, browser/openBrowserPage, browser/readPage, browser/screenshotPage, browser/navigatePage, browser/clickElement, browser/dragElement, browser/hoverElement, browser/typeInPage, browser/runPlaywrightCode, browser/handleDialog, edit/createDirectory, edit/createFile, edit/createJupyterNotebook, edit/editFiles, edit/editNotebook, edit/rename, search/codebase, search/fileSearch, search/listDirectory, search/textSearch, search/usages, web/fetch, web/githubRepo, web/githubTextSearch, bicep/build_bicep, bicep/build_bicepparam, bicep/decompile_arm_parameters_file, bicep/decompile_arm_template_file, bicep/format_bicep_file, bicep/get_azure_resource_type_schema, bicep/get_bicep_best_practices, bicep/get_deployment_snapshot, bicep/get_extension_resource_type_schema, bicep/get_file_references, bicep/list_avm_metadata, bicep/list_azure_resource_types, bicep/list_extension_resource_types, bicep/list_well_known_extensions, azure-mcp/acr, azure-mcp/advisor, azure-mcp/aks, azure-mcp/appconfig, azure-mcp/applens, azure-mcp/applicationinsights, azure-mcp/appservice, azure-mcp/azd, azure-mcp/azurebackup, azure-mcp/azuremigrate, azure-mcp/azureterraform, azure-mcp/azureterraformbestpractices, azure-mcp/bicepschema, azure-mcp/cloudarchitect, azure-mcp/communication, azure-mcp/compute, azure-mcp/confidentialledger, azure-mcp/containerapps, azure-mcp/cosmos, azure-mcp/datadog, azure-mcp/deploy, azure-mcp/deviceregistry, azure-mcp/documentation, azure-mcp/eventgrid, azure-mcp/eventhubs, azure-mcp/extension_azqr, azure-mcp/extension_cli_generate, azure-mcp/extension_cli_install, azure-mcp/fileshares, azure-mcp/foundry, azure-mcp/foundryextensions, azure-mcp/functionapp, azure-mcp/functions, azure-mcp/get_azure_bestpractices, azure-mcp/grafana, azure-mcp/group_list, azure-mcp/group_resource_list, azure-mcp/keyvault, azure-mcp/kusto, azure-mcp/loadtesting, azure-mcp/managedlustre, azure-mcp/marketplace, azure-mcp/monitor, azure-mcp/mysql, azure-mcp/policy, azure-mcp/postgres, azure-mcp/pricing, azure-mcp/quota, azure-mcp/redis, azure-mcp/resourcehealth, azure-mcp/role, azure-mcp/search, azure-mcp/servicebus, azure-mcp/servicefabric, azure-mcp/signalr, azure-mcp/speech, azure-mcp/sql, azure-mcp/storage, azure-mcp/storagesync, azure-mcp/subscription_list, azure-mcp/virtualdesktop, azure-mcp/wellarchitectedframework, azure-mcp/workbooks, todo, vscode.mermaid-chat-features/renderMermaidDiagram, ms-azuretools.vscode-azureresourcegroups/azureActivityLog]
 handoffs:
   - label: "▶ Run Preflight Check"
     agent: 06b-Bicep CodeGen

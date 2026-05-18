@@ -17,7 +17,7 @@ az account show --query id -o tsv
 Call the Azure MCP Policy tool to retrieve policies for your subscription:
 
 ```
-mcp_azure_mcp_policy(command: "list", parameters: { subscription_id: "<subscription-id>" })
+mcp_azure-mcp_policy(command: "list", parameters: { subscription_id: "<subscription-id>" })
 ```
 
 Replace `<subscription-id>` with the actual subscription ID obtained from step 1.

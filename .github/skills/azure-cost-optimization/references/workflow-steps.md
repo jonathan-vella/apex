@@ -37,7 +37,7 @@ Get Azure cost optimization best practices to inform recommendations:
 
 ```javascript
 // Use Azure MCP best practices tool
-mcp_azure_mcp_get_azure_bestpractices({
+mcp_azure-mcp_get_azure_bestpractices({
   intent: "Get cost optimization best practices",
   command: "get_bestpractices",
   parameters: { resource: "cost-optimization", action: "all" },
@@ -123,7 +123,7 @@ az resource list --subscription "<SUBSCRIPTION_ID>" --resource-group "<RESOURCE_
 
 # Use MCP tools for specific services (preferred):
 # - Storage accounts, Cosmos DB, Key Vaults: use Azure MCP tools
-# - Redis caches: use mcp_azure_mcp_redis tool (see ./azure-redis.md)
+# - Redis caches: use mcp_azure-mcp_redis tool (see ./azure-redis.md)
 # - Web apps, VMs, SQL: use az CLI commands
 ```
 

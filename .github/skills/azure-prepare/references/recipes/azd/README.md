@@ -47,7 +47,7 @@ Azure Developer CLI workflow for preparing Azure deployments.
 | Bicep best practices      | `mcp_bicep_get_bicep_best_practices`                                                                  |
 | Bicep resource schema     | `mcp_bicep_get_az_resource_type_schema`                                                               |
 | Azure Verified Modules    | `mcp_bicep_list_avm_metadata` + [AVM module order](iac-rules.md#avm-module-selection-order-mandatory) |
-| Terraform best practices  | `mcp_azure_mcp_azureterraformbestpractices`                                                           |
+| Terraform best practices  | `mcp_azure-mcp_azureterraformbestpractices`                                                           |
 | Dockerfiles               | [Docker Guide](docker.md)                                                                             |
 
 ## Generation Steps
