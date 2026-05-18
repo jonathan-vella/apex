@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-05-18T10:02:47.425Z",
+  "generatedAt": "2026-05-18T14:41:39.962Z",
   "categories": [
     {
       "id": "agent",
@@ -68,7 +68,7 @@
     }
   ],
   "nodeCount": 154,
-  "edgeCount": 614,
+  "edgeCount": 617,
   "nodes": [
     {
       "id": "agent:01-orchestrator",
@@ -5783,9 +5783,27 @@
       "kind": "refs"
     },
     {
+      "id": "skill:iac-common--refs->skill:azure-compliance",
+      "source": "skill:iac-common",
+      "target": "skill:azure-compliance",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:iac-common--refs->skill:azure-cost-optimization",
+      "source": "skill:iac-common",
+      "target": "skill:azure-cost-optimization",
+      "kind": "refs"
+    },
+    {
       "id": "skill:iac-common--refs->skill:azure-defaults",
       "source": "skill:iac-common",
       "target": "skill:azure-defaults",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:iac-common--refs->skill:azure-diagnostics",
+      "source": "skill:iac-common",
+      "target": "skill:azure-diagnostics",
       "kind": "refs"
     },
     {

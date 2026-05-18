@@ -18,6 +18,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 See the [published changelog](https://jonathan-vella.github.io/azure-agentic-infraops/project/changelog/)
 for full details on this and all prior releases.
 
+### Added (docs)
+
+- docs(concepts): add `concepts/workflow-deep-dive` — long-form
+  integration view of a single APEX run covering the five context
+  surfaces (skills, instructions, `.github/data/` registries,
+  `apex-recall`, hooks), a per-stage sub-template walkthrough for
+  Steps 1 → 7 + Post-Lessons, and the lessons-feedback loop. Ships with
+  a regenerable Python-diagrams source at
+  `site/src/assets/diagrams/workflow-deep-dive/gen.py` plus the
+  end-to-end orchestration and lessons-loop PNGs. Sidebar entry added
+  under *Concepts* as a sibling to *How It Works*.
+
 ### Added (Plan 01 — token-reduction workstream)
 
 - `tools/scripts/profile_debug_log.py` + `npm run profile:debug-log` —

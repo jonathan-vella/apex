@@ -190,26 +190,40 @@ this project will ever produce. Record them as `monthly_cost: 0.0` with
 `hourly_rate: 0.0` and `notes: "static_fallback: <reason>"` **without**
 spending an MCP call:
 
-| Resource                                  | Cost              | Reason                                                                            |
-| ----------------------------------------- | ----------------- | --------------------------------------------------------------------------------- |
-| Virtual Network (base, no peering)        | $0.00             | VNet itself has no recurring charge — only data processed via gateway/peering     |
-| Network Security Group (NSG)              | $0.00             | NSGs are free                                                                     |
-| Route Table                               | $0.00             | Free                                                                              |
-| Microsoft Entra ID (workforce)            | $0.00             | Free tier; P1/P2 only if explicitly purchased per-user                            |
-| Microsoft Entra External ID (Free)        | $0.00             | First 50,000 MAU/month free                                                       |
-| Resource Group                            | $0.00             | Free                                                                              |
-| Managed Identity (system-assigned)        | $0.00             | Free                                                                              |
-| Action Group (email/SMS to ≤1 region)     | $0.00             | First 1,000 emails + first 100 SMS free                                           |
-| Azure Budget                              | $0.00             | Free — no charge for cost management                                              |
-| Diagnostic settings                       | $0.00             | Free; ingestion charged via Log Analytics line                                    |
-| App Service Custom Domain                 | $0.00             | Free; only TLS certificate has a cost (separate Storage line if SNI Cert is used) |
-| Bandwidth (≤ first 100 GB/month outbound) | $0.00             | Azure's free egress allowance applies before any per-GB charge                    |
-| Private DNS Zone — base                   | $0.50/mo per zone | Use MCP for this — it returns a per-zone meter; included here for reference       |
-| Private Endpoint                          | $7.20/mo each     | Use MCP — Standard meter resolves cleanly under Virtual Network                   |
+| Resource                                                | Cost              | Reason                                                                            |
+| ------------------------------------------------------- | ----------------- | --------------------------------------------------------------------------------- |
+| Virtual Network (base, no peering)                      | $0.00             | VNet itself has no recurring charge — only data processed via gateway/peering     |
+| Network Security Group (NSG)                            | $0.00             | NSGs are free                                                                     |
+| Route Table                                             | $0.00             | Free                                                                              |
+| Microsoft Entra ID (workforce)                          | $0.00             | Free tier; P1/P2 only if explicitly purchased per-user                            |
+| Microsoft Entra External ID (Free)                      | $0.00             | First 50,000 MAU/month free                                                       |
+| Resource Group                                          | $0.00             | Free                                                                              |
+| Managed Identity (system-assigned)                      | $0.00             | Free                                                                              |
+| Action Group (email/SMS to ≤1 region, baseline volume)  | $0.00             | Apply default usage assumption (≤1,000 emails + ≤100 SMS/month) — both inside free tier; static-fallback at baseline; only price via MCP when parent explicitly supplies a higher monthly notification volume |
+| Azure Budget                                            | $0.00             | Free — no charge for cost management                                              |
+| Smart Detector Alert Rule (Failure Anomalies, default)  | $0.00             | Bundled with Application Insights at default configuration; static-fallback unless parent flags custom evaluation                                  |
+| Diagnostic settings                                     | $0.00             | Free; ingestion charged via Log Analytics line                                    |
+| App Service Custom Domain                               | $0.00             | Free; only TLS certificate has a cost (separate Storage line if SNI Cert is used) |
+| Bandwidth (≤ first 100 GB/month outbound)               | $0.00             | Azure's free egress allowance applies before any per-GB charge                    |
+| Log Analytics scheduled query rule alert (default)      | $1.50/mo per rule | Apply default usage assumption (1 monitored resource, 5-minute evaluation frequency) — Standard Log Search Alert Rule meter; catalog fallback when MCP returns no rows for `microsoft.insights/scheduledqueryrules`; parent must override if a rule monitors many resources or runs at higher frequency  |
+| Private DNS Zone — base                                 | $0.50/mo per zone | **Catalog fallback** — price via MCP first; if `azure_bulk_estimate` + `azure_price_search` return no Azure DNS `Private` rows for the target region, record $0.50/zone/month with `notes: "static_fallback: Azure DNS private zone catalog rate; MCP returned no rows in <region>"` and proceed (do not leave unresolved) |
+| Private Endpoint                                        | $7.20/mo each     | Use MCP — Standard meter resolves cleanly under Virtual Network                   |
 
 > The static-fallback whitelist is a closed list. If a resource is not on
 > this whitelist, you **must** attempt to price it through the MCP — do
 > not invent "free" entries.
+>
+> **Catalog-fallback rule**: rows tagged `Catalog fallback` (Private DNS
+> Zone — base) MUST be priced via MCP first. Only when the MCP returns
+> zero rows for the documented query shape may the agent record the
+> catalog rate as a `static_fallback` line. This prevents a known
+> MCP-index gap from forcing `status: FAILED` on low-cost ancillaries.
+>
+> **Usage-default rule**: rows tagged `default` (Action Group, Smart
+> Detector Alert Rule, Log Analytics scheduled query rule) MUST be
+> recorded at the listed cost when the parent supplies the resource
+> without explicit usage telemetry. Parents only override the default
+> when they have measured volume / frequency to supply.
 
 ## Bulk Estimates
 

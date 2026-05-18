@@ -136,6 +136,7 @@ export default defineConfig({
                 { label: "Workflow", slug: "concepts/workflow" },
               ],
             },
+            { label: "Workflow Deep Dive", slug: "concepts/workflow-deep-dive" },
           ],
         },
         {

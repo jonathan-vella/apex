@@ -497,14 +497,22 @@ Priority-1 services (must be resolved to return `COMPLETE`):
 
 ## Pricing assumptions
 
-| Assumption             | Default value |
-| ---------------------- | ------------- |
-| Hours per month        | 730           |
-| Data transfer (egress) | 100 GB/month  |
-| Storage transactions   | 100K/month    |
-| Currency               | USD           |
+| Assumption                                      | Default value                            |
+| ----------------------------------------------- | ---------------------------------------- |
+| Hours per month                                 | 730                                      |
+| Data transfer (egress)                          | 100 GB/month                             |
+| Storage transactions                            | 100K/month                               |
+| Action Group notification volume                | ≤1,000 emails + ≤100 SMS/month (free)    |
+| Scheduled query rule (alert) evaluation         | 1 monitored resource, 5-minute frequency |
+| Smart Detector Alert Rule (Failure Anomalies)   | Default configuration (bundled with App Insights) |
+| Currency                                        | USD                                      |
 
-Override defaults with values from `01-requirements.md` if available.
+Override defaults with values from `01-requirements.md` (or the
+as-built deployment state for Step 7) if available. The Action Group,
+scheduled-query-rule, and smart-detector defaults map to the
+`static_fallback` / `default` / `catalog fallback` rows in
+`pricing-guidance.md` — apply them automatically so usage-dependent
+meters never force `status: FAILED` for low-cost ancillaries.
 
 ## Error handling
 
