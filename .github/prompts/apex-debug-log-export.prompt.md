@@ -155,7 +155,7 @@ session short id and mtime — for example:
 Untitled sessions render as `(untitled)`. Mark the most recent
 **non-active** session as `recommended: true`. Include the active
 session as an opt-in option with the same title prefix and a
-` (ACTIVE — this prompt; usually skip)` suffix; do **not** mark it
+`ACTIVE — this prompt; usually skip` suffix; do **not** mark it
 recommended. Question text:
 `Which Copilot session should be bundled?`
 

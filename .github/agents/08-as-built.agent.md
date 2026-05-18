@@ -107,7 +107,8 @@ investigate before answering) live in
 
 ## Read Skills First
 
-Before doing any work, read these skills. Issue the SKILL.md reads and the template-file reads in **one parallel `read_file` batch** to amortize cost.
+Before doing any work, read these skills. Issue the SKILL.md reads and the
+template-file reads in **one parallel `read_file` batch** to amortize cost.
 
 1. Read `.github/skills/azure-defaults/SKILL.md` — regions, tags, naming, pricing MCP names
 2. Read `.github/skills/azure-artifacts/SKILL.md` — H2 templates for all 07-\* artifacts

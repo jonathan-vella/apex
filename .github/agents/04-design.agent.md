@@ -108,6 +108,7 @@ the architecture assessment is missing.
 5. `.github/skills/azure-adr/SKILL.md` — ADR format and conventions.
 
 Load diagram-tool skills on demand after Phase 0 resolves:
+
 - Draw.io path → `.github/skills/drawio/SKILL.md`
 - Python path → `.github/skills/python-diagrams/SKILL.md`
 
