@@ -70,6 +70,7 @@ The `<step>` suffix is the integer step number (`1`, `2`, `3_5`, `4`).
 | `cost_feasibility_review` | `run` \| `skip`                                                           | n/a (only set after lens decision) | 03-Architect    | 03-Architect challenger invocation       |
 | `sku_manifest_status`     | `draft` \| `reviewed` \| `locked` \| `deploying` \| `deployed` \| `drift` | n/a                                | various         | 05/06/07 agents                          |
 | `sku_manifest_revision`   | integer ≥ 1                                                               | `1`                                | various         | sku-manifest validators                  |
+| `sku_preferences_captured`| `true` \| `false`                                                         | `false` (Phase 3j elicitation skipped) | 02-Requirements | 03-Architect, sku-manifest validators    |
 
 ### Step 3 (Design) keys — new in this plan
 

@@ -459,7 +459,7 @@ discovery layer injects 10–15 unrelated agents/skills into every system
 prompt (~10–15k baseline tokens per turn).
 
 **Repo-level mitigations now in place** (see
-[`docs/devcontainer-hygiene.md`](../../docs/devcontainer-hygiene.md) for
+[`site/src/content/docs/guides/devcontainer-hygiene.md`](../../site/src/content/docs/guides/devcontainer-hygiene.md) for
 the full rationale + per-developer cleanup checklist):
 
 - `.vscode/settings.json` and `.devcontainer/devcontainer.json` disable
@@ -478,7 +478,7 @@ What the repo **cannot** suppress: extension-contributed
 `chatSkills` / `chatAgents` / `chatPromptFiles` register via the
 extension contribution API, not file paths. The only durable removal is
 to not have the extension installed. The per-developer checklist in
-[`docs/devcontainer-hygiene.md`](../../docs/devcontainer-hygiene.md)
+[`site/src/content/docs/guides/devcontainer-hygiene.md`](../../site/src/content/docs/guides/devcontainer-hygiene.md)
 covers `code --uninstall-extension` and host user-profile prompts-folder
 cleanup.
 

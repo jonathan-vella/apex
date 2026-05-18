@@ -78,7 +78,7 @@ one-line summary so the agent knows which one to load.
 |   3 | Freshness Audit (Staleness Check) | "Audit docs for staleness"          | [`freshness-checklist.md`](references/freshness-checklist.md) + [`extended-workflows.md`](references/extended-workflows.md) |
 |   4 | Explain the Repo Architecture     | "How do agents connect to skills?"  | [`repo-architecture.md`](references/repo-architecture.md) + [`extended-workflows.md`](references/extended-workflows.md)     |
 |   5 | Generate Changelog Entry          | Pre-release / `chore: changelog`    | [`extended-workflows.md`](references/extended-workflows.md)                                                                 |
-|   6 | Proofread Documentation           | "Proofread docs/X.md"               | [`extended-workflows.md`](references/extended-workflows.md)                                                                 |
+|   6 | Proofread Documentation           | "Proofread the contributing guide"  | [`extended-workflows.md`](references/extended-workflows.md)                                                                 |
 |   7 | Process Freshness Issues          | `docs-freshness` GitHub issue label | [`extended-workflows.md`](references/extended-workflows.md)                                                                 |
 
 ## Guardrails

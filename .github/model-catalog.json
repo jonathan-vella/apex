@@ -48,14 +48,14 @@
       "vendor": "OpenAI",
       "tier": "standard",
       "released": "2026-02",
-      "deprecated": true,
+      "deprecated": false,
       "use_for": [
         "deployment",
         "as-built",
         "validation-subagents",
         "whatif-interpretation"
       ],
-      "notes": "Deprecated 2026-05 in favor of GPT-5.5 after deploy + as-built migration. Retained for audit history; not authorized for new agents."
+      "notes": "Active OpenAI standard-tier SKU. Re-authorized 2026-05 after the deprecation flag was lifted (no `GPT-5.5 mini` exists, so the `GPT-5.4` cohort remains the lower-cost OpenAI tier alongside `GPT-5.5`). Pair with `GPT-5.4 mini` for utility/CLI prompts."
     },
     "GPT-5.4 mini": {
       "vendor": "OpenAI",

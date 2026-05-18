@@ -158,6 +158,7 @@ const ALLOWLIST_LINE_PATTERNS = [
   /v\d+\.\d+/i, // version references (e.g., "v2.0")
   /10 agent-first/i, // Golden principles title (genuinely static)
   /10-minute/i, // "10-minute getting started" in docs
+  /\bT-\d{1,4}\s+validators?\b/i, // Test/task IDs like "T-008 validator" — not a count
 ];
 
 const SCAN_DIRS = [".github", "docs", "scripts", "mcp", ".devcontainer"];

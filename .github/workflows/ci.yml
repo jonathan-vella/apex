@@ -39,6 +39,11 @@ jobs:
         uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # gitleaks-action@v2 still ships as a Node 20 action. Opt into the
+          # Node 24 runtime now so the deprecation auto-flip on 2026-06-02
+          # doesn't surprise CI. See:
+          # https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+          FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
       - name: Lint Markdown
         run: npm run lint:md
