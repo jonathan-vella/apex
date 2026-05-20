@@ -38,6 +38,8 @@ Exact names for the Azure Pricing MCP tool. Using wrong names returns
 | Static Web Apps     | `Azure Static Web Apps`         | `Free`, `Standard`                     |
 | Storage             | `Storage`                       | `Standard`, `Premium`, `LRS`, `GRS`    |
 | VPN Gateway         | `VPN Gateway`                   | `Basic`, `VpnGw1`, `VpnGw2`            |
+| ExpressRoute Gateway | `ExpressRoute`                 | `Standard`, `HighPerformance`, `UltraPerformance`, `ErGw1AZ`, `ErGw2AZ`, `ErGw3AZ` |
+| App Gateway for Containers | `Application Gateway for Containers` | `Standard` (per-fabric + LCU)    |
 | Virtual Machines    | `Virtual Machines`              | `D4s_v5`, `B2s`, `E4s_v5`              |
 
 - **DO**: Use exact names from the table above

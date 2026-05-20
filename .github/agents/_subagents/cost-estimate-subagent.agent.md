@@ -201,6 +201,22 @@ After normalization, log the final per-resource shape (service_name,
 sku_name, product_filter, usage, quantity) in the JSON line's `notes`
 so the audit trail shows why each meter resolved.
 
+### Reserved-subnet network resources (priced live)
+
+When the parent's `resource_list` carries reserved-subnet network
+resources surfaced by Architect Phase 6b's `subnet_plan` — `bastion`,
+`azure-firewall`, `nat-gateway`, `vpn-gateway`, `expressroute-gateway`,
+`application-gateway`, `application-gateway-for-containers` — each
+entry arrives with an explicit SKU field (e.g. Bastion `Basic` vs
+`Standard`, Firewall `Standard` vs `Premium`, App Gateway `WAF_v2`).
+These MUST be priced **live** via `azure_bulk_estimate`. They are
+**not** on the static-fallback whitelist and any attempt to record
+them as `static_fallback` is incorrect. The `product_filter` rows for
+each service live in
+[`pricing-guidance.md`](../../skills/azure-defaults/references/pricing-guidance.md);
+add new rows there when the bulk call returns zero results so future
+runs resolve cleanly.
+
 ## Unresolved SKU triage (`<unresolved_sku_triage>`)
 
 When rule 4 cannot match a `sku_name` against the Canonical SKU

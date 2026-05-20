@@ -23,6 +23,12 @@
  *      services[].size must match an allowed pattern OR fail.
  *  11. Pricing freshness — WARN when cost_estimated_at > PRICING_TTL_DAYS old.
  *  12. Manifest staleness — WARN when updated_at > MANIFEST_TTL_DAYS old.
+ *  13. VNet trigger contract — WARN when a vnet-attached service_name
+ *      (loaded from vnet-planning.md's fenced ```yaml``` block under
+ *      `## vnet-attached service whitelist`) or a `requires[]` token
+ *      in {vnet-integration, private-endpoints} is present but
+ *      sibling 00-session-state.json has no decisions.vnet_mode.
+ *      Fails hard if vnet-planning.md or the whitelist block is missing.
  *
  * Usage:
  *   node tools/scripts/validate-sku-manifest.mjs
@@ -45,9 +51,12 @@ import { Reporter } from "./_lib/reporter.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const SCHEMA_PATH = path.join(ROOT, "tools/schemas/sku-manifest.schema.json");
+const VNET_PLANNING_REF = path.join(ROOT, ".github/skills/azure-defaults/references/vnet-planning.md");
 
 const PRICING_TTL_DAYS = Number(process.env.APEX_SKU_PRICING_TTL_DAYS ?? 30);
 const MANIFEST_TTL_DAYS = Number(process.env.APEX_SKU_MANIFEST_TTL_DAYS ?? 90);
+
+const VNET_REQUIRES_TOKENS = new Set(["vnet-integration", "private-endpoints"]);
 
 const SOURCE_TO_STEP = {
   "user-pin": "1",
@@ -267,7 +276,81 @@ function checkMdSync(filePath, data, fileRel, r) {
   }
 }
 
-function validateFile(filePath, validate, r) {
+/**
+ * Load the vnet-attached service whitelist from the canonical fenced
+ * ```yaml``` block in vnet-planning.md (S2-A — single source of truth).
+ * Returns a Set of service_name values, or throws if the heading or
+ * fence is missing (fail-fast per the implementation plan).
+ */
+function loadVnetAttachedWhitelist() {
+  if (!fs.existsSync(VNET_PLANNING_REF)) {
+    throw new Error(
+      `vnet-planning.md not found at ${path.relative(ROOT, VNET_PLANNING_REF)} — required for vnet-attached service whitelist`,
+    );
+  }
+  const text = fs.readFileSync(VNET_PLANNING_REF, "utf-8");
+  const heading = "## vnet-attached service whitelist";
+  const idx = text.indexOf(heading);
+  if (idx < 0) {
+    throw new Error(`vnet-planning.md missing '${heading}' heading — cannot load vnet-attached service whitelist`);
+  }
+  const rest = text.slice(idx);
+  const fence = rest.match(/```ya?ml\n([\s\S]*?)\n```/);
+  if (!fence) {
+    throw new Error(`vnet-planning.md '${heading}' has no fenced \`\`\`yaml block — cannot load whitelist`);
+  }
+  const services = new Set();
+  for (const line of fence[1].split("\n")) {
+    const m = line.match(/^\s*-\s+([A-Za-z0-9_-]+)\s*$/);
+    if (m) services.add(m[1]);
+  }
+  if (services.size === 0) {
+    throw new Error(`vnet-planning.md whitelist fenced block parsed but yielded zero entries — check formatting`);
+  }
+  return services;
+}
+
+/**
+ * Read decisions.vnet_mode from the project's 00-session-state.json
+ * (sibling of the sku-manifest). Returns the value or undefined.
+ */
+function readVnetMode(manifestPath) {
+  const statePath = path.join(path.dirname(manifestPath), "00-session-state.json");
+  if (!fs.existsSync(statePath)) return undefined;
+  try {
+    const state = JSON.parse(fs.readFileSync(statePath, "utf-8"));
+    return state?.decisions?.vnet_mode;
+  } catch {
+    return undefined;
+  }
+}
+
+/**
+ * Warn when a vnet-attached service_name (or requires[] token) is
+ * present and no decisions.vnet_mode is recorded post-Step 2.
+ * Templates / fixtures skip this check.
+ */
+function checkVnetTrigger(filePath, data, fileRel, r, vnetWhitelist) {
+  if (!vnetWhitelist) return;
+  const services = data.services ?? [];
+  const triggered = services.some((svc) => {
+    if (vnetWhitelist.has(svc?.service_name)) return true;
+    if (Array.isArray(svc?.requires)) {
+      return svc.requires.some((token) => VNET_REQUIRES_TOKENS.has(token));
+    }
+    return false;
+  });
+  if (!triggered) return;
+  const vnetMode = readVnetMode(filePath);
+  if (!vnetMode) {
+    r.warn(
+      fileRel,
+      `VNet trigger contract holds (vnet-attached service or requires[] token present) but decisions.vnet_mode is absent — Architect Phase 6b may have been skipped`,
+    );
+  }
+}
+
+function validateFile(filePath, validate, r, vnetWhitelist) {
   const rel = path.relative(ROOT, filePath);
   let data;
   try {
@@ -299,6 +382,7 @@ function validateFile(filePath, validate, r) {
   checkAllowlist(data, rel, r);
   if (!isTemplateOrFixture) checkFreshness(data, rel, r);
   if (!isTemplateOrFixture) checkMdSync(filePath, data, rel, r);
+  if (!isTemplateOrFixture) checkVnetTrigger(filePath, data, rel, r, vnetWhitelist);
   if (r.errors === before) r.ok(rel);
   r.tick();
 }
@@ -340,6 +424,14 @@ function main() {
   }
 
   const validate = loadValidator();
+  let vnetWhitelist = null;
+  try {
+    vnetWhitelist = loadVnetAttachedWhitelist();
+  } catch (err) {
+    r.error(path.relative(ROOT, VNET_PLANNING_REF), err.message);
+    r.exitOnError();
+    return;
+  }
   const args = process.argv.slice(2);
   const targets = args.length > 0 ? args.map((a) => resolveTarget(a)) : findManifests();
 
@@ -354,7 +446,7 @@ function main() {
       r.error(path.relative(ROOT, t), "File not found");
       continue;
     }
-    validateFile(t, validate, r);
+    validateFile(t, validate, r, vnetWhitelist);
   }
 
   r.summary();

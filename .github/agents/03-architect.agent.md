@@ -239,6 +239,13 @@ in your WAF assessment recommendations (still produce the identical artifact str
 6a. **SKU confirmation gate (MANDATORY — before pricing)** — follow the
     protocol in
     [`workflow-gates.md`](../skills/azure-defaults/references/workflow-gates.md#architect-step-2--phase-6a-sku-confirmation-gate).
+6b. **VNet planning gate (MANDATORY when trigger contract holds; honor
+    `decisions.vnet_planning_mode`)** — follow the protocol in
+    [`workflow-gates.md`](../skills/azure-defaults/references/workflow-gates.md#architect-step-2--phase-6b-vnet-planning-gate).
+    Append any priced network resources (Bastion / Firewall /
+    NAT-Gateway / VPN-Gateway / ER-Gateway / App-Gateway /
+    App-Gateway-for-Containers) from `subnet_plan` to the Step 7
+    resource_list.
 7. **Delegate pricing** — Send resource list to `cost-estimate-subagent`;
     receive verified prices. Precondition guard: refuse to invoke unless
     `decisions.sku_confirmation_status == "approved"`.

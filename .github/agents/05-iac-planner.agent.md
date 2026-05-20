@@ -417,6 +417,11 @@ For patterns, read `terraform-patterns/references/tf-best-practices-examples.md`
 > `cost_monitoring_mode ∈ {minimal, deferred}`. Phase 4 preflight
 > (scope derivation, `az monitor action-group show`, Owner fallback,
 > governance precedence) + decision keys: [`cost-alerts-baseline.md`](../skills/azure-defaults/references/cost-alerts-baseline.md).
+> Also verify `subnet_plan` from Architect Phase 6b is reflected in
+> the resource inventory. When `vnet_mode = use-existing`, record an
+> exception entry if the existing VNet's live address space diverges
+> from `vnet_address_space` (Architect already reconciled it at
+> capture, so divergence here implies the VNet was mutated mid-flight).
 
 ### Phase 4.3: Adversarial Plan Review (1 pass, comprehensive — default)
 
