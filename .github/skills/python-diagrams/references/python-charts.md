@@ -6,11 +6,20 @@ For WAF bar charts, cost donuts, and compliance visualizations, use Python `matp
 
 ## Execution
 
-Save `.py` source in `agent-output/{project}/`, then run to produce `.png`:
+Save `.py` source in `agent-output/{project}/`, then run with `python3` to
+produce **both `.png` and `.svg` siblings** via the shared
+[`scripts/diagram_io.py`](../scripts/diagram_io.py) helper:
 
 ```bash
 python3 agent-output/{project}/03-des-cost-distribution.py
+# → 03-des-cost-distribution.png  +  03-des-cost-distribution.svg
 ```
+
+Every `.py` generator must import `save_figure` (matplotlib charts),
+`diagram_kwargs` (the `diagrams` library), or `render_graphviz` (graphviz
+`Digraph`) from `diagram_io` instead of calling `plt.savefig`,
+`Diagram(outformat=...)`, or `dot.render()` directly. See
+[`waf-cost-charts.md`](waf-cost-charts.md) for the canonical import preamble.
 
 ## Professional Output Standards
 
