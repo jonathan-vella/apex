@@ -161,11 +161,7 @@ form. The invariants below are gate-level / non-negotiable:
 - **Tag casing is case-sensitive** — never emit both `owner` and `Owner` (`AmbiguousPolicyEvaluationPaths` error)
 - **Unique suffix** — generate `uniqueString(resourceGroup().id)` ONCE per deployment
 - **Governance wins** — `04-governance-constraints.md` overrides any default in this skill (tags, regions, SKUs, cost monitoring)
-- **VNet planning is interactive** — never auto-pick CIDRs without confirmation.
-  Trigger: any `services[].requires[] ∈ {vnet-integration, private-endpoints}` **OR**
-  `services[].service_name` in vnet-attached whitelist. Governance
-  `network_constraints` overrides defaults. Contract:
-  [`references/vnet-planning.md`](references/vnet-planning.md).
+- **VNet planning is interactive** — never auto-pick CIDRs without confirmation. Trigger: any `services[].requires[] ∈ {vnet-integration, private-endpoints}` **OR** `services[].service_name` in vnet-attached whitelist. Governance `network_constraints` overrides defaults. Contract: [`references/vnet-planning.md`](references/vnet-planning.md).
 
 ## Steps
 
