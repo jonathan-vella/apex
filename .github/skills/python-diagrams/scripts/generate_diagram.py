@@ -26,6 +26,7 @@ from diagrams.azure.security import KeyVaults
 from diagrams.onprem.client import Users
 
 with Diagram("{name}", show=False, filename="{output}", direction="LR",
+             outformat=["png", "svg"],
              graph_attr={{"fontsize": "20", "bgcolor": "white", "pad": "0.5"}}):
     users = Users("API Consumers")
     
@@ -65,6 +66,7 @@ from diagrams.onprem.database import MSSQL
 from diagrams.onprem.compute import Server
 
 with Diagram("{name}", show=False, filename="{output}", direction="LR",
+             outformat=["png", "svg"],
              graph_attr={{"fontsize": "20", "bgcolor": "white", "pad": "0.5"}}):
     
     with Cluster("On-Premises"):
@@ -105,6 +107,7 @@ from diagrams.azure.storage import BlobStorage
 from diagrams.azure.monitor import ApplicationInsights
 
 with Diagram("{name}", show=False, filename="{output}", direction="TB",
+             outformat=["png", "svg"],
              graph_attr={{"fontsize": "20", "bgcolor": "white", "pad": "0.5"}}):
     
     with Cluster("Event Producers"):
@@ -145,6 +148,7 @@ from diagrams.azure.database import CosmosDb, SQL, CacheForRedis
 from diagrams.azure.monitor import ApplicationInsights
 
 with Diagram("{name}", show=False, filename="{output}", direction="TB",
+             outformat=["png", "svg"],
              graph_attr={{"fontsize": "20", "bgcolor": "white", "pad": "0.5"}}):
     
     apim = APIManagement("API Gateway")
@@ -185,6 +189,7 @@ from diagrams.onprem.client import Client
 from diagrams.onprem.compute import Server
 
 with Diagram("{name}", show=False, filename="{output}", direction="LR",
+             outformat=["png", "svg"],
              graph_attr={{"fontsize": "20", "bgcolor": "white", "pad": "0.5"}}):
     
     with Cluster("Trading Partners"):
@@ -224,6 +229,7 @@ from diagrams.azure.database import SQL
 from diagrams.onprem.database import MSSQL, Oracle
 
 with Diagram("{name}", show=False, filename="{output}", direction="LR",
+             outformat=["png", "svg"],
              graph_attr={{"fontsize": "20", "bgcolor": "white", "pad": "0.5"}}):
     
     with Cluster("Data Sources"):
@@ -264,6 +270,7 @@ from diagrams.azure.security import KeyVaults
 from diagrams.onprem.client import Users
 
 with Diagram("{name}", show=False, filename="{output}", direction="TB",
+             outformat=["png", "svg"],
              graph_attr={{"fontsize": "20", "bgcolor": "white", "pad": "0.5"}}):
     
     users = Users("Users")
@@ -300,6 +307,7 @@ from diagrams.azure.networking import FrontDoorAndCDNProfiles
 from diagrams.azure.database import CosmosDb, SQL
 
 with Diagram("{name}", show=False, filename="{output}", direction="TB",
+             outformat=["png", "svg"],
              graph_attr={{"fontsize": "20", "bgcolor": "white", "pad": "0.5"}}):
     
     frontdoor = FrontDoorAndCDNProfiles("Azure Front Door")
@@ -339,6 +347,7 @@ from diagrams.azure.storage import DataLakeStorage
 from diagrams.azure.ml import MachineLearningServiceWorkspaces
 
 with Diagram("{name}", show=False, filename="{output}", direction="LR",
+             outformat=["png", "svg"],
              graph_attr={{"fontsize": "20", "bgcolor": "white", "pad": "0.5"}}):
     
     with Cluster("Edge"):
@@ -379,7 +388,7 @@ def generate_diagram(name: str, pattern: str, output: str):
     
     # Execute the generated code
     exec(code)
-    print(f"✅ Generated: {output}.png")
+    print(f"✅ Generated: {output}.png + {output}.svg")
 
 
 def interactive_mode():

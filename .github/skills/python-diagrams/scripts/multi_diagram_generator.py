@@ -11,7 +11,13 @@ Usage:
 """
 
 import argparse
+import sys
 from pathlib import Path
+
+# Make the sibling `diagram_io` helper importable when this script is run
+# directly from the skill's scripts/ folder.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from diagram_io import render_graphviz, save_figure  # noqa: E402
 
 # ============================================================================
 # BUSINESS PROCESS FLOWS
@@ -29,7 +35,8 @@ def create_process_flow(title: str, filename: str, steps: list = None):
     """
     from graphviz import Digraph
     
-    dot = Digraph(title, filename=filename, format='png')
+    # `format` is set per-render by `render_graphviz` so we emit PNG + SVG.
+    dot = Digraph(title, filename=filename)
     dot.attr(rankdir='TB', bgcolor='white', pad='0.5', nodesep='0.8', ranksep='0.8')
     dot.attr('node', fontname='Segoe UI, Arial', fontsize='10')
     dot.attr('edge', fontname='Segoe UI, Arial', fontsize='9')
@@ -71,8 +78,8 @@ def create_process_flow(title: str, filename: str, steps: list = None):
             else:
                 dot.edge(step['id'], target)
     
-    dot.render(cleanup=True)
-    print(f"✅ Generated: {filename}.png")
+    render_graphviz(dot, filename)
+    print(f"✅ Generated: {filename}.png + {filename}.svg")
     return f"{filename}.png"
 
 
@@ -87,7 +94,7 @@ def create_swimlane_flow(title: str, filename: str, lanes: list = None):
     """
     from graphviz import Digraph
     
-    dot = Digraph(title, filename=filename, format='png')
+    dot = Digraph(title, filename=filename)
     dot.attr(rankdir='TB', compound='true', bgcolor='white', pad='0.5')
     dot.attr('node', fontname='Segoe UI', fontsize='10')
     
@@ -126,8 +133,8 @@ def create_swimlane_flow(title: str, filename: str, lanes: list = None):
     dot.edge('s2', 's3')
     dot.edge('s3', 'u2')
     
-    dot.render(cleanup=True)
-    print(f"✅ Generated: {filename}.png")
+    render_graphviz(dot, filename)
+    print(f"✅ Generated: {filename}.png + {filename}.svg")
     return f"{filename}.png"
 
 
@@ -146,7 +153,7 @@ def create_erd(title: str, filename: str, tables: list = None):
     """
     from graphviz import Digraph
     
-    dot = Digraph(title, filename=filename, format='png')
+    dot = Digraph(title, filename=filename)
     dot.attr(rankdir='LR', bgcolor='white', splines='spline', nodesep='0.8', ranksep='1.5')
     dot.attr('node', shape='none', fontname='Segoe UI', fontsize='10')
     
@@ -210,8 +217,8 @@ def create_erd(title: str, filename: str, tables: list = None):
     if len(tables) >= 3:
         dot.edge('Documents', 'Users', arrowhead='none', arrowtail='crow')
     
-    dot.render(cleanup=True)
-    print(f"✅ Generated: {filename}.png")
+    render_graphviz(dot, filename)
+    print(f"✅ Generated: {filename}.png + {filename}.svg")
     return f"{filename}.png"
 
 
@@ -226,7 +233,7 @@ def create_access_matrix(title: str, filename: str, matrix: dict = None):
     """
     from graphviz import Digraph
     
-    dot = Digraph(title, filename=filename, format='png')
+    dot = Digraph(title, filename=filename)
     dot.attr(bgcolor='white')
     dot.attr('node', shape='none')
     
@@ -272,8 +279,8 @@ def create_access_matrix(title: str, filename: str, matrix: dict = None):
     </TABLE>>'''
     
     dot.node('matrix', html)
-    dot.render(cleanup=True)
-    print(f"✅ Generated: {filename}.png")
+    render_graphviz(dot, filename)
+    print(f"✅ Generated: {filename}.png + {filename}.svg")
     return f"{filename}.png"
 
 
@@ -337,9 +344,9 @@ def create_gantt_chart(title: str, filename: str, tasks: list = None):
     ax.legend(handles=legend_patches, loc='lower right', fontsize=8)
     
     plt.tight_layout()
-    plt.savefig(f"{filename}.png", dpi=150, bbox_inches='tight', facecolor='white')
+    save_figure(fig, filename, bbox_inches='tight', facecolor='white')
     plt.close()
-    print(f"✅ Generated: {filename}.png")
+    print(f"✅ Generated: {filename}.png + {filename}.svg")
     return f"{filename}.png"
 
 
@@ -349,7 +356,7 @@ def create_phase_timeline(title: str, filename: str, phases: list = None):
     """
     from graphviz import Digraph
     
-    dot = Digraph(title, filename=filename, format='png')
+    dot = Digraph(title, filename=filename)
     dot.attr(rankdir='LR', bgcolor='white', pad='0.5')
     dot.attr('node', shape='none', fontname='Segoe UI', fontsize='10')
     
@@ -378,8 +385,8 @@ def create_phase_timeline(title: str, filename: str, phases: list = None):
             dot.edge(prev, node_id)
         prev = node_id
     
-    dot.render(cleanup=True)
-    print(f"✅ Generated: {filename}.png")
+    render_graphviz(dot, filename)
+    print(f"✅ Generated: {filename}.png + {filename}.svg")
     return f"{filename}.png"
 
 

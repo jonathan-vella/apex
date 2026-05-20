@@ -66,7 +66,8 @@ Deny-policy blockers before designing the module structure.
 <output_contract>
 Primary artifact: agent-output/{project}/04-implementation-plan.md — YAML-structured resource
 specs, module inventory, deployment phases, dependency order. H2 structure from template.
-Diagrams: 04-dependency-diagram.py/.png and 04-runtime-diagram.py/.png (Python diagrams library).
+Diagrams: 04-dependency-diagram.{py,png,svg} and 04-runtime-diagram.{py,png,svg}
+(Python diagrams library via shared `diagram_io` helper — paired PNG+SVG siblings).
 Session state: managed via `apex-recall` CLI — checkpoint after each phase.
 </output_contract>
 
@@ -154,7 +155,7 @@ rules already documented in these files).
 | Use AVM defaults for SKUs; deprecation research only for overrides                                         | Hardcode SKUs without AVM verification                                  |
 | Define tasks as YAML specs (resource, module, dependencies, config)                                        | Proceed to code generation without explicit user approval               |
 | Generate `04-implementation-plan.md`                                                                       | Ignore policy `effect` — `Deny` = blocker, `Audit` = warning only       |
-| Auto-generate `04-dependency-diagram.py/.png` + `04-runtime-diagram.py/.png`                               | Generate governance from best-practice assumptions                      |
+| Auto-generate `04-dependency-diagram.{py,png,svg}` + `04-runtime-diagram.{py,png,svg}`                     | Generate governance from best-practice assumptions                      |
 | Match H2 headings from azure-artifacts templates exactly                                                   | Re-run governance discovery (already done in Step 3.5)                  |
 | Ask user for deployment strategy — **MANDATORY GATE**                                                      | Add H2 headings not in the template                                     |
 | Auto-apply every `must_fix` finding in Phase 5 (mandatory — blocks deployment); re-run challenger after    | Ask the user whether to accept `must_fix` findings — they are mandatory |
@@ -355,7 +356,8 @@ dependencies, config, tags, naming).
 
 Include: resource inventory, module structure, tasks in dependency order,
 deployment phases (from Phase 3.5 choice), diagram artifacts
-(`04-dependency-diagram.py/.png`, `04-runtime-diagram.py/.png` using Python `diagrams` library),
+(`04-dependency-diagram.{py,png,svg}`, `04-runtime-diagram.{py,png,svg}` using
+Python `diagrams` library via shared `diagram_io` helper),
 naming conventions table, security config matrix, estimated time.
 
 **L1 attestation — Governance Compliance Matrix (MANDATORY)**: emit the

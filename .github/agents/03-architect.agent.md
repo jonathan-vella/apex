@@ -61,7 +61,9 @@ Primary artifact: agent-output/{project}/02-architecture-assessment.md — all 5
 scores (1-10) with confidence, service maturity table, SKU recommendations, cost table.
 Cost artifact: agent-output/{project}/03-des-cost-estimate.md — every dollar figure from
 cost-estimate-subagent, not from parametric knowledge.
-Charts: 02-waf-scores.py/.png, 03-des-cost-distribution.py/.png, 03-des-cost-projection.py/.png.
+Charts: 02-waf-scores.{py,png,svg}, 03-des-cost-distribution.{py,png,svg}, 03-des-cost-projection.{py,png,svg}.
+Every Python diagram emits paired `.png` + `.svg` siblings via the shared
+`scripts/diagram_io.py` helper (see python-diagrams SKILL.md).
 Session state: managed via `apex-recall` CLI — checkpoint after each phase.
 </output_contract>
 
@@ -257,15 +259,18 @@ in your WAF assessment recommendations (still produce the identical artifact str
     [`workflow-gates.md`](../skills/azure-defaults/references/workflow-gates.md#architect-step-2--phase-9a-budget-gate).
 10. **Generate charts** — Read
     `.github/skills/python-diagrams/references/waf-cost-charts.md` and
-    produce three matplotlib PNGs in `agent-output/{project}/`:
-    - `02-waf-scores.py` + `02-waf-scores.png` — one horizontal bar per
-      WAF pillar, WAF brand colours
-    - `03-des-cost-distribution.py` + `03-des-cost-distribution.png` —
-      donut chart of cost categories
-    - `03-des-cost-projection.py` + `03-des-cost-projection.png` —
-      6-month bar and trend chart
+    produce three matplotlib charts in `agent-output/{project}/`. Each
+    `.py` file must import `save_figure` from
+    `.github/skills/python-diagrams/scripts/diagram_io.py` so it emits
+    paired `.png` + `.svg` siblings:
+    - `02-waf-scores.py` → `02-waf-scores.png` + `02-waf-scores.svg` —
+      one horizontal bar per WAF pillar, WAF brand colours
+    - `03-des-cost-distribution.py` → `03-des-cost-distribution.png` +
+      `03-des-cost-distribution.svg` — donut chart of cost categories
+    - `03-des-cost-projection.py` → `03-des-cost-projection.png` +
+      `03-des-cost-projection.svg` — 6-month bar and trend chart
 
-    Execute each `.py` file and verify the PNGs exist before continuing.
+    Execute each `.py` file and verify both `.png` and `.svg` exist before continuing.
 
 11. **Delegate lint** — Do not invoke `npm run lint:artifact-templates` or
     `markdownlint-cli2` directly against `agent-output/**`. The artifact

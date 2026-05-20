@@ -330,14 +330,16 @@ As-built variants of the parent contract:
 ### Phase 3: As-Built Charts
 
 Read `.github/skills/python-diagrams/references/waf-cost-charts.md` and generate
-three cost charts using as-built figures:
+four cost charts using as-built figures. Each `.py` file must import
+`save_figure` from `.github/skills/python-diagrams/scripts/diagram_io.py` so
+it emits paired `.png` + `.svg` siblings:
 
-- `agent-output/{project}/07-ab-cost-distribution.py` + `07-ab-cost-distribution.png`
-- `agent-output/{project}/07-ab-cost-projection.py` + `07-ab-cost-projection.png`
-- `agent-output/{project}/07-ab-cost-comparison.py` + `07-ab-cost-comparison.png` (design vs as-built)
-- `agent-output/{project}/07-ab-compliance-gaps.py` + `07-ab-compliance-gaps.png` (gap counts by severity)
+- `agent-output/{project}/07-ab-cost-distribution.py` + `.png` + `.svg`
+- `agent-output/{project}/07-ab-cost-projection.py` + `.png` + `.svg`
+- `agent-output/{project}/07-ab-cost-comparison.py` + `.png` + `.svg` (design vs as-built)
+- `agent-output/{project}/07-ab-compliance-gaps.py` + `.png` + `.svg` (gap counts by severity)
 
-Execute each `.py` file and verify the PNGs exist before continuing.
+Execute each `.py` file and verify both `.png` and `.svg` exist before continuing.
 
 ### Phase 4: As-Built Diagram
 
@@ -397,10 +399,10 @@ az graph query -q "resources | where resourceGroup == '{rg-name}' | project name
 | Operations Runbook         | `agent-output/{project}/07-operations-runbook.md`    |
 | Documentation Index        | `agent-output/{project}/07-documentation-index.md`   |
 | As-Built Diagram (Draw.io) | `agent-output/{project}/07-ab-diagram.drawio`        |
-| Cost Distribution Chart    | `agent-output/{project}/07-ab-cost-distribution.png` |
-| Cost Projection Chart      | `agent-output/{project}/07-ab-cost-projection.png`   |
-| Design vs As-Built Chart   | `agent-output/{project}/07-ab-cost-comparison.png`   |
-| Compliance Gaps Chart      | `agent-output/{project}/07-ab-compliance-gaps.png`   |
+| Cost Distribution Chart    | `agent-output/{project}/07-ab-cost-distribution.{png,svg}` |
+| Cost Projection Chart      | `agent-output/{project}/07-ab-cost-projection.{png,svg}`   |
+| Design vs As-Built Chart   | `agent-output/{project}/07-ab-cost-comparison.{png,svg}`   |
+| Compliance Gaps Chart      | `agent-output/{project}/07-ab-compliance-gaps.{png,svg}`   |
 
 ## Expected Output
 

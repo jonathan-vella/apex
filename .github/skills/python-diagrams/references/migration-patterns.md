@@ -4,6 +4,13 @@
 
 Common migration scenarios for Transparity presales - from legacy integration platforms to Azure Integration Services.
 
+> **Dual-output contract:** Every `with Diagram(...)` snippet below emits both
+> `.png` and `.svg` siblings when authored via
+> [`scripts/diagram_io.py`](../scripts/diagram_io.py). Replace
+> `Diagram("Title", show=False, filename="x", direction="LR")` with
+> `Diagram("Title", **diagram_kwargs("x", direction="LR"))` and import
+> `diagram_kwargs` from `diagram_io`.
+
 ## BizTalk to Azure Migration
 
 ```python
