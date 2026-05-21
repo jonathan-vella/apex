@@ -162,9 +162,9 @@ export default defineConfig({
                   slug: "concepts/how-it-works/sku-manifest",
                 },
                 { label: "Workflow", slug: "concepts/workflow" },
+                { label: "Workflow Deep Dive", slug: "concepts/workflow-deep-dive" },
               ],
             },
-            { label: "Workflow Deep Dive", slug: "concepts/workflow-deep-dive" },
           ],
         },
         {
