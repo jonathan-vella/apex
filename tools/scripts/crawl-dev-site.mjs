@@ -53,7 +53,11 @@ for (const u of urls) {
       if (!href) continue;
       if (/^(https?:|mailto:|tel:|#)/.test(href)) continue;
       if (href.startsWith("/azure-agentic-infraops/")) {
-        linkTargets.add(href.replace(/\/$/, "/"));
+        // Doc URLs get a trailing slash for Set dedupe; static assets
+        // (anything with a file extension in the last segment) stay as-is.
+        const lastSegment = href.split("/").pop() || "";
+        const isAsset = lastSegment.includes(".");
+        linkTargets.add(isAsset || href.endsWith("/") ? href : `${href}/`);
       }
     }
   } catch (e) {
