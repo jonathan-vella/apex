@@ -14,11 +14,11 @@ Quick reference for terms used throughout APEX documentation.
 
 ## A
 
-### AAD (Azure Active Directory)
+### Microsoft Entra ID (formerly Azure Active Directory / AAD)
 
-Microsoft's cloud-based identity and access management service, now branded as
-**Microsoft Entra ID**. Used for authentication and RBAC across Azure resources.
-SQL databases in this project require AAD-only authentication (no SQL auth).
+Microsoft's cloud-based identity and access management service. Used for
+authentication and RBAC across Azure resources. SQL databases in this project
+require Microsoft Entra ID-only authentication (no SQL auth).
 
 🔗 **External**: [Microsoft Entra ID](https://learn.microsoft.com/entra/fundamentals/whatis)
 
@@ -330,7 +330,7 @@ is `01-requirements.md`.
 ### RBAC (Role-Based Access Control)
 
 Azure's authorization system that assigns permissions based on roles (Owner, Contributor,
-Reader). Managed through Azure AD / Entra ID. The Azure MCP server is RBAC-aware.
+Reader). Managed through Microsoft Entra ID (formerly Azure AD). The Azure MCP server is RBAC-aware.
 
 🔗 **External**: [Azure RBAC](https://learn.microsoft.com/azure/role-based-access-control/)
 

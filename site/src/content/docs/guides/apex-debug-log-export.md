@@ -97,7 +97,7 @@ The `.apex-logs/` directory is ignored by git on first run.
 ### VS Code Explorer
 
 1. In the VS Code Explorer, expand `.apex-logs/`.
-2. Right-click the generated `.tar.gz` file and choose **Download...**.
+2. Right-click the generated `.tar.gz` file and select **Download...**.
 3. Save the archive locally.
 4. Open the OneDrive for Business share link in your browser.
 5. Drag the archive into the browser window.
