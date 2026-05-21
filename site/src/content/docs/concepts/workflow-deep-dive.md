@@ -152,14 +152,6 @@ of resources, lenses, or passes come from
 [`workflow-graph.json`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/workflow-engine/templates/workflow-graph.json)
 — treat that file as authoritative.
 
-:::caution[Doc divergence — out of scope]
-[`workflow-engine.md`](../how-it-works/workflow-engine/) still shows a stale
-`step-4b`/`step-4t` Mermaid diagram from before the Step 4 unification.
-The authoritative shape is the unified `step-4` plus forked `step-5b` /
-`step-5t` used throughout this page. Fixing the workflow-engine page is
-tracked as a follow-up.
-:::
-
 ### Step 0 — Project Init (Orchestrator boot)
 
 Before Step 1 runs, **01-Orchestrator** initialises the project and
