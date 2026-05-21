@@ -23,11 +23,10 @@ flowchart TD
     G1{{"gate-1: Approval"}}:::gate
     S2["step-2: Architecture"]
     G2{{"gate-2: Approval"}}:::gate
-    S3["step-3: Design"]
+    S3["step-3: Design (opt)"]
     S35["step-3.5: Governance"]
     G25{{"gate-2.5: Approval"}}:::gate
-    S4B["step-4b: Bicep Plan"]
-    S4T["step-4t: TF Plan"]
+    S4["step-4: IaC Plan"]
     G3{{"gate-3: Approval"}}:::gate
     S5B["step-5b: Bicep Code"]
     S5T["step-5t: TF Code"]
@@ -41,8 +40,8 @@ flowchart TD
     G2 --> S3
     S3 --> S35
     S35 --> G25
-    G25 --> S4B & S4T
-    S4B & S4T --> G3
+    G25 --> S4
+    S4 --> G3
     G3 --> S5B & S5T
     S5B & S5T --> G4
     G4 --> S6B & S6T
@@ -51,8 +50,9 @@ flowchart TD
 ```
 
 Each node has a type (`agent-step`, `gate`, `subagent-fan-out`, `validation`), and each
-edge has a condition (`on_complete`, `on_skip`, `on_fail`). Conditional routing at IaC
-nodes is governed by the `decisions.iac_tool` field.
+edge has a condition (`on_complete`, `on_skip`, `on_fail`). Step 4 (IaC Plan) is
+unified across IaC tools; the workflow forks at Step 5 (Code) and Step 6
+(Deploy), with conditional routing governed by the `decisions.iac_tool` field.
 
 :::note[Read-only workflow graph]
 The workflow DAG is auto-loaded by the Orchestrator. Users do not edit
