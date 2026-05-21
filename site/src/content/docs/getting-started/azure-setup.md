@@ -32,7 +32,7 @@ and only fills in missing pieces.
 | Azure CLI logged in                          | `az account show`                  |
 | GitHub CLI authenticated                     | `gh auth status`                   |
 | jq installed                                 | `jq --version`                     |
-| Permission to create Entra app registrations | Ask your Azure AD admin            |
+| Permission to create Entra app registrations | Ask your Microsoft Entra ID admin  |
 | Permission to assign RBAC roles              | Owner or User Access Administrator |
 
 ## What Gets Created
@@ -57,7 +57,7 @@ The wizard creates these resources across Azure and GitHub:
 | Resource                                 | Details                          |
 | ---------------------------------------- | -------------------------------- |
 | Secret: `AZURE_CLIENT_ID`                | Entra app client ID              |
-| Secret: `AZURE_TENANT_ID`                | Azure AD tenant ID               |
+| Secret: `AZURE_TENANT_ID`                | Microsoft Entra tenant ID        |
 | Secret: `AZURE_SUBSCRIPTION_ID`          | Target subscription ID           |
 | Variable: `GOVERNANCE_BASELINE_ENABLED`  | `true` (kill switch)             |
 | Variable: `GOVERNANCE_MG_ID`             | Management Group to scan         |
