@@ -28,7 +28,7 @@ for full details on this and all prior releases.
   a regenerable Python-diagrams source at
   `site/src/assets/diagrams/workflow-deep-dive/gen.py` plus the
   end-to-end orchestration and lessons-loop PNGs. Sidebar entry added
-  under *Concepts* as a sibling to *How It Works*.
+  under _Concepts_ as a sibling to _How It Works_.
 
 ### Added (Plan 01 — token-reduction workstream)
 
