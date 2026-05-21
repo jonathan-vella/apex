@@ -66,6 +66,28 @@ import AgentChat from "../../components/AgentChat.astro";
       </div>
     </div>
 
+    <div class="scenario-flow">
+
+```mermaid
+flowchart LR
+  classDef step fill:#0078d4,stroke:#0078d4,color:#fff,rx:6,ry:6
+  classDef gate fill:#fef3c7,stroke:#d97706,color:#7c2d12,rx:6,ry:6
+  classDef opt  fill:#1e3a5f,stroke:#0078d4,color:#dbeafe,rx:6,ry:6,stroke-dasharray:4 3
+
+  S1[Step 1<br/>Requirements]:::step --> S2[Step 2<br/>Architecture]:::step
+  S2 --> S3[Step 3<br/>Design]:::opt
+  S3 --> G35{{Step 3.5<br/>Governance gate}}:::gate
+  S2 --> G35
+  G35 --> S4[Step 4<br/>IaC Plan]:::step
+  S4 --> G4{{Plan approval}}:::gate
+  G4 --> S5[Step 5<br/>IaC Code]:::step
+  S5 --> S6[Step 6<br/>Deploy]:::step
+  S6 --> G6{{Verify resources}}:::gate
+  G6 --> S7[Step 7<br/>As-Built]:::step
+```
+
+    </div>
+
   </div>
 </section>
 

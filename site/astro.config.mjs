@@ -153,6 +153,21 @@ export default defineConfig({
           ],
         },
         {
+          label: "Walk the workflow",
+          collapsed: true,
+          items: [
+            { label: "Step 1 — Requirements", slug: "concepts/workflow/step-1" },
+            { label: "Step 2 — Architecture", slug: "concepts/workflow/step-2" },
+            { label: "Step 3 — Design (opt)", slug: "concepts/workflow/step-3" },
+            { label: "Step 3.5 — Governance", slug: "concepts/workflow/step-3-5" },
+            { label: "Step 4 — IaC Plan", slug: "concepts/workflow/step-4" },
+            { label: "Step 5 — IaC Code", slug: "concepts/workflow/step-5" },
+            { label: "Step 6 — Deploy", slug: "concepts/workflow/step-6" },
+            { label: "Step 7 — As-Built", slug: "concepts/workflow/step-7" },
+            { label: "Post — Lessons", slug: "concepts/workflow/post-lessons" },
+          ],
+        },
+        {
           label: "How-to & Tutorials",
           collapsed: true,
           items: [
