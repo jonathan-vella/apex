@@ -17,7 +17,7 @@ review gates. Violations block code generation and deployment.
 | 2   | HTTPS-only traffic                     | `supportsHttpsTrafficOnly: true`       | `https_traffic_only_enabled = true`       | SE:07      |
 | 3   | No public blob access                  | `allowBlobPublicAccess: false`         | `allow_nested_items_to_be_public = false` | SE:05      |
 | 4   | Managed Identity preferred             | `identity: { type: 'SystemAssigned' }` | `identity { type = "SystemAssigned" }`    | SE:05      |
-| 5   | Azure AD-only SQL auth                 | `azureADOnlyAuthentication: true`      | `azuread_authentication_only = true`      | SE:05      |
+| 5   | Microsoft Entra ID-only SQL auth       | `azureADOnlyAuthentication: true`      | `azuread_authentication_only = true`      | SE:05      |
 | 6   | Public network disabled (prod only)    | `publicNetworkAccess: 'Disabled'`      | `public_network_access_enabled = false`   | SE:06      |
 | 7   | No shared key access on storage        | `allowSharedKeyAccess: false`          | `shared_access_key_enabled = false`       | SE:05      |
 | 8   | App Service HTTP/2 enabled             | `http20Enabled: true`                  | `http2_enabled = true`                    | SE:07      |
@@ -61,7 +61,7 @@ The security baseline is checked at multiple points in the workflow:
 
 ## Running the Validator
 
-```bash
+```bash title="Run the security baseline validator" frame="terminal"
 # Check all IaC files
 npm run validate:iac-security-baseline
 
@@ -80,15 +80,15 @@ regex cannot detect.
 
 - [Microsoft Cloud Security Benchmark][mcsb] — per-service security baselines
 - [WAF Security Pillar][waf-sec] — Well-Architected Framework security patterns
-- [Validation Reference](../../reference/validation-reference/) — full list of validators
-- [Cost Governance](../cost-governance/) — budget and cost monitoring rules
-- [Workflow](../../concepts/workflow/) — where security checks fit in the agent pipeline
+- [Validation Reference](/azure-agentic-infraops/reference/validation-reference/) — full list of validators
+- [Cost Governance](/azure-agentic-infraops/reference/cost-governance/) — budget and cost monitoring rules
+- [Workflow](/azure-agentic-infraops/concepts/workflow/) — where security checks fit in the agent pipeline
 
 [mcsb]: https://learn.microsoft.com/security/benchmark/azure/overview
 [waf-sec]: https://learn.microsoft.com/azure/well-architected/security/
 
 ## Related
 
-- [Quickstart](../../getting-started/quickstart/) — install and run your first project
-- [Workflow](../../concepts/workflow/) — how agents collaborate across steps
-- [Troubleshooting](../troubleshooting/) — diagnose failed deploys
+- [Quickstart](/azure-agentic-infraops/getting-started/quickstart/) — install and run your first project
+- [Workflow](/azure-agentic-infraops/concepts/workflow/) — how agents collaborate across steps
+- [Troubleshooting](/azure-agentic-infraops/guides/troubleshooting/) — diagnose failed deploys

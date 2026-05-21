@@ -302,6 +302,24 @@ body:has(.landing-hero) footer {
   margin: 0 0 1rem;
 }
 
+.landing-wordmark {
+  font-family: var(--font-display);
+  font-size: clamp(1.45rem, 2.4vw, 2rem);
+  font-weight: 800;
+  letter-spacing: 0.32em;
+  color: var(--sl-color-accent-high, #6cb8f7);
+  background: linear-gradient(90deg, #6cb8f7, #8b5cf6);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-transform: none;
+  margin: 0 0 0.4rem;
+}
+
+.landing-wordmark::before {
+  content: none;
+}
+
 .landing-hero__copy h1,
 .section-heading h2,
 .scenario-frame__head h2 {
@@ -311,14 +329,15 @@ body:has(.landing-hero) footer {
 .landing-hero__copy h1 {
   margin: 0;
   color: #f0f6fc;
-  font-size: clamp(2.65rem, 4.35vw, 4.15rem);
-  line-height: 0.93;
-  letter-spacing: -0.06em;
+  font-size: clamp(2.05rem, 3.4vw, 3.15rem);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
 }
 
 .landing-hero__copy h1 span {
-  display: block;
-  white-space: nowrap;
+  display: inline;
+  white-space: normal;
 }
 
 .landing-hero__tagline {

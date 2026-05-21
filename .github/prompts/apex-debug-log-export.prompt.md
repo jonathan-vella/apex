@@ -22,7 +22,7 @@ you upload to OneDrive yourself via a browser**.
 - Default capture: the **most recent non-active** Copilot debug-log
   directory in this workspace — i.e. the conversation that ran
   **before** this prompt was invoked. `$VSCODE_TARGET_SESSION_LOG`
-  points at the _current_ prompt's own session, which is almost never
+  points at the *current* prompt's own session, which is almost never
   what the user wants archived; it is therefore excluded by default
   and only the user can opt back into it (Step 1).
 - Opt-in capture: the active prompt session, older sessions in the
@@ -37,14 +37,14 @@ you upload to OneDrive yourself via a browser**.
 
 ## Inputs
 
-| Variable       | Source                         | Default                        |
-| -------------- | ------------------------------ | ------------------------------ |
-| session_dir    | user pick (Step 0/1)           | most recent non-active session |
-| include_older  | user choice                    | `no`                           |
-| include_xcript | user choice (transcript JSONL) | `no`                           |
-| include_ws     | user choice (`logs/copilot/`)  | `no`                           |
-| redact         | user choice                    | `yes`                          |
-| onedrive_link  | argument-hint                  | none (printed only if given)   |
+| Variable      | Source                              | Default                        |
+| ------------- | ----------------------------------- | ------------------------------ |
+| session_dir   | user pick (Step 0/1)                | most recent non-active session |
+| include_older | user choice                         | `no`                           |
+| include_xcript| user choice (transcript JSONL)      | `no`                           |
+| include_ws    | user choice (`logs/copilot/`)       | `no`                           |
+| redact        | user choice                         | `yes`                          |
+| onedrive_link | argument-hint                       | none (printed only if given)   |
 
 ## Workflow
 
@@ -52,7 +52,7 @@ you upload to OneDrive yourself via a browser**.
 
 `$VSCODE_TARGET_SESSION_LOG` is the **current prompt's own** session
 and is almost never what the user wants archived (it only contains
-this export run). Treat it as the _active_ session to **exclude** by
+this export run). Treat it as the *active* session to **exclude** by
 default, and list all other debug-log directories in the same
 workspace sorted by mtime (most recent first).
 
@@ -155,7 +155,7 @@ session short id and mtime — for example:
 Untitled sessions render as `(untitled)`. Mark the most recent
 **non-active** session as `recommended: true`. Include the active
 session as an opt-in option with the same title prefix and a
-`ACTIVE — this prompt; usually skip` suffix; do **not** mark it
+`(ACTIVE — this prompt; usually skip)` suffix; do **not** mark it
 recommended. Question text:
 `Which Copilot session should be bundled?`
 
@@ -405,15 +405,15 @@ review before uploading if the chat may have contained secrets.
 
 Print this summary table at the end:
 
-| Step          | Result                                                             |
-| ------------- | ------------------------------------------------------------------ |
-| Session dir   | `<absolute path>`                                                  |
-| Captured      | active + (older / transcript / workspace logs as selected)         |
-| Filter source | `tools/registry/agent-registry.json` + `.github/agents/*.agent.md` |
-| Redaction     | on / off                                                           |
-| Archive       | `.apex-logs/<bundle-id>.tar.gz` (`<size>`)                         |
-| Upload target | `<onedrive-link>` or `(provide link to upload)`                    |
-| Gitignore     | `.apex-logs/` already-ignored / added                              |
+| Step           | Result                                                                   |
+| -------------- | ------------------------------------------------------------------------ |
+| Session dir    | `<absolute path>`                                                        |
+| Captured       | active + (older / transcript / workspace logs as selected)               |
+| Filter source  | `tools/registry/agent-registry.json` + `.github/agents/*.agent.md`       |
+| Redaction      | on / off                                                                 |
+| Archive        | `.apex-logs/<bundle-id>.tar.gz` (`<size>`)                               |
+| Upload target  | `<onedrive-link>` or `(provide link to upload)`                          |
+| Gitignore      | `.apex-logs/` already-ignored / added                                    |
 
 ## Rules
 

@@ -64,6 +64,21 @@ definitions or skills instead.
 
 Five mandatory gates require explicit human confirmation before the workflow advances:
 
+```mermaid
+flowchart LR
+  classDef step fill:#1e3a5f,stroke:#0078d4,color:#dbeafe,rx:6,ry:6
+  classDef gate fill:#fef3c7,stroke:#d97706,color:#7c2d12,rx:6,ry:6
+  classDef auto fill:#dcfce7,stroke:#15803d,color:#14532d,rx:6,ry:6
+
+  S1[Step 1<br/>Requirements]:::step --> G1{{Gate 1<br/>Requirements OK?}}:::gate
+  G1 --> S2[Step 2<br/>Architecture]:::step --> G2{{Gate 2<br/>Arch + cost OK?}}:::gate
+  G2 --> S4[Step 4<br/>IaC Plan]:::step --> G3{{Gate 3<br/>Plan OK?}}:::gate
+  G3 --> S5[Step 5<br/>IaC Code]:::step --> G4(((Gate 4<br/>Automated)))
+  G4 --> S6[Step 6<br/>Deploy]:::step --> G5{{Gate 5<br/>Resources OK?}}:::gate
+  G5 --> S7[Step 7<br/>As-Built]:::step
+  class G4 auto
+```
+
 | Gate | After  | Blocks Until                                      |
 | ---- | ------ | ------------------------------------------------- |
 | 1    | Step 1 | User approves requirements                        |
@@ -203,7 +218,7 @@ last successful sub-step.
 The [`context-management`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/context-management/SKILL.md)
 skill defines three runtime compression tiers for artifact loading (it replaces
 the legacy `context-shredding` and `context-optimizer` skills; for post-hoc
-analysis of past sessions, see the [`11-Context Optimizer`](./agents/) agent):
+analysis of past sessions, see the [`11-Context Optimizer`](../agents/) agent):
 
 | Tier         | Trigger    | Strategy                                   |
 | ------------ | ---------- | ------------------------------------------ |

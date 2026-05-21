@@ -352,7 +352,7 @@ Both tracks also produce `agent-output/{project}/05-implementation-reference.md`
 - Unique suffix for global resource names
 - Required tags on all resources
 - Security defaults (TLS 1.2, HTTPS-only, managed identity)
-- Phase 1.5 governance compliance mapping from `04-governance-constraints.json`
+- Step 3.5 (governance) compliance mapping from `04-governance-constraints.json`
 
 **Preflight Validation** (via track-specific subagents):
 

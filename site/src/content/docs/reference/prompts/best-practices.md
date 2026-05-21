@@ -66,7 +66,7 @@ Business context:
 
 Technical constraints:
 - Region: swedencentral (EU data residency)
-- Authentication: Azure AD only — no SQL credentials
+- Authentication: Microsoft Entra ID only — no SQL credentials
 - Naming follows our convention: sql-{projectName}-{environment}-{uniqueSuffix}
 
 Create a Bicep module for Azure SQL Database that meets these requirements.
