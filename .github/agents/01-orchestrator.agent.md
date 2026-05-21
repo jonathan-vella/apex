@@ -314,12 +314,16 @@ project init), then never re-prompt. Allowed values:
 writes it. Default when absent: `"default"`. When set to `"deep"`, parent
 agents enter the rotating-lens path automatically — do NOT re-ask at gates.
 
-Capture via `askQuestions`:
+Capture via `askQuestions`. The question's `message:` field MUST
+include the self-documenting hint shown below so users know how to
+change the value later without re-asking the orchestrator:
 
 ```text
 Run adversarial reviews at the default depth (single comprehensive pass per step) or deep depth (rotating multi-lens passes per step)?
 - "Default — single-pass comprehensive (recommended)"
 - "Deep — multi-pass rotating lenses (opt-in)"
+
+message: "Default runs one comprehensive challenger pass at Steps 1, 2, 4 (plus governance-reconciliation at 3.5) and is right for most workshops, MVPs, and single-region projects. Pick Deep for regulated workloads (HIPAA/PCI/regulated), prod migrations, or multi-region designs. You can change this later by editing `decisions.review_depth` via `apex-recall decide <project> --key review_depth --value default|deep`."
 ```
 
 Persist:

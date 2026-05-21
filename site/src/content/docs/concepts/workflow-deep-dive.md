@@ -160,6 +160,30 @@ The authoritative shape is the unified `step-4` plus forked `step-5b` /
 tracked as a follow-up.
 :::
 
+### Step 0 — Project Init (Orchestrator boot)
+
+Before Step 1 runs, **01-Orchestrator** initialises the project and
+captures two project-scoped decisions that every downstream agent
+reads (never re-asked):
+
+- **`iac_tool`** — Bicep or Terraform. Captured at Step 1 Phase 2 by
+  `02-Requirements` and persisted via `apex-recall decide … --key
+  iac_tool`. No default — the user must choose.
+- **`review_depth`** — Adversarial-review depth for the whole
+  project. Captured at project boot (or first gate after init).
+  Default `default` = single-pass `comprehensive` at Steps 1, 2, 4
+  plus `governance-reconciliation` at Step 3.5. Opt-in `deep` flips
+  every challenger call into the rotating-lens multi-pass cascade
+  defined in `adversarial-review-protocol.md`. Persisted via
+  `apex-recall decide … --key review_depth`.
+
+Once written, both decisions can be changed only by editing the
+`apex-recall` value directly — the orchestrator does not re-prompt.
+For a single-artifact deep review without flipping the project, invoke
+`10-Challenger` manually. Full contract:
+[01-orchestrator.agent.md → `Computing
+decisions.review_depth`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/01-orchestrator.agent.md#computing-decisionsreview_depth-project-scoped-opt-in).
+
 ### Step 1 — Requirements
 
 - **Purpose & inputs** — Capture the project intent and pin the SKU
@@ -453,6 +477,153 @@ appeared in a real run:
   ]
 }
 ```
+
+## APEX and Azure Landing Zones
+
+APEX assumes that an [Azure Landing Zone (ALZ)](https://learn.microsoft.com/azure/cloud-adoption-framework/ready/landing-zone/)
+is already deployed. ALZ provides the **platform-level guardrails** — management
+group hierarchy, Azure Policy assignments, RBAC role definitions, connectivity
+(hub-spoke or Virtual WAN), and identity — that APEX consumes rather than
+recreates. Understanding this boundary is critical: APEX operates *inside* the
+landing zone, not *instead of* it.
+
+### What ALZ provides
+
+| ALZ layer               | What it gives APEX                                                                                                     |
+| ------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
+| **Management groups**    | Inheritance scope for Azure Policy. The `governance-policy-baseline` workflow crawls this hierarchy at Step 3.5.        |
+| **Azure Policy**         | Deny/audit/DINE rules for security, tagging, allowed regions, allowed SKUs. APEX discovers these live and encodes them into `04-governance-constraints.json`. |
+| **Connectivity**         | Hub VNet or Virtual WAN hub with ExpressRoute/VPN gateways, Azure Firewall or NVA, and centralized Private DNS Zones.  |
+| **Identity**             | Entra ID tenant, privileged identity governance, break-glass accounts. APEX assumes Managed Identity and Entra-only auth. |
+| **Logging**              | Central Log Analytics workspace, Defender for Cloud. APEX references these for diagnostic settings, not re-creates them. |
+
+### How ALZ guardrails accelerate and de-risk APEX
+
+1. **Governance discovery is pre-populated.** Because ALZ enforces policies at
+   the management-group level, Step 3.5 (`04g-Governance`) finds real
+   constraints immediately — required tags, denied public endpoints, mandatory
+   encryption — instead of generating best-guess defaults. This makes the
+   challenger review at Step 3.5 a reconciliation pass against known facts, not
+   a speculative audit.
+
+2. **Security baseline overlaps rather than conflicts.** APEX's non-negotiable
+   baseline (TLS 1.2+, HTTPS-only, no public blob, Managed Identity) is a
+   *subset* of what a well-configured ALZ already enforces. When a landing zone
+   has stricter rules — such as denying public network access on *all* PaaS
+   services, not just storage — Step 3.5 captures the stricter rule and the IaC
+   Planner honours it at Step 4.
+
+3. **Networking decisions have known boundaries.** Address spaces, peering
+   topology, DNS resolution, and firewall rules are already established. APEX's
+   VNet planning gate (Architect Phase 6b) slots a spoke into the existing
+   topology instead of designing one from scratch.
+
+4. **RBAC is scoped, not guessed.** ALZ's platform team pre-assigns roles at
+   the subscription or resource-group level. APEX records the identity model
+   (`decisions.identity_model`) and generates least-privilege role assignments
+   that fit within the existing RBAC structure, validated by the
+   `azure-rbac` skill.
+
+5. **Cost governance compounds.** ALZ's budget alerts and cost-management
+   policies complement APEX's per-project cost-monitoring baseline (Wave 4 of
+   code generation). The two layers stack: ALZ catches subscription-wide
+   anomalies, APEX catches project-level budget overruns.
+
+### When there is no landing zone
+
+If the target subscription has no inherited policies (the `governance-policy-baseline`
+workflow returns an empty envelope), APEX falls back to the greenfield defaults
+documented in `azure-defaults`: lowercase 4-tag set, `swedencentral` region,
+and the full non-negotiable security baseline. The challenger review flags the
+absence of inherited guardrails as an informational finding so the team is
+aware they are operating without platform-level safety nets.
+
+## Network planning
+
+APEX's VNet planning gate — triggered at Architect Phase 6b — handles the two
+scenarios that arise in an ALZ environment: **bring your own VNet** (spoke
+already provisioned by the platform team) or **create a new VNet** (spoke
+provisioned by APEX inside an application landing zone subscription).
+
+### Bring your own VNet vs. create new
+
+The user chooses via `decisions.vnet_mode`:
+
+| Mode             | When to use                                                                                      | What APEX does                                                                                                                                                           |
+| ---------------- | ------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **`use-existing`** | Platform team pre-provisions spoke VNets, peering, UDRs, and NSGs centrally. Common in regulated environments. | Validates the VNet exists (`az network vnet show`), imports its address space, and plans subnets within the existing CIDR. IaC code references the VNet by resource ID — it does not create or modify it. |
+| **`create-new`** | Application teams own their spoke lifecycle, or the workload lands in a dedicated subscription with no pre-provisioned network. | Generates a full VNet module (AVM-first), with subnets sized per the workload's SKU-aware subnet matrix. The Planner wires peering to the hub if the architecture calls for it. |
+
+The choice is captured by `apex-recall decide --key vnet_mode` and flows to
+the IaC Planner (Step 4) and CodeGen (Step 5). When `vnet_mode = use-existing`,
+CodeGen emits a `data` source (Terraform) or an `existing` resource reference
+(Bicep) — never a `create` block for the VNet itself.
+
+### Hub-spoke and Virtual WAN topologies
+
+Both ALZ connectivity models — **hub-spoke** (Azure Firewall / NVA in a hub
+VNet) and **Virtual WAN** (Microsoft-managed hub with integrated routing) —
+are supported. APEX does not provision the hub or the WAN itself; it provisions
+the spoke and assumes connectivity to the hub is established via peering
+(hub-spoke) or a Virtual WAN VNet connection (vWAN). The subnet plan produced
+at Phase 6b accounts for hub-side constraints such as forced-tunnel UDRs and
+NSG rules inherited from ALZ policy.
+
+### Private DNS Zones — enumeration and reuse
+
+In a well-architected ALZ, **Private DNS Zones live centrally** — typically in
+a connectivity subscription or a shared-services resource group — and are
+linked to the hub VNet (or the Virtual WAN hub's DNS proxy). When a spoke
+workload creates a private endpoint, it registers an A record in the
+appropriate zone (e.g. `privatelink.vaultcore.azure.net` for Key Vault).
+
+APEX handles DNS zone resolution in a pattern analogous to governance policy
+discovery:
+
+1. **Enumeration.** A scheduled GitHub Actions workflow (following the same
+   pattern as the `governance-policy-baseline` workflow) can query the target
+   subscription and connected scopes for existing Private DNS Zones via
+   `az network private-dns zone list`. The result — a JSON inventory of zone
+   names, resource IDs, and VNet links — is committed to `.github/data/` as a
+   checked-in baseline, just as `governance-policy-baseline.json` captures
+   policy state.
+
+2. **Decision at plan time.** When the IaC Planner encounters a service that
+   requires a private endpoint, it checks whether the corresponding
+   `privatelink.*` zone already exists in the enumerated inventory:
+   - **Zone exists centrally** — the plan references the zone by resource ID
+     and creates only the DNS record group (A record) for the private endpoint.
+     No new zone is created.
+   - **Zone does not exist and policy allows creation** — the plan includes a
+     new Private DNS Zone resource (AVM module) linked to the spoke VNet. This
+     is the common path for greenfield environments or when a particular
+     `privatelink.*` zone is not yet provisioned centrally.
+   - **Zone does not exist and policy denies creation** — the Step 3.5
+     governance constraints (or a live `deny` policy on
+     `Microsoft.Network/privateDnsZones`) block the creation. The planner
+     raises a `must_fix` finding that routes back to the Architect (or to the
+     platform team for manual provisioning).
+
+3. **VNet link wiring.** When using a centrally managed zone, the plan creates
+   a VNet link from the zone to the spoke VNet (if one does not already exist).
+   When creating a new zone, the link is part of the same module.
+
+```mermaid
+flowchart TD
+    PE[Private Endpoint needed] --> CHK{Zone in inventory?}
+    CHK -->|Yes| REF[Reference existing zone by ID]
+    CHK -->|No| POL{Policy allows creation?}
+    POL -->|Yes| NEW[Create zone + VNet link]
+    POL -->|No| BLK[must_fix → platform team]
+    REF --> LNK{VNet link exists?}
+    LNK -->|Yes| REC[Create A record only]
+    LNK -->|No| ADDLNK[Add VNet link + A record]
+```
+
+This three-way branch ensures that APEX never duplicates a centrally managed
+DNS zone (which would break resolution), never violates a deny policy, and
+always degrades gracefully to a human escalation when the platform team needs
+to act.
 
 ## Appendix A — Artifact contract reference
 
