@@ -470,6 +470,19 @@ function validateDiagramArtifactFiles(filePath, artifactName, reportFn = warn) {
     if (!exists(sourcePath)) {
       reportFn(`${filePath} requires diagram source artifact: ${expected.source}`, { filePath, line: 1 });
     }
+
+    // Warn-only: Python-generated PNGs should ship with a paired SVG sibling
+    // (issue #421 — emitted automatically by `scripts/diagram_io.py`).
+    if (expected.image.endsWith(".png")) {
+      const svgSibling = expected.image.replace(/\.png$/, ".svg");
+      const svgPath = path.normalize(path.join(artifactDir, svgSibling.replace(/^\.\//, "")));
+      if (!exists(svgPath)) {
+        warn(`${filePath} is missing recommended SVG sibling: ${svgSibling} (generate via scripts/diagram_io.py)`, {
+          filePath,
+          line: 1,
+        });
+      }
+    }
   }
 }
 

@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/jonathan-vella/azure-agentic-infraops/schemas/subnet-plan/v1.json",
+  "version": "1.0.0",
+  "title": "Subnet Plan v1",
+  "description": "Schema for decisions.subnet_plan emitted by 03-Architect Phase 6b (VNet planning gate). Authoring rules in .github/skills/azure-defaults/references/vnet-planning.md.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["name", "address_prefix", "purpose"],
+    "properties": {
+      "name": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80,
+        "description": "Subnet name. Reserved names (AzureBastionSubnet, AzureFirewallSubnet, GatewaySubnet, RouteServerSubnet) must match exactly and may only appear when the respective resource is in scope."
+      },
+      "address_prefix": {
+        "type": "string",
+        "pattern": "^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\\/(?:[0-9]|[12][0-9]|3[0-2])$",
+        "description": "IPv4 CIDR for the subnet. Must be non-overlapping and fully inside vnet_address_space."
+      },
+      "purpose": {
+        "type": "string",
+        "enum": [
+          "app-gateway",
+          "apim",
+          "aks-system",
+          "aks-user",
+          "aks-pe",
+          "private-endpoint",
+          "app-service-integration",
+          "vm",
+          "vmss",
+          "bastion",
+          "azure-firewall",
+          "vpn-gateway",
+          "expressroute-gateway",
+          "nat-gateway",
+          "application-gateway-for-containers",
+          "route-server",
+          "custom"
+        ],
+        "description": "Workload purpose. Maps to a row in the subnet sizing matrix (vnet-planning.md). Use 'custom' only when no matrix row fits."
+      },
+      "delegation": {
+        "type": "string",
+        "enum": [
+          "none",
+          "Microsoft.Web/serverFarms",
+          "Microsoft.ContainerInstance/containerGroups",
+          "Microsoft.ServiceNetworking/trafficControllers",
+          "Microsoft.DBforPostgreSQL/flexibleServers",
+          "Microsoft.DBforMySQL/flexibleServers",
+          "Microsoft.ApiManagement/service",
+          "Microsoft.Netapp/volumes"
+        ],
+        "default": "none",
+        "description": "Subnet delegation. Use the canonical Microsoft.* resource type string; 'none' when not delegated."
+      },
+      "nsg": {
+        "type": "string",
+        "default": "auto",
+        "description": "'auto' (default — NSG created per CAF naming), '<name>' (reuse an existing NSG by name), or 'none' (explicit opt-out; governance may forbid this)."
+      },
+      "route_table": {
+        "type": "string",
+        "default": "none",
+        "description": "'auto' (route table created), '<name>' (reuse existing), or 'none' (default)."
+      },
+      "service_endpoints": {
+        "type": "array",
+        "items": { "type": "string" },
+        "default": [],
+        "description": "Service endpoint resource types (e.g. Microsoft.Storage, Microsoft.KeyVault). Default empty."
+      },
+      "private_endpoint_network_policies": {
+        "type": "string",
+        "enum": ["Enabled", "Disabled"],
+        "default": "Enabled",
+        "description": "Schema default is 'Enabled'. Set explicitly to 'Disabled' for private-endpoint subnets (Azure requirement for PE traffic)."
+      },
+      "ipv6_prefix": {
+        "type": ["string", "null"],
+        "pattern": "^[0-9a-fA-F:]+\\/(?:[0-9]|[1-9][0-9]|1[01][0-9]|12[0-8])$",
+        "default": null,
+        "description": "Optional IPv6 CIDR. Reserved for v2 schema; behaviour deferred until governance requires it."
+      }
+    }
+  }
+}

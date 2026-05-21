@@ -44,7 +44,7 @@ handoffs:
   - label: "Step 3: Design Artifacts"
     agent: 04-Design
     prompt: "Generate architecture diagrams and ADRs based on the architecture assessment in `agent-output/{project}/02-architecture-assessment.md`. The 04-Design agent will ask which tool (Draw.io or Python) and which scope (diagrams, ADRs, or both). This step is optional — you can skip directly to Step 3.5."
-    send: false
+    send: true
   - label: "Step 3.5: Governance Discovery"
     agent: 04g-Governance
     prompt: "Discover Azure Policy constraints for `agent-output/{project}/`. Query REST API (including management-group inherited policies), produce 04-governance-constraints.md/.json, and run adversarial review. Input: `02-architecture-assessment.md` resource list. Output: governance constraint artifacts for IaC planning. The governance agent is designed to run as a peer with shared session state \u2014 entering it via this handoff button preserves the discovery cache at `tmp/{project}-governance-live.json` and avoids cold-restarting skill/instruction loading."
@@ -314,12 +314,16 @@ project init), then never re-prompt. Allowed values:
 writes it. Default when absent: `"default"`. When set to `"deep"`, parent
 agents enter the rotating-lens path automatically — do NOT re-ask at gates.
 
-Capture via `askQuestions`:
+Capture via `askQuestions`. The question's `message:` field MUST
+include the self-documenting hint shown below so users know how to
+change the value later without re-asking the orchestrator:
 
 ```text
 Run adversarial reviews at the default depth (single comprehensive pass per step) or deep depth (rotating multi-lens passes per step)?
 - "Default — single-pass comprehensive (recommended)"
 - "Deep — multi-pass rotating lenses (opt-in)"
+
+message: "Default runs one comprehensive challenger pass at Steps 1, 2, 4 (plus governance-reconciliation at 3.5) and is right for most workshops, MVPs, and single-region projects. Pick Deep for regulated workloads (HIPAA/PCI/regulated), prod migrations, or multi-region designs. You can change this later by editing `decisions.review_depth` via `apex-recall decide <project> --key review_depth --value default|deep`."
 ```
 
 Persist:

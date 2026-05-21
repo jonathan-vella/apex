@@ -82,6 +82,25 @@ For stack-specific snippets, read
 [`references/cost-alerts-bicep.md`](references/cost-alerts-bicep.md) or
 [`references/cost-alerts-terraform.md`](references/cost-alerts-terraform.md).
 
+### VNet Planning Baseline
+
+Interactive. Architect Phase 6b (between 6a SKU confirmation and Step 7
+pricing) runs the gate whenever **either** trigger holds:
+(a) any `services[].requires[]` row contains `vnet-integration` or
+`private-endpoints`, OR (b) any `services[].service_name` is in the
+vnet-attached whitelist (App Gateway, AKS, VM/VMSS, APIM internal,
+Bastion, Azure Firewall, VPN/ER Gateway, NAT Gateway, App Gateway for
+Containers). Default address space `10.0.0.0/16` (greenfield;
+at least `/22`). Recommendation style: a single subnet table followed
+by per-row `Apply edit / Skip / Done` askMe loop. Opt-out via
+`vnet_planning_mode ∈ {guided, fast, deferred}` (`deferred` blocked
+for prod). Governance `network_constraints` always wins.
+
+For the full contract — trigger contract, askQuestions templates,
+subnet sizing matrix per workload with Microsoft Learn citations,
+CIDR math, existing-VNet validation, AVM modules — read
+[`references/vnet-planning.md`](references/vnet-planning.md).
+
 ### Deprecated Services (Do NOT Recommend for Greenfield)
 
 Never recommend deprecated services (Azure AD B2C, Redis Enterprise E50,
@@ -142,6 +161,11 @@ form. The invariants below are gate-level / non-negotiable:
 - **Tag casing is case-sensitive** — never emit both `owner` and `Owner` (`AmbiguousPolicyEvaluationPaths` error)
 - **Unique suffix** — generate `uniqueString(resourceGroup().id)` ONCE per deployment
 - **Governance wins** — `04-governance-constraints.md` overrides any default in this skill (tags, regions, SKUs, cost monitoring)
+- **VNet planning is interactive** — never auto-pick CIDRs without confirmation.
+  Trigger: any `services[].requires[] ∈ {vnet-integration, private-endpoints}` **OR**
+  `services[].service_name` in vnet-attached whitelist. Governance
+  `network_constraints` overrides defaults. Contract:
+  [`references/vnet-planning.md`](references/vnet-planning.md).
 
 ## Steps
 
@@ -149,8 +173,10 @@ form. The invariants below are gate-level / non-negotiable:
 2. **Cross-check governance** — `04-governance-constraints.md` overrides defaults
 3. **Pick AVM modules** — resolve the latest stable version live (see [`references/avm-modules.md`](references/avm-modules.md))
 4. **Apply naming + tags** — CAF table above; load [`references/naming-full-examples.md`](references/naming-full-examples.md) for length-constrained resources
-5. **Apply security + cost monitoring** — see Quick Reference; load [`references/cost-alerts-baseline.md`](references/cost-alerts-baseline.md) for the full cost contract
-6. **Validate** — `npm run validate:iac-security-baseline` + `lint:bicep` / `terraform fmt && validate`
+5. **Apply security baseline** — see Quick Reference; load [`references/security-baseline-full.md`](references/security-baseline-full.md) when AVM parameters surface deprecation
+6. **Run the VNet planning gate** — when the trigger contract holds (see VNet Planning Baseline above). Skip when `decisions.vnet_planning_mode = deferred` (sandbox only). Contract: [`references/vnet-planning.md`](references/vnet-planning.md)
+7. **Apply cost monitoring** — see Quick Reference; load [`references/cost-alerts-baseline.md`](references/cost-alerts-baseline.md) for the full cost contract
+8. **Validate** — `npm run validate:iac-security-baseline` + `lint:bicep` / `terraform fmt && validate`
 
 ---
 
@@ -194,3 +220,4 @@ Load these on demand — do NOT read all at once:
 | `references/cost-alerts-baseline.md`        | Full cost-monitoring contract (scope matrix, modes, governance) |
 | `references/cost-alerts-bicep.md`           | Bicep snippets for budget + Action Group + scheduledActions |
 | `references/cost-alerts-terraform.md`       | Terraform snippets for budget + Action Group + anomaly  |
+| `references/vnet-planning.md`               | VNet planning gate — trigger contract, askQuestions templates, subnet sizing matrix |

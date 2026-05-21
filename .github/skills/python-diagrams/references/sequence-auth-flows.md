@@ -4,6 +4,13 @@
 
 Guide for creating clean authentication flows, sequence diagrams, and numbered step flows.
 
+> **Dual-output contract:** Render every `graphviz.Digraph` with
+> `render_graphviz(dot, base_path)` from
+> [`scripts/diagram_io.py`](../scripts/diagram_io.py) so both `.png` and
+> `.svg` siblings are emitted. Drop `format='png'` from `Digraph(...)`
+> constructors and replace `dot.render('name', cleanup=True)` with
+> `render_graphviz(dot, 'name')`.
+
 ## The Problem with Numbered Edge Labels
 
 When you have a flow like:
