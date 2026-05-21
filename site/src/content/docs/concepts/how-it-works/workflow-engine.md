@@ -203,7 +203,7 @@ last successful sub-step.
 The [`context-management`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/context-management/SKILL.md)
 skill defines three runtime compression tiers for artifact loading (it replaces
 the legacy `context-shredding` and `context-optimizer` skills; for post-hoc
-analysis of past sessions, see the [`11-Context Optimizer`](./agents/) agent):
+analysis of past sessions, see the [`11-Context Optimizer`](../agents/) agent):
 
 | Tier         | Trigger    | Strategy                                   |
 | ------------ | ---------- | ------------------------------------------ |

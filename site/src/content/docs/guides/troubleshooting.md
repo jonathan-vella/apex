@@ -181,11 +181,11 @@ cat .github/skills/drawio/SKILL.md | head -30
 
 **Common policies**:
 
-| Error             | Cause                     | Solution                                                                                                                                 |
-| ----------------- | ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| "Azure AD only"   | SQL Server needs AAD auth | Set `azureADOnlyAuthentication: true`                                                                                                    |
-| "Zone redundancy" | Wrong SKU tier            | Use P1v4+ for App Service                                                                                                                |
-| "Missing tags"    | Required tags absent      | Add baseline tags (see `iac-bicep-best-practices.instructions.md` or `iac-terraform-best-practices.instructions.md`) + governance extras |
+| Error             | Cause                                    | Solution                                                                                                                                 |
+| ----------------- | ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| "Azure AD only"   | SQL Server needs Microsoft Entra ID auth | Set `azureADOnlyAuthentication: true`                                                                                                    |
+| "Zone redundancy" | Wrong SKU tier                           | Use P1v4+ for App Service                                                                                                                |
+| "Missing tags"    | Required tags absent                     | Add baseline tags (see `iac-bicep-best-practices.instructions.md` or `iac-terraform-best-practices.instructions.md`) + governance extras |
 
 **Run preflight check**:
 

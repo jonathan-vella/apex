@@ -17,7 +17,7 @@ review gates. Violations block code generation and deployment.
 | 2   | HTTPS-only traffic                     | `supportsHttpsTrafficOnly: true`       | `https_traffic_only_enabled = true`       | SE:07      |
 | 3   | No public blob access                  | `allowBlobPublicAccess: false`         | `allow_nested_items_to_be_public = false` | SE:05      |
 | 4   | Managed Identity preferred             | `identity: { type: 'SystemAssigned' }` | `identity { type = "SystemAssigned" }`    | SE:05      |
-| 5   | Azure AD-only SQL auth                 | `azureADOnlyAuthentication: true`      | `azuread_authentication_only = true`      | SE:05      |
+| 5   | Microsoft Entra ID-only SQL auth       | `azureADOnlyAuthentication: true`      | `azuread_authentication_only = true`      | SE:05      |
 | 6   | Public network disabled (prod only)    | `publicNetworkAccess: 'Disabled'`      | `public_network_access_enabled = false`   | SE:06      |
 | 7   | No shared key access on storage        | `allowSharedKeyAccess: false`          | `shared_access_key_enabled = false`       | SE:05      |
 | 8   | App Service HTTP/2 enabled             | `http20Enabled: true`                  | `http2_enabled = true`                    | SE:07      |

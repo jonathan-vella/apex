@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-05-20T14:55:40.803Z",
+  "generatedAt": "2026-05-21T15:12:49.526Z",
   "categories": [
     {
       "id": "agent",
@@ -48,7 +48,7 @@
       "label": "Validator",
       "color": "#8b5cf6",
       "shape": "hexagon",
-      "count": 53
+      "count": 54
     },
     {
       "id": "workflow",
@@ -67,8 +67,8 @@
       "count": 6
     }
   ],
-  "nodeCount": 154,
-  "edgeCount": 617,
+  "nodeCount": 155,
+  "edgeCount": 618,
   "nodes": [
     {
       "id": "agent:01-orchestrator",
@@ -1452,6 +1452,19 @@
       },
       "meta": {
         "command": "node tools/scripts/validate-challenger-findings.mjs"
+      }
+    },
+    {
+      "id": "validator:validate-challenger-presence",
+      "category": "validator",
+      "label": "validate:challenger-presence",
+      "description": "node tools/scripts/validate-challenger-presence.mjs",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/package.json"
+      },
+      "meta": {
+        "command": "node tools/scripts/validate-challenger-presence.mjs"
       }
     },
     {
@@ -4913,6 +4926,12 @@
       "id": "workflow:ci--runs->validator:validate-challenger-findings",
       "source": "workflow:ci",
       "target": "validator:validate-challenger-findings",
+      "kind": "runs"
+    },
+    {
+      "id": "workflow:ci--runs->validator:validate-challenger-presence",
+      "source": "workflow:ci",
+      "target": "validator:validate-challenger-presence",
       "kind": "runs"
     },
     {
