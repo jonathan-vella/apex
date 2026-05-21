@@ -4,7 +4,7 @@ description: "Long-form integration view of an APEX run — agents, gates, skill
 ---
 
 This page is the **long-form integration view** of a single APEX run. Where
-[How It Works](how-it-works/) and [Workflow](workflow/) are focused
+[How It Works](../how-it-works/) and [Workflow](../workflow/) are focused
 references, this page walks the same pipeline end-to-end and shows how every
 cross-cutting mechanic — skills, instructions, registries, `apex-recall`,
 hooks, the challenger lane, and the lessons-feedback loop — plugs into each
@@ -13,7 +13,7 @@ stage. Use it once, then jump to the focused references for day-to-day work.
 :::note[Audience]
 Platform engineers, agent authors, and contributors who want a single
 narrative tying every moving part together. If you only need the DAG, read
-[Workflow Engine & Quality](how-it-works/workflow-engine/) instead.
+[Workflow Engine & Quality](../how-it-works/workflow-engine/) instead.
 :::
 
 ## Mental model
@@ -153,7 +153,7 @@ of resources, lenses, or passes come from
 — treat that file as authoritative.
 
 :::caution[Doc divergence — out of scope]
-[`workflow-engine.md`](how-it-works/workflow-engine/) still shows a stale
+[`workflow-engine.md`](../how-it-works/workflow-engine/) still shows a stale
 `step-4b`/`step-4t` Mermaid diagram from before the Step 4 unification.
 The authoritative shape is the unified `step-4` plus forked `step-5b` /
 `step-5t` used throughout this page. Fixing the workflow-engine page is
@@ -769,22 +769,22 @@ Terse pointers only — full definitions live in the linked concept docs.
 
 | Term              | See                                                                                                                                                                          |
 | ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Challenger / lens | [Workflow Engine & Quality](how-it-works/workflow-engine/)                                                                                                                   |
-| Gate              | [Workflow Engine & Quality](how-it-works/workflow-engine/)                                                                                                                   |
-| Fan-out           | [Agent Architecture](how-it-works/agents/)                                                                                                                                   |
+| Challenger / lens | [Workflow Engine & Quality](../how-it-works/workflow-engine/)                                                                                                                   |
+| Gate              | [Workflow Engine & Quality](../how-it-works/workflow-engine/)                                                                                                                   |
+| Fan-out           | [Agent Architecture](../how-it-works/agents/)                                                                                                                                   |
 | Frozen inputs     | `workflow-graph.json` `plan_lock` block (linked above)                                                                                                                       |
 | L0–L3 attestation | [`workflow-graph.json` `attestation_chain`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/workflow-engine/templates/workflow-graph.json) |
-| Skill tiers       | [Skills & Instructions](how-it-works/skills-and-instructions/)                                                                                                               |
+| Skill tiers       | [Skills & Instructions](../how-it-works/skills-and-instructions/)                                                                                                               |
 
 ## Appendix E — Further reading
 
-- [How It Works — Overview](how-it-works/)
-- [System Architecture](how-it-works/architecture/)
-- [Agent Architecture](how-it-works/agents/)
-- [Skills & Instructions](how-it-works/skills-and-instructions/)
-- [Workflow Engine & Quality](how-it-works/workflow-engine/)
-- [MCP Integration](how-it-works/mcp-integration/)
-- [SKU Manifest](how-it-works/sku-manifest/) (when present)
+- [How It Works — Overview](../how-it-works/)
+- [System Architecture](../how-it-works/architecture/)
+- [Agent Architecture](../how-it-works/agents/)
+- [Skills & Instructions](../how-it-works/skills-and-instructions/)
+- [Workflow Engine & Quality](../how-it-works/workflow-engine/)
+- [MCP Integration](../how-it-works/mcp-integration/)
+- [SKU Manifest](../how-it-works/sku-manifest/) (when present)
 - Repository root: [`AGENTS.md`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/AGENTS.md)
 - Vendor docs: [Anthropic Claude prompting guide](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview),
   [OpenAI GPT-5 prompting guide](https://platform.openai.com/docs/guides/prompt-engineering)

@@ -61,10 +61,10 @@ but the minimum working configuration is included below so you do not miss it.
 
 1. Go to the
    [Accelerator template repository](https://github.com/jonathan-vella/azure-agentic-infraops-accelerator)
-2. Click the green **"Use this template"** button → **"Create a new repository"**
+2. Select the green **Use this template** button → **Create a new repository**
 3. Choose an owner and repository name (e.g. `my-infraops-project`)
 4. Select **Public** or **Private** visibility
-5. Click **Create repository**
+5. Select **Create repository**
 
 :::tip[What is a template repository?]
 A [GitHub template repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template)

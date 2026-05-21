@@ -105,6 +105,9 @@ pie title Compliance Gaps by Severity
 
 ### Remediation Tracker
 
+Status `Todo` entries represent the demo's open follow-ups; they are not real
+production tasks.
+
 | Finding                                                                                      | Owner             | Due Date   | Status      |
 | -------------------------------------------------------------------------------------------- | ----------------- | ---------- | ----------- |
 | Grant staging slot `AcrPull`, `Key Vault Secrets User`, and `Storage Table Data Contributor` | Platform owner    | 2026-04-22 | In Progress |

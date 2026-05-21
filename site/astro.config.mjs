@@ -91,6 +91,7 @@ export default defineConfig({
           collapsed: true,
           items: [
             { label: "Quickstart", slug: "getting-started/quickstart" },
+            { label: "Azure Setup", slug: "getting-started/azure-setup" },
             {
               label: "Dev Container Setup",
               slug: "getting-started/dev-containers",
@@ -133,6 +134,10 @@ export default defineConfig({
                   label: "MCP Integration",
                   slug: "concepts/how-it-works/mcp-integration",
                 },
+                {
+                  label: "SKU Manifest",
+                  slug: "concepts/how-it-works/sku-manifest",
+                },
                 { label: "Workflow", slug: "concepts/workflow" },
               ],
             },
@@ -140,7 +145,7 @@ export default defineConfig({
           ],
         },
         {
-          label: "Guides",
+          label: "How-to & Tutorials",
           collapsed: true,
           items: [
             {
