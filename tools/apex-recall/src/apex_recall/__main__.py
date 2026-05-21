@@ -141,6 +141,40 @@ def build_parser() -> argparse.ArgumentParser:
     p_ra.add_argument("--skip-reason", action="append", default=None, help="Skip reason (repeatable)")
     p_ra.add_argument("--json", action="store_true", help="Output as JSON")
 
+    # transition — composite checkpoint + decide + complete-step + start next
+    # (#425, Wave 4). Atomic across a single 00-session-state.json write.
+    p_tr = sub.add_parser(
+        "transition",
+        help="Atomic step transition: complete current, record decisions, start next",
+    )
+    p_tr.add_argument("project", help="Project name")
+    p_tr.add_argument("--from-step", dest="from_step", required=True, help="Step to leave")
+    p_tr.add_argument("--to-step", dest="to_step", required=True, help="Step to enter")
+    p_tr.add_argument(
+        "--decision",
+        action="append",
+        default=None,
+        metavar="KEY=VALUE",
+        help="Repeatable. Records into decisions{}. Use the legacy `decide` command for decision_log (Mode B) entries.",
+    )
+    p_tr.add_argument(
+        "--complete",
+        action="store_true",
+        help="Mark from-step complete (runs the challenger-findings gate first).",
+    )
+    p_tr.add_argument(
+        "--allow-missing-challenger",
+        action="store_true",
+        help="Bypass the mandatory challenger-findings gate (audited).",
+    )
+    p_tr.add_argument(
+        "--challenger-skip-reason",
+        type=str,
+        default=None,
+        help="Required audit reason when --allow-missing-challenger is used.",
+    )
+    p_tr.add_argument("--json", action="store_true", help="Output as JSON")
+
     return parser
 
 
@@ -181,6 +215,8 @@ def main(argv: list[str] | None = None) -> int:
         from .commands.finding import run
     elif args.command == "review-audit":
         from .commands.review_audit import run
+    elif args.command == "transition":
+        from .commands.transition import run
     else:
         parser.print_help()
         return 1
