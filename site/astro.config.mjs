@@ -166,8 +166,46 @@ export default defineConfig({
                   slug: "concepts/how-it-works/sku-manifest",
                 },
                 { label: "Workflow", slug: "concepts/workflow" },
-                { label: "Workflow Deep Dive", slug: "concepts/workflow-deep-dive" },
               ],
+            },
+          ],
+        },
+        {
+          label: "Workflow Deep Dive",
+          collapsed: true,
+          items: [
+            { label: "Overview", slug: "concepts/workflow-deep-dive" },
+            {
+              label: "Mental Model",
+              link: "/azure-agentic-infraops/concepts/workflow-deep-dive/#mental-model",
+            },
+            {
+              label: "Context Surfaces",
+              link: "/azure-agentic-infraops/concepts/workflow-deep-dive/#the-five-context-surfaces",
+            },
+            {
+              label: "Stage-by-Stage Walkthrough",
+              link: "/azure-agentic-infraops/concepts/workflow-deep-dive/#stage-by-stage-walkthrough",
+            },
+            {
+              label: "End-to-End Timeline",
+              link: "/azure-agentic-infraops/concepts/workflow-deep-dive/#end-to-end-run-timeline",
+            },
+            {
+              label: "Lessons Feedback Loop",
+              link: "/azure-agentic-infraops/concepts/workflow-deep-dive/#the-lessons-learned-feedback-loop",
+            },
+            {
+              label: "Azure Landing Zones",
+              link: "/azure-agentic-infraops/concepts/workflow-deep-dive/#apex-and-azure-landing-zones",
+            },
+            {
+              label: "Network Planning",
+              link: "/azure-agentic-infraops/concepts/workflow-deep-dive/#network-planning",
+            },
+            {
+              label: "Appendices",
+              link: "/azure-agentic-infraops/concepts/workflow-deep-dive/#appendix-a--artifact-contract-reference",
             },
           ],
         },
