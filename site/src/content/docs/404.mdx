@@ -11,6 +11,9 @@ import { LinkCard, CardGrid } from "@astrojs/starlight/components";
   <p style="font-size: 1.25rem; color: var(--sl-color-gray-2); margin: 1rem 0 2rem;">
     This page doesn't exist. It may have been moved or removed.
   </p>
+  <p style="font-size: 0.9rem; color: var(--sl-color-gray-3);">
+    Press <kbd>/</kbd> to search the docs, or jump into one of the entry points below.
+  </p>
 </div>
 
 <CardGrid>
@@ -23,6 +26,11 @@ import { LinkCard, CardGrid } from "@astrojs/starlight/components";
     title="Quickstart"
     description="Get started with APEX"
     href="/azure-agentic-infraops/getting-started/quickstart/"
+  />
+  <LinkCard
+    title="Workflow"
+    description="Walk through the agentic Steps 1–7"
+    href="/azure-agentic-infraops/concepts/workflow/"
   />
   <LinkCard
     title="FAQ"

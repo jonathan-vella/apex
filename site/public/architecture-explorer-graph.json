@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-05-21T15:12:49.526Z",
+  "generatedAt": "2026-05-21T15:49:28.002Z",
   "categories": [
     {
       "id": "agent",
@@ -56,7 +56,7 @@
       "label": "CI Workflow",
       "color": "#06b6d4",
       "shape": "cut-rectangle",
-      "count": 9
+      "count": 11
     },
     {
       "id": "mcp",
@@ -67,8 +67,8 @@
       "count": 6
     }
   ],
-  "nodeCount": 155,
-  "edgeCount": 618,
+  "nodeCount": 157,
+  "edgeCount": 619,
   "nodes": [
     {
       "id": "agent:01-orchestrator",
@@ -2029,6 +2029,31 @@
       "meta": {}
     },
     {
+      "id": "workflow:docs-checks",
+      "category": "workflow",
+      "label": "docs-checks",
+      "description": "",
+      "path": ".github/workflows/docs-checks.yml",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/workflows/docs-checks.yml"
+      },
+      "meta": {}
+    },
+    {
+      "id": "workflow:docs-gardening",
+      "category": "workflow",
+      "label": "docs-gardening",
+      "description": "",
+      "path": ".github/workflows/docs-gardening.yml",
+      "links": {
+        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/workflows/docs-gardening.yml"
+      },
+      "meta": {
+        "orphan": true
+      },
+      "parent": "group:workflow-orphans"
+    },
+    {
       "id": "workflow:docs",
       "category": "workflow",
       "label": "docs",
@@ -2198,11 +2223,11 @@
     {
       "id": "group:workflow-orphans",
       "category": "workflow",
-      "label": "CI Workflow (unlinked, 5)",
-      "description": "5 ci workflow nodes with no cross-references in the current graph.",
+      "label": "CI Workflow (unlinked, 6)",
+      "description": "6 ci workflow nodes with no cross-references in the current graph.",
       "isGroup": true,
       "meta": {
-        "groupSize": 5
+        "groupSize": 6
       }
     }
   ],
@@ -5163,6 +5188,12 @@
       "id": "workflow:ci--runs->validator:test-azure-pricing-mcp",
       "source": "workflow:ci",
       "target": "validator:test-azure-pricing-mcp",
+      "kind": "runs"
+    },
+    {
+      "id": "workflow:docs-checks--runs->validator:lint-md",
+      "source": "workflow:docs-checks",
+      "target": "validator:lint-md",
       "kind": "runs"
     },
     {

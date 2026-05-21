@@ -1,0 +1,53 @@
+name: docs-checks
+
+on:
+  pull_request:
+    paths:
+      - "site/**"
+      - ".github/workflows/docs-checks.yml"
+  push:
+    branches: [main]
+    paths:
+      - "site/**"
+
+concurrency:
+  group: docs-checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  link-check-and-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install root deps
+        run: npm ci --no-audit --no-fund
+
+      - name: Install site deps
+        working-directory: site
+        run: npm ci --no-audit --no-fund
+
+      - name: Markdown lint
+        run: npm run lint:md
+
+      - name: Frontmatter lint
+        run: node tools/scripts/lint-docs-frontmatter.mjs
+
+      - name: Astro build (incl. links validator)
+        working-directory: site
+        run: npm run build
+
+      - name: Strict link check
+        run: node site/check-links.mjs

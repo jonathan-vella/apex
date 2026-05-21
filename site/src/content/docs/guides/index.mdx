@@ -1,0 +1,53 @@
+---
+title: "How-to & Tutorials"
+description: "Task-oriented guides for prompting, debugging, deploying, and operating APEX."
+sidebar:
+  order: 0
+---
+
+import { CardGrid, LinkCard } from "@astrojs/starlight/components";
+
+These guides answer “how do I …?” for everyday APEX work. Pair with the conceptual material under [Concepts](/azure-agentic-infraops/concepts/) and the reference catalogs under [Reference](/azure-agentic-infraops/reference/).
+
+<CardGrid>
+  <LinkCard
+    title="Prompt Guide"
+    description="Author and reuse effective prompts."
+    href="/azure-agentic-infraops/guides/prompt-guide/"
+  />
+  <LinkCard
+    title="Troubleshooting"
+    description="Diagnose common Bicep, Terraform, and azd deployment errors."
+    href="/azure-agentic-infraops/guides/troubleshooting/"
+  />
+  <LinkCard
+    title="Session Debugging"
+    description="Inspect Copilot Chat sessions and replay agent runs."
+    href="/azure-agentic-infraops/guides/session-debugging/"
+  />
+  <LinkCard
+    title="azd Deployment"
+    description="Deploy with `azd up`, hooks, and multi-project layouts."
+    href="/azure-agentic-infraops/guides/azd-deployment/"
+  />
+  <LinkCard
+    title="Security Baseline"
+    description="The non-negotiable HTTPS / TLS / Entra ID / private-endpoint floor."
+    href="/azure-agentic-infraops/guides/security-baseline/"
+  />
+  <LinkCard
+    title="Cost Governance"
+    description="Manage budgets, alerts, and cost-aware sizing."
+    href="/azure-agentic-infraops/guides/cost-governance/"
+  />
+  <LinkCard
+    title="Dev Container Hygiene"
+    description="Reduce context-window bloat in the dev container."
+    href="/azure-agentic-infraops/guides/devcontainer-hygiene/"
+  />
+  <LinkCard
+    title="E2E Testing"
+    description="Run the end-to-end test harness against generated artifacts."
+    href="/azure-agentic-infraops/guides/e2e-testing/"
+  />
+</CardGrid>

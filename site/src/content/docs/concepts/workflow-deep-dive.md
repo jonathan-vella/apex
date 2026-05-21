@@ -607,7 +607,7 @@ VNet) and **Virtual WAN** (Microsoft-managed hub with integrated routing) —
 are supported. APEX does not provision the hub or the WAN itself; it provisions
 the spoke and assumes connectivity to the hub is established via peering
 (hub-spoke) or a Virtual WAN VNet connection (vWAN). The subnet plan produced
-at Phase 6b accounts for hub-side constraints such as forced-tunnel UDRs and
+by the Architect at Phase 6b accounts for hub-side constraints such as forced-tunnel UDRs and
 NSG rules inherited from ALZ policy. The canonical subnet sizing matrix and
 the two-step existing-VNet validation live in
 [`azure-defaults/references/vnet-planning.md`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-defaults/references/vnet-planning.md).

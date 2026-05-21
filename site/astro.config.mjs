@@ -11,6 +11,9 @@ export default defineConfig({
   site: "https://jonathan-vella.github.io",
   base: SITE_BASE,
   trailingSlash: "always",
+  redirects: {
+    "/project/": "/project/contributing/",
+  },
   markdown: {
     rehypePlugins: [rehypeMermaid],
   },
@@ -27,6 +30,11 @@ export default defineConfig({
       },
       lastUpdated: true,
       social: [
+        {
+          icon: "seti:graphql",
+          label: "Architecture Explorer",
+          href: "/azure-agentic-infraops/reference/architecture-explorer/",
+        },
         {
           icon: "github",
           label: "GitHub",
@@ -204,6 +212,7 @@ export default defineConfig({
           collapsed: true,
           items: [
             { label: "Contributing", slug: "project/contributing" },
+            { label: "Docs Style Guide", slug: "project/style-guide" },
             { label: "Sensei Branch", slug: "project/sensei-branch" },
             { label: "Changelog", slug: "project/changelog" },
           ],
