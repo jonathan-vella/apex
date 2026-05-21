@@ -18,6 +18,78 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 See the [published changelog](https://jonathan-vella.github.io/azure-agentic-infraops/project/changelog/)
 for full details on this and all prior releases.
 
+### Added (Workflow hardening — issue #425)
+
+- feat(skills): `azure-artifacts` SKILL.md gains a `## Post-write
+  validation` table (JSON → `python -m json.tool`, Bicep →
+  `bicep build --stdout`, Terraform → `terraform fmt -check` +
+  `terraform validate`; Markdown delegated to the lefthook
+  `artifact-validation` hook). The shared agent operating-frame
+  instructions reference it so every Step 1–7 agent inherits the rule.
+  Guarded by `tests/scripts/test_post_write_validation.mjs`.
+- feat(scripts): `safe-shell.mjs` linter gains two new rules.
+  `command-portability` flags bare `rg` / `fd` / `bat` invocations in
+  committed shell snippets unless a `command -v <tool>` guard appears
+  in the same fence. `agent-output-no-heredoc` flags heredoc, `tee`,
+  `>`, and `>>` writes targeting `agent-output/**`. Fixture-driven
+  tests in `tests/scripts/test_safe_shell.mjs` cover guarded,
+  unguarded, append-redirect, tee, and indented-heredoc cases.
+- feat(instructions): `no-interactive-shell.instructions.md` gains
+  Rule 4 (Command portability). `no-heredoc.instructions.md` gains
+  the no-shell-writes-to-`agent-output/**` sub-rule.
+  `agent-authoring.instructions.md` gains rules for the new
+  no-shell-writes-to-agent-output and execution-subagent invocation
+  prompt contracts.
+- feat(agents): canonical execution-subagent invocation prompt
+  template at
+  `tools/apex-prompts/utility-prompts/execution-subagent.prompt.md`
+  with three required H2s (`## Objective`, `## Commands`,
+  `## Expected return`). Parent agents must follow this shape when
+  calling `runSubagent` for validate / what-if / plan /
+  policy-precheck / cost-estimate / challenger-review subagents.
+- feat(schemas): `deployment-preview-v1` JSON schema at
+  `tools/schemas/deployment-preview.schema.json` defines the
+  five-line deploy approval block composed by 07b/07t from
+  what-if / plan / policy-precheck / cost-estimate JSON.
+- feat(apex-recall): new `transition` subcommand bundles
+  `complete-step` (with challenger-findings gate) + N×`decide` +
+  next-step `start-step` into a single atomic
+  `00-session-state.json` write. Preferred path for step changes;
+  legacy commands remain. Exit 2 when the challenger sidecar is
+  missing (same semantics as `complete-step`). Six tests in
+  `tools/apex-recall/tests/test_transition.py`.
+- feat(agents): `07b-bicep-deploy` and `07t-terraform-deploy` add a
+  `## Deploy Approval Block` step that renders a five-line gate
+  (creates/modifies/deletes, destructive, policy_gate, cost_delta vs
+  envelope, decision) before `azd up` / `terraform apply`. Composed
+  preview is persisted to
+  `agent-output/{project}/06-deploy-approval.json` conforming to
+  `deployment-preview-v1`.
+- feat(skills): `iac-common` gains `## Bounded retry` (3-attempt cap;
+  escalates with `proceed-with-substitute` / `change-region` /
+  `abort`). Referenced from 07b, 07t, 04g-governance. New
+  challenger-checklist entries flag missing approval blocks and
+  unbounded retry loops.
+
+### Changed (Workflow hardening — issue #425)
+
+- `.github/copilot-instructions.md` advertises
+  `apex-recall transition` as the preferred call for step changes.
+
+### Rollback (Workflow hardening — issue #425)
+
+The change is additive. Rollback paths:
+
+- `apex-recall transition` — legacy `checkpoint` / `decide` /
+  `complete-step` commands remain functional; orchestrators can
+  revert to them.
+- Deploy approval block — the H2 in 07b/07t can be reverted by a
+  one-line agent edit; existing what-if + policy-precheck flow is
+  preserved.
+- safe-shell rules — additive; no behavior change for compliant
+  snippets. Disable individual rules by removing them from `RULES`
+  in `tools/scripts/safe-shell.mjs`.
+
 ### Added (docs)
 
 - docs(concepts): add `concepts/workflow-deep-dive` — long-form
