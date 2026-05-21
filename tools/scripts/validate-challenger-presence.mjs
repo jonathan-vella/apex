@@ -47,7 +47,7 @@ const GATES = {
   },
   "3_5": {
     gatingArtifact: "04-governance-constraints.md",
-    requiredSidecar: "challenge-findings-governance.json",
+    requiredSidecar: "challenge-findings-governance-constraints-pass1.json",
     label: "Step 3.5 Governance",
   },
   4: {

@@ -43,7 +43,7 @@
       "pattern": "^https://azure\\.microsoft\\.com"
     },
     {
-      "pattern": "^https://openai\\.com"
+      "pattern": "openai\\.com"
     },
     {
       "pattern": "^https://code\\.visualstudio\\.com"

@@ -245,6 +245,9 @@ function main() {
   if (errors > 0) {
     console.error(`\n❌ ${errors} unregistered decision-key reference(s) or schema violation(s).`);
     console.error(`   Add the key to tools/apex-recall/docs/decision-keys.md or fix the typo.`);
+    console.error(
+      `   For schema violations in decisions.subnet_plan, fix the value to conform to tools/schemas/subnet-plan.schema.json.`,
+    );
     process.exit(1);
   }
   console.log("✅ all decision-key references are registered");

@@ -12,7 +12,13 @@ import argparse
 import sys
 from pathlib import Path
 
-# Pattern templates - easily extensible
+# diagram_io is the single source of truth for output formats.  Import FORMATS so
+# generate_diagram() can patch each template string at exec time instead of
+# duplicating ["png", "svg"] across every pattern definition.
+_scripts_dir = str(Path(__file__).parent)
+if _scripts_dir not in sys.path:
+    sys.path.insert(0, _scripts_dir)
+from diagram_io import FORMATS  # noqa: E402
 PATTERNS = {
     "api-led": {
         "description": "API-Led Connectivity (3-tier: Experience, Process, System)",
@@ -385,6 +391,9 @@ def generate_diagram(name: str, pattern: str, output: str):
 
     template = PATTERNS[pattern]["template"]
     code = template.format(name=name, output=output)
+    # Sync outformat with diagram_io.FORMATS so templates don't drift when the
+    # output-format contract changes (e.g. adding PDF or removing SVG).
+    code = code.replace('outformat=["png", "svg"]', f"outformat={list(FORMATS)!r}")
 
     # Execute the generated code
     exec(code)

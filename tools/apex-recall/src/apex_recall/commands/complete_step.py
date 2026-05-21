@@ -39,7 +39,7 @@ _CHALLENGER_GATE: dict[str, tuple[str, str]] = {
     "2": ("02-architecture-assessment.md", "challenge-findings-architecture.json"),
     # Step 3_5 governance is conditional - review only required if the
     # governance constraints artifact was actually produced.
-    "3_5": ("04-governance-constraints.md", "challenge-findings-governance.json"),
+    "3_5": ("04-governance-constraints.md", "challenge-findings-governance-constraints-pass1.json"),
     "4": ("04-implementation-plan.md", "challenge-findings-plan.json"),
 }
 
