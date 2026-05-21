@@ -8,7 +8,7 @@
 //
 // Only the FIRST hit per acronym per file is linked, to avoid visual noise.
 
-const BASE = "/azure-agentic-infraops";
+import { SITE_BASE } from "../data/siteConfig.mjs";
 
 const ACRONYMS = [
   { token: "AVM", anchor: "avm-azure-verified-modules" },
@@ -31,7 +31,7 @@ const SKIP_TYPES = new Set([
 function linkNode(token, anchor) {
   return {
     type: "link",
-    url: `${BASE}/reference/glossary/#${anchor}/`,
+    url: `${SITE_BASE}/reference/glossary/#${anchor}`,
     title: `Glossary: ${token}`,
     children: [{ type: "text", value: token }],
   };
@@ -68,8 +68,9 @@ export default function remarkGlossaryAnchors() {
             ].filter(Boolean);
             node.children.splice(i, 1, ...replacement);
             linked.add(token);
-            // Re-evaluate the same index in case `after` contains another acronym.
-            i += replacement.length - 1;
+            // Land the next loop iteration on the inserted `after` text node
+            // (when present) so remaining acronyms in the same string get linked.
+            i += replacement.length - 2;
             break;
           }
         } else {

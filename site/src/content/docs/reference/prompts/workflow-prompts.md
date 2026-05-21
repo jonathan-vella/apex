@@ -273,6 +273,8 @@ and missing disaster recovery considerations.
 
 ## Next Steps
 
-- [Best Practices](/azure-agentic-infraops/reference/prompts/best-practices/) — improve prompt quality before retrying a step
-- [Skill & Subagent Reference](/azure-agentic-infraops/reference/prompts/skills-subagents/) — interpret validator and preview output
+- [Best Practices](/azure-agentic-infraops/reference/prompts/best-practices/) —
+  improve prompt quality before retrying a step
+- [Skill & Subagent Reference](/azure-agentic-infraops/reference/prompts/skills-subagents/) —
+  interpret validator and preview output
 - [Troubleshooting](/azure-agentic-infraops/guides/troubleshooting/) — recover from auth, setup, and deployment issues
