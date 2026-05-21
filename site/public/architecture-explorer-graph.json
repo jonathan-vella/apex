@@ -125,15 +125,8 @@
       "meta": {
         "model": "GPT-5.5",
         "invocable": true,
-        "subagents": [
-          "challenger-review-subagent"
-        ],
-        "handoffTargets": [
-          "02-Requirements",
-          "10-Challenger",
-          "03-Architect",
-          "01-Orchestrator"
-        ]
+        "subagents": ["challenger-review-subagent"],
+        "handoffTargets": ["02-Requirements", "10-Challenger", "03-Architect", "01-Orchestrator"]
       }
     },
     {
@@ -148,17 +141,8 @@
       "meta": {
         "model": "Claude Opus 4.7",
         "invocable": true,
-        "subagents": [
-          "cost-estimate-subagent",
-          "challenger-review-subagent"
-        ],
-        "handoffTargets": [
-          "03-Architect",
-          "04-Design",
-          "04g-Governance",
-          "02-Requirements",
-          "01-Orchestrator"
-        ]
+        "subagents": ["cost-estimate-subagent", "challenger-review-subagent"],
+        "handoffTargets": ["03-Architect", "04-Design", "04g-Governance", "02-Requirements", "01-Orchestrator"]
       }
     },
     {
@@ -173,15 +157,8 @@
       "meta": {
         "model": "Claude Sonnet 4.6",
         "invocable": true,
-        "subagents": [
-          "challenger-review-subagent"
-        ],
-        "handoffTargets": [
-          "04-Design",
-          "03-Architect",
-          "04g-Governance",
-          "01-Orchestrator"
-        ]
+        "subagents": ["challenger-review-subagent"],
+        "handoffTargets": ["04-Design", "03-Architect", "04g-Governance", "01-Orchestrator"]
       }
     },
     {
@@ -196,14 +173,8 @@
       "meta": {
         "model": "GPT-5.3-Codex",
         "invocable": true,
-        "subagents": [
-          "challenger-review-subagent"
-        ],
-        "handoffTargets": [
-          "04g-Governance",
-          "05-IaC Planner",
-          "01-Orchestrator"
-        ]
+        "subagents": ["challenger-review-subagent"],
+        "handoffTargets": ["04g-Governance", "05-IaC Planner", "01-Orchestrator"]
       }
     },
     {
@@ -218,9 +189,7 @@
       "meta": {
         "model": "Claude Sonnet 4.6",
         "invocable": true,
-        "subagents": [
-          "challenger-review-subagent"
-        ],
+        "subagents": ["challenger-review-subagent"],
         "handoffTargets": [
           "04g-Governance",
           "05-IaC Planner",
@@ -243,16 +212,8 @@
       "meta": {
         "model": "Claude Sonnet 4.6",
         "invocable": true,
-        "subagents": [
-          "bicep-validate-subagent",
-          "challenger-review-subagent"
-        ],
-        "handoffTargets": [
-          "06b-Bicep CodeGen",
-          "07b-Bicep Deploy",
-          "05-IaC Planner",
-          "01-Orchestrator"
-        ]
+        "subagents": ["bicep-validate-subagent", "challenger-review-subagent"],
+        "handoffTargets": ["06b-Bicep CodeGen", "07b-Bicep Deploy", "05-IaC Planner", "01-Orchestrator"]
       }
     },
     {
@@ -267,16 +228,8 @@
       "meta": {
         "model": "Claude Sonnet 4.6",
         "invocable": true,
-        "subagents": [
-          "terraform-validate-subagent",
-          "challenger-review-subagent"
-        ],
-        "handoffTargets": [
-          "06t-Terraform CodeGen",
-          "07t-Terraform Deploy",
-          "05-IaC Planner",
-          "01-Orchestrator"
-        ]
+        "subagents": ["terraform-validate-subagent", "challenger-review-subagent"],
+        "handoffTargets": ["06t-Terraform CodeGen", "07t-Terraform Deploy", "05-IaC Planner", "01-Orchestrator"]
       }
     },
     {
@@ -297,13 +250,7 @@
           "policy-precheck-subagent",
           "challenger-review-subagent"
         ],
-        "handoffTargets": [
-          "07b-Bicep Deploy",
-          "08-As-Built",
-          "06b-Bicep CodeGen",
-          "03-Architect",
-          "01-Orchestrator"
-        ]
+        "handoffTargets": ["07b-Bicep Deploy", "08-As-Built", "06b-Bicep CodeGen", "03-Architect", "01-Orchestrator"]
       }
     },
     {
@@ -345,13 +292,8 @@
       "meta": {
         "model": "GPT-5.5",
         "invocable": true,
-        "subagents": [
-          "cost-estimate-subagent"
-        ],
-        "handoffTargets": [
-          "08-As-Built",
-          "01-Orchestrator"
-        ]
+        "subagents": ["cost-estimate-subagent"],
+        "handoffTargets": ["08-As-Built", "01-Orchestrator"]
       }
     },
     {
@@ -367,12 +309,7 @@
         "model": "GPT-5.5",
         "invocable": true,
         "subagents": [],
-        "handoffTargets": [
-          "09-Diagnose",
-          "08-As-Built",
-          "03-Architect",
-          "01-Orchestrator"
-        ]
+        "handoffTargets": ["09-Diagnose", "08-As-Built", "03-Architect", "01-Orchestrator"]
       }
     },
     {
@@ -387,12 +324,8 @@
       "meta": {
         "model": "GPT-5.3-Codex",
         "invocable": true,
-        "subagents": [
-          "challenger-review-subagent"
-        ],
-        "handoffTargets": [
-          "01-Orchestrator"
-        ]
+        "subagents": ["challenger-review-subagent"],
+        "handoffTargets": ["01-Orchestrator"]
       }
     },
     {
@@ -408,9 +341,7 @@
         "model": "Claude Sonnet 4.6",
         "invocable": true,
         "subagents": [],
-        "handoffTargets": [
-          "01-Orchestrator"
-        ]
+        "handoffTargets": ["01-Orchestrator"]
       }
     },
     {
