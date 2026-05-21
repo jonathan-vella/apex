@@ -33,6 +33,8 @@ desktop.ini
 # Logs
 *.log
 logs/
+# Astro docs review audit trail is committable
+!logs/copilot/docs-review/
 
 # Root decision snapshots are generated artifacts, not source files.
 decisions*.json

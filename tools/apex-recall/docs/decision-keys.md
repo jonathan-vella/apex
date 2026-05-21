@@ -120,6 +120,27 @@ two user-facing keys) and consumed by 06b/06t CodeGen Wave 4.
 | `cost_monitoring_mode`      | `enforced` \| `minimal` \| `deferred`                   | `enforced` (prod); prompted in non-prod               | 02-Requirements                     | 05-IaC Planner, 06b/06t CodeGen |
 | `cost_monitoring_exception` | object `{ rationale: string, expiry_date: YYYY-MM-DD }` | n/a (required only when mode = `deferred`)            | 02-Requirements / 05-IaC Planner    | 10-Challenger (D-7)             |
 
+### VNet planning keys (Architect Phase 6b)
+
+Owned by [`.github/skills/azure-defaults/references/vnet-planning.md`](../../../.github/skills/azure-defaults/references/vnet-planning.md).
+Emitted by 03-Architect Phase 6b when the trigger contract holds
+(any `services[].requires[] ∈ {vnet-integration, private-endpoints}`
+OR any `services[].service_name` in the vnet-attached whitelist).
+Consumed by 05-IaC Planner, 06b/06t CodeGen, and 04g-Governance.
+
+| Key                   | Valid values                                            | Default behaviour if absent                         | Set by         | Read by                                            |
+| --------------------- | ------------------------------------------------------- | --------------------------------------------------- | -------------- | -------------------------------------------------- |
+| `vnet_planning_mode`  | `guided` \| `fast` \| `deferred`                        | `guided`                                            | 03-Architect   | 03-Architect Phase 6b, 04g-Governance, 05/06b/06t  |
+| `vnet_mode`           | `create-new` \| `use-existing`                          | n/a (required when gate fires)                      | 03-Architect   | 05-IaC Planner, 06b/06t CodeGen                    |
+| `existing_vnet_id`    | Azure resource ID (string)                              | n/a (required when `vnet_mode = use-existing`)      | 03-Architect   | 05-IaC Planner, 06b/06t CodeGen                    |
+| `vnet_address_space`  | CIDR string (e.g. `10.0.0.0/16`)                        | `10.0.0.0/16` (greenfield)                          | 03-Architect   | 05-IaC Planner, 06b/06t CodeGen, 04g-Governance    |
+| `subnet_plan`         | JSON array conforming to `tools/schemas/subnet-plan.schema.json` | n/a (gate emits placeholder `[]` in `deferred`)     | 03-Architect   | 05-IaC Planner, 06b/06t CodeGen, 04g-Governance    |
+| `vnet_plan_decision`  | `confirmed` \| `edited` \| `deferred`                   | n/a (only set after gate fires)                     | 03-Architect   | 05-IaC Planner, 04g-Governance, 10-Challenger      |
+
+`validate:decision-keys` loads `subnet-plan.schema.json` and validates
+any project's `decisions.subnet_plan` against it; a soft warning fires
+when the trigger contract holds but `subnet_plan` is absent.
+
 ### Free-form decision-log entries
 
 The `apex-recall decide --decision "<text>" --rationale "<why>"` form

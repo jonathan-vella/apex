@@ -4,6 +4,11 @@
 
 Generate professional business process flow diagrams showing user actions, system steps, and outcomes.
 
+> **Dual-output contract:** Render every `graphviz.Digraph` with
+> `render_graphviz(dot, base_path)` from
+> [`scripts/diagram_io.py`](../scripts/diagram_io.py) so both `.png` and
+> `.svg` siblings are emitted. Do not call `dot.render()` directly.
+
 ## Approach: Graphviz with Custom Styling (Recommended)
 
 For business process flows, we use Graphviz directly for more control over shapes and styling.

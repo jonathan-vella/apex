@@ -1,0 +1,81 @@
+---
+// DemoBreadcrumb — renders a `Demo › Step N › <Page>` trail when the current
+// URL sits under `/demo/`. Sourced from demoSteps.mjs so the labels stay in
+// sync with the sidebar.
+import { demoSteps } from "../data/demoSteps.mjs";
+import { SITE_BASE } from "../data/siteConfig.mjs";
+
+const pathname = Astro.url.pathname.replace(/\/$/, "");
+const basePrefix = `${SITE_BASE}/demo`;
+const inDemo = pathname.startsWith(basePrefix);
+let step = null;
+let leaf = null;
+if (inDemo) {
+  const after = pathname.slice(basePrefix.length).replace(/^\//, "");
+  const parts = after ? after.split("/") : [];
+  if (parts.length >= 1) {
+    const stepSlug = `demo/${parts[0]}`;
+    step = demoSteps.find((s) => s.slug === stepSlug) || null;
+  }
+  if (step && step.items && parts.length >= 2) {
+    const leafSlug = `demo/${parts[0]}/${parts[1]}`;
+    leaf = step.items.find((i) => i.slug === leafSlug) || null;
+  }
+}
+const demoHref = `${SITE_BASE}/demo/`;
+const stepHref = step ? `${SITE_BASE}/${step.slug}/` : null;
+---
+
+{
+  inDemo && (
+    <nav class="apex-demo-breadcrumb" aria-label="Demo breadcrumb">
+      <a href={demoHref}>Demo</a>
+      {step && (
+        <>
+          <span class="sep" aria-hidden="true">›</span>
+          {leaf ? (
+            <a href={stepHref}>{step.stepLabel || step.label}</a>
+          ) : (
+            <span class="current">{step.stepLabel || step.label}</span>
+          )}
+        </>
+      )}
+      {leaf && (
+        <>
+          <span class="sep" aria-hidden="true">›</span>
+          <span class="current">{leaf.label}</span>
+        </>
+      )}
+    </nav>
+  )
+}
+
+<style>
+  .apex-demo-breadcrumb {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem;
+    margin: 0 0 1rem;
+    padding: 0.4rem 0.7rem;
+    border: 1px solid var(--sl-color-hairline);
+    border-radius: 0.5rem;
+    background: var(--sl-color-gray-6, rgba(120, 120, 120, 0.06));
+    font-size: 0.8rem;
+    color: var(--sl-color-gray-2);
+  }
+  .apex-demo-breadcrumb a {
+    color: var(--sl-color-accent);
+    text-decoration: none;
+  }
+  .apex-demo-breadcrumb a:hover,
+  .apex-demo-breadcrumb a:focus-visible {
+    text-decoration: underline;
+  }
+  .apex-demo-breadcrumb .sep {
+    color: var(--sl-color-gray-4);
+  }
+  .apex-demo-breadcrumb .current {
+    color: var(--sl-color-text);
+  }
+</style>

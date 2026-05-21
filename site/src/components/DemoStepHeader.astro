@@ -1,0 +1,93 @@
+---
+// DemoStepHeader — compact status card for demo step root pages.
+// Auto-mounted by MarkdownContent.astro when the URL is /demo/{step}/ (no child
+// page). Data sourced from demoSteps.mjs so the header stays in sync with the
+// sidebar.
+import { demoSteps } from "../data/demoSteps.mjs";
+import { SITE_BASE } from "../data/siteConfig.mjs";
+
+const pathname = Astro.url.pathname.replace(/\/$/, "");
+const basePrefix = `${SITE_BASE}/demo`;
+let step = null;
+let isRoot = false;
+if (pathname.startsWith(basePrefix)) {
+  const after = pathname.slice(basePrefix.length).replace(/^\//, "");
+  const parts = after ? after.split("/") : [];
+  // Only render on the step-root pages (e.g. /demo/01-requirements/) — not on
+  // the demo home (parts.length === 0) and not on per-step child pages
+  // (parts.length >= 2).
+  if (parts.length === 1) {
+    isRoot = true;
+    step = demoSteps.find((s) => s.slug === `demo/${parts[0]}`) || null;
+  }
+}
+---
+
+{
+  isRoot && step && (
+    <aside class="apex-demo-step-header" aria-label="Demo step summary">
+      <div class="apex-demo-step-header__chip">{step.stepLabel}</div>
+      <div class="apex-demo-step-header__body">
+        <p class="apex-demo-step-header__title">{step.shortTitle || step.label}</p>
+        <dl>
+          {step.agent && (
+            <>
+              <dt>Agent</dt>
+              <dd>{step.agent}</dd>
+            </>
+          )}
+          {step.artifact && (
+            <>
+              <dt>Artifact</dt>
+              <dd>{step.artifact}</dd>
+            </>
+          )}
+        </dl>
+      </div>
+    </aside>
+  )
+}
+
+<style>
+  .apex-demo-step-header {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    gap: 1rem;
+    margin: 0 0 1.25rem;
+    padding: 0.85rem 1rem;
+    border: 1px solid var(--sl-color-hairline);
+    border-radius: 0.6rem;
+    background: var(--sl-color-gray-6, rgba(120, 120, 120, 0.06));
+  }
+  .apex-demo-step-header__chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.7rem;
+    border-radius: 999px;
+    background: var(--sl-color-accent);
+    color: var(--sl-color-white, #fff);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+  .apex-demo-step-header__title {
+    margin: 0 0 0.35rem;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+  .apex-demo-step-header dl {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.15rem 0.8rem;
+    margin: 0;
+    font-size: 0.8rem;
+  }
+  .apex-demo-step-header dt {
+    color: var(--sl-color-gray-2);
+  }
+  .apex-demo-step-header dd {
+    margin: 0;
+    color: var(--sl-color-text);
+  }
+</style>

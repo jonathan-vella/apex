@@ -208,6 +208,30 @@ After all passes, present a merged summary:
 
 For per-finding decisions before the summary, follow `## Per-Finding Decision Protocol`.
 
+## Findings Table Rendering Format
+
+Every agent that presents challenger findings in chat MUST print a
+**multi-line markdown table** — never a single-line string with escaped
+`\n` characters. Leave blank lines before and after the table so
+markdown renderers parse it correctly.
+
+Canonical layout:
+
+```markdown
+**Challenger Findings**
+
+| ID | Severity | Title | WAF Pillar | Recommendation |
+| --- | --- | --- | --- | --- |
+| {id} | {severity} | {title} | {waf_pillar} | {recommendation} |
+
+**Totals:** N must-fix, N should-fix, N suggestions.
+Machine-readable detail is in `challenge-findings-{type}.json`.
+```
+
+- Order rows: all `must_fix` first, then `should_fix`, then `suggestion`.
+- `{id}` = first 8 hex chars of the stable issue hash (section 2b).
+- Column values map directly to the JSON `findings[]` fields.
+
 ## Findings Cache (REVISE-loop optimization)
 
 Subagent output includes a `cache_inputs` block:

@@ -334,6 +334,29 @@ Then:
 5. Run the targeted artifact checks used by the repo, including template linting when available.
 6. Record mandatory decisions: `iac_tool`, region, SKU manifest status, and SKU manifest revision.
 7. Checkpoint `phase_5_artifact`.
+8. **Immediately chain into Phase 6a in the same turn.** The next tool
+   call after `apex-recall checkpoint ... phase_5_artifact` MUST be
+   `runSubagent('challenger-review-subagent', ...)` with the inputs in
+   Phase 6a. Do not emit any user-facing summary, "ready for review"
+   note, or final assistant message between Phase 5 and Phase 6a.
+
+## Auto-Trigger Blocker (between Phase 5 and Phase 6)
+
+This block is a hard stop rule, not a recap.
+
+- If `01-requirements.md` has just been written and
+  `challenge-findings-requirements.json` does **not** yet exist, your
+  next action in this turn MUST be the Phase 6a `runSubagent` call.
+- You MAY NOT end the turn, hand off, render a final summary, or call
+  `apex-recall complete-step` until `challenge-findings-requirements.json`
+  exists. `apex-recall complete-step` will refuse with exit code 2 in
+  that state; do not work around it.
+- "I'll run the challenger review next" is not a substitute for actually
+  invoking it. The very next tool invocation is the subagent call.
+- The only legal reason to defer Phase 6 is a verbatim subagent error
+  from the runtime, in which case you follow the fallback rule in
+  Phase 6a (retry once via `10-Challenger`, then surface the error and
+  stop).
 
 ## Phase 6: Challenger Review and Per-Finding Decision Panel
 
@@ -369,9 +392,26 @@ Do not produce a fabricated findings file under any circumstance.
 
 ### 6b. Render findings table
 
-Render every finding in chat with columns: ID, Severity, Title, WAF Pillar, Recommendation.
-Show totals for must-fix, should-fix, and suggestion findings. Reference the JSON path for the
-machine-readable detail.
+Print a **multi-line markdown table** in chat — each finding on its
+own row, with blank lines before and after the table so it renders
+correctly. Use this exact layout (do NOT collapse into a single line
+or use escaped `\n` characters):
+
+```markdown
+**Challenger Findings**
+
+| ID | Severity | Title | WAF Pillar | Recommendation |
+| --- | --- | --- | --- | --- |
+| 0f47a77c | must_fix | Example title | Security | Example recommendation |
+| 5c077877 | should_fix | Another title | Cost Optimization | Another recommendation |
+
+**Totals:** 1 must-fix, 1 should-fix, 0 suggestions.
+Machine-readable detail is in `challenge-findings-requirements.json`.
+```
+
+Column values come from the JSON `findings[]` array fields: `category`
+→ ID (first 8 hex of the sha256 hash), `severity`, `title`,
+`waf_pillar`, `recommendation`.
 
 ### 6c. Per-finding decision panel
 

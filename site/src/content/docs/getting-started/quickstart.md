@@ -61,10 +61,10 @@ but the minimum working configuration is included below so you do not miss it.
 
 1. Go to the
    [Accelerator template repository](https://github.com/jonathan-vella/azure-agentic-infraops-accelerator)
-2. Click the green **"Use this template"** button → **"Create a new repository"**
+2. Select the green **Use this template** button → **Create a new repository**
 3. Choose an owner and repository name (e.g. `my-infraops-project`)
 4. Select **Public** or **Private** visibility
-5. Click **Create repository**
+5. Select **Create repository**
 
 :::tip[What is a template repository?]
 A [GitHub template repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template)
@@ -128,7 +128,7 @@ workflow. You can explore the full agent workflow without it.
 :::tip[Plan for cost before you deploy]
 Deploying to a real subscription always costs money. Before Step 6, set
 budget alerts and anomaly detection per
-[Cost Governance](../../guides/cost-governance/) so a runaway deployment
+[Cost Governance](../../reference/cost-governance/) so a runaway deployment
 cannot drain a credit pool unnoticed.
 :::
 
@@ -289,8 +289,8 @@ will re-execute the step and re-trigger the gate. Use the artifact files in
   then re-run the same step with the exact failing output so the agent can repair it.
 
 Before you deploy, review the mandatory guidance in
-[Security Baseline](../../guides/security-baseline/) and
-[Cost Governance](../../guides/cost-governance/).
+[Security Baseline](../../reference/security-baseline/) and
+[Cost Governance](../../reference/cost-governance/).
 
 ## What You've Created
 
@@ -343,8 +343,8 @@ Pick the path that matches your goal — then drop into the resource table below
   [Agent Architecture](../../concepts/how-it-works/agents/).
 - **Build** — run the Orchestrator on your own project:
   [Prompt Guide](../../guides/prompt-guide/) for prompt patterns,
-  [Security Baseline](../../guides/security-baseline/) and
-  [Cost Governance](../../guides/cost-governance/) for the mandatory
+  [Security Baseline](../../reference/security-baseline/) and
+  [Cost Governance](../../reference/cost-governance/) for the mandatory
   guardrails.
 
 | Goal                            | Resource                                                                                                  |
@@ -352,7 +352,7 @@ Pick the path that matches your goal — then drop into the resource table below
 | Understand the full workflow    | [workflow.md](../../concepts/workflow/)                                                                   |
 | Try a guided hands-on challenge | [MicroHack](https://jonathan-vella.github.io/microhack-agentic-infraops/)                                 |
 | Try a complete workflow         | [Prompt Guide](../../guides/prompt-guide/)                                                                |
-| Review mandatory guardrails     | [Security Baseline](../../guides/security-baseline/) and [Cost Governance](../../guides/cost-governance/) |
+| Review mandatory guardrails     | [Security Baseline](../../reference/security-baseline/) and [Cost Governance](../../reference/cost-governance/) |
 | Generate architecture diagrams  | Use `drawio` skill (or `python-diagrams` for charts)                                                      |
 | Create documentation            | Use `azure-artifacts` skill                                                                               |
 | Explore Terraform patterns      | Use `terraform-patterns` skill                                                                            |

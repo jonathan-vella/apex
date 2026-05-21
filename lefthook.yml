@@ -77,14 +77,30 @@ pre-commit:
             echo ""
             exit 1
           fi
+          # Mandatory challenger-findings presence gate (Steps 1, 2, 3.5, 4).
+          # Primary enforcement is at runtime via `apex-recall complete-step`;
+          # this is the commit-time fallback so the same drift cannot land
+          # via direct edits.
+          if ! npm run validate:challenger-presence --silent; then
+            echo ""
+            echo "❌ Mandatory challenger review missing for one or more steps."
+            echo "   Run the challenger-review-subagent against the gating"
+            echo "   artifact, or record an audited skip via:"
+            echo "   apex-recall complete-step <project> <step> \\"
+            echo "       --allow-missing-challenger --challenger-skip-reason \"...\""
+            exit 1
+          fi
         else
           echo "ℹ️  No agent-output artifacts to validate"
         fi
       fail_text: |
-        ❌ Artifact H2 structure validation failed!
+        ❌ Artifact H2 structure or challenger-review presence check failed!
 
-        📚 Reference: .github/instructions/azure-artifacts.instructions.md
-        🔧 Auto-fix: npm run fix:artifacts -- <file> --apply
+        📚 References:
+        - .github/instructions/azure-artifacts.instructions.md
+        - AGENTS.md "Agent Workflow" (mandatory challenger reviews)
+        🔧 Auto-fix H2: npm run fix:artifacts -- <file> --apply
+        🔧 Challenger:  re-run challenger-review-subagent or 10-Challenger
 
     agents:
       glob: "**/*.agent.md,**/*.prompt.md"
