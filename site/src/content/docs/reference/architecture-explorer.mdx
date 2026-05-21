@@ -1,6 +1,6 @@
 ---
 title: "Architecture Explorer"
-description: "Two readable views over the APEX architecture — a Step 1→7 workflow timeline and a searchable agent card grid — built from the same graph JSON as the 3D explorer."
+description: "Two readable views over the APEX architecture — a Step 1→7 workflow timeline and a searchable agent card grid — generated from source files on every site build."
 ---
 
 The **Architecture Explorer** is a live map of every moving part in APEX —
@@ -12,7 +12,7 @@ The graph is regenerated from source files
 `.vscode/mcp.json`, `package.json`, and more) on every site build, so
 category counts always reflect the current repo state — never hard-coded.
 
-The default view ships two readable lenses over that data:
+The explorer ships two readable lenses over that data:
 
 - **Workflow Timeline** — Step 1 → Step 7 as horizontal cards with the
   agent, model, primary skills, and gates between them. Best for
@@ -26,7 +26,7 @@ subagents called, hand-off targets, incoming + outgoing edges) and a
 deep link to the source file on GitHub.
 
 <iframe
-  src="/azure-agentic-infraops/architecture-explorer-v2.html"
+  src="/azure-agentic-infraops/architecture-explorer.html"
   style="width:100%;height:88vh;border:1px solid var(--sl-color-gray-5);border-radius:0.75rem;"
   loading="lazy"
   title="Architecture Explorer — Workflow Timeline and Agent Grid"
@@ -35,7 +35,7 @@ deep link to the source file on GitHub.
 <small style="display: block; margin-top: 0.5rem; color: var(--sl-color-gray-3);">
   Switch between Workflow Timeline and Agent Grid with the toggle in the top bar. Press <kbd>/</kbd> to focus the
   search box; <kbd>Esc</kbd> to close the detail drawer.
-  <a href="/azure-agentic-infraops/architecture-explorer-v2.html" target="_blank" rel="noopener">
+  <a href="/azure-agentic-infraops/architecture-explorer.html" target="_blank" rel="noopener">
     Open full screen ↗
   </a>
 </small>
@@ -54,28 +54,6 @@ Pick the lens that matches your goal:
   [Skills & Instructions](/azure-agentic-infraops/concepts/how-it-works/skills-and-instructions/).
 - **CI maintainer** — Agent Grid with `workflow` + `validator` filters
   shows which hooks back which scripts.
-
-## Legacy 3D view
-
-The original 3D force-directed graph is still available and uses the
-same underlying graph JSON. It is now considered legacy — the readable
-2D views above replace it for everyday use.
-
-<details>
-<summary>Open the 3D explorer</summary>
-
-<iframe
-  src="/azure-agentic-infraops/architecture-explorer.html"
-  style="width:100%;height:78vh;border:1px solid var(--sl-color-gray-5);border-radius:0.75rem;margin-top:0.75rem;"
-  loading="lazy"
-  title="Architecture Explorer — legacy interactive 3D graph of APEX components"
-></iframe>
-
-<a href="/azure-agentic-infraops/architecture-explorer.html" target="_blank" rel="noopener">
-  Open the 3D view full screen ↗
-</a>
-
-</details>
 
 ## Node categories
 
