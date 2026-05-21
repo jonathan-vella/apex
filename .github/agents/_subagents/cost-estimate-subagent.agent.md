@@ -90,7 +90,7 @@ and `03-des-cost-estimate.md` only when `status == COMPLETE`. On
 - No architecture decisions. Report prices; don't recommend SKU changes.
 - Real data only. Don't fabricate prices. Mark unknowns explicitly via
   `unresolved_items` and finish with `status: FAILED`.
-- MCP call budget: **≤10 calls total**. Use `azure_bulk_estimate` first
+- MCP call budget: **≤20 calls total**. Use `azure_bulk_estimate` first
   (single call covers the whole `resource_list`), then spend the remaining
   budget on per-line `azure_price_search` fallbacks for every line the bulk
   call didn't resolve. Don't loop `azure_cost_estimate` per resource.
@@ -122,7 +122,7 @@ and `03-des-cost-estimate.md` only when `status == COMPLETE`. On
 - `status: FAILED` — used in **every** other case, including:
   - Pricing MCP failed authentication or returned no data for any resource.
   - One or more lines remain unpriced after the per-line fallback loop
-    exhausted the 10-call budget.
+    exhausted the 20-call budget.
   - Any priority-1 service (SQL Database, App Service, AKS, Virtual
     Machines, Storage) is unresolved.
   - The empty-result recovery rule (`## Empty-result recovery` below)
@@ -235,7 +235,7 @@ aliases.
    and `overwrite` is not `true`, return error and stop.
 3. **Bulk price (1 call)** — call `azure_bulk_estimate` with every resource
    in one `resources[]` array.
-4. **Fallback loop (mandatory, up to 8 calls)** — for every line the bulk
+4. **Fallback loop (mandatory, up to 18 calls)** — for every line the bulk
    call didn't price (missing `monthly_cost`, `projection_warning`
    indicating an unprojectable meter, or variant mismatch per
    `## Sanity checks`), call `azure_price_search` once per line until the
@@ -253,11 +253,11 @@ aliases.
 
 ## Azure Pricing MCP tools
 
-Call budget: **≤ 10 MCP calls total**. Use `azure_bulk_estimate` as the
+Call budget: **≤ 20 MCP calls total**. Use `azure_bulk_estimate` as the
 primary tool — it replaces all individual `azure_cost_estimate` calls.
 Don't loop `azure_cost_estimate` per resource.
 
-If the budget is exhausted (10 calls made) with any line still unpriced,
+If the budget is exhausted (20 calls made) with any line still unpriced,
 finish with `status: FAILED` and `budget_exceeded: true`. List unpriced
 items explicitly in `unresolved_items` with a one-line reason. **Don't
 return `PARTIAL`.**
@@ -329,7 +329,7 @@ the bulk-estimate output.
 | Tool                     | When to use                                                                                 | Max calls |
 | ------------------------ | ------------------------------------------------------------------------------------------- | --------- |
 | `azure_bulk_estimate`    | Default — all resources in ONE call with `resources` array                                  | **1**     |
-| `azure_price_search`     | **Mandatory fallback** — one call per line the bulk call didn't price; also RI/SP if needed | **≤8**    |
+| `azure_price_search`     | **Mandatory fallback** — one call per line the bulk call didn't price; also RI/SP if needed | **≤18**   |
 | `azure_region_recommend` | Cheapest region for compute SKUs only (group by VM family if possible)                      | 0–2       |
 | `azure_price_compare`    | Compare pricing across regions or SKUs (only when parent requests it)                       | 0–1       |
 | `azure_sku_discovery`    | Only if a SKU name is unknown — not for SKUs already in requirements                        | 0–1       |
@@ -454,7 +454,7 @@ resource_count: {N}
 unresolved_items: {N}
 savings_status: {QUANTIFIED | NOT_QUANTIFIED | NOT_APPLICABLE}
 confidence: {High | Medium | Low}
-mcp_calls_used: {N}/10
+mcp_calls_used: {N}/20
 budget_exceeded: {true | false}
 ```
 
@@ -467,7 +467,7 @@ The compact summary alone is sufficient for gate decisions.
 1. Single bulk call — put all resources into one `azure_bulk_estimate` call.
 2. Per-line fallback — every line the bulk call didn't fully price gets
    one `azure_price_search` retry. Continue until `unresolved_items` is
-   empty or the 10-call budget is exhausted.
+   empty or the 20-call budget is exhausted.
 3. Optional region check — only if budget remains AND parent set
    `compare_regions: true`. Limit to 1–2 primary compute SKUs.
 4. Optional RI pricing — only if budget remains AND parent set
@@ -478,7 +478,7 @@ The compact summary alone is sufficient for gate decisions.
    fallback loop, mark as `Estimate unavailable` and terminate with
    `status: FAILED`.
 
-### Target call pattern (≤ 10 calls)
+### Target call pattern (≤ 20 calls)
 
 ```text
 Call 1     : azure_bulk_estimate     → all resources in one array
@@ -490,8 +490,10 @@ Remaining  : azure_sku_discovery     → only if SKU name is ambiguous (optional
 
 For the canonical 7-unresolved-line case (SQL, Storage, Log Analytics,
 Bandwidth, Front Door, WAF, Defender) the expected pattern is `1 + 7 = 8`
-calls, leaving 2 for optional region/RI work or a second retry on a
-stubborn line.
+calls, leaving ample headroom for optional region/RI work, split-meter
+fallbacks (Storage `Data Stored` + `Write Operations`), and global-service
+retries (Azure DNS, Front Door — see `pricing-guidance.md` → `## Global
+services`).
 
 ## Confidence derivation
 

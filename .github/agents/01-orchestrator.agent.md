@@ -44,7 +44,7 @@ handoffs:
   - label: "Step 3: Design Artifacts"
     agent: 04-Design
     prompt: "Generate architecture diagrams and ADRs based on the architecture assessment in `agent-output/{project}/02-architecture-assessment.md`. The 04-Design agent will ask which tool (Draw.io or Python) and which scope (diagrams, ADRs, or both). This step is optional — you can skip directly to Step 3.5."
-    send: false
+    send: true
   - label: "Step 3.5: Governance Discovery"
     agent: 04g-Governance
     prompt: "Discover Azure Policy constraints for `agent-output/{project}/`. Query REST API (including management-group inherited policies), produce 04-governance-constraints.md/.json, and run adversarial review. Input: `02-architecture-assessment.md` resource list. Output: governance constraint artifacts for IaC planning. The governance agent is designed to run as a peer with shared session state \u2014 entering it via this handoff button preserves the discovery cache at `tmp/{project}-governance-live.json` and avoids cold-restarting skill/instruction loading."
