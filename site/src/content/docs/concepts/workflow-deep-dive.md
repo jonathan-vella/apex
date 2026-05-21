@@ -168,7 +168,7 @@ reads (never re-asked):
 
 - **`iac_tool`** — Bicep or Terraform. Captured at Step 1 Phase 2 by
   `02-Requirements` and persisted via `apex-recall decide … --key
-iac_tool`. No default — the user must choose.
+  iac_tool`. No default — the user must choose.
 - **`review_depth`** — Adversarial-review depth for the whole
   project. Captured at project boot (or first gate after init).
   Default `default` = single-pass `comprehensive` at Steps 1, 2, 4
