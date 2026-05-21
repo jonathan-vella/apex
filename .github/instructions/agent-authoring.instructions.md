@@ -506,6 +506,18 @@ Equivalent prohibition for `npm run lint:md` and
 `npm run lint:artifact-templates` against `agent-output/**`: do not
 invoke either from inside an agent body. Delegate to pre-commit + CI.
 
+### No-shell-writes-to-agent-output rule
+
+Agents and subagents must **never** write to `agent-output/**` via
+shell heredocs, `>`/`>>` redirects, or `tee`. All artifact writes
+(including JSON sidecars such as `06-policy-precheck.json`,
+`05-cost-estimate.json`, `06-bicep-whatif.json`) go through the
+file-editing tools (`create_file`, `replace_string_in_file`,
+`multi_replace_string_in_file`). Read-only inspection
+(`ls`/`cat`/`wc -l`) is fine. Enforced by `tools/scripts/safe-shell.mjs`
+via the `agent-output-no-heredoc` rule; details in
+[`no-heredoc.instructions.md`](no-heredoc.instructions.md).
+
 ### Challenger-subagent fallback rule
 
 `runSubagent { agentName: "challenger-review-subagent" }` has been

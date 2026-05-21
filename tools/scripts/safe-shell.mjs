@@ -98,8 +98,7 @@ const RULES = [
 //   (a) guarded by a `command -v <tool>` check in the same fence, OR
 //   (b) replaced by a stdlib fallback (`grep -R`, `find`, `python -m json.tool`).
 // Rule id: command-portability (issue #425, Wave 2a).
-const PORTABILITY_TOOLS = ["rg", "fd", "bat"];
-// Match `<tool> ` as a command at the start of an executable position.
+const PORTABILITY_TOOLS = ["rg", "fd", "bat"]; // Match `<tool> ` as a command at the start of an executable position.
 // We allow positions after `|`, `&&`, `||`, `;`, `$(`, `\``, control
 // keywords (`then`, `else`, `do`, `xargs`, env-prefix `FOO=bar `).
 // Concretely: word-boundary + tool + space/end, NOT preceded by `-`
@@ -117,6 +116,19 @@ function matchesBareTool(line, tool) {
   // We already split on `|`, `;`, etc., so this is rare; keep simple.
   return true;
 }
+
+// Heredoc / tee writes to agent-output/** are runtime-corrupting in the
+// VS Code Copilot chat surface (heredocs frequently lose escape handling
+// and tee buffers stale state). Rule id: agent-output-no-heredoc
+// (issue #425, Wave 2b). Detection is per-fence: any line in the fence
+// that contains BOTH a heredoc/tee write AND a target matching
+// agent-output/** is flagged.
+const AGENT_OUTPUT_PATH = /agent-output\/[A-Za-z0-9_./*{}-]+/;
+// Heredoc operator: `<<` or `<<-`, optionally with quoted or unquoted
+// delimiter. We don't care which command precedes (cat/python/jq/etc.).
+const HEREDOC_OP = /<<-?\s*['"]?[A-Za-z_][A-Za-z0-9_]*['"]?/;
+// Redirection forms that write a file (excluding pure `<` read).
+const REDIRECT_OP = /(?:>>?|&>|tee(?:\s+-a)?)\s+/;
 
 const SKIP_FILE_NAMES = new Set([
   // The instruction file itself documents the forbidden patterns.
@@ -237,6 +249,7 @@ function lintFile(absPath) {
         // Closing fence — run fence-scoped checks before resetting state.
         if (fenceIsShell) {
           findings.push(...portabilityFindings(fenceBuffer));
+          findings.push(...agentOutputHeredocFindings(fenceBuffer));
         }
         inFence = false;
         fenceLang = "";
@@ -290,6 +303,7 @@ function lintFile(absPath) {
   // run portability checks on what we buffered.
   if (inFence && fenceIsShell) {
     findings.push(...portabilityFindings(fenceBuffer));
+    findings.push(...agentOutputHeredocFindings(fenceBuffer));
   }
   return findings;
 }
@@ -328,6 +342,67 @@ function portabilityFindings(fenceBuffer) {
         fix: `guard with \`command -v ${tool}\` in the same fence, or use a stdlib fallback (grep -R / find / python -m json.tool)`,
       });
     }
+  }
+  return out;
+}
+
+/**
+ * Fence-scoped check for the agent-output-no-heredoc rule (#425, Wave 2b).
+ *
+ * Heredocs and tee writes to `agent-output/**` are runtime-corrupting in
+ * the chat surface. Agents must use the file-editing tool (create_file
+ * / replace_string_in_file / multi_replace_string_in_file) instead.
+ *
+ * Detection is fence-scoped (multi-line heredocs are common). We flag a
+ * line when either:
+ *   - it opens a heredoc (HEREDOC_OP matches) AND the same line OR a
+ *     subsequent line in the fence contains an `agent-output/...` target
+ *     in a write redirect (>, >>, &>, tee, tee -a); OR
+ *   - it contains a redirect to `agent-output/...` (covers `tee` and
+ *     `>`/`>>` without a heredoc).
+ */
+function agentOutputHeredocFindings(fenceBuffer) {
+  const out = [];
+  // Look for any agent-output write target anywhere in the fence.
+  const writeTargets = []; // [{ line, text }]
+  for (const entry of fenceBuffer) {
+    const { line, text, scan } = entry;
+    // Strip strings so an example path inside quotes does not trip us.
+    // We do NOT strip — we want to catch `tee "agent-output/foo"` too.
+    if (AGENT_OUTPUT_PATH.test(scan) && REDIRECT_OP.test(scan)) {
+      writeTargets.push({ line, text });
+    }
+  }
+  // Detect heredocs in the fence regardless of agent-output target.
+  // If a heredoc opens AND any write target points at agent-output/...,
+  // flag the heredoc line (it's the destination of the heredoc body).
+  const heredocLines = [];
+  for (const { line, text, scan } of fenceBuffer) {
+    if (HEREDOC_OP.test(scan)) heredocLines.push({ line, text, scan });
+  }
+  // Flag heredocs whose same-line redirect targets agent-output/...
+  for (const hd of heredocLines) {
+    if (AGENT_OUTPUT_PATH.test(hd.scan) && REDIRECT_OP.test(hd.scan)) {
+      out.push({
+        rule: "agent-output-no-heredoc",
+        line: hd.line,
+        snippet: hd.text.trim().slice(0, 160),
+        why: "heredoc writes to agent-output/** are runtime-corrupting in chat surfaces",
+        fix: "use the file-editing tool (create_file / replace_string_in_file) instead",
+      });
+    }
+  }
+  // Flag any redirect to agent-output/... that we haven't already flagged.
+  const seen = new Set(out.map((f) => f.line));
+  for (const wt of writeTargets) {
+    if (seen.has(wt.line)) continue;
+    out.push({
+      rule: "agent-output-no-heredoc",
+      line: wt.line,
+      snippet: wt.text.trim().slice(0, 160),
+      why: "shell redirects to agent-output/** bypass the file-editing tool contract",
+      fix: "use the file-editing tool (create_file / replace_string_in_file) instead",
+    });
   }
   return out;
 }

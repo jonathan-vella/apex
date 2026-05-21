@@ -52,3 +52,25 @@ test("non-compliant bare rg/fd/bat are each flagged", () => {
   const tools = portability.map((f) => f.why.split(" ")[0]).sort();
   assert.deepEqual(tools, ["bat", "fd", "rg"], `expected one finding per tool, got: ${JSON.stringify(portability)}`);
 });
+
+// ---------------------------------------------------------------------------
+// agent-output-no-heredoc rule (issue #425, Wave 2b)
+// ---------------------------------------------------------------------------
+
+test("compliant snippets (no agent-output writes) produce no heredoc findings", () => {
+  const findings = lintFile(path.join(FIXTURES, "compliant-agent-output-heredoc.md"));
+  const hd = findings.filter((f) => f.rule === "agent-output-no-heredoc");
+  assert.deepEqual(hd, [], `expected no heredoc findings, got: ${JSON.stringify(hd)}`);
+});
+
+test("non-compliant heredoc/tee/append writes to agent-output are each flagged", () => {
+  const findings = lintFile(path.join(FIXTURES, "non-compliant-agent-output-heredoc.md"));
+  const hd = findings.filter((f) => f.rule === "agent-output-no-heredoc");
+  // 4 distinct violations: quoted heredoc, indented heredoc, tee, append redirect.
+  assert.equal(hd.length, 4, `expected 4 heredoc findings, got: ${JSON.stringify(hd)}`);
+  const snippets = hd.map((f) => f.snippet).join("\n");
+  assert.match(snippets, /<<'EOF'/);
+  assert.match(snippets, /<<-EOF/);
+  assert.match(snippets, /\| tee /);
+  assert.match(snippets, />> /);
+});
