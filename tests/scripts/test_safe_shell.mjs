@@ -35,3 +35,20 @@ test("non-compliant bare grep inside set -e is flagged exactly once", () => {
   assert.equal(greps.length, 1, `expected exactly 1 grep finding, got: ${JSON.stringify(greps)}`);
   assert.match(greps[0].snippet, /grep -n 'pattern' file\.md/);
 });
+
+// ---------------------------------------------------------------------------
+// command-portability rule (issue #425, Wave 2a)
+// ---------------------------------------------------------------------------
+
+test("compliant rg/fd/bat (guarded or absent) produces no portability findings", () => {
+  const findings = lintFile(path.join(FIXTURES, "compliant-command-portability.md"));
+  const portability = findings.filter((f) => f.rule === "command-portability");
+  assert.deepEqual(portability, [], `expected no portability findings, got: ${JSON.stringify(portability)}`);
+});
+
+test("non-compliant bare rg/fd/bat are each flagged", () => {
+  const findings = lintFile(path.join(FIXTURES, "non-compliant-command-portability.md"));
+  const portability = findings.filter((f) => f.rule === "command-portability");
+  const tools = portability.map((f) => f.why.split(" ")[0]).sort();
+  assert.deepEqual(tools, ["bat", "fd", "rg"], `expected one finding per tool, got: ${JSON.stringify(portability)}`);
+});

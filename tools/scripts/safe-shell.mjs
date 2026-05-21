@@ -92,6 +92,32 @@ const RULES = [
   },
 ];
 
+// Portability tools that should not be invoked bare in committed shell
+// snippets. They are not guaranteed to be on the chat-agent PATH. Each
+// must be either:
+//   (a) guarded by a `command -v <tool>` check in the same fence, OR
+//   (b) replaced by a stdlib fallback (`grep -R`, `find`, `python -m json.tool`).
+// Rule id: command-portability (issue #425, Wave 2a).
+const PORTABILITY_TOOLS = ["rg", "fd", "bat"];
+// Match `<tool> ` as a command at the start of an executable position.
+// We allow positions after `|`, `&&`, `||`, `;`, `$(`, `\``, control
+// keywords (`then`, `else`, `do`, `xargs`, env-prefix `FOO=bar `).
+// Concretely: word-boundary + tool + space/end, NOT preceded by `-`
+// (avoid flag matches like `--rg`) and NOT preceded by `/` (avoid
+// paths like `/usr/bin/rg` which are explicit).
+function matchesBareTool(line, tool) {
+  // Strip strings so we don't trip on `'rg'` inside descriptions.
+  const stripped = line.replace(/'[^']*'/g, "''").replace(/"[^"]*"/g, '""');
+  // Position contexts where a command can start.
+  const re = new RegExp(
+    `(?:^|[|&;]|\\|\\||&&|\\$\\(|\`|\\bthen\\b|\\belse\\b|\\bdo\\b|\\bxargs\\b|\\b[A-Z_][A-Z0-9_]*=\\S+\\s+)\\s*${tool}(?:\\s|$)`,
+  );
+  if (!re.test(stripped)) return false;
+  // Reject if the only match is preceded by `/` (absolute path).
+  // We already split on `|`, `;`, etc., so this is rare; keep simple.
+  return true;
+}
+
 const SKIP_FILE_NAMES = new Set([
   // The instruction file itself documents the forbidden patterns.
   "no-interactive-shell.instructions.md",
@@ -199,17 +225,31 @@ function lintFile(absPath) {
   // Per-fence context flag: did this bash block emit `set -e` (or any
   // `set -*e*` variant) earlier? Reset on every fence close.
   let setESeen = false;
+  // Per-fence buffer of (line-number, line) tuples for shell-flavored
+  // fences. Used for fence-scoped rules (e.g. command-portability) that
+  // need full-fence context (guard may appear after invocation).
+  let fenceBuffer = [];
+  let fenceIsShell = false;
   lines.forEach((line, idx) => {
     const fenceOpen = line.match(/^\s*```([a-zA-Z0-9_-]*)\s*$/);
     if (fenceOpen) {
       if (inFence) {
+        // Closing fence — run fence-scoped checks before resetting state.
+        if (fenceIsShell) {
+          findings.push(...portabilityFindings(fenceBuffer));
+        }
         inFence = false;
         fenceLang = "";
         setESeen = false;
+        fenceBuffer = [];
+        fenceIsShell = false;
       } else {
         inFence = true;
         fenceLang = fenceOpen[1].toLowerCase();
         setESeen = false;
+        fenceBuffer = [];
+        const SHELL_FENCES = new Set(["", "bash", "sh", "zsh", "shell", "console"]);
+        fenceIsShell = SHELL_FENCES.has(fenceLang);
       }
       return;
     }
@@ -230,6 +270,8 @@ function lintFile(absPath) {
       if (/\bset\s+[-+][a-zA-Z]*e[a-zA-Z]*\b/.test(toScan)) {
         setESeen = true;
       }
+      // Buffer for fence-scoped checks.
+      fenceBuffer.push({ line: idx + 1, text: line, scan: toScan });
     }
     for (const rule of RULES) {
       if (rule.context === "set-e" && !(inFence && setESeen)) continue;
@@ -244,7 +286,50 @@ function lintFile(absPath) {
       }
     }
   });
+  // If file ended while still inside a fence (malformed markdown), still
+  // run portability checks on what we buffered.
+  if (inFence && fenceIsShell) {
+    findings.push(...portabilityFindings(fenceBuffer));
+  }
   return findings;
+}
+
+/**
+ * Fence-scoped check for the command-portability rule (#425, Wave 2a).
+ *
+ * Input: array of { line, text, scan } objects covering one shell fence.
+ * Output: findings array for any unguarded bare invocation of a
+ * non-default tool (`rg`, `fd`, `bat`). A tool is considered guarded if
+ * the same fence contains `command -v <tool>` anywhere (before or after
+ * the invocation). Stdlib fallbacks (`grep -R`, `find`, `python -m
+ * json.tool`) are accepted by author convention — we do not try to
+ * detect them; we only require the guard OR absence of the bare call.
+ */
+function portabilityFindings(fenceBuffer) {
+  const out = [];
+  // Collect guards in this fence.
+  const guarded = new Set();
+  for (const { scan } of fenceBuffer) {
+    for (const tool of PORTABILITY_TOOLS) {
+      const guardRe = new RegExp(`\\bcommand\\s+-v\\s+${tool}\\b`);
+      if (guardRe.test(scan)) guarded.add(tool);
+    }
+  }
+  // Flag unguarded bare invocations.
+  for (const { line, text, scan } of fenceBuffer) {
+    for (const tool of PORTABILITY_TOOLS) {
+      if (guarded.has(tool)) continue;
+      if (!matchesBareTool(scan, tool)) continue;
+      out.push({
+        rule: "command-portability",
+        line,
+        snippet: text.trim().slice(0, 160),
+        why: `${tool} is not on the default PATH for many chat-agent environments`,
+        fix: `guard with \`command -v ${tool}\` in the same fence, or use a stdlib fallback (grep -R / find / python -m json.tool)`,
+      });
+    }
+  }
+  return out;
 }
 
 function main() {
