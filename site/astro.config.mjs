@@ -14,6 +14,12 @@ export default defineConfig({
   trailingSlash: "always",
   redirects: {
     "/project/": "/project/contributing/",
+    "/guides/security-baseline/": "/reference/security-baseline/",
+    "/guides/cost-governance/": "/reference/cost-governance/",
+    "/guides/prompt-guide/best-practices/": "/reference/prompts/best-practices/",
+    "/guides/prompt-guide/workflow-prompts/": "/reference/prompts/workflow-prompts/",
+    "/guides/prompt-guide/repository-prompts/": "/reference/prompts/repository-prompts/",
+    "/guides/prompt-guide/reference/": "/reference/prompts/skills-subagents/",
   },
   markdown: {
     remarkPlugins: [remarkGlossaryAnchors],
@@ -180,35 +186,11 @@ export default defineConfig({
           label: "How-to & Tutorials",
           collapsed: true,
           items: [
-            {
-              label: "Prompt Guide",
-              collapsed: true,
-              items: [
-                { label: "Overview", slug: "guides/prompt-guide" },
-                {
-                  label: "Best Practices",
-                  slug: "guides/prompt-guide/best-practices",
-                },
-                {
-                  label: "Workflow Prompts",
-                  slug: "guides/prompt-guide/workflow-prompts",
-                },
-                {
-                  label: "Repository Slash Prompts",
-                  slug: "guides/prompt-guide/repository-prompts",
-                },
-                {
-                  label: "Skill & Subagent Reference",
-                  slug: "guides/prompt-guide/reference",
-                },
-              ],
-            },
+            { label: "Prompt Guide", slug: "guides/prompt-guide" },
             { label: "Troubleshooting", slug: "guides/troubleshooting" },
             { label: "Session Debugging", slug: "guides/session-debugging" },
             { label: "Debug Log Export", slug: "guides/apex-debug-log-export" },
             { label: "Dev Container Hygiene", slug: "guides/devcontainer-hygiene" },
-            { label: "Security Baseline", slug: "guides/security-baseline" },
-            { label: "Cost Governance", slug: "guides/cost-governance" },
             { label: "azd Deployment", slug: "guides/azd-deployment" },
             { label: "Agent Hooks", slug: "guides/hooks" },
             { label: "E2E Testing", slug: "guides/e2e-testing" },
@@ -222,6 +204,18 @@ export default defineConfig({
             {
               label: "Validation & Linting",
               slug: "reference/validation-reference",
+            },
+            { label: "Security Baseline", slug: "reference/security-baseline" },
+            { label: "Cost Governance", slug: "reference/cost-governance" },
+            {
+              label: "Prompt Reference",
+              collapsed: true,
+              items: [
+                { label: "Best Practices", slug: "reference/prompts/best-practices" },
+                { label: "Workflow Prompts", slug: "reference/prompts/workflow-prompts" },
+                { label: "Repository Slash Prompts", slug: "reference/prompts/repository-prompts" },
+                { label: "Skill & Subagent Reference", slug: "reference/prompts/skills-subagents" },
+              ],
             },
             {
               label: "Architecture Explorer",

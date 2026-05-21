@@ -32,6 +32,10 @@ production-grade design assets or external CI integrations. The detail:
 | B6 `code-blocks` | ✅ | High-traffic fences in `azd-deployment.mdx`, `security-baseline.md`, and `workflow-deep-dive.md` carry `title=` + `frame=` attributes. |
 | P2 `sidebar-order` | ✅ | Closed as no-op — the sidebar is fully explicit in `astro.config.mjs`. |
 | S2 `next-suggest` | ⛔ dropped | Starlight's built-in pagination already shows prev/next; an extra component would duplicate it. |
+| V1 `how-it-works-diagrams` | ✅ | Mermaid flowcharts added to `architecture.md` (orchestrator pattern) and `workflow-engine.md` (five-gate flow). |
+| V6 `demo-status` | ✅ | `<DemoStepHeader>` auto-mounts on demo step root pages; data sourced from `demoSteps.mjs`. |
+| Q2 `mermaid-component` | ✅ | Mermaid bootstrap now lazy-loads — the ~150 KB CDN import is skipped on pages without `.mermaid` elements. |
+| N8 `diataxis-split` | ✅ | `guides/security-baseline.md`, `guides/cost-governance.md`, and the four `guides/prompt-guide/*` pages moved into `reference/` (plus `reference/prompts/`). Redirects + link updates land in the same commit. |
 | P1 `frontmatter-desc` | ✅ | 83 pages — all have `title` + `description`. |
 | Q3 `404-helpful` | ✅ | 404 page now lists Home, Quickstart, Workflow, FAQ, Demo and prompts `/` to search. |
 | Q4 `ci-link-check` | ✅ | `.github/workflows/docs-checks.yml` runs `lint:md`, `lint:docs-frontmatter`, build, `check-links` on `site/**` PRs. |
@@ -46,16 +50,12 @@ production-grade design assets or external CI integrations. The detail:
 | V3 `home-explorer-teaser` | Needs a polished light/dark screenshot of the Architecture Explorer. |
 | V4 `caption-pass` | Needs an image-by-image alt + caption audit; recommend pairing with V1. |
 | V5 `hero-darkmode` | Needs a designer to deliver light + dark variants of `hero-*.jpg`. |
-| V6 `demo-status` | Substantial component refactor across the demo cluster; queued for T4 sprint. |
-| V1 `how-it-works-diagrams` | Requires architectural judgement on which prose tables to convert. |
 | B3 `og-per-section` | Needs `@astrojs/og` recipe wiring + per-section card art. |
 | B4 `og-darkmode` | Needs the source PSD/SVG for the OG card. |
 | B5 `wordmark` | Needs a designer to produce the horizontal wordmark + monogram. |
 | P3 `og-build-hook` | Pairs with B3/B4 — same blocker. |
 | Q1 `hero-compress` | Pairs with V5; trivial once the new assets exist (`<Image>` swap). |
-| Q2 `mermaid-component` | Doable but a riskier refactor of the inline bootstrap; recommend a dedicated PR. |
 | Q5 `ci-lighthouse` | Needs an `@lhci/cli` config and a GitHub App; recommend after the brand work. |
-| N8 `diataxis-split` | Large file move + redirect map; defer to a dedicated PR after the workflow spine settles. |
 
 ### Acceptance checks after this pass
 

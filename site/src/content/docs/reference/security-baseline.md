@@ -80,15 +80,15 @@ regex cannot detect.
 
 - [Microsoft Cloud Security Benchmark][mcsb] — per-service security baselines
 - [WAF Security Pillar][waf-sec] — Well-Architected Framework security patterns
-- [Validation Reference](../../reference/validation-reference/) — full list of validators
-- [Cost Governance](../cost-governance/) — budget and cost monitoring rules
-- [Workflow](../../concepts/workflow/) — where security checks fit in the agent pipeline
+- [Validation Reference](/azure-agentic-infraops/reference/validation-reference/) — full list of validators
+- [Cost Governance](/azure-agentic-infraops/reference/cost-governance/) — budget and cost monitoring rules
+- [Workflow](/azure-agentic-infraops/concepts/workflow/) — where security checks fit in the agent pipeline
 
 [mcsb]: https://learn.microsoft.com/security/benchmark/azure/overview
 [waf-sec]: https://learn.microsoft.com/azure/well-architected/security/
 
 ## Related
 
-- [Quickstart](../../getting-started/quickstart/) — install and run your first project
-- [Workflow](../../concepts/workflow/) — how agents collaborate across steps
-- [Troubleshooting](../troubleshooting/) — diagnose failed deploys
+- [Quickstart](/azure-agentic-infraops/getting-started/quickstart/) — install and run your first project
+- [Workflow](/azure-agentic-infraops/concepts/workflow/) — how agents collaborate across steps
+- [Troubleshooting](/azure-agentic-infraops/guides/troubleshooting/) — diagnose failed deploys
