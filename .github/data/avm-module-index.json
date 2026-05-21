@@ -1,7 +1,7 @@
 {
   "$schema": null,
   "schema_version": "avm-module-index-v1",
-  "generated_at": "2026-05-18T10:10:36.547Z",
+  "generated_at": "2026-05-20T15:41:05.475Z",
   "sources": {
     "bicep": "https://azure.github.io/Azure-Verified-Modules/module-indexes/BicepResourceModules.csv",
     "terraform": "https://azure.github.io/Azure-Verified-Modules/module-indexes/TerraformResourceModules.csv"
@@ -1745,7 +1745,7 @@
       "source": "br/public:avm/res/db-for-my-sql/flexible-server/administrator",
       "provider_namespace": "Microsoft.DBforMySQL",
       "resource_type": "flexibleServers/administrators",
-      "module_status": "Proposed",
+      "module_status": "Available",
       "display_name": "DB for MySQL Flexible Server - Administrator",
       "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/db-for-my-sql/flexible-server/administrator",
       "alternative_names": ""
@@ -1756,7 +1756,7 @@
       "source": "br/public:avm/res/db-for-my-sql/flexible-server/advanced-threat-protection",
       "provider_namespace": "Microsoft.DBforMySQL",
       "resource_type": "flexibleServers/advancedThreatProtectionSettings",
-      "module_status": "Proposed",
+      "module_status": "Available",
       "display_name": "DB for MySQL Flexible Server - Advanced Threat Protection",
       "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/db-for-my-sql/flexible-server/advanced-threat-protection",
       "alternative_names": ""
@@ -1767,7 +1767,7 @@
       "source": "br/public:avm/res/db-for-my-sql/flexible-server/configuration",
       "provider_namespace": "Microsoft.DBforMySQL",
       "resource_type": "flexibleServers/configurations",
-      "module_status": "Proposed",
+      "module_status": "Available",
       "display_name": "DB for MySQL Flexible Server - Configuration",
       "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/db-for-my-sql/flexible-server/configuration",
       "alternative_names": ""
@@ -1778,7 +1778,7 @@
       "source": "br/public:avm/res/db-for-my-sql/flexible-server/database",
       "provider_namespace": "Microsoft.DBforMySQL",
       "resource_type": "flexibleServers/databases",
-      "module_status": "Proposed",
+      "module_status": "Available",
       "display_name": "DB for MySQL Flexible Server - Database",
       "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/db-for-my-sql/flexible-server/database",
       "alternative_names": ""
@@ -1789,7 +1789,7 @@
       "source": "br/public:avm/res/db-for-my-sql/flexible-server/firewall-rule",
       "provider_namespace": "Microsoft.DBforMySQL",
       "resource_type": "flexibleServers/firewallRules",
-      "module_status": "Proposed",
+      "module_status": "Available",
       "display_name": "DB for MySQL Flexible Server - Firewall Rule",
       "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/db-for-my-sql/flexible-server/firewall-rule",
       "alternative_names": ""
@@ -7091,9 +7091,9 @@
       "source": "Azure/avm-res-network-networksecurityperimeter/azurerm",
       "provider_namespace": "Microsoft.Network",
       "resource_type": "networkSecurityPerimeters",
-      "module_status": "Proposed",
+      "module_status": "Available",
       "display_name": "Network Security Perimeter",
-      "repo_url": "https://github.com/Azure/terraform-azurerm-avm-res-network-networksecurityperimeter",
+      "repo_url": "https://github.com/Azure/terraform-azapi-avm-res-network-networksecurityperimeter",
       "alternative_names": ""
     },
     {
