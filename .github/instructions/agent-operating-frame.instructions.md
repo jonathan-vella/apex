@@ -59,6 +59,18 @@ applyTo: ".github/agents/*.agent.md"
 - Drift between phases must unwind to the owning agent (governance
   → 04g, plan → 04/05, code → 06b/06t). Do not patch in place.
 
+## Validate every artifact after writing
+
+- Immediately after writing any non-markdown artifact, run the
+  shape-check command from the `azure-artifacts` skill's
+  [Post-write validation](../skills/azure-artifacts/SKILL.md#post-write-validation)
+  table (`*.json` → `python -m json.tool`, `*.bicep` → `bicep build --stdout`,
+  `*.tf` → `terraform fmt -check` + `terraform validate`). Fail closed:
+  fix and re-run before handing off.
+- Markdown artifacts are validated by the lefthook `artifact-validation`
+  pre-commit hook — do not invoke `lint:artifact-templates` /
+  `markdownlint-cli2` directly.
+
 ## Subagent budget — agent-specific
 
 - Every main agent declares its subagent budget in its body-level
