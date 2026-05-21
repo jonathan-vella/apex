@@ -1,0 +1,46 @@
+name: docs-gardening
+
+on:
+  schedule:
+    # First Monday of every month at 07:00 UTC.
+    - cron: "0 7 1-7 * 1"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  open-gardening-issue:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Open monthly gardening tracking issue
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          month=$(date -u +%Y-%m)
+          title="docs: monthly gardening review (${month})"
+          body=$(cat <<'EOF'
+          ## Why this issue exists
+
+          The monthly docs gardening rotation. Run the
+          [`/review-astro-docs`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/tools/apex-prompts/utility-prompts/review-astro-docs.prompt.md)
+          prompt against the docs site and post the resulting
+          `astro-docs-review.md` report as a comment.
+
+          ## Checklist
+
+          - [ ] Run `/review-astro-docs` (no `--apply-fixes` on first pass).
+          - [ ] Triage `blocker` and `major` findings into follow-up issues.
+          - [ ] Apply the safe allow-list fixes via `/review-astro-docs --apply-fixes`.
+          - [ ] Close this issue with a link to the report PR.
+          EOF
+          )
+          gh issue create \
+            --title "$title" \
+            --body  "$body" \
+            --label docs,gardening

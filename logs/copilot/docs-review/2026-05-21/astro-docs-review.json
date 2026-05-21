@@ -1,0 +1,191 @@
+[
+  {
+    "file": ".gitignore",
+    "line": 35,
+    "category": "site-standard",
+    "severity": "minor",
+    "finding": "`logs/copilot/docs-review/` is excluded by the `logs/` ignore rule, so the JSON audit trail produced by this prompt is not committable.",
+    "suggestion": "Add `!logs/copilot/docs-review/` (after the `logs/` line) so reviewers can commit the dated report folder.",
+    "auto_fixed": false
+  },
+  {
+    "file": "site/src/content/docs/getting-started/azure-setup.md",
+    "line": 1,
+    "category": "ia",
+    "severity": "major",
+    "finding": "Page exists on disk but is not in the `Getting Started` sidebar in `site/astro.config.mjs`. It is reachable only via inbound links, making the Azure OIDC/RBAC bootstrap effectively hidden in navigation.",
+    "suggestion": "Add `{ label: \"Azure Setup\", slug: \"getting-started/azure-setup\" }` to the Getting Started sidebar items (between Quickstart and Dev Container Setup).",
+    "auto_fixed": false
+  },
+  {
+    "file": "site/src/content/docs/concepts/how-it-works/sku-manifest.md",
+    "line": 1,
+    "category": "ia",
+    "severity": "major",
+    "finding": "Page exists on disk and is referenced from `concepts/workflow-deep-dive.md` but is not in the sidebar — orphaned from navigation.",
+    "suggestion": "Add `{ label: \"SKU Manifest\", slug: \"concepts/how-it-works/sku-manifest\" }` to the `How It Works` sub-tree (after `MCP Integration`).",
+    "auto_fixed": false
+  },
+  {
+    "file": "site/src/content/docs/concepts/workflow-deep-dive.md",
+    "line": 0,
+    "category": "errors",
+    "severity": "blocker",
+    "finding": "15 broken relative links (`how-it-works/...`, `workflow/`) resolve under `/concepts/workflow-deep-dive/how-it-works/...` instead of `/concepts/how-it-works/...`. The page slug is `/concepts/workflow-deep-dive/`, so bare relative links must climb one level.",
+    "suggestion": "Prefix the affected links with `../` (e.g. `../how-it-works/`, `../workflow/`, `../how-it-works/workflow-engine/`, `../how-it-works/agents/`, `../how-it-works/skills-and-instructions/`, `../how-it-works/architecture/`, `../how-it-works/mcp-integration/`, `../how-it-works/sku-manifest/`). Re-run `node site/check-links.mjs` to confirm zero broken links.",
+    "auto_fixed": false
+  },
+  {
+    "file": "site/src/content/docs/concepts/how-it-works/workflow-engine.md",
+    "line": 0,
+    "category": "errors",
+    "severity": "major",
+    "finding": "Broken link `./agents/` resolves to `/concepts/how-it-works/workflow-engine/agents` — the trailing-slash + relative form treats `workflow-engine` as a directory.",
+    "suggestion": "Replace `./agents/` with `../agents/`.",
+    "auto_fixed": false
+  },
+  {
+    "file": "site/src/content/docs/reference/architecture-explorer.mdx",
+    "line": 0,
+    "category": "errors",
+    "severity": "major",
+    "finding": "Broken link `../concepts/how-it-works/skills-and-instructions/` resolves to `/reference/concepts/...` — Starlight resolves relative URLs from the page slug `/reference/architecture-explorer/`, so a single `../` only reaches `/reference/`.",
+    "suggestion": "Use `/concepts/how-it-works/skills-and-instructions/` (absolute) or `../../concepts/how-it-works/skills-and-instructions/`.",
+    "auto_fixed": false
+  },
+  {
+    "file": "site/src/content/docs/reference/architecture-explorer.mdx",
+    "line": 0,
+    "category": "errors",
+    "severity": "major",
+    "finding": "Broken link `/architecture-explorer.html` → resolves under `/azure-agentic-infraops/reference/` — wrong base.",
+    "suggestion": "Reference the asset as `/azure-agentic-infraops/architecture-explorer.html` (or relative to `site/public/`).",
+    "auto_fixed": false
+  },
+  {
+    "file": "site/src/content/docs/guides/security-baseline.md",
+    "line": 20,
+    "category": "terminology",
+    "severity": "major",
+    "finding": "Uses `Azure AD` in current guidance (`Azure AD-only SQL auth`).",
+    "suggestion": "Replace with `Microsoft Entra ID-only SQL auth` (keep code identifiers like `azureADOnlyAuthentication` unchanged).",
+    "auto_fixed": false
+  },
+  {
+    "file": "site/src/content/docs/guides/troubleshooting.md",
+    "line": 186,
+    "category": "terminology",
+    "severity": "major",
+    "finding": "References `Azure AD only` and `AAD auth` in active troubleshooting copy (not a deprecated/legacy callout).",
+    "suggestion": "Replace prose mentions with `Microsoft Entra ID-only` and `Entra ID auth`; keep configuration property names unchanged.",
+    "auto_fixed": false
+  },
+  {
+    "file": "site/src/content/docs/guides/prompt-guide/best-practices.md",
+    "line": 69,
+    "category": "terminology",
+    "severity": "major",
+    "finding": "`Authentication: Azure AD only — no SQL credentials` uses the deprecated brand.",
+    "suggestion": "Replace with `Authentication: Microsoft Entra ID only — no SQL credentials`.",
+    "auto_fixed": false
+  },
+  {
+    "file": "site/src/content/docs/getting-started/azure-setup.md",
+    "line": 35,
+    "category": "terminology",
+    "severity": "major",
+    "finding": "`Ask your Azure AD admin` references the deprecated brand in active guidance.",
+    "suggestion": "Replace with `Microsoft Entra ID admin` (or `Entra ID admin`).",
+    "auto_fixed": false
+  },
+  {
+    "file": "site/src/content/docs/getting-started/azure-setup.md",
+    "line": 60,
+    "category": "terminology",
+    "severity": "minor",
+    "finding": "Secret label description says `Azure AD tenant ID`.",
+    "suggestion": "Replace with `Microsoft Entra tenant ID` (the secret name `AZURE_TENANT_ID` is fine — it is a stable variable).",
+    "auto_fixed": false
+  },
+  {
+    "file": "site/src/content/docs/reference/glossary.md",
+    "line": 17,
+    "category": "terminology",
+    "severity": "minor",
+    "finding": "Glossary entry `### AAD (Azure Active Directory)` is the only authoritative naming reference for the term in docs; it should lead with the current brand and treat AAD/Azure AD as historical aliases.",
+    "suggestion": "Rewrite as `### Microsoft Entra ID (formerly Azure Active Directory / AAD)` and update body copy at lines 21 and 333 accordingly. Line 529 table row can keep `AAD` as the abbreviation column (covered by the `formerly`/`renamed` exclusion).",
+    "auto_fixed": false
+  },
+  {
+    "file": "site/src/content/docs/getting-started/quickstart.md",
+    "line": 64,
+    "category": "terminology",
+    "severity": "minor",
+    "finding": "Uses `Click the green \"Use this template\" button` — Microsoft Cloud Style Guide prefers `select` for UI verbs.",
+    "suggestion": "Replace with `Select the green **Use this template** button → **Create a new repository**`.",
+    "auto_fixed": false
+  },
+  {
+    "file": "site/src/content/docs/getting-started/dev-containers.md",
+    "line": 147,
+    "category": "terminology",
+    "severity": "minor",
+    "finding": "`Click the **Open Settings (JSON)** icon` uses the `click` UI verb.",
+    "suggestion": "Replace with `Select the **Open Settings (JSON)** icon (top-right)`.",
+    "auto_fixed": false
+  },
+  {
+    "file": "site/src/content/docs/guides/apex-debug-log-export.md",
+    "line": 100,
+    "category": "terminology",
+    "severity": "nit",
+    "finding": "`Right-click the generated .tar.gz file` is acceptable but mixed with `select`/`choose` elsewhere.",
+    "suggestion": "Optional: keep `Right-click` (it is the canonical mouse gesture name) but ensure the follow-up verb is `select` — `... and select **Download...**` instead of `choose **Download...**`.",
+    "auto_fixed": false
+  },
+  {
+    "file": "site/src/content/docs/concepts/how-it-works/agents.md",
+    "line": 134,
+    "category": "ia",
+    "severity": "minor",
+    "finding": "Workflow step terminology mixes `Step 1`/`Step 3.5` (correct) with `Phase 2` (e.g. `Step 1 (Requirements), Phase 2`). The invariant in the prompt is `Step N` for the workflow spine; `Phase` is reserved for sub-stages within an agent.",
+    "suggestion": "Audit `Phase N` occurrences and replace with `Step N` where they refer to the workflow spine. Lines flagged: `concepts/how-it-works/agents.md:90,134`, `concepts/how-it-works/workflow-engine.md:217-218`, `concepts/how-it-works/sku-manifest.md:132`, `concepts/workflow-deep-dive.md:169,535,565,610`, `concepts/workflow.md:355`, `guides/security-baseline.md:54`. Where the reference is genuinely a sub-phase inside an agent (e.g. `Architect Phase 6b`), keep `Phase` but ensure the parent agent/step is named in the same sentence.",
+    "auto_fixed": false
+  },
+  {
+    "file": "site/src/content/docs/demo/08-as-built/compliance.md",
+    "line": 111,
+    "category": "completeness",
+    "severity": "minor",
+    "finding": "Three rows with status `Todo` in the action table. Acceptable for a demo as-built but should carry a due-date/owner note explaining they are intentional placeholders.",
+    "suggestion": "Either close out the `Todo` rows or add a leading sentence: `Status \"Todo\" entries represent the demo's open follow-ups; they are not real production tasks.`",
+    "auto_fixed": false
+  },
+  {
+    "file": "site/src/content/docs/index.mdx",
+    "line": 0,
+    "category": "ia",
+    "severity": "ia:proposal",
+    "finding": "Homepage routes new readers directly into Concepts; there is no single \"first APEX run end-to-end\" tutorial that walks Steps 1→7 with one project.",
+    "suggestion": "Add a tutorial page `getting-started/your-first-run.md` (Diátaxis: tutorial) that walks the demo project through Steps 1–7 with screenshots, then surface it as the second sidebar item under Getting Started. Pairs with the Minimal-S IA path below.",
+    "auto_fixed": false
+  },
+  {
+    "file": "site/src/content/docs/guides/",
+    "line": 0,
+    "category": "ia",
+    "severity": "ia:proposal",
+    "finding": "`guides/` mixes how-to (azd-deployment, hooks, e2e-testing), reference (security-baseline, cost-governance, validation), and tutorials (prompt-guide). Diátaxis purity is broken.",
+    "suggestion": "In Minimal-S: rename sidebar group to `How-to & Tutorials` and leave files in place. In Full-L: split into `How-to guides/` (task-oriented: azd-deployment, hooks, e2e-testing, troubleshooting, session-debugging, apex-debug-log-export, devcontainer-hygiene) and move `security-baseline`, `cost-governance` under `reference/`.",
+    "auto_fixed": false
+  },
+  {
+    "file": "site/src/content/docs/concepts/workflow.md",
+    "line": 0,
+    "category": "ia",
+    "severity": "ia:proposal",
+    "finding": "`concepts/workflow.md` + `concepts/workflow-deep-dive.md` together attempt to be the workflow spine but split into two unequal pages (overview + ~600-line deep dive). No per-step landing page exists.",
+    "suggestion": "In Full-L: replace these two with a `Walk the workflow` sidebar group containing one page per step (1, 2, 3, 3.5, 4, 5, 6, 7, Post). Each step page is ~200 lines, cross-links to the relevant guides and reference, and uses identical `Step N — <Name>` headings. Move the existing deep-dive content into the appropriate step pages and retire `workflow-deep-dive.md`.",
+    "auto_fixed": false
+  }
+]

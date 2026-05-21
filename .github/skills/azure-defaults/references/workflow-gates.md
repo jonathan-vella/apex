@@ -110,6 +110,74 @@ run = (decisions.budget_cap_known AND monthly_total > 0.8 * budget_cap)
 
 Record `apex-recall decide --key cost_feasibility_review --value <run|skip>`.
 
+## Architect (Step 2) — Phase 6b: VNet planning gate
+
+Runs **after Phase 6a (SKU confirmation)** and **before Step 7
+(pricing)** when the trigger contract holds (see
+[`vnet-planning.md`](vnet-planning.md#trigger-contract)).
+Honors `decisions.vnet_planning_mode ∈ {guided, fast, deferred}`
+(default `guided`; `deferred` is blocked for prod).
+
+**Branch by mode**:
+
+- `guided` — run Round 1 + Round 2 (full askQuestions flow).
+- `fast` — Round 1 only; Round 2 auto-confirms the proposed subnet
+  table with a Challenger-tagged informational finding
+  (`subnet plan auto-confirmed in fast mode`).
+- `deferred` — write `subnet_plan = []` + informational finding
+  (`VNet planning deferred; sandbox/exploration mode`). Block when
+  the inferred environment is `prod`.
+
+**Round 1 — `vscode_askQuestions` (single batched call)**:
+
+- Q1 — `vnet_mode`: `create-new` (default) | `use-existing`.
+- Q2 (when `create-new`) — `vnet_address_space`: freeform CIDR
+  (default `10.0.0.0/16`; at least `/22`).
+- Q3 (when `use-existing`) — `existing_vnet_id`: freeform Azure
+  resource ID. Run the two-step validation below **before** Round 2.
+
+**Existing-VNet validation (two-step)**:
+
+1. **Auth preamble**: `az account show -o none 2>/dev/null`. On
+   non-zero exit, fall back to "trust user input, defer validation
+   to Planner Phase 4" and record an informational finding
+   (`existing_vnet_validation_deferred`). See
+   [`azure-cli-auth-validation.md`](azure-cli-auth-validation.md) for
+   the canonical auth-fallback pattern.
+2. **Resource probe**:
+   ```bash
+   az network vnet show --ids "${existing_vnet_id}" \
+     --query "{addr:addressSpace.addressPrefixes,loc:location,name:name}" \
+     -o json
+   ```
+   On success, overwrite `vnet_address_space` with live
+   `addressSpace.addressPrefixes[0]`. On NotFound/Forbidden,
+   re-prompt Q3. On tenant/subscription/region mismatch, block.
+
+**Round 2 — per-row askMe loop**: present the proposed subnet table
+(`purpose / size / address_prefix / delegation / NSG / route-table`)
+then run one `vscode_askQuestions` per row with three options:
+`Apply edit (freeform diff)` / `Skip this row` / `Done`. Soft warning
+("3 edit rounds — consider Done") after 3 consecutive edits; never
+auto-defer.
+
+**Recall write-backs** (MANDATORY at gate completion):
+
+```bash
+apex-recall decide <project> --key vnet_planning_mode --value <guided|fast|deferred> --step 2 --json
+apex-recall decide <project> --key vnet_mode --value <create-new|use-existing> --step 2 --json
+apex-recall decide <project> --key vnet_address_space --value "<cidr>" --step 2 --json
+apex-recall decide <project> --key subnet_plan --value "$(cat plan.json)" --step 2 --json
+apex-recall decide <project> --key vnet_plan_decision --value <confirmed|edited|deferred> --step 2 --json
+```
+
+**Pricing handoff**: append any `subnet_plan` rows of type `bastion`,
+`azure-firewall`, `nat-gateway`, `vpn-gateway`, `expressroute-gateway`,
+`application-gateway`, `application-gateway-for-containers` to the
+Step 7 `cost-estimate-subagent` `resource_list` — these are priced
+live, not via the static-fallback whitelist. Full contract +
+sizing matrix: [`vnet-planning.md`](vnet-planning.md).
+
 ## Architect (Step 2) — Approval gate handoff template
 
 On Proceed, emit one of these two templates verbatim, routed by

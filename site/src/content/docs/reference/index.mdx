@@ -1,0 +1,39 @@
+---
+title: "Reference"
+description: "FAQ, glossary, validation catalog, downloads, and the interactive Architecture Explorer."
+sidebar:
+  order: 0
+---
+
+import { CardGrid, LinkCard } from "@astrojs/starlight/components";
+
+Lookup material: definitions, validation lists, downloads, and the interactive
+Architecture Explorer.
+
+<CardGrid>
+  <LinkCard
+    title="FAQ"
+    description="Common questions about APEX, agents, and deployments."
+    href="/azure-agentic-infraops/reference/faq/"
+  />
+  <LinkCard
+    title="Glossary"
+    description="Definitions for AVM, RBAC, CAF, WAF, MCP, and other APEX terms."
+    href="/azure-agentic-infraops/reference/glossary/"
+  />
+  <LinkCard
+    title="Validation & Linting"
+    description="Every `npm run lint:*` and `npm run validate:*` script in the repo."
+    href="/azure-agentic-infraops/reference/validation-reference/"
+  />
+  <LinkCard
+    title="Architecture Explorer"
+    description="Interactive 3D graph of every agent, skill, and instruction."
+    href="/azure-agentic-infraops/reference/architecture-explorer/"
+  />
+  <LinkCard
+    title="Resources & Downloads"
+    description="Templates, posters, and external links."
+    href="/azure-agentic-infraops/reference/resources/"
+  />
+</CardGrid>

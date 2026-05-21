@@ -1,9 +1,14 @@
 ---
 // Custom Footer for APEX docs
 import DemoNavigationEnhancer from "./DemoNavigationEnhancer.astro";
+import BackToTop from "./BackToTop.astro";
+
+const gitSha = (import.meta.env.PUBLIC_GIT_SHA || "").slice(0, 7);
+const buildDate = import.meta.env.PUBLIC_BUILD_DATE || "";
 ---
 
 <DemoNavigationEnhancer />
+<BackToTop />
 
 <footer class="site-footer">
   <div class="footer-content">
@@ -18,8 +23,17 @@ import DemoNavigationEnhancer from "./DemoNavigationEnhancer.astro";
       <span class="footer-sep">·</span>
       <a href="https://github.com/jonathan-vella/azure-agentic-infraops-accelerator" target="_blank" rel="noopener noreferrer">Accelerator Template</a>
       <span class="footer-sep">·</span>
+      <a href="/azure-agentic-infraops/sitemap-index.xml">Sitemap</a>
+      <span class="footer-sep">·</span>
       Built with <a href="https://starlight.astro.build/" target="_blank" rel="noopener noreferrer">Starlight</a>
     </p>
+    {gitSha && (
+      <p class="footer-revision">
+        <span class="footer-rev-pill">
+          Built from <code>{gitSha}</code>{buildDate && <> on {buildDate}</>}
+        </span>
+      </p>
+    )}
   </div>
 </footer>
 
@@ -58,5 +72,25 @@ import DemoNavigationEnhancer from "./DemoNavigationEnhancer.astro";
   .footer-sep {
     margin: 0 0.4rem;
     color: var(--sl-color-gray-4);
+  }
+
+  .footer-revision {
+    margin-top: 0.6rem !important;
+    font-size: 0.7rem;
+  }
+
+  .footer-rev-pill {
+    display: inline-block;
+    padding: 0.15rem 0.55rem;
+    border-radius: 999px;
+    background: var(--sl-color-gray-6, rgba(120, 120, 120, 0.1));
+    color: var(--sl-color-gray-3);
+    border: 1px solid var(--sl-color-hairline);
+  }
+
+  .footer-rev-pill code {
+    background: transparent;
+    padding: 0;
+    font-size: 0.7rem;
   }
 </style>

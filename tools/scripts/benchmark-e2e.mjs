@@ -58,13 +58,16 @@ const EXPECTED_ARTIFACTS = {
   "02-architecture-assessment.md": { required: true, step: 2 },
   "02-waf-scores.py": { required: false, step: 2 },
   "02-waf-scores.png": { required: false, step: 2 },
+  "02-waf-scores.svg": { required: false, step: 2 },
   // Step 3 — Design
   "03-des-cost-estimate.md": { required: false, step: 3 },
   "03-des-diagram.drawio": { required: false, step: 3 },
   "03-des-cost-distribution.py": { required: false, step: 3 },
   "03-des-cost-distribution.png": { required: false, step: 3 },
+  "03-des-cost-distribution.svg": { required: false, step: 3 },
   "03-des-cost-projection.py": { required: false, step: 3 },
   "03-des-cost-projection.png": { required: false, step: 3 },
+  "03-des-cost-projection.svg": { required: false, step: 3 },
   "03-des-adr-*.md": { required: false, step: 3, glob: true },
   // Step 3.5 — Governance
   "04-governance-constraints.md": { required: true, step: 3.5 },
@@ -75,7 +78,11 @@ const EXPECTED_ARTIFACTS = {
   "04-dependency-diagram.drawio": { required: false, step: 4 },
   "04-runtime-diagram.drawio": { required: false, step: 4 },
   "04-dependency-diagram.py": { required: false, step: 4 },
+  "04-dependency-diagram.png": { required: false, step: 4 },
+  "04-dependency-diagram.svg": { required: false, step: 4 },
   "04-runtime-diagram.py": { required: false, step: 4 },
+  "04-runtime-diagram.png": { required: false, step: 4 },
+  "04-runtime-diagram.svg": { required: false, step: 4 },
   // Step 5 — IaC Code (reference doc)
   "05-implementation-reference.md": { required: false, step: 5 },
   // Step 6 — Deploy
@@ -92,12 +99,16 @@ const EXPECTED_ARTIFACTS = {
   "07-ab-diagram.drawio": { required: false, step: 7 },
   "07-ab-cost-distribution.py": { required: false, step: 7 },
   "07-ab-cost-distribution.png": { required: false, step: 7 },
+  "07-ab-cost-distribution.svg": { required: false, step: 7 },
   "07-ab-cost-projection.py": { required: false, step: 7 },
   "07-ab-cost-projection.png": { required: false, step: 7 },
+  "07-ab-cost-projection.svg": { required: false, step: 7 },
   "07-ab-cost-comparison.py": { required: false, step: 7 },
   "07-ab-cost-comparison.png": { required: false, step: 7 },
+  "07-ab-cost-comparison.svg": { required: false, step: 7 },
   "07-ab-compliance-gaps.py": { required: false, step: 7 },
   "07-ab-compliance-gaps.png": { required: false, step: 7 },
+  "07-ab-compliance-gaps.svg": { required: false, step: 7 },
   // Adversarial review outputs (any step)
   "challenge-findings-*.json": { required: false, step: 0, glob: true },
   // Completion artifacts (lessons learned)

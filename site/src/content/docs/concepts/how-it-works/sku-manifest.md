@@ -129,7 +129,7 @@ dropping a `.sku-manifest.skip` sentinel into their
 ## Governance allowlist projection
 
 `04g-Governance` invokes `node tools/scripts/derive-sku-allowlist.mjs <project>`
-after Phase 2 discovery. The script translates Deny-effect policies with
+after Step 3.5 (governance) discovery. The script translates Deny-effect policies with
 `azurePropertyPath` ending in `.sku.name` / `.skuName` / `.sku_name` /
 `.vmSize` into the manifest's `sku_allowlist_snapshot`. The downstream
 validator cross-checks `services[].size` against the projection. The

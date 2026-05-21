@@ -191,7 +191,7 @@ cannot capture (e.g., RBAC propagation delays, DNS convergence).
 Hooks replace custom pre/post logic that `deploy.ps1` handles in-script.
 Define them in `azure.yaml`:
 
-```yaml
+```yaml title="azure.yaml — hooks" frame="code"
 hooks:
   preprovision:
     posix:
@@ -223,7 +223,7 @@ hooks:
 
 Key fields for the co-located layout:
 
-```yaml
+```yaml title="azure.yaml — co-located layout" frame="code"
 name: {project}
 metadata:
   template: {project}@1.0.0
@@ -245,7 +245,7 @@ hooks:                     # optional — lifecycle hooks
 When using `infra.provider: terraform`, also generate `main.tfvars.json` to
 map azd environment variables to Terraform variables:
 
-```json
+```json title="main.tfvars.json" frame="code"
 {
   "location": "${AZURE_LOCATION}",
   "environment_name": "${AZURE_ENV_NAME}"
@@ -281,12 +281,12 @@ map azd environment variables to Terraform variables:
 <CardGrid>
   <LinkCard
     title="Security Baseline"
-    href="/azure-agentic-infraops/guides/security-baseline/"
+    href="/azure-agentic-infraops/reference/security-baseline/"
     description="Non-negotiable security requirements for IaC"
   />
   <LinkCard
     title="Cost Governance"
-    href="/azure-agentic-infraops/guides/cost-governance/"
+    href="/azure-agentic-infraops/reference/cost-governance/"
     description="Budget alerts and cost optimization"
   />
   <LinkCard

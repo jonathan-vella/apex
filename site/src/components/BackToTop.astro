@@ -1,0 +1,96 @@
+---
+// Floating "back to top" button — visible after the user scrolls > 800 px.
+// Mounted globally via the Starlight `PageFrame` component override.
+---
+
+<button
+  type="button"
+  class="apex-back-to-top"
+  aria-label="Back to top"
+  data-state="hidden"
+>
+  <svg
+    aria-hidden="true"
+    viewBox="0 0 24 24"
+    width="18"
+    height="18"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
+    <path d="M5 15l7-7 7 7" />
+  </svg>
+  <span class="apex-back-to-top__label">Top</span>
+</button>
+
+<script is:inline>
+  (() => {
+    const btn = document.querySelector(".apex-back-to-top");
+    if (!btn) return;
+    const reveal = () => {
+      btn.dataset.state = window.scrollY > 800 ? "visible" : "hidden";
+    };
+    btn.addEventListener("click", () => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+    window.addEventListener("scroll", reveal, { passive: true });
+    reveal();
+  })();
+</script>
+
+<style>
+  .apex-back-to-top {
+    position: fixed;
+    right: 1.25rem;
+    bottom: 1.25rem;
+    z-index: 60;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.5rem 0.8rem;
+    border-radius: 999px;
+    border: 1px solid var(--sl-color-hairline);
+    background: var(--sl-color-bg-nav, var(--sl-color-black));
+    color: var(--sl-color-text);
+    font: inherit;
+    font-size: 0.8rem;
+    cursor: pointer;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+    opacity: 0;
+    transform: translateY(0.6rem);
+    pointer-events: none;
+    transition:
+      opacity 0.18s ease,
+      transform 0.18s ease;
+  }
+
+  .apex-back-to-top[data-state="visible"] {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  .apex-back-to-top:hover,
+  .apex-back-to-top:focus-visible {
+    border-color: var(--sl-color-accent);
+    color: var(--sl-color-accent);
+    outline: none;
+  }
+
+  @media (max-width: 50rem) {
+    .apex-back-to-top__label {
+      display: none;
+    }
+    .apex-back-to-top {
+      padding: 0.55rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .apex-back-to-top {
+      transition: opacity 0.01s;
+    }
+  }
+</style>

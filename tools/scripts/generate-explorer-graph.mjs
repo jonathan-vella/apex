@@ -14,9 +14,10 @@
  * Edges:
  *  - agent → subagent (frontmatter `agents:` field)
  *  - agent handoff → agent (frontmatter `handoffs[].agent`)
- * agent → skill (from `tools/registry/agent-registry.json` skills array)
- * agent ⇢ skill edges were dropped in Phase 2 of context-window-optimization;
- * skill nodes remain as standalone nodes but are no longer linked to agents.
+ * agent → skill (extracted from agent body via the canonical
+ *   `(?:.github/)?skills/{slug}/SKILL.md` reference pattern shared with
+ *   tools/scripts/validate-orphaned-content.mjs).
+ * subagent → skill follows the same extraction.
  *  - prompt → agent (slug match, e.g. `02-requirements` → `02-Requirements`)
  *  - instruction → agent/skill/prompt (via `applyTo` glob + name match)
  *  - workflow → validator (parse YAML for `npm run …`, expanding composite scripts)
@@ -123,6 +124,18 @@ function asArray(v) {
   return Array.isArray(v) ? v : [v];
 }
 
+// Canonical agent/subagent → skill reference pattern. Mirrors
+// SKILL_REFERENCE_PATTERN in tools/scripts/validate-orphaned-content.mjs.
+const SKILL_REFERENCE_PATTERN = /(?:\.github\/)?skills\/([a-z0-9]+(?:-[a-z0-9]+)*)\/SKILL\.md/g;
+
+function extractSkillRefs(body) {
+  const found = new Set();
+  for (const match of body.matchAll(SKILL_REFERENCE_PATTERN)) {
+    found.add(match[1]);
+  }
+  return [...found];
+}
+
 // ---------- Node collectors ----------
 
 function collectAgents() {
@@ -146,6 +159,7 @@ function collectAgents() {
         invocable: fm["user-invocable"] !== "false",
         subagents: asArray(fm.agents),
         handoffTargets: extractHandoffAgents(content),
+        skills: extractSkillRefs(content),
       },
     };
   });
@@ -165,7 +179,7 @@ function collectSubagents() {
       description: fm.description || "",
       path: relative(REPO_ROOT, path),
       links: { source: GITHUB_BASE + relative(REPO_ROOT, path) },
-      meta: { model: asArray(fm.model)[0] || null },
+      meta: { model: asArray(fm.model)[0] || null, skills: extractSkillRefs(content) },
     };
   });
 }
@@ -366,12 +380,24 @@ function buildEdges(nodes) {
   }
 
   // NOTE: Agent → Skill edges were dropped in Phase 2 of the
-  // context-window-optimization plan. Skill wiring is no longer carried
-  // by tools/registry/agent-registry.json; it is discovered at runtime via
-  // the `Read .github/skills/{name}/SKILL[.digest|.minimal].md` pattern in
-  // agent bodies. Skill nodes still exist as standalone nodes but no edges
-  // connect them to agents. Re-introduce later by parsing agent bodies for
-  // the regex used in tools/scripts/validate-orphaned-content.mjs.
+  // context-window-optimization plan and have since been re-introduced
+  // (2026-05). The wiring is discovered at runtime by parsing each agent
+  // body for the canonical `(?:.github/)?skills/{slug}/SKILL.md` reference
+  // (same regex used by tools/scripts/validate-orphaned-content.mjs).
+  for (const n of nodes) {
+    if (n.category !== "agent" && n.category !== "subagent") continue;
+    for (const skillSlug of n.meta.skills || []) {
+      const target = nodes.find((m) => m.category === "skill" && m.id === `skill:${skillSlug}`);
+      if (target) {
+        edges.push({
+          id: `${n.id}--uses-skill->${target.id}`,
+          source: n.id,
+          target: target.id,
+          kind: "uses-skill",
+        });
+      }
+    }
+  }
 
   // Prompt -> Agent (by slug match, e.g. 02-requirements prompt -> 02-Requirements agent)
   for (const n of nodes) {

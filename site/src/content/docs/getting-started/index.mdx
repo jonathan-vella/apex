@@ -1,0 +1,30 @@
+---
+title: "Getting Started"
+description: "Set up APEX in under an hour: clone the template, configure Azure OIDC, and open the dev container."
+sidebar:
+  order: 0
+---
+
+import { CardGrid, LinkCard } from "@astrojs/starlight/components";
+
+Getting started with APEX takes three short steps. Work through them in order — each unlocks the next.
+
+<CardGrid>
+  <LinkCard
+    title="Quickstart"
+    description="Use the template, open the dev container, and run your first agent."
+    href="/azure-agentic-infraops/getting-started/quickstart/"
+  />
+  <LinkCard
+    title="Azure Setup"
+    description="Provision the Entra ID app registration, OIDC federation, and GitHub secrets."
+    href="/azure-agentic-infraops/getting-started/azure-setup/"
+  />
+  <LinkCard
+    title="Dev Container Setup"
+    description="Set GH_TOKEN, copilot-chat settings, and verify CLI prerequisites."
+    href="/azure-agentic-infraops/getting-started/dev-containers/"
+  />
+</CardGrid>
+
+Once setup is complete, head to the [Workflow](/azure-agentic-infraops/concepts/workflow/) to walk the agentic Steps 1–7.
