@@ -61,7 +61,7 @@ The security baseline is checked at multiple points in the workflow:
 
 ## Running the Validator
 
-```bash
+```bash title="Run the security baseline validator" frame="terminal"
 # Check all IaC files
 npm run validate:iac-security-baseline
 

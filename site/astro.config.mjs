@@ -3,6 +3,7 @@ import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
 import starlightLinksValidator from "starlight-links-validator";
 import rehypeMermaid from "rehype-mermaid-lite";
+import remarkGlossaryAnchors from "./src/lib/remark-glossary-anchors.mjs";
 import { demoSidebarItems } from "./src/data/demoSteps.mjs";
 import { SITE_BASE } from "./src/data/siteConfig.mjs";
 
@@ -15,6 +16,7 @@ export default defineConfig({
     "/project/": "/project/contributing/",
   },
   markdown: {
+    remarkPlugins: [remarkGlossaryAnchors],
     rehypePlugins: [rehypeMermaid],
   },
   integrations: [
@@ -86,6 +88,7 @@ export default defineConfig({
       },
       components: {
         Footer: "./src/components/Footer.astro",
+        MarkdownContent: "./src/components/MarkdownContent.astro",
       },
       plugins: [
         starlightLinksValidator({

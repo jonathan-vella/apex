@@ -26,6 +26,12 @@ production-grade design assets or external CI integrations. The detail:
 | B2 `palette-azure` | ✅ | Already in place — `--sl-color-accent: #0078d4`. |
 | B7 `footer-rev` | ✅ | `PUBLIC_GIT_SHA` + `PUBLIC_BUILD_DATE` injected via `site/package.json`; pill rendered in Footer. |
 | S4 `footer-sitemap` | ✅ | Sitemap link added to Footer. |
+| S1 `pagefind-filters` | ✅ | `MarkdownContent` slot override emits `data-pagefind-filter="section:<Group>"` on every page. |
+| S3 `glossary-anchors` | ✅ | Remark plugin auto-links first occurrence of AVM / RBAC / CAF / WAF / MCP on every page (except glossary itself). |
+| N4 `demo-breadcrumb` | ✅ | `<DemoBreadcrumb>` component renders `Demo › Step N › <Page>` on any `/demo/**` page. |
+| B6 `code-blocks` | ✅ | High-traffic fences in `azd-deployment.mdx`, `security-baseline.md`, and `workflow-deep-dive.md` carry `title=` + `frame=` attributes. |
+| P2 `sidebar-order` | ✅ | Closed as no-op — the sidebar is fully explicit in `astro.config.mjs`. |
+| S2 `next-suggest` | ⛔ dropped | Starlight's built-in pagination already shows prev/next; an extra component would duplicate it. |
 | P1 `frontmatter-desc` | ✅ | 83 pages — all have `title` + `description`. |
 | Q3 `404-helpful` | ✅ | 404 page now lists Home, Quickstart, Workflow, FAQ, Demo and prompts `/` to search. |
 | Q4 `ci-link-check` | ✅ | `.github/workflows/docs-checks.yml` runs `lint:md`, `lint:docs-frontmatter`, build, `check-links` on `site/**` PRs. |
@@ -49,13 +55,7 @@ production-grade design assets or external CI integrations. The detail:
 | Q1 `hero-compress` | Pairs with V5; trivial once the new assets exist (`<Image>` swap). |
 | Q2 `mermaid-component` | Doable but a riskier refactor of the inline bootstrap; recommend a dedicated PR. |
 | Q5 `ci-lighthouse` | Needs an `@lhci/cli` config and a GitHub App; recommend after the brand work. |
-| S1 `pagefind-filters` | Needs a layout override; queued. |
-| S2 `next-suggest` | Needs a small Astro component; queued. |
-| S3 `glossary-anchors` | Needs a remark plugin or a one-off linker script. |
-| N4 `demo-breadcrumb` | Component is straightforward; queued with V6. |
 | N8 `diataxis-split` | Large file move + redirect map; defer to a dedicated PR after the workflow spine settles. |
-| P2 `sidebar-order` | No-op for this site — the sidebar is fully explicit in `astro.config.mjs`. |
-| B6 `code-blocks` | Per-file `title=` annotation pass; scheduled with the docs gardening cron. |
 
 ### Acceptance checks after this pass
 
