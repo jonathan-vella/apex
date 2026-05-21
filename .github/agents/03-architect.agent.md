@@ -420,8 +420,10 @@ Architect-step-2 specifics only below.
 
 1. Print WAF pillar scores (Security, Reliability, Performance, Cost,
    Operations) with estimated monthly cost.
-2. Render the findings table per pass (must_fix → should_fix →
-   suggestion) and run the **Per-Finding Decision Protocol** from
+2. Print findings as a **multi-line markdown table** per pass (must_fix →
+   should_fix → suggestion) using the format in
+   [adversarial-review-protocol.md § Findings Table Rendering Format](../skills/azure-defaults/references/adversarial-review-protocol.md#findings-table-rendering-format).
+   Then run the **Per-Finding Decision Protocol** from
    [`adversarial-review-protocol.md`](../skills/azure-defaults/references/adversarial-review-protocol.md).
    **One `vscode_askQuestions` call per finding** with three options
    — `Accept` / `Skip` / `Defer` — plus a free-form rationale.

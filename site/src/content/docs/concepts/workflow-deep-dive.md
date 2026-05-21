@@ -34,11 +34,11 @@ do the heavy lifting:
 
 State lives in three deliberately separate places:
 
-| Where                                                | What                                                   | Lifecycle             |
-| ---------------------------------------------------- | ------------------------------------------------------ | --------------------- |
-| `agent-output/{project}/`                            | Versioned artifacts (markdown, JSON, diagrams)         | Per-project, on disk  |
-| `apex-recall` session store                          | Decisions, findings, step status, governance trace     | Per-project, queryable |
-| `.github/skills/workflow-engine/templates/workflow-graph.json` | DAG — nodes, edges, gates, return edges, plan-lock     | Repo-wide, read-only  |
+| Where                                                          | What                                               | Lifecycle              |
+| -------------------------------------------------------------- | -------------------------------------------------- | ---------------------- |
+| `agent-output/{project}/`                                      | Versioned artifacts (markdown, JSON, diagrams)     | Per-project, on disk   |
+| `apex-recall` session store                                    | Decisions, findings, step status, governance trace | Per-project, queryable |
+| `.github/skills/workflow-engine/templates/workflow-graph.json` | DAG — nodes, edges, gates, return edges, plan-lock | Repo-wide, read-only   |
 
 ```mermaid
 flowchart LR
@@ -77,31 +77,31 @@ Instructions are rule files auto-loaded by VS Code Copilot when their
 `applyTo` glob matches the file under edit. They never need explicit
 invocation. The most consequential ones for a workflow run:
 
-| Instruction                                           | Triggered by editing                                | Role                                          |
-| ----------------------------------------------------- | --------------------------------------------------- | --------------------------------------------- |
-| [`agent-operating-frame`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/agent-operating-frame.instructions.md) | `.github/agents/*.agent.md`                         | Shared agent operating frame                  |
-| [`governance-discovery`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/governance-discovery.instructions.md) | `**/04-governance-constraints.{md,json}`            | Policy-discovery requirements                 |
-| [`sku-manifest`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/sku-manifest.instructions.md) | `**/sku-manifest.{md,json}`                         | Authoring + drift contract for the SKU manifest |
-| [`iac-plan-best-practices`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/iac-plan-best-practices.instructions.md) | `**/04-implementation-plan.md`                      | Plan-level policy + cost rules                |
-| [`iac-bicep-best-practices`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/iac-bicep-best-practices.instructions.md) | `**/*.bicep`                                        | Bicep code rules (AVM, security baseline)     |
-| [`iac-terraform-best-practices`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/iac-terraform-best-practices.instructions.md) | `**/*.tf`                                           | Terraform code rules                          |
-| [`azure-artifacts`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/azure-artifacts.instructions.md) | `**/agent-output/**/*.md`                           | H2 template enforcement                       |
-| [`no-interactive-shell`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/no-interactive-shell.instructions.md) | chat-loaded agent/skill/instruction files           | Bans `-i` flags, `read -p`, heredoc prompts   |
-| [`lesson-collection`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/lesson-collection.instructions.md) | `**/*orchestrator*.agent.md`                        | Lesson-capture protocol                       |
+| Instruction                                                                                                                                                            | Triggered by editing                      | Role                                            |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------- | ----------------------------------------------- |
+| [`agent-operating-frame`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/agent-operating-frame.instructions.md)               | `.github/agents/*.agent.md`               | Shared agent operating frame                    |
+| [`governance-discovery`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/governance-discovery.instructions.md)                 | `**/04-governance-constraints.{md,json}`  | Policy-discovery requirements                   |
+| [`sku-manifest`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/sku-manifest.instructions.md)                                 | `**/sku-manifest.{md,json}`               | Authoring + drift contract for the SKU manifest |
+| [`iac-plan-best-practices`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/iac-plan-best-practices.instructions.md)           | `**/04-implementation-plan.md`            | Plan-level policy + cost rules                  |
+| [`iac-bicep-best-practices`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/iac-bicep-best-practices.instructions.md)         | `**/*.bicep`                              | Bicep code rules (AVM, security baseline)       |
+| [`iac-terraform-best-practices`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/iac-terraform-best-practices.instructions.md) | `**/*.tf`                                 | Terraform code rules                            |
+| [`azure-artifacts`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/azure-artifacts.instructions.md)                           | `**/agent-output/**/*.md`                 | H2 template enforcement                         |
+| [`no-interactive-shell`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/no-interactive-shell.instructions.md)                 | chat-loaded agent/skill/instruction files | Bans `-i` flags, `read -p`, heredoc prompts     |
+| [`lesson-collection`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/lesson-collection.instructions.md)                       | `**/*orchestrator*.agent.md`              | Lesson-capture protocol                         |
 
 ### `.github/data/` registries
 
 Five JSON/CSV registries are the source of truth for module choice,
 deprecation avoidance, and governance fallbacks:
 
-| File                                  | Read by                              | When                                                   |
-| ------------------------------------- | ------------------------------------ | ------------------------------------------------------ |
-| `avm-bicep-modules.csv`               | 05-IaC Planner, 06b-Bicep CodeGen    | Module discovery and pinning                           |
-| `avm-terraform-modules.csv`           | 05-IaC Planner, 06t-Terraform CodeGen | Module discovery and pinning                           |
-| `avm-module-index.json`               | 05-IaC Planner, 03-Architect         | Lifecycle status (Available / Proposed / Orphaned) lookup |
-| `azure-deprecations.json`             | 03-Architect, 05-IaC Planner         | Block sunset SKUs early                                 |
-| `governance-policy-baseline.json`     | 04g-Governance                       | Fallback baseline when live discovery is empty         |
-| `governance-policy-baseline.fixture.json` | Validators + tests                | Deterministic test fixture                              |
+| File                                      | Read by                               | When                                                      |
+| ----------------------------------------- | ------------------------------------- | --------------------------------------------------------- |
+| `avm-bicep-modules.csv`                   | 05-IaC Planner, 06b-Bicep CodeGen     | Module discovery and pinning                              |
+| `avm-terraform-modules.csv`               | 05-IaC Planner, 06t-Terraform CodeGen | Module discovery and pinning                              |
+| `avm-module-index.json`                   | 05-IaC Planner, 03-Architect          | Lifecycle status (Available / Proposed / Orphaned) lookup |
+| `azure-deprecations.json`                 | 03-Architect, 05-IaC Planner          | Block sunset SKUs early                                   |
+| `governance-policy-baseline.json`         | 04g-Governance                        | Fallback baseline when live discovery is empty            |
+| `governance-policy-baseline.fixture.json` | Validators + tests                    | Deterministic test fixture                                |
 
 ### `apex-recall`
 
@@ -168,7 +168,7 @@ reads (never re-asked):
 
 - **`iac_tool`** — Bicep or Terraform. Captured at Step 1 Phase 2 by
   `02-Requirements` and persisted via `apex-recall decide … --key
-  iac_tool`. No default — the user must choose.
+iac_tool`. No default — the user must choose.
 - **`review_depth`** — Adversarial-review depth for the whole
   project. Captured at project boot (or first gate after init).
   Default `default` = single-pass `comprehensive` at Steps 1, 2, 4
@@ -309,7 +309,7 @@ decisions.review_depth`](https://github.com/jonathan-vella/azure-agentic-infraop
   attestation** (Governance Compliance Matrix H2); records
   `decisions.governance_trace`.
 - **Artifacts** — `04-implementation-plan.md` (with `## 🛡️ Governance
-  Compliance Matrix` and `## 📤 Code-Generation Contract` H2s),
+Compliance Matrix` and `## 📤 Code-Generation Contract` H2s),
   `04-iac-contract.json`, `04-policy-property-map.json`,
   `04-environment-manifest.json`, dependency + runtime
   Python-diagrams (`.py` + `.png`).
@@ -344,7 +344,7 @@ decisions.review_depth`](https://github.com/jonathan-vella/azure-agentic-infraop
 - **Artifacts** — `infra/bicep/{project}/` or `infra/terraform/{project}/`,
   `05-iac-handoff.json`.
 - **Challenger review** — opt-in only (`artifact_scope: iac-code`);
-  default skips. Plan-level findings *return* to Step 4 via the
+  default skips. Plan-level findings _return_ to Step 4 via the
   `step-5b|t → step-4` `on_refine` edge — they never self-edit the plan.
 - **Gate & approval** — `gate-4` is a validation gate (lint, build,
   `bicep build` / `terraform validate` clean).
@@ -484,18 +484,18 @@ APEX assumes that an [Azure Landing Zone (ALZ)](https://learn.microsoft.com/azur
 is already deployed. ALZ provides the **platform-level guardrails** — management
 group hierarchy, Azure Policy assignments, RBAC role definitions, connectivity
 (hub-spoke or Virtual WAN), and identity — that APEX consumes rather than
-recreates. Understanding this boundary is critical: APEX operates *inside* the
-landing zone, not *instead of* it.
+recreates. Understanding this boundary is critical: APEX operates _inside_ the
+landing zone, not _instead of_ it.
 
 ### What ALZ provides
 
-| ALZ layer               | What it gives APEX                                                                                                     |
-| ------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
-| **Management groups**    | Inheritance scope for Azure Policy. The `governance-policy-baseline` workflow crawls this hierarchy at Step 3.5.        |
-| **Azure Policy**         | Deny/audit/DINE rules for security, tagging, allowed regions, allowed SKUs. APEX discovers these live and encodes them into `04-governance-constraints.json`. |
-| **Connectivity**         | Hub VNet or Virtual WAN hub with ExpressRoute/VPN gateways, Azure Firewall or NVA, and centralized Private DNS Zones.  |
-| **Identity**             | Entra ID tenant, privileged identity governance, break-glass accounts. APEX assumes Managed Identity and Entra-only auth. |
-| **Logging**              | Central Log Analytics workspace, Defender for Cloud. APEX references these for diagnostic settings, not re-creates them. |
+| ALZ layer             | What it gives APEX                                                                                                                                            |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Management groups** | Inheritance scope for Azure Policy. The `governance-policy-baseline` workflow crawls this hierarchy at Step 3.5.                                              |
+| **Azure Policy**      | Deny/audit/DINE rules for security, tagging, allowed regions, allowed SKUs. APEX discovers these live and encodes them into `04-governance-constraints.json`. |
+| **Connectivity**      | Hub VNet or Virtual WAN hub with ExpressRoute/VPN gateways, Azure Firewall or NVA, and centralized Private DNS Zones.                                         |
+| **Identity**          | Entra ID tenant, privileged identity governance, break-glass accounts. APEX assumes Managed Identity and Entra-only auth.                                     |
+| **Logging**           | Central Log Analytics workspace, Defender for Cloud. APEX references these for diagnostic settings, not re-creates them.                                      |
 
 ### How ALZ guardrails accelerate and de-risk APEX
 
@@ -508,8 +508,8 @@ landing zone, not *instead of* it.
 
 2. **Security baseline overlaps rather than conflicts.** APEX's non-negotiable
    baseline (TLS 1.2+, HTTPS-only, no public blob, Managed Identity) is a
-   *subset* of what a well-configured ALZ already enforces. When a landing zone
-   has stricter rules — such as denying public network access on *all* PaaS
+   _subset_ of what a well-configured ALZ already enforces. When a landing zone
+   has stricter rules — such as denying public network access on _all_ PaaS
    services, not just storage — Step 3.5 captures the stricter rule and the IaC
    Planner honours it at Step 4.
 
@@ -549,10 +549,10 @@ provisioned by APEX inside an application landing zone subscription).
 
 The user chooses via `decisions.vnet_mode`:
 
-| Mode             | When to use                                                                                      | What APEX does                                                                                                                                                           |
-| ---------------- | ------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **`use-existing`** | Platform team pre-provisions spoke VNets, peering, UDRs, and NSGs centrally. Common in regulated environments. | Validates the VNet exists (`az network vnet show`), imports its address space, and plans subnets within the existing CIDR. IaC code references the VNet by resource ID — it does not create or modify it. |
-| **`create-new`** | Application teams own their spoke lifecycle, or the workload lands in a dedicated subscription with no pre-provisioned network. | Generates a full VNet module (AVM-first), with subnets sized per the workload's SKU-aware subnet matrix. The Planner wires peering to the hub if the architecture calls for it. |
+| Mode               | When to use                                                                                                                     | What APEX does                                                                                                                                                                                            |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`use-existing`** | Platform team pre-provisions spoke VNets, peering, UDRs, and NSGs centrally. Common in regulated environments.                  | Validates the VNet exists (`az network vnet show`), imports its address space, and plans subnets within the existing CIDR. IaC code references the VNet by resource ID — it does not create or modify it. |
+| **`create-new`**   | Application teams own their spoke lifecycle, or the workload lands in a dedicated subscription with no pre-provisioned network. | Generates a full VNet module (AVM-first), with subnets sized per the workload's SKU-aware subnet matrix. The Planner wires peering to the hub if the architecture calls for it.                           |
 
 The choice is captured by `apex-recall decide --key vnet_mode` and flows to
 the IaC Planner (Step 4) and CodeGen (Step 5). When `vnet_mode = use-existing`,
@@ -637,47 +637,47 @@ This page deliberately links rather than duplicates.
 
 ## Appendix B — Skill ↔ Step matrix
 
-| Step    | Always-loaded skills                                           | On-demand skills                                    |
-| ------- | -------------------------------------------------------------- | --------------------------------------------------- |
-| 1       | `azure-defaults`, `azure-artifacts`                            | `microsoft-docs`                                    |
-| 2       | `azure-defaults`, `azure-artifacts`, `context-management`      | `microsoft-docs`, `azure-compute`, `azure-storage`  |
-| 3       | `azure-defaults`, `azure-artifacts`, `azure-adr`               | `drawio` or `python-diagrams`                       |
-| 3.5     | `azure-defaults`, `azure-artifacts`, `azure-governance-discovery`, `iac-common` | `microsoft-docs`                                    |
-| 4       | `azure-defaults`, `azure-artifacts`, `iac-common`, `python-diagrams`, track-specific patterns | `microsoft-docs`, `azure-rbac`             |
-| 5       | `azure-defaults`, `azure-artifacts`, track-specific patterns, `iac-common`, `context-management` | `azure-rbac`, `entra-app-registration`     |
-| 6       | `azure-defaults`, `azure-artifacts`, `iac-common`              | `azure-quotas`, `azure-validate`, `azure-deploy`    |
-| 7       | `azure-defaults`, `azure-artifacts`, `drawio`, `python-diagrams`, `context-management` | `azure-resources`, `azure-compliance`       |
+| Step | Always-loaded skills                                                                             | On-demand skills                                   |
+| ---- | ------------------------------------------------------------------------------------------------ | -------------------------------------------------- |
+| 1    | `azure-defaults`, `azure-artifacts`                                                              | `microsoft-docs`                                   |
+| 2    | `azure-defaults`, `azure-artifacts`, `context-management`                                        | `microsoft-docs`, `azure-compute`, `azure-storage` |
+| 3    | `azure-defaults`, `azure-artifacts`, `azure-adr`                                                 | `drawio` or `python-diagrams`                      |
+| 3.5  | `azure-defaults`, `azure-artifacts`, `azure-governance-discovery`, `iac-common`                  | `microsoft-docs`                                   |
+| 4    | `azure-defaults`, `azure-artifacts`, `iac-common`, `python-diagrams`, track-specific patterns    | `microsoft-docs`, `azure-rbac`                     |
+| 5    | `azure-defaults`, `azure-artifacts`, track-specific patterns, `iac-common`, `context-management` | `azure-rbac`, `entra-app-registration`             |
+| 6    | `azure-defaults`, `azure-artifacts`, `iac-common`                                                | `azure-quotas`, `azure-validate`, `azure-deploy`   |
+| 7    | `azure-defaults`, `azure-artifacts`, `drawio`, `python-diagrams`, `context-management`           | `azure-resources`, `azure-compliance`              |
 
 ## Appendix C — Instruction ↔ trigger matrix
 
-| Instruction                          | `applyTo` glob                                               | Effective at step |
-| ------------------------------------ | ------------------------------------------------------------ | ----------------- |
-| `agent-operating-frame`              | `.github/agents/*.agent.md`                                  | All               |
-| `azure-artifacts`                    | `**/agent-output/**/*.md`                                    | 1–7               |
-| `sku-manifest`                       | `**/sku-manifest.{md,json}`                                  | 1, 2, 3.5, 4, 6, 7 |
-| `governance-discovery`               | `**/04-governance-constraints.{md,json}`                     | 3.5               |
-| `iac-plan-best-practices`            | `**/04-implementation-plan.md`                               | 4                 |
-| `iac-bicep-best-practices`           | `**/*.bicep`                                                 | 5b, 6b            |
-| `iac-terraform-best-practices`       | `**/*.tf`                                                    | 5t, 6t            |
-| `azure-yaml`                         | `**/azure.yaml`                                              | 5, 6              |
-| `drawio`                             | `**/*.drawio`                                                | 3, 7              |
-| `lesson-collection`                  | `**/*orchestrator*.agent.md`                                 | Throughout        |
-| `no-interactive-shell`               | chat-loaded agent/skill/instruction files                    | Authoring only    |
-| `no-hardcoded-counts`                | repo-wide markdown + scripts                                 | Authoring only    |
-| `markdown-docs`                      | `site/src/content/docs/**`, `docs/**`                        | Doc authoring     |
+| Instruction                    | `applyTo` glob                            | Effective at step  |
+| ------------------------------ | ----------------------------------------- | ------------------ |
+| `agent-operating-frame`        | `.github/agents/*.agent.md`               | All                |
+| `azure-artifacts`              | `**/agent-output/**/*.md`                 | 1–7                |
+| `sku-manifest`                 | `**/sku-manifest.{md,json}`               | 1, 2, 3.5, 4, 6, 7 |
+| `governance-discovery`         | `**/04-governance-constraints.{md,json}`  | 3.5                |
+| `iac-plan-best-practices`      | `**/04-implementation-plan.md`            | 4                  |
+| `iac-bicep-best-practices`     | `**/*.bicep`                              | 5b, 6b             |
+| `iac-terraform-best-practices` | `**/*.tf`                                 | 5t, 6t             |
+| `azure-yaml`                   | `**/azure.yaml`                           | 5, 6               |
+| `drawio`                       | `**/*.drawio`                             | 3, 7               |
+| `lesson-collection`            | `**/*orchestrator*.agent.md`              | Throughout         |
+| `no-interactive-shell`         | chat-loaded agent/skill/instruction files | Authoring only     |
+| `no-hardcoded-counts`          | repo-wide markdown + scripts              | Authoring only     |
+| `markdown-docs`                | `site/src/content/docs/**`, `docs/**`     | Doc authoring      |
 
 ## Appendix D — Glossary
 
 Terse pointers only — full definitions live in the linked concept docs.
 
-| Term              | See                                                                 |
-| ----------------- | ------------------------------------------------------------------- |
-| Challenger / lens | [Workflow Engine & Quality](how-it-works/workflow-engine/)          |
-| Gate              | [Workflow Engine & Quality](how-it-works/workflow-engine/)          |
-| Fan-out           | [Agent Architecture](how-it-works/agents/)                          |
-| Frozen inputs     | `workflow-graph.json` `plan_lock` block (linked above)              |
+| Term              | See                                                                                                                                                                          |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Challenger / lens | [Workflow Engine & Quality](how-it-works/workflow-engine/)                                                                                                                   |
+| Gate              | [Workflow Engine & Quality](how-it-works/workflow-engine/)                                                                                                                   |
+| Fan-out           | [Agent Architecture](how-it-works/agents/)                                                                                                                                   |
+| Frozen inputs     | `workflow-graph.json` `plan_lock` block (linked above)                                                                                                                       |
 | L0–L3 attestation | [`workflow-graph.json` `attestation_chain`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/workflow-engine/templates/workflow-graph.json) |
-| Skill tiers       | [Skills & Instructions](how-it-works/skills-and-instructions/)      |
+| Skill tiers       | [Skills & Instructions](how-it-works/skills-and-instructions/)                                                                                                               |
 
 ## Appendix E — Further reading
 

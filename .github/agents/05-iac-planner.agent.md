@@ -506,9 +506,18 @@ For each pass:
 
 1. Print plan summary: resource count (AVM vs custom/raw), governance
    blockers/warnings, deployment strategy, estimated time
-2. For each challenger pass, render a markdown table with columns:
-   **ID**, **Severity**, **Title**, **WAF Pillar**, **Recommendation**
-   — list every finding (must_fix first, then should_fix, then suggestion)
+2. For each challenger pass, print a **multi-line markdown table** (not a
+   single-line string with escaped `\n`). Leave blank lines before and
+   after the table. Format per
+   [adversarial-review-protocol.md § Findings Table Rendering Format](../skills/azure-defaults/references/adversarial-review-protocol.md#findings-table-rendering-format):
+
+   ```markdown
+   | ID | Severity | Title | WAF Pillar | Recommendation |
+   | --- | --- | --- | --- | --- |
+   | {id} | {severity} | {title} | {waf_pillar} | {recommendation} |
+   ```
+
+   List every finding (must_fix first, then should_fix, then suggestion).
 3. Show aggregate totals: `N must-fix, N should-fix`
 4. Reference the JSON file paths for machine-readable details
 
