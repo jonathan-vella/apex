@@ -79,7 +79,7 @@
         "type": "string",
         "enum": ["Enabled", "Disabled"],
         "default": "Enabled",
-        "description": "PE subnets default to 'Disabled'; other subnets to 'Enabled'."
+        "description": "Schema default is 'Enabled'. Set explicitly to 'Disabled' for private-endpoint subnets (Azure requirement for PE traffic)."
       },
       "ipv6_prefix": {
         "type": ["string", "null"],

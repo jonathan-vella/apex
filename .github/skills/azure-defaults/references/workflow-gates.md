@@ -144,8 +144,12 @@ Honors `decisions.vnet_planning_mode ∈ {guided, fast, deferred}`
    (`existing_vnet_validation_deferred`). See
    [`azure-cli-auth-validation.md`](azure-cli-auth-validation.md) for
    the canonical auth-fallback pattern.
-2. **Resource probe**: `az network vnet show --ids "${existing_vnet_id}"
-   --query "{addr:addressSpace.addressPrefixes,loc:location,name:name}" -o json`.
+2. **Resource probe**:
+   ```bash
+   az network vnet show --ids "${existing_vnet_id}" \
+     --query "{addr:addressSpace.addressPrefixes,loc:location,name:name}" \
+     -o json
+   ```
    On success, overwrite `vnet_address_space` with live
    `addressSpace.addressPrefixes[0]`. On NotFound/Forbidden,
    re-prompt Q3. On tenant/subscription/region mismatch, block.
