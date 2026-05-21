@@ -94,6 +94,16 @@ multi-pass. Multi-pass reviews are an explicit opt-in via
 01-Orchestrator) or via direct `10-Challenger` invocation. Reviews target
 AI-generated creative decisions — not tool output (what-if/plan previews).
 
+**Mandatory challenger reviews are enforced at runtime, not just at commit.**
+`apex-recall complete-step` refuses to mark Steps 1, 2, 3.5, or 4 as complete
+when the gating artifact exists but the matching `challenge-findings-*.json`
+sidecar is missing (exit code 2). Intentional bypass requires
+`--allow-missing-challenger --challenger-skip-reason "<text>"`, which
+persists an audit entry in `decisions.challenger_skip[]`. A CI/commit
+fallback (`npm run validate:challenger-presence`, also wired into the
+lefthook `artifact-validation` hook) catches the same drift if session
+state was edited by hand.
+
 Artifact lint is enforced by the lefthook `artifact-validation` pre-commit
 hook and the `10-Challenger` review — agents do not call
 `lint:artifact-templates` or `markdownlint-cli2` directly against

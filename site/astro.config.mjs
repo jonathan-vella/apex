@@ -3,6 +3,7 @@ import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
 import starlightLinksValidator from "starlight-links-validator";
 import rehypeMermaid from "rehype-mermaid-lite";
+import remarkGlossaryAnchors from "./src/lib/remark-glossary-anchors.mjs";
 import { demoSidebarItems } from "./src/data/demoSteps.mjs";
 import { SITE_BASE } from "./src/data/siteConfig.mjs";
 
@@ -11,7 +12,17 @@ export default defineConfig({
   site: "https://jonathan-vella.github.io",
   base: SITE_BASE,
   trailingSlash: "always",
+  redirects: {
+    "/project/": "/azure-agentic-infraops/project/contributing/",
+    "/guides/security-baseline/": "/azure-agentic-infraops/reference/security-baseline/",
+    "/guides/cost-governance/": "/azure-agentic-infraops/reference/cost-governance/",
+    "/guides/prompt-guide/best-practices/": "/azure-agentic-infraops/reference/prompts/best-practices/",
+    "/guides/prompt-guide/workflow-prompts/": "/azure-agentic-infraops/reference/prompts/workflow-prompts/",
+    "/guides/prompt-guide/repository-prompts/": "/azure-agentic-infraops/reference/prompts/repository-prompts/",
+    "/guides/prompt-guide/reference/": "/azure-agentic-infraops/reference/prompts/skills-subagents/",
+  },
   markdown: {
+    remarkPlugins: [remarkGlossaryAnchors],
     rehypePlugins: [rehypeMermaid],
   },
   integrations: [
@@ -27,6 +38,11 @@ export default defineConfig({
       },
       lastUpdated: true,
       social: [
+        {
+          icon: "seti:graphql",
+          label: "Architecture Explorer",
+          href: "/azure-agentic-infraops/reference/architecture-explorer/",
+        },
         {
           icon: "github",
           label: "GitHub",
@@ -57,11 +73,17 @@ export default defineConfig({
           attrs: {
             type: "module",
           },
+          // Lazy Mermaid bootstrap — skip the CDN load entirely on pages that
+          // contain no `.mermaid` elements. Saves ~150 KB of JS on the
+          // majority of docs pages (FAQ, glossary, reference pages, etc.).
           content: [
-            `import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';`,
+            `(async()=>{`,
+            `if(!document.querySelector('.mermaid'))return;`,
+            `const {default:mermaid}=await import('https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs');`,
             `const d=document.documentElement.dataset.theme==='dark'||(!document.documentElement.dataset.theme&&window.matchMedia('(prefers-color-scheme:dark)').matches);`,
             `mermaid.initialize({startOnLoad:true,theme:'base',themeVariables:d?{background:'#0d1117',primaryColor:'#21262d',primaryTextColor:'#f0f6fc',primaryBorderColor:'#0078d4',lineColor:'#484f58',secondaryColor:'#161b22',tertiaryColor:'#30363d',noteBkgColor:'#161b22',noteTextColor:'#d0d7de',noteBorderColor:'#30363d',actorBkg:'#161b22',actorBorder:'#30363d',actorTextColor:'#f0f6fc',actorLineColor:'#484f58',signalColor:'#d0d7de',signalTextColor:'#d0d7de',labelBoxBkgColor:'#21262d',labelBoxBorderColor:'#30363d',labelTextColor:'#d0d7de',loopTextColor:'#8b949e',activationBorderColor:'#0078d4',activationBkgColor:'#21262d',sequenceNumberColor:'#f0f6fc',sectionBkgColor:'#161b22',altSectionBkgColor:'#21262d',sectionBkgColor2:'#21262d',excludeBkgColor:'#30363d',taskBorderColor:'#0078d4',taskBkgColor:'#21262d',taskTextColor:'#f0f6fc',activeTaskBorderColor:'#0078d4',activeTaskBkgColor:'#1e3a5f',gridColor:'#30363d',doneTaskBkgColor:'#1e3a5f',doneTaskBorderColor:'#0078d4',critBorderColor:'#f85149',critBkgColor:'#3d1f28',titleColor:'#f0f6fc',edgeLabelBackground:'#21262d',mainBkg:'#161b22',nodeBorder:'#30363d',clusterBkg:'#21262d',clusterBorder:'#30363d',defaultLinkColor:'#484f58',textColor:'#d0d7de',nodeTextColor:'#f0f6fc'}:{primaryColor:'#dbeafe',primaryTextColor:'#1b1b1f',primaryBorderColor:'#0078d4',lineColor:'#8b949e',secondaryColor:'#eaeef2',tertiaryColor:'#f6f8fa',background:'#ffffff',mainBkg:'#dbeafe',nodeBorder:'#0078d4',nodeTextColor:'#1b1b1f',textColor:'#1b1b1f'}});`,
             `setTimeout(()=>{document.querySelectorAll('.mermaid svg').forEach(s=>{s.removeAttribute('width');s.style.width='auto';s.style.maxWidth='none';});},500);`,
+            `})();`,
           ].join(""),
         },
       ],
@@ -78,6 +100,7 @@ export default defineConfig({
       },
       components: {
         Footer: "./src/components/Footer.astro",
+        MarkdownContent: "./src/components/MarkdownContent.astro",
       },
       plugins: [
         starlightLinksValidator({
@@ -91,6 +114,7 @@ export default defineConfig({
           collapsed: true,
           items: [
             { label: "Quickstart", slug: "getting-started/quickstart" },
+            { label: "Azure Setup", slug: "getting-started/azure-setup" },
             {
               label: "Dev Container Setup",
               slug: "getting-started/dev-containers",
@@ -133,6 +157,10 @@ export default defineConfig({
                   label: "MCP Integration",
                   slug: "concepts/how-it-works/mcp-integration",
                 },
+                {
+                  label: "SKU Manifest",
+                  slug: "concepts/how-it-works/sku-manifest",
+                },
                 { label: "Workflow", slug: "concepts/workflow" },
               ],
             },
@@ -140,38 +168,29 @@ export default defineConfig({
           ],
         },
         {
-          label: "Guides",
+          label: "Walk the workflow",
           collapsed: true,
           items: [
-            {
-              label: "Prompt Guide",
-              collapsed: true,
-              items: [
-                { label: "Overview", slug: "guides/prompt-guide" },
-                {
-                  label: "Best Practices",
-                  slug: "guides/prompt-guide/best-practices",
-                },
-                {
-                  label: "Workflow Prompts",
-                  slug: "guides/prompt-guide/workflow-prompts",
-                },
-                {
-                  label: "Repository Slash Prompts",
-                  slug: "guides/prompt-guide/repository-prompts",
-                },
-                {
-                  label: "Skill & Subagent Reference",
-                  slug: "guides/prompt-guide/reference",
-                },
-              ],
-            },
+            { label: "Step 1 — Requirements", slug: "concepts/workflow/step-1" },
+            { label: "Step 2 — Architecture", slug: "concepts/workflow/step-2" },
+            { label: "Step 3 — Design (opt)", slug: "concepts/workflow/step-3" },
+            { label: "Step 3.5 — Governance", slug: "concepts/workflow/step-3-5" },
+            { label: "Step 4 — IaC Plan", slug: "concepts/workflow/step-4" },
+            { label: "Step 5 — IaC Code", slug: "concepts/workflow/step-5" },
+            { label: "Step 6 — Deploy", slug: "concepts/workflow/step-6" },
+            { label: "Step 7 — As-Built", slug: "concepts/workflow/step-7" },
+            { label: "Post — Lessons", slug: "concepts/workflow/post-lessons" },
+          ],
+        },
+        {
+          label: "How-to & Tutorials",
+          collapsed: true,
+          items: [
+            { label: "Prompt Guide", slug: "guides/prompt-guide" },
             { label: "Troubleshooting", slug: "guides/troubleshooting" },
             { label: "Session Debugging", slug: "guides/session-debugging" },
             { label: "Debug Log Export", slug: "guides/apex-debug-log-export" },
             { label: "Dev Container Hygiene", slug: "guides/devcontainer-hygiene" },
-            { label: "Security Baseline", slug: "guides/security-baseline" },
-            { label: "Cost Governance", slug: "guides/cost-governance" },
             { label: "azd Deployment", slug: "guides/azd-deployment" },
             { label: "Agent Hooks", slug: "guides/hooks" },
             { label: "E2E Testing", slug: "guides/e2e-testing" },
@@ -186,6 +205,18 @@ export default defineConfig({
               label: "Validation & Linting",
               slug: "reference/validation-reference",
             },
+            { label: "Security Baseline", slug: "reference/security-baseline" },
+            { label: "Cost Governance", slug: "reference/cost-governance" },
+            {
+              label: "Prompt Reference",
+              collapsed: true,
+              items: [
+                { label: "Best Practices", slug: "reference/prompts/best-practices" },
+                { label: "Workflow Prompts", slug: "reference/prompts/workflow-prompts" },
+                { label: "Repository Slash Prompts", slug: "reference/prompts/repository-prompts" },
+                { label: "Skill & Subagent Reference", slug: "reference/prompts/skills-subagents" },
+              ],
+            },
             {
               label: "Architecture Explorer",
               slug: "reference/architecture-explorer",
@@ -199,6 +230,7 @@ export default defineConfig({
           collapsed: true,
           items: [
             { label: "Contributing", slug: "project/contributing" },
+            { label: "Docs Style Guide", slug: "project/style-guide" },
             { label: "Sensei Branch", slug: "project/sensei-branch" },
             { label: "Changelog", slug: "project/changelog" },
           ],

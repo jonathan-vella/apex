@@ -144,7 +144,7 @@ reboots, and IDE restarts.
 #### Add to VS Code User Settings (once per machine)
 
 1. Open VS Code Settings: **Ctrl+,** (or **Cmd+,** on macOS)
-2. Click the **Open Settings (JSON)** icon (top-right)
+2. Select the **Open Settings (JSON)** icon (top-right)
 3. Add this entry (replace the placeholder with your actual token):
 
 ```jsonc

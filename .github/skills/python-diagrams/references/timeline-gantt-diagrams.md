@@ -4,6 +4,14 @@
 
 Generate professional timeline, roadmap, and Gantt chart diagrams for project planning.
 
+> **Dual-output contract:** Save matplotlib figures with
+> `save_figure(fig, base_path, ...)` and render graphviz `Digraph` instances
+> with `render_graphviz(dot, base_path)` — both from
+> [`scripts/diagram_io.py`](../scripts/diagram_io.py) — so every output
+> emits `.png` and `.svg` siblings. Drop `format='png'` from `Digraph(...)`
+> constructors and replace `dot.render(cleanup=True)` with
+> `render_graphviz(dot, filename)`.
+
 ## Approach 1: Matplotlib (Recommended for Gantt Charts)
 
 ```python
@@ -77,9 +85,9 @@ def create_gantt_chart(tasks, filename="gantt-chart"):
     ax.legend(handles=legend_patches, loc='lower right')
 
     plt.tight_layout()
-    plt.savefig(f"{filename}.png", dpi=150, bbox_inches='tight')
+    save_figure(fig, filename, bbox_inches='tight')
     plt.close()
-    print(f"Generated: {filename}.png")
+    print(f"Generated: {filename}.png (+ .svg sibling)")
 
 # Example usage
 tasks = [

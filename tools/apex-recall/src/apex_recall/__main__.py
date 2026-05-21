@@ -91,6 +91,17 @@ def build_parser() -> argparse.ArgumentParser:
     p_complete.add_argument("project", help="Project name")
     p_complete.add_argument("step", help="Step key (1, 2, 3, 3_5, 4, 5, 6, 7)")
     p_complete.add_argument("--json", action="store_true", help="Output as JSON")
+    p_complete.add_argument(
+        "--allow-missing-challenger",
+        action="store_true",
+        help="Bypass the mandatory challenger-findings gate (audited).",
+    )
+    p_complete.add_argument(
+        "--challenger-skip-reason",
+        type=str,
+        default=None,
+        help="Required audit reason when --allow-missing-challenger is used.",
+    )
 
     # decide
     p_decide = sub.add_parser("decide", help="Record a decision or decision_log entry")

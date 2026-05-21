@@ -3,7 +3,29 @@
 # WAF Pillar & Cost Visualization Charts
 
 Generate professional, styled data-visualization charts for Azure Well-Architected
-Framework assessments and cost estimates. All charts output to PNG via matplotlib.
+Framework assessments and cost estimates. All charts emit **both PNG and SVG**
+siblings via the shared `save_figure` helper.
+
+## Helper import (required)
+
+Every generator script must import `save_figure` from the shared helper so PNG
+and SVG are produced atomically with one call:
+
+```python
+import sys
+from pathlib import Path
+
+# Add the python-diagrams scripts/ folder to sys.path so the helper is importable.
+SCRIPTS = Path(".github/skills/python-diagrams/scripts")
+if str(SCRIPTS.resolve()) not in sys.path:
+    sys.path.insert(0, str(SCRIPTS.resolve()))
+from diagram_io import save_figure  # noqa: E402
+```
+
+`save_figure(fig, base_path, **savefig_kwargs)` writes `<base>.png` and
+`<base>.svg`. Pass any matplotlib `savefig` kwargs (e.g.
+`bbox_inches="tight"`, `facecolor=fig.get_facecolor()`) and they are forwarded
+to both formats.
 
 ---
 
@@ -76,9 +98,9 @@ def generate_waf_chart(scores: dict, output_path: str = "02-waf-scores.png") -> 
                        framealpha=0.9, edgecolor="#CCC")
 
     plt.tight_layout(pad=1.4)
-    plt.savefig(output_path, dpi=150, bbox_inches="tight", facecolor=fig.get_facecolor())
+    save_figure(fig, output_path, bbox_inches="tight", facecolor=fig.get_facecolor())
     plt.close()
-    print(f"Generated: {output_path}")
+    print(f"Generated: {output_path} (+ .svg sibling)")
 
 
 # ── Example usage ──────────────────────────────────────────────────────────────
@@ -171,9 +193,9 @@ def generate_cost_distribution_chart(
                  color="#1A1A2E", pad=10)
 
     plt.tight_layout(pad=1.4)
-    plt.savefig(output_path, dpi=150, bbox_inches="tight", facecolor=fig.get_facecolor())
+    save_figure(fig, output_path, bbox_inches="tight", facecolor=fig.get_facecolor())
     plt.close()
-    print(f"Generated: {output_path}")
+    print(f"Generated: {output_path} (+ .svg sibling)")
 
 
 # ── Example usage ──────────────────────────────────────────────────────────────
@@ -267,9 +289,9 @@ def generate_cost_projection_chart(
     ax.legend(fontsize=9, framealpha=0.9, edgecolor="#CCC")
 
     plt.tight_layout(pad=1.4)
-    plt.savefig(output_path, dpi=150, bbox_inches="tight", facecolor=fig.get_facecolor())
+    save_figure(fig, output_path, bbox_inches="tight", facecolor=fig.get_facecolor())
     plt.close()
-    print(f"Generated: {output_path}")
+    print(f"Generated: {output_path} (+ .svg sibling)")
 
 
 # ── Example usage ──────────────────────────────────────────────────────────────
@@ -339,9 +361,9 @@ def generate_cost_comparison_chart(
     ax.legend(fontsize=10, framealpha=0.9, edgecolor="#CCC")
 
     plt.tight_layout(pad=1.4)
-    plt.savefig(output_path, dpi=150, bbox_inches="tight", facecolor=fig.get_facecolor())
+    save_figure(fig, output_path, bbox_inches="tight", facecolor=fig.get_facecolor())
     plt.close()
-    print(f"Generated: {output_path}")
+    print(f"Generated: {output_path} (+ .svg sibling)")
 
 
 # ── Example usage ──────────────────────────────────────────────────────────────
@@ -405,9 +427,9 @@ def generate_compliance_gaps_chart(
     ax.grid(axis="x", color="#E0E0E0", linewidth=0.8, alpha=0.7)
 
     plt.tight_layout(pad=1.4)
-    plt.savefig(output_path, dpi=150, bbox_inches="tight", facecolor=fig.get_facecolor())
+    save_figure(fig, output_path, bbox_inches="tight", facecolor=fig.get_facecolor())
     plt.close()
-    print(f"Generated: {output_path}")
+    print(f"Generated: {output_path} (+ .svg sibling)")
 
 
 # ── Example usage ──────────────────────────────────────────────────────────────

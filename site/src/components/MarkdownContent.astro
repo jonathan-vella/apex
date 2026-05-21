@@ -1,0 +1,44 @@
+---
+// APEX MarkdownContent override.
+//
+// Adds:
+//   - Pagefind section filter (data-pagefind-filter="section:<group>") so
+//     the built-in search can scope to Getting Started / Concepts / Guides
+//     / Reference / Project / Demo.
+//   - Demo breadcrumb above the article body when the URL sits under /demo/.
+//   - Demo step header card on demo step-root pages.
+// Preserves the default .sl-markdown-content wrapper for unchanged styling.
+import "@astrojs/starlight/style/markdown.css";
+import DemoBreadcrumb from "./DemoBreadcrumb.astro";
+import DemoStepHeader from "./DemoStepHeader.astro";
+import { SITE_BASE } from "../data/siteConfig.mjs";
+
+const pathname = Astro.url.pathname;
+const trimmed = pathname.replace(SITE_BASE, "").replace(/^\//, "");
+const firstSegment = trimmed.split("/")[0] || "home";
+// Pagefind splits data-pagefind-filter values on whitespace, so the
+// section filter must be slug-safe. Keep the human-readable label
+// available for any future surface that wants to display it.
+const knownSections = new Set(["getting-started", "concepts", "guides", "reference", "project", "demo"]);
+const sectionSlug = knownSections.has(firstSegment) ? firstSegment : "home";
+const sectionLabelMap = {
+  "getting-started": "Getting Started",
+  concepts: "Concepts",
+  guides: "How-to & Tutorials",
+  reference: "Reference",
+  project: "Project",
+  demo: "Demo",
+  home: "Home",
+};
+const sectionLabel = sectionLabelMap[sectionSlug];
+---
+
+<div
+  class="sl-markdown-content"
+  data-pagefind-filter={`section:${sectionSlug}`}
+  data-section-label={sectionLabel}
+>
+  <DemoBreadcrumb />
+  <DemoStepHeader />
+  <slot />
+</div>

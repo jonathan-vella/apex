@@ -387,7 +387,18 @@ questions. The only user interaction point is the Phase 3 Approval Gate.
    owned by the lefthook `artifact-validation` pre-commit hook and the
    `10-Challenger` review (see
    [`agent-authoring.instructions.md`](../instructions/agent-authoring.instructions.md#no-direct-markdownlint-on-agent-output-rule)).
-4. **Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 3_5 phase_2_artifacts --json`
+4. **VNet reconciliation**: when `04-governance-constraints.json` has
+   a `network_constraints` block, compare it against the Architect's
+   Phase 6b decisions (`vnet_address_space`, `subnet_plan` names,
+   NSG/route-table attachment defaults). On conflict — disallowed
+   address range, missing required subnet name, missing mandatory
+   NSG/UDR, or public-IP where the policy forbids it — emit a
+   `must_fix` reconciliation finding referencing **D-V5** in
+   [`adversarial-checklists.md`](../skills/azure-defaults/references/adversarial-checklists.md).
+   When `vnet_planning_mode = deferred`, skip the comparison and
+   emit a `should_fix` informational finding ("VNet plan deferred —
+   policy compliance unverified").
+5. **Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 3_5 phase_2_artifacts --json`
 
 **Policy Effect Reference**: `azure-defaults/references/policy-effect-decision-tree.md`
 

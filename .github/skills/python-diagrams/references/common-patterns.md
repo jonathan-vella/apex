@@ -4,6 +4,20 @@
 
 Ready-to-use patterns for Azure architecture diagrams.
 
+> **Dual-output contract:** Every `with Diagram(...)` snippet in this file
+> emits **both PNG and SVG** when run via the shared
+> [`scripts/diagram_io.py`](../scripts/diagram_io.py) helper. Replace bare
+> `Diagram("title", show=False, ...)` with
+> `Diagram("title", **diagram_kwargs("filename", ...))` to inherit the
+> `outformat=["png", "svg"]` contract. Import preamble:
+>
+> ```python
+> import sys
+> from pathlib import Path
+> sys.path.insert(0, str(Path(".github/skills/python-diagrams/scripts").resolve()))
+> from diagram_io import diagram_kwargs  # noqa: E402
+> ```
+
 ## 1. Web Application (3-Tier)
 
 ```python

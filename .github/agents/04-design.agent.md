@@ -8,7 +8,7 @@ tools: [vscode/askQuestions, vscode/memory, vscode/runCommand, execute/runInTerm
 handoffs:
   - label: "▶ Generate Diagram"
     agent: 04-Design
-    prompt: "This handoff implies `design_scope=diagrams` — record via `apex-recall decide <project> --key design_scope --value diagrams --step 3 --json` BEFORE any other work. Input: `agent-output/{project}/02-architecture-assessment.md` (used for both diagram paths). Then use the `vscode_askQuestions` tool with exactly one question: header='Diagram Tool', question='Which diagram tool do you prefer?', options=[{label:'Draw.io',description:'Rich Azure icon set — interactive .drawio + .png output (recommended)',recommended:true},{label:'Python',description:'Code-based .png output via the python-diagrams skill'}], allowFreeformInput=false. Wait for the answer. Map 'Draw.io' → diagram_tool=drawio, 'Python' → diagram_tool=python. Record `apex-recall decide <project> --key diagram_tool --value <drawio|python> --step 3 --json`. Then proceed: on `drawio`, generate an Azure architecture diagram using the drawio skill and MCP tools (transactional mode — pass `diagram_xml` between every call; `search-shapes` once for all services, `create-groups` once for all containers, `add-cells` once with all vertices + edges, `add-cells-to-group` once, `finish-diagram` compress:true; save via `python3 tools/scripts/save-drawio.py <json-path> agent-output/{project}/03-des-diagram.drawio`; validate via `node tools/scripts/validate-drawio-files.mjs`; quality score >= 9/10; output: `agent-output/{project}/03-des-diagram.drawio + .png`); on `python`, use the python-diagrams skill to generate `agent-output/{project}/03-des-diagram.png`."
+    prompt: "This handoff implies `design_scope=diagrams` — record via `apex-recall decide <project> --key design_scope --value diagrams --step 3 --json` BEFORE any other work. Input: `agent-output/{project}/02-architecture-assessment.md` (used for both diagram paths). Then use the `vscode_askQuestions` tool with exactly one question: header='Diagram Tool', question='Which diagram tool do you prefer?', options=[{label:'Draw.io',description:'Rich Azure icon set — interactive .drawio + .png output (recommended)',recommended:true},{label:'Python',description:'Code-based .png + .svg output via the python-diagrams skill'}], allowFreeformInput=false. Wait for the answer. Map 'Draw.io' → diagram_tool=drawio, 'Python' → diagram_tool=python. Record `apex-recall decide <project> --key diagram_tool --value <drawio|python> --step 3 --json`. Then proceed: on `drawio`, generate an Azure architecture diagram using the drawio skill and MCP tools (transactional mode — pass `diagram_xml` between every call; `search-shapes` once for all services, `create-groups` once for all containers, `add-cells` once with all vertices + edges, `add-cells-to-group` once, `finish-diagram` compress:true; save via `python3 tools/scripts/save-drawio.py <json-path> agent-output/{project}/03-des-diagram.drawio`; validate via `node tools/scripts/validate-drawio-files.mjs`; quality score >= 9/10; output: `agent-output/{project}/03-des-diagram.drawio + .png`); on `python`, use the python-diagrams skill to generate `agent-output/{project}/03-des-diagram.py` + `.png` + `.svg` (both raster and vector siblings via the shared `scripts/diagram_io.py` helper)."
     send: true
   - label: "▶ Generate ADR"
     agent: 04-Design
@@ -28,7 +28,7 @@ handoffs:
     send: false
   - label: "↩ Return to Orchestrator"
     agent: 01-Orchestrator
-    prompt: "Returning from Step 3 (Design). Architecture diagrams, ADRs, and optional cost estimates generated. Artifacts at `agent-output/{project}/03-des-*.md` (diagram output depends on tool chosen: `03-des-diagram.drawio` for Draw.io, `03-des-diagram.py + .png` for Python). Ready for governance discovery or IaC planning."
+    prompt: "Returning from Step 3 (Design). Architecture diagrams, ADRs, and optional cost estimates generated. Artifacts at `agent-output/{project}/03-des-*.md` (diagram output depends on tool chosen: `03-des-diagram.drawio` for Draw.io, `03-des-diagram.py + .png + .svg` for Python). Ready for governance discovery or IaC planning."
     send: false
 ---
 
@@ -65,7 +65,7 @@ investigate before answering) live in
 Expected output in `agent-output/{project}/`:
 
 - `03-des-diagram.drawio` + `.png` — architecture diagram (Draw.io path)
-- `03-des-diagram.py` + `.png` — architecture diagram (Python path)
+- `03-des-diagram.py` + `.png` + `.svg` — architecture diagram (Python path, dual-format via `diagram_io`)
 - `03-des-adr-NNNN-{slug}.md` — Architecture Decision Records (one file per
   decision)
 - `03-des-cost-estimate.md` — cost-estimate handoff (optional)

@@ -61,7 +61,9 @@ Primary artifact: agent-output/{project}/02-architecture-assessment.md — all 5
 scores (1-10) with confidence, service maturity table, SKU recommendations, cost table.
 Cost artifact: agent-output/{project}/03-des-cost-estimate.md — every dollar figure from
 cost-estimate-subagent, not from parametric knowledge.
-Charts: 02-waf-scores.py/.png, 03-des-cost-distribution.py/.png, 03-des-cost-projection.py/.png.
+Charts: 02-waf-scores.{py,png,svg}, 03-des-cost-distribution.{py,png,svg}, 03-des-cost-projection.{py,png,svg}.
+Every Python diagram emits paired `.png` + `.svg` siblings via the shared
+`scripts/diagram_io.py` helper (see python-diagrams SKILL.md).
 Session state: managed via `apex-recall` CLI — checkpoint after each phase.
 </output_contract>
 
@@ -239,6 +241,13 @@ in your WAF assessment recommendations (still produce the identical artifact str
 6a. **SKU confirmation gate (MANDATORY — before pricing)** — follow the
     protocol in
     [`workflow-gates.md`](../skills/azure-defaults/references/workflow-gates.md#architect-step-2--phase-6a-sku-confirmation-gate).
+6b. **VNet planning gate (MANDATORY when trigger contract holds; honor
+    `decisions.vnet_planning_mode`)** — follow the protocol in
+    [`workflow-gates.md`](../skills/azure-defaults/references/workflow-gates.md#architect-step-2--phase-6b-vnet-planning-gate).
+    Append any priced network resources (Bastion / Firewall /
+    NAT-Gateway / VPN-Gateway / ER-Gateway / App-Gateway /
+    App-Gateway-for-Containers) from `subnet_plan` to the Step 7
+    resource_list.
 7. **Delegate pricing** — Send resource list to `cost-estimate-subagent`;
     receive verified prices. Precondition guard: refuse to invoke unless
     `decisions.sku_confirmation_status == "approved"`.
@@ -257,15 +266,18 @@ in your WAF assessment recommendations (still produce the identical artifact str
     [`workflow-gates.md`](../skills/azure-defaults/references/workflow-gates.md#architect-step-2--phase-9a-budget-gate).
 10. **Generate charts** — Read
     `.github/skills/python-diagrams/references/waf-cost-charts.md` and
-    produce three matplotlib PNGs in `agent-output/{project}/`:
-    - `02-waf-scores.py` + `02-waf-scores.png` — one horizontal bar per
-      WAF pillar, WAF brand colours
-    - `03-des-cost-distribution.py` + `03-des-cost-distribution.png` —
-      donut chart of cost categories
-    - `03-des-cost-projection.py` + `03-des-cost-projection.png` —
-      6-month bar and trend chart
+    produce three matplotlib charts in `agent-output/{project}/`. Each
+    `.py` file must import `save_figure` from
+    `.github/skills/python-diagrams/scripts/diagram_io.py` so it emits
+    paired `.png` + `.svg` siblings:
+    - `02-waf-scores.py` → `02-waf-scores.png` + `02-waf-scores.svg` —
+      one horizontal bar per WAF pillar, WAF brand colours
+    - `03-des-cost-distribution.py` → `03-des-cost-distribution.png` +
+      `03-des-cost-distribution.svg` — donut chart of cost categories
+    - `03-des-cost-projection.py` → `03-des-cost-projection.png` +
+      `03-des-cost-projection.svg` — 6-month bar and trend chart
 
-    Execute each `.py` file and verify the PNGs exist before continuing.
+    Execute each `.py` file and verify both `.png` and `.svg` exist before continuing.
 
 11. **Delegate lint** — Do not invoke `npm run lint:artifact-templates` or
     `markdownlint-cli2` directly against `agent-output/**`. The artifact
@@ -408,8 +420,10 @@ Architect-step-2 specifics only below.
 
 1. Print WAF pillar scores (Security, Reliability, Performance, Cost,
    Operations) with estimated monthly cost.
-2. Render the findings table per pass (must_fix → should_fix →
-   suggestion) and run the **Per-Finding Decision Protocol** from
+2. Print findings as a **multi-line markdown table** per pass (must_fix →
+   should_fix → suggestion) using the format in
+   [adversarial-review-protocol.md § Findings Table Rendering Format](../skills/azure-defaults/references/adversarial-review-protocol.md#findings-table-rendering-format).
+   Then run the **Per-Finding Decision Protocol** from
    [`adversarial-review-protocol.md`](../skills/azure-defaults/references/adversarial-review-protocol.md).
    **One `vscode_askQuestions` call per finding** with three options
    — `Accept` / `Skip` / `Defer` — plus a free-form rationale.

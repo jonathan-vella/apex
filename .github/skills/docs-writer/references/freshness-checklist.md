@@ -65,13 +65,13 @@ appropriate category table. Remove entries for deleted skills.
 
 ### 4. Prompt Guide Currency
 
-**Source of truth**: `site/src/content/docs/guides/prompt-guide/` pages.
+**Source of truth**: `site/src/content/docs/reference/prompts/` pages.
 
 **Files to check**:
 
 | File                                             | What to verify                          |
 | ------------------------------------------------ | --------------------------------------- |
-| `site/src/content/docs/guides/prompt-guide/*.md` | Agent and skill tables match filesystem |
+| `site/src/content/docs/reference/prompts/*.md` | Agent and skill tables match filesystem |
 
 **Auto-fix**: Update tables to match current agent/skill inventory.
 

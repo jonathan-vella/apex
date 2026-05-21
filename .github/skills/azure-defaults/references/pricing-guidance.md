@@ -13,7 +13,7 @@ Exact names for the Azure Pricing MCP tool. Using wrong names returns
 | App Service         | `Azure App Service`             | `B1`, `S1`, `P1 v3`, `P2 v3`, `P1v4`   |
 | Application Gateway | `Application Gateway`           | `Standard_v2`, `WAF_v2`                |
 | Azure Bastion       | `Azure Bastion`                 | `Basic`, `Standard`                    |
-| Azure DNS           | `Azure DNS`                     | `Public`, `Private`                    |
+| Azure DNS           | `Azure DNS`                     | `Public`, `Private` (filter on `meterName` — see "Filter on `meterName`, not `productName`" below) |
 | Azure Firewall      | `Azure Firewall`                | `Standard`, `Premium`                  |
 | Azure Functions     | `Functions`                     | `Consumption`, `Premium`               |
 | Azure Monitor       | `Azure Monitor`                 | `Logs`, `Metrics`                      |
@@ -38,11 +38,96 @@ Exact names for the Azure Pricing MCP tool. Using wrong names returns
 | Static Web Apps     | `Azure Static Web Apps`         | `Free`, `Standard`                     |
 | Storage             | `Storage`                       | `Standard`, `Premium`, `LRS`, `GRS`    |
 | VPN Gateway         | `VPN Gateway`                   | `Basic`, `VpnGw1`, `VpnGw2`            |
+| ExpressRoute Gateway | `ExpressRoute`                 | `Standard`, `HighPerformance`, `UltraPerformance`, `ErGw1AZ`, `ErGw2AZ`, `ErGw3AZ` |
+| App Gateway for Containers | `Application Gateway for Containers` | `Standard` (per-fabric + LCU)    |
 | Virtual Machines    | `Virtual Machines`              | `D4s_v5`, `B2s`, `E4s_v5`              |
 
 - **DO**: Use exact names from the table above
 - **DON'T**: Use "Azure SQL" (returns 0 results) — use "SQL Database"
 - **DON'T**: Use "Web App" — use "Azure App Service"
+
+## Global services — `region: "global"` rule
+
+Azure has a class of services that are **not regional** — their meters
+are published in the Retail Prices API with `armRegionName: "Global"`,
+not under the workload region. Passing the workload region
+(`swedencentral`, `westeurope`, …) for these services is the #2
+historical cause of `azure_bulk_estimate` returning zero rows (right
+behind missing `product_filter`).
+
+**Hard rule**: when a resource entry's `service_name` matches the table
+below, set `region: "global"` in both `azure_bulk_estimate` and
+`azure_price_search` calls — even though the rest of the workload lives
+in a regional Azure DC. Record `notes: "global meter; priced from
+Global region"` so the audit trail explains the region substitution.
+
+| Service                          | `service_name`                  | Why global                                                             |
+| -------------------------------- | ------------------------------- | ---------------------------------------------------------------------- |
+| Azure DNS — Public zones         | `Azure DNS`                     | Anycast DNS; one global meter for zone hosting + queries               |
+| Azure DNS — Private zones        | `Azure DNS`                     | Same global meter family; per-zone + per-query, region-independent     |
+| Azure Front Door — Standard      | `Azure Front Door`              | Edge POPs are global; base + request meters live under `Global`        |
+| Azure Front Door — Premium       | `Azure Front Door`              | Same                                                                   |
+| Traffic Manager                  | `Traffic Manager`               | DNS-based traffic routing; global meter                                |
+| Microsoft Entra ID / External ID | `Microsoft Entra ID`            | Identity directory — per-MAU meters published globally                |
+| Microsoft Defender for Cloud     | `Microsoft Defender for Cloud`  | Per-resource plans billed against global meters                        |
+| Azure Policy                     | `Azure Policy`                  | Free at default usage; meter (if any) is global                        |
+
+**Bandwidth caveat**: outbound bandwidth meters carry `armRegionName`
+for the *source* region (e.g. `EU Zone 1` rather than `swedencentral`).
+Keep using the workload region for `service_name: "Bandwidth"` — the
+MCP server maps it to the correct zone.
+
+**Front Door follow-up calls**: when bulk returns only the routing-rule
+or base-fee meter for Front Door, schedule a `azure_price_search`
+follow-up for the request + data-transfer meters under the same
+`Azure Front Door Standard` / `Azure Front Door Premium` product
+filter — these are billed separately in the Retail Prices API.
+
+### Filter on `meterName`, not `productName`, when variants share a product
+
+Several global services publish **one `productName` covering many
+unrelated variants**, distinguishing them only via `meterName`. Filtering
+on `productName` for the variant keyword returns **zero rows** — the
+classic "MCP returned nothing, fell back to catalog" symptom on a meter
+that demonstrably exists.
+
+Verified gotchas (Azure Retail Prices API, May 2026):
+
+| Service     | `productName` (umbrella)  | Variants distinguished by `meterName` | Correct filter shape                                                                                  |
+| ----------- | ------------------------- | -------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| Azure DNS — Private Zones | `Azure DNS` | `Private Zone` (hosting), `Private Queries`, `Private Resolver Inbound Endpoint`, `Private Resolver Outbound Endpoint`, `Private Resolver DNS Forwarding Ruleset` | `serviceName eq 'Azure DNS' and meterName eq 'Private Zone' and armRegionName eq ''` |
+| Azure DNS — Public Zones  | `Azure DNS` | `Public Zone`, `Public Queries`                                                                            | `serviceName eq 'Azure DNS' and meterName eq 'Public Zone' and armRegionName eq ''`  |
+| Azure DNS — DNS Security  | `Azure DNS` | `DNS Security Policy Domains Managed Domain`, `DNS Security Policy Queries`                                | `serviceName eq 'Azure DNS' and meterName eq 'DNS Security Policy Queries'`          |
+
+**Anti-pattern** (returns 0 rows):
+`serviceName eq 'Azure DNS' and contains(productName, 'Private')`
+— `productName` is literally `"Azure DNS"` for every Azure DNS row, so the
+substring `Private` never matches.
+
+**Verified pricing (May 2026 spot-check, GLOBAL region)** — use these as
+sanity baselines when the bulk path returns zero rows for a known-existing
+meter and you're triaging whether MCP, filter shape, or region is at fault:
+
+| meter          | tierMinimumUnits | retailPrice     | unitOfMeasure |
+| -------------- | ----------------: | --------------: | ------------- |
+| Private Zone   | 0                | $0.50           | per zone/month |
+| Private Zone   | 25               | $0.10           | per zone/month (after first 25) |
+| Private Queries | 0                | $0.40           | per 1M queries |
+
+**Rule for the subagent**: when adding a new resource to `resource_list`
+whose `service_name` appears in the table above, set the targeted
+`azure_price_search` filter on `meterName` (not `productName`). The
+`product_filter` argument may be omitted for Azure DNS — there is only
+one `productName`, so it adds no discrimination but does narrow the
+result count safely if passed.
+
+**General heuristic** (for services not yet enumerated above): if a
+follow-up `azure_price_search` with `region: "global"` AND a sensible
+`product_filter` returns zero rows for a meter you can verify exists on
+the [Azure DNS pricing page](https://azure.microsoft.com/pricing/details/dns/)
+or equivalent, the next thing to try is filtering on
+`meterName` directly. Record the resolution in the line's `notes`
+field so future runs can short-circuit the same triage.
 
 ## Canonical SKU Aliases
 
@@ -157,8 +242,10 @@ monthly cost. **You MUST pass `product_filter` for these services.**
 | Log Analytics — Free             | `Free`                                           | `Log Analytics`                                                        | `Free Data Analyzed`                            | $0 — included in Log Analytics product                                                                                                                             |
 | Bandwidth — Outbound Internet    | `Standard`                                       | `Bandwidth - Routing Preference: Internet`                             | `Standard Data Transfer Out` per `GB`           | First 100 GB/month free; pass `gb_transferred` for >100 GB                                                                                                         |
 | Application Insights — Classic   | `Basic`                                          | `Application Insights`                                                 | per `GB` ingestion                              | Workspace-based AppInsights bills via Log Analytics, not here                                                                                                      |
-| Front Door — Standard            | `Standard`                                       | `Azure Front Door Standard` (NOT `Premium`)                            | base + per `GB`                                 | Routing rules + requests + bandwidth — multiple meters                                                                                                             |
-| Front Door — Premium             | `Premium`                                        | `Azure Front Door Premium`                                             | base + per `GB`                                 |                                                                                                                                                                    |
+| Front Door — Standard            | `Standard`                                       | `Azure Front Door Standard` (NOT `Premium`)                            | base + per `GB`                                 | Routing rules + requests + bandwidth — multiple meters. **Use `region: "global"`** — see `## Global services`              |
+| Front Door — Premium             | `Premium`                                        | `Azure Front Door Premium`                                             | base + per `GB`                                 | **Use `region: "global"`**                                                                                                  |
+| Azure DNS — Public zone          | `Public`                                         | (none)                                                                 | per zone/month + per million queries            | **Use `region: "global"`** — see `## Global services`. Pass `usage.transactions_per_month` for query volume.               |
+| Azure DNS — Private zone         | `Private`                                        | (none)                                                                 | per zone/month + per million queries            | **Use `region: "global"`**. Catalog fallback at $0.50/zone/month if MCP returns no rows after the global-region retry.     |
 
 > **Pattern**: when in doubt, query the Retail Prices API directly first
 > (`https://prices.azure.com/api/retail/prices?$filter=serviceName eq '<name>' and armRegionName eq '<region>'`)
@@ -206,7 +293,7 @@ spending an MCP call:
 | App Service Custom Domain                               | $0.00             | Free; only TLS certificate has a cost (separate Storage line if SNI Cert is used) |
 | Bandwidth (≤ first 100 GB/month outbound)               | $0.00             | Azure's free egress allowance applies before any per-GB charge                    |
 | Log Analytics scheduled query rule alert (default)      | $1.50/mo per rule | Apply default usage assumption (1 monitored resource, 5-minute evaluation frequency) — Standard Log Search Alert Rule meter; catalog fallback when MCP returns no rows for `microsoft.insights/scheduledqueryrules`; parent must override if a rule monitors many resources or runs at higher frequency  |
-| Private DNS Zone — base                                 | $0.50/mo per zone | **Catalog fallback** — price via MCP first; if `azure_bulk_estimate` + `azure_price_search` return no Azure DNS `Private` rows for the target region, record $0.50/zone/month with `notes: "static_fallback: Azure DNS private zone catalog rate; MCP returned no rows in <region>"` and proceed (do not leave unresolved) |
+| Private DNS Zone — base                                 | $0.50/mo per zone | **Catalog fallback** — price via MCP first using `service_name: "Azure DNS"`, `sku_name: "Private"`, **`region: "global"`** (see `## Global services`); if `azure_bulk_estimate` + `azure_price_search` still return no rows, record $0.50/zone/month with `notes: "static_fallback: Azure DNS private zone catalog rate; MCP returned no rows even with region=global"` and proceed (do not leave unresolved) |
 | Private Endpoint                                        | $7.20/mo each     | Use MCP — Standard meter resolves cleanly under Virtual Network                   |
 
 > The static-fallback whitelist is a closed list. If a resource is not on
@@ -303,8 +390,14 @@ azure_bulk_estimate({
     // Private Endpoint — resolves cleanly via VNet meter
     { service_name: "Virtual Network", sku_name: "Private Endpoint", region: "swedencentral", quantity: 3 },
 
-    // Private DNS zones — resolves cleanly
-    { service_name: "Azure DNS", sku_name: "Private", region: "swedencentral", quantity: 3 }
+    // Private DNS zones — GLOBAL meter, not regional. Passing the workload region returns 0 rows.
+    { service_name: "Azure DNS", sku_name: "Private", region: "global", quantity: 3,
+      usage: { transactions_per_month: 1000000 } }
+
+    // Front Door Standard — also GLOBAL. Example shape (omitted from the test workload):
+    // { service_name: "Azure Front Door", sku_name: "Standard", region: "global",
+    //   product_filter: "Azure Front Door Standard",
+    //   usage: { gb_transferred: 100, transactions_per_month: 10000000 } }
 
     // NOTE: VNet base, NSGs, Entra External ID Free, Resource Group, Action Group,
     //       Azure Budget are NOT in this array — they are static-fallback entries
@@ -343,6 +436,7 @@ and you should mark the line `Estimate unavailable`.
 | `azure_bulk_estimate` returns `monthly_cost: 0` for multi-product services     | Missing `product_filter` per resource — `contains(skuName, …)` matches multiple products ambiguously                 | Always pass `product_filter` per the table in `## Required: product_filter for multi-product services` above.                                                                                                      |
 | `azure_bulk_estimate` returns `monthly_cost: 0` + `projection_warning`         | Missing `usage` hint for a non-hourly meter (per-GB / per-transaction / per-second)                                  | Pass the relevant `usage` field per `## Required: usage hints for non-hourly meters` above.                                                                                                                        |
 | App Service Premium v3 `P1v3` / `P2v3` returns 0                               | Azure's canonical `skuName` has a space: `P1 v3`, `P2 v3`                                                            | Use the space form. See `## SKU naming gotchas`.                                                                                                                                                                   |
+| Azure DNS (`Private` / `Public`) or Front Door (`Standard` / `Premium`) returns 0 in any regional query | Meters are published with `armRegionName: "Global"`, not the workload region                                          | Set `region: "global"` on the bulk and any `azure_price_search` retry. See `## Global services` for the full list.                                                                                                  |
 | SQL Database GP Serverless higher-vCore SKUs (e.g. `2 vCore`) return $0 meters | Azure publishes the billable per-vCore-second meter only under `1 vCore`; higher SKUs show only the free pause meter | Query `sku_name: "1 vCore"` with `product_filter: "General Purpose - Serverless"`, then compute `hourly_rate × max_vcore × utilization × 730`. See `## Service-specific billing quirks → SQL Database Serverless`. |
 
 ### Recovery protocol (subagent + parent)
