@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-05-21T15:57:38.647Z",
+  "generatedAt": "2026-05-21T17:18:09.775Z",
   "categories": [
     {
       "id": "agent",
@@ -68,7 +68,7 @@
     }
   ],
   "nodeCount": 157,
-  "edgeCount": 619,
+  "edgeCount": 672,
   "nodes": [
     {
       "id": "agent:01-orchestrator",
@@ -110,6 +110,12 @@
           "08-As-Built",
           "09-Diagnose",
           "10-Challenger"
+        ],
+        "skills": [
+          "golden-principles",
+          "azure-defaults",
+          "azure-artifacts",
+          "workflow-engine"
         ]
       }
     },
@@ -133,6 +139,10 @@
           "10-Challenger",
           "03-Architect",
           "01-Orchestrator"
+        ],
+        "skills": [
+          "azure-defaults",
+          "azure-artifacts"
         ]
       }
     },
@@ -158,6 +168,11 @@
           "04g-Governance",
           "02-Requirements",
           "01-Orchestrator"
+        ],
+        "skills": [
+          "azure-defaults",
+          "azure-artifacts",
+          "context-management"
         ]
       }
     },
@@ -181,6 +196,13 @@
           "03-Architect",
           "04g-Governance",
           "01-Orchestrator"
+        ],
+        "skills": [
+          "azure-defaults",
+          "azure-artifacts",
+          "azure-adr",
+          "drawio",
+          "python-diagrams"
         ]
       }
     },
@@ -203,6 +225,11 @@
           "04g-Governance",
           "05-IaC Planner",
           "01-Orchestrator"
+        ],
+        "skills": [
+          "azure-defaults",
+          "azure-governance-discovery",
+          "azure-artifacts"
         ]
       }
     },
@@ -228,6 +255,14 @@
           "06t-Terraform CodeGen",
           "03-Architect",
           "01-Orchestrator"
+        ],
+        "skills": [
+          "azure-defaults",
+          "azure-artifacts",
+          "python-diagrams",
+          "azure-bicep-patterns",
+          "terraform-patterns",
+          "context-management"
         ]
       }
     },
@@ -252,6 +287,12 @@
           "07b-Bicep Deploy",
           "05-IaC Planner",
           "01-Orchestrator"
+        ],
+        "skills": [
+          "azure-defaults",
+          "azure-artifacts",
+          "azure-bicep-patterns",
+          "context-management"
         ]
       }
     },
@@ -276,6 +317,12 @@
           "07t-Terraform Deploy",
           "05-IaC Planner",
           "01-Orchestrator"
+        ],
+        "skills": [
+          "azure-defaults",
+          "azure-artifacts",
+          "terraform-patterns",
+          "context-management"
         ]
       }
     },
@@ -303,6 +350,10 @@
           "06b-Bicep CodeGen",
           "03-Architect",
           "01-Orchestrator"
+        ],
+        "skills": [
+          "azure-defaults",
+          "azure-artifacts"
         ]
       }
     },
@@ -330,6 +381,10 @@
           "06t-Terraform CodeGen",
           "03-Architect",
           "01-Orchestrator"
+        ],
+        "skills": [
+          "azure-defaults",
+          "azure-artifacts"
         ]
       }
     },
@@ -351,6 +406,13 @@
         "handoffTargets": [
           "08-As-Built",
           "01-Orchestrator"
+        ],
+        "skills": [
+          "azure-defaults",
+          "azure-artifacts",
+          "drawio",
+          "python-diagrams",
+          "context-management"
         ]
       }
     },
@@ -372,6 +434,10 @@
           "08-As-Built",
           "03-Architect",
           "01-Orchestrator"
+        ],
+        "skills": [
+          "azure-defaults",
+          "azure-diagnostics"
         ]
       }
     },
@@ -392,7 +458,8 @@
         ],
         "handoffTargets": [
           "01-Orchestrator"
-        ]
+        ],
+        "skills": []
       }
     },
     {
@@ -410,6 +477,10 @@
         "subagents": [],
         "handoffTargets": [
           "01-Orchestrator"
+        ],
+        "skills": [
+          "golden-principles",
+          "context-management"
         ]
       }
     },
@@ -442,7 +513,11 @@
           "terraform-validate-subagent",
           "terraform-plan-subagent"
         ],
-        "handoffTargets": []
+        "handoffTargets": [],
+        "skills": [
+          "azure-defaults",
+          "azure-artifacts"
+        ]
       }
     },
     {
@@ -455,7 +530,11 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/_subagents/bicep-validate-subagent.agent.md"
       },
       "meta": {
-        "model": "Claude Sonnet 4.6"
+        "model": "Claude Sonnet 4.6",
+        "skills": [
+          "azure-defaults",
+          "iac-common"
+        ]
       }
     },
     {
@@ -468,7 +547,8 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/_subagents/bicep-whatif-subagent.agent.md"
       },
       "meta": {
-        "model": "Claude Sonnet 4.6"
+        "model": "Claude Sonnet 4.6",
+        "skills": []
       }
     },
     {
@@ -481,7 +561,11 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/_subagents/challenger-review-subagent.agent.md"
       },
       "meta": {
-        "model": "GPT-5.5"
+        "model": "GPT-5.5",
+        "skills": [
+          "golden-principles",
+          "azure-defaults"
+        ]
       }
     },
     {
@@ -494,7 +578,10 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/_subagents/cost-estimate-subagent.agent.md"
       },
       "meta": {
-        "model": "GPT-5.3-Codex"
+        "model": "GPT-5.3-Codex",
+        "skills": [
+          "azure-defaults"
+        ]
       }
     },
     {
@@ -507,7 +594,8 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/_subagents/policy-precheck-subagent.agent.md"
       },
       "meta": {
-        "model": "Claude Sonnet 4.6"
+        "model": "Claude Sonnet 4.6",
+        "skills": []
       }
     },
     {
@@ -520,7 +608,8 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/_subagents/terraform-plan-subagent.agent.md"
       },
       "meta": {
-        "model": "Claude Sonnet 4.6"
+        "model": "Claude Sonnet 4.6",
+        "skills": []
       }
     },
     {
@@ -533,7 +622,11 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/_subagents/terraform-validate-subagent.agent.md"
       },
       "meta": {
-        "model": "Claude Sonnet 4.6"
+        "model": "Claude Sonnet 4.6",
+        "skills": [
+          "azure-defaults",
+          "iac-common"
+        ]
       }
     },
     {
@@ -2807,6 +2900,324 @@
       "source": "agent:11-context-optimizer",
       "target": "agent:01-orchestrator",
       "kind": "hands-off"
+    },
+    {
+      "id": "agent:01-orchestrator--uses-skill->skill:golden-principles",
+      "source": "agent:01-orchestrator",
+      "target": "skill:golden-principles",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "agent:01-orchestrator--uses-skill->skill:azure-defaults",
+      "source": "agent:01-orchestrator",
+      "target": "skill:azure-defaults",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "agent:01-orchestrator--uses-skill->skill:azure-artifacts",
+      "source": "agent:01-orchestrator",
+      "target": "skill:azure-artifacts",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "agent:01-orchestrator--uses-skill->skill:workflow-engine",
+      "source": "agent:01-orchestrator",
+      "target": "skill:workflow-engine",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "agent:02-requirements--uses-skill->skill:azure-defaults",
+      "source": "agent:02-requirements",
+      "target": "skill:azure-defaults",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "agent:02-requirements--uses-skill->skill:azure-artifacts",
+      "source": "agent:02-requirements",
+      "target": "skill:azure-artifacts",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "agent:03-architect--uses-skill->skill:azure-defaults",
+      "source": "agent:03-architect",
+      "target": "skill:azure-defaults",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "agent:03-architect--uses-skill->skill:azure-artifacts",
+      "source": "agent:03-architect",
+      "target": "skill:azure-artifacts",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "agent:03-architect--uses-skill->skill:context-management",
+      "source": "agent:03-architect",
+      "target": "skill:context-management",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "agent:04-design--uses-skill->skill:azure-defaults",
+      "source": "agent:04-design",
+      "target": "skill:azure-defaults",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "agent:04-design--uses-skill->skill:azure-artifacts",
+      "source": "agent:04-design",
+      "target": "skill:azure-artifacts",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "agent:04-design--uses-skill->skill:azure-adr",
+      "source": "agent:04-design",
+      "target": "skill:azure-adr",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "agent:04-design--uses-skill->skill:drawio",
+      "source": "agent:04-design",
+      "target": "skill:drawio",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "agent:04-design--uses-skill->skill:python-diagrams",
+      "source": "agent:04-design",
+      "target": "skill:python-diagrams",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "agent:04g-governance--uses-skill->skill:azure-defaults",
+      "source": "agent:04g-governance",
+      "target": "skill:azure-defaults",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "agent:04g-governance--uses-skill->skill:azure-governance-discovery",
+      "source": "agent:04g-governance",
+      "target": "skill:azure-governance-discovery",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "agent:04g-governance--uses-skill->skill:azure-artifacts",
+      "source": "agent:04g-governance",
+      "target": "skill:azure-artifacts",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "agent:05-iac-planner--uses-skill->skill:azure-defaults",
+      "source": "agent:05-iac-planner",
+      "target": "skill:azure-defaults",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "agent:05-iac-planner--uses-skill->skill:azure-artifacts",
+      "source": "agent:05-iac-planner",
+      "target": "skill:azure-artifacts",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "agent:05-iac-planner--uses-skill->skill:python-diagrams",
+      "source": "agent:05-iac-planner",
+      "target": "skill:python-diagrams",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "agent:05-iac-planner--uses-skill->skill:azure-bicep-patterns",
+      "source": "agent:05-iac-planner",
+      "target": "skill:azure-bicep-patterns",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "agent:05-iac-planner--uses-skill->skill:terraform-patterns",
+      "source": "agent:05-iac-planner",
+      "target": "skill:terraform-patterns",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "agent:05-iac-planner--uses-skill->skill:context-management",
+      "source": "agent:05-iac-planner",
+      "target": "skill:context-management",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "agent:06b-bicep-codegen--uses-skill->skill:azure-defaults",
+      "source": "agent:06b-bicep-codegen",
+      "target": "skill:azure-defaults",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "agent:06b-bicep-codegen--uses-skill->skill:azure-artifacts",
+      "source": "agent:06b-bicep-codegen",
+      "target": "skill:azure-artifacts",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "agent:06b-bicep-codegen--uses-skill->skill:azure-bicep-patterns",
+      "source": "agent:06b-bicep-codegen",
+      "target": "skill:azure-bicep-patterns",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "agent:06b-bicep-codegen--uses-skill->skill:context-management",
+      "source": "agent:06b-bicep-codegen",
+      "target": "skill:context-management",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "agent:06t-terraform-codegen--uses-skill->skill:azure-defaults",
+      "source": "agent:06t-terraform-codegen",
+      "target": "skill:azure-defaults",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "agent:06t-terraform-codegen--uses-skill->skill:azure-artifacts",
+      "source": "agent:06t-terraform-codegen",
+      "target": "skill:azure-artifacts",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "agent:06t-terraform-codegen--uses-skill->skill:terraform-patterns",
+      "source": "agent:06t-terraform-codegen",
+      "target": "skill:terraform-patterns",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "agent:06t-terraform-codegen--uses-skill->skill:context-management",
+      "source": "agent:06t-terraform-codegen",
+      "target": "skill:context-management",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "agent:07b-bicep-deploy--uses-skill->skill:azure-defaults",
+      "source": "agent:07b-bicep-deploy",
+      "target": "skill:azure-defaults",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "agent:07b-bicep-deploy--uses-skill->skill:azure-artifacts",
+      "source": "agent:07b-bicep-deploy",
+      "target": "skill:azure-artifacts",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "agent:07t-terraform-deploy--uses-skill->skill:azure-defaults",
+      "source": "agent:07t-terraform-deploy",
+      "target": "skill:azure-defaults",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "agent:07t-terraform-deploy--uses-skill->skill:azure-artifacts",
+      "source": "agent:07t-terraform-deploy",
+      "target": "skill:azure-artifacts",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "agent:08-as-built--uses-skill->skill:azure-defaults",
+      "source": "agent:08-as-built",
+      "target": "skill:azure-defaults",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "agent:08-as-built--uses-skill->skill:azure-artifacts",
+      "source": "agent:08-as-built",
+      "target": "skill:azure-artifacts",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "agent:08-as-built--uses-skill->skill:drawio",
+      "source": "agent:08-as-built",
+      "target": "skill:drawio",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "agent:08-as-built--uses-skill->skill:python-diagrams",
+      "source": "agent:08-as-built",
+      "target": "skill:python-diagrams",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "agent:08-as-built--uses-skill->skill:context-management",
+      "source": "agent:08-as-built",
+      "target": "skill:context-management",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "agent:09-diagnose--uses-skill->skill:azure-defaults",
+      "source": "agent:09-diagnose",
+      "target": "skill:azure-defaults",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "agent:09-diagnose--uses-skill->skill:azure-diagnostics",
+      "source": "agent:09-diagnose",
+      "target": "skill:azure-diagnostics",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "agent:11-context-optimizer--uses-skill->skill:golden-principles",
+      "source": "agent:11-context-optimizer",
+      "target": "skill:golden-principles",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "agent:11-context-optimizer--uses-skill->skill:context-management",
+      "source": "agent:11-context-optimizer",
+      "target": "skill:context-management",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "agent:e2e-orchestrator--uses-skill->skill:azure-defaults",
+      "source": "agent:e2e-orchestrator",
+      "target": "skill:azure-defaults",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "agent:e2e-orchestrator--uses-skill->skill:azure-artifacts",
+      "source": "agent:e2e-orchestrator",
+      "target": "skill:azure-artifacts",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "subagent:bicep-validate-subagent--uses-skill->skill:azure-defaults",
+      "source": "subagent:bicep-validate-subagent",
+      "target": "skill:azure-defaults",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "subagent:bicep-validate-subagent--uses-skill->skill:iac-common",
+      "source": "subagent:bicep-validate-subagent",
+      "target": "skill:iac-common",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "subagent:challenger-review-subagent--uses-skill->skill:golden-principles",
+      "source": "subagent:challenger-review-subagent",
+      "target": "skill:golden-principles",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "subagent:challenger-review-subagent--uses-skill->skill:azure-defaults",
+      "source": "subagent:challenger-review-subagent",
+      "target": "skill:azure-defaults",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "subagent:cost-estimate-subagent--uses-skill->skill:azure-defaults",
+      "source": "subagent:cost-estimate-subagent",
+      "target": "skill:azure-defaults",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "subagent:terraform-validate-subagent--uses-skill->skill:azure-defaults",
+      "source": "subagent:terraform-validate-subagent",
+      "target": "skill:azure-defaults",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "subagent:terraform-validate-subagent--uses-skill->skill:iac-common",
+      "source": "subagent:terraform-validate-subagent",
+      "target": "skill:iac-common",
+      "kind": "uses-skill"
     },
     {
       "id": "instruction:agent-authoring--applies-to->agent:01-orchestrator",
