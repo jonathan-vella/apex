@@ -459,7 +459,7 @@ The schema lives in
 The entry below is **fabricated for illustration only** and never
 appeared in a real run:
 
-```json
+```json title="agent-output/{project}/09-lessons-learned.json (illustrative)" frame="code"
 {
   "workflow_mode": "production",
   "project": "{project}",

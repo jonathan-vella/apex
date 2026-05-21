@@ -6,7 +6,7 @@
     "prebuild": "node ../tools/scripts/generate-explorer-graph.mjs",
     "dev": "astro dev",
     "start": "astro dev",
-    "build": "astro build",
+    "build": "PUBLIC_GIT_SHA=$(git rev-parse --short HEAD 2>/dev/null || echo dev) PUBLIC_BUILD_DATE=$(date -u +%Y-%m-%d) astro build",
     "preview": "astro preview",
     "astro": "astro"
   },

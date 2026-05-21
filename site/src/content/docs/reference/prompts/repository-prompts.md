@@ -97,7 +97,7 @@ skill loading, tool behavior, latency, token use, or unexpected retries.
 
 Use this prompt before filing an upstream Copilot issue or asking another
 maintainer to review an APEX agent session. The companion guide is
-[Debug Log Export](../../apex-debug-log-export/).
+[Debug Log Export](/azure-agentic-infraops/guides/apex-debug-log-export/).
 
 ### Export Boundaries
 
@@ -114,6 +114,6 @@ so you should review the bundle before sharing it outside the repository team.
 
 ## Related
 
-- [Prompt Guide](../) — prompt patterns for agents and skills
-- [Workflow Prompts](../workflow-prompts/) — examples for workflow agents
-- [Debug Log Export](../../apex-debug-log-export/) — export prompt operating guide
+- [Prompt Guide](/azure-agentic-infraops/guides/prompt-guide/) — prompt patterns for agents and skills
+- [Workflow Prompts](/azure-agentic-infraops/reference/prompts/workflow-prompts/) — examples for workflow agents
+- [Debug Log Export](/azure-agentic-infraops/guides/apex-debug-log-export/) — export prompt operating guide
