@@ -690,4 +690,4 @@ Terse pointers only — full definitions live in the linked concept docs.
 - [SKU Manifest](how-it-works/sku-manifest/) (when present)
 - Repository root: [`AGENTS.md`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/AGENTS.md)
 - Vendor docs: [Anthropic Claude prompting guide](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview),
-  [OpenAI GPT-5 prompting guide](https://platform.openai.com/docs/guides/prompting)
+  [OpenAI GPT-5 prompting guide](https://platform.openai.com/docs/guides/prompt-engineering)
