@@ -27,6 +27,28 @@ between critical phases:
 
 ## The Orchestrator Pattern
 
+```mermaid
+flowchart LR
+  classDef orch fill:#0078d4,stroke:#0078d4,color:#fff,rx:6,ry:6
+  classDef step fill:#1e3a5f,stroke:#0078d4,color:#dbeafe,rx:6,ry:6
+  classDef state fill:#fef3c7,stroke:#d97706,color:#7c2d12,rx:6,ry:6
+
+  O((01-Orchestrator)):::orch
+  R[02 Requirements]:::step
+  A[03 Architect]:::step
+  D[04 Design - opt]:::step
+  G[04g Governance]:::step
+  P[05 IaC Planner]:::step
+  C[06b / 06t CodeGen]:::step
+  X[07b / 07t Deploy]:::step
+  B[08 As-Built]:::step
+  S{{Session state\n00-session-state.json}}:::state
+
+  O --> R --> A --> D --> G --> P --> C --> X --> B
+  A -.-> G
+  O <-->|reads / writes| S
+```
+
 <img
   src="https://images.unsplash.com/photo-1507838153414-b4b713384a76?q=80&w=1200&auto=format&fit=crop"
   height="200"

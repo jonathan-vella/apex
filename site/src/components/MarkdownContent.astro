@@ -6,9 +6,11 @@
 //     the built-in search can scope to Getting Started / Concepts / Guides
 //     / Reference / Project / Demo.
 //   - Demo breadcrumb above the article body when the URL sits under /demo/.
+//   - Demo step header card on demo step-root pages.
 // Preserves the default .sl-markdown-content wrapper for unchanged styling.
 import "@astrojs/starlight/style/markdown.css";
 import DemoBreadcrumb from "./DemoBreadcrumb.astro";
+import DemoStepHeader from "./DemoStepHeader.astro";
 import { SITE_BASE } from "../data/siteConfig.mjs";
 
 const pathname = Astro.url.pathname;
@@ -29,5 +31,6 @@ const sectionLabel = sectionMap[firstSegment] || firstSegment;
 
 <div class="sl-markdown-content" data-pagefind-filter={`section:${sectionLabel}`}>
   <DemoBreadcrumb />
+  <DemoStepHeader />
   <slot />
 </div>
