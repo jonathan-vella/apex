@@ -506,6 +506,24 @@ Equivalent prohibition for `npm run lint:md` and
 `npm run lint:artifact-templates` against `agent-output/**`: do not
 invoke either from inside an agent body. Delegate to pre-commit + CI.
 
+### Execution-subagent invocation contract
+
+When a parent agent calls `runSubagent` for an execution-style
+subagent (validate, what-if, plan, policy-precheck, cost-estimate,
+challenger-review), the `prompt` string MUST follow the three-H2
+shape declared at
+[`tools/apex-prompts/utility-prompts/execution-subagent.prompt.md`](../../tools/apex-prompts/utility-prompts/execution-subagent.prompt.md):
+
+1. `## Objective` — what the parent needs (≤ 4 sentences).
+2. `## Commands` — exact bash to run.
+3. `## Expected return` — schema name, verdict enum, or bounded
+   markdown summary; include the failure mode.
+
+This contract is documented in the template above. It targets the
+runtime prompt string, not the subagent body. The structural
+guardrail (`tests/scripts/test_execution_subagent_contract.mjs`)
+enforces that the template file itself remains intact.
+
 ### No-shell-writes-to-agent-output rule
 
 Agents and subagents must **never** write to `agent-output/**` via
