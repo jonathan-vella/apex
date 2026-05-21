@@ -141,10 +141,12 @@ Batch independent skill reads into one parallel `read_file` call.
 1. Read `.github/skills/azure-defaults/SKILL.md` — regions, tags, security baseline, Terraform Conventions
 2. Read `.github/skills/azure-artifacts/SKILL.md` — H2 template for `06-deployment-summary.md`
 3. Read `.github/skills/iac-common/references/circuit-breaker.md` — failure taxonomy and stopping rules
-4. Read `.github/skills/iac-common/references/deploy-shared-workflow.md` — shared deploy protocol
-5. Read `.github/skills/iac-common/references/policy-precheck-contract.md` — L3 subagent I/O contract
+4. Read `.github/skills/iac-common/SKILL.md` `## Bounded retry` — 3-attempt cap with
+   `proceed-with-substitute` / `change-region` / `abort` escalation (issue #425)
+5. Read `.github/skills/iac-common/references/deploy-shared-workflow.md` — shared deploy protocol
+6. Read `.github/skills/iac-common/references/policy-precheck-contract.md` — L3 subagent I/O contract
    (required before invoking `policy-precheck-subagent`)
-6. Read `.github/skills/iac-common/references/governance-drift-routing.md` — four-layer drift routing
+7. Read `.github/skills/iac-common/references/governance-drift-routing.md` — four-layer drift routing
    matrix; consumed on every precheck result
 
 ## Shared Deploy Protocol
@@ -463,6 +465,47 @@ Replace `<N>` with the matrix row count from
 `04-implementation-plan.md` and the validator output count from Step 5. **Apply is blocked until this decision is recorded.**
 `validate-governance-trace.mjs` enforces the chain before
 `complete-step 6`.
+
+### Step 4.5: Deploy Approval Block
+
+Before any `terraform apply` (or `azd provision`), render the deploy
+approval block to the chat surface. The block is five lines, populated
+from already-collected JSON sources (no new tooling). Schema:
+[`deployment-preview-v1`](../../tools/schemas/deployment-preview.schema.json).
+
+Sources:
+
+- `creates` / `modifies` / `deletes` / `replaces` / `destructive` ←
+  Terraform plan (`terraform-plan-subagent` output).
+- `policy_gate` ← `policy-precheck-subagent` JSON (`deploy_gate`).
+- `cost_delta` ← `cost-estimate-subagent` delta vs the envelope in
+  `02-architecture-assessment.md` (or `02-cost-estimate.json` when
+  emitted).
+
+Block to render (exact shape; the `decision:` line is the human gate):
+
+```text
+creates: N | modifies: N | deletes: N
+destructive: yes/no
+policy_gate: PROCEED/BLOCK
+cost_delta: +$X/month (vs envelope $Y/month)
+decision: [approve] [abort]
+```
+
+Rules:
+
+- If `policy_gate: BLOCK` → STOP. Do not proceed past the gate.
+- If `destructive: yes` (any `delete` or `replace`) → require explicit
+  user approval naming the resource addresses that will be destroyed
+  or replaced.
+- If `cost_delta` exceeds envelope by >20% → require explicit user
+  approval citing the new monthly total.
+- The block MUST appear AFTER `terraform plan` + policy-precheck and
+  BEFORE `terraform apply`.
+
+Persist the composed block as `agent-output/{project}/06-deploy-approval.json`
+conforming to `deployment-preview-v1` so 08-As-Built can cite the
+pre-deploy state in the as-built record.
 
 ### Step 5: Phase-Aware Deployment
 

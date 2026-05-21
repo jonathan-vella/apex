@@ -81,3 +81,31 @@ any deployment. It defines:
 - **Anomaly patterns**: detection thresholds for repetitive failures
 - **Stopping rule**: 3 consecutive same-type failures → halt + escalate
 - **Escalation protocol**: write to session state, notify user, wait for guidance
+
+## Bounded retry
+
+Any retry loop in `04g-governance`, `07b-bicep-deploy`, `07t-terraform-deploy`,
+or the deploy-time subagents (`bicep-whatif`, `terraform-plan`, `policy-precheck`,
+`cost-estimate`) is capped at **3 attempts**. On the third failure the
+agent escalates to the user with these three fixed options (and no
+others):
+
+| Option                    | When to choose                                                                            |
+| ------------------------- | ----------------------------------------------------------------------------------------- |
+| `proceed-with-substitute` | A safe substitute exists (alternate SKU, alternate AVM module, alternate parameter set). |
+| `change-region`           | The failure is region-scoped (capacity, regional service gap, regional pricing spike).   |
+| `abort`                   | None of the above is safe — return control to the user.                                  |
+
+Use the same options across all four loops so the user's mental model
+is consistent. The challenger-review-subagent checklist enforces
+"retry loop bounded ≤3 with named escalation options"; unbounded loops
+are flagged as `HIGH`.
+
+Implementation hooks:
+
+- Loop counter lives in the agent body, not in shared infrastructure
+  (counts reset between human approvals).
+- Record the substitute/region change as an `apex-recall decide` entry
+  before retrying so the next session can trace the path.
+- Combine with the circuit breaker: a 3-failure retry that escalates
+  with `abort` ALSO trips the circuit breaker's escalation protocol.

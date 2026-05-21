@@ -118,6 +118,15 @@ For **every** artifact, ask:
 - [ ] Is there a rollback strategy if deployment fails mid-way?
 - [ ] Are phase boundaries correctly placed for phased deployments?
 - [ ] Are deprecation signals present in the preview output?
+- [ ] **Approval block present and populated** (issue #425): five-line
+      block with `creates`/`modifies`/`deletes`, `destructive`,
+      `policy_gate`, `cost_delta` vs envelope, and a `decision:` gate.
+      Persisted to `06-deploy-approval.json` conforming to
+      `deployment-preview-v1`.
+- [ ] **Retry loop bounded ≤3 with named escalation options** (issue #425):
+      every retry path (governance, what-if/plan, validate, deploy) caps
+      at 3 attempts and escalates with `proceed-with-substitute` /
+      `change-region` / `abort`. Flag unbounded loops as `must_fix`.
 
 ---
 
