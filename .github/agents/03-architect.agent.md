@@ -111,6 +111,11 @@ template structure. Issue all four `read_file` calls in **one parallel tool batc
      Use as structural skeletons (replicate badges, TOC, navigation, attribution exactly).
 4. **Read** `.github/skills/context-management/SKILL.md` — runtime
    compression tiers for loading large artifacts (Mode A)
+5. **Read** the execution-subagent prompt contract
+   [tools/apex-prompts/utility-prompts/execution-subagent.prompt.md](../../tools/apex-prompts/utility-prompts/execution-subagent.prompt.md)
+   — every `runSubagent` call (cost-estimate-subagent,
+   challenger-review-subagent) MUST follow the three-H2 contract
+   (issue #425).
 
 These skills are your single source of truth. Do NOT use hardcoded values.
 

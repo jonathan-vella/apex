@@ -11,6 +11,21 @@ tools: [read, edit, search]
 > string they pass to `runSubagent`. Three required H2 slots, in this
 > order. Do not omit any section; do not reorder.
 
+> **Model-aware variants** (vendor-idiomatic when the subagent recipient
+> is fixed to one family):
+>
+> - Claude-family subagents — use
+>   [`execution-subagent-claude.prompt.md`](execution-subagent-claude.prompt.md)
+>   (XML tags per Anthropic R-CL-1).
+> - GPT-family subagents — use
+>   [`execution-subagent-gpt.prompt.md`](execution-subagent-gpt.prompt.md)
+>   (H2 markdown skeleton per OpenAI R-GPT-1).
+>
+> This base template is the universal shape: H2 markdown that both
+> families parse cleanly. Pick a variant only when the additional
+> vendor-idiomatic markers (XML wrappers or the full GPT outcome-first
+> skeleton) materially improve subagent reliability for that family.
+
 ## Objective
 
 One paragraph (≤ 4 sentences) stating what the parent needs from the

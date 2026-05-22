@@ -149,12 +149,41 @@ def run(args) -> int:
 
     write_state(project, data)
 
+    # Additive hint (#425): surface the preferred atomic alternative on every
+    # successful complete-step. Agents that parse --json see it and can adapt;
+    # the human-readable path stays clean (no stderr pollution).
+    next_step = _next_step_key(step)
+    hint = (
+        f"prefer `apex-recall transition {project} --from-step {step} "
+        f"--to-step {next_step} --complete --decision <k=v>` when also "
+        "recording decisions or starting the next step (atomic, single "
+        "00-session-state.json write)."
+    )
+
     result = {"project": project, "step": step, "status": "complete", "completed": now}
     if blocked and allow_missing:
         result["challenger_skip_recorded"] = True
+    result["hint"] = hint
     if as_json:
         print(json.dumps(result))
     else:
         print(f"Step {step} completed for {project}")
 
     return 0
+
+
+# Step ordering for the JSON hint. Mirrors the workflow graph at
+# .github/skills/workflow-engine/templates/workflow-graph.json. Keep in
+# sync if the workflow changes.
+_STEP_ORDER = ["1", "2", "3", "3_5", "4", "5", "6", "7"]
+
+
+def _next_step_key(step: str) -> str:
+    """Return the next step in the workflow, or 'next' if at the end."""
+    try:
+        idx = _STEP_ORDER.index(step)
+    except ValueError:
+        return "next"
+    if idx + 1 >= len(_STEP_ORDER):
+        return "next"
+    return _STEP_ORDER[idx + 1]

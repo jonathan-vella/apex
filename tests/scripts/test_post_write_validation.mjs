@@ -37,11 +37,15 @@ test("Post-write validation table covers every artifact type", () => {
     { type: "*.json", verifier: "python -m json.tool" },
     { type: "*.bicep", verifier: "bicep build --stdout" },
     { type: "*.tf", verifier: "terraform fmt -check" },
+    { type: "challenge-findings-*.json", verifier: "validate-challenger-findings.mjs" },
     { type: "*.md", verifier: "lefthook" },
   ];
   for (const { type, verifier } of required) {
     const escapedType = type.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const row = new RegExp(`\\|\\s*\`${escapedType}\`\\s*\\|.*${verifier}`);
+    // Allow optional qualifier text (e.g. "(sidecar JSON)") between the
+    // backticked type and the closing pipe — the table is human-readable
+    // and may carry an annotation for non-obvious rows.
+    const row = new RegExp(`\\|\\s*\`${escapedType}\`[^|]*\\|.*${verifier}`);
     assert.match(body, row, `Post-write validation table missing row for ${type} (verifier: ${verifier})`);
   }
 });

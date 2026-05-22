@@ -144,6 +144,11 @@ rules already documented in these files).
 4. **Read** [`.github/skills/iac-common/references/avm-version-freeze-gate.md`](../skills/iac-common/references/avm-version-freeze-gate.md)
    — Phase 4.4 freeze gate; resolve every AVM pin to MCR-latest BEFORE
    writing the plan, not after the challenger catches it.
+5. **Read** the execution-subagent prompt contract
+   [tools/apex-prompts/utility-prompts/execution-subagent.prompt.md](../../tools/apex-prompts/utility-prompts/execution-subagent.prompt.md)
+   — every `runSubagent` invocation prompt (challenger-review-subagent
+   and any validate/preview subagent) MUST follow the three-H2 contract
+   (issue #425).
 
 ## DO / DON'T
 

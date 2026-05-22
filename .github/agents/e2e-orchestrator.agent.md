@@ -275,6 +275,10 @@ Before executing any step, read:
 
 1. `.github/skills/azure-defaults/SKILL.md` — regions, tags, naming
 2. `.github/skills/azure-artifacts/SKILL.md` — artifact structure
+3. The execution-subagent prompt contract
+   [tools/apex-prompts/utility-prompts/execution-subagent.prompt.md](../../tools/apex-prompts/utility-prompts/execution-subagent.prompt.md)
+   — every `runSubagent` invocation prompt MUST follow the three-H2
+   contract (issue #425).
 
 ## State Management
 

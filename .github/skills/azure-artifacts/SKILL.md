@@ -74,12 +74,13 @@ artifact**, before moving to the next step. Catches malformed output at
 source instead of at deploy time. Markdown artifacts are owned by the
 lefthook `artifact-validation` hook — do not duplicate that check here.
 
-| Artifact type | Validation command (run after write)                                |
-| ------------- | ------------------------------------------------------------------- |
-| `*.json`      | `python -m json.tool <file> >/dev/null`                             |
-| `*.bicep`     | `bicep build --stdout <file> >/dev/null`                            |
-| `*.tf`        | `terraform fmt -check <file>` + `terraform validate` (in module dir) |
-| `*.md`        | _delegated to lefthook `artifact-validation` — do not run inline_   |
+| Artifact type                              | Validation command (run after write)                                |
+| ------------------------------------------ | ------------------------------------------------------------------- |
+| `*.json`                                   | `python -m json.tool <file> >/dev/null`                             |
+| `*.bicep`                                  | `bicep build --stdout <file> >/dev/null`                            |
+| `*.tf`                                     | `terraform fmt -check <file>` + `terraform validate` (in module dir) |
+| `challenge-findings-*.json` (sidecar JSON) | `node tools/scripts/validate-challenger-findings.mjs <file>`        |
+| `*.md`                                     | _delegated to lefthook `artifact-validation` — do not run inline_   |
 
 Fail closed: if the validator exits non-zero, fix the artifact and
 re-validate before continuing. Do **not** record the artifact in the

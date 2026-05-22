@@ -1,7 +1,7 @@
 ---
 name: 01-Orchestrator
 description: Master orchestrator for the multi-step Azure platform engineering workflow. Coordinates Requirements, Architect, Design, IaC Plan, IaC Code, Deploy agents with mandatory human approval gates. Routes Bicep or Terraform tracks via decisions.iac_tool.
-model: ["GPT-5.3-Codex"]
+model: ["GPT-5.4 mini"]
 argument-hint: Describe the Azure platform engineering project you want to build end-to-end
 user-invocable: true
 agents:
@@ -170,6 +170,12 @@ chat — always paths.
   pre-fetch project context.
 - Stop and surface findings if any subagent step returns `status: blocked`.
 - Stop and recommend a fresh chat at Gates 2 and 3 (see Session Break Protocol).
+- At every approved-gate boundary that ALSO records decisions, advance
+  via `apex-recall transition` (atomic). Refuse to mix
+  `apex-recall decide` + `apex-recall complete-step` + manual
+  `apex-recall start-step` calls as separate writes at a boundary — that
+  is exactly the partial-update path the composite was introduced to
+  eliminate (issue #425).
 
 Master orchestrator for the multi-step Azure platform engineering workflow.
 
@@ -271,6 +277,11 @@ Instead of hardcoded step logic, read `workflow-graph.json` from the workflow-en
 4. Execute the current node's agent (using model from registry)
 5. Evaluate outgoing edges (conditions: `on_complete`, `on_skip`, `on_fail`)
 6. Advance to the next node — if it's a gate, present to user for approval
+7. **Read** the execution-subagent prompt contract
+   [tools/apex-prompts/utility-prompts/execution-subagent.prompt.md](../../tools/apex-prompts/utility-prompts/execution-subagent.prompt.md)
+   — every `runSubagent` invocation prompt MUST follow the three-H2
+   contract (`## Objective` / `## Commands` / `## Expected return`).
+   Issue #425.
 
 ## Core Principles
 
@@ -392,7 +403,14 @@ After each subagent returns (autonomous steps 2, 3, 5, 6, 7), verify the step wa
 
 1. Run `apex-recall show <project> --json` and check `steps.{N}.status`
 2. If the step agent did NOT call `complete-step` (status is still `in_progress` or `pending`):
-   - Run `apex-recall complete-step <project> {N} --json` as a fallback
+   - **Preferred (atomic)**:
+     `apex-recall transition <project> --from-step {N} --to-step {N+1} --complete --decision <key=value> --json`
+     — bundles complete + any decisions + the next-step start into one
+     state-file write (issue #425). Use this whenever the boundary records
+     decisions.
+   - **Fallback (complete only)**:
+     `apex-recall complete-step <project> {N} --json`
+     when no decisions are being recorded at the boundary.
 3. If the step agent did NOT record key decisions (e.g., `decisions.iac_tool` after Step 1):
    - Extract the decision from the artifact and run `apex-recall decide <project> --key <k> --value <v> --json`
 4. Always emit a post-gate checkpoint as additional durability for session-state recovery:
@@ -436,6 +454,10 @@ lessons narrative as a completion artifact.
 - Gate 1 must include Challenger findings (presented via the **Run
   Challenger Review** handoff button — not auto-invoked)
 - Gates 2 and 3 recommend session breaks
+- At every accepted gate, prefer `apex-recall transition` over the legacy
+  `decide`+`checkpoint`+`complete-step` chain. The composite writes one
+  atomic `00-session-state.json` (issue #425); the legacy chain leaves
+  state inconsistent if any step crashes mid-write.
 
 ## Starting a New Project
 

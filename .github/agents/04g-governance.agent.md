@@ -166,6 +166,8 @@ Phase 1 / Phase 2 respectively to prevent rework):
    **MANDATORY before writing JSON**. Defines the downstream JSON contract
    (`discovery_status`, `policies` array, `azurePropertyPath`, `bicepPropertyPath`)
    that Step 4/5 agents and review subagents consume.
+10. Execution-subagent prompt contract (three required H2s; issue #425):
+    [tools/apex-prompts/utility-prompts/execution-subagent.prompt.md](../../tools/apex-prompts/utility-prompts/execution-subagent.prompt.md)
 
 ## Prerequisites
 

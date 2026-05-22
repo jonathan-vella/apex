@@ -148,6 +148,11 @@ Batch independent skill reads into one parallel `read_file` call.
    (required before invoking `policy-precheck-subagent`)
 7. Read `.github/skills/iac-common/references/governance-drift-routing.md` — four-layer drift routing
    matrix; consumed on every precheck result
+8. Read the execution-subagent prompt contract
+   [tools/apex-prompts/utility-prompts/execution-subagent.prompt.md](../../tools/apex-prompts/utility-prompts/execution-subagent.prompt.md)
+   — every `runSubagent` call (terraform-plan, terraform-validate,
+   policy-precheck, challenger-review) MUST follow the three-H2 contract
+   (issue #425).
 
 ## Shared Deploy Protocol
 
