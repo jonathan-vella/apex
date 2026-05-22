@@ -9,7 +9,14 @@ tools: [read, edit, search]
 
 > Reference template. Parent agents copy this shape into the `prompt`
 > string they pass to `runSubagent`. Three required H2 slots, in this
-> order. Do not omit any section; do not reorder.
+> order: `## Inputs`, `## Activities`, `## Outputs`. Do not omit any
+> section; do not reorder.
+>
+> **History (#425, 2026-05-22 audit)**: an earlier draft used
+> `## Objective` / `## Commands` / `## Expected return`. The agents
+> converged on `## Inputs` / `## Activities` / `## Outputs` in
+> practice, so the contract was renamed to match the empirically
+> stable pattern.
 
 > **Model-aware variants** (vendor-idiomatic when the subagent recipient
 > is fixed to one family):
@@ -26,7 +33,7 @@ tools: [read, edit, search]
 > vendor-idiomatic markers (XML wrappers or the full GPT outcome-first
 > skeleton) materially improve subagent reliability for that family.
 
-## Objective
+## Inputs
 
 One paragraph (≤ 4 sentences) stating what the parent needs from the
 subagent. Name the artifact under review or the deployment target.
@@ -41,7 +48,7 @@ Example:
 > conforming to `deployment-preview-v1`, with create/modify/delete
 > counts populated.
 
-## Commands
+## Activities
 
 A bash code block listing the **exact commands** the subagent should
 run, in order. Include any `set -euo pipefail` prelude, environment
@@ -62,7 +69,7 @@ az deployment group what-if \
 If the subagent dispatches further tools (sub-subagent, MCP), name
 them explicitly here.
 
-## Expected return
+## Outputs
 
 A precise statement of what the subagent returns to the parent. Use
 one of:

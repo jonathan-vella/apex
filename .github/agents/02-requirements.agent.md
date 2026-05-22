@@ -415,8 +415,8 @@ Delegate to `challenger-review-subagent` with:
 
 Compose the runtime `prompt` string per
 [tools/apex-prompts/utility-prompts/execution-subagent.prompt.md](../../tools/apex-prompts/utility-prompts/execution-subagent.prompt.md)
-— the three required H2s are `## Objective`, `## Commands`,
-`## Expected return`. Do NOT use ad-hoc structures
+— the three required H2s are `## Inputs`, `## Activities`,
+`## Outputs`. Do NOT use ad-hoc structures
 (`**Inputs:** / **Review scope:** / **Output format:**`); the template is
 the source of truth (issue #425).
 

@@ -19,14 +19,14 @@ tools: [read, edit, search]
 > The canonical base contract lives at
 > [`execution-subagent.prompt.md`](execution-subagent.prompt.md).
 
-## Objective
+## Inputs
 
 One paragraph (≤ 4 sentences) stating what the parent needs from the
 subagent. Name the artifact under review or the deployment target.
 State the success criterion in observable terms (file written, JSON
 shape returned, gate decision).
 
-## Commands
+## Activities
 
 The exact commands the subagent should run, in order. Include any
 `set -euo pipefail` prelude, environment exports, and output
@@ -39,7 +39,7 @@ cd /workspaces/<repo>
 # example
 ```
 
-## Expected return
+## Outputs
 
 A precise statement of what the subagent returns to the parent:
 

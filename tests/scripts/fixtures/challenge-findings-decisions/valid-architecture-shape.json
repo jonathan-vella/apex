@@ -1,0 +1,16 @@
+{
+  "decisions": [
+    {
+      "issue_id": "def67890",
+      "severity": "should_fix",
+      "decision": "accept",
+      "rationale": "Architect-style: decision+rationale field names."
+    },
+    {
+      "issue_id": "ghi11111",
+      "severity": "must_fix",
+      "decision": "defer",
+      "rationale": "Deferred to Step 4."
+    }
+  ]
+}

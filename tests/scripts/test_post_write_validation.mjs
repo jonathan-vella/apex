@@ -38,6 +38,7 @@ test("Post-write validation table covers every artifact type", () => {
     { type: "*.bicep", verifier: "bicep build --stdout" },
     { type: "*.tf", verifier: "terraform fmt -check" },
     { type: "challenge-findings-*.json", verifier: "validate-challenger-findings.mjs" },
+    { type: "challenge-findings-*-decisions.json", verifier: "validate-challenge-findings-decisions.mjs" },
     { type: "*.md", verifier: "lefthook" },
   ];
   for (const { type, verifier } of required) {

@@ -403,8 +403,8 @@ can decide whether to re-open the architecture.
 
 Compose the runtime `prompt` string per
 [tools/apex-prompts/utility-prompts/execution-subagent.prompt.md](../../tools/apex-prompts/utility-prompts/execution-subagent.prompt.md)
-— the three required H2s are `## Objective`, `## Commands`,
-`## Expected return` (issue #425).
+— the three required H2s are `## Inputs`, `## Activities`,
+`## Outputs` (issue #425).
 
 Detailed invocation contract:
 [`azure-adr/references/step-3-adr-review.md`](../skills/azure-adr/references/step-3-adr-review.md).

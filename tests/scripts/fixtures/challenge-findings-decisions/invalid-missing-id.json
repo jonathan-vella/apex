@@ -1,0 +1,9 @@
+{
+  "decisions": [
+    {
+      "severity": "must_fix",
+      "action": "accept",
+      "note": "Missing both issue_id and finding_id — should fail."
+    }
+  ]
+}

@@ -78,6 +78,7 @@
     "validate:workflow-graph": "node tools/scripts/validate-workflow-graph.mjs",
     "validate:challenger-findings": "node tools/scripts/validate-challenger-findings.mjs",
     "validate:challenger-presence": "node tools/scripts/validate-challenger-presence.mjs",
+    "validate:challenger-decisions": "node tools/scripts/validate-challenge-findings-decisions.mjs --all",
     "validate:lens-references": "node tools/scripts/validate-lens-references.mjs",
     "report:challenger-gaps": "node tools/scripts/lessons-to-checklists.mjs",
     "challenger-telemetry": "node tools/scripts/challenger-telemetry.mjs",

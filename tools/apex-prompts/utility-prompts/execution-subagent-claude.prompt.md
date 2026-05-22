@@ -20,14 +20,14 @@ tools: [read, edit, search]
 > [`execution-subagent.prompt.md`](execution-subagent.prompt.md).
 
 ```text
-<objective>
+<inputs>
 One paragraph (≤ 4 sentences) stating what the parent needs from the
 subagent. Name the artifact under review or the deployment target.
 State the success criterion in observable terms (file written, JSON
 shape returned, gate decision).
-</objective>
+</inputs>
 
-<commands>
+<activities>
 The exact commands the subagent should run, in order. Include any
 `set -euo pipefail` prelude, environment exports, and output
 redirection. Use absolute paths or paths relative to the workspace
@@ -38,9 +38,9 @@ set -euo pipefail
 cd /workspaces/<repo>
 # example
 ```
-</commands>
+</activities>
 
-<expected_return>
+<outputs>
 A precise statement of what the subagent returns to the parent:
 
 - **Structured JSON** — name the schema (e.g. `deployment-preview-v1`)
@@ -54,7 +54,7 @@ A precise statement of what the subagent returns to the parent:
 State the failure mode too: what does the subagent return if a command
 fails, if the inputs are malformed, or if an upstream service is
 unreachable?
-</expected_return>
+</outputs>
 ```
 
 ## Why XML for Claude

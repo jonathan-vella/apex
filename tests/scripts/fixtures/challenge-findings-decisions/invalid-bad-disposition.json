@@ -1,0 +1,10 @@
+{
+  "decisions": [
+    {
+      "issue_id": "mno33333",
+      "severity": "must_fix",
+      "action": "yolo",
+      "note": "Disposition not in allowed enum — should fail."
+    }
+  ]
+}

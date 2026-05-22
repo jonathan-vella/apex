@@ -20,7 +20,7 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, "../..");
 const TEMPLATE = path.join(ROOT, "tools/apex-prompts/utility-prompts/execution-subagent.prompt.md");
 
-const REQUIRED_H2S = ["## Objective", "## Commands", "## Expected return"];
+const REQUIRED_H2S = ["## Inputs", "## Activities", "## Outputs"];
 
 test("execution-subagent prompt template exists", () => {
   assert.ok(fs.existsSync(TEMPLATE), `missing template: ${TEMPLATE}`);

@@ -128,7 +128,7 @@ For multi-pass reviews, invoke with batch_lenses array to run remaining lenses i
 
 Every `runSubagent` invocation prompt MUST follow the three-H2 contract at
 [`tools/apex-prompts/utility-prompts/execution-subagent.prompt.md`](../../tools/apex-prompts/utility-prompts/execution-subagent.prompt.md)
-(`## Objective` / `## Commands` / `## Expected return`). Issue #425.
+(`## Inputs` / `## Activities` / `## Outputs`). Issue #425.
 
 You are a delegation wrapper for standalone adversarial reviews.
 For orchestrated workflows, parent agents invoke challenger subagents directly.

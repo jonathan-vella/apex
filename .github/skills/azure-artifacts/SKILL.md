@@ -80,6 +80,7 @@ lefthook `artifact-validation` hook — do not duplicate that check here.
 | `*.bicep`                                  | `bicep build --stdout <file> >/dev/null`                            |
 | `*.tf`                                     | `terraform fmt -check <file>` + `terraform validate` (in module dir) |
 | `challenge-findings-*.json` (sidecar JSON) | `node tools/scripts/validate-challenger-findings.mjs <file>`        |
+| `challenge-findings-*-decisions.json` (per-finding sidecar) | `node tools/scripts/validate-challenge-findings-decisions.mjs <file>` |
 | `*.md`                                     | _delegated to lefthook `artifact-validation` — do not run inline_   |
 
 Fail closed: if the validator exits non-zero, fix the artifact and

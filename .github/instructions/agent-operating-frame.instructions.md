@@ -74,6 +74,7 @@ the link mid-write.
 | `*.bicep`                                  | `bicep build --stdout <file> >/dev/null`                                |
 | `*.tf` (inside a module dir)               | `terraform fmt -check <file>` then `terraform validate`                 |
 | `challenge-findings-*.json` (sidecar JSON) | `node tools/scripts/validate-challenger-findings.mjs <file>`            |
+| `challenge-findings-*-decisions.json` (per-finding sidecar) | `node tools/scripts/validate-challenge-findings-decisions.mjs <file>` |
 | `*.md` artifact                            | Delegated to lefthook `artifact-validation` — do NOT invoke directly  |
 
 Markdown artifacts are validated by the lefthook `artifact-validation`

@@ -514,10 +514,10 @@ challenger-review), the `prompt` string MUST follow the three-H2
 shape declared at
 [`tools/apex-prompts/utility-prompts/execution-subagent.prompt.md`](../../tools/apex-prompts/utility-prompts/execution-subagent.prompt.md):
 
-1. `## Objective` — what the parent needs (≤ 4 sentences).
-2. `## Commands` — exact bash to run.
-3. `## Expected return` — schema name, verdict enum, or bounded
-   markdown summary; include the failure mode.
+1. `## Inputs` — what the parent needs (≤ 4 sentences).
+2. `## Activities` — exact bash / tool steps to run.
+3. `## Outputs` — schema name, verdict enum, or bounded markdown
+   summary; include the failure mode.
 
 This contract is documented in the template above. It targets the
 runtime prompt string, not the subagent body. The structural

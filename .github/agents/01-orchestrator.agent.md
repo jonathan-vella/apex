@@ -280,7 +280,7 @@ Instead of hardcoded step logic, read `workflow-graph.json` from the workflow-en
 7. **Read** the execution-subagent prompt contract
    [tools/apex-prompts/utility-prompts/execution-subagent.prompt.md](../../tools/apex-prompts/utility-prompts/execution-subagent.prompt.md)
    — every `runSubagent` invocation prompt MUST follow the three-H2
-   contract (`## Objective` / `## Commands` / `## Expected return`).
+   contract (`## Inputs` / `## Activities` / `## Outputs`).
    Issue #425.
 
 ## Core Principles
