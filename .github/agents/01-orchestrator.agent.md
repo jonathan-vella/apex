@@ -199,10 +199,10 @@ subagent cannot exceed the cost tier of the parent. If the parent requests a
 higher-tier model, the subagent silently falls back to the parent's tier.
 [Reference](https://code.visualstudio.com/docs/copilot/agents/subagents).
 
-This orchestrator runs at **codex** tier (GPT-5.3-Codex). The step agents and
+This orchestrator runs at **standard** tier (GPT-5.4 mini). The step agents and
 the challenger run at **medium** (GPT-5.5 / Sonnet 4.6) or **high** (Opus 4.7)
-tiers. Calling them via `#runSubagent` would silently downgrade them to codex
-tier and produce wrong-tier output for architecture, planning, and
+tiers. Calling them via `#runSubagent` would silently downgrade them to
+standard tier and produce wrong-tier output for architecture, planning, and
 documentation work.
 
 The fix: **handoff-only routing**. Every transition out of the orchestrator
@@ -534,12 +534,13 @@ Orchestrator with the project name — no special resume prompt needed.
 
 ## Model Selection
 
-| Tier     | Model             | Used For                                                                                        |
-| -------- | ----------------- | ----------------------------------------------------------------------------------------------- |
-| `high`   | Claude Opus 4.7   | Architecture, Planning, Context Optimizer                                                       |
-| `medium` | GPT-5.5           | Requirements, Governance, Deploy, As-Built, Diagnose, Challenger, E2E orchestrator             |
-| `medium` | Claude Sonnet 4.6 | Design, Bicep/Terraform CodeGen, Bicep/Terraform validate + preview subagents (Anthropic style) |
-| `codex`  | GPT-5.3-Codex     | **Orchestrator** (handoff-only routing), Cost estimate subagent                                 |
+| Tier       | Model             | Used For                                                                                          |
+| ---------- | ----------------- | ------------------------------------------------------------------------------------------------- |
+| `high`     | Claude Opus 4.7   | Architecture, Planning, Context Optimizer                                                         |
+| `medium`   | Claude Sonnet 4.6 | **Requirements**, Design, Bicep/Terraform CodeGen, Bicep/Terraform validate + preview subagents   |
+| `medium`   | GPT-5.5           | Governance, Deploy, As-Built, Diagnose, Challenger, E2E orchestrator                              |
+| `standard` | GPT-5.4 mini      | **Orchestrator** (handoff-only routing)                                                           |
+| `codex`    | GPT-5.3-Codex     | Cost estimate subagent                                                                            |
 
 > The canonical assignments live in
 > [tools/registry/agent-registry.json](../../tools/registry/agent-registry.json) and

@@ -4,7 +4,7 @@
   "agents": {
     "orchestrator": {
       "agent": ".github/agents/01-orchestrator.agent.md",
-      "model": "GPT-5.3-Codex",
+      "model": "GPT-5.4 mini",
       "invokable": true,
       "step": null
     },

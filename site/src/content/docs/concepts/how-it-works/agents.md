@@ -267,8 +267,9 @@ Model selection depends on the task. Use `tools/registry/agent-registry.json` as
 source of truth, but the current repo pattern is:
 
 - **Planning agents** (accuracy-first) — typically `Claude Opus 4.7` at high reasoning effort
-- **Orchestrator** — `GPT-5.5` with the OpenAI outcome-first prompting style
-  (Role / Personality / Goal / Success / Constraints / Output / Stop)
+- **Orchestrator** — `GPT-5.4 mini` with the OpenAI outcome-first prompting style
+  (Role / Personality / Goal / Success / Constraints / Output / Stop). Standard
+  tier suits handoff-only routing without creative generation.
 - **Design + Code generation** — `Claude Sonnet 4.6` for Anthropic XML-tagged
   output contracts and stronger verbatim invariant retention (security baseline,
   AVM contract, HARD GATE language)
