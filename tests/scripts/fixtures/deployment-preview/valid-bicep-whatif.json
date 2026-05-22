@@ -1,0 +1,15 @@
+{
+  "schema_version": "deployment-preview-v1",
+  "source_subagent": "bicep-whatif-subagent",
+  "generated_at": "2026-05-21T19:00:00Z",
+  "project": "demo",
+  "creates": 12,
+  "modifies": 3,
+  "deletes": 0,
+  "destructive": false,
+  "deploy_gate": "PROCEED",
+  "cost_delta_monthly_usd": 142.5,
+  "cost_envelope_monthly_usd": 1500.0,
+  "cost_delta_vs_envelope_pct": 9.5,
+  "warnings": []
+}

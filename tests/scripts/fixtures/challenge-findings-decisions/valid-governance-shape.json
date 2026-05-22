@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0",
+  "source": "challenge-findings-governance-constraints-pass1.json",
+  "recorded_at": "2026-05-22T08:22:30Z",
+  "decisions": [
+    {
+      "finding_id": "jkl22222",
+      "severity": "must_fix",
+      "disposition": "accept",
+      "note": "Governance-style: finding_id+disposition field names."
+    }
+  ]
+}

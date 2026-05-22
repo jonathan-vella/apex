@@ -159,10 +159,15 @@ Phase 1 / Phase 2 respectively to prevent rework):
    `templates/04-governance-constraints.template.md` — H2 template.
 7. `.github/skills/iac-common/references/governance-drift-routing.md` —
    four-layer drift routing matrix.
-8. `.github/instructions/references/iac-policy-compliance.md` —
+8. `.github/skills/iac-common/SKILL.md` `## Bounded retry` — 3-attempt
+   cap with `proceed-with-substitute` / `change-region` / `abort`
+   escalation, applied to discovery and reconciliation retries (issue #425).
+9. `.github/instructions/references/iac-policy-compliance.md` —
    **MANDATORY before writing JSON**. Defines the downstream JSON contract
    (`discovery_status`, `policies` array, `azurePropertyPath`, `bicepPropertyPath`)
    that Step 4/5 agents and review subagents consume.
+10. Execution-subagent prompt contract (three required H2s; issue #425):
+    [tools/apex-prompts/utility-prompts/execution-subagent.prompt.md](../../tools/apex-prompts/utility-prompts/execution-subagent.prompt.md)
 
 ## Prerequisites
 

@@ -77,6 +77,39 @@ clear the terminal — the transcript already captured it and `clear`
 does not remove it from the chat history. Note the bloat in
 `apex-recall lessons` and avoid repeating the same command.
 
+## Rule 4 — Command portability
+
+Do **not** hard-depend on non-default CLIs (`rg`, `fd`, `bat`) inside
+committed shell snippets in agent, instruction, skill, or prompt
+files. These tools are not guaranteed to be on the PATH in every
+chat-agent environment, dev container variant, or contributor laptop.
+The committed snippet must use one of:
+
+| Allowed form                                                                | Notes                                                                              |
+| --------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| `command -v rg >/dev/null && rg ... \|\| grep -R ...`                       | Guarded form with fallback (preferred).                                            |
+| `if command -v rg; then rg ...; else grep -R ...; fi`                       | Verbose guard with fallback.                                                       |
+| `grep -R "pattern" .` / `find . -name "*.md"` / `python -m json.tool file`  | Stdlib only — no portability tool used. Best when the snippet is for a wide audience. |
+
+Forbidden:
+
+```bash
+# ❌ Bare invocation — fails on machines without ripgrep installed.
+rg "pattern" file.md
+
+# ❌ Bare invocation in a pipeline — same problem.
+fd -e md . | head -5
+```
+
+The `safe-shell` linter (`tools/scripts/safe-shell.mjs`) enforces this
+rule via the `command-portability` check. For snippets that invoke an
+optional tool such as `rg`, `fd`, or `bat`, include a `command -v
+<tool>` guard in the same fenced code block. Stdlib-only alternatives
+(`grep -R`, `find`, `python -m json.tool`) are fine when shown as
+standalone commands, but they do not make an unguarded optional-tool
+invocation compliant — the linter only inspects the offending fence
+for a guard, not for parallel stdlib examples.
+
 ## Why
 
 The original incident was a runtime chat behavior (an `mv -i` issued

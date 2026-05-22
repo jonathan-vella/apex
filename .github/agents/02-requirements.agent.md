@@ -1,6 +1,6 @@
 ---
 name: 02-Requirements
-model: ["GPT-5.5"]
+model: ["Claude Sonnet 4.6"]
 description: Researches and captures Azure platform engineering project requirements
 argument-hint: Describe the Azure workload or project you want to gather requirements for
 user-invocable: true
@@ -34,6 +34,44 @@ handoffs:
 ---
 
 # Requirements Agent
+
+<context_awareness>
+This is a ONE-SHOT Step 1 agent (per `claude-oneshot-001`): complete every
+phase — discovery → artifact → challenger → Gate 1 — in a single turn. The
+bounded contract is the grounding mechanism; do not preface work with an
+investigate-before-answering block (that pattern is reserved for research
+agents and conflicts with the one-shot contract).
+
+Before Phase 1 questioning, the only read permitted is one `apex-recall show
+<project> --json` (or `init` when no session exists). Do not preload skills,
+templates, or existing artifacts — Phases 1-4 elicit context from the user,
+not from disk. Skill loads (`azure-artifacts`, `azure-defaults`) happen at
+Phase 5 (artifact generation), not earlier. See
+[`agent-operating-frame.instructions.md`](../instructions/agent-operating-frame.instructions.md).
+</context_awareness>
+
+<output_contract>
+Produce in `agent-output/{project}/`:
+
+- `01-requirements.md` — H2 structure matches the azure-artifacts
+  `01-requirements-template.md` exactly.
+- `README.md` — rendered from the project README template.
+- `sku-manifest.json` + `sku-manifest.md` at rev 1 (every entry
+  `source: "user-pin"`, `source_step: "1"`, `last_modified_rev: 1`). An
+  empty `services[]` is valid only when Phase 3j recorded an explicit
+  "no preference" for every applicable class.
+- `challenge-findings-requirements.json` from `challenger-review-subagent`.
+- `challenge-findings-requirements-decisions.json` when accept/defer
+  decisions are recorded.
+
+Session-state side effects (via `apex-recall`, never direct JSON edits):
+checkpoints `phase_1_discovery` → `phase_6_challenger`, decisions for
+`iac_tool`, `region`, `sku_manifest_status`, `sku_manifest_revision`,
+`sku_preferences_captured`, and Step 1 completion.
+
+Chat output: progress notes, a challenger findings table (ID, severity,
+title, WAF pillar, recommendation), and the Gate 1 proceed/revise prompt.
+</output_contract>
 
 # Goal
 
@@ -374,6 +412,13 @@ Delegate to `challenger-review-subagent` with:
 - `prior_findings`: `null`
 - `output_path`: `agent-output/{project}/challenge-findings-requirements.json`
 - `overwrite`: `false`, except when re-running after revisions
+
+Compose the runtime `prompt` string per
+[tools/apex-prompts/utility-prompts/execution-subagent.prompt.md](../../tools/apex-prompts/utility-prompts/execution-subagent.prompt.md)
+— the three required H2s are `## Inputs`, `## Activities`,
+`## Outputs`. Do NOT use ad-hoc structures
+(`**Inputs:** / **Review scope:** / **Output format:**`); the template is
+the source of truth (issue #425).
 
 After the subagent returns, checkpoint `phase_6_challenger`.
 

@@ -143,6 +143,11 @@ Before doing any work, read these skills.
 5. Read `.github/instructions/iac-bicep-best-practices.instructions.md` — governance mandate, dynamic tag list
 6. Read `.github/skills/context-management/SKILL.md` — runtime
    compression for large plan/governance artifacts (Mode A)
+7. Read the execution-subagent prompt contract
+   [tools/apex-prompts/utility-prompts/execution-subagent.prompt.md](../../tools/apex-prompts/utility-prompts/execution-subagent.prompt.md)
+   — every `runSubagent` call (bicep-validate-subagent,
+   challenger-review-subagent) MUST follow the three-H2 contract
+   (issue #425).
 
 ## Do
 

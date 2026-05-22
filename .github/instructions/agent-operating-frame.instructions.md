@@ -59,6 +59,28 @@ applyTo: ".github/agents/*.agent.md"
 - Drift between phases must unwind to the owning agent (governance
   → 04g, plan → 04/05, code → 06b/06t). Do not patch in place.
 
+## Validate every artifact after writing
+
+Immediately after writing any non-markdown artifact, run the matching
+shape-check command. Fail closed: fix and re-run before handing off.
+The canonical table lives in the `azure-artifacts` skill
+([Post-write validation](../skills/azure-artifacts/SKILL.md#post-write-validation));
+the rows below are an inline cheat sheet so agents never need to chase
+the link mid-write.
+
+| Artifact type                              | Validator command (run after each write)                                |
+| ------------------------------------------ | ----------------------------------------------------------------------- |
+| `*.json`                                   | `python -m json.tool <file> >/dev/null`                                 |
+| `*.bicep`                                  | `bicep build --stdout <file> >/dev/null`                                |
+| `*.tf` (inside a module dir)               | `terraform fmt -check <file>` then `terraform validate`                 |
+| `challenge-findings-*.json` (sidecar JSON) | `node tools/scripts/validate-challenger-findings.mjs <file>`            |
+| `challenge-findings-*-decisions.json` (per-finding sidecar) | `node tools/scripts/validate-challenge-findings-decisions.mjs <file>` |
+| `*.md` artifact                            | Delegated to lefthook `artifact-validation` — do NOT invoke directly  |
+
+Markdown artifacts are validated by the lefthook `artifact-validation`
+pre-commit hook — do not invoke `lint:artifact-templates` /
+`markdownlint-cli2` directly.
+
 ## Subagent budget — agent-specific
 
 - Every main agent declares its subagent budget in its body-level

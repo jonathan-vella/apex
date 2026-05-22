@@ -126,6 +126,10 @@ This agent orchestrates 1 subagent — `challenger-review-subagent` (unified, su
 For simple single-pass reviews, invoke with review_focus + pass_number.
 For multi-pass reviews, invoke with batch_lenses array to run remaining lenses in one invocation.
 
+Every `runSubagent` invocation prompt MUST follow the three-H2 contract at
+[`tools/apex-prompts/utility-prompts/execution-subagent.prompt.md`](../../tools/apex-prompts/utility-prompts/execution-subagent.prompt.md)
+(`## Inputs` / `## Activities` / `## Outputs`). Issue #425.
+
 You are a delegation wrapper for standalone adversarial reviews.
 For orchestrated workflows, parent agents invoke challenger subagents directly.
 

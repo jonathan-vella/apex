@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/jonathan-vella/azure-agentic-infraops/schemas/deployment-preview.schema.json",
+  "title": "APEX Deployment Preview",
+  "description": "Shape of the deployment-preview-v1 artifact emitted by Bicep what-if, Terraform plan, policy-precheck, and cost-estimate subagents prior to a deploy gate. Consumed by 07b-Bicep-Deploy and 07t-Terraform-Deploy to render the one-glance approval block (issue #425, Wave 5).",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "source_subagent",
+    "generated_at",
+    "creates",
+    "modifies",
+    "deletes",
+    "destructive",
+    "deploy_gate"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "deployment-preview-v1"
+    },
+    "source_subagent": {
+      "type": "string",
+      "enum": [
+        "bicep-whatif-subagent",
+        "terraform-plan-subagent",
+        "policy-precheck-subagent",
+        "cost-estimate-subagent",
+        "07b-bicep-deploy",
+        "07t-terraform-deploy"
+      ],
+      "description": "Name of the producer. Use a subagent name when the artifact is emitted by a single subagent; use the deploy agent slug (07b-bicep-deploy / 07t-terraform-deploy) when the artifact is the composed 06-deploy-approval.json that merges multiple subagent outputs."
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "project": {
+      "type": "string",
+      "description": "Project slug under agent-output/{project}/. Optional for cost-only previews."
+    },
+    "creates": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Count of resources to be created."
+    },
+    "modifies": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Count of resources to be modified."
+    },
+    "deletes": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Count of resources to be deleted. Any value > 0 implies destructive=true unless overridden by an explicit exemption."
+    },
+    "replaces": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Count of resources to be destroyed-and-recreated (Terraform plan only; Bicep what-if folds this into deletes+creates)."
+    },
+    "destructive": {
+      "type": "boolean",
+      "description": "True if the plan deletes or replaces any resource. The deploy approval block surfaces this verbatim."
+    },
+    "deploy_gate": {
+      "type": "string",
+      "enum": ["PROCEED", "BLOCK"],
+      "description": "Deterministic gate decision from policy-precheck-subagent. Set to PROCEED by non-policy sources (they do not gate). Named to match the existing policy-precheck-subagent output field so deploy agents copy the value directly into the composed approval artifact."
+    },
+    "policy_violations": {
+      "type": "array",
+      "description": "Optional. Populated by policy-precheck-subagent when deploy_gate=BLOCK. Each entry names the policy assignment and the offending resource.",
+      "items": {
+        "type": "object",
+        "required": ["policy", "resource"],
+        "properties": {
+          "policy": { "type": "string" },
+          "resource": { "type": "string" },
+          "effect": {
+            "type": "string",
+            "enum": ["deny", "audit", "auditIfNotExists", "modify", "append"]
+          }
+        }
+      }
+    },
+    "cost_delta_monthly_usd": {
+      "type": "number",
+      "description": "Estimated monthly cost change for this deploy (positive = increase). Sourced from cost-estimate-subagent."
+    },
+    "cost_envelope_monthly_usd": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Approved monthly cost envelope from the Step 2 architecture assessment / cost estimate. Stored alongside delta so the deploy gate can render +/- vs envelope without re-reading 02-cost-estimate.json."
+    },
+    "cost_delta_vs_envelope_pct": {
+      "type": "number",
+      "description": "Convenience field: cost_delta_monthly_usd / cost_envelope_monthly_usd * 100. Producers MAY compute and persist; consumers MUST NOT rely on its presence."
+    },
+    "warnings": {
+      "type": "array",
+      "description": "Non-blocking informational notes (e.g. region substitution, quota near limit).",
+      "items": { "type": "string" }
+    }
+  }
+}

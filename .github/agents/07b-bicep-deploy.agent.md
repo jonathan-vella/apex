@@ -137,11 +137,18 @@ Batch independent skill reads into one parallel `read_file` call.
 1. Read `.github/skills/azure-defaults/SKILL.md` — regions, tags, security baseline
 2. Read `.github/skills/azure-artifacts/SKILL.md` — H2 template for `06-deployment-summary.md`
 3. Read `.github/skills/iac-common/references/circuit-breaker.md` — failure taxonomy and stopping rules
-4. Read `.github/skills/iac-common/references/deploy-shared-workflow.md` — shared deploy protocol
-5. Read `.github/skills/iac-common/references/policy-precheck-contract.md` — L3 subagent I/O contract
+4. Read `.github/skills/iac-common/SKILL.md` `## Bounded retry` — 3-attempt cap with
+   `proceed-with-substitute` / `change-region` / `abort` escalation (issue #425)
+5. Read `.github/skills/iac-common/references/deploy-shared-workflow.md` — shared deploy protocol
+6. Read `.github/skills/iac-common/references/policy-precheck-contract.md` — L3 subagent I/O contract
    (required before invoking `policy-precheck-subagent`)
-6. Read `.github/skills/iac-common/references/governance-drift-routing.md` — four-layer drift routing
+7. Read `.github/skills/iac-common/references/governance-drift-routing.md` — four-layer drift routing
    matrix; consumed on every precheck result
+8. Read the execution-subagent prompt contract
+   [tools/apex-prompts/utility-prompts/execution-subagent.prompt.md](../../tools/apex-prompts/utility-prompts/execution-subagent.prompt.md)
+   — every `runSubagent` call (bicep-whatif, bicep-validate,
+   policy-precheck, challenger-review) MUST follow the three-H2 contract
+   (issue #425).
 
 ## Shared Deploy Protocol
 
@@ -416,6 +423,48 @@ Replace `<N>` with the matrix row count from
 `04-implementation-plan.md` and the validator output count from Step 5. **Deploy is blocked until this decision is recorded.**
 `validate-governance-trace.mjs` enforces the chain before
 `complete-step 6`.
+
+## Deploy Approval Block
+
+Before any `az deployment ... create`, `azd up`, or `azd provision`,
+render the deploy approval block to the chat surface. The block is
+five lines, populated from already-collected JSON sources (no new
+tooling). Schema: [`deployment-preview-v1`](../../tools/schemas/deployment-preview.schema.json).
+
+Sources:
+
+- `creates` / `modifies` / `deletes` / `destructive` ← Bicep what-if
+  (`bicep-whatif-subagent` output).
+- `deploy_gate` ← `policy-precheck-subagent` JSON `deploy_gate` field
+  (copy verbatim — same field name end-to-end).
+- `cost_delta` ← `cost-estimate-subagent` delta vs the envelope in
+  `02-architecture-assessment.md` (or `02-cost-estimate.json` when
+  emitted).
+
+Block to render (exact shape, including the `decision:` line which is
+the human gate):
+
+```text
+creates: N | modifies: N | deletes: N
+destructive: yes/no
+deploy_gate: PROCEED/BLOCK
+cost_delta: +$X/month (vs envelope $Y/month)
+decision: [approve] [abort]
+```
+
+Rules:
+
+- If `deploy_gate: BLOCK` → STOP. Do not proceed past the gate.
+- If `destructive: yes` → require explicit user approval naming the
+  resource ids that will be deleted/replaced.
+- If `cost_delta` exceeds envelope by >20% → require explicit user
+  approval citing the new monthly total.
+- The block MUST appear AFTER what-if + policy-precheck and BEFORE
+  the deploy command.
+
+Persist the composed block as `agent-output/{project}/06-deploy-approval.json`
+conforming to `deployment-preview-v1` so 08-As-Built can cite the
+pre-deploy state in the as-built record.
 
 ## Deployment Execution
 

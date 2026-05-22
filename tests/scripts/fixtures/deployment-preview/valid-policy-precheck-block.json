@@ -1,0 +1,18 @@
+{
+  "schema_version": "deployment-preview-v1",
+  "source_subagent": "policy-precheck-subagent",
+  "generated_at": "2026-05-21T19:00:00Z",
+  "project": "demo",
+  "creates": 5,
+  "modifies": 0,
+  "deletes": 0,
+  "destructive": false,
+  "deploy_gate": "BLOCK",
+  "policy_violations": [
+    {
+      "policy": "audit-tls-1.2-minimum",
+      "resource": "storageAccounts/stdemo1234",
+      "effect": "deny"
+    }
+  ]
+}

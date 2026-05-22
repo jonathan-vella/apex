@@ -32,7 +32,7 @@
         "0.1.0"
       ],
       "source": "mcr",
-      "lookup_timestamp": "2026-05-20T15:41:08.075Z"
+      "lookup_timestamp": "2026-05-22T10:35:16.192Z"
     },
     "bicep::br/public:avm/res/network/network-security-group": {
       "latest": "0.5.3",
@@ -51,7 +51,7 @@
         "0.1.0"
       ],
       "source": "mcr",
-      "lookup_timestamp": "2026-05-20T15:41:07.857Z"
+      "lookup_timestamp": "2026-05-22T10:35:15.331Z"
     },
     "bicep::br/public:avm/res/operational-insights/workspace": {
       "latest": "0.15.1",
@@ -89,7 +89,7 @@
         "0.1.0"
       ],
       "source": "mcr",
-      "lookup_timestamp": "2026-05-18T10:41:16.351Z"
+      "lookup_timestamp": "2026-05-22T10:35:17.573Z"
     },
     "bicep::br/public:avm/res/insights/component": {
       "latest": "0.7.1",
@@ -111,7 +111,7 @@
         "0.1.0"
       ],
       "source": "mcr",
-      "lookup_timestamp": "2026-05-18T10:41:16.386Z"
+      "lookup_timestamp": "2026-05-22T10:35:18.178Z"
     },
     "bicep::br/public:avm/res/managed-identity/user-assigned-identity": {
       "latest": "0.5.1",
@@ -132,7 +132,7 @@
         "0.1.0"
       ],
       "source": "mcr",
-      "lookup_timestamp": "2026-05-17T07:34:55.206Z"
+      "lookup_timestamp": "2026-05-22T10:35:19.066Z"
     },
     "bicep::br/public:avm/res/key-vault/vault": {
       "latest": "0.13.3",
@@ -169,7 +169,7 @@
         "0.2.0"
       ],
       "source": "mcr",
-      "lookup_timestamp": "2026-05-18T10:41:16.418Z"
+      "lookup_timestamp": "2026-05-22T10:35:19.977Z"
     },
     "bicep::br/public:avm/res/network/private-dns-zone": {
       "latest": "0.8.1",
@@ -191,7 +191,7 @@
         "0.2.0"
       ],
       "source": "mcr",
-      "lookup_timestamp": "2026-05-18T10:41:16.316Z"
+      "lookup_timestamp": "2026-05-22T10:35:16.627Z"
     },
     "bicep::br/public:avm/res/network/private-endpoint": {
       "latest": "0.12.1",
@@ -224,7 +224,7 @@
         "0.2.0"
       ],
       "source": "mcr",
-      "lookup_timestamp": "2026-05-20T15:41:07.943Z"
+      "lookup_timestamp": "2026-05-22T10:35:22.261Z"
     },
     "bicep::br/public:avm/res/storage/storage-account": {
       "latest": "0.32.0",
@@ -294,7 +294,7 @@
         "0.5.0"
       ],
       "source": "mcr",
-      "lookup_timestamp": "2026-05-18T10:41:16.485Z"
+      "lookup_timestamp": "2026-05-22T10:35:22.227Z"
     },
     "bicep::br/public:avm/res/sql/server": {
       "latest": "0.21.2",
@@ -349,7 +349,7 @@
         "0.1.0"
       ],
       "source": "mcr",
-      "lookup_timestamp": "2026-05-18T10:41:16.552Z"
+      "lookup_timestamp": "2026-05-22T10:35:21.242Z"
     },
     "bicep::br/public:avm/res/container-registry/registry": {
       "latest": "0.12.1",
@@ -403,7 +403,7 @@
         "0.1.0"
       ],
       "source": "mcr",
-      "lookup_timestamp": "2026-05-17T14:38:21.336Z"
+      "lookup_timestamp": "2026-05-22T10:35:22.919Z"
     },
     "bicep::br/public:avm/res/web/site": {
       "latest": "0.23.0",
@@ -455,7 +455,7 @@
         "0.1.0"
       ],
       "source": "mcr",
-      "lookup_timestamp": "2026-05-18T10:41:16.658Z"
+      "lookup_timestamp": "2026-05-22T10:35:22.953Z"
     },
     "bicep::br/public:avm/res/insights/action-group": {
       "latest": "0.8.0",
@@ -474,7 +474,7 @@
         "0.2.0"
       ],
       "source": "mcr",
-      "lookup_timestamp": "2026-05-18T10:41:16.690Z"
+      "lookup_timestamp": "2026-05-22T10:35:23.979Z"
     },
     "bicep::br/public:avm/res/insights/metric-alert": {
       "latest": "0.4.1",
@@ -2061,7 +2061,7 @@
         "0.1.0"
       ],
       "source": "mcr",
-      "lookup_timestamp": "2026-05-20T15:41:06.707Z"
+      "lookup_timestamp": "2026-05-22T10:35:24.419Z"
     },
     "bicep::br/public:avm/res/consumption/budget": {
       "latest": "0.3.8",
@@ -2564,6 +2564,30 @@
       ],
       "source": "terraform-registry",
       "lookup_timestamp": "2026-05-20T15:41:09.839Z"
+    },
+    "bicep::br/public:avm/res/sql/server/database": {
+      "latest": "0.2.1",
+      "known_versions": [
+        "0.2.1",
+        "0.2.0",
+        "0.1.0"
+      ],
+      "source": "mcr",
+      "lookup_timestamp": "2026-05-22T10:35:21.686Z"
+    },
+    "bicep::br/public:avm/ptn/authorization/role-assignment": {
+      "latest": "0.2.4",
+      "known_versions": [
+        "0.2.4",
+        "0.2.3",
+        "0.2.2",
+        "0.2.1",
+        "0.2.0",
+        "0.1.1",
+        "0.1.0"
+      ],
+      "source": "mcr",
+      "lookup_timestamp": "2026-05-22T10:35:23.555Z"
     }
   }
 }

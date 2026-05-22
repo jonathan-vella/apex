@@ -4,13 +4,13 @@
   "agents": {
     "orchestrator": {
       "agent": ".github/agents/01-orchestrator.agent.md",
-      "model": "GPT-5.3-Codex",
+      "model": "GPT-5.4 mini",
       "invokable": true,
       "step": null
     },
     "requirements": {
       "agent": ".github/agents/02-requirements.agent.md",
-      "model": "GPT-5.5",
+      "model": "Claude Sonnet 4.6",
       "invokable": true,
       "step": 1
     },

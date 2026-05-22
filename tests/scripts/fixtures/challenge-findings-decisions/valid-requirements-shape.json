@@ -1,0 +1,16 @@
+{
+  "project": "demo",
+  "artifact": "01-requirements.md",
+  "pass": 1,
+  "generated_at": "2026-05-22T06:07:00Z",
+  "decisions": [
+    {
+      "issue_id": "abc12345",
+      "severity": "must_fix",
+      "title": "Example finding",
+      "waf_pillar": "Security",
+      "action": "accept",
+      "note": "Apply fix as documented."
+    }
+  ]
+}

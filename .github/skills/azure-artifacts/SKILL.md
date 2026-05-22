@@ -67,6 +67,26 @@ Artifact generation flow (per Step N):
 
 For revisions (challenger findings, user-decision Apply/Skip/Defer, approval-gate fixes), see [`references/revision-workflow.md`](./references/revision-workflow.md) — bundle all fixes into a single `multi_replace_string_in_file` call.
 
+## Post-write validation
+
+Run a one-line shape check **immediately after writing any non-markdown
+artifact**, before moving to the next step. Catches malformed output at
+source instead of at deploy time. Markdown artifacts are owned by the
+lefthook `artifact-validation` hook — do not duplicate that check here.
+
+| Artifact type                              | Validation command (run after write)                                |
+| ------------------------------------------ | ------------------------------------------------------------------- |
+| `*.json`                                   | `python -m json.tool <file> >/dev/null`                             |
+| `*.bicep`                                  | `bicep build --stdout <file> >/dev/null`                            |
+| `*.tf`                                     | `terraform fmt -check <file>` + `terraform validate` (in module dir) |
+| `challenge-findings-*.json` (sidecar JSON) | `node tools/scripts/validate-challenger-findings.mjs <file>`        |
+| `challenge-findings-*-decisions.json` (per-finding sidecar) | `node tools/scripts/validate-challenge-findings-decisions.mjs <file>` |
+| `*.md`                                     | _delegated to lefthook `artifact-validation` — do not run inline_   |
+
+Fail closed: if the validator exits non-zero, fix the artifact and
+re-validate before continuing. Do **not** record the artifact in the
+project README or hand off to the next step until it passes.
+
 ## Placeholder Syntax
 
 All templates use single-brace `{placeholder-name}` syntax:

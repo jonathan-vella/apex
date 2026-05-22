@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/jonathan-vella/azure-agentic-infraops/schemas/challenge-findings-decisions.schema.json",
+  "title": "APEX Challenger Findings — Per-Finding Decisions Sidecar",
+  "description": "Shape of `agent-output/{project}/challenge-findings-{artifact_type}-decisions.json`. Records the user's accept/skip/defer decision for each challenger finding plus a short rationale, so a repeated review pass is idempotent (issue #425, audit follow-up). Permissive v1 — accepts the three field-naming variants observed in the 2026-05-22 test-vnet audit (issue_id|finding_id; action|disposition|decision; note|rationale). Future v2 may tighten to canonical names.",
+  "type": "object",
+  "required": ["decisions"],
+  "additionalProperties": true,
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "description": "Optional. When present, must be a v1.x identifier. v2 will tighten field names.",
+      "pattern": "^(1\\.[0-9]+|v1)$"
+    },
+    "project": { "type": "string" },
+    "artifact": {
+      "type": "string",
+      "description": "Path or basename of the artifact under review."
+    },
+    "pass": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Challenger pass number that produced the parent findings file."
+    },
+    "source": {
+      "type": "string",
+      "description": "Path or basename of the parent challenge-findings JSON."
+    },
+    "generated_at": { "type": "string" },
+    "recorded_at": { "type": "string" },
+    "decisions": {
+      "type": "array",
+      "minItems": 0,
+      "items": { "$ref": "#/$defs/decision" }
+    }
+  },
+  "$defs": {
+    "decision": {
+      "type": "object",
+      "description": "One per-finding decision. v1 accepts any of the observed ID / disposition / note field names; v2 will require canonical names.",
+      "allOf": [
+        {
+          "anyOf": [
+            { "required": ["issue_id"] },
+            { "required": ["finding_id"] }
+          ]
+        },
+        {
+          "anyOf": [
+            { "required": ["action"] },
+            { "required": ["decision"] },
+            { "required": ["disposition"] }
+          ]
+        }
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "issue_id": {
+          "type": "string",
+          "description": "Finding ID alias 1 (legacy: 02-Requirements, 03-Architect)."
+        },
+        "finding_id": {
+          "type": "string",
+          "description": "Finding ID alias 2 (legacy: 04g-Governance, schema_version 1.0)."
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["must_fix", "should_fix", "suggestion"]
+        },
+        "title": { "type": "string" },
+        "waf_pillar": { "type": "string" },
+        "action": {
+          "type": "string",
+          "enum": ["accept", "defer", "skip", "reject"],
+          "description": "Disposition alias 1."
+        },
+        "decision": {
+          "type": "string",
+          "enum": ["accept", "defer", "skip", "reject"],
+          "description": "Disposition alias 2."
+        },
+        "disposition": {
+          "type": "string",
+          "enum": ["accept", "defer", "skip", "reject"],
+          "description": "Disposition alias 3 (preferred for v2)."
+        },
+        "note": {
+          "type": "string",
+          "description": "Rationale alias 1."
+        },
+        "rationale": {
+          "type": "string",
+          "description": "Rationale alias 2."
+        }
+      }
+    }
+  }
+}

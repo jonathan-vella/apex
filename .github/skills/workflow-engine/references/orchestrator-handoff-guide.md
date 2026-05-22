@@ -193,7 +193,7 @@ subagents that match their own tier or below:
 
 | Step agent (tier)               | Subagents it dispatches via `#runSubagent`                        |
 | ------------------------------- | ----------------------------------------------------------------- |
-| 02-Requirements (Opus)          | challenger-review-subagent (GPT-5.5 — within ceiling)             |
+| 02-Requirements (Sonnet 4.6)    | challenger-review-subagent (GPT-5.5 — within ceiling)             |
 | 03-Architect (Opus)             | cost-estimate-subagent (codex), challenger-review-subagent        |
 | 05-IaC Planner (Opus)           | challenger-review-subagent                                        |
 | 06b-Bicep CodeGen (GPT-5.5)     | bicep-validate-subagent, bicep-whatif-subagent (Sonnet 4.6)       |

@@ -142,13 +142,17 @@ Agents that specify `Claude Opus 4.7` as priority model do so deliberately:
   validation subagents. Default Sonnet 4.6 effort is `high`; the Design agent,
   both CodeGen agents, and the four subagents pin effort to `medium` for typical
   work and only raise it for large change sets.
-- **GPT-5.5 agents** (orchestrator, orchestrator fast path, governance,
+- **GPT-5.5 agents** (orchestrator fast path, governance,
   challenger wrapper, challenger-review-subagent, deploy (Bicep + Terraform),
   as-built, diagnose, e2e-orchestrator)
   use the OpenAI GPT-5.5 prompting style: explicit Role / Personality / Goal /
   Success / Constraints / Output / Stop sections, retrieval budgets, decision rules
   over absolutes, and stopping conditions. GPT-5.5 reasons more efficiently than
   predecessors — re-evaluate `low`/`medium` reasoning effort before escalating
+- **GPT-5.4 mini agents** (orchestrator) use the same GPT-5.x prompting style
+  as the GPT-5.5 cohort (per vendor-prompting `family-support.md` — GPT-5.4
+  shares the OpenAI cohort rules). Lower-cost tier suits handoff-only routing
+  with no creative generation.
 - **GPT-5.3-Codex subagents** handle narrow, high-throughput tasks (cost estimation)
 
 #### GPT-5.5 prompting style (summary)
@@ -172,9 +176,9 @@ Current model assignments:
 
 | Agent / Group                       | Model             | Rationale                                |
 | ----------------------------------- | ----------------- | ---------------------------------------- |
-| Orchestrator                        | GPT-5.5           | Outcome-first orchestration              |
+| Orchestrator                        | GPT-5.4 mini      | Standard-tier handoff routing            |
 | Orchestrator (Fast Path)            | GPT-5.5           | Streamlined orchestration                |
-| Requirements                        | Claude Opus 4.7   | Deep understanding (high effort)         |
+| Requirements                        | Claude Sonnet 4.6 | One-shot discovery (Anthropic style)     |
 | Architect                           | Claude Opus 4.7   | WAF analysis + cost (high effort)        |
 | Design                              | Claude Sonnet 4.6 | Diagram + ADR (Anthropic style)          |
 | Governance                          | GPT-5.5           | Procedural discovery                     |
@@ -505,6 +509,36 @@ build if an agent body documents the forbidden invocation.
 Equivalent prohibition for `npm run lint:md` and
 `npm run lint:artifact-templates` against `agent-output/**`: do not
 invoke either from inside an agent body. Delegate to pre-commit + CI.
+
+### Execution-subagent invocation contract
+
+When a parent agent calls `runSubagent` for an execution-style
+subagent (validate, what-if, plan, policy-precheck, cost-estimate,
+challenger-review), the `prompt` string MUST follow the three-H2
+shape declared at
+[`tools/apex-prompts/utility-prompts/execution-subagent.prompt.md`](../../tools/apex-prompts/utility-prompts/execution-subagent.prompt.md):
+
+1. `## Inputs` — what the parent needs (≤ 4 sentences).
+2. `## Activities` — exact bash / tool steps to run.
+3. `## Outputs` — schema name, verdict enum, or bounded markdown
+   summary; include the failure mode.
+
+This contract is documented in the template above. It targets the
+runtime prompt string, not the subagent body. The structural
+guardrail (`tests/scripts/test_execution_subagent_contract.mjs`)
+enforces that the template file itself remains intact.
+
+### No-shell-writes-to-agent-output rule
+
+Agents and subagents must **never** write to `agent-output/**` via
+shell heredocs, `>`/`>>` redirects, or `tee`. All artifact writes
+(including JSON sidecars such as `06-policy-precheck.json`,
+`05-cost-estimate.json`, `06-bicep-whatif.json`) go through the
+file-editing tools (`create_file`, `replace_string_in_file`,
+`multi_replace_string_in_file`). Read-only inspection
+(`ls`/`cat`/`wc -l`) is fine. Enforced by `tools/scripts/safe-shell.mjs`
+via the `agent-output-no-heredoc` rule; details in
+[`no-heredoc.instructions.md`](no-heredoc.instructions.md).
 
 ### Challenger-subagent fallback rule
 

@@ -132,6 +132,10 @@ template-file reads in **one parallel `read_file` batch** to amortize cost.
    - `07-backup-dr-plan.template.md`
    - `07-resource-inventory.template.md`
    - `07-documentation-index.template.md`
+7. Read the execution-subagent prompt contract
+   [tools/apex-prompts/utility-prompts/execution-subagent.prompt.md](../../tools/apex-prompts/utility-prompts/execution-subagent.prompt.md)
+   — every `runSubagent` call (cost-estimate-subagent) MUST follow the
+   three-H2 contract (issue #425).
 
 ## DO / DON'T
 

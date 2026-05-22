@@ -43,8 +43,8 @@ See `tools/registry/count-manifest.json` for canonical counts.
 
 | Agent             | File                             | Model                     | Step | Artifacts                       |
 | ----------------- | -------------------------------- | ------------------------- | ---- | ------------------------------- |
-| Orchestrator      | `01-orchestrator.agent.md`       | GPT-5.5                   | All  | Orchestration                   |
-| Requirements      | `02-requirements.agent.md`       | Opus 4.7 (High reasoning) | 1    | `01-requirements.md`            |
+| Orchestrator      | `01-orchestrator.agent.md`       | GPT-5.4 mini              | All  | Orchestration                   |
+| Requirements      | `02-requirements.agent.md`       | Claude Sonnet 4.6         | 1    | `01-requirements.md`            |
 | Architect         | `03-architect.agent.md`          | Opus 4.7 (High reasoning) | 2    | `02-architecture-assessment.md` |
 | Design            | `04-design.agent.md`             | Sonnet 4.6                | 3    | `03-des-*.{drawio,py,png,md}`   |
 | Governance        | `04g-governance.agent.md`        | GPT-5.5                   | 3.5  | `04-governance-constraints.md`  |

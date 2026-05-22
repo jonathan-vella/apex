@@ -68,6 +68,12 @@ apex-recall checkpoint <project> <step> <phase> --json               # after eac
 apex-recall complete-step <project> <step> --json                    # on step completion
 apex-recall review-audit <project> <step> ... --json                 # after challenger reviews
 
+# Atomic step transition — PREFERRED for moving between steps. Bundles
+# complete-step (with challenger gate) + decide + start-step into one
+# 00-session-state.json write, avoiding partial-update drift.
+apex-recall transition <project> --from-step <s> --to-step <t> \
+    --complete --decision key=value --json
+
 # Decisions + findings
 apex-recall decide <project> --key <k> --value <v> --json
 apex-recall decide <project> --decision "<text>" --rationale "<why>" --json
