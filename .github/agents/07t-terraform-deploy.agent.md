@@ -482,7 +482,8 @@ Sources:
 
 - `creates` / `modifies` / `deletes` / `replaces` / `destructive` ←
   Terraform plan (`terraform-plan-subagent` output).
-- `policy_gate` ← `policy-precheck-subagent` JSON (`deploy_gate`).
+- `deploy_gate` ← `policy-precheck-subagent` JSON `deploy_gate` field
+  (copy verbatim — same field name end-to-end).
 - `cost_delta` ← `cost-estimate-subagent` delta vs the envelope in
   `02-architecture-assessment.md` (or `02-cost-estimate.json` when
   emitted).
@@ -492,14 +493,14 @@ Block to render (exact shape; the `decision:` line is the human gate):
 ```text
 creates: N | modifies: N | deletes: N
 destructive: yes/no
-policy_gate: PROCEED/BLOCK
+deploy_gate: PROCEED/BLOCK
 cost_delta: +$X/month (vs envelope $Y/month)
 decision: [approve] [abort]
 ```
 
 Rules:
 
-- If `policy_gate: BLOCK` → STOP. Do not proceed past the gate.
+- If `deploy_gate: BLOCK` → STOP. Do not proceed past the gate.
 - If `destructive: yes` (any `delete` or `replace`) → require explicit
   user approval naming the resource addresses that will be destroyed
   or replaced.

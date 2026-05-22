@@ -52,9 +52,9 @@ test("invalid fixture (bad enum, negative count) is rejected", () => {
   const ok = validate(data);
   assert.equal(ok, false, "expected validation failure");
   const errorPaths = (validate.errors || []).map((e) => e.instancePath);
-  // schema_version const, policy_gate enum, creates minimum 0.
+  // schema_version const, deploy_gate enum, creates minimum 0.
   assert.ok(
-    errorPaths.includes("/schema_version") || errorPaths.includes("/policy_gate") || errorPaths.includes("/creates"),
-    `expected schema_version/policy_gate/creates errors, got: ${JSON.stringify(validate.errors)}`,
+    errorPaths.includes("/schema_version") || errorPaths.includes("/deploy_gate") || errorPaths.includes("/creates"),
+    `expected schema_version/deploy_gate/creates errors, got: ${JSON.stringify(validate.errors)}`,
   );
 });

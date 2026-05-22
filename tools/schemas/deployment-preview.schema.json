@@ -12,7 +12,7 @@
     "modifies",
     "deletes",
     "destructive",
-    "policy_gate"
+    "deploy_gate"
   ],
   "additionalProperties": true,
   "properties": {
@@ -26,8 +26,11 @@
         "bicep-whatif-subagent",
         "terraform-plan-subagent",
         "policy-precheck-subagent",
-        "cost-estimate-subagent"
-      ]
+        "cost-estimate-subagent",
+        "07b-bicep-deploy",
+        "07t-terraform-deploy"
+      ],
+      "description": "Name of the producer. Use a subagent name when the artifact is emitted by a single subagent; use the deploy agent slug (07b-bicep-deploy / 07t-terraform-deploy) when the artifact is the composed 06-deploy-approval.json that merges multiple subagent outputs."
     },
     "generated_at": {
       "type": "string",
@@ -61,14 +64,14 @@
       "type": "boolean",
       "description": "True if the plan deletes or replaces any resource. The deploy approval block surfaces this verbatim."
     },
-    "policy_gate": {
+    "deploy_gate": {
       "type": "string",
       "enum": ["PROCEED", "BLOCK"],
-      "description": "Deterministic gate decision from policy-precheck-subagent. Set to PROCEED by non-policy sources (they do not gate)."
+      "description": "Deterministic gate decision from policy-precheck-subagent. Set to PROCEED by non-policy sources (they do not gate). Named to match the existing policy-precheck-subagent output field so deploy agents copy the value directly into the composed approval artifact."
     },
     "policy_violations": {
       "type": "array",
-      "description": "Optional. Populated by policy-precheck-subagent when policy_gate=BLOCK. Each entry names the policy assignment and the offending resource.",
+      "description": "Optional. Populated by policy-precheck-subagent when deploy_gate=BLOCK. Each entry names the policy assignment and the offending resource.",
       "items": {
         "type": "object",
         "required": ["policy", "resource"],

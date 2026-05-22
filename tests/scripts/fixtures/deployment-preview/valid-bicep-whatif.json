@@ -7,7 +7,7 @@
   "modifies": 3,
   "deletes": 0,
   "destructive": false,
-  "policy_gate": "PROCEED",
+  "deploy_gate": "PROCEED",
   "cost_delta_monthly_usd": 142.5,
   "cost_envelope_monthly_usd": 1500.0,
   "cost_delta_vs_envelope_pct": 9.5,

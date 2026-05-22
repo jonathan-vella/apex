@@ -102,9 +102,13 @@ fd -e md . | head -5
 ```
 
 The `safe-shell` linter (`tools/scripts/safe-shell.mjs`) enforces this
-rule via the `command-portability` check. A `command -v <tool>` guard
-anywhere in the same fenced code block satisfies the linter; a stdlib
-fallback elsewhere in the fence is also accepted by convention.
+rule via the `command-portability` check. For snippets that invoke an
+optional tool such as `rg`, `fd`, or `bat`, include a `command -v
+<tool>` guard in the same fenced code block. Stdlib-only alternatives
+(`grep -R`, `find`, `python -m json.tool`) are fine when shown as
+standalone commands, but they do not make an unguarded optional-tool
+invocation compliant — the linter only inspects the offending fence
+for a guard, not for parallel stdlib examples.
 
 ## Why
 

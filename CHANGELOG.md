@@ -60,7 +60,7 @@ for full details on this and all prior releases.
   `tools/apex-recall/tests/test_transition.py`.
 - feat(agents): `07b-bicep-deploy` and `07t-terraform-deploy` add a
   `## Deploy Approval Block` step that renders a five-line gate
-  (creates/modifies/deletes, destructive, policy_gate, cost_delta vs
+  (creates/modifies/deletes, destructive, deploy_gate, cost_delta vs
   envelope, decision) before `azd up` / `terraform apply`. Composed
   preview is persisted to
   `agent-output/{project}/06-deploy-approval.json` conforming to

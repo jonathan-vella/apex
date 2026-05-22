@@ -120,7 +120,7 @@ For **every** artifact, ask:
 - [ ] Are deprecation signals present in the preview output?
 - [ ] **Approval block present and populated** (issue #425): five-line
       block with `creates`/`modifies`/`deletes`, `destructive`,
-      `policy_gate`, `cost_delta` vs envelope, and a `decision:` gate.
+      `deploy_gate`, `cost_delta` vs envelope, and a `decision:` gate.
       Persisted to `06-deploy-approval.json` conforming to
       `deployment-preview-v1`.
 - [ ] **Retry loop bounded ≤3 with named escalation options** (issue #425):

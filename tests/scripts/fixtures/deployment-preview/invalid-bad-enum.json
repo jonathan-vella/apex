@@ -6,5 +6,5 @@
   "modifies": 3,
   "deletes": 0,
   "destructive": false,
-  "policy_gate": "MAYBE"
+  "deploy_gate": "MAYBE"
 }

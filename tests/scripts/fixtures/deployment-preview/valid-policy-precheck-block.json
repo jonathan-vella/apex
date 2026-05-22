@@ -7,7 +7,7 @@
   "modifies": 0,
   "deletes": 0,
   "destructive": false,
-  "policy_gate": "BLOCK",
+  "deploy_gate": "BLOCK",
   "policy_violations": [
     {
       "policy": "audit-tls-1.2-minimum",

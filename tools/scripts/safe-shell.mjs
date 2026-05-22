@@ -111,10 +111,10 @@ function matchesBareTool(line, tool) {
   const re = new RegExp(
     `(?:^|[|&;]|\\|\\||&&|\\$\\(|\`|\\bthen\\b|\\belse\\b|\\bdo\\b|\\bxargs\\b|\\b[A-Z_][A-Z0-9_]*=\\S+\\s+)\\s*${tool}(?:\\s|$)`,
   );
-  if (!re.test(stripped)) return false;
-  // Reject if the only match is preceded by `/` (absolute path).
-  // We already split on `|`, `;`, etc., so this is rare; keep simple.
-  return true;
+  // Absolute paths (`/usr/bin/rg`) are explicit invocations and not bare
+  // tools. The character class above already excludes `/` as a preceding
+  // separator, so any match here is a bare invocation.
+  return re.test(stripped);
 }
 
 // Heredoc / tee writes to agent-output/** are runtime-corrupting in the
@@ -367,8 +367,9 @@ function agentOutputHeredocFindings(fenceBuffer) {
   const writeTargets = []; // [{ line, text }]
   for (const entry of fenceBuffer) {
     const { line, text, scan } = entry;
-    // Strip strings so an example path inside quotes does not trip us.
-    // We do NOT strip — we want to catch `tee "agent-output/foo"` too.
+    // Intentionally do NOT strip quoted strings before matching.
+    // Redirects like `tee "agent-output/foo"` or `> "agent-output/foo"`
+    // are still real writes to agent-output/** and must be flagged.
     if (AGENT_OUTPUT_PATH.test(scan) && REDIRECT_OP.test(scan)) {
       writeTargets.push({ line, text });
     }

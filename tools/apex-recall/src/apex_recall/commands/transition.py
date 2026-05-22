@@ -1,10 +1,14 @@
 """apex-recall transition — composite step-transition (#425, Wave 4).
 
-Bundles ``checkpoint`` + N×``decide`` + optional ``complete-step`` + next-step
-``start-step`` into ONE atomic ``00-session-state.json`` write. The composite
-exists because agents that sequenced these as separate calls historically left
-state inconsistent on crash (state written, recall index half-updated, or
-decision recorded but step not advanced).
+Bundles N×``decide`` + optional ``complete-step`` + next-step ``start-step``
+into ONE atomic ``00-session-state.json`` write. The composite exists because
+agents that sequenced these as separate calls historically left state
+inconsistent on crash (decision recorded but step not advanced, complete-step
+written without the follow-up start-step, etc.).
+
+Out of scope: ``checkpoint`` (sub_step / phase / artifact / telemetry
+recording) is still a separate command. ``transition`` is intentionally
+narrow — it only moves the workflow pointer (decisions → complete → start).
 
 Atomicity scope (per adversarial review wf425-06)
 -------------------------------------------------
