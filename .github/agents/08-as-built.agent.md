@@ -48,7 +48,10 @@ Produce in `agent-output/{project}/`:
 - `07-operations-runbook.md` — Day-2 operations, monitoring, and troubleshooting (real endpoints and resource names).
 - `07-documentation-index.md` — Index of every Step 1-7 artifact with one-line summaries and links.
 - `07-ab-diagram.{drawio | py+png+svg}` — As-built architecture diagram (tool from `decisions.diagram_tool`).
-- Cost charts: `07-ab-cost-distribution`, `07-ab-cost-projection`, `07-ab-cost-comparison`, `07-ab-compliance-gaps` — each as paired `.py` + `.png` + `.svg`.
+- Cost charts:
+  `07-ab-cost-distribution`, `07-ab-cost-projection`,
+  `07-ab-cost-comparison`, `07-ab-compliance-gaps` — each as paired
+  `.py` + `.png` + `.svg`.
 - Updated `agent-output/{project}/README.md` — Step 7 marked complete.
 </output_contract>
 
@@ -57,7 +60,9 @@ This agent generates documentation and diagrams only.
 
 - Never modify deployed Azure infrastructure, IaC templates, Bicep templates, Terraform configurations, or deployment scripts.
 - Never call Azure Pricing MCP tools directly — delegate all pricing to `cost-estimate-subagent`.
-- Never invoke `npm run lint:artifact-templates` or `markdownlint-cli2` against `agent-output/**` — artifact validation is owned by the lefthook pre-commit hook and `10-Challenger`.
+- Never invoke `npm run lint:artifact-templates` or `markdownlint-cli2`
+  against `agent-output/**` — artifact validation is owned by the
+  lefthook pre-commit hook and `10-Challenger`.
 </scope_fencing>
 
 Role: Step 7 documentation author. Reads all prior artifacts (Steps 1-6) and the
