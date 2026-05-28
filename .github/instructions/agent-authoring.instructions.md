@@ -133,18 +133,20 @@ Agents that specify `Claude Opus 4.7` as priority model do so deliberately:
   use `Claude Opus 4.7` for architecture decisions, WAF assessments, planning
   accuracy, and complex analysis. Reasoning effort is a per-agent policy (see
   "Reasoning-effort policy" below) — not encoded in the model label.
-- **Claude Sonnet 4.6 agents** (design, bicep codegen, terraform codegen, plus
-  the four IaC validation/preview subagents `bicep-validate`, `bicep-whatif`,
-  `terraform-validate`, `terraform-plan`): Anthropic prompting style (XML-tagged
-  blocks, role-first, quote-grounded review, checklist-driven structured output)
-  suits ADR + diagram authoring, AVM-first IaC code generation with verbatim
-  invariant retention, and the structured PASS/FAIL findings produced by the
-  validation subagents. Default Sonnet 4.6 effort is `high`; the Design agent,
-  both CodeGen agents, and the four subagents pin effort to `medium` for typical
-  work and only raise it for large change sets.
+- **Claude Sonnet 4.6 agents** (design, bicep codegen, terraform codegen,
+  as-built, plus the four IaC validation/preview subagents `bicep-validate`,
+  `bicep-whatif`, `terraform-validate`, `terraform-plan`): Anthropic prompting
+  style (XML-tagged blocks, `<context_awareness>`, `<output_contract>`,
+  `<scope_fencing>`, role-first, checklist-driven structured output) suits
+  ADR + diagram authoring, AVM-first IaC code generation with verbatim
+  invariant retention, the structured PASS/FAIL findings produced by the
+  validation subagents, and the checklist-driven Step 7 as-built artifact suite.
+  Default Sonnet 4.6 effort is `high`; the Design agent, both CodeGen agents,
+  as-built, and the four subagents pin effort to `medium` for typical work and
+  only raise it for large change sets.
 - **GPT-5.5 agents** (orchestrator fast path, governance,
   challenger wrapper, challenger-review-subagent, deploy (Bicep + Terraform),
-  as-built, diagnose, e2e-orchestrator)
+  diagnose, e2e-orchestrator)
   use the OpenAI GPT-5.5 prompting style: explicit Role / Personality / Goal /
   Success / Constraints / Output / Stop sections, retrieval budgets, decision rules
   over absolutes, and stopping conditions. GPT-5.5 reasons more efficiently than
@@ -179,15 +181,15 @@ Current model assignments:
 | Orchestrator                        | GPT-5.4 mini      | Standard-tier handoff routing            |
 | Orchestrator (Fast Path)            | GPT-5.5           | Streamlined orchestration                |
 | Requirements                        | Claude Sonnet 4.6 | One-shot discovery (Anthropic style)     |
-| Architect                           | Claude Opus 4.7   | WAF analysis + cost (high effort)        |
+| Architect                           | Claude Opus 4.8   | WAF analysis + cost (high effort)        |
 | Design                              | Claude Sonnet 4.6 | Diagram + ADR (Anthropic style)          |
 | Governance                          | GPT-5.5           | Procedural discovery                     |
-| IaC Planner (unified)               | Claude Opus 4.7   | Planning accuracy (high effort)          |
+| IaC Planner (unified)               | Claude Opus 4.8   | Planning accuracy (high effort)          |
 | Bicep / Terraform Code              | Claude Sonnet 4.6 | Code generation (Anthropic style, verbatim invariants) |
 | Deploy (Bicep + TF)                 | GPT-5.5           | Deployment execution (outcome-first)     |
-| As-Built                            | GPT-5.5           | Documentation generation (outcome-first) |
+| As-Built                            | Claude Sonnet 4.6 | Documentation generation (Anthropic style) |
 | Diagnose                            | GPT-5.5           | Approval-first diagnostics               |
-| Context Optimizer                   | Claude Opus 4.7   | Deep analysis (high effort)              |
+| Context Optimizer                   | Claude Sonnet 4.6 | Structured analysis (Anthropic style)    |
 | E2E Orchestrator                    | GPT-5.5           | Autonomous benchmark loop                |
 | Challenger wrapper                  | GPT-5.5           | Structured review                        |
 | Challenger subagent                 | GPT-5.5           | Structured review                        |

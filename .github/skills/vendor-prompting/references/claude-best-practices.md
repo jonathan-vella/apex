@@ -12,8 +12,8 @@ repo are documented; full vendor guidance lives at the source URL.
 
 ## Applicable models
 
-Claude Opus 4.7 (current top), Claude Opus 4.6, Claude Sonnet 4.6,
-Claude Haiku 4.5. Earlier Claude generations are out of scope.
+Claude Opus 4.8 (current top), Claude Opus 4.7, Claude Opus 4.6, Claude
+Sonnet 4.6, Claude Haiku 4.5. Earlier Claude generations are out of scope.
 
 ## Rule R-CL-1 — XML structuring for complex prompts
 
@@ -123,13 +123,14 @@ examples for best results.
 **Repo enforcement**: Not auto-validated; reviewer checklist item
 in [checklists.md](checklists.md).
 
-## Rule R-CL-8 — Scope-explicit instructions for Opus 4.7
+## Rule R-CL-8 — Scope-explicit instructions for Opus 4.7+
 
-> Source: section "More literal instruction following" — Opus 4.7
+> Source: section "More literal instruction following" — Opus 4.7+
 > "will not silently generalize an instruction from one item to
-> another."
+> another." Opus 4.8 carries the same literal-following behavior and
+> further reduces skipped tool calls.
 
-**Reviewer hint**: When updating a Claude Opus 4.7 agent, prefer
+**Reviewer hint**: When updating a Claude Opus 4.7/4.8 agent, prefer
 explicit scope ("Apply this to every section, not just the first")
 over generic instruction. Not auto-validated.
 
@@ -138,11 +139,12 @@ over generic instruction. Not auto-validated.
 > Source: section "Calibrating effort and thinking depth" + "Leverage
 > thinking & interleaved thinking capabilities".
 
-**Reviewer hint**: For Opus 4.7 agents, prefer `xhigh` for coding /
+**Reviewer hint**: For Opus 4.7/4.8 agents, prefer `xhigh` for coding /
 agentic; minimum `high` for intelligence-sensitive use; `medium`/`low`
-only for cost-sensitive scoped tasks. Adaptive thinking
-(`thinking: { type: "adaptive" }`) is the default; `budget_tokens`
-is deprecated.
+only for cost-sensitive scoped tasks. On Opus 4.8 the effort default is
+`high` on all surfaces (was lower on 4.7), and adaptive thinking
+(`thinking: { type: "adaptive" }`) decides per turn whether to reason —
+`budget_tokens` remains deprecated.
 
 This is configured at the runtime layer (Copilot integration), not in
 the agent body — listed here for awareness.

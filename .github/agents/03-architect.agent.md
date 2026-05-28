@@ -1,7 +1,7 @@
 ---
 name: 03-Architect
 description: Expert Architect providing guidance using Azure Well-Architected Framework principles and Microsoft best practices. Evaluates decisions against WAF pillars (Security, Reliability, Performance, Cost, Operations). Auto-generates cost estimates via Azure Pricing MCP and writes WAF + cost markdown.
-model: ["Claude Opus 4.7"]
+model: ["Claude Opus 4.8"]
 user-invocable: true
 agents: ["cost-estimate-subagent", "challenger-review-subagent"]
 tools: [vscode, execute, read, agent, browser, edit, search, web, "azure-mcp/*", todo]

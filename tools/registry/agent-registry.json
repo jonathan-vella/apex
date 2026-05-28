@@ -16,7 +16,7 @@
     },
     "architect": {
       "agent": ".github/agents/03-architect.agent.md",
-      "model": "Claude Opus 4.7",
+      "model": "Claude Opus 4.8",
       "invokable": true,
       "step": 2
     },
@@ -34,7 +34,7 @@
     },
     "iac-plan": {
       "agent": ".github/agents/05-iac-planner.agent.md",
-      "model": "Claude Sonnet 4.6",
+      "model": "Claude Opus 4.8",
       "invokable": true,
       "step": 4
     },
@@ -64,7 +64,7 @@
     },
     "as-built": {
       "agent": ".github/agents/08-as-built.agent.md",
-      "model": "GPT-5.5",
+      "model": "Claude Sonnet 4.6",
       "invokable": true,
       "step": 7
     },
