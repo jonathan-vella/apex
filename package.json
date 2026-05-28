@@ -148,12 +148,12 @@
     "format:bicep": "bash tools/scripts/format-bicep-tree.sh"
   },
   "devDependencies": {
-    "@commitlint/cli": "^20.5.0",
+    "@commitlint/cli": "^21.0.1",
     "@commitlint/config-conventional": "^21.0.1",
     "@eslint/js": "^9.17.0",
     "ajv": "^8.20.0",
     "ajv-formats": "^3.0.1",
-    "eslint": "^9.17.0",
+    "eslint": "^10.4.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-formatter-compact": "^9.0.1",
     "eslint-plugin-n": "^18.0.1",
@@ -163,7 +163,7 @@
     "lefthook": "^2.1.8",
     "markdown-link-check": "^3.14.2",
     "markdownlint-cli2": "^0.22.1",
-    "npm-run-all2": "^9.0.0",
+    "npm-run-all2": "^9.0.1",
     "prettier": "^3.8.3"
   },
   "repository": {
