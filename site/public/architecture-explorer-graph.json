@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-05-21T17:55:59.832Z",
+  "generatedAt": "2026-05-28T20:24:28.166Z",
   "categories": [
     {
       "id": "agent",
@@ -68,7 +68,7 @@
     }
   ],
   "nodeCount": 157,
-  "edgeCount": 672,
+  "edgeCount": 675,
   "nodes": [
     {
       "id": "agent:01-orchestrator",
@@ -80,7 +80,7 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/01-orchestrator.agent.md"
       },
       "meta": {
-        "model": "GPT-5.3-Codex",
+        "model": "GPT-5.4 mini",
         "invocable": true,
         "subagents": [
           "02-Requirements",
@@ -129,7 +129,7 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/02-requirements.agent.md"
       },
       "meta": {
-        "model": "GPT-5.5",
+        "model": "Claude Sonnet 4.6",
         "invocable": true,
         "subagents": [
           "challenger-review-subagent"
@@ -156,7 +156,7 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/03-architect.agent.md"
       },
       "meta": {
-        "model": "Claude Opus 4.7",
+        "model": "Claude Opus 4.8",
         "invocable": true,
         "subagents": [
           "cost-estimate-subagent",
@@ -229,7 +229,8 @@
         "skills": [
           "azure-defaults",
           "azure-governance-discovery",
-          "azure-artifacts"
+          "azure-artifacts",
+          "iac-common"
         ]
       }
     },
@@ -243,7 +244,7 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/05-iac-planner.agent.md"
       },
       "meta": {
-        "model": "Claude Sonnet 4.6",
+        "model": "Claude Opus 4.8",
         "invocable": true,
         "subagents": [
           "challenger-review-subagent"
@@ -353,7 +354,8 @@
         ],
         "skills": [
           "azure-defaults",
-          "azure-artifacts"
+          "azure-artifacts",
+          "iac-common"
         ]
       }
     },
@@ -384,7 +386,8 @@
         ],
         "skills": [
           "azure-defaults",
-          "azure-artifacts"
+          "azure-artifacts",
+          "iac-common"
         ]
       }
     },
@@ -398,7 +401,7 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/08-as-built.agent.md"
       },
       "meta": {
-        "model": "GPT-5.5",
+        "model": "Claude Sonnet 4.6",
         "invocable": true,
         "subagents": [
           "cost-estimate-subagent"
@@ -3004,6 +3007,12 @@
       "kind": "uses-skill"
     },
     {
+      "id": "agent:04g-governance--uses-skill->skill:iac-common",
+      "source": "agent:04g-governance",
+      "target": "skill:iac-common",
+      "kind": "uses-skill"
+    },
+    {
       "id": "agent:05-iac-planner--uses-skill->skill:azure-defaults",
       "source": "agent:05-iac-planner",
       "target": "skill:azure-defaults",
@@ -3100,6 +3109,12 @@
       "kind": "uses-skill"
     },
     {
+      "id": "agent:07b-bicep-deploy--uses-skill->skill:iac-common",
+      "source": "agent:07b-bicep-deploy",
+      "target": "skill:iac-common",
+      "kind": "uses-skill"
+    },
+    {
       "id": "agent:07t-terraform-deploy--uses-skill->skill:azure-defaults",
       "source": "agent:07t-terraform-deploy",
       "target": "skill:azure-defaults",
@@ -3109,6 +3124,12 @@
       "id": "agent:07t-terraform-deploy--uses-skill->skill:azure-artifacts",
       "source": "agent:07t-terraform-deploy",
       "target": "skill:azure-artifacts",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "agent:07t-terraform-deploy--uses-skill->skill:iac-common",
+      "source": "agent:07t-terraform-deploy",
+      "target": "skill:iac-common",
       "kind": "uses-skill"
     },
     {

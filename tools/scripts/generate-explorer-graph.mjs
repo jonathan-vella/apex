@@ -186,7 +186,7 @@ function collectSubagents() {
 
 function collectSkills() {
   const skillsDir = join(REPO_ROOT, ".github/skills");
-  let dirs = [];
+  let dirs;
   try {
     dirs = readdirSync(skillsDir).filter((d) => statSync(join(skillsDir, d)).isDirectory());
   } catch {
