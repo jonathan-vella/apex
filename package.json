@@ -150,7 +150,7 @@
   "devDependencies": {
     "@commitlint/cli": "^21.0.1",
     "@commitlint/config-conventional": "^21.0.1",
-    "@eslint/js": "^9.17.0",
+    "@eslint/js": "^10.0.1",
     "ajv": "^8.20.0",
     "ajv-formats": "^3.0.1",
     "eslint": "^10.4.0",
