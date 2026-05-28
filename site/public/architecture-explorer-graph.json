@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-05-28T20:06:54.095Z",
+  "generatedAt": "2026-05-28T20:24:28.166Z",
   "categories": [
     {
       "id": "agent",
@@ -24,7 +24,7 @@
       "label": "Skill",
       "color": "#10b981",
       "shape": "ellipse",
-      "count": 34
+      "count": 33
     },
     {
       "id": "instruction",
@@ -67,8 +67,8 @@
       "count": 6
     }
   ],
-  "nodeCount": 158,
-  "edgeCount": 681,
+  "nodeCount": 157,
+  "edgeCount": 675,
   "nodes": [
     {
       "id": "agent:01-orchestrator",
@@ -937,17 +937,6 @@
       "path": ".github/skills/python-diagrams/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/python-diagrams/SKILL.md"
-      },
-      "meta": {}
-    },
-    {
-      "id": "skill:sensei",
-      "category": "skill",
-      "label": "sensei",
-      "description": "**WORKFLOW SKILL** — Iteratively improve skill frontmatter compliance using the Ralph loop pattern. WHEN: \\\"run sensei\\\", \\\"sensei help\\\", \\\"improve skill\\\", \\\"fix frontmatter\\\", \\\"skill compliance\\\", \\\"frontmatter audit\\\", \\\"score skill\\\", \\\"check skill tokens\\\". INVOKES: token counting tools, test runners, git commands. FOR SINGLE OPERATIONS: use token CLI directly for counts/checks.",
-      "path": ".github/skills/sensei/SKILL.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/sensei/SKILL.md"
       },
       "meta": {}
     },
@@ -3684,12 +3673,6 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:agent-skills--applies-to->skill:sensei",
-      "source": "instruction:agent-skills",
-      "target": "skill:sensei",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:agent-skills--applies-to->skill:terraform-patterns",
       "source": "instruction:agent-skills",
       "target": "skill:terraform-patterns",
@@ -4017,12 +4000,6 @@
       "id": "instruction:context-optimization--applies-to->skill:python-diagrams",
       "source": "instruction:context-optimization",
       "target": "skill:python-diagrams",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:context-optimization--applies-to->skill:sensei",
-      "source": "instruction:context-optimization",
-      "target": "skill:sensei",
       "kind": "applies-to"
     },
     {
@@ -4359,12 +4336,6 @@
       "id": "instruction:docs-trigger--applies-to->skill:python-diagrams",
       "source": "instruction:docs-trigger",
       "target": "skill:python-diagrams",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:docs-trigger--applies-to->skill:sensei",
-      "source": "instruction:docs-trigger",
-      "target": "skill:sensei",
       "kind": "applies-to"
     },
     {
@@ -4878,12 +4849,6 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:markdown--applies-to->skill:sensei",
-      "source": "instruction:markdown",
-      "target": "skill:sensei",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:markdown--applies-to->skill:terraform-patterns",
       "source": "instruction:markdown",
       "target": "skill:terraform-patterns",
@@ -5211,12 +5176,6 @@
       "id": "instruction:no-interactive-shell--applies-to->skill:python-diagrams",
       "source": "instruction:no-interactive-shell",
       "target": "skill:python-diagrams",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:no-interactive-shell--applies-to->skill:sensei",
-      "source": "instruction:no-interactive-shell",
-      "target": "skill:sensei",
       "kind": "applies-to"
     },
     {
@@ -6369,12 +6328,6 @@
       "id": "skill:python-diagrams--refs->skill:mermaid",
       "source": "skill:python-diagrams",
       "target": "skill:mermaid",
-      "kind": "refs"
-    },
-    {
-      "id": "skill:sensei--refs->skill:azure-deploy",
-      "source": "skill:sensei",
-      "target": "skill:azure-deploy",
       "kind": "refs"
     },
     {
