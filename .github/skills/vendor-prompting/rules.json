@@ -34,7 +34,7 @@
     {
       "family": "claude-opus",
       "status": "enforced",
-      "label_examples": ["Claude Opus 4.7", "Claude Opus 4.6"],
+      "label_examples": ["Claude Opus 4.8", "Claude Opus 4.7"],
       "rule_subset_note": "All Claude rules apply at default severity."
     },
     {

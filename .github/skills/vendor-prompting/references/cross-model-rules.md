@@ -17,7 +17,7 @@ file's `model:` value must equal the target agent's `model:` value.
 # .prompt.md
 ---
 agent: 03-Architect
-model: "Claude Opus 4.7" # MUST match agent's model:
+model: "Claude Opus 4.8" # MUST match agent's model:
 ---
 ```
 
@@ -37,7 +37,7 @@ stale during model rollouts.
 # Bad
 handoffs:
   - agent: 03-Architect
-    model: "Claude Opus 4.7"   # redundant — matches Architect's own
+    model: "Claude Opus 4.8"   # redundant — matches Architect's own
     prompt: "..."
 
 # Good
