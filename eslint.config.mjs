@@ -16,6 +16,9 @@ export default [
       "node_modules/**",
       "site/**", // Adopt-narrow: site/ deferred for 90-day reassessment per implementation-plan.md
       "tools/mcp-servers/drawio/**", // Deno-managed (uses `deno lint` / `deno fmt`)
+      "**/.venv/**", // Python virtualenvs ship vendored JS (matplotlib/urllib3) — never lint
+      "**/venv/**",
+      ".github/skills/sensei/**", // Self-contained sub-project with its own toolchain
       "agent-output/**",
       "tmp/**",
       "infra/**",
@@ -88,6 +91,19 @@ export default [
     rules: {
       "n/no-process-exit": "off",
       "n/no-unpublished-import": "off",
+    },
+  },
+
+  // CommonJS config files (e.g. commitlint.config.js) use `module.exports`.
+  {
+    files: ["**/*.config.js", "**/*.cjs"],
+    languageOptions: {
+      sourceType: "commonjs",
+      globals: {
+        module: "writable",
+        require: "readonly",
+        __dirname: "readonly",
+      },
     },
   },
 
