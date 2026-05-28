@@ -424,7 +424,7 @@ function main() {
   }
 
   const validate = loadValidator();
-  let vnetWhitelist = null;
+  let vnetWhitelist;
   try {
     vnetWhitelist = loadVnetAttachedWhitelist();
   } catch (err) {

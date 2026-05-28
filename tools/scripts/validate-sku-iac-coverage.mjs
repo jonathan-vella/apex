@@ -359,7 +359,7 @@ function findProjects() {
 }
 
 function diffModeProjects() {
-  let changed = "";
+  let changed;
   try {
     changed = execSync("git diff --name-only HEAD 2>/dev/null", { cwd: ROOT }).toString();
     if (!changed.trim()) {
