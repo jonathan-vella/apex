@@ -21,7 +21,7 @@
     "ghcr.io/devcontainers/features/github-cli:1": {
       "version": "latest"
     },
-    "ghcr.io/devcontainers/features/terraform:1": {
+    "ghcr.io/devcontainers/features/terraform:": {
       "tflint": "0.61.0",
       "installTFsec": false
     },
