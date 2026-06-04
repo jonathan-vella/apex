@@ -58,7 +58,7 @@ dev = [
     "ruff>=0.7.0",
     "pre-commit>=4.0.0",
     "bandit>=1.8.0",
-    "tiktoken>=0.8.0",
+    "tiktoken>=0.13.0",
 ]
 
 [project.urls]
