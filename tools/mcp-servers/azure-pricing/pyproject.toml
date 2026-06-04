@@ -56,7 +56,7 @@ dev = [
     "pytest-mock>=3.14.0",
     "mypy>=1.13.0",
     "ruff>=0.7.0",
-    "pre-commit>=4.0.0",
+    "pre-commit>=4.6.0",
     "bandit>=1.8.0",
     "tiktoken>=0.8.0",
 ]
