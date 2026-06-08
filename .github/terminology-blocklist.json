@@ -109,7 +109,7 @@
     ".github/terminology-blocklist.json"
   ],
   "excludeLinePatterns": [
-    "azure-agentic-infraops",
+    "apex",
     "infraops-ci-pass",
     "infraops-needs-fix",
     "infraops-reviewed",

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/jonathan-vella/azure-agentic-infraops/schemas/drawio-baseline-runs.schema.json",
+  "$id": "https://github.com/jonathan-vella/apex/schemas/drawio-baseline-runs.schema.json",
   "title": "APEX Draw.io Baseline Runs (working file)",
   "description": "User-edited file capturing per-scenario retry observations during T-012 baseline capture. Source for tools/tests/drawio-baseline/regen-baseline.json.",
   "type": "object",

@@ -249,7 +249,7 @@ Runs on every container start. Lightweight updates only:
 | Stale tool versions        | Restart container (triggers `post-start.sh`)             |
 | Full rebuild needed        | `F1` → `Dev Containers: Rebuild Container Without Cache` |
 
-Full troubleshooting guide: [Troubleshooting](https://jonathan-vella.github.io/azure-agentic-infraops/guides/troubleshooting/)
+Full troubleshooting guide: [Troubleshooting](https://apexops.pro/guides/troubleshooting/)
 
 ## Resource Usage
 
@@ -270,8 +270,8 @@ Full troubleshooting guide: [Troubleshooting](https://jonathan-vella.github.io/a
 
 ## Related Documentation
 
-- [Workflow Guide](https://jonathan-vella.github.io/azure-agentic-infraops/concepts/workflow/)
-- [Prompt Guide](https://jonathan-vella.github.io/azure-agentic-infraops/guides/prompt-guide/)
-- [Troubleshooting](https://jonathan-vella.github.io/azure-agentic-infraops/guides/troubleshooting/)
+- [Workflow Guide](https://apexops.pro/concepts/workflow/)
+- [Prompt Guide](https://apexops.pro/guides/prompt-guide/)
+- [Troubleshooting](https://apexops.pro/guides/troubleshooting/)
 - [Copilot Instructions](../.github/copilot-instructions.md)
 - [Repository README](../README.md)

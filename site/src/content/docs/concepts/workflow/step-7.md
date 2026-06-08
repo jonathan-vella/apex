@@ -14,9 +14,9 @@ the artifact future operators reach for first.
 
 ## Agent
 
-[`08-As-Built`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/08-as-built.agent.md)
+[`08-As-Built`](https://github.com/jonathan-vella/apex/blob/main/.github/agents/08-as-built.agent.md)
 — uses the
-[`azure-artifacts`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-artifacts/SKILL.md)
+[`azure-artifacts`](https://github.com/jonathan-vella/apex/blob/main/.github/skills/azure-artifacts/SKILL.md)
 skill and reads every prior artifact in `agent-output/{project}/`.
 
 ## Invocation
@@ -46,5 +46,5 @@ not appear in the manifest (or vice versa) is surfaced in the documentation inde
 ## Hand-off
 
 The Orchestrator concludes the per-project workflow. Continue with [`Post — Lessons
-Learned`](/azure-agentic-infraops/concepts/workflow/post-lessons/) if the project ran into systemic
+Learned`](/concepts/workflow/post-lessons/) if the project ran into systemic
 issues worth capturing.

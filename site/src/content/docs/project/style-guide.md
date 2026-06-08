@@ -7,7 +7,7 @@ sidebar:
 
 This is the source of truth for **how** to write APEX docs. For **what** to
 write when (which trigger updates docs), see
-[`docs-trigger.instructions.md`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/docs-trigger.instructions.md).
+[`docs-trigger.instructions.md`](https://github.com/jonathan-vella/apex/blob/main/.github/instructions/docs-trigger.instructions.md).
 
 ## H1 source of truth
 
@@ -67,7 +67,7 @@ copy-button surfaces the right filename.
   inside an MDX `<figure>` or a plain `> _Figure N — …_` blockquote.
 - For Azure architecture diagrams, prefer Draw.io exports rendered as
   PNG plus a Mermaid fallback for accessibility. Use the
-  [`drawio`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/drawio/SKILL.md)
+  [`drawio`](https://github.com/jonathan-vella/apex/blob/main/.github/skills/drawio/SKILL.md)
   skill to author them.
 - For sequence / state / Gantt diagrams, use inline `mermaid` fenced
   blocks. The site auto-themes them for light + dark.
@@ -76,7 +76,7 @@ copy-button surfaces the right filename.
 
 - Internal links use trailing slashes (`/concepts/workflow/`, not
   `/concepts/workflow`).
-- Cross-doc links use root-relative paths (`/azure-agentic-infraops/…/`)
+- Cross-doc links use root-relative paths (`/…/`)
   rather than `../../` chains.
 - External links must include `rel="noopener"` when they set
   `target="_blank"`.
@@ -84,7 +84,7 @@ copy-button surfaces the right filename.
 ## Hard-coded counts
 
 Never hard-code numeric counts for repo entities (agents, skills,
-instructions). Either reference [`count-manifest.json`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/tools/registry/count-manifest.json)
+instructions). Either reference [`count-manifest.json`](https://github.com/jonathan-vella/apex/blob/main/tools/registry/count-manifest.json)
 or use descriptive language (“many”, “a handful”, “the full set”).
 Enforced by `lint:no-hardcoded-counts`.
 

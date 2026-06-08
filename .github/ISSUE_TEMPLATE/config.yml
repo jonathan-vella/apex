@@ -1,11 +1,11 @@
 blank_issues_enabled: true
 contact_links:
   - name: 📚 Documentation
-    url: https://jonathan-vella.github.io/azure-agentic-infraops/
+    url: https://apexops.pro/
     about: Check the documentation before opening an issue
   - name: 💬 GitHub Discussions
-    url: https://github.com/jonathan-vella/azure-agentic-infraops/discussions
+    url: https://github.com/jonathan-vella/apex/discussions
     about: Ask questions and share ideas in Discussions
   - name: 🔧 APEX Workflow
-    url: https://jonathan-vella.github.io/azure-agentic-infraops/concepts/workflow/
+    url: https://apexops.pro/concepts/workflow/
     about: Learn about the multi-step agentic workflow

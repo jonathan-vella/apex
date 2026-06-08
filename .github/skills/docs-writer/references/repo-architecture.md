@@ -7,7 +7,7 @@
 ## Workspace Root Structure
 
 ```text
-azure-agentic-infraops/  (APEX)
+apex/  (APEX)
 ├── .github/
 ││   ├── agents/              # Agent definitions + subagents
 ││   │   └── _subagents/      # Validation subagents (lint, what-if, review)

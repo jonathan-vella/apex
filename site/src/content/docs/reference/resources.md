@@ -15,7 +15,7 @@ The APEX deck is the definitive presentation for APEX. Use it to introduce the p
 explain the multi-agent workflow, and demonstrate the end-to-end pipeline to stakeholders.
 
 <a
-  href="/azure-agentic-infraops/downloads/apex.PPTX"
+  href="/downloads/apex.PPTX"
   download
   class="sl-link-button primary not-content"
   style="display:inline-block;margin-bottom:1rem;">⬇ Download APEX.PPTX</a>
@@ -32,10 +32,10 @@ explain the multi-agent workflow, and demonstrate the end-to-end pipeline to sta
 
 The full demo workspace from The Perspectives 2026 session. Includes the React app,
 Bicep infrastructure (10 AVM modules), agent output artifacts, and the complete
-malta-catering project that powers the [demo walkthrough](/azure-agentic-infraops/demo/).
+malta-catering project that powers the [demo walkthrough](/demo/).
 
 <a
-  href="/azure-agentic-infraops/downloads/bmit-2026.zip"
+  href="/downloads/bmit-2026.zip"
   download
   class="sl-link-button primary not-content"
   style="display:inline-block;margin-bottom:1rem;">⬇ Download bmit-2026.zip (9.6 MB)</a>
@@ -50,7 +50,7 @@ malta-catering project that powers the [demo walkthrough](/azure-agentic-infraop
 To share a direct download link:
 
 ```text
-https://jonathan-vella.github.io/azure-agentic-infraops/downloads/apex.PPTX
+https://apexops.pro/downloads/apex.PPTX
 ```
 
 ## First Steps
@@ -66,4 +66,4 @@ https://jonathan-vella.github.io/azure-agentic-infraops/downloads/apex.PPTX
 ## Community
 
 - [Contributing](../../project/contributing/) if you want to improve the project
-- [GitHub repository](https://github.com/jonathan-vella/azure-agentic-infraops) for issues, discussions, and releases
+- [GitHub repository](https://github.com/jonathan-vella/apex) for issues, discussions, and releases

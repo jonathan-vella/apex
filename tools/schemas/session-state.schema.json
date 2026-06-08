@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/jonathan-vella/azure-agentic-infraops/schemas/session-state.schema.json",
+  "$id": "https://github.com/jonathan-vella/apex/schemas/session-state.schema.json",
   "title": "APEX Session State",
   "description": "Shape of agent-output/{project}/00-session-state.json produced by the Orchestrator. Tracks workflow progress, decisions, and review audit. Enforced by scripts/validate-session-state.mjs.",
   "type": "object",

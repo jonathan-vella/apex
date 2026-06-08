@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/jonathan-vella/azure-agentic-infraops/schemas/agent-registry.schema.json",
+  "$id": "https://github.com/jonathan-vella/apex/schemas/agent-registry.schema.json",
   "title": "APEX Agent Registry",
   "description": "Shape of tools/registry/agent-registry.json. Maps agent role keys to {agent path, model, step, invokable}. Skills are wired by the agent body's `Read .github/skills/{name}/...` line (discovered at runtime via the orphan-content validator regex), not by an entry in this registry.",
   "type": "object",

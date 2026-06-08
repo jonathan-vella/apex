@@ -627,8 +627,7 @@ const VENDOR_RULES = [
     id: "frontmatter-model-style-001",
     severity: "error",
     appliesTo: "both",
-    sourceUrl:
-      "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/agent-authoring.instructions.md",
+    sourceUrl: "https://github.com/jonathan-vella/apex/blob/main/.github/instructions/agent-authoring.instructions.md",
   },
   {
     id: "claude-output-contract-001",
@@ -641,8 +640,7 @@ const VENDOR_RULES = [
     id: "handoff-enrichment-001",
     severity: "warn",
     appliesTo: "agent",
-    sourceUrl:
-      "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/agent-authoring.instructions.md",
+    sourceUrl: "https://github.com/jonathan-vella/apex/blob/main/.github/instructions/agent-authoring.instructions.md",
   },
   {
     id: "personality-scoping-001",
@@ -656,7 +654,7 @@ const VENDOR_RULES = [
     severity: "error",
     appliesTo: "prompt",
     sourceUrl:
-      "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/vendor-prompting.instructions.md#prompt-model-source",
+      "https://github.com/jonathan-vella/apex/blob/main/.github/instructions/vendor-prompting.instructions.md#prompt-model-source",
   },
 ];
 
@@ -1107,35 +1105,35 @@ const WORKFLOW_HANDOFF_RULES = [
     severity: "warn",
     appliesTo: "agent",
     sourceUrl:
-      "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/workflow-engine/references/handoff-validation-rules.md#b1a",
+      "https://github.com/jonathan-vella/apex/blob/main/.github/skills/workflow-engine/references/handoff-validation-rules.md#b1a",
   },
   {
     id: "workflow-handoff-artifact-sync-001",
     severity: "warn",
     appliesTo: "agent",
     sourceUrl:
-      "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/workflow-engine/references/handoff-validation-rules.md#b2",
+      "https://github.com/jonathan-vella/apex/blob/main/.github/skills/workflow-engine/references/handoff-validation-rules.md#b2",
   },
   {
     id: "workflow-handoff-self-loop-bound-001",
     severity: "warn",
     appliesTo: "agent",
     sourceUrl:
-      "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/workflow-engine/references/handoff-validation-rules.md#b3",
+      "https://github.com/jonathan-vella/apex/blob/main/.github/skills/workflow-engine/references/handoff-validation-rules.md#b3",
   },
   {
     id: "workflow-handoff-track-parity-001",
     severity: "warn",
     appliesTo: "agent",
     sourceUrl:
-      "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/workflow-engine/references/handoff-validation-rules.md#b4",
+      "https://github.com/jonathan-vella/apex/blob/main/.github/skills/workflow-engine/references/handoff-validation-rules.md#b4",
   },
   {
     id: "workflow-handoff-subagent-dispatch-001",
     severity: "warn",
     appliesTo: "agent",
     sourceUrl:
-      "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/workflow-engine/references/handoff-validation-rules.md#b5",
+      "https://github.com/jonathan-vella/apex/blob/main/.github/skills/workflow-engine/references/handoff-validation-rules.md#b5",
   },
 ];
 

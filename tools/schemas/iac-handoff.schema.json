@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/jonathan-vella/azure-agentic-infraops/schemas/iac-handoff.schema.json",
+  "$id": "https://github.com/jonathan-vella/apex/schemas/iac-handoff.schema.json",
   "title": "APEX IaC Handoff (Step 5 → Step 6)",
   "description": "Compact handoff record emitted by 06b/06t CodeGen at the end of Step 5. Replaces the prior practice of deploy agents re-reading the full plan + every IaC file. Contains: tree_hash (sha256 of the committed infra/ subtree), entrypoint, validation_summary (validate-subagent + plan-readonly attestation), governance_attestation (L2 attestation per L1m policy), required_inputs (param names the deploy agent must resolve from environment-manifest), and policy_precheck_inputs (so L3 policy-precheck-subagent can fast-path).",
   "type": "object",

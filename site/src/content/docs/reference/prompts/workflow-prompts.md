@@ -215,9 +215,9 @@ workflow from scratch.
   `what-if`, or `terraform plan` error back into the parent agent prompt so it can
   repair the generated code rather than guessing.
 - **Tooling or auth fails**: fix the environment first, then resume the same step.
-  Use [Quickstart](/azure-agentic-infraops/getting-started/quickstart/),
-  [Troubleshooting](/azure-agentic-infraops/guides/troubleshooting/), and
-  [Validation & Linting](/azure-agentic-infraops/reference/validation-reference/) as the primary recovery guides.
+  Use [Quickstart](/getting-started/quickstart/),
+  [Troubleshooting](/guides/troubleshooting/), and
+  [Validation & Linting](/reference/validation-reference/) as the primary recovery guides.
 
 ## Standalone Agents
 
@@ -273,8 +273,8 @@ and missing disaster recovery considerations.
 
 ## Next Steps
 
-- [Best Practices](/azure-agentic-infraops/reference/prompts/best-practices/) —
+- [Best Practices](/reference/prompts/best-practices/) —
   improve prompt quality before retrying a step
-- [Skill & Subagent Reference](/azure-agentic-infraops/reference/prompts/skills-subagents/) —
+- [Skill & Subagent Reference](/reference/prompts/skills-subagents/) —
   interpret validator and preview output
-- [Troubleshooting](/azure-agentic-infraops/guides/troubleshooting/) — recover from auth, setup, and deployment issues
+- [Troubleshooting](/guides/troubleshooting/) — recover from auth, setup, and deployment issues

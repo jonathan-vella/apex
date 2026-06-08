@@ -17,7 +17,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 const UPSTREAM_OWNER = "jonathan-vella";
-const UPSTREAM_REPO = "azure-agentic-infraops";
+const UPSTREAM_REPO = "apex";
 const UPSTREAM_REF = "main";
 const WORKFLOWS_DIR = ".github/workflows";
 

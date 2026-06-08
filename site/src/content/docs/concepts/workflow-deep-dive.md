@@ -79,15 +79,15 @@ invocation. The most consequential ones for a workflow run:
 
 | Instruction                                                                                                                                                            | Triggered by editing                      | Role                                            |
 | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------- | ----------------------------------------------- |
-| [`agent-operating-frame`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/agent-operating-frame.instructions.md)               | `.github/agents/*.agent.md`               | Shared agent operating frame                    |
-| [`governance-discovery`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/governance-discovery.instructions.md)                 | `**/04-governance-constraints.{md,json}`  | Policy-discovery requirements                   |
-| [`sku-manifest`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/sku-manifest.instructions.md)                                 | `**/sku-manifest.{md,json}`               | Authoring + drift contract for the SKU manifest |
-| [`iac-plan-best-practices`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/iac-plan-best-practices.instructions.md)           | `**/04-implementation-plan.md`            | Plan-level policy + cost rules                  |
-| [`iac-bicep-best-practices`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/iac-bicep-best-practices.instructions.md)         | `**/*.bicep`                              | Bicep code rules (AVM, security baseline)       |
-| [`iac-terraform-best-practices`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/iac-terraform-best-practices.instructions.md) | `**/*.tf`                                 | Terraform code rules                            |
-| [`azure-artifacts`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/azure-artifacts.instructions.md)                           | `**/agent-output/**/*.md`                 | H2 template enforcement                         |
-| [`no-interactive-shell`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/no-interactive-shell.instructions.md)                 | chat-loaded agent/skill/instruction files | Bans `-i` flags, `read -p`, heredoc prompts     |
-| [`lesson-collection`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/lesson-collection.instructions.md)                       | `**/*orchestrator*.agent.md`              | Lesson-capture protocol                         |
+| [`agent-operating-frame`](https://github.com/jonathan-vella/apex/blob/main/.github/instructions/agent-operating-frame.instructions.md)               | `.github/agents/*.agent.md`               | Shared agent operating frame                    |
+| [`governance-discovery`](https://github.com/jonathan-vella/apex/blob/main/.github/instructions/governance-discovery.instructions.md)                 | `**/04-governance-constraints.{md,json}`  | Policy-discovery requirements                   |
+| [`sku-manifest`](https://github.com/jonathan-vella/apex/blob/main/.github/instructions/sku-manifest.instructions.md)                                 | `**/sku-manifest.{md,json}`               | Authoring + drift contract for the SKU manifest |
+| [`iac-plan-best-practices`](https://github.com/jonathan-vella/apex/blob/main/.github/instructions/iac-plan-best-practices.instructions.md)           | `**/04-implementation-plan.md`            | Plan-level policy + cost rules                  |
+| [`iac-bicep-best-practices`](https://github.com/jonathan-vella/apex/blob/main/.github/instructions/iac-bicep-best-practices.instructions.md)         | `**/*.bicep`                              | Bicep code rules (AVM, security baseline)       |
+| [`iac-terraform-best-practices`](https://github.com/jonathan-vella/apex/blob/main/.github/instructions/iac-terraform-best-practices.instructions.md) | `**/*.tf`                                 | Terraform code rules                            |
+| [`azure-artifacts`](https://github.com/jonathan-vella/apex/blob/main/.github/instructions/azure-artifacts.instructions.md)                           | `**/agent-output/**/*.md`                 | H2 template enforcement                         |
+| [`no-interactive-shell`](https://github.com/jonathan-vella/apex/blob/main/.github/instructions/no-interactive-shell.instructions.md)                 | chat-loaded agent/skill/instruction files | Bans `-i` flags, `read -p`, heredoc prompts     |
+| [`lesson-collection`](https://github.com/jonathan-vella/apex/blob/main/.github/instructions/lesson-collection.instructions.md)                       | `**/*orchestrator*.agent.md`              | Lesson-capture protocol                         |
 
 ### `.github/data/` registries
 
@@ -108,9 +108,9 @@ deprecation avoidance, and governance fallbacks:
 All cross-step state flows through the `apex-recall` CLI — agents never
 read or write `00-session-state.json` directly. The full schema for
 `show --json` lives in
-[`tools/apex-recall/docs/show-schema.md`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/tools/apex-recall/docs/show-schema.md);
+[`tools/apex-recall/docs/show-schema.md`](https://github.com/jonathan-vella/apex/blob/main/tools/apex-recall/docs/show-schema.md);
 the valid decision-keys registry lives in
-[`tools/apex-recall/docs/decision-keys.md`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/tools/apex-recall/docs/decision-keys.md).
+[`tools/apex-recall/docs/decision-keys.md`](https://github.com/jonathan-vella/apex/blob/main/tools/apex-recall/docs/decision-keys.md).
 
 Lifecycle commands used during a run:
 
@@ -149,7 +149,7 @@ file syntax. Hooks and the challenger never overlap responsibilities.
 
 Every stage section follows the same sub-template so it is scannable. Counts
 of resources, lenses, or passes come from
-[`workflow-graph.json`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/workflow-engine/templates/workflow-graph.json)
+[`workflow-graph.json`](https://github.com/jonathan-vella/apex/blob/main/.github/skills/workflow-engine/templates/workflow-graph.json)
 — treat that file as authoritative.
 
 ### Step 0 — Project Init (Orchestrator boot)
@@ -174,7 +174,7 @@ Once written, both decisions can be changed only by editing the
 For a single-artifact deep review without flipping the project, invoke
 `10-Challenger` manually. Full contract:
 [01-orchestrator.agent.md → `Computing
-decisions.review_depth`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/01-orchestrator.agent.md#computing-decisionsreview_depth-project-scoped-opt-in).
+decisions.review_depth`](https://github.com/jonathan-vella/apex/blob/main/.github/agents/01-orchestrator.agent.md#computing-decisionsreview_depth-project-scoped-opt-in).
 
 ### Step 1 — Requirements
 
@@ -447,7 +447,7 @@ also closes back into the reviewer.
 ### Illustrative lesson entry
 
 The schema lives in
-[`tools/schemas/lesson-log.schema.json`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/tools/schemas/lesson-log.schema.json).
+[`tools/schemas/lesson-log.schema.json`](https://github.com/jonathan-vella/apex/blob/main/tools/schemas/lesson-log.schema.json).
 The entry below is **fabricated for illustration only** and never
 appeared in a real run:
 
@@ -493,7 +493,7 @@ word:
 - **Application-greenfield (APEX sense)** — no prior app code, no prior IaC for
   this workload. APEX is designed for this case, and the "greenfield CAF tag
   fallback" in
-  [`azure-defaults/references/tag-strategy.md`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-defaults/references/tag-strategy.md)
+  [`azure-defaults/references/tag-strategy.md`](https://github.com/jonathan-vella/apex/blob/main/.github/skills/azure-defaults/references/tag-strategy.md)
   uses this sense.
 - **Environment-greenfield** — no ALZ, no inherited policy, an empty
   subscription. APEX handles this separately via the no-ALZ fallback documented
@@ -577,11 +577,11 @@ CodeGen emits a `data` source (Terraform) or an `existing` resource reference
 keys plus two proposed ones that describe behaviour the planner already
 exhibits:
 
-- [`decisions.vnet_mode`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/tools/apex-recall/docs/decision-keys.md)
+- [`decisions.vnet_mode`](https://github.com/jonathan-vella/apex/blob/main/tools/apex-recall/docs/decision-keys.md)
   — `create-new` or `use-existing` (**registered**).
-- [`decisions.existing_vnet_id`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/tools/apex-recall/docs/decision-keys.md)
+- [`decisions.existing_vnet_id`](https://github.com/jonathan-vella/apex/blob/main/tools/apex-recall/docs/decision-keys.md)
   — required when `vnet_mode = use-existing` (**registered**).
-- [`decisions.identity_model`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/tools/apex-recall/docs/decision-keys.md)
+- [`decisions.identity_model`](https://github.com/jonathan-vella/apex/blob/main/tools/apex-recall/docs/decision-keys.md)
   — `managed-identity` (default) or one of the alternatives (**registered**).
 - `decisions.hub_topology` — `hub-spoke` or `virtual-wan` (**proposed**, not
   yet in `decision-keys.md`).
@@ -602,7 +602,7 @@ the spoke and assumes connectivity to the hub is established via peering
 at Phase 6b accounts for hub-side constraints such as forced-tunnel UDRs and
 NSG rules inherited from ALZ policy. The canonical subnet sizing matrix and
 the two-step existing-VNet validation live in
-[`azure-defaults/references/vnet-planning.md`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-defaults/references/vnet-planning.md).
+[`azure-defaults/references/vnet-planning.md`](https://github.com/jonathan-vella/apex/blob/main/.github/skills/azure-defaults/references/vnet-planning.md).
 
 ### Private DNS Zones — enumeration and reuse
 
@@ -717,11 +717,11 @@ onboarded yet.
 ## Appendix A — Artifact contract reference
 
 The full H2 templates for every `agent-output/` artifact live in
-[`azure-artifacts/SKILL.md`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-artifacts/SKILL.md)
+[`azure-artifacts/SKILL.md`](https://github.com/jonathan-vella/apex/blob/main/.github/skills/azure-artifacts/SKILL.md)
 and its `templates/` folder. The SKU manifest contract lives in
-[`sku-manifest.instructions.md`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/sku-manifest.instructions.md);
+[`sku-manifest.instructions.md`](https://github.com/jonathan-vella/apex/blob/main/.github/instructions/sku-manifest.instructions.md);
 the governance JSON shape is documented inside
-[`governance-discovery.instructions.md`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/governance-discovery.instructions.md).
+[`governance-discovery.instructions.md`](https://github.com/jonathan-vella/apex/blob/main/.github/instructions/governance-discovery.instructions.md).
 This page deliberately links rather than duplicates.
 
 ## Appendix B — Skill ↔ Step matrix
@@ -765,7 +765,7 @@ Terse pointers only — full definitions live in the linked concept docs.
 | Gate              | [Workflow Engine & Quality](../how-it-works/workflow-engine/)                                                                                                                   |
 | Fan-out           | [Agent Architecture](../how-it-works/agents/)                                                                                                                                   |
 | Frozen inputs     | `workflow-graph.json` `plan_lock` block (linked above)                                                                                                                       |
-| L0–L3 attestation | [`workflow-graph.json` `attestation_chain`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/workflow-engine/templates/workflow-graph.json) |
+| L0–L3 attestation | [`workflow-graph.json` `attestation_chain`](https://github.com/jonathan-vella/apex/blob/main/.github/skills/workflow-engine/templates/workflow-graph.json) |
 | Skill tiers       | [Skills & Instructions](../how-it-works/skills-and-instructions/)                                                                                                               |
 
 ## Appendix E — Further reading
@@ -777,6 +777,6 @@ Terse pointers only — full definitions live in the linked concept docs.
 - [Workflow Engine & Quality](../how-it-works/workflow-engine/)
 - [MCP Integration](../how-it-works/mcp-integration/)
 - [SKU Manifest](../how-it-works/sku-manifest/) (when present)
-- Repository root: [`AGENTS.md`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/AGENTS.md)
+- Repository root: [`AGENTS.md`](https://github.com/jonathan-vella/apex/blob/main/AGENTS.md)
 - Vendor docs: [Anthropic Claude prompting guide](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview),
   [OpenAI GPT-5 prompting guide](https://platform.openai.com/docs/guides/prompt-engineering)

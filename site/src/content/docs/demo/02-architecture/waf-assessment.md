@@ -22,7 +22,7 @@ endpoints. No WAF, no multi-region. Data loss explicitly accepted for demo
 (ARC-001). GDPR erasure pattern defined (ARC-003). Staff access via Entra ID
 (ARC-005).
 
-![WAF Pillar Scores](/azure-agentic-infraops/demo/02-waf-scores.png)
+![WAF Pillar Scores](/demo/02-waf-scores.png)
 
 ## Security Assessment (8/10)
 

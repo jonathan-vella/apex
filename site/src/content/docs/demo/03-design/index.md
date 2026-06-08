@@ -19,7 +19,7 @@ the IaC Planner (Step 4).
 The Design Agent generates a component-level architecture diagram showing all
 Azure resources, their connectivity, and network segmentation:
 
-![Architecture Diagram](/azure-agentic-infraops/demo/03-des-diagram.png)
+![Architecture Diagram](/demo/03-des-diagram.png)
 
 ## Key Artifacts
 

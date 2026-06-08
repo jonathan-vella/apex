@@ -81,8 +81,8 @@ OpenAI defines three classes; this repo maps them to actions:
 ## Repo-specific upgrade history
 
 The current GPT-5.5 cohort migrated under
-[chore/migrate-claude-opus-4-7](https://github.com/jonathan-vella/azure-agentic-infraops/tree/chore/migrate-claude-opus-4-7)
-and [chore/post-opus-47-followups](https://github.com/jonathan-vella/azure-agentic-infraops/tree/chore/post-opus-47-followups)
+[chore/migrate-claude-opus-4-7](https://github.com/jonathan-vella/apex/tree/chore/migrate-claude-opus-4-7)
+and [chore/post-opus-47-followups](https://github.com/jonathan-vella/apex/tree/chore/post-opus-47-followups)
 branches. Until those land on `main`, do not modify GPT-5.5
 agent bodies in this branch.
 

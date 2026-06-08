@@ -166,7 +166,7 @@ types, edge conditions, gates, and fan-out patterns.
 :::note[Not user-invocable]
 Subagents are delegated to automatically by parent agents. You cannot
 select them from the agent picker (`Ctrl+Shift+A`). See
-[Workflow Prompts](/azure-agentic-infraops/reference/prompts/workflow-prompts/) for end-user scenarios.
+[Workflow Prompts](/reference/prompts/workflow-prompts/) for end-user scenarios.
 :::
 
 Subagents are called automatically by the **Bicep CodeGen**, **Terraform CodeGen**,
@@ -214,8 +214,8 @@ Use the parent agent to repair the artifact that failed validation or preview.
 3. Re-check the generated files before moving to the next gate.
 
 For environment or auth failures, start with
-[Troubleshooting](/azure-agentic-infraops/guides/troubleshooting/) and
-[Validation & Linting](/azure-agentic-infraops/reference/validation-reference/).
+[Troubleshooting](/guides/troubleshooting/) and
+[Validation & Linting](/reference/validation-reference/).
 
 ## Tips and Patterns
 
@@ -250,9 +250,9 @@ control over each step.
 
 ## Next Steps
 
-- [Workflow Prompts](/azure-agentic-infraops/reference/prompts/workflow-prompts/) — follow the step-by-step workflow templates
-- [Troubleshooting](/azure-agentic-infraops/guides/troubleshooting/) — recover from validation, auth, and setup failures
-- [Validation & Linting](/azure-agentic-infraops/reference/validation-reference/) — understand the checks behind each gate
+- [Workflow Prompts](/reference/prompts/workflow-prompts/) — follow the step-by-step workflow templates
+- [Troubleshooting](/guides/troubleshooting/) — recover from validation, auth, and setup failures
+- [Validation & Linting](/reference/validation-reference/) — understand the checks behind each gate
 
 **Terraform track**:
 
@@ -291,5 +291,5 @@ and suggest improvements for WAF alignment.
 - [GitHub Copilot Best Practices](https://docs.github.com/en/copilot/get-started/best-practices)
 - [Prompt Engineering for Copilot Chat](https://docs.github.com/en/copilot/using-github-copilot/copilot-chat/prompt-engineering-for-copilot-chat)
 - [VS Code Copilot Prompt Crafting](https://code.visualstudio.com/docs/copilot/prompt-crafting)
-- [APEX Quickstart](/azure-agentic-infraops/getting-started/quickstart/)
-- [Agent Workflow Reference](/azure-agentic-infraops/concepts/workflow/)
+- [APEX Quickstart](/getting-started/quickstart/)
+- [Agent Workflow Reference](/concepts/workflow/)

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/jonathan-vella/azure-agentic-infraops/schemas/governance-baseline.schema.json",
+  "$id": "https://github.com/jonathan-vella/apex/schemas/governance-baseline.schema.json",
   "title": "APEX Governance Baseline",
   "description": "Shape of .github/data/governance-policy-baseline.json produced by the governance-policy-baseline workflow. Wraps per-subscription governance-constraints-v1 envelopes.",
   "type": "object",

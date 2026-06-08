@@ -15,7 +15,7 @@ graph.
 ## Agent
 
 [`05-IaC
-Planner`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/05-iac-planner.agent.md)
+Planner`](https://github.com/jonathan-vella/apex/blob/main/.github/agents/05-iac-planner.agent.md)
 — track-aware (Bicep or Terraform via `decisions.iac_tool`).
 
 ## Invocation
@@ -55,4 +55,4 @@ The user must approve the implementation plan before code generation.
 ## Hand-off
 
 The Orchestrator routes context to [`Step 5 — IaC
-Code`](/azure-agentic-infraops/concepts/workflow/step-5/).
+Code`](/concepts/workflow/step-5/).

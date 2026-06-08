@@ -38,7 +38,7 @@ cross-cutting agents (Governance, Context Optimizer, Diagnose, Challenger), and
 non-user-invocable subagents under `.github/agents/_subagents/`. The authoritative
 inventory lives in `tools/registry/agent-registry.json` and `count-manifest.json`.
 
-📁 **See**: [.github/agents/](https://github.com/jonathan-vella/azure-agentic-infraops/tree/main/.github/agents)
+📁 **See**: [.github/agents/](https://github.com/jonathan-vella/apex/tree/main/.github/agents)
 
 ### APEX
 
@@ -126,7 +126,7 @@ implementation plans. Finds untested assumptions, governance gaps, WAF blind spo
 and architectural weaknesses. Returns structured JSON findings with severity ratings.
 Auto-invoked by the Orchestrator after Steps 1, 2, and 4.
 
-📁 **See**: [.github/agents/10-challenger.agent.md](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/10-challenger.agent.md)
+📁 **See**: [.github/agents/10-challenger.agent.md](https://github.com/jonathan-vella/apex/blob/main/.github/agents/10-challenger.agent.md)
 
 ### Copilot Chat
 
@@ -161,7 +161,7 @@ A failure-handling pattern in the `iac-common` skill that defines mandatory stop
 rules for deploy agents. Classifies failures into 6 categories with anomaly detection
 thresholds to prevent cascading deployment failures.
 
-📁 **See**: [.github/skills/iac-common/](https://github.com/jonathan-vella/azure-agentic-infraops/tree/main/.github/skills/iac-common)
+📁 **See**: [.github/skills/iac-common/](https://github.com/jonathan-vella/apex/tree/main/.github/skills/iac-common)
 
 ## D
 
@@ -215,7 +215,7 @@ Orchestration agent that drives the Ralph Loop. Executes all APEX steps without 
 gates, with pre-validation, self-correction, challenger reviews, and benchmark collection.
 Supports both Bicep and Terraform IaC tracks. Invoked via prompt files, not direct @mention.
 
-📁 **See**: [.github/agents/e2e-orchestrator.agent.md](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/e2e-orchestrator.agent.md)
+📁 **See**: [.github/agents/e2e-orchestrator.agent.md](https://github.com/jonathan-vella/apex/blob/main/.github/agents/e2e-orchestrator.agent.md)
 
 ## G
 
@@ -279,7 +279,7 @@ uses MCP servers for GitHub (repo operations), Azure (RBAC-aware resource access
 Azure Pricing (cost estimation), Terraform Registry (module lookup), and Microsoft
 Learn (official documentation search and code sample discovery).
 
-📁 **See**: [tools/mcp-servers/azure-pricing/](https://github.com/jonathan-vella/azure-agentic-infraops/tree/main/tools/mcp-servers/azure-pricing),
+📁 **See**: [tools/mcp-servers/azure-pricing/](https://github.com/jonathan-vella/apex/tree/main/tools/mcp-servers/azure-pricing),
 [MCP Integration](../../concepts/how-it-works/mcp-integration/)
 
 ### MJS (ECMAScript Module)
@@ -307,7 +307,7 @@ The master orchestrator agent that coordinates all steps of the infrastructure w
 mandatory human approval gates. Implements the Orchestrator pattern from VS Code 1.109's agent
 orchestration features.
 
-📁 **See**: [.github/agents/01-orchestrator.agent.md](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/01-orchestrator.agent.md)
+📁 **See**: [.github/agents/01-orchestrator.agent.md](https://github.com/jonathan-vella/apex/blob/main/.github/agents/01-orchestrator.agent.md)
 
 ## P
 
@@ -409,7 +409,7 @@ skills don't have their own chat persona — they provide domain knowledge that 
 Skills are organized across conventions, document creation, infrastructure patterns,
 workflow automation, and troubleshooting categories.
 
-📁 **See**: [.github/skills/](https://github.com/jonathan-vella/azure-agentic-infraops/tree/main/.github/skills)
+📁 **See**: [.github/skills/](https://github.com/jonathan-vella/apex/tree/main/.github/skills)
 
 ### Subagent
 
@@ -419,7 +419,7 @@ review). Six exist: `challenger-review-subagent`, `cost-estimate-subagent`,
 `bicep-whatif-subagent`, `terraform-validate-subagent`,
 `terraform-plan-subagent`.
 
-📁 **See**: [.github/agents/\_subagents/](https://github.com/jonathan-vella/azure-agentic-infraops/tree/main/.github/agents/_subagents)
+📁 **See**: [.github/agents/\_subagents/](https://github.com/jonathan-vella/apex/tree/main/.github/agents/_subagents)
 
 ## T
 
@@ -575,4 +575,4 @@ artifacts in `agent-output/`.
 
 **See also:** [FAQ](../faq/) · [How It Works](../../concepts/how-it-works/) · [Troubleshooting](../../guides/troubleshooting/)
 
-_Missing a term? [Open an issue](https://github.com/jonathan-vella/azure-agentic-infraops/issues) or add it via PR._
+_Missing a term? [Open an issue](https://github.com/jonathan-vella/apex/issues) or add it via PR._

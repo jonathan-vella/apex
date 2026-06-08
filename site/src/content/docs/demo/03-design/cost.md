@@ -68,11 +68,11 @@ to save ~$26/month (~36% of compute cost).
 | Security/Mgmt |              $0.30 |  0.2% |
 | Monitoring    |              $0.00 |  0.0% |
 
-![Monthly Cost Distribution](/azure-agentic-infraops/demo/03-des-cost-distribution.png)
+![Monthly Cost Distribution](/demo/03-des-cost-distribution.png)
 
 ## 6-Month Cost Projection
 
-![6-Month Cost Projection](/azure-agentic-infraops/demo/03-des-cost-projection.png)
+![6-Month Cost Projection](/demo/03-des-cost-projection.png)
 
 Projection assumes fixed App Service S1 cost with 5% monthly growth
 in transaction-based services. Costs are stable as fixed compute dominates.

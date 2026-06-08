@@ -14,7 +14,7 @@ artifact that downstream steps mutate.
 
 ## Agent
 
-[`02-Requirements`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/02-requirements.agent.md)
+[`02-Requirements`](https://github.com/jonathan-vella/apex/blob/main/.github/agents/02-requirements.agent.md)
 
 ## Invocation
 
@@ -40,14 +40,14 @@ Output: agent-output/{project}/01-requirements.md
 ## Hand-off
 
 The Orchestrator routes context to [`Step 2 —
-Architecture`](/azure-agentic-infraops/concepts/workflow/step-2/) once the user approves the
+Architecture`](/concepts/workflow/step-2/) once the user approves the
 requirements artifact.
 
 ## See also
 
-- [Workflow overview](/azure-agentic-infraops/concepts/workflow/) — the linear narrative across all
+- [Workflow overview](/concepts/workflow/) — the linear narrative across all
   steps.
-- [Workflow deep dive](/azure-agentic-infraops/concepts/workflow-deep-dive/) — cross-cutting
+- [Workflow deep dive](/concepts/workflow-deep-dive/) — cross-cutting
   decisions and gates.
-- [Agent architecture](/azure-agentic-infraops/concepts/how-it-works/agents/) — how agents, skills,
+- [Agent architecture](/concepts/how-it-works/agents/) — how agents, skills,
   and subagents compose.

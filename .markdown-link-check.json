@@ -52,7 +52,7 @@
       "pattern": "\\.(jpg|jpeg|png|gif|svg|webp)(\\?.*)?$"
     },
     {
-      "pattern": "^/azure-agentic-infraops/"
+      "pattern": "^/"
     }
   ],
   "replacementPatterns": [

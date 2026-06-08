@@ -18,7 +18,7 @@ Create your own repository from the
 container. See the [Quickstart](../../getting-started/quickstart/) for the step-by-step guide.
 :::
 
-    This upstream repository (`azure-agentic-infraops`) is the source project. The Accelerator
+    This upstream repository (`apex`) is the source project. The Accelerator
     template is the recommended starting point for new users.
 
 :::note[Is this project production-ready?]
@@ -255,8 +255,8 @@ Add this to your **VS Code User Settings** (not workspace settings):
 
 :::note[Where do I report bugs or request features?]
 
-- **Bugs**: [GitHub Issues](https://github.com/jonathan-vella/azure-agentic-infraops/issues)
-- **Questions**: [GitHub Discussions](https://github.com/jonathan-vella/azure-agentic-infraops/discussions)
+- **Bugs**: [GitHub Issues](https://github.com/jonathan-vella/apex/issues)
+- **Questions**: [GitHub Discussions](https://github.com/jonathan-vella/apex/discussions)
 - **Feature requests**: Open a GitHub issue with the `enhancement` label
 
 :::

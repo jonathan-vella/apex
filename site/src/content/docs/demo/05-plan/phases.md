@@ -90,7 +90,7 @@ The dependency graph shows module-level ordering. Key dependency chains:
 
 ## Runtime Diagram
 
-![Runtime Diagram](/azure-agentic-infraops/demo/04-runtime-diagram.png)
+![Runtime Diagram](/demo/04-runtime-diagram.png)
 
 ## Estimated Implementation Time
 

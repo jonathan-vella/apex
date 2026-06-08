@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/jonathan-vella/azure-agentic-infraops/schemas/governance-constraints.schema.json",
+  "$id": "https://github.com/jonathan-vella/apex/schemas/governance-constraints.schema.json",
   "title": "APEX Governance Constraints",
   "description": "Shape of agent-output/{project}/04-governance-constraints.json produced by 04g-Governance. Used by 06b/06t codegen agents and enforced in CI by scripts/validate-artifacts.mjs (Step 5b). The optional discovery_metadata envelope is the L0 attestation in the four-layer governance stack (L0 envelope → L1 plan matrix → L2 code attestation → L3 live precheck). discovery_metadata is warn-only for 30 days after rollout, then required.",
   "type": "object",

@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const ROOT = resolve(__dirname, "../../site/src/content/docs");
-const BASE = "http://localhost:4321/azure-agentic-infraops";
+const BASE = "http://localhost:4321/apex";
 
 async function walk(dir, out = []) {
   for (const entry of await readdir(dir, { withFileTypes: true })) {
@@ -52,7 +52,7 @@ for (const u of urls) {
       const href = m[1];
       if (!href) continue;
       if (/^(https?:|mailto:|tel:|#)/.test(href)) continue;
-      if (href.startsWith("/azure-agentic-infraops/")) {
+      if (href.startsWith("/")) {
         // Doc URLs get a trailing slash for Set dedupe; static assets
         // (anything with a file extension in the last segment) stay as-is.
         const lastSegment = href.split("/").pop() || "";

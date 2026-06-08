@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/jonathan-vella/azure-agentic-infraops/schemas/policy-property-map.schema.json",
+  "$id": "https://github.com/jonathan-vella/apex/schemas/policy-property-map.schema.json",
   "title": "APEX Policy Property Map (L1m)",
   "description": "Machine-readable governance compliance matrix emitted alongside 04-implementation-plan.md as 04-policy-property-map.json. Always produced — in light governance mode, the prose H2 'Governance Compliance Matrix' section is skipped but this JSON file is still emitted so 06b/06t and policy-precheck-subagent (L3) can attest Deny-effect policies deterministically. Mirrors L1m in the four-layer governance attestation chain (L0 envelope → L1 matrix → L2 attestation → L3 live precheck).",
   "type": "object",

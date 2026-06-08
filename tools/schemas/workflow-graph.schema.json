@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/jonathan-vella/azure-agentic-infraops/schemas/workflow-graph.schema.json",
+  "$id": "https://github.com/jonathan-vella/apex/schemas/workflow-graph.schema.json",
   "title": "APEX Workflow Graph",
   "description": "Shape of the workflow DAG in .github/skills/workflow-engine/templates/workflow-graph.json. Defines the multi-step agent pipeline with typed nodes, conditional edges, and challenger configuration. Enforced by scripts/validate-workflow-graph.mjs.",
   "type": "object",

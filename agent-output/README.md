@@ -96,7 +96,7 @@ working on that project should create it from the template and backfill complete
 ## Related Resources
 
 - **Bicep Code**: [`infra/bicep/{project}/`](../../infra/bicep/{project}/)
-- **Prompt Guide**: [Published Prompt Guide](https://jonathan-vella.github.io/azure-agentic-infraops/guides/prompt-guide/)
+- **Prompt Guide**: [Published Prompt Guide](https://apexops.pro/guides/prompt-guide/)
 ```
 
 ## Showcase Projects

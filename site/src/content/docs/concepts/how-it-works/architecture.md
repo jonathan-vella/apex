@@ -100,7 +100,7 @@ tier is resolved from agent frontmatter — consult those files (or
 
 **Subagent Integration Matrix**: The full mapping of which subagents are invoked by
 which parent agents is externalised to the
-[subagent-integration reference](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/workflow-engine/references/subagent-integration.md)
+[subagent-integration reference](https://github.com/jonathan-vella/apex/blob/main/.github/skills/workflow-engine/references/subagent-integration.md)
 to keep the Orchestrator body under the 350-line limit.
 
 ## Dual IaC Tracks

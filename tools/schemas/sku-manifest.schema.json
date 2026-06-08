@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/jonathan-vella/azure-agentic-infraops/schemas/sku-manifest.schema.json",
+  "$id": "https://github.com/jonathan-vella/apex/schemas/sku-manifest.schema.json",
   "title": "APEX SKU Manifest",
   "description": "Shape of agent-output/{project}/sku-manifest.json — the single source of truth for creative SKU decisions (App Service, VM, SQL, Cosmos, AKS pools, Redis, APIM, App Gateway, Storage replication) across environments (dev/test/prod) and regions (primary + failover). Created at Step 1 (user-pins only), populated at Step 2 (Architect), reconciled at Step 3.5/Step 4, blocked-on-conflict at Step 6, drift-detected at Step 7. Enforced by tools/scripts/validate-sku-manifest.mjs. Out of scope (must not appear in services[]): bandwidth, Log Analytics, vnet, subnet, NSG, route table, public IP, diagnostics — see .github/instructions/sku-manifest.instructions.md exclude list.",
   "type": "object",

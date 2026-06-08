@@ -17,9 +17,9 @@ each AVM module to the plan's resource graph.
 Track-routed via `decisions.iac_tool`:
 
 - [`06b-Bicep
-  CodeGen`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/06b-bicep-codegen.agent.md)
+  CodeGen`](https://github.com/jonathan-vella/apex/blob/main/.github/agents/06b-bicep-codegen.agent.md)
 - [`06t-Terraform
-  CodeGen`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/06t-terraform-codegen.agent.md)
+  CodeGen`](https://github.com/jonathan-vella/apex/blob/main/.github/agents/06t-terraform-codegen.agent.md)
 
 ## Invocation
 
@@ -57,4 +57,4 @@ The user must approve preflight validation results before deployment.
 ## Hand-off
 
 The Orchestrator routes context to [`Step 6 —
-Deploy`](/azure-agentic-infraops/concepts/workflow/step-6/).
+Deploy`](/concepts/workflow/step-6/).

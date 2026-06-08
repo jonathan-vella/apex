@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/jonathan-vella/azure-agentic-infraops/schemas/subnet-plan/v1.json",
+  "$id": "https://github.com/jonathan-vella/apex/schemas/subnet-plan/v1.json",
   "version": "1.0.0",
   "title": "Subnet Plan v1",
   "description": "Schema for decisions.subnet_plan emitted by 03-Architect Phase 6b (VNet planning gate). Authoring rules in .github/skills/azure-defaults/references/vnet-planning.md.",

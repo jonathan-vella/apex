@@ -53,7 +53,7 @@ let upstreamHtml;
 try {
   const res = await fetch(ICONS_PAGE_URL, {
     headers: {
-      "User-Agent": "apex-icons-freshness-check/1.0 (+https://github.com/jonathan-vella/azure-agentic-infraops)",
+      "User-Agent": "apex-icons-freshness-check/1.0 (+https://github.com/jonathan-vella/apex)",
     },
   });
   if (!res.ok) {
