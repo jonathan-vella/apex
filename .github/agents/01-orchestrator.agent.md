@@ -199,7 +199,7 @@ higher-tier model, the subagent silently falls back to the parent's tier.
 [Reference](https://code.visualstudio.com/docs/copilot/agents/subagents).
 
 This orchestrator runs at **standard** tier (MAI-Code-1-Flash). The step agents and
-the challenger run at **medium** (GPT-5.5 / Sonnet 4.6) or **high** (Opus 4.7)
+the challenger run at **medium** (GPT-5.5 / Sonnet 4.6) or **high** (Claude Opus 4.8)
 tiers. Calling them via `#runSubagent` would silently downgrade them to
 standard tier and produce wrong-tier output for architecture, planning, and
 documentation work.

@@ -304,7 +304,10 @@ else
     if [ "$TFLINT_ARCH" = "amd64" ] || [ "$TFLINT_ARCH" = "arm64" ]; then
         TFLINT_TMP=$(mktemp -d)
         TFLINT_URL="https://github.com/terraform-linters/tflint/releases/download/v${TFLINT_VERSION}/tflint_linux_${TFLINT_ARCH}.zip"
+        TFLINT_SHA_URL="https://github.com/terraform-linters/tflint/releases/download/v${TFLINT_VERSION}/checksums.txt"
         if curl -fsSL "$TFLINT_URL" -o "$TFLINT_TMP/tflint.zip" \
+            && curl -fsSL "$TFLINT_SHA_URL" -o "$TFLINT_TMP/checksums.txt" \
+            && (cd "$TFLINT_TMP" && grep -E " tflint_linux_${TFLINT_ARCH}\.zip$" checksums.txt | sha256sum -c -) \
             && unzip -o -q "$TFLINT_TMP/tflint.zip" -d "$TFLINT_TMP" \
             && sudo install -m 0755 "$TFLINT_TMP/tflint" /usr/local/bin/tflint; then
             rm -rf "$TFLINT_TMP"

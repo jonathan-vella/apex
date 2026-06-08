@@ -673,6 +673,7 @@ const FAMILY_STATUS = {
   "gpt-5.4": "deprecated",
   "gpt-codex": "reviewer-only",
   "gpt-4o": "reviewer-only",
+  "mai-code": "reviewer-only",
   unknown: "enforced",
 };
 
