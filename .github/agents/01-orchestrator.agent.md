@@ -1,7 +1,7 @@
 ---
 name: 01-Orchestrator
 description: Master orchestrator for the multi-step Azure platform engineering workflow. Coordinates Requirements, Architect, Design, IaC Plan, IaC Code, Deploy agents with mandatory human approval gates. Routes Bicep or Terraform tracks via decisions.iac_tool.
-model: ["GPT-5.4 mini"]
+model: ["MAI-Code-1-Flash"]
 argument-hint: Describe the Azure platform engineering project you want to build end-to-end
 user-invocable: true
 agents:
@@ -145,8 +145,7 @@ chat can resume losslessly.
     before continuing (circuit breaker — see Core Principles).
   - At Gates 2 and 3, recommend a session break unless context is below 40%.
 - Reasoning effort: rely on the Copilot runtime default. Do not request `high`
-  reflexively — GPT-5.5 reasons more efficiently than predecessors; escalate
-  only when a gate carries unresolved tradeoffs.
+  reflexively; escalate only when a gate carries unresolved tradeoffs.
 - Subagent budget: not applicable — the orchestrator does not invoke step
   agents or the challenger via `#runSubagent`. The cost-estimate, validate,
   what-if/plan, and challenger subagents are owned by the step agents that
@@ -199,8 +198,8 @@ subagent cannot exceed the cost tier of the parent. If the parent requests a
 higher-tier model, the subagent silently falls back to the parent's tier.
 [Reference](https://code.visualstudio.com/docs/copilot/agents/subagents).
 
-This orchestrator runs at **standard** tier (GPT-5.4 mini). The step agents and
-the challenger run at **medium** (GPT-5.5 / Sonnet 4.6) or **high** (Opus 4.7)
+This orchestrator runs at **standard** tier (MAI-Code-1-Flash). The step agents and
+the challenger run at **medium** (GPT-5.5 / Sonnet 4.6) or **high** (Claude Opus 4.8)
 tiers. Calling them via `#runSubagent` would silently downgrade them to
 standard tier and produce wrong-tier output for architecture, planning, and
 documentation work.
@@ -539,7 +538,7 @@ Orchestrator with the project name — no special resume prompt needed.
 | `high`     | Claude Opus 4.8   | Architecture, Planning, Context Optimizer                                                         |
 | `medium`   | Claude Sonnet 4.6 | **Requirements**, Design, Bicep/Terraform CodeGen, Bicep/Terraform validate + preview subagents   |
 | `medium`   | GPT-5.5           | Governance, Deploy, As-Built, Diagnose, Challenger, E2E orchestrator                              |
-| `standard` | GPT-5.4 mini      | **Orchestrator** (handoff-only routing)                                                           |
+| `standard` | MAI-Code-1-Flash  | **Orchestrator** (handoff-only routing)                                                           |
 | `codex`    | GPT-5.3-Codex     | Cost estimate subagent                                                                            |
 
 > The canonical assignments live in

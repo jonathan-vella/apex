@@ -151,10 +151,15 @@ Agents that specify `Claude Opus 4.7` as priority model do so deliberately:
   Success / Constraints / Output / Stop sections, retrieval budgets, decision rules
   over absolutes, and stopping conditions. GPT-5.5 reasons more efficiently than
   predecessors — re-evaluate `low`/`medium` reasoning effort before escalating
-- **GPT-5.4 mini agents** (orchestrator) use the same GPT-5.x prompting style
-  as the GPT-5.5 cohort (per vendor-prompting `family-support.md` — GPT-5.4
-  shares the OpenAI cohort rules). Lower-cost tier suits handoff-only routing
-  with no creative generation.
+- **GPT-5.4 mini prompts** (utility/CLI prompts such as apex-git-commit,
+  apex-debug-log-export) use the same GPT-5.x prompting style as the GPT-5.5
+  cohort (per vendor-prompting `family-support.md` — GPT-5.4 shares the OpenAI
+  cohort rules). Lower-cost tier suits deterministic CLI workflows.
+- **MAI-Code-1-Flash agents** (orchestrator) run Microsoft's fast coding model
+  for handoff-only routing with no creative generation. The `mai-code` family
+  is `reviewer-only` in vendor-prompting — no MAI-specific automated rules yet;
+  the orchestrator body keeps its outcome-first skeleton as a sound routing
+  structure.
 - **GPT-5.3-Codex subagents** handle narrow, high-throughput tasks (cost estimation)
 
 #### GPT-5.5 prompting style (summary)
@@ -178,7 +183,7 @@ Current model assignments:
 
 | Agent / Group                       | Model             | Rationale                                |
 | ----------------------------------- | ----------------- | ---------------------------------------- |
-| Orchestrator                        | GPT-5.4 mini      | Standard-tier handoff routing            |
+| Orchestrator                        | MAI-Code-1-Flash  | Standard-tier handoff routing            |
 | Orchestrator (Fast Path)            | GPT-5.5           | Streamlined orchestration                |
 | Requirements                        | Claude Sonnet 4.6 | One-shot discovery (Anthropic style)     |
 | Architect                           | Claude Opus 4.8   | WAF analysis + cost (high effort)        |

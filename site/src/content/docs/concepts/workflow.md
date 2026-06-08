@@ -136,7 +136,7 @@ preview subagents before any Azure changes are applied.
 
 | Agent            | Codename        | Role                                        | Model           |
 | ---------------- | --------------- | ------------------------------------------- | --------------- |
-| **Orchestrator** | 🧠 Orchestrator | Master orchestrator for multi-step workflow | GPT-5.4 mini    |
+| **Orchestrator** | 🧠 Orchestrator | Master orchestrator for multi-step workflow | MAI-Code-1-Flash |
 
 ### Core Agents (by Workflow Step)
 

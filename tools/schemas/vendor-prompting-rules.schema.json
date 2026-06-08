@@ -58,6 +58,7 @@
               "gpt-5.4",
               "gpt-codex",
               "gpt-4o",
+              "mai-code",
               "unknown"
             ]
           },
@@ -113,6 +114,7 @@
                 "gpt-5.4",
                 "gpt-codex",
                 "gpt-4o",
+                "mai-code",
                 "any"
               ]
             }

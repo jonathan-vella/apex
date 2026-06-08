@@ -288,6 +288,39 @@ else
     step_warn "Go not found — Terraform MCP Server not installed"
 fi
 
+# ─── Step 9.4: TFLint (cosign-free install) ─────────────────────────────────
+# The terraform devcontainer feature installs the latest cosign (3.x) to verify
+# TFLint's signature, but cosign 3.x is incompatible with the Rekor log-query
+# API and aborts the whole feature install ("invalid signature when validating
+# IEEE_P1363 encoded signature"). We therefore set tflint=none in the feature
+# and install the pinned TFLint release directly here — no cosign required.
+
+TFLINT_VERSION="0.61.0"
+step_start "🧹" "Installing TFLint v${TFLINT_VERSION} (cosign-free)..."
+if command -v tflint &>/dev/null && tflint --version 2>/dev/null | grep -q "$TFLINT_VERSION"; then
+    step_done "TFLint v${TFLINT_VERSION} already installed"
+else
+    TFLINT_ARCH=$(dpkg --print-architecture)
+    if [ "$TFLINT_ARCH" = "amd64" ] || [ "$TFLINT_ARCH" = "arm64" ]; then
+        TFLINT_TMP=$(mktemp -d)
+        TFLINT_URL="https://github.com/terraform-linters/tflint/releases/download/v${TFLINT_VERSION}/tflint_linux_${TFLINT_ARCH}.zip"
+        TFLINT_SHA_URL="https://github.com/terraform-linters/tflint/releases/download/v${TFLINT_VERSION}/checksums.txt"
+        if curl -fsSL "$TFLINT_URL" -o "$TFLINT_TMP/tflint.zip" \
+            && curl -fsSL "$TFLINT_SHA_URL" -o "$TFLINT_TMP/checksums.txt" \
+            && (cd "$TFLINT_TMP" && grep -E " tflint_linux_${TFLINT_ARCH}\.zip$" checksums.txt | sha256sum -c -) \
+            && unzip -o -q "$TFLINT_TMP/tflint.zip" -d "$TFLINT_TMP" \
+            && sudo install -m 0755 "$TFLINT_TMP/tflint" /usr/local/bin/tflint; then
+            rm -rf "$TFLINT_TMP"
+            step_done "TFLint $(tflint --version 2>/dev/null | head -1)"
+        else
+            rm -rf "$TFLINT_TMP"
+            step_warn "TFLint install failed — check network access to github.com"
+        fi
+    else
+        step_warn "TFLint skipped: unsupported architecture $TFLINT_ARCH (supported: amd64, arm64)"
+    fi
+fi
+
 # ─── Step 9.5: Terraform CLI hardening ──────────────────────────────────────
 # The Terraform plugin-cache directory must exist before `terraform init` runs;
 # the CLI refuses to operate when TF_PLUGIN_CACHE_DIR points at a missing path.

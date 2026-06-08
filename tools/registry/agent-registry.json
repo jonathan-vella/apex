@@ -4,7 +4,7 @@
   "agents": {
     "orchestrator": {
       "agent": ".github/agents/01-orchestrator.agent.md",
-      "model": "GPT-5.4 mini",
+      "model": "MAI-Code-1-Flash",
       "invokable": true,
       "step": null
     },

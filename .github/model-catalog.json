@@ -1,14 +1,17 @@
 {
   "$schema": "../tools/schemas/model-catalog.schema.json",
   "description": "Authorized Copilot Chat model labels for APEX agents. Two-part design: `models` is hand-maintained metadata that authorizes which labels may appear in agent frontmatter; `assignments` is auto-generated from frontmatter (the canonical source) so the catalog can never drift from the agents themselves. The agent registry mirrors frontmatter via validate-model-consistency.mjs; the catalog enforces the label allow-list and assignment integrity via validate-model-catalog.mjs.",
-  "last_updated": "2026-05-28",
+  "last_updated": "2026-06-08",
   "models": {
     "Claude Opus 4.8": {
       "vendor": "Anthropic",
       "tier": "frontier",
       "released": "2026-05",
       "deprecated": false,
-      "use_for": ["architecture", "iac-planning"],
+      "use_for": [
+        "architecture",
+        "iac-planning"
+      ],
       "notes": "Anthropic's most capable model. Drop-in upgrade from Opus 4.7 (no API-breaking changes): same tools/features, adaptive thinking only, sampling params unsupported. Improves long-horizon agentic coding, reasoning-effort calibration, tool triggering, and compaction recovery; effort defaults to `high` on all surfaces. Authorized 2026-05 for Architecture (03) and IaC Planning (05). Reasoning-effort policy (high vs default) is a per-agent / per-call concern, NOT a separate model label — see `.github/instructions/agent-authoring.instructions.md`."
     },
     "Claude Opus 4.7": {
@@ -16,7 +19,12 @@
       "tier": "frontier",
       "released": "2026-05",
       "deprecated": false,
-      "use_for": ["orchestration", "architecture", "iac-planning", "context-optimization"],
+      "use_for": [
+        "orchestration",
+        "architecture",
+        "iac-planning",
+        "context-optimization"
+      ],
       "notes": "Active Opus 4.7 SKU. Reasoning-effort policy (high vs default) is a per-agent / per-call concern, NOT a separate model label. See `.github/instructions/agent-authoring.instructions.md` (\"Reasoning-effort policy\" section) for guidance on which agents run at high effort."
     },
     "Claude Opus 4.6": {
@@ -24,7 +32,13 @@
       "tier": "frontier",
       "released": "2026-01",
       "deprecated": true,
-      "use_for": ["orchestration", "architecture", "iac-planning", "diagnosis", "context-optimization"],
+      "use_for": [
+        "orchestration",
+        "architecture",
+        "iac-planning",
+        "diagnosis",
+        "context-optimization"
+      ],
       "notes": "Deprecated 2026-05 in favor of Claude Opus 4.7. Retained for audit history; not authorized for new agents."
     },
     "Claude Sonnet 4.6": {
@@ -32,7 +46,14 @@
       "tier": "balanced",
       "released": "2026-01",
       "deprecated": false,
-      "use_for": ["design-diagrams", "adr-authoring", "iac-codegen", "iac-validation", "deployment-preview", "as-built-documentation"],
+      "use_for": [
+        "design-diagrams",
+        "adr-authoring",
+        "iac-codegen",
+        "iac-validation",
+        "deployment-preview",
+        "as-built-documentation"
+      ],
       "notes": "Active for Step 3 Design, Step 5 IaC code generation (Bicep + Terraform), Step 7 As-Built documentation, and the IaC validation/preview subagents (bicep-validate, bicep-whatif, terraform-validate, terraform-plan). The Anthropic prompting style (XML-tagged blocks, role-first, quote-grounded review, checklist-driven structured output) suits ADR + diagram authoring, the structured PASS/FAIL findings produced by the validation subagents, and the checklist-driven artifact generation of as-built docs. CodeGen joined this cohort 2026-05 (was GPT-5.5) for stronger verbatim invariant retention. As-Built joined 2026-05 for the same XML-structured artifact authoring alignment. Other GPT-5.5 cohort members (Governance, Deploy, Challenger, E2E, Diagnose) remain on GPT-5.5."
     },
     "GPT-5.4": {
@@ -40,7 +61,12 @@
       "tier": "standard",
       "released": "2026-02",
       "deprecated": false,
-      "use_for": ["deployment", "as-built", "validation-subagents", "whatif-interpretation"],
+      "use_for": [
+        "deployment",
+        "as-built",
+        "validation-subagents",
+        "whatif-interpretation"
+      ],
       "notes": "Active OpenAI standard-tier SKU. Re-authorized 2026-05 after the deprecation flag was lifted (no `GPT-5.5 mini` exists, so the `GPT-5.4` cohort remains the lower-cost OpenAI tier alongside `GPT-5.5`). Pair with `GPT-5.4 mini` for utility/CLI prompts."
     },
     "GPT-5.4 mini": {
@@ -48,7 +74,11 @@
       "tier": "mini",
       "released": "2026-05",
       "deprecated": false,
-      "use_for": ["utility-prompts", "cli-operations", "lightweight-tasks"],
+      "use_for": [
+        "utility-prompts",
+        "cli-operations",
+        "lightweight-tasks"
+      ],
       "notes": "Lightweight, cost-optimized model for utility prompts and CLI-only workflows. Suitable for straightforward git operations, file staging, and deterministic CLI parsing. Not for complex orchestration or reasoning-heavy tasks."
     },
     "GPT-5.5": {
@@ -73,8 +103,22 @@
       "tier": "codex",
       "released": "2025-12",
       "deprecated": false,
-      "use_for": ["cost-estimation", "parametric-calculations"],
+      "use_for": [
+        "cost-estimation",
+        "parametric-calculations"
+      ],
       "notes": "Code/maths-focused. Used by cost-estimate-subagent for numerical reasoning."
+    },
+    "MAI-Code-1-Flash": {
+      "vendor": "Microsoft",
+      "tier": "standard",
+      "released": "2026-06",
+      "deprecated": false,
+      "use_for": [
+        "orchestration",
+        "handoff-routing"
+      ],
+      "notes": "Microsoft's fast, cost-optimized coding model. Authorized 2026-06 for the Orchestrator (01), which performs handoff-only routing with no creative generation — a lightweight standard-tier model is sufficient. No MAI-specific automated prompting rules exist yet; the `mai-code` family is `reviewer-only` in vendor-prompting (see `.github/skills/vendor-prompting/references/family-support.md`). The orchestrator body retains its outcome-first skeleton (Role/Goal/Success/Constraints/Output/Stop), which remains a sound structure for a routing agent."
     }
   },
   "governance": {
@@ -91,7 +135,7 @@
     "generated_by": "tools/scripts/generate-model-catalog.mjs",
     "description": "Auto-generated inventory of agent → model assignments derived from frontmatter (canonical source). Do not edit by hand; run `node tools/scripts/generate-model-catalog.mjs` or let the lefthook pre-commit hook refresh it when frontmatter changes.",
     "agents": {
-      "01-orchestrator.agent.md": "GPT-5.4 mini",
+      "01-orchestrator.agent.md": "MAI-Code-1-Flash",
       "02-requirements.agent.md": "Claude Sonnet 4.6",
       "03-architect.agent.md": "Claude Opus 4.8",
       "04-design.agent.md": "Claude Sonnet 4.6",
