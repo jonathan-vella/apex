@@ -71,7 +71,7 @@
         },
         "tool_versions": {
           "type": "object",
-          "description": "Pinned tool versions used for validate (bicep, terraform, az, tfsec, etc.)",
+          "description": "Pinned tool versions used for validate (bicep, terraform, az, node, etc.)",
           "additionalProperties": { "type": "string" }
         },
         "validate_gate": {

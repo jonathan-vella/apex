@@ -21,12 +21,6 @@
       "min": "20.0.0",
       "check_cmd": "node --version",
       "parser": "node"
-    },
-    "tfsec": {
-      "min": "1.28.0",
-      "check_cmd": "tfsec --version",
-      "parser": "tfsec",
-      "optional": true
     }
   }
 }

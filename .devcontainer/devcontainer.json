@@ -23,8 +23,7 @@
     },
     "ghcr.io/devcontainers/features/terraform:1": {
       "tflint": "none",
-      "terragrunt": "none",
-      "installTFsec": false
+      "terragrunt": "none"
     },
     "ghcr.io/devcontainers/features/go:1": {
       "version": "1.24.2"

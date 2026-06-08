@@ -3,7 +3,7 @@
  * Tool Version Pin Validator
  *
  * Asserts the dev container + CI environment runs the minimum required
- * versions of bicep, terraform, az, tfsec, and node. Mismatches block
+ * versions of bicep, terraform, az, and node. Mismatches block
  * Step 5 validation/Step 6 deploy because earlier versions miss the
  * built-in diagnostics path (bicep ≥ 0.21.0 for readEnvironmentVariable)
  * and AVM-TF v0.3+ semantics.
@@ -35,7 +35,6 @@ const DEFAULT_PINS = {
     terraform: { min: "1.6.0", check_cmd: "terraform version -json", parser: "terraform-json" },
     az: { min: "2.55.0", check_cmd: "az version --output json", parser: "az-json" },
     node: { min: "20.0.0", check_cmd: "node --version", parser: "node" },
-    tfsec: { min: "1.28.0", check_cmd: "tfsec --version", parser: "tfsec", optional: true },
   },
 };
 
@@ -87,10 +86,6 @@ function runVersion(cmd, parser) {
   }
   if (parser === "node") {
     const m = out.match(/v(\d+\.\d+\.\d+)/);
-    return m ? { ok: true, version: m[1] } : { ok: false, error: out.slice(0, 80) };
-  }
-  if (parser === "tfsec") {
-    const m = out.match(/(\d+\.\d+\.\d+)/);
     return m ? { ok: true, version: m[1] } : { ok: false, error: out.slice(0, 80) };
   }
   return { ok: false, error: `unknown parser: ${parser}` };
