@@ -7,7 +7,10 @@
     "azure-pricing": {
       "type": "stdio",
       "command": "${workspaceFolder}/tools/mcp-servers/azure-pricing/.venv/bin/python",
-      "args": ["-m", "azure_pricing_mcp"],
+      "args": [
+        "-m",
+        "azure_pricing_mcp"
+      ],
       "cwd": "${workspaceFolder}/tools/mcp-servers/azure-pricing/src",
       "env": {
         "AZURE_PRICING_HTTP_POOL_SIZE": "20",
@@ -19,7 +22,11 @@
     "terraform": {
       "type": "stdio",
       "command": "/go/bin/terraform-mcp-server",
-      "args": ["stdio", "--toolsets", "registry"],
+      "args": [
+        "stdio",
+        "--toolsets",
+        "registry"
+      ],
       "env": {}
     },
     "astro-docs": {
@@ -29,7 +36,13 @@
     "drawio": {
       "type": "stdio",
       "command": "deno",
-      "args": ["run", "-P", "--no-check", "--frozen", "${workspaceFolder}/tools/mcp-servers/drawio/src/index.ts"],
+      "args": [
+        "run",
+        "-P",
+        "--no-check",
+        "--frozen",
+        "${workspaceFolder}/tools/mcp-servers/drawio/src/index.ts"
+      ],
       "env": {
         "DENO_DIR": "${userHome}/.cache/deno"
       }
@@ -37,7 +50,12 @@
     "azure-mcp": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "@azure/mcp@latest", "server", "start"]
+      "args": [
+        "-y",
+        "@azure/mcp@latest",
+        "server",
+        "start"
+      ]
     }
   }
 }

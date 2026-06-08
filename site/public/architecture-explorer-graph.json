@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-06-08T13:09:34.547Z",
+  "generatedAt": "2026-06-08T13:59:33.577Z",
   "categories": [
     {
       "id": "agent",
@@ -619,7 +619,7 @@
       "id": "subagent:terraform-validate-subagent",
       "category": "subagent",
       "label": "terraform-validate-subagent",
-      "description": "Terraform validation subagent. Runs lint (fmt -check, validate, tfsec) first, then code review (AVM-TF standards, naming, security baseline, RBAC, governance). Returns PASS/FAIL + APPROVED/NEEDS_REVISION/FAILED verdict.",
+      "description": "Terraform validation subagent. Runs lint (fmt -check, validate) first, then code review (AVM-TF standards, naming, security baseline, RBAC, governance). Returns PASS/FAIL + APPROVED/NEEDS_REVISION/FAILED verdict.",
       "path": ".github/agents/_subagents/terraform-validate-subagent.agent.md",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/_subagents/terraform-validate-subagent.agent.md"

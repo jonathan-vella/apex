@@ -236,7 +236,7 @@ The Dev Container includes:
 | Category               | Tools                                                                    |
 | ---------------------- | ------------------------------------------------------------------------ |
 | **Azure**              | Azure CLI 2.50+, Bicep CLI 0.30+, Azure Pricing MCP                      |
-| **Terraform**          | Terraform (latest), tfsec, HashiCorp Terraform MCP Server                |
+| **Terraform**          | Terraform (latest), HashiCorp Terraform MCP Server                       |
 | **PowerShell**         | PowerShell 7+, Az modules                                                |
 | **Python**             | Python 3.14, diagrams library, graphviz                                  |
 | **Node.js**            | Node LTS+, npm, markdownlint                                             |

@@ -1,6 +1,6 @@
 ---
 name: terraform-validate-subagent
-description: "Terraform validation subagent. Runs lint (fmt -check, validate, tfsec) first, then code review (AVM-TF standards, naming, security baseline, RBAC, governance). Returns PASS/FAIL + APPROVED/NEEDS_REVISION/FAILED verdict."
+description: "Terraform validation subagent. Runs lint (fmt -check, validate) first, then code review (AVM-TF standards, naming, security baseline, RBAC, governance). Returns PASS/FAIL + APPROVED/NEEDS_REVISION/FAILED verdict."
 model: ["Claude Sonnet 4.6"]
 user-invocable: false
 disable-model-invocation: false
@@ -29,8 +29,8 @@ tools:
 # Terraform Validate Subagent
 
 <role>
-Validation subagent that runs `terraform fmt -check`, `terraform validate`,
-and `tfsec` against generated Terraform configurations, then reviews them
+Validation subagent that runs `terraform fmt -check` and `terraform
+validate` against generated Terraform configurations, then reviews them
 against AVM-TF standards, CAF naming, the security baseline, RBAC least
 privilege, and discovered governance constraints, returning a structured
 PASS/FAIL diagnostic and verdict for the parent IaC agent.
@@ -39,7 +39,7 @@ PASS/FAIL diagnostic and verdict for the parent IaC agent.
 <input_contract>
 The parent agent passes **artifact paths plus the explicit input fields
 documented below — never the artifact bodies inline**. Re-read Terraform
-source (`.tf`, `.tfvars`), tfsec output, or
+source (`.tf`, `.tfvars`) or
 `04-governance-constraints.json` from disk on demand with bounded
 `read_file` ranges, and consult `apex-recall show <project> --json` for
 decision/finding lookups. If a required input field is missing, fail
@@ -92,7 +92,6 @@ Lint Summary:
   Format Issues: {count}
   Validate Errors: {count}
   Validate Warnings: {count}
-  tfsec Findings: {count or "skipped"}
 
 Review Summary:
 {1-2 sentence overall assessment}
@@ -136,7 +135,7 @@ to Planner; AVM-TF property gap → return to Planner + 04g-Governance.
 Before composing findings:
 
 1. Read every `.tf` and `.tfvars` file under the supplied module path.
-2. Re-read the `terraform fmt`, `terraform validate`, and `tfsec` console
+2. Re-read the `terraform fmt` and `terraform validate` console
    output collected in Phase 1.
 3. Re-read `04-governance-constraints.json` (and `.md` envelope when
    present) for the project, plus the relevant `azure-defaults` digest
@@ -186,8 +185,6 @@ not guess defaults.
    cd {module_path} && \
      { [ -d .terraform ] || terraform init -backend=false; } && \
      terraform validate
-   command -v tfsec && tfsec {module_path} || \
-     echo "TFSEC_SKIP: tfsec not installed"
    ```
 
 2. **Timeout-retry policy (Wave 1+)**: if `terraform init`,
@@ -220,9 +217,6 @@ not guess defaults.
 | Warnings only                     | PASS        | Proceed; note warnings     |
 | Format issues only (`fmt -check`) | FAIL        | Skip Phase 2, verdict FAIL |
 | `terraform validate` errors       | FAIL        | Skip Phase 2, verdict FAIL |
-| tfsec HIGH/CRITICAL findings      | FAIL        | Skip Phase 2, verdict FAIL |
-| tfsec MEDIUM/LOW findings         | PASS        | Proceed; note findings     |
-| tfsec not installed               | PASS        | Format + validate passed   |
 
 ### Phase 2 — Code review
 
