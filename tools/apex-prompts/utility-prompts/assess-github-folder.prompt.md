@@ -1,6 +1,6 @@
 ---
 description: "Assess the .github folder (agents, skills, instructions, copilot-instructions.md) and produce a prioritized, read-only remediation plan. Plans only — never edits in the same pass."
-model: "Claude Opus 4.7"
+model: "Claude Opus 4.8"
 agent: agent
 tools:
   - read
