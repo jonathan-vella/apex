@@ -1,7 +1,7 @@
 {
   "$schema": null,
   "schema_version": "avm-module-index-v1",
-  "generated_at": "2026-06-01T11:40:32.075Z",
+  "generated_at": "2026-06-08T11:01:21.063Z",
   "sources": {
     "bicep": "https://azure.github.io/Azure-Verified-Modules/module-indexes/BicepResourceModules.csv",
     "terraform": "https://azure.github.io/Azure-Verified-Modules/module-indexes/TerraformResourceModules.csv"
@@ -2427,7 +2427,7 @@
       "source": "br/public:avm/res/elastic-san/elastic-san/volume-group",
       "provider_namespace": "Microsoft.ElasticSan",
       "resource_type": "elasticSans/volumegroups",
-      "module_status": "Proposed",
+      "module_status": "Available",
       "display_name": "Elastic SAN - Volume Group",
       "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/elastic-san/elastic-san/volume-group",
       "alternative_names": ""
@@ -2438,7 +2438,7 @@
       "source": "br/public:avm/res/elastic-san/elastic-san/volume-group/snapshot",
       "provider_namespace": "Microsoft.ElasticSan",
       "resource_type": "elasticSans/volumegroups/snapshots",
-      "module_status": "Proposed",
+      "module_status": "Available",
       "display_name": "Elastic SAN - Volume Group - Snapshot",
       "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/elastic-san/elastic-san/volume-group/snapshot",
       "alternative_names": ""
@@ -2449,7 +2449,7 @@
       "source": "br/public:avm/res/elastic-san/elastic-san/volume-group/volume",
       "provider_namespace": "Microsoft.ElasticSan",
       "resource_type": "elasticSans/volumegroups/volumes",
-      "module_status": "Proposed",
+      "module_status": "Available",
       "display_name": "Elastic SAN - Volume Group - Volume",
       "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/elastic-san/elastic-san/volume-group/volume",
       "alternative_names": ""
@@ -2592,7 +2592,7 @@
       "source": "br/public:avm/res/event-grid/system-topic/event-subscription",
       "provider_namespace": "Microsoft.EventGrid",
       "resource_type": "systemTopics/eventSubscriptions",
-      "module_status": "Proposed",
+      "module_status": "Available",
       "display_name": "Event Grid System Topic - Event Subscription",
       "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/event-grid/system-topic/event-subscription",
       "alternative_names": ""
@@ -2900,7 +2900,7 @@
       "source": "br/public:avm/res/insights/component/linked-storage-account",
       "provider_namespace": "Microsoft.Insights",
       "resource_type": "components/linkedStorageAccounts",
-      "module_status": "Proposed",
+      "module_status": "Available",
       "display_name": "Application Insight - Linked Storage Account",
       "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/insights/component/linked-storage-account",
       "alternative_names": ""
@@ -2966,7 +2966,7 @@
       "source": "br/public:avm/res/insights/private-link-scope/scoped-resource",
       "provider_namespace": "Microsoft.Insights",
       "resource_type": "privateLinkScopes/scopedResources",
-      "module_status": "Proposed",
+      "module_status": "Available",
       "display_name": "Azure Monitor Private Link Scope - Scoped Resource",
       "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/insights/private-link-scope/scoped-resource",
       "alternative_names": ""
@@ -3945,7 +3945,7 @@
       "source": "br/public:avm/res/network/network-manager/connectivity-configuration",
       "provider_namespace": "Microsoft.Network",
       "resource_type": "networkManagers/connectivityConfigurations",
-      "module_status": "Proposed",
+      "module_status": "Available",
       "display_name": "Network Manager - Connectivity Configuration",
       "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/network/network-manager/connectivity-configuration",
       "alternative_names": ""
@@ -3956,7 +3956,7 @@
       "source": "br/public:avm/res/network/network-manager/network-group",
       "provider_namespace": "Microsoft.Network",
       "resource_type": "networkManagers/networkGroups",
-      "module_status": "Proposed",
+      "module_status": "Available",
       "display_name": "Network Manager - Network Group",
       "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/network/network-manager/network-group",
       "alternative_names": ""
@@ -3967,7 +3967,7 @@
       "source": "br/public:avm/res/network/network-manager/network-group/static-member",
       "provider_namespace": "Microsoft.Network",
       "resource_type": "networkManagers/networkGroups/staticMembers",
-      "module_status": "Proposed",
+      "module_status": "Available",
       "display_name": "Network Manager - Network Group - Static Member",
       "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/network/network-manager/network-group/static-member",
       "alternative_names": ""
@@ -3978,7 +3978,7 @@
       "source": "br/public:avm/res/network/network-manager/routing-configuration",
       "provider_namespace": "Microsoft.Network",
       "resource_type": "networkManagers/routingConfigurations",
-      "module_status": "Proposed",
+      "module_status": "Available",
       "display_name": "Network Manager - Routing Configuration",
       "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/network/network-manager/routing-configuration",
       "alternative_names": ""
@@ -3989,7 +3989,7 @@
       "source": "br/public:avm/res/network/network-manager/routing-configuration/rule-collection",
       "provider_namespace": "Microsoft.Network",
       "resource_type": "networkManagers/routingConfigurations/ruleCollections",
-      "module_status": "Proposed",
+      "module_status": "Available",
       "display_name": "Network Manager - Routing Configuration - Rule Collection",
       "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/network/network-manager/routing-configuration/rule-collection",
       "alternative_names": ""
@@ -4000,7 +4000,7 @@
       "source": "br/public:avm/res/network/network-manager/routing-configuration/rule-collection/rule",
       "provider_namespace": "Microsoft.Network",
       "resource_type": "networkManagers/routingConfigurations/ruleCollections/rules",
-      "module_status": "Proposed",
+      "module_status": "Available",
       "display_name": "Network Manager - Routing Configuration - Rule Collection - Rule",
       "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/network/network-manager/routing-configuration/rule-collection/rule",
       "alternative_names": ""
@@ -4011,7 +4011,7 @@
       "source": "br/public:avm/res/network/network-manager/scope-connection",
       "provider_namespace": "Microsoft.Network",
       "resource_type": "networkManagers/scopeConnections",
-      "module_status": "Proposed",
+      "module_status": "Available",
       "display_name": "Network Manager - Scope Connection",
       "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/network/network-manager/scope-connection",
       "alternative_names": ""
@@ -4022,7 +4022,7 @@
       "source": "br/public:avm/res/network/network-manager/security-admin-configuration",
       "provider_namespace": "Microsoft.Network",
       "resource_type": "networkManagers/securityAdminConfigurations",
-      "module_status": "Proposed",
+      "module_status": "Available",
       "display_name": "Network Manager - Security Admin Configuration",
       "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/network/network-manager/security-admin-configuration",
       "alternative_names": ""
@@ -4033,7 +4033,7 @@
       "source": "br/public:avm/res/network/network-manager/security-admin-configuration/rule-collection",
       "provider_namespace": "Microsoft.Network",
       "resource_type": "networkManagers/securityAdminConfigurations/ruleCollections",
-      "module_status": "Proposed",
+      "module_status": "Available",
       "display_name": "Network Manager - Security Admin Configuration - Rule Collection",
       "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/network/network-manager/security-admin-configuration/rule-collection",
       "alternative_names": ""
@@ -4044,7 +4044,7 @@
       "source": "br/public:avm/res/network/network-manager/security-admin-configuration/rule-collection/rule",
       "provider_namespace": "Microsoft.Network",
       "resource_type": "networkManagers/securityAdminConfigurations/ruleCollections/rules",
-      "module_status": "Proposed",
+      "module_status": "Available",
       "display_name": "Network Manager - Security Admin Configuration - Rule Coll - Rule",
       "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/network/network-manager/security-admin-configuration/rule-collection/rule",
       "alternative_names": ""
@@ -4418,7 +4418,7 @@
       "source": "br/public:avm/res/network/virtual-network-gateway/nat-rule",
       "provider_namespace": "Microsoft.Network",
       "resource_type": "virtualNetworkGateways/natRules",
-      "module_status": "Proposed",
+      "module_status": "Available",
       "display_name": "Virtual Network Gateway - Nat Rule",
       "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/network/virtual-network-gateway/nat-rule",
       "alternative_names": ""
@@ -4473,7 +4473,7 @@
       "source": "br/public:avm/res/network/vpn-gateway/nat-rule",
       "provider_namespace": "Microsoft.Network",
       "resource_type": "vpnGateways/natRules",
-      "module_status": "Proposed",
+      "module_status": "Available",
       "display_name": "VPN Gateway - Nat Rule",
       "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/network/vpn-gateway/nat-rule",
       "alternative_names": ""
@@ -4484,7 +4484,7 @@
       "source": "br/public:avm/res/network/vpn-gateway/vpn-connection",
       "provider_namespace": "Microsoft.Network",
       "resource_type": "vpnGateways/vpnConnections",
-      "module_status": "Proposed",
+      "module_status": "Available",
       "display_name": "VPN Gateway - Vpn Connection",
       "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/network/vpn-gateway/vpn-connection",
       "alternative_names": ""
@@ -5408,7 +5408,7 @@
       "source": "br/public:avm/res/storage/storage-account/blob-service",
       "provider_namespace": "Microsoft.Storage",
       "resource_type": "storageAccounts/blobServices",
-      "module_status": "Proposed",
+      "module_status": "Available",
       "display_name": "Storage Account - Blob Service",
       "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/storage/storage-account/blob-service",
       "alternative_names": ""
@@ -5441,7 +5441,7 @@
       "source": "br/public:avm/res/storage/storage-account/file-service",
       "provider_namespace": "Microsoft.Storage",
       "resource_type": "storageAccounts/fileServices",
-      "module_status": "Proposed",
+      "module_status": "Available",
       "display_name": "Storage Account - File Service",
       "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/storage/storage-account/file-service",
       "alternative_names": ""
@@ -5485,7 +5485,7 @@
       "source": "br/public:avm/res/storage/storage-account/object-replication-policy",
       "provider_namespace": "Microsoft.Storage",
       "resource_type": "",
-      "module_status": "Proposed",
+      "module_status": "Available",
       "display_name": "Storage Account - Object Replication Policy",
       "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/storage/storage-account/object-replication-policy",
       "alternative_names": ""
@@ -5496,7 +5496,7 @@
       "source": "br/public:avm/res/storage/storage-account/object-replication-policy/policy",
       "provider_namespace": "Microsoft.Storage",
       "resource_type": "storageAccounts/objectReplicationPolicies",
-      "module_status": "Proposed",
+      "module_status": "Available",
       "display_name": "Storage Account - Object Replication Policy - Policy",
       "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/storage/storage-account/object-replication-policy/policy",
       "alternative_names": ""
@@ -5507,7 +5507,7 @@
       "source": "br/public:avm/res/storage/storage-account/queue-service",
       "provider_namespace": "Microsoft.Storage",
       "resource_type": "storageAccounts/queueServices",
-      "module_status": "Proposed",
+      "module_status": "Available",
       "display_name": "Storage Account - Queue Service",
       "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/storage/storage-account/queue-service",
       "alternative_names": ""
@@ -5529,7 +5529,7 @@
       "source": "br/public:avm/res/storage/storage-account/table-service",
       "provider_namespace": "Microsoft.Storage",
       "resource_type": "storageAccounts/tableServices",
-      "module_status": "Proposed",
+      "module_status": "Available",
       "display_name": "Storage Account - Table Service",
       "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/storage/storage-account/table-service",
       "alternative_names": ""
@@ -5584,7 +5584,7 @@
       "source": "br/public:avm/res/synapse/workspace/administrator",
       "provider_namespace": "Microsoft.Synapse",
       "resource_type": "workspaces/administrators",
-      "module_status": "Proposed",
+      "module_status": "Available",
       "display_name": "Azure Synapse Analytics Workspace - Administrator",
       "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/synapse/workspace/administrator",
       "alternative_names": ""
@@ -5595,7 +5595,7 @@
       "source": "br/public:avm/res/synapse/workspace/big-data-pool",
       "provider_namespace": "Microsoft.Synapse",
       "resource_type": "workspaces/bigDataPools",
-      "module_status": "Proposed",
+      "module_status": "Available",
       "display_name": "Azure Synapse Analytics Workspace - Big Data Pool",
       "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/synapse/workspace/big-data-pool",
       "alternative_names": ""
@@ -5606,7 +5606,7 @@
       "source": "br/public:avm/res/synapse/workspace/firewall-rule",
       "provider_namespace": "Microsoft.Synapse",
       "resource_type": "workspaces/firewallRules",
-      "module_status": "Proposed",
+      "module_status": "Available",
       "display_name": "Azure Synapse Analytics Workspace - Firewall Rule",
       "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/synapse/workspace/firewall-rule",
       "alternative_names": ""
@@ -5617,7 +5617,7 @@
       "source": "br/public:avm/res/synapse/workspace/integration-runtime",
       "provider_namespace": "Microsoft.Synapse",
       "resource_type": "workspaces/integrationRuntimes",
-      "module_status": "Proposed",
+      "module_status": "Available",
       "display_name": "Azure Synapse Analytics Workspace - Integration Runtime",
       "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/synapse/workspace/integration-runtime",
       "alternative_names": ""
@@ -5628,7 +5628,7 @@
       "source": "br/public:avm/res/synapse/workspace/key",
       "provider_namespace": "Microsoft.Synapse",
       "resource_type": "workspaces/keys",
-      "module_status": "Proposed",
+      "module_status": "Available",
       "display_name": "Azure Synapse Analytics Workspace - Key",
       "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/synapse/workspace/key",
       "alternative_names": ""
@@ -5639,7 +5639,7 @@
       "source": "br/public:avm/res/synapse/workspace/sql-pool",
       "provider_namespace": "Microsoft.Synapse",
       "resource_type": "workspaces/sqlPools",
-      "module_status": "Proposed",
+      "module_status": "Available",
       "display_name": "Azure Synapse Analytics Workspace - Sql Pool",
       "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/synapse/workspace/sql-pool",
       "alternative_names": ""
@@ -5716,7 +5716,7 @@
       "source": "br/public:avm/res/web/site/basic-publishing-credentials-policy",
       "provider_namespace": "Microsoft.Web",
       "resource_type": "sites/basicPublishingCredentialsPolicies",
-      "module_status": "Proposed",
+      "module_status": "Available",
       "display_name": "Web/Function App - Basic Publishing Credentials Policy",
       "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/web/site/basic-publishing-credentials-policy",
       "alternative_names": ""
@@ -5738,7 +5738,7 @@
       "source": "br/public:avm/res/web/site/extension",
       "provider_namespace": "Microsoft.Web",
       "resource_type": "sites/extensions",
-      "module_status": "Proposed",
+      "module_status": "Available",
       "display_name": "Web/Function App - Extension",
       "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/web/site/extension",
       "alternative_names": ""
@@ -5749,7 +5749,7 @@
       "source": "br/public:avm/res/web/site/hybrid-connection-namespace/relay",
       "provider_namespace": "Microsoft.Web",
       "resource_type": "sites/hybridConnectionNamespaces/relays",
-      "module_status": "Proposed",
+      "module_status": "Available",
       "display_name": "Web/Function App - Hybrid Connection Namespace - Relay",
       "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/web/site/hybrid-connection-namespace/relay",
       "alternative_names": ""
@@ -5771,7 +5771,7 @@
       "source": "br/public:avm/res/web/site/slot/basic-publishing-credentials-policy",
       "provider_namespace": "Microsoft.Web",
       "resource_type": "sites/slots/basicPublishingCredentialsPolicies",
-      "module_status": "Proposed",
+      "module_status": "Available",
       "display_name": "Web/Function App - Slot - Basic Publishing Credentials Policy",
       "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/web/site/slot/basic-publishing-credentials-policy",
       "alternative_names": ""
@@ -5782,7 +5782,7 @@
       "source": "br/public:avm/res/web/site/slot/config",
       "provider_namespace": "Microsoft.Web",
       "resource_type": "sites/slots/config",
-      "module_status": "Proposed",
+      "module_status": "Available",
       "display_name": "Web/Function App - Slot - Config",
       "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/web/site/slot/config",
       "alternative_names": ""
@@ -5793,7 +5793,7 @@
       "source": "br/public:avm/res/web/site/slot/extension",
       "provider_namespace": "Microsoft.Web",
       "resource_type": "sites/slots/extensions",
-      "module_status": "Proposed",
+      "module_status": "Available",
       "display_name": "Web/Function App - Slot - Extension",
       "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/web/site/slot/extension",
       "alternative_names": ""
@@ -5804,7 +5804,7 @@
       "source": "br/public:avm/res/web/site/slot/hybrid-connection-namespace/relay",
       "provider_namespace": "Microsoft.Web",
       "resource_type": "sites/slots/hybridConnectionNamespaces/relays",
-      "module_status": "Proposed",
+      "module_status": "Available",
       "display_name": "Web/Function App - Slot - Hybrid Connection Namespace - Relay",
       "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/web/site/slot/hybrid-connection-namespace/relay",
       "alternative_names": ""
