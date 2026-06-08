@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/jonathan-vella/azure-agentic-infraops/schemas/iac-contract.schema.json",
+  "$id": "https://github.com/jonathan-vella/apex/schemas/iac-contract.schema.json",
   "title": "APEX IaC Contract",
   "description": "Machine-readable contract emitted by Step 4 (05-IaC Planner) and consumed by Step 5 (06b/06t CodeGen). Replaces prose extraction from 04-implementation-plan.md. Two revisions are supported: contract-v0 (minimum viable — resources, modules, params, diagnostics, identity, l1m_ref) ships in Wave 1; contract-v1 (adds dependencies, network_topology, output_contract) ships in Wave 3. Artifact path: agent-output/{project}/04-iac-contract.json. Validators: validate-iac-contract.mjs (schema), validate-iac-contract-consistency.mjs (prose ↔ contract drift).",
   "type": "object",

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/jonathan-vella/azure-agentic-infraops/schemas/lesson-log.schema.json",
+  "$id": "https://github.com/jonathan-vella/apex/schemas/lesson-log.schema.json",
   "title": "APEX Lessons Learned Log",
   "description": "Shape of agent-output/{project}/09-lessons-learned.json produced by the Orchestrator at workflow completion. Captures process observations for retrospective analysis.",
   "type": "object",

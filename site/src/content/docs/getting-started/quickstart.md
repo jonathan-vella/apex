@@ -3,7 +3,7 @@ title: "Quickstart"
 description: "Get started with APEX in minutes"
 ---
 
-<img src="/azure-agentic-infraops/images/hero-quickstart.jpg"
+<img src="/images/hero-quickstart.jpg"
     width="100%" height="250" style="object-fit: cover; border-radius: 10px;"
     alt="Getting started with development tools"/>
 
@@ -357,7 +357,7 @@ Pick the path that matches your goal — then drop into the resource table below
 | Create documentation            | Use `azure-artifacts` skill                                                                               |
 | Explore Terraform patterns      | Use `terraform-patterns` skill                                                                            |
 | Troubleshoot issues             | [troubleshooting.md](../../guides/troubleshooting/)                                                       |
-| Contribute to the upstream repo | [azure-agentic-infraops](https://github.com/jonathan-vella/azure-agentic-infraops)                        |
+| Contribute to the upstream repo | [apex](https://github.com/jonathan-vella/apex)                        |
 
 ## Quick Reference
 

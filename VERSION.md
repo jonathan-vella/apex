@@ -11,7 +11,7 @@
 **Build:** quality-improvements
 
 > Consumers tracking stable releases should pin to the most recent tag in
-> [GitHub Releases](https://github.com/jonathan-vella/azure-agentic-infraops/releases)
+> [GitHub Releases](https://github.com/jonathan-vella/apex/releases)
 > rather than the `Current Version` above.
 
 ## Version History

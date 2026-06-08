@@ -85,7 +85,7 @@ sidebar:
 
 Production and staging endpoint probes returned HTTP `503` during the Step 7 evidence collection window, so operational recovery remains open until availability is restored.
 
-![Compliance Gaps by Severity](/azure-agentic-infraops/demo/07-ab-compliance-gaps.png)
+![Compliance Gaps by Severity](/demo/07-ab-compliance-gaps.png)
 
 ```mermaid
 pie title Compliance Gaps by Severity
@@ -157,7 +157,7 @@ production tasks.
 | Monthly Estimate | $154.87         | $139.06   | -$15.81  | ⚠️     |
 | Annual Estimate  | $1,858.44       | $1,668.72 | -$189.72 | ⚠️     |
 
-![Design vs As-Built Cost Comparison](/azure-agentic-infraops/demo/07-ab-cost-comparison.png)
+![Design vs As-Built Cost Comparison](/demo/07-ab-cost-comparison.png)
 
 The as-built baseline is lower than the design estimate because the live pricing run treated Storage, Key Vault, Application Insights, Log Analytics, and Event Grid as usage-based services with no fixed baseline charge in the absence of observed consumption figures.
 

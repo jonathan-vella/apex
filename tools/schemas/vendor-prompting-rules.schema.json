@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/tools/schemas/vendor-prompting-rules.schema.json",
+  "$id": "https://github.com/jonathan-vella/apex/blob/main/tools/schemas/vendor-prompting-rules.schema.json",
   "title": "Vendor Prompting Rules Registry",
   "description": "Documentation-only registry of vendor prompting best-practice rules cross-referenced from validate-agents.mjs RULE_ID constants. The validator does not import this file at runtime; instead validate-vendor-rules.mjs cross-checks that every JS RULE_ID is registered here and vice versa.",
   "type": "object",

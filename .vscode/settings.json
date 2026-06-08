@@ -108,7 +108,7 @@
   "deno.lint": true,
   "deno.unstable": [],
   "chat.mcp.serverSampling": {
-    "azure-agentic-infraops/.vscode/mcp.json: azure-mcp": {
+    "apex/.vscode/mcp.json: azure-mcp": {
       "allowedDuringChat": true
     }
   }

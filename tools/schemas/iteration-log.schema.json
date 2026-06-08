@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/jonathan-vella/azure-agentic-infraops/schemas/iteration-log.schema.json",
+  "$id": "https://github.com/jonathan-vella/apex/schemas/iteration-log.schema.json",
   "title": "APEX Iteration Log",
   "description": "Shape of agent-output/{project}/08-iteration-log.json \u2014 per-step iteration records appended by the orchestrator. Read by tools/scripts/benchmark-e2e.mjs (scoreTimingPerformance, scoreRegenerationRate).",
   "type": "object",

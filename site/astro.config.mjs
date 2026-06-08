@@ -9,17 +9,17 @@ import { SITE_BASE } from "./src/data/siteConfig.mjs";
 
 // https://astro.build/config
 export default defineConfig({
-  site: "https://jonathan-vella.github.io",
-  base: SITE_BASE,
+  site: "https://apexops.pro",
+  base: SITE_BASE || "/",
   trailingSlash: "always",
   redirects: {
-    "/project/": "/azure-agentic-infraops/project/contributing/",
-    "/guides/security-baseline/": "/azure-agentic-infraops/reference/security-baseline/",
-    "/guides/cost-governance/": "/azure-agentic-infraops/reference/cost-governance/",
-    "/guides/prompt-guide/best-practices/": "/azure-agentic-infraops/reference/prompts/best-practices/",
-    "/guides/prompt-guide/workflow-prompts/": "/azure-agentic-infraops/reference/prompts/workflow-prompts/",
-    "/guides/prompt-guide/repository-prompts/": "/azure-agentic-infraops/reference/prompts/repository-prompts/",
-    "/guides/prompt-guide/reference/": "/azure-agentic-infraops/reference/prompts/skills-subagents/",
+    "/project/": "/project/contributing/",
+    "/guides/security-baseline/": "/reference/security-baseline/",
+    "/guides/cost-governance/": "/reference/cost-governance/",
+    "/guides/prompt-guide/best-practices/": "/reference/prompts/best-practices/",
+    "/guides/prompt-guide/workflow-prompts/": "/reference/prompts/workflow-prompts/",
+    "/guides/prompt-guide/repository-prompts/": "/reference/prompts/repository-prompts/",
+    "/guides/prompt-guide/reference/": "/reference/prompts/skills-subagents/",
   },
   markdown: {
     remarkPlugins: [remarkGlossaryAnchors],
@@ -34,19 +34,19 @@ export default defineConfig({
         src: "./src/assets/images/logo.svg",
       },
       editLink: {
-        baseUrl: "https://github.com/jonathan-vella/azure-agentic-infraops/edit/main/site/",
+        baseUrl: "https://github.com/jonathan-vella/apex/edit/main/site/",
       },
       lastUpdated: true,
       social: [
         {
           icon: "seti:graphql",
           label: "Architecture Explorer",
-          href: "/azure-agentic-infraops/reference/architecture-explorer/",
+          href: "/reference/architecture-explorer/",
         },
         {
           icon: "github",
           label: "GitHub",
-          href: "https://github.com/jonathan-vella/azure-agentic-infraops",
+          href: "https://github.com/jonathan-vella/apex",
         },
       ],
       head: [
@@ -54,7 +54,7 @@ export default defineConfig({
           tag: "meta",
           attrs: {
             property: "og:image",
-            content: "https://jonathan-vella.github.io/azure-agentic-infraops/images/og-card.png",
+            content: "https://apexops.pro/images/og-card.png",
           },
         },
         {

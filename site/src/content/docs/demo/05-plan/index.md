@@ -63,4 +63,4 @@ not resource-group scope. Container Registry is upgraded to Premium SKU to suppo
 
 ## Dependency Diagram
 
-![Dependency Diagram](/azure-agentic-infraops/demo/04-dependency-diagram.png)
+![Dependency Diagram](/demo/04-dependency-diagram.png)

@@ -13,7 +13,7 @@ description: "All validation scripts, linting, and CI workflows"
   point.
 - CI re-runs the full suite on every PR and push to `main`. A green
   pre-push hook is a strong predictor of green CI.
-- All hooks are defined in [`lefthook.yml`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/lefthook.yml).
+- All hooks are defined in [`lefthook.yml`](https://github.com/jonathan-vella/apex/blob/main/lefthook.yml).
 
 :::
 

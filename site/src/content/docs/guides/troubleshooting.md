@@ -3,7 +3,7 @@ title: "Troubleshooting Guide"
 description: "Common issues and solutions"
 ---
 
-<img src="/azure-agentic-infraops/images/hero-troubleshooting.jpg"
+<img src="/images/hero-troubleshooting.jpg"
     width="100%" height="250" style="object-fit: cover; border-radius: 10px;"
     alt="Diagnostic tools and troubleshooting"/>
 

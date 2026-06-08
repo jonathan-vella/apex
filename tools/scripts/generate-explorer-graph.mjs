@@ -34,8 +34,8 @@ const __filename = fileURLToPath(import.meta.url);
 const REPO_ROOT = resolve(dirname(__filename), "../..");
 const OUT_PATH = join(REPO_ROOT, "site/public/architecture-explorer-graph.json");
 
-const GITHUB_BASE = "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/";
-const _DOCS_BASE = "/azure-agentic-infraops/";
+const GITHUB_BASE = "https://github.com/jonathan-vella/apex/blob/main/";
+const _DOCS_BASE = "/";
 
 /** @type {Array<{id: string, key: string, label: string, color: string, shape: string}>} */
 const CATEGORIES = [

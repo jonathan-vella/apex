@@ -1,5 +1,5 @@
 {
-  "name": "azure-agentic-infraops",
+  "name": "apex",
   "version": "0.10.0",
   "description": "APEX - Agentic Platform Engineering eXperience for Azure. Verified. Well-Architected. Deployable.",
   "private": true,
@@ -168,7 +168,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/jonathan-vella/azure-agentic-infraops.git"
+    "url": "https://github.com/jonathan-vella/apex.git"
   },
   "keywords": [
     "azure",

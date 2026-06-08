@@ -36,10 +36,10 @@ The guide below is for contributing changes **back to this upstream repo**.
 ### 1. Fork and clone
 
 ```bash
-git clone https://github.com/YOUR-USERNAME/azure-agentic-infraops.git
-cd azure-agentic-infraops
+git clone https://github.com/YOUR-USERNAME/apex.git
+cd apex
 git remote add upstream \
-  https://github.com/jonathan-vella/azure-agentic-infraops.git
+  https://github.com/jonathan-vella/apex.git
 ```
 
 ### 2. Create a branch
@@ -173,6 +173,6 @@ the [MIT License][license].
 
 [accelerator]: https://github.com/jonathan-vella/azure-agentic-infraops-accelerator
 [conventional-commits]: https://www.conventionalcommits.org/
-[discussions]: https://github.com/jonathan-vella/azure-agentic-infraops/discussions
-[issues]: https://github.com/jonathan-vella/azure-agentic-infraops/issues
-[license]: https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/LICENSE
+[discussions]: https://github.com/jonathan-vella/apex/discussions
+[issues]: https://github.com/jonathan-vella/apex/issues
+[license]: https://github.com/jonathan-vella/apex/blob/main/LICENSE

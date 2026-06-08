@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/jonathan-vella/azure-agentic-infraops/schemas/environment-manifest.schema.json",
+  "$id": "https://github.com/jonathan-vella/apex/schemas/environment-manifest.schema.json",
   "title": "APEX Environment Manifest",
   "description": "Records per-environment values (subscriptionId, tenant, deployer object ID, existing app reg object IDs, principal IDs, alert email lists) that MUST live outside the IaC tree to keep the committed source highly repeatable across environments and tenants. Artifact path: agent-output/{project}/04-environment-manifest.json. Consumed by deploy agents (07b/07t) at run time; never committed to infra/. Validator: validate-environment-manifest.mjs. Redaction rules: validate-environment-manifest.mjs --redact strips object IDs and email PII to a SHA256 hash prefix before transcripts/logs are written.",
   "type": "object",

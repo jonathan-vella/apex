@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/jonathan-vella/azure-agentic-infraops/schemas/drawio-regen-baseline.schema.json",
+  "$id": "https://github.com/jonathan-vella/apex/schemas/drawio-regen-baseline.schema.json",
   "title": "APEX Draw.io Regen-Rate Baseline",
   "description": "Generated baseline file consumed by tools/scripts/benchmark-e2e.mjs scoreRegenerationRate(). Captured by T-012 before any uplift code change lands.",
   "type": "object",

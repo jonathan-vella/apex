@@ -13,9 +13,9 @@ turn user-pinned SKUs into a complete service list with real-time pricing.
 
 ## Agent
 
-[`03-Architect`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/03-architect.agent.md)
+[`03-Architect`](https://github.com/jonathan-vella/apex/blob/main/.github/agents/03-architect.agent.md)
 — delegates pricing lookups to
-[`cost-estimate-subagent`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/_subagents/cost-estimate-subagent.agent.md).
+[`cost-estimate-subagent`](https://github.com/jonathan-vella/apex/blob/main/.github/agents/_subagents/cost-estimate-subagent.agent.md).
 
 ## Invocation
 
@@ -41,14 +41,14 @@ Output: agent-output/{project}/02-architecture-assessment.md
 ## Hand-off
 
 The Orchestrator routes context to [`Step 3 — Design
-(optional)`](/azure-agentic-infraops/concepts/workflow/step-3/) or, if the user skips design
+(optional)`](/concepts/workflow/step-3/) or, if the user skips design
 artifacts, directly to [`Step 3.5 —
-Governance`](/azure-agentic-infraops/concepts/workflow/step-3-5/).
+Governance`](/concepts/workflow/step-3-5/).
 
 ## See also
 
 - [Azure WAF pillars](https://learn.microsoft.com/azure/well-architected/) — the external reference
   for scoring.
 - [Cost estimate
-  subagent](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/_subagents/cost-estimate-subagent.agent.md)
+  subagent](https://github.com/jonathan-vella/apex/blob/main/.github/agents/_subagents/cost-estimate-subagent.agent.md)
   — Azure Pricing MCP wrapper.

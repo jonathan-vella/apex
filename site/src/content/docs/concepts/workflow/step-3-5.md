@@ -14,9 +14,9 @@ downstream IaC planning and deployment.
 
 ## Agent
 
-[`04g-Governance`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/04g-governance.agent.md)
+[`04g-Governance`](https://github.com/jonathan-vella/apex/blob/main/.github/agents/04g-governance.agent.md)
 — uses the
-[`azure-governance-discovery`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-governance-discovery/SKILL.md)
+[`azure-governance-discovery`](https://github.com/jonathan-vella/apex/blob/main/.github/skills/azure-governance-discovery/SKILL.md)
 skill.
 
 ## Invocation
@@ -49,4 +49,4 @@ The user must approve governance constraints before proceeding to Step 4 plannin
 ## Hand-off
 
 The Orchestrator routes context to [`Step 4 — IaC
-Plan`](/azure-agentic-infraops/concepts/workflow/step-4/).
+Plan`](/concepts/workflow/step-4/).

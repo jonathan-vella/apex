@@ -64,7 +64,7 @@ describe("DiagramModel watermark", () => {
       // anchored on the &lt;br&gt; separators emitted by the watermark cell.
       assertMatch(
         xml,
-        /&lt;br&gt;https:\/\/github\.com\/jonathan-vella\/azure-agentic-infraops&lt;br&gt;/,
+        /&lt;br&gt;https:\/\/github\.com\/jonathan-vella\/apex&lt;br&gt;/,
       );
       assert(xml.includes(`Creation date: ${todayDate()}`));
     });

@@ -96,7 +96,7 @@ every downstream agent reads them via `apex-recall show <project>
   `governance-reconciliation` at Step 3.5). Right for most workshops,
   MVPs, and single-region projects.
 - `deep` — rotating-lens multi-pass cascade per
-  [`adversarial-review-protocol.md`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-defaults/references/adversarial-review-protocol.md)
+  [`adversarial-review-protocol.md`](https://github.com/jonathan-vella/apex/blob/main/.github/skills/azure-defaults/references/adversarial-review-protocol.md)
   (Pass 1 security-governance → Pass 2 architecture-reliability →
   conditional Pass 3 cost-feasibility). Worth the ~3× challenger
   cost for regulated workloads (HIPAA/PCI), prod migrations, or
@@ -116,7 +116,7 @@ manually — it runs the rotating-lens passes against one file on
 demand.
 
 Authoritative contract: [01-orchestrator.agent.md
-→ `Computing decisions.review_depth`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/01-orchestrator.agent.md#computing-decisionsreview_depth-project-scoped-opt-in).
+→ `Computing decisions.review_depth`](https://github.com/jonathan-vella/apex/blob/main/.github/agents/01-orchestrator.agent.md#computing-decisionsreview_depth-project-scoped-opt-in).
 
 ## Per-Step User Gates (Architect, Design, Governance)
 

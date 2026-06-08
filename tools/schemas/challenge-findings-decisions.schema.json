@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/jonathan-vella/azure-agentic-infraops/schemas/challenge-findings-decisions.schema.json",
+  "$id": "https://github.com/jonathan-vella/apex/schemas/challenge-findings-decisions.schema.json",
   "title": "APEX Challenger Findings — Per-Finding Decisions Sidecar",
   "description": "Shape of `agent-output/{project}/challenge-findings-{artifact_type}-decisions.json`. Records the user's accept/skip/defer decision for each challenger finding plus a short rationale, so a repeated review pass is idempotent (issue #425, audit follow-up). Permissive v1 — accepts the three field-naming variants observed in the 2026-05-22 test-vnet audit (issue_id|finding_id; action|disposition|decision; note|rationale). Future v2 may tighten to canonical names.",
   "type": "object",

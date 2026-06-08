@@ -108,7 +108,7 @@ From a local terminal outside the dev container:
 
 ```bash
 docker ps --format '{{.Names}}'
-ARCHIVE=/workspaces/azure-agentic-infraops/.apex-logs/<bundle>.tar.gz
+ARCHIVE=/workspaces/.apex-logs/<bundle>.tar.gz
 docker cp <container-name>:"$ARCHIVE" ~/Downloads/
 ```
 

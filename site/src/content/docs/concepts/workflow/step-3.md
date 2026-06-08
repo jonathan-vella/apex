@@ -16,11 +16,11 @@ straight to Step 3.5 Governance.
 
 ## Agent
 
-[`04-Design`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/04-design.agent.md)
+[`04-Design`](https://github.com/jonathan-vella/apex/blob/main/.github/agents/04-design.agent.md)
 — delegates to the
-[`drawio`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/drawio/SKILL.md)
+[`drawio`](https://github.com/jonathan-vella/apex/blob/main/.github/skills/drawio/SKILL.md)
 and
-[`azure-adr`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-adr/SKILL.md)
+[`azure-adr`](https://github.com/jonathan-vella/apex/blob/main/.github/skills/azure-adr/SKILL.md)
 skills.
 
 ## Invocation
@@ -47,11 +47,11 @@ Opt-in: 1 × `comprehensive` adversarial pass on ADRs.
 ## Hand-off
 
 The Orchestrator routes context to [`Step 3.5 —
-Governance`](/azure-agentic-infraops/concepts/workflow/step-3-5/).
+Governance`](/concepts/workflow/step-3-5/).
 
 ## See also
 
 - [`drawio`
-  skill](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/drawio/SKILL.md)
+  skill](https://github.com/jonathan-vella/apex/blob/main/.github/skills/drawio/SKILL.md)
 - [`azure-adr`
-  skill](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/skills/azure-adr/SKILL.md)
+  skill](https://github.com/jonathan-vella/apex/blob/main/.github/skills/azure-adr/SKILL.md)

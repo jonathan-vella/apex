@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/jonathan-vella/azure-agentic-infraops/schemas/deployment-preview.schema.json",
+  "$id": "https://github.com/jonathan-vella/apex/schemas/deployment-preview.schema.json",
   "title": "APEX Deployment Preview",
   "description": "Shape of the deployment-preview-v1 artifact emitted by Bicep what-if, Terraform plan, policy-precheck, and cost-estimate subagents prior to a deploy gate. Consumed by 07b-Bicep-Deploy and 07t-Terraform-Deploy to render the one-glance approval block (issue #425, Wave 5).",
   "type": "object",

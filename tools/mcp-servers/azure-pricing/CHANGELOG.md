@@ -332,7 +332,7 @@ pip install 'azure-pricing-mcp[admin]'"`. Importers that miss the extras
 ## [5.0.0] - 2026-05-09
 
 > **Independent fork.** This release marks the v5.0 transition of the server
-> into the [`jonathan-vella/azure-agentic-infraops`](https://github.com/jonathan-vella/azure-agentic-infraops)
+> into the [`jonathan-vella/apex`](https://github.com/jonathan-vella/apex)
 > monorepo as part of the APEX agentic platform. Substantial contributions from
 > the upstream project (`msftnadavbh/AzurePricingMCP`) are gratefully
 > acknowledged in [README.md](README.md#-acknowledgments).
@@ -436,7 +436,7 @@ pip install 'azure-pricing-mcp[admin]'"`. Importers that miss the extras
 ### Changed
 
 - **Re-attributed** all metadata (authors, maintainers, repo URLs, badges) to
-  `jonathan-vella/azure-agentic-infraops`. Upstream contributors recognised
+  `jonathan-vella/apex`. Upstream contributors recognised
   in `README.md` Acknowledgments.
 - **Shared input-schema constants** (`_DISCOUNT_PERCENTAGE_SCHEMA`,
   `_SHOW_WITH_DISCOUNT_SCHEMA`, `_CURRENCY_CODE_SCHEMA`) replace the

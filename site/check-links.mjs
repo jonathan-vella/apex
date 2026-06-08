@@ -12,7 +12,7 @@ import { fileURLToPath } from "node:url";
 // (`node site/check-links.mjs`).
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const DIST = resolve(SCRIPT_DIR, "dist");
-const BASE = "/azure-agentic-infraops";
+const BASE = "/apex";
 
 // Collect all HTML files
 function walkHtml(dir) {

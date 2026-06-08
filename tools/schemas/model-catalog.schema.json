@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/jonathan-vella/azure-agentic-infraops/schemas/model-catalog.schema.json",
+  "$id": "https://github.com/jonathan-vella/apex/schemas/model-catalog.schema.json",
   "title": "APEX Model Catalog",
   "description": "Shape of .github/model-catalog.json. The catalog has two roles: (1) `models` is hand-maintained metadata that authorizes which Copilot Chat model labels APEX agents may use; (2) `assignments` is auto-generated from agent/subagent frontmatter and mirrors the canonical agent → model mapping. Frontmatter remains the single source of truth; the registry mirrors it; the catalog records authorized labels and a generated inventory.",
   "type": "object",

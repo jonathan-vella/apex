@@ -57,9 +57,9 @@ count is computed by `tools/registry/count-manifest.json`. A grouped overview:
 The skills domain table above is the live catalog. For the authoritative
 list of VS Code Copilot customization mechanisms (instructions, prompt
 files, custom agents, agent skills, MCP servers, hooks, plugins) see
-[`.github/copilot-instructions.md`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/copilot-instructions.md)
+[`.github/copilot-instructions.md`](https://github.com/jonathan-vella/apex/blob/main/.github/copilot-instructions.md)
 and the per-mechanism files under
-[`.github/instructions/`](https://github.com/jonathan-vella/azure-agentic-infraops/tree/main/.github/instructions).
+[`.github/instructions/`](https://github.com/jonathan-vella/apex/tree/main/.github/instructions).
 
 ## Instruction System
 
@@ -135,7 +135,7 @@ This section walks through creating a new skill from scratch.
 ### Step 1: Scaffold
 
 Copy an existing skill (for example
-[`azure-defaults`](https://github.com/jonathan-vella/azure-agentic-infraops/tree/main/.github/skills/azure-defaults))
+[`azure-defaults`](https://github.com/jonathan-vella/apex/tree/main/.github/skills/azure-defaults))
 as a starting point and rename the directory:
 
 ```bash
@@ -152,7 +152,7 @@ The expected structure is:
 ```
 
 Authoring rules live in
-[`agent-skills.instructions.md`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/instructions/agent-skills.instructions.md).
+[`agent-skills.instructions.md`](https://github.com/jonathan-vella/apex/blob/main/.github/instructions/agent-skills.instructions.md).
 After scaffolding, run the sensei skill to iteratively improve frontmatter
 quality, and `npm run
 lint:skills-format` plus `npm run validate:agents` to verify.

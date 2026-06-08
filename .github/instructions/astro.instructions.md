@@ -10,8 +10,8 @@ Standards for the `site/` Astro Starlight documentation project.
 ## Project Context
 
 - Astro 6.x with `@astrojs/starlight` — static docs site (SSG only, no SSR)
-- Site URL: `https://jonathan-vella.github.io/azure-agentic-infraops/`
-- Base path: `/azure-agentic-infraops`
+- Site URL: `https://apexops.pro/`
+- Base path: `/apex`
 - Trailing slashes: always (`trailingSlash: "always"`)
 - TypeScript for type safety with auto-generated types
 - Content-driven documentation using Starlight content collections
@@ -139,6 +139,6 @@ npm run preview  # Preview production build
 
 - **No SSR**: This is a static documentation site — do not enable SSR mode
 - **No API routes**: No `src/pages/api/` — this is a content-only site
-- **Base path**: All asset references must account for `/azure-agentic-infraops/` base
-- **Edit links**: Point to `https://github.com/jonathan-vella/azure-agentic-infraops/edit/main/site/`
+- **Base path**: All asset references must account for `/` base
+- **Edit links**: Point to `https://github.com/jonathan-vella/apex/edit/main/site/`
 - **Pagefind search**: Built-in with Starlight — no additional config needed

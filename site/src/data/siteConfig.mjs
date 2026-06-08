@@ -1,1 +1,1 @@
-export const SITE_BASE = "/azure-agentic-infraops";
+export const SITE_BASE = "";

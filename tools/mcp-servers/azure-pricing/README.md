@@ -11,15 +11,15 @@ ad-hoc tools for Azure Databricks, GitHub, Spot VMs, and orphaned-resource
 detection.
 
 > **v5.1 — independent fork.** This server now lives in
-> [`jonathan-vella/azure-agentic-infraops`](https://github.com/jonathan-vella/azure-agentic-infraops/tree/main/tools/mcp-servers/azure-pricing)
+> [`jonathan-vella/apex`](https://github.com/jonathan-vella/apex/tree/main/tools/mcp-servers/azure-pricing)
 > as part of the APEX agentic platform-engineering toolkit. Upstream
 > contributors credited in [Acknowledgments](#acknowledgments).
 
 ## Quick start
 
 ```bash
-git clone https://github.com/jonathan-vella/azure-agentic-infraops.git
-cd azure-agentic-infraops/tools/mcp-servers/azure-pricing
+git clone https://github.com/jonathan-vella/apex.git
+cd apex/tools/mcp-servers/azure-pricing
 
 # uv (preferred — uv.lock is the source of truth)
 uv venv && uv pip install -e ".[dev]"
@@ -337,8 +337,8 @@ the [Azure Retail Prices API](https://learn.microsoft.com/en-us/rest/api/cost-ma
 
 ## Support
 
-- Issues: [GitHub Issues](https://github.com/jonathan-vella/azure-agentic-infraops/issues)
-- Discussions: [GitHub Discussions](https://github.com/jonathan-vella/azure-agentic-infraops/discussions)
+- Issues: [GitHub Issues](https://github.com/jonathan-vella/apex/issues)
+- Discussions: [GitHub Discussions](https://github.com/jonathan-vella/apex/discussions)
 
 ## License
 

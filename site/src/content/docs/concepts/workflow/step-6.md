@@ -15,12 +15,12 @@ live policy precheck.
 ## Agents
 
 - [`07b-Bicep
-  Deploy`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/07b-bicep-deploy.agent.md)
+  Deploy`](https://github.com/jonathan-vella/apex/blob/main/.github/agents/07b-bicep-deploy.agent.md)
   — uses `azd provision` (default) and `bicep-whatif-subagent` for preview.
 - [`07t-Terraform
-  Deploy`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/07t-terraform-deploy.agent.md)
+  Deploy`](https://github.com/jonathan-vella/apex/blob/main/.github/agents/07t-terraform-deploy.agent.md)
   — uses `bootstrap.sh` / `deploy.sh` and `terraform-plan-subagent` for preview.
-- [`policy-precheck-subagent`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/_subagents/policy-precheck-subagent.agent.md)
+- [`policy-precheck-subagent`](https://github.com/jonathan-vella/apex/blob/main/.github/agents/_subagents/policy-precheck-subagent.agent.md)
   — live policy + governance reconciliation, returns `deploy_gate = PROCEED|BLOCK`.
 
 ## Pre-deploy gates
@@ -51,4 +51,4 @@ The user verifies deployed resources before proceeding to As-Built documentation
 ## Hand-off
 
 The Orchestrator routes context to [`Step 7 —
-As-Built`](/azure-agentic-infraops/concepts/workflow/step-7/).
+As-Built`](/concepts/workflow/step-7/).

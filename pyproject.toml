@@ -1,5 +1,5 @@
 [project]
-name = "azure-agentic-infraops"
+name = "apex"
 version = "0.10.0"
 description = "APEX - Agentic Platform Engineering eXperience for Azure"
 requires-python = ">=3.14"

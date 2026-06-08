@@ -78,9 +78,9 @@ graph LR
 | Data Services |              50.69 | 36.5% |
 | Networking    |              23.40 | 16.8% |
 
-![Monthly Cost Distribution](/azure-agentic-infraops/demo/07-ab-cost-distribution.png)
+![Monthly Cost Distribution](/demo/07-ab-cost-distribution.png)
 
-![6-Month Cost Projection](/azure-agentic-infraops/demo/07-ab-cost-projection.png)
+![6-Month Cost Projection](/demo/07-ab-cost-projection.png)
 
 ## Related Resources
 

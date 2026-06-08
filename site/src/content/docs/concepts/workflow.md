@@ -3,7 +3,7 @@ title: "Agent and Skill Workflow"
 description: "Multi-step workflow from requirements to deployment"
 ---
 
-<img src="/azure-agentic-infraops/images/hero-workflow.jpg"
+<img src="/images/hero-workflow.jpg"
     width="100%" height="250" style="object-fit: cover; border-radius: 10px;"
     alt="Collaborative technology workspace"/>
 
@@ -125,7 +125,7 @@ Shared steps (1–3.5, 7) are common; steps 4–6 diverge into **Bicep** or **Te
 Code agents invoke validation subagents, and deploy agents invoke the track-specific
 preview subagents before any Azure changes are applied.
 
-<img src="/azure-agentic-infraops/images/agent-delegation-graph.png"
+<img src="/images/agent-delegation-graph.png"
      width="100%" style="border-radius: 10px; margin: 1rem 0;"
      alt="Agent Delegation Graph — Orchestrator routes to Requirements, Architect, Design, Governance,
      then forks into Bicep and Terraform tracks for Planning, CodeGen, and Deploy, converging at As-Built Docs"/>

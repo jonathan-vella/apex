@@ -28,7 +28,7 @@ jobs:
           ## Why this issue exists
 
           The monthly docs gardening rotation. Run the
-          [`/review-astro-docs`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/tools/apex-prompts/utility-prompts/review-astro-docs.prompt.md)
+          [`/review-astro-docs`](https://github.com/jonathan-vella/apex/blob/main/tools/apex-prompts/utility-prompts/review-astro-docs.prompt.md)
           prompt against the docs site and post the resulting
           `astro-docs-review.md` report as a comment.
 

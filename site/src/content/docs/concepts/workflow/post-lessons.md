@@ -42,5 +42,5 @@ Lessons feed three downstream paths:
 - **Validators** — when a lesson reveals a class of error that lint can catch.
 
 See the [`11-Context
-Optimizer`](https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/11-context-optimizer.agent.md)
+Optimizer`](https://github.com/jonathan-vella/apex/blob/main/.github/agents/11-context-optimizer.agent.md)
 agent for the audit-mode counterpart that mines Copilot debug logs.
