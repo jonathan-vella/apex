@@ -10,21 +10,40 @@ or modifying agent definitions, skills, and instruction files.
 
 ## Agent Definition Rules
 
-| Rule                     | Limit            | Rationale                           |
-| ------------------------ | ---------------- | ----------------------------------- |
-| Tool list size           | ≤ 30 tools       | Each tool adds ~75 tokens to prompt |
-| Agent body length        | ≤ 350 lines      | Body is always in context           |
-| Inline template size     | ≤ 50 lines       | Move larger templates to skills     |
-| Handoff count            | ≤ 8 handoffs     | Each adds ~40 tokens                |
-| Skill references in body | ≤ 5 "Read" lines | Progressive load, not bulk load     |
+Two tiers govern agent definitions: **hard limits** (CI-enforced — a breach
+fails `npm run validate:agents`) and **soft guidelines** (advisory — keep
+lean, but no validator blocks them). Earlier revisions listed the soft
+targets as hard caps; the tables below now match what the validators in
+`tools/scripts/` actually enforce.
+
+### Hard limits (CI-enforced)
+
+| Rule                    | Limit                                      | Enforced by                                                  |
+| ----------------------- | ------------------------------------------ | ------------------------------------------------------------ |
+| Agent body length       | ≤ 600 lines                                | `tools/scripts/_lib/paths.mjs` (`MAX_BODY_LINES`)            |
+| `description` length    | ≤ 350 chars (warn ≥ 300)                   | `validate-agents.mjs` frontmatter check                      |
+| Claude body > 350 lines | requires `<context_awareness>`             | `validate-agents.mjs` Check 3 (`legacy-003`)                 |
+| Claude research agent   | requires `<investigate_before_answering>`  | `validate-agents.mjs` Check 4 (`legacy-004`)                 |
+
+### Soft guidelines (advisory — not CI-enforced)
+
+| Rule                     | Target           | Rationale                                                              |
+| ------------------------ | ---------------- | --------------------------------------------------------------------- |
+| Tool list size           | ≤ 30 tools       | Each tool adds ~75 tokens to prompt                                   |
+| Agent body length        | ≤ 350 lines      | Soft target; past it add `<context_awareness>` (hard cap is 600)      |
+| Inline template size     | ≤ 50 lines       | Move larger templates to skills                                       |
+| Handoff count            | ≤ 8 handoffs     | Each adds ~40 tokens; orchestrators are exempt (they route every step) |
+| Skill references in body | ≤ 5 "Read" lines | Progressive load, not bulk load                                       |
 
 ## Instruction File Rules
 
-| Rule                  | Limit            | Rationale                         |
-| --------------------- | ---------------- | --------------------------------- |
-| File size             | ≤ 150 lines      | Split into skill `references/`    |
-| `applyTo` specificity | Narrow globs     | `**/*.ts` not `**` when possible  |
-| Avoid `applyTo: "**"` | Exceptional only | Loads for every single file match |
+| Rule                      | Limit / Target       | Enforced?                                                            |
+| ------------------------- | -------------------- | ------------------------------------------------------------------- |
+| File size                 | ≤ 150 lines (target) | Guideline — split heavy content into a skill `references/` file      |
+| `applyTo: "**"` body size | ≤ 50 lines           | **Enforced** — `validate-glob-audit.mjs` (`MAX_LINES_WITH_WILDCARD`) |
+| Broad-markdown body size  | ≤ 200 lines          | **Enforced** — `validate-glob-audit.mjs` (`MAX_LINES_WITH_BROAD_MD`) |
+| `applyTo` specificity     | Narrow globs         | Guideline — `**/*.ts` not `**` when possible                         |
+| Avoid `applyTo: "**"`     | Exceptional only     | Loads for every single file match                                   |
 
 ### Good vs Bad `applyTo`
 
@@ -42,11 +61,12 @@ applyTo: "**"
 
 ## Skill Rules
 
-| Rule                  | Limit           | Rationale                          |
-| --------------------- | --------------- | ---------------------------------- |
-| SKILL.md body         | ≤ 500 lines     | Per skill spec                     |
-| Heavy content         | → `references/` | Level 3: loaded only when needed   |
-| Prerequisites section | Required        | Declare deps, don't surprise agent |
+| Rule                               | Limit           | Enforced?                                                   |
+| ---------------------------------- | --------------- | ---------------------------------------------------------- |
+| SKILL.md body (no `references/`)   | ≤ 200 lines     | **Enforced** — `paths.mjs` (`MAX_SKILL_LINES_WITHOUT_REFS`) |
+| SKILL.md body (with `references/`) | ≤ 500 lines     | Skill-spec ceiling (guideline)                             |
+| Heavy content                      | → `references/` | Level 3: loaded only when needed                           |
+| Prerequisites section              | Required        | Declare deps, don't surprise agent                         |
 
 ## Hand-Off Decision Framework
 
