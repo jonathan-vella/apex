@@ -12,7 +12,7 @@ Get running in 10 minutes.
 :::note[Template repository]
 You do **not** clone this repository directly. Instead, you create your own
 repository from the
-[Accelerator template](https://github.com/jonathan-vella/azure-agentic-infraops-accelerator),
+[Accelerator template](https://github.com/jonathan-vella/apex-accelerator),
 which gives you a clean starting point with all agents, skills, and dev container
 configuration ready to go.
 :::
@@ -60,7 +60,7 @@ but the minimum working configuration is included below so you do not miss it.
 ## Step 1: Create Your Repository from the Template
 
 1. Go to the
-   [Accelerator template repository](https://github.com/jonathan-vella/azure-agentic-infraops-accelerator)
+   [Accelerator template repository](https://github.com/jonathan-vella/apex-accelerator)
 2. Select the green **Use this template** button → **Create a new repository**
 3. Choose an owner and repository name (e.g. `my-infraops-project`)
 4. Select **Public** or **Private** visibility
@@ -350,7 +350,7 @@ Pick the path that matches your goal — then drop into the resource table below
 | Goal                            | Resource                                                                                                  |
 | ------------------------------- | --------------------------------------------------------------------------------------------------------- |
 | Understand the full workflow    | [workflow.md](../../concepts/workflow/)                                                                   |
-| Try a guided hands-on challenge | [MicroHack](https://jonathan-vella.github.io/microhack-agentic-infraops/)                                 |
+| Try a guided hands-on challenge | [MicroHack](https://microhack.apexops.pro/)                                 |
 | Try a complete workflow         | [Prompt Guide](../../guides/prompt-guide/)                                                                |
 | Review mandatory guardrails     | [Security Baseline](../../reference/security-baseline/) and [Cost Governance](../../reference/cost-governance/) |
 | Generate architecture diagrams  | Use `drawio` skill (or `python-diagrams` for charts)                                                      |

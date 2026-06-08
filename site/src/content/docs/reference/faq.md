@@ -13,7 +13,7 @@ Frequently asked questions about APEX.
 
 :::note[How do I get started?]
 Create your own repository from the
-[Accelerator template](https://github.com/jonathan-vella/azure-agentic-infraops-accelerator)
+[Accelerator template](https://github.com/jonathan-vella/apex-accelerator)
 — click **"Use this template"** on GitHub, clone your new repo, and open it in the dev
 container. See the [Quickstart](../../getting-started/quickstart/) for the step-by-step guide.
 :::
@@ -154,7 +154,7 @@ The Orchestrator supports session resume via the `apex-recall` CLI. To resume:
     See the [Quickstart](../../getting-started/quickstart/) for the full getting-started flow.
 
 :::note[Is there a guided hands-on exercise?]
-Yes — the [MicroHack](https://jonathan-vella.github.io/microhack-agentic-infraops/) is a
+Yes — the [MicroHack](https://microhack.apexops.pro/) is a
 hands-on, guided challenge where you build Azure infrastructure end-to-end using AI agents,
 from requirements to deployment. It includes structured exercises, guided prompts, and
 reference solutions for each of the 7 main workflow steps plus Step 3.5 Governance.

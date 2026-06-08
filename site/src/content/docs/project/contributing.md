@@ -171,7 +171,7 @@ feedback. No harassment or discrimination.
 By contributing, you agree that your contributions will be licensed under
 the [MIT License][license].
 
-[accelerator]: https://github.com/jonathan-vella/azure-agentic-infraops-accelerator
+[accelerator]: https://github.com/jonathan-vella/apex-accelerator
 [conventional-commits]: https://www.conventionalcommits.org/
 [discussions]: https://github.com/jonathan-vella/apex/discussions
 [issues]: https://github.com/jonathan-vella/apex/issues
