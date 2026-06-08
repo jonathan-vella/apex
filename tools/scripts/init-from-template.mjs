@@ -14,7 +14,7 @@ import { readFileSync, writeFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 
 const TEMPLATE_OWNER = "jonathan-vella";
-const TEMPLATE_REPO = "azure-agentic-infraops-accelerator";
+const TEMPLATE_REPO = "apex-accelerator";
 const TEMPLATE_SLUG = `${TEMPLATE_OWNER}/${TEMPLATE_REPO}`;
 const TEMPLATE_URL = `https://github.com/${TEMPLATE_SLUG}`;
 

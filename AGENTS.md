@@ -4,7 +4,7 @@
 
 ```bash
 # Clone the Accelerator template and open in dev container
-# https://github.com/jonathan-vella/azure-agentic-infraops-accelerator
+# https://github.com/jonathan-vella/apex-accelerator
 git clone https://github.com/YOUR-USERNAME/my-infraops-project.git && cd my-infraops-project
 code . # then: F1 → Dev Containers: Reopen in Container
 

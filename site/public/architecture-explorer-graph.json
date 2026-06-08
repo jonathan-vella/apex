@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-06-08T11:11:02.177Z",
+  "generatedAt": "2026-06-08T13:09:34.547Z",
   "categories": [
     {
       "id": "agent",
@@ -111,7 +111,12 @@
           "09-Diagnose",
           "10-Challenger"
         ],
-        "skills": ["golden-principles", "azure-defaults", "azure-artifacts", "workflow-engine"]
+        "skills": [
+          "golden-principles",
+          "azure-defaults",
+          "azure-artifacts",
+          "workflow-engine"
+        ]
       }
     },
     {
@@ -126,9 +131,19 @@
       "meta": {
         "model": "Claude Sonnet 4.6",
         "invocable": true,
-        "subagents": ["challenger-review-subagent"],
-        "handoffTargets": ["02-Requirements", "10-Challenger", "03-Architect", "01-Orchestrator"],
-        "skills": ["azure-defaults", "azure-artifacts"]
+        "subagents": [
+          "challenger-review-subagent"
+        ],
+        "handoffTargets": [
+          "02-Requirements",
+          "10-Challenger",
+          "03-Architect",
+          "01-Orchestrator"
+        ],
+        "skills": [
+          "azure-defaults",
+          "azure-artifacts"
+        ]
       }
     },
     {
@@ -143,9 +158,22 @@
       "meta": {
         "model": "Claude Opus 4.8",
         "invocable": true,
-        "subagents": ["cost-estimate-subagent", "challenger-review-subagent"],
-        "handoffTargets": ["03-Architect", "04-Design", "04g-Governance", "02-Requirements", "01-Orchestrator"],
-        "skills": ["azure-defaults", "azure-artifacts", "context-management"]
+        "subagents": [
+          "cost-estimate-subagent",
+          "challenger-review-subagent"
+        ],
+        "handoffTargets": [
+          "03-Architect",
+          "04-Design",
+          "04g-Governance",
+          "02-Requirements",
+          "01-Orchestrator"
+        ],
+        "skills": [
+          "azure-defaults",
+          "azure-artifacts",
+          "context-management"
+        ]
       }
     },
     {
@@ -160,9 +188,22 @@
       "meta": {
         "model": "Claude Sonnet 4.6",
         "invocable": true,
-        "subagents": ["challenger-review-subagent"],
-        "handoffTargets": ["04-Design", "03-Architect", "04g-Governance", "01-Orchestrator"],
-        "skills": ["azure-defaults", "azure-artifacts", "azure-adr", "drawio", "python-diagrams"]
+        "subagents": [
+          "challenger-review-subagent"
+        ],
+        "handoffTargets": [
+          "04-Design",
+          "03-Architect",
+          "04g-Governance",
+          "01-Orchestrator"
+        ],
+        "skills": [
+          "azure-defaults",
+          "azure-artifacts",
+          "azure-adr",
+          "drawio",
+          "python-diagrams"
+        ]
       }
     },
     {
@@ -177,9 +218,20 @@
       "meta": {
         "model": "GPT-5.3-Codex",
         "invocable": true,
-        "subagents": ["challenger-review-subagent"],
-        "handoffTargets": ["04g-Governance", "05-IaC Planner", "01-Orchestrator"],
-        "skills": ["azure-defaults", "azure-governance-discovery", "azure-artifacts", "iac-common"]
+        "subagents": [
+          "challenger-review-subagent"
+        ],
+        "handoffTargets": [
+          "04g-Governance",
+          "05-IaC Planner",
+          "01-Orchestrator"
+        ],
+        "skills": [
+          "azure-defaults",
+          "azure-governance-discovery",
+          "azure-artifacts",
+          "iac-common"
+        ]
       }
     },
     {
@@ -194,7 +246,9 @@
       "meta": {
         "model": "Claude Opus 4.8",
         "invocable": true,
-        "subagents": ["challenger-review-subagent"],
+        "subagents": [
+          "challenger-review-subagent"
+        ],
         "handoffTargets": [
           "04g-Governance",
           "05-IaC Planner",
@@ -225,9 +279,22 @@
       "meta": {
         "model": "Claude Sonnet 4.6",
         "invocable": true,
-        "subagents": ["bicep-validate-subagent", "challenger-review-subagent"],
-        "handoffTargets": ["06b-Bicep CodeGen", "07b-Bicep Deploy", "05-IaC Planner", "01-Orchestrator"],
-        "skills": ["azure-defaults", "azure-artifacts", "azure-bicep-patterns", "context-management"]
+        "subagents": [
+          "bicep-validate-subagent",
+          "challenger-review-subagent"
+        ],
+        "handoffTargets": [
+          "06b-Bicep CodeGen",
+          "07b-Bicep Deploy",
+          "05-IaC Planner",
+          "01-Orchestrator"
+        ],
+        "skills": [
+          "azure-defaults",
+          "azure-artifacts",
+          "azure-bicep-patterns",
+          "context-management"
+        ]
       }
     },
     {
@@ -242,9 +309,22 @@
       "meta": {
         "model": "Claude Sonnet 4.6",
         "invocable": true,
-        "subagents": ["terraform-validate-subagent", "challenger-review-subagent"],
-        "handoffTargets": ["06t-Terraform CodeGen", "07t-Terraform Deploy", "05-IaC Planner", "01-Orchestrator"],
-        "skills": ["azure-defaults", "azure-artifacts", "terraform-patterns", "context-management"]
+        "subagents": [
+          "terraform-validate-subagent",
+          "challenger-review-subagent"
+        ],
+        "handoffTargets": [
+          "06t-Terraform CodeGen",
+          "07t-Terraform Deploy",
+          "05-IaC Planner",
+          "01-Orchestrator"
+        ],
+        "skills": [
+          "azure-defaults",
+          "azure-artifacts",
+          "terraform-patterns",
+          "context-management"
+        ]
       }
     },
     {
@@ -265,8 +345,18 @@
           "policy-precheck-subagent",
           "challenger-review-subagent"
         ],
-        "handoffTargets": ["07b-Bicep Deploy", "08-As-Built", "06b-Bicep CodeGen", "03-Architect", "01-Orchestrator"],
-        "skills": ["azure-defaults", "azure-artifacts", "iac-common"]
+        "handoffTargets": [
+          "07b-Bicep Deploy",
+          "08-As-Built",
+          "06b-Bicep CodeGen",
+          "03-Architect",
+          "01-Orchestrator"
+        ],
+        "skills": [
+          "azure-defaults",
+          "azure-artifacts",
+          "iac-common"
+        ]
       }
     },
     {
@@ -294,7 +384,11 @@
           "03-Architect",
           "01-Orchestrator"
         ],
-        "skills": ["azure-defaults", "azure-artifacts", "iac-common"]
+        "skills": [
+          "azure-defaults",
+          "azure-artifacts",
+          "iac-common"
+        ]
       }
     },
     {
@@ -309,9 +403,20 @@
       "meta": {
         "model": "Claude Sonnet 4.6",
         "invocable": true,
-        "subagents": ["cost-estimate-subagent"],
-        "handoffTargets": ["08-As-Built", "01-Orchestrator"],
-        "skills": ["azure-defaults", "azure-artifacts", "drawio", "python-diagrams", "context-management"]
+        "subagents": [
+          "cost-estimate-subagent"
+        ],
+        "handoffTargets": [
+          "08-As-Built",
+          "01-Orchestrator"
+        ],
+        "skills": [
+          "azure-defaults",
+          "azure-artifacts",
+          "drawio",
+          "python-diagrams",
+          "context-management"
+        ]
       }
     },
     {
@@ -327,8 +432,16 @@
         "model": "GPT-5.5",
         "invocable": true,
         "subagents": [],
-        "handoffTargets": ["09-Diagnose", "08-As-Built", "03-Architect", "01-Orchestrator"],
-        "skills": ["azure-defaults", "azure-diagnostics"]
+        "handoffTargets": [
+          "09-Diagnose",
+          "08-As-Built",
+          "03-Architect",
+          "01-Orchestrator"
+        ],
+        "skills": [
+          "azure-defaults",
+          "azure-diagnostics"
+        ]
       }
     },
     {
@@ -343,8 +456,12 @@
       "meta": {
         "model": "GPT-5.3-Codex",
         "invocable": true,
-        "subagents": ["challenger-review-subagent"],
-        "handoffTargets": ["01-Orchestrator"],
+        "subagents": [
+          "challenger-review-subagent"
+        ],
+        "handoffTargets": [
+          "01-Orchestrator"
+        ],
         "skills": []
       }
     },
@@ -361,8 +478,13 @@
         "model": "Claude Sonnet 4.6",
         "invocable": true,
         "subagents": [],
-        "handoffTargets": ["01-Orchestrator"],
-        "skills": ["golden-principles", "context-management"]
+        "handoffTargets": [
+          "01-Orchestrator"
+        ],
+        "skills": [
+          "golden-principles",
+          "context-management"
+        ]
       }
     },
     {
@@ -395,7 +517,10 @@
           "terraform-plan-subagent"
         ],
         "handoffTargets": [],
-        "skills": ["azure-defaults", "azure-artifacts"]
+        "skills": [
+          "azure-defaults",
+          "azure-artifacts"
+        ]
       }
     },
     {
@@ -409,7 +534,10 @@
       },
       "meta": {
         "model": "Claude Sonnet 4.6",
-        "skills": ["azure-defaults", "iac-common"]
+        "skills": [
+          "azure-defaults",
+          "iac-common"
+        ]
       }
     },
     {
@@ -437,7 +565,10 @@
       },
       "meta": {
         "model": "GPT-5.5",
-        "skills": ["golden-principles", "azure-defaults"]
+        "skills": [
+          "golden-principles",
+          "azure-defaults"
+        ]
       }
     },
     {
@@ -451,7 +582,9 @@
       },
       "meta": {
         "model": "GPT-5.3-Codex",
-        "skills": ["azure-defaults"]
+        "skills": [
+          "azure-defaults"
+        ]
       }
     },
     {
@@ -493,7 +626,10 @@
       },
       "meta": {
         "model": "Claude Sonnet 4.6",
-        "skills": ["azure-defaults", "iac-common"]
+        "skills": [
+          "azure-defaults",
+          "iac-common"
+        ]
       }
     },
     {
