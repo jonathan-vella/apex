@@ -47,6 +47,11 @@ test("classifyModel: GPT-4o → gpt-4o", () => {
   assert.equal(classifyModel("GPT-4o"), "gpt-4o");
 });
 
+test("classifyModel: MAI-Code-1-Flash → mai-code", () => {
+  assert.equal(classifyModel("MAI-Code-1-Flash"), "mai-code");
+  assert.equal(classifyModel(["MAI-Code-1-Flash"]), "mai-code");
+});
+
 test("classifyModel: unknown / missing → unknown", () => {
   assert.equal(classifyModel(undefined), "unknown");
   assert.equal(classifyModel(null), "unknown");

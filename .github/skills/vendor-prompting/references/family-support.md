@@ -30,6 +30,7 @@ Family status determines per-rule severity overrides.
 | `gpt-5.4`       | enforced      | GPT-5.5 rules apply (shared OpenAI cohort)         | `GPT-5.4`           |
 | `gpt-codex`     | reviewer-only | Decision-log only; no automated enforcement        | `GPT-5.3-Codex`     |
 | `gpt-4o`        | reviewer-only | Legacy; no new enforcement                         | `GPT-4o`            |
+| `mai-code`      | reviewer-only | Microsoft model; no MAI-specific prompting rules   | `MAI-Code-1-Flash`  |
 | `unknown`       | enforced      | Raises ERROR to force explicit `model:` value      | (anything else)     |
 
 ## How severity is computed

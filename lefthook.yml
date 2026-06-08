@@ -224,7 +224,7 @@ pre-commit:
 
     secrets-baseline:
       run: |
-        if command -v gitleaks &>/dev/null; then
+        if command -v gitleaks >/dev/null 2>&1; then
           gitleaks protect --staged --redact --no-banner
         else
           echo "⚠️  gitleaks not installed — skipping secret scan (CI will enforce)"

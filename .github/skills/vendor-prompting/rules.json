@@ -74,6 +74,12 @@
       "rule_subset_note": "Legacy model; no new enforcement."
     },
     {
+      "family": "mai-code",
+      "status": "reviewer-only",
+      "label_examples": ["MAI-Code-1-Flash"],
+      "rule_subset_note": "Microsoft coding model; no MAI-specific automated prompting rules yet. Used for handoff-only orchestration routing."
+    },
+    {
       "family": "unknown",
       "status": "enforced",
       "label_examples": [],

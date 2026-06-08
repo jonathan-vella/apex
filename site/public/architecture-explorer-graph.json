@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-05-28T20:24:28.166Z",
+  "generatedAt": "2026-06-08T06:45:03.162Z",
   "categories": [
     {
       "id": "agent",
@@ -80,7 +80,7 @@
         "source": "https://github.com/jonathan-vella/azure-agentic-infraops/blob/main/.github/agents/01-orchestrator.agent.md"
       },
       "meta": {
-        "model": "GPT-5.4 mini",
+        "model": "MAI-Code-1-Flash",
         "invocable": true,
         "subagents": [
           "02-Requirements",

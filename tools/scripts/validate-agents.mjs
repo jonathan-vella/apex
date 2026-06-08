@@ -369,6 +369,7 @@ function classifyModel(modelStr) {
   if (lower.includes("gpt-5.4")) return "gpt-5.4";
   if (lower.includes("gpt-5.3") || lower.includes("codex")) return "gpt-codex";
   if (lower.includes("gpt-4o")) return "gpt-4o";
+  if (lower.includes("mai-code") || lower.includes("mai code")) return "mai-code";
   return "unknown";
 }
 
