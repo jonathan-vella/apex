@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-06-08T13:59:33.577Z",
+  "generatedAt": "2026-06-09T11:36:16.427Z",
   "categories": [
     {
       "id": "agent",
@@ -48,7 +48,7 @@
       "label": "Validator",
       "color": "#8b5cf6",
       "shape": "hexagon",
-      "count": 54
+      "count": 55
     },
     {
       "id": "workflow",
@@ -67,8 +67,8 @@
       "count": 6
     }
   ],
-  "nodeCount": 157,
-  "edgeCount": 675,
+  "nodeCount": 158,
+  "edgeCount": 676,
   "nodes": [
     {
       "id": "agent:01-orchestrator",
@@ -1776,6 +1776,19 @@
       }
     },
     {
+      "id": "validator:validate-context-budget",
+      "category": "validator",
+      "label": "validate:context-budget",
+      "description": "node tools/scripts/validate-context-budget.mjs",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
+      },
+      "meta": {
+        "command": "node tools/scripts/validate-context-budget.mjs"
+      }
+    },
+    {
       "id": "validator:validate-iac-security-baseline",
       "category": "validator",
       "label": "validate:iac-security-baseline",
@@ -1898,39 +1911,39 @@
       "id": "validator:validate-model-consistency",
       "category": "validator",
       "label": "validate:model-consistency",
-      "description": "node tools/scripts/validate-model-consistency.mjs",
+      "description": "node tools/scripts/validate-models.mjs --only=consistency",
       "path": "package.json",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
       },
       "meta": {
-        "command": "node tools/scripts/validate-model-consistency.mjs"
+        "command": "node tools/scripts/validate-models.mjs --only=consistency"
       }
     },
     {
       "id": "validator:validate-deprecated-models",
       "category": "validator",
       "label": "validate:deprecated-models",
-      "description": "node tools/scripts/validate-deprecated-models.mjs",
+      "description": "node tools/scripts/validate-models.mjs --only=deprecated",
       "path": "package.json",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
       },
       "meta": {
-        "command": "node tools/scripts/validate-deprecated-models.mjs"
+        "command": "node tools/scripts/validate-models.mjs --only=deprecated"
       }
     },
     {
       "id": "validator:validate-model-catalog",
       "category": "validator",
       "label": "validate:model-catalog",
-      "description": "node tools/scripts/validate-model-catalog.mjs",
+      "description": "node tools/scripts/validate-models.mjs --only=catalog",
       "path": "package.json",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
       },
       "meta": {
-        "command": "node tools/scripts/validate-model-catalog.mjs"
+        "command": "node tools/scripts/validate-models.mjs --only=catalog"
       }
     },
     {
@@ -5590,6 +5603,12 @@
       "id": "workflow:ci--runs->validator:validate-banned-phrases",
       "source": "workflow:ci",
       "target": "validator:validate-banned-phrases",
+      "kind": "runs"
+    },
+    {
+      "id": "workflow:ci--runs->validator:validate-context-budget",
+      "source": "workflow:ci",
+      "target": "validator:validate-context-budget",
       "kind": "runs"
     },
     {

@@ -1,6 +1,6 @@
 {
   "$schema": "../tools/schemas/model-catalog.schema.json",
-  "description": "Authorized Copilot Chat model labels for APEX agents. Two-part design: `models` is hand-maintained metadata that authorizes which labels may appear in agent frontmatter; `assignments` is auto-generated from frontmatter (the canonical source) so the catalog can never drift from the agents themselves. The agent registry mirrors frontmatter via validate-model-consistency.mjs; the catalog enforces the label allow-list and assignment integrity via validate-model-catalog.mjs.",
+  "description": "Authorized Copilot Chat model labels for APEX agents. Two-part design: `models` is hand-maintained metadata that authorizes which labels may appear in agent frontmatter; `assignments` is auto-generated from frontmatter (the canonical source) so the catalog can never drift from the agents themselves. The agent registry mirrors frontmatter via validate-models.mjs --only=consistency; the catalog enforces the label allow-list and assignment integrity via validate-models.mjs --only=catalog.",
   "last_updated": "2026-06-08",
   "models": {
     "Claude Opus 4.8": {
@@ -122,7 +122,7 @@
     }
   },
   "governance": {
-    "source_of_truth": "Agent frontmatter is canonical. The agent registry mirrors frontmatter (enforced by validate-model-consistency.mjs). The catalog `models` block authorizes which labels are allowed; the catalog `assignments` block is generated from frontmatter and must match it exactly (enforced by validate-model-catalog.mjs).",
+    "source_of_truth": "Agent frontmatter is canonical. The agent registry mirrors frontmatter (enforced by validate-models.mjs --only=consistency). The catalog `models` block authorizes which labels are allowed; the catalog `assignments` block is generated from frontmatter and must match it exactly (enforced by validate-models.mjs --only=catalog).",
     "rules": [
       "Every model label appearing in agent or subagent frontmatter MUST exist as a key in `models`.",
       "Every model label appearing in the agent registry MUST exist as a key in `models`.",

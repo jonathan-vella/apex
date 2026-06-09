@@ -38,7 +38,7 @@
         "model": {
           "type": "string",
           "minLength": 1,
-          "description": "Model name. Must equal the `model` field in the agent's YAML frontmatter (validated by validate-model-consistency.mjs). Catalog entry is documentation only and is not enforced."
+          "description": "Model name. Must equal the `model` field in the agent's YAML frontmatter (validated by validate-models.mjs --only=consistency). Catalog entry is documentation only and is not enforced."
         },
         "invokable": {
           "type": "boolean",

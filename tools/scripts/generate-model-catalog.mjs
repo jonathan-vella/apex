@@ -9,7 +9,7 @@
  *
  * Run on demand (`npm run generate:model-catalog`) or automatically via
  * the lefthook pre-commit hook whenever an agent frontmatter file is
- * staged. The validator (`validate-model-catalog.mjs`) compares the
+ * staged. The validator (`validate-models.mjs --only=catalog`) compares the
  * committed `assignments` block against this generator's output and
  * fails CI on drift.
  *
@@ -28,32 +28,10 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-import { getAgents } from "./_lib/workspace-index.mjs";
-import { normalizeModel } from "./_lib/model-helpers.mjs";
+import { buildAssignments } from "./_lib/model-helpers.mjs";
 
 const ROOT = process.cwd();
 const CATALOG_PATH = path.join(ROOT, ".github", "model-catalog.json");
-
-export function buildAssignments() {
-  const agents = getAgents();
-  const main = {};
-  const subs = {};
-  const sorted = [...agents.entries()].sort(([a], [b]) => a.localeCompare(b));
-  for (const [file, a] of sorted) {
-    const model = normalizeModel(a.frontmatter?.model);
-    if (!model) continue;
-    if (a.isSubagent) subs[file] = model;
-    else main[file] = model;
-  }
-  return {
-    generated: true,
-    generated_by: "tools/scripts/generate-model-catalog.mjs",
-    description:
-      "Auto-generated inventory of agent → model assignments derived from frontmatter (canonical source). Do not edit by hand; run `node tools/scripts/generate-model-catalog.mjs` or let the lefthook pre-commit hook refresh it when frontmatter changes.",
-    agents: main,
-    subagents: subs,
-  };
-}
 
 function loadCatalog() {
   if (!fs.existsSync(CATALOG_PATH)) {

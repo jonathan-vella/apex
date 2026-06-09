@@ -73,7 +73,7 @@ Applies when frontmatter `model:` matches `gpt-5.5`.
   prose contexts (security baseline, governance, approval gate,
   non-negotiable). Info-only on first release.
 - **`model-deprecation-001`** — Cross-references
-  [validate-deprecated-models.mjs](../../tools/scripts/validate-deprecated-models.mjs).
+  [validate-models.mjs](../../tools/scripts/validate-models.mjs) (`--only=deprecated`).
 - **`prompt-model-source-001`** — HARD rule (severity `error`):
   prompts targeting a custom agent (e.g. `agent: "02-Requirements"`)
   MUST NOT declare `model:` — let the agent's `model:` apply.

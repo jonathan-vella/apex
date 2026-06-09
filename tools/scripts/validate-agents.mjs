@@ -831,7 +831,7 @@ function checkModelDeprecation(r, agent, file, family, deprecatedSet) {
         "model-deprecation-001",
         family,
         file,
-        `Model "${m}" matches deprecated label "${dep}" — see validate-deprecated-models.mjs`,
+        `Model "${m}" matches deprecated label "${dep}" — see validate-models.mjs --only=deprecated`,
       );
       return;
     }
@@ -1009,11 +1009,11 @@ function emit(r, ruleId, family, file, message) {
 
 /**
  * Load the deprecated-model labels by parsing
- * tools/scripts/validate-deprecated-models.mjs source. Light grep — avoids
+ * tools/scripts/validate-models.mjs source. Light grep — avoids
  * importing the whole script.
  */
 function loadDeprecatedModels() {
-  const file = "tools/scripts/validate-deprecated-models.mjs";
+  const file = "tools/scripts/validate-models.mjs";
   if (!fs.existsSync(file)) return new Set();
   const src = fs.readFileSync(file, "utf-8");
   // Patterns like: "Claude Opus 4.6", or DEPRECATED_MODELS = [...]
