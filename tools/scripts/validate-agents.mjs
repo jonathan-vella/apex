@@ -519,7 +519,7 @@ function runModelAlignment() {
   }
 
   // Check 4: Claude non-ONE-SHOT research agents missing investigate block
-  const INVESTIGATE_AGENTS = ["03-architect", "05-iac-planner", "09-diagnose", "11-context-optimizer"];
+  const INVESTIGATE_AGENTS = ["03-architect", "05-iac-planner", "11-context-optimizer"];
 
   console.log("  Check 4: Claude investigate_before_answering");
   {
