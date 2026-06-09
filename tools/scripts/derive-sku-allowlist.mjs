@@ -33,6 +33,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { globSync } from "node:fs";
+import { readJson, writeJson } from "./_lib/json.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 
@@ -56,14 +57,6 @@ const RESOURCE_TYPE_TO_SERVICE = {
   "Microsoft.Compute/virtualMachines": "Virtual Machine",
   "Microsoft.Compute/virtualMachineScaleSets": "VM Scale Set",
 };
-
-function readJson(filePath) {
-  return JSON.parse(fs.readFileSync(filePath, "utf-8"));
-}
-
-function writeJson(filePath, obj) {
-  fs.writeFileSync(filePath, `${JSON.stringify(obj, null, 2)}\n`);
-}
 
 function isSkuRestrictionPath(p) {
   if (!p) return false;

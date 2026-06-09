@@ -48,6 +48,7 @@ import { globSync } from "node:fs";
 import Ajv2020 from "ajv/dist/2020.js";
 import addFormats from "ajv-formats";
 import { Reporter } from "./_lib/reporter.mjs";
+import { readJson } from "./_lib/json.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const SCHEMA_PATH = path.join(ROOT, "tools/schemas/sku-manifest.schema.json");
@@ -63,10 +64,6 @@ const SOURCE_TO_STEP = {
   "architect-derived": "2",
   "deploy-substitute": "6",
 };
-
-function readJson(filePath) {
-  return JSON.parse(fs.readFileSync(filePath, "utf-8"));
-}
 
 function loadValidator() {
   const schema = readJson(SCHEMA_PATH);

@@ -16,22 +16,14 @@
  *   node tools/scripts/capture-drawio-baseline.mjs --check   # exit 1 if incomplete
  */
 
-import fs from "node:fs";
 import path from "node:path";
+import { readJson, writeJson } from "./_lib/json.mjs";
 import { execSync } from "node:child_process";
 
 const RUNS_PATH = path.join("tools", "tests", "drawio-baseline", "_baseline-runs.json");
 const OUT_PATH = path.join("tools", "tests", "drawio-baseline", "regen-baseline.json");
 const TOTAL_SCENARIOS = 7;
 const TARGET_REDUCTION_PCT = 40;
-
-function readJson(p) {
-  return JSON.parse(fs.readFileSync(p, "utf8"));
-}
-
-function writeJson(p, v) {
-  fs.writeFileSync(p, `${JSON.stringify(v, null, 2)}\n`);
-}
 
 function gitInfo() {
   try {
