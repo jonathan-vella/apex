@@ -39,7 +39,8 @@ export function detectIacTool(outputDir) {
  */
 export function fileExists(filePath) {
   try {
-    return fs.statSync(filePath).size > 0;
+    const st = fs.statSync(filePath);
+    return st.isFile() && st.size > 0;
   } catch {
     return false;
   }
