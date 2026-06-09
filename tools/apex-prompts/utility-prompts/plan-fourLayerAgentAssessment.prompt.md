@@ -19,8 +19,9 @@ extending the challenger schema.
 - **Layer 4:** generic adversarial pass via `Explore` subagent + a NEW agent-definition
   checklist (the `challenger-review-subagent` cannot target `.agent.md`).
 - **Scope:** ALL agents — main `.github/agents/*.agent.md` + subagents under
-  `.github/agents/_subagents/`. Derive counts from `tools/registry/agent-registry.json`
-  + `tools/registry/count-manifest.json` (no hard-coded counts).
+  `.github/agents/_subagents/`. Derive the agent list from the filesystem walk
+  (`tools/scripts/_lib/workspace-index.mjs#getAgents`), then enrich with
+  `tools/registry/agent-registry.json` (no hard-coded counts).
 
 ## The 4 layers (grounded)
 
@@ -56,7 +57,8 @@ extending the challenger schema.
 
 ## Deliverables (new files)
 
-1. `tools/scripts/assess-agents.mjs` — deterministic harness. Enumerate agents from the
+1. `tools/scripts/assess-agents.mjs` — deterministic harness. Enumerate agents via the
+   filesystem walk (`tools/scripts/_lib/workspace-index.mjs#getAgents`); enrich with the
    registry; run L1 validators (reuse `tools/scripts/_lib` modules + `paths.mjs` constants,
    don't reimplement); attribute failures per agent; compute mechanical L2 metrics per
    agent (body lines, tool count, handoff count, skill-read lines, description length,
