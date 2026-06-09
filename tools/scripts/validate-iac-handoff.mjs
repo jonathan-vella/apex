@@ -30,20 +30,12 @@ import path from "node:path";
 import crypto from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { globSync } from "node:fs";
-import Ajv2020 from "ajv/dist/2020.js";
-import addFormats from "ajv-formats";
+import { loadValidator } from "./_lib/ajv-validator.mjs";
 import { Reporter } from "./_lib/reporter.mjs";
 import { readJson, sha256File } from "./_lib/json.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const SCHEMA_PATH = path.join(ROOT, "tools/schemas/iac-handoff.schema.json");
-
-function loadValidator() {
-  const schema = readJson(SCHEMA_PATH);
-  const ajv = new Ajv2020({ allErrors: true, strict: false });
-  addFormats(ajv);
-  return ajv.compile(schema);
-}
 
 function walkFiles(dir, files) {
   // First pass: collect the set of bicep stems in this directory so we can
@@ -160,7 +152,7 @@ function defaultGlobs() {
 function main() {
   const r = new Reporter("IaC Handoff Validator");
   r.header();
-  const validate = loadValidator();
+  const validate = loadValidator(SCHEMA_PATH);
   const rawArgs = process.argv.slice(2);
   const skipTreeHash = rawArgs.includes("--skip-tree-hash");
   const args = rawArgs.filter((a) => a !== "--skip-tree-hash");
