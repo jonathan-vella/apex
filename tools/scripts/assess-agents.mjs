@@ -61,7 +61,7 @@ const CLAUDE_ONLY_XML = [
   "<output_contract>",
 ];
 // Claude research agents expected to carry an investigate block (file-prefix match).
-const INVESTIGATE_AGENT_PREFIXES = ["03-architect", "05-iac-planner", "09-diagnose", "11-context-optimizer"];
+const INVESTIGATE_AGENT_PREFIXES = ["03-architect", "05-iac-planner", "11-context-optimizer"];
 // ONE-SHOT agents (frontmatter name) that must NOT carry an investigate block.
 const ONE_SHOT_AGENT_NAMES = new Set(["02-Requirements", "challenger-review-subagent"]);
 

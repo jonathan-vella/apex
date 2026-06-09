@@ -478,8 +478,10 @@ validate against governance intent, not pre-approved settings (a crafted
 [`workflow-gates.md`](../skills/azure-defaults/references/workflow-gates.md#governance-step-35--phase-27-inline-resolution-gate).
 Also read
 [`inline-resolution-gate.md`](../skills/azure-governance-discovery/references/inline-resolution-gate.md)
-before running this phase — it carries the jq defaults query, the single `vscode_askQuestions` call, the artifact
-multi-replace, the two `apex-recall decide` calls, `Unknown — block` handling, and the `phase_2_7_resolution` checkpoint.
+before running this phase — it carries the jq defaults query, the single
+`vscode_askQuestions` call, the artifact multi-replace, the two
+`apex-recall decide` calls, `Unknown — block` handling, and the
+`phase_2_7_resolution` checkpoint.
 
 > **Signature + TTL short-circuit** (Phase 4 contract): before issuing
 > `vscode_askQuestions`, run the same three-condition check from
