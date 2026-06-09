@@ -10,7 +10,11 @@
  *   - walkRegistry: yield `[label, entry]` pairs from the agent
  *     registry, expanding the `bicep` / `terraform` deploy split into
  *     two virtual entries.
+ *   - buildAssignments: derive the model-catalog `assignments` block from
+ *     agent/subagent frontmatter (the canonical source of truth).
  */
+
+import { getAgents } from "./workspace-index.mjs";
 
 /**
  * Normalize a raw `model:` value to the canonical string form used by
@@ -51,4 +55,33 @@ function* expandRegistryEntry(key, entry) {
     return;
   }
   yield [key, entry];
+}
+
+/**
+ * Build the model-catalog `assignments` block from agent/subagent
+ * frontmatter (the canonical source of truth). The `models` and
+ * `governance` blocks are hand-maintained and not produced here.
+ *
+ * @returns {{generated: boolean, generated_by: string, description: string,
+ *            agents: Record<string,string>, subagents: Record<string,string>}}
+ */
+export function buildAssignments() {
+  const agents = getAgents();
+  const main = {};
+  const subs = {};
+  const sorted = [...agents.entries()].sort(([a], [b]) => a.localeCompare(b));
+  for (const [file, a] of sorted) {
+    const model = normalizeModel(a.frontmatter?.model);
+    if (!model) continue;
+    if (a.isSubagent) subs[file] = model;
+    else main[file] = model;
+  }
+  return {
+    generated: true,
+    generated_by: "tools/scripts/generate-model-catalog.mjs",
+    description:
+      "Auto-generated inventory of agent → model assignments derived from frontmatter (canonical source). Do not edit by hand; run `node tools/scripts/generate-model-catalog.mjs` or let the lefthook pre-commit hook refresh it when frontmatter changes.",
+    agents: main,
+    subagents: subs,
+  };
 }

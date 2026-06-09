@@ -150,6 +150,22 @@ The change is additive. Rollback paths:
   is unchanged. Guarded by `tools/tests/lib/e2e-helpers.test.mjs`
   (`test:lib-e2e`).
 
+### Changed (tools/scripts consolidation — validate-models)
+
+- refactor(scripts): merge the three read-only model validators
+  (`validate-model-catalog`, `validate-model-consistency`,
+  `validate-deprecated-models`) into a single
+  `tools/scripts/validate-models.mjs` with `--only=catalog|consistency|deprecated`
+  (no flag runs all three). The `validate:model-catalog`,
+  `validate:model-consistency`, and `validate:deprecated-models` npm
+  aliases are preserved as thin pass-throughs, so hooks/CI are unchanged;
+  a new `validate:models` runs the full set. Per-mode output is
+  byte-for-byte identical to the former scripts (verified by diff against
+  a `main` worktree). The mutating generator (`generate-model-catalog.mjs`)
+  stays separate, and its `buildAssignments` helper moves into
+  `_lib/model-helpers.mjs` — removing the former validator→generator
+  import. Guarded by `tools/tests/validate-models.test.mjs` (`test:models`).
+
 ### Added (docs)
 
 - docs(concepts): add `concepts/workflow-deep-dive` — long-form
