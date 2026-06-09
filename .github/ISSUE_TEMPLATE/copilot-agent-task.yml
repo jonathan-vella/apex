@@ -68,7 +68,7 @@ body:
       description: What conventions, regions, tags, or constraints apply?
       placeholder: |
         - Region: swedencentral
-        - Tags: Environment, ManagedBy, Project, Owner
+        - Tags: environment, owner, costcenter, application, workload, sla, backup-policy, maint-window, technical-contact
         - Follow CAF naming conventions
         - Do NOT modify existing alert rules
     validations:

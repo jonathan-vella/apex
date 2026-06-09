@@ -53,7 +53,7 @@ When translating Azure Policy `Deny` constraints to IaC:
 3. Translate to IaC property:
    - **Bicep**: Drop leading resource-type segment from `azurePropertyPath`
    - **Terraform**: Use translation table in `.github/instructions/references/iac-policy-compliance.md`
-4. Governance-discovered tags always win over the 4 baseline defaults
+4. Governance-discovered tags always win over the 9 baseline defaults
 
 **Policy Effect Reference**: `azure-defaults/references/policy-effect-decision-tree.md`
 

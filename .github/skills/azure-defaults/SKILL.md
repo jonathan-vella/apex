@@ -34,17 +34,24 @@ Deep-dive content lives in `references/` — load on demand.
 
 ### Required Tags (Azure Policy Enforced)
 
-**These 4 tags are the MINIMUM baseline** (PascalCase, case-sensitive —
-mixing `owner` + `Owner` triggers `AmbiguousPolicyEvaluationPaths`).
-Always defer to `04-governance-constraints.md` for the project's actual
-required list.
+**These 9 lowercase tags are the APEX baseline** — they mirror the
+org-wide resource-group tag-deny policy (every key must exist on the RG
+or the deployment is denied). Use lowercase keys (mixing `owner` +
+`Owner` triggers `AmbiguousPolicyEvaluationPaths`). Always defer to
+`04-governance-constraints.md` for the project's actual required list —
+discovered policy always wins.
 
-| Tag           | Required | Example Values           |
-| ------------- | -------- | ------------------------ |
-| `Environment` | Yes      | `dev`, `staging`, `prod` |
-| `ManagedBy`   | Yes      | `Bicep` or `Terraform`   |
-| `Project`     | Yes      | Project identifier       |
-| `Owner`       | Yes      | Team or individual name  |
+| Tag                 | Required | Example Values           |
+| ------------------- | -------- | ------------------------ |
+| `environment`       | Yes      | `dev`, `staging`, `prod` |
+| `owner`             | Yes      | `team-platform@…`        |
+| `costcenter`        | Yes      | `cc-12345`               |
+| `application`       | Yes      | `mindthehack`            |
+| `workload`          | Yes      | `apex-aks`               |
+| `sla`               | Yes      | `production`, `dev`      |
+| `backup-policy`     | Yes      | `daily-35d`, `none`      |
+| `maint-window`      | Yes      | `sat-02:00-04:00`        |
+| `technical-contact` | Yes      | `alerts@…`               |
 
 ### Unique Suffix Pattern
 

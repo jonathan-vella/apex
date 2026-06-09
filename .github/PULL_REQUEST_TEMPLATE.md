@@ -114,7 +114,7 @@ If this PR touches `.github/agents/04-design.agent.md`,
 - [ ] Region defaults to `swedencentral` (or `germanywestcentral`)
 - [ ] Unique suffixes used for globally-unique resource names
 - [ ] Resource names within length limits (Key Vault ≤24, Storage ≤24)
-- [ ] Required tags included (Environment, ManagedBy, Project, Owner)
+- [ ] Required tags included (APEX 9-tag standard: environment, owner, costcenter, application, workload, sla, backup-policy, maint-window, technical-contact; discovered policy wins)
 - [ ] No hardcoded secrets, subscription IDs, or sensitive data
 - [ ] Uses Azure Verified Modules (AVM) where available
 

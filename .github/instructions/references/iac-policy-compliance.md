@@ -13,18 +13,19 @@ subscription.
 ## Dynamic Tag List
 
 Tags come from governance constraints, not hardcoded defaults.
-The 4 baseline defaults (`Environment`, `ManagedBy`, `Project`, `Owner`)
-are a minimum — discovered policies always win. If governance
-constraints specify 9 tags, the generated code includes all 9.
+The 9 baseline defaults (`environment`, `owner`, `costcenter`,
+`application`, `workload`, `sla`, `backup-policy`, `maint-window`,
+`technical-contact` — the APEX standard, all lowercase) are a minimum —
+discovered policies always win and may add or rename keys.
 
 ### Example
 
 ```text
-Defaults (azure-defaults skill):  4 tags
+Defaults (azure-defaults skill):  9 tags (APEX standard, lowercase)
 Governance constraints discovered: 9 tags (environment, owner,
   costcenter, application, workload, sla, backup-policy,
-  maint-window, tech-contact)
-Required in generated code:       9 tags (governance wins)
+  maint-window, tech-contact)   ← note: tech-contact, not technical-contact
+Required in generated code:       9 tags (governance wins on key names)
 ```
 
 ## Policy Compliance Checklist

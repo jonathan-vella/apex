@@ -84,7 +84,7 @@ The `<step>` suffix is the integer step number (`1`, `2`, `3_5`, `4`).
 | Key                 | Valid values                                       | Default behaviour if absent | Set by         | Read by         |
 | ------------------- | -------------------------------------------------- | --------------------------- | -------------- | --------------- |
 | `governance_status` | `discovered` \| `pending_resolution` \| `complete` | n/a                         | 04g-Governance | 05-IaC Planner  |
-| `tag_strategy`      | `policy` \| `greenfield-lowercase-4tag`            | `policy` (live discovery)   | 04g-Governance | 06b/06t CodeGen |
+| `tag_strategy`      | `policy` \| `greenfield-lowercase-9tag`            | `policy` (live discovery)   | 04g-Governance | 06b/06t CodeGen |
 
 ### Step 4 (IaC Plan) keys
 

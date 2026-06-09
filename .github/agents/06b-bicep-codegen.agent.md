@@ -321,7 +321,7 @@ from scratch.**
 3. For each matrix row, record the target Bicep property path and
    required value — these become the L2 attestations the validator
    will check after code generation.
-4. Merge governance tags with 4 baseline defaults (governance wins).
+4. Merge governance tags with the 9 baseline defaults (governance wins).
 5. If `04-governance-constraints.json` contains a structured `override` block
    for a Deny finding (see `04g-governance.agent.md` → Policy Override Pattern),
    validate that `reason`, `issue_link`, and a future-dated `expiry` are all
