@@ -124,6 +124,20 @@ The change is additive. Rollback paths:
   byte-for-byte identical. Guarded by `tools/tests/lib/json.test.mjs`
   (`test:lib-json`).
 
+### Changed (tools/scripts DRY — _lib/ajv-validator)
+
+- refactor(scripts): extract the `new Ajv2020({ allErrors: true, strict:
+  false })` + `addFormats` construction and the read-schema-then-compile
+  `loadValidator` into `tools/scripts/_lib/ajv-validator.mjs`
+  (`createAjv`, `loadValidator`). Adopt it across 8 validators (IaC
+  contract + handoff, policy property map, environment manifest, SKU
+  manifest, challenge-findings decisions, JSON-schema validator, artifact
+  governance-schema check), removing the duplicated Ajv boilerplate and
+  now-orphaned `ajv` / `ajv-formats` imports; behavior is identical.
+  `validate-decision-keys.mjs` is intentionally left untouched (it omits
+  `addFormats` by design). Guarded by
+  `tools/tests/lib/ajv-validator.test.mjs` (`test:lib-ajv`).
+
 ### Added (docs)
 
 - docs(concepts): add `concepts/workflow-deep-dive` — long-form

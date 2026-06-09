@@ -34,20 +34,12 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { globSync } from "node:fs";
-import Ajv2020 from "ajv/dist/2020.js";
-import addFormats from "ajv-formats";
+import { loadValidator } from "./_lib/ajv-validator.mjs";
 import { Reporter } from "./_lib/reporter.mjs";
 import { readJson, sha256File } from "./_lib/json.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const SCHEMA_PATH = path.join(ROOT, "tools/schemas/iac-contract.schema.json");
-
-function loadValidator() {
-  const schema = readJson(SCHEMA_PATH);
-  const ajv = new Ajv2020({ allErrors: true, strict: false });
-  addFormats(ajv);
-  return ajv.compile(schema);
-}
 
 function checkUniqueLogicalNames(data, fileRel, r) {
   const seen = new Set();
@@ -182,7 +174,7 @@ function defaultGlobs() {
 function main() {
   const r = new Reporter("IaC Contract Validator");
   r.header();
-  const validate = loadValidator();
+  const validate = loadValidator(SCHEMA_PATH);
   const args = process.argv.slice(2);
   const patterns = args.length > 0 ? args : defaultGlobs();
 

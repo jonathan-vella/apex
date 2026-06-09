@@ -14,8 +14,7 @@
 
 import fs from "node:fs";
 import path from "node:path";
-import Ajv from "ajv/dist/2020.js";
-import addFormats from "ajv-formats";
+import { createAjv } from "./_lib/ajv-validator.mjs";
 import { ARTIFACT_HEADINGS } from "./_lib/artifact-headings.mjs";
 
 // ============================================================================
@@ -938,9 +937,7 @@ function getGovernanceValidator() {
     return false;
   }
   const schema = JSON.parse(readText(GOVERNANCE_SCHEMA_PATH));
-  const ajv = new Ajv({ allErrors: true, strict: false });
-  addFormats(ajv);
-  _governanceValidator = ajv.compile(schema);
+  _governanceValidator = createAjv().compile(schema);
   return _governanceValidator;
 }
 

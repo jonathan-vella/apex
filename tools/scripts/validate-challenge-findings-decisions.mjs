@@ -20,18 +20,14 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import Ajv from "ajv/dist/2020.js";
-import addFormats from "ajv-formats";
+import { loadValidator as compileSchemaFile } from "./_lib/ajv-validator.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, "../..");
 const SCHEMA_PATH = path.join(ROOT, "tools/schemas/challenge-findings-decisions.schema.json");
 
 function loadValidator() {
-  const schema = JSON.parse(fs.readFileSync(SCHEMA_PATH, "utf8"));
-  const ajv = new Ajv({ allErrors: true, strict: false });
-  addFormats(ajv);
-  return ajv.compile(schema);
+  return compileSchemaFile(SCHEMA_PATH);
 }
 
 function validateFile(validate, file) {

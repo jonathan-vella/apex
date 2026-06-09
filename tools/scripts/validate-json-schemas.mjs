@@ -19,8 +19,7 @@
 import { readFileSync, globSync } from "node:fs";
 import { resolve, dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import Ajv2020 from "ajv/dist/2020.js";
-import addFormats from "ajv-formats";
+import { createAjv } from "./_lib/ajv-validator.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 
@@ -38,8 +37,7 @@ if (mappings.length === 0) {
   process.exit(0);
 }
 
-const ajv = new Ajv2020({ allErrors: true, strict: false });
-addFormats(ajv);
+const ajv = createAjv();
 let failures = 0;
 
 for (const entry of mappings) {
