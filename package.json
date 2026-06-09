@@ -162,7 +162,7 @@
     "eslint": "^10.4.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-formatter-compact": "^9.0.1",
-    "eslint-plugin-n": "^18.0.1",
+    "eslint-plugin-n": "^18.1.0",
     "fast-xml-parser": "^5.8.0",
     "js-yaml": "^4.1.1",
     "jsdom": "^29.1.1",
