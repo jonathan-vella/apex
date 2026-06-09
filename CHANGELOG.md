@@ -18,6 +18,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 See the [published changelog](https://apexops.pro/project/changelog/)
 for full details on this and all prior releases.
 
+### Removed (tools/scripts dead-code cleanup)
+
+- chore(scripts): delete orphaned/one-time scripts with no npm, hook, or
+  CI wiring — `report-agent-body-sizes.mjs` (superseded by
+  `assess-agents.mjs`), `migrate-legacy-findings.mjs` (one-time v1.0
+  findings migration), `bench-hooks.sh`, `crawl-dev-site.mjs`,
+  `strip-handoff-kind.py`, and the eight `markdown-prettifiers/*.py`
+  one-time doc-styling tools. Companion cleanup drops the
+  `markdown-prettifiers/**` ignore glob from `.markdownlint-cli2.jsonc`
+  and the stale migration reference in `validate-challenger-findings.mjs`.
+
 ### Added (Workflow hardening — issue #425)
 
 - feat(skills): `azure-artifacts` SKILL.md gains a `## Post-write
