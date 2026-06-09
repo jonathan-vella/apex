@@ -10,11 +10,7 @@ tools:
     execute,
     read,
     agent,
-    browser,
     edit,
-    search,
-    web,
-    todo,
   ]
 agents: ["challenger-review-subagent"]
 handoffs:
@@ -92,6 +88,17 @@ the Orchestrator with an apply summary.
     `defer` with a note pointing to the owning agent.
   - Honor `APEX_UNATTENDED=1` per protocol section 2d (auto-defer,
     no apply, no `askQuestions`).
+- Failure handling:
+  - If `challenger-review-subagent` errors, times out, or returns
+    malformed/absent JSON (distinct from a clean review with findings),
+    retry once. If it fails again, stop and surface the error via
+    `askQuestions` (Retry / Skip review / Abort) — never fabricate findings
+    or hand off as if the review passed.
+  - If the apply step (`multi_replace_string_in_file`) fails, do not
+    re-emit the artifact via `create_file`; report which Accepted findings
+    were not applied and leave the artifact untouched for a retry.
+  - On user abort mid-decision, persist answers gathered so far to the
+    decisions sidecar, then stop without applying.
 - Reasoning effort: rely on the Copilot runtime default. Adversarial
   review is structured I/O around the subagent — elevated reasoning
   is unnecessary.

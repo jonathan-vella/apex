@@ -1,0 +1,182 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/jonathan-vella/apex/schemas/agent-scorecard.schema.json",
+  "title": "APEX Agent Scorecard",
+  "description": "Shape of a single per-agent scorecard emitted by tools/scripts/assess-agents.mjs (one file per agent under scorecards/<agent_id>.json). Captures the four-layer assessment: deterministic dimensions are scored by the harness; judgment dimensions (role_clarity, adversarial) are emitted as `pending` and resolved by tools/apex-prompts/utility-prompts/assess-agents.prompt.md.",
+  "type": "object",
+  "required": ["schema_version", "agent_id", "path", "is_subagent", "model_family", "metrics", "dimensions", "blocker"],
+  "additionalProperties": true,
+  "properties": {
+    "schema_version": {
+      "const": "agent-scorecard-v1",
+      "description": "Schema discriminator."
+    },
+    "agent_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Agent file basename without the .agent.md suffix (e.g. 03-architect)."
+    },
+    "name": {
+      "type": ["string", "null"],
+      "description": "Agent frontmatter `name` field."
+    },
+    "path": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Workspace-relative path to the .agent.md definition."
+    },
+    "is_subagent": {
+      "type": "boolean",
+      "description": "True for definitions under .github/agents/_subagents/."
+    },
+    "model": {
+      "type": ["string", "array", "null"],
+      "description": "Raw frontmatter model value (array form on agents)."
+    },
+    "model_family": {
+      "type": "string",
+      "description": "Normalized family from classifyModel (e.g. claude-opus, gpt-5.5, gpt-codex, mai-code, unknown)."
+    },
+    "step": {
+      "type": ["number", "null"],
+      "description": "Workflow step from the agent registry, or null for non-step agents."
+    },
+    "invokable": {
+      "type": ["boolean", "null"],
+      "description": "Whether the agent is user-invocable (from the registry)."
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "metrics": {
+      "type": "object",
+      "description": "Deterministic mechanical metrics extracted from the agent definition.",
+      "required": [
+        "body_lines",
+        "tool_count",
+        "handoff_count",
+        "skill_read_count",
+        "description_length",
+        "model_family"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "total_lines": { "type": "integer", "minimum": 0 },
+        "body_lines": { "type": "integer", "minimum": 0 },
+        "tool_count": { "type": "integer", "minimum": 0 },
+        "handoff_count": { "type": "integer", "minimum": 0 },
+        "skill_read_count": { "type": "integer", "minimum": 0 },
+        "skills_referenced": { "type": "array", "items": { "type": "string" } },
+        "description_length": { "type": "integer", "minimum": 0 },
+        "has_context_awareness": { "type": "boolean" },
+        "has_investigate_block": { "type": "boolean" },
+        "has_output_contract": { "type": "boolean" },
+        "uses_apex_recall": { "type": "boolean" },
+        "reads_skill_md": { "type": "boolean" },
+        "gpt55_sections_present": { "type": "array", "items": { "type": "string" } },
+        "gpt55_sections_missing": { "type": "array", "items": { "type": "string" } },
+        "model_family": { "type": "string" }
+      }
+    },
+    "dimensions": {
+      "type": "object",
+      "description": "The eight scored dimensions across the four layers.",
+      "required": [
+        "mechanical_contract",
+        "frontmatter_integrity",
+        "context_efficiency",
+        "vendor_prompting",
+        "role_clarity",
+        "frame_safety",
+        "runtime_behavior",
+        "adversarial"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "mechanical_contract": { "$ref": "#/$defs/dimension" },
+        "frontmatter_integrity": { "$ref": "#/$defs/dimension" },
+        "context_efficiency": { "$ref": "#/$defs/dimension" },
+        "vendor_prompting": { "$ref": "#/$defs/dimension" },
+        "role_clarity": { "$ref": "#/$defs/dimension" },
+        "frame_safety": { "$ref": "#/$defs/dimension" },
+        "runtime_behavior": { "$ref": "#/$defs/dimension" },
+        "adversarial": { "$ref": "#/$defs/dimension" }
+      }
+    },
+    "validator_status": {
+      "enum": ["pass", "warn", "fail", "unavailable"],
+      "description": "Aggregate status from the validate-agents.mjs JSON enrichment subprocess."
+    },
+    "validator_findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "check": { "type": "string" },
+          "ruleId": { "type": ["string", "null"] },
+          "severity": { "type": "string" },
+          "message": { "type": "string" }
+        }
+      }
+    },
+    "blocker": {
+      "type": "boolean",
+      "description": "True when any dimension carries a blocker severity (caps the composite)."
+    },
+    "mechanical_composite": {
+      "type": ["integer", "null"],
+      "minimum": 0,
+      "maximum": 100,
+      "description": "0-100 weighted score over the resolved deterministic buckets (renormalized); capped at 49 when blocker is true."
+    },
+    "composite": {
+      "type": ["integer", "null"],
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Final composite once all buckets (including judgment) are resolved by the prompt; null while judgment_pending."
+    },
+    "judgment_pending": {
+      "type": "boolean",
+      "description": "True until the prompt resolves role_clarity and adversarial."
+    },
+    "composite_buckets": {
+      "type": "object",
+      "description": "Per-bucket 0-5 scores used to compute the composite (null when pending/na).",
+      "additionalProperties": true
+    }
+  },
+  "$defs": {
+    "dimension": {
+      "type": "object",
+      "required": ["layer", "status", "severity", "evidence"],
+      "additionalProperties": false,
+      "properties": {
+        "layer": {
+          "enum": ["L1", "L2", "L3", "L4"],
+          "description": "Which assessment layer this dimension belongs to."
+        },
+        "status": {
+          "enum": ["pass", "warn", "fail", "na", "pending"],
+          "description": "pending = awaiting prompt judgment; na = not applicable (e.g. no runtime profile)."
+        },
+        "score": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "maximum": 5,
+          "description": "0-5 band score, or null when pending/na."
+        },
+        "severity": {
+          "enum": ["none", "low", "medium", "high", "blocker"],
+          "description": "Worst severity observed for this dimension."
+        },
+        "evidence": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Concrete, citeable observations supporting the score."
+        }
+      }
+    }
+  }
+}

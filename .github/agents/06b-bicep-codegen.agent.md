@@ -392,6 +392,12 @@ Invoke both validation subagents in parallel via simultaneous `#runSubagent` cal
 
 Await both results. Both must pass before Phase 4.5.
 
+If a subagent **errors or times out** (distinct from returning a
+`NEEDS_REVISION`/`FAILED` verdict), apply the `iac-common` bounded-retry
+pattern: retry the call once. If it fails again, stop and ask the user via
+`askQuestions` — Retry / Fix Inline / Abort. Do not advance to Phase 4.5 on
+an unresolved subagent error.
+
 Run `npm run validate:iac-security-baseline` on `infra/bicep/{project}/` —
 violations are a hard gate (fix before Phase 4.5).
 
