@@ -15,6 +15,11 @@ function tmpFile(contents) {
   return p;
 }
 
+/** Returns the path to a guaranteed-nonexistent file in a unique temp directory. */
+function missingFile() {
+  return path.join(fs.mkdtempSync(path.join(os.tmpdir(), "apex-json-")), "no-such-file.json");
+}
+
 describe("_lib/json", () => {
   it("readJson parses valid JSON", () => {
     const p = tmpFile('{"a":1}');
@@ -22,7 +27,7 @@ describe("_lib/json", () => {
   });
 
   it("readJson throws on a missing file", () => {
-    assert.throws(() => readJson(path.join(os.tmpdir(), "apex-missing-xyz.json")));
+    assert.throws(() => readJson(missingFile()));
   });
 
   it("readJson throws on invalid JSON", () => {
@@ -30,11 +35,11 @@ describe("_lib/json", () => {
   });
 
   it("readJsonSafe returns null on a missing file", () => {
-    assert.equal(readJsonSafe(path.join(os.tmpdir(), "apex-missing-xyz.json")), null);
+    assert.equal(readJsonSafe(missingFile()), null);
   });
 
   it("readJsonSafe returns the provided fallback on error", () => {
-    assert.deepEqual(readJsonSafe("/no/such/file.json", { ok: false }), { ok: false });
+    assert.deepEqual(readJsonSafe(missingFile(), { ok: false }), { ok: false });
   });
 
   it("writeJson emits 2-space indent with a trailing newline", () => {
