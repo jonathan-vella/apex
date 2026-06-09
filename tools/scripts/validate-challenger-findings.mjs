@@ -7,17 +7,15 @@
  *
  * - Required top-level fields: `schema_version`, `challenged_artifact`,
  *   `artifact_type`, `review_focus`, `pass_number`, `risk_level`,
- *   `must_fix_count`, `should_fix_count`, `suggestion_count`, `issues[]`,
+ *   `must_fix_count`, `should_fix_count`, `suggestion_count`, `findings[]`,
  *   `cache_inputs`.
  *   Batch-mode files require `batch_results[]` whose elements match the
  *   single-lens shape.
  * - `schema_version` MUST equal `"1.0"`. Any other value (or absence) is
- *   a hard error — legacy sidecars must be migrated via
- *   `tools/scripts/migrate-legacy-findings.mjs` first.
- * - Each `issues[]` element must carry `id`, `severity`, `category`,
- *   `title`, `description`, `artifact_section`, `suggested_mitigation`,
- *   `traces_to`.
- *   `must_fix` issues must also carry a `suggested_fix` with at minimum
+ *   a hard error. Legacy pre-1.0 sidecars are no longer supported.
+ * - Each `findings[]` element must carry `id`, `severity`, `category`,
+ *   `claim`, `evidence`, `impact`, `artifact_section`, `traces_to`.
+ *   `must_fix` findings must also carry a `suggested_fix` with at minimum
  *   `artifact_path` and `proposed_edit`.
  * - `cache_inputs` must carry `artifact_sha`, `checklists_sha`,
  *   `protocol_sha`, `subagent_sha`, `model`, `artifact_hash` (all
