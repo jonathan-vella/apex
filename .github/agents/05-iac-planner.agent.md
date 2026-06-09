@@ -487,6 +487,9 @@ Invoke `challenger-review-subagent` once with:
 The subagent writes the JSON file at `output_path` and returns a compact
 summary (≤15 lines). **Do NOT paste subagent JSON inline.** Read the file
 from disk only if you need full finding details for the Gate presentation.
+If the subagent **errors or times out** (distinct from returning findings),
+apply the `iac-common` bounded-retry pattern: retry once, then `askQuestions`
+— Retry / Fix Inline / Abort. Do not reach Phase 5 on an unresolved error.
 **Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 4 phase_4_challenger --json`
 
 #### Deep-review path (opt-in, when `decisions.review_depth == "deep"`)

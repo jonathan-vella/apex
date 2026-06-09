@@ -225,6 +225,9 @@ Sequence:
 
 If the diagram needs more than two post-save adjustments, run `clear-diagram`
 and rebuild from a clean base layout. Patch-and-retry rarely beats rebuild.
+If a clean rebuild still fails validation (`validate-drawio-files.mjs` errors
+or quality score < 9/10), stop and surface the error to the user rather than
+looping a third time.
 
 After the file is saved, delete any temp JSON or working files you created;
 they are not part of the output contract.
@@ -408,8 +411,10 @@ with `artifact_type = "design-adr"`, `review_focus = "comprehensive"`,
 and `output_path =
 agent-output/{project}/challenge-findings-design-adr-<n>.json`. The
 design step does not gate on findings — present them informationally.
-Surface any `requires_step == "step-2"` finding explicitly so the user
-can decide whether to re-open the architecture.
+If the challenger subagent itself errors or times out, log it via
+`apex-recall finding` and continue — the optional ADR review never blocks
+artifact completion. Surface any `requires_step == "step-2"` finding
+explicitly so the user can decide whether to re-open the architecture.
 
 Compose the runtime `prompt` string per
 [tools/apex-prompts/utility-prompts/execution-subagent.prompt.md](../../tools/apex-prompts/utility-prompts/execution-subagent.prompt.md)

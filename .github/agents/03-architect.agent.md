@@ -73,6 +73,10 @@ investigate before answering) live in
   `apex-recall show <project> --json` before invoking the challenger;
   default `"default"`, `"deep"` enters the multi-pass path defined in
   `azure-defaults/references/adversarial-review-protocol.md`.
+- **Subagent failure**: if a subagent **errors or times out** (distinct
+  from returning data/findings), apply the `iac-common` bounded-retry
+  pattern — retry once, then `askQuestions` (Retry / Fix Inline / Abort).
+  Do not present the Gate or hand off on an unresolved subagent error.
 
 <output_contract>
 Primary artifact: agent-output/{project}/02-architecture-assessment.md — all 5 WAF pillar
@@ -479,6 +483,17 @@ Include attribution header from the template file (do not hardcode).
 - **Always**: Evaluate against WAF pillars, generate cost estimates, document architecture decisions
 - **Ask first**: Non-standard SKU/tier selections, deviation from Well-Architected recommendations
 - **Never**: Generate IaC code, skip WAF evaluation, deploy infrastructure
+
+## Stop rules
+
+- Stop before delegating any dollar figure unless
+  `decisions.sku_confirmation_status == approved` (SKU Confirmation gate).
+- Stop before the budget handoff until every challenger finding is rendered
+  as a markdown table in chat.
+- Stop and escalate (do not loop) when a subagent fails twice — see
+  Operating frame § Subagent failure.
+- Stop after the approval gate is presented; do not auto-advance to Step 3
+  without the user's handoff.
 
 ## Validation Checklist
 

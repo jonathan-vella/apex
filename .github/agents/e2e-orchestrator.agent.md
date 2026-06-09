@@ -27,12 +27,8 @@ tools:
     execute,
     read,
     agent,
-    browser,
     edit,
     search,
-    web,
-    todo,
-    ms-azuretools.vscode-azureresourcegroups/azureActivityLog,
   ]
 ---
 
@@ -208,6 +204,17 @@ lessons) is acceptable inline output. Real-run lint enforced by
 
 Per-step delegation contract:
 
+- **Delegation mechanism & model tiers**: prefer agent **handoffs** so each
+  step agent runs at its own declared model tier. When delegation falls back
+  to `#runSubagent` (see § Subagent Runtime Fallback), the downstream agent
+  inherits this orchestrator's GPT-5.5 tier — a silent downgrade for
+  Opus/Sonnet step agents (e.g. `03-Architect` at Claude Opus 4.8). This is a
+  **fidelity-reducing** condition, not a free fallback: record
+  `"execution_mode": "direct"` for the step AND set
+  `benchmark.tier_fidelity: "degraded"` for the run. A run with any
+  degraded-tier step MUST NOT report `E2E_COMPLETE` — it terminates
+  `E2E_PARTIAL` at best, so benchmark scores never credit a downgraded run as
+  a clean pass.
 - **Step 1** → `02-Requirements` with auto-filled answers from prompt
   defaults.
 - **Step 2** → `03-Architect`; produce a pricing-backed cost estimate
@@ -325,6 +332,11 @@ After every step completes validation, run a challenger review.
 1. Invoke `@challenger-review-subagent` with the step's primary artifact
 2. Use `comprehensive` lens for all steps (simple complexity = 1 pass)
 3. If `must_fix` count > 0: feed findings back to the step agent for self-correction
+4. **On subagent failure** (error, timeout, or malformed/absent JSON — distinct
+   from a clean review with findings): retry once. If it fails again, fall back
+   to Direct Execution Mode for this review; if that also fails, log an
+   `agent-behavior` / `high` lesson and mark the step `blocked` (never advance
+   on an unverified step).
 
 ### Direct Execution Mode
 

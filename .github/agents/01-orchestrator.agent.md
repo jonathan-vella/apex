@@ -239,6 +239,11 @@ Everything below happens in a **single turn** — no back-and-forth.
 2. Call `askQuestions` with ONE question to confirm or change it:
    _"I'll use `{kebab-case-name}` as the project folder. Type OK to confirm, or enter a different name."_
    (If the user's message gives NO clue, ask for it outright.)
+   **Sanitize before using it as a path**: the confirmed name (extracted OR
+   user-supplied) must match `^[a-z0-9][a-z0-9-]{0,29}$` — lowercase
+   kebab-case, ≤30 chars. Reject path separators, `..`, or leading dots and
+   re-prompt; `{project}` only ever names a folder under `agent-output/`,
+   `infra/bicep/`, or `infra/terraform/`, never a path that escapes them.
 3. **Immediately after `askQuestions` returns** (same turn), proceed:
    a. Check `agent-output/{project}/` for existing artifacts → resume if found
    b. Otherwise: create folder + initialize session state via `apex-recall init {project} --json`

@@ -18,10 +18,7 @@ tools:
     search/listDirectory,
     search/textSearch,
     edit/createFile,
-    edit/editFiles,
-    agent,
     web/fetch,
-    todo,
   ]
 handoffs:
   - label: "↩ Return to Orchestrator"
@@ -313,7 +310,9 @@ This agent is designed to be reusable across projects:
 ## Boundaries
 
 - **Always**: Analyze debug logs, produce optimization recommendations, identify token waste
-- **Ask first**: Implementing changes to agent definitions, modifying skill files
+- **Recommendations only**: this agent writes the report file but never edits
+  agent, skill, or instruction definitions — it surfaces changes for a human
+  (or a separate gated execution pass) to apply.
 
 <output_contract>
 Primary artifact: agent-output/{project}/11-context-optimization-report.md — executive
