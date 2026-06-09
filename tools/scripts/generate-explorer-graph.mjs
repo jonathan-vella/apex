@@ -29,6 +29,7 @@ import { readFileSync, writeFileSync, readdirSync, statSync } from "node:fs";
 import { join, basename, relative, resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseFrontmatter } from "./_lib/parse-frontmatter.mjs";
+import { readJson } from "./_lib/json.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const REPO_ROOT = resolve(dirname(__filename), "../..");
@@ -113,10 +114,6 @@ function slug(id) {
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
-}
-
-function readJson(path) {
-  return JSON.parse(readFileSync(path, "utf8"));
 }
 
 function asArray(v) {

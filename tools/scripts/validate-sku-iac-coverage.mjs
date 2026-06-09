@@ -34,6 +34,7 @@ import { fileURLToPath } from "node:url";
 import { globSync } from "node:fs";
 import { Reporter } from "./_lib/reporter.mjs";
 import { lookupAvmDefault } from "./_lib/avm-default-skus.mjs";
+import { readJson } from "./_lib/json.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 
@@ -59,10 +60,6 @@ const EXCLUDED_RESOURCE_TOKENS = [
   "diagnosticsetting",
   "diagnostic_setting",
 ];
-
-function readJson(filePath) {
-  return JSON.parse(fs.readFileSync(filePath, "utf-8"));
-}
 
 function readText(filePath) {
   return fs.readFileSync(filePath, "utf-8");

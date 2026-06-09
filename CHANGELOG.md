@@ -112,6 +112,18 @@ The change is additive. Rollback paths:
   snippets. Disable individual rules by removing them from `RULES`
   in `tools/scripts/safe-shell.mjs`.
 
+### Changed (tools/scripts DRY — _lib/json)
+
+- refactor(scripts): extract `readJson` / `readJsonSafe` / `writeJson` /
+  `sha256File` into `tools/scripts/_lib/json.mjs` and adopt it across 11
+  validators/generators (IaC contract + handoff + consistency, policy
+  property map, environment manifest, SKU manifest + IaC coverage, SKU
+  allowlist derivation, Draw.io baseline capture, Azure-icon freshness,
+  explorer-graph generation). Removes the inline `JSON.parse(readFileSync)`
+  duplication and the now-orphaned `fs` / `crypto` imports; behavior is
+  byte-for-byte identical. Guarded by `tools/tests/lib/json.test.mjs`
+  (`test:lib-json`).
+
 ### Added (docs)
 
 - docs(concepts): add `concepts/workflow-deep-dive` — long-form

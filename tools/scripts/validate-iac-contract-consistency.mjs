@@ -26,21 +26,12 @@
 
 import fs from "node:fs";
 import path from "node:path";
-import crypto from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { globSync } from "node:fs";
 import { Reporter } from "./_lib/reporter.mjs";
+import { readJson, sha256File } from "./_lib/json.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
-
-function readJson(filePath) {
-  return JSON.parse(fs.readFileSync(filePath, "utf-8"));
-}
-
-function sha256File(filePath) {
-  const buf = fs.readFileSync(filePath);
-  return crypto.createHash("sha256").update(buf).digest("hex");
-}
 
 const AVM_BICEP_RE = /br\/public:avm\/(?:res|ptn)\/[a-z0-9-]+(?:\/[a-z0-9-]+)+/g;
 const AVM_TF_RE = /Azure\/avm-res-[a-z0-9-]+\/azurerm/g;
