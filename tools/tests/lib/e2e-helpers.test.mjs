@@ -54,4 +54,8 @@ describe("_lib/e2e-helpers fileExists", () => {
   it("returns false for a missing path", () => {
     assert.equal(fileExists(path.join(tmpDir(), "nope.txt")), false);
   });
+
+  it("returns false for a directory path (file-only contract)", () => {
+    assert.equal(fileExists(tmpDir()), false);
+  });
 });
