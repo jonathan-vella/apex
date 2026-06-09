@@ -13,7 +13,7 @@
  *
  * Model allow-listing is intentionally NOT performed here. The agent frontmatter
  * is the canonical source of truth; this validator only confirms registry mirrors it.
- * For the frontmatter ≡ registry equality check, see validate-model-consistency.mjs.
+ * For the frontmatter ≡ registry equality check, see validate-models.mjs --only=consistency.
  *
  * @example
  * node tools/scripts/validate-agent-registry.mjs

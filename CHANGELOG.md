@@ -164,7 +164,13 @@ The change is additive. Rollback paths:
   a `main` worktree). The mutating generator (`generate-model-catalog.mjs`)
   stays separate, and its `buildAssignments` helper moves into
   `_lib/model-helpers.mjs` — removing the former validator→generator
-  import. Guarded by `tools/tests/validate-models.test.mjs` (`test:models`).
+  import. All live in-repo references to the three former script paths
+  (code comments, the agent-registry schema description, model-catalog.json
+  metadata, vendor-prompting instructions + skill references, and the
+  regenerated architecture-explorer-graph.json) are repointed to
+  `validate-models.mjs`; historical CHANGELOG / QUALITY_SCORE entries are
+  left intact. Guarded by `tools/tests/validate-models.test.mjs`
+  (`test:models`).
 
 ### Added (docs)
 

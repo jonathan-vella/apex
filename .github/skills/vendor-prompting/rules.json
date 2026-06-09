@@ -205,7 +205,7 @@
       "model_families": ["any"],
       "applies_to": "both",
       "severity": "warn",
-      "summary": "Agents/prompts using a deprecated model label (per validate-deprecated-models.mjs) should be migrated.",
+      "summary": "Agents/prompts using a deprecated model label (per validate-models.mjs --only=deprecated) should be migrated.",
       "rationale": "Deprecated models lose vendor support and security updates; migration windows are often time-bound.",
       "source_id": "openai-upgrade-guide",
       "source_anchor": "upgrade-workflow",

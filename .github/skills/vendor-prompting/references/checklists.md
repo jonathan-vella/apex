@@ -33,7 +33,7 @@ Two parallel checklists: agent (`*.agent.md`) and prompt
       by `wc -l`.
 - [ ] **R-X-8** Model is not on the deprecation list.
       _(rule `model-deprecation-001`)_
-      Hint: `node tools/scripts/validate-deprecated-models.mjs <file>`.
+      Hint: `node tools/scripts/validate-models.mjs --only=deprecated`.
 
 ### Claude family (Opus / Sonnet / Haiku)
 

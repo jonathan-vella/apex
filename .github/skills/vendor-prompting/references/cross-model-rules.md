@@ -151,11 +151,11 @@ Outside these, prefer decision rules over absolutes.
 
 ## Rule R-X-8 — Model deprecation
 
-> Source: [validate-deprecated-models.mjs](../../../../tools/scripts/validate-deprecated-models.mjs).
+> Source: [validate-models.mjs](../../../../tools/scripts/validate-models.mjs) (`--only=deprecated`).
 
 **Rule** (`model-deprecation-001`): agents/prompts using a deprecated
 model label get warned. Cross-references the existing deprecation
 list. New deprecations land in
-[validate-deprecated-models.mjs](../../../../tools/scripts/validate-deprecated-models.mjs);
+[validate-models.mjs](../../../../tools/scripts/validate-models.mjs) (`--only=deprecated`);
 this rule re-emits them as `vendor-prompting` findings for unified
 audit reports.

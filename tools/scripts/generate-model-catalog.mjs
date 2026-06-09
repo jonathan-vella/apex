@@ -9,7 +9,7 @@
  *
  * Run on demand (`npm run generate:model-catalog`) or automatically via
  * the lefthook pre-commit hook whenever an agent frontmatter file is
- * staged. The validator (`validate-model-catalog.mjs`) compares the
+ * staged. The validator (`validate-models.mjs --only=catalog`) compares the
  * committed `assignments` block against this generator's output and
  * fails CI on drift.
  *
