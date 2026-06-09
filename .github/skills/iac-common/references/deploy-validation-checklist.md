@@ -87,10 +87,13 @@ expose them, route to 06b. See
 For any `Microsoft.CostManagement/scheduledActions` resource with
 `kind: InsightAlert` in the rendered ARM:
 
-- `properties.viewId` matches a known subscription-scope built-in
-  view (`ms:DailyAnomalyByResource`, `ms:DailyAnomalyBySubscription`,
-  or `MS-DailyCosts`). Reject RG-scope view names (e.g.
-  `ms:DailyAnomalyByResourceGroup`).
+- `properties.viewId` is **scope-matched** to the action: a
+  subscription-scoped `InsightAlert` prefixes the built-in view with
+  the subscription resource ID, e.g.
+  `${subscription().id}/providers/Microsoft.CostManagement/views/ms:DailyAnomalyByResourceGroup`.
+  Reject a **bare** `/providers/Microsoft.CostManagement/views/...`
+  path — it builds, lints, and passes what-if but fails apply with a
+  scope-mismatch `InvalidView`.
 - `properties.notification.to[]` is non-empty.
 - `properties.notification.subject` is set.
 - `properties.displayName` ≤ 25 chars.
@@ -98,6 +101,41 @@ For any `Microsoft.CostManagement/scheduledActions` resource with
 
 The full contract lives in
 [`cost-alerts-bicep.md` §6](../../azure-defaults/references/cost-alerts-bicep.md#6-cost-anomaly-alert-subscription-scoped).
+
+### Redeploy / idempotency preflight
+
+When re-running a deploy that previously failed partway, check for state
+that blocks an idempotent re-apply:
+
+- **Orphaned private endpoints.** Deleting a PaaS resource (MySQL,
+  Storage, Key Vault) leaves its private endpoint in a `Disconnected`
+  state. A redeploy that recreates the resource fails with
+  `PrivateEndpointCannotBeUpdatedInDisconnectedState`. Delete the
+  orphaned PE first so the redeploy recreates it `Approved`:
+  `az network private-endpoint delete -g <rg> -n <pe-name>`.
+- **MySQL / PostgreSQL major-version change.** A version change on an
+  *existing* Flexible Server must be the ONLY property changed, or the
+  provider returns
+  `UpdateServerVersionTogetherWithOtherPropertiesNotAllowed`. Non-prod:
+  delete + recreate. Prod: run the in-place Major Version Upgrade (MVU)
+  flow as a separate, version-only operation.
+
+### Reading the real provider error from a nested deployment
+
+`az deployment sub show` / `... operation sub list` often report only a
+generic `DeploymentFailed` on the parent. Drill into the failed nested
+deployment (named after the AVM module) to get the actual
+resource-provider error code:
+
+```bash
+az deployment operation group list \
+  --resource-group <rg> --name <nested-deployment-name> \
+  --query "[?properties.provisioningState=='Failed'].properties.statusMessage.error" -o json
+```
+
+AVM modules nest one or two levels deep, so repeat the drill on the
+inner deployment name until the leaf `error.code` (e.g.
+`VnetSubnetMissingDelegation`, `ConfigurationReadOnly`) appears.
 
 ## Bicep-Specific Pre-Deployment
 

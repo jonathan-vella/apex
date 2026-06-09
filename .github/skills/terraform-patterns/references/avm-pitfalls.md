@@ -127,3 +127,69 @@ module "key_vault" {
 - `azurerm_sql_*` resources largely replaced by `azurerm_mssql_*`
 
 Always run `terraform validate` after upgrading the azurerm provider version.
+
+## Provider Runtime Failures (pass validate + plan, fail at apply)
+
+These failures are emitted by the Azure resource provider during
+`terraform apply` — `terraform validate`, `tfsec`, and `terraform plan`
+all pass because the violation is provider-semantic / data-plane, not HCL
+shape. The same resource-provider behaviours hit the Bicep track (full
+detail in
+[`azure-bicep-patterns/references/avm-pitfalls.md`](../../azure-bicep-patterns/references/avm-pitfalls.md));
+only the `azurerm` argument names differ. The shared, language-neutral
+catalogue lives in
+[`iac-common/references/known-deploy-issues.md`](../../iac-common/references/known-deploy-issues.md).
+
+### AKS outbound type must match the egress topology
+
+`azurerm_kubernetes_cluster.network_profile.outbound_type` must be
+`userAssignedNATGateway` when a NAT Gateway is attached to the node subnet
+(BYO VNet). `userDefinedRouting` requires a `0.0.0.0/0` route table to a
+firewall/NVA and is rejected when public network access is restricted
+(`UserDefinedRouting is not supported when Cluster has public network access set to Disabled`).
+BYO-VNet clusters also need the control-plane identity to hold
+`Network Contributor` on the VNet (`azurerm_role_assignment`).
+
+### AKS fixed node pool must not set min/max count
+
+On `azurerm_kubernetes_cluster_node_pool`, leave `min_count`/`max_count`
+unset (`null`) unless the auto-scaling toggle is enabled
+(`auto_scaling_enabled` in azurerm 4.x / `enable_auto_scaling` in 3.x),
+or apply fails with
+`InvalidParameter: ... minCount set which requires enableAutoscaling true`.
+
+### MySQL Flexible Server: private endpoint vs delegated subnet
+
+`azurerm_mysql_flexible_server` is *either* VNet-injected
+(`delegated_subnet_id` + a subnet delegated to
+`Microsoft.DBforMySQL/flexibleServers`, /29 minimum) *or* reached via an
+`azurerm_private_endpoint` — not both. Pointing it at a shared PE subnet
+without delegation fails with `VnetSubnetMissingDelegation`. For a shared
+PE subnet, use a private endpoint.
+
+### MySQL engine version + major-version change
+
+Pin the latest GA LTS major version (`version = "8.4"` → 8.4.x) per the
+[version support policy](https://learn.microsoft.com/azure/mysql/concepts-version-policy);
+avoid the retiring `8.0` and the innovation `9.x` (no HA/replica/backup).
+A major-version change on an **existing** server must be the only changed
+property, or the provider returns
+`UpdateServerVersionTogetherWithOtherPropertiesNotAllowed` — recreate
+(non-prod) or use the in-place Major Version Upgrade flow (prod).
+
+### Cost Management anomaly alert viewId scope
+
+When emitting a `Microsoft.CostManagement/scheduledActions` InsightAlert
+(via `azapi_resource`), the `viewId` must be scope-matched to the action:
+prefix the built-in view with the subscription resource ID
+(`/subscriptions/<id>/providers/Microsoft.CostManagement/views/ms:DailyAnomalyByResourceGroup`).
+A bare `/providers/Microsoft.CostManagement/views/...` path is rejected
+with `InvalidView`.
+
+### Orphaned private endpoint on redeploy
+
+Deleting a PaaS resource leaves its `azurerm_private_endpoint`
+`Disconnected`; re-applying fails with
+`PrivateEndpointCannotBeUpdatedInDisconnectedState`. Delete the orphaned
+PE (or `terraform state rm` + manual delete) before re-applying so it
+recreates `Approved`.

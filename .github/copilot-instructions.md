@@ -28,15 +28,19 @@ contract via `discover.py` and writes it to
 `tag_contract.source: "policy"`); that always wins.
 
 **Greenfield fallback** (no tag policy found at any inherited scope):
-`environment`, `owner`, `costcenter`, `project` — lowercase, per
-Microsoft's CAF tag-strategy guidance. Citation +
-greenfield decision checklist:
+the APEX-standard 9-tag set — `environment`, `owner`, `costcenter`,
+`application`, `workload`, `sla`, `backup-policy`, `maint-window`,
+`technical-contact` — all lowercase. This mirrors the org-wide
+resource-group tag-deny policy (every key must exist on the RG or the
+deployment is denied). Citation + greenfield decision checklist:
 [`azure-defaults/references/tag-strategy.md`](skills/azure-defaults/references/tag-strategy.md).
 
-> The PascalCase 4-tag set (`Environment`, `ManagedBy`, `Project`,
-> `Owner`) is a **deprecated convention** retained only for backward
+> The PascalCase set (`Environment`, `ManagedBy`, `Project`, `Owner`)
+> is a **deprecated convention** retained only for backward
 > compatibility on existing projects whose deployed resources already
-> carry that casing. Do not propagate it to new projects.
+> carry that casing. Do not propagate it to new projects. `ManagedBy`
+> and `Project` are not part of the required contract — `ManagedBy` may
+> still be emitted as an optional deploy-provenance marker.
 
 ### Security baseline + AVM mandate
 

@@ -34,17 +34,24 @@ Deep-dive content lives in `references/` — load on demand.
 
 ### Required Tags (Azure Policy Enforced)
 
-**These 4 tags are the MINIMUM baseline** (PascalCase, case-sensitive —
-mixing `owner` + `Owner` triggers `AmbiguousPolicyEvaluationPaths`).
-Always defer to `04-governance-constraints.md` for the project's actual
-required list.
+**These 9 lowercase tags are the APEX baseline** — they mirror the
+org-wide resource-group tag-deny policy (every key must exist on the RG
+or the deployment is denied). Use lowercase keys (mixing `owner` +
+`Owner` triggers `AmbiguousPolicyEvaluationPaths`). Always defer to
+`04-governance-constraints.md` for the project's actual required list —
+discovered policy always wins.
 
-| Tag           | Required | Example Values           |
-| ------------- | -------- | ------------------------ |
-| `Environment` | Yes      | `dev`, `staging`, `prod` |
-| `ManagedBy`   | Yes      | `Bicep` or `Terraform`   |
-| `Project`     | Yes      | Project identifier       |
-| `Owner`       | Yes      | Team or individual name  |
+| Tag                 | Required | Example Values           |
+| ------------------- | -------- | ------------------------ |
+| `environment`       | Yes      | `dev`, `staging`, `prod` |
+| `owner`             | Yes      | `team-platform@…`        |
+| `costcenter`        | Yes      | `cc-12345`               |
+| `application`       | Yes      | `mindthehack`            |
+| `workload`          | Yes      | `apex-aks`               |
+| `sla`               | Yes      | `production`, `dev`      |
+| `backup-policy`     | Yes      | `daily-35d`, `none`      |
+| `maint-window`      | Yes      | `sat-02:00-04:00`        |
+| `technical-contact` | Yes      | `alerts@…`               |
 
 ### Unique Suffix Pattern
 
@@ -107,6 +114,27 @@ Never recommend deprecated services (Azure AD B2C, Redis Enterprise E50,
 CDN WAF classic, App Gateway v1, CDN Standard Microsoft) for greenfield.
 Full retirement table + replacement guidance:
 [`references/deprecated-services.md`](references/deprecated-services.md).
+
+### Engine / Runtime Version Currency
+
+For any managed service with a selectable engine or runtime version
+(MySQL / PostgreSQL, Redis, AKS Kubernetes version, Cosmos API, App
+Service runtime), pin the **latest GA LTS** version and confirm it
+against the service's version-support policy at plan time. Two failure
+modes to avoid:
+
+- **Retiring versions** carried over from an older template (e.g. MySQL
+  `8.0`, whose standard support ends 2026-04-30). The version literal is
+  a creative decision — resolve it live, don't copy it from a prior
+  project.
+- **Innovation / preview releases** (e.g. MySQL `9.x`) for durable data
+  workloads. Innovation releases exclude HA, replicas, and automated
+  backups and have a short server lifecycle.
+
+Example: MySQL Flexible Server → `version: '8.4'` (GA LTS → 8.4.x), not
+the retiring `8.0` or the innovation `9.x`. A major-version change on an
+**existing** server is a separate concern — see
+[`iac-common/known-deploy-issues.md`](../iac-common/references/known-deploy-issues.md).
 
 ---
 

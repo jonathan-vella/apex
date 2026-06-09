@@ -69,7 +69,10 @@ infra/terraform/{project}/
 - **Provider pin**: `~> 4.0` for AzureRM
 - **Backend**: Azure Storage Account
 - **Unique suffix**: `random_string` resource (4 chars, lowercase, `special = false`, `upper = false`)
-- **Tags**: Every resource gets the 4 required tags (`Environment`, `ManagedBy = "Terraform"`, `Project`, `Owner`)
+- **Tags**: Every resource gets the 9 required tags (lowercase: `environment`,
+  `owner`, `costcenter`, `application`, `workload`, `sla`, `backup-policy`,
+  `maint-window`, `technical-contact`) — discovered policy wins.
+  `ManagedBy = "Terraform"` is an optional deploy-provenance marker.
 - **Variables**: Every variable must have a `description` and a `type`; use `validation` blocks where appropriate
 - **Security**: TLS 1.2, HTTPS-only, managed identity, no public blob access, Azure AD-only SQL auth
 - **No hardcoded secrets**: Use Key Vault data sources or `sensitive = true` variables

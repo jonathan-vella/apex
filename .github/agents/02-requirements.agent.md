@@ -536,7 +536,9 @@ industries only).
 - [ ] All H2 headings from the Azure artifacts template are present and in order.
 - [ ] Business Context, Architecture Pattern, Recommended Security Controls, Budget, Region, and
       `iac_tool` are populated.
-- [ ] Baseline tags are captured for downstream governance: Environment, ManagedBy, Project, Owner.
+- [ ] Baseline tags are captured for downstream governance (APEX 9-tag
+      standard: environment, owner, costcenter, application, workload, sla,
+      backup-policy, maint-window, technical-contact; discovered policy wins).
 - [ ] No Bicep, Terraform, or deployment code blocks appear in the requirements artifact.
 - [ ] SKU manifest rev 1 contains only user pins from Phase 3j (or an empty `services[]` when
       the user explicitly answered "no preference" for every applicable class).

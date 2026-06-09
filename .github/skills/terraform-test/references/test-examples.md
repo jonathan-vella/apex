@@ -39,10 +39,10 @@ run "test_mandatory_tags" {
 
   assert {
     condition = alltrue([
-      for tag in ["Environment", "ManagedBy", "Project", "Owner"] :
+      for tag in ["environment", "owner", "costcenter", "application", "workload", "sla", "backup-policy", "maint-window", "technical-contact"] :
       contains(keys(azurerm_resource_group.this.tags), tag)
     ])
-    error_message = "All 4 mandatory tags must be present"
+    error_message = "All 9 mandatory tags must be present"
   }
 }
 
@@ -87,7 +87,7 @@ run "test_mandatory_tags" {
   command = plan
   assert {
     condition = alltrue([
-      for tag in ["Environment", "ManagedBy", "Project", "Owner"] :
+      for tag in ["environment", "owner", "costcenter", "application", "workload", "sla", "backup-policy", "maint-window", "technical-contact"] :
       contains(keys(azurerm_resource_group.this.tags), tag)
     ])
     error_message = "All mandatory tags must be present"
