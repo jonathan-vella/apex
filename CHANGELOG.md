@@ -81,8 +81,11 @@ for full details on this and all prior releases.
 - chore(scripts): wire `validate-context-budget.mjs` into `validate:_node`
   and `validate:_node-ci` (new `validate:context-budget` alias) so the
   documented Per-Step File Re-Read Budget (HARD LIMIT) is enforced in CI
-  instead of sitting unwired. Guarded by
-  `tools/tests/validate-context-budget.test.mjs` (`test:context-budget`).
+  instead of sitting unwired. The validator itself runs as part of
+  `validate:_node` / `validate:_node-ci`. A standalone smoke test
+  (`tools/tests/validate-context-budget.test.mjs`, runnable via
+  `test:context-budget`) guards the alias wiring and validator health in
+  local development.
 
 ### Rollback (Workflow hardening — issue #425)
 
