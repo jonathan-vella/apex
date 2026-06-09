@@ -12,8 +12,7 @@
  *   Batch-mode files require `batch_results[]` whose elements match the
  *   single-lens shape.
  * - `schema_version` MUST equal `"1.0"`. Any other value (or absence) is
- *   a hard error — legacy sidecars must be migrated via
- *   `tools/scripts/migrate-legacy-findings.mjs` first.
+ *   a hard error. Legacy pre-1.0 sidecars are no longer supported.
  * - Each `issues[]` element must carry `id`, `severity`, `category`,
  *   `title`, `description`, `artifact_section`, `suggested_mitigation`,
  *   `traces_to`.

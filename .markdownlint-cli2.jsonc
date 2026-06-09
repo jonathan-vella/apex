@@ -170,9 +170,6 @@
     // Planning prompts (long inline examples, not production code)
     "tools/apex-prompts/**",
 
-    // Utility scripts with embedded examples
-    "tools/scripts/markdown-prettifiers/**",
-
     // Agent-generated output (validated by artifact-templates validator)
     "agent-output/**",
 
