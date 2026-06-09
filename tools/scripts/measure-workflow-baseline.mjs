@@ -32,16 +32,13 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { globSync } from "node:fs";
+import { readJson } from "./_lib/json.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const OUT_JSON = path.join(ROOT, "tmp/workflow-baseline.json");
 const OUT_MD = path.join(ROOT, "tmp/workflow-baseline.md");
 
 const TARGET_STEPS = ["4", "5", "6"];
-
-function readJson(filePath) {
-  return JSON.parse(fs.readFileSync(filePath, "utf-8"));
-}
 
 function gather(filterTier) {
   const records = [];

@@ -138,6 +138,18 @@ The change is additive. Rollback paths:
   `addFormats` by design). Guarded by
   `tools/tests/lib/ajv-validator.test.mjs` (`test:lib-ajv`).
 
+### Changed (tools/scripts DRY — _lib/e2e-helpers)
+
+- refactor(scripts): extract the duplicated `detectIacTool` and
+  `fileExists` helpers (byte-identical across `benchmark-e2e.mjs` and
+  `validate-e2e-step.mjs`) into `tools/scripts/_lib/e2e-helpers.mjs`, and
+  point the e2e family's inline JSON readers at the existing
+  `_lib/json.mjs` helpers (`readJsonSafe` for the null-on-error variant in
+  `benchmark-e2e` + `combine-e2e-runs`; strict `readJson` in
+  `measure-workflow-baseline`). `validate-e2e-step`'s JSON output contract
+  is unchanged. Guarded by `tools/tests/lib/e2e-helpers.test.mjs`
+  (`test:lib-e2e`).
+
 ### Added (docs)
 
 - docs(concepts): add `concepts/workflow-deep-dive` — long-form

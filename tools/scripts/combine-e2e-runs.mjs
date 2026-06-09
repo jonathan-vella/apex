@@ -27,6 +27,7 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import { readJsonSafe as readJson } from "./_lib/json.mjs";
 
 const AGENT_OUTPUT = "agent-output";
 
@@ -67,14 +68,6 @@ if (!outputName) {
 const outDir = path.join(AGENT_OUTPUT, outputName);
 
 // --- Helpers ---
-function readJson(filePath) {
-  try {
-    return JSON.parse(fs.readFileSync(filePath, "utf-8"));
-  } catch {
-    return null;
-  }
-}
-
 function _readText(filePath) {
   try {
     return fs.readFileSync(filePath, "utf-8");

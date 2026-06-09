@@ -22,6 +22,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { execSync } from "node:child_process";
+import { detectIacTool, fileExists } from "./_lib/e2e-helpers.mjs";
 
 // Support --project=name or positional project name before step arg
 const rawArgs = process.argv.slice(2);
@@ -31,17 +32,7 @@ const OUTPUT_DIR = path.join("agent-output", PROJECT);
 const BICEP_DIR = path.join("infra", "bicep", PROJECT);
 const TF_DIR = path.join("infra", "terraform", PROJECT);
 
-// Detect IaC tool from session state
-function detectIacTool() {
-  try {
-    const state = JSON.parse(fs.readFileSync(path.join(OUTPUT_DIR, "00-session-state.json"), "utf-8"));
-    return (state.iac_tool || state.decisions?.iac_tool || "Bicep").toLowerCase();
-  } catch {
-    return "bicep";
-  }
-}
-
-const IAC_TOOL = detectIacTool();
+const IAC_TOOL = detectIacTool(OUTPUT_DIR);
 
 // Expected H2 headings per artifact (first 3 for pre-validation)
 const EXPECTED_H2S = {
@@ -94,14 +85,6 @@ const STEP_VALIDATORS = {
   6: [],
   7: [],
 };
-
-function fileExists(filePath) {
-  try {
-    return fs.statSync(filePath).size > 0;
-  } catch {
-    return false;
-  }
-}
 
 function globFiles(dir, pattern) {
   try {
