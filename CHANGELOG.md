@@ -76,6 +76,14 @@ for full details on this and all prior releases.
 - `.github/copilot-instructions.md` advertises
   `apex-recall transition` as the preferred call for step changes.
 
+### Changed (tools/scripts validator wiring)
+
+- chore(scripts): wire `validate-context-budget.mjs` into `validate:_node`
+  and `validate:_node-ci` (new `validate:context-budget` alias) so the
+  documented Per-Step File Re-Read Budget (HARD LIMIT) is enforced in CI
+  instead of sitting unwired. Guarded by
+  `tools/tests/validate-context-budget.test.mjs` (`test:context-budget`).
+
 ### Rollback (Workflow hardening — issue #425)
 
 The change is additive. Rollback paths:
