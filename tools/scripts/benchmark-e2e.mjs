@@ -29,23 +29,15 @@
 import fs from "node:fs";
 import path from "node:path";
 import { execSync } from "node:child_process";
+import { readJsonSafe as readJson } from "./_lib/json.mjs";
+import { detectIacTool, fileExists } from "./_lib/e2e-helpers.mjs";
 
 const PROJECT = process.argv[2] || "contoso-service-hub-run-1";
 const OUTPUT_DIR = path.join("agent-output", PROJECT);
 const BICEP_DIR = path.join("infra", "bicep", PROJECT);
 const TF_DIR = path.join("infra", "terraform", PROJECT);
 
-// Detect IaC tool from session state
-function detectIacTool() {
-  try {
-    const state = JSON.parse(fs.readFileSync(path.join(OUTPUT_DIR, "00-session-state.json"), "utf-8"));
-    return (state.iac_tool || state.decisions?.iac_tool || "Bicep").toLowerCase();
-  } catch {
-    return "bicep";
-  }
-}
-
-const IAC_TOOL = detectIacTool();
+const IAC_TOOL = detectIacTool(OUTPUT_DIR);
 
 // Expected artifact set — aligned with E2E gold standard
 const EXPECTED_ARTIFACTS = {
@@ -133,14 +125,6 @@ const WEIGHTS = {
   regeneration_rate: 0,
 };
 
-function fileExists(fp) {
-  try {
-    return fs.statSync(fp).size > 0;
-  } catch {
-    return false;
-  }
-}
-
 function globMatch(dir, pattern) {
   try {
     const files = fs.readdirSync(dir);
@@ -161,14 +145,6 @@ function runCmd(cmd) {
     return true;
   } catch {
     return false;
-  }
-}
-
-function readJson(fp) {
-  try {
-    return JSON.parse(fs.readFileSync(fp, "utf-8"));
-  } catch {
-    return null;
   }
 }
 
