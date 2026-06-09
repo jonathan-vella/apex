@@ -108,6 +108,27 @@ CDN WAF classic, App Gateway v1, CDN Standard Microsoft) for greenfield.
 Full retirement table + replacement guidance:
 [`references/deprecated-services.md`](references/deprecated-services.md).
 
+### Engine / Runtime Version Currency
+
+For any managed service with a selectable engine or runtime version
+(MySQL / PostgreSQL, Redis, AKS Kubernetes version, Cosmos API, App
+Service runtime), pin the **latest GA LTS** version and confirm it
+against the service's version-support policy at plan time. Two failure
+modes to avoid:
+
+- **Retiring versions** carried over from an older template (e.g. MySQL
+  `8.0`, whose standard support ends 2026-04-30). The version literal is
+  a creative decision — resolve it live, don't copy it from a prior
+  project.
+- **Innovation / preview releases** (e.g. MySQL `9.x`) for durable data
+  workloads. Innovation releases exclude HA, replicas, and automated
+  backups and have a short server lifecycle.
+
+Example: MySQL Flexible Server → `version: '8.4'` (GA LTS → 8.4.x), not
+the retiring `8.0` or the innovation `9.x`. A major-version change on an
+**existing** server is a separate concern — see
+[`iac-common/known-deploy-issues.md`](../iac-common/references/known-deploy-issues.md).
+
 ---
 
 ## CAF Naming Conventions
