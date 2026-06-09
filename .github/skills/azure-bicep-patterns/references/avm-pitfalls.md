@@ -646,13 +646,14 @@ storageAutoGrow: environmentName == 'prod' ? 'Enabled' : 'Disabled'
 ### Engine version — pin the latest GA LTS, not 8.0
 
 Per the [MySQL version support policy](https://learn.microsoft.com/azure/mysql/concepts-version-policy),
-set `version: '8.4'` (latest GA LTS — Azure resolves it to the `8.4.7` patch). MySQL 8.0 standard
-support ends 2026-04-30; 9.x is an **innovation release** (no HA, replicas, or automated backups,
-30-day server lifecycle) and must not be used for durable workloads. The AVM `version` param takes
-the `major.minor` string — do not pin a patch. This value is **not** environment-specific: dev and
-prod both deploy 8.4.7. The same "latest GA, avoid innovation/preview" rule applies to any engine
-version field (PostgreSQL, Redis, AKS Kubernetes version, etc.) — confirm against the service's
-version-support policy at plan time rather than copying a literal from an older template.
+set `version: '8.4'` (latest GA LTS — Azure resolves it to the latest `8.4.x` patch, e.g. `8.4.7`
+at time of writing). MySQL 8.0 standard support ends 2026-04-30; 9.x is an **innovation release**
+(no HA, replicas, or automated backups, 30-day server lifecycle) and must not be used for durable
+workloads. The AVM `version` param takes the `major.minor` string — do not pin a patch. This value
+is **not** environment-specific: dev and prod both deploy the same `8.4.x` patch. The same "latest
+GA, avoid innovation/preview" rule applies to any engine version field (PostgreSQL, Redis, AKS
+Kubernetes version, etc.) — confirm against the service's version-support policy at plan time
+rather than copying a literal from an older template.
 
 ### Major-version change must be the ONLY property changed
 
