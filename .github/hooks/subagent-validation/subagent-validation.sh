@@ -57,8 +57,10 @@ if "challenger" in lower:
     sys.exit(0)
 
 # Validate-subagents (e.g. bicep-validate-subagent, terraform-validate-subagent)
-# must surface a recognizable verdict so the orchestrator can gate on it.
-if "validate" in lower:
+# must surface a recognizable verdict so the orchestrator can gate on it. Scope
+# to the "-validate-subagent" suffix so unrelated names that merely contain
+# "validate" are not warned.
+if lower.endswith("-validate-subagent"):
     verdict = re.search(r"\b(APPROVED|NEEDS_REVISION|FAILED|PASS|FAIL)\b", output)
     if verdict:
         emit_continue()

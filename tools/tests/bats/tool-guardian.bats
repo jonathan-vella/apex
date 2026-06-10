@@ -19,6 +19,33 @@ HOOK="$HOOKS_DIR/tool-guardian/guard-tool.sh"
   [ "$status" -eq 0 ]
 }
 
+# Hook contract: every allow path must emit a JSON continue response on stdout.
+@test "clean command emits continue JSON" {
+  run bash "$HOOK" <<< '{"toolName":"run_in_terminal","toolInput":"ls -la"}'
+  [ "$status" -eq 0 ]
+  [[ "$output" == *'"continue": true'* ]]
+}
+
+@test "read-only tool emits continue JSON" {
+  run bash "$HOOK" <<< '{"toolName":"semantic_search","toolInput":"test"}'
+  [ "$status" -eq 0 ]
+  [[ "$output" == *'"continue": true'* ]]
+}
+
+@test "allowlisted command emits continue JSON" {
+  TOOL_GUARD_ALLOWLIST="terraform destroy" run bash "$HOOK" <<< '{"toolName":"run_in_terminal","toolInput":"terraform destroy"}'
+  [ "$status" -eq 0 ]
+  [[ "$output" == *'"continue": true'* ]]
+  [[ "$output" != *'"permissionDecision":"deny"'* ]]
+}
+
+@test "warn mode emits continue JSON even when a threat is found" {
+  GUARD_MODE=warn run bash "$HOOK" <<< '{"toolName":"run_in_terminal","toolInput":"git reset --hard"}'
+  [ "$status" -eq 0 ]
+  [[ "$output" == *'"continue": true'* ]]
+  [[ "$output" != *'"permissionDecision":"deny"'* ]]
+}
+
 # Precision regression tests: scoped sub-path deletes and the `truncate` coreutil
 # must NOT be blocked (these were false positives before the anchored patterns).
 @test "allows rm -rf of a scoped subdirectory" {

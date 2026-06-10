@@ -41,3 +41,12 @@ HOOK="$HOOKS_DIR/subagent-validation/subagent-validation.sh"
   [[ "$output" == *"verdict"* ]] || [[ "$output" == *"Warning"* ]]
 }
 
+# The verdict requirement is scoped to the *-validate-subagent family: a name
+# that merely contains "validate" must not trigger the verdict warning.
+@test "non-validator name containing 'validate' is not warned for a verdict" {
+  long=$(python3 -c "print('x' * 150)")
+  run bash "$HOOK" <<< "{\"subagentName\":\"validated-output-agent\",\"output\":\"$long\"}"
+  [ "$status" -eq 0 ]
+  [[ "$output" != *"verdict"* ]]
+}
+

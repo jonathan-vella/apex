@@ -42,6 +42,10 @@ hook_log() {
   local file="$1" line="$2"
   mkdir -p "$(dirname "$file")"
   local max="${HOOK_LOG_MAX_BYTES:-1048576}"
+  # Guard against a non-integer override: an invalid value would make the
+  # arithmetic comparison below error and, under the caller's `set -e`, could
+  # abort the whole hook. Fall back to the default when not a plain integer.
+  [[ "$max" =~ ^[0-9]+$ ]] || max=1048576
   if [[ -f "$file" ]]; then
     local size
     size=$(stat -c %s "$file" 2>/dev/null || wc -c < "$file" 2>/dev/null || echo 0)

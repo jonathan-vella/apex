@@ -101,6 +101,7 @@ COMBINED="${TOOL_NAME} ${TOOL_INPUT}"
 hook_parse_allowlist "${TOOL_GUARD_ALLOWLIST:-}"
 if [[ ${#HOOK_ALLOWLIST[@]} -gt 0 ]] && hook_is_allowlisted "$COMBINED"; then
   hook_log "$LOG_FILE" "{\"timestamp\":\"$TIMESTAMP\",\"event\":\"guard_skipped\",\"reason\":\"allowlisted\",\"tool\":\"$(hook_json_escape "$TOOL_NAME")\"}"
+  hook_emit_continue
   exit 0
 fi
 
@@ -114,6 +115,7 @@ case "$TOOL_NAME" in
   list_code_usages|test_search|read_notebook_cell_output|get_changed_files|\
   fetch_webpage|github_repo|vscode_searchExtensions_internal)
     hook_log "$LOG_FILE" "{\"timestamp\":\"$TIMESTAMP\",\"event\":\"guard_passed\",\"mode\":\"$MODE\",\"tool\":\"$(hook_json_escape "$TOOL_NAME")\"}"
+    hook_emit_continue
     exit 0
     ;;
 esac
@@ -198,6 +200,7 @@ printf '%s\n' "$COMBINED" | grep -qiE -- "$COMBINED_RE" 2>/dev/null || MATCH_RC=
 
 if [[ "$MATCH_RC" -eq 1 ]]; then
   hook_log "$LOG_FILE" "{\"timestamp\":\"$TIMESTAMP\",\"event\":\"guard_passed\",\"mode\":\"$MODE\",\"tool\":\"$(hook_json_escape "$TOOL_NAME")\"}"
+  hook_emit_continue
   exit 0
 fi
 
@@ -226,6 +229,7 @@ done
 # treated as clean rather than fabricating a finding.
 if [[ $THREAT_COUNT -eq 0 ]]; then
   hook_log "$LOG_FILE" "{\"timestamp\":\"$TIMESTAMP\",\"event\":\"guard_passed\",\"mode\":\"$MODE\",\"tool\":\"$(hook_json_escape "$TOOL_NAME")\"}"
+  hook_emit_continue
   exit 0
 fi
 
@@ -287,6 +291,9 @@ if [[ "$MODE" == "block" ]]; then
   exit 0
 else
   echo "⚠️  Threats logged in warn mode. Set GUARD_MODE=block to prevent dangerous operations."
+  # warn mode allows execution — still emit the standard allow response so the
+  # hook always returns valid JSON on stdout.
+  hook_emit_continue
 fi
 
 exit 0
