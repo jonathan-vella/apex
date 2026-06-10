@@ -108,5 +108,5 @@ implementing or reviewing the envelope contract.
 The envelope ties into the canonical defaults declared in
 [`../SKILL.md`](../SKILL.md): the same region constants seed
 `scope.management_groups`, and the tag schema discovered through Phase 1
-respects (or augments) the lowercase 4-tag greenfield fallback when no
+respects (or augments) the lowercase 9-tag greenfield fallback when no
 policy exists.

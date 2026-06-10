@@ -181,7 +181,7 @@ function checkTagCasingDuplicates(relPath, content) {
     if (seen.has(lower) && seen.get(lower) !== key) {
       r.error(
         relPath,
-        `Tag casing conflict: both '${seen.get(lower)}' and '${key}' found — Azure Policy treats case-variant tag keys as ambiguous (AmbiguousPolicyEvaluationPaths). Use PascalCase only.`,
+        `Tag casing conflict: both '${seen.get(lower)}' and '${key}' found — Azure Policy treats case-variant tag keys as ambiguous (AmbiguousPolicyEvaluationPaths). Use lowercase only (APEX standard).`,
       );
     }
     if (!seen.has(lower)) {

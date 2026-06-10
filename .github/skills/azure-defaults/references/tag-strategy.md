@@ -27,21 +27,31 @@ Key facts Microsoft states explicitly:
 3. **The starter set of mandatory tags should cover four dimensions**:
    environment (lifecycle), owner (accountability), cost-center
    (showback/chargeback), and project/workload (resource grouping).
+   APEX's org policy extends this minimum to a fixed 9-key set (below).
 
 ## Greenfield fallback (this project)
 
-When `04-governance-constraints.json` reports an empty `tag_contract.tags[]`:
+When `04-governance-constraints.json` reports an empty `tag_contract.tags[]`,
+adopt the **APEX-standard 9-tag set** (mirrors the org-wide resource-group
+tag-deny policy):
 
-| Tag key       | Purpose                                              | Example value    |
-| ------------- | ---------------------------------------------------- | ---------------- |
-| `environment` | Lifecycle stage — drives policy scoping and SLA tier | `prod`, `dev`    |
-| `owner`       | Accountable team or individual email                 | `team-platform@` |
-| `costcenter`  | Finance attribution code                             | `cc-12345`       |
-| `project`     | Workload identifier — matches `apex-recall` project  | `nordic-foods`   |
+| Tag key             | Purpose                                       | Example value     |
+| ------------------- | --------------------------------------------- | ----------------- |
+| `environment`       | Lifecycle stage — drives policy scoping + SLA | `prod`, `dev`     |
+| `owner`             | Accountable team or individual email          | `team-platform@`  |
+| `costcenter`        | Finance attribution code                      | `cc-12345`        |
+| `application`       | Application identifier                         | `mindthehack`     |
+| `workload`          | Workload identifier — matches `apex-recall`   | `apex-aks`        |
+| `sla`               | Service-level tier                            | `production`, `dev` |
+| `backup-policy`     | Backup policy descriptor                      | `daily-35d`, `none` |
+| `maint-window`      | Maintenance window                            | `sat-02:00-04:00` |
+| `technical-contact` | Technical contact email                       | `alerts@`         |
 
 All keys are **lowercase**. The IaC code emitted by 06b-Bicep CodeGen
 and 06t-Terraform CodeGen MUST use this exact casing when no policy
-contract supplies a different one.
+contract supplies a different one. `project` and `ManagedBy` are **not**
+part of the required set — `ManagedBy` may still be emitted as an optional
+deploy-provenance marker.
 
 ## Deprecated convention (do not propagate)
 
@@ -76,16 +86,21 @@ When Governance Discovery (Step 3.5) reports
    inline question if the project's compliance posture suggests
    otherwise — financial-services and healthcare workloads almost
    always need tag policy enforcement).
-2. **Adopt the lowercase 4-tag set above** in IaC code.
+2. **Adopt the lowercase 9-tag set above** in IaC code.
 3. **Do not silently inject** a policy assignment in Step 4 IaC code
    on the user's behalf — emit it as an ADR or implementation-plan
    recommendation instead, and let the user enact it.
 4. **Record the choice** in
-   `decisions.tag_strategy = "greenfield-lowercase-4tag"` via
+   `decisions.tag_strategy = "greenfield-lowercase-9tag"` via
    `apex-recall decide`.
 
 ## History
 
+- **2026-06-09**: Promoted the lowercase **9-tag set** (`environment`,
+  `owner`, `costcenter`, `application`, `workload`, `sla`,
+  `backup-policy`, `maint-window`, `technical-contact`) to the APEX-wide
+  greenfield standard, mirroring the org resource-group tag-deny policy.
+  Dropped `project` from the required set.
 - **2026-05-13**: Created as Phase E4 of the nordic-foods lessons plan.
   Demoted the PascalCase 4-tag set to deprecated convention. Added
   greenfield lowercase decision checklist.

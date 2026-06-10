@@ -98,6 +98,8 @@ module call to force MCR to populate it, then re-inspect.
 | `avm/res/insights/scheduled-query-rule` | `0.6.0` | `criteria: { allOf: [...] }` | `criterias: { allOf: [...] }` (pluralised) |
 | `avm/res/consumption/budget` | `0.3.8` | Nested `notifications`, `budgetCategory`, `timeGrain`, `filters` | Flat structure: `category`, `resetPeriod`, `thresholds: [int, int]`, `thresholdType: 'Actual' \| 'Forecasted'` (one per module instance), `actionGroups`, `contactEmails`, `contactRoles`, `operator`. To cover Actual + Forecasted, deploy **two budget module instances**. `startDate` has a built-in `utcNow()` default — do not pass it. |
 | `avm/res/consumption/budget` | `0.3.8` | Called from an RG-scoped module without `scope:` | Requires `scope: subscription()` on the module call |
+| `avm/res/db-for-my-sql/flexible-server` | `0.10.3` | `delegatedSubnetResourceId` into a shared PE subnet; `aad_auth_only` via `configurations[]` | Use `privateEndpoints[]` (`service: 'mysqlServer'`) — mutually exclusive with delegated subnet; `aad_auth_only` is read-only (enforce post-deploy). See [MySQL section](#mysql-flexible-server-apply-time-gotchas) |
+| `avm/res/automation/automation-account` | `0.19.1` | runbook `runbookType` + inline `content`/`publishContentLink`; `jobSchedules` to a draft runbook | runbook `type` (no inline content; `uri` only); create `jobSchedules` post-deploy after publishing. See [Automation section](#automation-account-runbook-and-jobschedule) |
 
 ### Why what-if and lint don't catch this
 
@@ -521,6 +523,193 @@ every param flagged as `entra-object-id` in
 `04-environment-manifest.json` and fail-closed on empty / non-GUID
 responses. See
 [`deploy-validation-checklist.md` § Entra principal object IDs](../../iac-common/references/deploy-validation-checklist.md#entra-principal-object-ids-are-real).
+
+---
+
+## AKS Managed Cluster apply-time gotchas
+
+`bicep build`, `bicep lint`, and `what-if` all pass; the AKS resource provider rejects these
+only at apply time. All three were hit on a single AKS platform deployment.
+
+### Outbound type must match the egress topology
+
+When a **NAT Gateway is attached to the AKS node subnet** (BYO-VNet), the cluster `outboundType`
+MUST be `userAssignedNATGateway` — not `userDefinedRouting`. UDR requires a `0.0.0.0/0` route
+table pointing at a firewall/NVA you manage; with no such route table and restricted public
+network access (e.g. API Server VNet Integration), the RP fails:
+
+```text
+BadRequest: UserDefinedRouting is not supported when Cluster has public network access set to Disabled.
+```
+
+| Egress topology                              | Correct `outboundType`   |
+| -------------------------------------------- | ------------------------ |
+| NAT Gateway on the node subnet (BYO-VNet)    | `userAssignedNATGateway` |
+| AKS-managed NAT Gateway                      | `managedNATGateway`      |
+| 0.0.0.0/0 UDR to a firewall/NVA you operate  | `userDefinedRouting`     |
+| Default public load balancer                 | `loadBalancer`           |
+
+### BYO-VNet clusters need Network Contributor on the VNet
+
+A user-assigned control-plane identity joining a **pre-existing** VNet must hold `Network
+Contributor` on that VNet (or the node/API-server subnets) — otherwise node join and API Server
+VNet Integration fail. Assign it via the AVM virtual-network module `roleAssignments`, scoped to
+the VNet, using the control-plane identity `principalId`.
+
+### Fixed-size node pools must not set minCount/maxCount
+
+`minCount`/`maxCount` are valid only when `enableAutoScaling: true`. For a fixed-size pool, both
+MUST be `null`, or the RP rejects the pool:
+
+```text
+InvalidParameter: AgentPool 'user' has 'agentPoolProfile.minCount' set which requires that
+'agentPoolProfile.enableAutoscaling' is true and it is false
+```
+
+```bicep
+var userPoolAutoscale = environmentName == 'prod' ? true : false
+var userPoolMinCount  = userPoolAutoscale ? 1 : null   // null when autoscaling is off
+var userPoolMaxCount  = userPoolAutoscale ? 5 : null
+```
+
+---
+
+## Application Gateway backend pool (no loopback)
+
+App Gateway rejects a loopback backend address at apply time:
+
+```text
+ApplicationGatewayBackendAddressLoopbackAddressIsInvalid: Backend Address 127.0.0.1 ... cannot be a loopback address.
+```
+
+When the real backend (e.g. an AKS internal load balancer) does not exist until after the cluster
+is up, author an **empty** backend pool and let AGIC (or a post-deploy update) populate it. An
+empty backend pool is valid; a placeholder `127.0.0.1` is not.
+
+```bicep
+param aksBackendFqdn string = ''   // empty at first deploy
+var backendAddresses = empty(aksBackendFqdn) ? [] : [{ fqdn: aksBackendFqdn }]
+```
+
+---
+
+## MySQL Flexible Server apply-time gotchas
+
+A single MySQL Flexible Server deployment surfaced five distinct apply-time issues. AVM module:
+`br/public:avm/res/db-for-my-sql/flexible-server:0.10.3`.
+
+### Private endpoint vs delegated subnet are mutually exclusive
+
+If the architecture uses the `privatelink.mysql.database.azure.com` DNS zone and a **shared**
+private-endpoint subnet (alongside Key Vault / Storage / ACR), MySQL must use a **private
+endpoint** — not `delegatedSubnetResourceId` (VNet injection). They are mutually exclusive, and a
+shared PE subnet cannot also be delegated to `Microsoft.DBforMySQL/flexibleServers`:
+
+```text
+VnetSubnetMissingDelegation: The subnet name as 'snet-pe-dev' is missing required delegations
+'Microsoft.DBforMySQL/flexibleServers'.
+```
+
+```bicep
+// ❌ delegatedSubnetResourceId: peSubnetId   // VNet injection needs a DEDICATED /29 delegated subnet
+// ✅ private endpoint into the shared snet-pe (consistent with KV/Storage/ACR)
+privateEndpoints: [{
+  name: 'pe-mysql-${env}'
+  subnetResourceId: peSubnetId
+  service: 'mysqlServer'
+  privateDnsZoneGroup: { privateDnsZoneGroupConfigs: [{ privateDnsZoneResourceId: privateDnsZoneMysqlId }] }
+}]
+```
+
+### `aad_auth_only` is read-only — enforce Entra-only post-deploy
+
+Setting the `aad_auth_only` server parameter via the AVM `configurations[]` array fails:
+
+```text
+ConfigurationReadOnly: The configuration(s) 'aad_auth_only' is(are) read-only for ... version 8.4.7.
+```
+
+AVM 0.10.3 exposes no `authConfig` parameter. In Bicep set only the valid TLS parameter
+(`require_secure_transport: ON`); enforce the Entra admin + AAD-only as a **post-deploy** step
+(`az mysql flexible-server ad-admin create`, then set `aad_auth_only`). Record it in the
+deployment summary post-deploy task list.
+
+### storageAutoGrow must be Enabled when HA is ZoneRedundant
+
+The AVM module requires `storageAutoGrow: 'Enabled'` whenever `highAvailability: 'ZoneRedundant'`.
+Gate it on the same condition as HA:
+
+```bicep
+storageAutoGrow: environmentName == 'prod' ? 'Enabled' : 'Disabled'
+```
+
+### Engine version — pin the latest GA LTS, not 8.0
+
+Per the [MySQL version support policy](https://learn.microsoft.com/azure/mysql/concepts-version-policy),
+set `version: '8.4'` (latest GA LTS — Azure resolves it to the latest `8.4.x` patch, e.g. `8.4.7`
+at time of writing). MySQL 8.0 standard support ends 2026-04-30; 9.x is an **innovation release**
+(no HA, replicas, or automated backups, 30-day server lifecycle) and must not be used for durable
+workloads. The AVM `version` param takes the `major.minor` string — do not pin a patch. This value
+is **not** environment-specific: dev and prod both deploy the same `8.4.x` patch. The same "latest
+GA, avoid innovation/preview" rule applies to any engine version field (PostgreSQL, Redis, AKS
+Kubernetes version, etc.) — confirm against the service's version-support policy at plan time
+rather than copying a literal from an older template.
+
+### Major-version change must be the ONLY property changed
+
+A major-version change on an **existing** server is an isolated operation. Re-sending the full
+property bag (as AVM does on every deploy) collides:
+
+```text
+UpdateServerVersionTogetherWithOtherPropertiesNotAllowed: It's not allowed to update the other
+properties while updating server version.
+```
+
+- **Non-prod**: delete + recreate at the new version (clean).
+- **Prod**: run the in-place Major Version Upgrade (MVU) flow as a separate, version-only
+  operation — do not change the version in the same redeploy that touches other properties.
+- **Deleting a server orphans its private endpoint** (`Disconnected`). A redeploy then fails with
+  `PrivateEndpointCannotBeUpdatedInDisconnectedState`; delete the orphaned PE so it recreates
+  `Approved`.
+
+---
+
+## Cost Management InsightAlert viewId scope
+
+A subscription-scoped `Microsoft.CostManagement/scheduledActions` (kind `InsightAlert`) needs a
+`viewId` **scope-matched** to the action. A tenant-level `/providers/...` path is rejected:
+
+```text
+InvalidView: The specified view '/providers/Microsoft.CostManagement/views/ms:DailyAnomalyBySubscription'
+is invalid. Please specify either a private view ID or a view ID with the same scope ...
+```
+
+```bicep
+// ✅ subscription-scoped action → subscription-scoped view
+viewId: '${subscription().id}/providers/Microsoft.CostManagement/views/ms:DailyAnomalyByResourceGroup'
+```
+
+`InsightAlert` is available only at subscription scope, daily frequency. Author the module with
+`targetScope = 'subscription'` and call it with `scope: subscription()`.
+
+---
+
+## Automation Account runbook and jobSchedule
+
+AVM `br/public:avm/res/automation/automation-account:0.19.1`:
+
+- The runbook object uses `type` (e.g. `'PowerShell72'`), **not** `runbookType`, and accepts **no
+  inline `content`/`publishContentLink`** — only an optional `uri`. An empty draft runbook is valid.
+- A `jobSchedules` entry links a schedule to a runbook but **requires the runbook to have a
+  published version**. An empty draft has none, so apply fails:
+
+```text
+BadRequest: The runbook does not have a published version.
+```
+
+Author the schedule, omit `jobSchedules` from Bicep, and create the schedule↔runbook link
+**post-deploy** after publishing the runbook content (`az automation runbook replace-content`
+then `az automation job-schedule create`). Record both as post-deploy tasks.
 
 ---
 

@@ -101,6 +101,17 @@ Applying a pattern in a Bicep template:
   validator now excludes `<stem>.json` siblings of `<stem>.bicep`, but if
   you must build manually inside a handoff tree, `rm -f main.json`
   immediately after.
+- **AKS `outboundType` must match the egress topology** — a NAT Gateway on the
+  node subnet requires `userAssignedNATGateway`, NOT `userDefinedRouting` (UDR
+  needs a 0.0.0.0/0 route table and is rejected when public network access is
+  restricted). BYO-VNet clusters also need `Network Contributor` on the VNet, and
+  fixed-size node pools must set `minCount`/`maxCount` to `null`. See
+  [avm-pitfalls § AKS](references/avm-pitfalls.md#aks-managed-cluster-apply-time-gotchas).
+- **MySQL Flexible Server: PE not delegated subnet; engine version 8.4** — on a
+  shared PE subnet use `privateEndpoints[]` (not `delegatedSubnetResourceId`);
+  pin `version: '8.4'` (latest GA LTS → 8.4.7), never the stale 8.0 or an
+  innovation 9.x; `aad_auth_only` is read-only (enforce post-deploy). See
+  [avm-pitfalls § MySQL](references/avm-pitfalls.md#mysql-flexible-server-apply-time-gotchas).
 
 ## Reference Index
 

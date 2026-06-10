@@ -328,7 +328,7 @@ from scratch.**
    `.github/instructions/references/iac-policy-compliance.md`. Record
    the required value — these become the L2 attestations the
    `terraform-validate-subagent` will check after code generation.
-4. Merge governance tags with 4 baseline defaults (governance wins).
+4. Merge governance tags with the 9 baseline defaults (governance wins).
 5. If `04-governance-constraints.json` contains a structured `override` block
    for a Deny finding (see `04g-governance.agent.md` → Policy Override Pattern),
    validate that `reason`, `issue_link`, and a future-dated `expiry` are all

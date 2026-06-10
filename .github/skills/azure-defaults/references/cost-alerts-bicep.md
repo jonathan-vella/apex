@@ -122,13 +122,17 @@ subscription deployment.
    return `InvalidScheduledActionDisplayName`. Use a short fixed
    pattern such as `'CostAnomaly-${project}'` and cap `project` to
    ≤ 12 characters in `01-requirements`.
-3. **`properties.viewId` must be a valid sub-scope view.** Only the
-   built-in subscription-scope views are accepted by `InsightAlert`.
-   RG-scope views (e.g. `ms:DailyAnomalyByResourceGroup`) return
-   `InvalidView`. Use one of:
-   - `/providers/Microsoft.CostManagement/views/ms:DailyAnomalyByResource` (recommended for anomaly insights)
-   - `/providers/Microsoft.CostManagement/views/ms:DailyAnomalyBySubscription`
-   - `/providers/Microsoft.CostManagement/views/MS-DailyCosts` (cost view, also valid)
+3. **`properties.viewId` must be SCOPE-MATCHED to the scheduled action.**
+   For a subscription-scoped `InsightAlert`, prefix the built-in view
+   path with the subscription resource ID (`${subscription().id}`). A
+   **bare** `/providers/Microsoft.CostManagement/views/...` path is
+   rejected at apply with `InvalidView` ("specify either a private view
+   ID or a view ID with the same scope under the same scope as the
+   scheduled action") — even though it builds, lints, and passes
+   what-if. Microsoft's anomaly-alert guidance uses the
+   `ms:DailyAnomalyByResourceGroup` view with a `/scope/providers/...`
+   prefix. Verified-working value (deployed + confirmed `status: Enabled`):
+   - `${subscription().id}/providers/Microsoft.CostManagement/views/ms:DailyAnomalyByResourceGroup`
 4. **`schedule.endDate` must be a near-future UTC datetime.** The
    provider rejects `endDate` values more than ~1 year after
    `startDate` and rejects non-midnight times for `InsightAlert`
@@ -163,7 +167,7 @@ resource anomaly 'Microsoft.CostManagement/scheduledActions@2024-08-01' = {
   properties: {
     displayName: 'CostAnomaly-${project}'               // MUST be ≤ 25 chars
     status: 'Enabled'
-    viewId: '/providers/Microsoft.CostManagement/views/ms:DailyAnomalyByResource'
+    viewId: '${subscription().id}/providers/Microsoft.CostManagement/views/ms:DailyAnomalyByResourceGroup' // scope-matched
     schedule: {
       frequency: 'Daily'
       hourOfDay: 7
@@ -212,7 +216,7 @@ resource group.
 - `scheduledActions` `name` must be unique per subscription; prefix
   with project to avoid collisions.
 - The four §6 hard prerequisites (sub-scope only, displayName ≤ 25,
-  valid sub-scope `viewId`, ≤ 1-year UTC-midnight `endDate`) are
+  scope-matched `viewId`, ≤ 1-year UTC-midnight `endDate`) are
   **provider-side**: `bicep build` + `bicep lint` will not catch
   them. They surface only at `az deployment sub what-if` /
   `az deployment sub create`. The 10-Challenger adversarial check
