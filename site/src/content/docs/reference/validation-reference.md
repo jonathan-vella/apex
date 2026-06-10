@@ -135,11 +135,13 @@ All scripts are in the `tools/scripts/` directory. Run via `npm run <command>`.
 | npm Command          | Tool                | Purpose                                                  |
 | -------------------- | ------------------- | -------------------------------------------------------- |
 | `lint:md`            | markdownlint-cli2   | Markdown formatting and style                            |
+| `format:check`       | Prettier            | Code formatting (JS/JSON/CSS; markdown via markdownlint) |
 | `lint:links`         | markdown-link-check | URL validity in all markdown files                       |
 | `lint:links:docs`    | markdown-link-check | URL validity in site docs                                |
 | `lint:json`          | `lint-json.mjs`     | JSON/JSONC syntax validation                             |
 | `lint:python`        | ruff                | Python code quality (`tools/mcp-servers/azure-pricing/`) |
 | `lint:terraform-fmt` | terraform fmt       | Terraform formatting compliance                          |
+| `lint:bicep-fmt`     | bicep format        | Bicep formatting compliance (no-op when no projects)     |
 | `validate:terraform` | terraform validate  | Terraform validation per project                         |
 
 ### Aggregate Commands
@@ -154,13 +156,35 @@ All scripts are in the `tools/scripts/` directory. Run via `npm run <command>`.
 | `validate:skills`    | Skill format, affinity, references, stale     |
 | `audit:quarterly`    | Quarterly context audit checks                |
 
+> `validate:_external` is a **local-developer** aggregate (run all external-tool
+> linters in one shot). In CI its members are gated individually so coverage does
+> not depend on the aggregate: `lint:md` and `format:check` run in `ci.yml`,
+> `lint:python` runs in the `ci.yml` external-tests job, `lint:terraform-fmt` /
+> `lint:bicep-fmt` / `validate:terraform` run in `iac-checks.yml`, and the site
+> link check runs in `docs-checks.yml`.
+
+### Agent-Invoked IaC Validators (runtime, not CI)
+
+These validators are run **by agents during the workflow** against generated
+artifacts (Steps 4–6), not by lefthook or CI. They have no committed inputs on
+`main`, so they are intentionally absent from the aggregates above.
+
+| npm Command                          | Invoked by                          | Validates                          |
+| ------------------------------------ | ----------------------------------- | ---------------------------------- |
+| `validate:iac-contract`              | 05-IaC Planner                      | `04-iac-contract.json` schema/DAG  |
+| `validate:iac-contract-consistency`  | 05-IaC Planner                      | Contract ↔ implementation plan     |
+| `validate:iac-handoff`               | 06b/06t CodeGen                     | `05-iac-handoff.json` + tree hash  |
+| `validate:environment-manifest`      | 05-IaC Planner                      | `04-environment-manifest.json`     |
+| `validate:policy-property-map`       | 05-IaC Planner                      | `04-policy-property-map.json`      |
+
 ## CI Workflows
 
 All workflows are in `.github/workflows/`.
 
 | Workflow                  | File                            | Trigger                      | Purpose                                                                                            |
 | ------------------------- | ------------------------------- | ---------------------------- | -------------------------------------------------------------------------------------------------- |
-| CI                        | `ci.yml`                        | PR to `main`, push to `main` | Full validation suite (markdown, agents, skills, hooks, gitleaks, bats tests, MCP, VS Code config) |
+| CI                        | `ci.yml`                        | PR to `main`, push to `main` | Full validation suite (markdown, Prettier, agents, skills, hooks, gitleaks, bats tests, MCP, VS Code config) + Python ruff in the external-tests job |
+| IaC Checks                | `iac-checks.yml`                | `infra/**` changes           | Terraform fmt/validate + Bicep format (path-filtered; no-op until IaC is committed)                |
 | Branch Enforcement        | `branch-enforcement.yml`        | PR to `main`                 | Branch naming convention and scope validation                                                      |
 | Link Check                | `link-check.yml`                | Docs changes                 | URL validity in documentation                                                                      |
 | Docs                      | `docs.yml`                      | Docs changes                 | Build and deploy Astro Starlight site                                                              |

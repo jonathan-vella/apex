@@ -15,12 +15,6 @@
         "printWidth": 120,
         "proseWrap": "preserve"
       }
-    },
-    {
-      "files": ["*.astro"],
-      "options": {
-        "parser": "astro"
-      }
     }
   ]
 }

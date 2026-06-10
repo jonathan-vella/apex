@@ -40,17 +40,10 @@
       "description": "One per-finding decision. v1 accepts any of the observed ID / disposition / note field names; v2 will require canonical names.",
       "allOf": [
         {
-          "anyOf": [
-            { "required": ["issue_id"] },
-            { "required": ["finding_id"] }
-          ]
+          "anyOf": [{ "required": ["issue_id"] }, { "required": ["finding_id"] }]
         },
         {
-          "anyOf": [
-            { "required": ["action"] },
-            { "required": ["decision"] },
-            { "required": ["disposition"] }
-          ]
+          "anyOf": [{ "required": ["action"] }, { "required": ["decision"] }, { "required": ["disposition"] }]
         }
       ],
       "additionalProperties": true,

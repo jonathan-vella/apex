@@ -1,0 +1,80 @@
+# IaC Checks
+# Format + validate committed Infrastructure-as-Code (Terraform + Bicep).
+#
+# Path-filtered: runs only when files under infra/terraform/ or infra/bicep/
+# change (or this workflow / the bicep helper scripts). infra/ is empty
+# scaffolding today — IaC is generated per-project — so this gate stays silent
+# until real templates are committed, then enforces formatting at PR time
+# (mirrors the lefthook pre-commit/pre-push terraform-fmt + bicep checks).
+
+name: iac-checks
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "infra/terraform/**"
+      - "infra/bicep/**"
+      - "tools/scripts/check-bicep-fmt.sh"
+      - "tools/scripts/format-bicep-tree.sh"
+      - ".github/workflows/iac-checks.yml"
+  push:
+    branches: [main]
+    paths:
+      - "infra/terraform/**"
+      - "infra/bicep/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  terraform:
+    name: Terraform fmt + validate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      # install-deps=false: the terraform npm scripts are pure shell wrappers
+      # (terraform fmt / a validate loop) and do not need node_modules.
+      - name: Setup Node
+        uses: ./.github/actions/setup-node-repo
+        with:
+          install-deps: "false"
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform format check
+        run: npm run lint:terraform-fmt
+
+      # validate:terraform is advisory by contract (per-dir `|| true` so a
+      # missing local terraform never blocks). The fmt check above is the
+      # hard gate; this surfaces validation output when templates exist.
+      - name: Terraform validate
+        run: npm run validate:terraform
+
+  bicep:
+    name: Bicep fmt
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Node
+        uses: ./.github/actions/setup-node-repo
+        with:
+          install-deps: "false"
+
+      # az CLI is preinstalled on ubuntu-latest; install the Bicep CLI it shells
+      # out to. check-bicep-fmt.sh is a clean no-op when no projects exist.
+      - name: Install Bicep CLI
+        run: az bicep install
+
+      - name: Bicep format check
+        run: npm run lint:bicep-fmt
