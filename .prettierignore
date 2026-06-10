@@ -18,6 +18,10 @@ tools/mcp-servers/drawio/
 .eslintcache
 node_modules/.cache/
 
+# CI scan artifacts (e.g. gitleaks/CodeQL write results.sarif into the workspace
+# before later steps run; Prettier must not try to format tool output).
+*.sarif
+
 # Build artefacts
 *.tsbuildinfo
 
