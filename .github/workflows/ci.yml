@@ -48,6 +48,9 @@ jobs:
       - name: Lint Markdown
         run: npm run lint:md
 
+      - name: Check formatting (Prettier)
+        run: npm run format:check
+
       - name: Run Node.js validators (CI-safe)
         run: npm run validate:_node-ci
 
@@ -104,6 +107,11 @@ jobs:
           # extras so pytest-asyncio (required by the async fixtures) is present.
           python -m pip install -e 'tools/mcp-servers/azure-pricing[dev]'
           python -m pip install pytest
+
+      - name: Lint Python (ruff)
+        # ruff ships via the azure-pricing[dev] extra installed above. Mirrors
+        # the pre-commit python-lint hook so format/lint drift cannot land on main.
+        run: npm run lint:python
 
       - name: Run apex-recall test suite
         run: npm run test:apex-recall

@@ -32,14 +32,7 @@
     },
     "diagram_type": {
       "type": "string",
-      "enum": [
-        "logical",
-        "network",
-        "sequence",
-        "deployment",
-        "logical+network",
-        "decomposed"
-      ],
+      "enum": ["logical", "network", "sequence", "deployment", "logical+network", "decomposed"],
       "description": "Expected diagram type per references/diagram-types.md (T-016)."
     },
     "scope": {
@@ -98,15 +91,7 @@
       "type": "array",
       "items": {
         "type": "string",
-        "enum": [
-          "icons",
-          "layout",
-          "styling",
-          "semantics",
-          "labels",
-          "type-mismatch",
-          "scaling"
-        ]
+        "enum": ["icons", "layout", "styling", "semantics", "labels", "type-mismatch", "scaling"]
       },
       "minItems": 1,
       "uniqueItems": true
