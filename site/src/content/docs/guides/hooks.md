@@ -34,20 +34,21 @@ sequenceDiagram
         H-->>A: continue
         A->>T: Execute tool
         T-->>A: Result
-        A->>H: PostToolUse (after tool runs)
-        H-->>A: continue + advisory
     end
 ```
 
 ## Hook Inventory
 
-| Hook Directory         | Event(s)                             | Purpose                                               | Timeout |
-| :--------------------- | :----------------------------------- | :---------------------------------------------------- | ------: |
-| `secrets-scanner/`     | Stop                                 | Scan for leaked secrets at session end                |     30s |
-| `session-telemetry/`   | SessionStart, Stop, UserPromptSubmit | Merged session lifecycle logging and governance audit |   5–10s |
-| `subagent-validation/` | SubagentStop                         | Validate subagent output quality (advisory)           |     15s |
-| `tool-audit/`          | PostToolUse                          | Log tool usage metadata (name, status)                |      5s |
-| `tool-guardian/`       | PreToolUse                           | Block dangerous terminal commands                     |     10s |
+| Hook Directory         | Event(s)     | Purpose                                     | Timeout |
+| :--------------------- | :----------- | :------------------------------------------ | ------: |
+| `tool-guardian/`       | PreToolUse   | Block dangerous terminal commands           |     10s |
+| `subagent-validation/` | SubagentStop | Validate subagent output quality (advisory) |     15s |
+
+The suite is intentionally small and high-signal. Secret scanning is handled by
+**gitleaks** (pre-commit via lefthook + CI via the gitleaks action), not by an
+agent hook. Earlier `secrets-scanner`, `session-telemetry`, and `tool-audit`
+hooks were removed: the first duplicated gitleaks, and the latter two only wrote
+logs that nothing consumed.
 
 ## Configuration
 
@@ -56,11 +57,8 @@ Hooks are registered in `.vscode/settings.json`:
 ```json
 {
   "chat.hookFilesLocations": {
-    ".github/hooks/secrets-scanner": true,
-    ".github/hooks/session-telemetry": true,
-    ".github/hooks/subagent-validation": true,
-    ".github/hooks/tool-audit": true,
-    ".github/hooks/tool-guardian": true
+    ".github/hooks/tool-guardian": true,
+    ".github/hooks/subagent-validation": true
   },
   "chat.useCustomAgentHooks": true
 }
@@ -86,35 +84,45 @@ Use agent-scoped hooks only for agent-specific logic not covered by global hooks
 
 ## Safety Considerations
 
-### Infinite Loop Prevention
-
-The Stop hook (`session-telemetry/session-end.sh`) checks `stop_hook_active` from stdin JSON. If `true`,
-it returns immediately without processing — preventing infinite re-invocation.
-
 ### Self-Modification Protection
 
 The PreToolUse hook blocks file-edit tools (`replace_string_in_file`, `create_file`, etc.)
 from modifying files under `.github/hooks/`. Path resolution uses `realpath` to handle
 symlinks and traversal attacks (`../`).
 
+### Command Precision (low false-positive rate)
+
+`tool-guardian` runs in `block` mode by default, so its patterns are anchored to
+avoid blocking legitimate work. Destructive `rm -rf` rules match a whole-target
+delete (`rm -rf /`, `rm -rf .`, `rm -rf ~`) but allow scoped sub-paths
+(`rm -rf ./dist`, `rm -rf ~/project/build`); SQL rules match `TRUNCATE TABLE`
+rather than the `truncate` coreutil; and there is no blanket `sudo` block
+(routine `sudo apt-get` is allowed, while `sudo rm -rf /` is still caught by the
+`rm` rule).
+
 ### Timeout Enforcement
 
 Each hook specifies a timeout (5-180s). If a hook exceeds its timeout, VS Code terminates
 it and continues the agent session.
 
-### SessionId Sanitization
+To stay within budget, `tool-guardian` avoids per-pattern subprocess fan-out: it
+runs a single combined-alternation `grep` and only falls through to the detailed,
+per-pattern loop when that pre-check matches. `subagent-validation` does all
+parsing and emission in one `python3` process.
 
-The Stop hook sanitizes `sessionId` input to prevent path traversal — only alphanumeric
-characters, hyphens, and underscores are preserved.
+### Bounded Logging
 
-### Two-Layer Secrets Defense
+`tool-guardian` appends a JSONL audit line per evaluated tool call via the shared
+`hook_log` helper, which rotates the log to `<file>.1` once it reaches
+`HOOK_LOG_MAX_BYTES` (default 1 MiB) so it cannot grow without bound.
 
-Secrets are caught at two independent layers:
+### Secret Scanning (handled by gitleaks, not a hook)
 
-- **Layer 1 — Pre-commit (gitleaks):** Blocks known secret patterns in staged files before
-  they enter git history. Local soft-skip if gitleaks is not installed; CI hard-fail.
-- **Layer 2 — Session end (secrets-scanner):** Regex-based scanner at `Stop` event catches
-  in-session writes that may not yet be staged. Logs to `logs/copilot/secrets/scan.log`.
+Secrets are caught by **gitleaks** at two independent layers — pre-commit (via
+lefthook, soft-skips locally if gitleaks is missing) and CI (the gitleaks action,
+hard-fail). There is no agent hook for secret scanning; a former bespoke
+regex-based `secrets-scanner` was removed because it duplicated gitleaks with a
+weaker ruleset.
 
 ## Hook Directory Structure
 
@@ -125,6 +133,20 @@ Each hook follows this pattern:
 ├── hooks.json          # Event binding + timeout
 └── {name}.sh           # Shell script (present at configured path; exec bit optional)
 ```
+
+### Shared Library
+
+Common helpers — `hook_timestamp`, `hook_emit_continue`, `hook_json_escape`,
+`hook_log`, `hook_parse_allowlist`, and `hook_is_allowlisted` — live in
+`.github/hooks/lib/common.sh`. Hook scripts source it (currently `tool-guardian`)
+so JSON emission, logging, timestamps, and allowlist parsing stay DRY:
+
+```bash
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/common.sh"
+```
+
+`lib/` holds no `hooks.json` and is never registered in `chat.hookFilesLocations` —
+it is a sourced library, not a hook, so `npm run validate:hooks` skips it.
 
 ### hooks.json Schema
 
@@ -222,7 +244,7 @@ Add to `chat.hookFilesLocations` in `.vscode/settings.json`:
 
 ### 4. Add tests and validate
 
-Add test cases to `tools/scripts/test-hooks.sh`, then run:
+Add test cases under `tools/tests/bats/`, then run:
 
 ```bash
 npm run validate:hooks
@@ -259,8 +281,8 @@ If a hook exceeds its timeout, VS Code kills the process and continues. Check fo
 Test a hook locally by piping mock JSON:
 
 ```bash
-echo '{"tool_name":"run_in_terminal","tool_input":{"command":"ls"}}' | \
-  bash .github/hooks/block-dangerous-commands/block-dangerous-commands.sh
+echo '{"toolName":"run_in_terminal","toolInput":"rm -rf /"}' | \
+  bash .github/hooks/tool-guardian/guard-tool.sh
 ```
 
 ## Relationship to Git Hooks

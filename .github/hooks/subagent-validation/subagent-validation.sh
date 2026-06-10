@@ -3,65 +3,87 @@
 # SubagentStop hook: validates subagent output quality (advisory only).
 # Receives JSON input via stdin; outputs JSON to stdout.
 # Docs: https://code.visualstudio.com/docs/copilot/customization/hooks
+#
+# All parsing and decision logic runs in a single python3 process. python3 also
+# builds the response with json.dumps so subagent names cannot break out of the
+# JSON string (injection safety).
 set -euo pipefail
 
-INPUT=$(cat)
+python3 /dev/fd/3 3<<'PY' || echo '{"continue": true}'
+import json
+import re
+import sys
 
-SUBAGENT_NAME=$(echo "$INPUT" | python3 -c "import sys,json; print(json.load(sys.stdin).get('subagentName',''))" 2>/dev/null || echo "")
-SUBAGENT_OUTPUT=$(echo "$INPUT" | python3 -c "import sys,json; print(json.load(sys.stdin).get('output',''))" 2>/dev/null || echo "")
 
-OUTPUT_LEN=${#SUBAGENT_OUTPUT}
+def emit_continue():
+    print('{"continue": true}')
 
-# Helper: safe JSON output using Python json.dumps (prevents injection via subagent names)
-safe_warn() {
-  local msg="$1"
-  python3 -c "
-import json, sys
-print(json.dumps({'continue': True, 'systemMessage': sys.argv[1]}))
-" "$msg" 2>/dev/null || echo '{"continue": true}'
-}
 
-# Validate challenger subagent output structure (check before generic length)
-if echo "$SUBAGENT_NAME" | grep -qi "challenger"; then
-  VALID_JSON=$(echo "$SUBAGENT_OUTPUT" | python3 -c "
-import sys, json
+def warn(msg):
+    print(json.dumps({"continue": True, "systemMessage": msg}))
+
+
 try:
     data = json.load(sys.stdin)
-    findings = data.get('findings', [])
-    if isinstance(findings, list) and len(findings) >= 1:
-        print('valid')
-    else:
-        print('missing_findings')
+    if not isinstance(data, dict):
+        raise ValueError("not an object")
 except (json.JSONDecodeError, ValueError):
-    print('invalid_json')
-" 2>/dev/null || echo "parse_error")
+    emit_continue()
+    sys.exit(0)
 
-  case "$VALID_JSON" in
-    valid)
-      echo '{"continue": true}'
-      ;;
-    missing_findings)
-      safe_warn "Warning: challenger subagent '${SUBAGENT_NAME}' output has no findings array or it is empty. Verify review quality."
-      ;;
-    *)
-      safe_warn "Warning: challenger subagent '${SUBAGENT_NAME}' output is not valid JSON. Expected structured findings."
-      ;;
-  esac
-  exit 0
-fi
+name = data.get("subagentName", "") or ""
+output = data.get("output", "") or ""
+length = len(output)
+lower = name.lower()
 
-# Validate codegen/lint subagent produced non-empty output
-if echo "$SUBAGENT_NAME" | grep -qiE "(codegen|lint)"; then
-  if [[ "$OUTPUT_LEN" -eq 0 ]]; then
-    safe_warn "Warning: subagent '${SUBAGENT_NAME}' produced empty output. Check for errors."
-    exit 0
-  fi
-fi
+# Challenger subagents must emit a structured findings array (checked before the
+# generic length heuristic).
+if "challenger" in lower:
+    try:
+        parsed = json.loads(output)
+        findings = parsed.get("findings", []) if isinstance(parsed, dict) else []
+        if isinstance(findings, list) and len(findings) >= 1:
+            emit_continue()
+        else:
+            warn(
+                f"Warning: challenger subagent '{name}' output has no findings "
+                "array or it is empty. Verify review quality."
+            )
+    except (json.JSONDecodeError, ValueError):
+        warn(
+            f"Warning: challenger subagent '{name}' output is not valid JSON. "
+            "Expected structured findings."
+        )
+    sys.exit(0)
 
-# Generic: warn if output is suspiciously short
-if [[ "$OUTPUT_LEN" -lt 100 && "$OUTPUT_LEN" -gt 0 ]]; then
-  safe_warn "Warning: subagent '${SUBAGENT_NAME}' produced short output (${OUTPUT_LEN} chars). Verify output quality."
-  exit 0
-fi
+# Validate-subagents (e.g. bicep-validate-subagent, terraform-validate-subagent)
+# must surface a recognizable verdict so the orchestrator can gate on it. Scope
+# to the "-validate-subagent" suffix so unrelated names that merely contain
+# "validate" are not warned.
+if lower.endswith("-validate-subagent"):
+    verdict = re.search(r"\b(APPROVED|NEEDS_REVISION|FAILED|PASS|FAIL)\b", output)
+    if verdict:
+        emit_continue()
+    else:
+        warn(
+            f"Warning: validate subagent '{name}' output has no recognizable "
+            "verdict (expected one of APPROVED / NEEDS_REVISION / FAILED / "
+            "PASS / FAIL). Verify the validation contract."
+        )
+    sys.exit(0)
 
-echo '{"continue": true}'
+# Codegen/lint subagents should produce non-empty output.
+if ("codegen" in lower or "lint" in lower) and length == 0:
+    warn(f"Warning: subagent '{name}' produced empty output. Check for errors.")
+    sys.exit(0)
+
+# Generic: warn on suspiciously short (but non-empty) output.
+if 0 < length < 100:
+    warn(
+        f"Warning: subagent '{name}' produced short output ({length} chars). "
+        "Verify output quality."
+    )
+    sys.exit(0)
+
+emit_continue()
+PY

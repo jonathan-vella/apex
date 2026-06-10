@@ -272,10 +272,7 @@ set covers:
 | Hook                  | Trigger                                    | Purpose                                                             |
 | --------------------- | ------------------------------------------ | ------------------------------------------------------------------- |
 | `tool-guardian`       | `PreToolUse`                               | Blocks dangerous commands (destructive ops, force pushes, DB drops) |
-| `secrets-scanner`     | `Stop`                                     | Scans modified files for leaked secrets and credentials             |
-| `session-telemetry`   | `SessionStart`, `Stop`, `UserPromptSubmit` | Merged session lifecycle logging and governance audit               |
 | `subagent-validation` | `SubagentStop`                             | Validates subagent invocation and outputs                           |
-| `tool-audit`          | `PostToolUse`                              | Logs tool usage metadata (name, status)                             |
 
 Hooks are defined in `hooks.json` files with type (`command`), path to shell script,
 and timeout. They run automatically — agents do not invoke them explicitly.

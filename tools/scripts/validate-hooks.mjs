@@ -37,6 +37,10 @@ const VALID_EVENTS = new Set([
 const MIN_TIMEOUT = 1;
 const MAX_TIMEOUT = 300;
 
+// Directories under .github/hooks/ that hold shared resources rather than a
+// hook binding (no hooks.json, never registered in chat.hookFilesLocations).
+const NON_HOOK_DIRS = new Set(["lib"]);
+
 const r = new Reporter("Hook Validation");
 
 function pass(msg) {
@@ -77,7 +81,7 @@ if (!existsSync(HOOKS_DIR)) {
 }
 
 const hookDirs = readdirSync(HOOKS_DIR, { withFileTypes: true })
-  .filter((d) => d.isDirectory())
+  .filter((d) => d.isDirectory() && !NON_HOOK_DIRS.has(d.name))
   .map((d) => d.name);
 
 if (hookDirs.length === 0) {
