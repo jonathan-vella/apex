@@ -23,6 +23,16 @@ jobs:
   ci:
     name: ci
     runs-on: ubuntu-latest
+    # gitleaks-action enumerates a PR's commits through the GitHub API on
+    # pull_request events. On automation PRs (e.g. Dependabot) the default
+    # GITHUB_TOKEN is read-only and omits the pull-requests scope, so that
+    # commit lookup returns 403 and the scan fails for every bot PR. A
+    # job-level permissions block overrides the workflow-level
+    # `contents: read`, so contents must be re-declared alongside the
+    # pull-requests grant the action needs.
+    permissions:
+      contents: read
+      pull-requests: read
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
