@@ -5,7 +5,7 @@
  * Handles devcontainer.json and other VS Code config formats.
  *
  * @param {string} content - Raw JSONC file content
- * @returns {any} Parsed JSON object
+ * @returns {object|string|number|boolean|null} Parsed JSON object
  */
 export function parseJsonc(content) {
   // Remove block comments /* ... */
