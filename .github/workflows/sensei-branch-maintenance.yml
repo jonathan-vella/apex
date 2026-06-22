@@ -106,7 +106,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout feat/skills-sensei
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: feat/skills-sensei
           fetch-depth: 0 # full history required for merge
@@ -179,7 +179,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout feat/skills-sensei (post-merge)
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: feat/skills-sensei
           submodules: recursive
