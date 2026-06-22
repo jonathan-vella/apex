@@ -31,8 +31,12 @@ const WORKFLOWS_DIR = ".github/workflows";
 const SKIP_FILES = new Set([
   // Accelerator-only
   "weekly-upstream-sync.yml",
-  // Upstream-only (docs site, link-check, e2e tests, sensei branch lifecycle)
+  // Upstream-only (docs site, link-check, e2e tests, sensei branch lifecycle).
+  // The accelerator sync excludes site/, so every docs-site workflow would fail
+  // in consumer repos (no site/src/content/docs to lint or build).
   "docs.yml",
+  "docs-checks.yml",
+  "docs-gardening.yml",
   "link-check.yml",
   "e2e-validation.yml",
   "sensei-branch-maintenance.yml",

@@ -7,6 +7,7 @@
  *
  * Exits non-zero on the first failure category. Intended for `npm run lint:docs-frontmatter`.
  */
+import { existsSync } from "node:fs";
 import { readdir, readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
@@ -41,6 +42,12 @@ function parseFrontmatter(src) {
 }
 
 async function main() {
+  // Accelerator-derived repos exclude site/ from the upstream sync, so the
+  // docs tree may not exist. Skip cleanly instead of throwing ENOENT.
+  if (!existsSync(DOCS_ROOT)) {
+    console.log(`✔ no docs site at ${path.relative(REPO_ROOT, DOCS_ROOT)} — frontmatter lint skipped.`);
+    return;
+  }
   const files = await walk(DOCS_ROOT, []);
   const issues = [];
   for (const file of files) {

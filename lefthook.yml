@@ -227,7 +227,7 @@ pre-commit:
         if command -v gitleaks >/dev/null 2>&1; then
           gitleaks protect --staged --redact --no-banner
         else
-          echo "⚠️  gitleaks not installed — skipping secret scan (CI will enforce)"
+          echo "⚠️  gitleaks not installed — secret scan skipped. Install gitleaks (see .devcontainer/post-create.sh) to enable."
         fi
       fail_text: |
         ❌ Secrets detected in staged files!

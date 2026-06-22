@@ -23,16 +23,6 @@ jobs:
   ci:
     name: ci
     runs-on: ubuntu-latest
-    # gitleaks-action enumerates a PR's commits through the GitHub API on
-    # pull_request events. On automation PRs (e.g. Dependabot) the default
-    # GITHUB_TOKEN is read-only and omits the pull-requests scope, so that
-    # commit lookup returns 403 and the scan fails for every bot PR. A
-    # job-level permissions block overrides the workflow-level
-    # `contents: read`, so contents must be re-declared alongside the
-    # pull-requests grant the action needs.
-    permissions:
-      contents: read
-      pull-requests: read
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -45,16 +35,13 @@ jobs:
       - name: Install bats
         run: sudo apt-get install -y bats
 
-      - name: Scan for secrets (gitleaks)
-        uses: gitleaks/gitleaks-action@v3
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # gitleaks-action@v2 still ships as a Node 20 action. Opt into the
-          # Node 24 runtime now so the deprecation auto-flip on 2026-06-02
-          # doesn't surprise CI. See:
-          # https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
-          FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
-
+      # Secret scanning runs as a pre-commit hook (lefthook `secrets-baseline`,
+      # gitleaks CLI), not in CI. The gitleaks GitHub Action 403s in two common
+      # cases: organization-owned repos need a paid license, and on automation/
+      # bot PRs the read-only GITHUB_TOKEN lacks the pull-requests scope the
+      # action uses to enumerate commits. Both break accelerator-derived repos,
+      # so we drop the action; the CLI is unlicensed and installed by
+      # .devcontainer/post-create.sh.
       - name: Lint Markdown
         run: npm run lint:md
 
