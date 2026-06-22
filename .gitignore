@@ -98,14 +98,6 @@ freshness-report.json
 # Use a contents-only ignore (rather than the directory itself) so
 # that single committed deliverables can be re-included with `!`.
 agent-output/_baselines/*
-# Exception: the multi-log token-reduction baseline is a canonical
-# deliverable (Plan 01 Phase 0) — keep it tracked.
-!agent-output/_baselines/multi-log-baseline.json
-# Exception: Plan 01 Phase 4 body-compression baseline + target
-# hypotheses — canonical PR-visible deliverable for the body
-# compression workstream.
-!agent-output/_baselines/phase4-body-baseline.json
-!agent-output/_baselines/phase4-body-targets.json
 
 # Draw.io quality bench runs (working data; commit only the canonical
 # baseline at tools/tests/drawio-baseline/regen-baseline.json)

@@ -63,10 +63,10 @@ done > agent-output/_baselines/profile-runs.jsonl
 ```
 
 Compute p50 / p90 / max manually (or with `jq`) across the sessions
-for each headline metric and commit the result as
-`agent-output/_baselines/multi-log-baseline.json`. The token-reduction
-plan locks targets against the **p50** of that range, never the
-canonical `test04-01` outlier alone.
+for each headline metric and save the result locally as
+`agent-output/_baselines/multi-log-baseline.json` (gitignored working
+data). The token-reduction plan locks targets against the **p50** of
+that range, never the canonical `test04-01` outlier alone.
 
 ## Tests
 
