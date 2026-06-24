@@ -37,7 +37,7 @@ dependencies = [
 # preserved for one release as a deprecation shim; both currently install the
 # same set. Remove [azure] in v6.0.
 admin = [
-    "azure-identity>=1.19.0",
+    "azure-identity>=1.25.3",
     "azure-mgmt-compute>=38.0.0",
     "azure-mgmt-network>=30.2.0",
     "azure-mgmt-resource>=25.0.0",
