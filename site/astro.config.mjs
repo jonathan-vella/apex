@@ -1,6 +1,7 @@
 // @ts-check
 import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
+import { unified } from "@astrojs/markdown-remark";
 import starlightLinksValidator from "starlight-links-validator";
 import rehypeMermaid from "rehype-mermaid-lite";
 import remarkGlossaryAnchors from "./src/lib/remark-glossary-anchors.mjs";
@@ -12,6 +13,10 @@ export default defineConfig({
   site: "https://apexops.pro",
   base: SITE_BASE || "/",
   trailingSlash: "always",
+  // Astro 7 changed the compressHTML default from `true` to `'jsx'` (strips
+  // whitespace between inline elements using JSX rules). Pin to `true` to
+  // preserve the v6 HTML-aware whitespace behavior and avoid prose regressions.
+  compressHTML: true,
   redirects: {
     "/project/": "/project/contributing/",
     "/guides/security-baseline/": "/reference/security-baseline/",
@@ -22,8 +27,14 @@ export default defineConfig({
     "/guides/prompt-guide/reference/": "/reference/prompts/skills-subagents/",
   },
   markdown: {
-    remarkPlugins: [remarkGlossaryAnchors],
-    rehypePlugins: [rehypeMermaid],
+    // Astro 7's default Markdown processor is Sätteri. Use the unified()
+    // processor from @astrojs/markdown-remark to keep the remark/rehype
+    // pipeline (glossary anchors + mermaid) running. This replaces the
+    // now-deprecated top-level markdown.remarkPlugins / rehypePlugins options.
+    processor: unified({
+      remarkPlugins: [remarkGlossaryAnchors],
+      rehypePlugins: [rehypeMermaid],
+    }),
   },
   integrations: [
     starlight({
