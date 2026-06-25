@@ -14,7 +14,10 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import yaml from "js-yaml";
+// Namespace import (not `import yaml from "js-yaml"`): js-yaml 5.x is pure ESM
+// and exposes named exports only — no default export. A namespace import works
+// under both js-yaml 4.x (CommonJS) and 5.x (ESM).
+import * as yaml from "js-yaml";
 import { getAgents, getPromptFiles } from "./_lib/workspace-index.mjs";
 import { getBody } from "./_lib/parse-frontmatter.mjs";
 import { Reporter } from "./_lib/reporter.mjs";
