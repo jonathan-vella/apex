@@ -781,7 +781,10 @@ function validateGovernanceDiscovery(relPath, text, reportFn = error) {
 function validateNoDuplicateH1(relPath) {
   if (!exists(relPath)) return;
   const text = readText(relPath);
-  const h1Matches = text.match(/^# .+$/gm) || [];
+  // Strip fenced code blocks so shell comments (e.g. "# Start AKS") are not
+  // miscounted as Markdown H1 headings.
+  const withoutFences = text.replace(/^```[\s\S]*?^```/gm, "");
+  const h1Matches = withoutFences.match(/^# .+$/gm) || [];
   if (h1Matches.length > 1) {
     error(
       `Artifact ${relPath} has ${h1Matches.length} H1 headers — likely a resumed artifact with duplicate body. Fix: Delete and recreate the file.`,
