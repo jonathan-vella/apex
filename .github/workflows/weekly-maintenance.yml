@@ -36,7 +36,7 @@ concurrency:
 # script (`lefthook install`), which registers a pre-commit hook that calls
 # `gitleaks`. gitleaks is not installed on the GitHub-hosted runner, so any
 # automated `git commit` (e.g. peter-evans/create-pull-request) fails with
-# `gitleaks: not found`. Secrets scanning still runs on every PR via ci.yml.
+# `gitleaks: not found`. Secrets scanning is a local pre-commit hook only.
 env:
   LEFTHOOK: "0"
 

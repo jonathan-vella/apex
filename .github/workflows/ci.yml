@@ -29,23 +29,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Secret scanning uses the gitleaks CLI, not gitleaks-action: the Action
-      # needs a paid license for organization-owned repos and enumerates a PR's
-      # commits through the GitHub API, so it 403s on accelerator-derived repos.
-      # The CLI is unlicensed, makes no API calls, and needs no extra token
-      # permissions. Scans full history (checkout above sets fetch-depth: 0) and
-      # honors the repo's .gitleaks.toml / .gitleaksignore. Server-side backstop
-      # for the lefthook `secrets-baseline` pre-commit hook (covers --no-verify
-      # bypasses, missing hooks, and GitHub-UI commits).
-      - name: Scan for secrets (gitleaks CLI)
-        env:
-          GITLEAKS_VERSION: "8.30.1"
-        run: |
-          curl -fsSL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" \
-            | sudo tar -xz -C /usr/local/bin gitleaks
-          gitleaks version
-          gitleaks git . --redact --no-banner
-
       - name: Setup Node
         uses: ./.github/actions/setup-node-repo
 

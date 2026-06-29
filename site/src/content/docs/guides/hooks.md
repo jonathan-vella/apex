@@ -45,8 +45,8 @@ sequenceDiagram
 | `subagent-validation/` | SubagentStop | Validate subagent output quality (advisory) |     15s |
 
 The suite is intentionally small and high-signal. Secret scanning is handled by
-**gitleaks** (pre-commit via lefthook + CI via the gitleaks CLI in `ci.yml`),
-not by an agent hook. Earlier `secrets-scanner`, `session-telemetry`, and
+**gitleaks** (pre-commit via lefthook), not by an agent hook. Earlier
+`secrets-scanner`, `session-telemetry`, and
 `tool-audit` hooks were removed: the first duplicated gitleaks, and the latter
 two only wrote logs that nothing consumed.
 
@@ -118,10 +118,8 @@ parsing and emission in one `python3` process.
 
 ### Secret Scanning (handled by gitleaks, not a hook)
 
-Secrets are caught by **gitleaks** at two independent layers — pre-commit (via
-lefthook, soft-skips locally if gitleaks is missing) and CI (the gitleaks CLI in
-`ci.yml`, hard-fail). CI runs the CLI rather than gitleaks-action because the
-Action needs a paid license for organization-owned repos and 403s on bot PRs.
+Secrets are caught by **gitleaks** at the pre-commit layer (via lefthook,
+soft-skips locally if gitleaks is missing). Secret scanning is not part of CI.
 There is no agent hook for secret scanning; a former bespoke regex-based
 `secrets-scanner` was removed because it duplicated gitleaks with a weaker
 ruleset.

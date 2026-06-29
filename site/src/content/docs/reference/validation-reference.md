@@ -183,7 +183,7 @@ All workflows are in `.github/workflows/`.
 
 | Workflow                  | File                            | Trigger                      | Purpose                                                                                            |
 | ------------------------- | ------------------------------- | ---------------------------- | -------------------------------------------------------------------------------------------------- |
-| CI                        | `ci.yml`                        | PR to `main`, push to `main` | Full validation suite (markdown, Prettier, agents, skills, hooks, gitleaks CLI, bats tests, MCP, VS Code config) + Python ruff in the external-tests job |
+| CI                     | `ci.yml`                        | PR to `main`, push to `main` | Full validation suite (markdown, Prettier, agents, skills, hooks, bats tests, MCP, VS Code config) + Python ruff in the external-tests job |
 | IaC Checks                | `iac-checks.yml`                | `infra/**` changes           | Terraform fmt/validate + Bicep format (path-filtered; no-op until IaC is committed)                |
 | Branch Enforcement        | `branch-enforcement.yml`        | PR to `main`                 | Branch naming convention and scope validation                                                      |
 | Link Check                | `link-check.yml`                | Docs changes                 | URL validity in documentation                                                                      |
