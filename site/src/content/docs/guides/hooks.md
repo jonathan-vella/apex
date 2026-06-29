@@ -118,9 +118,11 @@ parsing and emission in one `python3` process.
 
 ### Secret Scanning (handled by gitleaks, not a hook)
 
-Secrets are caught by **gitleaks** at the pre-commit layer (via lefthook,
-soft-skips locally if gitleaks is missing). Secret scanning is not part of CI.
-There is no agent hook for secret scanning; a former bespoke regex-based
+Secrets are caught by **gitleaks** at the pre-commit layer (via lefthook). This
+scan soft-skips locally if `gitleaks` is missing, and gitleaks is not run in CI.
+Commits made with `--no-verify`, without lefthook installed, or via the GitHub
+UI will not be scanned. There is no agent hook for secret scanning; a former
+bespoke regex-based
 `secrets-scanner` was removed because it duplicated gitleaks with a weaker
 ruleset.
 
