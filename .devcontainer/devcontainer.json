@@ -77,6 +77,7 @@
         "ms-python.python",
         "ms-python.vscode-pylance",
         "ms-azuretools.vscode-azureresourcegroups",
+        "ms-azuretools.vscode-azure-mcp-server",
         "ms-azuretools.vscode-bicep",
         "ms-vscode.powershell",
         "bierner.markdown-mermaid",

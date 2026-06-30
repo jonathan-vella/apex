@@ -17,9 +17,9 @@ technologies.
 
 ## Prerequisites
 
-- **Azure MCP server** (`azure-mcp` in `.vscode/mcp.json`) running locally via
-  `npx @azure/mcp@latest server start`. The Microsoft Learn docs tools are
-  exposed through the Azure MCP `documentation` router.
+- **Azure MCP server** (`ms-azuretools.vscode-azure-mcp-server` extension,
+  declared in `devcontainer.json`) running locally. The Microsoft Learn docs
+  tools are exposed through the Azure MCP `documentation` router.
 - **Outbound HTTPS** to `learn.microsoft.com`
 - **Node.js ≥ 18** for the `mslearn` CLI fallback (via `npx @microsoft/learn-cli ...`)
 

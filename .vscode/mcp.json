@@ -46,16 +46,6 @@
       "env": {
         "DENO_DIR": "${userHome}/.cache/deno"
       }
-    },
-    "azure-mcp": {
-      "type": "stdio",
-      "command": "npx",
-      "args": [
-        "-y",
-        "@azure/mcp@latest",
-        "server",
-        "start"
-      ]
     }
   }
 }

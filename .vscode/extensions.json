@@ -9,6 +9,7 @@
     "bierner.markdown-mermaid",
     "bierner.markdown-preview-github-styles",
     "ms-azuretools.vscode-azureresourcegroups",
+    "ms-azuretools.vscode-azure-mcp-server",
     "ms-vscode.powershell",
     "ms-vscode.azurecli",
     "redhat.vscode-yaml",
@@ -22,7 +23,6 @@
     "ms-azuretools.vscode-azure-github-copilot",
     "ms-windows-ai-studio",
     "teamsdevapp.vscode-ai-foundry",
-    "ms-azuretools.vscode-azure-mcp-server",
     "ms-vscode.vscode-node-azure-pack"
   ]
 }
