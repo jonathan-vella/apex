@@ -15,6 +15,14 @@
 // Linked docs:
 //   - docs/devcontainer-hygiene.md (rationale + per-developer cleanup)
 //   - .vscode/extensions.json (unwantedRecommendations dialog)
+//
+// Known gap: this validator only scans the literal `extensions` array, not
+// the transitive `extensionPack` members of an installed pack. As of
+// 2026-06-30, `ms-vscode.vscode-node-azure-pack` (Azure Tools) is declared
+// in devcontainer.json and its extensionPack bundles two DENYLIST entries
+// (vscode-azure-github-copilot, ms-windows-ai-studio) — those install
+// transitively and are NOT caught here. Disable them manually per the
+// devcontainer.json comment near `customizations.vscode.extensions`.
 
 import { existsSync, readFileSync } from "node:fs";
 import { resolve, dirname } from "node:path";

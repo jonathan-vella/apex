@@ -32,9 +32,6 @@ const REQUIRED_EXTENSIONS = ["GitHub.copilot-chat", "ms-azuretools.vscode-bicep"
 const ALLOWED_DEVCONTAINER_ONLY_EXTENSIONS = new Set([
   "github.vscode-github-actions",
   "mechatroner.rainbow-csv",
-  "ms-azuretools.azure-dev",
-  "ms-azuretools.vscode-azurecontainerapps",
-  "ms-azuretools.vscode-azurestaticwebapps",
   "ms-azuretools.vscode-containers",
   "ms-kubernetes-tools.vscode-aks-tools",
   "ms-kubernetes-tools.vscode-kubernetes-tools",

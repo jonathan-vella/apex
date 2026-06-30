@@ -4,7 +4,7 @@ description: Expert Architect providing guidance using Azure Well-Architected Fr
 model: ["Claude Opus 4.8"]
 user-invocable: true
 agents: ["cost-estimate-subagent", "challenger-review-subagent"]
-tools: [vscode, execute, read, agent, browser, edit, search, web, "azure-mcp/*", todo]
+tools: [vscode, execute, read, agent, browser, vscodeGeneral/rename, vscodeGeneral/usages, vscodeNotebooks/createJupyterNotebook, vscodeNotebooks/editNotebook, edit, search, web, 'azure-mcp/*', todo]
 handoffs:
   - label: "▶ Refresh Cost Estimate"
     agent: 03-Architect

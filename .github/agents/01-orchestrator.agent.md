@@ -19,7 +19,7 @@ agents:
     "06t-Terraform CodeGen",
     "07t-Terraform Deploy",
   ]
-tools: [vscode, execute, read, agent, browser, edit, search, web, web/fetch, web/githubRepo, todo]
+tools: [vscode, execute, read, agent, browser, vscodeGeneral/rename, vscodeGeneral/usages, vscodeNotebooks/createJupyterNotebook, vscodeNotebooks/editNotebook, edit, search, web, azure-mcp/search, todo]
 handoffs:
   - label: "▶ Start New Project"
     agent: 01-Orchestrator

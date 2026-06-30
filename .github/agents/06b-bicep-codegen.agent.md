@@ -5,23 +5,7 @@ model: ["Claude Sonnet 5"]
 user-invocable: true
 agents: ["bicep-validate-subagent", "challenger-review-subagent"]
 tools:
-  [
-    vscode,
-    execute,
-    read,
-    agent,
-    browser,
-    edit,
-    azure-mcp/search,
-    web,
-    web/fetch,
-    web/githubRepo,
-    "azure-mcp/*",
-    "bicep/*",
-    todo,
-    vscode.mermaid-chat-features/renderMermaidDiagram,
-    ms-azuretools.vscode-azureresourcegroups/azureActivityLog,
-  ]
+  [vscode, execute, read, agent, browser, vscodeGeneral/rename, vscodeGeneral/usages, vscodeNotebooks/createJupyterNotebook, vscodeNotebooks/editNotebook, ms-azuretools.vscode-azureresourcegroups, edit, search, web, 'azure-mcp/*', 'bicep/*', todo]
 handoffs:
   - label: "▶ Run Preflight Check"
     agent: 06b-Bicep CodeGen

@@ -6,21 +6,7 @@ argument-hint: Deploy the Bicep templates for a specific project
 user-invocable: true
 agents: ["bicep-whatif-subagent", "bicep-validate-subagent", "policy-precheck-subagent", "challenger-review-subagent"]
 tools:
-  [
-    vscode,
-    execute,
-    read,
-    agent,
-    browser,
-    edit,
-    search,
-    web,
-    "azure-mcp/*",
-    "bicep/*",
-    todo,
-    vscode.mermaid-chat-features/renderMermaidDiagram,
-    ms-azuretools.vscode-azureresourcegroups/azureActivityLog,
-  ]
+  [vscode, execute, read, agent, browser, vscodeGeneral/rename, vscodeGeneral/usages, vscodeNotebooks/createJupyterNotebook, vscodeNotebooks/editNotebook, ms-azuretools.vscode-azureresourcegroups, edit, search, web, 'azure-mcp/*', 'bicep/*', todo]
 handoffs:
   - label: "▶ Run What-If Only"
     agent: 07b-Bicep Deploy

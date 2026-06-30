@@ -494,6 +494,14 @@ if [ -f "tools/scripts/validate-tool-versions.mjs" ]; then
         || echo "        Tool pins:      ⚠️  one or more tools below pinned minimum (see tools/registry/tool-version-pins.json)"
 fi
 
+echo ""
+echo "        ⚠️  Azure Tools pack (ms-vscode.vscode-node-azure-pack) bundles"
+echo "           ms-azuretools.vscode-azure-github-copilot and"
+echo "           ms-windows-ai-studio.windows-ai-studio — both inflate Copilot"
+echo "           chat context (~5-7k tokens/turn each). Disable both manually"
+echo "           in the Extensions view; APEX's own agent set already covers"
+echo "           their scope."
+
 step_done "All verifications complete"
 
 # ─── Summary ─────────────────────────────────────────────────────────────────

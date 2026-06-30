@@ -4,7 +4,7 @@ description: "Generates Step 7 as-built documentation suite after successful dep
 model: ["Claude Sonnet 5"]
 user-invocable: true
 agents: ["cost-estimate-subagent"]
-tools: [vscode, execute, read, agent, browser, edit, search, web, "azure-mcp/*", "drawio/*", todo]
+tools: [vscode, execute, read, agent, browser, vscodeGeneral/rename, vscodeGeneral/usages, vscodeNotebooks/createJupyterNotebook, vscodeNotebooks/editNotebook, ms-python.python, edit, search, web, 'azure-mcp/*', todo]
 handoffs:
   - label: "▶ Generate All Documentation"
     agent: 08-As-Built

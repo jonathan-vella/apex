@@ -5,7 +5,7 @@ description: Researches and captures Azure platform engineering project requirem
 argument-hint: Describe the Azure workload or project you want to gather requirements for
 user-invocable: true
 agents: ["challenger-review-subagent"]
-tools: [vscode, execute, read, agent, browser, edit, search, web, "azure-mcp/*", todo]
+tools: [vscode, execute, read, agent, browser, vscodeGeneral/rename, vscodeGeneral/usages, vscodeNotebooks/createJupyterNotebook, vscodeNotebooks/editNotebook, edit, search, web, 'azure-mcp/*', todo]
 handoffs:
   - label: "▶ Refine Requirements"
     agent: 02-Requirements
