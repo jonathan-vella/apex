@@ -133,7 +133,7 @@ Agents that specify `Claude Opus 4.7` as priority model do so deliberately:
   use `Claude Opus 4.7` for architecture decisions, WAF assessments, planning
   accuracy, and complex analysis. Reasoning effort is a per-agent policy (see
   "Reasoning-effort policy" below) — not encoded in the model label.
-- **Claude Sonnet 4.6 agents** (design, bicep codegen, terraform codegen,
+- **Claude Sonnet 5 agents** (design, bicep codegen, terraform codegen,
   as-built, plus the four IaC validation/preview subagents `bicep-validate`,
   `bicep-whatif`, `terraform-validate`, `terraform-plan`): Anthropic prompting
   style (XML-tagged blocks, `<context_awareness>`, `<output_contract>`,
@@ -141,9 +141,12 @@ Agents that specify `Claude Opus 4.7` as priority model do so deliberately:
   ADR + diagram authoring, AVM-first IaC code generation with verbatim
   invariant retention, the structured PASS/FAIL findings produced by the
   validation subagents, and the checklist-driven Step 7 as-built artifact suite.
-  Default Sonnet 4.6 effort is `high`; the Design agent, both CodeGen agents,
+  Default Sonnet 5 effort is `high` (adaptive thinking on by default, manual
+  extended thinking removed); the Design agent, both CodeGen agents,
   as-built, and the four subagents pin effort to `medium` for typical work and
-  only raise it for large change sets.
+  only raise it for large change sets. CodeGen stays at `high` rather than
+  escalating to `xhigh` — AVM generation is structured execution, not deep
+  reasoning.
 - **GPT-5.5 agents** (orchestrator fast path, governance,
   challenger wrapper, challenger-review-subagent, deploy (Bicep + Terraform),
   diagnose, e2e-orchestrator)
@@ -185,27 +188,27 @@ Current model assignments:
 | ----------------------------------- | ----------------- | ---------------------------------------- |
 | Orchestrator                        | MAI-Code-1-Flash  | Standard-tier handoff routing            |
 | Orchestrator (Fast Path)            | GPT-5.5           | Streamlined orchestration                |
-| Requirements                        | Claude Sonnet 4.6 | One-shot discovery (Anthropic style)     |
+| Requirements                        | Claude Sonnet 5   | One-shot discovery (Anthropic style)     |
 | Architect                           | Claude Opus 4.8   | WAF analysis + cost (high effort)        |
-| Design                              | Claude Sonnet 4.6 | Diagram + ADR (Anthropic style)          |
+| Design                              | Claude Sonnet 5   | Diagram + ADR (Anthropic style)          |
 | Governance                          | GPT-5.5           | Procedural discovery                     |
 | IaC Planner (unified)               | Claude Opus 4.8   | Planning accuracy (high effort)          |
-| Bicep / Terraform Code              | Claude Sonnet 4.6 | Code generation (Anthropic style, verbatim invariants) |
+| Bicep / Terraform Code              | Claude Sonnet 5   | Code generation (Anthropic style, verbatim invariants) |
 | Deploy (Bicep + TF)                 | GPT-5.5           | Deployment execution (outcome-first)     |
-| As-Built                            | Claude Sonnet 4.6 | Documentation generation (Anthropic style) |
+| As-Built                            | Claude Sonnet 5   | Documentation generation (Anthropic style) |
 | Diagnose                            | GPT-5.5           | Approval-first diagnostics               |
-| Context Optimizer                   | Claude Sonnet 4.6 | Structured analysis (Anthropic style)    |
+| Context Optimizer                   | Claude Sonnet 5   | Structured analysis (Anthropic style)    |
 | E2E Orchestrator                    | GPT-5.5           | Autonomous benchmark loop                |
 | Challenger wrapper                  | GPT-5.5           | Structured review                        |
 | Challenger subagent                 | GPT-5.5           | Structured review                        |
-| Bicep/TF validate+preview subagents | Claude Sonnet 4.6 | Isolated validation (Anthropic style)    |
+| Bicep/TF validate+preview subagents | Claude Sonnet 5   | Isolated validation (Anthropic style)    |
 | Cost estimate subagent              | GPT-5.3-Codex     | High-throughput pricing                  |
 
 #### Reasoning-effort policy
 
 Reasoning effort is a **per-agent** policy, not a model-label suffix. The
 catalog records one entry per Anthropic SKU (`Claude Opus 4.7`,
-`Claude Sonnet 4.6`); whether an agent runs at default or high reasoning
+`Claude Sonnet 5`); whether an agent runs at default or high reasoning
 effort is documented in this section and inferred from the agent's role:
 
 - **High effort** — Requirements, Architect, IaC Planner, Context Optimizer.

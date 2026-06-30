@@ -52,11 +52,15 @@ total_fixed = base_cost + tool_cost + handoff_cost + body_cost + instruction_cos
 | GPT-5.5           | 400K tokens    | ~320K tokens          |
 | GPT-5.3-Codex     | 400K tokens    | ~320K tokens          |
 | Claude Opus 4.7   | 200K tokens    | ~160K tokens          |
-| Claude Sonnet 4.6 | 200K tokens    | ~160K tokens          |
+| Claude Sonnet 5   | 200K tokens    | ~160K tokens          |
 | gpt-4o-mini       | 128K tokens    | ~102K tokens          |
 
 The "practical limit" accounts for output generation headroom.
 Quality typically degrades before hitting the hard limit.
+
+Sonnet 5 uses a new tokenizer that produces ~30% more tokens for the same
+text vs. Sonnet 4.6 — budgets tuned against 4.6 word/line counts under-count
+on Sonnet 5; re-verify headroom rather than reusing 4.6-era estimates.
 
 ## Latency-to-Context Correlation
 

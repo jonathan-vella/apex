@@ -1,7 +1,7 @@
 ---
 name: 06t-Terraform CodeGen
 description: "Expert Azure Terraform IaC specialist that creates near-production-ready Terraform configurations following Azure Verified Modules (AVM-TF) standards. Validates, tests, and ensures code quality."
-model: ["Claude Sonnet 4.6"]
+model: ["Claude Sonnet 5"]
 user-invocable: true
 agents: ["terraform-validate-subagent", "challenger-review-subagent"]
 tools:

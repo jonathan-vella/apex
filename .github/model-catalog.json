@@ -41,11 +41,27 @@
       ],
       "notes": "Deprecated 2026-05 in favor of Claude Opus 4.7. Retained for audit history; not authorized for new agents."
     },
+    "Claude Sonnet 5": {
+      "vendor": "Anthropic",
+      "tier": "balanced",
+      "released": "2026-06",
+      "deprecated": false,
+      "use_for": [
+        "design-diagrams",
+        "adr-authoring",
+        "iac-codegen",
+        "iac-validation",
+        "deployment-preview",
+        "as-built-documentation",
+        "context-optimization"
+      ],
+      "notes": "API model id `claude-sonnet-5`. Migrated 2026-06 from Claude Sonnet 4.6 (deprecated below) — drop-in upgrade for Step 3 Design, Step 5 IaC code generation (Bicep + Terraform), Step 7 As-Built documentation, Context Optimizer, and the IaC validation/preview subagents (bicep-validate, bicep-whatif, terraform-validate, terraform-plan, policy-precheck). The Anthropic prompting style (XML-tagged blocks, role-first, quote-grounded review, checklist-driven structured output) suits ADR + diagram authoring, the structured PASS/FAIL findings produced by the validation subagents, and the checklist-driven artifact generation of as-built docs. Key behavioral deltas from Sonnet 4.6: adaptive thinking is ON by default (manual extended thinking removed, returns 400); `effort` still defaults to `high` — kept at `high` for CodeGen (no `xhigh` escalation needed, AVM generation is structured execution, not deep reasoning); the new tokenizer produces ~30% more tokens for the same text (re-check `max_tokens` headroom and context budgets); the model follows instructions more literally — state scope explicitly; review/validation prompts should ask for full-coverage findings rather than relying on the model to self-filter, since Sonnet 5 follows conservative framing ('only report high-severity') more strictly than 4.6 did. Sampling params (`temperature`/`top_p`/`top_k`) remain unsupported, same as 4.6. Other GPT-5.5 cohort members (Governance, Deploy, Challenger, E2E, Diagnose) remain on GPT-5.5."
+    },
     "Claude Sonnet 4.6": {
       "vendor": "Anthropic",
       "tier": "balanced",
       "released": "2026-01",
-      "deprecated": false,
+      "deprecated": true,
       "use_for": [
         "design-diagrams",
         "adr-authoring",
@@ -54,7 +70,7 @@
         "deployment-preview",
         "as-built-documentation"
       ],
-      "notes": "Active for Step 3 Design, Step 5 IaC code generation (Bicep + Terraform), Step 7 As-Built documentation, and the IaC validation/preview subagents (bicep-validate, bicep-whatif, terraform-validate, terraform-plan). The Anthropic prompting style (XML-tagged blocks, role-first, quote-grounded review, checklist-driven structured output) suits ADR + diagram authoring, the structured PASS/FAIL findings produced by the validation subagents, and the checklist-driven artifact generation of as-built docs. CodeGen joined this cohort 2026-05 (was GPT-5.5) for stronger verbatim invariant retention. As-Built joined 2026-05 for the same XML-structured artifact authoring alignment. Other GPT-5.5 cohort members (Governance, Deploy, Challenger, E2E, Diagnose) remain on GPT-5.5."
+      "notes": "Deprecated 2026-06 in favor of Claude Sonnet 5. Retained for audit history; not authorized for new agents."
     },
     "GPT-5.4": {
       "vendor": "OpenAI",
@@ -96,7 +112,7 @@
         "diagnosis",
         "e2e-evaluation"
       ],
-      "notes": "Outcome-first prompting per the OpenAI GPT-5.5 prompting guide: explicit Role / Personality / Goal / Success / Constraints / Output / Stop sections, retrieval budgets, decision rules over absolutes, and stopping conditions. More efficient reasoning than predecessors — re-evaluate low/medium effort before escalating to high. After 2026-05 cohort migrations, GPT-5.5 covers deploy (Bicep + Terraform), diagnostics, the e2e-orchestrator, and challenger agents. IaC code generation (06b/06t) moved to Claude Sonnet 4.6 for AVM verbatim invariants; As-Built (08) moved to Claude Sonnet 4.6 for XML-structured artifact authoring alignment."
+      "notes": "Outcome-first prompting per the OpenAI GPT-5.5 prompting guide: explicit Role / Personality / Goal / Success / Constraints / Output / Stop sections, retrieval budgets, decision rules over absolutes, and stopping conditions. More efficient reasoning than predecessors — re-evaluate low/medium effort before escalating to high. After 2026-05 cohort migrations, GPT-5.5 covers deploy (Bicep + Terraform), diagnostics, the e2e-orchestrator, and challenger agents. IaC code generation (06b/06t) moved to Claude Sonnet 4.6 (now Claude Sonnet 5) for AVM verbatim invariants; As-Built (08) moved to Claude Sonnet 4.6 (now Claude Sonnet 5) for XML-structured artifact authoring alignment."
     },
     "GPT-5.3-Codex": {
       "vendor": "OpenAI",
@@ -136,29 +152,29 @@
     "description": "Auto-generated inventory of agent → model assignments derived from frontmatter (canonical source). Do not edit by hand; run `node tools/scripts/generate-model-catalog.mjs` or let the lefthook pre-commit hook refresh it when frontmatter changes.",
     "agents": {
       "01-orchestrator.agent.md": "MAI-Code-1-Flash",
-      "02-requirements.agent.md": "Claude Sonnet 4.6",
+      "02-requirements.agent.md": "Claude Sonnet 5",
       "03-architect.agent.md": "Claude Opus 4.8",
-      "04-design.agent.md": "Claude Sonnet 4.6",
+      "04-design.agent.md": "Claude Sonnet 5",
       "04g-governance.agent.md": "GPT-5.3-Codex",
       "05-iac-planner.agent.md": "Claude Opus 4.8",
-      "06b-bicep-codegen.agent.md": "Claude Sonnet 4.6",
-      "06t-terraform-codegen.agent.md": "Claude Sonnet 4.6",
+      "06b-bicep-codegen.agent.md": "Claude Sonnet 5",
+      "06t-terraform-codegen.agent.md": "Claude Sonnet 5",
       "07b-bicep-deploy.agent.md": "GPT-5.3-Codex",
       "07t-terraform-deploy.agent.md": "GPT-5.3-Codex",
-      "08-as-built.agent.md": "Claude Sonnet 4.6",
+      "08-as-built.agent.md": "Claude Sonnet 5",
       "09-diagnose.agent.md": "GPT-5.5",
       "10-challenger.agent.md": "GPT-5.3-Codex",
-      "11-context-optimizer.agent.md": "Claude Sonnet 4.6",
+      "11-context-optimizer.agent.md": "Claude Sonnet 5",
       "e2e-orchestrator.agent.md": "GPT-5.5"
     },
     "subagents": {
-      "bicep-validate-subagent.agent.md": "Claude Sonnet 4.6",
-      "bicep-whatif-subagent.agent.md": "Claude Sonnet 4.6",
+      "bicep-validate-subagent.agent.md": "Claude Sonnet 5",
+      "bicep-whatif-subagent.agent.md": "Claude Sonnet 5",
       "challenger-review-subagent.agent.md": "GPT-5.5",
       "cost-estimate-subagent.agent.md": "GPT-5.3-Codex",
-      "policy-precheck-subagent.agent.md": "Claude Sonnet 4.6",
-      "terraform-plan-subagent.agent.md": "Claude Sonnet 4.6",
-      "terraform-validate-subagent.agent.md": "Claude Sonnet 4.6"
+      "policy-precheck-subagent.agent.md": "Claude Sonnet 5",
+      "terraform-plan-subagent.agent.md": "Claude Sonnet 5",
+      "terraform-validate-subagent.agent.md": "Claude Sonnet 5"
     }
   }
 }

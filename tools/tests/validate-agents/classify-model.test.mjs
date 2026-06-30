@@ -17,7 +17,11 @@ test("classifyModel: Claude Opus 4.7 → claude-opus", () => {
   assert.equal(classifyModel(["Claude Opus 4.7"]), "claude-opus");
 });
 
-test("classifyModel: Claude Sonnet 4.6 → claude-sonnet", () => {
+test("classifyModel: Claude Sonnet 5 → claude-sonnet", () => {
+  assert.equal(classifyModel("Claude Sonnet 5"), "claude-sonnet");
+});
+
+test("classifyModel: Claude Sonnet 4.6 → claude-sonnet (deprecated label, still classifies)", () => {
   assert.equal(classifyModel("Claude Sonnet 4.6"), "claude-sonnet");
 });
 

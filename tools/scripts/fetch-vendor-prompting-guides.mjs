@@ -46,6 +46,13 @@ const SOURCES = [
     fetch: fetchAnonymous,
   },
   {
+    id: "anthropic-prompting-claude-sonnet-5",
+    vendor: "anthropic",
+    url: "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-sonnet-5",
+    snapshotName: "anthropic-prompting-claude-sonnet-5.md",
+    fetch: fetchAnonymous,
+  },
+  {
     id: "openai-prompting-guide",
     vendor: "openai",
     repo: OPENAI_SKILLS_REPO,

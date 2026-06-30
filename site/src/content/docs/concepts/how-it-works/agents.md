@@ -12,7 +12,7 @@ Every agent definition follows a standard structure:
 ---
 name: 06b-Bicep CodeGen
 description: Expert Azure Bicep IaC specialist...
-model: ["Claude Sonnet 4.6"] # (1)!
+model: ["Claude Sonnet 5"] # (1)!
 tools: [list of allowed tools] # (2)!
 handoffs:
   - label: "Step 6: Deploy"
@@ -271,7 +271,7 @@ source of truth, but the current repo pattern is:
   tier suits handoff-only routing without creative generation; the agent body
   keeps its outcome-first skeleton (Role / Goal / Success / Constraints / Output /
   Stop) as a sound routing structure.
-- **Design + Code generation** — `Claude Sonnet 4.6` for Anthropic XML-tagged
+- **Design + Code generation** — `Claude Sonnet 5` for Anthropic XML-tagged
   output contracts and stronger verbatim invariant retention (security baseline,
   AVM contract, HARD GATE language)
 - **Governance + Challenger** — `GPT-5.5` for balanced execution quality with

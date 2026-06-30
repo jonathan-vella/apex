@@ -2,8 +2,11 @@
 
 # Anthropic Claude — Prompting Best Practices (Normalized)
 
-> Source: [platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices)
-> (live web doc; refresh via `npm run audit:vendor-prompting`).
+> Sources: [platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices)
+> (cross-model best practices) and
+> [platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-sonnet-5](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-sonnet-5)
+> (Sonnet 5 model-specific deltas) — live web docs; refresh via
+> `npm run audit:vendor-prompting`.
 
 This file normalizes Anthropic's published guidance into rules
 consumable by `validate-agents.mjs`. Each rule references its ID in
@@ -13,7 +16,7 @@ repo are documented; full vendor guidance lives at the source URL.
 ## Applicable models
 
 Claude Opus 4.8 (current top), Claude Opus 4.7, Claude Opus 4.6, Claude
-Sonnet 4.6, Claude Haiku 4.5. Earlier Claude generations are out of scope.
+Sonnet 5, Claude Sonnet 4.6, Claude Haiku 4.5. Earlier Claude generations are out of scope.
 
 ## Rule R-CL-1 — XML structuring for complex prompts
 
@@ -148,6 +151,45 @@ only for cost-sensitive scoped tasks. On Opus 4.8 the effort default is
 
 This is configured at the runtime layer (Copilot integration), not in
 the agent body — listed here for awareness.
+
+## Rule R-CL-10 — Claude Sonnet 5 migration deltas
+
+> Source: [prompting-claude-sonnet-5](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-sonnet-5).
+> Applies to the `claude-sonnet` family once an agent's `model:` reads
+> `Claude Sonnet 5` (the repo's Sonnet 4.6 cohort migrated 2026-06).
+
+**Reviewer hints** (not auto-validated — manual checklist items):
+
+- **Adaptive thinking is ON by default** (a change from 4.6, where
+  non-thinking requests ran without thinking). Manual extended thinking
+  (`thinking: { type: "enabled", budget_tokens: N }`) is removed and
+  returns a 400 error — use the `effort` parameter instead.
+- **`effort` still defaults to `high`**, same as 4.6. Raise to `xhigh`
+  only for the hardest coding/agentic tasks; this repo's CodeGen agents
+  (06b/06t) keep `high` — AVM generation is structured execution, not
+  deep reasoning, so `xhigh` buys no measurable lift.
+- **New tokenizer produces ~30% more tokens** for the same text vs.
+  4.6. Re-check `max_tokens` headroom and any per-turn context budgets
+  tuned against 4.6 (see
+  [context-management/references/token-estimation.md](../../context-management/references/token-estimation.md)).
+- **More literal instruction following**: Sonnet 5 does not silently
+  generalize an instruction from one item to another. State scope
+  explicitly ("apply to every section, not just the first") rather than
+  relying on implied breadth.
+- **More agentic / readier tool use**: scaffolding that forces
+  intermediate status updates or nudges tool calls (e.g. "after every 3
+  tool calls, summarize progress") is usually unnecessary — Sonnet 5
+  produces these on its own and over-specifying can conflict with its
+  default behavior.
+- **Code-review / validation harnesses**: conservative framing
+  ("only report high-severity", "be conservative", "don't nitpick") is
+  followed more strictly than on 4.6 and can silently suppress findings.
+  Prompts for the validate/whatif/plan subagents should ask for
+  full-coverage findings (report every issue with a confidence +
+  severity tag) rather than asking the model to self-filter in a single
+  pass.
+- Sampling params (`temperature`/`top_p`/`top_k`) remain unsupported —
+  unchanged from 4.6.
 
 ## Anti-patterns flagged by the repo
 

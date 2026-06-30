@@ -193,13 +193,13 @@ subagents that match their own tier or below:
 
 | Step agent (tier)               | Subagents it dispatches via `#runSubagent`                        |
 | ------------------------------- | ----------------------------------------------------------------- |
-| 02-Requirements (Sonnet 4.6)    | challenger-review-subagent (GPT-5.5 — within ceiling)             |
+| 02-Requirements (Sonnet 5)      | challenger-review-subagent (GPT-5.5 — within ceiling)             |
 | 03-Architect (Opus)             | cost-estimate-subagent (codex), challenger-review-subagent        |
 | 05-IaC Planner (Opus)           | challenger-review-subagent                                        |
-| 06b-Bicep CodeGen (GPT-5.5)     | bicep-validate-subagent, bicep-whatif-subagent (Sonnet 4.6)       |
-| 06t-Terraform CodeGen (GPT-5.5) | terraform-validate-subagent, terraform-plan-subagent (Sonnet 4.6) |
-| 07b-Bicep Deploy (GPT-5.5)      | bicep-whatif-subagent (Sonnet 4.6)                                |
-| 07t-Terraform Deploy (GPT-5.5)  | terraform-plan-subagent (Sonnet 4.6)                              |
+| 06b-Bicep CodeGen (GPT-5.5)     | bicep-validate-subagent, bicep-whatif-subagent (Sonnet 5)         |
+| 06t-Terraform CodeGen (GPT-5.5) | terraform-validate-subagent, terraform-plan-subagent (Sonnet 5)   |
+| 07b-Bicep Deploy (GPT-5.5)      | bicep-whatif-subagent (Sonnet 5)                                  |
+| 07t-Terraform Deploy (GPT-5.5)  | terraform-plan-subagent (Sonnet 5)                                |
 | 04g-Governance (GPT-5.5)        | challenger-review-subagent                                        |
 
 **NEVER call `#runSubagent` from within an agent for a target that needs

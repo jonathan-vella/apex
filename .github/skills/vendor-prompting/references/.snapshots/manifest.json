@@ -9,11 +9,20 @@
     "fetch_method": "raw"
   },
   {
+    "source_id": "anthropic-prompting-claude-sonnet-5",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-sonnet-5",
+    "ref": null,
+    "sha256": "87f4ff8e5a530d8d3282044247cb8ddae857f1c89ee0735751109af2a22fda10",
+    "fetched_at": "2026-06-30T20:01:04.090Z",
+    "bytes": 737066,
+    "fetch_method": "raw"
+  },
+  {
     "source_id": "openai-prompting-guide",
     "url": "https://github.com/openai/skills/blob/724cd511c96593f642bddf13187217aa155d2554/skills/.curated/openai-docs/references/prompting-guide.md",
     "ref": "724cd511c96593f642bddf13187217aa155d2554",
     "sha256": "ecdf49b4a824a87367c7a6ec3c0218e2c5783dff951b30a101c3b6a95152aafa",
-    "fetched_at": "2026-05-04T17:27:35.965Z",
+    "fetched_at": "2026-05-04T00:00:00.000Z",
     "bytes": 14338,
     "fetch_method": "gh-api"
   },
@@ -22,7 +31,7 @@
     "url": "https://github.com/openai/skills/blob/724cd511c96593f642bddf13187217aa155d2554/skills/.curated/openai-docs/references/upgrade-guide.md",
     "ref": "724cd511c96593f642bddf13187217aa155d2554",
     "sha256": "563784eb13ad1b44c3a592f940aa7ac2086ebeb97df3f4a09ba038b2f1564d39",
-    "fetched_at": "2026-05-04T17:27:36.341Z",
+    "fetched_at": "2026-05-04T00:00:00.000Z",
     "bytes": 11308,
     "fetch_method": "gh-api"
   }

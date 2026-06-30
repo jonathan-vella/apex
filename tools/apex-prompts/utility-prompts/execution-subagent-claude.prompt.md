@@ -1,7 +1,7 @@
 ---
 description: "Claude-flavored variant of the execution-subagent invocation prompt contract. Wraps the three required slots in XML tags per claude-best-practices R-CL-1. Use this when invoking a Claude-family subagent. Reference: issue #425, Wave 3a follow-up."
 agent: agent
-model: "Claude Sonnet 4.6"
+model: "Claude Sonnet 5"
 tools: [read, edit, search]
 ---
 

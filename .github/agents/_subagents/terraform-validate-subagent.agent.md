@@ -1,11 +1,11 @@
 ---
 name: terraform-validate-subagent
 description: "Terraform validation subagent. Runs lint (fmt -check, validate) first, then code review (AVM-TF standards, naming, security baseline, RBAC, governance). Returns PASS/FAIL + APPROVED/NEEDS_REVISION/FAILED verdict."
-model: ["Claude Sonnet 4.6"]
+model: ["Claude Sonnet 5"]
 user-invocable: false
 disable-model-invocation: false
 agents: []
-# Model rationale: Sonnet 4.6 with Anthropic prompting style (XML-tagged role,
+# Model rationale: Sonnet 5 with Anthropic prompting style (XML-tagged role,
 # scope, output_contract, investigate_before_answering blocks; checklist-driven
 # structured findings). Effort calibrated to medium for structured I/O — raise
 # to high only when reviewing >10 simultaneous resources.
@@ -151,7 +151,8 @@ Before composing findings:
 
 ## Effort calibration
 
-Pin reasoning effort to `medium`. Sonnet 4.6 defaults to `high`; this
+Pin reasoning effort to `medium`. Sonnet 5 defaults to `high` (adaptive
+thinking on by default); this
 work is structured I/O over a finite checklist, so `medium` matches the
 load. Raise to `high` only when the parent agent passes more than ten
 resources at once or notes a module containing more than three

@@ -23,7 +23,7 @@ Family status determines per-rule severity overrides.
 | Family          | v1 status     | Rule subset                                        | Examples            |
 | --------------- | ------------- | -------------------------------------------------- | ------------------- |
 | `claude-opus`   | enforced      | All Claude rules at default severity               | `Claude Opus 4.8`   |
-| `claude-sonnet` | enforced      | All Claude rules at default severity               | `Claude Sonnet 4.6` |
+| `claude-sonnet` | enforced      | All Claude rules at default severity               | `Claude Sonnet 5`   |
 | `claude-haiku`  | warn-only     | XML structuring + few-shot rules; rest downgraded  | `Claude Haiku 4.5`  |
 | `claude`        | warn-only     | Generic Claude — flag at warn for explicit version | `Claude`            |
 | `gpt-5.5`       | enforced      | All GPT-5.5 rules at default severity              | `GPT-5.5`           |

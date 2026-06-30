@@ -12,7 +12,7 @@ tool call and switch every further read to the `minimal` tier.
 | `gpt-5.5`           | 400K          | **≥300K input**    | Swap full plan + governance artifacts for `apex-recall show <project> --json` summaries; pin further skill reads to `SKILL.md`. |
 | `gpt-5.3-codex`     | 400K          | ≥300K input        | Same protocol.                                                                                                                  |
 | `claude-opus-4.7`   | 200K          | ≥160K input        | Same protocol; prefer `references/` lookups over re-reading source artifacts.                                                   |
-| `claude-sonnet-4.6` | 200K          | ≥150K input        | Same protocol.                                                                                                                  |
+| `claude-sonnet-5`   | 200K          | ≥150K input        | Same protocol. New tokenizer yields ~30% more tokens per same text vs. 4.6 — checkpoint may trigger earlier in practice.        |
 
 ## Checkpoint Procedure
 

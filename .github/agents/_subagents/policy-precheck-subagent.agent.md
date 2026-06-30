@@ -1,11 +1,11 @@
 ---
 name: policy-precheck-subagent
 description: "Live Azure Policy precheck subagent (L3). Cross-checks live policy state vs governance constraints, runs what-if/plan validation, returns deterministic deploy_gate (PROCEED|BLOCK) + status (CLEAN|INFORMATIONAL|BLOCKED|FAILED) for Deploy agents (07b/07t)."
-model: ["Claude Sonnet 4.6"]
+model: ["Claude Sonnet 5"]
 user-invocable: false
 disable-model-invocation: false
 agents: []
-# Model rationale: Sonnet 4.6 with Anthropic prompting style (XML-tagged role,
+# Model rationale: Sonnet 5 with Anthropic prompting style (XML-tagged role,
 # scope, output_contract, investigate_before_answering blocks; checklist-driven
 # structured findings). Effort calibrated to medium for structured I/O —
 # matches the other isolated validate/whatif/plan subagents.
@@ -166,7 +166,8 @@ block deploy` entry — paraphrasing is a defect.
 
 ## Effort calibration
 
-Pin reasoning effort to `medium`. Sonnet 4.6 defaults to `high`; this
+Pin reasoning effort to `medium`. Sonnet 5 defaults to `high` (adaptive
+thinking on by default); this
 work is structured I/O over a finite checklist. Raise to `high` only
 when the parent deploy agent flags a deployment with >50 resource
 changes or a destructive replace (`-/+`).

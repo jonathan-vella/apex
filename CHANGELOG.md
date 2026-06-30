@@ -18,6 +18,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 See the [published changelog](https://apexops.pro/project/changelog/)
 for full details on this and all prior releases.
 
+### Changed (Model migration — Claude Sonnet 4.6 → Claude Sonnet 5)
+
+- chore(agents): migrated all 11 agents/subagents in the Sonnet cohort
+  from `Claude Sonnet 4.6` to `Claude Sonnet 5` (API model id
+  `claude-sonnet-5`) — `02-Requirements`, `04-Design`,
+  `06b-Bicep CodeGen`, `06t-Terraform CodeGen`, `08-As-Built`,
+  `11-Context Optimizer`, and the five IaC validate/whatif/plan/precheck
+  subagents (`bicep-validate-subagent`, `bicep-whatif-subagent`,
+  `terraform-validate-subagent`, `terraform-plan-subagent`,
+  `policy-precheck-subagent`). `Claude Sonnet 4.6` is now
+  `deprecated: true` in `model-catalog.json`, retained for audit
+  history only. CodeGen agents stay pinned to `effort: high` (no
+  `xhigh` escalation — AVM generation is structured execution, not
+  deep reasoning).
+- docs(vendor-prompting): `claude-best-practices.md` gains rule
+  R-CL-10 covering Sonnet 5 migration deltas (adaptive thinking on by
+  default, manual extended thinking removed, new tokenizer ~30% more
+  tokens, more literal instruction following, review-harness coverage
+  guidance), citing the new
+  [prompting-claude-sonnet-5](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-sonnet-5)
+  source. `rules.json`, `family-support.md`, and `SKILL.md` source
+  citations updated; `fetch-vendor-prompting-guides.mjs` now tracks the
+  new source for drift detection.
+- docs: updated all cross-references in
+  `agent-authoring.instructions.md`, `agent-operating-frame.instructions.md`,
+  `context-optimization.instructions.md`, `context-management` skill
+  token budgets, `workflow-engine` handoff guide, `docs-writer`
+  repo-architecture reference, the docs site (`agents.md`,
+  `architecture-explorer-graph.json`), and `tools/registry/agent-registry.json`.
+
 ### Removed (tools/scripts dead-code cleanup)
 
 - chore(scripts): delete orphaned/one-time scripts with no npm, hook, or

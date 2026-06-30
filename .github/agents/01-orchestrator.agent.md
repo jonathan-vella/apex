@@ -199,7 +199,7 @@ higher-tier model, the subagent silently falls back to the parent's tier.
 [Reference](https://code.visualstudio.com/docs/copilot/agents/subagents).
 
 This orchestrator runs at **standard** tier (MAI-Code-1-Flash). The step agents and
-the challenger run at **medium** (GPT-5.5 / Sonnet 4.6) or **high** (Claude Opus 4.8)
+the challenger run at **medium** (GPT-5.5 / Sonnet 5) or **high** (Claude Opus 4.8)
 tiers. Calling them via `#runSubagent` would silently downgrade them to
 standard tier and produce wrong-tier output for architecture, planning, and
 documentation work.
@@ -541,7 +541,7 @@ Orchestrator with the project name — no special resume prompt needed.
 | Tier       | Model             | Used For                                                                                          |
 | ---------- | ----------------- | ------------------------------------------------------------------------------------------------- |
 | `high`     | Claude Opus 4.8   | Architecture, Planning, Context Optimizer                                                         |
-| `medium`   | Claude Sonnet 4.6 | **Requirements**, Design, Bicep/Terraform CodeGen, Bicep/Terraform validate + preview subagents   |
+| `medium`   | Claude Sonnet 5   | **Requirements**, Design, Bicep/Terraform CodeGen, Bicep/Terraform validate + preview subagents   |
 | `medium`   | GPT-5.5           | Governance, Deploy, As-Built, Diagnose, Challenger, E2E orchestrator                              |
 | `standard` | MAI-Code-1-Flash  | **Orchestrator** (handoff-only routing)                                                           |
 | `codex`    | GPT-5.3-Codex     | Cost estimate subagent                                                                            |

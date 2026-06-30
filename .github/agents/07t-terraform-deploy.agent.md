@@ -130,7 +130,7 @@ Context tiers: follow context-management skill (Mode A: Runtime Compression).
 Shared agent rules: see
 [`agent-operating-frame.instructions.md`](../instructions/agent-operating-frame.instructions.md).
 Subagent budget: this agent runs on `GPT-5.5`; `terraform-plan-subagent`
-runs on `Claude Sonnet 4.6` (cross-family call after the 2026-05 IaC
+runs on `Claude Sonnet 5` (cross-family call after the 2026-05 IaC
 subagent migration). The JSON-shaped plan-result contract is preserved
 verbatim — no parsing changes required here.
 

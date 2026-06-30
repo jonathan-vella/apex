@@ -125,6 +125,11 @@ Every rule in [rules.json](rules.json) cites the upstream source by
 - **Anthropic Claude prompting best practices** — live web doc at
   [platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices).
   Refresh via `npm run audit:vendor-prompting`.
+- **Anthropic Claude Sonnet 5 prompting guide** — live web doc at
+  [platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-sonnet-5](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-sonnet-5).
+  Sonnet-5-specific deltas from Sonnet 4.6 (adaptive thinking default,
+  effort/`xhigh`, new tokenizer, literal instruction following, review
+  harness coverage). Refresh via `npm run audit:vendor-prompting`.
 - **OpenAI GPT-5.5 prompting guide** — pinned to
   `openai/skills@724cd511c96593f642bddf13187217aa155d2554`,
   `prompting-guide.md`, sha256

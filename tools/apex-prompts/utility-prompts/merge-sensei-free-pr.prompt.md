@@ -1,7 +1,7 @@
 ---
 description: "Open a sensei-free PR from feat/skills-sensei (or any sensei-bearing branch) into main. Dynamically discovers sensei-coupled files, classifies them into tiers, asks for approval, then creates a clean chore/merge-{source}-to-{target} branch and PR."
 agent: agent
-model: "Claude Sonnet 4.6"
+model: "Claude Sonnet 5"
 tools: [vscode, execute, read, edit, search, terminal, todo]
 argument-hint: "[source-branch] [target-branch] — defaults: feat/skills-sensei to main"
 ---

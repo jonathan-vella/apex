@@ -87,7 +87,7 @@ pre-commit hook — do not invoke `lint:artifact-templates` /
   `## Operating frame` section. The budget lists subagents the agent
   is allowed to invoke and the role each plays (lint, validate,
   challenger review, cost estimate, etc.).
-- Cross-family model calls (e.g., GPT-5.5 → Claude Sonnet 4.6
+- Cross-family model calls (e.g., GPT-5.5 → Claude Sonnet 5
   `bicep-whatif-subagent`) preserve JSON-shaped contracts verbatim;
   no parsing changes are required at the parent agent.
 - The canonical model mix is tracked in repo memory

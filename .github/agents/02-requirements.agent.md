@@ -1,6 +1,6 @@
 ---
 name: 02-Requirements
-model: ["Claude Sonnet 4.6"]
+model: ["Claude Sonnet 5"]
 description: Researches and captures Azure platform engineering project requirements
 argument-hint: Describe the Azure workload or project you want to gather requirements for
 user-invocable: true

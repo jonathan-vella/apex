@@ -129,7 +129,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/02-requirements.agent.md"
       },
       "meta": {
-        "model": "Claude Sonnet 4.6",
+        "model": "Claude Sonnet 5",
         "invocable": true,
         "subagents": [
           "challenger-review-subagent"
@@ -186,7 +186,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/04-design.agent.md"
       },
       "meta": {
-        "model": "Claude Sonnet 4.6",
+        "model": "Claude Sonnet 5",
         "invocable": true,
         "subagents": [
           "challenger-review-subagent"
@@ -277,7 +277,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/06b-bicep-codegen.agent.md"
       },
       "meta": {
-        "model": "Claude Sonnet 4.6",
+        "model": "Claude Sonnet 5",
         "invocable": true,
         "subagents": [
           "bicep-validate-subagent",
@@ -307,7 +307,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/06t-terraform-codegen.agent.md"
       },
       "meta": {
-        "model": "Claude Sonnet 4.6",
+        "model": "Claude Sonnet 5",
         "invocable": true,
         "subagents": [
           "terraform-validate-subagent",
@@ -401,7 +401,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/08-as-built.agent.md"
       },
       "meta": {
-        "model": "Claude Sonnet 4.6",
+        "model": "Claude Sonnet 5",
         "invocable": true,
         "subagents": [
           "cost-estimate-subagent"
@@ -475,7 +475,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/11-context-optimizer.agent.md"
       },
       "meta": {
-        "model": "Claude Sonnet 4.6",
+        "model": "Claude Sonnet 5",
         "invocable": true,
         "subagents": [],
         "handoffTargets": [
@@ -533,7 +533,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/_subagents/bicep-validate-subagent.agent.md"
       },
       "meta": {
-        "model": "Claude Sonnet 4.6",
+        "model": "Claude Sonnet 5",
         "skills": [
           "azure-defaults",
           "iac-common"
@@ -550,7 +550,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/_subagents/bicep-whatif-subagent.agent.md"
       },
       "meta": {
-        "model": "Claude Sonnet 4.6",
+        "model": "Claude Sonnet 5",
         "skills": []
       }
     },
@@ -597,7 +597,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/_subagents/policy-precheck-subagent.agent.md"
       },
       "meta": {
-        "model": "Claude Sonnet 4.6",
+        "model": "Claude Sonnet 5",
         "skills": []
       }
     },
@@ -611,7 +611,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/_subagents/terraform-plan-subagent.agent.md"
       },
       "meta": {
-        "model": "Claude Sonnet 4.6",
+        "model": "Claude Sonnet 5",
         "skills": []
       }
     },
@@ -625,7 +625,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/_subagents/terraform-validate-subagent.agent.md"
       },
       "meta": {
-        "model": "Claude Sonnet 4.6",
+        "model": "Claude Sonnet 5",
         "skills": [
           "azure-defaults",
           "iac-common"

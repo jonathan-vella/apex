@@ -1,11 +1,11 @@
 ---
 name: terraform-plan-subagent
 description: Terraform deployment preview subagent. Runs terraform plan to preview changes before deployment. Classifies resources into create/update/destroy/replace, highlights destructive ops, returns structured change summary.
-model: ["Claude Sonnet 4.6"]
+model: ["Claude Sonnet 5"]
 user-invocable: false
 disable-model-invocation: false
 agents: []
-# Model rationale: Sonnet 4.6 with Anthropic prompting style (XML-tagged role,
+# Model rationale: Sonnet 5 with Anthropic prompting style (XML-tagged role,
 # scope, output_contract, investigate_before_answering blocks; checklist-driven
 # structured findings). Effort calibrated to medium for structured I/O — raise
 # to high only when previewing plans with destroy/replace operations.
@@ -130,7 +130,8 @@ Before composing the response:
 
 ## Effort calibration
 
-Pin reasoning effort to `medium`. Sonnet 4.6 defaults to `high`;
+Pin reasoning effort to `medium`. Sonnet 5 defaults to `high` (adaptive
+thinking on by default);
 plan-output classification is structured I/O over a JSON payload, so
 `medium` matches the load. Raise to `high` only when the plan contains
 destroy or replace operations, since those require careful per-resource

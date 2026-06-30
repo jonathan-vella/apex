@@ -97,7 +97,7 @@ Per-turn budget: ~169,625 / 20 turns = ~8,481 tokens/turn average
 ```
 
 Adjust per model. The 200,000-token figure above is the VS Code Copilot Chat
-per-turn budget for the Claude family (Opus 4.7, Sonnet 4.6, Haiku 4.5). The
+per-turn budget for the Claude family (Opus 4.7, Sonnet 5, Haiku 4.5). The
 GPT-5 family (GPT-5.5, GPT-5.3-Codex) has a 400,000-token per-turn
 budget in VS Code Copilot Chat, so the available conversation pool roughly
 doubles. See

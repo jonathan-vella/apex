@@ -23,6 +23,14 @@
       "last_fetched": "2026-05-04T17:27:36.341Z",
       "sha256": "563784eb13ad1b44c3a592f940aa7ac2086ebeb97df3f4a09ba038b2f1564d39",
       "url": "https://github.com/openai/skills/blob/724cd511c96593f642bddf13187217aa155d2554/skills/.curated/openai-docs/references/upgrade-guide.md"
+    },
+    {
+      "source_id": "anthropic-prompting-claude-sonnet-5",
+      "owner": "vendor-prompting",
+      "max_age_days": 90,
+      "last_fetched": "2026-06-30T20:01:04.090Z",
+      "sha256": "87f4ff8e5a530d8d3282044247cb8ddae857f1c89ee0735751109af2a22fda10",
+      "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-sonnet-5"
     }
   ]
 }

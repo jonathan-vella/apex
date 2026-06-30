@@ -1,7 +1,7 @@
 ---
 name: 06b-Bicep CodeGen
 description: Expert Azure Bicep IaC specialist that creates near-production-ready Bicep templates following Azure Verified Modules (AVM) standards. Validates, tests, and ensures code quality.
-model: ["Claude Sonnet 4.6"]
+model: ["Claude Sonnet 5"]
 user-invocable: true
 agents: ["bicep-validate-subagent", "challenger-review-subagent"]
 tools:
@@ -12,7 +12,7 @@ tools:
     agent,
     browser,
     edit,
-    search,
+    azure-mcp/search,
     web,
     web/fetch,
     web/githubRepo,

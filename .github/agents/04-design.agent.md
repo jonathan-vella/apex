@@ -1,6 +1,6 @@
 ---
 name: 04-Design
-model: ["Claude Sonnet 4.6"]
+model: ["Claude Sonnet 5"]
 description: "Step 3 — Design Artifacts. Generates architecture diagrams (Draw.io or Python) and Architecture Decision Records (azure-adr skill) for Azure infrastructure. Optional step — users can skip to Implementation Planning."
 user-invocable: true
 agents: ["challenger-review-subagent"]
@@ -126,8 +126,9 @@ Do not load either skill before `decisions.diagram_tool` is known.
 
 ## Effort and tool-use calibration
 
-This agent runs on Claude Sonnet 4.6, which defaults to `effort: high`. Tune
-that default for the work this agent does:
+This agent runs on Claude Sonnet 5, which defaults to `effort: high` and runs
+with adaptive thinking on by default. Tune that default for the work this
+agent does:
 
 - Use **medium** effort for typical diagram + ADR work. The work is
   structured rather than exploratory; high effort produces no measurable

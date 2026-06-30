@@ -10,7 +10,7 @@
     },
     "requirements": {
       "agent": ".github/agents/02-requirements.agent.md",
-      "model": "Claude Sonnet 4.6",
+      "model": "Claude Sonnet 5",
       "invokable": true,
       "step": 1
     },
@@ -22,7 +22,7 @@
     },
     "design": {
       "agent": ".github/agents/04-design.agent.md",
-      "model": "Claude Sonnet 4.6",
+      "model": "Claude Sonnet 5",
       "invokable": true,
       "step": 3
     },
@@ -41,11 +41,11 @@
     "iac-code": {
       "bicep": {
         "agent": ".github/agents/06b-bicep-codegen.agent.md",
-        "model": "Claude Sonnet 4.6"
+        "model": "Claude Sonnet 5"
       },
       "terraform": {
         "agent": ".github/agents/06t-terraform-codegen.agent.md",
-        "model": "Claude Sonnet 4.6"
+        "model": "Claude Sonnet 5"
       },
       "invokable": true,
       "step": 5
@@ -64,7 +64,7 @@
     },
     "as-built": {
       "agent": ".github/agents/08-as-built.agent.md",
-      "model": "Claude Sonnet 4.6",
+      "model": "Claude Sonnet 5",
       "invokable": true,
       "step": 7
     },
@@ -82,7 +82,7 @@
     },
     "context-optimizer": {
       "agent": ".github/agents/11-context-optimizer.agent.md",
-      "model": "Claude Sonnet 4.6",
+      "model": "Claude Sonnet 5",
       "invokable": true,
       "step": null
     },
@@ -106,27 +106,27 @@
     },
     "bicep-validate-subagent": {
       "agent": ".github/agents/_subagents/bicep-validate-subagent.agent.md",
-      "model": "Claude Sonnet 4.6",
+      "model": "Claude Sonnet 5",
       "invokable": false
     },
     "bicep-whatif-subagent": {
       "agent": ".github/agents/_subagents/bicep-whatif-subagent.agent.md",
-      "model": "Claude Sonnet 4.6",
+      "model": "Claude Sonnet 5",
       "invokable": false
     },
     "terraform-validate-subagent": {
       "agent": ".github/agents/_subagents/terraform-validate-subagent.agent.md",
-      "model": "Claude Sonnet 4.6",
+      "model": "Claude Sonnet 5",
       "invokable": false
     },
     "terraform-plan-subagent": {
       "agent": ".github/agents/_subagents/terraform-plan-subagent.agent.md",
-      "model": "Claude Sonnet 4.6",
+      "model": "Claude Sonnet 5",
       "invokable": false
     },
     "policy-precheck-subagent": {
       "agent": ".github/agents/_subagents/policy-precheck-subagent.agent.md",
-      "model": "Claude Sonnet 4.6",
+      "model": "Claude Sonnet 5",
       "invokable": false
     }
   },
