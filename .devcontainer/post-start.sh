@@ -16,21 +16,23 @@ fi
 
 # ─── Terraform MCP Server ────────────────────────────────────────────────────
 # Uses clone+build: go install rejects modules with replace directives in go.mod.
-if command -v terraform-mcp-server &>/dev/null || [ -x /go/bin/terraform-mcp-server ]; then
-    printf "    terraform-mcp-server  ✅ already installed — skipping\n"
-elif command -v go &>/dev/null; then
+# No version pin/tag — tracks upstream main. Rebuilds every start so the binary
+# stays current; only skips when Go is unavailable to rebuild.
+if command -v go &>/dev/null; then
     printf "    terraform-mcp-server  "
     TF_MCP_TMP=$(mktemp -d)
     if git clone --depth=1 --quiet https://github.com/hashicorp/terraform-mcp-server.git "$TF_MCP_TMP" 2>/dev/null; then
         pushd "$TF_MCP_TMP" > /dev/null
         go build -o /go/bin/terraform-mcp-server ./cmd/terraform-mcp-server/ 2>/dev/null \
-            && printf "✅ installed\n" \
-            || printf "⚠️  build failed (continuing)\n"
+            && printf "✅ rebuilt (latest)\n" \
+            || printf "⚠️  build failed — keeping existing binary, if any (continuing)\n"
         popd > /dev/null
     else
-        printf "⚠️  git clone failed (continuing)\n"
+        printf "⚠️  git clone failed — keeping existing binary, if any (continuing)\n"
     fi
     rm -rf "$TF_MCP_TMP"
+elif command -v terraform-mcp-server &>/dev/null || [ -x /go/bin/terraform-mcp-server ]; then
+    printf "    terraform-mcp-server  ✅ already installed (Go not found — cannot refresh)\n"
 else
     printf "    terraform-mcp-server  ⚠️  Go not found — skipping\n"
 fi
