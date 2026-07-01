@@ -26,7 +26,7 @@ classifiers = [
 ]
 dependencies = [
     "mcp>=1.27.0",
-    "aiohttp>=3.11.0",
+    "aiohttp>=3.14.1",
     "pydantic>=2.13.4",
     "cachetools>=7.1.4",
 ]
