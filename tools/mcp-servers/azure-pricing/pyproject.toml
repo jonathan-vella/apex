@@ -42,7 +42,7 @@ admin = [
     "azure-mgmt-network>=30.2.0",
     "azure-mgmt-resource>=25.0.0",
     "azure-mgmt-subscription>=3.1.1",
-    "azure-mgmt-web>=8.0.0",
+    "azure-mgmt-web>=11.0.0",
     "azure-mgmt-resourcegraph>=8.0.1",
     "azure-mgmt-costmanagement>=4.0.1",
 ]
