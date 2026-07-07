@@ -157,23 +157,23 @@
     "format:bicep": "bash tools/scripts/format-bicep-tree.sh"
   },
   "devDependencies": {
-    "@commitlint/cli": "^21.0.1",
+    "@commitlint/cli": "^21.2.0",
     "@commitlint/config-conventional": "^21.0.1",
     "@eslint/js": "^10.0.1",
     "ajv": "^8.20.0",
     "ajv-formats": "^3.0.1",
-    "eslint": "^10.5.0",
+    "eslint": "^10.6.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-formatter-compact": "^9.0.1",
-    "eslint-plugin-n": "^18.1.0",
+    "eslint-plugin-n": "^18.2.1",
     "fast-xml-parser": "^5.9.3",
-    "js-yaml": "^5.1.0",
+    "js-yaml": "^5.2.1",
     "jsdom": "^29.1.1",
     "lefthook": "^2.1.8",
     "markdown-link-check": "^3.14.2",
-    "markdownlint-cli2": "^0.22.1",
+    "markdownlint-cli2": "^0.23.0",
     "npm-run-all2": "^9.0.2",
-    "prettier": "^3.8.4"
+    "prettier": "^3.9.4"
   },
   "repository": {
     "type": "git",
