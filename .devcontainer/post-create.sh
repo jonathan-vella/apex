@@ -90,7 +90,8 @@ if [ "$ARCH" = "amd64" ]; then
         step_warn "k6 deb install failed"
     fi
 elif [ "$ARCH" = "arm64" ]; then
-    K6_VER=$(curl -fsSL https://api.github.com/repos/grafana/k6/releases/latest | grep tag_name | head -1 | tr -dc 'v0-9.')
+    K6_VER=$(curl -fsSLI --max-time 15 -o /dev/null -w '%{url_effective}' \
+        https://github.com/grafana/k6/releases/latest | sed 's#.*/##')
     if [ -n "$K6_VER" ]; then
         curl -fsSL "https://github.com/grafana/k6/releases/download/${K6_VER}/k6-${K6_VER}-linux-arm64.tar.gz" \
             | sudo tar -xz --strip-components=1 -C /usr/local/bin/ 2>/dev/null \
