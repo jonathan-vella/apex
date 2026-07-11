@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-06-09T11:36:16.427Z",
+  "generatedAt": "2026-07-11T09:00:58.318Z",
   "categories": [
     {
       "id": "agent",
@@ -48,7 +48,7 @@
       "label": "Validator",
       "color": "#8b5cf6",
       "shape": "hexagon",
-      "count": 55
+      "count": 57
     },
     {
       "id": "workflow",
@@ -56,7 +56,7 @@
       "label": "CI Workflow",
       "color": "#06b6d4",
       "shape": "cut-rectangle",
-      "count": 11
+      "count": 13
     },
     {
       "id": "mcp",
@@ -64,11 +64,11 @@
       "label": "MCP Server",
       "color": "#f43f5e",
       "shape": "barrel",
-      "count": 6
+      "count": 5
     }
   ],
-  "nodeCount": 158,
-  "edgeCount": 676,
+  "nodeCount": 161,
+  "edgeCount": 665,
   "nodes": [
     {
       "id": "agent:01-orchestrator",
@@ -1986,6 +1986,19 @@
       }
     },
     {
+      "id": "validator:test-devcontainer-verdicts",
+      "category": "validator",
+      "label": "test:devcontainer-verdicts",
+      "description": "node --test tools/tests/compare-devcontainer-verdicts.test.mjs",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
+      },
+      "meta": {
+        "command": "node --test tools/tests/compare-devcontainer-verdicts.test.mjs"
+      }
+    },
+    {
       "id": "validator:lint-safe-shell",
       "category": "validator",
       "label": "lint:safe-shell",
@@ -2036,10 +2049,8 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
       },
       "meta": {
-        "command": "cd tools/mcp-servers/azure-pricing && python3 -m ruff check src/ tests/ && python3 -m ruff format --check src/ tests/ && cd ../../../tools/apex-recall && python3 -m ruff check src/",
-        "orphan": true
-      },
-      "parent": "group:validator-orphans"
+        "command": "cd tools/mcp-servers/azure-pricing && python3 -m ruff check src/ tests/ && python3 -m ruff format --check src/ tests/ && cd ../../../tools/apex-recall && python3 -m ruff check src/"
+      }
     },
     {
       "id": "validator:lint-terraform-fmt",
@@ -2051,10 +2062,21 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
       },
       "meta": {
-        "command": "terraform fmt -check -recursive infra/terraform/",
-        "orphan": true
+        "command": "terraform fmt -check -recursive infra/terraform/"
+      }
+    },
+    {
+      "id": "validator:lint-bicep-fmt",
+      "category": "validator",
+      "label": "lint:bicep-fmt",
+      "description": "bash tools/scripts/check-bicep-fmt.sh",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
       },
-      "parent": "group:validator-orphans"
+      "meta": {
+        "command": "bash tools/scripts/check-bicep-fmt.sh"
+      }
     },
     {
       "id": "validator:validate-terraform",
@@ -2066,10 +2088,8 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
       },
       "meta": {
-        "command": "for dir in infra/terraform/*/; do [ -f \"$dir/main.tf\" ] && (cd \"$dir\" && terraform init -backend=false -input=false > /dev/null 2>&1 && terraform validate) || true; done",
-        "orphan": true
-      },
-      "parent": "group:validator-orphans"
+        "command": "for dir in infra/terraform/*/; do [ -f \"$dir/main.tf\" ] && (cd \"$dir\" && terraform init -backend=false -input=false > /dev/null 2>&1 && terraform validate) || true; done"
+      }
     },
     {
       "id": "validator:test-apex-recall",
@@ -2205,6 +2225,17 @@
       "parent": "group:workflow-orphans"
     },
     {
+      "id": "workflow:iac-checks",
+      "category": "workflow",
+      "label": "iac-checks",
+      "description": "",
+      "path": ".github/workflows/iac-checks.yml",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/workflows/iac-checks.yml"
+      },
+      "meta": {}
+    },
+    {
       "id": "workflow:link-check",
       "category": "workflow",
       "label": "link-check",
@@ -2228,6 +2259,20 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/workflows/sensei-branch-maintenance.yml"
       },
       "meta": {}
+    },
+    {
+      "id": "workflow:validate-devcontainer-base",
+      "category": "workflow",
+      "label": "validate-devcontainer-base",
+      "description": "",
+      "path": ".github/workflows/validate-devcontainer-base.yml",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/workflows/validate-devcontainer-base.yml"
+      },
+      "meta": {
+        "orphan": true
+      },
+      "parent": "group:workflow-orphans"
     },
     {
       "id": "workflow:weekly-maintenance",
@@ -2307,36 +2352,23 @@
       }
     },
     {
-      "id": "mcp:azure-mcp",
-      "category": "mcp",
-      "label": "azure-mcp",
-      "description": "stdio: npx",
-      "path": ".vscode/mcp.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.vscode/mcp.json"
-      },
-      "meta": {
-        "type": "stdio"
-      }
-    },
-    {
       "id": "group:validator-orphans",
       "category": "validator",
-      "label": "Validator (unlinked, 6)",
-      "description": "6 validator nodes with no cross-references in the current graph.",
+      "label": "Validator (unlinked, 3)",
+      "description": "3 validator nodes with no cross-references in the current graph.",
       "isGroup": true,
       "meta": {
-        "groupSize": 6
+        "groupSize": 3
       }
     },
     {
       "id": "group:workflow-orphans",
       "category": "workflow",
-      "label": "CI Workflow (unlinked, 6)",
-      "description": "6 ci workflow nodes with no cross-references in the current graph.",
+      "label": "CI Workflow (unlinked, 7)",
+      "description": "7 ci workflow nodes with no cross-references in the current graph.",
       "isGroup": true,
       "meta": {
-        "groupSize": 6
+        "groupSize": 7
       }
     }
   ],
@@ -5570,6 +5602,12 @@
       "kind": "runs"
     },
     {
+      "id": "workflow:ci--runs->validator:test-devcontainer-verdicts",
+      "source": "workflow:ci",
+      "target": "validator:test-devcontainer-verdicts",
+      "kind": "runs"
+    },
+    {
       "id": "workflow:ci--runs->validator:validate-no-hardcoded-counts",
       "source": "workflow:ci",
       "target": "validator:validate-no-hardcoded-counts",
@@ -5630,6 +5668,12 @@
       "kind": "runs"
     },
     {
+      "id": "workflow:ci--runs->validator:lint-python",
+      "source": "workflow:ci",
+      "target": "validator:lint-python",
+      "kind": "runs"
+    },
+    {
       "id": "workflow:ci--runs->validator:test-apex-recall",
       "source": "workflow:ci",
       "target": "validator:test-apex-recall",
@@ -5645,6 +5689,24 @@
       "id": "workflow:docs-checks--runs->validator:lint-md",
       "source": "workflow:docs-checks",
       "target": "validator:lint-md",
+      "kind": "runs"
+    },
+    {
+      "id": "workflow:iac-checks--runs->validator:lint-terraform-fmt",
+      "source": "workflow:iac-checks",
+      "target": "validator:lint-terraform-fmt",
+      "kind": "runs"
+    },
+    {
+      "id": "workflow:iac-checks--runs->validator:validate-terraform",
+      "source": "workflow:iac-checks",
+      "target": "validator:validate-terraform",
+      "kind": "runs"
+    },
+    {
+      "id": "workflow:iac-checks--runs->validator:lint-bicep-fmt",
+      "source": "workflow:iac-checks",
+      "target": "validator:lint-bicep-fmt",
       "kind": "runs"
     },
     {
@@ -5708,12 +5770,6 @@
       "kind": "uses-mcp"
     },
     {
-      "id": "agent:02-requirements--uses-mcp->mcp:azure-mcp",
-      "source": "agent:02-requirements",
-      "target": "mcp:azure-mcp",
-      "kind": "uses-mcp"
-    },
-    {
       "id": "agent:03-architect--uses-mcp->mcp:github",
       "source": "agent:03-architect",
       "target": "mcp:github",
@@ -5729,12 +5785,6 @@
       "id": "agent:03-architect--uses-mcp->mcp:drawio",
       "source": "agent:03-architect",
       "target": "mcp:drawio",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:03-architect--uses-mcp->mcp:azure-mcp",
-      "source": "agent:03-architect",
-      "target": "mcp:azure-mcp",
       "kind": "uses-mcp"
     },
     {
@@ -5756,12 +5806,6 @@
       "kind": "uses-mcp"
     },
     {
-      "id": "agent:04g-governance--uses-mcp->mcp:azure-mcp",
-      "source": "agent:04g-governance",
-      "target": "mcp:azure-mcp",
-      "kind": "uses-mcp"
-    },
-    {
       "id": "agent:05-iac-planner--uses-mcp->mcp:github",
       "source": "agent:05-iac-planner",
       "target": "mcp:github",
@@ -5774,21 +5818,9 @@
       "kind": "uses-mcp"
     },
     {
-      "id": "agent:05-iac-planner--uses-mcp->mcp:azure-mcp",
-      "source": "agent:05-iac-planner",
-      "target": "mcp:azure-mcp",
-      "kind": "uses-mcp"
-    },
-    {
       "id": "agent:06b-bicep-codegen--uses-mcp->mcp:github",
       "source": "agent:06b-bicep-codegen",
       "target": "mcp:github",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:06b-bicep-codegen--uses-mcp->mcp:azure-mcp",
-      "source": "agent:06b-bicep-codegen",
-      "target": "mcp:azure-mcp",
       "kind": "uses-mcp"
     },
     {
@@ -5804,21 +5836,9 @@
       "kind": "uses-mcp"
     },
     {
-      "id": "agent:06t-terraform-codegen--uses-mcp->mcp:azure-mcp",
-      "source": "agent:06t-terraform-codegen",
-      "target": "mcp:azure-mcp",
-      "kind": "uses-mcp"
-    },
-    {
       "id": "agent:07b-bicep-deploy--uses-mcp->mcp:github",
       "source": "agent:07b-bicep-deploy",
       "target": "mcp:github",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:07b-bicep-deploy--uses-mcp->mcp:azure-mcp",
-      "source": "agent:07b-bicep-deploy",
-      "target": "mcp:azure-mcp",
       "kind": "uses-mcp"
     },
     {
@@ -5831,12 +5851,6 @@
       "id": "agent:07t-terraform-deploy--uses-mcp->mcp:terraform",
       "source": "agent:07t-terraform-deploy",
       "target": "mcp:terraform",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:07t-terraform-deploy--uses-mcp->mcp:azure-mcp",
-      "source": "agent:07t-terraform-deploy",
-      "target": "mcp:azure-mcp",
       "kind": "uses-mcp"
     },
     {
@@ -5858,21 +5872,9 @@
       "kind": "uses-mcp"
     },
     {
-      "id": "agent:08-as-built--uses-mcp->mcp:azure-mcp",
-      "source": "agent:08-as-built",
-      "target": "mcp:azure-mcp",
-      "kind": "uses-mcp"
-    },
-    {
       "id": "agent:09-diagnose--uses-mcp->mcp:github",
       "source": "agent:09-diagnose",
       "target": "mcp:github",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:09-diagnose--uses-mcp->mcp:azure-mcp",
-      "source": "agent:09-diagnose",
-      "target": "mcp:azure-mcp",
       "kind": "uses-mcp"
     },
     {
@@ -5918,27 +5920,9 @@
       "kind": "uses-mcp"
     },
     {
-      "id": "subagent:bicep-validate-subagent--uses-mcp->mcp:azure-mcp",
-      "source": "subagent:bicep-validate-subagent",
-      "target": "mcp:azure-mcp",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "subagent:bicep-whatif-subagent--uses-mcp->mcp:azure-mcp",
-      "source": "subagent:bicep-whatif-subagent",
-      "target": "mcp:azure-mcp",
-      "kind": "uses-mcp"
-    },
-    {
       "id": "subagent:challenger-review-subagent--uses-mcp->mcp:github",
       "source": "subagent:challenger-review-subagent",
       "target": "mcp:github",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "subagent:challenger-review-subagent--uses-mcp->mcp:azure-mcp",
-      "source": "subagent:challenger-review-subagent",
-      "target": "mcp:azure-mcp",
       "kind": "uses-mcp"
     },
     {
@@ -5954,12 +5938,6 @@
       "kind": "uses-mcp"
     },
     {
-      "id": "subagent:cost-estimate-subagent--uses-mcp->mcp:azure-mcp",
-      "source": "subagent:cost-estimate-subagent",
-      "target": "mcp:azure-mcp",
-      "kind": "uses-mcp"
-    },
-    {
       "id": "subagent:policy-precheck-subagent--uses-mcp->mcp:github",
       "source": "subagent:policy-precheck-subagent",
       "target": "mcp:github",
@@ -5972,21 +5950,9 @@
       "kind": "uses-mcp"
     },
     {
-      "id": "subagent:policy-precheck-subagent--uses-mcp->mcp:azure-mcp",
-      "source": "subagent:policy-precheck-subagent",
-      "target": "mcp:azure-mcp",
-      "kind": "uses-mcp"
-    },
-    {
       "id": "subagent:terraform-plan-subagent--uses-mcp->mcp:terraform",
       "source": "subagent:terraform-plan-subagent",
       "target": "mcp:terraform",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "subagent:terraform-plan-subagent--uses-mcp->mcp:azure-mcp",
-      "source": "subagent:terraform-plan-subagent",
-      "target": "mcp:azure-mcp",
       "kind": "uses-mcp"
     },
     {
@@ -5999,12 +5965,6 @@
       "id": "subagent:terraform-validate-subagent--uses-mcp->mcp:terraform",
       "source": "subagent:terraform-validate-subagent",
       "target": "mcp:terraform",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "subagent:terraform-validate-subagent--uses-mcp->mcp:azure-mcp",
-      "source": "subagent:terraform-validate-subagent",
-      "target": "mcp:azure-mcp",
       "kind": "uses-mcp"
     },
     {
@@ -6107,6 +6067,12 @@
       "id": "skill:azure-defaults--refs->skill:azure-artifacts",
       "source": "skill:azure-defaults",
       "target": "skill:azure-artifacts",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:azure-defaults--refs->skill:iac-common",
+      "source": "skill:azure-defaults",
+      "target": "skill:iac-common",
       "kind": "refs"
     },
     {

@@ -1,0 +1,274 @@
+# Dev Container Base Validation
+# Compares candidate and baseline images on native amd64 and arm64 runners.
+# Runs on same-repository pull requests and manual dispatches.
+
+name: Dev Container Base Validation
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".devcontainer/**"
+      - ".github/workflows/validate-devcontainer-base.yml"
+      - "tools/scripts/validate-devcontainer.sh"
+      - "tools/scripts/compare-devcontainer-verdicts.mjs"
+      - "tools/tests/compare-devcontainer-verdicts.test.mjs"
+  workflow_dispatch:
+    inputs:
+      candidate_image:
+        description: "Dev container base image to validate"
+        required: true
+        default: "mcr.microsoft.com/devcontainers/base:ubuntu-26.04"
+        type: string
+      candidate_os:
+        description: "Expected Ubuntu VERSION_ID inside the candidate"
+        required: true
+        default: "26.04"
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  preflight:
+    name: Resolve images and manifest
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    outputs:
+      baseline_image: ${{ steps.images.outputs.baseline_image }}
+      baseline_os: ${{ steps.images.outputs.baseline_os }}
+      candidate_image: ${{ steps.images.outputs.candidate_image }}
+      candidate_os: ${{ steps.images.outputs.candidate_os }}
+      candidate_digest: ${{ steps.manifest.outputs.candidate_digest }}
+    steps:
+      - name: Checkout candidate source
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+
+      - name: Resolve baseline and candidate images
+        id: images
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_CANDIDATE_IMAGE: ${{ inputs.candidate_image }}
+          INPUT_CANDIDATE_OS: ${{ inputs.candidate_os }}
+        run: |
+          extract_image() {
+            node --input-type=module -e '
+              import fs from "node:fs";
+              import { parseJsonc } from "./tools/scripts/_lib/parse-jsonc.mjs";
+              const value = parseJsonc(fs.readFileSync(process.argv[1], "utf8")).image;
+              if (typeof value !== "string" || value.length === 0) process.exit(1);
+              process.stdout.write(value);
+            ' "$1"
+          }
+
+          image_os() {
+            case "$1" in
+              *:ubuntu-*) printf '%s' "${1##*:ubuntu-}" ;;
+              *) return 1 ;;
+            esac
+          }
+
+          if [[ "$EVENT_NAME" == "pull_request" ]]; then
+            git show "${BASE_SHA}:.devcontainer/devcontainer.json" > "${RUNNER_TEMP}/baseline-devcontainer.json"
+            baseline_image=$(extract_image "${RUNNER_TEMP}/baseline-devcontainer.json")
+            candidate_image=$(extract_image ".devcontainer/devcontainer.json")
+            baseline_os=$(image_os "$baseline_image")
+            candidate_os=$(image_os "$candidate_image")
+          else
+            baseline_image=$(extract_image ".devcontainer/devcontainer.json")
+            candidate_image="$INPUT_CANDIDATE_IMAGE"
+            baseline_os=$(image_os "$baseline_image")
+            candidate_os="$INPUT_CANDIDATE_OS"
+          fi
+
+          printf 'baseline_image=%s\n' "$baseline_image" >> "$GITHUB_OUTPUT"
+          printf 'baseline_os=%s\n' "$baseline_os" >> "$GITHUB_OUTPUT"
+          printf 'candidate_image=%s\n' "$candidate_image" >> "$GITHUB_OUTPUT"
+          printf 'candidate_os=%s\n' "$candidate_os" >> "$GITHUB_OUTPUT"
+
+      - name: Verify candidate multi-architecture manifest
+        id: manifest
+        env:
+          CANDIDATE_IMAGE: ${{ steps.images.outputs.candidate_image }}
+        run: |
+          docker buildx imagetools inspect --raw "$CANDIDATE_IMAGE" > "${RUNNER_TEMP}/candidate-manifest.json"
+          jq -e '[.manifests[]? | select(.platform.os == "linux") | .platform.architecture] | index("amd64") != null' \
+            "${RUNNER_TEMP}/candidate-manifest.json" > /dev/null
+          jq -e '[.manifests[]? | select(.platform.os == "linux") | .platform.architecture] | index("arm64") != null' \
+            "${RUNNER_TEMP}/candidate-manifest.json" > /dev/null
+          candidate_digest=$(docker buildx imagetools inspect "$CANDIDATE_IMAGE" \
+            | awk '$1 == "Digest:" { print $2; exit }')
+          [[ -n "$candidate_digest" ]]
+          printf 'candidate_digest=%s\n' "$candidate_digest" >> "$GITHUB_OUTPUT"
+
+      - name: Upload candidate manifest
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: devcontainer-candidate-manifest
+          path: ${{ runner.temp }}/candidate-manifest.json
+          if-no-files-found: warn
+          retention-days: 14
+
+  validate:
+    name: ${{ matrix.variant }} / ${{ matrix.arch }}
+    needs: preflight
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - variant: baseline
+            arch: amd64
+            platform: linux/amd64
+            runner: ubuntu-24.04
+          - variant: candidate
+            arch: amd64
+            platform: linux/amd64
+            runner: ubuntu-24.04
+          # Native ARM is intentional: CPU-vendor portability is part of the contract.
+          - variant: baseline
+            arch: arm64
+            platform: linux/arm64
+            runner: ubuntu-24.04-arm
+          - variant: candidate
+            arch: arm64
+            platform: linux/arm64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - name: Checkout candidate source
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+
+      - name: Create repo-relative validation config
+        env:
+          SELECTED_IMAGE: >-
+            ${{ matrix.variant == 'baseline' && needs.preflight.outputs.baseline_image || needs.preflight.outputs.candidate_image }}
+        run: |
+          cp .devcontainer/devcontainer.json .devcontainer/devcontainer.validation.json
+          current_image=$(node --input-type=module -e '
+            import fs from "node:fs";
+            import { parseJsonc } from "./tools/scripts/_lib/parse-jsonc.mjs";
+            process.stdout.write(parseJsonc(fs.readFileSync(".devcontainer/devcontainer.validation.json", "utf8")).image);
+          ')
+          CURRENT_IMAGE="$current_image" node -e '
+            const fs = require("node:fs");
+            const file = ".devcontainer/devcontainer.validation.json";
+            const text = fs.readFileSync(file, "utf8");
+            const before = `"image": "${process.env.CURRENT_IMAGE}"`;
+            const after = `"image": "${process.env.SELECTED_IMAGE}"`;
+            const updated = text.replace(before, after);
+            if (updated === text) throw new Error("top-level image property was not replaced");
+            fs.writeFileSync(file, updated);
+          '
+          SELECTED_IMAGE="$SELECTED_IMAGE" node --input-type=module -e '
+            import fs from "node:fs";
+            import { parseJsonc } from "./tools/scripts/_lib/parse-jsonc.mjs";
+            const actual = parseJsonc(fs.readFileSync(".devcontainer/devcontainer.validation.json", "utf8")).image;
+            if (actual !== process.env.SELECTED_IMAGE) throw new Error(`expected ${process.env.SELECTED_IMAGE}, got ${actual}`);
+          '
+
+      - name: Prepare host bind mounts
+        run: mkdir -p "$HOME/.azure"
+
+      - name: Build and validate dev container
+        uses: devcontainers/ci@v0.3
+        env:
+          GH_TOKEN: ""
+          USERPROFILE: ""
+        with:
+          configFile: .devcontainer/devcontainer.validation.json
+          platform: ${{ matrix.platform }}
+          useNativeRunner: true
+          push: never
+          runCmd: >-
+            bash tools/scripts/validate-devcontainer.sh
+            --variant ${{ matrix.variant }}
+            --expected-os ${{ matrix.variant == 'baseline' && needs.preflight.outputs.baseline_os || needs.preflight.outputs.candidate_os }}
+            --expected-arch ${{ matrix.arch }}
+            --output-dir tmp/devcontainer-validation/${{ matrix.variant }}-${{ matrix.arch }}
+
+      - name: Upload validation result
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: devcontainer-validation-${{ matrix.variant }}-${{ matrix.arch }}
+          path: tmp/devcontainer-validation/${{ matrix.variant }}-${{ matrix.arch }}/
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Remove generated validation config
+        if: always()
+        run: rm -f .devcontainer/devcontainer.validation.json
+
+  compare:
+    name: Compare base-image verdicts
+    if: always()
+    needs: [preflight, validate]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout candidate source
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+
+      - name: Setup Node
+        uses: ./.github/actions/setup-node-repo
+
+      - name: Download matrix verdicts
+        continue-on-error: true
+        uses: actions/download-artifact@v7
+        with:
+          pattern: devcontainer-validation-*
+          path: tmp/devcontainer-validation-artifacts
+
+      - name: Compare verdicts
+        id: comparison
+        continue-on-error: true
+        env:
+          CANDIDATE_IMAGE: ${{ needs.preflight.outputs.candidate_image || 'unresolved' }}
+          CANDIDATE_DIGEST: ${{ needs.preflight.outputs.candidate_digest || 'unresolved' }}
+        run: |
+          node tools/scripts/compare-devcontainer-verdicts.mjs \
+            --input tmp/devcontainer-validation-artifacts \
+            --output tmp/devcontainer-validation-summary/verdict-summary.json \
+            --markdown tmp/devcontainer-validation-summary/summary.md \
+            --candidate-image "$CANDIDATE_IMAGE" \
+            --candidate-digest "$CANDIDATE_DIGEST"
+
+      - name: Publish job summary
+        if: always()
+        run: |
+          if [[ -f tmp/devcontainer-validation-summary/summary.md ]]; then
+            cat tmp/devcontainer-validation-summary/summary.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            printf '## Dev Container Base Validation\n\n**Overall verdict:** BLOCKED\n' >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload consolidated verdict
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: devcontainer-validation-summary
+          path: tmp/devcontainer-validation-summary/
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Enforce fail-closed verdict
+        if: >-
+          always() &&
+          (needs.preflight.result != 'success' ||
+           needs.validate.result != 'success' ||
+           steps.comparison.outcome != 'success')
+        run: exit 1
