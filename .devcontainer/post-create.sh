@@ -295,7 +295,7 @@ fi
 # IEEE_P1363 encoded signature"). We therefore set tflint=none in the feature
 # and install the pinned TFLint release directly here — no cosign required.
 
-TFLINT_VERSION="0.61.0"
+TFLINT_VERSION="0.63.1"
 step_start "🧹" "Installing TFLint v${TFLINT_VERSION} (cosign-free)..."
 if command -v tflint &>/dev/null && tflint --version 2>/dev/null | grep -q "$TFLINT_VERSION"; then
     step_done "TFLint v${TFLINT_VERSION} already installed"
