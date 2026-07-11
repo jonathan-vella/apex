@@ -18,7 +18,7 @@
     "@fontsource/space-grotesk": "^5.2.10",
     "astro": "^7.0.6",
     "rehype-mermaid-lite": "^1.0.0",
-    "sharp": "^0.35.2",
+    "sharp": "^0.35.3",
     "starlight-links-validator": "^0.25.2"
   },
   "overrides": {
