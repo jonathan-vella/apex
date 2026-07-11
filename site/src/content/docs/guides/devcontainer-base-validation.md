@@ -50,7 +50,7 @@ After the workflow exists on `main`, dispatch it for future base-image evaluatio
 ```bash
 gh workflow run validate-devcontainer-base.yml \
   --ref main \
-  -f candidate_image=mcr.microsoft.com/devcontainers/base:ubuntu-26.04 \
+  -f candidate_image=mcr.microsoft.com/devcontainers/base:ubuntu26.04 \
   -f candidate_os=26.04
 ```
 

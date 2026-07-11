@@ -18,7 +18,7 @@ on:
       candidate_image:
         description: "Dev container base image to validate"
         required: true
-        default: "mcr.microsoft.com/devcontainers/base:ubuntu-26.04"
+        default: "mcr.microsoft.com/devcontainers/base:ubuntu26.04"
         type: string
       candidate_os:
         description: "Expected Ubuntu VERSION_ID inside the candidate"
