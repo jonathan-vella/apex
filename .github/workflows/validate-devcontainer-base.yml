@@ -169,8 +169,9 @@ jobs:
             const text = fs.readFileSync(file, "utf8");
             const before = `"image": "${process.env.CURRENT_IMAGE}"`;
             const after = `"image": "${process.env.SELECTED_IMAGE}"`;
-            const updated = text.replace(before, after);
-            if (updated === text) throw new Error("top-level image property was not replaced");
+            const imageChanged = process.env.CURRENT_IMAGE !== process.env.SELECTED_IMAGE;
+            const updated = imageChanged ? text.replace(before, after) : text;
+            if (imageChanged && updated === text) throw new Error("top-level image property was not replaced");
             fs.writeFileSync(file, updated);
           '
           SELECTED_IMAGE="$SELECTED_IMAGE" node --input-type=module -e '
