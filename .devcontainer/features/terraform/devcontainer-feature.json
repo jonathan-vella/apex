@@ -1,0 +1,7 @@
+{
+  "id": "terraform",
+  "version": "1.0.0",
+  "name": "Terraform",
+  "description": "Installs Terraform from HashiCorp's signed APT repository.",
+  "options": {}
+}

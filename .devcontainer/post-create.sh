@@ -290,11 +290,9 @@ else
 fi
 
 # ─── Step 9.4: TFLint (cosign-free install) ─────────────────────────────────
-# The terraform devcontainer feature installs the latest cosign (3.x) to verify
-# TFLint's signature, but cosign 3.x is incompatible with the Rekor log-query
-# API and aborts the whole feature install ("invalid signature when validating
-# IEEE_P1363 encoded signature"). We therefore set tflint=none in the feature
-# and install the pinned TFLint release directly here — no cosign required.
+# TFLint is installed separately from Terraform because cosign 3.x is
+# incompatible with the Rekor log-query API and aborts signature validation
+# ("invalid signature when validating IEEE_P1363 encoded signature").
 
 TFLINT_VERSION="0.63.1"
 step_start "🧹" "Installing TFLint v${TFLINT_VERSION} (cosign-free)..."
@@ -393,20 +391,25 @@ fi
 # ─── Step 12: Gitleaks (secret scanner) ────────────────────────────────────
 
 step_start "🔐" "Installing gitleaks secret scanner..."
-GITLEAKS_VERSION=$(curl -fsSL "https://api.github.com/repos/gitleaks/gitleaks/releases/latest" 2>/dev/null | jq -r '.tag_name' 2>/dev/null | sed 's/^v//' || echo '')
-# Map uname -m to the gitleaks archive architecture label
-case "$(uname -m)" in
-    aarch64|arm64) GITLEAKS_ARCH="arm64" ;;
-    *)             GITLEAKS_ARCH="x64"   ;;
+# The base image supports amd64 and arm64 only; keep release assets aligned.
+case "$(dpkg --print-architecture)" in
+    amd64) GITLEAKS_ARCH="x64" ;;
+    arm64) GITLEAKS_ARCH="arm64" ;;
+    *)     GITLEAKS_ARCH="" ;;
 esac
-if [ -n "$GITLEAKS_VERSION" ] && [ "$GITLEAKS_VERSION" != "null" ]; then
+if [ -z "$GITLEAKS_ARCH" ]; then
+    step_warn "gitleaks skipped: unsupported architecture $(dpkg --print-architecture) (supported: amd64, arm64)"
+else
+    GITLEAKS_VERSION=$(curl -fsSL "https://api.github.com/repos/gitleaks/gitleaks/releases/latest" 2>/dev/null | jq -r '.tag_name' 2>/dev/null | sed 's/^v//' || echo '')
+fi
+if [ -n "$GITLEAKS_ARCH" ] && [ -n "$GITLEAKS_VERSION" ] && [ "$GITLEAKS_VERSION" != "null" ]; then
     if curl -fsSL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_${GITLEAKS_ARCH}.tar.gz" \
         | sudo tar -xz -C /usr/local/bin gitleaks 2>/dev/null; then
         step_done "gitleaks ${GITLEAKS_VERSION} installed (${GITLEAKS_ARCH})"
     else
         step_warn "gitleaks binary download failed (pre-commit hook will soft-skip)"
     fi
-else
+elif [ -n "$GITLEAKS_ARCH" ]; then
     step_warn "gitleaks version lookup failed (pre-commit hook will soft-skip)"
 fi
 
