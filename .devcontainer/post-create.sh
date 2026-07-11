@@ -303,18 +303,23 @@ else
     TFLINT_ARCH=$(dpkg --print-architecture)
     if [ "$TFLINT_ARCH" = "amd64" ] || [ "$TFLINT_ARCH" = "arm64" ]; then
         TFLINT_TMP=$(mktemp -d)
-        TFLINT_URL="https://github.com/terraform-linters/tflint/releases/download/v${TFLINT_VERSION}/tflint_linux_${TFLINT_ARCH}.zip"
+        # Save the download under its published asset name (arch-derived, so
+        # both amd64 and arm64 hosts work). `sha256sum -c` resolves the file
+        # by the name recorded in checksums.txt, so a generic "tflint.zip"
+        # target fails the integrity check even when the bytes are correct.
+        TFLINT_ZIP="tflint_linux_${TFLINT_ARCH}.zip"
+        TFLINT_URL="https://github.com/terraform-linters/tflint/releases/download/v${TFLINT_VERSION}/${TFLINT_ZIP}"
         TFLINT_SHA_URL="https://github.com/terraform-linters/tflint/releases/download/v${TFLINT_VERSION}/checksums.txt"
-        if curl -fsSL "$TFLINT_URL" -o "$TFLINT_TMP/tflint.zip" \
+        if curl -fsSL "$TFLINT_URL" -o "$TFLINT_TMP/${TFLINT_ZIP}" \
             && curl -fsSL "$TFLINT_SHA_URL" -o "$TFLINT_TMP/checksums.txt" \
             && (cd "$TFLINT_TMP" && grep -E " tflint_linux_${TFLINT_ARCH}\.zip$" checksums.txt | sha256sum -c -) \
-            && unzip -o -q "$TFLINT_TMP/tflint.zip" -d "$TFLINT_TMP" \
+            && unzip -o -q "$TFLINT_TMP/${TFLINT_ZIP}" -d "$TFLINT_TMP" \
             && sudo install -m 0755 "$TFLINT_TMP/tflint" /usr/local/bin/tflint; then
             rm -rf "$TFLINT_TMP"
             step_done "TFLint $(tflint --version 2>/dev/null | head -1)"
         else
             rm -rf "$TFLINT_TMP"
-            step_warn "TFLint install failed — check network access to github.com"
+            step_warn "TFLint install failed — download or checksum verification error"
         fi
     else
         step_warn "TFLint skipped: unsupported architecture $TFLINT_ARCH (supported: amd64, arm64)"
