@@ -420,7 +420,19 @@ else
     step_warn "Azure CLI config update failed"
 fi
 
-# ─── Step 14: MCP config & final verification ─────────────────────────────
+# ─── Step 14: Bicep CLI after persisted mounts ─────────────────────────────
+
+step_start "🏗️ " "Ensuring Bicep CLI is available..."
+if az bicep version --only-show-errors >/dev/null 2>&1; then
+    step_done "$(az bicep version --only-show-errors 2>/dev/null | head -1)"
+elif az bicep install --only-show-errors >/dev/null 2>&1 \
+    && az bicep version --only-show-errors >/dev/null 2>&1; then
+    step_done "$(az bicep version --only-show-errors 2>/dev/null | head -1) installed after mounts initialized"
+else
+    step_warn "Bicep install failed — IaC validation will be unavailable"
+fi
+
+# ─── Step 15: MCP config & final verification ─────────────────────────────
 
 step_start "🔍" "Verifying installations & MCP config..."
 

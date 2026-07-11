@@ -50,7 +50,7 @@
   },
 
   "remoteEnv": {
-    "PATH": "${containerEnv:PATH}",
+    "PATH": "/home/vscode/.local/bin:${containerEnv:PATH}",
     "AZURE_DEFAULTS_LOCATION": "swedencentral",
     // Pass GH_TOKEN from host → container. gh CLI uses it automatically, no `gh auth login` needed.
     // Each user sets this once in VS Code User Settings (Ctrl+,):
