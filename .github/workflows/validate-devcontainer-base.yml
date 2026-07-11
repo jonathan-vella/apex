@@ -72,6 +72,7 @@ jobs:
           image_os() {
             case "$1" in
               *:ubuntu-*) printf '%s' "${1##*:ubuntu-}" ;;
+              *:ubuntu[0-9]*) printf '%s' "${1##*:ubuntu}" ;;
               *) return 1 ;;
             esac
           }
