@@ -12,12 +12,8 @@ This file is the source of truth for downstream `jq` queries and tooling.
 ```jsonc
 {
   "project": "<project-name>",
-  "session": {
-    /* see below */
-  },
-  "artifacts": [
-    /* array of artifact records */
-  ],
+  "session": {/* see below */},
+  "artifacts": [/* array of artifact records */],
   "artifact_count": 0,
 }
 ```

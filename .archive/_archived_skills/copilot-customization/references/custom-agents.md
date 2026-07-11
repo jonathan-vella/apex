@@ -104,10 +104,10 @@ Control which agents can be called as subagents using the `agents` property:
 
 ```yaml
 # Allow specific subagents
-agents: ['Researcher', 'Implementer']
+agents: ["Researcher", "Implementer"]
 
 # Allow all agents as subagents
-agents: ['*']
+agents: ["*"]
 
 # Prevent all subagent use
 agents: []
