@@ -31,8 +31,9 @@ for full details on this and all prior releases.
   environment, installed its development extras, declared the root Python test
   runner, and installed the independently locked documentation-site toolchain
   during devcontainer setup. CI now creates the same component environment and
-  keeps matrix validation configs inside `.devcontainer` so local features
-  remain within the Dev Containers trust boundary. The v1
+  selects each matrix image in the job's ephemeral canonical devcontainer config,
+  preserving local-feature resolution within the required workspace trust boundary.
+  The v1
   compatibility validator now invokes the repository-owned `apex-recall`
   module instead of requiring a globally installed console script.
 
