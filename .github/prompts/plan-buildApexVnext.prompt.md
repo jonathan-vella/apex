@@ -2,18 +2,18 @@
 
 Rebuild APEX with a greenfield implementation while treating the existing APEX product as a brownfield replacement. The
 revised approach first characterizes v1, proves the risky platform and deployment assumptions, and only then locks the
-architecture. A deterministic TypeScript kernel and npm CLI own workflow, state, validation, evidence, and authorized
-capabilities. A cross-client Copilot plugin supplies thin agents and skills for VS Code and GitHub Copilot CLI. The
+architecture. A deterministic TypeScript kernel and npm `apex` CLI own workflow, state, validation, evidence, and
+authorized capabilities. A VS Code Copilot agent plugin supplies thin agents and skills. The
 release proves one complete Bicep vertical slice before adding Terraform and parity, while preserving selected v1
 operational behavior.
 
 **Locked decisions**
 
-- Distribution is hybrid: an npm package provides the `apex` CLI/kernel and a versioned cross-client Copilot plugin
+- Distribution is hybrid: an npm package provides the `apex` CLI/kernel and a versioned VS Code Copilot agent plugin
   provides agents, skills, hooks, and MCP configuration. Consumer repositories keep project state plus an APEX runtime
   lock and may recommend the plugin; they do not vendor the plugin payload by default.
 - The plugin exposes narrow APEX MCP tools. Creative agents do not receive general shell, Azure, deployment, or
-  unrestricted filesystem tools. The kernel controls only its own context projection and capabilities; client
+  unrestricted filesystem tools. The kernel controls only its own context projection and capabilities; VS Code
   conversation history and system context are explicitly outside its enforcement boundary.
 - One active writer is allowed per project run. Local leases plus compare-and-swap protect the journal. Distributed
   collaborative writers are deferred. A CI deployment job becomes the active writer only for its approved run; local
@@ -40,15 +40,15 @@ operational behavior.
   cutover, receiving security and critical fixes. The exact support end date is published at cutover.
 - Preserve v1 setup/doctor, quota and regional availability checks, post-deploy diagnosis, run lessons/quality
   reporting, and project list/search/history behavior. Their internals are rewritten behind kernel contracts.
-- Deterministic CI uses no Azure credentials or model calls. Manual release qualification covers real Copilot clients
-  and Azure sandboxes; no recurring paid model canary or LLM-as-judge is introduced.
+- Deterministic CI uses no Azure credentials or model calls. Manual release qualification covers the supported VS Code
+  release and Azure sandboxes; no recurring paid model canary or LLM-as-judge is introduced.
 - Use the newest production-supported release channel: the newest supported Node.js LTS patch, and the newest stable/GA
   release for ecosystems without LTS channels. Resolve the newest mutually compatible set at adoption and at a recorded
   release cutoff, then pin exact versions/digests and lock transitive dependencies. New releases after the cutoff enter
   the next candidate. Exceptions require an owner, evidence, expiry, and upgrade target.
 - The repository is private and is the approved evidence boundary. Commit complete nonsecret evidence without identifier
   sanitization, including tenant, subscription, principal and resource IDs, inventories, operational logs, and
-  user-consented client telemetry. Credentials, secret values, Terraform state, and saved Terraform plan files remain
+  user-consented VS Code telemetry. Credentials, secret values, Terraform state, and saved Terraform plan files remain
   prohibited from Git because they can contain plaintext secrets; keep them in their secured backend or ignored local
   runtime storage.
 - Site redesign remains deferred, but minimum accurate vNext installation, workflow, security, operations, support, and
@@ -60,7 +60,7 @@ operational behavior.
 - `packages/kernel/` owns runtime-bundle compatibility, workflow reduction, tasks, leases, gates, provenance,
   invalidation, operation reconciliation, authorization, and telemetry.
 - `packages/cli/` owns the `apex` executable, stable JSON/error/exit-code contracts, and the APEX MCP server used by
-  both Copilot clients.
+  VS Code Copilot.
 - `packages/capabilities/` owns typed in-process, process, MCP, Azure CLI, Bicep, and Terraform adapters. It is the only
   path to state-changing external operations.
 - `packages/renderers/` produces deterministic human views from canonical contracts.
@@ -79,7 +79,7 @@ operational behavior.
 
 **Consumer state layout**
 
-- `.apex/apex.lock.json` pins the compatible CLI, plugin, runtime bundle, workflow, defaults, schemas, validators,
+- `.apex/apex.lock.json` pins the compatible `apex` CLI, plugin, runtime bundle, workflow, defaults, schemas, validators,
   capability protocol, and toolchain hashes.
 - `.apex/config.json` stores repository-level nonsecret configuration and the selected project.
 - `.apex/objects/sha256/{prefix}/{hash}` stores immutable, content-addressed accepted artifacts, including complete
@@ -111,8 +111,9 @@ operational behavior.
 - Every schema has a stable `$id`, declared JSON Schema dialect, compatibility policy, maximum size, sensitivity
   classification, and deterministic semantic validators. Schema validation and handwritten business validators are
   separate registry entries.
-- vNext event and contract evolution uses explicit upcasters/migrations. A newer CLI either upgrades an older compatible
-  project transactionally or refuses with a precise compatibility error; it never silently changes workflow semantics.
+- vNext event and contract evolution uses explicit upcasters/migrations. A newer `apex` CLI either upgrades an older
+  compatible project transactionally or refuses with a precise compatibility error; it never silently changes workflow
+  semantics.
 
 **Steps**
 
@@ -142,11 +143,11 @@ Verification:
 
 ### Phase 0B: Run feasibility and security spikes
 
-1. Build a minimal npm CLI plus Copilot plugin and install it into a clean repository. Verify both VS Code and Copilot
-   CLI discover the same agent/skill identifiers and can invoke the same APEX MCP task tools.
+1. Build a minimal npm `apex` CLI plus VS Code Copilot agent plugin and install them into a clean repository. Verify a
+   fresh supported VS Code host discovers the expected agent and skill identifiers and can invoke the APEX MCP task
+   tools.
 2. Prove that creative agents can complete a staged-output task without shell, direct filesystem write, Azure, or
-   deployment tools. Attempt bypasses in both clients and document platform controls that are advisory versus
-   enforceable.
+   deployment tools. Attempt bypasses in VS Code and document platform controls that are advisory versus enforceable.
 3. Prototype the one-writer lease/CAS event journal, Git divergence detection, content-addressed promotion, stale task
    rejection, and recovery from a crash between external side effect and success-event append.
 4. Prototype Terraform backend bootstrap, saved-plan protection, state lineage/serial binding, exact-plan apply, destroy
@@ -156,10 +157,10 @@ Verification:
    Verify sandbox resource-group teardown separately.
 6. Verify GitHub Environment required-reviewer flow and OIDC claims available to the kernel. Define the approval
    envelope and replay/expiry protections.
-7. Verify actual telemetry exposed by each Copilot client. Classify each metric as kernel-measured, client-imported,
+7. Verify actual telemetry exposed by VS Code. Classify each metric as kernel-measured, VS Code-imported,
    estimated, or unavailable; no unavailable metric may become a release claim.
-8. Reserve package/plugin names and verify npm, plugin marketplace/source installation, Python capability packaging,
-   Deno locking, update, rollback, and provenance paths.
+8. Reserve package/plugin names and verify npm and VS Code-supported agent-plugin installation, Python capability
+   packaging, Deno locking, update, rollback, and provenance paths.
 9. Resolve the initial newest mutually compatible toolchain from authoritative sources and record the observation
    cutoff.
 
@@ -203,16 +204,17 @@ Verification:
    canonical path handling with symlink defense, size limits, redaction, and safe process execution without shell
    interpolation.
 5. Scaffold `packages/testkit` now, including fake adapters, deterministic fixtures, temporary workspaces, process crash
-   injection, malicious path/content fixtures, and client-contract fixtures.
+   injection, malicious path/content fixtures, and VS Code contract fixtures.
 6. Scaffold the CLI, MCP server, and plugin, including signed/provenance-capable packaging. `apex --version` reports
-   CLI, plugin expectation, runtime bundle, and protocol compatibility.
+   CLI, expected VS Code plugin, runtime bundle, and protocol compatibility.
 7. Add one offline pin-consistency check and a separate networked freshness check. Freshness never makes ordinary
    deterministic tests depend on network state.
 
 Verification:
 
 - Clean checkout build, lint, unit tests, package-boundary checks, Python tests, Deno tests, and lock verification pass.
-- Packed CLI and local plugin install into a clean repository and report compatible versions.
+- The packed `apex` CLI and versioned VS Code plugin install into a clean repository through supported installation
+  paths and report compatible versions.
 - Path traversal, symlink escape, shell injection, oversized output, and secret-redaction unit tests pass before
   capabilities exist.
 
@@ -251,7 +253,7 @@ Verification:
 - Rehashing a maliciously rewritten journal is explicitly outside the hash-chain guarantee; authenticated approval
   evidence remains independently verifiable.
 
-### Phase 3: Implement workflow, tasks, gates, and the CLI control plane
+### Phase 3: Implement workflow, tasks, gates, and the `apex` CLI control plane
 
 1. Define the workflow manifest with deterministic condition operators, reachability/cycle validation, terminal/blocked
    states, retry/refinement routes, validator bindings, source dependencies, and per-environment run semantics. Do not
@@ -260,7 +262,7 @@ Verification:
    rationale, owner, expiry, and scope and cannot bypass secrets, authorization, security baseline, active Deny policy,
    stale preview, or destructive-operation controls.
 3. Implement next-task selection, bounded kernel projections, and role/capability enforcement. State only that the
-   kernel does not add raw chat history; clients may retain their own context and that context is excluded from kernel
+   kernel does not add raw chat history; VS Code may retain its own context and that context is excluded from kernel
    byte measurements.
 4. Implement the CLI groups: `init/update`, `setup/doctor`, `project list/use/show/search`, `status`,
    `task next/context/complete/cancel`, `review resolve`, `gate decide`, `validate`, `preview`, `deploy`, `reconcile`,
@@ -283,9 +285,9 @@ Verification:
 
 1. Define the capability protocol: identity, side-effect class, input/output/error schemas, required role, credential
    scope, availability, timeout, retry/backoff, idempotency key, redaction, output limits, and reconciliation method.
-2. Implement `setup` and `doctor` for CLI/plugin compatibility, Azure CLI and GitHub authentication, target scope,
-   OIDC/Managed Identity, RBAC, required providers, external runtime packages, registry reachability, Terraform backend
-   readiness, and client customization discovery.
+2. Implement `setup` and `doctor` for `apex` CLI/plugin compatibility, VS Code agent-plugin availability and policy,
+   Azure CLI and GitHub authentication, target scope, OIDC/Managed Identity, RBAC, required providers, external runtime
+   packages, registry reachability, Terraform backend readiness, and VS Code customization discovery.
 3. Adapt Azure Pricing and governance discovery as validated external processes. Governance output distinguishes
    complete, partial, and failed discovery; includes all pages/scopes/definitions/assignments/parameters/exemptions, API
    versions, TTL, and completeness signature. Partial/failed/stale discovery blocks Architecture approval.
@@ -310,29 +312,29 @@ Verification:
   operations.
 - Validator coverage maps every accepted artifact type and preserved v1 rule to executable checks and mutation tests.
 
-### Phase 5: Package portable Copilot customizations
+### Phase 5: Package VS Code Copilot customizations
 
 1. Build the Copilot plugin with thin `apex-coordinator`, `apex-requirements`, `apex-architect`, `apex-planner`,
    `apex-codegen`, `apex-reviewer`, and `apex-operator` agents plus curated Azure skills.
 2. Agents obtain task envelopes and context through APEX MCP, write only to task staging through APEX MCP, and submit
    outputs through APEX MCP. Capabilities run through the kernel; agents do not invoke pricing, Azure, Bicep, Terraform,
    Git, or shell directly.
-3. Keep the frontmatter/tool profile to the tested VS Code/Copilot CLI intersection. Handoffs are optional VS Code UI
-   only. Agent and skill names are portable, and client-specific fields are isolated and ignored safely.
+3. Use only the tested VS Code agent-plugin frontmatter and tool surface. Handoffs are optional UI conveniences and
+   never workflow state or authorization inputs. Keep agent and skill identifiers stable across plugin versions.
 4. Keep `.github/copilot-instructions.md` minimal in consumer repositories. Use path instructions only for authoring
    generated IaC and never for workflow routing or security authorization.
-5. Treat model labels as client-specific recommendations. At release, test the newest generally available compatible
-   client/model options, record the effective observed model, and provide fallbacks; model availability never changes
+5. Treat model labels as VS Code recommendations. At release, test the newest generally available compatible VS Code
+   and model combinations, record the effective observed model, and provide fallbacks; model availability never changes
    kernel contracts or gate rules.
-6. Implement plugin install, version check, update, rollback, trust notice, and marketplace/source verification.
-   `apex doctor` detects missing, disabled, stale, or incompatible plugins.
+6. Implement VS Code-supported plugin install, version check, update, rollback, trust notice, and provenance
+   verification. `apex doctor` detects missing, disabled, policy-blocked, stale, or incompatible plugins.
 
 Verification:
 
-- Both clients load identical supported agent/skill IDs and complete the same fixture task with no terminal or direct
-  file tool.
-- Start in one client and resume in the other from repository state in the same checkout; a separate-device resume
-  requires commit/pull and detects divergent heads.
+- A fresh supported VS Code host loads every expected agent and skill ID and completes the fixture task with no terminal
+  or direct file tool.
+- Restart VS Code and resume from repository state in the same checkout; a separate-device resume requires commit/pull
+  and detects divergent heads.
 - Plugin downgrade/upgrade respects `apex.lock.json` or fails with an actionable compatibility error.
 
 ### Phase 6: Deliver Requirements, pre-architecture discovery, Architecture, Cost, and review
@@ -458,9 +460,10 @@ Verification:
 5. Run unit, schema, contract, integration, mutation, property, fault, renderer-idempotence, supply-chain, and offline
    pin tests without Azure credentials or model calls. Registry access is allowed for credential-free compile/validate
    qualification; describe it as credential-free, not fully offline.
-6. Run manual release qualification using real Copilot: at least one full workflow in each client, a cross-client
-   resume, and both IaC tracks across the matrix. Store complete outcomes and user-consented client telemetry in the
-   private repository; conversation transcripts are included only when explicitly selected as evidence.
+6. Run manual release qualification using real VS Code Copilot: at least one clean-install full workflow, one
+   restart-and-resume flow, and both IaC tracks across the matrix. Store complete outcomes and user-consented VS Code
+   telemetry in the private repository; conversation transcripts are included only when explicitly selected as
+   evidence.
 7. Confirm optional outputs cannot affect canonical machine inputs or gate quality.
 
 Verification:
@@ -474,50 +477,52 @@ Verification:
 1. Re-run the Phase 0 threat model against implemented trust boundaries: malicious repository content, prompt injection,
    plugin/MCP supply chain, symlink/TOCTOU, process output, credentials, approvals, event rewriting, state/plan
    exposure, and deployment side effects.
-2. Verify role/capability authorization and client sandbox/permission behavior. No prompt instruction is credited as an
-   enforcement control.
-3. Record kernel-measured metrics directly. Import client token/model telemetry only with user consent, reject any
+2. Verify role/capability authorization and VS Code sandbox/permission behavior. No prompt instruction is credited as
+   an enforcement control.
+3. Record kernel-measured metrics directly. Import VS Code token/model telemetry only with user consent, reject any
    detected credentials or secret values, record source/method/confidence, and commit the complete accepted telemetry to
    the private repository.
-4. Generate SBOMs and provenance for npm CLI, plugin, Python capability, Deno capability, containers, actions, and
-   release artifacts. Sign or attest releases using registry-supported provenance and verify them during install/update.
+4. Generate SBOMs and provenance for the npm `apex` CLI, plugin, Python capability, Deno capability, containers,
+   actions, and release artifacts. Sign or attest releases using registry-supported provenance and verify them during
+   install/update.
 5. Run license, dependency, secret, malware/package-integrity, and vulnerability checks. Approved exceptions are
    time-bounded and included in release evidence.
 6. At the release cutoff, refresh every versioned component from authoritative sources, resolve the newest
    production-supported mutually compatible set, update exact locks/digests, and rerun all qualification. A release
    published after the cutoff does not race the candidate but is mandatory for the next candidate.
-7. Publish versioned CLI/plugin installation, workflow/gates, security/trust, private-repository evidence and secret
-   handling, Bicep stacks, Terraform state, approval, diagnosis, troubleshooting, update/rollback, v1 support, and
-   release-operation documentation.
+7. Publish versioned `apex` CLI and VS Code plugin installation, workflow/gates, security/trust, private-repository
+   evidence and secret handling, Bicep stacks, Terraform state, approval, diagnosis, troubleshooting, update/rollback,
+   v1 support, and release-operation documentation.
 8. Update the public site minimally before cutover with vNext guidance and a clear versioned v1 maintenance banner.
    Defer visual redesign and broad content gardening.
 
 Verification:
 
 - Independent security review has no unresolved release-blocking findings.
-- Clean installs verify artifact provenance, exact compatible versions, plugin discovery, MCP startup, and rollback.
+- Clean installs verify artifact provenance, exact compatible versions, VS Code plugin discovery, fresh-host MCP
+  startup, and rollback.
 - Documentation is discoverable without reading agent prompts.
 
 ### Phase 12: Release and cut over
 
-1. Run a clean-clone installation and upgrade/downgrade rehearsal, both client smoke tests, cross-client resume, event
-   migration/replay, crash recovery, complete deterministic suite, and both real Azure sandbox lifecycles including
+1. Run a clean-clone installation and upgrade/downgrade rehearsal, a VS Code smoke test, VS Code restart/resume, event
+   migration/replay, crash recovery, the complete deterministic suite, and both real Azure sandbox lifecycles including
    teardown.
-2. Freeze the release runtime bundle and publish CLI, plugin, external capability packages/artifacts, checksums,
+2. Freeze the release runtime bundle and publish the `apex` CLI, VS Code plugin, external capability packages/artifacts,
    provenance, SBOM, compatibility table, known limitations, and support policy.
 3. Immediately before cutover, create `v1-maintenance` from the actual v1 `main` head, tag its final mainline release,
    publish the support end date 12 months later, and validate its critical-fix pipeline.
 4. Merge `vnext` to `main` only after every release criterion passes. Tag the first vNext major release and publish
    migration guidance stating that v1 projects are not resumable in vNext.
-5. Rollback product distribution by restoring the prior compatible CLI/plugin/runtime bundle and, if necessary,
+5. Rollback product distribution by restoring the prior compatible `apex` CLI/plugin/runtime bundle and, if necessary,
    restoring `main` to the v1-maintenance or prior vNext release. Never rewrite project event/object history during
    product rollback.
 6. Keep old implementation code accessible through Git history and release tags rather than dormant active-tree copies.
 
 Verification:
 
-- A new repository can install the CLI and plugin, initialize a run, and discover all supported customizations in both
-  clients.
+- A new repository can install the `apex` CLI and VS Code plugin, initialize a run, and discover all supported
+  customizations in a fresh supported VS Code host.
 - Both tracks complete requirements through approved teardown with complete nonsecret evidence committed to the private
   repository and Terraform state, saved plans, credentials, and secret values kept out of Git.
 - v1 maintenance remains independently installable and testable after cutover.
@@ -548,10 +553,10 @@ Verification:
 **Global verification**
 
 1. Every v1 behavior has an approved preserve/change/retire disposition and matching evidence.
-2. The kernel is the only supported state transition and external-operation path; client instructions are never counted
-   as authorization.
-3. Runtime bundle, schema, event, contract, plugin, and CLI upgrades are versioned, transactional where applicable, and
-   reject incompatibility safely.
+2. The kernel is the only supported state transition and external-operation path; VS Code instructions are never
+   counted as authorization.
+3. Runtime bundle, schema, event, contract, plugin, and `apex` CLI upgrades are versioned, transactional where
+   applicable, and reject incompatibility safely.
 4. Four gates apply per environment run. Gate 4 is hash-bound to the exact deployment inputs; CI approval is
    additionally authenticated to the GitHub Environment/OIDC identity, while local TTY approval records the verified
    local execution context without claiming cryptographic user authentication.
@@ -563,8 +568,8 @@ Verification:
    the private repository.
 8. Deterministic CI requires neither Azure credentials nor model calls; credential-free registry access is allowed and
    declared.
-9. Both Copilot clients can install, discover, execute, and cross-resume compatible APEX tasks without handoff buttons
-   or chat-history state.
+9. VS Code can install, discover, select, execute, and resume compatible APEX tasks after restart or commit/pull without
+   handoff buttons or chat-history state.
 10. The release uses the newest production-supported mutually compatible versions observed at the recorded cutoff, with
     exact pins, provenance, SBOM, and no unapproved exceptions.
 11. v1 remains supported for 12 months after cutover and the public documentation clearly separates v1 maintenance from
@@ -572,18 +577,18 @@ Verification:
 
 **Scope boundaries**
 
-- Included: CLI/kernel, plugin, both IaC tracks, one-environment runs and linked promotion, setup/doctor,
+- Included: `apex` CLI/kernel, VS Code plugin, both IaC tracks, one-environment runs and linked promotion, setup/doctor,
   governance/pricing/quota, four gates, native preview/deploy/destroy, inventory, diagnosis, lessons/quality, runtime
   upgrades, security/supply chain, and minimum public docs.
 - Deferred: distributed concurrent writers, hosted/multi-tenant coordination, non-GitHub CI approval providers, direct
-  model APIs, autonomous headless model orchestration, custom VS Code extension, v1 state/artifact import, recurring
-  model evaluation, multi-pass reviews, mandatory diagrams, full site redesign, and rewriting retained Python/Deno
-  capabilities without measured need.
+  model APIs, autonomous headless model orchestration, GitHub Copilot CLI support, custom VS Code extension, v1
+  state/artifact import, recurring model evaluation, multi-pass reviews, mandatory diagrams, full site redesign, and
+  rewriting retained Python/Deno capabilities without measured need.
 - `azd` remains optional compatibility output only and is not part of the audited deployment path.
 
 **Decisions from alignment**
 
-- Hybrid npm CLI plus Copilot plugin.
+- Hybrid npm `apex` CLI plus VS Code Copilot agent plugin.
 - Single active writer per project run.
 - One environment per run; linked runs model promotion.
 - Newest production-supported release channels, including latest Node.js LTS patch.

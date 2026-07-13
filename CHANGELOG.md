@@ -33,9 +33,10 @@ for full details on this and all prior releases.
   during devcontainer setup. CI now creates the same component environment and
   selects each matrix image in the job's ephemeral canonical devcontainer config,
   preserving local-feature resolution within the required workspace trust boundary.
-  The v1
-  compatibility validator now invokes the repository-owned `apex-recall`
+  The v1 compatibility validator now invokes the repository-owned `apex-recall`
   module instead of requiring a globally installed console script.
+- docs(vnext): narrowed the first-release Copilot client scope to VS Code and
+  deferred GitHub Copilot CLI support.
 
 ### Changed (Model migration — Claude Sonnet 4.6 → Claude Sonnet 5)
 
