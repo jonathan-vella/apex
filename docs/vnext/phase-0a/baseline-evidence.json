@@ -1,13 +1,12 @@
 {
   "schema_version": "phase-0a-baseline-v1",
-  "status": "approved-pending-clean-evidence",
-  "captured_at": "2026-07-13T12:42:12Z",
+  "status": "approved-clean-local-evidence",
+  "captured_at": "2026-07-13T13:05:46Z",
   "branch": "feat/apex-vnext-rewrite",
   "base_commit": "40d0f61456478f197f0f67027f95e40db3cf5836",
-  "candidate_patch_object": "904a2e7ab580264ca87cb63a9c580ae2fce63602",
-  "candidate_patch_scope": "Complete staged binary diff excluding this manifest.",
+  "source_commit": "5cccbf4b72770d588dbc2e2b26aa3a7ccb6ba0db",
   "plan_sha256": "2b3de4040987d8ee72487b27de2befe43cc68ece06d6726eb9a8b52701341cbf",
-  "source_state": "dirty-worktree",
+  "source_state": "clean-commit",
   "maintainer_approval": {
     "status": "approved",
     "approved_by": "@jonathan-vella",
@@ -23,9 +22,8 @@
   "freeze_gate": {
     "tag_allowed": false,
     "blockers": [
-      "Candidate changes and Phase 0A evidence are staged but not committed.",
-      "The full validation suite and golden registry must be rerun from the clean committed candidate.",
-      "The exact pull-request head must pass required CI before the v1 baseline tag can be considered."
+      "The exact pull-request head must pass required CI.",
+      "The v1 baseline tag and long-lived vnext branch remain Phase 0C actions after feasibility and architecture gates."
     ]
   },
   "failed_runs": [
@@ -72,11 +70,12 @@
   ],
   "successful_run": {
     "command": "npm run validate:all",
+    "source_commit": "5cccbf4b72770d588dbc2e2b26aa3a7ccb6ba0db",
     "exit_code": 0,
     "result": "All validations passed",
     "log": {
       "path": "evidence/baseline-success-2026-07-13.log",
-      "sha256": "42cad26c263894257f75e4fff056c8225e8329d1e62db6386cd27255e03764fc"
+      "sha256": "c7ddb15e05c3af25a93a4d5171220f6fad3bd75a061b01f2bee72c35efb33e5c"
     }
   },
   "coverage_validator": {

@@ -1,15 +1,15 @@
 {
   "schema_version": "v1-golden-scenarios-v1",
-  "status": "candidate",
-  "base_commit": "40d0f61456478f197f0f67027f95e40db3cf5836",
+  "status": "verified-clean-commit",
+  "source_commit": "5cccbf4b72770d588dbc2e2b26aa3a7ccb6ba0db",
   "credentials_required": false,
   "model_calls_required": false,
   "verification": {
-    "verified_at": "2026-07-13T12:41:34Z",
+    "verified_at": "2026-07-13T13:05:46Z",
     "exit_code": 0,
     "log": {
       "path": "evidence/golden-scenarios-2026-07-13.log",
-      "sha256": "21a49240bd6519a91365369e62134bce18302cae8974ba6b02f2eee0bed502f3"
+      "sha256": "8a63a2397a79036fe74995e2d94438c79860d2ccb9e94cf43ed0e0cb9e8daeea"
     }
   },
   "normalization": {

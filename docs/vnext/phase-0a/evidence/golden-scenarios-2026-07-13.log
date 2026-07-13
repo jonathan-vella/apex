@@ -1,11 +1,1283 @@
-Script started on 2026-07-13 12:41:26+00:00 [COMMAND="npm run test:apex-recall && npm run test:azure-pricing-mcp && node --test tests/fixtures/nordic-foods-replay/transcript-checks.test.mjs && node --test tools/tests/validate-sku-manifest.test.mjs && node --test tools/tests/workflow-handoffs/run.test.mjs && npm run test:subagent-file-contract && npm run test:governance-discovery && node --test tests/drawio/reproduce-surrogate-error.test.mjs && npm run test:devcontainer-verdicts" TERM="xterm-256color" TTY="/dev/pts/0" COLUMNS="80" LINES="30"]
+Script started on 2026-07-13 13:05:27+00:00 [COMMAND="npm run validate:all && npm run test:apex-recall && npm run test:azure-pricing-mcp && node --test tests/fixtures/nordic-foods-replay/transcript-checks.test.mjs && node --test tools/tests/validate-sku-manifest.test.mjs && node --test tools/tests/workflow-handoffs/run.test.mjs && npm run test:subagent-file-contract && npm run test:governance-discovery && node --test tests/drawio/reproduce-surrogate-error.test.mjs && npm run test:devcontainer-verdicts" TERM="xterm-256color" TTY="/dev/pts/0" COLUMNS="80" LINES="30"]
 
+> apex@0.10.0 validate:all
+> run-p --continue-on-error validate:_node validate:_external && echo '✅ All validations passed'
+
+
+> apex@0.10.0 validate:_node
+> run-p validate:artifacts validate:agents validate:orchestrator-handoff validate:review-ceiling validate:question-batching validate:skills lint:version-sync lint:deprecated-refs lint:mcp-config validate:extension-bloat validate:headings-summary validate:instruction-checks lint:governance-refs validate:session-state validate:workflow-graph validate:v1-compatibility-matrix validate:lens-references validate:challenger-findings validate:challenger-presence lint:workflow-table-sync lint:workflow-handoffs validate:agent-registry validate:skill-checks lint:json lint:json-schemas lint:glob-audit lint:orphaned-content lint:docs-freshness validate:no-hardcoded-counts validate:hooks validate:context-budget validate:iac-security-baseline validate:policy-precheck validate:sku-manifest validate:sku-iac-coverage validate:decision-keys validate:banned-phrases validate:vscode lint:drawio validate:terminology validate:model-consistency validate:deprecated-models validate:model-catalog validate:explorer-graph validate:region-canonical test:classify-model test:devcontainer-verdicts lint:safe-shell validate:tool-versions
+
+
+> apex@0.10.0 validate:_external
+> run-p lint:md lint:python lint:terraform-fmt lint:bicep-fmt validate:terraform test:apex-recall test:azure-pricing-mcp lint:site-links
+
+
+> apex@0.10.0 lint:terraform-fmt
+> terraform fmt -check -recursive infra/terraform/
+
+
+> apex@0.10.0 validate:question-batching
+> python3 tools/scripts/validate_question_batching.py
+
+
+> apex@0.10.0 validate:v1-compatibility-matrix
+> node tools/scripts/validate-v1-compatibility-matrix.mjs
+
+
+> apex@0.10.0 validate:review-ceiling
+> python3 tools/scripts/validate_review_ceiling.py
+
+
+> apex@0.10.0 validate:artifacts
+> node tools/scripts/validate-artifacts.mjs
+
+
+> apex@0.10.0 validate:orchestrator-handoff
+> python3 tools/scripts/validate_orchestrator_handoff.py
+
+
+> apex@0.10.0 validate:headings-summary
+> node tools/scripts/validate-headings-summary.mjs
+
+
+> apex@0.10.0 validate:skill-checks
+> node tools/scripts/validate-skill-checks.mjs
+
+
+> apex@0.10.0 validate:agent-registry
+> node tools/scripts/validate-agent-registry.mjs
+
+
+> apex@0.10.0 lint:version-sync
+> node tools/scripts/validate-version-sync.mjs
+
+
+> apex@0.10.0 validate:skills
+> node tools/scripts/validate-skills.mjs
+
+
+🔍 v1 Compatibility Matrix Coverage
+
+
+> apex@0.10.0 validate:agents
+> node tools/scripts/validate-agents.mjs
+
+⠙[1G
+> apex@0.10.0 lint:json-schemas
+> node tools/scripts/validate-json-schemas.mjs
+
+[0K
+> apex@0.10.0 lint:governance-refs
+> node tools/scripts/validate-governance-refs.mjs
+
+⠙[1G[0K
+> apex@0.10.0 lint:mcp-config
+> node tools/scripts/validate-mcp-config.mjs
+
+
+> apex@0.10.0 lint:workflow-handoffs
+> node tools/scripts/validate-agents.mjs --only=workflow-handoffs
+
+
+> apex@0.10.0 validate:iac-security-baseline
+> node tools/scripts/validate-iac-security-baseline.mjs
+
+
+> apex@0.10.0 validate:challenger-findings
+> node tools/scripts/validate-challenger-findings.mjs
+
+
+> apex@0.10.0 validate:lens-references
+> node tools/scripts/validate-lens-references.mjs
+
+
+> apex@0.10.0 validate:instruction-checks
+> node tools/scripts/validate-instruction-checks.mjs
+
+✓ question-batching contract present in 02-requirements.agent.md
+
+> apex@0.10.0 lint:deprecated-refs
+> node tools/scripts/validate-no-deprecated-refs.mjs
+
+
+> apex@0.10.0 validate:extension-bloat
+> node tools/scripts/validate-extension-bloat.mjs
+
+
+> apex@0.10.0 validate:session-state
+> node tools/scripts/validate-session-state.mjs
+
+
+📋 Validating agent registry...
+
+⠙[1G[0K  ✅ Validated 13 agents and 7 subagents
+
+📊 Results: 0 error(s), 0 warning(s)
+
+✅ Agent registry validation passed
+
+
+> apex@0.10.0 lint:python
+> cd tools/mcp-servers/azure-pricing && python3 -m ruff check src/ tests/ && python3 -m ruff format --check src/ tests/ && cd ../../../tools/apex-recall && python3 -m ruff check src/
+
+⠙
+> apex@0.10.0 lint:workflow-table-sync
+> node tools/scripts/validate-workflow-table-sync.mjs
+
+[1G[0K
+🔍 IaC Security Baseline
+
+ℹ️  No Bicep files found in infra/bicep/
+
+ℹ️  No Terraform files found in infra/terraform/
+
+
+──────────────────────────────────────────────────
+Errors: 0 | Warnings: 0
+
+✅ Security baseline validation passed.
+
+🔍 Version Sync Validator
+
+⠙📌 Source of truth: VERSION.md = v0.10.0
+
+
+> apex@0.10.0 validate:hooks
+> node tools/scripts/validate-hooks.mjs
+
+
+🔍 Instruction Checks Validator
+
+  ✅ package.json: v0.10.0
+  ✅ CHANGELOG.md: v0.10.0
+────────────────────────────────────────────────────────────
+📄 Part 1: Frontmatter validation
+
+
+──────────────────────────────────────────────────
+Checked: 2 | Errors: 0 | Warnings: 0
+
+✅ All versions in sync
+
+> apex@0.10.0 validate:policy-precheck
+> node tools/scripts/validate-policy-precheck.mjs
+
+[1G[0KFound 31 instruction file(s)
+
+
+────────────────────────────────────────────────────────────
+📄 Part 2: Instruction file references exist
+
+
+🔍 Deprecated References Validator
+
+
+> apex@0.10.0 test:azure-pricing-mcp
+> tools/mcp-servers/azure-pricing/.venv/bin/python -m pytest tools/mcp-servers/azure-pricing/tests -q
+
+⠙🔍 Artifact Validators (consolidated)
+
+[1G[0K═══ Part 1: H2 Heading Sync ═══
+
+Sources: SKILL.md + references/ (16), H2-reference (0), Validator (18)
+
+✅ All 15 artifact types in sync across sources
+
+═══ Part 2: Artifact Template Compliance ═══
+
+Strictness: per-artifact
+
+Step 1: Validating templates...
+✓ challenger-ceiling contract present in orchestrator + challenger
+> apex@0.10.0 lint:docs-freshness
+> node tools/scripts/check-docs-freshness.mjs
+
+
+⠙
+🔍 Governance Reference Validation
+
+📄 06b-bicep-codegen.agent.md
+  ✅ References 04-governance-constraints
+  ✅ Has Phase 1.5: Governance Compliance Mapping
+  ✅ References iac-bicep-best-practices.instructions.md
+  ✅ DO list includes governance constraint parsing
+  ✅ DON'T list warns against hardcoded tag lists
+  ✅ DON'T list warns against skipping governance mapping
+
+📄 bicep-validate-subagent.agent.md
+  ✅ Has Governance Compliance section
+  ✅ Checks tag count against governance constraints
+🤖 Agent Validators (consolidated)
+
+═══ Part: frontmatter ═══
+
+🔍 Agent Frontmatter Validator
+
+
+> apex@0.10.0 lint:json
+> node tools/scripts/lint-json.mjs
+
+
+🔍 Headings Summary Sync
+
+  ✅ Checks Deny policies are satisfied
+  ✅ Checks publicNetworkAccess
+  ✅ Checks SKU restrictions
+
+📄 05-iac-planner.agent.md
+  ✅ References governance constraints as prerequisite
+  ✅ Has policy effect decision tree (inline or reference)
+
+📄 iac-bicep-best-practices.instructions.md
+  ✅ File exists
+  ✅ Has correct applyTo scope including *.bicep
+  ✅ States "Azure Policy always wins"
+  ✅ References iac-policy-compliance
+
+📄 governance-discovery.instructions.md
+  ✅ applyTo covers governance artifacts
+  ✅ Has Downstream Enforcement section
+
+📄 05-iac-planner.agent.md (Terraform property mapping)
+  ✅ Uses azurePropertyPath (not bicepPropertyPath) for property mapping
+  ✅ Governance constraints are a prerequisite
+  ✅ References 04-governance-constraints.json
+
+📄 06t-terraform-codegen.agent.md
+  ✅ Has Phase 1.5: Governance Compliance Mapping
+  ✅ Phase 1.5 is a HARD GATE
+  ✅ References 04-governance-constraints.json
+  ✅ Uses azurePropertyPath for policy translation
+
+📄 terraform-validate-subagent.agent.md
+  ✅ Has Governance Compliance section
+  ✅ References azurePropertyPath for Terraform attribute translation
+
+📄 iac-terraform-best-practices.instructions.md
+  ✅ File exists
+  ✅ Has correct applyTo scope including *.tf
+  ✅ States "Azure Policy always wins"
+  ✅ References iac-policy-compliance
+
+📄 azure-governance-discovery/scripts/discover.py (dual-field)
+  ✅ Produces bicepPropertyPath field in JSON output
+  ✅ Produces azurePropertyPath field in JSON output
+
+──────────────────────────────────────────────────
+Checked: 34 | Errors: 0 | Warnings: 0
+
+✅ All governance guardrails intact
+✓ tools/scripts/_lib/artifact-headings-summary.json matches 18 artifact types in artifact-headings.mjs
+
+──────────────────────────────────────────────────
+Errors: 0 | Warnings: 0
+
+✅ Headings Summary Sync passed
+  ✅ agents and subagents: 22 live entries mapped
+  ✅ JSON schemas: 22 live entries mapped
+  ✅ MCP servers: 2 live entries mapped
+  ✅ workflow nodes: 16 live entries mapped
+  ✅ apex-recall: 15 commands mapped
+
+──────────────────────────────────────────────────
+Checked: 5 | Errors: 0 | Warnings: 0
+
+✅ v1 compatibility matrix covers all discovered surfaces
+Step 2: Validating agent links...
+
+Found 15 main agents and 7 subagents
+
+──────────────────────────────────────────────────
+Checked: 22 | Errors: 0 | Warnings: 0
+✅ All agents passed frontmatter validation
+
+═══ Part: structural ═══
+
+🔍 Agent Structural Checks
+
+
+> apex@0.10.0 validate:sku-iac-coverage
+> node tools/scripts/validate-sku-iac-coverage.mjs
+
+
+> apex@0.10.0 validate:vscode
+> node tools/scripts/validate-vscode-config.mjs
+
+⠙
+🔍 Validating lens references...
+
+  ✅ Registered lenses: architecture-reliability, comprehensive, cost-feasibility, governance-reconciliation, security-governance
+
+> apex@0.10.0 test:devcontainer-verdicts
+> node --test tools/tests/compare-devcontainer-verdicts.test.mjs
+
+Step 3: Checking for embedded skeletons...
+⠙
+> apex@0.10.0 validate:deprecated-models
+> node tools/scripts/validate-models.mjs --only=deprecated
+
+⠙[1G[1G[0K[0KStep 4: Checking standards reference...
+Step 5: Validating agent-output artifacts...
+  Found 0 artifact(s) in agent-output/
+
+Step 5b: Validating governance JSON against schema (AJV)...
+
+> apex@0.10.0 lint:glob-audit
+> node tools/scripts/validate-glob-audit.mjs
+
+⠙
+> apex@0.10.0 validate:sku-manifest
+> node tools/scripts/validate-sku-manifest.mjs
+
+  ✅ Scanned 2 unique lens-shaped tokens across agents + workflow-graph
+
+──────────────────────────────────────────────────
+Errors: 0 | Warnings: 0
+
+✅ All lens references resolve to registered entries in adversarial-review-protocol.md
+[1G[1G[0K
+> apex@0.10.0 validate:challenger-presence
+> node tools/scripts/validate-challenger-presence.mjs
+
+⠙[0K[1G[0K
+🔍 Policy Precheck Output Validator
+
+  ℹ️  No 06-policy-precheck.json files found.
+
+[1;32mAll checks passed![0m
+[1G[0K⠙⠙[1G⠙[0K
+> apex@0.10.0 lint:md
+> markdownlint-cli2
+
+⠙[1G
+🔍 Validating challenger findings sidecars...
+
+[0K  ⚠️  No challenger findings sidecars found under agent-output/ — nothing to validate.
+
+  ✅ Validated 0 findings sidecar(s)
+
+──────────────────────────────────────────────────
+Errors: 0 | Warnings: 0
+
+🔍 Workflow Table Sync
+
+[1G[0K
+> apex@0.10.0 validate:context-budget
+> node tools/scripts/validate-context-budget.mjs
+
+⠙[1G[0K  ✅ .github/skills/workflow-engine/templates/workflow-graph.json: 8 agent steps loaded
+
+> apex@0.10.0 validate:workflow-graph
+> node tools/scripts/validate-workflow-graph.mjs
+
+  ✅ AGENTS.md: 9 rows in sync with workflow-graph.json
+
+> apex@0.10.0 validate:explorer-graph
+> EXPLORER_GRAPH_STRICT=1 node tools/scripts/validate-explorer-graph.mjs
+
+✓ orchestrator /clear-handoff contract present in 11 agent file(s)
+⠙
+✅ All challenger findings sidecars conform to schema v1.0
+
+> apex@0.10.0 validate:region-canonical
+> node tools/scripts/validate-region-canonical.mjs
+
+📚 Skill Validators (consolidated)
+
+[1G  ✅ .github/copilot-instructions.md: Links to AGENTS.md#agent-workflow
+[0K
+──────────────────────────────────────────────────
+Checked: 2 | Errors: 0 | Warnings: 0
+═══ Part 1: Skills Format & Size ═══
+
+✅ Workflow Table Sync passed
+
+🔍 Skills Format Validator
+
+
+🔍 MCP Config Validator
+
+⠙
+> apex@0.10.0 lint:drawio
+> node tools/scripts/validate-drawio-files.mjs
+
+[1G[0K⠙  ✅ MCP config includes required server: github
+  ✅ MCP config includes valid drawio server (Deno stdio)
+
+──────────────────────────────────────────────────
+⠙Checked: 2 | Errors: 0 | Warnings: 0
+
+✅ MCP config valid
+[1G[0K⠙  ✅ .github/instructions/iac-bicep-best-practices.instructions.md (referenced by 1 file(s))
+  ✅ .github/instructions/iac-terraform-best-practices.instructions.md (referenced by 1 file(s))
+
+────────────────────────────────────────────────────────────
+📄 Part 3: applyTo glob patterns have matching files
+
+[1G⠙
+> apex@0.10.0 validate:no-hardcoded-counts
+> node tools/scripts/validate-no-hardcoded-counts.mjs
+
+[0K
+🔍 Skill Checks Validator
+
+
+🔍 Extension Bloat Validator
+
+Checked 24 dev-container extension(s) against 3 denylisted bloat contributor(s).
+
+──────────────────────────────────────────────────
+Errors: 0 | Warnings: 0
+
+✅ Extension Bloat Validator passed
+[1G[0K
+> apex@0.10.0 validate:decision-keys
+> node tools/scripts/validate-decision-keys.mjs
+
+⠙[1G[0K
+🔍 SKU ↔ IaC Coverage Validator
+
+🔍 VS Code 1.109 Configuration Validator
+
+==================================================
+
+📋 Checking devcontainer.json...
+   ✓ chat.customAgentInSubagent.enabled
+   ✓ chat.agentFilesLocations
+   ✓ chat.agentSkillsLocations
+   ✓ chat.useAgentSkills
+
+📦 Checking extensions.json...
+   ✓ GitHub.copilot-chat
+   ✓ ms-azuretools.vscode-bicep
+   ✓ DavidAnson.vscode-markdownlint
+
+🔗 Cross-checking extension lists...
+   ℹ allowlisted devcontainer-only extension: github.vscode-github-actions
+   ℹ allowlisted devcontainer-only extension: mechatroner.rainbow-csv
+   ℹ allowlisted devcontainer-only extension: ms-azuretools.vscode-containers
+   ℹ allowlisted devcontainer-only extension: ms-kubernetes-tools.vscode-aks-tools
+   ℹ allowlisted devcontainer-only extension: ms-kubernetes-tools.vscode-kubernetes-tools
+   ℹ allowlisted devcontainer-only extension: mutantdino.resourcemonitor
+   ✓ 24 extensions in devcontainer.json
+   ✓ 18 extensions in extensions.json
+
+==================================================
+📊 Validation Summary
+
+
+✅ VS Code configuration is valid for 1.109 orchestration
+  ℹ️  No projects found — nothing to validate.
+
+✅ SKU ↔ IaC Coverage Validator passed
+⠙  ✅ azure-adr: SKILL.md: 64 lines
+  ✅ azure-artifacts: SKILL.md: 156 lines
+  ✅ azure-bicep-patterns: SKILL.md: 133 lines
+🔍 Validating agent hooks configuration...
+
+Found 2 hook directories: subagent-validation, tool-guardian
+
+📂 subagent-validation/
+  ✅ Shell script uses durable bash invocation
+  ✅ Script exists: .github/hooks/subagent-validation/subagent-validation.sh
+  ✅ Script has correct shebang
+  ✅ Script has set -euo pipefail
+  ✅ Timeout: 15s
+
+📂 tool-guardian/
+  ✅ Shell script uses durable bash invocation
+  ✅ Script exists: .github/hooks/tool-guardian/guard-tool.sh
+  ✅ Script has correct shebang
+  ✅ Script has set -euo pipefail
+  ✅ Timeout: 10s
+
+[1G[0K⠹📋 Cross-checking with .vscode/settings.json...
+
+  ✅ settings.json includes .github/hooks/subagent-validation
+  ✅ settings.json includes .github/hooks/tool-guardian
+
+📋 Cross-checking with .devcontainer/devcontainer.json...
+
+
+> apex@0.10.0 validate:model-catalog
+> node tools/scripts/validate-models.mjs --only=catalog
+
+⠙[1G  ✅ devcontainer.json includes .github/hooks/subagent-validation
+  ✅ devcontainer.json includes .github/hooks/tool-guardian
+  ✅ azure-cloud-migrate: SKILL.md: 57 lines
+
+──────────────────────────────────────────────────
+  ✅ azure-compliance: SKILL.md: 122 lines
+📋 Docs Freshness Checker
+
+Errors: 0 | Warnings: 0
+  ✅ azure-compute: SKILL.md: 75 lines
+
+✅ Hook validation passed (0 warning(s))
+  ✅ azure-cost-optimization: SKILL.md: 91 lines
+
+🔍 Context Budget Validator
+
+[0K⠙
+🔄 Validating workflow graph...
+
+  ⚠️  azure-defaults: SKILL.md is 252 lines (>200) but has 26 reference files — consider trimming further
+[1G⠙  ✅ azure-deploy: SKILL.md: 90 lines
+  ✅ azure-diagnostics: SKILL.md: 155 lines
+  ✅ azure-governance-discovery: SKILL.md: 158 lines
+  ✅ azure-kusto: SKILL.md: 72 lines
+  ✅ azure-prepare: SKILL.md: 121 lines
+
+🔍 Validating session state files...
+
+  ✅ azure-quotas: SKILL.md: 80 lines
+  ✅ azure-rbac: SKILL.md: 102 lines
+  ✅ azure-resources: SKILL.md: 126 lines
+  ✅ azure-storage: SKILL.md: 122 lines
+[1G[0K
+> apex@0.10.0 lint:bicep-fmt
+> bash tools/scripts/check-bicep-fmt.sh
+
+⠹[1G[0K⠙[1G[0K[1G[0K
+> apex@0.10.0 validate:terminology
+> node tools/scripts/validate-terminology.mjs
+
+⠙
+Evaluated 3 agent(s) referencing frozen artifacts.
+
+──────────────────────────────────────────────────
+Checked: 3 | Errors: 0 | Warnings: 0
+[1G
+✅ Context budget: all agents declare cached-lookup + no-re-read markers.
+[0K  ✅ azure-validate: SKILL.md: 98 lines
+[0K─── Prohibited References ───
+  ✅ context-management: SKILL.md: 134 lines
+  ✅ docs-writer: SKILL.md: 116 lines
+  ✅ drawio: SKILL.md: 191 lines
+  ✅ template: Valid
+
+📊 Checked 1 file(s): 0 error(s), 0 warning(s)
+
+✅ Session state validation passed
+
+  ✅ entra-app-registration: SKILL.md: 78 lines
+  ✅ github-operations: SKILL.md: 115 lines
+
+==================================================
+✅ No deprecated references found
+  ✅ golden-principles: SKILL.md: 54 lines
+  ✅ iac-common: SKILL.md: 112 lines
+⠙  ✅ mermaid: SKILL.md: 59 lines
+  ✅ microsoft-docs: SKILL.md: 78 lines
+  ✅ python-diagrams: SKILL.md: 116 lines
+⠙Found 33 skill directories
+
+  ✅ No cycles detected
+  ✅ azure-adr: Valid GA skill format
+  ✅ Validated 16 nodes and 19 edges
+  ✅ terraform-patterns: SKILL.md: 115 lines
+
+📊 Results: 0 error(s), 0 warning(s)
+
+✅ Workflow graph validation passed
+
+  ⚠️  azure-artifacts: description is 432 chars (recommend ≤ 400). Drop redundant USE FOR / INVOKES lines.
+  ✅ azure-artifacts: Valid GA skill format
+  ⚠️  azure-bicep-patterns: description is 451 chars (recommend ≤ 400). Drop redundant USE FOR / INVOKES lines.
+  ✅ azure-bicep-patterns: Valid GA skill format
+  ⚠️  azure-cloud-migrate: description is 426 chars (recommend ≤ 400). Drop redundant USE FOR / INVOKES lines.
+  ✅ azure-cloud-migrate: Valid GA skill format
+  ✅ azure-compliance: Valid GA skill format
+  ✅ azure-compute: Valid GA skill format
+  ✅ azure-cost-optimization: Valid GA skill format
+  ⚠️  azure-defaults: description is 449 chars (recommend ≤ 400). Drop redundant USE FOR / INVOKES lines.
+  ⚠️  azure-defaults: SKILL.md is 252 lines (>200) but has 26 reference files
+  ✅ azure-defaults: Valid GA skill format
+  ✅ azure-deploy: Valid GA skill format
+  ⚠️  azure-diagnostics: description is 409 chars (recommend ≤ 400). Drop redundant USE FOR / INVOKES lines.
+  ✅ azure-diagnostics: Valid GA skill format
+  ✅ azure-governance-discovery: Valid GA skill format
+  ✅ azure-kusto: Valid GA skill format
+  ✅ azure-prepare: Valid GA skill format
+  ✅ azure-quotas: Valid GA skill format
+  ✅ azure-rbac: Valid GA skill format
+  ✅ azure-resources: Valid GA skill format
+  ⚠️  azure-storage: description is 432 chars (recommend ≤ 400). Drop redundant USE FOR / INVOKES lines.
+  ✅ azure-storage: Valid GA skill format
+  ✅ azure-validate: Valid GA skill format
+  ⚠️  context-management: description is 417 chars (recommend ≤ 400). Drop redundant USE FOR / INVOKES lines.
+  ✅ context-management: Valid GA skill format
+  ✅ docs-writer: Valid GA skill format
+  ⚠️  drawio: description is 426 chars (recommend ≤ 400). Drop redundant USE FOR / INVOKES lines.
+  ✅ drawio: Valid GA skill format
+[1G[0K  ✅ terraform-search-import: SKILL.md: 98 lines
+  ✅ terraform-test: SKILL.md: 130 lines
+  ✅ vendor-prompting: SKILL.md: 151 lines
+  ✅ workflow-engine: SKILL.md: 102 lines
+
+──────────────────────────────────────────────────
+Checked: 33 | Errors: 0 | Warnings: 1
+
+⚠️  Passed with 1 warning(s)
+🤖 Agent Validators (consolidated)
+
+[1G[0K
+> apex@0.10.0 lint:orphaned-content
+> node tools/scripts/validate-orphaned-content.mjs
+
+⠹[1G[0K⠙═══ Part: workflow-handoffs ═══
+
+🔍 Workflow Handoff Rules
+
+⠙[1G[1G  ⚠️  entra-app-registration: description is 401 chars (recommend ≤ 400). Drop redundant USE FOR / INVOKES lines.
+  ✅ entra-app-registration: Valid GA skill format
+  ✅ github-operations: Valid GA skill format
+  ⚠️  golden-principles: description is 407 chars (recommend ≤ 400). Drop redundant USE FOR / INVOKES lines.
+  ✅ golden-principles: Valid GA skill format
+  ✅ iac-common: Valid GA skill format
+  ✅ mermaid: Valid GA skill format
+  ✅ microsoft-docs: Valid GA skill format
+  ✅ python-diagrams: Valid GA skill format
+  ✅ terraform-patterns: Valid GA skill format
+  ✅ terraform-search-import: Valid GA skill format
+  ✅ terraform-test: Valid GA skill format
+  ✅ vendor-prompting: Valid GA skill format
+  ⚠️  workflow-engine: description is 429 chars (recommend ≤ 400). Drop redundant USE FOR / INVOKES lines.
+  ✅ workflow-engine: Valid GA skill format
+
+──────────────────────────────────────────────────
+Checked: 33 | Errors: 0 | Warnings: 12
+✅ All skills passed format validation
+
+═══ Part 2: Skill References ═══
+
+🔍 Skill References Validator
+
+[0K[0K
+🔍 No Hard-Coded Counts Validator
+
+[1GPart 1: Manifest validation
+
+[0K⠙[1G[0K[1G
+> apex@0.10.0 test:apex-recall
+> python3 -m pytest tools/tests/test_apex_recall/ -q
+
+[0K⠙[1G[0K
+🔍 Region Canonical Validator
+
+
+🔍 Glob Audit Validator
+
+  ✅ regions-table: 5 rows match between canonical and mirror
+
+──────────────────────────────────────────────────
+Checked: 2 | Errors: 0 | Warnings: 0
+
+✅ Region canonical check passed
+ℹ️  No Bicep projects under infra/bicep/ — nothing to format-check.
+⠙⠙⠙[1G
+──────────────────────────────────────────────────
+Checked: 31 | Errors: 0 | Warnings: 0
+⠙
+✅ Glob audit check passed
+[1G[0K[0K[1G
+> apex@0.10.0 validate:banned-phrases
+> node tools/scripts/validate-banned-phrases.mjs
+
+[0K⠙  ✅ primary_agents: 15 (computed from .github/agents/*.agent.md (excluding _subagents/))
+  ✅ subagents: 7 (computed from .github/agents/_subagents/*.agent.md)
+  ✅ skills: 33 (computed from .github/skills/*/SKILL.md)
+  ✅ instructions: 31 (computed from .github/instructions/*.instructions.md)
+  ✅ validators: 53 (computed from package.json validate:_node + validate:_external unique script names)
+  ✅ vscode_extensions: 24 (computed from .devcontainer/devcontainer.json customizations.vscode.extensions[])
+[1G
+Part 2: Hard-coded count scan
+
+[0K⠙
+> apex@0.10.0 lint:safe-shell
+> node tools/scripts/safe-shell.mjs
+
+53 files already formatted
+
+> apex@0.10.0 validate:tool-versions
+> node tools/scripts/validate-tool-versions.mjs
+
+✅ architecture-explorer-graph.json is valid
+[1G[0K
+🔍 Deprecated Models Deny-List
+
+  Deprecated labels (from catalog): Claude Opus 4.6, Claude Sonnet 4.6
+⠙
+🔍 Model Catalog Validator
+
+  Check 1: referenced labels exist in catalog.models
+
+🔍 Challenger Presence Validator
+
+  ℹ️  No projects under agent-output/ — nothing to validate.
+
+
+──────────────────────────────────────────────────
+Errors: 0 | Warnings: 0
+
+✅ All review-mandated artifacts have a present challenger findings sidecar (or audited skip)
+[1G[validate-decision-keys] registry: 42 canonical key(s)
+[0K
+> apex@0.10.0 validate:terraform
+> for dir in infra/terraform/*/; do [ -f "$dir/main.tf" ] && (cd "$dir" && terraform init -backend=false -input=false > /dev/null 2>&1 && terraform validate) || true; done
+
+⠙[1G[0K
+🔍 Terminology Validator
+
+[validate-decision-keys] scanned 22 agent file(s), saw 15 distinct key(s)
+[1G[0K
+> apex@0.10.0 test:classify-model
+> node --test tools/tests/validate-agents/classify-model.test.mjs
+
+  Check 2: assignments block matches frontmatter
+
+> apex@0.10.0 lint:site-links
+> npm run docs:build --silent && node site/check-links.mjs
+
+  Check 3: deprecated models absent from active assignments
+
+──────────────────────────────────────────────────
+Checked: 13 | Errors: 0 | Warnings: 0
+
+✅ Model catalog validation passed
+⠙[1G  ✅ agent-authoring.instructions.md: applyTo="**/*.agent.md, **/*.prompt.md" has matching files
+  ✅ agent-operating-frame.instructions.md: applyTo=".github/agents/*.agent.md" has matching files
+  Found 0 governance JSON file(s).
+Step 6: Checking for duplicate H1 headers (resume integrity)...
+
+==================================================
+✅ All artifact template checks passed
+
+🔍 SKU Manifest Validator
+
+[0K⠙✅ .github/agents/03-architect.agent.md: clean (regex: /hand(?:\s|-)?off to (?:the )?IaC Planner/i)
+✅ .github/copilot-instructions.md: clean (regex: /Minimum baseline \(PascalCase, exact casing\)/)
+
+──────────────────────────────────────────────────
+Checked: 22 | Errors: 0 | Warnings: 0
+✅ Workflow handoff check passed
+
+✅ All agent validations passed
+✅ .github/agents/04g-governance.agent.md: clean (regex: /RG\/resource same-region enforcement/)
+
+✅ all scoped banned-phrase checks passed
+─── Superseded Links ───
+▶ compareDevcontainerVerdicts
+  [32m✔ passes when every leg passes and candidates add no warnings [90m(4.464716ms)[39m[39m
+⠙  [32m✔ blocks on a candidate-only warning [90m(0.339216ms)[39m[39m
+[1G[0K  [32m✔ blocks when a candidate command fails [90m(0.501773ms)[39m[39m
+  [32m✔ blocks when a baseline fails [90m(0.225181ms)[39m[39m
+  [32m✔ blocks when a verdict is missing [90m(0.186239ms)[39m[39m
+  [32m✔ blocks when the observed architecture does not match [90m(0.180358ms)[39m[39m
+  [32m✔ reports malformed verdict JSON as a blocker [90m(3.128293ms)[39m[39m
+  [32m✔ renders a concise Markdown result table [90m(1.447966ms)[39m[39m
+[32m✔ compareDevcontainerVerdicts [90m(13.149405ms)[39m[39m
+⠙[1G[0K
+──────────────────────────────────────────────────
+[1G[0K⠙Checked: 54 | Errors: 0 | Warnings: 0
+⠙
+🔍 Orphaned Content Validator
+
+
+✅ No deprecated model labels found.
+[1G[0K[1G[0K
+🔍 Tool Version Pin Validator
+
+⠙[1G[0K
+> apex@0.10.0 validate:model-consistency
+> node tools/scripts/validate-models.mjs --only=consistency
+
+✅ all decision-key references are registered
+[34mℹ tests 8[39m
+[34mℹ suites 1[39m
+📁 Skills:
+[34mℹ pass 8[39m
+[34mℹ fail 0[39m
+[34mℹ cancelled 0[39m
+[34mℹ skipped 0[39m
+[34mℹ todo 0[39m
+[34mℹ duration_ms 217.58853[39m
+  ✅ agent-skills.instructions.md: applyTo="**/.github/skills/**/SKILL.md, **/.claude/skills/**/SKILL.md" has matching files
+[1;32mAll checks passed![0m
+⠙  ✅ astro.instructions.md: applyTo="site/**/*.astro, site/**/*.ts, site/**/*.mjs, site/**/*.mdx, site/**/*.md" has matching files
+[1G[0K⠙⠙[1G[0K[1G[0K─── Skill References Freshness ───
+
+──────────────────────────────────────────────────
+Checked: 235 | Errors: 0 | Warnings: 0
+✅ Skill references check passed
+
+═══ Part 3: Stale Skill References ═══
+
+🔍 Stale Skill Reference Validator
+
+✅ safe-shell: scanned 126 files, 0 violations
+  ✅ azure-artifacts.instructions.md: applyTo="**/agent-output/**/*.md" has matching files
+  ℹ️  azure-yaml.instructions.md: applyTo="**/azure.yaml" (runtime-generated — skipped)
+⠙
+📋 Validating model consistency (frontmatter ≡ registry)...
+
+[1G[0K  ✅ Checked 22 registry entries
+
+📊 Results: 0 error(s), 0 warning(s)
+
+✅ Model consistency validation passed
+
+✅ .github/skills/drawio/examples/azure-aks-microservices.drawio: Valid (54 cells, 18 images)
+⠙[1G[0K✅ .github/skills/drawio/examples/azure-dns-private-resolver.drawio: Valid (59 cells, 16 images)
+✅ .github/skills/drawio/examples/azure-foundry-landing-zone.drawio: Valid (70 cells, 28 images)
+✅ .github/skills/drawio/examples/azure-vm-baseline-architecture.drawio: Valid (55 cells, 16 images)
+✅ .github/skills/drawio/templates/azure-architecture-skeleton.drawio: Valid (7 cells, 0 images)
+✅ site/public/demo/03-des-diagram.drawio: Valid (29 cells, 11 images)
+✅ site/public/demo/07-ab-diagram.drawio: Valid (26 cells, 13 images)
+
+──────────────────────────────────────────────────
+Checked: 7 | Errors: 0 | Warnings: 0
+
+✅ Draw.io validation passed
+  ℹ️  No sku-manifest.json files found under agent-output/ — nothing to validate.
+
+✅ SKU Manifest Validator passed
+[32m✔ classifyModel: Claude Opus 4.7 → claude-opus [90m(3.006438ms)[39m[39m
+[32m✔ classifyModel: Claude Sonnet 5 → claude-sonnet [90m(0.165148ms)[39m[39m
+[32m✔ classifyModel: Claude Sonnet 4.6 → claude-sonnet (deprecated label, still classifies) [90m(0.184789ms)[39m[39m
+[32m✔ classifyModel: Claude Haiku 4.5 → claude-haiku [90m(0.156187ms)[39m[39m
+[32m✔ classifyModel: bare Claude → claude (generic) [90m(0.275582ms)[39m[39m
+[32m✔ classifyModel: GPT-5.5 → gpt-5.5 (current default) [90m(0.170168ms)[39m[39m
+[32m✔ classifyModel: GPT-5.4 → gpt-5.4 [90m(0.304124ms)[39m[39m
+[32m✔ classifyModel: GPT-5.3-Codex → gpt-codex [90m(0.348396ms)[39m[39m
+  ✅ code-quality.instructions.md: applyTo=".github/**/*.{js,mjs,cjs,ts,tsx,jsx,py,ps1,sh,bicep,tf}, tools/scripts/**/*.{js,mjs,cjs,ts,py,sh}, infra/**/*.{bicep,tf}, tools/mcp-servers/**/*.{py,ts,js,mjs}, site/**/*.{ts,mjs,js}" has matching files
+[32m✔ classifyModel: GPT-4o → gpt-4o [90m(0.198529ms)[39m[39m
+[32m✔ classifyModel: MAI-Code-1-Flash → mai-code [90m(0.305204ms)[39m[39m
+[32m✔ classifyModel: unknown / missing → unknown [90m(0.184088ms)[39m[39m
+[32m✔ classifyModel: GPT-5.5 ordering does not collide with GPT-5.4 [90m(0.169087ms)[39m[39m
+[32m✔ isClaude: only matches claude-* families [90m(0.194459ms)[39m[39m
+[32m✔ isGpt55: only true for gpt-5.5 [90m(0.117386ms)[39m[39m
+[32m✔ isGptFamily: matches all gpt-* families [90m(0.100674ms)[39m[39m
+⠙⠙[1G[0K  ✅ context-optimization.instructions.md: applyTo=".github/agents/**/*.agent.md, .github/skills/**/SKILL.md, .github/instructions/*.instructions.md" has matching files
+✅ tools/registry/agent-registry.json valid against ./tools/schemas/agent-registry.schema.json
+[1G[0K[34mℹ tests 15[39m
+[34mℹ suites 0[39m
+[34mℹ pass 15[39m
+[34mℹ fail 0[39m
+[34mℹ cancelled 0[39m
+[34mℹ skipped 0[39m
+[34mℹ todo 0[39m
+[34mℹ duration_ms 169.862269[39m
+─── Version Header Check ───
+  ⚠️  terraform-search-import/: not referenced by any agent or instruction
+✅ .github/data/governance-policy-baseline.fixture.json valid against ./tools/schemas/governance-baseline.schema.json
+  ⚠️  terraform-test/: not referenced by any agent or instruction
+⠙markdownlint-cli2 v0.23.0 (markdownlint v0.41.0)
+Finding: **/*.md !node_modules/** !**/node_modules/** !Copilot-Processing.md !tmp/** !.venv/** !venv/** !**/venv/** !**/.venv/** !dist/** !build/** !**/*.egg-info/** !__pycache__/** !.pytest_cache/** !coverage/** !tools/mcp-servers/azure-pricing/.archive/** !tools/mcp-servers/drawio/** !tools/mcp-servers/azure-pricing/CHANGELOG.md !tools/mcp-servers/azure-pricing/README.md !tools/mcp-servers/azure-pricing/CONTRIBUTING.md !tools/mcp-servers/azure-pricing/INSTALL.md !tools/mcp-servers/azure-pricing/docs/** !tools/mcp-servers/azure-pricing/.pytest_cache/** !docs/audit-checklists/** !docs/presenter/** !docs/tf-support/** !tools/apex-prompts/** !agent-output/** !.github/skills/** !.archive/** !tools/tests/e2e-inputs/** !tools/tests/prompts/** !site/src/content/docs/demo/** !site/dist/** !site/.astro/**
+
+📁 Instructions (applyTo completeness):
+
+──────────────────────────────────────────────────
+[1GChecked: 64 | Errors: 0 | Warnings: 2
+[0K
+⚠️  Passed with 2 warning(s)
+✅ .github/skills/vendor-prompting/rules.json valid against ./tools/schemas/vendor-prompting-rules.schema.json
+  ✅ docs-trigger.instructions.md: applyTo="**/*.agent.md, **/.github/skills/**/SKILL.md, **/tools/scripts/*.mjs" has matching files
+⠙[1G[0Kℹ️  agent-output/*/09-lessons-learned.json (glob matched no files — skipped)
+  ✅ docs.instructions.md: applyTo="site/src/content/docs/**/*.md, site/src/content/docs/**/*.mdx" has matching files
+  ✅ drawio.instructions.md: applyTo="**/*.drawio" has matching files
+
+──────────────────────────────────────────────────
+Checked: 667 | Errors: 0 | Warnings: 0
+✅ Stale skill reference detection passed
+
+  ✅ github-actions.instructions.md: applyTo=".github/workflows/*.yml,.github/workflows/*.yaml" has matching files
+═══ Part 4: Cross-Skill Frontmatter References ═══
+  ℹ️  governance-discovery.instructions.md: applyTo="**/04-governance-constraints.md, **/04-governance-constraints.json" (runtime-generated — skipped)
+
+🔍 Cross-Skill Frontmatter Reference Validator
+
+
+──────────────────────────────────────────────────
+Checked: 33 | Errors: 0 | Warnings: 0
+✅ Cross-skill frontmatter reference validation passed
+
+✅ All skill validations passed
+
+📄 Report written to freshness-report.json
+✅ No freshness issues found
+
+ℹ️  agent-output/*/04-governance-constraints.json (glob matched no files — skipped)
+⠙
+──────────────────────────────────────────────────
+Checked: 22 | Errors: 0 | Warnings: 0
+✅ Agent structural checks passed
+
+═══ Part: model-alignment ═══
+
+🔍 Model-Prompt Alignment
+
+  Check 1: Prompt ↔ Agent model sync
+[1G[0K  Check 2: Handoff model override redundancy
+  Check 3: Claude large-agent context_awareness
+  ✅ iac-bicep-best-practices.instructions.md: applyTo="**/*.bicep" has matching files
+  ℹ️  iac-plan-best-practices.instructions.md: applyTo="**/04-implementation-plan.md" (runtime-generated — skipped)
+  Check 4: Claude investigate_before_answering
+
+──────────────────────────────────────────────────
+⠙✓ freshness-report.json
+Checked: 52 | Errors: 0 | Warnings: 0
+✅ Model-prompt alignment check passed
+
+═══ Part: vendor-prompting ═══
+
+🔍 Vendor Prompting Rules
+
+[1G[0K✓ package-lock.json
+✓ package.json
+✓ tools/tests/fixtures/subagent-file-contract/challenger-review.findings.json
+✓ tools/tests/fixtures/subagent-file-contract/cost-estimate.findings.json
+✓ tools/tests/drawio-golden/g7-multi-region-active-active/expected.json
+✓ tools/tests/drawio-golden/g6-hyperscale-platform/expected.json
+✓ tools/tests/drawio-golden/g5-enterprise-landing-zone/expected.json
+✓ tools/tests/drawio-golden/g4-ml-training-pipeline/expected.json
+✓ tools/tests/drawio-golden/g3-event-driven-microservices/expected.json
+✓ tools/tests/drawio-golden/g2-hub-spoke-landing-zone/expected.json
+✓ tools/tests/drawio-golden/g1-three-tier-web/expected.json
+✓ tools/tests/drawio-baseline/_baseline-runs.json
+✓ tools/tests/drawio-baseline/regen-baseline.json
+✓ tools/scripts/_lib/artifact-headings-summary.json
+✓ tools/scripts/_data/avm-module-cache.json
+✓ tools/schemas/agent-registry.schema.json
+✓ tools/schemas/agent-scorecard.schema.json
+✓ tools/schemas/challenge-findings-decisions.schema.json
+✓ tools/schemas/deployment-preview.schema.json
+✓ tools/schemas/drawio-baseline-runs.schema.json
+✓ tools/schemas/drawio-golden-scenario.schema.json
+✓ tools/schemas/drawio-regen-baseline.schema.json
+✓ tools/schemas/environment-manifest.schema.json
+✓ tools/schemas/explorer-graph.schema.json
+✓ tools/schemas/governance-baseline.schema.json
+✓ tools/schemas/governance-constraints.schema.json
+✓ tools/schemas/iac-contract.schema.json
+✓ tools/schemas/iac-handoff.schema.json
+✓ tools/schemas/iteration-log.schema.json
+✓ tools/schemas/lesson-log.schema.json
+✓ tools/schemas/model-catalog.schema.json
+✓ tools/schemas/policy-property-map.schema.json
+✓ tools/schemas/session-state.schema.json
+✓ tools/schemas/sku-manifest.schema.json
+✓ tools/schemas/subnet-plan.schema.json
+✓ tools/schemas/vendor-prompting-rules.schema.json
+✓ tools/schemas/workflow-graph.schema.json
+✓ tools/registry/agent-registry.json
+✓ tools/registry/challenger-telemetry.json
+✓ tools/registry/count-manifest.json
+✓ tools/registry/source-freshness.json
+✓ tools/registry/tool-version-pins.json
+✓ tools/mcp-servers/drawio/deno.json
+✓ tools/mcp-servers/drawio/inspector.json
+✓ tools/mcp-servers/drawio/tsconfig.json
+✓ tools/mcp-servers/azure-pricing/tests/fixtures/baseline-bytes.json
+✓ tools/mcp-servers/azure-pricing/tests/fixtures/compact-bench.json
+✓ tests/scripts/fixtures/deployment-preview/invalid-bad-enum.json
+✓ tests/scripts/fixtures/deployment-preview/valid-bicep-whatif.json
+✓ tests/scripts/fixtures/deployment-preview/valid-policy-precheck-block.json
+✓ tests/scripts/fixtures/challenge-findings-decisions/invalid-bad-disposition.json
+✓ tests/scripts/fixtures/challenge-findings-decisions/invalid-missing-id.json
+✓ tests/scripts/fixtures/challenge-findings-decisions/valid-architecture-shape.json
+✓ tests/scripts/fixtures/challenge-findings-decisions/valid-governance-shape.json
+✓ tests/scripts/fixtures/challenge-findings-decisions/valid-requirements-shape.json
+✓ tests/fixtures/otel-log-min.json
+✓ tests/fixtures/nordic-foods-replay/affirmative-checks.json
+✓ tests/fixtures/nordic-foods-replay/forbidden-patterns.json
+✓ tests/azure-artifacts/sku-manifest/valid/allowlist-satisfied.json
+✓ tests/azure-artifacts/sku-manifest/valid/empty-user-pins.json
+✓ tests/azure-artifacts/sku-manifest/valid/multi-env-autoscale-ri.json
+✓ tests/azure-artifacts/sku-manifest/valid/multi-stamp.json
+✓ tests/azure-artifacts/sku-manifest/invalid/allowlist-violation.json
+✓ tests/azure-artifacts/sku-manifest/invalid/current-revision-mismatch.json
+✓ tests/azure-artifacts/sku-manifest/invalid/duplicate-id.json
+✓ tests/azure-artifacts/sku-manifest/invalid/env-override-not-in-environments.json
+✓ tests/azure-artifacts/sku-manifest/invalid/reserved-missing-term-years.json
+✓ tests/azure-artifacts/sku-manifest/invalid/stamp-references-unknown-service.json
+✓ site/package-lock.json
+✓ site/package.json
+✓ site/tsconfig.json
+  ✅ iac-terraform-best-practices.instructions.md: applyTo="**/*.tf" has matching files
+✓ site/public/architecture-explorer-graph.json
+✓ site/dist/architecture-explorer-graph.json
+ℹ️  agent-output/*/sku-manifest.json (glob matched no files — skipped)
+✓ site/dist/pagefind/pagefind-entry.json
+✓ docs/vnext/phase-0a/baseline-evidence.json
+✓ docs/vnext/phase-0a/v1-golden-scenarios.json
+✓ assets/drawio-libraries/azure-icons/manifest.json
+
+✅ All 78 JSON files valid
+Linting: 172 file(s)
+✅ .github/skills/azure-artifacts/templates/sku-manifest.template.json valid against ./tools/schemas/sku-manifest.schema.json
+ℹ️  agent-output/*/08-iteration-log.json (glob matched no files — skipped)
+ℹ️  agent-output/_bench/*/*/08-iteration-log.json (glob matched no files — skipped)
+  ✅ instructions.instructions.md: applyTo="**/*.instructions.md" has matching files
+✅ tools/tests/drawio-golden/g7-multi-region-active-active/expected.json valid against ./tools/schemas/drawio-golden-scenario.schema.json
+
+──────────────────────────────────────────────────
+Checked: 51 | Errors: 0 | Warnings: 0
+✅ tools/tests/drawio-golden/g6-hyperscale-platform/expected.json valid against ./tools/schemas/drawio-golden-scenario.schema.json
+✅ Vendor prompting check passed
+
+═══ Part: workflow-handoffs ═══
+✅ tools/tests/drawio-golden/g5-enterprise-landing-zone/expected.json valid against ./tools/schemas/drawio-golden-scenario.schema.json
+✅ tools/tests/drawio-golden/g4-ml-training-pipeline/expected.json valid against ./tools/schemas/drawio-golden-scenario.schema.json
+✅ tools/tests/drawio-golden/g3-event-driven-microservices/expected.json valid against ./tools/schemas/drawio-golden-scenario.schema.json
+✅ tools/tests/drawio-golden/g2-hub-spoke-landing-zone/expected.json valid against ./tools/schemas/drawio-golden-scenario.schema.json
+
+🔍 Workflow Handoff Rules
+
+✅ tools/tests/drawio-golden/g1-three-tier-web/expected.json valid against ./tools/schemas/drawio-golden-scenario.schema.json
+⠙[1G[0K✅ tools/tests/drawio-baseline/_baseline-runs.json valid against ./tools/schemas/drawio-baseline-runs.schema.json
+
+──────────────────────────────────────────────────
+Checked: 22 | Errors: 0 | Warnings: 0
+✅ Workflow handoff check passed
+
+✅ All agent validations passed
+✅ tools/tests/drawio-baseline/regen-baseline.json valid against ./tools/schemas/drawio-regen-baseline.schema.json
+
+All JSON schema validations passed.
+⠙[1G[0K⠙  ✅ javascript.instructions.md: applyTo="**/*.{js,mjs,cjs}" has matching files
+[1G[0K  ✅ json.instructions.md: applyTo="**/*.{json,jsonc}" has matching files
+  ✅ lesson-collection.instructions.md: applyTo="**/*orchestrator*.agent.md" has matching files
+  ✅ markdown-docs.instructions.md: applyTo="site/src/content/docs/**/*.{md,mdx}, docs/**/*.md" has matching files
+  ✅ markdown.instructions.md: applyTo="site/src/content/docs/**/*.{md,mdx}, .github/copilot-instructions.md, .github/PULL_REQUEST_TEMPLATE.md, .github/plugins/**/*.md, tools/apex-prompts/**/*.md, .github/skills/**/templates/**/*.md, agent-output/**/*.md, docs/**/*.md, infra/**/*.md, tools/mcp-servers/**/*.md, tools/scripts/**/*.md, tests/**/*.md, AGENTS.md, README.md, CHANGELOG.md, CONTRIBUTING.md, CONTRIBUTORS.md, QUALITY_SCORE.md, VERSION.md" has matching files
+  ✅ no-hardcoded-counts.instructions.md: applyTo=".github/**/*.{md,json}, tools/scripts/**/*.mjs, site/src/content/docs/**/*.{md,mdx}, AGENTS.md, README.md, CHANGELOG.md, QUALITY_SCORE.md, VERSION.md" has matching files
+✅ Generated site/public/architecture-explorer-graph.json — 162 nodes, 666 edges
+   Agent:15  Subagent:7  Skill:33  Instruction:31  Prompt:0  Validator:58  CI Workflow:13  MCP Server:5
+  ✅ no-heredoc.instructions.md: applyTo="**/*.{js,mjs,cjs,ts,tsx,jsx,py,ps1,sh,bicep,tf}" has matching files
+
+──────────────────────────────────────────────────
+Checked: 676 | Errors: 0 | Warnings: 0
+
+✅ No hard-coded counts — count-manifest.json is source of truth
+⠙[1G[0K  ✅ bicep: 0.45.6 (min 0.21.0)
+  ✅ no-interactive-shell.instructions.md: applyTo="**/.github/agents/**/*.agent.md, **/.github/skills/**/SKILL.md, **/.github/instructions/**/*.instructions.md, **/tools/apex-prompts/**/*.prompt.md, **/AGENTS.md, **/.github/copilot-instructions.md, **/README.md" has matching files
+  ✅ powershell.instructions.md: applyTo="**/*.ps1,**/*.psm1" has matching files
+  ✅ terraform: 1.15.8 (min 1.6.0)
+  ✅ prompt.instructions.md: applyTo="**/*.prompt.md" has matching files
+  ✅ python.instructions.md: applyTo="**/*.py" has matching files
+  ✅ No deprecated terminology found (1450 files, 13 rules)
+
+
+──────────────────────────────────────────────────
+Checked: 1450 | Errors: 0 | Warnings: 0
+
+✅ Terminology Validator passed
+  ✅ shell.instructions.md: applyTo="**/*.sh" has matching files
+⠙[1G[0K  ✅ sku-manifest.instructions.md: applyTo="**/sku-manifest.{md,json}" has matching files
+  ✅ vendor-prompting.instructions.md: applyTo="**/*.agent.md, **/*.prompt.md" has matching files
+
+────────────────────────────────────────────────────────────
+📄 Part 4: Skill SKILL.md references exist
+
+  ✅ .github/skills/azure-defaults/SKILL.md (referenced by 11 file(s))
+  ✅ .github/skills/azure-artifacts/SKILL.md (referenced by 6 file(s))
+  ✅ .github/skills/azure-bicep-patterns/SKILL.md (referenced by 2 file(s))
+  ✅ .github/skills/context-management/SKILL.md (referenced by 4 file(s))
+  ✅ .github/skills/terraform-patterns/SKILL.md (referenced by 2 file(s))
+  ✅ .github/skills/iac-common/SKILL.md (referenced by 4 file(s))
+  ✅ .github/skills/drawio/SKILL.md (referenced by 2 file(s))
+  ✅ .github/skills/python-diagrams/SKILL.md (referenced by 3 file(s))
+  ✅ .github/skills/azure-adr/SKILL.md (referenced by 1 file(s))
+
+────────────────────────────────────────────────────────────
+📄 Part 5: Cross-references between instruction files
+
+  ✅ .github/instructions/lesson-collection.instructions.md (cross-referenced by 3 file(s))
+  ✅ .github/instructions/agent-operating-frame.instructions.md (cross-referenced by 8 file(s))
+  ✅ .github/instructions/agent-authoring.instructions.md (cross-referenced by 27 file(s))
+  ✅ .github/instructions/sku-manifest.instructions.md (cross-referenced by 7 file(s))
+  ✅ .github/instructions/iac-bicep-best-practices.instructions.md (cross-referenced by 10 file(s))
+  ✅ .github/instructions/iac-terraform-best-practices.instructions.md (cross-referenced by 8 file(s))
+  ✅ .github/instructions/context-optimization.instructions.md (cross-referenced by 7 file(s))
+  ✅ .github/instructions/agent-skills.instructions.md (cross-referenced by 4 file(s))
+  ✅ .github/instructions/docs.instructions.md (cross-referenced by 6 file(s))
+  ✅ .github/instructions/azure-artifacts.instructions.md (cross-referenced by 3 file(s))
+  ✅ .github/instructions/no-hardcoded-counts.instructions.md (cross-referenced by 3 file(s))
+  ✅ .github/instructions/markdown.instructions.md (cross-referenced by 8 file(s))
+  ✅ .github/instructions/vendor-prompting.instructions.md (cross-referenced by 3 file(s))
+  ✅ .github/instructions/governance-discovery.instructions.md (cross-referenced by 5 file(s))
+  ✅ .github/instructions/astro.instructions.md (cross-referenced by 1 file(s))
+  ✅ .github/instructions/iac-plan-best-practices.instructions.md (cross-referenced by 2 file(s))
+  ✅ .github/instructions/code-quality.instructions.md (cross-referenced by 3 file(s))
+  ✅ .github/instructions/docs-trigger.instructions.md (cross-referenced by 1 file(s))
+  ✅ .github/instructions/github-actions.instructions.md (cross-referenced by 1 file(s))
+  ✅ .github/instructions/instructions.instructions.md (cross-referenced by 2 file(s))
+  ✅ .github/instructions/javascript.instructions.md (cross-referenced by 1 file(s))
+  ✅ .github/instructions/json.instructions.md (cross-referenced by 1 file(s))
+  ✅ .github/instructions/no-heredoc.instructions.md (cross-referenced by 1 file(s))
+  ✅ .github/instructions/powershell.instructions.md (cross-referenced by 2 file(s))
+  ✅ .github/instructions/prompt.instructions.md (cross-referenced by 2 file(s))
+  ✅ .github/instructions/python.instructions.md (cross-referenced by 1 file(s))
+  ✅ .github/instructions/shell.instructions.md (cross-referenced by 2 file(s))
+  ✅ .github/instructions/no-interactive-shell.instructions.md (cross-referenced by 1 file(s))
+  ✅ .github/instructions/markdown-docs.instructions.md (cross-referenced by 1 file(s))
+
+──────────────────────────────────────────────────
+Checked: 68 | Errors: 0 | Warnings: 0
+
+✅ All instruction checks passed
+⠙[1G[0K[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m  ✅ az: 2.88.0 (min 2.55.0)
+  ✅ node: 24.18.0 (min 20.0.0)
+
+──────────────────────────────────────────────────
+Checked: 4 | Errors: 0 | Warnings: 0
+
+✅ Tool versions satisfy pins
+⠙[32m.[0m[1G[0K⠙[1G[0K[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m [ 25%]
+[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m [ 92%]
+[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m [ 50%]
+[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m                                                                   [100%][0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m
+[32m.[0m[32m[32m[1m78 passed[0m[32m in 1.84s[0m[0m
+[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m⠙[32m.[0m[1G[0K[32m.[0m[32m.[0m[32m.[0m[32m [ 76%]
+[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m     [100%][0m
+[2m13:05:31[22m [34m[starlight-links-validator][39m Invalidating content layer cache...
+Summary: 0 error(s)
+⠙[1G[0K⠙[1G[0K[2m13:05:32[22m [34m[content][39m Syncing content
+[2m13:05:35[22m [34m[content][39m Synced content
+[2m13:05:35[22m [34m[types][39m Generated [2m3.38s[22m
+[2m13:05:35[22m [34m[build][39m output: [34m"static"[39m
+[2m13:05:35[22m [34m[build][39m mode: [34m"static"[39m
+[2m13:05:35[22m [34m[build][39m directory: [34m/workspaces/apex/site/dist/[39m
+[2m13:05:35[22m [34m[build][39m Collecting build info...
+[2m13:05:35[22m [34m[build][39m [32m✓ Completed in 3.61s.[39m
+[2m13:05:35[22m [34m[build][39m Building static entrypoints...
+[2m13:05:36[22m [34m[vite][39m [32m✓ built in 1.05s[39m
+[2m13:05:36[22m [34m[vite][39m [32m✓ built in 177ms[39m
+[2m13:05:36[22m [34m[build][39m Rearranging server assets...
+
+[42m[30m generating static routes [39m[49m
+[33m[1m13:05:36[22m [WARN] [build][39m Could not render `/404` from route `/[...slug]` as it conflicts with higher priority route `/404`.
+[2m13:05:36[22m   [34m├─[39m [2m/404.html[22m [2m(+28ms)[22m 
+[2m13:05:36[22m   [34m├─[39m [2m/guides/cost-governance/index.html[22m [2m(+3ms)[22m 
+[2m13:05:36[22m   [34m├─[39m [2m/guides/prompt-guide/best-practices/index.html[22m [2m(+3ms)[22m 
+[2m13:05:36[22m   [34m├─[39m [2m/guides/prompt-guide/reference/index.html[22m [2m(+2ms)[22m 
+[2m13:05:36[22m   [34m├─[39m [2m/guides/prompt-guide/repository-prompts/index.html[22m [2m(+2ms)[22m 
+[2m13:05:36[22m   [34m├─[39m [2m/guides/prompt-guide/workflow-prompts/index.html[22m [2m(+2ms)[22m 
+[2m13:05:36[22m   [34m├─[39m [2m/guides/security-baseline/index.html[22m [2m(+2ms)[22m 
+[2m13:05:36[22m   [34m├─[39m [2m/project/index.html[22m [2m(+2ms)[22m 
+[2m13:05:36[22m   [34m├─[39m [2m/concepts/index.html[22m [2m(+16ms)[22m 
+[2m13:05:36[22m   [34m├─[39m [2m/concepts/how-it-works/index.html[22m [2m(+12ms)[22m 
+[2m13:05:36[22m   [34m├─[39m [2m/concepts/how-it-works/agents/index.html[22m [2m(+10ms)[22m 
+[2m13:05:36[22m   [34m├─[39m [2m/concepts/how-it-works/architecture/index.html[22m [2m(+8ms)[22m 
+[2m13:05:36[22m   [34m├─[39m [2m/concepts/how-it-works/four-pillars/index.html[22m [2m(+10ms)[22m 
+[2m13:05:36[22m   [34m├─[39m [2m/concepts/how-it-works/mcp-integration/index.html[22m [2m(+27ms)[22m 
+[2m13:05:36[22m   [34m├─[39m [2m/concepts/how-it-works/skills-and-instructions/index.html[22m [2m(+8ms)[22m 
+[2m13:05:36[22m   [34m├─[39m [2m/concepts/how-it-works/sku-manifest/index.html[22m [2m(+8ms)[22m 
+[2m13:05:36[22m   [34m├─[39m [2m/concepts/how-it-works/workflow-engine/index.html[22m [2m(+7ms)[22m 
+[2m13:05:36[22m   [34m├─[39m [2m/concepts/workflow/index.html[22m [2m(+7ms)[22m 
+[2m13:05:36[22m   [34m├─[39m [2m/concepts/workflow-deep-dive/index.html[22m [2m(+12ms)[22m 
+[2m13:05:36[22m   [34m├─[39m [2m/concepts/workflow/post-lessons/index.html[22m [2m(+6ms)[22m 
+[2m13:05:36[22m   [34m├─[39m [2m/concepts/workflow/step-1/index.html[22m [2m(+7ms)[22m 
+[2m13:05:36[22m   [34m├─[39m [2m/concepts/workflow/step-2/index.html[22m [2m(+6ms)[22m 
+[2m13:05:36[22m   [34m├─[39m [2m/concepts/workflow/step-3/index.html[22m [2m(+5ms)[22m 
+[2m13:05:36[22m   [34m├─[39m [2m/concepts/workflow/step-3-5/index.html[22m [2m(+5ms)[22m 
+[2m13:05:36[22m   [34m├─[39m [2m/concepts/workflow/step-4/index.html[22m [2m(+6ms)[22m 
+[2m13:05:36[22m   [34m├─[39m [2m/concepts/workflow/step-5/index.html[22m [2m(+6ms)[22m 
+[2m13:05:36[22m   [34m├─[39m [2m/concepts/workflow/step-6/index.html[22m [2m(+5ms)[22m 
+[2m13:05:36[22m   [34m├─[39m [2m/concepts/workflow/step-7/index.html[22m [2m(+6ms)[22m 
+[2m13:05:36[22m   [34m├─[39m [2m/demo/index.html[22m [2m(+7ms)[22m 
+[2m13:05:36[22m   [34m├─[39m [2m/demo/01-requirements/index.html[22m [2m(+6ms)[22m 
+[2m13:05:36[22m   [34m├─[39m [2m/demo/01-requirements/budget-scaling/index.html[22m [2m(+6ms)[22m 
+[2m13:05:36[22m   [34m├─[39m [2m/demo/01-requirements/compliance-security/index.html[22m [2m(+6ms)[22m 
+[2m13:05:36[22m   [34m├─[39m [2m/demo/01-requirements/functional/index.html[22m [2m(+20ms)[22m 
+[2m13:05:36[22m   [34m├─[39m [2m/demo/02-architecture/index.html[22m [2m(+5ms)[22m 
+[2m13:05:36[22m   [34m├─[39m [2m/demo/02-architecture/sizing-pricing/index.html[22m [2m(+5ms)[22m 
+[2m13:05:36[22m   [34m├─[39m [2m/demo/02-architecture/waf-assessment/index.html[22m [2m(+6ms)[22m 
+[2m13:05:36[22m   [34m├─[39m [2m/demo/03-design/index.html[22m [2m(+6ms)[22m 
+[2m13:05:36[22m   [34m├─[39m [2m/demo/03-design/adrs/index.html[22m [2m(+6ms)[22m 
+[2m13:05:36[22m   [34m├─[39m [2m/demo/03-design/cost/index.html[22m [2m(+6ms)[22m 
+[2m13:05:36[22m   [34m├─[39m [2m/demo/04-governance/index.html[22m [2m(+6ms)[22m 
+[2m13:05:36[22m   [34m├─[39m [2m/demo/04-governance/security/index.html[22m [2m(+6ms)[22m 
+[2m13:05:37[22m   [34m├─[39m [2m/demo/04-governance/tags/index.html[22m [2m(+6ms)[22m 
+[2m13:05:37[22m   [34m├─[39m [2m/demo/05-plan/index.html[22m [2m(+5ms)[22m 
+[2m13:05:37[22m   [34m├─[39m [2m/demo/05-plan/modules/index.html[22m [2m(+5ms)[22m 
+[2m13:05:37[22m   [34m├─[39m [2m/demo/05-plan/phases/index.html[22m [2m(+5ms)[22m 
+[2m13:05:37[22m   [34m├─[39m [2m/demo/06-code/index.html[22m [2m(+5ms)[22m 
+[2m13:05:37[22m   [34m├─[39m [2m/demo/06-code/artifacts/index.html[22m [2m(+5ms)[22m 
+[2m13:05:37[22m   [34m├─[39m [2m/demo/06-code/validation/index.html[22m [2m(+5ms)[22m 
+[2m13:05:37[22m   [34m├─[39m [2m/demo/07-deploy/index.html[22m [2m(+5ms)[22m 
+[2m13:05:37[22m   [34m├─[39m [2m/demo/07-deploy/outputs/index.html[22m [2m(+5ms)[22m 
+[2m13:05:37[22m   [34m├─[39m [2m/demo/07-deploy/phases/index.html[22m [2m(+7ms)[22m 
+[2m13:05:37[22m   [34m├─[39m [2m/demo/08-as-built/index.html[22m [2m(+6ms)[22m 
+[2m13:05:37[22m   [34m├─[39m [2m/demo/08-as-built/compliance/index.html[22m [2m(+7ms)[22m 
+[2m13:05:37[22m   [34m├─[39m [2m/demo/08-as-built/design/index.html[22m [2m(+6ms)[22m 
+[2m13:05:37[22m   [34m├─[39m [2m/demo/08-as-built/runbook/index.html[22m [2m(+6ms)[22m 
+[2m13:05:37[22m   [34m├─[39m [2m/demo/09-reviews/index.html[22m [2m(+5ms)[22m 
+[2m13:05:37[22m   [34m├─[39m [2m/demo/09-reviews/architecture/index.html[22m [2m(+6ms)[22m 
+[2m13:05:37[22m   [34m├─[39m [2m/demo/09-reviews/governance/index.html[22m [2m(+5ms)[22m 
+[2m13:05:37[22m   [34m├─[39m [2m/demo/09-reviews/implementation/index.html[22m [2m(+13ms)[22m 
+[2m13:05:37[22m   [34m├─[39m [2m/demo/09-reviews/requirements/index.html[22m [2m(+6ms)[22m 
+[2m13:05:37[22m   [34m├─[39m [2m/getting-started/index.html[22m [2m(+7ms)[22m 
+[2m13:05:37[22m   [34m├─[39m [2m/getting-started/azure-setup/index.html[22m [2m(+5ms)[22m 
+[2m13:05:37[22m   [34m├─[39m [2m/getting-started/dev-containers/index.html[22m [2m(+6ms)[22m 
+[2m13:05:37[22m   [34m├─[39m [2m/getting-started/quickstart/index.html[22m [2m(+6ms)[22m 
+[2m13:05:37[22m   [34m├─[39m [2m/guides/index.html[22m [2m(+8ms)[22m 
+[2m13:05:37[22m   [34m├─[39m [2m/guides/apex-debug-log-export/index.html[22m [2m(+6ms)[22m 
+[2m13:05:37[22m   [34m├─[39m [2m/guides/azd-deployment/index.html[22m [2m(+7ms)[22m 
+[2m13:05:37[22m   [34m├─[39m [2m/guides/devcontainer-base-validation/index.html[22m [2m(+5ms)[22m 
+[2m13:05:37[22m   [34m├─[39m [2m/guides/devcontainer-hygiene/index.html[22m [2m(+5ms)[22m 
+[2m13:05:37[22m   [34m├─[39m [2m/guides/e2e-testing/index.html[22m [2m(+6ms)[22m 
+[2m13:05:37[22m   [34m├─[39m [2m/guides/hooks/index.html[22m [2m(+5ms)[22m 
+[2m13:05:37[22m   [34m├─[39m [2m/guides/prompt-guide/index.html[22m [2m(+11ms)[22m 
+[2m13:05:37[22m   [34m├─[39m [2m/guides/session-debugging/index.html[22m [2m(+6ms)[22m 
+[2m13:05:37[22m   [34m├─[39m [2m/guides/troubleshooting/index.html[22m [2m(+9ms)[22m 
+[2m13:05:37[22m   [34m├─[39m [2m/index.html[22m [2m(+8ms)[22m 
+[2m13:05:37[22m   [34m├─[39m [2m/project/changelog/index.html[22m [2m(+7ms)[22m 
+[2m13:05:37[22m   [34m├─[39m [2m/project/contributing/index.html[22m [2m(+8ms)[22m 
+[2m13:05:37[22m   [34m├─[39m [2m/project/sensei-branch/index.html[22m [2m(+42ms)[22m 
+[2m13:05:37[22m   [34m├─[39m [2m/project/style-guide/index.html[22m [2m(+6ms)[22m 
+[2m13:05:37[22m   [34m├─[39m [2m/reference/index.html[22m [2m(+8ms)[22m 
+[2m13:05:37[22m   [34m├─[39m [2m/reference/architecture-explorer/index.html[22m [2m(+8ms)[22m 
+[2m13:05:37[22m   [34m├─[39m [2m/reference/cost-governance/index.html[22m [2m(+6ms)[22m 
+[2m13:05:37[22m   [34m├─[39m [2m/reference/faq/index.html[22m [2m(+5ms)[22m 
+[2m13:05:37[22m   [34m├─[39m [2m/reference/glossary/index.html[22m [2m(+7ms)[22m 
+[2m13:05:37[22m   [34m├─[39m [2m/reference/prompts/best-practices/index.html[22m [2m(+7ms)[22m 
+[2m13:05:37[22m   [34m├─[39m [2m/reference/prompts/repository-prompts/index.html[22m [2m(+6ms)[22m 
+[2m13:05:37[22m   [34m├─[39m [2m/reference/prompts/skills-subagents/index.html[22m [2m(+7ms)[22m 
+[2m13:05:37[22m   [34m├─[39m [2m/reference/prompts/workflow-prompts/index.html[22m [2m(+5ms)[22m 
+[2m13:05:37[22m   [34m├─[39m [2m/reference/resources/index.html[22m [2m(+4ms)[22m 
+[2m13:05:37[22m   [34m├─[39m [2m/reference/security-baseline/index.html[22m [2m(+5ms)[22m 
+[2m13:05:37[22m   [34m├─[39m [2m/reference/validation-reference/index.html[22m [2m(+5ms)[22m 
+[2m13:05:37[22m [32m✓ Completed in 745ms.
+[39m
+[42m[30m generating optimized images [39m[49m
+[2m13:05:37[22m   [32m▶[39m /_astro/lessons-loop.BVFRnAiB_Z1M7swp.webp [2m(reused cache entry)[22m [2m(+1ms)[22m [2m(1/2)[22m
+[2m13:05:37[22m   [32m▶[39m /_astro/e2e-orchestration.L6KGEuG9_ZB5YAd.webp [2m(reused cache entry)[22m [2m(+2ms)[22m [2m(2/2)[22m
+[2m13:05:37[22m [32m✓ Completed in 3ms.
+[39m
+[2m13:05:37[22m [34m[build][39m [32m✓ Completed in 2.05s.[39m
+[2m13:05:37[22m [34m[starlight:pagefind][39m Building search index with Pagefind...
+[2m13:05:37[22m [34m[starlight:pagefind][39m Found 92 HTML files.
+[2m13:05:37[22m [34m[starlight:pagefind][39m Finished building search index in 277ms.
+
+[42m[30m validating links [39m[49m
+
+[32m╭─[39m                             [32m─╮[39m
+[32m·[39m All internal links are valid. [32m·[39m
+[32m╰─[39m                             [32m─╯[39m
+
+[2m13:05:37[22m [34m[@astrojs/sitemap][39m `sitemap-index.xml` created at `dist`
+[2m13:05:37[22m [34m[build][39m 84 page(s) built in [1m5.99s[22m
+[2m13:05:37[22m [34m[build][39m [1mComplete![22m
+✓ All 8114 internal links are valid.
+⠙[1G[0K⠙[1G[0K✅ All validations passed
+⠙[1G[0K
 > apex@0.10.0 test:apex-recall
 > python3 -m pytest tools/tests/test_apex_recall/ -q
 
 [32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m [ 92%]
 [0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m                                                                   [100%][0m
-[32m[32m[1m78 passed[0m[32m in 1.24s[0m[0m
+[32m[32m[1m78 passed[0m[32m in 1.30s[0m[0m
 ⠙[1G[0K
 > apex@0.10.0 test:azure-pricing-mcp
 > tools/mcp-servers/azure-pricing/.venv/bin/python -m pytest tools/mcp-servers/azure-pricing/tests -q
@@ -15,20 +1287,20 @@ Script started on 2026-07-13 12:41:26+00:00 [COMMAND="npm run test:apex-recall &
 [0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m [ 76%]
 [0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m     [100%][0m
 ⠙[1G[0K▶ Nordic-foods replay — forbidden patterns (J2)
-  [32m✔ is absent: iac-planner-handoff (nordic-p1 architect) [90m(1.386313ms)[39m[39m
-  [32m✔ is absent: drawio-invalid-xml (nordic-p1 drawio) [90m(0.194367ms)[39m[39m
-  [32m✔ is absent: jq-null-iteration (nordic-p1 bicep-deploy) [90m(0.123305ms)[39m[39m
-  [32m✔ is absent: pascalcase-baseline (nordic-p1 governance) [90m(0.097364ms)[39m[39m
-  [32m✔ is absent: same-region-question (nordic-p1 governance) [90m(0.176997ms)[39m[39m
-  [32m✔ is absent: drawio-surrogate-crash (nordic-p1 drawio) [90m(0.117434ms)[39m[39m
-[32m✔ Nordic-foods replay — forbidden patterns (J2) [90m(3.003825ms)[39m[39m
+  [32m✔ is absent: iac-planner-handoff (nordic-p1 architect) [90m(5.023356ms)[39m[39m
+  [32m✔ is absent: drawio-invalid-xml (nordic-p1 drawio) [90m(0.184278ms)[39m[39m
+  [32m✔ is absent: jq-null-iteration (nordic-p1 bicep-deploy) [90m(0.122345ms)[39m[39m
+  [32m✔ is absent: pascalcase-baseline (nordic-p1 governance) [90m(0.140916ms)[39m[39m
+  [32m✔ is absent: same-region-question (nordic-p1 governance) [90m(0.214519ms)[39m[39m
+  [32m✔ is absent: drawio-surrogate-crash (nordic-p1 drawio) [90m(0.129496ms)[39m[39m
+[32m✔ Nordic-foods replay — forbidden patterns (J2) [90m(6.96103ms)[39m[39m
 ▶ Nordic-foods replay — affirmative checks (J3)
-  [32m✔ is present: sku-confirmation-before-pricing (phase A1) [90m(0.429706ms)[39m[39m
-  [32m✔ is present: per-finding-askme (phase A3) [90m(0.512169ms)[39m[39m
-  [32m✔ is present: drawio-default (phase D1) [90m(0.25472ms)[39m[39m
-  [32m✔ is present: governance-two-questions (phase E1) [90m(0.223689ms)[39m[39m
-  [32m✔ is present: budget-gate-conditional (phase A2) [90m(3.580948ms)[39m[39m
-[32m✔ Nordic-foods replay — affirmative checks (J3) [90m(5.416609ms)[39m[39m
+  [32m✔ is present: sku-confirmation-before-pricing (phase A1) [90m(0.413878ms)[39m[39m
+  [32m✔ is present: per-finding-askme (phase A3) [90m(0.497001ms)[39m[39m
+  [32m✔ is present: drawio-default (phase D1) [90m(0.267421ms)[39m[39m
+  [32m✔ is present: governance-two-questions (phase E1) [90m(0.272951ms)[39m[39m
+  [32m✔ is present: budget-gate-conditional (phase A2) [90m(0.23481ms)[39m[39m
+[32m✔ Nordic-foods replay — affirmative checks (J3) [90m(2.025128ms)[39m[39m
 [34mℹ tests 11[39m
 [34mℹ suites 2[39m
 [34mℹ pass 11[39m
@@ -36,21 +1308,21 @@ Script started on 2026-07-13 12:41:26+00:00 [COMMAND="npm run test:apex-recall &
 [34mℹ cancelled 0[39m
 [34mℹ skipped 0[39m
 [34mℹ todo 0[39m
-[34mℹ duration_ms 68.782174[39m
+[34mℹ duration_ms 75.428869[39m
 ▶ SKU Manifest validator — valid fixtures
-  [32m✔ accepts allowlist-satisfied.json [90m(137.802321ms)[39m[39m
-  [32m✔ accepts empty-user-pins.json [90m(138.485725ms)[39m[39m
-  [32m✔ accepts multi-env-autoscale-ri.json [90m(135.827991ms)[39m[39m
-  [32m✔ accepts multi-stamp.json [90m(138.693409ms)[39m[39m
-[32m✔ SKU Manifest validator — valid fixtures [90m(555.876266ms)[39m[39m
+  [32m✔ accepts allowlist-satisfied.json [90m(145.30441ms)[39m[39m
+  [32m✔ accepts empty-user-pins.json [90m(145.98516ms)[39m[39m
+  [32m✔ accepts multi-env-autoscale-ri.json [90m(139.962708ms)[39m[39m
+  [32m✔ accepts multi-stamp.json [90m(142.780383ms)[39m[39m
+[32m✔ SKU Manifest validator — valid fixtures [90m(576.261707ms)[39m[39m
 ▶ SKU Manifest validator — invalid fixtures
-  [32m✔ rejects allowlist-violation.json with non-zero exit [90m(135.403038ms)[39m[39m
-  [32m✔ rejects current-revision-mismatch.json with non-zero exit [90m(139.344864ms)[39m[39m
-  [32m✔ rejects duplicate-id.json with non-zero exit [90m(149.596269ms)[39m[39m
-  [32m✔ rejects env-override-not-in-environments.json with non-zero exit [90m(137.962951ms)[39m[39m
-  [32m✔ rejects reserved-missing-term-years.json with non-zero exit [90m(138.274454ms)[39m[39m
-  [32m✔ rejects stamp-references-unknown-service.json with non-zero exit [90m(131.572269ms)[39m[39m
-[32m✔ SKU Manifest validator — invalid fixtures [90m(832.73952ms)[39m[39m
+  [32m✔ rejects allowlist-violation.json with non-zero exit [90m(152.795967ms)[39m[39m
+  [32m✔ rejects current-revision-mismatch.json with non-zero exit [90m(148.384512ms)[39m[39m
+  [32m✔ rejects duplicate-id.json with non-zero exit [90m(156.356652ms)[39m[39m
+  [32m✔ rejects env-override-not-in-environments.json with non-zero exit [90m(151.30108ms)[39m[39m
+  [32m✔ rejects reserved-missing-term-years.json with non-zero exit [90m(173.617557ms)[39m[39m
+  [32m✔ rejects stamp-references-unknown-service.json with non-zero exit [90m(155.570875ms)[39m[39m
+[32m✔ SKU Manifest validator — invalid fixtures [90m(939.724857ms)[39m[39m
 [34mℹ tests 10[39m
 [34mℹ suites 2[39m
 [34mℹ pass 10[39m
@@ -58,15 +1330,15 @@ Script started on 2026-07-13 12:41:26+00:00 [COMMAND="npm run test:apex-recall &
 [34mℹ cancelled 0[39m
 [34mℹ skipped 0[39m
 [34mℹ todo 0[39m
-[34mℹ duration_ms 1450.407797[39m
-[32m✔ agent fixture fixture-bad-target.agent.md [90m(81.367468ms)[39m[39m
-[32m✔ agent fixture fixture-bad-artifact-sync.agent.md [90m(62.293109ms)[39m[39m
-[32m✔ agent fixture fixture-bad-self-loop.agent.md [90m(72.321494ms)[39m[39m
-[32m✔ agent fixture fixture-bad-subagent-dispatch.agent.md [90m(66.262924ms)[39m[39m
-[32m✔ agent fixture B4 track parity (pair) [90m(74.526583ms)[39m[39m
-[32m✔ companion fixture g1-good-handoff.md passes [90m(137.220992ms)[39m[39m
-[32m✔ companion fixture g2_5-good-handoff.md passes [90m(131.872181ms)[39m[39m
-[32m✔ companion fixture g5-bad-handoff.md flags missing required H2s [90m(142.423412ms)[39m[39m
+[34mℹ duration_ms 1593.53004[39m
+[32m✔ agent fixture fixture-bad-target.agent.md [90m(95.258346ms)[39m[39m
+[32m✔ agent fixture fixture-bad-artifact-sync.agent.md [90m(91.468027ms)[39m[39m
+[32m✔ agent fixture fixture-bad-self-loop.agent.md [90m(80.379454ms)[39m[39m
+[32m✔ agent fixture fixture-bad-subagent-dispatch.agent.md [90m(86.894658ms)[39m[39m
+[32m✔ agent fixture B4 track parity (pair) [90m(82.973629ms)[39m[39m
+[32m✔ companion fixture g1-good-handoff.md passes [90m(165.375531ms)[39m[39m
+[32m✔ companion fixture g2_5-good-handoff.md passes [90m(168.81742ms)[39m[39m
+[32m✔ companion fixture g5-bad-handoff.md flags missing required H2s [90m(155.390848ms)[39m[39m
 [34mℹ tests 8[39m
 [34mℹ suites 0[39m
 [34mℹ pass 8[39m
@@ -74,25 +1346,25 @@ Script started on 2026-07-13 12:41:26+00:00 [COMMAND="npm run test:apex-recall &
 [34mℹ cancelled 0[39m
 [34mℹ skipped 0[39m
 [34mℹ todo 0[39m
-[34mℹ duration_ms 832.80996[39m
+[34mℹ duration_ms 995.462465[39m
 
 > apex@0.10.0 test:subagent-file-contract
 > node --test tools/tests/subagent-file-contract.test.mjs
 
 ▶ subagent file-mode contract
   ▶ challenger-review-subagent fixture
-    [32m✔ (a) summary stays within byte and line budgets [90m(0.678141ms)[39m[39m
-    [32m✔ (b) the declared file_path exists post-call [90m(0.552537ms)[39m[39m
-    [32m✔ (c) summary numeric counts match the file content [90m(0.304ms)[39m[39m
-    [32m✔ (d) re-running without overwrite: true is rejected [90m(0.603238ms)[39m[39m
-  [32m✔ challenger-review-subagent fixture [90m(2.734486ms)[39m[39m
+    [32m✔ (a) summary stays within byte and line budgets [90m(0.815735ms)[39m[39m
+    [32m✔ (b) the declared file_path exists post-call [90m(0.666949ms)[39m[39m
+    [32m✔ (c) summary numeric counts match the file content [90m(0.308974ms)[39m[39m
+    [32m✔ (d) re-running without overwrite: true is rejected [90m(0.805905ms)[39m[39m
+  [32m✔ challenger-review-subagent fixture [90m(3.161447ms)[39m[39m
   ▶ cost-estimate-subagent fixture
-    [32m✔ (a) summary stays within byte and line budgets [90m(0.435903ms)[39m[39m
-    [32m✔ (b) the declared file_path exists post-call [90m(0.364091ms)[39m[39m
-    [32m✔ (c) summary totals match the file content [90m(0.29896ms)[39m[39m
-    [32m✔ (d) refuse-on-exists also applies to cost estimates [90m(0.457075ms)[39m[39m
-  [32m✔ cost-estimate-subagent fixture [90m(1.947831ms)[39m[39m
-[32m✔ subagent file-mode contract [90m(46.358684ms)[39m[39m
+    [32m✔ (a) summary stays within byte and line budgets [90m(0.44137ms)[39m[39m
+    [32m✔ (b) the declared file_path exists post-call [90m(0.451959ms)[39m[39m
+    [32m✔ (c) summary totals match the file content [90m(0.367086ms)[39m[39m
+    [32m✔ (d) refuse-on-exists also applies to cost estimates [90m(0.428279ms)[39m[39m
+  [32m✔ cost-estimate-subagent fixture [90m(2.196745ms)[39m[39m
+[32m✔ subagent file-mode contract [90m(7.698483ms)[39m[39m
 [34mℹ tests 8[39m
 [34mℹ suites 3[39m
 [34mℹ pass 8[39m
@@ -100,21 +1372,21 @@ Script started on 2026-07-13 12:41:26+00:00 [COMMAND="npm run test:apex-recall &
 [34mℹ cancelled 0[39m
 [34mℹ skipped 0[39m
 [34mℹ todo 0[39m
-[34mℹ duration_ms 112.2407[39m
+[34mℹ duration_ms 86.637816[39m
 ⠙[1G[0K
 > apex@0.10.0 test:governance-discovery
 > python3 -m pytest .github/skills/azure-governance-discovery/scripts/test_discover.py -q
 
 [32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m                                               [100%][0m
-[32m[32m[1m26 passed[0m[32m in 0.17s[0m[0m
+[32m[32m[1m26 passed[0m[32m in 0.16s[0m[0m
 ⠙[1G[0K▶ Drawio MCP surrogate-pair reproducer (D5a)
-  [32m✔ accepts well-formed surrogate pair (📦) [90m(0.771254ms)[39m[39m
-  [32m✔ rejects lone high surrogate (the original crash signature) [90m(0.108734ms)[39m[39m
-  [32m✔ rejects lone low surrogate [90m(0.092923ms)[39m[39m
-  [32m✔ accepts a normal ASCII payload at the original ~9879-byte size [90m(4.253034ms)[39m[39m
-  [32m✔ detects malformed half-pair embedded mid-payload (positional reproducer) [90m(0.915029ms)[39m[39m
-  [32m✔ handles a realistic shape-name payload with emoji [90m(0.222887ms)[39m[39m
-[32m✔ Drawio MCP surrogate-pair reproducer (D5a) [90m(7.425103ms)[39m[39m
+  [32m✔ accepts well-formed surrogate pair (📦) [90m(0.93607ms)[39m[39m
+  [32m✔ rejects lone high surrogate (the original crash signature) [90m(0.112384ms)[39m[39m
+  [32m✔ rejects lone low surrogate [90m(0.098004ms)[39m[39m
+  [32m✔ accepts a normal ASCII payload at the original ~9879-byte size [90m(1.527855ms)[39m[39m
+  [32m✔ detects malformed half-pair embedded mid-payload (positional reproducer) [90m(0.768233ms)[39m[39m
+  [32m✔ handles a realistic shape-name payload with emoji [90m(0.181438ms)[39m[39m
+[32m✔ Drawio MCP surrogate-pair reproducer (D5a) [90m(4.605219ms)[39m[39m
 [34mℹ tests 6[39m
 [34mℹ suites 1[39m
 [34mℹ pass 6[39m
@@ -122,21 +1394,21 @@ Script started on 2026-07-13 12:41:26+00:00 [COMMAND="npm run test:apex-recall &
 [34mℹ cancelled 0[39m
 [34mℹ skipped 0[39m
 [34mℹ todo 0[39m
-[34mℹ duration_ms 65.368251[39m
+[34mℹ duration_ms 69.139974[39m
 
 > apex@0.10.0 test:devcontainer-verdicts
 > node --test tools/tests/compare-devcontainer-verdicts.test.mjs
 
 ▶ compareDevcontainerVerdicts
-  [32m✔ passes when every leg passes and candidates add no warnings [90m(2.283442ms)[39m[39m
-  [32m✔ blocks on a candidate-only warning [90m(0.234957ms)[39m[39m
-  [32m✔ blocks when a candidate command fails [90m(0.282309ms)[39m[39m
-  [32m✔ blocks when a baseline fails [90m(0.162785ms)[39m[39m
-  [32m✔ blocks when a verdict is missing [90m(0.169946ms)[39m[39m
-  [32m✔ blocks when the observed architecture does not match [90m(0.156155ms)[39m[39m
-  [32m✔ reports malformed verdict JSON as a blocker [90m(1.876248ms)[39m[39m
-  [32m✔ renders a concise Markdown result table [90m(0.361511ms)[39m[39m
-[32m✔ compareDevcontainerVerdicts [90m(6.697021ms)[39m[39m
+  [32m✔ passes when every leg passes and candidates add no warnings [90m(2.358633ms)[39m[39m
+  [32m✔ blocks on a candidate-only warning [90m(0.22501ms)[39m[39m
+  [32m✔ blocks when a candidate command fails [90m(0.24104ms)[39m[39m
+  [32m✔ blocks when a baseline fails [90m(0.186268ms)[39m[39m
+  [32m✔ blocks when a verdict is missing [90m(0.156087ms)[39m[39m
+  [32m✔ blocks when the observed architecture does not match [90m(0.158427ms)[39m[39m
+  [32m✔ reports malformed verdict JSON as a blocker [90m(1.869691ms)[39m[39m
+  [32m✔ renders a concise Markdown result table [90m(0.387257ms)[39m[39m
+[32m✔ compareDevcontainerVerdicts [90m(6.863819ms)[39m[39m
 [34mℹ tests 8[39m
 [34mℹ suites 1[39m
 [34mℹ pass 8[39m
@@ -144,6 +1416,6 @@ Script started on 2026-07-13 12:41:26+00:00 [COMMAND="npm run test:apex-recall &
 [34mℹ cancelled 0[39m
 [34mℹ skipped 0[39m
 [34mℹ todo 0[39m
-[34mℹ duration_ms 67.622642[39m
+[34mℹ duration_ms 76.57994[39m
 ⠙[1G[0K
-Script done on 2026-07-13 12:41:34+00:00 [COMMAND_EXIT_CODE="0"]
+Script done on 2026-07-13 13:05:46+00:00 [COMMAND_EXIT_CODE="0"]
