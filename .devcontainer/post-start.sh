@@ -76,7 +76,7 @@ if [ -d "$MCP_DIR" ]; then
         rm -rf "$MCP_DIR/.venv" 2>/dev/null || true
         if { python3 -m venv "$MCP_DIR/.venv" \
             && "$MCP_DIR/.venv/bin/python" -m pip install --quiet --upgrade pip \
-            && "$MCP_DIR/.venv/bin/python" -m pip install --quiet -e "$MCP_DIR[admin]"; } > "$REBUILD_LOG" 2>&1; then
+            && "$MCP_DIR/.venv/bin/python" -m pip install --quiet -e "$MCP_DIR[admin,dev]"; } > "$REBUILD_LOG" 2>&1; then
             printf "✅ rebuilt (%s)\n" "$REBUILD_REASON"
             rm -f "$REBUILD_LOG" 2>/dev/null || true
         else
@@ -86,8 +86,8 @@ if [ -d "$MCP_DIR" ]; then
     elif [ -f "$MCP_DIR/.venv/bin/python" ]; then
         "$MCP_DIR/.venv/bin/python" -m pip install --quiet --upgrade pip 2>/dev/null || true
         printf "    azure-pricing-mcp     "
-        # ``[admin]`` is canonical (v5.x); ``[azure]`` is a deprecated alias.
-        "$MCP_DIR/.venv/bin/python" -m pip install --quiet -e "$MCP_DIR[admin]" \
+        # Keep runtime and repository test dependencies current in the isolated venv.
+        "$MCP_DIR/.venv/bin/python" -m pip install --quiet -e "$MCP_DIR[admin,dev]" \
             && printf "✅ updated\n" \
             || printf "⚠️  update failed (continuing)\n"
     fi
@@ -98,6 +98,11 @@ printf "    npm local deps        "
 npm install --loglevel=error 2>&1 | tail -1 \
     && printf "✅ ok\n" \
     || printf "⚠️  npm install failed (continuing)\n"
+
+printf "    site npm deps         "
+npm --prefix site install --loglevel=error 2>&1 | tail -1 \
+    && printf "✅ ok\n" \
+    || printf "⚠️  site npm install failed (continuing)\n"
 
 # ─── Azure Developer CLI (azd) version + auth check ─────────────────────────
 # The devcontainer feature only runs at image-build time, so a cached rebuild

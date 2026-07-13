@@ -1,0 +1,149 @@
+Script started on 2026-07-13 12:41:26+00:00 [COMMAND="npm run test:apex-recall && npm run test:azure-pricing-mcp && node --test tests/fixtures/nordic-foods-replay/transcript-checks.test.mjs && node --test tools/tests/validate-sku-manifest.test.mjs && node --test tools/tests/workflow-handoffs/run.test.mjs && npm run test:subagent-file-contract && npm run test:governance-discovery && node --test tests/drawio/reproduce-surrogate-error.test.mjs && npm run test:devcontainer-verdicts" TERM="xterm-256color" TTY="/dev/pts/0" COLUMNS="80" LINES="30"]
+
+> apex@0.10.0 test:apex-recall
+> python3 -m pytest tools/tests/test_apex_recall/ -q
+
+[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m [ 92%]
+[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m                                                                   [100%][0m
+[32m[32m[1m78 passed[0m[32m in 1.24s[0m[0m
+⠙[1G[0K
+> apex@0.10.0 test:azure-pricing-mcp
+> tools/mcp-servers/azure-pricing/.venv/bin/python -m pytest tools/mcp-servers/azure-pricing/tests -q
+
+[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m [ 25%]
+[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m [ 50%]
+[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m [ 76%]
+[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m     [100%][0m
+⠙[1G[0K▶ Nordic-foods replay — forbidden patterns (J2)
+  [32m✔ is absent: iac-planner-handoff (nordic-p1 architect) [90m(1.386313ms)[39m[39m
+  [32m✔ is absent: drawio-invalid-xml (nordic-p1 drawio) [90m(0.194367ms)[39m[39m
+  [32m✔ is absent: jq-null-iteration (nordic-p1 bicep-deploy) [90m(0.123305ms)[39m[39m
+  [32m✔ is absent: pascalcase-baseline (nordic-p1 governance) [90m(0.097364ms)[39m[39m
+  [32m✔ is absent: same-region-question (nordic-p1 governance) [90m(0.176997ms)[39m[39m
+  [32m✔ is absent: drawio-surrogate-crash (nordic-p1 drawio) [90m(0.117434ms)[39m[39m
+[32m✔ Nordic-foods replay — forbidden patterns (J2) [90m(3.003825ms)[39m[39m
+▶ Nordic-foods replay — affirmative checks (J3)
+  [32m✔ is present: sku-confirmation-before-pricing (phase A1) [90m(0.429706ms)[39m[39m
+  [32m✔ is present: per-finding-askme (phase A3) [90m(0.512169ms)[39m[39m
+  [32m✔ is present: drawio-default (phase D1) [90m(0.25472ms)[39m[39m
+  [32m✔ is present: governance-two-questions (phase E1) [90m(0.223689ms)[39m[39m
+  [32m✔ is present: budget-gate-conditional (phase A2) [90m(3.580948ms)[39m[39m
+[32m✔ Nordic-foods replay — affirmative checks (J3) [90m(5.416609ms)[39m[39m
+[34mℹ tests 11[39m
+[34mℹ suites 2[39m
+[34mℹ pass 11[39m
+[34mℹ fail 0[39m
+[34mℹ cancelled 0[39m
+[34mℹ skipped 0[39m
+[34mℹ todo 0[39m
+[34mℹ duration_ms 68.782174[39m
+▶ SKU Manifest validator — valid fixtures
+  [32m✔ accepts allowlist-satisfied.json [90m(137.802321ms)[39m[39m
+  [32m✔ accepts empty-user-pins.json [90m(138.485725ms)[39m[39m
+  [32m✔ accepts multi-env-autoscale-ri.json [90m(135.827991ms)[39m[39m
+  [32m✔ accepts multi-stamp.json [90m(138.693409ms)[39m[39m
+[32m✔ SKU Manifest validator — valid fixtures [90m(555.876266ms)[39m[39m
+▶ SKU Manifest validator — invalid fixtures
+  [32m✔ rejects allowlist-violation.json with non-zero exit [90m(135.403038ms)[39m[39m
+  [32m✔ rejects current-revision-mismatch.json with non-zero exit [90m(139.344864ms)[39m[39m
+  [32m✔ rejects duplicate-id.json with non-zero exit [90m(149.596269ms)[39m[39m
+  [32m✔ rejects env-override-not-in-environments.json with non-zero exit [90m(137.962951ms)[39m[39m
+  [32m✔ rejects reserved-missing-term-years.json with non-zero exit [90m(138.274454ms)[39m[39m
+  [32m✔ rejects stamp-references-unknown-service.json with non-zero exit [90m(131.572269ms)[39m[39m
+[32m✔ SKU Manifest validator — invalid fixtures [90m(832.73952ms)[39m[39m
+[34mℹ tests 10[39m
+[34mℹ suites 2[39m
+[34mℹ pass 10[39m
+[34mℹ fail 0[39m
+[34mℹ cancelled 0[39m
+[34mℹ skipped 0[39m
+[34mℹ todo 0[39m
+[34mℹ duration_ms 1450.407797[39m
+[32m✔ agent fixture fixture-bad-target.agent.md [90m(81.367468ms)[39m[39m
+[32m✔ agent fixture fixture-bad-artifact-sync.agent.md [90m(62.293109ms)[39m[39m
+[32m✔ agent fixture fixture-bad-self-loop.agent.md [90m(72.321494ms)[39m[39m
+[32m✔ agent fixture fixture-bad-subagent-dispatch.agent.md [90m(66.262924ms)[39m[39m
+[32m✔ agent fixture B4 track parity (pair) [90m(74.526583ms)[39m[39m
+[32m✔ companion fixture g1-good-handoff.md passes [90m(137.220992ms)[39m[39m
+[32m✔ companion fixture g2_5-good-handoff.md passes [90m(131.872181ms)[39m[39m
+[32m✔ companion fixture g5-bad-handoff.md flags missing required H2s [90m(142.423412ms)[39m[39m
+[34mℹ tests 8[39m
+[34mℹ suites 0[39m
+[34mℹ pass 8[39m
+[34mℹ fail 0[39m
+[34mℹ cancelled 0[39m
+[34mℹ skipped 0[39m
+[34mℹ todo 0[39m
+[34mℹ duration_ms 832.80996[39m
+
+> apex@0.10.0 test:subagent-file-contract
+> node --test tools/tests/subagent-file-contract.test.mjs
+
+▶ subagent file-mode contract
+  ▶ challenger-review-subagent fixture
+    [32m✔ (a) summary stays within byte and line budgets [90m(0.678141ms)[39m[39m
+    [32m✔ (b) the declared file_path exists post-call [90m(0.552537ms)[39m[39m
+    [32m✔ (c) summary numeric counts match the file content [90m(0.304ms)[39m[39m
+    [32m✔ (d) re-running without overwrite: true is rejected [90m(0.603238ms)[39m[39m
+  [32m✔ challenger-review-subagent fixture [90m(2.734486ms)[39m[39m
+  ▶ cost-estimate-subagent fixture
+    [32m✔ (a) summary stays within byte and line budgets [90m(0.435903ms)[39m[39m
+    [32m✔ (b) the declared file_path exists post-call [90m(0.364091ms)[39m[39m
+    [32m✔ (c) summary totals match the file content [90m(0.29896ms)[39m[39m
+    [32m✔ (d) refuse-on-exists also applies to cost estimates [90m(0.457075ms)[39m[39m
+  [32m✔ cost-estimate-subagent fixture [90m(1.947831ms)[39m[39m
+[32m✔ subagent file-mode contract [90m(46.358684ms)[39m[39m
+[34mℹ tests 8[39m
+[34mℹ suites 3[39m
+[34mℹ pass 8[39m
+[34mℹ fail 0[39m
+[34mℹ cancelled 0[39m
+[34mℹ skipped 0[39m
+[34mℹ todo 0[39m
+[34mℹ duration_ms 112.2407[39m
+⠙[1G[0K
+> apex@0.10.0 test:governance-discovery
+> python3 -m pytest .github/skills/azure-governance-discovery/scripts/test_discover.py -q
+
+[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m                                               [100%][0m
+[32m[32m[1m26 passed[0m[32m in 0.17s[0m[0m
+⠙[1G[0K▶ Drawio MCP surrogate-pair reproducer (D5a)
+  [32m✔ accepts well-formed surrogate pair (📦) [90m(0.771254ms)[39m[39m
+  [32m✔ rejects lone high surrogate (the original crash signature) [90m(0.108734ms)[39m[39m
+  [32m✔ rejects lone low surrogate [90m(0.092923ms)[39m[39m
+  [32m✔ accepts a normal ASCII payload at the original ~9879-byte size [90m(4.253034ms)[39m[39m
+  [32m✔ detects malformed half-pair embedded mid-payload (positional reproducer) [90m(0.915029ms)[39m[39m
+  [32m✔ handles a realistic shape-name payload with emoji [90m(0.222887ms)[39m[39m
+[32m✔ Drawio MCP surrogate-pair reproducer (D5a) [90m(7.425103ms)[39m[39m
+[34mℹ tests 6[39m
+[34mℹ suites 1[39m
+[34mℹ pass 6[39m
+[34mℹ fail 0[39m
+[34mℹ cancelled 0[39m
+[34mℹ skipped 0[39m
+[34mℹ todo 0[39m
+[34mℹ duration_ms 65.368251[39m
+
+> apex@0.10.0 test:devcontainer-verdicts
+> node --test tools/tests/compare-devcontainer-verdicts.test.mjs
+
+▶ compareDevcontainerVerdicts
+  [32m✔ passes when every leg passes and candidates add no warnings [90m(2.283442ms)[39m[39m
+  [32m✔ blocks on a candidate-only warning [90m(0.234957ms)[39m[39m
+  [32m✔ blocks when a candidate command fails [90m(0.282309ms)[39m[39m
+  [32m✔ blocks when a baseline fails [90m(0.162785ms)[39m[39m
+  [32m✔ blocks when a verdict is missing [90m(0.169946ms)[39m[39m
+  [32m✔ blocks when the observed architecture does not match [90m(0.156155ms)[39m[39m
+  [32m✔ reports malformed verdict JSON as a blocker [90m(1.876248ms)[39m[39m
+  [32m✔ renders a concise Markdown result table [90m(0.361511ms)[39m[39m
+[32m✔ compareDevcontainerVerdicts [90m(6.697021ms)[39m[39m
+[34mℹ tests 8[39m
+[34mℹ suites 1[39m
+[34mℹ pass 8[39m
+[34mℹ fail 0[39m
+[34mℹ cancelled 0[39m
+[34mℹ skipped 0[39m
+[34mℹ todo 0[39m
+[34mℹ duration_ms 67.622642[39m
+⠙[1G[0K
+Script done on 2026-07-13 12:41:34+00:00 [COMMAND_EXIT_CODE="0"]

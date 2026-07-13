@@ -1,0 +1,10 @@
+Script started on 2026-07-13 12:32:50+00:00 [COMMAND="npm run lint:site-links" TERM="xterm-256color" TTY="/dev/pts/0" COLUMNS="80" LINES="30"]
+
+> apex@0.10.0 lint:site-links
+> npm run docs:build --silent && node site/check-links.mjs
+
+✅ Generated site/public/architecture-explorer-graph.json — 161 nodes, 665 edges
+   Agent:15  Subagent:7  Skill:33  Instruction:31  Prompt:0  Validator:57  CI Workflow:13  MCP Server:5
+sh: 1: astro: not found
+⠙[1G[0K
+Script done on 2026-07-13 12:32:50+00:00 [COMMAND_EXIT_CODE="127"]

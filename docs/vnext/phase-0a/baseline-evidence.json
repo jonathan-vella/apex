@@ -1,0 +1,98 @@
+{
+  "schema_version": "phase-0a-baseline-v1",
+  "status": "approved-pending-clean-evidence",
+  "captured_at": "2026-07-13T12:42:12Z",
+  "branch": "feat/apex-vnext-rewrite",
+  "base_commit": "40d0f61456478f197f0f67027f95e40db3cf5836",
+  "candidate_patch_object": "904a2e7ab580264ca87cb63a9c580ae2fce63602",
+  "candidate_patch_scope": "Complete staged binary diff excluding this manifest.",
+  "plan_sha256": "2b3de4040987d8ee72487b27de2befe43cc68ece06d6726eb9a8b52701341cbf",
+  "source_state": "dirty-worktree",
+  "maintainer_approval": {
+    "status": "approved",
+    "approved_by": "@jonathan-vella",
+    "approved_at": "2026-07-13",
+    "decisions": [
+      "Approve every compatibility disposition, replacement owner, and gate or role mapping.",
+      "Accept DEF-003 through DEF-006 as known v1 limitations without reclassifying them as successful behavior.",
+      "Approve the validator-family coverage and v1 maintenance policy.",
+      "Retain governance and code validation as mandatory blockers rather than human decisions.",
+      "Use an immutable v1 baseline tag in Phase 0C and reserve the final v1 mainline release tag for cutover."
+    ]
+  },
+  "freeze_gate": {
+    "tag_allowed": false,
+    "blockers": [
+      "Candidate changes and Phase 0A evidence are staged but not committed.",
+      "The full validation suite and golden registry must be rerun from the clean committed candidate.",
+      "The exact pull-request head must pass required CI before the v1 baseline tag can be considered."
+    ]
+  },
+  "failed_runs": [
+    {
+      "id": "baseline-python-bootstrap",
+      "command": "npm run validate:all",
+      "exit_code": 1,
+      "classification": "product-defect",
+      "symptoms": [
+        "python3: No module named pytest",
+        "test:azure-pricing-mcp exited with 1"
+      ],
+      "root_cause": "The repository validation contract used a global pytest that the devcontainer did not install, while the pricing component venv omitted its dev extra and the npm test bypassed that venv.",
+      "resolution": [
+        "Declare and install the root pytest dependency for apex-recall tests.",
+        "Install the pricing component with admin and dev extras.",
+        "Run pricing tests through the pricing component venv."
+      ],
+      "waiver": null,
+      "log": {
+        "path": "evidence/baseline-failure-python-2026-07-13.log",
+        "sha256": "a9a99a97f3e0be0d7ea426e7e6cdf29d2dfb32413dc1b97393a168a4bf315a84"
+      }
+    },
+    {
+      "id": "baseline-site-bootstrap",
+      "command": "npm run lint:site-links",
+      "exit_code": 127,
+      "classification": "product-defect",
+      "symptoms": [
+        "sh: 1: astro: not found"
+      ],
+      "root_cause": "The devcontainer installed only the root npm dependency tree even though the site has an independent lockfile and build toolchain.",
+      "resolution": [
+        "Install site dependencies from site/package-lock.json during post-create.",
+        "Refresh the site dependency tree during post-start."
+      ],
+      "waiver": null,
+      "log": {
+        "path": "evidence/baseline-failure-site-2026-07-13.log",
+        "sha256": "9f1cd727cf38203bf8e4d35edda9999144e0b20997a062af73ae325a2a3807bc"
+      }
+    }
+  ],
+  "successful_run": {
+    "command": "npm run validate:all",
+    "exit_code": 0,
+    "result": "All validations passed",
+    "log": {
+      "path": "evidence/baseline-success-2026-07-13.log",
+      "sha256": "42cad26c263894257f75e4fff056c8225e8329d1e62db6386cd27255e03764fc"
+    }
+  },
+  "coverage_validator": {
+    "path": "../../../tools/scripts/validate-v1-compatibility-matrix.mjs",
+    "sha256": "4eda4e22d0bc4086b15771873eef1fb8a92b0220a8c5003e6bb27263fa914922"
+  },
+  "waivers": [],
+  "tool_versions": {
+    "node": "24.18.0",
+    "npm": "11.16.0",
+    "python": "3.14.6",
+    "pytest": "9.1.1",
+    "deno": "2.9.2",
+    "azure_cli": "2.88.0",
+    "bicep": "0.45.6",
+    "terraform": "1.15.8",
+    "git": "2.55.0"
+  }
+}

@@ -17,3 +17,6 @@ pillow>=10.0
 
 # Infrastructure validation and security scanning
 checkov>=3.0
+
+# Repository test runner (component-specific plugins stay in component venvs)
+pytest>=8.3.0

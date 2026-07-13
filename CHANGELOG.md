@@ -18,6 +18,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 See the [published changelog](https://apexops.pro/project/changelog/)
 for full details on this and all prior releases.
 
+### Added (APEX vNext Phase 0A baseline)
+
+- docs(vnext): added approved v1 baseline decisions, candidate transcripts and manifest, the
+  preserve/change/retire compatibility matrix, deterministic golden scenarios,
+  the known-defects ledger, and the v1 maintenance policy. The baseline tag
+  remains blocked pending a clean-commit evidence rerun.
+- feat(scripts): added `validate:v1-compatibility-matrix`, which compares the
+  Phase 0A matrix with live agent definitions, schemas, workflow nodes, MCP
+  servers, and `apex-recall` commands.
+- fix(scripts): bound Azure Pricing MCP tests to the component virtual
+  environment, installed its development extras, declared the root Python test
+  runner, and installed the independently locked documentation-site toolchain
+  during devcontainer setup.
+
 ### Changed (Model migration — Claude Sonnet 4.6 → Claude Sonnet 5)
 
 - chore(agents): migrated all 11 agents/subagents in the Sonnet cohort

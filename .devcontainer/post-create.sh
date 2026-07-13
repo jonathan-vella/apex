@@ -62,10 +62,11 @@ exec 2>&1
 # ─── Step 1: npm install (local) ─────────────────────────────────────────────
 
 step_start "📦" "Installing npm dependencies..."
-if npm install --loglevel=error 2>&1; then
-    step_done "npm packages installed"
+if npm install --loglevel=error 2>&1 \
+    && npm --prefix site ci --loglevel=error 2>&1; then
+    step_done "Root and site npm packages installed"
 else
-    step_warn "npm install had issues, continuing"
+    step_warn "Root or site npm install had issues, continuing"
 fi
 
 # ─── Step 2: npm global tools ────────────────────────────────────────────────
@@ -163,14 +164,14 @@ export PATH="${HOME}/.local/bin:${PATH}"
 if command -v uv &> /dev/null; then
     mkdir -p "${HOME}/.cache/uv" 2>/dev/null || true
     chmod -R 755 "${HOME}/.cache/uv" 2>/dev/null || true
-    if uv pip install --system --quiet diagrams matplotlib pillow checkov ruff 2>&1; then
-        step_done "Installed via uv (diagrams, matplotlib, pillow, checkov, ruff)"
+    if uv pip install --system --quiet diagrams matplotlib pillow checkov ruff pytest 2>&1; then
+        step_done "Installed via uv (diagrams, matplotlib, pillow, checkov, ruff, pytest)"
     else
         step_warn "uv install had issues, continuing"
     fi
 else
-    if pip3 install --quiet diagrams matplotlib pillow checkov ruff 2>&1 | tail -1; then
-        step_done "Installed via pip (diagrams, matplotlib, pillow, checkov, ruff)"
+    if pip3 install --quiet diagrams matplotlib pillow checkov ruff pytest 2>&1 | tail -1; then
+        step_done "Installed via pip (diagrams, matplotlib, pillow, checkov, ruff, pytest)"
     else
         step_warn "pip install had issues"
     fi
@@ -241,9 +242,9 @@ if [ -d "$MCP_DIR" ]; then
     "$MCP_DIR/.venv/bin/python" -m pip install --quiet --upgrade pip 2>&1 | tail -1 || true
 
     cd "$MCP_DIR"
-    # ``[admin]`` is the canonical extras name (v5.x). ``[azure]`` is preserved
-    # as a deprecated alias for one release (removed in v6.0). Prefer admin.
-    "$MCP_DIR/.venv/bin/python" -m pip install --quiet -e ".[admin]" 2>&1 | tail -1 || true
+    # ``[admin]`` is the canonical runtime extra (v5.x); ``[dev]`` supplies
+    # the isolated test toolchain used by the repository validation suite.
+    "$MCP_DIR/.venv/bin/python" -m pip install --quiet -e ".[admin,dev]" 2>&1 | tail -1 || true
     cd - > /dev/null
 
     if "$MCP_DIR/.venv/bin/python" -c "from azure_pricing_mcp import server; print('OK')" 2>/dev/null; then

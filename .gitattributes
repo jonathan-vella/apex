@@ -54,6 +54,9 @@
 *.drawio text eol=lf
 assets/drawio-libraries/**/*.xml binary
 
+# Phase 0A terminal transcripts are byte-for-byte evidence captures.
+docs/vnext/phase-0a/evidence/*.log binary
+
 # GitHub specific files
 .gitattributes text eol=lf
 .gitignore text eol=lf

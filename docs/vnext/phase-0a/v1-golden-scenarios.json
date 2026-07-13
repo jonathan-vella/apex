@@ -1,0 +1,222 @@
+{
+  "schema_version": "v1-golden-scenarios-v1",
+  "status": "candidate",
+  "base_commit": "40d0f61456478f197f0f67027f95e40db3cf5836",
+  "credentials_required": false,
+  "model_calls_required": false,
+  "verification": {
+    "verified_at": "2026-07-13T12:41:34Z",
+    "exit_code": 0,
+    "log": {
+      "path": "evidence/golden-scenarios-2026-07-13.log",
+      "sha256": "21a49240bd6519a91365369e62134bce18302cae8974ba6b02f2eee0bed502f3"
+    }
+  },
+  "normalization": {
+    "remove_fields": [
+      "captured_at",
+      "duration_ms",
+      "generatedAt",
+      "timestamp"
+    ],
+    "path_replacements": {
+      "/workspaces/apex": "<workspace>"
+    },
+    "ordering": "Sort object keys and arrays whose contract declares order-insensitive semantics.",
+    "numbers": "Preserve contract precision; do not round identifiers, counts, or currency beyond the owning contract."
+  },
+  "scenarios": [
+    {
+      "id": "golden-full-validation",
+      "behavior_ids": [
+        "validation.full-suite",
+        "docs.site-build",
+        "toolchain.version-check"
+      ],
+      "command": "npm run validate:all",
+      "inputs": [
+        "package.json",
+        "site/package-lock.json",
+        "tools/registry/tool-version-pins.json"
+      ],
+      "expected": {
+        "exit_code": 0,
+        "assertions": [
+          "Every configured validation child exits successfully.",
+          "The site builds and all internal links resolve."
+        ]
+      },
+      "evidence": "evidence/baseline-success-2026-07-13.log"
+    },
+    {
+      "id": "golden-session-state",
+      "behavior_ids": [
+        "state.resume-search-history",
+        "workflow.transitions",
+        "review.gating"
+      ],
+      "command": "npm run test:apex-recall",
+      "inputs": [
+        "tools/tests/test_apex_recall/",
+        "tools/schemas/session-state.schema.json"
+      ],
+      "expected": {
+        "exit_code": 0,
+        "assertions": [
+          "Atomic transitions preserve decisions and step state.",
+          "Mandatory challenger evidence blocks completion when absent.",
+          "Search and history reconstruct repository state."
+        ]
+      }
+    },
+    {
+      "id": "golden-pricing-capability",
+      "behavior_ids": [
+        "capability.pricing",
+        "artifact.cost-estimate"
+      ],
+      "command": "npm run test:azure-pricing-mcp",
+      "inputs": [
+        "tools/mcp-servers/azure-pricing/tests/",
+        "tools/mcp-servers/azure-pricing/pyproject.toml"
+      ],
+      "expected": {
+        "exit_code": 0,
+        "assertions": [
+          "Schema-normalized pricing, projections, SKU aliases, and cache behavior pass without Azure credentials."
+        ]
+      }
+    },
+    {
+      "id": "golden-nordic-foods-replay",
+      "behavior_ids": [
+        "workflow.end-to-end",
+        "review.finding-decisions",
+        "governance.tags"
+      ],
+      "command": "node --test tests/fixtures/nordic-foods-replay/transcript-checks.test.mjs",
+      "inputs": [
+        "tests/fixtures/nordic-foods-replay/expected-transcript.md",
+        "tests/fixtures/nordic-foods-replay/affirmative-checks.json",
+        "tests/fixtures/nordic-foods-replay/forbidden-patterns.json"
+      ],
+      "expected": {
+        "exit_code": 0,
+        "assertions": [
+          "All affirmative behavior markers are present.",
+          "Every recorded defect signature is absent."
+        ]
+      }
+    },
+    {
+      "id": "golden-sku-manifest",
+      "behavior_ids": [
+        "artifact.sku-manifest",
+        "validation.sku"
+      ],
+      "command": "node --test tools/tests/validate-sku-manifest.test.mjs",
+      "inputs": [
+        "tests/azure-artifacts/sku-manifest/valid/",
+        "tests/azure-artifacts/sku-manifest/invalid/",
+        "tools/schemas/sku-manifest.schema.json"
+      ],
+      "expected": {
+        "exit_code": 0,
+        "assertions": [
+          "Every valid fixture is accepted.",
+          "Every invalid fixture is rejected by its semantic rule."
+        ]
+      }
+    },
+    {
+      "id": "golden-workflow-handoffs",
+      "behavior_ids": [
+        "workflow.transitions",
+        "runtime.agent-routing"
+      ],
+      "command": "node --test tools/tests/workflow-handoffs/run.test.mjs",
+      "inputs": [
+        "tools/tests/fixtures/workflow-handoffs/",
+        ".github/skills/workflow-engine/templates/workflow-graph.json"
+      ],
+      "expected": {
+        "exit_code": 0,
+        "assertions": [
+          "Valid targets and artifacts pass.",
+          "Illegal targets, self-loops, track crossings, and subagent dispatches fail."
+        ]
+      }
+    },
+    {
+      "id": "golden-subagent-file-contract",
+      "behavior_ids": [
+        "review.output-contract",
+        "artifact.refuse-overwrite"
+      ],
+      "command": "npm run test:subagent-file-contract",
+      "inputs": [
+        "tools/tests/fixtures/subagent-file-contract/"
+      ],
+      "expected": {
+        "exit_code": 0,
+        "assertions": [
+          "Summary and artifact data agree.",
+          "Output budgets and refuse-on-exists behavior are enforced."
+        ]
+      }
+    },
+    {
+      "id": "golden-governance-discovery",
+      "behavior_ids": [
+        "capability.governance",
+        "artifact.governance-constraints"
+      ],
+      "command": "npm run test:governance-discovery",
+      "inputs": [
+        ".github/skills/azure-governance-discovery/scripts/test_discover.py"
+      ],
+      "expected": {
+        "exit_code": 0,
+        "assertions": [
+          "Mocked policy pages, inherited assignments, exemptions, and empty scopes normalize deterministically."
+        ]
+      }
+    },
+    {
+      "id": "golden-drawio-surrogates",
+      "behavior_ids": [
+        "capability.drawio",
+        "defect.drawio-surrogate"
+      ],
+      "command": "node --test tests/drawio/reproduce-surrogate-error.test.mjs",
+      "inputs": [
+        "tests/drawio/reproduce-surrogate-error.test.mjs"
+      ],
+      "expected": {
+        "exit_code": 0,
+        "assertions": [
+          "Well-formed non-BMP pairs pass.",
+          "Lone high and low surrogates are detected."
+        ]
+      }
+    },
+    {
+      "id": "golden-devcontainer-verdicts",
+      "behavior_ids": [
+        "setup.doctor",
+        "toolchain.cross-architecture"
+      ],
+      "command": "npm run test:devcontainer-verdicts",
+      "inputs": [
+        "tools/tests/compare-devcontainer-verdicts.test.mjs",
+        "tests/fixtures/"
+      ],
+      "expected": {
+        "exit_code": 0,
+        "assertions": [
+          "Equivalent architecture verdicts pass and mismatched verdicts fail."
+        ]
+      }
+    }
+  ]
+}

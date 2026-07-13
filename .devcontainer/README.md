@@ -28,14 +28,14 @@ with AI agents.
 
 | Step | Tool                           | Method                                                                       |
 | ---- | ------------------------------ | ---------------------------------------------------------------------------- |
-| 1    | npm local dependencies         | `npm install`                                                                |
+| 1    | npm dependencies               | Root `npm install` + locked site `npm ci`                                    |
 | 2    | markdownlint-cli2              | `npm install -g`                                                             |
 | 3    | k6 load testing                | deb repo (amd64) or GitHub release (arm64)                                   |
 | 4    | Deno upgrade                   | `deno upgrade` (ensures latest beyond cached feature layer)                  |
 | 5    | Git config and cache dirs      | `git config`, `mkdir`                                                        |
-| 6    | Python packages                | `uv pip install` — diagrams, matplotlib, pillow, checkov, ruff               |
+| 6    | Python packages                | `uv pip install` — diagrams, matplotlib, pillow, checkov, ruff, pytest       |
 | 7    | PowerShell Az modules          | `Install-Module` — Accounts, Resources, Storage, Network, KeyVault, Websites |
-| 8    | Azure Pricing MCP Server       | Clean `.venv` rebuild + `pip install -e .[admin]` (always, per policy)       |
+| 8    | Azure Pricing MCP Server       | Clean `.venv` rebuild + `pip install -e .[admin,dev]` (always, per policy)   |
 | 9    | Terraform MCP Server           | `git clone` + `go build` to `/go/bin/`                                       |
 | 9.4  | TFLint v0.63.1                | GitHub release with SHA-256 verification                                     |
 | 9.5  | Terraform CLI hardening        | Ensures `TF_PLUGIN_CACHE_DIR` exists; `terraform version` smoke test         |
@@ -224,7 +224,7 @@ Runs on every container start. Lightweight updates only:
 | -------------------- | ------------------------------------------------------------------------ |
 | terraform-mcp-server | Clone + build (if missing)                                               |
 | Azure Pricing MCP    | `pip install -e .` in its venv                                           |
-| npm local deps       | `npm install`                                                            |
+| npm local deps       | Root and site `npm install`                                              |
 | Python packages      | `uv pip install --upgrade` (checkov, ruff, diagrams, matplotlib, pillow) |
 | apex-recall          | `uv pip install --upgrade -e`                                            |
 | azd auth             | Status check (warns if not authenticated)                                |
