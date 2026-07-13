@@ -37,6 +37,11 @@ for full details on this and all prior releases.
   module instead of requiring a globally installed console script.
 - docs(vnext): narrowed the first-release Copilot client scope to VS Code and
   deferred GitHub Copilot CLI support.
+- docs(vnext): revised the rewrite plan around workspace-native customizations,
+  direct interactive handoffs, model-tier-safe subagents, a durable walking
+  skeleton, contract waves, an early dual-track proof, lazy capability packs,
+  cached validation, inherited promotion gates, bounded evidence, writer
+  transfer, and secure Terraform CI plan transport.
 
 ### Changed (Model migration — Claude Sonnet 4.6 → Claude Sonnet 5)
 
