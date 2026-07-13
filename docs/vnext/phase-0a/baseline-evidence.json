@@ -32,10 +32,7 @@
       "command": "npm run validate:all",
       "exit_code": 1,
       "classification": "product-defect",
-      "symptoms": [
-        "python3: No module named pytest",
-        "test:azure-pricing-mcp exited with 1"
-      ],
+      "symptoms": ["python3: No module named pytest", "test:azure-pricing-mcp exited with 1"],
       "root_cause": "The repository validation contract used a global pytest that the devcontainer did not install, while the pricing component venv omitted its dev extra and the npm test bypassed that venv.",
       "resolution": [
         "Declare and install the root pytest dependency for apex-recall tests.",
@@ -53,9 +50,7 @@
       "command": "npm run lint:site-links",
       "exit_code": 127,
       "classification": "product-defect",
-      "symptoms": [
-        "sh: 1: astro: not found"
-      ],
+      "symptoms": ["sh: 1: astro: not found"],
       "root_cause": "The devcontainer installed only the root npm dependency tree even though the site has an independent lockfile and build toolchain.",
       "resolution": [
         "Install site dependencies from site/package-lock.json during post-create.",

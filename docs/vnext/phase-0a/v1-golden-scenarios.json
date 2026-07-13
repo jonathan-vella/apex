@@ -13,12 +13,7 @@
     }
   },
   "normalization": {
-    "remove_fields": [
-      "captured_at",
-      "duration_ms",
-      "generatedAt",
-      "timestamp"
-    ],
+    "remove_fields": ["captured_at", "duration_ms", "generatedAt", "timestamp"],
     "path_replacements": {
       "/workspaces/apex": "<workspace>"
     },
@@ -28,17 +23,9 @@
   "scenarios": [
     {
       "id": "golden-full-validation",
-      "behavior_ids": [
-        "validation.full-suite",
-        "docs.site-build",
-        "toolchain.version-check"
-      ],
+      "behavior_ids": ["validation.full-suite", "docs.site-build", "toolchain.version-check"],
       "command": "npm run validate:all",
-      "inputs": [
-        "package.json",
-        "site/package-lock.json",
-        "tools/registry/tool-version-pins.json"
-      ],
+      "inputs": ["package.json", "site/package-lock.json", "tools/registry/tool-version-pins.json"],
       "expected": {
         "exit_code": 0,
         "assertions": [
@@ -50,16 +37,9 @@
     },
     {
       "id": "golden-session-state",
-      "behavior_ids": [
-        "state.resume-search-history",
-        "workflow.transitions",
-        "review.gating"
-      ],
+      "behavior_ids": ["state.resume-search-history", "workflow.transitions", "review.gating"],
       "command": "npm run test:apex-recall",
-      "inputs": [
-        "tools/tests/test_apex_recall/",
-        "tools/schemas/session-state.schema.json"
-      ],
+      "inputs": ["tools/tests/test_apex_recall/", "tools/schemas/session-state.schema.json"],
       "expected": {
         "exit_code": 0,
         "assertions": [
@@ -71,15 +51,9 @@
     },
     {
       "id": "golden-pricing-capability",
-      "behavior_ids": [
-        "capability.pricing",
-        "artifact.cost-estimate"
-      ],
+      "behavior_ids": ["capability.pricing", "artifact.cost-estimate"],
       "command": "npm run test:azure-pricing-mcp",
-      "inputs": [
-        "tools/mcp-servers/azure-pricing/tests/",
-        "tools/mcp-servers/azure-pricing/pyproject.toml"
-      ],
+      "inputs": ["tools/mcp-servers/azure-pricing/tests/", "tools/mcp-servers/azure-pricing/pyproject.toml"],
       "expected": {
         "exit_code": 0,
         "assertions": [
@@ -89,11 +63,7 @@
     },
     {
       "id": "golden-nordic-foods-replay",
-      "behavior_ids": [
-        "workflow.end-to-end",
-        "review.finding-decisions",
-        "governance.tags"
-      ],
+      "behavior_ids": ["workflow.end-to-end", "review.finding-decisions", "governance.tags"],
       "command": "node --test tests/fixtures/nordic-foods-replay/transcript-checks.test.mjs",
       "inputs": [
         "tests/fixtures/nordic-foods-replay/expected-transcript.md",
@@ -102,18 +72,12 @@
       ],
       "expected": {
         "exit_code": 0,
-        "assertions": [
-          "All affirmative behavior markers are present.",
-          "Every recorded defect signature is absent."
-        ]
+        "assertions": ["All affirmative behavior markers are present.", "Every recorded defect signature is absent."]
       }
     },
     {
       "id": "golden-sku-manifest",
-      "behavior_ids": [
-        "artifact.sku-manifest",
-        "validation.sku"
-      ],
+      "behavior_ids": ["artifact.sku-manifest", "validation.sku"],
       "command": "node --test tools/tests/validate-sku-manifest.test.mjs",
       "inputs": [
         "tests/azure-artifacts/sku-manifest/valid/",
@@ -122,18 +86,12 @@
       ],
       "expected": {
         "exit_code": 0,
-        "assertions": [
-          "Every valid fixture is accepted.",
-          "Every invalid fixture is rejected by its semantic rule."
-        ]
+        "assertions": ["Every valid fixture is accepted.", "Every invalid fixture is rejected by its semantic rule."]
       }
     },
     {
       "id": "golden-workflow-handoffs",
-      "behavior_ids": [
-        "workflow.transitions",
-        "runtime.agent-routing"
-      ],
+      "behavior_ids": ["workflow.transitions", "runtime.agent-routing"],
       "command": "node --test tools/tests/workflow-handoffs/run.test.mjs",
       "inputs": [
         "tools/tests/fixtures/workflow-handoffs/",
@@ -149,32 +107,19 @@
     },
     {
       "id": "golden-subagent-file-contract",
-      "behavior_ids": [
-        "review.output-contract",
-        "artifact.refuse-overwrite"
-      ],
+      "behavior_ids": ["review.output-contract", "artifact.refuse-overwrite"],
       "command": "npm run test:subagent-file-contract",
-      "inputs": [
-        "tools/tests/fixtures/subagent-file-contract/"
-      ],
+      "inputs": ["tools/tests/fixtures/subagent-file-contract/"],
       "expected": {
         "exit_code": 0,
-        "assertions": [
-          "Summary and artifact data agree.",
-          "Output budgets and refuse-on-exists behavior are enforced."
-        ]
+        "assertions": ["Summary and artifact data agree.", "Output budgets and refuse-on-exists behavior are enforced."]
       }
     },
     {
       "id": "golden-governance-discovery",
-      "behavior_ids": [
-        "capability.governance",
-        "artifact.governance-constraints"
-      ],
+      "behavior_ids": ["capability.governance", "artifact.governance-constraints"],
       "command": "npm run test:governance-discovery",
-      "inputs": [
-        ".github/skills/azure-governance-discovery/scripts/test_discover.py"
-      ],
+      "inputs": [".github/skills/azure-governance-discovery/scripts/test_discover.py"],
       "expected": {
         "exit_code": 0,
         "assertions": [
@@ -184,38 +129,22 @@
     },
     {
       "id": "golden-drawio-surrogates",
-      "behavior_ids": [
-        "capability.drawio",
-        "defect.drawio-surrogate"
-      ],
+      "behavior_ids": ["capability.drawio", "defect.drawio-surrogate"],
       "command": "node --test tests/drawio/reproduce-surrogate-error.test.mjs",
-      "inputs": [
-        "tests/drawio/reproduce-surrogate-error.test.mjs"
-      ],
+      "inputs": ["tests/drawio/reproduce-surrogate-error.test.mjs"],
       "expected": {
         "exit_code": 0,
-        "assertions": [
-          "Well-formed non-BMP pairs pass.",
-          "Lone high and low surrogates are detected."
-        ]
+        "assertions": ["Well-formed non-BMP pairs pass.", "Lone high and low surrogates are detected."]
       }
     },
     {
       "id": "golden-devcontainer-verdicts",
-      "behavior_ids": [
-        "setup.doctor",
-        "toolchain.cross-architecture"
-      ],
+      "behavior_ids": ["setup.doctor", "toolchain.cross-architecture"],
       "command": "npm run test:devcontainer-verdicts",
-      "inputs": [
-        "tools/tests/compare-devcontainer-verdicts.test.mjs",
-        "tests/fixtures/"
-      ],
+      "inputs": ["tools/tests/compare-devcontainer-verdicts.test.mjs", "tests/fixtures/"],
       "expected": {
         "exit_code": 0,
-        "assertions": [
-          "Equivalent architecture verdicts pass and mismatched verdicts fail."
-        ]
+        "assertions": ["Equivalent architecture verdicts pass and mismatched verdicts fail."]
       }
     }
   ]

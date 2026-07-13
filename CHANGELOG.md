@@ -30,7 +30,8 @@ for full details on this and all prior releases.
 - fix(scripts): bound Azure Pricing MCP tests to the component virtual
   environment, installed its development extras, declared the root Python test
   runner, and installed the independently locked documentation-site toolchain
-  during devcontainer setup.
+  during devcontainer setup. CI now creates the same component environment and
+  preserves local devcontainer features in matrix validation configs.
 
 ### Changed (Model migration — Claude Sonnet 4.6 → Claude Sonnet 5)
 

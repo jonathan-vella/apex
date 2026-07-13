@@ -158,7 +158,7 @@ jobs:
             ${{ matrix.variant == 'baseline' && needs.preflight.outputs.baseline_image || needs.preflight.outputs.candidate_image }}
         run: |
           mkdir -p .devcontainer-validation
-          cp .devcontainer/devcontainer.json .devcontainer-validation/devcontainer.json
+          cp -R .devcontainer/. .devcontainer-validation/
           current_image=$(node --input-type=module -e '
             import fs from "node:fs";
             import { parseJsonc } from "./tools/scripts/_lib/parse-jsonc.mjs";
