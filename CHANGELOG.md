@@ -31,7 +31,9 @@ for full details on this and all prior releases.
   environment, installed its development extras, declared the root Python test
   runner, and installed the independently locked documentation-site toolchain
   during devcontainer setup. CI now creates the same component environment and
-  preserves local devcontainer features in matrix validation configs.
+  preserves local devcontainer features in matrix validation configs. The v1
+  compatibility validator now invokes the repository-owned `apex-recall`
+  module instead of requiring a globally installed console script.
 
 ### Changed (Model migration — Claude Sonnet 4.6 → Claude Sonnet 5)
 

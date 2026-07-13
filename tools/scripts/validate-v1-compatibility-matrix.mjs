@@ -17,6 +17,7 @@ const AGENTS_DIR = path.join(REPO_ROOT, ".github/agents");
 const SCHEMAS_DIR = path.join(REPO_ROOT, "tools/schemas");
 const MCP_DIR = path.join(REPO_ROOT, "tools/mcp-servers");
 const WORKFLOW_PATH = path.join(REPO_ROOT, ".github/skills/workflow-engine/templates/workflow-graph.json");
+const APEX_RECALL_SRC = path.join(REPO_ROOT, "tools/apex-recall/src");
 
 const reporter = new Reporter("v1 Compatibility Matrix Coverage");
 reporter.header();
@@ -63,7 +64,13 @@ const mcpPaths = fs
   .sort();
 const workflow = JSON.parse(fs.readFileSync(WORKFLOW_PATH, "utf8"));
 const workflowNodeIds = Object.keys(workflow.nodes).sort();
-const recallHelp = execFileSync("apex-recall", ["--help"], { encoding: "utf8" });
+const recallHelp = execFileSync("python3", ["-m", "apex_recall", "--help"], {
+  encoding: "utf8",
+  env: {
+    ...process.env,
+    PYTHONPATH: [APEX_RECALL_SRC, process.env.PYTHONPATH].filter(Boolean).join(path.delimiter),
+  },
+});
 const recallCommandMatch = recallHelp.match(/\{([^}]+)\}/s);
 
 checkCoverage("agents and subagents", agentPaths, (value) => `\`${value}\``);
