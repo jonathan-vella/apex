@@ -1,0 +1,165 @@
+{
+  "$id": "https://schemas.apexops.dev/cost-estimate-v1.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "assumptions": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "currency": {
+      "pattern": "^[A-Z]{3}$",
+      "type": "string"
+    },
+    "lineItems": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "monthlyCost": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "quantity": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "service": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "sku": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "source": {
+            "additionalProperties": false,
+            "properties": {
+              "priceId": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "provider": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "retrievedAt": {
+                "format": "date-time",
+                "type": "string"
+              },
+              "uri": {
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "provider",
+              "uri",
+              "retrievedAt"
+            ],
+            "type": "object"
+          },
+          "uncertainty": {
+            "additionalProperties": false,
+            "properties": {
+              "basis": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "confidence": {
+                "anyOf": [
+                  {
+                    "const": "low",
+                    "type": "string"
+                  },
+                  {
+                    "const": "medium",
+                    "type": "string"
+                  },
+                  {
+                    "const": "high",
+                    "type": "string"
+                  }
+                ]
+              },
+              "lowerMonthlyCost": {
+                "minimum": 0,
+                "type": "number"
+              },
+              "upperMonthlyCost": {
+                "minimum": 0,
+                "type": "number"
+              }
+            },
+            "required": [
+              "lowerMonthlyCost",
+              "upperMonthlyCost",
+              "confidence",
+              "basis"
+            ],
+            "type": "object"
+          },
+          "unitPrice": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "unitsPerMonth": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "service",
+          "sku",
+          "quantity",
+          "unitPrice",
+          "unitsPerMonth",
+          "monthlyCost",
+          "source",
+          "uncertainty"
+        ],
+        "type": "object"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "pricingDate": {
+      "format": "date",
+      "type": "string"
+    },
+    "projectId": {
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "type": "string"
+    },
+    "runId": {
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{0,127}$",
+      "type": "string"
+    },
+    "schemaVersion": {
+      "const": "1.0.0",
+      "type": "string"
+    },
+    "totalMonthlyCost": {
+      "minimum": 0,
+      "type": "number"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "projectId",
+    "runId",
+    "currency",
+    "pricingDate",
+    "lineItems",
+    "totalMonthlyCost",
+    "assumptions"
+  ],
+  "type": "object"
+}

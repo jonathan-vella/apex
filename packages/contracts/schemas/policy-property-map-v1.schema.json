@@ -1,0 +1,108 @@
+{
+  "$id": "https://schemas.apexops.dev/policy-property-map-v1.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "governanceHash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "mappings": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "disposition": {
+            "anyOf": [
+              {
+                "const": "satisfied",
+                "type": "string"
+              },
+              {
+                "const": "planned",
+                "type": "string"
+              },
+              {
+                "const": "exempt",
+                "type": "string"
+              },
+              {
+                "const": "blocked",
+                "type": "string"
+              }
+            ]
+          },
+          "effect": {
+            "anyOf": [
+              {
+                "const": "deny",
+                "type": "string"
+              },
+              {
+                "const": "modify",
+                "type": "string"
+              },
+              {
+                "const": "append",
+                "type": "string"
+              },
+              {
+                "const": "audit",
+                "type": "string"
+              },
+              {
+                "const": "deployIfNotExists",
+                "type": "string"
+              },
+              {
+                "const": "disabled",
+                "type": "string"
+              }
+            ]
+          },
+          "expectedValue": {},
+          "logicalResourceId": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "policyAssignmentId": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "propertyPath": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "policyAssignmentId",
+          "effect",
+          "logicalResourceId",
+          "propertyPath",
+          "disposition"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "projectId": {
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "type": "string"
+    },
+    "runId": {
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{0,127}$",
+      "type": "string"
+    },
+    "schemaVersion": {
+      "const": "1.0.0",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "projectId",
+    "runId",
+    "governanceHash",
+    "mappings"
+  ],
+  "type": "object"
+}

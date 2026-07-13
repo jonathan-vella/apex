@@ -1,0 +1,112 @@
+{
+  "$id": "https://schemas.apexops.dev/operation-record-v1.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "approvalHash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "errorCode": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "operation": {
+      "anyOf": [
+        {
+          "const": "apply",
+          "type": "string"
+        },
+        {
+          "const": "destroy",
+          "type": "string"
+        }
+      ]
+    },
+    "operationId": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "ownerEpoch": {
+      "minimum": 1,
+      "type": "integer"
+    },
+    "previewHash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "projectId": {
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "type": "string"
+    },
+    "providerOperationId": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "runId": {
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{0,127}$",
+      "type": "string"
+    },
+    "schemaVersion": {
+      "const": "1.0.0",
+      "type": "string"
+    },
+    "state": {
+      "anyOf": [
+        {
+          "const": "requested",
+          "type": "string"
+        },
+        {
+          "const": "authorized",
+          "type": "string"
+        },
+        {
+          "const": "started",
+          "type": "string"
+        },
+        {
+          "const": "observed",
+          "type": "string"
+        },
+        {
+          "const": "succeeded",
+          "type": "string"
+        },
+        {
+          "const": "failed",
+          "type": "string"
+        },
+        {
+          "const": "indeterminate",
+          "type": "string"
+        },
+        {
+          "const": "reconciled",
+          "type": "string"
+        },
+        {
+          "const": "compensated",
+          "type": "string"
+        }
+      ]
+    },
+    "updatedAt": {
+      "format": "date-time",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "operationId",
+    "projectId",
+    "runId",
+    "operation",
+    "state",
+    "previewHash",
+    "approvalHash",
+    "ownerEpoch",
+    "updatedAt"
+  ],
+  "type": "object"
+}

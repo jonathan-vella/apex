@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "1.0.0",
+  "observationCutoff": "2026-07-13",
+  "supportPolicy": {
+    "selection": "newest-production-supported-mutually-compatible-set-at-cutoff",
+    "node": "newest-supported-lts-patch",
+    "npm": "newest-stable-compatible-with-selected-node",
+    "typescript": "newest-stable-ga-compatible-with-selected-node-and-npm",
+    "vscode": "newest-stable-release-qualified-by-manual-host-tests",
+    "postCutoffReleases": "next-candidate",
+    "exceptionsRequire": ["owner", "evidence", "expiry", "upgradeTarget"]
+  },
+  "core": {
+    "node": {
+      "authoritativeSource": "https://nodejs.org/en/about/previous-releases",
+      "releaseChannel": "lts",
+      "newestObservedVersion": "24.18.0",
+      "selectedExactVersion": "24.18.0",
+      "installedVersion": "24.18.0",
+      "observedAt": "2026-07-13"
+    },
+    "npm": {
+      "authoritativeSource": "https://www.npmjs.com/package/npm",
+      "releaseChannel": "stable",
+      "newestObservedVersion": "11.16.0",
+      "selectedExactVersion": "11.16.0",
+      "installedVersion": "11.16.0",
+      "observedAt": "2026-07-13"
+    },
+    "typescript": {
+      "authoritativeSource": "https://www.npmjs.com/package/typescript",
+      "releaseChannel": "stable-ga",
+      "newestObservedVersion": "7.0.2",
+      "selectedExactVersion": "7.0.2",
+      "installedVersion": "7.0.2",
+      "observedAt": "2026-07-13"
+    },
+    "vscode": {
+      "authoritativeSource": "https://code.visualstudio.com/updates",
+      "releaseChannel": "stable",
+      "newestObservedVersion": null,
+      "selectedExactVersion": null,
+      "installedVersion": null,
+      "observedAt": "2026-07-13",
+      "selectionStatus": "qualification-required",
+      "requiredQualification": [
+        "workspace-agent-discovery",
+        "direct-handoff-question-panel",
+        "mcp-startup",
+        "restart-resume",
+        "model-tier-routing"
+      ],
+      "previewFeaturesRequired": false
+    }
+  },
+  "compatibilitySet": {
+    "node": "24.18.0",
+    "npm": "11.16.0",
+    "typescript": "7.0.2",
+    "vscode": "qualified-stable-release-to-be-pinned"
+  },
+  "optionalCapabilityPackRuntimes": {
+    "python": {
+      "requiredForCore": false,
+      "releaseChannel": "stable-ga",
+      "selectedExactVersion": null,
+      "lockOwner": "capability-pack",
+      "selectionStatus": "resolved-when-required-pack-is-locked"
+    },
+    "deno": {
+      "requiredForCore": false,
+      "releaseChannel": "stable-ga",
+      "selectedExactVersion": null,
+      "lockOwner": "capability-pack",
+      "selectionStatus": "resolved-when-required-pack-is-locked"
+    }
+  },
+  "approvedExceptions": []
+}

@@ -1,0 +1,74 @@
+{
+  "$id": "https://schemas.apexops.dev/resource-inventory-v1.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "collectedAt": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "deploymentHash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "projectId": {
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "type": "string"
+    },
+    "resources": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "location": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "logicalId": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "properties": {
+            "patternProperties": {
+              "^(.*)$": {}
+            },
+            "type": "object"
+          },
+          "resourceId": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "type": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "logicalId",
+          "resourceId",
+          "type",
+          "location",
+          "properties"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "runId": {
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{0,127}$",
+      "type": "string"
+    },
+    "schemaVersion": {
+      "const": "1.0.0",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "projectId",
+    "runId",
+    "deploymentHash",
+    "collectedAt",
+    "resources"
+  ],
+  "type": "object"
+}

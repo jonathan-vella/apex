@@ -1,0 +1,133 @@
+{
+  "$id": "https://schemas.apexops.dev/run-config-v1.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "createdAt": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "environment": {
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "type": "string"
+    },
+    "gates": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "decidedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "dependencyHash": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "gate": {
+            "maximum": 4,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "inheritedFromRunId": {
+            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{0,127}$",
+            "type": "string"
+          },
+          "reason": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "state": {
+            "anyOf": [
+              {
+                "const": "closed",
+                "type": "string"
+              },
+              {
+                "const": "open",
+                "type": "string"
+              },
+              {
+                "const": "approved",
+                "type": "string"
+              },
+              {
+                "const": "inherited",
+                "type": "string"
+              },
+              {
+                "const": "rejected",
+                "type": "string"
+              },
+              {
+                "const": "invalidated",
+                "type": "string"
+              }
+            ]
+          }
+        },
+        "required": [
+          "gate",
+          "state",
+          "dependencyHash"
+        ],
+        "type": "object"
+      },
+      "maxItems": 4,
+      "minItems": 4,
+      "type": "array"
+    },
+    "iacTool": {
+      "anyOf": [
+        {
+          "const": "bicep",
+          "type": "string"
+        },
+        {
+          "const": "terraform",
+          "type": "string"
+        }
+      ]
+    },
+    "ownerEpoch": {
+      "minimum": 1,
+      "type": "integer"
+    },
+    "parentRunId": {
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{0,127}$",
+      "type": "string"
+    },
+    "projectId": {
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "type": "string"
+    },
+    "runId": {
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{0,127}$",
+      "type": "string"
+    },
+    "runtimeLockHash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "schemaVersion": {
+      "const": "1.0.0",
+      "type": "string"
+    },
+    "targetScope": {
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "projectId",
+    "runId",
+    "environment",
+    "targetScope",
+    "iacTool",
+    "createdAt",
+    "runtimeLockHash",
+    "ownerEpoch",
+    "gates"
+  ],
+  "type": "object"
+}

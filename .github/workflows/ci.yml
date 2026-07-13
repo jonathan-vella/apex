@@ -50,6 +50,21 @@ jobs:
       - name: Run hook tests
         run: npm run test:hooks
 
+      - name: Build APEX vNext packages
+        run: npm run build:vnext
+
+      - name: Validate APEX vNext contracts and customizations
+        run: npm run validate:vnext
+
+      - name: Run APEX vNext deterministic tests
+        run: npm run test:vnext
+
+      - name: Test APEX vNext validator
+        run: npm run test:vnext-validator
+
+      - name: Test APEX vNext clean-install packages
+        run: npm run test:vnext-pack
+
       - name: Re-render SKU manifest MD and check for drift
         run: |
           # Deterministic renderer must produce byte-equal MD for every

@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "outDir": "dist",
+    "rootDir": "src",
+    "tsBuildInfoFile": "dist/.tsbuildinfo"
+  },
+  "references": [
+    { "path": "../contracts" },
+    { "path": "../kernel" },
+    { "path": "../capabilities" },
+    { "path": "../renderers" },
+    { "path": "../cli" }
+  ],
+  "include": ["src/**/*.ts"]
+}

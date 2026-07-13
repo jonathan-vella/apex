@@ -1,0 +1,49 @@
+{
+  "$id": "https://schemas.apexops.dev/runtime-bundle-lock-v1.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "cliVersion": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "customizationVersion": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "defaultsHash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "requiredCapabilityPacks": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "type": "array",
+      "uniqueItems": true
+    },
+    "schemaVersion": {
+      "const": "1.0.0",
+      "type": "string"
+    },
+    "validatorHash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "workflowHash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "cliVersion",
+    "customizationVersion",
+    "workflowHash",
+    "defaultsHash",
+    "validatorHash",
+    "requiredCapabilityPacks"
+  ],
+  "type": "object"
+}

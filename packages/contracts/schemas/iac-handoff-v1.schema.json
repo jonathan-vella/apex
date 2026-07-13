@@ -1,0 +1,83 @@
+{
+  "$id": "https://schemas.apexops.dev/iac-handoff-v1.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "bindingHash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "environmentInputsHash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "generatedAt": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "intentHash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "logicalResourceManifestHash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "projectId": {
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "type": "string"
+    },
+    "requiredToolVersions": {
+      "patternProperties": {
+        "^(.*)$": {
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "rootPath": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "runId": {
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{0,127}$",
+      "type": "string"
+    },
+    "schemaVersion": {
+      "const": "1.0.0",
+      "type": "string"
+    },
+    "track": {
+      "anyOf": [
+        {
+          "const": "bicep",
+          "type": "string"
+        },
+        {
+          "const": "terraform",
+          "type": "string"
+        }
+      ]
+    },
+    "treeHash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "projectId",
+    "runId",
+    "track",
+    "rootPath",
+    "treeHash",
+    "intentHash",
+    "bindingHash",
+    "environmentInputsHash",
+    "logicalResourceManifestHash",
+    "requiredToolVersions",
+    "generatedAt"
+  ],
+  "type": "object"
+}

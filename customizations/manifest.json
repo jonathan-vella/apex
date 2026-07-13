@@ -1,0 +1,98 @@
+{
+  "version": "0.1.0",
+  "managedFiles": [
+    ".github/agents/apex.agent.md",
+    ".github/agents/apex-requirements.agent.md",
+    ".github/agents/apex-architect.agent.md",
+    ".github/agents/apex-planner.agent.md",
+    ".github/agents/apex-operator.agent.md",
+    ".github/agents/apex-codegen.agent.md",
+    ".github/agents/apex-reviewer.agent.md",
+    ".github/agents/apex-validator.agent.md",
+    ".github/skills/apex-workflow/SKILL.md",
+    ".github/skills/apex-requirements/SKILL.md",
+    ".github/skills/apex-architecture/SKILL.md",
+    ".github/skills/apex-planning/SKILL.md",
+    ".github/skills/apex-codegen/SKILL.md",
+    ".github/skills/apex-operations/SKILL.md",
+    ".github/copilot-instructions.md",
+    ".vscode/mcp.json"
+  ],
+  "roles": [
+    {
+      "agent": "APEX",
+      "role": "coordinator",
+      "interactionType": "interactive-handoff",
+      "model": "MAI-Code-1-Flash",
+      "costTier": "fast"
+    },
+    {
+      "agent": "APEX Requirements",
+      "role": "requirements",
+      "interactionType": "interactive-handoff",
+      "model": "Claude Sonnet 5",
+      "costTier": "standard"
+    },
+    {
+      "agent": "APEX Architect",
+      "role": "architecture",
+      "interactionType": "interactive-handoff",
+      "model": "Claude Opus 4.8",
+      "costTier": "premium"
+    },
+    {
+      "agent": "APEX Planner",
+      "role": "planning",
+      "interactionType": "interactive-handoff",
+      "model": "Claude Opus 4.8",
+      "costTier": "premium"
+    },
+    {
+      "agent": "APEX Operator",
+      "role": "operations",
+      "interactionType": "interactive-handoff",
+      "model": "GPT-5.5",
+      "costTier": "premium"
+    },
+    {
+      "agent": "APEX CodeGen",
+      "role": "code-generation",
+      "interactionType": "autonomous-subagent",
+      "model": "Claude Sonnet 5",
+      "costTier": "standard"
+    },
+    {
+      "agent": "APEX Reviewer",
+      "role": "review",
+      "interactionType": "autonomous-subagent",
+      "model": "Claude Sonnet 5",
+      "costTier": "standard"
+    },
+    {
+      "agent": "APEX Validator",
+      "role": "validation",
+      "interactionType": "autonomous-subagent",
+      "model": "Claude Sonnet 5",
+      "costTier": "standard"
+    }
+  ],
+  "invocationEdges": [
+    { "from": "APEX", "to": "APEX Requirements", "type": "handoff" },
+    { "from": "APEX", "to": "APEX Architect", "type": "handoff" },
+    { "from": "APEX", "to": "APEX Planner", "type": "handoff" },
+    { "from": "APEX", "to": "APEX Operator", "type": "handoff" },
+    { "from": "APEX Requirements", "to": "APEX Architect", "type": "handoff" },
+    { "from": "APEX Architect", "to": "APEX Planner", "type": "handoff" },
+    { "from": "APEX Planner", "to": "APEX Operator", "type": "handoff" },
+    { "from": "APEX Requirements", "to": "APEX Reviewer", "type": "subagent" },
+    { "from": "APEX Requirements", "to": "APEX Validator", "type": "subagent" },
+    { "from": "APEX Architect", "to": "APEX Reviewer", "type": "subagent" },
+    { "from": "APEX Architect", "to": "APEX Validator", "type": "subagent" },
+    { "from": "APEX Planner", "to": "APEX CodeGen", "type": "subagent" },
+    { "from": "APEX Planner", "to": "APEX Reviewer", "type": "subagent" },
+    { "from": "APEX Planner", "to": "APEX Validator", "type": "subagent" },
+    { "from": "APEX Operator", "to": "APEX Reviewer", "type": "subagent" },
+    { "from": "APEX Operator", "to": "APEX Validator", "type": "subagent" },
+    { "from": "APEX CodeGen", "to": "APEX Validator", "type": "subagent" }
+  ]
+}

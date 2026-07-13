@@ -1,0 +1,105 @@
+{
+  "schemaVersion": "1.0.0",
+  "frozenAt": "2026-07-13T00:00:00Z",
+  "rules": [
+    {
+      "metric": "setup-completion-rate",
+      "direction": "min",
+      "target": 0.95,
+      "tolerance": 0,
+      "scenario": "clean-install-supported-host",
+      "minimumSamples": 20,
+      "source": "kernel",
+      "owner": "release-engineering",
+      "unavailable": "block"
+    },
+    {
+      "metric": "first-task-success-rate",
+      "direction": "min",
+      "target": 0.95,
+      "tolerance": 0,
+      "scenario": "walking-skeleton-first-requirements-task",
+      "minimumSamples": 20,
+      "source": "kernel",
+      "owner": "workflow-runtime",
+      "unavailable": "block"
+    },
+    {
+      "metric": "workflow-elapsed-time-p95-milliseconds",
+      "direction": "max",
+      "target": 900000,
+      "tolerance": 30000,
+      "scenario": "fake-provider-secure-storage-apply",
+      "minimumSamples": 30,
+      "source": "kernel",
+      "owner": "performance",
+      "unavailable": "block"
+    },
+    {
+      "metric": "restart-resume-success-rate",
+      "direction": "min",
+      "target": 1,
+      "tolerance": 0,
+      "scenario": "restart-after-each-gate-and-resume",
+      "minimumSamples": 20,
+      "source": "kernel",
+      "owner": "state-runtime",
+      "unavailable": "block"
+    },
+    {
+      "metric": "deterministic-validation-escape-rate",
+      "direction": "exact",
+      "target": 0,
+      "tolerance": 0,
+      "scenario": "contract-security-and-state-mutation-suite",
+      "minimumSamples": 100,
+      "source": "kernel",
+      "owner": "validation",
+      "unavailable": "block"
+    },
+    {
+      "metric": "gate-revision-loops-per-run-p95",
+      "direction": "max",
+      "target": 2,
+      "tolerance": 0,
+      "scenario": "representative-bicep-and-terraform-fixtures",
+      "minimumSamples": 30,
+      "source": "kernel",
+      "owner": "workflow-product",
+      "unavailable": "omit-claim"
+    },
+    {
+      "metric": "capability-failure-rate",
+      "direction": "max",
+      "target": 0.02,
+      "tolerance": 0.005,
+      "scenario": "fake-provider-fault-injection-and-release-sandbox",
+      "minimumSamples": 100,
+      "source": "kernel",
+      "owner": "capabilities",
+      "unavailable": "block"
+    },
+    {
+      "metric": "task-context-bytes-p95",
+      "direction": "max",
+      "target": 65536,
+      "tolerance": 4096,
+      "scenario": "largest-bounded-task-projection",
+      "minimumSamples": 30,
+      "source": "kernel",
+      "owner": "context-runtime",
+      "unavailable": "block"
+    },
+    {
+      "metric": "cache-correctness-rate",
+      "direction": "exact",
+      "target": 1,
+      "tolerance": 0,
+      "scenario": "mutate-every-cache-key-dependency",
+      "minimumSamples": 100,
+      "source": "kernel",
+      "owner": "validation-cache",
+      "unavailable": "block"
+    }
+  ]
+}

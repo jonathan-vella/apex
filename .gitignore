@@ -69,6 +69,8 @@ bin/
 obj/
 dist/
 build/
+packages/*/dist/
+packages/cli/assets/
 
 # Node (if any demos use it)
 node_modules/

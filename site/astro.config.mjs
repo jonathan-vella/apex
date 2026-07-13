@@ -125,6 +125,19 @@ export default defineConfig({
       ],
       sidebar: [
         {
+          label: "vNext Preview",
+          collapsed: true,
+          items: [
+            { label: "Overview", slug: "vnext" },
+            { label: "Installation", slug: "vnext/installation" },
+            { label: "Workflow", slug: "vnext/workflow" },
+            { label: "CLI and MCP Reference", slug: "vnext/cli-reference" },
+            { label: "Security", slug: "vnext/security" },
+            { label: "Operations", slug: "vnext/operations" },
+            { label: "Testing", slug: "vnext/testing" },
+          ],
+        },
+        {
           label: "Getting Started",
           collapsed: true,
           items: [

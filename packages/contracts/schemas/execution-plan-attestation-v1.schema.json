@@ -1,0 +1,145 @@
+{
+  "$id": "https://schemas.apexops.dev/execution-plan-attestation-v1.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "artifactRef": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "configHash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "createdAt": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "expiresAt": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "iacHash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "inputHash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "lockfileHash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "planDigest": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "policyHash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "previewHash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "projectId": {
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "type": "string"
+    },
+    "recipient": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "runId": {
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{0,127}$",
+      "type": "string"
+    },
+    "schemaVersion": {
+      "const": "1.0.0",
+      "type": "string"
+    },
+    "stateLineage": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "stateSerial": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "track": {
+      "anyOf": [
+        {
+          "const": "bicep",
+          "type": "string"
+        },
+        {
+          "const": "terraform",
+          "type": "string"
+        }
+      ]
+    },
+    "transport": {
+      "additionalProperties": false,
+      "properties": {
+        "algorithm": {
+          "const": "aes-256-gcm",
+          "type": "string"
+        },
+        "authTag": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "encrypted": {
+          "const": true,
+          "type": "boolean"
+        },
+        "implementation": {
+          "const": "local-reference",
+          "type": "string"
+        },
+        "iv": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "mediaType": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "recipient": {
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "encrypted",
+        "implementation",
+        "algorithm",
+        "recipient",
+        "mediaType",
+        "iv",
+        "authTag"
+      ],
+      "type": "object"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "projectId",
+    "runId",
+    "track",
+    "previewHash",
+    "inputHash",
+    "iacHash",
+    "policyHash",
+    "configHash",
+    "lockfileHash",
+    "recipient",
+    "planDigest",
+    "artifactRef",
+    "transport",
+    "createdAt",
+    "expiresAt"
+  ],
+  "type": "object"
+}

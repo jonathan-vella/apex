@@ -3,8 +3,21 @@
   "version": "0.10.0",
   "description": "APEX - Agentic Platform Engineering eXperience for Azure. Verified. Well-Architected. Deployable.",
   "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
     "prepare": "lefthook install",
+    "build:vnext": "tsc -b tsconfig.vnext.json",
+    "lint:vnext": "tsc -b tsconfig.vnext.json --pretty false",
+    "clean:vnext": "tsc -b tsconfig.vnext.json --clean",
+    "test:vnext": "npm run build:vnext && npm run test --workspaces --if-present",
+    "prepare:vnext-assets": "npm run prepare:assets --workspace @apex/cli",
+    "validate:vnext": "npm run prepare:vnext-assets && node tools/scripts/validate-vnext.mjs",
+    "test:vnext-validator": "node --test tools/tests/vnext/validate-vnext.test.mjs",
+    "test:vnext-pack": "node --test tools/tests/vnext/pack-vnext.test.mjs",
+    "pack:vnext": "node tools/scripts/pack-vnext.mjs",
+    "qualify:vnext": "npm run validate:vnext && npm run test:vnext && npm run test:vnext-validator && npm run test:vnext-pack",
     "lint:md": "markdownlint-cli2",
     "lint:md:fix": "markdownlint-cli2 --fix",
     "lint:links": "find . -name '*.md' ! -path './node_modules/*' ! -path './infra/*' ! -path './site/node_modules/*' ! -path './site/dist/*' | xargs -I {} markdown-link-check {} --config .markdown-link-check.json",
@@ -175,7 +188,9 @@
     "markdown-link-check": "^3.14.2",
     "markdownlint-cli2": "^0.23.0",
     "npm-run-all2": "^9.0.2",
-    "prettier": "^3.9.4"
+    "@types/node": "26.1.1",
+    "prettier": "^3.9.4",
+    "typescript": "7.0.2"
   },
   "repository": {
     "type": "git",

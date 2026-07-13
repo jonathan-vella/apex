@@ -1,0 +1,98 @@
+{
+  "schemaVersion": "1.0.0",
+  "securityInvariants": {
+    "httpsOnly": true,
+    "minimumTlsVersion": "1.2",
+    "publicBlobAccess": false,
+    "sharedKeyAuthentication": false,
+    "managedIdentityPreferred": true,
+    "sqlAuthentication": "entra-only",
+    "containerRegistryAdminEnabled": false,
+    "productionDataPublicNetworkAccess": false,
+    "hardcodedSecretsAllowed": false,
+    "credentialsInGitAllowed": false,
+    "secretValuesInGitAllowed": false,
+    "terraformStateInGitAllowed": false,
+    "terraformSavedPlansInGitAllowed": false,
+    "acceptedRiskCannotOverride": [
+      "secret-exposure",
+      "authorization",
+      "security-baseline",
+      "active-deny-policy",
+      "stale-preview",
+      "destructive-operation-controls"
+    ],
+    "canonicalReferences": [
+      ".github/copilot-instructions.md#security-baseline--avm-mandate",
+      ".github/instructions/references/iac-security-baseline.md",
+      ".github/instructions/references/iac-policy-compliance.md"
+    ]
+  },
+  "azureDefaults": {
+    "regionReference": ".github/copilot-instructions.md#default-regions",
+    "tagContractReference": ".github/copilot-instructions.md#required-tags-azure-policy-enforced",
+    "liveGovernanceOverridesFallbacks": true
+  },
+  "evidence": {
+    "repositoryBoundary": "private-repository",
+    "structuralRedactionRequired": true,
+    "genericSecretScanRequired": true,
+    "uncertainOutputDisposition": "ignored-local-quarantine",
+    "contentDeduplication": "sha256",
+    "budgets": {
+      "perEntryBytes": 1048576,
+      "perRunBytes": 52428800,
+      "repositoryGrowthBytesPerRun": 10485760
+    },
+    "retentionDays": {
+      "requiredApprovalAttestations": null,
+      "requiredDeploymentAttestations": null,
+      "acceptedOperationalEvidence": 365,
+      "optionalDiagnostics": 90,
+      "quarantinedLocalOutput": 7
+    },
+    "immutableKinds": ["approval-evidence-v1", "execution-plan-attestation-v1", "operation-record-v1"]
+  },
+  "tasks": {
+    "maxInputBytes": 262144,
+    "maxOutputBytes": 1048576,
+    "defaultTimeoutMilliseconds": 900000,
+    "maximumTimeoutMilliseconds": 3600000,
+    "defaultRetryLimit": 2,
+    "maximumRetryLimit": 3,
+    "retryBackoffMilliseconds": [1000, 5000, 15000],
+    "staleOutputDisposition": "reject",
+    "duplicateCompletionDisposition": "idempotent"
+  },
+  "previews": {
+    "bicepTtlSeconds": 86400,
+    "terraformTtlSeconds": 3600,
+    "approvalMustExpireNoLaterThanPreview": true,
+    "refreshOnPromotion": true,
+    "refreshOnDependencyChange": true
+  },
+  "journalBenchmarks": {
+    "representativeEvents": 10000,
+    "representativeProjects": 100,
+    "budgetsMilliseconds": {
+      "appendP95": 50,
+      "replayP95": 2000,
+      "statusP95": 250,
+      "searchP95": 500,
+      "freshCloneRebuildP95": 10000
+    },
+    "budgetsBytes": {
+      "journalPerRun": 10485760,
+      "reducedState": 1048576,
+      "fileWatcherWorkingSet": 52428800
+    }
+  },
+  "telemetry": {
+    "enabled": false,
+    "authorizationEvidenceSeparable": true,
+    "consentRequired": true,
+    "consentWithdrawalSupported": true,
+    "exportSupported": true,
+    "deletionSupported": true
+  }
+}

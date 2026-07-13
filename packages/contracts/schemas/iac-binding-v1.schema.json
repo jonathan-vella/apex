@@ -1,0 +1,74 @@
+{
+  "$id": "https://schemas.apexops.dev/iac-binding-v1.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "intentHash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "projectId": {
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "type": "string"
+    },
+    "resourceBindings": {
+      "patternProperties": {
+        "^(.*)$": {
+          "additionalProperties": false,
+          "properties": {
+            "implementation": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "parameters": {
+              "patternProperties": {
+                "^(.*)$": {}
+              },
+              "type": "object"
+            },
+            "version": {
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          "required": [
+            "implementation",
+            "version",
+            "parameters"
+          ],
+          "type": "object"
+        }
+      },
+      "type": "object"
+    },
+    "runId": {
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{0,127}$",
+      "type": "string"
+    },
+    "schemaVersion": {
+      "const": "1.0.0",
+      "type": "string"
+    },
+    "track": {
+      "anyOf": [
+        {
+          "const": "bicep",
+          "type": "string"
+        },
+        {
+          "const": "terraform",
+          "type": "string"
+        }
+      ]
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "projectId",
+    "runId",
+    "track",
+    "intentHash",
+    "resourceBindings"
+  ],
+  "type": "object"
+}

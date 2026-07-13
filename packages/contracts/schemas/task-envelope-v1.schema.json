@@ -1,0 +1,122 @@
+{
+  "$id": "https://schemas.apexops.dev/task-envelope-v1.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "allowedOutputKinds": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "type": "array",
+      "uniqueItems": true
+    },
+    "capabilityGrants": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "capability": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "expiresAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "sideEffect": {
+            "anyOf": [
+              {
+                "const": "none",
+                "type": "string"
+              },
+              {
+                "const": "local",
+                "type": "string"
+              },
+              {
+                "const": "remote",
+                "type": "string"
+              }
+            ]
+          }
+        },
+        "required": [
+          "capability",
+          "sideEffect",
+          "expiresAt"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "createdAt": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "expectedHead": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "expiresAt": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "inputRefs": {
+      "items": {
+        "pattern": "^[0-9a-f]{64}$",
+        "type": "string"
+      },
+      "type": "array",
+      "uniqueItems": true
+    },
+    "maxOutputBytes": {
+      "minimum": 1,
+      "type": "integer"
+    },
+    "ownerEpoch": {
+      "minimum": 1,
+      "type": "integer"
+    },
+    "projectId": {
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "type": "string"
+    },
+    "role": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "runId": {
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{0,127}$",
+      "type": "string"
+    },
+    "schemaVersion": {
+      "const": "1.0.0",
+      "type": "string"
+    },
+    "taskId": {
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{0,127}$",
+      "type": "string"
+    },
+    "taskType": {
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "projectId",
+    "runId",
+    "taskId",
+    "role",
+    "taskType",
+    "expectedHead",
+    "ownerEpoch",
+    "createdAt",
+    "expiresAt",
+    "inputRefs",
+    "allowedOutputKinds",
+    "capabilityGrants",
+    "maxOutputBytes"
+  ],
+  "type": "object"
+}

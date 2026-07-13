@@ -1,0 +1,152 @@
+{
+  "https://schemas.apexops.dev/approval-evidence-v1.json": {
+    "compatibility": "strict-v1",
+    "maxBytes": 32768,
+    "sensitivity": "confidential"
+  },
+  "https://schemas.apexops.dev/architecture-v1.json": {
+    "compatibility": "strict-v1",
+    "maxBytes": 1048576,
+    "sensitivity": "internal"
+  },
+  "https://schemas.apexops.dev/capability-pack-manifest-v1.json": {
+    "compatibility": "strict-v1",
+    "maxBytes": 262144,
+    "sensitivity": "public"
+  },
+  "https://schemas.apexops.dev/cost-estimate-v1.json": {
+    "compatibility": "strict-v1",
+    "maxBytes": 1048576,
+    "sensitivity": "confidential"
+  },
+  "https://schemas.apexops.dev/customization-lock-v1.json": {
+    "compatibility": "strict-v1",
+    "maxBytes": 262144,
+    "sensitivity": "public"
+  },
+  "https://schemas.apexops.dev/deployment-preview-v1.json": {
+    "compatibility": "strict-v1",
+    "maxBytes": 2097152,
+    "sensitivity": "confidential"
+  },
+  "https://schemas.apexops.dev/diagnosis-v1.json": {
+    "compatibility": "strict-v1",
+    "maxBytes": 1048576,
+    "sensitivity": "confidential"
+  },
+  "https://schemas.apexops.dev/environment-inputs-v1.json": {
+    "compatibility": "strict-v1",
+    "maxBytes": 524288,
+    "sensitivity": "restricted"
+  },
+  "https://schemas.apexops.dev/event-v1.json": {
+    "compatibility": "strict-v1",
+    "maxBytes": 262144,
+    "sensitivity": "confidential"
+  },
+  "https://schemas.apexops.dev/evidence-manifest-v1.json": {
+    "compatibility": "strict-v1",
+    "maxBytes": 524288,
+    "sensitivity": "confidential"
+  },
+  "https://schemas.apexops.dev/execution-plan-attestation-v1.json": {
+    "compatibility": "strict-v1",
+    "maxBytes": 131072,
+    "sensitivity": "restricted"
+  },
+  "https://schemas.apexops.dev/governance-constraints-v1.json": {
+    "compatibility": "strict-v1",
+    "maxBytes": 131072,
+    "sensitivity": "confidential"
+  },
+  "https://schemas.apexops.dev/iac-binding-v1.json": {
+    "compatibility": "strict-v1",
+    "maxBytes": 524288,
+    "sensitivity": "confidential"
+  },
+  "https://schemas.apexops.dev/iac-handoff-v1.json": {
+    "compatibility": "strict-v1",
+    "maxBytes": 131072,
+    "sensitivity": "confidential"
+  },
+  "https://schemas.apexops.dev/implementation-intent-v1.json": {
+    "compatibility": "strict-v1",
+    "maxBytes": 524288,
+    "sensitivity": "internal"
+  },
+  "https://schemas.apexops.dev/logical-resource-manifest-v1.json": {
+    "compatibility": "strict-v1",
+    "maxBytes": 2097152,
+    "sensitivity": "internal"
+  },
+  "https://schemas.apexops.dev/operation-record-v1.json": {
+    "compatibility": "strict-v1",
+    "maxBytes": 65536,
+    "sensitivity": "confidential"
+  },
+  "https://schemas.apexops.dev/policy-property-map-v1.json": {
+    "compatibility": "strict-v1",
+    "maxBytes": 2097152,
+    "sensitivity": "confidential"
+  },
+  "https://schemas.apexops.dev/project-config-v1.json": {
+    "compatibility": "strict-v1",
+    "maxBytes": 16384,
+    "sensitivity": "internal"
+  },
+  "https://schemas.apexops.dev/quality-report-v1.json": {
+    "compatibility": "strict-v1",
+    "maxBytes": 1048576,
+    "sensitivity": "confidential"
+  },
+  "https://schemas.apexops.dev/quality-scorecard-v1.json": {
+    "compatibility": "strict-v1",
+    "maxBytes": 262144,
+    "sensitivity": "public"
+  },
+  "https://schemas.apexops.dev/requirements-v1.json": {
+    "compatibility": "strict-v1",
+    "maxBytes": 524288,
+    "sensitivity": "confidential"
+  },
+  "https://schemas.apexops.dev/resource-inventory-v1.json": {
+    "compatibility": "strict-v1",
+    "maxBytes": 4194304,
+    "sensitivity": "confidential"
+  },
+  "https://schemas.apexops.dev/review-findings-v1.json": {
+    "compatibility": "strict-v1",
+    "maxBytes": 1048576,
+    "sensitivity": "confidential"
+  },
+  "https://schemas.apexops.dev/run-config-v1.json": {
+    "compatibility": "strict-v1",
+    "maxBytes": 65536,
+    "sensitivity": "confidential"
+  },
+  "https://schemas.apexops.dev/runtime-bundle-lock-v1.json": {
+    "compatibility": "strict-v1",
+    "maxBytes": 32768,
+    "sensitivity": "internal"
+  },
+  "https://schemas.apexops.dev/scenario-v1.json": {
+    "compatibility": "strict-v1",
+    "maxBytes": 524288,
+    "sensitivity": "public"
+  },
+  "https://schemas.apexops.dev/sku-manifest-v1.json": {
+    "compatibility": "strict-v1",
+    "maxBytes": 524288,
+    "sensitivity": "internal"
+  },
+  "https://schemas.apexops.dev/task-envelope-v1.json": {
+    "compatibility": "strict-v1",
+    "maxBytes": 131072,
+    "sensitivity": "confidential"
+  },
+  "https://schemas.apexops.dev/telemetry-v1.json": {
+    "compatibility": "strict-v1",
+    "maxBytes": 65536,
+    "sensitivity": "confidential"
+  }
+}

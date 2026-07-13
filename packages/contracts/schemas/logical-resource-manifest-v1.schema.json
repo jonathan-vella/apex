@@ -1,0 +1,123 @@
+{
+  "$id": "https://schemas.apexops.dev/logical-resource-manifest-v1.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "projectId": {
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "type": "string"
+    },
+    "resources": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "dependsOn": {
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "type": "array",
+            "uniqueItems": true
+          },
+          "generatedDependencies": {
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "type": "array",
+            "uniqueItems": true
+          },
+          "implementationAddress": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "implementationKind": {
+            "anyOf": [
+              {
+                "const": "resource",
+                "type": "string"
+              },
+              {
+                "const": "module",
+                "type": "string"
+              },
+              {
+                "const": "data",
+                "type": "string"
+              },
+              {
+                "const": "existing",
+                "type": "string"
+              }
+            ]
+          },
+          "logicalId": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "ownership": {
+            "anyOf": [
+              {
+                "const": "existing",
+                "type": "string"
+              },
+              {
+                "const": "managed",
+                "type": "string"
+              }
+            ]
+          },
+          "sourcePath": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "type": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "logicalId",
+          "type",
+          "implementationAddress",
+          "implementationKind",
+          "ownership",
+          "dependsOn",
+          "generatedDependencies",
+          "sourcePath"
+        ],
+        "type": "object"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "runId": {
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{0,127}$",
+      "type": "string"
+    },
+    "schemaVersion": {
+      "const": "1.0.0",
+      "type": "string"
+    },
+    "track": {
+      "anyOf": [
+        {
+          "const": "bicep",
+          "type": "string"
+        },
+        {
+          "const": "terraform",
+          "type": "string"
+        }
+      ]
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "projectId",
+    "runId",
+    "track",
+    "resources"
+  ],
+  "type": "object"
+}

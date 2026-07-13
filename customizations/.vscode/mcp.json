@@ -1,0 +1,13 @@
+{
+  "servers": {
+    "apex": {
+      "type": "stdio",
+      "command": "apex",
+      "args": [
+        "mcp",
+        "serve"
+      ],
+      "cwd": "${workspaceFolder}"
+    }
+  }
+}

@@ -42,6 +42,14 @@ for full details on this and all prior releases.
   skeleton, contract waves, an early dual-track proof, lazy capability packs,
   cached validation, inherited promotion gates, bounded evidence, writer
   transfer, and secure Terraform CI plan transport.
+- feat(vnext): implemented the TypeScript contracts, kernel, authorized
+  capabilities, deterministic renderers, CLI/MCP control plane, testkit,
+  managed VS Code customizations, runtime configuration, native IaC generation
+  and provider adapters, capability-pack management, schema export, validation,
+  reproducible package/SBOM/provenance tooling, deterministic qualification,
+  CI lanes, and versioned preview documentation. Live VS Code agent behavior,
+  Azure deployment-stack behavior, production Terraform CI plan transport, and
+  final release scorecard evidence remain explicit pre-cutover gates.
 
 ### Changed (Model migration — Claude Sonnet 4.6 → Claude Sonnet 5)
 

@@ -1,0 +1,103 @@
+{
+  "$id": "https://schemas.apexops.dev/governance-constraints-v1.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "constraintsRef": {
+      "additionalProperties": false,
+      "properties": {
+        "bytes": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "digest": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "mediaType": {
+          "const": "application/json",
+          "type": "string"
+        },
+        "uri": {
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "mediaType",
+        "uri",
+        "digest",
+        "bytes"
+      ],
+      "type": "object"
+    },
+    "discoveredAt": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "expiresAt": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "projectId": {
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "type": "string"
+    },
+    "runId": {
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{0,127}$",
+      "type": "string"
+    },
+    "schemaVersion": {
+      "const": "1.0.0",
+      "type": "string"
+    },
+    "summary": {
+      "additionalProperties": false,
+      "properties": {
+        "assignmentCount": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "auditCount": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "denyCount": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "exemptionCount": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "modifyCount": {
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "assignmentCount",
+        "denyCount",
+        "modifyCount",
+        "auditCount",
+        "exemptionCount"
+      ],
+      "type": "object"
+    },
+    "targetScope": {
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "projectId",
+    "runId",
+    "targetScope",
+    "discoveredAt",
+    "expiresAt",
+    "summary",
+    "constraintsRef"
+  ],
+  "type": "object"
+}

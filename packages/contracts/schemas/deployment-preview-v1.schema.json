@@ -1,0 +1,180 @@
+{
+  "$id": "https://schemas.apexops.dev/deployment-preview-v1.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "artifactHash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "blockers": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "changes": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "anyOf": [
+              {
+                "const": "create",
+                "type": "string"
+              },
+              {
+                "const": "update",
+                "type": "string"
+              },
+              {
+                "const": "delete",
+                "type": "string"
+              },
+              {
+                "const": "replace",
+                "type": "string"
+              },
+              {
+                "const": "no-op",
+                "type": "string"
+              },
+              {
+                "const": "unknown",
+                "type": "string"
+              }
+            ]
+          },
+          "details": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "material": {
+            "type": "boolean"
+          },
+          "resourceId": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "resourceId",
+          "action",
+          "material"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "commit": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "createdAt": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "dependencyRevision": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "environment": {
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "type": "string"
+    },
+    "expiresAt": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "iacHash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "inputHash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "operation": {
+      "anyOf": [
+        {
+          "const": "apply",
+          "type": "string"
+        },
+        {
+          "const": "destroy",
+          "type": "string"
+        }
+      ]
+    },
+    "ownerEpoch": {
+      "minimum": 1,
+      "type": "integer"
+    },
+    "policyHash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "previewHash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "projectId": {
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "type": "string"
+    },
+    "runId": {
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{0,127}$",
+      "type": "string"
+    },
+    "schemaVersion": {
+      "const": "1.0.0",
+      "type": "string"
+    },
+    "stateLineage": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "stateSerial": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "target": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "track": {
+      "anyOf": [
+        {
+          "const": "bicep",
+          "type": "string"
+        },
+        {
+          "const": "terraform",
+          "type": "string"
+        }
+      ]
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "projectId",
+    "runId",
+    "environment",
+    "track",
+    "operation",
+    "target",
+    "commit",
+    "dependencyRevision",
+    "ownerEpoch",
+    "inputHash",
+    "iacHash",
+    "policyHash",
+    "changes",
+    "blockers",
+    "createdAt",
+    "expiresAt",
+    "previewHash"
+  ],
+  "type": "object"
+}

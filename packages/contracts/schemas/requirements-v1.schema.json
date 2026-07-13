@@ -1,0 +1,108 @@
+{
+  "$id": "https://schemas.apexops.dev/requirements-v1.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "assumptions": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "environment": {
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "type": "string"
+    },
+    "projectId": {
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "type": "string"
+    },
+    "requirements": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "priority": {
+            "anyOf": [
+              {
+                "const": "must",
+                "type": "string"
+              },
+              {
+                "const": "should",
+                "type": "string"
+              },
+              {
+                "const": "could",
+                "type": "string"
+              }
+            ]
+          },
+          "source": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "statement": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "const": "confirmed",
+                "type": "string"
+              },
+              {
+                "const": "unknown",
+                "type": "string"
+              },
+              {
+                "const": "deferred",
+                "type": "string"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "statement",
+          "priority",
+          "status",
+          "source"
+        ],
+        "type": "object"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "schemaVersion": {
+      "const": "1.0.0",
+      "type": "string"
+    },
+    "unknowns": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "workload": {
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "projectId",
+    "workload",
+    "environment",
+    "requirements",
+    "assumptions",
+    "unknowns"
+  ],
+  "type": "object"
+}

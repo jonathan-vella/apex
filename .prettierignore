@@ -24,6 +24,8 @@ node_modules/.cache/
 
 # Build artefacts
 *.tsbuildinfo
+packages/*/dist/
+packages/cli/assets/
 
 # AI-author markdown — Prettier's markdown printer collapses mixed-marker
 # numbered lists (6a. / 7. / 8. / 9a.) with 4-space sub-paragraph
@@ -56,6 +58,13 @@ VERSION.md
 # Generated caches / rendered summaries — owned by their generators.
 tools/scripts/_data/
 tools/scripts/_lib/artifact-headings-summary.json
+packages/contracts/schemas/
+
+# Managed VS Code customizations are validated by validate:vnext and
+# markdownlint; Prettier must not rewrite agent/skill prompt structure.
+customizations/.github/
+customizations/.vscode/
+customizations/manifest.json
 
 # Expected-output test fixtures (reformatting would break replay assertions).
 tests/fixtures/

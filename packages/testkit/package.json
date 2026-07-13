@@ -1,0 +1,42 @@
+{
+  "name": "@apex/testkit",
+  "version": "0.1.0",
+  "description": "Deterministic fixtures and scenarios for APEX vNext tests",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jonathan-vella/apex.git",
+    "directory": "packages/testkit"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "@apex/capabilities": "0.1.0",
+    "@apex/cli": "0.1.0",
+    "@apex/contracts": "0.1.0",
+    "@apex/kernel": "0.1.0",
+    "@apex/renderers": "0.1.0",
+    "@sinclair/typebox": "0.34.52"
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "test": "node --test dist/test/*.test.js"
+  },
+  "engines": {
+    "node": ">=24"
+  }
+}

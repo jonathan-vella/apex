@@ -1,0 +1,50 @@
+{
+  "name": "@apex/cli",
+  "version": "0.1.0",
+  "description": "Portable no-shell CLI and MCP facade for APEX",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jonathan-vella/apex.git",
+    "directory": "packages/cli"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "bin": {
+    "apex": "./dist/cli.js"
+  },
+  "files": [
+    "dist/**/*.js",
+    "dist/**/*.d.ts",
+    "!dist/test/**",
+    "assets"
+  ],
+  "dependencies": {
+    "@apex/capabilities": "0.1.0",
+    "@apex/contracts": "0.1.0",
+    "@apex/kernel": "0.1.0",
+    "@apex/renderers": "0.1.0",
+    "@modelcontextprotocol/sdk": "1.29.0",
+    "zod": "4.4.3"
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "prepare:assets": "node scripts/prepare-assets.mjs",
+    "prepack": "npm run build && npm run prepare:assets",
+    "test": "node --test dist/test/*.test.js"
+  },
+  "engines": {
+    "node": ">=24"
+  }
+}

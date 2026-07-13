@@ -1,0 +1,117 @@
+{
+  "$id": "https://schemas.apexops.dev/telemetry-v1.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "confidence": {
+      "anyOf": [
+        {
+          "const": "low",
+          "type": "string"
+        },
+        {
+          "const": "medium",
+          "type": "string"
+        },
+        {
+          "const": "high",
+          "type": "string"
+        }
+      ]
+    },
+    "consent": {
+      "additionalProperties": false,
+      "properties": {
+        "scope": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "status": {
+          "anyOf": [
+            {
+              "const": "granted",
+              "type": "string"
+            },
+            {
+              "const": "denied",
+              "type": "string"
+            },
+            {
+              "const": "not-required",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "required": [
+        "status",
+        "scope"
+      ],
+      "type": "object"
+    },
+    "dimensions": {
+      "patternProperties": {
+        "^(.*)$": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "eventId": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "metric": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "schemaVersion": {
+      "const": "1.0.0",
+      "type": "string"
+    },
+    "source": {
+      "anyOf": [
+        {
+          "const": "kernel",
+          "type": "string"
+        },
+        {
+          "const": "cli",
+          "type": "string"
+        },
+        {
+          "const": "vscode",
+          "type": "string"
+        },
+        {
+          "const": "estimated",
+          "type": "string"
+        }
+      ]
+    },
+    "timestamp": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "unit": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "value": {
+      "type": "number"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "eventId",
+    "timestamp",
+    "metric",
+    "value",
+    "unit",
+    "consent",
+    "source",
+    "confidence",
+    "dimensions"
+  ],
+  "type": "object"
+}

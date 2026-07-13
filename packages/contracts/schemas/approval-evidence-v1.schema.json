@@ -1,0 +1,93 @@
+{
+  "$id": "https://schemas.apexops.dev/approval-evidence-v1.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "actor": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "decidedAt": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "decision": {
+      "anyOf": [
+        {
+          "const": "approved",
+          "type": "string"
+        },
+        {
+          "const": "rejected",
+          "type": "string"
+        }
+      ]
+    },
+    "dependencyHash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "expiresAt": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "gate": {
+      "maximum": 4,
+      "minimum": 1,
+      "type": "integer"
+    },
+    "mechanism": {
+      "anyOf": [
+        {
+          "const": "tty",
+          "type": "string"
+        },
+        {
+          "const": "github-environment",
+          "type": "string"
+        },
+        {
+          "const": "inherited",
+          "type": "string"
+        }
+      ]
+    },
+    "previewHash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "projectId": {
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "type": "string"
+    },
+    "recipientIdentity": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "runId": {
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{0,127}$",
+      "type": "string"
+    },
+    "schemaVersion": {
+      "const": "1.0.0",
+      "type": "string"
+    },
+    "writerEpoch": {
+      "minimum": 1,
+      "type": "integer"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "projectId",
+    "runId",
+    "gate",
+    "decision",
+    "actor",
+    "mechanism",
+    "dependencyHash",
+    "writerEpoch",
+    "decidedAt"
+  ],
+  "type": "object"
+}

@@ -202,5 +202,9 @@
     // Astro Starlight build output (also in .gitignore — belt-and-suspenders)
     "site/dist/**",
     "site/.astro/**",
+
+    // Reproducible package assets are validated against canonical source by
+    // validate:vnext and pack tests; lint customizations/ instead.
+    "packages/cli/assets/**",
   ],
 }

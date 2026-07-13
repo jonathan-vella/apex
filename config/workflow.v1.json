@@ -1,0 +1,874 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "apex-workflow-v1",
+  "determinism": {
+    "dataOnly": true,
+    "arbitraryScriptsAllowed": false,
+    "evalAllowed": false,
+    "conditionOperators": ["all", "equals", "in", "exists", "not"],
+    "edgeSelection": "manifest-order",
+    "multipleEligibleEdges": "error-unless-fanout"
+  },
+  "runModel": {
+    "environmentScope": "one-environment-and-one-azure-scope-per-run",
+    "writerPolicy": "single-active-writer",
+    "iacTracks": ["bicep", "terraform"]
+  },
+  "nodes": [
+    {
+      "id": "requirements",
+      "kind": "creative",
+      "ownerRole": "requirements",
+      "sourceDependencies": ["project-config", "run-config", "defaults"],
+      "outputs": ["requirements-v1", "sku-manifest-v1"],
+      "validators": [
+        "schema:requirements-v1",
+        "business:requirements-completeness",
+        "review:requirements-comprehensive"
+      ],
+      "invalidates": [
+        "gate-1",
+        "architecture",
+        "governance-discovery",
+        "governance-reconciliation",
+        "plan",
+        "codegen-bicep",
+        "codegen-terraform",
+        "validation-bicep",
+        "validation-terraform",
+        "preview-bicep",
+        "preview-terraform",
+        "gate-2",
+        "gate-3",
+        "gate-4",
+        "deploy-bicep",
+        "deploy-terraform",
+        "inventory",
+        "diagnosis",
+        "quality"
+      ]
+    },
+    {
+      "id": "gate-1",
+      "kind": "gate",
+      "gateNumber": 1,
+      "name": "Requirements",
+      "ownerRole": "approver",
+      "sourceDependencies": ["requirements-v1", "sku-manifest-v1", "requirements-review", "accepted-risk-scopes"],
+      "validators": ["gate:requirements-ready"],
+      "invalidates": []
+    },
+    {
+      "id": "architecture",
+      "kind": "creative",
+      "ownerRole": "architect",
+      "sourceDependencies": [
+        "gate-1",
+        "requirements-v1",
+        "sku-manifest-v1",
+        "defaults",
+        "pricing-evidence",
+        "quota-evidence",
+        "regional-availability-evidence"
+      ],
+      "outputs": ["architecture-v1", "cost-estimate-v1"],
+      "validators": [
+        "schema:architecture-v1",
+        "business:requirements-traceability",
+        "business:cost-arithmetic",
+        "business:availability-current",
+        "review:architecture-comprehensive"
+      ],
+      "invalidates": [
+        "gate-2",
+        "governance-reconciliation",
+        "plan",
+        "gate-3",
+        "codegen-bicep",
+        "codegen-terraform",
+        "validation-bicep",
+        "validation-terraform",
+        "preview-bicep",
+        "preview-terraform",
+        "gate-4",
+        "deploy-bicep",
+        "deploy-terraform",
+        "inventory",
+        "diagnosis",
+        "quality"
+      ]
+    },
+    {
+      "id": "governance-discovery",
+      "kind": "capability",
+      "ownerRole": "governance-operator",
+      "sourceDependencies": ["gate-1", "run-config.targetScope", "governance-capability-lock"],
+      "outputs": ["governance-constraints-v1"],
+      "validators": [
+        "schema:governance-constraints-v1",
+        "business:governance-completeness",
+        "business:governance-freshness"
+      ],
+      "invalidates": [
+        "governance-reconciliation",
+        "gate-2",
+        "plan",
+        "gate-3",
+        "validation-bicep",
+        "validation-terraform",
+        "preview-bicep",
+        "preview-terraform",
+        "gate-4",
+        "deploy-bicep",
+        "deploy-terraform",
+        "inventory",
+        "diagnosis",
+        "quality"
+      ]
+    },
+    {
+      "id": "governance-reconciliation",
+      "kind": "deterministic",
+      "ownerRole": "governance-operator",
+      "sourceDependencies": ["architecture-v1", "governance-constraints-v1", "defaults"],
+      "outputs": ["policy-property-map-v1"],
+      "validators": [
+        "schema:policy-property-map-v1",
+        "business:policy-effect-coverage",
+        "review:governance-reconciliation"
+      ],
+      "invalidates": [
+        "gate-2",
+        "plan",
+        "gate-3",
+        "validation-bicep",
+        "validation-terraform",
+        "preview-bicep",
+        "preview-terraform",
+        "gate-4",
+        "deploy-bicep",
+        "deploy-terraform",
+        "inventory",
+        "diagnosis",
+        "quality"
+      ]
+    },
+    {
+      "id": "gate-2",
+      "kind": "gate",
+      "gateNumber": 2,
+      "name": "Architecture and Cost",
+      "ownerRole": "approver",
+      "sourceDependencies": [
+        "architecture-v1",
+        "cost-estimate-v1",
+        "governance-constraints-v1",
+        "policy-property-map-v1",
+        "architecture-review",
+        "governance-reconciliation-review",
+        "accepted-risk-scopes"
+      ],
+      "validators": ["gate:architecture-cost-governance-ready"],
+      "invalidates": []
+    },
+    {
+      "id": "plan",
+      "kind": "creative",
+      "ownerRole": "planner",
+      "sourceDependencies": [
+        "gate-2",
+        "requirements-v1",
+        "architecture-v1",
+        "governance-constraints-v1",
+        "policy-property-map-v1",
+        "defaults",
+        "toolchain"
+      ],
+      "outputs": ["implementation-intent-v1", "iac-binding-v1", "environment-inputs-v1"],
+      "validators": [
+        "schema:implementation-intent-v1",
+        "schema:iac-binding-v1",
+        "business:plan-source-coverage",
+        "business:binding-track-match",
+        "business:dependency-acyclic",
+        "review:plan-comprehensive"
+      ],
+      "invalidates": [
+        "gate-3",
+        "codegen-bicep",
+        "codegen-terraform",
+        "validation-bicep",
+        "validation-terraform",
+        "preview-bicep",
+        "preview-terraform",
+        "gate-4",
+        "deploy-bicep",
+        "deploy-terraform",
+        "inventory",
+        "diagnosis",
+        "quality"
+      ]
+    },
+    {
+      "id": "gate-3",
+      "kind": "gate",
+      "gateNumber": 3,
+      "name": "Implementation Plan",
+      "ownerRole": "approver",
+      "sourceDependencies": [
+        "implementation-intent-v1",
+        "iac-binding-v1",
+        "environment-inputs-v1",
+        "plan-review",
+        "accepted-risk-scopes"
+      ],
+      "validators": ["gate:implementation-plan-ready"],
+      "invalidates": []
+    },
+    {
+      "id": "codegen-bicep",
+      "kind": "creative",
+      "ownerRole": "bicep-codegen",
+      "condition": {
+        "equals": [
+          {
+            "path": "run.iacTool"
+          },
+          "bicep"
+        ]
+      },
+      "sourceDependencies": [
+        "gate-3",
+        "implementation-intent-v1",
+        "iac-binding-v1",
+        "environment-inputs-v1",
+        "policy-property-map-v1",
+        "runtime-bundle",
+        "toolchain"
+      ],
+      "outputs": ["bicep-tree", "logical-resource-manifest-v1", "iac-handoff-v1"],
+      "validators": ["business:bicep-binding-coverage"],
+      "invalidates": [
+        "validation-bicep",
+        "preview-bicep",
+        "gate-4",
+        "deploy-bicep",
+        "inventory",
+        "diagnosis",
+        "quality"
+      ]
+    },
+    {
+      "id": "codegen-terraform",
+      "kind": "creative",
+      "ownerRole": "terraform-codegen",
+      "condition": {
+        "equals": [
+          {
+            "path": "run.iacTool"
+          },
+          "terraform"
+        ]
+      },
+      "sourceDependencies": [
+        "gate-3",
+        "implementation-intent-v1",
+        "iac-binding-v1",
+        "environment-inputs-v1",
+        "policy-property-map-v1",
+        "runtime-bundle",
+        "toolchain"
+      ],
+      "outputs": ["terraform-tree", "logical-resource-manifest-v1", "iac-handoff-v1"],
+      "validators": ["business:terraform-binding-coverage"],
+      "invalidates": [
+        "validation-terraform",
+        "preview-terraform",
+        "gate-4",
+        "deploy-terraform",
+        "inventory",
+        "diagnosis",
+        "quality"
+      ]
+    },
+    {
+      "id": "validation-bicep",
+      "kind": "deterministic",
+      "ownerRole": "validator",
+      "condition": {
+        "equals": [
+          {
+            "path": "run.iacTool"
+          },
+          "bicep"
+        ]
+      },
+      "sourceDependencies": [
+        "bicep-tree",
+        "iac-handoff-v1",
+        "logical-resource-manifest-v1",
+        "governance-constraints-v1",
+        "defaults",
+        "toolchain"
+      ],
+      "outputs": ["validation-evidence-v1"],
+      "validators": [
+        "bicep:format",
+        "bicep:build",
+        "bicep:lint",
+        "business:security-baseline",
+        "business:policy-property-map",
+        "business:logical-resource-parity"
+      ],
+      "invalidates": ["preview-bicep", "gate-4", "deploy-bicep", "inventory", "diagnosis", "quality"]
+    },
+    {
+      "id": "validation-terraform",
+      "kind": "deterministic",
+      "ownerRole": "validator",
+      "condition": {
+        "equals": [
+          {
+            "path": "run.iacTool"
+          },
+          "terraform"
+        ]
+      },
+      "sourceDependencies": [
+        "terraform-tree",
+        "iac-handoff-v1",
+        "logical-resource-manifest-v1",
+        "governance-constraints-v1",
+        "defaults",
+        "toolchain"
+      ],
+      "outputs": ["validation-evidence-v1"],
+      "validators": [
+        "terraform:format",
+        "terraform:init-backend-false",
+        "terraform:validate",
+        "business:security-baseline",
+        "business:policy-property-map",
+        "business:logical-resource-parity"
+      ],
+      "invalidates": ["preview-terraform", "gate-4", "deploy-terraform", "inventory", "diagnosis", "quality"]
+    },
+    {
+      "id": "preview-bicep",
+      "kind": "capability",
+      "ownerRole": "deployment-operator",
+      "condition": {
+        "equals": [
+          {
+            "path": "run.iacTool"
+          },
+          "bicep"
+        ]
+      },
+      "sourceDependencies": [
+        "validation-evidence-v1",
+        "bicep-tree",
+        "environment-inputs-v1",
+        "governance-constraints-v1",
+        "quota-evidence-current",
+        "run-config.targetScope",
+        "toolchain"
+      ],
+      "outputs": ["deployment-preview-v1", "execution-plan-attestation-v1"],
+      "validators": ["preview:hash-bindings", "preview:policy-precheck", "preview:coverage", "preview:freshness"],
+      "invalidates": ["gate-4", "deploy-bicep", "inventory", "diagnosis", "quality"]
+    },
+    {
+      "id": "preview-terraform",
+      "kind": "capability",
+      "ownerRole": "deployment-operator",
+      "condition": {
+        "equals": [
+          {
+            "path": "run.iacTool"
+          },
+          "terraform"
+        ]
+      },
+      "sourceDependencies": [
+        "validation-evidence-v1",
+        "terraform-tree",
+        "terraform-lockfile",
+        "environment-inputs-v1",
+        "governance-constraints-v1",
+        "quota-evidence-current",
+        "terraform-state-lineage-and-serial",
+        "run-config.targetScope",
+        "toolchain"
+      ],
+      "outputs": ["deployment-preview-v1", "execution-plan-attestation-v1", "protected-saved-plan-local-reference"],
+      "validators": [
+        "preview:hash-bindings",
+        "preview:policy-precheck",
+        "preview:coverage",
+        "preview:freshness",
+        "terraform:saved-plan-binding"
+      ],
+      "invalidates": ["gate-4", "deploy-terraform", "inventory", "diagnosis", "quality"]
+    },
+    {
+      "id": "gate-4",
+      "kind": "gate",
+      "gateNumber": 4,
+      "name": "Deployment Preview",
+      "ownerRole": "deployment-approver",
+      "sourceDependencies": [
+        "deployment-preview-v1",
+        "execution-plan-attestation-v1",
+        "validation-evidence-v1",
+        "governance-constraints-v1",
+        "environment-inputs-v1",
+        "iac-tree-hash",
+        "run-config.targetScope",
+        "repository-head",
+        "owner-epoch",
+        "accepted-risk-scopes"
+      ],
+      "validators": ["gate:preview-current", "gate:approval-binding-complete", "gate:no-hard-blockers"],
+      "invalidates": []
+    },
+    {
+      "id": "deploy-bicep",
+      "kind": "capability",
+      "ownerRole": "deployment-operator",
+      "condition": {
+        "equals": [
+          {
+            "path": "run.iacTool"
+          },
+          "bicep"
+        ]
+      },
+      "sourceDependencies": [
+        "gate-4",
+        "approval-evidence-v1",
+        "deployment-preview-v1",
+        "execution-plan-attestation-v1",
+        "bicep-tree",
+        "environment-inputs-v1",
+        "repository-head",
+        "owner-epoch"
+      ],
+      "outputs": ["operation-record-v1"],
+      "validators": [
+        "deploy:exact-approved-operation",
+        "deploy:bicep-stack-ownership",
+        "deploy:stale-writer-rejection"
+      ],
+      "invalidates": ["inventory", "diagnosis", "quality"]
+    },
+    {
+      "id": "deploy-terraform",
+      "kind": "capability",
+      "ownerRole": "deployment-operator",
+      "condition": {
+        "equals": [
+          {
+            "path": "run.iacTool"
+          },
+          "terraform"
+        ]
+      },
+      "sourceDependencies": [
+        "gate-4",
+        "approval-evidence-v1",
+        "deployment-preview-v1",
+        "execution-plan-attestation-v1",
+        "protected-saved-plan-local-reference",
+        "terraform-state-lineage-and-serial",
+        "repository-head",
+        "owner-epoch"
+      ],
+      "outputs": ["operation-record-v1"],
+      "validators": [
+        "deploy:exact-approved-operation",
+        "deploy:exact-saved-plan",
+        "deploy:state-lineage-and-serial",
+        "deploy:stale-writer-rejection"
+      ],
+      "invalidates": ["inventory", "diagnosis", "quality"]
+    },
+    {
+      "id": "inventory",
+      "kind": "capability",
+      "ownerRole": "inventory-operator",
+      "sourceDependencies": ["operation-record-v1", "logical-resource-manifest-v1", "run-config.targetScope"],
+      "outputs": ["resource-inventory-v1"],
+      "validators": ["inventory:secret-free", "inventory:source-coverage", "inventory:eventual-consistency-reconciled"],
+      "invalidates": ["diagnosis", "quality"]
+    },
+    {
+      "id": "diagnosis",
+      "kind": "capability",
+      "ownerRole": "diagnostician",
+      "sourceDependencies": ["resource-inventory-v1", "operation-record-v1", "run-config.targetScope"],
+      "outputs": ["diagnosis-report-v1"],
+      "validators": ["diagnosis:read-only", "diagnosis:secret-free"],
+      "invalidates": ["quality"]
+    },
+    {
+      "id": "quality",
+      "kind": "deterministic",
+      "ownerRole": "quality-owner",
+      "sourceDependencies": [
+        "run-journal",
+        "validation-evidence-v1",
+        "operation-record-v1",
+        "resource-inventory-v1",
+        "quality-scorecard"
+      ],
+      "outputs": ["quality-report-v1", "run-lessons-v1"],
+      "validators": ["quality:scorecard-decidable", "quality:no-subjective-deterministic-claims"],
+      "invalidates": []
+    },
+    {
+      "id": "blocked",
+      "kind": "terminal",
+      "ownerRole": "coordinator",
+      "sourceDependencies": ["blocking-reason"],
+      "outputs": [],
+      "validators": [],
+      "invalidates": []
+    },
+    {
+      "id": "cancelled",
+      "kind": "terminal",
+      "ownerRole": "coordinator",
+      "sourceDependencies": ["cancellation-record"],
+      "outputs": [],
+      "validators": [],
+      "invalidates": []
+    },
+    {
+      "id": "completed",
+      "kind": "terminal",
+      "ownerRole": "coordinator",
+      "sourceDependencies": ["quality-report-v1"],
+      "outputs": [],
+      "validators": ["terminal:run-evidence-complete"],
+      "invalidates": []
+    }
+  ],
+  "edges": [
+    {
+      "from": "requirements",
+      "to": "gate-1",
+      "event": "completed"
+    },
+    {
+      "from": "gate-1",
+      "to": "architecture",
+      "event": "approved",
+      "fanout": true
+    },
+    {
+      "from": "gate-1",
+      "to": "governance-discovery",
+      "event": "approved",
+      "fanout": true
+    },
+    {
+      "from": "architecture",
+      "to": "governance-reconciliation",
+      "event": "completed",
+      "condition": {
+        "exists": {
+          "path": "artifacts.governance-constraints-v1"
+        }
+      }
+    },
+    {
+      "from": "governance-discovery",
+      "to": "governance-reconciliation",
+      "event": "completed",
+      "condition": {
+        "exists": {
+          "path": "artifacts.architecture-v1"
+        }
+      }
+    },
+    {
+      "from": "governance-reconciliation",
+      "to": "gate-2",
+      "event": "completed"
+    },
+    {
+      "from": "gate-2",
+      "to": "plan",
+      "event": "approved"
+    },
+    {
+      "from": "plan",
+      "to": "gate-3",
+      "event": "completed"
+    },
+    {
+      "from": "gate-3",
+      "to": "codegen-bicep",
+      "event": "approved",
+      "condition": {
+        "equals": [
+          {
+            "path": "run.iacTool"
+          },
+          "bicep"
+        ]
+      }
+    },
+    {
+      "from": "gate-3",
+      "to": "codegen-terraform",
+      "event": "approved",
+      "condition": {
+        "equals": [
+          {
+            "path": "run.iacTool"
+          },
+          "terraform"
+        ]
+      }
+    },
+    {
+      "from": "codegen-bicep",
+      "to": "validation-bicep",
+      "event": "completed"
+    },
+    {
+      "from": "codegen-terraform",
+      "to": "validation-terraform",
+      "event": "completed"
+    },
+    {
+      "from": "validation-bicep",
+      "to": "preview-bicep",
+      "event": "passed"
+    },
+    {
+      "from": "validation-terraform",
+      "to": "preview-terraform",
+      "event": "passed"
+    },
+    {
+      "from": "preview-bicep",
+      "to": "gate-4",
+      "event": "completed"
+    },
+    {
+      "from": "preview-terraform",
+      "to": "gate-4",
+      "event": "completed"
+    },
+    {
+      "from": "gate-4",
+      "to": "deploy-bicep",
+      "event": "approved",
+      "condition": {
+        "equals": [
+          {
+            "path": "run.iacTool"
+          },
+          "bicep"
+        ]
+      }
+    },
+    {
+      "from": "gate-4",
+      "to": "deploy-terraform",
+      "event": "approved",
+      "condition": {
+        "equals": [
+          {
+            "path": "run.iacTool"
+          },
+          "terraform"
+        ]
+      }
+    },
+    {
+      "from": "deploy-bicep",
+      "to": "inventory",
+      "event": "succeeded"
+    },
+    {
+      "from": "deploy-terraform",
+      "to": "inventory",
+      "event": "succeeded"
+    },
+    {
+      "from": "inventory",
+      "to": "diagnosis",
+      "event": "completed"
+    },
+    {
+      "from": "diagnosis",
+      "to": "quality",
+      "event": "completed"
+    },
+    {
+      "from": "quality",
+      "to": "completed",
+      "event": "completed"
+    }
+  ],
+  "returnRoutes": [
+    {
+      "from": "architecture",
+      "to": "requirements",
+      "reasonCode": "requirements-refinement",
+      "reopensFromGate": 1
+    },
+    {
+      "from": "governance-reconciliation",
+      "to": "architecture",
+      "reasonCode": "governance-architecture-conflict",
+      "reopensFromGate": 2
+    },
+    {
+      "from": "plan",
+      "to": "architecture",
+      "reasonCode": "architecture-rooted-plan-defect",
+      "reopensFromGate": 2
+    },
+    {
+      "from": "plan",
+      "to": "plan",
+      "reasonCode": "plan-refinement",
+      "reopensFromGate": 3
+    },
+    {
+      "from": "codegen-bicep",
+      "to": "plan",
+      "reasonCode": "bicep-binding-defect",
+      "reopensFromGate": 3
+    },
+    {
+      "from": "codegen-terraform",
+      "to": "plan",
+      "reasonCode": "terraform-binding-defect",
+      "reopensFromGate": 3
+    },
+    {
+      "from": "validation-bicep",
+      "to": "codegen-bicep",
+      "reasonCode": "bicep-validation-failure",
+      "reopensFromGate": 4
+    },
+    {
+      "from": "validation-terraform",
+      "to": "codegen-terraform",
+      "reasonCode": "terraform-validation-failure",
+      "reopensFromGate": 4
+    },
+    {
+      "from": "preview-bicep",
+      "to": "plan",
+      "reasonCode": "bicep-preview-material-change",
+      "reopensFromGate": 3
+    },
+    {
+      "from": "preview-terraform",
+      "to": "plan",
+      "reasonCode": "terraform-preview-material-change",
+      "reopensFromGate": 3
+    },
+    {
+      "from": "gate-4",
+      "to": "preview-bicep",
+      "reasonCode": "bicep-preview-rejected-or-expired",
+      "condition": {
+        "equals": [
+          {
+            "path": "run.iacTool"
+          },
+          "bicep"
+        ]
+      },
+      "reopensFromGate": 4
+    },
+    {
+      "from": "gate-4",
+      "to": "preview-terraform",
+      "reasonCode": "terraform-preview-rejected-or-expired",
+      "condition": {
+        "equals": [
+          {
+            "path": "run.iacTool"
+          },
+          "terraform"
+        ]
+      },
+      "reopensFromGate": 4
+    },
+    {
+      "from": "diagnosis",
+      "to": "plan",
+      "reasonCode": "remediation-requires-authorized-change",
+      "reopensFromGate": 3
+    }
+  ],
+  "failureRoutes": [
+    {
+      "fromKinds": ["creative", "deterministic", "capability", "gate"],
+      "on": "non-retryable-failure",
+      "to": "blocked"
+    },
+    {
+      "fromKinds": ["creative", "deterministic", "capability", "gate"],
+      "on": "cancelled",
+      "to": "cancelled"
+    },
+    {
+      "from": "deploy-bicep",
+      "on": "indeterminate",
+      "to": "deploy-bicep",
+      "mode": "reconcile-only"
+    },
+    {
+      "from": "deploy-terraform",
+      "on": "indeterminate",
+      "to": "deploy-terraform",
+      "mode": "reconcile-only"
+    }
+  ],
+  "promotion": {
+    "createsLinkedRun": true,
+    "inheritsEnvironmentSpecificArtifacts": false,
+    "gateRules": [
+      {
+        "gates": [1, 2, 3],
+        "inheritance": "allowed",
+        "requirements": {
+          "completeDependencyHashes": "exact-match",
+          "acceptedRiskScopes": "exact-match"
+        },
+        "evidence": "immutable-inheritance-attestation",
+        "onMismatch": "reopen-first-invalidated-gate"
+      },
+      {
+        "gates": [4],
+        "inheritance": "never",
+        "requirements": {
+          "freshPreview": true,
+          "freshApproval": true,
+          "freshDeployment": true,
+          "freshInventory": true
+        }
+      }
+    ]
+  },
+  "terminalStates": ["completed", "cancelled"],
+  "blockedStates": [
+    "blocked",
+    "needs-input",
+    "approval-rejected",
+    "capability-unavailable",
+    "governance-incomplete",
+    "preview-expired",
+    "operation-indeterminate"
+  ]
+}

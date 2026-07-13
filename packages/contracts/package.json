@@ -1,0 +1,44 @@
+{
+  "name": "@apex/contracts",
+  "version": "0.1.0",
+  "description": "Versioned persisted and published contracts for APEX vNext",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jonathan-vella/apex.git",
+    "directory": "packages/contracts"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./schema-export": {
+      "types": "./dist/schema-export.d.ts",
+      "default": "./dist/schema-export.js"
+    }
+  },
+  "files": [
+    "dist",
+    "schemas"
+  ],
+  "dependencies": {
+    "@sinclair/typebox": "0.34.52"
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "schemas": "npm run build && node dist/export-schemas.js --metadata",
+    "schemas:check": "npm run build && node dist/export-schemas.js --check --metadata",
+    "test": "node --test dist/test/contracts.test.js"
+  },
+  "engines": {
+    "node": ">=24"
+  }
+}

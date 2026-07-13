@@ -1,0 +1,109 @@
+{
+  "$id": "https://schemas.apexops.dev/quality-scorecard-v1.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "frozenAt": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "rules": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "direction": {
+            "anyOf": [
+              {
+                "const": "min",
+                "type": "string"
+              },
+              {
+                "const": "max",
+                "type": "string"
+              },
+              {
+                "const": "exact",
+                "type": "string"
+              }
+            ]
+          },
+          "metric": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "minimumSamples": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "owner": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "scenario": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "source": {
+            "anyOf": [
+              {
+                "const": "kernel",
+                "type": "string"
+              },
+              {
+                "const": "vscode",
+                "type": "string"
+              },
+              {
+                "const": "estimated",
+                "type": "string"
+              }
+            ]
+          },
+          "target": {
+            "type": "number"
+          },
+          "tolerance": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "unavailable": {
+            "anyOf": [
+              {
+                "const": "block",
+                "type": "string"
+              },
+              {
+                "const": "omit-claim",
+                "type": "string"
+              }
+            ]
+          }
+        },
+        "required": [
+          "metric",
+          "direction",
+          "target",
+          "tolerance",
+          "scenario",
+          "minimumSamples",
+          "source",
+          "owner",
+          "unavailable"
+        ],
+        "type": "object"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "schemaVersion": {
+      "const": "1.0.0",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "frozenAt",
+    "rules"
+  ],
+  "type": "object"
+}
