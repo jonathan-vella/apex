@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-07-13T12:42:04.350Z",
+  "generatedAt": "2026-07-14T12:31:23.635Z",
   "categories": [
     {
       "id": "agent",
@@ -48,7 +48,7 @@
       "label": "Validator",
       "color": "#8b5cf6",
       "shape": "hexagon",
-      "count": 58
+      "count": 59
     },
     {
       "id": "workflow",
@@ -67,8 +67,8 @@
       "count": 5
     }
   ],
-  "nodeCount": 162,
-  "edgeCount": 666,
+  "nodeCount": 163,
+  "edgeCount": 667,
   "nodes": [
     {
       "id": "agent:01-orchestrator",
@@ -1604,6 +1604,19 @@
       },
       "meta": {
         "command": "node tools/scripts/validate-v1-compatibility-matrix.mjs"
+      }
+    },
+    {
+      "id": "validator:validate-vnext-project-controls",
+      "category": "validator",
+      "label": "validate:vnext-project-controls",
+      "description": "node tools/scripts/validate-vnext-project-controls.mjs",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
+      },
+      "meta": {
+        "command": "node tools/scripts/validate-vnext-project-controls.mjs"
       }
     },
     {
@@ -5504,6 +5517,12 @@
       "id": "workflow:ci--runs->validator:validate-v1-compatibility-matrix",
       "source": "workflow:ci",
       "target": "validator:validate-v1-compatibility-matrix",
+      "kind": "runs"
+    },
+    {
+      "id": "workflow:ci--runs->validator:validate-vnext-project-controls",
+      "source": "workflow:ci",
+      "target": "validator:validate-vnext-project-controls",
       "kind": "runs"
     },
     {
