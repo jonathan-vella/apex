@@ -20,6 +20,8 @@ for full details on this and all prior releases.
 
 ### Added (APEX vNext Phase 0A baseline)
 
+- feat(vnext): added durable project controls, structured work-item and regression intake, and an offline validator for
+  requirement references, local links, issue-form fields, and frozen Phase 0A evidence.
 - docs(vnext): added approved v1 baseline decisions, candidate transcripts and manifest, the
   preserve/change/retire compatibility matrix, deterministic golden scenarios,
   the known-defects ledger, and the v1 maintenance policy. The baseline tag
