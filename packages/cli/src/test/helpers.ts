@@ -35,12 +35,16 @@ export function requirements(projectId = "demo"): RequirementsV1 {
   };
 }
 
-export function intent(runId: string, projectId = "demo"): ImplementationIntentV1 {
+export function intent(
+  runId: string,
+  projectId = "demo",
+  sourceHashes: Record<string, string> = { requirements: "a".repeat(64) },
+): ImplementationIntentV1 {
   return {
     schemaVersion: CONTRACT_VERSION,
     projectId,
     runId,
-    sourceHashes: { requirements: "a".repeat(64) },
+    sourceHashes,
     resources: [{ id: "api", type: "fake/service", purpose: "Serve requests", dependsOn: [], controls: [] }],
     outputs: ["endpoint"],
   };
@@ -114,7 +118,7 @@ export function governance(runId: string) {
     runId,
     targetScope: "local",
     discoveredAt: "2026-01-01T00:00:00.000Z",
-    expiresAt: "2027-01-01T00:00:00.000Z",
+    expiresAt: "2099-01-01T00:00:00.000Z",
     summary: { assignmentCount: 0, denyCount: 0, modifyCount: 0, auditCount: 0, exemptionCount: 0 },
     constraintsRef: { mediaType: "application/json", uri: "memory://constraints", digest: "b".repeat(64), bytes: 0 },
   };
@@ -128,8 +132,9 @@ export function planBundle(
   runId: string,
   track: "bicep" | "terraform",
   environmentInputs: Record<string, unknown> = {},
+  sourceHashes: Record<string, string> = { requirements: "a".repeat(64) },
 ) {
-  const implementation = intent(runId);
+  const implementation = intent(runId, "demo", sourceHashes);
   return [
     { kind: "implementation-intent" as const, value: implementation },
     {
@@ -203,13 +208,24 @@ export function codegenBundle(runId: string, track: "bicep" | "terraform", plan:
   ];
 }
 
-export function validationEvidence(runId: string) {
+export function validationEvidence(runId: string, track: "bicep" | "terraform") {
+  const validatorIds =
+    track === "bicep"
+      ? ["bicep:format", "bicep:build", "bicep:lint"]
+      : ["terraform:format", "terraform:init-backend-false", "terraform:validate"];
+  validatorIds.push("business:security-baseline", "business:policy-property-map", "business:logical-resource-parity");
   return {
     schemaVersion: CONTRACT_VERSION,
     projectId: "demo",
     runId,
     createdAt: "2026-01-01T00:00:00.000Z",
-    entries: [{ kind: "test", hash: "d".repeat(64), bytes: 1, required: true, retention: "immutable" }],
+    entries: validatorIds.map((kind) => ({
+      kind,
+      hash: "d".repeat(64),
+      bytes: 1,
+      required: true,
+      retention: "immutable",
+    })),
   };
 }
 
@@ -253,12 +269,22 @@ export async function prepareValidatedRun(service: ApexService, runId: string, t
     },
   ]);
   await service.decideGateNumber(2, "approved", "tester");
-  const plan = planBundle(runId, track);
+  const plan = planBundle(
+    runId,
+    track,
+    {},
+    {
+      requirements: requirementHashes.outputHashes.requirements!,
+      architecture: architectureHashes.outputHashes.architecture!,
+      "governance-constraints": governanceHashes.outputHashes["governance-constraints"]!,
+      "policy-property-map": policyHashes.outputHashes["policy-property-map"]!,
+    },
+  );
   const planHashes = await complete("plan", plan);
   await complete("plan-review", [
     { kind: "review-findings", value: review(runId, "plan", planHashes.outputHashes["implementation-intent"]!) },
   ]);
   await service.decideGateNumber(3, "approved", "tester");
   await complete(`codegen-${track}`, codegenBundle(runId, track, plan));
-  await complete(`validation-${track}`, [{ kind: "validation-evidence", value: validationEvidence(runId) }]);
+  await complete(`validation-${track}`, [{ kind: "validation-evidence", value: validationEvidence(runId, track) }]);
 }

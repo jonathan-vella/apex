@@ -71,6 +71,7 @@ import {
   openGate,
   sha256Bytes,
   sha256Json,
+  workflowValidatorOwnership,
   type JsonValue,
 } from "@apex/kernel";
 import {
@@ -85,6 +86,11 @@ import { access, cp, lstat, mkdir, readFile, readdir, realpath, rename, rm, stat
 import { basename, delimiter, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { resolveBundledAssets } from "./assets.js";
 import { ApexError, EXIT_CODES } from "./errors.js";
+import {
+  registerTaskWorkflowValidators,
+  taskWorkflowValidatorInput,
+  type WorkflowTaskValidatorContext,
+} from "./workflow-validators.js";
 
 const ZERO_HASH = "0".repeat(64);
 const TASK_TTL_MS = 24 * 60 * 60 * 1000;
@@ -283,6 +289,7 @@ export class ApexService {
     for (const [, [validator, schema]] of Object.entries(ARTIFACTS)) this.validators.register(validator, schema);
     this.validators.register("approval", ApprovalEvidenceV1Schema);
     this.validators.register("runtime-lock", RuntimeBundleLockV1Schema);
+    registerTaskWorkflowValidators(this.validators);
     this.providers = {
       fake: new FakeIaCProvider({ track: "bicep", now: this.clock, nextId: this.idSource }),
       ...options.providers,
@@ -830,6 +837,7 @@ export class ApexService {
       this.validateOutput(run, output);
     }
     await this.validateBundle(run, descriptor, outputs);
+    const validatorIds = await this.validateTaskValidators(descriptor, outputs);
     const outputHashes: Partial<Record<ArtifactKind, string>> = {};
     for (const output of outputs) outputHashes[output.kind] = await this.objects.putJson(output.value);
     const reviewBlockers = descriptor.reviewSubject === undefined ? [] : this.openReviewFindings(outputs[0]!.value);
@@ -838,6 +846,7 @@ export class ApexService {
       taskId,
       nodeId: descriptor.id,
       artifactHashes: outputHashes,
+      validatorIds,
       reviewBlockers,
       ...(descriptor.reviewSubject === undefined
         ? {}
@@ -2056,6 +2065,47 @@ export class ApexService {
         );
       }
     }
+  }
+
+  private async validateTaskValidators(descriptor: WorkflowTaskDescriptor, outputs: TaskOutput[]): Promise<string[]> {
+    const workflow = new WorkflowEngine(
+      JSON.parse(await readFile(join(this.root, ".apex", "runtime", "workflow.v1.json"), "utf8")),
+    );
+    const nodeId = descriptor.reviewSubject ?? descriptor.id;
+    const node = workflow.manifest.nodes.find(({ id }) => id === nodeId);
+    if (node === undefined) throw new Error(`Workflow task ${nodeId} has no manifest node`);
+    const boundary =
+      descriptor.reviewSubject !== undefined
+        ? "review"
+        : descriptor.id.startsWith("validation-")
+          ? "validation"
+          : "task-output";
+    const validatorIds = node.validators.filter((id) => workflowValidatorOwnership(id)?.boundary === boundary);
+    const run = await this.currentRun();
+    const events = await this.journal(run).replay();
+    const artifactHashes: Record<string, string> = {};
+    for (const event of events) {
+      if (event.type !== "task.completed") continue;
+      const hashes = (event.payload as { artifactHashes?: Record<string, unknown> }).artifactHashes ?? {};
+      for (const [kind, hash] of Object.entries(hashes)) if (typeof hash === "string") artifactHashes[kind] = hash;
+    }
+    const artifacts = Object.fromEntries(
+      await Promise.all(
+        Object.entries(artifactHashes).map(async ([kind, hash]) => [kind, await this.objects.getJson<unknown>(hash)]),
+      ),
+    );
+    const context: WorkflowTaskValidatorContext = {
+      nodeId,
+      now: this.clock().toISOString(),
+      track: run.iacTool,
+      outputs: Object.fromEntries(outputs.map(({ kind, value }) => [kind, value])),
+      artifacts,
+      artifactHashes,
+    };
+    for (const id of validatorIds) {
+      this.assertValid(id, taskWorkflowValidatorInput(id, context));
+    }
+    return validatorIds;
   }
 
   private initialSkuManifest(run: RunConfigV1, requirements: unknown): unknown {

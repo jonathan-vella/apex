@@ -3,7 +3,8 @@ import { join } from "node:path";
 import test from "node:test";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
-import { sha256Json } from "@apex/kernel";
+import type { IacBindingV1, ImplementationIntentV1, LogicalResourceManifestV1 } from "@apex/contracts";
+import { EventJournal, sha256Json } from "@apex/kernel";
 import { ApexError } from "../errors.js";
 import { createMcpServer } from "../mcp.js";
 import { ApexService, type TaskOutput } from "../service.js";
@@ -74,7 +75,17 @@ async function reachCodegen(
   ]);
   await service.decideGateNumber(2, "approved", "tester");
 
-  const plan = planBundle(runId, track);
+  const plan = planBundle(
+    runId,
+    track,
+    {},
+    {
+      requirements: requirementHashes.requirements!,
+      architecture: architectureHashes.architecture!,
+      "governance-constraints": governanceHashes["governance-constraints"]!,
+      "policy-property-map": policyHashes["policy-property-map"]!,
+    },
+  );
   const planHashes = await complete(service, "plan", plan);
   await complete(service, "plan-review", [
     { kind: "review-findings", value: review(runId, "plan", planHashes["implementation-intent"]!) },
@@ -86,8 +97,208 @@ async function reachCodegen(
 async function reachValidation(service: ApexService, runId: string, track: "bicep" | "terraform"): Promise<void> {
   const codegen = await reachCodegen(service, runId, track);
   await service.completeTaskOutputs(codegen.taskId, codegenBundle(runId, track, codegen.plan));
-  await complete(service, `validation-${track}`, [{ kind: "validation-evidence", value: validationEvidence(runId) }]);
+  await complete(service, `validation-${track}`, [
+    { kind: "validation-evidence", value: validationEvidence(runId, track) },
+  ]);
 }
+
+test("task completion records executed manifest validators in order", async () => {
+  const root = await tempRoot();
+  const service = new ApexService(root);
+  const { runId } = await service.init({ projectId: "demo" });
+  await service.nextTask();
+  await complete(service, "requirements", [
+    { kind: "requirements", value: requirements() },
+    { kind: "sku-manifest", value: skuManifest(sha256Json(requirements())) },
+  ]);
+
+  const events = await new EventJournal(join(root, ".apex", "projects", "demo", "runs", runId, "journal")).replay();
+  const completed = events.find(
+    (event) => event.type === "task.completed" && (event.payload as { nodeId?: unknown }).nodeId === "requirements",
+  );
+  assert.deepEqual((completed?.payload as { validatorIds?: unknown }).validatorIds, [
+    "schema:requirements-v1",
+    "business:requirements-completeness",
+  ]);
+});
+
+test("task-bound workflow validators reject semantic and evidence mutations", async () => {
+  const root = await tempRoot();
+  const service = new ApexService(root);
+  const { runId } = await service.init({ projectId: "demo", iacTool: "bicep" });
+  await service.nextTask();
+
+  const requirementTask = await task(service, "requirements");
+  const duplicateRequirements = structuredClone(requirements());
+  duplicateRequirements.requirements.push({ ...duplicateRequirements.requirements[0]! });
+  await assert.rejects(
+    service.completeTaskOutputs(requirementTask, [
+      { kind: "requirements", value: duplicateRequirements },
+      { kind: "sku-manifest", value: skuManifest(sha256Json(duplicateRequirements)) },
+    ]),
+    /business:requirements-completeness/,
+  );
+  const requirementValues = requirements();
+  const requirementHashes = await service.completeTaskOutputs(requirementTask, [
+    { kind: "requirements", value: requirementValues },
+    { kind: "sku-manifest", value: skuManifest(sha256Json(requirementValues)) },
+  ]);
+
+  const requirementReviewTask = await task(service, "requirements-review");
+  const duplicateFinding = {
+    id: "F-1",
+    severity: "info",
+    disposition: "dismissed",
+    title: "Duplicate",
+    detail: "Duplicate review identifier",
+    evidenceRefs: [],
+  };
+  await assert.rejects(
+    service.completeTaskOutputs(requirementReviewTask, [
+      {
+        kind: "review-findings",
+        value: review(runId, "requirements", requirementHashes.outputHashes.requirements!, [
+          duplicateFinding,
+          duplicateFinding,
+        ]),
+      },
+    ]),
+    /review:requirements-comprehensive/,
+  );
+  await service.completeTaskOutputs(requirementReviewTask, [
+    {
+      kind: "review-findings",
+      value: review(runId, "requirements", requirementHashes.outputHashes.requirements!),
+    },
+  ]);
+  await service.decideGateNumber(1, "approved", "tester");
+
+  const architectureTask = await task(service, "architecture");
+  const untraceableArchitecture = architecture(runId);
+  untraceableArchitecture.components[0]!.requirementIds = ["REQ-UNKNOWN"];
+  await assert.rejects(
+    service.completeTaskOutputs(architectureTask, [
+      { kind: "architecture", value: untraceableArchitecture },
+      { kind: "cost-estimate", value: costEstimate(runId) },
+    ]),
+    /business:requirements-traceability/,
+  );
+  const architectureHashes = await service.completeTaskOutputs(architectureTask, [
+    { kind: "architecture", value: architecture(runId) },
+    { kind: "cost-estimate", value: costEstimate(runId) },
+  ]);
+  const architectureEvents = await new EventJournal(
+    join(root, ".apex", "projects", "demo", "runs", runId, "journal"),
+  ).replay();
+  const architectureCompleted = architectureEvents.find(
+    (event) => event.type === "task.completed" && (event.payload as { nodeId?: unknown }).nodeId === "architecture",
+  );
+  assert.deepEqual((architectureCompleted?.payload as { validatorIds?: unknown }).validatorIds, [
+    "schema:architecture-v1",
+    "business:requirements-traceability",
+    "business:cost-arithmetic",
+  ]);
+  await complete(service, "architecture-review", [
+    {
+      kind: "review-findings",
+      value: review(runId, "architecture", architectureHashes.outputHashes.architecture!),
+    },
+  ]);
+
+  const governanceTask = await task(service, "governance-discovery");
+  await assert.rejects(
+    service.completeTaskOutputs(governanceTask, [
+      { kind: "governance-constraints", value: { ...governance(runId), expiresAt: "2020-01-01T00:00:00.000Z" } },
+    ]),
+    /business:governance-freshness/,
+  );
+  const multiEffectGovernance = governance(runId);
+  multiEffectGovernance.summary.assignmentCount = 1;
+  multiEffectGovernance.summary.denyCount = 1;
+  multiEffectGovernance.summary.auditCount = 1;
+  multiEffectGovernance.constraintsRef.bytes = 1;
+  const governanceHashes = await service.completeTaskOutputs(governanceTask, [
+    { kind: "governance-constraints", value: multiEffectGovernance },
+  ]);
+  const policyHashes = await complete(service, "governance-reconciliation", [
+    {
+      kind: "policy-property-map",
+      value: {
+        ...policyMap(runId, governanceHashes.outputHashes["governance-constraints"]!),
+        mappings: [
+          {
+            policyAssignmentId: "assignment-1",
+            effect: "deny",
+            logicalResourceId: "api",
+            propertyPath: "properties.deny",
+            disposition: "planned",
+          },
+          {
+            policyAssignmentId: "assignment-1",
+            effect: "audit",
+            logicalResourceId: "api",
+            propertyPath: "properties.audit",
+            disposition: "planned",
+          },
+        ],
+      },
+    },
+  ]);
+  await complete(service, "governance-review", [
+    {
+      kind: "review-findings",
+      value: review(runId, "policy-property-map", policyHashes["policy-property-map"]!),
+    },
+  ]);
+  await service.decideGateNumber(2, "approved", "tester");
+
+  const sourceHashes = {
+    requirements: requirementHashes.outputHashes.requirements!,
+    architecture: architectureHashes.outputHashes.architecture!,
+    "governance-constraints": governanceHashes.outputHashes["governance-constraints"]!,
+    "policy-property-map": policyHashes["policy-property-map"]!,
+  };
+  const validPlan = planBundle(runId, "bicep", {}, sourceHashes);
+  const cyclicPlan = structuredClone(validPlan) as TaskOutput[];
+  const cyclicIntent = cyclicPlan[0]!.value as ImplementationIntentV1;
+  cyclicIntent.resources[0]!.dependsOn = ["worker"];
+  cyclicIntent.resources.push({ ...cyclicIntent.resources[0]!, id: "worker", dependsOn: ["api"] });
+  const cyclicBinding = cyclicPlan[1]!.value as IacBindingV1;
+  cyclicBinding.resourceBindings.worker = { ...cyclicBinding.resourceBindings.api! };
+  cyclicBinding.intentHash = sha256Json(cyclicIntent);
+  const planTask = await task(service, "plan");
+  await assert.rejects(service.completeTaskOutputs(planTask, cyclicPlan), /business:dependency-acyclic/);
+  const planHashes = await service.completeTaskOutputs(planTask, validPlan);
+  await complete(service, "plan-review", [
+    {
+      kind: "review-findings",
+      value: review(runId, "plan", planHashes.outputHashes["implementation-intent"]!),
+    },
+  ]);
+  await service.decideGateNumber(3, "approved", "tester");
+
+  const validCodegen = codegenBundle(runId, "bicep", validPlan);
+  const incompleteCodegen = structuredClone(validCodegen) as TaskOutput[];
+  const incompleteManifest = incompleteCodegen[0]!.value as LogicalResourceManifestV1;
+  incompleteManifest.resources[0]!.logicalId = "other";
+  (incompleteCodegen[1]!.value as { logicalResourceManifestHash: string }).logicalResourceManifestHash =
+    sha256Json(incompleteManifest);
+  const codegenTask = await task(service, "codegen-bicep");
+  await assert.rejects(service.completeTaskOutputs(codegenTask, incompleteCodegen), /business:bicep-binding-coverage/);
+  await service.completeTaskOutputs(codegenTask, validCodegen);
+
+  const validEvidence = validationEvidence(runId, "bicep");
+  const incompleteEvidence = {
+    ...validEvidence,
+    entries: validEvidence.entries.filter(({ kind }) => kind !== "bicep:format"),
+  };
+  const validationTask = await task(service, "validation-bicep");
+  await assert.rejects(
+    service.completeTaskOutputs(validationTask, [{ kind: "validation-evidence", value: incompleteEvidence }]),
+    /bicep:format/,
+  );
+  await service.completeTaskOutputs(validationTask, [{ kind: "validation-evidence", value: validEvidence }]);
+});
 
 for (const track of ["bicep", "terraform"] as const) {
   test(`full logical ${track} workflow reaches fake deploy and quality`, async () => {
@@ -270,14 +481,21 @@ test("plan rejects wrong track and secret literals", async () => {
   const isolated = new ApexService(await tempRoot());
   const initialized = await isolated.init({ projectId: "demo", iacTool: "bicep" });
   await isolated.nextTask();
-  await isolated.completeTask(await task(isolated, "requirements"), { kind: "requirements", value: requirements() });
+  const acceptedRequirements = await isolated.completeTask(await task(isolated, "requirements"), {
+    kind: "requirements",
+    value: requirements(),
+  });
   await isolated.decideGateNumber(1, "approved", "tester");
   const planTask = await task(isolated, "plan");
-  await assert.rejects(isolated.completeTaskOutputs(planTask, planBundle(initialized.runId, "terraform")), /track/i);
+  const sourceHashes = { requirements: acceptedRequirements.outputHash };
+  await assert.rejects(
+    isolated.completeTaskOutputs(planTask, planBundle(initialized.runId, "terraform", {}, sourceHashes)),
+    /track/i,
+  );
   await assert.rejects(
     isolated.completeTaskOutputs(
       planTask,
-      planBundle(initialized.runId, "bicep", { password: { kind: "value", value: "literal" } }),
+      planBundle(initialized.runId, "bicep", { password: { kind: "value", value: "literal" } }, sourceHashes),
     ),
     /secret-reference/i,
   );

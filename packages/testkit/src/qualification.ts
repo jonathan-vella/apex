@@ -366,7 +366,12 @@ async function completeCreativeWorkflow(context: TrackContext): Promise<void> {
   ]);
   await context.service.decideGateNumber(2, "approved", "qualification");
   restart(context);
-  const plan = planBundle(context);
+  const plan = planBundle(context, {
+    requirements: requirementHashes.requirements!,
+    architecture: architectureHashes.architecture!,
+    "governance-constraints": governanceHashes["governance-constraints"]!,
+    "policy-property-map": policyHashes["policy-property-map"]!,
+  });
   const planHashes = await complete(context.service, "plan", plan);
   await complete(context.service, "plan-review", [
     { kind: "review-findings", value: review(context, "plan", planHashes["implementation-intent"]!) },
@@ -416,12 +421,12 @@ function requirementsFor(id: string) {
     unknowns: [],
   };
 }
-function intentFor(id: string, runId: string) {
+function intentFor(id: string, runId: string, sourceHashes: Record<string, string>) {
   return {
     schemaVersion: CONTRACT_VERSION,
     projectId: id,
     runId,
-    sourceHashes: { requirements: HASH },
+    sourceHashes,
     resources: [{ id: "api", type: "fake/service", purpose: "Serve requests", dependsOn: [], controls: [] }],
     outputs: ["endpoint"],
   };
@@ -504,8 +509,8 @@ function policyMap(context: TrackContext, governanceHash: string) {
     mappings: [],
   };
 }
-function planBundle(context: TrackContext): TaskOutput[] {
-  const intent = intentFor(projectId(context.track), context.runId);
+function planBundle(context: TrackContext, sourceHashes: Record<string, string>): TaskOutput[] {
+  const intent = intentFor(projectId(context.track), context.runId, sourceHashes);
   return [
     { kind: "implementation-intent", value: intent },
     {
@@ -572,12 +577,17 @@ function codegenBundle(context: TrackContext, plan: TaskOutput[]): TaskOutput[] 
   ];
 }
 function validation(context: TrackContext) {
+  const validatorIds =
+    context.track === "bicep"
+      ? ["bicep:format", "bicep:build", "bicep:lint"]
+      : ["terraform:format", "terraform:init-backend-false", "terraform:validate"];
+  validatorIds.push("business:security-baseline", "business:policy-property-map", "business:logical-resource-parity");
   return {
     schemaVersion: CONTRACT_VERSION,
     projectId: projectId(context.track),
     runId: context.runId,
     createdAt: context.clock.now().toISOString(),
-    entries: [{ kind: "test", hash: HASH, bytes: 1, required: true, retention: "immutable" }],
+    entries: validatorIds.map((kind) => ({ kind, hash: HASH, bytes: 1, required: true, retention: "immutable" })),
   };
 }
 function diagnosis(context: TrackContext) {

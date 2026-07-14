@@ -15,8 +15,10 @@ export interface ValidationResult {
   cached: boolean;
 }
 
+export type ValidatorHandler = (value: unknown) => ValidationIssue[];
+
 interface RegisteredValidator {
-  schema: TSchema;
+  handler: ValidatorHandler;
   kind: ValidatorKind;
 }
 
@@ -25,10 +27,26 @@ export class ValidatorRegistry {
   private readonly cache = new Map<string, Omit<ValidationResult, "cached">>();
 
   register(name: string, schema: TSchema, kind: ValidatorKind = "pure"): void {
+    this.registerHandler(
+      name,
+      (value) =>
+        [...Value.Errors(schema, value)].map((error) => ({
+          path: error.path,
+          message: error.message,
+        })),
+      kind,
+    );
+  }
+
+  registerHandler(name: string, handler: ValidatorHandler, kind: ValidatorKind = "pure"): void {
     if (this.validators.has(name)) {
       throw new Error(`Validator ${name} is already registered`);
     }
-    this.validators.set(name, { schema, kind });
+    this.validators.set(name, { handler, kind });
+  }
+
+  has(name: string): boolean {
+    return this.validators.has(name);
   }
 
   validate(name: string, value: unknown): ValidationResult {
@@ -41,15 +59,12 @@ export class ValidatorRegistry {
     if (cached !== undefined) {
       return { ...cached, issues: [...cached.issues], cached: true };
     }
-    const issues = [...Value.Errors(validator.schema, value)].map((error) => ({
-      path: error.path,
-      message: error.message,
-    }));
+    const issues = validator.handler(value);
     const result = { valid: issues.length === 0, issues };
     if (cacheKey !== undefined) {
-      this.cache.set(cacheKey, result);
+      this.cache.set(cacheKey, { ...result, issues: [...issues] });
     }
-    return { ...result, cached: false };
+    return { ...result, issues: [...issues], cached: false };
   }
 
   clearCache(): void {
