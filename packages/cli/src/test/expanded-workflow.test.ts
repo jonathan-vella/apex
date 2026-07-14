@@ -3,7 +3,14 @@ import { join } from "node:path";
 import test from "node:test";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
-import type { IacBindingV1, ImplementationIntentV1, LogicalResourceManifestV1 } from "@apex/contracts";
+import type {
+  DeploymentPreviewV1,
+  ExecutionPlanAttestationV1,
+  IacBindingV1,
+  ImplementationIntentV1,
+  LogicalResourceManifestV1,
+} from "@apex/contracts";
+import type { IacProvider, PreviewRequest } from "@apex/capabilities";
 import { EventJournal, sha256Json } from "@apex/kernel";
 import { ApexError } from "../errors.js";
 import { createMcpServer } from "../mcp.js";
@@ -100,6 +107,93 @@ async function reachValidation(service: ApexService, runId: string, track: "bice
   await complete(service, `validation-${track}`, [
     { kind: "validation-evidence", value: validationEvidence(runId, track) },
   ]);
+}
+
+function terraformPreviewProvider(
+  now: Date,
+  mutation?: "input-hash" | "operation" | "state",
+): IacProvider & {
+  attestation(previewHash: string): ExecutionPlanAttestationV1 | undefined;
+} {
+  let attestation: ExecutionPlanAttestationV1 | undefined;
+  const createPreview = async (request: PreviewRequest): Promise<DeploymentPreviewV1> => {
+    const plan = {
+      planDigest: "1".repeat(64),
+      configHash: "2".repeat(64),
+      lockfileHash: "3".repeat(64),
+      recipient: "local",
+      artifactRef: "plans/test.tfplan.enc",
+    };
+    const base = {
+      schemaVersion: "1.0.0" as const,
+      projectId: request.projectId,
+      runId: request.runId,
+      environment: request.environment as "dev",
+      track: "terraform" as const,
+      operation: (mutation === "operation" ? "destroy" : "apply") as "apply" | "destroy",
+      target: request.target,
+      commit: request.commit,
+      dependencyRevision: request.dependencyRevision,
+      ownerEpoch: request.ownerEpoch,
+      inputHash: mutation === "input-hash" ? "f".repeat(64) : request.inputHash,
+      iacHash: request.iacHash,
+      policyHash: request.policyHash,
+      artifactHash: sha256Json(plan),
+      stateLineage: "lineage-1",
+      stateSerial: 1,
+      changes: request.resources.map(({ resourceId }) => ({ resourceId, action: "create" as const, material: true })),
+      blockers: [],
+      createdAt: now.toISOString(),
+      expiresAt: new Date(now.getTime() + request.ttlMs).toISOString(),
+    };
+    const preview = { ...base, previewHash: sha256Json(base) };
+    attestation = {
+      schemaVersion: "1.0.0",
+      projectId: request.projectId,
+      runId: request.runId,
+      track: "terraform",
+      previewHash: preview.previewHash,
+      inputHash: preview.inputHash,
+      iacHash: preview.iacHash,
+      policyHash: preview.policyHash,
+      configHash: plan.configHash,
+      lockfileHash: plan.lockfileHash,
+      recipient: plan.recipient,
+      planDigest: plan.planDigest,
+      artifactRef: plan.artifactRef,
+      stateLineage: mutation === "state" ? "lineage-other" : preview.stateLineage,
+      stateSerial: preview.stateSerial,
+      transport: {
+        encrypted: true,
+        implementation: "local-reference",
+        algorithm: "aes-256-gcm",
+        recipient: "local",
+        mediaType: "application/vnd.apex.terraform-plan",
+        iv: "iv",
+        authTag: "tag",
+      },
+      createdAt: now.toISOString(),
+      expiresAt: preview.expiresAt,
+    };
+    return preview;
+  };
+  return {
+    track: "terraform",
+    validate: async () => [],
+    previewApply: createPreview,
+    previewDestroy: createPreview,
+    apply: async () => {
+      throw new Error("not used");
+    },
+    destroy: async () => {
+      throw new Error("not used");
+    },
+    inventory: async () => {
+      throw new Error("not used");
+    },
+    reconcile: async () => undefined,
+    attestation: (previewHash) => (attestation?.previewHash === previewHash ? attestation : undefined),
+  };
 }
 
 test("task completion records executed manifest validators in order", async () => {
@@ -326,10 +420,26 @@ test("task-bound workflow validators reject semantic and evidence mutations", as
 
 for (const track of ["bicep", "terraform"] as const) {
   test(`full logical ${track} workflow reaches fake deploy and quality`, async () => {
-    const service = new ApexService(await tempRoot());
+    const root = await tempRoot();
+    const service = new ApexService(root);
     const { runId } = await service.init({ projectId: "demo", iacTool: track });
     await reachValidation(service, runId, track);
     const preview = await service.preview({ operation: "apply", provider: "fake" });
+    const previewEvents = await new EventJournal(
+      join(root, ".apex", "projects", "demo", "runs", runId, "journal"),
+    ).replay();
+    const previewCreated = [...previewEvents].reverse().find((event) => event.type === "preview.created");
+    assert.deepEqual((previewCreated?.payload as { validatorIds?: unknown }).validatorIds, [
+      "preview:hash-bindings",
+      "preview:policy-precheck",
+      "preview:coverage",
+      "preview:freshness",
+    ]);
+    assert.equal((previewCreated?.payload as { evidenceMode?: unknown }).evidenceMode, "simulated");
+    assert.deepEqual(
+      (previewCreated?.payload as { omittedValidatorIds?: unknown }).omittedValidatorIds,
+      track === "terraform" ? ["terraform:saved-plan-binding"] : undefined,
+    );
     await service.decideGateNumber(4, "approved", "tester");
     const deployed = await service.deploy(preview.previewHash);
     assert.equal(deployed.inventory.resources.length, 1);
@@ -363,6 +473,76 @@ for (const track of ["bicep", "terraform"] as const) {
     assert.equal((await service.status()).task, null);
   });
 }
+
+test("native Terraform preview records saved-plan validation and rejects wrong bindings", async () => {
+  const now = new Date("2026-01-01T00:00:00.000Z");
+  const root = await tempRoot();
+  const provider = terraformPreviewProvider(now);
+  const service = new ApexService(root, { clock: () => now, providers: { terraform: provider } });
+  const { runId } = await service.init({ projectId: "demo", iacTool: "terraform" });
+  await reachValidation(service, runId, "terraform");
+  await service.preview({ operation: "apply", provider: "terraform" });
+  const events = await new EventJournal(join(root, ".apex", "projects", "demo", "runs", runId, "journal")).replay();
+  const created = [...events].reverse().find((event) => event.type === "preview.created");
+  assert.deepEqual((created?.payload as { validatorIds?: unknown }).validatorIds, [
+    "preview:hash-bindings",
+    "preview:policy-precheck",
+    "preview:coverage",
+    "preview:freshness",
+    "terraform:saved-plan-binding",
+  ]);
+  assert.equal((created?.payload as { evidenceMode?: unknown }).evidenceMode, "native");
+  assert.match((created?.payload as { attestationHash?: string }).attestationHash!, /^[0-9a-f]{64}$/);
+
+  const invalidRoot = await tempRoot();
+  const invalid = new ApexService(invalidRoot, {
+    clock: () => now,
+    providers: { terraform: terraformPreviewProvider(now, "input-hash") },
+  });
+  const initialized = await invalid.init({ projectId: "demo", iacTool: "terraform" });
+  await reachValidation(invalid, initialized.runId, "terraform");
+  await assert.rejects(invalid.preview({ operation: "apply", provider: "terraform" }), /preview:hash-bindings/);
+  assert.equal((await invalid.status()).run.gates[3]?.state, "closed");
+  const invalidEvents = await new EventJournal(
+    join(invalidRoot, ".apex", "projects", "demo", "runs", initialized.runId, "journal"),
+  ).replay();
+  assert.equal(
+    invalidEvents.some(({ type }) => type === "preview.created"),
+    false,
+  );
+  assert.equal(
+    invalidEvents.some(({ type }) => type === "preview.requested"),
+    false,
+  );
+
+  const operationRoot = await tempRoot();
+  const wrongOperation = new ApexService(operationRoot, {
+    clock: () => now,
+    providers: { terraform: terraformPreviewProvider(now, "operation") },
+  });
+  const operationRun = await wrongOperation.init({ projectId: "demo", iacTool: "terraform" });
+  await reachValidation(wrongOperation, operationRun.runId, "terraform");
+  await assert.rejects(wrongOperation.preview({ operation: "apply", provider: "terraform" }), /preview:hash-bindings/);
+
+  const stateRoot = await tempRoot();
+  const wrongState = new ApexService(stateRoot, {
+    clock: () => now,
+    providers: { terraform: terraformPreviewProvider(now, "state") },
+  });
+  const stateRun = await wrongState.init({ projectId: "demo", iacTool: "terraform" });
+  await reachValidation(wrongState, stateRun.runId, "terraform");
+  await assert.rejects(
+    wrongState.preview({ operation: "apply", provider: "terraform" }),
+    /terraform:saved-plan-binding/,
+  );
+
+  const recovering = new ApexService(invalidRoot, {
+    clock: () => now,
+    providers: { terraform: terraformPreviewProvider(now) },
+  });
+  await recovering.preview({ operation: "apply", provider: "terraform" });
+  assert.equal((await recovering.status()).run.gates[3]?.state, "open");
+});
 
 test("review blockers persist, resolve, and permit gate approval", async () => {
   const root = await tempRoot();
