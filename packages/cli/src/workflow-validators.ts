@@ -7,6 +7,7 @@ import {
   RequirementsV1Schema,
   hasValidCostArithmetic,
   type ApprovalEvidenceV1,
+  type ArchitectureAvailabilityV1,
   type ArchitectureV1,
   type CostEstimateV1,
   type EvidenceManifestV1,
@@ -32,11 +33,14 @@ export interface WorkflowTaskValidatorContext {
   readonly nodeId: string;
   readonly now: string;
   readonly track: "bicep" | "terraform";
+  readonly targetScope: string;
+  readonly inputRefs: readonly string[];
   readonly outputs: Readonly<Record<string, unknown>>;
   readonly artifacts: Readonly<Record<string, unknown>>;
   readonly artifactHashes: Readonly<Record<string, string>>;
   readonly scorecard?: QualityScorecardV1;
   readonly qualityMeasurements?: QualityMeasurementsV1;
+  readonly availabilityEvidence?: ArchitectureAvailabilityV1;
 }
 
 export interface WorkflowGateValidatorContext {
@@ -119,6 +123,56 @@ function requirementsTraceability(value: unknown): ValidationIssue[] {
 function costArithmetic(value: unknown): ValidationIssue[] {
   const estimate = taskContext(value).outputs["cost-estimate"] as CostEstimateV1;
   return hasValidCostArithmetic(estimate) ? [] : issue("/outputs/cost-estimate", "Cost arithmetic does not reconcile");
+}
+
+function availabilityCurrent(value: unknown): ValidationIssue[] {
+  const context = taskContext(value);
+  const evidence = context.availabilityEvidence;
+  if (evidence === undefined)
+    return issue("/availabilityEvidence", "Current architecture availability evidence is required");
+  const architecture = context.outputs.architecture as ArchitectureV1;
+  const issues: ValidationIssue[] = [];
+  if (
+    evidence.projectId !== architecture.projectId ||
+    evidence.runId !== architecture.runId ||
+    evidence.targetScope !== context.targetScope
+  ) {
+    issues.push({
+      path: "/availabilityEvidence",
+      message: "Availability evidence does not match the architecture run",
+    });
+  }
+  const missingSourceRefs = Object.values(evidence.checks)
+    .map(({ evidenceRef }) => evidenceRef)
+    .filter((reference) => !context.inputRefs.includes(reference))
+    .sort();
+  if (missingSourceRefs.length > 0) {
+    issues.push({
+      path: "/availabilityEvidence/checks",
+      message: `Availability source evidence was not pinned to the task: ${missingSourceRefs.join(", ")}`,
+    });
+  }
+  const now = Date.parse(context.now);
+  if (Date.parse(evidence.collectedAt) > now) {
+    issues.push({
+      path: "/availabilityEvidence/collectedAt",
+      message: "Architecture availability evidence has a future collection timestamp",
+    });
+  }
+  if (Date.parse(evidence.expiresAt) <= now) {
+    issues.push({ path: "/availabilityEvidence/expiresAt", message: "Architecture availability evidence is expired" });
+  }
+  const unavailable = Object.entries(evidence.checks)
+    .filter(([, check]) => check.status !== "current")
+    .map(([name]) => name)
+    .sort();
+  if (unavailable.length > 0) {
+    issues.push({
+      path: "/availabilityEvidence/checks",
+      message: `Architecture availability checks are not current: ${unavailable.join(", ")}`,
+    });
+  }
+  return issues;
 }
 
 function governanceCompleteness(value: unknown): ValidationIssue[] {
@@ -588,6 +642,7 @@ export function registerWorkflowValidators(registry: ValidatorRegistry): void {
   registry.registerHandler("business:requirements-completeness", requirementsCompleteness);
   registry.registerHandler("business:requirements-traceability", requirementsTraceability);
   registry.registerHandler("business:cost-arithmetic", costArithmetic);
+  registry.registerHandler("business:availability-current", availabilityCurrent, "freshness");
   registry.registerHandler("business:governance-completeness", governanceCompleteness);
   registry.registerHandler("business:governance-freshness", governanceFreshness, "freshness");
   registry.registerHandler("business:policy-effect-coverage", policyEffectCoverage);
@@ -624,7 +679,15 @@ export function registerWorkflowValidators(registry: ValidatorRegistry): void {
   registry.registerHandler("quality:scorecard-decidable", qualityScorecardDecidable);
   registry.registerHandler("quality:no-subjective-deterministic-claims", qualityNoSubjectiveClaims);
 
-  const requiredBoundaries = new Set(["task-output", "review", "validation", "gate", "preview", "quality"]);
+  const requiredBoundaries = new Set([
+    "task-output",
+    "review",
+    "external-evidence",
+    "validation",
+    "gate",
+    "preview",
+    "quality",
+  ]);
   for (const [id, ownership] of WORKFLOW_VALIDATOR_OWNERSHIP) {
     if (requiredBoundaries.has(ownership.boundary) && !registry.has(id)) {
       throw new Error(`Workflow validator ${id} has no registered ${ownership.boundary} handler`);

@@ -1,5 +1,6 @@
 import {
   ApprovalEvidenceV1Schema,
+  ArchitectureAvailabilityV1Schema,
   ArchitectureV1Schema,
   CONTRACT_VERSION,
   CostEstimateV1Schema,
@@ -26,6 +27,7 @@ import {
   hasValidCostArithmetic,
   hasValidLogicalResourceReferences,
   type ApprovalEvidenceV1,
+  type ArchitectureAvailabilityV1,
   type CostEstimateV1,
   type DeploymentPreviewV1,
   type EnvironmentInputsV1,
@@ -236,6 +238,12 @@ interface WorkflowTaskDescriptor {
   capabilities?: string[];
 }
 
+interface WorkflowValidationExecution {
+  validatorIds: string[];
+  evidenceRefs: Record<string, string>;
+  evidenceModes: Record<string, string>;
+}
+
 const TASKS: readonly WorkflowTaskDescriptor[] = [
   { id: "requirements", role: "requirements", outputs: ["requirements", "sku-manifest"] },
   { id: "requirements-review", role: "reviewer", outputs: ["review-findings"], reviewSubject: "requirements", gate: 1 },
@@ -295,6 +303,7 @@ export class ApexService {
     this.validators.register("approval", ApprovalEvidenceV1Schema);
     this.validators.register("runtime-lock", RuntimeBundleLockV1Schema);
     this.validators.register("quality-measurements", QualityMeasurementsV1Schema);
+    this.validators.register("architecture-availability", ArchitectureAvailabilityV1Schema);
     registerWorkflowValidators(this.validators);
     this.providers = {
       fake: new FakeIaCProvider({ track: "bicep", now: this.clock, nextId: this.idSource }),
@@ -598,7 +607,7 @@ export class ApexService {
       throw new ApexError("APEX_AUTHORIZATION", route.blockers.join("; "), EXIT_CODES.authorization, route.blockers);
     if (route.task === undefined)
       throw new ApexError("APEX_NOT_FOUND", "No task is currently available", EXIT_CODES.notFound);
-    return { status: "task", task: await this.issueTask(run, route.task, this.inputRefs(events)) };
+    return { status: "task", task: await this.issueTask(run, route.task, this.inputRefs(events, route.task)) };
   }
 
   async recordRequirementsInput(value: unknown): Promise<void> {
@@ -813,7 +822,8 @@ export class ApexService {
   ): Promise<{ outputHashes: Partial<Record<ArtifactKind, string>>; summary: string }> {
     const run = await this.currentRun();
     const task = await this.readTask(run, taskId);
-    const head = await this.journal(run).head();
+    const events = await this.journal(run).replay();
+    const head = events.at(-1)?.hash ?? null;
     if (head === null) throw new ApexError("APEX_STALE", "Task journal is empty", EXIT_CODES.stale);
     assertTaskCurrent(task, head, run.ownerEpoch, this.clock);
     if (outputs.length === 0)
@@ -842,8 +852,11 @@ export class ApexService {
         throw new ApexError("APEX_VALIDATION", "Task output exceeds its size limit", EXIT_CODES.validation);
       this.validateOutput(run, output);
     }
-    await this.validateBundle(run, descriptor, outputs);
-    const validatorIds = await this.validateTaskValidators(descriptor, outputs);
+    await this.validateBundle(run, descriptor, outputs, events);
+    const validation = await this.validateTaskValidators(run, task, descriptor, outputs, events);
+    const completionHead = await this.journal(run).head();
+    if (completionHead === null) throw new ApexError("APEX_STALE", "Task journal is empty", EXIT_CODES.stale);
+    assertTaskCurrent(task, completionHead, run.ownerEpoch, this.clock);
     const outputHashes: Partial<Record<ArtifactKind, string>> = {};
     for (const output of outputs) outputHashes[output.kind] = await this.objects.putJson(output.value);
     const reviewBlockers = descriptor.reviewSubject === undefined ? [] : this.openReviewFindings(outputs[0]!.value);
@@ -852,7 +865,11 @@ export class ApexService {
       taskId,
       nodeId: descriptor.id,
       artifactHashes: outputHashes,
-      validatorIds,
+      validatorIds: validation.validatorIds,
+      ...(Object.keys(validation.evidenceRefs).length === 0 ? {} : { validatorEvidenceRefs: validation.evidenceRefs }),
+      ...(Object.keys(validation.evidenceModes).length === 0
+        ? {}
+        : { validatorEvidenceModes: validation.evidenceModes }),
       reviewBlockers,
       ...(descriptor.reviewSubject === undefined
         ? {}
@@ -1531,7 +1548,50 @@ export class ApexService {
     if ((input.value === undefined) === (input.file === undefined))
       throw new ApexError("APEX_USAGE", "Evidence requires exactly one value or file", EXIT_CODES.usage);
     const store = await this.evidenceStore(input.kind, input.contentType);
-    const value = input.file === undefined ? input.value! : await readFile(resolve(input.file));
+    let value: JsonValue | Uint8Array = input.file === undefined ? input.value! : await readFile(resolve(input.file));
+    if (input.kind === "architecture-availability-v1") {
+      if (input.contentType !== "application/json")
+        throw new ApexError(
+          "APEX_VALIDATION",
+          "Architecture availability evidence must use application/json",
+          EXIT_CODES.validation,
+        );
+      let parsed: unknown;
+      try {
+        parsed = value instanceof Uint8Array ? (JSON.parse(Buffer.from(value).toString("utf8")) as unknown) : value;
+      } catch (error) {
+        throw new ApexError(
+          "APEX_VALIDATION",
+          "Architecture availability evidence is not valid JSON",
+          EXIT_CODES.validation,
+          undefined,
+          { cause: error },
+        );
+      }
+      this.assertValid("architecture-availability", parsed);
+      const availability = parsed as ArchitectureAvailabilityV1;
+      if (availability.mode === "native") {
+        throw new ApexError(
+          "APEX_AUTHORIZATION",
+          "Native architecture availability evidence requires an authorized capability adapter",
+          EXIT_CODES.authorization,
+        );
+      }
+      for (const check of Object.values(availability.checks)) {
+        try {
+          await this.objects.getBytes(check.evidenceRef);
+        } catch (error) {
+          throw new ApexError(
+            "APEX_VALIDATION",
+            `Architecture availability source evidence is unavailable: ${check.evidenceRef}`,
+            EXIT_CODES.validation,
+            undefined,
+            { cause: error },
+          );
+        }
+      }
+      value = availability;
+    }
     const accepted = await store.accept({
       kind: input.kind,
       contentType: input.contentType,
@@ -1740,11 +1800,29 @@ export class ApexService {
     return field === undefined ? undefined : this.latestPayloadHash(events, "task.completed", field);
   }
 
-  private inputRefs(events: Awaited<ReturnType<EventJournal["replay"]>>): string[] {
+  private inputRefs(events: Awaited<ReturnType<EventJournal["replay"]>>, descriptor: WorkflowTaskDescriptor): string[] {
+    const availabilityKinds = new Set([
+      "architecture-availability-v1",
+      "pricing-evidence",
+      "quota-evidence",
+      "regionalAvailability-evidence",
+      "regional-availability-evidence",
+    ]);
     const hashes = events.flatMap((event) => {
-      if (event.type !== "task.completed") return [];
-      const artifactHashes = (event.payload as { artifactHashes?: Record<string, unknown> }).artifactHashes ?? {};
-      return Object.values(artifactHashes).filter((hash): hash is string => typeof hash === "string");
+      if (event.type === "task.completed") {
+        const artifactHashes = (event.payload as { artifactHashes?: Record<string, unknown> }).artifactHashes ?? {};
+        return Object.values(artifactHashes).filter((hash): hash is string => typeof hash === "string");
+      }
+      if (event.type === "evidence.accepted" && descriptor.id === "architecture") {
+        const payload = event.payload as { hash?: unknown; kind?: unknown; status?: unknown };
+        return typeof payload.hash === "string" &&
+          typeof payload.kind === "string" &&
+          payload.status === "accepted" &&
+          availabilityKinds.has(payload.kind)
+          ? [payload.hash]
+          : [];
+      }
+      return [];
     });
     return [...new Set(hashes)];
   }
@@ -2018,11 +2096,11 @@ export class ApexService {
     run: RunConfigV1,
     descriptor: WorkflowTaskDescriptor,
     outputs: TaskOutput[],
+    events: Awaited<ReturnType<EventJournal["replay"]>>,
   ): Promise<void> {
     const byKind = Object.fromEntries(outputs.map((output) => [output.kind, output.value])) as Partial<
       Record<ArtifactKind, unknown>
     >;
-    const events = await this.journal(run).replay();
     if (descriptor.id === "plan") {
       const intent = byKind["implementation-intent"] as ImplementationIntentV1;
       const binding = byKind["iac-binding"] as IacBindingV1;
@@ -2098,7 +2176,13 @@ export class ApexService {
     }
   }
 
-  private async validateTaskValidators(descriptor: WorkflowTaskDescriptor, outputs: TaskOutput[]): Promise<string[]> {
+  private async validateTaskValidators(
+    run: RunConfigV1,
+    task: TaskEnvelopeV1,
+    descriptor: WorkflowTaskDescriptor,
+    outputs: TaskOutput[],
+    events: Awaited<ReturnType<EventJournal["replay"]>>,
+  ): Promise<WorkflowValidationExecution> {
     const workflow = new WorkflowEngine(
       JSON.parse(await readFile(join(this.root, ".apex", "runtime", "workflow.v1.json"), "utf8")),
     );
@@ -2113,9 +2197,11 @@ export class ApexService {
           : descriptor.id === "quality"
             ? "quality"
             : "task-output";
-    const validatorIds = node.validators.filter((id) => workflowValidatorOwnership(id)?.boundary === boundary);
-    const run = await this.currentRun();
-    const events = await this.journal(run).replay();
+    const boundaries = new Set([boundary, ...(descriptor.id === "architecture" ? ["external-evidence"] : [])]);
+    const validatorIds = node.validators.filter((id) => {
+      const validatorBoundary = workflowValidatorOwnership(id)?.boundary;
+      return validatorBoundary !== undefined && boundaries.has(validatorBoundary);
+    });
     const artifactHashes: Record<string, string> = {};
     for (const event of events) {
       if (event.type !== "task.completed") continue;
@@ -2127,19 +2213,46 @@ export class ApexService {
         Object.entries(artifactHashes).map(async ([kind, hash]) => [kind, await this.objects.getJson<unknown>(hash)]),
       ),
     );
+    let availabilityEvidence: ArchitectureAvailabilityV1 | undefined;
+    let availabilityHash: string | undefined;
+    if (descriptor.id === "architecture") {
+      const pinnedRefs = new Set(task.inputRefs);
+      availabilityHash = this.latestPayloadHash(
+        events,
+        "evidence.accepted",
+        "hash",
+        (payload) =>
+          payload.kind === "architecture-availability-v1" &&
+          payload.status === "accepted" &&
+          typeof payload.hash === "string" &&
+          pinnedRefs.has(payload.hash),
+      );
+      if (availabilityHash !== undefined) {
+        availabilityEvidence = await this.objects.getJson<ArchitectureAvailabilityV1>(availabilityHash);
+        this.assertValid("architecture-availability", availabilityEvidence);
+      }
+    }
     const context: WorkflowTaskValidatorContext = {
       nodeId,
       now: this.clock().toISOString(),
       track: run.iacTool,
+      targetScope: run.targetScope,
+      inputRefs: task.inputRefs,
       outputs: Object.fromEntries(outputs.map(({ kind, value }) => [kind, value])),
       artifacts,
       artifactHashes,
+      ...(availabilityEvidence === undefined ? {} : { availabilityEvidence }),
       ...(nodeId === "quality" ? await this.qualityValidatorContext() : {}),
     };
     for (const id of validatorIds) {
       this.assertValid(id, taskWorkflowValidatorInput(id, context));
     }
-    return validatorIds;
+    return {
+      validatorIds,
+      evidenceRefs: availabilityHash === undefined ? {} : { "business:availability-current": availabilityHash },
+      evidenceModes:
+        availabilityEvidence === undefined ? {} : { "business:availability-current": availabilityEvidence.mode },
+    };
   }
 
   private async qualityValidatorContext(): Promise<{
