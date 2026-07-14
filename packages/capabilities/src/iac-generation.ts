@@ -548,6 +548,105 @@ function validationPlans(tree: GeneratedVirtualTree, cwd: string): CommandPlan[]
   return [];
 }
 
+interface StorageSecurityInvariant {
+  readonly diagnostic: string;
+  readonly keys: readonly string[];
+  readonly values: ReadonlySet<string>;
+}
+
+const BOOLEAN_TRUE = new Set(["true"]);
+const BOOLEAN_FALSE = new Set(["false"]);
+const TLS_1_2 = new Set(["'TLS1_2'", '"TLS1_2"']);
+const BICEP_STORAGE_INVARIANTS: readonly StorageSecurityInvariant[] = [
+  {
+    diagnostic: "minimumTlsVersion[^\\n]*['\"]TLS1_2['\"]|minimumTlsVersion[\\s\\S]*['\"]TLS1_2['\"]",
+    keys: ["minimumTlsVersion"],
+    values: TLS_1_2,
+  },
+  {
+    diagnostic: "supportsHttpsTrafficOnly[^\\n]*true",
+    keys: ["supportsHttpsTrafficOnly"],
+    values: BOOLEAN_TRUE,
+  },
+  {
+    diagnostic: "allowBlobPublicAccess[^\\n]*false",
+    keys: ["allowBlobPublicAccess"],
+    values: BOOLEAN_FALSE,
+  },
+  {
+    diagnostic: "allowSharedKeyAccess[^\\n]*false",
+    keys: ["allowSharedKeyAccess"],
+    values: BOOLEAN_FALSE,
+  },
+];
+const TERRAFORM_STORAGE_INVARIANTS: readonly StorageSecurityInvariant[] = [
+  {
+    diagnostic:
+      "(?:minimumTlsVersion|min_tls_version)[^\\n]*['\"]TLS1_2['\"]|(?:minimumTlsVersion|min_tls_version)[\\s\\S]*['\"]TLS1_2['\"]",
+    keys: ["minimumTlsVersion", "min_tls_version"],
+    values: TLS_1_2,
+  },
+  {
+    diagnostic: "(?:supportsHttpsTrafficOnly|https_traffic_only_enabled)[^\\n]*true",
+    keys: ["supportsHttpsTrafficOnly", "https_traffic_only_enabled"],
+    values: BOOLEAN_TRUE,
+  },
+  {
+    diagnostic: "(?:allowBlobPublicAccess|allow_nested_items_to_be_public)[^\\n]*false",
+    keys: ["allowBlobPublicAccess", "allow_nested_items_to_be_public"],
+    values: BOOLEAN_FALSE,
+  },
+  {
+    diagnostic: "(?:allowSharedKeyAccess|shared_access_key_enabled)[^\\n]*false",
+    keys: ["allowSharedKeyAccess", "shared_access_key_enabled"],
+    values: BOOLEAN_FALSE,
+  },
+];
+
+function assignmentToken(line: string): readonly [key: string, value: string] | undefined {
+  const colon = line.indexOf(":");
+  const equals = line.indexOf("=");
+  const separator = colon < 0 ? equals : equals < 0 ? colon : Math.min(colon, equals);
+  if (separator < 0) return undefined;
+  const rawKey = line.slice(0, separator).trim();
+  const remainder = line.slice(separator + 1).trimStart();
+  if (rawKey.length === 0 || remainder.length === 0) return undefined;
+  const keyQuote = rawKey[0];
+  const key = (keyQuote === "'" || keyQuote === '"') && rawKey.at(-1) === keyQuote ? rawKey.slice(1, -1) : rawKey;
+  const quote = remainder[0];
+  if (quote === "'" || quote === '"') {
+    const end = remainder.indexOf(quote, 1);
+    return end < 0 ? undefined : [key, remainder.slice(0, end + 1)];
+  }
+  let end = 0;
+  while (end < remainder.length && !" \t\r,}]".includes(remainder[end]!)) end += 1;
+  return [key, remainder.slice(0, end)];
+}
+
+function missingStorageInvariants(
+  source: string,
+  invariants: readonly StorageSecurityInvariant[],
+): readonly StorageSecurityInvariant[] {
+  const invariantsByKey = new Map<string, StorageSecurityInvariant[]>();
+  for (const invariant of invariants) {
+    for (const key of invariant.keys) {
+      const entries = invariantsByKey.get(key) ?? [];
+      entries.push(invariant);
+      invariantsByKey.set(key, entries);
+    }
+  }
+  const found = new Set<StorageSecurityInvariant>();
+  for (const line of source.split("\n")) {
+    const assignment = assignmentToken(line);
+    if (assignment === undefined) continue;
+    const [key, value] = assignment;
+    for (const invariant of invariantsByKey.get(key) ?? []) {
+      if (invariant.values.has(value)) found.add(invariant);
+    }
+  }
+  return invariants.filter((invariant) => !found.has(invariant));
+}
+
 export async function validateGeneratedTree(
   tree: GeneratedVirtualTree,
   options: GeneratedTreeValidationOptions = {},
@@ -592,22 +691,9 @@ export async function validateGeneratedTree(
   );
   if (storageResources.length > 0) {
     const source = tree.files.map(({ content }) => content).join("\n");
-    const required =
-      tree.logicalManifest.track === "bicep"
-        ? [
-            /minimumTlsVersion[^\n]*['"]TLS1_2['"]|minimumTlsVersion[\s\S]*['"]TLS1_2['"]/,
-            /supportsHttpsTrafficOnly[^\n]*true/,
-            /allowBlobPublicAccess[^\n]*false/,
-            /allowSharedKeyAccess[^\n]*false/,
-          ]
-        : [
-            /(?:minimumTlsVersion|min_tls_version)[^\n]*['"]TLS1_2['"]|(?:minimumTlsVersion|min_tls_version)[\s\S]*['"]TLS1_2['"]/,
-            /(?:supportsHttpsTrafficOnly|https_traffic_only_enabled)[^\n]*true/,
-            /(?:allowBlobPublicAccess|allow_nested_items_to_be_public)[^\n]*false/,
-            /(?:allowSharedKeyAccess|shared_access_key_enabled)[^\n]*false/,
-          ];
-    for (const invariant of required)
-      if (!invariant.test(source)) issues.push(`Storage security invariant '${invariant.source}' is missing`);
+    const required = tree.logicalManifest.track === "bicep" ? BICEP_STORAGE_INVARIANTS : TERRAFORM_STORAGE_INVARIANTS;
+    for (const invariant of missingStorageInvariants(source, required))
+      issues.push(`Storage security invariant '${invariant.diagnostic}' is missing`);
   }
   const plans = validationPlans(tree, options.cwd ?? ".");
   const commandResults: ProcessResult[] = [];

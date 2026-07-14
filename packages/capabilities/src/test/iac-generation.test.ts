@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { mkdtemp, mkdir, readFile, rm, symlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { performance } from "node:perf_hooks";
 import test from "node:test";
 import type { IacBindingV1, ImplementationIntentV1 } from "@apex/contracts";
 import {
@@ -105,6 +106,52 @@ test("native generators are byte deterministic and enforce secure storage defaul
   );
   assert.equal((await validateGeneratedTree(first)).valid, true);
   assert.equal((await validateGeneratedTree(terraform)).valid, true);
+});
+
+test("storage validation remains bounded for repeated near-miss properties", async () => {
+  const sourceIntent = intent();
+  const cases = [
+    {
+      generated: generateBicepTree(
+        sourceIntent,
+        binding("bicep", "native:Microsoft.Storage/storageAccounts@2023-05-01", "2023-05-01", nativeParameters),
+      ),
+      declaration: "resource storage 'Microsoft.Storage/storageAccounts@2023-05-01' = {",
+      properties: ["minimumTlsVersion", "supportsHttpsTrafficOnly", "allowBlobPublicAccess", "allowSharedKeyAccess"],
+      separator: ":",
+    },
+    {
+      generated: generateTerraformTree(
+        sourceIntent,
+        binding("terraform", "native:Microsoft.Storage/storageAccounts@2023-05-01", "2023-05-01", nativeParameters),
+      ),
+      declaration: 'resource "azurerm_storage_account" "storage" {',
+      properties: [
+        "min_tls_version",
+        "https_traffic_only_enabled",
+        "allow_nested_items_to_be_public",
+        "shared_access_key_enabled",
+      ],
+      separator: "=",
+    },
+  ] as const;
+
+  for (const { generated, declaration, properties, separator } of cases) {
+    const repeatedAssignments = properties
+      .map((property) => `${`${property} ${separator} invalid `.repeat(2_000)}\n`)
+      .join("");
+    const content = `${declaration}\n${repeatedAssignments}}\n`;
+    const files = [{ path: generated.logicalManifest.resources[0]!.sourcePath, content }];
+    const adversarialTree: GeneratedVirtualTree = { ...generated, files, treeHash: sha256(files) };
+
+    const startedAt = performance.now();
+    const result = await validateGeneratedTree(adversarialTree);
+    const elapsedMs = performance.now() - startedAt;
+
+    assert.equal(result.valid, false);
+    assert.equal(result.issues.filter((issue) => issue.startsWith("Storage security invariant")).length, 4);
+    assert.ok(elapsedMs < 500, `${generated.logicalManifest.track} validation took ${elapsedMs.toFixed(1)}ms`);
+  }
 });
 
 test("AVM generators preserve exact pins, harden storage, and only include supplied lock data", () => {

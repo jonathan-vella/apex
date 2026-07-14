@@ -51,6 +51,12 @@ for full details on this and all prior releases.
   Azure deployment-stack behavior, production Terraform CI plan transport, and
   final release scorecard evidence remain explicit pre-cutover gates.
 
+### Fixed (APEX vNext security)
+
+- fix(vnext): replaced polynomial storage-security regular expressions over generated Bicep and Terraform source with
+  a bounded line-oriented assignment scan. Adversarial dual-track coverage protects the fix in
+  [#537](https://github.com/jonathan-vella/apex/issues/537).
+
 ### Changed (Model migration — Claude Sonnet 4.6 → Claude Sonnet 5)
 
 - chore(agents): migrated all 11 agents/subagents in the Sonnet cohort
