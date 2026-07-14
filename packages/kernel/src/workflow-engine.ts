@@ -1,4 +1,5 @@
 import { sha256Json, type JsonValue } from "./canonical.js";
+import { workflowValidatorOwnership } from "./workflow-validator-ownership.js";
 
 const OPERATORS = new Set(["all", "equals", "in", "exists", "not"]);
 
@@ -17,6 +18,7 @@ export interface WorkflowNode {
   condition?: WorkflowCondition;
   sourceDependencies: string[];
   outputs: string[];
+  validators: string[];
   invalidates: string[];
 }
 
@@ -188,6 +190,15 @@ export function validateWorkflowManifest(value: unknown): WorkflowManifest {
 function parseNode(value: unknown): WorkflowNode {
   if (!isRecord(value)) throw new Error("Workflow node must be an object");
   const condition = value.condition === undefined ? undefined : parseCondition(value.condition);
+  const validators = optionalStringArray(value.validators, "validators");
+  if (new Set(validators).size !== validators.length) {
+    throw new Error(`Duplicate workflow validator on node ${requiredString(value.id, "node id")}`);
+  }
+  for (const validator of validators) {
+    if (workflowValidatorOwnership(validator) === undefined) {
+      throw new Error(`Unknown workflow validator ${validator}`);
+    }
+  }
   return {
     id: requiredString(value.id, "node id"),
     kind: requiredString(value.kind, "node kind"),
@@ -196,6 +207,7 @@ function parseNode(value: unknown): WorkflowNode {
     ...(condition === undefined ? {} : { condition }),
     sourceDependencies: optionalStringArray(value.sourceDependencies, "sourceDependencies"),
     outputs: optionalStringArray(value.outputs, "outputs"),
+    validators,
     invalidates: optionalStringArray(value.invalidates, "invalidates"),
   };
 }

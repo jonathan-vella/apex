@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
-import { composeDependencyHash, WorkflowEngine } from "../index.js";
+import { composeDependencyHash, WorkflowEngine, workflowValidatorOwnership } from "../index.js";
 
 const manifest = JSON.parse(
   await readFile(new URL("../../../../config/workflow.v1.json", import.meta.url), "utf8"),
@@ -9,6 +9,14 @@ const manifest = JSON.parse(
 
 test("workflow manifest validates and routes both tracks deterministically", () => {
   const engine = new WorkflowEngine(manifest);
+  assert.deepEqual(engine.manifest.nodes[0]?.validators, [
+    "schema:requirements-v1",
+    "business:requirements-completeness",
+    "review:requirements-comprehensive",
+  ]);
+  assert.ok(
+    engine.manifest.nodes.flatMap(({ validators }) => validators).every((id) => workflowValidatorOwnership(id)),
+  );
   const initial = engine.route({ run: { iacTool: "bicep" }, artifacts: {} });
   assert.equal(initial.currentNode, "requirements");
   assert.equal(initial.ownerRole, "requirements");
@@ -75,6 +83,16 @@ test("workflow rejects unknown operators, cycles, duplicate gates, and missing t
       oneTrack.nodes.some((node: any) => node.id === edge.to),
   );
   assert.throws(() => new WorkflowEngine(oneTrack), /bicep and terraform/);
+});
+
+test("workflow rejects unowned and duplicate validator IDs", () => {
+  const unknown = structuredClone(manifest) as any;
+  unknown.nodes[0].validators[0] = "schema:unknown-v1";
+  assert.throws(() => new WorkflowEngine(unknown), /Unknown workflow validator schema:unknown-v1/);
+
+  const duplicate = structuredClone(manifest) as any;
+  duplicate.nodes[0].validators.push(duplicate.nodes[0].validators[0]);
+  assert.throws(() => new WorkflowEngine(duplicate), /Duplicate workflow validator/);
 });
 
 test("dependency hashes are canonical and invalidation cascades with semantic reasons", () => {
