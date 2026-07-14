@@ -85,7 +85,6 @@ export class WorkflowEngine {
         terminal: false,
       };
     }
-
     const completed = new Set(state.completedNodes ?? []);
     for (const node of this.manifest.nodes) {
       if (node.kind === "terminal" || completed.has(node.id) || !evaluateCondition(node.condition, state)) {
@@ -109,6 +108,12 @@ export class WorkflowEngine {
       }
     }
     return { currentNode: null, nextTask: null, ownerRole: null, blockers: ["no-eligible-node"], terminal: false };
+  }
+
+  activeValidatorIds(state: WorkflowState): string[] {
+    return this.manifest.nodes
+      .filter((node) => evaluateCondition(node.condition, state))
+      .flatMap(({ validators }) => validators);
   }
 
   invalidationPlan(changedNodeId: string, reason: string): InvalidationEntry[] {

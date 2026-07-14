@@ -150,14 +150,14 @@ const ownershipGroups: readonly OwnershipGroup[] = [
   {
     ids: ["inventory:eventual-consistency-reconciled", "inventory:secret-free", "inventory:source-coverage"],
     owner: "@apex/cli",
-    entrypoint: "ApexService.inventory",
+    entrypoint: "ApexService.validateInventoryValidators",
     execution: "inline",
     boundary: "inventory",
   },
   {
     ids: ["diagnosis:read-only", "diagnosis:secret-free"],
     owner: "@apex/cli",
-    entrypoint: "ApexService.diagnose",
+    entrypoint: "ApexService.validateTaskValidators",
     execution: "inline",
     boundary: "diagnosis",
   },
@@ -171,7 +171,7 @@ const ownershipGroups: readonly OwnershipGroup[] = [
   {
     ids: ["terminal:run-evidence-complete"],
     owner: "@apex/cli",
-    entrypoint: "ApexService.status",
+    entrypoint: "ApexService.ensureTerminalCompletion",
     execution: "inline",
     boundary: "terminal",
   },

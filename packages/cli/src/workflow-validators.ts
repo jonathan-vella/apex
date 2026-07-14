@@ -10,6 +10,7 @@ import {
   type ArchitectureAvailabilityV1,
   type ArchitectureV1,
   type CostEstimateV1,
+  type DiagnosisV1,
   type EvidenceManifestV1,
   type ExecutionPlanAttestationV1,
   type GateRecordV1,
@@ -24,6 +25,7 @@ import {
   type QualityScorecardV1,
   type RequirementsV1,
   type ReviewFindingsV1,
+  type ResourceInventoryV1,
   type RunConfigV1,
   type DeploymentPreviewV1,
 } from "@apex/contracts";
@@ -42,6 +44,8 @@ export interface WorkflowTaskValidatorContext {
   readonly scorecard?: QualityScorecardV1;
   readonly qualityMeasurements?: QualityMeasurementsV1;
   readonly availabilityEvidence?: ArchitectureAvailabilityV1;
+  readonly deploymentOperation?: OperationRecordV1;
+  readonly deploymentInventory?: ResourceInventoryV1;
 }
 
 export interface WorkflowGateValidatorContext {
@@ -93,6 +97,19 @@ export interface WorkflowDeployValidatorContext {
   };
 }
 
+export interface WorkflowInventoryValidatorContext {
+  readonly run: RunConfigV1;
+  readonly preview: DeploymentPreviewV1;
+  readonly operation: OperationRecordV1;
+  readonly inventory: ResourceInventoryV1;
+}
+
+export interface WorkflowTerminalValidatorContext {
+  readonly activeValidatorIds: readonly string[];
+  readonly executedValidatorIds: readonly string[];
+  readonly simulatedOmittedValidatorIds: readonly string[];
+}
+
 const VALIDATION_EVIDENCE_IDS = new Set([
   "bicep:build",
   "bicep:format",
@@ -107,6 +124,26 @@ const VALIDATION_EVIDENCE_IDS = new Set([
 
 function issue(path: string, message: string): ValidationIssue[] {
   return [{ path, message }];
+}
+
+const SECRET_FIELD =
+  /(?:secret|password|passphrase|token|authorization|api[-_]?key|private[-_]?key|connectionString|sasToken)/i;
+const SECRET_VALUE =
+  /-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----|\bBearer\s+[A-Za-z0-9._~+\/-]{16,}|(?:AccountKey|SharedAccessSignature)=/i;
+
+function secretIssues(value: unknown, path = ""): ValidationIssue[] {
+  if (Array.isArray(value)) return value.flatMap((item, index) => secretIssues(item, `${path}/${index}`));
+  if (value !== null && typeof value === "object") {
+    return Object.entries(value)
+      .sort(([left], [right]) => left.localeCompare(right))
+      .flatMap(([key, item]) => [
+        ...(SECRET_FIELD.test(key) ? [{ path: `${path}/${key}`, message: "Secret-bearing field is not allowed" }] : []),
+        ...secretIssues(item, `${path}/${key}`),
+      ]);
+  }
+  return typeof value === "string" && SECRET_VALUE.test(value)
+    ? [{ path, message: "Secret-bearing value is not allowed" }]
+    : [];
 }
 
 function taskContext(value: unknown): WorkflowTaskValidatorContext {
@@ -636,6 +673,106 @@ function deployStateLineageAndSerial(value: unknown): ValidationIssue[] {
   return valid ? [] : issue("/executionEvidence", "Terraform state lineage or serial evidence is missing");
 }
 
+function inventoryContext(value: unknown): WorkflowInventoryValidatorContext {
+  return value as WorkflowInventoryValidatorContext;
+}
+
+function inventorySecretFree(value: unknown): ValidationIssue[] {
+  return secretIssues(inventoryContext(value).inventory, "/inventory");
+}
+
+function inventorySourceCoverage(value: unknown): ValidationIssue[] {
+  const context = inventoryContext(value);
+  const inventory = context.inventory;
+  const resourceIds = inventory.resources.map(({ resourceId }) => resourceId);
+  const logicalIds = inventory.resources.map(({ logicalId }) => logicalId);
+  const issues: ValidationIssue[] = [];
+  if (new Set(resourceIds).size !== resourceIds.length || new Set(logicalIds).size !== logicalIds.length) {
+    issues.push({ path: "/inventory/resources", message: "Inventory resource identities must be unique" });
+  }
+  const expected = context.preview.changes
+    .filter(({ material, action }) => material && action !== "delete" && action !== "no-op")
+    .map(({ resourceId }) => resourceId);
+  const missing = expected.filter(
+    (expectedId) =>
+      !inventory.resources.some(
+        ({ logicalId, resourceId }) =>
+          logicalId === expectedId || resourceId === expectedId || resourceId.endsWith(`:${expectedId}`),
+      ),
+  );
+  if (missing.length > 0) {
+    issues.push({
+      path: "/inventory/resources",
+      message: `Inventory is missing preview resources: ${missing.sort().join(", ")}`,
+    });
+  }
+  return issues;
+}
+
+function inventoryEventuallyReconciled(value: unknown): ValidationIssue[] {
+  const context = inventoryContext(value);
+  const inventory = context.inventory;
+  const operation = context.operation;
+  const valid =
+    operation.state === "succeeded" &&
+    operation.projectId === context.run.projectId &&
+    operation.runId === context.run.runId &&
+    operation.previewHash === context.preview.previewHash &&
+    inventory.projectId === context.run.projectId &&
+    inventory.runId === context.run.runId &&
+    Date.parse(inventory.collectedAt) >= Date.parse(operation.updatedAt) &&
+    (context.preview.operation !== "destroy" || inventory.resources.length === 0);
+  return valid ? [] : issue("/inventory", "Inventory does not reconcile the completed operation");
+}
+
+function diagnosisReadOnly(value: unknown): ValidationIssue[] {
+  const context = taskContext(value);
+  const diagnosis = context.outputs.diagnosis as DiagnosisV1;
+  const operation = context.deploymentOperation;
+  const inventory = context.deploymentInventory;
+  if (operation === undefined || inventory === undefined) {
+    return issue("/deployment", "Accepted operation and inventory are required for diagnosis");
+  }
+  const issues: ValidationIssue[] = [];
+  if (
+    diagnosis.projectId !== operation.projectId ||
+    diagnosis.runId !== operation.runId ||
+    Date.parse(diagnosis.diagnosedAt) < Date.parse(inventory.collectedAt) ||
+    Date.parse(diagnosis.diagnosedAt) > Date.parse(context.now)
+  ) {
+    issues.push({
+      path: "/outputs/diagnosis",
+      message: "Diagnosis is not a read-only observation of current inventory",
+    });
+  }
+  const unpinned = diagnosis.causes
+    .flatMap(({ evidenceRefs }) => evidenceRefs)
+    .filter((reference) => !context.inputRefs.includes(reference))
+    .sort();
+  if (unpinned.length > 0) {
+    issues.push({
+      path: "/outputs/diagnosis/causes",
+      message: `Diagnosis evidence was not pinned to the task: ${unpinned.join(", ")}`,
+    });
+  }
+  return issues;
+}
+
+function diagnosisSecretFree(value: unknown): ValidationIssue[] {
+  return secretIssues(taskContext(value).outputs.diagnosis, "/outputs/diagnosis");
+}
+
+function terminalRunEvidenceComplete(value: unknown): ValidationIssue[] {
+  const context = value as WorkflowTerminalValidatorContext;
+  const accounted = new Set([...context.executedValidatorIds, ...context.simulatedOmittedValidatorIds]);
+  const missing = [...new Set(context.activeValidatorIds)]
+    .filter((id) => id !== "terminal:run-evidence-complete" && !accounted.has(id))
+    .sort();
+  return missing.length === 0
+    ? []
+    : issue("/validatorEvidence", `Run is missing validator evidence: ${missing.join(", ")}`);
+}
+
 function qualityContext(value: unknown): WorkflowTaskValidatorContext & {
   readonly scorecard: QualityScorecardV1;
   readonly qualityMeasurements: QualityMeasurementsV1;
@@ -792,8 +929,17 @@ export function registerWorkflowValidators(registry: ValidatorRegistry): void {
   registry.registerHandler("deploy:exact-saved-plan", deployExactSavedPlan, "authorization");
   registry.registerHandler("deploy:state-lineage-and-serial", deployStateLineageAndSerial, "authorization");
 
+  registry.registerHandler("inventory:secret-free", inventorySecretFree);
+  registry.registerHandler("inventory:source-coverage", inventorySourceCoverage);
+  registry.registerHandler("inventory:eventual-consistency-reconciled", inventoryEventuallyReconciled, "freshness");
+
+  registry.registerHandler("diagnosis:read-only", diagnosisReadOnly);
+  registry.registerHandler("diagnosis:secret-free", diagnosisSecretFree);
+
   registry.registerHandler("quality:scorecard-decidable", qualityScorecardDecidable);
   registry.registerHandler("quality:no-subjective-deterministic-claims", qualityNoSubjectiveClaims);
+
+  registry.registerHandler("terminal:run-evidence-complete", terminalRunEvidenceComplete, "authorization");
 
   const requiredBoundaries = new Set([
     "task-output",
@@ -803,7 +949,10 @@ export function registerWorkflowValidators(registry: ValidatorRegistry): void {
     "gate",
     "preview",
     "deploy",
+    "inventory",
+    "diagnosis",
     "quality",
+    "terminal",
   ]);
   for (const [id, ownership] of WORKFLOW_VALIDATOR_OWNERSHIP) {
     if (requiredBoundaries.has(ownership.boundary) && !registry.has(id)) {

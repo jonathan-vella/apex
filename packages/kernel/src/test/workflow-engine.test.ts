@@ -51,6 +51,9 @@ test("workflow manifest validates and routes both tracks deterministically", () 
     gateStates: { "gate-1": "approved" },
   });
   assert.equal(discovery.nextTask, "governance-discovery");
+  const bicepValidators = engine.activeValidatorIds({ run: { iacTool: "bicep" }, artifacts: {} });
+  assert.ok(bicepValidators.includes("bicep:build"));
+  assert.equal(bicepValidators.includes("terraform:validate"), false);
 });
 
 test("workflow rejects unknown operators, cycles, duplicate gates, and missing tracks", () => {
