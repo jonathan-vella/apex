@@ -6,9 +6,11 @@ import {
   PolicyPropertyMapV1Schema,
   RequirementsV1Schema,
   hasValidCostArithmetic,
+  type ApprovalEvidenceV1,
   type ArchitectureV1,
   type CostEstimateV1,
   type EvidenceManifestV1,
+  type GateRecordV1,
   type GovernanceConstraintsV1,
   type IacBindingV1,
   type ImplementationIntentV1,
@@ -16,6 +18,8 @@ import {
   type PolicyPropertyMapV1,
   type RequirementsV1,
   type ReviewFindingsV1,
+  type RunConfigV1,
+  type DeploymentPreviewV1,
 } from "@apex/contracts";
 import { WORKFLOW_VALIDATOR_OWNERSHIP, sha256Json, type ValidationIssue, type ValidatorRegistry } from "@apex/kernel";
 
@@ -26,6 +30,21 @@ export interface WorkflowTaskValidatorContext {
   readonly outputs: Readonly<Record<string, unknown>>;
   readonly artifacts: Readonly<Record<string, unknown>>;
   readonly artifactHashes: Readonly<Record<string, string>>;
+}
+
+export interface WorkflowGateValidatorContext {
+  readonly gateNumber: number;
+  readonly now: string;
+  readonly run: RunConfigV1;
+  readonly gate: GateRecordV1;
+  readonly approval: ApprovalEvidenceV1;
+  readonly artifactHashes: Readonly<Record<string, string>>;
+  readonly completedNodes: readonly string[];
+  readonly reviewBlockers: readonly string[];
+  readonly expectedDependencyHash?: string;
+  readonly currentDependencyRevision: string;
+  readonly legacyRequirements: boolean;
+  readonly preview?: DeploymentPreviewV1;
 }
 
 const VALIDATION_EVIDENCE_IDS = new Set([
@@ -225,7 +244,112 @@ function requiredValidationEvidence(id: string, value: unknown): ValidationIssue
     : issue("/entries", `Required immutable validation evidence is missing for ${id}`);
 }
 
-export function registerTaskWorkflowValidators(registry: ValidatorRegistry): void {
+function gateContext(value: unknown): WorkflowGateValidatorContext {
+  return value as WorkflowGateValidatorContext;
+}
+
+function gateReady(expectedGate: 1 | 2 | 3, value: unknown): ValidationIssue[] {
+  const context = gateContext(value);
+  const requiredArtifacts: Record<1 | 2 | 3, readonly string[]> = {
+    1: ["requirements", "sku-manifest"],
+    2: ["architecture", "cost-estimate", "governance-constraints", "policy-property-map"],
+    3: ["implementation-intent", "iac-binding", "environment-inputs"],
+  };
+  const requiredReviews: Record<1 | 2 | 3, readonly string[]> = {
+    1: context.legacyRequirements ? [] : ["requirements-review"],
+    2: ["architecture-review", "governance-review"],
+    3: ["plan-review"],
+  };
+  const issues: ValidationIssue[] = [];
+  if (context.gateNumber !== expectedGate || context.gate.gate !== expectedGate) {
+    issues.push({ path: "/gateNumber", message: `Expected Gate ${expectedGate}` });
+  }
+  if (context.gate.state !== "open") issues.push({ path: "/gate/state", message: "Gate is not open" });
+  const missingArtifacts = requiredArtifacts[expectedGate].filter((kind) => context.artifactHashes[kind] === undefined);
+  if (missingArtifacts.length > 0) {
+    issues.push({ path: "/artifactHashes", message: `Missing required artifacts: ${missingArtifacts.join(", ")}` });
+  }
+  const completed = new Set(context.completedNodes);
+  const missingReviews = requiredReviews[expectedGate].filter((nodeId) => !completed.has(nodeId));
+  if (missingReviews.length > 0) {
+    issues.push({ path: "/completedNodes", message: `Missing required reviews: ${missingReviews.join(", ")}` });
+  }
+  if (context.reviewBlockers.length > 0) {
+    issues.push({
+      path: "/reviewBlockers",
+      message: `Unresolved review findings: ${context.reviewBlockers.join(", ")}`,
+    });
+  }
+  if (context.expectedDependencyHash === undefined || context.gate.dependencyHash !== context.expectedDependencyHash) {
+    issues.push({ path: "/gate/dependencyHash", message: "Gate is not bound to the current review dependency" });
+  }
+  if (context.approval.dependencyHash !== context.gate.dependencyHash) {
+    issues.push({ path: "/approval/dependencyHash", message: "Approval is not bound to the open gate" });
+  }
+  return issues;
+}
+
+function gatePreviewCurrent(value: unknown): ValidationIssue[] {
+  const context = gateContext(value);
+  const preview = context.preview;
+  if (preview === undefined) return issue("/preview", "Current deployment preview is required");
+  const issues: ValidationIssue[] = [];
+  if (context.gateNumber !== 4 || context.gate.gate !== 4 || context.gate.state !== "open") {
+    issues.push({ path: "/gate", message: "Gate 4 is not open" });
+  }
+  if (context.gate.dependencyHash !== preview.previewHash) {
+    issues.push({ path: "/gate/dependencyHash", message: "Gate 4 is not bound to the current preview" });
+  }
+  if (
+    preview.projectId !== context.run.projectId ||
+    preview.runId !== context.run.runId ||
+    preview.track !== context.run.iacTool ||
+    preview.target !== context.run.targetScope
+  ) {
+    issues.push({ path: "/preview", message: "Preview identity does not match the selected run" });
+  }
+  if (
+    preview.dependencyRevision !== context.currentDependencyRevision ||
+    preview.commit !== context.currentDependencyRevision
+  ) {
+    issues.push({ path: "/preview/dependencyRevision", message: "Preview dependencies are stale" });
+  }
+  if (preview.ownerEpoch !== context.run.ownerEpoch) {
+    issues.push({ path: "/preview/ownerEpoch", message: "Preview writer epoch is stale" });
+  }
+  const now = Date.parse(context.now);
+  if (Date.parse(preview.createdAt) > now || Date.parse(preview.expiresAt) <= now) {
+    issues.push({ path: "/preview/expiresAt", message: "Preview is not current" });
+  }
+  return issues;
+}
+
+function gateApprovalBindingComplete(value: unknown): ValidationIssue[] {
+  const context = gateContext(value);
+  const preview = context.preview;
+  if (preview === undefined) return issue("/preview", "Current deployment preview is required");
+  const approval = context.approval;
+  const valid =
+    approval.gate === 4 &&
+    approval.decision === "approved" &&
+    approval.projectId === context.run.projectId &&
+    approval.runId === context.run.runId &&
+    approval.previewHash === preview.previewHash &&
+    approval.dependencyHash === preview.previewHash &&
+    approval.writerEpoch === context.run.ownerEpoch &&
+    approval.recipientIdentity !== undefined &&
+    approval.expiresAt !== undefined &&
+    Date.parse(approval.expiresAt) > Date.parse(context.now);
+  return valid ? [] : issue("/approval", "Approval does not completely bind the current preview and writer");
+}
+
+function gateNoHardBlockers(value: unknown): ValidationIssue[] {
+  const context = gateContext(value);
+  const blockers = [...(context.preview?.blockers ?? []), ...context.reviewBlockers];
+  return blockers.length === 0 ? [] : issue("/blockers", `Hard blockers remain: ${blockers.join(", ")}`);
+}
+
+export function registerWorkflowValidators(registry: ValidatorRegistry): void {
   registry.register("schema:requirements-v1", RequirementsV1Schema);
   registry.register("schema:architecture-v1", ArchitectureV1Schema);
   registry.register("schema:governance-constraints-v1", GovernanceConstraintsV1Schema);
@@ -256,7 +380,14 @@ export function registerTaskWorkflowValidators(registry: ValidatorRegistry): voi
     registry.registerHandler(id, (value) => requiredValidationEvidence(id, value));
   }
 
-  const requiredBoundaries = new Set(["task-output", "review", "validation"]);
+  registry.registerHandler("gate:requirements-ready", (value) => gateReady(1, value), "authorization");
+  registry.registerHandler("gate:architecture-cost-governance-ready", (value) => gateReady(2, value), "authorization");
+  registry.registerHandler("gate:implementation-plan-ready", (value) => gateReady(3, value), "authorization");
+  registry.registerHandler("gate:preview-current", gatePreviewCurrent, "authorization");
+  registry.registerHandler("gate:approval-binding-complete", gateApprovalBindingComplete, "authorization");
+  registry.registerHandler("gate:no-hard-blockers", gateNoHardBlockers, "authorization");
+
+  const requiredBoundaries = new Set(["task-output", "review", "validation", "gate"]);
   for (const [id, ownership] of WORKFLOW_VALIDATOR_OWNERSHIP) {
     if (requiredBoundaries.has(ownership.boundary) && !registry.has(id)) {
       throw new Error(`Workflow validator ${id} has no registered ${ownership.boundary} handler`);

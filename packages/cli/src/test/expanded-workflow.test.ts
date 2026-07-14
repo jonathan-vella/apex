@@ -122,6 +122,30 @@ test("task completion records executed manifest validators in order", async () =
   ]);
 });
 
+test("gate approval records executed manifest validators in order", async () => {
+  const root = await tempRoot();
+  const service = new ApexService(root);
+  const { runId } = await service.init({ projectId: "demo" });
+  await service.nextTask();
+  const requirementHashes = await complete(service, "requirements", [
+    { kind: "requirements", value: requirements() },
+    { kind: "sku-manifest", value: skuManifest(sha256Json(requirements())) },
+  ]);
+  await complete(service, "requirements-review", [
+    {
+      kind: "review-findings",
+      value: review(runId, "requirements", requirementHashes.requirements!),
+    },
+  ]);
+  await service.decideGateNumber(1, "approved", "tester");
+
+  const events = await new EventJournal(join(root, ".apex", "projects", "demo", "runs", runId, "journal")).replay();
+  const decided = events.find(
+    (event) => event.type === "gate.decided" && (event.payload as { gate?: unknown }).gate === 1,
+  );
+  assert.deepEqual((decided?.payload as { validatorIds?: unknown }).validatorIds, ["gate:requirements-ready"]);
+});
+
 test("task-bound workflow validators reject semantic and evidence mutations", async () => {
   const root = await tempRoot();
   const service = new ApexService(root);
@@ -388,6 +412,53 @@ test("review blockers persist, resolve, and permit gate approval", async () => {
   assert.equal((await restarted.status()).run.gates[0]?.state, "open");
   await restarted.decideGateNumber(1, "approved", "tester");
   assert.equal((await restarted.nextTask()).status, "task");
+});
+
+test("expired accepted risk can be replaced without reopening an open gate", async () => {
+  let now = Date.parse("2026-01-01T00:00:00.000Z");
+  const service = new ApexService(await tempRoot(), { clock: () => new Date(now) });
+  const { runId } = await service.init({ projectId: "demo" });
+  await service.nextTask();
+  const hashes = await complete(service, "requirements", [
+    { kind: "requirements", value: requirements() },
+    { kind: "sku-manifest", value: skuManifest(sha256Json(requirements())) },
+  ]);
+  const reviewHashes = await complete(service, "requirements-review", [
+    {
+      kind: "review-findings",
+      value: review(runId, "requirements", hashes.requirements!, [
+        { id: "F-1", severity: "medium", disposition: "open", title: "Risk", detail: "Resolve", evidenceRefs: [] },
+      ]),
+    },
+  ]);
+  const dependencyHash = sha256Json({ "review-findings": reviewHashes["review-findings"]! });
+  await service.resolveReview({
+    findingId: "F-1",
+    reviewHash: reviewHashes["review-findings"]!,
+    subjectHash: hashes.requirements!,
+    disposition: "accepted-risk",
+    actor: "tester",
+    rationale: "temporary exception",
+    evidenceRefs: [],
+    expiresAt: "2026-01-02T00:00:00.000Z",
+    dependencyHash,
+  });
+  assert.equal((await service.status()).run.gates[0]?.state, "open");
+
+  now = Date.parse("2026-01-03T00:00:00.000Z");
+  await assert.rejects(service.decideGateNumber(1, "approved", "tester"), /gate:requirements-ready/);
+  await service.resolveReview({
+    findingId: "F-1",
+    reviewHash: reviewHashes["review-findings"]!,
+    subjectHash: hashes.requirements!,
+    disposition: "fixed",
+    actor: "tester",
+    rationale: "permanent correction",
+    evidenceRefs: [hashes.requirements!],
+    dependencyHash,
+  });
+  assert.equal((await service.status()).run.gates[0]?.state, "open");
+  await service.decideGateNumber(1, "approved", "tester");
 });
 
 test("promotion inherits neutral progression and restarts at the first environment-specific dependency", async () => {
