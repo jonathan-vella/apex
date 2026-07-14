@@ -1,0 +1,121 @@
+name: APEX vNext Work Item
+description: Propose a dependency-complete APEX vNext delivery slice
+title: "[vNext]: "
+labels: ["vnext", "status: needs-triage"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form for an independently testable vNext outcome. Defects and
+        regressions belong in the Bug Report form.
+
+  - type: dropdown
+    id: workstream
+    attributes:
+      label: Workstream
+      description: Which roadmap outcome owns this work?
+      options:
+        - Project controls
+        - Exact-head stabilization
+        - Release-control completion
+        - Live qualification
+        - Modernization inventory
+        - Modernization slice
+        - Bounded improvement
+        - Final qualification and cutover
+    validations:
+      required: true
+
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Outcome
+      description: Describe the user-visible or release-control result, not a list of files to edit.
+      placeholder: "Package qualification terminates reliably and proves a clean consumer install."
+    validations:
+      required: true
+
+  - type: input
+    id: requirements
+    attributes:
+      label: PRD Requirement IDs
+      description: List every requirement this work satisfies or protects.
+      placeholder: "REQ-DIST-001, REQ-DETERMINISM-001"
+    validations:
+      required: true
+
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies And Sequence
+      description: Link blocking issues, decisions, upstream artifacts, or predecessor outcomes. Write "None" when clear.
+      placeholder: |
+        - Blocked by #123
+        - Uses DECISION-003
+    validations:
+      required: true
+
+  - type: textarea
+    id: compatibility
+    attributes:
+      label: Compatibility Impact
+      description: Identify affected Phase 0A dispositions, commands, contracts, checks, diagnostics, or state.
+      placeholder: "Preserves COMP-DIST-001 and the existing npm script name."
+    validations:
+      required: true
+
+  - type: textarea
+    id: security
+    attributes:
+      label: Security And Authorization Impact
+      description: Describe grants, secrets, identity, approval, external operations, or supply-chain impact. Write "None" when clear.
+      placeholder: "No new grants; subprocess argv remains shell-free and output remains bounded."
+    validations:
+      required: true
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence Plan
+      description: Name the cheapest falsifying check and the final automated evidence.
+      placeholder: |
+        Characterization: reproduce the timeout with a fixture child.
+        Regression: verify abort terminates the full process tree.
+        Final: npm run test:vnext-pack
+    validations:
+      required: true
+
+  - type: textarea
+    id: manual-live
+    attributes:
+      label: Manual Or Live Qualification
+      description: Identify user-owned or cloud-backed evidence and its target. Write "None" when fully deterministic.
+      placeholder: "Run in a clean supported devcontainer on the exact pull-request head."
+    validations:
+      required: true
+
+  - type: textarea
+    id: definition-of-done
+    attributes:
+      label: Definition Of Done
+      description: List observable completion conditions, documentation updates, and rollback evidence.
+      placeholder: |
+        - Regression test fails before and passes after the fix.
+        - Focused and repository validation pass.
+        - Register entry links closure proof.
+        - Pull request targets feat/apex-vnext-rewrite.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safety Boundary
+      options:
+        - label: This is one dependency-complete and independently revertible slice
+          required: true
+        - label: This work does not authorize merge, release, publication, deployment, or cutover
+          required: true
+        - label: I searched existing issues and the vNext register for duplicates
+          required: true
