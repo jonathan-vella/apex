@@ -101,4 +101,4 @@ combines run status with doctor results. Cache entries are deterministic and saf
 - Use `apex writer show` before transfer. Create and accept a claim only with the current repository head and intended
   recipient workflow; expired or stale claims must be recreated.
 
-Use the [CLI reference](./cli-reference/) for every flag and the [testing guide](./testing/) before a real sandbox run.
+Use the [CLI reference](../cli-reference/) for every flag and the [testing guide](../testing/) before a real sandbox run.
