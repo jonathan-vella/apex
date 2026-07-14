@@ -15,6 +15,7 @@ import { spawn } from "node:child_process";
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const runtimePackages = ["contracts", "kernel", "capabilities", "renderers", "cli"];
+const compareText = (left, right) => (left < right ? -1 : left > right ? 1 : 0);
 
 function run(command, args, cwd = repositoryRoot) {
   return new Promise((resolvePromise, reject) => {
@@ -61,7 +62,7 @@ async function packageMetadata(packageName) {
     name: manifest.name,
     version: manifest.version,
     dependencies: Object.fromEntries(
-      Object.entries(manifest.dependencies ?? {}).sort(([left], [right]) => left.localeCompare(right)),
+      Object.entries(manifest.dependencies ?? {}).sort(([left], [right]) => compareText(left, right)),
     ),
   };
 }
@@ -71,15 +72,106 @@ async function sourceCommit() {
   return stdout.trim();
 }
 
+async function sourceRepository() {
+  const { stdout } = await run("git", ["remote", "get-url", "origin"]);
+  const remote = stdout.trim();
+  if (/^https?:\/\//.test(remote) || /^ssh:\/\//.test(remote)) {
+    const url = new URL(remote);
+    url.username = "";
+    url.password = "";
+    return `git+${url.toString()}`;
+  }
+  const scp = /^([^@]+@[^:]+):(.+)$/.exec(remote);
+  if (scp !== null) return `git+ssh://${scp[1]}/${scp[2]}`;
+  return `git+${remote}`;
+}
+
+async function releaseToolchain() {
+  const toolchain = JSON.parse(await readFile(join(repositoryRoot, "config", "toolchain.v1.json"), "utf8"));
+  return Object.fromEntries(
+    Object.entries(toolchain.compatibilitySet).sort(([left], [right]) => compareText(left, right)),
+  );
+}
+
+function normalizeSbom(sbom, releaseManifest) {
+  const releaseRefs = new Set(releaseManifest.packages.map((entry) => `${entry.package}@${entry.version}`));
+  const workspaceRef = (component) => {
+    const reference = component?.["bom-ref"];
+    if (typeof reference === "string" && reference.startsWith("@apex/")) return reference;
+    if (typeof component?.purl === "string") {
+      const match = /^pkg:npm\/@apex\/([^@]+)@(.+)$/.exec(decodeURIComponent(component.purl));
+      if (match !== null) return `@apex/${match[1]}@${match[2]}`;
+    }
+    return component?.group === "@apex" && typeof component.name === "string" && typeof component.version === "string"
+      ? `@apex/${component.name}@${component.version}`
+      : undefined;
+  };
+  const unreleasedRefs = new Set(
+    (sbom.components ?? [])
+      .flatMap((component) => {
+        const workspace = workspaceRef(component);
+        return workspace !== undefined && !releaseRefs.has(workspace) ? [component["bom-ref"]] : [];
+      })
+      .filter((reference) => typeof reference === "string"),
+  );
+  let dependencies = (sbom.dependencies ?? [])
+    .filter(({ ref }) => !unreleasedRefs.has(ref))
+    .map((dependency) => ({
+      ...dependency,
+      dependsOn: (dependency.dependsOn ?? []).filter((reference) => !unreleasedRefs.has(reference)).sort(),
+    }));
+  const dependencyMap = new Map(dependencies.map((dependency) => [dependency.ref, dependency.dependsOn]));
+  const rootRef = sbom.metadata?.component?.["bom-ref"];
+  const reachable = new Set(typeof rootRef === "string" ? [rootRef] : []);
+  const pending = [...reachable];
+  while (pending.length > 0) {
+    const reference = pending.shift();
+    for (const dependency of dependencyMap.get(reference) ?? []) {
+      if (reachable.has(dependency)) continue;
+      reachable.add(dependency);
+      pending.push(dependency);
+    }
+  }
+  sbom.components = (sbom.components ?? [])
+    .filter((component) => reachable.has(component["bom-ref"]))
+    .sort((left, right) => compareText(String(left["bom-ref"]), String(right["bom-ref"])));
+  dependencies = dependencies
+    .filter(({ ref }) => reachable.has(ref))
+    .map((dependency) => ({
+      ...dependency,
+      dependsOn: dependency.dependsOn.filter((reference) => reachable.has(reference)),
+    }))
+    .sort((left, right) => compareText(String(left.ref), String(right.ref)));
+  sbom.dependencies = dependencies;
+  const retainedWorkspaces = new Set(
+    sbom.components.flatMap((component) => {
+      const workspace = workspaceRef(component);
+      return workspace === undefined ? [] : [workspace];
+    }),
+  );
+  for (const reference of releaseRefs) {
+    if (!retainedWorkspaces.has(reference))
+      throw new Error(`CycloneDX SBOM is missing released workspace ${reference}`);
+  }
+  for (const reference of retainedWorkspaces) {
+    if (!releaseRefs.has(reference)) throw new Error(`CycloneDX SBOM contains unreleased workspace ${reference}`);
+  }
+  return sbom;
+}
+
 async function writeReleaseSecurityArtifacts(outputDirectory, releaseManifest) {
   const sbomResult = await run("npm", ["sbom", "--omit=dev", "--sbom-format=cyclonedx"]);
-  const sbom = JSON.parse(sbomResult.stdout);
+  const sbom = normalizeSbom(JSON.parse(sbomResult.stdout), releaseManifest);
   sbom.serialNumber = `urn:uuid:${releaseManifest.sourceCommit.slice(0, 8)}-${releaseManifest.sourceCommit.slice(8, 12)}-4${releaseManifest.sourceCommit.slice(13, 16)}-8${releaseManifest.sourceCommit.slice(17, 20)}-${releaseManifest.sourceCommit.slice(20, 32)}`;
   if (sbom.metadata) sbom.metadata.timestamp = "1970-01-01T00:00:00.000Z";
   await writeFile(join(outputDirectory, "sbom.cdx.json"), `${JSON.stringify(sbom, null, 2)}\n`);
+  const sbomHash = await sha256(join(outputDirectory, "sbom.cdx.json"));
   const provenance = {
     _type: "https://in-toto.io/Statement/v1",
-    subject: releaseManifest.packages.map((entry) => ({ name: entry.file, digest: { sha256: entry.sha256 } })),
+    subject: [
+      ...releaseManifest.packages.map((entry) => ({ name: entry.file, digest: { sha256: entry.sha256 } })),
+      { name: "sbom.cdx.json", digest: { sha256: sbomHash } },
+    ],
     predicateType: "https://slsa.dev/provenance/v1",
     predicate: {
       buildDefinition: {
@@ -87,10 +179,10 @@ async function writeReleaseSecurityArtifacts(outputDirectory, releaseManifest) {
         externalParameters: {
           includeTestkit: releaseManifest.packages.some((entry) => entry.package === "@apex/testkit"),
         },
-        internalParameters: { node: process.version },
+        internalParameters: releaseManifest.toolchain,
         resolvedDependencies: [
           {
-            uri: "git+https://github.com/jonathan-vella/apex.git",
+            uri: releaseManifest.sourceRepository,
             digest: { gitCommit: releaseManifest.sourceCommit },
           },
         ],
@@ -103,7 +195,7 @@ async function writeReleaseSecurityArtifacts(outputDirectory, releaseManifest) {
   };
   await writeFile(join(outputDirectory, "provenance.intoto.jsonl"), `${JSON.stringify(provenance)}\n`);
   return {
-    sbom: { file: "sbom.cdx.json", sha256: await sha256(join(outputDirectory, "sbom.cdx.json")) },
+    sbom: { file: "sbom.cdx.json", sha256: sbomHash },
     provenance: {
       file: "provenance.intoto.jsonl",
       sha256: await sha256(join(outputDirectory, "provenance.intoto.jsonl")),
@@ -157,7 +249,13 @@ export async function packVnext({ outputDirectory, includeTestkit = false }) {
         dependencies: metadata.dependencies,
       });
     }
-    const releaseManifest = { version: 1, sourceCommit: await sourceCommit(), packages };
+    const releaseManifest = {
+      version: 1,
+      sourceCommit: await sourceCommit(),
+      sourceRepository: await sourceRepository(),
+      toolchain: await releaseToolchain(),
+      packages,
+    };
     const security = await writeReleaseSecurityArtifacts(outputDirectory, releaseManifest);
     releaseManifest.security = security;
     await writeFile(join(outputDirectory, "release-manifest.json"), `${JSON.stringify(releaseManifest, null, 2)}\n`);
