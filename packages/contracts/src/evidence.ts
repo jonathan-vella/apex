@@ -73,6 +73,36 @@ export const QualityMeasurementsV1Schema = Type.Object(
   { $id: "https://schemas.apexops.dev/quality-measurements-v1.json", additionalProperties: false },
 );
 
+const AvailabilityCheckV1Schema = Type.Object(
+  {
+    status: Type.Union([Type.Literal("current"), Type.Literal("unavailable"), Type.Literal("blocked")]),
+    evidenceRef: Sha256Schema,
+  },
+  { additionalProperties: false },
+);
+
+export const ArchitectureAvailabilityV1Schema = Type.Object(
+  {
+    schemaVersion: ContractVersionSchema,
+    projectId: ProjectIdSchema,
+    runId: RunIdSchema,
+    targetScope: NonEmptyStringSchema,
+    mode: Type.Union([Type.Literal("native"), Type.Literal("simulated")]),
+    collectedAt: IsoDateTimeSchema,
+    expiresAt: IsoDateTimeSchema,
+    checks: Type.Object(
+      {
+        pricing: AvailabilityCheckV1Schema,
+        quota: AvailabilityCheckV1Schema,
+        regionalAvailability: AvailabilityCheckV1Schema,
+      },
+      { additionalProperties: false },
+    ),
+  },
+  { $id: "https://schemas.apexops.dev/architecture-availability-v1.json", additionalProperties: false },
+);
+
 export type EvidenceManifestV1 = Static<typeof EvidenceManifestV1Schema>;
 export type QualityScorecardV1 = Static<typeof QualityScorecardV1Schema>;
 export type QualityMeasurementsV1 = Static<typeof QualityMeasurementsV1Schema>;
+export type ArchitectureAvailabilityV1 = Static<typeof ArchitectureAvailabilityV1Schema>;

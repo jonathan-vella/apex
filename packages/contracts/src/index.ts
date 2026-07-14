@@ -12,7 +12,12 @@ import {
   OperationRecordV1Schema,
   ResourceInventoryV1Schema,
 } from "./deployment.js";
-import { EvidenceManifestV1Schema, QualityMeasurementsV1Schema, QualityScorecardV1Schema } from "./evidence.js";
+import {
+  ArchitectureAvailabilityV1Schema,
+  EvidenceManifestV1Schema,
+  QualityMeasurementsV1Schema,
+  QualityScorecardV1Schema,
+} from "./evidence.js";
 import {
   EventV1Schema,
   ProjectConfigV1Schema,
@@ -55,6 +60,7 @@ export const contractSchemas = [
   EvidenceManifestV1Schema,
   QualityScorecardV1Schema,
   QualityMeasurementsV1Schema,
+  ArchitectureAvailabilityV1Schema,
   SkuManifestV1Schema,
   ArchitectureV1Schema,
   CostEstimateV1Schema,
@@ -104,6 +110,7 @@ export const contractMetadata: Readonly<Record<string, ContractMetadata>> = {
   "https://schemas.apexops.dev/evidence-manifest-v1.json": metadata(524_288, "confidential"),
   "https://schemas.apexops.dev/quality-scorecard-v1.json": metadata(262_144, "public"),
   "https://schemas.apexops.dev/quality-measurements-v1.json": metadata(1_048_576, "confidential"),
+  "https://schemas.apexops.dev/architecture-availability-v1.json": metadata(131_072, "confidential"),
   "https://schemas.apexops.dev/sku-manifest-v1.json": metadata(524_288),
   "https://schemas.apexops.dev/architecture-v1.json": metadata(1_048_576),
   "https://schemas.apexops.dev/cost-estimate-v1.json": metadata(1_048_576, "confidential"),

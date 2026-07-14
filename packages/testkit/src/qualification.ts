@@ -347,6 +347,23 @@ async function completeCreativeWorkflow(context: TrackContext): Promise<void> {
     { kind: "review-findings", value: review(context, "requirements", requirementHashes.requirements!) },
   ]);
   await service.decideGateNumber(1, "approved", "qualification");
+  const availabilityRefs: Record<string, string> = {};
+  for (const source of ["pricing", "quota", "regionalAvailability"] as const) {
+    const accepted = (await service.acceptEvidence({
+      kind: `${source}-evidence`,
+      contentType: "application/json",
+      value: { source, mode: "simulated", status: "current" },
+      required: true,
+    })) as { hash?: string };
+    if (accepted.hash === undefined) throw new Error(`${source} evidence was not accepted`);
+    availabilityRefs[source] = accepted.hash;
+  }
+  await service.acceptEvidence({
+    kind: "architecture-availability-v1",
+    contentType: "application/json",
+    value: availabilityEvidence(context, availabilityRefs),
+    required: true,
+  });
   restart(context);
   const architectureHashes = await complete(context.service, "architecture", [
     { kind: "architecture", value: architecture(context) },
@@ -498,6 +515,25 @@ function governance(context: TrackContext) {
     expiresAt: "2027-01-01T00:00:00.000Z",
     summary: { assignmentCount: 0, denyCount: 0, modifyCount: 0, auditCount: 0, exemptionCount: 0 },
     constraintsRef: { mediaType: "application/json", uri: "memory://constraints", digest: HASH, bytes: 0 },
+  };
+}
+function availabilityEvidence(context: TrackContext, evidenceRefs: Record<string, string>) {
+  return {
+    schemaVersion: CONTRACT_VERSION,
+    projectId: projectId(context.track),
+    runId: context.runId,
+    targetScope: "local",
+    mode: "simulated" as const,
+    collectedAt: context.clock.now().toISOString(),
+    expiresAt: "2099-01-01T00:00:00.000Z",
+    checks: {
+      pricing: { status: "current" as const, evidenceRef: evidenceRefs.pricing! },
+      quota: { status: "current" as const, evidenceRef: evidenceRefs.quota! },
+      regionalAvailability: {
+        status: "current" as const,
+        evidenceRef: evidenceRefs.regionalAvailability!,
+      },
+    },
   };
 }
 function policyMap(context: TrackContext, governanceHash: string) {

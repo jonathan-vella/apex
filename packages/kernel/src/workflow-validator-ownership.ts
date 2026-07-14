@@ -61,7 +61,7 @@ const ownershipGroups: readonly OwnershipGroup[] = [
   {
     ids: ["business:availability-current"],
     owner: "@apex/cli",
-    entrypoint: "ApexService.completeTask",
+    entrypoint: "ApexService.validateTaskValidators",
     execution: "capability",
     boundary: "external-evidence",
   },

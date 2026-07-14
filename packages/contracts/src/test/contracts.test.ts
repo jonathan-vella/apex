@@ -21,6 +21,7 @@ import {
   PolicyPropertyMapV1Schema,
   QualityReportV1Schema,
   QualityMeasurementsV1Schema,
+  ArchitectureAvailabilityV1Schema,
   RequirementsV1Schema,
   ReviewFindingsV1Schema,
   RuntimeBundleLockV1Schema,
@@ -413,6 +414,23 @@ describe("target family contracts", () => {
             evidenceRefs: [hash],
           },
         ],
+      },
+    ],
+    [
+      ArchitectureAvailabilityV1Schema,
+      {
+        schemaVersion: CONTRACT_VERSION,
+        projectId: "example-project",
+        runId: "run-1",
+        targetScope: "local",
+        mode: "simulated",
+        collectedAt: timestamp,
+        expiresAt: expiry,
+        checks: {
+          pricing: { status: "current", evidenceRef: hash },
+          quota: { status: "current", evidenceRef: hash },
+          regionalAvailability: { status: "current", evidenceRef: hash },
+        },
       },
     ],
     [

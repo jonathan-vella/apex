@@ -1,0 +1,155 @@
+{
+  "$id": "https://schemas.apexops.dev/architecture-availability-v1.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "checks": {
+      "additionalProperties": false,
+      "properties": {
+        "pricing": {
+          "additionalProperties": false,
+          "properties": {
+            "evidenceRef": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            "status": {
+              "anyOf": [
+                {
+                  "const": "current",
+                  "type": "string"
+                },
+                {
+                  "const": "unavailable",
+                  "type": "string"
+                },
+                {
+                  "const": "blocked",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "required": [
+            "status",
+            "evidenceRef"
+          ],
+          "type": "object"
+        },
+        "quota": {
+          "additionalProperties": false,
+          "properties": {
+            "evidenceRef": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            "status": {
+              "anyOf": [
+                {
+                  "const": "current",
+                  "type": "string"
+                },
+                {
+                  "const": "unavailable",
+                  "type": "string"
+                },
+                {
+                  "const": "blocked",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "required": [
+            "status",
+            "evidenceRef"
+          ],
+          "type": "object"
+        },
+        "regionalAvailability": {
+          "additionalProperties": false,
+          "properties": {
+            "evidenceRef": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            "status": {
+              "anyOf": [
+                {
+                  "const": "current",
+                  "type": "string"
+                },
+                {
+                  "const": "unavailable",
+                  "type": "string"
+                },
+                {
+                  "const": "blocked",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "required": [
+            "status",
+            "evidenceRef"
+          ],
+          "type": "object"
+        }
+      },
+      "required": [
+        "pricing",
+        "quota",
+        "regionalAvailability"
+      ],
+      "type": "object"
+    },
+    "collectedAt": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "expiresAt": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "mode": {
+      "anyOf": [
+        {
+          "const": "native",
+          "type": "string"
+        },
+        {
+          "const": "simulated",
+          "type": "string"
+        }
+      ]
+    },
+    "projectId": {
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "type": "string"
+    },
+    "runId": {
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{0,127}$",
+      "type": "string"
+    },
+    "schemaVersion": {
+      "const": "1.0.0",
+      "type": "string"
+    },
+    "targetScope": {
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "projectId",
+    "runId",
+    "targetScope",
+    "mode",
+    "collectedAt",
+    "expiresAt",
+    "checks"
+  ],
+  "type": "object"
+}

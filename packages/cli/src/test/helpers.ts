@@ -130,6 +130,88 @@ export function governance(runId: string) {
   };
 }
 
+export function availabilityEvidence(
+  runId: string,
+  projectId = "demo",
+  targetScope = "local",
+  mode: "native" | "simulated" = "simulated",
+  evidenceRefs = {
+    pricing: "1".repeat(64),
+    quota: "2".repeat(64),
+    regionalAvailability: "3".repeat(64),
+  },
+  expiresAt = "2099-01-01T00:00:00.000Z",
+  unavailableCheck?: "pricing" | "quota" | "regionalAvailability",
+  collectedAt = "2026-01-01T00:00:00.000Z",
+) {
+  return {
+    schemaVersion: CONTRACT_VERSION,
+    projectId,
+    runId,
+    targetScope,
+    mode,
+    collectedAt,
+    expiresAt,
+    checks: {
+      pricing: {
+        status: unavailableCheck === "pricing" ? ("unavailable" as const) : ("current" as const),
+        evidenceRef: evidenceRefs.pricing,
+      },
+      quota: {
+        status: unavailableCheck === "quota" ? ("unavailable" as const) : ("current" as const),
+        evidenceRef: evidenceRefs.quota,
+      },
+      regionalAvailability: {
+        status: unavailableCheck === "regionalAvailability" ? ("unavailable" as const) : ("current" as const),
+        evidenceRef: evidenceRefs.regionalAvailability,
+      },
+    },
+  };
+}
+
+export async function acceptAvailabilityEvidence(
+  service: ApexService,
+  runId: string,
+  projectId = "demo",
+  targetScope = "local",
+  options: {
+    evidenceTargetScope?: string;
+    expiresAt?: string;
+    unavailableCheck?: "pricing" | "quota" | "regionalAvailability";
+    collectedAt?: string;
+    mode?: "native" | "simulated";
+  } = {},
+): Promise<string> {
+  const refs = { pricing: "", quota: "", regionalAvailability: "" };
+  for (const source of ["pricing", "quota", "regionalAvailability"] as const) {
+    const accepted = (await service.acceptEvidence({
+      kind: `${source}-evidence`,
+      contentType: "application/json",
+      value: { source, mode: "simulated", status: "current" },
+      required: true,
+    })) as { hash?: string };
+    if (accepted.hash === undefined) throw new Error(`${source} evidence was not accepted`);
+    refs[source] = accepted.hash;
+  }
+  const accepted = (await service.acceptEvidence({
+    kind: "architecture-availability-v1",
+    contentType: "application/json",
+    value: availabilityEvidence(
+      runId,
+      projectId,
+      options.evidenceTargetScope ?? targetScope,
+      options.mode ?? "simulated",
+      refs,
+      options.expiresAt,
+      options.unavailableCheck,
+      options.collectedAt,
+    ),
+    required: true,
+  })) as { hash?: string };
+  if (accepted.hash === undefined) throw new Error("Availability evidence was not accepted");
+  return accepted.hash;
+}
+
 export function policyMap(runId: string, governanceHash: string) {
   return { schemaVersion: CONTRACT_VERSION, projectId: "demo", runId, governanceHash, mappings: [] };
 }
@@ -289,6 +371,7 @@ export async function prepareValidatedRun(service: ApexService, runId: string, t
     { kind: "review-findings", value: review(runId, "requirements", requirementHashes.outputHashes.requirements!) },
   ]);
   await service.decideGateNumber(1, "approved", "tester");
+  await acceptAvailabilityEvidence(service, runId);
   const architectureHashes = await complete("architecture", [
     { kind: "architecture", value: architecture(runId) },
     { kind: "cost-estimate", value: costEstimate(runId) },

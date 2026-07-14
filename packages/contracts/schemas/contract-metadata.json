@@ -4,6 +4,11 @@
     "maxBytes": 32768,
     "sensitivity": "confidential"
   },
+  "https://schemas.apexops.dev/architecture-availability-v1.json": {
+    "compatibility": "strict-v1",
+    "maxBytes": 131072,
+    "sensitivity": "confidential"
+  },
   "https://schemas.apexops.dev/architecture-v1.json": {
     "compatibility": "strict-v1",
     "maxBytes": 1048576,

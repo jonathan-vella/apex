@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import test from "node:test";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
@@ -18,6 +18,8 @@ import { createMcpServer } from "../mcp.js";
 import { ApexService, type TaskOutput } from "../service.js";
 import {
   architecture,
+  acceptAvailabilityEvidence,
+  availabilityEvidence,
   codegenBundle,
   costEstimate,
   governance,
@@ -64,6 +66,7 @@ async function reachCodegen(
     { kind: "review-findings", value: review(runId, "requirements", requirementHashes.requirements!) },
   ]);
   await service.decideGateNumber(1, "approved", "tester");
+  await acceptAvailabilityEvidence(service, runId);
 
   const architectureValues: TaskOutput[] = [
     { kind: "architecture", value: architecture(runId) },
@@ -293,6 +296,7 @@ test("task-bound workflow validators reject semantic and evidence mutations", as
     },
   ]);
   await service.decideGateNumber(1, "approved", "tester");
+  const availabilityHash = await acceptAvailabilityEvidence(service, runId);
 
   const architectureTask = await task(service, "architecture");
   const untraceableArchitecture = architecture(runId);
@@ -318,7 +322,14 @@ test("task-bound workflow validators reject semantic and evidence mutations", as
     "schema:architecture-v1",
     "business:requirements-traceability",
     "business:cost-arithmetic",
+    "business:availability-current",
   ]);
+  assert.deepEqual((architectureCompleted?.payload as { validatorEvidenceRefs?: unknown }).validatorEvidenceRefs, {
+    "business:availability-current": availabilityHash,
+  });
+  assert.deepEqual((architectureCompleted?.payload as { validatorEvidenceModes?: unknown }).validatorEvidenceModes, {
+    "business:availability-current": "simulated",
+  });
   await complete(service, "architecture-review", [
     {
       kind: "review-findings",
@@ -419,6 +430,113 @@ test("task-bound workflow validators reject semantic and evidence mutations", as
     /bicep:format/,
   );
   await service.completeTaskOutputs(validationTask, [{ kind: "validation-evidence", value: validEvidence }]);
+});
+
+test("architecture requires current scope-bound availability evidence", async () => {
+  const root = await tempRoot();
+  const service = new ApexService(root);
+  const { runId } = await service.init({ projectId: "demo" });
+  await service.nextTask();
+  const requirementHashes = await complete(service, "requirements", [
+    { kind: "requirements", value: requirements() },
+    { kind: "sku-manifest", value: skuManifest(sha256Json(requirements())) },
+  ]);
+  await complete(service, "requirements-review", [
+    {
+      kind: "review-findings",
+      value: review(runId, "requirements", requirementHashes.requirements!),
+    },
+  ]);
+  await service.decideGateNumber(1, "approved", "tester");
+
+  const malformedPath = join(root, "invalid-availability.json");
+  await writeFile(malformedPath, "{", "utf8");
+  await assert.rejects(
+    service.acceptEvidence({
+      kind: "architecture-availability-v1",
+      contentType: "application/json",
+      file: malformedPath,
+      required: true,
+    }),
+    /not valid JSON/,
+  );
+
+  await assert.rejects(
+    service.acceptEvidence({
+      kind: "architecture-availability-v1",
+      contentType: "application/json",
+      value: availabilityEvidence(runId),
+      required: true,
+    }),
+    /source evidence is unavailable/,
+  );
+  const architectureOutputs: TaskOutput[] = [
+    { kind: "architecture", value: architecture(runId) },
+    { kind: "cost-estimate", value: costEstimate(runId) },
+  ];
+  await assert.rejects(
+    service.completeTaskOutputs(await task(service, "architecture"), architectureOutputs),
+    /business:availability-current/,
+  );
+
+  const staleHash = await acceptAvailabilityEvidence(service, runId, "demo", "local", {
+    expiresAt: "2020-01-01T00:00:00.000Z",
+  });
+  const staleTask = await service.nextTask();
+  assert.equal(staleTask.status, "task");
+  if (staleTask.status !== "task") return;
+  assert.ok(staleTask.task.inputRefs.includes(staleHash));
+  await assert.rejects(
+    service.completeTaskOutputs(staleTask.task.taskId, architectureOutputs),
+    /business:availability-current/,
+  );
+
+  await acceptAvailabilityEvidence(service, runId, "demo", "local", {
+    collectedAt: "2099-01-01T00:00:00.000Z",
+  });
+  await assert.rejects(
+    service.completeTaskOutputs(await task(service, "architecture"), architectureOutputs),
+    (error: unknown) =>
+      error instanceof ApexError && JSON.stringify(error.details).includes("future collection timestamp"),
+  );
+
+  await acceptAvailabilityEvidence(service, runId, "demo", "local", {
+    evidenceTargetScope: "other-scope",
+  });
+  await assert.rejects(
+    service.completeTaskOutputs(await task(service, "architecture"), architectureOutputs),
+    /business:availability-current/,
+  );
+
+  await assert.rejects(
+    acceptAvailabilityEvidence(service, runId, "demo", "local", { mode: "native" }),
+    /authorized capability adapter/,
+  );
+
+  await acceptAvailabilityEvidence(service, runId, "demo", "local", { unavailableCheck: "quota" });
+  await assert.rejects(
+    service.completeTaskOutputs(await task(service, "architecture"), architectureOutputs),
+    /business:availability-current/,
+  );
+
+  const currentHash = await acceptAvailabilityEvidence(service, runId);
+  const currentTask = await service.nextTask();
+  assert.equal(currentTask.status, "task");
+  if (currentTask.status !== "task") return;
+  assert.ok(currentTask.task.inputRefs.includes(currentHash));
+  await acceptAvailabilityEvidence(service, runId, "demo", "local", {
+    expiresAt: "2020-01-01T00:00:00.000Z",
+  });
+  await assert.rejects(
+    service.completeTaskOutputs(currentTask.task.taskId, architectureOutputs),
+    (error: unknown) => error instanceof Error && /stale/i.test(error.message),
+  );
+  const replacementHash = await acceptAvailabilityEvidence(service, runId);
+  const replacementTask = await service.nextTask();
+  assert.equal(replacementTask.status, "task");
+  if (replacementTask.status !== "task") return;
+  assert.ok(replacementTask.task.inputRefs.includes(replacementHash));
+  await service.completeTaskOutputs(replacementTask.task.taskId, architectureOutputs);
 });
 
 for (const track of ["bicep", "terraform"] as const) {
