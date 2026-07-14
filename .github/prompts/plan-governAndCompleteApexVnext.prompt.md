@@ -10,18 +10,18 @@ or self-modification loop.
 
 **Operating model**
 
-| Concern | Source of truth | Rule |
-| --- | --- | --- |
-| Product scope and acceptance | `docs/vnext/PRD.md` | Stable requirements with IDs; changes require a decision entry |
-| Architecture and delivery sequence | `docs/vnext/ROADMAP.md` | Outcome-based workstreams and dependencies, not daily status |
-| Daily work state | GitHub Issues | One issue per executable slice, regression, spike, or decision |
-| Prioritization and views | GitHub Project `APEX vNext` | A view over issues and PRs; never a second backlog |
-| Risks, assumptions, defects, regressions, dependencies | `docs/vnext/REGISTER.md` | High-signal release/project concerns only; actionable work links an issue |
-| Decisions | `docs/vnext/DECISIONS.md` plus ADRs when warranted | Append-only index; consequential decisions get individual ADRs |
-| Resume/checkpoint | `docs/vnext/PROJECT.md` | Current milestone, integration head/PR, blockers, next issues, and last verified checks |
-| Historical v1 baseline | `docs/vnext/phase-0a/**` | Frozen evidence; do not repurpose it as the live tracker |
-| Runtime project state | `.apex/**` and its contracts | Product-run state only; it does not manage vNext engineering work |
-| Chat/session memory | `/memories/session/**` | Convenience only; never authoritative across devices |
+| Concern                                                | Source of truth                                    | Rule                                                                                    |
+| ------------------------------------------------------ | -------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| Product scope and acceptance                           | `docs/vnext/PRD.md`                                | Stable requirements with IDs; changes require a decision entry                          |
+| Architecture and delivery sequence                     | `docs/vnext/ROADMAP.md`                            | Outcome-based workstreams and dependencies, not daily status                            |
+| Daily work state                                       | GitHub Issues                                      | One issue per executable slice, regression, spike, or decision                          |
+| Prioritization and views                               | GitHub Project `APEX vNext`                        | A view over issues and PRs; never a second backlog                                      |
+| Risks, assumptions, defects, regressions, dependencies | `docs/vnext/REGISTER.md`                           | High-signal release/project concerns only; actionable work links an issue               |
+| Decisions                                              | `docs/vnext/DECISIONS.md` plus ADRs when warranted | Append-only index; consequential decisions get individual ADRs                          |
+| Resume/checkpoint                                      | `docs/vnext/PROJECT.md`                            | Current milestone, integration head/PR, blockers, next issues, and last verified checks |
+| Historical v1 baseline                                 | `docs/vnext/phase-0a/**`                           | Frozen evidence; do not repurpose it as the live tracker                                |
+| Runtime project state                                  | `.apex/**` and its contracts                       | Product-run state only; it does not manage vNext engineering work                       |
+| Chat/session memory                                    | `/memories/session/**`                             | Convenience only; never authoritative across devices                                    |
 
 **Steps**
 
