@@ -129,7 +129,7 @@ const ownershipGroups: readonly OwnershipGroup[] = [
   {
     ids: ["deploy:exact-approved-operation", "deploy:stale-writer-rejection"],
     owner: "@apex/cli",
-    entrypoint: "ApexService.deploy",
+    entrypoint: "ApexService.validateDeployValidators",
     execution: "inline",
     boundary: "deploy",
   },

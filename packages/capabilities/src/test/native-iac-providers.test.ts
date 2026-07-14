@@ -97,11 +97,23 @@ class FakeRunner implements ProcessRunnerLike {
 
 class MemoryBindingStore {
   readonly values = new Map<string, PersistedPreviewBinding>();
+  readonly latest = new Map<string, PersistedPreviewBinding>();
   async save(previewHash: string, binding: PersistedPreviewBinding): Promise<void> {
     this.values.set(previewHash, binding);
+    this.latest.set(
+      `${binding.preview.projectId}\u0000${binding.preview.runId}\u0000${binding.preview.operation}`,
+      binding,
+    );
   }
   async load(previewHash: string): Promise<PersistedPreviewBinding | undefined> {
     return this.values.get(previewHash);
+  }
+  async loadLatest(
+    projectId: string,
+    runId: string,
+    operation: "apply" | "destroy",
+  ): Promise<PersistedPreviewBinding | undefined> {
+    return this.latest.get(`${projectId}\u0000${runId}\u0000${operation}`);
   }
 }
 
@@ -208,7 +220,13 @@ test("native Bicep lifecycle binds fallback preview inputs/state and exact stack
   const provider = new NativeBicepProvider(options);
   const applyPreview = await provider.previewApply(request());
   const restarted = new NativeBicepProvider(options);
-  await restarted.apply(applyPreview, approval(applyPreview), authority);
+  const applyOperation = await restarted.apply(applyPreview, approval(applyPreview), authority);
+  assert.deepEqual(restarted.executionEvidence(applyOperation.operationId), {
+    mode: "native",
+    operationId: applyOperation.operationId,
+    previewHash: applyPreview.previewHash,
+    validatorIds: ["deploy:bicep-stack-ownership"],
+  });
   assert.equal(
     runner.requests.some((entry) => entry.args[2] === "create"),
     true,
@@ -248,6 +266,16 @@ test("native Bicep lifecycle binds fallback preview inputs/state and exact stack
   );
 
   current = authority;
+
+  const superseded = await provider.previewApply(request({ runId: "superseded" }));
+  await provider.previewApply(
+    request({ runId: "superseded", commit: "e".repeat(64), dependencyRevision: "e".repeat(64) }),
+  );
+  const supersededRestart = new NativeBicepProvider(options);
+  await assert.rejects(
+    supersededRestart.apply(superseded, approval(superseded), authority),
+    (error) => error instanceof IacProviderError && error.code === "PREVIEW_SUPERSEDED",
+  );
   const mutationPreview = await provider.previewApply(request({ runId: "mutated" }));
   await writeFile(join(root, "main.bicep"), "targetScope = 'subscription'\n");
   await assert.rejects(
@@ -351,7 +379,13 @@ test("native Terraform encrypts immediately and restores exact-plan binding afte
   assert.equal("savedPlanPath" in (provider.attestation(applyPreview.previewHash) ?? {}), false);
 
   const restarted = new NativeTerraformProvider(options);
-  await restarted.apply(applyPreview, approval(applyPreview), authority);
+  const applyOperation = await restarted.apply(applyPreview, approval(applyPreview), authority);
+  assert.deepEqual(restarted.executionEvidence(applyOperation.operationId), {
+    mode: "native",
+    operationId: applyOperation.operationId,
+    previewHash: applyPreview.previewHash,
+    validatorIds: ["deploy:exact-saved-plan", "deploy:state-lineage-and-serial"],
+  });
   const exactApply = runner.requests.at(-1);
   assert.equal(exactApply?.args[0], "apply");
   assert.match(exactApply?.args[2] ?? "", /apex-local-plan-/);

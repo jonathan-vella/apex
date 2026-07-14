@@ -122,7 +122,19 @@ async function configuredProviders(
       ownerEpoch: run.ownerEpoch,
       artifacts,
     });
-    return { head: dependencyRevision, dependencyRevision, ownerEpoch: run.ownerEpoch, recipientIdentity: "local" };
+    let recipientIdentity = "local";
+    try {
+      const ownership = JSON.parse(await readFile(join(runDirectory, "ownership.json"), "utf8")) as {
+        ownerId?: unknown;
+        ownerEpoch?: unknown;
+      };
+      if (ownership.ownerEpoch === run.ownerEpoch && typeof ownership.ownerId === "string") {
+        recipientIdentity = ownership.ownerId;
+      }
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+    }
+    return { head: dependencyRevision, dependencyRevision, ownerEpoch: run.ownerEpoch, recipientIdentity };
   };
   const providers: Partial<Record<"bicep" | "terraform", IacProvider>> = {};
   if (config.bicep !== undefined) {

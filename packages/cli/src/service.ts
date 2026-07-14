@@ -35,6 +35,7 @@ import {
   type LogicalResourceManifestV1,
   type ImplementationIntentV1,
   type Operation,
+  type OperationRecordV1,
   type ProjectId,
   type ResourceInventoryV1,
   type ReviewFindingsV1,
@@ -54,6 +55,7 @@ import {
   generateTerraformTree,
   type CapabilityPackInstallOptions,
   type IacProvider,
+  type ProviderExecutionEvidence,
   type ProcessRunnerLike,
 } from "@apex/capabilities";
 import {
@@ -95,6 +97,7 @@ import {
   registerWorkflowValidators,
   taskWorkflowValidatorInput,
   type WorkflowGateValidatorContext,
+  type WorkflowDeployValidatorContext,
   type WorkflowPreviewValidatorContext,
   type WorkflowTaskValidatorContext,
 } from "./workflow-validators.js";
@@ -994,6 +997,7 @@ export class ApexService {
     if (gateNumber === 4 && previewHash === undefined) {
       throw new ApexError("APEX_VALIDATION", "Gate 4 requires a deployment preview", EXIT_CODES.validation);
     }
+    const recipientIdentity = await this.currentRecipientIdentity(run);
     const decidedAt = this.clock().toISOString();
     const approval: ApprovalEvidenceV1 = {
       schemaVersion: CONTRACT_VERSION,
@@ -1003,7 +1007,7 @@ export class ApexService {
       decision,
       actor,
       mechanism: "tty",
-      recipientIdentity: "local",
+      recipientIdentity,
       dependencyHash: gate.dependencyHash,
       ...(previewHash === undefined ? {} : { previewHash }),
       writerEpoch: run.ownerEpoch,
@@ -1183,6 +1187,36 @@ export class ApexService {
     if (previewHash === undefined || previewObjectHash === undefined || approvalHash === undefined) {
       throw new ApexError("APEX_AUTHORIZATION", "Preview and Gate 4 approval are required", EXIT_CODES.authorization);
     }
+    const completed = [...events]
+      .reverse()
+      .find(
+        (event) =>
+          event.type === "deployment.completed" &&
+          (event.payload as { previewHash?: unknown }).previewHash === previewHash,
+      );
+    if (completed !== undefined) {
+      const payload = completed.payload as { operationHash?: unknown; inventoryHash?: unknown };
+      if (typeof payload.operationHash === "string" && typeof payload.inventoryHash === "string") {
+        return {
+          operation: await this.objects.getJson<OperationRecordV1>(payload.operationHash),
+          inventory: await this.objects.getJson<ResourceInventoryV1>(payload.inventoryHash),
+        };
+      }
+    }
+    const incompleteExecution = [...events]
+      .reverse()
+      .find(
+        (event) =>
+          (event.type === "deployment.executed" || event.type === "deployment.indeterminate") &&
+          (event.payload as { previewHash?: unknown }).previewHash === previewHash,
+      );
+    if (incompleteExecution !== undefined) {
+      throw new ApexError(
+        "APEX_CONFLICT",
+        "Deployment outcome is incomplete or indeterminate; run reconcile before retrying",
+        EXIT_CODES.conflict,
+      );
+    }
     if (expectedPreviewHash !== undefined && expectedPreviewHash !== previewHash) {
       throw new ApexError("APEX_STALE", "Requested preview hash is not current", EXIT_CODES.stale);
     }
@@ -1208,6 +1242,18 @@ export class ApexService {
     }
     const providerName = [...events].reverse().find((event) => event.type === "preview.created")?.payload as
       { provider?: unknown } | undefined;
+    const provider =
+      providerName?.provider === "bicep" || providerName?.provider === "terraform" ? providerName.provider : "fake";
+    const commonValidatorIds = await this.validateDeployValidators(
+      run,
+      provider,
+      preview,
+      approval,
+      previewHash,
+      dependencyRevision,
+      "pre",
+    );
+    const declaredValidatorIds = await this.deployValidatorIds(run);
     if (providerName?.provider === "bicep" || providerName?.provider === "terraform") {
       const provider = this.providers[providerName.provider];
       if (provider === undefined)
@@ -1216,33 +1262,55 @@ export class ApexService {
           `${providerName.provider} provider is no longer configured`,
           EXIT_CODES.validation,
         );
-      const operation =
-        preview.operation === "apply"
-          ? await provider.apply(preview, approval, {
-              head: preview.commit,
-              dependencyRevision,
-              ownerEpoch: run.ownerEpoch,
-              recipientIdentity: approval.recipientIdentity ?? "local",
-            })
-          : await provider.destroy(preview, approval, {
-              head: preview.commit,
-              dependencyRevision,
-              ownerEpoch: run.ownerEpoch,
-              recipientIdentity: approval.recipientIdentity ?? "local",
-            });
-      this.assertValid("operation", operation);
-      const operationHash = await this.objects.putJson(operation);
-      const inventory = await provider.inventory(run.projectId, run.runId);
-      this.assertValid("inventory", inventory);
-      const inventoryHash = await this.objects.putJson(inventory);
-      await this.append(run, "deployment.completed", {
-        operationHash,
-        inventoryHash,
+      let operation: OperationRecordV1;
+      try {
+        operation =
+          preview.operation === "apply"
+            ? await provider.apply(preview, approval, {
+                head: preview.commit,
+                dependencyRevision,
+                ownerEpoch: run.ownerEpoch,
+                recipientIdentity: approval.recipientIdentity ?? "local",
+              })
+            : await provider.destroy(preview, approval, {
+                head: preview.commit,
+                dependencyRevision,
+                ownerEpoch: run.ownerEpoch,
+                recipientIdentity: approval.recipientIdentity ?? "local",
+              });
+      } catch (error) {
+        await this.append(run, "deployment.indeterminate", {
+          provider: providerName.provider,
+          previewHash,
+          approvalHash,
+          preValidatorIds: commonValidatorIds,
+          error: error instanceof Error ? error.message : String(error),
+        });
+        throw error;
+      }
+      const executionEvidence = provider.executionEvidence?.(operation.operationId);
+      await this.append(run, "deployment.executed", {
+        provider: providerName.provider,
         previewHash,
         approvalHash,
-        provider: providerName.provider,
+        operation: operation as unknown as JsonValue,
+        preValidatorIds: commonValidatorIds,
+        ...(executionEvidence === undefined ? {} : { executionEvidence: executionEvidence as unknown as JsonValue }),
       });
-      return { operation, inventory };
+      return this.completeNativeDeployment(
+        run,
+        events,
+        providerName.provider,
+        provider,
+        preview,
+        approval,
+        previewHash,
+        approvalHash,
+        dependencyRevision,
+        commonValidatorIds,
+        operation,
+        executionEvidence,
+      );
     }
     const now = this.clock().toISOString();
     const operation = {
@@ -1254,7 +1322,7 @@ export class ApexService {
       operation: preview.operation,
       state: "succeeded" as const,
       previewHash,
-      approvalHash,
+      approvalHash: sha256Json(approval),
       ownerEpoch: run.ownerEpoch,
       updatedAt: now,
     };
@@ -1279,7 +1347,82 @@ export class ApexService {
     };
     this.assertValid("inventory", inventory);
     const inventoryHash = await this.objects.putJson(inventory);
-    await this.append(run, "deployment.completed", { operationHash, inventoryHash, previewHash, approvalHash });
+    const omittedValidatorIds = declaredValidatorIds.filter((id) => !commonValidatorIds.includes(id));
+    await this.append(run, "deployment.completed", {
+      operationHash,
+      inventoryHash,
+      previewHash,
+      approvalHash,
+      validatorIds: commonValidatorIds,
+      preValidatorIds: commonValidatorIds,
+      postValidatorIds: [],
+      ...(omittedValidatorIds.length === 0 ? {} : { omittedValidatorIds }),
+      evidenceMode: "simulated",
+    });
+    return { operation, inventory };
+  }
+
+  private async completeNativeDeployment(
+    run: RunConfigV1,
+    events: Awaited<ReturnType<EventJournal["replay"]>>,
+    providerName: "bicep" | "terraform",
+    provider: IacProvider,
+    preview: DeploymentPreviewV1,
+    approval: ApprovalEvidenceV1,
+    previewHash: string,
+    approvalHash: string,
+    dependencyRevision: string,
+    commonValidatorIds: string[],
+    operation: OperationRecordV1,
+    executionEvidence?: ProviderExecutionEvidence,
+  ): Promise<{ operation: unknown; inventory: ResourceInventoryV1 }> {
+    this.assertValid("operation", operation);
+    let attestation: ExecutionPlanAttestationV1 | undefined;
+    if (providerName === "terraform") {
+      const attestationHash = this.latestPayloadHash(events, "preview.created", "attestationHash");
+      if (attestationHash !== undefined) {
+        attestation = await this.objects.getJson<ExecutionPlanAttestationV1>(attestationHash);
+        this.assertValid("execution-plan-attestation", attestation);
+      }
+    }
+    const providerValidatorIds = await this.validateDeployValidators(
+      run,
+      providerName,
+      preview,
+      approval,
+      previewHash,
+      dependencyRevision,
+      "post",
+      operation,
+      executionEvidence,
+      attestation,
+    );
+    if (
+      executionEvidence === undefined ||
+      JSON.stringify(executionEvidence.validatorIds) !== JSON.stringify(providerValidatorIds)
+    ) {
+      throw new ApexError(
+        "APEX_VALIDATION",
+        "Provider execution receipt validator IDs do not match the workflow manifest",
+        EXIT_CODES.validation,
+      );
+    }
+    const operationHash = await this.objects.putJson(operation);
+    const inventory = await provider.inventory(run.projectId, run.runId);
+    this.assertValid("inventory", inventory);
+    const inventoryHash = await this.objects.putJson(inventory);
+    const declaredValidatorIds = await this.deployValidatorIds(run);
+    await this.append(run, "deployment.completed", {
+      operationHash,
+      inventoryHash,
+      previewHash,
+      approvalHash,
+      provider: providerName,
+      validatorIds: declaredValidatorIds.filter((id) => [...commonValidatorIds, ...providerValidatorIds].includes(id)),
+      preValidatorIds: commonValidatorIds,
+      postValidatorIds: providerValidatorIds,
+      evidenceMode: "native",
+    });
     return { operation, inventory };
   }
 
@@ -1538,6 +1681,14 @@ export class ApexService {
     return new WriterTransferStore(this.projects.runDirectory(run.projectId, run.runId), this.clock).currentOwnership();
   }
 
+  private async currentRecipientIdentity(run: RunConfigV1): Promise<string> {
+    const ownership = await new WriterTransferStore(
+      this.projects.runDirectory(run.projectId, run.runId),
+      this.clock,
+    ).currentOwnership();
+    return ownership?.ownerEpoch === run.ownerEpoch ? ownership.ownerId : "local";
+  }
+
   async acceptEvidence(input: {
     kind: string;
     contentType: string;
@@ -1641,9 +1792,68 @@ export class ApexService {
     return { status: await this.status(), doctor: await this.doctor() };
   }
   async reconcile(): Promise<unknown> {
-    const inventory = await this.inventory();
-    await this.append(await this.currentRun(), "deployment.reconciled", { deploymentHash: inventory.deploymentHash });
-    return inventory;
+    const run = await this.currentRun();
+    const events = await this.journal(run).replay();
+    const completedInventoryHash = this.latestPayloadHash(events, "deployment.completed", "inventoryHash");
+    if (completedInventoryHash !== undefined) {
+      const inventory = await this.objects.getJson<ResourceInventoryV1>(completedInventoryHash);
+      await this.append(run, "deployment.reconciled", { deploymentHash: inventory.deploymentHash });
+      return inventory;
+    }
+    const executed = [...events].reverse().find((event) => event.type === "deployment.executed");
+    if (executed === undefined)
+      throw new ApexError("APEX_NOT_FOUND", "No deployment execution exists for this run", EXIT_CODES.notFound);
+    const payload = executed.payload as {
+      provider?: unknown;
+      previewHash?: unknown;
+      approvalHash?: unknown;
+      operation?: unknown;
+      preValidatorIds?: unknown;
+      executionEvidence?: unknown;
+    };
+    if (
+      (payload.provider !== "bicep" && payload.provider !== "terraform") ||
+      typeof payload.previewHash !== "string" ||
+      typeof payload.approvalHash !== "string" ||
+      payload.operation === null ||
+      typeof payload.operation !== "object" ||
+      !Array.isArray(payload.preValidatorIds)
+    ) {
+      throw new ApexError("APEX_VALIDATION", "Deployment execution receipt is invalid", EXIT_CODES.validation);
+    }
+    const provider = this.providers[payload.provider];
+    if (provider === undefined)
+      throw new ApexError(
+        "APEX_VALIDATION",
+        `${payload.provider} provider is required to reconcile deployment inventory`,
+        EXIT_CODES.validation,
+      );
+    const previewObjectHash = this.latestPayloadHash(
+      events,
+      "preview.created",
+      "previewObjectHash",
+      (candidate) => candidate.previewHash === payload.previewHash,
+    );
+    if (previewObjectHash === undefined)
+      throw new ApexError("APEX_VALIDATION", "Executed deployment preview object is missing", EXIT_CODES.validation);
+    const preview = await this.objects.getJson<DeploymentPreviewV1>(previewObjectHash);
+    const approval = await this.objects.getJson<ApprovalEvidenceV1>(payload.approvalHash);
+    const completed = await this.completeNativeDeployment(
+      run,
+      events,
+      payload.provider,
+      provider,
+      preview,
+      approval,
+      payload.previewHash,
+      payload.approvalHash,
+      preview.dependencyRevision,
+      payload.preValidatorIds.filter((id): id is string => typeof id === "string"),
+      payload.operation as OperationRecordV1,
+      payload.executionEvidence as ProviderExecutionEvidence | undefined,
+    );
+    await this.append(run, "deployment.reconciled", { deploymentHash: completed.inventory.deploymentHash });
+    return completed.inventory;
   }
   async setup(live = false): Promise<unknown> {
     return this.doctor(false, false, live);
@@ -1879,6 +2089,9 @@ export class ApexService {
         continue;
       }
       if (descriptor.id === "diagnosis" && !events.some(({ type }) => type === "deployment.completed")) {
+        if (events.some(({ type }) => type === "deployment.executed" || type === "deployment.indeterminate")) {
+          return { blockers: ["Deployment executed but requires reconciliation"] };
+        }
         const preview = this.latestPayloadHash(events, "preview.created", "previewHash");
         if (preview === undefined) return { blockers: ["Deployment preview is required"] };
         if (!this.gateApproved(run, 4)) return { blockers: ["Gate 4 approval is required"] };
@@ -2356,6 +2569,7 @@ export class ApexService {
       reviewBlockers: reviewNodes.flatMap((reviewNode) => this.reviewBlockers(events, reviewNode)),
       currentDependencyRevision: this.dependencyRevision(run, events),
       legacyRequirements,
+      currentRecipientIdentity: await this.currentRecipientIdentity(run),
       ...(expectedDependencyHash === undefined ? {} : { expectedDependencyHash }),
       ...(preview === undefined ? {} : { preview }),
     };
@@ -2401,6 +2615,56 @@ export class ApexService {
     };
     for (const id of validatorIds) this.assertValid(id, context);
     return { validatorIds, omittedValidatorIds, evidenceMode: provider === "fake" ? "simulated" : "native" };
+  }
+
+  private async validateDeployValidators(
+    run: RunConfigV1,
+    provider: "fake" | "bicep" | "terraform",
+    preview: DeploymentPreviewV1,
+    approval: ApprovalEvidenceV1,
+    expectedPreviewHash: string,
+    currentDependencyRevision: string,
+    phase: "pre" | "post",
+    operation?: OperationRecordV1,
+    executionEvidence?: ProviderExecutionEvidence,
+    attestation?: ExecutionPlanAttestationV1,
+  ): Promise<string[]> {
+    const workflow = new WorkflowEngine(
+      JSON.parse(await readFile(join(this.root, ".apex", "runtime", "workflow.v1.json"), "utf8")),
+    );
+    const nodeId = `deploy-${run.iacTool}`;
+    const node = workflow.manifest.nodes.find(({ id }) => id === nodeId);
+    if (node === undefined) throw new Error(`Workflow deployment ${nodeId} has no manifest node`);
+    const owner = phase === "pre" ? "@apex/cli" : "@apex/capabilities";
+    const validatorIds = node.validators.filter((id) => {
+      const ownership = workflowValidatorOwnership(id);
+      return ownership?.boundary === "deploy" && ownership.owner === owner;
+    });
+    const context: WorkflowDeployValidatorContext = {
+      now: this.clock().toISOString(),
+      run,
+      provider,
+      preview,
+      approval,
+      expectedPreviewHash,
+      currentDependencyRevision,
+      ...(operation === undefined ? {} : { operation }),
+      ...(executionEvidence === undefined ? {} : { executionEvidence }),
+      ...(attestation === undefined ? {} : { attestation }),
+    };
+    for (const id of validatorIds) this.assertValid(id, context);
+    return validatorIds;
+  }
+
+  private async deployValidatorIds(run: RunConfigV1): Promise<string[]> {
+    const workflow = new WorkflowEngine(
+      JSON.parse(await readFile(join(this.root, ".apex", "runtime", "workflow.v1.json"), "utf8")),
+    );
+    return (
+      workflow.manifest.nodes
+        .find(({ id }) => id === `deploy-${run.iacTool}`)
+        ?.validators.filter((id) => workflowValidatorOwnership(id)?.boundary === "deploy") ?? []
+    );
   }
 
   private initialSkuManifest(run: RunConfigV1, requirements: unknown): unknown {

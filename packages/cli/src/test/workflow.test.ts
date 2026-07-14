@@ -39,6 +39,23 @@ test("full requirements to fake deploy workflow survives restart", async () => {
   ]);
   const deployed = await service.deploy(preview.previewHash);
   assert.equal(deployed.inventory.resources.length, 1);
+  const deploymentEvents = await new EventJournal(
+    join(root, ".apex", "projects", "demo", "runs", initialized.runId, "journal"),
+  ).replay();
+  const completed = [...deploymentEvents].reverse().find((event) => event.type === "deployment.completed");
+  assert.deepEqual((completed?.payload as { validatorIds?: unknown }).validatorIds, [
+    "deploy:exact-approved-operation",
+    "deploy:stale-writer-rejection",
+  ]);
+  assert.deepEqual((completed?.payload as { preValidatorIds?: unknown }).preValidatorIds, [
+    "deploy:exact-approved-operation",
+    "deploy:stale-writer-rejection",
+  ]);
+  assert.deepEqual((completed?.payload as { postValidatorIds?: unknown }).postValidatorIds, []);
+  assert.deepEqual((completed?.payload as { omittedValidatorIds?: unknown }).omittedValidatorIds, [
+    "deploy:bicep-stack-ownership",
+  ]);
+  assert.equal((completed?.payload as { evidenceMode?: unknown }).evidenceMode, "simulated");
 
   const restarted = new ApexService(root);
   assert.equal((await restarted.inventory()).deploymentHash, deployed.inventory.deploymentHash);
@@ -147,4 +164,24 @@ test("deploy rejects a preview and approval from an older owner epoch", async ()
     service.deploy(preview.previewHash),
     (error: unknown) => error instanceof ApexError && error.code === "APEX_STALE",
   );
+});
+
+test("Gate 4 approval binds the current transferred writer identity", async () => {
+  const service = new ApexService(await tempRoot());
+  const initialized = await service.init({ projectId: "demo" });
+  await prepareValidatedRun(service, initialized.runId, "bicep");
+  const transfer = (await service.createWriterTransfer({
+    repository: "owner/repo",
+    branch: "feat/run",
+    commit: "abc",
+    workflowId: "deploy",
+    sender: "local",
+    recipient: "ci",
+    currentHead: "abc",
+    ttlMs: 60_000,
+  })) as { hash: string };
+  await service.acceptWriterTransfer(transfer.hash, "ci", "abc");
+  await service.preview({ operation: "apply", provider: "fake" });
+  const approval = await service.decideGateNumber(4, "approved", "tester");
+  assert.equal(approval.recipientIdentity, "ci");
 });

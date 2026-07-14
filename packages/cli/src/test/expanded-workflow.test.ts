@@ -117,11 +117,15 @@ async function reachValidation(service: ApexService, runId: string, track: "bice
 
 function terraformPreviewProvider(
   now: Date,
-  mutation?: "input-hash" | "operation" | "state",
+  mutation?:
+    "input-hash" | "operation" | "state" | "apply-error" | "missing-receipt" | "extra-receipt" | "inventory-once",
 ): IacProvider & {
   attestation(previewHash: string): ExecutionPlanAttestationV1 | undefined;
 } {
   let attestation: ExecutionPlanAttestationV1 | undefined;
+  let executionEvidence:
+    { mode: "native"; operationId: string; previewHash: string; validatorIds: string[] } | undefined;
+  let inventoryCalls = 0;
   const createPreview = async (request: PreviewRequest): Promise<DeploymentPreviewV1> => {
     const plan = {
       planDigest: "1".repeat(64),
@@ -188,17 +192,124 @@ function terraformPreviewProvider(
     validate: async () => [],
     previewApply: createPreview,
     previewDestroy: createPreview,
-    apply: async () => {
-      throw new Error("not used");
+    apply: async (preview, approval, authority) => {
+      if (mutation === "apply-error") throw new Error("provider apply outcome is unknown");
+      const operation = {
+        schemaVersion: "1.0.0" as const,
+        operationId: "terraform-operation",
+        projectId: preview.projectId,
+        runId: preview.runId,
+        providerOperationId: "terraform-plan:test",
+        operation: preview.operation,
+        state: "succeeded" as const,
+        previewHash: preview.previewHash,
+        approvalHash: sha256Json(approval),
+        ownerEpoch: authority.ownerEpoch,
+        updatedAt: now.toISOString(),
+      };
+      if (mutation !== "missing-receipt") {
+        executionEvidence = {
+          mode: "native",
+          operationId: operation.operationId,
+          previewHash: preview.previewHash,
+          validatorIds: [
+            "deploy:exact-saved-plan",
+            "deploy:state-lineage-and-serial",
+            ...(mutation === "extra-receipt" ? ["deploy:undeclared"] : []),
+          ],
+        };
+      }
+      return operation;
     },
     destroy: async () => {
       throw new Error("not used");
     },
-    inventory: async () => {
-      throw new Error("not used");
+    inventory: async (projectId, runId) => {
+      inventoryCalls += 1;
+      if (mutation === "inventory-once" && inventoryCalls === 1) throw new Error("inventory unavailable");
+      return {
+        schemaVersion: "1.0.0" as const,
+        projectId,
+        runId,
+        deploymentHash: "9".repeat(64),
+        collectedAt: now.toISOString(),
+        resources: [],
+      };
     },
     reconcile: async () => undefined,
     attestation: (previewHash) => (attestation?.previewHash === previewHash ? attestation : undefined),
+    executionEvidence: (operationId) =>
+      executionEvidence?.operationId === operationId ? executionEvidence : undefined,
+  };
+}
+
+function bicepPreviewProvider(now: Date): IacProvider {
+  let executionEvidence:
+    { mode: "native"; operationId: string; previewHash: string; validatorIds: string[] } | undefined;
+  const createPreview = async (request: PreviewRequest): Promise<DeploymentPreviewV1> => {
+    const base = {
+      schemaVersion: "1.0.0" as const,
+      projectId: request.projectId,
+      runId: request.runId,
+      environment: request.environment as "dev",
+      track: "bicep" as const,
+      operation: "apply" as const,
+      target: request.target,
+      commit: request.commit,
+      dependencyRevision: request.dependencyRevision,
+      ownerEpoch: request.ownerEpoch,
+      inputHash: request.inputHash,
+      iacHash: request.iacHash,
+      policyHash: request.policyHash,
+      artifactHash: "8".repeat(64),
+      changes: request.resources.map(({ resourceId }) => ({ resourceId, action: "create" as const, material: true })),
+      blockers: [],
+      createdAt: now.toISOString(),
+      expiresAt: new Date(now.getTime() + request.ttlMs).toISOString(),
+    };
+    return { ...base, previewHash: sha256Json(base) };
+  };
+  return {
+    track: "bicep",
+    validate: async () => [],
+    previewApply: createPreview,
+    previewDestroy: createPreview,
+    apply: async (preview, approval, authority) => {
+      const operation = {
+        schemaVersion: "1.0.0" as const,
+        operationId: "bicep-operation",
+        projectId: preview.projectId,
+        runId: preview.runId,
+        providerOperationId: "/stack/workload",
+        operation: preview.operation,
+        state: "succeeded" as const,
+        previewHash: preview.previewHash,
+        approvalHash: sha256Json(approval),
+        ownerEpoch: authority.ownerEpoch,
+        updatedAt: now.toISOString(),
+      };
+      executionEvidence = {
+        mode: "native",
+        operationId: operation.operationId,
+        previewHash: preview.previewHash,
+        validatorIds: ["deploy:bicep-stack-ownership"],
+      };
+      return operation;
+    },
+    destroy: async () => {
+      throw new Error("not used");
+    },
+    inventory: async (projectId, runId) => ({
+      schemaVersion: "1.0.0",
+      projectId,
+      runId,
+      deploymentHash: "7".repeat(64),
+      collectedAt: now.toISOString(),
+      resources: [],
+    }),
+    reconcile: async () => undefined,
+    executionEvidence: (operationId) =>
+      executionEvidence?.operationId === operationId ? executionEvidence : undefined,
   };
 }
 
@@ -564,6 +675,26 @@ for (const track of ["bicep", "terraform"] as const) {
     await service.decideGateNumber(4, "approved", "tester");
     const deployed = await service.deploy(preview.previewHash);
     assert.equal(deployed.inventory.resources.length, 1);
+    const deploymentEvents = await new EventJournal(
+      join(root, ".apex", "projects", "demo", "runs", runId, "journal"),
+    ).replay();
+    const deployment = [...deploymentEvents].reverse().find((event) => event.type === "deployment.completed");
+    assert.deepEqual((deployment?.payload as { validatorIds?: unknown }).validatorIds, [
+      "deploy:exact-approved-operation",
+      "deploy:stale-writer-rejection",
+    ]);
+    assert.deepEqual((deployment?.payload as { preValidatorIds?: unknown }).preValidatorIds, [
+      "deploy:exact-approved-operation",
+      "deploy:stale-writer-rejection",
+    ]);
+    assert.deepEqual((deployment?.payload as { postValidatorIds?: unknown }).postValidatorIds, []);
+    assert.deepEqual(
+      (deployment?.payload as { omittedValidatorIds?: unknown }).omittedValidatorIds,
+      track === "bicep"
+        ? ["deploy:bicep-stack-ownership"]
+        : ["deploy:exact-saved-plan", "deploy:state-lineage-and-serial"],
+    );
+    assert.equal((deployment?.payload as { evidenceMode?: unknown }).evidenceMode, "simulated");
     await complete(service, "diagnosis", [
       {
         kind: "diagnosis",
@@ -646,6 +777,32 @@ for (const track of ["bicep", "terraform"] as const) {
   });
 }
 
+test("native Bicep deploy records stack ownership evidence in manifest order", async () => {
+  const now = new Date("2026-01-01T00:00:00.000Z");
+  const root = await tempRoot();
+  const service = new ApexService(root, { clock: () => now, providers: { bicep: bicepPreviewProvider(now) } });
+  const { runId } = await service.init({ projectId: "demo", iacTool: "bicep" });
+  await reachValidation(service, runId, "bicep");
+  const preview = await service.preview({ operation: "apply", provider: "bicep" });
+  await service.decideGateNumber(4, "approved", "tester");
+  await service.deploy(preview.previewHash);
+  const events = await new EventJournal(join(root, ".apex", "projects", "demo", "runs", runId, "journal")).replay();
+  const completed = [...events].reverse().find((event) => event.type === "deployment.completed");
+  assert.deepEqual((completed?.payload as { validatorIds?: unknown }).validatorIds, [
+    "deploy:exact-approved-operation",
+    "deploy:bicep-stack-ownership",
+    "deploy:stale-writer-rejection",
+  ]);
+  assert.deepEqual((completed?.payload as { preValidatorIds?: unknown }).preValidatorIds, [
+    "deploy:exact-approved-operation",
+    "deploy:stale-writer-rejection",
+  ]);
+  assert.deepEqual((completed?.payload as { postValidatorIds?: unknown }).postValidatorIds, [
+    "deploy:bicep-stack-ownership",
+  ]);
+  assert.equal((completed?.payload as { evidenceMode?: unknown }).evidenceMode, "native");
+});
+
 test("native Terraform preview records saved-plan validation and rejects wrong bindings", async () => {
   const now = new Date("2026-01-01T00:00:00.000Z");
   const root = await tempRoot();
@@ -653,7 +810,7 @@ test("native Terraform preview records saved-plan validation and rejects wrong b
   const service = new ApexService(root, { clock: () => now, providers: { terraform: provider } });
   const { runId } = await service.init({ projectId: "demo", iacTool: "terraform" });
   await reachValidation(service, runId, "terraform");
-  await service.preview({ operation: "apply", provider: "terraform" });
+  const preview = await service.preview({ operation: "apply", provider: "terraform" });
   const events = await new EventJournal(join(root, ".apex", "projects", "demo", "runs", runId, "journal")).replay();
   const created = [...events].reverse().find((event) => event.type === "preview.created");
   assert.deepEqual((created?.payload as { validatorIds?: unknown }).validatorIds, [
@@ -665,6 +822,107 @@ test("native Terraform preview records saved-plan validation and rejects wrong b
   ]);
   assert.equal((created?.payload as { evidenceMode?: unknown }).evidenceMode, "native");
   assert.match((created?.payload as { attestationHash?: string }).attestationHash!, /^[0-9a-f]{64}$/);
+  await service.decideGateNumber(4, "approved", "tester");
+  await service.deploy(preview.previewHash);
+  const completedEvents = await new EventJournal(
+    join(root, ".apex", "projects", "demo", "runs", runId, "journal"),
+  ).replay();
+  const deployment = [...completedEvents].reverse().find((event) => event.type === "deployment.completed");
+  assert.deepEqual((deployment?.payload as { validatorIds?: unknown }).validatorIds, [
+    "deploy:exact-approved-operation",
+    "deploy:exact-saved-plan",
+    "deploy:state-lineage-and-serial",
+    "deploy:stale-writer-rejection",
+  ]);
+  assert.deepEqual((deployment?.payload as { preValidatorIds?: unknown }).preValidatorIds, [
+    "deploy:exact-approved-operation",
+    "deploy:stale-writer-rejection",
+  ]);
+  assert.deepEqual((deployment?.payload as { postValidatorIds?: unknown }).postValidatorIds, [
+    "deploy:exact-saved-plan",
+    "deploy:state-lineage-and-serial",
+  ]);
+  assert.equal((deployment?.payload as { evidenceMode?: unknown }).evidenceMode, "native");
+  assert.equal((deployment?.payload as { omittedValidatorIds?: unknown }).omittedValidatorIds, undefined);
+
+  const receiptRoot = await tempRoot();
+  const missingReceipt = new ApexService(receiptRoot, {
+    clock: () => now,
+    providers: { terraform: terraformPreviewProvider(now, "missing-receipt") },
+  });
+  const receiptRun = await missingReceipt.init({ projectId: "demo", iacTool: "terraform" });
+  await reachValidation(missingReceipt, receiptRun.runId, "terraform");
+  const receiptPreview = await missingReceipt.preview({ operation: "apply", provider: "terraform" });
+  await missingReceipt.decideGateNumber(4, "approved", "tester");
+  await assert.rejects(missingReceipt.deploy(receiptPreview.previewHash), /deploy:exact-saved-plan/);
+  const receiptEvents = await new EventJournal(
+    join(receiptRoot, ".apex", "projects", "demo", "runs", receiptRun.runId, "journal"),
+  ).replay();
+  assert.equal(
+    receiptEvents.some(({ type }) => type === "deployment.executed"),
+    true,
+  );
+  assert.equal(
+    receiptEvents.some(({ type }) => type === "deployment.completed"),
+    false,
+  );
+  await assert.rejects(missingReceipt.deploy(receiptPreview.previewHash), /run reconcile before retrying/);
+  assert.match((await missingReceipt.status()).blockers.join(" "), /requires reconciliation/);
+
+  const extraRoot = await tempRoot();
+  const extraReceipt = new ApexService(extraRoot, {
+    clock: () => now,
+    providers: { terraform: terraformPreviewProvider(now, "extra-receipt") },
+  });
+  const extraRun = await extraReceipt.init({ projectId: "demo", iacTool: "terraform" });
+  await reachValidation(extraReceipt, extraRun.runId, "terraform");
+  const extraPreview = await extraReceipt.preview({ operation: "apply", provider: "terraform" });
+  await extraReceipt.decideGateNumber(4, "approved", "tester");
+  await assert.rejects(extraReceipt.deploy(extraPreview.previewHash), /receipt validator IDs/);
+
+  const reconcileRoot = await tempRoot();
+  const reconcileProvider = terraformPreviewProvider(now, "inventory-once");
+  const reconciling = new ApexService(reconcileRoot, {
+    clock: () => now,
+    providers: { terraform: reconcileProvider },
+  });
+  const reconcileRun = await reconciling.init({ projectId: "demo", iacTool: "terraform" });
+  await reachValidation(reconciling, reconcileRun.runId, "terraform");
+  const reconcilePreview = await reconciling.preview({ operation: "apply", provider: "terraform" });
+  await reconciling.decideGateNumber(4, "approved", "tester");
+  await assert.rejects(reconciling.deploy(reconcilePreview.previewHash), /inventory unavailable/);
+  await assert.rejects(reconciling.deploy(reconcilePreview.previewHash), /run reconcile before retrying/);
+  const reconciled = (await reconciling.reconcile()) as { deploymentHash: string };
+  assert.equal(reconciled.deploymentHash, "9".repeat(64));
+  await reconciling.deploy(reconcilePreview.previewHash);
+  const reconciledEvents = await new EventJournal(
+    join(reconcileRoot, ".apex", "projects", "demo", "runs", reconcileRun.runId, "journal"),
+  ).replay();
+  assert.equal(reconciledEvents.filter(({ type }) => type === "deployment.executed").length, 1);
+  assert.equal(reconciledEvents.filter(({ type }) => type === "deployment.completed").length, 1);
+
+  const indeterminateRoot = await tempRoot();
+  const indeterminate = new ApexService(indeterminateRoot, {
+    clock: () => now,
+    providers: { terraform: terraformPreviewProvider(now, "apply-error") },
+  });
+  const indeterminateRun = await indeterminate.init({ projectId: "demo", iacTool: "terraform" });
+  await reachValidation(indeterminate, indeterminateRun.runId, "terraform");
+  const indeterminatePreview = await indeterminate.preview({ operation: "apply", provider: "terraform" });
+  await indeterminate.decideGateNumber(4, "approved", "tester");
+  await assert.rejects(indeterminate.deploy(indeterminatePreview.previewHash), /outcome is unknown/);
+  await assert.rejects(indeterminate.deploy(indeterminatePreview.previewHash), /run reconcile before retrying/);
+  const indeterminateEvents = await new EventJournal(
+    join(indeterminateRoot, ".apex", "projects", "demo", "runs", indeterminateRun.runId, "journal"),
+  ).replay();
+  assert.equal(
+    indeterminateEvents.some(({ type }) => type === "deployment.indeterminate"),
+    true,
+  );
+  assert.equal(
+    indeterminateEvents.some(({ type }) => type === "deployment.completed"),
+    false,
+  );
 
   const invalidRoot = await tempRoot();
   const invalid = new ApexService(invalidRoot, {

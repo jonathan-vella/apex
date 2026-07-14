@@ -21,6 +21,7 @@ import {
   sha256,
   type CurrentDeploymentAuthority,
   type IacProvider,
+  type ProviderExecutionEvidence,
   type PreviewRequest,
 } from "./iac.js";
 import {
@@ -46,6 +47,11 @@ export interface NativeProviderRuntime {
 export interface PreviewBindingStore {
   save(previewHash: string, binding: PersistedPreviewBinding): Promise<void>;
   load(previewHash: string): Promise<PersistedPreviewBinding | undefined>;
+  loadLatest?(
+    projectId: string,
+    runId: string,
+    operation: "apply" | "destroy",
+  ): Promise<PersistedPreviewBinding | undefined>;
 }
 
 export interface EncryptedPlanArtifactStore {
@@ -99,6 +105,7 @@ abstract class NativeProviderBase {
   readonly #timeoutMs: number;
   readonly #maxOutputBytes: number;
   readonly #operations = new Map<string, OperationRecordV1>();
+  readonly #executionEvidence = new Map<string, ProviderExecutionEvidence>();
   protected readonly bindingStore: PreviewBindingStore | undefined;
 
   protected constructor(options: NativeProviderRuntime) {
@@ -156,6 +163,7 @@ abstract class NativeProviderBase {
     approval: ApprovalEvidenceV1,
     authority: CurrentDeploymentAuthority,
     providerOperationId?: string,
+    validatorIds: readonly string[] = [],
   ): OperationRecordV1 {
     const operationId = this.nextId();
     const record: OperationRecordV1 = {
@@ -172,11 +180,21 @@ abstract class NativeProviderBase {
       updatedAt: this.now().toISOString(),
     };
     this.#operations.set(operationId, record);
+    this.#executionEvidence.set(operationId, {
+      mode: "native",
+      operationId,
+      previewHash: preview.previewHash,
+      validatorIds: [...validatorIds],
+    });
     return record;
   }
 
   async reconcile(operationId: string): Promise<OperationRecordV1 | undefined> {
     return this.#operations.get(operationId);
+  }
+
+  executionEvidence(operationId: string): ProviderExecutionEvidence | undefined {
+    return this.#executionEvidence.get(operationId);
   }
 
   protected previewKey(request: PreviewRequest, operation: "apply" | "destroy"): string {
@@ -357,7 +375,10 @@ export class NativeBicepProvider extends NativeProviderBase implements IacProvid
     approval: ApprovalEvidenceV1,
     suppliedAuthority: CurrentDeploymentAuthority,
   ): Promise<OperationRecordV1> {
-    let binding = this.#bindings.get(`${preview.projectId}\u0000${preview.runId}\u0000${operation}`);
+    const key = `${preview.projectId}\u0000${preview.runId}\u0000${operation}`;
+    const restoredLatest = await this.bindingStore?.loadLatest?.(preview.projectId, preview.runId, operation);
+    const latestBinding = this.#bindings.get(key) ?? (restoredLatest?.kind === "bicep" ? restoredLatest : undefined);
+    let binding = latestBinding;
     if (binding === undefined) {
       const restored = await this.bindingStore?.load(preview.previewHash);
       if (restored?.kind === "bicep") binding = restored;
@@ -368,7 +389,7 @@ export class NativeBicepProvider extends NativeProviderBase implements IacProvid
       preview,
       approval,
       suppliedAuthority,
-      binding?.preview.previewHash,
+      latestBinding?.preview.previewHash ?? binding?.preview.previewHash,
     );
     if (binding === undefined || binding.preview.previewHash !== preview.previewHash) {
       throw new IacProviderError("PREVIEW_HASH_MISMATCH", "No exact Bicep stack binding is available for this preview");
@@ -399,7 +420,7 @@ export class NativeBicepProvider extends NativeProviderBase implements IacProvid
       const result = parseJsonProcessOutput("azure-stack", stdout) as Record<string, unknown>;
       providerOperationId = typeof result.id === "string" ? result.id : undefined;
     }
-    return this.record(operation, preview, approval, authority, providerOperationId);
+    return this.record(operation, preview, approval, authority, providerOperationId, ["deploy:bicep-stack-ownership"]);
   }
 }
 
@@ -637,7 +658,10 @@ export class NativeTerraformProvider extends NativeProviderBase implements IacPr
     );
     try {
       await this.run(this.#commands.applyExact(this.#target.cwd, handle.path));
-      return this.record(operation, preview, approval, authority, `terraform-plan:${binding.attestation.planDigest}`);
+      return this.record(operation, preview, approval, authority, `terraform-plan:${binding.attestation.planDigest}`, [
+        "deploy:exact-saved-plan",
+        "deploy:state-lineage-and-serial",
+      ]);
     } finally {
       await handle.dispose();
     }
