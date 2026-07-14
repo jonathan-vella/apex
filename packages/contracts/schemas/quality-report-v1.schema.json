@@ -23,10 +23,13 @@
             "minLength": 1,
             "type": "string"
           },
-          "score": {
-            "maximum": 1,
+          "samples": {
             "minimum": 0,
-            "type": "number"
+            "type": "integer"
+          },
+          "scenario": {
+            "minLength": 1,
+            "type": "string"
           },
           "status": {
             "anyOf": [
@@ -39,16 +42,22 @@
                 "type": "string"
               },
               {
-                "const": "unavailable",
+                "const": "omitted",
                 "type": "string"
               }
             ]
+          },
+          "value": {
+            "type": "number"
           }
         },
         "required": [
           "id",
+          "scenario",
           "status",
-          "evidenceRefs"
+          "samples",
+          "evidenceRefs",
+          "detail"
         ],
         "type": "object"
       },
@@ -56,6 +65,10 @@
     },
     "evaluatedAt": {
       "format": "date-time",
+      "type": "string"
+    },
+    "measurementsHash": {
+      "pattern": "^[0-9a-f]{64}$",
       "type": "string"
     },
     "projectId": {
@@ -70,6 +83,10 @@
       "const": "1.0.0",
       "type": "string"
     },
+    "scorecardHash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
     "status": {
       "anyOf": [
         {
@@ -78,10 +95,6 @@
         },
         {
           "const": "fail",
-          "type": "string"
-        },
-        {
-          "const": "incomplete",
           "type": "string"
         }
       ]
@@ -92,6 +105,8 @@
     "projectId",
     "runId",
     "evaluatedAt",
+    "scorecardHash",
+    "measurementsHash",
     "status",
     "checks"
   ],

@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import test from "node:test";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
@@ -22,11 +23,13 @@ import {
   governance,
   planBundle,
   policyMap,
+  qualityReport,
   requirements,
   review,
   skuManifest,
   tempRoot,
   validationEvidence,
+  writeJson,
 } from "./helpers.js";
 
 async function task(service: ApexService, expected: string): Promise<string> {
@@ -457,18 +460,69 @@ for (const track of ["bicep", "terraform"] as const) {
         },
       },
     ]);
-    await complete(service, "quality", [
-      {
-        kind: "quality-report",
-        value: {
-          schemaVersion: "1.0.0",
-          projectId: "demo",
-          runId,
-          evaluatedAt: "2026-01-01T00:00:00.000Z",
-          status: "pass",
-          checks: [{ id: "deploy", status: "pass", evidenceRefs: [] }],
-        },
-      },
+    const qualityTask = await task(service, "quality");
+    const report = await qualityReport(root, runId);
+    const staleScorecard = { ...report, scorecardHash: "f".repeat(64) };
+    await assert.rejects(
+      service.completeTaskOutputs(qualityTask, [{ kind: "quality-report", value: staleScorecard }]),
+      /quality:scorecard-decidable/,
+    );
+    await writeJson(join(root, ".apex", "quality", "measurements.json"), {
+      schemaVersion: "1.0.0",
+      measurements: [],
+    });
+    await assert.rejects(
+      service.completeTaskOutputs(qualityTask, [{ kind: "quality-report", value: report }]),
+      /quality:scorecard-decidable/,
+    );
+    await qualityReport(root, runId);
+    const reordered = structuredClone(report);
+    [reordered.checks[0], reordered.checks[1]] = [reordered.checks[1]!, reordered.checks[0]!];
+    await assert.rejects(
+      service.completeTaskOutputs(qualityTask, [{ kind: "quality-report", value: reordered }]),
+      /quality:no-subjective-deterministic-claims/,
+    );
+    const measurementPath = join(root, ".apex", "quality", "measurements.json");
+    const duplicatedMeasurements = JSON.parse(await readFile(measurementPath, "utf8")) as {
+      schemaVersion: "1.0.0";
+      measurements: Array<Record<string, unknown>>;
+    };
+    duplicatedMeasurements.measurements.push({ ...duplicatedMeasurements.measurements[0]! });
+    await writeJson(measurementPath, duplicatedMeasurements);
+    const duplicateMeasurementReport = {
+      ...report,
+      measurementsHash: sha256Json(duplicatedMeasurements),
+    };
+    await assert.rejects(
+      service.completeTaskOutputs(qualityTask, [{ kind: "quality-report", value: duplicateMeasurementReport }]),
+      /quality:no-subjective-deterministic-claims/,
+    );
+    await qualityReport(root, runId);
+    const inventedPass = structuredClone(report);
+    inventedPass.checks[0]!.status = "pass";
+    inventedPass.checks[0]!.detail = "target satisfied";
+    inventedPass.status = "pass";
+    await assert.rejects(
+      service.completeTaskOutputs(qualityTask, [{ kind: "quality-report", value: inventedPass }]),
+      /quality:scorecard-decidable/,
+    );
+    const unsupportedClaim = structuredClone(report);
+    const claimed = unsupportedClaim.checks.find(({ status }) => status !== "omitted")!;
+    claimed.evidenceRefs = [];
+    await assert.rejects(
+      service.completeTaskOutputs(qualityTask, [{ kind: "quality-report", value: unsupportedClaim }]),
+      /quality:no-subjective-deterministic-claims/,
+    );
+    await service.completeTaskOutputs(qualityTask, [{ kind: "quality-report", value: report }]);
+    const qualityEvents = await new EventJournal(
+      join(root, ".apex", "projects", "demo", "runs", runId, "journal"),
+    ).replay();
+    const qualityCompleted = [...qualityEvents]
+      .reverse()
+      .find((event) => event.type === "task.completed" && (event.payload as { nodeId?: unknown }).nodeId === "quality");
+    assert.deepEqual((qualityCompleted?.payload as { validatorIds?: unknown }).validatorIds, [
+      "quality:scorecard-decidable",
+      "quality:no-subjective-deterministic-claims",
     ]);
     assert.equal((await service.status()).task, null);
   });

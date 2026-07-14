@@ -1,8 +1,8 @@
 import { CapabilityPackLoader } from "@apex/capabilities";
 import { ApexError, ApexService, type ServiceOptions, type TaskOutput } from "@apex/cli";
-import { CONTRACT_VERSION, type ResourceInventoryV1 } from "@apex/contracts";
+import { CONTRACT_VERSION, type QualityScorecardV1, type ResourceInventoryV1 } from "@apex/contracts";
 import { ContentCache, EventJournal, ObjectStore, benchmarkKernel, contentCacheKey, sha256Json } from "@apex/kernel";
-import { renderResourceInventory } from "@apex/renderers";
+import { evaluateQualityScorecard, renderResourceInventory } from "@apex/renderers";
 import { cp, mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 import { join, relative } from "node:path";
 import { FakeClock, SequenceIds } from "./determinism.js";
@@ -182,7 +182,7 @@ async function runTrack(
       await context.service.decideGateNumber(4, "approved", "qualification");
       inventory = (await context.service.deploy(preview.previewHash)).inventory;
       await complete(context.service, "diagnosis", [{ kind: "diagnosis", value: diagnosis(context) }]);
-      await complete(context.service, "quality", [{ kind: "quality-report", value: quality(context) }]);
+      await complete(context.service, "quality", [{ kind: "quality-report", value: await quality(context) }]);
       await context.service.render("preview");
       await context.service.render("approval");
       await context.service.render("inventory");
@@ -601,14 +601,45 @@ function diagnosis(context: TrackContext) {
     causes: [],
   };
 }
-function quality(context: TrackContext) {
+async function quality(context: TrackContext) {
+  const scorecard = JSON.parse(
+    await readFile(join(context.root, ".apex", "runtime", "quality-scorecard.v1.json"), "utf8"),
+  ) as QualityScorecardV1;
+  const measurements = [...scorecard.rules]
+    .map(({ metric, scenario }) => ({ metric, scenario, samples: 0, evidenceRefs: [] as string[] }))
+    .sort((left, right) =>
+      `${left.metric}\u0000${left.scenario}`.localeCompare(`${right.metric}\u0000${right.scenario}`),
+    );
+  const measurementSet = { schemaVersion: CONTRACT_VERSION, measurements };
+  await mkdir(join(context.root, ".apex", "quality"), { recursive: true });
+  await writeFile(
+    join(context.root, ".apex", "quality", "measurements.json"),
+    `${JSON.stringify(measurementSet)}\n`,
+    "utf8",
+  );
+  const measurementsHash = sha256Json(measurementSet);
+  const evaluations = evaluateQualityScorecard(scorecard, measurements);
   return {
     schemaVersion: CONTRACT_VERSION,
     projectId: projectId(context.track),
     runId: context.runId,
     evaluatedAt: context.clock.now().toISOString(),
-    status: "pass",
-    checks: [{ id: "deploy", status: "pass", evidenceRefs: [] }],
+    scorecardHash: sha256Json(scorecard),
+    measurementsHash,
+    status:
+      evaluations.some(({ decision }) => decision === "fail") ||
+      !evaluations.some(({ decision }) => decision === "pass")
+        ? ("fail" as const)
+        : ("pass" as const),
+    checks: evaluations.map(({ metric, scenario, decision, value, samples, reason }) => ({
+      id: metric,
+      scenario,
+      status: decision,
+      ...(value === undefined ? {} : { value }),
+      samples,
+      evidenceRefs: decision === "omitted" ? [] : [measurementsHash],
+      detail: reason,
+    })),
   };
 }
 

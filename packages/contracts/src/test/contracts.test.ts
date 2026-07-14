@@ -20,6 +20,7 @@ import {
   LogicalResourceManifestV1Schema,
   PolicyPropertyMapV1Schema,
   QualityReportV1Schema,
+  QualityMeasurementsV1Schema,
   RequirementsV1Schema,
   ReviewFindingsV1Schema,
   RuntimeBundleLockV1Schema,
@@ -52,8 +53,8 @@ import {
 
 const hash = "a".repeat(64);
 const otherHash = "b".repeat(64);
-const timestamp = "2026-07-13T12:00:00Z";
-const expiry = "2026-07-13T13:00:00Z";
+const timestamp = "2026-07-13T12:00:00.000Z";
+const expiry = "2026-07-13T13:00:00.000Z";
 
 FormatRegistry.Set("date-time", (value) => Number.isFinite(Date.parse(value)));
 FormatRegistry.Set(
@@ -70,6 +71,7 @@ describe("Wave 1 contracts", () => {
       workflowHash: "a".repeat(64),
       defaultsHash: "b".repeat(64),
       validatorHash: "c".repeat(64),
+      qualityScorecardHash: "d".repeat(64),
       requiredCapabilityPacks: [],
     };
 
@@ -382,8 +384,35 @@ describe("target family contracts", () => {
         projectId: "example-project",
         runId: "run-1",
         evaluatedAt: timestamp,
+        scorecardHash: hash,
+        measurementsHash: hash,
         status: "pass",
-        checks: [{ id: "schema", status: "pass", score: 1, evidenceRefs: [hash] }],
+        checks: [
+          {
+            id: "schema",
+            scenario: "contracts",
+            status: "pass",
+            value: 1,
+            samples: 1,
+            evidenceRefs: [hash],
+            detail: "target satisfied",
+          },
+        ],
+      },
+    ],
+    [
+      QualityMeasurementsV1Schema,
+      {
+        schemaVersion: CONTRACT_VERSION,
+        measurements: [
+          {
+            metric: "schema",
+            scenario: "contracts",
+            value: 1,
+            samples: 1,
+            evidenceRefs: [hash],
+          },
+        ],
       },
     ],
     [

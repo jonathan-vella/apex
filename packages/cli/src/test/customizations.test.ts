@@ -218,9 +218,14 @@ test("init writes a real runtime lock and doctor detects managed tampering", asy
     workflowHash: string;
     defaultsHash: string;
     validatorHash: string;
+    qualityScorecardHash: string;
     requiredCapabilityPacks: string[];
   };
-  assert.ok([lock.workflowHash, lock.defaultsHash, lock.validatorHash].every((hash) => /^[a-f0-9]{64}$/.test(hash)));
+  assert.ok(
+    [lock.workflowHash, lock.defaultsHash, lock.validatorHash, lock.qualityScorecardHash].every((hash) =>
+      /^[a-f0-9]{64}$/.test(hash),
+    ),
+  );
   assert.ok(lock.requiredCapabilityPacks.includes("azure-governance-discovery"));
   assert.equal((await service.status()).run.runId, initialized.runId);
   await writeFile(join(root, ".apex", "runtime", "defaults.v1.json"), "{}\n");
@@ -230,6 +235,9 @@ test("init writes a real runtime lock and doctor detects managed tampering", asy
   assert.equal(doctor.nextAction, "Run doctor --fix --yes to reinstall bundled managed files");
   const fixed = await service.doctor(true, true);
   assert.equal(fixed.checks.find(({ id }) => id === "runtime-lock:defaults")?.ok, true);
+  await writeFile(join(root, ".apex", "runtime", "quality-scorecard.v1.json"), "{}\n");
+  const scorecardDoctor = await service.doctor();
+  assert.equal(scorecardDoctor.checks.find(({ id }) => id === "runtime-lock:quality-scorecard")?.ok, false);
 });
 
 test("doctor leaves unrelated core routes unaffected and service reports required workflow packs", async () => {

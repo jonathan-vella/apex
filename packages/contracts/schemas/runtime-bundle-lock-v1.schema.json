@@ -15,6 +15,10 @@
       "pattern": "^[0-9a-f]{64}$",
       "type": "string"
     },
+    "qualityScorecardHash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
     "requiredCapabilityPacks": {
       "items": {
         "minLength": 1,
@@ -43,6 +47,7 @@
     "workflowHash",
     "defaultsHash",
     "validatorHash",
+    "qualityScorecardHash",
     "requiredCapabilityPacks"
   ],
   "type": "object"

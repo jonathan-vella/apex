@@ -1,0 +1,54 @@
+{
+  "$id": "https://schemas.apexops.dev/quality-measurements-v1.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "measurements": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "evidenceRefs": {
+            "items": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            "type": "array",
+            "uniqueItems": true
+          },
+          "metric": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "samples": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "scenario": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "value": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "metric",
+          "scenario",
+          "samples",
+          "evidenceRefs"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "schemaVersion": {
+      "const": "1.0.0",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "measurements"
+  ],
+  "type": "object"
+}

@@ -15,6 +15,7 @@ import {
   LogicalResourceManifestV1Schema,
   OperationRecordV1Schema,
   PolicyPropertyMapV1Schema,
+  QualityMeasurementsV1Schema,
   QualityReportV1Schema,
   RequirementsV1Schema,
   ResourceInventoryV1Schema,
@@ -35,6 +36,8 @@ import {
   type ProjectId,
   type ResourceInventoryV1,
   type ReviewFindingsV1,
+  type QualityScorecardV1,
+  type QualityMeasurementsV1,
   type RunConfigV1,
   type RunId,
   type RuntimeBundleLockV1,
@@ -291,6 +294,7 @@ export class ApexService {
     for (const [, [validator, schema]] of Object.entries(ARTIFACTS)) this.validators.register(validator, schema);
     this.validators.register("approval", ApprovalEvidenceV1Schema);
     this.validators.register("runtime-lock", RuntimeBundleLockV1Schema);
+    this.validators.register("quality-measurements", QualityMeasurementsV1Schema);
     registerWorkflowValidators(this.validators);
     this.providers = {
       fake: new FakeIaCProvider({ track: "bicep", now: this.clock, nextId: this.idSource }),
@@ -2106,7 +2110,9 @@ export class ApexService {
         ? "review"
         : descriptor.id.startsWith("validation-")
           ? "validation"
-          : "task-output";
+          : descriptor.id === "quality"
+            ? "quality"
+            : "task-output";
     const validatorIds = node.validators.filter((id) => workflowValidatorOwnership(id)?.boundary === boundary);
     const run = await this.currentRun();
     const events = await this.journal(run).replay();
@@ -2128,11 +2134,40 @@ export class ApexService {
       outputs: Object.fromEntries(outputs.map(({ kind, value }) => [kind, value])),
       artifacts,
       artifactHashes,
+      ...(nodeId === "quality" ? await this.qualityValidatorContext() : {}),
     };
     for (const id of validatorIds) {
       this.assertValid(id, taskWorkflowValidatorInput(id, context));
     }
     return validatorIds;
+  }
+
+  private async qualityValidatorContext(): Promise<{
+    scorecard: QualityScorecardV1;
+    qualityMeasurements: QualityMeasurementsV1;
+  }> {
+    let qualityMeasurements: QualityMeasurementsV1;
+    try {
+      qualityMeasurements = JSON.parse(
+        await readFile(join(this.root, ".apex", "quality", "measurements.json"), "utf8"),
+      ) as QualityMeasurementsV1;
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === "ENOENT") {
+        throw new ApexError(
+          "APEX_VALIDATION",
+          "Quality measurements are unavailable; run quality evaluate first",
+          EXIT_CODES.validation,
+        );
+      }
+      throw error;
+    }
+    this.assertValid("quality-measurements", qualityMeasurements);
+    return {
+      scorecard: JSON.parse(
+        await readFile(join(this.root, ".apex", "runtime", "quality-scorecard.v1.json"), "utf8"),
+      ) as QualityScorecardV1,
+      qualityMeasurements,
+    };
   }
 
   private async validateGateValidators(
@@ -2380,7 +2415,7 @@ export class ApexService {
   private assertValid(name: string, value: unknown): void {
     const result = this.validators.validate(name, value);
     const issues = result.issues.filter((issue) => !issue.message.startsWith("Unknown format 'date"));
-    const invalidDateTimes = this.invalidDateTimes(value);
+    const invalidDateTimes = name.startsWith("schema:") || !name.includes(":") ? this.invalidDateTimes(value) : [];
     if (issues.length > 0 || invalidDateTimes.length > 0) {
       throw new ApexError("APEX_VALIDATION", `${name} validation failed`, EXIT_CODES.validation, [
         ...issues,
@@ -2439,6 +2474,7 @@ export class ApexService {
       workflowHash: sha256Bytes(await readFile(join(runtimeRoot, "workflow.v1.json"))),
       defaultsHash: sha256Bytes(await readFile(join(runtimeRoot, "defaults.v1.json"))),
       validatorHash: sha256Bytes(await readFile(validatorPath)),
+      qualityScorecardHash: sha256Bytes(await readFile(join(runtimeRoot, "quality-scorecard.v1.json"))),
       requiredCapabilityPacks: [...new Set(requiredCapabilityPacks)].sort(),
     };
     this.assertValid("runtime-lock", lock);
@@ -2466,6 +2502,11 @@ export class ApexService {
         { id: "runtime-lock:workflow", expected: lock.workflowHash, path: join(runtimeRoot, "workflow.v1.json") },
         { id: "runtime-lock:defaults", expected: lock.defaultsHash, path: join(runtimeRoot, "defaults.v1.json") },
         { id: "runtime-lock:validators", expected: lock.validatorHash, path: validatorPath },
+        {
+          id: "runtime-lock:quality-scorecard",
+          expected: lock.qualityScorecardHash,
+          path: join(runtimeRoot, "quality-scorecard.v1.json"),
+        },
       ];
       const checks = await Promise.all(
         hashes.map(async (item): Promise<DoctorCheck> => {

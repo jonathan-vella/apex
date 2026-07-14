@@ -164,7 +164,7 @@ const ownershipGroups: readonly OwnershipGroup[] = [
   {
     ids: ["quality:no-subjective-deterministic-claims", "quality:scorecard-decidable"],
     owner: "@apex/cli",
-    entrypoint: "evaluateQuality",
+    entrypoint: "ApexService.validateTaskValidators",
     execution: "inline",
     boundary: "quality",
   },
