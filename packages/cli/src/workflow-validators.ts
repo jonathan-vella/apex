@@ -17,6 +17,7 @@ import {
   type IacBindingV1,
   type ImplementationIntentV1,
   type LogicalResourceManifestV1,
+  type OperationRecordV1,
   type PolicyPropertyMapV1,
   type QualityMeasurementsV1,
   type QualityReportV1,
@@ -55,6 +56,7 @@ export interface WorkflowGateValidatorContext {
   readonly expectedDependencyHash?: string;
   readonly currentDependencyRevision: string;
   readonly legacyRequirements: boolean;
+  readonly currentRecipientIdentity: string;
   readonly preview?: DeploymentPreviewV1;
 }
 
@@ -71,6 +73,24 @@ export interface WorkflowPreviewValidatorContext {
   readonly currentDependencyRevision: string;
   readonly expectedResourceIds: readonly string[];
   readonly attestation?: ExecutionPlanAttestationV1;
+}
+
+export interface WorkflowDeployValidatorContext {
+  readonly now: string;
+  readonly run: RunConfigV1;
+  readonly provider: "fake" | "bicep" | "terraform";
+  readonly preview: DeploymentPreviewV1;
+  readonly approval: ApprovalEvidenceV1;
+  readonly expectedPreviewHash: string;
+  readonly currentDependencyRevision: string;
+  readonly operation?: OperationRecordV1;
+  readonly attestation?: ExecutionPlanAttestationV1;
+  readonly executionEvidence?: {
+    readonly mode: "native";
+    readonly operationId: string;
+    readonly previewHash: string;
+    readonly validatorIds: readonly string[];
+  };
 }
 
 const VALIDATION_EVIDENCE_IDS = new Set([
@@ -413,7 +433,7 @@ function gateApprovalBindingComplete(value: unknown): ValidationIssue[] {
     approval.previewHash === preview.previewHash &&
     approval.dependencyHash === preview.previewHash &&
     approval.writerEpoch === context.run.ownerEpoch &&
-    approval.recipientIdentity !== undefined &&
+    approval.recipientIdentity === context.currentRecipientIdentity &&
     approval.expiresAt !== undefined &&
     Date.parse(approval.expiresAt) > Date.parse(context.now);
   return valid ? [] : issue("/approval", "Approval does not completely bind the current preview and writer");
@@ -524,6 +544,96 @@ function terraformSavedPlanBinding(value: unknown): ValidationIssue[] {
     attestation.expiresAt === preview.expiresAt &&
     preview.artifactHash === providerArtifactHash;
   return valid ? [] : issue("/attestation", "Terraform saved plan is not bound to the exact preview");
+}
+
+function deployContext(value: unknown): WorkflowDeployValidatorContext {
+  return value as WorkflowDeployValidatorContext;
+}
+
+function deployExactApprovedOperation(value: unknown): ValidationIssue[] {
+  const context = deployContext(value);
+  const preview = context.preview;
+  const approval = context.approval;
+  const { previewHash, ...previewBody } = preview;
+  const valid =
+    sha256Json(previewBody) === previewHash &&
+    context.expectedPreviewHash === previewHash &&
+    approval.projectId === context.run.projectId &&
+    approval.runId === context.run.runId &&
+    approval.gate === 4 &&
+    approval.decision === "approved" &&
+    approval.previewHash === previewHash &&
+    approval.dependencyHash === previewHash &&
+    approval.recipientIdentity !== undefined;
+  return valid ? [] : issue("/approval", "Deployment is not authorized by the exact approved operation");
+}
+
+function deployStaleWriterRejection(value: unknown): ValidationIssue[] {
+  const context = deployContext(value);
+  const preview = context.preview;
+  const approval = context.approval;
+  const now = Date.parse(context.now);
+  const valid =
+    preview.ownerEpoch === context.run.ownerEpoch &&
+    approval.writerEpoch === context.run.ownerEpoch &&
+    preview.commit === context.currentDependencyRevision &&
+    preview.dependencyRevision === context.currentDependencyRevision &&
+    Date.parse(preview.expiresAt) > now &&
+    approval.expiresAt !== undefined &&
+    Date.parse(approval.expiresAt) > now;
+  return valid ? [] : issue("/run", "Deployment writer or dependency authority is stale");
+}
+
+function providerReceiptIncludes(id: string, context: WorkflowDeployValidatorContext): boolean {
+  const operation = context.operation;
+  const evidence = context.executionEvidence;
+  return (
+    operation !== undefined &&
+    operation.state === "succeeded" &&
+    operation.projectId === context.run.projectId &&
+    operation.runId === context.run.runId &&
+    operation.operation === context.preview.operation &&
+    operation.previewHash === context.preview.previewHash &&
+    operation.approvalHash === sha256Json(context.approval) &&
+    operation.ownerEpoch === context.run.ownerEpoch &&
+    evidence?.mode === "native" &&
+    evidence.operationId === operation.operationId &&
+    evidence.previewHash === context.preview.previewHash &&
+    evidence.validatorIds.includes(id)
+  );
+}
+
+function deployBicepStackOwnership(value: unknown): ValidationIssue[] {
+  const context = deployContext(value);
+  return context.provider === "bicep" && providerReceiptIncludes("deploy:bicep-stack-ownership", context)
+    ? []
+    : issue("/executionEvidence", "Native Bicep stack ownership evidence is missing");
+}
+
+function deployExactSavedPlan(value: unknown): ValidationIssue[] {
+  const context = deployContext(value);
+  const attestation = context.attestation;
+  const valid =
+    context.provider === "terraform" &&
+    providerReceiptIncludes("deploy:exact-saved-plan", context) &&
+    attestation !== undefined &&
+    attestation.previewHash === context.preview.previewHash &&
+    attestation.inputHash === context.preview.inputHash &&
+    attestation.iacHash === context.preview.iacHash &&
+    attestation.policyHash === context.preview.policyHash;
+  return valid ? [] : issue("/executionEvidence", "Native Terraform exact saved-plan evidence is missing");
+}
+
+function deployStateLineageAndSerial(value: unknown): ValidationIssue[] {
+  const context = deployContext(value);
+  const attestation = context.attestation;
+  const valid =
+    context.provider === "terraform" &&
+    providerReceiptIncludes("deploy:state-lineage-and-serial", context) &&
+    attestation !== undefined &&
+    attestation.stateLineage === context.preview.stateLineage &&
+    attestation.stateSerial === context.preview.stateSerial;
+  return valid ? [] : issue("/executionEvidence", "Terraform state lineage or serial evidence is missing");
 }
 
 function qualityContext(value: unknown): WorkflowTaskValidatorContext & {
@@ -676,6 +786,12 @@ export function registerWorkflowValidators(registry: ValidatorRegistry): void {
   registry.registerHandler("preview:freshness", previewFreshness, "freshness");
   registry.registerHandler("terraform:saved-plan-binding", terraformSavedPlanBinding, "authorization");
 
+  registry.registerHandler("deploy:exact-approved-operation", deployExactApprovedOperation, "authorization");
+  registry.registerHandler("deploy:stale-writer-rejection", deployStaleWriterRejection, "authorization");
+  registry.registerHandler("deploy:bicep-stack-ownership", deployBicepStackOwnership, "authorization");
+  registry.registerHandler("deploy:exact-saved-plan", deployExactSavedPlan, "authorization");
+  registry.registerHandler("deploy:state-lineage-and-serial", deployStateLineageAndSerial, "authorization");
+
   registry.registerHandler("quality:scorecard-decidable", qualityScorecardDecidable);
   registry.registerHandler("quality:no-subjective-deterministic-claims", qualityNoSubjectiveClaims);
 
@@ -686,6 +802,7 @@ export function registerWorkflowValidators(registry: ValidatorRegistry): void {
     "validation",
     "gate",
     "preview",
+    "deploy",
     "quality",
   ]);
   for (const [id, ownership] of WORKFLOW_VALIDATOR_OWNERSHIP) {

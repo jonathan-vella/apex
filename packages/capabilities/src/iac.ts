@@ -10,6 +10,7 @@ import type {
 
 export type IacProviderErrorCode =
   | "APPROVAL_EXPIRED"
+  | "APPROVAL_DEPENDENCY_HASH_MISMATCH"
   | "APPROVAL_HASH_MISMATCH"
   | "APPROVAL_RECIPIENT_MISMATCH"
   | "APPROVAL_REJECTED"
@@ -63,6 +64,13 @@ export interface CurrentDeploymentAuthority {
   readonly recipientIdentity: string;
 }
 
+export interface ProviderExecutionEvidence {
+  readonly mode: "native";
+  readonly operationId: string;
+  readonly previewHash: string;
+  readonly validatorIds: readonly string[];
+}
+
 export interface PreviewAuthorizationContext {
   readonly operation: Operation;
   readonly track: IacTool;
@@ -106,8 +114,14 @@ export function authorizeDeploymentPreview(context: PreviewAuthorizationContext)
   if (approval.decision !== "approved") {
     throw new IacProviderError("APPROVAL_REJECTED", "Deployment approval was not granted");
   }
-  if (approval.previewHash !== preview.previewHash || approval.dependencyHash !== preview.previewHash) {
+  if (approval.previewHash !== preview.previewHash) {
     throw new IacProviderError("APPROVAL_HASH_MISMATCH", "Approval is not bound to this exact preview");
+  }
+  if (approval.dependencyHash !== preview.previewHash) {
+    throw new IacProviderError(
+      "APPROVAL_DEPENDENCY_HASH_MISMATCH",
+      "Approval gate dependency hash is not bound to this preview",
+    );
   }
   if (approval.writerEpoch !== authority.ownerEpoch) {
     throw new IacProviderError("APPROVAL_WRITER_EPOCH_MISMATCH", "Approval writer epoch is stale");
@@ -137,6 +151,7 @@ export interface IacProvider {
   ): Promise<OperationRecordV1>;
   inventory(projectId: string, runId: string): Promise<ResourceInventoryV1>;
   reconcile(operationId: string): Promise<OperationRecordV1 | undefined>;
+  executionEvidence?(operationId: string): ProviderExecutionEvidence | undefined;
 }
 
 export interface FakeIaCProviderOptions {
@@ -150,9 +165,10 @@ function canonical(value: unknown): string {
     return `[${value.map(canonical).join(",")}]`;
   }
   if (value !== null && typeof value === "object") {
-    return `{${Object.entries(value)
-      .sort(([left], [right]) => left.localeCompare(right))
-      .map(([key, entry]) => `${JSON.stringify(key)}:${canonical(entry)}`)
+    const record = value as Record<string, unknown>;
+    return `{${Object.keys(record)
+      .sort()
+      .map((key) => `${JSON.stringify(key)}:${canonical(record[key])}`)
       .join(",")}}`;
   }
   return JSON.stringify(value);
