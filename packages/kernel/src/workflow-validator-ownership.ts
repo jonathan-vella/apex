@@ -122,7 +122,7 @@ const ownershipGroups: readonly OwnershipGroup[] = [
   {
     ids: ["preview:coverage", "preview:freshness", "preview:hash-bindings", "preview:policy-precheck"],
     owner: "@apex/cli",
-    entrypoint: "ApexService.assertPreviewReady",
+    entrypoint: "ApexService.validatePreviewValidators",
     execution: "inline",
     boundary: "preview",
   },

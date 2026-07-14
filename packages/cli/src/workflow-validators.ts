@@ -10,6 +10,7 @@ import {
   type ArchitectureV1,
   type CostEstimateV1,
   type EvidenceManifestV1,
+  type ExecutionPlanAttestationV1,
   type GateRecordV1,
   type GovernanceConstraintsV1,
   type IacBindingV1,
@@ -45,6 +46,21 @@ export interface WorkflowGateValidatorContext {
   readonly currentDependencyRevision: string;
   readonly legacyRequirements: boolean;
   readonly preview?: DeploymentPreviewV1;
+}
+
+export interface WorkflowPreviewValidatorContext {
+  readonly now: string;
+  readonly run: RunConfigV1;
+  readonly provider: "fake" | "bicep" | "terraform";
+  readonly expectedOperation: "apply" | "destroy";
+  readonly preview: DeploymentPreviewV1;
+  readonly intent: ImplementationIntentV1;
+  readonly expectedInputHash: string;
+  readonly expectedIacHash: string;
+  readonly expectedPolicyHash: string;
+  readonly currentDependencyRevision: string;
+  readonly expectedResourceIds: readonly string[];
+  readonly attestation?: ExecutionPlanAttestationV1;
 }
 
 const VALIDATION_EVIDENCE_IDS = new Set([
@@ -349,6 +365,107 @@ function gateNoHardBlockers(value: unknown): ValidationIssue[] {
   return blockers.length === 0 ? [] : issue("/blockers", `Hard blockers remain: ${blockers.join(", ")}`);
 }
 
+function previewContext(value: unknown): WorkflowPreviewValidatorContext {
+  return value as WorkflowPreviewValidatorContext;
+}
+
+function previewHashBindings(value: unknown): ValidationIssue[] {
+  const context = previewContext(value);
+  const preview = context.preview;
+  const { previewHash, ...body } = preview;
+  const issues: ValidationIssue[] = [];
+  if (sha256Json(body) !== previewHash) issues.push({ path: "/previewHash", message: "Preview hash is invalid" });
+  if (
+    preview.projectId !== context.run.projectId ||
+    preview.runId !== context.run.runId ||
+    preview.track !== context.run.iacTool ||
+    preview.environment !== context.run.environment ||
+    preview.target !== context.run.targetScope ||
+    preview.operation !== context.expectedOperation
+  ) {
+    issues.push({ path: "/preview", message: "Preview identity does not match the selected run" });
+  }
+  if (
+    preview.inputHash !== context.expectedInputHash ||
+    preview.iacHash !== context.expectedIacHash ||
+    preview.policyHash !== context.expectedPolicyHash
+  ) {
+    issues.push({ path: "/preview", message: "Preview does not bind the accepted input, IaC, and policy artifacts" });
+  }
+  if (preview.ownerEpoch !== context.run.ownerEpoch) {
+    issues.push({ path: "/ownerEpoch", message: "Preview writer epoch is stale" });
+  }
+  return issues;
+}
+
+function previewPolicyPrecheck(value: unknown): ValidationIssue[] {
+  const context = previewContext(value);
+  return context.preview.policyHash === context.expectedPolicyHash
+    ? []
+    : issue("/policyHash", "Preview policy precheck is not bound to the current policy artifact");
+}
+
+function previewCoverage(value: unknown): ValidationIssue[] {
+  const context = previewContext(value);
+  const changes = context.preview.changes;
+  const resourceIds = changes.map(({ resourceId }) => resourceId);
+  const issues: ValidationIssue[] = [];
+  if (new Set(resourceIds).size !== resourceIds.length) {
+    issues.push({ path: "/changes", message: "Preview contains duplicate resource changes" });
+  }
+  if (changes.some(({ action }) => action === "unknown")) {
+    issues.push({ path: "/changes", message: "Preview contains unknown resource actions" });
+  }
+  if (context.provider === "fake") {
+    const actual = [...resourceIds].sort();
+    const expected = [...context.expectedResourceIds].sort();
+    if (JSON.stringify(actual) !== JSON.stringify(expected)) {
+      issues.push({ path: "/changes", message: "Fake preview does not cover every requested resource" });
+    }
+  }
+  return issues;
+}
+
+function previewFreshness(value: unknown): ValidationIssue[] {
+  const context = previewContext(value);
+  const preview = context.preview;
+  const now = Date.parse(context.now);
+  return preview.commit === context.currentDependencyRevision &&
+    preview.dependencyRevision === context.currentDependencyRevision &&
+    Date.parse(preview.createdAt) <= now &&
+    Date.parse(preview.expiresAt) > now
+    ? []
+    : issue("/preview", "Preview is stale or expired");
+}
+
+function terraformSavedPlanBinding(value: unknown): ValidationIssue[] {
+  const context = previewContext(value);
+  const attestation = context.attestation;
+  if (attestation === undefined) return issue("/attestation", "Terraform saved-plan attestation is required");
+  const preview = context.preview;
+  const providerArtifactHash = sha256Json({
+    planDigest: attestation.planDigest,
+    configHash: attestation.configHash,
+    lockfileHash: attestation.lockfileHash,
+    recipient: attestation.recipient,
+    artifactRef: attestation.artifactRef,
+  });
+  const valid =
+    attestation.projectId === preview.projectId &&
+    attestation.runId === preview.runId &&
+    attestation.track === "terraform" &&
+    attestation.previewHash === preview.previewHash &&
+    attestation.inputHash === preview.inputHash &&
+    attestation.iacHash === preview.iacHash &&
+    attestation.policyHash === preview.policyHash &&
+    attestation.stateLineage === preview.stateLineage &&
+    attestation.stateSerial === preview.stateSerial &&
+    attestation.recipient === attestation.transport.recipient &&
+    attestation.expiresAt === preview.expiresAt &&
+    preview.artifactHash === providerArtifactHash;
+  return valid ? [] : issue("/attestation", "Terraform saved plan is not bound to the exact preview");
+}
+
 export function registerWorkflowValidators(registry: ValidatorRegistry): void {
   registry.register("schema:requirements-v1", RequirementsV1Schema);
   registry.register("schema:architecture-v1", ArchitectureV1Schema);
@@ -387,7 +504,13 @@ export function registerWorkflowValidators(registry: ValidatorRegistry): void {
   registry.registerHandler("gate:approval-binding-complete", gateApprovalBindingComplete, "authorization");
   registry.registerHandler("gate:no-hard-blockers", gateNoHardBlockers, "authorization");
 
-  const requiredBoundaries = new Set(["task-output", "review", "validation", "gate"]);
+  registry.registerHandler("preview:hash-bindings", previewHashBindings);
+  registry.registerHandler("preview:policy-precheck", previewPolicyPrecheck);
+  registry.registerHandler("preview:coverage", previewCoverage);
+  registry.registerHandler("preview:freshness", previewFreshness, "freshness");
+  registry.registerHandler("terraform:saved-plan-binding", terraformSavedPlanBinding, "authorization");
+
+  const requiredBoundaries = new Set(["task-output", "review", "validation", "gate", "preview"]);
   for (const [id, ownership] of WORKFLOW_VALIDATOR_OWNERSHIP) {
     if (requiredBoundaries.has(ownership.boundary) && !registry.has(id)) {
       throw new Error(`Workflow validator ${id} has no registered ${ownership.boundary} handler`);

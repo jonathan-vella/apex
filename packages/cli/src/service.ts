@@ -90,6 +90,7 @@ import {
   registerWorkflowValidators,
   taskWorkflowValidatorInput,
   type WorkflowGateValidatorContext,
+  type WorkflowPreviewValidatorContext,
   type WorkflowTaskValidatorContext,
 } from "./workflow-validators.js";
 
@@ -1013,12 +1014,6 @@ export class ApexService {
     if (intentHash === undefined)
       throw new ApexError("APEX_VALIDATION", "Implementation intent is required", EXIT_CODES.validation);
     const intent = await this.objects.getJson<ImplementationIntentV1>(intentHash);
-    await this.append(run, "preview.requested", {
-      provider: options.provider,
-      operation: options.operation,
-      track: run.iacTool,
-      targetScope: run.targetScope,
-    });
     if (options.provider !== "fake") {
       if (options.provider !== run.iacTool) {
         throw new ApexError(
@@ -1059,23 +1054,39 @@ export class ApexService {
       const preview =
         options.operation === "apply" ? await provider.previewApply(request) : await provider.previewDestroy(request);
       this.assertValid("preview", preview);
-      const previewObjectHash = await this.objects.putJson(preview);
-      let attestationHash: string | undefined;
+      let attestation: ExecutionPlanAttestationV1 | undefined;
       if (options.provider === "terraform" && "attestation" in provider && typeof provider.attestation === "function") {
-        const attestation = (provider.attestation as (previewHash: string) => ExecutionPlanAttestationV1 | undefined)(
+        attestation = (provider.attestation as (previewHash: string) => ExecutionPlanAttestationV1 | undefined)(
           preview.previewHash,
         );
-        if (attestation !== undefined) {
-          this.assertValid("execution-plan-attestation", attestation);
-          attestationHash = await this.objects.putJson(attestation);
-        }
+        if (attestation !== undefined) this.assertValid("execution-plan-attestation", attestation);
       }
+      const validation = await this.validatePreviewValidators(
+        run,
+        events,
+        preview,
+        options.provider,
+        options.operation,
+        intent,
+        attestation,
+      );
+      const previewObjectHash = await this.objects.putJson(preview);
+      const attestationHash = attestation === undefined ? undefined : await this.objects.putJson(attestation);
+      await this.append(run, "preview.requested", {
+        provider: options.provider,
+        operation: options.operation,
+        track: run.iacTool,
+        targetScope: run.targetScope,
+      });
       await this.append(await this.currentRun(), "preview.created", {
         previewHash: preview.previewHash,
         previewObjectHash,
         provider: options.provider,
         providerRequestHash: sha256Json(request),
         commit: preview.commit,
+        validatorIds: validation.validatorIds,
+        evidenceMode: validation.evidenceMode,
+        ...(validation.omittedValidatorIds.length === 0 ? {} : { omittedValidatorIds: validation.omittedValidatorIds }),
         ...(attestationHash === undefined ? {} : { attestationHash }),
       });
       await this.openRunGate(await this.currentRun(), 4, preview.previewHash);
@@ -1095,7 +1106,7 @@ export class ApexService {
       ownerEpoch: run.ownerEpoch,
       inputHash: intentHash,
       iacHash: sha256Json(intent.resources),
-      policyHash: run.runtimeLockHash,
+      policyHash: this.artifactHash(events, "policy-property-map") ?? run.runtimeLockHash,
       changes: intent.resources.map((resource) => ({
         resourceId: `fake://${run.environment}/${resource.id}`,
         action: options.operation === "destroy" ? ("delete" as const) : ("create" as const),
@@ -1108,12 +1119,22 @@ export class ApexService {
     };
     const preview: DeploymentPreviewV1 = { ...base, previewHash: sha256Json(base) };
     this.assertValid("preview", preview);
+    const validation = await this.validatePreviewValidators(run, events, preview, "fake", options.operation, intent);
     const previewObjectHash = await this.objects.putJson(preview);
+    await this.append(run, "preview.requested", {
+      provider: options.provider,
+      operation: options.operation,
+      track: run.iacTool,
+      targetScope: run.targetScope,
+    });
     await this.append(run, "preview.created", {
       previewHash: preview.previewHash,
       previewObjectHash,
       provider: options.provider,
       commit: preview.commit,
+      validatorIds: validation.validatorIds,
+      evidenceMode: validation.evidenceMode,
+      ...(validation.omittedValidatorIds.length === 0 ? {} : { omittedValidatorIds: validation.omittedValidatorIds }),
     });
     await this.openRunGate(await this.currentRun(), 4, preview.previewHash);
     return preview;
@@ -2192,6 +2213,46 @@ export class ApexService {
     };
     for (const id of validatorIds) this.assertValid(id, context);
     return validatorIds;
+  }
+
+  private async validatePreviewValidators(
+    run: RunConfigV1,
+    events: Awaited<ReturnType<EventJournal["replay"]>>,
+    preview: DeploymentPreviewV1,
+    provider: "fake" | "bicep" | "terraform",
+    expectedOperation: "apply" | "destroy",
+    intent: ImplementationIntentV1,
+    attestation?: ExecutionPlanAttestationV1,
+  ): Promise<{ validatorIds: string[]; omittedValidatorIds: string[]; evidenceMode: "native" | "simulated" }> {
+    const workflow = new WorkflowEngine(
+      JSON.parse(await readFile(join(this.root, ".apex", "runtime", "workflow.v1.json"), "utf8")),
+    );
+    const nodeId = `preview-${run.iacTool}`;
+    const node = workflow.manifest.nodes.find(({ id }) => id === nodeId);
+    if (node === undefined) throw new Error(`Workflow preview ${nodeId} has no manifest node`);
+    const declaredIds = node.validators.filter((id) => workflowValidatorOwnership(id)?.boundary === "preview");
+    const omittedValidatorIds: string[] =
+      provider === "fake" ? declaredIds.filter((id) => id === "terraform:saved-plan-binding") : [];
+    const validatorIds = declaredIds.filter((id) => !omittedValidatorIds.includes(id));
+    const context: WorkflowPreviewValidatorContext = {
+      now: this.clock().toISOString(),
+      run,
+      provider,
+      expectedOperation,
+      preview,
+      intent,
+      expectedInputHash: this.artifactHash(events, "implementation-intent") ?? sha256Json(intent),
+      expectedIacHash:
+        provider === "fake"
+          ? sha256Json(intent.resources)
+          : (this.artifactHash(events, "iac-handoff") ?? sha256Json(intent.resources)),
+      expectedPolicyHash: this.artifactHash(events, "policy-property-map") ?? run.runtimeLockHash,
+      currentDependencyRevision: this.dependencyRevision(run, events),
+      expectedResourceIds: intent.resources.map(({ id }) => `${provider}://${run.environment}/${id}`),
+      ...(attestation === undefined ? {} : { attestation }),
+    };
+    for (const id of validatorIds) this.assertValid(id, context);
+    return { validatorIds, omittedValidatorIds, evidenceMode: provider === "fake" ? "simulated" : "native" };
   }
 
   private initialSkuManifest(run: RunConfigV1, requirements: unknown): unknown {
