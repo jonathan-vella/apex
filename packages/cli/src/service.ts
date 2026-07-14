@@ -99,7 +99,9 @@ import {
   type WorkflowGateValidatorContext,
   type WorkflowDeployValidatorContext,
   type WorkflowPreviewValidatorContext,
+  type WorkflowInventoryValidatorContext,
   type WorkflowTaskValidatorContext,
+  type WorkflowTerminalValidatorContext,
 } from "./workflow-validators.js";
 
 const ZERO_HASH = "0".repeat(64);
@@ -570,8 +572,15 @@ export class ApexService {
   }> {
     const selection = await this.selection();
     const run = await this.run(selection);
-    const events = await this.journal(run).replay();
-    const route = await this.route(run, events);
+    let events = await this.journal(run).replay();
+    let route = await this.route(run, events);
+    if (route.task === undefined && route.blockers.length === 0) {
+      const completedEvents = await this.ensureTerminalCompletion(run, events);
+      if (completedEvents !== events) {
+        events = completedEvents;
+        route = await this.route(run, events);
+      }
+    }
     return {
       run,
       head: events.at(-1)?.hash ?? null,
@@ -1346,6 +1355,7 @@ export class ApexService {
             })),
     };
     this.assertValid("inventory", inventory);
+    const inventoryValidatorIds = await this.validateInventoryValidators(run, preview, operation, inventory);
     const inventoryHash = await this.objects.putJson(inventory);
     const omittedValidatorIds = declaredValidatorIds.filter((id) => !commonValidatorIds.includes(id));
     await this.append(run, "deployment.completed", {
@@ -1353,9 +1363,11 @@ export class ApexService {
       inventoryHash,
       previewHash,
       approvalHash,
+      provider: "fake",
       validatorIds: commonValidatorIds,
       preValidatorIds: commonValidatorIds,
       postValidatorIds: [],
+      inventoryValidatorIds,
       ...(omittedValidatorIds.length === 0 ? {} : { omittedValidatorIds }),
       evidenceMode: "simulated",
     });
@@ -1397,9 +1409,11 @@ export class ApexService {
       executionEvidence,
       attestation,
     );
+    const receiptValidatorIds = [...(executionEvidence?.validatorIds ?? [])];
     if (
       executionEvidence === undefined ||
-      JSON.stringify(executionEvidence.validatorIds) !== JSON.stringify(providerValidatorIds)
+      new Set(receiptValidatorIds).size !== receiptValidatorIds.length ||
+      JSON.stringify(receiptValidatorIds.sort()) !== JSON.stringify([...providerValidatorIds].sort())
     ) {
       throw new ApexError(
         "APEX_VALIDATION",
@@ -1410,6 +1424,7 @@ export class ApexService {
     const operationHash = await this.objects.putJson(operation);
     const inventory = await provider.inventory(run.projectId, run.runId);
     this.assertValid("inventory", inventory);
+    const inventoryValidatorIds = await this.validateInventoryValidators(run, preview, operation, inventory);
     const inventoryHash = await this.objects.putJson(inventory);
     const declaredValidatorIds = await this.deployValidatorIds(run);
     await this.append(run, "deployment.completed", {
@@ -1421,6 +1436,7 @@ export class ApexService {
       validatorIds: declaredValidatorIds.filter((id) => [...commonValidatorIds, ...providerValidatorIds].includes(id)),
       preValidatorIds: commonValidatorIds,
       postValidatorIds: providerValidatorIds,
+      inventoryValidatorIds,
       evidenceMode: "native",
     });
     return { operation, inventory };
@@ -2032,6 +2048,12 @@ export class ApexService {
           ? [payload.hash]
           : [];
       }
+      if (event.type === "deployment.completed" && descriptor.id === "diagnosis") {
+        const payload = event.payload as { operationHash?: unknown; inventoryHash?: unknown };
+        return [payload.operationHash, payload.inventoryHash].filter(
+          (hash): hash is string => typeof hash === "string",
+        );
+      }
       return [];
     });
     return [...new Set(hashes)];
@@ -2045,6 +2067,17 @@ export class ApexService {
         return typeof nodeId === "string" ? [nodeId] : [];
       }),
     );
+  }
+
+  private async lockedWorkflowEngine(run: RunConfigV1): Promise<WorkflowEngine> {
+    const runtimeRoot = join(this.root, ".apex", "runtime");
+    const workflowBytes = await readFile(join(runtimeRoot, "workflow.v1.json"));
+    const lock = JSON.parse(await readFile(join(this.root, ".apex", "apex.lock.json"), "utf8")) as RuntimeBundleLockV1;
+    this.assertValid("runtime-lock", lock);
+    if (sha256Json(lock) !== run.runtimeLockHash || sha256Bytes(workflowBytes) !== lock.workflowHash) {
+      throw new ApexError("APEX_STALE", "Runtime workflow lock is not current", EXIT_CODES.stale);
+    }
+    return new WorkflowEngine(JSON.parse(workflowBytes.toString("utf8")));
   }
 
   private async route(
@@ -2065,9 +2098,7 @@ export class ApexService {
       if (!completed.has("plan")) return { task: TASKS.find(({ id }) => id === "plan")!, blockers: [] };
       return { blockers: [] };
     }
-    const manifest = new WorkflowEngine(
-      JSON.parse(await readFile(join(this.root, ".apex", "runtime", "workflow.v1.json"), "utf8")),
-    ).manifest;
+    const manifest = (await this.lockedWorkflowEngine(run)).manifest;
     const ordered = manifest.nodes
       .flatMap((node) => {
         const descriptor = TASKS.find(({ id }) => id === node.id);
@@ -2163,12 +2194,7 @@ export class ApexService {
   ): Promise<void> {
     if (!this.gateApproved(run, 3))
       throw new ApexError("APEX_AUTHORIZATION", "Gate 3 approval is required before preview", EXIT_CODES.authorization);
-    const runtimeRoot = join(this.root, ".apex", "runtime");
-    const workflowBytes = await readFile(join(runtimeRoot, "workflow.v1.json"));
-    const lock = JSON.parse(await readFile(join(this.root, ".apex", "apex.lock.json"), "utf8")) as RuntimeBundleLockV1;
-    if (sha256Json(lock) !== run.runtimeLockHash || sha256Bytes(workflowBytes) !== lock.workflowHash)
-      throw new ApexError("APEX_STALE", "Runtime workflow lock is not current", EXIT_CODES.stale);
-    const engine = new WorkflowEngine(JSON.parse(workflowBytes.toString("utf8")));
+    const engine = await this.lockedWorkflowEngine(run);
     const aliases: Partial<Record<ArtifactKind, string>> = {
       requirements: "requirements-v1",
       "sku-manifest": "sku-manifest-v1",
@@ -2396,9 +2422,7 @@ export class ApexService {
     outputs: TaskOutput[],
     events: Awaited<ReturnType<EventJournal["replay"]>>,
   ): Promise<WorkflowValidationExecution> {
-    const workflow = new WorkflowEngine(
-      JSON.parse(await readFile(join(this.root, ".apex", "runtime", "workflow.v1.json"), "utf8")),
-    );
+    const workflow = await this.lockedWorkflowEngine(run);
     const nodeId = descriptor.reviewSubject ?? descriptor.id;
     const node = workflow.manifest.nodes.find(({ id }) => id === nodeId);
     if (node === undefined) throw new Error(`Workflow task ${nodeId} has no manifest node`);
@@ -2409,7 +2433,9 @@ export class ApexService {
           ? "validation"
           : descriptor.id === "quality"
             ? "quality"
-            : "task-output";
+            : descriptor.id === "diagnosis"
+              ? "diagnosis"
+              : "task-output";
     const boundaries = new Set([boundary, ...(descriptor.id === "architecture" ? ["external-evidence"] : [])]);
     const validatorIds = node.validators.filter((id) => {
       const validatorBoundary = workflowValidatorOwnership(id)?.boundary;
@@ -2428,6 +2454,8 @@ export class ApexService {
     );
     let availabilityEvidence: ArchitectureAvailabilityV1 | undefined;
     let availabilityHash: string | undefined;
+    let deploymentOperation: OperationRecordV1 | undefined;
+    let deploymentInventory: ResourceInventoryV1 | undefined;
     if (descriptor.id === "architecture") {
       const pinnedRefs = new Set(task.inputRefs);
       availabilityHash = this.latestPayloadHash(
@@ -2445,6 +2473,21 @@ export class ApexService {
         this.assertValid("architecture-availability", availabilityEvidence);
       }
     }
+    if (descriptor.id === "diagnosis") {
+      const completed = [...events].reverse().find((event) => event.type === "deployment.completed");
+      const payload = completed?.payload as { operationHash?: unknown; inventoryHash?: unknown } | undefined;
+      if (
+        typeof payload?.operationHash === "string" &&
+        typeof payload.inventoryHash === "string" &&
+        task.inputRefs.includes(payload.operationHash) &&
+        task.inputRefs.includes(payload.inventoryHash)
+      ) {
+        deploymentOperation = await this.objects.getJson<OperationRecordV1>(payload.operationHash);
+        deploymentInventory = await this.objects.getJson<ResourceInventoryV1>(payload.inventoryHash);
+        this.assertValid("operation", deploymentOperation);
+        this.assertValid("inventory", deploymentInventory);
+      }
+    }
     const context: WorkflowTaskValidatorContext = {
       nodeId,
       now: this.clock().toISOString(),
@@ -2455,6 +2498,8 @@ export class ApexService {
       artifacts,
       artifactHashes,
       ...(availabilityEvidence === undefined ? {} : { availabilityEvidence }),
+      ...(deploymentOperation === undefined ? {} : { deploymentOperation }),
+      ...(deploymentInventory === undefined ? {} : { deploymentInventory }),
       ...(nodeId === "quality" ? await this.qualityValidatorContext() : {}),
     };
     for (const id of validatorIds) {
@@ -2502,9 +2547,7 @@ export class ApexService {
     events: Awaited<ReturnType<EventJournal["replay"]>>,
     approval: ApprovalEvidenceV1,
   ): Promise<string[]> {
-    const workflow = new WorkflowEngine(
-      JSON.parse(await readFile(join(this.root, ".apex", "runtime", "workflow.v1.json"), "utf8")),
-    );
+    const workflow = await this.lockedWorkflowEngine(run);
     const nodeId = `gate-${gate.gate}`;
     const node = workflow.manifest.nodes.find(({ id }) => id === nodeId);
     if (node === undefined) throw new Error(`Workflow gate ${nodeId} has no manifest node`);
@@ -2586,9 +2629,7 @@ export class ApexService {
     intent: ImplementationIntentV1,
     attestation?: ExecutionPlanAttestationV1,
   ): Promise<{ validatorIds: string[]; omittedValidatorIds: string[]; evidenceMode: "native" | "simulated" }> {
-    const workflow = new WorkflowEngine(
-      JSON.parse(await readFile(join(this.root, ".apex", "runtime", "workflow.v1.json"), "utf8")),
-    );
+    const workflow = await this.lockedWorkflowEngine(run);
     const nodeId = `preview-${run.iacTool}`;
     const node = workflow.manifest.nodes.find(({ id }) => id === nodeId);
     if (node === undefined) throw new Error(`Workflow preview ${nodeId} has no manifest node`);
@@ -2629,9 +2670,7 @@ export class ApexService {
     executionEvidence?: ProviderExecutionEvidence,
     attestation?: ExecutionPlanAttestationV1,
   ): Promise<string[]> {
-    const workflow = new WorkflowEngine(
-      JSON.parse(await readFile(join(this.root, ".apex", "runtime", "workflow.v1.json"), "utf8")),
-    );
+    const workflow = await this.lockedWorkflowEngine(run);
     const nodeId = `deploy-${run.iacTool}`;
     const node = workflow.manifest.nodes.find(({ id }) => id === nodeId);
     if (node === undefined) throw new Error(`Workflow deployment ${nodeId} has no manifest node`);
@@ -2657,14 +2696,144 @@ export class ApexService {
   }
 
   private async deployValidatorIds(run: RunConfigV1): Promise<string[]> {
-    const workflow = new WorkflowEngine(
-      JSON.parse(await readFile(join(this.root, ".apex", "runtime", "workflow.v1.json"), "utf8")),
-    );
+    const workflow = await this.lockedWorkflowEngine(run);
     return (
       workflow.manifest.nodes
         .find(({ id }) => id === `deploy-${run.iacTool}`)
         ?.validators.filter((id) => workflowValidatorOwnership(id)?.boundary === "deploy") ?? []
     );
+  }
+
+  private async validateInventoryValidators(
+    run: RunConfigV1,
+    preview: DeploymentPreviewV1,
+    operation: OperationRecordV1,
+    inventory: ResourceInventoryV1,
+  ): Promise<string[]> {
+    const workflow = await this.lockedWorkflowEngine(run);
+    const node = workflow.manifest.nodes.find(({ id }) => id === "inventory");
+    if (node === undefined) throw new Error("Workflow inventory node is missing");
+    const validatorIds = node.validators.filter((id) => workflowValidatorOwnership(id)?.boundary === "inventory");
+    const context: WorkflowInventoryValidatorContext = { run, preview, operation, inventory };
+    for (const id of validatorIds) this.assertValid(id, context);
+    return validatorIds;
+  }
+
+  private async ensureTerminalCompletion(
+    run: RunConfigV1,
+    events: Awaited<ReturnType<EventJournal["replay"]>>,
+  ): Promise<Awaited<ReturnType<EventJournal["replay"]>>> {
+    if (events.some(({ type }) => type === "workflow.completed")) return events;
+    const workflow = await this.lockedWorkflowEngine(run);
+    const legacy = events.some(
+      (event) => event.type === "task.completed" && (event.payload as { legacy?: unknown }).legacy === true,
+    );
+    const artifactAliases: Readonly<Record<string, string>> = {
+      requirements: "requirements-v1",
+      "sku-manifest": "sku-manifest-v1",
+      architecture: "architecture-v1",
+      "cost-estimate": "cost-estimate-v1",
+      "governance-constraints": "governance-constraints-v1",
+      "policy-property-map": "policy-property-map-v1",
+      "implementation-intent": "implementation-intent-v1",
+      "iac-binding": "iac-binding-v1",
+      "environment-inputs": "environment-inputs-v1",
+      "logical-resource-manifest": "logical-resource-manifest-v1",
+      "iac-handoff": "iac-handoff-v1",
+      "validation-evidence": "validation-evidence-v1",
+      diagnosis: "diagnosis-report-v1",
+      "quality-report": "quality-report-v1",
+    };
+    const artifacts: Record<string, JsonValue> = {};
+    for (const event of events) {
+      const payload = event.payload as Record<string, unknown>;
+      if (event.type === "task.completed") {
+        const hashes = (payload.artifactHashes as Record<string, unknown> | undefined) ?? {};
+        for (const [kind, hash] of Object.entries(hashes)) {
+          if (typeof hash === "string") artifacts[artifactAliases[kind] ?? kind] = hash;
+        }
+      }
+      if (event.type === "preview.created" && typeof payload.previewHash === "string") {
+        artifacts["deployment-preview-v1"] = payload.previewHash;
+      }
+      if (event.type === "gate.decided" && payload.gate === 4 && typeof payload.approvalHash === "string") {
+        artifacts["approval-evidence-v1"] = payload.approvalHash;
+      }
+      if (event.type === "deployment.completed") {
+        if (typeof payload.operationHash === "string") artifacts["operation-record-v1"] = payload.operationHash;
+        if (typeof payload.inventoryHash === "string") artifacts["resource-inventory-v1"] = payload.inventoryHash;
+      }
+    }
+    const activeValidatorIds = legacy
+      ? events.flatMap((event) => {
+          if (event.type !== "task.completed") return [];
+          const ids = (event.payload as { validatorIds?: unknown }).validatorIds;
+          return Array.isArray(ids) ? ids.filter((id): id is string => typeof id === "string") : [];
+        })
+      : workflow.activeValidatorIds({
+          run: { iacTool: run.iacTool, targetScope: run.targetScope },
+          artifacts,
+        });
+    const executedValidatorIds = new Set<string>();
+    const simulatedOmittedValidatorIds = new Set<string>();
+    for (const event of events) {
+      const payload = event.payload as {
+        validatorIds?: unknown;
+        inventoryValidatorIds?: unknown;
+        omittedValidatorIds?: unknown;
+        evidenceMode?: unknown;
+        provider?: unknown;
+      };
+      for (const ids of [payload.validatorIds, payload.inventoryValidatorIds]) {
+        if (Array.isArray(ids)) {
+          for (const id of ids) if (typeof id === "string") executedValidatorIds.add(id);
+        }
+      }
+      const omissionNodeId =
+        payload.evidenceMode === "simulated" && payload.provider === "fake"
+          ? event.type === "preview.created"
+            ? `preview-${run.iacTool}`
+            : event.type === "deployment.completed"
+              ? `deploy-${run.iacTool}`
+              : undefined
+          : undefined;
+      const allowedOmissions = new Set(
+        workflow.manifest.nodes
+          .find(({ id }) => id === omissionNodeId)
+          ?.validators.filter((id) => workflowValidatorOwnership(id)?.owner === "@apex/capabilities") ?? [],
+      );
+      if (Array.isArray(payload.omittedValidatorIds)) {
+        for (const id of payload.omittedValidatorIds) {
+          if (typeof id === "string" && allowedOmissions.has(id)) simulatedOmittedValidatorIds.add(id);
+        }
+      }
+    }
+    for (const gate of run.gates) {
+      if (gate.state !== "inherited") continue;
+      const node = workflow.manifest.nodes.find(({ id }) => id === `gate-${gate.gate}`);
+      for (const id of node?.validators ?? []) {
+        if (workflowValidatorOwnership(id)?.boundary === "gate") executedValidatorIds.add(id);
+      }
+    }
+    const terminalIds =
+      workflow.manifest.nodes
+        .find(({ id }) => id === "completed")
+        ?.validators.filter((id) => workflowValidatorOwnership(id)?.boundary === "terminal") ?? [];
+    const deduplicatedActiveValidatorIds = [...new Set(activeValidatorIds)].sort();
+    const context: WorkflowTerminalValidatorContext = {
+      activeValidatorIds: deduplicatedActiveValidatorIds,
+      executedValidatorIds: [...executedValidatorIds].sort(),
+      simulatedOmittedValidatorIds: [...simulatedOmittedValidatorIds].sort(),
+    };
+    for (const id of terminalIds) this.assertValid(id, context);
+    await this.append(run, "workflow.completed", {
+      validatorIds: terminalIds,
+      activeValidatorIds: deduplicatedActiveValidatorIds,
+      executedValidatorIds: [...context.executedValidatorIds],
+      simulatedOmittedValidatorIds: [...context.simulatedOmittedValidatorIds],
+      ...(legacy ? { legacy: true } : {}),
+    });
+    return this.journal(run).replay();
   }
 
   private initialSkuManifest(run: RunConfigV1, requirements: unknown): unknown {

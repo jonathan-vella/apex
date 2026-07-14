@@ -12,10 +12,11 @@ import type {
   LogicalResourceManifestV1,
 } from "@apex/contracts";
 import type { IacProvider, PreviewRequest } from "@apex/capabilities";
-import { EventJournal, sha256Json } from "@apex/kernel";
+import { EventJournal, ValidatorRegistry, sha256Json } from "@apex/kernel";
 import { ApexError } from "../errors.js";
 import { createMcpServer } from "../mcp.js";
 import { ApexService, type TaskOutput } from "../service.js";
+import { registerWorkflowValidators } from "../workflow-validators.js";
 import {
   architecture,
   acceptAvailabilityEvidence,
@@ -118,7 +119,15 @@ async function reachValidation(service: ApexService, runId: string, track: "bice
 function terraformPreviewProvider(
   now: Date,
   mutation?:
-    "input-hash" | "operation" | "state" | "apply-error" | "missing-receipt" | "extra-receipt" | "inventory-once",
+    | "input-hash"
+    | "operation"
+    | "state"
+    | "apply-error"
+    | "missing-receipt"
+    | "extra-receipt"
+    | "inventory-once"
+    | "secret-inventory"
+    | "incomplete-inventory",
 ): IacProvider & {
   attestation(previewHash: string): ExecutionPlanAttestationV1 | undefined;
 } {
@@ -126,6 +135,7 @@ function terraformPreviewProvider(
   let executionEvidence:
     { mode: "native"; operationId: string; previewHash: string; validatorIds: string[] } | undefined;
   let inventoryCalls = 0;
+  let latestPreview: DeploymentPreviewV1 | undefined;
   const createPreview = async (request: PreviewRequest): Promise<DeploymentPreviewV1> => {
     const plan = {
       planDigest: "1".repeat(64),
@@ -157,6 +167,7 @@ function terraformPreviewProvider(
       expiresAt: new Date(now.getTime() + request.ttlMs).toISOString(),
     };
     const preview = { ...base, previewHash: sha256Json(base) };
+    latestPreview = preview;
     attestation = {
       schemaVersion: "1.0.0",
       projectId: request.projectId,
@@ -233,7 +244,17 @@ function terraformPreviewProvider(
         runId,
         deploymentHash: "9".repeat(64),
         collectedAt: now.toISOString(),
-        resources: [],
+        resources:
+          mutation === "incomplete-inventory"
+            ? []
+            : (latestPreview?.changes ?? []).map(({ resourceId }) => ({
+                logicalId: resourceId,
+                resourceId,
+                type: "terraform/resource",
+                location: "terraform-managed",
+                properties:
+                  mutation === "secret-inventory" ? { token: "Bearer secret-token-value" } : { provider: "terraform" },
+              })),
       };
     },
     reconcile: async () => undefined,
@@ -246,6 +267,7 @@ function terraformPreviewProvider(
 function bicepPreviewProvider(now: Date): IacProvider {
   let executionEvidence:
     { mode: "native"; operationId: string; previewHash: string; validatorIds: string[] } | undefined;
+  let latestPreview: DeploymentPreviewV1 | undefined;
   const createPreview = async (request: PreviewRequest): Promise<DeploymentPreviewV1> => {
     const base = {
       schemaVersion: "1.0.0" as const,
@@ -267,7 +289,8 @@ function bicepPreviewProvider(now: Date): IacProvider {
       createdAt: now.toISOString(),
       expiresAt: new Date(now.getTime() + request.ttlMs).toISOString(),
     };
-    return { ...base, previewHash: sha256Json(base) };
+    latestPreview = { ...base, previewHash: sha256Json(base) };
+    return latestPreview;
   };
   return {
     track: "bicep",
@@ -305,7 +328,13 @@ function bicepPreviewProvider(now: Date): IacProvider {
       runId,
       deploymentHash: "7".repeat(64),
       collectedAt: now.toISOString(),
-      resources: [],
+      resources: (latestPreview?.changes ?? []).map(({ resourceId }) => ({
+        logicalId: resourceId,
+        resourceId,
+        type: "bicep/resource",
+        location: "swedencentral",
+        properties: { provider: "bicep" },
+      })),
     }),
     reconcile: async () => undefined,
     executionEvidence: (operationId) =>
@@ -333,6 +362,26 @@ test("task completion records executed manifest validators in order", async () =
   ]);
 });
 
+test("task validation refuses workflow bytes outside the run lock", async () => {
+  const root = await tempRoot();
+  const service = new ApexService(root);
+  await service.init({ projectId: "demo" });
+  await service.nextTask();
+  const issued = await service.nextTask();
+  assert.equal(issued.status, "task");
+  if (issued.status !== "task") return;
+  const workflowPath = join(root, ".apex", "runtime", "workflow.v1.json");
+  const workflowBytes = await readFile(workflowPath);
+  await writeFile(workflowPath, Buffer.concat([workflowBytes, Buffer.from("\n")]));
+  await assert.rejects(
+    service.completeTaskOutputs(issued.task.taskId, [
+      { kind: "requirements", value: requirements() },
+      { kind: "sku-manifest", value: skuManifest(sha256Json(requirements())) },
+    ]),
+    (error: unknown) => error instanceof ApexError && error.code === "APEX_STALE",
+  );
+});
+
 test("gate approval records executed manifest validators in order", async () => {
   const root = await tempRoot();
   const service = new ApexService(root);
@@ -348,6 +397,14 @@ test("gate approval records executed manifest validators in order", async () => 
       value: review(runId, "requirements", requirementHashes.requirements!),
     },
   ]);
+  const workflowPath = join(root, ".apex", "runtime", "workflow.v1.json");
+  const workflowBytes = await readFile(workflowPath);
+  await writeFile(workflowPath, Buffer.concat([workflowBytes, Buffer.from("\n")]));
+  await assert.rejects(
+    service.decideGateNumber(1, "approved", "tester"),
+    (error: unknown) => error instanceof ApexError && error.code === "APEX_STALE",
+  );
+  await writeFile(workflowPath, workflowBytes);
   await service.decideGateNumber(1, "approved", "tester");
 
   const events = await new EventJournal(join(root, ".apex", "projects", "demo", "runs", runId, "journal")).replay();
@@ -695,20 +752,53 @@ for (const track of ["bicep", "terraform"] as const) {
         : ["deploy:exact-saved-plan", "deploy:state-lineage-and-serial"],
     );
     assert.equal((deployment?.payload as { evidenceMode?: unknown }).evidenceMode, "simulated");
-    await complete(service, "diagnosis", [
-      {
-        kind: "diagnosis",
-        value: {
-          schemaVersion: "1.0.0",
-          projectId: "demo",
-          runId,
-          diagnosedAt: "2026-01-01T00:00:00.000Z",
-          status: "healthy",
-          observations: ["deployed"],
-          causes: [],
-        },
-      },
+    assert.deepEqual((deployment?.payload as { inventoryValidatorIds?: unknown }).inventoryValidatorIds, [
+      "inventory:secret-free",
+      "inventory:source-coverage",
+      "inventory:eventual-consistency-reconciled",
     ]);
+    const diagnosisTask = await task(service, "diagnosis");
+    const diagnosis = {
+      schemaVersion: "1.0.0" as const,
+      projectId: "demo",
+      runId,
+      diagnosedAt: deployed.inventory.collectedAt,
+      status: "healthy" as const,
+      observations: ["deployed"],
+      causes: [],
+    };
+    await assert.rejects(
+      service.completeTaskOutputs(diagnosisTask, [
+        { kind: "diagnosis", value: { ...diagnosis, observations: ["Bearer secret-token-value"] } },
+      ]),
+      /diagnosis:secret-free/,
+    );
+    await assert.rejects(
+      service.completeTaskOutputs(diagnosisTask, [
+        { kind: "diagnosis", value: { ...diagnosis, diagnosedAt: "2099-01-01T00:00:00.000Z" } },
+      ]),
+      /diagnosis:read-only/,
+    );
+    await assert.rejects(
+      service.completeTaskOutputs(diagnosisTask, [
+        {
+          kind: "diagnosis",
+          value: {
+            ...diagnosis,
+            causes: [
+              {
+                id: "cause-1",
+                summary: "Observed mismatch",
+                confidence: "medium",
+                evidenceRefs: ["e".repeat(64)],
+              },
+            ],
+          },
+        },
+      ]),
+      /diagnosis:read-only/,
+    );
+    await service.completeTaskOutputs(diagnosisTask, [{ kind: "diagnosis", value: diagnosis }]);
     const qualityTask = await task(service, "quality");
     const report = await qualityReport(root, runId);
     const staleScorecard = { ...report, scorecardHash: "f".repeat(64) };
@@ -773,7 +863,54 @@ for (const track of ["bicep", "terraform"] as const) {
       "quality:scorecard-decidable",
       "quality:no-subjective-deterministic-claims",
     ]);
+    if (track === "bicep") {
+      const workflowPath = join(root, ".apex", "runtime", "workflow.v1.json");
+      const workflowBytes = await readFile(workflowPath);
+      await writeFile(workflowPath, Buffer.concat([workflowBytes, Buffer.from("\n")]));
+      await assert.rejects(
+        service.status(),
+        (error: unknown) => error instanceof ApexError && error.code === "APEX_STALE",
+      );
+      await writeFile(workflowPath, workflowBytes);
+    }
     assert.equal((await service.status()).task, null);
+    assert.equal((await service.status()).task, null);
+    const finalEvents = await new EventJournal(
+      join(root, ".apex", "projects", "demo", "runs", runId, "journal"),
+    ).replay();
+    const diagnosisCompleted = [...finalEvents]
+      .reverse()
+      .find(
+        (event) => event.type === "task.completed" && (event.payload as { nodeId?: unknown }).nodeId === "diagnosis",
+      );
+    assert.deepEqual((diagnosisCompleted?.payload as { validatorIds?: unknown }).validatorIds, [
+      "diagnosis:read-only",
+      "diagnosis:secret-free",
+    ]);
+    const workflowCompleted = [...finalEvents].reverse().find((event) => event.type === "workflow.completed");
+    assert.deepEqual((workflowCompleted?.payload as { validatorIds?: unknown }).validatorIds, [
+      "terminal:run-evidence-complete",
+    ]);
+    const terminalPayload = workflowCompleted?.payload as {
+      activeValidatorIds?: string[];
+      executedValidatorIds?: string[];
+      simulatedOmittedValidatorIds?: string[];
+    };
+    const accounted = new Set([
+      ...(terminalPayload.executedValidatorIds ?? []),
+      ...(terminalPayload.simulatedOmittedValidatorIds ?? []),
+    ]);
+    assert.equal(
+      (terminalPayload.activeValidatorIds ?? [])
+        .filter((id) => id !== "terminal:run-evidence-complete")
+        .every((id) => accounted.has(id)),
+      true,
+    );
+    const trackValidator = track === "bicep" ? "bicep:build" : "terraform:validate";
+    const opposingTrackValidator = track === "bicep" ? "terraform:validate" : "bicep:build";
+    assert.equal((terminalPayload.activeValidatorIds ?? []).includes(trackValidator), true);
+    assert.equal((terminalPayload.activeValidatorIds ?? []).includes(opposingTrackValidator), false);
+    assert.equal(finalEvents.filter(({ type }) => type === "workflow.completed").length, 1);
   });
 }
 
@@ -924,6 +1061,33 @@ test("native Terraform preview records saved-plan validation and rejects wrong b
     false,
   );
 
+  for (const mutation of ["secret-inventory", "incomplete-inventory"] as const) {
+    const inventoryRoot = await tempRoot();
+    const inventoryService = new ApexService(inventoryRoot, {
+      clock: () => now,
+      providers: { terraform: terraformPreviewProvider(now, mutation) },
+    });
+    const inventoryRun = await inventoryService.init({ projectId: "demo", iacTool: "terraform" });
+    await reachValidation(inventoryService, inventoryRun.runId, "terraform");
+    const inventoryPreview = await inventoryService.preview({ operation: "apply", provider: "terraform" });
+    await inventoryService.decideGateNumber(4, "approved", "tester");
+    await assert.rejects(
+      inventoryService.deploy(inventoryPreview.previewHash),
+      mutation === "secret-inventory" ? /inventory:secret-free/ : /inventory:source-coverage/,
+    );
+    const inventoryEvents = await new EventJournal(
+      join(inventoryRoot, ".apex", "projects", "demo", "runs", inventoryRun.runId, "journal"),
+    ).replay();
+    assert.equal(
+      inventoryEvents.some(({ type }) => type === "deployment.executed"),
+      true,
+    );
+    assert.equal(
+      inventoryEvents.some(({ type }) => type === "deployment.completed"),
+      false,
+    );
+  }
+
   const invalidRoot = await tempRoot();
   const invalid = new ApexService(invalidRoot, {
     clock: () => now,
@@ -972,6 +1136,18 @@ test("native Terraform preview records saved-plan validation and rejects wrong b
   });
   await recovering.preview({ operation: "apply", provider: "terraform" });
   assert.equal((await recovering.status()).run.gates[3]?.state, "open");
+});
+
+test("terminal validator rejects unaccounted active validators", () => {
+  const registry = new ValidatorRegistry();
+  registerWorkflowValidators(registry);
+  const result = registry.validate("terminal:run-evidence-complete", {
+    activeValidatorIds: ["schema:requirements-v1", "terminal:run-evidence-complete"],
+    executedValidatorIds: [],
+    simulatedOmittedValidatorIds: [],
+  });
+  assert.equal(result.valid, false);
+  assert.match(result.issues[0]?.message ?? "", /schema:requirements-v1/);
 });
 
 test("review blockers persist, resolve, and permit gate approval", async () => {
