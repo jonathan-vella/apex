@@ -12,4 +12,5 @@ export * from "./run-repository.js";
 export * from "./tasks.js";
 export * from "./validator-registry.js";
 export * from "./workflow-engine.js";
+export * from "./workflow-validator-ownership.js";
 export * from "./writer-transfer.js";
