@@ -25,6 +25,7 @@ body:
         - GitHub Actions workflows
         - MCP Server (tools/mcp-servers/azure-pricing/)
         - Devcontainer configuration
+        - APEX vNext runtime (packages/, config/, customizations/)
         - Other
     validations:
       required: true
@@ -66,6 +67,33 @@ body:
         4. Observe error
     validations:
       required: true
+
+  - type: input
+    id: integration-head
+    attributes:
+      label: Integration Head
+      description: For vNext regressions, provide the full integration commit SHA where the issue occurs.
+      placeholder: "7fc27966f38a17e65d7c172fccc65451c2f46c9b"
+    validations:
+      required: false
+
+  - type: input
+    id: failed-check
+    attributes:
+      label: Failed Check
+      description: For regressions, name or link the failing local or GitHub Actions check.
+      placeholder: "CodeQL / Analyze (javascript-typescript)"
+    validations:
+      required: false
+
+  - type: textarea
+    id: regression-test
+    attributes:
+      label: Regression Test
+      description: Describe the test that reproduces this failure or must prove the fix.
+      placeholder: "A long adversarial input must complete within the bounded test timeout."
+    validations:
+      required: false
 
   - type: dropdown
     id: environment
@@ -125,7 +153,7 @@ body:
       options:
         - label: I've searched existing issues to avoid duplicates
           required: true
-        - label: I'm using the latest version of the repository (main branch)
+        - label: I'm using the latest version of the relevant target branch
           required: true
         - label: I've included relevant error messages and logs
           required: true

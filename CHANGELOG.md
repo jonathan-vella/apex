@@ -20,6 +20,8 @@ for full details on this and all prior releases.
 
 ### Added (APEX vNext Phase 0A baseline)
 
+- feat(vnext): added durable project controls, structured work-item and regression intake, and an offline validator for
+  requirement references, local links, issue-form fields, and frozen Phase 0A evidence.
 - docs(vnext): added approved v1 baseline decisions, candidate transcripts and manifest, the
   preserve/change/retire compatibility matrix, deterministic golden scenarios,
   the known-defects ledger, and the v1 maintenance policy. The baseline tag
@@ -50,6 +52,12 @@ for full details on this and all prior releases.
   CI lanes, and versioned preview documentation. Live VS Code agent behavior,
   Azure deployment-stack behavior, production Terraform CI plan transport, and
   final release scorecard evidence remain explicit pre-cutover gates.
+
+### Fixed (APEX vNext security)
+
+- fix(vnext): replaced polynomial storage-security regular expressions over generated Bicep and Terraform source with
+  a bounded line-oriented assignment scan. Adversarial dual-track coverage protects the fix in
+  [#537](https://github.com/jonathan-vella/apex/issues/537).
 
 ### Changed (Model migration — Claude Sonnet 4.6 → Claude Sonnet 5)
 
