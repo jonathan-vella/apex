@@ -390,6 +390,12 @@ export async function execute(argv: string[], root = process.cwd()): Promise<unk
         required(flags, "pack"),
         typeof flags.manifest === "string" ? flags.manifest : undefined,
       );
+    case "capability uninstall":
+      confirmed(flags, "capability uninstall");
+      return service.capabilityUninstall(
+        required(flags, "pack"),
+        typeof flags.manifest === "string" ? flags.manifest : undefined,
+      );
     case "project list":
       return service.listProjects();
     case "project use":

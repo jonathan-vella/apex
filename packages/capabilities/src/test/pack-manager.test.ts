@@ -8,6 +8,7 @@ import { CapabilityPackManager, type CapabilityPackRegistryV1 } from "../pack-ma
 import type { ProcessRequest, ProcessResult, ProcessRunnerLike } from "../process-runner.js";
 
 const roots: string[] = [];
+const compareText = (left: string, right: string): number => (left < right ? -1 : left > right ? 1 : 0);
 
 class FakeRunner implements ProcessRunnerLike {
   readonly requests: ProcessRequest[] = [];
@@ -49,7 +50,7 @@ async function treeDigest(rootPath: string): Promise<string> {
   const hash = createHash("sha256");
   const visit = async (directory: string): Promise<void> => {
     const entries = (await readdir(directory, { withFileTypes: true })).sort((left, right) =>
-      left.name.localeCompare(right.name),
+      compareText(left.name, right.name),
     );
     for (const entry of entries) {
       const path = join(directory, entry.name);
@@ -279,11 +280,67 @@ test("rollback restores the previously verified pack", async () => {
   await writeFile(scriptPath, "print('v2')\n");
   await writeFile(manifestPath, JSON.stringify(await registry("2.0.0")));
   assert.equal((await packs.update("governance")).installedVersion, "2.0.0");
+  const previousScript = join(workspace, ".apex", "capability-packs", "governance.previous", "discover.py");
+  await writeFile(previousScript, "print('corrupt')\n");
+  await assert.rejects(packs.rollback("governance"), /source artifact digest mismatch/);
+  assert.equal((await packs.verify("governance")).installedVersion, "2.0.0");
+  assert.equal(
+    await readFile(join(workspace, ".apex", "capability-packs", "governance", "discover.py"), "utf8"),
+    "print('v2')\n",
+  );
+  assert.equal(await readFile(previousScript, "utf8"), "print('corrupt')\n");
+  await writeFile(previousScript, "print('v1')\n");
   const rolledBack = await packs.rollback("governance");
   assert.equal(rolledBack.installedVersion, "1.0.0");
   assert.equal(
     await readFile(join(workspace, ".apex", "capability-packs", "governance", "discover.py"), "utf8"),
     "print('v1')\n",
+  );
+  const uninstalled = await packs.uninstall("governance");
+  assert.equal(uninstalled.state, "not-installed");
+  assert.equal(uninstalled.changed, true);
+  assert.equal((await packs.status("governance")).state, "not-installed");
+  await assert.rejects(lstat(join(workspace, ".apex", "capability-packs", "governance")), /ENOENT/);
+  await assert.rejects(lstat(join(workspace, ".apex", "capability-packs", "governance.previous")), /ENOENT/);
+  assert.equal((await packs.uninstall("governance")).changed, false);
+});
+
+test("uninstall preserves other packs and fails before removal when the registry is unreadable", async () => {
+  const workspace = await root();
+  const manifestRoot = join(workspace, "manifest");
+  const manifestPath = join(manifestRoot, "capability-packs.v1.json");
+  const definitions = [];
+  for (const id of ["governance", "drawio"]) {
+    const source = join(manifestRoot, id);
+    await mkdir(source, { recursive: true });
+    const script = `${id}.py`;
+    await writeFile(join(source, script), `print('${id}')\n`);
+    definitions.push({
+      id,
+      version: "1.0.0",
+      runtime: "python" as const,
+      dependencyFree: true,
+      script,
+      scriptDigest: await fileDigest(join(source, script)),
+      artifact: { type: "local-directory" as const, spec: id, digest: await treeDigest(source) },
+      executable: { command: "python", args: [script] },
+    });
+  }
+  const registry: CapabilityPackRegistryV1 = { schemaVersion: "1.0.0", packs: definitions };
+  const { manager: packs } = await manager(workspace, registry);
+  assert.equal((await packs.install("governance")).state, "installed");
+  assert.equal((await packs.install("drawio")).state, "installed");
+
+  await rm(manifestPath);
+  await assert.rejects(packs.uninstall("governance"), /ENOENT/);
+  await readFile(join(workspace, ".apex", "capability-packs", "governance", "pack.lock.json"));
+  await writeFile(manifestPath, JSON.stringify(registry));
+
+  assert.equal((await packs.uninstall("governance")).state, "not-installed");
+  assert.equal((await packs.verify("drawio")).state, "installed");
+  assert.equal(
+    await readFile(join(workspace, ".apex", "capability-packs", "drawio", "drawio.py"), "utf8"),
+    "print('drawio')\n",
   );
 });
 

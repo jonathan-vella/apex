@@ -353,6 +353,10 @@ export class ApexService {
     return this.capabilityPacks(manifestPath).verify(id);
   }
 
+  async capabilityUninstall(id: string, manifestPath?: string): Promise<unknown> {
+    return this.capabilityPacks(manifestPath).uninstall(id);
+  }
+
   async init(input: {
     projectId: ProjectId;
     displayName?: string;

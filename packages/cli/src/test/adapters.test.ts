@@ -128,4 +128,5 @@ test("CLI capability commands report retained packs and require confirmation for
   assert.equal(listed.find(({ id }) => id === "azure-pricing")?.state, "not-installed");
   assert.equal(listed.find(({ id }) => id === "azure-pricing")?.reason, undefined);
   await assert.rejects(execute(["capability", "install", "--pack", "azure-pricing"], root), /requires --yes/);
+  await assert.rejects(execute(["capability", "uninstall", "--pack", "azure-pricing"], root), /requires --yes/);
 });

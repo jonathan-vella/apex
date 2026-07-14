@@ -31,6 +31,13 @@ Run `apex <command> --json` for automation. Success is written to stdout as
 | `apex update` | Optional `--customizations-source` | Three-way update managed workspace files. |
 | `apex setup` | Optional `--live` | Run readiness checks; live mode checks Azure CLI authentication. |
 | `apex doctor` | Optional `--fix --yes` | Diagnose setup and optionally repair managed files and the runtime lock. |
+| `apex capability list` | Optional `--manifest` | List capability-pack availability and installation state. |
+| `apex capability status` | `--pack`; optional `--manifest` | Show one capability pack's actionable state. |
+| `apex capability install` | `--pack --yes`; optional `--manifest --cache` | Install and verify a digest-pinned pack. |
+| `apex capability update` | `--pack --yes`; optional `--manifest --cache` | Transactionally replace a pack. |
+| `apex capability verify` | `--pack`; optional `--manifest` | Verify installed files, locks, and entrypoints. |
+| `apex capability rollback` | `--pack --yes`; optional `--manifest` | Restore the previously verified pack. |
+| `apex capability uninstall` | `--pack --yes`; optional `--manifest` | Remove current and rollback copies. |
 | `apex project list` | None | List initialized projects. |
 | `apex project use` | `--project`; optional `--run` | Select a project and run. |
 | `apex project show` | Optional `--project` | Show a project or the current project and run. |
@@ -44,7 +51,7 @@ Run `apex <command> --json` for automation. Success is written to stdout as
 | `apex task cancel` | `--task` | Cancel an issued task. |
 | `apex task stage-file` | `--task --path --file`; optional `--sha` | Stage an allowed code-generation file. |
 | `apex task generate-iac` | `--task` | Generate the selected IaC track in the bounded staging tree. |
-| `apex review resolve` | `--review --resolution` | Record a review-finding resolution. |
+| `apex review resolve` | `--file` | Record a review-finding resolution from JSON. |
 | `apex gate decide` | `--gate --decision --actor` | Approve or reject an open gate. |
 | `apex validate` | None | Validate and cache the current journal/runtime-lock result. |
 | `apex preview` | `--operation --provider`; see values below | Create a bound preview and open Gate 4. |
@@ -63,6 +70,8 @@ Run `apex <command> --json` for automation. Success is written to stdout as
 | `apex telemetry delete` | None | Delete optional telemetry. |
 | `apex cache status` | None | Count deterministic cache entries. |
 | `apex cache clear` | None | Invalidate the deterministic cache. |
+| `apex quality evaluate` | `--measurements`; optional `--scorecard` | Evaluate measurements against a scorecard. |
+| `apex quality status` | None | Read the latest quality evaluation. |
 | `apex mcp serve` | None | Serve the APEX MCP protocol over standard input/output. |
 
 The compact rows above expand to these exact accepted flags and values:
@@ -70,8 +79,13 @@ The compact rows above expand to these exact accepted flags and values:
 ```text
 init: --project; optional --name, --environment, --target, --iac, --customizations-source
 task complete: --task, --file; single output also needs --kind; optional --summary
+review resolve: --file
 preview: --operation apply|destroy --provider fake|bicep|terraform
 render: --kind status|requirements|preview|approval|inventory
+capability install/update: --pack --yes; optional --manifest, --cache
+capability status/verify: --pack; optional --manifest
+capability rollback/uninstall: --pack --yes; optional --manifest
+quality evaluate: --measurements; optional --scorecard
 writer transfer-create: --repo --branch --commit --workflow --sender --recipient --head --ttl
 evidence accept: --kind --content-type and exactly one of --file or --value; optional --required
 ```
