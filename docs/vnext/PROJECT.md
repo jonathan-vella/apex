@@ -34,16 +34,16 @@ See [REGISTER.md](REGISTER.md) for ownership, evidence, mitigation, and closure 
 
 ## Validation State
 
-| Check | Result | Evidence |
-| --- | --- | --- |
-| Prompt hash reproduction | Pass | Both isolated prompt hashes match the original worktree copies. |
-| `npm run validate:vnext` | Pass | Local isolated worktree, 2026-07-14. |
-| `npm run test:vnext` | Pass | All workspace package suites passed. |
-| `npm run test:vnext-validator` | Pass | Repository-model mutation cases passed. |
-| `npm run test:vnext-pack` | Blocked | Timed out during clean consumer install; leaked child was terminated. |
-| PR #533 required checks | Fail | CI, docs, devcontainer summary, and CodeQL are red at the verified head. |
-| Security alert inventory | Blocked | CodeQL alert #34 is open; no open secret-scanning or Dependabot alerts found. |
-| Project controls validation | Pass | Markdown, JSON, JavaScript, forms, local links, references, and mutation tests. |
+| Check                          | Result  | Evidence                                                                        |
+| ------------------------------ | ------- | ------------------------------------------------------------------------------- |
+| Prompt hash reproduction       | Pass    | Both isolated prompt hashes match the original worktree copies.                 |
+| `npm run validate:vnext`       | Pass    | Local isolated worktree, 2026-07-14.                                            |
+| `npm run test:vnext`           | Pass    | All workspace package suites passed.                                            |
+| `npm run test:vnext-validator` | Pass    | Repository-model mutation cases passed.                                         |
+| `npm run test:vnext-pack`      | Blocked | Timed out during clean consumer install; leaked child was terminated.           |
+| PR #533 required checks        | Fail    | CI, docs, devcontainer summary, and CodeQL are red at the verified head.        |
+| Security alert inventory       | Blocked | CodeQL alert #34 is open; no open secret-scanning or Dependabot alerts found.   |
+| Project controls validation    | Pass    | Markdown, JSON, JavaScript, forms, local links, references, and mutation tests. |
 
 ## Resume Pointer
 
