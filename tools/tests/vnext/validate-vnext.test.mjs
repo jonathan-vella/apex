@@ -24,6 +24,30 @@ test("repository model satisfies vNext contracts", () => {
   assert.ok(Object.values(generateManagedFileHashInventory(baseline)).every((hash) => /^[a-f0-9]{64}$/.test(hash)));
 });
 
+test("rejects CI lint before the vNext build", () => {
+  const result = mutate((model) => {
+    model.rootManifest.scripts["validate:_node-ci"] = model.rootManifest.scripts["validate:_node-ci"].replace(
+      "npm run build:vnext && ",
+      "",
+    );
+  });
+  assert.ok(hasRule(result, "ci.vnext-build-order"));
+});
+
+test("rejects cached CI lint over generated imports", () => {
+  const result = mutate((model) => {
+    model.rootManifest.scripts["lint:js:ci"] = model.rootManifest.scripts["lint:js:ci"].replace("--no-cache ", "");
+  });
+  assert.ok(hasRule(result, "ci.lint-cache"));
+});
+
+test("rejects a divergent CI validation entrypoint", () => {
+  const result = mutate((model) => {
+    model.ciWorkflow.jobs.ci.steps.find(({ run }) => run === "npm run validate:_node-ci").run = "npm run lint:js:ci";
+  });
+  assert.ok(hasRule(result, "ci.validation-entrypoint"));
+});
+
 test("rejects a subagent model escalation", () => {
   const result = mutate((model) => {
     model.customization.manifest.roles.find(({ agent }) => agent === "APEX Reviewer").costTier = "premium";

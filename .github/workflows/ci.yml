@@ -41,7 +41,7 @@ jobs:
       - name: Check formatting (Prettier)
         run: npm run format:check
 
-      - name: Run Node.js validators (CI-safe)
+      - name: Build vNext and run Node.js validators (CI-safe)
         run: npm run validate:_node-ci
 
       - name: Validate hooks
@@ -49,9 +49,6 @@ jobs:
 
       - name: Run hook tests
         run: npm run test:hooks
-
-      - name: Build APEX vNext packages
-        run: npm run build:vnext
 
       - name: Validate APEX vNext contracts and customizations
         run: npm run validate:vnext

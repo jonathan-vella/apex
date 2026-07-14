@@ -11,6 +11,7 @@ import { execFileSync } from "node:child_process";
 import { existsSync, lstatSync, readFileSync, readdirSync, realpathSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import * as yaml from "js-yaml";
 
 const REQUIRED_PACKAGES = ["contracts", "kernel", "capabilities", "renderers", "testkit", "cli"];
 const CORE_PACKAGES = new Set(["kernel", "capabilities", "renderers"]);
@@ -144,6 +145,7 @@ function parseContractRegistry(source) {
 }
 
 export function loadRepositoryModel(root = process.cwd()) {
+  const rootManifest = readJson(path.join(root, "package.json"));
   const config = Object.fromEntries(
     Object.keys(CONFIG_SHAPES).map((name) => [name, readJson(path.join(root, "config", name))]),
   );
@@ -168,6 +170,8 @@ export function loadRepositoryModel(root = process.cwd()) {
   const sourceFiles = walk(path.join(root, "packages"), (file) => file.endsWith(".ts"));
   return {
     root,
+    rootManifest,
+    ciWorkflow: yaml.load(readFileSync(path.join(root, ".github", "workflows", "ci.yml"), "utf8")),
     config,
     packages: packageEntries,
     customization: {
@@ -193,6 +197,36 @@ export function loadRepositoryModel(root = process.cwd()) {
     sources: sourceFiles.map((file) => ({ path: relative(root, file), content: readFileSync(file, "utf8") })),
     plan: readFileSync(path.join(root, ".github", "prompts", "plan-buildApexVnext.prompt.md"), "utf8"),
   };
+}
+
+function validateCiLintPrerequisites(model, findings) {
+  const command = model.rootManifest.scripts?.["validate:_node-ci"] ?? "";
+  const phases = command.split("&&").map((phase) => phase.trim());
+  const buildPhase = phases.findIndex((phase) => phase === "npm run build:vnext");
+  const lintPhase = phases.findIndex((phase) => phase.split(/\s+/).includes("lint:js:ci"));
+  if (buildPhase < 0 || lintPhase < 0 || buildPhase >= lintPhase)
+    finding(
+      findings,
+      "ci.vnext-build-order",
+      "validate:_node-ci must complete build:vnext before the phase containing lint:js:ci",
+      "package.json",
+    );
+  const lintCommand = model.rootManifest.scripts?.["lint:js:ci"] ?? "";
+  if (!lintCommand.split(/\s+/).includes("--no-cache"))
+    finding(
+      findings,
+      "ci.lint-cache",
+      "lint:js:ci must disable the ESLint cache because generated import targets can change independently",
+      "package.json",
+    );
+  const ciSteps = array(model.ciWorkflow?.jobs?.ci?.steps);
+  if (!ciSteps.some(({ run }) => run === "npm run validate:_node-ci"))
+    finding(
+      findings,
+      "ci.validation-entrypoint",
+      "The CI workflow must invoke validate:_node-ci so local and CI lint use the same prerequisites",
+      ".github/workflows/ci.yml",
+    );
 }
 
 const finding = (findings, ruleId, message, file = undefined) =>
@@ -691,6 +725,7 @@ function validateDeferredPlan(model, findings) {
 
 export function validateRepositoryModel(model) {
   const findings = [];
+  validateCiLintPrerequisites(model, findings);
   validatePackages(model, findings);
   validateContracts(model, findings);
   validateConfig(model, findings);
