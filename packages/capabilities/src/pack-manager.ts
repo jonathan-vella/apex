@@ -8,6 +8,7 @@ const HASH = /^[0-9a-f]{64}$/;
 const EMPTY_DIGEST = createHash("sha256").update("").digest("hex");
 const DEFAULT_TIMEOUT_MS = 120_000;
 const DEFAULT_OUTPUT_BYTES = 1024 * 1024;
+const compareText = (left: string, right: string): number => (left < right ? -1 : left > right ? 1 : 0);
 
 export type CapabilityPackRuntime = "python" | "deno" | "npm";
 export type CapabilityPackState = "installed" | "unavailable" | "blocked" | "invalid" | "not-installed";
@@ -165,16 +166,33 @@ export class CapabilityPackManager {
     }
     const staged = join(this.#localDirectory(), `rollback-${id}-${this.#idSource()}`);
     await mkdir(dirname(staged), { recursive: true });
+    let previousIsStaged = false;
+    let currentIsPrevious = false;
+    let previousIsCurrent = false;
     try {
       await rename(previous, staged);
-      if (await this.#exists(target)) await rename(target, previous);
+      previousIsStaged = true;
+      if (await this.#exists(target)) {
+        await rename(target, previous);
+        currentIsPrevious = true;
+      }
       await rename(staged, target);
+      previousIsStaged = false;
+      previousIsCurrent = true;
       const verified = await this.verify(id);
       if (verified.state !== "installed") throw new Error(verified.reason ?? "rollback verification failed");
       return { ...verified, changed: true, lock: await this.#readLock(target) };
     } catch (error) {
-      if (await this.#exists(staged)) await rename(staged, previous);
-      if (!(await this.#exists(target)) && (await this.#exists(previous))) await rename(previous, target);
+      if (previousIsCurrent) {
+        await rename(target, staged);
+        if (currentIsPrevious) await rename(previous, target);
+        await rename(staged, previous);
+      } else if (currentIsPrevious) {
+        await rename(previous, target);
+        await rename(staged, previous);
+      } else if (previousIsStaged) {
+        await rename(staged, previous);
+      }
       throw error;
     }
   }
@@ -230,6 +248,23 @@ export class CapabilityPackManager {
         changed: false,
       };
     }
+  }
+
+  async uninstall(id: string): Promise<CapabilityPackOperationResult> {
+    const definition = await this.#definition(id);
+    const target = this.#packDirectory(id);
+    const previous = `${target}.previous`;
+    const changed = (await this.#exists(target)) || (await this.#exists(previous));
+    await rm(target, { recursive: true, force: true });
+    await rm(previous, { recursive: true, force: true });
+    return {
+      id,
+      state: "not-installed",
+      ...(definition.version === undefined ? {} : { version: definition.version }),
+      requiredWorkflows: definition.requiredWorkflows ?? [],
+      action: `Run apex capability install --pack ${id}`,
+      changed,
+    };
   }
 
   async requiredForWorkflows(workflows: readonly string[]): Promise<readonly CapabilityPackStatusResult[]> {
@@ -620,7 +655,7 @@ export class CapabilityPackManager {
     const hash = createHash("sha256");
     const visit = async (directory: string): Promise<void> => {
       const entries = (await readdir(directory, { withFileTypes: true })).sort((left, right) =>
-        left.name.localeCompare(right.name),
+        compareText(left.name, right.name),
       );
       for (const entry of entries) {
         const path = join(directory, entry.name);

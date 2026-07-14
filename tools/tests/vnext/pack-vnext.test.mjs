@@ -391,6 +391,29 @@ test("packs and clean-installs the vNext runtime reproducibly", { timeout: 240_0
   await readFile(join(project, ".github", "agents", "apex.agent.md"));
   await readFile(join(project, ".vscode", "mcp.json"));
   await readFile(join(project, ".apex", "runtime", "workflow.v1.json"));
+  const governancePack = "azure-governance-discovery";
+  const capability = async (args) =>
+    JSON.parse((await runInTest(apexBin, ["capability", ...args, "--json"], project)).stdout).result;
+  const absentPack = await capability(["status", "--pack", governancePack]);
+  assert.equal(absentPack.state, "not-installed");
+  const installedPack = await capability(["install", "--pack", governancePack, "--yes"]);
+  assert.equal(installedPack.state, "installed");
+  assert.equal(installedPack.changed, true);
+  assert.equal((await capability(["verify", "--pack", governancePack])).state, "installed");
+  const updatedPack = await capability(["update", "--pack", governancePack, "--yes"]);
+  assert.equal(updatedPack.state, "installed");
+  assert.equal(updatedPack.changed, true);
+  const rolledBackPack = await capability(["rollback", "--pack", governancePack, "--yes"]);
+  assert.equal(rolledBackPack.state, "installed");
+  assert.equal(rolledBackPack.changed, true);
+  const removedPack = await capability(["uninstall", "--pack", governancePack, "--yes"]);
+  assert.equal(removedPack.state, "not-installed");
+  assert.equal(removedPack.changed, true);
+  assert.equal((await capability(["status", "--pack", governancePack])).state, "not-installed");
+  await assert.rejects(readFile(join(project, ".apex", "capability-packs", governancePack, "pack.lock.json")), {
+    code: "ENOENT",
+  });
+  await readFile(join(project, ".apex", "runtime", "capability-packs.registry.json"));
   await writeFile(join(project, "keep.txt"), "preserve me\n", "utf8");
   const lock = JSON.parse(await readFile(join(project, ".apex", "customizations.lock.json"), "utf8"));
   for (const file of [...lock.files, ...lock.runtime]) {
