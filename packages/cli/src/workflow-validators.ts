@@ -17,12 +17,16 @@ import {
   type ImplementationIntentV1,
   type LogicalResourceManifestV1,
   type PolicyPropertyMapV1,
+  type QualityMeasurementsV1,
+  type QualityReportV1,
+  type QualityScorecardV1,
   type RequirementsV1,
   type ReviewFindingsV1,
   type RunConfigV1,
   type DeploymentPreviewV1,
 } from "@apex/contracts";
 import { WORKFLOW_VALIDATOR_OWNERSHIP, sha256Json, type ValidationIssue, type ValidatorRegistry } from "@apex/kernel";
+import { evaluateQualityScorecard } from "@apex/renderers";
 
 export interface WorkflowTaskValidatorContext {
   readonly nodeId: string;
@@ -31,6 +35,8 @@ export interface WorkflowTaskValidatorContext {
   readonly outputs: Readonly<Record<string, unknown>>;
   readonly artifacts: Readonly<Record<string, unknown>>;
   readonly artifactHashes: Readonly<Record<string, string>>;
+  readonly scorecard?: QualityScorecardV1;
+  readonly qualityMeasurements?: QualityMeasurementsV1;
 }
 
 export interface WorkflowGateValidatorContext {
@@ -466,6 +472,111 @@ function terraformSavedPlanBinding(value: unknown): ValidationIssue[] {
   return valid ? [] : issue("/attestation", "Terraform saved plan is not bound to the exact preview");
 }
 
+function qualityContext(value: unknown): WorkflowTaskValidatorContext & {
+  readonly scorecard: QualityScorecardV1;
+  readonly qualityMeasurements: QualityMeasurementsV1;
+} {
+  return value as WorkflowTaskValidatorContext & {
+    readonly scorecard: QualityScorecardV1;
+    readonly qualityMeasurements: QualityMeasurementsV1;
+  };
+}
+
+function qualityScorecardDecidable(value: unknown): ValidationIssue[] {
+  const context = qualityContext(value);
+  if (context.scorecard === undefined) return issue("/scorecard", "Quality scorecard context is required");
+  if (context.qualityMeasurements === undefined)
+    return issue("/qualityMeasurements", "Quality measurements context is required");
+  const report = context.outputs["quality-report"] as QualityReportV1;
+  const measurementSet = context.qualityMeasurements;
+  const measurements = measurementSet.measurements;
+  const evaluations = evaluateQualityScorecard(context.scorecard, measurements);
+  const checks = new Map(report.checks.map((check) => [`${check.id}\u0000${check.scenario}`, check]));
+  const issues: ValidationIssue[] = [];
+  if (report.scorecardHash !== sha256Json(context.scorecard)) {
+    issues.push({ path: "/outputs/quality-report/scorecardHash", message: "Quality report scorecard hash is stale" });
+  }
+  if (report.measurementsHash !== sha256Json(measurementSet)) {
+    issues.push({ path: "/outputs/quality-report/measurementsHash", message: "Quality measurement hash is invalid" });
+  }
+  if (checks.size !== report.checks.length || checks.size !== context.scorecard.rules.length) {
+    issues.push({
+      path: "/outputs/quality-report/checks",
+      message: "Quality report must contain one check per scorecard rule",
+    });
+  }
+  for (const evaluation of evaluations) {
+    const check = checks.get(`${evaluation.metric}\u0000${evaluation.scenario}`);
+    if (
+      check === undefined ||
+      check.status !== evaluation.decision ||
+      check.samples !== evaluation.samples ||
+      check.value !== evaluation.value ||
+      check.detail !== evaluation.reason
+    ) {
+      issues.push({
+        path: "/outputs/quality-report/checks",
+        message: `Quality decision does not reconcile for ${evaluation.metric}/${evaluation.scenario}`,
+      });
+    }
+  }
+  const expectedStatus =
+    evaluations.some(({ decision }) => decision === "fail") || !evaluations.some(({ decision }) => decision === "pass")
+      ? "fail"
+      : "pass";
+  if (report.status !== expectedStatus) {
+    issues.push({ path: "/outputs/quality-report/status", message: `Quality report status must be ${expectedStatus}` });
+  }
+  return issues;
+}
+
+function qualityNoSubjectiveClaims(value: unknown): ValidationIssue[] {
+  const context = qualityContext(value);
+  if (context.qualityMeasurements === undefined)
+    return issue("/qualityMeasurements", "Quality measurements context is required");
+  const report = context.outputs["quality-report"] as QualityReportV1;
+  const measurements = new Map(
+    context.qualityMeasurements.measurements.map((measurement) => [
+      `${measurement.metric}\u0000${measurement.scenario}`,
+      measurement,
+    ]),
+  );
+  const keys = report.checks.map(({ id, scenario }) => `${id}\u0000${scenario}`);
+  const measurementKeys = context.qualityMeasurements.measurements.map(
+    ({ metric, scenario }) => `${metric}\u0000${scenario}`,
+  );
+  const issues: ValidationIssue[] = [];
+  if (new Set(keys).size !== keys.length) {
+    issues.push({ path: "/outputs/quality-report/checks", message: "Quality checks must be unique" });
+  }
+  if (JSON.stringify(keys) !== JSON.stringify([...keys].sort())) {
+    issues.push({ path: "/outputs/quality-report/checks", message: "Quality checks must use canonical order" });
+  }
+  if (new Set(measurementKeys).size !== measurementKeys.length) {
+    issues.push({ path: "/qualityMeasurements/measurements", message: "Quality measurements must be unique" });
+  }
+  if (JSON.stringify(measurementKeys) !== JSON.stringify([...measurementKeys].sort())) {
+    issues.push({
+      path: "/qualityMeasurements/measurements",
+      message: "Quality measurements must use canonical order",
+    });
+  }
+  for (const check of report.checks) {
+    if (check.value !== undefined && !Number.isFinite(check.value)) {
+      issues.push({ path: "/outputs/quality-report/checks/value", message: "Quality values must be finite" });
+    }
+    const measurement = measurements.get(`${check.id}\u0000${check.scenario}`);
+    const requiredEvidence = new Set([report.measurementsHash, ...(measurement?.evidenceRefs ?? [])]);
+    if (check.status !== "omitted" && [...requiredEvidence].some((hash) => !check.evidenceRefs.includes(hash))) {
+      issues.push({
+        path: "/outputs/quality-report/checks/evidenceRefs",
+        message: `Quality claim ${check.id}/${check.scenario} is missing measurement evidence`,
+      });
+    }
+  }
+  return issues;
+}
+
 export function registerWorkflowValidators(registry: ValidatorRegistry): void {
   registry.register("schema:requirements-v1", RequirementsV1Schema);
   registry.register("schema:architecture-v1", ArchitectureV1Schema);
@@ -510,7 +621,10 @@ export function registerWorkflowValidators(registry: ValidatorRegistry): void {
   registry.registerHandler("preview:freshness", previewFreshness, "freshness");
   registry.registerHandler("terraform:saved-plan-binding", terraformSavedPlanBinding, "authorization");
 
-  const requiredBoundaries = new Set(["task-output", "review", "validation", "gate", "preview"]);
+  registry.registerHandler("quality:scorecard-decidable", qualityScorecardDecidable);
+  registry.registerHandler("quality:no-subjective-deterministic-claims", qualityNoSubjectiveClaims);
+
+  const requiredBoundaries = new Set(["task-output", "review", "validation", "gate", "preview", "quality"]);
   for (const [id, ownership] of WORKFLOW_VALIDATOR_OWNERSHIP) {
     if (requiredBoundaries.has(ownership.boundary) && !registry.has(id)) {
       throw new Error(`Workflow validator ${id} has no registered ${ownership.boundary} handler`);

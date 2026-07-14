@@ -30,6 +30,7 @@ export function runtimeLockFixture(overrides: Partial<RuntimeBundleLockV1> = {})
     workflowHash: fixtureHash("workflow"),
     defaultsHash: fixtureHash("defaults"),
     validatorHash: fixtureHash("validator"),
+    qualityScorecardHash: fixtureHash("quality-scorecard"),
     requiredCapabilityPacks: ["iac"],
     ...overrides,
   };

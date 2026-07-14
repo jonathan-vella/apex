@@ -50,6 +50,11 @@ test("quality evaluate writes deterministic artifacts and quality status reads t
   const first = await readFile(join(root, ".apex", "quality", "evaluation.json"));
   await execute(["quality", "evaluate", "--measurements", measurementsPath, "--scorecard", scorecardPath], root);
   assert.deepEqual(await readFile(join(root, ".apex", "quality", "evaluation.json")), first);
+  const persistedMeasurements = JSON.parse(
+    await readFile(join(root, ".apex", "quality", "measurements.json"), "utf8"),
+  ) as { schemaVersion: string; measurements: Array<{ evidenceRefs: string[] }> };
+  assert.equal(persistedMeasurements.schemaVersion, "1.0.0");
+  assert.deepEqual(persistedMeasurements.measurements[0]?.evidenceRefs, []);
   assert.deepEqual(await execute(["quality", "status"], root), result);
   assert.match(
     await readFile(join(root, ".apex", "quality", "evaluation.md"), "utf8"),
@@ -69,4 +74,17 @@ test("quality evaluate persists and blocks unavailable required measurements", a
   );
   const status = (await execute(["quality", "status"], root)) as { status: string };
   assert.equal(status.status, "fail");
+});
+
+test("quality evaluate does not pass when every claim is omitted", async () => {
+  const root = await tempRoot();
+  const scorecardPath = join(root, "scorecard.json");
+  const measurementsPath = join(root, "measurements.json");
+  await writeJson(scorecardPath, { ...scorecard, rules: [scorecard.rules[1]] });
+  await writeJson(measurementsPath, { measurements: [] });
+  await assert.rejects(
+    execute(["quality", "evaluate", "--measurements", measurementsPath, "--scorecard", scorecardPath], root),
+    /scorecard evaluation failed/i,
+  );
+  assert.equal(((await execute(["quality", "status"], root)) as { status: string }).status, "fail");
 });

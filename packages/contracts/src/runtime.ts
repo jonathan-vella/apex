@@ -19,6 +19,7 @@ export const RuntimeBundleLockV1Schema = Type.Object(
     workflowHash: Sha256Schema,
     defaultsHash: Sha256Schema,
     validatorHash: Sha256Schema,
+    qualityScorecardHash: Sha256Schema,
     requiredCapabilityPacks: Type.Array(NonEmptyStringSchema, { uniqueItems: true }),
   },
   { $id: "https://schemas.apexops.dev/runtime-bundle-lock-v1.json", additionalProperties: false },

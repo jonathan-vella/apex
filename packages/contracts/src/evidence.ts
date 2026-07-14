@@ -54,5 +54,25 @@ export const QualityScorecardV1Schema = Type.Object(
   { $id: "https://schemas.apexops.dev/quality-scorecard-v1.json", additionalProperties: false },
 );
 
+export const QualityMeasurementsV1Schema = Type.Object(
+  {
+    schemaVersion: ContractVersionSchema,
+    measurements: Type.Array(
+      Type.Object(
+        {
+          metric: NonEmptyStringSchema,
+          scenario: NonEmptyStringSchema,
+          value: Type.Optional(Type.Number()),
+          samples: Type.Integer({ minimum: 0 }),
+          evidenceRefs: Type.Array(Sha256Schema, { uniqueItems: true }),
+        },
+        { additionalProperties: false },
+      ),
+    ),
+  },
+  { $id: "https://schemas.apexops.dev/quality-measurements-v1.json", additionalProperties: false },
+);
+
 export type EvidenceManifestV1 = Static<typeof EvidenceManifestV1Schema>;
 export type QualityScorecardV1 = Static<typeof QualityScorecardV1Schema>;
+export type QualityMeasurementsV1 = Static<typeof QualityMeasurementsV1Schema>;

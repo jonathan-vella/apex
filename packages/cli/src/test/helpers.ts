@@ -1,6 +1,12 @@
-import { CONTRACT_VERSION, type ImplementationIntentV1, type RequirementsV1 } from "@apex/contracts";
+import {
+  CONTRACT_VERSION,
+  type ImplementationIntentV1,
+  type QualityScorecardV1,
+  type RequirementsV1,
+} from "@apex/contracts";
 import { sha256Json } from "@apex/kernel";
-import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
+import { evaluateQualityScorecard } from "@apex/renderers";
+import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { after } from "node:test";
@@ -225,6 +231,43 @@ export function validationEvidence(runId: string, track: "bicep" | "terraform") 
       bytes: 1,
       required: true,
       retention: "immutable",
+    })),
+  };
+}
+
+export async function qualityReport(root: string, runId: string, projectId = "demo") {
+  const scorecard = JSON.parse(
+    await readFile(join(root, ".apex", "runtime", "quality-scorecard.v1.json"), "utf8"),
+  ) as QualityScorecardV1;
+  const measurements = [...scorecard.rules]
+    .map(({ metric, scenario }) => ({ metric, scenario, samples: 0, evidenceRefs: [] as string[] }))
+    .sort((left, right) =>
+      `${left.metric}\u0000${left.scenario}`.localeCompare(`${right.metric}\u0000${right.scenario}`),
+    );
+  const measurementSet = { schemaVersion: CONTRACT_VERSION, measurements };
+  await writeJson(join(root, ".apex", "quality", "measurements.json"), measurementSet);
+  const measurementsHash = sha256Json(measurementSet);
+  const evaluations = evaluateQualityScorecard(scorecard, measurements);
+  return {
+    schemaVersion: CONTRACT_VERSION,
+    projectId,
+    runId,
+    evaluatedAt: "2026-01-01T00:00:00.000Z",
+    scorecardHash: sha256Json(scorecard),
+    measurementsHash,
+    status:
+      evaluations.some(({ decision }) => decision === "fail") ||
+      !evaluations.some(({ decision }) => decision === "pass")
+        ? ("fail" as const)
+        : ("pass" as const),
+    checks: evaluations.map(({ metric, scenario, decision, value, samples, reason }) => ({
+      id: metric,
+      scenario,
+      status: decision,
+      ...(value === undefined ? {} : { value }),
+      samples,
+      evidenceRefs: decision === "omitted" ? [] : [measurementsHash],
+      detail: reason,
     })),
   };
 }

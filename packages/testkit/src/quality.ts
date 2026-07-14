@@ -26,6 +26,7 @@ export interface MeasurementProvenance {
 }
 
 export interface QualificationMeasurement extends ScorecardMeasurement {
+  readonly evidenceRefs: readonly string[];
   readonly provenance: MeasurementProvenance;
 }
 
@@ -267,10 +268,11 @@ function addMeasurement(
     scenario,
     ...(value === undefined ? {} : { value }),
     samples,
+    evidenceRefs: [...hashes].sort(),
     provenance: {
       source,
       scenario,
-      inputReportHashes: hashes,
+      inputReportHashes: [...hashes].sort(),
       sampleCount: samples,
       collectedAt: options.clock().toISOString(),
       commandVersions: options.commandVersions,

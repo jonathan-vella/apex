@@ -522,7 +522,7 @@
         "resource-inventory-v1",
         "quality-scorecard"
       ],
-      "outputs": ["quality-report-v1", "run-lessons-v1"],
+      "outputs": ["quality-report-v1"],
       "validators": ["quality:scorecard-decidable", "quality:no-subjective-deterministic-claims"],
       "invalidates": []
     },

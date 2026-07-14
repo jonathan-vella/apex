@@ -94,6 +94,11 @@
     "maxBytes": 16384,
     "sensitivity": "internal"
   },
+  "https://schemas.apexops.dev/quality-measurements-v1.json": {
+    "compatibility": "strict-v1",
+    "maxBytes": 1048576,
+    "sensitivity": "confidential"
+  },
   "https://schemas.apexops.dev/quality-report-v1.json": {
     "compatibility": "strict-v1",
     "maxBytes": 1048576,

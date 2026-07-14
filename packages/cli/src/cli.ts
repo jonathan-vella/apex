@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 import { mkdir, readFile, realpath, writeFile } from "node:fs/promises";
 import { NativeBicepProvider, NativeTerraformProvider, ProcessRunner, type IacProvider } from "@apex/capabilities";
-import type { QualityScorecardV1 } from "@apex/contracts";
-import { EventJournal, atomicWriteJson, sha256Bytes, sha256Json } from "@apex/kernel";
+import { QualityMeasurementsV1Schema, type QualityMeasurementsV1, type QualityScorecardV1 } from "@apex/contracts";
+import { EventJournal, ValidatorRegistry, atomicWriteJson, sha256Bytes, sha256Json } from "@apex/kernel";
 import { evaluateQualityScorecard, renderQualityScorecardEvaluation, type ScorecardMeasurement } from "@apex/renderers";
 import { join, resolve } from "node:path";
 import { ApexError, EXIT_CODES, normalizeError } from "./errors.js";
@@ -201,29 +201,75 @@ interface QualityEvaluationArtifact {
   readonly evaluations: ReturnType<typeof evaluateQualityScorecard>;
 }
 
+type QualityMeasurementInput = ScorecardMeasurement & {
+  evidenceRefs?: readonly string[];
+  provenance?: { inputReportHashes?: readonly string[] };
+};
+
 async function evaluateQuality(root: string, flags: Flags): Promise<QualityEvaluationArtifact> {
   const assets = await resolveBundledAssets();
   const scorecardPath =
     typeof flags.scorecard === "string" ? resolve(flags.scorecard) : join(assets.config, "quality-scorecard.v1.json");
   const measurementPath = resolve(required(flags, "measurements"));
   const scorecard = JSON.parse(await readFile(scorecardPath, "utf8")) as QualityScorecardV1;
-  const measurementInput = JSON.parse(await readFile(measurementPath, "utf8")) as
-    readonly ScorecardMeasurement[] | { measurements?: readonly ScorecardMeasurement[] };
-  const measurements = Array.isArray(measurementInput)
-    ? measurementInput
-    : (measurementInput as { measurements?: readonly ScorecardMeasurement[] }).measurements;
-  if (!Array.isArray(measurements))
+  const measurementInput = JSON.parse(await readFile(measurementPath, "utf8")) as unknown;
+  const inputMeasurements: readonly QualityMeasurementInput[] | undefined = Array.isArray(measurementInput)
+    ? (measurementInput as QualityMeasurementInput[])
+    : measurementInput !== null && typeof measurementInput === "object"
+      ? (measurementInput as { measurements?: readonly QualityMeasurementInput[] }).measurements
+      : undefined;
+  if (inputMeasurements === undefined)
     throw new ApexError("APEX_USAGE", "Measurements file must be an array or contain measurements[]", EXIT_CODES.usage);
+  const measurements = inputMeasurements
+    .map((measurement) => ({
+      metric: measurement.metric,
+      scenario: measurement.scenario,
+      ...(measurement.value === undefined ? {} : { value: measurement.value }),
+      samples: measurement.samples,
+      evidenceRefs: [
+        ...new Set(
+          (measurement.evidenceRefs ?? measurement.provenance?.inputReportHashes ?? []).filter(
+            (reference): reference is string => typeof reference === "string",
+          ),
+        ),
+      ].sort(),
+    }))
+    .sort((left, right) =>
+      `${left.metric}\u0000${left.scenario}`.localeCompare(`${right.metric}\u0000${right.scenario}`),
+    );
+  const measurementSet: QualityMeasurementsV1 = { schemaVersion: "1.0.0", measurements };
+  const measurementRegistry = new ValidatorRegistry();
+  measurementRegistry.register("quality-measurements", QualityMeasurementsV1Schema);
+  const measurementValidation = measurementRegistry.validate("quality-measurements", measurementSet);
+  if (!measurementValidation.valid)
+    throw new ApexError(
+      "APEX_VALIDATION",
+      "Quality measurements validation failed",
+      EXIT_CODES.validation,
+      measurementValidation.issues,
+    );
+  const keys = measurements.map(({ metric, scenario }) => `${metric}\u0000${scenario}`);
+  if (new Set(keys).size !== keys.length)
+    throw new ApexError(
+      "APEX_VALIDATION",
+      "Quality measurements contain duplicate metric/scenario pairs",
+      EXIT_CODES.validation,
+    );
   const evaluations = evaluateQualityScorecard(scorecard, measurements);
   const artifact: QualityEvaluationArtifact = {
     schemaVersion: "1.0.0",
     scorecardHash: sha256Json(scorecard),
-    measurementsHash: sha256Json(measurements),
-    status: evaluations.some(({ decision }) => decision === "fail") ? "fail" : "pass",
+    measurementsHash: sha256Json(measurementSet),
+    status:
+      evaluations.some(({ decision }) => decision === "fail") ||
+      !evaluations.some(({ decision }) => decision === "pass")
+        ? "fail"
+        : "pass",
     evaluations,
   };
   const outputDirectory = join(root, ".apex", "quality");
   await mkdir(outputDirectory, { recursive: true });
+  await atomicWriteJson(join(outputDirectory, "measurements.json"), measurementSet);
   await atomicWriteJson(join(outputDirectory, "evaluation.json"), artifact);
   await writeFile(
     join(outputDirectory, "evaluation.md"),

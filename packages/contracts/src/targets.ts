@@ -364,15 +364,19 @@ export const QualityReportV1Schema = Type.Object(
     projectId: ProjectIdSchema,
     runId: RunIdSchema,
     evaluatedAt: IsoDateTimeSchema,
-    status: Type.Union([Type.Literal("pass"), Type.Literal("fail"), Type.Literal("incomplete")]),
+    scorecardHash: Sha256Schema,
+    measurementsHash: Sha256Schema,
+    status: Type.Union([Type.Literal("pass"), Type.Literal("fail")]),
     checks: Type.Array(
       Type.Object(
         {
           id: NonEmptyStringSchema,
-          status: Type.Union([Type.Literal("pass"), Type.Literal("fail"), Type.Literal("unavailable")]),
-          score: Type.Optional(Type.Number({ minimum: 0, maximum: 1 })),
+          scenario: NonEmptyStringSchema,
+          status: Type.Union([Type.Literal("pass"), Type.Literal("fail"), Type.Literal("omitted")]),
+          value: Type.Optional(Type.Number()),
+          samples: Type.Integer({ minimum: 0 }),
           evidenceRefs: Type.Array(Sha256Schema, { uniqueItems: true }),
-          detail: Type.Optional(NonEmptyStringSchema),
+          detail: NonEmptyStringSchema,
         },
         { additionalProperties: false },
       ),
