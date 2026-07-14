@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
-import { mkdir, mkdtemp, readFile, rm, stat } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, readdir, rm, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { spawn } from "node:child_process";
@@ -112,6 +112,7 @@ function run(command, args, cwd = root, options = {}) {
   const terminationGraceMs = options.terminationGraceMs ?? defaultTerminationGraceMs;
   const maxOutputBytes = options.maxOutputBytes ?? defaultMaxOutputBytes;
   const abortSignal = options.signal;
+  const ready = options.ready;
   return new Promise((resolvePromise, reject) => {
     const commandText = `${command} ${args.join(" ")}`;
     const child = spawn(command, args, {
@@ -127,6 +128,7 @@ function run(command, args, cwd = root, options = {}) {
     let interruption;
     let cleanupPromise;
     let settled = false;
+    let timer;
 
     const capture = (chunk, stream) => {
       const bytes = Buffer.from(chunk);
@@ -150,7 +152,7 @@ function run(command, args, cwd = root, options = {}) {
     const finish = async (code, exitSignal, spawnError) => {
       if (settled) return;
       settled = true;
-      clearTimeout(timer);
+      if (timer !== undefined) clearTimeout(timer);
       abortSignal?.removeEventListener("abort", onAbort);
       try {
         if (cleanupPromise) await cleanupPromise;
@@ -177,10 +179,21 @@ function run(command, args, cwd = root, options = {}) {
 
     child.on("error", (error) => void finish(null, null, error));
     child.on("close", (code, exitSignal) => void finish(code, exitSignal));
-    const timer = setTimeout(
-      () => interrupt("APEX_TEST_PROCESS_TIMEOUT", `${commandText} timed out after ${timeoutMs}ms`),
-      timeoutMs,
-    );
+    const armTimeout = () => {
+      if (settled) return;
+      timer = setTimeout(
+        () => interrupt("APEX_TEST_PROCESS_TIMEOUT", `${commandText} timed out after ${timeoutMs}ms`),
+        timeoutMs,
+      );
+    };
+    if (ready === undefined) armTimeout();
+    else
+      Promise.resolve()
+        .then(ready)
+        .then(armTimeout, (error) => {
+          interrupt("APEX_TEST_PROCESS_STARTUP", `${commandText} did not become ready`);
+          void finish(null, null, error);
+        });
     if (abortSignal?.aborted) onAbort();
     else abortSignal?.addEventListener("abort", onAbort, { once: true });
   });
@@ -197,16 +210,13 @@ test("run times out and terminates a resistant process tree", async (context) =>
   const execution = run(process.execPath, [resistantProcessTree, pidFile], root, {
     timeoutMs: 250,
     terminationGraceMs: 50,
-  }).then(
-    () => ({ status: "resolved" }),
-    (error) => ({ status: "rejected", error }),
-  );
-  const outcome = await Promise.race([execution, delay(750).then(() => ({ status: "pending" }))]);
-
-  if (outcome.status === "pending") await emergencyCleanup(pidFile);
-  assert.equal(outcome.status, "rejected");
-  assert.equal(outcome.error.code, "APEX_TEST_PROCESS_TIMEOUT");
-  assert.match(outcome.error.message, /timed out after 250ms/);
+    ready: () => waitForRecordedPids(pidFile, 3, 5_000),
+  });
+  await assert.rejects(execution, (error) => {
+    assert.equal(error.code, "APEX_TEST_PROCESS_TIMEOUT");
+    assert.match(error.message, /timed out after 250ms/);
+    return true;
+  });
   const pids = await recordedPids(pidFile);
   assert.equal(pids.length, 3);
   assert.deepEqual(pids.filter(processExists), []);
@@ -255,17 +265,29 @@ test("run terminates a resistant process tree when its test context aborts", asy
   assert.deepEqual(pids.filter(processExists), []);
 });
 
-test("packs and clean-installs the vNext runtime", { timeout: 180_000 }, async (context) => {
+test("packs and clean-installs the vNext runtime reproducibly", { timeout: 240_000 }, async (context) => {
   const temporaryRoot = await mkdtemp(join(tmpdir(), "apex-pack-test-"));
   context.after(() => rm(temporaryRoot, { recursive: true, force: true }));
   const runInTest = (command, args, cwd = root, options = {}) =>
     run(command, args, cwd, { ...options, signal: context.signal });
   const outputDirectory = join(temporaryRoot, "packages");
+  const secondOutputDirectory = join(temporaryRoot, "packages-repeat");
   await runInTest(process.execPath, [
     join(root, "tools", "scripts", "pack-vnext.mjs"),
     "--output-dir",
     outputDirectory,
   ]);
+  await runInTest(process.execPath, [
+    join(root, "tools", "scripts", "pack-vnext.mjs"),
+    "--output-dir",
+    secondOutputDirectory,
+  ]);
+
+  const outputFiles = (await readdir(outputDirectory)).sort();
+  assert.deepEqual((await readdir(secondOutputDirectory)).sort(), outputFiles);
+  for (const file of outputFiles) {
+    assert.deepEqual(await readFile(join(secondOutputDirectory, file)), await readFile(join(outputDirectory, file)));
+  }
 
   const release = JSON.parse(await readFile(join(outputDirectory, "release-manifest.json"), "utf8"));
   assert.deepEqual(
@@ -277,7 +299,59 @@ test("packs and clean-installs the vNext runtime", { timeout: 180_000 }, async (
     const bytes = await readFile(tarball);
     assert.equal(entry.bytes, (await stat(tarball)).size);
     assert.equal(entry.sha256, createHash("sha256").update(bytes).digest("hex"));
+
+    const dryRun = JSON.parse(
+      (await runInTest("npm", ["pack", "--workspace", entry.package, "--json", "--dry-run"])).stdout,
+    );
+    const expectedFiles = dryRun[0].files.map(({ path }) => path).sort();
+    const actualFiles = (await runInTest("tar", ["-tzf", tarball])).stdout
+      .split("\n")
+      .filter((path) => path.startsWith("package/") && !path.endsWith("/"))
+      .map((path) => path.slice("package/".length))
+      .sort();
+    assert.deepEqual(actualFiles, expectedFiles, `${entry.package} dry-run inventory differs from its tarball`);
   }
+
+  for (const securityEntry of Object.values(release.security)) {
+    const bytes = await readFile(join(outputDirectory, securityEntry.file));
+    assert.equal(securityEntry.sha256, createHash("sha256").update(bytes).digest("hex"));
+  }
+  const releaseRefs = release.packages.map((entry) => `${entry.package}@${entry.version}`).sort();
+  const sbom = JSON.parse(await readFile(join(outputDirectory, release.security.sbom.file), "utf8"));
+  const sbomReleaseRefs = sbom.components
+    .map((component) => component["bom-ref"])
+    .filter((reference) => reference.startsWith("@apex/"))
+    .sort();
+  assert.deepEqual(sbomReleaseRefs, releaseRefs);
+  const rootDependency = sbom.dependencies.find(({ ref }) => ref === sbom.metadata.component["bom-ref"]);
+  assert.deepEqual(rootDependency.dependsOn.filter((reference) => reference.startsWith("@apex/")).sort(), releaseRefs);
+  const provenance = JSON.parse(await readFile(join(outputDirectory, release.security.provenance.file), "utf8"));
+  assert.deepEqual(
+    provenance.subject.map(({ name, digest }) => ({ name, sha256: digest.sha256 })),
+    [
+      ...release.packages.map(({ file, sha256 }) => ({ name: file, sha256 })),
+      { name: release.security.sbom.file, sha256: release.security.sbom.sha256 },
+    ],
+  );
+  assert.equal(provenance.predicate.buildDefinition.resolvedDependencies[0].digest.gitCommit, release.sourceCommit);
+  assert.equal(provenance.predicate.buildDefinition.resolvedDependencies[0].uri, release.sourceRepository);
+  assert.deepEqual(provenance.predicate.buildDefinition.internalParameters, release.toolchain);
+
+  const testkitOutput = join(temporaryRoot, "packages-with-testkit");
+  await runInTest(process.execPath, [
+    join(root, "tools", "scripts", "pack-vnext.mjs"),
+    "--output-dir",
+    testkitOutput,
+    "--include-testkit",
+  ]);
+  const testkitRelease = JSON.parse(await readFile(join(testkitOutput, "release-manifest.json"), "utf8"));
+  assert.ok(testkitRelease.packages.some(({ package: name }) => name === "@apex/testkit"));
+  const testkitSbom = JSON.parse(await readFile(join(testkitOutput, testkitRelease.security.sbom.file), "utf8"));
+  assert.ok(testkitSbom.components.some((component) => component["bom-ref"] === "@apex/testkit@0.1.0"));
+  const testkitProvenance = JSON.parse(
+    await readFile(join(testkitOutput, testkitRelease.security.provenance.file), "utf8"),
+  );
+  assert.equal(testkitProvenance.predicate.buildDefinition.externalParameters.includeTestkit, true);
 
   const cliEntry = release.packages.find(({ package: name }) => name === "@apex/cli");
   const cliTarball = join(outputDirectory, cliEntry.file);
@@ -292,16 +366,32 @@ test("packs and clean-installs the vNext runtime", { timeout: 180_000 }, async (
   await mkdir(project, { recursive: true });
   await runInTest("npm", ["init", "--yes"], project);
   const runtimeTarballs = release.packages.map((entry) => join(outputDirectory, entry.file));
-  await runInTest("npm", ["install", "--ignore-scripts", "--no-audit", "--no-fund", ...runtimeTarballs], project);
-
-  const version = JSON.parse(
-    (await runInTest(join(project, "node_modules", ".bin", "apex"), ["version", "--json"], project)).stdout,
+  const approvedCache = (await runInTest("npm", ["config", "get", "cache"])).stdout.trim();
+  assert.ok(approvedCache.length > 0);
+  await runInTest("npm", ["cache", "verify", "--cache", approvedCache]);
+  await runInTest(
+    "npm",
+    [
+      "install",
+      "--offline",
+      "--cache",
+      approvedCache,
+      "--ignore-scripts",
+      "--no-audit",
+      "--no-fund",
+      ...runtimeTarballs,
+    ],
+    project,
   );
+
+  const apexBin = join(project, "node_modules", ".bin", process.platform === "win32" ? "apex.cmd" : "apex");
+  const version = JSON.parse((await runInTest(apexBin, ["version", "--json"], project)).stdout);
   assert.deepEqual(version, { ok: true, result: { version: "0.1.0", bundleVersion: "0.1.0", configVersion: "1.0.0" } });
-  await runInTest(join(project, "node_modules", ".bin", "apex"), ["init", "--project", "demo", "--json"], project);
+  await runInTest(apexBin, ["init", "--project", "demo", "--json"], project);
   await readFile(join(project, ".github", "agents", "apex.agent.md"));
   await readFile(join(project, ".vscode", "mcp.json"));
   await readFile(join(project, ".apex", "runtime", "workflow.v1.json"));
+  await writeFile(join(project, "keep.txt"), "preserve me\n", "utf8");
   const lock = JSON.parse(await readFile(join(project, ".apex", "customizations.lock.json"), "utf8"));
   for (const file of [...lock.files, ...lock.runtime]) {
     const path = lock.files.includes(file) ? join(project, file.path) : join(project, ".apex", "runtime", file.path);
@@ -311,4 +401,12 @@ test("packs and clean-installs the vNext runtime", { timeout: 180_000 }, async (
     assert.equal(file.sourceHash, hash);
     assert.equal(file.currentHash, hash);
   }
+  const uninstall = JSON.parse((await runInTest(apexBin, ["customizations", "uninstall", "--json"], project)).stdout);
+  assert.equal(uninstall.ok, true);
+  assert.deepEqual(uninstall.result.conflicts, []);
+  await assert.rejects(readFile(join(project, ".github", "agents", "apex.agent.md")), { code: "ENOENT" });
+  await assert.rejects(readFile(join(project, ".apex", "customizations.lock.json")), { code: "ENOENT" });
+  assert.equal(await readFile(join(project, "keep.txt"), "utf8"), "preserve me\n");
+  await readFile(join(project, ".apex", "runtime", "workflow.v1.json"));
+  await readFile(join(project, ".apex", "projects", "demo", "project.json"));
 });
