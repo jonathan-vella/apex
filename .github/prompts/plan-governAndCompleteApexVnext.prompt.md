@@ -25,6 +25,8 @@ or self-modification loop.
 
 **Steps**
 
+<!-- markdownlint-disable MD013 MD029 -->
+
 ### Phase 1: Establish Project Controls
 
 1. Reconcile the project baseline before writing status. Record the current branch/head, dirty files, commits after
@@ -194,6 +196,8 @@ or self-modification loop.
     metric or unresolved critical/high risk blocks cutover.
 40. Only after explicit maintainer approval may the implementation prepare cutover artifacts, the v1 maintenance line,
     final tags/publication, and merge to `main`. These actions are deliberately excluded from autonomous execution.
+
+<!-- markdownlint-enable MD013 MD029 -->
 
 **Relevant files**
 
