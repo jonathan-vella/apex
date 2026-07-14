@@ -79,6 +79,11 @@ test("validator registry caches pure results by content and never caches freshne
   registry.register("pure", schema);
   registry.register("fresh", schema, "freshness");
   registry.register("auth", schema, "authorization");
+  registry.registerHandler("business", (value) =>
+    (value as { value?: unknown }).value === 1 ? [] : [{ path: "/value", message: "Expected one" }],
+  );
+  assert.equal(registry.has("business"), true);
+  assert.equal(registry.has("missing"), false);
   assert.equal(registry.validate("pure", { value: 1 }).cached, false);
   assert.equal(registry.validate("pure", { value: 1 }).cached, true);
   assert.equal(registry.validate("pure", { value: 2 }).cached, false);
@@ -87,4 +92,10 @@ test("validator registry caches pure results by content and never caches freshne
   assert.equal(registry.validate("fresh", { value: 1 }).cached, false);
   assert.equal(registry.validate("auth", { value: 1 }).cached, false);
   assert.equal(registry.validate("auth", { value: 1 }).cached, false);
+  assert.equal(registry.validate("business", { value: 1 }).valid, true);
+  assert.equal(registry.validate("business", { value: 1 }).cached, true);
+  const failed = registry.validate("business", { value: 2 });
+  assert.deepEqual(failed.issues, [{ path: "/value", message: "Expected one" }]);
+  failed.issues.length = 0;
+  assert.deepEqual(registry.validate("business", { value: 2 }).issues, [{ path: "/value", message: "Expected one" }]);
 });

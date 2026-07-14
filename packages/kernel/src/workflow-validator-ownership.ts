@@ -1,10 +1,23 @@
 export type WorkflowValidatorExecution = "schema" | "inline" | "capability" | "review" | "external-command";
+export type WorkflowValidatorBoundary =
+  | "task-output"
+  | "review"
+  | "external-evidence"
+  | "validation"
+  | "gate"
+  | "preview"
+  | "deploy"
+  | "inventory"
+  | "diagnosis"
+  | "quality"
+  | "terminal";
 
 export interface WorkflowValidatorOwnership {
   readonly id: string;
   readonly owner: "@apex/kernel" | "@apex/capabilities" | "@apex/cli";
   readonly entrypoint: string;
   readonly execution: WorkflowValidatorExecution;
+  readonly boundary: WorkflowValidatorBoundary;
 }
 
 interface OwnershipGroup extends Omit<WorkflowValidatorOwnership, "id"> {
@@ -22,12 +35,12 @@ const ownershipGroups: readonly OwnershipGroup[] = [
       "schema:requirements-v1",
     ],
     owner: "@apex/cli",
-    entrypoint: "ApexService.assertValid",
+    entrypoint: "ApexService.validateTaskValidators",
     execution: "schema",
+    boundary: "task-output",
   },
   {
     ids: [
-      "business:availability-current",
       "business:bicep-binding-coverage",
       "business:binding-track-match",
       "business:cost-arithmetic",
@@ -36,20 +49,28 @@ const ownershipGroups: readonly OwnershipGroup[] = [
       "business:governance-freshness",
       "business:plan-source-coverage",
       "business:policy-effect-coverage",
-      "business:policy-property-map",
       "business:requirements-completeness",
       "business:requirements-traceability",
       "business:terraform-binding-coverage",
     ],
     owner: "@apex/cli",
-    entrypoint: "ApexService.completeTask",
+    entrypoint: "ApexService.validateTaskValidators",
     execution: "inline",
+    boundary: "task-output",
   },
   {
-    ids: ["business:logical-resource-parity", "business:security-baseline"],
+    ids: ["business:availability-current"],
+    owner: "@apex/cli",
+    entrypoint: "ApexService.completeTask",
+    execution: "capability",
+    boundary: "external-evidence",
+  },
+  {
+    ids: ["business:logical-resource-parity", "business:policy-property-map", "business:security-baseline"],
     owner: "@apex/capabilities",
     entrypoint: "validateGeneratedTree",
     execution: "capability",
+    boundary: "validation",
   },
   {
     ids: [
@@ -59,86 +80,100 @@ const ownershipGroups: readonly OwnershipGroup[] = [
       "review:requirements-comprehensive",
     ],
     owner: "@apex/cli",
-    entrypoint: "ApexService.reviewBlockers",
+    entrypoint: "ApexService.validateTaskValidators",
     execution: "review",
+    boundary: "review",
   },
   {
     ids: ["gate:architecture-cost-governance-ready", "gate:implementation-plan-ready", "gate:requirements-ready"],
     owner: "@apex/cli",
     entrypoint: "ApexService.route",
     execution: "inline",
+    boundary: "gate",
   },
   {
     ids: ["gate:approval-binding-complete", "gate:no-hard-blockers", "gate:preview-current"],
     owner: "@apex/cli",
     entrypoint: "ApexService.assertPreviewReady",
     execution: "inline",
+    boundary: "gate",
   },
   {
     ids: ["bicep:build", "bicep:format", "bicep:lint"],
     owner: "@apex/capabilities",
     entrypoint: "validateGeneratedTree",
     execution: "external-command",
+    boundary: "validation",
   },
   {
     ids: ["terraform:format", "terraform:init-backend-false", "terraform:validate"],
     owner: "@apex/capabilities",
     entrypoint: "validateGeneratedTree",
     execution: "external-command",
+    boundary: "validation",
   },
   {
     ids: ["terraform:saved-plan-binding"],
     owner: "@apex/capabilities",
     entrypoint: "NativeTerraformProvider.previewApply",
     execution: "capability",
+    boundary: "preview",
   },
   {
     ids: ["preview:coverage", "preview:freshness", "preview:hash-bindings", "preview:policy-precheck"],
     owner: "@apex/cli",
     entrypoint: "ApexService.assertPreviewReady",
     execution: "inline",
+    boundary: "preview",
   },
   {
     ids: ["deploy:exact-approved-operation", "deploy:stale-writer-rejection"],
     owner: "@apex/cli",
     entrypoint: "ApexService.deploy",
     execution: "inline",
+    boundary: "deploy",
   },
   {
     ids: ["deploy:bicep-stack-ownership"],
     owner: "@apex/capabilities",
     entrypoint: "NativeBicepProvider.apply",
     execution: "capability",
+    boundary: "deploy",
   },
   {
     ids: ["deploy:exact-saved-plan", "deploy:state-lineage-and-serial"],
     owner: "@apex/capabilities",
     entrypoint: "NativeTerraformProvider.apply",
     execution: "capability",
+    boundary: "deploy",
   },
   {
     ids: ["inventory:eventual-consistency-reconciled", "inventory:secret-free", "inventory:source-coverage"],
     owner: "@apex/cli",
     entrypoint: "ApexService.inventory",
     execution: "inline",
+    boundary: "inventory",
   },
   {
     ids: ["diagnosis:read-only", "diagnosis:secret-free"],
     owner: "@apex/cli",
     entrypoint: "ApexService.diagnose",
     execution: "inline",
+    boundary: "diagnosis",
   },
   {
     ids: ["quality:no-subjective-deterministic-claims", "quality:scorecard-decidable"],
     owner: "@apex/cli",
     entrypoint: "evaluateQuality",
     execution: "inline",
+    boundary: "quality",
   },
   {
     ids: ["terminal:run-evidence-complete"],
     owner: "@apex/cli",
     entrypoint: "ApexService.status",
     execution: "inline",
+    boundary: "terminal",
   },
 ];
 
