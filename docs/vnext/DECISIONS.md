@@ -16,7 +16,8 @@ when a decision has lasting architectural consequences that need alternatives an
 - **Consequences:** `PROJECT.md` stays concise; issue checkpoints are mandatory before pausing; mutable status cannot have
   two owners.
 - **ADR:** Not required; this is a delivery-governance choice.
-- **Issue/PR:** [#536](https://github.com/jonathan-vella/apex/issues/536); PR pending.
+- **Issue/PR:** [#536](https://github.com/jonathan-vella/apex/issues/536),
+  [PR #548](https://github.com/jonathan-vella/apex/pull/548)
 
 ## DECISION-002: Use The Existing Integration Branch
 
@@ -33,7 +34,8 @@ when a decision has lasting architectural consequences that need alternatives an
 - **Consequences:** The Phase 0A branch-sequencing assumption is superseded, but its no-tag and no-cutover safety intent
   remains. PR #533 stays draft and `main` stays on v1.
 - **ADR:** Not required; repository topology is captured by the project controls.
-- **Issue/PR:** [#536](https://github.com/jonathan-vella/apex/issues/536); PR pending.
+- **Issue/PR:** [#536](https://github.com/jonathan-vella/apex/issues/536),
+  [PR #548](https://github.com/jonathan-vella/apex/pull/548)
 
 ## DECISION-003: Modernize Through Dependency-Complete Vertical Slices
 
@@ -94,7 +96,8 @@ when a decision has lasting architectural consequences that need alternatives an
 - **Consequences:** Regression issues can bind head, check, expected behavior, and proof test without burdening ordinary
   bug reports.
 - **ADR:** Not required.
-- **Issue/PR:** [#536](https://github.com/jonathan-vella/apex/issues/536); PR pending.
+- **Issue/PR:** [#536](https://github.com/jonathan-vella/apex/issues/536),
+  [PR #548](https://github.com/jonathan-vella/apex/pull/548)
 
 ## DECISION-007: Treat The Historical Build Plan As Superseded Input
 
@@ -109,4 +112,5 @@ when a decision has lasting architectural consequences that need alternatives an
 - **Rationale:** This retains design provenance without creating two mutable plans.
 - **Consequences:** New scope changes require a decision and PRD update. Historical phase labels are traceability only.
 - **ADR:** Not required.
-- **Issue/PR:** [#536](https://github.com/jonathan-vella/apex/issues/536); PR pending.
+- **Issue/PR:** [#536](https://github.com/jonathan-vella/apex/issues/536),
+  [PR #548](https://github.com/jonathan-vella/apex/pull/548)

@@ -8,7 +8,7 @@
 - **Execution branch:** `feat/vnext-project-controls`
 - **Execution issue:** [#536](https://github.com/jonathan-vella/apex/issues/536)
 - **Execution worktree:** `/workspaces/apex-vnext-controls`
-- **Execution pull request:** Pending
+- **Execution pull request:** [PR #548](https://github.com/jonathan-vella/apex/pull/548), open and draft
 
 ## Current State
 
