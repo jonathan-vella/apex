@@ -116,4 +116,4 @@ apex gate decide --gate 4 --decision approved --actor local-user --json
 apex deploy --preview "$PREVIEW_HASH" --json
 ```
 
-See [operations](./operations/) for native provider configuration and [security](./security/) before deployment.
+See [operations](../operations/) for native provider configuration and [security](../security/) before deployment.

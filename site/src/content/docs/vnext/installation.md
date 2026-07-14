@@ -64,4 +64,4 @@ reported conflict or restore the recorded base before retrying.
 4. Confirm the workspace MCP server starts from `.vscode/mcp.json`.
 5. Ask `APEX` for status and verify that it reads kernel state rather than inferring progress from chat.
 
-Continue with the [workflow](./workflow/) or run the full [qualification checklist](./testing/).
+Continue with the [workflow](../workflow/) or run the full [qualification checklist](../testing/).

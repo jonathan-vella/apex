@@ -54,4 +54,4 @@ or `.apex/local/`. Provider configuration must contain nonsecret settings only; 
 Resolve credentials only at operation time through Azure CLI, OIDC, Managed Identity, or another approved external
 credential source.
 
-Use the [operations guide](./operations/) to configure providers without secrets.
+Use the [operations guide](../operations/) to configure providers without secrets.

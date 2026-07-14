@@ -50,4 +50,4 @@ risk scopes still match. The first mismatch reopens the affected gate.
 Environment-specific artifacts are never inherited. Every promoted run requires a fresh preview, Deployment Preview
 decision, deployment, inventory, and evidence for its own Azure scope.
 
-Use the [operations guide](./operations/) for commands and the [security model](./security/) for authority boundaries.
+Use the [operations guide](../operations/) for commands and the [security model](../security/) for authority boundaries.
