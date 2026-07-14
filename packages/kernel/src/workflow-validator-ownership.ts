@@ -87,14 +87,14 @@ const ownershipGroups: readonly OwnershipGroup[] = [
   {
     ids: ["gate:architecture-cost-governance-ready", "gate:implementation-plan-ready", "gate:requirements-ready"],
     owner: "@apex/cli",
-    entrypoint: "ApexService.route",
+    entrypoint: "ApexService.validateGateValidators",
     execution: "inline",
     boundary: "gate",
   },
   {
     ids: ["gate:approval-binding-complete", "gate:no-hard-blockers", "gate:preview-current"],
     owner: "@apex/cli",
-    entrypoint: "ApexService.assertPreviewReady",
+    entrypoint: "ApexService.validateGateValidators",
     execution: "inline",
     boundary: "gate",
   },

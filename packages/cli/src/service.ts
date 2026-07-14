@@ -87,8 +87,9 @@ import { basename, delimiter, isAbsolute, join, relative, resolve, sep } from "n
 import { resolveBundledAssets } from "./assets.js";
 import { ApexError, EXIT_CODES } from "./errors.js";
 import {
-  registerTaskWorkflowValidators,
+  registerWorkflowValidators,
   taskWorkflowValidatorInput,
+  type WorkflowGateValidatorContext,
   type WorkflowTaskValidatorContext,
 } from "./workflow-validators.js";
 
@@ -289,7 +290,7 @@ export class ApexService {
     for (const [, [validator, schema]] of Object.entries(ARTIFACTS)) this.validators.register(validator, schema);
     this.validators.register("approval", ApprovalEvidenceV1Schema);
     this.validators.register("runtime-lock", RuntimeBundleLockV1Schema);
-    registerTaskWorkflowValidators(this.validators);
+    registerWorkflowValidators(this.validators);
     this.providers = {
       fake: new FakeIaCProvider({ track: "bicep", now: this.clock, nextId: this.idSource }),
       ...options.providers,
@@ -911,26 +912,29 @@ export class ApexService {
         `${finding.severity} findings cannot be accepted as risk by default policy`,
         EXIT_CODES.authorization,
       );
-    const prior = events.find(
-      (event) =>
-        event.type === "review.resolved" &&
-        (event.payload as { resolution?: ReviewResolution }).resolution?.reviewHash === resolution.reviewHash &&
-        (event.payload as { resolution?: ReviewResolution }).resolution?.findingId === resolution.findingId,
+    const priorResolutions = events.flatMap((event) => {
+      if (event.type !== "review.resolved") return [];
+      const prior = (event.payload as { resolution?: ReviewResolution }).resolution;
+      return prior?.reviewHash === resolution.reviewHash && prior.findingId === resolution.findingId ? [prior] : [];
+    });
+    if (priorResolutions.some((prior) => sha256Json(prior) === sha256Json(resolution))) return;
+    const hasCurrentResolution = priorResolutions.some(
+      (prior) =>
+        prior.disposition === "fixed" ||
+        (prior.expiresAt !== undefined && Date.parse(prior.expiresAt) > this.clock().getTime()),
     );
-    if (prior !== undefined) {
-      if (sha256Json((prior.payload as { resolution: ReviewResolution }).resolution) === sha256Json(resolution)) return;
+    if (hasCurrentResolution)
       throw new ApexError("APEX_CONFLICT", "Finding already has a conflicting resolution", EXIT_CODES.conflict);
-    }
     await this.append(run, "review.resolved", { resolution: resolution as unknown as JsonValue });
     const updatedEvents = await this.journal(run).replay();
     const nodeId = reviewPayload.nodeId;
     const descriptor = typeof nodeId === "string" ? TASKS.find(({ id }) => id === nodeId) : undefined;
-    if (
-      descriptor?.gate !== undefined &&
-      this.reviewBlockers(updatedEvents, descriptor.id).length === 0 &&
-      !this.gateApproved(await this.currentRun(), descriptor.gate)
-    ) {
-      await this.openRunGate(await this.currentRun(), descriptor.gate, resolution.dependencyHash);
+    if (descriptor?.gate !== undefined && this.reviewBlockers(updatedEvents, descriptor.id).length === 0) {
+      const current = await this.currentRun();
+      const gateState = current.gates.find(({ gate }) => gate === descriptor.gate)?.state;
+      if (gateState === "closed" || gateState === "invalidated") {
+        await this.openRunGate(current, descriptor.gate, resolution.dependencyHash);
+      }
     }
   }
 
@@ -985,6 +989,7 @@ export class ApexService {
       ...(gateNumber === 4 ? { expiresAt: new Date(this.clock().getTime() + PREVIEW_TTL_MS).toISOString() } : {}),
     };
     this.assertValid("approval", approval);
+    const validatorIds = decision === "approved" ? await this.validateGateValidators(run, gate, events, approval) : [];
     const approvalHash = await this.objects.putJson(approval);
     const updated = {
       ...run,
@@ -994,6 +999,7 @@ export class ApexService {
       gate: gateNumber,
       approvalHash,
       ...(previewHash === undefined ? {} : { previewHash }),
+      ...(validatorIds.length === 0 ? {} : { validatorIds }),
     });
     return approval;
   }
@@ -2105,6 +2111,86 @@ export class ApexService {
     for (const id of validatorIds) {
       this.assertValid(id, taskWorkflowValidatorInput(id, context));
     }
+    return validatorIds;
+  }
+
+  private async validateGateValidators(
+    run: RunConfigV1,
+    gate: RunConfigV1["gates"][number],
+    events: Awaited<ReturnType<EventJournal["replay"]>>,
+    approval: ApprovalEvidenceV1,
+  ): Promise<string[]> {
+    const workflow = new WorkflowEngine(
+      JSON.parse(await readFile(join(this.root, ".apex", "runtime", "workflow.v1.json"), "utf8")),
+    );
+    const nodeId = `gate-${gate.gate}`;
+    const node = workflow.manifest.nodes.find(({ id }) => id === nodeId);
+    if (node === undefined) throw new Error(`Workflow gate ${nodeId} has no manifest node`);
+    const validatorIds = node.validators.filter((id) => workflowValidatorOwnership(id)?.boundary === "gate");
+
+    const artifactHashes: Record<string, string> = {};
+    for (const event of events) {
+      if (event.type !== "task.completed") continue;
+      const hashes = (event.payload as { artifactHashes?: Record<string, unknown> }).artifactHashes ?? {};
+      for (const [kind, hash] of Object.entries(hashes)) if (typeof hash === "string") artifactHashes[kind] = hash;
+    }
+    const completedNodes = [...this.completedNodeIds(events)].sort();
+    const reviewNodesByGate: Record<number, string[]> = {
+      1: ["requirements-review"],
+      2: ["architecture-review", "governance-review"],
+      3: ["plan-review"],
+      4: ["requirements-review", "architecture-review", "governance-review", "plan-review"],
+    };
+    let reviewNodes = reviewNodesByGate[gate.gate] ?? [];
+    let legacyRequirements = false;
+    let expectedDependencyHash: string | undefined;
+    const dependencyReview = { 1: "requirements-review", 2: "governance-review", 3: "plan-review" }[gate.gate];
+    if (dependencyReview !== undefined) {
+      expectedDependencyHash = this.latestPayloadHash(
+        events,
+        "task.completed",
+        "dependencyHash",
+        (payload) => payload.nodeId === dependencyReview,
+      );
+    }
+    if (gate.gate === 1 && expectedDependencyHash === undefined) {
+      const legacyEvent = [...events]
+        .reverse()
+        .find(
+          (event) =>
+            event.type === "task.completed" &&
+            (event.payload as { nodeId?: unknown; legacy?: unknown }).nodeId === "requirements" &&
+            (event.payload as { legacy?: unknown }).legacy === true,
+        );
+      const hashes = (legacyEvent?.payload as { artifactHashes?: Record<string, string> } | undefined)?.artifactHashes;
+      if (hashes !== undefined) {
+        legacyRequirements = true;
+        reviewNodes = [];
+        expectedDependencyHash = sha256Json(hashes);
+      }
+    }
+
+    let preview: DeploymentPreviewV1 | undefined;
+    if (gate.gate === 4) {
+      const previewObjectHash = this.latestPayloadHash(events, "preview.created", "previewObjectHash");
+      if (previewObjectHash !== undefined) preview = await this.objects.getJson<DeploymentPreviewV1>(previewObjectHash);
+      expectedDependencyHash = preview?.previewHash;
+    }
+    const context: WorkflowGateValidatorContext = {
+      gateNumber: gate.gate,
+      now: this.clock().toISOString(),
+      run,
+      gate,
+      approval,
+      artifactHashes,
+      completedNodes,
+      reviewBlockers: reviewNodes.flatMap((reviewNode) => this.reviewBlockers(events, reviewNode)),
+      currentDependencyRevision: this.dependencyRevision(run, events),
+      legacyRequirements,
+      ...(expectedDependencyHash === undefined ? {} : { expectedDependencyHash }),
+      ...(preview === undefined ? {} : { preview }),
+    };
+    for (const id of validatorIds) this.assertValid(id, context);
     return validatorIds;
   }
 
