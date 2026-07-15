@@ -54,6 +54,10 @@ the validated settings to `.apex/provider-config.json`.
 Do not add tokens, passwords, keys, credentials, backend secrets, or Terraform state to provider configuration. Use the
 actual run and task paths returned by `apex task context`.
 
+Bicep preview lists deployment stacks in the configured resource group and selects the exact `stackName` in process. A
+missing exact stack is treated as an empty managed set, so the first cloud mutation remains the approved
+`az stack group create`. Malformed, duplicate, or wrong-resource-group stack entries fail before Gate 4.
+
 `lockfileHash` must equal the current raw SHA-256 of `.terraform.lock.hcl`. The CLI also hashes all `.tf`, `.tf.json`,
 `.tfvars`, `.tfvars.json`, and lock files under `cwd`, excluding `.terraform/`. Preview and deploy recompute that tree;
 source drift, variable drift, lock drift, or a symlink fails closed. `configHash` may pin an expected tree hash but is not

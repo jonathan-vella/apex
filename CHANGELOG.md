@@ -74,6 +74,9 @@ for full details on this and all prior releases.
   Gate 4 and provider authorization to the exact transfer claim. Terraform preview can encrypt a saved plan for an
   explicit execution recipient. Active leases, lease-bounded approval expiry, and journal compare-and-swap prevent
   pending or racing transfers from retaining authority. Production workflows remain blocked pending live proof.
+- fix(vnext): make first Bicep deployment-stack preview non-mutating by listing stacks in the target resource group and
+  selecting the exact configured name in process. A missing stack binds an empty managed set; malformed, duplicate, or
+  wrong-scope list entries fail closed before Gate 4.
 
 ### Fixed (APEX vNext security)
 
