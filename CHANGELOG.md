@@ -65,6 +65,8 @@ for full details on this and all prior releases.
 - fix(vnext): launch the managed MCP server through the installed workspace-local CLI instead of assuming the VS Code
   extension host exposes a bare `apex` command on `PATH`; packed clean-consumer tests now connect over stdio and call
   kernel status through the generated configuration.
+- fix(vnext): allow live qualification scenarios to start and complete after their unavailable-by-default evidence
+  template is created, while rejecting pre-template and inverted timestamps.
 
 ### Changed (Model migration — Claude Sonnet 4.6 → Claude Sonnet 5)
 
