@@ -15,6 +15,7 @@ import {
 import {
   ArchitectureAvailabilityV1Schema,
   EvidenceManifestV1Schema,
+  LiveQualificationV1Schema,
   QualityMeasurementsV1Schema,
   QualityScorecardV1Schema,
 } from "./evidence.js";
@@ -58,6 +59,7 @@ export const contractSchemas = [
   OperationRecordV1Schema,
   ResourceInventoryV1Schema,
   EvidenceManifestV1Schema,
+  LiveQualificationV1Schema,
   QualityScorecardV1Schema,
   QualityMeasurementsV1Schema,
   ArchitectureAvailabilityV1Schema,
@@ -108,6 +110,7 @@ export const contractMetadata: Readonly<Record<string, ContractMetadata>> = {
   "https://schemas.apexops.dev/operation-record-v1.json": metadata(65_536, "confidential"),
   "https://schemas.apexops.dev/resource-inventory-v1.json": metadata(4_194_304, "confidential"),
   "https://schemas.apexops.dev/evidence-manifest-v1.json": metadata(524_288, "confidential"),
+  "https://schemas.apexops.dev/live-qualification-v1.json": metadata(1_048_576, "confidential"),
   "https://schemas.apexops.dev/quality-scorecard-v1.json": metadata(262_144, "public"),
   "https://schemas.apexops.dev/quality-measurements-v1.json": metadata(1_048_576, "confidential"),
   "https://schemas.apexops.dev/architecture-availability-v1.json": metadata(131_072, "confidential"),

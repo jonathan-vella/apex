@@ -5,6 +5,8 @@ import {
   ImplementationIntentV1Schema,
   PolicyPropertyMapV1Schema,
   RequirementsV1Schema,
+  SECRET_FIELD_PATTERN,
+  SECRET_VALUE_PATTERN,
   hasValidCostArithmetic,
   type ApprovalEvidenceV1,
   type ArchitectureAvailabilityV1,
@@ -126,22 +128,19 @@ function issue(path: string, message: string): ValidationIssue[] {
   return [{ path, message }];
 }
 
-const SECRET_FIELD =
-  /(?:secret|password|passphrase|token|authorization|api[-_]?key|private[-_]?key|connectionString|sasToken)/i;
-const SECRET_VALUE =
-  /-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----|\bBearer\s+[A-Za-z0-9._~+\/-]{16,}|(?:AccountKey|SharedAccessSignature)=/i;
-
 function secretIssues(value: unknown, path = ""): ValidationIssue[] {
   if (Array.isArray(value)) return value.flatMap((item, index) => secretIssues(item, `${path}/${index}`));
   if (value !== null && typeof value === "object") {
     return Object.entries(value)
       .sort(([left], [right]) => left.localeCompare(right))
       .flatMap(([key, item]) => [
-        ...(SECRET_FIELD.test(key) ? [{ path: `${path}/${key}`, message: "Secret-bearing field is not allowed" }] : []),
+        ...(SECRET_FIELD_PATTERN.test(key)
+          ? [{ path: `${path}/${key}`, message: "Secret-bearing field is not allowed" }]
+          : []),
         ...secretIssues(item, `${path}/${key}`),
       ]);
   }
-  return typeof value === "string" && SECRET_VALUE.test(value)
+  return typeof value === "string" && SECRET_VALUE_PATTERN.test(value)
     ? [{ path, message: "Secret-bearing value is not allowed" }]
     : [];
 }

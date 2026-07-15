@@ -79,6 +79,11 @@
     "maxBytes": 524288,
     "sensitivity": "internal"
   },
+  "https://schemas.apexops.dev/live-qualification-v1.json": {
+    "compatibility": "strict-v1",
+    "maxBytes": 1048576,
+    "sensitivity": "confidential"
+  },
   "https://schemas.apexops.dev/logical-resource-manifest-v1.json": {
     "compatibility": "strict-v1",
     "maxBytes": 2097152,

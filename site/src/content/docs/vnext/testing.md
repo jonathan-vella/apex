@@ -38,6 +38,12 @@ a clean npm project, runs `apex version`, initializes a project, and verifies ma
 The package test suite also exercises deterministic fake-provider scenarios for both Bicep and Terraform tracks. Use
 the fake provider for repeatable preview, approval, apply, destroy, restart, and inventory checks without Azure access.
 
+## Bind Live Evidence
+
+After deterministic qualification passes, create an unavailable-by-default record with `npm run live:vnext`. The record
+binds every later manual result to the current commit, package lock, release manifest, runtime bundle, and evidence
+manifest. Follow [Record vNext Live Qualification](../live-qualification/) to create, update, validate, and render it.
+
 ## Complete the Manual VS Code Checklist
 
 Use a fresh consumer repository and a supported VS Code release. Record pass/fail evidence for each action:
@@ -55,6 +61,8 @@ Use a fresh consumer repository and a supported VS Code release. Record pass/fai
 - Optionally repeat apply and destroy in isolated real Bicep and Terraform sandboxes with nonsecret provider config.
 
 See the [VS Code custom agents documentation][vscode-custom-agents] for product-level discovery and handoff behavior.
+Record the results with the [live qualification procedure](../live-qualification/); the checklist alone is not release
+evidence.
 
 ## Capture Expected Evidence
 

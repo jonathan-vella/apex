@@ -52,6 +52,10 @@ for full details on this and all prior releases.
   CI lanes, and versioned preview documentation. Live VS Code agent behavior,
   Azure deployment-stack behavior, production Terraform CI plan transport, and
   final release scorecard evidence remain explicit pre-cutover gates.
+- feat(vnext): added a strict live-qualification evidence contract and deterministic
+  `live:vnext` template, validation, and rendering commands that bind manual VS Code,
+  GitHub, and Azure results to exact candidate and evidence hashes without executing
+  approvals or cloud operations.
 
 ### Fixed (APEX vNext security)
 

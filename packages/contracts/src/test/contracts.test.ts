@@ -18,6 +18,8 @@ import {
   GovernanceConstraintsV1Schema,
   IacHandoffV1Schema,
   LogicalResourceManifestV1Schema,
+  LiveQualificationV1Schema,
+  LIVE_QUALIFICATION_SCENARIO_IDS,
   PolicyPropertyMapV1Schema,
   QualityReportV1Schema,
   QualityMeasurementsV1Schema,
@@ -32,6 +34,7 @@ import {
   contractSchemas,
   hasCompleteContractMetadata,
   hasOnlyTypedSecretReferences,
+  hasValidLiveQualification,
   hasValidCostArithmetic,
   hasValidLogicalResourceReferences,
   hasValidPreviewApprovalBinding,
@@ -42,6 +45,7 @@ import {
   type EnvironmentInputsV1,
   type ExecutionPlanAttestationV1,
   type LogicalResourceManifestV1,
+  type LiveQualificationV1,
   type RequirementsV1,
   type RuntimeBundleLockV1,
 } from "../index.js";
@@ -100,6 +104,56 @@ describe("Wave 1 contracts", () => {
     };
 
     assert.equal(Value.Check(RequirementsV1Schema, requirements), true);
+  });
+
+  it("binds live qualification evidence to an exact candidate", () => {
+    const scenarios: LiveQualificationV1["scenarios"] = LIVE_QUALIFICATION_SCENARIO_IDS.map((id) => ({
+      id,
+      environment: "sandbox",
+      targetScope: "subscription/example",
+      actor: "maintainer",
+      startedAt: timestamp,
+      completedAt: expiry,
+      toolVersions: { apex: "0.1.0" },
+      outcome: "pass",
+      evidenceRefs: [hash],
+    }));
+    const qualification: LiveQualificationV1 = {
+      schemaVersion: CONTRACT_VERSION,
+      projectId: "live-test",
+      runId: "run-1",
+      candidate: {
+        repository: "jonathan-vella/apex",
+        branch: "feat/apex-vnext-rewrite",
+        commit: "a".repeat(40),
+        packageLockHash: hash,
+        releaseManifestHash: otherHash,
+        runtimeBundleHash: "c".repeat(64),
+      },
+      createdAt: expiry,
+      evidenceManifestHash: "d".repeat(64),
+      scenarios,
+    };
+
+    assert.equal(Value.Check(LiveQualificationV1Schema, qualification), true);
+    assert.equal(hasValidLiveQualification(qualification), true);
+    assert.equal(
+      hasValidLiveQualification({
+        ...qualification,
+        scenarios: qualification.scenarios.map((scenario, index) =>
+          index === 1 ? { ...scenario, id: "vscode-experience" } : scenario,
+        ),
+      }),
+      false,
+    );
+    assert.equal(
+      hasValidLiveQualification({
+        ...qualification,
+        createdAt: timestamp,
+      }),
+      false,
+    );
+    assert.equal(Value.Check(LiveQualificationV1Schema, { ...qualification, unexpected: true }), false);
   });
 
   it("publishes an id for every registered schema", () => {
