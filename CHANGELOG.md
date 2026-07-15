@@ -67,6 +67,8 @@ for full details on this and all prior releases.
   kernel status through the generated configuration.
 - fix(vnext): allow live qualification scenarios to start and complete after their unavailable-by-default evidence
   template is created, while rejecting pre-template and inverted timestamps.
+- fix(vnext): install a nested `.apex/.gitignore` that excludes local leases, work staging, saved plans, and
+  recomputable caches while preserving repository-backed project journals and evidence for cross-device resume.
 
 ### Changed (Model migration — Claude Sonnet 4.6 → Claude Sonnet 5)
 

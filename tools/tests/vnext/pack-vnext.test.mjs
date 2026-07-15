@@ -398,6 +398,7 @@ test("packs and clean-installs the vNext runtime reproducibly", { timeout: 240_0
   const apexBin = join(project, "node_modules", ".bin", process.platform === "win32" ? "apex.cmd" : "apex");
   const version = JSON.parse((await runInTest(apexBin, ["version", "--json"], project)).stdout);
   assert.deepEqual(version, { ok: true, result: { version: "0.1.0", bundleVersion: "0.1.0", configVersion: "1.0.0" } });
+  await runInTest("git", ["init", "--initial-branch", "qualification"], project);
   await runInTest(apexBin, ["init", "--project", "demo", "--json"], project);
   await readFile(join(project, ".github", "agents", "apex.agent.md"));
   const mcpConfig = JSON.parse(await readFile(join(project, ".vscode", "mcp.json"), "utf8")).servers.apex;
@@ -424,6 +425,15 @@ test("packs and clean-installs the vNext runtime reproducibly", { timeout: 240_0
   } finally {
     await mcpClient.close();
   }
+  for (const path of [".apex/local/run/saved.tfplan", ".apex/work/run/task/output.json", ".apex/cache/content/item"]) {
+    await mkdir(join(project, path, ".."), { recursive: true });
+    await writeFile(join(project, path), "derived\n");
+    await runInTest("git", ["check-ignore", "--quiet", path], project);
+  }
+  await assert.rejects(
+    runInTest("git", ["check-ignore", "--quiet", ".apex/projects/demo/project.json"], project),
+    /failed \(1\)/,
+  );
   await readFile(join(project, ".apex", "runtime", "workflow.v1.json"));
   const governancePack = "azure-governance-discovery";
   const capability = async (args) =>
@@ -462,6 +472,7 @@ test("packs and clean-installs the vNext runtime reproducibly", { timeout: 240_0
   assert.equal(uninstall.ok, true);
   assert.deepEqual(uninstall.result.conflicts, []);
   await assert.rejects(readFile(join(project, ".github", "agents", "apex.agent.md")), { code: "ENOENT" });
+  assert.equal(await readFile(join(project, ".apex", ".gitignore"), "utf8"), "/cache/\n/local/\n/work/\n");
   await assert.rejects(readFile(join(project, ".apex", "customizations.lock.json")), { code: "ENOENT" });
   assert.equal(await readFile(join(project, "keep.txt"), "utf8"), "preserve me\n");
   await readFile(join(project, ".apex", "runtime", "workflow.v1.json"));

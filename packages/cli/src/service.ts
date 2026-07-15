@@ -107,6 +107,7 @@ import {
 const ZERO_HASH = "0".repeat(64);
 const TASK_TTL_MS = 24 * 60 * 60 * 1000;
 const PREVIEW_TTL_MS = 24 * 60 * 60 * 1000;
+const APEX_GITIGNORE = "/cache/\n/local/\n/work/\n";
 
 interface Selection {
   projectId: ProjectId;
@@ -368,6 +369,7 @@ export class ApexService {
     await this.assertCleanInitialization();
     await mkdir(join(this.root, ".apex"), { recursive: true });
     try {
+      await this.ensureLocalGitBoundary();
       const assets = await resolveBundledAssets();
       await this.installCustomizations(input.customizationsSource ?? assets.customizations, false, assets.config);
       await this.installCapabilityAssets(assets);
@@ -398,6 +400,7 @@ export class ApexService {
 
   async update(customizationsSource?: string): Promise<{ updated: string[] }> {
     const selection = await this.selection();
+    await this.ensureLocalGitBoundary();
     const assets = await resolveBundledAssets();
     const source = customizationsSource ?? assets.customizations;
     const updated = await this.installCustomizations(source, true, assets.config);
@@ -1547,6 +1550,7 @@ export class ApexService {
   ): Promise<{ healthy: boolean; checks: DoctorCheck[]; remedies: string[]; nextAction: string }> {
     const apexExists = await this.exists(join(this.root, ".apex"));
     if (fix && yes && apexExists) {
+      await this.ensureLocalGitBoundary(true);
       const assets = await resolveBundledAssets();
       await this.installCustomizations(assets.customizations, true, assets.config, true);
       await this.installCapabilityAssets(assets);
@@ -1579,6 +1583,7 @@ export class ApexService {
         value: auth.detail,
         remedy: "Authenticate with Azure outside doctor, then run setup --live",
       });
+      checks.push(await this.localGitBoundaryCheck());
       checks.push(...(await this.managedFileChecks()));
       checks.push(...(await this.runtimeLockChecks(run)));
       const route = await this.route(run, await this.journal(run).replay());
@@ -3095,6 +3100,47 @@ export class ApexService {
           remedy: "Run doctor --fix --yes to reinstall the runtime lock",
         },
       ];
+    }
+  }
+
+  private async ensureLocalGitBoundary(repair = false): Promise<void> {
+    const apexRoot = join(this.root, ".apex");
+    const path = join(apexRoot, ".gitignore");
+    await this.assertSafeDestination(apexRoot, path);
+    const current = await this.readOptional(path);
+    if (current?.toString("utf8") === APEX_GITIGNORE) return;
+    if (current !== undefined && !repair)
+      throw new ApexError("APEX_CONFLICT", "APEX local Git boundary was modified", EXIT_CODES.conflict);
+    await atomicWriteBytes(path, Buffer.from(APEX_GITIGNORE));
+  }
+
+  private async localGitBoundaryCheck(): Promise<DoctorCheck> {
+    const path = join(this.root, ".apex", ".gitignore");
+    try {
+      if (!(await this.pathExistsLstat(path))) {
+        return {
+          id: "local-git-boundary",
+          ok: false,
+          value: "missing",
+          remedy: "Run doctor --fix --yes to restore the APEX local Git boundary",
+        };
+      }
+      await this.assertSafeExistingPath(join(this.root, ".apex"), path);
+      const actual = await readFile(path);
+      const actualHash = sha256Bytes(actual);
+      return {
+        id: "local-git-boundary",
+        ok: actual.toString("utf8") === APEX_GITIGNORE,
+        value: actualHash,
+        remedy: "Run doctor --fix --yes to restore the APEX local Git boundary",
+      };
+    } catch (error) {
+      return {
+        id: "local-git-boundary",
+        ok: false,
+        value: error instanceof Error ? error.message : "invalid",
+        remedy: "Run doctor --fix --yes to restore the APEX local Git boundary",
+      };
     }
   }
 
