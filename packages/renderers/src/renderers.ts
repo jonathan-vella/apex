@@ -131,6 +131,7 @@ export function renderApprovalEvidence(approval: ApprovalEvidenceV1): string {
       ["Actor", approval.actor],
       ["Mechanism", approval.mechanism],
       ["Recipient identity", optional(approval.recipientIdentity)],
+      ["Writer transfer claim hash", optional(approval.writerTransferClaimHash)],
       ["Writer epoch", approval.writerEpoch],
       ["Dependency hash", approval.dependencyHash],
       ["Preview hash", optional(approval.previewHash)],

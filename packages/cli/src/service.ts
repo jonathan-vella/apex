@@ -93,6 +93,7 @@ import { constants } from "node:fs";
 import { access, cp, lstat, mkdir, readFile, readdir, realpath, rename, rm, stat } from "node:fs/promises";
 import { basename, delimiter, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { resolveBundledAssets } from "./assets.js";
+import { dependencyRevision as calculateDependencyRevision } from "./dependency-revision.js";
 import { ApexError, EXIT_CODES } from "./errors.js";
 import {
   registerWorkflowValidators,
@@ -184,6 +185,7 @@ interface PreviewOptions {
   operation: Operation;
   provider: "fake" | "bicep" | "terraform";
   expiresInMs?: number;
+  recipientIdentity?: string;
 }
 
 export interface ReviewResolution {
@@ -1045,8 +1047,27 @@ export class ApexService {
       throw new ApexError("APEX_STALE", "Deployment preview has expired", EXIT_CODES.stale);
     }
     const githubContext = options.githubContext;
+    const transferStore = new WriterTransferStore(this.projects.runDirectory(run.projectId, run.runId), this.clock);
+    if (gateNumber === 4) await this.assertCurrentWriterAuthority(run, transferStore);
+    const writerLease = gateNumber === 4 ? await transferStore.leaseStore().current() : null;
+    const writerTransferClaimHash =
+      preview === undefined || preview.ownerEpoch === run.ownerEpoch
+        ? undefined
+        : await transferStore.proveOneHopPostPreviewLineage(preview.previewHash, preview.ownerEpoch);
+    if (preview !== undefined && preview.ownerEpoch !== run.ownerEpoch && writerTransferClaimHash === null) {
+      throw new ApexError("APEX_STALE", "Preview writer transfer lineage is invalid", EXIT_CODES.stale);
+    }
     const recipientIdentity = await this.currentRecipientIdentity(run);
     const decidedAt = this.clock().toISOString();
+    const approvalExpiresAt =
+      preview === undefined
+        ? undefined
+        : new Date(
+            Math.min(
+              Date.parse(preview.expiresAt),
+              writerLease === null ? Number.POSITIVE_INFINITY : Date.parse(writerLease.expiresAt),
+            ),
+          ).toISOString();
     const commonApproval = {
       schemaVersion: CONTRACT_VERSION,
       projectId: run.projectId,
@@ -1056,9 +1077,10 @@ export class ApexService {
       actor,
       dependencyHash: gate.dependencyHash,
       ...(previewHash === undefined ? {} : { previewHash }),
+      ...(writerTransferClaimHash === undefined || writerTransferClaimHash === null ? {} : { writerTransferClaimHash }),
       writerEpoch: run.ownerEpoch,
       decidedAt,
-      ...(preview === undefined ? {} : { expiresAt: preview.expiresAt }),
+      ...(approvalExpiresAt === undefined ? {} : { expiresAt: approvalExpiresAt }),
     };
     let approval: ApprovalEvidenceV1;
     if (mechanism === "github-environment") {
@@ -1086,10 +1108,7 @@ export class ApexService {
           EXIT_CODES.authorization,
         );
       }
-      const ownership = await new WriterTransferStore(
-        this.projects.runDirectory(run.projectId, run.runId),
-        this.clock,
-      ).currentOwnership();
+      const ownership = await transferStore.currentActiveOwnership();
       if (ownership === null || ownership.ownerEpoch !== run.ownerEpoch) {
         throw new ApexError("APEX_STALE", "Current writer ownership is missing or stale", EXIT_CODES.stale);
       }
@@ -1115,25 +1134,42 @@ export class ApexService {
       }
     }
     const validatorIds = decision === "approved" ? await this.validateGateValidators(run, gate, events, approval) : [];
+    if (gateNumber === 4) {
+      await this.assertCurrentWriterAuthority(run, transferStore);
+      if (approval.expiresAt === undefined || Date.parse(approval.expiresAt) <= this.clock().getTime()) {
+        throw new ApexError("APEX_STALE", "Approval authority expired before it could be recorded", EXIT_CODES.stale);
+      }
+    }
     const approvalHash = await this.objects.putJson(approval);
     const updated = {
       ...run,
       gates: run.gates.map((item) => (item.gate === gateNumber ? decideGate(item, decision, decidedAt) : item)),
     };
-    await this.mutateRun(run, updated, "gate.decided", {
-      gate: gateNumber,
-      approvalHash,
-      ...(previewHash === undefined ? {} : { previewHash }),
-      ...(validatorIds.length === 0 ? {} : { validatorIds }),
-    });
+    await this.mutateRun(
+      run,
+      updated,
+      "gate.decided",
+      {
+        gate: gateNumber,
+        approvalHash,
+        ...(previewHash === undefined ? {} : { previewHash }),
+        ...(validatorIds.length === 0 ? {} : { validatorIds }),
+      },
+      gateNumber === 4 ? (events.at(-1)?.hash ?? null) : undefined,
+    );
     return approval;
   }
 
   async preview(options: PreviewOptions): Promise<DeploymentPreviewV1> {
     const run = await this.currentRun();
+    await this.assertCurrentWriterAuthority(
+      run,
+      new WriterTransferStore(this.projects.runDirectory(run.projectId, run.runId), this.clock),
+    );
     const events = await this.journal(run).replay();
     await this.assertPreviewReady(run, events);
     const dependencyRevision = this.dependencyRevision(run, events);
+    const intendedExecutionRecipientIdentity = options.recipientIdentity ?? (await this.currentRecipientIdentity(run));
     const intentHash = this.artifactHash(events, "implementation-intent");
     if (intentHash === undefined)
       throw new ApexError("APEX_VALIDATION", "Implementation intent is required", EXIT_CODES.validation);
@@ -1162,6 +1198,7 @@ export class ApexService {
         commit: dependencyRevision,
         dependencyRevision,
         ownerEpoch: run.ownerEpoch,
+        executionRecipientIdentity: intendedExecutionRecipientIdentity,
         inputHash: intentHash,
         iacHash: this.artifactHash(events, "iac-handoff") ?? sha256Json(intent.resources),
         policyHash: this.artifactHash(events, "policy-property-map") ?? run.runtimeLockHash,
@@ -1193,6 +1230,7 @@ export class ApexService {
         options.operation,
         intent,
         attestation,
+        intendedExecutionRecipientIdentity,
       );
       const previewObjectHash = await this.objects.putJson(preview);
       const attestationHash = attestation === undefined ? undefined : await this.objects.putJson(attestation);
@@ -1243,7 +1281,16 @@ export class ApexService {
     };
     const preview: DeploymentPreviewV1 = { ...base, previewHash: sha256Json(base) };
     this.assertValid("preview", preview);
-    const validation = await this.validatePreviewValidators(run, events, preview, "fake", options.operation, intent);
+    const validation = await this.validatePreviewValidators(
+      run,
+      events,
+      preview,
+      "fake",
+      options.operation,
+      intent,
+      undefined,
+      intendedExecutionRecipientIdentity,
+    );
     const previewObjectHash = await this.objects.putJson(preview);
     await this.append(run, "preview.requested", {
       provider: options.provider,
@@ -1273,6 +1320,8 @@ export class ApexService {
 
   async deploy(expectedPreviewHash?: string): Promise<{ operation: unknown; inventory: ResourceInventoryV1 }> {
     const run = await this.currentRun();
+    const transferStore = new WriterTransferStore(this.projects.runDirectory(run.projectId, run.runId), this.clock);
+    await this.assertCurrentWriterAuthority(run, transferStore);
     const events = await this.journal(run).replay();
     await this.assertPreviewReady(run, events);
     const previewHash = this.latestPayloadHash(events, "preview.created", "previewHash");
@@ -1323,7 +1372,15 @@ export class ApexService {
     const approval = await this.objects.getJson<ApprovalEvidenceV1>(approvalHash);
     if (Date.parse(preview.expiresAt) <= this.clock().getTime())
       throw new ApexError("APEX_STALE", "Deployment preview has expired", EXIT_CODES.stale);
-    if (preview.ownerEpoch !== run.ownerEpoch || approval.writerEpoch !== run.ownerEpoch)
+    const writerTransferClaimHash =
+      preview.ownerEpoch === run.ownerEpoch
+        ? undefined
+        : await transferStore.proveOneHopPostPreviewLineage(preview.previewHash, preview.ownerEpoch);
+    if (
+      approval.writerEpoch !== run.ownerEpoch ||
+      (preview.ownerEpoch !== run.ownerEpoch && writerTransferClaimHash === null) ||
+      approval.writerTransferClaimHash !== (writerTransferClaimHash ?? undefined)
+    )
       throw new ApexError("APEX_STALE", "Owner epoch changed", EXIT_CODES.stale);
     const dependencyRevision = this.dependencyRevision(run, events);
     if (preview.dependencyRevision !== dependencyRevision || preview.commit !== dependencyRevision)
@@ -1351,6 +1408,10 @@ export class ApexService {
       previewHash,
       dependencyRevision,
       "pre",
+      undefined,
+      undefined,
+      undefined,
+      writerTransferClaimHash ?? undefined,
     );
     const declaredValidatorIds = await this.deployValidatorIds(run);
     if (providerName?.provider === "bicep" || providerName?.provider === "terraform") {
@@ -1369,12 +1430,18 @@ export class ApexService {
                 head: preview.commit,
                 dependencyRevision,
                 ownerEpoch: run.ownerEpoch,
+                ...(writerTransferClaimHash === undefined || writerTransferClaimHash === null
+                  ? {}
+                  : { previousOwnerEpoch: preview.ownerEpoch, writerTransferClaimHash }),
                 recipientIdentity: approval.recipientIdentity ?? "local",
               })
             : await provider.destroy(preview, approval, {
                 head: preview.commit,
                 dependencyRevision,
                 ownerEpoch: run.ownerEpoch,
+                ...(writerTransferClaimHash === undefined || writerTransferClaimHash === null
+                  ? {}
+                  : { previousOwnerEpoch: preview.ownerEpoch, writerTransferClaimHash }),
                 recipientIdentity: approval.recipientIdentity ?? "local",
               });
       } catch (error) {
@@ -1409,6 +1476,7 @@ export class ApexService {
         commonValidatorIds,
         operation,
         executionEvidence,
+        writerTransferClaimHash ?? undefined,
       );
     }
     const now = this.clock().toISOString();
@@ -1477,6 +1545,7 @@ export class ApexService {
     commonValidatorIds: string[],
     operation: OperationRecordV1,
     executionEvidence?: ProviderExecutionEvidence,
+    provedPreviewTransferClaimHash?: string,
   ): Promise<{ operation: unknown; inventory: ResourceInventoryV1 }> {
     this.assertValid("operation", operation);
     let attestation: ExecutionPlanAttestationV1 | undefined;
@@ -1498,6 +1567,7 @@ export class ApexService {
       operation,
       executionEvidence,
       attestation,
+      provedPreviewTransferClaimHash,
     );
     const receiptValidatorIds = [...(executionEvidence?.validatorIds ?? [])];
     if (
@@ -1757,8 +1827,24 @@ export class ApexService {
     if (input.commit !== input.currentHead)
       throw new ApexError("APEX_STALE", "Transfer commit does not match current Git head", EXIT_CODES.stale);
     const transfers = new WriterTransferStore(this.projects.runDirectory(run.projectId, run.runId), this.clock);
-    if ((await transfers.leaseStore().current()) === null)
-      await transfers.leaseStore().acquire(input.sender, input.ttlMs);
+    const ownership = await transfers.currentOwnership();
+    const expectedSender = ownership === null && run.ownerEpoch === 1 ? "local" : ownership?.ownerId;
+    if (
+      expectedSender === undefined ||
+      (ownership?.ownerEpoch !== undefined && ownership.ownerEpoch !== run.ownerEpoch)
+    ) {
+      throw new ApexError("APEX_STALE", "Current writer ownership does not match the run epoch", EXIT_CODES.stale);
+    }
+    if (input.sender !== expectedSender) {
+      throw new ApexError("APEX_AUTHORIZATION", "Transfer sender is not the current writer", EXIT_CODES.authorization);
+    }
+    if (ownership === null) {
+      const lease = await transfers.leaseStore().current();
+      if (lease === null) await transfers.leaseStore().acquireAtEpoch("local", run.ownerEpoch, input.ttlMs);
+      else if (lease.ownerId !== "local" || lease.ownerEpoch !== run.ownerEpoch) {
+        throw new ApexError("APEX_STALE", "Local writer lease does not match the run epoch", EXIT_CODES.stale);
+      }
+    }
     return transfers.create({
       projectId: run.projectId,
       runId: run.runId,
@@ -1795,8 +1881,17 @@ export class ApexService {
     const ownership = await new WriterTransferStore(
       this.projects.runDirectory(run.projectId, run.runId),
       this.clock,
-    ).currentOwnership();
+    ).currentActiveOwnership();
     return ownership?.ownerEpoch === run.ownerEpoch ? ownership.ownerId : "local";
+  }
+
+  private async assertCurrentWriterAuthority(run: RunConfigV1, transfers: WriterTransferStore): Promise<void> {
+    const ownership = await transfers.currentOwnership();
+    if (ownership === null && run.ownerEpoch === 1 && !(await transfers.hasPendingTransfer())) return;
+    const active = await transfers.currentActiveOwnership();
+    if (active?.ownerEpoch !== run.ownerEpoch) {
+      throw new ApexError("APEX_STALE", "Current writer authority is missing or expired", EXIT_CODES.stale);
+    }
   }
 
   async acceptEvidence(input: {
@@ -2027,11 +2122,13 @@ export class ApexService {
     after: RunConfigV1,
     eventType: string,
     payload: JsonValue,
+    expectedJournalHead?: string | null,
   ): Promise<void> {
     const repository = this.runRepository(before);
     try {
       await repository.mutate({
         expectedRunHash: sha256Json(before),
+        ...(expectedJournalHead === undefined ? {} : { expectedJournalHead }),
         event: {
           eventId: this.idSource(),
           projectId: before.projectId,
@@ -2044,8 +2141,11 @@ export class ApexService {
         update: () => after,
       });
     } catch (error) {
-      if (error instanceof Error && error.message.startsWith("Stale run hash"))
-        throw new ApexError("APEX_STALE", "Run state changed", EXIT_CODES.stale, undefined, error);
+      if (
+        error instanceof Error &&
+        (error.message.startsWith("Stale run hash") || error.message.startsWith("Stale journal head"))
+      )
+        throw new ApexError("APEX_STALE", "Run or journal state changed", EXIT_CODES.stale, undefined, error);
       throw error;
     }
   }
@@ -2265,21 +2365,7 @@ export class ApexService {
   }
 
   private dependencyRevision(run: RunConfigV1, events: Awaited<ReturnType<EventJournal["replay"]>>): string {
-    const artifacts = events.reduce<Record<string, string>>((current, event) => {
-      if (event.type !== "task.completed") return current;
-      const hashes = (event.payload as { artifactHashes?: Record<string, unknown> }).artifactHashes ?? {};
-      for (const [kind, hash] of Object.entries(hashes)) if (typeof hash === "string") current[kind] = hash;
-      return current;
-    }, {});
-    return sha256Json({
-      projectId: run.projectId,
-      runId: run.runId,
-      targetScope: run.targetScope,
-      iacTool: run.iacTool,
-      runtimeLockHash: run.runtimeLockHash,
-      ownerEpoch: run.ownerEpoch,
-      artifacts,
-    });
+    return calculateDependencyRevision(run, events);
   }
 
   private async assertPreviewReady(
@@ -2695,6 +2781,13 @@ export class ApexService {
       if (previewObjectHash !== undefined) preview = await this.objects.getJson<DeploymentPreviewV1>(previewObjectHash);
       expectedDependencyHash = preview?.previewHash;
     }
+    const provedPreviewTransferClaimHash =
+      preview === undefined || preview.ownerEpoch === run.ownerEpoch
+        ? undefined
+        : ((await new WriterTransferStore(
+            this.projects.runDirectory(run.projectId, run.runId),
+            this.clock,
+          ).proveOneHopPostPreviewLineage(preview.previewHash, preview.ownerEpoch)) ?? undefined);
     const context: WorkflowGateValidatorContext = {
       gateNumber: gate.gate,
       now: this.clock().toISOString(),
@@ -2707,6 +2800,7 @@ export class ApexService {
       currentDependencyRevision: this.dependencyRevision(run, events),
       legacyRequirements,
       currentRecipientIdentity: await this.currentRecipientIdentity(run),
+      ...(provedPreviewTransferClaimHash === undefined ? {} : { provedPreviewTransferClaimHash }),
       ...(expectedDependencyHash === undefined ? {} : { expectedDependencyHash }),
       ...(preview === undefined ? {} : { preview }),
     };
@@ -2722,6 +2816,7 @@ export class ApexService {
     expectedOperation: "apply" | "destroy",
     intent: ImplementationIntentV1,
     attestation?: ExecutionPlanAttestationV1,
+    intendedExecutionRecipientIdentity = "local",
   ): Promise<{ validatorIds: string[]; omittedValidatorIds: string[]; evidenceMode: "native" | "simulated" }> {
     const workflow = await this.lockedWorkflowEngine(run);
     const nodeId = `preview-${run.iacTool}`;
@@ -2746,6 +2841,7 @@ export class ApexService {
       expectedPolicyHash: this.artifactHash(events, "policy-property-map") ?? run.runtimeLockHash,
       currentDependencyRevision: this.dependencyRevision(run, events),
       expectedResourceIds: intent.resources.map(({ id }) => `${provider}://${run.environment}/${id}`),
+      intendedExecutionRecipientIdentity,
       ...(attestation === undefined ? {} : { attestation }),
     };
     for (const id of validatorIds) this.assertValid(id, context);
@@ -2763,6 +2859,7 @@ export class ApexService {
     operation?: OperationRecordV1,
     executionEvidence?: ProviderExecutionEvidence,
     attestation?: ExecutionPlanAttestationV1,
+    provedPreviewTransferClaimHash?: string,
   ): Promise<string[]> {
     const workflow = await this.lockedWorkflowEngine(run);
     const nodeId = `deploy-${run.iacTool}`;
@@ -2781,6 +2878,7 @@ export class ApexService {
       approval,
       expectedPreviewHash,
       currentDependencyRevision,
+      ...(provedPreviewTransferClaimHash === undefined ? {} : { provedPreviewTransferClaimHash }),
       ...(operation === undefined ? {} : { operation }),
       ...(executionEvidence === undefined ? {} : { executionEvidence }),
       ...(attestation === undefined ? {} : { attestation }),

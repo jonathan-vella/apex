@@ -421,6 +421,65 @@ test("native Terraform encrypts immediately and restores exact-plan binding afte
   }
 });
 
+test("native Terraform encrypts for the planned post-preview recipient", async (context) => {
+  const root = await mkdtemp(join(tmpdir(), "apex-native-terraform-recipient-"));
+  context.after(async () => rm(root, { recursive: true, force: true }));
+  const planPath = join(root, "apply.tfplan");
+  const runner = new FakeRunner(async (process) => {
+    const outputArg = process.args.find((argument) => argument.startsWith("-out="));
+    if (outputArg !== undefined) {
+      await writeFile(outputArg.slice(5), "recipient-plan", { mode: 0o600 });
+      return "";
+    }
+    if (process.args[0] === "show") return JSON.stringify({ resource_changes: [] });
+    return "";
+  });
+  const claimHash = "9".repeat(64);
+  let currentAuthority: CurrentDeploymentAuthority = authority;
+  const provider = new NativeTerraformProvider({
+    runner,
+    currentAuthority: async () => currentAuthority,
+    now: () => clock.value,
+    target: {
+      cwd: root,
+      target: "dev",
+      planPath: () => planPath,
+      lockfileHash: hashes.lock,
+      configHash: async () => hashes.iac,
+    },
+    bindingStore: new MemoryBindingStore(),
+    artifactStore: new MemoryArtifactStore(),
+    keyProvider: async () => Buffer.alloc(32, 7),
+  });
+  const preview = await provider.previewApply(request({ executionRecipientIdentity: "apply@example.com" }));
+  assert.equal(provider.attestation(preview.previewHash)?.recipient, "apply@example.com");
+  currentAuthority = {
+    ...authority,
+    ownerEpoch: 4,
+    previousOwnerEpoch: 3,
+    writerTransferClaimHash: claimHash,
+    recipientIdentity: "apply@example.com",
+  };
+  const transferredApproval: ApprovalEvidenceV1 = {
+    ...approval(preview),
+    writerEpoch: 4,
+    writerTransferClaimHash: claimHash,
+    recipientIdentity: "apply@example.com",
+  };
+  assert.equal((await provider.apply(preview, transferredApproval, currentAuthority)).state, "succeeded");
+
+  const missingClaim = { ...transferredApproval };
+  delete missingClaim.writerTransferClaimHash;
+  await assert.rejects(
+    provider.apply(preview, missingClaim, currentAuthority),
+    (error) => error instanceof IacProviderError && error.code === "PREVIEW_OWNER_EPOCH_MISMATCH",
+  );
+  await assert.rejects(
+    provider.apply(preview, transferredApproval, { ...currentAuthority, recipientIdentity: "wrong@example.com" }),
+    (error) => error instanceof IacProviderError && error.code === "PREVIEW_OWNER_EPOCH_MISMATCH",
+  );
+});
+
 test("native Terraform cleans decrypted temp plans when apply fails", async (context) => {
   const root = await mkdtemp(join(tmpdir(), "apex-native-terraform-failure-"));
   context.after(async () => rm(root, { recursive: true, force: true }));

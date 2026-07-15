@@ -69,6 +69,11 @@ for full details on this and all prior releases.
   recipient. The protected environment is bound through the encrypted state handoff and accepted ownership. Approval
   expiry is bounded by the exact preview. Evidence identifies the workflow actor rather than an environment reviewer,
   and production CI remains blocked pending live protected-environment proof.
+- feat(vnext): support one exact post-preview writer transfer by separating semantic dependency revision from writer
+  authority, authenticating claim creation against the current lease, persisting one-hop ownership lineage, and binding
+  Gate 4 and provider authorization to the exact transfer claim. Terraform preview can encrypt a saved plan for an
+  explicit execution recipient. Active leases, lease-bounded approval expiry, and journal compare-and-swap prevent
+  pending or racing transfers from retaining authority. Production workflows remain blocked pending live proof.
 
 ### Fixed (APEX vNext security)
 

@@ -58,7 +58,7 @@ Run `apex <command> --json` for automation. Success is written to stdout as
 | `apex review resolve` | `--file` | Record a review-finding resolution from JSON. |
 | `apex gate decide` | `--gate --decision`; see mechanism flags below | Approve or reject an open gate. |
 | `apex validate` | None | Validate and cache the current journal/runtime-lock result. |
-| `apex preview` | `--operation --provider`; see values below | Create a bound preview and open Gate 4. |
+| `apex preview` | `--operation --provider`; optional `--recipient` | Create a bound preview and open Gate 4. |
 | `apex deploy` | Optional `--preview` | Execute the current approved preview and collect inventory. |
 | `apex reconcile` | None | Reconcile the recorded deployment from inventory. |
 | `apex inventory` | None | Read the latest deployment inventory. |
@@ -87,7 +87,7 @@ review resolve: --file
 gate decide: --gate --decision; optional --mechanism tty|github-environment (default tty)
 gate decide with tty: --actor is required
 gate decide with github-environment: --actor is forbidden; Gate 4 approved decisions only
-preview: --operation apply|destroy --provider fake|bicep|terraform
+preview: --operation apply|destroy --provider fake|bicep|terraform; optional --recipient
 render: --kind status|requirements|preview|approval|inventory
 capability install/update: --pack --yes; optional --manifest, --cache
 capability status/verify: --pack; optional --manifest
@@ -132,6 +132,17 @@ apex gate decide \
 The command is valid only inside GitHub Actions after the current writer transfer has been accepted. GitHub Environment
 approval additionally requires the transfer claim's `--environment` to exactly match `APEX_GITHUB_ENVIRONMENT`. It is a
 CLI ceremony and is not exposed through the `gateDecide` MCP tool.
+
+For separate Terraform preview and apply writers, pass the intended apply identity during preview:
+
+```bash
+apex preview --operation apply --provider terraform --recipient "$APPLY_RECIPIENT" --json
+```
+
+The preview writer may create one transfer claim only after that preview. The recipient accepts it at the next owner
+epoch, and Gate 4 binds both the exact preview hash and transfer claim hash. A claim created before preview, a second
+transfer, a nonconsecutive epoch, or a different claim remains stale. Ownership-only transfer does not change the
+dependency revision; target, runtime lock, or accepted artifact changes do.
 
 ## Use Narrow MCP Tools
 

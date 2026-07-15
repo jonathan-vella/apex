@@ -21,6 +21,7 @@ const IDENTIFIER_PATTERN = /^[a-zA-Z0-9][a-zA-Z0-9_-]{0,127}$/;
 const SAFE_POLICY_ASSERTIONS = new Map<string, boolean>([
   ["runtime/defaults.v1.json/securityInvariants/hardcodedSecretsAllowed", false],
   ["runtime/defaults.v1.json/securityInvariants/secretValuesInGitAllowed", false],
+  ["runtime/defaults.v1.json/evidence/genericSecretScanRequired", true],
   ["runtime/defaults.v1.json/telemetry/authorizationEvidenceSeparable", true],
 ]);
 

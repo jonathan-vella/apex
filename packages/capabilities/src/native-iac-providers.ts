@@ -140,7 +140,10 @@ abstract class NativeProviderBase {
     const authority = await this.currentAuthority();
     if (
       authority.head !== suppliedAuthority.head ||
+      authority.dependencyRevision !== suppliedAuthority.dependencyRevision ||
       authority.ownerEpoch !== suppliedAuthority.ownerEpoch ||
+      authority.previousOwnerEpoch !== suppliedAuthority.previousOwnerEpoch ||
+      authority.writerTransferClaimHash !== suppliedAuthority.writerTransferClaimHash ||
       authority.recipientIdentity !== suppliedAuthority.recipientIdentity
     ) {
       throw new IacProviderError("PREVIEW_OWNER_EPOCH_MISMATCH", "Supplied authority is not the current authority");
@@ -537,8 +540,16 @@ export class NativeTerraformProvider extends NativeProviderBase implements IacPr
       const showOutput = await this.run(this.#commands.showJson(this.#target.cwd, planPath));
       const normalized = normalizeTerraformPlan(parseJsonProcessOutput("terraform-plan", showOutput));
       const authority = await this.currentAuthority();
+      if (
+        authority.ownerEpoch !== request.ownerEpoch ||
+        authority.head !== request.commit ||
+        authority.dependencyRevision !== request.dependencyRevision
+      ) {
+        throw new IacProviderError("PREVIEW_OWNER_EPOCH_MISMATCH", "Preview request authority is stale");
+      }
+      const executionRecipient = request.executionRecipientIdentity ?? authority.recipientIdentity;
       const encrypted = this.#transport.encrypt(planBytes, await this.#keyProvider(), {
-        recipient: authority.recipientIdentity,
+        recipient: executionRecipient,
         ttlMs: request.ttlMs,
       });
       const artifactRef = `${request.projectId}/${request.runId}/${operation}/${planDigest}.tfplan.enc`;
@@ -548,7 +559,7 @@ export class NativeTerraformProvider extends NativeProviderBase implements IacPr
         planDigest,
         configHash,
         lockfileHash: this.#target.lockfileHash,
-        recipient: authority.recipientIdentity,
+        recipient: executionRecipient,
         artifactRef,
       });
       const preview = this.createPreview(this.track, operation, request, normalized, {
@@ -568,7 +579,7 @@ export class NativeTerraformProvider extends NativeProviderBase implements IacPr
         policyHash: request.policyHash,
         configHash,
         lockfileHash: this.#target.lockfileHash,
-        recipient: authority.recipientIdentity,
+        recipient: executionRecipient,
         planDigest,
         artifactRef,
         ...(preview.stateLineage === undefined ? {} : { stateLineage: preview.stateLineage }),
@@ -577,7 +588,7 @@ export class NativeTerraformProvider extends NativeProviderBase implements IacPr
           encrypted: true,
           implementation: "local-reference",
           algorithm: "aes-256-gcm",
-          recipient: authority.recipientIdentity,
+          recipient: executionRecipient,
           mediaType: "application/vnd.apex.terraform-plan",
           iv: encrypted.iv,
           authTag: encrypted.authTag,

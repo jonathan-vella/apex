@@ -81,6 +81,7 @@ const approvalEvidenceProperties = {
   actor: NonEmptyStringSchema,
   dependencyHash: Sha256Schema,
   previewHash: Type.Optional(Sha256Schema),
+  writerTransferClaimHash: Type.Optional(Sha256Schema),
   writerEpoch: Type.Integer({ minimum: 1 }),
   decidedAt: Type.String({
     pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$",

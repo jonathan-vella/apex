@@ -44,6 +44,14 @@ expiry bounds, encrypted approval-environment handoff, and adversarial actor, ow
 workflow, environment, and recipient mismatches. These tests do not constitute live proof of GitHub Environment
 protection or reviewer behavior.
 
+Transfer authorization tests also cover stable semantic dependency revisions, sender lease mismatch without orphaned
+claims or events, authenticated ownership lineage, transfer-after-preview ordering, exact one-hop success, wrong or
+missing claim hashes, nonconsecutive and second-hop epochs, tampered lineage, post-preview dependency drift, and
+superseded previews. Native Terraform tests preview as one writer, encrypt for the planned recipient, and apply as that
+recipient only after the exact claim-bound transfer. Encrypted state tests resume in a fresh workspace, accept the
+post-preview claim, approve Gate 4, and deploy the imported exact preview. Lease tests cover same-epoch retry after a
+failed mutation, pending-transfer rejection, expiry, and journal compare-and-swap.
+
 ## Bind Live Evidence
 
 After deterministic qualification passes, create an unavailable-by-default record with `npm run live:vnext`. The record
@@ -84,7 +92,8 @@ rejection, managed-file conflict refusal, fake dual-track completion, and succes
 - vNext is a preview and does not import v1 sessions or artifacts.
 - Production CI encrypted Terraform saved-plan transport is not qualified; local exact-plan operation is the supported
   preview path. GitHub Environment Gate 4 evidence is implemented and deterministically tested, but production CI stays
-  blocked until the protected-environment and separate-job transfer sequence has live proof on the release candidate.
+  blocked until the protected-environment and separate preview/apply writer sequence has live proof on the release
+  candidate. No production workflow YAML is enabled by this implementation.
 - The optional VS Code agent-plugin distribution path is not required or qualified for this preview.
 - Kernel authority does not extend to VS Code conversation history or system context.
 - Real Azure tests may incur cost and require sandbox governance, credentials, quotas, and cleanup ownership.

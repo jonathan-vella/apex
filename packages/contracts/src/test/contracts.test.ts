@@ -671,6 +671,25 @@ describe("target family contracts", () => {
     assert.equal(Value.Check(ApprovalEvidenceV1Schema, approval), true);
     assert.equal(hasValidPreviewApprovalBinding(attestation, preview, approval), true);
     assert.equal(hasValidPreviewApprovalBinding(attestation, preview, { ...approval, previewHash: otherHash }), false);
+    assert.equal(
+      hasValidPreviewApprovalBinding(attestation, preview, {
+        ...approval,
+        writerEpoch: preview.ownerEpoch + 1,
+        writerTransferClaimHash: otherHash,
+      }),
+      true,
+    );
+    assert.equal(
+      hasValidPreviewApprovalBinding(attestation, preview, { ...approval, writerEpoch: preview.ownerEpoch + 1 }),
+      false,
+    );
+    assert.equal(
+      hasValidPreviewApprovalBinding(attestation, preview, {
+        ...approval,
+        writerTransferClaimHash: otherHash,
+      }),
+      false,
+    );
   });
 
   it("requires strict GitHub context only for GitHub Environment approvals", () => {
@@ -705,6 +724,23 @@ describe("target family contracts", () => {
     assert.equal(
       Value.Check(ApprovalEvidenceV1Schema, { ...base, mechanism: "github-environment", githubContext }),
       true,
+    );
+    assert.equal(
+      Value.Check(ApprovalEvidenceV1Schema, {
+        ...base,
+        mechanism: "github-environment",
+        githubContext,
+        writerTransferClaimHash: "b".repeat(64),
+      }),
+      true,
+    );
+    assert.equal(
+      Value.Check(ApprovalEvidenceV1Schema, {
+        ...base,
+        mechanism: "tty",
+        writerTransferClaimHash: "not-a-hash",
+      }),
+      false,
     );
     assert.equal(Value.Check(ApprovalEvidenceV1Schema, { ...base, mechanism: "github-environment" }), false);
     assert.equal(

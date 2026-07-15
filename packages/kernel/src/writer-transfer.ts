@@ -38,6 +38,9 @@ export interface AcceptTransferInput {
 export interface WriterOwnership {
   ownerId: string;
   ownerEpoch: number;
+  claimHash?: string;
+  previousOwnerId?: string;
+  previousOwnerEpoch?: number;
   repository: string;
   branch: string;
   commit: string;
@@ -79,6 +82,10 @@ export class WriterTransferStore {
     const run = await this.runs.read();
     if (run.projectId !== input.projectId || run.runId !== input.runId || run.ownerEpoch !== input.currentEpoch)
       throw new Error("Stale transfer epoch or run identity");
+    const lease = await this.leases.current();
+    if (lease?.ownerId !== input.sender || lease.ownerEpoch !== input.currentEpoch) {
+      throw new Error("Transfer sender does not hold the current lease");
+    }
     const claim: WriterTransferClaim = {
       projectId: input.projectId,
       runId: input.runId,
@@ -119,8 +126,15 @@ export class WriterTransferStore {
     if (claim.commit !== input.currentGitHead) throw new Error("Transfer claim Git head is stale");
     if (Date.parse(claim.expiresAt) <= this.clock().getTime()) throw new Error("Transfer claim has expired");
     const run = await this.runs.read();
+    if (claim.projectId !== run.projectId || claim.runId !== run.runId)
+      throw new Error("Transfer claim run is invalid");
     if (run.ownerEpoch + 1 !== claim.nextEpoch) throw new Error("Transfer claim owner epoch is stale");
-    const lease = await this.leases.acquire(input.recipient, Date.parse(claim.expiresAt) - this.clock().getTime());
+    const lease = await this.leases.acquireAtEpoch(
+      input.recipient,
+      claim.nextEpoch,
+      Date.parse(claim.expiresAt) - this.clock().getTime(),
+    );
+    const acceptedAt = this.clock().toISOString();
     let mutation;
     try {
       mutation = await this.runs.mutate({
@@ -130,7 +144,7 @@ export class WriterTransferStore {
           projectId: claim.projectId,
           runId: claim.runId,
           type: "transfer-accepted",
-          timestamp: this.clock().toISOString(),
+          timestamp: acceptedAt,
           ownerEpoch: claim.nextEpoch,
           payload: { claimHash: input.claimHash, recipient: input.recipient },
         },
@@ -143,12 +157,15 @@ export class WriterTransferStore {
     const ownership: WriterOwnership = {
       ownerId: input.recipient,
       ownerEpoch: mutation.run.ownerEpoch,
+      claimHash: input.claimHash,
+      previousOwnerId: claim.sender,
+      previousOwnerEpoch: claim.nextEpoch - 1,
       repository: claim.repository,
       branch: claim.branch,
       commit: claim.commit,
       workflowId: claim.workflowId,
       ...(claim.approvalEnvironment === undefined ? {} : { approvalEnvironment: claim.approvalEnvironment }),
-      acceptedAt: this.clock().toISOString(),
+      acceptedAt,
     };
     await atomicWriteJson(this.ownershipPath, ownership);
     return ownership;
@@ -162,6 +179,120 @@ export class WriterTransferStore {
       throw error;
     }
   }
+
+  async currentActiveOwnership(): Promise<WriterOwnership | null> {
+    const ownership = await this.currentOwnership();
+    if (ownership === null) return null;
+    const lease = await this.leases.current();
+    return lease?.ownerId === ownership.ownerId && lease.ownerEpoch === ownership.ownerEpoch ? ownership : null;
+  }
+
+  async hasPendingTransfer(): Promise<boolean> {
+    const events = await this.journal.replay();
+    const requestedIndex = events.findLastIndex((event) => event.type === "transfer-requested");
+    if (requestedIndex < 0) return false;
+    const claimHash = (events[requestedIndex]!.payload as { claimHash?: unknown }).claimHash;
+    return !events
+      .slice(requestedIndex + 1)
+      .some(
+        (event) =>
+          event.type === "transfer-accepted" && (event.payload as { claimHash?: unknown }).claimHash === claimHash,
+      );
+  }
+
+  async proveOneHopPostPreviewLineage(previewHash: string, previewOwnerEpoch: number): Promise<string | null> {
+    try {
+      if (!/^[0-9a-f]{64}$/.test(previewHash)) return null;
+      const run = await this.runs.read();
+      const ownership = await this.currentOwnership();
+      const lease = await this.leases.current();
+      if (
+        ownership === null ||
+        !/^[0-9a-f]{64}$/.test(ownership.claimHash ?? "") ||
+        ownership.ownerEpoch !== previewOwnerEpoch + 1 ||
+        ownership.ownerEpoch !== run.ownerEpoch ||
+        lease?.ownerId !== ownership.ownerId ||
+        lease.ownerEpoch !== ownership.ownerEpoch ||
+        ownership.previousOwnerEpoch !== previewOwnerEpoch ||
+        typeof ownership.previousOwnerId !== "string"
+      ) {
+        return null;
+      }
+      const claimHash = ownership.claimHash!;
+      const claim = JSON.parse(
+        await readFile(join(this.claimDirectory, `${claimHash}.json`), "utf8"),
+      ) as WriterTransferClaim;
+      if (
+        sha256Json(claim as unknown as JsonValue) !== claimHash ||
+        claim.projectId !== run.projectId ||
+        claim.runId !== run.runId ||
+        claim.nextEpoch !== ownership.ownerEpoch ||
+        claim.sender !== ownership.previousOwnerId ||
+        claim.recipient !== ownership.ownerId ||
+        claim.repository !== ownership.repository ||
+        claim.branch !== ownership.branch ||
+        claim.commit !== ownership.commit ||
+        claim.workflowId !== ownership.workflowId ||
+        claim.approvalEnvironment !== ownership.approvalEnvironment ||
+        !Number.isFinite(Date.parse(claim.expiresAt))
+      ) {
+        return null;
+      }
+      const events = await this.journal.replay();
+      const previewIndex = events.findIndex(
+        (event) =>
+          event.type === "preview.created" &&
+          event.ownerEpoch === previewOwnerEpoch &&
+          (event.payload as { previewHash?: unknown }).previewHash === previewHash,
+      );
+      const requestedIndex = events.findIndex(
+        (event, index) =>
+          index > previewIndex &&
+          event.type === "transfer-requested" &&
+          event.projectId === claim.projectId &&
+          event.runId === claim.runId &&
+          event.ownerEpoch === previewOwnerEpoch &&
+          (event.payload as { claimHash?: unknown; recipient?: unknown }).claimHash === claimHash &&
+          (event.payload as { claimHash?: unknown; recipient?: unknown }).recipient === claim.recipient,
+      );
+      const acceptedIndex = events.findIndex(
+        (event, index) =>
+          index > requestedIndex &&
+          event.type === "transfer-accepted" &&
+          event.projectId === claim.projectId &&
+          event.runId === claim.runId &&
+          event.ownerEpoch === ownership.ownerEpoch &&
+          (event.payload as { claimHash?: unknown; recipient?: unknown }).claimHash === claimHash &&
+          (event.payload as { claimHash?: unknown; recipient?: unknown }).recipient === ownership.ownerId,
+      );
+      if (
+        previewIndex < 0 ||
+        requestedIndex < 0 ||
+        acceptedIndex < 0 ||
+        ownership.acceptedAt !== events[acceptedIndex]!.timestamp ||
+        !Number.isFinite(Date.parse(ownership.acceptedAt)) ||
+        Date.parse(ownership.acceptedAt) > Date.parse(claim.expiresAt) ||
+        Date.parse(ownership.acceptedAt) > this.clock().getTime() ||
+        Date.parse(claim.expiresAt) <= this.clock().getTime() ||
+        events
+          .slice(acceptedIndex + 1)
+          .some((event) => event.type === "transfer-requested" || event.type === "transfer-accepted")
+      ) {
+        return null;
+      }
+      return claimHash;
+    } catch {
+      return null;
+    }
+  }
 }
 
-export type WriterTransferProtocol = Pick<WriterTransferStore, "create" | "accept" | "currentOwnership">;
+export type WriterTransferProtocol = Pick<
+  WriterTransferStore,
+  | "create"
+  | "accept"
+  | "currentOwnership"
+  | "currentActiveOwnership"
+  | "hasPendingTransfer"
+  | "proveOneHopPostPreviewLineage"
+>;
