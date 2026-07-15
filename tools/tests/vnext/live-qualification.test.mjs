@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import test from "node:test";
 import {
   LIVE_QUALIFICATION_SCENARIO_IDS,
@@ -13,6 +14,7 @@ import {
   createLiveQualificationTemplate,
   parseLiveQualificationArguments,
   renderLiveQualification,
+  validateEvidencePayloads,
   validateLiveQualification,
 } from "../../scripts/live-qualification.mjs";
 
@@ -83,6 +85,13 @@ test("parses bounded live qualification commands", () => {
     command: "render",
     file: "qualification.json",
   });
+  assert.deepEqual(
+    parseLiveQualificationArguments(["validate", "--evidence-file", "first.json", "--evidence-file", "second.json"]),
+    {
+      command: "validate",
+      "evidence-file": ["first.json", "second.json"],
+    },
+  );
   assert.throws(() => parseLiveQualificationArguments(["validate", "--unknown", "value"]), /Unknown/);
 });
 
@@ -124,4 +133,29 @@ test("validator binds candidate, evidence membership, coverage, and secret polic
   assert.ok(findings.some((finding) => finding.includes("secret-bearing value")));
   assert.ok(findings.some((finding) => finding.includes("unknown evidence reference")));
   assert.ok(findings.some((finding) => finding.includes("qualification semantics")));
+});
+
+test("validator binds evidence manifest entries to supplied payload bytes", () => {
+  const bytes = Buffer.from('{"result":"pass"}');
+  const payloadHash = createHash("sha256").update(bytes).digest("hex");
+  const evidenceManifest = {
+    ...createEvidenceManifestTemplate({ projectId: "live-test", runId: "run-1", createdAt: timestamp }),
+    entries: [{ kind: "vscode", hash: payloadHash, bytes: bytes.byteLength, required: true, retention: "immutable" }],
+  };
+  const payload = { path: "vscode.json", bytes };
+
+  assert.match(validateEvidencePayloads({}, [payload])[0], /manifest entries are invalid/);
+  assert.match(validateEvidencePayloads({ entries: [null] }, [payload])[0], /manifest entries are invalid/);
+  assert.deepEqual(validateEvidencePayloads(evidenceManifest, [payload]), []);
+  assert.match(validateEvidencePayloads(evidenceManifest, [])[0], /payload is missing/);
+
+  const tampered = validateEvidencePayloads(evidenceManifest, [
+    { path: payload.path, bytes: Buffer.concat([bytes, Buffer.from("\n")]) },
+  ]);
+  assert.ok(tampered.some((finding) => finding.includes("is not declared")));
+  assert.ok(tampered.some((finding) => finding.includes("payload is missing")));
+  assert.match(validateEvidencePayloads(evidenceManifest, [payload, payload])[0], /duplicates manifest entry/);
+
+  const wrongSize = { ...evidenceManifest, entries: [{ ...evidenceManifest.entries[0], bytes: bytes.byteLength + 1 }] };
+  assert.match(validateEvidencePayloads(wrongSize, [payload])[0], /expected 18 bytes, found 17/);
 });

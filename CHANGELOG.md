@@ -71,6 +71,8 @@ for full details on this and all prior releases.
   recomputable caches while preserving repository-backed project journals and evidence for cross-device resume.
 - fix(vnext): return a valid structured MCP acknowledgement after recording requirements input instead of emitting
   an invalid tool result after the journal mutation succeeds.
+- fix(vnext): allow `live:vnext validate` to bind supplied evidence payload files to manifest hashes and byte counts,
+  rejecting missing, duplicate, tampered, or incorrectly sized evidence before release qualification is accepted.
 
 ### Changed (Model migration — Claude Sonnet 4.6 → Claude Sonnet 5)
 
