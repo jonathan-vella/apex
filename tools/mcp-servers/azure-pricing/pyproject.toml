@@ -52,7 +52,7 @@ azure = [
 ]
 dev = [
     "pytest>=8.3.0",
-    "pytest-asyncio>=0.24.0",
+    "pytest-asyncio>=1.4.0",
     "pytest-mock>=3.15.1",
     "mypy>=2.1.0",
     "ruff>=0.15.18",
