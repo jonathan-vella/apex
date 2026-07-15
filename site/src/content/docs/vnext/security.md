@@ -26,12 +26,24 @@ current Git head, and expiry. A stale epoch or mismatched head cannot authorize 
 
 Repository-state transfer uses a separate AES-256-GCM envelope from encrypted Terraform plan transport. Authenticated
 metadata binds the envelope implementation and version, kind, plaintext digest, recipient, timestamps, claim, selected
-project/run, writer epoch, journal head, repository, branch, commit, and workflow. Import authenticates and validates the
-complete bundle before atomic mode-`0600` writes. It refuses path traversal, symlinks, secret-bearing JSON, oversized
-files, unreferenced objects, changed existing state, and any attempt to include `.apex/local/`.
+project/run, writer epoch, journal head, repository, branch, commit, workflow, and optional approval environment. Import
+authenticates and validates the complete bundle before atomic mode-`0600` writes. It refuses path traversal, symlinks,
+secret-bearing JSON, oversized files, unreferenced objects, changed existing state, and any attempt to include
+`.apex/local/`.
 
 State import is not writer acceptance. The protected recipient must run the existing `writer transfer-accept` command
 after import so approval and authority transfer remain separate operations.
+
+GitHub Environment Gate 4 approval is authorized only after that accepted ownership exists at the run's current epoch.
+The CLI derives context exclusively from GitHub Actions process variables and binds repository, full branch ref, commit,
+workflow ref, run and attempt, job, environment, workflow actor, and canonical recipient into approval evidence. It
+accepts no caller-supplied context document. The service compares every source-control field and recipient back to the
+accepted ownership record before recording approval.
+
+The evidence actor `github:<actor-id>:<actor>` identifies the workflow actor. APEX does not infer or attest the identity
+of a GitHub Environment reviewer because GitHub does not expose that identity through these process variables. A
+single-maintainer repository can therefore permit trigger-and-approve self-review unless its environment protection
+rules enforce separation. Treat reviewer independence as an external repository governance control.
 
 The current preview exposes writer transfer primitives, but production CI operation remains subject to release
 qualification and provider-specific evidence. Do not simulate transfer by editing run files.

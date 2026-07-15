@@ -16,6 +16,7 @@ export interface WriterTransferClaim {
   workflowId: string;
   sender: string;
   recipient: string;
+  approvalEnvironment?: string;
   nextEpoch: number;
   expiresAt: string;
 }
@@ -41,6 +42,7 @@ export interface WriterOwnership {
   branch: string;
   commit: string;
   workflowId: string;
+  approvalEnvironment?: string;
   acceptedAt: string;
 }
 
@@ -71,6 +73,9 @@ export class WriterTransferStore {
   async create(input: CreateTransferInput): Promise<{ claim: WriterTransferClaim; hash: string }> {
     if (input.commit !== input.currentGitHead) throw new Error("Transfer commit does not match current Git head");
     if (!Number.isFinite(input.ttlMs) || input.ttlMs <= 0) throw new Error("Transfer TTL must be positive");
+    if (input.approvalEnvironment !== undefined && input.approvalEnvironment.trim().length === 0) {
+      throw new Error("Transfer approval environment must be nonempty");
+    }
     const run = await this.runs.read();
     if (run.projectId !== input.projectId || run.runId !== input.runId || run.ownerEpoch !== input.currentEpoch)
       throw new Error("Stale transfer epoch or run identity");
@@ -83,6 +88,7 @@ export class WriterTransferStore {
       workflowId: input.workflowId,
       sender: input.sender,
       recipient: input.recipient,
+      ...(input.approvalEnvironment === undefined ? {} : { approvalEnvironment: input.approvalEnvironment }),
       nextEpoch: input.currentEpoch + 1,
       expiresAt: new Date(this.clock().getTime() + input.ttlMs).toISOString(),
     };
@@ -141,6 +147,7 @@ export class WriterTransferStore {
       branch: claim.branch,
       commit: claim.commit,
       workflowId: claim.workflowId,
+      ...(claim.approvalEnvironment === undefined ? {} : { approvalEnvironment: claim.approvalEnvironment }),
       acceptedAt: this.clock().toISOString(),
     };
     await atomicWriteJson(this.ownershipPath, ownership);

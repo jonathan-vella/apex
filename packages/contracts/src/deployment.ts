@@ -55,23 +55,72 @@ export const DeploymentPreviewV1Schema = Type.Object(
   { $id: "https://schemas.apexops.dev/deployment-preview-v1.json", additionalProperties: false },
 );
 
-export const ApprovalEvidenceV1Schema = Type.Object(
+export const GitHubApprovalContextSchema = Type.Object(
   {
-    schemaVersion: ContractVersionSchema,
-    projectId: ProjectIdSchema,
-    runId: RunIdSchema,
-    gate: Type.Integer({ minimum: 1, maximum: 4 }),
-    decision: Type.Union([Type.Literal("approved"), Type.Literal("rejected")]),
+    repository: Type.String({ pattern: "^[^/\\s]+/[^/\\s]+$" }),
+    ref: Type.String({ pattern: "^refs/heads/[^\\s]+$" }),
+    sha: Type.String({ pattern: "^[0-9a-f]{40}$" }),
+    workflowRef: NonEmptyStringSchema,
+    runId: Type.String({ pattern: "^[0-9]+$" }),
+    runAttempt: Type.Integer({ minimum: 1 }),
+    job: NonEmptyStringSchema,
+    environment: NonEmptyStringSchema,
     actor: NonEmptyStringSchema,
-    mechanism: Type.Union([Type.Literal("tty"), Type.Literal("github-environment"), Type.Literal("inherited")]),
-    dependencyHash: Sha256Schema,
-    previewHash: Type.Optional(Sha256Schema),
-    writerEpoch: Type.Integer({ minimum: 1 }),
-    recipientIdentity: Type.Optional(NonEmptyStringSchema),
-    decidedAt: IsoDateTimeSchema,
-    expiresAt: Type.Optional(IsoDateTimeSchema),
+    actorId: Type.String({ pattern: "^[0-9]+$" }),
+    recipientIdentity: NonEmptyStringSchema,
   },
-  { $id: "https://schemas.apexops.dev/approval-evidence-v1.json", additionalProperties: false },
+  { additionalProperties: false },
+);
+
+const approvalEvidenceProperties = {
+  schemaVersion: ContractVersionSchema,
+  projectId: ProjectIdSchema,
+  runId: RunIdSchema,
+  gate: Type.Integer({ minimum: 1, maximum: 4 }),
+  decision: Type.Union([Type.Literal("approved"), Type.Literal("rejected")]),
+  actor: NonEmptyStringSchema,
+  dependencyHash: Sha256Schema,
+  previewHash: Type.Optional(Sha256Schema),
+  writerEpoch: Type.Integer({ minimum: 1 }),
+  decidedAt: Type.String({
+    pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$",
+  }),
+  expiresAt: Type.Optional(
+    Type.String({
+      pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$",
+    }),
+  ),
+};
+
+export const ApprovalEvidenceV1Schema = Type.Union(
+  [
+    Type.Object(
+      {
+        ...approvalEvidenceProperties,
+        mechanism: Type.Literal("tty"),
+        recipientIdentity: Type.Optional(NonEmptyStringSchema),
+      },
+      { additionalProperties: false },
+    ),
+    Type.Object(
+      {
+        ...approvalEvidenceProperties,
+        mechanism: Type.Literal("inherited"),
+        recipientIdentity: Type.Optional(NonEmptyStringSchema),
+      },
+      { additionalProperties: false },
+    ),
+    Type.Object(
+      {
+        ...approvalEvidenceProperties,
+        mechanism: Type.Literal("github-environment"),
+        recipientIdentity: NonEmptyStringSchema,
+        githubContext: GitHubApprovalContextSchema,
+      },
+      { additionalProperties: false },
+    ),
+  ],
+  { $id: "https://schemas.apexops.dev/approval-evidence-v1.json" },
 );
 
 export const OperationStateSchema = Type.Union([
@@ -128,6 +177,7 @@ export const ResourceInventoryV1Schema = Type.Object(
 );
 
 export type DeploymentPreviewV1 = Static<typeof DeploymentPreviewV1Schema>;
+export type GitHubApprovalContext = Static<typeof GitHubApprovalContextSchema>;
 export type ApprovalEvidenceV1 = Static<typeof ApprovalEvidenceV1Schema>;
 export type OperationRecordV1 = Static<typeof OperationRecordV1Schema>;
 export type ResourceInventoryV1 = Static<typeof ResourceInventoryV1Schema>;

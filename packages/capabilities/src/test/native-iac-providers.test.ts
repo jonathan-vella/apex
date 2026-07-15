@@ -68,7 +68,7 @@ function approval(preview: DeploymentPreviewV1): ApprovalEvidenceV1 {
     gate: 4,
     decision: "approved",
     actor: "approver@example.com",
-    mechanism: "github-environment",
+    mechanism: "tty",
     dependencyHash: preview.previewHash,
     previewHash: preview.previewHash,
     writerEpoch: authority.ownerEpoch,

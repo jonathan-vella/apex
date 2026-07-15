@@ -43,6 +43,7 @@ async function sourceState(clock = instant): Promise<SourceState> {
     branch: "qualification",
     commit: "candidate-commit",
     workflowId: "qualification.yml",
+    approvalEnvironment: "vnext-qualification",
     sender: "local",
     recipient: "ci",
     currentHead: "candidate-commit",
@@ -100,6 +101,7 @@ test("state export is deterministic and includes only selected state plus recurs
     instant,
   );
   const paths = bundle.files.map(({ path }) => path);
+  assert.equal(bundle.bindings.approvalEnvironment, "vnext-qualification");
   assert.deepEqual(paths, [...paths].sort());
   assert(paths.includes(`objects/sha256/${parentHash.slice(0, 2)}/${parentHash.slice(2)}`));
   assert(paths.includes(`objects/sha256/${leafHash.slice(0, 2)}/${leafHash.slice(2)}`));
@@ -301,8 +303,10 @@ test("state import preflights conflicts, permits idempotence, and preserves writ
   const accepted = (await destinationService.acceptWriterTransfer(source.claimHash, "ci", "candidate-commit")) as {
     ownerId: string;
     ownerEpoch: number;
+    approvalEnvironment?: string;
   };
   assert.deepEqual({ ownerId: accepted.ownerId, ownerEpoch: accepted.ownerEpoch }, { ownerId: "ci", ownerEpoch: 2 });
+  assert.equal(accepted.approvalEnvironment, "vnext-qualification");
 
   const conflictDestination = await tempRoot();
   await mkdir(join(conflictDestination, ".apex"), { recursive: true });

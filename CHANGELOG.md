@@ -64,6 +64,11 @@ for full details on this and all prior releases.
   binding and its referenced encrypted Terraform plan, validate all authority and file cross-links before restrictive
   atomic import, and exclude local keys, latest pointers, unrelated runtime files, and plaintext plans. Production CI
   remains blocked pending live separate-job proof.
+- feat(vnext): added truthful GitHub Environment Gate 4 approval evidence derived only from strict GitHub Actions
+  context, bound to the accepted writer-transfer owner, repository, branch, commit, workflow, run, job, and canonical
+  recipient. The protected environment is bound through the encrypted state handoff and accepted ownership. Approval
+  expiry is bounded by the exact preview. Evidence identifies the workflow actor rather than an environment reviewer,
+  and production CI remains blocked pending live protected-environment proof.
 
 ### Fixed (APEX vNext security)
 

@@ -31,6 +31,7 @@ import {
   type CostEstimateV1,
   type DeploymentPreviewV1,
   type EnvironmentInputsV1,
+  type GitHubApprovalContext,
   type IacBindingV1,
   type LogicalResourceManifestV1,
   type ImplementationIntentV1,
@@ -112,6 +113,11 @@ const APEX_GITIGNORE = "/cache/\n/local/\n/work/\n";
 interface Selection {
   projectId: ProjectId;
   runId: RunId;
+}
+
+export interface GateDecisionOptions {
+  mechanism?: "tty" | "github-environment";
+  githubContext?: GitHubApprovalContext;
 }
 
 interface ManagedFile {
@@ -1004,6 +1010,7 @@ export class ApexService {
     gateNumber: number,
     decision: "approved" | "rejected",
     actor: string,
+    options: GateDecisionOptions = {},
   ): Promise<ApprovalEvidenceV1> {
     const run = await this.currentRun();
     const gate = run.gates.find(({ gate }) => gate === gateNumber);
@@ -1013,24 +1020,100 @@ export class ApexService {
     if (gateNumber === 4 && previewHash === undefined) {
       throw new ApexError("APEX_VALIDATION", "Gate 4 requires a deployment preview", EXIT_CODES.validation);
     }
+    const mechanism = options.mechanism ?? "tty";
+    if (mechanism !== "tty" && mechanism !== "github-environment") {
+      throw new ApexError("APEX_USAGE", "Unsupported gate approval mechanism", EXIT_CODES.usage);
+    }
+    if (mechanism === "tty" && options.githubContext !== undefined) {
+      throw new ApexError("APEX_VALIDATION", "TTY approval cannot include GitHub context", EXIT_CODES.validation);
+    }
+    if (mechanism === "github-environment" && (gateNumber !== 4 || decision !== "approved")) {
+      throw new ApexError(
+        "APEX_AUTHORIZATION",
+        "GitHub Environment approval is limited to approved Gate 4 decisions",
+        EXIT_CODES.authorization,
+      );
+    }
+    const previewObjectHash =
+      gateNumber === 4 ? this.latestPayloadHash(events, "preview.created", "previewObjectHash") : undefined;
+    if (gateNumber === 4 && previewObjectHash === undefined) {
+      throw new ApexError("APEX_VALIDATION", "Gate 4 preview evidence is incomplete", EXIT_CODES.validation);
+    }
+    const preview =
+      previewObjectHash === undefined ? undefined : await this.objects.getJson<DeploymentPreviewV1>(previewObjectHash);
+    if (preview !== undefined && Date.parse(preview.expiresAt) <= this.clock().getTime()) {
+      throw new ApexError("APEX_STALE", "Deployment preview has expired", EXIT_CODES.stale);
+    }
+    const githubContext = options.githubContext;
     const recipientIdentity = await this.currentRecipientIdentity(run);
     const decidedAt = this.clock().toISOString();
-    const approval: ApprovalEvidenceV1 = {
+    const commonApproval = {
       schemaVersion: CONTRACT_VERSION,
       projectId: run.projectId,
       runId: run.runId,
       gate: gateNumber,
       decision,
       actor,
-      mechanism: "tty",
-      recipientIdentity,
       dependencyHash: gate.dependencyHash,
       ...(previewHash === undefined ? {} : { previewHash }),
       writerEpoch: run.ownerEpoch,
       decidedAt,
-      ...(gateNumber === 4 ? { expiresAt: new Date(this.clock().getTime() + PREVIEW_TTL_MS).toISOString() } : {}),
+      ...(preview === undefined ? {} : { expiresAt: preview.expiresAt }),
     };
+    let approval: ApprovalEvidenceV1;
+    if (mechanism === "github-environment") {
+      if (githubContext === undefined) {
+        throw new ApexError("APEX_VALIDATION", "GitHub Environment approval requires context", EXIT_CODES.validation);
+      }
+      approval = {
+        ...commonApproval,
+        mechanism,
+        recipientIdentity: githubContext.recipientIdentity,
+        githubContext,
+      };
+    } else {
+      approval = { ...commonApproval, mechanism: "tty", recipientIdentity };
+    }
     this.assertValid("approval", approval);
+    if (approval.mechanism === "github-environment") {
+      const context = approval.githubContext;
+      const expectedActor = `github:${context.actorId}:${context.actor}`;
+      const expectedRecipient = `github-actions:${context.repository}:${context.runId}:${context.runAttempt}:${context.job}`;
+      if (actor !== expectedActor) {
+        throw new ApexError(
+          "APEX_AUTHORIZATION",
+          "GitHub approval actor does not match context",
+          EXIT_CODES.authorization,
+        );
+      }
+      const ownership = await new WriterTransferStore(
+        this.projects.runDirectory(run.projectId, run.runId),
+        this.clock,
+      ).currentOwnership();
+      if (ownership === null || ownership.ownerEpoch !== run.ownerEpoch) {
+        throw new ApexError("APEX_STALE", "Current writer ownership is missing or stale", EXIT_CODES.stale);
+      }
+      if (
+        context.recipientIdentity !== expectedRecipient ||
+        recipientIdentity !== expectedRecipient ||
+        ownership.ownerId !== expectedRecipient
+      ) {
+        throw new ApexError(
+          "APEX_AUTHORIZATION",
+          "GitHub approval recipient is not the current writer",
+          EXIT_CODES.authorization,
+        );
+      }
+      if (
+        ownership.repository !== context.repository ||
+        context.ref !== `refs/heads/${ownership.branch}` ||
+        ownership.commit !== context.sha ||
+        ownership.workflowId !== context.workflowRef ||
+        ownership.approvalEnvironment !== context.environment
+      ) {
+        throw new ApexError("APEX_STALE", "GitHub approval context does not match writer ownership", EXIT_CODES.stale);
+      }
+    }
     const validatorIds = decision === "approved" ? await this.validateGateValidators(run, gate, events, approval) : [];
     const approvalHash = await this.objects.putJson(approval);
     const updated = {
@@ -1666,6 +1749,7 @@ export class ApexService {
     workflowId: string;
     sender: string;
     recipient: string;
+    approvalEnvironment?: string;
     currentHead: string;
     ttlMs: number;
   }): Promise<unknown> {
@@ -1684,6 +1768,7 @@ export class ApexService {
       workflowId: input.workflowId,
       sender: input.sender,
       recipient: input.recipient,
+      ...(input.approvalEnvironment === undefined ? {} : { approvalEnvironment: input.approvalEnvironment }),
       currentEpoch: run.ownerEpoch,
       currentGitHead: input.currentHead,
       ttlMs: input.ttlMs,

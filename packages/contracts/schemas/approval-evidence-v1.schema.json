@@ -1,93 +1,308 @@
 {
   "$id": "https://schemas.apexops.dev/approval-evidence-v1.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "additionalProperties": false,
-  "properties": {
-    "actor": {
-      "minLength": 1,
-      "type": "string"
-    },
-    "decidedAt": {
-      "format": "date-time",
-      "type": "string"
-    },
-    "decision": {
-      "anyOf": [
-        {
-          "const": "approved",
+  "anyOf": [
+    {
+      "additionalProperties": false,
+      "properties": {
+        "actor": {
+          "minLength": 1,
           "type": "string"
         },
-        {
-          "const": "rejected",
+        "decidedAt": {
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$",
           "type": "string"
-        }
-      ]
-    },
-    "dependencyHash": {
-      "pattern": "^[0-9a-f]{64}$",
-      "type": "string"
-    },
-    "expiresAt": {
-      "format": "date-time",
-      "type": "string"
-    },
-    "gate": {
-      "maximum": 4,
-      "minimum": 1,
-      "type": "integer"
-    },
-    "mechanism": {
-      "anyOf": [
-        {
+        },
+        "decision": {
+          "anyOf": [
+            {
+              "const": "approved",
+              "type": "string"
+            },
+            {
+              "const": "rejected",
+              "type": "string"
+            }
+          ]
+        },
+        "dependencyHash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "expiresAt": {
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$",
+          "type": "string"
+        },
+        "gate": {
+          "maximum": 4,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "mechanism": {
           "const": "tty",
           "type": "string"
         },
-        {
+        "previewHash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "projectId": {
+          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+          "type": "string"
+        },
+        "recipientIdentity": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "runId": {
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{0,127}$",
+          "type": "string"
+        },
+        "schemaVersion": {
+          "const": "1.0.0",
+          "type": "string"
+        },
+        "writerEpoch": {
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "projectId",
+        "runId",
+        "gate",
+        "decision",
+        "actor",
+        "dependencyHash",
+        "writerEpoch",
+        "decidedAt",
+        "mechanism"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "actor": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "decidedAt": {
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$",
+          "type": "string"
+        },
+        "decision": {
+          "anyOf": [
+            {
+              "const": "approved",
+              "type": "string"
+            },
+            {
+              "const": "rejected",
+              "type": "string"
+            }
+          ]
+        },
+        "dependencyHash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "expiresAt": {
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$",
+          "type": "string"
+        },
+        "gate": {
+          "maximum": 4,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "mechanism": {
+          "const": "inherited",
+          "type": "string"
+        },
+        "previewHash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "projectId": {
+          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+          "type": "string"
+        },
+        "recipientIdentity": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "runId": {
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{0,127}$",
+          "type": "string"
+        },
+        "schemaVersion": {
+          "const": "1.0.0",
+          "type": "string"
+        },
+        "writerEpoch": {
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "projectId",
+        "runId",
+        "gate",
+        "decision",
+        "actor",
+        "dependencyHash",
+        "writerEpoch",
+        "decidedAt",
+        "mechanism"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "actor": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "decidedAt": {
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$",
+          "type": "string"
+        },
+        "decision": {
+          "anyOf": [
+            {
+              "const": "approved",
+              "type": "string"
+            },
+            {
+              "const": "rejected",
+              "type": "string"
+            }
+          ]
+        },
+        "dependencyHash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "expiresAt": {
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$",
+          "type": "string"
+        },
+        "gate": {
+          "maximum": 4,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "githubContext": {
+          "additionalProperties": false,
+          "properties": {
+            "actor": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "actorId": {
+              "pattern": "^[0-9]+$",
+              "type": "string"
+            },
+            "environment": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "job": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "recipientIdentity": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "ref": {
+              "pattern": "^refs/heads/[^\\s]+$",
+              "type": "string"
+            },
+            "repository": {
+              "pattern": "^[^/\\s]+/[^/\\s]+$",
+              "type": "string"
+            },
+            "runAttempt": {
+              "minimum": 1,
+              "type": "integer"
+            },
+            "runId": {
+              "pattern": "^[0-9]+$",
+              "type": "string"
+            },
+            "sha": {
+              "pattern": "^[0-9a-f]{40}$",
+              "type": "string"
+            },
+            "workflowRef": {
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          "required": [
+            "repository",
+            "ref",
+            "sha",
+            "workflowRef",
+            "runId",
+            "runAttempt",
+            "job",
+            "environment",
+            "actor",
+            "actorId",
+            "recipientIdentity"
+          ],
+          "type": "object"
+        },
+        "mechanism": {
           "const": "github-environment",
           "type": "string"
         },
-        {
-          "const": "inherited",
+        "previewHash": {
+          "pattern": "^[0-9a-f]{64}$",
           "type": "string"
+        },
+        "projectId": {
+          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+          "type": "string"
+        },
+        "recipientIdentity": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "runId": {
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{0,127}$",
+          "type": "string"
+        },
+        "schemaVersion": {
+          "const": "1.0.0",
+          "type": "string"
+        },
+        "writerEpoch": {
+          "minimum": 1,
+          "type": "integer"
         }
-      ]
-    },
-    "previewHash": {
-      "pattern": "^[0-9a-f]{64}$",
-      "type": "string"
-    },
-    "projectId": {
-      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
-      "type": "string"
-    },
-    "recipientIdentity": {
-      "minLength": 1,
-      "type": "string"
-    },
-    "runId": {
-      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{0,127}$",
-      "type": "string"
-    },
-    "schemaVersion": {
-      "const": "1.0.0",
-      "type": "string"
-    },
-    "writerEpoch": {
-      "minimum": 1,
-      "type": "integer"
+      },
+      "required": [
+        "schemaVersion",
+        "projectId",
+        "runId",
+        "gate",
+        "decision",
+        "actor",
+        "dependencyHash",
+        "writerEpoch",
+        "decidedAt",
+        "mechanism",
+        "recipientIdentity",
+        "githubContext"
+      ],
+      "type": "object"
     }
-  },
-  "required": [
-    "schemaVersion",
-    "projectId",
-    "runId",
-    "gate",
-    "decision",
-    "actor",
-    "mechanism",
-    "dependencyHash",
-    "writerEpoch",
-    "decidedAt"
-  ],
-  "type": "object"
+  ]
 }

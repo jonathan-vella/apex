@@ -6,6 +6,7 @@ import { EventJournal, ValidatorRegistry, atomicWriteJson, sha256Json } from "@a
 import { evaluateQualityScorecard, renderQualityScorecardEvaluation, type ScorecardMeasurement } from "@apex/renderers";
 import { join, resolve } from "node:path";
 import { ApexError, EXIT_CODES, normalizeError } from "./errors.js";
+import { githubApprovalContext } from "./github-approval.js";
 import { resolveBundledAssets } from "./assets.js";
 import { serveMcp } from "./mcp.js";
 import { createFileProviderRuntime, hashTerraformConfiguration, hashTerraformLockFile } from "./provider-runtime.js";
@@ -551,12 +552,29 @@ export async function execute(argv: string[], root = process.cwd()): Promise<unk
       return service.generateIac(required(flags, "task"));
     case "review resolve":
       return service.resolveReview(JSON.parse(await readFile(required(flags, "file"), "utf8")));
-    case "gate decide":
+    case "gate decide": {
+      const mechanism = flags.mechanism ?? "tty";
+      if (mechanism !== "tty" && mechanism !== "github-environment") {
+        throw new ApexError("APEX_USAGE", "--mechanism must be tty or github-environment", EXIT_CODES.usage);
+      }
+      if (mechanism === "tty") {
+        return service.decideGateNumber(
+          Number(required(flags, "gate")),
+          required(flags, "decision") as "approved" | "rejected",
+          required(flags, "actor"),
+        );
+      }
+      if (flags.actor !== undefined) {
+        throw new ApexError("APEX_USAGE", "--actor is not accepted for github-environment", EXIT_CODES.usage);
+      }
+      const githubContext = githubApprovalContext(process.env);
       return service.decideGateNumber(
         Number(required(flags, "gate")),
         required(flags, "decision") as "approved" | "rejected",
-        required(flags, "actor"),
+        `github:${githubContext.actorId}:${githubContext.actor}`,
+        { mechanism, githubContext },
       );
+    }
     case "validate":
       return service.validate();
     case "preview":
@@ -588,6 +606,7 @@ export async function execute(argv: string[], root = process.cwd()): Promise<unk
         workflowId: required(flags, "workflow"),
         sender: required(flags, "sender"),
         recipient: required(flags, "recipient"),
+        ...(typeof flags.environment === "string" ? { approvalEnvironment: flags.environment } : {}),
         currentHead: required(flags, "head"),
         ttlMs: Number(required(flags, "ttl")),
       });

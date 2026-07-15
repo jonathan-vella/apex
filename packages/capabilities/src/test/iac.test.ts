@@ -52,7 +52,10 @@ function authority(overrides: Partial<CurrentDeploymentAuthority> = {}): Current
   };
 }
 
-function approval(preview: DeploymentPreviewV1, overrides: Partial<ApprovalEvidenceV1> = {}): ApprovalEvidenceV1 {
+function approval(
+  preview: DeploymentPreviewV1,
+  overrides: Partial<Extract<ApprovalEvidenceV1, { mechanism: "tty" }>> = {},
+): ApprovalEvidenceV1 {
   return {
     schemaVersion: "1.0.0",
     projectId: preview.projectId,
@@ -60,7 +63,7 @@ function approval(preview: DeploymentPreviewV1, overrides: Partial<ApprovalEvide
     gate: 4,
     decision: "approved",
     actor: "approver@example.com",
-    mechanism: "github-environment",
+    mechanism: "tty",
     dependencyHash: preview.previewHash,
     previewHash: preview.previewHash,
     writerEpoch: 3,

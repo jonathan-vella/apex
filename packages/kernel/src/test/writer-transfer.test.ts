@@ -29,6 +29,7 @@ const request = {
   branch: "main",
   commit: "abc123",
   workflowId: "workflow-v1",
+  approvalEnvironment: "vnext-qualification",
   sender: "alice",
   recipient: "bob",
   currentEpoch: 1,
@@ -48,6 +49,7 @@ test("writer transfer binds head and recipient, releases sender, and atomically 
     eventId: "accepted-1",
   });
   assert.equal(ownership.ownerEpoch, 2);
+  assert.equal(ownership.approvalEnvironment, "vnext-qualification");
   assert.equal((await transfers.currentOwnership())?.ownerId, "bob");
 });
 

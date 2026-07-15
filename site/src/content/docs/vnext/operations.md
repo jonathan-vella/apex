@@ -125,6 +125,34 @@ destinations and symlinked runtime ancestors, while allowing byte-identical retr
 transport key, approves Gate 4, or invokes a provider. Keep production CI apply blocked until a live separate-job proof
 qualifies the complete repository-state and provider-authority sequence.
 
+## Approve Gate 4 in a Protected Workflow
+
+Configure the apply job with a protected GitHub Environment and set `APEX_GITHUB_ENVIRONMENT` to that environment's
+exact name. Create the writer-transfer claim with that same name in `--environment`; the claim, encrypted state handoff,
+accepted ownership, and approval must agree. GitHub supplies the remaining context variables. After importing state and
+provider authority, accept the writer transfer with the canonical recipient for the current run, attempt, and job. Then
+approve Gate 4 without an `--actor` flag:
+
+```bash
+apex gate decide \
+  --gate 4 \
+  --decision approved \
+  --mechanism github-environment \
+  --json
+```
+
+The CLI derives the evidence actor as `github:<actor-id>:<actor>` and the recipient as
+`github-actions:<repository>:<run-id>:<run-attempt>:<job>`. It rejects local invocation, pull-request refs, missing or
+malformed variables, stale ownership, and any repository, branch, commit, workflow, recipient, or owner-epoch mismatch
+against the accepted writer-transfer claim. The approval expires no later than its exact deployment preview.
+
+GitHub Environment evidence records the workflow actor, not the identity of a required reviewer. In a repository where
+one maintainer can trigger the workflow and approve its environment, this does not prove independent review. Configure
+reviewer separation and environment protection outside APEX when separation of duties is required.
+
+Production CI remains blocked until the protected-environment ceremony and the complete separate-job transfer path have
+live proof on the exact release candidate.
+
 Bicep defaults to `detachAll`. Set `ownershipAuthorizesDeleteResources: true` only when the stack exclusively owns every
 resource it may delete. `deleteAll` additionally requires an explicitly dedicated sandbox resource group and separate
 authorization in provider configuration.

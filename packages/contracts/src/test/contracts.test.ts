@@ -201,7 +201,13 @@ describe("persisted contract schemas", () => {
       const sourceSchema = contractSchemas.find((schema) => schema.$id === generated.schema.$id);
       assert.ok(sourceSchema);
       assert.equal(generated.schema.$schema, JSON_SCHEMA_DIALECT);
-      assert.equal(generated.schema.additionalProperties, false);
+      const union = (generated.schema as { anyOf?: Array<{ additionalProperties?: unknown }> }).anyOf;
+      if (union === undefined) assert.equal(generated.schema.additionalProperties, false);
+      else
+        assert.equal(
+          union.every((branch) => branch.additionalProperties === false),
+          true,
+        );
       assert.equal(Value.Check(generated.schema, {}), Value.Check(sourceSchema, {}));
     }
   });
@@ -643,6 +649,19 @@ describe("target family contracts", () => {
       previewHash: hash,
       writerEpoch: 1,
       recipientIdentity: "deploy-prod",
+      githubContext: {
+        repository: "owner/repo",
+        ref: "refs/heads/main",
+        sha: "a".repeat(40),
+        workflowRef: "owner/repo/.github/workflows/deploy.yml@refs/heads/main",
+        runId: "123",
+        runAttempt: 1,
+        job: "deploy",
+        environment: "production",
+        actor: "octocat",
+        actorId: "1",
+        recipientIdentity: "deploy-prod",
+      },
       decidedAt: timestamp,
       expiresAt: expiry,
     };
@@ -652,6 +671,52 @@ describe("target family contracts", () => {
     assert.equal(Value.Check(ApprovalEvidenceV1Schema, approval), true);
     assert.equal(hasValidPreviewApprovalBinding(attestation, preview, approval), true);
     assert.equal(hasValidPreviewApprovalBinding(attestation, preview, { ...approval, previewHash: otherHash }), false);
+  });
+
+  it("requires strict GitHub context only for GitHub Environment approvals", () => {
+    const base = {
+      schemaVersion: CONTRACT_VERSION,
+      projectId: "example-project",
+      runId: "run-1",
+      gate: 4,
+      decision: "approved" as const,
+      actor: "github:1:octocat",
+      dependencyHash: hash,
+      previewHash: hash,
+      writerEpoch: 2,
+      recipientIdentity: "github-actions:owner/repo:123:1:deploy",
+      decidedAt: timestamp,
+      expiresAt: expiry,
+    };
+    const githubContext = {
+      repository: "owner/repo",
+      ref: "refs/heads/main",
+      sha: "a".repeat(40),
+      workflowRef: "owner/repo/.github/workflows/deploy.yml@refs/heads/main",
+      runId: "123",
+      runAttempt: 1,
+      job: "deploy",
+      environment: "production",
+      actor: "octocat",
+      actorId: "1",
+      recipientIdentity: "github-actions:owner/repo:123:1:deploy",
+    };
+
+    assert.equal(
+      Value.Check(ApprovalEvidenceV1Schema, { ...base, mechanism: "github-environment", githubContext }),
+      true,
+    );
+    assert.equal(Value.Check(ApprovalEvidenceV1Schema, { ...base, mechanism: "github-environment" }), false);
+    assert.equal(
+      Value.Check(ApprovalEvidenceV1Schema, {
+        ...base,
+        mechanism: "github-environment",
+        githubContext: { ...githubContext, unexpected: true },
+      }),
+      false,
+    );
+    assert.equal(Value.Check(ApprovalEvidenceV1Schema, { ...base, mechanism: "tty", githubContext }), false);
+    assert.equal(Value.Check(ApprovalEvidenceV1Schema, { ...base, mechanism: "inherited", githubContext }), false);
   });
 
   it("provides complete metadata and lookup coverage for every schema", () => {

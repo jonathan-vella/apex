@@ -146,7 +146,7 @@ test("Gate 4 approval rejects an expired preview before changing gate state", as
   await prepareValidatedRun(service, initialized.runId, "bicep");
   await service.preview({ operation: "apply", provider: "fake", expiresInMs: 1 });
   now += 2;
-  await assert.rejects(service.decideGateNumber(4, "approved", "tester"), /gate:preview-current/);
+  await assert.rejects(service.decideGateNumber(4, "approved", "tester"), /preview has expired/);
   assert.equal((await service.status()).run.gates[3]?.state, "open");
 });
 
