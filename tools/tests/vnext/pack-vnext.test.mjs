@@ -362,27 +362,37 @@ test("packs and clean-installs the vNext runtime reproducibly", { timeout: 240_0
     listing.every((path) => !path.includes("/dist/test/") && !path.endsWith(".map") && !path.endsWith(".tsbuildinfo")),
   );
 
-  const project = join(temporaryRoot, "consumer");
-  await mkdir(project, { recursive: true });
-  await runInTest("npm", ["init", "--yes"], project);
   const runtimeTarballs = release.packages.map((entry) => join(outputDirectory, entry.file));
-  const approvedCache = (await runInTest("npm", ["config", "get", "cache"])).stdout.trim();
-  assert.ok(approvedCache.length > 0);
+  const approvedCache = join(temporaryRoot, "approved-npm-cache");
+  const createConsumer = async (name) => {
+    const directory = join(temporaryRoot, name);
+    await mkdir(directory, { recursive: true });
+    await runInTest("npm", ["init", "--yes"], directory);
+    return directory;
+  };
+  const installCandidate = async (directory, offline = false) =>
+    await runInTest(
+      "npm",
+      [
+        "install",
+        ...(offline ? ["--offline"] : []),
+        "--cache",
+        approvedCache,
+        "--ignore-scripts",
+        "--no-audit",
+        "--no-fund",
+        ...runtimeTarballs,
+      ],
+      directory,
+    );
+
+  const unpreparedConsumer = await createConsumer("consumer-unprepared");
+  await assert.rejects(installCandidate(unpreparedConsumer, true), /ENOTCACHED/);
+  const cacheSeed = await createConsumer("cache-seed");
+  await installCandidate(cacheSeed);
   await runInTest("npm", ["cache", "verify", "--cache", approvedCache]);
-  await runInTest(
-    "npm",
-    [
-      "install",
-      "--offline",
-      "--cache",
-      approvedCache,
-      "--ignore-scripts",
-      "--no-audit",
-      "--no-fund",
-      ...runtimeTarballs,
-    ],
-    project,
-  );
+  const project = await createConsumer("consumer");
+  await installCandidate(project, true);
 
   const apexBin = join(project, "node_modules", ".bin", process.platform === "win32" ? "apex.cmd" : "apex");
   const version = JSON.parse((await runInTest(apexBin, ["version", "--json"], project)).stdout);
