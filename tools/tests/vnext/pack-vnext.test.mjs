@@ -5,6 +5,7 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { spawn } from "node:child_process";
 import test from "node:test";
+import { pathToFileURL } from "node:url";
 
 const root = resolve(import.meta.dirname, "../../..");
 const resistantProcessTree = join(import.meta.dirname, "fixtures", "resistant-process-tree.mjs");
@@ -399,7 +400,30 @@ test("packs and clean-installs the vNext runtime reproducibly", { timeout: 240_0
   assert.deepEqual(version, { ok: true, result: { version: "0.1.0", bundleVersion: "0.1.0", configVersion: "1.0.0" } });
   await runInTest(apexBin, ["init", "--project", "demo", "--json"], project);
   await readFile(join(project, ".github", "agents", "apex.agent.md"));
-  await readFile(join(project, ".vscode", "mcp.json"));
+  const mcpConfig = JSON.parse(await readFile(join(project, ".vscode", "mcp.json"), "utf8")).servers.apex;
+  const workspaceValue = (value) => value.replaceAll("${workspaceFolder}", project);
+  const sdkRoot = join(project, "node_modules", "@modelcontextprotocol", "sdk", "dist", "esm", "client");
+  const [{ Client }, { StdioClientTransport }] = await Promise.all([
+    import(pathToFileURL(join(sdkRoot, "index.js")).href),
+    import(pathToFileURL(join(sdkRoot, "stdio.js")).href),
+  ]);
+  const mcpClient = new Client({ name: "packed-consumer-test", version: "1.0.0" });
+  const mcpTransport = new StdioClientTransport({
+    command: workspaceValue(mcpConfig.command),
+    args: mcpConfig.args.map(workspaceValue),
+    cwd: workspaceValue(mcpConfig.cwd),
+    stderr: "pipe",
+  });
+  try {
+    await mcpClient.connect(mcpTransport);
+    const tools = await mcpClient.listTools();
+    assert.ok(tools.tools.some(({ name }) => name === "status"));
+    const status = await mcpClient.callTool({ name: "status", arguments: {} });
+    assert.equal(status.isError, undefined);
+    assert.equal(status.structuredContent.run.projectId, "demo");
+  } finally {
+    await mcpClient.close();
+  }
   await readFile(join(project, ".apex", "runtime", "workflow.v1.json"));
   const governancePack = "azure-governance-discovery";
   const capability = async (args) =>

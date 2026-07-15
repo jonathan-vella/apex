@@ -659,14 +659,16 @@ function validateMcp(model, findings) {
   if (
     !apex ||
     apex.type !== "stdio" ||
-    apex.command !== "apex" ||
-    JSON.stringify(apex.args) !== JSON.stringify(["mcp", "serve"]) ||
+    apex.command !== "node" ||
+    JSON.stringify(apex.args) !==
+      JSON.stringify(["${workspaceFolder}/node_modules/@apex/cli/dist/cli.js", "mcp", "serve"]) ||
+    apex.cwd !== "${workspaceFolder}" ||
     (apex.env && Object.keys(apex.env).length > 0)
   )
     finding(
       findings,
       "mcp.launch",
-      "Managed MCP config must only launch `apex mcp serve` without environment secrets",
+      "Managed MCP config must launch the workspace-local APEX CLI through Node without environment secrets",
       "customizations/.vscode/mcp.json",
     );
 }

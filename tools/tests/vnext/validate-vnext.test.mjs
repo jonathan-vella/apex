@@ -71,6 +71,14 @@ test("rejects a missing MCP tool", () => {
   assert.ok(hasRule(result, "customization.mcp-tool"));
 });
 
+test("rejects a PATH-dependent MCP launch", () => {
+  const result = mutate((model) => {
+    model.customization.mcp.servers.apex.command = "apex";
+    model.customization.mcp.servers.apex.args = ["mcp", "serve"];
+  });
+  assert.ok(hasRule(result, "mcp.launch"));
+});
+
 test("rejects an unsafe managed path", () => {
   const result = mutate((model) => {
     model.customization.manifest.managedFiles.push("../package.json");
