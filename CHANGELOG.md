@@ -77,6 +77,9 @@ for full details on this and all prior releases.
 - fix(vnext): make first Bicep deployment-stack preview non-mutating by listing stacks in the target resource group and
   selecting the exact configured name in process. A missing stack binds an empty managed set; malformed, duplicate, or
   wrong-scope list entries fail closed before Gate 4.
+- feat(vnext): allow a newly validated deployment preview to reopen Gate 4 on the same run, preserving prior evidence
+  while requiring a fresh exact approval. This supports expired-preview refresh and sequential apply/destroy without
+  promotion.
 
 ### Fixed (APEX vNext security)
 

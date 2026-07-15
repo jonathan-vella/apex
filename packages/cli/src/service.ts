@@ -2110,11 +2110,19 @@ export class ApexService {
 
   private async openRunGate(run: RunConfigV1, gateNumber: number, dependencyHash: string): Promise<void> {
     const gate = run.gates.find(({ gate }) => gate === gateNumber)!;
+    const reopened = gateNumber === 4 && ["open", "approved", "rejected"].includes(gate.state);
+    const nextGate = reopened
+      ? { gate: 4 as const, state: "open" as const, dependencyHash }
+      : openGate(gate, dependencyHash);
     const updated = {
       ...run,
-      gates: run.gates.map((item) => (item.gate === gateNumber ? openGate(gate, dependencyHash) : item)),
+      gates: run.gates.map((item) => (item.gate === gateNumber ? nextGate : item)),
     };
-    await this.mutateRun(run, updated, "gate.opened", { gate: gateNumber, dependencyHash });
+    await this.mutateRun(run, updated, reopened ? "gate.reopened" : "gate.opened", {
+      gate: gateNumber,
+      dependencyHash,
+      ...(reopened ? { previousState: gate.state } : {}),
+    });
   }
 
   private async mutateRun(
