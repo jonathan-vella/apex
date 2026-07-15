@@ -43,6 +43,8 @@ Run `apex <command> --json` for automation. Success is written to stdout as
 | `apex project show` | Optional `--project` | Show a project or the current project and run. |
 | `apex project search` | `--query` | Search project identity and journal event content. |
 | `apex project history` | Optional `--limit` | Read recent selected-run events. |
+| `apex state transfer-export` | `--claim --file --recipient --ttl-seconds --yes` | Encrypt selected state. |
+| `apex state transfer-import` | `--file --recipient --yes` | Validate and import selected state. |
 | `apex status` | None | Read selected-run state, journal head, task, and blockers. |
 | `apex task next` | None | Request the next constrained task or required input. |
 | `apex task context` | `--task` | Read a task envelope, accepted inputs, staging root, and blockers. |
@@ -87,8 +89,18 @@ capability status/verify: --pack; optional --manifest
 capability rollback/uninstall: --pack --yes; optional --manifest
 quality evaluate: --measurements; optional --scorecard
 writer transfer-create: --repo --branch --commit --workflow --sender --recipient --head --ttl
+state transfer-export: --claim --file --recipient --ttl-seconds --yes
+state transfer-import: --file --recipient --yes
 evidence accept: --kind --content-type and exactly one of --file or --value; optional --required
 ```
+
+State transfer export packages only the current selection, its project and run, top-level runtime JSON, the runtime
+lock, and transitively referenced content-addressed objects. It excludes local keys, work/cache data, provider config,
+capability-pack source, other projects, and other runs. Import validates and preflights the entire encrypted bundle
+before writing mode-`0600` files. It refuses differing destinations and permits byte-identical idempotent retries.
+
+Import does not accept writer authority. After reviewing the imported claim, run `apex writer transfer-accept` with the
+claim hash, recipient, and current Git head.
 
 ## Use Narrow MCP Tools
 

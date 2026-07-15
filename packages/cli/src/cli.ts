@@ -10,6 +10,7 @@ import { resolveBundledAssets } from "./assets.js";
 import { serveMcp } from "./mcp.js";
 import { createFileProviderRuntime, hashTerraformConfiguration, hashTerraformLockFile } from "./provider-runtime.js";
 import { ApexService, type ArtifactKind, type TaskOutput } from "./service.js";
+import { exportStateTransfer, importStateTransfer } from "./state-transfer.js";
 
 type FlagValue = string | string[] | boolean;
 type Flags = Record<string, FlagValue>;
@@ -447,6 +448,34 @@ export async function execute(argv: string[], root = process.cwd()): Promise<unk
       return service.search(required(flags, "query"));
     case "project history":
       return service.history(typeof flags.limit === "string" ? Number(flags.limit) : undefined);
+    case "state transfer-export": {
+      confirmed(flags, "state transfer-export");
+      const ttlSeconds = Number(required(flags, "ttl-seconds"));
+      if (!Number.isInteger(ttlSeconds) || ttlSeconds <= 0) {
+        throw new ApexError("APEX_USAGE", "--ttl-seconds must be a positive integer", EXIT_CODES.usage);
+      }
+      const runtime = await createFileProviderRuntime(root);
+      return exportStateTransfer(
+        root,
+        required(flags, "file"),
+        {
+          claimHash: required(flags, "claim"),
+          recipient: required(flags, "recipient"),
+          ttlMs: ttlSeconds * 1_000,
+        },
+        { key: await runtime.keyProvider() },
+      );
+    }
+    case "state transfer-import": {
+      confirmed(flags, "state transfer-import");
+      const runtime = await createFileProviderRuntime(root);
+      return importStateTransfer(
+        root,
+        JSON.parse(await readFile(required(flags, "file"), "utf8")) as unknown,
+        required(flags, "recipient"),
+        await runtime.keyProvider(),
+      );
+    }
     case "status":
       return service.status();
     case "task next":

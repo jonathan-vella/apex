@@ -64,6 +64,38 @@ local transport key is mode `0600` and never enters provider configuration. A tr
 base64-encoded 32-byte key through `APEX_PLAN_TRANSPORT_KEY`; never print, commit, or place that value in a workflow
 definition. Injecting a key does not qualify production CI transport.
 
+## Transfer Repository State to CI
+
+Create a writer-transfer claim first, then encrypt only the selected repository-backed state for that claim:
+
+```bash
+apex state transfer-export \
+  --claim "$CLAIM_HASH" \
+  --file apex-state-transfer.json \
+  --recipient "$RECIPIENT" \
+  --ttl-seconds 1800 \
+  --yes --json
+```
+
+The recipient imports with the same externally supplied 32-byte transport key:
+
+```bash
+apex state transfer-import \
+  --file apex-state-transfer.json \
+  --recipient "$RECIPIENT" \
+  --yes --json
+```
+
+The import is staging-free but preflights every entry before any write. Existing byte-identical files make a retry
+idempotent; any differing file, symlink ancestor, unsafe path, secret-bearing JSON, stale claim, or binding mismatch
+fails closed. The command never writes `.apex/local/plan-transport.key` and never accepts writer authority. Run
+`apex writer transfer-accept --claim "$CLAIM_HASH" --recipient "$RECIPIENT" --head "$COMMIT"` separately after the
+existing approval ceremony.
+
+The scanner recognizes only three exact secure assertions in `runtime/defaults.v1.json`, with their required boolean
+values. A changed value or the same field name at any other path fails closed. The envelope expiry must not exceed the
+writer-transfer claim expiry.
+
 Bicep defaults to `detachAll`. Set `ownershipAuthorizesDeleteResources: true` only when the stack exclusively owns every
 resource it may delete. `deleteAll` additionally requires an explicitly dedicated sandbox resource group and separate
 authorization in provider configuration.

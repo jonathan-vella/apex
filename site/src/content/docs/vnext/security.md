@@ -24,6 +24,15 @@ Each run has one active writer. Local leases and journal compare-and-swap reject
 Transfer to CI binds an ownership epoch to the project, run, repository, branch, commit, workflow, sender, recipient,
 current Git head, and expiry. A stale epoch or mismatched head cannot authorize an operation.
 
+Repository-state transfer uses a separate AES-256-GCM envelope from encrypted Terraform plan transport. Authenticated
+metadata binds the envelope implementation and version, kind, plaintext digest, recipient, timestamps, claim, selected
+project/run, writer epoch, journal head, repository, branch, commit, and workflow. Import authenticates and validates the
+complete bundle before atomic mode-`0600` writes. It refuses path traversal, symlinks, secret-bearing JSON, oversized
+files, unreferenced objects, changed existing state, and any attempt to include `.apex/local/`.
+
+State import is not writer acceptance. The protected recipient must run the existing `writer transfer-accept` command
+after import so approval and authority transfer remain separate operations.
+
 The current preview exposes writer transfer primitives, but production CI operation remains subject to release
 qualification and provider-specific evidence. Do not simulate transfer by editing run files.
 
@@ -47,7 +56,8 @@ apply files are disposed after use.
 
 :::caution[Terraform CI limitation]
 Production CI encrypted saved-plan transport is not yet qualified. The preview supports local exact-plan operation;
-do not claim or enable production CI Terraform apply until encrypted, recipient-bound transport passes qualification.
+repository-state transfer also remains a prerequisite under qualification. Do not claim or enable production CI
+Terraform apply until both recipient-bound transports pass live qualification.
 :::
 
 ## Separate Evidence and Telemetry

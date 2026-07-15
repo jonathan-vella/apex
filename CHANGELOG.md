@@ -56,6 +56,10 @@ for full details on this and all prior releases.
   `live:vnext` template, validation, and rendering commands that bind manual VS Code,
   GitHub, and Azure results to exact candidate and evidence hashes without executing
   approvals or cloud operations.
+- feat(vnext): added a generic authenticated AES-256-GCM envelope and deterministic repository-state transfer commands
+  with a selected-run allowlist, recursive content-addressed object closure, secret and size checks, atomic mode-`0600`
+  import, idempotent retry, claim-bounded expiry, and separate writer-transfer acceptance. Production CI remains blocked
+  pending live proof.
 
 ### Fixed (APEX vNext security)
 
