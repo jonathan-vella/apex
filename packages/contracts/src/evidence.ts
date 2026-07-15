@@ -200,7 +200,7 @@ export function hasValidLiveQualification(qualification: LiveQualificationV1): b
     qualification.scenarios.every(({ startedAt, completedAt }) => {
       const started = Date.parse(startedAt);
       const completed = Date.parse(completedAt);
-      return Number.isFinite(started) && Number.isFinite(completed) && started <= completed && completed <= createdAt;
+      return Number.isFinite(started) && Number.isFinite(completed) && createdAt <= started && started <= completed;
     })
   );
 }

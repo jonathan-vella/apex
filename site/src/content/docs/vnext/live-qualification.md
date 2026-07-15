@@ -50,7 +50,8 @@ npm run live:vnext -- template \
 ```
 
 The command refuses to overwrite either output. Every scenario starts as `unavailable` with an explicit owner and next
-action. This prevents an unexecuted scenario from appearing successful.
+action. This prevents an unexecuted scenario from appearing successful. Top-level `createdAt` records template creation;
+each scenario records an actual `startedAt` and `completedAt` at or after that instant.
 
 ## Execute Human-Owned Scenarios
 

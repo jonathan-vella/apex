@@ -60,6 +60,7 @@ const hash = "a".repeat(64);
 const otherHash = "b".repeat(64);
 const timestamp = "2026-07-13T12:00:00.000Z";
 const expiry = "2026-07-13T13:00:00.000Z";
+const completion = "2026-07-13T14:00:00.000Z";
 
 FormatRegistry.Set("date-time", (value) => Number.isFinite(Date.parse(value)));
 FormatRegistry.Set(
@@ -112,8 +113,8 @@ describe("Wave 1 contracts", () => {
       environment: "sandbox",
       targetScope: "subscription/example",
       actor: "maintainer",
-      startedAt: timestamp,
-      completedAt: expiry,
+      startedAt: expiry,
+      completedAt: completion,
       toolVersions: { apex: "0.1.0" },
       outcome: "pass",
       evidenceRefs: [hash],
@@ -130,7 +131,7 @@ describe("Wave 1 contracts", () => {
         releaseManifestHash: otherHash,
         runtimeBundleHash: "c".repeat(64),
       },
-      createdAt: expiry,
+      createdAt: timestamp,
       evidenceManifestHash: "d".repeat(64),
       scenarios,
     };
@@ -149,7 +150,16 @@ describe("Wave 1 contracts", () => {
     assert.equal(
       hasValidLiveQualification({
         ...qualification,
-        createdAt: timestamp,
+        createdAt: completion,
+      }),
+      false,
+    );
+    assert.equal(
+      hasValidLiveQualification({
+        ...qualification,
+        scenarios: qualification.scenarios.map((scenario, index) =>
+          index === 0 ? { ...scenario, startedAt: completion, completedAt: expiry } : scenario,
+        ),
       }),
       false,
     );
