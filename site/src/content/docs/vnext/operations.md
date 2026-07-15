@@ -34,6 +34,7 @@ the validated settings to `.apex/provider-config.json`.
     "templateFile": ".apex/work/RUN/TASK/code/main.bicep",
     "parametersFile": ".apex/work/RUN/TASK/code/main.parameters.json",
     "actionOnUnmanage": "deleteResources",
+    "ownershipAuthorizesDeleteResources": true,
     "denySettingsMode": "denyDelete"
   }
 }
@@ -53,6 +54,15 @@ the validated settings to `.apex/provider-config.json`.
 Do not add tokens, passwords, keys, credentials, backend secrets, or Terraform state to provider configuration. Use the
 actual run and task paths returned by `apex task context`.
 
+APEX stores preview bindings and encrypted Terraform plan artifacts under `.apex/local/provider-runtime/`. The generated
+local transport key is mode `0600` and never enters provider configuration. A trusted process can instead inject a
+base64-encoded 32-byte key through `APEX_PLAN_TRANSPORT_KEY`; never print, commit, or place that value in a workflow
+definition. Injecting a key does not qualify production CI transport.
+
+Bicep defaults to `detachAll`. Set `ownershipAuthorizesDeleteResources: true` only when the stack exclusively owns every
+resource it may delete. `deleteAll` additionally requires an explicitly dedicated sandbox resource group and separate
+authorization in provider configuration.
+
 ## Preview and Apply Locally
 
 Complete required tasks and gates first, then configure the selected run's provider:
@@ -65,7 +75,8 @@ apex deploy --preview "$PREVIEW_HASH" --json
 ```
 
 For Terraform, use `--provider terraform` and the Terraform provider config. The preview saves the plan under the local
-plan directory, and deploy applies the approved exact plan. Production CI encrypted plan transport is not qualified.
+plan directory, immediately encrypts it into the local provider runtime, removes the plaintext plan, and deploy applies
+the approved exact plan. Production CI encrypted plan transport is not qualified.
 
 ## Preview and Apply a Destroy
 

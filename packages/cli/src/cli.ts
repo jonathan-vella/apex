@@ -8,6 +8,7 @@ import { join, resolve } from "node:path";
 import { ApexError, EXIT_CODES, normalizeError } from "./errors.js";
 import { resolveBundledAssets } from "./assets.js";
 import { serveMcp } from "./mcp.js";
+import { createFileProviderRuntime } from "./provider-runtime.js";
 import { ApexService, type ArtifactKind, type TaskOutput } from "./service.js";
 
 type FlagValue = string | string[] | boolean;
@@ -62,6 +63,9 @@ interface NativeProviderConfig {
     cwd?: string;
     actionOnUnmanage?: "deleteAll" | "deleteResources" | "detachAll";
     denySettingsMode?: "denyDelete" | "denyWriteAndDelete" | "none";
+    ownershipAuthorizesDeleteResources?: boolean;
+    dedicatedSandboxResourceGroup?: boolean;
+    allowDeleteAll?: boolean;
   };
   terraform?: {
     cwd: string;
@@ -91,6 +95,8 @@ async function configuredProviders(
     await atomicWriteJson(persistedPath, config);
   }
   const runner = new ProcessRunner();
+  let providerRuntime: Awaited<ReturnType<typeof createFileProviderRuntime>> | undefined;
+  const runtime = async () => (providerRuntime ??= await createFileProviderRuntime(root));
   const currentAuthority = async () => {
     const selection = JSON.parse(await readFile(join(root, ".apex", "config.json"), "utf8")) as {
       projectId: string;
@@ -143,16 +149,25 @@ async function configuredProviders(
       if (typeof value[key] !== "string" || value[key].length === 0)
         throw new ApexError("APEX_USAGE", `Bicep provider config requires ${key}`, EXIT_CODES.usage);
     }
+    const localRuntime = await runtime();
     providers.bicep = new NativeBicepProvider({
       runner,
       currentAuthority,
+      bindingStore: localRuntime.bindingStores.bicep,
       target: {
         resourceGroup: value.resourceGroup,
         deploymentName: value.deploymentName,
         stackName: value.stackName,
         templateFile: value.templateFile,
-        actionOnUnmanage: value.actionOnUnmanage ?? "deleteResources",
+        actionOnUnmanage: value.actionOnUnmanage ?? "detachAll",
         denySettingsMode: value.denySettingsMode ?? "denyDelete",
+        ...(value.ownershipAuthorizesDeleteResources === undefined
+          ? {}
+          : { ownershipAuthorizesDeleteResources: value.ownershipAuthorizesDeleteResources }),
+        ...(value.dedicatedSandboxResourceGroup === undefined
+          ? {}
+          : { dedicatedSandboxResourceGroup: value.dedicatedSandboxResourceGroup }),
+        ...(value.allowDeleteAll === undefined ? {} : { allowDeleteAll: value.allowDeleteAll }),
         ...(value.parametersFile === undefined ? {} : { parametersFile: value.parametersFile }),
         ...(value.cwd === undefined ? {} : { cwd: value.cwd }),
       },
@@ -164,9 +179,13 @@ async function configuredProviders(
       if (typeof value[key] !== "string" || value[key].length === 0)
         throw new ApexError("APEX_USAGE", `Terraform provider config requires ${key}`, EXIT_CODES.usage);
     }
+    const localRuntime = await runtime();
     providers.terraform = new NativeTerraformProvider({
       runner,
       currentAuthority,
+      bindingStore: localRuntime.bindingStores.terraform,
+      artifactStore: localRuntime.artifactStore,
+      keyProvider: localRuntime.keyProvider,
       target: {
         cwd: value.cwd,
         target: value.target,

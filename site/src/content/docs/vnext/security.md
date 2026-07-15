@@ -38,6 +38,12 @@ substituted approval and preview data.
 - **Terraform:** preview creates a protected saved plan and execution-plan attestation. Apply uses that exact saved
   plan; it must not regenerate a plan after approval.
 
+Preview bindings and encrypted plan artifacts persist across CLI process restarts under `.apex/local/provider-runtime/`.
+The local AES-256-GCM key is generated with restrictive permissions or injected at runtime through
+`APEX_PLAN_TRANSPORT_KEY`. A symlinked runtime path, permissive key file, wrong recipient, expired artifact, or changed
+binding fails closed. Plaintext saved plans are removed immediately after encryption and temporary apply files are
+disposed after use.
+
 :::caution[Terraform CI limitation]
 Production CI encrypted saved-plan transport is not yet qualified. The preview supports local exact-plan operation;
 do not claim or enable production CI Terraform apply until encrypted, recipient-bound transport passes qualification.
@@ -52,7 +58,7 @@ telemetry is disabled by default and can be consented to, exported, or deleted i
 Never commit credentials, secret values, Terraform state, saved Terraform plan files, secret-bearing transient output,
 or `.apex/local/`. APEX installs `.apex/.gitignore` to exclude `local/`, `work/`, and `cache/` while preserving
 repository-backed locks, objects, projects, journals, refs, and views. Provider configuration must contain nonsecret
-settings only; the CLI rejects secret-like keys. Resolve credentials only at operation time through Azure CLI, OIDC,
-Managed Identity, or another approved external credential source.
+settings only; the CLI rejects secret-like keys. Never echo or persist `APEX_PLAN_TRANSPORT_KEY`. Resolve credentials
+only at operation time through Azure CLI, OIDC, Managed Identity, or another approved external credential source.
 
 Use the [operations guide](../operations/) to configure providers without secrets.

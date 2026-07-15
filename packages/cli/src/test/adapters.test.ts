@@ -119,6 +119,46 @@ test("CLI rejects incomplete native provider config before execution", async () 
   await assert.rejects(execute(["version", "--provider-config", path], root), /requires deploymentName/i);
 });
 
+test("CLI requires explicit Bicep stack cleanup ownership", async () => {
+  const root = await tempRoot();
+  const path = join(root, "providers.json");
+  const bicep = {
+    resourceGroup: "rg",
+    deploymentName: "deployment",
+    stackName: "stack",
+    templateFile: "main.bicep",
+    actionOnUnmanage: "deleteResources",
+    denySettingsMode: "none",
+  };
+  await writeJson(path, { bicep });
+  await assert.rejects(execute(["version", "--provider-config", path], root), /explicit ownership authorization/i);
+
+  await writeJson(path, { bicep: { ...bicep, ownershipAuthorizesDeleteResources: true } });
+  assert.deepEqual(await execute(["version", "--provider-config", path], root), {
+    version: "0.1.0",
+    bundleVersion: "0.1.0",
+    configVersion: "1.0.0",
+  });
+});
+
+test("CLI defaults Bicep stack cleanup to detachAll", async () => {
+  const root = await tempRoot();
+  const path = join(root, "providers.json");
+  await writeJson(path, {
+    bicep: {
+      resourceGroup: "rg",
+      deploymentName: "deployment",
+      stackName: "stack",
+      templateFile: "main.bicep",
+    },
+  });
+  assert.deepEqual(await execute(["version", "--provider-config", path], root), {
+    version: "0.1.0",
+    bundleVersion: "0.1.0",
+    configVersion: "1.0.0",
+  });
+});
+
 test("CLI rejects secret-bearing provider config", async () => {
   const root = await tempRoot();
   const path = join(root, "providers.json");
