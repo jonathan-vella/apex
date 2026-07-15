@@ -1,0 +1,290 @@
+{
+  "$id": "https://schemas.apexops.dev/live-qualification-v1.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "candidate": {
+      "additionalProperties": false,
+      "properties": {
+        "branch": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "commit": {
+          "pattern": "^[0-9a-f]{40}$",
+          "type": "string"
+        },
+        "packageLockHash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "releaseManifestHash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "repository": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "runtimeBundleHash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "repository",
+        "branch",
+        "commit",
+        "packageLockHash",
+        "releaseManifestHash",
+        "runtimeBundleHash"
+      ],
+      "type": "object"
+    },
+    "createdAt": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "evidenceManifestHash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "projectId": {
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "type": "string"
+    },
+    "runId": {
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{0,127}$",
+      "type": "string"
+    },
+    "scenarios": {
+      "items": {
+        "anyOf": [
+          {
+            "additionalProperties": false,
+            "properties": {
+              "actor": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "completedAt": {
+                "format": "date-time",
+                "type": "string"
+              },
+              "environment": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "evidenceRefs": {
+                "items": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                },
+                "minItems": 1,
+                "type": "array",
+                "uniqueItems": true
+              },
+              "id": {
+                "anyOf": [
+                  {
+                    "const": "vscode-experience",
+                    "type": "string"
+                  },
+                  {
+                    "const": "restart-cross-device",
+                    "type": "string"
+                  },
+                  {
+                    "const": "github-oidc-writer-transfer",
+                    "type": "string"
+                  },
+                  {
+                    "const": "bicep-lifecycle",
+                    "type": "string"
+                  },
+                  {
+                    "const": "terraform-lifecycle",
+                    "type": "string"
+                  },
+                  {
+                    "const": "promotion",
+                    "type": "string"
+                  }
+                ]
+              },
+              "outcome": {
+                "anyOf": [
+                  {
+                    "const": "pass",
+                    "type": "string"
+                  },
+                  {
+                    "const": "fail",
+                    "type": "string"
+                  }
+                ]
+              },
+              "startedAt": {
+                "format": "date-time",
+                "type": "string"
+              },
+              "targetScope": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "toolVersions": {
+                "minProperties": 1,
+                "patternProperties": {
+                  "^[a-z][a-z0-9.-]*$": {
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            },
+            "required": [
+              "id",
+              "environment",
+              "targetScope",
+              "actor",
+              "startedAt",
+              "completedAt",
+              "toolVersions",
+              "outcome",
+              "evidenceRefs"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "actor": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "completedAt": {
+                "format": "date-time",
+                "type": "string"
+              },
+              "disposition": {
+                "additionalProperties": false,
+                "properties": {
+                  "nextAction": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "owner": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "reason": {
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "reason",
+                  "owner",
+                  "nextAction"
+                ],
+                "type": "object"
+              },
+              "environment": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "evidenceRefs": {
+                "items": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                },
+                "type": "array",
+                "uniqueItems": true
+              },
+              "id": {
+                "anyOf": [
+                  {
+                    "const": "vscode-experience",
+                    "type": "string"
+                  },
+                  {
+                    "const": "restart-cross-device",
+                    "type": "string"
+                  },
+                  {
+                    "const": "github-oidc-writer-transfer",
+                    "type": "string"
+                  },
+                  {
+                    "const": "bicep-lifecycle",
+                    "type": "string"
+                  },
+                  {
+                    "const": "terraform-lifecycle",
+                    "type": "string"
+                  },
+                  {
+                    "const": "promotion",
+                    "type": "string"
+                  }
+                ]
+              },
+              "outcome": {
+                "const": "unavailable",
+                "type": "string"
+              },
+              "startedAt": {
+                "format": "date-time",
+                "type": "string"
+              },
+              "targetScope": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "toolVersions": {
+                "minProperties": 1,
+                "patternProperties": {
+                  "^[a-z][a-z0-9.-]*$": {
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            },
+            "required": [
+              "id",
+              "environment",
+              "targetScope",
+              "actor",
+              "startedAt",
+              "completedAt",
+              "toolVersions",
+              "outcome",
+              "evidenceRefs",
+              "disposition"
+            ],
+            "type": "object"
+          }
+        ]
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "schemaVersion": {
+      "const": "1.0.0",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "projectId",
+    "runId",
+    "candidate",
+    "createdAt",
+    "evidenceManifestHash",
+    "scenarios"
+  ],
+  "type": "object"
+}

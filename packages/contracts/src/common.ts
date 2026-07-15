@@ -12,6 +12,10 @@ export const TaskIdSchema = Type.String({ pattern: "^[a-zA-Z0-9][a-zA-Z0-9_-]{0,
 export const EnvironmentSchema = Type.String({ pattern: "^[a-z0-9]+(?:-[a-z0-9]+)*$" });
 export const IacToolSchema = Type.Union([Type.Literal("bicep"), Type.Literal("terraform")]);
 export const OperationSchema = Type.Union([Type.Literal("apply"), Type.Literal("destroy")]);
+export const SECRET_FIELD_PATTERN =
+  /(?:secret|password|passphrase|token|authorization|api[-_]?key|private[-_]?key|connectionString|sasToken)/i;
+export const SECRET_VALUE_PATTERN =
+  /-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----|\bBearer\s+[A-Za-z0-9._~+\/-]{16,}|(?:AccountKey|SharedAccessSignature)=|[?&](?:sig|signature)=[^&\s]{8,}|https?:\/\/[^/\s:@]+:[^@\s/]+@/i;
 
 export type ContractVersion = Static<typeof ContractVersionSchema>;
 export type ProjectId = Static<typeof ProjectIdSchema>;
