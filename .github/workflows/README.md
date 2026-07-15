@@ -14,6 +14,7 @@
 | [`governance-policy-baseline.yml`](governance-policy-baseline.yml) | Weekly Mon 05:00 UTC + manual | Refresh `.github/data/governance-policy-baseline.json` from a live subscription.                                           | Opens a PR (manual review + merge required) when baseline drifts.    |
 | [`link-check.yml`](link-check.yml)                                 | PR + push (docs paths)        | Markdown link liveness in `site/src/content/docs/**`. Weekly safety net runs inside `weekly-maintenance.yml`.              | Surfaces broken links on the PR.                                     |
 | [`sensei-branch-maintenance.yml`](sensei-branch-maintenance.yml)   | Weekly Mon 08:00 UTC + manual | Keep `feat/skills-sensei` long-lived branch healthy: merge `main` weekly, run validators, file issue if branch is missing. | Pushes merge commit to `feat/skills-sensei`; may open issue.         |
+| [`vnext-live-qualification.yml`](vnext-live-qualification.yml)     | Manual only; default-branch bootstrap required | Run an exact integration-head Bicep or Terraform preview and protected Gate 4 apply/destroy ceremony.                    | Opens a bounded backend network session and mutates qualification resources after Environment approval. |
 | [`weekly-maintenance.yml`](weekly-maintenance.yml)                 | Weekly Mon 06:00 UTC + manual | Consolidated data-refresh + audit umbrella — see [Weekly Maintenance](#weekly-maintenance) below.                          | Opens PRs (refresh jobs, manual merge) + GitHub issues (audit jobs). |
 
 ## Weekly Maintenance

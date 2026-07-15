@@ -1,0 +1,99 @@
+{
+  "schema_version": "1.0",
+  "challenged_artifact": "agent-output/vnext-qualification/04-governance-constraints.md",
+  "artifact_type": "governance-constraints",
+  "review_focus": "governance-reconciliation",
+  "pass_number": 2,
+  "reviewed_at": "2026-07-15T00:00:00Z",
+  "challenge_summary": "Second-pass reconciliation confirms the corrected discovery counts, ten-tag contract, allowed-location Audit disposition, Deny applicability mapping, and unconditional cleanup. One blocking expiry-boundary race remains across all firewall-add callers, and the backend policy-exclusion marker remains active after the approved exception expires.",
+  "compact_for_parent": "Pass 2 (governance-reconciliation) | HIGH | 1 must_fix, 1 should_fix | Key: Firewall callers can add a rule after exception expiry",
+  "risk_level": "high",
+  "must_fix_count": 1,
+  "should_fix_count": 1,
+  "suggestion_count": 0,
+  "overall_assessment": "NEEDS_REVISION",
+  "prior_finding_dispositions": [
+    {
+      "id": "dc075013",
+      "disposition": "retained",
+      "evidence": "Partially resolved: the validator now checks exact exception ID, control, scope, active window, expiry, declared maximum lifetime, and actual lifetime. The preview and apply jobs still validate before resolving the runner IP, and the local handoff validates before an asynchronous public IPv4 lookup; all three paths can cross expires_at before network-rule add. Finding 04ac5b42 traces this remaining defect."
+    },
+    {
+      "id": "f702961b",
+      "disposition": "resolved",
+      "evidence": "Canonical JSON now records JV - Allowed Locations as Audit with germanywestcentral, global, swedencentral, and westeurope allowed. Markdown and both plans state that swedencentral is allowed under Audit and that resource/RG location matching is Audit."
+    },
+    {
+      "id": "6223eda4",
+      "disposition": "resolved",
+      "evidence": "Canonical tags_required now contains exactly the approved ten base keys with no SecurityControl or unresolved entries. The context validator enforces byte-equivalent key/value content for those ten tags, while SecurityControl=Ignore is separate and appears only on the bootstrap backend."
+    }
+  ],
+  "residual_risks": [
+    "Live deployment, GitHub Environment approval, OIDC token exchange, Azure RBAC propagation, and actual storage data-plane access were intentionally not exercised and remain unproven; this is deployment-phase residual risk, not a source defect.",
+    "The snapshot reports 36 assignments queried, 33 retained, 18 blocker findings, 81 auto-remediate findings, 817 Audit findings, and no exemptions. This review verifies internal reconciliation of the snapshot but does not re-query Azure.",
+    "The approved exception expires at 2026-07-16T12:50:34Z; deployment remains unauthorized until the separate approval gate and must not proceed with an expired record."
+  ],
+  "findings": [
+    {
+      "id": "04ac5b42",
+      "severity": "must_fix",
+      "category": "governance_gap",
+      "claim": "Firewall callers can add a rule after exception expiry",
+      "evidence": "The corrected validator rejects missing, duplicate, inactive, expired, over-24-hour, wrong-control, and wrong-scope exceptions. However, the preview job runs that validator in Validate protected inputs, then executes Define authority names and an asynchronous Resolve runner IPv4 step before Open temporary firewall rule. The apply job validates, then resolves its runner IPv4 before opening. tools/scripts/vnext-live-handoff.mjs withFirewall validates first, then awaits publicIpv4() for up to 15 seconds before network-rule add. The workflow validator and mutation tests require only that validation precede the add; they do not require a boundary recheck or minimum remaining lifetime. An invocation accepted immediately before 2026-07-16T12:50:34Z can therefore add a /32 after expiry.",
+      "impact": "A preview, apply, dispatch, or retrieve operation that crosses expires_at between validation and network-rule add can authorize a public runner IP outside the approved exception window. This violates the explicit fail-closed governance contract even though later cleanup remains unconditional.",
+      "artifact_section": "Approved Security Exception; vNext Live Qualification workflow; local handoff launcher",
+      "suggested_fix": {
+        "artifact_path": ".github/workflows/vnext-live-qualification.yml",
+        "line_range": [122, 383],
+        "proposed_edit": "Revalidate the governance exception inside each Open temporary firewall rule step immediately before network-rule add, after runner-IP resolution, and require a small positive remaining-lifetime safety margin sufficient for the add. In tools/scripts/vnext-live-handoff.mjs, move or repeat validateQualificationSecurityException after publicIpv4() and immediately before run(... network-rule add ...). Extend validate-vnext-live-workflow.mjs and its mutation tests to fail when the boundary validation is absent from either workflow add step, and add a handoff test that advances time across expiry between IP resolution and add."
+      },
+      "traces_to": [
+        "dc075013"
+      ],
+      "requires_step": "step-3_5",
+      "verification_anchors": [
+        ".github/workflows/vnext-live-qualification.yml preview: Validate protected inputs -> Resolve runner IPv4 -> Open temporary firewall rule",
+        ".github/workflows/vnext-live-qualification.yml apply: Validate protected inputs -> Resolve runner IPv4 -> Open temporary firewall rule",
+        "tools/scripts/vnext-live-handoff.mjs withFirewall: validateQualificationSecurityException -> await publicIpv4 -> network-rule add",
+        "tools/scripts/validate-vnext-live-workflow.mjs checks only validation-step index before firewall-add index",
+        "tools/tests/vnext-live-workflow.test.mjs ordering mutation and launcher source-order assertion",
+        "tools/tests/vnext-qualification-context.test.mjs expiry and duration unit tests"
+      ]
+    },
+    {
+      "id": "ed1588d3",
+      "severity": "should_fix",
+      "category": "governance_gap",
+      "claim": "Backend policy exclusion remains active after exception expiry",
+      "evidence": "The canonical storage Modify finding requires storageAccounts.publicNetworkAccess=Disabled. The Markdown and both plans state that SecurityControl=Ignore is the documented backend-only exclusion, but the canonical finding has exemption:null and override:null and does not machine-link the exclusion marker to security_exceptions[0]. infra/bicep/vnext-qualification/bootstrap.bicep unconditionally unions SecurityControl=Ignore into backend tags and sets publicNetworkAccess Enabled. Runtime expiry validation gates firewall adds only; no reviewed source removes the marker or disables backend public network access at expires_at or qualification cleanup. The two workload storage accounts correctly omit the marker and disable public network access.",
+      "impact": "After the approved window, the backend remains excluded from the live Modify protection indefinitely. Default Deny and removal of ephemeral IP rules prevent immediate public data exposure, but any out-of-band principal able to change network rules can reopen the endpoint without Azure Policy restoring publicNetworkAccess=Disabled, leaving a material control gap beyond the exception lifetime.",
+      "artifact_section": "Auto-Modified Configurations; Approved Security Exception; bootstrap backend",
+      "suggested_fix": {
+        "artifact_path": "agent-output/vnext-qualification/04-governance-constraints.md",
+        "line_range": [84, 235],
+        "proposed_edit": "Define an explicit expiry remediation: remove SecurityControl=Ignore and set backend public network access to Disabled when qualification completes or the exception expires. Encode the marker condition and its security-exception linkage in canonical JSON so machine consumers can verify it. Update both plans and bootstrap lifecycle ownership to identify the actor and fail-closed cleanup path that performs this transition."
+      },
+      "traces_to": [],
+      "requires_step": "step-3_5",
+      "verification_anchors": [
+        "agent-output/vnext-qualification/04-governance-constraints.json storage public-network Modify finding required_value Disabled with exemption/override null",
+        "agent-output/vnext-qualification/04-governance-constraints.json security_exceptions[0] expires_at 2026-07-16T12:50:34Z",
+        "agent-output/vnext-qualification/04-governance-constraints.md Auto-Modified Configurations and Approved Security Exception",
+        "infra/bicep/vnext-qualification/bootstrap.bicep backendTags and backendStorageAccount publicNetworkAccess",
+        "infra/bicep/vnext-qualification/main.bicep workload publicNetworkAccess Disabled and no SecurityControl marker",
+        "infra/terraform/vnext-qualification/main.tf workload public_network_access_enabled false and no SecurityControl marker",
+        "infra/bicep/vnext-qualification/.azure/plan.md Governance Contract",
+        "infra/terraform/vnext-qualification/.azure/plan.md Governance Contract"
+      ]
+    }
+  ],
+  "cache_inputs": {
+    "artifact_sha": "0132e720d56c1c58f4dcf270be3e3ce143a0db349fc1de4cdb3753b6c5de02a0",
+    "checklists_sha": "6a7c048e28c7e0f09566eb7a1a4329579cf60fb19d435caf0a22423f6cb06c7b",
+    "protocol_sha": "55197255ea03bb97e0e33592de94ba1bafbb183cf7f83503d22a2b35f0a2071c",
+    "subagent_sha": "bafc28d2f2b6d9b6b817094a57935ab0bf2a5308f219ca696c39eb7cc7955264",
+    "model": "GPT-5.5",
+    "artifact_hash": "14959518895eab17d9ebef4000eec2578e56bc325310fb5386ab63672bbe2402"
+  }
+}

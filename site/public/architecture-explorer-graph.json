@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-07-14T12:31:23.635Z",
+  "generatedAt": "2026-07-15T20:56:23.934Z",
   "categories": [
     {
       "id": "agent",
@@ -48,7 +48,7 @@
       "label": "Validator",
       "color": "#8b5cf6",
       "shape": "hexagon",
-      "count": 59
+      "count": 60
     },
     {
       "id": "workflow",
@@ -56,7 +56,7 @@
       "label": "CI Workflow",
       "color": "#06b6d4",
       "shape": "cut-rectangle",
-      "count": 13
+      "count": 14
     },
     {
       "id": "mcp",
@@ -67,8 +67,8 @@
       "count": 5
     }
   ],
-  "nodeCount": 163,
-  "edgeCount": 667,
+  "nodeCount": 165,
+  "edgeCount": 668,
   "nodes": [
     {
       "id": "agent:01-orchestrator",
@@ -1620,6 +1620,19 @@
       }
     },
     {
+      "id": "validator:validate-vnext-live-workflow",
+      "category": "validator",
+      "label": "validate:vnext-live-workflow",
+      "description": "node tools/scripts/validate-vnext-live-workflow.mjs",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
+      },
+      "meta": {
+        "command": "node tools/scripts/validate-vnext-live-workflow.mjs"
+      }
+    },
+    {
       "id": "validator:validate-lens-references",
       "category": "validator",
       "label": "validate:lens-references",
@@ -2301,6 +2314,20 @@
       "parent": "group:workflow-orphans"
     },
     {
+      "id": "workflow:vnext-live-qualification",
+      "category": "workflow",
+      "label": "vnext-live-qualification",
+      "description": "",
+      "path": ".github/workflows/vnext-live-qualification.yml",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/workflows/vnext-live-qualification.yml"
+      },
+      "meta": {
+        "orphan": true
+      },
+      "parent": "group:workflow-orphans"
+    },
+    {
       "id": "workflow:weekly-maintenance",
       "category": "workflow",
       "label": "weekly-maintenance",
@@ -2390,11 +2417,11 @@
     {
       "id": "group:workflow-orphans",
       "category": "workflow",
-      "label": "CI Workflow (unlinked, 7)",
-      "description": "7 ci workflow nodes with no cross-references in the current graph.",
+      "label": "CI Workflow (unlinked, 8)",
+      "description": "8 ci workflow nodes with no cross-references in the current graph.",
       "isGroup": true,
       "meta": {
-        "groupSize": 7
+        "groupSize": 8
       }
     }
   ],
@@ -5523,6 +5550,12 @@
       "id": "workflow:ci--runs->validator:validate-vnext-project-controls",
       "source": "workflow:ci",
       "target": "validator:validate-vnext-project-controls",
+      "kind": "runs"
+    },
+    {
+      "id": "workflow:ci--runs->validator:validate-vnext-live-workflow",
+      "source": "workflow:ci",
+      "target": "validator:validate-vnext-live-workflow",
       "kind": "runs"
     },
     {
