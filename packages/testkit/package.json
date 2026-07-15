@@ -30,7 +30,7 @@
     "@apex/contracts": "0.1.0",
     "@apex/kernel": "0.1.0",
     "@apex/renderers": "0.1.0",
-    "@sinclair/typebox": "0.34.52"
+    "@sinclair/typebox": "0.34.49"
   },
   "scripts": {
     "build": "tsc -b",

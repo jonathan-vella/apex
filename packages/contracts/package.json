@@ -30,7 +30,7 @@
     "schemas"
   ],
   "dependencies": {
-    "@sinclair/typebox": "0.34.52"
+    "@sinclair/typebox": "0.34.49"
   },
   "scripts": {
     "build": "tsc -b",
