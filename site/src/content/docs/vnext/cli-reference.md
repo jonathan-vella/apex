@@ -45,6 +45,8 @@ Run `apex <command> --json` for automation. Success is written to stdout as
 | `apex project history` | Optional `--limit` | Read recent selected-run events. |
 | `apex state transfer-export` | `--claim --file --recipient --ttl-seconds --yes` | Encrypt selected state. |
 | `apex state transfer-import` | `--file --recipient --yes` | Validate and import selected state. |
+| `apex provider transfer-export` | `--preview --provider --file --recipient --ttl-seconds --yes` | Encrypt exact provider authority. |
+| `apex provider transfer-import` | `--file --recipient --yes` | Validate and import exact provider authority. |
 | `apex status` | None | Read selected-run state, journal head, task, and blockers. |
 | `apex task next` | None | Request the next constrained task or required input. |
 | `apex task context` | `--task` | Read a task envelope, accepted inputs, staging root, and blockers. |
@@ -91,6 +93,8 @@ quality evaluate: --measurements; optional --scorecard
 writer transfer-create: --repo --branch --commit --workflow --sender --recipient --head --ttl
 state transfer-export: --claim --file --recipient --ttl-seconds --yes
 state transfer-import: --file --recipient --yes
+provider transfer-export: --preview --provider bicep|terraform --file --recipient --ttl-seconds --yes
+provider transfer-import: --file --recipient --yes
 evidence accept: --kind --content-type and exactly one of --file or --value; optional --required
 ```
 
@@ -101,6 +105,12 @@ before writing mode-`0600` files. It refuses differing destinations and permits 
 
 Import does not accept writer authority. After reviewing the imported claim, run `apex writer transfer-accept` with the
 claim hash, recipient, and current Git head.
+
+Provider transfer export packages only `bindings/<preview-hash>.json` and, for Terraform, the encrypted artifact whose
+path is derived from the binding's `artifactRef`. It excludes local keys, latest pointers, plaintext plans, and all
+unrelated runtime files. Import validates the authenticated envelope, exact authority bindings, file hashes, and
+binding/artifact cross-links before atomic mode-`0600` writes under `.apex/local/provider-runtime/`. It does not approve
+Gate 4 or deploy. Production CI remains blocked until the transfer has live proof across separate preview and apply jobs.
 
 ## Use Narrow MCP Tools
 

@@ -96,6 +96,35 @@ The scanner recognizes only three exact secure assertions in `runtime/defaults.v
 values. A changed value or the same field name at any other path fails closed. The envelope expiry must not exceed the
 writer-transfer claim expiry.
 
+## Transfer Exact Provider Authority to Apply
+
+After preview completes, export only the binding for the approved preview. Terraform also includes the exact encrypted
+saved-plan artifact referenced by that binding.
+
+```bash
+apex provider transfer-export \
+  --preview "$PREVIEW_HASH" \
+  --provider terraform \
+  --file apex-provider-authority.json \
+  --recipient "$RECIPIENT" \
+  --ttl-seconds 1800 \
+  --yes --json
+```
+
+In the separate apply job, supply the same external key and import before Gate 4 approval and deployment:
+
+```bash
+apex provider transfer-import \
+  --file apex-provider-authority.json \
+  --recipient "$RECIPIENT" \
+  --yes --json
+```
+
+The import accepts only the exact hash-derived binding path and optional Terraform artifact path. It rejects changed
+destinations and symlinked runtime ancestors, while allowing byte-identical retries. It never transfers or creates the
+transport key, approves Gate 4, or invokes a provider. Keep production CI apply blocked until a live separate-job proof
+qualifies the complete repository-state and provider-authority sequence.
+
 Bicep defaults to `detachAll`. Set `ownershipAuthorizesDeleteResources: true` only when the stack exclusively owns every
 resource it may delete. `deleteAll` additionally requires an explicitly dedicated sandbox resource group and separate
 authorization in provider configuration.
@@ -113,7 +142,8 @@ apex deploy --preview "$PREVIEW_HASH" --json
 
 For Terraform, use `--provider terraform` and the Terraform provider config. The preview saves the plan under the local
 plan directory, immediately encrypts it into the local provider runtime, removes the plaintext plan, and deploy applies
-the approved exact plan. Production CI encrypted plan transport is not qualified.
+the approved exact plan. Provider transfer is implemented, but production CI encrypted plan transport remains blocked
+pending live proof across separate preview and apply jobs.
 
 ## Preview and Apply a Destroy
 

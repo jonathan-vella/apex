@@ -9,6 +9,7 @@ import { ApexError, EXIT_CODES, normalizeError } from "./errors.js";
 import { resolveBundledAssets } from "./assets.js";
 import { serveMcp } from "./mcp.js";
 import { createFileProviderRuntime, hashTerraformConfiguration, hashTerraformLockFile } from "./provider-runtime.js";
+import { exportProviderTransfer, importProviderTransfer } from "./provider-transfer.js";
 import { ApexService, type ArtifactKind, type TaskOutput } from "./service.js";
 import { exportStateTransfer, importStateTransfer } from "./state-transfer.js";
 
@@ -470,6 +471,39 @@ export async function execute(argv: string[], root = process.cwd()): Promise<unk
       confirmed(flags, "state transfer-import");
       const runtime = await createFileProviderRuntime(root);
       return importStateTransfer(
+        root,
+        JSON.parse(await readFile(required(flags, "file"), "utf8")) as unknown,
+        required(flags, "recipient"),
+        await runtime.keyProvider(),
+      );
+    }
+    case "provider transfer-export": {
+      confirmed(flags, "provider transfer-export");
+      const ttlSeconds = Number(required(flags, "ttl-seconds"));
+      if (!Number.isInteger(ttlSeconds) || ttlSeconds <= 0) {
+        throw new ApexError("APEX_USAGE", "--ttl-seconds must be a positive integer", EXIT_CODES.usage);
+      }
+      const provider = required(flags, "provider");
+      if (provider !== "bicep" && provider !== "terraform") {
+        throw new ApexError("APEX_USAGE", "--provider must be bicep or terraform", EXIT_CODES.usage);
+      }
+      const runtime = await createFileProviderRuntime(root);
+      return exportProviderTransfer(
+        root,
+        required(flags, "file"),
+        {
+          previewHash: required(flags, "preview"),
+          provider,
+          recipient: required(flags, "recipient"),
+          ttlMs: ttlSeconds * 1_000,
+        },
+        { key: await runtime.keyProvider() },
+      );
+    }
+    case "provider transfer-import": {
+      confirmed(flags, "provider transfer-import");
+      const runtime = await createFileProviderRuntime(root);
+      return importProviderTransfer(
         root,
         JSON.parse(await readFile(required(flags, "file"), "utf8")) as unknown,
         required(flags, "recipient"),

@@ -54,9 +54,16 @@ binding fails closed. Terraform configuration hashing includes source, automatic
 excluding derived `.terraform/` content. Plaintext saved plans are removed immediately after encryption and temporary
 apply files are disposed after use.
 
+Provider-authority transfer uses the generic recipient-bound encrypted envelope to move only the exact preview binding
+and, for Terraform, its exact encrypted saved-plan artifact. Authenticated bindings include provider, operation,
+project/run, owner epoch, preview hash, recipient, and Terraform artifact reference and digest. Import validates the
+complete envelope and bundle before writing only hash-derived paths beneath `.apex/local/provider-runtime/`. It cannot
+transfer `plan-transport.key`, latest pointers, unrelated previews, or plaintext plans, and it does not approve Gate 4 or
+deploy.
+
 :::caution[Terraform CI limitation]
-Production CI encrypted saved-plan transport is not yet qualified. The preview supports local exact-plan operation;
-repository-state transfer also remains a prerequisite under qualification. Do not claim or enable production CI
+Production CI encrypted saved-plan transport is not yet qualified. Repository-state and provider-authority transfer are
+implemented, but the separate preview/apply job sequence still requires live proof. Do not claim or enable production CI
 Terraform apply until both recipient-bound transports pass live qualification.
 :::
 

@@ -60,6 +60,10 @@ for full details on this and all prior releases.
   with a selected-run allowlist, recursive content-addressed object closure, secret and size checks, atomic mode-`0600`
   import, idempotent retry, claim-bounded expiry, and separate writer-transfer acceptance. Production CI remains blocked
   pending live proof.
+- feat(vnext): added recipient-bound exact provider-authority transfer commands that export only the selected preview
+  binding and its referenced encrypted Terraform plan, validate all authority and file cross-links before restrictive
+  atomic import, and exclude local keys, latest pointers, unrelated runtime files, and plaintext plans. Production CI
+  remains blocked pending live separate-job proof.
 
 ### Fixed (APEX vNext security)
 
