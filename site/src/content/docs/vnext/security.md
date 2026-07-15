@@ -50,8 +50,9 @@ content-addressed storage. Required approval and deployment attestations are par
 telemetry is disabled by default and can be consented to, exported, or deleted independently.
 
 Never commit credentials, secret values, Terraform state, saved Terraform plan files, secret-bearing transient output,
-or `.apex/local/`. Provider configuration must contain nonsecret settings only; the CLI rejects secret-like keys.
-Resolve credentials only at operation time through Azure CLI, OIDC, Managed Identity, or another approved external
-credential source.
+or `.apex/local/`. APEX installs `.apex/.gitignore` to exclude `local/`, `work/`, and `cache/` while preserving
+repository-backed locks, objects, projects, journals, refs, and views. Provider configuration must contain nonsecret
+settings only; the CLI rejects secret-like keys. Resolve credentials only at operation time through Azure CLI, OIDC,
+Managed Identity, or another approved external credential source.
 
 Use the [operations guide](../operations/) to configure providers without secrets.
