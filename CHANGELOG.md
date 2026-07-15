@@ -69,6 +69,8 @@ for full details on this and all prior releases.
   template is created, while rejecting pre-template and inverted timestamps.
 - fix(vnext): install a nested `.apex/.gitignore` that excludes local leases, work staging, saved plans, and
   recomputable caches while preserving repository-backed project journals and evidence for cross-device resume.
+- fix(vnext): return a valid structured MCP acknowledgement after recording requirements input instead of emitting
+  an invalid tool result after the journal mutation succeeds.
 
 ### Changed (Model migration — Claude Sonnet 4.6 → Claude Sonnet 5)
 

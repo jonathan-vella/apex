@@ -60,6 +60,13 @@ test("MCP registers only narrow tools and calls the service", async () => {
   const response = await client.callTool({ name: "status", arguments: {} });
   assert.equal(response.isError, undefined);
   assert.equal((response.structuredContent as { run: { projectId: string } }).run.projectId, "demo");
+  const recorded = await client.callTool({
+    name: "recordRequirementsInput",
+    arguments: { value: { workload: "test" } },
+  });
+  assert.equal(recorded.isError, undefined);
+  assert.deepEqual(recorded.structuredContent, { recorded: true });
+  assert.equal((await service.nextTask()).status, "task");
   await client.close();
   await server.close();
 });
