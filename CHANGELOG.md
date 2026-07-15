@@ -74,7 +74,8 @@ for full details on this and all prior releases.
 - fix(vnext): allow `live:vnext validate` to bind supplied evidence payload files to manifest hashes and byte counts,
   rejecting missing, duplicate, tampered, or incorrectly sized evidence before release qualification is accepted.
 - fix(vnext): persist native preview bindings and encrypted Terraform plans across CLI processes under restrictive local
-  state, and require explicit ownership authorization for destructive Bicep deployment-stack cleanup.
+  state, bind Terraform source/variable/lock bytes, and require explicit ownership authorization for destructive Bicep
+  deployment-stack cleanup.
 
 ### Changed (Model migration — Claude Sonnet 4.6 → Claude Sonnet 5)
 

@@ -54,6 +54,11 @@ the validated settings to `.apex/provider-config.json`.
 Do not add tokens, passwords, keys, credentials, backend secrets, or Terraform state to provider configuration. Use the
 actual run and task paths returned by `apex task context`.
 
+`lockfileHash` must equal the current raw SHA-256 of `.terraform.lock.hcl`. The CLI also hashes all `.tf`, `.tf.json`,
+`.tfvars`, `.tfvars.json`, and lock files under `cwd`, excluding `.terraform/`. Preview and deploy recompute that tree;
+source drift, variable drift, lock drift, or a symlink fails closed. `configHash` may pin an expected tree hash but is not
+required because APEX always computes the current value.
+
 APEX stores preview bindings and encrypted Terraform plan artifacts under `.apex/local/provider-runtime/`. The generated
 local transport key is mode `0600` and never enters provider configuration. A trusted process can instead inject a
 base64-encoded 32-byte key through `APEX_PLAN_TRANSPORT_KEY`; never print, commit, or place that value in a workflow

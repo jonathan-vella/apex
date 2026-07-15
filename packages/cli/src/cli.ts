@@ -2,13 +2,13 @@
 import { mkdir, readFile, realpath, writeFile } from "node:fs/promises";
 import { NativeBicepProvider, NativeTerraformProvider, ProcessRunner, type IacProvider } from "@apex/capabilities";
 import { QualityMeasurementsV1Schema, type QualityMeasurementsV1, type QualityScorecardV1 } from "@apex/contracts";
-import { EventJournal, ValidatorRegistry, atomicWriteJson, sha256Bytes, sha256Json } from "@apex/kernel";
+import { EventJournal, ValidatorRegistry, atomicWriteJson, sha256Json } from "@apex/kernel";
 import { evaluateQualityScorecard, renderQualityScorecardEvaluation, type ScorecardMeasurement } from "@apex/renderers";
 import { join, resolve } from "node:path";
 import { ApexError, EXIT_CODES, normalizeError } from "./errors.js";
 import { resolveBundledAssets } from "./assets.js";
 import { serveMcp } from "./mcp.js";
-import { createFileProviderRuntime } from "./provider-runtime.js";
+import { createFileProviderRuntime, hashTerraformConfiguration, hashTerraformLockFile } from "./provider-runtime.js";
 import { ApexService, type ArtifactKind, type TaskOutput } from "./service.js";
 
 type FlagValue = string | string[] | boolean;
@@ -180,6 +180,26 @@ async function configuredProviders(
         throw new ApexError("APEX_USAGE", `Terraform provider config requires ${key}`, EXIT_CODES.usage);
     }
     const localRuntime = await runtime();
+    const terraformRoot = resolve(root, value.cwd);
+    const actualLockfileHash = await hashTerraformLockFile(terraformRoot);
+    if (actualLockfileHash !== value.lockfileHash) {
+      throw new ApexError(
+        "APEX_STALE",
+        `Terraform lockfileHash is stale: expected ${value.lockfileHash}, found ${actualLockfileHash}`,
+        EXIT_CODES.stale,
+      );
+    }
+    const configHash = async () => {
+      const actual = await hashTerraformConfiguration(terraformRoot);
+      if (value.configHash !== undefined && value.configHash !== actual) {
+        throw new ApexError(
+          "APEX_STALE",
+          `Terraform configHash is stale: expected ${value.configHash}, found ${actual}`,
+          EXIT_CODES.stale,
+        );
+      }
+      return actual;
+    };
     providers.terraform = new NativeTerraformProvider({
       runner,
       currentAuthority,
@@ -189,9 +209,8 @@ async function configuredProviders(
       target: {
         cwd: value.cwd,
         target: value.target,
-        lockfileHash: value.lockfileHash,
-        configHash: async () =>
-          value.configHash ?? sha256Bytes(await readFile(join(resolve(root, value.cwd), ".terraform.lock.hcl"))),
+        lockfileHash: actualLockfileHash,
+        configHash,
         planPath: (request, operation) => join(value.planDirectory, `${request.runId}-${operation}.tfplan`),
       },
     });

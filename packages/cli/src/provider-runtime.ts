@@ -1,13 +1,13 @@
 import { randomBytes } from "node:crypto";
-import { chmod, lstat, mkdir, readFile } from "node:fs/promises";
-import { join } from "node:path";
+import { chmod, lstat, mkdir, readFile, readdir } from "node:fs/promises";
+import { join, relative } from "node:path";
 import type {
   EncryptedPlanArtifactStore,
   LocalEncryptedPlan,
   PersistedPreviewBinding,
   PreviewBindingStore,
 } from "@apex/capabilities";
-import { atomicWriteBytes, atomicWriteJson, sha256Bytes } from "@apex/kernel";
+import { atomicWriteBytes, atomicWriteJson, sha256Bytes, sha256Json } from "@apex/kernel";
 
 const HASH_PATTERN = /^[0-9a-f]{64}$/;
 const KEY_ENVIRONMENT_VARIABLE = "APEX_PLAN_TRANSPORT_KEY";
@@ -69,6 +69,53 @@ async function readJsonFile(path: string): Promise<unknown | undefined> {
     if ((error as NodeJS.ErrnoException).code === "ENOENT") return undefined;
     throw error;
   }
+}
+
+async function readRegularFile(path: string, label: string): Promise<Buffer> {
+  const info = await lstat(path);
+  if (info.isSymbolicLink() || !info.isFile()) throw new Error(`${label} is not a regular file: ${path}`);
+  return await readFile(path);
+}
+
+function isTerraformInputFile(name: string): boolean {
+  return (
+    name === ".terraform.lock.hcl" ||
+    name.endsWith(".tf") ||
+    name.endsWith(".tf.json") ||
+    name.endsWith(".tfvars") ||
+    name.endsWith(".tfvars.json")
+  );
+}
+
+async function terraformInputFiles(root: string, directory = root): Promise<string[]> {
+  const files = [];
+  for (const entry of await readdir(directory, { withFileTypes: true })) {
+    const path = join(directory, entry.name);
+    if (entry.isSymbolicLink()) throw new Error(`Terraform configuration contains a symlink: ${path}`);
+    if (entry.isDirectory()) {
+      if (entry.name !== ".terraform") files.push(...(await terraformInputFiles(root, path)));
+      continue;
+    }
+    if (entry.isFile() && isTerraformInputFile(entry.name)) files.push(path);
+  }
+  return files.sort((left, right) => relative(root, left).localeCompare(relative(root, right)));
+}
+
+export async function hashTerraformLockFile(terraformRoot: string): Promise<string> {
+  return sha256Bytes(await readRegularFile(join(terraformRoot, ".terraform.lock.hcl"), "Terraform lock file"));
+}
+
+export async function hashTerraformConfiguration(terraformRoot: string): Promise<string> {
+  const files = await terraformInputFiles(terraformRoot);
+  if (files.length === 0) throw new Error(`Terraform configuration has no input files: ${terraformRoot}`);
+  return sha256Json(
+    await Promise.all(
+      files.map(async (path) => ({
+        path: relative(terraformRoot, path).replaceAll("\\", "/"),
+        hash: sha256Bytes(await readRegularFile(path, "Terraform input")),
+      })),
+    ),
+  );
 }
 
 function requireBinding(value: unknown, previewHash: string): PersistedPreviewBinding {

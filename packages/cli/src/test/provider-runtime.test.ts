@@ -1,9 +1,10 @@
 import assert from "node:assert/strict";
-import { chmod, lstat, mkdir, symlink } from "node:fs/promises";
+import { createHash } from "node:crypto";
+import { chmod, lstat, mkdir, symlink, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import test from "node:test";
 import type { LocalEncryptedPlan, PersistedPreviewBinding } from "@apex/capabilities";
-import { createFileProviderRuntime } from "../provider-runtime.js";
+import { createFileProviderRuntime, hashTerraformConfiguration, hashTerraformLockFile } from "../provider-runtime.js";
 import { tempRoot } from "./helpers.js";
 
 const previewHash = "a".repeat(64);
@@ -86,4 +87,27 @@ test("file provider runtime rejects mismatched binding and artifact references",
   await assert.rejects(runtime.bindingStores.terraform.save(previewHash, binding), /Expected a terraform/);
   await runtime.artifactStore.put("expected", artifact);
   assert.equal(await runtime.artifactStore.get("other"), undefined);
+});
+
+test("Terraform hashes bind source, variables, and lock files while ignoring derived state", async () => {
+  const root = await tempRoot();
+  await writeFile(join(root, "main.tf"), "terraform {}\n");
+  await writeFile(join(root, "qualification.auto.tfvars"), 'environment = "qualification"\n');
+  await writeFile(join(root, ".terraform.lock.hcl"), "provider-lock\n");
+  await mkdir(join(root, ".terraform"));
+  await writeFile(join(root, ".terraform", "derived.tf"), "ignored\n");
+
+  const first = await hashTerraformConfiguration(root);
+  assert.match(first, /^[0-9a-f]{64}$/);
+  assert.equal(await hashTerraformLockFile(root), createHash("sha256").update("provider-lock\n").digest("hex"));
+
+  await writeFile(join(root, "main.tf"), 'terraform { required_version = ">= 1.10.0" }\n');
+  assert.notEqual(await hashTerraformConfiguration(root), first);
+  await writeFile(join(root, "main.tf"), "terraform {}\n");
+  assert.equal(await hashTerraformConfiguration(root), first);
+
+  await writeFile(join(root, ".terraform", "derived.tf"), "changed but ignored\n");
+  assert.equal(await hashTerraformConfiguration(root), first);
+  await symlink(join(root, "main.tf"), join(root, "linked.tf"));
+  await assert.rejects(hashTerraformConfiguration(root), /contains a symlink/);
 });

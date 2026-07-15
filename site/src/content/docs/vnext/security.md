@@ -41,8 +41,9 @@ substituted approval and preview data.
 Preview bindings and encrypted plan artifacts persist across CLI process restarts under `.apex/local/provider-runtime/`.
 The local AES-256-GCM key is generated with restrictive permissions or injected at runtime through
 `APEX_PLAN_TRANSPORT_KEY`. A symlinked runtime path, permissive key file, wrong recipient, expired artifact, or changed
-binding fails closed. Plaintext saved plans are removed immediately after encryption and temporary apply files are
-disposed after use.
+binding fails closed. Terraform configuration hashing includes source, automatic variable, and provider lock files while
+excluding derived `.terraform/` content. Plaintext saved plans are removed immediately after encryption and temporary
+apply files are disposed after use.
 
 :::caution[Terraform CI limitation]
 Production CI encrypted saved-plan transport is not yet qualified. The preview supports local exact-plan operation;
