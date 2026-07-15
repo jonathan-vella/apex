@@ -40,9 +40,10 @@ export function createMcpServer(service: ApexService): McpServer {
   server.registerTool("taskContext", { inputSchema: { taskId: z.string() } }, async ({ taskId }) =>
     result(await service.taskContext(taskId)),
   );
-  server.registerTool("recordRequirementsInput", { inputSchema: { value: z.unknown() } }, async ({ value }) =>
-    result(await service.recordRequirementsInput(value)),
-  );
+  server.registerTool("recordRequirementsInput", { inputSchema: { value: z.unknown() } }, async ({ value }) => {
+    await service.recordRequirementsInput(value);
+    return result({ recorded: true });
+  });
   server.registerTool(
     "stageArtifact",
     {
