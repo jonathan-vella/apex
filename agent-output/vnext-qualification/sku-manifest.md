@@ -82,7 +82,7 @@ _No services declare environment overrides._
 | ----- | ---- | ----- | ------------- | ------- | ------------- | ------ | ---------- |
 | `1` | `1` | `02-Requirements` | `2026-07-15T12:00:00Z` | No user-pinned SKU; use a cost-optimized ephemeral qualification sandbox. | — | — | `vnext-qualification:1:sku-preferences` |
 | `2` | `2` | `03-Architect` | `2026-07-15T12:30:00Z` | Selected Standard LRS for the backend and equivalent Bicep and Terraform storage markers. | `qualification-storage` | — | `vnext-qualification:2:storage-sku` |
-| `3` | `4` | `05-IaC Planner` | `2026-07-15T19:15:00Z` | Reconciled the Standard LRS decision across the isolated Bicep and Terraform implementations. | `qualification-storage` | — | `vnext-qualification:4:dual-track-reconciliation` |
+| `3` | `4` | `05-IaC Planner` | `2026-07-15T19:15:00Z` | Reconciled the Standard LRS decision across the isolated Bicep and Terraform implementations. | `qualification-storage` | `908c536` | `vnext-qualification:4:dual-track-reconciliation` |
 
 ## Open Substitutions
 

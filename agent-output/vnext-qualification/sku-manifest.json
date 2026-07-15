@@ -39,7 +39,8 @@
       "summary": "Reconciled the Standard LRS decision across the isolated Bicep and Terraform implementations.",
       "changed_ids": [
         "qualification-storage"
-      ]
+      ],
+      "commit_sha": "908c536"
     }
   ],
   "services": [
