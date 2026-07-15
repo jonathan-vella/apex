@@ -2,8 +2,9 @@
   "servers": {
     "apex": {
       "type": "stdio",
-      "command": "apex",
+      "command": "node",
       "args": [
+        "${workspaceFolder}/node_modules/@apex/cli/dist/cli.js",
         "mcp",
         "serve"
       ],

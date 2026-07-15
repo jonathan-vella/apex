@@ -62,6 +62,9 @@ for full details on this and all prior releases.
 - fix(vnext): replaced polynomial storage-security regular expressions over generated Bicep and Terraform source with
   a bounded line-oriented assignment scan. Adversarial dual-track coverage protects the fix in
   [#537](https://github.com/jonathan-vella/apex/issues/537).
+- fix(vnext): launch the managed MCP server through the installed workspace-local CLI instead of assuming the VS Code
+  extension host exposes a bare `apex` command on `PATH`; packed clean-consumer tests now connect over stdio and call
+  kernel status through the generated configuration.
 
 ### Changed (Model migration — Claude Sonnet 4.6 → Claude Sonnet 5)
 

@@ -44,7 +44,16 @@ test("init installs bundled customizations and runtime config by default", async
   const service = new ApexService(root);
   await service.init({ projectId: "demo" });
   assert.match(await readFile(join(root, ".github", "agents", "apex.agent.md"), "utf8"), /name: APEX/);
-  assert.match(await readFile(join(root, ".vscode", "mcp.json"), "utf8"), /apex/);
+  assert.deepEqual(JSON.parse(await readFile(join(root, ".vscode", "mcp.json"), "utf8")), {
+    servers: {
+      apex: {
+        type: "stdio",
+        command: "node",
+        args: ["${workspaceFolder}/node_modules/@apex/cli/dist/cli.js", "mcp", "serve"],
+        cwd: "${workspaceFolder}",
+      },
+    },
+  });
   assert.match(await readFile(join(root, ".apex", "runtime", "workflow.v1.json"), "utf8"), /apex-workflow-v1/);
   const registry = JSON.parse(
     await readFile(join(root, ".apex", "runtime", "capability-packs.registry.json"), "utf8"),
