@@ -29,6 +29,7 @@ import {
   normalizeAzureWhatIf,
   normalizeTerraformPlan,
   parseJsonProcessOutput,
+  selectAzureDeploymentStack,
 } from "./iac-normalizers.js";
 import type { ProcessRunnerLike } from "./process-runner.js";
 import { secretFreeProperties } from "./secret-redaction.js";
@@ -269,12 +270,11 @@ export class NativeBicepProvider extends NativeProviderBase implements IacProvid
   }
 
   async previewApply(request: PreviewRequest): Promise<DeploymentPreviewV1> {
-    const [stdout, stackOutput] = await Promise.all([
+    const [stdout, stackResources] = await Promise.all([
       this.run(this.#commands.preview(this.#target)),
-      this.run(this.#commands.stackShow(this.#target)),
+      this.#currentStackResources(),
     ]);
     const normalized = normalizeAzureWhatIf(parseJsonProcessOutput("azure-what-if", stdout));
-    const stackResources = normalizeAzureStackResources(parseJsonProcessOutput("azure-stack", stackOutput));
     const previewIds = new Set(normalized.changes.map(({ resourceId }) => resourceId.toLowerCase()));
     const unrepresented = stackResources.filter(({ resourceId }) => !previewIds.has(resourceId.toLowerCase()));
     if (unrepresented.length > 0) {
@@ -286,8 +286,7 @@ export class NativeBicepProvider extends NativeProviderBase implements IacProvid
   }
 
   async previewDestroy(request: PreviewRequest): Promise<DeploymentPreviewV1> {
-    const stdout = await this.run(this.#commands.stackShow(this.#target));
-    const resources = normalizeAzureStackResources(parseJsonProcessOutput("azure-stack", stdout));
+    const resources = await this.#currentStackResources();
     return await this.#bind(
       request,
       "destroy",
@@ -316,8 +315,7 @@ export class NativeBicepProvider extends NativeProviderBase implements IacProvid
   }
 
   async inventory(projectId: string, runId: string): Promise<ResourceInventoryV1> {
-    const stdout = await this.run(this.#commands.stackShow(this.#target));
-    const resources = normalizeAzureStackResources(parseJsonProcessOutput("azure-stack", stdout));
+    const resources = await this.#currentStackResources();
     return {
       schemaVersion: "1.0.0",
       projectId,
@@ -372,6 +370,16 @@ export class NativeBicepProvider extends NativeProviderBase implements IacProvid
       .digest("hex");
   }
 
+  async #currentStackResources(): Promise<readonly ReturnType<typeof normalizeAzureStackResources>[number][]> {
+    const stdout = await this.run(this.#commands.stackList(this.#target));
+    const selected = selectAzureDeploymentStack(
+      parseJsonProcessOutput("azure-stack", stdout),
+      this.#target.resourceGroup,
+      this.#target.stackName,
+    );
+    return selected === null ? [] : normalizeAzureStackResources(selected);
+  }
+
   async #execute(
     operation: "apply" | "destroy",
     preview: DeploymentPreviewV1,
@@ -402,8 +410,7 @@ export class NativeBicepProvider extends NativeProviderBase implements IacProvid
       this.#target.parametersFile === undefined
         ? createHash("sha256").update(Buffer.alloc(0)).digest("hex")
         : await this.#rawFileHash(this.#target.parametersFile);
-    const stackOutput = await this.run(this.#commands.stackShow(this.#target));
-    const stackStateHash = sha256(normalizeAzureStackResources(parseJsonProcessOutput("azure-stack", stackOutput)));
+    const stackStateHash = sha256(await this.#currentStackResources());
     if (
       templateHash !== binding.templateHash ||
       parametersHash !== binding.parametersHash ||

@@ -510,7 +510,16 @@ def test_cli_cache_hit_short_circuits(tmp_path, capsys, monkeypatch):
 
 def test_cli_refresh_bypasses_cache_and_writes_fresh_envelope(tmp_path, capsys, monkeypatch):
     out = tmp_path / "04-governance-constraints.json"
-    out.write_text('{"discovery_status":"COMPLETE","findings":[]}')
+    security_exception = {"id": "runner-ip", "control": "public-network-access"}
+    out.write_text(
+        json.dumps(
+            {
+                "discovery_status": "COMPLETE",
+                "findings": [],
+                "security_exceptions": [security_exception],
+            }
+        )
+    )
 
     mapping = {
         "policyAssignments": EMPTY,
@@ -533,6 +542,7 @@ def test_cli_refresh_bypasses_cache_and_writes_fresh_envelope(tmp_path, capsys, 
     fresh = json.loads(out.read_text())
     assert fresh["schema_version"] == "governance-constraints-v1"
     assert fresh["project"] == "p"
+    assert fresh["security_exceptions"] == [security_exception]
 
 
 def test_status_line_is_valid_json_and_first(tmp_path, capsys, monkeypatch):
@@ -844,6 +854,264 @@ def test_allowed_locations_from_assignment_params():
     env = discover.discover("s", project="p", az_rest=_router(mapping))
     assert "swedencentral" in env["allowed_locations"]
     assert "westeurope" in env["allowed_locations"]
+
+
+def test_audit_allowed_locations_are_projected_with_constraint_evidence():
+    assignment = {
+        "id": "/providers/Microsoft.Management/managementGroups/alz/providers/Microsoft.Authorization/policyAssignments/loc",
+        "name": "loc",
+        "properties": {
+            "displayName": "JV - Allowed Locations",
+            "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/loc-audit",
+            "scope": "/providers/Microsoft.Management/managementGroups/alz",
+            "enforcementMode": "Default",
+            "parameters": {
+                "effect": {"value": "Audit"},
+                "listOfAllowedLocations": {"value": ["swedencentral", "global"]},
+            },
+        },
+    }
+    definition = {
+        "id": "/providers/Microsoft.Authorization/policyDefinitions/loc-audit",
+        "name": "loc-audit",
+        "properties": {
+            "displayName": "Allowed locations",
+            "metadata": {"category": "General"},
+            "parameters": {"effect": {"defaultValue": "Deny"}},
+            "policyRule": {
+                "if": {"field": "location", "notIn": "[parameters('listOfAllowedLocations')]"},
+                "then": {"effect": "[parameters('effect')]"},
+            },
+        },
+    }
+    mapping = {
+        "policyAssignments": {"value": [assignment]},
+        "/subscriptions/s/providers/Microsoft.Authorization/policyDefinitions": {"value": [definition]},
+        "/providers/Microsoft.Authorization/policyDefinitions": EMPTY,
+    }
+    env = discover.discover("s", project="p", az_rest=_router(mapping))
+    assert env["findings"] == []
+    assert env["discovery_summary"]["audit_count"] == 1
+    assert env["allowed_locations"] == ["global", "swedencentral"]
+    assert env["location_constraints"][0]["effect"] == "audit"
+    assert env["assignment_inventory"][0]["parameters"]["effect"] == "Audit"
+
+
+def test_initiative_member_and_numbered_tag_parameters_are_resolved():
+    assignment = {
+        "id": "/providers/Microsoft.Management/managementGroups/alz/providers/Microsoft.Authorization/policyAssignments/tags",
+        "name": "tags",
+        "properties": {
+            "displayName": "Inherit tags",
+            "policyDefinitionId": "/providers/Microsoft.Authorization/policySetDefinitions/tags-set",
+            "scope": "/providers/Microsoft.Management/managementGroups/alz",
+        },
+    }
+    definition = {
+        "id": "/providers/Microsoft.Authorization/policyDefinitions/inherit-tag",
+        "name": "inherit-tag",
+        "properties": {
+            "displayName": "Inherit a tag from the resource group",
+            "metadata": {"category": "Tags"},
+            "policyRule": {
+                "if": {"field": "tags['owner']", "exists": "false"},
+                "then": {
+                    "effect": "Modify",
+                    "details": {
+                        "operations": [
+                            {"operation": "addOrReplace", "field": "tags['owner']", "value": "owner"}
+                        ]
+                    },
+                },
+            },
+        },
+    }
+    initiative = {
+        "id": "/providers/Microsoft.Authorization/policySetDefinitions/tags-set",
+        "name": "tags-set",
+        "properties": {
+            "policyDefinitions": [
+                {
+                    "policyDefinitionId": definition["id"],
+                    "policyDefinitionReferenceId": "owner",
+                    "parameters": {"tagName": {"value": "owner"}},
+                }
+            ]
+        },
+    }
+    mapping = {
+        "policyAssignments": {"value": [assignment]},
+        "/subscriptions/s/providers/Microsoft.Authorization/policyDefinitions": EMPTY,
+        "/subscriptions/s/providers/Microsoft.Authorization/policySetDefinitions": EMPTY,
+        "/providers/Microsoft.Authorization/policySetDefinitions/tags-set": initiative,
+        "/providers/Microsoft.Authorization/policyDefinitions/inherit-tag": definition,
+    }
+    env = discover.discover("s", project="p", az_rest=_router(mapping))
+    assert [tag["name"] for tag in env["tags_required"]] == ["owner"]
+    assert env["findings"][0]["assignment_parameters"] == {"tagName": "owner"}
+
+    numbered = {**env["findings"][0], "assignment_parameters": {"tagName1": "owner", "tagName2": "environment"}}
+    assert [tag["name"] for tag in discover._extract_tags_required([numbered])] == ["owner", "environment"]
+
+
+def test_initiative_effect_default_overrides_member_definition_default():
+    assignment = {
+        "id": "/providers/Microsoft.Management/managementGroups/alz/providers/Microsoft.Authorization/policyAssignments/baseline",
+        "properties": {
+            "displayName": "Baseline",
+            "policyDefinitionId": "/providers/Microsoft.Authorization/policySetDefinitions/baseline",
+            "scope": "/providers/Microsoft.Management/managementGroups/alz",
+        },
+    }
+    definition = {
+        "id": "/providers/Microsoft.Authorization/policyDefinitions/child",
+        "properties": {
+            "displayName": "Child deny by default",
+            "parameters": {"effect": {"defaultValue": "Deny"}},
+            "policyRule": {"if": {"field": "type", "equals": "Example/type"}, "then": {"effect": "[parameters('effect')]"}},
+        },
+    }
+    initiative = {
+        "id": "/providers/Microsoft.Authorization/policySetDefinitions/baseline",
+        "properties": {
+            "parameters": {"baselineEffect": {"defaultValue": "Audit"}},
+            "policyDefinitions": [
+                {
+                    "policyDefinitionId": definition["id"],
+                    "policyDefinitionReferenceId": "child",
+                    "parameters": {"effect": {"value": "[parameters('baselineEffect')]"}},
+                }
+            ],
+        },
+    }
+    mapping = {
+        "policyAssignments": {"value": [assignment]},
+        "/subscriptions/s/providers/Microsoft.Authorization/policyDefinitions": EMPTY,
+        "/subscriptions/s/providers/Microsoft.Authorization/policySetDefinitions": EMPTY,
+        "/providers/Microsoft.Authorization/policySetDefinitions/baseline": initiative,
+        "/providers/Microsoft.Authorization/policyDefinitions/child": definition,
+    }
+    env = discover.discover("s", project="p", az_rest=_router(mapping))
+    assert env["findings"] == []
+    assert env["discovery_summary"]["audit_count"] == 1
+
+
+def test_non_tag_modify_policy_does_not_require_negative_condition_tag():
+    assignment = {
+        "id": "/subscriptions/s/providers/Microsoft.Authorization/policyAssignments/storage",
+        "name": "storage",
+        "properties": {
+            "displayName": "Storage security",
+            "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/storage",
+            "scope": "/subscriptions/s",
+        },
+    }
+    definition = {
+        "id": "/providers/Microsoft.Authorization/policyDefinitions/storage",
+        "name": "storage",
+        "properties": {
+            "displayName": "Ensure secure access to storage account containers",
+            "metadata": {"category": "Storage"},
+            "policyRule": {
+                "if": {
+                    "allOf": [
+                        {"field": "type", "equals": "Microsoft.Storage/storageAccounts"},
+                        {"field": "tags['SecurityControl']", "exists": "false"},
+                    ]
+                },
+                "then": {
+                    "effect": "Modify",
+                    "details": {
+                        "operations": [
+                            {
+                                "operation": "addOrReplace",
+                                "field": "Microsoft.Storage/storageAccounts/allowBlobPublicAccess",
+                                "value": False,
+                            }
+                        ]
+                    },
+                },
+            },
+        },
+    }
+    mapping = {
+        "policyAssignments": {"value": [assignment]},
+        "/subscriptions/s/providers/Microsoft.Authorization/policyDefinitions": {"value": [definition]},
+        "/providers/Microsoft.Authorization/policyDefinitions": EMPTY,
+    }
+    env = discover.discover("s", project="p", az_rest=_router(mapping))
+    assert env["tags_required"] == []
+    assert env["findings"][0]["azurePropertyPath"] == "storageAccounts.allowBlobPublicAccess"
+
+
+def test_non_tags_category_deploy_policy_does_not_require_applicability_tag():
+    definition = {
+        "properties": {
+            "metadata": {"category": "Security Center"},
+            "policyRule": {
+                "if": {"field": "tags['MDFCSecurityConnector']", "exists": "false"},
+                "then": {"effect": "DeployIfNotExists", "details": {"type": "Example/extensions"}},
+            },
+        }
+    }
+    assert discover._property_paths(definition, ["Microsoft.HybridCompute/machines"])["azurePropertyPath"] == ""
+    assert discover._extract_tags_required(
+        [
+            {
+                "display_name": "Deploy extension",
+                "category": "Security Center",
+                "pathSemantics": None,
+                "extracted_tag_keys": ["MDFCSecurityConnector"],
+            }
+        ]
+    ) == []
+
+
+def test_location_detection_does_not_match_allocation_substrings():
+    definition = {
+        "properties": {
+            "displayName": "IP allocations with Service Tags",
+            "policyRule": {"if": {"field": "type", "equals": "Microsoft.Network/publicIPAddresses"}},
+        }
+    }
+    assert discover._is_location_constraint(definition) is False
+
+
+def test_location_detection_ignores_incidental_location_field():
+    definition = {
+        "properties": {
+            "displayName": "Enable diagnostic logging",
+            "policyRule": {
+                "if": {
+                    "allOf": [
+                        {"field": "type", "equals": "Example/resource"},
+                        {"field": "location", "notEquals": "global"},
+                    ]
+                }
+            },
+        }
+    }
+    assert discover._is_location_constraint(definition) is False
+
+
+def test_location_detection_includes_location_match_policy():
+    definition = {
+        "properties": {
+            "displayName": "Audit resource location matches resource group location",
+            "policyRule": {"if": {"field": "location", "notEquals": "[resourceGroup().location]"}},
+        }
+    }
+    assert discover._is_location_constraint(definition) is True
+
+
+def test_required_value_tolerates_list_shaped_policy_details():
+    definition = {
+        "properties": {
+            "parameters": {"listOfAllowedLocations": {"defaultValue": ["swedencentral"]}},
+            "policyRule": {"then": {"effect": "Audit", "details": []}},
+        }
+    }
+    assert discover._required_value(definition) == ["swedencentral"]
 
 
 def test_allowed_locations_empty_when_no_location_policy():

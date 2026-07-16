@@ -52,6 +52,14 @@ recipient only after the exact claim-bound transfer. Encrypted state tests resum
 post-preview claim, approve Gate 4, and deploy the imported exact preview. Lease tests cover same-epoch retry after a
 failed mutation, pending-transfer rejection, expiry, and journal compare-and-swap.
 
+Native Bicep tests cover an absent first stack, unrelated stacks, exact selection, malformed and duplicate list output,
+wrong resource-group IDs, pre-apply empty-state binding, and post-apply inventory. No setup mutation is needed before the
+approved deployment-stack create command.
+
+Gate 4 supersession tests cover expired preview refresh and an apply-to-destroy sequence on one run. They verify that
+the reduced gate returns to open, old approval cannot authorize the new preview, old preview hashes are stale, and a new
+exact approval is required before destroy.
+
 ## Bind Live Evidence
 
 After deterministic qualification passes, create an unavailable-by-default record with `npm run live:vnext`. The record

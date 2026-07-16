@@ -14,6 +14,7 @@ import {
   NativeTerraformProvider,
   normalizeAzureWhatIf,
   normalizeTerraformPlan,
+  selectAzureDeploymentStack,
   type CurrentDeploymentAuthority,
   type PreviewRequest,
   type ProcessRequest,
@@ -181,6 +182,76 @@ test("normalizers block missing, duplicate, and malformed material change identi
   assert.match(terraform.blockers.join("\n"), /no stable resource address|duplicate material|malformed/);
 });
 
+function stack(name: string, resourceGroup = "rg", resources: unknown[] = []) {
+  return {
+    id: `/subscriptions/sub/resourceGroups/${resourceGroup}/providers/Microsoft.Resources/deploymentStacks/${name}`,
+    name,
+    properties: { resources },
+  };
+}
+
+test("Azure stack selection distinguishes absent, exact, malformed, duplicate, and wrong-scope results", () => {
+  const exact = stack("workload");
+  assert.equal(selectAzureDeploymentStack([stack("other")], "rg", "workload"), null);
+  assert.equal(selectAzureDeploymentStack([stack("other"), exact], "rg", "Workload"), exact);
+  assert.throws(() => selectAzureDeploymentStack({}, "rg", "workload"), /must be a JSON array/);
+  assert.throws(() => selectAzureDeploymentStack([{}], "rg", "workload"), /entry 0 is malformed/);
+  assert.throws(() => selectAzureDeploymentStack([exact, stack("WORKLOAD")], "rg", "workload"), /duplicate name/);
+  assert.throws(() => selectAzureDeploymentStack([stack("workload", "other")], "rg", "workload"), /outside/);
+  assert.throws(
+    () => selectAzureDeploymentStack([{ ...exact, properties: {} }], "rg", "workload"),
+    /malformed managed resources/,
+  );
+});
+
+test("native Bicep first preview binds empty stack state and creates only after approval", async (context) => {
+  const root = await mkdtemp(join(tmpdir(), "apex-native-bicep-first-"));
+  context.after(async () => rm(root, { recursive: true, force: true }));
+  await writeFile(join(root, "main.bicep"), "targetScope = 'resourceGroup'\n");
+  let created = false;
+  const runner = new FakeRunner((process) => {
+    if (process.args.includes("what-if")) {
+      return JSON.stringify({ properties: { changes: [{ resourceId: "/resource", changeType: "Create" }] } });
+    }
+    if (process.args[2] === "list") {
+      return JSON.stringify(
+        created ? [stack("workload", "rg", [{ id: "/resource", name: "resource", type: "Example/type" }])] : [],
+      );
+    }
+    if (process.args[2] === "create") {
+      created = true;
+      return JSON.stringify({ id: "/stack/workload" });
+    }
+    return "";
+  });
+  const provider = new NativeBicepProvider({
+    runner,
+    currentAuthority: async () => authority,
+    now: () => clock.value,
+    nextId: () => "operation",
+    bindingStore: new MemoryBindingStore(),
+    target: {
+      cwd: root,
+      resourceGroup: "rg",
+      deploymentName: "preview",
+      stackName: "workload",
+      templateFile: "main.bicep",
+      denySettingsMode: "denyDelete",
+    },
+  });
+  const preview = await provider.previewApply(request());
+  assert.equal(created, false);
+  assert.equal((await provider.apply(preview, approval(preview), authority)).state, "succeeded");
+  assert.equal(created, true);
+  assert.equal((await provider.inventory("project", "run")).resources.length, 1);
+  const listCommands = runner.requests.filter((entry) => entry.args[2] === "list");
+  assert.ok(listCommands.length >= 3);
+  assert.equal(
+    listCommands.some((entry) => entry.args.includes("--name")),
+    false,
+  );
+});
+
 test("native Bicep lifecycle binds fallback preview inputs/state and exact stack commands", async (context) => {
   const root = await mkdtemp(join(tmpdir(), "apex-native-bicep-"));
   context.after(async () => rm(root, { recursive: true, force: true }));
@@ -190,10 +261,8 @@ test("native Bicep lifecycle binds fallback preview inputs/state and exact stack
     if (process.args.includes("what-if")) {
       return JSON.stringify({ properties: { changes: [{ resourceId: "/resource", changeType: "Create" }] } });
     }
-    if (process.args.includes("show")) {
-      return JSON.stringify({
-        properties: { resources: [{ id: "/resource", name: "resource", type: "Example/type" }] },
-      });
+    if (process.args[2] === "list") {
+      return JSON.stringify([stack("workload", "rg", [{ id: "/resource", name: "resource", type: "Example/type" }])]);
     }
     return JSON.stringify({ id: "/stack/workload" });
   });
@@ -291,7 +360,7 @@ test("Bicep fallback blocks unrepresented managed resources and enforces safe ac
   const runner = new FakeRunner((process) =>
     process.args.includes("what-if")
       ? JSON.stringify({ changes: [{ resourceId: "/represented", changeType: "Modify" }] })
-      : JSON.stringify({ properties: { resources: [{ id: "/removed", name: "removed", type: "Example/type" }] } }),
+      : JSON.stringify([stack("workload", "rg", [{ id: "/removed", name: "removed", type: "Example/type" }])]),
   );
   const base = {
     runner,
