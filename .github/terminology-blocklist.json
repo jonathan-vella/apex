@@ -103,6 +103,7 @@
     "QUALITY_SCORE.md",
     "package-lock.json",
     "node_modules/",
+    "tmp/",
     ".git/",
     "agent-output/_baselines/",
     "tools/tests/exec-plans/completed/",
