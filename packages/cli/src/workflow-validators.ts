@@ -63,6 +63,7 @@ export interface WorkflowGateValidatorContext {
   readonly currentDependencyRevision: string;
   readonly legacyRequirements: boolean;
   readonly currentRecipientIdentity: string;
+  readonly provedPreviewTransferClaimHash?: string;
   readonly preview?: DeploymentPreviewV1;
 }
 
@@ -78,6 +79,7 @@ export interface WorkflowPreviewValidatorContext {
   readonly expectedPolicyHash: string;
   readonly currentDependencyRevision: string;
   readonly expectedResourceIds: readonly string[];
+  readonly intendedExecutionRecipientIdentity: string;
   readonly attestation?: ExecutionPlanAttestationV1;
 }
 
@@ -89,6 +91,7 @@ export interface WorkflowDeployValidatorContext {
   readonly approval: ApprovalEvidenceV1;
   readonly expectedPreviewHash: string;
   readonly currentDependencyRevision: string;
+  readonly provedPreviewTransferClaimHash?: string;
   readonly operation?: OperationRecordV1;
   readonly attestation?: ExecutionPlanAttestationV1;
   readonly executionEvidence?: {
@@ -446,7 +449,10 @@ function gatePreviewCurrent(value: unknown): ValidationIssue[] {
   ) {
     issues.push({ path: "/preview/dependencyRevision", message: "Preview dependencies are stale" });
   }
-  if (preview.ownerEpoch !== context.run.ownerEpoch) {
+  const writerCurrent =
+    (preview.ownerEpoch === context.run.ownerEpoch && context.provedPreviewTransferClaimHash === undefined) ||
+    (preview.ownerEpoch + 1 === context.run.ownerEpoch && context.provedPreviewTransferClaimHash !== undefined);
+  if (!writerCurrent) {
     issues.push({ path: "/preview/ownerEpoch", message: "Preview writer epoch is stale" });
   }
   const now = Date.parse(context.now);
@@ -469,6 +475,7 @@ function gateApprovalBindingComplete(value: unknown): ValidationIssue[] {
     approval.previewHash === preview.previewHash &&
     approval.dependencyHash === preview.previewHash &&
     approval.writerEpoch === context.run.ownerEpoch &&
+    approval.writerTransferClaimHash === context.provedPreviewTransferClaimHash &&
     approval.recipientIdentity === context.currentRecipientIdentity &&
     approval.expiresAt !== undefined &&
     Date.parse(approval.expiresAt) > Date.parse(context.now);
@@ -577,6 +584,7 @@ function terraformSavedPlanBinding(value: unknown): ValidationIssue[] {
     attestation.stateLineage === preview.stateLineage &&
     attestation.stateSerial === preview.stateSerial &&
     attestation.recipient === attestation.transport.recipient &&
+    attestation.recipient === context.intendedExecutionRecipientIdentity &&
     attestation.expiresAt === preview.expiresAt &&
     preview.artifactHash === providerArtifactHash;
   return valid ? [] : issue("/attestation", "Terraform saved plan is not bound to the exact preview");
@@ -610,7 +618,12 @@ function deployStaleWriterRejection(value: unknown): ValidationIssue[] {
   const approval = context.approval;
   const now = Date.parse(context.now);
   const valid =
-    preview.ownerEpoch === context.run.ownerEpoch &&
+    ((preview.ownerEpoch === context.run.ownerEpoch &&
+      context.provedPreviewTransferClaimHash === undefined &&
+      approval.writerTransferClaimHash === undefined) ||
+      (preview.ownerEpoch + 1 === context.run.ownerEpoch &&
+        context.provedPreviewTransferClaimHash !== undefined &&
+        approval.writerTransferClaimHash === context.provedPreviewTransferClaimHash)) &&
     approval.writerEpoch === context.run.ownerEpoch &&
     preview.commit === context.currentDependencyRevision &&
     preview.dependencyRevision === context.currentDependencyRevision &&

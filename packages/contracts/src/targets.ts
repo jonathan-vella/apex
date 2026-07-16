@@ -526,6 +526,9 @@ export function hasValidPreviewApprovalBinding(
   preview: DeploymentPreviewV1,
   approval: ApprovalEvidenceV1,
 ): boolean {
+  const writerAuthorityMatches =
+    (approval.writerEpoch === preview.ownerEpoch && approval.writerTransferClaimHash === undefined) ||
+    (approval.writerEpoch === preview.ownerEpoch + 1 && approval.writerTransferClaimHash !== undefined);
   return (
     attestation.projectId === preview.projectId &&
     attestation.projectId === approval.projectId &&
@@ -540,6 +543,7 @@ export function hasValidPreviewApprovalBinding(
     attestation.recipient === attestation.transport.recipient &&
     attestation.stateLineage === preview.stateLineage &&
     attestation.stateSerial === preview.stateSerial &&
-    approval.recipientIdentity === attestation.transport.recipient
+    approval.recipientIdentity === attestation.transport.recipient &&
+    writerAuthorityMatches
   );
 }

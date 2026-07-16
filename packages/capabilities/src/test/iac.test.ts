@@ -52,7 +52,10 @@ function authority(overrides: Partial<CurrentDeploymentAuthority> = {}): Current
   };
 }
 
-function approval(preview: DeploymentPreviewV1, overrides: Partial<ApprovalEvidenceV1> = {}): ApprovalEvidenceV1 {
+function approval(
+  preview: DeploymentPreviewV1,
+  overrides: Partial<Extract<ApprovalEvidenceV1, { mechanism: "tty" }>> = {},
+): ApprovalEvidenceV1 {
   return {
     schemaVersion: "1.0.0",
     projectId: preview.projectId,
@@ -60,7 +63,7 @@ function approval(preview: DeploymentPreviewV1, overrides: Partial<ApprovalEvide
     gate: 4,
     decision: "approved",
     actor: "approver@example.com",
-    mechanism: "github-environment",
+    mechanism: "tty",
     dependencyHash: preview.previewHash,
     previewHash: preview.previewHash,
     writerEpoch: 3,
@@ -140,6 +143,41 @@ test("stale preview, owner epoch, head, recipient, and approval epoch are reject
   );
   clock.value = new Date("2026-07-13T01:02:00.000Z");
   await assert.rejects(instance.apply(preview, approval(preview), authority()), iacError("PREVIEW_EXPIRED"));
+});
+
+test("one-hop writer authority accepts only the exact approval claim", async () => {
+  const { instance } = provider("bicep");
+  const preview = await instance.previewApply(request());
+  const claimHash = "9".repeat(64);
+  const transferredAuthority = authority({
+    ownerEpoch: 4,
+    previousOwnerEpoch: 3,
+    writerTransferClaimHash: claimHash,
+  });
+  const transferredApproval = approval(preview, { writerEpoch: 4, writerTransferClaimHash: claimHash });
+  assert.equal((await instance.apply(preview, transferredApproval, transferredAuthority)).state, "succeeded");
+
+  const nextPreview = await instance.previewApply(request({ iacHash: "e".repeat(64) }));
+  await assert.rejects(
+    instance.apply(nextPreview, approval(nextPreview, { writerEpoch: 4 }), transferredAuthority),
+    iacError("PREVIEW_OWNER_EPOCH_MISMATCH"),
+  );
+  await assert.rejects(
+    instance.apply(
+      nextPreview,
+      approval(nextPreview, { writerEpoch: 4, writerTransferClaimHash: "8".repeat(64) }),
+      transferredAuthority,
+    ),
+    iacError("PREVIEW_OWNER_EPOCH_MISMATCH"),
+  );
+  await assert.rejects(
+    instance.apply(
+      nextPreview,
+      approval(nextPreview, { writerEpoch: 5, writerTransferClaimHash: claimHash }),
+      authority({ ownerEpoch: 5, previousOwnerEpoch: 4, writerTransferClaimHash: claimHash }),
+    ),
+    iacError("PREVIEW_OWNER_EPOCH_MISMATCH"),
+  );
 });
 
 test("destroy requires a separately approved destructive preview", async () => {
