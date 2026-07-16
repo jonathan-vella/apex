@@ -1,0 +1,67 @@
+{
+  "schema_version": "1.0",
+  "challenged_artifact": "agent-output/vnext-qualification/04-governance-constraints.md",
+  "artifact_type": "governance-constraints",
+  "review_focus": "governance-reconciliation",
+  "pass_number": 3,
+  "reviewed_at": "2026-07-15T20:33:31Z",
+  "challenge_summary": "Third-pass reconciliation confirms pass-2 firewall expiry and backend-exclusion defects are resolved in canonical governance, workflow, local handoff, tests, bootstrap, plans, and operator docs. One stale ADR statement still contradicts the corrected allowed-location policy evidence, but it does not block deployment because the canonical governance artifact and active plans now carry the correct Audit/allowlist disposition.",
+  "compact_for_parent": "Pass 3 (governance-reconciliation) | MEDIUM | 0 must_fix, 1 should_fix | Key: ADR still says no allowed-location policy was discovered",
+  "risk_level": "medium",
+  "must_fix_count": 0,
+  "should_fix_count": 1,
+  "suggestion_count": 0,
+  "overall_assessment": "NEEDS_REVISION",
+  "prior_finding_dispositions": [
+    {
+      "id": "04ac5b42",
+      "disposition": "resolved",
+      "evidence": "Canonical exception vnext-qualification-backend-runner-ip now requires control public-network-access, scope environment vnext-qualification, workload terraform-backend, maximum_lifetime_hours 24, endpoint at-rest public network access Disabled, policy_conflict_effect audit, minimum_remaining_minutes 75, and exact open/cleanup sequences. Preview and apply revalidate with --security-exception-only after runner IPv4 resolution and immediately before enabling public network access and adding one /32. Local withFirewall validates before and after public IPv4 resolution, wraps enable/add/action in try/finally, independently attempts rule removal, disables public network access, queries publicNetworkAccess, verifies Disabled, and fails cleanup on removal/disable/verification defects. Tests cover expiry crossing between IP resolution and add plus the complete local transaction. The focused workflow/context/security test run passed 50 tests and validate-vnext-live-workflow passed."
+    },
+    {
+      "id": "ed1588d3",
+      "disposition": "resolved",
+      "evidence": "infra/bicep/vnext-qualification/bootstrap.bicep sets backend publicNetworkAccess to Disabled, uses defaultAction Deny, and contains no SecurityControl marker. The workload Bicep and Terraform storage accounts disable public network access and carry no marker. grep across governance Markdown, both plans, operator docs, ADR, and Bicep/Terraform IaC found no SecurityControl marker and no persistent exclusion claim; current prose says no persistent policy-exclusion tag is used and the backend is Disabled at rest."
+    }
+  ],
+  "residual_risks": [
+    "Live deployment, GitHub Environment approval, OIDC token exchange, Azure RBAC propagation, Azure CLI runtime behavior, and actual storage data-plane access were not executed in this pass and remain deployment-phase residual risks, not source defects.",
+    "The review did not re-query Azure Policy. It reconciles the committed live snapshot, which records 33 retained assignments, 18 Deny blockers, allowed locations in Audit mode, and no policy exemptions.",
+    "The approved public-network exception expires at 2026-07-16T12:50:34Z; any later run must refresh governance evidence before opening a firewall session."
+  ],
+  "findings": [
+    {
+      "id": "65690b81",
+      "severity": "should_fix",
+      "category": "governance_gap",
+      "claim": "ADR still says no allowed-location policy was discovered",
+      "evidence": "The canonical governance JSON now records allowed_locations [germanywestcentral, global, swedencentral, westeurope] and location_constraints for the inherited JV - Allowed Locations assignment with effect audit. The governance Markdown and both Bicep/Terraform plan files correctly state that the allowed-locations assignment is Audit and explicitly includes swedencentral. ADR-0001 still states, under Compliance Considerations, that swedencentral is used for all Azure resources and no allowed-location policy was discovered. That is stale relative to the corrected live policy evidence.",
+      "impact": "A maintainer using ADR-0001 as the rationale record could conclude that no inherited location assignment exists, weakening future governance reconciliation or causing later changes to skip allowed-location evidence refresh. The active governance artifact and plans are correct, so this is not a deployment blocker for the current qualification footprint.",
+      "artifact_section": "ADR-0001 Compliance Considerations",
+      "suggested_fix": {
+        "artifact_path": "agent-output/vnext-qualification/03-des-adr-0001-use-split-encrypted-ci-transport.md",
+        "line_range": [110, 110],
+        "proposed_edit": "Replace the stale sentence with: `Uses swedencentral for all Azure resources; the inherited allowed-locations assignment is Audit and explicitly allows swedencentral.`"
+      },
+      "traces_to": [
+        "f702961b"
+      ],
+      "requires_step": "step-3_5",
+      "verification_anchors": [
+        "agent-output/vnext-qualification/04-governance-constraints.json location_constraints entry for JV - Allowed Locations with effect audit and swedencentral allowed",
+        "agent-output/vnext-qualification/04-governance-constraints.md Policy Definition Analysis and Network Policies rows for allowed locations",
+        "infra/bicep/vnext-qualification/.azure/plan.md Governance Contract allowed-location row",
+        "infra/terraform/vnext-qualification/.azure/plan.md Governance Contract allowed-location row",
+        "agent-output/vnext-qualification/03-des-adr-0001-use-split-encrypted-ci-transport.md Compliance Considerations stale no allowed-location policy statement"
+      ]
+    }
+  ],
+  "cache_inputs": {
+    "artifact_sha": "11897762415ec78934c84ddef819b43e97cf032d9554f8873d95bf9f5c961137",
+    "checklists_sha": "6a7c048e28c7e0f09566eb7a1a4329579cf60fb19d435caf0a22423f6cb06c7b",
+    "protocol_sha": "55197255ea03bb97e0e33592de94ba1bafbb183cf7f83503d22a2b35f0a2071c",
+    "subagent_sha": "bafc28d2f2b6d9b6b817094a57935ab0bf2a5308f219ca696c39eb7cc7955264",
+    "model": "GPT-5.5",
+    "artifact_hash": "110924a8b769cbf290594717e1bbc8f7aa2ac57cf5d542f83937fa17548c29b5"
+  }
+}

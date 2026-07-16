@@ -9,6 +9,7 @@ import { atomicWriteJson } from "./files.js";
 
 export interface RunMutation {
   expectedRunHash: string;
+  expectedJournalHead?: string | null;
   event: Omit<AppendEventInput, "expectedHead">;
   update: (current: RunConfigV1) => RunConfigV1;
 }
@@ -81,6 +82,12 @@ export class RunRepository {
       const actualHash = sha256Json(current as unknown as JsonValue);
       if (actualHash !== input.expectedRunHash)
         throw new Error(`Stale run hash: expected ${input.expectedRunHash}, found ${actualHash}`);
+      const journalHead = await this.journal.head();
+      if (input.expectedJournalHead !== undefined && input.expectedJournalHead !== journalHead) {
+        throw new Error(
+          `Stale journal head: expected ${String(input.expectedJournalHead)}, found ${String(journalHead)}`,
+        );
+      }
       const next = input.update(structuredClone(current));
       if (next.projectId !== current.projectId || next.runId !== current.runId)
         throw new Error("Run identity cannot change");
@@ -96,7 +103,7 @@ export class RunRepository {
       await this.faultInjector?.("intent");
       const event = await this.journal.append({
         ...input.event,
-        expectedHead: await this.journal.head(),
+        expectedHead: journalHead,
         payload: {
           ...(input.event.payload as Record<string, JsonValue>),
           transaction: { afterHash, after: next as unknown as JsonValue },

@@ -167,7 +167,9 @@ export function previewFixture(overrides: Partial<DeploymentPreviewV1> = {}): De
   return { ...body, previewHash: overrides.previewHash ?? sha256(body) };
 }
 
-export function approvalFixture(overrides: Partial<ApprovalEvidenceV1> = {}): ApprovalEvidenceV1 {
+export function approvalFixture(
+  overrides: Partial<Extract<ApprovalEvidenceV1, { mechanism: "tty" }>> = {},
+): ApprovalEvidenceV1 {
   const previewHash = overrides.previewHash ?? fixtureHash("preview");
   return {
     schemaVersion: CONTRACT_VERSION,

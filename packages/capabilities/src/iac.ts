@@ -49,6 +49,7 @@ export interface PreviewRequest {
   readonly commit: string;
   readonly dependencyRevision: string;
   readonly ownerEpoch: number;
+  readonly executionRecipientIdentity?: string;
   readonly inputHash: string;
   readonly iacHash: string;
   readonly policyHash: string;
@@ -61,6 +62,8 @@ export interface CurrentDeploymentAuthority {
   readonly head: string;
   readonly dependencyRevision: string;
   readonly ownerEpoch: number;
+  readonly previousOwnerEpoch?: number;
+  readonly writerTransferClaimHash?: string;
   readonly recipientIdentity: string;
 }
 
@@ -108,7 +111,13 @@ export function authorizeDeploymentPreview(context: PreviewAuthorizationContext)
   if (preview.dependencyRevision !== authority.dependencyRevision) {
     throw new IacProviderError("PREVIEW_HEAD_MISMATCH", "Preview dependency revision is not current");
   }
-  if (preview.ownerEpoch !== authority.ownerEpoch) {
+  const sameWriter = preview.ownerEpoch === authority.ownerEpoch && approval.writerTransferClaimHash === undefined;
+  const transferredWriter =
+    preview.ownerEpoch + 1 === authority.ownerEpoch &&
+    authority.previousOwnerEpoch === preview.ownerEpoch &&
+    authority.writerTransferClaimHash !== undefined &&
+    approval.writerTransferClaimHash === authority.writerTransferClaimHash;
+  if (!sameWriter && !transferredWriter) {
     throw new IacProviderError("PREVIEW_OWNER_EPOCH_MISMATCH", "Preview owner epoch is stale");
   }
   if (approval.decision !== "approved") {

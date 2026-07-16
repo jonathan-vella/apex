@@ -2,14 +2,18 @@
 import { mkdir, readFile, realpath, writeFile } from "node:fs/promises";
 import { NativeBicepProvider, NativeTerraformProvider, ProcessRunner, type IacProvider } from "@apex/capabilities";
 import { QualityMeasurementsV1Schema, type QualityMeasurementsV1, type QualityScorecardV1 } from "@apex/contracts";
-import { EventJournal, ValidatorRegistry, atomicWriteJson, sha256Json } from "@apex/kernel";
+import { EventJournal, ValidatorRegistry, WriterTransferStore, atomicWriteJson, sha256Json } from "@apex/kernel";
 import { evaluateQualityScorecard, renderQualityScorecardEvaluation, type ScorecardMeasurement } from "@apex/renderers";
 import { join, resolve } from "node:path";
 import { ApexError, EXIT_CODES, normalizeError } from "./errors.js";
+import { dependencyRevision as calculateDependencyRevision } from "./dependency-revision.js";
+import { githubApprovalContext } from "./github-approval.js";
 import { resolveBundledAssets } from "./assets.js";
 import { serveMcp } from "./mcp.js";
 import { createFileProviderRuntime, hashTerraformConfiguration, hashTerraformLockFile } from "./provider-runtime.js";
+import { exportProviderTransfer, importProviderTransfer } from "./provider-transfer.js";
 import { ApexService, type ArtifactKind, type TaskOutput } from "./service.js";
+import { exportStateTransfer, importStateTransfer } from "./state-transfer.js";
 
 type FlagValue = string | string[] | boolean;
 type Flags = Record<string, FlagValue>;
@@ -107,40 +111,44 @@ async function configuredProviders(
       projectId: string;
       runId: string;
       targetScope: string;
-      iacTool: string;
+      iacTool: "bicep" | "terraform";
       runtimeLockHash: string;
       ownerEpoch: number;
     };
     const journal = new EventJournal(join(runDirectory, "journal"));
     const events = await journal.replay();
-    const artifacts = events.reduce<Record<string, string>>((current, event) => {
-      if (event.type !== "task.completed") return current;
-      const hashes = (event.payload as { artifactHashes?: Record<string, unknown> }).artifactHashes ?? {};
-      for (const [kind, hash] of Object.entries(hashes)) if (typeof hash === "string") current[kind] = hash;
-      return current;
-    }, {});
-    const dependencyRevision = sha256Json({
-      projectId: run.projectId,
-      runId: run.runId,
-      targetScope: run.targetScope,
-      iacTool: run.iacTool,
-      runtimeLockHash: run.runtimeLockHash,
-      ownerEpoch: run.ownerEpoch,
-      artifacts,
-    });
+    const dependencyRevision = calculateDependencyRevision(run, events);
     let recipientIdentity = "local";
+    let previousOwnerEpoch: number | undefined;
+    let writerTransferClaimHash: string | undefined;
     try {
-      const ownership = JSON.parse(await readFile(join(runDirectory, "ownership.json"), "utf8")) as {
-        ownerId?: unknown;
-        ownerEpoch?: unknown;
-      };
+      const ownership = await new WriterTransferStore(runDirectory).currentActiveOwnership();
+      if (ownership === null)
+        return { head: dependencyRevision, dependencyRevision, ownerEpoch: run.ownerEpoch, recipientIdentity };
       if (ownership.ownerEpoch === run.ownerEpoch && typeof ownership.ownerId === "string") {
         recipientIdentity = ownership.ownerId;
+        if (
+          typeof ownership.previousOwnerEpoch === "number" &&
+          ownership.previousOwnerEpoch + 1 === run.ownerEpoch &&
+          typeof ownership.claimHash === "string" &&
+          /^[0-9a-f]{64}$/.test(ownership.claimHash)
+        ) {
+          previousOwnerEpoch = ownership.previousOwnerEpoch;
+          writerTransferClaimHash = ownership.claimHash;
+        }
       }
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
     }
-    return { head: dependencyRevision, dependencyRevision, ownerEpoch: run.ownerEpoch, recipientIdentity };
+    return {
+      head: dependencyRevision,
+      dependencyRevision,
+      ownerEpoch: run.ownerEpoch,
+      ...(previousOwnerEpoch === undefined || writerTransferClaimHash === undefined
+        ? {}
+        : { previousOwnerEpoch, writerTransferClaimHash }),
+      recipientIdentity,
+    };
   };
   const providers: Partial<Record<"bicep" | "terraform", IacProvider>> = {};
   if (config.bicep !== undefined) {
@@ -447,6 +455,67 @@ export async function execute(argv: string[], root = process.cwd()): Promise<unk
       return service.search(required(flags, "query"));
     case "project history":
       return service.history(typeof flags.limit === "string" ? Number(flags.limit) : undefined);
+    case "state transfer-export": {
+      confirmed(flags, "state transfer-export");
+      const ttlSeconds = Number(required(flags, "ttl-seconds"));
+      if (!Number.isInteger(ttlSeconds) || ttlSeconds <= 0) {
+        throw new ApexError("APEX_USAGE", "--ttl-seconds must be a positive integer", EXIT_CODES.usage);
+      }
+      const runtime = await createFileProviderRuntime(root);
+      return exportStateTransfer(
+        root,
+        required(flags, "file"),
+        {
+          claimHash: required(flags, "claim"),
+          recipient: required(flags, "recipient"),
+          ttlMs: ttlSeconds * 1_000,
+        },
+        { key: await runtime.keyProvider() },
+      );
+    }
+    case "state transfer-import": {
+      confirmed(flags, "state transfer-import");
+      const runtime = await createFileProviderRuntime(root);
+      return importStateTransfer(
+        root,
+        JSON.parse(await readFile(required(flags, "file"), "utf8")) as unknown,
+        required(flags, "recipient"),
+        await runtime.keyProvider(),
+      );
+    }
+    case "provider transfer-export": {
+      confirmed(flags, "provider transfer-export");
+      const ttlSeconds = Number(required(flags, "ttl-seconds"));
+      if (!Number.isInteger(ttlSeconds) || ttlSeconds <= 0) {
+        throw new ApexError("APEX_USAGE", "--ttl-seconds must be a positive integer", EXIT_CODES.usage);
+      }
+      const provider = required(flags, "provider");
+      if (provider !== "bicep" && provider !== "terraform") {
+        throw new ApexError("APEX_USAGE", "--provider must be bicep or terraform", EXIT_CODES.usage);
+      }
+      const runtime = await createFileProviderRuntime(root);
+      return exportProviderTransfer(
+        root,
+        required(flags, "file"),
+        {
+          previewHash: required(flags, "preview"),
+          provider,
+          recipient: required(flags, "recipient"),
+          ttlMs: ttlSeconds * 1_000,
+        },
+        { key: await runtime.keyProvider() },
+      );
+    }
+    case "provider transfer-import": {
+      confirmed(flags, "provider transfer-import");
+      const runtime = await createFileProviderRuntime(root);
+      return importProviderTransfer(
+        root,
+        JSON.parse(await readFile(required(flags, "file"), "utf8")) as unknown,
+        required(flags, "recipient"),
+        await runtime.keyProvider(),
+      );
+    }
     case "status":
       return service.status();
     case "task next":
@@ -488,18 +557,41 @@ export async function execute(argv: string[], root = process.cwd()): Promise<unk
       return service.generateIac(required(flags, "task"));
     case "review resolve":
       return service.resolveReview(JSON.parse(await readFile(required(flags, "file"), "utf8")));
-    case "gate decide":
+    case "gate decide": {
+      const mechanism = flags.mechanism ?? "tty";
+      if (mechanism !== "tty" && mechanism !== "github-environment") {
+        throw new ApexError("APEX_USAGE", "--mechanism must be tty or github-environment", EXIT_CODES.usage);
+      }
+      if (mechanism === "tty") {
+        return service.decideGateNumber(
+          Number(required(flags, "gate")),
+          required(flags, "decision") as "approved" | "rejected",
+          required(flags, "actor"),
+        );
+      }
+      if (flags.actor !== undefined) {
+        throw new ApexError("APEX_USAGE", "--actor is not accepted for github-environment", EXIT_CODES.usage);
+      }
+      const githubContext = githubApprovalContext(process.env);
       return service.decideGateNumber(
         Number(required(flags, "gate")),
         required(flags, "decision") as "approved" | "rejected",
-        required(flags, "actor"),
+        `github:${githubContext.actorId}:${githubContext.actor}`,
+        { mechanism, githubContext },
       );
+    }
     case "validate":
       return service.validate();
     case "preview":
+      if (flags.recipient === true || Array.isArray(flags.recipient) || flags.recipient === "") {
+        throw new ApexError("APEX_USAGE", "--recipient must be a nonempty identity", EXIT_CODES.usage);
+      }
       return service.preview({
         operation: required(flags, "operation") as "apply" | "destroy",
         provider: required(flags, "provider") as "fake" | "bicep" | "terraform",
+        ...(typeof flags.recipient === "string" && flags.recipient.length > 0
+          ? { recipientIdentity: flags.recipient }
+          : {}),
       });
     case "deploy":
       return service.deploy(typeof flags.preview === "string" ? flags.preview : undefined);
@@ -525,6 +617,7 @@ export async function execute(argv: string[], root = process.cwd()): Promise<unk
         workflowId: required(flags, "workflow"),
         sender: required(flags, "sender"),
         recipient: required(flags, "recipient"),
+        ...(typeof flags.environment === "string" ? { approvalEnvironment: flags.environment } : {}),
         currentHead: required(flags, "head"),
         ttlMs: Number(required(flags, "ttl")),
       });

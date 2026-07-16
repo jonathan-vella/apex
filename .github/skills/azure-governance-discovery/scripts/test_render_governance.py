@@ -342,6 +342,59 @@ class TestEmitPreviewMd:
         # Consolidated count note
         assert "2 assignments" in content
 
+    def test_parameterized_blocker_variants_are_not_collapsed(self, tmp_path, envelope):
+        base = {
+            "policy_id": "test-sku",
+            "display_name": "Block VM SKU Sizes",
+            "effect": "deny",
+            "scope": "mg-root",
+            "assignment_display_name": "Deny policies",
+            "assignment_id": "deny-assignment",
+            "classification": "blocker",
+            "category": "Compute",
+            "resource_types": [],
+            "required_value": None,
+            "azurePropertyPath": "",
+            "bicepPropertyPath": "",
+            "exemption": None,
+            "override": None,
+        }
+        envelope["findings"] = [
+            {**base, "assignment_parameters": {"BlockedSKUs": ["Standard_HB"]}},
+            {**base, "assignment_parameters": {"BlockedSKUs": ["Standard_NC"]}},
+        ]
+        out_path = tmp_path / "04-governance-constraints.json"
+        out_path.write_text(json.dumps(envelope))
+        content = render_governance.emit_preview_md(envelope, out_path).read_text()
+        assert content.count("### Block VM SKU Sizes") == 2
+        assert "Standard_HB" in content
+        assert "Standard_NC" in content
+
+    def test_location_constraints_and_security_exceptions_are_rendered(self, tmp_path, envelope):
+        envelope["location_constraints"] = [
+            {
+                "display_name": "Allowed locations",
+                "effect": "audit",
+                "enforcement_mode": "Default",
+                "allowed_locations": ["swedencentral", "westeurope"],
+            }
+        ]
+        envelope["security_exceptions"] = [
+            {
+                "id": "runner-ip",
+                "control": "public-network-access",
+                "expires_at": "2026-07-16T12:50:34Z",
+                "scope": {"environment": "qualification", "workload": "backend"},
+            }
+        ]
+        out_path = tmp_path / "04-governance-constraints.json"
+        out_path.write_text(json.dumps(envelope))
+        content = render_governance.emit_preview_md(envelope, out_path).read_text()
+        assert "### Location Governance" in content
+        assert "`swedencentral`" in content
+        assert "## Approved Security Exceptions" in content
+        assert "`runner-ip`" in content
+
     def test_bicep_property_path_type_annotated(self, tmp_path, envelope):
         """Bicep Property Path 'type' should be annotated as resource-type constraint."""
         envelope["findings"] = [{
