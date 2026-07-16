@@ -13,7 +13,7 @@ import {
   importStateTransfer,
   type StateTransferBundle,
 } from "../state-transfer.js";
-import { tempRoot, writeJson } from "./helpers.js";
+import { prepareValidatedRun, tempRoot, writeJson } from "./helpers.js";
 
 const instant = new Date("2026-07-15T10:00:00.000Z");
 const key = Buffer.alloc(32, 9);
@@ -43,6 +43,7 @@ async function sourceState(clock = instant): Promise<SourceState> {
     branch: "qualification",
     commit: "candidate-commit",
     workflowId: "qualification.yml",
+    approvalEnvironment: "vnext-qualification",
     sender: "local",
     recipient: "ci",
     currentHead: "candidate-commit",
@@ -100,6 +101,7 @@ test("state export is deterministic and includes only selected state plus recurs
     instant,
   );
   const paths = bundle.files.map(({ path }) => path);
+  assert.equal(bundle.bindings.approvalEnvironment, "vnext-qualification");
   assert.deepEqual(paths, [...paths].sort());
   assert(paths.includes(`objects/sha256/${parentHash.slice(0, 2)}/${parentHash.slice(2)}`));
   assert(paths.includes(`objects/sha256/${leafHash.slice(0, 2)}/${leafHash.slice(2)}`));
@@ -192,6 +194,7 @@ test("state export permits only exact secure policy assertions", async () => {
       hardcodedSecretsAllowed: false,
       secretValuesInGitAllowed: false,
     },
+    evidence: { genericSecretScanRequired: true },
     telemetry: { authorizationEvidenceSeparable: true },
   });
   await assert.doesNotReject(
@@ -203,6 +206,7 @@ test("state export permits only exact secure policy assertions", async () => {
       hardcodedSecretsAllowed: true,
       secretValuesInGitAllowed: false,
     },
+    evidence: { genericSecretScanRequired: true },
     telemetry: { authorizationEvidenceSeparable: true },
   });
   await assert.rejects(
@@ -215,6 +219,20 @@ test("state export permits only exact secure policy assertions", async () => {
       hardcodedSecretsAllowed: false,
       secretValuesInGitAllowed: false,
     },
+    evidence: { genericSecretScanRequired: false },
+    telemetry: { authorizationEvidenceSeparable: true },
+  });
+  await assert.rejects(
+    createStateTransferBundle(source.root, { claimHash: source.claimHash, recipient: "ci", ttlMs: 1 }, instant),
+    /runtime\/defaults\.v1\.json\/evidence\/genericSecretScanRequired/,
+  );
+
+  await writeJson(defaultsPath, {
+    securityInvariants: {
+      hardcodedSecretsAllowed: false,
+      secretValuesInGitAllowed: false,
+    },
+    evidence: { genericSecretScanRequired: true },
     telemetry: { authorizationEvidenceSeparable: true },
   });
   await writeJson(join(source.root, ".apex", "runtime", "other.json"), { hardcodedSecretsAllowed: false });
@@ -301,8 +319,10 @@ test("state import preflights conflicts, permits idempotence, and preserves writ
   const accepted = (await destinationService.acceptWriterTransfer(source.claimHash, "ci", "candidate-commit")) as {
     ownerId: string;
     ownerEpoch: number;
+    approvalEnvironment?: string;
   };
   assert.deepEqual({ ownerId: accepted.ownerId, ownerEpoch: accepted.ownerEpoch }, { ownerId: "ci", ownerEpoch: 2 });
+  assert.equal(accepted.approvalEnvironment, "vnext-qualification");
 
   const conflictDestination = await tempRoot();
   await mkdir(join(conflictDestination, ".apex"), { recursive: true });
@@ -312,6 +332,46 @@ test("state import preflights conflicts, permits idempotence, and preserves writ
     /destination differs: config.json/,
   );
   await assert.rejects(readFile(join(conflictDestination, ".apex", "apex.lock.json")), /ENOENT/);
+});
+
+test("post-preview state transfer resumes in a fresh workspace and deploys the exact preview", async () => {
+  const sourceRoot = await tempRoot();
+  const source = new ApexService(sourceRoot, { clock: () => instant });
+  const initialized = await source.init({ projectId: "demo" });
+  await prepareValidatedRun(source, initialized.runId, "bicep");
+  const preview = await source.preview({ operation: "apply", provider: "fake" });
+  const transfer = (await source.createWriterTransfer({
+    repository: "owner/repository",
+    branch: "qualification",
+    commit: "candidate-commit",
+    workflowId: "qualification.yml",
+    sender: "local",
+    recipient: "ci",
+    currentHead: "candidate-commit",
+    ttlMs: 60 * 60 * 1_000,
+  })) as { hash: string };
+  const envelopePath = join(sourceRoot, "post-preview-state.json");
+  await exportStateTransfer(
+    sourceRoot,
+    envelopePath,
+    { claimHash: transfer.hash, recipient: "ci", ttlMs: 30 * 60 * 1_000 },
+    { key, now: () => instant, nonce },
+  );
+
+  const destination = await tempRoot();
+  await importStateTransfer(
+    destination,
+    JSON.parse(await readFile(envelopePath, "utf8")) as EncryptedEnvelope,
+    "ci",
+    key,
+    () => instant,
+  );
+  const resumed = new ApexService(destination, { clock: () => instant });
+  await resumed.acceptWriterTransfer(transfer.hash, "ci", "candidate-commit");
+  const approval = await resumed.decideGateNumber(4, "approved", "tester");
+  assert.equal(approval.writerTransferClaimHash, transfer.hash);
+  const deployed = await resumed.deploy(preview.previewHash);
+  assert.equal((deployed.operation as { previewHash?: unknown }).previewHash, preview.previewHash);
 });
 
 test("state transfer CLI adapters require confirmation and use the provider runtime key", async () => {

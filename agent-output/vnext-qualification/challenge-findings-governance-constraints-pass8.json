@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "challenged_artifact": "agent-output/vnext-qualification/04-governance-constraints.md",
+  "artifact_type": "governance-constraints",
+  "review_focus": "governance-reconciliation",
+  "pass_number": 8,
+  "challenge_summary": "Pass-8 terminal hash refresh reaffirms the approved pass-7 governance reconciliation. Since pass 7, the only tracked byte changes are final LF additions to infra/bicep/vnext-qualification/bootstrap.bicep and agent-output/vnext-qualification/challenge-findings-governance-constraints-pass3.json; git diff --ignore-space-at-eol is clean for both files and both now end in 0a. The generated untracked infra/bicep/vnext-qualification/main.json remains absent. The challenged governance artifact and required challenger inputs retain the same hashes as pass 7, so semantic content, prior security and governance conclusions, and the low-risk zero-finding approval are unchanged. Live cloud execution, including Azure Policy evaluation during deploy, GitHub approval/OIDC/RBAC, apply, destroy, and authority-return behavior, remains residual risk because no cloud mutation or execution was performed in this review-only pass.",
+  "compact_for_parent": "Pass 8 (governance-reconciliation) | LOW | 0 must_fix, 0 should_fix | Pass 7 reaffirmed; LF-only refresh",
+  "risk_level": "low",
+  "must_fix_count": 0,
+  "should_fix_count": 0,
+  "suggestion_count": 0,
+  "findings": [],
+  "current_hashes": {
+    "agent-output/vnext-qualification/04-governance-constraints.md": "0553cc63dd0cf42119b723fb6013a183828dd5cfdbfc8d37f307caa94f35a54f",
+    ".github/skills/azure-defaults/references/adversarial-checklists.md": "6a7c048e28c7e0f09566eb7a1a4329579cf60fb19d435caf0a22423f6cb06c7b",
+    ".github/skills/azure-defaults/references/adversarial-review-protocol.md": "55197255ea03bb97e0e33592de94ba1bafbb183cf7f83503d22a2b35f0a2071c",
+    ".github/agents/_subagents/challenger-review-subagent.agent.md": "bafc28d2f2b6d9b6b817094a57935ab0bf2a5308f219ca696c39eb7cc7955264",
+    "agent-output/vnext-qualification/04-governance-constraints.json": "747cff346aa70fa5e65697e535035d2721583d6e010df66d7635f6e3f343cd98",
+    "infra/bicep/vnext-qualification/bootstrap.bicep": "c34f15449ed37743629ef20059b479cfe6fe6cd12208a5514a18d200ff3725cd",
+    "agent-output/vnext-qualification/challenge-findings-governance-constraints-pass3.json": "676783fd8c8911eaf36939d9c53059ea3dff84d3ec3e6925e141a7fa951e27d8",
+    "agent-output/vnext-qualification/challenge-findings-governance-constraints-pass7.json": "d52fa6cd3574280e547d3f733e5572de6eb879873c13642eec2c4a6ae31189ab"
+  },
+  "semantic_verification": {
+    "tracked_changes_since_pass7": [
+      "Final LF added to infra/bicep/vnext-qualification/bootstrap.bicep",
+      "Final LF added to agent-output/vnext-qualification/challenge-findings-governance-constraints-pass3.json"
+    ],
+    "diff_ignore_space_at_eol_exit_code": 0,
+    "main_json_absent": true,
+    "pass7_reaffirmed": true,
+    "cloud_execution_residual_risk": true
+  },
+  "cache_inputs": {
+    "artifact_sha": "0553cc63dd0cf42119b723fb6013a183828dd5cfdbfc8d37f307caa94f35a54f",
+    "checklists_sha": "6a7c048e28c7e0f09566eb7a1a4329579cf60fb19d435caf0a22423f6cb06c7b",
+    "protocol_sha": "55197255ea03bb97e0e33592de94ba1bafbb183cf7f83503d22a2b35f0a2071c",
+    "subagent_sha": "bafc28d2f2b6d9b6b817094a57935ab0bf2a5308f219ca696c39eb7cc7955264",
+    "model": "GPT-5.5",
+    "artifact_hash": "160a2716c2d031f29a5c8a4d2351cccd20bddd7b01da071c774ee61f847e9bad"
+  }
+}

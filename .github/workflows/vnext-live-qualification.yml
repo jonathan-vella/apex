@@ -1,0 +1,541 @@
+# Manual live qualification ceremony for an exact vNext candidate commit.
+# A maintainer dispatches it, then the protected Environment ceremony authorizes Gate 4.
+name: vNext Live Qualification
+run-name: vnext-live-${{ inputs.track }}-${{ inputs.operation }}-${{ inputs.handoff_id }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      track:
+        description: IaC provider track
+        required: true
+        type: choice
+        options: [bicep, terraform]
+      operation:
+        description: Exact operation to qualify
+        required: true
+        type: choice
+        options: [apply, destroy]
+      handoff_id:
+        description: Local authority handoff UUID
+        required: true
+        type: string
+      candidate_sha:
+        description: Exact lowercase candidate commit SHA
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: vnext-live-${{ inputs.handoff_id }}
+  cancel-in-progress: false
+
+env:
+  LEFTHOOK: "0"
+  AZURE_CORE_OUTPUT: none
+  APEX_GITHUB_ENVIRONMENT: vnext-qualification
+
+jobs:
+  validate_dispatch:
+    name: Validate exact dispatch
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.candidate_sha }}
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Validate immutable dispatch binding
+        env:
+          CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+          HANDOFF_ID: ${{ inputs.handoff_id }}
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = "refs/heads/feat/apex-vnext-rewrite"
+          test "$GITHUB_RUN_ATTEMPT" = "1"
+          node -e 'const [sha,handoff]=process.argv.slice(1); if(!/^[0-9a-f]{40}$/.test(sha)||!require("node:crypto").randomUUID||!require("node:util").types) process.exit(1); if(!/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(handoff)) process.exit(1)' "$CANDIDATE_SHA" "$HANDOFF_ID"
+          test "$CANDIDATE_SHA" = "$GITHUB_SHA"
+          test "$CANDIDATE_SHA" = "$(git rev-parse HEAD)"
+
+  preview:
+    name: Preview and hand off authority
+    needs: validate_dispatch
+    permissions:
+      contents: read
+      id-token: write
+    runs-on: ubuntu-latest
+    environment: vnext-qualification
+    timeout-minutes: 45
+    outputs:
+      preview_hash: ${{ steps.preview.outputs.preview_hash }}
+      claim_hash: ${{ steps.handoff.outputs.claim_hash }}
+      artifact_name: ${{ steps.names.outputs.authority_artifact }}
+      artifact_digest: ${{ steps.authority_upload.outputs.artifact-digest }}
+      apply_recipient: ${{ steps.names.outputs.apply_recipient }}
+      terraform_lock_hash: ${{ steps.provider.outputs.lock_hash }}
+      preview_runner_ip: ${{ steps.ip.outputs.address }}
+    env:
+      APEX_CONTROL_RESOURCE_GROUP: ${{ vars.APEX_CONTROL_RESOURCE_GROUP }}
+      APEX_BACKEND_STORAGE_ACCOUNT: ${{ vars.APEX_BACKEND_STORAGE_ACCOUNT }}
+      APEX_BICEP_RESOURCE_GROUP: ${{ vars.APEX_BICEP_RESOURCE_GROUP }}
+      APEX_TERRAFORM_RESOURCE_GROUP: ${{ vars.APEX_TERRAFORM_RESOURCE_GROUP }}
+      APEX_LOG_ANALYTICS_WORKSPACE_RESOURCE_ID: ${{ vars.APEX_LOG_ANALYTICS_WORKSPACE_RESOURCE_ID }}
+      APEX_LOCATION: ${{ vars.APEX_LOCATION }}
+      APEX_PROJECT_NAME: ${{ vars.APEX_PROJECT_NAME }}
+      APEX_QUALIFICATION_TAGS_JSON: ${{ vars.APEX_QUALIFICATION_TAGS_JSON }}
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.candidate_sha }}
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Setup Node repository
+        uses: ./.github/actions/setup-node-repo
+      - name: Build vNext
+        run: npm run build:vnext
+      - name: Azure OIDC login
+        uses: azure/login@v3
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.15.8
+          terraform_wrapper: false
+      - name: Acquire ARM OIDC token
+        id: arm_oidc
+        uses: actions/github-script@v8
+        with:
+          result-encoding: string
+          script: |
+            const token = await core.getIDToken("api://AzureADTokenExchange");
+            core.setSecret(token);
+            return token;
+      - name: Validate protected inputs
+        env:
+          APEX_PLAN_TRANSPORT_KEY: ${{ secrets.APEX_PLAN_TRANSPORT_KEY }}
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        run: |
+          set -euo pipefail
+          for name in APEX_CONTROL_RESOURCE_GROUP APEX_BACKEND_STORAGE_ACCOUNT APEX_BICEP_RESOURCE_GROUP APEX_TERRAFORM_RESOURCE_GROUP APEX_LOG_ANALYTICS_WORKSPACE_RESOURCE_ID APEX_LOCATION APEX_PROJECT_NAME APEX_QUALIFICATION_TAGS_JSON; do
+            test -n "${!name:-}"
+          done
+          node tools/scripts/validate-vnext-qualification-context.mjs
+          test "$(az account show --query id --output tsv)" = "$AZURE_SUBSCRIPTION_ID"
+          node -e 'const value=process.env.APEX_PLAN_TRANSPORT_KEY??""; const bytes=Buffer.from(value,"base64"); if(bytes.length!==32||bytes.toString("base64")!==value) process.exit(1)'
+      - name: Define authority names
+        id: names
+        run: |
+          set -euo pipefail
+          preview_recipient="github-actions:${GITHUB_REPOSITORY}:${GITHUB_RUN_ID}:${GITHUB_RUN_ATTEMPT}:preview"
+          apply_recipient="github-actions:${GITHUB_REPOSITORY}:${GITHUB_RUN_ID}:${GITHUB_RUN_ATTEMPT}:apply"
+          authority_artifact="vnext-authority-${{ inputs.handoff_id }}-${{ inputs.track }}-${{ inputs.operation }}"
+          printf 'preview_recipient=%s\napply_recipient=%s\nauthority_artifact=%s\n' "$preview_recipient" "$apply_recipient" "$authority_artifact" >> "$GITHUB_OUTPUT"
+      - name: Resolve runner IPv4
+        id: ip
+        run: |
+          set -euo pipefail
+          ip="$(node -e 'fetch("https://api.ipify.org").then((r)=>r.text()).then((v)=>{v=v.trim();if(!require("node:net").isIPv4(v))process.exit(1);process.stdout.write(v)})')"
+          printf 'address=%s\n' "$ip" >> "$GITHUB_OUTPUT"
+      - name: Open temporary firewall rule
+        run: |
+          set -euo pipefail
+          node tools/scripts/validate-vnext-qualification-context.mjs --security-exception-only
+          az storage account update --resource-group "$APEX_CONTROL_RESOURCE_GROUP" --name "$APEX_BACKEND_STORAGE_ACCOUNT" --set tags.SecurityControl=Ignore --only-show-errors --output none
+          az storage account update --resource-group "$APEX_CONTROL_RESOURCE_GROUP" --name "$APEX_BACKEND_STORAGE_ACCOUNT" --public-network-access Enabled --only-show-errors --output none
+          az storage account network-rule add --resource-group "$APEX_CONTROL_RESOURCE_GROUP" --account-name "$APEX_BACKEND_STORAGE_ACCOUNT" --ip-address "${{ steps.ip.outputs.address }}/32" --only-show-errors --output none
+          for attempt in 1 2 3 4 5; do
+            if az storage blob list --auth-mode login --account-name "$APEX_BACKEND_STORAGE_ACCOUNT" --container-name handoff --num-results 1 --only-show-errors --output none; then exit 0; fi
+            test "$attempt" -lt 5
+            node -e 'setTimeout(()=>{}, Number(process.argv[1]))' "$((attempt * 5000))"
+          done
+          exit 1
+      - name: Import and accept preview authority
+        id: accept
+        env:
+          APEX_PLAN_TRANSPORT_KEY: ${{ secrets.APEX_PLAN_TRANSPORT_KEY }}
+          PREVIEW_RECIPIENT: ${{ steps.names.outputs.preview_recipient }}
+        run: |
+          set -euo pipefail
+          mkdir -p apex-live/evidence
+          for attempt in 1 2 3 4 5; do
+            if az storage blob download --auth-mode login --account-name "$APEX_BACKEND_STORAGE_ACCOUNT" --container-name handoff --name "incoming/${{ inputs.handoff_id }}.json" --file apex-live/incoming.json --overwrite true --only-show-errors --output none; then break; fi
+            test "$attempt" -lt 5
+            node -e 'setTimeout(()=>{}, Number(process.argv[1]))' "$((attempt * 5000))"
+          done
+          node packages/cli/dist/cli.js state transfer-import --file apex-live/incoming.json --recipient "$PREVIEW_RECIPIENT" --yes --json > apex-live/evidence/state-import.json
+          claim_hash="$(jq -er '.result.claimHash' apex-live/evidence/state-import.json)"
+          node packages/cli/dist/cli.js writer transfer-accept --claim "$claim_hash" --recipient "$PREVIEW_RECIPIENT" --head "$GITHUB_SHA" --json > apex-live/evidence/writer-accept.json
+          printf 'accepted=true\ninitial_claim_hash=%s\n' "$claim_hash" >> "$GITHUB_OUTPUT"
+          test "$(node packages/cli/dist/cli.js status --json | jq -r '.result.run.iacTool')" = "${{ inputs.track }}"
+          test "$GITHUB_SHA" = "$(git rev-parse HEAD)"
+          az storage blob delete --auth-mode login --account-name "$APEX_BACKEND_STORAGE_ACCOUNT" --container-name handoff --name "incoming/${{ inputs.handoff_id }}.json" --only-show-errors --output none
+      - name: Generate deterministic provider configuration
+        id: provider
+        env:
+          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          ARM_OIDC_TOKEN: ${{ steps.arm_oidc.outputs.result }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          ARM_USE_AZUREAD: "true"
+          ARM_USE_OIDC: "true"
+          TRACK: ${{ inputs.track }}
+        run: |
+          set -euo pipefail
+          mkdir -p apex-live/plans
+          if test "$TRACK" = bicep; then
+            printf 'lock_hash=\n' >> "$GITHUB_OUTPUT"
+            jq -n --arg project "$APEX_PROJECT_NAME" --arg location "$APEX_LOCATION" --arg workspace "$APEX_LOG_ANALYTICS_WORKSPACE_RESOURCE_ID" --argjson tags "$APEX_QUALIFICATION_TAGS_JSON" '{"$schema":"https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",contentVersion:"1.0.0.0",parameters:{projectName:{value:$project},environment:{value:"qualification"},location:{value:$location},tags:{value:$tags},logAnalyticsWorkspaceResourceId:{value:$workspace}}}' > apex-live/main.parameters.json
+            jq -n --arg rg "$APEX_BICEP_RESOURCE_GROUP" --arg template "$GITHUB_WORKSPACE/infra/bicep/vnext-qualification/main.bicep" --arg params "$GITHUB_WORKSPACE/apex-live/main.parameters.json" '{bicep:{resourceGroup:$rg,deploymentName:"vnext-qualification",stackName:"vnext-qualification",templateFile:$template,parametersFile:$params,actionOnUnmanage:"deleteResources",ownershipAuthorizesDeleteResources:true,dedicatedSandboxResourceGroup:true,denySettingsMode:"denyDelete"}}' > apex-live/provider-config.json
+          else
+            printf 'resource_group_name = "%s"\nstorage_account_name = "%s"\ncontainer_name = "tfstate"\nkey = "vnext-qualification.tfstate"\nuse_oidc = true\nuse_azuread_auth = true\n' "$APEX_CONTROL_RESOURCE_GROUP" "$APEX_BACKEND_STORAGE_ACCOUNT" > apex-live/backend.hcl
+            printf 'TF_CLI_ARGS_init=-backend-config=%s\n' "$GITHUB_WORKSPACE/apex-live/backend.hcl" >> "$GITHUB_ENV"
+            printf 'TF_VAR_project_name=%s\nTF_VAR_environment=qualification\nTF_VAR_location=%s\nTF_VAR_resource_group_name=%s\nTF_VAR_log_analytics_workspace_resource_id=%s\nTF_VAR_tags=%s\n' "$APEX_PROJECT_NAME" "$APEX_LOCATION" "$APEX_TERRAFORM_RESOURCE_GROUP" "$APEX_LOG_ANALYTICS_WORKSPACE_RESOURCE_ID" "$APEX_QUALIFICATION_TAGS_JSON" >> "$GITHUB_ENV"
+            export TF_VAR_project_name="$APEX_PROJECT_NAME" TF_VAR_environment=qualification TF_VAR_location="$APEX_LOCATION" TF_VAR_resource_group_name="$APEX_TERRAFORM_RESOURCE_GROUP" TF_VAR_log_analytics_workspace_resource_id="$APEX_LOG_ANALYTICS_WORKSPACE_RESOURCE_ID" TF_VAR_tags="$APEX_QUALIFICATION_TAGS_JSON"
+            lock_hash="$(sha256sum infra/terraform/vnext-qualification/.terraform.lock.hcl | cut -d ' ' -f 1)"
+            terraform -chdir=infra/terraform/vnext-qualification init -input=false -backend-config="$GITHUB_WORKSPACE/apex-live/backend.hcl"
+            test "$(sha256sum infra/terraform/vnext-qualification/.terraform.lock.hcl | cut -d ' ' -f 1)" = "$lock_hash"
+            printf 'lock_hash=%s\n' "$lock_hash" >> "$GITHUB_OUTPUT"
+            jq -n --arg cwd "infra/terraform/vnext-qualification" --arg target "$APEX_TERRAFORM_RESOURCE_GROUP" --arg plans "$GITHUB_WORKSPACE/apex-live/plans" --arg lock "$lock_hash" '{terraform:{cwd:$cwd,target:$target,planDirectory:$plans,lockfileHash:$lock}}' > apex-live/provider-config.json
+          fi
+      - name: Refresh ARM OIDC token for preview
+        id: preview_oidc
+        uses: actions/github-script@v8
+        with:
+          result-encoding: string
+          script: |
+            const token = await core.getIDToken("api://AzureADTokenExchange");
+            core.setSecret(token);
+            return token;
+      - name: Create exact preview
+        id: preview
+        env:
+          APEX_PLAN_TRANSPORT_KEY: ${{ secrets.APEX_PLAN_TRANSPORT_KEY }}
+          APPLY_RECIPIENT: ${{ steps.names.outputs.apply_recipient }}
+          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          ARM_OIDC_TOKEN: ${{ steps.preview_oidc.outputs.result }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          ARM_USE_AZUREAD: "true"
+          ARM_USE_OIDC: "true"
+        run: |
+          set -euo pipefail
+          node packages/cli/dist/cli.js preview --operation "${{ inputs.operation }}" --provider "${{ inputs.track }}" --recipient "$APPLY_RECIPIENT" --provider-config apex-live/provider-config.json --json > apex-live/evidence/preview.json
+          preview_hash="$(jq -er '.result.previewHash' apex-live/evidence/preview.json)"
+          printf 'preview_hash=%s\n' "$preview_hash" >> "$GITHUB_OUTPUT"
+      - name: Transfer preview authority to apply
+        id: handoff
+        env:
+          APEX_PLAN_TRANSPORT_KEY: ${{ secrets.APEX_PLAN_TRANSPORT_KEY }}
+          PREVIEW_RECIPIENT: ${{ steps.names.outputs.preview_recipient }}
+          APPLY_RECIPIENT: ${{ steps.names.outputs.apply_recipient }}
+          PREVIEW_HASH: ${{ steps.preview.outputs.preview_hash }}
+        run: |
+          set -euo pipefail
+          test -n "$PREVIEW_HASH"
+          node packages/cli/dist/cli.js writer transfer-create --repo "$GITHUB_REPOSITORY" --branch "$GITHUB_REF_NAME" --commit "$GITHUB_SHA" --workflow "$GITHUB_WORKFLOW_REF" --sender "$PREVIEW_RECIPIENT" --recipient "$APPLY_RECIPIENT" --environment vnext-qualification --head "$GITHUB_SHA" --ttl 5400000 --json > apex-live/evidence/apply-claim.json
+          claim_hash="$(jq -er '.result.hash' apex-live/evidence/apply-claim.json)"
+          printf 'claim_hash=%s\ncreated=true\n' "$claim_hash" >> "$GITHUB_OUTPUT"
+          node packages/cli/dist/cli.js state transfer-export --claim "$claim_hash" --recipient "$APPLY_RECIPIENT" --ttl-seconds 3600 --file apex-live/authority-state.json --yes --json > apex-live/evidence/state-export.json
+          node packages/cli/dist/cli.js provider transfer-export --preview "$PREVIEW_HASH" --provider "${{ inputs.track }}" --recipient "$APPLY_RECIPIENT" --ttl-seconds 3600 --file apex-live/provider-authority.json --yes --json > apex-live/evidence/provider-export.json
+      - name: Upload encrypted apply authority
+        id: authority_upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.names.outputs.authority_artifact }}
+          path: |
+            apex-live/authority-state.json
+            apex-live/provider-authority.json
+          retention-days: 1
+          compression-level: 0
+          include-hidden-files: false
+          if-no-files-found: error
+      - name: Record authority artifact digest
+        run: jq -n --arg artifact '${{ steps.names.outputs.authority_artifact }}' --arg digest '${{ steps.authority_upload.outputs.artifact-digest }}' --arg preview '${{ steps.preview.outputs.preview_hash }}' --arg claim '${{ steps.handoff.outputs.claim_hash }}' --arg recipient '${{ steps.names.outputs.apply_recipient }}' '{artifact:$artifact,digest:$digest,previewHash:$preview,claimHash:$claim,recipient:$recipient}' > apex-live/evidence/authority-artifact.json
+      - name: Recover preview authority on pre-handoff failure
+        if: failure() && steps.accept.outputs.accepted == 'true' && steps.handoff.outputs.created != 'true'
+        env:
+          APEX_PLAN_TRANSPORT_KEY: ${{ secrets.APEX_PLAN_TRANSPORT_KEY }}
+          PREVIEW_RECIPIENT: ${{ steps.names.outputs.preview_recipient }}
+          LOCAL_RECIPIENT: local:${{ inputs.handoff_id }}
+        run: |
+          set -euo pipefail
+          node packages/cli/dist/cli.js writer transfer-create --repo "$GITHUB_REPOSITORY" --branch "$GITHUB_REF_NAME" --commit "$GITHUB_SHA" --workflow "$GITHUB_WORKFLOW_REF" --sender "$PREVIEW_RECIPIENT" --recipient "$LOCAL_RECIPIENT" --head "$GITHUB_SHA" --ttl 3600000 --json > apex-live/recovery-claim.json
+          claim_hash="$(jq -er '.result.hash' apex-live/recovery-claim.json)"
+          node packages/cli/dist/cli.js state transfer-export --claim "$claim_hash" --recipient "$LOCAL_RECIPIENT" --ttl-seconds 3000 --file apex-live/preview-failure-return.json --yes --json
+          az storage blob upload --auth-mode login --account-name "$APEX_BACKEND_STORAGE_ACCOUNT" --container-name handoff --name "return/${{ inputs.handoff_id }}/${{ inputs.track }}-${{ inputs.operation }}-preview-failure.json" --file apex-live/preview-failure-return.json --overwrite false --only-show-errors --output none
+      - name: Upload preview failure fallback
+        if: failure() && steps.accept.outputs.accepted == 'true' && steps.handoff.outputs.created != 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: vnext-return-${{ inputs.handoff_id }}-${{ inputs.track }}-${{ inputs.operation }}-preview-failure
+          path: apex-live/preview-failure-return.json
+          retention-days: 1
+          compression-level: 0
+          include-hidden-files: false
+          if-no-files-found: error
+      - name: Remove temporary firewall rule
+        if: always()
+        run: |
+          set +e
+          az storage account network-rule remove --resource-group "$APEX_CONTROL_RESOURCE_GROUP" --account-name "$APEX_BACKEND_STORAGE_ACCOUNT" --ip-address "${{ steps.ip.outputs.address }}/32" --only-show-errors --output none
+          remove_status=$?
+          az storage account update --resource-group "$APEX_CONTROL_RESOURCE_GROUP" --name "$APEX_BACKEND_STORAGE_ACCOUNT" --public-network-access Disabled --only-show-errors --output none
+          disable_status=$?
+          az storage account update --resource-group "$APEX_CONTROL_RESOURCE_GROUP" --name "$APEX_BACKEND_STORAGE_ACCOUNT" --remove tags.SecurityControl --only-show-errors --output none
+          exclusion_status=$?
+          endpoint_state="$(az storage account show --resource-group "$APEX_CONTROL_RESOURCE_GROUP" --name "$APEX_BACKEND_STORAGE_ACCOUNT" --query '{publicNetworkAccess:publicNetworkAccess,securityControl:tags.SecurityControl}' --output json 2>/dev/null)"
+          verify_status=$?
+          public_access="$(jq -r '.publicNetworkAccess // ""' <<<"$endpoint_state" 2>/dev/null)"
+          security_control="$(jq -r '.securityControl // ""' <<<"$endpoint_state" 2>/dev/null)"
+          if [[ "$public_access" != "Disabled" || -n "$security_control" ]]; then verify_status=1; fi
+          status=0
+          if [[ "$remove_status" -ne 0 || "$disable_status" -ne 0 || "$exclusion_status" -ne 0 || "$verify_status" -ne 0 ]]; then status=1; fi
+          mkdir -p apex-live/evidence
+          jq -n --arg job preview --arg ip "${{ steps.ip.outputs.address }}/32" --arg publicAccess "$public_access" --arg securityControl "$security_control" --argjson removed "$( [[ "$remove_status" -eq 0 ]] && printf true || printf false )" --argjson restored "$( [[ "$disable_status" -eq 0 && "$exclusion_status" -eq 0 && "$verify_status" -eq 0 ]] && printf true || printf false )" '{job:$job,rule:$ip,removed:$removed,restored:$restored,publicNetworkAccess:$publicAccess,securityControl:$securityControl}' > apex-live/evidence/cleanup.json
+          exit "$status"
+      - name: Upload preview evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vnext-preview-evidence-${{ inputs.handoff_id }}-${{ inputs.track }}-${{ inputs.operation }}
+          path: apex-live/evidence/
+          retention-days: 1
+          compression-level: 0
+          include-hidden-files: false
+          if-no-files-found: error
+
+  apply:
+    name: Approve Gate 4 and deploy exact preview
+    needs: preview
+    if: ${{ always() && needs.preview.outputs.artifact_digest != '' }}
+    permissions:
+      contents: read
+      id-token: write
+    runs-on: ubuntu-latest
+    environment: vnext-qualification
+    timeout-minutes: 60
+    env:
+      APEX_CONTROL_RESOURCE_GROUP: ${{ vars.APEX_CONTROL_RESOURCE_GROUP }}
+      APEX_BACKEND_STORAGE_ACCOUNT: ${{ vars.APEX_BACKEND_STORAGE_ACCOUNT }}
+      APEX_BICEP_RESOURCE_GROUP: ${{ vars.APEX_BICEP_RESOURCE_GROUP }}
+      APEX_TERRAFORM_RESOURCE_GROUP: ${{ vars.APEX_TERRAFORM_RESOURCE_GROUP }}
+      APEX_LOG_ANALYTICS_WORKSPACE_RESOURCE_ID: ${{ vars.APEX_LOG_ANALYTICS_WORKSPACE_RESOURCE_ID }}
+      APEX_LOCATION: ${{ vars.APEX_LOCATION }}
+      APEX_PROJECT_NAME: ${{ vars.APEX_PROJECT_NAME }}
+      APEX_QUALIFICATION_TAGS_JSON: ${{ vars.APEX_QUALIFICATION_TAGS_JSON }}
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.candidate_sha }}
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Setup Node repository
+        uses: ./.github/actions/setup-node-repo
+      - name: Build vNext
+        run: npm run build:vnext
+      - name: Azure OIDC login
+        uses: azure/login@v3
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - name: Clear preview firewall rule
+        env:
+          PREVIEW_RUNNER_IP: ${{ needs.preview.outputs.preview_runner_ip }}
+        run: |
+          set -euo pipefail
+          node -e 'if(!require("node:net").isIPv4(process.env.PREVIEW_RUNNER_IP??"")) process.exit(1)'
+          rules="$(az storage account show --resource-group "$APEX_CONTROL_RESOURCE_GROUP" --name "$APEX_BACKEND_STORAGE_ACCOUNT" --query 'networkRuleSet.ipRules[].ipAddress' --output json)"
+          if RULES="$rules" node -e 'const rules=JSON.parse(process.env.RULES); const ip=process.env.PREVIEW_RUNNER_IP; process.exit(rules.includes(ip)||rules.includes(`${ip}/32`)?0:1)'; then
+            az storage account network-rule remove --resource-group "$APEX_CONTROL_RESOURCE_GROUP" --account-name "$APEX_BACKEND_STORAGE_ACCOUNT" --ip-address "$PREVIEW_RUNNER_IP/32" --only-show-errors --output none
+          fi
+          rules="$(az storage account show --resource-group "$APEX_CONTROL_RESOURCE_GROUP" --name "$APEX_BACKEND_STORAGE_ACCOUNT" --query 'networkRuleSet.ipRules[].ipAddress' --output json)"
+          RULES="$rules" node -e 'const rules=JSON.parse(process.env.RULES); const ip=process.env.PREVIEW_RUNNER_IP; if(rules.includes(ip)||rules.includes(`${ip}/32`)) process.exit(1)'
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.15.8
+          terraform_wrapper: false
+      - name: Acquire ARM OIDC token
+        id: arm_oidc
+        uses: actions/github-script@v8
+        with:
+          result-encoding: string
+          script: |
+            const token = await core.getIDToken("api://AzureADTokenExchange");
+            core.setSecret(token);
+            return token;
+      - name: Validate protected inputs
+        env:
+          APEX_PLAN_TRANSPORT_KEY: ${{ secrets.APEX_PLAN_TRANSPORT_KEY }}
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        run: |
+          set -euo pipefail
+          for name in APEX_CONTROL_RESOURCE_GROUP APEX_BACKEND_STORAGE_ACCOUNT APEX_BICEP_RESOURCE_GROUP APEX_TERRAFORM_RESOURCE_GROUP APEX_LOG_ANALYTICS_WORKSPACE_RESOURCE_ID APEX_LOCATION APEX_PROJECT_NAME APEX_QUALIFICATION_TAGS_JSON; do test -n "${!name:-}"; done
+          node tools/scripts/validate-vnext-qualification-context.mjs
+          test "$(az account show --query id --output tsv)" = "$AZURE_SUBSCRIPTION_ID"
+          node -e 'const value=process.env.APEX_PLAN_TRANSPORT_KEY??""; const bytes=Buffer.from(value,"base64"); if(bytes.length!==32||bytes.toString("base64")!==value) process.exit(1)'
+      - name: Resolve runner IPv4
+        id: ip
+        run: |
+          set -euo pipefail
+          ip="$(node -e 'fetch("https://api.ipify.org").then((r)=>r.text()).then((v)=>{v=v.trim();if(!require("node:net").isIPv4(v))process.exit(1);process.stdout.write(v)})')"
+          printf 'address=%s\n' "$ip" >> "$GITHUB_OUTPUT"
+      - name: Open temporary firewall rule
+        run: |
+          set -euo pipefail
+          node tools/scripts/validate-vnext-qualification-context.mjs --security-exception-only
+          az storage account update --resource-group "$APEX_CONTROL_RESOURCE_GROUP" --name "$APEX_BACKEND_STORAGE_ACCOUNT" --set tags.SecurityControl=Ignore --only-show-errors --output none
+          az storage account update --resource-group "$APEX_CONTROL_RESOURCE_GROUP" --name "$APEX_BACKEND_STORAGE_ACCOUNT" --public-network-access Enabled --only-show-errors --output none
+          az storage account network-rule add --resource-group "$APEX_CONTROL_RESOURCE_GROUP" --account-name "$APEX_BACKEND_STORAGE_ACCOUNT" --ip-address "${{ steps.ip.outputs.address }}/32" --only-show-errors --output none
+          for attempt in 1 2 3 4 5; do
+            if az storage blob list --auth-mode login --account-name "$APEX_BACKEND_STORAGE_ACCOUNT" --container-name handoff --num-results 1 --only-show-errors --output none; then exit 0; fi
+            test "$attempt" -lt 5
+            node -e 'setTimeout(()=>{}, Number(process.argv[1]))' "$((attempt * 5000))"
+          done
+          exit 1
+      - name: Download encrypted authority
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.preview.outputs.artifact_name }}
+          path: apex-live
+      - name: Import and accept apply authority
+        id: accept
+        env:
+          APEX_PLAN_TRANSPORT_KEY: ${{ secrets.APEX_PLAN_TRANSPORT_KEY }}
+          APPLY_RECIPIENT: ${{ needs.preview.outputs.apply_recipient }}
+          CLAIM_HASH: ${{ needs.preview.outputs.claim_hash }}
+        run: |
+          set -euo pipefail
+          mkdir -p apex-live/evidence apex-live/plans
+          node packages/cli/dist/cli.js state transfer-import --file apex-live/authority-state.json --recipient "$APPLY_RECIPIENT" --yes --json > apex-live/evidence/state-import.json
+          test "$(jq -er '.result.claimHash' apex-live/evidence/state-import.json)" = "$CLAIM_HASH"
+          node packages/cli/dist/cli.js provider transfer-import --file apex-live/provider-authority.json --recipient "$APPLY_RECIPIENT" --yes --json > apex-live/evidence/provider-import.json
+          test "$(jq -er '.result.previewHash' apex-live/evidence/provider-import.json)" = "${{ needs.preview.outputs.preview_hash }}"
+          test "$(jq -er '.result.provider' apex-live/evidence/provider-import.json)" = "${{ inputs.track }}"
+          node packages/cli/dist/cli.js writer transfer-accept --claim "$CLAIM_HASH" --recipient "$APPLY_RECIPIENT" --head "$GITHUB_SHA" --json > apex-live/evidence/writer-accept.json
+          printf 'accepted=true\n' >> "$GITHUB_OUTPUT"
+          test "$(node packages/cli/dist/cli.js status --json | jq -r '.result.run.iacTool')" = "${{ inputs.track }}"
+          test "$GITHUB_SHA" = "$(git rev-parse HEAD)"
+      - name: Generate deterministic provider configuration
+        env:
+          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          ARM_OIDC_TOKEN: ${{ steps.arm_oidc.outputs.result }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          ARM_USE_AZUREAD: "true"
+          ARM_USE_OIDC: "true"
+          TRACK: ${{ inputs.track }}
+          PREVIEW_LOCK_HASH: ${{ needs.preview.outputs.terraform_lock_hash }}
+        run: |
+          set -euo pipefail
+          if test "$TRACK" = bicep; then
+            jq -n --arg project "$APEX_PROJECT_NAME" --arg location "$APEX_LOCATION" --arg workspace "$APEX_LOG_ANALYTICS_WORKSPACE_RESOURCE_ID" --argjson tags "$APEX_QUALIFICATION_TAGS_JSON" '{"$schema":"https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",contentVersion:"1.0.0.0",parameters:{projectName:{value:$project},environment:{value:"qualification"},location:{value:$location},tags:{value:$tags},logAnalyticsWorkspaceResourceId:{value:$workspace}}}' > apex-live/main.parameters.json
+            jq -n --arg rg "$APEX_BICEP_RESOURCE_GROUP" --arg template "$GITHUB_WORKSPACE/infra/bicep/vnext-qualification/main.bicep" --arg params "$GITHUB_WORKSPACE/apex-live/main.parameters.json" '{bicep:{resourceGroup:$rg,deploymentName:"vnext-qualification",stackName:"vnext-qualification",templateFile:$template,parametersFile:$params,actionOnUnmanage:"deleteResources",ownershipAuthorizesDeleteResources:true,dedicatedSandboxResourceGroup:true,denySettingsMode:"denyDelete"}}' > apex-live/provider-config.json
+          else
+            printf 'resource_group_name = "%s"\nstorage_account_name = "%s"\ncontainer_name = "tfstate"\nkey = "vnext-qualification.tfstate"\nuse_oidc = true\nuse_azuread_auth = true\n' "$APEX_CONTROL_RESOURCE_GROUP" "$APEX_BACKEND_STORAGE_ACCOUNT" > apex-live/backend.hcl
+            printf 'TF_CLI_ARGS_init=-backend-config=%s\n' "$GITHUB_WORKSPACE/apex-live/backend.hcl" >> "$GITHUB_ENV"
+            printf 'TF_VAR_project_name=%s\nTF_VAR_environment=qualification\nTF_VAR_location=%s\nTF_VAR_resource_group_name=%s\nTF_VAR_log_analytics_workspace_resource_id=%s\nTF_VAR_tags=%s\n' "$APEX_PROJECT_NAME" "$APEX_LOCATION" "$APEX_TERRAFORM_RESOURCE_GROUP" "$APEX_LOG_ANALYTICS_WORKSPACE_RESOURCE_ID" "$APEX_QUALIFICATION_TAGS_JSON" >> "$GITHUB_ENV"
+            export TF_VAR_project_name="$APEX_PROJECT_NAME" TF_VAR_environment=qualification TF_VAR_location="$APEX_LOCATION" TF_VAR_resource_group_name="$APEX_TERRAFORM_RESOURCE_GROUP" TF_VAR_log_analytics_workspace_resource_id="$APEX_LOG_ANALYTICS_WORKSPACE_RESOURCE_ID" TF_VAR_tags="$APEX_QUALIFICATION_TAGS_JSON"
+            lock_hash="$(sha256sum infra/terraform/vnext-qualification/.terraform.lock.hcl | cut -d ' ' -f 1)"
+            test -n "$PREVIEW_LOCK_HASH"
+            test "$lock_hash" = "$PREVIEW_LOCK_HASH"
+            terraform -chdir=infra/terraform/vnext-qualification init -input=false -backend-config="$GITHUB_WORKSPACE/apex-live/backend.hcl"
+            test "$(sha256sum infra/terraform/vnext-qualification/.terraform.lock.hcl | cut -d ' ' -f 1)" = "$PREVIEW_LOCK_HASH"
+            jq -n --arg cwd "infra/terraform/vnext-qualification" --arg target "$APEX_TERRAFORM_RESOURCE_GROUP" --arg plans "$GITHUB_WORKSPACE/apex-live/plans" --arg lock "$lock_hash" '{terraform:{cwd:$cwd,target:$target,planDirectory:$plans,lockfileHash:$lock}}' > apex-live/provider-config.json
+          fi
+      - name: Approve Gate 4 from Environment context
+        run: node packages/cli/dist/cli.js gate decide --gate 4 --decision approved --mechanism github-environment --provider-config apex-live/provider-config.json --json > apex-live/evidence/approval.json
+      - name: Refresh ARM OIDC token for deploy
+        id: deploy_oidc
+        uses: actions/github-script@v8
+        with:
+          result-encoding: string
+          script: |
+            const token = await core.getIDToken("api://AzureADTokenExchange");
+            core.setSecret(token);
+            return token;
+      - name: Deploy exact preview
+        env:
+          APEX_PLAN_TRANSPORT_KEY: ${{ secrets.APEX_PLAN_TRANSPORT_KEY }}
+          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          ARM_OIDC_TOKEN: ${{ steps.deploy_oidc.outputs.result }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          ARM_USE_AZUREAD: "true"
+          ARM_USE_OIDC: "true"
+        run: |
+          set -euo pipefail
+          node packages/cli/dist/cli.js deploy --preview "${{ needs.preview.outputs.preview_hash }}" --provider-config apex-live/provider-config.json --json > apex-live/evidence/deploy.json
+          node packages/cli/dist/cli.js render --kind approval --json > apex-live/evidence/approval-render.json || true
+          node packages/cli/dist/cli.js inventory --json > apex-live/evidence/inventory.json || true
+          node packages/cli/dist/cli.js diagnose --json > apex-live/evidence/diagnose.json || true
+      - name: Return authority to local maintainer
+        id: return
+        if: always() && steps.accept.outputs.accepted == 'true'
+        env:
+          APEX_PLAN_TRANSPORT_KEY: ${{ secrets.APEX_PLAN_TRANSPORT_KEY }}
+          APPLY_RECIPIENT: ${{ needs.preview.outputs.apply_recipient }}
+          LOCAL_RECIPIENT: local:${{ inputs.handoff_id }}
+        run: |
+          set -euo pipefail
+          node packages/cli/dist/cli.js writer transfer-create --repo "$GITHUB_REPOSITORY" --branch "$GITHUB_REF_NAME" --commit "$GITHUB_SHA" --workflow "$GITHUB_WORKFLOW_REF" --sender "$APPLY_RECIPIENT" --recipient "$LOCAL_RECIPIENT" --head "$GITHUB_SHA" --ttl 3600000 --json > apex-live/evidence/return-claim.json
+          claim_hash="$(jq -er '.result.hash' apex-live/evidence/return-claim.json)"
+          node packages/cli/dist/cli.js state transfer-export --claim "$claim_hash" --recipient "$LOCAL_RECIPIENT" --ttl-seconds 3000 --file apex-live/return-authority.json --yes --json > apex-live/evidence/return-export.json
+          blob="return/${{ inputs.handoff_id }}/${{ inputs.track }}-${{ inputs.operation }}.json"
+          for attempt in 1 2 3 4 5; do
+            if az storage blob upload --auth-mode login --account-name "$APEX_BACKEND_STORAGE_ACCOUNT" --container-name handoff --name "$blob" --file apex-live/return-authority.json --overwrite false --only-show-errors --output none; then break; fi
+            test "$attempt" -lt 5
+            node -e 'setTimeout(()=>{}, Number(process.argv[1]))' "$((attempt * 5000))"
+          done
+          printf 'claim_hash=%s\nblob=%s\n' "$claim_hash" "$blob" >> "$GITHUB_OUTPUT"
+      - name: Upload encrypted return fallback
+        if: always() && steps.accept.outputs.accepted == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: vnext-return-${{ inputs.handoff_id }}-${{ inputs.track }}-${{ inputs.operation }}-apply
+          path: apex-live/return-authority.json
+          retention-days: 1
+          compression-level: 0
+          include-hidden-files: false
+          if-no-files-found: error
+      - name: Remove temporary firewall rule
+        if: always()
+        run: |
+          set +e
+          az storage account network-rule remove --resource-group "$APEX_CONTROL_RESOURCE_GROUP" --account-name "$APEX_BACKEND_STORAGE_ACCOUNT" --ip-address "${{ steps.ip.outputs.address }}/32" --only-show-errors --output none
+          remove_status=$?
+          az storage account update --resource-group "$APEX_CONTROL_RESOURCE_GROUP" --name "$APEX_BACKEND_STORAGE_ACCOUNT" --public-network-access Disabled --only-show-errors --output none
+          disable_status=$?
+          az storage account update --resource-group "$APEX_CONTROL_RESOURCE_GROUP" --name "$APEX_BACKEND_STORAGE_ACCOUNT" --remove tags.SecurityControl --only-show-errors --output none
+          exclusion_status=$?
+          endpoint_state="$(az storage account show --resource-group "$APEX_CONTROL_RESOURCE_GROUP" --name "$APEX_BACKEND_STORAGE_ACCOUNT" --query '{publicNetworkAccess:publicNetworkAccess,securityControl:tags.SecurityControl}' --output json 2>/dev/null)"
+          verify_status=$?
+          public_access="$(jq -r '.publicNetworkAccess // ""' <<<"$endpoint_state" 2>/dev/null)"
+          security_control="$(jq -r '.securityControl // ""' <<<"$endpoint_state" 2>/dev/null)"
+          if [[ "$public_access" != "Disabled" || -n "$security_control" ]]; then verify_status=1; fi
+          status=0
+          if [[ "$remove_status" -ne 0 || "$disable_status" -ne 0 || "$exclusion_status" -ne 0 || "$verify_status" -ne 0 ]]; then status=1; fi
+          mkdir -p apex-live/evidence
+          jq -n --arg job apply --arg ip "${{ steps.ip.outputs.address }}/32" --arg publicAccess "$public_access" --arg securityControl "$security_control" --argjson removed "$( [[ "$remove_status" -eq 0 ]] && printf true || printf false )" --argjson restored "$( [[ "$disable_status" -eq 0 && "$exclusion_status" -eq 0 && "$verify_status" -eq 0 ]] && printf true || printf false )" '{job:$job,rule:$ip,removed:$removed,restored:$restored,publicNetworkAccess:$publicAccess,securityControl:$securityControl}' > apex-live/evidence/cleanup.json
+          exit "$status"
+      - name: Upload apply evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vnext-apply-evidence-${{ inputs.handoff_id }}-${{ inputs.track }}-${{ inputs.operation }}
+          path: apex-live/evidence/
+          retention-days: 1
+          compression-level: 0
+          include-hidden-files: false
+          if-no-files-found: error

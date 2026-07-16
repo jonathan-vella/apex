@@ -327,11 +327,15 @@ function validateContracts(model, findings) {
       finding(findings, "contracts.inventory", `Schema inventory mismatch for ${id}`, "packages/contracts/schemas");
   }
   for (const { path: schemaPath, value } of model.contracts.schemas) {
-    if (!value.$id || value.type !== "object")
+    const strictObject = (schema) =>
+      object(schema) && schema.type === "object" && schema.additionalProperties === false;
+    const strictObjectUnion =
+      object(value) && Array.isArray(value.anyOf) && value.anyOf.length > 0 && value.anyOf.every(strictObject);
+    if (!value.$id || (!strictObject(value) && !strictObjectUnion))
       finding(
         findings,
         "contracts.schema-shape",
-        `${schemaPath} lacks required schema identity or object shape`,
+        `${schemaPath} lacks required schema identity or strict object shape`,
         schemaPath,
       );
     const metadata = model.contracts.metadata[value.$id];

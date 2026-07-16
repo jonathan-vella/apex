@@ -119,12 +119,25 @@ test("approval evidence renders supplied timestamps and optional binding fields"
     runId: "prod-run",
     gate: 4,
     decision: "approved",
-    actor: "release-manager",
+    actor: "github:42:octocat",
     mechanism: "github-environment",
     dependencyHash: hash("a"),
     previewHash: hash("b"),
     writerEpoch: 4,
-    recipientIdentity: "deployment-service",
+    recipientIdentity: "github-actions:owner/repo:123:2:deploy",
+    githubContext: {
+      repository: "owner/repo",
+      ref: "refs/heads/main",
+      sha: "a".repeat(40),
+      workflowRef: "owner/repo/.github/workflows/deploy.yml@refs/heads/main",
+      runId: "123",
+      runAttempt: 2,
+      job: "deploy",
+      environment: "production",
+      actor: "octocat",
+      actorId: "42",
+      recipientIdentity: "github-actions:owner/repo:123:2:deploy",
+    },
     decidedAt: "2026-07-01T11:00:00Z",
     expiresAt: "2026-07-01T12:00:00Z",
   };
@@ -133,6 +146,9 @@ test("approval evidence renders supplied timestamps and optional binding fields"
   assert.equal(rendered, renderApprovalEvidence(approval));
   assert.match(rendered, /\*\*Decision:\*\* APPROVED/);
   assert.match(rendered, /2026-07-01T11:00:00Z/);
+  assert.match(rendered, /GitHub Environment Context/);
+  assert.match(rendered, /owner\/repo\/\.github\/workflows\/deploy\.yml@refs\/heads\/main/);
+  assert.match(rendered, /github-actions:owner\/repo:123:2:deploy/);
 });
 
 test("resource inventory sorts resources and property keys", () => {
