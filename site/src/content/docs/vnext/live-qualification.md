@@ -70,6 +70,12 @@ For `pass` or `fail`, provide at least one `evidenceRefs[]` hash that exists in 
 `unavailable`, retain `reason`, `owner`, and `nextAction`. Record actual start/completion timestamps and tool versions.
 Never place credentials, tokens, state, saved plans, or raw secret-bearing logs in either JSON file.
 
+The GitHub scenario must prove separate writers: writer A creates the exact preview at epoch $N$, then creates one
+transfer claim; writer B accepts at epoch $N+1$, obtains claim-bound Gate 4 approval, and deploys that preview. Capture
+the preview hash, transfer claim hash, both epochs, approval hash, recipient-bound provider transfer, and operation
+result. A deterministic test pass does not qualify this live boundary, and production workflow enablement remains
+blocked until this scenario passes on the release candidate.
+
 ## Validate and Render
 
 Validation compares the record with the current Git commit and current artifact bytes. It rejects missing scenarios,

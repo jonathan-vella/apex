@@ -225,10 +225,31 @@ def _parallel_fetch_items(
         return list(pool.map(_fetch, urls, expected_ids))
 
 
-def _effect_of(defn: dict[str, Any]) -> str | None:
+_PARAMETER_EXPRESSION_RE = re.compile(r"^\[parameters\('([^']+)'\)\]$", re.IGNORECASE)
+
+
+def _resolve_parameter_value(value: Any, assignment_params: dict[str, Any]) -> Any:
+    if isinstance(value, str):
+        match = _PARAMETER_EXPRESSION_RE.match(value)
+        if match:
+            return assignment_params.get(match.group(1))
+    return value
+
+
+def _effect_of(defn: dict[str, Any], assignment_params: dict[str, Any] | None = None) -> str | None:
     rule = (defn.get("properties") or {}).get("policyRule") or {}
     then = rule.get("then") or {}
     eff = then.get("effect")
+    assignment_params = assignment_params or {}
+    eff = _resolve_parameter_value(eff, assignment_params)
+    if eff is None:
+        expression = then.get("effect")
+        if isinstance(expression, str):
+            match = _PARAMETER_EXPRESSION_RE.match(expression)
+            if match:
+                eff = (((defn.get("properties") or {}).get("parameters") or {}).get(match.group(1)) or {}).get(
+                    "defaultValue"
+                )
     if not isinstance(eff, str):
         return None
     # Canonicalise case (some definitions use lowercase).
@@ -264,6 +285,8 @@ def _required_value(defn: dict[str, Any]) -> Any:
     props = defn.get("properties") or {}
     then = (props.get("policyRule") or {}).get("then") or {}
     details = then.get("details") or {}
+    if not isinstance(details, dict):
+        details = {}
 
     if "value" in details:
         return details["value"]
@@ -304,7 +327,8 @@ def _property_paths(defn: dict[str, Any], resource_types: list[str]) -> dict[str
 
     # Tag policies address `tags['<name>']`, often without any `field: type`.
     # Check before the resource-type short-circuit below.
-    if _looks_like_tag_policy(rule):
+    category = ((((defn.get("properties") or {}).get("metadata") or {}).get("category")) or "").lower()
+    if _looks_like_tag_policy(rule) and category == "tags":
         return {
             "azurePropertyPath": "resourceGroup.tags",
             "bicepPropertyPath": "resourceGroups::tags",
@@ -363,6 +387,15 @@ def _property_paths(defn: dict[str, Any], resource_types: list[str]) -> dict[str
 
 
 def _looks_like_tag_policy(rule: dict[str, Any]) -> bool:
+    operations = (((rule.get("then") or {}).get("details") or {}).get("operations") or [])
+    if isinstance(operations, list) and operations:
+        operation_fields = [
+            (operation or {}).get("field")
+            for operation in operations
+            if isinstance((operation or {}).get("field"), str)
+        ]
+        if operation_fields and not all(field.lower().startswith("tags[") for field in operation_fields):
+            return False
     stack = [rule.get("if")]
     while stack:
         node = stack.pop()
@@ -483,6 +516,10 @@ def _extract_tags_required(findings: list[dict[str, Any]]) -> list[dict[str, str
             elif isinstance(val, list):
                 tag_keys.extend(str(v) for v in val if v)
 
+        for pname, val in params.items():
+            if re.fullmatch(r"tagName\d+", pname, re.IGNORECASE) and isinstance(val, str) and val:
+                tag_keys.append(val)
+
         # Some policies use tagNames (plural) or listOfTagNames
         for pname in ("tagNames", "listOfTagNames", "tagnames"):
             val = params.get(pname)
@@ -515,7 +552,41 @@ def _extract_tags_required(findings: list[dict[str, Any]]) -> list[dict[str, str
     return tags
 
 
-def _extract_allowed_locations(findings: list[dict[str, Any]]) -> list[str]:
+def _is_location_constraint(defn: dict[str, Any]) -> bool:
+    props = defn.get("properties") or {}
+    if any(name.lower() in {"listofallowedlocations", "allowedlocations"} for name in (props.get("parameters") or {})):
+        return True
+    display_name = props.get("displayName") or ""
+    if not re.search(r"\b(?:locations?|regions?)\b", display_name, re.IGNORECASE):
+        return False
+    stack = [(props.get("policyRule") or {}).get("if")]
+    while stack:
+        node = stack.pop()
+        if isinstance(node, dict):
+            field = node.get("field")
+            if isinstance(field, str) and (field.lower() == "location" or field.lower().endswith("/location")):
+                return True
+            stack.extend(node.values())
+        elif isinstance(node, list):
+            stack.extend(node)
+    return False
+
+
+def _location_values(parameters: dict[str, Any], required_value: Any = None) -> list[str]:
+    locations: set[str] = set()
+    if isinstance(required_value, list):
+        locations.update(str(value) for value in required_value if value)
+    elif isinstance(required_value, str) and required_value:
+        locations.add(required_value)
+    for name, value in parameters.items():
+        if name.lower() in {"listofallowedlocations", "allowedlocations"} and isinstance(value, list):
+            locations.update(str(item) for item in value if item)
+    return sorted(locations)
+
+
+def _extract_allowed_locations(
+    findings: list[dict[str, Any]], location_constraints: list[dict[str, Any]] | None = None
+) -> list[str]:
     """Extract allowed-location values from findings with location constraints.
 
     Checks both required_value (from definition defaults) and assignment_parameters
@@ -544,6 +615,8 @@ def _extract_allowed_locations(findings: list[dict[str, Any]]) -> list[str]:
             val = params.get(pname)
             if isinstance(val, list):
                 locations.update(str(v) for v in val if v)
+    for constraint in location_constraints or []:
+        locations.update(str(value) for value in constraint.get("allowed_locations") or [] if value)
     return sorted(locations)
 
 
@@ -707,6 +780,7 @@ def discover(
 
     assignment_inventory: list[dict[str, Any]] = []
     findings: list[dict[str, Any]] = []
+    location_constraints: list[dict[str, Any]] = []
     audit_count = 0
     disabled_count = 0
 
@@ -719,12 +793,19 @@ def discover(
         assignment_type = (
             "management-group" if "/providers/microsoft.management/managementgroups/" in scope.lower() else "subscription"
         )
+        assignment_params = {
+            key: (value or {}).get("value")
+            for key, value in (props.get("parameters") or {}).items()
+            if (value or {}).get("value") is not None
+        }
         assignment_inventory.append(
             {
                 "displayName": display,
                 "scope": scope,
                 "assignmentType": assignment_type,
                 "policyDefinitionId": pid,
+                "enforcementMode": props.get("enforcementMode") or "Default",
+                "parameters": assignment_params,
             }
         )
 
@@ -732,23 +813,50 @@ def discover(
             continue
 
         # Resolve to member definitions (initiative → its members; policy → itself).
-        members: list[tuple[dict[str, Any], str | None]] = []
+        members: list[tuple[dict[str, Any], str | None, dict[str, Any]]] = []
         if "/policysetdefinitions/" in pid and pid in sets:
+            initiative_defaults = {
+                key: (value or {}).get("defaultValue")
+                for key, value in ((sets[pid].get("properties") or {}).get("parameters") or {}).items()
+                if (value or {}).get("defaultValue") is not None
+            }
+            initiative_params = {**initiative_defaults, **assignment_params}
             for m in (sets[pid].get("properties") or {}).get("policyDefinitions") or []:
                 mid = (m.get("policyDefinitionId") or "").lower()
                 if mid in defs:
-                    members.append((defs[mid], m.get("policyDefinitionReferenceId")))
+                    member_params = {
+                        key: _resolve_parameter_value((value or {}).get("value"), initiative_params)
+                        for key, value in (m.get("parameters") or {}).items()
+                        if _resolve_parameter_value((value or {}).get("value"), initiative_params) is not None
+                    }
+                    members.append((defs[mid], m.get("policyDefinitionReferenceId"), member_params))
         elif pid in defs:
-            members.append((defs[pid], None))
+            members.append((defs[pid], None, {}))
         # Unknown definition id — nothing to emit; still counted in inventory.
 
-        for defn, member_ref_id in members:
-            eff = _effect_of(defn)
+        for defn, member_ref_id, member_params in members:
+            effective_params = {**assignment_params, **member_params}
+            eff = _effect_of(defn, effective_params)
             if eff is None:
                 continue
             if eff == "Disabled":
                 disabled_count += 1
                 continue
+            if _is_location_constraint(defn):
+                location_constraints.append(
+                    {
+                        "policy_id": defn.get("id"),
+                        "display_name": (defn.get("properties") or {}).get("displayName")
+                        or defn.get("name")
+                        or defn.get("id"),
+                        "assignment_display_name": display,
+                        "assignment_id": a.get("id"),
+                        "scope": scope,
+                        "effect": eff[:1].lower() + eff[1:],
+                        "enforcement_mode": props.get("enforcementMode") or "Default",
+                        "allowed_locations": _location_values(effective_params, _required_value(defn)),
+                    }
+                )
             if eff in {"Audit", "AuditIfNotExists"}:
                 audit_count += 1
                 continue
@@ -791,13 +899,8 @@ def discover(
                 "override": None,
             }
             # Carry assignment-level parameter values (tag keys, location lists).
-            assignment_params = props.get("parameters") or {}
-            if assignment_params:
-                finding["assignment_parameters"] = {
-                    k: (v or {}).get("value")
-                    for k, v in assignment_params.items()
-                    if (v or {}).get("value") is not None
-                }
+            if effective_params:
+                finding["assignment_parameters"] = effective_params
             if paths.get("pathSemantics"):
                 finding["pathSemantics"] = paths["pathSemantics"]
             # For Tags-category policies, extract enforced tag keys from the
@@ -896,7 +999,8 @@ def discover(
         # Phase 3 step 1 for the comparison contract.
         "member_policy_index": sorted(defs.keys()),
         "tags_required": _extract_tags_required(findings),
-        "allowed_locations": _extract_allowed_locations(findings),
+        "location_constraints": location_constraints,
+        "allowed_locations": _extract_allowed_locations(findings, location_constraints),
     }
     return envelope
 
@@ -970,13 +1074,22 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     out_path = Path(args.out)
+    existing: dict[str, Any] | None = None
+    if out_path.exists():
+        try:
+            candidate = json.loads(out_path.read_text())
+            existing = candidate if isinstance(candidate, dict) else None
+        except json.JSONDecodeError:
+            existing = None
+    preserved_security_exceptions = (
+        existing.get("security_exceptions")
+        if isinstance(existing, dict) and isinstance(existing.get("security_exceptions"), list)
+        else []
+    )
 
     # Cache short-circuit — reuse an existing COMPLETE snapshot unless --refresh.
     if out_path.exists() and not args.refresh:
-        try:
-            cached = json.loads(out_path.read_text())
-        except json.JSONDecodeError:
-            cached = None
+        cached = existing
         if (
             isinstance(cached, dict)
             and cached.get("discovery_status") == "COMPLETE"
@@ -1046,6 +1159,8 @@ def main(argv: list[str] | None = None) -> int:
         return 2
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
+    if preserved_security_exceptions:
+        envelope["security_exceptions"] = preserved_security_exceptions
     envelope["_out_path"] = str(out_path)
     out_path.write_text(json.dumps(envelope, indent=2, sort_keys=False) + "\n")
 

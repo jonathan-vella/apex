@@ -123,20 +123,10 @@ export class BicepCommandAdapter {
     };
   }
 
-  stackShow(target: BicepStackTarget): CommandPlan {
+  stackList(target: BicepStackTarget): CommandPlan {
     return {
       executable: "az",
-      args: [
-        "stack",
-        "group",
-        "show",
-        "--resource-group",
-        target.resourceGroup,
-        "--name",
-        target.stackName,
-        "--output",
-        "json",
-      ],
+      args: ["stack", "group", "list", "--resource-group", target.resourceGroup, "--output", "json"],
       ...(target.cwd === undefined ? {} : { cwd: target.cwd }),
     };
   }

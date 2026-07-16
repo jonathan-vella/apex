@@ -21,6 +21,7 @@ const IDENTIFIER_PATTERN = /^[a-zA-Z0-9][a-zA-Z0-9_-]{0,127}$/;
 const SAFE_POLICY_ASSERTIONS = new Map<string, boolean>([
   ["runtime/defaults.v1.json/securityInvariants/hardcodedSecretsAllowed", false],
   ["runtime/defaults.v1.json/securityInvariants/secretValuesInGitAllowed", false],
+  ["runtime/defaults.v1.json/evidence/genericSecretScanRequired", true],
   ["runtime/defaults.v1.json/telemetry/authorizationEvidenceSeparable", true],
 ]);
 
@@ -43,6 +44,7 @@ export interface StateTransferBindings extends EnvelopeBindings {
   readonly workflowId: string;
   readonly journalHead: string;
   readonly claimExpiresAt: string;
+  readonly approvalEnvironment?: string;
 }
 
 export interface StateTransferBundle {
@@ -309,6 +311,7 @@ export async function createStateTransferBundle(
     workflowId: state.claim.workflowId,
     journalHead: state.journalHead,
     claimExpiresAt: state.claim.expiresAt,
+    ...(state.claim.approvalEnvironment === undefined ? {} : { approvalEnvironment: state.claim.approvalEnvironment }),
   };
   const bundle: StateTransferBundle = { implementation: "apex-state-transfer", version: 1, bindings, files };
   if (canonicalJsonBytes(bundle).byteLength > STATE_TRANSFER_MAX_BUNDLE_BYTES) {
@@ -453,6 +456,12 @@ function requireBindings(value: unknown): StateTransferBindings {
   if (typeof bindings.claimExpiresAt !== "string" || !Number.isFinite(Date.parse(bindings.claimExpiresAt))) {
     throw new Error("State transfer claim expiry is invalid");
   }
+  if (
+    bindings.approvalEnvironment !== undefined &&
+    (typeof bindings.approvalEnvironment !== "string" || bindings.approvalEnvironment.trim().length === 0)
+  ) {
+    throw new Error("State transfer approval environment is invalid");
+  }
   if (!Number.isInteger(bindings.ownerEpoch) || (bindings.ownerEpoch ?? 0) < 1)
     throw new Error("State transfer owner epoch is invalid");
   for (const key of ["recipient", "repository", "branch", "commit", "workflowId"] as const) {
@@ -461,6 +470,7 @@ function requireBindings(value: unknown): StateTransferBindings {
     }
   }
   const expected = [
+    ...(bindings.approvalEnvironment === undefined ? [] : ["approvalEnvironment"]),
     "branch",
     "claimExpiresAt",
     "claimHash",
@@ -603,7 +613,8 @@ export async function importStateTransfer(
     claim.repository !== bindings.repository ||
     claim.branch !== bindings.branch ||
     claim.commit !== bindings.commit ||
-    claim.workflowId !== bindings.workflowId
+    claim.workflowId !== bindings.workflowId ||
+    claim.approvalEnvironment !== bindings.approvalEnvironment
   ) {
     throw new Error("State transfer claim does not match bindings");
   }

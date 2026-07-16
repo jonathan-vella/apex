@@ -133,9 +133,11 @@ Allowed entry types are `RISK`, `ASSUMPTION`, `ISSUE`, `DEPENDENCY`, `DEFECT`, a
 - **Type:** `ISSUE`
 - **Owner:** Release qualification
 - **Impact:** VS Code, GitHub approval, Azure Bicep, and Azure Terraform release claims remain unavailable.
-- **Evidence:** Deterministic suites pass, but no exact-head live evidence satisfies [PRD.md](PRD.md) cutover acceptance.
+- **Evidence:** The bootstrap, manual workflow, encrypted handoff launcher, and structural tests are prepared, but no
+  exact-head live evidence satisfies [PRD.md](PRD.md) cutover acceptance.
 - **Related issue:** [#543](https://github.com/jonathan-vella/apex/issues/543)
-- **Mitigation:** Prepare scripts and templates, then run or hand off user-owned scenarios after automated gates are green.
+- **Mitigation:** Follow [LIVE-QUALIFICATION.md](LIVE-QUALIFICATION.md) after automated gates are green. Record that the
+  sandbox permits maintainer self-review; require independent approval before production qualification.
 - **State:** Open
 - **Closure proof:** Evidence index with candidate and dependency hashes for every required scenario.
 

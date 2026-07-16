@@ -56,9 +56,9 @@ Run `apex <command> --json` for automation. Success is written to stdout as
 | `apex task stage-file` | `--task --path --file`; optional `--sha` | Stage an allowed code-generation file. |
 | `apex task generate-iac` | `--task` | Generate the selected IaC track in the bounded staging tree. |
 | `apex review resolve` | `--file` | Record a review-finding resolution from JSON. |
-| `apex gate decide` | `--gate --decision --actor` | Approve or reject an open gate. |
+| `apex gate decide` | `--gate --decision`; see mechanism flags below | Approve or reject an open gate. |
 | `apex validate` | None | Validate and cache the current journal/runtime-lock result. |
-| `apex preview` | `--operation --provider`; see values below | Create a bound preview and open Gate 4. |
+| `apex preview` | `--operation --provider`; optional `--recipient` | Create a bound preview and open Gate 4. |
 | `apex deploy` | Optional `--preview` | Execute the current approved preview and collect inventory. |
 | `apex reconcile` | None | Reconcile the recorded deployment from inventory. |
 | `apex inventory` | None | Read the latest deployment inventory. |
@@ -84,13 +84,16 @@ The compact rows above expand to these exact accepted flags and values:
 init: --project; optional --name, --environment, --target, --iac, --customizations-source
 task complete: --task, --file; single output also needs --kind; optional --summary
 review resolve: --file
-preview: --operation apply|destroy --provider fake|bicep|terraform
+gate decide: --gate --decision; optional --mechanism tty|github-environment (default tty)
+gate decide with tty: --actor is required
+gate decide with github-environment: --actor is forbidden; Gate 4 approved decisions only
+preview: --operation apply|destroy --provider fake|bicep|terraform; optional --recipient
 render: --kind status|requirements|preview|approval|inventory
 capability install/update: --pack --yes; optional --manifest, --cache
 capability status/verify: --pack; optional --manifest
 capability rollback/uninstall: --pack --yes; optional --manifest
 quality evaluate: --measurements; optional --scorecard
-writer transfer-create: --repo --branch --commit --workflow --sender --recipient --head --ttl
+writer transfer-create: --repo --branch --commit --workflow --sender --recipient --head --ttl; optional --environment
 state transfer-export: --claim --file --recipient --ttl-seconds --yes
 state transfer-import: --file --recipient --yes
 provider transfer-export: --preview --provider bicep|terraform --file --recipient --ttl-seconds --yes
@@ -111,6 +114,35 @@ path is derived from the binding's `artifactRef`. It excludes local keys, latest
 unrelated runtime files. Import validates the authenticated envelope, exact authority bindings, file hashes, and
 binding/artifact cross-links before atomic mode-`0600` writes under `.apex/local/provider-runtime/`. It does not approve
 Gate 4 or deploy. Production CI remains blocked until the transfer has live proof across separate preview and apply jobs.
+
+GitHub Environment approval derives its complete context from `GITHUB_ACTIONS`, `GITHUB_REPOSITORY`, `GITHUB_REF`,
+`GITHUB_SHA`, `GITHUB_WORKFLOW_REF`, `GITHUB_RUN_ID`, `GITHUB_RUN_ATTEMPT`, `GITHUB_JOB`, `GITHUB_ACTOR`,
+`GITHUB_ACTOR_ID`, and `APEX_GITHUB_ENVIRONMENT`. It accepts no context JSON, file override, arbitrary actor, or
+arbitrary recipient. The accepted writer-transfer recipient must equal
+`github-actions:<repository>:<run-id>:<run-attempt>:<job>`.
+
+```bash
+apex gate decide \
+  --gate 4 \
+  --decision approved \
+  --mechanism github-environment \
+  --json
+```
+
+The command is valid only inside GitHub Actions after the current writer transfer has been accepted. GitHub Environment
+approval additionally requires the transfer claim's `--environment` to exactly match `APEX_GITHUB_ENVIRONMENT`. It is a
+CLI ceremony and is not exposed through the `gateDecide` MCP tool.
+
+For separate Terraform preview and apply writers, pass the intended apply identity during preview:
+
+```bash
+apex preview --operation apply --provider terraform --recipient "$APPLY_RECIPIENT" --json
+```
+
+The preview writer may create one transfer claim only after that preview. The recipient accepts it at the next owner
+epoch, and Gate 4 binds both the exact preview hash and transfer claim hash. A claim created before preview, a second
+transfer, a nonconsecutive epoch, or a different claim remains stale. Ownership-only transfer does not change the
+dependency revision; target, runtime lock, or accepted artifact changes do.
 
 ## Use Narrow MCP Tools
 
