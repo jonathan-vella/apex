@@ -37,6 +37,27 @@ test("writer transfer binds the current head and advances ownership", async () =
   assert.deepEqual(await service.currentWriter(), accepted);
 });
 
+test("writer transfer rejects a spoofed sender and preserves local retry authority", async () => {
+  const service = new ApexService(await tempRoot());
+  await service.init({ projectId: "demo" });
+  const input = {
+    repository: "owner/repo",
+    branch: "main",
+    commit: "abc",
+    workflowId: "wf",
+    recipient: "ci",
+    currentHead: "abc",
+    ttlMs: 60_000,
+  };
+  await assert.rejects(service.createWriterTransfer({ ...input, sender: "mallory" }), /not the current writer/);
+  await assert.rejects(
+    service.createWriterTransfer({ ...input, sender: "local", approvalEnvironment: "" }),
+    /environment must be nonempty/,
+  );
+  const retried = (await service.createWriterTransfer({ ...input, sender: "local" })) as { hash: string };
+  assert.match(retried.hash, /^[0-9a-f]{64}$/);
+});
+
 test("evidence redacts secret keys, rejects required high-risk content, and telemetry is user-controlled", async () => {
   const service = new ApexService(await tempRoot());
   await service.init({ projectId: "demo" });

@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { spawn } from "node:child_process";
 import { once } from "node:events";
 import { join } from "node:path";
@@ -119,6 +120,46 @@ test("CLI rejects incomplete native provider config before execution", async () 
   await assert.rejects(execute(["version", "--provider-config", path], root), /requires deploymentName/i);
 });
 
+test("CLI requires explicit Bicep stack cleanup ownership", async () => {
+  const root = await tempRoot();
+  const path = join(root, "providers.json");
+  const bicep = {
+    resourceGroup: "rg",
+    deploymentName: "deployment",
+    stackName: "stack",
+    templateFile: "main.bicep",
+    actionOnUnmanage: "deleteResources",
+    denySettingsMode: "none",
+  };
+  await writeJson(path, { bicep });
+  await assert.rejects(execute(["version", "--provider-config", path], root), /explicit ownership authorization/i);
+
+  await writeJson(path, { bicep: { ...bicep, ownershipAuthorizesDeleteResources: true } });
+  assert.deepEqual(await execute(["version", "--provider-config", path], root), {
+    version: "0.1.0",
+    bundleVersion: "0.1.0",
+    configVersion: "1.0.0",
+  });
+});
+
+test("CLI defaults Bicep stack cleanup to detachAll", async () => {
+  const root = await tempRoot();
+  const path = join(root, "providers.json");
+  await writeJson(path, {
+    bicep: {
+      resourceGroup: "rg",
+      deploymentName: "deployment",
+      stackName: "stack",
+      templateFile: "main.bicep",
+    },
+  });
+  assert.deepEqual(await execute(["version", "--provider-config", path], root), {
+    version: "0.1.0",
+    bundleVersion: "0.1.0",
+    configVersion: "1.0.0",
+  });
+});
+
 test("CLI rejects secret-bearing provider config", async () => {
   const root = await tempRoot();
   const path = join(root, "providers.json");
@@ -126,6 +167,32 @@ test("CLI rejects secret-bearing provider config", async () => {
     terraform: { cwd: ".", target: "local", planDirectory: ".plans", lockfileHash: "a".repeat(64), clientSecret: "no" },
   });
   await assert.rejects(execute(["version", "--provider-config", path], root), /must not contain secret key/i);
+});
+
+test("CLI rejects a stale Terraform lock hash", async () => {
+  const root = await tempRoot();
+  const terraformRoot = join(root, "terraform");
+  await import("node:fs/promises").then(({ mkdir }) => mkdir(terraformRoot));
+  await import("node:fs/promises").then(({ writeFile }) =>
+    Promise.all([
+      writeFile(join(terraformRoot, "main.tf"), "terraform {}\n"),
+      writeFile(join(terraformRoot, ".terraform.lock.hcl"), "provider-lock\n"),
+    ]),
+  );
+  const lockfileHash = createHash("sha256").update("provider-lock\n").digest("hex");
+  const path = join(root, "providers.json");
+  const terraform = {
+    cwd: "terraform",
+    target: "qualification",
+    planDirectory: ".apex/local/plans",
+    lockfileHash,
+  };
+  await writeJson(path, { terraform: { ...terraform, lockfileHash: "a".repeat(64) } });
+  await assert.rejects(execute(["version", "--provider-config", path], root), /lockfileHash is stale/);
+
+  await writeJson(path, { terraform });
+  const configured = await execute(["version", "--provider-config", path], root);
+  assert.deepEqual(configured, { version: "0.1.0", bundleVersion: "0.1.0", configVersion: "1.0.0" });
 });
 
 test("CLI capability commands report retained packs and require confirmation for mutation", async () => {

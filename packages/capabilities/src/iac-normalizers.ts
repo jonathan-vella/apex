@@ -169,6 +169,38 @@ export interface AzureStackResource {
   readonly properties: Readonly<Record<string, unknown>>;
 }
 
+export function selectAzureDeploymentStack(value: unknown, resourceGroup: string, stackName: string): unknown | null {
+  if (!Array.isArray(value)) {
+    throw new IacOutputParseError("azure-stack", "Azure stack list output must be a JSON array");
+  }
+  const names = new Set<string>();
+  let selected: Record<string, unknown> | null = null;
+  for (const [index, entry] of value.entries()) {
+    const stack = object(entry);
+    const name = text(stack?.name);
+    const id = text(stack?.id);
+    if (stack === undefined || name === undefined || id === undefined) {
+      throw new IacOutputParseError("azure-stack", `Azure stack list entry ${index} is malformed`);
+    }
+    const normalizedName = name.toLowerCase();
+    if (names.has(normalizedName)) {
+      throw new IacOutputParseError("azure-stack", `Azure stack list contains duplicate name '${name}'`);
+    }
+    names.add(normalizedName);
+    const expectedSuffix = `/resourcegroups/${resourceGroup.toLowerCase()}/providers/microsoft.resources/deploymentstacks/${normalizedName}`;
+    if (!id.toLowerCase().endsWith(expectedSuffix)) {
+      throw new IacOutputParseError("azure-stack", `Azure stack '${name}' is outside the requested resource group`);
+    }
+    if (normalizedName === stackName.toLowerCase()) selected = stack;
+  }
+  if (selected === null) return null;
+  const properties = object(selected.properties);
+  if (properties === undefined || !Array.isArray(properties.resources)) {
+    throw new IacOutputParseError("azure-stack", `Azure stack '${stackName}' has malformed managed resources`);
+  }
+  return selected;
+}
+
 export function normalizeAzureStackResources(value: unknown): readonly AzureStackResource[] {
   const root = object(value);
   if (root === undefined) {

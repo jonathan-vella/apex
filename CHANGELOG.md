@@ -56,6 +56,37 @@ for full details on this and all prior releases.
   `live:vnext` template, validation, and rendering commands that bind manual VS Code,
   GitHub, and Azure results to exact candidate and evidence hashes without executing
   approvals or cloud operations.
+- feat(vnext): added a generic authenticated AES-256-GCM envelope and deterministic repository-state transfer commands
+  with a selected-run allowlist, recursive content-addressed object closure, secret and size checks, atomic mode-`0600`
+  import, idempotent retry, claim-bounded expiry, and separate writer-transfer acceptance. Production CI remains blocked
+  pending live proof.
+- feat(vnext): added recipient-bound exact provider-authority transfer commands that export only the selected preview
+  binding and its referenced encrypted Terraform plan, validate all authority and file cross-links before restrictive
+  atomic import, and exclude local keys, latest pointers, unrelated runtime files, and plaintext plans. Production CI
+  remains blocked pending live separate-job proof.
+- feat(vnext): added truthful GitHub Environment Gate 4 approval evidence derived only from strict GitHub Actions
+  context, bound to the accepted writer-transfer owner, repository, branch, commit, workflow, run, job, and canonical
+  recipient. The protected environment is bound through the encrypted state handoff and accepted ownership. Approval
+  expiry is bounded by the exact preview. Evidence identifies the workflow actor rather than an environment reviewer,
+  and production CI remains blocked pending live protected-environment proof.
+- feat(vnext): support one exact post-preview writer transfer by separating semantic dependency revision from writer
+  authority, authenticating claim creation against the current lease, persisting one-hop ownership lineage, and binding
+  Gate 4 and provider authorization to the exact transfer claim. Terraform preview can encrypt a saved plan for an
+  explicit execution recipient. Active leases, lease-bounded approval expiry, and journal compare-and-swap prevent
+  pending or racing transfers from retaining authority. Production workflows remain blocked pending live proof.
+- fix(vnext): make first Bicep deployment-stack preview non-mutating by listing stacks in the target resource group and
+  selecting the exact configured name in process. A missing stack binds an empty managed set; malformed, duplicate, or
+  wrong-scope list entries fail closed before Gate 4.
+- feat(vnext): allow a newly validated deployment preview to reopen Gate 4 on the same run, preserving prior evidence
+  while requiring a fresh exact approval. This supports expired-preview refresh and sequential apply/destroy without
+  promotion.
+- feat(vnext): prepare the manual exact-head Bicep/Terraform live qualification workflow, default-deny encrypted handoff
+  storage, local dispatch/retrieval launcher, and structural mutation validator. The workflow separates preview and
+  Environment-approved apply authority, uses refreshed OIDC tokens, binds exact governance inputs, returns authority to
+  the initiating handoff, and requires a reviewed default-branch workflow bootstrap. Backend public network access is
+  Disabled at rest; each bounded session applies the policy exclusion only for that session, adds one runner `/32`, and
+  verifies unconditional restoration to Disabled with the exclusion removed. It does not claim live proof until the
+  user-owned GitHub and Azure ceremonies run.
 
 ### Fixed (APEX vNext security)
 
@@ -71,6 +102,11 @@ for full details on this and all prior releases.
   recomputable caches while preserving repository-backed project journals and evidence for cross-device resume.
 - fix(vnext): return a valid structured MCP acknowledgement after recording requirements input instead of emitting
   an invalid tool result after the journal mutation succeeds.
+- fix(vnext): allow `live:vnext validate` to bind supplied evidence payload files to manifest hashes and byte counts,
+  rejecting missing, duplicate, tampered, or incorrectly sized evidence before release qualification is accepted.
+- fix(vnext): persist native preview bindings and encrypted Terraform plans across CLI processes under restrictive local
+  state, bind Terraform source/variable/lock bytes, and require explicit ownership authorization for destructive Bicep
+  deployment-stack cleanup.
 
 ### Changed (Model migration — Claude Sonnet 4.6 → Claude Sonnet 5)
 

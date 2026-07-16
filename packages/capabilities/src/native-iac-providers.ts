@@ -29,6 +29,7 @@ import {
   normalizeAzureWhatIf,
   normalizeTerraformPlan,
   parseJsonProcessOutput,
+  selectAzureDeploymentStack,
 } from "./iac-normalizers.js";
 import type { ProcessRunnerLike } from "./process-runner.js";
 import { secretFreeProperties } from "./secret-redaction.js";
@@ -140,7 +141,10 @@ abstract class NativeProviderBase {
     const authority = await this.currentAuthority();
     if (
       authority.head !== suppliedAuthority.head ||
+      authority.dependencyRevision !== suppliedAuthority.dependencyRevision ||
       authority.ownerEpoch !== suppliedAuthority.ownerEpoch ||
+      authority.previousOwnerEpoch !== suppliedAuthority.previousOwnerEpoch ||
+      authority.writerTransferClaimHash !== suppliedAuthority.writerTransferClaimHash ||
       authority.recipientIdentity !== suppliedAuthority.recipientIdentity
     ) {
       throw new IacProviderError("PREVIEW_OWNER_EPOCH_MISMATCH", "Supplied authority is not the current authority");
@@ -266,12 +270,11 @@ export class NativeBicepProvider extends NativeProviderBase implements IacProvid
   }
 
   async previewApply(request: PreviewRequest): Promise<DeploymentPreviewV1> {
-    const [stdout, stackOutput] = await Promise.all([
+    const [stdout, stackResources] = await Promise.all([
       this.run(this.#commands.preview(this.#target)),
-      this.run(this.#commands.stackShow(this.#target)),
+      this.#currentStackResources(),
     ]);
     const normalized = normalizeAzureWhatIf(parseJsonProcessOutput("azure-what-if", stdout));
-    const stackResources = normalizeAzureStackResources(parseJsonProcessOutput("azure-stack", stackOutput));
     const previewIds = new Set(normalized.changes.map(({ resourceId }) => resourceId.toLowerCase()));
     const unrepresented = stackResources.filter(({ resourceId }) => !previewIds.has(resourceId.toLowerCase()));
     if (unrepresented.length > 0) {
@@ -283,8 +286,7 @@ export class NativeBicepProvider extends NativeProviderBase implements IacProvid
   }
 
   async previewDestroy(request: PreviewRequest): Promise<DeploymentPreviewV1> {
-    const stdout = await this.run(this.#commands.stackShow(this.#target));
-    const resources = normalizeAzureStackResources(parseJsonProcessOutput("azure-stack", stdout));
+    const resources = await this.#currentStackResources();
     return await this.#bind(
       request,
       "destroy",
@@ -313,8 +315,7 @@ export class NativeBicepProvider extends NativeProviderBase implements IacProvid
   }
 
   async inventory(projectId: string, runId: string): Promise<ResourceInventoryV1> {
-    const stdout = await this.run(this.#commands.stackShow(this.#target));
-    const resources = normalizeAzureStackResources(parseJsonProcessOutput("azure-stack", stdout));
+    const resources = await this.#currentStackResources();
     return {
       schemaVersion: "1.0.0",
       projectId,
@@ -369,6 +370,16 @@ export class NativeBicepProvider extends NativeProviderBase implements IacProvid
       .digest("hex");
   }
 
+  async #currentStackResources(): Promise<readonly ReturnType<typeof normalizeAzureStackResources>[number][]> {
+    const stdout = await this.run(this.#commands.stackList(this.#target));
+    const selected = selectAzureDeploymentStack(
+      parseJsonProcessOutput("azure-stack", stdout),
+      this.#target.resourceGroup,
+      this.#target.stackName,
+    );
+    return selected === null ? [] : normalizeAzureStackResources(selected);
+  }
+
   async #execute(
     operation: "apply" | "destroy",
     preview: DeploymentPreviewV1,
@@ -399,8 +410,7 @@ export class NativeBicepProvider extends NativeProviderBase implements IacProvid
       this.#target.parametersFile === undefined
         ? createHash("sha256").update(Buffer.alloc(0)).digest("hex")
         : await this.#rawFileHash(this.#target.parametersFile);
-    const stackOutput = await this.run(this.#commands.stackShow(this.#target));
-    const stackStateHash = sha256(normalizeAzureStackResources(parseJsonProcessOutput("azure-stack", stackOutput)));
+    const stackStateHash = sha256(await this.#currentStackResources());
     if (
       templateHash !== binding.templateHash ||
       parametersHash !== binding.parametersHash ||
@@ -537,8 +547,16 @@ export class NativeTerraformProvider extends NativeProviderBase implements IacPr
       const showOutput = await this.run(this.#commands.showJson(this.#target.cwd, planPath));
       const normalized = normalizeTerraformPlan(parseJsonProcessOutput("terraform-plan", showOutput));
       const authority = await this.currentAuthority();
+      if (
+        authority.ownerEpoch !== request.ownerEpoch ||
+        authority.head !== request.commit ||
+        authority.dependencyRevision !== request.dependencyRevision
+      ) {
+        throw new IacProviderError("PREVIEW_OWNER_EPOCH_MISMATCH", "Preview request authority is stale");
+      }
+      const executionRecipient = request.executionRecipientIdentity ?? authority.recipientIdentity;
       const encrypted = this.#transport.encrypt(planBytes, await this.#keyProvider(), {
-        recipient: authority.recipientIdentity,
+        recipient: executionRecipient,
         ttlMs: request.ttlMs,
       });
       const artifactRef = `${request.projectId}/${request.runId}/${operation}/${planDigest}.tfplan.enc`;
@@ -548,7 +566,7 @@ export class NativeTerraformProvider extends NativeProviderBase implements IacPr
         planDigest,
         configHash,
         lockfileHash: this.#target.lockfileHash,
-        recipient: authority.recipientIdentity,
+        recipient: executionRecipient,
         artifactRef,
       });
       const preview = this.createPreview(this.track, operation, request, normalized, {
@@ -568,7 +586,7 @@ export class NativeTerraformProvider extends NativeProviderBase implements IacPr
         policyHash: request.policyHash,
         configHash,
         lockfileHash: this.#target.lockfileHash,
-        recipient: authority.recipientIdentity,
+        recipient: executionRecipient,
         planDigest,
         artifactRef,
         ...(preview.stateLineage === undefined ? {} : { stateLineage: preview.stateLineage }),
@@ -577,7 +595,7 @@ export class NativeTerraformProvider extends NativeProviderBase implements IacPr
           encrypted: true,
           implementation: "local-reference",
           algorithm: "aes-256-gcm",
-          recipient: authority.recipientIdentity,
+          recipient: executionRecipient,
           mediaType: "application/vnd.apex.terraform-plan",
           iv: encrypted.iv,
           authTag: encrypted.authTag,

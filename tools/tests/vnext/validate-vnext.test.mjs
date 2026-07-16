@@ -107,3 +107,20 @@ test("rejects a runtime package version mismatch", () => {
   });
   assert.ok(hasRule(result, "runtime.version"));
 });
+
+test("rejects permissive or non-object contract union branches", () => {
+  for (const mutation of [
+    (branch) => {
+      branch.additionalProperties = true;
+    },
+    (branch) => {
+      branch.type = "string";
+    },
+  ]) {
+    const result = mutate((model) => {
+      const schema = model.contracts.schemas.find(({ value }) => Array.isArray(value.anyOf)).value;
+      mutation(schema.anyOf[0]);
+    });
+    assert.ok(hasRule(result, "contracts.schema-shape"));
+  }
+});

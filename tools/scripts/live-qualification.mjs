@@ -3,7 +3,7 @@
  * Create, validate, and render exact-head live qualification evidence.
  *
  * @example
- * node tools/scripts/live-qualification.mjs validate --file evidence.json --evidence-manifest manifest.json --release-manifest release-manifest.json
+ * node tools/scripts/live-qualification.mjs validate --file evidence.json --evidence-manifest manifest.json --evidence-file payload.json --release-manifest release-manifest.json
  */
 
 import { execFileSync } from "node:child_process";
@@ -29,7 +29,15 @@ const COMMAND_OPTIONS = {
     "runtime-bundle",
     "target-scope",
   ]),
-  validate: new Set(["branch", "evidence-manifest", "file", "package-lock", "release-manifest", "runtime-bundle"]),
+  validate: new Set([
+    "branch",
+    "evidence-file",
+    "evidence-manifest",
+    "file",
+    "package-lock",
+    "release-manifest",
+    "runtime-bundle",
+  ]),
   render: new Set(["file", "output"]),
 };
 
@@ -44,7 +52,12 @@ export function parseLiveQualificationArguments(argv) {
     if (!argument?.startsWith("--") || value === undefined) throw new Error(`Expected --name value at ${argument}`);
     const name = argument.slice(2);
     if (!allowed.has(name)) throw new Error(`Unknown ${command} option: --${name}`);
-    options[name] = value;
+    if (name === "evidence-file") {
+      options[name] ??= [];
+      options[name].push(value);
+    } else {
+      options[name] = value;
+    }
   }
   return options;
 }
@@ -137,6 +150,45 @@ export function validateLiveQualification(qualification, evidenceManifest, actua
     }
   }
   findings.push(...secretIssues(qualification, dependencies.secretFieldPattern, dependencies.secretValuePattern));
+  return findings.sort();
+}
+
+export function validateEvidencePayloads(evidenceManifest, payloads) {
+  if (
+    !Array.isArray(evidenceManifest?.entries) ||
+    evidenceManifest.entries.some(
+      (entry) =>
+        entry === null ||
+        typeof entry !== "object" ||
+        typeof entry.kind !== "string" ||
+        typeof entry.hash !== "string" ||
+        !Number.isInteger(entry.bytes),
+    )
+  ) {
+    return ["evidence payloads: evidence manifest entries are invalid"];
+  }
+  const findings = [];
+  const entriesByHash = new Map(evidenceManifest.entries.map((entry) => [entry.hash, entry]));
+  const matchedHashes = new Set();
+  for (const { path, bytes } of payloads) {
+    const hash = sha256(bytes);
+    const entry = entriesByHash.get(hash);
+    if (entry === undefined) {
+      findings.push(`evidence payload ${path}: hash ${hash} is not declared in the evidence manifest`);
+      continue;
+    }
+    if (matchedHashes.has(hash)) {
+      findings.push(`evidence payload ${path}: duplicates manifest entry ${entry.kind}`);
+      continue;
+    }
+    matchedHashes.add(hash);
+    if (bytes.byteLength !== entry.bytes) {
+      findings.push(`evidence payload ${path}: expected ${entry.bytes} bytes, found ${bytes.byteLength}`);
+    }
+  }
+  for (const entry of evidenceManifest.entries) {
+    if (!matchedHashes.has(entry.hash)) findings.push(`evidence manifest entry ${entry.kind}: payload is missing`);
+  }
   return findings.sort();
 }
 
@@ -356,15 +408,21 @@ async function main() {
   }
   const qualification = await readJsonBytes(resolve(required(options, "file")));
   const evidenceManifest = await readJsonBytes(evidenceManifestPath);
-  const findings = validateLiveQualification(
-    qualification.value,
-    evidenceManifest.value,
-    {
-      candidate: await currentCandidate(options),
-      evidenceManifestHash: sha256(evidenceManifest.bytes),
-    },
-    dependencies,
+  const evidencePayloads = await Promise.all(
+    (options["evidence-file"] ?? []).map(async (path) => ({ path, bytes: await readFile(resolve(path)) })),
   );
+  const findings = [
+    ...validateLiveQualification(
+      qualification.value,
+      evidenceManifest.value,
+      {
+        candidate: await currentCandidate(options),
+        evidenceManifestHash: sha256(evidenceManifest.bytes),
+      },
+      dependencies,
+    ),
+    ...validateEvidencePayloads(evidenceManifest.value, evidencePayloads),
+  ].sort();
   if (findings.length > 0) {
     for (const finding of findings) process.stderr.write(`❌ ${finding}\n`);
     process.exitCode = 1;

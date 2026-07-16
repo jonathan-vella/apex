@@ -37,6 +37,21 @@ export class LeaseStore {
     });
   }
 
+  async acquireAtEpoch(ownerId: string, ownerEpoch: number, ttlMs: number): Promise<LeaseRecord> {
+    return this.withLock(async () => {
+      const previous = await this.read();
+      const now = this.clock();
+      if (previous !== null && Date.parse(previous.expiresAt) > now.getTime()) {
+        throw new Error(`Lease is held by ${previous.ownerId}`);
+      }
+      if (!Number.isInteger(ownerEpoch) || ownerEpoch < 1) throw new Error("Lease owner epoch must be positive");
+      if (previous !== null && previous.ownerEpoch > ownerEpoch) throw new Error("Lease owner epoch cannot regress");
+      const lease = this.createLease(ownerId, ownerEpoch, ttlMs, now);
+      await atomicWriteJson(this.path, lease);
+      return lease;
+    });
+  }
+
   async heartbeat(ownerId: string, ownerEpoch: number, ttlMs: number): Promise<LeaseRecord> {
     return this.withLock(async () => {
       const current = await this.requireCurrent(ownerId, ownerEpoch);
