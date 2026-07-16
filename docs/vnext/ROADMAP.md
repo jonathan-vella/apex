@@ -97,6 +97,12 @@ or live and has a prepared procedure.
 - Terraform backend, protected exact plan, approval, apply, inventory, diagnosis, destroy, and recovery.
 - Promotion to a linked environment with Gate 4 refresh.
 
+The manual workflow, encrypted local handoff launcher, bootstrap resources, and structural mutation tests are prepared.
+See [LIVE-QUALIFICATION.md](LIVE-QUALIFICATION.md). Live proof remains outstanding; sandbox self-review must be disclosed,
+and production qualification requires independent approval.
+The dispatch-only workflow must first receive a separate reviewed default-branch bootstrap merge; exact candidate code
+continues to execute from `feat/apex-vnext-rewrite` and is not merged by that bootstrap.
+
 **Exit gate:** Evidence is bound to the candidate head and dependency hashes. Production Terraform CI apply remains
 blocked if encrypted recipient-bound transport is not proven.
 
