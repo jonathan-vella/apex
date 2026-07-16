@@ -185,3 +185,155 @@ test("Gate 4 approval binds the current transferred writer identity", async () =
   const approval = await service.decideGateNumber(4, "approved", "tester");
   assert.equal(approval.recipientIdentity, "ci");
 });
+
+test("Gate 4 approves and deploys an exact preview after one post-preview writer transfer", async () => {
+  const service = new ApexService(await tempRoot());
+  const initialized = await service.init({ projectId: "demo" });
+  await prepareValidatedRun(service, initialized.runId, "bicep");
+  const preview = await service.preview({ operation: "apply", provider: "fake" });
+  const transfer = (await service.createWriterTransfer({
+    repository: "owner/repo",
+    branch: "main",
+    commit: "abc",
+    workflowId: "deploy",
+    sender: "local",
+    recipient: "ci",
+    currentHead: "abc",
+    ttlMs: 60_000,
+  })) as { hash: string };
+  await service.acceptWriterTransfer(transfer.hash, "ci", "abc");
+  const approval = await service.decideGateNumber(4, "approved", "tester");
+  assert.equal(approval.writerEpoch, 2);
+  assert.equal(approval.writerTransferClaimHash, transfer.hash);
+  assert.equal((await service.deploy(preview.previewHash)).operation !== undefined, true);
+});
+
+test("Gate 4 rejects authority relinquished by a pending transfer", async () => {
+  const service = new ApexService(await tempRoot());
+  const initialized = await service.init({ projectId: "demo" });
+  await prepareValidatedRun(service, initialized.runId, "bicep");
+  await service.preview({ operation: "apply", provider: "fake" });
+  await service.createWriterTransfer({
+    repository: "owner/repo",
+    branch: "main",
+    commit: "abc",
+    workflowId: "deploy",
+    sender: "local",
+    recipient: "ci",
+    currentHead: "abc",
+    ttlMs: 60_000,
+  });
+  await assert.rejects(service.decideGateNumber(4, "approved", "tester"), /writer authority is missing or expired/);
+  assert.equal((await service.status()).run.gates[3]?.state, "open");
+});
+
+test("Gate 4 rejects an accepted writer after its lease expires", async () => {
+  let now = Date.parse("2026-01-01T00:00:00.000Z");
+  const service = new ApexService(await tempRoot(), { clock: () => new Date(now) });
+  const initialized = await service.init({ projectId: "demo" });
+  await prepareValidatedRun(service, initialized.runId, "bicep");
+  const transfer = (await service.createWriterTransfer({
+    repository: "owner/repo",
+    branch: "main",
+    commit: "abc",
+    workflowId: "deploy",
+    sender: "local",
+    recipient: "ci",
+    currentHead: "abc",
+    ttlMs: 1_000,
+  })) as { hash: string };
+  await service.acceptWriterTransfer(transfer.hash, "ci", "abc");
+  await service.preview({ operation: "apply", provider: "fake", expiresInMs: 2_000 });
+  now += 1_001;
+  await assert.rejects(service.decideGateNumber(4, "approved", "tester"), /writer authority is missing or expired/);
+  assert.equal((await service.status()).run.gates[3]?.state, "open");
+});
+
+test("Gate 4 approval cannot outlive the current writer lease", async () => {
+  let now = Date.parse("2026-01-01T00:00:00.000Z");
+  const service = new ApexService(await tempRoot(), { clock: () => new Date(now) });
+  const initialized = await service.init({ projectId: "demo" });
+  await prepareValidatedRun(service, initialized.runId, "bicep");
+  const transfer = (await service.createWriterTransfer({
+    repository: "owner/repo",
+    branch: "main",
+    commit: "abc",
+    workflowId: "deploy",
+    sender: "local",
+    recipient: "ci",
+    currentHead: "abc",
+    ttlMs: 1_000,
+  })) as { hash: string };
+  await service.acceptWriterTransfer(transfer.hash, "ci", "abc");
+  const preview = await service.preview({ operation: "apply", provider: "fake", expiresInMs: 2_000 });
+  const approval = await service.decideGateNumber(4, "approved", "tester");
+  assert.equal(approval.expiresAt, "2026-01-01T00:00:01.000Z");
+  assert.ok(Date.parse(approval.expiresAt!) < Date.parse(preview.expiresAt));
+});
+
+test("Gate 4 rejects a second post-preview writer hop and remains open", async () => {
+  const service = new ApexService(await tempRoot());
+  const initialized = await service.init({ projectId: "demo" });
+  await prepareValidatedRun(service, initialized.runId, "bicep");
+  await service.preview({ operation: "apply", provider: "fake" });
+  const first = (await service.createWriterTransfer({
+    repository: "owner/repo",
+    branch: "main",
+    commit: "abc",
+    workflowId: "deploy",
+    sender: "local",
+    recipient: "ci",
+    currentHead: "abc",
+    ttlMs: 60_000,
+  })) as { hash: string };
+  await service.acceptWriterTransfer(first.hash, "ci", "abc");
+  const second = (await service.createWriterTransfer({
+    repository: "owner/repo",
+    branch: "main",
+    commit: "abc",
+    workflowId: "deploy",
+    sender: "ci",
+    recipient: "prod",
+    currentHead: "abc",
+    ttlMs: 60_000,
+  })) as { hash: string };
+  await service.acceptWriterTransfer(second.hash, "prod", "abc");
+  await assert.rejects(service.decideGateNumber(4, "approved", "tester"), /lineage is invalid/);
+  assert.equal((await service.status()).run.gates[3]?.state, "open");
+});
+
+test("Gate 4 reopens for an exact superseding destroy preview and requires new approval", async () => {
+  const service = new ApexService(await tempRoot());
+  const initialized = await service.init({ projectId: "demo" });
+  await prepareValidatedRun(service, initialized.runId, "bicep");
+  const applyPreview = await service.preview({ operation: "apply", provider: "fake" });
+  await service.decideGateNumber(4, "approved", "tester");
+  await service.deploy(applyPreview.previewHash);
+
+  const destroyPreview = await service.preview({ operation: "destroy", provider: "fake" });
+  assert.equal((await service.status()).run.gates[3]?.state, "open");
+  await assert.rejects(service.deploy(destroyPreview.previewHash), /does not authorize the exact preview|approval/i);
+  await assert.rejects(service.deploy(applyPreview.previewHash), /not current/);
+
+  await service.decideGateNumber(4, "approved", "tester");
+  const destroyed = await service.deploy(destroyPreview.previewHash);
+  assert.equal((destroyed.operation as { operation?: unknown }).operation, "destroy");
+  assert.equal(destroyed.inventory.resources.length, 0);
+
+  const events = await service.history(100);
+  assert.ok(events.some((event) => event.type === "gate.reopened"));
+});
+
+test("Gate 4 refreshes an expired open preview without promotion", async () => {
+  let now = Date.parse("2026-01-01T00:00:00.000Z");
+  const service = new ApexService(await tempRoot(), { clock: () => new Date(now) });
+  const initialized = await service.init({ projectId: "demo" });
+  await prepareValidatedRun(service, initialized.runId, "bicep");
+  const expired = await service.preview({ operation: "apply", provider: "fake", expiresInMs: 1 });
+  now += 2;
+  const refreshed = await service.preview({ operation: "apply", provider: "fake", expiresInMs: 60_000 });
+  assert.notEqual(refreshed.previewHash, expired.previewHash);
+  await assert.rejects(service.deploy(expired.previewHash), /not current|approval/i);
+  await service.decideGateNumber(4, "approved", "tester");
+  assert.equal((await service.deploy(refreshed.previewHash)).operation !== undefined, true);
+});

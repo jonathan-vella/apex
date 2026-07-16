@@ -1,9 +1,9 @@
 import assert from "node:assert/strict";
-import { mkdtemp } from "node:fs/promises";
+import { mkdtemp, readFile, readdir, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
-import { ProjectStore, WriterTransferStore } from "../index.js";
+import { EventJournal, ProjectStore, WriterTransferStore } from "../index.js";
 
 async function fixture(repositoryOptions = {}) {
   const root = await mkdtemp(join(tmpdir(), "apex-transfer-"));
@@ -16,6 +16,7 @@ async function fixture(repositoryOptions = {}) {
   await transfers.leaseStore().acquire("alice", 10_000);
   return {
     transfers,
+    runDirectory: projects.runDirectory("demo", "run-1"),
     setNow: (value: string) => {
       now = new Date(value);
     },
@@ -49,8 +50,155 @@ test("writer transfer binds head and recipient, releases sender, and atomically 
     eventId: "accepted-1",
   });
   assert.equal(ownership.ownerEpoch, 2);
+  assert.equal(ownership.claimHash, created.hash);
+  assert.equal(ownership.previousOwnerId, "alice");
+  assert.equal(ownership.previousOwnerEpoch, 1);
   assert.equal(ownership.approvalEnvironment, "vnext-qualification");
   assert.equal((await transfers.currentOwnership())?.ownerId, "bob");
+});
+
+test("writer transfer lease mismatch creates no claim or journal event", async () => {
+  const { transfers, runDirectory } = await fixture();
+  const journalBefore = await readdir(join(runDirectory, "journal"));
+  await assert.rejects(transfers.create({ ...request, sender: "mallory" }), /current lease/);
+  await assert.rejects(readdir(join(runDirectory, "transfers")), /ENOENT/);
+  assert.deepEqual(await readdir(join(runDirectory, "journal")), journalBefore);
+});
+
+test("writer transfer proves exact one-hop post-preview lineage", async () => {
+  const { transfers, runDirectory } = await fixture();
+  const journal = new EventJournal(join(runDirectory, "journal"));
+  const previewHash = "b".repeat(64);
+  await journal.append({
+    eventId: "preview-1",
+    projectId: "demo",
+    runId: "run-1",
+    type: "preview.created",
+    timestamp: "2026-01-01T00:00:00.000Z",
+    ownerEpoch: 1,
+    expectedHead: await journal.head(),
+    payload: { previewHash },
+  });
+  const created = await transfers.create(request);
+  await transfers.accept({
+    claimHash: created.hash,
+    recipient: "bob",
+    currentGitHead: "abc123",
+    eventId: "accepted-lineage",
+  });
+  assert.equal(await transfers.proveOneHopPostPreviewLineage(previewHash, 1), created.hash);
+  assert.equal(await transfers.proveOneHopPostPreviewLineage("c".repeat(64), 1), null);
+  assert.equal(await transfers.proveOneHopPostPreviewLineage(previewHash, 2), null);
+});
+
+test("writer transfer lineage expires and is superseded by a later request", async () => {
+  const expiring = await fixture();
+  const previewHash = "b".repeat(64);
+  const journal = new EventJournal(join(expiring.runDirectory, "journal"));
+  await journal.append({
+    eventId: "preview-expiry",
+    projectId: "demo",
+    runId: "run-1",
+    type: "preview.created",
+    timestamp: "2026-01-01T00:00:00.000Z",
+    ownerEpoch: 1,
+    expectedHead: await journal.head(),
+    payload: { previewHash },
+  });
+  const first = await expiring.transfers.create(request);
+  await expiring.transfers.accept({
+    claimHash: first.hash,
+    recipient: "bob",
+    currentGitHead: "abc123",
+    eventId: "accepted-expiry",
+  });
+  expiring.setNow("2026-01-01T00:00:06.000Z");
+  assert.equal(await expiring.transfers.proveOneHopPostPreviewLineage(previewHash, 1), null);
+
+  const superseded = await fixture();
+  const supersededJournal = new EventJournal(join(superseded.runDirectory, "journal"));
+  await supersededJournal.append({
+    eventId: "preview-superseded",
+    projectId: "demo",
+    runId: "run-1",
+    type: "preview.created",
+    timestamp: "2026-01-01T00:00:00.000Z",
+    ownerEpoch: 1,
+    expectedHead: await supersededJournal.head(),
+    payload: { previewHash },
+  });
+  const accepted = await superseded.transfers.create(request);
+  await superseded.transfers.accept({
+    claimHash: accepted.hash,
+    recipient: "bob",
+    currentGitHead: "abc123",
+    eventId: "accepted-superseded",
+  });
+  await superseded.transfers.create({
+    ...request,
+    sender: "bob",
+    recipient: "carol",
+    currentEpoch: 2,
+    eventId: "requested-next",
+  });
+  assert.equal(await superseded.transfers.proveOneHopPostPreviewLineage(previewHash, 1), null);
+});
+
+test("writer transfer rejects a claim requested before the preview", async () => {
+  const { transfers, runDirectory } = await fixture();
+  const created = await transfers.create(request);
+  const journal = new EventJournal(join(runDirectory, "journal"));
+  const previewHash = "b".repeat(64);
+  await journal.append({
+    eventId: "preview-after-transfer",
+    projectId: "demo",
+    runId: "run-1",
+    type: "preview.created",
+    timestamp: "2026-01-01T00:00:00.000Z",
+    ownerEpoch: 1,
+    expectedHead: await journal.head(),
+    payload: { previewHash },
+  });
+  await transfers.accept({
+    claimHash: created.hash,
+    recipient: "bob",
+    currentGitHead: "abc123",
+    eventId: "accepted-after-preview",
+  });
+  assert.equal(await transfers.proveOneHopPostPreviewLineage(previewHash, 1), null);
+});
+
+test("writer transfer lineage fails closed on ownership or claim tampering", async () => {
+  const { transfers, runDirectory } = await fixture();
+  const journal = new EventJournal(join(runDirectory, "journal"));
+  const previewHash = "b".repeat(64);
+  await journal.append({
+    eventId: "preview-tamper",
+    projectId: "demo",
+    runId: "run-1",
+    type: "preview.created",
+    timestamp: "2026-01-01T00:00:00.000Z",
+    ownerEpoch: 1,
+    expectedHead: await journal.head(),
+    payload: { previewHash },
+  });
+  const created = await transfers.create(request);
+  await transfers.accept({
+    claimHash: created.hash,
+    recipient: "bob",
+    currentGitHead: "abc123",
+    eventId: "accepted-tamper",
+  });
+  const ownershipPath = join(runDirectory, "ownership.json");
+  const ownership = await readFile(ownershipPath, "utf8");
+  await writeFile(ownershipPath, ownership.replace('"ownerId":"bob"', '"ownerId":"eve"'));
+  assert.equal(await transfers.proveOneHopPostPreviewLineage(previewHash, 1), null);
+  await writeFile(ownershipPath, ownership);
+
+  const claimPath = join(runDirectory, "transfers", `${created.hash}.json`);
+  const claim = await readFile(claimPath, "utf8");
+  await writeFile(claimPath, claim.replace('"recipient":"bob"', '"recipient":"eve"'));
+  assert.equal(await transfers.proveOneHopPostPreviewLineage(previewHash, 1), null);
 });
 
 test("writer transfer rejects stale head, epoch, expiry, and wrong recipient", async () => {
@@ -93,9 +241,13 @@ test("writer transfer rejects stale head, epoch, expiry, and wrong recipient", a
 });
 
 test("writer transfer releases the recipient lease when run mutation fails", async () => {
+  let failMutation = true;
   const { transfers } = await fixture({
     faultInjector: (stage: string) => {
-      if (stage === "intent") throw new Error("injected-transfer-failure");
+      if (stage === "intent" && failMutation) {
+        failMutation = false;
+        throw new Error("injected-transfer-failure");
+      }
     },
   });
   const claim = await transfers.create(request);
@@ -109,4 +261,11 @@ test("writer transfer releases the recipient lease when run mutation fails", asy
     /injected-transfer-failure/,
   );
   assert.equal(await transfers.leaseStore().current(), null);
+  const retried = await transfers.accept({
+    claimHash: claim.hash,
+    recipient: "bob",
+    currentGitHead: "abc123",
+    eventId: "accepted-retry",
+  });
+  assert.equal(retried.ownerEpoch, 2);
 });

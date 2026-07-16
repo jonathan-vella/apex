@@ -65,6 +65,10 @@
         "writerEpoch": {
           "minimum": 1,
           "type": "integer"
+        },
+        "writerTransferClaimHash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
         }
       },
       "required": [
@@ -144,6 +148,10 @@
         "writerEpoch": {
           "minimum": 1,
           "type": "integer"
+        },
+        "writerTransferClaimHash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
         }
       },
       "required": [
@@ -286,6 +294,10 @@
         "writerEpoch": {
           "minimum": 1,
           "type": "integer"
+        },
+        "writerTransferClaimHash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
         }
       },
       "required": [

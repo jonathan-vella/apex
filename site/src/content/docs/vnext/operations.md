@@ -54,6 +54,10 @@ the validated settings to `.apex/provider-config.json`.
 Do not add tokens, passwords, keys, credentials, backend secrets, or Terraform state to provider configuration. Use the
 actual run and task paths returned by `apex task context`.
 
+Bicep preview lists deployment stacks in the configured resource group and selects the exact `stackName` in process. A
+missing exact stack is treated as an empty managed set, so the first cloud mutation remains the approved
+`az stack group create`. Malformed, duplicate, or wrong-resource-group stack entries fail before Gate 4.
+
 `lockfileHash` must equal the current raw SHA-256 of `.terraform.lock.hcl`. The CLI also hashes all `.tf`, `.tf.json`,
 `.tfvars`, `.tfvars.json`, and lock files under `cwd`, excluding `.terraform/`. Preview and deploy recompute that tree;
 source drift, variable drift, lock drift, or a symlink fails closed. `configHash` may pin an expected tree hash but is not
@@ -98,8 +102,16 @@ writer-transfer claim expiry.
 
 ## Transfer Exact Provider Authority to Apply
 
-After preview completes, export only the binding for the approved preview. Terraform also includes the exact encrypted
-saved-plan artifact referenced by that binding.
+Set the intended apply recipient when creating a Terraform preview. Terraform encrypts the saved plan for that identity,
+which may differ from the current preview writer:
+
+```bash
+apex preview --operation apply --provider terraform --recipient "$RECIPIENT" --json
+```
+
+After preview completes, create exactly one writer-transfer claim from the preview writer to that recipient, then export
+only the binding for the preview. Terraform also includes the exact encrypted saved-plan artifact referenced by that
+binding. A transfer claim created before preview cannot authorize the preview.
 
 ```bash
 apex provider transfer-export \
@@ -146,6 +158,11 @@ The CLI derives the evidence actor as `github:<actor-id>:<actor>` and the recipi
 malformed variables, stale ownership, and any repository, branch, commit, workflow, recipient, or owner-epoch mismatch
 against the accepted writer-transfer claim. The approval expires no later than its exact deployment preview.
 
+The accepted transfer must advance the preview owner epoch by exactly one. Gate 4 records the authenticated claim hash,
+and deploy recomputes the same proof from ownership, claim bytes, and journal order. A second transfer, changed claim,
+superseded preview, expired writer lease, or changed dependency revision fails before approval or provider execution.
+Approval expires at the earlier of the preview and current writer lease.
+
 GitHub Environment evidence records the workflow actor, not the identity of a required reviewer. In a repository where
 one maintainer can trigger the workflow and approve its environment, this does not prove independent review. Configure
 reviewer separation and environment protection outside APEX when separation of duties is required.
@@ -172,6 +189,14 @@ For Terraform, use `--provider terraform` and the Terraform provider config. The
 plan directory, immediately encrypts it into the local provider runtime, removes the plaintext plan, and deploy applies
 the approved exact plan. Provider transfer is implemented, but production CI encrypted plan transport remains blocked
 pending live proof across separate preview and apply jobs.
+
+The semantic dependency revision covers project/run identity, target, IaC track, runtime lock, and accepted artifact
+hashes. Writer ownership epoch is separate authority: an ownership-only transfer preserves the revision while approval
+and deploy still require the exact consecutive owner epoch and transfer lineage.
+
+A newly validated preview reopens Gate 4 and supersedes its prior decision on the same run. This supports expired
+preview refresh and apply-to-destroy qualification without promotion. Prior preview, approval, and deployment evidence
+remain immutable, but only the latest preview can receive a new exact approval.
 
 ## Preview and Apply a Destroy
 

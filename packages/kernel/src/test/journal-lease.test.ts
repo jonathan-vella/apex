@@ -96,3 +96,16 @@ test("lease expiry permits reacquisition with a new epoch", async () => {
   const third = await leases.acquire("owner-c", 1_000);
   assert.equal(third.ownerEpoch, second.ownerEpoch + 1);
 });
+
+test("lease acquisition can retry a run-authorized epoch without drifting", async () => {
+  const root = await mkdtemp(join(tmpdir(), "apex-exact-lease-"));
+  let now = new Date("2026-01-01T00:00:00.000Z");
+  const leases = new LeaseStore(join(root, "lease.json"), () => now);
+  const first = await leases.acquireAtEpoch("owner-a", 2, 1_000);
+  assert.equal(first.ownerEpoch, 2);
+  await leases.release("owner-a", 2);
+  const retried = await leases.acquireAtEpoch("owner-a", 2, 1_000);
+  assert.equal(retried.ownerEpoch, 2);
+  now = new Date("2026-01-01T00:00:02.000Z");
+  await assert.rejects(leases.acquireAtEpoch("owner-b", 1, 1_000), /cannot regress/);
+});

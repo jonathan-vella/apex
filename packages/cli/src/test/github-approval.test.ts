@@ -266,7 +266,7 @@ test("GitHub Environment approval rejects missing, stale, and mismatched writer 
         mechanism: "github-environment",
         githubContext: fixture.githubContext,
       }),
-      /recipient|ownership is missing or stale|context does not match writer ownership/,
+      /recipient|ownership is missing or stale|context does not match writer ownership|writer authority is missing or expired/,
     );
   }
 });
