@@ -125,6 +125,10 @@ directly.
 - `apex-recall` CLI for progressive session recall across agent-output projects
 - Source content for the published documentation site
 
+vNext development status and the prepared, not-yet-executed live qualification ceremony are documented in
+[docs/vnext/PROJECT.md](docs/vnext/PROJECT.md) and
+[docs/vnext/LIVE-QUALIFICATION.md](docs/vnext/LIVE-QUALIFICATION.md).
+
 ## License
 
 MIT. See [LICENSE](LICENSE).

@@ -1,0 +1,164 @@
+{
+  "schema_version": "1.0",
+  "challenged_artifact": "agent-output/vnext-qualification/04-governance-constraints.md",
+  "artifact_type": "governance-constraints",
+  "review_focus": "governance-reconciliation",
+  "pass_number": 7,
+  "reviewed_at": "2026-07-15T21:45:05Z",
+  "challenge_summary": "Pass-7 governance reconciliation reaffirms the pass-6 approval after recovering the exact pass-6 Git blobs and comparing them with the current files. The current launcher and lifecycle tests are byte-for-byte the Prettier output of their approved pass-6 bytes, so formatting did not alter the session-only SecurityControl=Ignore transaction, exception revalidation ordering, cleanup independence, final publicNetworkAccess Disabled plus SecurityControl absence verification, or test semantics. Complete-surface hashing also found an unreported third byte change in tools/scripts/_lib/security-exceptions.mjs; its only diff is removal of a trailing blank line, and it is likewise exactly Prettier output of the pass-6 blob. Every other pass-6 surface hash is unchanged. The static IaC validator remains strict, imports no exception helper, contains no annotation parser or suppression branch, and passed across all eight IaC files. Focused and broader tests pass, all prior finding dispositions remain resolved, and no governance or architecture drift was found. Live Azure Policy evaluation, GitHub approval/OIDC/RBAC, data-plane readiness, apply, destroy, and authority-return behavior were not executed and remain residual risk.",
+  "compact_for_parent": "Pass 7 (governance-reconciliation) | LOW | 0 must_fix, 0 should_fix | Pass 6 reaffirmed; formatter-only drift verified",
+  "risk_level": "low",
+  "must_fix_count": 0,
+  "should_fix_count": 0,
+  "suggestion_count": 0,
+  "overall_assessment": "APPROVED",
+  "prior_pass_dispositions": [
+    {
+      "pass_number": 6,
+      "prior_assessment": "APPROVED",
+      "disposition": "reaffirmed_after_prettier_normalization",
+      "evidence": "Recovered unreachable Git blobs matched all three pass-6 SHA-256 values. Formatting each blob with the current Prettier produced the exact current SHA-256 for tools/scripts/_lib/security-exceptions.mjs, tools/scripts/vnext-live-handoff.mjs, and tools/tests/vnext-live-workflow.test.mjs. Exact diffs showed only removal of one trailing blank line in the helper, one launcher line-wrap change, and test callback/argument wrapping. No token, literal, operation, branch, assertion, or ordering changed. All remaining pass-6 review-surface hashes are unchanged."
+    }
+  ],
+  "prior_finding_dispositions": [
+    {
+      "id": "dc075013",
+      "source_pass": 1,
+      "disposition": "remains_resolved",
+      "evidence": "Preview and apply still run validate-vnext-qualification-context.mjs --security-exception-only after IPv4 resolution and immediately before the transient exclusion, endpoint enable, and one-/32 add. Local withFirewall still validates before and after IPv4 resolution. The runtime validator still requires exactly one current exception with the approved identity, control, scope, positive lifetime capped at 24 hours, and at least 75 minutes remaining."
+    },
+    {
+      "id": "f702961b",
+      "source_pass": 1,
+      "disposition": "remains_resolved",
+      "evidence": "Canonical JSON, governance Markdown, both plans, ADR, and docs are byte-unchanged. JV - Allowed Locations remains Audit and explicitly permits swedencentral, germanywestcentral, westeurope, and global."
+    },
+    {
+      "id": "6223eda4",
+      "source_pass": 1,
+      "disposition": "remains_resolved",
+      "evidence": "Base tag validation remains the exact approved ten-key contract. SecurityControl is not accepted as a static/base IaC exception; it remains absent from bootstrap and workload IaC at rest and exists only as the runtime session exclusion validated by the endpoint lifecycle contract."
+    },
+    {
+      "id": "04ac5b42",
+      "source_pass": 2,
+      "disposition": "remains_resolved",
+      "evidence": "Boundary validation after IPv4 resolution remains present in both workflow jobs and local withFirewall. The focused expiry-crossing test still proves that no Azure command runs when the second validation fails."
+    },
+    {
+      "id": "ed1588d3",
+      "source_pass": 2,
+      "disposition": "remains_resolved",
+      "evidence": "The final lifecycle remains session-only SecurityControl=Ignore: bootstrap and workload IaC are Disabled/default-deny with no SecurityControl tag; preview, apply, and local sessions add the tag before endpoint enable and network-rule add, independently attempt rule removal, endpoint disable, and tag removal, then verify both publicNetworkAccess Disabled and tag absence."
+    },
+    {
+      "id": "65690b81",
+      "source_pass": 3,
+      "disposition": "remains_resolved",
+      "evidence": "ADR 0001 remains byte-unchanged and consistent with canonical JSON, governance Markdown, both plans, and operator documentation on the allowed-locations Audit assignment and swedencentral allowance."
+    }
+  ],
+  "normalization_assessment": {
+    "declared_changed_files": [
+      "tools/scripts/vnext-live-handoff.mjs",
+      "tools/tests/vnext-live-workflow.test.mjs"
+    ],
+    "additional_changed_file_detected": "tools/scripts/_lib/security-exceptions.mjs",
+    "additional_change_disposition": "formatter_only_nonsemantic",
+    "recovered_pass6_blobs": {
+      "tools/scripts/_lib/security-exceptions.mjs": "cefb6fb1ef64fd0d4722b3e1672d2cfb3602d291",
+      "tools/scripts/vnext-live-handoff.mjs": "d96c0239a1fd1f6ac01e9606993c52c7bc987f5a",
+      "tools/tests/vnext-live-workflow.test.mjs": "7f603846c4ef6663b1728147c1883291d2297563"
+    },
+    "prettier_exact_match": {
+      "tools/scripts/_lib/security-exceptions.mjs": true,
+      "tools/scripts/vnext-live-handoff.mjs": true,
+      "tools/tests/vnext-live-workflow.test.mjs": true
+    },
+    "semantic_invariants": {
+      "session_only_security_control_exclusion": "unchanged",
+      "exception_revalidation_before_mutation": "unchanged",
+      "open_order": "validate, add exclusion, enable endpoint, add one /32",
+      "cleanup_independence": "unchanged; rule removal, endpoint disable, exclusion removal, and final query remain separate attempts",
+      "dual_state_verification": "unchanged; requires publicNetworkAccess Disabled and SecurityControl absent",
+      "focused_tests": "unchanged semantically; formatter changed wrapping only"
+    }
+  },
+  "static_iac_baseline_assessment": {
+    "status": "strict_baseline_reconfirmed",
+    "evidence": [
+      "tools/scripts/validate-iac-security-baseline.mjs is byte-unchanged from pass 6.",
+      "Its imports remain limited to fs, path, Reporter, walkFiles, and findAllMatches; it imports no security-exceptions helper.",
+      "Repository search found no security-exception annotation marker outside historical challenger sidecars and found no static validator reference to collectSecurityExceptions or securityExceptionIssues.",
+      "Every matching Bicep or Terraform anti-pattern reports directly through Reporter.error; no suppression branch exists.",
+      "npm run validate:iac-security-baseline checked 2 Bicep and 6 Terraform files with 0 errors and 0 warnings."
+    ],
+    "runtime_exception_helper": "Imported by qualification runtime validation and its direct tests only; not imported by the static IaC validator."
+  },
+  "governance_reconciliation": {
+    "discovery_status": "COMPLETE",
+    "effective_assignment_count": 33,
+    "finding_count": 99,
+    "deny_blocker_count": 18,
+    "required_tag_count": 10,
+    "allowed_locations": [
+      "germanywestcentral",
+      "global",
+      "swedencentral",
+      "westeurope"
+    ],
+    "architecture_drift": "none_detected",
+    "pass6_reaffirmation": "explicit"
+  },
+  "residual_risks": [
+    "Live Azure Policy evaluation of the SecurityControl exclusion across storage account update and network-rule PATCH calls was not executed. Source ordering is fail-closed, but actual policy behavior remains deployment-phase evidence.",
+    "GitHub Environment approval, OIDC token exchange, Azure RBAC propagation, Azure CLI runtime calls, storage data-plane readiness, apply, destroy, and authority return were not executed in this review and remain residual qualification risk rather than source findings.",
+    "This pass reconciles the committed COMPLETE policy snapshot and does not re-query Azure. Any policy, assignment, exemption, or workflow refresh invalidates this review.",
+    "The approved exception expires at 2026-07-16T12:50:34Z. Runtime validation requires at least 75 minutes remaining, so a later qualification attempt must refresh governance evidence before any endpoint session."
+  ],
+  "findings": [],
+  "validation_evidence": {
+    "prettier_check": "npx prettier --check tools/scripts/vnext-live-handoff.mjs tools/tests/vnext-live-workflow.test.mjs: passed",
+    "recovered_blob_prettier_equivalence": "All three changed current files exactly match Prettier output of their recovered pass-6 blobs.",
+    "focused_lifecycle_tests": "npm run test:vnext-live-workflow: 50 passed, 0 failed",
+    "broader_vnext_validator_tests": "npm run test:vnext-validator: 68 passed, 0 failed",
+    "security_exception_tests": "node --test tools/tests/security-exceptions.test.mjs: 2 passed, 0 failed",
+    "workflow_validator": "npm run validate:vnext-live-workflow: passed",
+    "iac_security_baseline": "npm run validate:iac-security-baseline: 8 files checked, 0 errors, 0 warnings"
+  },
+  "review_surface_hashes": {
+    ".github/workflows/vnext-live-qualification.yml": "2a9ecf63e12152bb71c98b25957c9229cbd8b939406f5a3ff890b64861bfbfe4",
+    "CHANGELOG.md": "b2fe9b9c093ce5ad9e021280d3441f0439e9774482bff72f3e8172223b0adb6d",
+    "agent-output/vnext-qualification/03-des-adr-0001-use-split-encrypted-ci-transport.md": "81d15bbcc039eb9a166b88b954c2c050894636d75b31180e3c2c828983ef5d80",
+    "agent-output/vnext-qualification/04-governance-constraints.json": "747cff346aa70fa5e65697e535035d2721583d6e010df66d7635f6e3f343cd98",
+    "agent-output/vnext-qualification/04-governance-constraints.md": "0553cc63dd0cf42119b723fb6013a183828dd5cfdbfc8d37f307caa94f35a54f",
+    "agent-output/vnext-qualification/challenge-findings-governance-constraints-pass1.json": "75d804a1da96f93f9d9a20444e885c0fc276091066e24a49031cfc21ebd11fa4",
+    "agent-output/vnext-qualification/challenge-findings-governance-constraints-pass2.json": "a277ee609cc8d9ba95ad685cf4a931750da52eabca343012f6de338723f02e48",
+    "agent-output/vnext-qualification/challenge-findings-governance-constraints-pass3.json": "b98de1b7c8587d0164d93d30a7feacf00c2687281f3b10fb9efe10c8b6d02c59",
+    "agent-output/vnext-qualification/challenge-findings-governance-constraints-pass4.json": "89f5b15efd4e1aaa021ef9fcecb4d3d621c03f42c9eea5269facba180803ca8c",
+    "agent-output/vnext-qualification/challenge-findings-governance-constraints-pass5.json": "cfd42cb5903696e865f1634e863cf0c31317f7b0b4fa4e9f3aa2c943db5d1ef6",
+    "agent-output/vnext-qualification/challenge-findings-governance-constraints-pass6.json": "cf17c97e49b9855ebc38bcaa0a78b6fccba19aa822b7fb417ffb13cce6d0d04e",
+    "docs/vnext/LIVE-QUALIFICATION.md": "6d7ce8e30708acf82cf383669335856b80043579fd8af1df4ce8450e4908b0f9",
+    "infra/bicep/vnext-qualification/.azure/plan.md": "d24b3739bda1780e335b96328b7f5c8f1a596ff5e7aaf8991fcbe3765a283a36",
+    "infra/bicep/vnext-qualification/bootstrap.bicep": "defaaa221ae287273209e41e134c438ef3160c123963b437e0f83d55b193b88f",
+    "infra/bicep/vnext-qualification/main.bicep": "7fb3ef8f5785634a3eef7ccca49baf674627bcce8cc013950ab2e677b1fab9aa",
+    "infra/terraform/vnext-qualification/.azure/plan.md": "f100e036696403d908efcae90665a226dcd578df77f53735c979125ee6e052c6",
+    "infra/terraform/vnext-qualification/main.tf": "7bf52770d1f064f95430882b05bb4650f863692f7270814c7b46721c87b99a04",
+    "tools/scripts/_lib/security-exceptions.mjs": "fced4511b8fa307f7223c8882c5830098f4e373e85d8a29cfc80ab64e6eb190a",
+    "tools/scripts/validate-iac-security-baseline.mjs": "9783841743d413df38e73cb0f5848cd34fe215d6350d3820760dc63d73350bca",
+    "tools/scripts/validate-vnext-live-workflow.mjs": "17514ee136d168e7b4c3ec3913b36c5fbe63637b09817103466fbdd8f3f8b707",
+    "tools/scripts/validate-vnext-qualification-context.mjs": "a5d6c60a95e6208676f4aec1f578859c09b17a1b7fa5650fd35440445ff6d87e",
+    "tools/scripts/vnext-live-handoff.mjs": "701b1b8bb454689ff2dedf83947ee8b63388bc8df9ea16fff97112136355a0cc",
+    "tools/tests/security-exceptions.test.mjs": "9cc9435f3097c29d17c20eae893ba62b9c63236b2dc200bb48c2c2267d241f77",
+    "tools/tests/vnext-live-workflow.test.mjs": "d6634c26ed0a16d4f7067eb19685bf21d32d223d2596bc33a9a40c30f9ebea99",
+    "tools/tests/vnext-qualification-context.test.mjs": "506a424527fc98311ff92baff1cfa0e826abeed8e2254dac456fa9440183863c"
+  },
+  "cache_inputs": {
+    "artifact_sha": "0553cc63dd0cf42119b723fb6013a183828dd5cfdbfc8d37f307caa94f35a54f",
+    "checklists_sha": "6a7c048e28c7e0f09566eb7a1a4329579cf60fb19d435caf0a22423f6cb06c7b",
+    "protocol_sha": "55197255ea03bb97e0e33592de94ba1bafbb183cf7f83503d22a2b35f0a2071c",
+    "subagent_sha": "bafc28d2f2b6d9b6b817094a57935ab0bf2a5308f219ca696c39eb7cc7955264",
+    "model": "GPT-5.5",
+    "artifact_hash": "160a2716c2d031f29a5c8a4d2351cccd20bddd7b01da071c774ee61f847e9bad"
+  }
+}

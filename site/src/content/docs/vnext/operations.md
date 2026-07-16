@@ -194,6 +194,10 @@ The semantic dependency revision covers project/run identity, target, IaC track,
 hashes. Writer ownership epoch is separate authority: an ownership-only transfer preserves the revision while approval
 and deploy still require the exact consecutive owner epoch and transfer lineage.
 
+A newly validated preview reopens Gate 4 and supersedes its prior decision on the same run. This supports expired
+preview refresh and apply-to-destroy qualification without promotion. Prior preview, approval, and deployment evidence
+remain immutable, but only the latest preview can receive a new exact approval.
+
 ## Preview and Apply a Destroy
 
 Destroy is also preview-bound:

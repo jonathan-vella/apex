@@ -301,3 +301,39 @@ test("Gate 4 rejects a second post-preview writer hop and remains open", async (
   await assert.rejects(service.decideGateNumber(4, "approved", "tester"), /lineage is invalid/);
   assert.equal((await service.status()).run.gates[3]?.state, "open");
 });
+
+test("Gate 4 reopens for an exact superseding destroy preview and requires new approval", async () => {
+  const service = new ApexService(await tempRoot());
+  const initialized = await service.init({ projectId: "demo" });
+  await prepareValidatedRun(service, initialized.runId, "bicep");
+  const applyPreview = await service.preview({ operation: "apply", provider: "fake" });
+  await service.decideGateNumber(4, "approved", "tester");
+  await service.deploy(applyPreview.previewHash);
+
+  const destroyPreview = await service.preview({ operation: "destroy", provider: "fake" });
+  assert.equal((await service.status()).run.gates[3]?.state, "open");
+  await assert.rejects(service.deploy(destroyPreview.previewHash), /does not authorize the exact preview|approval/i);
+  await assert.rejects(service.deploy(applyPreview.previewHash), /not current/);
+
+  await service.decideGateNumber(4, "approved", "tester");
+  const destroyed = await service.deploy(destroyPreview.previewHash);
+  assert.equal((destroyed.operation as { operation?: unknown }).operation, "destroy");
+  assert.equal(destroyed.inventory.resources.length, 0);
+
+  const events = await service.history(100);
+  assert.ok(events.some((event) => event.type === "gate.reopened"));
+});
+
+test("Gate 4 refreshes an expired open preview without promotion", async () => {
+  let now = Date.parse("2026-01-01T00:00:00.000Z");
+  const service = new ApexService(await tempRoot(), { clock: () => new Date(now) });
+  const initialized = await service.init({ projectId: "demo" });
+  await prepareValidatedRun(service, initialized.runId, "bicep");
+  const expired = await service.preview({ operation: "apply", provider: "fake", expiresInMs: 1 });
+  now += 2;
+  const refreshed = await service.preview({ operation: "apply", provider: "fake", expiresInMs: 60_000 });
+  assert.notEqual(refreshed.previewHash, expired.previewHash);
+  await assert.rejects(service.deploy(expired.previewHash), /not current|approval/i);
+  await service.decideGateNumber(4, "approved", "tester");
+  assert.equal((await service.deploy(refreshed.previewHash)).operation !== undefined, true);
+});

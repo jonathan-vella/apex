@@ -1,0 +1,82 @@
+{
+  "schema_version": "1.0",
+  "challenged_artifact": "agent-output/vnext-qualification/04-governance-constraints.md",
+  "artifact_type": "governance-constraints",
+  "review_focus": "governance-reconciliation",
+  "pass_number": 4,
+  "reviewed_at": "2026-07-15T20:41:55Z",
+  "challenge_summary": "Final pass-4 reconciliation confirms every prior finding is resolved. Canonical governance, Markdown, both plans, ADR 0001, workflow and local handoff endpoint transactions, validators, focused tests, bootstrap and workload IaC, and operator documentation consistently represent the inherited allowed-locations assignment as Audit with swedencentral allowed and the backend as Disabled at rest with no persistent exclusion marker. No new contradiction or fail-open path was found.",
+  "compact_for_parent": "Pass 4 (governance-reconciliation) | LOW | 0 must_fix, 0 should_fix | All prior findings resolved; no new contradiction or fail-open path",
+  "risk_level": "low",
+  "must_fix_count": 0,
+  "should_fix_count": 0,
+  "suggestion_count": 0,
+  "overall_assessment": "APPROVED",
+  "prior_finding_dispositions": [
+    {
+      "id": "dc075013",
+      "disposition": "resolved",
+      "evidence": "The original runtime-expiry gap is fully superseded by the resolved pass-2 boundary finding 04ac5b42. The canonical exception now binds the exact control, environment, workload, 24-hour maximum, 75-minute remaining-time floor, and endpoint lifecycle. Every reviewed firewall-add caller validates the exception at the mutation boundary."
+    },
+    {
+      "id": "f702961b",
+      "disposition": "resolved",
+      "evidence": "Canonical JSON records JV - Allowed Locations with effect audit and allows germanywestcentral, global, swedencentral, and westeurope. Governance Markdown, both plans, and ADR 0001 all state that the inherited assignment is Audit and explicitly allows swedencentral."
+    },
+    {
+      "id": "6223eda4",
+      "disposition": "resolved",
+      "evidence": "Canonical tags_required contains exactly the ten approved keys. The context validator enforces byte-equivalent values for those ten keys, bootstrap and workload IaC consume the supplied tag object, and no persistent SecurityControl exclusion marker exists in reviewed source or artifacts."
+    },
+    {
+      "id": "04ac5b42",
+      "disposition": "remains_resolved",
+      "evidence": "Both workflow jobs resolve the runner IPv4, revalidate with --security-exception-only immediately before enabling public access and adding one /32, then unconditionally remove the rule, restore Disabled, query the final state, and fail cleanup on any defect. The local withFirewall helper validates before and after IPv4 resolution and implements the same try/finally transaction. Focused expiry-crossing and cleanup mutations pass."
+    },
+    {
+      "id": "ed1588d3",
+      "disposition": "remains_resolved",
+      "evidence": "Bootstrap declares publicNetworkAccess Disabled with defaultAction Deny and no SecurityControl tag. Both workload stacks disable public network access and local/shared-key authorization. Canonical governance, both plans, ADR 0001, and operator docs consistently describe a transient endpoint transaction with no persistent policy-exclusion marker."
+    },
+    {
+      "id": "65690b81",
+      "disposition": "resolved",
+      "evidence": "ADR 0001 Compliance Considerations now states: Uses swedencentral for all Azure resources; the inherited allowed-locations assignment is Audit and explicitly allows swedencentral. This matches canonical JSON, governance Markdown, and both ignored plan files."
+    }
+  ],
+  "residual_risks": [
+    "Live Azure deployment, GitHub Environment approval, OIDC token exchange, Azure RBAC propagation, Azure CLI runtime behavior, storage data-plane access, apply, destroy, and authority return were not executed in this review. They remain deployment-phase residual risks, not source findings.",
+    "This pass did not re-query Azure Policy. It reconciles the committed COMPLETE live snapshot, which records 33 retained assignments, 18 Deny blockers, the inherited allowed-locations assignment in Audit mode, and no policy exemptions.",
+    "The approved exception expires at 2026-07-16T12:50:34Z. Runtime validation currently requires at least 75 minutes remaining and fails closed; any later qualification attempt requires refreshed governance evidence."
+  ],
+  "findings": [],
+  "review_surface_hashes": {
+    "agent-output/vnext-qualification/04-governance-constraints.json": "e5834da2b90c46009d7c7c3143ed201852a4ac595a2956967be9b04d8a7bfdac",
+    "agent-output/vnext-qualification/04-governance-constraints.md": "11897762415ec78934c84ddef819b43e97cf032d9554f8873d95bf9f5c961137",
+    "agent-output/vnext-qualification/challenge-findings-governance-constraints-pass1.json": "75d804a1da96f93f9d9a20444e885c0fc276091066e24a49031cfc21ebd11fa4",
+    "agent-output/vnext-qualification/challenge-findings-governance-constraints-pass2.json": "a277ee609cc8d9ba95ad685cf4a931750da52eabca343012f6de338723f02e48",
+    "agent-output/vnext-qualification/challenge-findings-governance-constraints-pass3.json": "b98de1b7c8587d0164d93d30a7feacf00c2687281f3b10fb9efe10c8b6d02c59",
+    ".github/workflows/vnext-live-qualification.yml": "ac7449efa4fd2a8a147528714b0d47e1db3fd2909fc6547de31cf01b57631973",
+    "tools/scripts/validate-vnext-qualification-context.mjs": "f16f8af26c2eb1594bd0d9fa448ec15cf170d4ceecf78171e2099f5080f20140",
+    "tools/scripts/vnext-live-handoff.mjs": "310b6ade59cab64d19ef9c418643caa336f604f62ccdd13bb7404b8ec21526e2",
+    "tools/scripts/validate-vnext-live-workflow.mjs": "5952b504ca20b65013b6e2cc68f5574b05f825034f6f4854bd553ccc07136363",
+    "tools/tests/vnext-live-workflow.test.mjs": "82933aea6dbab4b15924ceb7d11282788e21d94626a507248a0ebc82240528ad",
+    "tools/tests/vnext-qualification-context.test.mjs": "5030798bd3591dbd69c22bbda961afbd50d758ec6419672fd3feb09cb02980e5",
+    "tools/tests/security-exceptions.test.mjs": "52a0d78be29ce3b9605d4482ee036ab6886cfa114efb9830a23fc1b322bec13b",
+    "infra/bicep/vnext-qualification/bootstrap.bicep": "defaaa221ae287273209e41e134c438ef3160c123963b437e0f83d55b193b88f",
+    "infra/bicep/vnext-qualification/main.bicep": "7fb3ef8f5785634a3eef7ccca49baf674627bcce8cc013950ab2e677b1fab9aa",
+    "infra/terraform/vnext-qualification/main.tf": "7bf52770d1f064f95430882b05bb4650f863692f7270814c7b46721c87b99a04",
+    "infra/bicep/vnext-qualification/.azure/plan.md": "6529427d0bcadca204c46e2122e18db079b3f91dc34b274aae54276eb932728b",
+    "infra/terraform/vnext-qualification/.azure/plan.md": "c8621312c85310d590329239521992658decec19d4b57ce1022eb38e9cd1a82f",
+    "docs/vnext/LIVE-QUALIFICATION.md": "d65f4118c3da97f575695b6d37c3dddd742bba65e11bcaf388b60944d39ed2d8",
+    "agent-output/vnext-qualification/03-des-adr-0001-use-split-encrypted-ci-transport.md": "079645ecb1f7788d336c72a351bf9432e6da50921180beeee9b9ea63df2c8337"
+  },
+  "cache_inputs": {
+    "artifact_sha": "11897762415ec78934c84ddef819b43e97cf032d9554f8873d95bf9f5c961137",
+    "checklists_sha": "6a7c048e28c7e0f09566eb7a1a4329579cf60fb19d435caf0a22423f6cb06c7b",
+    "protocol_sha": "55197255ea03bb97e0e33592de94ba1bafbb183cf7f83503d22a2b35f0a2071c",
+    "subagent_sha": "bafc28d2f2b6d9b6b817094a57935ab0bf2a5308f219ca696c39eb7cc7955264",
+    "model": "GPT-5.5",
+    "artifact_hash": "110924a8b769cbf290594717e1bbc8f7aa2ac57cf5d542f83937fa17548c29b5"
+  }
+}
