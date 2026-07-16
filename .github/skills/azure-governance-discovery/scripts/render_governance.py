@@ -204,19 +204,23 @@ def _extract_constraint_value(finding: dict[str, Any]) -> str | None:
 
 
 def _dedup_blockers(blockers: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """Deduplicate blockers that share the same display_name across scopes.
+    """Deduplicate blockers that share policy semantics across scopes.
 
     Returns a list of representative blockers with a 'scopes' list
     and merged assignment_parameters from all instances.
     """
     from collections import OrderedDict
-    groups: OrderedDict[str, list[dict[str, Any]]] = OrderedDict()
+    groups: OrderedDict[tuple[str, str, str], list[dict[str, Any]]] = OrderedDict()
     for b in blockers:
-        key = b.get("display_name", "")
+        key = (
+            b.get("display_name", ""),
+            b.get("policy_id", ""),
+            json.dumps(b.get("assignment_parameters") or {}, sort_keys=True, separators=(",", ":")),
+        )
         groups.setdefault(key, []).append(b)
 
     deduped: list[dict[str, Any]] = []
-    for _name, items in groups.items():
+    for _key, items in groups.items():
         rep = dict(items[0])  # shallow copy of first instance
         rep["_scopes"] = [it.get("scope", "") for it in items]
         # Merge assignment_parameters from all instances (first non-empty wins per key)
@@ -288,7 +292,12 @@ def emit_preview_md(envelope: dict[str, Any], out_path: Path, arch_resources: li
     _seen_keys: set[tuple[str, ...]] = set()
     deduped_findings: list[dict[str, Any]] = []
     for f in findings:
-        key = (f.get("display_name", ""), f.get("scope", ""), f.get("policy_id", ""))
+        key = (
+            f.get("display_name", ""),
+            f.get("scope", ""),
+            f.get("policy_id", ""),
+            json.dumps(f.get("assignment_parameters") or {}, sort_keys=True, separators=(",", ":")),
+        )
         if key not in _seen_keys:
             _seen_keys.add(key)
             deduped_findings.append(f)
@@ -594,6 +603,17 @@ def emit_preview_md(envelope: dict[str, Any], out_path: Path, arch_resources: li
             a(f"| {f.get('display_name', '')} | {f.get('effect', '')} | {constraint} |")
     else:
         a("No network-specific policies discovered.\n")
+    location_constraints = envelope.get("location_constraints", [])
+    if location_constraints:
+        a("### Location Governance\n")
+        a("| Policy | Effect | Enforcement | Allowed Locations |")
+        a("| --- | --- | --- | --- |")
+        for constraint in location_constraints:
+            allowed = ", ".join(f"`{value}`" for value in constraint.get("allowed_locations", [])) or "N/A"
+            a(
+                f"| {constraint.get('display_name', '')} | {constraint.get('effect', '')} "
+                f"| {constraint.get('enforcement_mode', '')} | {allowed} |"
+            )
     a("")
 
     # Compliance Frameworks — notable audit/compliance assignments not in findings
@@ -635,6 +655,19 @@ def emit_preview_md(envelope: dict[str, Any], out_path: Path, arch_resources: li
     a("| --- | --- |")
     a("| Azure Policy | [Overview](https://learn.microsoft.com/azure/governance/policy/overview) |")
     a("| Tag Governance | [Tagging Strategy](https://learn.microsoft.com/azure/cloud-adoption-framework/ready/azure-best-practices/resource-tagging) |\n")
+    security_exceptions = envelope.get("security_exceptions", [])
+    if security_exceptions:
+        a("## Approved Security Exceptions\n")
+        a("| ID | Control | Environment | Workload | Expires |")
+        a("| --- | --- | --- | --- | --- |")
+        for exception in security_exceptions:
+            scope = exception.get("scope") or {}
+            a(
+                f"| `{exception.get('id', '')}` | `{exception.get('control', '')}` "
+                f"| `{scope.get('environment', '')}` | `{scope.get('workload', '')}` "
+                f"| `{exception.get('expires_at', '')}` |"
+            )
+        a("")
     a("---\n")
     footer_source = "cached governance baseline" if is_cached else "Azure Policy REST API via discover.py"
     a(f"_Governance constraints discovered from {footer_source}._\n")

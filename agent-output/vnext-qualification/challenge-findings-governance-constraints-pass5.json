@@ -1,0 +1,107 @@
+{
+  "schema_version": "1.0",
+  "challenged_artifact": "agent-output/vnext-qualification/04-governance-constraints.md",
+  "artifact_type": "governance-constraints",
+  "review_focus": "governance-reconciliation",
+  "pass_number": 5,
+  "reviewed_at": "2026-07-15T21:23:41Z",
+  "challenge_summary": "Pass-5 reconciliation approves the revised session-only lifecycle. Canonical governance requires the exact exception identity, control, scope, lifetime, 75-minute margin, exclusion object, and open/cleanup sequences. Bootstrap is Disabled/default-deny with no SecurityControl tag; both workflow jobs and local withFirewall add the transient exclusion before enabling the endpoint and adding one /32, then independently remove the rule, disable the endpoint, remove the exclusion, query both final states, and fail closed. Focused mutation and behavior tests pass, no conflictEffect dependency remains, and prior location, tag, Deny-applicability, and documentation dispositions remain correct.",
+  "compact_for_parent": "Pass 5 (governance-reconciliation) | LOW | 0 must_fix, 0 should_fix | Revised session-only lifecycle and all prior dispositions verified",
+  "risk_level": "low",
+  "must_fix_count": 0,
+  "should_fix_count": 0,
+  "suggestion_count": 0,
+  "overall_assessment": "APPROVED",
+  "prior_pass_dispositions": [
+    {
+      "pass_number": 4,
+      "prior_assessment": "APPROVED",
+      "disposition": "reaffirmed_after_design_change",
+      "evidence": "The post-pass-4 design no longer relies on conflictEffect audit behavior across later storage network-rule PATCH calls. The exact transient exclusion is now added before publicNetworkAccess is enabled and remains present through the rule-removal and endpoint-disable PATCH calls; it is removed only after the endpoint is Disabled. Current workflow, local helper, validators, mutation tests, canonical governance, plans, ADR, operator documentation, and changelog agree on this sequence."
+    }
+  ],
+  "prior_finding_dispositions": [
+    {
+      "id": "dc075013",
+      "source_pass": 1,
+      "disposition": "remains_resolved",
+      "evidence": "Canonical validation requires exactly one vnext-qualification-backend-runner-ip exception with control public-network-access, environment vnext-qualification, workload terraform-backend, a positive lifetime of at most 24 hours, and at least 75 minutes remaining. Both workflow jobs revalidate at the mutation boundary, and local withFirewall validates before and after IPv4 resolution."
+    },
+    {
+      "id": "f702961b",
+      "source_pass": 1,
+      "disposition": "remains_resolved",
+      "evidence": "Canonical JSON records the inherited JV - Allowed Locations assignment as Audit and allows germanywestcentral, global, swedencentral, and westeurope. Governance Markdown, both plans, and ADR 0001 consistently state that swedencentral is allowed under Audit."
+    },
+    {
+      "id": "6223eda4",
+      "source_pass": 1,
+      "disposition": "remains_resolved",
+      "evidence": "Canonical tags_required contains exactly the approved ten base keys, and the context validator requires their exact values after canonical sorting. SecurityControl is not a base tag: bootstrap and workload IaC omit it, while executable sessions add and remove it as the separately validated session-only policy exclusion."
+    },
+    {
+      "id": "04ac5b42",
+      "source_pass": 2,
+      "disposition": "remains_resolved",
+      "evidence": "Preview and apply resolve IPv4, then run --security-exception-only immediately before the transient exclusion, endpoint enable, and one-/32 add. Local withFirewall validates on both sides of IPv4 resolution. The expiry-crossing behavior test confirms no Azure command runs when the second validation fails."
+    },
+    {
+      "id": "ed1588d3",
+      "source_pass": 2,
+      "disposition": "remains_resolved_after_lifecycle_revision",
+      "evidence": "Bootstrap keeps publicNetworkAccess Disabled, network defaultAction Deny, and no SecurityControl tag. Each executable session adds SecurityControl=Ignore before enabling the endpoint, removes its /32 before disabling the endpoint, then removes the tag and verifies publicNetworkAccess Disabled plus tag absence. No conflictEffect or persistent-exclusion dependency remains."
+    },
+    {
+      "id": "65690b81",
+      "source_pass": 3,
+      "disposition": "remains_resolved",
+      "evidence": "ADR 0001 still states that the inherited allowed-locations assignment is Audit and explicitly allows swedencentral, matching canonical JSON, governance Markdown, both plans, and operator documentation."
+    }
+  ],
+  "residual_risks": [
+    "Live Azure Policy evaluation of the SecurityControl exclusion across storage account and network-rule PATCH calls was not executed. The reviewed ordering is fail-closed and no longer depends on conflictEffect, but live policy behavior remains deployment-phase evidence.",
+    "GitHub Environment approval, OIDC token exchange, Azure RBAC propagation, Azure CLI runtime calls, storage data-plane readiness, apply, destroy, and authority return were not executed in this review and remain residual qualification risk rather than source findings.",
+    "This pass reconciles the committed COMPLETE policy snapshot and does not re-query Azure. The snapshot retains 33 effective assignments and 18 Deny blockers; any policy or exception refresh invalidates this review.",
+    "The approved exception expires at 2026-07-16T12:50:34Z. Runtime validation requires at least 75 minutes remaining, so a later qualification attempt must refresh governance evidence before any endpoint session."
+  ],
+  "findings": [],
+  "validation_evidence": {
+    "focused_lifecycle_tests": "npm run test:vnext-live-workflow: 50 passed, 0 failed",
+    "broader_vnext_validator_tests": "npm run test:vnext-validator: 68 passed, 0 failed",
+    "security_exception_tests": "node --test tools/tests/security-exceptions.test.mjs: 3 passed, 0 failed",
+    "workflow_validator": "npm run validate:vnext-live-workflow: passed",
+    "iac_security_baseline": "npm run validate:iac-security-baseline: 8 files checked, 0 errors, 0 warnings",
+    "azure_cli_help": "Installed CLI documents storage account update --set/--remove property paths, public-network-access Enabled/Disabled, and network-rule add --ip-address IPv4/CIDR."
+  },
+  "review_surface_hashes": {
+    "agent-output/vnext-qualification/04-governance-constraints.json": "747cff346aa70fa5e65697e535035d2721583d6e010df66d7635f6e3f343cd98",
+    "agent-output/vnext-qualification/04-governance-constraints.md": "0553cc63dd0cf42119b723fb6013a183828dd5cfdbfc8d37f307caa94f35a54f",
+    "agent-output/vnext-qualification/challenge-findings-governance-constraints-pass1.json": "75d804a1da96f93f9d9a20444e885c0fc276091066e24a49031cfc21ebd11fa4",
+    "agent-output/vnext-qualification/challenge-findings-governance-constraints-pass2.json": "a277ee609cc8d9ba95ad685cf4a931750da52eabca343012f6de338723f02e48",
+    "agent-output/vnext-qualification/challenge-findings-governance-constraints-pass3.json": "b98de1b7c8587d0164d93d30a7feacf00c2687281f3b10fb9efe10c8b6d02c59",
+    "agent-output/vnext-qualification/challenge-findings-governance-constraints-pass4.json": "89f5b15efd4e1aaa021ef9fcecb4d3d621c03f42c9eea5269facba180803ca8c",
+    ".github/workflows/vnext-live-qualification.yml": "2a9ecf63e12152bb71c98b25957c9229cbd8b939406f5a3ff890b64861bfbfe4",
+    "tools/scripts/validate-vnext-qualification-context.mjs": "a5d6c60a95e6208676f4aec1f578859c09b17a1b7fa5650fd35440445ff6d87e",
+    "tools/scripts/vnext-live-handoff.mjs": "6a718be4d0171d3605984644f75b646488eda3e618deffce8345d15eff5e98d7",
+    "tools/scripts/validate-vnext-live-workflow.mjs": "17514ee136d168e7b4c3ec3913b36c5fbe63637b09817103466fbdd8f3f8b707",
+    "tools/tests/vnext-live-workflow.test.mjs": "0f55667c23060c9262da89b7024ae9c5a47e02fed4176150d670454c7fff3fba",
+    "tools/tests/vnext-qualification-context.test.mjs": "506a424527fc98311ff92baff1cfa0e826abeed8e2254dac456fa9440183863c",
+    "tools/tests/security-exceptions.test.mjs": "52a0d78be29ce3b9605d4482ee036ab6886cfa114efb9830a23fc1b322bec13b",
+    "infra/bicep/vnext-qualification/bootstrap.bicep": "defaaa221ae287273209e41e134c438ef3160c123963b437e0f83d55b193b88f",
+    "infra/bicep/vnext-qualification/main.bicep": "7fb3ef8f5785634a3eef7ccca49baf674627bcce8cc013950ab2e677b1fab9aa",
+    "infra/terraform/vnext-qualification/main.tf": "7bf52770d1f064f95430882b05bb4650f863692f7270814c7b46721c87b99a04",
+    "infra/bicep/vnext-qualification/.azure/plan.md": "d24b3739bda1780e335b96328b7f5c8f1a596ff5e7aaf8991fcbe3765a283a36",
+    "infra/terraform/vnext-qualification/.azure/plan.md": "f100e036696403d908efcae90665a226dcd578df77f53735c979125ee6e052c6",
+    "agent-output/vnext-qualification/03-des-adr-0001-use-split-encrypted-ci-transport.md": "81d15bbcc039eb9a166b88b954c2c050894636d75b31180e3c2c828983ef5d80",
+    "docs/vnext/LIVE-QUALIFICATION.md": "6d7ce8e30708acf82cf383669335856b80043579fd8af1df4ce8450e4908b0f9",
+    "CHANGELOG.md": "b2fe9b9c093ce5ad9e021280d3441f0439e9774482bff72f3e8172223b0adb6d"
+  },
+  "cache_inputs": {
+    "artifact_sha": "0553cc63dd0cf42119b723fb6013a183828dd5cfdbfc8d37f307caa94f35a54f",
+    "checklists_sha": "6a7c048e28c7e0f09566eb7a1a4329579cf60fb19d435caf0a22423f6cb06c7b",
+    "protocol_sha": "55197255ea03bb97e0e33592de94ba1bafbb183cf7f83503d22a2b35f0a2071c",
+    "subagent_sha": "bafc28d2f2b6d9b6b817094a57935ab0bf2a5308f219ca696c39eb7cc7955264",
+    "model": "GPT-5.5",
+    "artifact_hash": "160a2716c2d031f29a5c8a4d2351cccd20bddd7b01da071c774ee61f847e9bad"
+  }
+}

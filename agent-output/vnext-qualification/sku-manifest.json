@@ -1,0 +1,73 @@
+{
+  "$schema": "../../tools/schemas/sku-manifest.schema.json",
+  "schema_version": "sku-manifest-v1",
+  "project": "vnext-qualification",
+  "default_region": "swedencentral",
+  "created_at": "2026-07-15T12:00:00Z",
+  "updated_at": "2026-07-15T19:15:00Z",
+  "current_revision": 3,
+  "environments": [
+    "test"
+  ],
+  "revisions": [
+    {
+      "rev": 1,
+      "created_at": "2026-07-15T12:00:00Z",
+      "agent": "02-Requirements",
+      "step": "1",
+      "apex_recall_checkpoint": "vnext-qualification:1:sku-preferences",
+      "summary": "No user-pinned SKU; use a cost-optimized ephemeral qualification sandbox.",
+      "changed_ids": []
+    },
+    {
+      "rev": 2,
+      "created_at": "2026-07-15T12:30:00Z",
+      "agent": "03-Architect",
+      "step": "2",
+      "apex_recall_checkpoint": "vnext-qualification:2:storage-sku",
+      "summary": "Selected Standard LRS for the backend and equivalent Bicep and Terraform storage markers.",
+      "changed_ids": [
+        "qualification-storage"
+      ]
+    },
+    {
+      "rev": 3,
+      "created_at": "2026-07-15T19:15:00Z",
+      "agent": "05-IaC Planner",
+      "step": "4",
+      "apex_recall_checkpoint": "vnext-qualification:4:dual-track-reconciliation",
+      "summary": "Reconciled the Standard LRS decision across the isolated Bicep and Terraform implementations.",
+      "changed_ids": [
+        "qualification-storage"
+      ],
+      "commit_sha": "908c536"
+    }
+  ],
+  "services": [
+    {
+      "id": "qualification-storage",
+      "service": "Storage Account",
+      "size": "Standard_LRS",
+      "iac_logical_names": {
+        "bicep": "storageAccount",
+        "terraform": "module.storage_account"
+      },
+      "capacity": {
+        "mode": "fixed",
+        "default": 1
+      },
+      "zonal": false,
+      "regions": [
+        "swedencentral"
+      ],
+      "sla_target": "Non-production qualification",
+      "commitment": {
+        "type": "on-demand"
+      },
+      "notes": "Standard LRS is intentionally shared by the secured backend and the equivalent dual-track workload markers for a bounded, ephemeral sandbox.",
+      "source": "architect-derived",
+      "source_step": "2",
+      "last_modified_rev": 3
+    }
+  ]
+}

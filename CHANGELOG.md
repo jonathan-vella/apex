@@ -80,6 +80,13 @@ for full details on this and all prior releases.
 - feat(vnext): allow a newly validated deployment preview to reopen Gate 4 on the same run, preserving prior evidence
   while requiring a fresh exact approval. This supports expired-preview refresh and sequential apply/destroy without
   promotion.
+- feat(vnext): prepare the manual exact-head Bicep/Terraform live qualification workflow, default-deny encrypted handoff
+  storage, local dispatch/retrieval launcher, and structural mutation validator. The workflow separates preview and
+  Environment-approved apply authority, uses refreshed OIDC tokens, binds exact governance inputs, returns authority to
+  the initiating handoff, and requires a reviewed default-branch workflow bootstrap. Backend public network access is
+  Disabled at rest; each bounded session applies the policy exclusion only for that session, adds one runner `/32`, and
+  verifies unconditional restoration to Disabled with the exclusion removed. It does not claim live proof until the
+  user-owned GitHub and Azure ceremonies run.
 
 ### Fixed (APEX vNext security)
 

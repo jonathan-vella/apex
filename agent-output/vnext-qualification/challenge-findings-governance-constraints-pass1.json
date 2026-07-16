@@ -1,0 +1,101 @@
+{
+  "schema_version": "1.0",
+  "challenged_artifact": "agent-output/vnext-qualification/04-governance-constraints.md",
+  "artifact_type": "governance-constraints",
+  "review_focus": "governance-reconciliation",
+  "pass_number": 1,
+  "reviewed_at": "2026-07-15T00:00:00Z",
+  "challenge_summary": "Governance reconciliation found two blocking gaps: the live workflow can open the backend runner firewall after the approved exception expires, and an inherited allowed-locations assignment is present in canonical JSON but not reconciled into allowed_locations or the Markdown constraints. A non-blocking tag-contract drift remains between canonical tags_required and the exact-context/runtime tag subset.",
+  "compact_for_parent": "Pass 1 (governance-reconciliation) | HIGH | 2 must_fix, 1 should_fix | Key: Workflow can open runner firewall access after exception expiry; Allowed-location assignment is present but not reconciled",
+  "risk_level": "high",
+  "must_fix_count": 2,
+  "should_fix_count": 1,
+  "suggestion_count": 0,
+  "overall_assessment": "NEEDS_REVISION",
+  "residual_risks": [
+    "Live deployment, OIDC token exchange, Azure RBAC propagation, and actual data-plane access were not exercised during this review and remain unproven.",
+    "The approved public-network exception is treated as a bounded non-production sandbox decision; no defect is recorded for the exception itself while it remains within scope and unexpired.",
+    "Policy parameter values that the canonical JSON marks unavailable or unresolved require live refresh or explicit human verification before being treated as deployment proof."
+  ],
+  "findings": [
+    {
+      "id": "dc075013",
+      "severity": "must_fix",
+      "category": "governance_gap",
+      "claim": "Workflow can open runner firewall access after exception expiry",
+      "evidence": "The canonical governance JSON records security exception vnext-qualification-backend-runner-ip for control public-network-access with requested_at 2026-07-15T12:50:34Z, expires_at 2026-07-16T12:50:34Z, and scope.maximum_lifetime_hours 24. The Markdown Approved Security Exception repeats the same expiry and describes one ephemeral runner /32. The live workflow validates protected inputs by running tools/scripts/validate-vnext-qualification-context.mjs before adding firewall rules, but that validator only checks subscription, resource names, location, backend naming, workspace ID, and APEX_QUALIFICATION_TAGS_JSON. It does not inspect security_exceptions or expires_at. The workflow then runs az storage account network-rule add in both preview and apply jobs. The static security exception library can detect expired exceptions when validate-iac-security-baseline scans source, but this runtime workflow path does not call that validator before opening the firewall.",
+      "impact": "A manual workflow dispatch after 2026-07-16T12:50:34Z could still add a GitHub-hosted runner /32 to the backend storage firewall, exceeding the approved sandbox exception and authorizing public endpoint access outside the recorded governance window.",
+      "artifact_section": "Approved Security Exception; vNext Live Qualification workflow",
+      "suggested_fix": {
+        "artifact_path": ".github/workflows/vnext-live-qualification.yml",
+        "line_range": [122, 151],
+        "proposed_edit": "Before each `Open temporary firewall rule` step, call a local validator that reads `agent-output/vnext-qualification/04-governance-constraints.json`, finds exactly one `security_exceptions[]` entry named `vnext-qualification-backend-runner-ip`, verifies `control == public-network-access`, `scope.environment == vnext-qualification`, `scope.workload == terraform-backend`, `scope.maximum_lifetime_hours <= 24`, and `expires_at > now`, then fails closed before `az storage account network-rule add` when the exception is absent, expired, or out of scope."
+      },
+      "traces_to": [],
+      "requires_step": "step-3_5",
+      "verification_anchors": [
+        "agent-output/vnext-qualification/04-governance-constraints.json security_exceptions[0] id/control/expires_at/scope.maximum_lifetime_hours",
+        "agent-output/vnext-qualification/04-governance-constraints.md Approved Security Exception table",
+        ".github/workflows/vnext-live-qualification.yml preview Validate protected inputs before Open temporary firewall rule",
+        ".github/workflows/vnext-live-qualification.yml apply Validate protected inputs before Open temporary firewall rule",
+        "tools/scripts/validate-vnext-qualification-context.mjs qualificationContextIssues does not read security_exceptions",
+        "tools/scripts/_lib/security-exceptions.mjs securityExceptionIssues expiry check exists only for callers that invoke it",
+        "tools/scripts/validate-iac-security-baseline.mjs calls securityExceptionIssues during static IaC scan"
+      ]
+    },
+    {
+      "id": "f702961b",
+      "severity": "must_fix",
+      "category": "governance_gap",
+      "claim": "Allowed-location assignment is present but not reconciled",
+      "evidence": "The canonical JSON assignment_inventory includes management-group inherited assignments named `JV - Allowed Locations` with policyDefinitionId ending e56962a6-4747-49cd-b67b-bf8b01975c4c and `Resource Group and Resource locations should match`, but the same JSON has allowed_locations as an empty array and no location_constraints object. The Markdown artifact states `No network-specific policies discovered` and the downstream Bicep/Terraform plans state `No allowed-location policy was discovered. The selected region remains swedencentral for all resources.` This creates a contradiction between the inventory of inherited assignments and the generated constraints consumed by implementation.",
+      "impact": "If the inherited allowed-locations assignment has a deny effect or unextracted parameters that exclude swedencentral, Step 4/5 can plan and deploy resources into a region that Azure Policy rejects. If swedencentral is allowed, the artifact still lacks the evidence needed to prove that location reconciliation was completed.",
+      "artifact_section": "Discovery Source; Network Policies; Governance Contract",
+      "suggested_fix": {
+        "artifact_path": "agent-output/vnext-qualification/04-governance-constraints.md",
+        "line_range": [24, 318],
+        "proposed_edit": "Reconcile the inherited `JV - Allowed Locations` assignment from `assignment_inventory`: extract its effect and parameters into `allowed_locations` / `location_constraints`, or mark it as an unresolved blocker with an explicit Step 4 hold. Update the Markdown location statement so it no longer says no allowed-location policy was discovered unless the assignment is verified non-applicable."
+      },
+      "traces_to": [],
+      "requires_step": "step-3_5",
+      "verification_anchors": [
+        "agent-output/vnext-qualification/04-governance-constraints.json assignment_inventory entries `JV - Allowed Locations` and `Resource Group and Resource locations should match`",
+        "agent-output/vnext-qualification/04-governance-constraints.json allowed_locations is [] and location_constraints is absent",
+        "agent-output/vnext-qualification/04-governance-constraints.md Network Policies says no network-specific policies discovered",
+        "infra/bicep/vnext-qualification/.azure/plan.md Governance Contract says no allowed-location policy was discovered and selected region remains swedencentral",
+        "infra/terraform/vnext-qualification/.azure/plan.md Governance Contract says no allowed-location policy was discovered and selected region remains swedencentral"
+      ]
+    },
+    {
+      "id": "6223eda4",
+      "severity": "should_fix",
+      "category": "governance_gap",
+      "claim": "Runtime tag validator omits canonical SecurityControl and unresolved tags",
+      "evidence": "The canonical JSON `tags_required` array includes `SecurityControl`, nine deny-required lowercase tags from `JV-Enforce Resource Group Tags v3`, and two unresolved tag entries from inherited tag policies. The Markdown Required Tags section lists `SecurityControl`, `tech-contact`, `technical-contact`, and unresolved tag rows. However, tools/scripts/validate-vnext-qualification-context.mjs defines EXPECTED_TAGS as exactly ten keys: the nine lowercase contract values plus `tech-contact`; it omits `SecurityControl` and does not force an explicit unresolved-tag disposition. The Bicep and Terraform plan Governance Contract sections also describe the resource groups as using nine lowercase deny-required tags plus `tech-contact`.",
+      "impact": "Qualification resources may be created with a narrower tag set than the canonical governance extraction records. Modify policies may then mutate tags outside the exact-context evidence, or a later refresh that resolves the inherited tag keys could turn the currently unresolved entries into deployment blockers without a corresponding runtime contract update.",
+      "artifact_section": "Required Tags; Governance Contract; exact-context validator",
+      "suggested_fix": {
+        "artifact_path": "tools/scripts/validate-vnext-qualification-context.mjs",
+        "line_range": [8, 60],
+        "proposed_edit": "Derive the expected qualification tag keys from `agent-output/vnext-qualification/04-governance-constraints.json tags_required`, require `SecurityControl` when it remains in the canonical contract, and require an explicit allow/skip record for unresolved inherited tag entries instead of silently narrowing the runtime tag contract to ten hardcoded keys."
+      },
+      "traces_to": [],
+      "requires_step": "step-4",
+      "verification_anchors": [
+        "agent-output/vnext-qualification/04-governance-constraints.json tags_required includes SecurityControl and unresolved inherited tag entries",
+        "agent-output/vnext-qualification/04-governance-constraints.md Required Tags lists SecurityControl, technical-contact, tech-contact, and unresolved rows",
+        "tools/scripts/validate-vnext-qualification-context.mjs EXPECTED_TAGS contains ten hardcoded keys and checks APEX_QUALIFICATION_TAGS_JSON against that object",
+        "infra/bicep/vnext-qualification/.azure/plan.md Governance Contract says nine lowercase deny-required tags plus tech-contact",
+        "infra/terraform/vnext-qualification/.azure/plan.md Governance Contract says nine lowercase deny-required tags plus tech-contact"
+      ]
+    }
+  ],
+  "cache_inputs": {
+    "artifact_sha": "985295adc08c23c659d72a5c067e6ed5af1970908089c9ffc698549bd94705e5",
+    "checklists_sha": "6a7c048e28c7e0f09566eb7a1a4329579cf60fb19d435caf0a22423f6cb06c7b",
+    "protocol_sha": "55197255ea03bb97e0e33592de94ba1bafbb183cf7f83503d22a2b35f0a2071c",
+    "subagent_sha": "bafc28d2f2b6d9b6b817094a57935ab0bf2a5308f219ca696c39eb7cc7955264",
+    "model": "GPT-5.5",
+    "artifact_hash": "ffd94bbd321ea3e528aa91c1ed94043b1749d234df286e05368013dbe15c1f2f"
+  }
+}
