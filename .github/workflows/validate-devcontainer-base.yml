@@ -159,6 +159,7 @@ jobs:
         run: |
           mkdir -p .devcontainer-validation
           cp .devcontainer/devcontainer.json .devcontainer-validation/devcontainer.json
+          cp -R .devcontainer/features .devcontainer-validation/features
           current_image=$(node --input-type=module -e '
             import fs from "node:fs";
             import { parseJsonc } from "./tools/scripts/_lib/parse-jsonc.mjs";
