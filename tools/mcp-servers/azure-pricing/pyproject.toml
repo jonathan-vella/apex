@@ -51,7 +51,7 @@ azure = [
     "azure-pricing-mcp[admin]",
 ]
 dev = [
-    "pytest>=8.3.0",
+    "pytest>=9.1.1",
     "pytest-asyncio>=1.4.0",
     "pytest-mock>=3.15.1",
     "mypy>=2.3.0",
