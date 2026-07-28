@@ -210,9 +210,12 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
-      - name: Remove generated validation config
+      - name: Restore original dev container config
         if: always()
-        run: cp "${RUNNER_TEMP}/devcontainer.original.json" .devcontainer/devcontainer.json
+        run: |
+          if [[ -f "${RUNNER_TEMP}/devcontainer.original.json" ]]; then
+            cp "${RUNNER_TEMP}/devcontainer.original.json" .devcontainer/devcontainer.json
+          fi
 
   compare:
     name: Compare base-image verdicts
