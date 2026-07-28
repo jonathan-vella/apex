@@ -157,15 +157,15 @@ jobs:
           SELECTED_IMAGE: >-
             ${{ matrix.variant == 'baseline' && needs.preflight.outputs.baseline_image || needs.preflight.outputs.candidate_image }}
         run: |
-          cp .devcontainer/devcontainer.json .devcontainer/devcontainer.validation.json
+          cp .devcontainer/devcontainer.json "${RUNNER_TEMP}/devcontainer.original.json"
           current_image=$(node --input-type=module -e '
             import fs from "node:fs";
             import { parseJsonc } from "./tools/scripts/_lib/parse-jsonc.mjs";
-            process.stdout.write(parseJsonc(fs.readFileSync(".devcontainer/devcontainer.validation.json", "utf8")).image);
+            process.stdout.write(parseJsonc(fs.readFileSync(".devcontainer/devcontainer.json", "utf8")).image);
           ')
           CURRENT_IMAGE="$current_image" node -e '
             const fs = require("node:fs");
-            const file = ".devcontainer/devcontainer.validation.json";
+            const file = ".devcontainer/devcontainer.json";
             const text = fs.readFileSync(file, "utf8");
             const before = `"image": "${process.env.CURRENT_IMAGE}"`;
             const after = `"image": "${process.env.SELECTED_IMAGE}"`;
@@ -177,7 +177,7 @@ jobs:
           SELECTED_IMAGE="$SELECTED_IMAGE" node --input-type=module -e '
             import fs from "node:fs";
             import { parseJsonc } from "./tools/scripts/_lib/parse-jsonc.mjs";
-            const actual = parseJsonc(fs.readFileSync(".devcontainer/devcontainer.validation.json", "utf8")).image;
+            const actual = parseJsonc(fs.readFileSync(".devcontainer/devcontainer.json", "utf8")).image;
             if (actual !== process.env.SELECTED_IMAGE) throw new Error(`expected ${process.env.SELECTED_IMAGE}, got ${actual}`);
           '
 
@@ -190,7 +190,7 @@ jobs:
           GH_TOKEN: ""
           USERPROFILE: ""
         with:
-          configFile: .devcontainer/devcontainer.validation.json
+          configFile: .devcontainer/devcontainer.json
           platform: ${{ matrix.platform }}
           useNativeRunner: true
           push: never
@@ -212,7 +212,7 @@ jobs:
 
       - name: Remove generated validation config
         if: always()
-        run: rm -f .devcontainer/devcontainer.validation.json
+        run: cp "${RUNNER_TEMP}/devcontainer.original.json" .devcontainer/devcontainer.json
 
   compare:
     name: Compare base-image verdicts
