@@ -58,7 +58,7 @@ def test_post_clear_signals_detected_with_two_session_starts(tmp_path):
                         "spans": [
                             {"name": "SessionStart", "startTimeUnixNano": "1", "endTimeUnixNano": "2"},
                             {
-                                "name": "chat:gpt-5.3-codex",
+                                "name": "chat:gpt-5.6-luna",
                                 "startTimeUnixNano": "3",
                                 "endTimeUnixNano": "4",
                                 "attributes": [
@@ -68,7 +68,7 @@ def test_post_clear_signals_detected_with_two_session_starts(tmp_path):
                             {"name": "Stop", "startTimeUnixNano": "5", "endTimeUnixNano": "6"},
                             {"name": "SessionStart", "startTimeUnixNano": "7", "endTimeUnixNano": "8"},
                             {
-                                "name": "chat:gpt-5.3-codex",
+                                "name": "chat:gpt-5.6-luna",
                                 "startTimeUnixNano": "9",
                                 "endTimeUnixNano": "10",
                                 "attributes": [
@@ -124,7 +124,7 @@ def test_cli_pass_on_synthetic_clean_log(tmp_path):
                             {"name": "SessionStart", "startTimeUnixNano": "1", "endTimeUnixNano": "2"},
                             {"name": "turn_start:0", "startTimeUnixNano": "3", "endTimeUnixNano": "4"},
                             {
-                                "name": "chat:gpt-5.3-codex",
+                                "name": "chat:gpt-5.6-luna",
                                 "startTimeUnixNano": "5",
                                 "endTimeUnixNano": "6",
                                 "attributes": [
@@ -134,7 +134,7 @@ def test_cli_pass_on_synthetic_clean_log(tmp_path):
                             {"name": "Stop", "startTimeUnixNano": "7", "endTimeUnixNano": "8"},
                             {"name": "SessionStart", "startTimeUnixNano": "9", "endTimeUnixNano": "10"},
                             {
-                                "name": "chat:gpt-5.3-codex",
+                                "name": "chat:gpt-5.6-luna",
                                 "startTimeUnixNano": "11",
                                 "endTimeUnixNano": "12",
                                 "attributes": [
@@ -210,10 +210,10 @@ def test_jsonl_to_otel_basic_shape(tmp_path):
             "dur": 1500,
             "sid": "fixture",
             "type": "llm_request",
-            "name": "chat:gpt-5.3-codex",
+            "name": "chat:gpt-5.6-luna",
             "spanId": "s1",
             "status": "ok",
-            "attrs": {"model": "gpt-5.3-codex", "inputTokens": 12345, "outputTokens": 100},
+            "attrs": {"model": "gpt-5.6-luna", "inputTokens": 12345, "outputTokens": 100},
         },
         {
             "ts": 1700000002500,
@@ -232,7 +232,7 @@ def test_jsonl_to_otel_basic_shape(tmp_path):
     assert len(spans) == 3
 
     # llm_request → chat: span with gen_ai.usage.input_tokens
-    chat_span = next(s for s in spans if s["name"] == "chat:gpt-5.3-codex")
+    chat_span = next(s for s in spans if s["name"] == "chat:gpt-5.6-luna")
     keys = {a["key"] for a in chat_span["attributes"]}
     assert "gen_ai.operation.name" in keys
     assert "gen_ai.request.model" in keys
@@ -283,10 +283,10 @@ def test_jsonl_to_otel_then_profile_roundtrip(tmp_path):
             "dur": 100,
             "sid": "fixture",
             "type": "llm_request",
-            "name": "chat:gpt-5.3-codex",
+            "name": "chat:gpt-5.6-luna",
             "spanId": "s1",
             "status": "ok",
-            "attrs": {"model": "gpt-5.3-codex", "inputTokens": 5000, "outputTokens": 50},
+            "attrs": {"model": "gpt-5.6-luna", "inputTokens": 5000, "outputTokens": 50},
         },
     ]
     jsonl_path.write_text("\n".join(json.dumps(r) for r in records))

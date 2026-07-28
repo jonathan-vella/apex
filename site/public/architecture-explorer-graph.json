@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-07-11T09:00:58.318Z",
+  "generatedAt": "2026-07-28T11:03:27.533Z",
   "categories": [
     {
       "id": "agent",
@@ -156,7 +156,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/03-architect.agent.md"
       },
       "meta": {
-        "model": "Claude Opus 4.8",
+        "model": "Claude Opus 5",
         "invocable": true,
         "subagents": [
           "cost-estimate-subagent",
@@ -216,7 +216,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/04g-governance.agent.md"
       },
       "meta": {
-        "model": "GPT-5.3-Codex",
+        "model": "GPT-5.6-Luna",
         "invocable": true,
         "subagents": [
           "challenger-review-subagent"
@@ -244,7 +244,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/05-iac-planner.agent.md"
       },
       "meta": {
-        "model": "Claude Opus 4.8",
+        "model": "Claude Opus 5",
         "invocable": true,
         "subagents": [
           "challenger-review-subagent"
@@ -337,7 +337,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/07b-bicep-deploy.agent.md"
       },
       "meta": {
-        "model": "GPT-5.3-Codex",
+        "model": "GPT-5.6-Luna",
         "invocable": true,
         "subagents": [
           "bicep-whatif-subagent",
@@ -369,7 +369,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/07t-terraform-deploy.agent.md"
       },
       "meta": {
-        "model": "GPT-5.3-Codex",
+        "model": "GPT-5.6-Luna",
         "invocable": true,
         "subagents": [
           "terraform-plan-subagent",
@@ -429,7 +429,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/09-diagnose.agent.md"
       },
       "meta": {
-        "model": "GPT-5.5",
+        "model": "GPT-5.6-Terra",
         "invocable": true,
         "subagents": [],
         "handoffTargets": [
@@ -454,7 +454,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/10-challenger.agent.md"
       },
       "meta": {
-        "model": "GPT-5.3-Codex",
+        "model": "GPT-5.6-Luna",
         "invocable": true,
         "subagents": [
           "challenger-review-subagent"
@@ -497,7 +497,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/e2e-orchestrator.agent.md"
       },
       "meta": {
-        "model": "GPT-5.5",
+        "model": "GPT-5.6-Terra",
         "invocable": true,
         "subagents": [
           "02-Requirements",
@@ -564,7 +564,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/_subagents/challenger-review-subagent.agent.md"
       },
       "meta": {
-        "model": "GPT-5.5",
+        "model": "GPT-5.6-Terra",
         "skills": [
           "golden-principles",
           "azure-defaults"
@@ -581,7 +581,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/_subagents/cost-estimate-subagent.agent.md"
       },
       "meta": {
-        "model": "GPT-5.3-Codex",
+        "model": "GPT-5.6-Luna",
         "skills": [
           "azure-defaults"
         ]
@@ -977,7 +977,7 @@
       "id": "skill:vendor-prompting",
       "category": "skill",
       "label": "vendor-prompting",
-      "description": "**ANALYSIS SKILL** — Audit-grade reference for Anthropic Claude and OpenAI GPT-5.5 prompting best practices. WHEN: \"claude prompting\", \"gpt-5.5 prompting\", \"audit agent\", \"review prompt\", \"vendor best practices\", \"anthropic best practices\", \"openai prompting\". DO NOT USE FOR: routine prompt edits where rules are already known, generic markdown style (markdown.instructions.md).",
+      "description": "**ANALYSIS SKILL** — Audit-grade reference for Anthropic Claude and OpenAI GPT-5.6 prompting best practices. WHEN: \"claude prompting\", \"gpt-5.6 prompting\", \"audit agent\", \"review prompt\", \"vendor best practices\", \"anthropic best practices\", \"openai prompting\". DO NOT USE FOR: routine prompt edits where rules are already known, generic markdown style (markdown.instructions.md).",
       "path": ".github/skills/vendor-prompting/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/vendor-prompting/SKILL.md"
@@ -1389,7 +1389,7 @@
       "id": "instruction:vendor-prompting",
       "category": "instruction",
       "label": "vendor-prompting",
-      "description": "Vendor prompting best-practice rules for Anthropic Claude and OpenAI GPT-5.5 agents and prompts. Each rule cites a rule ID in the vendor-prompting skill rules.json registry. Validator: npm run lint:vendor-prompting.",
+      "description": "Vendor prompting best-practice rules for Anthropic Claude and OpenAI GPT-5.6-Terra agents and prompts. Each rule cites a rule ID in the vendor-prompting skill rules.json registry. Validator: npm run lint:vendor-prompting.",
       "path": ".github/instructions/vendor-prompting.instructions.md",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/instructions/vendor-prompting.instructions.md"
@@ -2043,13 +2043,13 @@
       "id": "validator:lint-python",
       "category": "validator",
       "label": "lint:python",
-      "description": "cd tools/mcp-servers/azure-pricing && python3 -m ruff check src/ tests/ && python3 -m ruff format --check src/ tests/ && cd ../../../tools/apex-recall && python3 -m ruff check src/",
+      "description": "tools/scripts/run-azure-pricing-python.sh -m ruff check src/ tests/ && tools/scripts/run-azure-pricing-python.sh -m ruff format --check src/ tests/ && cd tools/apex-recall && python3 -m ruff check src/",
       "path": "package.json",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
       },
       "meta": {
-        "command": "cd tools/mcp-servers/azure-pricing && python3 -m ruff check src/ tests/ && python3 -m ruff format --check src/ tests/ && cd ../../../tools/apex-recall && python3 -m ruff check src/"
+        "command": "tools/scripts/run-azure-pricing-python.sh -m ruff check src/ tests/ && tools/scripts/run-azure-pricing-python.sh -m ruff format --check src/ tests/ && cd tools/apex-recall && python3 -m ruff check src/"
       }
     },
     {
@@ -2108,13 +2108,13 @@
       "id": "validator:test-azure-pricing-mcp",
       "category": "validator",
       "label": "test:azure-pricing-mcp",
-      "description": "python3 -m pytest tools/mcp-servers/azure-pricing/tests -q",
+      "description": "tools/scripts/run-azure-pricing-python.sh -m pytest tests -q",
       "path": "package.json",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
       },
       "meta": {
-        "command": "python3 -m pytest tools/mcp-servers/azure-pricing/tests -q"
+        "command": "tools/scripts/run-azure-pricing-python.sh -m pytest tests -q"
       }
     },
     {

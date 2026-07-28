@@ -1,7 +1,7 @@
 ---
 description: "Good prompt: uses generic agent: agent and correctly declares an explicit model:."
 agent: agent
-model: "GPT-5.5"
+model: "GPT-5.6-Terra"
 ---
 
 # Good Generic-Agent Prompt Fixture

@@ -1,7 +1,7 @@
 ---
 name: fixture-handoff-self-loop-bad
 description: "Fixture: trips workflow-handoff-self-loop-bound-001 by declaring 7 self-loop handoffs."
-model: ["GPT-5.5"]
+model: ["GPT-5.6-Terra"]
 user-invocable: true
 agents: []
 tools: [read]

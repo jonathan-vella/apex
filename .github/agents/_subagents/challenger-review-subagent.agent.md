@@ -1,10 +1,10 @@
 ---
 name: challenger-review-subagent
 description: "Unified adversarial review subagent that challenges Azure infrastructure artifacts. Finds untested assumptions, governance gaps, WAF blind spots, and architectural weaknesses. Returns structured JSON findings. Supports single-pass and multi-pass rotating-lens reviews; batches lenses per invocation."
-model: ["GPT-5.5"]
+model: ["GPT-5.6-Terra"]
 disable-model-invocation: false
-# Model rationale: GPT-5.5 for structured adversarial review with explicit
-# stop rules. Checklist-driven analysis with JSON output suits GPT-5.5's
+# Model rationale: GPT-5.6-Terra for structured adversarial review with explicit
+# stop rules. Checklist-driven analysis with JSON output suits Terra's
 # outcome-first prompting style; no personality block (subagent — output
 # contract rules).
 user-invocable: false

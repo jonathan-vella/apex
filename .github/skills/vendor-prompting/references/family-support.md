@@ -22,13 +22,15 @@ Family status determines per-rule severity overrides.
 
 | Family          | v1 status     | Rule subset                                        | Examples            |
 | --------------- | ------------- | -------------------------------------------------- | ------------------- |
-| `claude-opus`   | enforced      | All Claude rules at default severity               | `Claude Opus 4.8`   |
+| `claude-opus`   | enforced      | All Claude rules at default severity               | `Claude Opus 5`     |
 | `claude-sonnet` | enforced      | All Claude rules at default severity               | `Claude Sonnet 5`   |
 | `claude-haiku`  | warn-only     | XML structuring + few-shot rules; rest downgraded  | `Claude Haiku 4.5`  |
 | `claude`        | warn-only     | Generic Claude — flag at warn for explicit version | `Claude`            |
-| `gpt-5.5`       | enforced      | All GPT-5.5 rules at default severity              | `GPT-5.5`           |
-| `gpt-5.4`       | enforced      | GPT-5.5 rules apply (shared OpenAI cohort)         | `GPT-5.4`           |
-| `gpt-codex`     | reviewer-only | Decision-log only; no automated enforcement        | `GPT-5.3-Codex`     |
+| `gpt-5.6-terra` | enforced      | OpenAI outcome-first rules at default severity     | `GPT-5.6-Terra`     |
+| `gpt-5.6-luna`  | reviewer-only | Decision-log only; no automated enforcement        | `GPT-5.6-Luna`      |
+| `gpt-5.5`       | enforced      | Legacy OpenAI outcome-first compatibility          | `GPT-5.5`           |
+| `gpt-5.4`       | enforced      | Shared OpenAI outcome-first rules                  | `GPT-5.4`           |
+| `gpt-codex`     | reviewer-only | Legacy decision-log compatibility                  | `GPT-5.3-Codex`     |
 | `gpt-4o`        | reviewer-only | Legacy; no new enforcement                         | `GPT-4o`            |
 | `mai-code`      | reviewer-only | Microsoft model; no MAI-specific prompting rules   | `MAI-Code-1-Flash`  |
 | `unknown`       | enforced      | Raises ERROR to force explicit `model:` value      | (anything else)     |

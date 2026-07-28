@@ -38,7 +38,7 @@ extending the challenger schema.
   challenger-subagent) MUST NOT have the investigate block (`claude-oneshot-001`),
   artifact agents need `<output_contract>`, `applyTo:"**"` instr ≤ 50, broad-md ≤ 200,
   SKILL no-refs ≤ 200. SOFT (not enforced): tools ≤ 30, handoffs ≤ 8 (orchestrators
-  exempt), skill-reads ≤ 5, instr ≤ 150. GPT-5.5 agents need H1 sections
+  exempt), skill-reads ≤ 5, instr ≤ 150. GPT-5.6-Terra agents need H1 sections
   `# Goal` / `# Success criteria` / `# Constraints` / `# Output` / `# Stop rules`.
   Operating-frame (main agents only, NOT subagents): read SKILL.md once, use apex-recall,
   never edit upstream artifacts.

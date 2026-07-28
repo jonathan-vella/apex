@@ -10,11 +10,11 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { classifyModel, isClaude, isGpt55, isGptFamily } from "../../scripts/validate-agents.mjs";
+import { classifyModel, isClaude, isGptOutcomeFamily, isGptFamily } from "../../scripts/validate-agents.mjs";
 
-test("classifyModel: Claude Opus 4.7 → claude-opus", () => {
-  assert.equal(classifyModel("Claude Opus 4.7"), "claude-opus");
-  assert.equal(classifyModel(["Claude Opus 4.7"]), "claude-opus");
+test("classifyModel: Claude Opus 5 → claude-opus", () => {
+  assert.equal(classifyModel("Claude Opus 5"), "claude-opus");
+  assert.equal(classifyModel(["Claude Opus 5"]), "claude-opus");
 });
 
 test("classifyModel: Claude Sonnet 5 → claude-sonnet", () => {
@@ -33,16 +33,21 @@ test("classifyModel: bare Claude → claude (generic)", () => {
   assert.equal(classifyModel("Claude"), "claude");
 });
 
-test("classifyModel: GPT-5.5 → gpt-5.5 (current default)", () => {
+test("classifyModel: GPT-5.5 → gpt-5.5 (legacy compatibility)", () => {
   assert.equal(classifyModel("GPT-5.5"), "gpt-5.5");
   assert.equal(classifyModel(["GPT-5.5"]), "gpt-5.5");
+});
+
+test("classifyModel: GPT-5.6 successors use distinct families", () => {
+  assert.equal(classifyModel("GPT-5.6-Luna"), "gpt-5.6-luna");
+  assert.equal(classifyModel(["GPT-5.6-Terra"]), "gpt-5.6-terra");
 });
 
 test("classifyModel: GPT-5.4 → gpt-5.4", () => {
   assert.equal(classifyModel("GPT-5.4"), "gpt-5.4");
 });
 
-test("classifyModel: GPT-5.3-Codex → gpt-codex", () => {
+test("classifyModel: GPT-5.3-Codex → gpt-codex (legacy compatibility)", () => {
   assert.equal(classifyModel("GPT-5.3-Codex"), "gpt-codex");
   assert.equal(classifyModel("My Codex Variant"), "gpt-codex");
 });
@@ -63,7 +68,7 @@ test("classifyModel: unknown / missing → unknown", () => {
   assert.equal(classifyModel("Llama 3"), "unknown");
 });
 
-test("classifyModel: GPT-5.5 ordering does not collide with GPT-5.4", () => {
+test("classifyModel: legacy GPT-5.5 ordering does not collide with GPT-5.4", () => {
   // Substring 'gpt-5.5' must match BEFORE 'gpt-5.4' branch (no false 5.4 match).
   assert.equal(classifyModel("GPT-5.5"), "gpt-5.5");
   assert.notEqual(classifyModel("GPT-5.5"), "gpt-5.4");
@@ -78,14 +83,18 @@ test("isClaude: only matches claude-* families", () => {
   assert.equal(isClaude("unknown"), false);
 });
 
-test("isGpt55: only true for gpt-5.5", () => {
-  assert.equal(isGpt55("gpt-5.5"), true);
-  assert.equal(isGpt55("gpt-5.4"), false);
-  assert.equal(isGpt55("claude-opus"), false);
+test("isGptOutcomeFamily: matches Terra and legacy outcome-first families", () => {
+  assert.equal(isGptOutcomeFamily("gpt-5.6-terra"), true);
+  assert.equal(isGptOutcomeFamily("gpt-5.5"), true);
+  assert.equal(isGptOutcomeFamily("gpt-5.4"), true);
+  assert.equal(isGptOutcomeFamily("gpt-5.6-luna"), false);
+  assert.equal(isGptOutcomeFamily("claude-opus"), false);
 });
 
 test("isGptFamily: matches all gpt-* families", () => {
   assert.equal(isGptFamily("gpt-5.5"), true);
+  assert.equal(isGptFamily("gpt-5.6-luna"), true);
+  assert.equal(isGptFamily("gpt-5.6-terra"), true);
   assert.equal(isGptFamily("gpt-5.4"), true);
   assert.equal(isGptFamily("gpt-codex"), true);
   assert.equal(isGptFamily("gpt-4o"), true);

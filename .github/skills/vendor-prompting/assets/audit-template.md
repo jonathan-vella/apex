@@ -23,7 +23,7 @@
 
 ## Classification
 
-- **Family**: `<claude-opus | claude-sonnet | gpt-5.5 | ...>`
+- **Family**: `<claude-opus | claude-sonnet | gpt-5.6-terra | gpt-5.6-luna | ...>`
 - **Status (per family-support.md)**: `<enforced | warn-only | reviewer-only>`
 - **Reasoning**: `<which substring matched>`
 

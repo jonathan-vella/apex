@@ -1,7 +1,7 @@
 ---
 description: "GPT-family variant of the execution-subagent invocation prompt contract. Markdown H2 form (outcome-first), matching the GPT-5.x prompting guide. Use this when invoking a GPT-family subagent. Reference: issue #425, Wave 3a follow-up."
 agent: agent
-model: "GPT-5.5"
+model: "GPT-5.6-Terra"
 tools: [read, edit, search]
 ---
 

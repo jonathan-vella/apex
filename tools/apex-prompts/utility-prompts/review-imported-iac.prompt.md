@@ -1,10 +1,10 @@
 ---
 name: review-imported-iac
 agent: agent
-# Migrated 2026-05 to GPT-5.5 alongside the deploy + as-built cohort
-# retirement. Outcome-first skeleton retro-applied 2026-05 per the
+# Migrated 2026-07 to GPT-5.6-Terra. The outcome-first skeleton remains in
+# place from the 2026-05 vendor-prompting alignment sweep; the
 # vendor-prompting prompt-alignment sweep; procedural detail preserved below.
-model: "GPT-5.5"
+model: "GPT-5.6-Terra"
 description: "Ingest pasted or existing Bicep or Terraform, normalize it into the repo, run static review plus AVM and governance checks, and generate WAF review artifacts."
 argument-hint: "Paste or select IaC, or provide a workspace path plus a project name"
 ---

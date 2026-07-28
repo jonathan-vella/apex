@@ -49,9 +49,9 @@ total_fixed = base_cost + tool_cost + handoff_cost + body_cost + instruction_cos
 
 | Model             | Context Window | Practical Limit (80%) |
 | ----------------- | -------------- | --------------------- |
-| GPT-5.5           | 400K tokens    | ~320K tokens          |
-| GPT-5.3-Codex     | 400K tokens    | ~320K tokens          |
-| Claude Opus 4.7   | 200K tokens    | ~160K tokens          |
+| GPT-5.6-Terra     | 400K tokens    | ~320K tokens          |
+| GPT-5.6-Luna      | 400K tokens    | ~320K tokens          |
+| Claude Opus 5     | 200K tokens    | ~160K tokens          |
 | Claude Sonnet 5   | 200K tokens    | ~160K tokens          |
 | gpt-4o-mini       | 128K tokens    | ~102K tokens          |
 
@@ -68,9 +68,9 @@ Based on empirical observation of streaming responses:
 
 | Model           | Latency < 5s | 5-10s      | 10-20s      | 20-30s      | > 30s      |
 | --------------- | ------------ | ---------- | ----------- | ----------- | ---------- |
-| GPT-5.5         | < 40K in     | 40-120K in | 120-240K in | 240-320K in | Near limit |
-| GPT-5.3-Codex   | < 40K in     | 40-120K in | 120-240K in | 240-320K in | Near limit |
-| Claude Opus 4.7 | < 20K in     | 20-60K in  | 60-120K in  | 120-160K in | Near limit |
+| GPT-5.6-Terra   | < 40K in     | 40-120K in | 120-240K in | 240-320K in | Near limit |
+| GPT-5.6-Luna    | < 40K in     | 40-120K in | 120-240K in | 240-320K in | Near limit |
+| Claude Opus 5   | < 20K in     | 20-60K in  | 60-120K in  | 120-160K in | Near limit |
 | gpt-4o-mini     | < 10K in     | 10-30K in  | 30-60K in   | 60-80K in   | Near limit |
 
 "in" = input tokens. These are rough bands — output length, streaming

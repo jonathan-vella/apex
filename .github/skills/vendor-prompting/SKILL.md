@@ -1,13 +1,13 @@
 ---
 name: vendor-prompting
-description: '**ANALYSIS SKILL** — Audit-grade reference for Anthropic Claude and OpenAI GPT-5.5 prompting best practices. WHEN: "claude prompting", "gpt-5.5 prompting", "audit agent", "review prompt", "vendor best practices", "anthropic best practices", "openai prompting". DO NOT USE FOR: routine prompt edits where rules are already known, generic markdown style (markdown.instructions.md).'
+description: '**ANALYSIS SKILL** — Audit-grade reference for Anthropic Claude and OpenAI GPT-5.6 prompting best practices. WHEN: "claude prompting", "gpt-5.6 prompting", "audit agent", "review prompt", "vendor best practices", "anthropic best practices", "openai prompting". DO NOT USE FOR: routine prompt edits where rules are already known, generic markdown style (markdown.instructions.md).'
 license: MIT
 ---
 
 # Vendor Prompting Best Practices
 
 Audit-grade reference for the prompting patterns published by Anthropic
-(Claude family) and OpenAI (GPT-5.5 family). Used to author **and** audit
+(Claude family) and OpenAI (GPT-5.6-Terra family). Used to author **and** audit
 `.agent.md` and `.prompt.md` files in this repository.
 
 The machine-readable source of truth is
@@ -44,7 +44,7 @@ I am editing or reviewing a *.agent.md / *.prompt.md ...
 ├── Which model is in the frontmatter?
 │   ├── Claude Opus / Claude Sonnet → load references/claude-best-practices.md
 │   ├── Claude Haiku                → load references/claude-best-practices.md (warn-only)
-│   ├── GPT-5.5                     → load references/gpt-5-prompting.md
+│   ├── GPT-5.6-Terra               → load references/gpt-5-prompting.md
 │   ├── GPT-5.4                     → load references/gpt-5-prompting.md (shared OpenAI cohort)
 │   ├── GPT-Codex / GPT-4o          → reviewer-only; minimal automated rules
 │   └── Unknown / missing           → ERROR: force explicit model: in frontmatter
@@ -60,7 +60,7 @@ I am editing or reviewing a *.agent.md / *.prompt.md ...
 ## Model-Family Detection
 
 `classifyModel()` lower-cases the `model:` value and matches substrings in priority order
-to assign a family (`claude-opus` / `claude-sonnet` / `claude-haiku` / `claude` / `gpt-5.5`
+to assign a family (`claude-opus` / `claude-sonnet` / `claude-haiku` / `claude` / `gpt-5.6-terra`
 / `gpt-5.4` / `gpt-codex` / `gpt-4o` / `unknown`). For agents with `model:` as an array,
 the first entry decides the family; bareword qualifiers (`Claude Foo (suffix)`) are
 forbidden — see rule `frontmatter-model-style-001` in [`rules.json`](rules.json).
@@ -76,8 +76,8 @@ Load only the references your task needs. Most audits need 1-2.
 | Reference                                                       | Load when                                                              |
 | --------------------------------------------------------------- | ---------------------------------------------------------------------- |
 | [claude-best-practices.md](references/claude-best-practices.md) | Authoring or auditing a Claude agent                                   |
-| [gpt-5-prompting.md](references/gpt-5-prompting.md)             | Authoring or auditing a GPT-5.5 agent                                  |
-| [gpt-5-upgrade.md](references/gpt-5-upgrade.md)                 | Migrating an agent from GPT-5.4 → GPT-5.5 (prompt-style upgrade patterns) |
+| [gpt-5-prompting.md](references/gpt-5-prompting.md)             | Authoring or auditing a GPT-5.6-Terra agent                            |
+| [gpt-5-upgrade.md](references/gpt-5-upgrade.md)                 | Historical GPT-5.4 → GPT-5.5 prompt-style migration patterns              |
 | [cross-model-rules.md](references/cross-model-rules.md)         | Handoff design, prompt↔agent sync, language calibration                |
 | [family-support.md](references/family-support.md)               | Picking a model family for a new agent                                 |
 | [checklists.md](references/checklists.md)                       | Performing a manual pass-through audit                                 |
@@ -130,7 +130,7 @@ Every rule in [rules.json](rules.json) cites the upstream source by
   Sonnet-5-specific deltas from Sonnet 4.6 (adaptive thinking default,
   effort/`xhigh`, new tokenizer, literal instruction following, review
   harness coverage). Refresh via `npm run audit:vendor-prompting`.
-- **OpenAI GPT-5.5 prompting guide** — pinned to
+- **OpenAI outcome-first prompting guide** — pinned to
   `openai/skills@724cd511c96593f642bddf13187217aa155d2554`,
   `prompting-guide.md`, sha256
   `ecdf49b4a824a87367c7a6ec3c0218e2c5783dff951b30a101c3b6a95152aafa`.

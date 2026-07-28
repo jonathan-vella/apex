@@ -148,7 +148,7 @@ investigate before answering) live in
   plan, resource inventory, documentation index). Never modify
   deployed infrastructure, change IaC templates, or skip prior
   artifact review.
-- **Subagent budget (1)**: `cost-estimate-subagent` on `GPT-5.3-Codex`
+- **Subagent budget (1)**: `cost-estimate-subagent` on `GPT-5.6-Luna`
   (intentional cross-family call — Codex selected for numerical
   reasoning over SKU pricing). The JSON-shaped contract is preserved
   verbatim.

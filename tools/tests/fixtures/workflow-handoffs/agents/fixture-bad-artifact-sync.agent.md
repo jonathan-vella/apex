@@ -1,7 +1,7 @@
 ---
 name: fixture-handoff-artifact-sync-bad
 description: "Fixture: trips workflow-handoff-artifact-sync-001 by claiming Output of an artifact no step produces."
-model: ["GPT-5.5"]
+model: ["GPT-5.6-Terra"]
 user-invocable: true
 agents: []
 tools: [read]

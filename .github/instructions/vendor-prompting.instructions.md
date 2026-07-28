@@ -1,5 +1,5 @@
 ---
-description: "Vendor prompting best-practice rules for Anthropic Claude and OpenAI GPT-5.5 agents and prompts. Each rule cites a rule ID in the vendor-prompting skill rules.json registry. Validator: npm run lint:vendor-prompting."
+description: "Vendor prompting best-practice rules for Anthropic Claude and OpenAI GPT-5.6-Terra agents and prompts. Each rule cites a rule ID in the vendor-prompting skill rules.json registry. Validator: npm run lint:vendor-prompting."
 applyTo: "**/*.agent.md, **/*.prompt.md"
 ---
 
@@ -41,9 +41,9 @@ Applies when frontmatter `model:` matches `claude` (case-insensitive).
 - **`claude-output-contract-001`** — Artifact-producing agents
   (handoffs reference `agent-output/`) include `<output_contract>`.
 
-### OpenAI GPT-5.5
+### OpenAI GPT-5.6-Terra
 
-Applies when frontmatter `model:` matches `gpt-5.5`.
+Applies when frontmatter `model:` matches `gpt-5.6-terra`.
 
 - **`gpt55-skeleton-001`** — Required H1 sections present (any order):
   `# Goal`, `# Success criteria`, `# Constraints`, `# Output`,
@@ -90,9 +90,11 @@ Applies when frontmatter `model:` matches `gpt-5.5`.
 | `claude-opus`   | enforced      | All Claude rules at default severity           |
 | `claude-sonnet` | enforced      | All Claude rules at default severity           |
 | `claude-haiku`  | warn-only     | Severity downgrades to warn                    |
-| `gpt-5.5`       | enforced      | All GPT-5.5 rules at default severity          |
-| `gpt-5.4`       | enforced      | GPT-5.5 rules apply (shared OpenAI cohort)     |
-| `gpt-codex`     | reviewer-only | No automated enforcement                       |
+| `gpt-5.6-terra` | enforced      | OpenAI outcome-first rules at default severity |
+| `gpt-5.6-luna`  | reviewer-only | No automated model-specific enforcement        |
+| `gpt-5.5`       | enforced      | Legacy compatibility                           |
+| `gpt-5.4`       | enforced      | Shared OpenAI outcome-first rules              |
+| `gpt-codex`     | reviewer-only | Legacy compatibility                           |
 | `gpt-4o`        | reviewer-only | No new enforcement                             |
 | `unknown`       | enforced      | ERROR — force explicit `model:` in frontmatter |
 

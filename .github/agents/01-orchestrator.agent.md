@@ -199,7 +199,8 @@ higher-tier model, the subagent silently falls back to the parent's tier.
 [Reference](https://code.visualstudio.com/docs/copilot/agents/subagents).
 
 This orchestrator runs at **standard** tier (MAI-Code-1-Flash). The step agents and
-the challenger run at **medium** (GPT-5.5 / Sonnet 5) or **high** (Claude Opus 4.8)
+the challenger run at **medium** (GPT-5.6-Luna / GPT-5.6-Terra / Sonnet 5) or
+**high** (Claude Opus 5)
 tiers. Calling them via `#runSubagent` would silently downgrade them to
 standard tier and produce wrong-tier output for architecture, planning, and
 documentation work.
@@ -540,11 +541,11 @@ Orchestrator with the project name — no special resume prompt needed.
 
 | Tier       | Model             | Used For                                                                                          |
 | ---------- | ----------------- | ------------------------------------------------------------------------------------------------- |
-| `high`     | Claude Opus 4.8   | Architecture, Planning, Context Optimizer                                                         |
-| `medium`   | Claude Sonnet 5   | **Requirements**, Design, Bicep/Terraform CodeGen, Bicep/Terraform validate + preview subagents   |
-| `medium`   | GPT-5.5           | Governance, Deploy, As-Built, Diagnose, Challenger, E2E orchestrator                              |
+| `high`     | Claude Opus 5     | Architecture, Planning                                                                           |
+| `medium`   | Claude Sonnet 5   | **Requirements**, Design, CodeGen, As-Built, Context Optimizer, validation + preview subagents    |
+| `medium`   | GPT-5.6-Terra     | Diagnose, E2E orchestrator, challenger review subagent                                            |
 | `standard` | MAI-Code-1-Flash  | **Orchestrator** (handoff-only routing)                                                           |
-| `codex`    | GPT-5.3-Codex     | Cost estimate subagent                                                                            |
+| `codex`    | GPT-5.6-Luna      | Governance, Deploy, Challenger, cost estimate subagent                                            |
 
 > The canonical assignments live in
 > [tools/registry/agent-registry.json](../../tools/registry/agent-registry.json) and

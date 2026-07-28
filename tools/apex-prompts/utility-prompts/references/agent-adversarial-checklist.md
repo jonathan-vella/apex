@@ -78,7 +78,7 @@ Each lens lists what to probe and how to rate severity. Record findings as
 
 ## Lens 8 — Stop-rule completeness
 
-- Are the stopping conditions explicit and reachable (especially GPT-5.5 `# Stop rules`, which must
+- Are the stopping conditions explicit and reachable (especially GPT-5.6-Terra `# Stop rules`, which must
   be non-empty)?
 - Could the agent run past its mandate (e.g. start editing during a read-only planning pass, proceed
   past an approval gate)?

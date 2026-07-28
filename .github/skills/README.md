@@ -34,7 +34,7 @@ domain-specific knowledge modules that activate automatically based on prompt ke
 | `github-operations` | Branch naming, commits, PRs, CLI, Actions | "commit", "create PR", "gh command"                                             |
 | `docs-writer`       | Repo-aware documentation maintenance      | "update docs", "check staleness"                                                |
 | `sensei`            | Iteratively improve skill frontmatter     | "run sensei", "improve skill", "fix frontmatter"                                |
-| `vendor-prompting`  | Audit Claude / GPT-5.5 agents and prompts | "audit agent", "claude prompting", "gpt-5.5 prompting", "vendor best practices" |
+| `vendor-prompting`  | Audit Claude / GPT-5.6 agents and prompts | "audit agent", "claude prompting", "gpt-5.6 prompting", "vendor best practices" |
 
 ## Usage
 

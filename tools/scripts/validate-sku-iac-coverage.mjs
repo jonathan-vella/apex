@@ -249,6 +249,17 @@ function collectManifestSkus(manifest) {
   return literals;
 }
 
+function hasIacSource(dir, extension) {
+  if (!fs.existsSync(dir)) return false;
+  return (
+    globSync(`**/*.${extension}`, {
+      cwd: dir,
+      nodir: true,
+      exclude: ["**/.terraform/**"],
+    }).length > 0
+  );
+}
+
 function validateProject(project, r) {
   const projectDir = path.join(ROOT, "agent-output", project);
   const manifestPath = path.join(projectDir, "sku-manifest.json");
@@ -256,8 +267,8 @@ function validateProject(project, r) {
   const bicepDir = path.join(ROOT, "infra/bicep", project);
   const tfDir = path.join(ROOT, "infra/terraform", project);
 
-  const hasBicep = fs.existsSync(bicepDir);
-  const hasTf = fs.existsSync(tfDir);
+  const hasBicep = hasIacSource(bicepDir, "bicep");
+  const hasTf = hasIacSource(tfDir, "tf");
   if (!hasBicep && !hasTf) {
     r.info(`agent-output/${project}`, "No infra/{bicep|terraform} tree — skipping coverage check");
     return;
@@ -346,11 +357,11 @@ function findProjects() {
   }
   for (const p of globSync("infra/bicep/*", { cwd: ROOT })) {
     const project = p.split("/")[2];
-    if (project && project !== "AGENTS.md") out.add(project);
+    if (project && hasIacSource(path.join(ROOT, "infra/bicep", project), "bicep")) out.add(project);
   }
   for (const p of globSync("infra/terraform/*", { cwd: ROOT })) {
     const project = p.split("/")[2];
-    if (project && project !== "AGENTS.md") out.add(project);
+    if (project && hasIacSource(path.join(ROOT, "infra/terraform", project), "tf")) out.add(project);
   }
   return [...out];
 }

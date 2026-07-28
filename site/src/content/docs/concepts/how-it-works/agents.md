@@ -266,7 +266,7 @@ This section walks through creating a new agent from scratch.
 Model selection depends on the task. Use `tools/registry/agent-registry.json` as the
 source of truth, but the current repo pattern is:
 
-- **Planning agents** (accuracy-first) — typically `Claude Opus 4.7` at high reasoning effort
+- **Planning agents** (accuracy-first) — `Claude Opus 5` at high reasoning effort
 - **Orchestrator** — `MAI-Code-1-Flash`, Microsoft's fast coding model. Standard
   tier suits handoff-only routing without creative generation; the agent body
   keeps its outcome-first skeleton (Role / Goal / Success / Constraints / Output /
@@ -274,8 +274,8 @@ source of truth, but the current repo pattern is:
 - **Design + Code generation** — `Claude Sonnet 5` for Anthropic XML-tagged
   output contracts and stronger verbatim invariant retention (security baseline,
   AVM contract, HARD GATE language)
-- **Governance + Challenger** — `GPT-5.5` for balanced execution quality with
-  explicit retrieval budgets and stopping conditions
+- **Governance, Deploy, and Challenger wrapper** — `GPT-5.6-Luna` for focused execution
+- **Diagnose, E2E, and challenger review** — `GPT-5.6-Terra` with outcome-first stopping conditions
 - **Execution, deploy, and validation subagents** — model varies; consult `tools/registry/agent-registry.json`
 - **Adversarial review** — use a different model family than the artifact author when possible
 
@@ -290,7 +290,7 @@ description: >-
   One-line description of what this agent does.
   USE FOR: keyword triggers. DO NOT USE FOR: anti-triggers.
 model:
-  - GPT-5.5
+  - GPT-5.6-Terra
 tools:
   - read_file
   - create_file

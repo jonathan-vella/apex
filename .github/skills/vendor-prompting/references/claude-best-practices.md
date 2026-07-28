@@ -15,7 +15,7 @@ repo are documented; full vendor guidance lives at the source URL.
 
 ## Applicable models
 
-Claude Opus 4.8 (current top), Claude Opus 4.7, Claude Opus 4.6, Claude
+Claude Opus 5 (current top), Claude Opus 4.8, Claude Opus 4.7, Claude Opus 4.6, Claude
 Sonnet 5, Claude Sonnet 4.6, Claude Haiku 4.5. Earlier Claude generations are out of scope.
 
 ## Rule R-CL-1 — XML structuring for complex prompts
@@ -203,13 +203,13 @@ GPT-family agents (rule `gpt-no-claude-xml-001`):
 - `<subagent_budget>`
 - `<output_contract>`
 
-GPT-5.5 reads markdown sections natively; Claude-only XML is noise in
+GPT-5.6-Terra reads markdown sections natively; Claude-only XML is noise in
 GPT prompts.
 
 ## Cross-references
 
 - [gpt-5-prompting.md](gpt-5-prompting.md) — when an agent uses
-  GPT-5.5, the skeleton replaces XML structuring.
+  GPT-5.6-Terra, the skeleton replaces XML structuring.
 - [cross-model-rules.md](cross-model-rules.md) — handoff and
   prompt-sync rules apply regardless of vendor.
 - [audit-procedure.md](audit-procedure.md) — execute the full audit.

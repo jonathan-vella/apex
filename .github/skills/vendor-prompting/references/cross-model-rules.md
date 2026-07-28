@@ -17,7 +17,7 @@ file's `model:` value must equal the target agent's `model:` value.
 # .prompt.md
 ---
 agent: 03-Architect
-model: "Claude Opus 4.8" # MUST match agent's model:
+model: "Claude Opus 5" # MUST match agent's model:
 ---
 ```
 
@@ -37,7 +37,7 @@ stale during model rollouts.
 # Bad
 handoffs:
   - agent: 03-Architect
-    model: "Claude Opus 4.8"   # redundant — matches Architect's own
+    model: "Claude Opus 5"   # redundant — matches Architect's own
     prompt: "..."
 
 # Good
@@ -125,7 +125,7 @@ in [checklists.md](checklists.md).
 
 **Reviewer hint**: examples should appear at the END of the agent
 body (both vendors agree). Claude wraps in `<example>` /
-`<examples>`; GPT-5.5 uses fenced code blocks. Keep examples under
+`<examples>`; GPT-5.6-Terra uses fenced code blocks. Keep examples under
 12 lines.
 
 ## Rule R-X-7 — Language calibration

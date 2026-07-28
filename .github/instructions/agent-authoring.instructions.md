@@ -147,15 +147,14 @@ Agents that specify `Claude Opus 4.7` as priority model do so deliberately:
   only raise it for large change sets. CodeGen stays at `high` rather than
   escalating to `xhigh` — AVM generation is structured execution, not deep
   reasoning.
-- **GPT-5.5 agents** (orchestrator fast path, governance,
-  challenger wrapper, challenger-review-subagent, deploy (Bicep + Terraform),
-  diagnose, e2e-orchestrator)
-  use the OpenAI GPT-5.5 prompting style: explicit Role / Personality / Goal /
+- **GPT-5.6-Terra agents** (orchestrator fast path, challenger-review-subagent,
+  diagnose, e2e-orchestrator) use the OpenAI outcome-first prompting style:
+  explicit Role / Personality / Goal /
   Success / Constraints / Output / Stop sections, retrieval budgets, decision rules
-  over absolutes, and stopping conditions. GPT-5.5 reasons more efficiently than
+  over absolutes, and stopping conditions. Terra reasons more efficiently than
   predecessors — re-evaluate `low`/`medium` reasoning effort before escalating
 - **GPT-5.4 mini prompts** (utility/CLI prompts such as apex-git-commit,
-  apex-debug-log-export) use the same GPT-5.x prompting style as the GPT-5.5
+  apex-debug-log-export) use the same GPT-5.x prompting style as the Terra
   cohort (per vendor-prompting `family-support.md` — GPT-5.4 shares the OpenAI
   cohort rules). Lower-cost tier suits deterministic CLI workflows.
 - **MAI-Code-1-Flash agents** (orchestrator) run Microsoft's fast coding model
@@ -163,11 +162,11 @@ Agents that specify `Claude Opus 4.7` as priority model do so deliberately:
   is `reviewer-only` in vendor-prompting — no MAI-specific automated rules yet;
   the orchestrator body keeps its outcome-first skeleton as a sound routing
   structure.
-- **GPT-5.3-Codex subagents** handle narrow, high-throughput tasks (cost estimation)
+- **GPT-5.6-Luna agents** handle focused governance, deployment, review, and cost-estimation tasks.
 
-#### GPT-5.5 prompting style (summary)
+#### GPT-5.6-Terra prompting style (summary)
 
-The migrated GPT-5.5 cohort follows the OpenAI GPT-5.5 prompting guide:
+The GPT-5.6-Terra cohort follows the OpenAI outcome-first prompting guide:
 
 - Outcome-first body skeleton: `Role` → `Personality` (user-facing agents only) →
   `Goal` → `Success criteria` → `Constraints` → `Output` → `Stop rules`.
@@ -187,22 +186,22 @@ Current model assignments:
 | Agent / Group                       | Model             | Rationale                                |
 | ----------------------------------- | ----------------- | ---------------------------------------- |
 | Orchestrator                        | MAI-Code-1-Flash  | Standard-tier handoff routing            |
-| Orchestrator (Fast Path)            | GPT-5.5           | Streamlined orchestration                |
+| Orchestrator (Fast Path)            | GPT-5.6-Terra     | Streamlined orchestration                |
 | Requirements                        | Claude Sonnet 5   | One-shot discovery (Anthropic style)     |
-| Architect                           | Claude Opus 4.8   | WAF analysis + cost (high effort)        |
+| Architect                           | Claude Opus 5     | WAF analysis + cost (high effort)        |
 | Design                              | Claude Sonnet 5   | Diagram + ADR (Anthropic style)          |
-| Governance                          | GPT-5.5           | Procedural discovery                     |
-| IaC Planner (unified)               | Claude Opus 4.8   | Planning accuracy (high effort)          |
+| Governance                          | GPT-5.6-Luna      | Procedural discovery                     |
+| IaC Planner (unified)               | Claude Opus 5     | Planning accuracy (high effort)          |
 | Bicep / Terraform Code              | Claude Sonnet 5   | Code generation (Anthropic style, verbatim invariants) |
-| Deploy (Bicep + TF)                 | GPT-5.5           | Deployment execution (outcome-first)     |
+| Deploy (Bicep + TF)                 | GPT-5.6-Luna      | Deployment execution                     |
 | As-Built                            | Claude Sonnet 5   | Documentation generation (Anthropic style) |
-| Diagnose                            | GPT-5.5           | Approval-first diagnostics               |
+| Diagnose                            | GPT-5.6-Terra     | Approval-first diagnostics               |
 | Context Optimizer                   | Claude Sonnet 5   | Structured analysis (Anthropic style)    |
-| E2E Orchestrator                    | GPT-5.5           | Autonomous benchmark loop                |
-| Challenger wrapper                  | GPT-5.5           | Structured review                        |
-| Challenger subagent                 | GPT-5.5           | Structured review                        |
+| E2E Orchestrator                    | GPT-5.6-Terra     | Autonomous benchmark loop                |
+| Challenger wrapper                  | GPT-5.6-Luna      | Structured review                        |
+| Challenger subagent                 | GPT-5.6-Terra     | Structured review                        |
 | Bicep/TF validate+preview subagents | Claude Sonnet 5   | Isolated validation (Anthropic style)    |
-| Cost estimate subagent              | GPT-5.3-Codex     | High-throughput pricing                  |
+| Cost estimate subagent              | GPT-5.6-Luna      | High-throughput pricing                  |
 
 #### Reasoning-effort policy
 
@@ -216,7 +215,7 @@ effort is documented in this section and inferred from the agent's role:
   reasoning produces measurably better outcomes (WAF trade-offs, plan
   accuracy, deep audits). Sonnet-tier agents pin to `medium` for typical work
   and only escalate for large change sets.
-- **Default effort** — Diagnose. The interactive approval-first GPT-5.5 flow
+- **Default effort** — Diagnose. The interactive approval-first Terra flow
   alternates short reasoning bursts with user confirmations, so deep multi-step
   deliberation per turn would just slow the flow without improving accuracy.
 - **Effort tuning is a per-call concern** — Copilot Chat / VS Code respects
@@ -287,7 +286,7 @@ Subagent definition rules:
 - Set `user-invocable: false` — subagents are never called directly by users.
 - Set `agents: []` — subagents do not chain to other agents.
 - Keep tool lists minimal — only the tools needed for their specific task.
-- Use `GPT-5.3-Codex` as the default model for fast, isolated execution.
+- Use the model assigned by the parent workflow; `GPT-5.6-Luna` suits focused, isolated execution.
 - Return structured results (PASS/FAIL, APPROVED/NEEDS_REVISION, etc.) so the parent
   agent can act on the verdict without parsing free-form text.
 
@@ -639,7 +638,7 @@ apply the patterns below based on the `model:` field in the file's YAML frontmat
 Read the `model:` field from frontmatter and classify:
 
 - **Claude family**: any value containing `Claude Opus`, `Claude Sonnet`, or `Claude Haiku`
-- **GPT family**: any value containing `GPT-5.5`, `GPT-5.4`, `GPT-5.3-Codex`, or `GPT-4o`
+- **GPT family**: any value containing `GPT-5.6-Terra`, `GPT-5.6-Luna`, `GPT-5.4`, or `GPT-4o`
 
 If `model:` is an array, classify by the first entry.
 
@@ -673,7 +672,7 @@ be 3-5 lines. Place them after the first `#` heading, before the body content.
 
 ### GPT-Specific Patterns
 
-Sources: OpenAI prompt engineering documentation, GPT-5.5 system prompt guidance.
+Sources: OpenAI prompt engineering and outcome-first system prompt guidance.
 
 #### Structure Over XML
 
@@ -721,7 +720,7 @@ Output: 02-architecture-assessment.md and 03-des-cost-estimate.md."`
 #### Prompt File Model Sync
 
 The `model:` field in a `.prompt.md` file must match the corresponding agent's
-frontmatter `model:` value. If the agent uses `GPT-5.5`, the prompt must too.
+frontmatter `model:` value. If the agent uses `GPT-5.6-Terra`, the prompt must too.
 
 Run `npm run lint:model-alignment` to catch mismatches.
 

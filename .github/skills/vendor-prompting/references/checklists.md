@@ -59,7 +59,7 @@ Two parallel checklists: agent (`*.agent.md`) and prompt
       (reviewer-only).
       Hint: `grep -E "Example|<example>" <file>`.
 
-### GPT-5.5 family
+### GPT-5.6-Terra family
 
 - [ ] **R-GPT-1** All outcome-first skeleton sections present:
       `# Goal`, `# Success criteria`, `# Constraints`, `# Output`,
@@ -105,7 +105,7 @@ Two parallel checklists: agent (`*.agent.md`) and prompt
 - [ ] **R-CL-4** No prefill instructions.
       _(rule `claude-no-prefill-001`)_
 
-### GPT-5.5 family (when prompt targets a GPT-5.5 agent)
+### GPT-5.6-Terra family (when prompt targets a GPT-5.6-Terra agent)
 
 - [ ] Reviewer-only: prompt does not over-specify procedure when the
       target agent should describe the destination.
@@ -118,7 +118,7 @@ After completing both columns, fill in:
 
 ```text
 File:            <path>
-Model family:    <claude-opus | claude-sonnet | gpt-5.5 | ...>
+Model family:    <claude-opus | claude-sonnet | gpt-5.6-terra | gpt-5.6-luna | ...>
 Errors:          <count>      ← rule IDs at severity error
 Warnings:        <count>      ← rule IDs at severity warn
 Info:            <count>      ← rule IDs at severity info

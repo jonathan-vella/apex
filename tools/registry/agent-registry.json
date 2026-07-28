@@ -16,7 +16,7 @@
     },
     "architect": {
       "agent": ".github/agents/03-architect.agent.md",
-      "model": "Claude Opus 4.8",
+      "model": "Claude Opus 5",
       "invokable": true,
       "step": 2
     },
@@ -28,13 +28,13 @@
     },
     "governance": {
       "agent": ".github/agents/04g-governance.agent.md",
-      "model": "GPT-5.3-Codex",
+      "model": "GPT-5.6-Luna",
       "invokable": true,
       "step": 3.5
     },
     "iac-plan": {
       "agent": ".github/agents/05-iac-planner.agent.md",
-      "model": "Claude Opus 4.8",
+      "model": "Claude Opus 5",
       "invokable": true,
       "step": 4
     },
@@ -53,11 +53,11 @@
     "deploy": {
       "bicep": {
         "agent": ".github/agents/07b-bicep-deploy.agent.md",
-        "model": "GPT-5.3-Codex"
+        "model": "GPT-5.6-Luna"
       },
       "terraform": {
         "agent": ".github/agents/07t-terraform-deploy.agent.md",
-        "model": "GPT-5.3-Codex"
+        "model": "GPT-5.6-Luna"
       },
       "invokable": true,
       "step": 6
@@ -70,13 +70,13 @@
     },
     "diagnose": {
       "agent": ".github/agents/09-diagnose.agent.md",
-      "model": "GPT-5.5",
+      "model": "GPT-5.6-Terra",
       "invokable": true,
       "step": null
     },
     "challenger": {
       "agent": ".github/agents/10-challenger.agent.md",
-      "model": "GPT-5.3-Codex",
+      "model": "GPT-5.6-Luna",
       "invokable": true,
       "step": null
     },
@@ -88,7 +88,7 @@
     },
     "e2e-orchestrator": {
       "agent": ".github/agents/e2e-orchestrator.agent.md",
-      "model": "GPT-5.5",
+      "model": "GPT-5.6-Terra",
       "invokable": false,
       "step": null
     }
@@ -96,12 +96,12 @@
   "subagents": {
     "challenger-review-subagent": {
       "agent": ".github/agents/_subagents/challenger-review-subagent.agent.md",
-      "model": "GPT-5.5",
+      "model": "GPT-5.6-Terra",
       "invokable": false
     },
     "cost-estimate-subagent": {
       "agent": ".github/agents/_subagents/cost-estimate-subagent.agent.md",
-      "model": "GPT-5.3-Codex",
+      "model": "GPT-5.6-Luna",
       "invokable": false
     },
     "bicep-validate-subagent": {

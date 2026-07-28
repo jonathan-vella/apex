@@ -26,6 +26,7 @@ const TMP = path.join(ROOT, "_tmp_sku_coverage_test");
 const PROJECT_OK = "_test-coverage-explicit";
 const PROJECT_AVM = "_test-coverage-avm-default";
 const PROJECT_GAP = "_test-coverage-gap";
+const PROJECT_CACHE_ONLY = "_test-coverage-cache-only";
 
 const MANIFEST_BASE = {
   schema_version: "sku-manifest-v1",
@@ -101,6 +102,7 @@ describe("SKU ↔ IaC Coverage validator", () => {
     teardownProject(PROJECT_OK);
     teardownProject(PROJECT_AVM);
     teardownProject(PROJECT_GAP);
+    fs.rmSync(path.join(ROOT, "infra/terraform", PROJECT_CACHE_ONLY), { recursive: true, force: true });
     fs.rmSync(TMP, { recursive: true, force: true });
   });
 
@@ -160,5 +162,16 @@ describe("SKU ↔ IaC Coverage validator", () => {
     const { stdout, exitCode } = runValidator(PROJECT_GAP);
     assert.notEqual(exitCode, 0, `expected non-zero exit, got 0:\n${stdout}`);
     assert.ok(/P3v3/.test(stdout), `expected P3v3 mention, got:\n${stdout}`);
+  });
+
+  it("ignores Terraform provider cache directories without IaC source", () => {
+    writeText(
+      path.join(ROOT, "infra/terraform", PROJECT_CACHE_ONLY, ".terraform", "modules", "example", "README.md"),
+      "# Generated module cache\n",
+    );
+
+    const { stdout, exitCode } = runValidator(PROJECT_CACHE_ONLY);
+    assert.equal(exitCode, 0, `expected cache-only project to be skipped, got ${exitCode}:\n${stdout}`);
+    assert.match(stdout, /No infra\/\{bicep\|terraform\} tree/);
   });
 });

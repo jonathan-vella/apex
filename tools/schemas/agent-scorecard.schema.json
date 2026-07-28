@@ -35,7 +35,7 @@
     },
     "model_family": {
       "type": "string",
-      "description": "Normalized family from classifyModel (e.g. claude-opus, gpt-5.5, gpt-codex, mai-code, unknown)."
+      "description": "Normalized family from classifyModel (e.g. claude-opus, gpt-5.6-terra, gpt-5.6-luna, mai-code, unknown)."
     },
     "step": {
       "type": ["number", "null"],

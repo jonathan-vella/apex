@@ -1,9 +1,9 @@
 ---
 description: "Generate as-built documentation for an existing Azure deployment with no prior artifacts. Discovers resources, collects requirements interactively, synthesizes pseudo-artifacts, then hands off to 08-As-Built."
 agent: "agent"
-# Same-family with the 08-As-Built target agent (both GPT-5.5) after the 2026-05
-# deploy + as-built migration. Cross-family handoff risk has been eliminated.
-model: "GPT-5.5"
+# Uses GPT-5.6-Terra for discovery and synthesis before handing off to the
+# target agent's native Claude Sonnet 5 model.
+model: "GPT-5.6-Terra"
 tools:
   - vscode
   - execute

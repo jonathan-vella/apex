@@ -1,6 +1,6 @@
 ---
 name: E2E Orchestrator
-model: ["GPT-5.5"]
+model: ["GPT-5.6-Terra"]
 description: "Autonomous E2E evaluation orchestrator for the RALPH-style workflow loop. Executes real workflow agents end-to-end with live MCP-backed cost, Draw.io design, governance discovery, validation, and benchmark collection. Does NOT replace 01-Orchestrator."
 user-invocable: true
 agents:
@@ -207,8 +207,8 @@ Per-step delegation contract:
 - **Delegation mechanism & model tiers**: prefer agent **handoffs** so each
   step agent runs at its own declared model tier. When delegation falls back
   to `#runSubagent` (see § Subagent Runtime Fallback), the downstream agent
-  inherits this orchestrator's GPT-5.5 tier — a silent downgrade for
-  Opus/Sonnet step agents (e.g. `03-Architect` at Claude Opus 4.8). This is a
+  inherits this orchestrator's GPT-5.6-Terra tier — a silent downgrade for
+  Opus/Sonnet step agents (e.g. `03-Architect` at Claude Opus 5). This is a
   **fidelity-reducing** condition, not a free fallback: record
   `"execution_mode": "direct"` for the step AND set
   `benchmark.tier_fidelity: "degraded"` for the run. A run with any

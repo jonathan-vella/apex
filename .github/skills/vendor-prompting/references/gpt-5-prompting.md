@@ -1,27 +1,27 @@
 <!-- ref:gpt-5-prompting-v1 -->
 
-# OpenAI GPT-5.5 — Prompting Best Practices (Normalized)
+# OpenAI GPT-5.6-Terra — Prompting Best Practices (Normalized)
 
 > Source: [openai/skills @ 724cd511c96593f642bddf13187217aa155d2554/prompting-guide.md](https://github.com/openai/skills/blob/724cd511c96593f642bddf13187217aa155d2554/skills/.curated/openai-docs/references/prompting-guide.md)
 > sha256 `ecdf49b4a824a87367c7a6ec3c0218e2c5783dff951b30a101c3b6a95152aafa`.
 > Snapshot: [.snapshots/openai-prompting-guide.md](.snapshots/openai-prompting-guide.md).
 
-This file normalizes OpenAI's GPT-5.5 prompting guidance into rules
+This file applies OpenAI's outcome-first prompting guidance to GPT-5.6-Terra rules
 consumable by `validate-agents.mjs`. Each rule references its ID in
 [rules.json](../rules.json).
 
 ## Applicable models
 
-GPT-5.5 (preferred OpenAI default for the APEX OpenAI cohort) and GPT-5.4
+GPT-5.6-Terra (preferred OpenAI default for the APEX outcome-first cohort) and GPT-5.4
 (active standard-tier sibling — same prompting style; see
 [gpt-5-upgrade.md](gpt-5-upgrade.md) for voluntary GPT-5.4 → GPT-5.5 upgrade
-patterns). GPT-5.3-Codex and GPT-4o are reviewer-only.
+patterns). GPT-5.6-Luna and GPT-4o are reviewer-only.
 
 ## Rule R-GPT-1 — Outcome-first skeleton
 
 > Source: section "Suggested prompt structure".
 
-**Rule** (`gpt55-skeleton-001`): GPT-5.5 agents must contain these
+**Rule** (`gpt55-skeleton-001`): GPT-5.6-Terra agents must contain these
 H1 sections (order flexible, presence required):
 
 ```text
@@ -85,7 +85,7 @@ absolute; judgment calls become decision rules.
 
 ## Rule R-GPT-4 — No Claude-only XML blocks
 
-> Source: section "Personality and behavior" + "Formatting" — GPT-5.5
+> Source: section "Personality and behavior" + "Formatting" — GPT-5.6-Terra
 > is steered with markdown sections. The guide does not use
 > Anthropic-style XML structuring.
 
@@ -159,10 +159,10 @@ hit this case today — listed for awareness.
 ## Anti-patterns
 
 - Carrying over every instruction from a GPT-5.4 prompt stack —
-  GPT-5.5 prefers shorter, outcome-oriented prompts.
+  GPT-5.6-Terra prefers shorter, outcome-oriented prompts.
 - Over-specifying step-by-step procedures for tasks that should
   describe the destination instead.
-- Using `<personality>`, `<role>`, `<goal>` XML tags — GPT-5.5
+- Using `<personality>`, `<role>`, `<goal>` XML tags — GPT-5.6-Terra
   reads `# Personality`, `Role:`, `# Goal` markdown natively.
 
 ## Cross-references

@@ -18,6 +18,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 See the [published changelog](https://apexops.pro/project/changelog/)
 for full details on this and all prior releases.
 
+### Changed (Model migration — 2026-07 successors)
+
+- chore(agents): replaced active `Claude Opus 4.8` assignments with
+  `Claude Opus 5` for architecture and IaC planning.
+- chore(agents): replaced active `GPT-5.3-Codex` assignments with
+  `GPT-5.6-Luna` for governance, deployment, challenger, and cost estimation.
+- chore(agents): replaced active `GPT-5.5` assignments with
+  `GPT-5.6-Terra` for diagnostics, E2E orchestration, and challenger review.
+- chore(models): retained the superseded catalog entries as deprecated audit
+  history, added distinct Luna and Terra validator families, and preserved
+  reviewer-only Luna and outcome-first Terra prompting behavior.
+
 ### Changed (Model migration — Claude Sonnet 4.6 → Claude Sonnet 5)
 
 - chore(agents): migrated all 11 agents/subagents in the Sonnet cohort

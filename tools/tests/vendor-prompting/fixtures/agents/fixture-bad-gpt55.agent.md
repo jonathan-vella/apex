@@ -1,7 +1,7 @@
 ---
 name: fixture-bad-gpt55
-description: "Bad GPT-5.5 agent fixture — missing skeleton sections, contains Claude-only XML, empty stop rules."
-model: ["GPT-5.5"]
+description: "Bad GPT-5.6-Terra agent fixture — missing skeleton sections, contains Claude-only XML, empty stop rules."
+model: ["GPT-5.6-Terra"]
 user-invocable: false
 agents: []
 tools: [read]
@@ -12,7 +12,7 @@ handoffs:
     send: true
 ---
 
-# Bad GPT-5.5 Agent Fixture
+# Bad GPT-5.6-Terra Agent Fixture
 
 <context_awareness>
 This block is Claude-only and should not appear in a GPT agent.

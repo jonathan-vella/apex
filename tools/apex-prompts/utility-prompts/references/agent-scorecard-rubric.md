@@ -57,7 +57,7 @@ never reduces the score.
 ### 4. Vendor prompting — L2 (deterministic)
 
 Model-family correctness: Claude bodies > 350 lines carry `<context_awareness>`; Claude research
-agents carry `<investigate_before_answering>`; ONE-SHOT agents do **not**; GPT-5.5 agents carry the
+agents carry `<investigate_before_answering>`; ONE-SHOT agents do **not**; GPT-5.6-Terra agents carry the
 `# Goal` / `# Success criteria` / `# Constraints` / `# Output` / `# Stop rules` skeleton; GPT agents
 avoid Claude-only XML blocks.
 

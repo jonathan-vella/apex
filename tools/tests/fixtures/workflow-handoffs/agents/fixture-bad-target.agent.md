@@ -1,7 +1,7 @@
 ---
 name: fixture-handoff-target-bad
 description: "Fixture: trips workflow-handoff-target-001 by handing off to a target with no DAG edge."
-model: ["GPT-5.5"]
+model: ["GPT-5.6-Terra"]
 user-invocable: true
 agents: []
 tools: [read]

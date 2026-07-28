@@ -311,8 +311,8 @@ function scoreVendor(agent, metrics, vendorFindings) {
     evidence.push("ONE-SHOT agent must NOT include <investigate_before_answering> (claude-oneshot-001)");
     severity = worst(severity, "medium");
   }
-  if (family === "gpt-5.5" && metrics.gpt55_sections_missing.length > 0) {
-    evidence.push(`GPT-5.5 skeleton missing: ${metrics.gpt55_sections_missing.join(", ")} (gpt55-skeleton-001)`);
+  if (family === "gpt-5.6-terra" && metrics.gpt55_sections_missing.length > 0) {
+    evidence.push(`Terra skeleton missing: ${metrics.gpt55_sections_missing.join(", ")} (gpt55-skeleton-001)`);
     severity = worst(severity, "medium");
   }
   if (isGptFamily(family)) {

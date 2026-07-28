@@ -2,7 +2,7 @@
 name: e2e-contoso-rfp
 description: "Run a single real, RFP-driven Contoso Service Hub E2E workflow using the actual agents, MCP tools, and dry-run deployment path."
 agent: agent
-model: "GPT-5.5"
+model: "GPT-5.6-Terra"
 argument-hint: "Specify project name and IaC tool (Bicep or Terraform)"
 ---
 

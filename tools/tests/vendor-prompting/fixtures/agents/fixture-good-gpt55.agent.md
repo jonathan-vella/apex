@@ -1,7 +1,7 @@
 ---
 name: fixture-good-gpt55
-description: "Good GPT-5.5 agent fixture — should produce no vendor-prompting findings."
-model: ["GPT-5.5"]
+description: "Good GPT-5.6-Terra agent fixture — should produce no vendor-prompting findings."
+model: ["GPT-5.6-Terra"]
 user-invocable: true
 agents: []
 tools: [read]
@@ -12,7 +12,7 @@ handoffs:
     send: true
 ---
 
-# Good GPT-5.5 Agent Fixture
+# Good GPT-5.6-Terra Agent Fixture
 
 Role: deploy infrastructure based on the plan above.
 

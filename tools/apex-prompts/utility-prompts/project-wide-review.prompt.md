@@ -235,7 +235,7 @@ Order: workflow-graph → agents → subagents (subagents are leaves).
    table sync (`lint:workflow-table-sync`).
 2. For every agent:
    - Frontmatter health (vendor-prompting rules from prior sweep).
-   - Body alignment with vendor (Claude XML idioms / GPT-5.5
+  - Body alignment with vendor (Claude XML idioms / GPT-5.6-Terra
      skeleton, per family in the review-index).
    - Handoff coverage: every handoff target exists; every handoff
      prompt has input + output references (`handoff-enrichment-001`).

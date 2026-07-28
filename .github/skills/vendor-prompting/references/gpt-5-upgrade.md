@@ -6,7 +6,10 @@
 > sha256 `563784eb13ad1b44c3a592f940aa7ac2086ebeb97df3f4a09ba038b2f1564d39`.
 > Snapshot: [.snapshots/openai-upgrade-guide.md](.snapshots/openai-upgrade-guide.md).
 
-> **Status: ACTIVE.** GPT-5.4 and GPT-5.5 are both active OpenAI cohorts as of
+> **Status: HISTORICAL.** This guide records the completed GPT-5.4 to GPT-5.5 migration. GPT-5.5 was
+> superseded by GPT-5.6-Terra in 2026-07; preserved labels below are migration history.
+
+GPT-5.4 and GPT-5.5 were both active OpenAI cohorts as of
 > 2026-05 (`GPT-5.4` is the lower-cost standard tier alongside `GPT-5.5`; no
 > `GPT-5.5 mini` SKU exists, so the GPT-5.4 family is retained for utility +
 > CLI workloads via `GPT-5.4 mini`). This file documents the prompt-style

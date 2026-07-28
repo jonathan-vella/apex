@@ -1,7 +1,7 @@
 ---
 name: fixture-handoff-subagent-dispatch-bad
 description: "Fixture: trips workflow-handoff-subagent-dispatch-001 with an unknown subagent and a non-cross-cutting wildcard."
-model: ["GPT-5.5"]
+model: ["GPT-5.6-Terra"]
 user-invocable: true
 agents: ["unknown-imaginary-subagent", "*"]
 tools: [read]

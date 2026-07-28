@@ -1,7 +1,7 @@
 ---
 name: fixture-track-parity-B
 description: "Fixture: B4 track parity test (Terraform-side). Paired with fixture-track-parity-A."
-model: ["GPT-5.5"]
+model: ["GPT-5.6-Terra"]
 user-invocable: true
 agents: []
 tools: [read]
