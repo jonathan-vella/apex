@@ -161,7 +161,7 @@ Phase 1 / Phase 2 respectively to prevent rework):
 3. **Read the committed baseline subscription entry in full** (MANDATORY,
    every run — live, cached, or refresh). After determining the target
    subscription ID from the architecture, load the entire
-   `.github/data/governance-policy-baseline.json → subscriptions[<sub-id>]`
+  `.github/data/governance-policy-baseline.json.gz → subscriptions[<sub-id>]`
    object into context — do not jq-filter to a small slice. The subscription
    entry contains `assignment_inventory`, `findings`, `tags_required`,
    `allowed_locations`, and `policies`; every Tags-category finding with
@@ -172,13 +172,13 @@ Phase 1 / Phase 2 respectively to prevent rework):
    silently corrupts the downstream tag contract. Use:
 
    ```bash
-   jq '.subscriptions["<sub-id>"]' .github/data/governance-policy-baseline.json \
-     > /tmp/{project}-baseline-sub.json
+   python3 .github/skills/azure-governance-discovery/scripts/governance_baseline.py \
+     .github/data/governance-policy-baseline.json.gz \
+     --subscription "<sub-id>" > /tmp/{project}-baseline-sub.json
    wc -c /tmp/{project}-baseline-sub.json  # confirm non-empty
    ```
 
-   Then read `/tmp/{project}-baseline-sub.json` via `read_file` (no
-   line range) so the full structure enters context.
+  Read the full `/tmp/{project}-baseline-sub.json` via `read_file` so it enters context.
 
 If missing, STOP and request handoff to the appropriate prior agent.
 
@@ -256,7 +256,7 @@ refresh request) and the locked-S3 single-clock rule live in
 ### Phase 0.45: Baseline Check
 
 Before any live discovery, check whether a committed governance
-baseline at `.github/data/governance-policy-baseline.json` can satisfy
+baseline at `.github/data/governance-policy-baseline.json.gz` can satisfy
 the request — eligibility, user prompt, and `render_cached_governance.py`
 invocation are documented in
 [`baseline-check.md`](../skills/azure-governance-discovery/references/baseline-check.md).

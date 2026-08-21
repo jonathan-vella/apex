@@ -11,6 +11,7 @@ import { existsSync } from "node:fs";
 import { readdir, readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
+import { parseFrontmatter } from "./_lib/parse-frontmatter.mjs";
 
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const DOCS_ROOT = path.join(REPO_ROOT, "site", "src", "content", "docs");
@@ -26,19 +27,6 @@ async function walk(dir, acc) {
     }
   }
   return acc;
-}
-
-function parseFrontmatter(src) {
-  if (!src.startsWith("---")) return null;
-  const end = src.indexOf("\n---", 3);
-  if (end < 0) return null;
-  const block = src.slice(3, end);
-  const out = {};
-  for (const line of block.split(/\r?\n/)) {
-    const match = line.match(/^([A-Za-z_][A-Za-z0-9_]*):\s*(.*)$/);
-    if (match) out[match[1]] = match[2].trim();
-  }
-  return out;
 }
 
 async function main() {
@@ -71,7 +59,9 @@ async function main() {
   console.log(`✔ ${files.length} docs pages have valid frontmatter.`);
 }
 
-main().catch((err) => {
-  console.error(err);
+try {
+  await main();
+} catch (error) {
+  console.error(error);
   process.exit(2);
-});
+}

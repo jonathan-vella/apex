@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-07-28T11:03:27.533Z",
+  "generatedAt": "2026-08-21T08:22:01.576Z",
   "categories": [
     {
       "id": "agent",
@@ -24,7 +24,7 @@
       "label": "Skill",
       "color": "#10b981",
       "shape": "ellipse",
-      "count": 33
+      "count": 34
     },
     {
       "id": "instruction",
@@ -48,7 +48,7 @@
       "label": "Validator",
       "color": "#8b5cf6",
       "shape": "hexagon",
-      "count": 57
+      "count": 62
     },
     {
       "id": "workflow",
@@ -67,8 +67,8 @@
       "count": 5
     }
   ],
-  "nodeCount": 161,
-  "edgeCount": 665,
+  "nodeCount": 167,
+  "edgeCount": 629,
   "nodes": [
     {
       "id": "agent:01-orchestrator",
@@ -633,6 +633,17 @@
       }
     },
     {
+      "id": "skill:agent-authoring",
+      "category": "skill",
+      "label": "agent-authoring",
+      "description": "**WORKFLOW SKILL** — Creates, restructures, and audits GitHub Copilot `.agent.md` and `.prompt.md` files with correct frontmatter, handoffs, model policy, context budgets, and validation. WHEN: \"create agent\", \"author custom agent\", \"edit agent definition\", \"agent architecture\", \"reduce agent tokens\", \"agent prompt audit\". DO NOT USE FOR: routine edits covered by auto-loaded instructions.",
+      "path": ".github/skills/agent-authoring/SKILL.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/agent-authoring/SKILL.md"
+      },
+      "meta": {}
+    },
+    {
       "id": "skill:azure-adr",
       "category": "skill",
       "label": "azure-adr",
@@ -713,7 +724,7 @@
       "id": "skill:azure-defaults",
       "category": "skill",
       "label": "azure-defaults",
-      "description": "**UTILITY SKILL** — Azure infrastructure defaults: regions, tags, naming (CAF), AVM-first policy, security baseline, unique suffix patterns. WHEN: \"Azure naming convention\", \"CAF naming\", \"resource tags\", \"AVM module\", \"security baseline\", \"region default\". USE FOR: any agent generating or planning Azure resources. DO NOT USE FOR: artifact template structures (use azure-artifacts), pricing lookups (read references/pricing-guidance.md on demand).",
+      "description": "**UTILITY SKILL** — Applies canonical Azure defaults through an IaC workflow covering governance precedence, CAF naming, AVM-first composition, unique suffixes, cost monitoring, VNet planning, and lifecycle checks. WHEN: \"Azure naming convention\", \"CAF naming\", \"resource tags\", \"AVM module\", \"security baseline\", \"region default\". DO NOT USE FOR: artifact templates or pricing lookups.",
       "path": ".github/skills/azure-defaults/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/azure-defaults/SKILL.md"
@@ -999,7 +1010,7 @@
       "id": "instruction:agent-authoring",
       "category": "instruction",
       "label": "agent-authoring",
-      "description": "Standards for Copilot custom agent definition files, decision logging, and model-specific prompt patterns",
+      "description": "Enforceable structural and runtime rules for Copilot agent and prompt files",
       "path": ".github/instructions/agent-authoring.instructions.md",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/instructions/agent-authoring.instructions.md"
@@ -1408,8 +1419,10 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
       },
       "meta": {
-        "command": "node tools/scripts/validate-artifacts.mjs"
-      }
+        "command": "node tools/scripts/validate-artifacts.mjs",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
     },
     {
       "id": "validator:validate-agents",
@@ -1434,8 +1447,10 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
       },
       "meta": {
-        "command": "python3 tools/scripts/validate_orchestrator_handoff.py"
-      }
+        "command": "python3 tools/scripts/validate_orchestrator_handoff.py",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
     },
     {
       "id": "validator:validate-review-ceiling",
@@ -1447,8 +1462,10 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
       },
       "meta": {
-        "command": "python3 tools/scripts/validate_review_ceiling.py"
-      }
+        "command": "python3 tools/scripts/validate_review_ceiling.py",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
     },
     {
       "id": "validator:validate-question-batching",
@@ -1460,8 +1477,10 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
       },
       "meta": {
-        "command": "python3 tools/scripts/validate_question_batching.py"
-      }
+        "command": "python3 tools/scripts/validate_question_batching.py",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
     },
     {
       "id": "validator:validate-skills",
@@ -1486,8 +1505,10 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
       },
       "meta": {
-        "command": "node tools/scripts/validate-version-sync.mjs"
-      }
+        "command": "node tools/scripts/validate-version-sync.mjs",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
     },
     {
       "id": "validator:lint-deprecated-refs",
@@ -1499,8 +1520,10 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
       },
       "meta": {
-        "command": "node tools/scripts/validate-no-deprecated-refs.mjs"
-      }
+        "command": "node tools/scripts/validate-no-deprecated-refs.mjs",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
     },
     {
       "id": "validator:lint-mcp-config",
@@ -1512,8 +1535,10 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
       },
       "meta": {
-        "command": "node tools/scripts/validate-mcp-config.mjs"
-      }
+        "command": "node tools/scripts/validate-mcp-config.mjs",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
     },
     {
       "id": "validator:validate-extension-bloat",
@@ -1525,8 +1550,10 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
       },
       "meta": {
-        "command": "node tools/scripts/validate-extension-bloat.mjs"
-      }
+        "command": "node tools/scripts/validate-extension-bloat.mjs",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
     },
     {
       "id": "validator:validate-headings-summary",
@@ -1538,8 +1565,10 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
       },
       "meta": {
-        "command": "node tools/scripts/validate-headings-summary.mjs"
-      }
+        "command": "node tools/scripts/validate-headings-summary.mjs",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
     },
     {
       "id": "validator:validate-instruction-checks",
@@ -1551,8 +1580,10 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
       },
       "meta": {
-        "command": "node tools/scripts/validate-instruction-checks.mjs"
-      }
+        "command": "node tools/scripts/validate-instruction-checks.mjs",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
     },
     {
       "id": "validator:lint-governance-refs",
@@ -1564,8 +1595,10 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
       },
       "meta": {
-        "command": "node tools/scripts/validate-governance-refs.mjs"
-      }
+        "command": "node tools/scripts/validate-governance-refs.mjs",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
     },
     {
       "id": "validator:validate-session-state",
@@ -1577,8 +1610,10 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
       },
       "meta": {
-        "command": "node tools/scripts/validate-session-state.mjs"
-      }
+        "command": "node tools/scripts/validate-session-state.mjs",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
     },
     {
       "id": "validator:validate-workflow-graph",
@@ -1590,8 +1625,10 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
       },
       "meta": {
-        "command": "node tools/scripts/validate-workflow-graph.mjs"
-      }
+        "command": "node tools/scripts/validate-workflow-graph.mjs",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
     },
     {
       "id": "validator:validate-lens-references",
@@ -1603,8 +1640,10 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
       },
       "meta": {
-        "command": "node tools/scripts/validate-lens-references.mjs"
-      }
+        "command": "node tools/scripts/validate-lens-references.mjs",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
     },
     {
       "id": "validator:validate-challenger-findings",
@@ -1616,8 +1655,10 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
       },
       "meta": {
-        "command": "node tools/scripts/validate-challenger-findings.mjs"
-      }
+        "command": "node tools/scripts/validate-challenger-findings.mjs",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
     },
     {
       "id": "validator:validate-challenger-presence",
@@ -1629,8 +1670,10 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
       },
       "meta": {
-        "command": "node tools/scripts/validate-challenger-presence.mjs"
-      }
+        "command": "node tools/scripts/validate-challenger-presence.mjs",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
     },
     {
       "id": "validator:lint-workflow-table-sync",
@@ -1642,8 +1685,10 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
       },
       "meta": {
-        "command": "node tools/scripts/validate-workflow-table-sync.mjs"
-      }
+        "command": "node tools/scripts/validate-workflow-table-sync.mjs",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
     },
     {
       "id": "validator:lint-workflow-handoffs",
@@ -1655,8 +1700,10 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
       },
       "meta": {
-        "command": "node tools/scripts/validate-agents.mjs --only=workflow-handoffs"
-      }
+        "command": "node tools/scripts/validate-agents.mjs --only=workflow-handoffs",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
     },
     {
       "id": "validator:validate-agent-registry",
@@ -1668,8 +1715,10 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
       },
       "meta": {
-        "command": "node tools/scripts/validate-agent-registry.mjs"
-      }
+        "command": "node tools/scripts/validate-agent-registry.mjs",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
     },
     {
       "id": "validator:validate-skill-checks",
@@ -1681,8 +1730,10 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
       },
       "meta": {
-        "command": "node tools/scripts/validate-skill-checks.mjs"
-      }
+        "command": "node tools/scripts/validate-skill-checks.mjs",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
     },
     {
       "id": "validator:lint-json",
@@ -1694,8 +1745,10 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
       },
       "meta": {
-        "command": "node tools/scripts/lint-json.mjs"
-      }
+        "command": "node tools/scripts/lint-json.mjs",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
     },
     {
       "id": "validator:lint-json-schemas",
@@ -1707,8 +1760,10 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
       },
       "meta": {
-        "command": "node tools/scripts/validate-json-schemas.mjs"
-      }
+        "command": "node tools/scripts/validate-json-schemas.mjs",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
     },
     {
       "id": "validator:lint-glob-audit",
@@ -1759,8 +1814,10 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
       },
       "meta": {
-        "command": "node tools/scripts/validate-no-hardcoded-counts.mjs"
-      }
+        "command": "node tools/scripts/validate-no-hardcoded-counts.mjs",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
     },
     {
       "id": "validator:validate-hooks",
@@ -1785,8 +1842,10 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
       },
       "meta": {
-        "command": "node tools/scripts/validate-context-budget.mjs"
-      }
+        "command": "node tools/scripts/validate-context-budget.mjs",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
     },
     {
       "id": "validator:validate-iac-security-baseline",
@@ -1804,6 +1863,21 @@
       "parent": "group:validator-orphans"
     },
     {
+      "id": "validator:validate-governance-baseline",
+      "category": "validator",
+      "label": "validate:governance-baseline",
+      "description": "node tools/scripts/validate-governance-baseline.mjs",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
+      },
+      "meta": {
+        "command": "node tools/scripts/validate-governance-baseline.mjs",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
+    },
+    {
       "id": "validator:validate-policy-precheck",
       "category": "validator",
       "label": "validate:policy-precheck",
@@ -1813,8 +1887,10 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
       },
       "meta": {
-        "command": "node tools/scripts/validate-policy-precheck.mjs"
-      }
+        "command": "node tools/scripts/validate-policy-precheck.mjs",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
     },
     {
       "id": "validator:validate-sku-manifest",
@@ -1826,8 +1902,10 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
       },
       "meta": {
-        "command": "node tools/scripts/validate-sku-manifest.mjs"
-      }
+        "command": "node tools/scripts/validate-sku-manifest.mjs",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
     },
     {
       "id": "validator:validate-sku-iac-coverage",
@@ -1839,8 +1917,10 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
       },
       "meta": {
-        "command": "node tools/scripts/validate-sku-iac-coverage.mjs"
-      }
+        "command": "node tools/scripts/validate-sku-iac-coverage.mjs",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
     },
     {
       "id": "validator:validate-decision-keys",
@@ -1852,8 +1932,10 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
       },
       "meta": {
-        "command": "node tools/scripts/validate-decision-keys.mjs"
-      }
+        "command": "node tools/scripts/validate-decision-keys.mjs",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
     },
     {
       "id": "validator:validate-banned-phrases",
@@ -1865,8 +1947,10 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
       },
       "meta": {
-        "command": "node tools/scripts/validate-banned-phrases.mjs"
-      }
+        "command": "node tools/scripts/validate-banned-phrases.mjs",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
     },
     {
       "id": "validator:validate-vscode",
@@ -1878,8 +1962,10 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
       },
       "meta": {
-        "command": "node tools/scripts/validate-vscode-config.mjs"
-      }
+        "command": "node tools/scripts/validate-vscode-config.mjs",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
     },
     {
       "id": "validator:lint-drawio",
@@ -1891,8 +1977,10 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
       },
       "meta": {
-        "command": "node tools/scripts/validate-drawio-files.mjs"
-      }
+        "command": "node tools/scripts/validate-drawio-files.mjs",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
     },
     {
       "id": "validator:validate-terminology",
@@ -1904,8 +1992,10 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
       },
       "meta": {
-        "command": "node tools/scripts/validate-terminology.mjs"
-      }
+        "command": "node tools/scripts/validate-terminology.mjs",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
     },
     {
       "id": "validator:validate-model-consistency",
@@ -1917,8 +2007,10 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
       },
       "meta": {
-        "command": "node tools/scripts/validate-models.mjs --only=consistency"
-      }
+        "command": "node tools/scripts/validate-models.mjs --only=consistency",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
     },
     {
       "id": "validator:validate-deprecated-models",
@@ -1930,8 +2022,10 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
       },
       "meta": {
-        "command": "node tools/scripts/validate-models.mjs --only=deprecated"
-      }
+        "command": "node tools/scripts/validate-models.mjs --only=deprecated",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
     },
     {
       "id": "validator:validate-model-catalog",
@@ -1943,8 +2037,10 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
       },
       "meta": {
-        "command": "node tools/scripts/validate-models.mjs --only=catalog"
-      }
+        "command": "node tools/scripts/validate-models.mjs --only=catalog",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
     },
     {
       "id": "validator:validate-explorer-graph",
@@ -1956,8 +2052,10 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
       },
       "meta": {
-        "command": "EXPLORER_GRAPH_STRICT=1 node tools/scripts/validate-explorer-graph.mjs"
-      }
+        "command": "EXPLORER_GRAPH_STRICT=1 node tools/scripts/validate-explorer-graph.mjs",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
     },
     {
       "id": "validator:validate-region-canonical",
@@ -1969,8 +2067,40 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
       },
       "meta": {
-        "command": "node tools/scripts/validate-region-canonical.mjs"
-      }
+        "command": "node tools/scripts/validate-region-canonical.mjs",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
+    },
+    {
+      "id": "validator:test-azure-defaults-canonical",
+      "category": "validator",
+      "label": "test:azure-defaults-canonical",
+      "description": "node --test tools/tests/validate-region-canonical.test.mjs",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
+      },
+      "meta": {
+        "command": "node --test tools/tests/validate-region-canonical.test.mjs",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
+    },
+    {
+      "id": "validator:test-governance-baseline-loader",
+      "category": "validator",
+      "label": "test:governance-baseline-loader",
+      "description": "node --test tools/tests/lib/governance-baseline.test.mjs",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
+      },
+      "meta": {
+        "command": "node --test tools/tests/lib/governance-baseline.test.mjs",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
     },
     {
       "id": "validator:test-classify-model",
@@ -1982,8 +2112,10 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
       },
       "meta": {
-        "command": "node --test tools/tests/validate-agents/classify-model.test.mjs"
-      }
+        "command": "node --test tools/tests/validate-agents/classify-model.test.mjs",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
     },
     {
       "id": "validator:test-devcontainer-verdicts",
@@ -1995,8 +2127,25 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
       },
       "meta": {
-        "command": "node --test tools/tests/compare-devcontainer-verdicts.test.mjs"
-      }
+        "command": "node --test tools/tests/compare-devcontainer-verdicts.test.mjs",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
+    },
+    {
+      "id": "validator:test-validator-runner",
+      "category": "validator",
+      "label": "test:validator-runner",
+      "description": "node --test tools/tests/validate-all.test.mjs tools/tests/generate-explorer-graph.test.mjs tools/tests/lib/json.test.mjs tools/tests/lib/ajv-validator.test.mjs tools/tests/lib/npm-script-graph.test.mjs tools/tests/lib/parse-frontmatter.test.mjs tools/tests/lib/parsing-helpers.test.mjs",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
+      },
+      "meta": {
+        "command": "node --test tools/tests/validate-all.test.mjs tools/tests/generate-explorer-graph.test.mjs tools/tests/lib/json.test.mjs tools/tests/lib/ajv-validator.test.mjs tools/tests/lib/npm-script-graph.test.mjs tools/tests/lib/parse-frontmatter.test.mjs tools/tests/lib/parsing-helpers.test.mjs",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
     },
     {
       "id": "validator:lint-safe-shell",
@@ -2008,8 +2157,10 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
       },
       "meta": {
-        "command": "node tools/scripts/safe-shell.mjs"
-      }
+        "command": "node tools/scripts/safe-shell.mjs",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
     },
     {
       "id": "validator:validate-tool-versions",
@@ -2116,6 +2267,21 @@
       "meta": {
         "command": "tools/scripts/run-azure-pricing-python.sh -m pytest tests -q"
       }
+    },
+    {
+      "id": "validator:test-governance-baseline-python",
+      "category": "validator",
+      "label": "test:governance-baseline-python",
+      "description": "python3 -m pytest .github/skills/azure-governance-discovery/scripts/test_governance_baseline.py -q",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
+      },
+      "meta": {
+        "command": "python3 -m pytest .github/skills/azure-governance-discovery/scripts/test_governance_baseline.py -q",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
     },
     {
       "id": "validator:lint-site-links",
@@ -2354,11 +2520,11 @@
     {
       "id": "group:validator-orphans",
       "category": "validator",
-      "label": "Validator (unlinked, 3)",
-      "description": "3 validator nodes with no cross-references in the current graph.",
+      "label": "Validator (unlinked, 48)",
+      "description": "48 validator nodes with no cross-references in the current graph.",
       "isGroup": true,
       "meta": {
-        "groupSize": 3
+        "groupSize": 48
       }
     },
     {
@@ -3550,6 +3716,12 @@
       "kind": "applies-to"
     },
     {
+      "id": "instruction:agent-skills--applies-to->skill:agent-authoring",
+      "source": "instruction:agent-skills",
+      "target": "skill:agent-authoring",
+      "kind": "applies-to"
+    },
+    {
       "id": "instruction:agent-skills--applies-to->skill:azure-adr",
       "source": "instruction:agent-skills",
       "target": "skill:azure-adr",
@@ -3877,6 +4049,12 @@
       "id": "instruction:context-optimization--applies-to->subagent:terraform-validate-subagent",
       "source": "instruction:context-optimization",
       "target": "subagent:terraform-validate-subagent",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->skill:agent-authoring",
+      "source": "instruction:context-optimization",
+      "target": "skill:agent-authoring",
       "kind": "applies-to"
     },
     {
@@ -4213,6 +4391,12 @@
       "id": "instruction:docs-trigger--applies-to->subagent:terraform-validate-subagent",
       "source": "instruction:docs-trigger",
       "target": "subagent:terraform-validate-subagent",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->skill:agent-authoring",
+      "source": "instruction:docs-trigger",
+      "target": "skill:agent-authoring",
       "kind": "applies-to"
     },
     {
@@ -4726,6 +4910,12 @@
       "kind": "applies-to"
     },
     {
+      "id": "instruction:markdown--applies-to->skill:agent-authoring",
+      "source": "instruction:markdown",
+      "target": "skill:agent-authoring",
+      "kind": "applies-to"
+    },
+    {
       "id": "instruction:markdown--applies-to->skill:azure-adr",
       "source": "instruction:markdown",
       "target": "skill:azure-adr",
@@ -5053,6 +5243,12 @@
       "id": "instruction:no-interactive-shell--applies-to->subagent:terraform-validate-subagent",
       "source": "instruction:no-interactive-shell",
       "target": "subagent:terraform-validate-subagent",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:no-interactive-shell--applies-to->skill:agent-authoring",
+      "source": "instruction:no-interactive-shell",
+      "target": "skill:agent-authoring",
       "kind": "applies-to"
     },
     {
@@ -5398,270 +5594,6 @@
       "kind": "runs"
     },
     {
-      "id": "workflow:ci--runs->validator:validate-artifacts",
-      "source": "workflow:ci",
-      "target": "validator:validate-artifacts",
-      "kind": "runs"
-    },
-    {
-      "id": "workflow:ci--runs->validator:validate-agents",
-      "source": "workflow:ci",
-      "target": "validator:validate-agents",
-      "kind": "runs"
-    },
-    {
-      "id": "workflow:ci--runs->validator:validate-orchestrator-handoff",
-      "source": "workflow:ci",
-      "target": "validator:validate-orchestrator-handoff",
-      "kind": "runs"
-    },
-    {
-      "id": "workflow:ci--runs->validator:validate-review-ceiling",
-      "source": "workflow:ci",
-      "target": "validator:validate-review-ceiling",
-      "kind": "runs"
-    },
-    {
-      "id": "workflow:ci--runs->validator:validate-question-batching",
-      "source": "workflow:ci",
-      "target": "validator:validate-question-batching",
-      "kind": "runs"
-    },
-    {
-      "id": "workflow:ci--runs->validator:validate-skills",
-      "source": "workflow:ci",
-      "target": "validator:validate-skills",
-      "kind": "runs"
-    },
-    {
-      "id": "workflow:ci--runs->validator:lint-version-sync",
-      "source": "workflow:ci",
-      "target": "validator:lint-version-sync",
-      "kind": "runs"
-    },
-    {
-      "id": "workflow:ci--runs->validator:lint-deprecated-refs",
-      "source": "workflow:ci",
-      "target": "validator:lint-deprecated-refs",
-      "kind": "runs"
-    },
-    {
-      "id": "workflow:ci--runs->validator:lint-mcp-config",
-      "source": "workflow:ci",
-      "target": "validator:lint-mcp-config",
-      "kind": "runs"
-    },
-    {
-      "id": "workflow:ci--runs->validator:validate-extension-bloat",
-      "source": "workflow:ci",
-      "target": "validator:validate-extension-bloat",
-      "kind": "runs"
-    },
-    {
-      "id": "workflow:ci--runs->validator:validate-headings-summary",
-      "source": "workflow:ci",
-      "target": "validator:validate-headings-summary",
-      "kind": "runs"
-    },
-    {
-      "id": "workflow:ci--runs->validator:lint-governance-refs",
-      "source": "workflow:ci",
-      "target": "validator:lint-governance-refs",
-      "kind": "runs"
-    },
-    {
-      "id": "workflow:ci--runs->validator:validate-instruction-checks",
-      "source": "workflow:ci",
-      "target": "validator:validate-instruction-checks",
-      "kind": "runs"
-    },
-    {
-      "id": "workflow:ci--runs->validator:validate-session-state",
-      "source": "workflow:ci",
-      "target": "validator:validate-session-state",
-      "kind": "runs"
-    },
-    {
-      "id": "workflow:ci--runs->validator:validate-workflow-graph",
-      "source": "workflow:ci",
-      "target": "validator:validate-workflow-graph",
-      "kind": "runs"
-    },
-    {
-      "id": "workflow:ci--runs->validator:validate-lens-references",
-      "source": "workflow:ci",
-      "target": "validator:validate-lens-references",
-      "kind": "runs"
-    },
-    {
-      "id": "workflow:ci--runs->validator:validate-challenger-findings",
-      "source": "workflow:ci",
-      "target": "validator:validate-challenger-findings",
-      "kind": "runs"
-    },
-    {
-      "id": "workflow:ci--runs->validator:validate-challenger-presence",
-      "source": "workflow:ci",
-      "target": "validator:validate-challenger-presence",
-      "kind": "runs"
-    },
-    {
-      "id": "workflow:ci--runs->validator:lint-workflow-table-sync",
-      "source": "workflow:ci",
-      "target": "validator:lint-workflow-table-sync",
-      "kind": "runs"
-    },
-    {
-      "id": "workflow:ci--runs->validator:lint-workflow-handoffs",
-      "source": "workflow:ci",
-      "target": "validator:lint-workflow-handoffs",
-      "kind": "runs"
-    },
-    {
-      "id": "workflow:ci--runs->validator:validate-agent-registry",
-      "source": "workflow:ci",
-      "target": "validator:validate-agent-registry",
-      "kind": "runs"
-    },
-    {
-      "id": "workflow:ci--runs->validator:validate-skill-checks",
-      "source": "workflow:ci",
-      "target": "validator:validate-skill-checks",
-      "kind": "runs"
-    },
-    {
-      "id": "workflow:ci--runs->validator:lint-json",
-      "source": "workflow:ci",
-      "target": "validator:lint-json",
-      "kind": "runs"
-    },
-    {
-      "id": "workflow:ci--runs->validator:lint-json-schemas",
-      "source": "workflow:ci",
-      "target": "validator:lint-json-schemas",
-      "kind": "runs"
-    },
-    {
-      "id": "workflow:ci--runs->validator:lint-glob-audit",
-      "source": "workflow:ci",
-      "target": "validator:lint-glob-audit",
-      "kind": "runs"
-    },
-    {
-      "id": "workflow:ci--runs->validator:lint-orphaned-content",
-      "source": "workflow:ci",
-      "target": "validator:lint-orphaned-content",
-      "kind": "runs"
-    },
-    {
-      "id": "workflow:ci--runs->validator:validate-vscode",
-      "source": "workflow:ci",
-      "target": "validator:validate-vscode",
-      "kind": "runs"
-    },
-    {
-      "id": "workflow:ci--runs->validator:lint-drawio",
-      "source": "workflow:ci",
-      "target": "validator:lint-drawio",
-      "kind": "runs"
-    },
-    {
-      "id": "workflow:ci--runs->validator:validate-model-consistency",
-      "source": "workflow:ci",
-      "target": "validator:validate-model-consistency",
-      "kind": "runs"
-    },
-    {
-      "id": "workflow:ci--runs->validator:validate-deprecated-models",
-      "source": "workflow:ci",
-      "target": "validator:validate-deprecated-models",
-      "kind": "runs"
-    },
-    {
-      "id": "workflow:ci--runs->validator:validate-model-catalog",
-      "source": "workflow:ci",
-      "target": "validator:validate-model-catalog",
-      "kind": "runs"
-    },
-    {
-      "id": "workflow:ci--runs->validator:validate-explorer-graph",
-      "source": "workflow:ci",
-      "target": "validator:validate-explorer-graph",
-      "kind": "runs"
-    },
-    {
-      "id": "workflow:ci--runs->validator:validate-region-canonical",
-      "source": "workflow:ci",
-      "target": "validator:validate-region-canonical",
-      "kind": "runs"
-    },
-    {
-      "id": "workflow:ci--runs->validator:test-classify-model",
-      "source": "workflow:ci",
-      "target": "validator:test-classify-model",
-      "kind": "runs"
-    },
-    {
-      "id": "workflow:ci--runs->validator:test-devcontainer-verdicts",
-      "source": "workflow:ci",
-      "target": "validator:test-devcontainer-verdicts",
-      "kind": "runs"
-    },
-    {
-      "id": "workflow:ci--runs->validator:validate-no-hardcoded-counts",
-      "source": "workflow:ci",
-      "target": "validator:validate-no-hardcoded-counts",
-      "kind": "runs"
-    },
-    {
-      "id": "workflow:ci--runs->validator:validate-terminology",
-      "source": "workflow:ci",
-      "target": "validator:validate-terminology",
-      "kind": "runs"
-    },
-    {
-      "id": "workflow:ci--runs->validator:validate-sku-manifest",
-      "source": "workflow:ci",
-      "target": "validator:validate-sku-manifest",
-      "kind": "runs"
-    },
-    {
-      "id": "workflow:ci--runs->validator:validate-sku-iac-coverage",
-      "source": "workflow:ci",
-      "target": "validator:validate-sku-iac-coverage",
-      "kind": "runs"
-    },
-    {
-      "id": "workflow:ci--runs->validator:validate-decision-keys",
-      "source": "workflow:ci",
-      "target": "validator:validate-decision-keys",
-      "kind": "runs"
-    },
-    {
-      "id": "workflow:ci--runs->validator:validate-banned-phrases",
-      "source": "workflow:ci",
-      "target": "validator:validate-banned-phrases",
-      "kind": "runs"
-    },
-    {
-      "id": "workflow:ci--runs->validator:validate-context-budget",
-      "source": "workflow:ci",
-      "target": "validator:validate-context-budget",
-      "kind": "runs"
-    },
-    {
-      "id": "workflow:ci--runs->validator:validate-policy-precheck",
-      "source": "workflow:ci",
-      "target": "validator:validate-policy-precheck",
-      "kind": "runs"
-    },
-    {
-      "id": "workflow:ci--runs->validator:lint-safe-shell",
-      "source": "workflow:ci",
-      "target": "validator:lint-safe-shell",
-      "kind": "runs"
-    },
-    {
       "id": "workflow:ci--runs->validator:validate-hooks",
       "source": "workflow:ci",
       "target": "validator:validate-hooks",
@@ -5968,9 +5900,33 @@
       "kind": "uses-mcp"
     },
     {
+      "id": "skill:agent-authoring--refs->skill:context-management",
+      "source": "skill:agent-authoring",
+      "target": "skill:context-management",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:agent-authoring--refs->skill:vendor-prompting",
+      "source": "skill:agent-authoring",
+      "target": "skill:vendor-prompting",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:agent-authoring--refs->skill:workflow-engine",
+      "source": "skill:agent-authoring",
+      "target": "skill:workflow-engine",
+      "kind": "refs"
+    },
+    {
       "id": "skill:azure-adr--refs->skill:drawio",
       "source": "skill:azure-adr",
       "target": "skill:drawio",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:azure-artifacts--refs->skill:agent-authoring",
+      "source": "skill:azure-artifacts",
+      "target": "skill:agent-authoring",
       "kind": "refs"
     },
     {
@@ -6061,18 +6017,6 @@
       "id": "skill:azure-cost-optimization--refs->skill:azure-diagnostics",
       "source": "skill:azure-cost-optimization",
       "target": "skill:azure-diagnostics",
-      "kind": "refs"
-    },
-    {
-      "id": "skill:azure-defaults--refs->skill:azure-artifacts",
-      "source": "skill:azure-defaults",
-      "target": "skill:azure-artifacts",
-      "kind": "refs"
-    },
-    {
-      "id": "skill:azure-defaults--refs->skill:iac-common",
-      "source": "skill:azure-defaults",
-      "target": "skill:iac-common",
       "kind": "refs"
     },
     {
@@ -6211,6 +6155,12 @@
       "id": "skill:azure-validate--refs->skill:azure-prepare",
       "source": "skill:azure-validate",
       "target": "skill:azure-prepare",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:docs-writer--refs->skill:agent-authoring",
+      "source": "skill:docs-writer",
+      "target": "skill:agent-authoring",
       "kind": "refs"
     },
     {

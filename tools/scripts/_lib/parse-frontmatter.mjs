@@ -9,11 +9,11 @@
  * @returns {Record<string, string | string[]> | null} Parsed frontmatter or null
  */
 export function parseFrontmatter(content) {
-  const match = content.match(/^---\n([\s\S]*?)\n---/);
+  const match = content.match(/^---\r?\n([\s\S]*?)\r?\n---/);
   if (!match) return null;
 
   const frontmatter = {};
-  const lines = match[1].split("\n");
+  const lines = match[1].split(/\r?\n/);
   let currentKey = null;
   let currentValue = [];
   let inArray = false;
@@ -142,7 +142,7 @@ export function parseFrontmatter(content) {
  * @returns {string} Body text after closing ---
  */
 export function getBody(content) {
-  const match = content.match(/^---\n[\s\S]*?\n---\n?([\s\S]*)$/);
+  const match = content.match(/^---\r?\n[\s\S]*?\r?\n---\r?\n?([\s\S]*)$/);
   return match ? match[1] : content;
 }
 
@@ -155,6 +155,6 @@ export function getBody(content) {
  * @returns {string} Raw frontmatter text, or "" if no frontmatter found
  */
 export function getRawFrontmatter(content) {
-  const match = content.match(/^---\n([\s\S]*?)\n---/);
+  const match = content.match(/^---\r?\n([\s\S]*?)\r?\n---/);
   return match ? match[1] : "";
 }

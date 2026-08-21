@@ -77,7 +77,7 @@ jobs:
         if: steps.disabled.outputs.skip != 'true'
         id: changes
         run: |
-          git add .github/data/governance-policy-baseline.json
+          git add .github/data/governance-policy-baseline.json.gz
           if git diff --cached --quiet; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
@@ -88,8 +88,14 @@ jobs:
         if: steps.disabled.outputs.skip != 'true' && steps.changes.outputs.changed == 'true'
         id: mg-check
         run: |
-          CURRENT_MG=$(jq -r '.management_group_id' .github/data/governance-policy-baseline.json)
-          PRIOR_MG=$(git show HEAD:.github/data/governance-policy-baseline.json 2>/dev/null | jq -r '.management_group_id' 2>/dev/null || echo "")
+          LOADER=.github/skills/azure-governance-discovery/scripts/governance_baseline.py
+          BASELINE=.github/data/governance-policy-baseline.json.gz
+          CURRENT_MG=$(python3 "$LOADER" "$BASELINE" --get management_group_id)
+          if git show HEAD:"$BASELINE" > /tmp/prior-governance-baseline.json.gz 2>/dev/null; then
+            PRIOR_MG=$(python3 "$LOADER" /tmp/prior-governance-baseline.json.gz --get management_group_id)
+          else
+            PRIOR_MG=""
+          fi
           if [[ -n "$PRIOR_MG" && "$CURRENT_MG" != "$PRIOR_MG" ]]; then
             echo "mg_changed=true" >> "$GITHUB_OUTPUT"
             echo "::warning::Management Group ID changed: $PRIOR_MG → $CURRENT_MG"
@@ -101,11 +107,13 @@ jobs:
         if: steps.disabled.outputs.skip != 'true' && steps.changes.outputs.changed == 'true'
         id: summary
         run: |
-          COVERAGE=$(jq -r '.coverage_status' .github/data/governance-policy-baseline.json)
-          PROCESSED=$(jq -r '.subscriptions_processed' .github/data/governance-policy-baseline.json)
-          SKIPPED=$(jq -r '.subscriptions_skipped | length' .github/data/governance-policy-baseline.json)
-          EXCLUDED=$(jq -r '.subscriptions_excluded | length' .github/data/governance-policy-baseline.json)
-          MG_ID=$(jq -r '.management_group_id' .github/data/governance-policy-baseline.json)
+          LOADER=.github/skills/azure-governance-discovery/scripts/governance_baseline.py
+          BASELINE=.github/data/governance-policy-baseline.json.gz
+          COVERAGE=$(python3 "$LOADER" "$BASELINE" --get coverage_status)
+          PROCESSED=$(python3 "$LOADER" "$BASELINE" --get subscriptions_processed)
+          SKIPPED=$(python3 "$LOADER" "$BASELINE" --get subscriptions_skipped --compact | jq 'length')
+          EXCLUDED=$(python3 "$LOADER" "$BASELINE" --get subscriptions_excluded --compact | jq 'length')
+          MG_ID=$(python3 "$LOADER" "$BASELINE" --get management_group_id)
           echo "coverage=$COVERAGE" >> "$GITHUB_OUTPUT"
           echo "processed=$PROCESSED" >> "$GITHUB_OUTPUT"
           echo "skipped=$SKIPPED" >> "$GITHUB_OUTPUT"
@@ -122,7 +130,7 @@ jobs:
           delete-branch: true
           title: "chore(data): Update governance policy baseline"
           body: |
-            Automated update of `.github/data/governance-policy-baseline.json` from Management Group `${{ steps.summary.outputs.mg_id }}`.
+            Automated update of `.github/data/governance-policy-baseline.json.gz` from Management Group `${{ steps.summary.outputs.mg_id }}`.
 
             | Metric | Value |
             | --- | --- |

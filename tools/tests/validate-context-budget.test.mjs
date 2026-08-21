@@ -17,6 +17,7 @@ import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
+import { expandScript } from "../scripts/_lib/npm-script-graph.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, "..", "..");
@@ -36,11 +37,7 @@ describe("validate-context-budget wiring", () => {
   });
 
   it("validate:_node includes validate:context-budget", () => {
-    assert.match(
-      pkg.scripts["validate:_node"] ?? "",
-      /\bvalidate:context-budget\b/,
-      "validate:_node does not include validate:context-budget",
-    );
+    assert.ok(expandScript(pkg.scripts, "validate:_node").includes("validate:context-budget"));
   });
 });
 

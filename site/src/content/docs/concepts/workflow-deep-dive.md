@@ -100,7 +100,7 @@ deprecation avoidance, and governance fallbacks:
 | `avm-terraform-modules.csv`               | 05-IaC Planner, 06t-Terraform CodeGen | Module discovery and pinning                              |
 | `avm-module-index.json`                   | 05-IaC Planner, 03-Architect          | Lifecycle status (Available / Proposed / Orphaned) lookup |
 | `azure-deprecations.json`                 | 03-Architect, 05-IaC Planner          | Block sunset SKUs early                                   |
-| `governance-policy-baseline.json`         | 04g-Governance                        | Fallback baseline when live discovery is empty            |
+| `governance-policy-baseline.json.gz`      | 04g-Governance                        | Compressed fallback baseline when live discovery is empty |
 | `governance-policy-baseline.fixture.json` | Validators + tests                    | Deterministic test fixture                                |
 
 ### `apex-recall`
@@ -262,7 +262,7 @@ decisions.review_depth`](https://github.com/jonathan-vella/apex/blob/main/.githu
 - **Instructions activated** — `governance-discovery` (mandatory policy
   contract), `azure-artifacts`.
 - **Data sources** — Azure Policy REST API (live);
-  `governance-policy-baseline.json` as documented fallback.
+  `governance-policy-baseline.json.gz` as documented fallback.
 - **`apex-recall`** — `checkpoint`, `decide --key governance_depth`,
   records the **L0 discovery envelope** as the first link in the
   attestation chain.
@@ -620,10 +620,10 @@ discovery:
    subscription and connected scopes for existing Private DNS Zones via
    `az network private-dns zone list`. The result — a JSON inventory of zone
    names, resource IDs, and VNet links — is committed to `.github/data/` as a
-   checked-in baseline, just as `governance-policy-baseline.json` captures
+  checked-in baseline, just as `governance-policy-baseline.json.gz` captures
    policy state.
 
-   The proposed inventory file would parallel `governance-policy-baseline.json`
+  The proposed inventory file would parallel `governance-policy-baseline.json.gz`
    in shape (filename `private-dns-zone-baseline.json` is **proposed** — the
    file is not committed today):
 
@@ -646,7 +646,7 @@ discovery:
    }
    ```
 
-2. **Decision at plan time.** When the IaC Planner encounters a service that
+1. **Decision at plan time.** When the IaC Planner encounters a service that
    requires a private endpoint, it checks whether the corresponding
    `privatelink.*` zone already exists in the enumerated inventory:
    - **Zone exists centrally** — the plan references the zone by resource ID
@@ -662,7 +662,7 @@ discovery:
      raises a `must_fix` finding that routes back to the Architect (or to the
      platform team for manual provisioning).
 
-3. **VNet link wiring.** When using a centrally managed zone, the plan creates
+2. **VNet link wiring.** When using a centrally managed zone, the plan creates
    a VNet link from the zone to the spoke VNet (if one does not already exist).
    When creating a new zone, the link is part of the same module.
 

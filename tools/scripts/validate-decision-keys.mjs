@@ -28,8 +28,8 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { globSync } from "node:fs";
-import Ajv2020 from "ajv/dist/2020.js";
+import { findArtifactFiles } from "./_lib/artifact-index.mjs";
+import { loadValidator } from "./_lib/ajv-validator.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const AGENTS_DIR = path.join(ROOT, ".github/agents");
@@ -131,9 +131,7 @@ function validateProjectSubnetPlans() {
     return { errors: 1, warnings: 0 };
   }
 
-  const schema = JSON.parse(fs.readFileSync(SUBNET_PLAN_SCHEMA, "utf-8"));
-  const ajv = new Ajv2020({ allErrors: true, strict: false });
-  const validate = ajv.compile(schema);
+  const validate = loadValidator(SUBNET_PLAN_SCHEMA);
 
   const whitelist = loadVnetAttachedWhitelist();
   if (!whitelist) {
@@ -145,7 +143,7 @@ function validateProjectSubnetPlans() {
   let errors = 0;
   let warnings = 0;
 
-  const states = globSync("agent-output/*/00-session-state.json", { cwd: ROOT });
+  const states = findArtifactFiles((file) => /^agent-output\/[^/]+\/00-session-state\.json$/.test(file));
   for (const rel of states) {
     const stateAbs = path.join(ROOT, rel);
     let state;

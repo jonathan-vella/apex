@@ -38,17 +38,20 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { Reporter } from "./_lib/reporter.mjs";
 import { resolveLatest, classifyPin } from "./_lib/avm-module-resolver.mjs";
+import { AVM_BICEP_PATH_SOURCE, SEMVER_SOURCE } from "./_lib/avm-patterns.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 
 // `avm: avm/res/<grp>/<name>:<ver>` (YAML form)
 // `br/public:avm/res/<grp>/<name>:<ver>` (Bicep module ref)
 // Bare `avm/res/<grp>/<name>:<ver>` (tables)
-const PLAN_AVM_RE =
-  /(?:avm:\s*|br\/public:)?(?:avm\/(?:res|ptn)\/[a-z0-9-]+(?:\/[a-z0-9-]+)+):(\d+\.\d+\.\d+(?:-[a-z0-9.]+)?)/gi;
+const PLAN_AVM_RE = new RegExp(
+  String.raw`(?:avm:\s*|br\/public:)?(?:${AVM_BICEP_PATH_SOURCE}):(${SEMVER_SOURCE})`,
+  "gi",
+);
 
 // Re-extract the module path (everything from `avm/` through the colon).
-const MODULE_PATH_RE = /(avm\/(?:res|ptn)\/[a-z0-9-]+(?:\/[a-z0-9-]+)+):(\d+\.\d+\.\d+(?:-[a-z0-9.]+)?)/i;
+const MODULE_PATH_RE = new RegExp(String.raw`(${AVM_BICEP_PATH_SOURCE}):(${SEMVER_SOURCE})`, "i");
 
 function parseArgs(argv) {
   const opts = { mode: "freeze", allowNetwork: true, paths: [] };

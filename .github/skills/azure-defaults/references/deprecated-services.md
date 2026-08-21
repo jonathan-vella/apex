@@ -4,7 +4,7 @@
 
 > Loaded by `azure-defaults` SKILL.md when the agent encounters a service
 > that may be deprecated or facing retirement. Keep the deprecation list
-> here so the SKILL.md "Quick Reference" stays compact.
+> here so the SKILL.md stays focused on the IaC workflow.
 
 | Deprecated Service     | Replacement                      | Retires/EOL | Notes                         |
 | ---------------------- | -------------------------------- | ----------- | ----------------------------- |

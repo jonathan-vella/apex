@@ -14,6 +14,7 @@ import fs from "node:fs";
 import { getAgents, getSkills, getInstructions } from "./_lib/workspace-index.mjs";
 import { Reporter } from "./_lib/reporter.mjs";
 import { COPILOT_INSTRUCTIONS } from "./_lib/paths.mjs";
+import { findSkillReferences } from "./_lib/skill-references.mjs";
 
 // Skills intentionally kept without direct agent references.
 // These are invoked dynamically by VS Code Copilot via skill descriptions
@@ -57,28 +58,6 @@ function gatherReferenceContent() {
 }
 
 const { corpus, perSkill } = gatherReferenceContent();
-
-// Skill reference regex.
-//
-// Skill wiring is discovered via this regex sweep over agent bodies and
-// other reference content rather than via tools/registry/agent-registry.json.
-// The repository has a single skill tier (`SKILL.md`); legacy `SKILL.digest.md`
-// and `SKILL.minimal.md` references are not recognized.
-//
-// Supported phrasings:
-//   - .github/skills/{name}/SKILL.md
-//   - skills/{name}/SKILL.md (without the leading .github/)
-const SKILL_REFERENCE_PATTERN = /(?:\.github\/)?skills\/([a-z0-9]+(?:-[a-z0-9]+)*)\/SKILL\.md/g;
-
-function findSkillReferences(searchContent) {
-  const found = new Set();
-  let m;
-  SKILL_REFERENCE_PATTERN.lastIndex = 0;
-  while ((m = SKILL_REFERENCE_PATTERN.exec(searchContent)) !== null) {
-    found.add(m[1]);
-  }
-  return found;
-}
 
 // Check skills — exclude the skill's own SKILL.md to prevent self-referencing
 console.log("📁 Skills:");

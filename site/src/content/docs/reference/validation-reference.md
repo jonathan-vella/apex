@@ -148,8 +148,8 @@ All scripts are in the `tools/scripts/` directory. Run via `npm run <command>`.
 
 | npm Command          | Purpose                                       |
 | -------------------- | --------------------------------------------- |
-| `validate:all`       | Run all validators (parallel Node + external) |
-| `validate:_node`     | All Node.js validators in parallel            |
+| `validate:all`       | Run all validators (cache-aware Node + external) |
+| `validate:_node`     | Node validators in one cache-sharing process; bounded children for Python, ESLint, and tests |
 | `validate:_external` | All external tool validators in parallel      |
 | `validate:agents`    | Agent frontmatter, body, model alignment      |
 | `validate:artifacts` | H2 sync, template compliance, auto-fix        |
@@ -162,6 +162,9 @@ All scripts are in the `tools/scripts/` directory. Run via `npm run <command>`.
 > `lint:python` runs in the `ci.yml` external-tests job, `lint:terraform-fmt` /
 > `lint:bicep-fmt` / `validate:terraform` run in `iac-checks.yml`, and the site
 > link check runs in `docs-checks.yml`.
+
+`validate:_node:legacy` and `validate:_node-ci:legacy` retain the former
+unbounded `run-p` aggregates as rollback and benchmark baselines.
 
 ### Agent-Invoked IaC Validators (runtime, not CI)
 

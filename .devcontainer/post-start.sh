@@ -76,7 +76,7 @@ if [ -d "$MCP_DIR" ]; then
         rm -rf "$MCP_DIR/.venv" 2>/dev/null || true
         if { python3 -m venv "$MCP_DIR/.venv" \
             && "$MCP_DIR/.venv/bin/python" -m pip install --quiet --upgrade pip \
-            && "$MCP_DIR/.venv/bin/python" -m pip install --quiet -e "$MCP_DIR[admin]"; } > "$REBUILD_LOG" 2>&1; then
+            && "$MCP_DIR/.venv/bin/python" -m pip install --quiet -e "$MCP_DIR[admin,dev]"; } > "$REBUILD_LOG" 2>&1; then
             printf "✅ rebuilt (%s)\n" "$REBUILD_REASON"
             rm -f "$REBUILD_LOG" 2>/dev/null || true
         else
@@ -86,8 +86,8 @@ if [ -d "$MCP_DIR" ]; then
     elif [ -f "$MCP_DIR/.venv/bin/python" ]; then
         "$MCP_DIR/.venv/bin/python" -m pip install --quiet --upgrade pip 2>/dev/null || true
         printf "    azure-pricing-mcp     "
-        # ``[admin]`` is canonical (v5.x); ``[azure]`` is a deprecated alias.
-        "$MCP_DIR/.venv/bin/python" -m pip install --quiet -e "$MCP_DIR[admin]" \
+        # Keep runtime administration and local validation dependencies current.
+        "$MCP_DIR/.venv/bin/python" -m pip install --quiet -e "$MCP_DIR[admin,dev]" \
             && printf "✅ updated\n" \
             || printf "⚠️  update failed (continuing)\n"
     fi
@@ -136,7 +136,7 @@ fi
 UV_BIN=$(command -v uv 2>/dev/null || echo "${HOME}/.local/bin/uv")
 if [ -x "$UV_BIN" ]; then
     printf "    python packages      "
-    "$UV_BIN" pip install --system --quiet --upgrade checkov ruff diagrams matplotlib pillow 2>&1 \
+    "$UV_BIN" pip install --system --quiet --upgrade checkov pytest ruff diagrams matplotlib pillow 2>&1 \
         && printf "✅ updated\n" \
         || printf "⚠️  update failed (continuing)\n"
 else

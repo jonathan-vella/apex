@@ -19,7 +19,7 @@ same subscription and for offline / sandboxed environments.
 
 ## Procedure
 
-1. Check whether `.github/data/governance-policy-baseline.json` exists.
+1. Check whether `.github/data/governance-policy-baseline.json.gz` exists.
 2. If it exists, read the target subscription ID from the project's
    `02-architecture-assessment.md` or session state.
 3. **All** eligibility conditions must be true:
@@ -35,7 +35,14 @@ same subscription and for offline / sandboxed environments.
    {id}. Use the cached baseline or run fresh live discovery?"_
    Options: **Use baseline** (recommended) | **Run live discovery**.
 5. If the user chooses baseline:
-   - Extract the subscription entry from the baseline JSON.
+    - Extract the subscription entry through the shared loader:
+
+       ```bash
+       python3 .github/skills/azure-governance-discovery/scripts/governance_baseline.py \
+          .github/data/governance-policy-baseline.json.gz \
+          --subscription "<sub-id>" > /tmp/{project}-baseline-sub.json
+       ```
+
    - Write it to a temporary file.
    - Run `render_cached_governance.py`:
 

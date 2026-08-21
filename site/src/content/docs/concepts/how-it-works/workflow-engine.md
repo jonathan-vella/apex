@@ -145,9 +145,9 @@ experienced 5 forced context summarisations in a single 3h39m session.
 
 ### Validation Scripts
 
-Every convention is backed by a machine-enforceable check. The validation suite runs
-via two parallel groups: `validate:_node` (Node.js
-validators) and `validate:_external` (external tool validators):
+Every convention is backed by a machine-enforceable check. The validation suite
+runs through `validate:_node` (cache-sharing Node runner with bounded child
+commands) and `validate:_external` (parallel external tool validators):
 
 | Category            | Validators                                                                                                                                    |
 | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |

@@ -163,14 +163,14 @@ export PATH="${HOME}/.local/bin:${PATH}"
 if command -v uv &> /dev/null; then
     mkdir -p "${HOME}/.cache/uv" 2>/dev/null || true
     chmod -R 755 "${HOME}/.cache/uv" 2>/dev/null || true
-    if uv pip install --system --quiet diagrams matplotlib pillow checkov ruff 2>&1; then
-        step_done "Installed via uv (diagrams, matplotlib, pillow, checkov, ruff)"
+    if uv pip install --system --quiet diagrams matplotlib pillow checkov pytest ruff 2>&1; then
+        step_done "Installed via uv (diagrams, matplotlib, pillow, checkov, pytest, ruff)"
     else
         step_warn "uv install had issues, continuing"
     fi
 else
-    if pip3 install --quiet diagrams matplotlib pillow checkov ruff 2>&1 | tail -1; then
-        step_done "Installed via pip (diagrams, matplotlib, pillow, checkov, ruff)"
+    if pip3 install --quiet diagrams matplotlib pillow checkov pytest ruff 2>&1 | tail -1; then
+        step_done "Installed via pip (diagrams, matplotlib, pillow, checkov, pytest, ruff)"
     else
         step_warn "pip install had issues"
     fi
@@ -241,9 +241,9 @@ if [ -d "$MCP_DIR" ]; then
     "$MCP_DIR/.venv/bin/python" -m pip install --quiet --upgrade pip 2>&1 | tail -1 || true
 
     cd "$MCP_DIR"
-    # ``[admin]`` is the canonical extras name (v5.x). ``[azure]`` is preserved
-    # as a deprecated alias for one release (removed in v6.0). Prefer admin.
-    "$MCP_DIR/.venv/bin/python" -m pip install --quiet -e ".[admin]" 2>&1 | tail -1 || true
+    # Install runtime administration tools and the test/lint toolchain used by
+    # validate:_external. ``[azure]`` remains a deprecated admin alias only.
+    "$MCP_DIR/.venv/bin/python" -m pip install --quiet -e ".[admin,dev]" 2>&1 | tail -1 || true
     cd - > /dev/null
 
     if "$MCP_DIR/.venv/bin/python" -c "from azure_pricing_mcp import server; print('OK')" 2>/dev/null; then

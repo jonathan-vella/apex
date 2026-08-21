@@ -6,13 +6,16 @@ Reads an existing governance-constraints-v1 JSON envelope (e.g. from the
 scheduled baseline workflow) and writes project-local governance artifacts
 without calling Azure. This is the mandatory cached-mode render path.
 """
+
 from __future__ import annotations
 
 import argparse
 import json
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
+
+from governance_baseline import load_governance_json
 
 # Import shared renderer (no Azure dependencies)
 from render_governance import (
@@ -38,8 +41,8 @@ def _baseline_mtime_iso(in_path: Path) -> str:
     try:
         ts = in_path.stat().st_mtime
     except OSError:
-        ts = datetime.now(timezone.utc).timestamp()
-    return datetime.fromtimestamp(ts, tz=timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        ts = datetime.now(UTC).timestamp()
+    return datetime.fromtimestamp(ts, tz=UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
 def _synthesise_discovery_metadata(envelope: dict, in_path: Path) -> dict:
@@ -57,11 +60,7 @@ def _synthesise_discovery_metadata(envelope: dict, in_path: Path) -> dict:
     # per-finding `scope` field captures the MG ancestry the live path
     # would have extracted. Re-pack findings as pseudo-assignments so the
     # shared helper resolves the same MG ids.
-    pseudo_assignments = [
-        {"properties": {"scope": f.get("scope", "")}}
-        for f in findings
-        if f.get("scope")
-    ]
+    pseudo_assignments = [{"properties": {"scope": f.get("scope", "")}} for f in findings if f.get("scope")]
     management_groups = _extract_management_groups(pseudo_assignments)
 
     discovered_at = envelope.get("discovered_at") or _baseline_mtime_iso(in_path)
@@ -89,7 +88,9 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("--in", dest="input", required=True, help="Path to governance-constraints-v1 JSON envelope.")
     parser.add_argument("--out", required=True, help="Path to project-local 04-governance-constraints.json.")
-    parser.add_argument("--arch", default=None, help="Path to 02-architecture-assessment.md for policy→resource mapping.")
+    parser.add_argument(
+        "--arch", default=None, help="Path to 02-architecture-assessment.md for policy→resource mapping."
+    )
     args = parser.parse_args(argv)
 
     in_path = Path(args.input)
@@ -101,8 +102,8 @@ def main(argv: list[str] | None = None) -> int:
         return 2
 
     try:
-        envelope = json.loads(in_path.read_text())
-    except (json.JSONDecodeError, OSError) as e:
+        envelope = load_governance_json(in_path)
+    except (json.JSONDecodeError, OSError, ValueError) as e:
         status = {"status": "FAILED", "error": "input-parse", "detail": str(e)}
         sys.stdout.write(json.dumps(status, separators=(",", ":")) + "\n")
         return 2

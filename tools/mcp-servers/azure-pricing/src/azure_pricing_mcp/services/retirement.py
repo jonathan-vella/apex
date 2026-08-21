@@ -159,6 +159,7 @@ class RetirementService:
         self._client = client
         self._cache: dict[str, VMSeriesRetirementInfo] | None = None
         self._cache_time: datetime | None = None
+        self._fetch_task: asyncio.Task[dict[str, VMSeriesRetirementInfo]] | None = None
 
     @property
     def _disk_cache_path(self) -> str:
@@ -218,12 +219,15 @@ class RetirementService:
             logger.warning("retirement disk cache write failed (%s): %s", path, exc)
 
     async def get_retirement_data(self) -> dict[str, VMSeriesRetirementInfo]:
-        """Get retirement data, using cache if valid or fetching fresh data."""
+        """Get retirement data, coalescing concurrent cache misses."""
         now = datetime.now()
 
         # In-memory cache (hot path).
         if self._cache is not None and self._cache_time is not None and (now - self._cache_time) < RETIREMENT_CACHE_TTL:
             return self._cache
+
+        if self._fetch_task is not None and not self._fetch_task.done():
+            return await asyncio.shield(self._fetch_task)
 
         # Phase 3.8: warm from disk cache before paying for the GitHub fetch.
         disk = self._read_disk_cache()
@@ -231,12 +235,25 @@ class RetirementService:
             self._cache = disk
             return self._cache
 
-        # Fetch fresh data
-        self._cache = await self._fetch_retirement_data()
-        self._cache_time = now
-        # Persist for the next cold start.
-        self._write_disk_cache(self._cache)
-        return self._cache
+        # Share one cold fetch across concurrent callers. Shielding prevents a
+        # cancelled waiter from cancelling the fetch needed by other callers.
+        task = asyncio.create_task(self._fetch_and_cache())
+        self._fetch_task = task
+        task.add_done_callback(self._clear_fetch_task)
+        return await asyncio.shield(task)
+
+    async def _fetch_and_cache(self) -> dict[str, VMSeriesRetirementInfo]:
+        data = await self._fetch_retirement_data()
+        self._cache = data
+        self._cache_time = datetime.now()
+        self._write_disk_cache(data)
+        return data
+
+    def _clear_fetch_task(self, task: asyncio.Task[dict[str, VMSeriesRetirementInfo]]) -> None:
+        if self._fetch_task is task:
+            self._fetch_task = None
+        if not task.cancelled():
+            task.exception()  # Retrieve failures when every waiter was cancelled.
 
     async def _fetch_retirement_data(self) -> dict[str, VMSeriesRetirementInfo]:
         """Fetch VM retirement status data from Microsoft docs on GitHub."""
