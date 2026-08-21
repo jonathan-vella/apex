@@ -157,7 +157,7 @@ Agents that specify `Claude Opus 4.7` as priority model do so deliberately:
   apex-debug-log-export) use the same GPT-5.x prompting style as the Terra
   cohort (per vendor-prompting `family-support.md` — GPT-5.4 shares the OpenAI
   cohort rules). Lower-cost tier suits deterministic CLI workflows.
-- **MAI-Code-1-Flash agents** (orchestrator) run Microsoft's fast coding model
+- **MAI-Code-1.1-Flash agents** (orchestrator) run Microsoft's fast coding model
   for handoff-only routing with no creative generation. The `mai-code` family
   is `reviewer-only` in vendor-prompting — no MAI-specific automated rules yet;
   the orchestrator body keeps its outcome-first skeleton as a sound routing
@@ -185,7 +185,7 @@ Current model assignments:
 
 | Agent / Group                       | Model             | Rationale                                |
 | ----------------------------------- | ----------------- | ---------------------------------------- |
-| Orchestrator                        | MAI-Code-1-Flash  | Standard-tier handoff routing            |
+| Orchestrator                        | MAI-Code-1.1-Flash  | Standard-tier handoff routing            |
 | Orchestrator (Fast Path)            | GPT-5.6-Terra     | Streamlined orchestration                |
 | Requirements                        | Claude Sonnet 5   | One-shot discovery (Anthropic style)     |
 | Architect                           | Claude Opus 5     | WAF analysis + cost (high effort)        |

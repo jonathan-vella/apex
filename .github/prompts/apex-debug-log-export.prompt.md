@@ -1,6 +1,6 @@
 ---
 agent: agent
-model: "MAI-Code-1-Flash"
+model: "MAI-Code-1.1-Flash"
 description: "Extract and compress Copilot debug logs related to custom agent activity into .apex-logs/ as a tar.gz bundle. User uploads the bundle manually to OneDrive via a provided link."
 argument-hint: "Optional OneDrive for Business share link to display in the final summary."
 tools: [vscode/askQuestions, execute/runInTerminal, read]

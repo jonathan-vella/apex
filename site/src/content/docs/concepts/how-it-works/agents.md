@@ -267,7 +267,7 @@ Model selection depends on the task. Use `tools/registry/agent-registry.json` as
 source of truth, but the current repo pattern is:
 
 - **Planning agents** (accuracy-first) — `Claude Opus 5` at high reasoning effort
-- **Orchestrator** — `MAI-Code-1-Flash`, Microsoft's fast coding model. Standard
+- **Orchestrator** — `MAI-Code-1.1-Flash`, Microsoft's fast coding model. Standard
   tier suits handoff-only routing without creative generation; the agent body
   keeps its outcome-first skeleton (Role / Goal / Success / Constraints / Output /
   Stop) as a sound routing structure.

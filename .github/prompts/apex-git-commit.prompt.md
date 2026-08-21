@@ -1,6 +1,6 @@
 ---
 agent: agent
-model: "MAI-Code-1-Flash"
+model: "MAI-Code-1.1-Flash"
 description: "Stage everything except agent-output/, infra/, and .github/skills/sensei/ (unless on feat/skills-sensei), auto-generate a conventional commit, push, then prompt to open or update a PR. CLI-only (git + gh)."
 argument-hint: "Optional commit subject. Leave blank to auto-generate from the diff."
 tools: [vscode/askQuestions, execute/runInTerminal, read, todo]

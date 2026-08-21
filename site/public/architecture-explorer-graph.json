@@ -80,7 +80,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/01-orchestrator.agent.md"
       },
       "meta": {
-        "model": "MAI-Code-1-Flash",
+        "model": "MAI-Code-1.1-Flash",
         "invocable": true,
         "subagents": [
           "02-Requirements",
