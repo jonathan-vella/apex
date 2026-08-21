@@ -4,7 +4,7 @@
   "agents": {
     "orchestrator": {
       "agent": ".github/agents/01-orchestrator.agent.md",
-      "model": "MAI-Code-1-Flash",
+      "model": "MAI-Code-1.1-Flash",
       "invokable": true,
       "step": null
     },

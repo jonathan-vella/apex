@@ -162,7 +162,7 @@
       ],
       "notes": "Deprecated 2026-07 in favor of GPT-5.6-Luna. Retained for audit history; not authorized for active assignments."
     },
-    "MAI-Code-1-Flash": {
+    "MAI-Code-1.1-Flash": {
       "vendor": "Microsoft",
       "tier": "standard",
       "released": "2026-06",
@@ -188,7 +188,7 @@
     "generated_by": "tools/scripts/generate-model-catalog.mjs",
     "description": "Auto-generated inventory of agent → model assignments derived from frontmatter (canonical source). Do not edit by hand; run `node tools/scripts/generate-model-catalog.mjs` or let the lefthook pre-commit hook refresh it when frontmatter changes.",
     "agents": {
-      "01-orchestrator.agent.md": "MAI-Code-1-Flash",
+      "01-orchestrator.agent.md": "MAI-Code-1.1-Flash",
       "02-requirements.agent.md": "Claude Sonnet 5",
       "03-architect.agent.md": "Claude Opus 5",
       "04-design.agent.md": "Claude Sonnet 5",
