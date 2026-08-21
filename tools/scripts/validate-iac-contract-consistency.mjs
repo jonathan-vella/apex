@@ -30,11 +30,12 @@ import { fileURLToPath } from "node:url";
 import { globSync } from "node:fs";
 import { Reporter } from "./_lib/reporter.mjs";
 import { readJson, sha256File } from "./_lib/json.mjs";
+import { createAvmBicepReferenceRegex, createAvmTerraformReferenceRegex } from "./_lib/avm-patterns.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 
-const AVM_BICEP_RE = /br\/public:avm\/(?:res|ptn)\/[a-z0-9-]+(?:\/[a-z0-9-]+)+/g;
-const AVM_TF_RE = /Azure\/avm-res-[a-z0-9-]+\/azurerm/g;
+const AVM_BICEP_RE = createAvmBicepReferenceRegex("g");
+const AVM_TF_RE = createAvmTerraformReferenceRegex("g");
 const HEADING_RE = /^##+\s+([A-Z][a-zA-Z0-9.]+\/[a-zA-Z0-9.]+)\s*:\s*([a-z][a-z0-9-]+)\s*$/gm;
 
 function extractPlanReferences(plan) {

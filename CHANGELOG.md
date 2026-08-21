@@ -18,6 +18,57 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 See the [published changelog](https://apexops.pro/project/changelog/)
 for full details on this and all prior releases.
 
+### Added (Agent authoring skill)
+
+- feat(skills): add an on-demand `agent-authoring` workflow skill for creating,
+  restructuring, and auditing Copilot agents and prompts. Detailed model policy,
+  runtime guardrails, decision logging, and authoring workflows now load only
+  when agent-development work requires them.
+
+### Changed (Agent instruction context reduction)
+
+- perf(instructions): reduce the universally applied
+  `agent-authoring.instructions.md` from an extended authoring guide to a thin
+  enforcement layer. Runtime contracts and stable anchors remain auto-loaded;
+  rationale, examples, and procedural guidance moved to the `agent-authoring`
+  skill and its progressive references.
+
+### Changed (Cache-aware validation)
+
+- perf(scripts): replace the unbounded Node validator `run-p` fan-out with a
+  cache-aware runner. Node validators now share workspace/frontmatter, workflow
+  graph, registry JSON, artifact, and compiled-schema caches in one process;
+  Python, ESLint, and `node --test` commands run through a bounded child pool.
+  Legacy aggregates remain available for rollback and benchmarking.
+
+### Changed (Canonical Azure defaults)
+
+- perf(skills): remove duplicated region, tag, and security tables from
+  `azure-defaults`. The skill now provides only IaC sequencing, unique
+  invariants, and a progressive reference index; `.github/copilot-instructions.md`
+  remains the sole canonical owner of default values.
+- test(scripts): replace region-table mirror comparison with ownership
+  validation that requires the canonical link and rejects duplicated defaults
+  in the skill.
+
+### Changed (Repository deduplication and runtime efficiency)
+
+- perf(site): remove five byte-identical `site/src/assets/images/hero-*.jpg`
+  copies; documentation continues to use the canonical public images.
+- perf(governance): store the tracked governance baseline as deterministic gzip
+  and add shared Python/Node loaders plus schema validation. The artifact shrinks
+  from 8.69 MB to 354 KB without changing its JSON semantics.
+- refactor(scripts): consolidate H2 extraction, frontmatter parsing, skill
+  reference discovery, and common AVM path matching into shared helpers with
+  regression tests.
+- perf(site): preserve the explorer `generatedAt` timestamp when semantic graph
+  content is unchanged, producing byte-identical output on repeated generation.
+- perf(pricing-mcp): coalesce concurrent retirement-data cache misses through a
+  cancellation-safe shared task so parallel callers perform one upstream fetch.
+- fix(devcontainer): install system `pytest` and Azure Pricing `[admin,dev]`
+  extras during create/start/update so the full external validation suite is
+  available after container rebuilds and tool refreshes.
+
 ### Changed (Model migration — 2026-07 successors)
 
 - chore(agents): replaced active `Claude Opus 4.8` assignments with

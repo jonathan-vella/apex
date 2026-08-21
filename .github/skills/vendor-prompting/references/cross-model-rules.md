@@ -48,7 +48,7 @@ handoffs:
 
 ## Rule R-X-3 — Frontmatter model style
 
-> Source: [agent-authoring.instructions.md](../../../instructions/agent-authoring.instructions.md#L113-L120)
+> Source: [agent-authoring.instructions.md](../../../instructions/agent-authoring.instructions.md#frontmatter-rules)
 > (existing repo convention).
 
 **Rule** (`frontmatter-model-style-001`):
@@ -62,7 +62,7 @@ handoffs:
 
 ## Rule R-X-4 — Handoff prompt enrichment
 
-> Source: [agent-authoring.instructions.md](../../../instructions/agent-authoring.instructions.md#L471-L478)
+> Source: [agent-authoring.instructions.md](../../../instructions/agent-authoring.instructions.md#handoff-rules)
 > (existing repo convention).
 
 **Rule** (`handoff-enrichment-001`): every `handoffs[].prompt` must
@@ -92,8 +92,7 @@ handoffs:
 
 ## Rule R-X-5 — Decision logging
 
-> Source: [agent-authoring.instructions.md](../../../instructions/agent-authoring.instructions.md)
-> "Decision Logging" section.
+> Source: [decision-logging.md](../../agent-authoring/references/decision-logging.md).
 
 **Rule** (reviewer-only): when an agent makes a significant choice
 (architecture pattern, SKU/tier selection, deployment strategy, IaC

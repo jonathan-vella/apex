@@ -44,8 +44,8 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { globSync } from "node:fs";
 import { loadValidator } from "./_lib/ajv-validator.mjs";
+import { findArtifactFiles } from "./_lib/artifact-index.mjs";
 import { Reporter } from "./_lib/reporter.mjs";
 import { readJson } from "./_lib/json.mjs";
 
@@ -377,7 +377,9 @@ function validateFile(filePath, validate, r, vnetWhitelist) {
 }
 
 function findManifests() {
-  return globSync("agent-output/*/sku-manifest.json", { cwd: ROOT, nodir: true }).map((p) => path.join(ROOT, p));
+  return findArtifactFiles((file) => /^agent-output\/[^/]+\/sku-manifest\.json$/.test(file)).map((file) =>
+    path.join(ROOT, file),
+  );
 }
 
 /**

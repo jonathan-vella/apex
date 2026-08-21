@@ -23,7 +23,9 @@
 
 import Ajv2020 from "ajv/dist/2020.js";
 import addFormats from "ajv-formats";
-import { readJson } from "./json.mjs";
+import { readJsonCached } from "./json.mjs";
+
+const validatorCache = new Map();
 
 /** A configured Ajv 2020 instance (allErrors, non-strict, ajv-formats). */
 export function createAjv(options = {}) {
@@ -34,5 +36,14 @@ export function createAjv(options = {}) {
 
 /** Read a JSON Schema from `schemaPath` and return the compiled validator. */
 export function loadValidator(schemaPath) {
-  return createAjv().compile(readJson(schemaPath));
+  if (!validatorCache.has(schemaPath)) {
+    validatorCache.set(schemaPath, createAjv().compile(readJsonCached(schemaPath)));
+  }
+  return validatorCache.get(schemaPath);
+}
+
+/** Clear compiled schema validators. Used by tests after fixture changes. */
+export function resetValidatorCache(schemaPath) {
+  if (schemaPath) validatorCache.delete(schemaPath);
+  else validatorCache.clear();
 }

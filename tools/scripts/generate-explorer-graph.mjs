@@ -25,10 +25,12 @@
  *  - skill → skill (parse SKILL.md for references to other skill slugs)
  */
 
-import { readFileSync, writeFileSync, readdirSync, statSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync, readdirSync, statSync } from "node:fs";
 import { join, basename, relative, resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseFrontmatter } from "./_lib/parse-frontmatter.mjs";
+import { expandScript } from "./_lib/npm-script-graph.mjs";
+import { extractSkillReferences } from "./_lib/skill-references.mjs";
 import { readJson } from "./_lib/json.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -37,6 +39,13 @@ const OUT_PATH = join(REPO_ROOT, "site/public/architecture-explorer-graph.json")
 
 const GITHUB_BASE = "https://github.com/jonathan-vella/apex/blob/main/";
 const _DOCS_BASE = "/";
+
+export function selectGeneratedAt(previousGraph, nextGraph, now = new Date().toISOString()) {
+  if (!previousGraph?.generatedAt) return now;
+  const { generatedAt: _previousTimestamp, ...previousContent } = previousGraph;
+  const { generatedAt: _nextTimestamp, ...nextContent } = nextGraph;
+  return JSON.stringify(previousContent) === JSON.stringify(nextContent) ? previousGraph.generatedAt : now;
+}
 
 /** @type {Array<{id: string, key: string, label: string, color: string, shape: string}>} */
 const CATEGORIES = [
@@ -121,18 +130,6 @@ function asArray(v) {
   return Array.isArray(v) ? v : [v];
 }
 
-// Canonical agent/subagent → skill reference pattern. Mirrors
-// SKILL_REFERENCE_PATTERN in tools/scripts/validate-orphaned-content.mjs.
-const SKILL_REFERENCE_PATTERN = /(?:\.github\/)?skills\/([a-z0-9]+(?:-[a-z0-9]+)*)\/SKILL\.md/g;
-
-function extractSkillRefs(body) {
-  const found = new Set();
-  for (const match of body.matchAll(SKILL_REFERENCE_PATTERN)) {
-    found.add(match[1]);
-  }
-  return [...found];
-}
-
 // ---------- Node collectors ----------
 
 function collectAgents() {
@@ -156,7 +153,7 @@ function collectAgents() {
         invocable: fm["user-invocable"] !== "false",
         subagents: asArray(fm.agents),
         handoffTargets: extractHandoffAgents(content),
-        skills: extractSkillRefs(content),
+        skills: extractSkillReferences(content),
       },
     };
   });
@@ -176,7 +173,7 @@ function collectSubagents() {
       description: fm.description || "",
       path: relative(REPO_ROOT, path),
       links: { source: GITHUB_BASE + relative(REPO_ROOT, path) },
-      meta: { model: asArray(fm.model)[0] || null, skills: extractSkillRefs(content) },
+      meta: { model: asArray(fm.model)[0] || null, skills: extractSkillReferences(content) },
     };
   });
 }
@@ -273,15 +270,8 @@ function collectValidators() {
   // `validate:_external` in package.json (the canonical count source).
   const pkg = readJson(join(REPO_ROOT, "package.json"));
   const scripts = pkg.scripts || {};
-  const collect = (name) => {
-    const run = scripts[name] || "";
-    return run
-      .split(/\s+/)
-      .filter((tok) => scripts[tok]) // only tokens that are real script names
-      .map((tok) => tok);
-  };
-  const nodeScripts = collect("validate:_node");
-  const externalScripts = collect("validate:_external");
+  const nodeScripts = expandScript(scripts, "validate:_node");
+  const externalScripts = expandScript(scripts, "validate:_external");
   const unique = [...new Set([...nodeScripts, ...externalScripts])];
   return unique.map((name) => ({
     id: `validator:${slug(name)}`,
@@ -611,20 +601,29 @@ function main() {
     count: nodes.filter((n) => n.category === c.id).length,
   }));
 
-  const generatedAt = new Date().toISOString();
   const graph = {
     $schema: "../../tools/schemas/explorer-graph.schema.json",
-    generatedAt,
+    generatedAt: null,
     categories,
     nodeCount: nodes.length,
     edgeCount: edges.length,
     nodes,
     edges,
   };
+  let previousGraph = null;
+  if (existsSync(OUT_PATH)) {
+    try {
+      previousGraph = JSON.parse(readFileSync(OUT_PATH, "utf8"));
+    } catch {
+      previousGraph = null;
+    }
+  }
+  graph.generatedAt = selectGeneratedAt(previousGraph, graph);
 
   writeFileSync(OUT_PATH, `${JSON.stringify(graph, null, 2)}\n`);
   console.log(`✅ Generated ${relative(REPO_ROOT, OUT_PATH)} — ${nodes.length} nodes, ${edges.length} edges`);
   console.log(`   ${categories.map((c) => `${c.label}:${c.count}`).join("  ")}`);
 }
 
-main();
+const invokedAsScript = process.argv[1] && resolve(process.argv[1]) === resolve(fileURLToPath(import.meta.url));
+if (invokedAsScript) main();

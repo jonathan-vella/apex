@@ -23,6 +23,7 @@ import fs from "node:fs";
 import { getAgents } from "./_lib/workspace-index.mjs";
 import { Reporter } from "./_lib/reporter.mjs";
 import { REGISTRY_PATH } from "./_lib/paths.mjs";
+import { readJsonCached } from "./_lib/json.mjs";
 
 const r = new Reporter("Agent Registry Validator");
 
@@ -57,19 +58,11 @@ if (!fs.existsSync(REGISTRY_PATH)) {
   process.exit(1);
 }
 
-let raw;
-try {
-  raw = fs.readFileSync(REGISTRY_PATH, "utf-8");
-} catch (e) {
-  r.error(`Cannot read ${REGISTRY_PATH}: ${e.message}`);
-  process.exit(1);
-}
-
 let registry;
 try {
-  registry = JSON.parse(raw);
+  registry = readJsonCached(REGISTRY_PATH);
 } catch (e) {
-  r.error(`Invalid JSON in ${REGISTRY_PATH}: ${e.message}`);
+  r.error(`Cannot parse ${REGISTRY_PATH}: ${e.message}`);
   process.exit(1);
 }
 

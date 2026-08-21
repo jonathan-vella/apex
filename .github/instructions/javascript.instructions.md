@@ -30,6 +30,7 @@ Follow the existing pattern in `tools/scripts/`:
 
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 // Constants at top
 const SOME_DIR = ".github/agents";
@@ -38,10 +39,13 @@ const SOME_DIR = ".github/agents";
 let errors = 0;
 let warnings = 0;
 
-// Functions...
+export async function runValidator(options = {}) {
+  // Accumulate findings and return an exit code or result object.
+}
 
-// Main execution at bottom with process.exit
-process.exit(errors > 0 ? 1 : 0);
+const invokedAsScript =
+  process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+if (invokedAsScript) process.exit(await runValidator());
 ```
 
 ## Conventions
@@ -52,7 +56,10 @@ process.exit(errors > 0 ? 1 : 0);
 - Use `===` and `!==` for comparisons
 - Prefer arrow functions for callbacks
 - Use destructuring where it improves readability
-- End files with `process.exit(errors > 0 ? 1 : 0)` for validation scripts
+- Export validator logic and keep the CLI entrypoint thin. Async entrypoints must
+  be awaited so `validate-all.mjs` can isolate lifecycle and exit codes.
+- Return an exit code or result object from validator logic; call `process.exit`
+  only in the guarded CLI entrypoint.
 
 ## Error Handling
 

@@ -348,7 +348,7 @@ def emit_preview_md(envelope: dict[str, Any], out_path: Path, arch_resources: li
     a(f"| Tag Policies | {len(tags_required)} tags required | {discovered_at} |")
     a(f"| Security Policies | {len(security)} constraints | {discovered_at} |\n")
     is_cached = envelope.get("source") == "cached_baseline" or envelope.get("cached_baseline", False)
-    discovery_method = "Cached governance baseline (governance-policy-baseline.json)" if is_cached else "Azure Policy REST API (discover.py)"
+    discovery_method = "Cached governance baseline (governance-policy-baseline.json.gz)" if is_cached else "Azure Policy REST API (discover.py)"
     a(f"**Discovery Method**: {discovery_method}")
     a(f"**Subscription**: {envelope.get('subscription_id', 'unknown')}")
     a(f"**Scope**: Subscription + management-group inherited\n")

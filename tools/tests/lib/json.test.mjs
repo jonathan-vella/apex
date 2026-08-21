@@ -7,7 +7,14 @@ import os from "node:os";
 import path from "node:path";
 import crypto from "node:crypto";
 
-import { readJson, readJsonSafe, writeJson, sha256File } from "../../scripts/_lib/json.mjs";
+import {
+  readJson,
+  readJsonCached,
+  readJsonSafe,
+  resetJsonCache,
+  writeJson,
+  sha256File,
+} from "../../scripts/_lib/json.mjs";
 
 function tmpFile(contents) {
   const p = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "apex-json-")), "data.json");
@@ -34,6 +41,15 @@ describe("_lib/json", () => {
     assert.throws(() => readJson(tmpFile("{not json")));
   });
 
+  it("readJsonCached returns the same parsed object until reset", () => {
+    const p = tmpFile('{"a":1}');
+    const first = readJsonCached(p);
+    const second = readJsonCached(p);
+    assert.strictEqual(first, second);
+    resetJsonCache(p);
+    assert.notStrictEqual(readJsonCached(p), first);
+  });
+
   it("readJsonSafe returns null on a missing file", () => {
     assert.equal(readJsonSafe(missingFile()), null);
   });
@@ -48,6 +64,14 @@ describe("_lib/json", () => {
     const raw = fs.readFileSync(p, "utf8");
     assert.equal(raw, '{\n  "b": 2\n}\n');
     assert.deepEqual(readJson(p), { b: 2 });
+  });
+
+  it("writeJson invalidates the cached value", () => {
+    const p = tmpFile('{"a":1}');
+    const before = readJsonCached(p);
+    writeJson(p, { a: 2 });
+    assert.notStrictEqual(readJsonCached(p), before);
+    assert.deepEqual(readJsonCached(p), { a: 2 });
   });
 
   it("sha256File matches a direct digest of the bytes", () => {

@@ -8,13 +8,15 @@
 /**
  * Extract all H2 heading texts from markdown content.
  * @param {string} content - Markdown text
- * @returns {string[]} Array of heading texts (without "## " prefix)
+ * @param {{prefixed?: boolean}} [options]
+ * @returns {string[]} Array of heading texts
  */
-export function extractH2Headings(content) {
+export function extractH2Headings(content, { prefixed = false } = {}) {
   return content
-    .split("\n")
-    .filter((line) => /^## /.test(line))
-    .map((line) => line.replace(/^## /, "").trim());
+    .split(/\r?\n/)
+    .map((line) => line.trimEnd())
+    .filter((line) => line.startsWith("## "))
+    .map((line) => (prefixed ? line : line.replace(/^## /, "").trim()));
 }
 
 /**

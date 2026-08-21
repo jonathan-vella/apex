@@ -31,6 +31,7 @@ domain-specific knowledge modules that activate automatically based on prompt ke
 
 | Skill                 | Description                               | Triggers                                                                        |
 | --------------------- | ----------------------------------------- | ------------------------------------------------------------------------------- |
+| `agent-authoring`   | Create and restructure Copilot agents     | "create agent", "agent architecture", "reduce agent tokens"                  |
 | `github-operations` | Branch naming, commits, PRs, CLI, Actions | "commit", "create PR", "gh command"                                             |
 | `docs-writer`       | Repo-aware documentation maintenance      | "update docs", "check staleness"                                                |
 | `sensei`            | Iteratively improve skill frontmatter     | "run sensei", "improve skill", "fix frontmatter"                                |

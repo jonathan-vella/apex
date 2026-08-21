@@ -33,6 +33,7 @@ import { execSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { globSync } from "node:fs";
 import { Reporter } from "./_lib/reporter.mjs";
+import { findArtifactFiles } from "./_lib/artifact-index.mjs";
 import { lookupAvmDefault } from "./_lib/avm-default-skus.mjs";
 import { readJson } from "./_lib/json.mjs";
 
@@ -352,7 +353,7 @@ function validateProject(project, r) {
 
 function findProjects() {
   const out = new Set();
-  for (const p of globSync("agent-output/*/sku-manifest.json", { cwd: ROOT, nodir: true })) {
+  for (const p of findArtifactFiles((file) => /^agent-output\/[^/]+\/sku-manifest\.json$/.test(file))) {
     out.add(p.split("/")[1]);
   }
   for (const p of globSync("infra/bicep/*", { cwd: ROOT })) {

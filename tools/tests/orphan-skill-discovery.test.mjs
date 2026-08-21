@@ -8,21 +8,7 @@
 
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-
-// Mirror of SKILL_REFERENCE_PATTERN in
-// tools/scripts/validate-orphaned-content.mjs. Keep in sync — the fixture
-// test exists specifically to detect drift in the regex.
-const SKILL_REFERENCE_PATTERN = /(?:\.github\/)?skills\/([a-z0-9]+(?:-[a-z0-9]+)*)\/SKILL\.md/g;
-
-function findSkillReferences(content) {
-  const found = new Set();
-  let m;
-  SKILL_REFERENCE_PATTERN.lastIndex = 0;
-  while ((m = SKILL_REFERENCE_PATTERN.exec(content)) !== null) {
-    found.add(m[1]);
-  }
-  return found;
-}
+import { findSkillReferences } from "../scripts/_lib/skill-references.mjs";
 
 describe("orphan-skill-discovery regex", () => {
   it("finds canonical SKILL.md references", () => {

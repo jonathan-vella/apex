@@ -7,8 +7,8 @@
 
 This section is the canonical declaration of Azure infrastructure defaults.
 Every skill, agent, and prompt must reference this section — never restate
-the values inline. The IaC-flavoured mirror with CAF naming, AVM modules,
-and reference index lives in
+the values inline. The IaC workflow, CAF naming guidance, AVM procedure,
+and reference index live in
 [`.github/skills/azure-defaults/SKILL.md`](skills/azure-defaults/SKILL.md).
 
 ### Default Regions

@@ -52,7 +52,7 @@ count is computed by `tools/registry/count-manifest.json`. A grouped overview:
 | Terraform Tooling    | `terraform-search-import`, `terraform-test`                                                                                                                                                                       |
 | Azure Plugin Skills  | `azure-prepare`, `azure-cost-optimization`, `azure-compute`, `azure-compliance`, `azure-rbac`, `azure-storage`, `azure-kusto`, `azure-quotas`, `azure-resources`, `azure-cloud-migrate`, `entra-app-registration` |
 | Microsoft Learn      | `microsoft-docs`                                                                                                                                                                                                  |
-| Meta / Tooling       | `context-management`                                                                                                                                                                                              |
+| Meta / Tooling       | `agent-authoring`, `context-management`                                                                                                                                                                           |
 
 The skills domain table above is the live catalog. For the authoritative
 list of VS Code Copilot customization mechanisms (instructions, prompt

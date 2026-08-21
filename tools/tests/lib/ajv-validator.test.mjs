@@ -6,7 +6,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
-import { createAjv, loadValidator } from "../../scripts/_lib/ajv-validator.mjs";
+import { createAjv, loadValidator, resetValidatorCache } from "../../scripts/_lib/ajv-validator.mjs";
 
 function tmpSchema(schema) {
   const p = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "apex-ajv-")), "schema.json");
@@ -45,6 +45,14 @@ describe("_lib/ajv-validator", () => {
     const validate = loadValidator(p);
     assert.equal(validate({ x: "ok" }), true);
     assert.equal(validate({ x: 5 }), false);
+  });
+
+  it("loadValidator caches compiled schemas until reset", () => {
+    const p = tmpSchema({ type: "string" });
+    const first = loadValidator(p);
+    assert.strictEqual(loadValidator(p), first);
+    resetValidatorCache(p);
+    assert.notStrictEqual(loadValidator(p), first);
   });
 
   it("loadValidator throws on a missing schema file", () => {

@@ -53,6 +53,36 @@ $AUTO_REMEDIATE_EFFECTS = @("DeployIfNotExists", "Modify")
 $RELEVANT_EFFECTS = $BLOCKER_EFFECTS + $AUTO_REMEDIATE_EFFECTS
 $DEFENDER_ASSIGNED_BY = @("Security Center", "Microsoft Defender for Cloud")
 
+function Read-GzipJson {
+    param([string]$Path)
+    $file = [System.IO.File]::OpenRead($Path)
+    try {
+        $gzip = [System.IO.Compression.GZipStream]::new($file, [System.IO.Compression.CompressionMode]::Decompress)
+        try {
+            $reader = [System.IO.StreamReader]::new($gzip, [System.Text.UTF8Encoding]::new($false))
+            try { return $reader.ReadToEnd() | ConvertFrom-Json }
+            finally { $reader.Dispose() }
+        }
+        finally { $gzip.Dispose() }
+    }
+    finally { $file.Dispose() }
+}
+
+function Write-GzipJson {
+    param([string]$Path, [string]$Json)
+    $file = [System.IO.File]::Create($Path)
+    try {
+        $gzip = [System.IO.Compression.GZipStream]::new($file, [System.IO.Compression.CompressionLevel]::Optimal)
+        try {
+            $writer = [System.IO.StreamWriter]::new($gzip, [System.Text.UTF8Encoding]::new($false))
+            try { $writer.Write($Json) }
+            finally { $writer.Dispose() }
+        }
+        finally { $gzip.Dispose() }
+    }
+    finally { $file.Dispose() }
+}
+
 # ─── ARM Token ───────────────────────────────────────────────────────────────
 function Get-ArmToken {
     $tokenJson = az account get-access-token --resource "$ARM" -o json 2>$null
@@ -518,11 +548,11 @@ if ($eligibleSubs.Count -gt $MaxSubscriptions) {
 $coverageStatus = if ($subscriptionsSkipped.Count -gt 0) { "PARTIAL" } else { "COMPLETE" }
 
 # Read existing baseline for timestamp preservation
-$baselineFile = Join-Path $OutputDir "governance-policy-baseline.json"
+$baselineFile = Join-Path $OutputDir "governance-policy-baseline.json.gz"
 $existingBaseline = $null
 if (Test-Path $baselineFile) {
     try {
-        $existingBaseline = Get-Content $baselineFile -Raw | ConvertFrom-Json
+        $existingBaseline = Read-GzipJson -Path $baselineFile
     }
     catch { Write-Warning "Could not parse existing baseline for timestamp preservation" }
 }
@@ -592,8 +622,8 @@ $baseline = [ordered]@{
 
 # Write output
 New-Item -ItemType Directory -Path $OutputDir -Force | Out-Null
-$baselineJson = $baseline | ConvertTo-Json -Depth 50
-$baselineJson | Set-Content -Path $baselineFile -NoNewline
+$baselineJson = $baseline | ConvertTo-Json -Depth 50 -Compress
+Write-GzipJson -Path $baselineFile -Json $baselineJson
 Write-Host "Wrote baseline: $baselineFile"
 
 # Write raw debug file (gitignored — not committed)

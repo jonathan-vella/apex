@@ -30,6 +30,7 @@ import { Reporter } from "./_lib/reporter.mjs";
 import { getAgents } from "./_lib/workspace-index.mjs";
 import { REGISTRY_PATH } from "./_lib/paths.mjs";
 import { normalizeModel, walkRegistry, buildAssignments } from "./_lib/model-helpers.mjs";
+import { readJsonCached } from "./_lib/json.mjs";
 
 const ROOT = process.cwd();
 const CATALOG_PATH = path.join(ROOT, ".github", "model-catalog.json");
@@ -85,7 +86,7 @@ function runCatalog() {
     r.summary();
     return finishMode(r, "Model catalog validation passed", "Model catalog validation failed — see errors above");
   }
-  const catalog = JSON.parse(fs.readFileSync(CATALOG_PATH, "utf8"));
+  const catalog = readJsonCached(CATALOG_PATH);
   const declared = new Set(Object.keys(catalog.models || {}));
   const deprecated = new Set(
     Object.entries(catalog.models || {})
@@ -95,7 +96,7 @@ function runCatalog() {
 
   console.log("  Check 1: referenced labels exist in catalog.models");
   const fmModels = collectFrontmatterModels();
-  const registry = JSON.parse(fs.readFileSync(REGISTRY_PATH, "utf8"));
+  const registry = readJsonCached(REGISTRY_PATH);
   const regModels = collectRegistryModels(registry);
   for (const [model, origins] of fmModels) {
     r.tick();
@@ -199,7 +200,7 @@ function runConsistency() {
 
   let registry;
   try {
-    registry = JSON.parse(fs.readFileSync(REGISTRY_PATH, "utf-8"));
+    registry = readJsonCached(REGISTRY_PATH);
   } catch (e) {
     r.error(`Cannot parse ${REGISTRY_PATH}: ${e.message}`);
     return false;
@@ -236,7 +237,7 @@ const ALLOWED_FILES = new Set([
 ]);
 
 function loadDeprecatedModels() {
-  const catalog = JSON.parse(fs.readFileSync(CATALOG_PATH, "utf8"));
+  const catalog = readJsonCached(CATALOG_PATH);
   const models = catalog.models ?? {};
   return Object.entries(models)
     .filter(([, v]) => v?.deprecated === true)

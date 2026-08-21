@@ -8,6 +8,16 @@ description: "Complete skills and subagent reference"
 Skills are invoked automatically by agents, but you can also reference them
 directly in prompts.
 
+### agent-authoring
+
+Creates, restructures, and audits Copilot agents while keeping enforceable
+rules in thin auto-loaded instructions and optional guidance on demand.
+
+```text
+Use the agent-authoring skill to reduce the fixed context cost of
+.github/agents/03-architect.agent.md without changing its runtime contract.
+```
+
 ### azure-defaults
 
 Provides regions, tags, naming conventions, AVM module references, and

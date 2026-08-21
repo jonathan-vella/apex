@@ -16,6 +16,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { createAjv } from "./_lib/ajv-validator.mjs";
 import { ARTIFACT_HEADINGS } from "./_lib/artifact-headings.mjs";
+import { extractH2Headings } from "./_lib/h2-parser.mjs";
 
 // ============================================================================
 // Shared utilities
@@ -28,13 +29,6 @@ function readText(relPath) {
 
 function exists(relPath) {
   return fs.existsSync(path.resolve(process.cwd(), relPath));
-}
-
-function extractH2Headings(text) {
-  return text
-    .split(/\r?\n/)
-    .map((line) => line.trimEnd())
-    .filter((line) => line.startsWith("## "));
 }
 
 // ============================================================================
@@ -610,7 +604,7 @@ function validateTemplate(artifactName) {
   }
 
   const text = readText(templatePath);
-  const h2 = extractH2Headings(text);
+  const h2 = extractH2Headings(text, { prefixed: true });
   const required = ARTIFACT_HEADINGS[artifactName];
   const coreFound = h2.filter((h) => required.includes(h));
 
@@ -805,7 +799,7 @@ function validateArtifactCompliance(relPath) {
   if (!exists(relPath)) return;
 
   const text = readText(relPath);
-  const h2 = extractH2Headings(text);
+  const h2 = extractH2Headings(text, { prefixed: true });
   const required = ARTIFACT_HEADINGS[artifactType];
   const anchor = required[required.length - 1];
   const optionals = OPTIONAL_ALLOWED[artifactType] || [];
@@ -1155,10 +1149,6 @@ function getArtifactType(filePath) {
   return null;
 }
 
-function extractH2HeadingsFromContent(content) {
-  return content.match(/^## .+$/gm) || [];
-}
-
 function analyzeArtifact(filePath) {
   const artifactType = getArtifactType(filePath);
   if (!artifactType) {
@@ -1166,7 +1156,7 @@ function analyzeArtifact(filePath) {
   }
 
   const content = fs.readFileSync(filePath, "utf-8");
-  const actualH2s = extractH2HeadingsFromContent(content);
+  const actualH2s = extractH2Headings(content, { prefixed: true });
   const requiredH2s = ARTIFACT_HEADINGS[artifactType];
 
   const missing = requiredH2s.filter((h) => !actualH2s.some((a) => headingMatch(a, h)));

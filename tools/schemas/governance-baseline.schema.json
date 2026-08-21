@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/jonathan-vella/apex/schemas/governance-baseline.schema.json",
   "title": "APEX Governance Baseline",
-  "description": "Shape of .github/data/governance-policy-baseline.json produced by the governance-policy-baseline workflow. Wraps per-subscription governance-constraints-v1 envelopes.",
+  "description": "Decompressed shape of .github/data/governance-policy-baseline.json.gz produced by the governance-policy-baseline workflow. Wraps per-subscription governance-constraints-v1 envelopes.",
   "type": "object",
   "required": [
     "schema_version",

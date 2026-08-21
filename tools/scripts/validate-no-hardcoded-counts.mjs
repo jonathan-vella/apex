@@ -18,6 +18,7 @@ import { globSync } from "node:fs";
 import { Reporter } from "./_lib/reporter.mjs";
 import { AGENTS_DIR, SUBAGENTS_DIR, SKILLS_DIR, INSTRUCTIONS_DIR } from "./_lib/paths.mjs";
 import { parseJsonc } from "./_lib/parse-jsonc.mjs";
+import { expandScript } from "./_lib/npm-script-graph.mjs";
 
 const ROOT = process.cwd();
 const r = new Reporter("No Hard-Coded Counts Validator");
@@ -52,10 +53,9 @@ function computeActualCounts() {
   let validatorCount = 0;
   if (fs.existsSync(pkgPath)) {
     const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf-8"));
-    const nodeScripts = pkg.scripts?.["validate:_node"] || "";
-    const extScripts = pkg.scripts?.["validate:_external"] || "";
-    const all = [...nodeScripts.split(/\s+/), ...extScripts.split(/\s+/)].filter(
-      (s) => s.startsWith("lint:") || s.startsWith("validate:"),
+    const scripts = pkg.scripts ?? {};
+    const all = [...expandScript(scripts, "validate:_node"), ...expandScript(scripts, "validate:_external")].filter(
+      (name) => name.startsWith("lint:") || name.startsWith("validate:"),
     );
     validatorCount = all.length;
   }
