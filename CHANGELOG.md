@@ -18,6 +18,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 See the [published changelog](https://apexops.pro/project/changelog/)
 for full details on this and all prior releases.
 
+### Security
+
+- fix(deps): pin patched transitive releases for `undici`, `nanoid`, and
+  `brace-expansion`, resolving the open Dependabot advisories and producing
+  zero findings from both root and site npm audits.
+
 ### Added (Agent authoring skill)
 
 - feat(skills): add an on-demand `agent-authoring` workflow skill for creating,
