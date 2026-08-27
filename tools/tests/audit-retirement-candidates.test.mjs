@@ -12,7 +12,7 @@ import {
   validateScan,
 } from "../scripts/audit-retirement-candidates.mjs";
 
-const BASELINE = "03bd2348c805dbf6e001a1122438829305bf6e08";
+const BASELINE = "b87b57f719520049d6bcf2f00bc3d9431c1002a7";
 const BRANCH = "chore/whole-repo-retirement-scan-2026-08-27";
 let cachedScan;
 

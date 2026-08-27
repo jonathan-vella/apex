@@ -6,13 +6,13 @@
 
 **State**: Completed
 **Branch**: `chore/whole-repo-retirement-scan-2026-08-27`
-**Baseline commit**: `03bd2348c805dbf6e001a1122438829305bf6e08`
-**Parent branch**: `chore/archive-redundant-content-2026-08-27`
+**Baseline commit**: `b87b57f719520049d6bcf2f00bc3d9431c1002a7`
+**Parent PR**: `#671` (merged)
 **Created**: 2026-08-27
 **Owner**: Jonathan Vella
 
-This branch depends on the completed archive-cleanup branch until that work merges or this branch is rebased onto
-`main`. The scan may nominate retirement candidates, but it cannot approve, move, remove, consolidate, or archive them.
+The cleanup dependency merged through PR `#671`, and this branch was rebased onto its durable squash commit. The scan
+may nominate retirement candidates, but it cannot approve, move, remove, consolidate, or archive them.
 
 ## Objective
 

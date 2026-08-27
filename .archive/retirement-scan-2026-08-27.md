@@ -1,6 +1,6 @@
 # Whole-Repository Retirement Scan
 
-> Baseline: `03bd2348c805dbf6e001a1122438829305bf6e08` | Scan date: 2026-08-27 | Status: **completed**
+> Baseline: `b87b57f719520049d6bcf2f00bc3d9431c1002a7` | Scan date: 2026-08-27 | Status: **completed**
 
 ## Summary
 
