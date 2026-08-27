@@ -119,7 +119,7 @@ All scripts are in the `tools/scripts/` directory. Run via `npm run <command>`.
 | `lint:glob-audit`       | `validate-glob-audit.mjs`       | Detect overly broad glob patterns  |
 | `lint:orphaned-content` | `validate-orphaned-content.mjs` | Detect unreferenced skills/content |
 | `lint:docs-freshness`   | `check-docs-freshness.mjs`      | Documentation staleness detection  |
-| `validate:retirement-scan` | `audit-retirement-candidates.mjs` | Complete tracked-file census and schema validation |
+| `validate:retirement-scan` | `audit-retirement-candidates.mjs` | Tracked-file census and schema checks |
 | `lint:version-sync`     | `validate-version-sync.mjs`     | Version consistency across files   |
 
 ### Configuration Validators
@@ -149,7 +149,7 @@ All scripts are in the `tools/scripts/` directory. Run via `npm run <command>`.
 
 | npm Command          | Purpose                                       |
 | -------------------- | --------------------------------------------- |
-| `validate:all`       | Run all validators (cache-aware Node + external) |
+| `validate:all`       | Run cached Node and external validators          |
 | `validate:_node`     | Node validators in one cache-sharing process; bounded children for Python, ESLint, and tests |
 | `validate:_external` | All external tool validators in parallel      |
 | `validate:agents`    | Agent frontmatter, body, model alignment      |
