@@ -233,7 +233,9 @@ fi
 # ─── Step 10: Bicep CLI after persisted mounts ───────────────────────────────
 
 step_start "🏗️ " "Ensuring Bicep CLI is available..."
-if az bicep version --only-show-errors >/dev/null 2>&1; then
+if command -v bicep >/dev/null 2>&1 && bicep --version >/dev/null 2>&1; then
+    step_done "$(bicep --version | head -1)"
+elif az bicep version --only-show-errors >/dev/null 2>&1; then
     step_done "$(az bicep version --only-show-errors 2>/dev/null | head -1)"
 elif az bicep install --only-show-errors >/dev/null 2>&1 \
     && az bicep version --only-show-errors >/dev/null 2>&1; then
@@ -299,7 +301,7 @@ PY
 # Verify key tools
 echo ""
 printf "        %-15s %s\n" "Azure CLI:" "$(az --version 2>/dev/null | head -n1 || echo '❌ not installed')"
-printf "        %-15s %s\n" "Bicep:" "$(az bicep version 2>/dev/null | head -n1 || echo '❌ not installed')"
+printf "        %-15s %s\n" "Bicep:" "$(bicep --version 2>/dev/null | head -n1 || az bicep version 2>/dev/null | head -n1 || echo '❌ not installed')"
 printf "        %-15s %s\n" "PowerShell:" "$(pwsh --version 2>/dev/null || echo '❌ not installed')"
 printf "        %-15s %s\n" "Python:" "$(python3 --version 2>/dev/null || echo '❌ not installed')"
 printf "        %-15s %s\n" "Node.js:" "$(node --version 2>/dev/null || echo '❌ not installed')"
