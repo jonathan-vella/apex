@@ -43,6 +43,7 @@ Updated by the doc-gardening workflow and referenced by `QUALITY_SCORE.md`.
 | 24  | Documentation  | Explorer graph stale (2026-04-22)            | 2026-04-24 | Regenerated                |
 | 25  | Agents         | Governance agent lacks context_awareness     | 2026-04-24 | Block added                |
 | —   | Repository     | Redundant active content archived            | 2026-08-27 | Inventory + checksums      |
+| —   | Repository     | Whole-repository retirement scan completed   | 2026-08-27 | Duplicate refs archived    |
 | —   | All            | Tracker created                              | 2026-02-26 | Initial seeding            |
 
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>

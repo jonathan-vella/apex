@@ -85,7 +85,7 @@ var containerClient = blobServiceClient.GetBlobContainerClient("uploads");
 
 ## Managed Identity Access
 
-Use `DefaultAzureCredential` for local development (in production, use `ManagedIdentityCredential` — see [auth-best-practices.md](../../auth-best-practices.md)):
+Use `DefaultAzureCredential` for local development (in production, use `ManagedIdentityCredential` — see [auth-best-practices.md](../../../../entra-app-registration/references/auth-best-practices.md)):
 
 ```javascript
 const { DefaultAzureCredential } = require("@azure/identity");

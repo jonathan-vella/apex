@@ -12,7 +12,7 @@ pip install azure-identity
 
 ## Quick Start
 
-> **Auth:** `DefaultAzureCredential` is for local development. See [auth-best-practices.md](../auth-best-practices.md) for production patterns.
+> **Auth:** `DefaultAzureCredential` is for local development. See [auth-best-practices.md](../../../entra-app-registration/references/auth-best-practices.md) for production patterns.
 
 ```python
 from azure.identity import DefaultAzureCredential
@@ -21,7 +21,7 @@ credential = DefaultAzureCredential()
 
 ## Best Practices
 
-- Use DefaultAzureCredential for **local development only** (CLI, PowerShell, VS Code). In production, use ManagedIdentityCredential — see [auth-best-practices.md](../auth-best-practices.md)
+- Use DefaultAzureCredential for **local development only** (CLI, PowerShell, VS Code). In production, use ManagedIdentityCredential — see [auth-best-practices.md](../../../entra-app-registration/references/auth-best-practices.md)
 - Never hardcode credentials — use environment variables or managed identity
 - Prefer managed identity in production Azure deployments
 - Use ChainedTokenCredential when you need a custom credential order

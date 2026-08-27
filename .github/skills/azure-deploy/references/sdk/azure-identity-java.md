@@ -16,7 +16,7 @@
 
 ## Quick Start
 
-> **Auth:** `DefaultAzureCredential` is for local development. See [auth-best-practices.md](../auth-best-practices.md) for production patterns.
+> **Auth:** `DefaultAzureCredential` is for local development. See [auth-best-practices.md](../../../entra-app-registration/references/auth-best-practices.md) for production patterns.
 
 ```java
 import com.azure.identity.DefaultAzureCredentialBuilder;
@@ -25,7 +25,7 @@ var credential = new DefaultAzureCredentialBuilder().build();
 
 ## Best Practices
 
-- Use DefaultAzureCredential for **local development only** (CLI, PowerShell, VS Code). In production, use ManagedIdentityCredential — see [auth-best-practices.md](../auth-best-practices.md)
+- Use DefaultAzureCredential for **local development only** (CLI, PowerShell, VS Code). In production, use ManagedIdentityCredential — see [auth-best-practices.md](../../../entra-app-registration/references/auth-best-practices.md)
 - Managed identity in production — no secrets to manage, automatic rotation
 - Azure CLI for local dev — run `az login` before running your app
 - Least privilege — grant only required permissions to service principals

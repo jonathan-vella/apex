@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-08-27T13:25:24.515Z",
+  "generatedAt": "2026-08-27T14:22:27.543Z",
   "categories": [
     {
       "id": "agent",
@@ -48,7 +48,7 @@
       "label": "Validator",
       "color": "#8b5cf6",
       "shape": "hexagon",
-      "count": 63
+      "count": 65
     },
     {
       "id": "workflow",
@@ -67,8 +67,8 @@
       "count": 3
     }
   ],
-  "nodeCount": 164,
-  "edgeCount": 619,
+  "nodeCount": 166,
+  "edgeCount": 623,
   "nodes": [
     {
       "id": "agent:01-orchestrator",
@@ -2030,6 +2030,36 @@
       "parent": "group:validator-orphans"
     },
     {
+      "id": "validator:validate-retirement-scan",
+      "category": "validator",
+      "label": "validate:retirement-scan",
+      "description": "node tools/scripts/audit-retirement-candidates.mjs --check .archive/retirement-scan-2026-08-27.json",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
+      },
+      "meta": {
+        "command": "node tools/scripts/audit-retirement-candidates.mjs --check .archive/retirement-scan-2026-08-27.json",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
+    },
+    {
+      "id": "validator:test-retirement-scan",
+      "category": "validator",
+      "label": "test:retirement-scan",
+      "description": "node --test tools/tests/audit-retirement-candidates.test.mjs",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
+      },
+      "meta": {
+        "command": "node --test tools/tests/audit-retirement-candidates.test.mjs",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
+    },
+    {
       "id": "validator:test-azure-defaults-canonical",
       "category": "validator",
       "label": "test:azure-defaults-canonical",
@@ -2480,11 +2510,11 @@
     {
       "id": "group:validator-orphans",
       "category": "validator",
-      "label": "Validator (unlinked, 49)",
-      "description": "49 validator nodes with no cross-references in the current graph.",
+      "label": "Validator (unlinked, 51)",
+      "description": "51 validator nodes with no cross-references in the current graph.",
       "isGroup": true,
       "meta": {
-        "groupSize": 49
+        "groupSize": 51
       }
     },
     {
@@ -5902,6 +5932,12 @@
       "kind": "refs"
     },
     {
+      "id": "skill:azure-compliance--refs->skill:entra-app-registration",
+      "source": "skill:azure-compliance",
+      "target": "skill:entra-app-registration",
+      "kind": "refs"
+    },
+    {
       "id": "skill:azure-compute--refs->skill:azure-defaults",
       "source": "skill:azure-compute",
       "target": "skill:azure-defaults",
@@ -5932,6 +5968,12 @@
       "kind": "refs"
     },
     {
+      "id": "skill:azure-cost-optimization--refs->skill:entra-app-registration",
+      "source": "skill:azure-cost-optimization",
+      "target": "skill:entra-app-registration",
+      "kind": "refs"
+    },
+    {
       "id": "skill:azure-deploy--refs->skill:azure-prepare",
       "source": "skill:azure-deploy",
       "target": "skill:azure-prepare",
@@ -5941,6 +5983,12 @@
       "id": "skill:azure-deploy--refs->skill:azure-validate",
       "source": "skill:azure-deploy",
       "target": "skill:azure-validate",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:azure-deploy--refs->skill:entra-app-registration",
+      "source": "skill:azure-deploy",
+      "target": "skill:entra-app-registration",
       "kind": "refs"
     },
     {
@@ -6049,6 +6097,12 @@
       "id": "skill:azure-storage--refs->skill:azure-prepare",
       "source": "skill:azure-storage",
       "target": "skill:azure-prepare",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:azure-storage--refs->skill:entra-app-registration",
+      "source": "skill:azure-storage",
+      "target": "skill:entra-app-registration",
       "kind": "refs"
     },
     {

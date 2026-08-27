@@ -1,0 +1,515 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/jonathan-vella/apex/tools/schemas/retirement-scan.schema.json",
+  "title": "APEX Whole-Repository Retirement Scan",
+  "description": "A complete, evidence-backed classification of tracked files at one Git baseline.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "scan_date",
+    "baseline_commit",
+    "branch",
+    "status",
+    "scope",
+    "baseline_checks",
+    "scan_findings",
+    "analysis_policy",
+    "statistics",
+    "inventory",
+    "candidate_groups",
+    "approval"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "retirement-scan-v1"
+    },
+    "scan_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "baseline_commit": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "branch": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "enum": ["generated", "under_review", "approved", "completed"]
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source", "included", "excluded"],
+      "properties": {
+        "source": {
+          "const": "git ls-files -s -z against baseline_commit"
+        },
+        "included": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "excluded": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "baseline_checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["command", "result", "findings"],
+        "properties": {
+          "command": {
+            "type": "string"
+          },
+          "result": {
+            "enum": ["pass", "pass_with_warnings", "fail", "not_run"]
+          },
+          "findings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "scan_findings": {
+      "type": "array",
+      "description": "Non-fatal evidence collection failures that require review.",
+      "items": {
+        "type": "string"
+      }
+    },
+    "analysis_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["max_text_analysis_bytes", "similarity", "limitations"],
+      "properties": {
+        "max_text_analysis_bytes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "similarity": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["min_bytes", "max_bytes", "min_length_ratio", "min_jaccard_score"],
+          "properties": {
+            "min_bytes": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "max_bytes": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "min_length_ratio": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "min_jaccard_score": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          }
+        },
+        "limitations": {
+          "$ref": "#/$defs/stringArray"
+        }
+      }
+    },
+    "statistics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["total_files", "by_status", "by_domain", "candidate_bytes", "duplicate_groups"],
+      "properties": {
+        "total_files": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "by_status": {
+          "$ref": "#/$defs/countMap"
+        },
+        "by_domain": {
+          "$ref": "#/$defs/countMap"
+        },
+        "candidate_bytes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "duplicate_groups": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "inventory": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/inventoryItem"
+      }
+    },
+    "candidate_groups": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "kind", "paths", "review_state"],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "enum": ["exact_duplicate", "normalized_similarity", "retirement_marker"]
+          },
+          "paths": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          },
+          "review_state": {
+            "const": "human_review_required"
+          }
+        }
+      }
+    },
+    "approval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "human_required", "reviewer", "reviewed_at", "decisions"],
+      "properties": {
+        "state": {
+          "enum": ["pending", "approved", "rejected"]
+        },
+        "human_required": {
+          "const": true
+        },
+        "reviewer": {
+          "type": ["string", "null"]
+        },
+        "reviewed_at": {
+          "type": ["string", "null"],
+          "format": "date"
+        },
+        "decisions": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "execution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "archive_path", "source_commit", "sha256", "size_bytes", "members", "canonical_owners"],
+      "properties": {
+        "state": {
+          "enum": ["not_started", "in_progress", "completed"]
+        },
+        "archive_path": {
+          "type": "string"
+        },
+        "source_commit": {
+          "type": "string"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "size_bytes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "members": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "canonical_owners": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "countMap": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "integer",
+        "minimum": 0
+      }
+    },
+    "stringArray": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "inventoryItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "path",
+        "git_mode",
+        "blob_sha",
+        "size_bytes",
+        "content_type",
+        "domain",
+        "status",
+        "category",
+        "risk",
+        "evidence",
+        "reachability",
+        "ownership",
+        "duplication",
+        "history",
+        "retirement",
+        "governance",
+        "rationale"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^FILE-[0-9a-f]{12}$"
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "git_mode": {
+          "type": "string",
+          "pattern": "^[0-9]{6}$"
+        },
+        "blob_sha": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "size_bytes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "content_type": {
+          "type": "string"
+        },
+        "domain": {
+          "type": "string"
+        },
+        "status": {
+          "enum": ["protected", "retain", "candidate", "defer"]
+        },
+        "category": {
+          "type": "string"
+        },
+        "risk": {
+          "enum": ["low", "medium", "high", "blocked"]
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["type", "detail"],
+            "properties": {
+              "type": {
+                "type": "string"
+              },
+              "detail": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "reachability": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "direct_references",
+            "runtime_callers",
+            "dynamic_entrypoints",
+            "package_scripts",
+            "workflows",
+            "tests",
+            "site_routes"
+          ],
+          "properties": {
+            "direct_references": {
+              "$ref": "#/$defs/stringArray"
+            },
+            "runtime_callers": {
+              "$ref": "#/$defs/stringArray"
+            },
+            "dynamic_entrypoints": {
+              "$ref": "#/$defs/stringArray"
+            },
+            "package_scripts": {
+              "$ref": "#/$defs/stringArray"
+            },
+            "workflows": {
+              "$ref": "#/$defs/stringArray"
+            },
+            "tests": {
+              "$ref": "#/$defs/stringArray"
+            },
+            "site_routes": {
+              "$ref": "#/$defs/stringArray"
+            }
+          }
+        },
+        "ownership": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["codeowners", "generated_by", "source_of_truth", "regeneration_command", "archive_membership"],
+          "properties": {
+            "codeowners": {
+              "$ref": "#/$defs/stringArray"
+            },
+            "generated_by": {
+              "$ref": "#/$defs/stringArray"
+            },
+            "source_of_truth": {
+              "type": ["string", "null"]
+            },
+            "regeneration_command": {
+              "type": ["string", "null"]
+            },
+            "archive_membership": {
+              "$ref": "#/$defs/stringArray"
+            }
+          }
+        },
+        "duplication": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["exact_duplicate_group", "similarity_candidates", "functional_overlap", "unique_content"],
+          "properties": {
+            "exact_duplicate_group": {
+              "type": ["string", "null"]
+            },
+            "similarity_candidates": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["path", "score"],
+                "properties": {
+                  "path": {
+                    "type": "string"
+                  },
+                  "score": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  }
+                }
+              }
+            },
+            "functional_overlap": {
+              "$ref": "#/$defs/stringArray",
+              "description": "Reserved for expert review; automated scans leave this empty."
+            },
+            "unique_content": {
+              "type": ["string", "null"],
+              "description": "Reserved for expert review; null means unique content has not been adjudicated."
+            }
+          }
+        },
+        "history": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["first_commit", "last_commit", "last_changed_at", "age_days"],
+          "properties": {
+            "first_commit": {
+              "type": ["string", "null"]
+            },
+            "last_commit": {
+              "type": ["string", "null"]
+            },
+            "last_changed_at": {
+              "type": ["string", "null"]
+            },
+            "age_days": {
+              "type": ["integer", "null"],
+              "minimum": 0,
+              "description": "Null means no baseline history could be resolved; zero means changed on the scan date."
+            }
+          }
+        },
+        "retirement": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "canonical_replacement",
+            "dependency_updates",
+            "archive_group",
+            "restore_method",
+            "pre_checks",
+            "post_checks"
+          ],
+          "properties": {
+            "canonical_replacement": {
+              "type": ["string", "null"]
+            },
+            "dependency_updates": {
+              "$ref": "#/$defs/stringArray"
+            },
+            "archive_group": {
+              "type": ["string", "null"]
+            },
+            "restore_method": {
+              "type": ["string", "null"]
+            },
+            "pre_checks": {
+              "$ref": "#/$defs/stringArray"
+            },
+            "post_checks": {
+              "$ref": "#/$defs/stringArray"
+            }
+          }
+        },
+        "governance": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["security_flags", "legal_flags", "approval_required", "review_state", "decision_notes"],
+          "properties": {
+            "security_flags": {
+              "$ref": "#/$defs/stringArray"
+            },
+            "legal_flags": {
+              "$ref": "#/$defs/stringArray"
+            },
+            "approval_required": {
+              "type": "boolean"
+            },
+            "review_state": {
+              "enum": ["not_required", "human_review_required", "reviewed"]
+            },
+            "decision_notes": {
+              "type": ["string", "null"]
+            }
+          }
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}

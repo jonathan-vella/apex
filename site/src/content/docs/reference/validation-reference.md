@@ -119,6 +119,7 @@ All scripts are in the `tools/scripts/` directory. Run via `npm run <command>`.
 | `lint:glob-audit`       | `validate-glob-audit.mjs`       | Detect overly broad glob patterns  |
 | `lint:orphaned-content` | `validate-orphaned-content.mjs` | Detect unreferenced skills/content |
 | `lint:docs-freshness`   | `check-docs-freshness.mjs`      | Documentation staleness detection  |
+| `validate:retirement-scan` | `audit-retirement-candidates.mjs` | Complete tracked-file census and schema validation |
 | `lint:version-sync`     | `validate-version-sync.mjs`     | Version consistency across files   |
 
 ### Configuration Validators
@@ -155,6 +156,7 @@ All scripts are in the `tools/scripts/` directory. Run via `npm run <command>`.
 | `validate:artifacts` | H2 sync, template compliance, auto-fix        |
 | `validate:skills`    | Skill format, affinity, references, stale     |
 | `audit:quarterly`    | Quarterly context audit checks                |
+| `audit:retirement`   | Generate or inspect the whole-repository retirement census |
 
 > `validate:_external` is a **local-developer** aggregate (run all external-tool
 > linters in one shot). In CI its members are gated individually so coverage does

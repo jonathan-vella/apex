@@ -18,7 +18,7 @@ const keyClient = new KeyClient(`https://${vaultName}.vault.azure.net`, new Defa
 
 ## Best Practices
 
-- Use DefaultAzureCredential for **local development only**. In production, use ManagedIdentityCredential — see [auth-best-practices.md](../auth-best-practices.md)
+- Use DefaultAzureCredential for **local development only**. In production, use ManagedIdentityCredential — see [auth-best-practices.md](../../../entra-app-registration/references/auth-best-practices.md)
 - Enable soft-delete — required for production vaults
 - Set expiration dates on keys
 - Use key rotation policies — automate key rotation

@@ -81,7 +81,7 @@ Load these on demand — do NOT read all at once:
 
 | Reference                               | When to Load                                                       |
 | --------------------------------------- | ------------------------------------------------------------------ |
-| `references/auth-best-practices.md`     | Auth Best Practices                                                |
+| `../entra-app-registration/references/auth-best-practices.md` | Auth Best Practices                                                |
 | `references/azure-quick-review.md`      | Azure Quick Review                                                 |
 | `references/azure-redis.md`             | Azure Redis                                                        |
 | `references/azure-resource-graph.md`    | Azure Resource Graph                                               |

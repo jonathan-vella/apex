@@ -10,7 +10,7 @@ dotnet add package Azure.Identity
 
 ## Quick Start
 
-> **Auth:** `DefaultAzureCredential` is for local development. See [auth-best-practices.md](../auth-best-practices.md) for production patterns.
+> **Auth:** `DefaultAzureCredential` is for local development. See [auth-best-practices.md](../../../entra-app-registration/references/auth-best-practices.md) for production patterns.
 
 ```csharp
 using Azure.Identity;
@@ -19,7 +19,7 @@ var credential = new DefaultAzureCredential();
 
 ## Best Practices
 
-- Use DefaultAzureCredential for **local development only**. In production, use deterministic credentials (ManagedIdentityCredential) — see [auth-best-practices.md](../auth-best-practices.md)
+- Use DefaultAzureCredential for **local development only**. In production, use deterministic credentials (ManagedIdentityCredential) — see [auth-best-practices.md](../../../entra-app-registration/references/auth-best-practices.md)
 - Reuse credential instances — single instance shared across clients
 - Configure retry policies for credential operations
 - Enable logging with AzureEventSourceListener for debugging auth issues

@@ -2,7 +2,7 @@
 
 ## Node.js
 
-> **Auth:** `DefaultAzureCredential` is for local development. See [auth-best-practices.md](../../auth-best-practices.md) for production patterns.
+> **Auth:** `DefaultAzureCredential` is for local development. See [auth-best-practices.md](../../../../entra-app-registration/references/auth-best-practices.md) for production patterns.
 
 ```javascript
 const { SecretClient } = require("@azure/keyvault-secrets");
@@ -16,7 +16,7 @@ console.log(secret.value);
 
 ## Python
 
-> **Auth:** `DefaultAzureCredential` is for local development. See [auth-best-practices.md](../../auth-best-practices.md) for production patterns.
+> **Auth:** `DefaultAzureCredential` is for local development. See [auth-best-practices.md](../../../../entra-app-registration/references/auth-best-practices.md) for production patterns.
 
 ```python
 from azure.keyvault.secrets import SecretClient
@@ -33,7 +33,7 @@ print(secret.value)
 
 ## .NET
 
-> **Auth:** `DefaultAzureCredential` is for local development. See [auth-best-practices.md](../../auth-best-practices.md) for production patterns.
+> **Auth:** `DefaultAzureCredential` is for local development. See [auth-best-practices.md](../../../../entra-app-registration/references/auth-best-practices.md) for production patterns.
 
 ```csharp
 var client = new SecretClient(

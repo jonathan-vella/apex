@@ -11,7 +11,7 @@ dotnet add package Azure.Identity
 
 ## Quick Start
 
-> **Auth:** `DefaultAzureCredential` is for local development. See [auth-best-practices.md](../auth-best-practices.md) for production patterns.
+> **Auth:** `DefaultAzureCredential` is for local development. See [auth-best-practices.md](../../../entra-app-registration/references/auth-best-practices.md) for production patterns.
 
 ```csharp
 using Azure.ResourceManager;
@@ -23,7 +23,7 @@ var armClient = new ArmClient(new DefaultAzureCredential());
 
 - Use `WaitUntil.Completed` for operations that must finish before proceeding
 - Use `WaitUntil.Started` when you want to poll manually or run operations in parallel
-- Use DefaultAzureCredential for **local development only**. In production, use ManagedIdentityCredential — see [auth-best-practices.md](../auth-best-practices.md)
+- Use DefaultAzureCredential for **local development only**. In production, use ManagedIdentityCredential — see [auth-best-practices.md](../../../entra-app-registration/references/auth-best-practices.md)
 - Handle `RequestFailedException` for ARM API errors
 - Use `CreateOrUpdateAsync` for idempotent operations
 - Navigate hierarchy via `Get*` methods (e.g., `cache.GetRedisFirewallRules()`)
