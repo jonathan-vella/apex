@@ -99,3 +99,6 @@ jobs:
 
       - name: Run apex-recall test suite
         run: npm run test:apex-recall
+
+      - name: Run Python tooling test suite
+        run: npm run test:python-tools

@@ -2,7 +2,7 @@
 """Plan 01 smoke-run verifier — one-shot acceptance check.
 
 Replaces the manual "Capture + verify" step in
-`tests/integration/smoke-run.md` (§4):
+`tools/tests/integration/smoke-run.md` (§4):
 
   1. Pick the OTel log (explicit path, or newest under ``logs/``).
   2. Run the profiler programmatically.
@@ -50,7 +50,7 @@ TARGETS: dict[str, dict[str, Any]] = {
         # Bumped 10 → 20 (2026-05-17): the per-finding decision protocol
         # mandates one askQuestions per challenger finding (no multiSelect
         # batching). Multi-pass review flows legitimately exceed 10 prompts.
-        # Keep in sync with tests/integration/smoke-run.md.
+        # Keep in sync with tools/tests/integration/smoke-run.md.
         "max": 20,
         "label": "askQuestions count (Step 1)",
         "from": "totals.askquestions_count",
