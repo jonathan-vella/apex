@@ -4,7 +4,7 @@
 
 ## Status
 
-**State**: Inventory generated; awaiting human approval
+**State**: Human approval recorded; archive execution in progress
 **Branch**: `chore/whole-repo-retirement-scan-2026-08-27`
 **Baseline commit**: `03bd2348c805dbf6e001a1122438829305bf6e08`
 **Parent branch**: `chore/archive-redundant-content-2026-08-27`
@@ -262,3 +262,6 @@ The baseline census classified every tracked file exactly once. Automated and ad
 retirement-ready files. Exact duplicates remain in the human review queue: archive-only duplicates are recommended for
 retention, while active cross-skill reference duplicates are deferred pending a policy decision on whether portable
 skills may depend on shared references outside their own folders.
+
+On 2026-08-27, Jonathan Vella approved consolidation of every active duplicate group and accepted the cross-skill
+portability trade-off. Frozen archive-only duplicate groups remain retained.

@@ -1,6 +1,6 @@
 # Whole-Repository Retirement Scan
 
-> Baseline: `03bd2348c805dbf6e001a1122438829305bf6e08` | Scan date: 2026-08-27 | Approval: **pending**
+> Baseline: `03bd2348c805dbf6e001a1122438829305bf6e08` | Scan date: 2026-08-27 | Approval: **approved**
 
 ## Summary
 
@@ -60,14 +60,13 @@
 
 ## Approval Gate
 
-Adversarial review found no retirement-ready files. Two exact duplicate groups are confined to frozen archives and
-should remain unchanged. Eight active duplicate groups remain deferred because their files are bundled local resources
-inside portable skills; consolidation requires a human decision on shared cross-skill ownership.
+Adversarial review found two exact duplicate groups confined to frozen archives; they remain unchanged. The human
+reviewer approved consolidation of all active duplicate groups and accepted the cross-skill portability trade-off.
 
-| Recommendation                   | Groups                                 | Next decision                              |
-| -------------------------------- | -------------------------------------- | ------------------------------------------ |
-| Retain frozen archive duplicates | `DUP-0ebe20edc3e9`, `DUP-32786c07c92a` | None                                       |
-| Defer active bundled references  | Remaining exact duplicate groups       | Decide whether skills may share references |
+| Recommendation                   | Groups                                 | Next decision                             |
+| -------------------------------- | -------------------------------------- | ----------------------------------------- |
+| Retain frozen archive duplicates | `DUP-0ebe20edc3e9`, `DUP-32786c07c92a` | None                                      |
+| Consolidate active references    | Remaining exact duplicate groups       | Archive superseded copies after migration |
 
-No item in this report is approved for retirement. A named human must review every queued item and record a
-decision in the JSON inventory before any source consolidation, removal, or archive creation.
+Jonathan Vella approved all active duplicate groups for consolidation on 2026-08-27. Archive-only duplicates remain
+protected and unchanged.

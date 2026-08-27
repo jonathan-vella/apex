@@ -3,7 +3,7 @@
   "scan_date": "2026-08-27",
   "baseline_commit": "03bd2348c805dbf6e001a1122438829305bf6e08",
   "branch": "chore/whole-repo-retirement-scan-2026-08-27",
-  "status": "under_review",
+  "status": "approved",
   "scope": {
     "source": "git ls-files -s -z against baseline_commit",
     "included": ["Every tracked file at baseline_commit"],
@@ -88567,10 +88567,10 @@
     }
   ],
   "approval": {
-    "state": "pending",
+    "state": "approved",
     "human_required": true,
-    "reviewer": null,
-    "reviewed_at": null,
+    "reviewer": "Jonathan Vella",
+    "reviewed_at": "2026-08-27",
     "decisions": [
       {
         "group_id": "DUP-0ebe20edc3e9",
@@ -88584,43 +88584,43 @@
       },
       {
         "group_id": "DUP-b5bc31b1cd6d",
-        "recommendation": "defer",
-        "rationale": "Identical authentication guidance is bundled across active portable skills; consolidation requires a shared-reference portability policy."
+        "recommendation": "approve_consolidation",
+        "rationale": "Use Entra App Registration as canonical owner; the reviewer accepted cross-skill references."
       },
       {
         "group_id": "DUP-00a2ba61e940",
-        "recommendation": "defer",
-        "rationale": "Identical .NET identity guidance is bundled across active portable skills; no cross-skill canonical owner is approved."
+        "recommendation": "approve_consolidation",
+        "rationale": "Use Azure Deploy as canonical identity SDK owner."
       },
       {
         "group_id": "DUP-2e90ee0a6259",
-        "recommendation": "defer",
-        "rationale": "Identical Python identity guidance is bundled across active portable skills; no cross-skill canonical owner is approved."
+        "recommendation": "approve_consolidation",
+        "rationale": "Use Azure Deploy as canonical identity SDK owner."
       },
       {
         "group_id": "DUP-2f4ff35659ca",
-        "recommendation": "defer",
-        "rationale": "Identical Java identity guidance is bundled across active portable skills; no cross-skill canonical owner is approved."
+        "recommendation": "approve_consolidation",
+        "rationale": "Use Azure Deploy as canonical identity SDK owner."
       },
       {
         "group_id": "DUP-8e97d3f6c005",
-        "recommendation": "defer",
-        "rationale": "Identical TypeScript identity guidance is bundled across active portable skills; no cross-skill canonical owner is approved."
+        "recommendation": "approve_consolidation",
+        "rationale": "Use Azure Deploy as canonical identity SDK owner."
       },
       {
         "group_id": "DUP-3282d0330f6f",
-        "recommendation": "defer",
-        "rationale": "Identical Python Key Vault guidance is local to two portable skills; consolidation ownership is unresolved."
+        "recommendation": "approve_consolidation",
+        "rationale": "Use Azure Compliance as canonical Key Vault SDK owner."
       },
       {
         "group_id": "DUP-27161011ddf8",
-        "recommendation": "defer",
-        "rationale": "Identical TypeScript Key Vault guidance is local to two portable skills; consolidation ownership is unresolved."
+        "recommendation": "approve_consolidation",
+        "rationale": "Use Azure Compliance as canonical Key Vault SDK owner."
       },
       {
         "group_id": "DUP-e33ba274dae9",
-        "recommendation": "defer",
-        "rationale": "Identical global rules are bundled by prepare and validate skills; shared ownership and portability must be decided first."
+        "recommendation": "approve_consolidation",
+        "rationale": "Use Azure Prepare as canonical global-rules owner."
       }
     ]
   }
