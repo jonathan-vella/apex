@@ -113,7 +113,7 @@ Load these on demand — do NOT read all at once:
 
 | Reference                                       | When to Load                    |
 | ----------------------------------------------- | ------------------------------- |
-| `references/auth-best-practices.md`             | Auth Best Practices             |
+| `../entra-app-registration/references/auth-best-practices.md` | Auth Best Practices             |
 | `references/azqr-recommendations.md`            | Azqr Recommendations            |
 | `references/azqr-remediation-patterns.md`       | Azqr Remediation Patterns       |
 | `references/azure-keyvault-expiration-audit.md` | Azure Keyvault Expiration Audit |

@@ -31,7 +31,7 @@ var serviceClient = new BlobServiceClientBuilder()
 
 ## Best Practices
 
-- Use DefaultAzureCredential for **local development only** — in production, use ManagedIdentityCredential. See [auth-best-practices.md](../auth-best-practices.md)
+- Use DefaultAzureCredential for **local development only** — in production, use ManagedIdentityCredential. See [auth-best-practices.md](../../../entra-app-registration/references/auth-best-practices.md)
 - Use `BinaryData.fromString()` for string uploads
 - Use `createIfNotExists()` for idempotent container creation
 - Use `BlobParallelUploadOptions` for large file uploads with headers/metadata

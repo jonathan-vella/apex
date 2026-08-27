@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-08-27T14:05:56.736Z",
+  "generatedAt": "2026-08-27T14:22:27.543Z",
   "categories": [
     {
       "id": "agent",
@@ -68,7 +68,7 @@
     }
   ],
   "nodeCount": 166,
-  "edgeCount": 619,
+  "edgeCount": 623,
   "nodes": [
     {
       "id": "agent:01-orchestrator",
@@ -5932,6 +5932,12 @@
       "kind": "refs"
     },
     {
+      "id": "skill:azure-compliance--refs->skill:entra-app-registration",
+      "source": "skill:azure-compliance",
+      "target": "skill:entra-app-registration",
+      "kind": "refs"
+    },
+    {
       "id": "skill:azure-compute--refs->skill:azure-defaults",
       "source": "skill:azure-compute",
       "target": "skill:azure-defaults",
@@ -5962,6 +5968,12 @@
       "kind": "refs"
     },
     {
+      "id": "skill:azure-cost-optimization--refs->skill:entra-app-registration",
+      "source": "skill:azure-cost-optimization",
+      "target": "skill:entra-app-registration",
+      "kind": "refs"
+    },
+    {
       "id": "skill:azure-deploy--refs->skill:azure-prepare",
       "source": "skill:azure-deploy",
       "target": "skill:azure-prepare",
@@ -5971,6 +5983,12 @@
       "id": "skill:azure-deploy--refs->skill:azure-validate",
       "source": "skill:azure-deploy",
       "target": "skill:azure-validate",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:azure-deploy--refs->skill:entra-app-registration",
+      "source": "skill:azure-deploy",
+      "target": "skill:entra-app-registration",
       "kind": "refs"
     },
     {
@@ -6079,6 +6097,12 @@
       "id": "skill:azure-storage--refs->skill:azure-prepare",
       "source": "skill:azure-storage",
       "target": "skill:azure-prepare",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:azure-storage--refs->skill:entra-app-registration",
+      "source": "skill:azure-storage",
+      "target": "skill:entra-app-registration",
       "kind": "refs"
     },
     {

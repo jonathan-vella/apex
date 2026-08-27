@@ -21,7 +21,7 @@ const pool = await sql.connect(config);
 
 ## Python (pyodbc)
 
-> **Auth:** `DefaultAzureCredential` is for local development. See [auth-best-practices.md](../../auth-best-practices.md) for production patterns.
+> **Auth:** `DefaultAzureCredential` is for local development. See [auth-best-practices.md](../../../../entra-app-registration/references/auth-best-practices.md) for production patterns.
 
 ```python
 import pyodbc

@@ -34,7 +34,7 @@ metadata:
 
 1. Run after azure-prepare, before azure-deploy
 2. All checks must pass—do not deploy with failures
-3. ⛔ **Destructive actions require `ask_user`** — [global-rules](references/global-rules.md)
+3. ⛔ **Destructive actions require `ask_user`** — [global-rules](../azure-prepare/references/global-rules.md)
 
 ## Validation Commands (per recipe)
 
@@ -91,7 +91,7 @@ Load these on demand — do NOT read all at once:
 
 | Reference                           | When to Load        |
 | ----------------------------------- | ------------------- |
-| `references/global-rules.md`        | Global Rules        |
+| `../azure-prepare/references/global-rules.md` | Global Rules        |
 | `references/infraops-preflight.md`  | Infraops Preflight  |
 | `references/policy-validation.md`   | Policy Validation   |
 | `references/region-availability.md` | Region Availability |

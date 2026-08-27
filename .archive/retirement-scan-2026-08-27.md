@@ -1,6 +1,6 @@
 # Whole-Repository Retirement Scan
 
-> Baseline: `03bd2348c805dbf6e001a1122438829305bf6e08` | Scan date: 2026-08-27 | Approval: **approved**
+> Baseline: `03bd2348c805dbf6e001a1122438829305bf6e08` | Scan date: 2026-08-27 | Status: **completed**
 
 ## Summary
 
@@ -70,3 +70,9 @@ reviewer approved consolidation of all active duplicate groups and accepted the 
 
 Jonathan Vella approved all active duplicate groups for consolidation on 2026-08-27. Archive-only duplicates remain
 protected and unchanged.
+
+## Execution
+
+Superseded copies were archived in `redundant-content/consolidated-skill-references-2026-08-27.tar.gz`. Canonical
+owners are Entra App Registration for authentication, Azure Deploy for identity SDKs, Azure Compliance for Key Vault
+SDKs, and Azure Prepare for global rules. The checksum is recorded in `redundant-content/CHECKSUMS.sha256`.

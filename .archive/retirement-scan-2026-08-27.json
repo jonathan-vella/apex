@@ -3,7 +3,7 @@
   "scan_date": "2026-08-27",
   "baseline_commit": "03bd2348c805dbf6e001a1122438829305bf6e08",
   "branch": "chore/whole-repo-retirement-scan-2026-08-27",
-  "status": "approved",
+  "status": "completed",
   "scope": {
     "source": "git ls-files -s -z against baseline_commit",
     "included": ["Every tracked file at baseline_commit"],
@@ -88623,5 +88623,36 @@
         "rationale": "Use Azure Prepare as canonical global-rules owner."
       }
     ]
+  },
+  "execution": {
+    "state": "completed",
+    "archive_path": ".archive/redundant-content/consolidated-skill-references-2026-08-27.tar.gz",
+    "source_commit": "0c62be7c",
+    "sha256": "d856c7788c97d957525728b3102c5903c6822a8a2daf27743d73415fb711aa50",
+    "size_bytes": 4973,
+    "members": [
+      ".github/skills/azure-compliance/references/auth-best-practices.md",
+      ".github/skills/azure-cost-optimization/references/auth-best-practices.md",
+      ".github/skills/azure-deploy/references/auth-best-practices.md",
+      ".github/skills/azure-prepare/references/auth-best-practices.md",
+      ".github/skills/azure-storage/references/auth-best-practices.md",
+      ".github/skills/azure-prepare/references/sdk/azure-identity-dotnet.md",
+      ".github/skills/azure-prepare/references/sdk/azure-identity-java.md",
+      ".github/skills/azure-prepare/references/sdk/azure-identity-py.md",
+      ".github/skills/azure-prepare/references/sdk/azure-identity-ts.md",
+      ".github/skills/entra-app-registration/references/sdk/azure-identity-dotnet.md",
+      ".github/skills/entra-app-registration/references/sdk/azure-identity-java.md",
+      ".github/skills/entra-app-registration/references/sdk/azure-identity-py.md",
+      ".github/skills/entra-app-registration/references/sdk/azure-identity-ts.md",
+      ".github/skills/entra-app-registration/references/sdk/azure-keyvault-py.md",
+      ".github/skills/entra-app-registration/references/sdk/azure-keyvault-secrets-ts.md",
+      ".github/skills/azure-validate/references/global-rules.md"
+    ],
+    "canonical_owners": {
+      "authentication": ".github/skills/entra-app-registration/references/auth-best-practices.md",
+      "identity_sdk": ".github/skills/azure-deploy/references/sdk/",
+      "key_vault_sdk": ".github/skills/azure-compliance/references/sdk/",
+      "global_rules": ".github/skills/azure-prepare/references/global-rules.md"
+    }
   }
 }

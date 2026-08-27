@@ -212,6 +212,39 @@
           }
         }
       }
+    },
+    "execution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "archive_path", "source_commit", "sha256", "size_bytes", "members", "canonical_owners"],
+      "properties": {
+        "state": {
+          "enum": ["not_started", "in_progress", "completed"]
+        },
+        "archive_path": {
+          "type": "string"
+        },
+        "source_commit": {
+          "type": "string"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "size_bytes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "members": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "canonical_owners": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
     }
   },
   "$defs": {

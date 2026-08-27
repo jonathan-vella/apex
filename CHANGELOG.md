@@ -22,7 +22,8 @@ for full details on this and all prior releases.
 
 - feat(audit): add a read-only whole-repository retirement scanner that classifies every baseline-tracked file,
   records reachability, ownership, history, duplication, and protected runtime entrypoints, and requires explicit
-  human approval before archival.
+  human approval before archival. The initial scan consolidated approved duplicate authentication, identity, Key Vault,
+  and global-rule references under canonical skill owners and archived the superseded copies with checksums.
 - refactor(tests): consolidate active tooling and fixture coverage under
   `tools/tests/`, remove obsolete root trigger shims and fixtures, and run the
   migrated Node, Python, and SKU contract suites in CI. Deterministic archives

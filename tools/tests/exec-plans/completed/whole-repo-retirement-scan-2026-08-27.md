@@ -4,7 +4,7 @@
 
 ## Status
 
-**State**: Human approval recorded; archive execution in progress
+**State**: Completed
 **Branch**: `chore/whole-repo-retirement-scan-2026-08-27`
 **Baseline commit**: `03bd2348c805dbf6e001a1122438829305bf6e08`
 **Parent branch**: `chore/archive-redundant-content-2026-08-27`
@@ -265,3 +265,6 @@ skills may depend on shared references outside their own folders.
 
 On 2026-08-27, Jonathan Vella approved consolidation of every active duplicate group and accepted the cross-skill
 portability trade-off. Frozen archive-only duplicate groups remain retained.
+
+The approved copies were archived and removed after their consumers were migrated to canonical skill owners. Archive
+checksums, source commit, complete member list, and canonical ownership are recorded in the JSON inventory.
