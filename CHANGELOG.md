@@ -20,6 +20,10 @@ for full details on this and all prior releases.
 
 ### Changed (MCP consolidation)
 
+- refactor(tests): consolidate active tooling and fixture coverage under
+  `tools/tests/`, remove obsolete root trigger shims and fixtures, and run the
+  migrated Node, Python, and SKU contract suites in CI. Deterministic archives
+  retain the retired root-test content and superseded guidance with checksums.
 - refactor(mcp): replace the in-repo Azure Pricing MCP server with Microsoft's
   hosted Azure Resource Manager MCP server. Cost estimation now uses the
   read-only retail pricing and Cost Management tools without compatibility
@@ -160,13 +164,13 @@ for full details on this and all prior releases.
   `terraform validate`; Markdown delegated to the lefthook
   `artifact-validation` hook). The shared agent operating-frame
   instructions reference it so every Step 1–7 agent inherits the rule.
-  Guarded by `tests/scripts/test_post_write_validation.mjs`.
+  Guarded by `tools/tests/scripts/test_post_write_validation.mjs`.
 - feat(scripts): `safe-shell.mjs` linter gains two new rules.
   `command-portability` flags bare `rg` / `fd` / `bat` invocations in
   committed shell snippets unless a `command -v <tool>` guard appears
   in the same fence. `agent-output-no-heredoc` flags heredoc, `tee`,
   `>`, and `>>` writes targeting `agent-output/**`. Fixture-driven
-  tests in `tests/scripts/test_safe_shell.mjs` cover guarded,
+  tests in `tools/tests/scripts/test_safe_shell.mjs` cover guarded,
   unguarded, append-redirect, tee, and indented-heredoc cases.
 - feat(instructions): `no-interactive-shell.instructions.md` gains
   Rule 4 (Command portability). `no-heredoc.instructions.md` gains
@@ -331,7 +335,7 @@ The change is additive. Rollback paths:
 - `tools/scripts/validate_question_batching.py` +
   `npm run validate:question-batching` — Plan 01 Phase 4 P0 directive
   plus 6-question example lint for `02-requirements.agent.md`.
-- `tests/integration/smoke-run.md` — Plan 01 acceptance harness
+- `tools/tests/integration/smoke-run.md` — Plan 01 acceptance harness
   (manual Steps 1 → 2 with `/clear` boundaries, captures askQuestions
   count, challenger invocations, inter-`/clear` chat-span max,
   post-`/clear` first input tokens).

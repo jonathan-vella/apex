@@ -153,12 +153,16 @@ Invoke `challenger-review-subagent` once per ADR with:
 
 - `artifact_type: design-adr`
 - `review_focus: comprehensive`
+- `prior_findings: null`
 - `output_path: agent-output/{project}/challenge-findings-design-adr-<n>.json`
+- `overwrite: false`
 
 Compose prompts with `## Inputs`, `## Activities`, and `## Outputs` per
 [execution-subagent.prompt.md](../../tools/apex-prompts/utility-prompts/execution-subagent.prompt.md).
 Review is informational and does not block Step 3. Log subagent failures through
-`apex-recall finding` and continue.
+`apex-recall finding` and continue. Present the returned summary in at most 15
+lines; explicitly flag findings with `requires_step: step-2` so the user can
+decide whether to reopen architecture.
 
 ## Resume and completion
 

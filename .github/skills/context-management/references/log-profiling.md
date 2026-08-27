@@ -70,12 +70,12 @@ that range, never the canonical `test04-01` outlier alone.
 
 ## Tests
 
-`tests/scripts/test_profile_debug_log.py` runs against a small
-anonymised fixture (`tests/fixtures/otel-log-min.json`). File paths
+`tools/tests/scripts/test_profile_debug_log.py` runs against a small
+anonymised fixture (`tools/tests/fixtures/otel-log-min.json`). File paths
 are replaced with `path/REDACTED`; token counts are preserved.
 
 ```sh
-python3 -m pytest tests/scripts/test_profile_debug_log.py -q
+python3 -m pytest tools/tests/scripts/test_profile_debug_log.py -q
 ```
 
 ## Schema reference

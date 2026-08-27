@@ -1,7 +1,7 @@
 // SKU Manifest validator fixture test.
 //
 // Runs tools/scripts/validate-sku-manifest.mjs against the fixtures under
-// tests/azure-artifacts/sku-manifest/{valid,invalid}/ and asserts the
+// tools/tests/fixtures/sku-manifest/{valid,invalid}/ and asserts the
 // expected pass/fail behaviour. The validator runs in hard-fail mode:
 // valid fixtures must exit 0 with no error lines, invalid fixtures must
 // exit non-zero with at least one ❌ error line.
@@ -15,7 +15,7 @@ import { fileURLToPath } from "node:url";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const VALIDATOR = path.join(ROOT, "tools/scripts/validate-sku-manifest.mjs");
-const FIXTURE_BASE = path.join(ROOT, "tests/azure-artifacts/sku-manifest");
+const FIXTURE_BASE = path.join(ROOT, "tools/tests/fixtures/sku-manifest");
 
 function runValidator(fixturePath) {
   const result = spawnSync("node", [VALIDATOR, fixturePath], {

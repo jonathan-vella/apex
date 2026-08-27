@@ -42,6 +42,7 @@ Updated by the doc-gardening workflow and referenced by `QUALITY_SCORE.md`.
 | 22  | Agents         | e2e-orchestrator 430 lines (>400)            | 2026-04-12 | Limit raised to 500        |
 | 24  | Documentation  | Explorer graph stale (2026-04-22)            | 2026-04-24 | Regenerated                |
 | 25  | Agents         | Governance agent lacks context_awareness     | 2026-04-24 | Block added                |
+| —   | Repository     | Redundant active content archived            | 2026-08-27 | Inventory + checksums      |
 | —   | All            | Tracker created                              | 2026-02-26 | Initial seeding            |
 
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>

@@ -6,7 +6,7 @@ End-to-end testing for the APEX pipeline using the
 ## Directory Structure
 
 ```text
-tests/
+tools/tests/
   e2e-inputs/              # Input fixtures (RFPs, RFQs) consumed by E2E prompts
     contoso-rfq.md         # Contoso Service Hub RFQ — complex scenario
   prompts/                 # E2E evaluation prompt files
@@ -15,6 +15,9 @@ tests/
   exec-plans/              # Execution plans and tech-debt tracking
     active/                # In-progress plans
     completed/             # Finished plans
+  fixtures/                # Validator and tooling regression fixtures
+  python-diagrams/         # Shared diagram helper tests
+  scripts/                 # Node and Python tooling contract tests
   test-hooks.sh            # Agent hooks test script
 ```
 
@@ -41,7 +44,7 @@ npm run e2e:benchmark -- contoso-service-hub-run-1
 Open VS Code Chat (`Ctrl+Shift+I`) and use the E2E prompt:
 
 ```text
-/tests/prompts/e2e-contoso-rfp.prompt.md
+/tools/tests/prompts/e2e-contoso-rfp.prompt.md
 ```
 
 This prompt is test-only and non-interactive:
@@ -119,7 +122,7 @@ npm run e2e:benchmark -- --compare
 After a run completes, analyze the lessons learned:
 
 ```text
-/tests/prompts/e2e-analyze-lessons.prompt.md
+/tools/tests/prompts/e2e-analyze-lessons.prompt.md
 ```
 
 ## RALPH Loop Protocol

@@ -1,0 +1,603 @@
+{
+  "schema_version": "redundancy-inventory-v1",
+  "created_at": "2026-08-27",
+  "status": "completed",
+  "branch": "chore/archive-redundant-content-2026-08-27",
+  "baseline_commit": "0f17fdb859a94bc2402a1aa266dcefec5b02df51",
+  "plan": "tools/tests/exec-plans/completed/repository-content-archive-2026-08-27.md",
+  "scope": {
+    "included": [
+      "Tracked active repository content",
+      "Current uncommitted test-consolidation changes",
+      "Runtime, discovery, CI, documentation, generator, schema, and test dependencies"
+    ],
+    "excluded": [
+      ".git",
+      "Dependency and vendor trees",
+      "Build caches and virtual environments",
+      "Ignored transient output",
+      "Existing frozen .archive payloads except archive index maintenance"
+    ]
+  },
+  "eligibility": {
+    "candidate_evidence": ["automated_finding", "no_live_references", "semantic_duplication", "historical_only"],
+    "required_before_archive": [
+      "Canonical replacement or explicit no-replacement rationale",
+      "Dependency closure",
+      "Focused validation",
+      "Named reviewer approval",
+      "Verified archive membership and checksum"
+    ],
+    "protected_from_reference_count_only": [
+      "Auto-discovered agents, prompts, skills, and instructions",
+      "Schemas and templates",
+      "Fixtures and mocks",
+      "Registries and workflow graphs",
+      "CI and package entrypoints",
+      "Generated sources of truth",
+      "Audit sidecars"
+    ]
+  },
+  "baseline_checks": [
+    {
+      "command": "bash tools/scripts/validate-branch-naming.sh && bash tools/scripts/validate-branch-scope.sh",
+      "result": "pass",
+      "findings": []
+    },
+    {
+      "command": "npm run audit:quarterly",
+      "result": "pass_with_warnings",
+      "findings": [
+        "docs-writer reported textually unreferenced",
+        "terraform-search-import reported textually unreferenced",
+        "terraform-test reported textually unreferenced"
+      ]
+    },
+    {
+      "command": "npm run lint:deprecated-refs",
+      "result": "pass",
+      "findings": []
+    },
+    {
+      "command": "npm run validate:terminology",
+      "result": "pass",
+      "findings": []
+    },
+    {
+      "command": "npm run validate:deprecated-models",
+      "result": "pass",
+      "findings": []
+    },
+    {
+      "command": "npm run validate:skills",
+      "result": "pass_with_warnings",
+      "findings": [
+        ".github/skills/azure-adr/references/step-3-adr-review.md is unreachable",
+        ".github/skills/azure-artifacts/references/cost-estimate-standards.md is unreachable",
+        ".github/skills/docs-writer/references/workload-documentation.md is unreachable",
+        "Several skill descriptions exceed the advisory length recommendation"
+      ]
+    },
+    {
+      "command": "npm run validate:session-state && npm run validate:extension-bloat && npm run validate:vscode",
+      "result": "pass",
+      "findings": []
+    },
+    {
+      "command": "npm run validate:all",
+      "result": "pass",
+      "findings": []
+    }
+  ],
+  "archive_groups": [
+    {
+      "id": "retired-root-tests",
+      "archive_path": ".archive/redundant-content/retired-root-tests-2026-08-27.tar.gz",
+      "source_commit": "0f17fdb859a94bc2402a1aa266dcefec5b02df51",
+      "creation_policy": "sorted members, owner 0, group 0, fixed UTC mtime, repository-relative paths",
+      "sha256": "9686710da254a96c1b1b09879ad2b556e3ddc451bb08e089831be17a188dfdc6",
+      "size_bytes": 12529,
+      "members": [
+        "tests/azure-adr/trigger_tests.yaml",
+        "tests/azure-artifacts/trigger_tests.yaml",
+        "tests/azure-bicep-patterns/trigger_tests.yaml",
+        "tests/azure-cloud-migrate/trigger_tests.yaml",
+        "tests/azure-compliance/trigger_tests.yaml",
+        "tests/azure-compute/trigger_tests.yaml",
+        "tests/azure-cost-optimization/trigger_tests.yaml",
+        "tests/azure-defaults/trigger_tests.yaml",
+        "tests/azure-deploy/trigger_tests.yaml",
+        "tests/azure-diagnostics/trigger_tests.yaml",
+        "tests/azure-governance-discovery/trigger_tests.yaml",
+        "tests/azure-kusto/trigger_tests.yaml",
+        "tests/azure-prepare/trigger_tests.yaml",
+        "tests/azure-quotas/trigger_tests.yaml",
+        "tests/azure-rbac/trigger_tests.yaml",
+        "tests/azure-resources/trigger_tests.yaml",
+        "tests/azure-storage/trigger_tests.yaml",
+        "tests/azure-validate/trigger_tests.yaml",
+        "tests/context-management/trigger_tests.yaml",
+        "tests/cost-estimate-subagent/sku-alias-resolution.test.mjs",
+        "tests/docs-writer/trigger_tests.yaml",
+        "tests/entra-app-registration/trigger_tests.yaml",
+        "tests/fixtures/golden-diffs/BUDGET.md",
+        "tests/fixtures/golden-diffs/OWNERS",
+        "tests/fixtures/hub-spoke-complex/BUDGET.md",
+        "tests/fixtures/hub-spoke-complex/OWNERS",
+        "tests/fixtures/manual-identity/BUDGET.md",
+        "tests/fixtures/manual-identity/OWNERS",
+        "tests/fixtures/minimal-storage-only/BUDGET.md",
+        "tests/fixtures/minimal-storage-only/OWNERS",
+        "tests/github-operations/trigger_tests.yaml",
+        "tests/golden-principles/trigger_tests.yaml",
+        "tests/iac-common/trigger_tests.yaml",
+        "tests/mermaid/trigger_tests.yaml",
+        "tests/microsoft-docs/trigger_tests.yaml",
+        "tests/python-diagrams/trigger_tests.yaml",
+        "tests/terraform-patterns/trigger_tests.yaml",
+        "tests/terraform-search-import/trigger_tests.yaml",
+        "tests/terraform-test/trigger_tests.yaml",
+        "tests/vendor-prompting/trigger_tests.yaml",
+        "tests/workflow-engine/trigger_tests.yaml"
+      ],
+      "status": "verified"
+    },
+    {
+      "id": "superseded-guidance",
+      "archive_path": ".archive/redundant-content/superseded-guidance-2026-08-27.tar.gz",
+      "source_commit": "8d3b2e8f",
+      "creation_policy": "sorted members, owner 0, group 0, fixed UTC mtime, repository-relative paths",
+      "sha256": "cc497a07830047831a5b6d482ee818047107d7669dd8b63bd0bb8636cbfac4e1",
+      "size_bytes": 5305,
+      "members": [
+        ".github/instructions/markdown-docs.instructions.md",
+        ".github/skills/azure-adr/references/step-3-adr-review.md",
+        ".github/skills/azure-artifacts/references/cost-estimate-standards.md",
+        ".github/skills/docs-writer/references/workload-documentation.md"
+      ],
+      "status": "verified"
+    }
+  ],
+  "items": [
+    {
+      "id": "ARC-001",
+      "source_paths": [
+        "tests/azure-adr/trigger_tests.yaml",
+        "tests/azure-artifacts/trigger_tests.yaml",
+        "tests/azure-bicep-patterns/trigger_tests.yaml",
+        "tests/azure-cloud-migrate/trigger_tests.yaml",
+        "tests/azure-compliance/trigger_tests.yaml",
+        "tests/azure-compute/trigger_tests.yaml",
+        "tests/azure-cost-optimization/trigger_tests.yaml",
+        "tests/azure-defaults/trigger_tests.yaml",
+        "tests/azure-deploy/trigger_tests.yaml",
+        "tests/azure-diagnostics/trigger_tests.yaml",
+        "tests/azure-governance-discovery/trigger_tests.yaml",
+        "tests/azure-kusto/trigger_tests.yaml",
+        "tests/azure-prepare/trigger_tests.yaml",
+        "tests/azure-quotas/trigger_tests.yaml",
+        "tests/azure-rbac/trigger_tests.yaml",
+        "tests/azure-resources/trigger_tests.yaml",
+        "tests/azure-storage/trigger_tests.yaml",
+        "tests/azure-validate/trigger_tests.yaml",
+        "tests/context-management/trigger_tests.yaml",
+        "tests/docs-writer/trigger_tests.yaml",
+        "tests/entra-app-registration/trigger_tests.yaml",
+        "tests/github-operations/trigger_tests.yaml",
+        "tests/golden-principles/trigger_tests.yaml",
+        "tests/iac-common/trigger_tests.yaml",
+        "tests/mermaid/trigger_tests.yaml",
+        "tests/microsoft-docs/trigger_tests.yaml",
+        "tests/python-diagrams/trigger_tests.yaml",
+        "tests/terraform-patterns/trigger_tests.yaml",
+        "tests/terraform-search-import/trigger_tests.yaml",
+        "tests/terraform-test/trigger_tests.yaml",
+        "tests/vendor-prompting/trigger_tests.yaml",
+        "tests/workflow-engine/trigger_tests.yaml"
+      ],
+      "category": "historical_only",
+      "evidence_type": ["repository_policy", "no_runtime_entrypoint"],
+      "evidence": [
+        "site/src/content/docs/project/sensei-branch.md classifies trigger_tests.yaml as sensei work-product shims excluded from main-bound changes",
+        "No package or CI test runner consumes these YAML files"
+      ],
+      "live_references": [],
+      "discovery_or_runtime_entrypoint": null,
+      "semantic_overlap_with": [],
+      "canonical_replacement": "Active SKILL.md frontmatter descriptions and repository trigger behavior",
+      "dependency_updates": [],
+      "archive_group": "retired-root-tests",
+      "archive_path": ".archive/redundant-content/retired-root-tests-2026-08-27.tar.gz",
+      "restore_method": "Extract repository-relative members or use git show against baseline_commit",
+      "pre_move_checks": [
+        "Reconstruct all listed members from baseline_commit",
+        "Verify no package, CI, or active documentation consumer"
+      ],
+      "post_move_checks": ["No trigger_tests.yaml remains under active test paths", "Skill validation passes"],
+      "reviewer": null,
+      "verdict": "approved",
+      "rationale": "The files are non-executable audit shims and repository policy excludes them from main-bound work."
+    },
+    {
+      "id": "ARC-002",
+      "source_paths": ["tests/cost-estimate-subagent/sku-alias-resolution.test.mjs"],
+      "category": "superseded_contract",
+      "evidence_type": ["failing_test", "removed_source_contract"],
+      "evidence": [
+        "The test expects a Canonical SKU Aliases section that no longer exists in pricing-guidance.md",
+        "The test was not wired into package scripts or CI before root-test consolidation"
+      ],
+      "live_references": [],
+      "discovery_or_runtime_entrypoint": null,
+      "semantic_overlap_with": [],
+      "canonical_replacement": "Current SKU manifest validation and pricing guidance contracts",
+      "dependency_updates": [],
+      "archive_group": "retired-root-tests",
+      "archive_path": ".archive/redundant-content/retired-root-tests-2026-08-27.tar.gz",
+      "restore_method": "Extract the member or use git show against baseline_commit",
+      "pre_move_checks": [
+        "Confirm the expected documentation section remains absent",
+        "Confirm active SKU validation passes"
+      ],
+      "post_move_checks": ["npm run test:sku-manifest passes", "npm run validate:sku-manifest passes"],
+      "reviewer": null,
+      "verdict": "approved",
+      "rationale": "The test protects a removed prose table rather than the active structured SKU contract."
+    },
+    {
+      "id": "ARC-003",
+      "source_paths": [
+        "tests/fixtures/golden-diffs/BUDGET.md",
+        "tests/fixtures/golden-diffs/OWNERS",
+        "tests/fixtures/hub-spoke-complex/BUDGET.md",
+        "tests/fixtures/hub-spoke-complex/OWNERS",
+        "tests/fixtures/manual-identity/BUDGET.md",
+        "tests/fixtures/manual-identity/OWNERS",
+        "tests/fixtures/minimal-storage-only/BUDGET.md",
+        "tests/fixtures/minimal-storage-only/OWNERS"
+      ],
+      "category": "orphaned_fixture",
+      "evidence_type": ["no_live_references"],
+      "evidence": [
+        "Repository-wide reference search finds only each fixture's own content",
+        "No test, package script, workflow, or documentation consumer reads these scenario directories"
+      ],
+      "live_references": [],
+      "discovery_or_runtime_entrypoint": null,
+      "semantic_overlap_with": [],
+      "canonical_replacement": null,
+      "dependency_updates": [],
+      "archive_group": "retired-root-tests",
+      "archive_path": ".archive/redundant-content/retired-root-tests-2026-08-27.tar.gz",
+      "restore_method": "Extract repository-relative members or use git show against baseline_commit",
+      "pre_move_checks": [
+        "Repeat reference search against tracked active content",
+        "Reconstruct all listed members from baseline_commit"
+      ],
+      "post_move_checks": ["Full test suite passes without these fixtures"],
+      "reviewer": null,
+      "verdict": "approved",
+      "rationale": "These small scenario fixtures have no active or discoverable consumer and are retained only for history."
+    },
+    {
+      "id": "ARC-004",
+      "source_paths": [".github/skills/azure-adr/references/step-3-adr-review.md"],
+      "category": "unreachable_guidance",
+      "evidence_type": ["automated_finding", "no_live_references", "semantic_duplication"],
+      "evidence": [
+        "validate:skills reports the reference as unreachable",
+        "The file claims 04-Design loads it, but no active file references its path",
+        "The active Design agent already implements the design-adr challenger invocation"
+      ],
+      "live_references": [],
+      "discovery_or_runtime_entrypoint": null,
+      "semantic_overlap_with": [
+        ".github/agents/04-design.agent.md",
+        ".github/skills/workflow-engine/templates/workflow-graph.json"
+      ],
+      "canonical_replacement": ".github/agents/04-design.agent.md and workflow graph design-adr policy",
+      "dependency_updates": ["Copy only unique trigger or presentation details into the active owner if absent"],
+      "archive_group": "superseded-guidance",
+      "archive_path": ".archive/redundant-content/superseded-guidance-2026-08-27.tar.gz",
+      "restore_method": "Extract the member or use git show against the archive source commit",
+      "pre_move_checks": ["Side-by-side compare review trigger, invocation fields, and presentation behavior"],
+      "post_move_checks": ["npm run validate:agents passes", "npm run validate:skills no longer reports this orphan"],
+      "reviewer": null,
+      "verdict": "approved",
+      "rationale": "The reference is unreachable and overlaps the active owner; unique behavior must be consolidated first."
+    },
+    {
+      "id": "ARC-005",
+      "source_paths": [".github/skills/azure-artifacts/references/cost-estimate-standards.md"],
+      "category": "unreachable_guidance",
+      "evidence_type": ["automated_finding", "no_live_references", "semantic_duplication"],
+      "evidence": [
+        "validate:skills reports the reference as unreachable",
+        "Canonical cost templates and cost-estimate-sections.md already own the active structure",
+        "Only cost-estimate-sections.md mentions this filename, without a runtime load path"
+      ],
+      "live_references": [".github/skills/azure-artifacts/references/cost-estimate-sections.md"],
+      "discovery_or_runtime_entrypoint": null,
+      "semantic_overlap_with": [
+        ".github/skills/azure-artifacts/references/cost-estimate-sections.md",
+        ".github/skills/azure-artifacts/templates/03-des-cost-estimate.template.md",
+        ".github/skills/azure-artifacts/templates/07-ab-cost-estimate.template.md"
+      ],
+      "canonical_replacement": "Canonical Azure Artifacts cost templates and indexed cost-estimate-sections.md",
+      "dependency_updates": [
+        "Remove or rewrite the filename mention in cost-estimate-sections.md",
+        "Copy unique requirements into an indexed canonical owner before archival"
+      ],
+      "archive_group": "superseded-guidance",
+      "archive_path": ".archive/redundant-content/superseded-guidance-2026-08-27.tar.gz",
+      "restore_method": "Extract the member or use git show against the archive source commit",
+      "pre_move_checks": [
+        "Compare every requirement against both canonical cost templates and cost-estimate-sections.md"
+      ],
+      "post_move_checks": [
+        "npm run validate:artifacts passes",
+        "npm run validate:skills no longer reports this orphan"
+      ],
+      "reviewer": null,
+      "verdict": "approved",
+      "rationale": "The reference is unreachable and splits ownership of the cost-document contract."
+    },
+    {
+      "id": "ARC-006",
+      "source_paths": [".github/skills/docs-writer/references/workload-documentation.md"],
+      "category": "unreachable_guidance",
+      "evidence_type": ["automated_finding", "no_live_references", "semantic_duplication"],
+      "evidence": [
+        "validate:skills reports the reference as unreachable",
+        "The file is absent from the docs-writer Reference Index",
+        "Step 7 templates and Azure Artifacts guidance own the active workload-documentation contract"
+      ],
+      "live_references": [],
+      "discovery_or_runtime_entrypoint": null,
+      "semantic_overlap_with": [
+        ".github/skills/docs-writer/references/doc-standards.md",
+        ".github/skills/docs-writer/references/extended-workflows.md",
+        ".github/skills/azure-artifacts/references/07-docs-template.md",
+        ".github/skills/azure-artifacts/templates/07-documentation-index.template.md"
+      ],
+      "canonical_replacement": "Indexed docs-writer standards and Azure Artifacts Step 7 templates",
+      "dependency_updates": [
+        "Copy unique source-mapping or operational guidance into the appropriate indexed owner before archival"
+      ],
+      "archive_group": "superseded-guidance",
+      "archive_path": ".archive/redundant-content/superseded-guidance-2026-08-27.tar.gz",
+      "restore_method": "Extract the member or use git show against the archive source commit",
+      "pre_move_checks": ["Compare source mappings and output contracts against active Step 7 templates"],
+      "post_move_checks": ["npm run validate:skills no longer reports this orphan", "Documentation validation passes"],
+      "reviewer": null,
+      "verdict": "approved",
+      "rationale": "The reference is unreachable and duplicates active Step 7 documentation ownership."
+    },
+    {
+      "id": "ARC-007",
+      "source_paths": [".github/instructions/markdown-docs.instructions.md"],
+      "category": "superseded_configuration_snapshot",
+      "evidence_type": ["no_live_matches"],
+      "evidence": [
+        "The applyTo branch docs/**/*.md matches no tracked files",
+        "The active documentation tree is site/src/content/docs"
+      ],
+      "live_references": [],
+      "discovery_or_runtime_entrypoint": "Copilot instruction auto-application for matching paths",
+      "semantic_overlap_with": [],
+      "canonical_replacement": ".github/instructions/markdown-docs.instructions.md with the dead glob branch removed",
+      "dependency_updates": ["Archive the pre-edit file snapshot before narrowing applyTo"],
+      "archive_group": "superseded-guidance",
+      "archive_path": ".archive/redundant-content/superseded-guidance-2026-08-27.tar.gz",
+      "restore_method": "Extract the pre-edit snapshot or use git show against the archive source commit",
+      "pre_move_checks": ["Confirm no tracked docs/**/*.md exists"],
+      "post_move_checks": ["npm run lint:glob-audit passes", "Site documentation remains covered by applyTo"],
+      "reviewer": null,
+      "verdict": "approved",
+      "rationale": "Only the prior configuration snapshot is archived; the active instruction remains with a narrower live glob."
+    },
+    {
+      "id": "RET-001",
+      "source_paths": [
+        "tests/azure-artifacts/sku-manifest",
+        "tests/fixtures/otel-log-min.json",
+        "tests/integration/smoke-run.md",
+        "tests/python-diagrams/test_diagram_io.py",
+        "tests/scripts"
+      ],
+      "category": "active_test_coverage",
+      "evidence_type": ["runtime_entrypoint", "passing_tests"],
+      "evidence": [
+        "Useful coverage is migrated to tools/tests and wired into package validation and CI",
+        "Node tooling contracts, Python tooling, and SKU fixture tests pass"
+      ],
+      "live_references": ["package.json", ".github/workflows/ci.yml", "tools/tests/validate-sku-manifest.test.mjs"],
+      "discovery_or_runtime_entrypoint": "npm test scripts and CI",
+      "semantic_overlap_with": [],
+      "canonical_replacement": "tools/tests",
+      "dependency_updates": ["Keep current migration and path corrections"],
+      "archive_group": null,
+      "archive_path": null,
+      "restore_method": "Not applicable; active content retained at canonical destination",
+      "pre_move_checks": [],
+      "post_move_checks": [
+        "npm run test:tool-contracts passes",
+        "npm run test:python-tools passes",
+        "npm run test:sku-manifest passes"
+      ],
+      "reviewer": null,
+      "verdict": "retain",
+      "rationale": "This content is active regression coverage, not redundant historical content."
+    },
+    {
+      "id": "RET-002",
+      "source_paths": [
+        ".github/skills/docs-writer",
+        ".github/skills/terraform-search-import",
+        ".github/skills/terraform-test"
+      ],
+      "category": "auto_discovered_entrypoint",
+      "evidence_type": ["runtime_discovery"],
+      "evidence": [
+        "Each SKILL.md description is a user-triggered discovery entrypoint",
+        "The skills provide distinct documentation, Terraform import, and Terraform test workflows"
+      ],
+      "live_references": ["VS Code Copilot skill discovery"],
+      "discovery_or_runtime_entrypoint": "SKILL.md frontmatter name and description",
+      "semantic_overlap_with": [],
+      "canonical_replacement": null,
+      "dependency_updates": [],
+      "archive_group": null,
+      "archive_path": null,
+      "restore_method": "Not applicable",
+      "pre_move_checks": [],
+      "post_move_checks": [],
+      "reviewer": null,
+      "verdict": "retain",
+      "rationale": "Textual reference warnings do not account for runtime skill discovery."
+    },
+    {
+      "id": "RET-003",
+      "source_paths": ["tools/scripts/check-h2-order.mjs"],
+      "category": "targeted_cli",
+      "evidence_type": ["distinct_behavior"],
+      "evidence": [
+        "The script accepts one artifact path or project and filename",
+        "validate-artifacts.mjs runs repository-wide checks and has no equivalent targeted validation mode"
+      ],
+      "live_references": ["package.json", ".github/skills/azure-artifacts/SKILL.md"],
+      "discovery_or_runtime_entrypoint": "npm run check:h2-order and direct CLI",
+      "semantic_overlap_with": ["tools/scripts/validate-artifacts.mjs"],
+      "canonical_replacement": null,
+      "dependency_updates": [],
+      "archive_group": null,
+      "archive_path": null,
+      "restore_method": "Not applicable",
+      "pre_move_checks": [],
+      "post_move_checks": [],
+      "reviewer": null,
+      "verdict": "retain",
+      "rationale": "Shared internals do not make the wrapper redundant because its targeted CLI contract is unique."
+    },
+    {
+      "id": "RET-004",
+      "source_paths": [
+        "tools/tests/scripts/test_challenge_findings_decisions_schema.mjs",
+        "tools/tests/scripts/test_deployment_preview_schema.mjs",
+        "tools/tests/scripts/test_post_write_validation.mjs"
+      ],
+      "category": "independent_test_contracts",
+      "evidence_type": ["distinct_behavior", "runtime_entrypoint"],
+      "evidence": [
+        "The tests cover different schemas and post-write policy behavior",
+        "All run through test:tool-contracts in CI"
+      ],
+      "live_references": ["package.json test:tool-contracts", ".github/workflows/ci.yml"],
+      "discovery_or_runtime_entrypoint": "Node test glob tools/tests/scripts/*.mjs",
+      "semantic_overlap_with": [],
+      "canonical_replacement": null,
+      "dependency_updates": [],
+      "archive_group": null,
+      "archive_path": null,
+      "restore_method": "Not applicable",
+      "pre_move_checks": [],
+      "post_move_checks": [],
+      "reviewer": null,
+      "verdict": "retain",
+      "rationale": "File-level consolidation would not remove duplicated behavior and would weaken test ownership."
+    },
+    {
+      "id": "RET-005",
+      "source_paths": [
+        "tools/registry",
+        "site/public/architecture-explorer-graph.json",
+        "site/public/architecture-explorer.html",
+        "freshness-report.json"
+      ],
+      "category": "generated_or_canonical_data",
+      "evidence_type": ["generator_consumer_trace"],
+      "evidence": [
+        "Registries and reports are validated or generated by repository tooling",
+        "Explorer assets are consumed by the published site and its build"
+      ],
+      "live_references": ["Repository validators", "Site build", "Weekly maintenance"],
+      "discovery_or_runtime_entrypoint": "Generators, validators, and site runtime",
+      "semantic_overlap_with": [],
+      "canonical_replacement": null,
+      "dependency_updates": [],
+      "archive_group": null,
+      "archive_path": null,
+      "restore_method": "Regenerate through owning commands where applicable",
+      "pre_move_checks": [],
+      "post_move_checks": [],
+      "reviewer": null,
+      "verdict": "retain",
+      "rationale": "These files are active outputs or sources of truth, not redundant copies."
+    },
+    {
+      "id": "RET-006",
+      "source_paths": [".archive/_archived_skills", ".archive/legacy-assets", ".archive/test-fixtures"],
+      "category": "existing_archive",
+      "evidence_type": ["already_archived"],
+      "evidence": ["Content is already outside active discovery and validation paths"],
+      "live_references": [".archive/README.md"],
+      "discovery_or_runtime_entrypoint": null,
+      "semantic_overlap_with": [],
+      "canonical_replacement": null,
+      "dependency_updates": ["Index loose archived skills without modifying their frozen payloads"],
+      "archive_group": null,
+      "archive_path": null,
+      "restore_method": "Existing archive-specific instructions",
+      "pre_move_checks": [],
+      "post_move_checks": [],
+      "reviewer": null,
+      "verdict": "retain",
+      "rationale": "Repackaging frozen archives would add churn without reducing active repository content."
+    },
+    {
+      "id": "RET-007",
+      "source_paths": ["site/public/downloads/bmit-2026.zip", "site/src/content/docs/reference/resources.md"],
+      "category": "intentional_distribution_artifact",
+      "evidence_type": ["published_consumer", "historical_demo_scope"],
+      "evidence": [
+        "The Resources page explicitly offers the ZIP as the complete Perspectives 2026 demo workspace",
+        "The bundle is session-specific rather than a current APEX release package"
+      ],
+      "live_references": ["site/src/content/docs/reference/resources.md"],
+      "discovery_or_runtime_entrypoint": "Published /downloads/bmit-2026.zip link",
+      "semantic_overlap_with": ["Current repository content"],
+      "canonical_replacement": null,
+      "dependency_updates": [],
+      "archive_group": null,
+      "archive_path": null,
+      "restore_method": "Not applicable",
+      "pre_move_checks": [],
+      "post_move_checks": [],
+      "reviewer": null,
+      "verdict": "retain",
+      "rationale": "The snapshot is the downloadable subject of a historical demo and remains an active site resource."
+    }
+  ],
+  "approval": {
+    "state": "approved",
+    "reviewer": "GitHub Copilot (delegated autonomous decision)",
+    "reviewed_at": "2026-08-27",
+    "approved_item_ids": ["ARC-001", "ARC-002", "ARC-003", "ARC-004", "ARC-005", "ARC-006", "ARC-007"],
+    "notes": "The user was unavailable and explicitly delegated autonomous execution."
+  },
+  "completion": {
+    "state": "completed",
+    "completed_at": "2026-08-27",
+    "implementation_commits": ["a40da469", "8ea00ac2"],
+    "archive_checksums_file": ".archive/redundant-content/CHECKSUMS.sha256",
+    "deferred_item_ids": [],
+    "validation_adjustments": [
+      {
+        "path": "package.json",
+        "change": "Exclude .archive/_archived_skills/** from lint:links",
+        "rationale": "Frozen retired skill snapshots are not maintained content; .archive/README.md remains checked."
+      }
+    ],
+    "notes": "All approved candidates were archived or consolidated, and all retain decisions remained active."
+  }
+}
