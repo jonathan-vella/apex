@@ -36,17 +36,17 @@ reproducibility take precedence.
 
 The baseline was captured after branch creation and before this document was written.
 
-| Check | Result | Evidence |
-| --- | --- | --- |
-| Branch naming and scope | Pass | Cross-cutting `chore/` branch; no path restriction |
-| Quarterly audit | Pass with warnings | Unreferenced-skill warnings require auto-discovery review |
-| Deprecated references | Pass | No active deprecated path references |
-| Terminology | Pass | No deprecated terminology findings |
-| Deprecated models | Pass | No deprecated model assignments |
-| Skill validation | Pass with warnings | Orphaned references and advisory description length findings |
-| Session-state validation | Pass | Template conforms to current schema |
-| Extension and VS Code checks | Pass | No duplicate or denied extension configuration |
-| Full validation | Pass | Repository validation completed before inventory authoring |
+| Check                        | Result             | Evidence                                                     |
+| ---------------------------- | ------------------ | ------------------------------------------------------------ |
+| Branch naming and scope      | Pass               | Cross-cutting `chore/` branch; no path restriction           |
+| Quarterly audit              | Pass with warnings | Unreferenced-skill warnings require auto-discovery review    |
+| Deprecated references        | Pass               | No active deprecated path references                         |
+| Terminology                  | Pass               | No deprecated terminology findings                           |
+| Deprecated models            | Pass               | No deprecated model assignments                              |
+| Skill validation             | Pass with warnings | Orphaned references and advisory description length findings |
+| Session-state validation     | Pass               | Template conforms to current schema                          |
+| Extension and VS Code checks | Pass               | No duplicate or denied extension configuration               |
+| Full validation              | Pass               | Repository validation completed before inventory authoring   |
 
 The unreferenced-skill warnings for `docs-writer`, `terraform-search-import`, and `terraform-test` are false positives:
 these skills are auto-discovered from `SKILL.md` frontmatter and expose distinct user-triggered workflows. They are
@@ -70,21 +70,21 @@ sources of truth, and audit sidecars cannot qualify from text-reference counts a
 
 The JSON inventory is authoritative for exact source paths and dependencies.
 
-| ID | Proposed action | Archive group | Summary |
-| --- | --- | --- | --- |
-| ARC-001 | Archive | `retired-root-tests` | Sensei trigger vectors excluded from main-bound work |
-| ARC-002 | Archive | `retired-root-tests` | SKU alias test for a removed documentation contract |
-| ARC-003 | Archive | `retired-root-tests` | Unreferenced scenario fixtures with no active consumer |
-| ARC-004 | Consolidate then archive | `superseded-guidance` | Unreachable Step 3 ADR review reference |
-| ARC-005 | Consolidate then archive | `superseded-guidance` | Unreachable cost-estimate standards reference |
-| ARC-006 | Consolidate then archive | `superseded-guidance` | Unreachable workload-documentation reference |
-| ARC-007 | Edit and archive prior version | `superseded-guidance` | Dead `docs/**/*.md` glob segment |
-| RET-001 | Retain | None | Useful root tests and fixtures already migrated to `tools/tests` |
-| RET-002 | Retain | None | Auto-discovered skills reported as textually unreferenced |
-| RET-003 | Retain | None | Targeted H2 checker with a unique single-artifact CLI |
-| RET-004 | Retain | None | Independent contract tests that cover distinct behavior |
-| RET-005 | Retain | None | Generated registries and explorer assets with active consumers |
-| RET-006 | Retain | None | Existing frozen archive payloads |
+| ID      | Proposed action                | Archive group         | Summary                                                          |
+| ------- | ------------------------------ | --------------------- | ---------------------------------------------------------------- |
+| ARC-001 | Archive                        | `retired-root-tests`  | Sensei trigger vectors excluded from main-bound work             |
+| ARC-002 | Archive                        | `retired-root-tests`  | SKU alias test for a removed documentation contract              |
+| ARC-003 | Archive                        | `retired-root-tests`  | Unreferenced scenario fixtures with no active consumer           |
+| ARC-004 | Consolidate then archive       | `superseded-guidance` | Unreachable Step 3 ADR review reference                          |
+| ARC-005 | Consolidate then archive       | `superseded-guidance` | Unreachable cost-estimate standards reference                    |
+| ARC-006 | Consolidate then archive       | `superseded-guidance` | Unreachable workload-documentation reference                     |
+| ARC-007 | Edit and archive prior version | `superseded-guidance` | Dead `docs/**/*.md` glob segment                                 |
+| RET-001 | Retain                         | None                  | Useful root tests and fixtures already migrated to `tools/tests` |
+| RET-002 | Retain                         | None                  | Auto-discovered skills reported as textually unreferenced        |
+| RET-003 | Retain                         | None                  | Targeted H2 checker with a unique single-artifact CLI            |
+| RET-004 | Retain                         | None                  | Independent contract tests that cover distinct behavior          |
+| RET-005 | Retain                         | None                  | Generated registries and explorer assets with active consumers   |
+| RET-006 | Retain                         | None                  | Existing frozen archive payloads                                 |
 
 ## Archive Layout
 

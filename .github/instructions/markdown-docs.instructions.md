@@ -1,6 +1,6 @@
 ---
 description: "Documentation site and human-authored markdown style guidance — visual styling, template H2 enforcement, audience-specific rules. Pairs with the broader markdown.instructions.md."
-applyTo: "site/src/content/docs/**/*.{md,mdx}, docs/**/*.md"
+applyTo: "site/src/content/docs/**/*.{md,mdx}"
 ---
 
 # Markdown — Documentation Site Standards
