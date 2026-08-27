@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-08-27T10:42:15.432Z",
+  "generatedAt": "2026-08-27T13:25:24.515Z",
   "categories": [
     {
       "id": "agent",
@@ -48,7 +48,7 @@
       "label": "Validator",
       "color": "#8b5cf6",
       "shape": "hexagon",
-      "count": 60
+      "count": 63
     },
     {
       "id": "workflow",
@@ -67,8 +67,8 @@
       "count": 3
     }
   ],
-  "nodeCount": 161,
-  "edgeCount": 618,
+  "nodeCount": 164,
+  "edgeCount": 619,
   "nodes": [
     {
       "id": "agent:01-orchestrator",
@@ -1248,7 +1248,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/instructions/markdown-docs.instructions.md"
       },
       "meta": {
-        "applyTo": "site/src/content/docs/**/*.{md,mdx}, docs/**/*.md"
+        "applyTo": "site/src/content/docs/**/*.{md,mdx}"
       }
     },
     {
@@ -2105,6 +2105,36 @@
       "parent": "group:validator-orphans"
     },
     {
+      "id": "validator:test-tool-contracts",
+      "category": "validator",
+      "label": "test:tool-contracts",
+      "description": "node --test tools/tests/scripts/*.mjs",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
+      },
+      "meta": {
+        "command": "node --test tools/tests/scripts/*.mjs",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
+    },
+    {
+      "id": "validator:test-sku-manifest",
+      "category": "validator",
+      "label": "test:sku-manifest",
+      "description": "node --test tools/tests/validate-sku-manifest.test.mjs",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
+      },
+      "meta": {
+        "command": "node --test tools/tests/validate-sku-manifest.test.mjs",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
+    },
+    {
       "id": "validator:lint-safe-shell",
       "category": "validator",
       "label": "lint:safe-shell",
@@ -2210,6 +2240,19 @@
       },
       "meta": {
         "command": "python3 -m pytest tools/tests/test_apex_recall/ -q"
+      }
+    },
+    {
+      "id": "validator:test-python-tools",
+      "category": "validator",
+      "label": "test:python-tools",
+      "description": "python3 -m pytest tools/tests/scripts tools/tests/python-diagrams -q",
+      "path": "package.json",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
+      },
+      "meta": {
+        "command": "python3 -m pytest tools/tests/scripts tools/tests/python-diagrams -q"
       }
     },
     {
@@ -2437,11 +2480,11 @@
     {
       "id": "group:validator-orphans",
       "category": "validator",
-      "label": "Validator (unlinked, 47)",
-      "description": "47 validator nodes with no cross-references in the current graph.",
+      "label": "Validator (unlinked, 49)",
+      "description": "49 validator nodes with no cross-references in the current graph.",
       "isGroup": true,
       "meta": {
-        "groupSize": 47
+        "groupSize": 49
       }
     },
     {
@@ -5472,6 +5515,12 @@
       "id": "workflow:ci--runs->validator:test-apex-recall",
       "source": "workflow:ci",
       "target": "validator:test-apex-recall",
+      "kind": "runs"
+    },
+    {
+      "id": "workflow:ci--runs->validator:test-python-tools",
+      "source": "workflow:ci",
+      "target": "validator:test-python-tools",
       "kind": "runs"
     },
     {

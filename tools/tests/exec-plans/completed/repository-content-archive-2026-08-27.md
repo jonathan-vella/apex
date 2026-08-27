@@ -4,7 +4,7 @@
 
 ## Status
 
-**State**: Approved; implementation in progress
+**State**: Completed
 **Branch**: `chore/archive-redundant-content-2026-08-27`
 **Baseline commit**: `0f17fdb859a94bc2402a1aa266dcefec5b02df51`
 **Created**: 2026-08-27
@@ -177,3 +177,9 @@ The user delegated autonomous execution while unavailable. GitHub Copilot approv
 
 Approval authorizes only entries whose inventory verdict changes from `proposed` to `approved`. Entries marked `retain`
 or `defer` remain untouched. Any new candidate requires an inventory revision and renewed approval before archival.
+
+## Completion
+
+All approved candidates were implemented on 2026-08-27. Both deterministic archives pass checksum and byte-for-byte
+rebuild verification. Active dependency searches are clean, retained tests pass, orphaned skill-reference warnings are
+resolved, and the architecture explorer was regenerated through its owning command.

@@ -1,10 +1,10 @@
 {
   "schema_version": "redundancy-inventory-v1",
   "created_at": "2026-08-27",
-  "status": "implementation_in_progress",
+  "status": "completed",
   "branch": "chore/archive-redundant-content-2026-08-27",
   "baseline_commit": "0f17fdb859a94bc2402a1aa266dcefec5b02df51",
-  "plan": "tools/tests/exec-plans/active/repository-content-archive-2026-08-27.md",
+  "plan": "tools/tests/exec-plans/completed/repository-content-archive-2026-08-27.md",
   "scope": {
     "included": [
       "Tracked active repository content",
@@ -584,5 +584,20 @@
     "reviewed_at": "2026-08-27",
     "approved_item_ids": ["ARC-001", "ARC-002", "ARC-003", "ARC-004", "ARC-005", "ARC-006", "ARC-007"],
     "notes": "The user was unavailable and explicitly delegated autonomous execution."
+  },
+  "completion": {
+    "state": "completed",
+    "completed_at": "2026-08-27",
+    "implementation_commits": ["a40da469", "8ea00ac2"],
+    "archive_checksums_file": ".archive/redundant-content/CHECKSUMS.sha256",
+    "deferred_item_ids": [],
+    "validation_adjustments": [
+      {
+        "path": "package.json",
+        "change": "Exclude .archive/_archived_skills/** from lint:links",
+        "rationale": "Frozen retired skill snapshots are not maintained content; .archive/README.md remains checked."
+      }
+    ],
+    "notes": "All approved candidates were archived or consolidated, and all retain decisions remained active."
   }
 }
