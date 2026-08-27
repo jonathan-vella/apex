@@ -4,7 +4,7 @@
 
 ## Status
 
-**State**: Active, documentation checkpoint
+**State**: Inventory generated; awaiting human approval
 **Branch**: `chore/whole-repo-retirement-scan-2026-08-27`
 **Baseline commit**: `03bd2348c805dbf6e001a1122438829305bf6e08`
 **Parent branch**: `chore/archive-redundant-content-2026-08-27`
@@ -255,3 +255,10 @@ framework. Any later archive execution must remain independently revertible by d
 - All candidate and defer findings complete adversarial review.
 - The report clearly separates protected, retained, candidate, and deferred content.
 - The branch stops at explicit human approval with no unapproved retirement actions.
+
+## Scan Result
+
+The baseline census classified every tracked file exactly once. Automated and adversarial review found no
+retirement-ready files. Exact duplicates remain in the human review queue: archive-only duplicates are recommended for
+retention, while active cross-skill reference duplicates are deferred pending a policy decision on whether portable
+skills may depend on shared references outside their own folders.

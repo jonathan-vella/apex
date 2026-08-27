@@ -10,6 +10,7 @@ Updated by the doc-gardening workflow and referenced by `QUALITY_SCORE.md`.
 
 | ID  | Domain        | Description                                                                             | Priority | Owner | Milestone  |
 | --- | ------------- | --------------------------------------------------------------------------------------- | -------- | ----- | ---------- |
+| —   | Repository    | Classify every tracked file for retirement eligibility                                  | High     | —     | 2026-08-27 |
 | 23  | Agents/Skills | E2E RALPH loop lessons: 7 fixes + 2 validators applied; see `10-improvement-actions.md` | Low      | —     | Monitoring |
 
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>

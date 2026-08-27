@@ -20,6 +20,9 @@ for full details on this and all prior releases.
 
 ### Changed (MCP consolidation)
 
+- feat(audit): add a read-only whole-repository retirement scanner that classifies every baseline-tracked file,
+  records reachability, ownership, history, duplication, and protected runtime entrypoints, and requires explicit
+  human approval before archival.
 - refactor(tests): consolidate active tooling and fixture coverage under
   `tools/tests/`, remove obsolete root trigger shims and fixtures, and run the
   migrated Node, Python, and SKU contract suites in CI. Deterministic archives
