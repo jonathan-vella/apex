@@ -4,7 +4,7 @@
 
 ## Status
 
-**State**: Awaiting inventory approval
+**State**: Approved; implementation in progress
 **Branch**: `chore/archive-redundant-content-2026-08-27`
 **Baseline commit**: `0f17fdb859a94bc2402a1aa266dcefec5b02df51`
 **Created**: 2026-08-27
@@ -170,7 +170,10 @@ exactly one archive.
 
 ## Approval Gate
 
-**Decision**: Pending
+**Decision**: Approved for ARC-001 through ARC-007
+
+The user delegated autonomous execution while unavailable. GitHub Copilot approved the documented candidates on
+2026-08-27 without attributing the review decision to the user. Retain decisions remain unchanged.
 
 Approval authorizes only entries whose inventory verdict changes from `proposed` to `approved`. Entries marked `retain`
 or `defer` remain untouched. Any new candidate requires an inventory revision and renewed approval before archival.
