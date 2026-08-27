@@ -157,8 +157,20 @@ check_bicep_compile() {
         "metadata description = 'APEX dev container validation'" \
         "param name string = 'smoke'" \
         "output result string = name" > "$source_file"
-    az bicep build --file "$source_file" --outfile "$output_file"
+    if command -v bicep >/dev/null 2>&1; then
+        bicep build "$source_file" --outfile "$output_file"
+    else
+        az bicep build --file "$source_file" --outfile "$output_file"
+    fi
     [[ -s "$output_file" ]]
+}
+
+check_bicep_cli() {
+    if command -v bicep >/dev/null 2>&1; then
+        bicep --version
+    else
+        az bicep version
+    fi
 }
 
 check_terraform_validate() {
@@ -214,14 +226,14 @@ run_check "test-dependency-setup" "network" prepare_test_dependencies
 
 # Tool availability and basic execution.
 run_check "azure-cli" "compatibility" az version --output json
-run_check "bicep-cli" "compatibility" az bicep version
+run_check "bicep-cli" "compatibility" check_bicep_cli
 run_check "powershell" "compatibility" pwsh --version
 run_check "python-3.14" "compatibility" python3 -c \
     'import sys; assert sys.version_info[:2] == (3, 14), sys.version'
 run_check "node" "compatibility" node --version
 run_check "github-cli" "compatibility" gh --version
 run_check "uv" "compatibility" uv --version
-run_check "markdownlint-cli2" "compatibility" markdownlint-cli2 --version
+run_check "markdownlint-cli2" "compatibility" npx --no-install markdownlint-cli2 --version
 run_check "graphviz" "compatibility" dot -V
 run_check "dos2unix" "compatibility" dos2unix --version
 run_check "gitleaks" "compatibility" gitleaks version
