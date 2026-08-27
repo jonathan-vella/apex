@@ -149,7 +149,7 @@ All scripts are in the `tools/scripts/` directory. Run via `npm run <command>`.
 
 | npm Command          | Purpose                                       |
 | -------------------- | --------------------------------------------- |
-| `validate:all`       | Run cached Node and external validators          |
+| `validate:all`       | Run cache-aware Node validators plus external validators |
 | `validate:_node`     | Node validators in one cache-sharing process; bounded children for Python, ESLint, and tests |
 | `validate:_external` | All external tool validators in parallel      |
 | `validate:agents`    | Agent frontmatter, body, model alignment      |
