@@ -64,9 +64,8 @@ curl -sf https://registry.terraform.io/v1/modules/Azure/avm-res-{path}/azurerm/v
   | jq -r '.modules[0].versions[0].version'
 ```
 
-Stale pins require a `pin_policy.mode = "exception"` block in
-`04-iac-contract.json` (rationale + evidence + future `review_after`).
-Enforced by `npm run validate:avm-versions:freeze` at Step 4 freeze gate.
+The shared stale-pin exception and freeze policy lives in
+[`azure-defaults`](../skills/azure-defaults/SKILL.md).
 
 > Provider-version pins (`azurerm`) are different — those use `~> 4.0`
 > minor-version constraints to allow patch upgrades. The exact-semver
@@ -106,7 +105,6 @@ lower+numeric), generated once, passed everywhere.
 | Raw `azurerm_*` when AVM exists | Use AVM-TF modules or get approval |
 | `connection_string` auth        | Use managed identity RBAC          |
 | AVM-TF `version = "~> X.Y"`     | Use exact semver `version = "X.Y.Z"` — resolved live from `registry.terraform.io` at plan time |
-| Stale AVM-TF module pin         | Add `pin_policy.mode = "exception"` in `04-iac-contract.json` with rationale + evidence + `review_after` |
 
 ## Validation
 

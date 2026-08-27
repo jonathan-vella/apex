@@ -52,7 +52,7 @@ Verify ALL items before marking Step 5 complete.
 ## Deployment Artifacts
 
 - [ ] `azure.yaml` generated (primary); `deploy.ps1` generated (deprecated fallback); `05-implementation-reference.md` saved
-- [ ] Budget module with forecast alerts (80/100/120%) and anomaly detection
+- [ ] Budget module, notifications, Action Group routing, and anomaly detection comply with the canonical cost-monitoring contract
 - [ ] Tree formatted once via `npm run format:bicep -- infra/bicep/{project}` (single call — do NOT run `mcp_bicep_format_bicep_file` per file)
 
 ## Review Gates

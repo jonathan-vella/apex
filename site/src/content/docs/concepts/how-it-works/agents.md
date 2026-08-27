@@ -231,7 +231,7 @@ completed step.
 
 **New Challenger Checklists**: Two mandatory checklist categories were added:
 
-- **Cost Monitoring**: Budget resource, forecast alerts at 80/100/120%, anomaly detection.
+- **Cost Monitoring**: Budget resource, governed notifications, Action Group routing, and anomaly detection.
 - **Repeatability**: Parameterised values, multi-tenant deploy, `projectName` required.
 
 ## Handoffs and Delegation

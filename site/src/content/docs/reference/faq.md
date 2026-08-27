@@ -109,8 +109,7 @@ No. APEX requires:
 :::
 
     - **GitHub Copilot** — cloud-hosted AI service
-    - **MCP servers** — Azure Resource Manager MCP, Azure MCP, Draw.io MCP,
-      GitHub MCP and MS Learn MCP
+    - **MCP servers** — Azure Resource Manager MCP, Azure MCP, and GitHub MCP
       provide real-time data to agents
 
     The dev container itself runs locally, but agent conversations and MCP tool calls

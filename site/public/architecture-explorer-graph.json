@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-08-27T09:42:33.451Z",
+  "generatedAt": "2026-08-27T10:42:15.432Z",
   "categories": [
     {
       "id": "agent",
@@ -489,7 +489,7 @@
       "id": "agent:e2e-orchestrator",
       "category": "agent",
       "label": "E2E Orchestrator",
-      "description": "Autonomous E2E evaluation orchestrator for the RALPH-style workflow loop. Executes real workflow agents end-to-end with live MCP-backed cost, Draw.io design, governance discovery, validation, and benchmark collection. Does NOT replace 01-Orchestrator.",
+      "description": "Autonomous E2E evaluation orchestrator for the RALPH-style workflow loop. Executes real workflow agents end-to-end with MCP-backed cost, Python diagram design, governance discovery, validation, and benchmark collection. Does NOT replace 01-Orchestrator.",
       "path": ".github/agents/e2e-orchestrator.agent.md",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/e2e-orchestrator.agent.md"

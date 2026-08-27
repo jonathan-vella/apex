@@ -53,6 +53,6 @@ omit theme directives · embed Azure service icons.
 
 ## Scope Exclusions
 
-Does NOT: generate Draw.io architecture diagrams · produce Python charts ·
+Does NOT: generate rendered architecture diagrams · produce Python charts ·
 generate Bicep/Terraform · create ADRs · deploy resources · embed Azure
 service icons (use `python-diagrams`).

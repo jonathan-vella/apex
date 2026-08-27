@@ -108,9 +108,9 @@ which wins over cross-cutting cost rules (Tier 3), which wins over general code 
 track-specific instructions that enforce
 two mandatory rules across all IaC projects (Bicep and Terraform):
 
-1. **Cost Monitoring**: Every deployment must include an Azure Budget resource with
-   parameterised amount, forecast alerts at 80/100/120% thresholds, and anomaly
-   detection alerts to a `technicalContact` parameter.
+1. **Cost Monitoring**: Every deployment must implement the governed budget
+   notification contract, Action Group routing, anomaly detection, and
+   parameterised notification inputs.
 2. **Repeatability (zero hardcoded values)**: Templates must deploy to any
    tenant/region/subscription without source-code modification. `projectName` must
    be a parameter with no default; all tag values reference parameters;

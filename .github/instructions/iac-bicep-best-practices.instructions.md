@@ -15,19 +15,6 @@ Azure Policy always wins. Code adapts to policy, never the reverse.
 See `references/iac-security-baseline.md` for shared security rules and
 `references/iac-policy-compliance.md` for the full policy compliance workflow.
 
-```bicep
-// Storage
-supportsHttpsTrafficOnly: true
-minimumTlsVersion: 'TLS1_2'
-allowBlobPublicAccess: false
-allowSharedKeyAccess: false  // Policy may require this
-
-// SQL
-azureADOnlyAuthentication: true
-minimalTlsVersion: '1.2'
-publicNetworkAccess: 'Disabled'
-```
-
 ## Policy Compliance
 
 Cross-reference `04-governance-constraints.json` before writing templates.
@@ -64,10 +51,8 @@ curl -sf https://mcr.microsoft.com/v2/bicep/avm/res/{path}/tags/list \
 
 Or use the `mcp_bicep_list_avm_metadata` MCP helper. Never copy a version
 from `azure-defaults/references/avm-modules.md` — versions are
-intentionally stripped from that table. Stale pins require a
-`pin_policy.mode = "exception"` block in `04-iac-contract.json` with
-rationale + evidence + `review_after` date. Enforced by
-`npm run validate:avm-versions:freeze` at Step 4 freeze gate.
+intentionally stripped from that table. The shared stale-pin exception and
+freeze policy lives in [`azure-defaults`](../skills/azure-defaults/SKILL.md).
 
 ## Module Outputs
 
@@ -99,7 +84,6 @@ for the dynamic tag list rule.
 | S1 for zone redundancy | Use P1v3+                       |
 | Raw Bicep (no AVM)     | Use AVM modules or get approval |
 | No budget module       | Include `modules/budget.bicep`  |
-| Stale AVM version pin  | Resolve via MCR `tags/list` at plan time; stale pins require `pin_policy.mode = "exception"` |
 
 ## Validation
 

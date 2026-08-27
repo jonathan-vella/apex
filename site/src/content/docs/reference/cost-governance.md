@@ -17,125 +17,20 @@ monitoring exists, and CI validators flag missing budget resources.
 
 ## Budget Alert Setup
 
-Every deployment must include an Azure Budget resource with three forecast-based
-alert thresholds:
+Every deployment implements the governed cost-monitoring contract: a
+scope-appropriate Azure Budget, actual and forecast notifications, Action Group
+routing, and anomaly detection. Governance constraints override repository
+defaults.
 
-| Threshold | Type     | Action                                  |
-| --------- | -------- | --------------------------------------- |
-| 80%       | Forecast | Email notification to `owner` parameter |
-| 100%      | Forecast | Email notification + action group       |
-| 120%      | Forecast | Email notification + action group       |
+The canonical contract and implementation examples are maintained in one place:
 
-### Bicep Example
+- [Cost monitoring baseline](https://github.com/jonathan-vella/apex/blob/main/.github/skills/azure-defaults/references/cost-alerts-baseline.md)
+- [Bicep implementation](https://github.com/jonathan-vella/apex/blob/main/.github/skills/azure-defaults/references/cost-alerts-bicep.md)
+- [Terraform implementation](https://github.com/jonathan-vella/apex/blob/main/.github/skills/azure-defaults/references/cost-alerts-terraform.md)
 
-```bicep
-@description('Monthly budget amount in USD')
-param budgetAmount int
-
-@description('Technical contact email for alerts')
-param technicalContact string
-
-resource budget 'Microsoft.Consumption/budgets@2023-11-01' = {
-  name: 'budget-${projectName}-${environment}'
-  properties: {
-    timePeriod: {
-      startDate: '2026-01-01'
-    }
-    timeGrain: 'Monthly'
-    amount: budgetAmount
-    category: 'Cost'
-    notifications: {
-      forecast80: {
-        enabled: true
-        operator: 'GreaterThanOrEqualTo'
-        threshold: 80
-        thresholdType: 'Forecasted'
-        contactEmails: [technicalContact]
-      }
-      forecast100: {
-        enabled: true
-        operator: 'GreaterThanOrEqualTo'
-        threshold: 100
-        thresholdType: 'Forecasted'
-        contactEmails: [technicalContact]
-      }
-      forecast120: {
-        enabled: true
-        operator: 'GreaterThanOrEqualTo'
-        threshold: 120
-        thresholdType: 'Forecasted'
-        contactEmails: [technicalContact]
-      }
-    }
-  }
-}
-```
-
-### Terraform Example
-
-```hcl
-variable "budget_amount" {
-  description = "Monthly budget amount in USD"
-  type        = number
-}
-
-variable "technical_contact" {
-  description = "Technical contact email for alerts"
-  type        = string
-}
-
-resource "azurerm_consumption_budget_resource_group" "this" {
-  name              = "budget-${var.project_name}-${var.environment}"
-  resource_group_id = azurerm_resource_group.this.id
-  amount            = var.budget_amount
-  time_grain        = "Monthly"
-
-  time_period {
-    start_date = "2026-01-01T00:00:00Z"
-  }
-
-  notification {
-    operator       = "GreaterThanOrEqualTo"
-    threshold      = 80
-    threshold_type = "Forecasted"
-    contact_emails = [var.technical_contact]
-  }
-
-  notification {
-    operator       = "GreaterThanOrEqualTo"
-    threshold      = 100
-    threshold_type = "Forecasted"
-    contact_emails = [var.technical_contact]
-  }
-
-  notification {
-    operator       = "GreaterThanOrEqualTo"
-    threshold      = 120
-    threshold_type = "Forecasted"
-    contact_emails = [var.technical_contact]
-  }
-}
-```
-
-## Forecast vs Actual Alerts
-
-| Alert Type   | Triggers When                                      | Use Case                       |
-| ------------ | -------------------------------------------------- | ------------------------------ |
-| **Forecast** | Projected spend will exceed threshold by month-end | Early warning — time to act    |
-| **Actual**   | Spend has already exceeded threshold               | Reactive — damage already done |
-
-This project uses **forecast alerts** exclusively because they provide
-advance warning. By the time an actual-spend alert triggers, the budget
-is already blown.
-
-## Anomaly Detection
-
-In addition to budget alerts, enable Azure Cost Management anomaly alerts
-to catch unexpected spend spikes:
-
-- Configure via Azure Cost Management in the portal
-- Alert on spend patterns that deviate from historical baselines
-- Notify the `technicalContact` parameter
+Budget amounts and notification recipients remain parameters. Do not copy
+thresholds or notification blocks into documentation; the canonical contract
+changes independently of this guide.
 
 ## Per-Environment Budgets
 
@@ -187,9 +82,9 @@ The Challenger reviews verify two mandatory cost categories:
 **Cost Monitoring:**
 
 - [ ] Budget resource exists
-- [ ] Forecast alerts at 80%, 100%, 120% thresholds
+- [ ] Notifications comply with the governed cost-monitoring contract
 - [ ] Anomaly detection configured
-- [ ] `technicalContact` parameter for notifications
+- [ ] Notification recipients are parameterised
 
 **Repeatability:**
 

@@ -113,11 +113,11 @@ the deployed state — not from prior plan estimates.
 The artifact contract is captured below in `## Output Files`, `## Expected
 Output`, and `## Validation Checklist`. Templates live in
 `.github/skills/azure-artifacts/templates/` (see `## Read Skills First`). The
-draw.io workflow is captured in `## Draw.io MCP-Driven Diagram Workflow`.
+Python diagram workflow is captured in `## As-Built Diagram Workflow`.
 
 # Stop rules
 
-- Stop after the seven 07-\* artifacts and the draw.io diagram are written and
+- Stop after the seven 07-\* artifacts and the Python diagram outputs are written and
   the documentation index is updated. Do not loop back to regenerate artifacts
   without a fresh user prompt.
 - Stop and ask the user if `06-deployment-summary.md` is missing; do not fall

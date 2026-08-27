@@ -65,10 +65,11 @@ Do not copy canonical tables or templates into an agent body.
 
 ### 3. Budget Context
 
-- Target 350 body lines or fewer; never exceed the enforced 600-line ceiling.
+- Apply the limits and hand-off framework in
+  [`context-optimization.instructions.md`](../../instructions/context-optimization.instructions.md).
 - Keep tool lists minimal and handoffs intentional.
-- Move templates longer than 50 lines to references or templates.
-- Prefer one structured example under 12 lines.
+- Move long templates to references or templates.
+- Prefer one compact structured example.
 - Remove prose already supplied by an auto-loaded instruction.
 - Estimate fixed cost using body bytes, matched instruction bytes, tool schemas,
   and mandatory skill reads.

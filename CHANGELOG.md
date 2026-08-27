@@ -26,7 +26,12 @@ for full details on this and all prior releases.
   wrappers for removed custom features.
 - refactor(diagrams): retire the Draw.io MCP server and active Draw.io authoring
   stack. New architecture diagrams use reproducible Python source with PNG and
-  SVG renders; historical Draw.io sources are retained in a compressed archive.
+  SVG renders; the complete historical Draw.io skill is archived alongside the
+  compressed visual-source bundle.
+- refactor(iac): make the Azure Defaults cost-monitoring baseline the sole owner
+  of budget notifications, Action Group routing, anomaly detection, and
+  governance precedence; consumers now reference that contract without copying
+  threshold tables.
 - refactor(docs): retire the unused Astro docs MCP registration. Astro/Starlight
   site builds, validation, and the local documentation review prompt remain.
 - refactor(terraform): retire Terraform MCP and its Go-only runtime. Terraform

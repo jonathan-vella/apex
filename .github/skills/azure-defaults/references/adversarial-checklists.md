@@ -63,7 +63,7 @@ For **every** artifact, ask:
 
 - [ ] Does the plan/code include an Azure Budget resource?
 - [ ] Is the budget amount aligned to the Step 2 cost estimate?
-- [ ] Are forecast alerts configured at 80%, 100%, and 120% thresholds?
+- [ ] Do budget notifications comply with `cost-alerts-baseline.md` and any governance overrides?
 - [ ] Is anomaly detection enabled?
 - [ ] Are notification recipients parameterized (not hardcoded emails)?
 

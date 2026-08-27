@@ -78,7 +78,7 @@ The orchestration module (`main.bicep`) calls all 10 Bicep modules in dependency
 7. **container-registry.bicep** — Container Registry (Premium) with admin disabled, PE, diagnostics
 8. **app-service-plan.bicep** — App Service Plan (S1 Linux, single instance)
 9. **web-app.bicep** — Web App with system-assigned MI, VNet integration, staging slot, RBAC roles (KV Secrets User, Storage Table Data Contributor, AcrPull)
-10. **budget.bicep** — Consumption Budget with 3 forecast alert thresholds (80%, 100%, 120%)
+10. **budget.bicep** — Consumption Budget with governed notifications and Action Group routing
 
 ## Dependency Graph Details
 

@@ -252,7 +252,7 @@ continue without waiting for the user:
 - Deployment strategy: phased rollout `foundation -> data -> edge -> platform`
 - IaC track: as specified by `iac_tool` (Bicep or Terraform)
 - Design step: enabled
-- Diagram format: Draw.io is required when available
+- Diagram format: Python source with PNG and SVG outputs
 - Benchmark mode: dry-run only, never deploy live Azure resources
 - Budget: no RFQ budget is provided, so estimate a planning range and keep the
   final commercial ceiling open in `decision_log`
@@ -407,7 +407,7 @@ continue without waiting for the user:
   2. The file `10-challenger-step{N}.json` exists in the output directory
 - If either condition is missing, STOP and run the challenger review.
 - `decision_log` must record how the RFQ gaps were resolved.
-- If Draw.io, pricing, governance discovery, or `what-if` are unavailable,
+- If diagram rendering, pricing, governance discovery, or `what-if` are unavailable,
   record that as a blocker or partial-result reason. Do not silently replace the
   missing path with synthetic content.
 

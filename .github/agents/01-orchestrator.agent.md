@@ -43,7 +43,7 @@ handoffs:
     send: true
   - label: "Step 3: Design Artifacts"
     agent: 04-Design
-    prompt: "Generate architecture diagrams and ADRs based on the architecture assessment in `agent-output/{project}/02-architecture-assessment.md`. The 04-Design agent will ask which tool (Draw.io or Python) and which scope (diagrams, ADRs, or both). This step is optional — you can skip directly to Step 3.5."
+    prompt: "Generate Python architecture diagrams and ADRs based on the architecture assessment in `agent-output/{project}/02-architecture-assessment.md`. The 04-Design agent will ask which scope to produce (diagrams, ADRs, or both). This step is optional — you can skip directly to Step 3.5."
     send: true
   - label: "Step 3.5: Governance Discovery"
     agent: 04g-Governance

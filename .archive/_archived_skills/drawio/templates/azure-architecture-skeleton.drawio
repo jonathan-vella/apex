@@ -1,0 +1,59 @@
+<mxfile>
+  <diagram id="azure-skeleton" name="Architecture">
+    <mxGraphModel dx="0" dy="0" grid="1" gridSize="10" guides="1"
+                  tooltips="1" connect="1" arrows="1" fold="1"
+                  page="1" pageScale="1" pageWidth="850" pageHeight="1100"
+                  math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- === Resource Group Container === -->
+        <mxCell id="rg-1" value="rg-{project}-{env}"
+          style="swimlane;startSize=25;fillColor=#F5F5F5;strokeColor=#666666;fontStyle=1;html=1;rounded=1;dashed=1;"
+          vertex="1" parent="1">
+          <mxGeometry x="50" y="50" width="1000" height="700" as="geometry"/>
+        </mxCell>
+
+        <!-- === Virtual Network === -->
+        <mxCell id="vnet-1" value="vnet-{project}-{env} (10.0.0.0/16)"
+          style="swimlane;startSize=25;fillColor=#E7F5FF;strokeColor=#0078D4;fontStyle=1;html=1;rounded=1;"
+          vertex="1" parent="rg-1">
+          <mxGeometry x="20" y="40" width="960" height="640" as="geometry"/>
+        </mxCell>
+
+        <!-- === App Subnet === -->
+        <mxCell id="snet-app" value="snet-app (10.0.1.0/24)"
+          style="swimlane;startSize=20;fillColor=#E6F5E6;strokeColor=#82B366;html=1;rounded=1;fontSize=11;"
+          vertex="1" parent="vnet-1">
+          <mxGeometry x="10" y="35" width="460" height="280" as="geometry"/>
+        </mxCell>
+
+        <!-- === Data Subnet === -->
+        <mxCell id="snet-data" value="snet-data (10.0.2.0/24)"
+          style="swimlane;startSize=20;fillColor=#FFF2CC;strokeColor=#D6B656;html=1;rounded=1;fontSize=11;"
+          vertex="1" parent="vnet-1">
+          <mxGeometry x="490" y="35" width="460" height="280" as="geometry"/>
+        </mxCell>
+
+        <!-- === PE Subnet === -->
+        <mxCell id="snet-pe" value="snet-pe (10.0.3.0/24)"
+          style="swimlane;startSize=20;fillColor=#FFF2CC;strokeColor=#D6B656;html=1;rounded=1;fontSize=11;"
+          vertex="1" parent="vnet-1">
+          <mxGeometry x="10" y="340" width="940" height="120" as="geometry"/>
+        </mxCell>
+
+        <!-- Add Azure service icons here using icon snippets from:
+             assets/drawio-libraries/azure-icons/icons/{name}.xml
+             Example:
+             <mxCell id="webapp-1" value="Web App"
+               style="shape=image;verticalLabelPosition=bottom;verticalAlign=top;
+               imageAspect=0;aspect=fixed;image=data:image/svg+xml;base64,..."
+               vertex="1" parent="snet-app">
+               <mxGeometry x="20" y="40" width="48" height="48" as="geometry"/>
+             </mxCell>
+        -->
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
