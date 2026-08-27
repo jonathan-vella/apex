@@ -96,7 +96,7 @@ if command -v uv &> /dev/null; then
         step_warn "uv install had issues, continuing"
     fi
 else
-    if pip3 install --quiet --requirement "${PWD}/requirements.txt" 2>&1 | tail -1; then
+    if pip3 install --quiet --requirement "${PWD}/requirements.txt"; then
         step_done "Installed pinned requirements via pip"
     else
         step_warn "pip install had issues"
