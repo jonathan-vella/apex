@@ -201,8 +201,7 @@ IaC tool:
   are necessary but NOT sufficient — the JSON file must exist.
 - Step 2 is invalid unless the architecture and cost estimate are backed by the
   real pricing path used by `03-Architect`.
-- Step 3 must produce `03-des-diagram.drawio` through the Draw.io path when the
-  Draw.io tools are available.
+- Step 3 must produce `03-des-diagram.py` with PNG and SVG renders.
 - Step 3.5 must use live Azure Policy discovery when Azure auth exists. Use an
   offline governance artifact only when auth is unavailable.
 - Step 4 must use `05-IaC Planner`. Do not generate the implementation plan
@@ -253,7 +252,7 @@ continue without waiting for the user:
 - Deployment strategy: phased rollout `foundation -> data -> edge -> platform`
 - IaC track: as specified by `iac_tool` (Bicep or Terraform)
 - Design step: enabled
-- Diagram format: Draw.io is required when available
+- Diagram format: Python source with PNG and SVG outputs
 - Benchmark mode: dry-run only, never deploy live Azure resources
 - Budget: no RFQ budget is provided, so estimate a planning range and keep the
   final commercial ceiling open in `decision_log`
@@ -297,10 +296,10 @@ continue without waiting for the user:
 ### Step 3: Design
 
 - Invoke `04-Design`.
-- Require `03-des-diagram.drawio`,
+- Require `03-des-diagram.py`, `03-des-diagram.png`, and `03-des-diagram.svg`,
   `03-des-adr-0001-container-platform.md`, and
   `03-des-adr-0002-caching-tier.md`.
-- Do not prefer Python diagram fallbacks when Draw.io is available.
+- Use the Python diagram source as the canonical diagram artifact.
 
 ### Step 3.5: Governance
 
@@ -325,8 +324,7 @@ continue without waiting for the user:
 
 - Invoke `05-IaC Planner`.
 - Require `04-implementation-plan.md`.
-- Require `04-dependency-diagram.drawio` and `04-runtime-diagram.drawio` when
-  Draw.io is available.
+- Require Python source, PNG, and SVG outputs for both dependency and runtime diagrams.
 - Require `04-avm-matrix.json` with AVM paths and pinned versions, not just
   module names.
 - **Challenger review (MANDATORY)**: After `04-implementation-plan.md` passes
@@ -409,7 +407,7 @@ continue without waiting for the user:
   2. The file `10-challenger-step{N}.json` exists in the output directory
 - If either condition is missing, STOP and run the challenger review.
 - `decision_log` must record how the RFQ gaps were resolved.
-- If Draw.io, pricing, governance discovery, or `what-if` are unavailable,
+- If diagram rendering, pricing, governance discovery, or `what-if` are unavailable,
   record that as a blocker or partial-result reason. Do not silently replace the
   missing path with synthetic content.
 

@@ -54,7 +54,8 @@ Malta Catering is a containerized online ordering demo for a Malta-based caterin
 
 ### Architecture Overview
 
-The as-built architecture is delivered as editable Draw.io source.
+This historical demo includes a legacy Draw.io snapshot. Current workflows
+produce Python source with PNG and SVG renders.
 
 | Category   | Count |
 | ---------- | ----- |

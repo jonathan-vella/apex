@@ -27,7 +27,7 @@ to produce a coherent documentation package.
 | [Backup & DR Plan](./runbook/)          | Recovery procedures and failover   | Generated |
 | [Compliance Matrix](./compliance/)      | Security controls mapping          | Generated |
 | [As-Built Cost Estimate](./compliance/) | Deployed pricing baseline          | Generated |
-| As-Built Diagram                        | Editable Draw.io architecture view | Generated |
+| As-Built Diagram                        | Rendered architecture snapshot      | Preserved |
 
 ## Source Artifacts
 

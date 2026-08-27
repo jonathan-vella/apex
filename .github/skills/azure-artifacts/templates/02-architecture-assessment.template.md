@@ -295,7 +295,7 @@ The architecture is approved for implementation with the following key parameter
 
 ---
 
-_Assessment performed using Azure Well-Architected Framework. Pricing data from Azure Pricing MCP ({date})._
+_Assessment performed using Azure Well-Architected Framework. Pricing data from Azure Resource Manager MCP ({date})._
 
 ---
 

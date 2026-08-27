@@ -109,7 +109,7 @@ Agents do not call cloud APIs or execute commands directly. Instead, they invoke
 and the VS Code runtime. Tools give agents real-time access to external systems:
 
 - **MCP tools**: JSON-RPC endpoints that wrap cloud APIs. Each MCP server provides
-  a set of typed tools (e.g. `azure_price_search`, `azure_cost_estimate`) that agents
+  typed tools such as `get_retail_prices` and `query_costs` that agents
   discover and call at runtime. The server handles authentication, caching, pagination,
   and response formatting.
 - **VS Code tools**: Built-in capabilities like file reads/writes, terminal commands,
@@ -118,16 +118,14 @@ and the VS Code runtime. Tools give agents real-time access to external systems:
   `agent-output/{project}/`. The next agent reads those files as input — there is no
   direct message passing between agents.
 
-This project integrates six core MCP servers:
+This project integrates MCP servers for live external capabilities:
 
 | Server            | Purpose                            | Transport          |
 | ----------------- | ---------------------------------- | ------------------ |
 | **Azure MCP**     | RBAC-aware Azure Resource Manager  | VS Code extension  |
 | **Azure Pricing** | Cost estimation (19 tools)         | stdio (Python)     |
-| **Draw.io MCP**   | Editable architecture diagrams     | stdio (Deno)       |
 | **GitHub MCP**    | Issues, PRs, code search, branches | HTTP (Copilot API) |
 | **MS Learn MCP**  | Official docs search, code samples | HTTP               |
-| **Terraform MCP** | Provider/module registry lookups   | stdio (Go)         |
 
 [MCP Integration details →](../mcp-integration/)
 

@@ -3,7 +3,6 @@
 #   - AVM module index refresh         (refresh-avm-module-index)
 #   - Azure deprecation tracking       (track-deprecations)
 #   - Quarterly docs / orphan audit    (docs-freshness)
-#   - Drawio MCP + icon converter      (drawio-mcp-tests, drawio-icon-converter-tests)
 #   - Weekly docs link safety net      (link-check)
 # Replaces standalone azure-deprecation-tracker.yml (folded Aug 2025) and the
 # standalone weekly cron of link-check.yml (folded May 2026).
@@ -221,39 +220,6 @@ jobs:
             --label "documentation,maintenance"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  drawio-mcp-tests:
-    name: Drawio MCP Tests (Deno)
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v7
-
-      - name: Setup Deno
-        uses: denoland/setup-deno@v2
-        with:
-          deno-version: v2.x
-
-      - name: Run drawio MCP test suite
-        run: npm run test:drawio-mcp
-
-  drawio-icon-converter-tests:
-    name: Drawio Icon Converter Tests (Python)
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v7
-
-      - name: Setup Python
-        uses: actions/setup-python@v7
-        with:
-          python-version: "3.14"
-
-      - name: Install pytest
-        run: python3 -m pip install pytest
-
-      - name: Run icon converter tests
-        run: npm run test:convert-drawio-icons
 
   link-check:
     # Folded in from the retired weekly cron of link-check.yml (May 2026).

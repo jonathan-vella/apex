@@ -52,7 +52,7 @@ const DEPRECATED_PATTERNS = [
   // Removed agent file references
   {
     pattern: /\.github\/agents\/diagram\.agent\.md/gi,
-    message: "Reference to removed diagram.agent.md (use drawio or python-diagrams skill)",
+    message: "Reference to removed diagram.agent.md (use python-diagrams skill)",
     severity: "error",
   },
   {
@@ -121,7 +121,7 @@ const DEPRECATED_PATTERNS = [
   // Agent mentions that should be skills (in prose, not agent definitions)
   {
     pattern: /@diagram\s+agent/gi,
-    message: "Reference to @diagram agent (removed - use drawio or python-diagrams skill)",
+    message: "Reference to @diagram agent (removed - use python-diagrams skill)",
     severity: "warn",
   },
   {

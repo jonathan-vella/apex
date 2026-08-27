@@ -110,8 +110,8 @@ meaning is report-only.
 
 Broken `![]()` references; empty or missing alt text; oversized PNGs
 (flag > 500 KB); Mermaid render validity (parse each fenced
-`mermaid` block); drawio diagram freshness (compare to
-`assets/drawio-libraries/`); screenshot staleness. Staleness rule:
+`mermaid` block); Python diagram source/render consistency; screenshot
+staleness. Staleness rule:
 flag a file when **both** of the following hold:
 
 - Filename matches `screenshot|ui-|capture|portal-` (suppresses

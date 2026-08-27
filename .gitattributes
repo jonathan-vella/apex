@@ -52,7 +52,6 @@
 
 # Draw.io diagram files
 *.drawio text eol=lf
-assets/drawio-libraries/**/*.xml binary
 
 # GitHub specific files
 .gitattributes text eol=lf

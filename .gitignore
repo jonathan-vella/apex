@@ -20,10 +20,7 @@ Copilot-Processing.md
 !.vscode/mcp.json
 !.vscode/settings.json
 
-# Root .mcp.json is deprecated — Azure MCP is provided by the
-# ms-azuretools.vscode-azure-mcp-server extension (see devcontainer.json
-# customizations.vscode.extensions). Use .vscode/mcp.json for the
-# remaining MCP server configuration (github, azure-pricing, drawio, etc.).
+# Root .mcp.json is deprecated. Use .vscode/mcp.json for workspace MCP servers.
 *.code-workspace
 
 # OS
@@ -99,10 +96,6 @@ freshness-report.json
 # Use a contents-only ignore (rather than the directory itself) so
 # that single committed deliverables can be re-included with `!`.
 agent-output/_baselines/*
-
-# Draw.io quality bench runs (working data; commit only the canonical
-# baseline at tools/tests/drawio-baseline/regen-baseline.json)
-agent-output/_bench/
 
 # Astro Starlight (site/ is source code; only ignore build artifacts)
 site/dist/

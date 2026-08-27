@@ -1,6 +1,6 @@
 ---
 name: mermaid
-description: '**UTILITY SKILL** — Mermaid diagrams for inline markdown: flowcharts, sequence, Gantt, class, state, ER. WHEN: "mermaid flowchart", "sequence diagram", "Gantt chart", "state diagram", "ER diagram", "inline markdown diagram". DO NOT USE FOR: Azure-icon architecture diagrams (drawio), WAF/cost charts (python-diagrams).'
+description: '**UTILITY SKILL** — Mermaid diagrams for inline markdown: flowcharts, sequence, Gantt, class, state, ER. WHEN: "mermaid flowchart", "sequence diagram", "Gantt chart", "state diagram", "ER diagram", "inline markdown diagram". DO NOT USE FOR: rendered architecture diagrams or WAF/cost charts (python-diagrams).'
 compatibility: Works with VS Code Copilot, Claude Code, and any tool that renders Mermaid in markdown.
 license: MIT
 metadata:
@@ -13,7 +13,7 @@ metadata:
 Skill for generating Mermaid diagrams embedded in markdown fences. Mermaid is
 used for inline documentation — flowcharts, sequences, state machines, ER
 diagrams, Gantt charts. For architecture diagrams with Azure service icons,
-use the `drawio` skill instead.
+use the `python-diagrams` skill instead.
 
 ## When to Use Mermaid
 
@@ -33,7 +33,7 @@ subgraphs for grouping · descriptive connection labels · validate syntax
 before committing.
 
 **DON'T:** use Mermaid for WAF/cost charts (use `python-diagrams`) · use
-Mermaid for primary architecture diagrams with Azure icons (use `drawio`) ·
+Mermaid for rendered architecture diagrams (use `python-diagrams`) ·
 omit theme directives · embed Azure service icons.
 
 ## Steps
@@ -53,6 +53,6 @@ omit theme directives · embed Azure service icons.
 
 ## Scope Exclusions
 
-Does NOT: generate Draw.io architecture diagrams · produce Python charts ·
+Does NOT: generate rendered architecture diagrams · produce Python charts ·
 generate Bicep/Terraform · create ADRs · deploy resources · embed Azure
-service icons (use `drawio`).
+service icons (use `python-diagrams`).

@@ -170,8 +170,8 @@ az deployment group what-if \
 terraform fmt -check
 terraform validate
 
-# Lint Terraform with TFLint
-tflint --init && tflint
+# Validate Terraform configuration
+terraform fmt -check && terraform validate
 
 # Preview Terraform deployment
 terraform plan -out=tfplan

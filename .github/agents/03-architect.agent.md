@@ -1,6 +1,6 @@
 ---
 name: 03-Architect
-description: Expert Architect providing guidance using Azure Well-Architected Framework principles and Microsoft best practices. Evaluates decisions against WAF pillars (Security, Reliability, Performance, Cost, Operations). Auto-generates cost estimates via Azure Pricing MCP and writes WAF + cost markdown.
+description: Expert Architect providing guidance using Azure Well-Architected Framework principles and Microsoft best practices. Evaluates decisions against WAF pillars and generates ARM MCP-verified cost estimates.
 model: ["Claude Opus 5"]
 user-invocable: true
 agents: ["cost-estimate-subagent", "challenger-review-subagent"]
@@ -8,7 +8,7 @@ tools: [vscode, execute, read, agent, browser, vscodeGeneral/rename, vscodeGener
 handoffs:
   - label: "▶ Refresh Cost Estimate"
     agent: 03-Architect
-    prompt: "Re-query Azure Pricing MCP to update the cost estimate section with current pricing. Recalculate monthly and yearly totals. Input: agent-output/{project}/02-architecture-assessment.md SKU list. Output: agent-output/{project}/03-des-cost-estimate.md (refreshed pricing)."
+    prompt: "Re-query Azure Resource Manager MCP through cost-estimate-subagent to update current pricing and totals. Input: agent-output/{project}/02-architecture-assessment.md SKU list. Output: agent-output/{project}/03-des-cost-estimate.md."
     send: true
   - label: "▶ Deep Dive WAF Pillar"
     agent: 03-Architect
@@ -20,7 +20,7 @@ handoffs:
     send: true
   - label: "Step 3: Design Artifacts"
     agent: 04-Design
-    prompt: "Begin Step 3 (Design) for the architecture in `agent-output/{project}/02-architecture-assessment.md`. This handoff is the explicit **fresh-start entry** — it OVERRIDES the silent-skip rule in `workflow-gates.md`. You MUST raise both askMe panels even if `decisions.design_scope` / `decisions.diagram_tool` are already set; show any stored value as the recommended option but let the user change it. **Phase 00 (always ask)**: raise `vscode_askQuestions` with **Diagrams only**, **ADRs only**, **Both**; then `apex-recall decide <project> --key design_scope --value <diagrams|adrs|both> --step 3 --json`. **Phase 0 (always ask if diagrams in scope)**: raise `vscode_askQuestions` with **Draw.io** (Azure-brand icons, recommended) vs **Python diagrams** (faster, generic icons); then `apex-recall decide <project> --key diagram_tool --value <drawio|python> --step 3 --json`. Outputs: Drawio → `03-des-diagram.drawio` (+ `.png`); Python → `03-des-diagram.py` (+ `.png`); ADRs → `03-des-adr-NNNN-{slug}.md`. Do not proceed to any artifact work until both panels have user answers."
+    prompt: "Begin Step 3 from agent-output/{project}/02-architecture-assessment.md. Ask once for design scope (Diagrams only, ADRs only, or Both), then record design_scope. When diagrams are in scope, record diagram_tool=python and use the python-diagrams skill. Outputs: 03-des-diagram.py with PNG/SVG siblings and/or 03-des-adr-NNNN-{slug}.md."
     send: true
   - label: "Step 3.5: Governance Discovery"
     agent: 04g-Governance

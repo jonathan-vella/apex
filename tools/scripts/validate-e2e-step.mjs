@@ -165,16 +165,16 @@ function preValidateStep(step) {
     }
   } else if (step === 3) {
     const adrMatches = globFiles(OUTPUT_DIR, "03-des-*.md");
-    const hasDrawio = fileExists(path.join(OUTPUT_DIR, "03-des-diagram.drawio"));
-    const hasLegacyPython = globFiles(OUTPUT_DIR, "03-des-*.py").length > 0;
+    const hasPythonDiagram =
+      fileExists(path.join(OUTPUT_DIR, "03-des-diagram.py")) &&
+      fileExists(path.join(OUTPUT_DIR, "03-des-diagram.png")) &&
+      fileExists(path.join(OUTPUT_DIR, "03-des-diagram.svg"));
 
     if (adrMatches.length === 0) {
       findings.push(`No files matching 03-des-*.md in ${OUTPUT_DIR}`);
     }
-    if (!hasDrawio && !hasLegacyPython) {
-      findings.push(
-        `Missing design diagram artifact: expected 03-des-diagram.drawio or legacy 03-des-*.py in ${OUTPUT_DIR}`,
-      );
+    if (!hasPythonDiagram) {
+      findings.push(`Missing design diagram artifacts: expected 03-des-diagram.py, .png, and .svg in ${OUTPUT_DIR}`);
     }
   } else if (step === 4) {
     const planPath = path.join(OUTPUT_DIR, spec.file);
@@ -187,15 +187,12 @@ function preValidateStep(step) {
       }
     }
 
-    const hasDrawio =
-      fileExists(path.join(OUTPUT_DIR, "04-dependency-diagram.drawio")) &&
-      fileExists(path.join(OUTPUT_DIR, "04-runtime-diagram.drawio"));
-    const hasLegacyPython =
-      fileExists(path.join(OUTPUT_DIR, "04-dependency-diagram.py")) &&
-      fileExists(path.join(OUTPUT_DIR, "04-runtime-diagram.py"));
+    const hasPythonDiagrams = ["04-dependency-diagram", "04-runtime-diagram"].every((base) =>
+      ["py", "png", "svg"].every((extension) => fileExists(path.join(OUTPUT_DIR, `${base}.${extension}`))),
+    );
 
-    if (!hasDrawio && !hasLegacyPython) {
-      findings.push("Missing Step 4 diagrams: expected Draw.io or legacy Python diagram source files");
+    if (!hasPythonDiagrams) {
+      findings.push("Missing Step 4 Python diagram source, PNG, or SVG files");
     }
   } else if (spec.files) {
     // Multiple specific files (e.g., Step 3, 3.5)

@@ -14,7 +14,7 @@ When challenging artifacts, be skeptical about:
 - **Naming**: Do naming conventions follow CAF patterns from azure-defaults skill, or are they ad-hoc?
 - **Region Availability**: Are all planned SKUs and services actually available in the target region?
 - **WAF Balance**: Does the architecture over-optimize one WAF pillar at the expense of others?
-- **Cost Estimates**: Are prices sourced from Azure Pricing MCP, or are they parametric guesses?
+- **Cost Estimates**: Are prices sourced from Azure Resource Manager MCP, or are they parametric guesses?
 - **Security Baseline**: Is TLS 1.2 enforced? HTTPS-only? Managed identity over keys? Public access disabled?
 - **Deployment Strategy**: Is a single deployment assumed for >5 resources? (Should be phased.)
 - **Dependency Ordering**: Are resource dependencies acyclic and correct?
@@ -63,7 +63,7 @@ For **every** artifact, ask:
 
 - [ ] Does the plan/code include an Azure Budget resource?
 - [ ] Is the budget amount aligned to the Step 2 cost estimate?
-- [ ] Are forecast alerts configured at 80%, 100%, and 120% thresholds?
+- [ ] Do budget notifications comply with `cost-alerts-baseline.md` and any governance overrides?
 - [ ] Is anomaly detection enabled?
 - [ ] Are notification recipients parameterized (not hardcoded emails)?
 
@@ -105,7 +105,7 @@ For **every** artifact, ask:
 
 ### Cost-Estimate-Specific (`artifact_type` = `cost-estimate`)
 
-- [ ] Are all prices sourced from Azure Pricing MCP (not guessed)?
+- [ ] Are all prices sourced from Azure Resource Manager MCP (not guessed)?
 - [ ] Are egress, transaction, and log ingestion costs included?
 - [ ] Do SKU selections match the stated workload requirements?
 - [ ] Are free-tier limitations documented for production use?
@@ -245,7 +245,7 @@ Merged from `security-governance` + `architecture-reliability` +
       (zone-redundant SKU, paired-region replication, queueing in front
       of single instances).
 - [ ] **Cost — pricing source** — every line item references a price
-      pulled from Azure Pricing MCP, not a guessed dollar amount.
+      pulled from Azure Resource Manager MCP, not a guessed dollar amount.
 - [ ] **Cost — RI / Savings-Plan math** — for compute resources running
       ≥ 730 hours / month, 1-year Reserved Instance or Savings Plan
       math is shown (% saving + breakeven) OR an explicit "pay-as-you-go

@@ -151,8 +151,9 @@ version = "~> {major}.{minor}"
 | Virtual Network | `Azure/avm-res-network-virtualnetwork/azurerm` |
 | App Service     | `Azure/avm-res-web-site/azurerm`               |
 
-Use `mcp_terraform_get_latest_module_version` or the Terraform registry
-to find the latest version. Update pinned minor version (`~> X.Y`).
+Use the public Terraform Registry API per
+`azure-defaults/references/terraform-conventions.md`, then pin the resolved
+stable version as exact semver.
 
 ## Variables
 

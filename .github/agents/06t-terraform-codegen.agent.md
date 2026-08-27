@@ -5,7 +5,7 @@ model: ["Claude Sonnet 5"]
 user-invocable: true
 agents: ["terraform-validate-subagent", "challenger-review-subagent"]
 tools:
-  [vscode, execute, read, agent, browser, vscodeGeneral/rename, vscodeGeneral/usages, vscodeNotebooks/createJupyterNotebook, vscodeNotebooks/editNotebook, ms-azuretools.vscode-azureresourcegroups, edit, search, web, 'azure-mcp/*', 'terraform/*', todo]
+  [vscode, execute, read, agent, browser, vscodeGeneral/rename, vscodeGeneral/usages, vscodeNotebooks/createJupyterNotebook, vscodeNotebooks/editNotebook, ms-azuretools.vscode-azureresourcegroups, edit, search, web, 'azure-mcp/*', todo]
 handoffs:
   - label: "▶ Run Preflight Check"
     agent: 06t-Terraform CodeGen

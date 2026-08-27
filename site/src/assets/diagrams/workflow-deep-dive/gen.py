@@ -95,7 +95,7 @@ with Diagram(
 
     with Cluster("Step 3 — Design (optional)"):
         a3 = _agent("04-Design")
-        art3 = _artifact("03-des-diagram.drawio\n03-des-adr-*.md")
+        art3 = _artifact("03-des-diagram.py/.png/.svg\n03-des-adr-*.md")
 
     with Cluster("Step 3.5 — Governance"):
         a35 = _agent("04g-Governance")

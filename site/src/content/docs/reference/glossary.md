@@ -176,10 +176,10 @@ DAG in `workflow-graph.json`.
 ### Design Agent
 
 Step 3 agent that generates architecture diagrams and Architecture Decision Records (ADRs).
-Optional step in the workflow. Uses `drawio` and `python-diagrams` skills
-(architecture diagrams and charts) and `azure-adr` skill.
+Optional step in the workflow. Uses `python-diagrams` for architecture
+diagrams and charts, and `azure-adr` for decision records.
 
-📁 **Output**: `agent-output/{project}/03-des-*.{drawio,py,png,md}`
+📁 **Output**: `agent-output/{project}/03-des-*.{py,png,svg,md}`
 
 ### Dev Container
 
@@ -275,12 +275,10 @@ troubleshooting and diagnostics (see S05 Troubleshooting scenario).
 ### MCP (Model Context Protocol)
 
 Protocol for extending AI assistants with external tools and data sources. This project
-uses MCP servers for GitHub (repo operations), Azure (RBAC-aware resource access),
-Azure Pricing (cost estimation), Terraform Registry (module lookup), and Microsoft
-Learn (official documentation search and code sample discovery).
+uses MCP servers for GitHub, Azure services, Azure Resource Manager pricing and
+cost management, Terraform Registry, and Microsoft Learn.
 
-📁 **See**: [tools/mcp-servers/azure-pricing/](https://github.com/jonathan-vella/apex/tree/main/tools/mcp-servers/azure-pricing),
-[MCP Integration](../../concepts/how-it-works/mcp-integration/)
+📁 **See**: [MCP Integration](../../concepts/how-it-works/mcp-integration/)
 
 ### MJS (ECMAScript Module)
 
@@ -442,13 +440,6 @@ Provider pin: `~> 4.0` (AzureRM). Backend: Azure Storage Account.
 
 🔗 **External**: [Terraform Documentation](https://developer.hashicorp.com/terraform)
 
-### TFLint
-
-A pluggable Terraform linter that enforces best practices, naming conventions, and
-resource-specific rules. Used by the `terraform-validate-subagent` during Step 5 validation.
-
-🔗 **External**: [TFLint](https://github.com/terraform-linters/tflint)
-
 ### Terraform State
 
 The JSON file that tracks the mapping between Terraform configuration and real-world
@@ -562,7 +553,6 @@ artifacts in `agent-output/`.
 | SOC 2   | System and Organization Controls 2           | Compliance     |
 | SQL     | Structured Query Language                    | Data           |
 | SRE     | Site Reliability Engineering                 | Operations     |
-| TFLint  | Terraform Linter                             | IaC            |
 | TLS     | Transport Layer Security                     | Security       |
 | TTL     | Time To Live                                 | Caching        |
 | UAT     | User Acceptance Testing                      | QA             |

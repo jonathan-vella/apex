@@ -12,7 +12,7 @@ handoffs:
     send: true
   - label: "▶ Generate As-Built Diagram"
     agent: 08-As-Built
-    prompt: "Generate an as-built architecture diagram for the deployed project. Input: deployed resource graph (Azure Resource Graph + `az` CLI) cross-referenced with `agent-output/{project}/06-deployment-summary.md`. Then use the `vscode_askQuestions` tool with exactly one question: header='Diagram Tool', question='Which diagram tool do you prefer for the as-built diagram?', options=[{label:'Draw.io',description:'Rich Azure icon set — interactive .drawio output, edit-friendly for ops handover (recommended)',recommended:true},{label:'Python',description:'Code-based .png + .svg output via the python-diagrams skill (reproducible from source)'}], allowFreeformInput=false. Wait for the answer. Map 'Draw.io' → diagram_tool=drawio, 'Python' → diagram_tool=python. Record `apex-recall decide <project> --key diagram_tool --value <drawio|python> --step 7 --json`. Then proceed: on `drawio`, use the drawio skill and MCP tools (transactional mode — pass `diagram_xml` between every call; `search-shapes` once for all deployed services, `create-groups` once for all containers, `add-cells` once with all vertices + edges, `add-cells-to-group` once, `finish-diagram` compress:true; save via `python3 tools/scripts/save-drawio.py <json-path> agent-output/{project}/07-ab-diagram.drawio`; validate via `node tools/scripts/validate-drawio-files.mjs`; quality score >= 9/10; output: `agent-output/{project}/07-ab-diagram.drawio`); on `python`, use the python-diagrams skill to generate `agent-output/{project}/07-ab-diagram.py` + `.png` + `.svg` (both raster and vector siblings via the shared `scripts/diagram_io.py` helper) — execute the `.py` file and verify both `.png` and `.svg` exist before continuing."
+    prompt: "Generate an as-built architecture diagram from the deployed resource graph and agent-output/{project}/06-deployment-summary.md. Record diagram_tool=python, use the python-diagrams skill and shared diagram_io.py helper, then produce agent-output/{project}/07-ab-diagram.py with non-empty PNG and SVG siblings."
     send: true
   - label: "▶ Generate Cost Estimate Only"
     agent: 08-As-Built
@@ -42,12 +42,12 @@ Produce in `agent-output/{project}/`:
 
 - `07-resource-inventory.md` — All deployed resources with IDs, SKUs, and configuration.
 - `07-design-document.md` — Architecture decisions mapped from plan to deployed state.
-- `07-ab-cost-estimate.md` — As-built costs (prices from `cost-estimate-subagent` only — no direct Azure Pricing MCP calls).
+- `07-ab-cost-estimate.md` — As-built costs (prices from `cost-estimate-subagent` only).
 - `07-compliance-matrix.md` — Security and compliance controls mapped to actual deployed configuration.
 - `07-backup-dr-plan.md` — Backup, DR, and business continuity plan grounded in deployed state.
 - `07-operations-runbook.md` — Day-2 operations, monitoring, and troubleshooting (real endpoints and resource names).
 - `07-documentation-index.md` — Index of every Step 1-7 artifact with one-line summaries and links.
-- `07-ab-diagram.{drawio | py+png+svg}` — As-built architecture diagram (tool from `decisions.diagram_tool`).
+- `07-ab-diagram.py`, `.png`, and `.svg` — Reproducible as-built architecture diagram.
 - Cost charts:
   `07-ab-cost-distribution`, `07-ab-cost-projection`,
   `07-ab-cost-comparison`, `07-ab-compliance-gaps` — each as paired
@@ -59,7 +59,7 @@ Produce in `agent-output/{project}/`:
 This agent generates documentation and diagrams only.
 
 - Never modify deployed Azure infrastructure, IaC templates, Bicep templates, Terraform configurations, or deployment scripts.
-- Never call Azure Pricing MCP tools directly — delegate all pricing to `cost-estimate-subagent`.
+- Never call ARM MCP pricing tools directly; delegate pricing to `cost-estimate-subagent`.
 - Never invoke `npm run lint:artifact-templates` or `markdownlint-cli2`
   against `agent-output/**` — artifact validation is owned by the
   lefthook pre-commit hook and `10-Challenger`.
@@ -68,8 +68,8 @@ This agent generates documentation and diagrams only.
 Role: Step 7 documentation author. Reads all prior artifacts (Steps 1-6) and the
 deployed Azure resource state, then produces the seven 07-\* as-built artifacts
 (design document, operations runbook, cost estimate, compliance matrix,
-backup/DR plan, resource inventory, documentation index) plus the as-built
-draw.io diagram.
+  backup/DR plan, resource inventory, documentation index) plus the as-built
+Python diagram.
 
 # Goal
 
@@ -82,14 +82,10 @@ the deployed state — not from prior plan estimates.
 
 - All seven `agent-output/{project}/07-*.md` artifacts written and follow the
   H2 templates in `.github/skills/azure-artifacts/templates/`.
-- As-built architecture diagram produced via the tool recorded in
-  `decisions.diagram_tool` (asked once via `vscode_askQuestions`):
-  - **Draw.io path** → `agent-output/{project}/07-ab-diagram.drawio` via
-    the drawio skill with quality score >= 9/10.
-  - **Python path** → `agent-output/{project}/07-ab-diagram.py` + `.png` +
-    `.svg` via the python-diagrams skill using the shared `diagram_io` helper.
+- As-built architecture diagram produced as `07-ab-diagram.py` with `.png`
+  and `.svg` siblings through the shared `diagram_io` helper.
 - Cost estimate values come verbatim from `cost-estimate-subagent` (no
-  hardcoded prices and no direct Azure Pricing MCP calls from this agent).
+  hardcoded prices and no direct ARM MCP pricing calls from this agent).
 - Resource inventory matches what Azure Resource Graph reports for the project's
   resource group(s); no orphan resources, no missing items.
 - Compliance matrix and backup/DR plan reflect actual deployed configuration,
@@ -102,15 +98,10 @@ the deployed state — not from prior plan estimates.
 - If `06-deployment-summary.md` is missing, STOP and ask the user to run the
   deploy step before generating as-built docs.
 - Hardcoding prices is prohibited: always delegate to `cost-estimate-subagent`.
-- Calling Azure Pricing MCP tools directly from this agent is prohibited; the
+- Calling ARM MCP pricing tools directly from this agent is prohibited; the
   cost subagent owns all pricing queries.
-- The diagram tool (`drawio` vs `python`) must be asked once via
-  `vscode_askQuestions` and recorded as `decisions.diagram_tool` before
-  any diagram work begins; do not assume the tool used at Step 3.
-- The Draw.io path must follow the batch-only workflow in the drawio skill
-  and pass `tools/scripts/validate-drawio-files.mjs`. Quality score below 9/10
-  is a hard fail.
-- The Python path must use the shared `diagram_io` helper so both `.png`
+- Record `decisions.diagram_tool=python` before diagram work begins.
+- Use the shared `diagram_io` helper so both `.png`
   and `.svg` siblings are emitted; missing either sibling is a hard fail.
 - Read deployed state via Azure Resource Graph + `az` CLI; do not infer state
   from IaC source when the deployment is reachable.
@@ -122,11 +113,11 @@ the deployed state — not from prior plan estimates.
 The artifact contract is captured below in `## Output Files`, `## Expected
 Output`, and `## Validation Checklist`. Templates live in
 `.github/skills/azure-artifacts/templates/` (see `## Read Skills First`). The
-draw.io workflow is captured in `## Draw.io MCP-Driven Diagram Workflow`.
+Python diagram workflow is captured in `## As-Built Diagram Workflow`.
 
 # Stop rules
 
-- Stop after the seven 07-\* artifacts and the draw.io diagram are written and
+- Stop after the seven 07-\* artifacts and the Python diagram outputs are written and
   the documentation index is updated. Do not loop back to regenerate artifacts
   without a fresh user prompt.
 - Stop and ask the user if `06-deployment-summary.md` is missing; do not fall
@@ -160,10 +151,9 @@ template-file reads in **one parallel `read_file` batch** to amortize cost.
 
 1. Read `.github/skills/azure-defaults/SKILL.md` — regions, tags, naming, pricing MCP names
 2. Read `.github/skills/azure-artifacts/SKILL.md` — H2 templates for all 07-\* artifacts
-3. Read `.github/skills/drawio/SKILL.md` — diagram generation contract
-4. Read `.github/skills/python-diagrams/SKILL.md` — WAF/cost chart generation
-5. Read `.github/skills/context-management/SKILL.md` — runtime compression for predecessor artifacts (Mode A)
-6. Read the template files for your artifacts (all in `.github/skills/azure-artifacts/templates/`):
+3. Read `.github/skills/python-diagrams/SKILL.md` — architecture diagram and chart generation
+4. Read `.github/skills/context-management/SKILL.md` — runtime compression for predecessor artifacts (Mode A)
+5. Read the template files for your artifacts (all in `.github/skills/azure-artifacts/templates/`):
    - `07-design-document.template.md`
    - `07-operations-runbook.template.md`
    - `07-ab-cost-estimate.template.md`
@@ -171,7 +161,7 @@ template-file reads in **one parallel `read_file` batch** to amortize cost.
    - `07-backup-dr-plan.template.md`
    - `07-resource-inventory.template.md`
    - `07-documentation-index.template.md`
-7. Read the execution-subagent prompt contract
+6. Read the execution-subagent prompt contract
    [tools/apex-prompts/utility-prompts/execution-subagent.prompt.md](../../tools/apex-prompts/utility-prompts/execution-subagent.prompt.md)
    — every `runSubagent` call (cost-estimate-subagent) MUST follow the
    three-H2 contract (issue #425).
@@ -183,13 +173,8 @@ template-file reads in **one parallel `read_file` batch** to amortize cost.
 - Read ALL prior artifacts (01-06) before generating any documentation
 - Query deployed Azure resources for real state (not just planned state)
 - Delegate pricing to `cost-estimate-subagent` for as-built cost estimates
-- Ask the user once via `vscode_askQuestions` whether to use Draw.io or Python
-  for the as-built diagram, then record `decisions.diagram_tool`
-- Generate the as-built architecture diagram via the tool the user picked
-  (drawio skill + MCP tools, or python-diagrams skill with the shared `diagram_io` helper)
-- Use Draw.io transactional mode and batch-only calls when the picked tool is `drawio`
-- Use `shape_name` in `add-cells` for Azure icons — never specify width/height/style for shaped vertices
-- Save exported diagrams via terminal command, not LLM read-back
+- Record `decisions.diagram_tool=python` for the as-built diagram.
+- Generate the diagram with the python-diagrams skill and shared `diagram_io` helper.
 - Preserve the shared enterprise reference-architecture visual language so Step 7 diagrams visually align with Step 3 outputs
 - Prefer fewer, larger service tiles over many small cards so deployed names remain readable
 - Keep the as-built diagram architecture-focused: show actual deployed names when useful,
@@ -221,43 +206,9 @@ template-file reads in **one parallel `read_file` batch** to amortize cost.
   deployed diagram feel unfinished or improvised
 - **Hardcoding prices** — ALL prices in `07-ab-cost-estimate.md` MUST originate from
   `cost-estimate-subagent` responses
-- **Calling Azure Pricing MCP tools directly** — delegate all pricing to `cost-estimate-subagent`
+- **Calling ARM MCP pricing tools directly** — delegate all pricing to `cost-estimate-subagent`
 
 ## As-Built Diagram Workflow
-
-The as-built diagram supports two tools (mirrors Step 3 Design). The picked
-tool is recorded as `decisions.diagram_tool` via the `▶ Generate As-Built
-Diagram` handoff — do not assume the Step 3 choice still applies; operations
-teams sometimes prefer the opposite format at hand-over.
-
-**Phase 0 — Tool-choice gate** (one-time per project):
-
-1. Run `apex-recall show <project> --json` and check `decisions.diagram_tool`.
-   If unset, the handoff already asked via `vscode_askQuestions` and wrote
-   the decision. Re-ask only if the user explicitly requests a re-pick.
-2. Load **only** the skill matching the picked tool:
-   - `drawio` → [`drawio/SKILL.md`](../skills/drawio/SKILL.md)
-   - `python` → [`python-diagrams/SKILL.md`](../skills/python-diagrams/SKILL.md)
-
-### Draw.io path (`decisions.diagram_tool == "drawio"`)
-
-The Draw.io MCP server is **not stateful between calls** — pass `diagram_xml`
-from each tool response to the next. The server's `instructions` field
-auto-sends detailed layout rules, batch workflow, and conventions; follow
-those for spacing, grid alignment, edge routing, group sizing, and
-cross-cutting service placement.
-
-1. **Search shapes** — Call `search-shapes` ONCE with ALL Azure service names.
-2. **Create groups** — Call `create-groups` ONCE (VNets, subnets, RGs). Set `text: ""`.
-3. **Add cells** — Call `add-cells` ONCE with ALL vertices + edges
-   (`transactional: true`, `shape_name` for icons, `temp_id` for refs).
-   Use actual deployed resource names.
-4. **Assign to groups** — Call `add-cells-to-group` ONCE. Call `validate-group-containment` after.
-5. **Finish** — Call `finish-diagram` with `compress: true`.
-6. **Save** — Extract XML via terminal and write to `agent-output/{project}/07-ab-diagram.drawio`.
-7. **Validate** — Run `node tools/scripts/validate-drawio-files.mjs`.
-
-### Python path (`decisions.diagram_tool == "python"`)
 
 Use the [`python-diagrams`](../skills/python-diagrams/SKILL.md) skill. Every
 generated `.py` MUST import the shared `save_figure` helper from
@@ -272,10 +223,9 @@ both `.png` and `.svg` siblings in one run.
 3. **Verify** both siblings exist: `07-ab-diagram.png` AND `07-ab-diagram.svg`.
    Missing either is a hard fail — re-run after fixing the script.
 
-The diagram contract (semantic zones, observability zone at ≥2 cross-cutting
-services, edge-label hygiene, sibling spacing) applies to both paths. See
-[`drawio/references/`](../skills/drawio/references/) for the rule sources —
-the same intent applies on the Python path even though the rules cite Draw.io.
+Record `decisions.diagram_tool=python`. Ensure the diagram exposes important
+trust boundaries, regions, dependencies, observability services, and flows
+without overlapping labels or inventory-level detail.
 
 ## Prerequisites Check
 
@@ -435,14 +385,9 @@ Execute each `.py` file and verify both `.png` and `.svg` exist before continuin
 
 ### Phase 4: As-Built Diagram
 
-Read `decisions.diagram_tool` from apex-recall and branch:
-
-- `drawio` → generate `agent-output/{project}/07-ab-diagram.drawio` via the
-  drawio skill and MCP tools using the full workflow in
-  `## As-Built Diagram Workflow` (Draw.io path).
-- `python` → generate `agent-output/{project}/07-ab-diagram.py` + `.png` +
-  `.svg` via the python-diagrams skill using the shared `diagram_io` helper,
-  per `## As-Built Diagram Workflow` (Python path).
+Record `decisions.diagram_tool=python`, then generate
+`agent-output/{project}/07-ab-diagram.py` with `.png` and `.svg` siblings
+through the shared `diagram_io` helper.
 
 The diagram MUST reflect actual deployed resources (not just planned
 ones), regardless of tool. As-built-specific rules:
@@ -451,11 +396,7 @@ ones), regardless of tool. As-built-specific rules:
   traceability — not the plan's name placeholders.
 - Prefer service names + deployed names over SKU/tier/policy/count
   annotations unless a difference is architecturally significant.
-- On the Draw.io path: save via
-  `python3 tools/scripts/save-drawio.py <json-path> <output.drawio>`
-  (strips edge anchors); validate via
-  `node tools/scripts/validate-drawio-files.mjs`.
-- On the Python path: execute the `.py` file and verify both `.png` and
+- Execute the `.py` file and verify both `.png` and
   `.svg` siblings exist before continuing.
 
 ### Phase 4: Finalize
@@ -493,8 +434,7 @@ az graph query -q "resources | where resourceGroup == '{rg-name}' | project name
 | Backup & DR Plan           | `agent-output/{project}/07-backup-dr-plan.md`        |
 | Operations Runbook         | `agent-output/{project}/07-operations-runbook.md`    |
 | Documentation Index        | `agent-output/{project}/07-documentation-index.md`   |
-| As-Built Diagram (Draw.io path) | `agent-output/{project}/07-ab-diagram.drawio` (when `decisions.diagram_tool == "drawio"`) |
-| As-Built Diagram (Python path)  | `agent-output/{project}/07-ab-diagram.{py,png,svg}` (when `decisions.diagram_tool == "python"`) |
+| As-Built Diagram           | `agent-output/{project}/07-ab-diagram.{py,png,svg}` |
 | Cost Distribution Chart    | `agent-output/{project}/07-ab-cost-distribution.{png,svg}` |
 | Cost Projection Chart      | `agent-output/{project}/07-ab-cost-projection.{png,svg}`   |
 | Design vs As-Built Chart   | `agent-output/{project}/07-ab-cost-comparison.{png,svg}`   |
@@ -511,7 +451,7 @@ agent-output/{project}/
 ├── 07-backup-dr-plan.md          # Backup, DR, and business continuity
 ├── 07-operations-runbook.md      # Day-2 ops, monitoring, troubleshooting
 ├── 07-documentation-index.md     # Index of all project artifacts
-└── 07-ab-diagram.{drawio | py+png+svg}  # As-built architecture diagram (tool from decisions.diagram_tool)
+└── 07-ab-diagram.{py,png,svg}    # Reproducible as-built architecture diagram
 ```
 
 Validation: enforced by the lefthook `artifact-validation` pre-commit hook and
@@ -540,10 +480,9 @@ This keeps the user informed during multi-phase operations.
 - [ ] All prior artifacts (01-06) read and cross-referenced
 - [ ] Deployed resource state queried (not just planned state)
 - [ ] All 7 documentation files generated with correct H2 headings
-- [ ] `decisions.diagram_tool` set (`drawio` or `python`) before diagram generation
+- [ ] `decisions.diagram_tool` set to `python` before diagram generation
 - [ ] As-built diagram reflects actual deployed resources
-- [ ] Draw.io path only: diagram contains embedded `image` elements and a non-empty `files` map
-- [ ] Python path only: both `07-ab-diagram.png` and `07-ab-diagram.svg` siblings exist on disk
+- [ ] Both `07-ab-diagram.png` and `07-ab-diagram.svg` siblings exist on disk
 - [ ] Cost estimate uses `cost-estimate-subagent` prices — no hardcoded dollar figures
 - [ ] Planned vs as-built cost delta documented
 - [ ] Compliance matrix maps controls to actual resource configurations

@@ -213,7 +213,7 @@ decisions.review_depth`](https://github.com/jonathan-vella/apex/blob/main/.githu
 - **Instructions activated** — `agent-operating-frame`, `azure-artifacts`,
   `sku-manifest`.
 - **Data sources** — `avm-module-index.json` (lifecycle status),
-  `azure-deprecations.json`, Azure Pricing MCP (via subagent).
+  `azure-deprecations.json`, Azure Resource Manager MCP (via subagent).
 - **`apex-recall`** — `checkpoint` per phase; `decide` for review-depth
   default; cost estimate stored as artifact, summary in findings.
 - **Artifacts** — `02-architecture-assessment.md`,
@@ -233,16 +233,16 @@ decisions.review_depth`](https://github.com/jonathan-vella/apex/blob/main/.githu
 ### Step 3 — Design (optional)
 
 - **Purpose & inputs** — Architecture diagrams + ADRs.
-  `requires: gate-2`; produces `03-des-diagram.drawio`, `03-des-adr-*.md`.
+  `requires: gate-2`; produces `03-des-diagram.{py,png,svg}`, `03-des-adr-*.md`.
 - **Driving agent** — `04-Design`. Optional — users can skip directly to
   Step 3.5 governance.
-- **Skills auto-loaded** — `drawio` (or `python-diagrams`), `azure-adr`,
+- **Skills auto-loaded** — `python-diagrams`, `azure-adr`,
   `azure-defaults`, `azure-artifacts`.
-- **Instructions activated** — `drawio`, `azure-artifacts`,
+- **Instructions activated** — `azure-artifacts`,
   `agent-operating-frame`.
 - **Data sources** — `avm-module-index.json` for module-aware diagrams.
 - **`apex-recall`** — `checkpoint`, `complete-step 3`.
-- **Artifacts** — `.drawio` source + PNG; one ADR file per material
+- **Artifacts** — Python source with PNG/SVG renders; one ADR file per material
   decision.
 - **Challenger review** — opt-in only; scope `design-adr` if invoked.
 - **Gate & approval** — no gate; flows directly to Step 3.5.
@@ -387,9 +387,9 @@ Compliance Matrix` and `## 📤 Code-Generation Contract` H2s),
   challenger). Seven parallel substeps: design document, operations
   runbook, cost estimate, compliance matrix, backup/DR plan, resource
   inventory, documentation index.
-- **Skills auto-loaded** — `azure-defaults`, `azure-artifacts`, `drawio`,
+- **Skills auto-loaded** — `azure-defaults`, `azure-artifacts`,
   `python-diagrams`, `context-management` (Mode A compression).
-- **Instructions activated** — `azure-artifacts`, `drawio`,
+- **Instructions activated** — `azure-artifacts`,
   `markdown-docs` (for any docs-site copy).
 - **Data sources** — live Azure Resource Manager (resource inventory);
   `sku-manifest` for bidirectional drift detection.
@@ -730,12 +730,12 @@ This page deliberately links rather than duplicates.
 | ---- | ------------------------------------------------------------------------------------------------ | -------------------------------------------------- |
 | 1    | `azure-defaults`, `azure-artifacts`                                                              | `microsoft-docs`                                   |
 | 2    | `azure-defaults`, `azure-artifacts`, `context-management`                                        | `microsoft-docs`, `azure-compute`, `azure-storage` |
-| 3    | `azure-defaults`, `azure-artifacts`, `azure-adr`                                                 | `drawio` or `python-diagrams`                      |
+| 3    | `azure-defaults`, `azure-artifacts`, `azure-adr`                                                 | `python-diagrams`                                  |
 | 3.5  | `azure-defaults`, `azure-artifacts`, `azure-governance-discovery`, `iac-common`                  | `microsoft-docs`                                   |
 | 4    | `azure-defaults`, `azure-artifacts`, `iac-common`, `python-diagrams`, track-specific patterns    | `microsoft-docs`, `azure-rbac`                     |
 | 5    | `azure-defaults`, `azure-artifacts`, track-specific patterns, `iac-common`, `context-management` | `azure-rbac`, `entra-app-registration`             |
 | 6    | `azure-defaults`, `azure-artifacts`, `iac-common`                                                | `azure-quotas`, `azure-validate`, `azure-deploy`   |
-| 7    | `azure-defaults`, `azure-artifacts`, `drawio`, `python-diagrams`, `context-management`           | `azure-resources`, `azure-compliance`              |
+| 7    | `azure-defaults`, `azure-artifacts`, `python-diagrams`, `context-management`                     | `azure-resources`, `azure-compliance`              |
 
 ## Appendix C — Instruction ↔ trigger matrix
 
@@ -749,7 +749,6 @@ This page deliberately links rather than duplicates.
 | `iac-bicep-best-practices`     | `**/*.bicep`                              | 5b, 6b             |
 | `iac-terraform-best-practices` | `**/*.tf`                                 | 5t, 6t             |
 | `azure-yaml`                   | `**/azure.yaml`                           | 5, 6               |
-| `drawio`                       | `**/*.drawio`                             | 3, 7               |
 | `lesson-collection`            | `**/*orchestrator*.agent.md`              | Throughout         |
 | `no-interactive-shell`         | chat-loaded agent/skill/instruction files | Authoring only     |
 | `no-hardcoded-counts`          | repo-wide markdown + scripts              | Authoring only     |

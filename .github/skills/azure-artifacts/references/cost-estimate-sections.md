@@ -13,8 +13,7 @@ Rules and enforcement live in the instruction file.
 **Generated**: {YYYY-MM-DD}
 **Region**: {primary-region}
 **Environment**: {Production|Staging|Development}
-**MCP Tools Used**: {azure_price_search, azure_cost_estimate,
-azure_bulk_estimate, azure_region_recommend, azure_sku_discovery}
+**MCP Tools Used**: {get_retail_prices, query_costs, forecast_costs}
 **Architecture Reference**: {relative link to assessment doc}
 ```
 
@@ -365,7 +364,7 @@ Required bullets:
 ## 📊 Pricing Data Accuracy
 
 > **📊 Data Source**: Prices from Azure Retail Prices API via
-> Azure Pricing MCP
+> Azure Resource Manager MCP
 >
 > ✅ **Included**: Retail list prices (PAYG)
 >

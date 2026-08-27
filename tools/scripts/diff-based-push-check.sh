@@ -19,7 +19,6 @@ INSTRUCTION_COUNT=0
 SKILL_COUNT=0
 JSON_COUNT=0
 PY_COUNT=0
-DRAWIO_COUNT=0
 SKU_MANIFEST_COUNT=0
 SKU_COVERAGE_COUNT=0
 
@@ -33,7 +32,6 @@ while IFS= read -r file; do
     */SKILL.md) SKILL_COUNT=$((SKILL_COUNT + 1)) ;;
     *.json) JSON_COUNT=$((JSON_COUNT + 1)) ;;
     mcp/*.py|tools/scripts/*.py) PY_COUNT=$((PY_COUNT + 1)) ;;
-    *.drawio) DRAWIO_COUNT=$((DRAWIO_COUNT + 1)) ;;
   esac
   case "$file" in
     agent-output/*/sku-manifest.json)
@@ -46,7 +44,7 @@ while IFS= read -r file; do
   esac
 done <<< "$CHANGED_FILES"
 
-TOTAL=$((BICEP_COUNT + TF_COUNT + MD_ARTIFACT_COUNT + AGENT_COUNT + INSTRUCTION_COUNT + SKILL_COUNT + JSON_COUNT + PY_COUNT + DRAWIO_COUNT + SKU_MANIFEST_COUNT + SKU_COVERAGE_COUNT))
+TOTAL=$((BICEP_COUNT + TF_COUNT + MD_ARTIFACT_COUNT + AGENT_COUNT + INSTRUCTION_COUNT + SKILL_COUNT + JSON_COUNT + PY_COUNT + SKU_MANIFEST_COUNT + SKU_COVERAGE_COUNT))
 
 if [ "$TOTAL" -eq 0 ]; then
   echo "ℹ️  No validatable files changed — skipping"
@@ -93,7 +91,6 @@ run_check "Instruction checks" "$INSTRUCTION_COUNT" "npm run validate:instructio
 run_check "Skills validation" "$SKILL_COUNT" "npm run validate:skills" "skills" &
 run_check "JSON syntax" "$JSON_COUNT" "npm run lint:json" "json" &
 run_check "Python lint" "$PY_COUNT" "npm run lint:python" "python" &
-run_check "Draw.io files" "$DRAWIO_COUNT" "npm run lint:drawio" "drawio" &
 run_check "SKU manifest" "$SKU_MANIFEST_COUNT" "npm run validate:sku-manifest" "sku-manifest" &
 run_check "SKU ↔ IaC coverage" "$SKU_COVERAGE_COUNT" "npm run validate:sku-iac-coverage -- --diff-mode" "sku-iac-coverage" &
 
@@ -116,7 +113,7 @@ for result_file in "$RESULTS_DIR"/*; do
 done
 
 echo ""
-echo "📊 Checked: ${BICEP_COUNT} Bicep, ${TF_COUNT} Terraform, ${MD_ARTIFACT_COUNT} Artifact MD, ${AGENT_COUNT} Agent, ${INSTRUCTION_COUNT} Instruction, ${SKILL_COUNT} Skill, ${JSON_COUNT} JSON, ${PY_COUNT} Python, ${DRAWIO_COUNT} Draw.io, ${SKU_MANIFEST_COUNT} SKU manifest, ${SKU_COVERAGE_COUNT} SKU coverage"
+echo "📊 Checked: ${BICEP_COUNT} Bicep, ${TF_COUNT} Terraform, ${MD_ARTIFACT_COUNT} Artifact MD, ${AGENT_COUNT} Agent, ${INSTRUCTION_COUNT} Instruction, ${SKILL_COUNT} Skill, ${JSON_COUNT} JSON, ${PY_COUNT} Python, ${SKU_MANIFEST_COUNT} SKU manifest, ${SKU_COVERAGE_COUNT} SKU coverage"
 echo "   Results: ${PASS} passed, ${FAIL} failed"
 
 if [ "$FAIL" -gt 0 ]; then

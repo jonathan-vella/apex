@@ -71,7 +71,7 @@ The prompt drives a seven-step flow:
 4. **Present** the Tier 1/2/3 classification and ask for approval.
 5. Apply the exclusions (`git checkout origin/{target} -- <file>` for
    modified Tier 1 paths, `git rm` for the rest).
-6. Validate (`npm run validate:skills`, Azure Pricing MCP pytest, ruff)
+6. Validate (`npm run validate:skills`, `npm run lint:mcp-config`, ruff)
    and commit with an exclusion-receipt body.
 7. Push and open the PR via `gh pr create` with a body that lists every
    excluded path and recommends squash-merge.

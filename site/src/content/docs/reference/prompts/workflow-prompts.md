@@ -91,7 +91,7 @@ instead of AKS. Include WAF trade-offs from the assessment.
 **Cost estimate** (delegates to Architect):
 
 ```text
-Generate a detailed cost estimate using Azure Pricing MCP tools.
+Generate a detailed cost estimate using Azure Resource Manager MCP tools.
 Include monthly and yearly totals for each resource.
 ```
 

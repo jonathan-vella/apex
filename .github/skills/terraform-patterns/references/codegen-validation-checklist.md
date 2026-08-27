@@ -23,7 +23,7 @@ Verify ALL items before marking Step 5 complete.
 
 - [ ] Bootstrap + deploy scripts generated (bash + PS)
 - [ ] `05-implementation-reference.md` saved
-- [ ] Budget resource with forecast alerts (80/100/120%) and anomaly detection
+- [ ] Budget resource, notifications, Action Group routing, and anomaly detection comply with the canonical cost-monitoring contract
 
 ## Review Gates
 

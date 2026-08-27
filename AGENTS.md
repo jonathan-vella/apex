@@ -12,7 +12,7 @@ npm install                              # Node.js deps (validators, linting)
 npm run setup                            # Azure + GitHub OIDC/secrets/RBAC
 ```
 
-> Python deps (diagrams, Azure Pricing MCP, apex-recall) install automatically
+> Python deps (diagrams and apex-recall) install automatically
 > via the dev container's `post-create.sh`. Setup details:
 > https://apexops.pro/getting-started/azure-setup/
 

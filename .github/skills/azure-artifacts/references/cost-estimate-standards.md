@@ -51,9 +51,12 @@ Section templates and visual styling:
 
 ## Pricing Sources (Priority Order)
 
-1. Azure Pricing MCP (`azure_price_search`, `azure_cost_estimate`, `azure_bulk_estimate`)
-2. Azure Pricing Calculator (manual validation)
-3. Azure Retail Prices API (programmatic)
+1. Azure Resource Manager MCP (`get_retail_prices`)
+2. ARM MCP cost tools for authenticated deployed scopes
+3. Azure Pricing Calculator for manual validation
+
+Query parameters, meter selection, and calculations are canonical in
+`azure-defaults/references/pricing-guidance.md`.
 
 ## Patterns to Avoid
 

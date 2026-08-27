@@ -43,7 +43,7 @@ count is computed by `tools/registry/count-manifest.json`. A grouped overview:
 | -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Azure Infrastructure | `azure-defaults`, `azure-bicep-patterns`, `terraform-patterns`, `azure-validate`                                                                                                                                  |
 | Azure Operations     | `azure-diagnostics`, `azure-adr`, `azure-deploy`                                                                                                                                                                  |
-| Diagram & Chart      | `drawio`, `python-diagrams`, `mermaid`                                                                                                                                                                            |
+| Diagram & Chart      | `python-diagrams`, `mermaid`                                                                                                                                                                                      |
 | Artefact Generation  | `azure-artifacts`, `context-management`                                                                                                                                                                           |
 | Documentation        | `docs-writer`                                                                                                                                                                                                     |
 | Workflow and State   | `workflow-engine`, `golden-principles`                                                                                                                                                                            |
@@ -79,7 +79,6 @@ when each instruction activates:
 | `agent-research-first`         | `**/*.agent.md`, agent-output, skills                                | Mandatory research-before-implementation                       |
 | `agent-skills`                 | `**/.github/skills/**/SKILL.md`                                      | Skill file format standards                                    |
 | `astro`                        | `site/**/*.{astro,mjs,ts}`                                           | Astro/Starlight site conventions                               |
-| `drawio`                       | `**/*.drawio`, `**/*.drawio.svg`                                     | Draw.io diagram conventions                                    |
 | `instructions`                 | `**/*.instructions.md`                                               | Meta: instruction file guidelines                              |
 | `markdown`                     | `**/*.md`                                                            | Documentation standards                                        |
 | `context-optimization`         | Agents, skills, instructions                                         | Context window management rules                                |
@@ -109,9 +108,9 @@ which wins over cross-cutting cost rules (Tier 3), which wins over general code 
 track-specific instructions that enforce
 two mandatory rules across all IaC projects (Bicep and Terraform):
 
-1. **Cost Monitoring**: Every deployment must include an Azure Budget resource with
-   parameterised amount, forecast alerts at 80/100/120% thresholds, and anomaly
-   detection alerts to a `technicalContact` parameter.
+1. **Cost Monitoring**: Every deployment must implement the governed budget
+   notification contract, Action Group routing, anomaly detection, and
+   parameterised notification inputs.
 2. **Repeatability (zero hardcoded values)**: Templates must deploy to any
    tenant/region/subscription without source-code modification. `projectName` must
    be a parameter with no default; all tag values reference parameters;

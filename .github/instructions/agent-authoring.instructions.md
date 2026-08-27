@@ -61,8 +61,8 @@ Vendor-specific structure is enforced by
 ## Body Rules
 
 - The body is prepended to every turn; keep it concise and action-oriented.
-- Keep agent bodies at or below 600 lines; target 350 or fewer.
-- Move templates longer than 50 lines and phase-specific detail to references.
+- Follow the limits in `context-optimization.instructions.md`.
+- Move long templates and phase-specific detail to references.
 - Use `#tool:<tool-name>` for tool references.
 - Prefer relative links and verify they resolve from the agent file.
 - Read only skills needed for the current phase; never reread one in-session.

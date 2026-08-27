@@ -24,7 +24,6 @@ domain-specific knowledge modules that activate automatically based on prompt ke
 | ----------------- | ----------------------------------------------------- | ----------------------------------------- |
 | `python-diagrams` | WAF/cost/compliance charts and Python diagrams        | "WAF chart", "cost chart", "create chart" |
 | `mermaid`         | Inline Mermaid diagrams for markdown                  | "mermaid diagram", "flowchart"            |
-| `drawio`          | Draw.io diagrams with Azure icon libraries            | "draw.io diagram"                         |
 | `azure-adr`       | Create Architecture Decision Records with WAF mapping | "create ADR", "document decision"         |
 
 ### Category 3: Workflow & Tool Integration
@@ -45,7 +44,7 @@ Skills activate when your prompt matches their trigger keywords:
 
 ```text
 "Create an architecture diagram for the ecommerce project"
-→ drawio skill activates
+→ python-diagrams skill activates
 ```
 
 ### Explicit Invocation
@@ -62,7 +61,7 @@ Agents can invoke skills through self-referencing handoffs:
 
 ```text
 Architect agent → "▶ Generate Architecture Diagram" button
-→ Uses drawio skill
+→ Uses python-diagrams skill
 ```
 
 ## Skill vs Agent

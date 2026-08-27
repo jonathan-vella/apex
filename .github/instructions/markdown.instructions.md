@@ -38,7 +38,7 @@ Specify language after backticks. Never bare fences.
 
 Use the appropriate diagram skill for each output type:
 
-- **Architecture diagrams** → `drawio` skill (`.drawio`)
+- **Architecture diagrams** → `python-diagrams` skill (`.py`, `.png`, `.svg`)
 - **WAF/cost/compliance charts** → `python-diagrams` skill (`.py` + `.png`)
 - **Inline markdown diagrams** → `mermaid` skill (fenced code blocks)
 

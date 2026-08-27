@@ -1,6 +1,6 @@
 ---
 name: microsoft-docs
-description: '**ANALYSIS SKILL** — Query official Microsoft documentation to understand concepts, find tutorials, and learn how services work. WHEN: "Microsoft Learn", "Azure docs", "quickstart guide", "limits and quotas", "WAF reference", "architecture pattern docs". DO NOT USE FOR: Azure pricing (use azure-pricing MCP).'
+description: '**ANALYSIS SKILL** — Query official Microsoft documentation to understand concepts, find tutorials, and learn how services work. WHEN: "Microsoft Learn", "Azure docs", "quickstart guide", "limits and quotas", "WAF reference", "architecture pattern docs". DO NOT USE FOR: Azure pricing; route pricing through the cost-estimate subagent.'
 compatibility: Works through the Azure MCP `documentation` namespace (`mcp_azure-mcp_documentation`), which proxies the Microsoft Learn MCP backend at `https://learn.microsoft.com/api/mcp`. Can also use the `mslearn` CLI as a fallback.
 license: MIT
 metadata:
@@ -17,9 +17,8 @@ technologies.
 
 ## Prerequisites
 
-- **Azure MCP server** (`ms-azuretools.vscode-azure-mcp-server` extension,
-  declared in `devcontainer.json`) running locally. The Microsoft Learn docs
-  tools are exposed through the Azure MCP `documentation` router.
+- **Azure MCP server** configured in `.vscode/mcp.json`. Microsoft Learn tools
+  are exposed through its `documentation` router.
 - **Outbound HTTPS** to `learn.microsoft.com`
 - **Node.js ≥ 18** for the `mslearn` CLI fallback (via `npx @microsoft/learn-cli ...`)
 
@@ -48,7 +47,7 @@ All operations go through the Azure MCP `documentation` router
 - **Search first, fetch second** — always start with `microsoft_docs_search`; only fetch the full page when the search excerpt is insufficient
 - **Be specific** — include version (`.NET 8`, `EF Core 8`), task intent (`quickstart`, `tutorial`, `overview`, `limits`), and platform (`Linux`, `Windows`) where relevant
 - **Live docs over training data** — prefer this skill over model knowledge for accuracy and freshness
-- **Out of scope** — Azure pricing (use Azure Pricing MCP directly)
+- **Out of scope** — Azure pricing (use the cost-estimate subagent)
 - **Avoid loading entire docs trees** — fetch single pages
 - **CLI fallback** — when MCP server unavailable: `npx @microsoft/learn-cli search "..."`
 

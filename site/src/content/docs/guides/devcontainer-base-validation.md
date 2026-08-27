@@ -63,8 +63,8 @@ Each container run checks:
 
 - The observed Ubuntu version and CPU architecture.
 - Completion of the dev container lifecycle, including a repeated `post-start` idempotency smoke test.
-- All tools reported by the setup script, including Azure CLI, Bicep, PowerShell, Python, Node.js, Terraform, TFLint,
-  Deno, k6, gitleaks, azd, and the in-repo MCP servers.
+- All tools reported by the setup script, including Azure CLI, Bicep, PowerShell, Python, Node.js, and Terraform.
+  gitleaks, azd, and the configured MCP servers.
 - Repository formatting, hooks, linting, unit tests, infrastructure validation, and documentation build through existing
   npm scripts.
 - Minimal Bicep compilation and Terraform provider initialization/validation.

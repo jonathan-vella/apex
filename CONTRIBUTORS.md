@@ -14,10 +14,10 @@ Thank you to everyone who has contributed to making this project better!
 
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 
-## Azure Pricing MCP Server Contributors
+## Former Azure Pricing MCP Server Contributors
 
-The [Azure Pricing MCP Server](tools/mcp-servers/azure-pricing/) is a key component that provides
-real-time Azure pricing information to AI assistants.
+The former in-repo pricing server was replaced by the official Azure Resource
+Manager MCP server. These contributors built and maintained the earlier implementation.
 
 ### Original Author
 

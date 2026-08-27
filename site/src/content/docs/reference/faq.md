@@ -51,8 +51,8 @@ deploy.
 
 **Yes** — for deployment. Step 6 (Deploy) requires an active Azure
 subscription with permissions to create resources. Step 2 (Architecture)
-optionally uses the Azure Pricing MCP server, which queries public
-pricing APIs and does not require a subscription.
+uses the Azure Resource Manager MCP retail pricing tool, which is public and does
+not require a subscription. Scoped cost-management tools require Azure sign-in.
 :::
 
 ---
@@ -109,8 +109,7 @@ No. APEX requires:
 :::
 
     - **GitHub Copilot** — cloud-hosted AI service
-    - **MCP servers** — Azure MCP, Azure Pricing MCP, Draw.io MCP, GitHub MCP,
-      MS Learn MCP, and Terraform MCP servers
+    - **MCP servers** — Azure Resource Manager MCP, Azure MCP, and GitHub MCP
       provide real-time data to agents
 
     The dev container itself runs locally, but agent conversations and MCP tool calls

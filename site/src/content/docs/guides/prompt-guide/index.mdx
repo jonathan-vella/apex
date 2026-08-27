@@ -77,9 +77,8 @@ validation or preview output.
 | ---------------------- | ---------------------------------------------------------------------------------- |
 | `azure-defaults`       | Regions, tags, naming, AVM, security, governance                                   |
 | `azure-artifacts`      | H2 template structures for agent output files                                      |
-| `python-diagrams`      | WAF/cost/compliance charts (matplotlib)                                            |
+| `python-diagrams`      | Architecture diagrams and WAF/cost/compliance charts                              |
 | `mermaid`              | Inline Mermaid diagrams for markdown                                               |
-| `drawio`               | Draw.io diagrams via simonkurtz-MSFT MCP server (700+ Azure icons, batch creation) |
 | `azure-adr`            | Architecture Decision Records                                                      |
 | `azure-bicep-patterns` | Reusable Bicep patterns (hub-spoke, PE, diagnostics)                               |
 | `terraform-patterns`   | Reusable Terraform patterns (hub-spoke, PE, AVM-TF)                                |
@@ -94,9 +93,9 @@ validation or preview output.
 | ----------------------------- | ----------------- | ---------------------------------------------------- |
 | `bicep-validate-subagent`     | Bicep CodeGen     | Runs lint plus AVM and security review               |
 | `bicep-whatif-subagent`       | Bicep Deploy      | Runs `az deployment group what-if` preview           |
-| `terraform-validate-subagent` | Terraform CodeGen | Runs `terraform fmt`, `validate`, TFLint, and review |
+| `terraform-validate-subagent` | Terraform CodeGen | Runs `terraform fmt`, `validate`, and review         |
 | `terraform-plan-subagent`     | Terraform Deploy  | Runs `terraform plan` change preview                 |
-| `cost-estimate-subagent`      | Architect         | Queries Azure Pricing MCP for real-time pricing      |
+| `cost-estimate-subagent`      | Architect         | Queries ARM MCP for retail pricing                   |
 
 ### Prompt Files
 

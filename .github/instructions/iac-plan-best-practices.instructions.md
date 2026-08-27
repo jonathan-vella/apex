@@ -17,9 +17,9 @@ See `references/iac-policy-compliance.md` for the full compliance checklist.
 
 ## Cost Monitoring
 
-Every implementation plan includes budget resources with forecast alerts
-at 80%, 100%, and 120% thresholds plus anomaly detection.
-See `references/iac-cost-monitoring.md` for required resources.
+Every implementation plan includes budget resources, governed notifications,
+Action Group routing, and anomaly detection. See
+`references/iac-cost-monitoring.md` for the canonical contract.
 
 ## Repeatability
 

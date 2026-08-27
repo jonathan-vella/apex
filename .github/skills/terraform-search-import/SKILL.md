@@ -65,16 +65,13 @@ Terraform-resource ↔ `az` CLI mapping table for the 8 most common services liv
 After importing raw `azurerm_*` resources, refactor to AVM modules using `moved {}` blocks.
 See `terraform-patterns` skill `references/refactor-module.md` for guidance.
 
-## Integration with Terraform MCP
+## Provider and Module Metadata
 
-Use Terraform MCP tools during import workflows:
-
-| Tool                                      | Purpose                                      |
-| ----------------------------------------- | -------------------------------------------- |
-| `mcp_terraform_search_providers`          | Validate resource type support in provider   |
-| `mcp_terraform_get_provider_details`      | Get resource schemas and import ID format    |
-| `mcp_terraform_search_modules`            | Find AVM modules for post-import refactoring |
-| `mcp_terraform_get_latest_module_version` | Get latest AVM module version                |
+Use Azure MCP or Azure CLI to discover deployed resource IDs. Use the public
+Terraform Registry API for provider/module search and versions, then run
+`terraform init` and `terraform providers schema -json` for resource schemas.
+The canonical commands and source boundaries are in
+[`terraform-conventions.md`](../azure-defaults/references/terraform-conventions.md).
 
 ---
 

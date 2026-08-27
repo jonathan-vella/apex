@@ -19,7 +19,6 @@ tools:
     search,
     "azure-mcp/*",
     "bicep/*",
-    "terraform/*",
     todo,
     ms-azuretools.vscode-azureresourcegroups/azureActivityLog,
   ]

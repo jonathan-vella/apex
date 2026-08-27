@@ -100,10 +100,9 @@ extensions, and settings — no manual setup required. See the
 The Dev Container installs all tools automatically:
 
 - Azure CLI + Bicep CLI
-- Terraform CLI + TFLint
+- Terraform CLI
 - PowerShell 7
 - Python 3 + diagrams library
-- Go (Terraform MCP server)
 - `apex-recall` CLI (session recall)
 - Comprehensive set of VS Code extensions
 
@@ -300,7 +299,7 @@ After completing the workflow:
 agent-output/my-webapp/
 ├── 01-requirements.md          # Captured requirements (includes iac_tool)
 ├── 02-architecture-assessment.md  # WAF analysis
-├── 03-des-diagram.drawio         # Optional Step 3 architecture diagram
+├── 03-des-diagram.{py,png,svg}   # Optional Step 3 architecture diagram
 ├── 04-implementation-plan.md   # Phased plan
 ├── 04-dependency-diagram.py        # Step 4 dependency diagram
 ├── 04-runtime-diagram.py           # Step 4 runtime diagram
@@ -353,7 +352,7 @@ Pick the path that matches your goal — then drop into the resource table below
 | Try a guided hands-on challenge | [MicroHack](https://microhack.apexops.pro/)                                 |
 | Try a complete workflow         | [Prompt Guide](../../guides/prompt-guide/)                                                                |
 | Review mandatory guardrails     | [Security Baseline](../../reference/security-baseline/) and [Cost Governance](../../reference/cost-governance/) |
-| Generate architecture diagrams  | Use `drawio` skill (or `python-diagrams` for charts)                                                      |
+| Generate architecture diagrams  | Use the `python-diagrams` skill                                                                        |
 | Create documentation            | Use `azure-artifacts` skill                                                                               |
 | Explore Terraform patterns      | Use `terraform-patterns` skill                                                                            |
 | Troubleshoot issues             | [troubleshooting.md](../../guides/troubleshooting/)                                                       |
@@ -377,12 +376,12 @@ Ctrl+Shift+A → Select agent → Type prompt → Approve
 
 Skills activate automatically based on your prompt:
 
-- "Create an architecture diagram" → `drawio`
+- "Create an architecture diagram" → `python-diagrams`
 - "Generate an ADR" → `azure-adr`
 - "Create workload documentation" → `azure-artifacts`
 
 Or invoke explicitly:
 
 ```text
-Use the drawio skill to create a diagram for my-webapp
+Use the python-diagrams skill to create a diagram for my-webapp
 ```

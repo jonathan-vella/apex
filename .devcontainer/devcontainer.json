@@ -22,28 +22,24 @@
       "version": "latest"
     },
     "./features/terraform": {},
-    "ghcr.io/devcontainers/features/go:1": {
-      "version": "1.26"
-    },
-    "ghcr.io/devcontainers-community/features/deno": {
-      "version": "latest"
-    },
     "ghcr.io/azure/azure-dev/azd:latest": {}
   },
 
   // Lifecycle commands - chain apt operations to avoid lock conflicts
   // Lifecycle: onCreateCommand runs first (system packages + uv), then postCreateCommand (tools), then postStartCommand (updates)
-  "onCreateCommand": "set -e; sudo rm -f /etc/apt/sources.list.d/yarn.list 2>/dev/null; sudo apt-get update; sudo apt-get install -y graphviz dos2unix bats; sudo install -d -m 0755 -o vscode -g vscode \"$HOME/.cache\" \"$HOME/.local/bin\"; dos2unix .devcontainer/*.sh 2>/dev/null || true; curl -LsSf https://astral.sh/uv/install.sh | sh",
+  "onCreateCommand": "set -e; sudo rm -f /etc/apt/sources.list.d/yarn.list 2>/dev/null; sudo apt-get update; sudo apt-get install -y graphviz dos2unix bats; sudo install -d -m 0755 -o vscode -g vscode \"$HOME/.cache\" \"$HOME/.local/bin\"; dos2unix .devcontainer/*.sh 2>/dev/null || true; npm install --global npm@12.0.2; curl -LsSf https://astral.sh/uv/install.sh | sh; if ! command -v az >/dev/null 2>&1; then curl -fsSL -o /tmp/install-azure-cli.sh https://aka.ms/InstallAzureCLIDeb; sudo DIST_CODE=noble bash /tmp/install-azure-cli.sh; rm -f /tmp/install-azure-cli.sh; fi",
   "postCreateCommand": "bash .devcontainer/post-create.sh",
-  "postStartCommand": "bash .devcontainer/post-start.sh && (npx lefthook install 2>/dev/null || true)",
+  "postStartCommand": "bash .devcontainer/post-start.sh",
 
   // Environment variables for Python optimization
   "containerEnv": {
     "PYTHONDONTWRITEBYTECODE": "1",
     "PYTHONUNBUFFERED": "1",
+    "NPM_CONFIG_REGISTRY": "https://packagefeedproxy.microsoft.io/npm/",
     "UV_CACHE_DIR": "/home/vscode/.cache/uv",
-    "TF_PLUGIN_CACHE_DIR": "/home/vscode/.terraform.d/plugin-cache",
-    "DENO_DIR": "/home/vscode/.cache/deno"
+    "PIP_INDEX_URL": "https://packagefeedproxy.microsoft.io/pypi/simple/",
+    "UV_INDEX_URL": "https://packagefeedproxy.microsoft.io/pypi/simple/",
+    "TF_PLUGIN_CACHE_DIR": "/home/vscode/.terraform.d/plugin-cache"
   },
 
   "remoteEnv": {
@@ -59,28 +55,8 @@
 
   "customizations": {
     "vscode": {
-      // Curated for minimal Copilot context bloat. Do NOT add extensions that
-      // contribute chatSkills / chatAgents / chatPromptFiles (notably the
-      // Azure GH Copilot helper `ms-azuretools.vscode-azure-github-copilot`,
-      // AI Toolkit `ms-windows-ai-studio`, AI Foundry
-      // `teamsdevapp.vscode-ai-foundry`) — they inflate per-turn input tokens
-      // by ~5-7k and APEX's own agent set already covers their scope. Those
-      // extensions are listed in `.vscode/extensions.json`
-      // `unwantedRecommendations` and rejected by
-      // `npm run validate:extension-bloat`. See `docs/devcontainer-hygiene.md`
-      // for the full rationale and per-developer cleanup checklist.
-      //
-      // `ms-vscode.vscode-node-azure-pack` (Azure Tools) is included below for
-      // convenience. Its `extensionPack` transitively installs
-      // `ms-azuretools.vscode-azure-github-copilot` and
-      // `ms-windows-ai-studio.windows-ai-studio` — the two banned extensions
-      // above — because `validate-extension-bloat.mjs` only scans the literal
-      // `extensions` array here, not a pack's transitive members. After the
-      // pack installs, manually disable both in the Extensions view. The pack
-      // also covers `ms-azuretools.vscode-azure-mcp-server`,
-      // `vscode-azurecontainerapps`, `vscode-azurestaticwebapps`, and
-      // `azure-dev` — those are intentionally NOT listed individually below
-      // to avoid duplication.
+      // Keep editor extensions limited to core APEX language and GitHub UX.
+      // Azure MCP runs from .vscode/mcp.json rather than an extension pack.
       "extensions": [
         "GitHub.copilot-chat",
         "ms-python.python",
@@ -88,24 +64,11 @@
         "ms-azuretools.vscode-azureresourcegroups",
         "ms-azuretools.vscode-bicep",
         "ms-vscode.powershell",
-        "bierner.markdown-mermaid",
-        "bierner.markdown-preview-github-styles",
-        "DavidAnson.vscode-markdownlint",
-        "ms-vscode.azurecli",
-        "ms-azuretools.vscode-containers",
-        "ms-kubernetes-tools.vscode-kubernetes-tools",
-        "ms-kubernetes-tools.vscode-aks-tools",
         "github.vscode-github-actions",
         "github.vscode-pull-request-github",
         "esbenp.prettier-vscode",
-        "mechatroner.rainbow-csv",
         "redhat.vscode-yaml",
-        "mutantdino.resourcemonitor",
-        "HashiCorp.terraform",
-        "ms-azuretools.vscode-azureterraform",
-        "hediet.vscode-drawio",
-        "denoland.vscode-deno",
-        "ms-vscode.vscode-node-azure-pack"
+        "HashiCorp.terraform"
       ],
       "settings": {
         "chat.useAgentsMdFile": true,
@@ -164,15 +127,7 @@
           "editor.tabSize": 4
         },
         "python.defaultInterpreterPath": "/usr/local/python/current/bin/python3",
-        "python.analysis.typeCheckingMode": "basic",
-        "markdownlint.config": {
-          "extends": "${workspaceFolder}/.markdownlint-cli2.jsonc"
-        },
-        "markdownlint.run": "onSave",
-        "deno.enable": false,
-        "deno.enablePaths": ["tools/mcp-servers/drawio"],
-        "deno.lint": true,
-        "deno.unstable": []
+        "python.analysis.typeCheckingMode": "basic"
       }
     }
   },

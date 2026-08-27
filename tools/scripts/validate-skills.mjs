@@ -351,7 +351,7 @@ function runCrossSkillReferenceValidation() {
   // skills or agents. Keep this small and explicit. Entries ending in " MCP"
   // are validated against this set rather than blanket-accepted so typos
   // (e.g. "azure-pricng MCP") are still flagged.
-  const NON_SKILL_REDIRECTS = new Set(["azure-pricing MCP", "drawio", "mermaid", "python-diagrams"]);
+  const NON_SKILL_REDIRECTS = new Set(["azure-pricing MCP", "mermaid", "python-diagrams"]);
 
   // Allow digit-prefixed agent ids like "03-architect" or "04g-governance"
   // (leading [a-z0-9]) and optionally a trailing " MCP" suffix.

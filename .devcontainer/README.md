@@ -16,34 +16,27 @@ with AI agents.
 | ------------------------- | ------- | --------------------------------- |
 | Azure CLI                 | latest  | Azure management with Bicep CLI   |
 | PowerShell                | latest  | Scripting and Az module host      |
-| Python                    | 3.14    | Diagrams, MCP servers, tooling    |
+| Python                    | 3.14    | Diagrams and tooling              |
 | Node.js                   | LTS     | Validation scripts, npm tooling   |
 | GitHub CLI                | latest  | Repository operations             |
 | Terraform                 | latest  | Signed HashiCorp APT repository    |
-| Go                        | 1.26    | Build Terraform MCP Server binary  |
-| Deno                      | latest  | Draw.io MCP server runtime        |
 | Azure Developer CLI (azd) | latest  | Standardized Azure deployments    |
 
 ### Tools Installed by `post-create.sh`
 
 | Step | Tool                           | Method                                                                       |
 | ---- | ------------------------------ | ---------------------------------------------------------------------------- |
-| 1    | npm local dependencies         | `npm install`                                                                |
-| 2    | markdownlint-cli2              | `npm install -g`                                                             |
-| 3    | k6 load testing                | deb repo (amd64) or GitHub release (arm64)                                   |
-| 4    | Deno upgrade                   | `deno upgrade` (ensures latest beyond cached feature layer)                  |
-| 5    | Git config and cache dirs      | `git config`, `mkdir`                                                        |
-| 6    | Python packages                | `uv pip install` — diagrams, matplotlib, pillow, checkov, pytest, ruff       |
-| 7    | PowerShell Az modules          | `Install-Module` — Accounts, Resources, Storage, Network, KeyVault, Websites |
-| 8    | Azure Pricing MCP Server       | Clean `.venv` rebuild + `pip install -e .[admin,dev]` (always, per policy)   |
-| 9    | Terraform MCP Server           | `git clone` + `go build` to `/go/bin/`                                       |
-| 9.4  | TFLint v0.63.1                | GitHub release with SHA-256 verification                                     |
-| 9.5  | Terraform CLI hardening        | Ensures `TF_PLUGIN_CACHE_DIR` exists; `terraform version` smoke test         |
-| 10   | Python dependency verification | Validates imports against `requirements.txt`                                 |
-| 11   | apex-recall CLI                | `uv pip install -e` from `tools/apex-recall/`                                |
-| 12   | gitleaks                       | Binary from GitHub releases (pre-commit soft-skips if missing)               |
-| 13   | Azure CLI config               | Auto-install stable extensions without prompt                                |
-| 14   | MCP config and verification    | Ensures `.vscode/mcp.json`, prints tool versions                             |
+| 1    | npm dependencies               | `npm ci` from `package-lock.json`                                            |
+| 2    | Git config and cache dirs      | `git config`, `mkdir`                                                        |
+| 3    | Python packages                | Pinned `requirements.txt` via `uv`                                           |
+| 4    | PowerShell Az modules          | `Install-Module` — Accounts, Resources, Storage, Network, KeyVault, Websites |
+| 5    | Terraform CLI hardening        | Ensures `TF_PLUGIN_CACHE_DIR` exists; `terraform version` smoke test         |
+| 6    | Python dependency verification | Validates imports against `requirements.txt`                                 |
+| 7    | apex-recall CLI                | `uv pip install -e` from `tools/apex-recall/`                                |
+| 8    | gitleaks                       | Binary from GitHub releases                                                  |
+| 9    | Azure CLI config               | Auto-install stable extensions without prompt                                |
+| 10   | Bicep CLI                      | Version check and fallback install                                           |
+| 11   | MCP config and verification    | Ensures `.vscode/mcp.json`, prints tool versions                             |
 
 ### System Packages (installed via `onCreateCommand`)
 
@@ -53,11 +46,9 @@ graphviz, dos2unix, bats, uv
 
 | Server            | Transport         | Purpose                                          |
 | ----------------- | ----------------- | ------------------------------------------------ |
-| Azure Pricing MCP | stdio             | Real-time SKU pricing for cost estimates         |
+| Azure Resource Manager MCP | http      | Retail pricing and Azure cost management         |
 | GitHub MCP        | http              | Copilot-provided GitHub context                  |
-| Draw.io MCP       | stdio (Deno)      | Architecture diagram generation with Azure icons |
-| Terraform MCP     | stdio (Go)        | HashiCorp registry, module, and workspace tools  |
-| Azure MCP Server  | VS Code extension | RBAC-aware Azure context for agents              |
+| Azure MCP Server  | stdio (`npx`)      | RBAC-aware Azure context for agents              |
 
 ### VS Code Extensions
 
@@ -65,11 +56,10 @@ graphviz, dos2unix, bats, uv
 - **Python** — IntelliSense (Pylance), linting, debugging
 - **Azure** — Bicep, Resource Groups, Container Apps, Static Web Apps, CLI, azd, Azure MCP Server
 - **PowerShell** — language support
-- **Markdown** — Mermaid diagrams, GitHub preview, linting, Prettier formatting
-- **Kubernetes** — AKS tools, Container Tools
+- **Markdown** — Native VS Code editing with Prettier formatting
 - **GitHub** — Actions, Pull Requests
-- **Terraform** — HashiCorp + Azure Terraform
-- **Other** — Draw.io, Rainbow CSV, YAML, Resource Monitor, Deno
+- **Terraform** — HashiCorp Terraform
+- **Other** — YAML
 
 ## Quick Start
 
@@ -181,7 +171,6 @@ gh auth status
 | `PYTHONUNBUFFERED`        | `1`                           | Unbuffered Python output                                 |
 | `UV_CACHE_DIR`            | `~/.cache/uv`                 | uv package cache                                         |
 | `TF_PLUGIN_CACHE_DIR`     | `~/.terraform.d/plugin-cache` | Terraform provider cache                                 |
-| `DENO_DIR`                | `~/.cache/deno`               | Deno module cache                                        |
 
 ### Azure CLI Extension Auto-Install
 
@@ -207,28 +196,14 @@ Runs once after container creation. Performs multi-step setup (npm, Python, Powe
 MCP servers, gitleaks, Git config, and tool verification). Output is logged to
 `~/.devcontainer-install.log`.
 
-> **Step 8 policy:** the Azure Pricing MCP venv is **always rebuilt from
-> scratch** in `post-create.sh` (not only on Python-minor drift). This guarantees
-> the venv matches the container's current Python and avoids stale, half-broken
-> pip state carrying over from a persisted workspace. The success message
-> always includes the rebuild reason — e.g. `(rebuilt: clean rebuild
-(post-create policy))` on a healthy container, or `(rebuilt: Python 3.13 →
-3.14 drift)` after a base-image Python bump. `post-start.sh` keeps the
-> conditional-rebuild path so day-to-day starts stay fast.
-
 ### `postStartCommand` — `post-start.sh`
 
-Runs on every container start. Lightweight updates only:
+Runs on every container start without installing or upgrading dependencies:
 
-| Tool                 | Method                                                                   |
-| -------------------- | ------------------------------------------------------------------------ |
-| terraform-mcp-server | Clone + build (if missing)                                               |
-| Azure Pricing MCP    | `pip install -e .[admin,dev]` in its venv                               |
-| npm local deps       | `npm install`                                                            |
-| Python packages      | `uv pip install --upgrade` (checkov, pytest, ruff, diagrams, matplotlib, pillow) |
-| apex-recall          | `uv pip install --upgrade -e`                                            |
-| azd auth             | Status check (warns if not authenticated)                                |
-| lefthook             | `npx lefthook install` (Git hooks)                                       |
+| Check | Method |
+| --- | --- |
+| Hook permissions | Restore executable bits on mounted shell hooks |
+| azd authentication | Read-only status check |
 
 ### When to Rebuild vs. Restart
 
@@ -237,7 +212,7 @@ Runs on every container start. Lightweight updates only:
 | Tool not found or broken        | `bash .devcontainer/post-create.sh`          |
 | New devcontainer feature needed | `F1` → Rebuild Container                     |
 | OS-level or base image update   | `F1` → Rebuild Container Without Cache       |
-| Routine tool updates            | Automatic on every start via `post-start.sh` |
+| Dependency or tool update       | Rebuild the container                    |
 
 ## Troubleshooting
 
@@ -247,7 +222,7 @@ Runs on every container start. Lightweight updates only:
 | Tool not found             | Run `bash .devcontainer/post-create.sh`                  |
 | Azure auth fails           | Use `az login --use-device-code`                         |
 | `gh` CLI not authenticated | Set `GH_TOKEN` in VS Code User Settings (see above)      |
-| Stale tool versions        | Restart container (triggers `post-start.sh`)             |
+| Stale tool versions        | Rebuild the container                                  |
 | Full rebuild needed        | `F1` → `Dev Containers: Rebuild Container Without Cache` |
 
 Full troubleshooting guide: [Troubleshooting](https://apexops.pro/guides/troubleshooting/)

@@ -17,125 +17,20 @@ monitoring exists, and CI validators flag missing budget resources.
 
 ## Budget Alert Setup
 
-Every deployment must include an Azure Budget resource with three forecast-based
-alert thresholds:
+Every deployment implements the governed cost-monitoring contract: a
+scope-appropriate Azure Budget, actual and forecast notifications, Action Group
+routing, and anomaly detection. Governance constraints override repository
+defaults.
 
-| Threshold | Type     | Action                                  |
-| --------- | -------- | --------------------------------------- |
-| 80%       | Forecast | Email notification to `owner` parameter |
-| 100%      | Forecast | Email notification + action group       |
-| 120%      | Forecast | Email notification + action group       |
+The canonical contract and implementation examples are maintained in one place:
 
-### Bicep Example
+- [Cost monitoring baseline](https://github.com/jonathan-vella/apex/blob/main/.github/skills/azure-defaults/references/cost-alerts-baseline.md)
+- [Bicep implementation](https://github.com/jonathan-vella/apex/blob/main/.github/skills/azure-defaults/references/cost-alerts-bicep.md)
+- [Terraform implementation](https://github.com/jonathan-vella/apex/blob/main/.github/skills/azure-defaults/references/cost-alerts-terraform.md)
 
-```bicep
-@description('Monthly budget amount in USD')
-param budgetAmount int
-
-@description('Technical contact email for alerts')
-param technicalContact string
-
-resource budget 'Microsoft.Consumption/budgets@2023-11-01' = {
-  name: 'budget-${projectName}-${environment}'
-  properties: {
-    timePeriod: {
-      startDate: '2026-01-01'
-    }
-    timeGrain: 'Monthly'
-    amount: budgetAmount
-    category: 'Cost'
-    notifications: {
-      forecast80: {
-        enabled: true
-        operator: 'GreaterThanOrEqualTo'
-        threshold: 80
-        thresholdType: 'Forecasted'
-        contactEmails: [technicalContact]
-      }
-      forecast100: {
-        enabled: true
-        operator: 'GreaterThanOrEqualTo'
-        threshold: 100
-        thresholdType: 'Forecasted'
-        contactEmails: [technicalContact]
-      }
-      forecast120: {
-        enabled: true
-        operator: 'GreaterThanOrEqualTo'
-        threshold: 120
-        thresholdType: 'Forecasted'
-        contactEmails: [technicalContact]
-      }
-    }
-  }
-}
-```
-
-### Terraform Example
-
-```hcl
-variable "budget_amount" {
-  description = "Monthly budget amount in USD"
-  type        = number
-}
-
-variable "technical_contact" {
-  description = "Technical contact email for alerts"
-  type        = string
-}
-
-resource "azurerm_consumption_budget_resource_group" "this" {
-  name              = "budget-${var.project_name}-${var.environment}"
-  resource_group_id = azurerm_resource_group.this.id
-  amount            = var.budget_amount
-  time_grain        = "Monthly"
-
-  time_period {
-    start_date = "2026-01-01T00:00:00Z"
-  }
-
-  notification {
-    operator       = "GreaterThanOrEqualTo"
-    threshold      = 80
-    threshold_type = "Forecasted"
-    contact_emails = [var.technical_contact]
-  }
-
-  notification {
-    operator       = "GreaterThanOrEqualTo"
-    threshold      = 100
-    threshold_type = "Forecasted"
-    contact_emails = [var.technical_contact]
-  }
-
-  notification {
-    operator       = "GreaterThanOrEqualTo"
-    threshold      = 120
-    threshold_type = "Forecasted"
-    contact_emails = [var.technical_contact]
-  }
-}
-```
-
-## Forecast vs Actual Alerts
-
-| Alert Type   | Triggers When                                      | Use Case                       |
-| ------------ | -------------------------------------------------- | ------------------------------ |
-| **Forecast** | Projected spend will exceed threshold by month-end | Early warning — time to act    |
-| **Actual**   | Spend has already exceeded threshold               | Reactive — damage already done |
-
-This project uses **forecast alerts** exclusively because they provide
-advance warning. By the time an actual-spend alert triggers, the budget
-is already blown.
-
-## Anomaly Detection
-
-In addition to budget alerts, enable Azure Cost Management anomaly alerts
-to catch unexpected spend spikes:
-
-- Configure via Azure Cost Management in the portal
-- Alert on spend patterns that deviate from historical baselines
-- Notify the `technicalContact` parameter
+Budget amounts and notification recipients remain parameters. Do not copy
+thresholds or notification blocks into documentation; the canonical contract
+changes independently of this guide.
 
 ## Per-Environment Budgets
 
@@ -150,21 +45,21 @@ Use parameterised budgets that scale by environment:
 Set the budget amount via `.bicepparam` or `terraform.tfvars` —
 never hardcode it in the template.
 
-## Azure Pricing MCP Tools
+## Azure Resource Manager MCP Tools
 
-The **cost-estimate-subagent** uses the Azure Pricing MCP server to query
-real-time SKU pricing during architecture review (Step 2) and as-built
-documentation (Step 7). Key tools:
+The **cost-estimate-subagent** uses the hosted Azure Resource Manager MCP server
+during architecture review and as-built documentation:
 
-| Tool                      | Purpose                                |
-| ------------------------- | -------------------------------------- |
-| `azure_cost_estimate`     | Estimate costs based on usage patterns |
-| `azure_bulk_estimate`     | Multi-resource estimate in one call    |
-| `azure_price_compare`     | Compare prices across regions and SKUs |
-| `azure_ri_pricing`        | Reserved Instance pricing and savings  |
-| `azure_region_recommend`  | Find cheapest regions for a service    |
-| `find_orphaned_resources` | Detect unused resources with cost data |
-| `azure_ptu_sizing`        | Estimate PTUs for Azure OpenAI         |
+| Tool | Purpose |
+| --- | --- |
+| `get_retail_prices` | Query public retail catalog rows |
+| `query_costs` | Query actual costs for an authorized scope |
+| `query_aks_costs` | Break down deployed AKS costs |
+| `forecast_costs` | Forecast costs for a deployed scope |
+| `get_benefit_recommendations` | Retrieve reservation and savings-plan recommendations |
+
+The subagent calculates estimates from returned meter units and explicit usage.
+It cannot call ARM deployment, resource mutation, or budget creation tools.
 
 The **Microsoft Learn documentation tools** (exposed through the Azure MCP
 `documentation` router, e.g. `mcp_azure-mcp_documentation` with
@@ -187,9 +82,9 @@ The Challenger reviews verify two mandatory cost categories:
 **Cost Monitoring:**
 
 - [ ] Budget resource exists
-- [ ] Forecast alerts at 80%, 100%, 120% thresholds
+- [ ] Notifications comply with the governed cost-monitoring contract
 - [ ] Anomaly detection configured
-- [ ] `technicalContact` parameter for notifications
+- [ ] Notification recipients are parameterised
 
 **Repeatability:**
 
@@ -223,7 +118,7 @@ az consumption budget show \
   - Bicep: `.github/skills/azure-bicep-patterns/references/budget-pattern.md`
   - Terraform: `.github/skills/terraform-patterns/references/budget-pattern.md`
 - [MCP Integration](/concepts/how-it-works/mcp-integration/)
-  — Azure Pricing MCP server and tool catalog
+  — Azure Resource Manager MCP pricing and cost tools
 - [Workflow](/concepts/workflow/) — how cost estimation fits into the agent workflow
 
   :::

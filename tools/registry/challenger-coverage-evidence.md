@@ -42,7 +42,7 @@ in the per-category and per-artifact-type sections of
 | Single-point-of-failure / redundancy story per component          | architecture-reliability | ✓ "Failure mode + SPOF"         |
 | Dependency graph acyclic, ordering explicit                       | architecture-reliability | ✓ "Dependencies acyclic"        |
 | Diagnostic settings planned for every resource                    | architecture-reliability | ✓ "Monitoring + alerts"         |
-| All prices sourced from Azure Pricing MCP, not guesses            | cost-feasibility         | ✓ "Cost — pricing source"       |
+| All prices sourced from ARM MCP, not guesses                      | cost-feasibility         | ✓ "Cost — pricing source"       |
 | **RI / Savings-Plan math for eligible workloads**                 | cost-feasibility         | ✓ "Cost — RI / Savings-Plan …"  |
 | **`02-cost-estimate.json` baseline reconciliation (≤ 5 % drift)** | cost-feasibility         | ✓ "Cost — 02-cost-estimate …"   |
 | Budget + cost-anomaly alerts configured                           | cost-feasibility         | ✓ "Monitoring + alerts"         |
@@ -60,23 +60,23 @@ sizing.") — all four are present.
 
 ## artifact_type = implementation-plan
 
-| Per-lens concern (must_fix-class)                                | Lens                     | In comprehensive?               |
-| ---------------------------------------------------------------- | ------------------------ | ------------------------------- |
-| Plan ↔ Deny-policy mapping (Governance Compliance Matrix)        | security-governance      | ✓ "Plan ↔ governance mapping"   |
-| Every architecture resource appears in plan                      | architecture-reliability | ✓ "Plan ↔ architecture mapping" |
-| AVM module versions pinned (no `latest` / `main`)                | security-governance      | ✓ "AVM module versions pinned"  |
-| Private endpoints + DNS zone group entries in plan               | security-governance      | ✓ "Private endpoints + DNS"     |
-| **PE subnet CIDR sized for current + 6-mo headroom**             | security-governance      | ✓ "PE subnet sizing"            |
-| Managed identity role assignments enumerated per consumer→target | security-governance      | ✓ "Managed identity wiring"     |
-| **Backup / DR plan supports stated RTO / RPO**                   | architecture-reliability | ✓ "Backup / DR plan vs RTO …"   |
-| Phased deployment for >5 resources or data-plane services        | architecture-reliability | ✓ "Phased deployment"           |
-| Diagnostic settings declared per resource                        | architecture-reliability | ✓ "Diagnostic settings"         |
-| Cost monitoring budget resource with 80/100/120 % thresholds     | cost-feasibility         | ✓ "Cost monitoring"             |
-| **RI / Savings-Plan math present for eligible compute**          | cost-feasibility         | ✓ "Cost — RI / Savings-Plan …"  |
-| **Plan total reconciles with `02-cost-estimate.json`**           | cost-feasibility         | ✓ "Cost — 02-cost-estimate …"   |
-| SKU availability validated per chosen region                     | architecture-reliability | ✓ "SKU availability per region" |
-| Repeatability: `projectName` required parameter, no defaults     | cross-lens               | ✓ "Repeatability"               |
-| Code-Generation Contract H2 declared                             | architecture-reliability | ✓ "CodeGen contract present"    |
+| Per-lens concern (must_fix-class)                                 | Lens                     | In comprehensive?               |
+| ----------------------------------------------------------------- | ------------------------ | ------------------------------- |
+| Plan ↔ Deny-policy mapping (Governance Compliance Matrix)         | security-governance      | ✓ "Plan ↔ governance mapping"   |
+| Every architecture resource appears in plan                       | architecture-reliability | ✓ "Plan ↔ architecture mapping" |
+| AVM module versions pinned (no `latest` / `main`)                 | security-governance      | ✓ "AVM module versions pinned"  |
+| Private endpoints + DNS zone group entries in plan                | security-governance      | ✓ "Private endpoints + DNS"     |
+| **PE subnet CIDR sized for current + 6-mo headroom**              | security-governance      | ✓ "PE subnet sizing"            |
+| Managed identity role assignments enumerated per consumer→target  | security-governance      | ✓ "Managed identity wiring"     |
+| **Backup / DR plan supports stated RTO / RPO**                    | architecture-reliability | ✓ "Backup / DR plan vs RTO …"   |
+| Phased deployment for >5 resources or data-plane services         | architecture-reliability | ✓ "Phased deployment"           |
+| Diagnostic settings declared per resource                         | architecture-reliability | ✓ "Diagnostic settings"         |
+| Cost monitoring complies with the canonical notification contract | cost-feasibility         | ✓ "Cost monitoring"             |
+| **RI / Savings-Plan math present for eligible compute**           | cost-feasibility         | ✓ "Cost — RI / Savings-Plan …"  |
+| **Plan total reconciles with `02-cost-estimate.json`**            | cost-feasibility         | ✓ "Cost — 02-cost-estimate …"   |
+| SKU availability validated per chosen region                      | architecture-reliability | ✓ "SKU availability per region" |
+| Repeatability: `projectName` required parameter, no defaults      | cross-lens               | ✓ "Repeatability"               |
+| Code-Generation Contract H2 declared                              | architecture-reliability | ✓ "CodeGen contract present"    |
 
 **Implementation-plan coverage**: 15 / 15 must_fix-class lines = **100 %** ≥ 80 %.
 
