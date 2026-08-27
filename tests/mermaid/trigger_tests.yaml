@@ -64,8 +64,6 @@ shouldNotTriggerPrompts:
   - "How do I architecture diagrams with Azure icons?"
   - "WAF/cost charts"
   - "How do I WAF/cost charts?"
-  - "use drawio"
-  - "run drawio"
   - "use python-diagrams"
   - "run python-diagrams"
   - "What is the weather today?"

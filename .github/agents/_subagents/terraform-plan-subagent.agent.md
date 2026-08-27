@@ -16,7 +16,6 @@ tools:
     read,
     agent,
     search,
-    "terraform/*",
     "azure-mcp/*",
     todo,
     ms-azuretools.vscode-azureresourcegroups/azureActivityLog,

@@ -1,6 +1,6 @@
 ---
 name: azure-compute
-description: '**ANALYSIS SKILL** — Recommend Azure VM sizes and VMSS for workload, performance, and budget. Uses public docs and the Azure Retail Prices API. WHEN: "recommend VM size", "choose Azure VM", "GPU VM", "compare VM sizes", "VMSS vs VM", "autoscale VMs". DO NOT USE FOR: provisioning VMs (azure-prepare), VM pricing for budgets (azure-pricing MCP).'
+description: '**ANALYSIS SKILL** — Recommend Azure VM sizes and VMSS for workload, performance, and budget. Uses public docs and the Azure Retail Prices API. WHEN: "recommend VM size", "choose Azure VM", "GPU VM", "compare VM sizes", "VMSS vs VM", "autoscale VMs". DO NOT USE FOR: provisioning VMs (azure-prepare), VM pricing for budgets (ARM MCP).'
 license: MIT
 metadata:
   author: Microsoft

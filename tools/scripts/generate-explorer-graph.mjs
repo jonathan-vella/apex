@@ -508,7 +508,7 @@ function buildEdges(nodes) {
     }
   }
 
-  // Skill -> Skill (parse SKILL.md body/description for references to other skills, e.g. "delegates to drawio")
+  // Skill -> Skill (parse SKILL.md body/description for references to other skills)
   const skillNodes = nodes.filter((m) => m.category === "skill");
   const skillSlugMap = new Map(skillNodes.map((s) => [s.id.replace(/^skill:/, ""), s]));
   for (const n of skillNodes) {

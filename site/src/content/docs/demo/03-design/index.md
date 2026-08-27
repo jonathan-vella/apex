@@ -50,5 +50,5 @@ architecture cost, including:
 - Cost risk indicators and watch items
 - 6-month cost projection
 
-All prices were sourced from the Azure Pricing MCP server with `swedencentral`
+All prices were sourced from the Azure retail catalog with `swedencentral`
 region filters.

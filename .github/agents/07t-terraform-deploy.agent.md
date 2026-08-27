@@ -6,7 +6,7 @@ argument-hint: Deploy the Terraform configuration for a specific project
 user-invocable: true
 agents: ["terraform-plan-subagent", "terraform-validate-subagent", "policy-precheck-subagent", "challenger-review-subagent"]
 tools:
-  [vscode, execute, read, agent, browser, vscodeGeneral/rename, vscodeGeneral/usages, vscodeNotebooks/createJupyterNotebook, vscodeNotebooks/editNotebook, ms-azuretools.vscode-azureresourcegroups, edit, search, web, 'azure-mcp/*', 'terraform/*', todo]
+  [vscode, execute, read, agent, browser, vscodeGeneral/rename, vscodeGeneral/usages, vscodeNotebooks/createJupyterNotebook, vscodeNotebooks/editNotebook, ms-azuretools.vscode-azureresourcegroups, edit, search, web, 'azure-mcp/*', todo]
 handoffs:
   - label: "▶ Run Plan Only"
     agent: 07t-Terraform Deploy

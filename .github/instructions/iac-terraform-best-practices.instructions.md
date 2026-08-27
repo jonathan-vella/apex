@@ -51,7 +51,8 @@ CAF abbreviations (see `AGENTS.md` for the full table).
 ## AVM Modules
 
 Use `Azure/avm-res-{service}-{resource}/azurerm` for all resources.
-Raw `azurerm_*` only with approval. Lookup: `mcp_terraform_get_latest_module_version`.
+Raw `azurerm_*` only with approval. Resolve versions through the public
+Terraform Registry API per `azure-defaults/references/terraform-conventions.md`.
 
 **Pin AVM-TF modules to exact semver** (`version = "X.Y.Z"`), resolved at
 plan time. Range constraints (`~> X.Y`, `>= X.Y.Z`) are NOT allowed in

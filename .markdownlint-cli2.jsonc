@@ -147,22 +147,6 @@
     ".pytest_cache/**",
     "coverage/**",
 
-    // Archived content
-    "tools/mcp-servers/azure-pricing/.archive/**",
-
-    // Vendored MCP server (external fork — not hand-authored)
-    "tools/mcp-servers/drawio/**",
-
-    // Upstream vendored files (not hand-authored)
-    "tools/mcp-servers/azure-pricing/CHANGELOG.md",
-    "tools/mcp-servers/azure-pricing/README.md",
-    "tools/mcp-servers/azure-pricing/CONTRIBUTING.md",
-    "tools/mcp-servers/azure-pricing/INSTALL.md",
-    "tools/mcp-servers/azure-pricing/docs/**",
-
-    // pytest cache (auto-generated, not hand-authored)
-    "tools/mcp-servers/azure-pricing/.pytest_cache/**",
-
     // Presenter/demo content and planning docs (intentionally less strict)
     "docs/audit-checklists/**",
     "docs/presenter/**",

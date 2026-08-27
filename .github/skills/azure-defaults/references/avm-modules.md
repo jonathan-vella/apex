@@ -9,8 +9,8 @@
 >   → highest non-prerelease semver in `tags[]`.
 > - **Terraform:** `curl -sf https://registry.terraform.io/v1/modules/Azure/avm-res-{path}/azurerm/versions`
 >   → first entry in `modules[0].versions[]`.
-> - **MCP equivalents** (preferred in Copilot Chat): the microsoft-foundry
->   and terraform MCP toolsets surface the same data.
+> - **Guidance:** Azure MCP provides Azure Terraform documentation and best
+>   practices; Registry metadata still comes from the public registry APIs.
 > - **Validator:** `npm run validate:avm-versions:freeze` (planner agents
 >   MUST call this before `apex-recall complete-step 4`).
 >

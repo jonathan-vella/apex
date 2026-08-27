@@ -71,7 +71,7 @@ jobs:
         run: bash tools/scripts/validate-handoff-references.sh
 
   external-tests:
-    name: External Python tests (apex-recall + azure-pricing MCP)
+    name: External Python tests (apex-recall)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -92,19 +92,10 @@ jobs:
           # apex-recall ships its own deps via pyproject; install in editable mode
           # so its tests can import the package without sys.path hacks.
           python -m pip install -e tools/apex-recall
-          # azure-pricing tests live under the server's tests/ directory and
-          # import the server module via the same pattern. Install with [dev]
-          # extras so pytest-asyncio (required by the async fixtures) is present.
-          python -m pip install -e 'tools/mcp-servers/azure-pricing[dev]'
-          python -m pip install pytest
+          python -m pip install pytest ruff
 
       - name: Lint Python (ruff)
-        # ruff ships via the azure-pricing[dev] extra installed above. Mirrors
-        # the pre-commit python-lint hook so format/lint drift cannot land on main.
         run: npm run lint:python
 
       - name: Run apex-recall test suite
         run: npm run test:apex-recall
-
-      - name: Run azure-pricing MCP test suite
-        run: npm run test:azure-pricing-mcp

@@ -62,7 +62,7 @@ shouldTriggerPrompts:
 shouldNotTriggerPrompts:
   - "Azure pricing"
   - "How do I azure pricing?"
-  - "use azure-pricing"
-  - "run azure-pricing"
+  - "use ARM MCP pricing"
+  - "run ARM MCP pricing"
   - "What is the weather today?"
   - "Help me write a poem"

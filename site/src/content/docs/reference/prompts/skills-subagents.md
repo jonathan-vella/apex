@@ -28,21 +28,12 @@ every task.
 @workspace What are the default required tags from azure-defaults?
 ```
 
-### drawio
-
-Generates Draw.io architecture diagrams with 700+ Azure icons via MCP server.
-
-```text
-Generate an architecture diagram for the infrastructure in
-infra/bicep/my-project/ using the drawio skill.
-```
-
 ### python-diagrams
 
-Generates WAF/cost/compliance charts using Python matplotlib.
+Generates architecture diagrams and WAF/cost/compliance charts with Python.
 
 ```text
-Generate a WAF pillar bar chart for the architecture assessment.
+Generate an architecture diagram for infra/bicep/my-project/ using python-diagrams.
 ```
 
 ### azure-bicep-patterns
@@ -198,7 +189,7 @@ change summary.
 
 ### terraform-validate-subagent
 
-Runs `terraform fmt -check`, `terraform validate`, and TFLint, then reviews
+Runs `terraform fmt -check` and `terraform validate`, then reviews
 configs against AVM-TF standards, CAF naming conventions, security baselines,
 and governance compliance. Returns a structured PASS/FAIL + APPROVED/NEEDS_REVISION
 result.
@@ -211,7 +202,7 @@ and returns a structured change summary.
 
 ### cost-estimate-subagent
 
-Queries Azure Pricing MCP tools for real-time SKU pricing. Compares regions
+Queries Azure Resource Manager MCP for retail SKU pricing. Compares regions
 and returns a structured cost breakdown.
 
 ## When Validation Fails

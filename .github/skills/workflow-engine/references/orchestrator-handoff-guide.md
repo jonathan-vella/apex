@@ -102,8 +102,8 @@ Use the same sidecar-aware / legacy fallback rule documented under Gate 1.
 ```text
 📝 IMPLEMENTATION PLAN COMPLETE
 Artifact: agent-output/{project}/04-implementation-plan.md
-Dependency Diagram: agent-output/{project}/04-dependency-diagram.drawio
-Runtime Diagram: agent-output/{project}/04-runtime-diagram.drawio
+Dependency Diagram: agent-output/{project}/04-dependency-diagram.{py,png,svg}
+Runtime Diagram: agent-output/{project}/04-runtime-diagram.{py,png,svg}
 Deployment: {Phased (N phases) | Single}
 ✅ Next: IaC Implementation (Step 5)
 💡 SESSION BREAK RECOMMENDED: Start a fresh chat for IaC code generation.
@@ -216,5 +216,5 @@ multi-pass rotating lens reviews are opt-in for complex projects; cost-estimate-
 at Steps 2 and 7; the `azure-governance-discovery` skill runs at Step 3.5 (Governance agent).
 
 **Pricing Accuracy Gate (Steps 2 & 7)**: All prices must originate from
-`cost-estimate-subagent` (Codex + Azure Pricing MCP). Never write dollar
+`cost-estimate-subagent` (Azure Resource Manager MCP). Never write dollar
 figures from parametric knowledge.

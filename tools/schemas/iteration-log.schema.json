@@ -69,7 +69,7 @@
           "items": {
             "type": "string"
           },
-          "description": "Filenames produced by this iteration (e.g., '03-des-diagram.drawio')."
+          "description": "Filenames produced by this iteration (e.g., '03-des-diagram.py')."
         },
         "artifact_retries": {
           "type": "object",

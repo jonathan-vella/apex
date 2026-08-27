@@ -54,8 +54,6 @@ shouldNotTriggerPrompts:
   - "How do I architecture diagrams?"
   - "cost estimates"
   - "How do I cost estimates?"
-  - "use drawio"
-  - "run drawio"
   - "use cost-estimate-subagent"
   - "run cost-estimate-subagent"
   - "What is the weather today?"

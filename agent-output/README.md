@@ -11,16 +11,16 @@ agent-output/
 │   ├── README.md                        # Auto-generated project index
 │   ├── 01-requirements.md               # Step 1: Requirements from @requirements
 │   ├── 02-architecture-assessment.md    # Step 2: WAF assessment
-│   ├── 03-des-diagram.drawio        # Step 3: Design diagram (Draw.io)
+│   ├── 03-des-diagram.{py,png,svg}  # Step 3: Reproducible design diagram
 │   ├── 03-des-cost-estimate.md          # Step 3: Design cost estimate
 │   ├── 03-des-adr-001-{title}.md        # Step 3: Design ADR(s)
 │   ├── 04-implementation-plan.md        # Step 4: Infrastructure plan
-│   ├── 04-dependency-diagram.drawio  # Step 4: Dependency diagram (Draw.io)
-│   ├── 04-runtime-diagram.drawio     # Step 4: Runtime diagram (Draw.io)
+│   ├── 04-dependency-diagram.{py,png,svg} # Step 4: Dependency diagram
+│   ├── 04-runtime-diagram.{py,png,svg}    # Step 4: Runtime diagram
 │   ├── 04-governance-constraints.md     # Step 4: Azure Policy constraints
 │   ├── 05-implementation-reference.md   # Step 5: Link to Bicep code
 │   ├── 06-deployment-summary.md         # Step 6: Deployment summary
-│   ├── 07-ab-diagram.drawio         # Step 7: As-built diagram (Draw.io)
+│   ├── 07-ab-diagram.{py,png,svg}   # Step 7: Reproducible as-built diagram
 │   ├── 07-ab-adr-001-{title}.md         # Step 7: As-built ADR(s)
 │   ├── 07-documentation-index.md        # Step 7: Documentation master index
 │   ├── 07-design-document.md            # Step 7: Comprehensive design document
@@ -111,9 +111,7 @@ working on that project should create it from the template and backfill complete
 
 ## Legacy Demo Outputs
 
-Legacy demo outputs in the following locations are preserved for demonstration purposes:
-
-- `docs/adr/` - Global Architecture Decision Records
-- `docs/diagrams/` - Workflow and architecture diagrams
+Compressed historical fixtures and retired diagram sources live under
+`.archive/`. Published rendered demos remain under `site/public/demo/`.
 
 New projects should use this `agent-output/` structure exclusively.

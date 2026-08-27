@@ -4,20 +4,13 @@
     "ms-python.python",
     "ms-python.vscode-pylance",
     "ms-azuretools.vscode-bicep",
-    "DavidAnson.vscode-markdownlint",
-    "github.vscode-pull-request-github",
-    "bierner.markdown-mermaid",
-    "bierner.markdown-preview-github-styles",
     "ms-azuretools.vscode-azureresourcegroups",
-    "ms-vscode.vscode-node-azure-pack",
     "ms-vscode.powershell",
-    "ms-vscode.azurecli",
     "redhat.vscode-yaml",
     "esbenp.prettier-vscode",
     "HashiCorp.terraform",
-    "ms-azuretools.vscode-azureterraform",
-    "denoland.vscode-deno",
-    "hediet.vscode-drawio"
+    "github.vscode-github-actions",
+    "github.vscode-pull-request-github"
   ],
   "unwantedRecommendations": [
     "ms-azuretools.vscode-azure-github-copilot",

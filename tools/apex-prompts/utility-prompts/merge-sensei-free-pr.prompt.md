@@ -187,9 +187,7 @@ Run, in order:
 
 ```bash
 npm run validate:skills
-cd tools/mcp-servers/azure-pricing && python -m pytest -q && \
-  python -m ruff check src/ tests/ && \
-  python -m ruff format --check src/ tests/ && cd -
+npm run lint:python
 ```
 
 If any validator fails:
@@ -261,7 +259,7 @@ The PR body must include:
 - [ ] `package.json` and `.devcontainer/post-create.sh` match
       `origin/${input:targetBranch}` (or carry only non-sensei changes).
 - [ ] `npm run validate:skills` passes with 0 errors, 0 warnings.
-- [ ] Azure Pricing MCP tests + ruff pass (when MCP changes are in scope).
+- [ ] MCP configuration and Python lint pass when those areas change.
 - [ ] Lefthook pre-push `diff-based-check` shows all validators green.
 - [ ] PR body lists every excluded path and recommends squash-merge.
 

@@ -20,7 +20,7 @@ template structure exactly:
 
 - `07-design-document.md`
 - `07-operations-runbook.md`
-- `07-ab-cost-estimate.md` (as-built cost via Azure Pricing MCP)
+- `07-ab-cost-estimate.md` (as-built cost via Azure Resource Manager MCP)
 - `07-compliance-matrix.md`
 - `07-backup-dr-plan.md`
 - `07-resource-inventory.md`

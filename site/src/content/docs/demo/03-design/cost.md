@@ -158,6 +158,6 @@ are either fixed-rate or pay-per-use with no RI/SP eligibility.
 | **Total**     |                    |                            |                             |  **$154.87** |
 
 :::note
-All prices sourced from Azure Pricing MCP (`pricing_get` with swedencentral filters).
+All prices were sourced from the Azure retail catalog for the `swedencentral` region.
 1-year RI on App Service Plan could reduce total to ~$128.87/month.
 :::

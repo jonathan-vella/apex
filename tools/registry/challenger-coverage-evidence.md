@@ -42,7 +42,7 @@ in the per-category and per-artifact-type sections of
 | Single-point-of-failure / redundancy story per component          | architecture-reliability | ✓ "Failure mode + SPOF"         |
 | Dependency graph acyclic, ordering explicit                       | architecture-reliability | ✓ "Dependencies acyclic"        |
 | Diagnostic settings planned for every resource                    | architecture-reliability | ✓ "Monitoring + alerts"         |
-| All prices sourced from Azure Pricing MCP, not guesses            | cost-feasibility         | ✓ "Cost — pricing source"       |
+| All prices sourced from ARM MCP, not guesses                      | cost-feasibility         | ✓ "Cost — pricing source"       |
 | **RI / Savings-Plan math for eligible workloads**                 | cost-feasibility         | ✓ "Cost — RI / Savings-Plan …"  |
 | **`02-cost-estimate.json` baseline reconciliation (≤ 5 % drift)** | cost-feasibility         | ✓ "Cost — 02-cost-estimate …"   |
 | Budget + cost-anomaly alerts configured                           | cost-feasibility         | ✓ "Monitoring + alerts"         |

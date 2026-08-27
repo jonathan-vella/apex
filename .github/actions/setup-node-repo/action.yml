@@ -28,7 +28,6 @@
 #   - governance-policy-baseline.yml — pwsh + azure/login, no Node
 #   - docs.yml — uses a non-root working-directory (site/)
 #   - branch-enforcement.yml — neither job needs Node
-#   - weekly-maintenance.yml drawio-* jobs — Deno/Python only
 
 name: Setup Node Repo
 description: Node.js setup + npm ci (shared workflow prelude — caller must check out repo first)

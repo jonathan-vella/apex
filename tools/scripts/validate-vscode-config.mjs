@@ -25,18 +25,11 @@ const REQUIRED_SETTINGS = [
 ];
 
 // Required extensions for full orchestration support
-const REQUIRED_EXTENSIONS = ["GitHub.copilot-chat", "ms-azuretools.vscode-bicep", "DavidAnson.vscode-markdownlint"];
+const REQUIRED_EXTENSIONS = ["GitHub.copilot-chat", "ms-azuretools.vscode-bicep"];
 
 // Extensions intentionally installed only in devcontainer.json.
 // Keep this list explicit and minimal to avoid silent drift.
-const ALLOWED_DEVCONTAINER_ONLY_EXTENSIONS = new Set([
-  "github.vscode-github-actions",
-  "mechatroner.rainbow-csv",
-  "ms-azuretools.vscode-containers",
-  "ms-kubernetes-tools.vscode-aks-tools",
-  "ms-kubernetes-tools.vscode-kubernetes-tools",
-  "mutantdino.resourcemonitor",
-]);
+const ALLOWED_DEVCONTAINER_ONLY_EXTENSIONS = new Set();
 
 const errors = [];
 const warnings = [];

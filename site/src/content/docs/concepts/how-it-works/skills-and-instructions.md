@@ -43,7 +43,7 @@ count is computed by `tools/registry/count-manifest.json`. A grouped overview:
 | -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Azure Infrastructure | `azure-defaults`, `azure-bicep-patterns`, `terraform-patterns`, `azure-validate`                                                                                                                                  |
 | Azure Operations     | `azure-diagnostics`, `azure-adr`, `azure-deploy`                                                                                                                                                                  |
-| Diagram & Chart      | `drawio`, `python-diagrams`, `mermaid`                                                                                                                                                                            |
+| Diagram & Chart      | `python-diagrams`, `mermaid`                                                                                                                                                                                      |
 | Artefact Generation  | `azure-artifacts`, `context-management`                                                                                                                                                                           |
 | Documentation        | `docs-writer`                                                                                                                                                                                                     |
 | Workflow and State   | `workflow-engine`, `golden-principles`                                                                                                                                                                            |
@@ -79,7 +79,6 @@ when each instruction activates:
 | `agent-research-first`         | `**/*.agent.md`, agent-output, skills                                | Mandatory research-before-implementation                       |
 | `agent-skills`                 | `**/.github/skills/**/SKILL.md`                                      | Skill file format standards                                    |
 | `astro`                        | `site/**/*.{astro,mjs,ts}`                                           | Astro/Starlight site conventions                               |
-| `drawio`                       | `**/*.drawio`, `**/*.drawio.svg`                                     | Draw.io diagram conventions                                    |
 | `instructions`                 | `**/*.instructions.md`                                               | Meta: instruction file guidelines                              |
 | `markdown`                     | `**/*.md`                                                            | Documentation standards                                        |
 | `context-optimization`         | Agents, skills, instructions                                         | Context window management rules                                |

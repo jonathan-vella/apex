@@ -35,7 +35,7 @@
 **Source**: Implemented Bicep Templates
 **Region**: {primary-region}
 **Environment**: {Production|Staging|Development}
-**MCP Tools Used**: {azure_price_search, azure_cost_estimate, azure_bulk_estimate}
+**MCP Tools Used**: {get_retail_prices, query_costs, query_aks_costs}
 **IaC Reference**: {relative link to infra/bicep/{project}/, if available}
 
 ## 💵 Cost At-a-Glance

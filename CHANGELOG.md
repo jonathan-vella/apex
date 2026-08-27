@@ -18,6 +18,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 See the [published changelog](https://apexops.pro/project/changelog/)
 for full details on this and all prior releases.
 
+### Changed (MCP consolidation)
+
+- refactor(mcp): replace the in-repo Azure Pricing MCP server with Microsoft's
+  hosted Azure Resource Manager MCP server. Cost estimation now uses the
+  read-only retail pricing and Cost Management tools without compatibility
+  wrappers for removed custom features.
+- refactor(diagrams): retire the Draw.io MCP server and active Draw.io authoring
+  stack. New architecture diagrams use reproducible Python source with PNG and
+  SVG renders; historical Draw.io sources are retained in a compressed archive.
+- refactor(docs): retire the unused Astro docs MCP registration. Astro/Starlight
+  site builds, validation, and the local documentation review prompt remain.
+- refactor(terraform): retire Terraform MCP and its Go-only runtime. Terraform
+  workflows now use Azure MCP for Azure guidance and discovery, the public
+  Terraform Registry API for metadata, and Terraform CLI for provider schemas.
+- refactor(devcontainer): replace the Azure Tools extension pack with standalone
+  Azure MCP, remove optional and Markdown-specific editor extensions, pin direct
+  Python tooling, retire unused Checkov and TFLint installs, and move dependency
+  installation to container creation only.
+
 ### Security
 
 - fix(deps): pin patched transitive releases for `undici`, `nanoid`, and

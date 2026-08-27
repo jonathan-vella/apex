@@ -166,13 +166,13 @@ validation output, and feed that back into the parent agent.
 Use explicit skill invocation:
 
 ```text
-"Use the drawio skill to create a diagram"
+"Use the python-diagrams skill to create a diagram"
 ```
 
 Check skill triggers in `SKILL.md`:
 
 ```bash
-cat .github/skills/drawio/SKILL.md | head -30
+cat .github/skills/python-diagrams/SKILL.md | head -30
 ```
 
 ### 4. Deployment Fails with Azure Policy Error
@@ -258,12 +258,11 @@ cat .github/skills/drawio/SKILL.md | head -30
     }
     ```
 
-    **TFLint errors**:
+   **Terraform validation errors**:
 
     ```bash
-    # Run TFLint with Azure ruleset
-    tflint --init
-    tflint --recursive
+   terraform fmt -check -recursive
+   terraform validate
     ```
 
 **State lock issues**:
@@ -352,27 +351,24 @@ diff -u .github/skills/azure-artifacts/templates/01-requirements.template.md age
 
 ### 8. MCP Server Not Responding
 
-**Symptom**: Azure Pricing MCP calls fail.
+**Symptom**: Azure Resource Manager MCP pricing calls fail.
 
 **Solutions**:
 
 ```bash
 # Check MCP configuration
 cat .vscode/mcp.json
-
-# Verify Python environment
-python3 --version  # Should be 3.10+
-
-# Install dependencies
-cd tools/mcp-servers/azure-pricing && pip install -r requirements.txt
 ```
+
+In VS Code, run **MCP: List Servers**, select
+`azure-resource-manager-mcp`, and restart it. Install the preview server through
+<https://aka.ms/JoinARMMCP> if it is not registered, then sign in to Azure.
 
 :::tip[Graceful degradation]
 If MCP servers are temporarily unreachable, the workflow degrades gracefully.
-Steps 1-5 can proceed without MCP — agents skip real-time pricing lookups
-and use documented defaults. Governance discovery in Step 3.5 uses Azure CLI
-auth, not MCP. Only Step 2 cost estimation and Step 7 as-built cost updates
-depend directly on the Pricing MCP server.
+Steps that do not emit dollar figures can proceed without pricing. Cost estimates
+fail closed rather than substituting remembered prices. Governance discovery
+uses Azure CLI authentication independently of the pricing workflow.
 :::
 
 ### 9. Dev Container Build Fails
@@ -486,7 +482,6 @@ ls .github/agents/03-architect.agent.md
 # All-in-one status
 echo "=== Bicep ===" && bicep --version
 echo "=== Terraform ===" && terraform --version
-echo "=== TFLint ===" && tflint --version
 echo "=== Azure CLI ===" && az version --output table
 echo "=== Node ===" && node --version
 echo "=== Python ===" && python3 --version

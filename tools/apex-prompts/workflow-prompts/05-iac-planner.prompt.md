@@ -58,8 +58,7 @@ Create a comprehensive, machine-readable implementation plan based on the approv
   justified.
 - The plan must be machine-readable enough that Step 5 (IaC Code) can be
   executed without re-interpreting the architecture.
-- Diagrams use the Python `diagrams` library; Draw.io is reserved for
-  Step 3 design diagrams.
+- Diagrams use the Python `diagrams` library and shared `diagram_io.py` helper.
 </rules>
 
 <output_contract>

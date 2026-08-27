@@ -144,23 +144,10 @@ check_post_create_log() {
     [[ "$summary" != *"with errors"* ]]
 }
 
-check_terraform_mcp() {
-    if command -v terraform-mcp-server >/dev/null 2>&1; then
-        terraform-mcp-server --version
-    elif [[ -x /go/bin/terraform-mcp-server ]]; then
-        /go/bin/terraform-mcp-server --version
-    else
-        printf 'terraform-mcp-server not found\n'
-        return 1
-    fi
-}
-
 prepare_test_dependencies() {
     npm ci
     npm ci --prefix site
-    uv pip install --system --quiet \
-        -e "${PWD}/tools/apex-recall" \
-        -e "${PWD}/tools/mcp-servers/azure-pricing[dev]"
+    uv pip install --system --quiet -e "${PWD}/tools/apex-recall"
 }
 
 check_bicep_compile() {
@@ -234,21 +221,16 @@ run_check "python-3.14" "compatibility" python3 -c \
 run_check "node" "compatibility" node --version
 run_check "github-cli" "compatibility" gh --version
 run_check "uv" "compatibility" uv --version
-run_check "checkov" "compatibility" checkov --version
 run_check "markdownlint-cli2" "compatibility" markdownlint-cli2 --version
 run_check "graphviz" "compatibility" dot -V
 run_check "dos2unix" "compatibility" dos2unix --version
-run_check "k6" "compatibility" k6 version
-run_check "deno" "compatibility" deno --version
 run_check "gitleaks" "compatibility" gitleaks version
 run_check "terraform" "compatibility" terraform version
-run_check "tflint" "compatibility" tflint --version
 run_check "azd" "compatibility" azd version
 run_check "ruff" "compatibility" ruff --version
 run_check "apex-recall" "compatibility" apex-recall --version
-run_check "terraform-mcp-server" "compatibility" check_terraform_mcp
 run_check "python-package-imports" "compatibility" python3 -c \
-    'import diagrams, matplotlib, PIL, checkov; from azure_pricing_mcp import server'
+    'import diagrams, matplotlib, PIL, pytest, ruff'
 
 # Existing repository validation gates.
 run_check "format-check" "harness" npm run format:check
@@ -258,10 +240,6 @@ run_check "validate-all" "harness" npm run validate:all
 # Functional checks specific to the container runtime and public integrations.
 run_check "bicep-compile" "compatibility" check_bicep_compile
 run_check "terraform-init-validate" "network" check_terraform_validate
-run_check "azure-pricing-live-integration" "network" python3 -m pytest \
-    tools/mcp-servers/azure-pricing/tests/test_integration.py::test_real_vm_price_search \
-    tools/mcp-servers/azure-pricing/tests/test_integration.py::test_real_storage_price_search \
-    -q -o "addopts="
 run_check "diagram-render" "compatibility" check_diagram_render
 
 END_EPOCH=$(date +%s)

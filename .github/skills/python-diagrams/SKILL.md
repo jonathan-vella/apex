@@ -1,6 +1,6 @@
 ---
 name: python-diagrams
-description: "**UTILITY SKILL** — Python diagram generation: WAF/cost/compliance charts (matplotlib), architecture diagrams (diagrams lib), ERDs, swimlanes, timelines, wireframes (graphviz). WHEN: 'WAF bar chart', 'cost donut chart', 'compliance gap chart', 'Python architecture diagram', 'ERD diagram', 'swimlane', 'UI wireframe'. DO NOT USE FOR: Draw.io architecture diagrams (drawio), inline Mermaid (mermaid)."
+description: "**UTILITY SKILL** — Python diagram generation for Azure architectures, WAF/cost/compliance charts, ERDs, swimlanes, timelines, and wireframes. WHEN: 'architecture diagram', 'WAF bar chart', 'cost chart', 'ERD', 'swimlane', 'timeline', 'wireframe'. DO NOT USE FOR: inline Mermaid diagrams (mermaid)."
 compatibility: Works with VS Code Copilot, Claude Code, and any tool capable of running Python scripts.
 license: MIT
 metadata:
@@ -31,7 +31,7 @@ preview, SVG for scalable / accessible / diff-friendly review.
 | WAF bar charts                      | matplotlib | `.py` + `.png` + `.svg` |
 | Cost donut / projection charts      | matplotlib | `.py` + `.png` + `.svg` |
 | Compliance gap charts               | matplotlib | `.py` + `.png` + `.svg` |
-| Architecture diagrams (non-Draw.io) | diagrams   | `.py` + `.png` + `.svg` |
+| Architecture diagrams               | diagrams   | `.py` + `.png` + `.svg` |
 | Swimlane / business process         | graphviz   | `.py` + `.png` + `.svg` |
 | Entity-relationship diagrams        | graphviz   | `.py` + `.png` + `.svg` |
 | Timeline / Gantt charts             | matplotlib | `.py` + `.png` + `.svg` |
@@ -76,9 +76,8 @@ scores are assigned.
 
 **DON'T:** Call `plt.savefig(...)`, `Diagram(..., outformat=...)`, or
 `dot.render(...)` directly — always go through `diagram_io` · Use Mermaid
-for charts (use matplotlib) · Use Python `diagrams` for primary architecture
-diagrams (use Draw.io skill) · Let `show=True` open a viewer · Omit
-`filename` (produces non-deterministic output names) · Use grouped
+for charts (use matplotlib) · Let `show=True` open a viewer · Omit `filename`
+(produces non-deterministic output names) · Use grouped
 list-to-list edge operators (`[a, b] >> [c, d]`) — use explicit node-to-node
 edges instead (the `diagrams` library may reject grouped expressions with a
 `TypeError`) · Use emoji or Unicode glyphs in chart labels — keep labels
@@ -86,8 +85,8 @@ ASCII-safe for portability across container fonts.
 
 ## Scope Exclusions
 
-Does NOT: generate Draw.io architecture diagrams · produce Mermaid diagrams ·
-generate Bicep/Terraform · create ADRs · deploy resources.
+Does NOT: produce Mermaid diagrams · generate Bicep/Terraform · create ADRs ·
+deploy resources.
 
 ## Scripts
 

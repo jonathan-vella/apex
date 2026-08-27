@@ -37,7 +37,7 @@ cost estimates.
    Performance, Cost, Operations).
 3. Recommend specific Azure services and SKUs justified by requirements,
    budget, and complexity.
-4. Use the Azure Pricing MCP tools (delegate to `cost-estimate-subagent`)
+4. Use Azure Resource Manager MCP through `cost-estimate-subagent`
    to generate real cost estimates for both steady-state and peak-season
    usage.
 5. Document architecture trade-offs with WAF pillar impact.
@@ -65,7 +65,7 @@ cost estimates.
 - `agent-output/{project}/02-architecture-assessment.md` (WAF assessment,
   trade-offs, recommended services and SKUs)
 - `agent-output/{project}/03-des-cost-estimate.md` (steady-state + peak
-  costs from Azure Pricing MCP)
+  costs from Azure Resource Manager MCP)
 - Updated `agent-output/{project}/00-session-state.json` with Step 2
   complete and `decisions.region` / `decisions.services` populated
 - Findings file from challenger review (when `must_fix` items exist)

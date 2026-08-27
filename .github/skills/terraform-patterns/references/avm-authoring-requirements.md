@@ -151,7 +151,7 @@ terraform {
 
 ## Testing Requirements (TFNFR5)
 
-Required tools: `terraform validate/fmt/test`, terrafmt, Checkov, tflint (azurerm ruleset).
+Required tools: `terraform validate`, `terraform fmt`, and `terraform test`.
 Test provider: set `prevent_deletion_if_contains_resources = false` (TFNFR36).
 
 ## Breaking Changes & Feature Management

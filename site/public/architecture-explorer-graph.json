@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-08-21T08:22:01.576Z",
+  "generatedAt": "2026-08-27T09:42:33.451Z",
   "categories": [
     {
       "id": "agent",
@@ -24,7 +24,7 @@
       "label": "Skill",
       "color": "#10b981",
       "shape": "ellipse",
-      "count": 34
+      "count": 33
     },
     {
       "id": "instruction",
@@ -32,7 +32,7 @@
       "label": "Instruction",
       "color": "#f59e0b",
       "shape": "rectangle",
-      "count": 31
+      "count": 30
     },
     {
       "id": "prompt",
@@ -48,7 +48,7 @@
       "label": "Validator",
       "color": "#8b5cf6",
       "shape": "hexagon",
-      "count": 62
+      "count": 60
     },
     {
       "id": "workflow",
@@ -64,11 +64,11 @@
       "label": "MCP Server",
       "color": "#f43f5e",
       "shape": "barrel",
-      "count": 5
+      "count": 3
     }
   ],
-  "nodeCount": 167,
-  "edgeCount": 629,
+  "nodeCount": 161,
+  "edgeCount": 618,
   "nodes": [
     {
       "id": "agent:01-orchestrator",
@@ -150,7 +150,7 @@
       "id": "agent:03-architect",
       "category": "agent",
       "label": "03-Architect",
-      "description": "Expert Architect providing guidance using Azure Well-Architected Framework principles and Microsoft best practices. Evaluates decisions against WAF pillars (Security, Reliability, Performance, Cost, Operations). Auto-generates cost estimates via Azure Pricing MCP and writes WAF + cost markdown.",
+      "description": "Expert Architect providing guidance using Azure Well-Architected Framework principles and Microsoft best practices. Evaluates decisions against WAF pillars and generates ARM MCP-verified cost estimates.",
       "path": ".github/agents/03-architect.agent.md",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/03-architect.agent.md"
@@ -180,7 +180,7 @@
       "id": "agent:04-design",
       "category": "agent",
       "label": "04-Design",
-      "description": "Step 3 — Design Artifacts. Generates architecture diagrams (Draw.io or Python) and Architecture Decision Records (azure-adr skill) for Azure infrastructure. Optional step — users can skip to Implementation Planning.",
+      "description": "Step 3 — Design Artifacts. Generates code-based Python architecture diagrams and Architecture Decision Records for approved Azure designs. Optional step before governance and IaC planning.",
       "path": ".github/agents/04-design.agent.md",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/04-design.agent.md"
@@ -199,10 +199,9 @@
         ],
         "skills": [
           "azure-defaults",
-          "azure-artifacts",
+          "python-diagrams",
           "azure-adr",
-          "drawio",
-          "python-diagrams"
+          "azure-artifacts"
         ]
       }
     },
@@ -413,7 +412,6 @@
         "skills": [
           "azure-defaults",
           "azure-artifacts",
-          "drawio",
           "python-diagrams",
           "context-management"
         ]
@@ -575,16 +573,14 @@
       "id": "subagent:cost-estimate-subagent",
       "category": "subagent",
       "label": "cost-estimate-subagent",
-      "description": "Azure cost estimation subagent. Queries Azure Pricing MCP tools for real-time SKU pricing, compares regions, returns structured cost breakdown. Isolates pricing API calls from the parent Architect's context window.",
+      "description": "Azure cost estimation subagent. Uses Azure Resource Manager MCP retail pricing and cost data, then returns a structured cost breakdown through a file-based contract.",
       "path": ".github/agents/_subagents/cost-estimate-subagent.agent.md",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/_subagents/cost-estimate-subagent.agent.md"
       },
       "meta": {
         "model": "GPT-5.6-Luna",
-        "skills": [
-          "azure-defaults"
-        ]
+        "skills": []
       }
     },
     {
@@ -647,7 +643,7 @@
       "id": "skill:azure-adr",
       "category": "skill",
       "label": "azure-adr",
-      "description": "**ANALYSIS SKILL** — Creates Azure Architecture Decision Records (ADRs) with WAF pillar mapping, alternatives, and consequences. WHEN: \"create ADR\", \"document decision\", \"architecture decision record\", \"record why we chose\", \"WAF pillar justification\", \"trade-off analysis\". DO NOT USE FOR: IaC code (06b/06t agents), architecture diagrams (drawio), cost estimates (cost-estimate-subagent).",
+      "description": "**ANALYSIS SKILL** — Creates Azure Architecture Decision Records (ADRs) with WAF pillar mapping, alternatives, and consequences. WHEN: \"create ADR\", \"document decision\", \"architecture decision record\", \"record why we chose\", \"WAF pillar justification\", \"trade-off analysis\". DO NOT USE FOR: IaC code (06b/06t agents), diagrams (python-diagrams), cost estimates (cost-estimate-subagent).",
       "path": ".github/skills/azure-adr/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/azure-adr/SKILL.md"
@@ -669,7 +665,7 @@
       "id": "skill:azure-bicep-patterns",
       "category": "skill",
       "label": "azure-bicep-patterns",
-      "description": "**UTILITY SKILL** — Reusable Azure Bicep patterns: hub-spoke, private endpoints, diagnostics, AVM composition. WHEN: \"hub-spoke Bicep\", \"private endpoint module\", \"diagnostic settings\", \"AVM Bicep composition\". USE FOR: Bicep template design, hub-spoke networking, private endpoint patterns, AVM modules. DO NOT USE FOR: Terraform code (use terraform-patterns), architecture decisions (use azure-adr), troubleshooting, diagram generation (use drawio).",
+      "description": "**UTILITY SKILL** — Reusable Azure Bicep patterns: hub-spoke, private endpoints, diagnostics, AVM composition. WHEN: \"hub-spoke Bicep\", \"private endpoint module\", \"diagnostic settings\", \"AVM Bicep composition\". USE FOR: Bicep template design, hub-spoke networking, private endpoint patterns, AVM modules. DO NOT USE FOR: Terraform code (use terraform-patterns), architecture decisions (use azure-adr), troubleshooting, diagrams (use python-diagrams).",
       "path": ".github/skills/azure-bicep-patterns/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/azure-bicep-patterns/SKILL.md"
@@ -702,7 +698,7 @@
       "id": "skill:azure-compute",
       "category": "skill",
       "label": "azure-compute",
-      "description": "**ANALYSIS SKILL** — Recommend Azure VM sizes and VMSS for workload, performance, and budget. Uses public docs and the Azure Retail Prices API. WHEN: \"recommend VM size\", \"choose Azure VM\", \"GPU VM\", \"compare VM sizes\", \"VMSS vs VM\", \"autoscale VMs\". DO NOT USE FOR: provisioning VMs (azure-prepare), VM pricing for budgets (azure-pricing MCP).",
+      "description": "**ANALYSIS SKILL** — Recommend Azure VM sizes and VMSS for workload, performance, and budget. Uses public docs and the Azure Retail Prices API. WHEN: \"recommend VM size\", \"choose Azure VM\", \"GPU VM\", \"compare VM sizes\", \"VMSS vs VM\", \"autoscale VMs\". DO NOT USE FOR: provisioning VMs (azure-prepare), VM pricing for budgets (ARM MCP).",
       "path": ".github/skills/azure-compute/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/azure-compute/SKILL.md"
@@ -864,17 +860,6 @@
       "meta": {}
     },
     {
-      "id": "skill:drawio",
-      "category": "skill",
-      "label": "drawio",
-      "description": "**WORKFLOW SKILL** — Generate Azure architecture diagrams in .drawio via simonkurtz-MSFT MCP server (full Azure icon set, batch creation, transactional mode). Covers architecture, dependency, runtime-flow, and as-built diagrams. WHEN: 'draw.io diagram', 'Azure architecture diagram', 'as-built diagram', 'runtime flow diagram', 'dependency diagram'. DO NOT USE FOR: WAF/cost charts (python-diagrams), inline Mermaid (mermaid).",
-      "path": ".github/skills/drawio/SKILL.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/drawio/SKILL.md"
-      },
-      "meta": {}
-    },
-    {
       "id": "skill:entra-app-registration",
       "category": "skill",
       "label": "entra-app-registration",
@@ -922,7 +907,7 @@
       "id": "skill:mermaid",
       "category": "skill",
       "label": "mermaid",
-      "description": "**UTILITY SKILL** — Mermaid diagrams for inline markdown: flowcharts, sequence, Gantt, class, state, ER. WHEN: \"mermaid flowchart\", \"sequence diagram\", \"Gantt chart\", \"state diagram\", \"ER diagram\", \"inline markdown diagram\". DO NOT USE FOR: Azure-icon architecture diagrams (drawio), WAF/cost charts (python-diagrams).",
+      "description": "**UTILITY SKILL** — Mermaid diagrams for inline markdown: flowcharts, sequence, Gantt, class, state, ER. WHEN: \"mermaid flowchart\", \"sequence diagram\", \"Gantt chart\", \"state diagram\", \"ER diagram\", \"inline markdown diagram\". DO NOT USE FOR: rendered architecture diagrams or WAF/cost charts (python-diagrams).",
       "path": ".github/skills/mermaid/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/mermaid/SKILL.md"
@@ -933,7 +918,7 @@
       "id": "skill:microsoft-docs",
       "category": "skill",
       "label": "microsoft-docs",
-      "description": "**ANALYSIS SKILL** — Query official Microsoft documentation to understand concepts, find tutorials, and learn how services work. WHEN: \"Microsoft Learn\", \"Azure docs\", \"quickstart guide\", \"limits and quotas\", \"WAF reference\", \"architecture pattern docs\". DO NOT USE FOR: Azure pricing (use azure-pricing MCP).",
+      "description": "**ANALYSIS SKILL** — Query official Microsoft documentation to understand concepts, find tutorials, and learn how services work. WHEN: \"Microsoft Learn\", \"Azure docs\", \"quickstart guide\", \"limits and quotas\", \"WAF reference\", \"architecture pattern docs\". DO NOT USE FOR: Azure pricing; route pricing through the cost-estimate subagent.",
       "path": ".github/skills/microsoft-docs/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/microsoft-docs/SKILL.md"
@@ -944,7 +929,7 @@
       "id": "skill:python-diagrams",
       "category": "skill",
       "label": "python-diagrams",
-      "description": "**UTILITY SKILL** — Python diagram generation: WAF/cost/compliance charts (matplotlib), architecture diagrams (diagrams lib), ERDs, swimlanes, timelines, wireframes (graphviz). WHEN: 'WAF bar chart', 'cost donut chart', 'compliance gap chart', 'Python architecture diagram', 'ERD diagram', 'swimlane', 'UI wireframe'. DO NOT USE FOR: Draw.io architecture diagrams (drawio), inline Mermaid (mermaid).",
+      "description": "**UTILITY SKILL** — Python diagram generation for Azure architectures, WAF/cost/compliance charts, ERDs, swimlanes, timelines, and wireframes. WHEN: 'architecture diagram', 'WAF bar chart', 'cost chart', 'ERD', 'swimlane', 'timeline', 'wireframe'. DO NOT USE FOR: inline Mermaid diagrams (mermaid).",
       "path": ".github/skills/python-diagrams/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/python-diagrams/SKILL.md"
@@ -955,7 +940,7 @@
       "id": "skill:terraform-patterns",
       "category": "skill",
       "label": "terraform-patterns",
-      "description": "**UTILITY SKILL** — Reusable Azure Terraform patterns: hub-spoke, private endpoints, diagnostics, AVM-TF modules. WHEN: \"hub-spoke Terraform\", \"private endpoint module\", \"AVM-TF composition\", \"diagnostic settings\", \"plan interpretation\". DO NOT USE FOR: Bicep code (azure-bicep-patterns), ADRs (azure-adr), diagrams (drawio).",
+      "description": "**UTILITY SKILL** — Reusable Azure Terraform patterns: hub-spoke, private endpoints, diagnostics, AVM-TF modules. WHEN: \"hub-spoke Terraform\", \"private endpoint module\", \"AVM-TF composition\", \"diagnostic settings\", \"plan interpretation\". DO NOT USE FOR: Bicep code (azure-bicep-patterns), ADRs (azure-adr), diagrams (python-diagrams).",
       "path": ".github/skills/terraform-patterns/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/terraform-patterns/SKILL.md"
@@ -1134,19 +1119,6 @@
       },
       "meta": {
         "applyTo": "site/src/content/docs/**/*.md, site/src/content/docs/**/*.mdx"
-      }
-    },
-    {
-      "id": "instruction:drawio",
-      "category": "instruction",
-      "label": "drawio",
-      "description": "Draw.io diagram generation and editing conventions",
-      "path": ".github/instructions/drawio.instructions.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/instructions/drawio.instructions.md"
-      },
-      "meta": {
-        "applyTo": "**/*.drawio"
       }
     },
     {
@@ -1968,21 +1940,6 @@
       "parent": "group:validator-orphans"
     },
     {
-      "id": "validator:lint-drawio",
-      "category": "validator",
-      "label": "lint:drawio",
-      "description": "node tools/scripts/validate-drawio-files.mjs",
-      "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
-      "meta": {
-        "command": "node tools/scripts/validate-drawio-files.mjs",
-        "orphan": true
-      },
-      "parent": "group:validator-orphans"
-    },
-    {
       "id": "validator:validate-terminology",
       "category": "validator",
       "label": "validate:terminology",
@@ -2194,13 +2151,13 @@
       "id": "validator:lint-python",
       "category": "validator",
       "label": "lint:python",
-      "description": "tools/scripts/run-azure-pricing-python.sh -m ruff check src/ tests/ && tools/scripts/run-azure-pricing-python.sh -m ruff format --check src/ tests/ && cd tools/apex-recall && python3 -m ruff check src/",
+      "description": "cd tools/apex-recall && python3 -m ruff check src/",
       "path": "package.json",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
       },
       "meta": {
-        "command": "tools/scripts/run-azure-pricing-python.sh -m ruff check src/ tests/ && tools/scripts/run-azure-pricing-python.sh -m ruff format --check src/ tests/ && cd tools/apex-recall && python3 -m ruff check src/"
+        "command": "cd tools/apex-recall && python3 -m ruff check src/"
       }
     },
     {
@@ -2253,19 +2210,6 @@
       },
       "meta": {
         "command": "python3 -m pytest tools/tests/test_apex_recall/ -q"
-      }
-    },
-    {
-      "id": "validator:test-azure-pricing-mcp",
-      "category": "validator",
-      "label": "test:azure-pricing-mcp",
-      "description": "tools/scripts/run-azure-pricing-python.sh -m pytest tests -q",
-      "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
-      "meta": {
-        "command": "tools/scripts/run-azure-pricing-python.sh -m pytest tests -q"
       }
     },
     {
@@ -2465,50 +2409,23 @@
       }
     },
     {
-      "id": "mcp:azure-pricing",
+      "id": "mcp:azure-resource-manager-mcp",
       "category": "mcp",
-      "label": "azure-pricing",
-      "description": "stdio: ${workspaceFolder}/tools/mcp-servers/azure-pricing/.venv/bin/python",
+      "label": "azure-resource-manager-mcp",
+      "description": "HTTP: https://mcp.management.azure.com",
       "path": ".vscode/mcp.json",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.vscode/mcp.json"
       },
       "meta": {
-        "type": "stdio"
+        "type": "http"
       }
     },
     {
-      "id": "mcp:terraform",
+      "id": "mcp:azure-mcp",
       "category": "mcp",
-      "label": "terraform",
-      "description": "stdio: /go/bin/terraform-mcp-server",
-      "path": ".vscode/mcp.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.vscode/mcp.json"
-      },
-      "meta": {
-        "type": "stdio"
-      }
-    },
-    {
-      "id": "mcp:astro-docs",
-      "category": "mcp",
-      "label": "astro-docs",
-      "description": "HTTP: https://mcp.docs.astro.build/mcp",
-      "path": ".vscode/mcp.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.vscode/mcp.json"
-      },
-      "meta": {
-        "type": "http",
-        "orphan": true
-      }
-    },
-    {
-      "id": "mcp:drawio",
-      "category": "mcp",
-      "label": "drawio",
-      "description": "stdio: deno",
+      "label": "azure-mcp",
+      "description": "stdio: npx",
       "path": ".vscode/mcp.json",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.vscode/mcp.json"
@@ -2520,11 +2437,11 @@
     {
       "id": "group:validator-orphans",
       "category": "validator",
-      "label": "Validator (unlinked, 48)",
-      "description": "48 validator nodes with no cross-references in the current graph.",
+      "label": "Validator (unlinked, 47)",
+      "description": "47 validator nodes with no cross-references in the current graph.",
       "isGroup": true,
       "meta": {
-        "groupSize": 48
+        "groupSize": 47
       }
     },
     {
@@ -3176,9 +3093,9 @@
       "kind": "uses-skill"
     },
     {
-      "id": "agent:04-design--uses-skill->skill:azure-artifacts",
+      "id": "agent:04-design--uses-skill->skill:python-diagrams",
       "source": "agent:04-design",
-      "target": "skill:azure-artifacts",
+      "target": "skill:python-diagrams",
       "kind": "uses-skill"
     },
     {
@@ -3188,15 +3105,9 @@
       "kind": "uses-skill"
     },
     {
-      "id": "agent:04-design--uses-skill->skill:drawio",
+      "id": "agent:04-design--uses-skill->skill:azure-artifacts",
       "source": "agent:04-design",
-      "target": "skill:drawio",
-      "kind": "uses-skill"
-    },
-    {
-      "id": "agent:04-design--uses-skill->skill:python-diagrams",
-      "source": "agent:04-design",
-      "target": "skill:python-diagrams",
+      "target": "skill:azure-artifacts",
       "kind": "uses-skill"
     },
     {
@@ -3356,12 +3267,6 @@
       "kind": "uses-skill"
     },
     {
-      "id": "agent:08-as-built--uses-skill->skill:drawio",
-      "source": "agent:08-as-built",
-      "target": "skill:drawio",
-      "kind": "uses-skill"
-    },
-    {
       "id": "agent:08-as-built--uses-skill->skill:python-diagrams",
       "source": "agent:08-as-built",
       "target": "skill:python-diagrams",
@@ -3430,12 +3335,6 @@
     {
       "id": "subagent:challenger-review-subagent--uses-skill->skill:azure-defaults",
       "source": "subagent:challenger-review-subagent",
-      "target": "skill:azure-defaults",
-      "kind": "uses-skill"
-    },
-    {
-      "id": "subagent:cost-estimate-subagent--uses-skill->skill:azure-defaults",
-      "source": "subagent:cost-estimate-subagent",
       "target": "skill:azure-defaults",
       "kind": "uses-skill"
     },
@@ -3842,12 +3741,6 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:agent-skills--applies-to->skill:drawio",
-      "source": "instruction:agent-skills",
-      "target": "skill:drawio",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:agent-skills--applies-to->skill:entra-app-registration",
       "source": "instruction:agent-skills",
       "target": "skill:entra-app-registration",
@@ -4175,12 +4068,6 @@
       "id": "instruction:context-optimization--applies-to->skill:docs-writer",
       "source": "instruction:context-optimization",
       "target": "skill:docs-writer",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:context-optimization--applies-to->skill:drawio",
-      "source": "instruction:context-optimization",
-      "target": "skill:drawio",
       "kind": "applies-to"
     },
     {
@@ -4520,12 +4407,6 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:docs-trigger--applies-to->skill:drawio",
-      "source": "instruction:docs-trigger",
-      "target": "skill:drawio",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:docs-trigger--applies-to->skill:entra-app-registration",
       "source": "instruction:docs-trigger",
       "target": "skill:entra-app-registration",
@@ -4655,12 +4536,6 @@
       "id": "instruction:instructions--applies-to->instruction:docs",
       "source": "instruction:instructions",
       "target": "instruction:docs",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:instructions--applies-to->instruction:drawio",
-      "source": "instruction:instructions",
-      "target": "instruction:drawio",
       "kind": "applies-to"
     },
     {
@@ -5036,12 +4911,6 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:markdown--applies-to->skill:drawio",
-      "source": "instruction:markdown",
-      "target": "skill:drawio",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:markdown--applies-to->skill:entra-app-registration",
       "source": "instruction:markdown",
       "target": "skill:entra-app-registration",
@@ -5372,12 +5241,6 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:no-interactive-shell--applies-to->skill:drawio",
-      "source": "instruction:no-interactive-shell",
-      "target": "skill:drawio",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:no-interactive-shell--applies-to->skill:entra-app-registration",
       "source": "instruction:no-interactive-shell",
       "target": "skill:entra-app-registration",
@@ -5612,12 +5475,6 @@
       "kind": "runs"
     },
     {
-      "id": "workflow:ci--runs->validator:test-azure-pricing-mcp",
-      "source": "workflow:ci",
-      "target": "validator:test-azure-pricing-mcp",
-      "kind": "runs"
-    },
-    {
       "id": "workflow:docs-checks--runs->validator:lint-md",
       "source": "workflow:docs-checks",
       "target": "validator:lint-md",
@@ -5684,9 +5541,9 @@
       "kind": "uses-mcp"
     },
     {
-      "id": "agent:01-orchestrator--uses-mcp->mcp:terraform",
+      "id": "agent:01-orchestrator--uses-mcp->mcp:azure-mcp",
       "source": "agent:01-orchestrator",
-      "target": "mcp:terraform",
+      "target": "mcp:azure-mcp",
       "kind": "uses-mcp"
     },
     {
@@ -5696,9 +5553,9 @@
       "kind": "uses-mcp"
     },
     {
-      "id": "agent:02-requirements--uses-mcp->mcp:terraform",
+      "id": "agent:02-requirements--uses-mcp->mcp:azure-mcp",
       "source": "agent:02-requirements",
-      "target": "mcp:terraform",
+      "target": "mcp:azure-mcp",
       "kind": "uses-mcp"
     },
     {
@@ -5708,15 +5565,9 @@
       "kind": "uses-mcp"
     },
     {
-      "id": "agent:03-architect--uses-mcp->mcp:terraform",
+      "id": "agent:03-architect--uses-mcp->mcp:azure-mcp",
       "source": "agent:03-architect",
-      "target": "mcp:terraform",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:03-architect--uses-mcp->mcp:drawio",
-      "source": "agent:03-architect",
-      "target": "mcp:drawio",
+      "target": "mcp:azure-mcp",
       "kind": "uses-mcp"
     },
     {
@@ -5726,15 +5577,15 @@
       "kind": "uses-mcp"
     },
     {
-      "id": "agent:04-design--uses-mcp->mcp:drawio",
-      "source": "agent:04-design",
-      "target": "mcp:drawio",
-      "kind": "uses-mcp"
-    },
-    {
       "id": "agent:04g-governance--uses-mcp->mcp:github",
       "source": "agent:04g-governance",
       "target": "mcp:github",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:04g-governance--uses-mcp->mcp:azure-mcp",
+      "source": "agent:04g-governance",
+      "target": "mcp:azure-mcp",
       "kind": "uses-mcp"
     },
     {
@@ -5744,9 +5595,9 @@
       "kind": "uses-mcp"
     },
     {
-      "id": "agent:05-iac-planner--uses-mcp->mcp:terraform",
+      "id": "agent:05-iac-planner--uses-mcp->mcp:azure-mcp",
       "source": "agent:05-iac-planner",
-      "target": "mcp:terraform",
+      "target": "mcp:azure-mcp",
       "kind": "uses-mcp"
     },
     {
@@ -5756,15 +5607,21 @@
       "kind": "uses-mcp"
     },
     {
+      "id": "agent:06b-bicep-codegen--uses-mcp->mcp:azure-mcp",
+      "source": "agent:06b-bicep-codegen",
+      "target": "mcp:azure-mcp",
+      "kind": "uses-mcp"
+    },
+    {
       "id": "agent:06t-terraform-codegen--uses-mcp->mcp:github",
       "source": "agent:06t-terraform-codegen",
       "target": "mcp:github",
       "kind": "uses-mcp"
     },
     {
-      "id": "agent:06t-terraform-codegen--uses-mcp->mcp:terraform",
+      "id": "agent:06t-terraform-codegen--uses-mcp->mcp:azure-mcp",
       "source": "agent:06t-terraform-codegen",
-      "target": "mcp:terraform",
+      "target": "mcp:azure-mcp",
       "kind": "uses-mcp"
     },
     {
@@ -5774,15 +5631,21 @@
       "kind": "uses-mcp"
     },
     {
+      "id": "agent:07b-bicep-deploy--uses-mcp->mcp:azure-mcp",
+      "source": "agent:07b-bicep-deploy",
+      "target": "mcp:azure-mcp",
+      "kind": "uses-mcp"
+    },
+    {
       "id": "agent:07t-terraform-deploy--uses-mcp->mcp:github",
       "source": "agent:07t-terraform-deploy",
       "target": "mcp:github",
       "kind": "uses-mcp"
     },
     {
-      "id": "agent:07t-terraform-deploy--uses-mcp->mcp:terraform",
+      "id": "agent:07t-terraform-deploy--uses-mcp->mcp:azure-mcp",
       "source": "agent:07t-terraform-deploy",
-      "target": "mcp:terraform",
+      "target": "mcp:azure-mcp",
       "kind": "uses-mcp"
     },
     {
@@ -5792,15 +5655,9 @@
       "kind": "uses-mcp"
     },
     {
-      "id": "agent:08-as-built--uses-mcp->mcp:terraform",
+      "id": "agent:08-as-built--uses-mcp->mcp:azure-mcp",
       "source": "agent:08-as-built",
-      "target": "mcp:terraform",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:08-as-built--uses-mcp->mcp:drawio",
-      "source": "agent:08-as-built",
-      "target": "mcp:drawio",
+      "target": "mcp:azure-mcp",
       "kind": "uses-mcp"
     },
     {
@@ -5810,15 +5667,15 @@
       "kind": "uses-mcp"
     },
     {
-      "id": "agent:10-challenger--uses-mcp->mcp:github",
-      "source": "agent:10-challenger",
-      "target": "mcp:github",
+      "id": "agent:09-diagnose--uses-mcp->mcp:azure-mcp",
+      "source": "agent:09-diagnose",
+      "target": "mcp:azure-mcp",
       "kind": "uses-mcp"
     },
     {
-      "id": "agent:10-challenger--uses-mcp->mcp:terraform",
+      "id": "agent:10-challenger--uses-mcp->mcp:github",
       "source": "agent:10-challenger",
-      "target": "mcp:terraform",
+      "target": "mcp:github",
       "kind": "uses-mcp"
     },
     {
@@ -5834,21 +5691,21 @@
       "kind": "uses-mcp"
     },
     {
-      "id": "agent:e2e-orchestrator--uses-mcp->mcp:terraform",
-      "source": "agent:e2e-orchestrator",
-      "target": "mcp:terraform",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:e2e-orchestrator--uses-mcp->mcp:drawio",
-      "source": "agent:e2e-orchestrator",
-      "target": "mcp:drawio",
-      "kind": "uses-mcp"
-    },
-    {
       "id": "subagent:bicep-validate-subagent--uses-mcp->mcp:github",
       "source": "subagent:bicep-validate-subagent",
       "target": "mcp:github",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "subagent:bicep-validate-subagent--uses-mcp->mcp:azure-mcp",
+      "source": "subagent:bicep-validate-subagent",
+      "target": "mcp:azure-mcp",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "subagent:bicep-whatif-subagent--uses-mcp->mcp:azure-mcp",
+      "source": "subagent:bicep-whatif-subagent",
+      "target": "mcp:azure-mcp",
       "kind": "uses-mcp"
     },
     {
@@ -5858,15 +5715,21 @@
       "kind": "uses-mcp"
     },
     {
+      "id": "subagent:challenger-review-subagent--uses-mcp->mcp:azure-mcp",
+      "source": "subagent:challenger-review-subagent",
+      "target": "mcp:azure-mcp",
+      "kind": "uses-mcp"
+    },
+    {
       "id": "subagent:cost-estimate-subagent--uses-mcp->mcp:github",
       "source": "subagent:cost-estimate-subagent",
       "target": "mcp:github",
       "kind": "uses-mcp"
     },
     {
-      "id": "subagent:cost-estimate-subagent--uses-mcp->mcp:azure-pricing",
+      "id": "subagent:cost-estimate-subagent--uses-mcp->mcp:azure-resource-manager-mcp",
       "source": "subagent:cost-estimate-subagent",
-      "target": "mcp:azure-pricing",
+      "target": "mcp:azure-resource-manager-mcp",
       "kind": "uses-mcp"
     },
     {
@@ -5876,15 +5739,15 @@
       "kind": "uses-mcp"
     },
     {
-      "id": "subagent:policy-precheck-subagent--uses-mcp->mcp:terraform",
+      "id": "subagent:policy-precheck-subagent--uses-mcp->mcp:azure-mcp",
       "source": "subagent:policy-precheck-subagent",
-      "target": "mcp:terraform",
+      "target": "mcp:azure-mcp",
       "kind": "uses-mcp"
     },
     {
-      "id": "subagent:terraform-plan-subagent--uses-mcp->mcp:terraform",
+      "id": "subagent:terraform-plan-subagent--uses-mcp->mcp:azure-mcp",
       "source": "subagent:terraform-plan-subagent",
-      "target": "mcp:terraform",
+      "target": "mcp:azure-mcp",
       "kind": "uses-mcp"
     },
     {
@@ -5894,9 +5757,9 @@
       "kind": "uses-mcp"
     },
     {
-      "id": "subagent:terraform-validate-subagent--uses-mcp->mcp:terraform",
+      "id": "subagent:terraform-validate-subagent--uses-mcp->mcp:azure-mcp",
       "source": "subagent:terraform-validate-subagent",
-      "target": "mcp:terraform",
+      "target": "mcp:azure-mcp",
       "kind": "uses-mcp"
     },
     {
@@ -5918,9 +5781,9 @@
       "kind": "refs"
     },
     {
-      "id": "skill:azure-adr--refs->skill:drawio",
+      "id": "skill:azure-adr--refs->skill:python-diagrams",
       "source": "skill:azure-adr",
-      "target": "skill:drawio",
+      "target": "skill:python-diagrams",
       "kind": "refs"
     },
     {
@@ -5960,9 +5823,9 @@
       "kind": "refs"
     },
     {
-      "id": "skill:azure-bicep-patterns--refs->skill:drawio",
+      "id": "skill:azure-bicep-patterns--refs->skill:python-diagrams",
       "source": "skill:azure-bicep-patterns",
-      "target": "skill:drawio",
+      "target": "skill:python-diagrams",
       "kind": "refs"
     },
     {
@@ -6170,18 +6033,6 @@
       "kind": "refs"
     },
     {
-      "id": "skill:drawio--refs->skill:mermaid",
-      "source": "skill:drawio",
-      "target": "skill:mermaid",
-      "kind": "refs"
-    },
-    {
-      "id": "skill:drawio--refs->skill:python-diagrams",
-      "source": "skill:drawio",
-      "target": "skill:python-diagrams",
-      "kind": "refs"
-    },
-    {
       "id": "skill:entra-app-registration--refs->skill:azure-compliance",
       "source": "skill:entra-app-registration",
       "target": "skill:azure-compliance",
@@ -6242,21 +6093,9 @@
       "kind": "refs"
     },
     {
-      "id": "skill:mermaid--refs->skill:drawio",
-      "source": "skill:mermaid",
-      "target": "skill:drawio",
-      "kind": "refs"
-    },
-    {
       "id": "skill:mermaid--refs->skill:python-diagrams",
       "source": "skill:mermaid",
       "target": "skill:python-diagrams",
-      "kind": "refs"
-    },
-    {
-      "id": "skill:python-diagrams--refs->skill:drawio",
-      "source": "skill:python-diagrams",
-      "target": "skill:drawio",
       "kind": "refs"
     },
     {
@@ -6284,9 +6123,9 @@
       "kind": "refs"
     },
     {
-      "id": "skill:terraform-patterns--refs->skill:drawio",
+      "id": "skill:terraform-patterns--refs->skill:python-diagrams",
       "source": "skill:terraform-patterns",
-      "target": "skill:drawio",
+      "target": "skill:python-diagrams",
       "kind": "refs"
     },
     {
@@ -6302,9 +6141,21 @@
       "kind": "refs"
     },
     {
+      "id": "skill:terraform-search-import--refs->skill:azure-defaults",
+      "source": "skill:terraform-search-import",
+      "target": "skill:azure-defaults",
+      "kind": "refs"
+    },
+    {
       "id": "skill:terraform-search-import--refs->skill:terraform-patterns",
       "source": "skill:terraform-search-import",
       "target": "skill:terraform-patterns",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:terraform-test--refs->skill:azure-defaults",
+      "source": "skill:terraform-test",
+      "target": "skill:azure-defaults",
       "kind": "refs"
     },
     {

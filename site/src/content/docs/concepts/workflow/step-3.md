@@ -9,7 +9,7 @@ sidebar:
 ## Purpose
 
 Produce the visual and textual design artifacts that future maintainers will reach for first:
-architecture diagrams (Draw.io or Python-diagrams) plus Architecture Decision Records (ADRs).
+code-based Python architecture diagrams plus Architecture Decision Records (ADRs).
 
 Step 3 is **optional** — users who already have diagrams or who are iterating quickly can skip
 straight to Step 3.5 Governance.
@@ -18,7 +18,7 @@ straight to Step 3.5 Governance.
 
 [`04-Design`](https://github.com/jonathan-vella/apex/blob/main/.github/agents/04-design.agent.md)
 — delegates to the
-[`drawio`](https://github.com/jonathan-vella/apex/blob/main/.github/skills/drawio/SKILL.md)
+[`python-diagrams`](https://github.com/jonathan-vella/apex/blob/main/.github/skills/python-diagrams/SKILL.md)
 and
 [`azure-adr`](https://github.com/jonathan-vella/apex/blob/main/.github/skills/azure-adr/SKILL.md)
 skills.
@@ -27,7 +27,7 @@ skills.
 
 ```text
 Invoke: Ctrl+Shift+A → 04-Design
-Output: agent-output/{project}/03-des-diagram.drawio
+Output: agent-output/{project}/03-des-diagram.py + .png + .svg
         agent-output/{project}/03-des-adr-*.md
 ```
 
@@ -35,8 +35,8 @@ Output: agent-output/{project}/03-des-diagram.drawio
 
 | Artifact            | Tooling                | Purpose                                            |
 | ------------------- | ---------------------- | -------------------------------------------------- |
-| Architecture diagram | drawio skill           | Azure-icon system view                             |
-| Runtime-flow diagram | drawio / mermaid       | Request paths and async messaging                  |
+| Architecture diagram | python-diagrams        | Reproducible Azure system view                     |
+| Runtime-flow diagram | python-diagrams        | Request paths and async messaging                  |
 | Dependency diagram   | python-diagrams        | Resource dependency tree                           |
 | ADR                  | azure-adr skill        | WAF-mapped decisions with alternatives             |
 
@@ -51,7 +51,7 @@ Governance`](/concepts/workflow/step-3-5/).
 
 ## See also
 
-- [`drawio`
-  skill](https://github.com/jonathan-vella/apex/blob/main/.github/skills/drawio/SKILL.md)
+- [`python-diagrams`
+  skill](https://github.com/jonathan-vella/apex/blob/main/.github/skills/python-diagrams/SKILL.md)
 - [`azure-adr`
   skill](https://github.com/jonathan-vella/apex/blob/main/.github/skills/azure-adr/SKILL.md)

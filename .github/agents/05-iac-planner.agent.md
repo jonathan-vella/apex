@@ -5,7 +5,7 @@ model: ["Claude Opus 5"]
 user-invocable: true
 agents: ["challenger-review-subagent"]
 tools:
-  [vscode, execute, read, agent, browser, vscodeGeneral/rename, vscodeGeneral/usages, vscodeNotebooks/createJupyterNotebook, vscodeNotebooks/editNotebook, ms-azuretools.vscode-azureresourcegroups, edit, search, web, 'azure-mcp/*', 'bicep/*', 'terraform/*', todo]
+   [vscode, execute, read, agent, browser, vscodeGeneral/rename, vscodeGeneral/usages, vscodeNotebooks/createJupyterNotebook, vscodeNotebooks/editNotebook, ms-azuretools.vscode-azureresourcegroups, edit, search, web, 'azure-mcp/*', 'bicep/*', todo]
 handoffs:
   - label: "▶ Refresh Governance"
     agent: 04g-Governance

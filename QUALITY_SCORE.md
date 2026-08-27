@@ -10,7 +10,7 @@
 | Instructions    | A     | 26 instructions; 0 orphaned refs; all applyTo globs have matching files | Monitor via `lint:glob-audit`              |
 | Infrastructure  | A-    | Bicep + Terraform merged; IaC content archived as .tar.gz (by design)   | Expand Terraform E2E templates when needed |
 | Documentation   | A     | Docs fresh; no stale files; lint:md 0 errors; freshness report clean    | Run doc-gardening after structural changes |
-| CI / Validation | A     | Core repo lint clean; drawio-mcp-server suppressed via local config     | Monitor via `lint:md`                      |
+| CI / Validation | A     | Core repository validation is clean                                    | Monitor via `validate:all`                 |
 | Context Budget  | A     | Agents -18%, Skills -46%, Instructions -32% vs baseline (stable)        | Quarterly audit via AGENTS.md checklist    |
 | Backlog         | A     | 1 active item: E2E lessons                                              | Monitor E2E improvements                   |
 

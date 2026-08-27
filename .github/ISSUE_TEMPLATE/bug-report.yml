@@ -2,7 +2,6 @@ name: Bug Report
 description: Report an issue with templates, scripts, or documentation
 title: "[Bug]: "
 labels: ["bug"]
-assignees: []
 body:
   - type: markdown
     attributes:
@@ -23,7 +22,7 @@ body:
         - Agent definitions (.github/agents/)
         - Documentation (site/src/content/docs/, README files)
         - GitHub Actions workflows
-        - MCP Server (tools/mcp-servers/azure-pricing/)
+        - MCP integration
         - Devcontainer configuration
         - Other
     validations:

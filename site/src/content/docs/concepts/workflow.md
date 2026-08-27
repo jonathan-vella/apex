@@ -146,7 +146,7 @@ Steps 1-3.5 and 7 are shared. Steps 4-6 have Bicep and Terraform variants.
 | ---- | ------------------ | ------------- | ----------------------------------- | ---------------------------------------------------- |
 | 1    | `requirements`     | 📜 Scribe     | Captures project requirements       | `01-requirements.md`                                 |
 | 2    | `architect`        | 🏛️ Oracle     | WAF assessment and design decisions | `02-architecture-assessment.md`                      |
-| 3    | `design`           | 🎨 Artisan    | Diagrams and ADRs                   | `03-des-*.{drawio,py,png,md}`                        |
+| 3    | `design`           | 🎨 Artisan    | Diagrams and ADRs                   | `03-des-*.{py,png,svg,md}`                           |
 | 3.5  | `governance`       | 🛡️ Warden     | Policy discovery and compliance     | `04-governance-constraints.md/.json`                 |
 | 4b   | `iac-planner`      | 📐 Strategist | Bicep implementation planning       | `04-implementation-plan.md` + `04-*-diagram.py/.png` |
 | 4t   | `iac-planner`      | 📐 Strategist | Terraform implementation planning   | `04-implementation-plan.md` + `04-*-diagram.py/.png` |
@@ -240,21 +240,21 @@ Output: agent-output/{project}/02-architecture-assessment.md
 **Features**:
 
 - WAF pillar scoring (Reliability, Security, Cost, Operations, Performance)
-- SKU recommendations with real-time pricing (via Azure Pricing MCP)
+- SKU recommendations with current retail pricing (via Azure Resource Manager MCP)
 - Architecture decisions with rationale
 - Risk identification and mitigation
 
-**Handoff**: Suggests `drawio` skill or IaC planning agent (`iac-planner`).
+**Handoff**: Suggests `python-diagrams` or the IaC planning agent.
 
 ### Step 3: Design Artifacts (🎨 Artisan | Optional)
 
-**Skills**: `drawio`, `python-diagrams`, `azure-adr`
+**Skills**: `python-diagrams`, `azure-adr`
 
 Create visual and textual design documentation.
 
 ```text
 Trigger: "Create an architecture diagram for {project}"
-Output: agent-output/{project}/03-des-diagram.drawio, 03-des-adr-*.md
+Output: agent-output/{project}/03-des-diagram.{py,png,svg}, 03-des-adr-*.md
 ```
 
 **Diagram types**: Azure architecture, business flows, ERD, timelines
@@ -500,7 +500,7 @@ Reviews target AI-generated creative decisions (architecture, plan, code)
 **Automatic**: Skills activate based on prompt keywords:
 
 ```text
-"Create an architecture diagram" → drawio skill
+"Create an architecture diagram" → python-diagrams skill
 "Document the decision to use AKS" → azure-adr skill
 ```
 
@@ -516,11 +516,11 @@ Reviews target AI-generated creative decisions (architecture, plan, code)
 | -------------- | --------- | ----------------------------------------------------------- |
 | Requirements   | `01-`     | `01-requirements.md`                                        |
 | Architecture   | `02-`     | `02-architecture-assessment.md`                             |
-| Design         | `03-des-` | `03-des-diagram.drawio`, `03-des-adr-0001-*.md`             |
+| Design         | `03-des-` | `03-des-diagram.{py,png,svg}`, `03-des-adr-0001-*.md`       |
 | Planning       | `04-`     | `04-implementation-plan.md`, `04-governance-constraints.md` |
 | Implementation | `05-`     | `05-implementation-reference.md`                            |
 | Deployment     | `06-`     | `06-deployment-summary.md`                                  |
-| As-Built       | `07-`     | `07-design-document.md`, `07-ab-diagram.drawio`             |
+| As-Built       | `07-`     | `07-design-document.md`, `07-ab-diagram.{py,png,svg}`       |
 | Diagnostics    | `08-`     | `08-resource-health-report.md`                              |
 
 ## Next Steps

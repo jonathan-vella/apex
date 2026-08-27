@@ -17,7 +17,7 @@ user-facing artifact MUST read this file before invocation.
 Parent-side model evaluation found agents hallucinating Azure SKU prices
 (e.g., AKS Standard at $0.60/hr instead of $0.10/hr) when writing from
 parametric knowledge. **ALL dollar figures in user-facing artifacts MUST
-come from `cost-estimate-subagent` (Codex-powered, MCP-verified).**
+come from `cost-estimate-subagent` (ARM MCP-verified).**
 Never write a price that did not originate from a subagent response.
 
 ## Delegation Procedure (5 steps)
@@ -48,22 +48,21 @@ Never write a price that did not originate from a subagent response.
 
 ## MCP Tools the subagent uses on your behalf
 
-| Tool                     | Purpose                                             | Preferred |
-| ------------------------ | --------------------------------------------------- | --------- |
-| `azure_bulk_estimate`    | All resources in one call (**use this by default**) | ✅ Yes    |
-| `azure_region_recommend` | Find cheapest region for compute SKUs               | Optional  |
-| `azure_price_search`     | RI/SP pricing lookup only (not for base prices)     | Optional  |
-| `azure_cost_estimate`    | Fallback for single resource if bulk fails          | Avoid     |
-| `azure_sku_discovery`    | Only if SKU name is unknown                         | Avoid     |
+| Tool | Purpose | Context |
+| --- | --- | --- |
+| `get_retail_prices` | Planned-resource retail prices | Primary |
+| `query_costs` | Actual cost by Azure scope | Deployed only |
+| `query_aks_costs` | Actual AKS cost breakdown | Deployed only |
+| `forecast_costs` | Scope cost forecast | Optional, deployed only |
+| `get_benefit_recommendations` | Reservation and savings-plan analysis | Optional |
 
-**Tip**: The subagent targets ≤ 10 MCP calls total (1 bulk +
-up to 8 per-line `azure_price_search` fallbacks + optional region/RI).
-When you build `resource_list`, include `service_name`, SKU, region,
-and quantity so the subagent can use `azure_bulk_estimate` in one call.
-The subagent returns only `COMPLETE` or `FAILED` — it never returns
-`PARTIAL`; treat `FAILED` as a hard stop and surface the
-`unresolved_items[]` list to the user. Refer to the **azure-defaults**
-skill for canonical `service_name` values.
+The subagent deduplicates identical service, ARM SKU, region, meter, price-type,
+and currency queries within its MCP call budget. Include explicit usage for
+non-hourly meters. Canonical query and calculation rules live in
+[`pricing-guidance.md`](pricing-guidance.md).
+
+The subagent returns only `COMPLETE` or `FAILED`; it never returns `PARTIAL`.
+Treat `FAILED` as a hard stop and surface `unresolved_items[]` to the user.
 
 ## No Parametric Fallback (HARD)
 

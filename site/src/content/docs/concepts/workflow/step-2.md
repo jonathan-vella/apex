@@ -29,7 +29,7 @@ Output: agent-output/{project}/02-architecture-assessment.md
 ## What gets produced
 
 - **WAF pillar scoring** — Reliability, Security, Cost, Operations, Performance.
-- **SKU recommendations** — sourced via the Azure Pricing MCP and folded into `sku-manifest`.
+- **SKU recommendations** — sourced via Azure Resource Manager MCP and folded into `sku-manifest`.
 - **Architecture decisions** — with rationale and trade-offs.
 - **Risk register** — assumptions, blast radius, mitigation pointers.
 
@@ -51,4 +51,4 @@ Governance`](/concepts/workflow/step-3-5/).
   for scoring.
 - [Cost estimate
   subagent](https://github.com/jonathan-vella/apex/blob/main/.github/agents/_subagents/cost-estimate-subagent.agent.md)
-  — Azure Pricing MCP wrapper.
+  — Azure Resource Manager MCP pricing workflow.

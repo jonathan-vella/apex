@@ -150,21 +150,21 @@ Use parameterised budgets that scale by environment:
 Set the budget amount via `.bicepparam` or `terraform.tfvars` —
 never hardcode it in the template.
 
-## Azure Pricing MCP Tools
+## Azure Resource Manager MCP Tools
 
-The **cost-estimate-subagent** uses the Azure Pricing MCP server to query
-real-time SKU pricing during architecture review (Step 2) and as-built
-documentation (Step 7). Key tools:
+The **cost-estimate-subagent** uses the hosted Azure Resource Manager MCP server
+during architecture review and as-built documentation:
 
-| Tool                      | Purpose                                |
-| ------------------------- | -------------------------------------- |
-| `azure_cost_estimate`     | Estimate costs based on usage patterns |
-| `azure_bulk_estimate`     | Multi-resource estimate in one call    |
-| `azure_price_compare`     | Compare prices across regions and SKUs |
-| `azure_ri_pricing`        | Reserved Instance pricing and savings  |
-| `azure_region_recommend`  | Find cheapest regions for a service    |
-| `find_orphaned_resources` | Detect unused resources with cost data |
-| `azure_ptu_sizing`        | Estimate PTUs for Azure OpenAI         |
+| Tool | Purpose |
+| --- | --- |
+| `get_retail_prices` | Query public retail catalog rows |
+| `query_costs` | Query actual costs for an authorized scope |
+| `query_aks_costs` | Break down deployed AKS costs |
+| `forecast_costs` | Forecast costs for a deployed scope |
+| `get_benefit_recommendations` | Retrieve reservation and savings-plan recommendations |
+
+The subagent calculates estimates from returned meter units and explicit usage.
+It cannot call ARM deployment, resource mutation, or budget creation tools.
 
 The **Microsoft Learn documentation tools** (exposed through the Azure MCP
 `documentation` router, e.g. `mcp_azure-mcp_documentation` with
@@ -223,7 +223,7 @@ az consumption budget show \
   - Bicep: `.github/skills/azure-bicep-patterns/references/budget-pattern.md`
   - Terraform: `.github/skills/terraform-patterns/references/budget-pattern.md`
 - [MCP Integration](/concepts/how-it-works/mcp-integration/)
-  — Azure Pricing MCP server and tool catalog
+  — Azure Resource Manager MCP pricing and cost tools
 - [Workflow](/concepts/workflow/) — how cost estimation fits into the agent workflow
 
   :::

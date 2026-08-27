@@ -235,17 +235,17 @@ The Dev Container includes:
 
 | Category               | Tools                                                                    |
 | ---------------------- | ------------------------------------------------------------------------ |
-| **Azure**              | Azure CLI 2.50+, Bicep CLI 0.30+, Azure Pricing MCP                      |
-| **Terraform**          | Terraform (latest), HashiCorp Terraform MCP Server                       |
+| **Azure**              | Azure CLI, Bicep CLI, Azure Resource Manager MCP                         |
+| **Terraform**          | Terraform CLI and Registry API access                                    |
 | **PowerShell**         | PowerShell 7+, Az modules                                                |
 | **Python**             | Python 3.14, diagrams library, graphviz                                  |
 | **Node.js**            | Node LTS+, npm, markdownlint                                             |
 | **APEX Tools**         | `apex-recall` CLI (progressive session recall)                           |
-| **VS Code Extensions** | Comprehensive set of extensions (Bicep, Terraform, Copilot, Azure, etc.) |
+| **VS Code Extensions** | Curated language, IaC, Copilot, and GitHub extensions                    |
 
-> **Auto-updates on start**: `terraform-mcp-server`, Azure Pricing MCP, npm deps, `markdownlint-cli2`,
-> `checkov`, `ruff`, `diagrams`, and `apex-recall` are refreshed automatically on every container start via `post-start.sh`.
-> Heavy tools (PowerShell modules, system packages) are installed once at build time.
+Dependencies install during container creation from lockfiles and pinned
+manifests. `post-start.sh` only restores hook permissions and reports azd
+authentication status.
 
 ## Troubleshooting
 

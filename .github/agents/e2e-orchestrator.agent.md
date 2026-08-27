@@ -226,7 +226,7 @@ Per-step delegation contract:
   via `apex-recall show <project> --json` after Step 2; if missing, log
   an `artifact-quality` / `medium` lesson and populate from the cost
   estimate before proceeding.
-- **Step 3** → `04-Design` (Draw.io path; `.drawio` artifacts when
+- **Step 3** → `04-Design` (Python diagrams; `.py`, `.png`, and `.svg` artifacts when
   Draw.io tools are available).
 - **Step 3.5** → `04g-Governance` with live policy discovery when
   Azure authentication exists.

@@ -59,14 +59,14 @@ and routing to the next step. At approval gates, the Orchestrator writes a
 | 01-Orchestrator       | Master orchestrator                             | workflow-engine, apex-recall                   |
 | 02-Requirements       | Captures project requirements                   | azure-defaults, azure-artifacts                |
 | 03-Architect          | WAF assessment and cost estimation              | azure-defaults                                 |
-| 04-Design             | Diagrams and ADRs                               | drawio, python-diagrams, azure-adr             |
+| 04-Design             | Diagrams and ADRs                               | python-diagrams, azure-adr                     |
 | 04g-Governance        | Policy discovery and compliance                 | azure-defaults                                 |
 | 05-IaC Planner        | IaC implementation planning (Bicep & Terraform) | azure-bicep-patterns, terraform-patterns       |
 | 06b-Bicep CodeGen     | Bicep template generation                       | azure-bicep-patterns                           |
 | 06t-Terraform CodeGen | Terraform configuration generation              | terraform-patterns                             |
 | 07b-Bicep Deploy      | Bicep deployment execution                      | azure-validate, iac-common                     |
 | 07t-Terraform Deploy  | Terraform deployment execution                  | azure-validate, iac-common, terraform-patterns |
-| 08-As-Built           | Post-deployment documentation                   | azure-artifacts, drawio, python-diagrams       |
+| 08-As-Built           | Post-deployment documentation                   | azure-artifacts, python-diagrams               |
 | 09-Diagnose           | Azure resource troubleshooting                  | azure-diagnostics                              |
 | 10-Challenger         | Standalone adversarial review                   | —                                              |
 | 11-Context Optimizer  | Context window audit and optimisation           | context-management                             |
@@ -130,7 +130,7 @@ silently assumes a non-default value.
 | 2    | SKU confirmation (before pricing) | Approve / Revise / Discuss                                       | `sku_confirmation_status`           |
 | 2    | Budget gate (after pricing)       | Approve / Revise SKUs / Revise requirements                      | `budget_decision`                   |
 | 2    | Per-finding decisions             | Accept / Skip / Defer (one question per finding — never batched) | `decision_log`                      |
-| 3    | Diagram tool choice (one-time)    | Draw.io (default) / Python diagrams                              | `diagram_tool`                      |
+| 3    | Diagram generator                 | Python diagrams                                                  | `diagram_tool`                      |
 | 3.5  | Phase 2.7 resolution              | RG tag keys + casing, allowed locations (two questions)          | `tag_contract`, `governance_status` |
 
 The full registry of valid decision keys lives at
@@ -163,7 +163,7 @@ specific tasks:
 | Subagent                    | Purpose                            | Invoked By          |
 | --------------------------- | ---------------------------------- | ------------------- |
 | challenger-review-subagent  | Adversarial review of artifacts    | Steps 1, 2, 4, 5, 6 |
-| cost-estimate-subagent      | Azure Pricing MCP queries          | Steps 2, 7          |
+| cost-estimate-subagent      | ARM MCP pricing queries            | Steps 2, 7          |
 | bicep-validate-subagent     | Lint + AVM/security code review    | Step 5 (Bicep)      |
 | bicep-whatif-subagent       | `az deployment what-if` preview    | Step 6 (Bicep)      |
 | terraform-validate-subagent | Lint + AVM-TF/security code review | Step 5 (Terraform)  |

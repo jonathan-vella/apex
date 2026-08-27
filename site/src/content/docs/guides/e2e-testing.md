@@ -74,7 +74,7 @@ Open VS Code Chat and use one of the prompt files:
 The E2E Orchestrator agent (`.github/agents/e2e-orchestrator.agent.md`)
 orchestrates the loop with conditional IaC routing based on session state. The
 Contoso prompt is intended to run the real workflow agents and tool paths,
-including Draw.io design output, pricing-backed architecture assessment, live
+including Python diagram output, pricing-backed architecture assessment, live
 governance discovery when authenticated, and dry-run deployment validation.
 
 Use six runs for a full benchmark — three per IaC track:

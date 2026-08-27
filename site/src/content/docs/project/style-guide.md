@@ -65,10 +65,9 @@ copy-button surfaces the right filename.
   a lint error (MD045).
 - Add a caption immediately after the image, either as `<figcaption>`
   inside an MDX `<figure>` or a plain `> _Figure N — …_` blockquote.
-- For Azure architecture diagrams, prefer Draw.io exports rendered as
-  PNG plus a Mermaid fallback for accessibility. Use the
-  [`drawio`](https://github.com/jonathan-vella/apex/blob/main/.github/skills/drawio/SKILL.md)
-  skill to author them.
+- For Azure architecture diagrams, use the
+  [`python-diagrams`](https://github.com/jonathan-vella/apex/blob/main/.github/skills/python-diagrams/SKILL.md)
+  skill and publish PNG plus SVG renders from the tracked Python source.
 - For sequence / state / Gantt diagrams, use inline `mermaid` fenced
   blocks. The site auto-themes them for light + dark.
 

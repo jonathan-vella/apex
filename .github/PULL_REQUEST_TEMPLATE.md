@@ -19,7 +19,7 @@ Fixes #
 - [ ] 🐛 Bug fix
 - [ ] 🔧 Refactoring (no functional changes)
 - [ ] ⚙️ Configuration/workflow change
-- [ ] 💰 MCP server enhancement (azure-pricing-mcp)
+- [ ] 💰 MCP integration enhancement
 
 ## Token / latency impact (Plan 01 Phase 5)
 
@@ -75,18 +75,6 @@ If YES, expected impact:
 - [ ] Pre-commit hook passed (`npm run lint:md`)
 - [ ] Agent YAML frontmatter validates
 - [ ] MCP server tests pass (`pytest tests/`)
-
-### Draw.io changes (if applicable)
-
-If this PR touches `.github/agents/04-design.agent.md`,
-`.github/skills/drawio/**`, `tools/mcp-servers/drawio/**`,
-`tools/scripts/validate-drawio-files.mjs`,
-`assets/drawio-libraries/azure-icons/**`, or `tools/tests/drawio-{golden,baseline}/**`:
-
-- [ ] Reviewed against [.github/checklists/drawio-uplift-pr-checklist.md](checklists/drawio-uplift-pr-checklist.md)
-- [ ] At least one golden scenario re-run; pre/post side-by-side attached
-      (`node tools/scripts/render-golden-diff.mjs --post=<run-id>`)
-- [ ] `node tools/scripts/run-drawio-quality-bench.mjs` summary attached
 
 ## Well-Architected Framework Alignment
 

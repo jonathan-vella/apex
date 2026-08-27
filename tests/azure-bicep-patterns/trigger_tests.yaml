@@ -56,7 +56,5 @@ shouldNotTriggerPrompts:
   - "run terraform-patterns"
   - "use azure-adr"
   - "run azure-adr"
-  - "use drawio"
-  - "run drawio"
   - "What is the weather today?"
   - "Help me write a poem"

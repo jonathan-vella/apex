@@ -2,15 +2,27 @@
 
 # Terraform Conventions
 
-## AVM-TF Registry Lookup
+## Terraform Metadata Lookup
 
-Find the latest AVM-TF module version before generating code:
+Use one source for each concern:
 
-```text
-mcp_terraform_get_latest_module_version
-  → registry.terraform.io/modules/Azure/{module}/azurerm
-Or browse: https://registry.terraform.io/modules/Azure
+| Need | Source |
+| --- | --- |
+| Azure Terraform guidance | Azure MCP documentation and best-practice tools |
+| Provider/module search and versions | Public Terraform Registry API |
+| Initialized provider resource schemas | `terraform providers schema -json` |
+| Existing Azure resource IDs | Azure MCP resource tools or Azure CLI |
+
+Resolve an AVM-TF module version directly from the Registry API:
+
+```bash
+curl -sf https://registry.terraform.io/v1/modules/Azure/avm-res-{path}/azurerm/versions \
+  | jq -r '.modules[0].versions[0].version'
 ```
+
+Use `https://registry.terraform.io/v1/providers/hashicorp/{provider}/versions`
+for provider versions. Run `terraform init` before `terraform providers schema
+-json`. Do not claim Azure MCP exposes Terraform Registry metadata.
 
 ## Tag Syntax (HCL)
 
