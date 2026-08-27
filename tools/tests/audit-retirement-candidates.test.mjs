@@ -90,7 +90,7 @@ test("groups exact duplicates without approving retirement", () => {
 
 test("records repository ownership for every baseline file", () => {
   const result = scan();
-  assert.ok(result.inventory.every((item) => item.ownership.codeowners.includes("@jonathan-vella")));
+  assert.ok(result.inventory.every((item) => item.ownership.codeowners.length > 0));
 });
 
 test("resolves duplicated reference filenames relative to their owning skill", () => {

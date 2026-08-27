@@ -302,6 +302,7 @@ function jaccard(left, right) {
 
 function candidateReferences(textFiles, trackedPaths) {
   const references = new Map(trackedPaths.map((filePath) => [filePath, new Set()]));
+  const trackedPathSet = new Set(trackedPaths);
   const byBasename = new Map();
   for (const filePath of trackedPaths) {
     const basename = path.basename(filePath);
@@ -313,7 +314,7 @@ function candidateReferences(textFiles, trackedPaths) {
     for (const token of new Set(text.match(tokenPattern) ?? [])) {
       const clean = token.replace(/^[./]+/, "").replace(/[),:;]+$/, "");
       const relative = path.posix.normalize(path.posix.join(path.posix.dirname(sourcePath), clean));
-      const exact = trackedPaths.includes(clean) ? [clean] : trackedPaths.includes(relative) ? [relative] : [];
+      const exact = trackedPathSet.has(clean) ? [clean] : trackedPathSet.has(relative) ? [relative] : [];
       const basenameMatches = byBasename.get(path.basename(clean)) ?? [];
       const candidates = exact.length > 0 ? exact : basenameMatches.length === 1 ? basenameMatches : [];
       for (const target of candidates) {

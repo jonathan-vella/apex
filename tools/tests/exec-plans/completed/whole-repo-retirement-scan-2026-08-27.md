@@ -254,7 +254,7 @@ framework. Any later archive execution must remain independently revertible by d
 - Every tracked file is represented exactly once in the validated inventory.
 - All candidate and defer findings complete adversarial review.
 - The report clearly separates protected, retained, candidate, and deferred content.
-- The branch stops at explicit human approval with no unapproved retirement actions.
+- Retirement actions require explicit human approval.
 
 ## Scan Result
 
