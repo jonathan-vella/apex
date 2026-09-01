@@ -12,11 +12,11 @@
   },
   "dependencies": {
     "@astrojs/markdown-remark": "^7.2.4",
-    "@astrojs/starlight": "^0.41.7",
+    "@astrojs/starlight": "^0.41.10",
     "@fontsource/ibm-plex-mono": "^5.3.0",
     "@fontsource/manrope": "^5.3.0",
     "@fontsource/space-grotesk": "^5.3.0",
-    "astro": "^7.2.4",
+    "astro": "^7.2.9",
     "rehype-mermaid-lite": "^1.0.0",
     "sharp": "^0.35.3",
     "starlight-links-validator": "^0.25.3"
