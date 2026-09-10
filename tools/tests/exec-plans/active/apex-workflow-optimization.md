@@ -2,7 +2,7 @@
 
 ## Status
 
-**State**: Local implementation and scenario tests complete; runtime observation and human acceptance pending
+**State**: Implementation, local tests, and bounded agent probes complete; human UI/output acceptance pending
 **Owner**: Jonathan Vella with GitHub Copilot
 **Created**: 2026-09-10
 **Branch**: `perf/apex-workflow-optimization`
@@ -34,29 +34,29 @@ instruction, root-guidance, overengineering, and context-efficiency surfaces.
 Remaining live model observations are explicitly outside what structural tests establish.
 No runtime tool-schema savings or generated-output quality equivalence is claimed.
 
-| Area | Implemented outcome | Verification / retained boundary |
-| --- | --- | --- |
-| Duplication of work | Reuse current reviews, recovered answers, and phase inputs; batch independent finding questions | Distinct per-finding choices, rerun stale reviews, approval remains explicit |
-| Broken workflows | Shared Step 4 routing, correct resume fields, cost review ordering, deep Plan filenames | Graph/handoff tests and actual recall transition tests |
-| Agent tools | Remove unrelated explicit notebook entries; remove explicit refactoring from non-code roles | Relevant execution/read/edit/discovery tools retained; broad group expansion not measured |
-| Terraform discovery | Replace retired MCP calls with Registry metadata and pinned provider schema checks | Exact approved module pins retained by CodeGen; failed lookup is not proof of no AVM |
-| Skills | One routing procedure, correct DAG references, phase-scoped loading | Single-tier discovery and required references retained |
-| Instructions/root files | Current-phase prerequisites, safe cache invalidation, clear canonical ownership | Security, review, and artifact contracts unchanged |
-| Overengineering | Remove unnecessary tool entries, repeated routing/rationale, and non-owned template reads | No new orchestration framework, new model policy, or new artifact schema |
-| Input context | Avoid forced question restart and missing-input bulk reads; compaction permits required deferred guidance | Source changes and intended call reductions only; no measured token claim |
-| As-Built resume | Re-query IDs/state/SKUs on new-chat resume; compare current handoff/source before reusing inventory | Live drift checks retained; missing evidence cannot mark inventory current |
+| Area                    | Implemented outcome                                                                                       | Verification / retained boundary                                                          |
+| ----------------------- | --------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| Duplication of work     | Reuse current reviews, recovered answers, and phase inputs; batch independent finding questions           | Distinct per-finding choices, rerun stale reviews, approval remains explicit              |
+| Broken workflows        | Shared Step 4 routing, correct resume fields, cost review ordering, deep Plan filenames                   | Graph/handoff tests and actual recall transition tests                                    |
+| Agent tools             | Remove unrelated explicit notebook entries; remove explicit refactoring from non-code roles               | Relevant execution/read/edit/discovery tools retained; broad group expansion not measured |
+| Terraform discovery     | Replace retired MCP calls with Registry metadata and pinned provider schema checks                        | Exact approved module pins retained by CodeGen; failed lookup is not proof of no AVM      |
+| Skills                  | One routing procedure, correct DAG references, phase-scoped loading                                       | Single-tier discovery and required references retained                                    |
+| Instructions/root files | Current-phase prerequisites, safe cache invalidation, clear canonical ownership                           | Security, review, and artifact contracts unchanged                                        |
+| Overengineering         | Remove unnecessary tool entries, repeated routing/rationale, and non-owned template reads                 | No new orchestration framework, new model policy, or new artifact schema                  |
+| Input context           | Avoid forced question restart and missing-input bulk reads; compaction permits required deferred guidance | Source changes and intended call reductions only; no measured token claim                 |
+| As-Built resume         | Re-query IDs/state/SKUs on new-chat resume; compare current handoff/source before reusing inventory       | Live drift checks retained; missing evidence cannot mark inventory current                |
 
 ### Approval-dependent proposals
 
 These recommendations are delivered, not silently implemented:
 
-| Proposal | Reason / evidence | Decision needed |
-| --- | --- | --- |
-| Make unattended review dispositions fail closed on unresolved blockers | Canonical adversarial-review protocol auto-defers and auto-proceeds | Agree benchmark-only versus production semantics before changing that protocol |
-| Reconsider forced one-file-per-turn CodeGen cadence | Both CodeGen agents mandate it independently of file size | Approve a bounded batching experiment with build/repair evidence |
-| Consolidate overlapping documentation style instructions | Site formatting and doc-maintenance triggers have different scopes | Prove scope equivalence before retiring files; keep triggers active on code/agent edits |
-| Narrow broad Azure/Bicep/VS Code tool groups | Explicit irrelevant tools removed, but groups may expand dynamically | Observe actual schema attachment and tool use before removing required capability |
-| Revisit models, roles, or review frequency | Potential efficiency gain is not proven by a static inventory | Separate approval and matched reasoning/output evaluation |
+| Proposal                                                               | Reason / evidence                                                    | Decision needed                                                                         |
+| ---------------------------------------------------------------------- | -------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| Make unattended review dispositions fail closed on unresolved blockers | Canonical adversarial-review protocol auto-defers and auto-proceeds  | Agree benchmark-only versus production semantics before changing that protocol          |
+| Reconsider forced one-file-per-turn CodeGen cadence                    | Both CodeGen agents mandate it independently of file size            | Approve a bounded batching experiment with build/repair evidence                        |
+| Consolidate overlapping documentation style instructions               | Site formatting and doc-maintenance triggers have different scopes   | Prove scope equivalence before retiring files; keep triggers active on code/agent edits |
+| Narrow broad Azure/Bicep/VS Code tool groups                           | Explicit irrelevant tools removed, but groups may expand dynamically | Observe actual schema attachment and tool use before removing required capability       |
+| Revisit models, roles, or review frequency                             | Potential efficiency gain is not proven by a static inventory        | Separate approval and matched reasoning/output evaluation                               |
 
 The final human acceptance review should observe fresh capture, resumed questioning,
 missing predecessor, Design skip, revision, deep review, both IaC tracks, and changed-input recovery.
@@ -250,7 +250,8 @@ These limits apply only if the separate live-validation phase is resumed; no Azu
 - [x] Audit remaining phase loads, duplicated decisions, tool declarations, and retired discovery calls.
 - [x] Present broader simplifications with evidence and approval boundaries before implementation.
 - [x] Align default/deep Plan sidecar presence in runtime and CI without rewriting legacy history.
-- [ ] Observe actual model behavior in VS Code fresh/resume/revision scenarios during acceptance.
+- [x] Execute bounded custom-agent fresh/resume/revision and failure-decision probes; fix and retest exposed defects.
+- [ ] Human acceptance: observe VS Code handoff UI and full generated-output quality; headless probes do not certify these.
 - [ ] Collect production-equivalent traces for future performance claims; not a local-fix prerequisite.
 - [ ] Run live comparisons only in a separately resumed deployment-validation phase.
 - [ ] Obtain final quality signoff; document accepted, rejected, and inconclusive experiments.
@@ -317,6 +318,52 @@ No candidate optimization, Azure resource creation, or live-baseline run has bee
 
 ## Final Local Verification
 
+### Bounded custom-agent runtime evidence
+
+After static verification, the installed named custom agents were invoked through
+`runSubagent` in isolated read-only probes. These are actual model executions,
+not regex tests. They do not reproduce the VS Code handoff-button UI or certify
+complete generated artifacts. Synthetic decision snapshots are labeled below;
+no snapshot was written as real session state and no cloud deployment was performed.
+Requested agent definitions were selected by name; effective model tier and input-token
+usage were not independently attested, so no cross-runtime performance claim is made.
+
+| Agent / probe | Observed outcome | Corrective action and retest |
+| --- | --- | --- |
+| Architect, missing requirements | Stopped before skill/template stack or pricing, identified Requirements owner | No correction needed; read-only missing-path search |
+| Planner, missing predecessors | Initially chose Governance before absent Architecture | Exact owning handoff precedence added; rerun selected `03-Architect` first |
+| Bicep/Terraform CodeGen, missing plan | Stopped safely but used filename-style Planner name; Terraform blurred governance ownership | Exact `05-IaC Planner` target and `04g-Governance` ownership added; both reruns correct |
+| Orchestrator, Design skipped | Selected Governance next; no Plan advancement before governance approval | Synthetic routing response; no state mutation |
+| Orchestrator, approved Terraform Plan | Selected Terraform CodeGen without repeating valid Plan review | Synthetic approved-input response; no actual handoff-button execution |
+| Orchestrator, missing cost review / changed SKU | Blocked approval and required missing or refreshed cost evidence | Synthetic default/revision responses; cost review remains independent |
+| Requirements, fresh / incomplete resume | Preserved fresh questioning, asked only missing SLA/RTO/RPO on resume | No user prompts executed; next-action reasoning probe |
+| Requirements, budget-only revision | Initially proposed a manifest budget edit | Explicit schema/pin preservation added; rerun left manifest unchanged and required re-review |
+| Governance, valid cache / explicit refresh | Reused eligible evidence only before approval; explicit refresh disabled reuse | Synthetic decision probe |
+| Governance, expired envelope | Identified conflict between mandatory TTL freshness and cache-first instructions | Script now rejects expired/missing/invalid TTL metadata; all agent/reference paths force live refresh on expiry/drift |
+| Governance expiry retest | Selected Phase 1 with `--refresh`, bypassed baseline/cache, rejected stale confirmations | Final probe read agent and resume reference; no Azure calls |
+| Terraform Deploy, changed hash / destruction / stale policy / exhausted retry | Refused apply and named remediation/approval evidence | Synthetic negative deployment decisions, not provider validation |
+| As-Built, stale inventory / changed SKU / missing summary / lost rationale | Required live evidence, blocked unsupported completion, recovered rationale from source | Synthetic decision probe; no inventory or manifest writes |
+
+The negative prerequisite probes used only read-only path/state lookups and reported no
+writes or external calls. Workspace checks found no `opt-probe-*` project directories.
+Probe findings were fixed in the owning instructions and regression tests, then re-probed.
+The full artifact-generation workflow and the graphical agent picker were not exercised.
+Those remain explicit checks for human UI/output acceptance, not inferred passes.
+
+The governance expiry fix is covered by mocked script tests for fresh cache reuse,
+explicit refresh, stale/missing/invalid/future-dated metadata, and invalid TTL values.
+No live Azure calls occur in these tests. Existing unrelated Ruff findings in the
+discovery files were compared against the committed baseline; no new findings were introduced.
+
+After the probe-driven repairs, all governance script tests passed and the full
+`npm run validate:all` gate passed. The Governance body was shortened without removing
+refresh rules to satisfy its existing context budget. Evidence logs:
+`tmp/apex-optimization/probe-governance-suite.log`, `probe-discovery-tests.log`, and
+`probe-validate-all-final.log`; model responses are recorded in this chat's named-agent tool results.
+
+The broader proposals above remain recommendations requiring approval; no reviewer-count,
+model, artifact-schema, or output-cadence change is implied by these tests.
+
 The final local scenario suite passed: tooling contracts, workflow handoff fixtures,
 and separate package/public recall tests. New tests cover Requirements fresh/resume
 guidance, exact Terraform pins, tool declarations, compaction guidance availability,
@@ -335,10 +382,10 @@ The independent reviewer correctly identified that prompt tests do not prove liv
 That limitation is retained. As-Built checks were made explicit, while the Requirements
 recovery path already named bounded artifact reads. No fictitious tool execution or savings evidence is added.
 
-Local implementation is not blocked by the old Azure campaign limits. Production-equivalent
-live model observation remains unperformed; the earlier attempted CLI execution was blocked
-by the environment and is not retried through another path. This is an acceptance limitation,
-not a reason to claim that every part of end-to-end runtime validation is complete.
+Local implementation is not blocked by the old Azure campaign limits. Bounded headless
+custom-agent probes now provide the runtime evidence above. Production-equivalent UI
+observation and full artifact-quality acceptance remain unperformed. The blocked CLI
+installation was not retried or bypassed; probes used the already available subagent tool.
 
 ## Autonomous Continuation Results
 

@@ -47,3 +47,7 @@ expiry forces a full pass** — the prior Phase 2.7 confirmations against a
 stale snapshot are NOT trusted (locked S3 decision: single clock;
 confirmations age transitively with the snapshot they were recorded
 against).
+
+For TTL expiry or signature drift, bypass baseline selection and cached reuse;
+go directly to Phase 1 with `discover.py --refresh`, even without an explicit
+user refresh request. Obtain new confirmations against the fresh snapshot.

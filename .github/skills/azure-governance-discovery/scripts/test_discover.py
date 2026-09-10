@@ -481,7 +481,12 @@ def test_cli_cache_hit_short_circuits(tmp_path, capsys, monkeypatch):
             {
                 "schema_version": "governance-constraints-v1",
                 "subscription_id": "s",
-                "discovered_at": "2026-01-01T00:00:00Z",
+                "discovered_at": discover.datetime.now(discover.timezone.utc).isoformat(),
+                "discovery_metadata": {
+                    "discovery_status": "COMPLETE",
+                    "discovered_at": discover.datetime.now(discover.timezone.utc).isoformat(),
+                    "ttl_days": 7,
+                },
                 "discovery_status": "COMPLETE",
                 "discovery_summary": {
                     "assignment_total": 5,
@@ -510,7 +515,15 @@ def test_cli_cache_hit_short_circuits(tmp_path, capsys, monkeypatch):
 
 def test_cli_refresh_bypasses_cache_and_writes_fresh_envelope(tmp_path, capsys, monkeypatch):
     out = tmp_path / "04-governance-constraints.json"
-    out.write_text('{"discovery_status":"COMPLETE","findings":[]}')
+    out.write_text(json.dumps({
+        "discovery_status": "COMPLETE",
+        "findings": [],
+        "discovery_metadata": {
+            "discovery_status": "COMPLETE",
+            "discovered_at": discover.datetime.now(discover.UTC).isoformat(),
+            "ttl_days": 7,
+        },
+    }))
 
     mapping = {
         "policyAssignments": EMPTY,
@@ -533,6 +546,56 @@ def test_cli_refresh_bypasses_cache_and_writes_fresh_envelope(tmp_path, capsys, 
     fresh = json.loads(out.read_text())
     assert fresh["schema_version"] == "governance-constraints-v1"
     assert fresh["project"] == "p"
+
+
+@pytest.mark.parametrize("metadata", [
+    None,
+    {},
+    {"discovery_status": "COMPLETE", "discovered_at": "2020-01-01T00:00:00Z", "ttl_days": 7},
+    {"discovery_status": "COMPLETE", "discovered_at": "2999-01-01T00:00:00Z", "ttl_days": 7},
+    {"discovery_status": "COMPLETE", "discovered_at": "invalid", "ttl_days": 7},
+    {"discovery_status": "COMPLETE", "discovered_at": "2026-09-10T00:00:00", "ttl_days": 7},
+])
+def test_cli_stale_or_invalid_cache_runs_discovery(tmp_path, capsys, monkeypatch, metadata):
+    out = tmp_path / "04-governance-constraints.json"
+    out.write_text(json.dumps({"discovery_status": "COMPLETE", "findings": [], "discovery_metadata": metadata}))
+    mapping = {
+        "policyAssignments": EMPTY,
+        "/subscriptions/s/providers/Microsoft.Authorization/policyDefinitions": EMPTY,
+        "/providers/Microsoft.Authorization/policyDefinitions": EMPTY,
+        "policyExemptions": EMPTY,
+    }
+    monkeypatch.setattr(discover, "_default_get_subscription", lambda: "s")
+    monkeypatch.setattr(discover, "_default_check_auth", lambda: None)
+    monkeypatch.setattr(discover, "_default_az_rest", _router(mapping))
+    assert discover.main(["--project", "p", "--out", str(out)]) == 0
+    status = json.loads(capsys.readouterr().out.splitlines()[0])
+    assert status["cache_hit"] is False
+    assert discover._cache_is_fresh(json.loads(out.read_text()))
+
+
+@pytest.mark.parametrize("ttl", [None, 0, -1, True, "7", 1.5])
+def test_cache_rejects_invalid_ttl(ttl):
+    cached = {"discovery_metadata": {
+        "discovery_status": "COMPLETE",
+        "discovered_at": discover.datetime.now(discover.timezone.utc).isoformat(),
+        "ttl_days": ttl,
+    }}
+    assert not discover._cache_is_fresh(cached)
+
+
+@pytest.mark.parametrize("discovered_at,expected", [
+    ("2026-09-10T00:00:00Z", True),
+    ("2026-09-03T00:00:00Z", True),
+    ("2026-09-02T23:59:59Z", False),
+    ("2026-09-10T00:00:01Z", False),
+])
+def test_cache_freshness_boundaries(discovered_at, expected):
+    cached = {"discovery_metadata": {
+        "discovery_status": "COMPLETE", "discovered_at": discovered_at, "ttl_days": 7,
+    }}
+    now = discover.datetime.fromisoformat("2026-09-10T00:00:00+00:00")
+    assert discover._cache_is_fresh(cached, now=now) is expected
 
 
 def test_status_line_is_valid_json_and_first(tmp_path, capsys, monkeypatch):

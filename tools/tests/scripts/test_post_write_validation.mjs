@@ -126,8 +126,19 @@ test("both CodeGen tracks check inputs first and use the manifest without weaken
     assert.match(body, /decisions.plan_status == "APPROVED"/);
     assert.match(body, /L0 envelope cross-check/);
     assert.match(body, /If any condition fails, STOP/);
+    assert.match(body, /targeting \*\*05-IaC Planner\*\*/);
+    assert.match(body, /\*\*04g-Governance\*\* owns discovery/);
+    assert.match(body, /neither Planner nor CodeGen generates governance artifacts/);
     assert.doesNotMatch(body, /Before doing any work, read these skills\.|Also read `02-architecture-assessment.md`/);
   }
+});
+
+test("Planner resolves the earliest missing prerequisite to its exact owning agent", () => {
+  const body = fs.readFileSync(path.join(ROOT, ".github/agents/05-iac-planner.agent.md"), "utf8");
+  assert.match(body, /Missing architecture takes precedence/);
+  assert.match(body, /targeting \*\*03-Architect\*\*/);
+  assert.match(body, /targeting \*\*04g-Governance\*\*/);
+  assert.match(body, /not file basenames/);
 });
 
 test("Terraform CodeGen verifies approved exact pins without retired MCP tools or version drift", () => {
@@ -203,4 +214,16 @@ test("shared CodeGen reference matches supported discovery, exact pins and compa
   );
   assert.doesNotMatch(contract, /terraform\/get_module_details/);
   assert.match(contract, /approved exact version/);
+});
+
+test("Governance expiry forces live refresh instead of returning to the invalid cache", () => {
+  const agent = fs.readFileSync(path.join(ROOT, ".github/agents/04g-governance.agent.md"), "utf8");
+  const reference = fs.readFileSync(
+    path.join(ROOT, ".github/skills/azure-governance-discovery/references/resume-checks.md"),
+    "utf8",
+  );
+  assert.match(agent, /TTL expiry or signature drift bypasses Phases 0\.45 and 0\.5/);
+  assert.match(agent, /Phase 1 live discovery with `--refresh`/);
+  assert.doesNotMatch(agent, /pass `--refresh` only when the user asks|Pass `--refresh` only when/);
+  assert.match(reference, /bypass baseline selection and cached reuse/);
 });

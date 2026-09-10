@@ -41,6 +41,10 @@ for full details on this and all prior releases.
 - Align shared CodeGen and contract-handoff references with supported module discovery,
   approved exact pins, and required guidance recovery after compaction.
 - Align Planner finding questions with the canonical four-choice approval panel and individual notes.
+- Reject expired or invalid governance discovery cache metadata and force live refresh for TTL expiry or signature drift.
+  Add mocked expiry regressions and reconcile the agent's cache-first instructions.
+- Clarify exact missing-prerequisite handoff targets and governance ownership based on isolated custom-agent probes.
+  Budget-only Requirements refinement preserves existing SKU-manifest fields and pins.
 
 ### Fixed (Workflow optimization prerequisites)
 

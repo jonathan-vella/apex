@@ -180,6 +180,8 @@ is not evidence that every required answer exists; confirm gaps before generatio
 If recall is incomplete, inspect only the relevant existing requirements sections
 needed to recover prior answers. Do not restart Phase 1 or reinitialize artifacts
 solely because a new chat began. Preserve current manifest revisions and user pins.
+For a budget-only refinement, update the requirements budget and relevant recorded
+decisions; do not invent manifest fields or rewrite unaffected SKU rows.
 Load the artifact/review guidance when resuming those phases. Changed requirements
 invalidate affected review evidence; run the required review again before Gate 1 approval.
 Fresh-capture read restrictions do not prohibit this bounded recovery path.

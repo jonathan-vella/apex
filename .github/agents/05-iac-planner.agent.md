@@ -158,7 +158,11 @@ Validate these files exist in `agent-output/{project}/`:
 2. `04-governance-constraints.md` — **REQUIRED**. Produced by Step 3.5 (Governance agent)
 3. `04-governance-constraints.json` — **REQUIRED**. Machine-readable policy data
 
-If any are missing, STOP and request handoff to the appropriate prior agent.
+If any are missing, STOP. Missing architecture takes precedence: present
+`↩ Return to Step 2` targeting **03-Architect**. If architecture is present but
+governance is missing, present `▶ Refresh Governance` targeting **04g-Governance**.
+Use these exact agent names, not file basenames. Do not request that the Planner
+produce missing governance artifacts or initialize a replacement project.
 
 ## Predecessor Artifact Read Policy
 

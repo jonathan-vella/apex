@@ -183,8 +183,11 @@ or changed sections on resume.
 
 Before starting, validate these files exist in `agent-output/{project}/`:
 
-1. `04-implementation-plan.md` — **REQUIRED**. If missing, STOP → handoff to Terraform Plan agent
-2. `04-governance-constraints.json` + `.md` — **REQUIRED**. If missing, STOP → request governance discovery
+1. `04-implementation-plan.md` — **REQUIRED**. If missing, STOP and present
+  `↩ Return to Step 4` targeting **05-IaC Planner** (exact agent name, not a filename).
+2. `04-governance-constraints.json` + `.md` — **REQUIRED**. If missing, STOP and
+  report that **04g-Governance** owns discovery. Return through **05-IaC Planner**
+  to its existing Refresh Governance handoff; neither Planner nor CodeGen generates governance artifacts.
 3. **Wave 1+ contract artifacts** — `04-iac-contract.json`,
    `04-policy-property-map.json`, and `04-environment-manifest.json`
    (when identity / app regs / alerts / budgets are used). See

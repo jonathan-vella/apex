@@ -22,7 +22,7 @@ import time
 import urllib.error
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from pathlib import Path
 from typing import Any, Callable
 
@@ -942,6 +942,23 @@ from render_governance import extract_arch_resources as _extract_arch_resources 
 from render_governance import emit_preview_md as _emit_preview_md  # noqa: F401
 
 
+def _cache_is_fresh(cached: dict[str, Any], now: datetime | None = None) -> bool:
+    metadata = cached.get("discovery_metadata")
+    if not isinstance(metadata, dict) or metadata.get("discovery_status") != "COMPLETE":
+        return False
+    ttl_days = metadata.get("ttl_days")
+    if isinstance(ttl_days, bool) or not isinstance(ttl_days, int) or ttl_days <= 0:
+        return False
+    try:
+        discovered_at = datetime.fromisoformat(metadata["discovered_at"].replace("Z", "+00:00"))
+    except (KeyError, TypeError, ValueError, AttributeError):
+        return False
+    if discovered_at.tzinfo is None:
+        return False
+    age = ((now or datetime.now(UTC)) - discovered_at).total_seconds()
+    return 0 <= age <= ttl_days * 86400
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         prog="discover",
@@ -971,16 +988,17 @@ def main(argv: list[str] | None = None) -> int:
 
     out_path = Path(args.out)
 
-    # Cache short-circuit — reuse an existing COMPLETE snapshot unless --refresh.
+    # Cache reuse must satisfy the same freshness clock as downstream L0 checks.
     if out_path.exists() and not args.refresh:
         try:
             cached = json.loads(out_path.read_text())
-        except json.JSONDecodeError:
+        except (OSError, UnicodeError, json.JSONDecodeError):
             cached = None
         if (
             isinstance(cached, dict)
             and cached.get("discovery_status") == "COMPLETE"
             and isinstance(cached.get("findings"), list)
+            and _cache_is_fresh(cached)
         ):
             summary = cached.get("discovery_summary") or {}
             status = {

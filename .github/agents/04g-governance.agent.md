@@ -235,16 +235,17 @@ types, honour that; otherwise proceed.
 
 ### Phase 0.4: Resume-Complete Short-Circuit
 
-Before any discovery, check whether Step 3.5 is already finished. Full
-short-circuit conditions (8 checks: step status, both artifacts present,
-JSON `discovery_status == "COMPLETE"`, non-empty `discovery_metadata`,
-signature match, TTL freshness, confirmations reused, no explicit
-refresh request) and the locked-S3 single-clock rule live in
+Before discovery, check Step 3.5 completion using all resume checks and the
+single-clock confirmation rule in
 [`resume-checks.md`](../skills/azure-governance-discovery/references/resume-checks.md).
 
 1. Run `apex-recall show <project> --json`.
 2. If **all 8** conditions pass, skip to Phase 3 (Approval Gate).
 3. Otherwise proceed to Phase 0.45.
+
+TTL expiry or signature drift bypasses Phases 0.45 and 0.5 and requires
+Phase 1 live discovery with `--refresh`; do not reuse the invalidated snapshot
+or its prior confirmations. Use baseline selection only when no refresh override applies.
 
 > **`▶ Refresh Governance` is non-skippable**: when the invocation
 > prompt contains `Refresh Governance`, `re-run`, or `rediscover`, or
@@ -267,12 +268,10 @@ proceed to Phase 0.5.
 
 ### Phase 0.5: Cache-First Check
 
-`discover.py` handles caching internally: if
-`agent-output/{project}/04-governance-constraints.json` exists and
-`--refresh` was NOT passed, the script short-circuits, emits
-`{"status":"COMPLETE","cache_hit":true,...}` on stdout, and exits 0 without
-calling Azure. Pass `--refresh` only when the user explicitly asks for
-`refresh`, `re-run`, or `rediscover`.
+`discover.py` reuses a COMPLETE project envelope only within TTL and without
+`--refresh`; stdout reports `cache_hit: true`. Missing, malformed, future-dated,
+or expired metadata triggers live discovery. Explicit requests, signature drift,
+and TTL expiry require `--refresh`; stale cache never satisfies current governance.
 
 ### Phase 1: Governance Discovery
 
@@ -287,7 +286,7 @@ set +H && python .github/skills/azure-governance-discovery/scripts/discover.py \
     --arch agent-output/{project}/02-architecture-assessment.md
 ```
 
-Append `--refresh` if the user requested it. Append `--include-defender-auto`
+Append `--refresh` if requested or required by the resume validity checks. Append `--include-defender-auto`
 only if the user explicitly asks to keep Defender-for-Cloud auto-assignments
 (filtered by default). Full stdout shape, exit codes, anti-patterns, and
 the `set +H` bash-history fix:
@@ -557,7 +556,8 @@ If the user provides a custom response at an approval gate, interpret it as inst
 - **Always**: Invoke `discover.py` (live) or `render_cached_governance.py`
   (cached baseline) via `run_in_terminal`, validate the first-line JSON status,
   produce both `.md` and `.json`. Let `discover.py` handle cache-first;
-  pass `--refresh` only when the user asks. When using cached baseline mode,
+  pass `--refresh` when requested or when TTL expiry/signature drift requires it.
+  When using cached baseline mode,
   re-render a fresh `.preview.md` — never reuse prior annotated markdown.
 - **Always**: Run Phase 2.7 (single `vscode_askQuestions` call for the two
   required confirmations — RG tag keys + casing, allowed locations) on every

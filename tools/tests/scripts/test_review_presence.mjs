@@ -26,6 +26,7 @@ test("Requirements fresh and resumed entry points preserve questions without for
   assert.match(requirements, /### Resume and refinement/);
   assert.match(requirements, /A checkpoint\s+is not evidence that every required answer exists/);
   assert.match(requirements, /Preserve current manifest revisions and user pins/);
+  assert.match(requirements, /do not invent manifest fields or rewrite unaffected SKU rows/);
   assert.match(requirements, /Changed requirements\s+invalidate affected review evidence/);
   assert.match(orchestrator, /on resume or refinement, recover recorded answers/);
   assert.doesNotMatch(orchestrator, /Your FIRST action must be calling askQuestions/);
