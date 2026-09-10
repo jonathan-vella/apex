@@ -19,7 +19,7 @@ agents:
     "06t-Terraform CodeGen",
     "07t-Terraform Deploy",
   ]
-tools: [vscode, execute, read, agent, browser, vscodeGeneral/rename, vscodeGeneral/usages, vscodeNotebooks/createJupyterNotebook, vscodeNotebooks/editNotebook, edit, search, web, azure-mcp/search, todo]
+tools: [vscode, execute, read, agent, browser, edit, search, web, azure-mcp/search, todo]
 handoffs:
   - label: "▶ Start New Project"
     agent: 01-Orchestrator
@@ -35,7 +35,7 @@ handoffs:
     send: true
   - label: "Step 1: Gather Requirements"
     agent: 02-Requirements
-    prompt: "Your FIRST action must be calling askQuestions to ask the user about their project. Do NOT read files, search, or generate content before asking. Start with Phase 1 Round 1 questions (project name, industry, company size, system type). You must complete all 4 questioning phases via askQuestions before generating any document. Input: user requirements gathered via askQuestions. Output: agent-output/{project}/01-requirements.md."
+    prompt: "For a new project, begin Phase 1 Round 1 with askQuestions and complete the required questioning phases before generating artifacts. The Requirements agent's session-state exception applies: on resume or refinement, recover recorded answers, ask only for missing or changed information, and preserve existing work. Input: user requirements and saved project context via apex-recall. Output: agent-output/{project}/01-requirements.md with required review and approval."
     send: true
   - label: "Step 2: Architecture Assessment"
     agent: 03-Architect

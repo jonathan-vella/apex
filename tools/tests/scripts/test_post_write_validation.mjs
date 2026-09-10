@@ -96,6 +96,25 @@ test("Planner loads phase-specific guidance after prerequisites without recreati
   }
 });
 
+test("Planner exposes relevant tools and uses supported Terraform metadata discovery", () => {
+  const body = fs.readFileSync(path.join(ROOT, ".github/agents/05-iac-planner.agent.md"), "utf8");
+  const frontmatter = body.split("---")[1];
+  assert.doesNotMatch(
+    frontmatter,
+    /vscodeNotebooks|vscodeGeneral\/(?:rename|usages)|ms-azuretools.vscode-azureresourcegroups/,
+  );
+  for (const capability of ["execute", "read", "agent", "edit", "search", "web", "azure-mcp/*", "bicep/*"]) {
+    assert.ok(frontmatter.includes(capability));
+  }
+  assert.doesNotMatch(
+    body,
+    /terraform\/(?:search_modules|get_module_details|get_latest_module_version)|all 4 required tags/,
+  );
+  assert.match(body, /public Terraform Registry API/);
+  assert.match(body, /exact `X.Y.Z`/);
+  assert.match(body, /failed lookup is not proof of absence/);
+});
+
 test("both CodeGen tracks check inputs first and use the manifest without weakening readiness", () => {
   for (const file of ["06b-bicep-codegen.agent.md", "06t-terraform-codegen.agent.md"]) {
     const body = fs.readFileSync(path.join(ROOT, ".github/agents", file), "utf8");
@@ -109,4 +128,58 @@ test("both CodeGen tracks check inputs first and use the manifest without weaken
     assert.match(body, /If any condition fails, STOP/);
     assert.doesNotMatch(body, /Before doing any work, read these skills\.|Also read `02-architecture-assessment.md`/);
   }
+});
+
+test("Terraform CodeGen verifies approved exact pins without retired MCP tools or version drift", () => {
+  const body = fs.readFileSync(path.join(ROOT, ".github/agents/06t-terraform-codegen.agent.md"), "utf8");
+  assert.doesNotMatch(
+    body,
+    /terraform\/(?:search_modules|get_module_details|get_latest_module_version|search_providers)/,
+  );
+  assert.doesNotMatch(body, /pin version band/);
+  assert.match(body, /Preserve the approved exact `X.Y.Z`/);
+  assert.match(body, /version change returns to the Planner/);
+  assert.match(body, /terraform providers schema -json/);
+  assert.match(body, /terraform init -backend=false -input=false/);
+});
+
+test("workflow agents do not explicitly load notebook tools for non-notebook outputs", () => {
+  const files = fs.readdirSync(path.join(ROOT, ".github/agents")).filter((file) => /^0[1-8].*\.agent\.md$/.test(file));
+  for (const file of files) {
+    const frontmatter = fs.readFileSync(path.join(ROOT, ".github/agents", file), "utf8").split("---")[1];
+    assert.doesNotMatch(frontmatter, /vscodeNotebooks\//, file);
+    for (const capability of ["execute", "read", "edit"])
+      assert.ok(frontmatter.includes(capability), `${file}: ${capability}`);
+    if (!/^0[67]/.test(file)) assert.doesNotMatch(frontmatter, /vscodeGeneral\/(?:rename|usages)/, file);
+  }
+});
+
+test("compaction permits required deferred guidance and As-Built verifies resume freshness", () => {
+  for (const file of [
+    "03-architect.agent.md",
+    "05-iac-planner.agent.md",
+    "06b-bicep-codegen.agent.md",
+    "06t-terraform-codegen.agent.md",
+    "08-as-built.agent.md",
+  ]) {
+    const body = fs.readFileSync(path.join(ROOT, ".github/agents", file), "utf8");
+    assert.match(body, /missing required\s+phase guidance/);
+    assert.doesNotMatch(body, /stop loading additional skills|Context reaches ~80%/i);
+  }
+  const asBuilt = fs.readFileSync(path.join(ROOT, ".github/agents/08-as-built.agent.md"), "utf8");
+  assert.match(asBuilt, /A checkpoint does not prove inventory freshness/);
+  assert.match(asBuilt, /If inputs changed, refresh affected inventory/);
+  assert.match(asBuilt, /live resource query cannot recover design rationale/);
+  assert.match(asBuilt, /On a new chat, re-query the target resources/);
+  assert.match(asBuilt, /Missing or inconsistent evidence prevents marking the phase current/);
+});
+
+test("shared read budgets permit recovery without introducing skill digest tiers", () => {
+  const skills = fs.readFileSync(path.join(ROOT, ".github/instructions/agent-skills.instructions.md"), "utf8");
+  assert.match(skills, /same available, unchanged inputs/);
+  assert.match(skills, /refresh only the needed sections/);
+  assert.match(skills, /never permits guessing missing constraints or skipping validation/);
+  const context = fs.readFileSync(path.join(ROOT, ".github/instructions/context-optimization.instructions.md"), "utf8");
+  assert.match(context, /tiers apply to artifacts, not alternate skill digests/);
+  assert.match(context, /must not prevent loading missing required guidance/);
 });

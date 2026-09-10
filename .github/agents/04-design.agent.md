@@ -4,7 +4,7 @@ model: ["Claude Sonnet 5"]
 description: "Step 3 — Design Artifacts. Generates code-based Python architecture diagrams and Architecture Decision Records for approved Azure designs. Optional step before governance and IaC planning."
 user-invocable: true
 agents: ["challenger-review-subagent"]
-tools: [vscode, execute, read, agent, browser, vscodeGeneral/rename, vscodeGeneral/usages, vscodeNotebooks/createJupyterNotebook, vscodeNotebooks/editNotebook, ms-python.python, edit, search, web, todo]
+tools: [vscode, execute, read, agent, browser, ms-python.python, edit, search, web, todo]
 handoffs:
   - label: "▶ Generate Diagram"
     agent: 04-Design

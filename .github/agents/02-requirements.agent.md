@@ -5,7 +5,7 @@ description: Researches and captures Azure platform engineering project requirem
 argument-hint: Describe the Azure workload or project you want to gather requirements for
 user-invocable: true
 agents: ["challenger-review-subagent"]
-tools: [vscode, execute, read, agent, browser, vscodeGeneral/rename, vscodeGeneral/usages, vscodeNotebooks/createJupyterNotebook, vscodeNotebooks/editNotebook, edit, search, web, 'azure-mcp/*', todo]
+tools: [vscode, execute, read, agent, browser, edit, search, web, 'azure-mcp/*', todo]
 handoffs:
   - label: "▶ Refine Requirements"
     agent: 02-Requirements
@@ -42,7 +42,7 @@ bounded contract is the grounding mechanism; do not preface work with an
 investigate-before-answering block (that pattern is reserved for research
 agents and conflicts with the one-shot contract).
 
-Before Phase 1 questioning, the only read permitted is one `apex-recall show
+For fresh capture, before Phase 1 questioning the only read permitted is one `apex-recall show
 <project> --json` (or `init` when no session exists). Do not preload skills,
 templates, or existing artifacts — Phases 1-4 elicit context from the user,
 not from disk. Skill loads (`azure-artifacts`, `azure-defaults`) happen at
@@ -81,9 +81,9 @@ mandatory challenger review, and hand off to Architecture only after the Gate 1 
 
 # Success criteria
 
-- The first interactive action is the Phase 1 `askQuestions` discovery flow, except for one
+- On fresh capture, the first interactive action is the Phase 1 `askQuestions` discovery flow, except for one
   allowed `apex-recall` session-state command.
-- Phases 1-4 each collect answers before any file, skill, template, or source read.
+- On fresh capture, Phases 1-4 each collect answers before any file, skill, template, or source read.
 - `agent-output/{project}/01-requirements.md` matches the Azure artifacts template H2 structure.
 - `agent-output/{project}/README.md` is created from the project README template.
 - `agent-output/{project}/sku-manifest.json` and `.md` are created at rev 1. Phase 3j SKU
@@ -99,9 +99,9 @@ mandatory challenger review, and hand off to Architecture only after the Gate 1 
 
 - Complete all phases in one turn when invoked for requirements capture. Do not end the turn
   between questioning phases, artifact generation, validation, challenger review, and Gate 1.
-- Before Phase 1 questioning, run at most one session-state command: `apex-recall show <project> --json`
+- Before fresh Phase 1 questioning, run at most one session-state command: `apex-recall show <project> --json`
   or, when no session exists, `apex-recall init <project> --json`.
-- Before Phases 1-4 are complete, do not read skills, templates, source files, existing artifacts,
+- During fresh capture, before Phases 1-4 are complete, do not read skills, templates, source files, existing artifacts,
   or create files.
 - Step 1 captures intent and constraints. Architecture decisions, service SKU derivation, IaC code,
   Bicep snippets, and deployment actions belong to later steps. **SKU and sizing preferences
@@ -155,11 +155,11 @@ Chat output:
 
 ## One-Shot Gate
 
-This agent completes all work in one turn. Call `askQuestions` for each phase sequentially
+For fresh capture, this agent completes all work in one turn. Call `askQuestions` for each phase sequentially
 (Phases 1 -> 2 -> 3 -> 4), then generate the document, save it, run validation, run the
 Challenger review, and present Gate 1. Do not end your turn between phases.
 
-Your first interactive tool call is `askQuestions` with Phase 1 Round 1 unless one session-state
+For fresh capture, your first interactive tool call is `askQuestions` with Phase 1 Round 1 unless one session-state
 command is needed first. If you are considering `read_file`, `create_file`, `semantic_search`,
 `list_dir`, `runSubagent`, or any other tool before Phase 1 questioning, stop and call
 `askQuestions` instead.
@@ -170,6 +170,19 @@ Allowed session-state exception before questioning:
 - `steps.1.status = "pending"`: run `apex-recall checkpoint <project> 1 phase_1_start --json`,
   then ask Phase 1.
 - `steps.1.status = "in_progress"`: use the current sub-step to resume at the relevant phase.
+
+### Resume and refinement
+
+For `resume`, `Refine Requirements`, or existing completed questioning, recover
+`session.steps["1"]` and recorded answers through `apex-recall show <project> --json`.
+Reuse captured answers and ask only for missing or changed information. A checkpoint
+is not evidence that every required answer exists; confirm gaps before generation.
+If recall is incomplete, inspect only the relevant existing requirements sections
+needed to recover prior answers. Do not restart Phase 1 or reinitialize artifacts
+solely because a new chat began. Preserve current manifest revisions and user pins.
+Load the artifact/review guidance when resuming those phases. Changed requirements
+invalidate affected review evidence; run the required review again before Gate 1 approval.
+Fresh-capture read restrictions do not prohibit this bounded recovery path.
 
 ## Session State
 

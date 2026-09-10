@@ -50,11 +50,12 @@ def _challenger_findings_missing(project: str, step: str) -> tuple[bool, str | N
     if not gate:
         return (False, None, None)
     gates = [gate]
-    if step == "2":
+    if step in ("2", "4"):
         state = read_state(session_state_path(project))
         decisions = state.get("decisions")
         if isinstance(decisions, dict) and decisions.get("review_depth") == "deep":
-            gates[0] = (gate[0], "challenge-findings-architecture-pass1.json")
+            gates[0] = (gate[0], gate[1].removesuffix(".json") + "-pass1.json")
+    if step == "2":
         gates.append(("03-des-cost-estimate.md", "challenge-findings-cost-estimate.json"))
     project_dir = session_state_path(project).parent
     produced = any((project_dir / gating_name).is_file() for gating_name, _ in gates)

@@ -5,7 +5,7 @@ model: ["Claude Sonnet 5"]
 user-invocable: true
 agents: ["bicep-validate-subagent", "challenger-review-subagent"]
 tools:
-  [vscode, execute, read, agent, browser, vscodeGeneral/rename, vscodeGeneral/usages, vscodeNotebooks/createJupyterNotebook, vscodeNotebooks/editNotebook, ms-azuretools.vscode-azureresourcegroups, edit, search, web, 'azure-mcp/*', 'bicep/*', todo]
+  [vscode, execute, read, agent, browser, vscodeGeneral/rename, vscodeGeneral/usages, ms-azuretools.vscode-azureresourcegroups, edit, search, web, 'azure-mcp/*', 'bicep/*', todo]
 handoffs:
   - label: "▶ Run Preflight Check"
     agent: 06b-Bicep CodeGen
@@ -328,13 +328,13 @@ from scratch.**
 
 ### Phase 1.6: Context Compaction
 
-Context reaches ~80% after preflight + governance mapping. Apply Mode A
-runtime compression per
+Select Mode A compression from observed context usage per
 [`context-management/SKILL.md`](../skills/context-management/SKILL.md):
 write one concise summary (preflight result + AVM/custom counts,
 governance compliance map status, deployment strategy, resource list
-with module paths) and stop loading additional skills before Phase 2.
-Do NOT re-read predecessor artifacts.
+with module paths). Avoid optional or redundant reads; load missing required
+phase guidance before using it. Reuse unchanged predecessor content still in context,
+and refresh needed sections after edits or lost context. Do not infer missing contract fields.
 
 **Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 5 phase_1.6_compacted --json`
 

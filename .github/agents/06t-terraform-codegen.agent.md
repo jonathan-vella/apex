@@ -5,7 +5,7 @@ model: ["Claude Sonnet 5"]
 user-invocable: true
 agents: ["terraform-validate-subagent", "challenger-review-subagent"]
 tools:
-  [vscode, execute, read, agent, browser, vscodeGeneral/rename, vscodeGeneral/usages, vscodeNotebooks/createJupyterNotebook, vscodeNotebooks/editNotebook, ms-azuretools.vscode-azureresourcegroups, edit, search, web, 'azure-mcp/*', todo]
+  [vscode, execute, read, agent, browser, vscodeGeneral/rename, vscodeGeneral/usages, ms-azuretools.vscode-azureresourcegroups, edit, search, web, 'azure-mcp/*', todo]
 handoffs:
   - label: "▶ Run Preflight Check"
     agent: 06t-Terraform CodeGen
@@ -274,12 +274,17 @@ This agent substitutes Terraform-specific tools below.
 For EACH resource in `04-iac-contract.json#resources[]` (canonical
 source; `04-implementation-plan.md` is the prose mirror):
 
-1. `terraform/search_modules` → confirm AVM-TF exists (namespace `Azure`)
-2. `terraform/get_module_details` → retrieve variable schema
-3. Cross-check `04-iac-contract.json#modules.terraform[]` source + version
-   pins against schema; flag type mismatches (see AVM Known Pitfalls in terraform-patterns skill)
-4. `terraform/get_latest_module_version` → pin version band (`~> X.Y`)
-5. For non-AVM resources: verify `azurerm` provider arguments via `terraform/search_providers`
+1. Read the approved source and exact version from `04-iac-contract.json#modules.terraform[]`.
+2. Query the public Terraform Registry API for that pinned module version;
+  inspect inputs, outputs, and linked source. No Terraform MCP server is required.
+3. Cross-check the approved pins and parameter types against the retrieved schema;
+  flag mismatches using the AVM Known Pitfalls in the Terraform patterns skill.
+4. Preserve the approved exact `X.Y.Z` module version. Do not replace it with
+  a version range or select a newer release. An unavailable pin or required
+  version change returns to the Planner under the existing plan-lock contract.
+5. For non-AVM resources, verify arguments against the pinned provider's official
+  Registry documentation and `terraform providers schema -json` after isolated
+  `terraform init -backend=false -input=false`. Do not infer missing schemas from memory.
 6. Check region limitations
 7. Save to `agent-output/{project}/04-preflight-check.md`
 8. If blockers found, use the `askQuestions` tool with a single
@@ -336,13 +341,14 @@ from scratch.**
 
 ### Phase 1.6: Context Compaction
 
-Context reaches ~80% after preflight + governance mapping. Apply Mode A
-runtime compression per
+Select Mode A compression from observed context usage per
 [`context-management/SKILL.md`](../skills/context-management/SKILL.md):
 write one concise summary (preflight result + AVM-TF/raw counts,
 governance compliance map status, deployment strategy, resource list
-with module sources + version pins + key variables) and stop loading
-additional skills before Phase 2. Do NOT re-read predecessor artifacts.
+with module sources + version pins + key variables). Avoid optional or redundant
+reads; load missing required phase guidance before using it. Reuse unchanged
+predecessor content still in context, and refresh needed sections after edits
+or lost context. Do not infer missing contract fields.
 
 **Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 5 phase_1.6_compacted --json`
 

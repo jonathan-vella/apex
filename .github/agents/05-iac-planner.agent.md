@@ -4,8 +4,7 @@ description: "Expert Azure IaC planner that creates comprehensive machine-readab
 model: ["Claude Opus 5"]
 user-invocable: true
 agents: ["challenger-review-subagent"]
-tools:
-   [vscode, execute, read, agent, browser, vscodeGeneral/rename, vscodeGeneral/usages, vscodeNotebooks/createJupyterNotebook, vscodeNotebooks/editNotebook, ms-azuretools.vscode-azureresourcegroups, edit, search, web, 'azure-mcp/*', 'bicep/*', todo]
+tools: [vscode, execute, read, agent, browser, edit, search, web, 'azure-mcp/*', 'bicep/*', todo]
 handoffs:
   - label: "▶ Refresh Governance"
     agent: 04g-Governance
@@ -41,7 +40,7 @@ handoffs:
 
 <investigate_before_answering>
 Before writing the implementation plan, verify AVM module availability for every resource.
-For Bicep: use mcp_bicep_list_avm_metadata. For Terraform: use terraform/search_modules.
+For Bicep: use the available Bicep AVM metadata tools. For Terraform: use the public Terraform Registry API.
 Check deprecation notices for non-AVM SKUs. Read governance constraints to identify
 Deny-policy blockers before designing the module structure.
 </investigate_before_answering>
@@ -72,8 +71,8 @@ without re-prompting the user.
 
 Run `apex-recall show <project> --json` and check `decisions.iac_tool`:
 
-- **`"Bicep"`** → Use Bicep-specific tools and patterns (Phase 2 uses `mcp_bicep_list_avm_metadata`)
-- **`"Terraform"`** → Use Terraform-specific tools and patterns (Phase 2 uses `terraform/search_modules`)
+- **`"Bicep"`** → Use the available Bicep AVM metadata tools and patterns.
+- **`"Terraform"`** → Use the public Terraform Registry API and Terraform patterns; no Terraform MCP server is required.
 
 If `decisions.iac_tool` is not set, ask the user which IaC tool to plan for.
 
@@ -138,7 +137,7 @@ permission to omit cost controls, policy mapping, security, or AVM pin checks.
 | ---------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
 | Verify Azure connectivity (`az account show`) FIRST                                                        | Write ANY IaC code — this agent plans only                              |
 | Read `04-governance-constraints.md/.json` — prerequisite input                                             | Skip reading governance constraints                                     |
-| Check AVM for EVERY resource (Bicep: `mcp_bicep_list_avm_metadata`; Terraform: `terraform/search_modules`) | Generate plan before asking deployment strategy (Phase 3.5 mandatory)   |
+| Check AVM for EVERY resource (Bicep metadata tools; Terraform Registry API) | Generate plan before asking deployment strategy (Phase 3.5 mandatory)   |
 | Use AVM defaults for SKUs; deprecation research only for overrides                                         | Hardcode SKUs without AVM verification                                  |
 | Define tasks as YAML specs (resource, module, dependencies, config)                                        | Proceed to code generation without explicit user approval               |
 | Generate `04-implementation-plan.md`                                                                       | Ignore policy `effect` — `Deny` = blocker, `Audit` = warning only       |
@@ -148,7 +147,7 @@ permission to omit cost controls, policy mapping, security, or AVM pin checks.
 | Auto-apply every `must_fix` finding in Phase 5 (mandatory — blocks deployment); re-run challenger after    | Ask the user whether to accept `must_fix` findings — they are mandatory |
 | Use `askQuestions` in Phase 5 to gather `should_fix` decisions in the same chat session                    |                                                                         |
 | **Terraform only**: use `azurePropertyPath` (not `bicepPropertyPath`)                                      | **Terraform only**: Plan HCP/cloud backends                             |
-| **Terraform only**: use `terraform/get_module_details` for variables                                       | **Terraform only**: Use archived tool names (`moduleSearch` etc.)       |
+| **Terraform only**: inspect pinned Registry module inputs, outputs, and examples | **Terraform only**: Use retired Terraform MCP tool names |
 | Update `agent-output/{project}/README.md` — mark Step 4 complete                                           |                                                                         |
 
 ## Prerequisites Check
@@ -245,17 +244,22 @@ For EACH resource in the architecture:
 
 **If Bicep:**
 
-1. Query `mcp_bicep_list_avm_metadata` for AVM availability
+1. Query the available Bicep AVM metadata tools for module availability;
+   if unavailable, use the existing AVM index/freeze workflow
 2. If AVM exists → use it, trust default SKUs
 3. If no AVM → plan raw Bicep resource, run deprecation checks
 4. Document module path + version in the implementation plan
 
 **If Terraform:**
 
-1. `terraform/search_modules` → find AVM-TF module (namespace `Azure`, provider `azurerm`)
-2. If found: `terraform/get_module_details` → variable schema, outputs, examples
-3. If not found: plan raw `azurerm` resource + deprecation checks
-4. `terraform/get_latest_module_version` → pin version; document in plan
+1. Use web retrieval or an HTTP client to query the public Terraform Registry API
+   for AVM-TF modules in namespace `Azure`, provider `azurerm`.
+2. Resolve published versions through `/v1/modules/Azure/{module}/azurerm/versions`;
+   select the newest stable compatible release and pin its exact `X.Y.Z` version.
+3. Read `/v1/modules/Azure/{module}/azurerm/{version}` for the pinned module's
+   inputs, outputs, dependencies, and examples; follow its linked source when metadata is incomplete.
+4. Use raw `azurerm` resources only after verifying that no suitable AVM module exists.
+   A timeout or failed lookup is not proof of absence: stop and report unverified metadata rather than inventing it.
 
 AVM-TF naming: `Azure/avm-res-{service}-{resource}/azurerm`
 
@@ -289,7 +293,7 @@ unresolved.
 
 **Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 4 phase_2_5_consistency --json`
 
-### Phase 3.5: Deployment Strategy + Design Decisions + Design Decisions Gate
+### Phase 3.5: Deployment Strategy + Design Decisions Gate
 
 **Required gate.** Ask the user BEFORE generating the plan. Do NOT assume
 single or phased. Question template, recommended defaults, and skip rules
@@ -327,13 +331,12 @@ apex-recall decide <project> --key <key> --value <choice> --rationale "Phase 3.5
 
 ### Phase 3.6: Context Compaction
 
-Context reaches ~80% by the end of Phase 3.5. Apply Mode A runtime
-compression per [`context-management/SKILL.md`](../skills/context-management/SKILL.md):
-write one concise summary message (governance result, AVM verification
-summary, deployment-strategy choice, key architecture decisions) and
-stop loading additional skills before Phase 4 generation. The
-Predecessor Artifact Read Policy above already forbids re-reading
-prior artifacts.
+Write one concise summary (governance, AVM verification, deployment strategy,
+and design decisions). Select compression from observed context usage per
+[`context-management/SKILL.md`](../skills/context-management/SKILL.md), not the phase number.
+Avoid optional or redundant reads; load missing required phase guidance,
+including deferred diagram instructions, before using it. Refresh only changed
+or unavailable predecessor sections rather than assuming the summary is complete.
 
 **Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 4 phase_3.6_compacted --json`
 
@@ -591,7 +594,7 @@ Include attribution header from the template file (do not hardcode).
 
 - [ ] Governance discovery completed; AVM availability checked for every resource
 - [ ] Deprecation checks done for non-AVM / custom SKU resources
-- [ ] All resources have CAF naming patterns and all 4 required tags
+- [ ] All resources have CAF naming and the discovered tag contract (canonical fallback only when no tag policy exists)
 - [ ] Dependency graph is acyclic and complete
 - [ ] H2 headings match azure-artifacts templates exactly
 - [ ] Security configuration includes managed identity where applicable

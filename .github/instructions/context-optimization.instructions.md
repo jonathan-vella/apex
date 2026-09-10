@@ -161,9 +161,11 @@ Compression):
 4. Compress older/less-critical artifacts first when loading multiple files
 
 The tier system applies to artifacts in `agent-output/`. Skills are
-single-tier (`SKILL.md`); never re-read a skill that is already in context.
+single-tier (`SKILL.md`); reuse unchanged content still available in context.
+Refresh required content after edits, compaction, or a new chat rather than guessing.
 
 ## Skill Loading
 
-Load skills referenced in the agent body's "Read Skills" section.
-Use context-management runtime tiers to select the right compression level.
+Load the skills required by the current phase; defer optional references.
+Runtime compression tiers apply to artifacts, not alternate skill digests.
+Compaction must not prevent loading missing required guidance for a later phase.

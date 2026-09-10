@@ -95,14 +95,14 @@ function sidecarOk(sidecarPath) {
   }
 }
 
-function architectureSidecar(sessionStatePath) {
+function reviewSidecar(sessionStatePath, defaultSidecar) {
   try {
     const state = JSON.parse(fs.readFileSync(sessionStatePath, "utf8"));
-    if (state?.decisions?.review_depth === "deep") return "challenge-findings-architecture-pass1.json";
+    if (state?.decisions?.review_depth === "deep") return defaultSidecar.replace(/\.json$/, "-pass1.json");
   } catch {
-    return "challenge-findings-architecture.json";
+    return defaultSidecar;
   }
-  return "challenge-findings-architecture.json";
+  return defaultSidecar;
 }
 
 const projects = listProjects(ROOT);
@@ -119,7 +119,9 @@ for (const project of projects) {
       (artifact) => artifact && fs.existsSync(path.join(projectDir, artifact)),
     );
     if (!gatingArtifact) continue;
-    const requiredSidecar = stepKey === "2" ? architectureSidecar(sessionState) : gate.requiredSidecar;
+    const requiredSidecar = ["2", "4"].includes(stepKey)
+      ? reviewSidecar(sessionState, gate.requiredSidecar)
+      : gate.requiredSidecar;
     const missingSidecars = [requiredSidecar, gate.additionalSidecar].filter(
       (sidecar) => sidecar && !sidecarOk(path.join(projectDir, sidecar)),
     );

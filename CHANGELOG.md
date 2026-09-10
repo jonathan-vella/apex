@@ -31,6 +31,13 @@ for full details on this and all prior releases.
   Reuse the canonical batched finding panel while preserving separate decisions and rationales.
 - Check Planner and CodeGen prerequisites before bulk skill reads, defer phase-specific Planner references,
   and use the SKU manifest instead of repeatedly reconstructing selections from architecture prose.
+- Remove unrelated explicit notebook tools from workflow agents and code-refactoring tools from non-code roles.
+  Preserve discovery groups and role-relevant execution, diagnostics, and IaC refactoring capabilities.
+- Replace retired Terraform MCP calls with Registry API and provider-schema workflows;
+  CodeGen preserves approved exact pins.
+- Recover recorded Requirements answers on resume instead of forcing a fresh questionnaire, retaining required elicitation.
+- Permit required deferred guidance after compaction and verify current deployment/inventory evidence on As-Built resume.
+- Recognize deep Plan review sidecars in runtime and CI presence checks, with atomic failure tests.
 
 ### Fixed (Workflow optimization prerequisites)
 

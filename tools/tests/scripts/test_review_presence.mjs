@@ -8,6 +8,19 @@ import { test } from "node:test";
 
 const script = fileURLToPath(new URL("../../scripts/validate-challenger-presence.mjs", import.meta.url));
 
+test("Requirements fresh and resumed entry points preserve questions without forced restart", () => {
+  const read = (file) => readFileSync(new URL(`../../../${file}`, import.meta.url), "utf8");
+  const requirements = read(".github/agents/02-requirements.agent.md");
+  const orchestrator = read(".github/agents/01-orchestrator.agent.md");
+  assert.match(requirements, /For fresh capture/);
+  assert.match(requirements, /### Resume and refinement/);
+  assert.match(requirements, /A checkpoint\s+is not evidence that every required answer exists/);
+  assert.match(requirements, /Preserve current manifest revisions and user pins/);
+  assert.match(requirements, /Changed requirements\s+invalidate affected review evidence/);
+  assert.match(orchestrator, /on resume or refinement, recover recorded answers/);
+  assert.doesNotMatch(orchestrator, /Your FIRST action must be calling askQuestions/);
+});
+
 test("Architect gate reference cannot skip mandatory cost review or complete after pricing alone", () => {
   const read = (file) => readFileSync(new URL(`../../../${file}`, import.meta.url), "utf8");
   const reference = read(".github/skills/azure-defaults/references/workflow-gates.md");
@@ -149,3 +162,21 @@ test("deep review requires architecture pass one and the independent cost review
   writeFileSync(path.join(project, "challenge-findings-cost-estimate.json"), '{"findings": []}');
   assert.equal(run().status, 0);
 });
+
+for (const depth of ["default", "deep"]) {
+  test(`CI Plan review presence matches ${depth} runtime mode`, (context) => {
+    const root = mkdtempSync(path.join(tmpdir(), "apex-plan-mode-"));
+    context.after(() => rmSync(root, { recursive: true, force: true }));
+    const project = path.join(root, "agent-output/demo");
+    mkdirSync(project, { recursive: true });
+    writeFileSync(path.join(project, "04-implementation-plan.md"), "# Plan\n");
+    writeFileSync(path.join(project, "00-session-state.json"), JSON.stringify({ decisions: { review_depth: depth } }));
+    const required = depth === "deep" ? "challenge-findings-plan-pass1.json" : "challenge-findings-plan.json";
+    const run = () => spawnSync(process.execPath, [script], { cwd: root, encoding: "utf8" });
+    const missing = run();
+    assert.equal(missing.status, 1);
+    assert.match(missing.stdout + missing.stderr, new RegExp(required.replaceAll(".", "\\.")));
+    writeFileSync(path.join(project, required), '{"findings": []}');
+    assert.equal(run().status, 0);
+  });
+}

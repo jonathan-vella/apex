@@ -2,13 +2,16 @@
 
 ## Evidence
 
-Generated from the existing workspace index on 2026-09-10. Each active agent, skill, instruction,
-and root guidance file has an inventory row. Purpose/scope text comes from current frontmatter.
+Baseline inventory generated from the workspace index on 2026-09-10, before the guidance batches.
+Each active agent, skill, instruction, and root guidance file has an inventory row.
+The byte figures and excerpts below are historical baseline observations, not current file measurements.
 The baseline retirement scanner and agent assessment were also run; operational JSON and scorecards
 are under `tmp/apex-optimization/`. This is static evidence, not measured token savings.
 
 Disposition `Keep` preserves a distinct discovery/ownership contract, not a claim of perfect runtime behavior.
-Candidates require matched B/C experiments and independent quality review before acceptance.
+The revised plan uses focused tests/review for local fixes and matched runtime evidence for performance claims.
+Current dispositions and completed changes are recorded in the
+[execution plan](apex-workflow-optimization.md#local-implementation-closeout).
 
 ## Root Inventory
 
@@ -156,9 +159,8 @@ These matches can be protective repetition. No files were retired from similarit
 - Do not remove documentation triggers by moving them into instructions scoped only to documentation files.
 - Do not narrow safety instruction scopes merely because a file is rarely edited.
 - Preserve the single-tier skill format, canonical Azure defaults, and native semantic discovery.
-- The workflow-engine repeats its routing sequence within one skill; remove only after a measured candidate trial.
-- Orchestrator tier-routing rationale repeats across sections; retain enforceable stop/approval anchors
-  when trialing trims.
+- The duplicate workflow-engine routing sequence and stale split-Planner references have been corrected.
+- Orchestrator tier-routing rationale has been consolidated while preserving stop/approval anchors.
 - Documentation instructions have overlapping style guidance but different trigger/ownership purposes;
   merge only with scope tests.
 - Operating-frame runtime reachability remains unproven. File-authoring applyTo is not evidence of agent-boot injection.
@@ -171,6 +173,7 @@ Those unsupported suggestions were rejected. No size figure here is converted in
 
 ## Completion Boundary
 
-Inventory and static ownership review are complete. Runtime effectiveness and optimization acceptance are not.
+Inventory, local guidance implementation, and executable contract checks are complete.
+Runtime effectiveness and final quality acceptance are not established by this static report.
 The installed Copilot launcher cannot find the CLI; the environment blocked temporary CLI execution.
 Current development-session logs are not production workflow baselines. Do not substitute them for matched trials.

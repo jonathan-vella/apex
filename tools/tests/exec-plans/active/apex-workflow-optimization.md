@@ -2,7 +2,7 @@
 
 ## Status
 
-**State**: Revised workflow plan active; routing and specialist guidance batches implemented
+**State**: Local implementation and scenario tests complete; runtime observation and human acceptance pending
 **Owner**: Jonathan Vella with GitHub Copilot
 **Created**: 2026-09-10
 **Branch**: `perf/apex-workflow-optimization`
@@ -26,6 +26,41 @@ The user replaced the earlier benchmark-led campaign with workflow-first improve
 - Defer live Azure validation to a separate phase. Old infrastructure blockers below are historical context.
 - Recommend broader changes to review frequency, agent roles, or artifact contracts only for explicit approval.
 - Keep the full semantic audit in scope; an inventory alone does not prove workflow effectiveness.
+
+### Local implementation closeout
+
+The local execution phase covers the requested duplication/workflow, agent, skill,
+instruction, root-guidance, overengineering, and context-efficiency surfaces.
+Remaining live model observations are explicitly outside what structural tests establish.
+No runtime tool-schema savings or generated-output quality equivalence is claimed.
+
+| Area | Implemented outcome | Verification / retained boundary |
+| --- | --- | --- |
+| Duplication of work | Reuse current reviews, recovered answers, and phase inputs; batch independent finding questions | Distinct per-finding choices, rerun stale reviews, approval remains explicit |
+| Broken workflows | Shared Step 4 routing, correct resume fields, cost review ordering, deep Plan filenames | Graph/handoff tests and actual recall transition tests |
+| Agent tools | Remove unrelated explicit notebook entries; remove explicit refactoring from non-code roles | Relevant execution/read/edit/discovery tools retained; broad group expansion not measured |
+| Terraform discovery | Replace retired MCP calls with Registry metadata and pinned provider schema checks | Exact approved module pins retained by CodeGen; failed lookup is not proof of no AVM |
+| Skills | One routing procedure, correct DAG references, phase-scoped loading | Single-tier discovery and required references retained |
+| Instructions/root files | Current-phase prerequisites, safe cache invalidation, clear canonical ownership | Security, review, and artifact contracts unchanged |
+| Overengineering | Remove unnecessary tool entries, repeated routing/rationale, and non-owned template reads | No new orchestration framework, new model policy, or new artifact schema |
+| Input context | Avoid forced question restart and missing-input bulk reads; compaction permits required deferred guidance | Source changes and intended call reductions only; no measured token claim |
+| As-Built resume | Re-query IDs/state/SKUs on new-chat resume; compare current handoff/source before reusing inventory | Live drift checks retained; missing evidence cannot mark inventory current |
+
+### Approval-dependent proposals
+
+These recommendations are delivered, not silently implemented:
+
+| Proposal | Reason / evidence | Decision needed |
+| --- | --- | --- |
+| Make unattended review dispositions fail closed on unresolved blockers | Canonical adversarial-review protocol auto-defers and auto-proceeds | Agree benchmark-only versus production semantics before changing that protocol |
+| Reconsider forced one-file-per-turn CodeGen cadence | Both CodeGen agents mandate it independently of file size | Approve a bounded batching experiment with build/repair evidence |
+| Consolidate overlapping documentation style instructions | Site formatting and doc-maintenance triggers have different scopes | Prove scope equivalence before retiring files; keep triggers active on code/agent edits |
+| Narrow broad Azure/Bicep/VS Code tool groups | Explicit irrelevant tools removed, but groups may expand dynamically | Observe actual schema attachment and tool use before removing required capability |
+| Revisit models, roles, or review frequency | Potential efficiency gain is not proven by a static inventory | Separate approval and matched reasoning/output evaluation |
+
+The final human acceptance review should observe fresh capture, resumed questioning,
+missing predecessor, Design skip, revision, deep review, both IaC tracks, and changed-input recovery.
+Do not replace this observation with the current development-session transcript or label fixture results as model behavior.
 
 ### First batch: routing, reviews, and phase-aware inputs
 
@@ -88,18 +123,18 @@ Logs are under `tmp/apex-optimization/revised-*.log`. The documented VS Code wal
 
 This table records inspected prompt paths and executable structural tests, not live model observations.
 
-| Scenario | Source path / expected behavior | Evidence level |
-| --- | --- | --- |
-| New project | Requirements retains initial questioning and its limited session-state exception | Source inspection |
-| Missing predecessor | Architect/Planner/CodeGen return to the owner before bulk skill reads | Contract regressions |
-| Optional Design | Diagram and ADR skills load only for selected scope; governance routing remains in graph | Source/graph checks |
-| Resume Architecture | Check artifacts and both reviews; checkpoint is not approval and current pricing is reusable | Contract regressions |
-| Revise findings | Canonical separate questions, persisted dispositions, relevant re-review before proceeding | Contract regressions |
-| Default/deep review | Independent cost review always required; architecture deep cascade remains separate | Contract/runtime gate tests |
-| Bicep/Terraform CodeGen | Same input-first and manifest policy, with track-specific validation retained | Paired contract regressions |
-| Resume Governance | Signature/TTL/status checks control reuse; explicit refresh disables shortcut | Source inspection |
-| Deploy changed code | Recomputed tree hash and fresh preview prevent stale approval reuse | Source inspection |
-| As-Built resume | Phase checkpoint and live SKU drift checks remain; inventory is loaded on demand | Source inspection |
+| Scenario                | Source path / expected behavior                                                              | Evidence level              |
+| ----------------------- | -------------------------------------------------------------------------------------------- | --------------------------- |
+| New project             | Requirements retains initial questioning and its limited session-state exception             | Source inspection           |
+| Missing predecessor     | Architect/Planner/CodeGen return to the owner before bulk skill reads                        | Contract regressions        |
+| Optional Design         | Diagram and ADR skills load only for selected scope; governance routing remains in graph     | Source/graph checks         |
+| Resume Architecture     | Check artifacts and both reviews; checkpoint is not approval and current pricing is reusable | Contract regressions        |
+| Revise findings         | Canonical separate questions, persisted dispositions, relevant re-review before proceeding   | Contract regressions        |
+| Default/deep review     | Independent cost review always required; architecture deep cascade remains separate          | Contract/runtime gate tests |
+| Bicep/Terraform CodeGen | Same input-first and manifest policy, with track-specific validation retained                | Paired contract regressions |
+| Resume Governance       | Signature/TTL/status checks control reuse; explicit refresh disables shortcut                | Source inspection           |
+| Deploy changed code     | Recomputed tree hash and fresh preview prevent stale approval reuse                          | Source inspection           |
+| As-Built resume         | Phase checkpoint and live SKU drift checks remain; inventory is loaded on demand             | Source inspection           |
 
 Remaining runtime task: observe these paths in actual VS Code fresh/resume/revision conversations.
 No Azure deployment, model switch, new benchmark framework, or output-schema change was needed for this batch.
@@ -211,11 +246,13 @@ These limits apply only if the separate live-validation phase is resumed; no Azu
 - [x] Inspect pinned reference requirements/code/handoff, freeze criteria, and select the untuned holdout.
 - [x] Apply the first routing, review-reuse, phase-input, and root-guidance improvement batch.
 - [x] Validate focused prompt contracts without altering workflow topology, review frequency, or artifact schemas.
-- [ ] Walk through revised prompts in VS Code for fresh/resume/revision scenarios; report behavioral evidence separately.
-- [ ] Continue semantic audit of remaining phase loads and duplicated decisions in specialist agents.
-- [ ] Present broader simplifications with evidence and approval boundaries before implementation.
-- [ ] Collect production-equivalent traces only where the proposed change requires runtime evidence.
-- [ ] Run live comparisons in the separate deployment-validation phase, subject to approved scope.
+- [x] Complete source-level scenario walkthrough and executable recall/handoff regression checks.
+- [x] Audit remaining phase loads, duplicated decisions, tool declarations, and retired discovery calls.
+- [x] Present broader simplifications with evidence and approval boundaries before implementation.
+- [x] Align default/deep Plan sidecar presence in runtime and CI without rewriting legacy history.
+- [ ] Observe actual model behavior in VS Code fresh/resume/revision scenarios during acceptance.
+- [ ] Collect production-equivalent traces for future performance claims; not a local-fix prerequisite.
+- [ ] Run live comparisons only in a separately resumed deployment-validation phase.
 - [ ] Obtain final quality signoff; document accepted, rejected, and inconclusive experiments.
 
 ## Evidence Locations
@@ -277,6 +314,31 @@ production-equivalence measurements.
 
 No real workflow token records were available to the measurement collector.
 No candidate optimization, Azure resource creation, or live-baseline run has been accepted or performed.
+
+## Final Local Verification
+
+The final local scenario suite passed: tooling contracts, workflow handoff fixtures,
+and separate package/public recall tests. New tests cover Requirements fresh/resume
+guidance, exact Terraform pins, tool declarations, compaction guidance availability,
+As-Built inventory recovery, and default/deep Plan completion with no partial state writes.
+On 2026-09-10, `npm run validate:all` passed (Node and external suites).
+The local tooling suite passed, as did handoff fixtures and both recall test roots
+run in separate processes. ESLint, Ruff, Markdown, and changed-file diagnostics were clean.
+Logs: `tmp/apex-optimization/closure-*.log`.
+
+This final correctness pass adds explicit recovery/pinning safeguards as well as removing
+unrelated tool entries. The edited agent sources are 1,650 bytes larger in aggregate
+than the preceding commit; no aggregate source reduction or token saving is claimed.
+The value is fewer contradictory paths and unnecessary operations, verified only to the stated test level.
+
+The independent reviewer correctly identified that prompt tests do not prove live model behavior.
+That limitation is retained. As-Built checks were made explicit, while the Requirements
+recovery path already named bounded artifact reads. No fictitious tool execution or savings evidence is added.
+
+Local implementation is not blocked by the old Azure campaign limits. Production-equivalent
+live model observation remains unperformed; the earlier attempted CLI execution was blocked
+by the environment and is not retried through another path. This is an acceptance limitation,
+not a reason to claim that every part of end-to-end runtime validation is complete.
 
 ## Autonomous Continuation Results
 

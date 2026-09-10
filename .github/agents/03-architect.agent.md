@@ -4,7 +4,7 @@ description: Expert Architect providing guidance using Azure Well-Architected Fr
 model: ["Claude Opus 5"]
 user-invocable: true
 agents: ["cost-estimate-subagent", "challenger-review-subagent"]
-tools: [vscode, execute, read, agent, browser, vscodeGeneral/rename, vscodeGeneral/usages, vscodeNotebooks/createJupyterNotebook, vscodeNotebooks/editNotebook, edit, search, web, 'azure-mcp/*', todo]
+tools: [vscode, execute, read, agent, browser, edit, search, web, 'azure-mcp/*', todo]
 handoffs:
   - label: "▶ Refresh Cost Estimate"
     agent: 03-Architect
@@ -260,13 +260,13 @@ in your WAF assessment recommendations (still produce the identical artifact str
    (scratch file, deleted after final artifact is generated). This prevents holding both
    research context AND final output in memory simultaneously.
    **Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 2 phase_2_waf --json`
-6. **Context compaction (MANDATORY)** — Context usage reaches ~80% after WAF research
-   and doc lookups. Before pricing delegation, compact the conversation:
+6. **Context checkpoint (MANDATORY)** — Before pricing delegation, summarize the
+  research and apply the runtime compression tier appropriate to observed context usage:
    - Write a single concise summary: WAF pillar scores, resource list with SKUs,
      key architecture decisions, compliance requirements from `01-requirements.md`
-   - Stop loading additional skills; if you need a previously read skill, do not re-read it
-   - Do NOT re-read `01-requirements.md` or doc search results — rely on the
-     summary and the saved `02-waf-research.tmp.md` on disk
+   - Avoid optional or redundant reads; load missing required phase guidance before using it
+   - Reuse current research and requirements. After edits or lost context, recover
+     the needed sections from source or `02-waf-research.tmp.md`; do not guess missing constraints
    - Update session state: `sub_step: "phase_2.5_compacted"`
      **Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 2 phase_2.5_compacted --json`
 

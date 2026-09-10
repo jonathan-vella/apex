@@ -4,7 +4,7 @@ description: "Generates Step 7 as-built documentation suite after successful dep
 model: ["Claude Sonnet 5"]
 user-invocable: true
 agents: ["cost-estimate-subagent"]
-tools: [vscode, execute, read, agent, browser, vscodeGeneral/rename, vscodeGeneral/usages, vscodeNotebooks/createJupyterNotebook, vscodeNotebooks/editNotebook, ms-python.python, edit, search, web, 'azure-mcp/*', todo]
+tools: [vscode, execute, read, agent, browser, ms-python.python, edit, search, web, 'azure-mcp/*', todo]
 handoffs:
   - label: "▶ Generate All Documentation"
     agent: 08-As-Built
@@ -30,11 +30,12 @@ handoffs:
 This agent reads all prior artifacts (Steps 1-6) and queries deployed Azure
 resource state before generating documentation. Before Phase 1, run exactly
 one session-state read: `apex-recall show <project> --json`. Use `sub_step`
-to detect a resume point and skip completed phases. Do not pre-read all
+to locate a resume point; skip a phase only after verifying its inputs and outputs
+are still current. Do not pre-read all
 predecessor artifacts up front — load only what each Phase requires (see
-`## Core Workflow` Predecessor Artifact Read Policy). Context peaks at ~80%
-after Phase 1.5 compaction; apply Mode A runtime compression then and stop
-loading additional skills before Phase 2.
+`## Core Workflow` Predecessor Artifact Read Policy). Apply Mode A compression
+according to observed context usage. Avoid redundant reads while loading missing
+required phase guidance before using it.
 </context_awareness>
 
 <output_contract>
@@ -261,7 +262,12 @@ Run `apex-recall show <project> --json` for full project context. Do not read `0
 - **Sub-step checkpoints**: `phase_1_prereqs` → `phase_1.5_compacted` →
   `phase_2_inventory` → `phase_3_docs` → `phase_4_cost` → `phase_5_diagram` → `phase_6_index`
 - **Resume**: Use the `apex-recall show` output to detect resume point from `sub_step`.
-  (e.g. if `phase_3_docs`, inventory is done — read `07-resource-inventory.md` on-demand.)
+  A checkpoint does not prove inventory freshness. Check the current deployment result,
+  IaC handoff, and live resource evidence before reusing `07-resource-inventory.md`.
+  On a new chat, re-query the target resources and compare IDs, provisioning state,
+  and actual SKUs with the saved inventory; check that the IaC handoff still matches
+  the deployed source. Missing or inconsistent evidence prevents marking the phase current.
+  If inputs changed, refresh affected inventory and documentation rather than skipping the phase.
 - **Checkpoints**: `apex-recall checkpoint <project> 7 <phase_name> --json`
 - **Decisions**: `apex-recall decide <project> --decision "<text>" --rationale "<why>" --step 7 --json`
   Record: documentation scope decisions, resource inventory inclusions/exclusions.
@@ -324,14 +330,14 @@ Then continue:
 
 ### Phase 1.5: Context Compaction
 
-Context reaches ~80% after loading 6+ prior artifacts + IaC source.
-Apply Mode A runtime compression per
+Apply Mode A runtime compression according to observed context usage per
 [`context-management/SKILL.md`](../skills/context-management/SKILL.md):
 write one concise summary (resource inventory with IDs/SKUs,
 architecture decisions + WAF scores, deployment result, compliance
-requirements, cost estimate baseline) and stop loading additional
-skills before Phase 2. Do NOT re-read predecessor artifacts during
-doc generation — query Azure CLI for specific details as needed.
+requirements, cost estimate baseline). Avoid optional or redundant reads;
+load missing required phase guidance before using it. Retrieve current resource
+details through Azure CLI and recover missing historical decisions from the
+appropriate source sections; a live resource query cannot recover design rationale.
 
 **Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 7 phase_1.5_compacted --json`
 

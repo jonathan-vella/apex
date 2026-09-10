@@ -6,7 +6,7 @@ argument-hint: Discover governance constraints for a project
 user-invocable: true
 agents: ["challenger-review-subagent"]
 tools:
-  [vscode, execute, read, agent, browser, vscodeGeneral/rename, vscodeGeneral/usages, vscodeNotebooks/createJupyterNotebook, vscodeNotebooks/editNotebook, ms-azuretools.vscode-azureresourcegroups, edit, search, web, 'azure-mcp/*', todo]
+  [vscode, execute, read, agent, browser, ms-azuretools.vscode-azureresourcegroups, edit, search, web, 'azure-mcp/*', todo]
 handoffs:
   - label: "▶ Refresh Governance"
     agent: 04g-Governance

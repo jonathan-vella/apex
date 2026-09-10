@@ -290,3 +290,28 @@ def test_deep_review_uses_pass_one_but_still_requires_cost_review(tmp_path, comm
     assert state_path.read_bytes() == before
     (project_dir / "challenge-findings-cost-estimate.json").write_text('{"findings": []}', encoding="utf-8")
     assert _capture(module, args)[0] == 0
+
+
+@pytest.mark.parametrize("command", ["transition", "complete_step"])
+@pytest.mark.parametrize("depth,sidecar", [
+    ("default", "challenge-findings-plan.json"),
+    ("deep", "challenge-findings-plan-pass1.json"),
+])
+def test_plan_review_mode_preserves_atomic_completion(tmp_path, command, depth, sidecar):
+    _reimport_with_root(tmp_path)
+    module = importlib.import_module(f"apex_recall.commands.{command}")
+    project_dir = _seed_project(tmp_path, "demo")
+    state_path = project_dir / "00-session-state.json"
+    state = json.loads(state_path.read_text(encoding="utf-8"))
+    state["decisions"]["review_depth"] = depth
+    state["steps"]["4"] = {"status": "in_progress"}
+    state_path.write_text(json.dumps(state), encoding="utf-8")
+    (project_dir / "04-implementation-plan.md").write_text("# Plan", encoding="utf-8")
+    before = state_path.read_bytes()
+    args = SimpleNamespace(project="demo", step="4", from_step="4", to_step="5", complete=True, json=True)
+    result, payload = _capture(module, args)
+    assert result == 2
+    assert payload["required_sidecar"].endswith(sidecar)
+    assert state_path.read_bytes() == before
+    (project_dir / sidecar).write_text('{"findings": []}', encoding="utf-8")
+    assert _capture(module, args)[0] == 0
