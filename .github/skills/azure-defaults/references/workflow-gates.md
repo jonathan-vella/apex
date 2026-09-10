@@ -89,26 +89,27 @@ do **not** duplicate it in 02-Requirements. Source contract:
 
 ## Architect (Step 2) — Per-finding askMe (Approval Gate)
 
-In the Approval Gate, after presenting the WAF + cost summary and the
-challenger findings table, run **one** `vscode_askQuestions` call **per
-finding** with three options each: `Accept` / `Skip` / `Defer`, plus a
-free-form rationale field. Process findings in the order: must_fix →
-should_fix → suggestion. **MUST NOT** batch findings into a single
-question with `multiSelect`. Worked example: 5 findings → 5 sequential
-questions.
+After the WAF + cost summary and findings table, follow the
+[Per-Finding Decision Protocol](adversarial-review-protocol.md#per-finding-decision-protocol).
+Use one batched `vscode_askQuestions` panel with a separate question per
+actionable finding, canonical action options, and individual free-form notes.
+Keep the protocol's ordering, panel cap, persisted decisions, and final
+proceed/revise gate. Do not combine findings into one `multiSelect` question
+or repeat a decision already recorded for the current finding.
 
 ## Architect (Step 2) — Cost-feasibility review gate
 
-The architecture comprehensive review always runs. The cost-feasibility
-lens is gated. Run iff:
+The separate cost-estimate review is mandatory in default and deep modes,
+regardless of budget utilization. Resolve the budget gate above first, then
+run `challenger-review-subagent` with `artifact_type: cost-estimate`,
+`review_focus: cost-feasibility`, and
+`output_path: agent-output/{project}/challenge-findings-cost-estimate.json`.
+It does not replace architecture review or count as an architecture cascade pass.
 
-```text
-run = (decisions.budget_cap_known AND monthly_total > 0.8 * budget_cap)
-   OR decisions.review_depth == "deep"
-   OR NOT decisions.budget_cap_known
-```
-
-Record `apex-recall decide --key cost_feasibility_review --value <run|skip>`.
+Reuse a completed cost review only when it is valid for the current cost artifact
+and review inputs. An old `cost_feasibility_review: skip` decision is not an exemption;
+obtain the missing review before Step 2 approval and completion. Record
+`apex-recall decide <project> --key cost_feasibility_review --value run --json`.
 
 ## Architect (Step 2) — Phase 6b: VNet planning gate
 
@@ -273,6 +274,6 @@ re-stages when JSON is staged; CI runs the renderer + `git diff
 
 Every `apex-recall decide --key <name>` reference in an agent file
 MUST appear in
-[`tools/apex-recall/docs/decision-keys.md`](../../../tools/apex-recall/docs/decision-keys.md).
+[`tools/apex-recall/docs/decision-keys.md`](../../../../tools/apex-recall/docs/decision-keys.md).
 Validator: `node tools/scripts/validate-decision-keys.mjs`. Add new
 keys to the registry before using them in an agent file.

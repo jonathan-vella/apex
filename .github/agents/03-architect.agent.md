@@ -113,17 +113,22 @@ Run `apex-recall show <project> --json` for full project context. Do not read `0
 - **My step**: 2
 - **Sub-steps**: `phase_1_prereqs` → `phase_2_waf` →
   `phase_2.5_compacted` → `phase_3_cost` →
-  `phase_4_challenger` → `phase_5_artifact`
+  `phase_5_artifact` → `phase_6_challenger_pass{N}` → approval
 - **Checkpoints**: `apex-recall checkpoint <project> 2 <phase_name> --json`
 - **Decisions**: `apex-recall decide <project> --decision "<text>" --rationale "<why>" --step 2 --json`
   Record: WAF pillar scores, SKU selections, architecture pattern choice, cost tier decisions.
 - **Review audit**: `apex-recall review-audit <project> 2 ... --json`
-- **On completion**: `apex-recall complete-step <project> 2 --json`
+- **On completion**: after both required reviews, resolved blocking findings,
+  and human approval, run `apex-recall complete-step <project> 2 --json`.
+- **On resume**: use `session.steps["2"].sub_step` as a progress hint, not proof
+  of approval. Legacy `phase_4_challenger` checkpoints still require inspection
+  of artifact and review evidence before continuing. Do not restart pricing
+  or reviews whose inputs and results remain current.
 
 ## Read Skills (After Prerequisites, Before Assessment)
 
-**After prerequisites are confirmed**, read these skills for configuration and
-template structure. Issue all four `read_file` calls in **one parallel tool batch**.
+**After prerequisites are confirmed**, load the required guidance below once
+when needed. Reuse unchanged content still in context; batch independent missing reads.
 
 1. **Read** `.github/skills/azure-defaults/SKILL.md` — regions, tags, pricing MCP names, WAF criteria, service lifecycle
 2. **Read** `.github/skills/azure-artifacts/SKILL.md` — H2 templates for `02-architecture-assessment.md` and `03-des-cost-estimate.md`
@@ -318,8 +323,10 @@ in your WAF assessment recommendations (still produce the identical artifact str
 12. **Pricing sanity check** — Verify no dollar figures in your artifacts were
     written from memory (grep for `$` and confirm each matches subagent output)
     **Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 2 phase_5_artifact --json`
-13. **Approval gate** — Present summary, wait for user approval before handoff
-    **On approval** (MANDATORY): `apex-recall complete-step <project> 2 --json`
+13. **Required reviews** — follow [Adversarial Review](#adversarial-review--1-pass-comprehensive-architecture--1-pass-cost-estimate-default)
+  for architecture and the separate cost estimate before presenting final approval.
+14. **Approval gate** — follow [Approval Gate](#approval-gate), resolve blocking findings,
+  and wait for human approval before completion and handoff. Budget or SKU approval alone does not complete Step 2.
 
 ## Cost Estimation
 
@@ -452,9 +459,10 @@ Architect-step-2 specifics only below.
    [adversarial-review-protocol.md § Findings Table Rendering Format](../skills/azure-defaults/references/adversarial-review-protocol.md#findings-table-rendering-format).
    Then run the **Per-Finding Decision Protocol** from
    [`adversarial-review-protocol.md`](../skills/azure-defaults/references/adversarial-review-protocol.md).
-   **One `vscode_askQuestions` call per finding** with three options
-   — `Accept` / `Skip` / `Defer` — plus a free-form rationale.
-   **MUST NOT batch findings into a single question with `multiSelect`.**
+  Use one batched `vscode_askQuestions` panel with a separate question per
+  actionable finding, canonical action options, and individual rationales.
+  Preserve the protocol's panel cap and resume behavior; never combine
+  multiple findings into one `multiSelect` question.
 3. Source-merge order for the panel: `challenge-findings-cost-estimate.json`
    → `challenge-findings-architecture.json` (default single-pass) **or**
    `challenge-findings-architecture-pass{1,2,3}.json` (deep-review path;

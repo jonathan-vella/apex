@@ -2,7 +2,7 @@
 
 ## Status
 
-**State**: Revised VS Code workflow plan active; first guidance-improvement batch implemented
+**State**: Revised workflow plan active; routing and specialist guidance batches implemented
 **Owner**: Jonathan Vella with GitHub Copilot
 **Created**: 2026-09-10
 **Branch**: `perf/apex-workflow-optimization`
@@ -51,13 +51,13 @@ return for revision, missing/stale review, and resumed chat with incomplete stat
 
 Before/after source bytes relative to `fd443339` (not runtime token counts):
 
-| Source | Before | After | Removed |
-| --- | ---: | ---: | ---: |
-| Orchestrator | 37542 | 35013 | 2529 |
-| Workflow skill | 6095 | 5961 | 134 |
-| Shared operating frame | 5391 | 4773 | 618 |
-| Copilot instructions | 8146 | 8373 | -227 |
-| AGENTS.md | 7517 | 7460 | 57 |
+| Source                 | Before | After | Removed |
+| ---------------------- | -----: | ----: | ------: |
+| Orchestrator           |  37542 | 35013 |    2529 |
+| Workflow skill         |   6095 |  5961 |     134 |
+| Shared operating frame |   5391 |  4773 |     618 |
+| Copilot instructions   |   8146 |  8373 |    -227 |
+| AGENTS.md              |   7517 |  7460 |      57 |
 
 The small root-guidance increase preserves freshness and approval safeguards.
 No files or roles were retired and the workflow graph, models, and output schemas are unchanged in this batch.
@@ -66,6 +66,57 @@ Verification on 2026-09-10: focused routing/review and phase-reading contracts p
 as did `validate:agents`, `validate:skills`, `validate:instruction-checks`, vendor/model/handoff checks,
 the tooling contract suite, relative-link checks, and the full `npm run validate:all` gate.
 Logs are under `tmp/apex-optimization/revised-*.log`. The documented VS Code walkthrough remains pending.
+
+### Second batch: specialist gate ownership and loading
+
+- **Fixed**: the Architect's gate reference no longer skips cost review below a budget threshold.
+  Both default/deep modes retain the independent cost-estimate review; old skip decisions are not exemptions.
+- **Fixed**: Architect checkpoint guidance puts generated artifacts before reviews and final approval.
+  Legacy checkpoint names remain recoverable hints, not proof of completion. SKU/budget approval alone is insufficient.
+- **Fixed**: Architect finding decisions use the existing canonical batched panel, one question per finding,
+  preserving action choices, rationales, panel cap, decisions sidecar, and final proceed/revise gate.
+  This removes the conflicting separate-tool-call-per-finding instruction, not independent user decisions.
+- **Fixed**: Planner checks inputs before bulk reading and no longer loads Governance's output template.
+  Diagrams, consistency checks, design questions, and drift routing load when their phases require them.
+  Cost controls, policy/security constraints, and AVM pin checks remain mandatory before plan authoring.
+- **Fixed**: both CodeGen tracks check predecessor existence first and obtain SKUs from the manifest.
+  Architecture rationale is read selectively when missing from approved inputs; readiness/L0 checks remain mandatory.
+- **Intentional**: Governance's freshness/signature resume checks and Deploy's hash checks are preserved.
+  No blanket cache shortcut is added to deployment or security validation.
+
+### Source-level scenario walkthrough
+
+This table records inspected prompt paths and executable structural tests, not live model observations.
+
+| Scenario | Source path / expected behavior | Evidence level |
+| --- | --- | --- |
+| New project | Requirements retains initial questioning and its limited session-state exception | Source inspection |
+| Missing predecessor | Architect/Planner/CodeGen return to the owner before bulk skill reads | Contract regressions |
+| Optional Design | Diagram and ADR skills load only for selected scope; governance routing remains in graph | Source/graph checks |
+| Resume Architecture | Check artifacts and both reviews; checkpoint is not approval and current pricing is reusable | Contract regressions |
+| Revise findings | Canonical separate questions, persisted dispositions, relevant re-review before proceeding | Contract regressions |
+| Default/deep review | Independent cost review always required; architecture deep cascade remains separate | Contract/runtime gate tests |
+| Bicep/Terraform CodeGen | Same input-first and manifest policy, with track-specific validation retained | Paired contract regressions |
+| Resume Governance | Signature/TTL/status checks control reuse; explicit refresh disables shortcut | Source inspection |
+| Deploy changed code | Recomputed tree hash and fresh preview prevent stale approval reuse | Source inspection |
+| As-Built resume | Phase checkpoint and live SKU drift checks remain; inventory is loaded on demand | Source inspection |
+
+Remaining runtime task: observe these paths in actual VS Code fresh/resume/revision conversations.
+No Azure deployment, model switch, new benchmark framework, or output-schema change was needed for this batch.
+Structural tests cannot prove whether a model follows the instruction or quantify token savings.
+
+Second-batch verification on 2026-09-10: focused specialist contracts, the tooling test suite,
+agent/skill/vendor/model checks, Markdown lint, relative-link checks, and `npm run validate:all` passed.
+The gate reference's decision-key link was also corrected. Logs: `tmp/apex-optimization/specialist-*.log`.
+
+### Follow-up findings requiring separate decisions
+
+- The canonical decision protocol's unattended mode auto-defers findings and auto-proceeds.
+  That is not proof of resolved security/governance blockers. Reconcile test-mode policy explicitly before unattended trials.
+- Requirements' one-shot workflow and fresh-start handoff are deliberately strict; changes to questioning frequency
+  need a scenario walkthrough and approval rather than merely deleting the mandatory phases.
+- As-Built's wording about completed inventory should be checked against changed deployed state on resume.
+  Do not infer freshness from a checkpoint alone or remove its live drift checks.
 
 ## Objective
 

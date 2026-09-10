@@ -27,6 +27,10 @@ for full details on this and all prior releases.
 - Make shared prerequisite reads phase-specific and cached reads freshness-aware. Clarify that authoring globs
   do not prove runtime attachment; preserve critical agent-body safeguards and canonical root ownership.
 - Keep local verification proportional to risk; live Azure testing is no longer a prerequisite for guidance-only fixes.
+- Align the Architect's gate reference with mandatory cost review and reviews-before-completion ordering.
+  Reuse the canonical batched finding panel while preserving separate decisions and rationales.
+- Check Planner and CodeGen prerequisites before bulk skill reads, defer phase-specific Planner references,
+  and use the SKU manifest instead of repeatedly reconstructing selections from architecture prose.
 
 ### Fixed (Workflow optimization prerequisites)
 

@@ -76,3 +76,37 @@ test("shared reading guidance respects phase inputs, freshness and actual attach
   assert.match(copilot, /does not waive required inputs or approvals/);
   assert.match(copilot, /independent Step 2 cost-feasibility review/);
 });
+
+test("Planner loads phase-specific guidance after prerequisites without recreating governance", () => {
+  const body = fs.readFileSync(path.join(ROOT, ".github/agents/05-iac-planner.agent.md"), "utf8");
+  assert.match(body, /First run \[Prerequisites Check\]/);
+  assert.match(body, /Missing inputs return to their owner before bulk skill reads/);
+  assert.match(body, /Before Phase 4 diagrams/);
+  assert.match(body, /Before Phase 2\.5 checks/);
+  assert.match(body, /On an L0\/L1 drift signal, before choosing a return route/);
+  assert.match(body, /consult the Markdown counterpart only when JSON is ambiguous/);
+  assert.doesNotMatch(body, /04-governance-constraints\.template\.md|Before doing ANY work/);
+  for (const required of [
+    "iac-cost-monitoring.md",
+    "iac-policy-compliance.md",
+    "iac-security-baseline.md",
+    "avm-version-freeze-gate.md",
+  ]) {
+    assert.ok(body.includes(required));
+  }
+});
+
+test("both CodeGen tracks check inputs first and use the manifest without weakening readiness", () => {
+  for (const file of ["06b-bicep-codegen.agent.md", "06t-terraform-codegen.agent.md"]) {
+    const body = fs.readFileSync(path.join(ROOT, ".github/agents", file), "utf8");
+    assert.match(body, /First check that the required predecessor files exist/);
+    assert.match(body, /return to its owner before bulk\s+skill reads/);
+    assert.match(body, /Use `sku-manifest.json` for authoritative SKU\/tier selections/);
+    assert.match(body, /refresh missing\s+or changed sections on resume/);
+    assert.match(body, /Plan-Readiness Precondition \(MANDATORY\)/);
+    assert.match(body, /decisions.plan_status == "APPROVED"/);
+    assert.match(body, /L0 envelope cross-check/);
+    assert.match(body, /If any condition fails, STOP/);
+    assert.doesNotMatch(body, /Before doing any work, read these skills\.|Also read `02-architecture-assessment.md`/);
+  }
+});

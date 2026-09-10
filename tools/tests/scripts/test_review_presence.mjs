@@ -8,6 +8,50 @@ import { test } from "node:test";
 
 const script = fileURLToPath(new URL("../../scripts/validate-challenger-presence.mjs", import.meta.url));
 
+test("Architect gate reference cannot skip mandatory cost review or complete after pricing alone", () => {
+  const read = (file) => readFileSync(new URL(`../../../${file}`, import.meta.url), "utf8");
+  const reference = read(".github/skills/azure-defaults/references/workflow-gates.md");
+  const gate = reference.split("## Architect (Step 2) — Cost-feasibility review gate")[1].split("\n## ")[0];
+  assert.match(gate, /mandatory in default and deep modes/);
+  assert.match(gate, /challenge-findings-cost-estimate.json/);
+  assert.match(gate, /old `cost_feasibility_review: skip` decision is not an exemption/);
+  assert.doesNotMatch(gate, /monthly_total >|Run iff|<run\|skip>/);
+  const architect = read(".github/agents/03-architect.agent.md");
+  assert.match(architect, /Budget or SKU approval alone does not complete Step 2/);
+  assert.match(architect, /phase_5_artifact` → `phase_6_challenger_pass\{N\}`/);
+  assert.match(architect, /Legacy `phase_4_challenger` checkpoints/);
+});
+
+test("Architect batches independent finding questions without combining decisions", () => {
+  const read = (file) => readFileSync(new URL(`../../../${file}`, import.meta.url), "utf8");
+  for (const file of [
+    ".github/agents/03-architect.agent.md",
+    ".github/skills/azure-defaults/references/workflow-gates.md",
+  ]) {
+    const body = read(file);
+    assert.match(body, /one batched `vscode_askQuestions` panel with a separate question per/);
+    assert.match(body, /canonical action options/);
+    assert.match(body, /panel cap/);
+    assert.doesNotMatch(body, /One `vscode_askQuestions` call per finding|5 findings → 5 sequential/);
+  }
+  const protocol = read(".github/skills/azure-defaults/references/adversarial-review-protocol.md");
+  assert.match(protocol, /^## Per-Finding Decision Protocol$/m);
+  assert.ok(
+    read(".github/skills/azure-defaults/references/workflow-gates.md").includes(
+      "adversarial-review-protocol.md#per-finding-decision-protocol",
+    ),
+  );
+  assert.match(protocol, /build one batched panel/);
+  for (const option of [
+    "Accept (apply mitigation)",
+    "Reject (accept risk)",
+    "Defer (carry to handoff)",
+    "Edit (custom guidance)",
+  ]) {
+    assert.ok(protocol.includes(option));
+  }
+});
+
 test("routing guidance matches shared planning, refinement and resume contracts", () => {
   const read = (relativePath) => readFileSync(new URL(`../../../${relativePath}`, import.meta.url), "utf8");
   const graph = JSON.parse(read(".github/skills/workflow-engine/templates/workflow-graph.json"));

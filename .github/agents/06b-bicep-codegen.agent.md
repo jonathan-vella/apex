@@ -134,7 +134,11 @@ investigate before answering) live in
 
 ## Read Skills First
 
-Before doing any work, read these skills.
+First check that the required predecessor files exist and inspect the saved
+session checkpoint. If an input is missing, return to its owner before bulk
+skill reads. Then load the guidance below and verify the Plan-Readiness Precondition
+before generation. Reuse unchanged content still in context; refresh missing
+or changed sections on resume.
 
 1. Read `.github/skills/azure-defaults/SKILL.md` — regions, tags, naming, AVM, security, unique suffix
 2. Read `.github/skills/azure-artifacts/SKILL.md` — H2 templates for `04-preflight-check.md` and `05-implementation-reference.md`
@@ -191,7 +195,10 @@ Before starting, validate these files exist in `agent-output/{project}/`:
    [`identity-resolution.md`](../skills/azure-defaults/references/identity-resolution.md).
    If any required Wave 1+ artifact is missing, STOP → handoff to Planner.
 
-Also read `02-architecture-assessment.md` for SKU/tier context.
+Use `sku-manifest.json` for authoritative SKU/tier selections; do not re-derive
+them from architecture prose. Read only relevant sections of
+`02-architecture-assessment.md` when required rationale is absent from the
+approved plan and manifest. A missing required manifest returns to the Planner.
 
 ### Plan-Readiness Precondition (MANDATORY)
 

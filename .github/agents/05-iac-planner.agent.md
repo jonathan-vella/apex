@@ -82,20 +82,24 @@ Always specify Azure Storage Account backend only.
 
 ## Read Skills First
 
-**Before doing ANY work**, read these skills.
+First run [Prerequisites Check](#prerequisites-check) and inspect the saved
+session checkpoint. Missing inputs return to their owner before bulk skill reads.
+Then load the guidance below for the current phase; reuse unchanged content
+still available in context and batch independent missing reads.
 
 1. **Read** `.github/skills/azure-defaults/SKILL.md` — regions, tags, AVM, governance, naming
-2. **Read** `.github/skills/azure-artifacts/SKILL.md` — H2 templates for `04-implementation-plan.md` and `04-governance-constraints.md`
-3. **Read** artifact template files: `azure-artifacts/templates/04-implementation-plan.template.md` + `04-governance-constraints.template.md`
-4. **Read** `.github/skills/python-diagrams/SKILL.md` — diagram conventions, design tokens, Azure component imports
-5. **Read** `.github/skills/iac-common/references/plan-consistency-checks.md` — the 6 deterministic Phase 2.5
+2. **Read** `.github/skills/azure-artifacts/SKILL.md` — the implementation-plan output contract.
+3. **Before plan authoring**, read `azure-artifacts/templates/04-implementation-plan.template.md`.
+   Governance artifacts are prerequisite inputs, not outputs to regenerate from a template.
+4. **Before Phase 4 diagrams**, read `.github/skills/python-diagrams/SKILL.md` — diagram conventions and imports.
+5. **Before Phase 2.5 checks**, read `.github/skills/iac-common/references/plan-consistency-checks.md` — the deterministic
    rules (zone-redundancy, RBAC ordering, deployment-script identity/image, public-edge auth, phased-param
    wiring, phase monotonicity)
-6. **Read** `.github/skills/iac-common/references/governance-drift-routing.md` — four-layer drift routing
-   matrix; consulted on every L0/L1 drift signal
-7. **Read** `.github/skills/azure-defaults/references/plan-design-decisions.md` — canonical 4-question
+6. **On an L0/L1 drift signal, before choosing a return route**, read
+   `.github/skills/iac-common/references/governance-drift-routing.md`. Stop the current phase while resolving drift.
+7. **Before Phase 3.5 decisions**, read `.github/skills/azure-defaults/references/plan-design-decisions.md` — canonical
    Phase 3.5 structured panel (identity_model / public_edge_auth / script_runtime_image / az_posture)
-8. **Read** `.github/skills/azure-defaults/references/governance-discovery.md` (section:
+8. **Before Phase 1 envelope checks**, read `.github/skills/azure-defaults/references/governance-discovery.md` (section:
    "L0 Discovery Envelope") — envelope shape + consumer protocol
 9. **IaC-specific skill** (read on-demand during Phase 2):
    - Bicep → `.github/skills/azure-bicep-patterns/SKILL.md` — hub-spoke, PE, diagnostics, module composition
@@ -103,14 +107,9 @@ Always specify Azure Storage Account backend only.
 
 ### Required IaC Authoring References (mandate-load, every project)
 
-These four references encode rules that **every** IaC plan must satisfy.
-Reading them up front prevents the most common Phase 4.3 challenger
-findings (cost monitoring shape, policy property mapping, security
-baseline, AVM pin freshness). Each reference adds ≈2k tokens; total
-overhead ≈8k vs. ≈400k tokens consumed by avoidable challenger passes
-when they are skipped (telemetry: this finding came out of post-run
-analysis of a Step-4 trace where 5 of 8 challenger findings duplicated
-rules already documented in these files).
+After prerequisites pass, load these authoring constraints before module
+selection and plan writing. They remain mandatory; phase-aware loading is not
+permission to omit cost controls, policy mapping, security, or AVM pin checks.
 
 1. **Read** [`.github/instructions/references/iac-cost-monitoring.md`](../instructions/references/iac-cost-monitoring.md)
    — budget + Action Group + anomaly InsightAlert shape (incl. ≤25-char
@@ -206,7 +205,8 @@ unmet entries are `must_fix`. Set
 
 ### Phase 1: Prerequisites and Governance Integration
 
-1. Read `04-governance-constraints.md` and `04-governance-constraints.json` (produced by Step 3.5).
+1. Read `04-governance-constraints.json` using the Predecessor Artifact Read Policy;
+   consult the Markdown counterpart only when JSON is ambiguous. Do not re-read unchanged inputs already in context.
 2. **L0 envelope enforcement (MANDATORY)** — read `discovery_metadata`
    from the JSON FIRST. STOP and traverse the `▶ Refresh Governance`
    handoff to 04g-Governance if any of the L0 envelope checks fail.
