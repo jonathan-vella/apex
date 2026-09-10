@@ -93,3 +93,39 @@ def test_cli_handles_missing_file(profiler, capsys):
 def test_main_module_path():
     # The package script invokes this file through Python, so it need not carry an executable bit.
     assert SCRIPT.exists()
+
+
+def test_partial_usage_preserves_observed_values_without_zero_denominator(profiler):
+    complete = {
+        "name": "chat:test",
+        "attributes": [
+            {"key": "gen_ai.usage.input_tokens", "value": {"intValue": 120}},
+            {"key": "gen_ai.usage.output_tokens", "value": {"stringValue": "invalid"}},
+        ],
+    }
+    missing = {"name": "chat:test", "attributes": []}
+    result = profiler.profile([complete, missing])
+    assert result["totals"]["input_tokens"] == 120
+    assert result["totals"]["avg_input_per_call"] == 120
+    assert result["usage_coverage"]["complete"] is False
+    assert result["usage_coverage"]["input_samples"] == 1
+    assert result["usage_coverage"]["output_samples"] == 0
+    assert any("lower bounds" in warning for warning in result["warnings"])
+
+
+def test_duplicate_exported_spans_do_not_double_count_tokens(profiler):
+    spans = profiler.load_spans(FIXTURE)
+    result = profiler.profile(spans + spans)
+    assert result["totals"]["input_tokens"] == 45000
+    assert result["totals"]["chat_calls"] == 1
+    assert result["usage_coverage"]["duplicate_exported_spans"] == len(spans)
+    assert result["usage_coverage"]["complete"] is True
+
+
+@pytest.mark.parametrize("value", [-1, 1.5, True, "-5", "1.2", None])
+def test_invalid_usage_is_unknown_not_a_measured_zero(profiler, value):
+    assert profiler._token_count(value) is None
+
+
+def test_empty_profile_is_not_complete_usage(profiler):
+    assert profiler.profile([])["usage_coverage"]["complete"] is False

@@ -5,7 +5,7 @@
 set -euo pipefail
 
 readonly SCRIPT_NAME="$(basename "$0")"
-readonly REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+readonly REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 readonly BASELINES_DIR="${REPO_ROOT}/agent-output/_baselines"
 
 readonly BACKUP_TARGETS=(
@@ -13,6 +13,11 @@ readonly BACKUP_TARGETS=(
   ".github/instructions"
   "tools/apex-prompts"
   ".github/skills"
+  ".github/copilot-instructions.md"
+  ".github/model-catalog.json"
+  "tools/registry/agent-registry.json"
+  "infra/bicep/AGENTS.md"
+  "infra/terraform/AGENTS.md"
   "AGENTS.md"
 )
 
@@ -33,6 +38,10 @@ Backed-up targets:
   .github/instructions/  Instruction files
   tools/apex-prompts/    Prompt files (workspace-only, not auto-loaded)
   .github/skills/        Skills (full recursive)
+  .github/copilot-instructions.md  Copilot runtime instructions
+  .github/model-catalog.json       Model catalog
+  tools/registry/agent-registry.json  Agent registry
+  infra/{bicep,terraform}/AGENTS.md   IaC folder instructions
   AGENTS.md              Root project conventions
 
 Output:
@@ -50,12 +59,27 @@ while [[ $# -gt 0 ]]; do
 done
 
 LABEL="${1:-$(date -u +%Y-%m-%dT%H-%M-%S)}"
+if [[ $# -gt 1 || ! "${LABEL}" =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ ]]; then
+  echo "Error: provide one label containing only letters, digits, dots, underscores or hyphens" >&2
+  exit 1
+fi
 readonly SNAPSHOT_DIR="${BASELINES_DIR}/${LABEL}"
 
-if [[ -d "${SNAPSHOT_DIR}" ]]; then
+if [[ -e "${SNAPSHOT_DIR}" ]]; then
   echo "Error: Snapshot '${LABEL}' already exists at ${SNAPSHOT_DIR}" >&2
   exit 1
 fi
+
+for target in "${BACKUP_TARGETS[@]}"; do
+  if [[ ! -e "${REPO_ROOT}/${target}" ]]; then
+    echo "Error: required snapshot target missing: ${target}" >&2
+    exit 1
+  fi
+  if [[ -d "${REPO_ROOT}/${target}" && -z "$(find "${REPO_ROOT}/${target}" -type f -print -quit)" ]]; then
+    echo "Error: required snapshot target empty: ${target}" >&2
+    exit 1
+  fi
+done
 
 mkdir -p "${SNAPSHOT_DIR}"
 
@@ -66,11 +90,6 @@ file_count=0
 for target in "${BACKUP_TARGETS[@]}"; do
   src="${REPO_ROOT}/${target}"
   dest="${SNAPSHOT_DIR}/${target}"
-
-  if [[ ! -e "${src}" ]]; then
-    echo "Warning: ${target} not found, skipping" >&2
-    continue
-  fi
 
   if [[ -d "${src}" ]]; then
     mkdir -p "${dest}"
@@ -85,8 +104,14 @@ for target in "${BACKUP_TARGETS[@]}"; do
   file_count=$((file_count + count))
 done
 
+git_sha=$(git -C "${REPO_ROOT}" rev-parse HEAD)
+git -C "${REPO_ROOT}" diff --binary HEAD > "${SNAPSHOT_DIR}/worktree.patch"
+git -C "${REPO_ROOT}" status --porcelain=v1 --untracked-files=all > "${SNAPSHOT_DIR}/worktree-status.txt"
+(
+  cd "${SNAPSHOT_DIR}"
+  find "${BACKUP_TARGETS[@]}" -type f -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS
+)
 total_size=$(du -sh "${SNAPSHOT_DIR}" | cut -f1)
-git_sha=$(git -C "${REPO_ROOT}" rev-parse --short HEAD 2>/dev/null || echo "unknown")
 
 # Build manifest using jq
 jq -n \
@@ -102,6 +127,9 @@ jq -n \
     git_sha: $git_sha,
     file_count: $file_count,
     total_size: $total_size,
+    hashes: "SHA256SUMS",
+    worktree_patch: "worktree.patch",
+    worktree_status: "worktree-status.txt",
     backed_up_targets: $targets
   }' > "${SNAPSHOT_DIR}/manifest.json"
 

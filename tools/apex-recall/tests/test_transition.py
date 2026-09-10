@@ -27,6 +27,8 @@ from contextlib import redirect_stdout
 from pathlib import Path
 from types import SimpleNamespace
 
+import pytest
+
 
 def _reimport_with_root(root: Path):
     """Reimport apex_recall with APEX_ROOT pinned so writes land in `root`."""
@@ -214,3 +216,77 @@ def test_malformed_decision_rejected(tmp_path):
     state_path = tmp_path / "agent-output" / "demo" / "00-session-state.json"
     state = json.loads(state_path.read_text(encoding="utf-8"))
     assert state["steps"]["2"]["status"] == "not_started"
+
+
+@pytest.mark.parametrize("command", ["transition", "complete_step"])
+@pytest.mark.parametrize("cost_findings", [None, "", "not-json"])
+def test_step_two_requires_cost_review_without_mutating_history(tmp_path, command, cost_findings):
+    _reimport_with_root(tmp_path)
+    module = importlib.import_module(f"apex_recall.commands.{command}")
+    project_dir = _seed_project(tmp_path, "demo")
+    (project_dir / "02-architecture-assessment.md").write_text("# Architecture", encoding="utf-8")
+    (project_dir / "challenge-findings-architecture.json").write_text('{"findings": []}', encoding="utf-8")
+    if cost_findings is not None:
+        (project_dir / "challenge-findings-cost-estimate.json").write_text(cost_findings, encoding="utf-8")
+    state_path = project_dir / "00-session-state.json"
+    before = state_path.read_bytes()
+    args = SimpleNamespace(
+        project="demo", step="2", from_step="2", to_step="3", complete=True,
+        decision=["review_depth=deep"], json=True,
+    )
+    result, payload = _capture(module, args)
+    assert result == 2
+    assert payload["required_sidecar"].endswith("challenge-findings-cost-estimate.json")
+    assert state_path.read_bytes() == before
+
+
+@pytest.mark.parametrize("command", ["transition", "complete_step"])
+def test_step_two_completes_with_both_reviews(tmp_path, command):
+    _reimport_with_root(tmp_path)
+    module = importlib.import_module(f"apex_recall.commands.{command}")
+    project_dir = _seed_project(tmp_path, "demo")
+    (project_dir / "03-des-cost-estimate.md").write_text("# Cost", encoding="utf-8")
+    for sidecar in ["challenge-findings-architecture.json", "challenge-findings-cost-estimate.json"]:
+        (project_dir / sidecar).write_text('{"findings": []}', encoding="utf-8")
+    args = SimpleNamespace(project="demo", step="2", from_step="2", to_step="3", complete=True, json=True)
+    result, _ = _capture(module, args)
+    assert result == 0
+    state = json.loads((project_dir / "00-session-state.json").read_text(encoding="utf-8"))
+    assert state["steps"]["2"]["status"] == "complete"
+
+
+def test_cost_only_output_still_requires_architecture_review(tmp_path):
+    module = _reimport_with_root(tmp_path)
+    project_dir = _seed_project(tmp_path, "demo")
+    (project_dir / "03-des-cost-estimate.md").write_text("# Cost", encoding="utf-8")
+    (project_dir / "challenge-findings-cost-estimate.json").write_text('{"findings": []}', encoding="utf-8")
+    args = SimpleNamespace(project="demo", from_step="2", to_step="3", complete=True, json=True)
+    result, payload = _capture(module, args)
+    assert result == 2
+    assert payload["required_sidecar"].endswith("challenge-findings-architecture.json")
+
+
+@pytest.mark.parametrize("command", ["transition", "complete_step"])
+def test_deep_review_uses_pass_one_but_still_requires_cost_review(tmp_path, command):
+    _reimport_with_root(tmp_path)
+    module = importlib.import_module(f"apex_recall.commands.{command}")
+    project_dir = _seed_project(tmp_path, "demo")
+    state_path = project_dir / "00-session-state.json"
+    state = json.loads(state_path.read_text(encoding="utf-8"))
+    state["decisions"]["review_depth"] = "deep"
+    state["steps"]["2"]["status"] = "complete"
+    state_path.write_text(json.dumps(state), encoding="utf-8")
+    before = state_path.read_bytes()
+    (project_dir / "02-architecture-assessment.md").write_text("# Architecture", encoding="utf-8")
+    (project_dir / "challenge-findings-architecture.json").write_text('{"findings": []}', encoding="utf-8")
+    args = SimpleNamespace(project="demo", step="2", from_step="2", to_step="3", complete=True, json=True)
+    result, payload = _capture(module, args)
+    assert result == 2
+    assert payload["required_sidecar"].endswith("challenge-findings-architecture-pass1.json")
+    (project_dir / "challenge-findings-architecture-pass1.json").write_text('{"findings": []}', encoding="utf-8")
+    result, payload = _capture(module, args)
+    assert result == 2
+    assert payload["required_sidecar"].endswith("challenge-findings-cost-estimate.json")
+    assert state_path.read_bytes() == before
+    (project_dir / "challenge-findings-cost-estimate.json").write_text('{"findings": []}', encoding="utf-8")
+    assert _capture(module, args)[0] == 0

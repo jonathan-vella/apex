@@ -119,8 +119,8 @@ artifact templates live in `.github/skills/azure-artifacts/templates/`.
 - Stop a step with `blocked` after 5 consecutive iteration failures; do not
   retry past the max-iteration cap (5 per step, 40 total).
 - Stop and re-invoke `@04g-Governance` if the governance gate fails; after 3
-  failed governance retries, log a lesson with severity `high` and continue
-  with a WARNING that governance may be incomplete.
+  failed governance retries, log a lesson with severity `high`, mark the run
+  `E2E_BLOCKED`, and stop this run. Do not advance with incomplete governance.
 - Stop and mark the run `E2E_BLOCKED` if run-isolation post-step freshness
   detects >50% copied artifacts.
 

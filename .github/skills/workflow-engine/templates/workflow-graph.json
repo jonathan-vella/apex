@@ -29,8 +29,9 @@
       "mutates": ["sku-manifest.json", "sku-manifest.md"],
       "gate": "approval",
       "challenger": {
-        "default_passes": 1,
-        "default_lenses": ["comprehensive"],
+        "default_passes": 2,
+        "default_lenses": ["comprehensive", "cost-feasibility"],
+        "artifact_scope": "comprehensive: architecture; cost-feasibility: cost-estimate. Independent parallel reviews; opt_in_matrix replaces only the architecture review, never the separate cost-estimate review.",
         "opt_in_multi_pass": true,
         "opt_in_matrix": {
           "simple": { "passes": 1, "lenses": ["comprehensive"] },
@@ -50,7 +51,15 @@
       "type": "gate",
       "name": "Architecture Approval",
       "requires": ["step-2"],
-      "gate": "approval"
+      "gate": "approval",
+      "preconditions": [
+        {
+          "id": "architecture-cost-review",
+          "description": "Both architecture and cost-estimate reviews are required in default and deep modes. Preserve the separate challenge-findings-cost-estimate.json cost-feasibility review when opt_in_matrix replaces the architecture pass. Human approval follows resolution of blocking findings.",
+          "check": "architecture review and challenge-findings-cost-estimate.json are APPROVED with no unresolved blocking findings",
+          "on_fail": "stay-at-step-2"
+        }
+      ]
     },
     "step-3": {
       "id": "step-3",
@@ -452,7 +461,7 @@
   "orchestrator_targets": ["01-Orchestrator"],
   "ui_pseudo_targets": ["agent"],
   "metadata": {
-    "version": "2.3",
+    "version": "2.4",
     "iac_tracks": ["Bicep", "Terraform"],
     "total_gates": 6,
     "total_steps": 7,

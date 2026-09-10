@@ -49,30 +49,29 @@ def _challenger_findings_missing(project: str, step: str) -> tuple[bool, str | N
     gate = _CHALLENGER_GATE.get(step)
     if not gate:
         return (False, None, None)
-    gating_name, sidecar_name = gate
-
+    gates = [gate]
+    if step == "2":
+        state = read_state(session_state_path(project))
+        decisions = state.get("decisions")
+        if isinstance(decisions, dict) and decisions.get("review_depth") == "deep":
+            gates[0] = (gate[0], "challenge-findings-architecture-pass1.json")
+        gates.append(("03-des-cost-estimate.md", "challenge-findings-cost-estimate.json"))
     project_dir = session_state_path(project).parent
-    gating_path = project_dir / gating_name
-    sidecar_path = project_dir / sidecar_name
-
-    # Skip gate when the step's gating artifact was never produced (e.g.
-    # governance step legitimately skipped because no constraints existed).
-    if not gating_path.is_file():
-        return (False, str(gating_path), str(sidecar_path))
-
-    if not sidecar_path.is_file():
-        return (True, str(gating_path), str(sidecar_path))
-
-    # Sidecar must be non-empty, parseable JSON. Schema shape is enforced
-    # separately by `npm run validate:challenger-findings`; we keep the
-    # runtime gate fast and decoupled (presence + parseability only).
-    try:
-        text = sidecar_path.read_text(encoding="utf-8").strip()
-        if not text:
+    produced = any((project_dir / gating_name).is_file() for gating_name, _ in gates)
+    for gating_name, sidecar_name in gates:
+        gating_path = project_dir / gating_name
+        sidecar_path = project_dir / sidecar_name
+        if not gating_path.is_file() and not (step == "2" and produced):
+            continue
+        if not sidecar_path.is_file():
             return (True, str(gating_path), str(sidecar_path))
-        json.loads(text)
-    except (OSError, json.JSONDecodeError):
-        return (True, str(gating_path), str(sidecar_path))
+        try:
+            text = sidecar_path.read_text(encoding="utf-8").strip()
+            if not text:
+                return (True, str(gating_path), str(sidecar_path))
+            json.loads(text)
+        except (OSError, UnicodeError, json.JSONDecodeError):
+            return (True, str(gating_path), str(sidecar_path))
 
     return (False, str(gating_path), str(sidecar_path))
 

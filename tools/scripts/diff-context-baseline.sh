@@ -4,7 +4,7 @@
 set -euo pipefail
 
 readonly SCRIPT_NAME="$(basename "$0")"
-readonly REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+readonly REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 readonly BASELINES_DIR="${REPO_ROOT}/agent-output/_baselines"
 
 BASELINE_LABEL=""
@@ -52,6 +52,11 @@ fi
 
 readonly SNAPSHOT_DIR="${BASELINES_DIR}/${BASELINE_LABEL}"
 
+if [[ ! "${BASELINE_LABEL}" =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ ]]; then
+  echo "Error: invalid baseline label" >&2
+  exit 1
+fi
+
 if [[ ! -d "${SNAPSHOT_DIR}" ]]; then
   echo "Error: Baseline '${BASELINE_LABEL}' not found at ${SNAPSHOT_DIR}" >&2
   exit 1
@@ -71,11 +76,24 @@ baseline_timestamp=$(jq -r '.timestamp' "${MANIFEST}")
 baseline_sha=$(jq -r '.git_sha' "${MANIFEST}")
 current_sha=$(git -C "${REPO_ROOT}" rev-parse --short HEAD 2>/dev/null || echo "unknown")
 
+if [[ ! -s "${SNAPSHOT_DIR}/SHA256SUMS" ]] || ! (
+  cd "${SNAPSHOT_DIR}"
+  sha256sum --check --status SHA256SUMS
+); then
+  echo "Error: baseline hashes missing or invalid; capture a verified baseline before comparison" >&2
+  exit 1
+fi
+
 readonly CATEGORIES=(
   ".github/agents:Agents"
   ".github/instructions:Instructions"
   "tools/apex-prompts:Prompts"
   ".github/skills:Skills"
+  ".github/copilot-instructions.md:Copilot instructions"
+  ".github/model-catalog.json:Model catalog"
+  "tools/registry/agent-registry.json:Agent registry"
+  "infra/bicep/AGENTS.md:Bicep instructions"
+  "infra/terraform/AGENTS.md:Terraform instructions"
   "AGENTS.md:AGENTS.md"
 )
 

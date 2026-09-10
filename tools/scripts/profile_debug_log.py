@@ -129,6 +129,16 @@ def _bucket(n: int) -> str:
     return ">=200K"
 
 
+def _token_count(value: Any) -> int | None:
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, int) and value >= 0:
+        return value
+    if isinstance(value, str) and value.isascii() and value.isdigit():
+        return int(value)
+    return None
+
+
 def _is_benign_error(span: dict[str, Any], attrs: dict[str, Any]) -> bool:
     """Drop errors that match the benign list (e.g. probe ENOENTs)."""
     msg = (span.get("status") or {}).get("message", "") or ""
@@ -145,7 +155,7 @@ def profile(
     """Compute the full metrics dictionary from a span list."""
     # Per-model token totals + per-call distribution.
     tokens_by_model: dict[str, dict[str, int]] = defaultdict(
-        lambda: {"input": 0, "output": 0, "calls": 0},
+        lambda: {"input": 0, "output": 0, "calls": 0, "input_samples": 0, "output_samples": 0},
     )
     input_buckets: Counter[str] = Counter()
     per_call_inputs: list[int] = []
@@ -179,8 +189,16 @@ def profile(
     session_start: int | None = None
     session_end: int | None = None
     agent_chat_wall = 0.0
+    seen_spans: set[tuple[str, str]] = set()
+    duplicate_exported_spans = 0
 
     for span in spans:
+        identity = (span.get("traceId"), span.get("spanId"))
+        if all(identity):
+            if identity in seen_spans:
+                duplicate_exported_spans += 1
+                continue
+            seen_spans.add(identity)
         name = span.get("name") or ""
         attrs = _attrs(span)
 
@@ -211,18 +229,19 @@ def profile(
         # Chat spans → token + per-model accounting.
         if name.startswith("chat:"):
             model = attrs.get("gen_ai.request.model") or name.split(":", 1)[1]
-            try:
-                in_tok = int(attrs.get("gen_ai.usage.input_tokens", 0))
-                out_tok = int(attrs.get("gen_ai.usage.output_tokens", 0))
-            except (TypeError, ValueError):
-                in_tok = out_tok = 0
+            in_tok = _token_count(attrs.get("gen_ai.usage.input_tokens"))
+            out_tok = _token_count(attrs.get("gen_ai.usage.output_tokens"))
             row = tokens_by_model[model]
-            row["input"] += in_tok
-            row["output"] += out_tok
             row["calls"] += 1
-            input_buckets[_bucket(in_tok)] += 1
-            per_call_inputs.append(in_tok)
-            max_input_per_call = max(max_input_per_call, in_tok)
+            if in_tok is not None:
+                row["input"] += in_tok
+                row["input_samples"] += 1
+                input_buckets[_bucket(in_tok)] += 1
+                per_call_inputs.append(in_tok)
+                max_input_per_call = max(max_input_per_call, in_tok)
+            if out_tok is not None:
+                row["output"] += out_tok
+                row["output_samples"] += 1
             agent_chat_wall += _duration_s(span)
             chat_since_boundary += 1
             continue
@@ -281,7 +300,11 @@ def profile(
     total_input = sum(row["input"] for row in tokens_by_model.values())
     total_output = sum(row["output"] for row in tokens_by_model.values())
     total_calls = sum(row["calls"] for row in tokens_by_model.values())
-    avg_in = round(total_input / total_calls) if total_calls else 0
+    input_samples = sum(row["input_samples"] for row in tokens_by_model.values())
+    output_samples = sum(row["output_samples"] for row in tokens_by_model.values())
+    avg_in = round(total_input / input_samples) if input_samples else 0
+    if input_samples != total_calls or output_samples != total_calls:
+        warnings.append("Token usage is incomplete: totals are observed lower bounds, not full-workflow cost evidence.")
     p50_in = int(median(per_call_inputs)) if per_call_inputs else 0
     session_wall = (session_end - session_start) / 1e9 if session_start and session_end else 0.0
     user_wait_wall = sum(ask_durations)
@@ -297,6 +320,14 @@ def profile(
     ]
 
     return {
+        "usage_coverage": {
+            "input_samples": input_samples,
+            "output_samples": output_samples,
+            "chat_calls": total_calls,
+            "complete": total_calls > 0 and input_samples == output_samples == total_calls,
+            "duplicate_exported_spans": duplicate_exported_spans,
+            "scope": "Observed chat spans only; missing child requests, cache billing and semantic parent rollups are not inferred.",
+        },
         "totals": {
             "input_tokens": total_input,
             "output_tokens": total_output,
@@ -323,7 +354,9 @@ def profile(
                 "input": row["input"],
                 "output": row["output"],
                 "calls": row["calls"],
-                "avg_input_per_call": round(row["input"] / row["calls"]) if row["calls"] else 0,
+                "input_samples": row["input_samples"],
+                "output_samples": row["output_samples"],
+                "avg_input_per_call": round(row["input"] / row["input_samples"]) if row["input_samples"] else 0,
             }
             for m, row in tokens_by_model.items()
         },
@@ -349,6 +382,7 @@ def render_text(metrics: dict[str, Any], path: Path) -> str:
     lines.append(f"# profile: {path}")
     lines.append("")
     lines.append("## Totals")
+    lines.append("  Observed usage only; see usage_coverage in JSON before comparing complete workflows.")
     lines.append(f"  input_tokens         : {t['input_tokens']:>12,}")
     lines.append(f"  output_tokens        : {t['output_tokens']:>12,}")
     lines.append(f"  chat_calls           : {t['chat_calls']:>12,}")

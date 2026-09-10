@@ -55,7 +55,7 @@ handoffs:
     send: true
   - label: "Step 5: Generate Bicep"
     agent: 06b-Bicep CodeGen
-    prompt: "Implement the Bicep templates according to the plan in `agent-output/{project}/04-implementation-plan.md`. Save to `infra/bicep/{project}/`. Proceed directly to completion - Deploy agent will validate."
+    prompt: "Implement the Bicep templates according to the plan in `agent-output/{project}/04-implementation-plan.md`. Save to `infra/bicep/{project}/`. Complete CodeGen build, lint, security and handoff validation before marking the step complete. Deploy performs fresh preflight and what-if checks separately."
     send: true
   - label: "Step 6: Deploy (Bicep)"
     agent: 07b-Bicep Deploy
@@ -67,7 +67,7 @@ handoffs:
     send: true
   - label: "Step 5: Generate Terraform"
     agent: 06t-Terraform CodeGen
-    prompt: "Implement the Terraform configuration according to the plan in `agent-output/{project}/04-implementation-plan.md`. Save to `infra/terraform/{project}/`. Proceed directly to completion - Deploy agent will validate."
+    prompt: "Implement the Terraform configuration according to the plan in `agent-output/{project}/04-implementation-plan.md`. Save to `infra/terraform/{project}/`. Complete CodeGen format, validate, security and handoff checks before marking the step complete. Deploy performs fresh preflight and plan checks separately."
     send: true
   - label: "Step 6: Deploy (Terraform)"
     agent: 07t-Terraform Deploy

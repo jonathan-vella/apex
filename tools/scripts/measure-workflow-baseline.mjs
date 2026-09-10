@@ -38,12 +38,13 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..")
 const OUT_JSON = path.join(ROOT, "tmp/workflow-baseline.json");
 const OUT_MD = path.join(ROOT, "tmp/workflow-baseline.md");
 
-const TARGET_STEPS = ["4", "5", "6"];
+const METRICS = ["elapsed_ms", "input_tokens", "output_tokens", "subagent_count", "validation_attempts", "cache_hits"];
 
-function gather(filterTier) {
+export function gather(filterTier, root = ROOT) {
   const records = [];
-  const states = globSync("agent-output/*/00-session-state.json", { cwd: ROOT, absolute: true });
-  for (const statePath of states) {
+  const states = globSync("agent-output/*/00-session-state.json", { cwd: root });
+  for (const relativePath of states) {
+    const statePath = path.resolve(root, relativePath);
     const project = path.basename(path.dirname(statePath));
     let data;
     try {
@@ -57,33 +58,32 @@ function gather(filterTier) {
     const iacTool = decisions.iac_tool ?? null;
     if (filterTier && tier !== filterTier) continue;
     const steps = data.steps ?? {};
-    for (const stepKey of TARGET_STEPS) {
+    const stepKeys = new Set(Object.keys(steps).map((key) => key.replace(/^step-/, "")));
+    for (const stepKey of stepKeys) {
       const step = steps[stepKey] ?? steps[`step-${stepKey}`];
       if (!step) continue;
-      const t = step.telemetry;
-      if (!t) {
-        records.push({ project, tier, iac_tool: iacTool, step: stepKey, status: "no-telemetry" });
-        continue;
-      }
+      const telemetry = step.telemetry ?? {};
+      const metrics = Object.fromEntries(
+        METRICS.map((metric) => [metric, validMetric(telemetry[metric]) ? telemetry[metric] : null]),
+      );
       records.push({
         project,
         tier,
         iac_tool: iacTool,
         step: stepKey,
-        status: "measured",
-        elapsed_ms: t.elapsed_ms ?? null,
-        input_tokens: t.input_tokens ?? null,
-        output_tokens: t.output_tokens ?? null,
-        subagent_count: t.subagent_count ?? null,
-        validation_attempts: t.validation_attempts ?? null,
-        cache_hits: t.cache_hits ?? null,
+        status: Object.values(metrics).some((value) => value !== null) ? "measured" : "no-telemetry",
+        ...metrics,
       });
     }
   }
   return records;
 }
 
-function aggregate(records) {
+function validMetric(value) {
+  return typeof value === "number" && Number.isFinite(value) && value >= 0;
+}
+
+export function aggregate(records) {
   const buckets = new Map();
   for (const r of records) {
     if (r.status !== "measured") continue;
@@ -95,44 +95,47 @@ function aggregate(records) {
         iac_tool: r.iac_tool,
         step: r.step,
         n: 0,
-        elapsed_ms_total: 0,
-        input_tokens_total: 0,
-        output_tokens_total: 0,
-        subagent_count_total: 0,
-        validation_attempts_total: 0,
+        totals: Object.fromEntries(METRICS.map((metric) => [metric, 0])),
+        samples: Object.fromEntries(METRICS.map((metric) => [metric, 0])),
       };
       buckets.set(key, b);
     }
     b.n += 1;
-    b.elapsed_ms_total += r.elapsed_ms ?? 0;
-    b.input_tokens_total += r.input_tokens ?? 0;
-    b.output_tokens_total += r.output_tokens ?? 0;
-    b.subagent_count_total += r.subagent_count ?? 0;
-    b.validation_attempts_total += r.validation_attempts ?? 0;
+    for (const metric of METRICS) {
+      if (!validMetric(r[metric])) continue;
+      b.totals[metric] += r[metric];
+      b.samples[metric] += 1;
+    }
   }
   const out = [];
   for (const b of buckets.values()) {
+    const averages = Object.fromEntries(
+      METRICS.map((metric) => {
+        const average = b.samples[metric] ? b.totals[metric] / b.samples[metric] : null;
+        const decimals = ["subagent_count", "validation_attempts", "cache_hits"].includes(metric) ? 2 : 0;
+        return [`avg_${metric}`, average === null ? null : Number(average.toFixed(decimals))];
+      }),
+    );
     out.push({
       tier: b.tier,
       iac_tool: b.iac_tool,
       step: b.step,
       sample_size: b.n,
-      avg_elapsed_ms: Math.round(b.elapsed_ms_total / b.n),
-      avg_input_tokens: Math.round(b.input_tokens_total / b.n),
-      avg_output_tokens: Math.round(b.output_tokens_total / b.n),
-      avg_subagent_count: +(b.subagent_count_total / b.n).toFixed(2),
-      avg_validation_attempts: +(b.validation_attempts_total / b.n).toFixed(2),
+      metric_samples: b.samples,
+      ...averages,
     });
   }
   out.sort((a, b) => {
     if (a.tier !== b.tier) return String(a.tier).localeCompare(String(b.tier));
     if (a.iac_tool !== b.iac_tool) return String(a.iac_tool).localeCompare(String(b.iac_tool));
-    return Number(a.step) - Number(b.step);
+    return String(a.step)
+      .replace("_", ".")
+      .localeCompare(String(b.step).replace("_", "."), undefined, { numeric: true });
   });
   return out;
 }
 
-function renderMd(records, summary) {
+export function renderMd(records, summary) {
   const lines = [];
   lines.push("# Workflow Baseline Measurement");
   lines.push("");
@@ -142,6 +145,12 @@ function renderMd(records, summary) {
   lines.push("");
   lines.push("Wave 0 prerequisite — every subsequent wave's savings claim must be");
   lines.push("falsifiable against this baseline.");
+  lines.push(
+    "Unknown metrics are not zero. Each cell shows average (measured samples); absent steps are not inferred.",
+  );
+  lines.push(
+    "Cache hits are event counts, not cached input tokens. This report does not establish complete trace coverage.",
+  );
   lines.push("");
   lines.push("## Aggregated by tier × tool × step");
   lines.push("");
@@ -150,12 +159,13 @@ function renderMd(records, summary) {
     lines.push("workflow with the apex-recall telemetry field populated._");
   } else {
     lines.push(
-      "| Tier | Tool | Step | n | Avg elapsed (ms) | Avg input tok | Avg output tok | Avg subagents | Avg validate retries |",
+      "| Tier | Tool | Step | n | Avg elapsed (ms) | Avg input tok | Avg output tok | Avg subagents | Avg validate retries | Avg cache hits |",
     );
-    lines.push("| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |");
+    lines.push("| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |");
     for (const row of summary) {
+      const cells = METRICS.map((metric) => `${row[`avg_${metric}`] ?? "unknown"} (${row.metric_samples[metric]})`);
       lines.push(
-        `| ${row.tier ?? "—"} | ${row.iac_tool ?? "—"} | ${row.step} | ${row.sample_size} | ${row.avg_elapsed_ms} | ${row.avg_input_tokens} | ${row.avg_output_tokens} | ${row.avg_subagent_count} | ${row.avg_validation_attempts} |`,
+        `| ${row.tier ?? "—"} | ${row.iac_tool ?? "—"} | ${row.step} | ${row.sample_size} | ${cells.join(" | ")} |`,
       );
     }
   }
@@ -202,4 +212,4 @@ function main() {
   }
 }
 
-main();
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) main();

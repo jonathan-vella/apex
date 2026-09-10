@@ -167,7 +167,7 @@
       "properties": {
         "version": {
           "type": "string",
-          "enum": ["2.1", "2.2", "2.3"],
+          "enum": ["2.1", "2.2", "2.3", "2.4"],
           "description": "Workflow graph schema version. Validators refuse unknown majors per D2 (graceful degradation)."
         }
       }

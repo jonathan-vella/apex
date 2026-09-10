@@ -1,0 +1,235 @@
+# APEX Workflow Optimization
+
+## Status
+
+**State**: Local correctness and static audit complete; measured optimization and live parity blocked
+**Owner**: Jonathan Vella with GitHub Copilot
+**Created**: 2026-09-10
+**Branch**: `perf/apex-workflow-optimization`
+**Original APEX revision**: `836966355354946d9fc3b78606bebbd9d08dc7d4`
+**Curated AKS reference**: `bb7ae9021a0fc59d10d129710a8a260b573d9dcc`
+
+Reference repository: <https://github.com/jonathan-vella/aks-basic>.
+The pinned reference is a curated minimum quality target, not assumed untouched agent output.
+Commits and pushes are authorized only on the feature branch. Never merge into main or enable auto-merge.
+No Azure resources have been created and no optimization has been accepted.
+
+## Objective
+
+Audit duplication of work, broken workflows, agents, skills, instructions,
+root Copilot guidance, overengineering, and input-token consumption.
+Prioritize reliability and output quality, then tokens/cost and active runtime,
+then maintenance simplicity. Retain the complete audit scope while limiting
+the first implementation wave to confirmed fixes and a small measured candidate batch.
+
+## Fixed Contracts
+
+- Preserve production human approval gates, governance/security, required reviews, and both IaC tracks.
+- For isolated benchmarks only, the user authorizes explicitly logged automated test approvals.
+    These do not approve unresolved blockers, changed requirements, or final generated-output quality.
+- Preserve generated artifact filenames, required schemas, completeness, and operational usefulness.
+- Keep architecture and independent cost-estimate reviews mandatory at Step 2.
+- Reuse existing generic review sidecars; do not add a cost-specific artifact schema.
+- Preserve historical session records. On resume, missing current review evidence blocks advancement.
+- Keep canonical Azure defaults in the existing Copilot instruction source.
+- Do not merge agents, change models, or introduce a new orchestration/caching framework in the first wave.
+
+## Comparison Design
+
+- **A**: original workflow, diagnostic only where known defects make live use unsafe.
+- **B**: correctness-fixed, unoptimized control. Report A-to-B correctness overhead separately.
+- **C**: B plus one optimization, with separately attributable candidate revisions.
+- Use identical collectors, frozen inputs, actual model/tool/runtime metadata, and matched review policies.
+- Counterbalance pair order where possible. Never pool tracks to hide a regressed track.
+- Do not seed evaluated agents with completed reference outputs or tune against held-out results.
+- Run one pilot pair per track/scenario, then three fresh confirmation pairs for promising candidates.
+- Include an untuned non-AKS holdout and deterministic resume, compaction, revision, stale-review,
+  changed-policy, failed-validation, and recovery cases.
+- Require at least 15% median full-workflow input reduction, including subagents and retries.
+- Treat noisy or incomplete comparisons as inconclusive. Do not rerun indefinitely for a favorable result.
+- Escalate measured cost or active-runtime regressions beyond trial noise for explicit user approval.
+- Independent evidence-backed review and user signoff are required before accepting optimization results.
+
+## Quality Rubric
+
+Freeze scenario-specific expected decisions and evidence before candidate generation.
+The user authorized autonomous freezing of these criteria before candidate testing.
+Reference reconciliation and the held-out scenario are recorded below; unresolved contradictions fail closed.
+
+| Dimension           | Required evidence                                                                     |
+| ------------------- | ------------------------------------------------------------------------------------- |
+| Requirements        | Explicit requirements and exclusions trace through approved decisions into code       |
+| Governance/security | Current constraints and security checks pass; no unresolved blocking findings         |
+| Reviews/approvals   | Required artifact-specific reviews, dispositions, and human gates are present         |
+| Pricing/SKUs        | Verifiable source, assumptions, budget comparison, and manifest-to-code consistency   |
+| IaC behavior        | Compile/validate, deployment evidence where authorized, smoke checks, and idempotence |
+| Documentation       | Complete artifacts, consistent final state, actionable operations and DR procedures   |
+
+Existing benchmark keyword and file-presence scores are coverage diagnostics only.
+A composite score cannot compensate for a failed hard check or quality dimension.
+Presence/parseability checks in `complete-step` do not replace schema, freshness,
+finding-disposition validation, or human approval. Deep-review pass 1 is the
+presence floor; conditional later-pass requirements remain owned by the review protocol.
+
+## Azure Boundaries
+
+- Subscription alias: `apex-shared`; verify the exact subscription ID before live operations.
+- Create `rg-apex-test`; allow only the dedicated AKS-managed `rg-apex-test-aks-nodes` exception.
+- AKS creates its node RG. Do not pre-create or adopt an existing managed RG.
+- Stop if either RG unexpectedly exists. Run clusters sequentially and verify cleanup before reuse.
+- Other RG writes and subscription-level configuration changes remain prohibited.
+- Subscription-level prerequisites incompatible with this boundary block live parity; do not omit them silently.
+- USD700 planned trial consumption plus USD300 uncertainty/cleanup reserve; USD1,000 total ceiling.
+- Count both RGs, all trials/retries, prior accrued usage, delayed charges, and cleanup overhead.
+- The user explicitly replaced the attended-only, 12-hour, and independent-watchdog requirements with manual cleanup.
+- Jonathan Vella will delete the RG when available. The agent may create/delete test resources within approved RGs.
+- Delete disposable resources after each run when possible; record leftovers and accrued cost for manual cleanup.
+- Resource-group-scoped cleanup role assignments are allowed when required; no subscription-wide permissions.
+- Azure billing and deletion are asynchronous; budget alerts and chat reminders do not guarantee a hard cap.
+- Unattended runs are authorized; scope and cost preflight remain mandatory. No automatic expansion of scope.
+
+## Progress
+
+- [x] Verify clean worktree and create the dedicated implementation branch.
+- [x] Pin original source and curated AKS reference revisions.
+- [x] Fix and test snapshot/diff root, source coverage, hashes, provenance, and missing-input failures.
+- [x] Archive original A source and capture verified context before workflow behavior changes.
+- [x] Correct null-aware aggregation, phase coverage, path resolution, and per-metric sample sizes.
+- [x] Propagate Terraform validation failures and test multi-project outcomes without real providers.
+- [x] Enforce both Step 2 review sidecars in runtime and CI, including deep-review filenames.
+- [x] Align graph/handoff contracts and make exhausted governance retries block E2E continuation.
+- [x] Pass focused regressions and the full `npm run validate:all` repository gate.
+- [x] Finish static fleet ownership/duplication inventory using existing tools; retain runtime judgments as unverified.
+- [x] Repair range/context-aware duplicate-read analysis and expose incomplete profiler token coverage.
+- [x] Inspect pinned reference requirements/code/handoff, freeze criteria, and select the untuned holdout.
+- [ ] Capture trustworthy production-equivalent traces: blocked by unavailable comparable runtime.
+- [ ] Obtain the correctness-fixed B baseline evidence and independent review.
+- [ ] Trial context candidates individually, then compare B with any accepted cumulative package.
+- [ ] Run authorized live comparisons: blocked by subscription-level reference prerequisites outside allowed scope.
+- [ ] Obtain final quality signoff; document accepted, rejected, and inconclusive experiments.
+
+## Evidence Locations
+
+- Original source archive: `tmp/apex-optimization/A-source-8369663.tar`.
+- Archive SHA-256: `092e23a888fb7ad2525d0c4d0e3e43ec7901b9882d56780641812bc85dfe34a8`.
+- Context snapshot: `agent-output/_baselines/apex-opt-A-8369663/`.
+- Snapshot `SHA256SUMS` covers copied context files; manifest records full base SHA and working-tree provenance.
+- The A context snapshot follows capture-tool repair but precedes agent/runtime behavior edits.
+- `worktree.patch` records tracked changes, while context copies include new files within declared targets.
+- Full-source archives are needed to preserve untracked files outside those targets; snapshots are not full backups.
+- Check logs: `tmp/apex-optimization/`; measurement report: `tmp/workflow-baseline.{json,md}`.
+- Initial B source checkpoint: `tmp/apex-optimization/B-source-initial.tar` and adjacent SHA-256 checksum file.
+- B context checkpoint: `agent-output/_baselines/apex-opt-B-initial/`.
+- These B checkpoints preserve initial correctness changes, not measured quality or performance equivalence.
+- Local archives/logs are ignored operational evidence, not committed generated artifacts.
+
+## Verification
+
+Focused executable checks:
+
+```bash
+node --test tools/tests/scripts/test_context_baseline.mjs
+node --test tools/tests/scripts/test_workflow_measurement.mjs
+node --test tools/tests/scripts/test_terraform_validation.mjs
+node --test tools/tests/scripts/test_review_presence.mjs
+node --test tools/tests/scripts/test_context_redundancy.mjs
+python3 -m pytest tools/tests/scripts/test_profile_debug_log.py -q -p no:cacheprovider
+python3 -m pytest tools/apex-recall/tests/test_transition.py tools/apex-recall/tests/test_complete_step_hint.py -q
+npm run validate:workflow-graph
+npm run lint:workflow-handoffs
+npm run test:workflow-handoffs
+npm run validate:agents
+npm run lint:vendor-prompting
+npm run validate:model-consistency
+```
+
+Use the existing full validation suite and hooks before integration; record unrelated baseline failures separately.
+Artifact Markdown validation remains owned by the existing hooks/challenger workflow.
+No savings, live equivalence, or production-readiness claim follows merely from these local checks passing.
+
+## Initial Verification Results
+
+On 2026-09-10, `npm run validate:all` passed, including the Node and external suites.
+Focused snapshot, telemetry, Terraform-command, review-presence, graph/handoff,
+agent, model, formatting, and syntax checks passed. Each recall test root also passed
+in its own Python process. Combining those roots in one process exposes existing
+module/environment isolation assumptions, so use separate invocations.
+
+Full validation initially detected generated pytest-cache READMEs because the
+Markdown ignore matched only the repository-root cache. The ignore now covers
+nested standard caches; the unchanged documentation rules pass.
+
+The independent source review questioned blocking cost-only Step 2 completion.
+That suggestion was rejected: the approved contract requires both architecture
+and cost reviews, and regression tests intentionally enforce this invariant.
+The stricter dry-run harness remains diagnostic; it must not supply unmatched
+production-equivalence measurements.
+
+No real workflow token records were available to the measurement collector.
+No candidate optimization, Azure resource creation, or live-baseline run has been accepted or performed.
+
+## Autonomous Continuation Results
+
+The latest user decisions supersede the original attendance/timeout rules: unattended resource creation is allowed,
+manual RG cleanup replaces the watchdog and 12-hour cap, benchmark-only test approvals are allowed,
+the rubric may be frozen autonomously, and rejected/noisy candidates are deferred without extra trials.
+Commit and push only this feature branch. Never merge into main, enable auto-merge, or force-push.
+
+The [fleet audit](apex-workflow-audit.md) covers active agents, skills, instructions, and root guidance.
+It records exact paragraph overlaps and per-file dispositions; it does not infer runtime savings from bytes.
+The existing baseline retirement census also completed with full tracked-file coverage.
+Unsupported independent audit suggestions were rejected, including oversized operating-frame claims,
+assumed runtime attachment, removal of documentation triggers, and dropping live preview cost-change analysis.
+
+The redundancy analyzer now traverses all resource/scope groups, recognizes qualified read-tool names,
+deduplicates repeated span exports, and treats missing context/range/timing/result evidence as advisory.
+Only same-range, same-result reads under a known chat request with observed ordering can fail the heavy-read check.
+Intervening writes and session/compaction events invalidate comparisons. External edits or omitted events remain limits.
+The profiler separately reports observed token coverage and excludes absent usage from averages.
+Repeated exported spans no longer inflate token totals; unobserved child calls and billing data are not invented.
+
+## Frozen Scenario Criteria
+
+- **AKS reference case**: preserve the pinned final platform's security and operational capability,
+    including Defender, private data services, identity/RBAC, manifests, pricing, and as-built consistency.
+    Do not give evaluated agents the finished IaC. Verify requirements against approved revisions before generation.
+- **Small comparison case**: a single application with managed-identity access to private Blob storage,
+    centralized diagnostics, no public data-plane access, and explicit low-cost development requirements.
+    Instantiate equivalent functional inputs for Bicep and Terraform, not identical module names.
+- **Untuned holdout**: a queued document-processing service with separate ingest/worker identities,
+    private storage, poison-message handling, explicit retry limits, recovery procedures, and no AKS requirement.
+    Do not use holdout output to revise candidate prompts. Regeneration after seeing failures is a new experiment.
+- **Failure cases**: missing/invalid cost review, explicit deep review, interrupted transition,
+    changed input after review, incomplete governance, failed init/validate, and stale cached evidence.
+- Freeze full input payloads and hashes before executing matched trials. These scenario definitions
+    do not claim that generation runs, live checks, or statistical confirmation have happened.
+
+## Reference And Environment Blockers
+
+Read-only preflight verified `apex-shared` is enabled and both approved RG names were absent.
+The approved subscription identifier was verified locally; no credentials are persisted in this report.
+Azure MCP startup failed with exit code 1, so read-only CLI checks were used instead.
+
+At pinned reference commit `bb7ae9021a0fc59d10d129710a8a260b573d9dcc`:
+
+- `infra/bicep/apex-aks/main.bicep` is subscription-scoped and calls subscription-level security/cost modules.
+- `modules/security.bicep` configures Standard Defender for Containers, Storage, and relational databases.
+- Live read-only preflight found `Containers`, `StorageAccounts`, and `OpenSourceRelationalDatabases` at `Free`.
+- Enabling those reference-required plans violates the retained subscription-write prohibition.
+    Merely omitting the modules would not meet the minimum curated quality floor. Live parity is blocked.
+- Requirements explicitly exclude App Gateway and call for Traefik, while final IaC invokes an edge/App Gateway module.
+    The handoff retains historical failure entries alongside final success. These are reconciliation test cases,
+    not evidence that current requirements can silently be overridden or that the final deployment failed.
+- The pinned reference contains Bicep, not a Terraform oracle. Terraform comparison must use functional requirements.
+
+Local log search found this development session's debug data, not completed production-equivalent baseline runs.
+The installed Copilot launcher reports that GitHub Copilot CLI cannot be found.
+The environment explicitly blocked temporary execution of the official CLI package; the action was not retried.
+Current CLI access therefore cannot establish fresh matched production-agent runs or measured token savings.
+Static estimates and this audit session are not substitutes. Candidate trimming, model changes, and agent mergers
+remain unaccepted rather than being applied without the agreed evidence.
+
+No campaign resources were created, so there is no campaign-generated Azure consumption or cleanup inventory.
+The existing subscription budget is not this campaign's ledger and was not modified.
+Full completion is not claimed: live parity requires a scope decision, and token experiments require a usable
+comparable execution/telemetry path. These are concrete blockers in addition to final human quality signoff.

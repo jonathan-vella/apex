@@ -18,6 +18,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 See the [published changelog](https://apexops.pro/project/changelog/)
 for full details on this and all prior releases.
 
+### Fixed (Workflow optimization prerequisites)
+
+- Fix context snapshot and diff repository roots, include Copilot, model,
+  registry, and IaC folder inputs, and verify captured content hashes.
+  Missing required inputs and altered snapshots now fail instead of producing
+  misleading baseline comparisons. New captures include source revision and working-tree provenance.
+- Preserve unknown telemetry rather than averaging it as zero. Baseline
+  measurement now covers all recorded phases and reports per-metric sample sizes.
+- Propagate Terraform initialization and validation failures across projects.
+- Require the existing separate cost-estimate review at Step 2 completion
+  and in the CI presence fallback, including explicit deep-review sessions.
+  Historical records are unchanged on refusal; resumed sessions must supply missing evidence.
+- Align CodeGen handoffs with their pre-completion validation duties and stop
+  E2E runs after exhausted governance retries. Approval and artifact schemas remain unchanged.
+- Exclude nested generated pytest caches from Markdown lint so package-local test runs do not break the repository gate.
+- Classify overlapping reads using trace, range, request, timing, and result evidence instead of filenames alone.
+  Incomplete evidence remains advisory; duplicate exported spans no longer inflate read or token totals.
+- Report missing OTel token usage explicitly and compute averages only over observed values.
+
 ### Changed (MCP consolidation)
 
 - feat(audit): add a read-only whole-repository retirement scanner that classifies every baseline-tracked file,

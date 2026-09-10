@@ -256,7 +256,7 @@ for (const edge of graph.edges) {
 
 // Validate metadata.version
 const expectedMajor = "2";
-const knownVersions = new Set(["2.1", "2.2", "2.3"]);
+const knownVersions = new Set(["2.1", "2.2", "2.3", "2.4"]);
 const metaVersion = graph.metadata?.version;
 if (metaVersion === undefined) {
   r.warn("metadata.version missing — older consumers may rely on it");

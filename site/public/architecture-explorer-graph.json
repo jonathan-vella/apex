@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-08-27T14:22:27.543Z",
+  "generatedAt": "2026-09-10T18:44:02.128Z",
   "categories": [
     {
       "id": "agent",
@@ -2250,13 +2250,13 @@
       "id": "validator:validate-terraform",
       "category": "validator",
       "label": "validate:terraform",
-      "description": "for dir in infra/terraform/*/; do [ -f \"$dir/main.tf\" ] && (cd \"$dir\" && terraform init -backend=false -input=false > /dev/null 2>&1 && terraform validate) || true; done",
+      "description": "status=0; for dir in infra/terraform/*/; do if [ -f \"$dir/main.tf\" ]; then echo \"Validating $dir\"; (cd \"$dir\" && terraform init -backend=false -input=false && terraform validate) || status=1; fi; done; exit \"$status\"",
       "path": "package.json",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
       },
       "meta": {
-        "command": "for dir in infra/terraform/*/; do [ -f \"$dir/main.tf\" ] && (cd \"$dir\" && terraform init -backend=false -input=false > /dev/null 2>&1 && terraform validate) || true; done"
+        "command": "status=0; for dir in infra/terraform/*/; do if [ -f \"$dir/main.tf\" ]; then echo \"Validating $dir\"; (cd \"$dir\" && terraform init -backend=false -input=false && terraform validate) || status=1; fi; done; exit \"$status\""
       }
     },
     {
