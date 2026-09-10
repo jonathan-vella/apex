@@ -8,6 +8,16 @@ import { test } from "node:test";
 
 const script = fileURLToPath(new URL("../../scripts/validate-challenger-presence.mjs", import.meta.url));
 
+test("Planner finding choices agree with its canonical approval reference", () => {
+  const read = (file) => readFileSync(new URL(`../../../${file}`, import.meta.url), "utf8");
+  const planner = read(".github/agents/05-iac-planner.agent.md");
+  const gate = read(".github/skills/iac-common/references/iac-planner-approval-gate.md");
+  assert.match(planner, /canonical four-option payload \(Accept \/ Reject \/ Defer \/ Edit\)/);
+  assert.doesNotMatch(planner, /carries Accept \/ Skip options|WAF-pillar default matrix/);
+  assert.match(gate, /four-option payload per protocol section 2g/);
+  assert.match(gate, /recommended = `Defer` for `should_fix`/);
+});
+
 test("Requirements fresh and resumed entry points preserve questions without forced restart", () => {
   const read = (file) => readFileSync(new URL(`../../../${file}`, import.meta.url), "utf8");
   const requirements = read(".github/agents/02-requirements.agent.md");

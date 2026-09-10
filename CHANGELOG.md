@@ -40,6 +40,7 @@ for full details on this and all prior releases.
 - Recognize deep Plan review sidecars in runtime and CI presence checks, with atomic failure tests.
 - Align shared CodeGen and contract-handoff references with supported module discovery,
   approved exact pins, and required guidance recovery after compaction.
+- Align Planner finding questions with the canonical four-choice approval panel and individual notes.
 
 ### Fixed (Workflow optimization prerequisites)
 

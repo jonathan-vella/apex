@@ -530,8 +530,8 @@ Then run the **two-stage gate** documented in
   `should_fix` items only. **Batch panel rule**: emit a **single**
   `askQuestions` call carrying every in-scope `should_fix` (cap 12 per
   protocol section 2f) — never one panel per finding. Each question
-  carries Accept / Skip options with the recommended default marked
-  per the WAF-pillar default matrix in
+   uses the canonical four-option payload (Accept / Reject / Defer / Edit),
+   individual notes, and the `Defer` recommendation for `should_fix` from
   [`iac-planner-approval-gate.md`](../skills/iac-common/references/iac-planner-approval-gate.md).
 - **Stage 3** presents the final proceed gate + handoff to 06b/06t.
 
