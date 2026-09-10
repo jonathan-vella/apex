@@ -62,3 +62,17 @@ test("Operating frame links to the Post-write validation section", () => {
     "missing anchored link to azure-artifacts post-write-validation",
   );
 });
+
+test("shared reading guidance respects phase inputs, freshness and actual attachment", () => {
+  const body = fs.readFileSync(OPFRAME, "utf8");
+  assert.match(body, /only the current phase's required inputs/);
+  assert.match(body, /Missing required predecessors block/);
+  assert.match(body, /source change,\s+compaction, or a new chat/);
+  assert.match(body, /does not establish runtime attachment/);
+  assert.match(body, /explicit mutation contract/);
+  assert.doesNotMatch(body, /codegen-model-mix-2026|plan → 04\/05|exactly once at boot/);
+  const copilot = fs.readFileSync(path.join(ROOT, ".github/copilot-instructions.md"), "utf8");
+  assert.match(copilot, /A file inventory is not its content/);
+  assert.match(copilot, /does not waive required inputs or approvals/);
+  assert.match(copilot, /independent Step 2 cost-feasibility review/);
+});

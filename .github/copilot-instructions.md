@@ -86,8 +86,11 @@ apex-recall finding <project> --add "<text>" --json
 # Read-only orientation: sessions | files | search '<term>' | decisions (all accept --json)
 ```
 
-If `apex-recall` returns useful context, skip redundant file reads.
-If empty/errored, continue normally — it's a convenience, not a blocker.
+If recall returns sufficient, current context, skip redundant file reads.
+A file inventory is not its content. Read missing required sections directly;
+after edits, compaction, or a new chat, refresh what is no longer current or available.
+Empty/failed recall does not waive required inputs or approvals: recover existing
+project state before advancing, and never infer completion from artifact numbering.
 
 Canonical `show --json` schema (including the `session.steps` shape and
 jq query templates) lives at
@@ -100,14 +103,12 @@ The valid decision-keys registry lives at
 The Steps 1–7 + Post-Lessons table is in [AGENTS.md](../AGENTS.md#agent-workflow);
 the machine-readable source is
 [`.github/skills/workflow-engine/templates/workflow-graph.json`](skills/workflow-engine/templates/workflow-graph.json).
-Each step's outputs land in `agent-output/{project}/`; context flows via artifact
-files + handoffs. Reviews are adversarial passes by challenger subagents —
-**default flow is single-pass `comprehensive`** (mandatory at Steps 1, 2, 4;
-Step 3.5 uses `governance-reconciliation`). Multi-pass deep review is **opt-in
-only** via `decisions.review_depth = "deep"` or an explicit `10-Challenger`
-invocation; never auto-fires by complexity tier. Reviews target AI-generated
-creative decisions only (Steps 1, 2, 3.5, 4, with Step 3 ADRs and Step 5 code
-as opt-in).
+Each step's outputs land in `agent-output/{project}/`; context flows via artifacts
+and handoffs. Follow the graph's review contract and [workflow table](../AGENTS.md#agent-workflow),
+including the independent Step 2 cost-feasibility review. Reuse valid completed reviews;
+missing/stale evidence or blocking findings must be resolved before approval.
+Deep review requires `decisions.review_depth = "deep"` or an explicit user request,
+never complexity alone. Production handoffs and approval gates remain human-controlled.
 
 ## Skills
 

@@ -17,40 +17,44 @@ reads instead of relying on hardcoded step logic.
 
 ## Rules
 
-- **DAG only** — the workflow is a Directed Acyclic Graph; no cycles, no back-edges
+- **Forward DAG** — `edges` must be acyclic; refinement routes are declared separately in `return_edges`.
 - **Source of truth is `templates/workflow-graph.json`** — the orchestrator reads this directly; do not encode workflow logic in agent prose
 - **Gates are blocking** — a `gate` node halts downstream execution until human approval is recorded in session state
-- **IaC routing is conditional on `decisions.iac_tool`** — Step 3 → Step 4 / 5 / 6 routes to `*-b` (Bicep) or `*-t` (Terraform)
+- **IaC routing** — `step-4` is the shared planner; select CodeGen and Deploy nodes using `decisions.iac_tool`.
 - **Fan-out children execute in parallel** — Step 7 docs is the canonical example; do not serialize parallel children
-- **Edge conditions** — use exactly one of `on_complete`, `on_skip`, `on_fail` per edge; ambiguity is a validation error
+- **Edge conditions** — follow the graph's declared conditions, including refinement returns; the schema allows a string or array.
 - **Schema evolution** — bump `metadata.version` and follow `references/schema-evolution.md` rollback rules when changing the graph
-- **Validation is enforced at three points** — graph shape (`validate-workflow-graph.mjs`), handoff buttons (`validate-agents.mjs --only=workflow-handoffs`), and gate-companion H2 sync (`validate-artifacts.mjs`)
+
+## Prerequisites
+
+Use the graph and `apex-recall show <project> --json` together. If the returned
+`session` is empty, initialize or recover the project before routing.
 
 ## Steps
 
 Orchestrator protocol for routing the next step:
 
 1. **Load** `templates/workflow-graph.json`
-2. **Read current state** — `apex-recall show <project> --json` → `current_step`
-3. **Find the matching node** in the graph
+2. **Read current state** — use `session.current_step`, `session.steps`, and `session.decisions` in the response.
+3. **Resolve the node** — use the per-step status map to distinguish Design (`3`) from Governance (`3_5`);
+   use `decisions.iac_tool` for the CodeGen and Deploy tracks. Do not derive a node ID from the numeric pointer alone.
 4. **Check node status**:
    - `complete` → follow `on_complete` edges → find next node
    - `in_progress` → resume from `sub_step` checkpoint
    - `pending` → execute this node
    - `skipped` → follow `on_skip` edges
-5. **Apply IaC routing** when present — read `decisions.iac_tool` and pick the `*-b` or `*-t` branch
-6. **If next is a `gate`** — present to user, wait for approval, record decision in session state
+   - failed or blocked → stop and follow the applicable declared recovery or refinement route
+5. **Apply edge and node conditions** — honor optional Design selection and the IaC track;
+   do not execute every outgoing edge when alternatives are present.
+6. **If next is a `gate`** — check its preconditions, present to the user, wait for approval, and record the decision.
 7. **If next is a `subagent-fan-out`** — dispatch all children in parallel; collect results before continuing
 8. **Repeat** until all nodes are complete or blocked
 
 ## Core Concepts
 
-The workflow is a Directed Acyclic Graph (DAG): **nodes** (agent-step, gate,
-subagent-fan-out, validation), **edges** with conditions (`on_complete`, `on_skip`,
-`on_fail`), **gates** (human approvals), and **fan-out** (parallel sub-steps such as Step 7
-doc generation). IaC routing edges from Step 3 forward conditionally branch on
-`decisions.iac_tool` (Bicep → `step-4b`, Terraform → `step-4t`); the pattern repeats for
-Steps 5 and 6.
+Forward execution and declared refinement returns are distinct. A shared
+`step-4` plan feeds `step-5b` / `step-5t`, then `step-6b` / `step-6t`.
+Approval gates remain blocking on both tracks.
 
 Full node-type table, edge-condition matrix, and IaC routing rules in
 [`references/dag-concepts.md`](references/dag-concepts.md).
@@ -62,19 +66,8 @@ The full machine-readable DAG is in:
 
 ### Reading the Graph (Orchestrator Protocol)
 
-```text
-1. Load workflow-graph.json
-2. Run `apex-recall show <project> --json` → current_step
-3. Find the node matching current_step in the graph
-4. Check node status:
-   - complete → follow on_complete edges → find next node
-   - in_progress → resume from sub_step checkpoint
-   - pending → execute this node
-   - skipped → follow on_skip edges
-5. If next node is a gate → present to user, wait for approval
-6. If next node is a fan-out → execute children in parallel
-7. Repeat until all nodes are complete or blocked
-```
+Use [Steps](#steps) as the routing protocol. Response fields are documented in
+[`show-schema.md`](../../../tools/apex-recall/docs/show-schema.md).
 
 ## Reference Index
 
@@ -97,5 +90,6 @@ The workflow graph is enforced at three points:
 | `tools/scripts/validate-agents.mjs --only=workflow-handoffs` | `WORKFLOW_HANDOFF_RULES`             | `handoffs[]` UI buttons + `agents[]` dispatch |
 | `tools/scripts/validate-artifacts.mjs`                       | `ARTIFACT_HEADINGS["00-handoff.md"]` | Gate-companion file H2 sync                   |
 
-Run all three together via `npm run validate:_node` (CI) or
-`npm run lint:workflow-handoffs` (focused).
+`npm run validate:_node` includes these checks. For focused graph and handoff
+checks, use `npm run validate:workflow-graph` and `npm run lint:workflow-handoffs`.
+Artifact Markdown validation remains owned by the existing hooks and challenger review.

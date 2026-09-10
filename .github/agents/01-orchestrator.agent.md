@@ -117,39 +117,30 @@ chat can resume losslessly.
 - All step delegation uses **handoff buttons** — the orchestrator never wraps
   step agents or the challenger in `#runSubagent`. See
   [Subagent Tier Rule](#subagent-tier-rule) for the rationale.
-- Gate 1 always carries Challenger findings; multi-pass review is opt-in for
-  `decisions.complexity == "complex"`. The Challenger is presented as a
-  handoff button — not auto-invoked.
+- Gate 1 always carries Challenger findings. Multi-pass review requires
+  `decisions.review_depth == "deep"`; complexity alone never enables it.
 - Final artifact set per [Output Contract](#output-contract) and
   [Artifact Tracking](#artifact-tracking) is complete.
 
 # Constraints
 
-- Preserve gate enforcement language verbatim — the comprehensive challenger
-  pass at every gate is mandatory and must not be skipped.
+- Enforce each step's graph-defined reviews and gate preconditions; do not
+  skip mandatory reviews or add default reviews to steps where they are optional.
 - Preserve the deterministic governance-discovery invocation note in the
   Step 3.5 handoff (do not wrap in `#runSubagent`).
 - Preserve the ONE-SHOT project-setup contract (single turn, no chat split).
 - Preserve all `## Output Contract`, `## The Workflow`, gate-template, and
   handoff-template content verbatim.
-- **Handoff-only delegation:** the orchestrator does not invoke step agents
-  or the challenger via `#runSubagent`. Every transition out of the
-  orchestrator goes through a handoff button. This is required because the
-  orchestrator runs at codex tier and `#runSubagent` would silently downgrade
-  any higher-tier target. See [Subagent Tier Rule](#subagent-tier-rule).
+- **Handoff-only delegation:** use [Subagent Tier Rule](#subagent-tier-rule).
 - Decision rules instead of absolutes:
   - Route to Bicep or Terraform agent based on `decisions.iac_tool` from
     `01-requirements.md`. If unset post-Step-1, halt and ask the Requirements
     agent to confirm.
   - If a step status returns `blocked`, halt and surface findings to the user
     before continuing (circuit breaker — see Core Principles).
-  - At Gates 2 and 3, recommend a session break unless context is below 40%.
+  - At every accepted gate, follow the mandatory [Session Break Protocol](#session-break-protocol).
 - Reasoning effort: rely on the Copilot runtime default. Do not request `high`
   reflexively; escalate only when a gate carries unresolved tradeoffs.
-- Subagent budget: not applicable — the orchestrator does not invoke step
-  agents or the challenger via `#runSubagent`. The cost-estimate, validate,
-  what-if/plan, and challenger subagents are owned by the step agents that
-  call them, and run at those agents' tiers.
 
 # Output
 
@@ -168,15 +159,13 @@ chat — always paths.
 - Stop and yield to the Requirements agent after presenting Step 1 — do not
   pre-fetch project context.
 - Stop and surface findings if any subagent step returns `status: blocked`.
-- Stop and recommend a fresh chat at Gates 2 and 3 (see Session Break Protocol).
+- Stop after the accepted-gate `/clear` handoff; do not continue the next step in the same chat.
 - At every approved-gate boundary that ALSO records decisions, advance
   via `apex-recall transition` (atomic). Refuse to mix
   `apex-recall decide` + `apex-recall complete-step` + manual
   `apex-recall start-step` calls as separate writes at a boundary — that
   is exactly the partial-update path the composite was introduced to
   eliminate (issue #425).
-
-Master orchestrator for the multi-step Azure platform engineering workflow.
 
 ## Context Awareness
 
@@ -187,39 +176,18 @@ preserve state for potential session breaks.
 
 ## Subagent Budget
 
-The orchestrator does **not** invoke step agents or the challenger via
-`#runSubagent`. See [Subagent Tier Rule](#subagent-tier-rule) below
-for the full rationale and the per-tier ceiling.
+None. Specialist agents own cost, validation, preview, and challenger subagent calls.
 
 ## Subagent Tier Rule
 
-VS Code Copilot enforces a **cost-tier ceiling** on `#runSubagent`: a
-subagent cannot exceed the cost tier of the parent. If the parent requests a
-higher-tier model, the subagent silently falls back to the parent's tier.
-[Reference](https://code.visualstudio.com/docs/copilot/agents/subagents).
+Use **handoff-only routing**: never invoke step agents or the challenger via
+`#runSubagent`. The user selects the handoff so the target runs with its own
+configured model rather than inheriting a parent-tier restriction.
+[Runtime reference](https://code.visualstudio.com/docs/copilot/agents/subagents).
 
-This orchestrator runs at **standard** tier (MAI-Code-1.1-Flash). The step agents and
-the challenger run at **medium** (GPT-5.6-Luna / GPT-5.6-Terra / Sonnet 5) or
-**high** (Claude Opus 5)
-tiers. Calling them via `#runSubagent` would silently downgrade them to
-standard tier and produce wrong-tier output for architecture, planning, and
-documentation work.
-
-The fix: **handoff-only routing**. Every transition out of the orchestrator
-is a handoff button (defined in this agent's `handoffs:` frontmatter). The
-user clicks the button, VS Code switches agent mode, and the target agent
-runs at its native tier — the cost-tier ceiling does not apply to mode
-switches.
-
-Consequences:
-
-- One extra click per step (vs. autonomous chaining).
-- The orchestrator presents the gate, writes `00-handoff.md`, updates
-  `apex-recall`, then **stops** with the next handoff button visible.
-- Cost-estimate, validate, what-if/plan, and challenger subagents are still
-  invoked via `#runSubagent`, but by the **step agents** — not by this
-  orchestrator. Those parent agents run at medium or high tier, so the
-  ceiling allows their (medium-tier) subagents to run at their native tier.
+Write the gate state and `00-handoff.md`, present the next handoff, then stop.
+Step agents retain their own cost, validation, preview, and challenger calls;
+the orchestrator neither repeats that work nor chooses replacement models.
 
 ## Output Contract
 
@@ -274,34 +242,31 @@ step agents reuse that pre-extracted context instead of re-reading.
 
 ### Graph-Based Step Routing
 
-Instead of hardcoded step logic, read `workflow-graph.json` from the workflow-engine skill:
-
-1. Load `.github/skills/workflow-engine/templates/workflow-graph.json`
-2. Read `tools/registry/agent-registry.json` to resolve agent paths and models for each step
-3. Determine current node from `apex-recall show <project> --json` output (`current_step`)
-4. Execute the current node's agent (using model from registry)
-5. Evaluate outgoing edges (conditions: `on_complete`, `on_skip`, `on_fail`)
-6. Advance to the next node — if it's a gate, present to user for approval
-7. **Read** the execution-subagent prompt contract
-   [tools/apex-prompts/utility-prompts/execution-subagent.prompt.md](../../tools/apex-prompts/utility-prompts/execution-subagent.prompt.md)
-   — every `runSubagent` invocation prompt MUST follow the three-H2
-   contract (`## Inputs` / `## Activities` / `## Outputs`).
-   Issue #425.
+Follow the routing procedure in `.github/skills/workflow-engine/SKILL.md`
+using `.github/skills/workflow-engine/templates/workflow-graph.json` and
+`tools/registry/agent-registry.json`. Resolve the node from `session.steps`,
+`session.current_step`, and recorded decisions, not a numeric increment.
+For an agent-step node, **present its handoff button and stop**; do not execute
+the agent directly. Apply declared return routes for revisions and recheck
+gate preconditions before asking for approval.
 
 ## Core Principles
 
 1. **Human-in-the-Loop**: NEVER proceed past approval gates without explicit user confirmation
-2. **Context Efficiency**: Delegate heavy lifting to subagents to preserve context window
+2. **Context Efficiency**: Route specialist work through handoffs; reuse valid results rather than repeating it
 3. **Structured Workflow**: Follow the multi-step process strictly, tracking progress in artifacts
 4. **Quality Gates**: Enforce validation at each phase before proceeding
 5. **Circuit Breaker**: If any step status is `blocked`, halt workflow and present findings to user before continuing
-6. **Session Breaks**: Recommend a fresh chat session at Gates 2 and 3 to prevent context
-   exhaustion (see [Session Break Protocol](#session-break-protocol))
+6. **Session Breaks**: Follow [Session Break Protocol](#session-break-protocol) at every accepted gate
 
 ## Review Protocol: Single-Pass Default
 
-All steps default to **1-pass comprehensive adversarial review**. Multi-pass
-rotating-lens reviews are **opt-in**, recommended only for complex projects.
+Use the graph's per-step review contract. Requirements, Architecture, and Plan
+require comprehensive review; Architecture also requires its independent
+cost-feasibility review. Governance uses governance-reconciliation when required.
+Design ADRs and Code reviews remain opt-in; Deploy has no challenger review.
+`decisions.review_depth == "deep"` selects the existing opt-in cascade;
+complexity only informs its recommended shape.
 
 ### Computing `decisions.complexity`
 
@@ -309,7 +274,8 @@ At **Gate-1** (after Requirements approval) and refreshed at **Gate-2_5** (after
 Governance), derive `decisions.complexity` using the canonical formula in
 `.github/skills/workflow-engine/templates/workflow-graph.json`
 (`metadata.complexity_routing`). Read the formula from the graph; do not
-re-invent it. Inputs: `resource_count` (from `02-architecture-assessment.md`),
+re-invent it. Inputs: `resource_count` (from Requirements at Gate-1; use the
+architecture assessment when available at Gate-2_5),
 `policy_violations` (deny-effect findings in `04-governance-constraints.json`,
 or `0` pre-Gate-2_5), `iac_tool` (`decisions.iac_tool`). Persist via
 `apex-recall decide <project> --key complexity --value <result> --json` so every
@@ -322,8 +288,8 @@ project init), then never re-prompt. Allowed values:
 
 | Value     | Meaning                                                                                          |
 | --------- | ------------------------------------------------------------------------------------------------ |
-| `default` | Single-pass `comprehensive` reviews at Steps 1, 2, 4; `governance-reconciliation` at Step 3.5    |
-| `deep`    | All challenger reviews use the opt-in rotating-lens cascade per `adversarial-review-protocol.md` |
+| `default` | Comprehensive at Steps 1, 2, 4; separate cost-feasibility at Step 2; governance-reconciliation at Step 3.5 |
+| `deep`    | Use each step's opt-in cascade; retain the separate Step 2 cost review and governance-reconciliation |
 
 **01-Orchestrator is the ONLY writer.** Every other parent agent reads
 `decisions.review_depth` via `apex-recall show <project> --json` but never
@@ -339,7 +305,7 @@ Run adversarial reviews at the default depth (single comprehensive pass per step
 - "Default — single-pass comprehensive (recommended)"
 - "Deep — multi-pass rotating lenses (opt-in)"
 
-message: "Default runs one comprehensive challenger pass at Steps 1, 2, 4 (plus governance-reconciliation at 3.5) and is right for most workshops, MVPs, and single-region projects. Pick Deep for regulated workloads (HIPAA/PCI/regulated), prod migrations, or multi-region designs. You can change this later by editing `decisions.review_depth` via `apex-recall decide <project> --key review_depth --value default|deep`."
+message: "Default runs comprehensive reviews at Steps 1, 2, 4, a separate cost-feasibility review at Step 2, and governance-reconciliation at 3.5. Deep opts into rotating-lens reviews without removing these requirements. Change the setting later via `apex-recall decide <project> --key review_depth --value default|deep`."
 ```
 
 Persist:
@@ -353,23 +319,19 @@ apex-recall decide <project> --key review_depth --value default|deep \
 
 At each approval gate:
 
-1. **Mandatory:** present the **Run Challenger Review** handoff button so the
-   user can launch a single comprehensive challenger pass against the
-   step's primary artifact. Re-entering the orchestrator after the
-   challenger completes counts as the gate's review entry. The pass is
-   required at every gate by default — it is not optional and must not be
-   skipped to save tokens or turns.
-2. Read `decisions.review_depth` from `apex-recall show <project> --json`.
-   When `review_depth == "deep"`, the underlying parent agent already
-   entered the rotating-lens path before reaching the gate — **do NOT
-   re-prompt** the user. Surface the multi-pass summary directly.
-3. When `review_depth == "default"` (the common case), present the
-   single-pass result directly. No per-gate complexity opt-in prompt.
-4. Steps 4 and 5 (Plan and Code) **skip challenger review entirely**
-   when `review_depth == "default"` (`step-5{b,t}.challenger.default_passes = 0`
-   in `workflow-graph.json`). When `review_depth == "deep"`, Step 5
-   automatically uses the recommended shape from `opt_in_matrix` for the
-   current `decisions.complexity`.
+1. Read the step's review requirements and existing review evidence via
+  `apex-recall show <project> --json`. Reuse completed specialist reviews
+  only when they still apply to the current artifacts; inspect missing or
+  stale evidence and unresolved blocking findings before proceeding.
+2. If a required review is missing or stale, present **Run Challenger Review**
+  for the affected artifact and stop. Returning from the challenger is not
+  itself evidence of approval. Do not rerun a valid completed review merely
+  because control returned to the orchestrator.
+3. Present the existing findings and dispositions for user approval. Read
+  `decisions.review_depth`; do not re-prompt for a depth already recorded.
+4. Step 4 Plan review remains mandatory in default mode. Step 5 Code review
+  is opt-in, enabled by the existing deep-review path or an explicit user request.
+  Keep validation and deployment previews regardless of review depth.
 
 Legacy gate question — _"Run additional adversarial review? (recommended
 for complex projects)"_ — is **removed**. Multi-pass review is enabled
@@ -404,24 +366,17 @@ Lint: `npm run validate:review-ceiling`.
 
 ### Checkpoint Fallback (Safety Net)
 
-After each subagent returns (autonomous steps 2, 3, 5, 6, 7), verify the step was recorded:
+When a specialist hands control back, check `session.steps` via
+`apex-recall show <project> --json`. If completion is missing, first verify
+the required artifacts, validation, and review evidence; do not infer success
+from file presence or a handoff message. Return incomplete work to its owner.
 
-1. Run `apex-recall show <project> --json` and check `steps.{N}.status`
-2. If the step agent did NOT call `complete-step` (status is still `in_progress` or `pending`):
-   - **Preferred (atomic)**:
-     `apex-recall transition <project> --from-step {N} --to-step {N+1} --complete --decision <key=value> --json`
-     — bundles complete + any decisions + the next-step start into one
-     state-file write (issue #425). Use this whenever the boundary records
-     decisions.
-   - **Fallback (complete only)**:
-     `apex-recall complete-step <project> {N} --json`
-     when no decisions are being recorded at the boundary.
-3. If the step agent did NOT record key decisions (e.g., `decisions.iac_tool` after Step 1):
-   - Extract the decision from the artifact and run `apex-recall decide <project> --key <k> --value <v> --json`
-4. Always emit a post-gate checkpoint as additional durability for session-state recovery:
-   - `apex-recall checkpoint <project> {N} after_gate_{N} --json`
-
-This ensures session state stays current even when step agents skip apex-recall calls.
+Record verified completion with `apex-recall complete-step`. Only after the
+human gate is approved, use `apex-recall transition --complete` when also
+recording decisions and starting the graph-selected next step. Resolve its
+state key from the graph and IaC track, never `{N+1}` arithmetic.
+Persist `apex-recall checkpoint <project> <step> after_gate_<N> --json`
+before the completion handoff. Do not reconstruct missing user decisions by guessing.
 
 ## The Workflow
 
@@ -501,10 +456,10 @@ All steps below happen in **one turn** — do NOT end your turn between them.
    a. Check whether `agent-output/{project}/00-handoff.md` exists — if so,
    parse it for the completed-steps checklist and key decisions, then
    resume from there.
-   b. List `agent-output/{project}/` and look for any numbered artifacts
-   (`01-requirements.md`, `02-architecture-assessment.md`, etc.). If any
-   exist, infer the last completed step from artifact numbering and
-   resume from the next step — do not overwrite prior work.
+  b. List `agent-output/{project}/` and inspect available numbered artifacts
+  to locate work in progress. File numbering does not prove completion or
+  approval; reconcile validation, review, and gate evidence before advancing.
+  If approval cannot be recovered, ask the user to confirm it. Do not overwrite prior work.
 3. Only when **all three** signals are absent (no apex-recall state, no
    `00-handoff.md`, and no numbered artifacts in `agent-output/{project}/`)
    should you treat this as a brand-new project and follow
@@ -553,10 +508,8 @@ Orchestrator with the project name — no special resume prompt needed.
 > by `tools/scripts/generate-model-catalog.mjs`. Agent frontmatter is the single
 > source of truth.
 >
-> The orchestrator runs at **codex** tier deliberately so the routing layer is
-> cheap. To stay within the [Subagent Tier Rule](#subagent-tier-rule), the
-> orchestrator delegates exclusively via handoff buttons \u2014 never via
-> `#runSubagent`.
+> Use [Subagent Tier Rule](#subagent-tier-rule) for handoff-only routing;
+> do not infer current model assignments from repeated prose tables.
 
 ## Boundaries
 

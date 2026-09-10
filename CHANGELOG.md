@@ -18,6 +18,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 See the [published changelog](https://apexops.pro/project/changelog/)
 for full details on this and all prior releases.
 
+### Changed (Workflow guidance simplification)
+
+- Consolidate workflow routing instructions around the shared IaC planner and declared refinement returns.
+  Resume guidance now uses per-step state and track decisions instead of numeric step arithmetic.
+- Reconcile Orchestrator review and handoff rules: keep Plan and separate cost review mandatory,
+  reuse current specialist reviews, preserve accepted-gate session breaks, and require evidence when recovering progress.
+- Make shared prerequisite reads phase-specific and cached reads freshness-aware. Clarify that authoring globs
+  do not prove runtime attachment; preserve critical agent-body safeguards and canonical root ownership.
+- Keep local verification proportional to risk; live Azure testing is no longer a prerequisite for guidance-only fixes.
+
 ### Fixed (Workflow optimization prerequisites)
 
 - Fix context snapshot and diff repository roots, include Copilot, model,

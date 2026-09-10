@@ -65,7 +65,7 @@ Vendor-specific structure is enforced by
 - Move long templates and phase-specific detail to references.
 - Use `#tool:<tool-name>` for tool references.
 - Prefer relative links and verify they resolve from the agent file.
-- Read only skills needed for the current phase; never reread one in-session.
+- Read only skills needed for the current phase; reuse unchanged content still in context.
 - Keep embedded templates aligned with their canonical source.
 
 Workflow, hierarchy, delegation, and PR checklist:
@@ -77,8 +77,9 @@ Context budgets and size limits:
 
 ### No-Duplicate-Read Rule
 
-Do not call `read_file` again for content already in the conversation. Batch
-independent reads and questions; prefer targeted search for known symbols.
+Do not call `read_file` again for unchanged content still available in context.
+After source changes, compaction, or a new chat, refresh only the needed material.
+Batch independent reads and questions; prefer targeted search for known symbols.
 Detailed guidance:
 [`agent-authoring/references/runtime-guardrails.md`](../skills/agent-authoring/references/runtime-guardrails.md).
 

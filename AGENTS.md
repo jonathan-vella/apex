@@ -74,7 +74,7 @@ relevant validations before committing.
 | Step | Phase        | Output                                                   | Review                                                    |
 | ---- | ------------ | -------------------------------------------------------- | --------------------------------------------------------- |
 | 1    | Requirements | `01-requirements.md` + `sku-manifest.{json,md}` (rev 1)  | 1× comprehensive (mandatory)                              |
-| 2    | Architecture | `02-architecture-assessment.md` + cost estimate          | 1× comprehensive + 1 cost-feasibility (opt-in: deep)      |
+| 2    | Architecture | `02-architecture-assessment.md` + cost estimate          | comprehensive + separate cost-feasibility (both mandatory; deep is opt-in) |
 | 3    | Design (opt) | `03-des-*.{py,png,md}` diagrams and ADRs                 | opt-in: 1× comprehensive on ADRs (skipped when no Step 3) |
 | 3.5  | Governance   | `04-governance-constraints.md/.json`                     | 1× governance-reconciliation (skip when no constraints)   |
 | 4    | IaC Plan     | `04-implementation-plan.md` + `04-*-diagram.py/.png`     | 1× comprehensive (mandatory; opt-in: deep)                |
@@ -87,9 +87,8 @@ All outputs → `agent-output/{project}/`. Source of truth:
 `.github/skills/workflow-engine/templates/workflow-graph.json`.
 The Orchestrator drives all steps with human approval gates. The unified
 05-IaC Planner feeds dual IaC tracks: Bicep (06b/07b) and Terraform (06t/07t).
-Review column = single-pass `comprehensive` (or `governance-reconciliation` at
-Step 3.5) by challenger subagents — the default flow never auto-fires
-multi-pass. Multi-pass reviews are an explicit opt-in via
+Architecture also requires an independent cost-feasibility review in every mode.
+Rotating multi-pass reviews are an explicit opt-in via
 `decisions.review_depth = "deep"` (captured once per project by
 01-Orchestrator) or via direct `10-Challenger` invocation. Reviews target
 AI-generated creative decisions — not tool output (what-if/plan previews).

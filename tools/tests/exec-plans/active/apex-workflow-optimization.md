@@ -2,7 +2,7 @@
 
 ## Status
 
-**State**: Local correctness and static audit complete; measured optimization and live parity blocked
+**State**: Revised VS Code workflow plan active; first guidance-improvement batch implemented
 **Owner**: Jonathan Vella with GitHub Copilot
 **Created**: 2026-09-10
 **Branch**: `perf/apex-workflow-optimization`
@@ -10,9 +10,62 @@
 **Curated AKS reference**: `bb7ae9021a0fc59d10d129710a8a260b573d9dcc`
 
 Reference repository: <https://github.com/jonathan-vella/aks-basic>.
-The pinned reference is a curated minimum quality target, not assumed untouched agent output.
+The pinned reference is a qualitative output reference, not a deployment prerequisite for this phase.
 Commits and pushes are authorized only on the feature branch. Never merge into main or enable auto-merge.
-No Azure resources have been created and no optimization has been accepted.
+No Azure resources have been created. Local guidance improvements use risk-based verification;
+measured end-to-end token savings and final generated-output quality are not claimed.
+
+## Revised Scope And Verification
+
+The user replaced the earlier benchmark-led campaign with workflow-first improvement:
+
+- Optimize normal VS Code Orchestrator use and handoff buttons, including fresh and resumed chats.
+- Retain the validated correctness fixes and continue on the existing feature branch.
+- Accept low-risk deduplication and local corrections through focused contract tests and review.
+- Reserve measured workflow trials for reasoning, model, or substantive behavioral changes.
+- Defer live Azure validation to a separate phase. Old infrastructure blockers below are historical context.
+- Recommend broader changes to review frequency, agent roles, or artifact contracts only for explicit approval.
+- Keep the full semantic audit in scope; an inventory alone does not prove workflow effectiveness.
+
+### First batch: routing, reviews, and phase-aware inputs
+
+- **Fixed**: workflow skill and DAG reference now match the unified planner, separate refinement returns,
+  actual recall response fields, and Design/Governance resume disambiguation.
+- **Fixed**: remove the duplicated routing procedure; preserve its existing heading as an anchor.
+- **Fixed**: orchestrator uses handoffs rather than contradictory direct-execution instructions.
+  Depth is opt-in, Plan review stays mandatory, separate cost review stays required,
+  and valid specialist reviews are not repeated solely on return to the orchestrator.
+- **Fixed**: preserve mandatory accepted-gate `/clear` behavior; remove conflicting context-percentage exemptions.
+  Artifact numbering cannot establish completion or human approval on recovery.
+- **Fixed**: shared guidance reads only current-phase prerequisites, refreshes changed or lost context,
+  and does not claim that file-authoring `applyTo` proves runtime attachment.
+- **Fixed**: root instructions distinguish recalled inventory from artifact content and clarify both Step 2 reviews.
+- **Intentional repetition retained**: validation cheat sheet, critical stop rules, handoff buttons,
+  output contracts, and human approval boundaries remain accessible without optional reference chains.
+- **Deferred for approval/evidence**: review-count changes, agent mergers, model changes, and artifact redesign.
+
+Focused tests protect these prompt contracts and reference the real graph. They are static/structural checks,
+not a simulated claim that the VS Code model followed every instruction.
+The next manual/runtime walkthrough covers new project, optional Design skip, both IaC tracks,
+return for revision, missing/stale review, and resumed chat with incomplete state.
+
+Before/after source bytes relative to `fd443339` (not runtime token counts):
+
+| Source | Before | After | Removed |
+| --- | ---: | ---: | ---: |
+| Orchestrator | 37542 | 35013 | 2529 |
+| Workflow skill | 6095 | 5961 | 134 |
+| Shared operating frame | 5391 | 4773 | 618 |
+| Copilot instructions | 8146 | 8373 | -227 |
+| AGENTS.md | 7517 | 7460 | 57 |
+
+The small root-guidance increase preserves freshness and approval safeguards.
+No files or roles were retired and the workflow graph, models, and output schemas are unchanged in this batch.
+
+Verification on 2026-09-10: focused routing/review and phase-reading contracts passed,
+as did `validate:agents`, `validate:skills`, `validate:instruction-checks`, vendor/model/handoff checks,
+the tooling contract suite, relative-link checks, and the full `npm run validate:all` gate.
+Logs are under `tmp/apex-optimization/revised-*.log`. The documented VS Code walkthrough remains pending.
 
 ## Objective
 
@@ -26,7 +79,7 @@ the first implementation wave to confirmed fixes and a small measured candidate 
 
 - Preserve production human approval gates, governance/security, required reviews, and both IaC tracks.
 - For isolated benchmarks only, the user authorizes explicitly logged automated test approvals.
-    These do not approve unresolved blockers, changed requirements, or final generated-output quality.
+  These do not approve unresolved blockers, changed requirements, or final generated-output quality.
 - Preserve generated artifact filenames, required schemas, completeness, and operational usefulness.
 - Keep architecture and independent cost-estimate reviews mandatory at Step 2.
 - Reuse existing generic review sidecars; do not add a cost-specific artifact schema.
@@ -34,7 +87,7 @@ the first implementation wave to confirmed fixes and a small measured candidate 
 - Keep canonical Azure defaults in the existing Copilot instruction source.
 - Do not merge agents, change models, or introduce a new orchestration/caching framework in the first wave.
 
-## Comparison Design
+## Runtime Comparison Design (When Needed)
 
 - **A**: original workflow, diagnostic only where known defects make live use unsafe.
 - **B**: correctness-fixed, unoptimized control. Report A-to-B correctness overhead separately.
@@ -42,10 +95,11 @@ the first implementation wave to confirmed fixes and a small measured candidate 
 - Use identical collectors, frozen inputs, actual model/tool/runtime metadata, and matched review policies.
 - Counterbalance pair order where possible. Never pool tracks to hide a regressed track.
 - Do not seed evaluated agents with completed reference outputs or tune against held-out results.
-- Run one pilot pair per track/scenario, then three fresh confirmation pairs for promising candidates.
+- For substantive behavior changes, agree the pilot and confirmation volume before execution.
 - Include an untuned non-AKS holdout and deterministic resume, compaction, revision, stale-review,
   changed-policy, failed-validation, and recovery cases.
-- Require at least 15% median full-workflow input reduction, including subagents and retries.
+- The former universal 15% threshold is retired. Local fixes do not require live token measurements.
+  Report any measured savings with complete scope, including subagents and retries, and uncertainty.
 - Treat noisy or incomplete comparisons as inconclusive. Do not rerun indefinitely for a favorable result.
 - Escalate measured cost or active-runtime regressions beyond trial noise for explicit user approval.
 - Independent evidence-backed review and user signoff are required before accepting optimization results.
@@ -71,7 +125,9 @@ Presence/parseability checks in `complete-step` do not replace schema, freshness
 finding-disposition validation, or human approval. Deep-review pass 1 is the
 presence floor; conditional later-pass requirements remain owned by the review protocol.
 
-## Azure Boundaries
+## Deferred Azure Boundaries
+
+These limits apply only if the separate live-validation phase is resumed; no Azure work is needed for this batch.
 
 - Subscription alias: `apex-shared`; verify the exact subscription ID before live operations.
 - Create `rg-apex-test`; allow only the dedicated AKS-managed `rg-apex-test-aks-nodes` exception.
@@ -102,10 +158,13 @@ presence floor; conditional later-pass requirements remain owned by the review p
 - [x] Finish static fleet ownership/duplication inventory using existing tools; retain runtime judgments as unverified.
 - [x] Repair range/context-aware duplicate-read analysis and expose incomplete profiler token coverage.
 - [x] Inspect pinned reference requirements/code/handoff, freeze criteria, and select the untuned holdout.
-- [ ] Capture trustworthy production-equivalent traces: blocked by unavailable comparable runtime.
-- [ ] Obtain the correctness-fixed B baseline evidence and independent review.
-- [ ] Trial context candidates individually, then compare B with any accepted cumulative package.
-- [ ] Run authorized live comparisons: blocked by subscription-level reference prerequisites outside allowed scope.
+- [x] Apply the first routing, review-reuse, phase-input, and root-guidance improvement batch.
+- [x] Validate focused prompt contracts without altering workflow topology, review frequency, or artifact schemas.
+- [ ] Walk through revised prompts in VS Code for fresh/resume/revision scenarios; report behavioral evidence separately.
+- [ ] Continue semantic audit of remaining phase loads and duplicated decisions in specialist agents.
+- [ ] Present broader simplifications with evidence and approval boundaries before implementation.
+- [ ] Collect production-equivalent traces only where the proposed change requires runtime evidence.
+- [ ] Run live comparisons in the separate deployment-validation phase, subject to approved scope.
 - [ ] Obtain final quality signoff; document accepted, rejected, and inconclusive experiments.
 
 ## Evidence Locations
@@ -191,18 +250,18 @@ Repeated exported spans no longer inflate token totals; unobserved child calls a
 ## Frozen Scenario Criteria
 
 - **AKS reference case**: preserve the pinned final platform's security and operational capability,
-    including Defender, private data services, identity/RBAC, manifests, pricing, and as-built consistency.
-    Do not give evaluated agents the finished IaC. Verify requirements against approved revisions before generation.
+  including Defender, private data services, identity/RBAC, manifests, pricing, and as-built consistency.
+  Do not give evaluated agents the finished IaC. Verify requirements against approved revisions before generation.
 - **Small comparison case**: a single application with managed-identity access to private Blob storage,
-    centralized diagnostics, no public data-plane access, and explicit low-cost development requirements.
-    Instantiate equivalent functional inputs for Bicep and Terraform, not identical module names.
+  centralized diagnostics, no public data-plane access, and explicit low-cost development requirements.
+  Instantiate equivalent functional inputs for Bicep and Terraform, not identical module names.
 - **Untuned holdout**: a queued document-processing service with separate ingest/worker identities,
-    private storage, poison-message handling, explicit retry limits, recovery procedures, and no AKS requirement.
-    Do not use holdout output to revise candidate prompts. Regeneration after seeing failures is a new experiment.
+  private storage, poison-message handling, explicit retry limits, recovery procedures, and no AKS requirement.
+  Do not use holdout output to revise candidate prompts. Regeneration after seeing failures is a new experiment.
 - **Failure cases**: missing/invalid cost review, explicit deep review, interrupted transition,
-    changed input after review, incomplete governance, failed init/validate, and stale cached evidence.
+  changed input after review, incomplete governance, failed init/validate, and stale cached evidence.
 - Freeze full input payloads and hashes before executing matched trials. These scenario definitions
-    do not claim that generation runs, live checks, or statistical confirmation have happened.
+  do not claim that generation runs, live checks, or statistical confirmation have happened.
 
 ## Reference And Environment Blockers
 
@@ -216,10 +275,10 @@ At pinned reference commit `bb7ae9021a0fc59d10d129710a8a260b573d9dcc`:
 - `modules/security.bicep` configures Standard Defender for Containers, Storage, and relational databases.
 - Live read-only preflight found `Containers`, `StorageAccounts`, and `OpenSourceRelationalDatabases` at `Free`.
 - Enabling those reference-required plans violates the retained subscription-write prohibition.
-    Merely omitting the modules would not meet the minimum curated quality floor. Live parity is blocked.
+  Merely omitting the modules would not meet the minimum curated quality floor. Live parity is blocked.
 - Requirements explicitly exclude App Gateway and call for Traefik, while final IaC invokes an edge/App Gateway module.
-    The handoff retains historical failure entries alongside final success. These are reconciliation test cases,
-    not evidence that current requirements can silently be overridden or that the final deployment failed.
+  The handoff retains historical failure entries alongside final success. These are reconciliation test cases,
+  not evidence that current requirements can silently be overridden or that the final deployment failed.
 - The pinned reference contains Bicep, not a Terraform oracle. Terraform comparison must use functional requirements.
 
 Local log search found this development session's debug data, not completed production-equivalent baseline runs.

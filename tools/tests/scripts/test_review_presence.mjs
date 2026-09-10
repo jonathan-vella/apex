@@ -8,6 +8,43 @@ import { test } from "node:test";
 
 const script = fileURLToPath(new URL("../../scripts/validate-challenger-presence.mjs", import.meta.url));
 
+test("routing guidance matches shared planning, refinement and resume contracts", () => {
+  const read = (relativePath) => readFileSync(new URL(`../../../${relativePath}`, import.meta.url), "utf8");
+  const graph = JSON.parse(read(".github/skills/workflow-engine/templates/workflow-graph.json"));
+  const skill = read(".github/skills/workflow-engine/SKILL.md");
+  const reference = read(".github/skills/workflow-engine/references/dag-concepts.md");
+  for (const body of [skill, reference]) {
+    assert.doesNotMatch(body, /step-4[bt]|no back-edges|use exactly one of/);
+    assert.match(body, /return_edges/);
+    assert.match(body, /session\.steps/);
+    for (const [, node] of body.matchAll(/`(step-[\w]+)`/g)) assert.ok(graph.nodes[node], `unknown node ${node}`);
+  }
+  assert.equal((skill.match(/\*\*Load\*\* `templates\/workflow-graph.json`/g) ?? []).length, 1);
+  assert.doesNotMatch(skill, /```text\s*1\. Load workflow-graph/);
+  assert.match(skill, /preconditions/);
+  assert.ok(graph.return_edges.some((edge) => edge.condition === "on_refine"));
+});
+
+test("orchestrator reuses valid reviews without bypassing plan or resume gates", () => {
+  const body = readFileSync(new URL("../../../.github/agents/01-orchestrator.agent.md", import.meta.url), "utf8");
+  assert.doesNotMatch(
+    body,
+    /All steps default to|Steps 4 and 5 \(Plan and Code\) \*\*skip|unless context is below 40%/,
+  );
+  assert.doesNotMatch(body, /Execute the current node's agent|infer the last completed step from artifact numbering/);
+  assert.match(body, /Step 4 Plan review remains mandatory/);
+  assert.match(body, /Do not rerun a valid completed review/);
+  assert.match(body, /review_depth == "deep"/);
+  assert.match(body, /cost-feasibility review at Step 2/);
+  assert.match(body, /session\.steps/);
+  assert.match(body, /Only after the\s+human gate is approved/);
+  assert.ok(
+    body.includes(
+      "Run `/clear`, then switch the chat agent picker to `01-Orchestrator` and send `resume <project>` to continue Step N+1.",
+    ),
+  );
+});
+
 test("workflow graph and agent handoffs preserve review and validation floors", () => {
   const read = (relativePath) => readFileSync(new URL(`../../../${relativePath}`, import.meta.url), "utf8");
   const graph = JSON.parse(read(".github/skills/workflow-engine/templates/workflow-graph.json"));

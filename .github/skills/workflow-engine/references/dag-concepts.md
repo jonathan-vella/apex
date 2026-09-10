@@ -6,7 +6,8 @@
 > conditions, and IaC routing rules for the multi-step agent pipeline
 > graph (`templates/workflow-graph.json`).
 
-The workflow is a Directed Acyclic Graph (DAG) with:
+The forward `edges` form a Directed Acyclic Graph (DAG). Separately declared
+`return_edges` route revisions back to the owning step without changing that invariant.
 
 | Concept     | Description                                                     |
 | ----------- | --------------------------------------------------------------- |
@@ -31,12 +32,22 @@ The workflow is a Directed Acyclic Graph (DAG) with:
 | `on_complete` | Source node finished successfully               |
 | `on_skip`     | Source node was skipped (e.g., optional Step 3) |
 | `on_fail`     | Source node failed — routes to error handling   |
+| `on_refine` | Revision returns to the owning step |
+| `on_architecture_must_fix` | Findings require architecture revision |
+| `on_must_fix_governance_conflict` | Findings require governance conflict resolution |
+
+The schema accepts a condition string or an array of allowed conditions.
+Evaluate node conditions as well as edge conditions; outgoing alternatives
+are not unconditional fan-out. Gate preconditions and human approval still apply.
 
 ## IaC Routing
 
-Edges from Step 3 → Step 4 are conditional on `decisions.iac_tool`:
+Governance approval leads to the shared `step-4` IaC Planner for both tracks.
+After plan approval, `decisions.iac_tool` selects the conditional nodes:
 
-- `iac_tool: "Bicep"` → routes to `step-4b` (IaC Planner)
-- `iac_tool: "Terraform"` → routes to `step-4t` (IaC Planner)
+- Bicep: `step-5b` CodeGen, then `step-6b` Deploy.
+- Terraform: `step-5t` CodeGen, then `step-6t` Deploy.
 
-This pattern repeats for Steps 5 and 6.
+The session map keys are `5` and `6`, not track-specific graph IDs.
+Design (`3`) and Governance (`3_5`) share a numeric current-step pointer;
+use `session.steps` and the recorded decisions to disambiguate resume routing.

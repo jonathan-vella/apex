@@ -4,7 +4,8 @@
 
 ## Context Hygiene
 
-- Never reread content already present in the conversation.
+- Reuse unchanged content still available in the conversation. Source changes,
+  compaction, or a new chat require refreshing only the needed material.
 - Batch independent reads and `askQuestions` prompts.
 - Prefer exact or regex search plus bounded reads for known targets.
 - Use semantic search only for exploratory discovery.
