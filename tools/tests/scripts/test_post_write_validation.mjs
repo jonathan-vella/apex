@@ -183,3 +183,24 @@ test("shared read budgets permit recovery without introducing skill digest tiers
   assert.match(context, /tiers apply to artifacts, not alternate skill digests/);
   assert.match(context, /must not prevent loading missing required guidance/);
 });
+
+test("shared CodeGen reference matches supported discovery, exact pins and compaction recovery", () => {
+  const body = fs.readFileSync(
+    path.join(ROOT, ".github/skills/iac-common/references/codegen-shared-workflow.md"),
+    "utf8",
+  );
+  assert.doesNotMatch(body, /terraform\/(?:search_modules|get_module_details|get_latest_module_version)/);
+  assert.doesNotMatch(body, /Stop loading additional skills|Context reaches ~80%/);
+  assert.match(body, /Preserve the plan's exact module pins/);
+  assert.match(body, /returns to the Planner/);
+  assert.match(body, /load missing required phase guidance/);
+  assert.match(body, /refresh only the needed sections/);
+  assert.match(body, /ONE FILE PER TURN/);
+  assert.match(body, /No self-edit/);
+  const contract = fs.readFileSync(
+    path.join(ROOT, ".github/skills/iac-common/references/contract-emission-and-handoff.md"),
+    "utf8",
+  );
+  assert.doesNotMatch(contract, /terraform\/get_module_details/);
+  assert.match(contract, /approved exact version/);
+});

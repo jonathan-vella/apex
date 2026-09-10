@@ -36,8 +36,8 @@ Any non-zero exit ⇒ STOP. Run `validate:environment-manifest` too if
 the workload uses identity / app regs / alerts / budgets.
 
 Cross-check module source + version pins in `modules.<tool>[]` against
-the resolved AVM schema (`bicep-resolve-avm-module` or
-`terraform/get_module_details`); pin mismatches block Phase 2.
+the resolved AVM schema (available Bicep metadata tools or Terraform Registry
+metadata for the approved exact version); pin mismatches block Phase 2.
 
 ## Phase 4.6 — Validate Gate (MANDATORY)
 

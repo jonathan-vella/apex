@@ -34,11 +34,13 @@ Step 4` handoff. Do not patch the plan in place.
 
 ## Phase 1: Preflight Check
 
-For each resource in `04-implementation-plan.md`:
+For each resource in `04-iac-contract.json` (with the implementation plan as its prose mirror):
 
-1. Query AVM availability using the IaC-specific tool
-   - Bicep: `mcp_bicep_list_avm_metadata` → `mcp_bicep_resolve_avm_module`
-   - Terraform: `terraform/search_modules` → `terraform/get_module_details` → `terraform/get_latest_module_version`
+1. Verify the approved AVM module and version using the supported metadata workflow:
+  - Bicep: available AVM metadata tools or the existing AVM index/resolver.
+  - Terraform: public Terraform Registry API metadata for the approved exact version.
+  Preserve the plan's exact module pins; failed lookup or a required version change
+  returns to the Planner, not a new version selection in CodeGen.
 2. Cross-check planned parameters against the module schema; flag type mismatches
 3. Check region limitations
 4. Save results to `agent-output/{project}/04-preflight-check.md`
@@ -63,14 +65,14 @@ Policy Effect Reference: `azure-defaults/references/policy-effect-decision-tree.
 
 ## Phase 1.6: Context Compaction
 
-Context reaches ~80% after preflight and governance mapping. Compact before code generation:
+Before code generation, select runtime compression from observed context usage:
 
 1. Summarize prior phases in a single concise message (preflight result, governance map,
    deployment strategy, resource list with module paths/sources)
-2. Stop loading additional skills after this point; rely on what's already in context.
-   Do not re-read any `SKILL.md` you have already consumed this session
-   (skills are single-tier — there are no digest/minimal variants to switch to).
-3. Do not re-read predecessor artifacts — rely on the summary and saved files on disk
+2. Avoid optional or redundant reads; load missing required phase guidance before using it.
+  Skills remain single-tier, with no digest/minimal variants.
+3. Reuse unchanged predecessor content still available in context. After edits,
+  compaction, or a new chat, refresh only the needed sections; never infer missing contract fields.
 4. Update session state: `sub_step: "phase_1.6_compacted"`
 
 ## Phase 2: Output Cadence (MANDATORY — ONE FILE PER TURN)

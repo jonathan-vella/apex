@@ -38,6 +38,8 @@ for full details on this and all prior releases.
 - Recover recorded Requirements answers on resume instead of forcing a fresh questionnaire, retaining required elicitation.
 - Permit required deferred guidance after compaction and verify current deployment/inventory evidence on As-Built resume.
 - Recognize deep Plan review sidecars in runtime and CI presence checks, with atomic failure tests.
+- Align shared CodeGen and contract-handoff references with supported module discovery,
+  approved exact pins, and required guidance recovery after compaction.
 
 ### Fixed (Workflow optimization prerequisites)
 
