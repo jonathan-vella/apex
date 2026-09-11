@@ -26,15 +26,15 @@ tools:
 handoffs:
   - label: "▶ Expand Scope"
     agent: 09-Diagnose
-    prompt: "Expand the diagnostic scope to include related resources. Query resource dependencies and assess health of connected resources. Input: current resource under diagnosis + sibling resource group. Output: expanded findings in agent-output/{project}/diagnose-report-*.md."
+    prompt: "Expand the diagnostic scope to include related resources. Query resource dependencies and assess health of connected resources. Input: current resource under diagnosis + sibling resource group. Output: expanded findings in agent-output/{project}/08-resource-health-report.md."
     send: true
   - label: "▶ Deep Dive Logs"
     agent: 09-Diagnose
-    prompt: "Perform deep log analysis on the current resource. Query activity logs and diagnostic logs for detailed error information. Input: Application Insights / Log Analytics workspace ID. Output: log analysis section appended to agent-output/{project}/diagnose-report-*.md."
+    prompt: "Perform deep log analysis on the current resource. Query activity logs and diagnostic logs for detailed error information. Input: Application Insights / Log Analytics workspace ID. Output: log analysis section appended to agent-output/{project}/08-resource-health-report.md."
     send: true
   - label: "▶ Re-run Health Check"
     agent: 09-Diagnose
-    prompt: "Re-run the resource health assessment to check for status changes after remediation actions. Input: current diagnostic target resource ID. Output: refreshed health snapshot in agent-output/{project}/diagnose-report-*.md."
+    prompt: "Re-run the resource health assessment to check for status changes after remediation actions. Input: current diagnostic target resource ID. Output: refreshed health snapshot in agent-output/{project}/08-resource-health-report.md."
     send: true
   - label: "▶ Generate Workload Documentation"
     agent: 08-As-Built
@@ -96,8 +96,9 @@ Produce `agent-output/{project}/08-resource-health-report.md` with these section
 - Remediation recommendations (actionable, one per finding)
 - Open questions for the user (if any blocked the diagnosis)
 
-Save the file via `apex-recall finding <project> --add` per finding so session state stays
-current. Do not embed the artifact body in chat; return the path plus a one-line summary.
+Write or update the report using file-editing tools. Separately register each finding via
+`apex-recall finding <project> --add "<text>" --json` when project context exists;
+finding registration does not write the report. Return its path and a one-line summary, not its body.
 
 # Stop rules
 

@@ -152,4 +152,4 @@ azd env set MANAGED_IDENTITY_CLIENT_ID (az identity list --resource-group $rgNam
 
 ## Next
 
-All checks pass → **azure-deploy**
+Return results to **azure-validate**. Validation-only stops; deployment continuation follows its workflow and approval rules.

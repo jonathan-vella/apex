@@ -5,8 +5,30 @@ import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { test } from "node:test";
+import { loadValidator } from "../../scripts/_lib/ajv-validator.mjs";
 
 const script = fileURLToPath(new URL("../../scripts/validate-challenger-presence.mjs", import.meta.url));
+
+test("decision presentation maps canonical fields and persists schema-valid Edit and empty notes", () => {
+  const protocol = readFileSync(
+    new URL("../../../.github/skills/azure-defaults/references/adversarial-review-protocol.md", import.meta.url),
+    "utf8",
+  );
+  assert.match(protocol, /title = claim/);
+  assert.match(protocol, /description = evidence/);
+  assert.match(protocol, /persist it as `accept` with the `Edit: ` note prefix/);
+  const validate = loadValidator(
+    fileURLToPath(new URL("../../schemas/challenge-findings-decisions.schema.json", import.meta.url)),
+  );
+  const record = (action, note) => ({
+    challenged_artifact: "agent-output/demo/04-implementation-plan.md",
+    artifact_type: "implementation-plan",
+    decisions: [{ issue_id: "abc12345", severity: "should_fix", title: "Example", action, note }],
+  });
+  assert.equal(validate(record("accept", "Edit: use approved custom value")), true, JSON.stringify(validate.errors));
+  assert.equal(validate(record("defer", "")), true, JSON.stringify(validate.errors));
+  assert.equal(validate(record("edit", null)), false);
+});
 
 test("policy precheck fails closed without fresh or explicitly stale envelope evidence", (context) => {
   const contract = readFileSync(

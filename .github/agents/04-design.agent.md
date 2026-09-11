@@ -151,6 +151,9 @@ Never invent dollar figures.
 Run review only when ADRs were produced and `decisions.review_depth == "deep"`.
 Invoke `challenger-review-subagent` once per ADR with:
 
+- `artifact_path`: path of the current ADR
+- `project_name: {project}`
+- `pass_number: 1`
 - `artifact_type: design-adr`
 - `review_focus: comprehensive`
 - `prior_findings: null`

@@ -20,6 +20,13 @@ for full details on this and all prior releases.
 
 ### Changed (Workflow guidance simplification)
 
+- Separate APEX handoff-based validation/deployment from generic application preparation plans and validation proof.
+  Validation-only and preview-only stop at their requested boundary; missing APEX inputs return to their owner.
+- Align Diagnose report paths and Challenger finding types, filenames, field presentation, compact responses,
+  and Edit decision serialization with existing contracts. No artifact schema changes.
+- Unify CodeGen build checkpoints and partial-scaffold recovery while retaining one-file production cadence.
+  A matched AVM-backed batching experiment failed cadence/recovery acceptance and was not adopted.
+- Remove duplicate aggregate handoff validation and repair the pre-commit serialization test.
 - Consolidate same-scope site instructions, preserving template/styling rules and separate source-change triggers.
   Correct Starlight title ownership in instructions, review prompts, and docs-writer references.
 - Use one combined CodeGen validation worker and policy-first tag checks; preserve required reviews and security gates.

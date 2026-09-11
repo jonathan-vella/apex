@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-09-11T04:12:58.010Z",
+  "generatedAt": "2026-09-11T04:46:13.159Z",
   "categories": [
     {
       "id": "agent",
@@ -48,7 +48,7 @@
       "label": "Validator",
       "color": "#8b5cf6",
       "shape": "hexagon",
-      "count": 65
+      "count": 64
     },
     {
       "id": "workflow",
@@ -67,7 +67,7 @@
       "count": 3
     }
   ],
-  "nodeCount": 165,
+  "nodeCount": 164,
   "edgeCount": 622,
   "nodes": [
     {
@@ -1650,21 +1650,6 @@
       "parent": "group:validator-orphans"
     },
     {
-      "id": "validator:lint-workflow-handoffs",
-      "category": "validator",
-      "label": "lint:workflow-handoffs",
-      "description": "node tools/scripts/validate-agents.mjs --only=workflow-handoffs",
-      "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
-      "meta": {
-        "command": "node tools/scripts/validate-agents.mjs --only=workflow-handoffs",
-        "orphan": true
-      },
-      "parent": "group:validator-orphans"
-    },
-    {
       "id": "validator:validate-agent-registry",
       "category": "validator",
       "label": "validate:agent-registry",
@@ -2497,11 +2482,11 @@
     {
       "id": "group:validator-orphans",
       "category": "validator",
-      "label": "Validator (unlinked, 51)",
-      "description": "51 validator nodes with no cross-references in the current graph.",
+      "label": "Validator (unlinked, 50)",
+      "description": "50 validator nodes with no cross-references in the current graph.",
       "isGroup": true,
       "meta": {
-        "groupSize": 51
+        "groupSize": 50
       }
     },
     {

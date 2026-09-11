@@ -15,7 +15,8 @@ Shared deployment patterns used by both Bicep and Terraform deploy agents
 
 ## Rules
 
-- **Preflight first** — always run `azure-validate` before invoking any deploy strategy in this skill
+- **Preflight first** — 07b/07t use the APEX branch of `azure-validate` and the shared deploy readiness contract;
+  generic applications use their prepared plan and recorded proof. Preflight never starts generic preparation for APEX.
 - **azd by default** — use `azd provision` / `azd up` for all new projects. The legacy `deploy.ps1` path is deprecated; full decision matrix in [`references/azd-vs-deploy-guide.md`](references/azd-vs-deploy-guide.md).
 - **Phased deployment for high-risk changes** — split into Foundation → Security → Data → Compute → Edge with user approval at each gate
 - **Circuit breaker** — stop deployment automatically when policy violations, governance failures, or budget breaches are detected; surface to user before retrying
@@ -27,7 +28,7 @@ Shared deployment patterns used by both Bicep and Terraform deploy agents
 
 Standard deploy flow used by `07b-Bicep Deploy` and `07t-Terraform Deploy`:
 
-1. **Preflight** — run `azure-validate` (auth, governance, plan, what-if review)
+1. **Preflight** — use APEX-mode `azure-validate` (auth, governance, handoff/readiness); return results and stop for validation-only
 2. **Set environment** — `azd env set AZURE_SUBSCRIPTION_ID/RESOURCE_GROUP/LOCATION` + verify via `azd env get-values`
 3. **Preview** — `azd provision --preview` (Bicep) or `terraform plan` (Terraform); user reviews destructive operations
 4. **Approve gate** — user explicitly approves the preview before any apply

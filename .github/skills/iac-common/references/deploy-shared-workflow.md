@@ -7,13 +7,9 @@ Each agent reads this reference and uses its IaC-specific deployment commands.
 
 ## Pre-Deploy Challenger Review
 
-Before executing any deployment (after preview/what-if, before apply):
-
-1. Invoke `@challenger-review-subagent` with the preview output summary
-2. Focus lens: security-governance (Deny policy violations, destructive operations, missing tags)
-3. If `must_fix` count > 0: stop deployment and present findings to user
-4. If `should_fix` count > 0: present findings and ask user for explicit approval
-5. Log review result via `apex-recall review-audit <project> 6 --passes-executed 1 --json`
+The workflow graph assigns no Challenger review to Step 6. Do not repeat creative reviews over tool output.
+Preserve required upstream reviews, current live policy precheck (L3), destructive-change review, and user approval.
+An explicit standalone Challenger request remains separate from the deployment gate.
 
 ## Preflight: Security Baseline Check
 
@@ -53,7 +49,9 @@ operations without approval · >10 resource changes (summarize first) ·
 user hasn't approved · deprecation signals detected.
 
 Plan-only mode: if user selects plan/what-if only, generate `06-deployment-summary.md`
-with preview results and mark status as simulated/not-applied.
+with preview results and mark status as simulated/not-applied, then stop before approval/apply.
+Validation-only returns passed, failed, and unperformed checks without invoking preview or deployment.
+Neither mode completes Step 6 as deployed or authorizes resource creation, backend bootstrap, or regeneration.
 
 ## Default Follow Through Policy
 
@@ -110,13 +108,21 @@ offer, `terraform validate`/`fmt -check`, no `-target`).
 
 Replaces the prior practice of re-reading the full
 `04-implementation-plan.md` + every IaC file. The deploy agents
-(07b / 07t) now follow a fixed 8-step loop that reads only the compact
-`05-iac-handoff.json` and `04-environment-manifest.json`.
+(07b / 07t) use `05-iac-handoff.json` and `04-environment-manifest.json` as primary inputs.
+These are not an exhaustive read prohibition: read required referenced policy, SKU, phase and L3 inputs.
+No generic `.azure/plan.md` is required. Missing or unusable handoff/code/expected manifest returns to CodeGen;
+L1m mismatch returns to Planner; missing/stale governance returns to Governance.
+The documented legacy `05-implementation-reference.md` fallback is permitted only with actual validation evidence
+and current applicable checks; if neither usable path exists, stop. Never infer readiness from a validator's
+zero-match success, file presence alone, or generic plan status. CodeGen owns handoff re-emission.
+Legacy evidence supports validation/recovery, not a bypass of the hash gate. Without the JSON handoff,
+return to CodeGen for re-emission before preview/apply; do not fabricate recorded hashes or change the approved method.
 
 ```text
 1. read   agent-output/{project}/05-iac-handoff.json
 2. read   agent-output/{project}/04-environment-manifest.json
 3. assert validation_summary.verdict == APPROVED
+  verify entrypoint, successful validate_gate evidence, and current l1m_ref
 4. recompute tree_hash under iac-handoff.tree_hash.root
    ├─ match    → proceed
    └─ mismatch → invoke compact validate-subagent rerun
@@ -125,15 +131,16 @@ Replaces the prior practice of re-reading the full
                  Otherwise BLOCK and return to step-5.
 5. resolve required_inputs[] from environment-manifest;
    render *.bicepparam / *.tfvars.json via redaction rules
+  validation-only: return results and STOP (no preview/apply)
 6. policy-precheck-subagent (L3) using policy_precheck_inputs
-7. what-if (Bicep) / plan (Terraform) → human approval gate
+7. what-if (Bicep) / plan (Terraform) → preview-only: record not-applied and STOP;
+  deployment request: human approval gate
 8. azd provision / terraform apply → write 06-deployment-summary.md
 ```
 
 The handoff carries the L2 attestation rows so the deploy agent does
-not re-derive policy mapping from the IaC tree. A `tree_hash` mismatch
-is the only condition under which the deploy agent reads source files —
-and even then it delegates to validate-subagent rather than self-review.
+not re-derive policy mapping from the IaC tree. Read source only for required verification or recovery;
+delegate code revalidation to the declared validate-subagent rather than another creative review.
 
 Schema + validator: `tools/schemas/iac-handoff.schema.json`,
 `tools/scripts/validate-iac-handoff.mjs`.

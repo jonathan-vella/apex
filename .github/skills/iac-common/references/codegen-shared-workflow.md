@@ -97,11 +97,19 @@ into one response.
 
 ### Build cadence (early-warning, not full validation)
 
-After every **3 files written**, invoke the toolchain build via
-`execution_subagent` to catch wiring errors early:
+After every **3 files written**, check build readiness and run the toolchain build
+using the execution mechanism allowed by the agent's tool/subagent budget:
 
 - Bicep: `bicep build infra/bicep/{project}/main.bicep`
 - Terraform: `terraform -chdir=infra/terraform/{project} validate`
+
+Use actual emitted-file count, not file-order table ordinals. If the entrypoint or required
+local dependencies have not yet been emitted, record the check as deferred (not passed), continue
+the approved dependency order, and run it as soon as the scaffold is buildable.
+Provider/module initialization must be ready before Terraform validate; never infer readiness from
+the existence of `.terraform/` alone. A real compile/validation failure blocks further unrelated generation
+until repaired and rechecked. Per-write applicable shape checks still run, including Terraform formatting.
+Perform a final build for the last partial group; no completion or handoff with deferred checks.
 
 This is in addition to — not a replacement for — the full
 `bicep-validate-subagent` / `terraform-validate-subagent` runs in Phase 4.
@@ -110,6 +118,9 @@ This is in addition to — not a replacement for — the full
 
 If a prior turn aborted with the length-limit error:
 
+- Inspect the next file against approved inputs; existence alone does not prove a complete write.
+  Preserve complete matching files. Stop for an ownership decision on unexpected user changes;
+  repair a confirmed partial agent write with an editing tool before continuing.
 - Resume by emitting **only the next single file** that is not on disk.
 - Do **not** re-emit any file already on disk.
 - Do **not** summarise what was lost — continue the per-file cadence.

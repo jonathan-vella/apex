@@ -17,8 +17,8 @@ response turn regardless of how the set is trimmed.**
 
 ## Bicep
 
-Build cadence: after files 3, 6, 9, and 12, run
-`bicep build infra/bicep/{project}/main.bicep` via `execution_subagent`.
+Build cadence is owned by the shared workflow's Build cadence section.
+Count actual files written after trimming this table; table ordinals are not checkpoints.
 
 | #  | File                                                                                                                                                       | Round (dep) |
 | -- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
@@ -38,9 +38,8 @@ Build cadence: after files 3, 6, 9, and 12, run
 
 ## Terraform
 
-Build cadence: after files 6, 9, 12, and 15, run
-`terraform -chdir=infra/terraform/{project} validate` via
-`execution_subagent`.
+Build cadence is owned by the shared workflow's Build cadence section.
+Count actual files written after trimming this table; table ordinals are not checkpoints.
 
 | #  | File                                                                                                                                                              | Round (dep) |
 | -- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |

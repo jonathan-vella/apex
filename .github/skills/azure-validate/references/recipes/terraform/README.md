@@ -95,4 +95,4 @@ See [Policy Validation Guide](../../policy-validation.md) for instructions on re
 
 ## Next
 
-All checks pass → **azure-deploy**
+Return results to **azure-validate**. Validation-only stops; deployment continuation follows its workflow and approval rules.

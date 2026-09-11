@@ -304,8 +304,8 @@ by the parent agent. Schema:
       "issue_index": 3,
       "severity": "must_fix",
       "title": "...",
-      "action": "accept|reject|defer|edit",
-      "note": "free text or null",
+      "action": "accept|reject|defer",
+      "note": "free text or empty string",
       "decided_at": "<ISO-8601>"
     }
   ]
@@ -317,6 +317,11 @@ by the parent agent. Schema:
 matching `issue_id` are kept and skipped on the next panel build.
 
 ### 2b. Stable issue identity
+
+Normalize canonical findings for presentation: `title = claim`, `description = evidence`,
+`failure_scenario = impact`, and `suggested_mitigation = suggested_fix.proposed_edit` when supplied.
+These are local presentation aliases, not new fields in persisted findings. Legacy findings may use their original names.
+Use the normalized title for identity and sidecar title; do not require nonexistent WAF or recommendation fields.
 
 ```text
 issue_id = sha256(category + "|" + title + "|" + artifact_section).hexdigest()[0:8]
@@ -405,12 +410,16 @@ Deterministic — no agent-level interpretation:
 
 | User input                                                          | Resulting `action` | Resulting `note`                                    |
 | ------------------------------------------------------------------- | ------------------ | --------------------------------------------------- |
-| `Edit` selected + non-empty `freeText`                              | `edit`             | `<freeText>`                                        |
+| `Edit` selected + non-empty `freeText`                              | `accept`           | `Edit: <freeText>` (custom replacement guidance) |
 | `Edit` selected + empty `freeText`                                  | `defer`            | `"Edit selected without guidance — auto-deferred."` |
-| `Accept` / `Reject` / `Defer` selected (with or without `freeText`) | matches selection  | `<freeText>` if present, else `null`                |
+| `Accept` / `Reject` / `Defer` selected (with or without `freeText`) | matches selection  | `<freeText>` if present, else empty string |
 | `skipped: true`                                                     | `defer`            | `"User skipped — auto-deferred."`                   |
 
 ### 2i. Persist decisions (sidecar + apex-recall)
+
+The current sidecar schema has no `edit` action and requires string notes.
+Keep the Edit UI choice, persist it as `accept` with the `Edit: ` note prefix, and apply that custom guidance
+instead of the suggested mitigation. Do not add schema fields or emit null notes.
 
 For each answered question:
 
@@ -423,7 +432,7 @@ For each answered question:
 
    Pipe-delimited single-line format (Sg2). Consumers split on `|` with
    **max 4 splits** so titles or notes that contain `|` remain intact.
-   Use the literal string `null` (no quotes) when `note` is null.
+  Use an empty final field when the note is empty.
 
 ### 2j. No-op gate clarification
 

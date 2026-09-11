@@ -52,6 +52,19 @@ orchestrates this by delegating to one agent at a time, collecting its output,
 and routing to the next step. At approval gates, the Orchestrator writes a
 `00-handoff.md` summary document that enables session resume.
 
+### APEX And Generic Application Workflows
+
+APEX deployment agents consume approved IaC handoff and environment artifacts. They do not restart
+the generic `azure-prepare` workflow or require its application preparation plan. Missing APEX code,
+an expected manifest, or a usable handoff returns to CodeGen; legacy evidence must be converted to
+a current JSON handoff before preview or apply. Generic application workflows retain their own approved
+preparation plan and recorded Validation Proof.
+
+A validation-only request returns check results and stops. A preview-only request returns not-applied
+results and stops. Neither starts preparation, creates infrastructure, or marks deployment complete.
+An explicit deployment request still requires current policy checks, preview review, and apply approval.
+When a project contains both workflow formats and the requested workflow is unclear, the agent asks first.
+
 ## Top-Level Agents
 
 | Agent                 | Role                                            | Primary Skills                                 |

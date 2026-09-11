@@ -158,9 +158,40 @@ Verification evidence:
 - Independent re-review confirmed all three findings resolved. Offline added-link checks found no missing targets;
   selected regression tests passed. Runtime UI and external-link/anchor behavior were not certified by that review.
 
-Remaining work is explicit: publish this verified batch; obtain human output/UI signoff; decide entry separation;
-and evaluate the ledger's narrower follow-ups and representative batching experiment before broader adoption.
+This first batch was published as `5375b7bb`. Subsequent user approval and implementation are recorded below.
 No measured token savings or complete generated-output quality equivalence is claimed.
+
+### Second Batch (Approved Items 1, 2, 3)
+
+The user explicitly approved local defect/duplication fixes, generic/APEX entry separation, and the stronger
+batching experiment. See the [second-batch evidence](apex-workflow-audit.md#second-batch-local-fixes-entry-separation-and-matched-trial).
+
+- [x] Remove duplicate aggregate handoff validation while retaining full and standalone checks.
+- [x] Fix the pre-commit block test and normalize the blocking shell test setup line endings.
+- [x] Align Diagnose report writing and Challenger type/path/field/return contracts with current producers and schemas.
+- [x] Consolidate CodeGen build checkpoints and clarify incomplete-scaffold/partial-write recovery.
+- [x] Separate APEX handoffs from generic plan/proof workflows, including recipe and recovery consumers.
+- [x] Stop validation-only and preview-only without preparing, deploying, or claiming Step 6 completion.
+- [x] Execute matched AVM-backed baseline/candidate samples, mocked plans, and injected validation failures.
+- [x] Reject batching adoption on inconsistent cadence/recovery evidence; production cadence remains unchanged.
+- [x] Repair independent-review findings and rerun focused checks.
+- [x] Finish final full validation; publish through normal feature-branch hooks.
+
+Final gate: `npm run validate:all` passed with **54 checks, zero failures**, including external validation
+and site build/link checks. The lower count removes the redundant handoff subset; the full agent validator
+still runs those rules. Log: `tmp/apex-optimization/second-full-final.log`.
+Independent focused re-review found no unresolved introduced defects after repairs; it did not certify
+live agent behavior or deployment. Hook configuration tests passed separately (three tests).
+
+The matched trial is stronger than the earlier resource-free probe but still bounded: actual model output with
+frozen AVM versions, local compilation and mocked plans, not full artifacts or deployed behavior.
+Baseline Bicep violated single-file cadence, and candidate recovery prose recommended discarding partial files.
+Both modes compiled, needed Terraform formatting, and rejected identical injected output errors. Parent performed
+minimal repairs and verified passing builds. These results do not justify production batching or savings claims.
+
+Remaining beyond this batch: human UI/full-output acceptance, model/tool experiments and other explicitly ranked
+audit follow-ups. Entry separation is no longer awaiting approval. Batching experimentation is complete for this
+bounded trial, with adoption rejected pending different evidence rather than more favorable reruns.
 
 ## Revised Scope And Verification
 

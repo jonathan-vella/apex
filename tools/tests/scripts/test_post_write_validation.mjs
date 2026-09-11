@@ -25,6 +25,90 @@ const ROOT = path.resolve(HERE, "../../..");
 const SKILL = path.join(ROOT, ".github/skills/azure-artifacts/SKILL.md");
 const OPFRAME = path.join(ROOT, ".github/instructions/agent-operating-frame.instructions.md");
 
+test("Azure entry points distinguish APEX handoffs from generic proof and validation-only intent", () => {
+  for (const recipe of ["azd", "azcli", "bicep", "terraform"]) {
+    const body = fs.readFileSync(
+      path.join(ROOT, `.github/skills/azure-validate/references/recipes/${recipe}/README.md`),
+      "utf8",
+    );
+    assert.match(body, /Validation-only stops/);
+    assert.doesNotMatch(body, /All checks pass → \*\*azure-deploy\*\*/);
+  }
+  for (const file of ["07b-bicep-deploy.agent.md", "07t-terraform-deploy.agent.md"]) {
+    const body = fs.readFileSync(path.join(ROOT, ".github/agents", file), "utf8");
+    assert.match(body, /no generic `\.azure\/plan.md`/);
+    assert.match(body, /neither handoff path is usable/);
+    assert.match(body, /actual validation evidence and current applicable checks/);
+    assert.match(body, /Neither completes Step 6 as deployed/);
+    assert.doesNotMatch(body, /via azure-prepare/);
+  }
+  const readSkill = (skill) => fs.readFileSync(path.join(ROOT, `.github/skills/${skill}/SKILL.md`), "utf8");
+  const validate = readSkill("azure-validate");
+  assert.match(validate, /No generic `\.azure\/plan.md` is required/);
+  assert.match(validate, /validation-only returns passed, failed, and unperformed checks and stops/);
+  assert.match(validate, /Section 7/);
+  assert.doesNotMatch(validate, /If missing → run azure-prepare first/);
+  assert.match(validate, /Only this workflow updates generic plan status/);
+  assert.doesNotMatch(validate, /MUST.*invoke \*\*azure-deploy\*\* to execute/);
+  assert.match(
+    readSkill("azure-prepare"),
+    /All remaining phases, plan prerequisites, and references here apply to generic/,
+  );
+  assert.match(readSkill("azure-deploy"), /then stop this generic\s+pipeline/);
+  const shared = fs.readFileSync(
+    path.join(ROOT, ".github/skills/iac-common/references/deploy-shared-workflow.md"),
+    "utf8",
+  );
+  assert.match(shared, /actual validation evidence/);
+  assert.match(shared, /zero-match success/);
+  assert.match(shared, /CodeGen owns handoff re-emission/);
+  assert.match(shared, /no Challenger review to Step 6/);
+  assert.match(shared, /live policy precheck \(L3\)/);
+});
+
+test("CodeGen has one build-checkpoint owner and never passes an incomplete scaffold", () => {
+  const order = fs.readFileSync(path.join(ROOT, ".github/skills/iac-common/references/codegen-file-order.md"), "utf8");
+  assert.doesNotMatch(order, /after files 6, 9, 12|after files 3, 6, 9/);
+  assert.equal((order.match(/Build cadence is owned by the shared workflow/g) ?? []).length, 2);
+  const shared = fs.readFileSync(
+    path.join(ROOT, ".github/skills/iac-common/references/codegen-shared-workflow.md"),
+    "utf8",
+  );
+  assert.match(shared, /After every \*\*3 files written\*\*/);
+  assert.match(shared, /deferred \(not passed\)/);
+  assert.match(shared, /no completion or handoff with deferred checks/);
+  assert.match(shared, /existence alone does not prove a complete write/);
+  assert.match(shared, /exactly one file per response turn/);
+});
+
+test("Diagnose writes its report separately from session finding registration", () => {
+  const body = fs.readFileSync(path.join(ROOT, ".github/agents/09-diagnose.agent.md"), "utf8");
+  assert.match(body, /Write or update the report using file-editing tools/);
+  assert.match(body, /finding registration does not write the report/);
+  assert.doesNotMatch(body, /diagnose-report-\*|Save the file via/);
+  assert.match(body, /Stop before each Azure CLI, KQL, or remediation command until the user approves/);
+});
+
+test("Challenger resolves canonical stems and consumes persisted schema fields", () => {
+  const body = fs.readFileSync(path.join(ROOT, ".github/agents/10-challenger.agent.md"), "utf8");
+  assert.match(body, /`implementation-plan` \| `plan`/);
+  assert.match(body, /`governance-constraints` \/ `-pass1`/);
+  assert.match(body, /`06-deploy-approval.json` \| `deployment-preview`/);
+  assert.match(body, /Preserve explicit caller-supplied `output_path`/);
+  assert.match(body, /ask for distinct pass-one and remaining-batch paths/);
+  assert.match(body, /output_path` = resolved remaining-batch findings_path/);
+  assert.doesNotMatch(body, /artifact_type=comprehensive|set `artifact_type` to `"comprehensive"`/);
+  assert.match(body, /\{suggested_fix.proposed_edit\}/);
+  const worker = fs.readFileSync(
+    path.join(ROOT, ".github/agents/_subagents/challenger-review-subagent.agent.md"),
+    "utf8",
+  );
+  assert.match(worker, /`deployment-preview`, `design-adr` \(required\)/);
+  assert.match(worker, /`prior_findings`: Compact string/);
+  assert.match(worker, /return only the Parent-Facing Summary in chat/);
+  assert.doesNotMatch(worker, /Return ONLY valid JSON matching/);
+});
+
 test("review reuse and deployment routing cannot bypass current evidence", () => {
   const governance = fs.readFileSync(path.join(ROOT, ".github/agents/04g-governance.agent.md"), "utf8");
   assert.match(governance, /existing `cache_inputs` match the current artifact/);

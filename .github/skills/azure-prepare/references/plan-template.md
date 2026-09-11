@@ -176,11 +176,12 @@ For each resource type:
 - [ ] **PREREQUISITE:** Plan status MUST be "Ready for Validation" (Phase 2 last step)
 - [ ] Invoke azure-validate skill
 - [ ] All validation checks pass
-- [ ] Update plan status to "Validated"
 - [ ] Record validation proof below
+- [ ] azure-validate updates plan status to "Validated" only after recording proof
 
 ### Phase 4: Deployment
 
+- [ ] Explicit deployment request and required approvals exist; validation-only stops before this phase
 - [ ] Invoke azure-deploy skill
 - [ ] Deployment successful
 - [ ] Update plan status to "Deployed"

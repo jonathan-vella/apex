@@ -22,7 +22,8 @@ Both deploy agents (07b-Bicep, 07t-Terraform) load this guide on demand.
 | New Bicep project                     | **azd**                       | Default, cross-platform, built-in env management          |
 | New Terraform project                 | **azd**                       | `infra.provider: terraform` gives TF + azd simplicity     |
 | Existing project with `azure.yaml`    | **azd**                       | Already configured                                        |
-| Existing project without `azure.yaml` | **azd** (generate azure.yaml) | Generate `azure.yaml` via azure-prepare, then use azd     |
+| Generic app without `azure.yaml` | **azd** after approved preparation | Generic azure-prepare owns manifest generation |
+| APEX project missing expected `azure.yaml` | Return to `06b` / `06t` CodeGen | Do not restart generic preparation; retain approved legacy methods |
 | Need fine-grained phased deployment   | **azd** with hooks            | Use `preprovision`/`postprovision` hooks for phased logic |
 | CI/CD pipeline (non-interactive)      | **azd**                       | `azd provision --no-prompt` with env vars                 |
 | Legacy project with deploy.ps1 only   | deploy.ps1 _(deprecated)_     | Migrate to azd when possible                              |
@@ -61,7 +62,7 @@ IaC project directory, never at the repo root.
 infra/{iac}/{project}/
 ├── azure.yaml              # azd manifest (infra.path: .)
 ├── .azure/                 # git-ignored; per-environment state
-│   ├── plan.md             # azure-prepare output — source of truth
+│   ├── plan.md             # generic app preparation only; not required for APEX
 │   └── {project}-{env}/    # e.g., hub-spoke-dev/
 │       └── .env            # azd environment variables
 ├── main.bicep (or main.tf) # IaC entry point (co-located)
@@ -80,6 +81,11 @@ infra/{iac}/{project}/
 ---
 
 ## azd Workflow
+
+The prepare/validate/deploy skill sequence below is for generic applications.
+APEX follows [its shared deploy workflow](deploy-shared-workflow.md#slim-deploy-loop-wave-3-all-workloads)
+with approved handoff/environment evidence, live L3, preview and user approval instead of a generic plan.
+Validation-only and preview-only stop at their requested boundary; do not continue into deployment.
 
 ### 1. Prepare (azure-prepare skill)
 

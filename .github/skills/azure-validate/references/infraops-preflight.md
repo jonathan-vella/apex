@@ -2,8 +2,12 @@
 
 # InfraOps Preflight Validation
 
-Additional preflight checks specific to the APEX workflow.
-These augment the plugin's standard azure-validate checks.
+This is the APEX validation branch, not an addition to generic application plan prerequisites.
+Use the [shared deployment readiness contract](../../iac-common/references/deploy-shared-workflow.md#slim-deploy-loop-wave-3-all-workloads).
+Read actual APEX handoff/environment evidence; never manufacture a generic plan or validation proof.
+Validation-only reports passed, failed, and unperformed checks and stops. Preview-only stops before apply.
+Resource-group creation, backend bootstrap, code regeneration, and deployment require the owning workflow
+and applicable approval; recovery examples below are not permission to mutate during validation-only.
 
 ## Azure CLI Authentication
 
@@ -53,7 +57,8 @@ When translating Azure Policy `Deny` constraints to IaC:
 3. Translate to IaC property:
    - **Bicep**: Drop leading resource-type segment from `azurePropertyPath`
    - **Terraform**: Use translation table in `.github/instructions/references/iac-policy-compliance.md`
-4. Governance-discovered tags always win over the 9 baseline defaults
+4. Validate against the Planner's existing mapping and discovered tag contract; do not regenerate L1/L2 mappings.
+   Missing mapping returns to Planner; code mismatches return to CodeGen. Canonical fallback applies only without tag policy.
 
 **Policy Effect Reference**: `azure-defaults/references/policy-effect-decision-tree.md`
 
@@ -65,5 +70,5 @@ When translating Azure Policy `Deny` constraints to IaC:
 - Validation errors (`bicep build` / `terraform validate`)
 - Delete/Destroy operations without explicit user approval
 - > 10 resource changes (summarize first, then ask)
-- User hasn't approved the deployment
+- User hasn't approved the deployment (blocks apply, not a requested validation-only result)
 - Deprecation signals detected in preview output

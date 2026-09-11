@@ -9,6 +9,26 @@ metadata:
 
 # Azure Validate
 
+## Workflow And Requested Action
+
+Resolve workflow identity before prerequisite checks. An explicit APEX request or handoff from
+an APEX step agent uses the APEX branch below. A generic application request uses the generic branch.
+If ambiguous (including both kinds of state present), ask which workflow to use; directory location
+or a lone manifest is not proof. Never synthesize approval state to select a branch.
+
+- **APEX**: use [InfraOps Preflight](references/infraops-preflight.md) and the shared deploy readiness
+  contract. Return findings to the current owner (`06b-Bicep CodeGen` / `06t-Terraform CodeGen` for
+  code validation, `07b-Bicep Deploy` / `07t-Terraform Deploy` for deployment preflight).
+  No generic `.azure/plan.md` is required. Do not invoke generic preparation, recipes, or deployment.
+- **Generic application**: the following plan/proof/recipe workflow applies. An approved preparation
+  plan is required; missing prerequisites block validation. Ask before starting preparation when the
+  request was validation-only. Only this workflow updates generic plan status to `Validated`.
+- **Requested action**: validation-only returns passed, failed, and unperformed checks and stops.
+  Preview-only returns the preview as not applied and stops. Successful checks are not permission to deploy.
+  Continue to execution only within an explicit deployment request and its separate preview/apply approvals.
+
+## Generic Application Validation
+
 > **AUTHORITATIVE GUIDANCE** — Follow these instructions exactly. This supersedes prior training.
 
 > **⛔ STOP — PREREQUISITE CHECK REQUIRED**
@@ -17,7 +37,8 @@ metadata:
 >
 > **azure-prepare** was invoked and completed → `infra/{iac}/{project}/.azure/plan.md` exists with status `Approved` or later
 >
-> If the plan is missing, **STOP IMMEDIATELY** and invoke **azure-prepare** first.
+> If the plan is missing, stop and report the prerequisite. Invoke **azure-prepare** only when preparation
+> is within the authorized request; validation-only does not authorize it.
 >
 > The complete workflow ensures success:
 >
@@ -56,13 +77,13 @@ project's IaC tool.
 
 | #   | Action                                                                                                                         | Reference                                         |
 | --- | ------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------- |
-| 1   | **Load Plan** — Read `infra/{iac}/{project}/.azure/plan.md` for recipe and configuration. If missing → run azure-prepare first | `infra/{iac}/{project}/.azure/plan.md`            |
+| 1   | **Load Plan** — Read the generic plan for recipe/configuration; if missing, follow the request-scoped prerequisite rule above | `infra/{iac}/{project}/.azure/plan.md` |
 | 2   | **Run Validation** — Execute recipe-specific validation commands                                                               | [recipes/README.md](references/recipes/README.md) |
 | 3   | **Build Verification** — Build the project and fix any errors before proceeding                                                | See recipe                                        |
 | 4   | **Record Proof** — Populate **Section 7: Validation Proof** with commands run and results                                      | `infra/{iac}/{project}/.azure/plan.md`            |
 | 5   | **Resolve Errors** — Fix failures before proceeding                                                                            | See recipe's `errors.md`                          |
 | 6   | **Update Status** — Only after ALL checks pass, set status to `Validated`                                                      | `infra/{iac}/{project}/.azure/plan.md`            |
-| 7   | **Deploy** — Invoke **azure-deploy** skill                                                                                     | —                                                 |
+| 7   | **Return results** — Stop for validation-only; authorized deployment requests may continue through azure-deploy approvals | Workflow And Requested Action |
 
 > **⛔ VALIDATION AUTHORITY**
 >
@@ -76,9 +97,10 @@ project's IaC tool.
 
 ---
 
-> **⚠️ MANDATORY NEXT STEP — DO NOT SKIP**
+> **Next action is request-scoped**
 >
-> After ALL validations pass, you **MUST** invoke **azure-deploy** to execute the deployment. Do NOT attempt to run `azd up`, `azd deploy`, or any deployment commands directly. Let azure-deploy handle execution.
+> Return results for validation-only. For an authorized generic deployment, invoke **azure-deploy**;
+> do not execute deployment commands directly. APEX callers return to their owning step agent.
 
 ## APEX-Specific References
 

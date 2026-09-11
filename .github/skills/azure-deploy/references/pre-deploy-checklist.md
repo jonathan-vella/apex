@@ -2,6 +2,10 @@
 
 # Pre-Deployment Checklist
 
+Generic application deployments only. APEX callers return to `07b-Bicep Deploy` or `07t-Terraform Deploy`
+before initialization, regeneration, or execution; they use approved APEX handoff/readiness contracts.
+Validation-only and preview-only requests do not authorize any provisioning or automatic preparation here.
+
 > **CRITICAL**: Before running ANY provisioning commands, you MUST complete this checklist IN ORDER.
 >
 > ⛔ **DO NOT** run `azd up` until ALL steps are complete. Trial-and-error wastes time and creates orphan resources.

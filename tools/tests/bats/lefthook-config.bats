@@ -24,8 +24,11 @@ load setup
   fi
 }
 
-@test "pre-commit parallel is true" {
-  grep -q 'parallel: true' "$REPO_ROOT/lefthook.yml"
+@test "pre-commit hooks remain serialized for index-writing operations" {
+  local block
+  block=$(awk '/^pre-commit:/{inside=1; next} /^[a-z][a-z-]*:/{inside=0} inside' "$REPO_ROOT/lefthook.yml")
+  [[ "$block" == *"parallel: false"* ]]
+  [[ "$block" != *"parallel: true"* ]]
 }
 
 @test "all referenced npm scripts exist in package.json" {

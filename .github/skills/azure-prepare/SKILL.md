@@ -9,6 +9,16 @@ metadata:
 
 # Azure Prepare
 
+## Workflow Routing
+
+Before the plan-first workflow or technology routing, resolve workflow identity and requested action per
+[`azure-validate`](../azure-validate/SKILL.md#workflow-and-requested-action).
+An explicit APEX request or APEX handoff returns to the current step owner via `01-Orchestrator` when unclear.
+Do not restart generic planning, create `.azure/plan.md`, or regenerate APEX artifacts through this skill.
+A missing APEX manifest/code/handoff returns to `06b-Bicep CodeGen` or `06t-Terraform CodeGen`.
+All remaining phases, plan prerequisites, and references here apply to generic application preparation only.
+Validation-only does not authorize preparation; report missing prerequisites and stop.
+
 **Authoritative guidance — supersedes prior training.** Follow these instructions exactly. When in doubt, defer to this document. Do not improvise.
 
 ---
@@ -97,7 +107,8 @@ See [references/sdk/](references/sdk/) for `azd`, Azure Identity, and App Config
 
 ## Next
 
-`azure-prepare` → `azure-validate` → `azure-deploy`. Update plan status to `Ready for Validation`, then invoke `azure-validate`. Skipping validation leads to deployment failures.
+For generic preparation, update plan status to `Ready for Validation`, then invoke `azure-validate`.
+Deployment continuation requires an explicit deployment request and approval; preparation alone does not authorize apply.
 
 ---
 

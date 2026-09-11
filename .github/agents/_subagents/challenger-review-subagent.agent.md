@@ -115,7 +115,7 @@ down in this agent.
 
 The parent agent passes **artifact paths plus the explicit input fields
 documented in `## Inputs` — never artifact bodies inline**. Re-read the
-challenged artifact, `prior_findings` JSON, governance constraints, and
+challenged artifact, saved prior findings when needed, governance constraints, and
 any supporting files from disk on demand with bounded `read_file` ranges,
 and consult `apex-recall show <project> --json` for decision/finding
 lookups. If a required input field is missing or `output_path` is not
@@ -129,11 +129,12 @@ The parent agent provides:
 - `artifact_path`: Path to the artifact file or directory being challenged (required)
 - `project_name`: Name of the project being challenged (required)
 - `artifact_type`: One of `requirements`, `architecture`, `implementation-plan`,
-  `governance-constraints`, `iac-code`, `cost-estimate`, `deployment-preview` (required)
+  `governance-constraints`, `iac-code`, `cost-estimate`, `deployment-preview`, `design-adr` (required)
 - `review_focus`: One of `security-governance`, `architecture-reliability`,
   `cost-feasibility`, `comprehensive`, `governance-reconciliation` (required for single-lens mode)
 - `pass_number`: 1, 2, or 3 — which adversarial pass this is (required for single-lens mode)
-- `prior_findings`: JSON from previous passes, or null if this is pass 1 (optional)
+- `prior_findings`: Compact string from previous `compact_for_parent` values, or null (optional).
+  Read saved findings when detail beyond that current summary is required.
 - `output_path`: **REQUIRED**. The full file path where the findings JSON will be
   written. Canonical pattern (caller's responsibility):
   `agent-output/{project}/challenge-findings-{artifact_type}-pass{N}.json`
@@ -178,11 +179,11 @@ must_fix_count: {N}
 should_fix_count: {N}
 suggestion_count: {N}
 top_must_fix: ["{title1}", "{title2}", "{title3}"]
+compact_for_parent: {compact_for_parent from the persisted payload}
 ```
 
-In batch mode, repeat the `risk_level` / counts / `top_must_fix` lines
-once per lens (prefixed with the lens name) and emit a single `file_path`
-that points to the consolidated JSON.
+In batch mode, emit one compact line per lens with its risk, counts and compact_for_parent,
+plus a single file_path pointing to the consolidated JSON; keep the same total response budget.
 
 > The parent reads `file_path` from disk only if it needs the full
 > findings to synthesize an artifact. The compact summary alone is
@@ -270,7 +271,7 @@ per-category and per-artifact-type checklists, plus Azure Infrastructure Skeptic
 
 ## Output Contract
 
-Return ONLY valid JSON matching the schema below. No markdown wrapper, no explanation outside JSON.
+Persist only valid JSON matching the schema below at output_path; return only the Parent-Facing Summary in chat.
 
 **Single-lens mode**: Required top-level fields: `schema_version`,
 `challenged_artifact`, `artifact_type`, `review_focus`, `pass_number`,
@@ -375,7 +376,7 @@ Format:  Pass {N} ({review_focus}) | {RISK_LEVEL} | {N} must_fix, {N} should_fix
 
 Keep under 200 characters. Include only the top 3 `must_fix` titles.
 
-If no significant risks found, return empty `issues` array with `risk_level: "low"`.
+If no significant risks found, persist an empty `findings` array with `risk_level: "low"` and zero counts.
 Do NOT repeat issues already in `prior_findings`.
 
 > **Per-finding decisions are out of scope for this subagent.** Parent
@@ -393,44 +394,13 @@ When `batch_lenses` is provided, execute each lens sequentially and persist the 
 result to `output_path`. As in single-lens mode, do NOT return this JSON to the parent — only
 the compact summary (per-lens lines) is sent back.
 
-The on-disk JSON has the shape:
-
-```json
-{
-  "batch_results": [
-    {
-      "challenged_artifact": "agent-output/{project}/{artifact-file}",
-      "artifact_type": "architecture | implementation-plan | iac-code",
-      "review_focus": "architecture-reliability",
-      "pass_number": 2,
-      "challenge_summary": "Brief summary of key risks",
-      "compact_for_parent": "Pass 2 (arch-rel) | MEDIUM | 1 must_fix, 2 should_fix | Key: [title1]; [title2]",
-      "risk_level": "high | medium | low",
-      "must_fix_count": 0,
-      "should_fix_count": 0,
-      "suggestion_count": 0,
-      "findings": []
-    },
-    {
-      "challenged_artifact": "agent-output/{project}/{artifact-file}",
-      "artifact_type": "architecture | implementation-plan | iac-code",
-      "review_focus": "cost-feasibility",
-      "pass_number": 3,
-      "challenge_summary": "Brief summary of key risks",
-      "compact_for_parent": "Pass 3 (cost) | LOW | 0 must_fix, 1 should_fix | Key: [title1]",
-      "risk_level": "high | medium | low",
-      "must_fix_count": 0,
-      "should_fix_count": 0,
-      "suggestion_count": 0,
-      "findings": []
-    }
-  ]
-}
-```
+The on-disk object contains `batch_results`: one complete single-lens payload per requested lens,
+including `schema_version` and `cache_inputs`. Use the single-lens format above for each entry;
+counts must agree with that entry's findings. Do not maintain an abbreviated alternate schema.
 
 **Batch execution protocol**: Process each lens independently. Do not let findings from one
 lens bias severity calibration of another. For subsequent lenses, append the previous lens's
-`compact_for_parent` to `prior_findings`. Deduplicate: mark `"duplicate": true` on repeated issues.
+`compact_for_parent` to `prior_findings`. Omit repeated issues; link genuinely new related findings via `traces_to`.
 
 ## Rules
 

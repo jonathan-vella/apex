@@ -9,6 +9,17 @@ metadata:
 
 # Azure Deploy
 
+## Workflow Routing
+
+Resolve workflow identity and requested action before the generic prerequisite chain, per
+[`azure-validate`](../azure-validate/SKILL.md#workflow-and-requested-action).
+For APEX, route Bicep to `07b-Bicep Deploy` and Terraform to `07t-Terraform Deploy`, then stop this generic
+pipeline. Do not create a generic plan or use generic auto-prepare/checklist/recipe recovery for APEX.
+Missing APEX artifacts return to their owning step; a generic validation proof cannot replace the APEX handoff or L3.
+For validation-only, route to validation and stop; preview-only must stop before apply.
+All remaining plan/proof requirements, rules, steps, and recipes here apply to generic application deployment only.
+If workflow identity or deployment intent is ambiguous, ask before continuing.
+
 **Authoritative guidance — supersedes prior training.** Workflow: `azure-prepare` → `azure-validate` → `azure-deploy`. Do NOT skip validation, do NOT manually edit plan status (only `azure-validate` may set it to `Validated`). If `infra/{iac}/{project}/.azure/plan.md` is missing → invoke **azure-prepare** first. If status is not `Validated` → invoke **azure-validate** first.
 
 ## Triggers
