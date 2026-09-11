@@ -20,18 +20,18 @@ Current dispositions and completed changes are recorded in the
 This section supersedes older remaining-fix labels for A02-A14. All changes preserve models, roles,
 review floors, artifact schemas, security gates and production file cadence.
 
-| Items | Controlling Evidence And Disposition | Verification |
-| --- | --- | --- |
-| A02-A04 | Requirements permits its Phase 3 service-class runbook only; Design skip retains Governance prerequisites; Bicep Deploy returns missing scripts to CodeGen. | Focused agent contracts and independent source review. |
-| A05 | Terraform worker uses isolated backend-disabled initialization; CodeGen owns plan gate; Deploy invalidates readiness after provider/module/backend/workspace changes. | Real local-module reinitialization preserves deployment cache; approval contract tests. |
-| A06 | Bicep validator retains compiled ARM through property review instead of discarding stdout. | Real Bicep compile exposes security properties without source mutation. |
-| A07 | Cost worker prices environment overrides, regions and stamps separately; reuse requires current equivalent evidence and provenance. | Pricing contract tests; live pricing arithmetic remains manual/runtime evidence. |
-| A08-A09 | Distinguish ADX/Log Analytics, check external skill availability, route greenfield pricing to cost worker; reuse unchanged confirmed context without skipping current readiness checks. | Focused routing contracts; no Azure calls. |
-| A10 | Context Optimizer includes leaf workers and honors read-only mode throughout snapshots, analysis and reporting. | Parser executes to stdout without input-tree writes. |
-| A11 | Correct provider-range semantics, actual Python configuration, POSIX/Bash startup, parser reuse, recall-mediated lessons and enforcement claims. | Scoped lint and guidance tests; valid provider/Python values retained. |
-| A12 | One artifact hook owns equivalent H2/template validation and covers template-only changes; challenger presence remains independent. | Real hook matcher and shell failure fixtures; Bats. |
-| A13 | Required main CI owns Markdown lint; docs checks retain lint on other PR bases and all build/link checks; Pages builds its own publishing artifact. | Trigger/provenance tests and read-only required-check inspection. Distinct builds retained. |
-| A14 | Unknown aggregate members fail closed with native parser/matcher compatibility. | Actual CLI tests cover redirection, failures, overlapping globs and intentional repeats. |
+| Items   | Controlling Evidence And Disposition                                                                                                                                                    | Verification                                                                                |
+| ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| A02-A04 | Requirements permits its Phase 3 service-class runbook only; Design skip retains Governance prerequisites; Bicep Deploy returns missing scripts to CodeGen.                             | Focused agent contracts and independent source review.                                      |
+| A05     | Terraform worker uses isolated backend-disabled initialization; CodeGen owns plan gate; Deploy invalidates readiness after provider/module/backend/workspace changes.                   | Real local-module reinitialization preserves deployment cache; approval contract tests.     |
+| A06     | Bicep validator retains compiled ARM through property review instead of discarding stdout.                                                                                              | Real Bicep compile exposes security properties without source mutation.                     |
+| A07     | Cost worker prices environment overrides, regions and stamps separately; reuse requires current equivalent evidence and provenance.                                                     | Pricing contract tests; live pricing arithmetic remains manual/runtime evidence.            |
+| A08-A09 | Distinguish ADX/Log Analytics, check external skill availability, route greenfield pricing to cost worker; reuse unchanged confirmed context without skipping current readiness checks. | Focused routing contracts; no Azure calls.                                                  |
+| A10     | Context Optimizer includes leaf workers and honors read-only mode throughout snapshots, analysis and reporting.                                                                         | Parser executes to stdout without input-tree writes.                                        |
+| A11     | Correct provider-range semantics, actual Python configuration, POSIX/Bash startup, parser reuse, recall-mediated lessons and enforcement claims.                                        | Scoped lint and guidance tests; valid provider/Python values retained.                      |
+| A12     | One artifact hook owns equivalent H2/template validation and covers template-only changes; challenger presence remains independent.                                                     | Real hook matcher and shell failure fixtures; Bats.                                         |
+| A13     | Required main CI owns Markdown lint; docs checks retain lint on other PR bases and all build/link checks; Pages builds its own publishing artifact.                                     | Trigger/provenance tests and read-only required-check inspection. Distinct builds retained. |
+| A14     | Unknown aggregate members fail closed with native parser/matcher compatibility.                                                                                                         | Actual CLI tests cover redirection, failures, overlapping globs and intentional repeats.    |
 
 Independent review found descriptor redirection misparsed as a task and cross-pattern duplication in A14.
 Both were repaired; native-runner comparison tests pass. The isolated workflow suite passes all checks,
@@ -55,8 +55,14 @@ retirement test was repaired to assert its original paths rather than rewrite th
 Final review found no confirmed migration regression. Full `npm run validate:all` passes, including external
 checks and site build/links. Bounded named agent probes cover fresh/resume/revision and validation/preview-only
 decisions for both IaC tracks; they do not certify native UI behavior or complete output quality. Final manual
-checks and rollback are in the execution plan. Local commits are retained; publication is blocked by the
-recorded GitHub HTTP 403, with no bypass or identity substitution attempted.
+checks and rollback are in the execution plan. Commits through `d6d3614f` are published on the feature branch.
+The earlier Git/CLI identity mismatch was resolved after explicit user authorization to use existing owner
+credentials through an invocation-local helper. Normal push hooks passed; persistent Git configuration is unchanged.
+
+Post-migration editor activity recreated old-name skill files. Independent comparison found only baseline
+content and partial approved name substitutions, not unique semantic edits. Originals were preserved outside
+discovery under ignored `tmp/apex-optimization/restored-skills-preserved/`, with SHA-256 verification recorded
+in its manifest. Current prefixed discovery validation passes; user formatting changes are preserved.
 
 Assessed active bodies, discovery descriptions, targeted controlling references, callers and local introduction
 history at `ea6db336`. Independent review challenged the closest pairs and approved retaining their distinct
@@ -64,41 +70,41 @@ entrypoints. No whole-skill merger or retirement has demonstrated lossless equiv
 discovery are not deletion evidence. The following is the old-to-survivor-to-prefixed-name map; every survivor
 is its original entrypoint. SHARE preserves discovery and moves only proven-equivalent procedure content.
 
-| Original / Survivor | New Name | Decision And Protected Responsibility |
-| --- | --- | --- |
-| agent-authoring | apex-agent-authoring | Keep structure, model-policy and handoff authoring; vendor audit remains separately discoverable. |
-| azure-adr | apex-azure-adr | Keep alternatives, WAF consequences and decision-record lifecycle. |
-| azure-artifacts | apex-azure-artifacts | Keep exact artifact templates, headings and attribution contracts. |
-| azure-bicep-patterns | apex-azure-bicep-patterns | Keep Bicep/AVM composition and language-specific interfaces. |
-| azure-cloud-migrate | apex-azure-cloud-migrate | Keep source-cloud assessment and conversion before Azure preparation. |
-| azure-compliance | apex-azure-compliance | Keep security assessment and Key Vault expiration auditing. |
-| azure-compute | apex-azure-compute | Keep subscription-free VM/VMSS sizing and public pricing recommendations. |
-| azure-cost-optimization | apex-azure-cost-optimization | Share exact disk/IP/NIC queries; retain cost/utilization correlation and savings audit. |
-| azure-defaults | apex-azure-defaults | Keep policy precedence, naming and planning constraints, distinct from execution. |
-| azure-deploy | apex-azure-deploy | Share generic safety rules; keep execution, recovery and post-deployment verification. |
-| azure-diagnostics | apex-azure-diagnostics | Keep incident triage and service-specific telemetry/remediation. |
-| azure-governance-discovery | apex-azure-governance-discovery | Keep deterministic policy traversal, effects, exemptions, freshness and evidence. |
-| azure-kusto | apex-azure-kusto | Keep ADX cluster/database/schema KQL rather than Monitor or Resource Graph queries. |
-| azure-prepare | apex-azure-prepare | Own shared generic safety rules; retain approved planning and artifact generation. |
-| azure-quotas | apex-azure-quotas | Keep quota discovery, capacity comparisons and authorized increase requests. |
-| azure-rbac | apex-azure-rbac | Keep least-privilege Azure resource authorization, distinct from OAuth consent. |
-| azure-resources | apex-azure-resources | Own shared orphan query primitives; retain inventory and resource visualization. |
-| azure-storage | apex-azure-storage | Keep data-plane operations, SDK patterns, tiers, redundancy and lifecycle. |
-| azure-validate | apex-azure-validate | Keep validation-only boundary and exclusive generic Validation Proof ownership. |
-| context-management | apex-context-management | Keep runtime compression and retrospective log analysis; prior consolidation retained. |
-| docs-writer | apex-docs-writer | Keep documentation freshness, explanation and changelog workflows. |
-| entra-app-registration | apex-entra-app-registration | Keep app registrations, redirects, API permissions and MSAL integration. |
-| github-operations | apex-github-operations | Keep GitHub contribution lifecycle, hooks and CLI-first operations. |
-| golden-principles | apex-golden-principles | Keep operating-philosophy discovery; inconsistent principle numbering is not safe merger evidence. |
-| iac-common | apex-iac-common | Keep cross-track execution, retry and plan-lock contracts; do not merge conflicting retry choices. |
-| mermaid | apex-mermaid | Keep inline Markdown diagrams and Starlight rendering contract. |
-| microsoft-docs | apex-microsoft-docs | Keep Microsoft Learn search, selective fetch and sample research. |
-| python-diagrams | apex-python-diagrams | Keep executable sources plus image artifacts and quantitative charts. |
-| terraform-patterns | apex-terraform-patterns | Keep HCL composition, state-safe refactoring and AVM pitfalls. |
-| terraform-search-import | apex-terraform-search-import | Keep brownfield import-only planning and experimental search detection. |
-| terraform-test | apex-terraform-test | Keep test files, mocks, negative assertions and authorized integration cleanup. |
-| vendor-prompting | apex-vendor-prompting | Keep vendor-specific rule IDs and audit evidence; effective-model differences preclude procedure merger. |
-| workflow-engine | apex-workflow-engine | Keep DAG routing, conditional tracks, gates and schema evolution. |
+| Original / Survivor        | New Name                        | Decision And Protected Responsibility                                                                    |
+| -------------------------- | ------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| agent-authoring            | apex-agent-authoring            | Keep structure, model-policy and handoff authoring; vendor audit remains separately discoverable.        |
+| azure-adr                  | apex-azure-adr                  | Keep alternatives, WAF consequences and decision-record lifecycle.                                       |
+| azure-artifacts            | apex-azure-artifacts            | Keep exact artifact templates, headings and attribution contracts.                                       |
+| azure-bicep-patterns       | apex-azure-bicep-patterns       | Keep Bicep/AVM composition and language-specific interfaces.                                             |
+| azure-cloud-migrate        | apex-azure-cloud-migrate        | Keep source-cloud assessment and conversion before Azure preparation.                                    |
+| azure-compliance           | apex-azure-compliance           | Keep security assessment and Key Vault expiration auditing.                                              |
+| azure-compute              | apex-azure-compute              | Keep subscription-free VM/VMSS sizing and public pricing recommendations.                                |
+| azure-cost-optimization    | apex-azure-cost-optimization    | Share exact disk/IP/NIC queries; retain cost/utilization correlation and savings audit.                  |
+| azure-defaults             | apex-azure-defaults             | Keep policy precedence, naming and planning constraints, distinct from execution.                        |
+| azure-deploy               | apex-azure-deploy               | Share generic safety rules; keep execution, recovery and post-deployment verification.                   |
+| azure-diagnostics          | apex-azure-diagnostics          | Keep incident triage and service-specific telemetry/remediation.                                         |
+| azure-governance-discovery | apex-azure-governance-discovery | Keep deterministic policy traversal, effects, exemptions, freshness and evidence.                        |
+| azure-kusto                | apex-azure-kusto                | Keep ADX cluster/database/schema KQL rather than Monitor or Resource Graph queries.                      |
+| azure-prepare              | apex-azure-prepare              | Own shared generic safety rules; retain approved planning and artifact generation.                       |
+| azure-quotas               | apex-azure-quotas               | Keep quota discovery, capacity comparisons and authorized increase requests.                             |
+| azure-rbac                 | apex-azure-rbac                 | Keep least-privilege Azure resource authorization, distinct from OAuth consent.                          |
+| azure-resources            | apex-azure-resources            | Own shared orphan query primitives; retain inventory and resource visualization.                         |
+| azure-storage              | apex-azure-storage              | Keep data-plane operations, SDK patterns, tiers, redundancy and lifecycle.                               |
+| azure-validate             | apex-azure-validate             | Keep validation-only boundary and exclusive generic Validation Proof ownership.                          |
+| context-management         | apex-context-management         | Keep runtime compression and retrospective log analysis; prior consolidation retained.                   |
+| docs-writer                | apex-docs-writer                | Keep documentation freshness, explanation and changelog workflows.                                       |
+| entra-app-registration     | apex-entra-app-registration     | Keep app registrations, redirects, API permissions and MSAL integration.                                 |
+| github-operations          | apex-github-operations          | Keep GitHub contribution lifecycle, hooks and CLI-first operations.                                      |
+| golden-principles          | apex-golden-principles          | Keep operating-philosophy discovery; inconsistent principle numbering is not safe merger evidence.       |
+| iac-common                 | apex-iac-common                 | Keep cross-track execution, retry and plan-lock contracts; do not merge conflicting retry choices.       |
+| mermaid                    | apex-mermaid                    | Keep inline Markdown diagrams and Starlight rendering contract.                                          |
+| microsoft-docs             | apex-microsoft-docs             | Keep Microsoft Learn search, selective fetch and sample research.                                        |
+| python-diagrams            | apex-python-diagrams            | Keep executable sources plus image artifacts and quantitative charts.                                    |
+| terraform-patterns         | apex-terraform-patterns         | Keep HCL composition, state-safe refactoring and AVM pitfalls.                                           |
+| terraform-search-import    | apex-terraform-search-import    | Keep brownfield import-only planning and experimental search detection.                                  |
+| terraform-test             | apex-terraform-test             | Keep test files, mocks, negative assertions and authorized integration cleanup.                          |
+| vendor-prompting           | apex-vendor-prompting           | Keep vendor-specific rule IDs and audit evidence; effective-model differences preclude procedure merger. |
+| workflow-engine            | apex-workflow-engine            | Keep DAG routing, conditional tracks, gates and schema evolution.                                        |
 
 Implemented SHARE batch: deploy's global-rules reference now requires prepare's canonical rules, stops if
 unavailable, and preserves old anchors and its local checklist. Cost optimization reads only identical orphan
@@ -339,7 +345,7 @@ Imported directories and metadata were retained. These rows assess complete entr
 | `azure-compute`              | No Azure subscription required                   | Keep public-data VM/VMSS selection distinct from estate cost optimization.                                                                   |
 | `azure-cost-optimization`    | Based on actual usage data                       | Keep rightsizing/spend evidence; greenfield pricing should not be routed here by default.                                                    |
 | `azure-defaults`             | Load only needed reference                       | Keep precedence/naming/security workflow; canonical values stay in Copilot instructions.                                                     |
-| `azure-deploy`               | Pre-deploy checklist; generic plan proof         | Keep execution/recovery; entry separation implemented in `9128ea94`. Context reuse remains tracked by A09. |
+| `azure-deploy`               | Pre-deploy checklist; generic plan proof         | Keep execution/recovery; entry separation implemented in `9128ea94`. Context reuse remains tracked by A09.                                   |
 | `azure-diagnostics`          | Resource health before deep logs                 | Keep operational incident diagnosis; appropriate Log Analytics troubleshooting owner.                                                        |
 | `azure-governance-discovery` | Single batched REST traversal                    | Keep deterministic envelope, exit codes and cache freshness; no invented cache key.                                                          |
 | `azure-kusto`                | Against Azure Data Explorer                      | Keep ADX analytics; generic prepare's Log Analytics mapping is a routing candidate, not grounds for merging.                                 |
@@ -348,7 +354,7 @@ Imported directories and metadata were retained. These rows assess complete entr
 | `azure-rbac`                 | Least privilege first                            | Keep role selection distinct from Entra app registration.                                                                                    |
 | `azure-resources`            | Do not auto-visualize lookup results             | Keep inventory and explicitly requested visualization modes.                                                                                 |
 | `azure-storage`              | Managed Identity over keys                       | Fixed data-plane examples to Entra login and scoped RBAC; retain service/SDK references.                                                     |
-| `azure-validate`             | Readiness and entry routing                      | Keep readiness/proof ownership; validation-only stop and explicit APEX route implemented in `9128ea94`. |
+| `azure-validate`             | Readiness and entry routing                      | Keep readiness/proof ownership; validation-only stop and explicit APEX route implemented in `9128ea94`.                                      |
 | `context-management`         | Runtime artifact compression and log audit       | Fixed latency methodology; keep separate runtime/audit modes and recovery. Compression is not evidence of model compliance.                  |
 | `docs-writer`                | Excludes agent-output                            | Fixed site-header and unsupported validation examples in references; keep repository/site freshness distinct from artifact generation.       |
 | `entra-app-registration`     | Least-privilege API permissions                  | Keep OAuth/MSAL/app identities, with RBAC redirect for resource permissions.                                                                 |

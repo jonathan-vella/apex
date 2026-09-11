@@ -2,7 +2,7 @@
 
 ## Status
 
-**State**: Local implementation verified; ready for manual testing; feature-branch publication blocked by GitHub HTTP 403
+**State**: Implementation verified and published on the feature branch; ready for user manual testing
 **Owner**: Jonathan Vella with GitHub Copilot
 **Created**: 2026-09-10
 **Branch**: `perf/apex-workflow-optimization`
@@ -91,12 +91,12 @@ Use the existing audit ledger for source evidence, decisions, validation results
 - [x] A12 Fix artifact-hook template-only coverage and consolidate only demonstrably equivalent overlapping execution.
 - [x] A13 Map documentation CI events/paths; remove duplicate work only with required checks and build provenance preserved.
 - [x] A14 Reject unknown aggregate validation members without breaking supported script syntax.
-- [ ] A15 Run relevant regressions, reconcile the ledger, and publish the verified backlog-closeout batch.
+- [x] A15 Run relevant regressions, reconcile the ledger, and publish the verified backlog-closeout batch.
 
-Phase A implementation and review are complete in local commit `ea6db336`; full validation passed.
-Publishing is blocked: GitHub returned HTTP 403, permission denied to `jovella_microsoft` for
-`jonathan-vella/apex`. No alternate identity or bypass was attempted. A15 stays open for publication;
-independent local Phases B-D03 continue under the authorization to complete safe unblocked work.
+Phase A implementation and review are published in commit `ea6db336`; full validation passed.
+The earlier HTTP 403 was a Git/CLI credential mismatch. On 2026-09-11 the user explicitly authorized
+the existing `jonathan-vella` CLI credentials for publication. An invocation-local credential helper
+pushed the feature branch with normal hooks; no persistent Git configuration changed.
 
 ### Phase B: Skill Merger And Retirement Plan
 
@@ -112,8 +112,8 @@ Do not treat the previous inventory's Keep labels as a completed merger/retireme
 - [x] B04 Produce the decision-oriented plan, including justified retentions, unresolved evidence, execution batches,
       and an old-to-surviving-name map that will feed the later prefix migration.
 - [x] B05 Apply the pre-authorized decision policy: select merges/retirements with preserved capabilities and review
-  evidence; retain inconclusive candidates. Do not introduce protected behavioral/schema changes
-  or pause for routine approval.
+      evidence; retain inconclusive candidates. Do not introduce protected behavioral/schema changes
+      or pause for routine approval.
 - [x] B06 Implement qualifying merges/retirements and update all live consumers, tests, documentation and generated views.
 - [x] B07 Validate capability/discovery preservation and freeze the surviving skill set before renaming it.
 
@@ -146,7 +146,7 @@ External/user-profile/plugin skills outside this repository are not renamed. Pre
       evidence or a missed migration. Verify no current required consumer points to a removed path.
 - [x] C08 Run skill discovery, name-directory, reference, model, workflow, schema and tooling tests;
       include fresh/resume/revision cases for both IaC tracks without changing their approval/security contracts.
-- [ ] C09 Publish the validated migration and concise old-to-new map with rollback instructions on the feature branch.
+- [x] C09 Publish the validated migration and concise old-to-new map with rollback instructions on the feature branch.
 
 ### Phase D: Final Verification And User Testing
 
@@ -159,11 +159,15 @@ External/user-profile/plugin skills outside this repository are not renamed. Pre
 
 ### Final Local Verification And Handoff
 
-Phase A is committed as `ea6db336`; procedure sharing and survivor decisions as `d41507cc`.
-The naming migration is a separate local commit after final hooks. A15 and C09 remain publication-blocked,
-not complete: the existing GitHub identity received HTTP 403 on the feature-branch push. No credential
-substitution, auth retry, force-push or hook bypass was attempted. All independent local work is complete.
-D03 reconciles that blocked state and delivers this checklist; it does not certify remote publication.
+Published commits: `ea6db336` (Phase A), `d41507cc` (procedure sharing and survivor decisions),
+`c3246ea1` (naming migration), and `d6d3614f` (preserved tracking for moved vendor snapshots).
+The authorized owner-credential push advanced the remote feature branch from `36f3962c` to `d6d3614f`;
+all pre-push checks passed. A01-D03 are complete. No force-push, hook bypass, main merge or Azure write occurred.
+
+Later editor/formatter activity recreated old-name skill files. Independent comparison found no unique
+semantic changes to port. All originals were moved out of discovery, without content changes, to ignored
+`tmp/apex-optimization/restored-skills-preserved/`; its `manifest.json` records verified SHA-256 hashes.
+Current prefixed skill validation passes. User formatting edits to this plan and the audit are preserved.
 
 The full final `npm run validate:all` passed, including Node validators, Python/recall checks and built-site
 link checks. Focused checks cover naming failures, native aggregate syntax, template-only hooks, historical
@@ -184,32 +188,32 @@ No live Azure operation, native slash-menu acceptance, end-to-end token saving o
 ### Manual Validation Checklist
 
 - [ ] Reload the VS Code window; confirm each repository skill appears once under its `apex-` name, with no
-  old-name wrappers. Verify external/user-profile skills remain unchanged.
+      old-name wrappers. Verify external/user-profile skills remain unchanged.
 - [ ] Invoke representative imported and local skills by name and natural-language trigger. Check cross-skill
-  redirects, linked references, templates and scripts load without missing-path errors.
+      redirects, linked references, templates and scripts load without missing-path errors.
 - [ ] Start fresh Bicep and Terraform projects: required elicitation precedes artifact work; Phase 3 runbook
-  access does not fabricate user answers; track/review choices persist without redundant questions.
+      access does not fabricate user answers; track/review choices persist without redundant questions.
 - [ ] Resume each track after compaction and with partial generated files. Verify existing user edits survive,
-  partial agent output is repaired rather than discarded, and one-file generation cadence remains unchanged.
+      partial agent output is repaired rather than discarded, and one-file generation cadence remains unchanged.
 - [ ] Revise budget, region, SKU and plan inputs; confirm current evidence is reused only when equivalent,
-  changed inputs invalidate reviews/previews appropriately, and upstream changes return to their owner.
+      changed inputs invalidate reviews/previews appropriately, and upstream changes return to their owner.
 - [ ] Skip optional Design with missing/stale Governance; confirm discovery/reconciliation and approval still gate planning.
 - [ ] Confirm Step 2 requires both architecture and independent cost-feasibility reviews, and unresolved blocking
-  findings cannot advance either production or unattended workflows.
+      findings cannot advance either production or unattended workflows.
 - [ ] Request validation-only and preview-only on both tracks. Confirm no preparation, bootstrap, deployment,
-  state migration, workspace creation or apply occurs beyond the requested boundary.
+      state migration, workspace creation or apply occurs beyond the requested boundary.
 - [ ] Inspect generated Bicep ARM evidence and Terraform dependency/backend/workspace checks. Confirm validators
-  do not fabricate plan approval, mutate frozen inputs, or upgrade approved pins.
+      do not fabricate plan approval, mutate frozen inputs, or upgrade approved pins.
 - [ ] Compare complete generated artifacts against approved requirements, SKU manifest and governance constraints;
-  verify completeness, naming, security, costs by environment/region/stamp, diagrams and as-built traceability.
+      verify completeness, naming, security, costs by environment/region/stamp, diagrams and as-built traceability.
 - [ ] Run a read-only Context Optimizer audit; verify leaf workers are included and no snapshot/report/state writes occur.
 - [ ] Record observed failures, affected files, reproduction prompts and expected behavior for D05 remediation.
 
-Rollback: revert the naming commit as a unit on this feature branch to restore paths and callers together.
+Rollback: revert `d6d3614f` then `c3246ea1` together on this feature branch to restore paths and callers.
 Revert `d41507cc` separately to undo procedure sharing, or `ea6db336` for Phase A behavior changes after review.
 Use new revert commits with normal hooks; do not reset user work or rewrite historical evidence. Restoring only
-skill directories without consumers is invalid. Publication requires the repository owner to restore authorized
-write access before pushing the local commits; the current denial is not bypassed by this plan.
+skill directories without consumers is invalid. Publication is complete; D04-D05 still require user testing,
+reported findings, remediation and explicit quality signoff. Do not infer acceptance from automated checks.
 
 ### Boundaries And Non-Goals
 
