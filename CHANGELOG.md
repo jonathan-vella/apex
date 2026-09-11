@@ -18,6 +18,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 See the [published changelog](https://apexops.pro/project/changelog/)
 for full details on this and all prior releases.
 
+### Changed (Devcontainer documentation)
+
+- Align setup documentation with build-time tool pins, fail-fast dependency installation,
+  preservation of existing MCP configuration, and cache persistence. Image-build and timing validation remain pending.
+- Correct GitHub credential forwarding guidance and document user-authorized, per-command identity recovery
+  without automatic login, credential switching, or persistent Git configuration changes.
+
 ### Changed (Workflow guidance simplification)
 
 - Rename repository skills with exactly one `apex-` prefix and migrate live callers, discovery redirects,

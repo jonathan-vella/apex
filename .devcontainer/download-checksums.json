@@ -1,0 +1,32 @@
+{
+  "uv": {
+    "version": "0.8.22",
+    "artifacts": {
+      "amd64": {
+        "url": "https://github.com/astral-sh/uv/releases/download/0.8.22/uv-x86_64-unknown-linux-gnu.tar.gz",
+        "sha256": "741ff1f5742c5a4a25d2f829e8395355e43f7a5ae2ebc6368e9ae2df0efb69cf",
+        "checksumUrl": "https://github.com/astral-sh/uv/releases/download/0.8.22/uv-x86_64-unknown-linux-gnu.tar.gz.sha256"
+      },
+      "arm64": {
+        "url": "https://github.com/astral-sh/uv/releases/download/0.8.22/uv-aarch64-unknown-linux-gnu.tar.gz",
+        "sha256": "726b72a137fda33565143325f7d31c42cd30ff9ccdf067e00d124d37b4081cb2",
+        "checksumUrl": "https://github.com/astral-sh/uv/releases/download/0.8.22/uv-aarch64-unknown-linux-gnu.tar.gz.sha256"
+      }
+    }
+  },
+  "gitleaks": {
+    "version": "8.28.0",
+    "artifacts": {
+      "amd64": {
+        "url": "https://github.com/gitleaks/gitleaks/releases/download/v8.28.0/gitleaks_8.28.0_linux_x64.tar.gz",
+        "sha256": "a65b5253807a68ac0cafa4414031fd740aeb55f54fb7e55f386acb52e6a840eb",
+        "checksumUrl": "https://github.com/gitleaks/gitleaks/releases/download/v8.28.0/gitleaks_8.28.0_checksums.txt"
+      },
+      "arm64": {
+        "url": "https://github.com/gitleaks/gitleaks/releases/download/v8.28.0/gitleaks_8.28.0_linux_arm64.tar.gz",
+        "sha256": "eff65261156100e5d94a6b3dec313d532fddfe19ae1590bf7a2b4f2699128356",
+        "checksumUrl": "https://github.com/gitleaks/gitleaks/releases/download/v8.28.0/gitleaks_8.28.0_checksums.txt"
+      }
+    }
+  }
+}

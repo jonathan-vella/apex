@@ -109,72 +109,46 @@ Press `F1` → **Dev Containers: Reopen in Container**
 
 First build takes 2-5 minutes. Subsequent opens are instant.
 
-### Step 4: GitHub CLI Authentication (PAT)
+### Step 4: GitHub Authentication
 
-HTTPS-based `gh auth login` can fail inside dev containers on some platforms (Windows, ARM, WSL 2).
-The **only supported** approach is a **Personal Access Token (PAT)** set in **VS Code User Settings**.
-The container reads it automatically — no `gh auth login` required inside the container.
+Git normally uses host credentials forwarded by VS Code Dev Containers through a credential helper
+or SSH agent. The `gh` CLI authenticates separately: use an explicitly authenticated configuration
+in the persistent `~/.config/gh` Docker volume, or an optional host-process `GH_TOKEN`.
+If needed, the user chooses and performs authentication, for example with `gh auth login`.
+Setup and agents do not automatically log in, switch credentials, or change persistent Git settings.
 
-:::note[Why not shell exports?]
-Setting `GH_TOKEN` in `~/.bashrc`, `~/.profile`, or PowerShell environment variables
-does **not** propagate reliably into dev containers. VS Code reads `${localEnv:GH_TOKEN}`
-from its own process environment, which only inherits from the specific shell session
-that launched it. The VS Code settings method is deterministic and survives rebuilds,
-reboots, and IDE restarts.
+**Optional token forwarding:** `${localEnv:GH_TOKEN}` reads the environment inherited by the host
+VS Code process when it launches. Supply the token securely in that host environment before launching
+VS Code. Fully exit and relaunch an existing VS Code process, then reopen the container, when changing
+or rotating that value. An environment token takes precedence over stored `gh` credentials.
+
+:::caution[Terminal-only settings]
+`terminal.integrated.env.*` affects integrated terminals only. It does not populate `${localEnv:GH_TOKEN}`
+or supply credentials to all lifecycle hooks, MCP processes, and the extension host.
+Exporting a token inside the container does not change the host VS Code environment.
 :::
 
-#### Create a Fine-Grained PAT
+A fine-grained PAT is optional, not mandatory. Limit repository access, permissions, and lifetime to
+the intended operations, subject to organization approval and policy. Never put secrets in repository
+files, paste tokens into chat, or ask an agent to receive or display them.
 
-1. Go to **GitHub → Settings → Developer settings → Personal access tokens → Fine-grained tokens**
-2. Click **Generate new token**
-3. Set expiry (90 days recommended; rotate via calendar reminder)
-4. **Repository access**: All repositories, or select specific ones
-5. **Permissions** — minimum required:
-
-   | Permission    | Level      |
-   | ------------- | ---------- |
-   | Contents      | Read/Write |
-   | Metadata      | Read       |
-   | Pull requests | Read/Write |
-   | Issues        | Read/Write |
-   | Workflows     | Read/Write |
-
-6. Copy the token (`github_pat_...`)
-
-#### Add to VS Code User Settings (once per machine)
-
-1. Open VS Code Settings: **Ctrl+,** (or **Cmd+,** on macOS)
-2. Select the **Open Settings (JSON)** icon (top-right)
-3. Add this entry (replace the placeholder with your actual token):
-
-```jsonc
-"terminal.integrated.env.linux": { "GH_TOKEN": "github_pat_your_token_here" }
-```
-
-<!-- markdownlint-disable MD029 -->
-
-4. Save the file
-5. Rebuild the devcontainer: **F1 → Dev Containers: Rebuild Container**
-<!-- markdownlint-enable MD029 -->
-
-:::caution[Why not shell exports?]
-Running `export GH_TOKEN=...` inside the container does not persist across
-rebuilds. VS Code User Settings inject the token via `terminal.integrated.env.linux`,
-which the devcontainer forwards automatically.
-:::
-
-The devcontainer forwards `GH_TOKEN` from VS Code's environment automatically
-(`"GH_TOKEN": "${localEnv:GH_TOKEN}"` in `devcontainer.json`).
-
-#### Verify inside the container
+**If Git denies access to an unexpected account**, compare the account named in the denial with:
 
 ```bash
-gh auth status
-# Expected: ✓ Logged in to github.com as <your-username> (token)
+gh api user --jq .login
 ```
 
-> **Token rotation**: When your PAT expires, update the value in VS Code User Settings and
-> rebuild the container (`F1 → Dev Containers: Rebuild Container`).
+Check the target repository and branch. Only after the user confirms the `gh` identity and explicitly
+authorizes using it for the push, use a per-command helper for the approved feature branch:
+
+```bash
+git -c credential.helper= -c credential.helper='!gh auth git-credential' push origin <approved-feature-branch>
+```
+
+Replace the branch placeholder before running. The empty helper clears inherited helpers for this invocation;
+single quotes protect `!` from Bash history expansion. No persistent Git configuration is changed.
+This does not authorize a force push or a push to `main`. If identities match, investigate permissions
+or branch protection instead of switching credentials.
 
 ### Step 5: Verify Setup
 

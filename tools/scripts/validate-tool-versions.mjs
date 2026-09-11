@@ -62,6 +62,9 @@ function runVersion(cmd, parser) {
   try {
     out = execSync(cmd, { stdio: ["ignore", "pipe", "pipe"] }).toString();
   } catch (err) {
+    if (parser === "bicep" && cmd === "bicep --version") {
+      return runVersion("az bicep version --only-show-errors", parser);
+    }
     return { ok: false, error: err.message.split("\n")[0] };
   }
   if (parser === "bicep") {

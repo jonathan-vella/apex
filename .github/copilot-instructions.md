@@ -129,8 +129,17 @@ CLI is always available in this dev container and is the more stable primitive.
 Fall back to MCP only when an operation has no `gh` CLI equivalent (e.g., rich
 PR review thread management or bulk GraphQL queries). In devcontainers,
 do not run `gh auth` commands unless the user explicitly asks for CLI auth
-troubleshooting (`GH_TOKEN` is set via VS Code User Settings →
-`terminal.integrated.env.linux`; shell exports do not propagate reliably).
+troubleshooting. Git normally uses VS Code-forwarded host credentials;
+`gh` uses its explicitly authenticated config volume or optional `GH_TOKEN`
+inherited by the host VS Code process at launch (`${localEnv:GH_TOKEN}`).
+`terminal.integrated.env.*` affects terminals only, not that substitution
+or all hooks, MCP processes, and the extension host. Never request tokens
+through chat, expose them to the model, or store secrets in repository files.
+For an identity mismatch, compare `gh api user --jq .login` with the account
+named in Git's denial. Only with explicit user authorization, use
+`git -c credential.helper= -c credential.helper='!gh auth git-credential' push origin <approved-feature-branch>`.
+Keep the helper single-quoted. Never switch credentials automatically, change
+persistent Git configuration, force-push, or infer approval to push to `main`.
 
 ### Explore Subagent Thoroughness
 

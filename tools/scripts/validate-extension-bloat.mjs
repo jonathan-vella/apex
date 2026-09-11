@@ -4,16 +4,15 @@
 //
 // Rejects dev-container additions of VS Code extensions known to ship heavy
 // Copilot chat customizations (chatSkills / chatAgents / chatPromptFiles)
-// that duplicate the APEX workflow and inflate per-turn input-token cost
-// by ~5-7k each.
+// that overlap the APEX workflow. Installed manifests establish overlap,
+// not measured per-turn token cost.
 //
 // Denylist is intentionally conservative: only extensions audited as
 // adding bloat WITHOUT serving the APEX workflow. Borderline cases
-// (Cosmos DB, GitHub PR review) stay off the denylist; they are
-// `unwantedRecommendations` only.
+// (service explorers and GitHub PR review) stay off the denylist.
 //
 // Linked docs:
-//   - docs/devcontainer-hygiene.md (rationale + per-developer cleanup)
+//   - .devcontainer/README.md (rationale + per-developer cleanup)
 //   - .vscode/extensions.json (unwantedRecommendations dialog)
 //
 import { existsSync, readFileSync } from "node:fs";
@@ -32,11 +31,10 @@ const devcontainerPath = resolve(repoRoot, ".devcontainer/devcontainer.json");
 // `contributes.chatSkills` / `chatAgents` / `chatPromptFiles` inspection
 // against the test03 debug log (a3ca0888).
 const DENYLIST = new Map([
-  [
-    "ms-azuretools.vscode-azure-github-copilot",
-    "9 chatAgents + 7 chatPromptFiles duplicating APEX's own end-to-end agent set",
-  ],
-  ["ms-windows-ai-studio", "AI Toolkit: 2 chatSkills + 2 chatAgents, out of scope for APEX"],
+  ["ms-azuretools.vscode-azure-github-copilot", "Azure chat agents overlap APEX's workflow agents"],
+  ["ms-windows-ai-studio.windows-ai-studio", "AI Toolkit agents and skills are outside the core APEX workflow"],
+  ["ms-vscode.vscode-node-azure-pack", "Azure Tools bundles Azure Copilot and optional service extensions"],
+  ["ms-azuretools.vscode-azure-mcp-server", "Bundles Azure Copilot; APEX configures Azure MCP directly"],
   ["teamsdevapp.vscode-ai-foundry", "AI Foundry chatAgents, out of scope for APEX"],
 ]);
 
@@ -74,7 +72,7 @@ for (const ext of extensions) {
   const hit = lowerDenylist.get(ext.toLowerCase());
   if (hit) {
     r.errorAnnotation(".devcontainer/devcontainer.json", `Bloat extension declared: ${hit.id} — ${hit.reason}`);
-    console.log(`  Fix: Remove "${hit.id}" from customizations.vscode.extensions[]. See docs/devcontainer-hygiene.md.`);
+    console.log(`  Fix: Remove "${hit.id}" from customizations.vscode.extensions[]. See .devcontainer/README.md.`);
   }
 }
 

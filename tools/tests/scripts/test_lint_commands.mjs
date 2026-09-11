@@ -1,13 +1,62 @@
 import assert from "node:assert/strict";
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } from "node:fs";
+import { cpSync, symlinkSync, mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
 import { load, dump } from "js-yaml";
+import { parseJsonc } from "../../scripts/_lib/parse-jsonc.mjs";
 
 const { scripts } = JSON.parse(readFileSync(new URL("../../../package.json", import.meta.url), "utf8"));
+
+test("devcontainer remote features match locked versions", () => {
+  const config = parseJsonc(readFileSync(new URL("../../../.devcontainer/devcontainer.json", import.meta.url), "utf8"));
+  const lock = JSON.parse(
+    readFileSync(new URL("../../../.devcontainer/devcontainer-lock.json", import.meta.url), "utf8"),
+  );
+  for (const feature of Object.keys(config.features).filter((key) => key.startsWith("ghcr.io/"))) {
+    const tag = feature.split(":").at(-1);
+    assert.ok(tag, `Empty feature tag: ${feature}`);
+    assert.ok(lock.features[feature], `Missing locked feature: ${feature}`);
+    if (/^\d+$/.test(tag)) assert.equal(lock.features[feature].version.split(".")[0], tag);
+  }
+});
+
+test("extension guard rejects Azure Copilot and bundling extensions", (context) => {
+  const root = fixture(context);
+  mkdirSync(path.join(root, "tools/scripts"), { recursive: true });
+  mkdirSync(path.join(root, ".devcontainer"));
+  cpSync(new URL("../../scripts/_lib", import.meta.url), path.join(root, "tools/scripts/_lib"), { recursive: true });
+  cpSync(
+    new URL("../../scripts/validate-extension-bloat.mjs", import.meta.url),
+    path.join(root, "tools/scripts/validate-extension-bloat.mjs"),
+  );
+  symlinkSync(fileURLToPath(new URL("../../../node_modules", import.meta.url)), path.join(root, "node_modules"), "dir");
+  const check = (extension) => {
+    writeFileSync(
+      path.join(root, ".devcontainer/devcontainer.json"),
+      JSON.stringify({ customizations: { vscode: { extensions: [extension] } } }),
+    );
+    return spawnSync(process.execPath, [path.join(root, "tools/scripts/validate-extension-bloat.mjs")], {
+      encoding: "utf8",
+    });
+  };
+  for (const extension of [
+    "ms-azuretools.vscode-azure-github-copilot",
+    "ms-azuretools.vscode-azure-mcp-server",
+    "ms-vscode.vscode-node-azure-pack",
+    "ms-windows-ai-studio.windows-ai-studio",
+  ]) {
+    const result = check(extension.toUpperCase());
+    assert.equal(result.status, 1, result.stdout + result.stderr);
+    assert.match(result.stdout, /Bloat extension declared/);
+  }
+  for (const extension of ["GitHub.copilot-chat", "ms-azuretools.vscode-bicep", "ms-python.vscode-pylance"]) {
+    const result = check(extension);
+    assert.equal(result.status, 0, result.stdout + result.stderr);
+  }
+});
 
 test("docs CI retains event coverage, status jobs and same-run build provenance", () => {
   const workflow = (name) =>

@@ -135,7 +135,7 @@ check_post_create_log() {
         | sort -u > "$WARNINGS_FILE" || true
 
     local summary
-    summary=$(grep -E 'Setup complete(!| with warnings:| with errors:)' "$INSTALL_LOG" | tail -1 || true)
+    summary=$(grep -E '^Setup complete\.$|Setup complete(!| with warnings:| with errors:)' "$INSTALL_LOG" | tail -1 || true)
     if [[ -z "$summary" ]]; then
         printf 'Setup summary not found\n'
         return 1
