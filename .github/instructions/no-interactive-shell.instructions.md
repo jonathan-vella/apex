@@ -75,7 +75,10 @@ echo "wrote /tmp/rg-resources.json ($(wc -l </tmp/rg-resources.json) lines)"
 If a >50-line output was produced by mistake, do **not** attempt to
 clear the terminal — the transcript already captured it and `clear`
 does not remove it from the chat history. Note the bloat in
-`apex-recall lessons` and avoid repeating the same command.
+the structured lesson log per
+[`lesson-collection.instructions.md`](lesson-collection.instructions.md)
+and avoid repeating the same command. Register the artifact via recall;
+there is no `apex-recall lessons` subcommand.
 
 ## Rule 4 — Command portability
 

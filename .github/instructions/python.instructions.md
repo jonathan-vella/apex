@@ -22,7 +22,9 @@ Python is used for two purposes in this repo:
 - **Line length**: 120 characters (matches project-wide setting)
 - **Imports**: sorted by isort rules via Ruff — stdlib, third-party, first-party
 - **Quotes**: double quotes for strings
-- **Type hints**: use for function signatures; `pyproject.toml` sets `basic` type checking
+- **Type hints**: use for function signatures. Root `pyproject.toml` configures
+    Python/Ruff, not a type-checking mode; inspect the applicable package/editor
+    configuration before claiming a Pyright/Pylance level is enforced.
 
 ## Package Management
 

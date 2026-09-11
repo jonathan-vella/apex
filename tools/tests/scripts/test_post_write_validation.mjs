@@ -25,6 +25,101 @@ const ROOT = path.resolve(HERE, "../../..");
 const SKILL = path.join(ROOT, ".github/skills/azure-artifacts/SKILL.md");
 const OPFRAME = path.join(ROOT, ".github/instructions/agent-operating-frame.instructions.md");
 
+test("pricing preserves deployment quantities and reuses only current equivalent evidence", () => {
+  const worker = fs.readFileSync(path.join(ROOT, ".github/agents/_subagents/cost-estimate-subagent.agent.md"), "utf8");
+  const guidance = fs.readFileSync(
+    path.join(ROOT, ".github/skills/azure-defaults/references/pricing-guidance.md"),
+    "utf8",
+  );
+  assert.doesNotMatch(worker, /\.regions\[0\]/);
+  assert.match(worker, /environments, regions, and stamps/);
+  assert.match(worker, /Preserve the original query timestamp/);
+  assert.match(worker, /manifest mode with `manifest_writeback: true`/);
+  assert.match(worker, /persisted inputs for equivalence checks; missing inputs prevent reuse/);
+  assert.match(guidance, /inherit unspecified nested fields/);
+  assert.match(guidance, /shares rates, not deployment quantities/);
+  assert.match(guidance, /not multiplied by quantity twice/);
+  assert.match(guidance, /not future-dated/);
+  assert.match(guidance, /APEX_SKU_PRICING_TTL_DAYS/);
+  assert.match(guidance, /planned versus deployed scope/);
+  assert.match(guidance, /recalculate every affected total/);
+  assert.match(guidance, /Region comparisons and\s+candidate alternatives are not additional deployed resources/);
+  const parent = fs.readFileSync(
+    path.join(ROOT, ".github/skills/azure-defaults/references/cost-estimate-parent-contract.md"),
+    "utf8",
+  );
+  assert.match(parent, /full-input equivalence checks/);
+  assert.match(parent, /preserves the independent cost-feasibility review/);
+  assert.match(parent, /effective overrides and explicit usage/);
+});
+
+test("research routes by service and availability, not shared query language", () => {
+  const body = fs.readFileSync(path.join(ROOT, ".github/skills/azure-prepare/references/research.md"), "utf8");
+  assert.match(body, /Log Analytics.*azure-diagnostics/);
+  assert.doesNotMatch(body, /\| Log Analytics[^\n]*azure-kusto/);
+  assert.match(body, /Azure Data Explorer.*azure-kusto/);
+  assert.match(body, /current session's skill catalog/);
+  assert.match(body, /never invent a skill path/);
+  assert.match(body, /Greenfield or proposed-resource pricing.*cost-estimate-subagent/);
+  assert.match(body, /Existing deployment spend or rightsizing.*azure-cost-optimization/);
+  assert.match(body, /unavailable pricing workers block pricing/);
+});
+
+test("Azure context reuse requires confirmation and preserves current checks and approval", () => {
+  const context = fs.readFileSync(path.join(ROOT, ".github/skills/azure-prepare/references/azure-context.md"), "utf8");
+  assert.match(context, /Reuse unchanged user-confirmed subscription and region without asking again/);
+  assert.match(context, /environment variable alone is not\s+confirmation/);
+  assert.match(context, /After compaction or a new chat, recover persisted confirmation/);
+  assert.match(context, /permission, policy, availability, capacity, and resource-group compatibility/);
+  assert.match(context, /does not authorize\s+deployment/);
+  for (const file of [
+    "azure-prepare/SKILL.md",
+    "azure-deploy/references/pre-deploy-checklist.md",
+    "azure-validate/references/recipes/azd/environment.md",
+    "azure-validate/references/recipes/azd/README.md",
+  ]) {
+    const body = fs.readFileSync(path.join(ROOT, ".github/skills", file), "utf8");
+    assert.match(body, /azure-context.md#confirmation-reuse/);
+    assert.match(body, /missing or invalidated/);
+  }
+  const environment = fs.readFileSync(
+    path.join(ROOT, ".github/skills/azure-validate/references/recipes/azd/environment.md"),
+    "utf8",
+  );
+  assert.doesNotMatch(environment, /proceed with `azd up/);
+  assert.match(environment, /Validation-only stops with results/);
+});
+
+test("instruction accuracy matches configuration, parser, and enforcement boundaries", () => {
+  const instruction = (name) =>
+    fs.readFileSync(path.join(ROOT, `.github/instructions/${name}.instructions.md`), "utf8");
+  const terraform = instruction("iac-terraform-best-practices");
+  assert.match(terraform, />= 4\.0\.0, < 5\.0\.0/);
+  assert.doesNotMatch(terraform, /~> 4\.0` minor-version|minor-version constraints to allow patch/);
+  assert.doesNotMatch(instruction("python"), /pyproject.toml` sets `basic`/);
+  assert.doesNotMatch(fs.readFileSync(path.join(ROOT, "pyproject.toml"), "utf8"), /typeCheckingMode/);
+  assert.match(instruction("shell"), /use `set -eu` for POSIX sh/);
+  assert.match(instruction("shell"), /while \[ "\$#" -gt 0 \]/);
+  assert.match(instruction("javascript"), /tools\/scripts\/_lib\/parse-frontmatter.mjs/);
+  assert.doesNotMatch(instruction("javascript"), /function parseFrontmatter\(/);
+  assert.deepEqual(parseFrontmatter('---\r\nName: Example\r\nmodel: ["one", "two"]\r\n---\r\n'), {
+    name: "Example",
+    model: ["one", "two"],
+  });
+  assert.match(instruction("context-optimization"), /Warning only/);
+  assert.match(instruction("context-optimization"), /not runtime read\/token enforcement/);
+  assert.match(instruction("agent-skills"), /same line as `\*\*REQUIRED\*\*`/);
+  assert.match(instruction("agent-skills"), /does not\s+count runtime reads/);
+  const lessons = instruction("lesson-collection");
+  assert.match(lessons, /apex-recall init <project> --json/);
+  assert.match(lessons, /preserve existing lesson entries/);
+  assert.match(lessons, /--artifact agent-output\/<project>\/09-lessons-learned.json --json/);
+  assert.match(lessons, /never patch session state directly/);
+  assert.match(lessons, /no lessons recorded/);
+  assert.doesNotMatch(lessons, /Update `00-session-state.json`|\/\/ agent-output/);
+  assert.match(instruction("no-interactive-shell"), /there is no `apex-recall lessons` subcommand/);
+});
+
 test("Azure entry points distinguish APEX handoffs from generic proof and validation-only intent", () => {
   for (const recipe of ["azd", "azcli", "bicep", "terraform"]) {
     const body = fs.readFileSync(

@@ -45,7 +45,8 @@ agents and conflicts with the one-shot contract).
 For fresh capture, before Phase 1 questioning the only read permitted is one `apex-recall show
 <project> --json` (or `init` when no session exists). Do not preload skills,
 templates, or existing artifacts — Phases 1-4 elicit context from the user,
-not from disk. Skill loads (`azure-artifacts`, `azure-defaults`) happen at
+not from disk. At Phase 3, read only the required service-class runbook to
+guide elicitation; it does not supply user answers. Skill loads (`azure-artifacts`, `azure-defaults`) happen at
 Phase 5 (artifact generation), not earlier. See
 [`agent-operating-frame.instructions.md`](../instructions/agent-operating-frame.instructions.md).
 </context_awareness>
@@ -83,7 +84,8 @@ mandatory challenger review, and hand off to Architecture only after the Gate 1 
 
 - On fresh capture, the first interactive action is the Phase 1 `askQuestions` discovery flow, except for one
   allowed `apex-recall` session-state command.
-- On fresh capture, Phases 1-4 each collect answers before any file, skill, template, or source read.
+- On fresh capture, Phases 1-4 collect user answers before artifact generation;
+  the Phase 3 service-class runbook is the only early file-read exception.
 - `agent-output/{project}/01-requirements.md` matches the Azure artifacts template H2 structure.
 - `agent-output/{project}/README.md` is created from the project README template.
 - `agent-output/{project}/sku-manifest.json` and `.md` are created at rev 1. Phase 3j SKU
@@ -102,7 +104,7 @@ mandatory challenger review, and hand off to Architecture only after the Gate 1 
 - Before fresh Phase 1 questioning, run at most one session-state command: `apex-recall show <project> --json`
   or, when no session exists, `apex-recall init <project> --json`.
 - During fresh capture, before Phases 1-4 are complete, do not read skills, templates, source files, existing artifacts,
-  or create files.
+  or create files, except for the required Phase 3 service-class runbook at that phase.
 - Step 1 captures intent and constraints. Architecture decisions, service SKU derivation, IaC code,
   Bicep snippets, and deployment actions belong to later steps. **SKU and sizing preferences
   are a constraint, not an architecture decision**, and MUST be elicited via the mandatory

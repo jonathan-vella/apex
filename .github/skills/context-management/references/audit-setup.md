@@ -10,7 +10,7 @@
 
 - Python 3.14 (for log parser script)
 - Access to VS Code Copilot Chat debug logs
-- Agent definitions in `.github/agents/*.agent.md` (or equivalent)
+- Agent definitions in `.github/agents/**/*.agent.md`, including `_subagents/` (or equivalent)
 
 ## Enabling Debug Logs
 
@@ -30,7 +30,7 @@ to capture verbose tool-call data.
 | Capability            | Description                                                  |
 | --------------------- | ------------------------------------------------------------ |
 | Log Parsing           | Extract structured data from Copilot Chat debug logs         |
-| Turn-Cost Profiling   | Estimate token spend per turn from timing and model metadata |
+| Turn-Cost Profiling   | Report recorded tokens separately from timing; missing usage is unknown |
 | Redundancy Detection  | Find duplicate file reads, overlapping instructions          |
 | Hand-Off Gap Analysis | Identify agents that should delegate to subagents            |
 | Instruction Audit     | Flag overly broad globs and oversized instruction files      |

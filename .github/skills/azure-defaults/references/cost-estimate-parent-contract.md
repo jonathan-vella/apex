@@ -23,18 +23,26 @@ Never write a price that did not originate from a subagent response.
 ## Delegation Procedure (5 steps)
 
 1. **Prepare a resource list** — compile resource types, SKUs, region,
-   and quantities from the upstream source:
+   and quantities from the upstream source, preserving each environment,
+   region, and independent stamp plus effective overrides and explicit usage:
    - **03-architect**: from the WAF assessment / sku-manifest.
    - **08-as-built**: from `az resource list` + Azure Resource Graph
      queries against the actual deployed environment (NOT the plan).
-2. **Delegate to `cost-estimate-subagent`** — invoke with:
+2. **Check current pricing evidence**, then delegate only when needed.
+   Reuse a persisted COMPLETE worker result only after the freshness and
+   full-input equivalence checks in [pricing guidance](pricing-guidance.md#evidence-reuse).
+   Missing evidence, changed deployment inputs, expiry, or explicit refresh
+   requires `cost-estimate-subagent`; never infer current prices from a path
+   or restamp reused rates. Reuse preserves the independent cost-feasibility review.
+   Invoke with:
    - `resource_list`, `project_name`, `region`
    - `output_path` = `agent-output/{project}/<artifact>-cost-estimate.json`
      (per-agent: `02-cost-estimate.json` for 03, `07-ab-cost-estimate.json` for 08)
    - `overwrite` = `false` (set to `true` only when re-running after revisions)
    - Optional: `compare_regions: true`, `include_ri_savings: true`
 3. **Receive the compact summary** — the subagent writes the full JSON
-   breakdown to `output_path` and returns a ≤15-line summary
+   breakdown to `output_path` and returns a ≤15-line summary (or use the
+   equivalent persisted result after the checks above)
    (`status`, `region`, `monthly_total`, `yearly_total`, `file_path`,
    `confidence`). **Do NOT paste subagent JSON inline** in your reply
    or your artifact prose.

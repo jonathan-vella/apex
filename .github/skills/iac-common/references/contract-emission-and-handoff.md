@@ -56,20 +56,37 @@ az deployment sub validate \
 
 ### Terraform
 
+The CodeGen parent runs this plan gate and records its evidence; the read-only
+`terraform-validate-subagent` owns lint/review only. Backend-disabled init is
+sufficient for local validation, not for planning against the configured backend.
+Before this gate, verify backend existence/access and the approved backend
+configuration and workspace. Do not bootstrap resources or migrate state here.
+Missing prerequisites block the gate. After init, select and verify the approved
+existing workspace before planning. Reinitialize on provider, lockfile, module,
+or backend changes; workspace/environment changes invalidate prior plan evidence.
+Reuse unchanged, verified initialization only when all those inputs remain current.
+
 ```bash
 cd infra/terraform/{project}/
-terraform init -backend=false
-terraform validate
+terraform init -input=false -lockfile=readonly && \
+  terraform workspace select <approved-workspace> && \
+  terraform workspace show && \
+  terraform validate && \
 terraform plan -refresh=false -input=false \
   -var-file=<env>/main.tfvars.json -out=tfplan
 ```
+
+If init reports backend reconfiguration or migration is required, stop for the
+existing approval/recovery path; never silently add migration or upgrade flags.
+`-refresh=false` does not make a plan offline: providers/data sources may still
+require Azure access. No access means no successful plan evidence.
 
 Re-render the env-specific bicepparam / tfvars from
 `04-environment-manifest.json` via
 `tools/scripts/validate-environment-manifest.mjs --redact` before
 invoking.
 
-**Timeout-retry policy** (enforced by `*-validate-subagent`): retry
+**Timeout-retry policy** (applied by the gate executor; Terraform: CodeGen parent): retry
 **at most 2 times** with exponential backoff (5s, 15s) on transient
 network / HTTP errors. Persistent template/provider errors are NOT
 retried — they return to Phase 2.

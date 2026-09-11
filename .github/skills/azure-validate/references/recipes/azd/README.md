@@ -72,7 +72,10 @@ mcp_azure-mcp_group_list
   subscription: <subscription-id>
 ```
 
-Prompt user to confirm subscription and location before continuing.
+Reuse unchanged confirmed subscription and location under
+[confirmation reuse](../../../../azure-prepare/references/azure-context.md#confirmation-reuse).
+Ask only when confirmation is missing or invalidated; configured defaults alone
+are not approval. Continue required current validation checks in either case.
 
 Refer to the region availability reference to select a region supported by all services in this template:
 

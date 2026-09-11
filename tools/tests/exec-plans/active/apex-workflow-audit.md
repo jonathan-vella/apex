@@ -14,6 +14,31 @@ Current dispositions and completed changes are recorded in the
 [execution plan](apex-workflow-optimization.md#local-implementation-closeout).
 
 ## Semantic Audit (2026-09-11)
+
+### Autonomous Phase A Closeout
+
+This section supersedes older remaining-fix labels for A02-A14. All changes preserve models, roles,
+review floors, artifact schemas, security gates and production file cadence.
+
+| Items | Controlling Evidence And Disposition | Verification |
+| --- | --- | --- |
+| A02-A04 | Requirements permits its Phase 3 service-class runbook only; Design skip retains Governance prerequisites; Bicep Deploy returns missing scripts to CodeGen. | Focused agent contracts and independent source review. |
+| A05 | Terraform worker uses isolated backend-disabled initialization; CodeGen owns plan gate; Deploy invalidates readiness after provider/module/backend/workspace changes. | Real local-module reinitialization preserves deployment cache; approval contract tests. |
+| A06 | Bicep validator retains compiled ARM through property review instead of discarding stdout. | Real Bicep compile exposes security properties without source mutation. |
+| A07 | Cost worker prices environment overrides, regions and stamps separately; reuse requires current equivalent evidence and provenance. | Pricing contract tests; live pricing arithmetic remains manual/runtime evidence. |
+| A08-A09 | Distinguish ADX/Log Analytics, check external skill availability, route greenfield pricing to cost worker; reuse unchanged confirmed context without skipping current readiness checks. | Focused routing contracts; no Azure calls. |
+| A10 | Context Optimizer includes leaf workers and honors read-only mode throughout snapshots, analysis and reporting. | Parser executes to stdout without input-tree writes. |
+| A11 | Correct provider-range semantics, actual Python configuration, POSIX/Bash startup, parser reuse, recall-mediated lessons and enforcement claims. | Scoped lint and guidance tests; valid provider/Python values retained. |
+| A12 | One artifact hook owns equivalent H2/template validation and covers template-only changes; challenger presence remains independent. | Real hook matcher and shell failure fixtures; Bats. |
+| A13 | Required main CI owns Markdown lint; docs checks retain lint on other PR bases and all build/link checks; Pages builds its own publishing artifact. | Trigger/provenance tests and read-only required-check inspection. Distinct builds retained. |
+| A14 | Unknown aggregate members fail closed with native parser/matcher compatibility. | Actual CLI tests cover redirection, failures, overlapping globs and intentional repeats. |
+
+Independent review found descriptor redirection misparsed as a task and cross-pattern duplication in A14.
+Both were repaired; native-runner comparison tests pass. The isolated workflow suite passes all checks,
+including compiled ARM, changed Terraform local modules and read-only parsing. A cancelled concurrent test run
+was not accepted as evidence; it was rerun alone successfully. No measured token savings or full conversational
+equivalence is claimed. Integration/publication results are recorded in the authoritative execution plan.
+
 The tools/root extension below is the latest disposition for those paths; earlier inventories remain historical.
 
 ### Tools And Root Lifecycle Audit
@@ -63,71 +88,71 @@ cleanup so old configuration does not resurrect the retired server. No active en
 
 #### Tools Subfolder Dispositions
 
-| Area | Consumers / Evidence | Disposition |
-| --- | --- | --- |
-| `tools/mcp-servers/` | No tracked implementation; retired server rejected by MCP validator | Removed only confirmed local pricing residue; keep migration/retirement guards elsewhere. |
-| `tools/apex-prompts/` | Direct attachments, agent invocation templates, native counterpart | Consolidated resume procedure, retained both entrypoints. Vendor execution templates retain distinct formatting roles; no blanket deletion. |
-| `tools/apex-recall/` | Installed CLI, state readers/writers, root and package tests | Retain package boundaries and isolated tests; include previously omitted package-local suite. |
-| `tools/scripts/` | Public npm commands, hooks, CI, editor integrations and generators | Repair actual parser/exit/selection/ownership defects; retain aliases and distinct execution boundaries. |
-| `tools/tests/` | npm/pytest/Bats suites, regression fixtures, execution evidence | Retain unique assertions and fixtures. Existing test roots are complementary, not proven duplicates. |
-| `tools/registry/` | Maintained definitions, generated telemetry and evidence | Retain all current contracts; producer corrections below avoid false regeneration claims. |
-| `tools/schemas/` | Editor mappings, dedicated validators, runtime artifact contracts and fixtures | Retain all current schemas; absence from editor mapping alone is not retirement evidence. |
+| Area                  | Consumers / Evidence                                                           | Disposition                                                                                                                                 |
+| --------------------- | ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `tools/mcp-servers/`  | No tracked implementation; retired server rejected by MCP validator            | Removed only confirmed local pricing residue; keep migration/retirement guards elsewhere.                                                   |
+| `tools/apex-prompts/` | Direct attachments, agent invocation templates, native counterpart             | Consolidated resume procedure, retained both entrypoints. Vendor execution templates retain distinct formatting roles; no blanket deletion. |
+| `tools/apex-recall/`  | Installed CLI, state readers/writers, root and package tests                   | Retain package boundaries and isolated tests; include previously omitted package-local suite.                                               |
+| `tools/scripts/`      | Public npm commands, hooks, CI, editor integrations and generators             | Repair actual parser/exit/selection/ownership defects; retain aliases and distinct execution boundaries.                                    |
+| `tools/tests/`        | npm/pytest/Bats suites, regression fixtures, execution evidence                | Retain unique assertions and fixtures. Existing test roots are complementary, not proven duplicates.                                        |
+| `tools/registry/`     | Maintained definitions, generated telemetry and evidence                       | Retain all current contracts; producer corrections below avoid false regeneration claims.                                                   |
+| `tools/schemas/`      | Editor mappings, dedicated validators, runtime artifact contracts and fixtures | Retain all current schemas; absence from editor mapping alone is not retirement evidence.                                                   |
 
 #### Registry Ownership
 
 Paths are under `tools/registry/`. All are retained; generator ownership is not inferred from filename similarity.
 
-| File | Producer / Maintainer | Consumer Or Purpose |
-| --- | --- | --- |
-| `agent-registry.json` | Maintainers mirror authoritative frontmatter | Model/registry checks, Orchestrator, Explorer and assessments |
-| `count-manifest.json` | Maintained count definitions/discovery globs | Inventory validation and documentation; not generated by Explorer |
-| `challenger-coverage-evidence.md` | Manual checklist comparison | Human evidence; not regenerated by telemetry. Backlink/freshness claims need periodic review. |
-| `challenger-telemetry.json` | challenger-telemetry.mjs | Machine-readable rollup paired with effectiveness report |
-| `challenger-effectiveness.md` | challenger-telemetry.mjs | Human review-effectiveness evidence; not production acceptance |
-| `source-freshness.json` | fetch-vendor-prompting-guides.mjs | Subsequent refreshes and source audit; no network refresh performed here |
-| `tool-version-pins.json` | Maintainer-reviewed pins | Setup and tool-version validation |
+| File                              | Producer / Maintainer                        | Consumer Or Purpose                                                                           |
+| --------------------------------- | -------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| `agent-registry.json`             | Maintainers mirror authoritative frontmatter | Model/registry checks, Orchestrator, Explorer and assessments                                 |
+| `count-manifest.json`             | Maintained count definitions/discovery globs | Inventory validation and documentation; not generated by Explorer                             |
+| `challenger-coverage-evidence.md` | Manual checklist comparison                  | Human evidence; not regenerated by telemetry. Backlink/freshness claims need periodic review. |
+| `challenger-telemetry.json`       | challenger-telemetry.mjs                     | Machine-readable rollup paired with effectiveness report                                      |
+| `challenger-effectiveness.md`     | challenger-telemetry.mjs                     | Human review-effectiveness evidence; not production acceptance                                |
+| `source-freshness.json`           | fetch-vendor-prompting-guides.mjs            | Subsequent refreshes and source audit; no network refresh performed here                      |
+| `tool-version-pins.json`          | Maintainer-reviewed pins                     | Setup and tool-version validation                                                             |
 
 #### Schema Ownership
 
 Paths are under `tools/schemas/`; table groups account for every current schema. All are retained.
 Raw schema validation and semantic validation are different checks; sharing a consumer does not make schemas duplicates.
 
-| Schema Files | Producer And Contract Use |
-| --- | --- |
-| `agent-registry.schema.json` | Maintained registry; editor mapping plus registry/model semantic checks |
-| `agent-scorecard.schema.json` | Agent assessment outputs; assessment prompt contract |
-| `challenge-findings-decisions.schema.json` | Parent review decisions; dedicated AJV validator and fixtures |
-| `deployment-preview.schema.json` | Deploy approval envelope; deploy/as-built contracts and fixture validation |
-| `environment-manifest.schema.json`, `iac-contract.schema.json`, `policy-property-map.schema.json` | Planner outputs; dedicated validators and CodeGen/deploy consumers |
-| `iac-handoff.schema.json` | CodeGen handoff; validator, Deploy and As-Built |
-| `explorer-graph.schema.json` | Explorer generator and client; dedicated semantic validation |
-| `governance-baseline.schema.json`, `governance-constraints.schema.json` | Baseline/discovery outputs; AJV and artifact checks |
-| `iteration-log.schema.json`, `lesson-log.schema.json` | E2E and retrospective records; mappings, benchmark and lesson consumers |
-| `model-catalog.schema.json` | Maintained metadata/generated assignments; model checks |
-| `retirement-scan.schema.json` | Scanner output; scanner AJV and regression tests |
-| `session-state.schema.json` | recall/workflow state contract; semantic state checks |
-| `sku-manifest.schema.json`, `subnet-plan.schema.json` | SKU owners and Architect network planning; dedicated AJV checks |
-| `vendor-prompting-rules.schema.json`, `workflow-graph.schema.json` | Maintained vendor rules and topology; mapped/dedicated checks |
+| Schema Files                                                                                      | Producer And Contract Use                                                  |
+| ------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| `agent-registry.schema.json`                                                                      | Maintained registry; editor mapping plus registry/model semantic checks    |
+| `agent-scorecard.schema.json`                                                                     | Agent assessment outputs; assessment prompt contract                       |
+| `challenge-findings-decisions.schema.json`                                                        | Parent review decisions; dedicated AJV validator and fixtures              |
+| `deployment-preview.schema.json`                                                                  | Deploy approval envelope; deploy/as-built contracts and fixture validation |
+| `environment-manifest.schema.json`, `iac-contract.schema.json`, `policy-property-map.schema.json` | Planner outputs; dedicated validators and CodeGen/deploy consumers         |
+| `iac-handoff.schema.json`                                                                         | CodeGen handoff; validator, Deploy and As-Built                            |
+| `explorer-graph.schema.json`                                                                      | Explorer generator and client; dedicated semantic validation               |
+| `governance-baseline.schema.json`, `governance-constraints.schema.json`                           | Baseline/discovery outputs; AJV and artifact checks                        |
+| `iteration-log.schema.json`, `lesson-log.schema.json`                                             | E2E and retrospective records; mappings, benchmark and lesson consumers    |
+| `model-catalog.schema.json`                                                                       | Maintained metadata/generated assignments; model checks                    |
+| `retirement-scan.schema.json`                                                                     | Scanner output; scanner AJV and regression tests                           |
+| `session-state.schema.json`                                                                       | recall/workflow state contract; semantic state checks                      |
+| `sku-manifest.schema.json`, `subnet-plan.schema.json`                                             | SKU owners and Architect network planning; dedicated AJV checks            |
+| `vendor-prompting-rules.schema.json`, `workflow-graph.schema.json`                                | Maintained vendor rules and topology; mapped/dedicated checks              |
 
 #### Every Tracked Root File
 
 No tracked root file is proven unused. Keep decisions are based on distinct audiences, tool consumption or legal/history
 roles, not import counts. Regenerable local output is listed separately and is not a tracked-source retirement.
 
-| Files | Owner / Consumer | Disposition |
-| --- | --- | --- |
-| `README.md`, `AGENTS.md`, `CONTRIBUTING.md` | Public introduction, operating rules, contribution entry | Keep; repair README summary rather than delete role-specific entrypoints |
-| `CHANGELOG.md`, `CONTRIBUTORS.md`, `LICENSE` | Release history, attribution and legal terms | Keep; historical retired-component references are not active dependencies |
-| `QUALITY_SCORE.md` | Doc-gardening/manual health assessment | Keep historical grades explicitly labelled; current grades require dated evidence |
-| `VERSION.md` | Canonical repository release version | Keep; corrected automation claim and fail-closed version checks |
-| `package.json`, `package-lock.json` | Public commands and reproducible Node installation | Keep; preserve aliases, direct dependency ownership and original integrity |
-| `pyproject.toml`, `requirements.txt` | Root Python lint/project metadata and installed tooling dependencies | Keep; distinct from independently packaged recall CLI, no proven dependency duplication |
-| `.gitattributes`, `.gitignore`, `.git-blame-ignore-revs` | Normalization, local/secret exclusions and historical blame filtering | Keep; not runtime imports and not interchangeable |
-| `.gitleaks.toml`, `.gitleaksignore` | Secret-scanner rules and reviewed suppressions | Keep; do not prune security exceptions without specific evidence |
-| `lefthook.yml`, `commitlint.config.js` | Git hooks and commit-message policy | Keep; preserve staged/branch/CI boundaries |
-| `.markdownlint-cli2.jsonc`, `.prettierrc.json`, `.prettierignore`, `eslint.config.mjs` | Markdown, formatting and JavaScript policies | Keep distinct tool scopes; no blind ignore-file merger |
-| `.markdown-link-check.json`, `.markdown-link-check-site.json` | Repository versus site-source link policy | Keep separate; built-site internal link checking remains independent |
-| `.vale.ini`, `.yamllint.yml` | Optional prose/YAML lint configuration | Keep active command consumers; corrected failure reporting before considering retirement |
+| Files                                                                                  | Owner / Consumer                                                      | Disposition                                                                              |
+| -------------------------------------------------------------------------------------- | --------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| `README.md`, `AGENTS.md`, `CONTRIBUTING.md`                                            | Public introduction, operating rules, contribution entry              | Keep; repair README summary rather than delete role-specific entrypoints                 |
+| `CHANGELOG.md`, `CONTRIBUTORS.md`, `LICENSE`                                           | Release history, attribution and legal terms                          | Keep; historical retired-component references are not active dependencies                |
+| `QUALITY_SCORE.md`                                                                     | Doc-gardening/manual health assessment                                | Keep historical grades explicitly labelled; current grades require dated evidence        |
+| `VERSION.md`                                                                           | Canonical repository release version                                  | Keep; corrected automation claim and fail-closed version checks                          |
+| `package.json`, `package-lock.json`                                                    | Public commands and reproducible Node installation                    | Keep; preserve aliases, direct dependency ownership and original integrity               |
+| `pyproject.toml`, `requirements.txt`                                                   | Root Python lint/project metadata and installed tooling dependencies  | Keep; distinct from independently packaged recall CLI, no proven dependency duplication  |
+| `.gitattributes`, `.gitignore`, `.git-blame-ignore-revs`                               | Normalization, local/secret exclusions and historical blame filtering | Keep; not runtime imports and not interchangeable                                        |
+| `.gitleaks.toml`, `.gitleaksignore`                                                    | Secret-scanner rules and reviewed suppressions                        | Keep; do not prune security exceptions without specific evidence                         |
+| `lefthook.yml`, `commitlint.config.js`                                                 | Git hooks and commit-message policy                                   | Keep; preserve staged/branch/CI boundaries                                               |
+| `.markdownlint-cli2.jsonc`, `.prettierrc.json`, `.prettierignore`, `eslint.config.mjs` | Markdown, formatting and JavaScript policies                          | Keep distinct tool scopes; no blind ignore-file merger                                   |
+| `.markdown-link-check.json`, `.markdown-link-check-site.json`                          | Repository versus site-source link policy                             | Keep separate; built-site internal link checking remains independent                     |
+| `.vale.ini`, `.yamllint.yml`                                                           | Optional prose/YAML lint configuration                                | Keep active command consumers; corrected failure reporting before considering retirement |
 
 Ignored root freshness-report.json is produced by check-docs-freshness and consumed by gardening; its presence is not
 proof of a current scan. Keep regenerable reports used by this audit and active caches; do not blanket-delete local data.
@@ -226,7 +251,7 @@ Imported directories and metadata were retained. These rows assess complete entr
 | `azure-compute`              | No Azure subscription required                   | Keep public-data VM/VMSS selection distinct from estate cost optimization.                                                                   |
 | `azure-cost-optimization`    | Based on actual usage data                       | Keep rightsizing/spend evidence; greenfield pricing should not be routed here by default.                                                    |
 | `azure-defaults`             | Load only needed reference                       | Keep precedence/naming/security workflow; canonical values stay in Copilot instructions.                                                     |
-| `azure-deploy`               | Pre-deploy checklist; generic plan proof         | Keep execution/recovery; recommend explicit separation from APEX handoff inputs and reuse unchanged confirmed context. Approval pending.     |
+| `azure-deploy`               | Pre-deploy checklist; generic plan proof         | Keep execution/recovery; entry separation implemented in `9128ea94`. Context reuse remains tracked by A09. |
 | `azure-diagnostics`          | Resource health before deep logs                 | Keep operational incident diagnosis; appropriate Log Analytics troubleshooting owner.                                                        |
 | `azure-governance-discovery` | Single batched REST traversal                    | Keep deterministic envelope, exit codes and cache freshness; no invented cache key.                                                          |
 | `azure-kusto`                | Against Azure Data Explorer                      | Keep ADX analytics; generic prepare's Log Analytics mapping is a routing candidate, not grounds for merging.                                 |
@@ -235,7 +260,7 @@ Imported directories and metadata were retained. These rows assess complete entr
 | `azure-rbac`                 | Least privilege first                            | Keep role selection distinct from Entra app registration.                                                                                    |
 | `azure-resources`            | Do not auto-visualize lookup results             | Keep inventory and explicitly requested visualization modes.                                                                                 |
 | `azure-storage`              | Managed Identity over keys                       | Fixed data-plane examples to Entra login and scoped RBAC; retain service/SDK references.                                                     |
-| `azure-validate`             | MUST invoke azure-deploy                         | Keep readiness/proof ownership; recommend validation-only stop and explicit APEX route, not generic auto-planning. Approval pending.         |
+| `azure-validate`             | Readiness and entry routing                      | Keep readiness/proof ownership; validation-only stop and explicit APEX route implemented in `9128ea94`. |
 | `context-management`         | Runtime artifact compression and log audit       | Fixed latency methodology; keep separate runtime/audit modes and recovery. Compression is not evidence of model compliance.                  |
 | `docs-writer`                | Excludes agent-output                            | Fixed site-header and unsupported validation examples in references; keep repository/site freshness distinct from artifact generation.       |
 | `entra-app-registration`     | Least-privilege API permissions                  | Keep OAuth/MSAL/app identities, with RBAC redirect for resource permissions.                                                                 |

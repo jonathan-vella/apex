@@ -5,8 +5,147 @@ import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
+import { load, dump } from "js-yaml";
 
 const { scripts } = JSON.parse(readFileSync(new URL("../../../package.json", import.meta.url), "utf8"));
+
+test("docs CI retains event coverage, status jobs and same-run build provenance", () => {
+  const workflow = (name) =>
+    load(readFileSync(new URL(`../../../.github/workflows/${name}.yml`, import.meta.url), "utf8"));
+  const ci = workflow("ci");
+  const checks = workflow("docs-checks");
+  const pages = workflow("docs");
+  assert.equal(ci.jobs.ci.name, "ci");
+  assert.deepEqual(ci.on.pull_request.branches, ["main"]);
+  assert.ok(ci.on.push.branches.includes("main"));
+  assert.ok(ci.jobs.ci.steps.some((step) => step.run === "npm run lint:md" && !step.if));
+  assert.deepEqual(checks.on.pull_request.paths, ["site/**", ".github/workflows/docs-checks.yml"]);
+  assert.deepEqual(checks.on.push, { branches: ["main"], paths: ["site/**"] });
+  const steps = checks.jobs["link-check-and-build"].steps;
+  assert.equal(
+    steps.find((step) => step.run === "npm run lint:md").if,
+    "github.event_name == 'pull_request' && github.base_ref != 'main'",
+  );
+  for (const command of [
+    "node tools/scripts/lint-docs-frontmatter.mjs",
+    "npm run build",
+    "node site/check-links.mjs",
+  ]) {
+    assert.ok(
+      steps.some((step) => step.run === command && !step.if),
+      command,
+    );
+  }
+  assert.deepEqual(pages.on.push, {
+    branches: ["main"],
+    paths: ["site/src/**", "site/public/**", "site/astro.config.mjs", "site/package.json", "site/package-lock.json"],
+  });
+  assert.ok(Object.hasOwn(pages.on, "workflow_dispatch"));
+  const build = pages.jobs.build.steps;
+  assert.ok(build.some((step) => step.uses?.startsWith("actions/checkout@") && !step.with?.ref));
+  const buildIndex = build.findIndex((step) => step.run === "npm run build" && step["working-directory"] === "site");
+  const uploadIndex = build.findIndex((step) => step.uses?.startsWith("actions/upload-pages-artifact@"));
+  assert.ok(buildIndex >= 0 && uploadIndex > buildIndex);
+  assert.equal(build[uploadIndex].with.path, "site/dist");
+  assert.equal(pages.jobs.deploy.needs, "build");
+  assert.ok(pages.jobs.deploy.steps.some((step) => step.uses?.startsWith("actions/deploy-pages@")));
+  assert.ok(!build.some((step) => step.uses?.startsWith("actions/download-artifact@")));
+});
+
+test("lefthook selects artifact, template and H2 source paths through the combined glob", (context) => {
+  const root = fixture(context);
+  assert.equal(spawnSync("git", ["init", "-q", root]).status, 0);
+  const hooks = load(readFileSync(new URL("../../../lefthook.yml", import.meta.url), "utf8"));
+  const hook = hooks["pre-commit"].commands["artifact-validation"];
+  writeFileSync(
+    path.join(root, "lefthook.yml"),
+    dump({
+      "pre-commit": { commands: { "artifact-validation": { ...hook, run: "echo HOOK_SELECTED" } } },
+    }),
+  );
+  const lefthook = fileURLToPath(new URL("../../../node_modules/.bin/lefthook", import.meta.url));
+  for (const [file, selected] of [
+    ["agent-output/example/01-requirements.md", true],
+    [".github/skills/azure-artifacts/templates/01-requirements.template.md", true],
+    [".github/skills/azure-artifacts/templates/nested/example.md", true],
+    [".github/skills/azure-artifacts/SKILL.md", true],
+    [".github/instructions/azure-artifacts.instructions.md", true],
+    ["tools/scripts/validate-artifacts.mjs", true],
+    ["README.md", false],
+    [".github/skills/azure-artifacts/references/example.md", false],
+  ]) {
+    const result = spawnSync(
+      lefthook,
+      ["run", "pre-commit", "--no-auto-install", "--no-tty", "--colors", "off", "--file", file],
+      {
+        cwd: root,
+        encoding: "utf8",
+      },
+    );
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(result.stdout.includes("HOOK_SELECTED"), selected, `${file}: ${result.stdout}`);
+  }
+});
+
+test("artifact hook validates template-only and output changes and propagates gate failures", (context) => {
+  const root = fixture(context);
+  const hooks = load(readFileSync(new URL("../../../lefthook.yml", import.meta.url), "utf8"));
+  assert.equal(hooks["pre-commit"].commands["h2-sync"], undefined);
+  const command = hooks["pre-commit"].commands["artifact-validation"].run;
+  writeFileSync(
+    path.join(root, "bin/git"),
+    `#!${process.execPath}\nconsole.log(process.env.STAGED_FILES); process.exit(Number(process.env.GIT_EXIT || 0));\n`,
+    {
+      mode: 0o755,
+    },
+  );
+  writeFileSync(
+    path.join(root, "bin/npm"),
+    `#!${process.execPath}\nconsole.log("CALL " + process.argv[3]); process.exit(process.argv[3] === process.env.FAIL_SCRIPT ? 1 : 0);\n`,
+    { mode: 0o755 },
+  );
+  const check = (files, failure = "", gitExit = "0") =>
+    spawnSync("/bin/sh", ["-c", command], {
+      cwd: root,
+      encoding: "utf8",
+      env: {
+        ...process.env,
+        PATH: `${root}/bin:${process.env.PATH}`,
+        STAGED_FILES: files,
+        FAIL_SCRIPT: failure,
+        GIT_EXIT: gitExit,
+      },
+    });
+  for (const files of [
+    ".github/skills/azure-artifacts/templates/01-requirements.template.md",
+    "agent-output/example/01-requirements.md",
+    ".github/skills/azure-artifacts/templates/01-requirements.template.md\nagent-output/example/01-requirements.md",
+    ".github/skills/azure-artifacts/SKILL.md\nagent-output/example/01-requirements.md",
+  ]) {
+    const result = check(files);
+    assert.equal(result.status, 0, result.stderr);
+    assert.deepEqual(result.stdout.match(/CALL .+/g), ["CALL validate:artifacts", "CALL validate:challenger-presence"]);
+    for (const failure of ["validate:artifacts", "validate:challenger-presence"]) {
+      assert.notEqual(check(files, failure).status, 0, failure);
+    }
+  }
+  for (const source of [
+    ".github/skills/azure-artifacts/SKILL.md",
+    ".github/instructions/azure-artifacts.instructions.md",
+    "tools/scripts/validate-artifacts.mjs",
+  ]) {
+    const result = check(source);
+    assert.equal(result.status, 0);
+    assert.deepEqual(result.stdout.match(/CALL .+/g), ["CALL validate:artifacts"]);
+    assert.notEqual(check(source, "validate:artifacts").status, 0);
+  }
+  assert.notEqual(check("", "", "1").status, 0);
+  for (const files of ["", "README.md", ".github/skills/azure-artifacts/references/example.md"]) {
+    const result = check(files);
+    assert.equal(result.status, 0);
+    assert.doesNotMatch(result.stdout, /CALL /);
+  }
+});
 
 test("prompt registry validates paths, explicit models and inherited models", (context) => {
   const root = fixture(context);

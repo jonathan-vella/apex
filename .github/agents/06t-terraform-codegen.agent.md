@@ -389,6 +389,11 @@ Also generate `deploy.sh` + `deploy.ps1` (deprecated fallback) per
 
 Invoke the listed validation subagent once; it runs lint and code review:
 
+Before invoking it, resolve any missing or changed dependency lockfile through
+backend-disabled init using approved provider/module constraints. CodeGen owns
+lockfile updates; the read-only worker must not create or rewrite them. Review
+the resolved selections and do not use `-upgrade` to bypass approved pins.
+
 1. `terraform-validate-subagent` (path: `infra/terraform/{project}/`) — expect APPROVED (runs lint then review)
 
 Await APPROVED before Phase 4.5. Do not invent a separate lint or review worker.
@@ -471,6 +476,15 @@ Terraform specifics:
 
 - **Phase 4.6** — `terraform validate` + `terraform plan -refresh=false`
   with env-rendered `*.tfvars.json` (shared ref → Phase 4.6 → Terraform).
+  CodeGen runs and records this gate; `terraform-validate-subagent` supplies
+  lint/review evidence only, not plan evidence. Before validation, rerun
+  backend-disabled init after provider requirements, lockfile selections, or
+  module sources/versions change (and when prior init evidence is missing).
+  Before planning, verify initialized backend configuration, target workspace,
+  and environment inputs; a backend-disabled init is not plan readiness.
+  Backend or workspace changes invalidate prior plan evidence. Do not upgrade
+  approved pins, bootstrap resources, or migrate state to make a gate pass;
+  missing backend/access requires a blocker report, not a fabricated pass.
 - **Phase 6** — emit `agent-output/{project}/05-iac-handoff.json` with
   `entrypoint.kind = terraform-root` and `tree_hash` root
   `infra/terraform/{project}/` (shared ref → Phase 6).

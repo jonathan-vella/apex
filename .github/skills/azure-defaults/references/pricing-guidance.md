@@ -32,6 +32,52 @@ Group identical parameter sets and call `get_retail_prices` once per group.
 Follow `NextPageLink` when a complete result set is required. Reuse returned rows
 across quantities and candidate comparisons.
 
+## Evidence reuse
+
+Reuse persisted COMPLETE pricing only when the source evidence is available,
+its `queried_at` is not future-dated and is within `APEX_SKU_PRICING_TTL_DAYS`
+(default 30 days), and no explicit refresh or known catalog change invalidates it.
+Missing timestamps, meter provenance, or calculation inputs require fresh pricing.
+
+For a whole estimate, compare the current effective deployment lines with the
+persisted inputs: service, SKU, deployment region, environment/stamp identity,
+quantity, usage, commitment/price type, currency, selected product/meter/unit,
+and planned versus deployed scope. Reuse only when all are equivalent. A matching
+file path or unchanged manifest revision alone is insufficient. Do not replace
+actual deployed inventory with a planned estimate.
+
+Current raw meter evidence may be reused for an identical query and meter
+selection even when quantities change, but recalculate every affected total.
+Retain the original query timestamp and provenance in notes; never restamp old
+rates as newly queried. If persisted evidence cannot establish equivalence,
+query again within the existing call budget. Reuse does not waive independent
+cost-feasibility review or caller approval gates.
+
+## Manifest quantities
+
+Expand each service for every applicable top-level `environments[]` entry.
+Apply sparse `environment_overrides` over the base service, then any stamp's
+`service_overrides`; inherit unspecified nested fields rather than replacing
+an entire capacity or commitment object. Stamps represent independent deployments:
+use each stamp's environments (or the top-level set when omitted) and regions.
+Without stamps, use the effective service's regions. Never select only the first
+region or price only the base capacity. If placement is ambiguous, fail the line
+instead of assuming a Cartesian deployment or silently omitting a region.
+
+Emit separate deployment lines identified in `name`/`notes` by service id,
+environment, stamp when present, and deployment region. Query deduplication
+shares rates, not deployment quantities. Global catalog-region substitution
+does not collapse independently billed deployments. Shared resources must have
+explicit placement/quantity evidence to avoid counting them once per environment.
+
+Use effective `size`, `capacity.default`, commitment, and explicit usage. For
+autoscaling, record the assumed billable capacity; min/max alone is not average
+usage. Usage must say whether it is per instance or already aggregated so it is
+not multiplied by quantity twice. Missing placement, capacity, commitment meter,
+or usage evidence leaves the affected line unresolved. Region comparisons and
+candidate alternatives are not additional deployed resources in `monthly_total`.
+Manifest writeback is the sum of that service's deployment lines only.
+
 ## Service names
 
 Use the service names returned by the Retail Prices API. Common APEX services:

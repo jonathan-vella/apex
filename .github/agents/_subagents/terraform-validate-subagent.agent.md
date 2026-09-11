@@ -174,34 +174,35 @@ not guess defaults.
 
 ### Phase 1 — Lint and validate
 
-1. Run the validation commands and collect their output:
+1. Use an isolated temporary `TF_DATA_DIR`, not the deployment directory's
+  cached backend metadata. Run init on every invocation so provider requirements,
+  lockfile selections, and module sources/versions are current; `.terraform/`
+  existence alone is not freshness evidence. Do not use `-upgrade` or change
+  approved pins. Remove only this invocation's temporary data directory afterward.
+  Run the validation commands and collect their output:
 
    ```bash
-   terraform fmt -check -recursive {module_path}
-   cd {module_path} && \
-     { [ -d .terraform ] || terraform init -backend=false; } && \
-     terraform validate
+   validation_data_dir=$(mktemp -d) && \
+     terraform fmt -check -recursive {module_path} && \
+     cd {module_path} && \
+     TF_DATA_DIR="$validation_data_dir" terraform init -backend=false -input=false -lockfile=readonly && \
+     TF_DATA_DIR="$validation_data_dir" terraform validate
    ```
 
-2. **Timeout-retry policy (Wave 1+)**: if `terraform init`,
-   `terraform validate`, or `terraform plan` times out or exits with a
+2. **Timeout-retry policy (Wave 1+)**: if `terraform init` or
+  `terraform validate` times out or exits with a
    transient network/HTTP error (5xx, ETIMEDOUT, ECONNRESET, registry
    unreachable), retry **at most 2 times** with exponential backoff
    (5s, 15s). After 2 retries, emit `Lint Status: FAIL` with
    `transient: true` in the JSON output and return. Persistent
    validation/parsing errors are NOT retried.
 
-3. **Validate-gate command (Wave 1+, when invoked by CodeGen Phase 4.6
-   or Deploy hash-mismatch rerun)** — also run a refresh-free plan:
-
-   ```bash
-   terraform plan -refresh=false -input=false \
-     -var-file={env}/main.tfvars.json -out=tfplan
-   ```
-
-   Same retry policy. Record `exit_code` and `stdout_sha256` in the
-   structured output's `validate_gate` block so it can be lifted into
-   `05-iac-handoff.json#validation_summary.validate_gate`.
+3. **Validate-gate ownership**: return only the declared lint/review output
+  contract. Do not run a plan or invent a `validate_gate` block. CodeGen owns
+  Phase 4.6 refresh-free plan evidence and handoff emission; a Deploy
+  hash-mismatch rerun must return to CodeGen for that gate before re-emission.
+  Deployment previews remain with `terraform-plan-subagent` or the parent
+  Deploy agent. Lint/review APPROVED is not proof that the plan gate passed.
 
 4. Classify the result using the table below. When `Phase 1 - Lint` is
    `FAIL`, set `Phase 2 - Review: SKIPPED`, `Overall Status: FAILED`,

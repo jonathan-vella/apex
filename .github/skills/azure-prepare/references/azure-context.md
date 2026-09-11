@@ -4,6 +4,27 @@
 
 Detect and confirm Azure subscription and location before generating artifacts. Run region capacity check for customer selected location
 
+## Confirmation reuse
+
+Reuse unchanged user-confirmed subscription and region without asking again.
+For APEX, obtain confirmation evidence through `apex-recall show <project> --json`
+and the approved current inputs; for generic workflows, use the approved plan's
+Azure Context and available conversation confirmation. Record the confirmation
+source and selected environment with the values in the plan, not just detected defaults.
+
+Compare that evidence with the current project, selected environment, configured
+subscription/tenant, and region. A default or environment variable alone is not
+confirmation. Re-ask only for missing confirmation, changed project/environment
+or subscription/tenant/region, conflicting inputs, explicit user changes, or
+invalidated evidence (access, policy, service availability, or capacity).
+After compaction or a new chat, recover persisted confirmation before asking;
+if it cannot be established, ask rather than infer approval.
+
+Reuse skips only repeated selection questions. Still perform required current
+permission, policy, availability, capacity, and resource-group compatibility
+checks; refresh affected checks when inputs change. It does not authorize
+deployment, destructive operations, or bypass plan approval.
+
 ---
 
 ## Step 1: Check for Existing AZD Environment
@@ -20,7 +41,9 @@ azd env list
 azd env get-values
 ```
 
-If `AZURE_SUBSCRIPTION_ID` and `AZURE_LOCATION` are already set, use `ask_user` to confirm reuse:
+If `AZURE_SUBSCRIPTION_ID` and `AZURE_LOCATION` match reusable confirmation,
+skip selection questions and continue to Step 5 plus required current checks.
+If values exist but confirmation is missing or invalidated, use `ask_user`:
 
 ```
 Question: "I found an existing AZD environment with these settings. Would you like to continue with them?"
@@ -35,7 +58,7 @@ Choices: [
 ]
 ```
 
-If user confirms → skip to **Record in Plan**. Otherwise → continue to Step 2.
+If user confirms → continue to Step 5, then **Record in Plan**. Otherwise → continue to Step 2.
 
 ---
 
@@ -66,7 +89,7 @@ az account show --query "{name:name, id:id}" -o json
 
 ## Step 3: Confirm Subscription with User
 
-Use `ask_user` with the **actual subscription name and ID**:
+When confirmation cannot be reused, use `ask_user` with the **actual subscription name and ID**:
 
 ✅ **Correct:**
 
@@ -99,7 +122,7 @@ az account list --output table
 
 1. Consult [Region Availability](region-availability.md) for services with limited availability
 2. Present only regions that support ALL selected services
-3. Use `ask_user`:
+3. Use `ask_user` only when location confirmation cannot be reused:
 4. After customer selected region, do provisioning limit check, consult [Resource Limits and Quotas](resources-limits-quotas.md). For this also invoke azure-quotas
 
 ```

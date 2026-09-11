@@ -2,7 +2,7 @@
 
 ## Status
 
-**State**: Semantic body audit and scoped implementation validated; proposals and final human acceptance remain explicit
+**State**: Autonomous execution authorized through implementation, skill consolidation, prefix migration and verification
 **Owner**: Jonathan Vella with GitHub Copilot
 **Created**: 2026-09-10
 **Branch**: `perf/apex-workflow-optimization`
@@ -15,7 +15,154 @@ Commits and pushes are authorized only on the feature branch. Never merge into m
 No Azure resources have been created. Local guidance improvements use risk-based verification;
 measured end-to-end token savings and final generated-output quality are not claimed.
 
+## Authoritative Remaining Work
+
+Updated 2026-09-11 following the user's sequencing clarification and skill-prefix request.
+This checklist supersedes older pending/proposal statuses below and in the audit ledger.
+Completed batch records remain historical evidence; they do not mark these remaining tasks complete.
+Manual testing and resulting remediation occur at the very end, not as prerequisites for implementation or planning.
+Continue focused automated validation and independent review during implementation.
+
+Execution order: remaining fixes -> skill merger/retirement plan -> evidence-backed autonomous consolidation ->
+`apex-` skill-prefix migration -> final automated verification -> user manual testing -> remediation and signoff.
+The authorization below replaces intermediate user-decision gates for work within its boundaries.
+
+### Autonomous Execution Authorization
+
+The user answered all planned decision questions on 2026-09-11. Proceed through A01-D03 without requesting
+routine confirmation, another execution instruction, or user approval between batches or phases.
+The skill merger/retirement plan is a recorded decision artifact, not a pause for approval.
+
+- **Merger/retirement authority**: choose and implement keep/share/merge/retire decisions autonomously after recording
+  capability preservation, consumer migration, focused tests, and independent review. Preserve all supported capabilities.
+  If equivalence cannot be established, retain the skill and record why; low usage alone never justifies deletion.
+- **Behavior corrections**: implement the listed backlog's routing, freshness, initialization, evidence-reuse,
+  and equivalent CI/validation corrections without further questions. Keep model assignments, agent roles,
+  mandatory review floors, security/governance gates, and artifact schemas unchanged.
+- **Rename scope**: prefix all surviving repository skills, including imported Microsoft/community skills,
+  exactly once with `apex-`. Preserve attribution, licenses, original upstream identity, and refresh mappings.
+  Do not rename externally installed, user-profile, or plugin-owned skills outside this repository.
+- **Compatibility decision**: perform a clean rename after migrating repository consumers. Old skill names/paths
+  may be removed without duplicate discoverable wrappers. Deliver an old-to-new migration map and breaking-name notice.
+  Preserve immutable historical evidence and public npm command aliases; do not create compatibility wrappers by default.
+- **Inconclusive candidates**: retain current safe behavior, document a rejected/deferred optimization, and continue.
+  That disposition closes the investigation, not a known required defect. Never mark unresolved defects fixed.
+- **Execution**: local tests, bounded agent probes, independent subagent reviews, and public dependency/documentation
+  access are authorized. Reuse existing tooling/evidence; no paid evaluation service or privileged installation.
+  Commit and push verified batches to the existing feature branch with normal hooks. No Azure writes or live deployment.
+- **Protected boundaries**: never merge into main, enable auto-merge, force-push, bypass security/permission policy,
+  discard user edits, or weaken a required gate to obtain a passing check. Broader optional redesign stays out of scope.
+
+No planned human decisions remain before D04. Continue independently when a candidate can be retained safely or
+a local failure can be repaired within scope. If an essential operation is denied/unavailable, requires a secret,
+would violate a protected boundary, or user edits make safe progress impossible, preserve work and report the exact
+blocker. Complete unrelated unblocked tasks first. This authorization cannot suppress tool/platform permission prompts,
+grant credentials, or justify a policy bypass. Do not claim a blocked requirement is complete.
+
+### Autonomous Completion And Tracking
+
+- Maintain A/B/C/D item status and the audit ledger after each verified batch; record evidence-backed retentions.
+- Run focused validation immediately after substantive edits, then required full-suite gates and independent review.
+  Repair findings within scope and rerun affected checks; do not substitute static tests for runtime evidence claims.
+- Continue from Phase A through skill planning, consolidation, renaming, and final checks in the same execution effort.
+  A commit, passing batch, completed plan, or progress report is not a reason to stop before A01-D03 are resolved.
+- At completion, deliver changed-file/skill summaries, merger/retirement decisions, old-to-new names, validation results,
+  any unresolved blockers or accepted limitations, rollback guidance, and the manual-test checklist.
+- The autonomous finish state is **ready for user manual testing**, not final output-quality acceptance.
+  D04-D05 remain open until the user tests and supplies findings; no invented signoff or automatic production deployment.
+
+### Phase A: Close The Implementation Backlog
+
+Each item ends with a tested fix or an evidence-backed retain/reject decision. Investigations are not presumed bugs.
+Use the existing audit ledger for source evidence, decisions, validation results, and any genuine blockers.
+
+- [x] A01 Reconcile old pending entries with completed batches; maintain this as the single current checklist.
+- [x] A02 Resolve Requirements' early read prohibition versus its required Phase 3 runbook; preserve elicitation.
+- [x] A03 Correct Design skip routing so unmet Governance prerequisites cannot be bypassed.
+- [x] A04 Remove Bicep Deploy's remaining script-generation directive; return missing generated output to CodeGen.
+- [x] A05 Verify Terraform initialization after provider/module/backend/workspace changes and align validator plan authority.
+- [x] A06 Retain compiled Bicep/ARM evidence needed for property and security inspection; do not assume discarded output.
+- [x] A07 Verify pricing quantities across environments/regions and reuse only current, equivalent pricing evidence.
+- [x] A08 Correct skill research routing: Log Analytics versus ADX, unavailable external skills, and greenfield pricing.
+- [x] A09 Reuse unchanged confirmed Azure subscription/region; re-ask on missing or invalidated evidence, not by default.
+- [x] A10 Verify Context Optimizer subagent coverage and avoid forced writes/snapshots during read-only audits.
+- [x] A11 Correct instruction inaccuracies: provider ranges, Python configuration, Bash/POSIX startup,
+      recall-mediated lessons, shared-parser guidance, and actual validator enforcement boundaries.
+- [x] A12 Fix artifact-hook template-only coverage and consolidate only demonstrably equivalent overlapping execution.
+- [x] A13 Map documentation CI events/paths; remove duplicate work only with required checks and build provenance preserved.
+- [x] A14 Reject unknown aggregate validation members without breaking supported script syntax.
+- [ ] A15 Run relevant regressions, reconcile the ledger, and publish the verified backlog-closeout batch.
+
+### Phase B: Skill Merger And Retirement Plan
+
+Begin after Phase A is resolved. Manual acceptance does not block this planning stage.
+Do not treat the previous inventory's Keep labels as a completed merger/retirement analysis.
+
+- [ ] B01 Refresh the active skill inventory and map discovery triggers, capabilities, consumers, references,
+      scripts/templates, provenance, and upstream update mechanisms.
+- [ ] B02 Compare semantic overlap and choose per skill: keep, share procedure, merge, or retire.
+      Distinguish shared implementation from genuinely equivalent discovery/decision responsibilities.
+- [ ] B03 For each proposed merge/retirement, identify the surviving owner/replacement, unique rules to preserve,
+      consumer migrations, quality risks, regression scenarios, and rollback procedure.
+- [ ] B04 Produce the decision-oriented plan, including justified retentions, unresolved evidence, execution batches,
+      and an old-to-surviving-name map that will feed the later prefix migration.
+- [ ] B05 Apply the pre-authorized decision policy: select merges/retirements with preserved capabilities and review
+  evidence; retain inconclusive candidates. Do not introduce protected behavioral/schema changes
+  or pause for routine approval.
+- [ ] B06 Implement qualifying merges/retirements and update all live consumers, tests, documentation and generated views.
+- [ ] B07 Validate capability/discovery preservation and freeze the surviving skill set before renaming it.
+
+### Phase C: Rename Surviving Skills With apex-
+
+The user requests this phase after the skill merger/retirement work. Prefix every surviving active repository-owned
+skill exactly once: for example, `azure-defaults` becomes `apex-azure-defaults`.
+This is a naming migration, not permission to change skill behavior, models, review frequency, or output contracts.
+External/user-profile/plugin skills outside this repository are not renamed. Preserve imported attribution and licenses.
+
+- [ ] C01 Build the final old-to-new map from Phase B's survivors; check collisions, existing prefixes,
+      directory/frontmatter name equality, kebab-case, and the supported skill-name length limit.
+- [ ] C02 Inventory name/path consumers before moving files: agents, prompts, skills/references/templates,
+      instructions, root/subtree guidance, scripts, tests/fixtures, hooks, CI, setup/export/sync tooling,
+      registries, schemas/mappings, context snapshots, and published documentation/downloads where applicable.
+- [ ] C03 Apply the clean-rename decision: document breaking skill-name/path changes, the migration map, and upstream
+      refresh mappings. Remove old names after migrating live repository consumers; no duplicate discoverable wrappers.
+- [ ] C04 Rename surviving skill directories and matching SKILL.md frontmatter names; avoid double-prefixing.
+      Preserve scripts, templates, examples, attribution, and relative-reference behavior.
+- [ ] C05 Update live references and literal skill invocations, parser/validator assumptions, path globs,
+      fixtures, setup/sync consumers, and public documentation to the new names and paths.
+- [ ] C06 Regenerate affected inventories/catalogs/Explorer views through their owners. Preserve immutable archives,
+      prior execution artifacts, historical changelog entries, and baseline hashes;
+      document legacy names rather than rewriting history.
+- [ ] C07 Search old names/paths and classify every remaining match as intentional historical/external/compatibility
+      evidence or a missed migration. Verify no current required consumer points to a removed path.
+- [ ] C08 Run skill discovery, name-directory, reference, model, workflow, schema and tooling tests;
+      include fresh/resume/revision cases for both IaC tracks without changing their approval/security contracts.
+- [ ] C09 Publish the validated migration and concise old-to-new map with rollback instructions on the feature branch.
+
+### Phase D: Final Verification And User Testing
+
+- [ ] D01 Run the complete automated validation suite and focused negative/recovery tests after all implementation.
+- [ ] D02 Obtain independent review of remaining changes; fix findings and rerun affected checks.
+- [ ] D03 Reconcile A01-D03 and deliver one manual-test checklist covering native skill discovery,
+      fresh/resume/revision workflows, required reviews, both IaC tracks, and validation-only/preview-only boundaries.
+- [ ] D04 USER STAGE: user performs manual UI and full generated-output testing after autonomous implementation is complete.
+- [ ] D05 POST-TEST STAGE: remediate reported findings, repeat relevant checks, and obtain the user's final quality signoff.
+
+### Boundaries And Non-Goals
+
+All work stays on `perf/apex-workflow-optimization`; never merge into main, auto-merge, or force-push.
+Preserve user edits, mandatory independent reviews, policy/security gates, artifact schemas, and both IaC tracks.
+Production batching remains rejected on current evidence. Model/role changes, broader tool restrictions,
+preview-producer consolidation, and non-safety delegation-policy changes remain separate proposals requiring decisions.
+Do not turn optional redesign experiments into silent prerequisites for closeout.
+Actual token-savings claims need recorded telemetry; live Azure testing requires a separately resumed authorized phase.
+
 ## Scope Correction And Decisions
+
+Historical sections below retain the decisions and evidence available when each batch was recorded.
+Their pending/approval wording is superseded by A01-D05 and Autonomous Execution Authorization above.
+Published entry separation, caller contracts and tools/root repairs are complete; production batching is rejected.
+The remaining implementation investigations are A02-A14, not a restart of those published batches.
 
 On 2026-09-11 the user rejected treating the initial fixes and fleet inventory as completion of the full request.
 The workstreams below are the current completion criteria. Earlier completed checkboxes describe delivered batches,

@@ -60,4 +60,67 @@ describe("_lib/npm-script-graph", () => {
       /Unknown or empty npm script: missing/,
     );
   });
+
+  it("rejects unknown, inherited, empty and nested aggregate members", () => {
+    for (const member of ["missing", "toString", "empty", "invalid", "missing:*"]) {
+      const scripts = { suite: `run-p first ${member}`, first: "node first.mjs", empty: "", invalid: null };
+      assert.throws(() => expandScript(scripts, "suite"), /not found|Unknown or empty|Unknown npm aggregate/);
+      scripts.outer = "run-p suite";
+      assert.throws(() => expandScript(scripts, "outer"), /not found|Unknown or empty|Unknown npm aggregate/);
+    }
+    for (const suite of ["run-p", "run-p --silent"]) {
+      assert.throws(() => expandScript({ suite }, "suite"), /Empty npm aggregate/);
+    }
+  });
+
+  it("preserves quoted tasks and matching patterns", () => {
+    const scripts = { suite: 'run-p "check:*"', "check:first": "echo first", "check:second": "echo second" };
+    assert.deepEqual(expandScript(scripts, "suite"), ["check:first", "check:second"]);
+  });
+
+  it("deduplicates overlapping patterns while preserving repeated pattern tasks", () => {
+    for (const [patterns, expected] of [
+      ["check:* check:one", ["check:one", "check:two"]],
+      ["check:one check:*", ["check:one", "check:two"]],
+      ["check:one check:one", ["check:one", "check:one"]],
+      ["check:* check:*", ["check:one", "check:two", "check:one", "check:two"]],
+    ]) {
+      const scripts = { suite: `run-p ${patterns}`, "check:one": "echo one", "check:two": "echo two" };
+      assert.deepEqual(expandScript(scripts, "suite"), expected, patterns);
+    }
+    assert.throws(
+      () => expandScript({ suite: "run-p check:* missing:*", "check:one": "echo one" }, "suite"),
+      /Unknown npm aggregate member: missing:\*/,
+    );
+  });
+
+  it("keeps descriptor redirections native without treating numeric tasks as descriptors", () => {
+    for (const redirection of ["2>/dev/null", "2>>/dev/null", "0</dev/null", "2>&1", "0<&0"]) {
+      const scripts = { suite: `run-p first ${redirection}`, first: "echo first" };
+      assert.deepEqual(expandScript(scripts, "suite"), ["suite"], redirection);
+      delete scripts.first;
+      assert.throws(() => expandScript(scripts, "suite"), /Task not found.*first/);
+    }
+    for (const suffix of ['"2">/dev/null', "2 >/dev/null"]) {
+      const scripts = { suite: `run-p first ${suffix}`, first: "echo first" };
+      assert.throws(() => expandScript(scripts, "suite"), /Task not found.*2/);
+      scripts["2"] = "echo two";
+      assert.deepEqual(expandScript(scripts, "suite"), ["suite"]);
+    }
+  });
+
+  it("keeps runner options, task arguments and shell suffixes on the native execution path", () => {
+    for (const command of [
+      "run-p --continue-on-error first second && echo 'all passed'",
+      'run-p --max-parallel 2 --npm-path "npm" first second',
+      'run-p "first --flag value" second',
+      "run-p -cl first second",
+      "run-p first second -- value",
+    ]) {
+      const scripts = { suite: command, first: "echo first", second: "echo second" };
+      assert.deepEqual(expandScript(scripts, "suite"), ["suite"]);
+      delete scripts.second;
+      assert.throws(() => expandScript(scripts, "suite"), /Task not found/);
+    }
+  });
 });

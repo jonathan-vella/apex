@@ -11,10 +11,12 @@ completion artifacts** (same pattern as `00-handoff.md` and `00-session-state.js
 
 ## Initialization
 
-At workflow start (when creating `00-session-state.json`), also create:
+Initialize session state with `apex-recall init <project> --json`; never read or
+edit `00-session-state.json` directly. On resume, recover state with
+`apex-recall show <project> --json` and preserve existing lesson entries.
+Create `09-lessons-learned.json` with file-editing tools only when absent:
 
 ```json
-// agent-output/{project}/09-lessons-learned.json
 {
   "workflow_mode": "production",
   "project": "{project}",
@@ -23,6 +25,15 @@ At workflow start (when creating `00-session-state.json`), also create:
 ```
 
 Set `workflow_mode` to `"e2e"` for the E2E Orchestrator.
+
+The CLI has no `apex-recall lessons` subcommand. Append schema-compliant entries
+to the lesson artifact with file-editing tools; session findings are not a
+replacement for the structured lesson log. Register the artifact through recall:
+
+```bash
+apex-recall checkpoint <project> <step> lessons \
+   --artifact agent-output/<project>/09-lessons-learned.json --json
+```
 
 ## When to Record a Lesson
 
@@ -60,7 +71,10 @@ for E2E), generate the lessons-learned artifacts:
 1. **Read** `09-lessons-learned.json` — the accumulated lesson entries
 2. **Generate** `09-lessons-learned.md` narrative using the H2 structure
    from `azure-artifacts/templates/09-lessons-learned.template.md`
-3. If zero lessons were captured, write a "clean run" summary:
-   all steps passed without revision, no challenger must_fix findings
-4. Update `00-session-state.json` — add `09-lessons-learned.json` and
-   `09-lessons-learned.md` to the artifacts list
+3. If zero lessons were captured, state "no lessons recorded". Claim a clean
+   run only when step/review evidence also proves no revisions or must_fix
+   findings; otherwise report the collection gap.
+4. Register each output using `apex-recall checkpoint <project> 7 lessons_json`
+   or `lessons_markdown`, respectively, with `--artifact <path> --json`.
+   The checkpoint command appends each path to the step's artifact list;
+   never patch session state directly.

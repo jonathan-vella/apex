@@ -20,6 +20,12 @@ for full details on this and all prior releases.
 
 ### Changed (Workflow guidance simplification)
 
+- Resolve Requirements runbook timing, Design skip prerequisites and deployment-script ownership.
+  Preserve compiled ARM evidence and refresh Terraform initialization without transferring plan authority to reviewers.
+- Price environment/region/stamp quantities explicitly, reuse only current equivalent evidence, and preserve
+  confirmed Azure context without bypassing readiness checks. Correct research routing and instruction inaccuracies.
+- Honor read-only context audits, cover leaf workers, fix template-only hook coverage, and avoid duplicate Markdown
+  execution where required CI owns it. Preserve Pages build provenance and native aggregate-runner semantics.
 - Consolidate native and attachable resume prompts into the Orchestrator's canonical recovery procedure.
   Include native/nested prompts in validation, registry checks, Explorer and context snapshots; preserve unique identities.
 - Repair JSONC literal and prototype-key handling, lint failure propagation, ignored-aware link selection,

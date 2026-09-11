@@ -39,6 +39,15 @@ Audits how agents consume their context window and recommends structural
 improvements — hand-off points, skill splits, progressive loading fixes,
 and prompt trimming — without losing any context that matters.
 
+## Audit write scope
+
+Honor an explicit read-only request throughout every phase: no snapshots,
+report files, temporary exports, diff-report writes, or `apex-recall` mutations.
+Use stdout-only analysis commands and return findings in chat. This overrides
+the persisted-output examples below and in loaded references. In normal report
+mode, write the requested report; create a baseline or persisted diff only when
+the user explicitly requests that comparison and authorizes its writes.
+
 ## MANDATORY: Orientation
 
 Read these before doing ANY work:
@@ -55,7 +64,7 @@ Batch independent skill reads into one parallel `read_file` call.
 | Capability            | Description                                                   |
 | --------------------- | ------------------------------------------------------------- |
 | Log analysis          | Parse Copilot Chat debug logs for request patterns            |
-| Turn-cost profiling   | Estimate token spend per agent turn from timing + model       |
+| Turn-cost profiling   | Report recorded token usage; keep timing-only costs unknown   |
 | Redundancy detection  | Find repeated file reads, duplicate skill loads               |
 | Hand-off gap analysis | Identify where context grows too large without delegation     |
 | Instruction audit     | Flag overly broad `applyTo` globs loading unnecessary context |
@@ -96,7 +105,8 @@ Key signals extracted:
 
 ### Secondary: Agent Definitions
 
-All `.github/agents/*.agent.md` files — analyze:
+All `.github/agents/**/*.agent.md` files, including top-level agents and
+`_subagents/*.agent.md` leaf workers — analyze:
 
 - Tool list size (more tools = more system prompt tokens)
 - Handoff definitions
@@ -113,9 +123,10 @@ All `.github/agents/*.agent.md` files — analyze:
 
 ## 7-Phase Analysis Workflow
 
-### Phase 0: Baseline Snapshot (Automated)
+### Phase 0: Baseline Selection (Optional)
 
-Before any analysis, automatically create a baseline snapshot:
+For an explicitly requested persisted before/after comparison, reuse a verified
+existing baseline when suitable. Otherwise, with write authorization, create one:
 
 ```bash
 npm run snapshot:baseline -- "ctx-opt-$(date -u +%Y%m%d-%H%M%S)"
@@ -125,7 +136,8 @@ This backs up `.github/agents`, `.github/instructions`, `tools/apex-prompts`,
 `.github/skills`, and `AGENTS.md` to `agent-output/_baselines/{label}/`.
 Store the label for Phase 6.
 
-**This phase is mandatory and runs without user interaction.**
+Skip snapshot creation for read-only audits or when no persisted comparison is
+requested. Missing baseline evidence limits before/after claims, not the audit.
 
 ### Phase 1: Discovery & Log Collection
 
@@ -134,8 +146,7 @@ Store the label for Phase 6.
 
    ```bash
    python3 .github/skills/context-management/scripts/parse-chat-logs.py \
-     --log-dir ~/.vscode-server/data/logs/ \
-     --output /tmp/context-audit.json
+     --log-dir ~/.vscode-server/data/logs/
    ```
 
 3. For exported OTel debug logs (`logs/*.json` / `tmp/agent-debug-log-*.json`),
@@ -145,7 +156,6 @@ Store the label for Phase 6.
 
    ```bash
    npm run profile:debug-log -- logs/<session>.json
-   npm run profile:debug-log -- logs/<session>.json --json > /tmp/profile.json
    ```
 
    Full workflow + thresholds:
@@ -174,7 +184,9 @@ when absent, report unknown. Source size and tool counts are diagnostics, not me
 
 ### Phase 3: Agent Definition Audit
 
-For each agent in `.github/agents/`:
+For each agent discovered recursively in `.github/agents/`, including
+`_subagents/`, apply the role-appropriate checks below. A leaf worker's
+`agents: []` and absence of handoffs are intentional, not delegation defects.
 
 | Check                  | Flag When                                       |
 | ---------------------- | ----------------------------------------------- |
@@ -198,7 +210,8 @@ For each instruction file:
 
 ### Phase 5: Report Generation
 
-Save to `agent-output/{project}/11-context-optimization-report.md`:
+In normal report mode, save to `agent-output/{project}/11-context-optimization-report.md`.
+For read-only audits, return the findings in chat without creating this file:
 
 ```markdown
 # Context Window Optimization Report
@@ -263,10 +276,11 @@ Save to `agent-output/{project}/11-context-optimization-report.md`:
 | 2        | ...    | ...    | ...    |
 ```
 
-### Phase 6: Before/After Diff Report (Automated)
+### Phase 6: Before/After Diff Report (Optional)
 
-After the user confirms they have applied recommendations (or after this agent
-applies them), automatically generate the diff report using the label from Phase 0:
+After a human or separate execution agent applies recommendations, generate a
+persisted diff only when requested with write authorization and a verified
+baseline label. This agent never applies the recommendations itself:
 
 ```bash
 npm run diff:baseline -- --baseline {label-from-phase-0}
@@ -279,9 +293,9 @@ Present a summary of the diff report to the user:
 - Highlight the most significant changes
 - Note the full report location: `agent-output/_baselines/{label}/diff-report.md`
 
-**This phase is mandatory whenever recommendations are applied.**
-If no changes were applied yet, remind the user they can trigger the diff
-later with `npm run diff:baseline -- --baseline {label}`.
+For read-only comparison, inspect existing baseline evidence without invoking
+the writing diff script. If no verified baseline exists, report that limitation;
+do not create a snapshot after the change and call it a before baseline.
 
 Baselines are git-ignored — they are local working data, not committed.
 
@@ -310,21 +324,22 @@ This agent is designed to be reusable across projects:
 ## Boundaries
 
 - **Always**: Analyze debug logs, produce optimization recommendations, identify token waste
-- **Recommendations only**: this agent writes the report file but never edits
+- **Recommendations only**: this agent writes the report file when authorized but never edits
   agent, skill, or instruction definitions — it surfaces changes for a human
   (or a separate gated execution pass) to apply.
 
 <output_contract>
-Primary artifact: agent-output/{project}/11-context-optimization-report.md — executive
+Normal report mode artifact: agent-output/{project}/11-context-optimization-report.md — executive
 summary table (avg turns, avg latency, wasted tokens), finding categories
 (Critical / High / Medium / Low), recommended hand-off points, instruction
 consolidation list, agent-specific recommendations, implementation priority.
 Source data: VS Code Copilot debug logs (path supplied by user) plus the
 read-only audit of `.github/agents/`, `.github/skills/`, `.github/instructions/`.
-Session state: when invoked inside an active project, checkpoint findings via
+Read-only mode: return findings in chat; do not write artifacts or session state.
+Session state: in authorized report mode inside an active project, checkpoint findings via
 `apex-recall finding <project> --add "<one-line summary>" --json` so the
 report path and key metrics are recoverable from a fresh chat. Do not embed
-the report body in chat — return the path plus the executive summary table.
+the report body in chat in report mode — return the path plus the executive summary table.
 This agent NEVER edits agent / skill / instruction files; it produces
 recommendations only.
 </output_contract>

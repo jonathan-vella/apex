@@ -14,7 +14,10 @@ azd env list
 azd env get-values
 ```
 
-If `AZURE_ENV_NAME`, `AZURE_SUBSCRIPTION_ID`, and `AZURE_LOCATION` are already set, confirm with user:
+Apply [confirmation reuse](../../../../azure-prepare/references/azure-context.md#confirmation-reuse).
+If `AZURE_ENV_NAME`, `AZURE_SUBSCRIPTION_ID`, and `AZURE_LOCATION` match unchanged
+user-confirmed context, skip to **Verify Configuration** without asking again.
+Values alone are not confirmation; if evidence is missing or invalidated, ask:
 
 ```
 Question: "An AZD environment is already configured. Would you like to use it?"
@@ -106,4 +109,6 @@ Confirm these values are set:
 
 ## Only Then Proceed
 
-After environment is configured, proceed with `azd up --no-prompt`.
+After environment is configured, return to the calling validation recipe.
+Validation-only stops with results; deployment requires an explicit request,
+approval, and the `azure-deploy` checks. Environment reuse does not authorize apply.

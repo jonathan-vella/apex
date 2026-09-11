@@ -42,7 +42,7 @@ Activate this skill when user wants to:
 3. **Research before generating** — Load references and invoke related skills
 4. **Update plan progressively** — Mark steps complete as you go
 5. **Validate before deploy** — Invoke azure-validate before azure-deploy
-6. **Confirm Azure context** — Use `ask_user` for subscription and location per [Azure Context](references/azure-context.md)
+6. **Confirm Azure context** — Reuse unchanged confirmed values; ask only for missing or invalidated evidence per [Azure Context](references/azure-context.md#confirmation-reuse)
 7. ❌ **Destructive actions require `ask_user`** — [Global Rules](references/global-rules.md)
 8. **Scope: preparation only** — This skill generates infrastructure code and configuration files. Deployment execution (`azd up`, `azd deploy`, `terraform apply`) is handled by the **azure-deploy** skill, which provides built-in error recovery and deployment verification.
 

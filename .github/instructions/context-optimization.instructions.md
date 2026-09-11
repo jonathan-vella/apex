@@ -40,8 +40,8 @@ targets as hard caps; the tables below now match what the validators in
 | Rule                      | Limit / Target       | Enforced?                                                            |
 | ------------------------- | -------------------- | ------------------------------------------------------------------- |
 | File size                 | ≤ 150 lines (target) | Guideline — split heavy content into a skill `references/` file      |
-| `applyTo: "**"` body size | ≤ 50 lines           | **Enforced** — `validate-glob-audit.mjs` (`MAX_LINES_WITH_WILDCARD`) |
-| Broad-markdown body size  | ≤ 200 lines          | **Enforced** — `validate-glob-audit.mjs` (`MAX_LINES_WITH_BROAD_MD`) |
+| `applyTo: "**"` file size | ≤ 50 lines           | **Warning only** — `validate-glob-audit.mjs`; wildcard always warns, size adds a note |
+| Broad-markdown file size  | ≤ 200 lines          | **Warning only** — `validate-glob-audit.mjs` for an exact recognized broad glob |
 | `applyTo` specificity     | Narrow globs         | Guideline — `**/*.ts` not `**` when possible                         |
 | Avoid `applyTo: "**"`     | Exceptional only     | Loads for every single file match                                   |
 
@@ -63,10 +63,15 @@ applyTo: "**"
 
 | Rule                               | Limit           | Enforced?                                                   |
 | ---------------------------------- | --------------- | ---------------------------------------------------------- |
-| SKILL.md body (no `references/`)   | ≤ 200 lines     | **Enforced** — `paths.mjs` (`MAX_SKILL_LINES_WITHOUT_REFS`) |
-| SKILL.md body (with `references/`) | ≤ 500 lines     | Skill-spec ceiling (guideline)                             |
+| SKILL.md file (no `references/`)   | ≤ 200 lines     | **Error**, except tracked oversized skills warn; `validate-skills.mjs` |
+| SKILL.md body (with `references/`) | ≤ 500 lines     | Skill-spec ceiling (guideline); validator warns when the file exceeds 200 lines |
 | Heavy content                      | → `references/` | Level 3: loaded only when needed                           |
 | Prerequisites section              | Required        | Declare deps, don't surprise agent                         |
+
+These are source checks, not runtime read/token enforcement. The glob auditor
+counts full-file lines and recognizes exact broad-glob values, not every
+equivalent compound pattern. Do not interpret a passing check as runtime
+attachment evidence or proof that every advisory limit is enforced.
 
 ## Hand-Off Decision Framework
 

@@ -166,11 +166,13 @@ available in context. The rule:
   contract closes that hole.
 
 **Validator**: `npm run validate:context-budget` enforces a structural
-floor — every agent that declares one of the frozen artifacts under a
-"Prerequisites Check" / "Read at startup" / "Context budget" heading must
-also reference `apex-recall show` (the cached read path) and contain a
-phrase forbidding redundant reads ("do not re-read predecessor artifacts",
-"frozen_inputs", or "plan_readonly").
+floor for non-subagent consumers: a frozen artifact filename must occur on
+the same line as `**REQUIRED**` to trigger the check. Those consumers need
+`apex-recall show` and a recognized marker ("do not re-read predecessor artifacts",
+"no self-edit", "frozen_inputs", "plan_readonly", "plan-lock", or
+"plan-readiness precondition"). Headings alone do not trigger it. It does not
+count runtime reads, validate cache freshness, or prove instruction attachment;
+those remain execution/review responsibilities.
 
 ## Resources
 

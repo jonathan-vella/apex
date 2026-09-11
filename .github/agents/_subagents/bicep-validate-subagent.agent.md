@@ -190,9 +190,19 @@ Findings` entry naming the missing field — do not guess.
 1. Run the validation commands and collect their output:
 
    ```bash
-   bicep lint {template_path}
-   bicep build {template_path} --stdout > /dev/null
+   compiled_dir=$(mktemp -d) && \
+     bicep lint {template_path} && \
+     bicep build {template_path} --outfile "$compiled_dir/main.json"
    ```
+
+   Retain `$compiled_dir/main.json` through Phase 2 for SKU-default, security,
+   and governance property inspection, including nested module templates.
+   Inspect this invocation's compiled ARM, not an older adjacent JSON file.
+   Trace parameter expressions to the current inputs; compilation alone does
+   not resolve deployment-time values. Missing or unreadable compiled evidence
+   cannot count as a passed render check. Quote relevant JSON paths and source
+   inputs in Detailed Findings, then remove only this invocation's temporary
+   directory after composing the response. Do not modify the source tree.
 
 2. **Timeout-retry policy (Wave 1+)**: if either command times out or
    exits with a transient network/HTTP error (5xx, ETIMEDOUT,

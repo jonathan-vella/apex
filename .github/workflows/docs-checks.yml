@@ -40,6 +40,7 @@ jobs:
         run: npm ci --no-audit --no-fund
 
       - name: Markdown lint
+        if: github.event_name == 'pull_request' && github.base_ref != 'main'
         run: npm run lint:md
 
       - name: Frontmatter lint

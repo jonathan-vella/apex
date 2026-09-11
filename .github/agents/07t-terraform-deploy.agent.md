@@ -322,6 +322,16 @@ Scan `*.tfvars` files, collect values via `askQuestions`, confirm none remain.
 
 ### Step 4: Detect Deployment Method and Validate
 
+Before either deployment method, verify initialization for the current provider
+requirements, lockfile selections, module sources/versions, backend configuration,
+and target workspace. `.terraform/` existence or a matching IaC tree hash alone
+is insufficient. Rerun init when dependency or backend inputs changed or prior
+evidence is missing; select and verify the approved workspace before planning.
+Backend-disabled validation init does not establish deployment readiness. A
+backend/workspace/environment change invalidates prior plan and approval evidence;
+rerun the existing preview and approval gates. Never use `-upgrade`, create a
+workspace, migrate state, or bootstrap resources without the required approval.
+
 ```bash
 cd infra/terraform/{project}
 
@@ -349,7 +359,7 @@ The azd path does not bypass any gate required by the pure Terraform path.
 
 ```bash
 # Initialize with backend configuration
-terraform init
+terraform init -input=false -lockfile=readonly
 
 # Validate syntax and configuration
 terraform validate

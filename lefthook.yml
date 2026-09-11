@@ -40,29 +40,15 @@ pre-commit:
           echo "ℹ️  No docs to check links"
         fi
 
-    h2-sync:
-      glob: "{.github/skills/azure-artifacts/SKILL.md,.github/instructions/azure-artifacts*,tools/scripts/validate-artifacts*}"
-      run: |
-        STAGED_SYNC=$(git diff --cached --name-only --diff-filter=ACM | grep -E '(SKILL\.md|azure-artifacts|validate-artifacts)' || true)
-        if [ -n "$STAGED_SYNC" ]; then
-          echo "🔄 Checking H2 heading sync across sources..."
-          npm run validate:artifacts
-        else
-          echo "ℹ️  No H2-source files to sync-check"
-        fi
-      fail_text: |
-        ❌ H2 heading sync failed!
-
-        Sources must match: SKILL.md ↔ azure-artifacts ↔ validator
-        🔧 Run: npm run lint:h2-sync
-
     artifact-validation:
-      glob: "{agent-output,.github/skills/azure-artifacts/templates}/**/*.md"
+      glob: "{agent-output/*.md,agent-output/**/*.md,.github/skills/azure-artifacts/templates/*.md,.github/skills/azure-artifacts/templates/**/*.md,.github/skills/azure-artifacts/SKILL.md,.github/instructions/azure-artifacts*,tools/scripts/validate-artifacts*}"
       run: |
-        # Check if any agent-output artifacts are staged
-        STAGED_ARTIFACTS=$(git diff --cached --name-only --diff-filter=ACM | grep -E '^agent-output/.*\.md$' || true)
-        if [ -n "$STAGED_ARTIFACTS" ]; then
-          COUNT=$(echo "$STAGED_ARTIFACTS" | wc -l | tr -d ' ')
+        # Template changes invalidate the same artifact checks as output changes.
+        STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM) || exit 1
+        STAGED_ARTIFACTS=$(echo "$STAGED_FILES" | grep -E '^(agent-output/|\.github/skills/azure-artifacts/templates/).*\.md$' || true)
+        STAGED_SYNC=$(echo "$STAGED_FILES" | grep -E '^(\.github/skills/azure-artifacts/SKILL\.md$|\.github/instructions/azure-artifacts[^/]*$|tools/scripts/validate-artifacts[^/]*$)' || true)
+        if [ -n "$STAGED_ARTIFACTS$STAGED_SYNC" ]; then
+          COUNT=$(printf '%s\n%s\n' "$STAGED_ARTIFACTS" "$STAGED_SYNC" | grep -c .)
           echo "📋 Validating $COUNT artifact(s) against templates..."
           # Run full artifact validation - blocks on any H2 mismatch
           if ! npm run validate:artifacts; then
@@ -81,7 +67,7 @@ pre-commit:
           # Primary enforcement is at runtime via `apex-recall complete-step`;
           # this is the commit-time fallback so the same drift cannot land
           # via direct edits.
-          if ! npm run validate:challenger-presence --silent; then
+          if [ -n "$STAGED_ARTIFACTS" ] && ! npm run validate:challenger-presence --silent; then
             echo ""
             echo "❌ Mandatory challenger review missing for one or more steps."
             echo "   Run the challenger-review-subagent against the gating"
@@ -91,7 +77,7 @@ pre-commit:
             exit 1
           fi
         else
-          echo "ℹ️  No agent-output artifacts to validate"
+          echo "ℹ️  No artifacts or templates to validate"
         fi
       fail_text: |
         ❌ Artifact H2 structure or challenger-review presence check failed!

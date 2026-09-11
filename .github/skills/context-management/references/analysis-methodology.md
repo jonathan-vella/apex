@@ -51,12 +51,11 @@ Source bytes, tool counts, and slow turns can identify investigation targets, no
 
 ### Step 1: Parse Logs
 
-Run the log parser to extract structured data:
+Run the log parser to extract structured data to stdout (no export file):
 
 ```bash
 python3 .github/skills/context-management/scripts/parse-chat-logs.py \
-  --log-dir ~/.vscode-server/data/logs/ \
-  --output /tmp/context-audit.json
+  --log-dir ~/.vscode-server/data/logs/
 ```
 
 The parser produces JSON with per-session request arrays.
@@ -74,7 +73,9 @@ Group requests by session and analyze patterns:
 
 ### Step 3: Audit Agent Definitions
 
-For each `.agent.md` file, calculate context cost:
+Discover `.github/agents/**/*.agent.md` recursively, including `_subagents/`.
+For each file, estimate source-level context cost; leaf workers do not require
+handoffs or delegation. These estimates are not observed token usage:
 
 | Component              | Approximate Token Cost           |
 | ---------------------- | -------------------------------- |
@@ -175,17 +176,20 @@ Do:         "Validate these 3 Bicep files: [paths]. Check for: [specific items].
 
 ## Baseline Comparison (Automated)
 
-The agent automatically snapshots and diffs agent context files as part
-of its 7-phase workflow (Phase 0 and Phase 6). No manual steps required.
+Snapshots and persisted diffs are optional: run them only for a requested
+before/after comparison with write authorization. Read-only audits do not write
+snapshots, reports, temporary exports, or session state; return findings in chat.
+Reuse a verified existing baseline when available. No baseline means before/after
+claims remain unavailable, not that the audit must create one.
 
 ### How It Works
 
-1. **Phase 0** (auto): Runs `npm run snapshot:baseline -- ctx-opt-{timestamp}`
-   before any analysis. Copies `.github/agents`, `.github/instructions`,
+1. **Phase 0** (optional, authorized): Runs `npm run snapshot:baseline -- ctx-opt-{timestamp}`
+  before changes. Copies `.github/agents`, `.github/instructions`,
    `.github/prompts`, `.github/skills`, and `AGENTS.md` to
    `agent-output/_baselines/{label}/` with a `manifest.json`.
 2. **Phases 1-5**: Normal analysis and recommendation workflow.
-3. **Phase 6** (auto): After changes are applied, runs
+3. **Phase 6** (optional, authorized): After a human or separate execution agent applies changes, runs
    `npm run diff:baseline -- --baseline {label}` to generate a structured
    diff report at `agent-output/_baselines/{label}/diff-report.md`.
 

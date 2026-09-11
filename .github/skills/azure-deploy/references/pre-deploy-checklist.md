@@ -24,9 +24,13 @@ mcp_azure-mcp_subscription_list
 az account show --query "{name:name, id:id}" -o json
 ```
 
-## Step 2: Prompt User for Subscription
+## Step 2: Verify Subscription Confirmation
 
-**You MUST use `ask_user`** to confirm the subscription. Find the default subscription (marked `isDefault: true`) from Step 1 results and present it as the recommended choice.
+Apply [confirmation reuse](../../azure-prepare/references/azure-context.md#confirmation-reuse).
+Reuse unchanged confirmed subscription/region for the same project and environment;
+re-ask when confirmation is missing or invalidated. Keep all current checks and
+deployment approval. When asking, show the actual subscription name and ID;
+the detected default is a recommendation, not confirmation.
 
 ✅ **Correct — show actual name and ID as a choice:**
 
@@ -48,9 +52,12 @@ ask_user(
 )
 ```
 
-## Step 3: Create AZD Environment FIRST
+## Step 3: Ensure AZD Environment Exists FIRST
 
-> ⚠️ **MANDATORY** — Create the environment BEFORE setting any variables or running `azd up`.
+Reuse the selected environment when it matches the confirmed project context.
+Run initialization below only when an environment is missing or the user requested a new one.
+
+> ⚠️ **MANDATORY** — An environment must exist BEFORE setting variables or running `azd up`.
 >
 > ⛔ **DO NOT** manually create `.azure/` folder with `mkdir` or `New-Item`. Let `azd` create it.
 > The `.azure/` folder is created per-project inside `infra/{iac}/{project}/` when you run `azd env new`.
@@ -95,12 +102,13 @@ az group show --name rg-<environment-name> --query "{location:location}" -o json
 
 **If RG exists:**
 
-- Use `ask_user` to offer choices:
+- If its location matches confirmed compatible context, continue without asking.
+- If it conflicts, use `ask_user` to offer choices:
   1. Use existing RG location (show the location)
   2. Choose a different environment name
   3. Delete the existing RG and start fresh
 
-**If RG doesn't exist:** Proceed to location selection.
+**If RG doesn't exist:** Proceed to location confirmation/reuse.
 
 ## Step 5: Check for Tag Conflicts (AZD only)
 
@@ -115,9 +123,11 @@ Check for each service in `azure.yaml`. If duplicates exist **in the target RG**
 1. **Preferred — Fresh environment**: Run `azd env new <new-name>` and restart from Step 4. Non-destructive, no user confirmation needed, avoids orphan risks.
 2. **Alternative — Delete conflicts**: Use `ask_user` to confirm deletion of old resources (required by global rules).
 
-## Step 6: Prompt User for Location
+## Step 6: Verify Location Confirmation
 
-**You MUST use `ask_user`** with regions that support ALL services in the architecture.
+Reuse unchanged confirmed location under the same confirmation-reuse rules.
+If missing or invalidated, use `ask_user` with regions that support ALL services
+in the architecture. Service and capacity changes still require affected checks.
 
 See [Region Availability](region-availability.md) for service-specific limitations.
 

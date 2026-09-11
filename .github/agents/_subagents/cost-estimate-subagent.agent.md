@@ -29,9 +29,9 @@ Callers: Architect (planned estimates) | As-Built (deployed estimates).
 Exactly one input mode must be supplied:
 
 - `resource_list`: `[{ name?, service_name, sku, region, quantity, usage?, meter_name? }]`
-- `manifest_path`: path to `sku-manifest.json`; project each service to
-  `{ service_name: .service, sku: .size, region: .regions[0], quantity:
-  .capacity.default }`. Optional `manifest_writeback` defaults to `true`.
+- `manifest_path`: path to `sku-manifest.json`; expand effective services across
+  environments, regions, and stamps using the canonical pricing guidance.
+  Optional `manifest_writeback` defaults to `true`.
 - `candidate_sets`: `[{ decision_id, candidates: [{ label, service_name, sku,
   region, quantity, usage?, meter_name?, notes? }] }]`.
 
@@ -53,7 +53,9 @@ service names, region handling, meter selection, usage units, and calculations.
 ## Workflow
 
 1. Validate the input mode and refuse an existing `output_path` unless
-   `overwrite: true`.
+  `overwrite: true`. Reuse an existing COMPLETE result without writing only
+  when the guidance's freshness and equivalence checks pass; otherwise report
+  that a refresh requires overwrite authorization.
 2. Normalize each line using the canonical guidance. Do not guess aliases that
    are not documented there.
 3. Group identical `(serviceName, armSkuName, armRegionName, meterName,
@@ -73,8 +75,10 @@ service names, region handling, meter selection, usage units, and calculations.
    the requested regions; do not recommend a region that violates requirements.
 8. Write the JSON atomically through `{output_path}.tmp`, validate totals and
    status, then rename it to `output_path`.
-9. In manifest mode, atomically update only `cost_estimate_monthly_usd` and
-   `cost_estimated_at` when status is COMPLETE.
+9. In manifest mode with `manifest_writeback: true`, atomically update only
+  `cost_estimate_monthly_usd` and `cost_estimated_at` when status is COMPLETE. Sum each service's deployment
+  lines across environments, regions, and stamps; exclude comparison-only
+  candidates. Preserve the original query timestamp when reusing evidence.
 10. Return the compact parent summary. Never paste the full JSON into chat.
 
 ## Query budget
@@ -96,7 +100,10 @@ name every affected line in `unresolved_items`.
 - For global services, use the canonical ARM region value from pricing guidance
   and record the substitution in `notes`.
 - Record selected `productName`, `meterName`, `unitOfMeasure`, `priceType`, and
-  returned currency in each line's `notes` for auditability.
+  returned currency in each line's `notes` for auditability. Also record effective
+  environment/stamp identity, deployment region, commitment, explicit usage and
+  whether it is per-instance or aggregate, and the calculation used. These are
+  the persisted inputs for equivalence checks; missing inputs prevent reuse.
 
 ## Terminal status
 

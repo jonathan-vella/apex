@@ -13,10 +13,21 @@ After architecture planning, research each selected component to gather best pra
 5. **Check Region Availability** — Verify all selected services are available in the target region per [region-availability.md](region-availability.md)
 6. **Check Provisioning Limits** — Invoke **azure-quotas** skill to validate that the selected subscription and region have sufficient quota/capacity for all planned resources. Complete [Step 6 of the plan template](plan-template.md#6-provisioning-limit-checklist) in two phases: (1) prepare resource inventory with deployment quantities, (2) fetch quotas and validate capacity using azure-quotas skill
 7. **Load Runtime References** — For containerized apps, load language-specific production settings (e.g., [Node.js](runtimes/nodejs.md))
-8. **Invoke Related Skills** — For deeper guidance, invoke mapped skills from the table below
+8. **Invoke Related Skills** — For deeper guidance, use the availability and domain checks below before invoking mapped skills
 9. **Document Findings** — Record key insights in `infra/{iac}/{project}/.azure/plan.md`
 
 ## Service-to-Reference Mapping
+
+Related skills are candidates, not guaranteed installed dependencies. Check the
+current session's skill catalog before invocation; never invent a skill path or
+retry an unavailable skill. For unavailable external skills (including
+`azure-observability`, `azure-nodejs-production`, `azure-networking`,
+`azure-security`, `azure-security-hardening`, `azure-keyvault-expiration-audit`,
+`appinsights-instrumentation`, `microsoft-foundry`, and `azure-ai`), use the local
+service/runtime references and [security guidance](security.md), then
+`microsoft-docs` for remaining documented service questions. If a required
+capability still cannot be verified, record the gap and stop the affected work.
+Availability does not replace authorization or required security checks.
 
 | Azure Service                | Reference                                                                                                               | Related Skills                                                                                                                   |
 | ---------------------------- | ----------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
@@ -46,7 +57,8 @@ After architecture planning, research each selected component to gather best pra
 | Managed Identity             | —                                                                                                                       | `azure-security`, `entra-app-registration`                                                                                       |
 | **Observability**            |                                                                                                                         |                                                                                                                                  |
 | Application Insights         | [App Insights](services/app-insights/README.md)                                                                         | `appinsights-instrumentation` (invoke for instrumentation)                                                                       |
-| Log Analytics                | —                                                                                                                       | `azure-observability`, `azure-kusto`                                                                                             |
+| Log Analytics                | [App Insights](services/app-insights/README.md) | `azure-diagnostics` for log troubleshooting; `microsoft-docs` for setup |
+| Azure Data Explorer (ADX)    | — | `azure-kusto` for ADX database queries and analytics |
 | **AI Services**              |                                                                                                                         |                                                                                                                                  |
 | Azure OpenAI                 | [Foundry](services/foundry/README.md)                                                                                   | `microsoft-foundry` (invoke for AI patterns and model guidance)                                                                  |
 | AI Search                    | —                                                                                                                       | `azure-ai` (invoke for search configuration)                                                                                     |
@@ -85,9 +97,16 @@ Invoke related skills for specialized scenarios:
 | Need detailed security hardening                | `azure-security-hardening`                                                                                                                                                          |
 | Setting up App Insights instrumentation         | `appinsights-instrumentation`                                                                                                                                                       |
 | Building AI applications                        | `microsoft-foundry`                                                                                                                                                                 |
-| Cost-sensitive deployment                       | `azure-cost-optimization`                                                                                                                                                           |
+| Greenfield or proposed-resource pricing         | `cost-estimate-subagent` via the [pricing parent contract](../../azure-defaults/references/cost-estimate-parent-contract.md); no deployed scope required |
+| Existing deployment spend or rightsizing        | `azure-cost-optimization` with actual cost/utilization evidence |
 
 **Skill/Reference Invocation Pattern:**
+
+KQL syntax alone is not a routing signal: Log Analytics/App Insights incidents
+belong to `azure-diagnostics`; ADX databases belong to `azure-kusto`. Do not query
+subscription spend to price a greenfield design. Every dollar figure follows the
+pricing parent contract; unavailable pricing workers block pricing, not a fallback
+to remembered prices or a different cost-analysis skill.
 
 For **Azure Functions**:
 

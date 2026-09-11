@@ -68,7 +68,8 @@ The shared stale-pin exception and freeze policy lives in
 [`azure-defaults`](../skills/azure-defaults/SKILL.md).
 
 > Provider-version pins (`azurerm`) are different — those use `~> 4.0`
-> minor-version constraints to allow patch upgrades. The exact-semver
+> major-series constraints (`>= 4.0.0, < 5.0.0`) to allow minor and patch upgrades.
+> A constraint such as `~> 4.0.0` would allow patch upgrades only (`< 4.1.0`). The exact-semver
 > rule applies to **AVM-TF module pins only**.
 
 ## RBAC Least Privilege
@@ -101,7 +102,7 @@ lower+numeric), generated once, passed everywhere.
 | ------------------------------- | ---------------------------------- |
 | Hardcoded resource names        | Use `random_string.suffix`         |
 | Missing `description` on vars   | Document all input variables       |
-| `>= 3.0` provider version range | Use `~> 4.0` minor-version pinning |
+| `>= 3.0` provider version range | Use `~> 4.0` major-series constraint |
 | Raw `azurerm_*` when AVM exists | Use AVM-TF modules or get approval |
 | `connection_string` auth        | Use managed identity RBAC          |
 | AVM-TF `version = "~> X.Y"`     | Use exact semver `version = "X.Y.Z"` — resolved live from `registry.terraform.io` at plan time |
