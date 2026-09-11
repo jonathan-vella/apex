@@ -6,6 +6,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import crypto from "node:crypto";
+import { parseJsonc } from "../../scripts/_lib/parse-jsonc.mjs";
 
 import {
   readJson,
@@ -28,6 +29,39 @@ function missingFile() {
 }
 
 describe("_lib/json", () => {
+  it("JSONC preserves prototype-like keys as own data properties", () => {
+    const text =
+      '{"__proto__":{"servers":{"github":{}}},"nested":{"__proto__":{"admin":true}},"constructor":"literal"}';
+    const parsed = parseJsonc(text);
+    assert.deepEqual(parsed, JSON.parse(text));
+    assert.ok(Object.hasOwn(parsed, "__proto__"));
+    assert.equal(Object.getPrototypeOf(parsed), Object.prototype);
+    assert.equal(parsed.servers, undefined);
+    assert.equal(parsed.nested.admin, undefined);
+    assert.equal(JSON.stringify(parsed), text);
+  });
+  it("JSONC preserves string contents that resemble comments or trailing commas", () => {
+    const value = {
+      block: "/*literal*/",
+      close: ",}",
+      array: ",]",
+      url: "https://example.test/a//b",
+      escaped: '\\"/*not a comment*/',
+    };
+    assert.deepEqual(parseJsonc(JSON.stringify(value)), value);
+  });
+
+  it("JSONC supports comments, trailing commas and scalar JSON values", () => {
+    assert.deepEqual(parseJsonc('/* before */ {"values": [1,2,], // line\n}'), { values: [1, 2] });
+    for (const value of [null, true, 2, "string"]) assert.deepEqual(parseJsonc(JSON.stringify(value)), value);
+  });
+
+  it("JSONC rejects malformed input rather than returning recovered partial data", () => {
+    for (const text of ["", "/* only */", '{"x":}', '{"x":1} garbage', '{"x":"unterminated}', "/* never closed"]) {
+      assert.throws(() => parseJsonc(text), SyntaxError, text);
+    }
+    assert.throws(() => readJson(tmpFile('{"value":1,}')));
+  });
   it("readJson parses valid JSON", () => {
     const p = tmpFile('{"a":1}');
     assert.deepEqual(readJson(p), { a: 1 });

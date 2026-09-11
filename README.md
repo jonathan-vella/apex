@@ -21,13 +21,15 @@ Key entry points:
 ## Workflow
 
 ```mermaid
+%%{init: {'theme':'neutral'}}%%
 sequenceDiagram
   autonumber
   participant U as User
-  participant O as Orchestrator
+  participant C as Orchestrator
   participant R as Requirements
   participant X as Challenger
   participant A as Architect
+  participant G as Governance
   participant IaC as IaC Plan
   participant Gen as IaC Code
   participant D as Deploy
@@ -39,7 +41,7 @@ sequenceDiagram
   C->>R: Translate intent into structured requirements
   R-->>C: 01-requirements.md (includes iac_tool selection)
   C->>X: Challenge requirements
-  X-->>C: challenge-findings.json
+  X-->>C: challenge-findings-requirements.json
   C->>U: Present requirements + challenge findings
 
   rect rgba(255, 200, 0, 0.15)
@@ -49,9 +51,11 @@ sequenceDiagram
 
   C->>A: Assess architecture (WAF + Cost)
   Note right of A: cost-estimate-subagent<br/>handles pricing queries
-  A-->>C: 02-assessment.md + 03-cost-estimate.md
+  A-->>C: 02-architecture-assessment.md + 03-des-cost-estimate.md
   C->>X: Challenge architecture
-  X-->>C: challenge-findings.json
+  X-->>C: challenge-findings-architecture.json
+  C->>X: Independently review cost feasibility
+  X-->>C: challenge-findings-cost-estimate.json
   C->>U: Present architecture + challenge findings
 
   rect rgba(255, 200, 0, 0.15)
@@ -59,12 +63,17 @@ sequenceDiagram
   U-->>C: Approve architecture
   end
 
-  C->>IaC: Create implementation plan + governance
-  Note right of IaC: azure-governance-discovery skill<br/>queries Azure Policy via REST API
+  C->>G: Discover policy constraints
+  G-->>C: 04-governance-constraints.json and Markdown
+  C->>X: Reconcile constraints with approved architecture
+  X-->>C: challenge-findings-governance-constraints-pass1.json
+  C->>U: Review governance constraints and confirmations
+  U-->>C: Approve governance
+  C->>IaC: Create implementation plan using approved inputs
   Note right of IaC: Unified IaC Planner (05)<br/>routes based on decisions.iac_tool
-  IaC-->>C: 04-plan.md + governance constraints
+  IaC-->>C: 04-implementation-plan.md
   C->>X: Challenge implementation plan
-  X-->>C: challenge-findings.json
+  X-->>C: challenge-findings-plan.json
   C->>U: Present plan + challenge findings
 
   rect rgba(255, 200, 0, 0.15)

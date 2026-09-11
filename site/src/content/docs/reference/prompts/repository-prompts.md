@@ -25,23 +25,23 @@ sequence, predictable exclusions, or a safe confirmation gate.
 Use `/apex-resume-workflow` after `/clear` or whenever you need to re-enter an
 existing APEX workflow without carrying old chat context forward.
 
-The prompt is bound to the `01-Orchestrator` agent. It asks for the target
-project, then either lets you provide the next workflow step or reads session
-state to detect it.
+The prompt is bound to `01-Orchestrator` and uses its canonical recovery procedure.
+A supplied project is used directly; otherwise it selects a unique candidate or asks which project to resume.
+The workflow graph and current evidence determine the next gate or handoff, not a separate next-step questionnaire.
 
 ### Resume Behavior
 
 - Lists candidate projects under `agent-output/`.
 - Resolves a project from your answer or from the prompt argument.
-- Uses `apex-recall show <project> --json` as the preferred state source.
+- Uses `apex-recall show <project> --json` for state, with bounded artifact recovery when required evidence is missing.
 - Maps the detected workflow node to an orchestrator handoff button.
 - Surfaces the correct handoff without invoking the next agent automatically.
 
 ### Resume Usage
 
-Use this prompt when a step agent tells you to run `/clear`, switch back to the
-Orchestrator, and send `resume <project>`. That pattern keeps each workflow step
-from inheriting unnecessary chat history.
+Use the slash prompt, attach `tools/apex-prompts/workflow-prompts/00-resume-workflow.prompt.md`,
+or send `resume <project>` to the selected Orchestrator. All use the same agent-owned procedure;
+plain chat text does not invoke a prompt file automatically. Required approvals remain explicit.
 
 ### Resume Boundaries
 

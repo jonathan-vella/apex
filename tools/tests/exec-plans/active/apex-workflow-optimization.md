@@ -195,6 +195,31 @@ bounded trial, with adoption rejected pending different evidence rather than mor
 
 ## Revised Scope And Verification
 
+### Tools And Root Extension
+
+User approved the full tools/root lifecycle check and confirmed local residue cleanup. Public npm aliases,
+native prompt entrypoints, active environments, security configuration, legal/history files, and artifact contracts remain.
+The [tools/root ledger](apex-workflow-audit.md#tools-and-root-lifecycle-audit) records folder, registry, schema and
+every tracked root-file disposition. No tracked root/schema/registry file was proven dead; no speculative deletion occurred.
+
+- Removed approximately 142 MB of ignored retired pricing-server environment/cache residue after a dry run and process check.
+- Repaired JSONC string/prototype handling using a directly declared parser; strict JSON stays strict.
+- Corrected lint failures, ignored-aware link selection with checked Git status, and fail-closed version validation.
+- Included both recall test roots in isolated processes and corrected retirement ownership/test classification.
+- Consolidated resume entrypoints into Orchestrator recovery; expanded native/nested prompt validation, Explorer,
+  registry and snapshot coverage, including collision and historical-incomplete-baseline guards.
+- Corrected root workflow, historical quality and version-automation claims without rewriting historical records.
+- Preserved the existing jsonc-parser public URL/SHA-512 entry; offline dependency registration avoided relaxing
+  a remote package-source restriction. No remote package policy was bypassed.
+
+Independent-review findings were repaired. Final `npm run validate:all` passed: **54 checks, zero failures**,
+including expanded prompt coverage, both isolated recall suites, and site build/internal-link checks.
+Log: `tmp/apex-optimization/root-final-gate.log`. Focused fixtures cover parser security, lint/selector failures,
+registry/version failures, prompt identity collisions, and historical snapshot completeness.
+External URL availability and graphical slash-menu behavior were not validated; local added links were checked offline.
+Publish through normal commit/pre-push hooks on the existing feature branch only.
+The committed-source inventory is pinned to `9128ea94`; it does not pretend to include this uncommitted batch.
+
 The user replaced the earlier benchmark-led campaign with workflow-first improvement:
 
 - Optimize normal VS Code Orchestrator use and handoff buttons, including fresh and resumed chats.

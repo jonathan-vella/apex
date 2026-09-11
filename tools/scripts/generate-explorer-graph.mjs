@@ -28,6 +28,7 @@
 import { existsSync, readFileSync, writeFileSync, readdirSync, statSync } from "node:fs";
 import { join, basename, relative, resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { createHash } from "node:crypto";
 import { parseFrontmatter } from "./_lib/parse-frontmatter.mjs";
 import { expandScript } from "./_lib/npm-script-graph.mjs";
 import { extractSkillReferences } from "./_lib/skill-references.mjs";
@@ -107,9 +108,9 @@ const CATEGORIES = [
   },
 ];
 
-function listFiles(dir, filter) {
+function listFiles(dir, filter, recursive = false) {
   try {
-    return readdirSync(dir)
+    return readdirSync(dir, { recursive })
       .filter(filter)
       .map((f) => join(dir, f))
       .filter((f) => statSync(f).isFile());
@@ -227,22 +228,30 @@ function collectInstructions() {
   });
 }
 
-function collectPrompts() {
-  // Prompts live in tools/apex-prompts/ (not .github/prompts/) so they are
-  // never auto-loaded by VS Code Copilot's prompt-file discovery.
-  const dir = join(REPO_ROOT, "tools/apex-prompts");
-  const files = listFiles(dir, (f) => f.endsWith(".prompt.md"));
+export function collectPrompts(root = REPO_ROOT) {
+  const files = [".github/prompts", "tools/apex-prompts"].flatMap((directory) =>
+    listFiles(join(root, directory), (file) => file.endsWith(".prompt.md"), true),
+  );
+  const counts = new Map();
+  for (const file of files) {
+    const key = slug(basename(file, ".prompt.md"));
+    counts.set(key, (counts.get(key) ?? 0) + 1);
+  }
   return files.map((path) => {
     const content = readFileSync(path, "utf8");
     const fm = parseFrontmatter(content) || {};
     const name = basename(path, ".prompt.md");
+    const suffix =
+      counts.get(slug(name)) > 1
+        ? `:${createHash("sha256").update(relative(root, path)).digest("hex").slice(0, 12)}`
+        : "";
     return {
-      id: `prompt:${slug(name)}`,
+      id: `prompt:${slug(name)}${suffix}`,
       category: "prompt",
       label: name,
       description: fm.description || "",
-      path: relative(REPO_ROOT, path),
-      links: { source: GITHUB_BASE + relative(REPO_ROOT, path) },
+      path: relative(root, path),
+      links: { source: GITHUB_BASE + relative(root, path) },
       meta: {},
     };
   });

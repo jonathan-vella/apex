@@ -9,6 +9,27 @@ import { loadValidator } from "../../scripts/_lib/ajv-validator.mjs";
 
 const script = fileURLToPath(new URL("../../scripts/validate-challenger-presence.mjs", import.meta.url));
 
+test("native resume delegates recovery and routing without extra mode questions", () => {
+  const native = readFileSync(
+    new URL("../../../.github/prompts/apex-resume-workflow.prompt.md", import.meta.url),
+    "utf8",
+  );
+  assert.match(native, /01-orchestrator.agent.md#resuming-a-project/);
+  assert.doesNotMatch(native, /next-step-mode|current_step.status|\|\| cat|Graph Node →/);
+  const attached = readFileSync(
+    new URL("../../apex-prompts/workflow-prompts/00-resume-workflow.prompt.md", import.meta.url),
+    "utf8",
+  );
+  assert.equal(native.split("[resume]:")[0].trim(), attached.split("[resume]:")[0].trim());
+  assert.match(attached, /\.\.\/\.\.\/\.\.\/\.github\/agents\/01-orchestrator.agent.md#resuming-a-project/);
+  const paths = readFileSync(new URL("../../scripts/_lib/paths.mjs", import.meta.url), "utf8");
+  assert.match(paths, /PROMPT_SOURCE_DIRS = \["\.github\/prompts"/);
+  const agent = readFileSync(new URL("../../../.github/agents/01-orchestrator.agent.md", import.meta.url), "utf8");
+  assert.match(agent, /use an explicitly supplied project without reconfirming it/);
+  assert.match(agent, /Do not require a session-state file before attempting recovery/);
+  assert.match(agent, /applicable approval gate or exact handoff/);
+});
+
 test("decision presentation maps canonical fields and persists schema-valid Edit and empty notes", () => {
   const protocol = readFileSync(
     new URL("../../../.github/skills/azure-defaults/references/adversarial-review-protocol.md", import.meta.url),

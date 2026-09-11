@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-09-11T04:46:13.159Z",
+  "generatedAt": "2026-09-11T05:22:51.119Z",
   "categories": [
     {
       "id": "agent",
@@ -40,7 +40,7 @@
       "label": "Prompt",
       "color": "#ec4899",
       "shape": "tag",
-      "count": 0
+      "count": 30
     },
     {
       "id": "validator",
@@ -67,8 +67,8 @@
       "count": 3
     }
   ],
-  "nodeCount": 164,
-  "edgeCount": 622,
+  "nodeCount": 194,
+  "edgeCount": 752,
   "nodes": [
     {
       "id": "agent:01-orchestrator",
@@ -1287,7 +1287,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/instructions/no-interactive-shell.instructions.md"
       },
       "meta": {
-        "applyTo": "**/.github/agents/**/*.agent.md, **/.github/skills/**/SKILL.md, **/.github/instructions/**/*.instructions.md, **/tools/apex-prompts/**/*.prompt.md, **/AGENTS.md, **/.github/copilot-instructions.md, **/README.md"
+        "applyTo": "**/.github/agents/**/*.agent.md, **/.github/skills/**/SKILL.md, **/.github/instructions/**/*.instructions.md, **/.github/prompts/**/*.prompt.md, **/tools/apex-prompts/**/*.prompt.md, **/AGENTS.md, **/.github/copilot-instructions.md, **/README.md"
       }
     },
     {
@@ -1367,6 +1367,336 @@
       "meta": {
         "applyTo": "**/*.agent.md, **/*.prompt.md"
       }
+    },
+    {
+      "id": "prompt:apex-debug-log-export",
+      "category": "prompt",
+      "label": "apex-debug-log-export",
+      "description": "Extract and compress Copilot debug logs related to custom agent activity into .apex-logs/ as a tar.gz bundle. User uploads the bundle manually to OneDrive via a provided link.",
+      "path": ".github/prompts/apex-debug-log-export.prompt.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/prompts/apex-debug-log-export.prompt.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "prompt:apex-git-commit",
+      "category": "prompt",
+      "label": "apex-git-commit",
+      "description": "Stage everything except agent-output/, infra/, and .github/skills/sensei/ (unless on feat/skills-sensei), auto-generate a conventional commit, push, then prompt to open or update a PR. CLI-only (git + gh).",
+      "path": ".github/prompts/apex-git-commit.prompt.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/prompts/apex-git-commit.prompt.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "prompt:apex-resume-workflow",
+      "category": "prompt",
+      "label": "apex-resume-workflow",
+      "description": "Resume an existing APEX project through the Orchestrator's canonical recovery and routing procedure.",
+      "path": ".github/prompts/apex-resume-workflow.prompt.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/prompts/apex-resume-workflow.prompt.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "prompt:as-built-from-azure",
+      "category": "prompt",
+      "label": "as-built-from-azure",
+      "description": "Generate as-built documentation for an existing Azure deployment with no prior artifacts. Discovers resources, collects requirements interactively, synthesizes pseudo-artifacts, then hands off to 08-As-Built.",
+      "path": "tools/apex-prompts/utility-prompts/as-built-from-azure.prompt.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/tools/apex-prompts/utility-prompts/as-built-from-azure.prompt.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "prompt:assess-agents",
+      "category": "prompt",
+      "label": "assess-agents",
+      "description": "Score every agent (main + subagents) across the four assessment layers — deterministic L1/L2 via the assess-agents harness, judgment L2 role clarity + L4 adversarial via Explore fan-out, optional L3 runtime from a debug-log profile. Produces per-agent scorecards + a ranked fleet plan. Plans only — never edits an agent in the same pass.",
+      "path": "tools/apex-prompts/utility-prompts/assess-agents.prompt.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/tools/apex-prompts/utility-prompts/assess-agents.prompt.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "prompt:assess-github-folder",
+      "category": "prompt",
+      "label": "assess-github-folder",
+      "description": "Assess the .github folder (agents, skills, instructions, copilot-instructions.md) and produce a prioritized, read-only remediation plan. Plans only — never edits in the same pass.",
+      "path": "tools/apex-prompts/utility-prompts/assess-github-folder.prompt.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/tools/apex-prompts/utility-prompts/assess-github-folder.prompt.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "prompt:context-audit",
+      "category": "prompt",
+      "label": "context-audit",
+      "description": "Audit agent context window utilization from Copilot Chat debug logs and produce optimization recommendations.",
+      "path": "tools/apex-prompts/utility-prompts/context-audit.prompt.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/tools/apex-prompts/utility-prompts/context-audit.prompt.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "prompt:doc-gardening",
+      "category": "prompt",
+      "label": "doc-gardening",
+      "description": "Scan for stale docs, instruction drift, quality score degradation, and tech debt. Updates QUALITY_SCORE.md and tech-debt-tracker.md.",
+      "path": "tools/apex-prompts/utility-prompts/doc-gardening.prompt.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/tools/apex-prompts/utility-prompts/doc-gardening.prompt.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "prompt:execution-subagent-claude",
+      "category": "prompt",
+      "label": "execution-subagent-claude",
+      "description": "Claude-flavored variant of the execution-subagent invocation prompt contract. Wraps the three required slots in XML tags per claude-best-practices R-CL-1. Use this when invoking a Claude-family subagent. Reference: issue #425, Wave 3a follow-up.",
+      "path": "tools/apex-prompts/utility-prompts/execution-subagent-claude.prompt.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/tools/apex-prompts/utility-prompts/execution-subagent-claude.prompt.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "prompt:execution-subagent-gpt",
+      "category": "prompt",
+      "label": "execution-subagent-gpt",
+      "description": "GPT-family variant of the execution-subagent invocation prompt contract. Markdown H2 form (outcome-first), matching the GPT-5.x prompting guide. Use this when invoking a GPT-family subagent. Reference: issue #425, Wave 3a follow-up.",
+      "path": "tools/apex-prompts/utility-prompts/execution-subagent-gpt.prompt.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/tools/apex-prompts/utility-prompts/execution-subagent-gpt.prompt.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "prompt:execution-subagent",
+      "category": "prompt",
+      "label": "execution-subagent",
+      "description": "Canonical prompt shape for invoking execution subagents. Parent agents (Steps 1-7) MUST follow this contract when calling runSubagent for an execution-style subagent (validate, what-if, plan, policy-precheck, cost-estimate, challenger-review). Reference: issue #425, Wave 3a.",
+      "path": "tools/apex-prompts/utility-prompts/execution-subagent.prompt.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/tools/apex-prompts/utility-prompts/execution-subagent.prompt.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "prompt:merge-sensei-free-pr",
+      "category": "prompt",
+      "label": "merge-sensei-free-pr",
+      "description": "Open a sensei-free PR from feat/skills-sensei (or any sensei-bearing branch) into main. Dynamically discovers sensei-coupled files, classifies them into tiers, asks for approval, then creates a clean chore/merge-{source}-to-{target} branch and PR.",
+      "path": "tools/apex-prompts/utility-prompts/merge-sensei-free-pr.prompt.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/tools/apex-prompts/utility-prompts/merge-sensei-free-pr.prompt.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "prompt:plan-docspeerreview",
+      "category": "prompt",
+      "label": "plan-docsPeerReview",
+      "description": "Review all published docs for accuracy, UX, and contradictions using three independent reviewers, then consolidate into an actionable triage report.",
+      "path": "tools/apex-prompts/utility-prompts/plan-docsPeerReview.prompt.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/tools/apex-prompts/utility-prompts/plan-docsPeerReview.prompt.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "prompt:plan-fourlayeragentassessment",
+      "category": "prompt",
+      "label": "plan-fourLayerAgentAssessment",
+      "description": "",
+      "path": "tools/apex-prompts/utility-prompts/plan-fourLayerAgentAssessment.prompt.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/tools/apex-prompts/utility-prompts/plan-fourLayerAgentAssessment.prompt.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "prompt:project-wide-review",
+      "category": "prompt",
+      "label": "project-wide-review",
+      "description": "Conduct a phased, dependency-aware review of the entire project. Builds a transient review-index first, then walks every domain in upstream-to-downstream order with explicit blast-radius analysis at each gate.",
+      "path": "tools/apex-prompts/utility-prompts/project-wide-review.prompt.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/tools/apex-prompts/utility-prompts/project-wide-review.prompt.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "prompt:review-astro-docs",
+      "category": "prompt",
+      "label": "review-astro-docs",
+      "description": "Single deep-reviewer audit of the Astro Starlight docs site covering completeness, accuracy, errors, grammar, visuals, Microsoft terminology, site standards, and information architecture. Report-only by default; safe auto-fix gated behind --apply-fixes.",
+      "path": "tools/apex-prompts/utility-prompts/review-astro-docs.prompt.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/tools/apex-prompts/utility-prompts/review-astro-docs.prompt.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "prompt:review-imported-iac",
+      "category": "prompt",
+      "label": "review-imported-iac",
+      "description": "Ingest pasted or existing Bicep or Terraform, normalize it into the repo, run static review plus AVM and governance checks, and generate WAF review artifacts.",
+      "path": "tools/apex-prompts/utility-prompts/review-imported-iac.prompt.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/tools/apex-prompts/utility-prompts/review-imported-iac.prompt.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "prompt:00-resume-workflow",
+      "category": "prompt",
+      "label": "00-resume-workflow",
+      "description": "Resume an existing APEX project through the Orchestrator's canonical recovery and routing procedure.",
+      "path": "tools/apex-prompts/workflow-prompts/00-resume-workflow.prompt.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/tools/apex-prompts/workflow-prompts/00-resume-workflow.prompt.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "prompt:02-requirements",
+      "category": "prompt",
+      "label": "02-requirements",
+      "description": "Gather Azure project requirements through structured discovery phases and produce 01-requirements.md.",
+      "path": "tools/apex-prompts/workflow-prompts/02-requirements.prompt.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/tools/apex-prompts/workflow-prompts/02-requirements.prompt.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "prompt:03-architect",
+      "category": "prompt",
+      "label": "03-architect",
+      "description": "Perform a WAF assessment and generate cost estimates based on completed requirements.",
+      "path": "tools/apex-prompts/workflow-prompts/03-architect.prompt.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/tools/apex-prompts/workflow-prompts/03-architect.prompt.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "prompt:04-design",
+      "category": "prompt",
+      "label": "04-design",
+      "description": "Generate architecture diagrams and Architecture Decision Records (ADRs). Optional step — can be skipped.",
+      "path": "tools/apex-prompts/workflow-prompts/04-design.prompt.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/tools/apex-prompts/workflow-prompts/04-design.prompt.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "prompt:04g-governance",
+      "category": "prompt",
+      "label": "04g-governance",
+      "description": "Discover Azure Policy constraints for the project subscription and produce governance constraint artifacts.",
+      "path": "tools/apex-prompts/workflow-prompts/04g-governance.prompt.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/tools/apex-prompts/workflow-prompts/04g-governance.prompt.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "prompt:05-iac-planner",
+      "category": "prompt",
+      "label": "05-iac-planner",
+      "description": "Create an IaC implementation plan with governance constraints, dependency and runtime diagrams.",
+      "path": "tools/apex-prompts/workflow-prompts/05-iac-planner.prompt.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/tools/apex-prompts/workflow-prompts/05-iac-planner.prompt.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "prompt:06b-bicep-codegen",
+      "category": "prompt",
+      "label": "06b-bicep-codegen",
+      "description": "Generate near-production-ready Bicep templates from the implementation plan.",
+      "path": "tools/apex-prompts/workflow-prompts/06b-bicep-codegen.prompt.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/tools/apex-prompts/workflow-prompts/06b-bicep-codegen.prompt.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "prompt:06t-terraform-codegen",
+      "category": "prompt",
+      "label": "06t-terraform-codegen",
+      "description": "Generate near-production-ready Terraform configurations from the implementation plan.",
+      "path": "tools/apex-prompts/workflow-prompts/06t-terraform-codegen.prompt.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/tools/apex-prompts/workflow-prompts/06t-terraform-codegen.prompt.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "prompt:07b-bicep-deploy",
+      "category": "prompt",
+      "label": "07b-bicep-deploy",
+      "description": "Deploy Bicep templates to Azure with what-if analysis and deployment validation.",
+      "path": "tools/apex-prompts/workflow-prompts/07b-bicep-deploy.prompt.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/tools/apex-prompts/workflow-prompts/07b-bicep-deploy.prompt.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "prompt:07t-terraform-deploy",
+      "category": "prompt",
+      "label": "07t-terraform-deploy",
+      "description": "Deploy Terraform configurations to Azure with plan preview and phased execution.",
+      "path": "tools/apex-prompts/workflow-prompts/07t-terraform-deploy.prompt.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/tools/apex-prompts/workflow-prompts/07t-terraform-deploy.prompt.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "prompt:08-as-built",
+      "category": "prompt",
+      "label": "08-as-built",
+      "description": "Generate the as-built documentation suite from all prior artifacts and deployed state.",
+      "path": "tools/apex-prompts/workflow-prompts/08-as-built.prompt.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/tools/apex-prompts/workflow-prompts/08-as-built.prompt.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "prompt:09-diagnose-resource",
+      "category": "prompt",
+      "label": "09-diagnose-resource",
+      "description": "Diagnose Azure resource health issues with guided troubleshooting and remediation planning.",
+      "path": "tools/apex-prompts/workflow-prompts/09-diagnose-resource.prompt.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/tools/apex-prompts/workflow-prompts/09-diagnose-resource.prompt.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "prompt:10-challenger-review",
+      "category": "prompt",
+      "label": "10-challenger-review",
+      "description": "Run an adversarial review against any agent-output artifact to find gaps and weaknesses.",
+      "path": "tools/apex-prompts/workflow-prompts/10-challenger-review.prompt.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/tools/apex-prompts/workflow-prompts/10-challenger-review.prompt.md"
+      },
+      "meta": {}
     },
     {
       "id": "validator:validate-artifacts",
@@ -2235,13 +2565,13 @@
       "id": "validator:test-apex-recall",
       "category": "validator",
       "label": "test:apex-recall",
-      "description": "python3 -m pytest tools/tests/test_apex_recall/ -q",
+      "description": "python3 -m pytest tools/tests/test_apex_recall/ -q && python3 -m pytest tools/apex-recall/tests/ -q",
       "path": "package.json",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
       },
       "meta": {
-        "command": "python3 -m pytest tools/tests/test_apex_recall/ -q"
+        "command": "python3 -m pytest tools/tests/test_apex_recall/ -q && python3 -m pytest tools/apex-recall/tests/ -q"
       }
     },
     {
@@ -3396,6 +3726,66 @@
       "kind": "uses-skill"
     },
     {
+      "id": "prompt:02-requirements--invokes->agent:02-requirements",
+      "source": "prompt:02-requirements",
+      "target": "agent:02-requirements",
+      "kind": "invokes"
+    },
+    {
+      "id": "prompt:03-architect--invokes->agent:03-architect",
+      "source": "prompt:03-architect",
+      "target": "agent:03-architect",
+      "kind": "invokes"
+    },
+    {
+      "id": "prompt:04-design--invokes->agent:04-design",
+      "source": "prompt:04-design",
+      "target": "agent:04-design",
+      "kind": "invokes"
+    },
+    {
+      "id": "prompt:04g-governance--invokes->agent:04g-governance",
+      "source": "prompt:04g-governance",
+      "target": "agent:04g-governance",
+      "kind": "invokes"
+    },
+    {
+      "id": "prompt:05-iac-planner--invokes->agent:05-iac-planner",
+      "source": "prompt:05-iac-planner",
+      "target": "agent:05-iac-planner",
+      "kind": "invokes"
+    },
+    {
+      "id": "prompt:06b-bicep-codegen--invokes->agent:06b-bicep-codegen",
+      "source": "prompt:06b-bicep-codegen",
+      "target": "agent:06b-bicep-codegen",
+      "kind": "invokes"
+    },
+    {
+      "id": "prompt:06t-terraform-codegen--invokes->agent:06t-terraform-codegen",
+      "source": "prompt:06t-terraform-codegen",
+      "target": "agent:06t-terraform-codegen",
+      "kind": "invokes"
+    },
+    {
+      "id": "prompt:07b-bicep-deploy--invokes->agent:07b-bicep-deploy",
+      "source": "prompt:07b-bicep-deploy",
+      "target": "agent:07b-bicep-deploy",
+      "kind": "invokes"
+    },
+    {
+      "id": "prompt:07t-terraform-deploy--invokes->agent:07t-terraform-deploy",
+      "source": "prompt:07t-terraform-deploy",
+      "target": "agent:07t-terraform-deploy",
+      "kind": "invokes"
+    },
+    {
+      "id": "prompt:08-as-built--invokes->agent:08-as-built",
+      "source": "prompt:08-as-built",
+      "target": "agent:08-as-built",
+      "kind": "invokes"
+    },
+    {
       "id": "instruction:agent-authoring--applies-to->agent:01-orchestrator",
       "source": "instruction:agent-authoring",
       "target": "agent:01-orchestrator",
@@ -3525,6 +3915,186 @@
       "id": "instruction:agent-authoring--applies-to->subagent:terraform-validate-subagent",
       "source": "instruction:agent-authoring",
       "target": "subagent:terraform-validate-subagent",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->prompt:apex-debug-log-export",
+      "source": "instruction:agent-authoring",
+      "target": "prompt:apex-debug-log-export",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->prompt:apex-git-commit",
+      "source": "instruction:agent-authoring",
+      "target": "prompt:apex-git-commit",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->prompt:apex-resume-workflow",
+      "source": "instruction:agent-authoring",
+      "target": "prompt:apex-resume-workflow",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->prompt:as-built-from-azure",
+      "source": "instruction:agent-authoring",
+      "target": "prompt:as-built-from-azure",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->prompt:assess-agents",
+      "source": "instruction:agent-authoring",
+      "target": "prompt:assess-agents",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->prompt:assess-github-folder",
+      "source": "instruction:agent-authoring",
+      "target": "prompt:assess-github-folder",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->prompt:context-audit",
+      "source": "instruction:agent-authoring",
+      "target": "prompt:context-audit",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->prompt:doc-gardening",
+      "source": "instruction:agent-authoring",
+      "target": "prompt:doc-gardening",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->prompt:execution-subagent-claude",
+      "source": "instruction:agent-authoring",
+      "target": "prompt:execution-subagent-claude",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->prompt:execution-subagent-gpt",
+      "source": "instruction:agent-authoring",
+      "target": "prompt:execution-subagent-gpt",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->prompt:execution-subagent",
+      "source": "instruction:agent-authoring",
+      "target": "prompt:execution-subagent",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->prompt:merge-sensei-free-pr",
+      "source": "instruction:agent-authoring",
+      "target": "prompt:merge-sensei-free-pr",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->prompt:plan-docspeerreview",
+      "source": "instruction:agent-authoring",
+      "target": "prompt:plan-docspeerreview",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->prompt:plan-fourlayeragentassessment",
+      "source": "instruction:agent-authoring",
+      "target": "prompt:plan-fourlayeragentassessment",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->prompt:project-wide-review",
+      "source": "instruction:agent-authoring",
+      "target": "prompt:project-wide-review",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->prompt:review-astro-docs",
+      "source": "instruction:agent-authoring",
+      "target": "prompt:review-astro-docs",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->prompt:review-imported-iac",
+      "source": "instruction:agent-authoring",
+      "target": "prompt:review-imported-iac",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->prompt:00-resume-workflow",
+      "source": "instruction:agent-authoring",
+      "target": "prompt:00-resume-workflow",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->prompt:02-requirements",
+      "source": "instruction:agent-authoring",
+      "target": "prompt:02-requirements",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->prompt:03-architect",
+      "source": "instruction:agent-authoring",
+      "target": "prompt:03-architect",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->prompt:04-design",
+      "source": "instruction:agent-authoring",
+      "target": "prompt:04-design",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->prompt:04g-governance",
+      "source": "instruction:agent-authoring",
+      "target": "prompt:04g-governance",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->prompt:05-iac-planner",
+      "source": "instruction:agent-authoring",
+      "target": "prompt:05-iac-planner",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->prompt:06b-bicep-codegen",
+      "source": "instruction:agent-authoring",
+      "target": "prompt:06b-bicep-codegen",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->prompt:06t-terraform-codegen",
+      "source": "instruction:agent-authoring",
+      "target": "prompt:06t-terraform-codegen",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->prompt:07b-bicep-deploy",
+      "source": "instruction:agent-authoring",
+      "target": "prompt:07b-bicep-deploy",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->prompt:07t-terraform-deploy",
+      "source": "instruction:agent-authoring",
+      "target": "prompt:07t-terraform-deploy",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->prompt:08-as-built",
+      "source": "instruction:agent-authoring",
+      "target": "prompt:08-as-built",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->prompt:09-diagnose-resource",
+      "source": "instruction:agent-authoring",
+      "target": "prompt:09-diagnose-resource",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->prompt:10-challenger-review",
+      "source": "instruction:agent-authoring",
+      "target": "prompt:10-challenger-review",
       "kind": "applies-to"
     },
     {
@@ -5352,9 +5922,369 @@
       "kind": "applies-to"
     },
     {
+      "id": "instruction:no-interactive-shell--applies-to->prompt:apex-debug-log-export",
+      "source": "instruction:no-interactive-shell",
+      "target": "prompt:apex-debug-log-export",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:no-interactive-shell--applies-to->prompt:apex-git-commit",
+      "source": "instruction:no-interactive-shell",
+      "target": "prompt:apex-git-commit",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:no-interactive-shell--applies-to->prompt:apex-resume-workflow",
+      "source": "instruction:no-interactive-shell",
+      "target": "prompt:apex-resume-workflow",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:no-interactive-shell--applies-to->prompt:as-built-from-azure",
+      "source": "instruction:no-interactive-shell",
+      "target": "prompt:as-built-from-azure",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:no-interactive-shell--applies-to->prompt:assess-agents",
+      "source": "instruction:no-interactive-shell",
+      "target": "prompt:assess-agents",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:no-interactive-shell--applies-to->prompt:assess-github-folder",
+      "source": "instruction:no-interactive-shell",
+      "target": "prompt:assess-github-folder",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:no-interactive-shell--applies-to->prompt:context-audit",
+      "source": "instruction:no-interactive-shell",
+      "target": "prompt:context-audit",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:no-interactive-shell--applies-to->prompt:doc-gardening",
+      "source": "instruction:no-interactive-shell",
+      "target": "prompt:doc-gardening",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:no-interactive-shell--applies-to->prompt:execution-subagent-claude",
+      "source": "instruction:no-interactive-shell",
+      "target": "prompt:execution-subagent-claude",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:no-interactive-shell--applies-to->prompt:execution-subagent-gpt",
+      "source": "instruction:no-interactive-shell",
+      "target": "prompt:execution-subagent-gpt",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:no-interactive-shell--applies-to->prompt:execution-subagent",
+      "source": "instruction:no-interactive-shell",
+      "target": "prompt:execution-subagent",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:no-interactive-shell--applies-to->prompt:merge-sensei-free-pr",
+      "source": "instruction:no-interactive-shell",
+      "target": "prompt:merge-sensei-free-pr",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:no-interactive-shell--applies-to->prompt:plan-docspeerreview",
+      "source": "instruction:no-interactive-shell",
+      "target": "prompt:plan-docspeerreview",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:no-interactive-shell--applies-to->prompt:plan-fourlayeragentassessment",
+      "source": "instruction:no-interactive-shell",
+      "target": "prompt:plan-fourlayeragentassessment",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:no-interactive-shell--applies-to->prompt:project-wide-review",
+      "source": "instruction:no-interactive-shell",
+      "target": "prompt:project-wide-review",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:no-interactive-shell--applies-to->prompt:review-astro-docs",
+      "source": "instruction:no-interactive-shell",
+      "target": "prompt:review-astro-docs",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:no-interactive-shell--applies-to->prompt:review-imported-iac",
+      "source": "instruction:no-interactive-shell",
+      "target": "prompt:review-imported-iac",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:no-interactive-shell--applies-to->prompt:00-resume-workflow",
+      "source": "instruction:no-interactive-shell",
+      "target": "prompt:00-resume-workflow",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:no-interactive-shell--applies-to->prompt:02-requirements",
+      "source": "instruction:no-interactive-shell",
+      "target": "prompt:02-requirements",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:no-interactive-shell--applies-to->prompt:03-architect",
+      "source": "instruction:no-interactive-shell",
+      "target": "prompt:03-architect",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:no-interactive-shell--applies-to->prompt:04-design",
+      "source": "instruction:no-interactive-shell",
+      "target": "prompt:04-design",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:no-interactive-shell--applies-to->prompt:04g-governance",
+      "source": "instruction:no-interactive-shell",
+      "target": "prompt:04g-governance",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:no-interactive-shell--applies-to->prompt:05-iac-planner",
+      "source": "instruction:no-interactive-shell",
+      "target": "prompt:05-iac-planner",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:no-interactive-shell--applies-to->prompt:06b-bicep-codegen",
+      "source": "instruction:no-interactive-shell",
+      "target": "prompt:06b-bicep-codegen",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:no-interactive-shell--applies-to->prompt:06t-terraform-codegen",
+      "source": "instruction:no-interactive-shell",
+      "target": "prompt:06t-terraform-codegen",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:no-interactive-shell--applies-to->prompt:07b-bicep-deploy",
+      "source": "instruction:no-interactive-shell",
+      "target": "prompt:07b-bicep-deploy",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:no-interactive-shell--applies-to->prompt:07t-terraform-deploy",
+      "source": "instruction:no-interactive-shell",
+      "target": "prompt:07t-terraform-deploy",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:no-interactive-shell--applies-to->prompt:08-as-built",
+      "source": "instruction:no-interactive-shell",
+      "target": "prompt:08-as-built",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:no-interactive-shell--applies-to->prompt:09-diagnose-resource",
+      "source": "instruction:no-interactive-shell",
+      "target": "prompt:09-diagnose-resource",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:no-interactive-shell--applies-to->prompt:10-challenger-review",
+      "source": "instruction:no-interactive-shell",
+      "target": "prompt:10-challenger-review",
+      "kind": "applies-to"
+    },
+    {
       "id": "instruction:no-interactive-shell--applies-to->instruction:instructions",
       "source": "instruction:no-interactive-shell",
       "target": "instruction:instructions",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:prompt--applies-to->prompt:apex-debug-log-export",
+      "source": "instruction:prompt",
+      "target": "prompt:apex-debug-log-export",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:prompt--applies-to->prompt:apex-git-commit",
+      "source": "instruction:prompt",
+      "target": "prompt:apex-git-commit",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:prompt--applies-to->prompt:apex-resume-workflow",
+      "source": "instruction:prompt",
+      "target": "prompt:apex-resume-workflow",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:prompt--applies-to->prompt:as-built-from-azure",
+      "source": "instruction:prompt",
+      "target": "prompt:as-built-from-azure",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:prompt--applies-to->prompt:assess-agents",
+      "source": "instruction:prompt",
+      "target": "prompt:assess-agents",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:prompt--applies-to->prompt:assess-github-folder",
+      "source": "instruction:prompt",
+      "target": "prompt:assess-github-folder",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:prompt--applies-to->prompt:context-audit",
+      "source": "instruction:prompt",
+      "target": "prompt:context-audit",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:prompt--applies-to->prompt:doc-gardening",
+      "source": "instruction:prompt",
+      "target": "prompt:doc-gardening",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:prompt--applies-to->prompt:execution-subagent-claude",
+      "source": "instruction:prompt",
+      "target": "prompt:execution-subagent-claude",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:prompt--applies-to->prompt:execution-subagent-gpt",
+      "source": "instruction:prompt",
+      "target": "prompt:execution-subagent-gpt",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:prompt--applies-to->prompt:execution-subagent",
+      "source": "instruction:prompt",
+      "target": "prompt:execution-subagent",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:prompt--applies-to->prompt:merge-sensei-free-pr",
+      "source": "instruction:prompt",
+      "target": "prompt:merge-sensei-free-pr",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:prompt--applies-to->prompt:plan-docspeerreview",
+      "source": "instruction:prompt",
+      "target": "prompt:plan-docspeerreview",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:prompt--applies-to->prompt:plan-fourlayeragentassessment",
+      "source": "instruction:prompt",
+      "target": "prompt:plan-fourlayeragentassessment",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:prompt--applies-to->prompt:project-wide-review",
+      "source": "instruction:prompt",
+      "target": "prompt:project-wide-review",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:prompt--applies-to->prompt:review-astro-docs",
+      "source": "instruction:prompt",
+      "target": "prompt:review-astro-docs",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:prompt--applies-to->prompt:review-imported-iac",
+      "source": "instruction:prompt",
+      "target": "prompt:review-imported-iac",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:prompt--applies-to->prompt:00-resume-workflow",
+      "source": "instruction:prompt",
+      "target": "prompt:00-resume-workflow",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:prompt--applies-to->prompt:02-requirements",
+      "source": "instruction:prompt",
+      "target": "prompt:02-requirements",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:prompt--applies-to->prompt:03-architect",
+      "source": "instruction:prompt",
+      "target": "prompt:03-architect",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:prompt--applies-to->prompt:04-design",
+      "source": "instruction:prompt",
+      "target": "prompt:04-design",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:prompt--applies-to->prompt:04g-governance",
+      "source": "instruction:prompt",
+      "target": "prompt:04g-governance",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:prompt--applies-to->prompt:05-iac-planner",
+      "source": "instruction:prompt",
+      "target": "prompt:05-iac-planner",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:prompt--applies-to->prompt:06b-bicep-codegen",
+      "source": "instruction:prompt",
+      "target": "prompt:06b-bicep-codegen",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:prompt--applies-to->prompt:06t-terraform-codegen",
+      "source": "instruction:prompt",
+      "target": "prompt:06t-terraform-codegen",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:prompt--applies-to->prompt:07b-bicep-deploy",
+      "source": "instruction:prompt",
+      "target": "prompt:07b-bicep-deploy",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:prompt--applies-to->prompt:07t-terraform-deploy",
+      "source": "instruction:prompt",
+      "target": "prompt:07t-terraform-deploy",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:prompt--applies-to->prompt:08-as-built",
+      "source": "instruction:prompt",
+      "target": "prompt:08-as-built",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:prompt--applies-to->prompt:09-diagnose-resource",
+      "source": "instruction:prompt",
+      "target": "prompt:09-diagnose-resource",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:prompt--applies-to->prompt:10-challenger-review",
+      "source": "instruction:prompt",
+      "target": "prompt:10-challenger-review",
       "kind": "applies-to"
     },
     {
@@ -5487,6 +6417,186 @@
       "id": "instruction:vendor-prompting--applies-to->subagent:terraform-validate-subagent",
       "source": "instruction:vendor-prompting",
       "target": "subagent:terraform-validate-subagent",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->prompt:apex-debug-log-export",
+      "source": "instruction:vendor-prompting",
+      "target": "prompt:apex-debug-log-export",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->prompt:apex-git-commit",
+      "source": "instruction:vendor-prompting",
+      "target": "prompt:apex-git-commit",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->prompt:apex-resume-workflow",
+      "source": "instruction:vendor-prompting",
+      "target": "prompt:apex-resume-workflow",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->prompt:as-built-from-azure",
+      "source": "instruction:vendor-prompting",
+      "target": "prompt:as-built-from-azure",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->prompt:assess-agents",
+      "source": "instruction:vendor-prompting",
+      "target": "prompt:assess-agents",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->prompt:assess-github-folder",
+      "source": "instruction:vendor-prompting",
+      "target": "prompt:assess-github-folder",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->prompt:context-audit",
+      "source": "instruction:vendor-prompting",
+      "target": "prompt:context-audit",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->prompt:doc-gardening",
+      "source": "instruction:vendor-prompting",
+      "target": "prompt:doc-gardening",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->prompt:execution-subagent-claude",
+      "source": "instruction:vendor-prompting",
+      "target": "prompt:execution-subagent-claude",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->prompt:execution-subagent-gpt",
+      "source": "instruction:vendor-prompting",
+      "target": "prompt:execution-subagent-gpt",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->prompt:execution-subagent",
+      "source": "instruction:vendor-prompting",
+      "target": "prompt:execution-subagent",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->prompt:merge-sensei-free-pr",
+      "source": "instruction:vendor-prompting",
+      "target": "prompt:merge-sensei-free-pr",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->prompt:plan-docspeerreview",
+      "source": "instruction:vendor-prompting",
+      "target": "prompt:plan-docspeerreview",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->prompt:plan-fourlayeragentassessment",
+      "source": "instruction:vendor-prompting",
+      "target": "prompt:plan-fourlayeragentassessment",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->prompt:project-wide-review",
+      "source": "instruction:vendor-prompting",
+      "target": "prompt:project-wide-review",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->prompt:review-astro-docs",
+      "source": "instruction:vendor-prompting",
+      "target": "prompt:review-astro-docs",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->prompt:review-imported-iac",
+      "source": "instruction:vendor-prompting",
+      "target": "prompt:review-imported-iac",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->prompt:00-resume-workflow",
+      "source": "instruction:vendor-prompting",
+      "target": "prompt:00-resume-workflow",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->prompt:02-requirements",
+      "source": "instruction:vendor-prompting",
+      "target": "prompt:02-requirements",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->prompt:03-architect",
+      "source": "instruction:vendor-prompting",
+      "target": "prompt:03-architect",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->prompt:04-design",
+      "source": "instruction:vendor-prompting",
+      "target": "prompt:04-design",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->prompt:04g-governance",
+      "source": "instruction:vendor-prompting",
+      "target": "prompt:04g-governance",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->prompt:05-iac-planner",
+      "source": "instruction:vendor-prompting",
+      "target": "prompt:05-iac-planner",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->prompt:06b-bicep-codegen",
+      "source": "instruction:vendor-prompting",
+      "target": "prompt:06b-bicep-codegen",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->prompt:06t-terraform-codegen",
+      "source": "instruction:vendor-prompting",
+      "target": "prompt:06t-terraform-codegen",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->prompt:07b-bicep-deploy",
+      "source": "instruction:vendor-prompting",
+      "target": "prompt:07b-bicep-deploy",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->prompt:07t-terraform-deploy",
+      "source": "instruction:vendor-prompting",
+      "target": "prompt:07t-terraform-deploy",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->prompt:08-as-built",
+      "source": "instruction:vendor-prompting",
+      "target": "prompt:08-as-built",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->prompt:09-diagnose-resource",
+      "source": "instruction:vendor-prompting",
+      "target": "prompt:09-diagnose-resource",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->prompt:10-challenger-review",
+      "source": "instruction:vendor-prompting",
+      "target": "prompt:10-challenger-review",
       "kind": "applies-to"
     },
     {

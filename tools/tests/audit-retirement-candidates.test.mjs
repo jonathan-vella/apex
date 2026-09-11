@@ -51,6 +51,8 @@ test("stable IDs are deterministic and path-sensitive", () => {
 test("classifies repository domains and protected dynamic entrypoints", () => {
   assert.equal(domainFor(".github/agents/01-orchestrator.agent.md"), "agents");
   assert.equal(domainFor("tools/tests/example.test.mjs"), "tests");
+  assert.equal(domainFor("tools/apex-recall/tests/test_transition.py"), "tests");
+  assert.equal(protectionFor("tools/apex-recall/tests/test_transition.py"), "test_or_fixture");
   assert.equal(protectionFor(".github/skills/azure-rbac/SKILL.md"), "auto_discovered_skill");
   assert.equal(protectionFor("site/public/downloads/demo.zip"), "published_download");
   assert.equal(protectionFor("README.md"), null);
@@ -91,6 +93,15 @@ test("groups exact duplicates without approving retirement", () => {
 test("records repository ownership for every baseline file", () => {
   const result = scan();
   assert.ok(result.inventory.every((item) => item.ownership.codeowners.length > 0));
+  const byPath = new Map(result.inventory.map((item) => [item.path, item]));
+  for (const file of ["challenger-coverage-evidence.md", "count-manifest.json"]) {
+    const ownership = byPath.get(`tools/registry/${file}`).ownership;
+    assert.deepEqual(ownership.generated_by, []);
+    assert.equal(ownership.regeneration_command, null);
+  }
+  assert.deepEqual(byPath.get("tools/registry/source-freshness.json").ownership.generated_by, [
+    "tools/scripts/fetch-vendor-prompting-guides.mjs",
+  ]);
 });
 
 test("resolves duplicated reference filenames relative to their owning skill", () => {

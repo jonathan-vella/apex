@@ -27,7 +27,7 @@ handoffs:
     send: false
   - label: "▶ Resume Workflow"
     agent: 01-Orchestrator
-    prompt: "Resume the workflow from where we left off. Check the agent-output folder for existing artifacts. Input: agent-output/{project}/00-session-state.json + existing artifacts. Output: next-phase decision logged in session state."
+    prompt: "Resume using Resuming a Project in this agent body. Input: supplied project name, or project selection when absent. Output: recovered status and the applicable approval gate or handoff, preserving required reviews and approvals."
     send: false
   - label: "▶ Review Artifacts"
     agent: 01-Orchestrator
@@ -447,6 +447,10 @@ All steps below happen in **one turn** — do NOT end your turn between them.
 
 ## Resuming a Project
 
+Resolve the project first: use an explicitly supplied project without reconfirming it.
+Otherwise discover existing project candidates, use a unique candidate, or ask only which project to resume.
+Do not require a session-state file before attempting recovery of existing work.
+
 1. **Run `apex-recall show {project} --json`** — this returns the machine-readable
    source of truth: current step, sub-step checkpoint, key decisions, IaC tool,
    and artifact inventory. Use it to determine exactly where to resume.
@@ -464,9 +468,10 @@ All steps below happen in **one turn** — do NOT end your turn between them.
    `00-handoff.md`, and no numbered artifacts in `agent-output/{project}/`)
    should you treat this as a brand-new project and follow
    [Starting a New Project](#starting-a-new-project).
-4. Present a brief status summary and offer to continue from the next step.
-5. If resuming mid-step (JSON state shows `in_progress` with a `sub_step` value),
-   delegate to the appropriate agent with context: _"Resume Step {N} from checkpoint {sub_step}."_
+4. Follow Graph-Based Step Routing using `session.steps` and recorded decisions. Present status and
+  the applicable approval gate or exact handoff, then stop. Do not ask who should choose the next step.
+5. For an in-progress step or review, preserve its sub-step checkpoint in the handoff context;
+  do not skip required review or approval evidence, and do not invoke the next agent directly.
 
 **Starting a new chat thread mid-workflow?**
 The agent auto-detects progress via `apex-recall show <project> --json`. Just invoke the
@@ -557,9 +562,8 @@ contract:
 
 In the new chat the user picks `01-Orchestrator` from the agent picker
 and sends `resume <project>`: the first tool call is
-`apex-recall show <project> --json`. Read `00-handoff.md` only if a
-gate-specific artifact path is needed; do not re-read completed-step
-artifacts unless the user asks. Lint:
+`apex-recall show <project> --json`. Follow [Resuming a Project](#resuming-a-project), including
+bounded artifact recovery when recall is empty or required current evidence is missing. Lint:
 `npm run validate:orchestrator-handoff` greps for the verbatim line.
 
 ### Mid-step compaction (multi-pass challenger reviews)

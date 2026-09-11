@@ -32,7 +32,7 @@ if (!versionContent) {
   r.exitOnError();
 }
 
-const sourceVersion = versionContent.match(/(\d+\.\d+\.\d+)/)?.[1];
+const sourceVersion = versionContent.match(/^\*\*Current Version:\*\*\s*(\d+\.\d+\.\d+)\b/m)?.[1];
 if (!sourceVersion) {
   r.error(`Could not extract version from ${VERSION_FILE}`);
   r.summary();
@@ -45,11 +45,15 @@ for (const { path: filePath, pattern } of FILES_TO_CHECK) {
   r.tick();
   const content = readFile(filePath);
   if (!content) {
-    r.warn(`${filePath} not found (optional)`);
+    r.error(`${filePath} not found or empty`);
     continue;
   }
 
   const match = content.match(pattern);
+  if (!match) {
+    r.error(`Could not extract version from ${filePath}`);
+    continue;
+  }
   if (match) {
     const foundVersion = match[1];
     if (foundVersion === sourceVersion) {

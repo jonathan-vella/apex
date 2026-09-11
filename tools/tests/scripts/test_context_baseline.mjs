@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 import { test } from "node:test";
 
 const ROOT = fileURLToPath(new URL("../../../", import.meta.url));
-const TARGETS = [".github/agents", ".github/instructions", "tools/apex-prompts", ".github/skills"];
+const TARGETS = [".github/agents", ".github/instructions", ".github/prompts", "tools/apex-prompts", ".github/skills"];
 const FILE_TARGETS = [
   ".github/model-catalog.json",
   "tools/registry/agent-registry.json",
@@ -71,6 +71,7 @@ test("snapshot and diff use the repository root and include Copilot instructions
   assert.match(manifest.git_sha, /^[a-f0-9]{40}$/);
   assert.ok(existsSync(path.join(baseline, "SHA256SUMS")));
   assert.ok(manifest.backed_up_targets.includes(".github/copilot-instructions.md"));
+  assert.ok(manifest.backed_up_targets.includes(".github/prompts"));
   assert.equal(existsSync(path.join(root, "tools/agent-output")), false);
   const unchanged = run(root, "diff-context-baseline.sh", ["--baseline", "before"]);
   assert.equal(unchanged.status, 0, unchanged.stderr);
@@ -121,4 +122,14 @@ test("snapshot refuses empty required directories", (context) => {
   const result = run(root, "snapshot-agent-context.sh", ["empty"]);
   assert.notEqual(result.status, 0);
   assert.match(result.stderr, /required snapshot target empty/);
+});
+
+test("diff rejects verified historical snapshots that did not capture native prompts", (context) => {
+  const root = fixture(context);
+  const snapshotPath = path.join(root, "tools/scripts/snapshot-agent-context.sh");
+  writeFileSync(snapshotPath, readFileSync(snapshotPath, "utf8").replace('  ".github/prompts"\n', ""));
+  assert.equal(run(root, "snapshot-agent-context.sh", ["legacy"]).status, 0);
+  const diff = run(root, "diff-context-baseline.sh", ["--baseline", "legacy"]);
+  assert.notEqual(diff.status, 0);
+  assert.match(diff.stderr, /\.github\/prompts was not captured by this baseline/);
 });

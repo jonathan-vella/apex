@@ -87,6 +87,7 @@ fi
 readonly CATEGORIES=(
   ".github/agents:Agents"
   ".github/instructions:Instructions"
+  ".github/prompts:Native prompts"
   "tools/apex-prompts:Prompts"
   ".github/skills:Skills"
   ".github/copilot-instructions.md:Copilot instructions"
@@ -96,6 +97,14 @@ readonly CATEGORIES=(
   "infra/terraform/AGENTS.md:Terraform instructions"
   "AGENTS.md:AGENTS.md"
 )
+
+for entry in "${CATEGORIES[@]}"; do
+  target="${entry%%:*}"
+  if ! jq -e --arg target "$target" '.backed_up_targets | index($target) != null' "$MANIFEST" >/dev/null; then
+    echo "Error: target $target was not captured by this baseline; comparison would be incomplete" >&2
+    exit 1
+  fi
+done
 
 total_added=0
 total_modified=0

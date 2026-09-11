@@ -2,8 +2,7 @@
 # Install with: pip install -r requirements.txt
 # Note: graphviz system package required (apt-get install graphviz)
 #
-# Additional component-specific requirements:
-#   - scenarios/S04-*/solution/app/requirements.txt  (FastAPI validation app)
+# The independently packaged recall CLI declares its dependencies in tools/apex-recall/pyproject.toml.
 #
 # The devcontainer post-create.sh handles all installations automatically.
 

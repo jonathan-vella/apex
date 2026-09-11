@@ -20,6 +20,12 @@ for full details on this and all prior releases.
 
 ### Changed (Workflow guidance simplification)
 
+- Consolidate native and attachable resume prompts into the Orchestrator's canonical recovery procedure.
+  Include native/nested prompts in validation, registry checks, Explorer and context snapshots; preserve unique identities.
+- Repair JSONC literal and prototype-key handling, lint failure propagation, ignored-aware link selection,
+  and missing-version validation. Retain public npm command aliases and original dependency integrity metadata.
+- Run both recall test suites in isolated processes and correct retirement-scanner producer/test ownership.
+- Clarify historical root health grades and current workflow/version guidance; retain legal and attribution records.
 - Separate APEX handoff-based validation/deployment from generic application preparation plans and validation proof.
   Validation-only and preview-only stop at their requested boundary; missing APEX inputs return to their owner.
 - Align Diagnose report paths and Challenger finding types, filenames, field presentation, compact responses,

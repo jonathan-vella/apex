@@ -7,40 +7,23 @@
  * @param {string} content - Raw JSONC file content
  * @returns {object|string|number|boolean|null} Parsed JSON object
  */
+import { parseTree, printParseErrorCode } from "jsonc-parser";
+
 export function parseJsonc(content) {
-  // Remove block comments /* ... */
-  let result = content.replace(/\/\*[\s\S]*?\*\//g, "");
-
-  // Remove single-line comments // ... (not inside strings)
-  const lines = result.split("\n");
-  const processedLines = lines.map((line) => {
-    let inString = false;
-    let escapeNext = false;
-    for (let i = 0; i < line.length - 1; i++) {
-      const char = line[i];
-      if (escapeNext) {
-        escapeNext = false;
-        continue;
-      }
-      if (char === "\\") {
-        escapeNext = true;
-        continue;
-      }
-      if (char === '"') {
-        inString = !inString;
-        continue;
-      }
-      if (!inString && char === "/" && line[i + 1] === "/") {
-        return line.substring(0, i);
-      }
+  const errors = [];
+  const tree = parseTree(content, errors, { allowTrailingComma: true });
+  if (errors.length) {
+    const first = errors[0];
+    throw new SyntaxError(`Invalid JSONC: ${printParseErrorCode(first.error)} at offset ${first.offset}`);
+  }
+  const valueOf = (node) => {
+    if (node.type === "object") {
+      return Object.fromEntries(
+        node.children.map((property) => [property.children[0].value, valueOf(property.children[1])]),
+      );
     }
-    return line;
-  });
-
-  result = processedLines.join("\n");
-
-  // Remove trailing commas before } or ]
-  result = result.replace(/,(\s*[\]}])/g, "$1");
-
-  return JSON.parse(result);
+    if (node.type === "array") return node.children.map(valueOf);
+    return node.value;
+  };
+  return valueOf(tree);
 }

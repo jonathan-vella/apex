@@ -134,7 +134,7 @@ export function getPromptFiles() {
       const frontmatter = parseFrontmatter(content);
       const fmEnd = content.indexOf("\n---", content.indexOf("---") + 3);
       const body = fmEnd !== -1 ? content.substring(fmEnd + 4) : content;
-      _prompts.set(file, { path: filePath, content, frontmatter, body });
+      _prompts.set(filePath, { path: filePath, content, frontmatter, body });
     }
   }
   return _prompts;

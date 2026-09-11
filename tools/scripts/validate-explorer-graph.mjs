@@ -25,6 +25,7 @@ const SOURCE_DIRS = [
   ".github/agents/_subagents",
   ".github/skills",
   ".github/instructions",
+  ".github/prompts",
   "tools/apex-prompts",
   ".github/workflows",
 ];

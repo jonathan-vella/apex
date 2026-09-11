@@ -128,7 +128,7 @@ export function domainFor(filePath) {
   if (filePath.startsWith(".github/skills/")) return "skills";
   if (filePath.startsWith(".github/instructions/")) return "instructions";
   if (filePath.startsWith(".github/workflows/") || filePath.startsWith(".github/actions/")) return "ci";
-  if (filePath.startsWith("tools/tests/")) return "tests";
+  if (filePath.startsWith("tools/tests/") || filePath.startsWith("tools/apex-recall/tests/")) return "tests";
   if (filePath.startsWith("tools/schemas/")) return "schemas";
   if (filePath.startsWith("tools/registry/")) return "registries";
   if (filePath.startsWith("tools/")) return "tooling";
@@ -163,6 +163,7 @@ export function protectionFor(filePath) {
     [/^tools\/schemas\//, "dynamic_schema_contract"],
     [/^tools\/registry\//, "registry_or_source_of_truth"],
     [/^tools\/tests\//, "test_or_fixture"],
+    [/^tools\/apex-recall\/tests\//, "test_or_fixture"],
     [/^site\/public\/downloads\//, "published_download"],
     [/^site\/public\//, "published_site_asset"],
     [/^infra\//, "infrastructure_source"],
@@ -179,7 +180,7 @@ function generatedOwner(filePath) {
     },
     "tools/scripts/_lib/artifact-headings-summary.json": {
       generated_by: ["tools/scripts/render-headings-summary.mjs"],
-      source_of_truth: ".github/skills/azure-artifacts templates and references",
+      source_of_truth: "tools/scripts/_lib/artifact-headings.mjs ARTIFACT_HEADINGS",
       regeneration_command: "npm run render:headings-summary",
     },
     "freshness-report.json": {
@@ -193,9 +194,9 @@ function generatedOwner(filePath) {
       regeneration_command: "npm run challenger-telemetry",
     },
     "tools/registry/challenger-coverage-evidence.md": {
-      generated_by: ["tools/scripts/challenger-telemetry.mjs"],
-      source_of_truth: "agent-output challenge finding sidecars",
-      regeneration_command: "npm run challenger-telemetry",
+      generated_by: [],
+      source_of_truth: ".github/skills/azure-defaults/references/adversarial-checklists.md (manual comparison)",
+      regeneration_command: null,
     },
     "tools/registry/challenger-effectiveness.md": {
       generated_by: ["tools/scripts/challenger-telemetry.mjs"],
@@ -203,9 +204,14 @@ function generatedOwner(filePath) {
       regeneration_command: "npm run challenger-telemetry",
     },
     "tools/registry/count-manifest.json": {
-      generated_by: ["tools/scripts/generate-explorer-graph.mjs"],
-      source_of_truth: "tracked repository entities",
-      regeneration_command: "npm run build:explorer-graph",
+      generated_by: [],
+      source_of_truth: "maintainer-owned entity count definitions and discovery globs",
+      regeneration_command: null,
+    },
+    "tools/registry/source-freshness.json": {
+      generated_by: ["tools/scripts/fetch-vendor-prompting-guides.mjs"],
+      source_of_truth: "vendor guide fetch timestamps and source metadata",
+      regeneration_command: "node tools/scripts/fetch-vendor-prompting-guides.mjs",
     },
     ".github/data/azure-deprecations.json": {
       generated_by: ["tools/scripts/fetch-azure-deprecations.mjs"],
@@ -571,7 +577,7 @@ export function buildInventory({ baseline, branch, scanDate = SCAN_DATE, baselin
         dynamic_entrypoints: dynamic,
         package_scripts: packageScripts,
         workflows: workflowFiles,
-        tests: directReferences.filter((filePath) => filePath.startsWith("tools/tests/")),
+        tests: directReferences.filter((filePath) => domainFor(filePath) === "tests"),
         site_routes: directReferences.filter((filePath) => filePath.startsWith("site/")),
       },
       ownership: {

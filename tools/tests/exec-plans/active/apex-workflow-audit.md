@@ -14,6 +14,141 @@ Current dispositions and completed changes are recorded in the
 [execution plan](apex-workflow-optimization.md#local-implementation-closeout).
 
 ## Semantic Audit (2026-09-11)
+The tools/root extension below is the latest disposition for those paths; earlier inventories remain historical.
+
+### Tools And Root Lifecycle Audit
+
+Scope approved by "proceed with everything": tools and root redundancy, deduplication, deprecation, retirement,
+and optimization, including confirmed ignored residue. Preserve public npm aliases, native discovery, active
+environments, security configuration, legal attribution, historical evidence, and required workflow contracts.
+The tools/root inventory is not a claim that every transitive SDK example or external endpoint was revalidated.
+
+**Confirmed cleanup**: `tools/mcp-servers/azure-pricing/` had no tracked source or nonignored files.
+Its virtual environment, pytest/Ruff caches and empty packaging directories were leftover local data, approximately
+142 MB before cleanup. No running legacy pricing process was found. An ignored-files dry run preceded targeted removal;
+empty directories were removed afterwards. Keep `validate-mcp-config.mjs` retirement guards and post-create migration
+cleanup so old configuration does not resurrect the retired server. No active environment or experiment evidence was purged.
+
+**Executed improvements**:
+
+- Replaced unsafe JSONC comment/comma regexes with `jsonc-parser` syntax-tree parsing. The first library API attempted
+  prototype mutation for special keys; independent review caught it. Object reconstruction now uses own data properties,
+  preserving nested `__proto__`, strings and malformed-input rejection. Schema/data JSON remains strict.
+- Declared the parser as a direct development dependency. A remote package-source restriction blocked installation;
+  an offline lockfile-only update succeeded. Restored the original public npm URL and SHA-512 integrity after that
+  update attempted mirror/SHA-1 churn. The existing package entry is unchanged from the base revision.
+- Added a small checked repository link runner because a Git-to-xargs pipeline hides selector failure. It checks
+  Git status, preserves NUL-delimited filenames, excludes ignored data and the existing infra/archive boundaries,
+  skips legitimate empty selections, and propagates checker failures. Public `lint:links` remains unchanged in name.
+- Prose/YAML lint distinguish missing tools from actual lint errors; failures are no longer reported as successful
+  installation advice. YAML traversal prunes dependencies, environments and scratch paths and propagates batch failures.
+- Version sync now requires the Current Version heading and required target versions; missing data and unrelated
+  SemVer URLs cannot manufacture a successful result. Independent package versions were not forcibly synchronized.
+- Both recall test roots now run via the existing command in separate Python processes. Their distinct CLI/transition
+  assertions are retained, not merged or deleted. Package-local tests are protected by the retirement scanner.
+- Corrected scanner provenance: coverage evidence and count definitions are manually maintained; source-freshness
+  comes from the vendor-guide fetcher; heading summary comes from ARTIFACT_HEADINGS. Historical scan files were not rewritten.
+- Native and attachable resume prompts now contain the same thin delegation to Orchestrator recovery. Supplied projects
+  do not trigger redundant selection; ambiguous projects still require a question. No raw-state fallback, stale routing
+  table, or extra next-step-mode panel remains. Required reviews, approvals and existing-work recovery are preserved.
+- Native prompts now participate in existing model/instruction/safe-shell validation, context snapshots, and Explorer
+  collection. Tools prompt collection is recursive. Discovery keys preserve full paths; same-basename Explorer IDs
+  receive path-derived suffixes only when needed, preserving existing unique IDs.
+- Prompt registry paths/model mirrors/invokable flags are validated; stale commit/debug prompt model metadata now
+  mirrors existing frontmatter. No runtime model was changed. Old snapshots missing native prompts fail comparison
+  as incomplete rather than silently reporting zero changes.
+- Root README now declares its actual Orchestrator participant, shows canonical artifact names, independent cost review,
+  and Governance ownership. Quality grades are labelled historical; stale counts and maintenance links corrected.
+  VERSION no longer promises nonexistent automated bumps; requirements no longer points to a retired scenario tree.
+
+#### Tools Subfolder Dispositions
+
+| Area | Consumers / Evidence | Disposition |
+| --- | --- | --- |
+| `tools/mcp-servers/` | No tracked implementation; retired server rejected by MCP validator | Removed only confirmed local pricing residue; keep migration/retirement guards elsewhere. |
+| `tools/apex-prompts/` | Direct attachments, agent invocation templates, native counterpart | Consolidated resume procedure, retained both entrypoints. Vendor execution templates retain distinct formatting roles; no blanket deletion. |
+| `tools/apex-recall/` | Installed CLI, state readers/writers, root and package tests | Retain package boundaries and isolated tests; include previously omitted package-local suite. |
+| `tools/scripts/` | Public npm commands, hooks, CI, editor integrations and generators | Repair actual parser/exit/selection/ownership defects; retain aliases and distinct execution boundaries. |
+| `tools/tests/` | npm/pytest/Bats suites, regression fixtures, execution evidence | Retain unique assertions and fixtures. Existing test roots are complementary, not proven duplicates. |
+| `tools/registry/` | Maintained definitions, generated telemetry and evidence | Retain all current contracts; producer corrections below avoid false regeneration claims. |
+| `tools/schemas/` | Editor mappings, dedicated validators, runtime artifact contracts and fixtures | Retain all current schemas; absence from editor mapping alone is not retirement evidence. |
+
+#### Registry Ownership
+
+Paths are under `tools/registry/`. All are retained; generator ownership is not inferred from filename similarity.
+
+| File | Producer / Maintainer | Consumer Or Purpose |
+| --- | --- | --- |
+| `agent-registry.json` | Maintainers mirror authoritative frontmatter | Model/registry checks, Orchestrator, Explorer and assessments |
+| `count-manifest.json` | Maintained count definitions/discovery globs | Inventory validation and documentation; not generated by Explorer |
+| `challenger-coverage-evidence.md` | Manual checklist comparison | Human evidence; not regenerated by telemetry. Backlink/freshness claims need periodic review. |
+| `challenger-telemetry.json` | challenger-telemetry.mjs | Machine-readable rollup paired with effectiveness report |
+| `challenger-effectiveness.md` | challenger-telemetry.mjs | Human review-effectiveness evidence; not production acceptance |
+| `source-freshness.json` | fetch-vendor-prompting-guides.mjs | Subsequent refreshes and source audit; no network refresh performed here |
+| `tool-version-pins.json` | Maintainer-reviewed pins | Setup and tool-version validation |
+
+#### Schema Ownership
+
+Paths are under `tools/schemas/`; table groups account for every current schema. All are retained.
+Raw schema validation and semantic validation are different checks; sharing a consumer does not make schemas duplicates.
+
+| Schema Files | Producer And Contract Use |
+| --- | --- |
+| `agent-registry.schema.json` | Maintained registry; editor mapping plus registry/model semantic checks |
+| `agent-scorecard.schema.json` | Agent assessment outputs; assessment prompt contract |
+| `challenge-findings-decisions.schema.json` | Parent review decisions; dedicated AJV validator and fixtures |
+| `deployment-preview.schema.json` | Deploy approval envelope; deploy/as-built contracts and fixture validation |
+| `environment-manifest.schema.json`, `iac-contract.schema.json`, `policy-property-map.schema.json` | Planner outputs; dedicated validators and CodeGen/deploy consumers |
+| `iac-handoff.schema.json` | CodeGen handoff; validator, Deploy and As-Built |
+| `explorer-graph.schema.json` | Explorer generator and client; dedicated semantic validation |
+| `governance-baseline.schema.json`, `governance-constraints.schema.json` | Baseline/discovery outputs; AJV and artifact checks |
+| `iteration-log.schema.json`, `lesson-log.schema.json` | E2E and retrospective records; mappings, benchmark and lesson consumers |
+| `model-catalog.schema.json` | Maintained metadata/generated assignments; model checks |
+| `retirement-scan.schema.json` | Scanner output; scanner AJV and regression tests |
+| `session-state.schema.json` | recall/workflow state contract; semantic state checks |
+| `sku-manifest.schema.json`, `subnet-plan.schema.json` | SKU owners and Architect network planning; dedicated AJV checks |
+| `vendor-prompting-rules.schema.json`, `workflow-graph.schema.json` | Maintained vendor rules and topology; mapped/dedicated checks |
+
+#### Every Tracked Root File
+
+No tracked root file is proven unused. Keep decisions are based on distinct audiences, tool consumption or legal/history
+roles, not import counts. Regenerable local output is listed separately and is not a tracked-source retirement.
+
+| Files | Owner / Consumer | Disposition |
+| --- | --- | --- |
+| `README.md`, `AGENTS.md`, `CONTRIBUTING.md` | Public introduction, operating rules, contribution entry | Keep; repair README summary rather than delete role-specific entrypoints |
+| `CHANGELOG.md`, `CONTRIBUTORS.md`, `LICENSE` | Release history, attribution and legal terms | Keep; historical retired-component references are not active dependencies |
+| `QUALITY_SCORE.md` | Doc-gardening/manual health assessment | Keep historical grades explicitly labelled; current grades require dated evidence |
+| `VERSION.md` | Canonical repository release version | Keep; corrected automation claim and fail-closed version checks |
+| `package.json`, `package-lock.json` | Public commands and reproducible Node installation | Keep; preserve aliases, direct dependency ownership and original integrity |
+| `pyproject.toml`, `requirements.txt` | Root Python lint/project metadata and installed tooling dependencies | Keep; distinct from independently packaged recall CLI, no proven dependency duplication |
+| `.gitattributes`, `.gitignore`, `.git-blame-ignore-revs` | Normalization, local/secret exclusions and historical blame filtering | Keep; not runtime imports and not interchangeable |
+| `.gitleaks.toml`, `.gitleaksignore` | Secret-scanner rules and reviewed suppressions | Keep; do not prune security exceptions without specific evidence |
+| `lefthook.yml`, `commitlint.config.js` | Git hooks and commit-message policy | Keep; preserve staged/branch/CI boundaries |
+| `.markdownlint-cli2.jsonc`, `.prettierrc.json`, `.prettierignore`, `eslint.config.mjs` | Markdown, formatting and JavaScript policies | Keep distinct tool scopes; no blind ignore-file merger |
+| `.markdown-link-check.json`, `.markdown-link-check-site.json` | Repository versus site-source link policy | Keep separate; built-site internal link checking remains independent |
+| `.vale.ini`, `.yamllint.yml` | Optional prose/YAML lint configuration | Keep active command consumers; corrected failure reporting before considering retirement |
+
+Ignored root freshness-report.json is produced by check-docs-freshness and consumed by gardening; its presence is not
+proof of a current scan. Keep regenerable reports used by this audit and active caches; do not blanket-delete local data.
+
+#### Evidence And Limits
+
+Existing scanner output was refreshed against committed revision `9128ea94` into ignored
+`tmp/apex-optimization/tools-root-inventory.{json,md}`. It classified 1,336 tracked files with no tools retirement
+candidates; its historical-integrity check is not a semantic guarantee of usefulness. Newly edited/untracked files in
+this batch are verified by diff review and tests, not claimed as part of that committed baseline.
+
+Focused checks include JSONC literal/prototype/error fixtures, actual lint runner and registry failure cases, version
+failure fixtures, isolated recall suites (78 and 26 passing), scanner metadata/protection tests, prompt collision and
+historical-snapshot fixtures, and a read-only named Orchestrator resume probe. Both resume entrypoints selected the same
+safe routing in supplied/missing project, empty recall, missing review, and unmet prerequisite cases.
+
+Independent reviews found the initial prototype-key bug, lockfile metadata churn, unchecked link-selection failure,
+historical snapshot omission and prompt identity collision. All were repaired and focused checks rerun.
+No source retirement relies on zero imports alone. No model changes, live Azure calls, blanket cache purge,
+or measured model-token savings are claimed. External-link availability and graphical slash-menu behavior remain
+outside the local fixture evidence; final full-suite status is recorded in the execution plan.
 
 This section supersedes the historical inventory dispositions below. All active agent, skill, and instruction
 bodies, root guidance, and the named support-tool paths were assessed through read-only delegated reviews;
@@ -218,47 +353,47 @@ Changes stay on the feature branch; no Azure resources were created.
 **Local fixes implemented**:
 
 - Removed `lint:workflow-handoffs` only from aggregates already running the full agent validator.
-   The standalone command and independent Orchestrator handoff check remain. Real-package expansion tests pass.
+  The standalone command and independent Orchestrator handoff check remain. Real-package expansion tests pass.
 - Corrected the Bats test to inspect pre-commit serialization, not pre-push's parallel setting.
-   CRLF in shared Bash test setup blocked execution; normalized shell test files to LF. Three focused tests pass.
+  CRLF in shared Bash test setup blocked execution; normalized shell test files to LF. Three focused tests pass.
 - Diagnose now writes its report with editing tools and separately registers findings; self-handoffs use the same path.
 - Challenger separates artifact type from canonical findings stem, handles ADR and deployment-preview inputs,
-   asks on unknown types, and preserves caller destinations. Deep reviews with custom destinations require distinct
-   output paths resolved once. Design supplies all required reviewer inputs.
+  asks on unknown types, and preserves caller destinations. Deep reviews with custom destinations require distinct
+  output paths resolved once. Design supplies all required reviewer inputs.
 - Review worker persists canonical JSON and returns a compact summary, including compact_for_parent. Removed the
-   incomplete duplicate batch example and unsupported duplicate marker. Empty results use findings, not issues.
+  incomplete duplicate batch example and unsupported duplicate marker. Empty results use findings, not issues.
 - Decision presentation maps claim/evidence/impact/suggested_fix to local UI aliases. Edit persists as accept with
-   an `Edit:` note prefix, and empty notes are strings, satisfying the schema without adding fields or enum values.
+  an `Edit:` note prefix, and empty notes are strings, satisfying the schema without adding fields or enum values.
 - Shared CodeGen owns build checkpoints for both tracks. Count actual files, record incomplete scaffolds as deferred,
-   run as soon as dependencies are ready, stop on real failures, and never complete with deferred validation.
-   Production still uses one file per response; existing complete files and confirmed partial writes require inspection.
+  run as soon as dependencies are ready, stop on real failures, and never complete with deferred validation.
+  Production still uses one file per response; existing complete files and confirmed partial writes require inspection.
 
 **Entry separation implemented**:
 
 - Resolve workflow identity and requested action before generic prerequisites. Explicit APEX requests use APEX inputs;
-   generic applications retain their preparation plan and actual Validation Proof. Ambiguous mixed state requires a question.
+  generic applications retain their preparation plan and actual Validation Proof. Ambiguous mixed state requires a question.
 - Validation-only returns passed, failed and unperformed checks and stops. Preview-only stops as not applied.
-   Neither authorizes resource creation, bootstrap, regeneration, deployment, or marking Step 6 deployed.
+  Neither authorizes resource creation, bootstrap, regeneration, deployment, or marking Step 6 deployed.
 - APEX missing code/expected manifest/handoff returns to CodeGen, not generic preparation. Legacy Markdown evidence
-   supports validation/recovery only; CodeGen must re-emit JSON before preview/apply. No fabricated hash match and no
-   forced change to an approved standalone deployment method.
+  supports validation/recovery only; CodeGen must re-emit JSON before preview/apply. No fabricated hash match and no
+  forced change to an approved standalone deployment method.
 - Updated generic recipe continuation, plan-template proof ordering, missing-manifest guide, preflight checklist,
-   shared deploy reference, and both Deploy agents. Retained L3, preview, destructive-change, cost and human approval gates.
+  shared deploy reference, and both Deploy agents. Retained L3, preview, destructive-change, cost and human approval gates.
 - Removed stale shared Step 6 Challenger requirements to match the existing graph; mandatory upstream reviews remain.
 
 **Matched batching experiment: reject adoption on current evidence**:
 
-| Dimension | Baseline | Candidate | Outcome |
-| --- | --- | --- | --- |
-| Frozen design | AVM Resource Group, wrapper/root/parameters or variables/root/outputs | Same inputs/interfaces | Bicep AVM 0.4.4; Terraform AVM 0.4.0; telemetry disabled |
-| Bicep responses | First call emitted two files despite single-file instruction; parameters in follow-up | Three files in one response | Baseline noncompliance invalidates clean turn-count comparison |
-| Terraform responses | Variables, main, outputs in separate scoped calls | Three files in one response | Stateless calls with supplied continuation state, not actual VS Code turns |
-| Compilation | Bicep build/build-params and Terraform validate pass | Same pass | Public dependencies downloaded; no deploy/live plan |
-| Terraform formatting | Raw sample fails | Raw sample fails | Both pass after identical formatting |
-| Output comparison | Parsed Bicep template/parameter JSON | Equivalent excluding description/compiler metadata | Not full-artifact/deployment equivalence |
-| Terraform plans | AzAPI-mocked plan asserts name/location/tag count | Same assertions pass | Harness undeclared modtm mock repaired before comparison |
-| Injected bad output | Bicep and Terraform fail | Bicep and Terraform fail | Parent repaired identical output errors; both pass after minimal edits |
-| Partial-write recovery | Inconsistent baseline responses | Both candidates recommend discard/regenerate, not preserving/editing partial writes | Required recovery behavior fails; no adoption |
+| Dimension              | Baseline                                                                              | Candidate                                                                           | Outcome                                                                    |
+| ---------------------- | ------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| Frozen design          | AVM Resource Group, wrapper/root/parameters or variables/root/outputs                 | Same inputs/interfaces                                                              | Bicep AVM 0.4.4; Terraform AVM 0.4.0; telemetry disabled                   |
+| Bicep responses        | First call emitted two files despite single-file instruction; parameters in follow-up | Three files in one response                                                         | Baseline noncompliance invalidates clean turn-count comparison             |
+| Terraform responses    | Variables, main, outputs in separate scoped calls                                     | Three files in one response                                                         | Stateless calls with supplied continuation state, not actual VS Code turns |
+| Compilation            | Bicep build/build-params and Terraform validate pass                                  | Same pass                                                                           | Public dependencies downloaded; no deploy/live plan                        |
+| Terraform formatting   | Raw sample fails                                                                      | Raw sample fails                                                                    | Both pass after identical formatting                                       |
+| Output comparison      | Parsed Bicep template/parameter JSON                                                  | Equivalent excluding description/compiler metadata                                  | Not full-artifact/deployment equivalence                                   |
+| Terraform plans        | AzAPI-mocked plan asserts name/location/tag count                                     | Same assertions pass                                                                | Harness undeclared modtm mock repaired before comparison                   |
+| Injected bad output    | Bicep and Terraform fail                                                              | Bicep and Terraform fail                                                            | Parent repaired identical output errors; both pass after minimal edits     |
+| Partial-write recovery | Inconsistent baseline responses                                                       | Both candidates recommend discard/regenerate, not preserving/editing partial writes | Required recovery behavior fails; no adoption                              |
 
 Sample source and local outputs are under ignored `tmp/apex-optimization/matched/`.
 Module versions and identical requirements were frozen before generation. Parent materialized response code,
