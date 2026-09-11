@@ -6,32 +6,17 @@
 
 ## Cost Optimization Query Patterns
 
-**Find orphaned (unattached) managed disks:**
+**Required canonical query read:** Before orphan discovery, you MUST read only these named patterns in
+[Orphaned Resource Patterns](../../azure-resources/references/azure-resource-graph.md#orphaned-resource-patterns):
 
-```kql
-Resources
-| where type =~ 'microsoft.compute/disks'
-| where isempty(managedBy)
-| project name, resourceGroup, location, diskSizeGb=properties.diskSizeGB, sku=sku.name
-```
+- **Unattached managed disks**
+- **Unused public IP addresses**
+- **Orphaned network interfaces**
 
-**Find unattached public IP addresses:**
-
-```kql
-Resources
-| where type =~ 'microsoft.network/publicipaddresses'
-| where isempty(properties.ipConfiguration)
-| project name, resourceGroup, location, sku=sku.name
-```
-
-**Find orphaned network interfaces:**
-
-```kql
-Resources
-| where type =~ 'microsoft.network/networkinterfaces'
-| where isempty(properties.virtualMachine)
-| project name, resourceGroup, location
-```
+Use their exact KQL, including projected fields. Do not proceed if the patterns cannot be loaded.
+Do not invoke the `azure-resources` skill or run its inventory workflow; return here for the cost-only queries below.
+Discovery alone is not savings evidence: correlate findings with actual Cost Management data and utilization metrics.
+Continue the [cost, pricing, metrics, report, and audit procedure](detailed-workflow-steps.md#step-4-query-actual-costs).
 
 **Resource count by SKU/tier (spot oversized resources):**
 

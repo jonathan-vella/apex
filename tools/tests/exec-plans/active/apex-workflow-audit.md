@@ -39,6 +39,77 @@ including compiled ARM, changed Terraform local modules and read-only parsing. A
 was not accepted as evidence; it was rerun alone successfully. No measured token savings or full conversational
 equivalence is claimed. Integration/publication results are recorded in the authoritative execution plan.
 
+### Skill Merger And Retirement Plan
+
+Assessed active bodies, discovery descriptions, targeted controlling references, callers and local introduction
+history at `ea6db336`. Independent review challenged the closest pairs and approved retaining their distinct
+entrypoints. No whole-skill merger or retirement has demonstrated lossless equivalence. Low usage and dynamic
+discovery are not deletion evidence. The following is the old-to-survivor-to-prefixed-name map; every survivor
+is its original entrypoint. SHARE preserves discovery and moves only proven-equivalent procedure content.
+
+| Original / Survivor | New Name | Decision And Protected Responsibility |
+| --- | --- | --- |
+| agent-authoring | apex-agent-authoring | Keep structure, model-policy and handoff authoring; vendor audit remains separately discoverable. |
+| azure-adr | apex-azure-adr | Keep alternatives, WAF consequences and decision-record lifecycle. |
+| azure-artifacts | apex-azure-artifacts | Keep exact artifact templates, headings and attribution contracts. |
+| azure-bicep-patterns | apex-azure-bicep-patterns | Keep Bicep/AVM composition and language-specific interfaces. |
+| azure-cloud-migrate | apex-azure-cloud-migrate | Keep source-cloud assessment and conversion before Azure preparation. |
+| azure-compliance | apex-azure-compliance | Keep security assessment and Key Vault expiration auditing. |
+| azure-compute | apex-azure-compute | Keep subscription-free VM/VMSS sizing and public pricing recommendations. |
+| azure-cost-optimization | apex-azure-cost-optimization | Share exact disk/IP/NIC queries; retain cost/utilization correlation and savings audit. |
+| azure-defaults | apex-azure-defaults | Keep policy precedence, naming and planning constraints, distinct from execution. |
+| azure-deploy | apex-azure-deploy | Share generic safety rules; keep execution, recovery and post-deployment verification. |
+| azure-diagnostics | apex-azure-diagnostics | Keep incident triage and service-specific telemetry/remediation. |
+| azure-governance-discovery | apex-azure-governance-discovery | Keep deterministic policy traversal, effects, exemptions, freshness and evidence. |
+| azure-kusto | apex-azure-kusto | Keep ADX cluster/database/schema KQL rather than Monitor or Resource Graph queries. |
+| azure-prepare | apex-azure-prepare | Own shared generic safety rules; retain approved planning and artifact generation. |
+| azure-quotas | apex-azure-quotas | Keep quota discovery, capacity comparisons and authorized increase requests. |
+| azure-rbac | apex-azure-rbac | Keep least-privilege Azure resource authorization, distinct from OAuth consent. |
+| azure-resources | apex-azure-resources | Own shared orphan query primitives; retain inventory and resource visualization. |
+| azure-storage | apex-azure-storage | Keep data-plane operations, SDK patterns, tiers, redundancy and lifecycle. |
+| azure-validate | apex-azure-validate | Keep validation-only boundary and exclusive generic Validation Proof ownership. |
+| context-management | apex-context-management | Keep runtime compression and retrospective log analysis; prior consolidation retained. |
+| docs-writer | apex-docs-writer | Keep documentation freshness, explanation and changelog workflows. |
+| entra-app-registration | apex-entra-app-registration | Keep app registrations, redirects, API permissions and MSAL integration. |
+| github-operations | apex-github-operations | Keep GitHub contribution lifecycle, hooks and CLI-first operations. |
+| golden-principles | apex-golden-principles | Keep operating-philosophy discovery; inconsistent principle numbering is not safe merger evidence. |
+| iac-common | apex-iac-common | Keep cross-track execution, retry and plan-lock contracts; do not merge conflicting retry choices. |
+| mermaid | apex-mermaid | Keep inline Markdown diagrams and Starlight rendering contract. |
+| microsoft-docs | apex-microsoft-docs | Keep Microsoft Learn search, selective fetch and sample research. |
+| python-diagrams | apex-python-diagrams | Keep executable sources plus image artifacts and quantitative charts. |
+| terraform-patterns | apex-terraform-patterns | Keep HCL composition, state-safe refactoring and AVM pitfalls. |
+| terraform-search-import | apex-terraform-search-import | Keep brownfield import-only planning and experimental search detection. |
+| terraform-test | apex-terraform-test | Keep test files, mocks, negative assertions and authorized integration cleanup. |
+| vendor-prompting | apex-vendor-prompting | Keep vendor-specific rule IDs and audit evidence; effective-model differences preclude procedure merger. |
+| workflow-engine | apex-workflow-engine | Keep DAG routing, conditional tracks, gates and schema evolution. |
+
+Implemented SHARE batch: deploy's global-rules reference now requires prepare's canonical rules, stops if
+unavailable, and preserves old anchors and its local checklist. Cost optimization reads only identical orphan
+patterns from resources, not the inventory workflow. Baseline comparisons prove rule/query equality; existing
+cost-specific queries and reporting duties are unchanged. `test_skill_consolidation.mjs` passes all focused checks.
+Independent review found no lost rules or broken reachability. No entrypoint description or role changed.
+
+Retained candidates: prepare/validate/deploy have distinct authorities; defaults/common/patterns separate policy,
+execution and language implementation; authoring/vendor/docs separate file structure, vendor audit and maintenance;
+Mermaid/Python produce different output contracts; compliance/cost/resources have distinct evidence requirements.
+Additional reference sharing was rejected for this batch where it would reconcile conflicting principles/retries,
+stale examples or provider fallback rules rather than consolidate equivalent behavior. These pre-existing conflicts
+are not certified correct; resolving policy choices outside A02-A14 is not a prerequisite invented for this migration.
+
+Provenance: imported Azure plugin skills retain Microsoft attribution and MIT metadata. Local history records
+`microsoft/azure-skills` at `90fcf6d` in import commit `c61794c8`, maintained from
+`microsoft/GitHub-Copilot-for-Azure`. Resources and validation include local merged adaptations. Microsoft Docs
+has separate MicrosoftDocs lineage without a verified current upstream revision. Terraform import/test cite
+HashiCorp sources; local introduction does not establish an upstream skill pin. No general automatic skill-body
+updater was found. Vendor source IDs, URLs, hashes and refresh bindings must remain upstream identities.
+For future refreshes, map the original name in this table to its prefixed directory, review upstream diffs,
+and preserve local adaptations and licenses. Never recopy an upstream tree over the prefixed tree wholesale.
+
+Rollback: revert the isolated sharing commit to restore duplicate reference bodies if required; keep approval
+and security contracts intact. Revert the later naming commit as a unit to restore directories and consumers.
+Never reverse names inside immutable archives or reset user work. No runtime token savings, native discovery
+acceptance, live Azure behavior, or full output equivalence is claimed by these local tests.
+
 The tools/root extension below is the latest disposition for those paths; earlier inventories remain historical.
 
 ### Tools And Root Lifecycle Audit

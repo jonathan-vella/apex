@@ -93,24 +93,33 @@ Use the existing audit ledger for source evidence, decisions, validation results
 - [x] A14 Reject unknown aggregate validation members without breaking supported script syntax.
 - [ ] A15 Run relevant regressions, reconcile the ledger, and publish the verified backlog-closeout batch.
 
+Phase A implementation and review are complete in local commit `ea6db336`; full validation passed.
+Publishing is blocked: GitHub returned HTTP 403, permission denied to `jovella_microsoft` for
+`jonathan-vella/apex`. No alternate identity or bypass was attempted. A15 stays open for publication;
+independent local Phases B-D03 continue under the authorization to complete safe unblocked work.
+
 ### Phase B: Skill Merger And Retirement Plan
 
 Begin after Phase A is resolved. Manual acceptance does not block this planning stage.
 Do not treat the previous inventory's Keep labels as a completed merger/retirement analysis.
 
-- [ ] B01 Refresh the active skill inventory and map discovery triggers, capabilities, consumers, references,
+- [x] B01 Refresh the active skill inventory and map discovery triggers, capabilities, consumers, references,
       scripts/templates, provenance, and upstream update mechanisms.
-- [ ] B02 Compare semantic overlap and choose per skill: keep, share procedure, merge, or retire.
+- [x] B02 Compare semantic overlap and choose per skill: keep, share procedure, merge, or retire.
       Distinguish shared implementation from genuinely equivalent discovery/decision responsibilities.
-- [ ] B03 For each proposed merge/retirement, identify the surviving owner/replacement, unique rules to preserve,
+- [x] B03 For each proposed merge/retirement, identify the surviving owner/replacement, unique rules to preserve,
       consumer migrations, quality risks, regression scenarios, and rollback procedure.
-- [ ] B04 Produce the decision-oriented plan, including justified retentions, unresolved evidence, execution batches,
+- [x] B04 Produce the decision-oriented plan, including justified retentions, unresolved evidence, execution batches,
       and an old-to-surviving-name map that will feed the later prefix migration.
-- [ ] B05 Apply the pre-authorized decision policy: select merges/retirements with preserved capabilities and review
+- [x] B05 Apply the pre-authorized decision policy: select merges/retirements with preserved capabilities and review
   evidence; retain inconclusive candidates. Do not introduce protected behavioral/schema changes
   or pause for routine approval.
-- [ ] B06 Implement qualifying merges/retirements and update all live consumers, tests, documentation and generated views.
-- [ ] B07 Validate capability/discovery preservation and freeze the surviving skill set before renaming it.
+- [x] B06 Implement qualifying merges/retirements and update all live consumers, tests, documentation and generated views.
+- [x] B07 Validate capability/discovery preservation and freeze the surviving skill set before renaming it.
+
+The audit's Skill Merger And Retirement Plan records every survivor and rationale. All entrypoints survive;
+two proven-equivalent reference procedures are shared. Focused equivalence/reachability tests and independent
+review pass; discovery descriptions are unchanged. This is not native discovery or output-quality acceptance.
 
 ### Phase C: Rename Surviving Skills With apex-
 
