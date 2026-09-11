@@ -236,9 +236,9 @@ After confirming the project name, read these four skill files in a
 3. `.github/skills/azure-artifacts/SKILL.md` — artifact structure
 4. `.github/skills/workflow-engine/SKILL.md` — DAG model
 
-Extract key facts (region, tags, naming, security baseline, complexity,
-AVM-first) into the `## Skill Context` section of `00-handoff.md` so
-step agents reuse that pre-extracted context instead of re-reading.
+Keep `## Skill Context` in `00-handoff.md` as canonical source paths only.
+Do not copy defaults, tags, or security prose into the handoff; specialists load required
+current sections and reuse content already available in their own context.
 
 ### Graph-Based Step Routing
 

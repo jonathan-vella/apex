@@ -116,13 +116,14 @@ a compact summary (≤15 lines) to the parent agent. JSON shape:
 
 `deploy_gate` is computed by the subagent using this exact rule, in order:
 
-1. Render or REST-stage failure → `deploy_gate=BLOCK`, `status=FAILED`.
+1. Render or REST-stage failure, or missing/invalid envelope evidence
+  (`attestation.envelope_status` is neither `FRESH` nor `STALE`) → `deploy_gate=BLOCK`, `status=FAILED`.
 2. `policies_that_will_block_deploy` non-empty OR
    `what_if_summary.policy_violations_in_what_if > 0` →
    `deploy_gate=BLOCK`, `status=BLOCKED`.
 3. `attestation.envelope_status == "STALE"` → `deploy_gate=BLOCK`,
    `status=INFORMATIONAL`, route to `▶ Refresh Governance`. Envelope
-   freshness is the only non-policy gate.
+  freshness is checked only after the required evidence is present and valid.
 4. `drift_signal.severity == "INFORMATIONAL"` AND
    `drift_signal.accepted_by_residual_drift_policy == true` →
    `deploy_gate=PROCEED`, `status=CLEAN`.
@@ -303,7 +304,7 @@ and `status` using the **exact rule sequence** documented in
 `deploy_gate` derivation above. Pseudocode:
 
 ```text
-if render_failed or rest_failed:
+if render_failed or rest_failed or envelope_status not in ["FRESH", "STALE"]:
     deploy_gate = "BLOCK"; status = "FAILED"
 elif policies_that_will_block_deploy or policy_violations_in_what_if > 0:
     deploy_gate = "BLOCK"; status = "BLOCKED"

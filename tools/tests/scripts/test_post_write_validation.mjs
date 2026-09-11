@@ -17,12 +17,156 @@ import test from "node:test";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { parseFrontmatter } from "../../scripts/_lib/parse-frontmatter.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, "../../..");
 
 const SKILL = path.join(ROOT, ".github/skills/azure-artifacts/SKILL.md");
 const OPFRAME = path.join(ROOT, ".github/instructions/agent-operating-frame.instructions.md");
+
+test("review reuse and deployment routing cannot bypass current evidence", () => {
+  const governance = fs.readFileSync(path.join(ROOT, ".github/agents/04g-governance.agent.md"), "utf8");
+  assert.match(governance, /existing `cache_inputs` match the current artifact/);
+  assert.match(governance, /signature` alone is not review freshness evidence/);
+  assert.match(governance, /TTL expiry, signature drift, or explicit refresh still requires live discovery/);
+  assert.match(governance, /including review validity/);
+  assert.match(governance, /return to Phase 2\.5/);
+  const resume = fs.readFileSync(
+    path.join(ROOT, ".github/skills/azure-governance-discovery/references/resume-checks.md"),
+    "utf8",
+  );
+  assert.match(resume, /reviewed\s+architecture and governance inputs are unchanged/);
+  assert.match(resume, /If only review validity fails/);
+  const deploy = fs.readFileSync(path.join(ROOT, ".github/agents/07t-terraform-deploy.agent.md"), "utf8");
+  assert.match(deploy, /azd path does not bypass any gate/);
+  assert.doesNotMatch(deploy, /Skip to Step 6 .*after `azd provision` completes/);
+  const preview = fs.readFileSync(path.join(ROOT, ".github/agents/_subagents/bicep-whatif-subagent.agent.md"), "utf8");
+  assert.match(preview, /`Deploy`\s*\| Deployment; changes unknown/);
+  assert.doesNotMatch(preview, /No-op deploy/);
+  const orchestrator = fs.readFileSync(path.join(ROOT, ".github/agents/01-orchestrator.agent.md"), "utf8");
+  assert.match(orchestrator, /canonical source paths only/);
+  assert.doesNotMatch(orchestrator, /Extract key facts \(region/);
+  const asBuilt = fs.readFileSync(path.join(ROOT, ".github/agents/08-as-built.agent.md"), "utf8");
+  assert.match(asBuilt, /full Step 7 suite still requires every listed output/);
+  assert.doesNotMatch(asBuilt, /Read ALL prior artifacts/);
+});
+
+test("shared references preserve consolidated documentation and deployment rules", () => {
+  const docs = fs.readFileSync(path.join(ROOT, ".github/skills/docs-writer/references/extended-workflows.md"), "utf8");
+  assert.match(docs, /Starlight supplies the H1/);
+  assert.doesNotMatch(docs, /File header: `# \{Title\}`/);
+  const strategies = fs.readFileSync(
+    path.join(ROOT, ".github/skills/iac-common/references/deployment-strategies.md"),
+    "utf8",
+  );
+  assert.match(strategies, /guide owns the comparison matrix/);
+  assert.match(strategies, /Single Deployment \(only for <5 resources, dev\/test\)/);
+  assert.match(strategies, /Still requires user approval/);
+  assert.doesNotMatch(strategies, /azd env new prod/);
+  const guide = fs.readFileSync(path.join(ROOT, ".github/skills/iac-common/references/azd-vs-deploy-guide.md"), "utf8");
+  assert.match(guide, /AZURE_SUBSCRIPTION_ID, AZURE_RESOURCE_GROUP, AZURE_LOCATION, AZURE_ENV_NAME/);
+});
+
+test("optimization guidance uses edit capabilities and recorded token evidence", () => {
+  for (const file of ["context-optimization.instructions.md", "azure-artifacts.instructions.md"]) {
+    const body = fs.readFileSync(path.join(ROOT, ".github/instructions", file), "utf8");
+    assert.match(body, /apply_patch/);
+    assert.doesNotMatch(body, /`create_file` \(with logged ADR\)|`create_file` \(documented in ADR\)/);
+    assert.doesNotMatch(body, /20–60×|8–18 K output tokens|A 24-finding revision/);
+    assert.match(body, /validate before dependent follow-up edits/);
+  }
+  const agent = fs.readFileSync(path.join(ROOT, ".github/agents/11-context-optimizer.agent.md"), "utf8");
+  const methodology = fs.readFileSync(
+    path.join(ROOT, ".github/skills/context-management/references/analysis-methodology.md"),
+    "utf8",
+  );
+  assert.match(agent, /when absent, report unknown/);
+  assert.doesNotMatch(agent, /Estimate token cost from latency/);
+  assert.match(methodology, /Missing usage remains unknown/);
+  assert.doesNotMatch(methodology, /Likely Context Size|context is growing without hand-offs/);
+});
+
+test("CodeGen uses its combined validation worker and preserves the security gate", () => {
+  for (const track of ["bicep", "terraform"]) {
+    const prefix = track === "bicep" ? "06b" : "06t";
+    const body = fs.readFileSync(path.join(ROOT, `.github/agents/${prefix}-${track}-codegen.agent.md`), "utf8");
+    assert.match(body, /Invoke the listed validation subagent once/);
+    assert.match(body, /Await APPROVED before Phase 4\.5/);
+    assert.doesNotMatch(body, /Invoke both validation subagents|Await both results/);
+    assert.match(body, /validate:iac-security-baseline/);
+    assert.match(body, /Phase 4\.5 is \*\*skipped\*\*/);
+  }
+});
+
+test("IaC tag consumers follow discovered keys and do not mandate provenance tags", () => {
+  for (const track of ["bicep", "terraform"]) {
+    const worker = fs.readFileSync(
+      path.join(ROOT, `.github/agents/_subagents/${track}-validate-subagent.agent.md`),
+      "utf8",
+    );
+    assert.match(worker, /validate tag keys, values, and casing against the discovered policy contract/);
+    assert.match(worker, /greenfield fallback only when no tag policy applies/);
+    assert.match(worker, /`ManagedBy` is optional provenance/);
+    assert.match(worker, /Any of the three forces `Overall Status: FAILED`/);
+    assert.doesNotMatch(worker, /four baseline|four\s+baseline|relevant `azure-defaults` digest/);
+    const guidance = fs.readFileSync(path.join(ROOT, `infra/${track}/AGENTS.md`), "utf8");
+    assert.match(guidance, /copilot-instructions\.md#required-tags-azure-policy-enforced/);
+    assert.doesNotMatch(guidance, /Every resource gets the \d+ required tags/);
+  }
+});
+
+test("Terraform testing guidance uses file filters and preserves cleanup authorization", () => {
+  for (const file of ["SKILL.md", "references/test-execution.md"]) {
+    const body = fs.readFileSync(path.join(ROOT, ".github/skills/terraform-test", file), "utf8");
+    assert.match(body, /terraform test -filter=tests\/defaults_unit_test\.tftest\.hcl/);
+    assert.doesNotMatch(body, /terraform test tests\/|-no-cleanup|-count=1|-filter=test_resource_group/);
+    assert.match(body, /authoriz/);
+  }
+});
+
+test("pattern and Storage examples retain drift and identity safeguards", () => {
+  const patterns = fs.readFileSync(path.join(ROOT, ".github/skills/terraform-patterns/SKILL.md"), "utf8");
+  assert.match(patterns, /ignore_changes` only for blocks managed externally/);
+  assert.match(patterns, /do not suppress Terraform-owned changes/);
+  const storage = fs.readFileSync(path.join(ROOT, ".github/skills/azure-storage/SKILL.md"), "utf8");
+  const commands = storage.split("\n").filter((line) => /^az storage (blob|container) /.test(line));
+  assert.equal(commands.length, 4);
+  for (const command of commands) assert.match(command, /--auth-mode login/);
+  assert.match(storage, /Storage Blob Data Reader/);
+  assert.match(storage, /Storage Blob Data Contributor/);
+});
+
+test("site guidance consolidation preserves Markdown/MDX scope without absorbing update triggers", () => {
+  assert.equal(fs.existsSync(path.join(ROOT, ".github/instructions/markdown-docs.instructions.md")), false);
+  const body = fs.readFileSync(path.join(ROOT, ".github/instructions/docs.instructions.md"), "utf8");
+  const patterns = parseFrontmatter(body)
+    .applyto.split(",")
+    .map((pattern) => pattern.trim());
+  for (const file of [
+    "site/src/content/docs/index.mdx",
+    "site/src/content/docs/guides/example.md",
+    "site/src/content/docs/deep/nested/example.mdx",
+    "site/src/components/Example.astro",
+    "docs/example.md",
+    "agent-output/example/01-requirements.md",
+    ".github/agents/example.agent.md",
+  ]) {
+    assert.equal(
+      patterns.some((pattern) => path.matchesGlob(file, pattern)),
+      path.matchesGlob(file, "site/src/content/docs/**/*.{md,mdx}"),
+      file,
+    );
+  }
+  assert.match(body, /Starlight renders the frontmatter title/);
+  assert.match(body, /preserve canonical template H2 order/);
+  assert.match(body, /component imports after frontmatter/);
+  assert.match(body, /badge rows, collapsible TOCs/);
+  assert.doesNotMatch(body, /# \{Title\}|Current Version|npm run (?:check:links|build:site)/);
+  const triggers = fs.readFileSync(path.join(ROOT, ".github/instructions/docs-trigger.instructions.md"), "utf8");
+  assert.match(parseFrontmatter(triggers).applyto, /agent\.md/);
+  assert.match(triggers, /Agent or skill definitions are added, renamed, or removed/);
+});
 
 test("azure-artifacts SKILL.md declares the Post-write validation section", () => {
   const body = fs.readFileSync(SKILL, "utf8");

@@ -95,11 +95,14 @@ resource count with for_each, variables precedence, and prior run references.
 
 ```bash
 terraform test                              # All tests
-terraform test tests/defaults.tftest.hcl    # Specific file
+terraform test -filter=tests/defaults_unit_test.tftest.hcl # Specific file
 terraform test -verbose                     # Detailed output
-terraform test -filter=test_resource_group  # Filter by name
-terraform test -no-cleanup                  # Debug: keep resources
+terraform test -test-directory=integration-tests # Custom test directory
 ```
+
+`-filter` selects test files, not run-block names. Apply-mode tests create real resources
+and attempt cleanup automatically; obtain deployment authorization before running them.
+Use mocks for offline checks, and investigate any resources reported after failed cleanup.
 
 ## Rules
 

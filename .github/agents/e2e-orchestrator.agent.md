@@ -347,7 +347,8 @@ When delegation is unavailable, perform challenger reviews inline:
 3. Apply the `comprehensive` lens — challenge assumptions, find failure modes, verify governance
 4. Produce structured JSON matching the challenger output contract
 5. Save to `agent-output/{project}/10-challenger-step{N}.json`
-6. If `must_fix` count > 0: re-execute the step with findings as correction context
+6. If unresolved `must_fix` count > 0: persist findings and deferred decisions, record `E2E_BLOCKED`,
+   and stop before step completion or downstream execution. Test auto-approval cannot waive blockers.
 7. Update review audit via `apex-recall review-audit <project> <step> --passes-executed 1 --json`
 
 Steps 1, 2, 3.5, 4, 5, and 6 require challenger reviews.
@@ -372,8 +373,8 @@ After Step 3.5 (Governance) completes:
      (even if empty array is valid for subscriptions with no policies,
      the `discovery_status` MUST be `"COMPLETE"`)
 3. If validation FAILS: re-invoke `@04g-Governance` agent for retry (up to max 3 attempts)
-4. If validation passes after 3 retries still fails: mark step as `blocked`,
-   log lesson, continue to next steps with WARNING that governance may be incomplete
+4. If validation still fails after the bounded attempts: mark step as `blocked`,
+   log the lesson, emit `E2E_BLOCKED`, and stop; incomplete governance cannot authorize downstream steps
 5. Log governance validation result to `08-iteration-log.json`
 
 > **RATIONALE**: E2E runs previously auto-approved governance without validation,

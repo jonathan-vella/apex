@@ -147,8 +147,9 @@ investigate before answering) live in
 
 ## Read Skills First
 
-Before doing any work, read these skills. Issue the SKILL.md reads and the
-template-file reads in **one parallel `read_file` batch** to amortize cost.
+Check requested outputs and prerequisites first. Load the required skills and templates below
+for the current phase in a parallel batch; partial-output requests do not require unrelated templates.
+The full Step 7 suite still requires every listed output before completion.
 
 1. Read `.github/skills/azure-defaults/SKILL.md` — regions, tags, naming, pricing MCP names
 2. Read `.github/skills/azure-artifacts/SKILL.md` — H2 templates for all 07-\* artifacts
@@ -171,7 +172,8 @@ template-file reads in **one parallel `read_file` batch** to amortize cost.
 
 **Do:**
 
-- Read ALL prior artifacts (01-06) before generating any documentation
+- Read the prior artifacts and current deployment evidence required for each requested output;
+  recover missing rationale from its source, not from a checkpoint or live resource shape
 - Query deployed Azure resources for real state (not just planned state)
 - Delegate pricing to `cost-estimate-subagent` for as-built cost estimates
 - Record `decisions.diagram_tool=python` for the as-built diagram.

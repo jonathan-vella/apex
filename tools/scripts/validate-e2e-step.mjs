@@ -22,7 +22,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { execSync } from "node:child_process";
-import { detectIacTool, fileExists } from "./_lib/e2e-helpers.mjs";
+import { ARTIFACT_VALIDATION_COMMAND, detectIacTool, fileExists } from "./_lib/e2e-helpers.mjs";
 
 // Support --project=name or positional project name before step arg
 const rawArgs = process.argv.slice(2);
@@ -76,11 +76,11 @@ const EXPECTED_H2S = {
 // Per-step validator commands (compose existing validators)
 const STEP_VALIDATORS = {
   all: ["npm run validate:session-state --silent 2>&1"],
-  1: ["npm run lint:artifact-templates --silent 2>&1", "npm run lint:h2-sync --silent 2>&1"],
-  2: ["npm run lint:artifact-templates --silent 2>&1"],
+  1: [ARTIFACT_VALIDATION_COMMAND],
+  2: [ARTIFACT_VALIDATION_COMMAND],
   3: [],
   3.5: ["npm run lint:governance-refs --silent 2>&1"],
-  4: ["npm run lint:artifact-templates --silent 2>&1", "npm run lint:h2-sync --silent 2>&1"],
+  4: [ARTIFACT_VALIDATION_COMMAND],
   5: [],
   6: [],
   7: [],

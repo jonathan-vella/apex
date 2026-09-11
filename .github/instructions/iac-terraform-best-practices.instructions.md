@@ -5,9 +5,9 @@ applyTo: "**/*.tf"
 
 # Terraform Best Practices
 
-Region, tags, AVM-first mandate, unique suffix, and security baseline
-are defined in `AGENTS.md` (always loaded). This file covers Terraform-specific
-patterns. Policy constraints (`04-governance-constraints.md`) always take precedence.
+Azure values are canonical in [Copilot instructions](../copilot-instructions.md#azure-defaults-canonical);
+shared naming, AVM, and security procedures live in [azure-defaults](../skills/azure-defaults/SKILL.md).
+This file covers Terraform-specific patterns. Discovered policy constraints always take precedence.
 
 ## Security
 

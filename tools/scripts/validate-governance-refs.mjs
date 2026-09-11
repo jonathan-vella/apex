@@ -70,7 +70,10 @@ check("DON'T list warns against skipping governance mapping", fileOrSharedRef("S
 console.log("\n📄 bicep-validate-subagent.agent.md");
 const reviewPath = ".github/agents/_subagents/bicep-validate-subagent.agent.md";
 check("Has Governance Compliance section", fileContains(reviewPath, "### 7. Governance Compliance"));
-check("Checks tag count against governance constraints", fileContains(reviewPath, "Tag count matches governance"));
+check(
+  "Checks required tag keys, values, and casing against governance constraints",
+  fileContains(reviewPath, "Required tag keys, values, and casing satisfy governance constraints"),
+);
 check("Checks Deny policies are satisfied", fileContains(reviewPath, "Deny polic"));
 check("Checks publicNetworkAccess", fileContains(reviewPath, "publicNetworkAccess"));
 check("Checks SKU restrictions", fileContains(reviewPath, "SKU restriction"));

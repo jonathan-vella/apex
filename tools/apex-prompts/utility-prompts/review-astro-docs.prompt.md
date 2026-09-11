@@ -77,7 +77,7 @@ category, one severity, a file:line anchor, and a suggestion.
 ### 1. Completeness
 
 Required H2 sections per template (see
-[`markdown-docs.instructions.md`](../../../.github/instructions/markdown-docs.instructions.md));
+[`docs.instructions.md`](../../../.github/instructions/docs.instructions.md));
 dangling `TODO` / `TKTK` markers; sidebar entries with no underlying
 file; underlying files with no sidebar entry (orphans).
 
@@ -148,13 +148,12 @@ appendix so the next reviewer reuses prior calls.
 
 ### 7. Site standard alignment
 
-The `# Title` + `> [Current Version](...)` header pattern, single-H1
-rule, relative-link depth, `:::note` admonition syntax (not MkDocs
+YAML frontmatter `title` and `description`, Starlight-rendered H1
+without a duplicate body title, relative-link depth, `:::note` admonition syntax (not MkDocs
 `!!!`), trailing-slash internal links, no hard-coded entity counts
 (defer to `count-manifest.json`). See
 [`docs.instructions.md`](../../../.github/instructions/docs.instructions.md)
-and
-[`markdown-docs.instructions.md`](../../../.github/instructions/markdown-docs.instructions.md).
+for the consolidated site rules.
 
 ### 8. Information architecture
 

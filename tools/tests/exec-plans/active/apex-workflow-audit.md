@@ -13,6 +13,216 @@ The revised plan uses focused tests/review for local fixes and matched runtime e
 Current dispositions and completed changes are recorded in the
 [execution plan](apex-workflow-optimization.md#local-implementation-closeout).
 
+## Semantic Audit (2026-09-11)
+
+This section supersedes the historical inventory dispositions below. All active agent, skill, and instruction
+bodies, root guidance, and the named support-tool paths were assessed through read-only delegated reviews;
+the implementing agent checked actionable findings against their controlling source before editing.
+Transitive reference coverage was targeted, not an exhaustive audit of every SDK example or imported template.
+Keep means a distinct responsibility was demonstrated, not that every external claim or runtime behavior is certified.
+File names in each table are relative to its stated directory. Evidence phrases identify the inspected sections.
+
+### Verification And Dispositions
+
+Implemented guidance changes are guarded by `tools/tests/scripts/test_post_write_validation.mjs` and
+`test_review_presence.mjs`; these are structural contracts, except the latter also executes isolated gate fixtures.
+Runner tests exercise actual CLI failure. E2E helper tests stub execution and preserve score weights.
+Terraform and Bicep batching samples were compiled locally without cloud operations.
+No source-byte reduction, invocation count, or latency is presented as measured input-token savings.
+
+### Operation Ownership
+
+| Operation | Producer / Consumers | Reuse Boundary And Disposition |
+| --- | --- | --- |
+| Requirements questions | Requirements / Architect, Planner | Reuse recorded unchanged answers, not checkpoint completeness; keep required missing-answer elicitation. |
+| Service/WAF research | Architect / Planner, CodeGen | Reuse current service/region/version evidence when present; module schema checking is a different responsibility. |
+| Pricing | Cost worker / Architect, As-Built, cost reviewer | Reuse meter-backed results only for unchanged scope and usage; retain independent feasibility review. Cross-invocation reuse needs evidence. |
+| Module discovery | Planner / CodeGen, validators | Planner freezes exact pins; CodeGen verifies the selected interface. Never substitute latest or add another cache. |
+| Governance | Governance / Planner, CodeGen, Deploy | Reuse fresh discovery but retain complete required policy content, L0-L3 checks, expiry and live deployment precheck. |
+| Creative review | Challenger / artifact owner, Orchestrator | Reuse matching cache inputs and unchanged supporting sources; invocation counts and overwritten discovery signatures are insufficient. Fixed. |
+| Code validation | Combined worker / CodeGen, Deploy | Lint then standards review in one worker; removed phantom parallel worker. Hash-change revalidation and fresh preview remain distinct. |
+| E2E artifact checks | Artifact validator / benchmark, step harness | Template and H2 aliases invoke identical code; now run once within an affected step or score calculation. Preserve diagnostic weights. |
+| Artifact regeneration | Owning agent / downstream consumers | Preserve plan lock and canonical JSON/rendered Markdown ownership; update affected outputs, not unrelated templates. |
+| Handoff context | Orchestrator / specialists | Paths and decisions, not copied defaults/security prose. Specialists recover current missing content. Fixed conflicting extraction rule. |
+| Findings panels | Parent agent / user | Independent questions can share a panel; decisions/rationales remain separate. Deferred must-fix is not remediation. |
+
+### Agent Dispositions
+
+Paths are under `.github/agents/`, including `_subagents/` as shown.
+
+| File | Evidence / Distinct Responsibility | Disposition |
+| --- | --- | --- |
+| `01-orchestrator.agent.md` | Read Skills / Skill Context versus paths-only handoff | Fixed copied-default instruction; keep graph routing and human gates. Further mandatory-read reduction needs runtime attachment evidence. |
+| `02-requirements.agent.md` | Phase 5 template-lint permission; unattended decision gate | Fixed lint ownership and unresolved-blocker stop; keep fresh/resume questions and SKU pins. Phase-3 runbook/read-ban wording remains a candidate. |
+| `03-architect.agent.md` | Before scoring WAF; candidate and final pricing; separate reviews | Keep creative architecture and independent cost review. Propose ordered evidence reuse across pricing calls without stale meters. |
+| `04-design.agent.md` | Visualise approved decisions; optional ADR review | Keep separate optional design role. Audit skip-to-Planner and ADR artifact-type compatibility in a routing follow-up; do not bypass Governance. |
+| `04g-governance.agent.md` | Signature-match skip / Performance note | Fixed review reuse to existing cache evidence and preserved TTL/refresh. Keep deterministic discovery and confirmations. |
+| `05-iac-planner.agent.md` | Full read; plan-lock; approved pins | Keep full planning inputs, Deny mapping, exact modules, mandatory review and owner escalation. No merger with architecture or discovery. |
+| `06b-bicep-codegen.agent.md` | Phase 4 says both workers but lists one | Fixed combined-worker invocation; keep Bicep interface checks, security gate and plan lock. Batching remains experimental. |
+| `06t-terraform-codegen.agent.md` | Same Phase 4 mismatch; Registry/provider checks | Fixed combined worker; preserve exact pins, backend policy and L2 validation. Batching remains experimental. |
+| `07b-bicep-deploy.agent.md` | Generate deploy.ps1 versus no template authoring | Keep deploy role and previews; propose returning missing generated scripts to CodeGen instead of writing upstream output. |
+| `07t-terraform-deploy.agent.md` | azd provision then Skip to Step 6 | Fixed bypass: azd preview proceeds through approval/L3 before provisioning. Keep backend/environment/phase checks. |
+| `08-as-built.agent.md` | Read ALL prior artifacts versus selective outputs | Fixed output-scoped loading; full suite remains required for full completion. Keep live inventory, rationale recovery and drift reporting. |
+| `09-diagnose.agent.md` | Save file via apex-recall finding | Keep scoped diagnosis/command approval. Propose separate report write and finding registration; verify self-handoff filenames before changing. |
+| `10-challenger.agent.md` | Unattended auto-proceed; apply only selected findings | Fixed unresolved-blocker stop; keep independent review and artifact-only edits. Canonical type/output-name alignment remains a follow-up. |
+| `11-context-optimizer.agent.md` | Estimate token cost from latency | Removed inference; keep recorded-usage analysis and recommendations-only output. Recursive subagent coverage/snapshot behavior remains a follow-up. |
+| `e2e-orchestrator.agent.md` | Continue with incomplete governance; unattended must-fix | Fixed both forward-progress paths to E2E_BLOCKED. Retain harness-specific extra reviews, never count them as production parity. |
+| `_subagents/bicep-validate-subagent.agent.md` | Four baseline tags; digest tier; combined lint/review | Fixed tag contract and obsolete skill tier. Keep rendered-property/L2 verification; compiled-output retention deserves separate execution test. |
+| `_subagents/terraform-validate-subagent.agent.md` | Four baseline tags; digest tier; refresh-free plan | Fixed tags/tier; keep format/validate/RBAC/L2. Plan authority and initialized-directory freshness remain explicit follow-ups. |
+| `_subagents/bicep-whatif-subagent.agent.md` | Deploy classified No-op | Fixed to unknown changes requiring review; keep delete warnings, authentication and no deployment authority. |
+| `_subagents/terraform-plan-subagent.agent.md` | Initialize only if .terraform absent | Keep preview/address ownership. Propose validating changed module/backend/workspace inputs before reusing initialization. |
+| `_subagents/cost-estimate-subagent.agent.md` | Lowest complete estimate; region/capacity projection | Keep bounded pricing/provenance. Cheapest candidate is advisory; multi-environment quantities need dedicated comparison before changing. |
+| `_subagents/policy-precheck-subagent.agent.md` | Deterministic gate handled STALE but not missing evidence | Fixed with contract and executable validator fixtures; retain informational drift and live policy ownership. |
+| `_subagents/challenger-review-subagent.agent.md` | JSON-only versus compact-summary return | Keep independent reviewer. Propose contract-example/field alignment against existing schema before changing caller parsing. |
+
+### Skill Dispositions
+
+Paths are `.github/skills/<name>/SKILL.md`. Native discovery is a consumer; no explicit agent call does not mean unused.
+Imported directories and metadata were retained. These rows assess complete entry-point bodies and targeted references.
+
+| Skill | Body Evidence / Unique Capability | Disposition |
+| --- | --- | --- |
+| `agent-authoring` | Do not load for routine edit | Keep major restructuring/model/handoff guidance on demand. |
+| `azure-adr` | One decision per ADR | Keep alternatives/rationale distinct from diagrams and plans. |
+| `azure-artifacts` | Load only the step; Post-write validation | Keep templates and shape contracts; short safety cheat sheets intentionally repeat. |
+| `azure-bicep-patterns` | Canonical precedence; module interfaces | Keep Bicep-specific composition; not equivalent to Terraform patterns. |
+| `azure-cloud-migrate` | Never modify source directory | Keep cross-cloud conversion boundary and prepare handoff. |
+| `azure-compliance` | Separate reporting from remediation | Keep posture/expiry assessment; orphan discovery supports a different question from cost/inventory. |
+| `azure-compute` | No Azure subscription required | Keep public-data VM/VMSS selection distinct from estate cost optimization. |
+| `azure-cost-optimization` | Based on actual usage data | Keep rightsizing/spend evidence; greenfield pricing should not be routed here by default. |
+| `azure-defaults` | Load only needed reference | Keep precedence/naming/security workflow; canonical values stay in Copilot instructions. |
+| `azure-deploy` | Pre-deploy checklist; generic plan proof | Keep execution/recovery; recommend explicit separation from APEX handoff inputs and reuse unchanged confirmed context. Approval pending. |
+| `azure-diagnostics` | Resource health before deep logs | Keep operational incident diagnosis; appropriate Log Analytics troubleshooting owner. |
+| `azure-governance-discovery` | Single batched REST traversal | Keep deterministic envelope, exit codes and cache freshness; no invented cache key. |
+| `azure-kusto` | Against Azure Data Explorer | Keep ADX analytics; generic prepare's Log Analytics mapping is a routing candidate, not grounds for merging. |
+| `azure-prepare` | Load references and related skills | Keep preparation; propose availability-aware external-skill routing and APEX/generic entry separation. |
+| `azure-quotas` | No 1:1 quota-name mapping | Keep capability discovery and capacity checks before deployment. |
+| `azure-rbac` | Least privilege first | Keep role selection distinct from Entra app registration. |
+| `azure-resources` | Do not auto-visualize lookup results | Keep inventory and explicitly requested visualization modes. |
+| `azure-storage` | Managed Identity over keys | Fixed data-plane examples to Entra login and scoped RBAC; retain service/SDK references. |
+| `azure-validate` | MUST invoke azure-deploy | Keep readiness/proof ownership; recommend validation-only stop and explicit APEX route, not generic auto-planning. Approval pending. |
+| `context-management` | Runtime artifact compression and log audit | Fixed latency methodology; keep separate runtime/audit modes and recovery. Compression is not evidence of model compliance. |
+| `docs-writer` | Excludes agent-output | Fixed site-header and unsupported validation examples in references; keep repository/site freshness distinct from artifact generation. |
+| `entra-app-registration` | Least-privilege API permissions | Keep OAuth/MSAL/app identities, with RBAC redirect for resource permissions. |
+| `github-operations` | gh CLI by default | Keep contribution lifecycle and authentication constraints; no merge authorized in this work. |
+| `golden-principles` | Load reference for decision-making | Keep principles distinct from executable procedure; avoid duplicating into every agent. |
+| `iac-common` | Full decision matrix; shared execution contracts | Trimmed duplicate comparison/env prose in references, retained paths and approvals. Generic/APEX preflight boundary needs approved redesign. |
+| `mermaid` | Diagrams embedded in Markdown fences | Keep inline diagram use distinct from rendered architecture images. |
+| `microsoft-docs` | Search first, fetch second | Keep official retrieval distinct from domain decisions and pricing. |
+| `python-diagrams` | PNG and SVG; shared diagram_io | Keep rendered architecture/charts and visual conventions. |
+| `terraform-patterns` | Set-type phantom diffs | Fixed ignore_changes qualifier: only externally managed blocks. Keep Terraform-owned drift visible. |
+| `terraform-search-import` | Adopt AVM after import | Keep brownfield adoption, not greenfield generation; native discovery is valid reachability. |
+| `terraform-test` | Specific-file and debug CLI examples | Fixed file filters and unsupported flags; preserved apply authorization and cleanup investigation. |
+| `vendor-prompting` | rules.json source of truth | Keep vendor-specific auditing and thin enforcement layer; not generic Markdown rules. |
+| `workflow-engine` | Separate refinement routes | Keep graph semantics and routing; earlier routing corrections remain valid. |
+
+### Instruction And Root Ownership
+
+Instruction file names below are relative to `.github/instructions/`.
+Authoring `applyTo` scope is not proof of runtime attachment; protected in-body safety anchors remain.
+
+| File | Evidence / Owner | Disposition |
+| --- | --- | --- |
+| `agent-authoring.instructions.md` | Frontmatter canonical model; handoff structure | Keep structural rules and runtime safety anchors; no speculative extraction. |
+| `agent-operating-frame.instructions.md` | applyTo does not establish runtime attachment | Keep phase/freshness/ownership rules and post-write cheat sheet. |
+| `agent-skills.instructions.md` | Discovery name/description; reread budget | Keep skill authoring; structural-validator description can be clarified without claiming runtime enforcement. |
+| `astro.instructions.md` | Framework/base configuration | Fixed stale version/base declarations to current configuration sources; keep site framework rules. |
+| `azure-artifacts.instructions.md` | Revision workflow | Fixed create-file overwrite exception and duplicated cost claims; keep template and hook ownership. |
+| `azure-yaml.instructions.md` | infra.path relative to manifest | Keep project-isolation rules; distinct file scope. |
+| `code-quality.instructions.md` | WHY comments; language precedence | Keep cross-language review guidance; language rules remain separate. |
+| `context-optimization.instructions.md` | Targeted edits; structural limits | Fixed tool capability/cost claims; blanket delegation heuristics remain an approval-gated simplification proposal. |
+| `docs.instructions.md` | Site title, template order and asides | Consolidated site-only guidance and corrected H1/version rules; equivalent scope verified. |
+| `docs-trigger.instructions.md` | Update docs when source changes | Keep separate: merging into site-only scope would lose source-edit triggers. |
+| `github-actions.instructions.md` | Permissions/actions/Node execution | Keep CI-specific owner; external version freshness not certified here. |
+| `governance-discovery.instructions.md` | No governance from assumptions | Keep provenance and failure gate; not duplicate of code authoring checks. |
+| `iac-bicep-best-practices.instructions.md` | Unique suffix and Bicep interfaces | Corrected canonical source pointer; keep Bicep scope and policy translation. |
+| `iac-plan-best-practices.instructions.md` | Tags from governance; deployment plan | Keep cross-track planning obligations. |
+| `iac-terraform-best-practices.instructions.md` | Exact module pins; remote backend | Corrected canonical source pointer; keep Terraform-specific constraints. Provider-range prose deserves targeted follow-up. |
+| `instructions.instructions.md` | Actual glob is instruction files | Keep instruction authoring; Python example is not scope and does not justify a merger. |
+| `javascript.instructions.md` | ESM; guarded CLI entrypoint | Keep Node owner; recommend shared parser reuse rather than another parser example. |
+| `json.instructions.md` | JSONC/newlines; generated governance | Keep data-format and generation ownership. |
+| `lesson-collection.instructions.md` | Orchestrator retrospective | Keep lifecycle trigger; clarify recall-mediated state updates in follow-up. |
+| `markdown-docs.instructions.md` (retired) | Same site scope as docs instruction | Merged unique template/style/MDX rules into docs.instructions; source triggers unchanged. |
+| `markdown.instructions.md` | Broad fences/headings/line length | Keep cross-cutting baseline; redirected site-specific reference to consolidated owner. |
+| `no-hardcoded-counts.instructions.md` | Manifest owns counts | Keep drift prevention; historical inventory counts are not current fleet metrics. |
+| `no-heredoc.instructions.md` | Use editing tools | Keep file-write integrity boundary; not equivalent to interactive-shell safety. |
+| `no-interactive-shell.instructions.md` | Noninteractive and output hygiene | Keep chat-context snippet scope; no forced overwrite authorization implied. |
+| `powershell.instructions.md` | CmdletBinding/help and pipelines | Keep language-specific public API rules. |
+| `prompt.instructions.md` | Reusable prompt inputs/output | Keep authoring scope; vendor effective-model rules remain more specific. |
+| `python.instructions.md` | Python/Ruff/diagrams | Keep language owner; root type-checking attribution needs correction, not a file merge. |
+| `shell.instructions.md` | Structured parsing and shell safety | Keep script owner; distinguish POSIX from Bash options in follow-up. |
+| `sku-manifest.instructions.md` | JSON canonical and shared mutations | Keep creative SKU ownership and deterministic rendering; do not duplicate selections in prose. |
+| `vendor-prompting.instructions.md` | Model-specific skeleton/rules | Keep enforced vendor layer, existing validators and registry. |
+| `AGENTS.md` (root) | Setup/checks/workflow/contribution | Keep repository entry point; removed approximate validator count, retained workflow safety summary. |
+| `.github/copilot-instructions.md` | Canonical Azure values and recall | Scope Azure-reference obligation to Azure-producing guidance; keep canonical values and recall semantics. |
+| `infra/bicep/AGENTS.md` | Subtree build/auth/SKU contract | Fixed deprecated tag list to canonical policy-first source; retain independent CLI auth checks. |
+| `infra/terraform/AGENTS.md` | Subtree backend/provider/SKU contract | Removed duplicate tag list; retain backend and Terraform-specific commands. |
+| `site/src/content/docs/concepts/how-it-works/agents.md` | User-facing roles/gates | Fixed tag/review/model-override claims and batched decisions; explanatory page is not runtime authority. |
+
+### Supporting Tooling And Overengineering
+
+| Component | Evidence / Disposition | Risk And Verification |
+| --- | --- | --- |
+| npm graph / validate-all | Fixed unknown suite returning empty success | Actual CLI and graph fixtures cover absent/delegated/invalid names and valid execution. Unknown aggregate members remain a separate parser-hardening candidate. |
+| E2E benchmark / step harness | Fixed identical artifact command executed through two aliases | Stubbed all pass/fail combinations; retained weights, fields and public aliases. Removed production-ready claim. |
+| Policy precheck validator | Fixed missing/invalid envelope success | Isolated copied validator fixtures cover fresh, stale, missing, unknown and failure; no cloud calls. |
+| Agent full/subset validation | Full dispatcher includes workflow-handoffs | Removing subset from aggregate suites is a concrete follow-up; retain standalone command and failure coverage. |
+| Lefthook | Source-H2 and artifact globs overlap only for some commits | Keep distinct boundaries for now; proposed union must also fix template-only inner-filter gap. No blanket hook merger. |
+| Local/CI suites | Different checks and event boundaries | Keep profiles; instruction checks already exist in CI. Do not replace with dynamic shell-generated suites. |
+| Module/subprocess runner | In-process caches versus isolated child execution | Keep existing JSON/Ajv/index caches and Python isolation. No new cache/framework warranted. |
+| Docs checks/deployment | Some event/path build and lint overlap | Propose event ownership matrix before reuse; preserve required checks, fork permissions and build provenance. |
+| Tool Guardian / SubagentStop | Pre-execution prevention versus post-output advisory checks | Keep distinct events and contracts; no duplicate-binding evidence. |
+| Hook tests | pre-commit assertion finds pre-push parallel setting | Concrete test-quality follow-up: parse correct section; preserve serialized index writes. |
+| Snapshot/diff tools added earlier | Provenance/hash validation | Keep reproducible evidence; do not require fresh snapshots for every read-only investigation. |
+| Measurement/profiler/redundancy tools | Unknown usage, span identity and context boundaries | Keep repaired distinct metrics; no new telemetry framework. Existing tests remain required. |
+
+### Ranked Proposals And Decisions
+
+1. **Fail closed on unattended blockers: approved and implemented.** Production and benchmarks stop on
+  unresolved must-fix, regardless of deferred/accepted decision labels. Canonical protocol and consumers agree;
+  isolated named-agent probe checked deferred, accepted-without-fix, advisory-only and unauthorized-production cases.
+  This is protocol enforcement, not a claim that recall's presence-only gate validates finding dispositions.
+2. **Separate APEX from generic application entry points: recommended, not yet approved.** Keep generic plan/proof
+  files for generic app flows; APEX consumes its approved handoff/environment contracts without restarting prepare.
+  Validation-only intent must return validation results, not initiate deployment. Test missing plans, both tracks,
+  existing apps, unchanged confirmed subscription/region, changed inputs, and preview/apply authorization.
+  Preserve imported paths; rollback is limited to routing prose. User asked for the best recommendation, not approval.
+3. **Bounded CodeGen batching: experiment approved, adoption withheld.** Candidate maximum is three small related
+  files, one large file, with applicable checks and full completion validation. Resource-free model samples for
+  both tracks compiled locally; recovery preserved matching existing files and stopped on changed files.
+  Baseline source requires three emission turns; it was not a matched generated baseline or measured runtime trial.
+  Shared and Terraform-specific build checkpoints disagree, and the Terraform probe over-requested Challenger review.
+  Therefore output/cadence evidence is inconclusive for production. Keep one-file cadence until representative
+  resource-generating, interrupted-scaffold and failed-build comparisons pass. No numeric token claim.
+4. **Review and preview ownership: preserve mandatory floors.** Do not merge architecture/cost review or remove
+  live L3 checks. Reconcile obsolete shared Deploy review text with the graph, then evaluate one preview producer
+  per exact target/phase/input set. Require policy change, hash mismatch, destroy/replace, and stale evidence cases.
+5. **Agent roles and models: retain specialists; test narrower tools first.** Architecture, Governance, Planner,
+  CodeGen and Deploy have distinct authority. A lower-cost preview-classification model is a future candidate,
+  evaluated against policy errors, unknown Bicep Deploy changes, replacements and empty diffs with identical inputs.
+  No model reassignment or role merger without approval and comparative output evidence.
+6. **Instruction delegation heuristics: recommend making non-safety triggers advisory.** Five tool calls or latency
+  alone does not justify a subagent. Keep required independent reviews and declared budgets; test standalone
+  lookup versus genuinely independent review before replacing blanket delegation rules.
+7. **Consolidate deterministic validation execution, not public interfaces.** E2E duplicate calls fixed; remaining
+  suite/hook/workflow overlap needs invocation/event tests before removal. Keep rollback as small wiring changes.
+8. **Improve report and caller contracts.** Align Diagnose report-writing versus finding registration, Challenger
+  type/field examples, Terraform initializer freshness and per-environment cost quantities. Verify existing schemas
+  and representative consumer fixtures; do not add sidecars or force a new orchestration layer.
+
+### Rejected Claims And Remaining Evidence
+
+Rejected draft findings: operating frame has hundreds of extra lines; cost review is optional; CI lacks instruction
+checks; instruction-authoring applies to Python because an example says so; standalone skills are unused;
+governance is frozen forever; a new governance cache key allows skipping policy content; latency estimates tokens;
+all duplicate npm aliases execute twice; new validators are needed for already-enforced model/handoff rules.
+No deletion or scope narrowing relied on those claims. Initial delegated drafts were not accepted as evidence.
+
+This audit covers the requested bodies and targeted support-tool behavior. It does not certify every transitive
+reference, graphical VS Code handoff, actual tool-schema attachment, all generated artifacts, or Azure deployment.
+The unchanged-cadence production workflow still needs human output/UI acceptance. Remaining proposals are concrete
+and prioritized; unresolved follow-ups above are not silently labelled fixed or quality-equivalent.
+
 ## Root Inventory
 
 | File                                                                           | Bytes | Disposition                         | Purpose / Scope                                                                                                                      |
@@ -108,7 +318,7 @@ Current dispositions and completed changes are recorded in the
 | [javascript.instructions.md](../../../../.github/instructions/javascript.instructions.md)                                     |  3284 | Keep                       | JavaScript and Node.js conventions for validation scripts and tooling Scope: On-demand semantic discovery                                                                                                                                                                                                                                                                                           |
 | [json.instructions.md](../../../../.github/instructions/json.instructions.md)                                                 |  1592 | Keep                       | JSON and JSONC formatting conventions for configuration and data files Scope: On-demand semantic discovery                                                                                                                                                                                                                                                                                          |
 | [lesson-collection.instructions.md](../../../../.github/instructions/lesson-collection.instructions.md)                       |  2396 | Keep                       | Lesson collection and retrospective protocol for orchestrator agents. Captures process observations during workflow execution and generates lessons-learned artifacts at completion. Scope: On-demand semantic discovery                                                                                                                                                                            |
-| [markdown-docs.instructions.md](../../../../.github/instructions/markdown-docs.instructions.md)                               |  2873 | Compare scope before merge | Documentation site and human-authored markdown style guidance — visual styling, template H2 enforcement, audience-specific rules. Pairs with the broader markdown.instructions.md. Scope: On-demand semantic discovery                                                                                                                                                                              |
+| Retired markdown-docs instruction; now [docs.instructions.md](../../../../.github/instructions/docs.instructions.md) | 2873 | Historical baseline; consolidated | Site template, visual, and MDX guidance preserved in the same-scope owner. |
 | [markdown.instructions.md](../../../../.github/instructions/markdown.instructions.md)                                         |  3651 | Keep                       | Documentation and content creation standards for markdown files Scope: On-demand semantic discovery                                                                                                                                                                                                                                                                                                 |
 | [no-hardcoded-counts.instructions.md](../../../../.github/instructions/no-hardcoded-counts.instructions.md)                   |  2471 | Keep                       | Prevents hard-coded numeric counts for project entities (agents, skills, instructions, validators). Enforces descriptive language and count-manifest.json as single source of truth. Scope: On-demand semantic discovery                                                                                                                                                                            |
 | [no-heredoc.instructions.md](../../../../.github/instructions/no-heredoc.instructions.md)                                     |  3489 | Keep                       | Prevents terminal heredoc file corruption in VS Code Copilot by enforcing use of file editing tools instead of shell redirections Scope: On-demand semantic discovery                                                                                                                                                                                                                               |

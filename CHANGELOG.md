@@ -20,6 +20,18 @@ for full details on this and all prior releases.
 
 ### Changed (Workflow guidance simplification)
 
+- Consolidate same-scope site instructions, preserving template/styling rules and separate source-change triggers.
+  Correct Starlight title ownership in instructions, review prompts, and docs-writer references.
+- Use one combined CodeGen validation worker and policy-first tag checks; preserve required reviews and security gates.
+- Remove repeated artifact validation within E2E checks without changing diagnostic scoring weights or public aliases.
+- Keep handoffs path-based and As-Built reads scoped to requested outputs; preserve full-suite completion requirements.
+- Make unattended reviews fail closed on unresolved blockers, including benchmark runs, following explicit user approval.
+- Validate existing review-cache inputs rather than treating a newly updated discovery signature as review evidence.
+- Correct Terraform test CLI examples, externally managed drift exceptions, and Entra-authenticated Storage examples.
+- Remove latency-to-token inference and unsupported rewrite-cost multipliers; use editing tools for existing artifacts.
+- Reject unknown validation suites and missing policy-envelope evidence; preserve valid informational policy drift.
+- Keep the Terraform azd path behind the existing preview, approval, and live-policy gates.
+  Classify Bicep what-if `Deploy` as unknown changes rather than a no-op.
 - Consolidate workflow routing instructions around the shared IaC planner and declared refinement returns.
   Resume guidance now uses per-step state and track decisions instead of numeric step arithmetic.
 - Reconcile Orchestrator review and handoff rules: keep Plan and separate cost review mandatory,

@@ -384,7 +384,8 @@ Then:
    and later steps pending.
 3. Generate `agent-output/{project}/sku-manifest.json` rev 1 with user pins only.
 4. Render `agent-output/{project}/sku-manifest.md` from the JSON.
-5. Run the targeted artifact checks used by the repo, including template linting when available.
+5. Run applicable non-Markdown shape checks. Artifact Markdown validation belongs to lefthook
+  `artifact-validation` and Challenger; do not invoke it directly.
 6. Record mandatory decisions: `iac_tool`, region, SKU manifest status, and SKU manifest revision.
 7. Checkpoint `phase_5_artifact`.
 8. **Immediately chain into Phase 6a in the same turn.** The next tool
@@ -519,7 +520,7 @@ On `Revise`:
 On `Proceed`, run `apex-recall complete-step <project> 1 --json` and hand off to Architecture.
 
 If `APEX_UNATTENDED=1` is set, bypass `askQuestions` per the protocol's unattended-mode rules and
-emit a chat warning listing every auto-deferred `must_fix`.
+persist deferred decisions. Stop before completion or handoff while any unresolved `must_fix` remains.
 
 ## Required Information
 

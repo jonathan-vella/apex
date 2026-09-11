@@ -13,7 +13,7 @@ CLI commands, parallel execution, verbose/debug modes, and diagnostics.
 terraform test
 
 # Run specific test file
-terraform test tests/defaults_unit_test.tftest.hcl
+terraform test -filter=tests/defaults_unit_test.tftest.hcl
 
 # Verbose output (shows plan/apply details)
 terraform test -verbose
@@ -21,11 +21,8 @@ terraform test -verbose
 # Run tests in a custom directory
 terraform test -test-directory=integration-tests
 
-# Filter tests by run block name
-terraform test -filter=test_resource_group
-
-# Keep resources after test (debug mode)
-terraform test -no-cleanup
+# Select multiple test files (not run-block names)
+terraform test -filter=tests/defaults_unit_test.tftest.hcl -filter=tests/validation_unit_test.tftest.hcl
 ```
 
 ## Parallel Execution (TF 1.9+)
@@ -110,15 +107,6 @@ terraform test -verbose
 
 Shows full plan/apply output for each run block.
 
-### No Cleanup Mode
-
-```bash
-terraform test -no-cleanup
-```
-
-Keeps resources after test completion for manual inspection.
-Resources must be manually destroyed afterwards.
-
 ### Debug Logging
 
 ```bash
@@ -127,18 +115,13 @@ TF_LOG=debug terraform test
 
 Full provider-level debug output for diagnosing authentication or API issues.
 
-### Cache Bypass
-
-```bash
-terraform test -count=1
-```
-
-Skips test cache to force re-execution.
-
 ## Cleanup Behavior
 
 Resources are destroyed in **reverse run block order** after test completion.
 This handles dependency ordering automatically.
+Apply-mode tests require authorization for resource creation and cleanup. If cleanup fails,
+inspect Terraform's reported remaining resources and state before choosing a recovery command;
+do not assume an ordinary `terraform destroy` targets the test's isolated state.
 
 ```text
 Run order:    setup_vpc → create_subnet → deploy_app
@@ -155,7 +138,7 @@ Cleanup:      destroy_app → destroy_subnet → destroy_vpc
 | Long execution            | Use `command = plan` where possible; use mocks          |
 | State conflicts           | Use `state_key` or different modules                    |
 | Unsupported module source | Only local and registry modules supported (no git/HTTP) |
-| Resources not cleaned up  | Use `terraform destroy` manually after `-no-cleanup`    |
+| Resources not cleaned up  | Inspect reported resources/state and perform authorized recovery |
 
 ## Acceptance Test Patterns
 
@@ -173,7 +156,7 @@ export ARM_CLIENT_SECRET="..."
 
 ### Diagnostic Escalation
 
-1. Re-run with `-count=1` to skip cache
+1. Select the failing file with `-filter=tests/<file>.tftest.hcl`
 2. Use `-verbose` for detailed output
-3. Use `TF_LOG=debug` for provider-level logging
-4. Use `-no-cleanup` to inspect created resources
+3. Use `TF_LOG=debug` for provider-level logging; redact sensitive output before sharing
+4. Inspect any cleanup failures and remaining resource/state details

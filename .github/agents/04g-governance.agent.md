@@ -240,8 +240,9 @@ single-clock confirmation rule in
 [`resume-checks.md`](../skills/azure-governance-discovery/references/resume-checks.md).
 
 1. Run `apex-recall show <project> --json`.
-2. If **all 8** conditions pass, skip to Phase 3 (Approval Gate).
-3. Otherwise proceed to Phase 0.45.
+2. If all resume conditions, including review validity, pass, skip to Phase 3 (Approval Gate).
+3. If only review evidence is stale or missing, reuse valid discovery and return to Phase 2.5.
+  Otherwise proceed to Phase 0.45, subject to refresh overrides.
 
 TTL expiry or signature drift bypasses Phases 0.45 and 0.5 and requires
 Phase 1 live discovery with `--refresh`; do not reuse the invalidated snapshot
@@ -403,15 +404,12 @@ no actionable policies — `blockers + auto_remediate + warnings == 0`), skip
 the challenger entirely and proceed to Phase 3. The `step-3_5` node in
 `workflow-graph.json` declares this skip_condition.
 
-**Signature-match skip** (Phase 8 challenger guard): even when
-constraints exist, do NOT call the challenger when BOTH:
-
-1. A challenger pass has already been recorded in this session
-   (`steps.3_5.challenger_invocations_3_5 >= 1` in the apex-recall
-   snapshot), AND
-2. `discovery_metadata.completeness_signature` from the current
-   envelope equals the cached `decisions.discovery_signature` value
-   (the same key set by Phase 1 — see the locked F4 / G3 resolutions).
+**Signature-match skip** (Phase 8 challenger guard): reuse a completed review only when
+its existing `cache_inputs` match the current artifact, checklist, protocol, subagent, and model
+per the canonical Findings Cache procedure, and the reviewed architecture and governance inputs
+are unchanged. Missing evidence or unresolved blocking findings requires a fresh review.
+An invocation count or `decisions.discovery_signature` alone is not review freshness evidence:
+Phase 1 updates that signature before review. Do not add a new cache key.
 
 When the signature-match skip fires, record it via `apex-recall finding`
 for traceability (the `review-audit` schema is fixed and cannot carry
@@ -425,9 +423,9 @@ apex-recall finding {project} \
   --json
 ```
 
-**Performance note**: When re-invoked to address challenger findings, this
-agent MUST hit the Phase 0.5 cache — fixing artifact content never requires
-rediscovering policies. Do not re-run Phase 1 between challenger passes.
+**Performance note**: Reuse fresh discovery when revising artifact prose alone.
+TTL expiry, signature drift, or explicit refresh still requires live discovery;
+changed review inputs invalidate the review cache even when discovery is reusable.
 
 1. Delegate to `challenger-review-subagent` via `#runSubagent`:
    - `artifact_path` = `agent-output/{project}/04-governance-constraints.md`

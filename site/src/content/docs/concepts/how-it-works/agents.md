@@ -25,7 +25,7 @@ handoffs:
 2. **Read** `.github/skills/azure-artifacts/SKILL.md`
 ```
 
-1. Model selection — the Orchestrator can override this based on task complexity
+1. Model selection — agent frontmatter is authoritative; changes require explicit approval
 2. Tool allowlist — agents only access tools they need
 3. Handoff target — the next agent in the workflow
 4. Skills are loaded on demand to preserve context budget
@@ -93,7 +93,7 @@ every downstream agent reads them via `apex-recall show <project>
 **`review_depth` values**:
 
 - `default` — one comprehensive challenger pass at Steps 1, 2, 4 (plus
-  `governance-reconciliation` at Step 3.5). Right for most workshops,
+  a separate cost-feasibility review at Step 2 and `governance-reconciliation` at Step 3.5). Right for most workshops,
   MVPs, and single-region projects.
 - `deep` — rotating-lens multi-pass cascade per
   [`adversarial-review-protocol.md`](https://github.com/jonathan-vella/apex/blob/main/.github/skills/azure-defaults/references/adversarial-review-protocol.md)
@@ -129,7 +129,7 @@ silently assumes a non-default value.
 | ---- | --------------------------------- | ---------------------------------------------------------------- | ----------------------------------- |
 | 2    | SKU confirmation (before pricing) | Approve / Revise / Discuss                                       | `sku_confirmation_status`           |
 | 2    | Budget gate (after pricing)       | Approve / Revise SKUs / Revise requirements                      | `budget_decision`                   |
-| 2    | Per-finding decisions             | Accept / Skip / Defer (one question per finding — never batched) | `decision_log`                      |
+| 2    | Per-finding decisions             | Accept / Reject / Defer / Edit; independent questions in a batched panel | `decision_log` |
 | 3    | Diagram generator                 | Python diagrams                                                  | `diagram_tool`                      |
 | 3.5  | Phase 2.7 resolution              | RG tag keys + casing, allowed locations (two questions)          | `tag_contract`, `governance_status` |
 
@@ -139,13 +139,10 @@ The full registry of valid decision keys lives at
 `apex-recall decide --key` reference in an agent file appears in the
 registry.
 
-**Tag schema (greenfield projects)**: when Governance Discovery finds
-no tag policy at any inherited scope, projects use the lowercase
-`environment, owner, costcenter, project` set per CAF tag-strategy
-guidance (see `.github/skills/azure-defaults/references/tag-strategy.md`).
-The legacy PascalCase 4-tag set (`Environment`, `ManagedBy`,
-`Project`, `Owner`) is a deprecated convention retained only for
-backward compatibility on existing projects.
+**Tag schema**: discovered Azure Policy defines required keys, values, and casing.
+When no inherited tag policy applies, use the canonical greenfield fallback in
+`.github/copilot-instructions.md` rather than another tag list.
+Legacy casing is preserved only under that source's compatibility rule; `ManagedBy` is optional provenance.
 
 **SKU manifest MD ↔ JSON sync**: the human-readable
 `agent-output/{project}/sku-manifest.md` is rendered deterministically
@@ -162,7 +159,7 @@ specific tasks:
 
 | Subagent                    | Purpose                            | Invoked By          |
 | --------------------------- | ---------------------------------- | ------------------- |
-| challenger-review-subagent  | Adversarial review of artifacts    | Steps 1, 2, 4, 5, 6 |
+| challenger-review-subagent  | Adversarial review of artifacts    | Required at Steps 1, 2, 3.5, 4; opt-in at Design and CodeGen |
 | cost-estimate-subagent      | ARM MCP pricing queries            | Steps 2, 7          |
 | bicep-validate-subagent     | Lint + AVM/security code review    | Step 5 (Bicep)      |
 | bicep-whatif-subagent       | `az deployment what-if` preview    | Step 6 (Bicep)      |
@@ -188,9 +185,9 @@ See `.github/skills/azure-defaults/references/adversarial-review-protocol.md`
 the full routing table and conditional skip rules.
 :::
 
-- **1-pass review** (comprehensive): A single review covering all dimensions. This is the
-  **default for all steps**. Used for requirements (Step 1), architecture (Step 2), deploy (Step 6),
-  and optionally for planning (Step 4) and code (Step 5).
+- **Default review**: comprehensive review is mandatory for Requirements, Architecture, and IaC Plan.
+  Architecture also requires an independent cost-feasibility review. Governance uses reconciliation;
+  Design and CodeGen review are opt-in. Deploy has no Challenger review; live policy precheck remains required.
 - **Multi-pass review** (rotating lenses, opt-in): Multiple separate reviews, each focused on a
   specific dimension (security, reliability, cost). Available for architecture (Step 2),
   planning (Step 4), and code (Step 5) when explicitly requested. Recommended for complex projects.
@@ -200,7 +197,7 @@ Findings are classified as `must_fix` (blocking) or `should_fix` (advisory). Onl
 
 **Conditional passes (when multi-pass is opted in)**: Pass 3 of the rotating lens review is
 conditional — it only runs if Pass 2 returned ≥1 `must_fix` finding. If Pass 2 returns zero
-`must_fix` items, Pass 3 is skipped entirely, saving approximately 4 minutes per review cycle.
+  `must_fix` items, Pass 3 is skipped entirely. Runtime savings depend on the actual review.
 
 **Context Shredding for Challenger Inputs**: The challenger is instructed to apply
 context compression tiers when loading predecessor artefacts for review:

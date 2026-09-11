@@ -32,8 +32,8 @@ For every `must_fix` finding across all passes:
    `apex-recall checkpoint <project> 4 phase_5_must_fix_applied --json`.
 
 **Unattended mode (`APEX_UNATTENDED=1`)**: skip auto-apply; defer all
-`must_fix` per adversarial-review-protocol section 2d (the unattended
-orchestrator owns mandatory-fix handling for benchmark runs).
+`must_fix` per adversarial-review-protocol section 2d and STOP before completion or forward handoff
+while any remains unresolved. Benchmark auto-approval does not waive this gate.
 
 ## Stage 2 — Interactive `should_fix` decisions (same chat session)
 

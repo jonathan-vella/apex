@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
@@ -7,6 +7,68 @@ import { fileURLToPath } from "node:url";
 import { test } from "node:test";
 
 const script = fileURLToPath(new URL("../../scripts/validate-challenger-presence.mjs", import.meta.url));
+
+test("policy precheck fails closed without fresh or explicitly stale envelope evidence", (context) => {
+  const contract = readFileSync(
+    new URL("../../../.github/skills/iac-common/references/policy-precheck-contract.md", import.meta.url),
+    "utf8",
+  );
+  assert.match(contract, /if render_failed or rest_failed or envelope_status not in \["FRESH", "STALE"\]:/);
+  const root = mkdtempSync(path.join(tmpdir(), "apex-precheck-"));
+  context.after(() => rmSync(root, { recursive: true, force: true }));
+  const scripts = path.join(root, "tools/scripts");
+  mkdirSync(path.join(scripts, "_lib"), { recursive: true });
+  for (const file of ["validate-policy-precheck.mjs", "_lib/reporter.mjs"]) {
+    copyFileSync(new URL(`../../scripts/${file}`, import.meta.url), path.join(scripts, file));
+  }
+  const project = path.join(root, "agent-output/demo");
+  mkdirSync(project, { recursive: true });
+  const run = (envelopeStatus, status, deployGate) => {
+    writeFileSync(
+      path.join(project, "06-policy-precheck.json"),
+      JSON.stringify({
+        schema_version: "policy-precheck-v2",
+        status,
+        deploy_gate: deployGate,
+        policies_that_will_block_deploy: [],
+        what_if_summary: { policy_violations_in_what_if: 0 },
+        attestation: { envelope_status: envelopeStatus },
+      }),
+    );
+    return spawnSync(process.execPath, [path.join(scripts, "validate-policy-precheck.mjs")], { encoding: "utf8" });
+  };
+  for (const envelope of [undefined, "MISSING", "UNKNOWN", "", null]) {
+    const invalid = run(envelope, "CLEAN", "PROCEED");
+    assert.equal(invalid.status, 1, String(envelope));
+    assert.match(invalid.stdout + invalid.stderr, /Missing or invalid envelope evidence/);
+    assert.equal(run(envelope, "FAILED", "BLOCK").status, 0);
+  }
+  assert.equal(run("FRESH", "CLEAN", "PROCEED").status, 0);
+  assert.equal(run("FRESH", "INFORMATIONAL", "PROCEED").status, 0);
+  assert.equal(run("STALE", "INFORMATIONAL", "BLOCK").status, 0);
+  assert.equal(run("STALE", "CLEAN", "PROCEED").status, 1);
+});
+
+test("unattended production and benchmark reviews fail closed on unresolved blockers", () => {
+  const read = (file) => readFileSync(new URL(`../../../${file}`, import.meta.url), "utf8");
+  const protocol = read(".github/skills/azure-defaults/references/adversarial-review-protocol.md");
+  const unattended = protocol.split("### 2d. Unattended mode")[1].split("### 2e.")[0];
+  assert.match(unattended, /unresolved `must_fix` remains, \*\*STOP\*\*/);
+  assert.match(unattended, /production and benchmark runs/);
+  assert.match(unattended, /current review evidence confirming resolution/);
+  assert.match(unattended, /Never infer production approval/);
+  assert.doesNotMatch(unattended, /Final aggregated gate auto-proceeds/);
+  const challenger = read(".github/agents/10-challenger.agent.md");
+  assert.doesNotMatch(challenger, /auto-proceed/);
+  assert.match(challenger, /stop on unresolved `must_fix`/);
+  const e2e = read(".github/agents/e2e-orchestrator.agent.md");
+  assert.doesNotMatch(e2e, /continue to next steps with WARNING/);
+  assert.match(e2e, /unresolved `must_fix` count > 0:[\s\S]{0,100}`E2E_BLOCKED`/);
+  assert.match(
+    read(".github/skills/iac-common/references/iac-planner-approval-gate.md"),
+    /Benchmark auto-approval does not waive/,
+  );
+});
 
 test("Planner finding choices agree with its canonical approval reference", () => {
   const read = (file) => readFileSync(new URL(`../../../${file}`, import.meta.url), "utf8");

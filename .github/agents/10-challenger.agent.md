@@ -87,7 +87,7 @@ the Orchestrator with an apply summary.
     finding's mitigation requires changes elsewhere, classify as
     `defer` with a note pointing to the owning agent.
   - Honor `APEX_UNATTENDED=1` per protocol section 2d (auto-defer,
-    no apply, no `askQuestions`).
+    no apply, no `askQuestions`; stop on unresolved `must_fix`).
 - Failure handling:
   - If `challenger-review-subagent` errors, times out, or returns
     malformed/absent JSON (distinct from a clean review with findings),
@@ -245,7 +245,7 @@ Decision Protocol** so the user can apply selected fixes and proceed.
      `challenge-findings-{artifact_type}-decisions.json` per 2c so a
      repeated run is idempotent.
    - Honor `APEX_UNATTENDED=1` per 2d (skip the panel, auto-defer all,
-     auto-proceed).
+     stop on unresolved `must_fix`; otherwise require existing unattended approval scope).
    - Persist each answer to the sidecar + `apex-recall finding` per 2i.
 2. **Present the final aggregated gate** per protocol section 2l with
    options:

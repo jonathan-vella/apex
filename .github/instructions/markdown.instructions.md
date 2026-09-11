@@ -43,8 +43,8 @@ Use the appropriate diagram skill for each output type:
 - **Inline markdown diagrams** → `mermaid` skill (fenced code blocks)
 
 > **Audience-specific guidance** — for human-authored documentation in
-> `site/src/content/docs/**` and `docs/**`, additional visual + template
-> rules live in `markdown-docs.instructions.md`. For agent-generated
+> `site/src/content/docs/**`, additional visual + template
+> rules live in `docs.instructions.md`. For agent-generated
 > artifacts in `agent-output/**`, H2 template compliance is enforced by
 > `azure-artifacts.instructions.md`.
 

@@ -119,7 +119,12 @@ for (const file of precheckFiles) {
     //   5. informational drift, not accepted → PROCEED + INFORMATIONAL
     //   6. otherwise → PROCEED + CLEAN
     const isStale = envelopeStatus === "STALE";
-    const expectedBlock = status === "FAILED" || hasBlocker || isStale;
+    const invalidEnvelope = !["FRESH", "STALE"].includes(envelopeStatus);
+    if (invalidEnvelope && status !== "FAILED") {
+      r.error(relPath, "Missing or invalid envelope evidence requires status=FAILED and deploy_gate=BLOCK");
+      continue;
+    }
+    const expectedBlock = status === "FAILED" || hasBlocker || isStale || invalidEnvelope;
     const expectedProceed = !expectedBlock;
 
     if (expectedBlock && deployGate !== "BLOCK") {

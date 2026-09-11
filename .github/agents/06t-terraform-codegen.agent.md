@@ -385,14 +385,13 @@ Also generate `deploy.sh` + `deploy.ps1` (deprecated fallback) per
 `main.tfvars.json` mapping `${AZURE_LOCATION}` / `${AZURE_ENV_NAME}`
 (plus project-specific variables) to TF variables.
 
-### Phase 4: Validation (Subagent-Driven — Parallel)
+### Phase 4: Validation (Combined Subagent)
 
-Invoke both validation subagents in parallel via simultaneous `#runSubagent` calls
-(independent checkers — syntax/fmt vs standards — on the same code):
+Invoke the listed validation subagent once; it runs lint and code review:
 
 1. `terraform-validate-subagent` (path: `infra/terraform/{project}/`) — expect APPROVED (runs lint then review)
 
-Await both results. Both must pass before Phase 4.5.
+Await APPROVED before Phase 4.5. Do not invent a separate lint or review worker.
 
 If a subagent **errors or times out** (distinct from returning a
 `NEEDS_REVISION`/`FAILED` verdict), apply the `iac-common` bounded-retry

@@ -75,7 +75,9 @@ infra/bicep/{project}/
 
 - **AVM-first**: Use `br/public:avm/res/{provider}/{resource}:{version}` for all resources that have an AVM module
 - **Unique suffix**: Generate `uniqueString(resourceGroup().id)` once in `main.bicep`, pass to all modules
-- **Tags**: Every resource gets the 4 required tags (`Environment`, `ManagedBy: Bicep`, `Project`, `Owner`)
+- **Tags**: Use the discovered policy contract, including casing. When no tag policy applies, use the
+  [canonical greenfield fallback](../../.github/copilot-instructions.md#required-tags-azure-policy-enforced).
+  `ManagedBy` is optional provenance, not a required tag.
 - **Parameters**: Use `@description()` decorator on every parameter
 - **Security**: TLS 1.2, HTTPS-only, managed identity, no public blob access, Azure AD-only SQL auth
 - **No hardcoded secrets**: Use Key Vault references for sensitive values

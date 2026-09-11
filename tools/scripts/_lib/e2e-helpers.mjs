@@ -17,6 +17,21 @@
 import fs from "node:fs";
 import path from "node:path";
 
+export const ARTIFACT_VALIDATION_COMMAND = "npm run lint:artifact-templates --silent 2>&1";
+
+export function scoreStructuralChecks(runCommand) {
+  const artifactPass = runCommand(ARTIFACT_VALIDATION_COMMAND);
+  const sessionPass = runCommand("npm run validate:session-state --silent 2>&1");
+  return {
+    score: (artifactPass ? 70 : 0) + (sessionPass ? 30 : 0),
+    checks: [
+      `artifact-templates: ${artifactPass ? "PASS" : "FAIL"}`,
+      `h2-sync: ${artifactPass ? "PASS" : "FAIL"}`,
+      `session-state: ${sessionPass ? "PASS" : "FAIL"}`,
+    ],
+  };
+}
+
 /**
  * Detect the IaC tool for a run from its `00-session-state.json`.
  * Falls back to `"bicep"` when the file is missing or unreadable.

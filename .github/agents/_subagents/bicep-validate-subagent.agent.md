@@ -151,8 +151,8 @@ Before composing findings:
 
 1. Read every `.bicep` and `.bicepparam` file under the supplied directory.
 2. Re-read the lint and build console output collected in Phase 1.
-3. Re-read `04-governance-constraints.md` (and `.json` envelope when present)
-   for the project, plus the relevant `azure-defaults` digest tier.
+3. Inspect the project's governance JSON and relevant Markdown details, plus required
+  `azure-defaults/SKILL.md` sections. Reuse current content still available; there is no skill digest tier.
 4. For every finding, quote the exact resource block, parameter declaration,
    or diagnostic line that triggered it. Paraphrasing in `Detailed Findings`
    is a defect — copy the offending text inside backticks.
@@ -235,8 +235,8 @@ generic statements.
 1. **AVM module usage** (HIGH) — every resource uses `br/public:avm/res/*`
    with a version pinned to the `azure-defaults` reference list.
 2. **CAF naming and required tags** (HIGH) — names follow the CAF patterns
-   in `azure-defaults`; every resource carries the four baseline tags plus
-   `ManagedBy: 'Bicep'`.
+  in `azure-defaults`; validate tag keys, values, and casing against the discovered policy contract.
+  Use the canonical greenfield fallback only when no tag policy applies. `ManagedBy` is optional provenance.
 3. **Security baseline** (CRITICAL) — TLS 1.2+, HTTPS-only, no public blob
    access, Azure AD-only SQL auth, managed identities, Key Vault for
    secrets, per the `azure-defaults` security baseline.
@@ -281,7 +281,7 @@ results. Routing:
 
 Any of the three forces `Overall Status: FAILED`.
 
-- Tag count matches governance constraints (four baseline + discovered).
+- Required tag keys, values, and casing satisfy governance constraints; counts alone are insufficient.
 - Every Deny policy is satisfied in the resource config.
 - `publicNetworkAccess` disabled for production data services
   (dev/test environments may exempt per project policy).
@@ -325,8 +325,7 @@ Detailed Findings:
   `br/public:avm/res/storage/storage-account:<pinned>`.
 - main.bicep:1 [CRITICAL] missing security baseline: `supportsHttpsTrafficOnly`
   and `minimumTlsVersion: 'TLS1_2'` not set.
-- main.bicep:1 [HIGH] required tags absent (Environment, Project, Owner,
-  ManagedBy).
+- main.bicep:1 [HIGH] required tags from the discovered policy contract are absent.
 
 Verdict: FAILED
 Recommendation: Convert to the AVM storage-account module and re-run lint.

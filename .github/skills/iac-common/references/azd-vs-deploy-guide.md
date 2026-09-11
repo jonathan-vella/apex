@@ -122,7 +122,7 @@ Before `azd provision --no-prompt`, verify these values are set:
 
 ```bash
 azd env get-values
-# Must have: AZURE_SUBSCRIPTION_ID, AZURE_LOCATION, AZURE_ENV_NAME
+# Must have: AZURE_SUBSCRIPTION_ID, AZURE_RESOURCE_GROUP, AZURE_LOCATION, AZURE_ENV_NAME
 # If missing:
 azd env set AZURE_SUBSCRIPTION_ID "$(az account show --query id -o tsv)"
 azd env set AZURE_LOCATION swedencentral

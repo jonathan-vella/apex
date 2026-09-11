@@ -41,8 +41,15 @@ Skip to Phase 3 (Approval Gate) only if **every** check passes:
    snapshot they were recorded against has NOT changed.
 8. **No explicit refresh request** — the user did NOT ask for `refresh`,
    `re-run`, or `rediscover`.
+9. **Review validity** — if constraints require reconciliation review, the completed review's
+   `cache_inputs` match the current artifact, checklist, protocol, subagent, and model, and the reviewed
+   architecture and governance inputs are unchanged with no unresolved blockers. Use the existing
+   Findings Cache procedure; invocation counts and discovery signatures alone do not establish this.
+   When the graph permits skipping review because no actionable constraints exist, preserve that exception.
 
-If any check fails, proceed to Phase 0.45. **Signature drift OR TTL
+If only review validity fails while discovery and confirmations remain valid, go to Phase 2.5
+for reconciliation review; do not rediscover unchanged policy solely to refresh review evidence.
+For other failed checks, proceed to Phase 0.45 subject to the refresh overrides below. **Signature drift OR TTL
 expiry forces a full pass** — the prior Phase 2.7 confirmations against a
 stale snapshot are NOT trusted (locked S3 decision: single clock;
 confirmations age transitively with the snapshot they were recorded

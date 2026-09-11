@@ -181,7 +181,7 @@ what-if --location {location}`.
    | `+`    | `Create`   | New resource                  | Low  |
    | `~`    | `Modify`   | Existing resource changing    | Med  |
    | `-`    | `Delete`   | Resource being removed        | High |
-   | `=`    | `Deploy`   | No-op deploy                  | None |
+    | `=`    | `Deploy`   | Deployment; changes unknown   | Review required |
    | `*`    | `Ignore`   | Excluded from this deployment | None |
    |        | `NoChange` | Untouched                     | None |
 

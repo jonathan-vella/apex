@@ -3,7 +3,9 @@
 export function expandScript(scripts, name, seen = new Set()) {
   if (seen.has(name)) throw new Error(`npm script cycle detected at ${name}`);
   const command = scripts[name];
-  if (!command) return [];
+  if (!Object.hasOwn(scripts, name) || typeof command !== "string" || !command.trim()) {
+    throw new Error(`Unknown or empty npm script: ${name}`);
+  }
 
   const nextSeen = new Set(seen).add(name);
   const delegated = command.match(/\bvalidate-all\.mjs\b[^\n]*--suite=([^\s]+)/)?.[1];

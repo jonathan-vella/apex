@@ -30,7 +30,7 @@ npm run validate:agent-registry          # Registry shape (file path, model, ste
 npm run validate:iac-security-baseline   # TLS/HTTPS/Entra-only/no-public-blob baseline
 npm run lint:safe-shell                  # No interactive shell prompts in committed snippets
 
-# Full list (≈30 scripts) → npm run | grep -E "^  (lint|validate|test):" or
+# Full list → npm run | grep -E "^  (lint|validate|test):" or
 # https://apexops.pro/reference/validation-reference/
 
 # Pre-commit/pre-push hooks (installed via lefthook on `npm run prepare`)

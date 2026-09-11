@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-09-10T18:44:02.128Z",
+  "generatedAt": "2026-09-11T04:12:58.010Z",
   "categories": [
     {
       "id": "agent",
@@ -32,7 +32,7 @@
       "label": "Instruction",
       "color": "#f59e0b",
       "shape": "rectangle",
-      "count": 30
+      "count": 29
     },
     {
       "id": "prompt",
@@ -67,8 +67,8 @@
       "count": 3
     }
   ],
-  "nodeCount": 166,
-  "edgeCount": 623,
+  "nodeCount": 165,
+  "edgeCount": 622,
   "nodes": [
     {
       "id": "agent:01-orchestrator",
@@ -1236,19 +1236,6 @@
       },
       "meta": {
         "applyTo": "**/*orchestrator*.agent.md"
-      }
-    },
-    {
-      "id": "instruction:markdown-docs",
-      "category": "instruction",
-      "label": "markdown-docs",
-      "description": "Documentation site and human-authored markdown style guidance — visual styling, template H2 enforcement, audience-specific rules. Pairs with the broader markdown.instructions.md.",
-      "path": ".github/instructions/markdown-docs.instructions.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/instructions/markdown-docs.instructions.md"
-      },
-      "meta": {
-        "applyTo": "site/src/content/docs/**/*.{md,mdx}"
       }
     },
     {
@@ -4657,12 +4644,6 @@
       "id": "instruction:instructions--applies-to->instruction:lesson-collection",
       "source": "instruction:instructions",
       "target": "instruction:lesson-collection",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:instructions--applies-to->instruction:markdown-docs",
-      "source": "instruction:instructions",
-      "target": "instruction:markdown-docs",
       "kind": "applies-to"
     },
     {

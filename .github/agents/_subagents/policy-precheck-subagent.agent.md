@@ -124,7 +124,8 @@ Recommendation: {specific next action}
 
 `deploy_gate` and `status` derivation (deterministic, in order):
 
-1. Render or REST-stage failure → `deploy_gate=BLOCK`, `status=FAILED`.
+1. Render or REST-stage failure, or missing/invalid envelope evidence
+  (envelope status is neither `FRESH` nor `STALE`) → `deploy_gate=BLOCK`, `status=FAILED`.
 2. `Policies that will block deploy` non-empty OR
    `Policy violations in what-if > 0` →
    `deploy_gate=BLOCK`, `status=BLOCKED`.

@@ -13,9 +13,9 @@
 3. **Load standards**: Read `references/doc-standards.md` for conventions.
 4. **Apply changes**: Follow the doc-standards conventions strictly:
    - 120-char line limit (CI enforced)
-   - Single H1 rule (title only)
-   - File header: `# {Title}` + `> Version {X.Y.Z} | {description}`
-   - Version number from `VERSION.md` (single source of truth)
+   - Site pages: YAML `title` and `description`; Starlight supplies the H1, body starts at H2
+   - Repository Markdown: retain its existing title/header convention
+   - Version references, when needed, come from `VERSION.md`; no site-wide version banners
 5. **Verify links**: Check all relative links resolve to existing files.
 6. **Run validation**: Offer to run `npm run lint:md` and `npm run lint:links`.
 

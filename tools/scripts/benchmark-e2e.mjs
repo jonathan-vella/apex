@@ -29,7 +29,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { execSync } from "node:child_process";
 import { readJsonSafe as readJson } from "./_lib/json.mjs";
-import { detectIacTool, fileExists } from "./_lib/e2e-helpers.mjs";
+import { detectIacTool, fileExists, scoreStructuralChecks } from "./_lib/e2e-helpers.mjs";
 
 const PROJECT = process.argv[2] || "contoso-service-hub-run-1";
 const OUTPUT_DIR = path.join("agent-output", PROJECT);
@@ -211,33 +211,8 @@ function scoreArtifactCompleteness() {
 }
 
 function scoreStructuralCompliance() {
-  // Run artifact template validator + H2 sync
-  const templatePass = runCmd("npm run lint:artifact-templates --silent 2>&1");
-  const h2Pass = runCmd("npm run lint:h2-sync --silent 2>&1");
-  const sessionPass = runCmd("npm run validate:session-state --silent 2>&1");
-
-  let score = 0;
-  const checks = [];
-  if (templatePass) {
-    score += 40;
-    checks.push("artifact-templates: PASS");
-  } else {
-    checks.push("artifact-templates: FAIL");
-  }
-  if (h2Pass) {
-    score += 30;
-    checks.push("h2-sync: PASS");
-  } else {
-    checks.push("h2-sync: FAIL");
-  }
-  if (sessionPass) {
-    score += 30;
-    checks.push("session-state: PASS");
-  } else {
-    checks.push("session-state: FAIL");
-  }
-
-  return { score, checks, grade: gradeScore(score) };
+  const result = scoreStructuralChecks(runCmd);
+  return { ...result, grade: gradeScore(result.score) };
 }
 
 function scoreCodeQuality() {
@@ -504,7 +479,7 @@ function generateBenchmarkReport(scores, composite) {
   report += `Composite score: **${composite.score}/100** → Grade: **${composite.grade}**\n\n`;
   report += `| Grade | Range    | Meaning                    |\n`;
   report += `| ----- | -------- | -------------------------- |\n`;
-  report += `| A     | 90-100   | Excellent — production ready |\n`;
+  report += `| A     | 90-100   | High diagnostic coverage; not production acceptance |\n`;
   report += `| B     | 80-89    | Good — minor improvements   |\n`;
   report += `| C     | 70-79    | Acceptable — needs work     |\n`;
   report += `| D     | 60-69    | Below average — significant gaps |\n`;

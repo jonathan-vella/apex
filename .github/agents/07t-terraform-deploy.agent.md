@@ -331,12 +331,12 @@ azd env set AZURE_LOCATION swedencentral
 
 # Preview changes
 azd provision --preview
-
-# Deploy (after approval)
-azd provision
 ```
 
-Skip to Step 6 (Post-Deployment Verification) after `azd provision` completes.
+Do not provision yet. Use this preview for the Step 5 change classification, then complete
+the deployment approval, live policy precheck, and deploy approval block below.
+Only then run `azd provision` and continue to Step 6 (Post-Deployment Verification).
+The azd path does not bypass any gate required by the pure Terraform path.
 
 **If pure Terraform** (no `azure.yaml` — fallback):
 

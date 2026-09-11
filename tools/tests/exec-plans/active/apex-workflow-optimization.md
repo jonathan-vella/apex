@@ -2,7 +2,7 @@
 
 ## Status
 
-**State**: Implementation, local tests, and bounded agent probes complete; human UI/output acceptance pending
+**State**: Semantic body audit and scoped implementation validated; proposals and final human acceptance remain explicit
 **Owner**: Jonathan Vella with GitHub Copilot
 **Created**: 2026-09-10
 **Branch**: `perf/apex-workflow-optimization`
@@ -14,6 +14,153 @@ The pinned reference is a qualitative output reference, not a deployment prerequ
 Commits and pushes are authorized only on the feature branch. Never merge into main or enable auto-merge.
 No Azure resources have been created. Local guidance improvements use risk-based verification;
 measured end-to-end token savings and final generated-output quality are not claimed.
+
+## Scope Correction And Decisions
+
+On 2026-09-11 the user rejected treating the initial fixes and fleet inventory as completion of the full request.
+The workstreams below are the current completion criteria. Earlier completed checkboxes describe delivered batches,
+not completion of the semantic audit. Human UI acceptance is not the only remaining task.
+
+Clarification answers:
+
+- Implement proven-equivalent skill/instruction consolidation, including retirement and consumer updates.
+  Preserve discovery, applicable scopes, safety rules, and output contracts. Unproven equivalence is not permission.
+- Develop concrete proposals for agent roles/handoffs, models/tools, review/validation cadence,
+  and CodeGen batching/artifact structure. Behavioral or contract changes still require explicit approval.
+- Include workflow-support validators, hooks, registries, and evaluation tooling in the overengineering audit.
+  Unrelated application code remains outside scope.
+- Prioritize repeated questions/reads/research, long or conflicting instructions, and input-token consumption.
+- Retain the feature branch, no-merge rule, security/governance and approval boundaries, and both IaC tracks.
+  Live Azure remains deferred; unavailable runtime telemetry does not block local semantic analysis.
+
+### Required Workstreams
+
+1. **Duplication of work and broken workflows**
+   Trace questions, research, pricing/module discovery, reads, validation, reviews, and artifact regeneration
+   across fresh, resumed, revised, and failure-recovery paths. Identify the producer, consumer, and validity
+   conditions for each repeated operation. Separate redundant work from independent assurance and freshness checks.
+   Deliver an evidence-backed operation map and fixes that preserve invalidation and ownership boundaries.
+
+2. **Duplicate skills and instructions**
+   Compare semantic responsibilities and conflicting rules, not just exact paragraphs or descriptions.
+   Inspect referenced procedures/templates and actual consumers. Start with defaults/common/IaC-pattern guidance,
+   prepare/validate/deploy responsibilities, and overlapping documentation instructions.
+   Deliver keep/trim/merge/retire decisions with scope and discovery examples, preserved unique requirements,
+   consumer updates, and focused equivalence checks. Similar names alone do not establish duplication.
+
+3. **Agent optimizations**
+   Review every active main agent and subagent for role clarity, repeated reasoning, tool requirements,
+   mandatory context, handoff payloads, recovery, and unnecessary procedural constraints.
+   Deliver file-specific findings and implemented low-risk improvements, plus concrete approval-gated
+   alternatives for roles, handoffs, model assignments, tool exposure, review cadence, and CodeGen batching.
+
+4. **Skill optimizations**
+   Review every active skill's discovery description, trigger boundaries, workflow, required reads,
+   reference depth, examples, and overlap with agent decisions or file-authoring instructions.
+   Deliver a reasoned disposition per skill and focused changes that reduce unnecessary loading or ambiguity
+   without making required guidance unreachable. Preserve imported provenance/update paths where applicable.
+
+5. **Instruction and root-guidance optimizations**
+   Review every instruction's applicable scope, contradictions, duplicated rules, and appropriate owner.
+   Explicitly assess `AGENTS.md`, `.github/copilot-instructions.md`, and relevant nested `AGENTS.md` files.
+   Deliver a rule-ownership map separating universal runtime guidance, repository guidance, file-authoring rules,
+   and on-demand workflows. Preserve canonical Azure defaults and reachable safety anchors.
+   Test representative scope matches; do not infer runtime attachment from authoring `applyTo` patterns.
+
+6. **Overengineering**
+   Assess wrappers, indirection, mirrored metadata, sidecars, validation layers, hooks, and evaluation tooling
+   by the distinct failure they prevent and the consumers they serve. Include tooling added during this effort.
+   Deliver simplification/removal candidates with maintenance benefit, lost-capability analysis, and rollback.
+   Do not add a new framework or registry merely to perform this audit, or remove independent checks as duplicates.
+
+7. **Additional improvements and output quality**
+   Produce ranked recommendations beyond text reduction: clearer ownership, more actionable errors,
+   change-aware reuse, bounded retries, fewer unnecessary interactions, and better artifact consistency.
+   Each recommendation needs repository evidence, expected benefit, quality risk, verification, and approval status.
+   Distinguish hypotheses from proven fixes, source-size changes from observed context, and tokens from elapsed time.
+   Reject changes that lose requirements, security, traceability, artifact completeness, or recovery behavior.
+
+### Execution And Evidence
+
+Use the existing fleet audit as the findings ledger; do not create another inventory or benchmarking framework.
+Its historical `Keep` rows establish inventory/ownership only and must not count as completed semantic assessments.
+For each reviewed component or related group, record source anchors, consumers, problem or retention rationale,
+recommended disposition, expected benefit, risk, focused check, and outcome.
+Any unassessed component stays explicitly open; a group decision must justify coverage of each member.
+
+Implement in small related batches, beginning with repeated work and rule ownership, then skill/instruction
+consolidation, remaining agent improvements, and support-tool simplification. Obtain approval before implementing
+broader behavioral changes. Do not postpone all implementation until the entire audit is finished.
+
+Use scoped tests for equivalent consolidation and local fixes. Substantive prompt changes also require bounded
+behavioral/output comparisons for relevant fresh/resume/revision/failure cases and both IaC tracks where affected.
+Preserve required reviews and independent quality assessment. Missing evidence stays inconclusive; neither a
+passing text test nor a shorter prompt proves unchanged generated-output quality or measured token savings.
+
+Current audit completion gates:
+
+- [x] Complete the operation-duplication map and investigate broken/redundant workflow paths.
+- [x] Complete semantic skill/instruction overlap and rule-ownership assessments, including root guidance.
+- [x] Give every active agent, skill, and instruction an evidence-backed disposition.
+- [x] Complete workflow-support tooling and overengineering assessment.
+- [x] Implement and validate scoped improvements; document justified retentions and remaining candidates.
+- [x] Deliver ranked broader proposals with concrete alternatives, risks, checks, and user decisions.
+- [ ] Review output-quality evidence and record remaining UI/runtime limitations before final signoff.
+
+### Execution Results (2026-09-11)
+
+The [semantic audit ledger](apex-workflow-audit.md#semantic-audit-2026-09-11) contains per-component dispositions,
+operation/rule ownership, supporting-tool analysis, rejected draft claims, and ranked proposals.
+Coverage includes all active entry-point bodies and targeted controlling references, not every transitive SDK/template.
+The user authorized independent read-only subagents; unsupported draft findings were rejected and replacement
+reviews were checked against source. No delegated reviewer edited files or performed Azure operations.
+
+Implemented batches:
+
+- Consolidated same-scope site instructions; retained unique template/style/MDX rules and separate source-edit triggers.
+  Aligned review prompt and docs-writer references with Starlight title ownership; retained imported skill paths.
+- Corrected combined CodeGen validation, obsolete skill digest references, policy-first tags, canonical root/subtree
+  ownership, path-only handoff context, and output-scoped As-Built reads while preserving full completion requirements.
+- Corrected Terraform test CLI examples, cleanup guidance, external-only ignore_changes, and Storage Entra examples.
+- Removed duplicate E2E artifact-validator calls within scoring/affected steps, preserving fields/weights/public aliases.
+  Unknown root/delegated npm suites fail closed; missing policy-envelope evidence fails closed in code and guidance.
+- Fixed Terraform azd gate bypass, Bicep unknown-change classification, Governance review-cache reuse and early-resume
+  routing. Fresh discovery may be reused; stale review evidence still requires reconciliation review.
+- Removed latency-derived token claims, fixed create-file overwrite instructions, and deduplicated deployment comparison
+  prose. No new orchestration framework, cache key, artifact schema, or production model assignment was introduced.
+
+Additional user decisions during execution:
+
+- **Unattended blockers: approved, implemented.** Production and benchmark runs stop on unresolved must-fix;
+  auto-defer, prior accept, and test auto-approval do not prove remediation or authorize forward handoff.
+- **CodeGen batching: experiment authorized, adoption withheld.** Resource-free Terraform/Bicep samples generated by
+  named agents compiled locally. Existing-file recovery was probed. Baseline was a source-level cadence comparison,
+  not a matched generated-output run. Conflicting build checkpoints and over-requested review in one response make
+  production adoption inconclusive. Current one-file cadence remains unchanged.
+- **Generic/APEX entry separation: recommendation requested, not approval.** Recommended design preserves generic
+  preparation proofs while routing APEX through its approved handoffs; validation-only requests stop at validation.
+  This behavioral change remains unimplemented pending explicit approval.
+
+Verification evidence:
+
+- Guidance/review suites: 36 passing tests, including actual isolated policy-envelope and review-presence validators.
+- Runner graph/CLI suite: 7 passing tests; missing, inherited, empty and delegated-missing suite names fail.
+- E2E helpers: 13 passing tests; stubbed execution proves preserved weights and one artifact call per score calculation.
+- Named-agent read-only probes: unattended blocker decisions, Terraform azd gate path, Governance cache/freshness,
+  and both batching candidates. These are bounded synthetic conformance checks, not graphical/UI or full-output proof.
+- Terraform sample: init (no providers/backend), fmt check and validate pass.
+  Bicep sample: build, build-params and lint pass.
+- Independent changed-file review found stale policy pseudocode, early-resume review bypass, and a retired-file link;
+  all were repaired and focused tests rerun.
+- Initial full gate: 54 passed, one stale tag-count text assertion failed. Updated to require keys/values/casing;
+  focused governance guardrails then passed. Final `npm run validate:all`: **55 passed, zero failed**,
+  including external checks and the site build/link check. Log: `tmp/apex-optimization/reopened-full-validation-final.log`.
+- Independent re-review confirmed all three findings resolved. Offline added-link checks found no missing targets;
+  selected regression tests passed. Runtime UI and external-link/anchor behavior were not certified by that review.
+
+Remaining work is explicit: publish this verified batch; obtain human output/UI signoff; decide entry separation;
+and evaluate the ledger's narrower follow-ups and representative batching experiment before broader adoption.
+No measured token savings or complete generated-output quality equivalence is claimed.
 
 ## Revised Scope And Verification
 
@@ -29,9 +176,8 @@ The user replaced the earlier benchmark-led campaign with workflow-first improve
 
 ### Local implementation closeout
 
-The local execution phase covers the requested duplication/workflow, agent, skill,
-instruction, root-guidance, overengineering, and context-efficiency surfaces.
-Remaining live model observations are explicitly outside what structural tests establish.
+The initial batches made targeted changes across these surfaces but did not finish the requested semantic audit.
+The table records delivered improvements, not exhaustive coverage or proof that remaining components need no changes.
 No runtime tool-schema savings or generated-output quality equivalence is claimed.
 
 | Area                    | Implemented outcome                                                                                       | Verification / retained boundary                                                          |
@@ -48,7 +194,8 @@ No runtime tool-schema savings or generated-output quality equivalence is claime
 
 ### Approval-dependent proposals
 
-These recommendations are delivered, not silently implemented:
+These initial candidates need concrete evidence-backed proposals, not just a deferred label.
+Proven-equivalent consolidation is now authorized; broader behavioral changes remain approval-gated:
 
 | Proposal                                                               | Reason / evidence                                                    | Decision needed                                                                         |
 | ---------------------------------------------------------------------- | -------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
@@ -328,21 +475,21 @@ no snapshot was written as real session state and no cloud deployment was perfor
 Requested agent definitions were selected by name; effective model tier and input-token
 usage were not independently attested, so no cross-runtime performance claim is made.
 
-| Agent / probe | Observed outcome | Corrective action and retest |
-| --- | --- | --- |
-| Architect, missing requirements | Stopped before skill/template stack or pricing, identified Requirements owner | No correction needed; read-only missing-path search |
-| Planner, missing predecessors | Initially chose Governance before absent Architecture | Exact owning handoff precedence added; rerun selected `03-Architect` first |
-| Bicep/Terraform CodeGen, missing plan | Stopped safely but used filename-style Planner name; Terraform blurred governance ownership | Exact `05-IaC Planner` target and `04g-Governance` ownership added; both reruns correct |
-| Orchestrator, Design skipped | Selected Governance next; no Plan advancement before governance approval | Synthetic routing response; no state mutation |
-| Orchestrator, approved Terraform Plan | Selected Terraform CodeGen without repeating valid Plan review | Synthetic approved-input response; no actual handoff-button execution |
-| Orchestrator, missing cost review / changed SKU | Blocked approval and required missing or refreshed cost evidence | Synthetic default/revision responses; cost review remains independent |
-| Requirements, fresh / incomplete resume | Preserved fresh questioning, asked only missing SLA/RTO/RPO on resume | No user prompts executed; next-action reasoning probe |
-| Requirements, budget-only revision | Initially proposed a manifest budget edit | Explicit schema/pin preservation added; rerun left manifest unchanged and required re-review |
-| Governance, valid cache / explicit refresh | Reused eligible evidence only before approval; explicit refresh disabled reuse | Synthetic decision probe |
-| Governance, expired envelope | Identified conflict between mandatory TTL freshness and cache-first instructions | Script now rejects expired/missing/invalid TTL metadata; all agent/reference paths force live refresh on expiry/drift |
-| Governance expiry retest | Selected Phase 1 with `--refresh`, bypassed baseline/cache, rejected stale confirmations | Final probe read agent and resume reference; no Azure calls |
-| Terraform Deploy, changed hash / destruction / stale policy / exhausted retry | Refused apply and named remediation/approval evidence | Synthetic negative deployment decisions, not provider validation |
-| As-Built, stale inventory / changed SKU / missing summary / lost rationale | Required live evidence, blocked unsupported completion, recovered rationale from source | Synthetic decision probe; no inventory or manifest writes |
+| Agent / probe                                                                 | Observed outcome                                                                            | Corrective action and retest                                                                                          |
+| ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| Architect, missing requirements                                               | Stopped before skill/template stack or pricing, identified Requirements owner               | No correction needed; read-only missing-path search                                                                   |
+| Planner, missing predecessors                                                 | Initially chose Governance before absent Architecture                                       | Exact owning handoff precedence added; rerun selected `03-Architect` first                                            |
+| Bicep/Terraform CodeGen, missing plan                                         | Stopped safely but used filename-style Planner name; Terraform blurred governance ownership | Exact `05-IaC Planner` target and `04g-Governance` ownership added; both reruns correct                               |
+| Orchestrator, Design skipped                                                  | Selected Governance next; no Plan advancement before governance approval                    | Synthetic routing response; no state mutation                                                                         |
+| Orchestrator, approved Terraform Plan                                         | Selected Terraform CodeGen without repeating valid Plan review                              | Synthetic approved-input response; no actual handoff-button execution                                                 |
+| Orchestrator, missing cost review / changed SKU                               | Blocked approval and required missing or refreshed cost evidence                            | Synthetic default/revision responses; cost review remains independent                                                 |
+| Requirements, fresh / incomplete resume                                       | Preserved fresh questioning, asked only missing SLA/RTO/RPO on resume                       | No user prompts executed; next-action reasoning probe                                                                 |
+| Requirements, budget-only revision                                            | Initially proposed a manifest budget edit                                                   | Explicit schema/pin preservation added; rerun left manifest unchanged and required re-review                          |
+| Governance, valid cache / explicit refresh                                    | Reused eligible evidence only before approval; explicit refresh disabled reuse              | Synthetic decision probe                                                                                              |
+| Governance, expired envelope                                                  | Identified conflict between mandatory TTL freshness and cache-first instructions            | Script now rejects expired/missing/invalid TTL metadata; all agent/reference paths force live refresh on expiry/drift |
+| Governance expiry retest                                                      | Selected Phase 1 with `--refresh`, bypassed baseline/cache, rejected stale confirmations    | Final probe read agent and resume reference; no Azure calls                                                           |
+| Terraform Deploy, changed hash / destruction / stale policy / exhausted retry | Refused apply and named remediation/approval evidence                                       | Synthetic negative deployment decisions, not provider validation                                                      |
+| As-Built, stale inventory / changed SKU / missing summary / lost rationale    | Required live evidence, blocked unsupported completion, recovered rationale from source     | Synthetic decision probe; no inventory or manifest writes                                                             |
 
 The negative prerequisite probes used only read-only path/state lookups and reported no
 writes or external calls. Workspace checks found no `opt-probe-*` project directories.

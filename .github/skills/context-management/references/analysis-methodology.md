@@ -38,22 +38,12 @@ Fields:
 | `[progressMessages]`            | Status/progress indicator generation                    |
 | `[copilotLanguageModelWrapper]` | Subagent or extension LLM call                          |
 
-### Latency Heuristics
+### Latency And Token Evidence
 
-Latency correlates with context size (input tokens) and output length.
-Thresholds below are Claude-family-centric (200K limit); double the
-"near limit" band on GPT-5 family models (400K limit).
-
-| Latency Band | Likely Context Size (Claude) | Signal                      |
-| ------------ | ---------------------------- | --------------------------- |
-| < 3s         | Small (< 10K tokens)         | Efficient turn              |
-| 3-8s         | Medium (10-50K tokens)       | Normal agent turn           |
-| 8-15s        | Large (50-100K tokens)       | Getting heavy               |
-| 15-30s       | Very large (100-150K tokens) | Optimization candidate      |
-| > 30s        | Near limit (150K+ tokens)    | Critical — likely truncated |
-
-These are rough estimates. Actual token counts depend on model, streaming
-behavior, and output generation length.
+Report latency separately from tokens. Latency also includes model processing,
+output generation, queuing, network delays, and tool/runtime behavior; it cannot determine context size.
+Use recorded token-usage fields for token totals. Missing usage remains unknown, including timing-only logs.
+Source bytes, tool counts, and slow turns can identify investigation targets, not measured token savings.
 
 ---
 
@@ -77,8 +67,8 @@ Group requests by session and analyze patterns:
 
 - **Burst detection**: Rapid sequential calls (gap < 2s) suggest tool-call
   loops where context accumulates
-- **Latency escalation**: If turns get progressively slower within a session,
-  context is growing without hand-offs
+- **Latency escalation**: Investigate slower turns against recorded usage, output size,
+  tool activity, and runtime conditions; do not infer context growth from timing alone
 - **Model mismatch**: Heavy turns on a low-tier model (e.g. GPT-5 mini, Claude Haiku 4.5) when an Opus/Sonnet agent was selected suggest wrong model routing;
   fast turns on Opus suggest the task could use a lighter model
 

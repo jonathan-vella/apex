@@ -146,7 +146,7 @@ when they target different artifacts AND both use `prior_findings = null`.
 | Step               | Parallel Pair                              | Why Safe                                                     |
 | ------------------ | ------------------------------------------ | ------------------------------------------------------------ |
 | Step 2 (Architect) | Architecture pass 1 ‖ Cost Estimate review | Different artifacts, both `prior_findings=null`              |
-| Step 5 (CodeGen)   | Lint subagent ‖ Review subagent            | Independent checkers (syntax vs standards) on identical code |
+| Step 5 (CodeGen)   | Combined validation worker (sequential) | One worker runs lint then review; not a parallel pair |
 
 **Rules**:
 
@@ -348,11 +348,13 @@ If the environment variable `APEX_UNATTENDED=1` is set, the protocol
   `note: "auto-deferred (unattended)"`.
 - All `should_fix` → `action: "defer"`, same note.
 - All `suggestion` → unchanged (auto-deferred as in attended mode).
-- Final aggregated gate auto-proceeds.
-- Agent emits a chat warning listing every deferred `must_fix` title so
-  the user can audit the run later.
-
-This unblocks `e2e-orchestrator.agent.md` and `npm run e2e:benchmark`.
+- If any unresolved `must_fix` remains, **STOP** before step completion or forward handoff.
+  Persist deferred decisions and list the blocking findings. A deferred or previously accepted
+  decision is not proof of remediation; require current review evidence confirming resolution.
+- This rule applies to production and benchmark runs. Test auto-approval cannot waive blockers;
+  the E2E harness records `E2E_BLOCKED`, not successful acceptance, and does not advance downstream.
+- With no unresolved `must_fix`, continue only under existing, explicit unattended approval scope.
+  Never infer production approval from `APEX_UNATTENDED=1` alone.
 
 ### 2e. Multi-source merge order
 

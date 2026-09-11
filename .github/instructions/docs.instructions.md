@@ -11,20 +11,14 @@ Instructions for creating and maintaining user-facing documentation in the `site
 
 ### File Header
 
-Every doc file must start with:
-
-```markdown
-# {Title}
-
-> [Current Version](../../VERSION.md) | {One-line description}
-```
-
-Adjust the relative path depth based on folder nesting (`../../../VERSION.md` from
-`site/src/content/docs/`, `../../../../VERSION.md` from a subfolder).
+Use YAML frontmatter with `title` and `description`, following
+[`astro.instructions.md`](astro.instructions.md#frontmatter).
+Do not add a repository-style version banner to site pages.
 
 ### Single H1 Rule
 
-Each file has exactly ONE H1 heading (the title). Use H2+ for all other sections.
+Starlight renders the frontmatter title as the page H1. Start body sections at H2;
+do not duplicate the title with a Markdown H1 in either `.md` or `.mdx` pages.
 
 ### Link Style
 
@@ -37,7 +31,6 @@ Each file has exactly ONE H1 heading (the title). Use H2+ for all other sections
 ## Current Architecture
 
 See `tools/registry/count-manifest.json` for current agent, subagent, and skill counts.
-See `tools/registry/agent-registry.json` for the agent role → file mapping.
 See `tools/registry/agent-registry.json` for the agent role → file/model/skills mapping.
 
 ## Prohibited References
@@ -100,7 +93,33 @@ Example:
 
 ## Validation
 
-Documentation is validated in CI (warn-only):
+### Template And Visual Consistency
+
+For site pages that mirror agent-output structure, preserve canonical template H2 order:
+invariant sections first, optional sections last. Link to templates rather than embedding skeletons.
+`tools/scripts/validate-artifacts.mjs` enforces agent-output templates, not site pages.
+
+Use the styling reference in `azure-artifacts/SKILL.md` for badge rows, collapsible TOCs,
+status columns (include success, warning, and failure states), and previous/index/next navigation.
+Use these elements consistently when reproducing artifact views; do not add them to every site page.
+
+For MDX, place component imports after frontmatter and use Starlight `Aside`, `Tabs`, and `TabItem`
+instead of raw HTML where equivalents exist. Starlight owns the title H1 in both Markdown and MDX.
+
+### Checks
+
+Run the existing checks relevant to the change:
+
+```bash
+npm run lint:md
+npm run lint:docs-frontmatter
+npm run lint:site-links
+```
+
+`lint:site-links` builds the site before checking links; do not run a duplicate build for that check.
+For formatting examples, see `references/markdown-formatting-guide.md`.
+
+Documentation checks cover:
 
 - No references to removed agents
 - Version numbers match `VERSION.md` (repo root)

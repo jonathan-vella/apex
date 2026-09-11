@@ -80,7 +80,8 @@ Applying a Terraform pattern in a root module:
 - **Set-type phantom diffs** — `azurerm_application_gateway`, `azurerm_lb`,
   `azurerm_network_security_group`, `azurerm_firewall`, `azurerm_frontdoor`:
   adding ONE element causes ALL elements to show `~` changes. Mitigation:
-  `ignore_changes` on set-type blocks.
+  inspect the plan's actual changes. Use `ignore_changes` only for blocks managed externally;
+  do not suppress Terraform-owned changes just to hide noisy diffs.
 - **Provider pin `~> 4.0` is critical** — `>= 3.0` crosses breaking
   versions; `= 4.1.0` blocks patches. MUST use `~> 4.0`.
 - **`for_each` over `count` for named resources** — `count` causes drift

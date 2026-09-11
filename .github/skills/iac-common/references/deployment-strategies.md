@@ -37,11 +37,6 @@ azd up
 - `preprovision` — auth validation, banner, prerequisite checks
 - `postprovision` — resource verification, diagnostic setup
 
-**Environment management** replaces manual parameterization:
-
-- `azd env new prod` / `azd env new dev`
-- `azd env set AZURE_LOCATION swedencentral`
-
 ## azd Environment Preflight (MANDATORY for --no-prompt Deploys)
 
 Before `azd provision --no-prompt`, verify these environment values are set:
@@ -80,13 +75,5 @@ Deploy everything in one operation. Still requires user approval.
 > **Full guide**: [azd-vs-deploy-guide.md](./azd-vs-deploy-guide.md) — comparison,
 > per-project conventions, workflow, hooks, troubleshooting.
 
-| Factor                 | azd                                                         | deploy.ps1                                      |
-| ---------------------- | ----------------------------------------------------------- | ----------------------------------------------- |
-| Cross-platform         | Yes                                                         | PowerShell only                                 |
-| Environment management | Built-in (`azd env`)                                        | Manual parameters                               |
-| Hooks (pre/post)       | `azure.yaml` hooks                                          | Custom script logic                             |
-| Phased deployment      | Use hooks (`preprovision`/`postprovision`)                  | Fine-grained phases _(deprecated)_              |
-| New projects           | **Use azd**                                                 | **Deprecated — do not use for new projects**    |
-| Existing projects      | Use azd (generate `azure.yaml` if missing)                  | Deprecated fallback if no `azure.yaml`          |
-| Project isolation      | Per-project: `infra/{iac}/{project}/azure.yaml` + `.azure/` | Per-project: `infra/{iac}/{project}/deploy.ps1` |
-| Env naming             | `{project}-{env}` (e.g., `hub-spoke-dev`)                   | Manual parameter per invocation                 |
+The guide owns the comparison matrix; do not maintain a second copy here.
+Keep project-local manifests and `{project}-{env}` environment naming on either path.

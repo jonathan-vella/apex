@@ -6,7 +6,7 @@
 ## Azure Defaults (canonical)
 
 This section is the canonical declaration of Azure infrastructure defaults.
-Every skill, agent, and prompt must reference this section — never restate
+Azure-producing skills, agents, and prompts use this section — never restate
 the values inline. The IaC workflow, CAF naming guidance, AVM procedure,
 and reference index live in
 [`.github/skills/azure-defaults/SKILL.md`](skills/azure-defaults/SKILL.md).

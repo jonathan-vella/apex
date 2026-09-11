@@ -133,9 +133,8 @@ Before composing findings:
 1. Read every `.tf` and `.tfvars` file under the supplied module path.
 2. Re-read the `terraform fmt` and `terraform validate` console
    output collected in Phase 1.
-3. Re-read `04-governance-constraints.json` (and `.md` envelope when
-   present) for the project, plus the relevant `azure-defaults` digest
-   tier.
+3. Inspect the project's governance JSON and relevant Markdown details, plus required
+  `azure-defaults/SKILL.md` sections. Reuse current content still available; there is no skill digest tier.
 4. For every finding, quote the exact resource block, variable
    declaration, or diagnostic line that triggered it. Paraphrasing inside
    `Detailed Findings` is a defect — copy the offending text in
@@ -223,8 +222,8 @@ Run the checklist below over every `.tf` file under `module_path`.
    `Azure/avm-res-*/azurerm` registry module with a pinned version; see
    the `azure-defaults` reference list.
 2. **CAF naming and required tags** (HIGH) — names follow the CAF
-   patterns in `azure-defaults`; every resource carries the four
-   baseline tags plus `ManagedBy = "Terraform"`.
+  patterns in `azure-defaults`; validate tag keys, values, and casing against the discovered policy contract.
+  Use the canonical greenfield fallback only when no tag policy applies. `ManagedBy` is optional provenance.
 3. **Security baseline** (CRITICAL) — TLS 1.2+, HTTPS-only, no public
    blob access, Azure AD-only SQL auth, managed identities, no inline
    secrets, per the `azure-defaults` security baseline.
@@ -286,7 +285,7 @@ block in the output contract with per-row results. Routing:
 
 Any of the three forces `Overall Status: FAILED`.
 
-- Tag count matches governance constraints (four baseline + discovered).
+- Required tag keys, values, and casing satisfy governance constraints; counts alone are insufficient.
 - Every Deny policy is satisfied in the resource config.
 - `public_network_access_enabled = false` for production data services
   (dev/test environments may exempt per project policy).

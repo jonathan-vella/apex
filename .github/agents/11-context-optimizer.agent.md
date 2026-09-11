@@ -169,8 +169,8 @@ For each session, analyze request patterns:
 | Burst patterns         | Rapid sequential calls (< 2s gap = likely loop) |
 | askQuestions per phase | Count from profiler; flag any single phase > 3 (Plan 01 Phase 4 batching) |
 
-Estimate token cost from latency (rough heuristic — longer turns correlate
-with larger context windows, especially for streaming responses).
+Report latency separately from tokens. Use recorded token-usage fields for token totals;
+when absent, report unknown. Source size and tool counts are diagnostics, not measured token savings.
 
 ### Phase 3: Agent Definition Audit
 

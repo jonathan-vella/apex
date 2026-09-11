@@ -29,4 +29,20 @@ describe("_lib/npm-script-graph", () => {
     const scripts = { first: "run-p second", second: "run-p first" };
     assert.throws(() => expandScript(scripts, "first"), /cycle detected/);
   });
+
+  it("rejects missing, inherited, empty and invalid root scripts", () => {
+    for (const name of ["missing", "toString", "empty", "whitespace", "invalid"]) {
+      assert.throws(
+        () => expandScript({ empty: "", whitespace: "   ", invalid: null }, name),
+        /Unknown or empty npm script/,
+      );
+    }
+  });
+
+  it("rejects a missing delegated suite", () => {
+    assert.throws(
+      () => expandScript({ current: "node tools/scripts/validate-all.mjs --suite=missing" }, "current"),
+      /Unknown or empty npm script: missing/,
+    );
+  });
 });

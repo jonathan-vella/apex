@@ -7,6 +7,10 @@
 
 ## File Header Pattern
 
+For `site/src/content/docs/**`, use YAML `title` and `description` frontmatter.
+Starlight renders the H1; begin body sections at H2. Do not add a version banner.
+Site-specific rules are owned by `docs.instructions.md`; the repository pattern below is not a site template.
+
 Every doc in `docs/` must start with:
 
 ```markdown
@@ -130,22 +134,17 @@ npm run lint:md
 # Link validation
 npm run lint:links
 
-# Artifact H2 structure check
-npm run validate
-
 # Skill format validation
-npm run skill:validate
-
-# Auto-fix artifact H2 headings
-npm run fix:artifact-h2 <path> [--apply]
+npm run validate:skills
 ```
+
+Artifact Markdown is outside docs-writer scope; lefthook and Challenger own its validation.
 
 ## Version Number Propagation
 
 When `VERSION.md` is updated, check these files for version references:
 
-- `site/src/content/docs/**/*.md` — header lines with `> Version X.Y.Z`
-- `docs.instructions.md` — header template example
+- `site/src/content/docs/**/*.{md,mdx}` — explicit release references, not generated title banners
 - `CHANGELOG.md` — new version entry needed
 
 ## Emoji Conventions in Agent/Skill Tables

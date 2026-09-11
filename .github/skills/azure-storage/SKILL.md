@@ -26,17 +26,20 @@ metadata:
 az storage account list --output table
 
 # List containers
-az storage container list --account-name ACCOUNT --output table
+az storage container list --account-name ACCOUNT --auth-mode login --output table
 
 # List blobs
-az storage blob list --account-name ACCOUNT --container-name CONTAINER --output table
+az storage blob list --account-name ACCOUNT --container-name CONTAINER --auth-mode login --output table
 
 # Download blob
-az storage blob download --account-name ACCOUNT --container-name CONTAINER --name BLOB --file LOCAL_PATH
+az storage blob download --account-name ACCOUNT --container-name CONTAINER --name BLOB --file LOCAL_PATH --auth-mode login
 
 # Upload blob
-az storage blob upload --account-name ACCOUNT --container-name CONTAINER --name BLOB --file LOCAL_PATH
+az storage blob upload --account-name ACCOUNT --container-name CONTAINER --name BLOB --file LOCAL_PATH --auth-mode login
 ```
+
+These data-plane commands use the signed-in Entra identity. It needs scoped Storage Blob Data Reader
+for reads or Storage Blob Data Contributor for writes; management-plane Reader alone is insufficient.
 
 For deeper service docs and patterns, call `mcp_azure-mcp_documentation`
 with `command: "microsoft_docs_search"` and the relevant Azure Storage

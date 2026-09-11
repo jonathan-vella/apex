@@ -76,33 +76,25 @@ edit tools — not `create_file`.
 | Situation                                      | Tool                              |
 | ---------------------------------------------- | --------------------------------- |
 | First-time creation of the artifact            | `create_file`                     |
-| Single-spot fix                                | `replace_string_in_file`          |
-| Multiple fixes in one or more files            | `multi_replace_string_in_file`    |
-| Restructuring ≥ 50% of the file or H2 ordering | `create_file` (documented in ADR) |
+| Single-spot fix                                | Targeted edit or `apply_patch` |
+| Multiple independent fixes                     | Batched edits or `apply_patch` |
+| Restructuring ≥ 50% of the file or H2 ordering | Editing tool with logged rationale |
 
-**Bundle every accepted fix from a review pass into a single
-`multi_replace_string_in_file` call** — do not iterate finding-by-finding.
-A 24-finding revision is one tool call, not 24.
-
-**Why this is enforced**: a full rewrite of a 200-line artifact emits
-8–18 K output tokens that re-enter the context on every subsequent
-turn. A multi-edit patch emits 200–800 tokens. For a single Step-2
-revision cycle this is the difference between staying under and
-breaching the 200 K context window. See
+Batch independent accepted fixes where practical; validate before dependent follow-up edits.
+Use available editing tools rather than requiring a specific extension's replacement tools. See
 [`context-optimization.instructions.md`](./context-optimization.instructions.md#targeted-edits-over-full-rewrites)
-for the full anti-pattern table.
+for the canonical editing and measurement guidance.
 
 **Exception path**: when a structural rewrite is genuinely required
 (H2 reordering, template version bump, >50 % of lines changed), use
-`create_file` and record a decision via
+an editing tool and record a decision via
 `apex-recall decide <project> --decision "Full rewrite of <artifact>" --rationale "<why>" --step <N> --json`
 so the choice is auditable.
 
 ### Scoped precheck rule (Plan 01 Phase 2c)
 
 For these specific artifacts, **revision-2+ writes MUST use
-`multi_replace_string_in_file`** (or `replace_string_in_file` for a
-single-spot fix). `create_file` is permitted only on the **first**
+targeted editing tools** (including `apply_patch`). `create_file` is permitted only on the **first**
 write of each:
 
 - `agent-output/{project}/sku-manifest.json`
