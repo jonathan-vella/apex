@@ -57,7 +57,7 @@ gardening prompt (`doc-gardening.prompt.md`) do not propose IA changes.
   - `site/astro.config.mjs` (sidebar = published pages)
   - `tools/registry/count-manifest.json` (entity counts)
   - `tools/registry/agent-registry.json` (agent → file mapping)
-  - `.github/skills/workflow-engine/templates/workflow-graph.json`
+  - `.github/skills/apex-workflow-engine/templates/workflow-graph.json`
     (workflow step list, incl. Step 3.5)
   - `VERSION.md` (version refs)
 - **Microsoft style references** (fetch on first ambiguous term, cache

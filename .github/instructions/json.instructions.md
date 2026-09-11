@@ -37,7 +37,7 @@ For configuration files, follow a logical grouping:
 ## Governance Constraint Files
 
 Files like `04-governance-constraints.json` in `agent-output/` are generated
-by the `azure-governance-discovery` skill's `discover.py`. See
+by the `apex-azure-governance-discovery` skill's `discover.py`. See
 `.github/instructions/references/governance-discovery-reference.md` for the
 full JSON schema and required fields.
 

@@ -203,7 +203,7 @@ Depth 0: Prompt (orchestrates the full loop)
   ├─ @challenger-review-subagent (depth 1) → review Step 2
   ├─ @04-Design                (depth 1) → diagrams + ADRs
   ├─ @04g-Governance           (depth 1) → governance artifacts
-  ├─ azure-governance-discovery/scripts/discover.py → live policy discovery
+  ├─ apex-azure-governance-discovery/scripts/discover.py → live policy discovery
   ├─ @challenger-review-subagent (depth 1) → review Step 3.5
   └─ ... (continues for Steps 4-7)
 ```

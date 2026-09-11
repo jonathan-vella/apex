@@ -15,7 +15,7 @@ import path from "node:path";
 import { Reporter } from "./_lib/reporter.mjs";
 import { AGENT_OUTPUT_DIR } from "./_lib/paths.mjs";
 
-const TEMPLATE_PATH = ".github/skills/azure-artifacts/templates/00-session-state.template.json";
+const TEMPLATE_PATH = ".github/skills/apex-azure-artifacts/templates/00-session-state.template.json";
 const STATE_FILENAME = "00-session-state.json";
 
 const VALID_STATUSES = ["pending", "in_progress", "complete", "skipped"];

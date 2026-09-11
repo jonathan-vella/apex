@@ -11,7 +11,7 @@ tools: [read, edit, search]
 > (challenger-review-subagent, cost-estimate-subagent,
 > bicep-validate-subagent, terraform-validate-subagent). Three required
 > XML tags, in this order. Vendor compliance:
-> [`claude-best-practices.md`](../../../.github/skills/vendor-prompting/references/claude-best-practices.md)
+> [`claude-best-practices.md`](../../../.github/skills/apex-vendor-prompting/references/claude-best-practices.md)
 > rule **R-CL-1** (XML structuring for complex prompts).
 >
 > For GPT-family subagent recipients use
@@ -64,5 +64,5 @@ structuring when a prompt mixes instructions, context, examples, and
 variable inputs. The XML wrapper is easier for Claude to parse than
 markdown H2s and survives copy/paste-into-system-prompt rendering
 without ambiguity. See
-[`claude-best-practices.md`](../../../.github/skills/vendor-prompting/references/claude-best-practices.md)
+[`claude-best-practices.md`](../../../.github/skills/apex-vendor-prompting/references/claude-best-practices.md)
 R-CL-1.

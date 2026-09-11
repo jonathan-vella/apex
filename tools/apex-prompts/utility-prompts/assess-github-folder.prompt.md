@@ -93,7 +93,7 @@ instructions matched by no file glob).
 ## Phase 3 — Workflow simplification & token efficiency
 
 - Trace handoff chains and the workflow DAG
-  (`.github/skills/workflow-engine/templates/workflow-graph.json`) for redundant
+  (`.github/skills/apex-workflow-engine/templates/workflow-graph.json`) for redundant
   hops or unused branches.
 - Estimate per-agent context cost and name the top token sinks (largest bodies,
   widest tool lists, bulk skill loads).

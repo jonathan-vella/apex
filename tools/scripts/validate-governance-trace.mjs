@@ -7,7 +7,7 @@
  * 1. **Debug-log mode** (default) — parses a Copilot debug log (OTLP JSON)
  *    and checks that the governance phase followed the expected pattern:
  *      1. The parent (04g-Governance) invoked
- *         `.github/skills/azure-governance-discovery/scripts/discover.py`
+ *         `.github/skills/apex-azure-governance-discovery/scripts/discover.py`
  *         via run_in_terminal (the deterministic discovery script)
  *      2. No follow-up execution_subagent calls re-queried Azure Policy APIs
  *      3. The parent did not run inline az rest / Python REST scripts
@@ -95,11 +95,11 @@ for (const rs of data.resourceSpans || []) {
 r.tick();
 
 // Check 1: Did 04g-Governance invoke discover.py via run_in_terminal?
-const DISCOVER_MARKER = "azure-governance-discovery/scripts/discover.py";
+const DISCOVER_MARKER = /(?:apex-)?azure-governance-discovery\/scripts\/discover\.py/;
 const discoverInvocations = spans.filter((s) => {
   if (s.attrs["gen_ai.tool.name"] !== "run_in_terminal") return false;
   const args = s.attrs["gen_ai.tool.call.arguments"] || "";
-  return args.includes(DISCOVER_MARKER);
+  return DISCOVER_MARKER.test(args);
 });
 
 if (discoverInvocations.length > 0) {
@@ -147,7 +147,7 @@ if (reQuerySubagents.length === 0) {
 // Check 3: No inline az rest in the parent agent (discover.py wraps all REST work)
 const inlineRestCalls = spans.filter((s) => {
   const args = s.attrs["gen_ai.tool.call.arguments"] || "";
-  if (args.includes(DISCOVER_MARKER)) return false; // discover.py is the sanctioned path
+  if (DISCOVER_MARKER.test(args)) return false; // discover.py is the sanctioned path
   return (
     (s.attrs["gen_ai.tool.name"] === "run_in_terminal" || s.attrs["gen_ai.tool.name"] === "execution_subagent") &&
     args.includes("az rest")

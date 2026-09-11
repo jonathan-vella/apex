@@ -53,7 +53,7 @@ test("classifies repository domains and protected dynamic entrypoints", () => {
   assert.equal(domainFor("tools/tests/example.test.mjs"), "tests");
   assert.equal(domainFor("tools/apex-recall/tests/test_transition.py"), "tests");
   assert.equal(protectionFor("tools/apex-recall/tests/test_transition.py"), "test_or_fixture");
-  assert.equal(protectionFor(".github/skills/azure-rbac/SKILL.md"), "auto_discovered_skill");
+  assert.equal(protectionFor(".github/skills/apex-azure-rbac/SKILL.md"), "auto_discovered_skill");
   assert.equal(protectionFor("site/public/downloads/demo.zip"), "published_download");
   assert.equal(protectionFor("README.md"), null);
 });
@@ -104,7 +104,7 @@ test("records repository ownership for every baseline file", () => {
   ]);
 });
 
-test("resolves duplicated reference filenames relative to their owning skill", () => {
+test("resolves historical reference filenames within the pinned baseline", () => {
   const result = scan();
   const identity = result.inventory.find(
     (item) => item.path === ".github/skills/azure-deploy/references/sdk/azure-identity-py.md",

@@ -46,7 +46,7 @@ For fresh capture, before Phase 1 questioning the only read permitted is one `ap
 <project> --json` (or `init` when no session exists). Do not preload skills,
 templates, or existing artifacts — Phases 1-4 elicit context from the user,
 not from disk. At Phase 3, read only the required service-class runbook to
-guide elicitation; it does not supply user answers. Skill loads (`azure-artifacts`, `azure-defaults`) happen at
+guide elicitation; it does not supply user answers. Skill loads (`apex-azure-artifacts`, `apex-azure-defaults`) happen at
 Phase 5 (artifact generation), not earlier. See
 [`agent-operating-frame.instructions.md`](../instructions/agent-operating-frame.instructions.md).
 </context_awareness>
@@ -54,7 +54,7 @@ Phase 5 (artifact generation), not earlier. See
 <output_contract>
 Produce in `agent-output/{project}/`:
 
-- `01-requirements.md` — H2 structure matches the azure-artifacts
+- `01-requirements.md` — H2 structure matches the apex-azure-artifacts
   `01-requirements-template.md` exactly.
 - `README.md` — rendered from the project README template.
 - `sku-manifest.json` + `sku-manifest.md` at rev 1 (every entry
@@ -208,7 +208,7 @@ Step 1 creates `agent-output/{project}/sku-manifest.json` and renders `sku-manif
 
 - **Always run Phase 3j (SKU and sizing preferences elicitation)** for every project. The
   user must be asked even when the expected answer is "no preference". See
-  [`service-class-menu.md` § 3j](../skills/azure-defaults/references/service-class-menu.md#3j-sku-and-sizing-preferences-mandatory-for-every-project).
+  [`service-class-menu.md` § 3j](../skills/apex-azure-defaults/references/service-class-menu.md#3j-sku-and-sizing-preferences-mandatory-for-every-project).
 - Capture hard preferences the user volunteers: pinned SKUs/sizes, tier floors driven by
   compliance or existing commitments, reserved-instance purchases, and per-environment
   overrides.
@@ -327,7 +327,7 @@ apex-recall decide <project> --key cost_monitoring_exception \
 
 This phase is required. Read once, then follow the batched-`askQuestions`
 runbook in
-[`azure-defaults/references/service-class-menu.md`](../skills/azure-defaults/references/service-class-menu.md)
+[`apex-azure-defaults/references/service-class-menu.md`](../skills/apex-azure-defaults/references/service-class-menu.md)
 (Batches A → B → C → 3i confirm → **3j SKU/sizing preferences (mandatory)**).
 Externalised to keep per-turn system-prompt replay small; the full per-class
 question set, options, and batching rules live in that reference. Step 3j
@@ -371,10 +371,10 @@ Only enter this phase after Phases 1-4 have each collected answers.
 
 Read these references once, after questioning:
 
-1. `.github/skills/azure-defaults/SKILL.md`
-2. `.github/skills/azure-artifacts/SKILL.md`
-3. `.github/skills/azure-artifacts/templates/01-requirements.template.md`
-4. `.github/skills/azure-artifacts/templates/PROJECT-README.template.md`
+1. `.github/skills/apex-azure-defaults/SKILL.md`
+2. `.github/skills/apex-azure-artifacts/SKILL.md`
+3. `.github/skills/apex-azure-artifacts/templates/01-requirements.template.md`
+4. `.github/skills/apex-azure-artifacts/templates/PROJECT-README.template.md`
 5. `.github/instructions/sku-manifest.instructions.md`
 
 Then:
@@ -479,7 +479,7 @@ Column values come from the JSON `findings[]` array fields: `category`
 ### 6c. Per-finding decision panel
 
 Follow `## Per-Finding Decision Protocol` in
-[`adversarial-review-protocol.md`](../skills/azure-defaults/references/adversarial-review-protocol.md)
+[`adversarial-review-protocol.md`](../skills/apex-azure-defaults/references/adversarial-review-protocol.md)
 for question shape, option labels, deterministic action mapping,
 batched-`askQuestions` rules, and the 12-question cap. Requirements-step
 specifics:
@@ -568,7 +568,7 @@ industries only).
 After `apex-recall complete-step` + writing `00-handoff.md`, end the
 final chat message with this line, **verbatim**, on its own final line
 (full contract:
-[`compression-templates.md`](../skills/context-management/references/compression-templates.md#gate-boundary-clear-handoff-contract);
+[`compression-templates.md`](../skills/apex-context-management/references/compression-templates.md#gate-boundary-clear-handoff-contract);
 validator: `npm run validate:orchestrator-handoff`):
 
 ```text

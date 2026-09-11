@@ -170,7 +170,7 @@ chat — always paths.
 ## Context Awareness
 
 Read each `SKILL.md` only once. If context approaches 80%, apply the artifact
-compression tiers from the context-management skill (Mode A: Runtime Compression)
+compression tiers from the apex-context-management skill (Mode A: Runtime Compression)
 to predecessor artifacts in `agent-output/`. At gates, write 00-handoff.md to
 preserve state for potential session breaks.
 
@@ -231,10 +231,10 @@ after Step 1 completes.
 After confirming the project name, read these four skill files in a
 **single parallel `read_file` batch** (one tool call, four files).
 
-1. `.github/skills/golden-principles/SKILL.md` — quality principles
-2. `.github/skills/azure-defaults/SKILL.md` — regions, tags
-3. `.github/skills/azure-artifacts/SKILL.md` — artifact structure
-4. `.github/skills/workflow-engine/SKILL.md` — DAG model
+1. `.github/skills/apex-golden-principles/SKILL.md` — quality principles
+2. `.github/skills/apex-azure-defaults/SKILL.md` — regions, tags
+3. `.github/skills/apex-azure-artifacts/SKILL.md` — artifact structure
+4. `.github/skills/apex-workflow-engine/SKILL.md` — DAG model
 
 Keep `## Skill Context` in `00-handoff.md` as canonical source paths only.
 Do not copy defaults, tags, or security prose into the handoff; specialists load required
@@ -242,8 +242,8 @@ current sections and reuse content already available in their own context.
 
 ### Graph-Based Step Routing
 
-Follow the routing procedure in `.github/skills/workflow-engine/SKILL.md`
-using `.github/skills/workflow-engine/templates/workflow-graph.json` and
+Follow the routing procedure in `.github/skills/apex-workflow-engine/SKILL.md`
+using `.github/skills/apex-workflow-engine/templates/workflow-graph.json` and
 `tools/registry/agent-registry.json`. Resolve the node from `session.steps`,
 `session.current_step`, and recorded decisions, not a numeric increment.
 For an agent-step node, **present its handoff button and stop**; do not execute
@@ -272,7 +272,7 @@ complexity only informs its recommended shape.
 
 At **Gate-1** (after Requirements approval) and refreshed at **Gate-2_5** (after
 Governance), derive `decisions.complexity` using the canonical formula in
-`.github/skills/workflow-engine/templates/workflow-graph.json`
+`.github/skills/apex-workflow-engine/templates/workflow-graph.json`
 (`metadata.complexity_routing`). Read the formula from the graph; do not
 re-invent it. Inputs: `resource_count` (from Requirements at Gate-1; use the
 architecture assessment when available at Gate-2_5),
@@ -398,7 +398,7 @@ lessons narrative as a completion artifact.
 
 ## Approval Gates, Handoff Document & Delegation Rules
 
-**Read** `.github/skills/workflow-engine/references/orchestrator-handoff-guide.md` for:
+**Read** `.github/skills/apex-workflow-engine/references/orchestrator-handoff-guide.md` for:
 
 - IaC routing logic (Bicep vs Terraform agent mapping)
 - Complexity routing (review pass counts)
@@ -532,7 +532,7 @@ Orchestrator with the project name — no special resume prompt needed.
 Every accepted Gate (1, 2, 2.5, 3, 4, 5) ends with a mandatory
 `/clear`-handoff — the headline token-reduction mechanism. Full
 contract:
-[`compression-templates.md#gate-boundary-clear-handoff-contract`](../skills/context-management/references/compression-templates.md#gate-boundary-clear-handoff-contract).
+[`compression-templates.md#gate-boundary-clear-handoff-contract`](../skills/apex-context-management/references/compression-templates.md#gate-boundary-clear-handoff-contract).
 
 ### Gate-acceptance procedure (verbatim, every gate)
 
@@ -573,7 +573,7 @@ or revision passes triggered by accepted findings), **every pass after
 Pass 1** must be preceded by its own `/clear` handoff — not just the
 final gate. The full procedure (per-pass checkpoint, in-chat fix application,
 verbatim resume line, smoke-verify chat-span ceiling) lives in
-[`compression-templates.md#mid-step-clear-handoff-multi-pass-challenger-reviews`](../skills/context-management/references/compression-templates.md#mid-step-clear-handoff-multi-pass-challenger-reviews).
+[`compression-templates.md#mid-step-clear-handoff-multi-pass-challenger-reviews`](../skills/apex-context-management/references/compression-templates.md#mid-step-clear-handoff-multi-pass-challenger-reviews).
 
 Between Pass N and Pass N+1:
 

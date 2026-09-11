@@ -11,7 +11,7 @@ Usage::
 
     python3 site/src/assets/diagrams/workflow-deep-dive/gen.py
 
-Source of truth: ``.github/skills/workflow-engine/templates/workflow-graph.json``.
+Source of truth: ``.github/skills/apex-workflow-engine/templates/workflow-graph.json``.
 This script renders an abstract, project-agnostic view — never a specific
 ``agent-output/{project}/`` run.
 """

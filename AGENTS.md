@@ -45,7 +45,7 @@ terraform fmt -check -recursive infra/terraform/ && npm run validate:terraform
 
 Code style (CAF naming, required tags, default region, AVM-first, unique
 suffix pattern) is documented in
-[.github/skills/azure-defaults/SKILL.md](.github/skills/azure-defaults/SKILL.md).
+[.github/skills/apex-azure-defaults/SKILL.md](.github/skills/apex-azure-defaults/SKILL.md).
 Agents read that file as part of their mandatory skill load; this file
 no longer duplicates the tables.
 
@@ -84,7 +84,7 @@ relevant validations before committing.
 | Post | Lessons      | `09-lessons-learned.json/.md`                            | —                                                         |
 
 All outputs → `agent-output/{project}/`. Source of truth:
-`.github/skills/workflow-engine/templates/workflow-graph.json`.
+`.github/skills/apex-workflow-engine/templates/workflow-graph.json`.
 The Orchestrator drives all steps with human approval gates. The unified
 05-IaC Planner feeds dual IaC tracks: Bicep (06b/07b) and Terraform (06t/07t).
 Architecture also requires an independent cost-feasibility review in every mode.
@@ -126,6 +126,6 @@ For deeper guidance, agents read these on demand:
 - azd multi-project rules: `.github/instructions/azure-yaml.instructions.md` (auto-loaded for `azure.yaml`)
 - Terminal hygiene (no `mv -i`/`rm -i`/`read -p`, pipe long output to file):
   `.github/instructions/no-interactive-shell.instructions.md` (enforced by `lint:safe-shell`)
-- Azure defaults: `.github/skills/azure-defaults/SKILL.md`
-- Workflow DAG: `.github/skills/workflow-engine/templates/workflow-graph.json`
+- Azure defaults: `.github/skills/apex-azure-defaults/SKILL.md`
+- Workflow DAG: `.github/skills/apex-workflow-engine/templates/workflow-graph.json`
 - Full validation reference: <https://apexops.pro/reference/validation-reference/>

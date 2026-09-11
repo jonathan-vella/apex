@@ -170,8 +170,8 @@ diagnostics (e.g., which resources were deployed, which SKUs were chosen).
 
 Batch independent skill reads into one parallel `read_file` call.
 
-1. **Read** `.github/skills/azure-defaults/SKILL.md` — regions, tags, security baseline
-2. **Read** `.github/skills/azure-diagnostics/SKILL.md` — KQL templates, per-resource health checks,
+1. **Read** `.github/skills/apex-azure-defaults/SKILL.md` — regions, tags, security baseline
+2. **Read** `.github/skills/apex-azure-diagnostics/SKILL.md` — KQL templates, per-resource health checks,
    severity classification, remediation playbooks
 
 ## 6-Phase Diagnostic Workflow

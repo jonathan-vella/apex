@@ -153,15 +153,15 @@ provides log parsing, token profiling, and hand-off gap analysis used by the
 11-Context Optimizer agent. Replaces the legacy `context-shredding` and
 `context-optimizer` skills.
 
-📁 **See**: `.github/skills/context-management/SKILL.md`
+📁 **See**: `.github/skills/apex-context-management/SKILL.md`
 
 ### Circuit Breaker
 
-A failure-handling pattern in the `iac-common` skill that defines mandatory stopping
+A failure-handling pattern in the `apex-iac-common` skill that defines mandatory stopping
 rules for deploy agents. Classifies failures into 6 categories with anomaly detection
 thresholds to prevent cascading deployment failures.
 
-📁 **See**: [.github/skills/iac-common/](https://github.com/jonathan-vella/apex/tree/main/.github/skills/iac-common)
+📁 **See**: [.github/skills/apex-iac-common/](https://github.com/jonathan-vella/apex/tree/main/.github/skills/apex-iac-common)
 
 ## D
 
@@ -176,8 +176,8 @@ DAG in `workflow-graph.json`.
 ### Design Agent
 
 Step 3 agent that generates architecture diagrams and Architecture Decision Records (ADRs).
-Optional step in the workflow. Uses `python-diagrams` for architecture
-diagrams and charts, and `azure-adr` for decision records.
+Optional step in the workflow. Uses `apex-python-diagrams` for architecture
+diagrams and charts, and `apex-azure-adr` for decision records.
 
 📁 **Output**: `agent-output/{project}/03-des-*.{py,png,svg,md}`
 

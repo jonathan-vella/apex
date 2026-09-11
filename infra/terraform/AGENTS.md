@@ -53,7 +53,7 @@ infra/terraform/{project}/
   terraform.tfvars     # Variable values (not committed for sensitive data)
   azure.yaml           # azd project manifest (infra.provider: terraform, infra.path: .)
   .azure/              # azd environment state (git-ignored)
-    plan.md            # azure-prepare output — source of truth for validate/deploy
+    plan.md            # apex-azure-prepare output — source of truth for validate/deploy
     {project}-{env}/   # Per-environment azd state (e.g., hub-spoke-dev/)
       .env             # azd environment variables
   modules/

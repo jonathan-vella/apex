@@ -4,7 +4,7 @@
  *
  * Scans `agent-output/<project>/06-policy-precheck.json` files and
  * enforces the contract in
- * `.github/skills/iac-common/references/policy-precheck-contract.md`.
+ * `.github/skills/apex-iac-common/references/policy-precheck-contract.md`.
  *
  * Errors are emitted when the file contains a contract contradiction
  * that would mislead a deploy agent. Warnings are emitted when the

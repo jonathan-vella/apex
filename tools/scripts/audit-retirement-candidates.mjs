@@ -195,7 +195,7 @@ function generatedOwner(filePath) {
     },
     "tools/registry/challenger-coverage-evidence.md": {
       generated_by: [],
-      source_of_truth: ".github/skills/azure-defaults/references/adversarial-checklists.md (manual comparison)",
+      source_of_truth: ".github/skills/apex-azure-defaults/references/adversarial-checklists.md (manual comparison)",
       regeneration_command: null,
     },
     "tools/registry/challenger-effectiveness.md": {

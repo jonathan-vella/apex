@@ -40,7 +40,7 @@ Review-depth opt-in: read `decisions.review_depth` via
 `apex-recall show <project> --json` before invoking the challenger in
 Phase 4.5. Default to `"default"` if absent. `"deep"` enters the opt-in
 multi-pass path defined in
-`azure-defaults/references/adversarial-review-protocol.md` without
+`apex-azure-defaults/references/adversarial-review-protocol.md` without
 re-prompting the user; `"default"` keeps Phase 4.5 skipped.
 </context_awareness>
 
@@ -83,7 +83,7 @@ is satisfied, and every resource that has an AVM module uses it.
 - Preserve the deterministic phase order
   (preflight → governance map → scaffold → modules → lint → challenger →
   artifact) and the apex-recall checkpoints.
-- Retrieval budget: at most one `microsoft-docs` query per resource type
+- Retrieval budget: at most one `apex-microsoft-docs` query per resource type
   to clarify an AVM-schema ambiguity, and at most one
   `microsoft-code-reference` lookup per pattern (e.g. PostgreSQL AAD-only,
   Key Vault network ACLs). Do not pre-fetch the catalog.
@@ -99,7 +99,7 @@ is satisfied, and every resource that has an AVM module uses it.
 
 Per the `## Output Contract` section below: preflight artifact, IaC tree, implementation
 reference. Update `agent-output/{project}/README.md` to mark Step 5 complete
-and list the artifacts (per the azure-artifacts skill).
+and list the artifacts (per the apex-azure-artifacts skill).
 
 # Stop rules
 
@@ -140,12 +140,12 @@ skill reads. Then load the guidance below and verify the Plan-Readiness Precondi
 before generation. Reuse unchanged content still in context; refresh missing
 or changed sections on resume.
 
-1. Read `.github/skills/azure-defaults/SKILL.md` — regions, tags, naming, AVM, security, unique suffix
-2. Read `.github/skills/azure-artifacts/SKILL.md` — H2 templates for `04-preflight-check.md` and `05-implementation-reference.md`
-3. Read artifact template files: `azure-artifacts/templates/04-preflight-check.template.md` + `05-implementation-reference.template.md`
-4. Read `.github/skills/azure-bicep-patterns/SKILL.md` — hub-spoke, PE, diagnostics, managed identity, module composition
+1. Read `.github/skills/apex-azure-defaults/SKILL.md` — regions, tags, naming, AVM, security, unique suffix
+2. Read `.github/skills/apex-azure-artifacts/SKILL.md` — H2 templates for `04-preflight-check.md` and `05-implementation-reference.md`
+3. Read artifact template files: `apex-azure-artifacts/templates/04-preflight-check.template.md` + `05-implementation-reference.template.md`
+4. Read `.github/skills/apex-azure-bicep-patterns/SKILL.md` — hub-spoke, PE, diagnostics, managed identity, module composition
 5. Read `.github/instructions/iac-bicep-best-practices.instructions.md` — governance mandate, dynamic tag list
-6. Read `.github/skills/context-management/SKILL.md` — runtime
+6. Read `.github/skills/apex-context-management/SKILL.md` — runtime
    compression for large plan/governance artifacts (Mode A)
 7. Read the execution-subagent prompt contract
    [tools/apex-prompts/utility-prompts/execution-subagent.prompt.md](../../tools/apex-prompts/utility-prompts/execution-subagent.prompt.md)
@@ -155,7 +155,7 @@ or changed sections on resume.
 
 ## Do
 
-> **Read** [`iac-common/references/codegen-do-dont.md`](../skills/iac-common/references/codegen-do-dont.md)
+> **Read** [`apex-iac-common/references/codegen-do-dont.md`](../skills/apex-iac-common/references/codegen-do-dont.md)
 > for the shared DO/DON'T rules that apply to both `06b` and `06t`
 > (preflight first, AVM-first, governance mapping, security baseline,
 > plan-lock, no inventing inputs, etc.). Bicep-specific additions only
@@ -191,11 +191,11 @@ Before starting, validate these files exist in `agent-output/{project}/`:
 3. **Wave 1+ contract artifacts** — `04-iac-contract.json`,
    `04-policy-property-map.json`, and `04-environment-manifest.json`
    (when identity / app regs / alerts / budgets are used). See
-   [`iac-common/references/contract-emission-and-handoff.md`](../skills/iac-common/references/contract-emission-and-handoff.md)
+   [`apex-iac-common/references/contract-emission-and-handoff.md`](../skills/apex-iac-common/references/contract-emission-and-handoff.md)
    → "Inputs from Step 4". Bicep param shape:
-   [`bicepparam-pattern.md`](../skills/azure-bicep-patterns/references/bicepparam-pattern.md).
+   [`bicepparam-pattern.md`](../skills/apex-azure-bicep-patterns/references/bicepparam-pattern.md).
    Identity rules:
-   [`identity-resolution.md`](../skills/azure-defaults/references/identity-resolution.md).
+   [`identity-resolution.md`](../skills/apex-azure-defaults/references/identity-resolution.md).
    If any required Wave 1+ artifact is missing, STOP → handoff to Planner.
 
 Use `sku-manifest.json` for authoritative SKU/tier selections; do not re-derive
@@ -224,7 +224,7 @@ Run `apex-recall show <project> --json` and verify, in order:
    `completeness_signature` matches `decisions.discovery_signature`
    recorded by the Planner. If any check fails, STOP and traverse
    `▶ Refresh Governance` per
-   `iac-common/references/governance-drift-routing.md` (L0 row).
+   `apex-iac-common/references/governance-drift-routing.md` (L0 row).
 
 If any condition fails, STOP and present the `↩ Return to Step 4` handoff.
 Do not enter Phase 1 with an open plan-level finding — that is the defect
@@ -267,7 +267,7 @@ from `04-implementation-plan.md` prose.
 ## Workflow
 
 Shared phase contract for both IaC tracks:
-`.github/skills/iac-common/references/codegen-shared-workflow.md`.
+`.github/skills/apex-iac-common/references/codegen-shared-workflow.md`.
 This agent substitutes Bicep-specific tools below.
 
 ### Phase 1: Preflight Check (MANDATORY)
@@ -284,7 +284,7 @@ source; `04-implementation-plan.md` is the prose mirror):
 6. If blockers found, use the `askQuestions` tool with a single
    form (header `Preflight Blockers Found`, options **Fix and re-run
    preflight** / **Abort — return to Planner**) per
-   [`iac-common/references/codegen-shared-workflow.md`](../skills/iac-common/references/codegen-shared-workflow.md)
+   [`apex-iac-common/references/codegen-shared-workflow.md`](../skills/apex-iac-common/references/codegen-shared-workflow.md)
    → "Preflight Blocker Form". On abort, STOP and present the Return
    to Step 4 handoff.
 
@@ -292,7 +292,7 @@ source; `04-implementation-plan.md` is the prose mirror):
 Phase 1, run the three contract validators
 (`validate:iac-contract`, `validate:iac-contract-consistency`,
 `validate:policy-property-map`) per
-[`iac-common/references/contract-emission-and-handoff.md`](../skills/iac-common/references/contract-emission-and-handoff.md)
+[`apex-iac-common/references/contract-emission-and-handoff.md`](../skills/apex-iac-common/references/contract-emission-and-handoff.md)
 → "Phase 1". Any non-zero exit ⇒ STOP and traverse `↩ Return to Step 4`.
 CodeGen never patches the contract.
 
@@ -311,7 +311,7 @@ from scratch.**
    `## 🛡️ Governance Compliance Matrix` section.
 2. If the section is **missing** or any row has `status !=
 "✅ satisfied"`, STOP and traverse `↩ Return to Step 4` per
-   `iac-common/references/governance-drift-routing.md` (L1 rows).
+   `apex-iac-common/references/governance-drift-routing.md` (L1 rows).
 3. For each matrix row, record the target Bicep property path and
    required value — these become the L2 attestations the validator
    will check after code generation.
@@ -327,12 +327,12 @@ from scratch.**
 > **GOVERNANCE GATE** — Never proceed to code generation with unresolved Deny
 > policy violations. Always use the `askQuestions` tool for user decisions.
 
-**Policy Effect Reference**: `azure-defaults/references/policy-effect-decision-tree.md`
+**Policy Effect Reference**: `apex-azure-defaults/references/policy-effect-decision-tree.md`
 
 ### Phase 1.6: Context Compaction
 
 Select Mode A compression from observed context usage per
-[`context-management/SKILL.md`](../skills/context-management/SKILL.md):
+[`apex-context-management/SKILL.md`](../skills/apex-context-management/SKILL.md):
 write one concise summary (preflight result + AVM/custom counts,
 governance compliance map status, deployment strategy, resource list
 with module paths). Avoid optional or redundant reads; load missing required
@@ -370,7 +370,7 @@ and replaces what was previously 20+ sequential per-file format calls.
 Generate `infra/bicep/{project}/azure.yaml` (azd manifest — **primary**)
 and `infra/bicep/{project}/deploy.ps1` (deprecated fallback). Full file
 contents and hook bodies:
-[`codegen-file-order.md`](../skills/iac-common/references/codegen-file-order.md) → Bicep.
+[`codegen-file-order.md`](../skills/apex-iac-common/references/codegen-file-order.md) → Bicep.
 Mandatory `azure.yaml` keys: `name: {project}`, `metadata.template`,
 `infra.provider: bicep`, `infra.path: .` (co-located), `infra.module`,
 `hooks.preprovision` (ARM token validation), `hooks.postprovision`
@@ -386,7 +386,7 @@ Invoke the listed validation subagent once; it runs lint and code review:
 Await APPROVED before Phase 4.5. Do not invent a separate lint or review worker.
 
 If a subagent **errors or times out** (distinct from returning a
-`NEEDS_REVISION`/`FAILED` verdict), apply the `iac-common` bounded-retry
+`NEEDS_REVISION`/`FAILED` verdict), apply the `apex-iac-common` bounded-retry
 pattern: retry the call once. If it fails again, stop and ask the user via
 `askQuestions` — Retry / Fix Inline / Abort. Do not advance to Phase 4.5 on
 an unresolved subagent error.
@@ -396,7 +396,7 @@ violations are a hard gate (fix before Phase 4.5).
 
 ### Phase 4.5: Adversarial Code Review (opt-in, default-skip)
 
-Read `azure-defaults/references/adversarial-review-protocol.md` for lens
+Read `apex-azure-defaults/references/adversarial-review-protocol.md` for lens
 table and invocation template.
 
 **Default**: Phase 4.5 is **skipped**. Step 5 challenger review is
@@ -432,7 +432,7 @@ baseline) inline; the plan is frozen.
 
 **Mechanical auto-fix before exit**: before declaring Step 5 complete,
 apply the mechanical-fix pass from
-`iac-common/references/codegen-shared-workflow.md` →
+`apex-iac-common/references/codegen-shared-workflow.md` →
 "Mechanical Auto-Fix Before Exiting" (LAW `dependsOn` wiring, CIDR
 parameterization, missing `@description`, tag completion) and re-run
 `bicep-validate-subagent` until it returns `APPROVED`. Exiting Step 5
@@ -457,7 +457,7 @@ Save validation status in `05-implementation-reference.md`. Artifact lint owned 
 ### Phase 4.6 + Phase 6: Validate Gate & IaC Handoff (MANDATORY, Wave 1+)
 
 Documented end-to-end in
-[`iac-common/references/contract-emission-and-handoff.md`](../skills/iac-common/references/contract-emission-and-handoff.md).
+[`apex-iac-common/references/contract-emission-and-handoff.md`](../skills/apex-iac-common/references/contract-emission-and-handoff.md).
 Bicep specifics:
 
 - **Phase 4.6** — `az deployment sub validate` against
@@ -519,7 +519,7 @@ decisions needed.
 
 ## Validation Checklist
 
-**Read** `.github/skills/azure-bicep-patterns/references/codegen-validation-checklist.md`
+**Read** `.github/skills/apex-azure-bicep-patterns/references/codegen-validation-checklist.md`
 — verify ALL items before marking Step 5 complete.
 
 ## Completion Handoff
@@ -527,7 +527,7 @@ decisions needed.
 After `apex-recall complete-step` + writing `00-handoff.md`, end the
 final chat message with this line, **verbatim**, on its own final line
 (full contract:
-[`compression-templates.md`](../skills/context-management/references/compression-templates.md#gate-boundary-clear-handoff-contract);
+[`compression-templates.md`](../skills/apex-context-management/references/compression-templates.md#gate-boundary-clear-handoff-contract);
 validator: `npm run validate:orchestrator-handoff`):
 
 ```text

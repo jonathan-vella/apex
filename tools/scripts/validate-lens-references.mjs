@@ -4,9 +4,9 @@
  *
  * Enforces that the set of adversarial-review lens names used across
  * `.github/agents/**` and
- * `.github/skills/workflow-engine/templates/workflow-graph.json` matches
+ * `.github/skills/apex-workflow-engine/templates/workflow-graph.json` matches
  * the registered set in
- * `.github/skills/azure-defaults/references/adversarial-review-protocol.md`
+ * `.github/skills/apex-azure-defaults/references/adversarial-review-protocol.md`
  * `## Lenses` table.
  *
  * Behavior:
@@ -32,8 +32,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { Reporter } from "./_lib/reporter.mjs";
 
-const PROTOCOL_PATH = ".github/skills/azure-defaults/references/adversarial-review-protocol.md";
-const WORKFLOW_GRAPH_PATH = ".github/skills/workflow-engine/templates/workflow-graph.json";
+const PROTOCOL_PATH = ".github/skills/apex-azure-defaults/references/adversarial-review-protocol.md";
+const WORKFLOW_GRAPH_PATH = ".github/skills/apex-workflow-engine/templates/workflow-graph.json";
 const AGENT_DIRS = [".github/agents"];
 
 const r = new Reporter("Lens-Reference Validator");

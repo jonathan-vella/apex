@@ -48,10 +48,10 @@ function check(description, condition) {
 // 1. Bicep Code Generator references governance constraints
 console.log("📄 06b-bicep-codegen.agent.md");
 const codeGenPath = ".github/agents/06b-bicep-codegen.agent.md";
-// Shared DO/DON'T bullets were extracted to iac-common/references/codegen-do-dont.md
+// Shared DO/DON'T bullets were extracted to apex-iac-common/references/codegen-do-dont.md
 // in Plan 01 Phase 4 (A1) — accept presence in either the agent body or the
 // canonical shared reference.
-const codeGenDoDontPath = ".github/skills/iac-common/references/codegen-do-dont.md";
+const codeGenDoDontPath = ".github/skills/apex-iac-common/references/codegen-do-dont.md";
 const fileOrSharedRef = (pattern) => fileContains(codeGenPath, pattern) || fileContains(codeGenDoDontPath, pattern);
 check("References 04-governance-constraints", fileContains(codeGenPath, "04-governance-constraints"));
 check("Has Phase 1.5: Governance Compliance Mapping", fileContains(codeGenPath, "Phase 1.5"));
@@ -149,8 +149,8 @@ check('States "Azure Policy always wins"', fileContains(tfPolicyInstrPath, "Azur
 check("References iac-policy-compliance", fileContains(tfPolicyInstrPath, "iac-policy-compliance"));
 
 // 10. Governance discovery script produces BOTH bicepPropertyPath AND azurePropertyPath
-console.log("\n📄 azure-governance-discovery/scripts/discover.py (dual-field)");
-const govDiscSubPath = ".github/skills/azure-governance-discovery/scripts/discover.py";
+console.log("\n📄 apex-azure-governance-discovery/scripts/discover.py (dual-field)");
+const govDiscSubPath = ".github/skills/apex-azure-governance-discovery/scripts/discover.py";
 check("Produces bicepPropertyPath field in JSON output", fileContains(govDiscSubPath, "bicepPropertyPath"));
 check("Produces azurePropertyPath field in JSON output", fileContains(govDiscSubPath, "azurePropertyPath"));
 

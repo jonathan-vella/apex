@@ -35,7 +35,7 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..")
 const AGENTS_DIR = path.join(ROOT, ".github/agents");
 const REGISTRY = path.join(ROOT, "tools/apex-recall/docs/decision-keys.md");
 const SUBNET_PLAN_SCHEMA = path.join(ROOT, "tools/schemas/subnet-plan.schema.json");
-const VNET_PLANNING_REF = path.join(ROOT, ".github/skills/azure-defaults/references/vnet-planning.md");
+const VNET_PLANNING_REF = path.join(ROOT, ".github/skills/apex-azure-defaults/references/vnet-planning.md");
 
 const VNET_REQUIRES_TOKENS = new Set(["vnet-integration", "private-endpoints"]);
 

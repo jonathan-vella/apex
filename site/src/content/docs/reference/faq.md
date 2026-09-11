@@ -163,7 +163,7 @@ reference solutions for each of the 7 main workflow steps plus Step 3.5 Governan
 
 ## Customization & Multi-Project
 
-:::note[How do I customize upstream-owned files like the `azure-defaults` skill?]
+:::note[How do I customize upstream-owned files like the `apex-azure-defaults` skill?]
 When you create a repository from the Accelerator template, every file immediately
 becomes yours — there is no fork relationship, so there are no automatic upstream
 changes unless you opt in via the sync workflow.

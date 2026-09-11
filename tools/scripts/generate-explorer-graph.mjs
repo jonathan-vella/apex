@@ -532,7 +532,8 @@ function buildEdges(nodes) {
     for (const [otherSlug, otherNode] of skillSlugMap) {
       if (otherSlug === nSlug || seen.has(otherNode.id)) continue;
       // Match word-boundary backtick or plain reference
-      const re = new RegExp(`\\b${otherSlug}\\b`);
+      const sourceSlug = otherSlug.replace(/^apex-/, "");
+      const re = new RegExp(`\\b(?:${otherSlug}|${sourceSlug})\\b`);
       if (re.test(body)) {
         seen.add(otherNode.id);
         edges.push({

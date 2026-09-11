@@ -11,7 +11,7 @@ JSON is canonical; the markdown is a rendering for human review.
 
 Schema: `tools/schemas/sku-manifest.schema.json`
 Validators: `npm run validate:sku-manifest` + `npm run validate:sku-iac-coverage`
-Templates: `.github/skills/azure-artifacts/templates/sku-manifest.template.{md,json}`
+Templates: `.github/skills/apex-azure-artifacts/templates/sku-manifest.template.{md,json}`
 
 ## Scope — what belongs in `services[]`
 
@@ -95,7 +95,7 @@ checkpoints — **not** a free-form changelog.
 for every project, regardless of complexity, workload pattern, or whether
 the user has any pins. The elicitation is the Phase 3j batched
 `askQuestions` call defined in
-[`service-class-menu.md` § 3j](../skills/azure-defaults/references/service-class-menu.md#3j-sku-and-sizing-preferences-mandatory-for-every-project).
+[`service-class-menu.md` § 3j](../skills/apex-azure-defaults/references/service-class-menu.md#3j-sku-and-sizing-preferences-mandatory-for-every-project).
 
 Outcomes:
 
@@ -119,7 +119,7 @@ tightened to enforce this; until then, missing flags trigger a WARN.
 When a pre-flight quota or region SKU check fails:
 
 1. Surface to human via the orchestrator. Include available substitutes
-   from `azure-quotas` skill.
+   from `apex-azure-quotas` skill.
 2. Human responds with one of four `sku_conflict_resolution` enum
    values:
    - `revert_to_plan` — restart deploy with original SKU after quota fix

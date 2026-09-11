@@ -48,8 +48,8 @@ This repo is APEX (Azure Agentic Platform Engineering eXperience). It contains:
 - Registries: `tools/registry/agent-registry.json`,
   `tools/registry/count-manifest.json`,
   `.github/model-catalog.json`,
-  `.github/skills/vendor-prompting/rules.json`,
-  `.github/skills/workflow-engine/templates/workflow-graph.json`
+  `.github/skills/apex-vendor-prompting/rules.json`,
+  `.github/skills/apex-workflow-engine/templates/workflow-graph.json`
 - Pre-commit + pre-push hooks via `lefthook.yml`
 
 The project conventions and validation matrix live in `AGENTS.md`,
@@ -61,7 +61,7 @@ Read these orientation files BEFORE Phase 0:
 - `.github/copilot-instructions.md` (Copilot orchestration)
 - `tools/registry/agent-registry.json` (agent inventory)
 - `tools/registry/count-manifest.json` (entity counts; do NOT hard-code)
-- `.github/skills/workflow-engine/templates/workflow-graph.json` (DAG)
+- `.github/skills/apex-workflow-engine/templates/workflow-graph.json` (DAG)
 - `lefthook.yml` (pre-commit / pre-push wiring)
 - `package.json` (npm script catalog)
 
@@ -151,7 +151,7 @@ re-reading every body. This is the "knowledge graph" for this session.
      `astro.config.mjs` sidebar position.
 4. Compute cross-domain edges:
    - prompt → agent → skill → instruction
-   - validator → rule registry (`vendor-prompting/rules.json`)
+   - validator → rule registry (`apex-vendor-prompting/rules.json`)
    - npm script → script file → validator(s) → hook(s) → CI workflow(s)
    - skill → consuming agents (reverse index)
    - instruction `applyTo` → file globs that match
@@ -192,7 +192,7 @@ For each `tools/scripts/validate-*.mjs` and `lint-*.mjs`:
 1. Confirm it is wired into `package.json` and into `lefthook.yml`
    (pre-commit or pre-push) and into a CI workflow. List orphans.
 2. Confirm its rule IDs (when applicable) match the registries:
-   `vendor-prompting/rules.json`, schemas under `tools/schemas/`.
+   `apex-vendor-prompting/rules.json`, schemas under `tools/schemas/`.
 3. Run it once, capture pass/fail.
 4. Identify each validator's blast radius — i.e., which files it
    guards. Save to the domain report.
@@ -209,8 +209,8 @@ Sources of truth:
 - `tools/registry/count-manifest.json` (+ generator script)
 - `tools/registry/source-freshness.json`
 - `.github/model-catalog.json` (+ generator)
-- `.github/skills/vendor-prompting/rules.json`
-- `.github/skills/workflow-engine/templates/workflow-graph.json`
+- `.github/skills/apex-vendor-prompting/rules.json`
+- `.github/skills/apex-workflow-engine/templates/workflow-graph.json`
 - `tools/schemas/*.schema.json`
 
 For each registry: confirm schema, compute the regenerated form
@@ -234,7 +234,7 @@ Order: workflow-graph → agents → subagents (subagents are leaves).
 1. Validate the DAG (`validate-workflow-graph.mjs`) and the workflow
    table sync (`lint:workflow-table-sync`).
 2. For every agent:
-   - Frontmatter health (vendor-prompting rules from prior sweep).
+   - Frontmatter health (apex-vendor-prompting rules from prior sweep).
   - Body alignment with vendor (Claude XML idioms / GPT-5.6-Terra
      skeleton, per family in the review-index).
    - Handoff coverage: every handoff target exists; every handoff

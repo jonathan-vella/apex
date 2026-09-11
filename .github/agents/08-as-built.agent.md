@@ -82,7 +82,7 @@ the deployed state — not from prior plan estimates.
 # Success criteria
 
 - All seven `agent-output/{project}/07-*.md` artifacts written and follow the
-  H2 templates in `.github/skills/azure-artifacts/templates/`.
+  H2 templates in `.github/skills/apex-azure-artifacts/templates/`.
 - As-built architecture diagram produced as `07-ab-diagram.py` with `.png`
   and `.svg` siblings through the shared `diagram_io` helper.
 - Cost estimate values come verbatim from `cost-estimate-subagent` (no
@@ -113,7 +113,7 @@ the deployed state — not from prior plan estimates.
 
 The artifact contract is captured below in `## Output Files`, `## Expected
 Output`, and `## Validation Checklist`. Templates live in
-`.github/skills/azure-artifacts/templates/` (see `## Read Skills First`). The
+`.github/skills/apex-azure-artifacts/templates/` (see `## Read Skills First`). The
 Python diagram workflow is captured in `## As-Built Diagram Workflow`.
 
 # Stop rules
@@ -151,11 +151,11 @@ Check requested outputs and prerequisites first. Load the required skills and te
 for the current phase in a parallel batch; partial-output requests do not require unrelated templates.
 The full Step 7 suite still requires every listed output before completion.
 
-1. Read `.github/skills/azure-defaults/SKILL.md` — regions, tags, naming, pricing MCP names
-2. Read `.github/skills/azure-artifacts/SKILL.md` — H2 templates for all 07-\* artifacts
-3. Read `.github/skills/python-diagrams/SKILL.md` — architecture diagram and chart generation
-4. Read `.github/skills/context-management/SKILL.md` — runtime compression for predecessor artifacts (Mode A)
-5. Read the template files for your artifacts (all in `.github/skills/azure-artifacts/templates/`):
+1. Read `.github/skills/apex-azure-defaults/SKILL.md` — regions, tags, naming, pricing MCP names
+2. Read `.github/skills/apex-azure-artifacts/SKILL.md` — H2 templates for all 07-\* artifacts
+3. Read `.github/skills/apex-python-diagrams/SKILL.md` — architecture diagram and chart generation
+4. Read `.github/skills/apex-context-management/SKILL.md` — runtime compression for predecessor artifacts (Mode A)
+5. Read the template files for your artifacts (all in `.github/skills/apex-azure-artifacts/templates/`):
    - `07-design-document.template.md`
    - `07-operations-runbook.template.md`
    - `07-ab-cost-estimate.template.md`
@@ -177,7 +177,7 @@ The full Step 7 suite still requires every listed output before completion.
 - Query deployed Azure resources for real state (not just planned state)
 - Delegate pricing to `cost-estimate-subagent` for as-built cost estimates
 - Record `decisions.diagram_tool=python` for the as-built diagram.
-- Generate the diagram with the python-diagrams skill and shared `diagram_io` helper.
+- Generate the diagram with the apex-python-diagrams skill and shared `diagram_io` helper.
 - Preserve the shared enterprise reference-architecture visual language so Step 7 diagrams visually align with Step 3 outputs
 - Prefer fewer, larger service tiles over many small cards so deployed names remain readable
 - Keep the as-built diagram architecture-focused: show actual deployed names when useful,
@@ -186,7 +186,7 @@ The full Step 7 suite still requires every listed output before completion.
   do not leave isolated important services floating between the title and the main zones
 - Keep peer services in the same support band identical in width, height, and
   baseline alignment so the as-built row reads as one intentional support layer
-- Match H2 headings from azure-artifacts templates exactly
+- Match H2 headings from apex-azure-artifacts templates exactly
 - Include attribution headers from template files
 - Update `agent-output/{project}/README.md` — mark Step 7 complete
 - Cross-reference deployment summary for actual resource names and IDs
@@ -213,13 +213,13 @@ The full Step 7 suite still requires every listed output before completion.
 
 ## As-Built Diagram Workflow
 
-Use the [`python-diagrams`](../skills/python-diagrams/SKILL.md) skill. Every
+Use the [`apex-python-diagrams`](../skills/apex-python-diagrams/SKILL.md) skill. Every
 generated `.py` MUST import the shared `save_figure` helper from
-`.github/skills/python-diagrams/scripts/diagram_io.py` so the script emits
+`.github/skills/apex-python-diagrams/scripts/diagram_io.py` so the script emits
 both `.png` and `.svg` siblings in one run.
 
 1. **Author** `agent-output/{project}/07-ab-diagram.py` using the architecture
-   patterns in [`python-diagrams/SKILL.md`](../skills/python-diagrams/SKILL.md).
+   patterns in [`apex-python-diagrams/SKILL.md`](../skills/apex-python-diagrams/SKILL.md).
    Use **actually deployed** resource names; do not reuse the Step 3 plan
    placeholders.
 2. **Execute** the `.py` file (`python3 agent-output/{project}/07-ab-diagram.py`).
@@ -304,7 +304,7 @@ After deployment, `08-As-Built` is responsible for closing the loop:
 
 Apply the **Predecessor Artifact Read Policy** below — do not default to
 "read all 01–06 in full". Compression tiers come from
-`.github/skills/context-management/SKILL.md` (Mode A).
+`.github/skills/apex-context-management/SKILL.md` (Mode A).
 
 | Artifact                            | Read mode             | Why                                                              |
 | ----------------------------------- | --------------------- | ---------------------------------------------------------------- |
@@ -333,7 +333,7 @@ Then continue:
 ### Phase 1.5: Context Compaction
 
 Apply Mode A runtime compression according to observed context usage per
-[`context-management/SKILL.md`](../skills/context-management/SKILL.md):
+[`apex-context-management/SKILL.md`](../skills/apex-context-management/SKILL.md):
 write one concise summary (resource inventory with IDs/SKUs,
 architecture decisions + WAF scores, deployment result, compliance
 requirements, cost estimate baseline). Avoid optional or redundant reads;
@@ -361,7 +361,7 @@ Generate these files IN ORDER (each builds on the previous):
 
 ## Cost Estimation (07-ab-cost-estimate.md)
 
-> **Read** [`azure-defaults/references/cost-estimate-parent-contract.md`](../skills/azure-defaults/references/cost-estimate-parent-contract.md)
+> **Read** [`apex-azure-defaults/references/cost-estimate-parent-contract.md`](../skills/apex-azure-defaults/references/cost-estimate-parent-contract.md)
 > for the full Pricing Accuracy Gate, the 5-step delegation procedure,
 > the MCP-tools table, and the no-parametric-fallback rule. As-built-specific
 > usage notes only below.
@@ -379,9 +379,9 @@ As-built variants of the parent contract:
 
 ### Phase 3: As-Built Charts
 
-Read `.github/skills/python-diagrams/references/waf-cost-charts.md` and generate
+Read `.github/skills/apex-python-diagrams/references/waf-cost-charts.md` and generate
 four cost charts using as-built figures. Each `.py` file must import
-`save_figure` from `.github/skills/python-diagrams/scripts/diagram_io.py` so
+`save_figure` from `.github/skills/apex-python-diagrams/scripts/diagram_io.py` so
 it emits paired `.png` + `.svg` siblings:
 
 - `agent-output/{project}/07-ab-cost-distribution.py` + `.png` + `.svg`
@@ -508,7 +508,7 @@ This keeps the user informed during multi-phase operations.
 After `apex-recall complete-step` + writing `00-handoff.md`, end the
 final chat message with this line, **verbatim**, on its own final line
 (full contract:
-[`compression-templates.md`](../skills/context-management/references/compression-templates.md#gate-boundary-clear-handoff-contract);
+[`compression-templates.md`](../skills/apex-context-management/references/compression-templates.md#gate-boundary-clear-handoff-contract);
 validator: `npm run validate:orchestrator-handoff`):
 
 ```text

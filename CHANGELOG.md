@@ -20,6 +20,10 @@ for full details on this and all prior releases.
 
 ### Changed (Workflow guidance simplification)
 
+- Rename repository skills with exactly one `apex-` prefix and migrate live callers, discovery redirects,
+  tooling, documentation and Explorer views. This breaks explicit old-name integrations; no wrappers remain.
+  Preserve upstream attribution, public npm aliases, schema bytes and immutable historical evidence.
+- Share equivalent deployment safety rules and orphan-resource queries while retaining distinct skill entrypoints.
 - Resolve Requirements runbook timing, Design skip prerequisites and deployment-script ownership.
   Preserve compiled ARM evidence and refresh Terraform initialization without transferring plan authority to reviewers.
 - Price environment/region/stamp quantities explicitly, reuse only current equivalent evidence, and preserve

@@ -28,8 +28,8 @@ then capture a deployment summary.
 
 - Read `agent-output/{project}/00-session-state.json`; confirm `iac_tool` is
   `Bicep` and Step 5 is `complete`.
-- Read `.github/skills/iac-common/SKILL.md` for deploy patterns and known issues.
-- Read `.github/skills/iac-common/references/circuit-breaker.md` for failure
+- Read `.github/skills/apex-iac-common/SKILL.md` for deploy patterns and known issues.
+- Read `.github/skills/apex-iac-common/references/circuit-breaker.md` for failure
   handling.
 - Validate Azure CLI authentication first (`az account show`).
 - Use `azd provision` as the default deployment method; fall back to

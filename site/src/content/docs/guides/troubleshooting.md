@@ -166,13 +166,13 @@ validation output, and feed that back into the parent agent.
 Use explicit skill invocation:
 
 ```text
-"Use the python-diagrams skill to create a diagram"
+"Use the apex-python-diagrams skill to create a diagram"
 ```
 
 Check skill triggers in `SKILL.md`:
 
 ```bash
-cat .github/skills/python-diagrams/SKILL.md | head -30
+cat .github/skills/apex-python-diagrams/SKILL.md | head -30
 ```
 
 ### 4. Deployment Fails with Azure Policy Error
@@ -346,7 +346,7 @@ cat scripts/_lib/artifact-headings.mjs | grep -A20 "ARTIFACT_HEADINGS"
 **Fix order issues**: Compare with template:
 
 ```bash
-diff -u .github/skills/azure-artifacts/templates/01-requirements.template.md agent-output/{project}/01-requirements.md
+diff -u .github/skills/apex-azure-artifacts/templates/01-requirements.template.md agent-output/{project}/01-requirements.md
 ```
 
 ### 8. MCP Server Not Responding
@@ -524,7 +524,7 @@ az deployment group list -g {resource-group} --output table
 1. **Check prompt guide**: [Prompt Guide](../prompt-guide/) has usage examples
 2. **Read agent definitions**: `.github/agents/*.agent.md`
 3. **Check skill files**: `.github/skills/*/SKILL.md`
-4. **Review templates**: `.github/skills/azure-artifacts/templates/`
+4. **Review templates**: `.github/skills/apex-azure-artifacts/templates/`
 
 ### Still Stuck?
 

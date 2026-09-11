@@ -70,7 +70,7 @@ for E2E), generate the lessons-learned artifacts:
 
 1. **Read** `09-lessons-learned.json` — the accumulated lesson entries
 2. **Generate** `09-lessons-learned.md` narrative using the H2 structure
-   from `azure-artifacts/templates/09-lessons-learned.template.md`
+   from `apex-azure-artifacts/templates/09-lessons-learned.template.md`
 3. If zero lessons were captured, state "no lessons recorded". Claim a clean
    run only when step/review evidence also proves no revisions or must_fix
    findings; otherwise report the collection gap.

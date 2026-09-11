@@ -47,9 +47,9 @@ rather than asking the parent to paste content.
 Read each `SKILL.md` once — there is a single tier (no digest/minimal
 variants):
 
-- `.github/skills/azure-defaults/SKILL.md` for AVM versions, CAF naming,
+- `.github/skills/apex-azure-defaults/SKILL.md` for AVM versions, CAF naming,
   security baseline, and IaC review checks.
-- `.github/skills/iac-common/SKILL.md` for shared deploy strategies and
+- `.github/skills/apex-iac-common/SKILL.md` for shared deploy strategies and
   known issues.
 
 Read `04-governance-constraints.md` from `agent-output/{project}/` whenever
@@ -86,7 +86,7 @@ review as `CRITICAL` when any of the following render-level conditions hold:
 Report each hit under `❌ Failed Checks` with severity `CRITICAL`, the
 resource type, the offending property path, the chosen SKU, and a
 recommendation that points at the `SKU-Default Mismatch` section in
-[`azure-bicep-patterns/references/avm-pitfalls.md`](../../skills/azure-bicep-patterns/references/avm-pitfalls.md).
+[`apex-azure-bicep-patterns/references/avm-pitfalls.md`](../../skills/apex-azure-bicep-patterns/references/avm-pitfalls.md).
 This forces `Overall Status: FAILED` and routes back to CodeGen instead of
 letting the parent agent advance to `bicep-whatif-subagent` or deploy.
 </sku_default_render_check>
@@ -141,7 +141,7 @@ Verdict mapping: any critical → `FAILED`; high-only → `NEEDS_REVISION`;
 otherwise → `APPROVED`. A non-zero `Governance.Mismatched` count
 forces `Overall Status: FAILED` and the parent agent applies the
 drift routing matrix in
-[`iac-common/references/governance-drift-routing.md`](../../skills/iac-common/references/governance-drift-routing.md)
+[`apex-iac-common/references/governance-drift-routing.md`](../../skills/apex-iac-common/references/governance-drift-routing.md)
 (L2 rows): mechanical mismatch → CodeGen self-fix; matrix-missing → return
 to Planner; AVM property gap → return to Planner + 04g-Governance.
 </output_contract>
@@ -152,7 +152,7 @@ Before composing findings:
 1. Read every `.bicep` and `.bicepparam` file under the supplied directory.
 2. Re-read the lint and build console output collected in Phase 1.
 3. Inspect the project's governance JSON and relevant Markdown details, plus required
-  `azure-defaults/SKILL.md` sections. Reuse current content still available; there is no skill digest tier.
+  `apex-azure-defaults/SKILL.md` sections. Reuse current content still available; there is no skill digest tier.
 4. For every finding, quote the exact resource block, parameter declaration,
    or diagnostic line that triggered it. Paraphrasing in `Detailed Findings`
    is a defect — copy the offending text inside backticks.
@@ -243,15 +243,15 @@ area maps to the severity column; collect concrete findings rather than
 generic statements.
 
 1. **AVM module usage** (HIGH) — every resource uses `br/public:avm/res/*`
-   with a version pinned to the `azure-defaults` reference list.
+   with a version pinned to the `apex-azure-defaults` reference list.
 2. **CAF naming and required tags** (HIGH) — names follow the CAF patterns
-  in `azure-defaults`; validate tag keys, values, and casing against the discovered policy contract.
+  in `apex-azure-defaults`; validate tag keys, values, and casing against the discovered policy contract.
   Use the canonical greenfield fallback only when no tag policy applies. `ManagedBy` is optional provenance.
 3. **Security baseline** (CRITICAL) — TLS 1.2+, HTTPS-only, no public blob
    access, Azure AD-only SQL auth, managed identities, Key Vault for
-   secrets, per the `azure-defaults` security baseline.
+   secrets, per the `apex-azure-defaults` security baseline.
 4. **Unique suffix pattern** — `uniqueString(resourceGroup().id)` generated
-   once in `main.bicep` and passed to modules (see `iac-common`).
+   once in `main.bicep` and passed to modules (see `apex-iac-common`).
 5. **Code quality** — the table below is non-negotiable for the
    listed severities:
 

@@ -5,6 +5,15 @@ description: "How skills and instructions guide agents"
 
 ## Skills System
 
+Repository skill names and directories use exactly one `apex-` prefix, including
+imported skills. Explicit integrations must use the new names: `azure-defaults`
+becomes `apex-azure-defaults`. There are no old-name compatibility wrappers.
+Agent names, public npm commands, instruction filenames, upstream identities,
+and externally installed skills are unchanged. See the
+[complete migration map and provenance][skill-migration].
+
+[skill-migration]: https://github.com/jonathan-vella/apex/blob/main/tools/tests/exec-plans/active/apex-workflow-audit.md#skill-merger-and-retirement-plan
+
 ### Skill Structure
 
 Each skill follows a standard layout:
@@ -41,18 +50,18 @@ count is computed by `tools/registry/count-manifest.json`. A grouped overview:
 
 | Domain               | Skills                                                                                                                                                                                                            |
 | -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Azure Infrastructure | `azure-defaults`, `azure-bicep-patterns`, `terraform-patterns`, `azure-validate`                                                                                                                                  |
-| Azure Operations     | `azure-diagnostics`, `azure-adr`, `azure-deploy`                                                                                                                                                                  |
-| Diagram & Chart      | `python-diagrams`, `mermaid`                                                                                                                                                                                      |
-| Artefact Generation  | `azure-artifacts`, `context-management`                                                                                                                                                                           |
-| Documentation        | `docs-writer`                                                                                                                                                                                                     |
-| Workflow and State   | `workflow-engine`, `golden-principles`                                                                                                                                                                            |
-| Deployment           | `iac-common`                                                                                                                                                                                                      |
-| GitHub Operations    | `github-operations`                                                                                                                                                                                               |
-| Terraform Tooling    | `terraform-search-import`, `terraform-test`                                                                                                                                                                       |
-| Azure Plugin Skills  | `azure-prepare`, `azure-cost-optimization`, `azure-compute`, `azure-compliance`, `azure-rbac`, `azure-storage`, `azure-kusto`, `azure-quotas`, `azure-resources`, `azure-cloud-migrate`, `entra-app-registration` |
-| Microsoft Learn      | `microsoft-docs`                                                                                                                                                                                                  |
-| Meta / Tooling       | `agent-authoring`, `context-management`                                                                                                                                                                           |
+| Azure Infrastructure | `apex-azure-defaults`, `apex-azure-bicep-patterns`, `apex-terraform-patterns`, `apex-azure-validate`                                                                                                                                  |
+| Azure Operations     | `apex-azure-diagnostics`, `apex-azure-adr`, `apex-azure-deploy`                                                                                                                                                                  |
+| Diagram & Chart      | `apex-python-diagrams`, `apex-mermaid`                                                                                                                                                                                      |
+| Artefact Generation  | `apex-azure-artifacts`, `apex-context-management`                                                                                                                                                                           |
+| Documentation        | `apex-docs-writer`                                                                                                                                                                                                     |
+| Workflow and State   | `apex-workflow-engine`, `apex-golden-principles`                                                                                                                                                                            |
+| Deployment           | `apex-iac-common`                                                                                                                                                                                                      |
+| GitHub Operations    | `apex-github-operations`                                                                                                                                                                                               |
+| Terraform Tooling    | `apex-terraform-search-import`, `apex-terraform-test`                                                                                                                                                                       |
+| Azure Plugin Skills  | `apex-azure-prepare`, `apex-azure-cost-optimization`, `apex-azure-compute`, `apex-azure-compliance`, `apex-azure-rbac`, `apex-azure-storage`, `apex-azure-kusto`, `apex-azure-quotas`, `apex-azure-resources`, `apex-azure-cloud-migrate`, `apex-entra-app-registration` |
+| Microsoft Learn      | `apex-microsoft-docs`                                                                                                                                                                                                  |
+| Meta / Tooling       | `apex-agent-authoring`, `apex-context-management`                                                                                                                                                                           |
 
 The skills domain table above is the live catalog. For the authoritative
 list of VS Code Copilot customization mechanisms (instructions, prompt
@@ -134,17 +143,17 @@ This section walks through creating a new skill from scratch.
 ### Step 1: Scaffold
 
 Copy an existing skill (for example
-[`azure-defaults`](https://github.com/jonathan-vella/apex/tree/main/.github/skills/azure-defaults))
+[`apex-azure-defaults`](https://github.com/jonathan-vella/apex/tree/main/.github/skills/apex-azure-defaults))
 as a starting point and rename the directory:
 
 ```bash
-cp -r .github/skills/azure-defaults .github/skills/my-new-skill
+cp -r .github/skills/apex-azure-defaults .github/skills/apex-my-new-skill
 ```
 
 The expected structure is:
 
 ```text
-.github/skills/my-new-skill/
+.github/skills/apex-my-new-skill/
 ├── SKILL.md          # Core overview (≤ 500 lines)
 ├── references/       # Deep reference material
 └── templates/        # Template files for artifact generation
@@ -152,9 +161,8 @@ The expected structure is:
 
 Authoring rules live in
 [`agent-skills.instructions.md`](https://github.com/jonathan-vella/apex/blob/main/.github/instructions/agent-skills.instructions.md).
-After scaffolding, run the sensei skill to iteratively improve frontmatter
-quality, and `npm run
-lint:skills-format` plus `npm run validate:agents` to verify.
+After scaffolding, review frontmatter against the authoring rules, then run
+`npm run lint:skills-format` plus `npm run validate:agents` to verify.
 
 ### Step 2: Write SKILL.md
 
@@ -162,7 +170,7 @@ The SKILL.md file requires YAML frontmatter:
 
 ```yaml
 ---
-name: my-new-skill
+name: apex-my-new-skill
 description: "Short description of the skill's purpose.
   USE FOR: keyword triggers.
   DO NOT USE FOR: anti-triggers."
@@ -175,7 +183,7 @@ Quick-reference tables, decision frameworks, and pointers to deeper content.
 
 **Frontmatter rules** (from `.github/instructions/agent-skills.instructions.md`):
 
-- `name` must match the folder name exactly
+- `name` must match the folder name, use kebab-case and exactly one `apex-` prefix, and stay within 64 characters
 - `description` must be an inline string (not a YAML block scalar)
 - Keep SKILL.md under 500 lines — move deep content to `references/`
 
@@ -200,13 +208,13 @@ Add a skill reference in the relevant agent's `.agent.md` body:
 ```markdown
 ## MANDATORY: Read Skills First
 
-1. **Read** `.github/skills/my-new-skill/SKILL.md`
+1. **Read** `.github/skills/apex-my-new-skill/SKILL.md`
 ```
 
 That's the entire wiring. The skill is now connected to the agent.
 There is no separate registry entry to update — skill wiring is
 discovered at runtime by `tools/scripts/validate-orphaned-content.mjs`,
-which scans agent bodies for `Read .github/skills/{name}/SKILL[.digest|.minimal].md`
+which scans agent bodies for `Read .github/skills/{name}/SKILL.md`
 references.
 
 > Earlier versions of the registry carried a `skills` (and

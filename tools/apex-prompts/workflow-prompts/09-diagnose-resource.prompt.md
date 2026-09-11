@@ -17,7 +17,7 @@ target resource or resource group, then produce a concise diagnostic report.
 - Confirm the target resource, symptom or hypothesis, and active subscription before checks begin.
 - Validate Azure CLI authentication with `az account show` after the target is known.
 - Run only approved diagnostic checks against the confirmed target.
-- Use `.github/skills/azure-diagnostics/SKILL.md` for diagnostic patterns and KQL templates.
+- Use `.github/skills/apex-azure-diagnostics/SKILL.md` for diagnostic patterns and KQL templates.
 - Classify findings by severity and provide remediation proposals without executing changes.
 - Save the report and return a short summary with next-step options.
 
@@ -53,6 +53,6 @@ target resource or resource group, then produce a concise diagnostic report.
    - Metric anomalies for CPU, memory, latency, or error rate
    - Diagnostic settings configuration
    - Network connectivity when applicable
-4. Use KQL templates from `azure-diagnostics` for Log Analytics queries.
+4. Use KQL templates from `apex-azure-diagnostics` for Log Analytics queries.
 5. Classify findings by severity and produce remediation proposals.
 6. Save the diagnostic report to `agent-output/{project}/08-resource-health-report.md`.

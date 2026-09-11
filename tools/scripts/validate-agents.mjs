@@ -572,7 +572,7 @@ function runModelAlignment() {
 
 /**
  * Inline rule registry. Each entry mirrors a row in
- * `.github/skills/vendor-prompting/rules.json`. The validator does not load
+ * `.github/skills/apex-vendor-prompting/rules.json`. The validator does not load
  * that file at runtime (avoids circularity); instead `--list-rules` dumps
  * this catalog and `validate-vendor-rules.mjs` cross-checks both directions.
  *
@@ -1103,7 +1103,7 @@ function runVendorPrompting() {
 
 /**
  * Workflow-handoff rule registry. Distinct from `VENDOR_RULES` so the
- * `lint:vendor-prompting` cross-check against `vendor-prompting/rules.json`
+ * `lint:vendor-prompting` cross-check against `apex-vendor-prompting/rules.json`
  * stays scoped to vendor rules only (D-C5).
  */
 const WORKFLOW_HANDOFF_RULES = [
@@ -1112,35 +1112,35 @@ const WORKFLOW_HANDOFF_RULES = [
     severity: "warn",
     appliesTo: "agent",
     sourceUrl:
-      "https://github.com/jonathan-vella/apex/blob/main/.github/skills/workflow-engine/references/handoff-validation-rules.md#b1a",
+      "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-workflow-engine/references/handoff-validation-rules.md#b1a",
   },
   {
     id: "workflow-handoff-artifact-sync-001",
     severity: "warn",
     appliesTo: "agent",
     sourceUrl:
-      "https://github.com/jonathan-vella/apex/blob/main/.github/skills/workflow-engine/references/handoff-validation-rules.md#b2",
+      "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-workflow-engine/references/handoff-validation-rules.md#b2",
   },
   {
     id: "workflow-handoff-self-loop-bound-001",
     severity: "warn",
     appliesTo: "agent",
     sourceUrl:
-      "https://github.com/jonathan-vella/apex/blob/main/.github/skills/workflow-engine/references/handoff-validation-rules.md#b3",
+      "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-workflow-engine/references/handoff-validation-rules.md#b3",
   },
   {
     id: "workflow-handoff-track-parity-001",
     severity: "warn",
     appliesTo: "agent",
     sourceUrl:
-      "https://github.com/jonathan-vella/apex/blob/main/.github/skills/workflow-engine/references/handoff-validation-rules.md#b4",
+      "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-workflow-engine/references/handoff-validation-rules.md#b4",
   },
   {
     id: "workflow-handoff-subagent-dispatch-001",
     severity: "warn",
     appliesTo: "agent",
     sourceUrl:
-      "https://github.com/jonathan-vella/apex/blob/main/.github/skills/workflow-engine/references/handoff-validation-rules.md#b5",
+      "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-workflow-engine/references/handoff-validation-rules.md#b5",
   },
 ];
 
@@ -1617,14 +1617,14 @@ function runWorkflowHandoffs() {
   allFindings.push(...r.findings);
 }
 
-const GRAPH_PATH_HUMAN = ".github/skills/workflow-engine/templates/workflow-graph.json";
+const GRAPH_PATH_HUMAN = ".github/skills/apex-workflow-engine/templates/workflow-graph.json";
 
 // ============================================================================
 // Self-check: cross-reference VENDOR_RULES vs rules.json
 // ============================================================================
 
 function listRules() {
-  const rulesJsonPath = ".github/skills/vendor-prompting/rules.json";
+  const rulesJsonPath = ".github/skills/apex-vendor-prompting/rules.json";
   let registry = null;
   if (fs.existsSync(rulesJsonPath)) {
     try {

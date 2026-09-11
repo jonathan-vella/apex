@@ -21,7 +21,7 @@ discovered policies always win and may add or rename keys.
 ### Example
 
 ```text
-Defaults (azure-defaults skill):  9 tags (APEX standard, lowercase)
+Defaults (apex-azure-defaults skill):  9 tags (APEX standard, lowercase)
 Governance constraints discovered: 9 tags (environment, owner,
   costcenter, application, workload, sla, backup-policy,
   maint-window, tech-contact)   ← note: tech-contact, not technical-contact

@@ -16,7 +16,7 @@ downstream IaC planning and deployment.
 
 [`04g-Governance`](https://github.com/jonathan-vella/apex/blob/main/.github/agents/04g-governance.agent.md)
 — uses the
-[`azure-governance-discovery`](https://github.com/jonathan-vella/apex/blob/main/.github/skills/azure-governance-discovery/SKILL.md)
+[`apex-azure-governance-discovery`](https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-governance-discovery/SKILL.md)
 skill.
 
 ## Invocation

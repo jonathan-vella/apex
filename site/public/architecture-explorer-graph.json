@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-09-11T05:22:51.119Z",
+  "generatedAt": "2026-09-11T07:21:19.585Z",
   "categories": [
     {
       "id": "agent",
@@ -112,10 +112,10 @@
           "10-Challenger"
         ],
         "skills": [
-          "golden-principles",
-          "azure-defaults",
-          "azure-artifacts",
-          "workflow-engine"
+          "apex-golden-principles",
+          "apex-azure-defaults",
+          "apex-azure-artifacts",
+          "apex-workflow-engine"
         ]
       }
     },
@@ -141,8 +141,8 @@
           "01-Orchestrator"
         ],
         "skills": [
-          "azure-defaults",
-          "azure-artifacts"
+          "apex-azure-defaults",
+          "apex-azure-artifacts"
         ]
       }
     },
@@ -170,9 +170,9 @@
           "01-Orchestrator"
         ],
         "skills": [
-          "azure-defaults",
-          "azure-artifacts",
-          "context-management"
+          "apex-azure-defaults",
+          "apex-azure-artifacts",
+          "apex-context-management"
         ]
       }
     },
@@ -198,10 +198,10 @@
           "01-Orchestrator"
         ],
         "skills": [
-          "azure-defaults",
-          "python-diagrams",
-          "azure-adr",
-          "azure-artifacts"
+          "apex-azure-defaults",
+          "apex-python-diagrams",
+          "apex-azure-adr",
+          "apex-azure-artifacts"
         ]
       }
     },
@@ -226,10 +226,10 @@
           "01-Orchestrator"
         ],
         "skills": [
-          "azure-defaults",
-          "azure-governance-discovery",
-          "azure-artifacts",
-          "iac-common"
+          "apex-azure-defaults",
+          "apex-azure-governance-discovery",
+          "apex-azure-artifacts",
+          "apex-iac-common"
         ]
       }
     },
@@ -257,12 +257,12 @@
           "01-Orchestrator"
         ],
         "skills": [
-          "azure-defaults",
-          "azure-artifacts",
-          "python-diagrams",
-          "azure-bicep-patterns",
-          "terraform-patterns",
-          "context-management"
+          "apex-azure-defaults",
+          "apex-azure-artifacts",
+          "apex-python-diagrams",
+          "apex-azure-bicep-patterns",
+          "apex-terraform-patterns",
+          "apex-context-management"
         ]
       }
     },
@@ -289,10 +289,10 @@
           "01-Orchestrator"
         ],
         "skills": [
-          "azure-defaults",
-          "azure-artifacts",
-          "azure-bicep-patterns",
-          "context-management"
+          "apex-azure-defaults",
+          "apex-azure-artifacts",
+          "apex-azure-bicep-patterns",
+          "apex-context-management"
         ]
       }
     },
@@ -319,10 +319,10 @@
           "01-Orchestrator"
         ],
         "skills": [
-          "azure-defaults",
-          "azure-artifacts",
-          "terraform-patterns",
-          "context-management"
+          "apex-azure-defaults",
+          "apex-azure-artifacts",
+          "apex-terraform-patterns",
+          "apex-context-management"
         ]
       }
     },
@@ -352,9 +352,9 @@
           "01-Orchestrator"
         ],
         "skills": [
-          "azure-defaults",
-          "azure-artifacts",
-          "iac-common"
+          "apex-azure-defaults",
+          "apex-azure-artifacts",
+          "apex-iac-common"
         ]
       }
     },
@@ -384,9 +384,9 @@
           "01-Orchestrator"
         ],
         "skills": [
-          "azure-defaults",
-          "azure-artifacts",
-          "iac-common"
+          "apex-azure-defaults",
+          "apex-azure-artifacts",
+          "apex-iac-common"
         ]
       }
     },
@@ -410,10 +410,10 @@
           "01-Orchestrator"
         ],
         "skills": [
-          "azure-defaults",
-          "azure-artifacts",
-          "python-diagrams",
-          "context-management"
+          "apex-azure-defaults",
+          "apex-azure-artifacts",
+          "apex-python-diagrams",
+          "apex-context-management"
         ]
       }
     },
@@ -437,8 +437,8 @@
           "01-Orchestrator"
         ],
         "skills": [
-          "azure-defaults",
-          "azure-diagnostics"
+          "apex-azure-defaults",
+          "apex-azure-diagnostics"
         ]
       }
     },
@@ -480,8 +480,8 @@
           "01-Orchestrator"
         ],
         "skills": [
-          "golden-principles",
-          "context-management"
+          "apex-golden-principles",
+          "apex-context-management"
         ]
       }
     },
@@ -516,8 +516,8 @@
         ],
         "handoffTargets": [],
         "skills": [
-          "azure-defaults",
-          "azure-artifacts"
+          "apex-azure-defaults",
+          "apex-azure-artifacts"
         ]
       }
     },
@@ -533,8 +533,8 @@
       "meta": {
         "model": "Claude Sonnet 5",
         "skills": [
-          "azure-defaults",
-          "iac-common"
+          "apex-azure-defaults",
+          "apex-iac-common"
         ]
       }
     },
@@ -564,8 +564,8 @@
       "meta": {
         "model": "GPT-5.6-Terra",
         "skills": [
-          "golden-principles",
-          "azure-defaults"
+          "apex-golden-principles",
+          "apex-azure-defaults"
         ]
       }
     },
@@ -623,371 +623,371 @@
       "meta": {
         "model": "Claude Sonnet 5",
         "skills": [
-          "azure-defaults",
-          "iac-common"
+          "apex-azure-defaults",
+          "apex-iac-common"
         ]
       }
     },
     {
-      "id": "skill:agent-authoring",
+      "id": "skill:apex-agent-authoring",
       "category": "skill",
-      "label": "agent-authoring",
+      "label": "apex-agent-authoring",
       "description": "**WORKFLOW SKILL** — Creates, restructures, and audits GitHub Copilot `.agent.md` and `.prompt.md` files with correct frontmatter, handoffs, model policy, context budgets, and validation. WHEN: \"create agent\", \"author custom agent\", \"edit agent definition\", \"agent architecture\", \"reduce agent tokens\", \"agent prompt audit\". DO NOT USE FOR: routine edits covered by auto-loaded instructions.",
-      "path": ".github/skills/agent-authoring/SKILL.md",
+      "path": ".github/skills/apex-agent-authoring/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/agent-authoring/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-agent-authoring/SKILL.md"
       },
       "meta": {}
     },
     {
-      "id": "skill:azure-adr",
+      "id": "skill:apex-azure-adr",
       "category": "skill",
-      "label": "azure-adr",
-      "description": "**ANALYSIS SKILL** — Creates Azure Architecture Decision Records (ADRs) with WAF pillar mapping, alternatives, and consequences. WHEN: \"create ADR\", \"document decision\", \"architecture decision record\", \"record why we chose\", \"WAF pillar justification\", \"trade-off analysis\". DO NOT USE FOR: IaC code (06b/06t agents), diagrams (python-diagrams), cost estimates (cost-estimate-subagent).",
-      "path": ".github/skills/azure-adr/SKILL.md",
+      "label": "apex-azure-adr",
+      "description": "**ANALYSIS SKILL** — Creates Azure Architecture Decision Records (ADRs) with WAF pillar mapping, alternatives, and consequences. WHEN: \"create ADR\", \"document decision\", \"architecture decision record\", \"record why we chose\", \"WAF pillar justification\", \"trade-off analysis\". DO NOT USE FOR: IaC code (06b/06t agents), diagrams (apex-python-diagrams), cost estimates (cost-estimate-subagent).",
+      "path": ".github/skills/apex-azure-adr/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/azure-adr/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-adr/SKILL.md"
       },
       "meta": {}
     },
     {
-      "id": "skill:azure-artifacts",
+      "id": "skill:apex-azure-artifacts",
       "category": "skill",
-      "label": "azure-artifacts",
-      "description": "**UTILITY SKILL** — Artifact template structures, H2 compliance rules, and documentation styling for agent outputs (Steps 1-7). WHEN: \"generate artifact\", \"check H2 structure\", \"artifact template\", \"step 7 as-built\". USE FOR: generating any agent artifact, checking H2 structure compliance. DO NOT USE FOR: Azure resource configuration (use azure-defaults), Bicep/Terraform patterns (use azure-bicep-patterns or terraform-patterns).",
-      "path": ".github/skills/azure-artifacts/SKILL.md",
+      "label": "apex-azure-artifacts",
+      "description": "**UTILITY SKILL** — Artifact template structures, H2 compliance rules, and documentation styling for agent outputs (Steps 1-7). WHEN: \"generate artifact\", \"check H2 structure\", \"artifact template\", \"step 7 as-built\". USE FOR: generating any agent artifact, checking H2 structure compliance. DO NOT USE FOR: Azure resource configuration (use apex-azure-defaults), Bicep/Terraform patterns (use apex-azure-bicep-patterns or apex-terraform-patterns).",
+      "path": ".github/skills/apex-azure-artifacts/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/azure-artifacts/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-artifacts/SKILL.md"
       },
       "meta": {}
     },
     {
-      "id": "skill:azure-bicep-patterns",
+      "id": "skill:apex-azure-bicep-patterns",
       "category": "skill",
-      "label": "azure-bicep-patterns",
-      "description": "**UTILITY SKILL** — Reusable Azure Bicep patterns: hub-spoke, private endpoints, diagnostics, AVM composition. WHEN: \"hub-spoke Bicep\", \"private endpoint module\", \"diagnostic settings\", \"AVM Bicep composition\". USE FOR: Bicep template design, hub-spoke networking, private endpoint patterns, AVM modules. DO NOT USE FOR: Terraform code (use terraform-patterns), architecture decisions (use azure-adr), troubleshooting, diagrams (use python-diagrams).",
-      "path": ".github/skills/azure-bicep-patterns/SKILL.md",
+      "label": "apex-azure-bicep-patterns",
+      "description": "**UTILITY SKILL** — Reusable Azure Bicep patterns: hub-spoke, private endpoints, diagnostics, AVM composition. WHEN: \"hub-spoke Bicep\", \"private endpoint module\", \"diagnostic settings\", \"AVM Bicep composition\". USE FOR: Bicep template design, hub-spoke networking, private endpoint patterns, AVM modules. DO NOT USE FOR: Terraform code (use apex-terraform-patterns), architecture decisions (use apex-azure-adr), troubleshooting, diagrams (use apex-python-diagrams).",
+      "path": ".github/skills/apex-azure-bicep-patterns/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/azure-bicep-patterns/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-bicep-patterns/SKILL.md"
       },
       "meta": {}
     },
     {
-      "id": "skill:azure-cloud-migrate",
+      "id": "skill:apex-azure-cloud-migrate",
       "category": "skill",
-      "label": "azure-cloud-migrate",
-      "description": "**WORKFLOW SKILL** — Assess and migrate cross-cloud workloads to Azure. Generates assessment reports and converts code from AWS, GCP, or other providers to Azure services. WHEN: \"migrate Lambda to Azure Functions\", \"migrate AWS to Azure\", \"convert AWS serverless to Azure\", \"migration readiness report\", \"cross-cloud migration\". DO NOT USE FOR: greenfield Azure deployment (azure-prepare), Azure-only refactor (azure-prepare).",
-      "path": ".github/skills/azure-cloud-migrate/SKILL.md",
+      "label": "apex-azure-cloud-migrate",
+      "description": "**WORKFLOW SKILL** — Assess and migrate cross-cloud workloads to Azure. Generates assessment reports and converts code from AWS, GCP, or other providers to Azure services. WHEN: \"migrate Lambda to Azure Functions\", \"migrate AWS to Azure\", \"convert AWS serverless to Azure\", \"migration readiness report\", \"cross-cloud migration\". DO NOT USE FOR: greenfield Azure deployment (apex-azure-prepare), Azure-only refactor (apex-azure-prepare).",
+      "path": ".github/skills/apex-azure-cloud-migrate/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/azure-cloud-migrate/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-cloud-migrate/SKILL.md"
       },
       "meta": {}
     },
     {
-      "id": "skill:azure-compliance",
+      "id": "skill:apex-azure-compliance",
       "category": "skill",
-      "label": "azure-compliance",
-      "description": "**ANALYSIS SKILL** — Azure compliance and security auditing: best practices, Key Vault expiration monitoring, resource validation. WHEN: \"compliance scan\", \"security audit\", \"Key Vault expiration check\", \"expired certificates\", \"orphaned resources\". DO NOT USE FOR: cost analysis (azure-cost-optimization), governance discovery (azure-governance-discovery).",
-      "path": ".github/skills/azure-compliance/SKILL.md",
+      "label": "apex-azure-compliance",
+      "description": "**ANALYSIS SKILL** — Azure compliance and security auditing: best practices, Key Vault expiration monitoring, resource validation. WHEN: \"compliance scan\", \"security audit\", \"Key Vault expiration check\", \"expired certificates\", \"orphaned resources\". DO NOT USE FOR: cost analysis (apex-azure-cost-optimization), governance discovery (apex-azure-governance-discovery).",
+      "path": ".github/skills/apex-azure-compliance/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/azure-compliance/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-compliance/SKILL.md"
       },
       "meta": {}
     },
     {
-      "id": "skill:azure-compute",
+      "id": "skill:apex-azure-compute",
       "category": "skill",
-      "label": "azure-compute",
-      "description": "**ANALYSIS SKILL** — Recommend Azure VM sizes and VMSS for workload, performance, and budget. Uses public docs and the Azure Retail Prices API. WHEN: \"recommend VM size\", \"choose Azure VM\", \"GPU VM\", \"compare VM sizes\", \"VMSS vs VM\", \"autoscale VMs\". DO NOT USE FOR: provisioning VMs (azure-prepare), VM pricing for budgets (ARM MCP).",
-      "path": ".github/skills/azure-compute/SKILL.md",
+      "label": "apex-azure-compute",
+      "description": "**ANALYSIS SKILL** — Recommend Azure VM sizes and VMSS for workload, performance, and budget. Uses public docs and the Azure Retail Prices API. WHEN: \"recommend VM size\", \"choose Azure VM\", \"GPU VM\", \"compare VM sizes\", \"VMSS vs VM\", \"autoscale VMs\". DO NOT USE FOR: provisioning VMs (apex-azure-prepare), VM pricing for budgets (ARM MCP).",
+      "path": ".github/skills/apex-azure-compute/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/azure-compute/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-compute/SKILL.md"
       },
       "meta": {}
     },
     {
-      "id": "skill:azure-cost-optimization",
+      "id": "skill:apex-azure-cost-optimization",
       "category": "skill",
-      "label": "azure-cost-optimization",
-      "description": "**ANALYSIS SKILL** — Identify cost savings across Azure subscriptions via cost + utilization analysis. WHEN: \"optimize Azure costs\", \"reduce Azure spending\", \"find cost savings\", \"rightsize VMs\", \"find orphaned resources\", \"optimize Redis costs\". DO NOT USE FOR: deploying (azure-deploy), general diagnostics (azure-diagnostics), security issues (azure-compliance).",
-      "path": ".github/skills/azure-cost-optimization/SKILL.md",
+      "label": "apex-azure-cost-optimization",
+      "description": "**ANALYSIS SKILL** — Identify cost savings across Azure subscriptions via cost + utilization analysis. WHEN: \"optimize Azure costs\", \"reduce Azure spending\", \"find cost savings\", \"rightsize VMs\", \"find orphaned resources\", \"optimize Redis costs\". DO NOT USE FOR: deploying (apex-azure-deploy), general diagnostics (apex-azure-diagnostics), security issues (apex-azure-compliance).",
+      "path": ".github/skills/apex-azure-cost-optimization/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/azure-cost-optimization/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-cost-optimization/SKILL.md"
       },
       "meta": {}
     },
     {
-      "id": "skill:azure-defaults",
+      "id": "skill:apex-azure-defaults",
       "category": "skill",
-      "label": "azure-defaults",
+      "label": "apex-azure-defaults",
       "description": "**UTILITY SKILL** — Applies canonical Azure defaults through an IaC workflow covering governance precedence, CAF naming, AVM-first composition, unique suffixes, cost monitoring, VNet planning, and lifecycle checks. WHEN: \"Azure naming convention\", \"CAF naming\", \"resource tags\", \"AVM module\", \"security baseline\", \"region default\". DO NOT USE FOR: artifact templates or pricing lookups.",
-      "path": ".github/skills/azure-defaults/SKILL.md",
+      "path": ".github/skills/apex-azure-defaults/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/azure-defaults/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-defaults/SKILL.md"
       },
       "meta": {}
     },
     {
-      "id": "skill:azure-deploy",
+      "id": "skill:apex-azure-deploy",
       "category": "skill",
-      "label": "azure-deploy",
-      "description": "**WORKFLOW SKILL** — Execute Azure deployments (azd up, azd deploy, terraform apply) for already-prepared apps with built-in error recovery. WHEN: 'run azd up', 'run azd deploy', 'push to production', 'go live', 'bicep deploy', 'terraform apply', 'publish to Azure'. DO NOT USE FOR: creating new apps (azure-prepare), pre-deploy checks (azure-validate).",
-      "path": ".github/skills/azure-deploy/SKILL.md",
+      "label": "apex-azure-deploy",
+      "description": "**WORKFLOW SKILL** — Execute Azure deployments (azd up, azd deploy, terraform apply) for already-prepared apps with built-in error recovery. WHEN: 'run azd up', 'run azd deploy', 'push to production', 'go live', 'bicep deploy', 'terraform apply', 'publish to Azure'. DO NOT USE FOR: creating new apps (apex-azure-prepare), pre-deploy checks (apex-azure-validate).",
+      "path": ".github/skills/apex-azure-deploy/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/azure-deploy/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-deploy/SKILL.md"
       },
       "meta": {}
     },
     {
-      "id": "skill:azure-diagnostics",
+      "id": "skill:apex-azure-diagnostics",
       "category": "skill",
-      "label": "azure-diagnostics",
-      "description": "**WORKFLOW SKILL** — Debug and troubleshoot Azure production issues: Container Apps + Function Apps diagnostics, KQL log analysis, health checks. WHEN: 'debug production issues', 'troubleshoot container apps', 'troubleshoot function apps', 'image pull failures', 'cold start issues', 'health probe failures'. DO NOT USE FOR: pre-deployment validation (azure-validate), cost analysis (azure-cost-optimization).",
-      "path": ".github/skills/azure-diagnostics/SKILL.md",
+      "label": "apex-azure-diagnostics",
+      "description": "**WORKFLOW SKILL** — Debug and troubleshoot Azure production issues: Container Apps + Function Apps diagnostics, KQL log analysis, health checks. WHEN: 'debug production issues', 'troubleshoot container apps', 'troubleshoot function apps', 'image pull failures', 'cold start issues', 'health probe failures'. DO NOT USE FOR: pre-deployment validation (apex-azure-validate), cost analysis (apex-azure-cost-optimization).",
+      "path": ".github/skills/apex-azure-diagnostics/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/azure-diagnostics/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-diagnostics/SKILL.md"
       },
       "meta": {}
     },
     {
-      "id": "skill:azure-governance-discovery",
+      "id": "skill:apex-azure-governance-discovery",
       "category": "skill",
-      "label": "azure-governance-discovery",
+      "label": "apex-azure-governance-discovery",
       "description": "**ANALYSIS SKILL** — Azure Policy discovery: effective assignments (incl. MG-inherited), definitions/exemptions, effect classification, emits governance-constraints JSON. WHEN: 'Azure policy discovery', 'effective policy assignments', 'governance constraints', '04g-Governance Phase 1', 'refresh governance JSON'. DO NOT USE FOR: artifact writing, architecture mapping.",
-      "path": ".github/skills/azure-governance-discovery/SKILL.md",
+      "path": ".github/skills/apex-azure-governance-discovery/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/azure-governance-discovery/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-governance-discovery/SKILL.md"
       },
       "meta": {}
     },
     {
-      "id": "skill:azure-kusto",
+      "id": "skill:apex-azure-kusto",
       "category": "skill",
-      "label": "azure-kusto",
-      "description": "**ANALYSIS SKILL** — Query and analyze data in Azure Data Explorer (Kusto/ADX) using KQL. WHEN: \"KQL queries\", \"Kusto database queries\", \"Azure Data Explorer\", \"ADX clusters\", \"time series data\", \"IoT telemetry\", \"anomaly detection\". DO NOT USE FOR: App Insights / Log Analytics troubleshooting (azure-diagnostics), cost analysis (azure-cost-optimization).",
-      "path": ".github/skills/azure-kusto/SKILL.md",
+      "label": "apex-azure-kusto",
+      "description": "**ANALYSIS SKILL** — Query and analyze data in Azure Data Explorer (Kusto/ADX) using KQL. WHEN: \"KQL queries\", \"Kusto database queries\", \"Azure Data Explorer\", \"ADX clusters\", \"time series data\", \"IoT telemetry\", \"anomaly detection\". DO NOT USE FOR: App Insights / Log Analytics troubleshooting (apex-azure-diagnostics), cost analysis (apex-azure-cost-optimization).",
+      "path": ".github/skills/apex-azure-kusto/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/azure-kusto/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-kusto/SKILL.md"
       },
       "meta": {}
     },
     {
-      "id": "skill:azure-prepare",
+      "id": "skill:apex-azure-prepare",
       "category": "skill",
-      "label": "azure-prepare",
-      "description": "**WORKFLOW SKILL** — Prepare Azure apps for deployment (Bicep/Terraform, azure.yaml, Dockerfiles). WHEN: \"create app\", \"build web app\", \"create API\", \"deploy to Azure\", \"generate Bicep\", \"generate Terraform\", \"function app\", \"add authentication\", \"managed identity\". DO NOT USE FOR: cross-cloud migration (azure-cloud-migrate), executing deploys (azure-deploy), preflight (azure-validate).",
-      "path": ".github/skills/azure-prepare/SKILL.md",
+      "label": "apex-azure-prepare",
+      "description": "**WORKFLOW SKILL** — Prepare Azure apps for deployment (Bicep/Terraform, azure.yaml, Dockerfiles). WHEN: \"create app\", \"build web app\", \"create API\", \"deploy to Azure\", \"generate Bicep\", \"generate Terraform\", \"function app\", \"add authentication\", \"managed identity\". DO NOT USE FOR: cross-cloud migration (apex-azure-cloud-migrate), executing deploys (apex-azure-deploy), preflight (apex-azure-validate).",
+      "path": ".github/skills/apex-azure-prepare/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/azure-prepare/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-prepare/SKILL.md"
       },
       "meta": {}
     },
     {
-      "id": "skill:azure-quotas",
+      "id": "skill:apex-azure-quotas",
       "category": "skill",
-      "label": "azure-quotas",
-      "description": "**UTILITY SKILL** — Check and manage Azure quotas and usage across providers for deployment planning, capacity validation, and region selection. WHEN: \"check quotas\", \"service limits\", \"request quota increase\", \"quota exceeded\", \"validate capacity\", \"regional availability\", \"vCPU limit\". DO NOT USE FOR: deployment execution (azure-deploy), cost analysis (azure-cost-optimization).",
-      "path": ".github/skills/azure-quotas/SKILL.md",
+      "label": "apex-azure-quotas",
+      "description": "**UTILITY SKILL** — Check and manage Azure quotas and usage across providers for deployment planning, capacity validation, and region selection. WHEN: \"check quotas\", \"service limits\", \"request quota increase\", \"quota exceeded\", \"validate capacity\", \"regional availability\", \"vCPU limit\". DO NOT USE FOR: deployment execution (apex-azure-deploy), cost analysis (apex-azure-cost-optimization).",
+      "path": ".github/skills/apex-azure-quotas/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/azure-quotas/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-quotas/SKILL.md"
       },
       "meta": {}
     },
     {
-      "id": "skill:azure-rbac",
+      "id": "skill:apex-azure-rbac",
       "category": "skill",
-      "label": "azure-rbac",
-      "description": "**ANALYSIS SKILL** — Find the right Azure RBAC role for an identity with least-privilege access; generate CLI, Bicep, and Terraform code to assign it. WHEN: \"what role should I assign\", \"least privilege role\", \"RBAC role for\", \"role for managed identity\", \"custom role definition\", \"assign role to identity\". DO NOT USE FOR: deploying (azure-deploy), security audits (azure-compliance).",
-      "path": ".github/skills/azure-rbac/SKILL.md",
+      "label": "apex-azure-rbac",
+      "description": "**ANALYSIS SKILL** — Find the right Azure RBAC role for an identity with least-privilege access; generate CLI, Bicep, and Terraform code to assign it. WHEN: \"what role should I assign\", \"least privilege role\", \"RBAC role for\", \"role for managed identity\", \"custom role definition\", \"assign role to identity\". DO NOT USE FOR: deploying (apex-azure-deploy), security audits (apex-azure-compliance).",
+      "path": ".github/skills/apex-azure-rbac/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/azure-rbac/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-rbac/SKILL.md"
       },
       "meta": {}
     },
     {
-      "id": "skill:azure-resources",
+      "id": "skill:apex-azure-resources",
       "category": "skill",
-      "label": "azure-resources",
-      "description": "**ANALYSIS SKILL** — List, find, and visualize Azure resources via Resource Graph or Mermaid. WHEN: 'list resources', 'list VMs', 'find orphaned resources', 'resource inventory', 'cross-subscription query', 'visualize Azure resources', 'diagram my resources'. DO NOT USE FOR: deploys (azure-deploy), cost (azure-cost-optimization), security (azure-compliance), troubleshooting (azure-diagnostics).",
-      "path": ".github/skills/azure-resources/SKILL.md",
+      "label": "apex-azure-resources",
+      "description": "**ANALYSIS SKILL** — List, find, and visualize Azure resources via Resource Graph or Mermaid. WHEN: 'list resources', 'list VMs', 'find orphaned resources', 'resource inventory', 'cross-subscription query', 'visualize Azure resources', 'diagram my resources'. DO NOT USE FOR: deploys (apex-azure-deploy), cost (apex-azure-cost-optimization), security (apex-azure-compliance), troubleshooting (apex-azure-diagnostics).",
+      "path": ".github/skills/apex-azure-resources/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/azure-resources/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-resources/SKILL.md"
       },
       "meta": {}
     },
     {
-      "id": "skill:azure-storage",
+      "id": "skill:apex-azure-storage",
       "category": "skill",
-      "label": "azure-storage",
-      "description": "**UTILITY SKILL** — Azure Storage Services: Blob, File Shares, Queue, Table, and Data Lake. Object storage, SMB shares, async messaging, NoSQL key-value, big-data analytics. Access tiers + lifecycle management. WHEN: \"blob storage\", \"file shares\", \"queue storage\", \"table storage\", \"data lake\", \"access tiers\", \"lifecycle management\". DO NOT USE FOR: SQL databases, Cosmos DB (use azure-prepare), Event Hubs / Service Bus messaging.",
-      "path": ".github/skills/azure-storage/SKILL.md",
+      "label": "apex-azure-storage",
+      "description": "**UTILITY SKILL** — Azure Storage Services: Blob, File Shares, Queue, Table, and Data Lake. Object storage, SMB shares, async messaging, NoSQL key-value, big-data analytics. Access tiers + lifecycle management. WHEN: \"blob storage\", \"file shares\", \"queue storage\", \"table storage\", \"data lake\", \"access tiers\", \"lifecycle management\". DO NOT USE FOR: SQL databases, Cosmos DB (use apex-azure-prepare), Event Hubs / Service Bus messaging.",
+      "path": ".github/skills/apex-azure-storage/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/azure-storage/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-storage/SKILL.md"
       },
       "meta": {}
     },
     {
-      "id": "skill:azure-validate",
+      "id": "skill:apex-azure-validate",
       "category": "skill",
-      "label": "azure-validate",
-      "description": "**WORKFLOW SKILL** — Pre-deployment validation for Azure: config, infrastructure (Bicep/Terraform), permissions, prerequisites. WHEN: 'validate my app', 'check deployment readiness', 'run preflight checks', 'validate azure.yaml', 'validate Bicep', 'test before deploying', 'validate Azure Functions'. DO NOT USE FOR: post-deploy troubleshooting (azure-diagnostics), executing deploys (azure-deploy).",
-      "path": ".github/skills/azure-validate/SKILL.md",
+      "label": "apex-azure-validate",
+      "description": "**WORKFLOW SKILL** — Pre-deployment validation for Azure: config, infrastructure (Bicep/Terraform), permissions, prerequisites. WHEN: 'validate my app', 'check deployment readiness', 'run preflight checks', 'validate azure.yaml', 'validate Bicep', 'test before deploying', 'validate Azure Functions'. DO NOT USE FOR: post-deploy troubleshooting (apex-azure-diagnostics), executing deploys (apex-azure-deploy).",
+      "path": ".github/skills/apex-azure-validate/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/azure-validate/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-validate/SKILL.md"
       },
       "meta": {}
     },
     {
-      "id": "skill:context-management",
+      "id": "skill:apex-context-management",
       "category": "skill",
-      "label": "context-management",
+      "label": "apex-context-management",
       "description": "**UTILITY SKILL** — Two-mode context-window management. RUNTIME: artifact compression (full/summarized/minimal) used by orchestrator and codegen agents. AUDIT: post-mortem analysis of Copilot debug logs (token profiling, redundancy + hand-off gap detection) used by 11-Context Optimizer. WHEN: \"context optimization\", \"token budget\", \"runtime compression\", \"log parsing\". DO NOT USE FOR: infra, IaC code, deployments.",
-      "path": ".github/skills/context-management/SKILL.md",
+      "path": ".github/skills/apex-context-management/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/context-management/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-context-management/SKILL.md"
       },
       "meta": {}
     },
     {
-      "id": "skill:docs-writer",
+      "id": "skill:apex-docs-writer",
       "category": "skill",
-      "label": "docs-writer",
+      "label": "apex-docs-writer",
       "description": "**WORKFLOW SKILL** — Maintains repository documentation accuracy and freshness across the docs site, agent files, and changelog. WHEN: \"update docs\", \"doc gardening\", \"staleness check\", \"changelog entry\", \"repo explanation\", \"agent change docs\", \"skill change docs\". DO NOT USE FOR: agent definitions (edit `.agent.md` directly), SKILL.md content authoring, site theme/build.",
-      "path": ".github/skills/docs-writer/SKILL.md",
+      "path": ".github/skills/apex-docs-writer/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/docs-writer/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-docs-writer/SKILL.md"
       },
       "meta": {}
     },
     {
-      "id": "skill:entra-app-registration",
+      "id": "skill:apex-entra-app-registration",
       "category": "skill",
-      "label": "entra-app-registration",
-      "description": "**WORKFLOW SKILL** — Guides Microsoft Entra ID app registration, OAuth 2.0 authentication, and MSAL integration. WHEN: \"create app registration\", \"register Azure AD app\", \"configure OAuth\", \"add API permissions\", \"generate service principal\", \"MSAL example\", \"Entra ID setup\". DO NOT USE FOR: Azure RBAC (azure-rbac), Key Vault audits (azure-compliance), resource security scanning (azure-compliance).",
-      "path": ".github/skills/entra-app-registration/SKILL.md",
+      "label": "apex-entra-app-registration",
+      "description": "**WORKFLOW SKILL** — Guides Microsoft Entra ID app registration, OAuth 2.0 authentication, and MSAL integration. WHEN: \"create app registration\", \"register Azure AD app\", \"configure OAuth\", \"add API permissions\", \"generate service principal\", \"MSAL example\", \"Entra ID setup\". DO NOT USE FOR: Azure RBAC (apex-azure-rbac), Key Vault audits (apex-azure-compliance), resource security scanning (apex-azure-compliance).",
+      "path": ".github/skills/apex-entra-app-registration/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/entra-app-registration/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-entra-app-registration/SKILL.md"
       },
       "meta": {}
     },
     {
-      "id": "skill:github-operations",
+      "id": "skill:apex-github-operations",
       "category": "skill",
-      "label": "github-operations",
+      "label": "apex-github-operations",
       "description": "**WORKFLOW SKILL** — Full GitHub contribution lifecycle: branches, conventional commits, issues, PRs, Actions, releases. gh CLI-first with MCP fallback. WHEN: \"commit\", \"push\", \"open PR\", \"create branch\", \"create issue\", \"cut release\", \"GitHub operation\". DO NOT USE FOR: Azure infrastructure, Bicep/Terraform code, architecture decisions. INVOKES: gh CLI (primary), GitHub MCP (fallback).",
-      "path": ".github/skills/github-operations/SKILL.md",
+      "path": ".github/skills/apex-github-operations/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/github-operations/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-github-operations/SKILL.md"
       },
       "meta": {}
     },
     {
-      "id": "skill:golden-principles",
+      "id": "skill:apex-golden-principles",
       "category": "skill",
-      "label": "golden-principles",
+      "label": "apex-golden-principles",
       "description": "**ANALYSIS SKILL** — The agent-first operating principles governing how agents work in this repository. WHEN: \"golden principles\", \"agent behavior rules\", \"operating philosophy\", \"principle lookup\", \"governance invariants\". USE FOR: agent behavior rules, operating philosophy, principle lookup, governance invariants. DO NOT USE FOR: Azure infrastructure, code generation, troubleshooting, diagram creation.",
-      "path": ".github/skills/golden-principles/SKILL.md",
+      "path": ".github/skills/apex-golden-principles/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/golden-principles/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-golden-principles/SKILL.md"
       },
       "meta": {}
     },
     {
-      "id": "skill:iac-common",
+      "id": "skill:apex-iac-common",
       "category": "skill",
-      "label": "iac-common",
-      "description": "**UTILITY SKILL** — Shared IaC deploy patterns for Bicep + Terraform agents: deployment strategies, circuit breaker, known deploy issues. WHEN: \"phased deployment\", \"circuit breaker\", \"deploy strategy\", \"deploy issue\", \"shared IaC pattern\". DO NOT USE FOR: preflight (azure-validate), code generation (azure-bicep-patterns / terraform-patterns).",
-      "path": ".github/skills/iac-common/SKILL.md",
+      "label": "apex-iac-common",
+      "description": "**UTILITY SKILL** — Shared IaC deploy patterns for Bicep + Terraform agents: deployment strategies, circuit breaker, known deploy issues. WHEN: \"phased deployment\", \"circuit breaker\", \"deploy strategy\", \"deploy issue\", \"shared IaC pattern\". DO NOT USE FOR: preflight (apex-azure-validate), code generation (apex-azure-bicep-patterns / apex-terraform-patterns).",
+      "path": ".github/skills/apex-iac-common/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/iac-common/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-iac-common/SKILL.md"
       },
       "meta": {}
     },
     {
-      "id": "skill:mermaid",
+      "id": "skill:apex-mermaid",
       "category": "skill",
-      "label": "mermaid",
-      "description": "**UTILITY SKILL** — Mermaid diagrams for inline markdown: flowcharts, sequence, Gantt, class, state, ER. WHEN: \"mermaid flowchart\", \"sequence diagram\", \"Gantt chart\", \"state diagram\", \"ER diagram\", \"inline markdown diagram\". DO NOT USE FOR: rendered architecture diagrams or WAF/cost charts (python-diagrams).",
-      "path": ".github/skills/mermaid/SKILL.md",
+      "label": "apex-mermaid",
+      "description": "**UTILITY SKILL** — Mermaid diagrams for inline markdown: flowcharts, sequence, Gantt, class, state, ER. WHEN: \"mermaid flowchart\", \"sequence diagram\", \"Gantt chart\", \"state diagram\", \"ER diagram\", \"inline markdown diagram\". DO NOT USE FOR: rendered architecture diagrams or WAF/cost charts (apex-python-diagrams).",
+      "path": ".github/skills/apex-mermaid/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/mermaid/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-mermaid/SKILL.md"
       },
       "meta": {}
     },
     {
-      "id": "skill:microsoft-docs",
+      "id": "skill:apex-microsoft-docs",
       "category": "skill",
-      "label": "microsoft-docs",
+      "label": "apex-microsoft-docs",
       "description": "**ANALYSIS SKILL** — Query official Microsoft documentation to understand concepts, find tutorials, and learn how services work. WHEN: \"Microsoft Learn\", \"Azure docs\", \"quickstart guide\", \"limits and quotas\", \"WAF reference\", \"architecture pattern docs\". DO NOT USE FOR: Azure pricing; route pricing through the cost-estimate subagent.",
-      "path": ".github/skills/microsoft-docs/SKILL.md",
+      "path": ".github/skills/apex-microsoft-docs/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/microsoft-docs/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-microsoft-docs/SKILL.md"
       },
       "meta": {}
     },
     {
-      "id": "skill:python-diagrams",
+      "id": "skill:apex-python-diagrams",
       "category": "skill",
-      "label": "python-diagrams",
-      "description": "**UTILITY SKILL** — Python diagram generation for Azure architectures, WAF/cost/compliance charts, ERDs, swimlanes, timelines, and wireframes. WHEN: 'architecture diagram', 'WAF bar chart', 'cost chart', 'ERD', 'swimlane', 'timeline', 'wireframe'. DO NOT USE FOR: inline Mermaid diagrams (mermaid).",
-      "path": ".github/skills/python-diagrams/SKILL.md",
+      "label": "apex-python-diagrams",
+      "description": "**UTILITY SKILL** — Python diagram generation for Azure architectures, WAF/cost/compliance charts, ERDs, swimlanes, timelines, and wireframes. WHEN: 'architecture diagram', 'WAF bar chart', 'cost chart', 'ERD', 'swimlane', 'timeline', 'wireframe'. DO NOT USE FOR: inline Mermaid diagrams (apex-mermaid).",
+      "path": ".github/skills/apex-python-diagrams/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/python-diagrams/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-python-diagrams/SKILL.md"
       },
       "meta": {}
     },
     {
-      "id": "skill:terraform-patterns",
+      "id": "skill:apex-terraform-patterns",
       "category": "skill",
-      "label": "terraform-patterns",
-      "description": "**UTILITY SKILL** — Reusable Azure Terraform patterns: hub-spoke, private endpoints, diagnostics, AVM-TF modules. WHEN: \"hub-spoke Terraform\", \"private endpoint module\", \"AVM-TF composition\", \"diagnostic settings\", \"plan interpretation\". DO NOT USE FOR: Bicep code (azure-bicep-patterns), ADRs (azure-adr), diagrams (python-diagrams).",
-      "path": ".github/skills/terraform-patterns/SKILL.md",
+      "label": "apex-terraform-patterns",
+      "description": "**UTILITY SKILL** — Reusable Azure Terraform patterns: hub-spoke, private endpoints, diagnostics, AVM-TF modules. WHEN: \"hub-spoke Terraform\", \"private endpoint module\", \"AVM-TF composition\", \"diagnostic settings\", \"plan interpretation\". DO NOT USE FOR: Bicep code (apex-azure-bicep-patterns), ADRs (apex-azure-adr), diagrams (apex-python-diagrams).",
+      "path": ".github/skills/apex-terraform-patterns/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/terraform-patterns/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-terraform-patterns/SKILL.md"
       },
       "meta": {}
     },
     {
-      "id": "skill:terraform-search-import",
+      "id": "skill:apex-terraform-search-import",
       "category": "skill",
-      "label": "terraform-search-import",
-      "description": "**WORKFLOW SKILL** — Discover existing Azure resources and bulk import them into Terraform management. WHEN: \"terraform import\", \"import Azure resources\", \"bring unmanaged infra under Terraform\", \"adopt Terraform for existing resources\", \"generate import blocks\". DO NOT USE FOR: Bicep code (azure-bicep-patterns), new resource creation (terraform-patterns), architecture decisions (azure-adr).",
-      "path": ".github/skills/terraform-search-import/SKILL.md",
+      "label": "apex-terraform-search-import",
+      "description": "**WORKFLOW SKILL** — Discover existing Azure resources and bulk import them into Terraform management. WHEN: \"terraform import\", \"import Azure resources\", \"bring unmanaged infra under Terraform\", \"adopt Terraform for existing resources\", \"generate import blocks\". DO NOT USE FOR: Bicep code (apex-azure-bicep-patterns), new resource creation (apex-terraform-patterns), architecture decisions (apex-azure-adr).",
+      "path": ".github/skills/apex-terraform-search-import/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/terraform-search-import/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-terraform-search-import/SKILL.md"
       },
       "meta": {}
     },
     {
-      "id": "skill:terraform-test",
+      "id": "skill:apex-terraform-test",
       "category": "skill",
-      "label": "terraform-test",
-      "description": "**WORKFLOW SKILL** — Write and run Terraform tests (.tftest.hcl). WHEN: \"create terraform test\", \"write tftest\", \".tftest.hcl\", \"mock provider\", \"test module\", \"test assertion\". USE FOR: test files, run blocks, assertions, mock providers, plan-mode unit tests, apply-mode integration tests, test troubleshooting. DO NOT USE FOR: Bicep code, architecture decisions, deployment (use azure-deploy).",
-      "path": ".github/skills/terraform-test/SKILL.md",
+      "label": "apex-terraform-test",
+      "description": "**WORKFLOW SKILL** — Write and run Terraform tests (.tftest.hcl). WHEN: \"create terraform test\", \"write tftest\", \".tftest.hcl\", \"mock provider\", \"test module\", \"test assertion\". USE FOR: test files, run blocks, assertions, mock providers, plan-mode unit tests, apply-mode integration tests, test troubleshooting. DO NOT USE FOR: Bicep code, architecture decisions, deployment (use apex-azure-deploy).",
+      "path": ".github/skills/apex-terraform-test/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/terraform-test/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-terraform-test/SKILL.md"
       },
       "meta": {}
     },
     {
-      "id": "skill:vendor-prompting",
+      "id": "skill:apex-vendor-prompting",
       "category": "skill",
-      "label": "vendor-prompting",
+      "label": "apex-vendor-prompting",
       "description": "**ANALYSIS SKILL** — Audit-grade reference for Anthropic Claude and OpenAI GPT-5.6 prompting best practices. WHEN: \"claude prompting\", \"gpt-5.6 prompting\", \"audit agent\", \"review prompt\", \"vendor best practices\", \"anthropic best practices\", \"openai prompting\". DO NOT USE FOR: routine prompt edits where rules are already known, generic markdown style (markdown.instructions.md).",
-      "path": ".github/skills/vendor-prompting/SKILL.md",
+      "path": ".github/skills/apex-vendor-prompting/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/vendor-prompting/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-vendor-prompting/SKILL.md"
       },
       "meta": {}
     },
     {
-      "id": "skill:workflow-engine",
+      "id": "skill:apex-workflow-engine",
       "category": "skill",
-      "label": "workflow-engine",
+      "label": "apex-workflow-engine",
       "description": "**UTILITY SKILL** — Machine-readable workflow DAG for the multi-step agent pipeline. Defines node types, edge conditions, gates, and fan-out patterns. WHEN: \"orchestrator step routing\", \"resume from graph\", \"workflow validation\", \"workflow DAG\", \"workflow gate\", \"fan-out pattern\". USE FOR: orchestrator step routing, resume-from-graph, workflow validation. DO NOT USE FOR: Azure infrastructure, code generation, troubleshooting.",
-      "path": ".github/skills/workflow-engine/SKILL.md",
+      "path": ".github/skills/apex-workflow-engine/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/workflow-engine/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-workflow-engine/SKILL.md"
       },
       "meta": {}
     },
@@ -2591,13 +2591,13 @@
       "id": "validator:test-governance-baseline-python",
       "category": "validator",
       "label": "test:governance-baseline-python",
-      "description": "python3 -m pytest .github/skills/azure-governance-discovery/scripts/test_governance_baseline.py -q",
+      "description": "python3 -m pytest .github/skills/apex-azure-governance-discovery/scripts/test_governance_baseline.py -q",
       "path": "package.json",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
       },
       "meta": {
-        "command": "python3 -m pytest .github/skills/azure-governance-discovery/scripts/test_governance_baseline.py -q",
+        "command": "python3 -m pytest .github/skills/apex-azure-governance-discovery/scripts/test_governance_baseline.py -q",
         "orphan": true
       },
       "parent": "group:validator-orphans"
@@ -3408,321 +3408,321 @@
       "kind": "hands-off"
     },
     {
-      "id": "agent:01-orchestrator--uses-skill->skill:golden-principles",
+      "id": "agent:01-orchestrator--uses-skill->skill:apex-golden-principles",
       "source": "agent:01-orchestrator",
-      "target": "skill:golden-principles",
+      "target": "skill:apex-golden-principles",
       "kind": "uses-skill"
     },
     {
-      "id": "agent:01-orchestrator--uses-skill->skill:azure-defaults",
+      "id": "agent:01-orchestrator--uses-skill->skill:apex-azure-defaults",
       "source": "agent:01-orchestrator",
-      "target": "skill:azure-defaults",
+      "target": "skill:apex-azure-defaults",
       "kind": "uses-skill"
     },
     {
-      "id": "agent:01-orchestrator--uses-skill->skill:azure-artifacts",
+      "id": "agent:01-orchestrator--uses-skill->skill:apex-azure-artifacts",
       "source": "agent:01-orchestrator",
-      "target": "skill:azure-artifacts",
+      "target": "skill:apex-azure-artifacts",
       "kind": "uses-skill"
     },
     {
-      "id": "agent:01-orchestrator--uses-skill->skill:workflow-engine",
+      "id": "agent:01-orchestrator--uses-skill->skill:apex-workflow-engine",
       "source": "agent:01-orchestrator",
-      "target": "skill:workflow-engine",
+      "target": "skill:apex-workflow-engine",
       "kind": "uses-skill"
     },
     {
-      "id": "agent:02-requirements--uses-skill->skill:azure-defaults",
+      "id": "agent:02-requirements--uses-skill->skill:apex-azure-defaults",
       "source": "agent:02-requirements",
-      "target": "skill:azure-defaults",
+      "target": "skill:apex-azure-defaults",
       "kind": "uses-skill"
     },
     {
-      "id": "agent:02-requirements--uses-skill->skill:azure-artifacts",
+      "id": "agent:02-requirements--uses-skill->skill:apex-azure-artifacts",
       "source": "agent:02-requirements",
-      "target": "skill:azure-artifacts",
+      "target": "skill:apex-azure-artifacts",
       "kind": "uses-skill"
     },
     {
-      "id": "agent:03-architect--uses-skill->skill:azure-defaults",
+      "id": "agent:03-architect--uses-skill->skill:apex-azure-defaults",
       "source": "agent:03-architect",
-      "target": "skill:azure-defaults",
+      "target": "skill:apex-azure-defaults",
       "kind": "uses-skill"
     },
     {
-      "id": "agent:03-architect--uses-skill->skill:azure-artifacts",
+      "id": "agent:03-architect--uses-skill->skill:apex-azure-artifacts",
       "source": "agent:03-architect",
-      "target": "skill:azure-artifacts",
+      "target": "skill:apex-azure-artifacts",
       "kind": "uses-skill"
     },
     {
-      "id": "agent:03-architect--uses-skill->skill:context-management",
+      "id": "agent:03-architect--uses-skill->skill:apex-context-management",
       "source": "agent:03-architect",
-      "target": "skill:context-management",
+      "target": "skill:apex-context-management",
       "kind": "uses-skill"
     },
     {
-      "id": "agent:04-design--uses-skill->skill:azure-defaults",
+      "id": "agent:04-design--uses-skill->skill:apex-azure-defaults",
       "source": "agent:04-design",
-      "target": "skill:azure-defaults",
+      "target": "skill:apex-azure-defaults",
       "kind": "uses-skill"
     },
     {
-      "id": "agent:04-design--uses-skill->skill:python-diagrams",
+      "id": "agent:04-design--uses-skill->skill:apex-python-diagrams",
       "source": "agent:04-design",
-      "target": "skill:python-diagrams",
+      "target": "skill:apex-python-diagrams",
       "kind": "uses-skill"
     },
     {
-      "id": "agent:04-design--uses-skill->skill:azure-adr",
+      "id": "agent:04-design--uses-skill->skill:apex-azure-adr",
       "source": "agent:04-design",
-      "target": "skill:azure-adr",
+      "target": "skill:apex-azure-adr",
       "kind": "uses-skill"
     },
     {
-      "id": "agent:04-design--uses-skill->skill:azure-artifacts",
+      "id": "agent:04-design--uses-skill->skill:apex-azure-artifacts",
       "source": "agent:04-design",
-      "target": "skill:azure-artifacts",
+      "target": "skill:apex-azure-artifacts",
       "kind": "uses-skill"
     },
     {
-      "id": "agent:04g-governance--uses-skill->skill:azure-defaults",
+      "id": "agent:04g-governance--uses-skill->skill:apex-azure-defaults",
       "source": "agent:04g-governance",
-      "target": "skill:azure-defaults",
+      "target": "skill:apex-azure-defaults",
       "kind": "uses-skill"
     },
     {
-      "id": "agent:04g-governance--uses-skill->skill:azure-governance-discovery",
+      "id": "agent:04g-governance--uses-skill->skill:apex-azure-governance-discovery",
       "source": "agent:04g-governance",
-      "target": "skill:azure-governance-discovery",
+      "target": "skill:apex-azure-governance-discovery",
       "kind": "uses-skill"
     },
     {
-      "id": "agent:04g-governance--uses-skill->skill:azure-artifacts",
+      "id": "agent:04g-governance--uses-skill->skill:apex-azure-artifacts",
       "source": "agent:04g-governance",
-      "target": "skill:azure-artifacts",
+      "target": "skill:apex-azure-artifacts",
       "kind": "uses-skill"
     },
     {
-      "id": "agent:04g-governance--uses-skill->skill:iac-common",
+      "id": "agent:04g-governance--uses-skill->skill:apex-iac-common",
       "source": "agent:04g-governance",
-      "target": "skill:iac-common",
+      "target": "skill:apex-iac-common",
       "kind": "uses-skill"
     },
     {
-      "id": "agent:05-iac-planner--uses-skill->skill:azure-defaults",
+      "id": "agent:05-iac-planner--uses-skill->skill:apex-azure-defaults",
       "source": "agent:05-iac-planner",
-      "target": "skill:azure-defaults",
+      "target": "skill:apex-azure-defaults",
       "kind": "uses-skill"
     },
     {
-      "id": "agent:05-iac-planner--uses-skill->skill:azure-artifacts",
+      "id": "agent:05-iac-planner--uses-skill->skill:apex-azure-artifacts",
       "source": "agent:05-iac-planner",
-      "target": "skill:azure-artifacts",
+      "target": "skill:apex-azure-artifacts",
       "kind": "uses-skill"
     },
     {
-      "id": "agent:05-iac-planner--uses-skill->skill:python-diagrams",
+      "id": "agent:05-iac-planner--uses-skill->skill:apex-python-diagrams",
       "source": "agent:05-iac-planner",
-      "target": "skill:python-diagrams",
+      "target": "skill:apex-python-diagrams",
       "kind": "uses-skill"
     },
     {
-      "id": "agent:05-iac-planner--uses-skill->skill:azure-bicep-patterns",
+      "id": "agent:05-iac-planner--uses-skill->skill:apex-azure-bicep-patterns",
       "source": "agent:05-iac-planner",
-      "target": "skill:azure-bicep-patterns",
+      "target": "skill:apex-azure-bicep-patterns",
       "kind": "uses-skill"
     },
     {
-      "id": "agent:05-iac-planner--uses-skill->skill:terraform-patterns",
+      "id": "agent:05-iac-planner--uses-skill->skill:apex-terraform-patterns",
       "source": "agent:05-iac-planner",
-      "target": "skill:terraform-patterns",
+      "target": "skill:apex-terraform-patterns",
       "kind": "uses-skill"
     },
     {
-      "id": "agent:05-iac-planner--uses-skill->skill:context-management",
+      "id": "agent:05-iac-planner--uses-skill->skill:apex-context-management",
       "source": "agent:05-iac-planner",
-      "target": "skill:context-management",
+      "target": "skill:apex-context-management",
       "kind": "uses-skill"
     },
     {
-      "id": "agent:06b-bicep-codegen--uses-skill->skill:azure-defaults",
+      "id": "agent:06b-bicep-codegen--uses-skill->skill:apex-azure-defaults",
       "source": "agent:06b-bicep-codegen",
-      "target": "skill:azure-defaults",
+      "target": "skill:apex-azure-defaults",
       "kind": "uses-skill"
     },
     {
-      "id": "agent:06b-bicep-codegen--uses-skill->skill:azure-artifacts",
+      "id": "agent:06b-bicep-codegen--uses-skill->skill:apex-azure-artifacts",
       "source": "agent:06b-bicep-codegen",
-      "target": "skill:azure-artifacts",
+      "target": "skill:apex-azure-artifacts",
       "kind": "uses-skill"
     },
     {
-      "id": "agent:06b-bicep-codegen--uses-skill->skill:azure-bicep-patterns",
+      "id": "agent:06b-bicep-codegen--uses-skill->skill:apex-azure-bicep-patterns",
       "source": "agent:06b-bicep-codegen",
-      "target": "skill:azure-bicep-patterns",
+      "target": "skill:apex-azure-bicep-patterns",
       "kind": "uses-skill"
     },
     {
-      "id": "agent:06b-bicep-codegen--uses-skill->skill:context-management",
+      "id": "agent:06b-bicep-codegen--uses-skill->skill:apex-context-management",
       "source": "agent:06b-bicep-codegen",
-      "target": "skill:context-management",
+      "target": "skill:apex-context-management",
       "kind": "uses-skill"
     },
     {
-      "id": "agent:06t-terraform-codegen--uses-skill->skill:azure-defaults",
+      "id": "agent:06t-terraform-codegen--uses-skill->skill:apex-azure-defaults",
       "source": "agent:06t-terraform-codegen",
-      "target": "skill:azure-defaults",
+      "target": "skill:apex-azure-defaults",
       "kind": "uses-skill"
     },
     {
-      "id": "agent:06t-terraform-codegen--uses-skill->skill:azure-artifacts",
+      "id": "agent:06t-terraform-codegen--uses-skill->skill:apex-azure-artifacts",
       "source": "agent:06t-terraform-codegen",
-      "target": "skill:azure-artifacts",
+      "target": "skill:apex-azure-artifacts",
       "kind": "uses-skill"
     },
     {
-      "id": "agent:06t-terraform-codegen--uses-skill->skill:terraform-patterns",
+      "id": "agent:06t-terraform-codegen--uses-skill->skill:apex-terraform-patterns",
       "source": "agent:06t-terraform-codegen",
-      "target": "skill:terraform-patterns",
+      "target": "skill:apex-terraform-patterns",
       "kind": "uses-skill"
     },
     {
-      "id": "agent:06t-terraform-codegen--uses-skill->skill:context-management",
+      "id": "agent:06t-terraform-codegen--uses-skill->skill:apex-context-management",
       "source": "agent:06t-terraform-codegen",
-      "target": "skill:context-management",
+      "target": "skill:apex-context-management",
       "kind": "uses-skill"
     },
     {
-      "id": "agent:07b-bicep-deploy--uses-skill->skill:azure-defaults",
+      "id": "agent:07b-bicep-deploy--uses-skill->skill:apex-azure-defaults",
       "source": "agent:07b-bicep-deploy",
-      "target": "skill:azure-defaults",
+      "target": "skill:apex-azure-defaults",
       "kind": "uses-skill"
     },
     {
-      "id": "agent:07b-bicep-deploy--uses-skill->skill:azure-artifacts",
+      "id": "agent:07b-bicep-deploy--uses-skill->skill:apex-azure-artifacts",
       "source": "agent:07b-bicep-deploy",
-      "target": "skill:azure-artifacts",
+      "target": "skill:apex-azure-artifacts",
       "kind": "uses-skill"
     },
     {
-      "id": "agent:07b-bicep-deploy--uses-skill->skill:iac-common",
+      "id": "agent:07b-bicep-deploy--uses-skill->skill:apex-iac-common",
       "source": "agent:07b-bicep-deploy",
-      "target": "skill:iac-common",
+      "target": "skill:apex-iac-common",
       "kind": "uses-skill"
     },
     {
-      "id": "agent:07t-terraform-deploy--uses-skill->skill:azure-defaults",
+      "id": "agent:07t-terraform-deploy--uses-skill->skill:apex-azure-defaults",
       "source": "agent:07t-terraform-deploy",
-      "target": "skill:azure-defaults",
+      "target": "skill:apex-azure-defaults",
       "kind": "uses-skill"
     },
     {
-      "id": "agent:07t-terraform-deploy--uses-skill->skill:azure-artifacts",
+      "id": "agent:07t-terraform-deploy--uses-skill->skill:apex-azure-artifacts",
       "source": "agent:07t-terraform-deploy",
-      "target": "skill:azure-artifacts",
+      "target": "skill:apex-azure-artifacts",
       "kind": "uses-skill"
     },
     {
-      "id": "agent:07t-terraform-deploy--uses-skill->skill:iac-common",
+      "id": "agent:07t-terraform-deploy--uses-skill->skill:apex-iac-common",
       "source": "agent:07t-terraform-deploy",
-      "target": "skill:iac-common",
+      "target": "skill:apex-iac-common",
       "kind": "uses-skill"
     },
     {
-      "id": "agent:08-as-built--uses-skill->skill:azure-defaults",
+      "id": "agent:08-as-built--uses-skill->skill:apex-azure-defaults",
       "source": "agent:08-as-built",
-      "target": "skill:azure-defaults",
+      "target": "skill:apex-azure-defaults",
       "kind": "uses-skill"
     },
     {
-      "id": "agent:08-as-built--uses-skill->skill:azure-artifacts",
+      "id": "agent:08-as-built--uses-skill->skill:apex-azure-artifacts",
       "source": "agent:08-as-built",
-      "target": "skill:azure-artifacts",
+      "target": "skill:apex-azure-artifacts",
       "kind": "uses-skill"
     },
     {
-      "id": "agent:08-as-built--uses-skill->skill:python-diagrams",
+      "id": "agent:08-as-built--uses-skill->skill:apex-python-diagrams",
       "source": "agent:08-as-built",
-      "target": "skill:python-diagrams",
+      "target": "skill:apex-python-diagrams",
       "kind": "uses-skill"
     },
     {
-      "id": "agent:08-as-built--uses-skill->skill:context-management",
+      "id": "agent:08-as-built--uses-skill->skill:apex-context-management",
       "source": "agent:08-as-built",
-      "target": "skill:context-management",
+      "target": "skill:apex-context-management",
       "kind": "uses-skill"
     },
     {
-      "id": "agent:09-diagnose--uses-skill->skill:azure-defaults",
+      "id": "agent:09-diagnose--uses-skill->skill:apex-azure-defaults",
       "source": "agent:09-diagnose",
-      "target": "skill:azure-defaults",
+      "target": "skill:apex-azure-defaults",
       "kind": "uses-skill"
     },
     {
-      "id": "agent:09-diagnose--uses-skill->skill:azure-diagnostics",
+      "id": "agent:09-diagnose--uses-skill->skill:apex-azure-diagnostics",
       "source": "agent:09-diagnose",
-      "target": "skill:azure-diagnostics",
+      "target": "skill:apex-azure-diagnostics",
       "kind": "uses-skill"
     },
     {
-      "id": "agent:11-context-optimizer--uses-skill->skill:golden-principles",
+      "id": "agent:11-context-optimizer--uses-skill->skill:apex-golden-principles",
       "source": "agent:11-context-optimizer",
-      "target": "skill:golden-principles",
+      "target": "skill:apex-golden-principles",
       "kind": "uses-skill"
     },
     {
-      "id": "agent:11-context-optimizer--uses-skill->skill:context-management",
+      "id": "agent:11-context-optimizer--uses-skill->skill:apex-context-management",
       "source": "agent:11-context-optimizer",
-      "target": "skill:context-management",
+      "target": "skill:apex-context-management",
       "kind": "uses-skill"
     },
     {
-      "id": "agent:e2e-orchestrator--uses-skill->skill:azure-defaults",
+      "id": "agent:e2e-orchestrator--uses-skill->skill:apex-azure-defaults",
       "source": "agent:e2e-orchestrator",
-      "target": "skill:azure-defaults",
+      "target": "skill:apex-azure-defaults",
       "kind": "uses-skill"
     },
     {
-      "id": "agent:e2e-orchestrator--uses-skill->skill:azure-artifacts",
+      "id": "agent:e2e-orchestrator--uses-skill->skill:apex-azure-artifacts",
       "source": "agent:e2e-orchestrator",
-      "target": "skill:azure-artifacts",
+      "target": "skill:apex-azure-artifacts",
       "kind": "uses-skill"
     },
     {
-      "id": "subagent:bicep-validate-subagent--uses-skill->skill:azure-defaults",
+      "id": "subagent:bicep-validate-subagent--uses-skill->skill:apex-azure-defaults",
       "source": "subagent:bicep-validate-subagent",
-      "target": "skill:azure-defaults",
+      "target": "skill:apex-azure-defaults",
       "kind": "uses-skill"
     },
     {
-      "id": "subagent:bicep-validate-subagent--uses-skill->skill:iac-common",
+      "id": "subagent:bicep-validate-subagent--uses-skill->skill:apex-iac-common",
       "source": "subagent:bicep-validate-subagent",
-      "target": "skill:iac-common",
+      "target": "skill:apex-iac-common",
       "kind": "uses-skill"
     },
     {
-      "id": "subagent:challenger-review-subagent--uses-skill->skill:golden-principles",
+      "id": "subagent:challenger-review-subagent--uses-skill->skill:apex-golden-principles",
       "source": "subagent:challenger-review-subagent",
-      "target": "skill:golden-principles",
+      "target": "skill:apex-golden-principles",
       "kind": "uses-skill"
     },
     {
-      "id": "subagent:challenger-review-subagent--uses-skill->skill:azure-defaults",
+      "id": "subagent:challenger-review-subagent--uses-skill->skill:apex-azure-defaults",
       "source": "subagent:challenger-review-subagent",
-      "target": "skill:azure-defaults",
+      "target": "skill:apex-azure-defaults",
       "kind": "uses-skill"
     },
     {
-      "id": "subagent:terraform-validate-subagent--uses-skill->skill:azure-defaults",
+      "id": "subagent:terraform-validate-subagent--uses-skill->skill:apex-azure-defaults",
       "source": "subagent:terraform-validate-subagent",
-      "target": "skill:azure-defaults",
+      "target": "skill:apex-azure-defaults",
       "kind": "uses-skill"
     },
     {
-      "id": "subagent:terraform-validate-subagent--uses-skill->skill:iac-common",
+      "id": "subagent:terraform-validate-subagent--uses-skill->skill:apex-iac-common",
       "source": "subagent:terraform-validate-subagent",
-      "target": "skill:iac-common",
+      "target": "skill:apex-iac-common",
       "kind": "uses-skill"
     },
     {
@@ -4230,201 +4230,201 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:agent-skills--applies-to->skill:agent-authoring",
+      "id": "instruction:agent-skills--applies-to->skill:apex-agent-authoring",
       "source": "instruction:agent-skills",
-      "target": "skill:agent-authoring",
+      "target": "skill:apex-agent-authoring",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:agent-skills--applies-to->skill:azure-adr",
+      "id": "instruction:agent-skills--applies-to->skill:apex-azure-adr",
       "source": "instruction:agent-skills",
-      "target": "skill:azure-adr",
+      "target": "skill:apex-azure-adr",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:agent-skills--applies-to->skill:azure-artifacts",
+      "id": "instruction:agent-skills--applies-to->skill:apex-azure-artifacts",
       "source": "instruction:agent-skills",
-      "target": "skill:azure-artifacts",
+      "target": "skill:apex-azure-artifacts",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:agent-skills--applies-to->skill:azure-bicep-patterns",
+      "id": "instruction:agent-skills--applies-to->skill:apex-azure-bicep-patterns",
       "source": "instruction:agent-skills",
-      "target": "skill:azure-bicep-patterns",
+      "target": "skill:apex-azure-bicep-patterns",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:agent-skills--applies-to->skill:azure-cloud-migrate",
+      "id": "instruction:agent-skills--applies-to->skill:apex-azure-cloud-migrate",
       "source": "instruction:agent-skills",
-      "target": "skill:azure-cloud-migrate",
+      "target": "skill:apex-azure-cloud-migrate",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:agent-skills--applies-to->skill:azure-compliance",
+      "id": "instruction:agent-skills--applies-to->skill:apex-azure-compliance",
       "source": "instruction:agent-skills",
-      "target": "skill:azure-compliance",
+      "target": "skill:apex-azure-compliance",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:agent-skills--applies-to->skill:azure-compute",
+      "id": "instruction:agent-skills--applies-to->skill:apex-azure-compute",
       "source": "instruction:agent-skills",
-      "target": "skill:azure-compute",
+      "target": "skill:apex-azure-compute",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:agent-skills--applies-to->skill:azure-cost-optimization",
+      "id": "instruction:agent-skills--applies-to->skill:apex-azure-cost-optimization",
       "source": "instruction:agent-skills",
-      "target": "skill:azure-cost-optimization",
+      "target": "skill:apex-azure-cost-optimization",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:agent-skills--applies-to->skill:azure-defaults",
+      "id": "instruction:agent-skills--applies-to->skill:apex-azure-defaults",
       "source": "instruction:agent-skills",
-      "target": "skill:azure-defaults",
+      "target": "skill:apex-azure-defaults",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:agent-skills--applies-to->skill:azure-deploy",
+      "id": "instruction:agent-skills--applies-to->skill:apex-azure-deploy",
       "source": "instruction:agent-skills",
-      "target": "skill:azure-deploy",
+      "target": "skill:apex-azure-deploy",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:agent-skills--applies-to->skill:azure-diagnostics",
+      "id": "instruction:agent-skills--applies-to->skill:apex-azure-diagnostics",
       "source": "instruction:agent-skills",
-      "target": "skill:azure-diagnostics",
+      "target": "skill:apex-azure-diagnostics",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:agent-skills--applies-to->skill:azure-governance-discovery",
+      "id": "instruction:agent-skills--applies-to->skill:apex-azure-governance-discovery",
       "source": "instruction:agent-skills",
-      "target": "skill:azure-governance-discovery",
+      "target": "skill:apex-azure-governance-discovery",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:agent-skills--applies-to->skill:azure-kusto",
+      "id": "instruction:agent-skills--applies-to->skill:apex-azure-kusto",
       "source": "instruction:agent-skills",
-      "target": "skill:azure-kusto",
+      "target": "skill:apex-azure-kusto",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:agent-skills--applies-to->skill:azure-prepare",
+      "id": "instruction:agent-skills--applies-to->skill:apex-azure-prepare",
       "source": "instruction:agent-skills",
-      "target": "skill:azure-prepare",
+      "target": "skill:apex-azure-prepare",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:agent-skills--applies-to->skill:azure-quotas",
+      "id": "instruction:agent-skills--applies-to->skill:apex-azure-quotas",
       "source": "instruction:agent-skills",
-      "target": "skill:azure-quotas",
+      "target": "skill:apex-azure-quotas",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:agent-skills--applies-to->skill:azure-rbac",
+      "id": "instruction:agent-skills--applies-to->skill:apex-azure-rbac",
       "source": "instruction:agent-skills",
-      "target": "skill:azure-rbac",
+      "target": "skill:apex-azure-rbac",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:agent-skills--applies-to->skill:azure-resources",
+      "id": "instruction:agent-skills--applies-to->skill:apex-azure-resources",
       "source": "instruction:agent-skills",
-      "target": "skill:azure-resources",
+      "target": "skill:apex-azure-resources",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:agent-skills--applies-to->skill:azure-storage",
+      "id": "instruction:agent-skills--applies-to->skill:apex-azure-storage",
       "source": "instruction:agent-skills",
-      "target": "skill:azure-storage",
+      "target": "skill:apex-azure-storage",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:agent-skills--applies-to->skill:azure-validate",
+      "id": "instruction:agent-skills--applies-to->skill:apex-azure-validate",
       "source": "instruction:agent-skills",
-      "target": "skill:azure-validate",
+      "target": "skill:apex-azure-validate",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:agent-skills--applies-to->skill:context-management",
+      "id": "instruction:agent-skills--applies-to->skill:apex-context-management",
       "source": "instruction:agent-skills",
-      "target": "skill:context-management",
+      "target": "skill:apex-context-management",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:agent-skills--applies-to->skill:docs-writer",
+      "id": "instruction:agent-skills--applies-to->skill:apex-docs-writer",
       "source": "instruction:agent-skills",
-      "target": "skill:docs-writer",
+      "target": "skill:apex-docs-writer",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:agent-skills--applies-to->skill:entra-app-registration",
+      "id": "instruction:agent-skills--applies-to->skill:apex-entra-app-registration",
       "source": "instruction:agent-skills",
-      "target": "skill:entra-app-registration",
+      "target": "skill:apex-entra-app-registration",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:agent-skills--applies-to->skill:github-operations",
+      "id": "instruction:agent-skills--applies-to->skill:apex-github-operations",
       "source": "instruction:agent-skills",
-      "target": "skill:github-operations",
+      "target": "skill:apex-github-operations",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:agent-skills--applies-to->skill:golden-principles",
+      "id": "instruction:agent-skills--applies-to->skill:apex-golden-principles",
       "source": "instruction:agent-skills",
-      "target": "skill:golden-principles",
+      "target": "skill:apex-golden-principles",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:agent-skills--applies-to->skill:iac-common",
+      "id": "instruction:agent-skills--applies-to->skill:apex-iac-common",
       "source": "instruction:agent-skills",
-      "target": "skill:iac-common",
+      "target": "skill:apex-iac-common",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:agent-skills--applies-to->skill:mermaid",
+      "id": "instruction:agent-skills--applies-to->skill:apex-mermaid",
       "source": "instruction:agent-skills",
-      "target": "skill:mermaid",
+      "target": "skill:apex-mermaid",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:agent-skills--applies-to->skill:microsoft-docs",
+      "id": "instruction:agent-skills--applies-to->skill:apex-microsoft-docs",
       "source": "instruction:agent-skills",
-      "target": "skill:microsoft-docs",
+      "target": "skill:apex-microsoft-docs",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:agent-skills--applies-to->skill:python-diagrams",
+      "id": "instruction:agent-skills--applies-to->skill:apex-python-diagrams",
       "source": "instruction:agent-skills",
-      "target": "skill:python-diagrams",
+      "target": "skill:apex-python-diagrams",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:agent-skills--applies-to->skill:terraform-patterns",
+      "id": "instruction:agent-skills--applies-to->skill:apex-terraform-patterns",
       "source": "instruction:agent-skills",
-      "target": "skill:terraform-patterns",
+      "target": "skill:apex-terraform-patterns",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:agent-skills--applies-to->skill:terraform-search-import",
+      "id": "instruction:agent-skills--applies-to->skill:apex-terraform-search-import",
       "source": "instruction:agent-skills",
-      "target": "skill:terraform-search-import",
+      "target": "skill:apex-terraform-search-import",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:agent-skills--applies-to->skill:terraform-test",
+      "id": "instruction:agent-skills--applies-to->skill:apex-terraform-test",
       "source": "instruction:agent-skills",
-      "target": "skill:terraform-test",
+      "target": "skill:apex-terraform-test",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:agent-skills--applies-to->skill:vendor-prompting",
+      "id": "instruction:agent-skills--applies-to->skill:apex-vendor-prompting",
       "source": "instruction:agent-skills",
-      "target": "skill:vendor-prompting",
+      "target": "skill:apex-vendor-prompting",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:agent-skills--applies-to->skill:workflow-engine",
+      "id": "instruction:agent-skills--applies-to->skill:apex-workflow-engine",
       "source": "instruction:agent-skills",
-      "target": "skill:workflow-engine",
+      "target": "skill:apex-workflow-engine",
       "kind": "applies-to"
     },
     {
@@ -4560,201 +4560,201 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:context-optimization--applies-to->skill:agent-authoring",
+      "id": "instruction:context-optimization--applies-to->skill:apex-agent-authoring",
       "source": "instruction:context-optimization",
-      "target": "skill:agent-authoring",
+      "target": "skill:apex-agent-authoring",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:context-optimization--applies-to->skill:azure-adr",
+      "id": "instruction:context-optimization--applies-to->skill:apex-azure-adr",
       "source": "instruction:context-optimization",
-      "target": "skill:azure-adr",
+      "target": "skill:apex-azure-adr",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:context-optimization--applies-to->skill:azure-artifacts",
+      "id": "instruction:context-optimization--applies-to->skill:apex-azure-artifacts",
       "source": "instruction:context-optimization",
-      "target": "skill:azure-artifacts",
+      "target": "skill:apex-azure-artifacts",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:context-optimization--applies-to->skill:azure-bicep-patterns",
+      "id": "instruction:context-optimization--applies-to->skill:apex-azure-bicep-patterns",
       "source": "instruction:context-optimization",
-      "target": "skill:azure-bicep-patterns",
+      "target": "skill:apex-azure-bicep-patterns",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:context-optimization--applies-to->skill:azure-cloud-migrate",
+      "id": "instruction:context-optimization--applies-to->skill:apex-azure-cloud-migrate",
       "source": "instruction:context-optimization",
-      "target": "skill:azure-cloud-migrate",
+      "target": "skill:apex-azure-cloud-migrate",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:context-optimization--applies-to->skill:azure-compliance",
+      "id": "instruction:context-optimization--applies-to->skill:apex-azure-compliance",
       "source": "instruction:context-optimization",
-      "target": "skill:azure-compliance",
+      "target": "skill:apex-azure-compliance",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:context-optimization--applies-to->skill:azure-compute",
+      "id": "instruction:context-optimization--applies-to->skill:apex-azure-compute",
       "source": "instruction:context-optimization",
-      "target": "skill:azure-compute",
+      "target": "skill:apex-azure-compute",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:context-optimization--applies-to->skill:azure-cost-optimization",
+      "id": "instruction:context-optimization--applies-to->skill:apex-azure-cost-optimization",
       "source": "instruction:context-optimization",
-      "target": "skill:azure-cost-optimization",
+      "target": "skill:apex-azure-cost-optimization",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:context-optimization--applies-to->skill:azure-defaults",
+      "id": "instruction:context-optimization--applies-to->skill:apex-azure-defaults",
       "source": "instruction:context-optimization",
-      "target": "skill:azure-defaults",
+      "target": "skill:apex-azure-defaults",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:context-optimization--applies-to->skill:azure-deploy",
+      "id": "instruction:context-optimization--applies-to->skill:apex-azure-deploy",
       "source": "instruction:context-optimization",
-      "target": "skill:azure-deploy",
+      "target": "skill:apex-azure-deploy",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:context-optimization--applies-to->skill:azure-diagnostics",
+      "id": "instruction:context-optimization--applies-to->skill:apex-azure-diagnostics",
       "source": "instruction:context-optimization",
-      "target": "skill:azure-diagnostics",
+      "target": "skill:apex-azure-diagnostics",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:context-optimization--applies-to->skill:azure-governance-discovery",
+      "id": "instruction:context-optimization--applies-to->skill:apex-azure-governance-discovery",
       "source": "instruction:context-optimization",
-      "target": "skill:azure-governance-discovery",
+      "target": "skill:apex-azure-governance-discovery",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:context-optimization--applies-to->skill:azure-kusto",
+      "id": "instruction:context-optimization--applies-to->skill:apex-azure-kusto",
       "source": "instruction:context-optimization",
-      "target": "skill:azure-kusto",
+      "target": "skill:apex-azure-kusto",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:context-optimization--applies-to->skill:azure-prepare",
+      "id": "instruction:context-optimization--applies-to->skill:apex-azure-prepare",
       "source": "instruction:context-optimization",
-      "target": "skill:azure-prepare",
+      "target": "skill:apex-azure-prepare",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:context-optimization--applies-to->skill:azure-quotas",
+      "id": "instruction:context-optimization--applies-to->skill:apex-azure-quotas",
       "source": "instruction:context-optimization",
-      "target": "skill:azure-quotas",
+      "target": "skill:apex-azure-quotas",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:context-optimization--applies-to->skill:azure-rbac",
+      "id": "instruction:context-optimization--applies-to->skill:apex-azure-rbac",
       "source": "instruction:context-optimization",
-      "target": "skill:azure-rbac",
+      "target": "skill:apex-azure-rbac",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:context-optimization--applies-to->skill:azure-resources",
+      "id": "instruction:context-optimization--applies-to->skill:apex-azure-resources",
       "source": "instruction:context-optimization",
-      "target": "skill:azure-resources",
+      "target": "skill:apex-azure-resources",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:context-optimization--applies-to->skill:azure-storage",
+      "id": "instruction:context-optimization--applies-to->skill:apex-azure-storage",
       "source": "instruction:context-optimization",
-      "target": "skill:azure-storage",
+      "target": "skill:apex-azure-storage",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:context-optimization--applies-to->skill:azure-validate",
+      "id": "instruction:context-optimization--applies-to->skill:apex-azure-validate",
       "source": "instruction:context-optimization",
-      "target": "skill:azure-validate",
+      "target": "skill:apex-azure-validate",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:context-optimization--applies-to->skill:context-management",
+      "id": "instruction:context-optimization--applies-to->skill:apex-context-management",
       "source": "instruction:context-optimization",
-      "target": "skill:context-management",
+      "target": "skill:apex-context-management",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:context-optimization--applies-to->skill:docs-writer",
+      "id": "instruction:context-optimization--applies-to->skill:apex-docs-writer",
       "source": "instruction:context-optimization",
-      "target": "skill:docs-writer",
+      "target": "skill:apex-docs-writer",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:context-optimization--applies-to->skill:entra-app-registration",
+      "id": "instruction:context-optimization--applies-to->skill:apex-entra-app-registration",
       "source": "instruction:context-optimization",
-      "target": "skill:entra-app-registration",
+      "target": "skill:apex-entra-app-registration",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:context-optimization--applies-to->skill:github-operations",
+      "id": "instruction:context-optimization--applies-to->skill:apex-github-operations",
       "source": "instruction:context-optimization",
-      "target": "skill:github-operations",
+      "target": "skill:apex-github-operations",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:context-optimization--applies-to->skill:golden-principles",
+      "id": "instruction:context-optimization--applies-to->skill:apex-golden-principles",
       "source": "instruction:context-optimization",
-      "target": "skill:golden-principles",
+      "target": "skill:apex-golden-principles",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:context-optimization--applies-to->skill:iac-common",
+      "id": "instruction:context-optimization--applies-to->skill:apex-iac-common",
       "source": "instruction:context-optimization",
-      "target": "skill:iac-common",
+      "target": "skill:apex-iac-common",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:context-optimization--applies-to->skill:mermaid",
+      "id": "instruction:context-optimization--applies-to->skill:apex-mermaid",
       "source": "instruction:context-optimization",
-      "target": "skill:mermaid",
+      "target": "skill:apex-mermaid",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:context-optimization--applies-to->skill:microsoft-docs",
+      "id": "instruction:context-optimization--applies-to->skill:apex-microsoft-docs",
       "source": "instruction:context-optimization",
-      "target": "skill:microsoft-docs",
+      "target": "skill:apex-microsoft-docs",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:context-optimization--applies-to->skill:python-diagrams",
+      "id": "instruction:context-optimization--applies-to->skill:apex-python-diagrams",
       "source": "instruction:context-optimization",
-      "target": "skill:python-diagrams",
+      "target": "skill:apex-python-diagrams",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:context-optimization--applies-to->skill:terraform-patterns",
+      "id": "instruction:context-optimization--applies-to->skill:apex-terraform-patterns",
       "source": "instruction:context-optimization",
-      "target": "skill:terraform-patterns",
+      "target": "skill:apex-terraform-patterns",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:context-optimization--applies-to->skill:terraform-search-import",
+      "id": "instruction:context-optimization--applies-to->skill:apex-terraform-search-import",
       "source": "instruction:context-optimization",
-      "target": "skill:terraform-search-import",
+      "target": "skill:apex-terraform-search-import",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:context-optimization--applies-to->skill:terraform-test",
+      "id": "instruction:context-optimization--applies-to->skill:apex-terraform-test",
       "source": "instruction:context-optimization",
-      "target": "skill:terraform-test",
+      "target": "skill:apex-terraform-test",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:context-optimization--applies-to->skill:vendor-prompting",
+      "id": "instruction:context-optimization--applies-to->skill:apex-vendor-prompting",
       "source": "instruction:context-optimization",
-      "target": "skill:vendor-prompting",
+      "target": "skill:apex-vendor-prompting",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:context-optimization--applies-to->skill:workflow-engine",
+      "id": "instruction:context-optimization--applies-to->skill:apex-workflow-engine",
       "source": "instruction:context-optimization",
-      "target": "skill:workflow-engine",
+      "target": "skill:apex-workflow-engine",
       "kind": "applies-to"
     },
     {
@@ -4896,201 +4896,201 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:docs-trigger--applies-to->skill:agent-authoring",
+      "id": "instruction:docs-trigger--applies-to->skill:apex-agent-authoring",
       "source": "instruction:docs-trigger",
-      "target": "skill:agent-authoring",
+      "target": "skill:apex-agent-authoring",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:docs-trigger--applies-to->skill:azure-adr",
+      "id": "instruction:docs-trigger--applies-to->skill:apex-azure-adr",
       "source": "instruction:docs-trigger",
-      "target": "skill:azure-adr",
+      "target": "skill:apex-azure-adr",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:docs-trigger--applies-to->skill:azure-artifacts",
+      "id": "instruction:docs-trigger--applies-to->skill:apex-azure-artifacts",
       "source": "instruction:docs-trigger",
-      "target": "skill:azure-artifacts",
+      "target": "skill:apex-azure-artifacts",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:docs-trigger--applies-to->skill:azure-bicep-patterns",
+      "id": "instruction:docs-trigger--applies-to->skill:apex-azure-bicep-patterns",
       "source": "instruction:docs-trigger",
-      "target": "skill:azure-bicep-patterns",
+      "target": "skill:apex-azure-bicep-patterns",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:docs-trigger--applies-to->skill:azure-cloud-migrate",
+      "id": "instruction:docs-trigger--applies-to->skill:apex-azure-cloud-migrate",
       "source": "instruction:docs-trigger",
-      "target": "skill:azure-cloud-migrate",
+      "target": "skill:apex-azure-cloud-migrate",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:docs-trigger--applies-to->skill:azure-compliance",
+      "id": "instruction:docs-trigger--applies-to->skill:apex-azure-compliance",
       "source": "instruction:docs-trigger",
-      "target": "skill:azure-compliance",
+      "target": "skill:apex-azure-compliance",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:docs-trigger--applies-to->skill:azure-compute",
+      "id": "instruction:docs-trigger--applies-to->skill:apex-azure-compute",
       "source": "instruction:docs-trigger",
-      "target": "skill:azure-compute",
+      "target": "skill:apex-azure-compute",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:docs-trigger--applies-to->skill:azure-cost-optimization",
+      "id": "instruction:docs-trigger--applies-to->skill:apex-azure-cost-optimization",
       "source": "instruction:docs-trigger",
-      "target": "skill:azure-cost-optimization",
+      "target": "skill:apex-azure-cost-optimization",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:docs-trigger--applies-to->skill:azure-defaults",
+      "id": "instruction:docs-trigger--applies-to->skill:apex-azure-defaults",
       "source": "instruction:docs-trigger",
-      "target": "skill:azure-defaults",
+      "target": "skill:apex-azure-defaults",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:docs-trigger--applies-to->skill:azure-deploy",
+      "id": "instruction:docs-trigger--applies-to->skill:apex-azure-deploy",
       "source": "instruction:docs-trigger",
-      "target": "skill:azure-deploy",
+      "target": "skill:apex-azure-deploy",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:docs-trigger--applies-to->skill:azure-diagnostics",
+      "id": "instruction:docs-trigger--applies-to->skill:apex-azure-diagnostics",
       "source": "instruction:docs-trigger",
-      "target": "skill:azure-diagnostics",
+      "target": "skill:apex-azure-diagnostics",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:docs-trigger--applies-to->skill:azure-governance-discovery",
+      "id": "instruction:docs-trigger--applies-to->skill:apex-azure-governance-discovery",
       "source": "instruction:docs-trigger",
-      "target": "skill:azure-governance-discovery",
+      "target": "skill:apex-azure-governance-discovery",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:docs-trigger--applies-to->skill:azure-kusto",
+      "id": "instruction:docs-trigger--applies-to->skill:apex-azure-kusto",
       "source": "instruction:docs-trigger",
-      "target": "skill:azure-kusto",
+      "target": "skill:apex-azure-kusto",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:docs-trigger--applies-to->skill:azure-prepare",
+      "id": "instruction:docs-trigger--applies-to->skill:apex-azure-prepare",
       "source": "instruction:docs-trigger",
-      "target": "skill:azure-prepare",
+      "target": "skill:apex-azure-prepare",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:docs-trigger--applies-to->skill:azure-quotas",
+      "id": "instruction:docs-trigger--applies-to->skill:apex-azure-quotas",
       "source": "instruction:docs-trigger",
-      "target": "skill:azure-quotas",
+      "target": "skill:apex-azure-quotas",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:docs-trigger--applies-to->skill:azure-rbac",
+      "id": "instruction:docs-trigger--applies-to->skill:apex-azure-rbac",
       "source": "instruction:docs-trigger",
-      "target": "skill:azure-rbac",
+      "target": "skill:apex-azure-rbac",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:docs-trigger--applies-to->skill:azure-resources",
+      "id": "instruction:docs-trigger--applies-to->skill:apex-azure-resources",
       "source": "instruction:docs-trigger",
-      "target": "skill:azure-resources",
+      "target": "skill:apex-azure-resources",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:docs-trigger--applies-to->skill:azure-storage",
+      "id": "instruction:docs-trigger--applies-to->skill:apex-azure-storage",
       "source": "instruction:docs-trigger",
-      "target": "skill:azure-storage",
+      "target": "skill:apex-azure-storage",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:docs-trigger--applies-to->skill:azure-validate",
+      "id": "instruction:docs-trigger--applies-to->skill:apex-azure-validate",
       "source": "instruction:docs-trigger",
-      "target": "skill:azure-validate",
+      "target": "skill:apex-azure-validate",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:docs-trigger--applies-to->skill:context-management",
+      "id": "instruction:docs-trigger--applies-to->skill:apex-context-management",
       "source": "instruction:docs-trigger",
-      "target": "skill:context-management",
+      "target": "skill:apex-context-management",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:docs-trigger--applies-to->skill:docs-writer",
+      "id": "instruction:docs-trigger--applies-to->skill:apex-docs-writer",
       "source": "instruction:docs-trigger",
-      "target": "skill:docs-writer",
+      "target": "skill:apex-docs-writer",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:docs-trigger--applies-to->skill:entra-app-registration",
+      "id": "instruction:docs-trigger--applies-to->skill:apex-entra-app-registration",
       "source": "instruction:docs-trigger",
-      "target": "skill:entra-app-registration",
+      "target": "skill:apex-entra-app-registration",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:docs-trigger--applies-to->skill:github-operations",
+      "id": "instruction:docs-trigger--applies-to->skill:apex-github-operations",
       "source": "instruction:docs-trigger",
-      "target": "skill:github-operations",
+      "target": "skill:apex-github-operations",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:docs-trigger--applies-to->skill:golden-principles",
+      "id": "instruction:docs-trigger--applies-to->skill:apex-golden-principles",
       "source": "instruction:docs-trigger",
-      "target": "skill:golden-principles",
+      "target": "skill:apex-golden-principles",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:docs-trigger--applies-to->skill:iac-common",
+      "id": "instruction:docs-trigger--applies-to->skill:apex-iac-common",
       "source": "instruction:docs-trigger",
-      "target": "skill:iac-common",
+      "target": "skill:apex-iac-common",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:docs-trigger--applies-to->skill:mermaid",
+      "id": "instruction:docs-trigger--applies-to->skill:apex-mermaid",
       "source": "instruction:docs-trigger",
-      "target": "skill:mermaid",
+      "target": "skill:apex-mermaid",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:docs-trigger--applies-to->skill:microsoft-docs",
+      "id": "instruction:docs-trigger--applies-to->skill:apex-microsoft-docs",
       "source": "instruction:docs-trigger",
-      "target": "skill:microsoft-docs",
+      "target": "skill:apex-microsoft-docs",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:docs-trigger--applies-to->skill:python-diagrams",
+      "id": "instruction:docs-trigger--applies-to->skill:apex-python-diagrams",
       "source": "instruction:docs-trigger",
-      "target": "skill:python-diagrams",
+      "target": "skill:apex-python-diagrams",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:docs-trigger--applies-to->skill:terraform-patterns",
+      "id": "instruction:docs-trigger--applies-to->skill:apex-terraform-patterns",
       "source": "instruction:docs-trigger",
-      "target": "skill:terraform-patterns",
+      "target": "skill:apex-terraform-patterns",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:docs-trigger--applies-to->skill:terraform-search-import",
+      "id": "instruction:docs-trigger--applies-to->skill:apex-terraform-search-import",
       "source": "instruction:docs-trigger",
-      "target": "skill:terraform-search-import",
+      "target": "skill:apex-terraform-search-import",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:docs-trigger--applies-to->skill:terraform-test",
+      "id": "instruction:docs-trigger--applies-to->skill:apex-terraform-test",
       "source": "instruction:docs-trigger",
-      "target": "skill:terraform-test",
+      "target": "skill:apex-terraform-test",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:docs-trigger--applies-to->skill:vendor-prompting",
+      "id": "instruction:docs-trigger--applies-to->skill:apex-vendor-prompting",
       "source": "instruction:docs-trigger",
-      "target": "skill:vendor-prompting",
+      "target": "skill:apex-vendor-prompting",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:docs-trigger--applies-to->skill:workflow-engine",
+      "id": "instruction:docs-trigger--applies-to->skill:apex-workflow-engine",
       "source": "instruction:docs-trigger",
-      "target": "skill:workflow-engine",
+      "target": "skill:apex-workflow-engine",
       "kind": "applies-to"
     },
     {
@@ -5394,201 +5394,201 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:markdown--applies-to->skill:agent-authoring",
+      "id": "instruction:markdown--applies-to->skill:apex-agent-authoring",
       "source": "instruction:markdown",
-      "target": "skill:agent-authoring",
+      "target": "skill:apex-agent-authoring",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:markdown--applies-to->skill:azure-adr",
+      "id": "instruction:markdown--applies-to->skill:apex-azure-adr",
       "source": "instruction:markdown",
-      "target": "skill:azure-adr",
+      "target": "skill:apex-azure-adr",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:markdown--applies-to->skill:azure-artifacts",
+      "id": "instruction:markdown--applies-to->skill:apex-azure-artifacts",
       "source": "instruction:markdown",
-      "target": "skill:azure-artifacts",
+      "target": "skill:apex-azure-artifacts",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:markdown--applies-to->skill:azure-bicep-patterns",
+      "id": "instruction:markdown--applies-to->skill:apex-azure-bicep-patterns",
       "source": "instruction:markdown",
-      "target": "skill:azure-bicep-patterns",
+      "target": "skill:apex-azure-bicep-patterns",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:markdown--applies-to->skill:azure-cloud-migrate",
+      "id": "instruction:markdown--applies-to->skill:apex-azure-cloud-migrate",
       "source": "instruction:markdown",
-      "target": "skill:azure-cloud-migrate",
+      "target": "skill:apex-azure-cloud-migrate",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:markdown--applies-to->skill:azure-compliance",
+      "id": "instruction:markdown--applies-to->skill:apex-azure-compliance",
       "source": "instruction:markdown",
-      "target": "skill:azure-compliance",
+      "target": "skill:apex-azure-compliance",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:markdown--applies-to->skill:azure-compute",
+      "id": "instruction:markdown--applies-to->skill:apex-azure-compute",
       "source": "instruction:markdown",
-      "target": "skill:azure-compute",
+      "target": "skill:apex-azure-compute",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:markdown--applies-to->skill:azure-cost-optimization",
+      "id": "instruction:markdown--applies-to->skill:apex-azure-cost-optimization",
       "source": "instruction:markdown",
-      "target": "skill:azure-cost-optimization",
+      "target": "skill:apex-azure-cost-optimization",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:markdown--applies-to->skill:azure-defaults",
+      "id": "instruction:markdown--applies-to->skill:apex-azure-defaults",
       "source": "instruction:markdown",
-      "target": "skill:azure-defaults",
+      "target": "skill:apex-azure-defaults",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:markdown--applies-to->skill:azure-deploy",
+      "id": "instruction:markdown--applies-to->skill:apex-azure-deploy",
       "source": "instruction:markdown",
-      "target": "skill:azure-deploy",
+      "target": "skill:apex-azure-deploy",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:markdown--applies-to->skill:azure-diagnostics",
+      "id": "instruction:markdown--applies-to->skill:apex-azure-diagnostics",
       "source": "instruction:markdown",
-      "target": "skill:azure-diagnostics",
+      "target": "skill:apex-azure-diagnostics",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:markdown--applies-to->skill:azure-governance-discovery",
+      "id": "instruction:markdown--applies-to->skill:apex-azure-governance-discovery",
       "source": "instruction:markdown",
-      "target": "skill:azure-governance-discovery",
+      "target": "skill:apex-azure-governance-discovery",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:markdown--applies-to->skill:azure-kusto",
+      "id": "instruction:markdown--applies-to->skill:apex-azure-kusto",
       "source": "instruction:markdown",
-      "target": "skill:azure-kusto",
+      "target": "skill:apex-azure-kusto",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:markdown--applies-to->skill:azure-prepare",
+      "id": "instruction:markdown--applies-to->skill:apex-azure-prepare",
       "source": "instruction:markdown",
-      "target": "skill:azure-prepare",
+      "target": "skill:apex-azure-prepare",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:markdown--applies-to->skill:azure-quotas",
+      "id": "instruction:markdown--applies-to->skill:apex-azure-quotas",
       "source": "instruction:markdown",
-      "target": "skill:azure-quotas",
+      "target": "skill:apex-azure-quotas",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:markdown--applies-to->skill:azure-rbac",
+      "id": "instruction:markdown--applies-to->skill:apex-azure-rbac",
       "source": "instruction:markdown",
-      "target": "skill:azure-rbac",
+      "target": "skill:apex-azure-rbac",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:markdown--applies-to->skill:azure-resources",
+      "id": "instruction:markdown--applies-to->skill:apex-azure-resources",
       "source": "instruction:markdown",
-      "target": "skill:azure-resources",
+      "target": "skill:apex-azure-resources",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:markdown--applies-to->skill:azure-storage",
+      "id": "instruction:markdown--applies-to->skill:apex-azure-storage",
       "source": "instruction:markdown",
-      "target": "skill:azure-storage",
+      "target": "skill:apex-azure-storage",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:markdown--applies-to->skill:azure-validate",
+      "id": "instruction:markdown--applies-to->skill:apex-azure-validate",
       "source": "instruction:markdown",
-      "target": "skill:azure-validate",
+      "target": "skill:apex-azure-validate",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:markdown--applies-to->skill:context-management",
+      "id": "instruction:markdown--applies-to->skill:apex-context-management",
       "source": "instruction:markdown",
-      "target": "skill:context-management",
+      "target": "skill:apex-context-management",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:markdown--applies-to->skill:docs-writer",
+      "id": "instruction:markdown--applies-to->skill:apex-docs-writer",
       "source": "instruction:markdown",
-      "target": "skill:docs-writer",
+      "target": "skill:apex-docs-writer",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:markdown--applies-to->skill:entra-app-registration",
+      "id": "instruction:markdown--applies-to->skill:apex-entra-app-registration",
       "source": "instruction:markdown",
-      "target": "skill:entra-app-registration",
+      "target": "skill:apex-entra-app-registration",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:markdown--applies-to->skill:github-operations",
+      "id": "instruction:markdown--applies-to->skill:apex-github-operations",
       "source": "instruction:markdown",
-      "target": "skill:github-operations",
+      "target": "skill:apex-github-operations",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:markdown--applies-to->skill:golden-principles",
+      "id": "instruction:markdown--applies-to->skill:apex-golden-principles",
       "source": "instruction:markdown",
-      "target": "skill:golden-principles",
+      "target": "skill:apex-golden-principles",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:markdown--applies-to->skill:iac-common",
+      "id": "instruction:markdown--applies-to->skill:apex-iac-common",
       "source": "instruction:markdown",
-      "target": "skill:iac-common",
+      "target": "skill:apex-iac-common",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:markdown--applies-to->skill:mermaid",
+      "id": "instruction:markdown--applies-to->skill:apex-mermaid",
       "source": "instruction:markdown",
-      "target": "skill:mermaid",
+      "target": "skill:apex-mermaid",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:markdown--applies-to->skill:microsoft-docs",
+      "id": "instruction:markdown--applies-to->skill:apex-microsoft-docs",
       "source": "instruction:markdown",
-      "target": "skill:microsoft-docs",
+      "target": "skill:apex-microsoft-docs",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:markdown--applies-to->skill:python-diagrams",
+      "id": "instruction:markdown--applies-to->skill:apex-python-diagrams",
       "source": "instruction:markdown",
-      "target": "skill:python-diagrams",
+      "target": "skill:apex-python-diagrams",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:markdown--applies-to->skill:terraform-patterns",
+      "id": "instruction:markdown--applies-to->skill:apex-terraform-patterns",
       "source": "instruction:markdown",
-      "target": "skill:terraform-patterns",
+      "target": "skill:apex-terraform-patterns",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:markdown--applies-to->skill:terraform-search-import",
+      "id": "instruction:markdown--applies-to->skill:apex-terraform-search-import",
       "source": "instruction:markdown",
-      "target": "skill:terraform-search-import",
+      "target": "skill:apex-terraform-search-import",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:markdown--applies-to->skill:terraform-test",
+      "id": "instruction:markdown--applies-to->skill:apex-terraform-test",
       "source": "instruction:markdown",
-      "target": "skill:terraform-test",
+      "target": "skill:apex-terraform-test",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:markdown--applies-to->skill:vendor-prompting",
+      "id": "instruction:markdown--applies-to->skill:apex-vendor-prompting",
       "source": "instruction:markdown",
-      "target": "skill:vendor-prompting",
+      "target": "skill:apex-vendor-prompting",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:markdown--applies-to->skill:workflow-engine",
+      "id": "instruction:markdown--applies-to->skill:apex-workflow-engine",
       "source": "instruction:markdown",
-      "target": "skill:workflow-engine",
+      "target": "skill:apex-workflow-engine",
       "kind": "applies-to"
     },
     {
@@ -5724,201 +5724,201 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:no-interactive-shell--applies-to->skill:agent-authoring",
+      "id": "instruction:no-interactive-shell--applies-to->skill:apex-agent-authoring",
       "source": "instruction:no-interactive-shell",
-      "target": "skill:agent-authoring",
+      "target": "skill:apex-agent-authoring",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:no-interactive-shell--applies-to->skill:azure-adr",
+      "id": "instruction:no-interactive-shell--applies-to->skill:apex-azure-adr",
       "source": "instruction:no-interactive-shell",
-      "target": "skill:azure-adr",
+      "target": "skill:apex-azure-adr",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:no-interactive-shell--applies-to->skill:azure-artifacts",
+      "id": "instruction:no-interactive-shell--applies-to->skill:apex-azure-artifacts",
       "source": "instruction:no-interactive-shell",
-      "target": "skill:azure-artifacts",
+      "target": "skill:apex-azure-artifacts",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:no-interactive-shell--applies-to->skill:azure-bicep-patterns",
+      "id": "instruction:no-interactive-shell--applies-to->skill:apex-azure-bicep-patterns",
       "source": "instruction:no-interactive-shell",
-      "target": "skill:azure-bicep-patterns",
+      "target": "skill:apex-azure-bicep-patterns",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:no-interactive-shell--applies-to->skill:azure-cloud-migrate",
+      "id": "instruction:no-interactive-shell--applies-to->skill:apex-azure-cloud-migrate",
       "source": "instruction:no-interactive-shell",
-      "target": "skill:azure-cloud-migrate",
+      "target": "skill:apex-azure-cloud-migrate",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:no-interactive-shell--applies-to->skill:azure-compliance",
+      "id": "instruction:no-interactive-shell--applies-to->skill:apex-azure-compliance",
       "source": "instruction:no-interactive-shell",
-      "target": "skill:azure-compliance",
+      "target": "skill:apex-azure-compliance",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:no-interactive-shell--applies-to->skill:azure-compute",
+      "id": "instruction:no-interactive-shell--applies-to->skill:apex-azure-compute",
       "source": "instruction:no-interactive-shell",
-      "target": "skill:azure-compute",
+      "target": "skill:apex-azure-compute",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:no-interactive-shell--applies-to->skill:azure-cost-optimization",
+      "id": "instruction:no-interactive-shell--applies-to->skill:apex-azure-cost-optimization",
       "source": "instruction:no-interactive-shell",
-      "target": "skill:azure-cost-optimization",
+      "target": "skill:apex-azure-cost-optimization",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:no-interactive-shell--applies-to->skill:azure-defaults",
+      "id": "instruction:no-interactive-shell--applies-to->skill:apex-azure-defaults",
       "source": "instruction:no-interactive-shell",
-      "target": "skill:azure-defaults",
+      "target": "skill:apex-azure-defaults",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:no-interactive-shell--applies-to->skill:azure-deploy",
+      "id": "instruction:no-interactive-shell--applies-to->skill:apex-azure-deploy",
       "source": "instruction:no-interactive-shell",
-      "target": "skill:azure-deploy",
+      "target": "skill:apex-azure-deploy",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:no-interactive-shell--applies-to->skill:azure-diagnostics",
+      "id": "instruction:no-interactive-shell--applies-to->skill:apex-azure-diagnostics",
       "source": "instruction:no-interactive-shell",
-      "target": "skill:azure-diagnostics",
+      "target": "skill:apex-azure-diagnostics",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:no-interactive-shell--applies-to->skill:azure-governance-discovery",
+      "id": "instruction:no-interactive-shell--applies-to->skill:apex-azure-governance-discovery",
       "source": "instruction:no-interactive-shell",
-      "target": "skill:azure-governance-discovery",
+      "target": "skill:apex-azure-governance-discovery",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:no-interactive-shell--applies-to->skill:azure-kusto",
+      "id": "instruction:no-interactive-shell--applies-to->skill:apex-azure-kusto",
       "source": "instruction:no-interactive-shell",
-      "target": "skill:azure-kusto",
+      "target": "skill:apex-azure-kusto",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:no-interactive-shell--applies-to->skill:azure-prepare",
+      "id": "instruction:no-interactive-shell--applies-to->skill:apex-azure-prepare",
       "source": "instruction:no-interactive-shell",
-      "target": "skill:azure-prepare",
+      "target": "skill:apex-azure-prepare",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:no-interactive-shell--applies-to->skill:azure-quotas",
+      "id": "instruction:no-interactive-shell--applies-to->skill:apex-azure-quotas",
       "source": "instruction:no-interactive-shell",
-      "target": "skill:azure-quotas",
+      "target": "skill:apex-azure-quotas",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:no-interactive-shell--applies-to->skill:azure-rbac",
+      "id": "instruction:no-interactive-shell--applies-to->skill:apex-azure-rbac",
       "source": "instruction:no-interactive-shell",
-      "target": "skill:azure-rbac",
+      "target": "skill:apex-azure-rbac",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:no-interactive-shell--applies-to->skill:azure-resources",
+      "id": "instruction:no-interactive-shell--applies-to->skill:apex-azure-resources",
       "source": "instruction:no-interactive-shell",
-      "target": "skill:azure-resources",
+      "target": "skill:apex-azure-resources",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:no-interactive-shell--applies-to->skill:azure-storage",
+      "id": "instruction:no-interactive-shell--applies-to->skill:apex-azure-storage",
       "source": "instruction:no-interactive-shell",
-      "target": "skill:azure-storage",
+      "target": "skill:apex-azure-storage",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:no-interactive-shell--applies-to->skill:azure-validate",
+      "id": "instruction:no-interactive-shell--applies-to->skill:apex-azure-validate",
       "source": "instruction:no-interactive-shell",
-      "target": "skill:azure-validate",
+      "target": "skill:apex-azure-validate",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:no-interactive-shell--applies-to->skill:context-management",
+      "id": "instruction:no-interactive-shell--applies-to->skill:apex-context-management",
       "source": "instruction:no-interactive-shell",
-      "target": "skill:context-management",
+      "target": "skill:apex-context-management",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:no-interactive-shell--applies-to->skill:docs-writer",
+      "id": "instruction:no-interactive-shell--applies-to->skill:apex-docs-writer",
       "source": "instruction:no-interactive-shell",
-      "target": "skill:docs-writer",
+      "target": "skill:apex-docs-writer",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:no-interactive-shell--applies-to->skill:entra-app-registration",
+      "id": "instruction:no-interactive-shell--applies-to->skill:apex-entra-app-registration",
       "source": "instruction:no-interactive-shell",
-      "target": "skill:entra-app-registration",
+      "target": "skill:apex-entra-app-registration",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:no-interactive-shell--applies-to->skill:github-operations",
+      "id": "instruction:no-interactive-shell--applies-to->skill:apex-github-operations",
       "source": "instruction:no-interactive-shell",
-      "target": "skill:github-operations",
+      "target": "skill:apex-github-operations",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:no-interactive-shell--applies-to->skill:golden-principles",
+      "id": "instruction:no-interactive-shell--applies-to->skill:apex-golden-principles",
       "source": "instruction:no-interactive-shell",
-      "target": "skill:golden-principles",
+      "target": "skill:apex-golden-principles",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:no-interactive-shell--applies-to->skill:iac-common",
+      "id": "instruction:no-interactive-shell--applies-to->skill:apex-iac-common",
       "source": "instruction:no-interactive-shell",
-      "target": "skill:iac-common",
+      "target": "skill:apex-iac-common",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:no-interactive-shell--applies-to->skill:mermaid",
+      "id": "instruction:no-interactive-shell--applies-to->skill:apex-mermaid",
       "source": "instruction:no-interactive-shell",
-      "target": "skill:mermaid",
+      "target": "skill:apex-mermaid",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:no-interactive-shell--applies-to->skill:microsoft-docs",
+      "id": "instruction:no-interactive-shell--applies-to->skill:apex-microsoft-docs",
       "source": "instruction:no-interactive-shell",
-      "target": "skill:microsoft-docs",
+      "target": "skill:apex-microsoft-docs",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:no-interactive-shell--applies-to->skill:python-diagrams",
+      "id": "instruction:no-interactive-shell--applies-to->skill:apex-python-diagrams",
       "source": "instruction:no-interactive-shell",
-      "target": "skill:python-diagrams",
+      "target": "skill:apex-python-diagrams",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:no-interactive-shell--applies-to->skill:terraform-patterns",
+      "id": "instruction:no-interactive-shell--applies-to->skill:apex-terraform-patterns",
       "source": "instruction:no-interactive-shell",
-      "target": "skill:terraform-patterns",
+      "target": "skill:apex-terraform-patterns",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:no-interactive-shell--applies-to->skill:terraform-search-import",
+      "id": "instruction:no-interactive-shell--applies-to->skill:apex-terraform-search-import",
       "source": "instruction:no-interactive-shell",
-      "target": "skill:terraform-search-import",
+      "target": "skill:apex-terraform-search-import",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:no-interactive-shell--applies-to->skill:terraform-test",
+      "id": "instruction:no-interactive-shell--applies-to->skill:apex-terraform-test",
       "source": "instruction:no-interactive-shell",
-      "target": "skill:terraform-test",
+      "target": "skill:apex-terraform-test",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:no-interactive-shell--applies-to->skill:vendor-prompting",
+      "id": "instruction:no-interactive-shell--applies-to->skill:apex-vendor-prompting",
       "source": "instruction:no-interactive-shell",
-      "target": "skill:vendor-prompting",
+      "target": "skill:apex-vendor-prompting",
       "kind": "applies-to"
     },
     {
-      "id": "instruction:no-interactive-shell--applies-to->skill:workflow-engine",
+      "id": "instruction:no-interactive-shell--applies-to->skill:apex-workflow-engine",
       "source": "instruction:no-interactive-shell",
-      "target": "skill:workflow-engine",
+      "target": "skill:apex-workflow-engine",
       "kind": "applies-to"
     },
     {
@@ -6918,429 +6918,429 @@
       "kind": "uses-mcp"
     },
     {
-      "id": "skill:agent-authoring--refs->skill:context-management",
-      "source": "skill:agent-authoring",
-      "target": "skill:context-management",
+      "id": "skill:apex-agent-authoring--refs->skill:apex-context-management",
+      "source": "skill:apex-agent-authoring",
+      "target": "skill:apex-context-management",
       "kind": "refs"
     },
     {
-      "id": "skill:agent-authoring--refs->skill:vendor-prompting",
-      "source": "skill:agent-authoring",
-      "target": "skill:vendor-prompting",
+      "id": "skill:apex-agent-authoring--refs->skill:apex-vendor-prompting",
+      "source": "skill:apex-agent-authoring",
+      "target": "skill:apex-vendor-prompting",
       "kind": "refs"
     },
     {
-      "id": "skill:agent-authoring--refs->skill:workflow-engine",
-      "source": "skill:agent-authoring",
-      "target": "skill:workflow-engine",
+      "id": "skill:apex-agent-authoring--refs->skill:apex-workflow-engine",
+      "source": "skill:apex-agent-authoring",
+      "target": "skill:apex-workflow-engine",
       "kind": "refs"
     },
     {
-      "id": "skill:azure-adr--refs->skill:python-diagrams",
-      "source": "skill:azure-adr",
-      "target": "skill:python-diagrams",
+      "id": "skill:apex-azure-adr--refs->skill:apex-python-diagrams",
+      "source": "skill:apex-azure-adr",
+      "target": "skill:apex-python-diagrams",
       "kind": "refs"
     },
     {
-      "id": "skill:azure-artifacts--refs->skill:agent-authoring",
-      "source": "skill:azure-artifacts",
-      "target": "skill:agent-authoring",
+      "id": "skill:apex-azure-artifacts--refs->skill:apex-agent-authoring",
+      "source": "skill:apex-azure-artifacts",
+      "target": "skill:apex-agent-authoring",
       "kind": "refs"
     },
     {
-      "id": "skill:azure-artifacts--refs->skill:azure-bicep-patterns",
-      "source": "skill:azure-artifacts",
-      "target": "skill:azure-bicep-patterns",
+      "id": "skill:apex-azure-artifacts--refs->skill:apex-azure-bicep-patterns",
+      "source": "skill:apex-azure-artifacts",
+      "target": "skill:apex-azure-bicep-patterns",
       "kind": "refs"
     },
     {
-      "id": "skill:azure-artifacts--refs->skill:azure-defaults",
-      "source": "skill:azure-artifacts",
-      "target": "skill:azure-defaults",
+      "id": "skill:apex-azure-artifacts--refs->skill:apex-azure-defaults",
+      "source": "skill:apex-azure-artifacts",
+      "target": "skill:apex-azure-defaults",
       "kind": "refs"
     },
     {
-      "id": "skill:azure-artifacts--refs->skill:terraform-patterns",
-      "source": "skill:azure-artifacts",
-      "target": "skill:terraform-patterns",
+      "id": "skill:apex-azure-artifacts--refs->skill:apex-terraform-patterns",
+      "source": "skill:apex-azure-artifacts",
+      "target": "skill:apex-terraform-patterns",
       "kind": "refs"
     },
     {
-      "id": "skill:azure-bicep-patterns--refs->skill:azure-adr",
-      "source": "skill:azure-bicep-patterns",
-      "target": "skill:azure-adr",
+      "id": "skill:apex-azure-bicep-patterns--refs->skill:apex-azure-adr",
+      "source": "skill:apex-azure-bicep-patterns",
+      "target": "skill:apex-azure-adr",
       "kind": "refs"
     },
     {
-      "id": "skill:azure-bicep-patterns--refs->skill:azure-defaults",
-      "source": "skill:azure-bicep-patterns",
-      "target": "skill:azure-defaults",
+      "id": "skill:apex-azure-bicep-patterns--refs->skill:apex-azure-defaults",
+      "source": "skill:apex-azure-bicep-patterns",
+      "target": "skill:apex-azure-defaults",
       "kind": "refs"
     },
     {
-      "id": "skill:azure-bicep-patterns--refs->skill:python-diagrams",
-      "source": "skill:azure-bicep-patterns",
-      "target": "skill:python-diagrams",
+      "id": "skill:apex-azure-bicep-patterns--refs->skill:apex-python-diagrams",
+      "source": "skill:apex-azure-bicep-patterns",
+      "target": "skill:apex-python-diagrams",
       "kind": "refs"
     },
     {
-      "id": "skill:azure-bicep-patterns--refs->skill:terraform-patterns",
-      "source": "skill:azure-bicep-patterns",
-      "target": "skill:terraform-patterns",
+      "id": "skill:apex-azure-bicep-patterns--refs->skill:apex-terraform-patterns",
+      "source": "skill:apex-azure-bicep-patterns",
+      "target": "skill:apex-terraform-patterns",
       "kind": "refs"
     },
     {
-      "id": "skill:azure-cloud-migrate--refs->skill:azure-prepare",
-      "source": "skill:azure-cloud-migrate",
-      "target": "skill:azure-prepare",
+      "id": "skill:apex-azure-cloud-migrate--refs->skill:apex-azure-prepare",
+      "source": "skill:apex-azure-cloud-migrate",
+      "target": "skill:apex-azure-prepare",
       "kind": "refs"
     },
     {
-      "id": "skill:azure-compliance--refs->skill:azure-cost-optimization",
-      "source": "skill:azure-compliance",
-      "target": "skill:azure-cost-optimization",
+      "id": "skill:apex-azure-compliance--refs->skill:apex-azure-cost-optimization",
+      "source": "skill:apex-azure-compliance",
+      "target": "skill:apex-azure-cost-optimization",
       "kind": "refs"
     },
     {
-      "id": "skill:azure-compliance--refs->skill:azure-governance-discovery",
-      "source": "skill:azure-compliance",
-      "target": "skill:azure-governance-discovery",
+      "id": "skill:apex-azure-compliance--refs->skill:apex-azure-governance-discovery",
+      "source": "skill:apex-azure-compliance",
+      "target": "skill:apex-azure-governance-discovery",
       "kind": "refs"
     },
     {
-      "id": "skill:azure-compliance--refs->skill:entra-app-registration",
-      "source": "skill:azure-compliance",
-      "target": "skill:entra-app-registration",
+      "id": "skill:apex-azure-compliance--refs->skill:apex-entra-app-registration",
+      "source": "skill:apex-azure-compliance",
+      "target": "skill:apex-entra-app-registration",
       "kind": "refs"
     },
     {
-      "id": "skill:azure-compute--refs->skill:azure-defaults",
-      "source": "skill:azure-compute",
-      "target": "skill:azure-defaults",
+      "id": "skill:apex-azure-compute--refs->skill:apex-azure-defaults",
+      "source": "skill:apex-azure-compute",
+      "target": "skill:apex-azure-defaults",
       "kind": "refs"
     },
     {
-      "id": "skill:azure-compute--refs->skill:azure-prepare",
-      "source": "skill:azure-compute",
-      "target": "skill:azure-prepare",
+      "id": "skill:apex-azure-compute--refs->skill:apex-azure-prepare",
+      "source": "skill:apex-azure-compute",
+      "target": "skill:apex-azure-prepare",
       "kind": "refs"
     },
     {
-      "id": "skill:azure-cost-optimization--refs->skill:azure-compliance",
-      "source": "skill:azure-cost-optimization",
-      "target": "skill:azure-compliance",
+      "id": "skill:apex-azure-cost-optimization--refs->skill:apex-azure-compliance",
+      "source": "skill:apex-azure-cost-optimization",
+      "target": "skill:apex-azure-compliance",
       "kind": "refs"
     },
     {
-      "id": "skill:azure-cost-optimization--refs->skill:azure-deploy",
-      "source": "skill:azure-cost-optimization",
-      "target": "skill:azure-deploy",
+      "id": "skill:apex-azure-cost-optimization--refs->skill:apex-azure-deploy",
+      "source": "skill:apex-azure-cost-optimization",
+      "target": "skill:apex-azure-deploy",
       "kind": "refs"
     },
     {
-      "id": "skill:azure-cost-optimization--refs->skill:azure-diagnostics",
-      "source": "skill:azure-cost-optimization",
-      "target": "skill:azure-diagnostics",
+      "id": "skill:apex-azure-cost-optimization--refs->skill:apex-azure-diagnostics",
+      "source": "skill:apex-azure-cost-optimization",
+      "target": "skill:apex-azure-diagnostics",
       "kind": "refs"
     },
     {
-      "id": "skill:azure-cost-optimization--refs->skill:entra-app-registration",
-      "source": "skill:azure-cost-optimization",
-      "target": "skill:entra-app-registration",
+      "id": "skill:apex-azure-cost-optimization--refs->skill:apex-entra-app-registration",
+      "source": "skill:apex-azure-cost-optimization",
+      "target": "skill:apex-entra-app-registration",
       "kind": "refs"
     },
     {
-      "id": "skill:azure-deploy--refs->skill:azure-prepare",
-      "source": "skill:azure-deploy",
-      "target": "skill:azure-prepare",
+      "id": "skill:apex-azure-deploy--refs->skill:apex-azure-prepare",
+      "source": "skill:apex-azure-deploy",
+      "target": "skill:apex-azure-prepare",
       "kind": "refs"
     },
     {
-      "id": "skill:azure-deploy--refs->skill:azure-validate",
-      "source": "skill:azure-deploy",
-      "target": "skill:azure-validate",
+      "id": "skill:apex-azure-deploy--refs->skill:apex-azure-validate",
+      "source": "skill:apex-azure-deploy",
+      "target": "skill:apex-azure-validate",
       "kind": "refs"
     },
     {
-      "id": "skill:azure-deploy--refs->skill:entra-app-registration",
-      "source": "skill:azure-deploy",
-      "target": "skill:entra-app-registration",
+      "id": "skill:apex-azure-deploy--refs->skill:apex-entra-app-registration",
+      "source": "skill:apex-azure-deploy",
+      "target": "skill:apex-entra-app-registration",
       "kind": "refs"
     },
     {
-      "id": "skill:azure-deploy--refs->skill:iac-common",
-      "source": "skill:azure-deploy",
-      "target": "skill:iac-common",
+      "id": "skill:apex-azure-deploy--refs->skill:apex-iac-common",
+      "source": "skill:apex-azure-deploy",
+      "target": "skill:apex-iac-common",
       "kind": "refs"
     },
     {
-      "id": "skill:azure-diagnostics--refs->skill:azure-cost-optimization",
-      "source": "skill:azure-diagnostics",
-      "target": "skill:azure-cost-optimization",
+      "id": "skill:apex-azure-diagnostics--refs->skill:apex-azure-cost-optimization",
+      "source": "skill:apex-azure-diagnostics",
+      "target": "skill:apex-azure-cost-optimization",
       "kind": "refs"
     },
     {
-      "id": "skill:azure-diagnostics--refs->skill:azure-validate",
-      "source": "skill:azure-diagnostics",
-      "target": "skill:azure-validate",
+      "id": "skill:apex-azure-diagnostics--refs->skill:apex-azure-validate",
+      "source": "skill:apex-azure-diagnostics",
+      "target": "skill:apex-azure-validate",
       "kind": "refs"
     },
     {
-      "id": "skill:azure-governance-discovery--refs->skill:azure-artifacts",
-      "source": "skill:azure-governance-discovery",
-      "target": "skill:azure-artifacts",
+      "id": "skill:apex-azure-governance-discovery--refs->skill:apex-azure-artifacts",
+      "source": "skill:apex-azure-governance-discovery",
+      "target": "skill:apex-azure-artifacts",
       "kind": "refs"
     },
     {
-      "id": "skill:azure-kusto--refs->skill:azure-cost-optimization",
-      "source": "skill:azure-kusto",
-      "target": "skill:azure-cost-optimization",
+      "id": "skill:apex-azure-kusto--refs->skill:apex-azure-cost-optimization",
+      "source": "skill:apex-azure-kusto",
+      "target": "skill:apex-azure-cost-optimization",
       "kind": "refs"
     },
     {
-      "id": "skill:azure-kusto--refs->skill:azure-diagnostics",
-      "source": "skill:azure-kusto",
-      "target": "skill:azure-diagnostics",
+      "id": "skill:apex-azure-kusto--refs->skill:apex-azure-diagnostics",
+      "source": "skill:apex-azure-kusto",
+      "target": "skill:apex-azure-diagnostics",
       "kind": "refs"
     },
     {
-      "id": "skill:azure-prepare--refs->skill:azure-cloud-migrate",
-      "source": "skill:azure-prepare",
-      "target": "skill:azure-cloud-migrate",
+      "id": "skill:apex-azure-prepare--refs->skill:apex-azure-cloud-migrate",
+      "source": "skill:apex-azure-prepare",
+      "target": "skill:apex-azure-cloud-migrate",
       "kind": "refs"
     },
     {
-      "id": "skill:azure-prepare--refs->skill:azure-deploy",
-      "source": "skill:azure-prepare",
-      "target": "skill:azure-deploy",
+      "id": "skill:apex-azure-prepare--refs->skill:apex-azure-deploy",
+      "source": "skill:apex-azure-prepare",
+      "target": "skill:apex-azure-deploy",
       "kind": "refs"
     },
     {
-      "id": "skill:azure-prepare--refs->skill:azure-validate",
-      "source": "skill:azure-prepare",
-      "target": "skill:azure-validate",
+      "id": "skill:apex-azure-prepare--refs->skill:apex-azure-validate",
+      "source": "skill:apex-azure-prepare",
+      "target": "skill:apex-azure-validate",
       "kind": "refs"
     },
     {
-      "id": "skill:azure-quotas--refs->skill:azure-cost-optimization",
-      "source": "skill:azure-quotas",
-      "target": "skill:azure-cost-optimization",
+      "id": "skill:apex-azure-quotas--refs->skill:apex-azure-cost-optimization",
+      "source": "skill:apex-azure-quotas",
+      "target": "skill:apex-azure-cost-optimization",
       "kind": "refs"
     },
     {
-      "id": "skill:azure-quotas--refs->skill:azure-deploy",
-      "source": "skill:azure-quotas",
-      "target": "skill:azure-deploy",
+      "id": "skill:apex-azure-quotas--refs->skill:apex-azure-deploy",
+      "source": "skill:apex-azure-quotas",
+      "target": "skill:apex-azure-deploy",
       "kind": "refs"
     },
     {
-      "id": "skill:azure-rbac--refs->skill:azure-compliance",
-      "source": "skill:azure-rbac",
-      "target": "skill:azure-compliance",
+      "id": "skill:apex-azure-rbac--refs->skill:apex-azure-compliance",
+      "source": "skill:apex-azure-rbac",
+      "target": "skill:apex-azure-compliance",
       "kind": "refs"
     },
     {
-      "id": "skill:azure-rbac--refs->skill:azure-deploy",
-      "source": "skill:azure-rbac",
-      "target": "skill:azure-deploy",
+      "id": "skill:apex-azure-rbac--refs->skill:apex-azure-deploy",
+      "source": "skill:apex-azure-rbac",
+      "target": "skill:apex-azure-deploy",
       "kind": "refs"
     },
     {
-      "id": "skill:azure-resources--refs->skill:azure-compliance",
-      "source": "skill:azure-resources",
-      "target": "skill:azure-compliance",
+      "id": "skill:apex-azure-resources--refs->skill:apex-azure-compliance",
+      "source": "skill:apex-azure-resources",
+      "target": "skill:apex-azure-compliance",
       "kind": "refs"
     },
     {
-      "id": "skill:azure-resources--refs->skill:azure-cost-optimization",
-      "source": "skill:azure-resources",
-      "target": "skill:azure-cost-optimization",
+      "id": "skill:apex-azure-resources--refs->skill:apex-azure-cost-optimization",
+      "source": "skill:apex-azure-resources",
+      "target": "skill:apex-azure-cost-optimization",
       "kind": "refs"
     },
     {
-      "id": "skill:azure-resources--refs->skill:azure-deploy",
-      "source": "skill:azure-resources",
-      "target": "skill:azure-deploy",
+      "id": "skill:apex-azure-resources--refs->skill:apex-azure-deploy",
+      "source": "skill:apex-azure-resources",
+      "target": "skill:apex-azure-deploy",
       "kind": "refs"
     },
     {
-      "id": "skill:azure-resources--refs->skill:azure-diagnostics",
-      "source": "skill:azure-resources",
-      "target": "skill:azure-diagnostics",
+      "id": "skill:apex-azure-resources--refs->skill:apex-azure-diagnostics",
+      "source": "skill:apex-azure-resources",
+      "target": "skill:apex-azure-diagnostics",
       "kind": "refs"
     },
     {
-      "id": "skill:azure-storage--refs->skill:azure-prepare",
-      "source": "skill:azure-storage",
-      "target": "skill:azure-prepare",
+      "id": "skill:apex-azure-storage--refs->skill:apex-azure-prepare",
+      "source": "skill:apex-azure-storage",
+      "target": "skill:apex-azure-prepare",
       "kind": "refs"
     },
     {
-      "id": "skill:azure-storage--refs->skill:entra-app-registration",
-      "source": "skill:azure-storage",
-      "target": "skill:entra-app-registration",
+      "id": "skill:apex-azure-storage--refs->skill:apex-entra-app-registration",
+      "source": "skill:apex-azure-storage",
+      "target": "skill:apex-entra-app-registration",
       "kind": "refs"
     },
     {
-      "id": "skill:azure-validate--refs->skill:azure-deploy",
-      "source": "skill:azure-validate",
-      "target": "skill:azure-deploy",
+      "id": "skill:apex-azure-validate--refs->skill:apex-azure-deploy",
+      "source": "skill:apex-azure-validate",
+      "target": "skill:apex-azure-deploy",
       "kind": "refs"
     },
     {
-      "id": "skill:azure-validate--refs->skill:azure-diagnostics",
-      "source": "skill:azure-validate",
-      "target": "skill:azure-diagnostics",
+      "id": "skill:apex-azure-validate--refs->skill:apex-azure-diagnostics",
+      "source": "skill:apex-azure-validate",
+      "target": "skill:apex-azure-diagnostics",
       "kind": "refs"
     },
     {
-      "id": "skill:azure-validate--refs->skill:azure-prepare",
-      "source": "skill:azure-validate",
-      "target": "skill:azure-prepare",
+      "id": "skill:apex-azure-validate--refs->skill:apex-azure-prepare",
+      "source": "skill:apex-azure-validate",
+      "target": "skill:apex-azure-prepare",
       "kind": "refs"
     },
     {
-      "id": "skill:docs-writer--refs->skill:agent-authoring",
-      "source": "skill:docs-writer",
-      "target": "skill:agent-authoring",
+      "id": "skill:apex-docs-writer--refs->skill:apex-agent-authoring",
+      "source": "skill:apex-docs-writer",
+      "target": "skill:apex-agent-authoring",
       "kind": "refs"
     },
     {
-      "id": "skill:docs-writer--refs->skill:azure-artifacts",
-      "source": "skill:docs-writer",
-      "target": "skill:azure-artifacts",
+      "id": "skill:apex-docs-writer--refs->skill:apex-azure-artifacts",
+      "source": "skill:apex-docs-writer",
+      "target": "skill:apex-azure-artifacts",
       "kind": "refs"
     },
     {
-      "id": "skill:entra-app-registration--refs->skill:azure-compliance",
-      "source": "skill:entra-app-registration",
-      "target": "skill:azure-compliance",
+      "id": "skill:apex-entra-app-registration--refs->skill:apex-azure-compliance",
+      "source": "skill:apex-entra-app-registration",
+      "target": "skill:apex-azure-compliance",
       "kind": "refs"
     },
     {
-      "id": "skill:entra-app-registration--refs->skill:azure-rbac",
-      "source": "skill:entra-app-registration",
-      "target": "skill:azure-rbac",
+      "id": "skill:apex-entra-app-registration--refs->skill:apex-azure-rbac",
+      "source": "skill:apex-entra-app-registration",
+      "target": "skill:apex-azure-rbac",
       "kind": "refs"
     },
     {
-      "id": "skill:iac-common--refs->skill:azure-bicep-patterns",
-      "source": "skill:iac-common",
-      "target": "skill:azure-bicep-patterns",
+      "id": "skill:apex-iac-common--refs->skill:apex-azure-bicep-patterns",
+      "source": "skill:apex-iac-common",
+      "target": "skill:apex-azure-bicep-patterns",
       "kind": "refs"
     },
     {
-      "id": "skill:iac-common--refs->skill:azure-compliance",
-      "source": "skill:iac-common",
-      "target": "skill:azure-compliance",
+      "id": "skill:apex-iac-common--refs->skill:apex-azure-compliance",
+      "source": "skill:apex-iac-common",
+      "target": "skill:apex-azure-compliance",
       "kind": "refs"
     },
     {
-      "id": "skill:iac-common--refs->skill:azure-cost-optimization",
-      "source": "skill:iac-common",
-      "target": "skill:azure-cost-optimization",
+      "id": "skill:apex-iac-common--refs->skill:apex-azure-cost-optimization",
+      "source": "skill:apex-iac-common",
+      "target": "skill:apex-azure-cost-optimization",
       "kind": "refs"
     },
     {
-      "id": "skill:iac-common--refs->skill:azure-defaults",
-      "source": "skill:iac-common",
-      "target": "skill:azure-defaults",
+      "id": "skill:apex-iac-common--refs->skill:apex-azure-defaults",
+      "source": "skill:apex-iac-common",
+      "target": "skill:apex-azure-defaults",
       "kind": "refs"
     },
     {
-      "id": "skill:iac-common--refs->skill:azure-diagnostics",
-      "source": "skill:iac-common",
-      "target": "skill:azure-diagnostics",
+      "id": "skill:apex-iac-common--refs->skill:apex-azure-diagnostics",
+      "source": "skill:apex-iac-common",
+      "target": "skill:apex-azure-diagnostics",
       "kind": "refs"
     },
     {
-      "id": "skill:iac-common--refs->skill:azure-validate",
-      "source": "skill:iac-common",
-      "target": "skill:azure-validate",
+      "id": "skill:apex-iac-common--refs->skill:apex-azure-validate",
+      "source": "skill:apex-iac-common",
+      "target": "skill:apex-azure-validate",
       "kind": "refs"
     },
     {
-      "id": "skill:iac-common--refs->skill:terraform-patterns",
-      "source": "skill:iac-common",
-      "target": "skill:terraform-patterns",
+      "id": "skill:apex-iac-common--refs->skill:apex-terraform-patterns",
+      "source": "skill:apex-iac-common",
+      "target": "skill:apex-terraform-patterns",
       "kind": "refs"
     },
     {
-      "id": "skill:mermaid--refs->skill:azure-resources",
-      "source": "skill:mermaid",
-      "target": "skill:azure-resources",
+      "id": "skill:apex-mermaid--refs->skill:apex-azure-resources",
+      "source": "skill:apex-mermaid",
+      "target": "skill:apex-azure-resources",
       "kind": "refs"
     },
     {
-      "id": "skill:mermaid--refs->skill:python-diagrams",
-      "source": "skill:mermaid",
-      "target": "skill:python-diagrams",
+      "id": "skill:apex-mermaid--refs->skill:apex-python-diagrams",
+      "source": "skill:apex-mermaid",
+      "target": "skill:apex-python-diagrams",
       "kind": "refs"
     },
     {
-      "id": "skill:python-diagrams--refs->skill:mermaid",
-      "source": "skill:python-diagrams",
-      "target": "skill:mermaid",
+      "id": "skill:apex-python-diagrams--refs->skill:apex-mermaid",
+      "source": "skill:apex-python-diagrams",
+      "target": "skill:apex-mermaid",
       "kind": "refs"
     },
     {
-      "id": "skill:terraform-patterns--refs->skill:azure-adr",
-      "source": "skill:terraform-patterns",
-      "target": "skill:azure-adr",
+      "id": "skill:apex-terraform-patterns--refs->skill:apex-azure-adr",
+      "source": "skill:apex-terraform-patterns",
+      "target": "skill:apex-azure-adr",
       "kind": "refs"
     },
     {
-      "id": "skill:terraform-patterns--refs->skill:azure-bicep-patterns",
-      "source": "skill:terraform-patterns",
-      "target": "skill:azure-bicep-patterns",
+      "id": "skill:apex-terraform-patterns--refs->skill:apex-azure-bicep-patterns",
+      "source": "skill:apex-terraform-patterns",
+      "target": "skill:apex-azure-bicep-patterns",
       "kind": "refs"
     },
     {
-      "id": "skill:terraform-patterns--refs->skill:azure-defaults",
-      "source": "skill:terraform-patterns",
-      "target": "skill:azure-defaults",
+      "id": "skill:apex-terraform-patterns--refs->skill:apex-azure-defaults",
+      "source": "skill:apex-terraform-patterns",
+      "target": "skill:apex-azure-defaults",
       "kind": "refs"
     },
     {
-      "id": "skill:terraform-patterns--refs->skill:python-diagrams",
-      "source": "skill:terraform-patterns",
-      "target": "skill:python-diagrams",
+      "id": "skill:apex-terraform-patterns--refs->skill:apex-python-diagrams",
+      "source": "skill:apex-terraform-patterns",
+      "target": "skill:apex-python-diagrams",
       "kind": "refs"
     },
     {
-      "id": "skill:terraform-search-import--refs->skill:azure-adr",
-      "source": "skill:terraform-search-import",
-      "target": "skill:azure-adr",
+      "id": "skill:apex-terraform-search-import--refs->skill:apex-azure-adr",
+      "source": "skill:apex-terraform-search-import",
+      "target": "skill:apex-azure-adr",
       "kind": "refs"
     },
     {
-      "id": "skill:terraform-search-import--refs->skill:azure-bicep-patterns",
-      "source": "skill:terraform-search-import",
-      "target": "skill:azure-bicep-patterns",
+      "id": "skill:apex-terraform-search-import--refs->skill:apex-azure-bicep-patterns",
+      "source": "skill:apex-terraform-search-import",
+      "target": "skill:apex-azure-bicep-patterns",
       "kind": "refs"
     },
     {
-      "id": "skill:terraform-search-import--refs->skill:azure-defaults",
-      "source": "skill:terraform-search-import",
-      "target": "skill:azure-defaults",
+      "id": "skill:apex-terraform-search-import--refs->skill:apex-azure-defaults",
+      "source": "skill:apex-terraform-search-import",
+      "target": "skill:apex-azure-defaults",
       "kind": "refs"
     },
     {
-      "id": "skill:terraform-search-import--refs->skill:terraform-patterns",
-      "source": "skill:terraform-search-import",
-      "target": "skill:terraform-patterns",
+      "id": "skill:apex-terraform-search-import--refs->skill:apex-terraform-patterns",
+      "source": "skill:apex-terraform-search-import",
+      "target": "skill:apex-terraform-patterns",
       "kind": "refs"
     },
     {
-      "id": "skill:terraform-test--refs->skill:azure-defaults",
-      "source": "skill:terraform-test",
-      "target": "skill:azure-defaults",
+      "id": "skill:apex-terraform-test--refs->skill:apex-azure-defaults",
+      "source": "skill:apex-terraform-test",
+      "target": "skill:apex-azure-defaults",
       "kind": "refs"
     },
     {
-      "id": "skill:terraform-test--refs->skill:azure-deploy",
-      "source": "skill:terraform-test",
-      "target": "skill:azure-deploy",
+      "id": "skill:apex-terraform-test--refs->skill:apex-azure-deploy",
+      "source": "skill:apex-terraform-test",
+      "target": "skill:apex-azure-deploy",
       "kind": "refs"
     }
   ]

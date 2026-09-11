@@ -32,7 +32,7 @@ governance stack. Reads rendered ARM (Bicep build) or Terraform plan,
 queries live policy state via `az policy state list`, cross-checks against
 `04-governance-constraints.json`, and runs what-if policy validation. Returns
 a structured CLEAN|DRIFT|BLOCKED|FAILED verdict so Deploy agents (07b/07t)
-can route via `iac-common/references/governance-drift-routing.md` before
+can route via `apex-iac-common/references/governance-drift-routing.md` before
 `az deployment ... create` or `terraform apply`.
 </role>
 
@@ -47,12 +47,12 @@ rather than asking the parent to paste content.
 </input_contract>
 
 <context_awareness>
-Skill loading tiers (apply per the `context-management` skill, Mode A):
+Skill loading tiers (apply per the `apex-context-management` skill, Mode A):
 
 - Default — read
-  `.github/skills/iac-common/references/policy-precheck-contract.md`
+  `.github/skills/apex-iac-common/references/policy-precheck-contract.md`
   (the canonical I/O contract for this subagent) and
-  `.github/skills/iac-common/references/governance-drift-routing.md`
+  `.github/skills/apex-iac-common/references/governance-drift-routing.md`
   (the L3 routing rows).
 - ≥80% context utilization — work from the input fields alone; the
   contract reference is enough for one pass.
@@ -114,7 +114,7 @@ Policies that will block deploy:
     violating_resource_id={...} violating_property_path={...}
     matrix_row_present={true|false}
 
-Drift routing (per iac-common/references/governance-drift-routing.md):
+Drift routing (per apex-iac-common/references/governance-drift-routing.md):
   {recommended next agent and handoff label, e.g.
    "▶ Refresh Governance" / "↩ Return to Step 4" / "↩ Fix Deployment Issues" /
    "Proceed (no handoff) — INFORMATIONAL drift"}
@@ -195,7 +195,7 @@ If any required field is missing, return `Status: FAILED` and exit.
 ## Workflow
 
 Follow the contract in
-[`iac-common/references/policy-precheck-contract.md`](../../skills/iac-common/references/policy-precheck-contract.md)
+[`apex-iac-common/references/policy-precheck-contract.md`](../../skills/apex-iac-common/references/policy-precheck-contract.md)
 exactly — that file is the canonical I/O spec. Summary:
 
 1. **Render the deployment** —

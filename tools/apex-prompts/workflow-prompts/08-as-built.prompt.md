@@ -37,7 +37,7 @@ Session state has Step 7 `status = "complete"`.
   `02-architecture-assessment.md`, `04-implementation-plan.md`,
   `06-deployment-summary.md`. Optional: `03-des-cost-estimate.md`,
   `05-implementation-reference.md`.
-- Read `.github/skills/azure-artifacts/references/07-docs-template.md` for
+- Read `.github/skills/apex-azure-artifacts/references/07-docs-template.md` for
   the H2 template structure.
 - Query deployed resource state via `az resource list` for the project
   resource group; use planned values as fallback only when resources are

@@ -171,7 +171,7 @@
         "orchestration",
         "handoff-routing"
       ],
-      "notes": "Microsoft's fast, cost-optimized coding model. Authorized 2026-06 for the Orchestrator (01), which performs handoff-only routing with no creative generation — a lightweight standard-tier model is sufficient. No MAI-specific automated prompting rules exist yet; the `mai-code` family is `reviewer-only` in vendor-prompting (see `.github/skills/vendor-prompting/references/family-support.md`). The orchestrator body retains its outcome-first skeleton (Role/Goal/Success/Constraints/Output/Stop), which remains a sound structure for a routing agent."
+      "notes": "Microsoft's fast, cost-optimized coding model. Authorized 2026-06 for the Orchestrator (01), which performs handoff-only routing with no creative generation — a lightweight standard-tier model is sufficient. No MAI-specific automated prompting rules exist yet; the `mai-code` family is `reviewer-only` in vendor-prompting (see `.github/skills/apex-vendor-prompting/references/family-support.md`). The orchestrator body retains its outcome-first skeleton (Role/Goal/Success/Constraints/Output/Stop), which remains a sound structure for a routing agent."
     }
   },
   "governance": {

@@ -21,8 +21,8 @@ handoffs:
 ---
 # Body (≤ 500 lines)
 ## MANDATORY: Read Skills First
-1. **Read** `.github/skills/azure-defaults/SKILL.md` # (4)!
-2. **Read** `.github/skills/azure-artifacts/SKILL.md`
+1. **Read** `.github/skills/apex-azure-defaults/SKILL.md` # (4)!
+2. **Read** `.github/skills/apex-azure-artifacts/SKILL.md`
 ```
 
 1. Model selection — agent frontmatter is authoritative; changes require explicit approval
@@ -55,7 +55,7 @@ and routing to the next step. At approval gates, the Orchestrator writes a
 ### APEX And Generic Application Workflows
 
 APEX deployment agents consume approved IaC handoff and environment artifacts. They do not restart
-the generic `azure-prepare` workflow or require its application preparation plan. Missing APEX code,
+the generic `apex-azure-prepare` workflow or require its application preparation plan. Missing APEX code,
 an expected manifest, or a usable handoff returns to CodeGen; legacy evidence must be converted to
 a current JSON handoff before preview or apply. Generic application workflows retain their own approved
 preparation plan and recorded Validation Proof.
@@ -69,21 +69,21 @@ When a project contains both workflow formats and the requested workflow is uncl
 
 | Agent                 | Role                                            | Primary Skills                                 |
 | --------------------- | ----------------------------------------------- | ---------------------------------------------- |
-| 01-Orchestrator       | Master orchestrator                             | workflow-engine, apex-recall                   |
-| 02-Requirements       | Captures project requirements                   | azure-defaults, azure-artifacts                |
-| 03-Architect          | WAF assessment and cost estimation              | azure-defaults                                 |
-| 04-Design             | Diagrams and ADRs                               | python-diagrams, azure-adr                     |
-| 04g-Governance        | Policy discovery and compliance                 | azure-defaults                                 |
-| 05-IaC Planner        | IaC implementation planning (Bicep & Terraform) | azure-bicep-patterns, terraform-patterns       |
-| 06b-Bicep CodeGen     | Bicep template generation                       | azure-bicep-patterns                           |
-| 06t-Terraform CodeGen | Terraform configuration generation              | terraform-patterns                             |
-| 07b-Bicep Deploy      | Bicep deployment execution                      | azure-validate, iac-common                     |
-| 07t-Terraform Deploy  | Terraform deployment execution                  | azure-validate, iac-common, terraform-patterns |
-| 08-As-Built           | Post-deployment documentation                   | azure-artifacts, python-diagrams               |
-| 09-Diagnose           | Azure resource troubleshooting                  | azure-diagnostics                              |
+| 01-Orchestrator       | Master orchestrator                             | apex-workflow-engine, apex-recall                   |
+| 02-Requirements       | Captures project requirements                   | apex-azure-defaults, apex-azure-artifacts                |
+| 03-Architect          | WAF assessment and cost estimation              | apex-azure-defaults                                 |
+| 04-Design             | Diagrams and ADRs                               | apex-python-diagrams, apex-azure-adr                     |
+| 04g-Governance        | Policy discovery and compliance                 | apex-azure-defaults                                 |
+| 05-IaC Planner        | IaC implementation planning (Bicep & Terraform) | apex-azure-bicep-patterns, apex-terraform-patterns       |
+| 06b-Bicep CodeGen     | Bicep template generation                       | apex-azure-bicep-patterns                           |
+| 06t-Terraform CodeGen | Terraform configuration generation              | apex-terraform-patterns                             |
+| 07b-Bicep Deploy      | Bicep deployment execution                      | apex-azure-validate, apex-iac-common                     |
+| 07t-Terraform Deploy  | Terraform deployment execution                  | apex-azure-validate, apex-iac-common, apex-terraform-patterns |
+| 08-As-Built           | Post-deployment documentation                   | apex-azure-artifacts, apex-python-diagrams               |
+| 09-Diagnose           | Azure resource troubleshooting                  | apex-azure-diagnostics                              |
 | 10-Challenger         | Standalone adversarial review                   | —                                              |
-| 11-Context Optimizer  | Context window audit and optimisation           | context-management                             |
-| e2e-orchestrator      | Prompt-invoked end-to-end validation driver     | workflow-engine, apex-recall                   |
+| 11-Context Optimizer  | Context window audit and optimisation           | apex-context-management                             |
+| e2e-orchestrator      | Prompt-invoked end-to-end validation driver     | apex-workflow-engine, apex-recall                   |
 
 For a live, always-current roster, see the
 [Architecture Explorer](../../../reference/architecture-explorer/). The count is
@@ -109,7 +109,7 @@ every downstream agent reads them via `apex-recall show <project>
   a separate cost-feasibility review at Step 2 and `governance-reconciliation` at Step 3.5). Right for most workshops,
   MVPs, and single-region projects.
 - `deep` — rotating-lens multi-pass cascade per
-  [`adversarial-review-protocol.md`](https://github.com/jonathan-vella/apex/blob/main/.github/skills/azure-defaults/references/adversarial-review-protocol.md)
+  [`adversarial-review-protocol.md`](https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-defaults/references/adversarial-review-protocol.md)
   (Pass 1 security-governance → Pass 2 architecture-reliability →
   conditional Pass 3 cost-feasibility). Worth the ~3× challenger
   cost for regulated workloads (HIPAA/PCI), prod migrations, or
@@ -193,7 +193,7 @@ It operates with rotating lenses:
 Pass 1 (security-governance) always uses `challenger-review-subagent`.
 Additional passes also use `challenger-review-subagent` for
 architecture-reliability and cost-feasibility lenses.
-See `.github/skills/azure-defaults/references/adversarial-review-protocol.md`
+See `.github/skills/apex-azure-defaults/references/adversarial-review-protocol.md`
 (`## Lenses`, `## Default flow`, `## Opt-in: Deep adversarial review`) for
 the full routing table and conditional skip rules.
 :::
@@ -327,7 +327,7 @@ The body (below the frontmatter) is the agent's operating manual:
 ```markdown
 ## MANDATORY: Read Skills First
 
-1. **Read** `.github/skills/azure-defaults/SKILL.md`
+1. **Read** `.github/skills/apex-azure-defaults/SKILL.md`
 
 ## DO (required behaviours)
 

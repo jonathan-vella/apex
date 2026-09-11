@@ -12,7 +12,7 @@ complements the existing documentation standards:
 
 - **docs.instructions.md** — content principles, architecture tables
 - **markdown.instructions.md** — formatting, line limits, validation
-- **docs-writer skill** — full doc maintenance workflows
+- **apex-docs-writer skill** — full doc maintenance workflows
 
 ## Trigger Conditions
 
@@ -60,7 +60,7 @@ Update when:
 - Agent capabilities change significantly
 - New documentation files are added
 
-### docs-writer References
+### apex-docs-writer References
 
 Update when:
 

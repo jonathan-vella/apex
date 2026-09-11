@@ -72,9 +72,9 @@ investigate before answering) live in
   Review-depth opt-in: read `decisions.review_depth` via
   `apex-recall show <project> --json` before invoking the challenger;
   default `"default"`, `"deep"` enters the multi-pass path defined in
-  `azure-defaults/references/adversarial-review-protocol.md`.
+  `apex-azure-defaults/references/adversarial-review-protocol.md`.
 - **Subagent failure**: if a subagent **errors or times out** (distinct
-  from returning data/findings), apply the `iac-common` bounded-retry
+  from returning data/findings), apply the `apex-iac-common` bounded-retry
   pattern — retry once, then `askQuestions` (Retry / Fix Inline / Abort).
   Do not present the Gate or hand off on an unresolved subagent error.
 
@@ -85,7 +85,7 @@ Cost artifact: agent-output/{project}/03-des-cost-estimate.md — every dollar f
 cost-estimate-subagent, not from parametric knowledge.
 Charts: 02-waf-scores.{py,png,svg}, 03-des-cost-distribution.{py,png,svg}, 03-des-cost-projection.{py,png,svg}.
 Every Python diagram emits paired `.png` + `.svg` siblings via the shared
-`scripts/diagram_io.py` helper (see python-diagrams SKILL.md).
+`scripts/diagram_io.py` helper (see apex-python-diagrams SKILL.md).
 Session state: managed via `apex-recall` CLI — checkpoint after each phase.
 </output_contract>
 
@@ -130,13 +130,13 @@ Run `apex-recall show <project> --json` for full project context. Do not read `0
 **After prerequisites are confirmed**, load the required guidance below once
 when needed. Reuse unchanged content still in context; batch independent missing reads.
 
-1. **Read** `.github/skills/azure-defaults/SKILL.md` — regions, tags, pricing MCP names, WAF criteria, service lifecycle
-2. **Read** `.github/skills/azure-artifacts/SKILL.md` — H2 templates for `02-architecture-assessment.md` and `03-des-cost-estimate.md`
+1. **Read** `.github/skills/apex-azure-defaults/SKILL.md` — regions, tags, pricing MCP names, WAF criteria, service lifecycle
+2. **Read** `.github/skills/apex-azure-artifacts/SKILL.md` — H2 templates for `02-architecture-assessment.md` and `03-des-cost-estimate.md`
 3. **Read** the template files for your artifacts:
-   - `.github/skills/azure-artifacts/templates/02-architecture-assessment.template.md`
-   - `.github/skills/azure-artifacts/templates/03-des-cost-estimate.template.md`
+   - `.github/skills/apex-azure-artifacts/templates/02-architecture-assessment.template.md`
+   - `.github/skills/apex-azure-artifacts/templates/03-des-cost-estimate.template.md`
      Use as structural skeletons (replicate badges, TOC, navigation, attribution exactly).
-4. **Read** `.github/skills/context-management/SKILL.md` — runtime
+4. **Read** `.github/skills/apex-context-management/SKILL.md` — runtime
    compression tiers for loading large artifacts (Mode A)
 5. **Read** the execution-subagent prompt contract
    [tools/apex-prompts/utility-prompts/execution-subagent.prompt.md](../../tools/apex-prompts/utility-prompts/execution-subagent.prompt.md)
@@ -201,7 +201,7 @@ handoff. The manifest is the _decision record_, not the comparison.
 - ✅ Score ALL 5 WAF pillars (1-10) with confidence level (High/Medium/Low)
 - ✅ Delegate ALL pricing to `cost-estimate-subagent` — do NOT call pricing MCP tools directly
 - ✅ Generate `03-des-cost-estimate.md` for EVERY assessment
-- ✅ **Generate WAF + cost charts** — run `.py` scripts per `python-diagrams` skill → `references/waf-cost-charts.md`
+- ✅ **Generate WAF + cost charts** — run `.py` scripts per `apex-python-diagrams` skill → `references/waf-cost-charts.md`
 - ✅ Include Service Maturity Assessment table in every WAF assessment
 - ✅ Ask clarifying questions when critical requirements are missing
 - ✅ Wait for user approval before handoff to the next step (Design when
@@ -210,17 +210,17 @@ handoff. The manifest is the _decision record_, not the comparison.
 - ✅ Use `askQuestions` in approval gate to present findings — **one
   question per finding** (Accept / Skip / Defer). MUST NOT batch findings
   into a single question with `multiSelect`.
-- ✅ Match H2 headings from azure-artifacts skill exactly
+- ✅ Match H2 headings from apex-azure-artifacts skill exactly
 - ✅ Include collapsible TOC (`<details open>` block), cross-navigation table, and badge row from the template
 - ✅ Include at least one Mermaid diagram (architecture overview from template or actual design)
 - ✅ Use all three traffic-light indicators (✅ / ⚠️ / ❌) in status columns — never omit ⚠️ or ❌
 - ✅ Include collapsible `<details>` blocks where the template uses them
-- ✅ Update `agent-output/{project}/README.md` — mark Step 2 complete, add your artifacts (see azure-artifacts skill)
+- ✅ Update `agent-output/{project}/README.md` — mark Step 2 complete, add your artifacts (see apex-azure-artifacts skill)
 
 ### DON'T (non-obvious pitfalls only)
 
 - Do not hardcode prices — all dollar amounts come from `cost-estimate-subagent` responses
-- Do not recommend deprecated services — check `azure-defaults` Deprecated Services table
+- Do not recommend deprecated services — check `apex-azure-defaults` Deprecated Services table
 - Do not use GRS with GDPR single-region constraints — use ZRS when data residency prohibits cross-region transfer
 - Do not claim zone redundancy without SKU verification (e.g., APIM Standard v2 does NOT support AZ)
 - Do not skip memory reservation in capacity sizing — Azure Managed Redis reserves ~20%
@@ -229,7 +229,7 @@ handoff. The manifest is the _decision record_, not the comparison.
   First-time creation uses `create_file`; every subsequent revision
   (challenger fixes, per-finding Apply/Skip/Defer decisions) bundles
   all changes into a single `multi_replace_string_in_file` call. See
-  azure-artifacts skill "Revision Workflow".
+  apex-azure-artifacts skill "Revision Workflow".
 
 ## Core Workflow
 
@@ -272,10 +272,10 @@ in your WAF assessment recommendations (still produce the identical artifact str
 
 6a. **SKU confirmation gate (MANDATORY — before pricing)** — follow the
     protocol in
-    [`workflow-gates.md`](../skills/azure-defaults/references/workflow-gates.md#architect-step-2--phase-6a-sku-confirmation-gate).
+    [`workflow-gates.md`](../skills/apex-azure-defaults/references/workflow-gates.md#architect-step-2--phase-6a-sku-confirmation-gate).
 6b. **VNet planning gate (MANDATORY when trigger contract holds; honor
     `decisions.vnet_planning_mode`)** — follow the protocol in
-    [`workflow-gates.md`](../skills/azure-defaults/references/workflow-gates.md#architect-step-2--phase-6b-vnet-planning-gate).
+    [`workflow-gates.md`](../skills/apex-azure-defaults/references/workflow-gates.md#architect-step-2--phase-6b-vnet-planning-gate).
     Append any priced network resources (Bastion / Firewall /
     NAT-Gateway / VPN-Gateway / ER-Gateway / App-Gateway /
     App-Gateway-for-Containers) from `subnet_plan` to the Step 7
@@ -287,7 +287,7 @@ in your WAF assessment recommendations (still produce the identical artifact str
     subagent-sourced prices.
     The **WAF Cost** / **WAF Operational Excellence** sections MUST
     contain a "Cost monitoring routing" sub-block as defined in
-    [`workflow-gates.md`](../skills/azure-defaults/references/workflow-gates.md#architect-step-2--cost-monitoring-routing-in-artifact)
+    [`workflow-gates.md`](../skills/apex-azure-defaults/references/workflow-gates.md#architect-step-2--cost-monitoring-routing-in-artifact)
     (Owner RBAC + Action Group + anomaly + opt-down). Do NOT duplicate
     this prose in 02-Requirements output.
     **Decisions** (MANDATORY): Record key architecture choices:
@@ -295,12 +295,12 @@ in your WAF assessment recommendations (still produce the identical artifact str
 9. **Generate cost estimate** — Save `03-des-cost-estimate.md` with
     subagent-sourced prices.
 9a. **Budget gate (MANDATORY — after pricing)** — follow the protocol in
-    [`workflow-gates.md`](../skills/azure-defaults/references/workflow-gates.md#architect-step-2--phase-9a-budget-gate).
+    [`workflow-gates.md`](../skills/apex-azure-defaults/references/workflow-gates.md#architect-step-2--phase-9a-budget-gate).
 10. **Generate charts** — Read
-    `.github/skills/python-diagrams/references/waf-cost-charts.md` and
+    `.github/skills/apex-python-diagrams/references/waf-cost-charts.md` and
     produce three matplotlib charts in `agent-output/{project}/`. Each
     `.py` file must import `save_figure` from
-    `.github/skills/python-diagrams/scripts/diagram_io.py` so it emits
+    `.github/skills/apex-python-diagrams/scripts/diagram_io.py` so it emits
     paired `.png` + `.svg` siblings:
     - `02-waf-scores.py` → `02-waf-scores.png` + `02-waf-scores.svg` —
       one horizontal bar per WAF pillar, WAF brand colours
@@ -330,7 +330,7 @@ in your WAF assessment recommendations (still produce the identical artifact str
 
 ## Cost Estimation
 
-> **Read** [`azure-defaults/references/cost-estimate-parent-contract.md`](../skills/azure-defaults/references/cost-estimate-parent-contract.md)
+> **Read** [`apex-azure-defaults/references/cost-estimate-parent-contract.md`](../skills/apex-azure-defaults/references/cost-estimate-parent-contract.md)
 > for the full Pricing Accuracy Gate, the 5-step delegation procedure,
 > the MCP-tools table, and the no-parametric-fallback rule. Architect-specific
 > usage notes only below.
@@ -353,7 +353,7 @@ prose carries **no dollar figures**.
 ## Adversarial Review — 1-Pass Comprehensive Architecture + 1-Pass Cost Estimate (default)
 
 After generating the assessment and cost estimate, run adversarial reviews.
-Read `azure-defaults/references/adversarial-review-protocol.md` for the
+Read `apex-azure-defaults/references/adversarial-review-protocol.md` for the
 lens table, compact prior_findings guidance, and invocation template.
 
 **Default flow (always run)**: 1× `comprehensive` review of the
@@ -440,25 +440,25 @@ Per-pass overrides:
 ### Cost-feasibility review gate + Challenger empty-output diagnostic
 
 Follow the protocols in
-[`workflow-gates.md`](../skills/azure-defaults/references/workflow-gates.md#architect-step-2--cost-feasibility-review-gate)
+[`workflow-gates.md`](../skills/apex-azure-defaults/references/workflow-gates.md#architect-step-2--cost-feasibility-review-gate)
 and
-[`workflow-gates.md`](../skills/azure-defaults/references/workflow-gates.md#challenger-empty-output-diagnostic--bounded-retry).
+[`workflow-gates.md`](../skills/apex-azure-defaults/references/workflow-gates.md#challenger-empty-output-diagnostic--bounded-retry).
 
 ## Approval Gate
 
 Full gate mechanics (findings table render, source-merge order,
 sidecar location, Revise loop with `multi_replace_string_in_file`,
 Proceed handoff template, banned-phrases enforcement) live in
-[`workflow-gates.md`](../skills/azure-defaults/references/workflow-gates.md#architect-step-2--approval-gate-handoff-template).
+[`workflow-gates.md`](../skills/apex-azure-defaults/references/workflow-gates.md#architect-step-2--approval-gate-handoff-template).
 Architect-step-2 specifics only below.
 
 1. Print WAF pillar scores (Security, Reliability, Performance, Cost,
    Operations) with estimated monthly cost.
 2. Print findings as a **multi-line markdown table** per pass (must_fix →
    should_fix → suggestion) using the format in
-   [adversarial-review-protocol.md § Findings Table Rendering Format](../skills/azure-defaults/references/adversarial-review-protocol.md#findings-table-rendering-format).
+   [adversarial-review-protocol.md § Findings Table Rendering Format](../skills/apex-azure-defaults/references/adversarial-review-protocol.md#findings-table-rendering-format).
    Then run the **Per-Finding Decision Protocol** from
-   [`adversarial-review-protocol.md`](../skills/azure-defaults/references/adversarial-review-protocol.md).
+   [`adversarial-review-protocol.md`](../skills/apex-azure-defaults/references/adversarial-review-protocol.md).
   Use one batched `vscode_askQuestions` panel with a separate question per
   actionable finding, canonical action options, and individual rationales.
   Preserve the protocol's panel cap and resume behavior; never combine
@@ -481,8 +481,8 @@ Architect-step-2 specifics only below.
 
 | File           | Location                                               | Template                   |
 | -------------- | ------------------------------------------------------ | -------------------------- |
-| WAF Assessment | `agent-output/{project}/02-architecture-assessment.md` | From azure-artifacts skill |
-| Cost Estimate  | `agent-output/{project}/03-des-cost-estimate.md`       | From azure-artifacts skill |
+| WAF Assessment | `agent-output/{project}/02-architecture-assessment.md` | From apex-azure-artifacts skill |
+| Cost Estimate  | `agent-output/{project}/03-des-cost-estimate.md`       | From apex-azure-artifacts skill |
 
 Include attribution header from the template file (do not hardcode).
 
@@ -510,11 +510,11 @@ Include attribution header from the template file (do not hardcode).
 - [ ] Cost estimate generated with real Pricing MCP data
 - [ ] **Every dollar figure** in 02 and 03 artifacts traces back to `cost-estimate-subagent` response — no hardcoded prices
 - [ ] Line-item totals sum correctly to reported monthly total
-- [ ] H2 headings match azure-artifacts templates exactly
+- [ ] H2 headings match apex-azure-artifacts templates exactly
 - [ ] Region selection justified (default: swedencentral)
 - [ ] AVM modules recommended where available
 - [ ] Trade-offs explicitly documented
-- [ ] No deprecated services recommended (checked against azure-defaults Deprecated Services table)
+- [ ] No deprecated services recommended (checked against apex-azure-defaults Deprecated Services table)
 - [ ] Service retirement timelines verified for any multi-year RI commitments
 - [ ] Storage redundancy tier compatible with data residency requirements (no GRS with single-region GDPR)
 - [ ] Global/non-regional services (Front Door, Entra, Traffic Manager) flagged for EU Data Boundary compliance
@@ -542,7 +542,7 @@ Output: Include this table in 02-architecture-assessment.md under ## WAF Assessm
 After `apex-recall complete-step` + writing `00-handoff.md`, end the
 final chat message with this line, **verbatim**, on its own final line
 (full contract:
-[`compression-templates.md`](../skills/context-management/references/compression-templates.md#gate-boundary-clear-handoff-contract);
+[`compression-templates.md`](../skills/apex-context-management/references/compression-templates.md#gate-boundary-clear-handoff-contract);
 validator: `npm run validate:orchestrator-handoff`):
 
 ```text

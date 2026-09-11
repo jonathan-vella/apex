@@ -277,4 +277,5 @@ The PR body must include:
 
 - House prompt conventions: [.github/instructions/prompt.instructions.md](../instructions/prompt.instructions.md)
 - House shell hygiene: [.github/instructions/no-interactive-shell.instructions.md](../instructions/no-interactive-shell.instructions.md)
-- GitHub operations skill: [.github/skills/github-operations/SKILL.md](../skills/github-operations/SKILL.md)
+- GitHub operations skill:
+  [.github/skills/apex-github-operations/SKILL.md](../../../.github/skills/apex-github-operations/SKILL.md)

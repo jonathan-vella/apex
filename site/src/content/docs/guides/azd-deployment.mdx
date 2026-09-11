@@ -30,7 +30,7 @@ deployment workflows.
 | New Bicep project | **azd** | Default, cross-platform, built-in env management |
 | New Terraform project | **azd** | `infra.provider: terraform` gives TF + azd simplicity |
 | Existing project with `azure.yaml` | **azd** | Already configured |
-| Existing project without `azure.yaml` | **azd** (generate azure.yaml) | Generate `azure.yaml` via azure-prepare, then use azd |
+| Existing project without `azure.yaml` | **azd** (generate azure.yaml) | Generate `azure.yaml` via apex-azure-prepare, then use azd |
 | Need fine-grained phased deployment | **azd** with hooks | Use `preprovision`/`postprovision` hooks for phased logic |
 | CI/CD pipeline (non-interactive) | **azd** | `azd provision --no-prompt` with env vars |
 
@@ -61,7 +61,7 @@ IaC project directory, never at the repo root.
 infra/{iac}/{project}/
 ├── azure.yaml              # azd manifest (infra.path: .)
 ├── .azure/                 # git-ignored; per-environment state
-│   ├── plan.md             # azure-prepare output — source of truth
+│   ├── plan.md             # apex-azure-prepare output — source of truth
 │   └── {project}-{env}/    # e.g., hub-spoke-dev/
 │       └── .env            # azd environment variables
 ├── main.bicep (or main.tf) # IaC entry point (co-located)
@@ -89,7 +89,7 @@ The full deployment lifecycle follows three agent-driven steps:
 
 ### 1. Prepare
 
-The **azure-prepare** skill generates infrastructure code and the deployment plan.
+The **apex-azure-prepare** skill generates infrastructure code and the deployment plan.
 
 ```bash
 # Outputs: azure.yaml, main.bicep/main.tf, modules/, .azure/plan.md
@@ -97,7 +97,7 @@ The **azure-prepare** skill generates infrastructure code and the deployment pla
 
 ### 2. Validate
 
-The **azure-validate** skill runs pre-deployment checks.
+The **apex-azure-validate** skill runs pre-deployment checks.
 
 ```bash
 cd infra/{iac}/{project}
@@ -112,7 +112,7 @@ azd provision --preview
 
 ### 3. Deploy
 
-The **azure-deploy** skill executes the deployment.
+The **apex-azure-deploy** skill executes the deployment.
 
 ```bash
 cd infra/{iac}/{project}

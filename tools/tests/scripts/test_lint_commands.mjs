@@ -66,13 +66,13 @@ test("lefthook selects artifact, template and H2 source paths through the combin
   const lefthook = fileURLToPath(new URL("../../../node_modules/.bin/lefthook", import.meta.url));
   for (const [file, selected] of [
     ["agent-output/example/01-requirements.md", true],
-    [".github/skills/azure-artifacts/templates/01-requirements.template.md", true],
-    [".github/skills/azure-artifacts/templates/nested/example.md", true],
-    [".github/skills/azure-artifacts/SKILL.md", true],
+    [".github/skills/apex-azure-artifacts/templates/01-requirements.template.md", true],
+    [".github/skills/apex-azure-artifacts/templates/nested/example.md", true],
+    [".github/skills/apex-azure-artifacts/SKILL.md", true],
     [".github/instructions/azure-artifacts.instructions.md", true],
     ["tools/scripts/validate-artifacts.mjs", true],
     ["README.md", false],
-    [".github/skills/azure-artifacts/references/example.md", false],
+    [".github/skills/apex-azure-artifacts/references/example.md", false],
   ]) {
     const result = spawnSync(
       lefthook,
@@ -117,10 +117,10 @@ test("artifact hook validates template-only and output changes and propagates ga
       },
     });
   for (const files of [
-    ".github/skills/azure-artifacts/templates/01-requirements.template.md",
+    ".github/skills/apex-azure-artifacts/templates/01-requirements.template.md",
     "agent-output/example/01-requirements.md",
-    ".github/skills/azure-artifacts/templates/01-requirements.template.md\nagent-output/example/01-requirements.md",
-    ".github/skills/azure-artifacts/SKILL.md\nagent-output/example/01-requirements.md",
+    ".github/skills/apex-azure-artifacts/templates/01-requirements.template.md\nagent-output/example/01-requirements.md",
+    ".github/skills/apex-azure-artifacts/SKILL.md\nagent-output/example/01-requirements.md",
   ]) {
     const result = check(files);
     assert.equal(result.status, 0, result.stderr);
@@ -130,7 +130,7 @@ test("artifact hook validates template-only and output changes and propagates ga
     }
   }
   for (const source of [
-    ".github/skills/azure-artifacts/SKILL.md",
+    ".github/skills/apex-azure-artifacts/SKILL.md",
     ".github/instructions/azure-artifacts.instructions.md",
     "tools/scripts/validate-artifacts.mjs",
   ]) {
@@ -140,7 +140,7 @@ test("artifact hook validates template-only and output changes and propagates ga
     assert.notEqual(check(source, "validate:artifacts").status, 0);
   }
   assert.notEqual(check("", "", "1").status, 0);
-  for (const files of ["", "README.md", ".github/skills/azure-artifacts/references/example.md"]) {
+  for (const files of ["", "README.md", ".github/skills/apex-azure-artifacts/references/example.md"]) {
     const result = check(files);
     assert.equal(result.status, 0);
     assert.doesNotMatch(result.stdout, /CALL /);

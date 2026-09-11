@@ -106,7 +106,7 @@ per-turn budget for the Claude family (Opus 5, Sonnet 5, Haiku 4.5). The
 GPT-5 family (GPT-5.6-Terra, GPT-5.6-Luna) has a 400,000-token per-turn
 budget in VS Code Copilot Chat, so the available conversation pool roughly
 doubles. See
-[`context-management/references/token-estimation.md`](../skills/context-management/references/token-estimation.md)
+[`apex-context-management/references/token-estimation.md`](../skills/apex-context-management/references/token-estimation.md)
 for the per-model breakdown including request multipliers.
 
 ## Anti-Patterns
@@ -145,10 +145,10 @@ so the choice is auditable.
 
 When loading an artifact file (under `agent-output/`), check conversation length.
 If estimated context usage exceeds 60% of the model limit, use the artifact
-compression tier system from the `context-management` skill (Mode A: Runtime
+compression tier system from the `apex-context-management` skill (Mode A: Runtime
 Compression):
 
-1. **Read** `.github/skills/context-management/SKILL.md` for artifact tier definitions
+1. **Read** `.github/skills/apex-context-management/SKILL.md` for artifact tier definitions
 2. Select tier: `full` (<60%), `summarized` (60-80%), `minimal` (>80%)
 3. Apply compression template for the specific artifact being loaded
 4. Compress older/less-critical artifacts first when loading multiple files

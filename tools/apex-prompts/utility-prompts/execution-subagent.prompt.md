@@ -92,5 +92,5 @@ This is the prompt shape that historically produced the most reliable
 subagent runs. Codifying it prevents drift to under-specified or
 over-specified invocations, which both inflate the parent's context
 window and reduce subagent determinism. See the bounded-retry policy
-in [`iac-common`](../../.github/skills/iac-common/SKILL.md) for what
+in [`apex-iac-common`](../../../.github/skills/apex-iac-common/SKILL.md) for what
 the parent does when the subagent returns a non-success verdict.

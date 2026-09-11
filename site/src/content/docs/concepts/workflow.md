@@ -32,7 +32,7 @@ describe your project. The Orchestrator handles all steps with approval gates.
 ### Formalized Workflow Engine
 
 A machine-readable DAG (Directed Acyclic Graph) in
-`.github/skills/workflow-engine/templates/workflow-graph.json` encodes the workflow.
+`.github/skills/apex-workflow-engine/templates/workflow-graph.json` encodes the workflow.
 The Orchestrator reads this graph instead of relying on hardcoded step logic:
 
 - **Nodes**: agent-step, gate, subagent-fan-out, validation
@@ -244,11 +244,11 @@ Output: agent-output/{project}/02-architecture-assessment.md
 - Architecture decisions with rationale
 - Risk identification and mitigation
 
-**Handoff**: Suggests `python-diagrams` or the IaC planning agent.
+**Handoff**: Suggests `apex-python-diagrams` or the IaC planning agent.
 
 ### Step 3: Design Artifacts (🎨 Artisan | Optional)
 
-**Skills**: `python-diagrams`, `azure-adr`
+**Skills**: `apex-python-diagrams`, `apex-azure-adr`
 
 Create visual and textual design documentation.
 
@@ -418,7 +418,7 @@ Invoke: Ctrl+Shift+A → as-built
 Output: agent-output/{project}/07-*.md
 ```
 
-The As-Built agent uses the `azure-artifacts` skill and prior workflow artifacts
+The As-Built agent uses the `apex-azure-artifacts` skill and prior workflow artifacts
 to assemble the final documentation suite.
 
 **Document Suite**:
@@ -500,14 +500,14 @@ Reviews target AI-generated creative decisions (architecture, plan, code)
 **Automatic**: Skills activate based on prompt keywords:
 
 ```text
-"Create an architecture diagram" → python-diagrams skill
-"Document the decision to use AKS" → azure-adr skill
+"Create an architecture diagram" → apex-python-diagrams skill
+"Document the decision to use AKS" → apex-azure-adr skill
 ```
 
 **Explicit**: Reference the skill by name:
 
 ```text
-"Use the azure-artifacts skill to generate documentation"
+"Use the apex-azure-artifacts skill to generate documentation"
 ```
 
 ## Artifact Naming Convention

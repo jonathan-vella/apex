@@ -179,7 +179,7 @@ def main(argv: list[str] | None = None) -> int:
                 print(f"  - {msg}", file=sys.stderr)
         print(
             "\nFix: restore the verbatim resume line. See "
-            ".github/skills/context-management/references/compression-templates.md "
+            ".github/skills/apex-context-management/references/compression-templates.md "
             "for the contract.",
             file=sys.stderr,
         )

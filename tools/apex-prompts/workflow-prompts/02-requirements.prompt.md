@@ -13,10 +13,10 @@ questions, then write the artifact.
 <context>
 - Read `agent-output/{project}/00-session-state.json` to identify the project
   and its current state. If no session state exists, create one from
-  `.github/skills/azure-artifacts/templates/00-session-state.template.json`.
-- Read `.github/skills/azure-artifacts/references/01-requirements-template.md`
+  `.github/skills/apex-azure-artifacts/templates/00-session-state.template.json`.
+- Read `.github/skills/apex-azure-artifacts/references/01-requirements-template.md`
   and replicate its H2 structure exactly.
-- Read `.github/skills/azure-defaults/SKILL.md` for region, tag,
+- Read `.github/skills/apex-azure-defaults/SKILL.md` for region, tag,
   naming, and security defaults.
 - `{project}` is the folder name under `agent-output/`.
 </context>

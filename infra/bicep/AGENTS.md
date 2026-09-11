@@ -64,7 +64,7 @@ infra/bicep/{project}/
   azure.yaml           # azd project manifest (infra.path: . — co-located)
   deploy.ps1           # Deployment script — DEPRECATED (use azd instead)
   .azure/              # azd environment state (git-ignored)
-    plan.md            # azure-prepare output — source of truth for validate/deploy
+    plan.md            # apex-azure-prepare output — source of truth for validate/deploy
     {project}-{env}/   # Per-environment azd state (e.g., hub-spoke-dev/)
       .env             # azd environment variables
   modules/

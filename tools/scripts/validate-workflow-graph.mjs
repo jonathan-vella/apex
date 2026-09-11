@@ -17,7 +17,7 @@ import fs from "node:fs";
 import { getAgents } from "./_lib/workspace-index.mjs";
 import { Reporter } from "./_lib/reporter.mjs";
 
-const GRAPH_PATH = ".github/skills/workflow-engine/templates/workflow-graph.json";
+const GRAPH_PATH = ".github/skills/apex-workflow-engine/templates/workflow-graph.json";
 
 const r = new Reporter("Workflow Graph Validator");
 

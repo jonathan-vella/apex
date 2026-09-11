@@ -141,7 +141,7 @@ test("A10 audits leaf workers and preserves read-only requests across output pha
   );
   assert.doesNotMatch(source, /--output \/tmp\/context-audit.json|> \/tmp\/profile.json/);
   const methodology = readFileSync(
-    new URL("../../../.github/skills/context-management/references/analysis-methodology.md", import.meta.url),
+    new URL("../../../.github/skills/apex-context-management/references/analysis-methodology.md", import.meta.url),
     "utf8",
   );
   assert.match(methodology, /Snapshots and persisted diffs are optional/);

@@ -47,9 +47,9 @@ paste content.
 Read each `SKILL.md` once — there is a single tier (no digest/minimal
 variants):
 
-- `.github/skills/azure-defaults/SKILL.md` for AVM-TF versions, CAF naming,
+- `.github/skills/apex-azure-defaults/SKILL.md` for AVM-TF versions, CAF naming,
   security baseline, and IaC review checks.
-- `.github/skills/iac-common/SKILL.md` for shared deploy strategies and
+- `.github/skills/apex-iac-common/SKILL.md` for shared deploy strategies and
   known issues.
 
 Read `04-governance-constraints.json` from `agent-output/{project}/`
@@ -122,7 +122,7 @@ Verdict mapping: any critical → `FAILED`; high-only → `NEEDS_REVISION`;
 otherwise → `APPROVED`. A non-zero `Governance.Mismatched` count
 forces `Overall Status: FAILED` and the parent agent applies the
 drift routing matrix in
-[`iac-common/references/governance-drift-routing.md`](../../skills/iac-common/references/governance-drift-routing.md)
+[`apex-iac-common/references/governance-drift-routing.md`](../../skills/apex-iac-common/references/governance-drift-routing.md)
 (L2 rows): mechanical mismatch → CodeGen self-fix; matrix-missing → return
 to Planner; AVM-TF property gap → return to Planner + 04g-Governance.
 </output_contract>
@@ -134,7 +134,7 @@ Before composing findings:
 2. Re-read the `terraform fmt` and `terraform validate` console
    output collected in Phase 1.
 3. Inspect the project's governance JSON and relevant Markdown details, plus required
-  `azure-defaults/SKILL.md` sections. Reuse current content still available; there is no skill digest tier.
+  `apex-azure-defaults/SKILL.md` sections. Reuse current content still available; there is no skill digest tier.
 4. For every finding, quote the exact resource block, variable
    declaration, or diagnostic line that triggered it. Paraphrasing inside
    `Detailed Findings` is a defect — copy the offending text in
@@ -221,16 +221,16 @@ Run the checklist below over every `.tf` file under `module_path`.
 
 1. **AVM-TF module usage** (HIGH) — every resource uses an
    `Azure/avm-res-*/azurerm` registry module with a pinned version; see
-   the `azure-defaults` reference list.
+   the `apex-azure-defaults` reference list.
 2. **CAF naming and required tags** (HIGH) — names follow the CAF
-  patterns in `azure-defaults`; validate tag keys, values, and casing against the discovered policy contract.
+  patterns in `apex-azure-defaults`; validate tag keys, values, and casing against the discovered policy contract.
   Use the canonical greenfield fallback only when no tag policy applies. `ManagedBy` is optional provenance.
 3. **Security baseline** (CRITICAL) — TLS 1.2+, HTTPS-only, no public
    blob access, Azure AD-only SQL auth, managed identities, no inline
-   secrets, per the `azure-defaults` security baseline.
+   secrets, per the `apex-azure-defaults` security baseline.
 4. **Unique suffix pattern** — one `random_string` resource declared
    with a `keepers` map and integrated into resource names (see
-   `iac-common`).
+   `apex-iac-common`).
 5. **Code quality** — the table below is non-negotiable for the listed
    severities:
 

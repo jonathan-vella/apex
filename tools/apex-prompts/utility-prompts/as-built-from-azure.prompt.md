@@ -52,7 +52,7 @@ to produce the full Step 7 documentation suite plus a Python diagram.
   shell commands until Phases 1–3 complete.
 - Use real Azure data wherever available; mark synthesized values clearly
   in the pseudo-artifacts.
-- Honour the H2 templates from `.github/skills/azure-artifacts/`.
+- Honour the H2 templates from `.github/skills/apex-azure-artifacts/`.
 
 # Output
 
@@ -443,7 +443,7 @@ All files saved to `agent-output/{project}/`:
 
 ## Quality Assurance
 
-- Pseudo-artifacts must follow the H2 structure from `azure-artifacts` templates
+- Pseudo-artifacts must follow the H2 structure from `apex-azure-artifacts` templates
 - All Azure resource data must come from live `az` CLI queries — never fabricated
 - NFR values must come from user answers — never assumed
 - The handoff to `08-As-Built` must include subscription and resource group details

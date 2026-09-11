@@ -9,7 +9,7 @@ This section is the canonical declaration of Azure infrastructure defaults.
 Azure-producing skills, agents, and prompts use this section — never restate
 the values inline. The IaC workflow, CAF naming guidance, AVM procedure,
 and reference index live in
-[`.github/skills/azure-defaults/SKILL.md`](skills/azure-defaults/SKILL.md).
+[`.github/skills/apex-azure-defaults/SKILL.md`](skills/apex-azure-defaults/SKILL.md).
 
 ### Default Regions
 
@@ -33,7 +33,7 @@ the APEX-standard 9-tag set — `environment`, `owner`, `costcenter`,
 `technical-contact` — all lowercase. This mirrors the org-wide
 resource-group tag-deny policy (every key must exist on the RG or the
 deployment is denied). Citation + greenfield decision checklist:
-[`azure-defaults/references/tag-strategy.md`](skills/azure-defaults/references/tag-strategy.md).
+[`apex-azure-defaults/references/tag-strategy.md`](skills/apex-azure-defaults/references/tag-strategy.md).
 
 > The PascalCase set (`Environment`, `ManagedBy`, `Project`, `Owner`)
 > is a **deprecated convention** retained only for backward
@@ -102,7 +102,7 @@ The valid decision-keys registry lives at
 
 The Steps 1–7 + Post-Lessons table is in [AGENTS.md](../AGENTS.md#agent-workflow);
 the machine-readable source is
-[`.github/skills/workflow-engine/templates/workflow-graph.json`](skills/workflow-engine/templates/workflow-graph.json).
+[`.github/skills/apex-workflow-engine/templates/workflow-graph.json`](skills/apex-workflow-engine/templates/workflow-graph.json).
 Each step's outputs land in `agent-output/{project}/`; context flows via artifacts
 and handoffs. Follow the graph's review contract and [workflow table](../AGENTS.md#agent-workflow),
 including the independent Step 2 cost-feasibility review. Reuse valid completed reviews;
@@ -119,7 +119,7 @@ body explicitly points to one. There is one tier — no digest, no minimal.
 ## Chat Triggers
 
 - Messages starting with `gh` are GitHub operations (e.g., `gh pr create`,
-  `gh workflow run`, `gh api`). Follow `.github/skills/github-operations/SKILL.md`
+  `gh workflow run`, `gh api`). Follow `.github/skills/apex-github-operations/SKILL.md`
   (`gh` CLI-first, MCP fallback).
 
 ### GitHub Tool Priority (Mandatory)

@@ -63,7 +63,7 @@ Review-depth opt-in: read `decisions.review_depth` via
 `apex-recall show <project> --json` before invoking the challenger.
 Default to `"default"` if absent. `"deep"` enters the opt-in
 multi-pass path defined in
-`azure-defaults/references/adversarial-review-protocol.md`
+`apex-azure-defaults/references/adversarial-review-protocol.md`
 without re-prompting the user.
 </context_awareness>
 
@@ -86,23 +86,23 @@ session checkpoint. Missing inputs return to their owner before bulk skill reads
 Then load the guidance below for the current phase; reuse unchanged content
 still available in context and batch independent missing reads.
 
-1. **Read** `.github/skills/azure-defaults/SKILL.md` — regions, tags, AVM, governance, naming
-2. **Read** `.github/skills/azure-artifacts/SKILL.md` — the implementation-plan output contract.
-3. **Before plan authoring**, read `azure-artifacts/templates/04-implementation-plan.template.md`.
+1. **Read** `.github/skills/apex-azure-defaults/SKILL.md` — regions, tags, AVM, governance, naming
+2. **Read** `.github/skills/apex-azure-artifacts/SKILL.md` — the implementation-plan output contract.
+3. **Before plan authoring**, read `apex-azure-artifacts/templates/04-implementation-plan.template.md`.
    Governance artifacts are prerequisite inputs, not outputs to regenerate from a template.
-4. **Before Phase 4 diagrams**, read `.github/skills/python-diagrams/SKILL.md` — diagram conventions and imports.
-5. **Before Phase 2.5 checks**, read `.github/skills/iac-common/references/plan-consistency-checks.md` — the deterministic
+4. **Before Phase 4 diagrams**, read `.github/skills/apex-python-diagrams/SKILL.md` — diagram conventions and imports.
+5. **Before Phase 2.5 checks**, read `.github/skills/apex-iac-common/references/plan-consistency-checks.md` — the deterministic
    rules (zone-redundancy, RBAC ordering, deployment-script identity/image, public-edge auth, phased-param
    wiring, phase monotonicity)
 6. **On an L0/L1 drift signal, before choosing a return route**, read
-   `.github/skills/iac-common/references/governance-drift-routing.md`. Stop the current phase while resolving drift.
-7. **Before Phase 3.5 decisions**, read `.github/skills/azure-defaults/references/plan-design-decisions.md` — canonical
+   `.github/skills/apex-iac-common/references/governance-drift-routing.md`. Stop the current phase while resolving drift.
+7. **Before Phase 3.5 decisions**, read `.github/skills/apex-azure-defaults/references/plan-design-decisions.md` — canonical
    Phase 3.5 structured panel (identity_model / public_edge_auth / script_runtime_image / az_posture)
-8. **Before Phase 1 envelope checks**, read `.github/skills/azure-defaults/references/governance-discovery.md` (section:
+8. **Before Phase 1 envelope checks**, read `.github/skills/apex-azure-defaults/references/governance-discovery.md` (section:
    "L0 Discovery Envelope") — envelope shape + consumer protocol
 9. **IaC-specific skill** (read on-demand during Phase 2):
-   - Bicep → `.github/skills/azure-bicep-patterns/SKILL.md` — hub-spoke, PE, diagnostics, module composition
-   - Terraform → `.github/skills/terraform-patterns/SKILL.md` — hub-spoke, PE, diagnostics, AVM-TF patterns
+   - Bicep → `.github/skills/apex-azure-bicep-patterns/SKILL.md` — hub-spoke, PE, diagnostics, module composition
+   - Terraform → `.github/skills/apex-terraform-patterns/SKILL.md` — hub-spoke, PE, diagnostics, AVM-TF patterns
 
 ### Required IaC Authoring References (mandate-load, every project)
 
@@ -122,7 +122,7 @@ permission to omit cost controls, policy mapping, security, or AVM pin checks.
    — non-negotiable baseline (HTTPS-only, TLS 1.2, no public blob,
    Managed Identity, Entra-only SQL, **diagnostic settings on every
    resource — not just App Service**).
-4. **Read** [`.github/skills/iac-common/references/avm-version-freeze-gate.md`](../skills/iac-common/references/avm-version-freeze-gate.md)
+4. **Read** [`.github/skills/apex-iac-common/references/avm-version-freeze-gate.md`](../skills/apex-iac-common/references/avm-version-freeze-gate.md)
    — Phase 4.4 freeze gate; resolve every AVM pin to MCR-latest BEFORE
    writing the plan, not after the challenger catches it.
 5. **Read** the execution-subagent prompt contract
@@ -142,7 +142,7 @@ permission to omit cost controls, policy mapping, security, or AVM pin checks.
 | Define tasks as YAML specs (resource, module, dependencies, config)                                        | Proceed to code generation without explicit user approval               |
 | Generate `04-implementation-plan.md`                                                                       | Ignore policy `effect` — `Deny` = blocker, `Audit` = warning only       |
 | Auto-generate `04-dependency-diagram.{py,png,svg}` + `04-runtime-diagram.{py,png,svg}`                     | Generate governance from best-practice assumptions                      |
-| Match H2 headings from azure-artifacts templates exactly                                                   | Re-run governance discovery (already done in Step 3.5)                  |
+| Match H2 headings from apex-azure-artifacts templates exactly                                                   | Re-run governance discovery (already done in Step 3.5)                  |
 | Ask user for deployment strategy — **MANDATORY GATE**                                                      | Add H2 headings not in the template                                     |
 | Auto-apply every `must_fix` finding in Phase 5 (mandatory — blocks deployment); re-run challenger after    | Ask the user whether to accept `must_fix` findings — they are mandatory |
 | Use `askQuestions` in Phase 5 to gather `should_fix` decisions in the same chat session                    |                                                                         |
@@ -167,7 +167,7 @@ produce missing governance artifacts or initialize a replacement project.
 ## Predecessor Artifact Read Policy
 
 Load by need, not by default. Compression tiers per
-`.github/skills/context-management/SKILL.md` (Mode A):
+`.github/skills/apex-context-management/SKILL.md` (Mode A):
 
 - **Full read** — `02-architecture-assessment.md`, `04-governance-constraints.json`, `sku-manifest.json`.
 - **Summarized (Mode A)** — `04-governance-constraints.md` only when JSON is ambiguous.
@@ -216,8 +216,8 @@ unmet entries are `must_fix`. Set
    Full check list (file/metadata presence, `discovery_status ==
    "COMPLETE"`, TTL freshness, silent-drop guard, signature drift) and
    refresh-handoff routing live in
-   [`governance-discovery.md`](../skills/azure-defaults/references/governance-discovery.md)
-   and [`governance-drift-routing.md`](../skills/iac-common/references/governance-drift-routing.md)
+   [`governance-discovery.md`](../skills/apex-azure-defaults/references/governance-discovery.md)
+   and [`governance-drift-routing.md`](../skills/apex-iac-common/references/governance-drift-routing.md)
    (L0 row). The envelope is the source of truth — the legacy
    `discovery_status` field check is deprecated.
 3. **Record the signature** — on first successful L0 check, run
@@ -229,14 +229,14 @@ unmet entries are `must_fix`. Set
 
 **Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 4 phase_1_prereqs --json`
 
-**Policy effects:** Read `azure-defaults/references/policy-effect-decision-tree.md`.
+**Policy effects:** Read `apex-azure-defaults/references/policy-effect-decision-tree.md`.
 
 ### Phase 1.5: Deployment Context Discovery
 
 > [!NOTE]
 > The previous freeform Phase 1.5 `askQuestions` prompt is deprecated.
 > Structured deployment-design questions now live in the **Phase 3.5
-> batched panel** (see `azure-defaults/references/plan-design-decisions.md`).
+> batched panel** (see `apex-azure-defaults/references/plan-design-decisions.md`).
 > Skip Phase 1.5 entirely unless the user volunteers a deployment
 > constraint the architecture assessment did not capture (e.g., a
 > maintenance window). If they do, persist via
@@ -267,7 +267,7 @@ For EACH resource in the architecture:
 
 AVM-TF naming: `Azure/avm-res-{service}-{resource}/azurerm`
 
-**Cost-monitoring AVM lookup (MANDATORY)**: also lookup Consumption Budget + Action Group AVM per [cost-alerts-baseline.md](../skills/azure-defaults/references/cost-alerts-baseline.md).
+**Cost-monitoring AVM lookup (MANDATORY)**: also lookup Consumption Budget + Action Group AVM per [cost-alerts-baseline.md](../skills/apex-azure-defaults/references/cost-alerts-baseline.md).
 
 ### Phase 3: Deprecation & Lifecycle Checks
 
@@ -278,7 +278,7 @@ Classic/v1/Basic patterns.
 ### Phase 2.5: Plan Self-Consistency Lint (MANDATORY)
 
 Run the 6 deterministic rules in
-`iac-common/references/plan-consistency-checks.md` against the draft
+`apex-iac-common/references/plan-consistency-checks.md` against the draft
 plan. For each triggered rule:
 
 - **Auto-pick safe default** (mechanical rules: `rbac_phase_ordering`,
@@ -302,7 +302,7 @@ unresolved.
 **Required gate.** Ask the user BEFORE generating the plan. Do NOT assume
 single or phased. Question template, recommended defaults, and skip rules
 live in
-[`plan-design-decisions.md`](../skills/azure-defaults/references/plan-design-decisions.md).
+[`plan-design-decisions.md`](../skills/apex-azure-defaults/references/plan-design-decisions.md).
 
 Build **one structured `askQuestions` panel** combining:
 
@@ -337,7 +337,7 @@ apex-recall decide <project> --key <key> --value <choice> --rationale "Phase 3.5
 
 Write one concise summary (governance, AVM verification, deployment strategy,
 and design decisions). Select compression from observed context usage per
-[`context-management/SKILL.md`](../skills/context-management/SKILL.md), not the phase number.
+[`apex-context-management/SKILL.md`](../skills/apex-context-management/SKILL.md), not the phase number.
 Avoid optional or redundant reads; load missing required phase guidance,
 including deferred diagram instructions, before using it. Refresh only changed
 or unavailable predecessor sections rather than assuming the summary is complete.
@@ -364,7 +364,7 @@ pending / ❌ unsatisfiable). **Every Deny policy MUST have at least
 one row.** Coverage is verified by Phase 4.3 challenger comprehensive
 review. If a row is `❌ unsatisfiable`, STOP and
 traverse the `▶ Refresh Governance` handoff per
-`iac-common/references/governance-drift-routing.md` (L1 row).
+`apex-iac-common/references/governance-drift-routing.md` (L1 row).
 
 **L1 attestation — Code-Generation Contract (MANDATORY)**: emit the
 `## 📤 Code-Generation Contract` H2 section per the template. For
@@ -379,20 +379,20 @@ addition to the prose H2 section above, emit two JSON artifacts so
 CodeGen agents (06b/06t) consume a deterministic shape instead of
 re-extracting from prose. Full schemas, templates, and validator
 commands:
-[`iac-common/references/contract-emission-and-handoff.md`](../skills/iac-common/references/contract-emission-and-handoff.md)
+[`apex-iac-common/references/contract-emission-and-handoff.md`](../skills/apex-iac-common/references/contract-emission-and-handoff.md)
 → "Inputs from Step 4".
 
 1. `agent-output/{project}/04-iac-contract.json` —
    schema [`iac-contract-v0`/`v1`](../../tools/schemas/iac-contract.schema.json),
    template
-   [`04-iac-contract.template.json`](../skills/azure-artifacts/templates/04-iac-contract.template.json).
+   [`04-iac-contract.template.json`](../skills/apex-azure-artifacts/templates/04-iac-contract.template.json).
    Validate with `npm run validate:iac-contract` AND
    `npm run validate:iac-contract-consistency`. `plan_ref.sha256`
    MUST match `04-implementation-plan.md` at emit time.
 2. `agent-output/{project}/04-policy-property-map.json` (L1m) —
    schema [`policy-property-map-v1`](../../tools/schemas/policy-property-map.schema.json),
    template
-   [`04-policy-property-map.template.json`](../skills/azure-artifacts/templates/04-policy-property-map.template.json).
+   [`04-policy-property-map.template.json`](../skills/apex-azure-artifacts/templates/04-policy-property-map.template.json).
    Always emitted; **every Deny policy** in
    `04-governance-constraints.json` MUST be represented.
    `decisions.governance_depth = light` omits prose rationale for
@@ -400,20 +400,20 @@ commands:
 
 If the workload uses identity, app regs, alerts, or budgets, also emit
 `agent-output/{project}/04-environment-manifest.json` from
-[`04-environment-manifest.template.json`](../skills/azure-artifacts/templates/04-environment-manifest.template.json)
+[`04-environment-manifest.template.json`](../skills/apex-azure-artifacts/templates/04-environment-manifest.template.json)
 with **placeholder zero-GUIDs**; validate with
 `npm run validate:environment-manifest`. Identity rules:
-[`azure-defaults/references/identity-resolution.md`](../skills/azure-defaults/references/identity-resolution.md).
+[`apex-azure-defaults/references/identity-resolution.md`](../skills/apex-azure-defaults/references/identity-resolution.md).
 
 **Bicep-specific**: Module structure is `main.bicep` + `modules/`.
 **Terraform-specific**: Include backend config template (Azure Storage Account).
-For patterns, read `terraform-patterns/references/tf-best-practices-examples.md`.
+For patterns, read `apex-terraform-patterns/references/tf-best-practices-examples.md`.
 
 > **Important**: Plan must include the **cost-monitoring baseline**
 > (budget + Action Group + sub-scoped anomaly) unless
 > `cost_monitoring_mode ∈ {minimal, deferred}`. Phase 4 preflight
 > (scope derivation, `az monitor action-group show`, Owner fallback,
-> governance precedence) + decision keys: [`cost-alerts-baseline.md`](../skills/azure-defaults/references/cost-alerts-baseline.md).
+> governance precedence) + decision keys: [`cost-alerts-baseline.md`](../skills/apex-azure-defaults/references/cost-alerts-baseline.md).
 > Also verify `subnet_plan` from Architect Phase 6b is reflected in
 > the resource inventory. When `vnet_mode = use-existing`, record an
 > exception entry if the existing VNet's live address space diverges
@@ -422,7 +422,7 @@ For patterns, read `terraform-patterns/references/tf-best-practices-examples.md`
 
 ### Phase 4.3: Adversarial Plan Review (1 pass, comprehensive — default)
 
-Read `azure-defaults/references/adversarial-review-protocol.md` for the
+Read `apex-azure-defaults/references/adversarial-review-protocol.md` for the
 lens table, prior_findings format, and invocation template.
 
 **Default flow (always runs)**: 1× `comprehensive` review of
@@ -478,7 +478,7 @@ The subagent writes the JSON file at `output_path` and returns a compact
 summary (≤15 lines). **Do NOT paste subagent JSON inline.** Read the file
 from disk only if you need full finding details for the Gate presentation.
 If the subagent **errors or times out** (distinct from returning findings),
-apply the `iac-common` bounded-retry pattern: retry once, then `askQuestions`
+apply the `apex-iac-common` bounded-retry pattern: retry once, then `askQuestions`
 — Retry / Fix Inline / Abort. Do not reach Phase 5 on an unresolved error.
 **Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 4 phase_4_challenger --json`
 
@@ -507,7 +507,7 @@ For each pass:
 2. For each challenger pass, print a **multi-line markdown table** (not a
    single-line string with escaped `\n`). Leave blank lines before and
    after the table. Format per
-   [adversarial-review-protocol.md § Findings Table Rendering Format](../skills/azure-defaults/references/adversarial-review-protocol.md#findings-table-rendering-format):
+   [adversarial-review-protocol.md § Findings Table Rendering Format](../skills/apex-azure-defaults/references/adversarial-review-protocol.md#findings-table-rendering-format):
 
    ```markdown
    | ID | Severity | Title | WAF Pillar | Recommendation |
@@ -520,7 +520,7 @@ For each pass:
 4. Reference the JSON file paths for machine-readable details
 
 Then run the **two-stage gate** documented in
-[`iac-common/references/iac-planner-approval-gate.md`](../skills/iac-common/references/iac-planner-approval-gate.md):
+[`apex-iac-common/references/iac-planner-approval-gate.md`](../skills/apex-iac-common/references/iac-planner-approval-gate.md):
 
 - **Stage 1** auto-applies every `must_fix` (mandatory; 2-iteration cap;
   unattended mode defers). **Batch protocol**: apply **all** `must_fix`
@@ -536,7 +536,7 @@ Then run the **two-stage gate** documented in
   protocol section 2f) — never one panel per finding. Each question
    uses the canonical four-option payload (Accept / Reject / Defer / Edit),
    individual notes, and the `Defer` recommendation for `should_fix` from
-  [`iac-planner-approval-gate.md`](../skills/iac-common/references/iac-planner-approval-gate.md).
+  [`iac-planner-approval-gate.md`](../skills/apex-iac-common/references/iac-planner-approval-gate.md).
 - **Stage 3** presents the final proceed gate + handoff to 06b/06t.
 
 **Plan-status attestation (MANDATORY)** — before completing the step,
@@ -548,7 +548,7 @@ Compliance Matrix is complete (every Deny has a row, no `❌ unsatisfiable`),
 plan markdown, including the 17+ task YAML blocks the contract validator
 does not see), and (e) every
 required Step 3.5/Step 4 artifact + diagram `.png` exists per
-[`iac-common/references/step4-required-artifacts.md`](../skills/iac-common/references/step4-required-artifacts.md).
+[`apex-iac-common/references/step4-required-artifacts.md`](../skills/apex-iac-common/references/step4-required-artifacts.md).
 Then emit:
 
 ```bash
@@ -600,7 +600,7 @@ Include attribution header from the template file (do not hardcode).
 - [ ] Deprecation checks done for non-AVM / custom SKU resources
 - [ ] All resources have CAF naming and the discovered tag contract (canonical fallback only when no tag policy exists)
 - [ ] Dependency graph is acyclic and complete
-- [ ] H2 headings match azure-artifacts templates exactly
+- [ ] H2 headings match apex-azure-artifacts templates exactly
 - [ ] Security configuration includes managed identity where applicable
 - [ ] Approval gate presented before handoff
 - [ ] Phase 5 Stage 1: every `must_fix` finding auto-applied and re-validated (or unattended-mode deferral logged)
@@ -624,7 +624,7 @@ Terraform uses `var.deployment_phase` + `count`; Bicep uses `dependsOn`.
 After `apex-recall complete-step` + writing `00-handoff.md`, end the
 final chat message with this line, **verbatim**, on its own final line
 (full contract:
-[`compression-templates.md`](../skills/context-management/references/compression-templates.md#gate-boundary-clear-handoff-contract);
+[`compression-templates.md`](../skills/apex-context-management/references/compression-templates.md#gate-boundary-clear-handoff-contract);
 validator: `npm run validate:orchestrator-handoff`):
 
 ```text

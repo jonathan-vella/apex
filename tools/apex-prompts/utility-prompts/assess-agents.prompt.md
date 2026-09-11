@@ -34,7 +34,7 @@ This repo is APEX (Azure Agentic Platform Engineering eXperience). Scope is the 
 The four layers (see `references/agent-scorecard-rubric.md` for bands + weights):
 
 - L1 Mechanical — validator contract (frontmatter, structural, handoffs). Deterministic.
-- L2 Static — body/tool/handoff/skill-read limits, frontmatter & model integrity, vendor-prompting
+- L2 Static — body/tool/handoff/skill-read limits, frontmatter & model integrity, apex-vendor-prompting
   blocks (deterministic) **plus** role clarity & boundary (judgment).
 - L3 Runtime — token cost, duplicate reads, latency, subagent wall-time from a debug-log profile.
 - L4 Adversarial — red-team pass against `references/agent-adversarial-checklist.md` (judgment).

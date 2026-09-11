@@ -352,9 +352,9 @@ Pick the path that matches your goal — then drop into the resource table below
 | Try a guided hands-on challenge | [MicroHack](https://microhack.apexops.pro/)                                 |
 | Try a complete workflow         | [Prompt Guide](../../guides/prompt-guide/)                                                                |
 | Review mandatory guardrails     | [Security Baseline](../../reference/security-baseline/) and [Cost Governance](../../reference/cost-governance/) |
-| Generate architecture diagrams  | Use the `python-diagrams` skill                                                                        |
-| Create documentation            | Use `azure-artifacts` skill                                                                               |
-| Explore Terraform patterns      | Use `terraform-patterns` skill                                                                            |
+| Generate architecture diagrams  | Use the `apex-python-diagrams` skill                                                                        |
+| Create documentation            | Use `apex-azure-artifacts` skill                                                                               |
+| Explore Terraform patterns      | Use `apex-terraform-patterns` skill                                                                            |
 | Troubleshoot issues             | [troubleshooting.md](../../guides/troubleshooting/)                                                       |
 | Contribute to the upstream repo | [apex](https://github.com/jonathan-vella/apex)                        |
 
@@ -376,12 +376,12 @@ Ctrl+Shift+A → Select agent → Type prompt → Approve
 
 Skills activate automatically based on your prompt:
 
-- "Create an architecture diagram" → `python-diagrams`
-- "Generate an ADR" → `azure-adr`
-- "Create workload documentation" → `azure-artifacts`
+- "Create an architecture diagram" → `apex-python-diagrams`
+- "Generate an ADR" → `apex-azure-adr`
+- "Create workload documentation" → `apex-azure-artifacts`
 
 Or invoke explicitly:
 
 ```text
-Use the python-diagrams skill to create a diagram for my-webapp
+Use the apex-python-diagrams skill to create a diagram for my-webapp
 ```

@@ -27,9 +27,9 @@ Create a comprehensive, machine-readable implementation plan based on the approv
 - Read `agent-output/{project}/00-session-state.json` for `decisions.iac_tool`
   (`Bicep` or `Terraform`).
 - Read the relevant patterns skill:
-  `.github/skills/azure-bicep-patterns/SKILL.md` OR
-  `.github/skills/terraform-patterns/SKILL.md` based on the IaC tool.
-- Read `.github/skills/python-diagrams/SKILL.md` for diagram generation.
+  `.github/skills/apex-azure-bicep-patterns/SKILL.md` OR
+  `.github/skills/apex-terraform-patterns/SKILL.md` based on the IaC tool.
+- Read `.github/skills/apex-python-diagrams/SKILL.md` for diagram generation.
 </context>
 
 <task>

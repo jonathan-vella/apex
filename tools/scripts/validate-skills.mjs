@@ -16,6 +16,7 @@ import path from "node:path";
 import { getAgents, getSkills, getInstructions } from "./_lib/workspace-index.mjs";
 import { Reporter } from "./_lib/reporter.mjs";
 import { getRawFrontmatter } from "./_lib/parse-frontmatter.mjs";
+import { findSkillReferences } from "./_lib/skill-references.mjs";
 import { MAX_SKILL_LINES_WITHOUT_REFS, SKILLS_DIR, INSTRUCTIONS_DIR } from "./_lib/paths.mjs";
 
 let overallFailed = false;
@@ -42,7 +43,7 @@ const DEPRECATED_PATTERNS = [
   },
 ];
 
-const KNOWN_OVERSIZED = new Set(["azure-adr", "github-operations"]);
+const KNOWN_OVERSIZED = new Set(["apex-azure-adr", "apex-github-operations"]);
 
 function runFormatValidation() {
   const r = new Reporter("Skills Format Validator");
@@ -94,8 +95,22 @@ function runFormatValidation() {
       r.warn(skillName, `Found deprecated .skill.json file(s): ${jsonFiles.join(", ")}`);
     }
 
-    if (frontmatter.name && frontmatter.name !== skillName) {
-      r.error(skillName, `Frontmatter 'name' ("${frontmatter.name}") does not match directory name ("${skillName}")`);
+    const name = frontmatter.name;
+    if (typeof name !== "string" || name.length === 0) {
+      r.error(skillName, "Required frontmatter 'name' must be a non-empty string");
+    } else {
+      if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(name)) {
+        r.error(skillName, "Frontmatter 'name' must be lowercase kebab-case");
+      }
+      if (name.length > 64) {
+        r.error(skillName, `Frontmatter 'name' is ${name.length} characters (max 64)`);
+      }
+      if (!name.startsWith("apex-") || name === "apex-apex" || name.startsWith("apex-apex-")) {
+        r.error(skillName, "Frontmatter 'name' must have exactly one leading apex- prefix");
+      }
+      if (name !== skillName) {
+        r.error(skillName, `Frontmatter 'name' ("${name}") does not match directory name ("${skillName}")`);
+      }
     }
 
     if (frontmatter.description && frontmatter.description.length < 10) {
@@ -228,32 +243,42 @@ function runReferencesValidation() {
 const RETIRED_SKILLS = [
   {
     old: "azure-troubleshooting",
-    new: "azure-diagnostics",
+    new: "apex-azure-diagnostics",
     since: "Issue #240 — Azure Skills Plugin integration",
   },
 ];
 
-const SCAN_DIRS = [".github", "docs", "scripts"];
-const SCAN_ROOT_FILES = ["AGENTS.md", "CHANGELOG.md", "README.md"];
+const SCAN_DIRS = [".github", "tools", "site/src/content/docs"];
+const SCAN_ROOT_FILES = ["AGENTS.md", "README.md", "CONTRIBUTING.md", "CONTRIBUTORS.md", "QUALITY_SCORE.md"];
 
-const SKIP_PATTERNS = [
-  /node_modules/,
-  /\.git\//,
-  /site\//,
-  /\.venv/,
-  /PLUGIN_VERSION\.md/,
-  /validate-skills\.mjs/,
-  /validate-no-stale-skill-references\.mjs/,
-  /migration\//,
+const NON_LIVE_DIRECTORIES = [
+  "tools/schemas",
+  "tools/tests/exec-plans",
+  "tools/tests/fixtures",
+  "tools/tests/scripts/fixtures",
+  "tools/tests/vendor-prompting/fixtures",
+  "tools/apex-recall/tmp",
+  ".github/skills/apex-vendor-prompting/references/.snapshots",
 ];
+const SCANNER_SOURCE = "tools/scripts/validate-skills.mjs";
 
 function shouldSkip(filePath) {
-  return SKIP_PATTERNS.some((p) => p.test(filePath));
+  const normalized = filePath.split(path.sep).join("/");
+  return (
+    /(?:^|\/)(?:node_modules|\.git|\.venv|__pycache__)(?:\/|$)/.test(normalized) ||
+    /(?:^|\/)(?:CHANGELOG|PLUGIN_VERSION)\.md$/.test(normalized) ||
+    NON_LIVE_DIRECTORIES.some((directory) => normalized === directory || normalized.startsWith(`${directory}/`)) ||
+    /^tools\/(?:tests|apex-recall\/tests)\/(?:.*\/)?(?:test_[^/]+|[^/]+\.(?:test|spec))\.(?:mjs|js|py)$/.test(
+      normalized,
+    ) ||
+    normalized === SCANNER_SOURCE
+  );
 }
 
 function runStaleReferenceDetection() {
   const r = new Reporter("Stale Skill Reference Validator");
   r.header();
+  const skills = getSkills();
 
   function scanFile(filePath) {
     if (shouldSkip(filePath)) return;
@@ -263,17 +288,47 @@ function runStaleReferenceDetection() {
     if (!stat.isFile()) return;
 
     const ext = path.extname(filePath);
-    const textExts = [".md", ".json", ".jsonc", ".mjs", ".js", ".ts", ".yml", ".yaml", ".sh", ".ps1", ".py", ".txt"];
+    const textExts = [
+      ".md",
+      ".mdx",
+      ".json",
+      ".jsonc",
+      ".mjs",
+      ".js",
+      ".ts",
+      ".yml",
+      ".yaml",
+      ".sh",
+      ".ps1",
+      ".py",
+      ".txt",
+    ];
     if (!textExts.includes(ext)) return;
 
     const content = fs.readFileSync(filePath, "utf-8");
     const lines = content.split("\n");
 
-    for (const retired of RETIRED_SKILLS) {
-      for (let i = 0; i < lines.length; i++) {
-        if (lines[i].includes(retired.old)) {
+    let inHistory = false;
+    for (const [lineIndex, line] of lines.entries()) {
+      if (filePath === "QUALITY_SCORE.md" && /^## /.test(line)) {
+        inHistory = line.trim() === "## Change Log";
+      }
+      if (inHistory) continue;
+      for (const target of findSkillReferences(line)) {
+        if (
+          target.startsWith("apex-") &&
+          target !== "apex-apex" &&
+          !target.startsWith("apex-apex-") &&
+          target.length <= 64
+        )
+          continue;
+        const replacement = skills.has(`apex-${target}`) ? `; use skills/apex-${target}/SKILL.md` : "";
+        r.error(`${filePath}:${lineIndex + 1}`, `Non-canonical skill path "skills/${target}/SKILL.md"${replacement}`);
+      }
+      for (const retired of RETIRED_SKILLS) {
+        if (line.includes(retired.old)) {
           r.error(
-            `${filePath}:${i + 1}`,
+            `${filePath}:${lineIndex + 1}`,
             `Stale reference to "${retired.old}" — rename to "${retired.new}" (${retired.since})`,
           );
         }
@@ -351,7 +406,7 @@ function runCrossSkillReferenceValidation() {
   // skills or agents. Keep this small and explicit. Entries ending in " MCP"
   // are validated against this set rather than blanket-accepted so typos
   // (e.g. "azure-pricng MCP") are still flagged.
-  const NON_SKILL_REDIRECTS = new Set(["azure-pricing MCP", "mermaid", "python-diagrams"]);
+  const NON_SKILL_REDIRECTS = new Set(["azure-pricing MCP"]);
 
   // Allow digit-prefixed agent ids like "03-architect" or "04g-governance"
   // (leading [a-z0-9]) and optionally a trailing " MCP" suffix.
@@ -368,7 +423,7 @@ function runCrossSkillReferenceValidation() {
       const target = match[1].trim();
       if (NON_SKILL_REDIRECTS.has(target)) continue;
       if (target === skillName) continue;
-      if (validSkillNames.has(target) || validAgentNames.has(target)) continue;
+      if (validSkillNames.has(target) || validSkillNames.has(`apex-${target}`) || validAgentNames.has(target)) continue;
       r.error(
         skillName,
         `frontmatter description references missing skill/agent "${target}" — fix the (use ${target}) redirect`,

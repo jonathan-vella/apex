@@ -49,7 +49,7 @@ gates are satisfied; do not infer readiness from artifact filenames alone.
 <context_awareness>
 Keep context lean. Read each required skill once, use `apex-recall show
 <project> --json` for cached decisions, and never edit upstream artifacts.
-All diagrams use the `python-diagrams` skill and its shared `diagram_io.py`
+All diagrams use the `apex-python-diagrams` skill and its shared `diagram_io.py`
 helper.
 </context_awareness>
 
@@ -90,10 +90,10 @@ Before generating artifacts:
 
 1. Read `agent-output/{project}/02-architecture-assessment.md`.
 2. Read `agent-output/{project}/01-requirements.md` for actors and critical flows.
-3. Read `.github/skills/azure-defaults/SKILL.md`.
-4. Read `.github/skills/python-diagrams/SKILL.md` when diagrams are in scope.
-5. Read `.github/skills/azure-adr/SKILL.md` when ADRs are in scope.
-6. Read `.github/skills/azure-artifacts/SKILL.md` only for a cost estimate.
+3. Read `.github/skills/apex-azure-defaults/SKILL.md`.
+4. Read `.github/skills/apex-python-diagrams/SKILL.md` when diagrams are in scope.
+5. Read `.github/skills/apex-azure-adr/SKILL.md` when ADRs are in scope.
+6. Read `.github/skills/apex-azure-artifacts/SKILL.md` only for a cost estimate.
 
 Stop and request an Architect handoff when the architecture assessment is absent.
 
@@ -104,11 +104,11 @@ Record `decisions.design_scope` as `diagrams`, `adrs`, or `both` through
 `python`; there is no tool-choice question.
 
 The workflow gates are documented in
-[`workflow-gates.md`](../skills/azure-defaults/references/workflow-gates.md).
+[`workflow-gates.md`](../skills/apex-azure-defaults/references/workflow-gates.md).
 
 ## Diagram generation
 
-Use [`python-diagrams`](../skills/python-diagrams/SKILL.md) for every diagram.
+Use [`apex-python-diagrams`](../skills/apex-python-diagrams/SKILL.md) for every diagram.
 
 1. Map each approved resource, boundary, dependency, and critical flow from the
    architecture assessment. Do not add speculative services.
@@ -133,7 +133,7 @@ all details into one canvas.
 For each significant decision:
 
 1. Quote the relevant architecture-assessment text in the ADR context.
-2. Follow `.github/skills/azure-adr/SKILL.md` and include WAF trade-offs.
+2. Follow `.github/skills/apex-azure-adr/SKILL.md` and include WAF trade-offs.
 3. Number ADRs sequentially as `03-des-adr-NNNN-{slug}.md`.
 4. Record the decision:
 

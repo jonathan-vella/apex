@@ -32,9 +32,9 @@ honouring all governance constraints and the security baseline.
 - Read `agent-output/{project}/04-implementation-plan.md` (approved plan).
 - Read `agent-output/{project}/04-governance-constraints.json` — these
   constraints always win over design preferences.
-- Read `.github/skills/azure-bicep-patterns/SKILL.md` for Bicep patterns
+- Read `.github/skills/apex-azure-bicep-patterns/SKILL.md` for Bicep patterns
   and AVM conventions.
-- Read `.github/skills/azure-defaults/SKILL.md` for naming, tags,
+- Read `.github/skills/apex-azure-defaults/SKILL.md` for naming, tags,
   and security baseline.
 - Security baseline is non-negotiable: TLS 1.2, HTTPS-only, no public blob
   access, Managed Identity over keys.

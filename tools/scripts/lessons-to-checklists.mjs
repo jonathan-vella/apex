@@ -4,7 +4,7 @@
  *
  * Scans every `09-lessons-learned.json` under `agent-output/{project}/` and
  * diffs the lessons against the per-lens checklists in
- * `.github/skills/azure-defaults/references/adversarial-checklists.md`.
+ * `.github/skills/apex-azure-defaults/references/adversarial-checklists.md`.
  * Emits a markdown report of "lessons our challengers missed" — patterns
  * that surfaced post-deployment but aren't covered by any checklist
  * line.
@@ -22,7 +22,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 const AGENT_OUTPUT = "agent-output";
-const CHECKLIST_PATH = ".github/skills/azure-defaults/references/adversarial-checklists.md";
+const CHECKLIST_PATH = ".github/skills/apex-azure-defaults/references/adversarial-checklists.md";
 
 function listLessons() {
   if (!fs.existsSync(AGENT_OUTPUT)) return [];

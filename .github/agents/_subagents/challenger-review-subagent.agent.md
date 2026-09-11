@@ -55,7 +55,7 @@ summary that lets the parent decide gates without loading the full payload.
   must/should/suggestion counts — never the full JSON.
 - `prior_findings` is consulted (when provided) to avoid duplicating
   issues across passes.
-- All claims verified against azure-defaults, iac-policy-compliance, and
+- All claims verified against apex-azure-defaults, iac-policy-compliance, and
   governance-discovery instructions — not trusted at face value.
 
 # Constraints
@@ -101,12 +101,13 @@ down in this agent.
 
 **Before doing ANY work**, read these skills in order:
 
-1. **Read** `.github/skills/golden-principles/SKILL.md` — agent operating principles and invariants
-2. **Read** `.github/skills/azure-defaults/SKILL.md` — regions, tags, naming, AVM, security baselines, governance
-3. **Read** `.github/skills/azure-defaults/references/adversarial-checklists.md` — per-category and per-artifact-type checklists
+1. **Read** `.github/skills/apex-golden-principles/SKILL.md` — agent operating principles and invariants
+2. **Read** `.github/skills/apex-azure-defaults/SKILL.md` — regions, tags, naming, AVM, security baselines, governance
+3. **Read** `.github/skills/apex-azure-defaults/references/adversarial-checklists.md` —
+  per-category and per-artifact-type checklists
 4. **Read** `.github/instructions/references/iac-policy-compliance.md` — governance enforcement rules
 
-> **Context optimization**: Do NOT read the full `azure-artifacts/SKILL.md`.
+> **Context optimization**: Do NOT read the full `apex-azure-artifacts/SKILL.md`.
 > Only read `adversarial-checklists.md` for H2 structural validation.
 > Apply context shredding (from `adversarial-review-protocol.md`) when loading
 > predecessor artifacts — use summarized tier if context is heavy.
@@ -204,7 +205,7 @@ Batch mode is used for complex projects where passes 2+3 run together.
 2. **Read prior artifacts** — check `agent-output/{project}/` for context from earlier steps.
    Read `decision_log` via `apex-recall decisions --project {project} --json` to understand rationale behind prior
    choices — challenge the reasoning, not just the outcome.
-3. **Verify claims against skills and instructions** — cross-reference azure-defaults, iac-policy-compliance,
+3. **Verify claims against skills and instructions** — cross-reference apex-azure-defaults, iac-policy-compliance,
    and governance-discovery instructions. Do not trust claims like "all policies covered" — verify them
 4. **If `prior_findings` provided**, read them and avoid duplicating existing issues. Focus
    your adversarial energy on the `review_focus` lens
@@ -237,7 +238,7 @@ When `review_focus` is set, concentrate adversarial energy on that lens:
 **Core** (all artifact types): Untested Assumption · Missing Failure Mode · Hidden Dependency ·
 Scope Risk · Architectural Weakness · Governance Gap · WAF Blind Spot.
 
-**Additional categories by artifact type** → Read `.github/skills/azure-defaults/references/artifact-type-categories.md`
+**Additional categories by artifact type** → Read `.github/skills/apex-azure-defaults/references/artifact-type-categories.md`
 
 ## Severity Levels
 
@@ -257,17 +258,17 @@ Scope Risk · Architectural Weakness · Governance Gap · WAF Blind Spot.
 
 ## Adversarial Checklists
 
-Read `.github/skills/azure-defaults/references/adversarial-checklists.md` for the full
+Read `.github/skills/apex-azure-defaults/references/adversarial-checklists.md` for the full
 per-category and per-artifact-type checklists, plus Azure Infrastructure Skepticism Surfaces.
 
 ## Reference Index
 
 | Reference                                    | Path                                                                      |
 | -------------------------------------------- | ------------------------------------------------------------------------- |
-| Adversarial checklists & skepticism surfaces | `.github/skills/azure-defaults/references/adversarial-checklists.md`      |
-| Artifact-type-specific categories            | `.github/skills/azure-defaults/references/artifact-type-categories.md`    |
-| Adversarial review protocol                  | `.github/skills/azure-defaults/references/adversarial-review-protocol.md` |
-| Golden Principles                            | `.github/skills/golden-principles/SKILL.md`                               |
+| Adversarial checklists & skepticism surfaces | `.github/skills/apex-azure-defaults/references/adversarial-checklists.md`      |
+| Artifact-type-specific categories            | `.github/skills/apex-azure-defaults/references/artifact-type-categories.md`    |
+| Adversarial review protocol                  | `.github/skills/apex-azure-defaults/references/adversarial-review-protocol.md` |
+| Golden Principles                            | `.github/skills/apex-golden-principles/SKILL.md`                               |
 
 ## Output Contract
 
@@ -359,7 +360,7 @@ The on-disk JSON has no markdown wrapper:
 >
 > **`cache_inputs.artifact_hash`** is the cache key for the parent-side
 > findings cache (see
-> `azure-defaults/references/adversarial-review-protocol.md` and each
+> `apex-azure-defaults/references/adversarial-review-protocol.md` and each
 > parent agent's review-depth opt-in section). Every component hash MUST
 > match on cache lookup; a single mismatch invalidates the cache.
 >
@@ -385,7 +386,7 @@ Do NOT repeat issues already in `prior_findings`.
 > never in the JSON written by this subagent. The atomic-write contract
 > defined in `## File Write Protocol` (refuse-on-exists / overwrite) is
 > unchanged. See
-> `.github/skills/azure-defaults/references/adversarial-review-protocol.md`
+> `.github/skills/apex-azure-defaults/references/adversarial-review-protocol.md`
 > §`Per-Finding Decision Protocol` for the sidecar schema.
 
 ## Output Format — Batch Mode

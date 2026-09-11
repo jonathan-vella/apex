@@ -7,7 +7,7 @@ applyTo: "**/*.agent.md, **/*.prompt.md"
 
 Keep this auto-loaded file limited to rules that affect runtime correctness or
 repository validation. For agent creation, structural rewrites, model selection,
-or deep audits, load `.github/skills/agent-authoring/SKILL.md`.
+or deep audits, load `.github/skills/apex-agent-authoring/SKILL.md`.
 
 ## Frontmatter Rules
 
@@ -25,7 +25,7 @@ or deep audits, load `.github/skills/agent-authoring/SKILL.md`.
   `disable-model-invocation`.
 
 Complete field reference:
-[`agent-authoring/references/agent-file-structure.md`](../skills/agent-authoring/references/agent-file-structure.md).
+[`apex-agent-authoring/references/agent-file-structure.md`](../skills/apex-agent-authoring/references/agent-file-structure.md).
 
 ### Frontmatter Description Length
 
@@ -41,7 +41,7 @@ extended scope tables into the body or an on-demand reference.
 - Use the workflow DAG rather than adding an inline handoff taxonomy.
 
 Validation details:
-[`workflow-engine/references/handoff-validation-rules.md`](../skills/workflow-engine/references/handoff-validation-rules.md).
+[`apex-workflow-engine/references/handoff-validation-rules.md`](../skills/apex-workflow-engine/references/handoff-validation-rules.md).
 
 ## Model Policy
 
@@ -53,7 +53,7 @@ model-label suffix.
 
 Use higher effort for creative, multi-artifact decisions and default or medium
 effort for structured execution. Assignments and rationale:
-[`agent-authoring/references/model-policy.md`](../skills/agent-authoring/references/model-policy.md).
+[`apex-agent-authoring/references/model-policy.md`](../skills/apex-agent-authoring/references/model-policy.md).
 
 Vendor-specific structure is enforced by
 [`vendor-prompting.instructions.md`](vendor-prompting.instructions.md).
@@ -69,7 +69,7 @@ Vendor-specific structure is enforced by
 - Keep embedded templates aligned with their canonical source.
 
 Workflow, hierarchy, delegation, and PR checklist:
-[`agent-authoring/SKILL.md`](../skills/agent-authoring/SKILL.md).
+[`apex-agent-authoring/SKILL.md`](../skills/apex-agent-authoring/SKILL.md).
 Context budgets and size limits:
 [`context-optimization.instructions.md`](context-optimization.instructions.md).
 
@@ -81,7 +81,7 @@ Do not call `read_file` again for unchanged content still available in context.
 After source changes, compaction, or a new chat, refresh only the needed material.
 Batch independent reads and questions; prefer targeted search for known symbols.
 Detailed guidance:
-[`agent-authoring/references/runtime-guardrails.md`](../skills/agent-authoring/references/runtime-guardrails.md).
+[`apex-agent-authoring/references/runtime-guardrails.md`](../skills/apex-agent-authoring/references/runtime-guardrails.md).
 
 ### No-Direct-Markdownlint-on-Agent-Output Rule
 
@@ -104,14 +104,14 @@ editing tools; shell inspection remains read-only.
 If direct challenger invocation fails, retry once through `10-Challenger`. If
 that also fails, report the verbatim error and stop; never fabricate an inline
 challenger pass. Full procedure:
-[`agent-authoring/references/runtime-guardrails.md`](../skills/agent-authoring/references/runtime-guardrails.md#challenger-fallback).
+[`apex-agent-authoring/references/runtime-guardrails.md`](../skills/apex-agent-authoring/references/runtime-guardrails.md#challenger-fallback).
 
 ## Decision Logging
 
 Record significant architecture, SKU, deployment, IaC, security, networking, or
 trade-off decisions through `apex-recall`; omit minor implementation choices.
 Commands and decision shape:
-[`agent-authoring/references/decision-logging.md`](../skills/agent-authoring/references/decision-logging.md).
+[`apex-agent-authoring/references/decision-logging.md`](../skills/apex-agent-authoring/references/decision-logging.md).
 
 ## Model-Prompt Alignment
 
@@ -119,8 +119,8 @@ Classify behavior from the first frontmatter model. Align prompt and target-agen
 models, avoid redundant handoff overrides, and follow the matching vendor rules:
 
 - [`vendor-prompting.instructions.md`](vendor-prompting.instructions.md)
-- [`vendor-prompting/references/family-support.md`](../skills/vendor-prompting/references/family-support.md)
-- [`vendor-prompting/references/cross-model-rules.md`](../skills/vendor-prompting/references/cross-model-rules.md)
+- [`apex-vendor-prompting/references/family-support.md`](../skills/apex-vendor-prompting/references/family-support.md)
+- [`apex-vendor-prompting/references/cross-model-rules.md`](../skills/apex-vendor-prompting/references/cross-model-rules.md)
 
 ## Verification
 

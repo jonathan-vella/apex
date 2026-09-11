@@ -32,7 +32,7 @@ test("native resume delegates recovery and routing without extra mode questions"
 
 test("decision presentation maps canonical fields and persists schema-valid Edit and empty notes", () => {
   const protocol = readFileSync(
-    new URL("../../../.github/skills/azure-defaults/references/adversarial-review-protocol.md", import.meta.url),
+    new URL("../../../.github/skills/apex-azure-defaults/references/adversarial-review-protocol.md", import.meta.url),
     "utf8",
   );
   assert.match(protocol, /title = claim/);
@@ -53,7 +53,7 @@ test("decision presentation maps canonical fields and persists schema-valid Edit
 
 test("policy precheck fails closed without fresh or explicitly stale envelope evidence", (context) => {
   const contract = readFileSync(
-    new URL("../../../.github/skills/iac-common/references/policy-precheck-contract.md", import.meta.url),
+    new URL("../../../.github/skills/apex-iac-common/references/policy-precheck-contract.md", import.meta.url),
     "utf8",
   );
   assert.match(contract, /if render_failed or rest_failed or envelope_status not in \["FRESH", "STALE"\]:/);
@@ -94,7 +94,7 @@ test("policy precheck fails closed without fresh or explicitly stale envelope ev
 
 test("unattended production and benchmark reviews fail closed on unresolved blockers", () => {
   const read = (file) => readFileSync(new URL(`../../../${file}`, import.meta.url), "utf8");
-  const protocol = read(".github/skills/azure-defaults/references/adversarial-review-protocol.md");
+  const protocol = read(".github/skills/apex-azure-defaults/references/adversarial-review-protocol.md");
   const unattended = protocol.split("### 2d. Unattended mode")[1].split("### 2e.")[0];
   assert.match(unattended, /unresolved `must_fix` remains, \*\*STOP\*\*/);
   assert.match(unattended, /production and benchmark runs/);
@@ -108,7 +108,7 @@ test("unattended production and benchmark reviews fail closed on unresolved bloc
   assert.doesNotMatch(e2e, /continue to next steps with WARNING/);
   assert.match(e2e, /unresolved `must_fix` count > 0:[\s\S]{0,100}`E2E_BLOCKED`/);
   assert.match(
-    read(".github/skills/iac-common/references/iac-planner-approval-gate.md"),
+    read(".github/skills/apex-iac-common/references/iac-planner-approval-gate.md"),
     /Benchmark auto-approval does not waive/,
   );
 });
@@ -116,7 +116,7 @@ test("unattended production and benchmark reviews fail closed on unresolved bloc
 test("Planner finding choices agree with its canonical approval reference", () => {
   const read = (file) => readFileSync(new URL(`../../../${file}`, import.meta.url), "utf8");
   const planner = read(".github/agents/05-iac-planner.agent.md");
-  const gate = read(".github/skills/iac-common/references/iac-planner-approval-gate.md");
+  const gate = read(".github/skills/apex-iac-common/references/iac-planner-approval-gate.md");
   assert.match(planner, /canonical four-option payload \(Accept \/ Reject \/ Defer \/ Edit\)/);
   assert.doesNotMatch(planner, /carries Accept \/ Skip options|WAF-pillar default matrix/);
   assert.match(gate, /four-option payload per protocol section 2g/);
@@ -139,7 +139,7 @@ test("Requirements fresh and resumed entry points preserve questions without for
 
 test("Architect gate reference cannot skip mandatory cost review or complete after pricing alone", () => {
   const read = (file) => readFileSync(new URL(`../../../${file}`, import.meta.url), "utf8");
-  const reference = read(".github/skills/azure-defaults/references/workflow-gates.md");
+  const reference = read(".github/skills/apex-azure-defaults/references/workflow-gates.md");
   const gate = reference.split("## Architect (Step 2) — Cost-feasibility review gate")[1].split("\n## ")[0];
   assert.match(gate, /mandatory in default and deep modes/);
   assert.match(gate, /challenge-findings-cost-estimate.json/);
@@ -155,7 +155,7 @@ test("Architect batches independent finding questions without combining decision
   const read = (file) => readFileSync(new URL(`../../../${file}`, import.meta.url), "utf8");
   for (const file of [
     ".github/agents/03-architect.agent.md",
-    ".github/skills/azure-defaults/references/workflow-gates.md",
+    ".github/skills/apex-azure-defaults/references/workflow-gates.md",
   ]) {
     const body = read(file);
     assert.match(body, /one batched `vscode_askQuestions` panel with a separate question per/);
@@ -163,10 +163,10 @@ test("Architect batches independent finding questions without combining decision
     assert.match(body, /panel cap/);
     assert.doesNotMatch(body, /One `vscode_askQuestions` call per finding|5 findings → 5 sequential/);
   }
-  const protocol = read(".github/skills/azure-defaults/references/adversarial-review-protocol.md");
+  const protocol = read(".github/skills/apex-azure-defaults/references/adversarial-review-protocol.md");
   assert.match(protocol, /^## Per-Finding Decision Protocol$/m);
   assert.ok(
-    read(".github/skills/azure-defaults/references/workflow-gates.md").includes(
+    read(".github/skills/apex-azure-defaults/references/workflow-gates.md").includes(
       "adversarial-review-protocol.md#per-finding-decision-protocol",
     ),
   );
@@ -183,9 +183,9 @@ test("Architect batches independent finding questions without combining decision
 
 test("routing guidance matches shared planning, refinement and resume contracts", () => {
   const read = (relativePath) => readFileSync(new URL(`../../../${relativePath}`, import.meta.url), "utf8");
-  const graph = JSON.parse(read(".github/skills/workflow-engine/templates/workflow-graph.json"));
-  const skill = read(".github/skills/workflow-engine/SKILL.md");
-  const reference = read(".github/skills/workflow-engine/references/dag-concepts.md");
+  const graph = JSON.parse(read(".github/skills/apex-workflow-engine/templates/workflow-graph.json"));
+  const skill = read(".github/skills/apex-workflow-engine/SKILL.md");
+  const reference = read(".github/skills/apex-workflow-engine/references/dag-concepts.md");
   for (const body of [skill, reference]) {
     assert.doesNotMatch(body, /step-4[bt]|no back-edges|use exactly one of/);
     assert.match(body, /return_edges/);
@@ -220,7 +220,7 @@ test("orchestrator reuses valid reviews without bypassing plan or resume gates",
 
 test("workflow graph and agent handoffs preserve review and validation floors", () => {
   const read = (relativePath) => readFileSync(new URL(`../../../${relativePath}`, import.meta.url), "utf8");
-  const graph = JSON.parse(read(".github/skills/workflow-engine/templates/workflow-graph.json"));
+  const graph = JSON.parse(read(".github/skills/apex-workflow-engine/templates/workflow-graph.json"));
   assert.deepEqual(graph.nodes["step-2"].challenger.default_lenses, ["comprehensive", "cost-feasibility"]);
   assert.equal(graph.nodes["step-2"].challenger.default_passes, 2);
   assert.match(JSON.stringify(graph.nodes["gate-2"].preconditions), /challenge-findings-cost-estimate.json/);

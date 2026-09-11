@@ -47,8 +47,8 @@ shared guidance when attached or explicitly loaded, not as an assumed inherited 
 
 Immediately after writing any non-markdown artifact, run the matching
 shape-check command. Fail closed: fix and re-run before handing off.
-The canonical table lives in the `azure-artifacts` skill
-([Post-write validation](../skills/azure-artifacts/SKILL.md#post-write-validation));
+The canonical table lives in the `apex-azure-artifacts` skill
+([Post-write validation](../skills/apex-azure-artifacts/SKILL.md#post-write-validation));
 the rows below are an inline cheat sheet so agents never need to chase
 the link mid-write.
 
@@ -77,7 +77,7 @@ pre-commit hook — do not invoke `lint:artifact-templates` /
 - Per-agent role boundaries — kept in each agent's own
   `## Operating frame`.
 - The verbatim `## Completion Handoff` contract — owned by
-  [`compression-templates.md`](../skills/context-management/references/compression-templates.md#gate-boundary-clear-handoff-contract)
+  [`compression-templates.md`](../skills/apex-context-management/references/compression-templates.md#gate-boundary-clear-handoff-contract)
   and grep-locked by `tools/scripts/validate_orchestrator_handoff.py`.
 - Mid-step `/clear` between challenger passes — owned by the
   orchestrator's Session Break Protocol.

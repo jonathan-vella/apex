@@ -50,7 +50,7 @@ All hooks are defined in `lefthook.yml` at the repository root.
 | ----------------------- | --------------------------------------------------- | ----------------------------------------------------- |
 | `markdown-lint`         | `*.md`                                              | markdownlint on staged markdown files                 |
 | `link-check`            | `site/src/content/docs/**/*.{md,mdx}`               | Verify URLs in staged docs files                      |
-| `h2-sync`               | SKILL.md, azure-artifacts files                     | Check H2 heading sync across sources                  |
+| `h2-sync`               | SKILL.md, apex-azure-artifacts files                     | Check H2 heading sync across sources                  |
 | `artifact-validation`   | `agent-output/**/*.md`                              | Validate artifact H2 structure against templates      |
 | `agents`                | `**/*.agent.md`, `**/*.prompt.md`                   | Agent frontmatter, model alignment, body size         |
 | `instructions`          | `**/*.instructions.md`, agents, skills              | Instruction frontmatter and cross-reference validity  |

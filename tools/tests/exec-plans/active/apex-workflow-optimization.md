@@ -2,7 +2,7 @@
 
 ## Status
 
-**State**: Autonomous execution authorized through implementation, skill consolidation, prefix migration and verification
+**State**: Local implementation verified; ready for manual testing; feature-branch publication blocked by GitHub HTTP 403
 **Owner**: Jonathan Vella with GitHub Copilot
 **Created**: 2026-09-10
 **Branch**: `perf/apex-workflow-optimization`
@@ -128,34 +128,88 @@ skill exactly once: for example, `azure-defaults` becomes `apex-azure-defaults`.
 This is a naming migration, not permission to change skill behavior, models, review frequency, or output contracts.
 External/user-profile/plugin skills outside this repository are not renamed. Preserve imported attribution and licenses.
 
-- [ ] C01 Build the final old-to-new map from Phase B's survivors; check collisions, existing prefixes,
+- [x] C01 Build the final old-to-new map from Phase B's survivors; check collisions, existing prefixes,
       directory/frontmatter name equality, kebab-case, and the supported skill-name length limit.
-- [ ] C02 Inventory name/path consumers before moving files: agents, prompts, skills/references/templates,
+- [x] C02 Inventory name/path consumers before moving files: agents, prompts, skills/references/templates,
       instructions, root/subtree guidance, scripts, tests/fixtures, hooks, CI, setup/export/sync tooling,
       registries, schemas/mappings, context snapshots, and published documentation/downloads where applicable.
-- [ ] C03 Apply the clean-rename decision: document breaking skill-name/path changes, the migration map, and upstream
+- [x] C03 Apply the clean-rename decision: document breaking skill-name/path changes, the migration map, and upstream
       refresh mappings. Remove old names after migrating live repository consumers; no duplicate discoverable wrappers.
-- [ ] C04 Rename surviving skill directories and matching SKILL.md frontmatter names; avoid double-prefixing.
+- [x] C04 Rename surviving skill directories and matching SKILL.md frontmatter names; avoid double-prefixing.
       Preserve scripts, templates, examples, attribution, and relative-reference behavior.
-- [ ] C05 Update live references and literal skill invocations, parser/validator assumptions, path globs,
+- [x] C05 Update live references and literal skill invocations, parser/validator assumptions, path globs,
       fixtures, setup/sync consumers, and public documentation to the new names and paths.
-- [ ] C06 Regenerate affected inventories/catalogs/Explorer views through their owners. Preserve immutable archives,
+- [x] C06 Regenerate affected inventories/catalogs/Explorer views through their owners. Preserve immutable archives,
       prior execution artifacts, historical changelog entries, and baseline hashes;
       document legacy names rather than rewriting history.
-- [ ] C07 Search old names/paths and classify every remaining match as intentional historical/external/compatibility
+- [x] C07 Search old names/paths and classify every remaining match as intentional historical/external/compatibility
       evidence or a missed migration. Verify no current required consumer points to a removed path.
-- [ ] C08 Run skill discovery, name-directory, reference, model, workflow, schema and tooling tests;
+- [x] C08 Run skill discovery, name-directory, reference, model, workflow, schema and tooling tests;
       include fresh/resume/revision cases for both IaC tracks without changing their approval/security contracts.
 - [ ] C09 Publish the validated migration and concise old-to-new map with rollback instructions on the feature branch.
 
 ### Phase D: Final Verification And User Testing
 
-- [ ] D01 Run the complete automated validation suite and focused negative/recovery tests after all implementation.
-- [ ] D02 Obtain independent review of remaining changes; fix findings and rerun affected checks.
-- [ ] D03 Reconcile A01-D03 and deliver one manual-test checklist covering native skill discovery,
+- [x] D01 Run the complete automated validation suite and focused negative/recovery tests after all implementation.
+- [x] D02 Obtain independent review of remaining changes; fix findings and rerun affected checks.
+- [x] D03 Reconcile A01-D03 and deliver one manual-test checklist covering native skill discovery,
       fresh/resume/revision workflows, required reviews, both IaC tracks, and validation-only/preview-only boundaries.
 - [ ] D04 USER STAGE: user performs manual UI and full generated-output testing after autonomous implementation is complete.
 - [ ] D05 POST-TEST STAGE: remediate reported findings, repeat relevant checks, and obtain the user's final quality signoff.
+
+### Final Local Verification And Handoff
+
+Phase A is committed as `ea6db336`; procedure sharing and survivor decisions as `d41507cc`.
+The naming migration is a separate local commit after final hooks. A15 and C09 remain publication-blocked,
+not complete: the existing GitHub identity received HTTP 403 on the feature-branch push. No credential
+substitution, auth retry, force-push or hook bypass was attempted. All independent local work is complete.
+D03 reconciles that blocked state and delivers this checklist; it does not certify remote publication.
+
+The full final `npm run validate:all` passed, including Node validators, Python/recall checks and built-site
+link checks. Focused checks cover naming failures, native aggregate syntax, template-only hooks, historical
+inventory/trace compatibility, current discovery redirects, real Bicep compiled evidence and Terraform local
+module initialization. Independent final review found no confirmed migration regression.
+
+Every surviving skill has exactly one prefix and aligned directory/frontmatter. The audit's tracked map
+is the migration and upstream-refresh guide. Public npm aliases, dependency contracts, models, agent identities,
+instruction filenames and schema bytes are unchanged. Historical demo/archive/snapshot evidence is preserved;
+only new Unreleased changelog entries were added. Explorer nodes/edges remain equivalent after name normalization.
+Original discovery redirect identifiers were subsequently migrated, not treated as immutable provenance metadata.
+
+Bounded named Orchestrator, Bicep/Terraform Deploy and CodeGen probes resolved renamed guidance and retained
+required stop/ownership boundaries. These are decision probes, not full native UI conversations or generated
+workload comparisons. Partial-file recovery and full artifact completeness still require manual acceptance.
+No live Azure operation, native slash-menu acceptance, end-to-end token saving or full output equivalence is claimed.
+
+### Manual Validation Checklist
+
+- [ ] Reload the VS Code window; confirm each repository skill appears once under its `apex-` name, with no
+  old-name wrappers. Verify external/user-profile skills remain unchanged.
+- [ ] Invoke representative imported and local skills by name and natural-language trigger. Check cross-skill
+  redirects, linked references, templates and scripts load without missing-path errors.
+- [ ] Start fresh Bicep and Terraform projects: required elicitation precedes artifact work; Phase 3 runbook
+  access does not fabricate user answers; track/review choices persist without redundant questions.
+- [ ] Resume each track after compaction and with partial generated files. Verify existing user edits survive,
+  partial agent output is repaired rather than discarded, and one-file generation cadence remains unchanged.
+- [ ] Revise budget, region, SKU and plan inputs; confirm current evidence is reused only when equivalent,
+  changed inputs invalidate reviews/previews appropriately, and upstream changes return to their owner.
+- [ ] Skip optional Design with missing/stale Governance; confirm discovery/reconciliation and approval still gate planning.
+- [ ] Confirm Step 2 requires both architecture and independent cost-feasibility reviews, and unresolved blocking
+  findings cannot advance either production or unattended workflows.
+- [ ] Request validation-only and preview-only on both tracks. Confirm no preparation, bootstrap, deployment,
+  state migration, workspace creation or apply occurs beyond the requested boundary.
+- [ ] Inspect generated Bicep ARM evidence and Terraform dependency/backend/workspace checks. Confirm validators
+  do not fabricate plan approval, mutate frozen inputs, or upgrade approved pins.
+- [ ] Compare complete generated artifacts against approved requirements, SKU manifest and governance constraints;
+  verify completeness, naming, security, costs by environment/region/stamp, diagrams and as-built traceability.
+- [ ] Run a read-only Context Optimizer audit; verify leaf workers are included and no snapshot/report/state writes occur.
+- [ ] Record observed failures, affected files, reproduction prompts and expected behavior for D05 remediation.
+
+Rollback: revert the naming commit as a unit on this feature branch to restore paths and callers together.
+Revert `d41507cc` separately to undo procedure sharing, or `ea6db336` for Phase A behavior changes after review.
+Use new revert commits with normal hooks; do not reset user work or rewrite historical evidence. Restoring only
+skill directories without consumers is invalid. Publication requires the repository owner to restore authorized
+write access before pushing the local commits; the current denial is not bypassed by this plan.
 
 ### Boundaries And Non-Goals
 

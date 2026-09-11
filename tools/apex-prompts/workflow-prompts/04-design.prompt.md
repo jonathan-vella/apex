@@ -14,9 +14,9 @@ Generate visual architecture diagrams and formal ADRs based on the approved arch
 - Read `agent-output/{project}/02-architecture-assessment.md` for the
   approved architecture.
 - Read `agent-output/{project}/01-requirements.md` for upstream context.
-- Read `.github/skills/python-diagrams/SKILL.md` for architecture diagrams and
+- Read `.github/skills/apex-python-diagrams/SKILL.md` for architecture diagrams and
   charts.
-- Read `.github/skills/azure-adr/SKILL.md` for ADR format and structure.
+- Read `.github/skills/apex-azure-adr/SKILL.md` for ADR format and structure.
 </context>
 
 <task>
@@ -36,7 +36,7 @@ Generate visual architecture diagrams and formal ADRs based on the approved arch
   and proceed to Step 3.5 (Governance).
 - All diagrams use the Python `diagrams`, `matplotlib`, or `graphviz` libraries
   through the shared `diagram_io.py` helper.
-- ADRs must follow the template from the `azure-adr` skill.
+- ADRs must follow the template from the `apex-azure-adr` skill.
 - No challenger review is required for this step.
 </rules>
 

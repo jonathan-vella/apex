@@ -9,7 +9,7 @@ from pathlib import Path
 import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-HELPER_PATH = REPO_ROOT / ".github" / "skills" / "python-diagrams" / "scripts" / "diagram_io.py"
+HELPER_PATH = REPO_ROOT / ".github" / "skills" / "apex-python-diagrams" / "scripts" / "diagram_io.py"
 
 
 @pytest.fixture(scope="module")

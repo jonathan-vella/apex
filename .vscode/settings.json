@@ -35,7 +35,7 @@
       "url": "./tools/schemas/governance-baseline.schema.json"
     },
     {
-      "fileMatch": [".github/skills/vendor-prompting/rules.json"],
+      "fileMatch": [".github/skills/apex-vendor-prompting/rules.json"],
       "url": "./tools/schemas/vendor-prompting-rules.schema.json"
     },
     {
@@ -49,7 +49,7 @@
     {
       "fileMatch": [
         "agent-output/*/sku-manifest.json",
-        ".github/skills/azure-artifacts/templates/sku-manifest.template.json"
+        ".github/skills/apex-azure-artifacts/templates/sku-manifest.template.json"
       ],
       "url": "./tools/schemas/sku-manifest.schema.json"
     },

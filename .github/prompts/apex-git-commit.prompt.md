@@ -94,7 +94,7 @@ git diff --cached --stat
 If the user passed a subject via the argument-hint, use it (wrap it in
 `<type>(<scope>): <subject>` if missing the prefix).
 
-Otherwise, read `.github/skills/github-operations/references/commit-conventions.md`,
+Otherwise, read `.github/skills/apex-github-operations/references/commit-conventions.md`,
 inspect the staged diff:
 
 ```bash

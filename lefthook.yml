@@ -41,12 +41,12 @@ pre-commit:
         fi
 
     artifact-validation:
-      glob: "{agent-output/*.md,agent-output/**/*.md,.github/skills/azure-artifacts/templates/*.md,.github/skills/azure-artifacts/templates/**/*.md,.github/skills/azure-artifacts/SKILL.md,.github/instructions/azure-artifacts*,tools/scripts/validate-artifacts*}"
+      glob: "{agent-output/*.md,agent-output/**/*.md,.github/skills/apex-azure-artifacts/templates/*.md,.github/skills/apex-azure-artifacts/templates/**/*.md,.github/skills/apex-azure-artifacts/SKILL.md,.github/instructions/azure-artifacts*,tools/scripts/validate-artifacts*}"
       run: |
         # Template changes invalidate the same artifact checks as output changes.
         STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM) || exit 1
-        STAGED_ARTIFACTS=$(echo "$STAGED_FILES" | grep -E '^(agent-output/|\.github/skills/azure-artifacts/templates/).*\.md$' || true)
-        STAGED_SYNC=$(echo "$STAGED_FILES" | grep -E '^(\.github/skills/azure-artifacts/SKILL\.md$|\.github/instructions/azure-artifacts[^/]*$|tools/scripts/validate-artifacts[^/]*$)' || true)
+        STAGED_ARTIFACTS=$(echo "$STAGED_FILES" | grep -E '^(agent-output/|\.github/skills/apex-azure-artifacts/templates/).*\.md$' || true)
+        STAGED_SYNC=$(echo "$STAGED_FILES" | grep -E '^(\.github/skills/apex-azure-artifacts/SKILL\.md$|\.github/instructions/azure-artifacts[^/]*$|tools/scripts/validate-artifacts[^/]*$)' || true)
         if [ -n "$STAGED_ARTIFACTS$STAGED_SYNC" ]; then
           COUNT=$(printf '%s\n%s\n' "$STAGED_ARTIFACTS" "$STAGED_SYNC" | grep -c .)
           echo "📋 Validating $COUNT artifact(s) against templates..."

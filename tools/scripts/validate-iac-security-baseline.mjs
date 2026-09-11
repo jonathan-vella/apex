@@ -3,7 +3,7 @@
  * IaC Security Baseline Validator
  *
  * Validates that generated Bicep (.bicep) and Terraform (.tf) files
- * comply with the MANDATORY security baseline from azure-defaults skill
+ * comply with the MANDATORY security baseline from apex-azure-defaults skill
  * and AGENTS.md:
  *
  * 1. TLS 1.2 minimum on all services

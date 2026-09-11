@@ -16,7 +16,7 @@ For the complete official reference, see
 
 ```yaml
 ---
-name: webapp-testing
+name: apex-webapp-testing
 description: "Toolkit for testing local web apps using Playwright. Use when asked to verify frontend functionality, debug UI behavior, or capture screenshots."
 ---
 ```
@@ -30,9 +30,13 @@ description: "Toolkit for testing local web apps using Playwright. Use when aske
 | `disable-model-invocation` | No       | Boolean, default `false`. Set `true` to require manual `/` invocation only         |
 | `license`                  | No       | Reference to `LICENSE.txt` or SPDX identifier                                      |
 
-**Name matching rule**: The `name` field MUST match its parent directory.
-If the directory is `.github/skills/webapp-testing/`, the name must be
-`webapp-testing`. Mismatched names prevent the skill from loading.
+**Name matching rule**: Repository-owned skills MUST use exactly one `apex-`
+prefix, lowercase kebab-case, and at most 64 characters. The frontmatter `name`
+MUST match its parent directory. If the directory is
+`.github/skills/apex-webapp-testing/`, the name must be `apex-webapp-testing`.
+Mismatched names prevent the skill from loading. Leave external user/plugin
+skills unchanged; preserve upstream identity and attribution when adapting
+repository-owned skills. Do not create wrapper skills to enforce the prefix.
 
 **Description is the discovery key**: Copilot reads ONLY `name` +
 `description` to decide whether to load a skill. A vague description

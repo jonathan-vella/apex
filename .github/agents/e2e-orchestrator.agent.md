@@ -104,8 +104,8 @@ attempt must produce an iteration-log entry that the timing benchmark can read.
 The artifact contract is captured below in `## State Management`,
 `## Iteration Tracking`, `## Benchmark Collection`, and
 `## Completion Criteria`. The canonical workflow definitions live in
-`.github/skills/workflow-engine/templates/workflow-graph.json`; the per-step
-artifact templates live in `.github/skills/azure-artifacts/templates/`.
+`.github/skills/apex-workflow-engine/templates/workflow-graph.json`; the per-step
+artifact templates live in `.github/skills/apex-azure-artifacts/templates/`.
 
 # Stop rules
 
@@ -280,8 +280,8 @@ across both tracks. Only Steps 4–6 diverge based on the IaC tool decision.
 
 Before executing any step, read:
 
-1. `.github/skills/azure-defaults/SKILL.md` — regions, tags, naming
-2. `.github/skills/azure-artifacts/SKILL.md` — artifact structure
+1. `.github/skills/apex-azure-defaults/SKILL.md` — regions, tags, naming
+2. `.github/skills/apex-azure-artifacts/SKILL.md` — artifact structure
 3. The execution-subagent prompt contract
    [tools/apex-prompts/utility-prompts/execution-subagent.prompt.md](../../tools/apex-prompts/utility-prompts/execution-subagent.prompt.md)
    — every `runSubagent` invocation prompt MUST follow the three-H2
@@ -342,7 +342,7 @@ After every step completes validation, run a challenger review.
 
 When delegation is unavailable, perform challenger reviews inline:
 
-1. Read the challenger subagent's `.agent.md` and `azure-defaults/references/adversarial-checklists.md`
+1. Read the challenger subagent's `.agent.md` and `apex-azure-defaults/references/adversarial-checklists.md`
 2. Read the step's primary artifact end to end
 3. Apply the `comprehensive` lens — challenge assumptions, find failure modes, verify governance
 4. Produce structured JSON matching the challenger output contract

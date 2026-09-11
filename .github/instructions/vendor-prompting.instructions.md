@@ -7,10 +7,10 @@ applyTo: "**/*.agent.md, **/*.prompt.md"
 
 This file is the **enforcement** thin layer. For full audit
 guidance, examples, and source citations, load the
-[vendor-prompting skill](../skills/vendor-prompting/SKILL.md).
+[apex-vendor-prompting skill](../skills/apex-vendor-prompting/SKILL.md).
 
 The machine-readable rule registry is
-[rules.json](../skills/vendor-prompting/rules.json). Validator:
+[rules.json](../skills/apex-vendor-prompting/rules.json). Validator:
 `npm run lint:vendor-prompting`.
 
 ## Hard rules (errors)
@@ -118,7 +118,7 @@ for the full ordering.
 ## Verifying compliance
 
 ```bash
-# All vendor-prompting rules across all agents/prompts
+# All apex-vendor-prompting rules across all agents/prompts
 npm run lint:vendor-prompting
 
 # JSON output for tooling
@@ -130,4 +130,4 @@ node tools/scripts/validate-agents.mjs --list-rules
 ```
 
 For deep guidance, audit procedures, and source citations, load the
-[vendor-prompting skill](../skills/vendor-prompting/SKILL.md).
+[apex-vendor-prompting skill](../skills/apex-vendor-prompting/SKILL.md).

@@ -5,7 +5,7 @@
  *
  * The actual validation runs inside agent execution (one-liner shape
  * checks after each artifact write), so the executable invariant is
- * documentary: the table must exist in azure-artifacts SKILL.md with
+ * documentary: the table must exist in apex-azure-artifacts SKILL.md with
  * rows for every artifact type, and the shared operating frame must
  * link to it so all main step agents inherit the rule.
  *
@@ -22,13 +22,13 @@ import { parseFrontmatter } from "../../scripts/_lib/parse-frontmatter.mjs";
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, "../../..");
 
-const SKILL = path.join(ROOT, ".github/skills/azure-artifacts/SKILL.md");
+const SKILL = path.join(ROOT, ".github/skills/apex-azure-artifacts/SKILL.md");
 const OPFRAME = path.join(ROOT, ".github/instructions/agent-operating-frame.instructions.md");
 
 test("pricing preserves deployment quantities and reuses only current equivalent evidence", () => {
   const worker = fs.readFileSync(path.join(ROOT, ".github/agents/_subagents/cost-estimate-subagent.agent.md"), "utf8");
   const guidance = fs.readFileSync(
-    path.join(ROOT, ".github/skills/azure-defaults/references/pricing-guidance.md"),
+    path.join(ROOT, ".github/skills/apex-azure-defaults/references/pricing-guidance.md"),
     "utf8",
   );
   assert.doesNotMatch(worker, /\.regions\[0\]/);
@@ -45,7 +45,7 @@ test("pricing preserves deployment quantities and reuses only current equivalent
   assert.match(guidance, /recalculate every affected total/);
   assert.match(guidance, /Region comparisons and\s+candidate alternatives are not additional deployed resources/);
   const parent = fs.readFileSync(
-    path.join(ROOT, ".github/skills/azure-defaults/references/cost-estimate-parent-contract.md"),
+    path.join(ROOT, ".github/skills/apex-azure-defaults/references/cost-estimate-parent-contract.md"),
     "utf8",
   );
   assert.match(parent, /full-input equivalence checks/);
@@ -54,36 +54,39 @@ test("pricing preserves deployment quantities and reuses only current equivalent
 });
 
 test("research routes by service and availability, not shared query language", () => {
-  const body = fs.readFileSync(path.join(ROOT, ".github/skills/azure-prepare/references/research.md"), "utf8");
-  assert.match(body, /Log Analytics.*azure-diagnostics/);
-  assert.doesNotMatch(body, /\| Log Analytics[^\n]*azure-kusto/);
-  assert.match(body, /Azure Data Explorer.*azure-kusto/);
+  const body = fs.readFileSync(path.join(ROOT, ".github/skills/apex-azure-prepare/references/research.md"), "utf8");
+  assert.match(body, /Log Analytics.*apex-azure-diagnostics/);
+  assert.doesNotMatch(body, /\| Log Analytics[^\n]*apex-azure-kusto/);
+  assert.match(body, /Azure Data Explorer.*apex-azure-kusto/);
   assert.match(body, /current session's skill catalog/);
   assert.match(body, /never invent a skill path/);
   assert.match(body, /Greenfield or proposed-resource pricing.*cost-estimate-subagent/);
-  assert.match(body, /Existing deployment spend or rightsizing.*azure-cost-optimization/);
+  assert.match(body, /Existing deployment spend or rightsizing.*apex-azure-cost-optimization/);
   assert.match(body, /unavailable pricing workers block pricing/);
 });
 
 test("Azure context reuse requires confirmation and preserves current checks and approval", () => {
-  const context = fs.readFileSync(path.join(ROOT, ".github/skills/azure-prepare/references/azure-context.md"), "utf8");
+  const context = fs.readFileSync(
+    path.join(ROOT, ".github/skills/apex-azure-prepare/references/azure-context.md"),
+    "utf8",
+  );
   assert.match(context, /Reuse unchanged user-confirmed subscription and region without asking again/);
   assert.match(context, /environment variable alone is not\s+confirmation/);
   assert.match(context, /After compaction or a new chat, recover persisted confirmation/);
   assert.match(context, /permission, policy, availability, capacity, and resource-group compatibility/);
   assert.match(context, /does not authorize\s+deployment/);
   for (const file of [
-    "azure-prepare/SKILL.md",
-    "azure-deploy/references/pre-deploy-checklist.md",
-    "azure-validate/references/recipes/azd/environment.md",
-    "azure-validate/references/recipes/azd/README.md",
+    "apex-azure-prepare/SKILL.md",
+    "apex-azure-deploy/references/pre-deploy-checklist.md",
+    "apex-azure-validate/references/recipes/azd/environment.md",
+    "apex-azure-validate/references/recipes/azd/README.md",
   ]) {
     const body = fs.readFileSync(path.join(ROOT, ".github/skills", file), "utf8");
     assert.match(body, /azure-context.md#confirmation-reuse/);
     assert.match(body, /missing or invalidated/);
   }
   const environment = fs.readFileSync(
-    path.join(ROOT, ".github/skills/azure-validate/references/recipes/azd/environment.md"),
+    path.join(ROOT, ".github/skills/apex-azure-validate/references/recipes/azd/environment.md"),
     "utf8",
   );
   assert.doesNotMatch(environment, /proceed with `azd up/);
@@ -123,11 +126,11 @@ test("instruction accuracy matches configuration, parser, and enforcement bounda
 test("Azure entry points distinguish APEX handoffs from generic proof and validation-only intent", () => {
   for (const recipe of ["azd", "azcli", "bicep", "terraform"]) {
     const body = fs.readFileSync(
-      path.join(ROOT, `.github/skills/azure-validate/references/recipes/${recipe}/README.md`),
+      path.join(ROOT, `.github/skills/apex-azure-validate/references/recipes/${recipe}/README.md`),
       "utf8",
     );
     assert.match(body, /Validation-only stops/);
-    assert.doesNotMatch(body, /All checks pass → \*\*azure-deploy\*\*/);
+    assert.doesNotMatch(body, /All checks pass → \*\*apex-azure-deploy\*\*/);
   }
   for (const file of ["07b-bicep-deploy.agent.md", "07t-terraform-deploy.agent.md"]) {
     const body = fs.readFileSync(path.join(ROOT, ".github/agents", file), "utf8");
@@ -135,23 +138,23 @@ test("Azure entry points distinguish APEX handoffs from generic proof and valida
     assert.match(body, /neither handoff path is usable/);
     assert.match(body, /actual validation evidence and current applicable checks/);
     assert.match(body, /Neither completes Step 6 as deployed/);
-    assert.doesNotMatch(body, /via azure-prepare/);
+    assert.doesNotMatch(body, /via apex-azure-prepare/);
   }
   const readSkill = (skill) => fs.readFileSync(path.join(ROOT, `.github/skills/${skill}/SKILL.md`), "utf8");
-  const validate = readSkill("azure-validate");
+  const validate = readSkill("apex-azure-validate");
   assert.match(validate, /No generic `\.azure\/plan.md` is required/);
   assert.match(validate, /validation-only returns passed, failed, and unperformed checks and stops/);
   assert.match(validate, /Section 7/);
-  assert.doesNotMatch(validate, /If missing → run azure-prepare first/);
+  assert.doesNotMatch(validate, /If missing → run apex-azure-prepare first/);
   assert.match(validate, /Only this workflow updates generic plan status/);
-  assert.doesNotMatch(validate, /MUST.*invoke \*\*azure-deploy\*\* to execute/);
+  assert.doesNotMatch(validate, /MUST.*invoke \*\*apex-azure-deploy\*\* to execute/);
   assert.match(
-    readSkill("azure-prepare"),
+    readSkill("apex-azure-prepare"),
     /All remaining phases, plan prerequisites, and references here apply to generic/,
   );
-  assert.match(readSkill("azure-deploy"), /then stop this generic\s+pipeline/);
+  assert.match(readSkill("apex-azure-deploy"), /then stop this generic\s+pipeline/);
   const shared = fs.readFileSync(
-    path.join(ROOT, ".github/skills/iac-common/references/deploy-shared-workflow.md"),
+    path.join(ROOT, ".github/skills/apex-iac-common/references/deploy-shared-workflow.md"),
     "utf8",
   );
   assert.match(shared, /actual validation evidence/);
@@ -162,11 +165,14 @@ test("Azure entry points distinguish APEX handoffs from generic proof and valida
 });
 
 test("CodeGen has one build-checkpoint owner and never passes an incomplete scaffold", () => {
-  const order = fs.readFileSync(path.join(ROOT, ".github/skills/iac-common/references/codegen-file-order.md"), "utf8");
+  const order = fs.readFileSync(
+    path.join(ROOT, ".github/skills/apex-iac-common/references/codegen-file-order.md"),
+    "utf8",
+  );
   assert.doesNotMatch(order, /after files 6, 9, 12|after files 3, 6, 9/);
   assert.equal((order.match(/Build cadence is owned by the shared workflow/g) ?? []).length, 2);
   const shared = fs.readFileSync(
-    path.join(ROOT, ".github/skills/iac-common/references/codegen-shared-workflow.md"),
+    path.join(ROOT, ".github/skills/apex-iac-common/references/codegen-shared-workflow.md"),
     "utf8",
   );
   assert.match(shared, /After every \*\*3 files written\*\*/);
@@ -212,7 +218,7 @@ test("review reuse and deployment routing cannot bypass current evidence", () =>
   assert.match(governance, /including review validity/);
   assert.match(governance, /return to Phase 2\.5/);
   const resume = fs.readFileSync(
-    path.join(ROOT, ".github/skills/azure-governance-discovery/references/resume-checks.md"),
+    path.join(ROOT, ".github/skills/apex-azure-governance-discovery/references/resume-checks.md"),
     "utf8",
   );
   assert.match(resume, /reviewed\s+architecture and governance inputs are unchanged/);
@@ -232,18 +238,24 @@ test("review reuse and deployment routing cannot bypass current evidence", () =>
 });
 
 test("shared references preserve consolidated documentation and deployment rules", () => {
-  const docs = fs.readFileSync(path.join(ROOT, ".github/skills/docs-writer/references/extended-workflows.md"), "utf8");
+  const docs = fs.readFileSync(
+    path.join(ROOT, ".github/skills/apex-docs-writer/references/extended-workflows.md"),
+    "utf8",
+  );
   assert.match(docs, /Starlight supplies the H1/);
   assert.doesNotMatch(docs, /File header: `# \{Title\}`/);
   const strategies = fs.readFileSync(
-    path.join(ROOT, ".github/skills/iac-common/references/deployment-strategies.md"),
+    path.join(ROOT, ".github/skills/apex-iac-common/references/deployment-strategies.md"),
     "utf8",
   );
   assert.match(strategies, /guide owns the comparison matrix/);
   assert.match(strategies, /Single Deployment \(only for <5 resources, dev\/test\)/);
   assert.match(strategies, /Still requires user approval/);
   assert.doesNotMatch(strategies, /azd env new prod/);
-  const guide = fs.readFileSync(path.join(ROOT, ".github/skills/iac-common/references/azd-vs-deploy-guide.md"), "utf8");
+  const guide = fs.readFileSync(
+    path.join(ROOT, ".github/skills/apex-iac-common/references/azd-vs-deploy-guide.md"),
+    "utf8",
+  );
   assert.match(guide, /AZURE_SUBSCRIPTION_ID, AZURE_RESOURCE_GROUP, AZURE_LOCATION, AZURE_ENV_NAME/);
 });
 
@@ -257,7 +269,7 @@ test("optimization guidance uses edit capabilities and recorded token evidence",
   }
   const agent = fs.readFileSync(path.join(ROOT, ".github/agents/11-context-optimizer.agent.md"), "utf8");
   const methodology = fs.readFileSync(
-    path.join(ROOT, ".github/skills/context-management/references/analysis-methodology.md"),
+    path.join(ROOT, ".github/skills/apex-context-management/references/analysis-methodology.md"),
     "utf8",
   );
   assert.match(agent, /when absent, report unknown/);
@@ -288,7 +300,7 @@ test("IaC tag consumers follow discovered keys and do not mandate provenance tag
     assert.match(worker, /greenfield fallback only when no tag policy applies/);
     assert.match(worker, /`ManagedBy` is optional provenance/);
     assert.match(worker, /Any of the three forces `Overall Status: FAILED`/);
-    assert.doesNotMatch(worker, /four baseline|four\s+baseline|relevant `azure-defaults` digest/);
+    assert.doesNotMatch(worker, /four baseline|four\s+baseline|relevant `apex-azure-defaults` digest/);
     const guidance = fs.readFileSync(path.join(ROOT, `infra/${track}/AGENTS.md`), "utf8");
     assert.match(guidance, /copilot-instructions\.md#required-tags-azure-policy-enforced/);
     assert.doesNotMatch(guidance, /Every resource gets the \d+ required tags/);
@@ -297,7 +309,7 @@ test("IaC tag consumers follow discovered keys and do not mandate provenance tag
 
 test("Terraform testing guidance uses file filters and preserves cleanup authorization", () => {
   for (const file of ["SKILL.md", "references/test-execution.md"]) {
-    const body = fs.readFileSync(path.join(ROOT, ".github/skills/terraform-test", file), "utf8");
+    const body = fs.readFileSync(path.join(ROOT, ".github/skills/apex-terraform-test", file), "utf8");
     assert.match(body, /terraform test -filter=tests\/defaults_unit_test\.tftest\.hcl/);
     assert.doesNotMatch(body, /terraform test tests\/|-no-cleanup|-count=1|-filter=test_resource_group/);
     assert.match(body, /authoriz/);
@@ -305,10 +317,10 @@ test("Terraform testing guidance uses file filters and preserves cleanup authori
 });
 
 test("pattern and Storage examples retain drift and identity safeguards", () => {
-  const patterns = fs.readFileSync(path.join(ROOT, ".github/skills/terraform-patterns/SKILL.md"), "utf8");
+  const patterns = fs.readFileSync(path.join(ROOT, ".github/skills/apex-terraform-patterns/SKILL.md"), "utf8");
   assert.match(patterns, /ignore_changes` only for blocks managed externally/);
   assert.match(patterns, /do not suppress Terraform-owned changes/);
-  const storage = fs.readFileSync(path.join(ROOT, ".github/skills/azure-storage/SKILL.md"), "utf8");
+  const storage = fs.readFileSync(path.join(ROOT, ".github/skills/apex-azure-storage/SKILL.md"), "utf8");
   const commands = storage.split("\n").filter((line) => /^az storage (blob|container) /.test(line));
   assert.equal(commands.length, 4);
   for (const command of commands) assert.match(command, /--auth-mode login/);
@@ -347,7 +359,7 @@ test("site guidance consolidation preserves Markdown/MDX scope without absorbing
   assert.match(triggers, /Agent or skill definitions are added, renamed, or removed/);
 });
 
-test("azure-artifacts SKILL.md declares the Post-write validation section", () => {
+test("apex-azure-artifacts SKILL.md declares the Post-write validation section", () => {
   const body = fs.readFileSync(SKILL, "utf8");
   assert.match(body, /^## Post-write validation$/m, "missing H2");
 });
@@ -381,8 +393,8 @@ test("Operating frame links to the Post-write validation section", () => {
   // inherits the rule via the shared frame.
   assert.match(
     body,
-    /azure-artifacts\/SKILL\.md#post-write-validation/,
-    "missing anchored link to azure-artifacts post-write-validation",
+    /apex-azure-artifacts\/SKILL\.md#post-write-validation/,
+    "missing anchored link to apex-azure-artifacts post-write-validation",
   );
 });
 
@@ -520,7 +532,7 @@ test("shared read budgets permit recovery without introducing skill digest tiers
 
 test("shared CodeGen reference matches supported discovery, exact pins and compaction recovery", () => {
   const body = fs.readFileSync(
-    path.join(ROOT, ".github/skills/iac-common/references/codegen-shared-workflow.md"),
+    path.join(ROOT, ".github/skills/apex-iac-common/references/codegen-shared-workflow.md"),
     "utf8",
   );
   assert.doesNotMatch(body, /terraform\/(?:search_modules|get_module_details|get_latest_module_version)/);
@@ -532,7 +544,7 @@ test("shared CodeGen reference matches supported discovery, exact pins and compa
   assert.match(body, /ONE FILE PER TURN/);
   assert.match(body, /No self-edit/);
   const contract = fs.readFileSync(
-    path.join(ROOT, ".github/skills/iac-common/references/contract-emission-and-handoff.md"),
+    path.join(ROOT, ".github/skills/apex-iac-common/references/contract-emission-and-handoff.md"),
     "utf8",
   );
   assert.doesNotMatch(contract, /terraform\/get_module_details/);
@@ -542,7 +554,7 @@ test("shared CodeGen reference matches supported discovery, exact pins and compa
 test("Governance expiry forces live refresh instead of returning to the invalid cache", () => {
   const agent = fs.readFileSync(path.join(ROOT, ".github/agents/04g-governance.agent.md"), "utf8");
   const reference = fs.readFileSync(
-    path.join(ROOT, ".github/skills/azure-governance-discovery/references/resume-checks.md"),
+    path.join(ROOT, ".github/skills/apex-azure-governance-discovery/references/resume-checks.md"),
     "utf8",
   );
   assert.match(agent, /TTL expiry or signature drift bypasses Phases 0\.45 and 0\.5/);

@@ -8,62 +8,62 @@ description: "Complete skills and subagent reference"
 Skills are invoked automatically by agents, but you can also reference them
 directly in prompts.
 
-### agent-authoring
+### apex-agent-authoring
 
 Creates, restructures, and audits Copilot agents while keeping enforceable
 rules in thin auto-loaded instructions and optional guidance on demand.
 
 ```text
-Use the agent-authoring skill to reduce the fixed context cost of
+Use the apex-agent-authoring skill to reduce the fixed context cost of
 .github/agents/03-architect.agent.md without changing its runtime contract.
 ```
 
-### azure-defaults
+### apex-azure-defaults
 
 Provides regions, tags, naming conventions, AVM module references, and
 security baselines. This is the foundational skill — agents read it before
 every task.
 
 ```text
-@workspace What are the default required tags from azure-defaults?
+@workspace What are the default required tags from apex-azure-defaults?
 ```
 
-### python-diagrams
+### apex-python-diagrams
 
 Generates architecture diagrams and WAF/cost/compliance charts with Python.
 
 ```text
-Generate an architecture diagram for infra/bicep/my-project/ using python-diagrams.
+Generate an architecture diagram for infra/bicep/my-project/ using apex-python-diagrams.
 ```
 
-### azure-bicep-patterns
+### apex-azure-bicep-patterns
 
 Provides reusable Bicep patterns: hub-spoke networking, private endpoints,
 diagnostic settings, conditional deployments, and AVM module composition.
 
 ```text
-@workspace Show me the private endpoint pattern from azure-bicep-patterns.
+@workspace Show me the private endpoint pattern from apex-azure-bicep-patterns.
 ```
 
-### terraform-patterns
+### apex-terraform-patterns
 
 Provides reusable Terraform patterns: hub-spoke networking, private endpoints,
 diagnostic settings, AVM-TF module composition, and known AVM pitfalls.
 
 ```text
-@workspace Show me the hub-spoke pattern from terraform-patterns.
+@workspace Show me the hub-spoke pattern from apex-terraform-patterns.
 ```
 
-### azure-diagnostics
+### apex-azure-diagnostics
 
 KQL templates, metric thresholds, health checks, and remediation playbooks
 for diagnosing Azure resource issues.
 
 ```text
-@workspace What KQL queries are available in azure-diagnostics?
+@workspace What KQL queries are available in apex-azure-diagnostics?
 ```
 
-### azure-adr
+### apex-azure-adr
 
 Creates Architecture Decision Records following a structured template.
 
@@ -72,7 +72,7 @@ Document the decision to use Azure Front Door instead of
 Application Gateway as an ADR.
 ```
 
-### github-operations
+### apex-github-operations
 
 Full contribution lifecycle: branch naming, conventional commits, GitHub issues,
 PRs, Actions, and releases. Uses MCP tools first, falls back to `gh` CLI.
@@ -86,7 +86,7 @@ Create a GitHub issue for adding monitoring to the payment gateway.
 Label it with 'enhancement' and 'infrastructure'.
 ```
 
-### docs-writer
+### apex-docs-writer
 
 Generates and maintains documentation following repository standards.
 
@@ -101,10 +101,10 @@ Use this skill after scaffolding a new skill, or to bring an existing skill
 back to compliance.
 
 ```text
-Run sensei on the azure-validate skill to fix its frontmatter.
+Run sensei on the apex-azure-validate skill to fix its frontmatter.
 ```
 
-### azure-artifacts
+### apex-azure-artifacts
 
 Artifact template structures, H2 compliance rules, and documentation
 styling for all agent outputs (all steps).
@@ -122,7 +122,7 @@ and redundancy detection. Produces optimisation recommendations.
 Analyse the last Copilot Chat debug log and identify context waste.
 ```
 
-### context-management
+### apex-context-management
 
 Unified context-window management. Two modes: **runtime compression**
 (full / summarised / minimal artefact tiers used by orchestrator and
@@ -131,11 +131,11 @@ and hand-off gap analysis used by the 11-Context Optimizer agent).
 Replaces the legacy `context-shredding` and `context-optimizer` skills.
 
 ```text
-@workspace What compression tiers does context-management define
+@workspace What compression tiers does apex-context-management define
 for the architecture assessment artifact?
 ```
 
-### golden-principles
+### apex-golden-principles
 
 The 10 agent-first operating principles governing how agents work in
 this repository. Defines governance invariants and philosophy.
@@ -144,16 +144,16 @@ this repository. Defines governance invariants and philosophy.
 @workspace What are the golden principles for agent behaviour?
 ```
 
-### iac-common
+### apex-iac-common
 
 Shared IaC patterns for deploy agents: CLI auth validation, deployment
 strategies, known issues, and governance-to-code property mapping.
 
 ```text
-@workspace What are the known deployment issues in iac-common?
+@workspace What are the known deployment issues in apex-iac-common?
 ```
 
-### workflow-engine
+### apex-workflow-engine
 
 Machine-readable workflow DAG for the multi-step pipeline. Defines node
 types, edge conditions, gates, and fan-out patterns.

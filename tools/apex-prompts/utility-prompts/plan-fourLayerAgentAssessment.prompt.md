@@ -26,7 +26,7 @@ extending the challenger schema.
 ## The 4 layers (grounded)
 
 - **L1 Mechanical** (deterministic, existing validators): `validate:agents`
-  (frontmatter / structural / model-alignment / vendor-prompting / workflow-handoffs),
+  (frontmatter / structural / model-alignment / apex-vendor-prompting / workflow-handoffs),
   `validate:agent-registry`, `validate:model-consistency`, `validate:deprecated-models`,
   `validate:model-catalog`, `validate:workflow-graph`, `lint:workflow-table-sync`,
   `lint:glob-audit`, `lint:orphaned-content`, `check:context-redundancy`,
@@ -44,7 +44,7 @@ extending the challenger schema.
   never edit upstream artifacts.
 - **L3 Runtime** (debug-log dependent): `tools/scripts/profile_debug_log.py` (OTel JSON →
   tokens / dup-reads / tool-payloads / askQuestions / subagent walltime / errors;
-  `npm run profile:debug-log`), `.github/skills/context-management/scripts/parse-chat-logs.py`
+  `npm run profile:debug-log`), `.github/skills/apex-context-management/scripts/parse-chat-logs.py`
   (ccreq text → latency / model distribution), `11-Context Optimizer` agent +
   `context-audit.prompt.md`. Logs live at
   `~/.vscode-server/data/logs/*/exthost1/GitHub.copilot-chat/`. Latency bands map to
@@ -119,7 +119,7 @@ weighted composite ascending).
 
 ## Verification
 
-- `npm run validate:agents` — the new prompt passes frontmatter + vendor-prompting +
+- `npm run validate:agents` — the new prompt passes frontmatter + apex-vendor-prompting +
   `prompt-model-source-001`.
 - `npm run lint:md` + `lint:safe-shell` + `lint:vendor-prompting` on the new prompt/refs.
 - `npm run lint:js` on `assess-agents.mjs` (eslint clean, `--max-warnings=0` under `tools/scripts`).

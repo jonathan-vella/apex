@@ -104,7 +104,7 @@ The Architect's workflow at Step 2 is:
 When pre-flight quota or regional SKU availability fails:
 
 1. Deploy agent surfaces the conflict and available substitutes (via
-   the `azure-quotas` skill) to the human through the orchestrator.
+   the `apex-azure-quotas` skill) to the human through the orchestrator.
 2. The human chooses one of four `sku_conflict_resolution` enum values:
    `revert_to_plan` / `accept_substitute` / `change_region` / `abort`.
 3. After N=3 round-trips with no acceptable substitute, `abort`
@@ -158,7 +158,7 @@ When `stamps[]` is absent the manifest behaves as a single-stamp project.
 ## References
 
 - Schema: `tools/schemas/sku-manifest.schema.json`
-- Templates: `.github/skills/azure-artifacts/templates/sku-manifest.template.{md,json}`
+- Templates: `.github/skills/apex-azure-artifacts/templates/sku-manifest.template.{md,json}`
 - Authoring rules: `.github/instructions/sku-manifest.instructions.md`
-- Workflow DAG: `.github/skills/workflow-engine/templates/workflow-graph.json`
+- Workflow DAG: `.github/skills/apex-workflow-engine/templates/workflow-graph.json`
   (Step 1 `produces`, Steps 2/4/6/7 `mutates`).

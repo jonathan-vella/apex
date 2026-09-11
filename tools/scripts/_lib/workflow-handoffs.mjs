@@ -20,7 +20,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { SUBAGENTS_DIR } from "./paths.mjs";
 
-const GRAPH_PATH = ".github/skills/workflow-engine/templates/workflow-graph.json";
+const GRAPH_PATH = ".github/skills/apex-workflow-engine/templates/workflow-graph.json";
 
 let _graph = null;
 

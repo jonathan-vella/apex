@@ -6,7 +6,7 @@ applyTo: "**/*.tf"
 # Terraform Best Practices
 
 Azure values are canonical in [Copilot instructions](../copilot-instructions.md#azure-defaults-canonical);
-shared naming, AVM, and security procedures live in [azure-defaults](../skills/azure-defaults/SKILL.md).
+shared naming, AVM, and security procedures live in [apex-azure-defaults](../skills/apex-azure-defaults/SKILL.md).
 This file covers Terraform-specific patterns. Discovered policy constraints always take precedence.
 
 ## Security
@@ -52,7 +52,7 @@ CAF abbreviations (see `AGENTS.md` for the full table).
 
 Use `Azure/avm-res-{service}-{resource}/azurerm` for all resources.
 Raw `azurerm_*` only with approval. Resolve versions through the public
-Terraform Registry API per `azure-defaults/references/terraform-conventions.md`.
+Terraform Registry API per `apex-azure-defaults/references/terraform-conventions.md`.
 
 **Pin AVM-TF modules to exact semver** (`version = "X.Y.Z"`), resolved at
 plan time. Range constraints (`~> X.Y`, `>= X.Y.Z`) are NOT allowed in
@@ -65,7 +65,7 @@ curl -sf https://registry.terraform.io/v1/modules/Azure/avm-res-{path}/azurerm/v
 ```
 
 The shared stale-pin exception and freeze policy lives in
-[`azure-defaults`](../skills/azure-defaults/SKILL.md).
+[`apex-azure-defaults`](../skills/apex-azure-defaults/SKILL.md).
 
 > Provider-version pins (`azurerm`) are different — those use `~> 4.0`
 > major-series constraints (`>= 4.0.0, < 5.0.0`) to allow minor and patch upgrades.
@@ -119,5 +119,5 @@ terraform fmt -recursive && terraform validate
 - Security baseline: `references/iac-security-baseline.md`
 - Cost monitoring: `references/iac-cost-monitoring.md`
 - Governance discovery: `.github/instructions/governance-discovery.instructions.md`
-- Azure defaults: `.github/skills/azure-defaults/SKILL.md`
-- Terraform patterns skill: `.github/skills/terraform-patterns/SKILL.md`
+- Azure defaults: `.github/skills/apex-azure-defaults/SKILL.md`
+- Terraform patterns skill: `.github/skills/apex-terraform-patterns/SKILL.md`

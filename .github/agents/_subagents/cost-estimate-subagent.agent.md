@@ -44,8 +44,8 @@ must produce `FAILED` with a specific `unresolved_items[]` entry.
 
 Read these once in one parallel batch before pricing:
 
-- `../../skills/azure-defaults/references/pricing-guidance.md`
-- `../../skills/azure-artifacts/templates/03-des-cost-estimate.template.md`
+- `../../skills/apex-azure-defaults/references/pricing-guidance.md`
+- `../../skills/apex-azure-artifacts/templates/03-des-cost-estimate.template.md`
 
 The pricing guidance is the canonical source for ARM MCP parameter names,
 service names, region handling, meter selection, usage units, and calculations.

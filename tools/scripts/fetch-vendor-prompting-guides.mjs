@@ -4,7 +4,7 @@
  *
  * Fetches the canonical Anthropic + OpenAI prompting source documents,
  * stores hashed snapshots under
- * `.github/skills/vendor-prompting/references/.snapshots/`, and compares
+ * `.github/skills/apex-vendor-prompting/references/.snapshots/`, and compares
  * them against what `rules.json` expects.
  *
  * Fetch fallback chain (per F-15):
@@ -28,7 +28,7 @@ import crypto from "node:crypto";
 import { execFileSync } from "node:child_process";
 import https from "node:https";
 
-const SKILL_DIR = ".github/skills/vendor-prompting";
+const SKILL_DIR = ".github/skills/apex-vendor-prompting";
 const RULES_PATH = path.join(SKILL_DIR, "rules.json");
 const SNAPSHOT_DIR = path.join(SKILL_DIR, "references", ".snapshots");
 const MANIFEST_PATH = path.join(SNAPSHOT_DIR, "manifest.json");
@@ -214,7 +214,7 @@ async function main() {
     const existing = freshness.sources.findIndex((s) => s.source_id === entry.source_id);
     const fresh = {
       source_id: entry.source_id,
-      owner: "vendor-prompting",
+      owner: "apex-vendor-prompting",
       max_age_days: 90,
       last_fetched: entry.fetched_at,
       sha256: entry.sha256,

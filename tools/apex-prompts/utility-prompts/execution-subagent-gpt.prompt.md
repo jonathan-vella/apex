@@ -11,7 +11,7 @@ tools: [read, edit, search]
 > (policy-precheck-subagent when on GPT-5.x, any future GPT-family
 > validate/preview subagent). Three required H2s, in this order.
 > Vendor compliance:
-> [`gpt-5-prompting.md`](../../../.github/skills/vendor-prompting/references/gpt-5-prompting.md)
+> [`gpt-5-prompting.md`](../../../.github/skills/apex-vendor-prompting/references/gpt-5-prompting.md)
 > rule **R-GPT-1** (outcome-first skeleton).
 >
 > For Claude-family subagent recipients use
@@ -62,5 +62,5 @@ explicit H1/H2 sections (`# Goal`, `# Success criteria`, `# Constraints`,
 `# Output`, `# Stop rules`). Markdown headings parse cleanly in GPT's
 system-prompt rendering and survive the JSON-string envelope that
 parent agents pass through `runSubagent`. See
-[`gpt-5-prompting.md`](../../../.github/skills/vendor-prompting/references/gpt-5-prompting.md)
+[`gpt-5-prompting.md`](../../../.github/skills/apex-vendor-prompting/references/gpt-5-prompting.md)
 R-GPT-1.

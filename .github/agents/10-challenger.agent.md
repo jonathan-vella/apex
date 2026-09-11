@@ -179,7 +179,7 @@ understand what has already been reviewed and which decisions to scrutinize.
      is an explicit user request. If user requests multi-pass or asks for a
      "deep review", set to requested count (max 3) and use the rotating-lens
      cascade from
-     `azure-defaults/references/adversarial-review-deep.md` (sibling of `adversarial-review-protocol.md`).
+     `apex-azure-defaults/references/adversarial-review-deep.md` (sibling of `adversarial-review-protocol.md`).
 5. **Route to the appropriate subagent** based on pass configuration:
 
 ### Single-Pass Review (total_passes = 1)
@@ -242,7 +242,7 @@ After rendering the findings table, run the shared **Per-Finding
 Decision Protocol** so the user can apply selected fixes and proceed.
 
 1. **Run the Per-Finding Decision Protocol** from
-   [.github/skills/azure-defaults/references/adversarial-review-protocol.md](../skills/azure-defaults/references/adversarial-review-protocol.md#per-finding-decision-protocol):
+   [.github/skills/apex-azure-defaults/references/adversarial-review-protocol.md](../skills/apex-azure-defaults/references/adversarial-review-protocol.md#per-finding-decision-protocol):
    - Build the panel from in-scope findings (`must_fix` + `should_fix`)
      per protocol sections 2e (merge order), 2f (12-question cap),
      and 2g (askQuestions payload shape).

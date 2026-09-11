@@ -20,7 +20,7 @@ const DEPRECATED_PATTERNS = [
   // Removed shared directory references (migrated to skills)
   {
     pattern: /agents\/_shared\//gi,
-    message: "Reference to removed _shared/ directory (use azure-defaults skill)",
+    message: "Reference to removed _shared/ directory (use apex-azure-defaults skill)",
     severity: "error",
   },
   // Removed skill references (consolidated)
@@ -36,33 +36,33 @@ const DEPRECATED_PATTERNS = [
   },
   {
     pattern: /skills\/azure-workload-docs/gi,
-    message: "Reference to removed azure-workload-docs skill (use azure-artifacts skill)",
+    message: "Reference to removed azure-workload-docs skill (use apex-azure-artifacts skill)",
     severity: "error",
   },
   {
     pattern: /skills\/github-issues/gi,
-    message: "Reference to removed github-issues skill (use github-operations skill)",
+    message: "Reference to removed github-issues skill (use apex-github-operations skill)",
     severity: "error",
   },
   {
     pattern: /skills\/github-pull-requests/gi,
-    message: "Reference to removed github-pull-requests skill (use github-operations skill)",
+    message: "Reference to removed github-pull-requests skill (use apex-github-operations skill)",
     severity: "error",
   },
   // Removed agent file references
   {
     pattern: /\.github\/agents\/diagram\.agent\.md/gi,
-    message: "Reference to removed diagram.agent.md (use python-diagrams skill)",
+    message: "Reference to removed diagram.agent.md (use apex-python-diagrams skill)",
     severity: "error",
   },
   {
     pattern: /\.github\/agents\/adr\.agent\.md/gi,
-    message: "Reference to removed adr.agent.md (use azure-adr skill)",
+    message: "Reference to removed adr.agent.md (use apex-azure-adr skill)",
     severity: "error",
   },
   {
     pattern: /\.github\/agents\/docs\.agent\.md/gi,
-    message: "Reference to removed docs.agent.md (use azure-artifacts skill)",
+    message: "Reference to removed docs.agent.md (use apex-azure-artifacts skill)",
     severity: "error",
   },
 
@@ -121,17 +121,17 @@ const DEPRECATED_PATTERNS = [
   // Agent mentions that should be skills (in prose, not agent definitions)
   {
     pattern: /@diagram\s+agent/gi,
-    message: "Reference to @diagram agent (removed - use python-diagrams skill)",
+    message: "Reference to @diagram agent (removed - use apex-python-diagrams skill)",
     severity: "warn",
   },
   {
     pattern: /@adr\s+agent/gi,
-    message: "Reference to @adr agent (removed - use azure-adr skill)",
+    message: "Reference to @adr agent (removed - use apex-azure-adr skill)",
     severity: "warn",
   },
   {
     pattern: /@docs\s+agent/gi,
-    message: "Reference to @docs agent (removed - use azure-artifacts skill)",
+    message: "Reference to @docs agent (removed - use apex-azure-artifacts skill)",
     severity: "warn",
   },
 
@@ -156,7 +156,7 @@ const _SCAN_FOLDERS = [
   ".github/agents",
   ".github/skills",
   ".github/instructions",
-  ".github/skills/azure-artifacts/templates",
+  ".github/skills/apex-azure-artifacts/templates",
   "agent-output",
   "scenarios",
 ];
@@ -265,7 +265,7 @@ async function main() {
 
   // Scan additional directories not covered by workspace-index — in parallel.
   await Promise.all(
-    ["site/src/content/docs", ".github/skills/azure-artifacts/templates"].map((folder) =>
+    ["site/src/content/docs", ".github/skills/apex-azure-artifacts/templates"].map((folder) =>
       scanDirectoryAsync(path.join(ROOT, folder)),
     ),
   );

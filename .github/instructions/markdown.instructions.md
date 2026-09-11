@@ -38,9 +38,9 @@ Specify language after backticks. Never bare fences.
 
 Use the appropriate diagram skill for each output type:
 
-- **Architecture diagrams** → `python-diagrams` skill (`.py`, `.png`, `.svg`)
-- **WAF/cost/compliance charts** → `python-diagrams` skill (`.py` + `.png`)
-- **Inline markdown diagrams** → `mermaid` skill (fenced code blocks)
+- **Architecture diagrams** → `apex-python-diagrams` skill (`.py`, `.png`, `.svg`)
+- **WAF/cost/compliance charts** → `apex-python-diagrams` skill (`.py` + `.png`)
+- **Inline markdown diagrams** → `apex-mermaid` skill (fenced code blocks)
 
 > **Audience-specific guidance** — for human-authored documentation in
 > `site/src/content/docs/**`, additional visual + template

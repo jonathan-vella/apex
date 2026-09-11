@@ -36,7 +36,7 @@ const RULES = [
     file: ".github/copilot-instructions.md",
     regex: /Minimum baseline \(PascalCase, exact casing\)/,
     reason:
-      "Tag baseline must derive from live Azure Policy; PascalCase is demoted to a deprecated convention. See azure-defaults/references/tag-strategy.md.",
+      "Tag baseline must derive from live Azure Policy; PascalCase is demoted to a deprecated convention. See apex-azure-defaults/references/tag-strategy.md.",
   },
   {
     file: ".github/agents/04g-governance.agent.md",

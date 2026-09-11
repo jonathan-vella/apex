@@ -173,7 +173,7 @@ def run(args) -> int:
 
 
 # Step ordering for the JSON hint. Mirrors the workflow graph at
-# .github/skills/workflow-engine/templates/workflow-graph.json. Keep in
+# .github/skills/apex-workflow-engine/templates/workflow-graph.json. Keep in
 # sync if the workflow changes.
 _STEP_ORDER = ["1", "2", "3", "3_5", "4", "5", "6", "7"]
 

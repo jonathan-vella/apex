@@ -6,7 +6,7 @@ applyTo: "**/*.bicep"
 # Bicep Best Practices
 
 Azure values are canonical in [Copilot instructions](../copilot-instructions.md#azure-defaults-canonical);
-shared naming, AVM, and security procedures live in [azure-defaults](../skills/azure-defaults/SKILL.md).
+shared naming, AVM, and security procedures live in [apex-azure-defaults](../skills/apex-azure-defaults/SKILL.md).
 This file covers Bicep-specific patterns. Discovered policy constraints always take precedence.
 
 ## Security
@@ -50,9 +50,9 @@ curl -sf https://mcr.microsoft.com/v2/bicep/avm/res/{path}/tags/list \
 ```
 
 Or use the `mcp_bicep_list_avm_metadata` MCP helper. Never copy a version
-from `azure-defaults/references/avm-modules.md` — versions are
+from `apex-azure-defaults/references/avm-modules.md` — versions are
 intentionally stripped from that table. The shared stale-pin exception and
-freeze policy lives in [`azure-defaults`](../skills/azure-defaults/SKILL.md).
+freeze policy lives in [`apex-azure-defaults`](../skills/apex-azure-defaults/SKILL.md).
 
 ## Module Outputs
 
@@ -97,5 +97,5 @@ bicep build main.bicep && bicep lint main.bicep
 - Security baseline: `references/iac-security-baseline.md`
 - Cost monitoring: `references/iac-cost-monitoring.md`
 - Governance discovery: `.github/instructions/governance-discovery.instructions.md`
-- Azure defaults: `.github/skills/azure-defaults/SKILL.md`
-- Bicep patterns skill: `.github/skills/azure-bicep-patterns/SKILL.md`
+- Azure defaults: `.github/skills/apex-azure-defaults/SKILL.md`
+- Bicep patterns skill: `.github/skills/apex-azure-bicep-patterns/SKILL.md`

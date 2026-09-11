@@ -18,9 +18,9 @@ describe("shared parsing helpers", () => {
 
   it("extracts canonical skill references", () => {
     const refs = findSkillReferences(
-      "Read .github/skills/azure-defaults/SKILL.md and skills/context-management/SKILL.md",
+      "Read .github/skills/apex-azure-defaults/SKILL.md and skills/apex-context-management/SKILL.md",
     );
-    assert.deepEqual([...refs], ["azure-defaults", "context-management"]);
+    assert.deepEqual([...refs], ["apex-azure-defaults", "apex-context-management"]);
   });
 
   it("matches Bicep and Terraform AVM resource and pattern modules", () => {

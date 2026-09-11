@@ -37,15 +37,15 @@ See `tools/registry/agent-registry.json` for the agent role → file/model/skill
 
 Do NOT reference these removed agents/skills:
 
-- Architecture diagrams → Use the `python-diagrams` skill
-- `adr.agent.md` → Use `azure-adr` skill
-- `docs.agent.md` → Use `azure-artifacts` skill or `as-built` agent
-- `azure-workload-docs` skill → Use `azure-artifacts` skill
+- Architecture diagrams → Use the `apex-python-diagrams` skill
+- `adr.agent.md` → Use `apex-azure-adr` skill
+- `docs.agent.md` → Use `apex-azure-artifacts` skill or `as-built` agent
+- `azure-workload-docs` skill → Use `apex-azure-artifacts` skill
 - `azure-deployment-preflight` skill → Merged into deploy agent
 - `orchestration-helper` skill → Deleted (absorbed into orchestrator)
-- `github-issues` / `github-pull-requests` skills → Use `github-operations`
-- `gh-cli` skill → Merged into `github-operations`
-- `_shared/` directory → Use `azure-defaults` + `azure-artifacts` skills
+- `github-issues` / `github-pull-requests` skills → Use `apex-github-operations`
+- `gh-cli` skill → Merged into `apex-github-operations`
+- `_shared/` directory → Use `apex-azure-defaults` + `apex-azure-artifacts` skills
 
 ## Admonitions (Starlight asides)
 
@@ -99,7 +99,7 @@ For site pages that mirror agent-output structure, preserve canonical template H
 invariant sections first, optional sections last. Link to templates rather than embedding skeletons.
 `tools/scripts/validate-artifacts.mjs` enforces agent-output templates, not site pages.
 
-Use the styling reference in `azure-artifacts/SKILL.md` for badge rows, collapsible TOCs,
+Use the styling reference in `apex-azure-artifacts/SKILL.md` for badge rows, collapsible TOCs,
 status columns (include success, warning, and failure states), and previous/index/next navigation.
 Use these elements consistently when reproducing artifact views; do not add them to every site page.
 

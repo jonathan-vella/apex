@@ -12,7 +12,7 @@ self-lint. Validated by the lefthook `artifact-validation` pre-commit hook
 (which wraps `npm run validate:artifacts`) and CI; see
 [`agent-authoring.instructions.md`](agent-authoring.instructions.md#no-direct-markdownlint-on-agent-output-rule).
 
-The `azure-artifacts/SKILL.md` is authoritative — read it for templates, workflow, styling.
+The `apex-azure-artifacts/SKILL.md` is authoritative — read it for templates, workflow, styling.
 
 ## Structural Elements (Beyond H2 Headings)
 
