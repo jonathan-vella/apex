@@ -4,6 +4,8 @@
 
 Implementation started 2026-09-11 on `perf/apex-workflow-optimization`.
 Pre-migration checkpoint `5fbfebd4` preserves existing devcontainer edits and is published with normal hooks.
+Implementation and offline verification completed 2026-09-12; migration commit `5dac72bb` is published.
+Native Local/Host execution and model eligibility remain manual acceptance gates, not claimed complete.
 No PR, main merge, force push, or hook bypass is authorized. Preserve user edits and historical evidence.
 Verification is offline only: no model behavior probes, Azure operations, or generated-output evaluations.
 Independent source review and deterministic local tests are authorized. Native harness acceptance remains manual.
@@ -32,7 +34,7 @@ Capability labels do not establish runtime cost tiers. No automatic model fallba
 - [x] P4 Rewrite all surviving agents and workers around their contracts and apply the approved model map.
 - [x] P5 Implement shared procedures with thin Local prompt adapters and Agent Host skill entry points.
 - [x] P6 Align instructions, hooks, documentation, registry mirrors and generated views.
-- [ ] P7 Run focused and full offline checks; independently review, repair, commit and publish.
+- [x] P7 Run focused and full offline checks; independently review, repair, commit and publish.
 - [x] P8 Deliver manual acceptance matrix, rollback and separately approval-gated redesign proposals.
 
 ## Preserved Boundaries
@@ -150,7 +152,14 @@ Historical outputs/archives, vendor snapshots, production recall and lesson/iter
 no diff against checkpoint `5fbfebd4`. All production model assignments match the approved table exactly.
 Advisory leaf-contract heading warnings remain; workers retain their existing output contracts and tested
 failure boundaries. These warnings do not establish a runtime failure or justify changing output schemas.
-Publication remains the last P7 action until remote branch equality is verified.
+Published migration commit `5dac72bb` with normal commit and pre-push hooks; local and remote feature refs
+matched and the worktree was clean. Protected `main` remains `836966355354946d9fc3b78606bebbd9d08dc7d4`.
+The final adapter/execution/vendor-policy rerun passed all cases after formatting. No PR, merge, runtime
+model probe or Azure operation occurred. Network access was used only for the authorized Git publication.
+
+To roll back this migration, revert `5dac72bb` as a unit with normal hooks so agent models, shared procedures,
+Local adapters, E2E removals and generated views stay aligned. Do not reset to the checkpoint or discard
+subsequent user edits. Re-enable the retired E2E subsystem only through an explicitly approved rollback.
 
 ## Manual Acceptance Matrix
 
