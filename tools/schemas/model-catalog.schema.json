@@ -21,19 +21,40 @@
           "type": "object",
           "required": ["vendor", "tier", "released", "deprecated"],
           "additionalProperties": true,
+          "allOf": [
+            {
+              "if": {
+                "anyOf": [
+                  { "properties": { "tier": { "type": "null" } }, "required": ["tier"] },
+                  { "properties": { "released": { "type": "null" } }, "required": ["released"] }
+                ]
+              },
+              "then": { "required": ["provenance"] }
+            }
+          ],
           "properties": {
             "vendor": {
               "type": "string",
               "description": "Model provider (e.g. Anthropic, OpenAI)."
             },
             "tier": {
-              "type": "string",
-              "enum": ["frontier", "balanced", "codex", "standard"],
-              "description": "Capability tier descriptor (documentation only; floor enforcement was retired)."
+              "type": ["string", "null"],
+              "enum": ["frontier", "balanced", "codex", "standard", "mini", null],
+              "description": "Capability descriptor, or null when unverified. Not a runtime cost tier."
             },
             "released": {
-              "type": "string",
-              "description": "Release date (YYYY-MM format)."
+              "type": ["string", "null"],
+              "description": "Release date (YYYY-MM format), or null when unverified."
+            },
+            "provenance": {
+              "type": "object",
+              "required": ["label_source", "metadata_status"],
+              "additionalProperties": false,
+              "properties": {
+                "label_source": { "const": "user-confirmed" },
+                "metadata_status": { "const": "unknown" }
+              },
+              "description": "Explicit provenance for an authorized label with unknown public metadata."
             },
             "deprecated": {
               "type": "boolean",

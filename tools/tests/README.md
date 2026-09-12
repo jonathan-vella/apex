@@ -1,21 +1,16 @@
 # Tests
 
-End-to-end testing for the APEX pipeline using the
-[RALPH Loop](https://ghuntley.com/ralph/) pattern.
+Deterministic regression tests for APEX tooling, validators, hooks, and workflow contracts.
 
 ## Directory Structure
 
 ```text
 tools/tests/
-  e2e-inputs/              # Input fixtures (RFPs, RFQs) consumed by E2E prompts
-    contoso-rfq.md         # Contoso Service Hub RFQ — complex scenario
-  prompts/                 # E2E evaluation prompt files
-    e2e-contoso-rfp.prompt.md    # Full 7-step RALPH loop (RFP-driven)
-    e2e-analyze-lessons.prompt.md # Post-run lesson analysis
   exec-plans/              # Execution plans and tech-debt tracking
     active/                # In-progress plans
     completed/             # Finished plans
   fixtures/                # Validator and tooling regression fixtures
+  lib/                     # Shared helper and retirement regressions
   python-diagrams/         # Shared diagram helper tests
   scripts/                 # Node and Python tooling contract tests
   test-hooks.sh            # Agent hooks test script
@@ -23,199 +18,38 @@ tools/tests/
 
 ## Quick Start
 
-### 1. Run validation on existing artifacts
-
 ```bash
-# Validate all E2E artifacts (structural checks)
-npm run e2e:validate
-
-# Validate a specific step
-node tools/scripts/validate-e2e-step.mjs --project=contoso-service-hub-run-1 2
-
-# Benchmark scoring (8 dimensions, 0-100)
-npm run e2e:benchmark
-
-# Benchmark a specific project
-npm run e2e:benchmark -- contoso-service-hub-run-1
+npm run test:tool-contracts
+npm run test:validator-runner
+npm run test:devcontainer-verdicts
+npm run test:apex-recall
 ```
 
-### 2. Run a full E2E evaluation
+Use the smallest suite covering a change. These tests do not establish native agent discovery,
+model availability, generated-output quality, or deployment readiness.
+Production artifact Markdown validation remains owned by the commit hook and Challenger review.
 
-Open VS Code Chat (`Ctrl+Shift+I`) and use the E2E prompt:
+## E2E Retirement
 
-```text
-/tools/tests/prompts/e2e-contoso-rfp.prompt.md
-```
+The autonomous RALPH evaluation subsystem is retired. Its runner, launch and analysis prompts,
+scoring scripts, exclusive fixtures, and scheduled workflow are no longer supported entry points.
+The public `e2e:validate`, `e2e:benchmark`, `e2e:combine`, and `test:lib-e2e` npm commands
+are removed without compatibility wrappers. Use the production workflow with human approval gates
+for manual acceptance; deterministic tests are not a replacement autonomous harness.
 
-This prompt is test-only and non-interactive:
+The retirement regression lives in [lib/npm-script-graph.test.mjs](lib/npm-script-graph.test.mjs)
+and runs under `test:validator-runner`. It rejects retired files and commands while preserving
+production lesson compatibility, recall, artifact/policy/security validators, and devcontainer tests.
 
-- It runs at **depth 0** (no `agent:` in frontmatter) so that all step agents
-  and subagents can be invoked as depth-1 subagents. VS Code Copilot only
-  supports one level of nesting.
-- It uses the RFP as the source of truth.
-- It pre-populates interactive answers with fixed test defaults.
-- It routes each workflow step through the real workflow agent.
-- It calls challenger, validator, and specialized subagents directly between
-  step agent invocations (flat delegation model).
-- It requires real Python diagram rendering, pricing, governance, and dry-run deployment
-  paths instead of substituting inline benchmark-only artifacts.
+Historical outputs, archives, and baselines remain unchanged. The lesson schema retains historical
+`workflow_mode: "e2e"` records, and the iteration-log schema remains historical compatibility evidence.
+Production lesson collection and `report:challenger-gaps` remain supported.
 
-This runs the full 7-step pipeline autonomously:
+Any approved rollback must restore the coupled runner, prompts, scripts, tests, npm commands, discovery
+configuration, and workflow together from the pre-retirement revision. Do not rewrite historical outputs.
 
-1. **Requirements** — extracts from `tools/tests/e2e-inputs/contoso-rfq.md`
-2. **Architecture** — WAF assessment + cost estimates
-3. **Design** — ADRs + diagrams (optional, skippable)
-4. **Governance** — Azure Policy discovery
-5. **IaC Plan** — module selection + dependency ordering
-6. **IaC Code** — Bicep or Terraform generation (phased for complex projects)
-7. **Deploy** — dry-run validation only (never deploys real resources)
-8. **As-Built** — documentation suite
-9. **Benchmark** — 8-dimension quality scoring
+## Related
 
-### 2.1 Run six independent benchmark passes (3 Bicep + 3 Terraform)
-
-For statistically useful evaluation, run the prompt 6 times — 3 per IaC track:
-
-**Bicep runs:**
-
-- `contoso-service-hub-run-1` (IaC tool: Bicep)
-- `contoso-service-hub-run-2` (IaC tool: Bicep)
-- `contoso-service-hub-run-3` (IaC tool: Bicep)
-
-**Terraform runs:**
-
-- `contoso-service-hub-tf-run-1` (IaC tool: Terraform)
-- `contoso-service-hub-tf-run-2` (IaC tool: Terraform)
-- `contoso-service-hub-tf-run-3` (IaC tool: Terraform)
-
-For best throughput, open separate chat sessions and launch them in parallel.
-
-After the runs complete:
-
-```bash
-# Validate all runs
-node tools/scripts/validate-e2e-step.mjs --project=contoso-service-hub-run-1 all
-node tools/scripts/validate-e2e-step.mjs --project=contoso-service-hub-run-2 all
-node tools/scripts/validate-e2e-step.mjs --project=contoso-service-hub-run-3 all
-node tools/scripts/validate-e2e-step.mjs --project=contoso-service-hub-tf-run-1 all
-node tools/scripts/validate-e2e-step.mjs --project=contoso-service-hub-tf-run-2 all
-node tools/scripts/validate-e2e-step.mjs --project=contoso-service-hub-tf-run-3 all
-
-# Benchmark each run
-node tools/scripts/benchmark-e2e.mjs contoso-service-hub-run-1
-node tools/scripts/benchmark-e2e.mjs contoso-service-hub-run-2
-node tools/scripts/benchmark-e2e.mjs contoso-service-hub-run-3
-node tools/scripts/benchmark-e2e.mjs contoso-service-hub-tf-run-1
-node tools/scripts/benchmark-e2e.mjs contoso-service-hub-tf-run-2
-node tools/scripts/benchmark-e2e.mjs contoso-service-hub-tf-run-3
-
-# Combine per track
-node tools/scripts/combine-e2e-runs.mjs contoso-service-hub-run-1 contoso-service-hub-run-2 contoso-service-hub-run-3
-node tools/scripts/combine-e2e-runs.mjs contoso-service-hub-tf-run-1 contoso-service-hub-tf-run-2 contoso-service-hub-tf-run-3
-
-# Cross-track comparison
-npm run e2e:benchmark -- --compare
-```
-
-### 3. Analyze lessons from a run
-
-After a run completes, analyze the lessons learned:
-
-```text
-/tools/tests/prompts/e2e-analyze-lessons.prompt.md
-```
-
-## RALPH Loop Protocol
-
-Each step follows this self-correcting loop:
-
-```text
-iteration = 0
-while step.status != "complete" AND iteration < max_iterations:
-    result = execute_step(step)
-    pre_validate(result)          # file exists, non-empty, expected H2s
-    validate_step(result)         # npm validators + artifact checks
-    run_challenger(step, lens)    # adversarial review
-    if validation_fails OR must_fix > 0:
-        feed_findings_back()      # self-correction
-        iteration++
-    else:
-        auto_approve_gate(step)
-        advance_to_next_step()
-```
-
-**Limits**: 5 iterations per step (10 for CodeGen), 60 total.
-
-## Available Scenarios
-
-| Scenario            | Input                       | Complexity | IaC Track          | Description                             |
-| ------------------- | --------------------------- | ---------- | ------------------ | --------------------------------------- |
-| Contoso Service Hub | `e2e-inputs/contoso-rfq.md` | Complex    | Bicep or Terraform | 15 Azure services, 3 environments, GDPR |
-
-The same prompt supports both IaC tracks via the `iac_tool` input variable.
-Pass `Bicep` (default) or `Terraform` when invoking the prompt.
-
-To add a new scenario, create an RFP/RFQ file in `e2e-inputs/` and a
-corresponding prompt in `prompts/`.
-
-## Output Locations
-
-E2E runs produce output in these directories (not in `tests/`):
-
-| Output            | Location                                          |
-| ----------------- | ------------------------------------------------- |
-| Agent artifacts   | `agent-output/{project}/`                         |
-| Bicep templates   | `infra/bicep/{project}/`                          |
-| Terraform configs | `infra/terraform/{project}/`                      |
-| Benchmark scores  | `agent-output/{project}/08-benchmark-scores.json` |
-| Lessons learned   | `agent-output/{project}/09-lessons-learned.json`  |
-
-## CI Integration
-
-The E2E validation workflow runs weekly and on manual trigger:
-
-```bash
-# Trigger manually via GitHub CLI
-gh workflow run e2e-validation
-```
-
-See `.github/workflows/e2e-validation.yml` for the full CI configuration.
-
-## Validation Scripts
-
-| Script                          | Purpose                      |
-| ------------------------------- | ---------------------------- |
-| `scripts/validate-e2e-step.mjs` | Per-step artifact validation |
-| `scripts/benchmark-e2e.mjs`     | 8-dimension quality scoring  |
-| `scripts/combine-e2e-runs.mjs`  | Multi-run comparison         |
-
-## Delegation Architecture
-
-The E2E prompt uses a **flat delegation model** due to VS Code's depth-1
-subagent limit:
-
-```text
-Depth 0: Prompt (orchestrates the full loop)
-  ├─ @02-Requirements          (depth 1) → artifact generation
-  ├─ @challenger-review-subagent (depth 1) → review Step 1
-  ├─ @03-Architect             (depth 1) → artifact generation
-  ├─ @cost-estimate-subagent   (depth 1) → pricing
-  ├─ @challenger-review-subagent (depth 1) → review Step 2
-  ├─ @04-Design                (depth 1) → diagrams + ADRs
-  ├─ @04g-Governance           (depth 1) → governance artifacts
-  ├─ apex-azure-governance-discovery/scripts/discover.py → live policy discovery
-  ├─ @challenger-review-subagent (depth 1) → review Step 3.5
-  └─ ... (continues for Steps 4-7)
-```
-
-Step agents are told that challenger reviews and validation subagents will be
-handled externally. The `E2E Orchestrator` agent
-(`.github/agents/e2e-orchestrator.agent.md`) is referenced for its state
-management and iteration tracking procedures, but is not used as a delegation
-target.
-
-## Safety
-
-- E2E runs **never deploy real Azure resources** — dry-run only
-- Max iteration limits prevent infinite loops
-- The E2E Orchestrator agent remains available for direct manual invocation
+- [Repository conventions](../../AGENTS.md)
+- [Validation reference](../../site/src/content/docs/reference/validation-reference.md)
+- [Workflow validation guide](../../site/src/content/docs/guides/e2e-testing.md)

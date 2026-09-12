@@ -6,7 +6,8 @@
 
 - Reuse unchanged content still available in the conversation. Source changes,
   compaction, or a new chat require refreshing only the needed material.
-- Batch independent reads and `askQuestions` prompts.
+- Batch independent reads. User-facing parents may batch questions; leaf workers
+    return missing inputs to the parent instead of asking questions or managing todos.
 - Prefer exact or regex search plus bounded reads for known targets.
 - Use semantic search only for exploratory discovery.
 - Keep router descriptions concise.
@@ -32,9 +33,14 @@ Use `tools/apex-prompts/utility-prompts/execution-subagent.prompt.md`:
 
 ## Challenger Fallback
 
-1. Retry direct challenger resolution once through `10-Challenger`.
-2. If it also fails, report the verbatim runtime error and stop.
-3. Never replace the missing subagent with an inline parent-context review.
+1. If a required reviewer is unavailable, stop and request a human handoff to
+    `10-Challenger`.
+2. Missing or empty reviewer output permits exactly one identical-input retry,
+    then stop and request a human handoff to `10-Challenger`. Report the runtime
+    error when available.
+3. Never invoke a nested main-agent wrapper or fabricate an inline review.
+    Production main agents, including `10-Challenger`, require human selection;
+    explicit caller allowlists must not override this production boundary.
 
 ## User-Scope Discovery
 

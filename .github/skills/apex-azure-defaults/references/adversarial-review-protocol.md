@@ -39,29 +39,21 @@ comprehensive pass**. No early-exit logic. No complexity-tier routing.
 
 ### Subagent-discovery fallback (default + deep)
 
-`runSubagent { agentName: "challenger-review-subagent" }` has been
-observed to fail at runtime with `Error invoking subagent: Requested
-agent 'challenger-review-subagent' not found.` even when the parent +
-subagent config matches the VS Code subagent docs
-(<https://code.visualstudio.com/docs/copilot/agents/subagents>) and
-`npm run validate:agents` Part 2 passes. Root cause uncertain (likely
-session-cache staleness or an edge case in the experimental
-`chat.customAgentInSubagent.enabled` feature).
+Use the available delegation tool only for the declared `challenger-review-subagent`.
+If the reviewer is unavailable (discovery, permissions, model eligibility, or missing
+delegation capability), **STOP** and request a human handoff to `10-Challenger`.
+Include the verbatim error, artifact path/type, review lens, pass, prior findings,
+and intended output path. Resume the parent only after current review evidence exists.
 
-When you see that runtime error:
+`10-Challenger` is a human-selected main agent with `disable-model-invocation: true`,
+not a nested wrapper fallback. Do not invoke it as a subagent, widen caller allowlists,
+enable nested delegation, switch models automatically, or synthesize an inline review.
+Legacy discovery settings are not a security boundary or evidence of runtime support.
 
-1. Retry once via the `10-Challenger` user-invocable wrapper agent
-   instead of calling the subagent directly. `10-Challenger` is the
-   documented standalone path-to-artifact entry point and is the
-   pre-declared auto-handoff target in every parent agent's frontmatter
-   (`agent: 10-Challenger`, `send: true`), so it uses a different
-   resolution code path than direct `runSubagent { agentName }`.
-2. If `10-Challenger` also fails, surface the verbatim runtime error
-   to the user and **stop**. Do **not** improvise an inline
-   "autonomous review pass" — it runs the review in the parent's
-   context window (doubles input-token cost) and produces findings
-   indistinguishable from a real subagent result. Forbidden by
-   [`agent-authoring.instructions.md#challenger-subagent-fallback-rule`](../../../instructions/agent-authoring.instructions.md#challenger-subagent-fallback-rule).
+For a successful call that produces missing or empty output, follow
+[the diagnostic contract](workflow-gates.md#challenger-empty-output-diagnostic--bounded-retry):
+log the failure, retry exactly once with identical inputs, then STOP and request a human
+handoff after the second failure. Do not reset this budget by changing wrappers or models.
 
 Tier annotations in `workflow-graph.json` (`opt_in_matrix`) are
 **recommendations only** — they never auto-fire. The Orchestrator never
@@ -136,11 +128,14 @@ old sessions, default to `"standard"`.
 The model used for each review lens is determined by the
 `challenger-review-subagent` frontmatter (source of truth). All lenses
 share the same subagent; the `review_focus` field rotates per pass.
+Do not infer runtime cost-tier eligibility or API parameters from Sol, Terra,
+or Luna labels or catalog capability descriptions. Unsupported or unknown
+eligibility is not permission to change models or bypass the human handoff.
 
 ## Parallel Invocation (Cross-Artifact Reviews)
 
 When a step reviews **multiple independent artifacts**, run their first passes
-in parallel via simultaneous `#runSubagent` calls. Two reviews are independent
+in parallel through the available delegation capability. Two reviews are independent
 when they target different artifacts AND both use `prior_findings = null`.
 
 | Step               | Parallel Pair                              | Why Safe                                                     |
@@ -356,8 +351,7 @@ If the environment variable `APEX_UNATTENDED=1` is set, the protocol
 - If any unresolved `must_fix` remains, **STOP** before step completion or forward handoff.
   Persist deferred decisions and list the blocking findings. A deferred or previously accepted
   decision is not proof of remediation; require current review evidence confirming resolution.
-- This rule applies to production and benchmark runs. Test auto-approval cannot waive blockers;
-  the E2E harness records `E2E_BLOCKED`, not successful acceptance, and does not advance downstream.
+- This rule applies to every production run; no test or unattended setting can waive blockers.
 - With no unresolved `must_fix`, continue only under existing, explicit unattended approval scope.
   Never infer production approval from `APEX_UNATTENDED=1` alone.
 

@@ -20,6 +20,11 @@ Two parallel checklists: agent (`*.agent.md`) and prompt
 - [ ] **R-X-3** Frontmatter `model:` is array form, not bareword.
       _(rule `frontmatter-model-style-001`)_
       Hint: `head -10 <file>` and confirm `model: [...]`.
+- [ ] Every fallback is an exact catalog label, including exact `gpt-5.6-sol`.
+      Unknown release/cost metadata stays unknown; no fallback was added.
+- [ ] Empty `agents: []` needs no agent tool; nonempty lists require it.
+      Workers have no question, parent-todo or nested-delegation tools. Explicit
+      allowlists can override target `disable-model-invocation: true`.
 - [ ] **R-X-2** No `handoffs[].model` overrides match the target
       agent's own model. _(rule `legacy-002`)_
       Hint: `--only=vendor-prompting` flags `legacy-002`.
@@ -59,13 +64,16 @@ Two parallel checklists: agent (`*.agent.md`) and prompt
       (reviewer-only).
       Hint: `grep -E "Example|<example>" <file>`.
 
-### GPT-5.6-Terra family
+### Sol, Terra, And Luna: APEX Convention
 
 - [ ] **R-GPT-1** All outcome-first skeleton sections present:
       `# Goal`, `# Success criteria`, `# Constraints`, `# Output`,
       `# Stop rules`. _(rule `gpt55-skeleton-001`)_
       Hint:
       `grep -E "^# (Goal|Success criteria|Constraints|Output|Stop rules)" <file>`.
+- [ ] Main agents retain a Role declaration and existing H2 anchors. Leaf workers
+      instead have role-specific Inputs, activities, Outputs, and bounded failure/
+      return rules; main headings and personality are not mandatory for workers.
 - [ ] **R-GPT-1** `# Personality` present ONLY if user-facing
       Orchestrator. _(rule `personality-scoping-001`)_
       Hint: check `frontmatter.user-invocable` and `frontmatter.name`.
@@ -77,14 +85,15 @@ Two parallel checklists: agent (`*.agent.md`) and prompt
       `<scope_fencing>`, `<empty_result_recovery>`,
       `<subagent_budget>`, `<output_contract>`).
       _(rule `gpt-no-claude-xml-001`)_
-      Hint: `grep -E "<investigate_before_answering>|<context_awareness>|<scope_fencing>|<empty_result_recovery>|<subagent_budget>|<output_contract>" <file>`.
+      Hint: inspect `gpt-no-claude-xml-001` findings and verify that Markdown replacements
+      preserve the wrappers' substantive constraints.
 - [ ] **R-GPT-6** Retrieval-heavy agents embed an explicit retrieval
       budget (reviewer-only).
 
 ### Decision logging
 
-- [ ] **R-X-5** Significant decisions appended to
-      `decision_log` in `00-session-state.json` (reviewer-only).
+- [ ] **R-X-5** Significant decisions recorded through `apex-recall decide`
+      without direct session-state writes (reviewer-only).
 
 ---
 
@@ -92,10 +101,10 @@ Two parallel checklists: agent (`*.agent.md`) and prompt
 
 ### Cross-vendor
 
-- [ ] **R-X-3** Frontmatter `model:` is string form, not array.
+- [ ] **R-X-3** Explicit frontmatter `model:` is string form, not array.
       _(rule `frontmatter-model-style-001`)_
-- [ ] **R-X-1** Prompt `model:` matches target agent's `model:`.
-      _(rule `legacy-001` / `prompt-model-sync-001`)_
+- [ ] **R-X-1** Custom-agent prompt inherits its known target model; generic
+      Local prompts may inherit picker selection. _(rule `prompt-model-source-001`)_
       Hint: `node tools/scripts/validate-agents.mjs --only=vendor-prompting`.
 - [ ] **R-X-8** Model is not on the deprecation list.
       _(rule `model-deprecation-001`)_
@@ -105,7 +114,7 @@ Two parallel checklists: agent (`*.agent.md`) and prompt
 - [ ] **R-CL-4** No prefill instructions.
       _(rule `claude-no-prefill-001`)_
 
-### GPT-5.6-Terra family (when prompt targets a GPT-5.6-Terra agent)
+### Sol, Terra, And Luna (APEX Prompt Convention)
 
 - [ ] Reviewer-only: prompt does not over-specify procedure when the
       target agent should describe the destination.

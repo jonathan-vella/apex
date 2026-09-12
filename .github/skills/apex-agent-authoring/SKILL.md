@@ -33,6 +33,9 @@ states the applicable rule.
   changing workflow topology.
 - Check `.github/model-catalog.json` before changing model labels.
 - Preserve user changes and existing runtime contracts.
+- Validate every model fallback; preserve exact `gpt-5.6-sol` and unknown metadata.
+- Distinguish Local prompt adapters from shared Host-compatible skills; neither
+  static validation nor a catalog entry proves native model eligibility.
 
 ## Workflow
 
@@ -56,6 +59,9 @@ Load only the references needed for the selected path.
 Keep each concern in one place:
 
 - Agent body: role, goal, workflow-specific constraints, output, stop rules.
+- Sol/Terra/Luna main bodies use concise Markdown as an APEX convention, not a
+  model-specific vendor claim. Leaf workers use bounded role contracts instead of
+  mandatory personality or main-agent sections. Preserve content when removing XML.
 - Instruction: enforceable rules that apply automatically by file type.
 - Skill: on-demand domain workflow and decision guidance.
 - Reference: detailed examples, rationale, matrices, and troubleshooting.
@@ -87,7 +93,13 @@ Use the `apex-context-management` skill for runtime compression or debug-log aud
 
 ### 5. Validate
 
-Run:
+Run focused fixture tests first; they do not stage files into the active agent tree:
+
+```bash
+node --test tools/tests/lib/parse-frontmatter.test.mjs tools/tests/validate-agents/classify-model.test.mjs tools/tests/vendor-prompting/run.test.mjs
+```
+
+After concurrent agent edits settle, integration checks are:
 
 ```bash
 npm run validate:agents

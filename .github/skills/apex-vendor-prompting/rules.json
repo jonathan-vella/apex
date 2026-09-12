@@ -56,7 +56,7 @@
       "family": "claude-haiku",
       "status": "warn-only",
       "label_examples": ["Claude Haiku 4.5"],
-      "rule_subset_note": "XML structuring + few-shot rules only; everything else downgraded to warn."
+      "rule_subset_note": "Model advice is warn or below; structural errors and deprecation findings retain base severity."
     },
     {
       "family": "claude",
@@ -68,13 +68,25 @@
       "family": "gpt-5.6-terra",
       "status": "enforced",
       "label_examples": ["GPT-5.6-Terra"],
-      "rule_subset_note": "OpenAI outcome-first rules apply at default severity."
+      "rule_subset_note": "APEX outcome-first Markdown convention informed by pinned generic OpenAI guidance; not model-specific vendor evidence."
     },
     {
       "family": "gpt-5.6-luna",
-      "status": "reviewer-only",
+      "status": "enforced",
       "label_examples": ["GPT-5.6-Luna"],
-      "rule_subset_note": "Decision-log only; no automated model-specific enforcement."
+      "rule_subset_note": "APEX outcome-first Markdown convention; leaf workers use bounded role contracts."
+    },
+    {
+      "family": "gpt-5.6-sol",
+      "status": "enforced",
+      "label_examples": ["gpt-5.6-sol"],
+      "rule_subset_note": "User-confirmed exact label with unknown public metadata. APEX outcome-first Markdown convention, not Sol-specific vendor evidence."
+    },
+    {
+      "family": "gpt-5.4",
+      "status": "enforced",
+      "label_examples": ["GPT-5.4"],
+      "rule_subset_note": "Legacy outcome-first compatibility; catalog separately determines deprecation."
     },
     {
       "family": "gpt-5.5",
@@ -104,7 +116,7 @@
       "family": "unknown",
       "status": "enforced",
       "label_examples": [],
-      "rule_subset_note": "Unknown model classification raises an error to force explicit model: in frontmatter."
+      "rule_subset_note": "Explicit labels require catalog authorization. Valid inherited prompt models are not errors."
     }
   ],
   "rules": [
@@ -181,11 +193,12 @@
     {
       "id": "gpt55-skeleton-001",
       "vendor": "openai",
-      "model_families": ["gpt-5.6-terra", "gpt-5.5"],
+      "model_families": ["gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna", "gpt-5.5", "gpt-5.4"],
       "applies_to": "agent",
       "severity": "warn",
-      "summary": "GPT-5.6-Terra agents must contain outcome-first skeleton sections: # Goal, # Success criteria, # Constraints, # Output, # Stop rules.",
-      "rationale": "The OpenAI prompting guide publishes this skeleton; missing sections degrade behavior calibration.",
+      "summary": "APEX mains use Role, Goal, Success criteria, Constraints, Output and Stop rules; leaf workers use Inputs, Outputs and bounded failure/return contracts.",
+      "rationale": "Repository convention informed by the pinned generic OpenAI structure, not evidence of Sol/Terra/Luna-specific vendor requirements or behavior.",
+      "policy_origin": "repository-convention",
       "source_id": "openai-prompting-guide",
       "source_anchor": "suggested-prompt-structure",
       "validator_check_id": "checkGpt55Skeleton",
@@ -195,11 +208,12 @@
     {
       "id": "gpt-no-claude-xml-001",
       "vendor": "cross-vendor",
-      "model_families": ["gpt-5.6-terra", "gpt-5.5"],
+      "model_families": ["gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna", "gpt-5.5", "gpt-5.4", "gpt-codex", "gpt-4o"],
       "applies_to": "agent",
       "severity": "warn",
       "summary": "GPT-family agents MUST NOT contain Claude-specific XML blocks (<investigate_before_answering>, <context_awareness>, <scope_fencing>, <empty_result_recovery>, <subagent_budget>).",
-      "rationale": "OpenAI prompting guidance uses markdown sections; Claude-only XML blocks are noise that GPT models do not natively interpret.",
+      "rationale": "APEX prefers concise Markdown; remove XML wrappers while preserving all content and workflow anchors. This does not claim GPT cannot interpret XML.",
+      "policy_origin": "repository-convention",
       "source_id": "openai-prompting-guide",
       "source_anchor": "personality-and-behavior",
       "validator_check_id": "checkGptNoClaudeXml",
@@ -251,10 +265,11 @@
     {
       "id": "gpt55-stop-rules-non-empty-001",
       "vendor": "openai",
-      "model_families": ["gpt-5.6-terra", "gpt-5.5"],
+      "model_families": ["gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna", "gpt-5.5", "gpt-5.4"],
       "applies_to": "agent",
       "severity": "warn",
-      "summary": "GPT-5.6-Terra agents must have a non-empty body under # Stop rules (>=1 non-blank line before next H1).",
+      "summary": "APEX outcome-first main agents need nonempty Stop rules; leaf workers use bounded failure/return contracts.",
+      "policy_origin": "repository-convention",
       "rationale": "OpenAI prompting guide: 'Add explicit stopping conditions ... Define missing-evidence behavior'. An empty Stop rules section is misleading scaffolding.",
       "source_id": "openai-prompting-guide",
       "source_anchor": "outcome-first-prompts-and-stopping-conditions",
@@ -269,7 +284,8 @@
       "applies_to": "both",
       "severity": "error",
       "summary": ".agent.md must use array form for model:; .prompt.md must use string form.",
-      "rationale": "YAML bareword form misparses parenthetical qualifiers (e.g., a hypothetical 'Claude Opus 4.7 (some suffix)' label) and breaks frontmatter loading. Array vs string is the canonical convention for each file type.",
+      "rationale": "Array vs string is an APEX convention, not a YAML limitation. All explicit labels must match catalog keys exactly; documented platform-qualified handoff labels are allowed. Missing prompt models may inherit.",
+      "policy_origin": "repository-convention",
       "source_id": "openai-upgrade-guide",
       "source_anchor": "upgrade-posture",
       "validator_check_id": "checkFrontmatterModelStyle",
@@ -307,7 +323,7 @@
     {
       "id": "personality-scoping-001",
       "vendor": "openai",
-      "model_families": ["gpt-5.6-terra", "gpt-5.5"],
+      "model_families": ["gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna", "gpt-5.5", "gpt-5.4"],
       "applies_to": "agent",
       "severity": "info",
       "summary": "# Personality block should appear only on user-facing agents (Orchestrator family); internal pipeline agents should omit it.",
@@ -324,8 +340,9 @@
       "model_families": ["any"],
       "applies_to": "prompt",
       "severity": "error",
-      "summary": "Prompts targeting a custom agent MUST NOT declare model:; prompts using agent: agent (or no agent:) MUST declare an explicit model:.",
-      "rationale": "When a prompt targets a custom agent (e.g., `agent: \"02-Requirements\"`), the agent's own model: is the source of truth — duplicating it on the prompt creates drift risk. When a prompt is generic (`agent: agent`), there is no inherited model, so an explicit model: is mandatory for the validator to classify the family. The validator resolves effective family via the target agent when the prompt omits model:.",
+      "summary": "Custom-agent prompts inherit the known target's model; built-in/generic Local prompts may inherit picker selection. Unknown custom targets are errors.",
+      "rationale": "APEX avoids duplicated custom-agent model assignments. Generic Local prompt inheritance is valid. Validate every explicit or inherited target fallback; no static check establishes native Host prompt support.",
+      "policy_origin": "repository-convention",
       "source_id": "openai-upgrade-guide",
       "source_anchor": "upgrade-posture",
       "validator_check_id": "checkPromptModelSource",

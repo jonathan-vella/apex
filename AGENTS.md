@@ -93,6 +93,22 @@ Rotating multi-pass reviews are an explicit opt-in via
 01-Orchestrator) or via direct `10-Challenger` invocation. Reviews target
 AI-generated creative decisions — not tool output (what-if/plan previews).
 
+Production main agents, including `10-Challenger`, are human-selected entry points
+with `disable-model-invocation: true`; the Orchestrator uses human handoffs only.
+Unavailable reviewers require a human handoff to `10-Challenger`, never a nested
+wrapper fallback. Missing/empty reviewer output permits exactly one identical-input
+retry, then human escalation. Preserve current review evidence and approval gates.
+
+Local prompt files are adapters; Agent Host uses shared skills with the caller's
+model/tools and explicit selection of the owning agent. Legacy discovery settings
+are not a security boundary. Model labels do not establish runtime cost-tier
+eligibility or API support. Runtime rules and canonical review procedure:
+[Copilot instructions](.github/copilot-instructions.md#harness-and-runtime-boundaries).
+
+The E2E launch subsystem is retired. Production lesson collection, historical
+lesson/schema compatibility, and existing evidence remain supported; historical
+`e2e` values do not authorize a runnable workflow or automatic approval.
+
 **Mandatory challenger reviews are enforced at runtime, not just at commit.**
 `apex-recall complete-step` refuses to mark Steps 1, 2, 3.5, or 4 as complete
 when the gating artifact exists but the matching `challenge-findings-*.json`

@@ -1,12 +1,13 @@
 ---
 name: "10-Challenger"
 description: "Standalone adversarial review wrapper. Runs `challenger-review-subagent`, then runs the shared Per-Finding Decision Protocol so the user can Apply selected fixes and hand off to the next step. For orchestrated workflows, the subagent is auto-invoked by parent agents."
-model: ["GPT-5.6-Luna"]
+model: ["GPT-5.6-Terra"]
 argument-hint: "Provide the path to the artifact to challenge (e.g. agent-output/my-project/04-implementation-plan.md)"
 user-invocable: true
+disable-model-invocation: true
 tools:
   [
-    vscode,
+    vscode/askQuestions,
     execute,
     read,
     agent,
@@ -20,7 +21,7 @@ handoffs:
     send: false
 ---
 
-# Plan Challenger (Standalone Wrapper)
+# Role
 
 Role: Standalone wrapper that runs adversarial review over a single
 artifact, emits structured findings, then runs the shared **Per-Finding
@@ -51,14 +52,25 @@ the Orchestrator with an apply summary.
 - The resolved `decisions_path` sidecar is
   written atomically per protocol section 2a.
 - On `Revise (apply Accepted findings)`: every Accepted finding's
-  mitigation applied to the challenged artifact via a **single**
-  `multi_replace_string_in_file` call (per protocol section 2k);
+  mitigation applied to the challenged artifact with available editing tools;
   chat summary lists `{N} applied, {M} deferred, {K} rejected`.
 - On `Proceed`: hand off to `01-Orchestrator` (or the artifact's
   step-owning agent) with the apply summary.
 
 # Constraints
 
+- Allowed writes: resolved decisions sidecar, accepted in-place edits to the challenged
+  artifact only, and recall findings. Worker-owned findings are never fabricated or patched.
+  `execute` permits inspection, output validation and these state updates, not arbitrary writes.
+- Read-only audit requests prohibit all writes, including findings files and recall;
+  the worker has a file-only contract, so return `blocked` before delegation until
+  the caller authorizes its output. Never invent an inline mode or apply fixes read-only.
+- Honor `metadata.plan_lock` and upstream ownership: a frozen artifact requires return
+  to its owner to reopen approval, not an accepted-finding workaround. Changes invalidate
+  affected review/approval evidence; the caller must resolve required re-review before advancement.
+- Local uses human handoffs; Host requires explicit selection of the named next owner.
+  This main agent is human-selected only, including fallback entry. Skills run inline
+  and cannot choose model/tools. Use #tool:agent only for the allowlisted review worker.
 - Use the artifact_type and review_focus lookup tables below.
 - Preserve the lens rotation table verbatim.
 - Unknown artifact paths require clarification. `comprehensive` is a review_focus, not an artifact_type.
@@ -76,13 +88,12 @@ the Orchestrator with an apply summary.
   MUST surface the current invocation count in its chat summary
   (e.g. _"Pass 2 of max 2 (default depth)"_) so the user can decide.
 - Apply-step rules:
-  - Only findings with `action: "accept"` (or `action: "edit"` with a
-    non-empty `note`) are applied to the artifact. `defer` and `reject`
+  - Only findings with `action: "accept"` are applied; the protocol maps custom
+    Edit choices to accept plus an `Edit:` note. `defer` and `reject`
     findings never mutate the artifact.
-  - All Accepted edits MUST be bundled into a single
-    `multi_replace_string_in_file` call. Do **not** re-emit the artifact
-    via `create_file`.
-  - Never modify files outside the challenged artifact path. If a
+  - Apply coherent batches of minimal edits with available editing tools; preserve user
+    changes and validate each batch. Do not recreate existing files via `create_file`.
+  - Aside from the decision sidecar and recall, never modify files outside the challenged artifact path. If a
     finding's mitigation requires changes elsewhere, classify as
     `defer` with a note pointing to the owning agent.
   - Honor `APEX_UNATTENDED=1` per protocol section 2d (auto-defer,
@@ -90,12 +101,11 @@ the Orchestrator with an apply summary.
 - Failure handling:
   - If `challenger-review-subagent` errors, times out, or returns
     malformed/absent JSON (distinct from a clean review with findings),
-    retry once. If it fails again, stop and surface the error via
-    `askQuestions` (Retry / Skip review / Abort) — never fabricate findings
+    retry once for transient errors. If it fails again, stop with `blocked` and the error — never fabricate findings
     or hand off as if the review passed.
-  - If the apply step (`multi_replace_string_in_file`) fails, do not
-    re-emit the artifact via `create_file`; report which Accepted findings
-    were not applied and leave the artifact untouched for a retry.
+  - If an edit fails, inspect the actual partial result, preserve user changes, and
+    report which Accepted findings remain unapplied. Never assume atomic rollback or
+    recreate the artifact; repair only confirmed agent-written partial edits and validate.
   - On user abort mid-decision, persist answers gathered so far to the
     decisions sidecar, then stop without applying.
 - Reasoning effort: rely on the Copilot runtime default. Adversarial
@@ -113,6 +123,9 @@ Per Output Contract:
 
 # Stop rules
 
+- Missing model/tool/input or worker eligibility returns `blocked`; no fallback model,
+  skipped required review or inline substitute. Load review guidance before review and
+  decision guidance before the panel; recover missing/changed evidence after compaction.
 - Stop after the final aggregated gate resolves (`Revise` → apply +
   handoff, or `Proceed` → handoff). Do **not** auto-rerun the
   challenger after applying fixes; the orchestrator or the user
@@ -128,7 +141,7 @@ This agent orchestrates 1 subagent — `challenger-review-subagent` (unified, su
 For simple single-pass reviews, invoke with review_focus + pass_number.
 For multi-pass reviews, invoke with batch_lenses array to run remaining lenses in one invocation.
 
-Every `runSubagent` invocation prompt MUST follow the three-H2 contract at
+Every #tool:agent invocation prompt MUST follow the three-H2 contract at
 [`tools/apex-prompts/utility-prompts/execution-subagent.prompt.md`](../../tools/apex-prompts/utility-prompts/execution-subagent.prompt.md)
 (`## Inputs` / `## Activities` / `## Outputs`). Issue #425.
 
@@ -258,9 +271,9 @@ Decision Protocol** so the user can apply selected fixes and proceed.
      had `action == "accept"`.
    - `Proceed (handoff next step)` — recommended otherwise.
 3. **On `Revise (apply Accepted findings)`**:
-   - Bundle every Accepted finding's mitigation (and `edit`-with-note
-     guidance) into a **single `multi_replace_string_in_file` call**
-     targeting the challenged artifact only.
+   - Apply every Accepted mitigation (and custom edit guidance mapped by the protocol)
+     using available editing tools, targeting only the authorized artifact and validating
+     the coherent batch before handoff. Preserve unrelated user work.
    - Print a one-line apply summary:
      `Applied {N} Accepted fix(es); deferred {M}; rejected {K}.`
    - Do **not** auto-rerun the challenger. Re-challenging is the
@@ -289,8 +302,7 @@ Expected outputs:
    the subagent never reads or writes it. Atomic write, append on
    re-runs.
 3. **In-place edits** to the challenged artifact when the user chose
-   `Revise (apply Accepted findings)` — applied via a single
-   `multi_replace_string_in_file` call.
+  `Revise (apply Accepted findings)` — minimal verified edits within the write allowlist.
 
 Presentation: render findings as a markdown table in chat (ID,
 Severity, Claim, Category, Recommendation), then the Per-Finding
@@ -309,7 +321,7 @@ Do not call the reviewer until required inputs and output paths are resolved.
   - On `Proceed (handoff next step)` → hand off without edits.
   - When the user asks for a non-standard lens or an artifact outside
     the workflow → confirm before proceeding.
-- Out of scope: approving artifacts on the user's behalf, editing any
-  file other than the challenged artifact, auto-rerunning the
+- Out of scope: approving artifacts on the user's behalf, editing files outside
+  the explicit write allowlist, auto-rerunning the
   challenger after applying fixes, skipping the Per-Finding Decision
   Protocol when running in attended mode.

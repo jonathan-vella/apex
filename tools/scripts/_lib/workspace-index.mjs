@@ -119,8 +119,7 @@ export function resetIndex() {
  * Prompt frontmatter uses string `model:` (not array, per agent-authoring convention).
  * `body` is the markdown after the closing `---`.
  *
- * Scans every directory listed in `PROMPT_SOURCE_DIRS` (production prompts in
- * `tools/apex-prompts/` plus E2E test prompts in `tools/tests/prompts/`).
+ * Scans every directory listed in `PROMPT_SOURCE_DIRS`.
  */
 export function getPromptFiles() {
   if (_prompts) return _prompts;

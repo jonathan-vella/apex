@@ -30,6 +30,28 @@ export function normalizeModel(raw) {
   return v.replace(/ \(copilot\)$/i, "").trim();
 }
 
+export function normalizeModels(raw) {
+  if (raw === undefined || raw === null) return [];
+  const values = Array.isArray(raw) ? raw : [raw];
+  if (values.length === 0 || values.some((value) => typeof value !== "string" || !normalizeModel(value))) {
+    throw new TypeError("model must be a non-empty label or ordered array of non-empty labels");
+  }
+  return values.map((value) => normalizeModel(value));
+}
+
+export function modelLabels(raw) {
+  if (raw === undefined) return [];
+  const values = Array.isArray(raw) ? raw : [raw];
+  if (values.length === 0 || values.some((value) => typeof value !== "string" || !value.trim())) {
+    throw new TypeError("model must be a non-empty label or ordered array of non-empty labels");
+  }
+  return [...values];
+}
+
+export function catalogModelLabel(label, { handoff = false } = {}) {
+  return handoff ? label.replace(/ \([^()]+\)$/, "") : label;
+}
+
 /**
  * Walk the registry's `agents` and `subagents` maps and yield
  * `[label, entry]` pairs. Deploy entries with `bicep` / `terraform`

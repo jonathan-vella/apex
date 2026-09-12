@@ -41,8 +41,7 @@ DEFAULT_AGENT = AGENTS_DIR / "01-orchestrator.agent.md"
 # line (covers direct-invocation flow). Excluded: 01-orchestrator (own
 # stricter contract below), 10-challenger (subagent wrapper — no user
 # gate), 09-diagnose / 11-context-optimizer (interactive/advisory —
-# no step handoff), e2e-orchestrator (autonomous runner with its own
-# contract).
+# no step handoff).
 STEP_AGENTS = (
     "02-requirements.agent.md",
     "03-architect.agent.md",

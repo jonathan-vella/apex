@@ -48,7 +48,7 @@ Block scalars break VS Code prompts-diagnostics-provider.
 
 ## Slash Command Visibility
 
-Skills are available as `/` slash commands alongside prompt files.
+In Local chat, skills are available as `/` slash commands alongside prompt files.
 Use `user-invocable` and `disable-model-invocation` to control access:
 
 | Configuration                    | In `/` menu | Auto-loaded by model | Use case               |
@@ -57,6 +57,15 @@ Use `user-invocable` and `disable-model-invocation` to control access:
 | `user-invocable: false`          | No          | Yes                  | Background knowledge   |
 | `disable-model-invocation: true` | Yes         | No                   | On-demand only         |
 | Both set                         | No          | No                   | Disabled               |
+
+### Local And Agent Host
+
+Local prompt files are adapters, not Agent Host entry points. On Agent Host, use
+the shared skill and explicitly select its owning main agent before consequential
+work. Skills inherit the caller's model/tools; they do not switch agents or grant
+permissions. Skill discovery and invocation flags do not override production
+human-selection boundaries. Keep needed Local discovery settings and verify each
+harness separately; authoring checks do not prove runtime attachment or support.
 
 ## Skill Locations
 

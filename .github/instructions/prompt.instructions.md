@@ -42,10 +42,19 @@ Every prompt file should include YAML frontmatter with the following fields:
 
 - Use kebab-case filenames ending with `.prompt.md`
 - Store attachable/reference prompts under `tools/apex-prompts/`.
-  Native operational slash prompts live under `.github/prompts/`; both locations use the same validation rules.
-  Keep shared behavior in its owning agent or reference rather than copying workflows between entrypoints.
+  Local operational slash prompts live under `.github/prompts/`; both locations use the same validation rules.
+  Keep shared behavior in its owning skill or agent rather than copying workflows between entrypoints.
 - Provide a short filename that communicates the action
   (e.g., `generate-readme.prompt.md` rather than `prompt1.prompt.md`)
+
+### Local And Agent Host
+
+Local prompt files are adapters, not Agent Host entry points. On Agent Host, use
+the shared skill and explicitly select its owning main agent before consequential
+work. Skills inherit the caller's model/tools; they do not switch agents or grant
+permissions. Keep needed Local discovery settings; they do not establish Host
+support or override production human-selection boundaries. Verify each harness
+separately; source validation is not runtime evidence.
 
 ## Body Structure
 

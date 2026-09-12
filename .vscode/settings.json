@@ -52,10 +52,6 @@
         ".github/skills/apex-azure-artifacts/templates/sku-manifest.template.json"
       ],
       "url": "./tools/schemas/sku-manifest.schema.json"
-    },
-    {
-      "fileMatch": ["agent-output/*/08-iteration-log.json", "agent-output/_bench/*/*/08-iteration-log.json"],
-      "url": "./tools/schemas/iteration-log.schema.json"
     }
   ],
   "editor.formatOnSave": true,

@@ -78,11 +78,9 @@ Before code generation, select runtime compression from observed context usage:
 ## Phase 2: Output Cadence (MANDATORY — ONE FILE PER TURN)
 
 Generate **exactly one file per response turn** throughout Phase 2.
-Bundling multiple file bodies in a single response exceeds VS Code's
-per-response output-token ceiling and aborts the turn with
-*"Sorry, the response hit the length limit. Please rephrase your
-prompt."* — wasting the entire 200K+ output of the aborted turn and
-forcing the user to recover manually.
+This is the production recovery and validation cadence, not a claim about
+a universal model or harness output limit. Preserve it on both Local and
+Agent Host; changing models does not authorize batching file bodies.
 
 The per-tool file-order tables in `06b-bicep-codegen.agent.md` /
 `06t-terraform-codegen.agent.md` define **dependency ordering only**.
@@ -197,8 +195,10 @@ limitation, version pin conflict), surface them via a single
   details (e.g. "2 AVM schema mismatches, 1 region limitation. See
   04-preflight-check.md for details.")
 - **options**:
-  - `Fix and re-run preflight` (recommended) — agent revises the plan
-    inputs or substitutes an alternative module, then re-enters Phase 1.
+  - `Fix and re-run preflight` (recommended) — for plan-input revisions or
+    module substitutions, STOP and present the Return to Step 4 human handoff
+    to Planner. CodeGen must not edit plan inputs or substitute modules itself.
+    Await Planner's revised, approved inputs before re-entering Phase 1.
   - `Abort — return to Planner` — STOP, present the Return to Step 4
     handoff, leave session state at Step 5 awaiting Planner rev.
 

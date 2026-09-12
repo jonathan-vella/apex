@@ -6,50 +6,18 @@ argument-hint: "Provide the path to the artifact to challenge (e.g. agent-output
 
 # Adversarial Review
 
-Challenge an Azure platform engineering artifact for untested assumptions, governance gaps,
-WAF blind spots, and architectural weaknesses.
+Local operational adapter for `10-Challenger`. Read
+[apex-workflow-engine](../../../.github/skills/apex-workflow-engine/SKILL.md),
+then follow the [shared entry contract][entry] for this named owner.
 
-# Goal
+Pass the supplied project, scope, and revision request unchanged. Require the
+owner and its configured model; stop if unavailable. Do not widen its tools or
+run the operation under a different agent. Validate current required inputs
+and graph prerequisites before work; preserve reviews and human approvals.
 
-Produce a structured set of adversarial findings against a single
-agent-output artifact, with actionable recommendations and severity tags
-(`must_fix` / `should_fix` / `consider`).
+Return the canonical output artifacts, actual check results, and any blockers.
+The owner body and workflow graph control execution, completion, and handoffs.
+Agent Host uses the distinct /apex-host-workflow-start skill after manual owner
+selection; this Local file does not bind a Host session.
 
-# Success criteria
-
-- The artifact has been read together with related context files in the
-  same project folder.
-- Findings cover assumptions, governance, all five WAF pillars,
-  architectural weaknesses, requirements gaps, and compliance gaps.
-- Every finding has a severity, category, WAF pillar mapping (where
-  applicable), and a specific recommendation.
-- Every `must_fix` finding includes an actionable next step (file/section
-  to edit, value to change, evidence required).
-- Findings saved to
-  `agent-output/{project}/challenge-findings-{artifact-name}.json`.
-
-# Constraints
-
-- Target artifact file must exist under `agent-output/{project}/`.
-- `agent-output/{project}/00-session-state.json` must exist with a complexity
-  classification and review audit state.
-- Auto-detect `artifact_type` from the filename. Supported types:
-  `requirements`, `architecture`, `implementation-plan`,
-  `governance-constraints`, `iac-code`, `cost-estimate`,
-  `deployment-preview`. If auto-detection fails, prompt for explicit type.
-- Be rigorous but fair — focus on real gaps that cause downstream problems.
-- Do not flag minor style issues.
-
-# Output
-
-- `agent-output/{project}/challenge-findings-{artifact-name}.json` with the
-  structured findings.
-- A short summary returned to the user (top `must_fix` items + counts).
-
-# Stop rules
-
-- Stop and ask for the artifact path if the input is missing or ambiguous.
-- Stop if the artifact file does not exist; do not invent content.
-- Stop if `00-session-state.json` is missing — challenger review depends on
-  complexity context.
-- Do not produce findings for artifacts outside `agent-output/`.
+[entry]: ../../../.github/skills/apex-workflow-engine/references/workflow-entry.md

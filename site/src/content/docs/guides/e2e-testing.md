@@ -1,158 +1,47 @@
 ---
-title: "E2E Testing with Ralph Loop"
-description: "End-to-end testing with the Ralph Loop pattern"
+title: "Workflow Validation"
+description: "Validate production workflow contracts and perform manual acceptance after E2E harness retirement"
 ---
 
-End-to-end testing for the APEX pipeline using the autonomous
-[RALPH Loop](https://ghuntley.com/ralph/) pattern.
+Use deterministic checks for source contracts and the production workflow for human-reviewed acceptance.
+Passing a source check does not prove native agent discovery, model availability, or generated-output quality.
 
-## What Is Ralph Loop?
-
-Ralph Loop is a self-correcting E2E evaluation workflow that runs all APEX
-pipeline steps **without human gates**. It validates the entire agent pipeline
-autonomously — from requirements through deployment to documentation — with
-built-in self-correction, challenger reviews, and benchmark scoring.
-
-Key characteristics:
-
-- **Autonomous**: all gates auto-approve after validation passes
-- **Self-correcting**: validation failures feed findings back to the agent for retry (max 5 per step)
-- **IaC-agnostic**: supports both Bicep and Terraform tracks
-- **Dry-run only**: never deploys real Azure resources (uses `bicep what-if` or `terraform plan`)
-- **Benchmarked**: produces an 8-dimension quality score (0–100)
-
-## Supported IaC Tracks
-
-| Track     | Code Directory               | Entry File   | Validation Commands                          |
-| --------- | ---------------------------- | ------------ | -------------------------------------------- |
-| Bicep     | `infra/bicep/{project}/`     | `main.bicep` | `bicep build`, `bicep lint`                  |
-| Terraform | `infra/terraform/{project}/` | `main.tf`    | `terraform validate`, `terraform fmt -check` |
-
-The IaC tool is read from `decisions.iac_tool` in `00-session-state.json`.
-To switch tracks, change the `IaC tool` field in the prompt file's Project Context section.
-
-## How to Run
-
-### Quick Validation (Structural)
-
-Validates all E2E artifacts for structural compliance (fast, no agent invocation):
+## Run Focused Checks
 
 ```bash
-# Default project
-npm run e2e:validate
-
-# Specific project
-node tools/scripts/validate-e2e-step.mjs --project=terraform-e2e all
-
-# Single step
-node tools/scripts/validate-e2e-step.mjs --project=e2e-ralph-loop 5
+npm run test:tool-contracts
+npm run test:validator-runner
+npm run test:apex-recall
+npm run test:devcontainer-verdicts
 ```
 
-### Benchmark Scoring
+Select the suite that covers the changed behavior. Production artifact, policy, security, and review validators
+remain available in the [validation reference](../../reference/validation-reference/).
+Artifact Markdown validation belongs to the commit hook and Challenger review.
 
-Runs the 8-dimension benchmark and generates a report:
+## Perform Manual Acceptance
 
-```bash
-# Default project (e2e-ralph-loop)
-npm run e2e:benchmark
+Start with `01-Orchestrator` and retain human approval gates on both Bicep and Terraform tracks.
+Verify fresh and resumed workflows, required reviews, handoffs, and recovery from failed validation.
+Architecture requires both its comprehensive review and an independent cost-feasibility review.
+Missing evidence or blocking findings must be resolved before advancing.
 
-# Terraform project
-npm run e2e:benchmark -- terraform-e2e
+Check Local and Agent Host discovery and model selection separately. Offline source tests cannot certify
+native harness behavior. Azure operations and deployment still require their normal authorization and checks.
 
-# Multi-project comparison
-npm run e2e:benchmark -- --compare
-```
+## Migrate From The Retired Harness
 
-### Full Ralph Loop Execution
+The autonomous RALPH E2E subsystem is no longer supported. Its orchestrator, dedicated launch and analysis
+prompts, benchmark scripts, exclusive fixtures, and scheduled workflow are retired.
+The `e2e:validate`, `e2e:benchmark`, `e2e:combine`, and `test:lib-e2e` npm commands are removed
+without replacement wrappers. Do not use old launch instructions to bypass production approvals.
 
-Open VS Code Chat and use one of the prompt files:
+Existing archives, baselines, and agent outputs remain unchanged. Production lessons and recall remain supported;
+the lesson schema still accepts historical `workflow_mode: "e2e"` records.
+The iteration-log schema is retained as historical compatibility evidence, not a new workflow requirement.
 
-1. **Simple project (pre-seeded)**: Open `.github/prompts/e2e-ralph-loop.prompt.md`
-2. **Complex project (RFP-driven)**: Open `tools/tests/prompts/e2e-contoso-rfp.prompt.md`
-3. **Post-loop analysis**: Open `tools/tests/prompts/e2e-analyze-lessons.prompt.md`
-
-The E2E Orchestrator agent (`.github/agents/e2e-orchestrator.agent.md`)
-orchestrates the loop with conditional IaC routing based on session state. The
-Contoso prompt is intended to run the real workflow agents and tool paths,
-including Python diagram output, pricing-backed architecture assessment, live
-governance discovery when authenticated, and dry-run deployment validation.
-
-Use six runs for a full benchmark — three per IaC track:
-
-**Bicep**: `contoso-service-hub-run-1`, `run-2`, `run-3`
-**Terraform**: `contoso-service-hub-tf-run-1`, `tf-run-2`, `tf-run-3`
-
-## Benchmark Scoring Dimensions
-
-The benchmark engine scores each run across 8 dimensions:
-
-| Dimension               | Weight | What It Measures                                                  |
-| ----------------------- | ------ | ----------------------------------------------------------------- |
-| Artifact completeness   | 20%    | All required step outputs exist                                   |
-| Structural compliance   | 15%    | Artifact template format, H2 sync, session state                  |
-| Code quality            | 20%    | Bicep build/lint or Terraform validate/fmt + AVM usage            |
-| Review thoroughness     | 10%    | Challenger review passes executed per step                        |
-| WAF coverage            | 10%    | All 5 Well-Architected pillars in architecture                    |
-| Cost accuracy           | 5%     | Budget stated + cost estimate exists                              |
-| Session state integrity | 10%    | Schema version, project, decisions, decision_log, step completion |
-| Timing performance      | 10%    | Duration within thresholds (3 min normal, 10 min codegen)         |
-
-**Composite score** = weighted average. Grades: A (90–100), B (80–89), C (70–79), D (60–69), F (\<60).
-
-Pass threshold: 60/100 (configurable via `E2E_PASS_THRESHOLD` environment variable).
-
-## Interpreting Results
-
-### Benchmark Report
-
-After running `npm run e2e:benchmark`, check:
-
-- `agent-output/{project}/08-benchmark-report.md` — human-readable scorecard
-- `agent-output/{project}/08-benchmark-scores.json` — machine-readable JSON
-
-### Lessons Learned
-
-Self-correction events and systemic issues are captured in:
-
-- `agent-output/{project}/09-lessons-learned.json` — structured findings
-- `agent-output/{project}/09-lessons-learned.md` — narrative summary
-
-### Iteration Log
-
-Per-step attempt tracking in `agent-output/{project}/08-iteration-log.json`.
-
-### Decision Log
-
-Cross-agent decisions are captured in the `decision_log` array inside `00-session-state.json`.
-Each entry records what was decided, why, what was rejected, and which agent made the call.
-The benchmark scores `decision_log` presence as part of session state integrity.
-See `.github/instructions/agent-authoring.instructions.md` for the entry schema.
-
-## Test Projects
-
-| Project                     | IaC Tool  | Complexity | Description                      |
-| --------------------------- | --------- | ---------- | -------------------------------- |
-| `e2e-ralph-loop`            | Bicep     | Simple     | Canonical E2E test (simple)      |
-| `terraform-e2e`             | Terraform | Simple     | Small ecommerce storefront       |
-| `contoso-service-hub-run-1` | Bicep     | Complex    | Contoso Service Hub (RFP-driven) |
-| `contoso-service-hub-run-2` | Bicep     | Complex    | Contoso Service Hub (second run) |
-
-## Troubleshooting
-
-### Benchmark score is 0 for code quality
-
-The IaC tool is detected from `00-session-state.json`. Ensure `iac_tool` is set to
-either `Bicep` or `Terraform` in the session state.
-
-### Terraform validation fails during E2E
-
-Run `terraform init -backend=false` in the project directory first.
-The validator runs this automatically, but network issues may cause failures.
-
-### Pre-validation fails after agent return
-
-The agent may have written to the wrong output directory. Check that the project
-name in session state matches the `--project` flag.
+For an explicitly approved rollback, restore the coupled agent, prompts, scripts, tests, commands, discovery
+configuration, and CI workflow from the pre-retirement revision together. Do not rewrite historical evidence.
 
 ## Related
 

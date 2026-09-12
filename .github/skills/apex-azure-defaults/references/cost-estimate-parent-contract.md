@@ -10,6 +10,19 @@ Applies today to [`03-architect`](../../../agents/03-architect.agent.md)
 (as-built costs). Any future agent that surfaces Azure pricing in a
 user-facing artifact MUST read this file before invocation.
 
+## Model And Harness Contract
+
+Agent frontmatter owns assignments; this is a current routing summary, not an override:
+`03-Architect` uses `gpt-5.6-sol`, `08-As-Built` uses `GPT-5.6-Terra`, and
+`cost-estimate-subagent` uses `GPT-5.6-Luna`. Keep the independently required
+cost-feasibility review with `challenger-review-subagent` (`GPT-5.6-Terra`).
+These labels do not establish runtime cost-tier eligibility, model availability,
+or API parameters. Do not infer effort settings or pricing from their names.
+If the active harness cannot invoke the declared worker, STOP and notify the user;
+never substitute models, a nested main-agent wrapper, or parent-authored prices.
+Local prompt metadata is not an Agent Host routing contract; skills inherit caller
+model/tools and require explicit selection of the owning agent.
+
 ---
 
 ## Pricing Accuracy Gate (HARD)

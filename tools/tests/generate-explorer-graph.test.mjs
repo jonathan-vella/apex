@@ -33,7 +33,10 @@ test("prompt collection preserves cross-root and nested same-basename identities
     { cwd: root, encoding: "utf8" },
   );
   assert.equal(child.status, 0, child.stderr);
-  assert.equal(JSON.parse(child.stdout).length, 3);
+  assert.deepEqual(JSON.parse(child.stdout).sort(), [
+    ".github/prompts/same.prompt.md",
+    "tools/apex-prompts/nested/same.prompt.md",
+  ]);
 });
 
 test("explorer includes native and attachable resume prompts with unique identities", () => {

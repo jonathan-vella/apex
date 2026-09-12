@@ -18,6 +18,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 See the [published changelog](https://apexops.pro/project/changelog/)
 for full details on this and all prior releases.
 
+### Changed (Agent modernization)
+
+- Apply the approved MAI, Sol, Terra and Luna agent/worker assignments, retaining unknown Sol metadata as unknown.
+- Preserve production roles, reviews and approval gates while making main-agent and leaf-worker invocation boundaries
+  explicit and mechanically checked. Restore worker-specific file/text output contracts without nested wrapper fallback.
+- Share operational procedures between thin Local prompt adapters and manual Agent Host skill entry points;
+  preserve explicit owner/model/tool selection and capture consent. Native harness acceptance remains manual.
+- Replace the limited frontmatter parser with structured YAML parsing and align model, vendor-rule and registry checks.
+  Distinguish sourced advice from repository conventions; do not infer runtime model eligibility or token savings.
+- Retire the E2E agent, launch/analysis prompts, scoring scripts, workflow and exclusive tests/commands.
+  Removed commands: `e2e:validate`, `e2e:benchmark`, `e2e:combine`, `test:lib-e2e`.
+  Production validation, lessons, recall, historical schemas and existing evidence remain supported.
+
 ### Changed (Devcontainer documentation)
 
 - Align setup documentation with build-time tool pins, fail-fast dependency installation,

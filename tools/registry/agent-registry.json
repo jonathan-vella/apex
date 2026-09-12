@@ -10,19 +10,19 @@
     },
     "requirements": {
       "agent": ".github/agents/02-requirements.agent.md",
-      "model": "Claude Sonnet 5",
+      "model": "gpt-5.6-sol",
       "invokable": true,
       "step": 1
     },
     "architect": {
       "agent": ".github/agents/03-architect.agent.md",
-      "model": "Claude Opus 5",
+      "model": "gpt-5.6-sol",
       "invokable": true,
       "step": 2
     },
     "design": {
       "agent": ".github/agents/04-design.agent.md",
-      "model": "Claude Sonnet 5",
+      "model": "GPT-5.6-Terra",
       "invokable": true,
       "step": 3
     },
@@ -34,18 +34,18 @@
     },
     "iac-plan": {
       "agent": ".github/agents/05-iac-planner.agent.md",
-      "model": "Claude Opus 5",
+      "model": "gpt-5.6-sol",
       "invokable": true,
       "step": 4
     },
     "iac-code": {
       "bicep": {
         "agent": ".github/agents/06b-bicep-codegen.agent.md",
-        "model": "Claude Sonnet 5"
+        "model": "GPT-5.6-Terra"
       },
       "terraform": {
         "agent": ".github/agents/06t-terraform-codegen.agent.md",
-        "model": "Claude Sonnet 5"
+        "model": "GPT-5.6-Terra"
       },
       "invokable": true,
       "step": 5
@@ -64,7 +64,7 @@
     },
     "as-built": {
       "agent": ".github/agents/08-as-built.agent.md",
-      "model": "Claude Sonnet 5",
+      "model": "GPT-5.6-Terra",
       "invokable": true,
       "step": 7
     },
@@ -76,20 +76,14 @@
     },
     "challenger": {
       "agent": ".github/agents/10-challenger.agent.md",
-      "model": "GPT-5.6-Luna",
+      "model": "GPT-5.6-Terra",
       "invokable": true,
       "step": null
     },
     "context-optimizer": {
       "agent": ".github/agents/11-context-optimizer.agent.md",
-      "model": "Claude Sonnet 5",
+      "model": "gpt-5.6-sol",
       "invokable": true,
-      "step": null
-    },
-    "e2e-orchestrator": {
-      "agent": ".github/agents/e2e-orchestrator.agent.md",
-      "model": "GPT-5.6-Terra",
-      "invokable": false,
       "step": null
     }
   },
@@ -106,27 +100,27 @@
     },
     "bicep-validate-subagent": {
       "agent": ".github/agents/_subagents/bicep-validate-subagent.agent.md",
-      "model": "Claude Sonnet 5",
+      "model": "GPT-5.6-Luna",
       "invokable": false
     },
     "bicep-whatif-subagent": {
       "agent": ".github/agents/_subagents/bicep-whatif-subagent.agent.md",
-      "model": "Claude Sonnet 5",
+      "model": "GPT-5.6-Luna",
       "invokable": false
     },
     "terraform-validate-subagent": {
       "agent": ".github/agents/_subagents/terraform-validate-subagent.agent.md",
-      "model": "Claude Sonnet 5",
+      "model": "GPT-5.6-Luna",
       "invokable": false
     },
     "terraform-plan-subagent": {
       "agent": ".github/agents/_subagents/terraform-plan-subagent.agent.md",
-      "model": "Claude Sonnet 5",
+      "model": "GPT-5.6-Luna",
       "invokable": false
     },
     "policy-precheck-subagent": {
       "agent": ".github/agents/_subagents/policy-precheck-subagent.agent.md",
-      "model": "Claude Sonnet 5",
+      "model": "GPT-5.6-Luna",
       "invokable": false
     }
   },

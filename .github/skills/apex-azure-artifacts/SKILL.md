@@ -65,7 +65,9 @@ Artifact generation flow (per Step N):
    contract. See
    [`agent-authoring.instructions.md`](../../instructions/agent-authoring.instructions.md#no-direct-markdownlint-on-agent-output-rule).
 
-For revisions (challenger findings, user-decision Apply/Skip/Defer, approval-gate fixes), see [`references/revision-workflow.md`](./references/revision-workflow.md) — bundle all fixes into a single `multi_replace_string_in_file` call.
+For revisions (challenger findings, user decisions, approval-gate fixes), follow
+[`references/revision-workflow.md`](./references/revision-workflow.md).
+Use available targeted editing tools, preserve user work, and validate before dependent follow-up edits.
 
 ## Post-write validation
 
@@ -86,6 +88,12 @@ lefthook `artifact-validation` hook — do not duplicate that check here.
 Fail closed: if the validator exits non-zero, fix the artifact and
 re-validate before continuing. Do **not** record the artifact in the
 project README or hand off to the next step until it passes.
+
+For incremental IaC, apply the readiness-aware build checkpoints in
+[`codegen-shared-workflow.md`](../apex-iac-common/references/codegen-shared-workflow.md).
+An incomplete scaffold has deferred checks, not successful validation;
+all deferred checks must pass before completion or handoff. This does not
+change the one-file-per-turn generation cadence.
 
 ## Placeholder Syntax
 

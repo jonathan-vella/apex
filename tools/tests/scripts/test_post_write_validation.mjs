@@ -7,7 +7,7 @@
  * checks after each artifact write), so the executable invariant is
  * documentary: the table must exist in apex-azure-artifacts SKILL.md with
  * rows for every artifact type, and the shared operating frame must
- * link to it so all main step agents inherit the rule.
+ * link to it without assuming runtime attachment to main step agents.
  *
  * Run via:
  *   node --test tools/tests/scripts/test_post_write_validation.mjs
@@ -105,6 +105,11 @@ test("instruction accuracy matches configuration, parser, and enforcement bounda
   assert.match(instruction("shell"), /while \[ "\$#" -gt 0 \]/);
   assert.match(instruction("javascript"), /tools\/scripts\/_lib\/parse-frontmatter.mjs/);
   assert.doesNotMatch(instruction("javascript"), /function parseFrontmatter\(/);
+  assert.match(instruction("javascript"), /js-yaml/);
+  assert.match(instruction("javascript"), /yaml.JSON_SCHEMA/);
+  assert.match(instruction("javascript"), /booleans,[\s\S]*nested maps/);
+  assert.match(instruction("javascript"), /Do not treat parse errors as absent frontmatter/);
+  assert.doesNotMatch(instruction("javascript"), /YAML-like|not a full YAML parser/);
   assert.deepEqual(parseFrontmatter('---\r\nName: Example\r\nmodel: ["one", "two"]\r\n---\r\n'), {
     name: "Example",
     model: ["one", "two"],
@@ -120,6 +125,9 @@ test("instruction accuracy matches configuration, parser, and enforcement bounda
   assert.match(lessons, /never patch session state directly/);
   assert.match(lessons, /no lessons recorded/);
   assert.doesNotMatch(lessons, /Update `00-session-state.json`|\/\/ agent-output/);
+  assert.match(lessons, /New workflow logs use `"production"`/);
+  assert.match(lessons, /historical `"e2e"` value/);
+  assert.doesNotMatch(lessons, /### E2E Orchestrator Triggers|Phase H|Set `workflow_mode` to `"e2e"`/);
   assert.match(instruction("no-interactive-shell"), /there is no `apex-recall lessons` subcommand/);
 });
 
@@ -180,6 +188,8 @@ test("CodeGen has one build-checkpoint owner and never passes an incomplete scaf
   assert.match(shared, /no completion or handoff with deferred checks/);
   assert.match(shared, /existence alone does not prove a complete write/);
   assert.match(shared, /exactly one file per response turn/);
+  assert.match(shared, /changing models does not authorize batching file bodies/);
+  assert.doesNotMatch(shared, /wasting the entire 200K\+ output/);
 });
 
 test("Diagnose writes its report separately from session finding registration", () => {
@@ -260,11 +270,17 @@ test("shared references preserve consolidated documentation and deployment rules
 });
 
 test("optimization guidance uses edit capabilities and recorded token evidence", () => {
-  for (const file of ["context-optimization.instructions.md", "azure-artifacts.instructions.md"]) {
-    const body = fs.readFileSync(path.join(ROOT, ".github/instructions", file), "utf8");
+  for (const file of [
+    ".github/instructions/context-optimization.instructions.md",
+    ".github/instructions/azure-artifacts.instructions.md",
+    ".github/skills/apex-azure-artifacts/references/revision-workflow.md",
+    ".github/skills/apex-iac-common/references/iac-planner-approval-gate.md",
+  ]) {
+    const body = fs.readFileSync(path.join(ROOT, file), "utf8");
     assert.match(body, /apply_patch/);
-    assert.doesNotMatch(body, /`create_file` \(with logged ADR\)|`create_file` \(documented in ADR\)/);
+    assert.doesNotMatch(body, /`create_file` \((?:with logged ADR|documented in ADR|rationale logged)\)/);
     assert.doesNotMatch(body, /20–60×|8–18 K output tokens|A 24-finding revision/);
+    assert.doesNotMatch(body, /single\s+`multi_replace_string_in_file`|One pass, one tool call/);
     assert.match(body, /validate before dependent follow-up edits/);
   }
   const agent = fs.readFileSync(path.join(ROOT, ".github/agents/11-context-optimizer.agent.md"), "utf8");
@@ -389,13 +405,47 @@ test("Post-write validation table covers every artifact type", () => {
 test("Operating frame links to the Post-write validation section", () => {
   const body = fs.readFileSync(OPFRAME, "utf8");
   assert.match(body, /## Validate every artifact after writing/, "missing H2 in operating frame");
-  // Anchor-bearing link to the SKILL section so every step agent
-  // inherits the rule via the shared frame.
   assert.match(
     body,
     /apex-azure-artifacts\/SKILL\.md#post-write-validation/,
     "missing anchored link to apex-azure-artifacts post-write-validation",
   );
+  assert.doesNotMatch(body, /\| Artifact type\s+\|/);
+  assert.match(body, /Deferred checks are not passes/);
+});
+
+test("shared harness guidance preserves human selection and does not infer model permissions", () => {
+  for (const file of [
+    "AGENTS.md",
+    ".github/copilot-instructions.md",
+    ".github/skills/apex-docs-writer/references/repo-architecture.md",
+  ]) {
+    const body = fs.readFileSync(path.join(ROOT, file), "utf8");
+    assert.match(body, /disable-model-invocation: true/, file);
+    assert.match(body, /Local prompt files are adapters/, file);
+    assert.match(body, /Agent Host/, file);
+    assert.match(body, /not a security boundary/, file);
+    assert.match(body, /runtime cost-tier/, file);
+  }
+  const inventory = fs.readFileSync(
+    path.join(ROOT, ".github/skills/apex-docs-writer/references/repo-architecture.md"),
+    "utf8",
+  );
+  for (const match of inventory.matchAll(/\|[^\n|]+\| `(\d[^`]+\.agent\.md)`\s+\| ([^|]+)\|/g)) {
+    const header = parseFrontmatter(fs.readFileSync(path.join(ROOT, ".github/agents", match[1]), "utf8"));
+    assert.equal(match[2].trim(), header.model[0], match[1]);
+    assert.equal(header["disable-model-invocation"], true, match[1]);
+  }
+  assert.doesNotMatch(inventory, /e2e-orchestrator\.agent\.md|Claude (?:Sonnet|Opus) 5/);
+  const parent = fs.readFileSync(
+    path.join(ROOT, ".github/skills/apex-azure-defaults/references/cost-estimate-parent-contract.md"),
+    "utf8",
+  );
+  assert.match(parent, /`03-Architect` uses `gpt-5.6-sol`/);
+  assert.match(parent, /`08-As-Built` uses `GPT-5.6-Terra`/);
+  assert.match(parent, /`cost-estimate-subagent` uses `GPT-5.6-Luna`/);
+  assert.match(parent, /cost-feasibility review with `challenger-review-subagent` \(`GPT-5.6-Terra`\)/);
+  assert.match(parent, /Do not infer effort settings/);
 });
 
 test("shared reading guidance respects phase inputs, freshness and actual attachment", () => {

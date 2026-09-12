@@ -1,34 +1,34 @@
 <!-- ref:gpt-5-prompting-v1 -->
 
-# OpenAI GPT-5.6-Terra — Prompting Best Practices (Normalized)
+# OpenAI Guidance And APEX Outcome Contracts
 
 > Source: [openai/skills @ 724cd511c96593f642bddf13187217aa155d2554/prompting-guide.md](https://github.com/openai/skills/blob/724cd511c96593f642bddf13187217aa155d2554/skills/.curated/openai-docs/references/prompting-guide.md)
 > sha256 `ecdf49b4a824a87367c7a6ec3c0218e2c5783dff951b30a101c3b6a95152aafa`.
 > Snapshot: [.snapshots/openai-prompting-guide.md](.snapshots/openai-prompting-guide.md).
 
-This file applies OpenAI's outcome-first prompting guidance to GPT-5.6-Terra rules
+This file separates pinned generic OpenAI advice from repository conventions
 consumable by `validate-agents.mjs`. Each rule references its ID in
 [rules.json](../rules.json).
 
 ## Applicable models
 
-GPT-5.6-Terra (preferred OpenAI default for the APEX outcome-first cohort) and GPT-5.4
-(active standard-tier sibling — same prompting style; see
-[gpt-5-upgrade.md](gpt-5-upgrade.md) for voluntary GPT-5.4 → GPT-5.5 upgrade
-patterns). GPT-5.6-Luna and GPT-4o are reviewer-only.
+APEX applies concise outcome-first Markdown to exact `gpt-5.6-sol`,
+`GPT-5.6-Terra`, and `GPT-5.6-Luna`. This is a repository convention, not
+model-specific vendor endorsement. Sol's label is user-confirmed; release,
+capability and cost metadata remain unknown. Legacy GPT-5.4/GPT-5.5 compatibility
+is separate from catalog deprecation. Historical upgrade notes remain in
+[gpt-5-upgrade.md](gpt-5-upgrade.md); no sources were refreshed for this policy.
 
 ## Rule R-GPT-1 — Outcome-first skeleton
 
 > Source: section "Suggested prompt structure".
 
-**Rule** (`gpt55-skeleton-001`): GPT-5.6-Terra agents must contain these
-H1 sections (order flexible, presence required):
+**APEX convention** (`gpt55-skeleton-001`): main agents retain these concise
+sections and a Role declaration. Preserve existing workflow H2 anchors:
 
 ```text
-Role: [1-2 sentences defining function, context, job]
-
-# Personality        ← only required for user-facing agents
-[tone, demeanor, collaboration style]
+# Role
+[function, context, job]
 
 # Goal
 [user-visible outcome]
@@ -46,17 +46,12 @@ Role: [1-2 sentences defining function, context, job]
 [when to retry, fallback, abstain, ask, or stop]
 ```
 
-`# Personality` is **only required** when the agent is user-facing
-(`frontmatter.user-invocable: true` AND `frontmatter.name` matches
-`/Orchestrator/i`). Internal pipeline agents (CodeGen, Governance,
-Challenger, subagents) MUST OMIT personality (rule
-`personality-scoping-001`) — OpenAI guide: "For customer-facing
-assistants, support workflows, coaching experiences, and other
-conversational products, define both personality and collaboration
-style."
+Leaf workers use a role-specific contract with Inputs, activities, Outputs and
+bounded failure/return behavior, not mandatory main-agent headings. Personality
+is optional for conversational mains and never mandatory for workers. Keep every
+unique safety, approval, ownership, evidence and output requirement when rewriting.
 
-**Severity**: warn until 2026-09-01, then error (encoded in
-`promotion_date`).
+**Severity**: warn. Historical `promotion_date` does not automatically promote it.
 
 ## Rule R-GPT-2 — Stop rules must be non-empty
 
@@ -66,7 +61,8 @@ style."
 
 **Rule** (`gpt55-stop-rules-non-empty-001`): the body under
 `# Stop rules` must contain ≥1 non-blank, non-comment line before the
-next H1. An empty section is misleading scaffolding.
+next H1. An empty section is misleading scaffolding. Workers may express the
+same behavior within their role contract rather than a main-agent heading.
 
 ## Rule R-GPT-3 — Decision rules over absolutes
 
@@ -81,19 +77,17 @@ exceed 0.05 outside permitted prose contexts (security baseline,
 governance, approval gate, non-negotiable). True invariants stay
 absolute; judgment calls become decision rules.
 
-**Severity**: info first release, warn after 2026-09-01.
+**Severity**: info. Do not weaken genuine invariants for a style-density score.
 
 ## Rule R-GPT-4 — No Claude-only XML blocks
 
-> Source: section "Personality and behavior" + "Formatting" — GPT-5.6-Terra
-> is steered with markdown sections. The guide does not use
-> Anthropic-style XML structuring.
+> Source context: generic sections "Personality and behavior" and "Formatting".
 
-**Rule** (`gpt-no-claude-xml-001`): GPT-family agents MUST NOT
-contain Claude-specific XML blocks
+**APEX convention** (`gpt-no-claude-xml-001`): replace legacy XML wrappers
 (`<investigate_before_answering>`, `<context_awareness>`,
 `<scope_fencing>`, `<empty_result_recovery>`, `<subagent_budget>`,
-`<output_contract>`).
+`<output_contract>`) with Markdown without discarding their content. This is a
+repository readability choice, not evidence that GPT cannot interpret XML.
 
 ## Rule R-GPT-5 — Personality scoping
 
@@ -103,9 +97,8 @@ contain Claude-specific XML blocks
 > style."
 
 **Rule** (`personality-scoping-001`): `# Personality` block
-permitted only on user-facing agents (Orchestrator family). Internal
-pipeline subagents should omit. Severity: info (advisory) — moved to
-warn if the repo standardizes the pattern.
+is optional for user-facing conversational agents. Internal pipeline workers
+normally omit it. Severity: info (advisory), not a mandatory runtime contract.
 
 ## Rule R-GPT-6 — Retrieval budgets and stopping rules
 
@@ -144,8 +137,8 @@ emit a 1-2 sentence preamble before tool calls. Not auto-validated.
 should embed a validation step ("After making changes, run the most
 relevant validation available: targeted unit tests for changed
 behavior, type checks or lint checks, build checks, smoke tests").
-Repo IaC agents already follow this via `validate:all` invocations
-in `# Stop rules`.
+Preserve the role's existing validation ownership and gates. Static validators
+do not establish generated-output quality or actual model eligibility.
 
 ## Rule R-GPT-9 — Phase parameter preservation
 
@@ -158,12 +151,12 @@ hit this case today — listed for awareness.
 
 ## Anti-patterns
 
-- Carrying over every instruction from a GPT-5.4 prompt stack —
-  GPT-5.6-Terra prefers shorter, outcome-oriented prompts.
+- Carrying over irrelevant instructions from an older prompt stack instead of
+  preserving a concise role and outcome contract.
 - Over-specifying step-by-step procedures for tasks that should
   describe the destination instead.
-- Using `<personality>`, `<role>`, `<goal>` XML tags — GPT-5.6-Terra
-  reads `# Personality`, `Role:`, `# Goal` markdown natively.
+- Retaining decorative XML wrappers after a Markdown migration while duplicating
+  or losing their substantive constraints.
 
 ## Cross-references
 

@@ -27,10 +27,11 @@
 import fs from "node:fs";
 import path from "node:path";
 import { Reporter } from "./_lib/reporter.mjs";
-import { getAgents } from "./_lib/workspace-index.mjs";
+import { getAgents, getPromptFiles } from "./_lib/workspace-index.mjs";
 import { REGISTRY_PATH } from "./_lib/paths.mjs";
-import { normalizeModel, walkRegistry, buildAssignments } from "./_lib/model-helpers.mjs";
+import { modelLabels, catalogModelLabel, walkRegistry, buildAssignments } from "./_lib/model-helpers.mjs";
 import { readJsonCached } from "./_lib/json.mjs";
+import { loadValidator } from "./_lib/ajv-validator.mjs";
 
 const ROOT = process.cwd();
 const CATALOG_PATH = path.join(ROOT, ".github", "model-catalog.json");
@@ -55,24 +56,35 @@ function finishMode(r, passMsg, failMsg) {
 
 // ── Mode: catalog ────────────────────────────────────────────────────────────
 
-function collectRegistryModels(registry) {
+function addModels(out, raw, origin, reporter, options) {
+  try {
+    for (const label of modelLabels(raw)) {
+      const model = catalogModelLabel(label, options);
+      if (!out.has(model)) out.set(model, []);
+      out.get(model).push(origin);
+    }
+  } catch (error) {
+    reporter.error(origin, error.message);
+  }
+}
+
+function collectRegistryModels(registry, reporter) {
   const out = new Map(); // model -> [origin labels]
   for (const [label, entry] of walkRegistry(registry)) {
-    const m = normalizeModel(entry.model);
-    if (!m) continue;
-    if (!out.has(m)) out.set(m, []);
-    out.get(m).push(label);
+    addModels(out, entry.model, label, reporter);
   }
   return out;
 }
 
-function collectFrontmatterModels() {
+function collectFrontmatterModels(reporter) {
   const out = new Map();
-  for (const [file, a] of getAgents()) {
-    const m = normalizeModel(a.frontmatter?.model);
-    if (!m) continue;
-    if (!out.has(m)) out.set(m, []);
-    out.get(m).push(file);
+  for (const [file, item] of [...getAgents(), ...getPromptFiles()]) {
+    addModels(out, item.frontmatter?.model, file, reporter);
+    const handoffs = item.frontmatter?.handoffs;
+    if (!Array.isArray(handoffs)) continue;
+    for (const [index, handoff] of handoffs.entries()) {
+      addModels(out, handoff?.model, `${file} handoffs[${index}]`, reporter, { handoff: true });
+    }
   }
   return out;
 }
@@ -87,6 +99,12 @@ function runCatalog() {
     return finishMode(r, "Model catalog validation passed", "Model catalog validation failed — see errors above");
   }
   const catalog = readJsonCached(CATALOG_PATH);
+  const validate = loadValidator(path.join(ROOT, "tools/schemas/model-catalog.schema.json"));
+  if (!validate(catalog)) {
+    for (const error of validate.errors) {
+      r.error("model-catalog.json", `${error.instancePath} ${error.message}`);
+    }
+  }
   const declared = new Set(Object.keys(catalog.models || {}));
   const deprecated = new Set(
     Object.entries(catalog.models || {})
@@ -95,9 +113,9 @@ function runCatalog() {
   );
 
   console.log("  Check 1: referenced labels exist in catalog.models");
-  const fmModels = collectFrontmatterModels();
+  const fmModels = collectFrontmatterModels(r);
   const registry = readJsonCached(REGISTRY_PATH);
-  const regModels = collectRegistryModels(registry);
+  const regModels = collectRegistryModels(registry, r);
   for (const [model, origins] of fmModels) {
     r.tick();
     if (!declared.has(model)) {
@@ -173,19 +191,29 @@ function checkConsistencyEntry(r, key, entry, lookup) {
     r.error(`Agent "${key}"`, `agent file not found in workspace index: ${registryAgentPath}`);
     return;
   }
-  const yamlModel = normalizeModel(fm.model);
-  const regModel = normalizeModel(entry.model);
+  let yamlModels;
+  let regModels;
+  try {
+    yamlModels = modelLabels(fm.model);
+    regModels = modelLabels(entry.model);
+  } catch (error) {
+    r.error(`Agent "${key}"`, error.message);
+    return;
+  }
 
-  if (!yamlModel) {
+  if (!yamlModels.length) {
     r.error(`Agent "${key}"`, `frontmatter is missing \`model\` field`);
     return;
   }
-  if (!regModel) {
+  if (!regModels.length) {
     r.error(`Agent "${key}"`, `registry entry is missing \`model\` field`);
     return;
   }
-  if (yamlModel !== regModel) {
-    r.error(`Agent "${key}"`, `frontmatter model "${yamlModel}" does not equal registry model "${regModel}"`);
+  if (JSON.stringify(yamlModels) !== JSON.stringify(regModels)) {
+    r.error(
+      `Agent "${key}"`,
+      `frontmatter models ${JSON.stringify(yamlModels)} do not equal registry models ${JSON.stringify(regModels)}`,
+    );
   }
 }
 

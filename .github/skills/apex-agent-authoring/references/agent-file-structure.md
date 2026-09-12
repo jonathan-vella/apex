@@ -16,7 +16,7 @@ rules remain in `../../../instructions/agent-authoring.instructions.md`.
 | `agents` | string[] | runtime default | Callable subagents; `*` means all, `[]` none |
 | `model` | string or string[] | model picker | Model or prioritized model list |
 | `user-invocable` | boolean | `true` | Dropdown visibility |
-| `disable-model-invocation` | boolean | `false` | Blocks model-driven subagent invocation |
+| `disable-model-invocation` | boolean | `false` | Disables implicit invocation; explicit caller allowlists can override |
 | `target` | string | none | `vscode` or `github-copilot` |
 | `mcp-servers` | object[] | none | GitHub Copilot target MCP configuration |
 | `handoffs` | object[] | none | Suggested transitions to another agent |
@@ -42,8 +42,19 @@ The deprecated `infer` field must not be used.
 - Body content is prepended to each agent turn.
 - Tool references use `#tool:<tool-name>`.
 - Model arrays are attempted in order.
+- Validate every label exactly against the catalog; add no automatic fallbacks.
+- Nonempty `agents` needs the `agent` tool. `agents: []` needs no delegation tool.
+- Leaf workers have no nested delegation, user-question, or parent-todo tools.
 - Prompt-file tools override agent tools when both are declared.
 - Subagents receive only the delegation prompt, not parent conversation history.
+
+Local prompt adapters do not establish Agent Host support: Host ignores prompt files
+and legacy configured locations. Shared procedures belong in skills, but skills
+inherit caller model/tools and cannot silently select the owning agent. Stop for
+human selection when an essential transition or tool is unavailable. Discovery,
+model eligibility, and nested worker locations require manual harness acceptance.
+Documented `handoffs[].model` platform qualifiers (for example `(copilot)`) are
+allowed; ordinary model labels remain exact catalog keys.
 
 Official reference:
 [VS Code Custom Agents](https://code.visualstudio.com/docs/copilot/customization/custom-agents).

@@ -4,9 +4,10 @@ model: ["GPT-5.6-Luna"]
 description: "Executes Azure deployments using generated Bicep templates. Uses azd provision (default; deploy.ps1 retained only for legacy projects without azure.yaml). Performs what-if analysis and manages deployment lifecycle. Step 6 of the agentic workflow."
 argument-hint: Deploy the Bicep templates for a specific project
 user-invocable: true
-agents: ["bicep-whatif-subagent", "bicep-validate-subagent", "policy-precheck-subagent", "challenger-review-subagent"]
+disable-model-invocation: true
+agents: ["bicep-whatif-subagent", "bicep-validate-subagent", "policy-precheck-subagent"]
 tools:
-  [vscode, execute, read, agent, browser, vscodeGeneral/rename, vscodeGeneral/usages, ms-azuretools.vscode-azureresourcegroups, edit, search, web, 'azure-mcp/*', 'bicep/*', todo]
+  [vscode/askQuestions, execute, read, agent, edit, search, 'azure-mcp/*', todo]
 handoffs:
   - label: "▶ Run What-If Only"
     agent: 07b-Bicep Deploy
@@ -46,7 +47,7 @@ handoffs:
     send: false
 ---
 
-# Bicep Deploy Agent
+# Role
 
 Role: Step 6 deployment executor. Provisions Bicep templates to Azure via `azd
 provision` (default) or `az deployment group create`, manages preflight + what-if
@@ -75,6 +76,15 @@ what-if gate and at any destructive operation.
 
 # Constraints
 
+- Allowed writes: deployment outputs below, project README, `00-handoff.md`,
+  resolved environment manifest/parameter values, azd environment state, preview/build
+  scratch, recall state and user-approved Step 6 SKU substitutions. Source templates,
+  scripts, plan and governance stay locked; input changes require fresh hash/validation evidence.
+- Azure writes are limited to explicitly approved deployment scope and phase, after all
+  gates. RG creation is a separate approved prerequisite, never a validation/preview shortcut.
+  `execute` can mutate resources; neither tool names nor missing edit tools make it read-only.
+- Bind human approval to the current tree, parameters, environment, subscription, phase,
+  preview and L3 result. Any change invalidates approval; re-run affected checks and ask again.
 - Require explicit approval for any Delete (`-`) operation surfaced by what-if.
 - Validate authentication via `az account get-access-token` before any deployment
   command; if it fails, STOP and ask the user to re-authenticate rather than
@@ -96,6 +106,8 @@ Checklist`. Use the templates in `.github/skills/apex-azure-artifacts/templates/
 
 # Stop rules
 
+- Missing model/tool/input or worker eligibility returns `blocked`; never substitute a
+  model or skip a gate. Retain bounded retries; no inline replacement for missing workers.
 - Stop after `06-deployment-summary.md` is written and the success/failure handoff
   label is rendered. Do not loop back into another deployment without a fresh user
   prompt.
@@ -111,14 +123,15 @@ Context tiers: follow apex-context-management skill (Mode A: Runtime Compression
 
 Shared agent rules: see
 [`agent-operating-frame.instructions.md`](../instructions/agent-operating-frame.instructions.md).
-Subagent budget: this agent runs on `GPT-5.6-Luna`; `bicep-whatif-subagent`
-runs on `Claude Sonnet 5` (cross-family call after the 2026-05 IaC
-subagent migration). The JSON-shaped what-if contract is preserved
-verbatim — no parsing changes required here.
+Use #tool:agent only for allowlisted validation, preview and policy workers; preserve
+their JSON/status contracts. Step 6 has no Challenger review. Local uses human handoffs;
+Host requires explicit selection of the next named owner. Skills run inline and cannot
+choose model/tools. Do not infer runtime eligibility from a capability label.
 
 ## Read Skills First
 
-Batch independent skill reads into one parallel `read_file` call.
+Load the following at the consuming phase, after prerequisite checks. Batch independent
+reads with available tools; recover missing/changed evidence after compaction or resume.
 
 1. Read `.github/skills/apex-azure-defaults/SKILL.md` — regions, tags, security baseline
 2. Read `.github/skills/apex-azure-artifacts/SKILL.md` — H2 template for `06-deployment-summary.md`
@@ -132,15 +145,15 @@ Batch independent skill reads into one parallel `read_file` call.
    matrix; consumed on every precheck result
 8. Read the execution-subagent prompt contract
    [tools/apex-prompts/utility-prompts/execution-subagent.prompt.md](../../tools/apex-prompts/utility-prompts/execution-subagent.prompt.md)
-   — every `runSubagent` call (bicep-whatif, bicep-validate,
-   policy-precheck, challenger-review) MUST follow the three-H2 contract
+  — every #tool:agent call (bicep-whatif, bicep-validate,
+  policy-precheck) MUST follow the three-H2 contract
    (issue #425).
 
 ## Shared Deploy Protocol
 
 Follow `apex-iac-common/references/deploy-shared-workflow.md` for:
 
-- Pre-deploy challenger review
+- No Step 6 challenger review; policy precheck remains mandatory
 - Security baseline preflight
 - Copy-then-fill artifact protocol (uses `06-deployment-summary.template.md`)
 - Post-deploy smart PR flow
@@ -369,7 +382,7 @@ Then use `askQuestions` to gather the decision:
 ### Step 5.6: Live Policy Precheck (L3 — MANDATORY before deploy)
 
 Before executing `az deployment ... create` or `azd provision`, invoke
-`policy-precheck-subagent` via `#runSubagent`. This is the L3
+`policy-precheck-subagent` via #tool:agent. This is the L3
 attestation in the four-layer governance stack — the only layer that
 talks to the live Azure Policy API, so the only layer that catches
 "discovery was wrong" failures.
@@ -435,6 +448,9 @@ Sources:
 - `cost_delta` ← `cost-estimate-subagent` delta vs the envelope in
   `02-architecture-assessment.md` (or `02-cost-estimate.json` when
   emitted).
+
+Use current existing cost-worker evidence only. Missing or stale pricing returns to
+`03-Architect`; this agent cannot call the cost worker or invent a zero delta.
 
 Block to render (exact shape, including the `decision:` line which is
 the human gate):
@@ -520,12 +536,14 @@ Check resource health. Capture key outputs (endpoints, IDs — redact secrets).
 **Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 6 phase_4_verify --json`
 
 If what-if returns no changes, report and confirm with the user.
-If what-if fails due to missing RG, create it first and retry once.
+If what-if fails due to missing RG, stop and obtain explicit scope-specific creation
+approval before creating it and retrying once; validation/preview-only requests forbid this.
 
 ## Known Issues
 
 See `apex-iac-common/references/known-deploy-issues.md` for shared issues (auth, MSAL, backend).
-Bicep-specific: what-if fails if RG doesn't exist (create first); RBAC errors → use `--validation-level ProviderNoRbac`.
+Bicep-specific: missing RG requires separate creation approval; RBAC errors may use
+`--validation-level ProviderNoRbac` but do not waive deployment authorization.
 
 ## Output
 

@@ -92,25 +92,40 @@ test("policy precheck fails closed without fresh or explicitly stale envelope ev
   assert.equal(run("STALE", "CLEAN", "PROCEED").status, 1);
 });
 
-test("unattended production and benchmark reviews fail closed on unresolved blockers", () => {
+test("unattended production reviews fail closed on unresolved blockers", () => {
   const read = (file) => readFileSync(new URL(`../../../${file}`, import.meta.url), "utf8");
   const protocol = read(".github/skills/apex-azure-defaults/references/adversarial-review-protocol.md");
   const unattended = protocol.split("### 2d. Unattended mode")[1].split("### 2e.")[0];
   assert.match(unattended, /unresolved `must_fix` remains, \*\*STOP\*\*/);
-  assert.match(unattended, /production and benchmark runs/);
+  assert.match(unattended, /every production run/);
   assert.match(unattended, /current review evidence confirming resolution/);
   assert.match(unattended, /Never infer production approval/);
   assert.doesNotMatch(unattended, /Final aggregated gate auto-proceeds/);
   const challenger = read(".github/agents/10-challenger.agent.md");
   assert.doesNotMatch(challenger, /auto-proceed/);
   assert.match(challenger, /stop on unresolved `must_fix`/);
-  const e2e = read(".github/agents/e2e-orchestrator.agent.md");
-  assert.doesNotMatch(e2e, /continue to next steps with WARNING/);
-  assert.match(e2e, /unresolved `must_fix` count > 0:[\s\S]{0,100}`E2E_BLOCKED`/);
+  assert.doesNotMatch(unattended, /E2E_BLOCKED|E2E harness|benchmark runs/);
   assert.match(
     read(".github/skills/apex-iac-common/references/iac-planner-approval-gate.md"),
-    /Benchmark auto-approval does not waive/,
+    /No unattended setting waives this gate/,
   );
+});
+
+test("unavailable reviewers require human handoff without nested wrapper or retry reset", () => {
+  const read = (file) => readFileSync(new URL(`../../../${file}`, import.meta.url), "utf8");
+  const protocol = read(".github/skills/apex-azure-defaults/references/adversarial-review-protocol.md");
+  assert.match(protocol, /STOP\*\* and request a human handoff to `10-Challenger`/);
+  assert.match(protocol, /disable-model-invocation: true/);
+  assert.match(protocol, /Do not invoke it as a subagent/);
+  assert.match(protocol, /retry exactly once with identical inputs/);
+  assert.match(protocol, /Do not reset this budget by changing wrappers or models/);
+  assert.doesNotMatch(protocol, /Retry once via the `10-Challenger`|#runSubagent|doubles input-token cost/);
+  const gates = read(".github/skills/apex-azure-defaults/references/workflow-gates.md");
+  assert.match(gates, /Before any retry/);
+  assert.match(gates, /Retry exactly once\*\* with identical inputs/);
+  assert.match(gates, /After the second failure\*\*: STOP/);
+  assert.match(gates, /request a human handoff to `10-Challenger`/);
+  assert.match(gates, /Do NOT call\s+the subagent a third time/);
 });
 
 test("Planner finding choices agree with its canonical approval reference", () => {
@@ -228,9 +243,6 @@ test("workflow graph and agent handoffs preserve review and validation floors", 
   assert.doesNotMatch(orchestrator, /Proceed directly to completion - Deploy agent will validate/);
   assert.match(orchestrator, /Complete CodeGen build, lint, security and handoff validation/);
   assert.match(orchestrator, /Complete CodeGen format, validate, security and handoff checks/);
-  const e2e = read(".github/agents/e2e-orchestrator.agent.md");
-  assert.match(e2e, /failed governance retries[\s\S]{0,160}`E2E_BLOCKED`/);
-  assert.doesNotMatch(e2e, /continue\s+with a WARNING that governance may be incomplete/);
 });
 
 for (const artifact of ["02-architecture-assessment.md", "03-des-cost-estimate.md"]) {

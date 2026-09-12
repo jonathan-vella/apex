@@ -14,10 +14,10 @@ negotiable** and **must not** be presented as user choices.
 For every `must_fix` finding across all passes:
 
 1. Apply the `suggested_fix.proposed_edit` (formerly `suggested_mitigation`)
-   to `04-implementation-plan.md` using a **single
-   `multi_replace_string_in_file` call** that bundles every `must_fix`
-   edit (do NOT re-emit the plan via `create_file`). See apex-azure-artifacts
-   skill "Revision Workflow".
+  to `04-implementation-plan.md` using available targeted editing tools,
+  including `apply_patch`. Batch independent fixes where practical, preserve
+  user work, and validate before dependent follow-up edits. Do NOT re-emit
+  the plan via `create_file`; see the apex-azure-artifacts "Revision Workflow".
 2. Persist each in
    `agent-output/{project}/challenge-findings-plan-decisions.json` with
    `action: "accept"`,
@@ -33,7 +33,7 @@ For every `must_fix` finding across all passes:
 
 **Unattended mode (`APEX_UNATTENDED=1`)**: skip auto-apply; defer all
 `must_fix` per adversarial-review-protocol section 2d and STOP before completion or forward handoff
-while any remains unresolved. Benchmark auto-approval does not waive this gate.
+while any remains unresolved. No unattended setting waives this gate.
 
 ## Stage 2 — Interactive `should_fix` decisions (same chat session)
 
@@ -56,9 +56,8 @@ on the remaining `should_fix` set only:
 - **Single batched `askQuestions` call** with one question per
   `should_fix`, four-option payload per protocol section 2g
   (recommended = `Defer` for `should_fix`).
-- After the user replies, apply every Accepted finding's edit via a
-  **single `multi_replace_string_in_file` call** (same revision workflow
-  as Stage 1), then re-run the relevant challenger passes
+- After the user replies, apply every Accepted finding's edit with available
+  targeted editing tools (same revision workflow as Stage 1), then re-run the relevant challenger passes
   (`overwrite: true`) once to verify the should_fix edits did not
   introduce new `must_fix`. If they did, return to Stage 1 (within the
   2-iteration cap).

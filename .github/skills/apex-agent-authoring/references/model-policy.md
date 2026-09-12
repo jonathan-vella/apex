@@ -15,16 +15,16 @@ approval. Explain approved changes in the pull request.
 
 ## Assignment Rationale
 
-| Agent group | Model family | Rationale |
-| --- | --- | --- |
-| Orchestrator | MAI Code Flash | Fast handoff-only routing |
-| Fast path, Diagnose, E2E, Challenger subagent | GPT-5.6-Terra | Outcome-first orchestration and review |
-| Governance, Deploy, Challenger wrapper, Cost estimate | GPT-5.6-Luna | Focused procedural execution |
-| Requirements, Design, CodeGen, As-Built, validation subagents | Claude Sonnet 5 | Structured artifacts and code |
-| Architect, IaC Planner | Claude Opus 5 | Complex WAF and planning decisions |
+The catalog and approved agent frontmatter own the active map; do not duplicate it
+here. Preserve exact `gpt-5.6-sol`, a user-confirmed label, without inventing public
+release dates, capability metadata, prices, or cost tiers. Unknown metadata is
+represented by null with explicit provenance. Capability descriptors are not
+runtime subagent cost tiers. No automatic model fallback is authorized.
 
-The model catalog owns exact active labels. Do not duplicate the complete map in
-prose.
+Check all existing fallback labels and families, not only the preferred model.
+Human handoffs select the named owner; an unavailable or unverified transition
+must not be replaced by implicit delegation. Native Local/Host eligibility and
+picker resolution remain manual acceptance gates, not conclusions from static tests.
 
 ## Reasoning Effort
 
@@ -32,13 +32,20 @@ prose.
 - Medium: structured code generation and large deterministic artifact suites.
 - Default: interactive diagnostics and focused procedural work.
 
-Effort is runtime policy, not part of a model label. Re-evaluate before
-escalating; effort does not replace missing context or validation.
+These are task-level recommendations only where the selected model and harness
+expose a supported effort control. Effort is not part of a model label; do not
+invent a Sol effort API. Re-evaluate before escalating; effort does not replace
+missing context or validation.
 
 ## Prompt Style
 
 - Claude: role-first structured contracts and selective XML blocks.
-- GPT-5.6-Terra: outcome-first Markdown and explicit stop rules.
+- Sol, Terra, Luna: concise outcome-first Markdown and explicit stop rules as an
+  APEX convention, informed by pinned generic OpenAI guidance, not a claim of
+  model-specific vendor endorsement. Main agents retain Role, Goal, Success
+  criteria, Constraints, Output, Stop rules, and existing H2 reference anchors.
+- Leaf workers: role-specific inputs, activities, outputs, and bounded failure/
+  return behavior. No mandatory personality or main-agent section boilerplate.
 - MAI Code Flash: concise orchestrator routing structure.
 
 Load `../../apex-vendor-prompting/SKILL.md` for a vendor-specific audit.

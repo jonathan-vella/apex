@@ -6,7 +6,7 @@
 > (cross-model best practices) and
 > [platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-sonnet-5](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-sonnet-5)
 > (Sonnet 5 model-specific deltas) — live web docs; refresh via
-> `npm run audit:vendor-prompting`.
+> `node tools/scripts/fetch-vendor-prompting-guides.mjs` only with authorized network access.
 
 This file normalizes Anthropic's published guidance into rules
 consumable by `validate-agents.mjs`. Each rule references its ID in
@@ -203,8 +203,9 @@ GPT-family agents (rule `gpt-no-claude-xml-001`):
 - `<subagent_budget>`
 - `<output_contract>`
 
-GPT-5.6-Terra reads markdown sections natively; Claude-only XML is noise in
-GPT prompts.
+APEX uses concise Markdown for Sol/Terra/Luna. This is a repository convention,
+not a claim that GPT cannot interpret XML or model-specific vendor evidence.
+When removing wrappers, preserve the contained constraints and workflow anchors.
 
 ## Cross-references
 

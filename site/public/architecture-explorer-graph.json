@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-09-11T07:21:19.585Z",
+  "generatedAt": "2026-09-12T05:03:57.337Z",
   "categories": [
     {
       "id": "agent",
@@ -8,7 +8,7 @@
       "label": "Agent",
       "color": "#3b82f6",
       "shape": "round-rectangle",
-      "count": 15
+      "count": 14
     },
     {
       "id": "subagent",
@@ -24,7 +24,7 @@
       "label": "Skill",
       "color": "#10b981",
       "shape": "ellipse",
-      "count": 33
+      "count": 37
     },
     {
       "id": "instruction",
@@ -56,7 +56,7 @@
       "label": "CI Workflow",
       "color": "#06b6d4",
       "shape": "cut-rectangle",
-      "count": 13
+      "count": 12
     },
     {
       "id": "mcp",
@@ -67,8 +67,8 @@
       "count": 3
     }
   ],
-  "nodeCount": 194,
-  "edgeCount": 752,
+  "nodeCount": 196,
+  "edgeCount": 733,
   "nodes": [
     {
       "id": "agent:01-orchestrator",
@@ -82,20 +82,7 @@
       "meta": {
         "model": "MAI-Code-1.1-Flash",
         "invocable": true,
-        "subagents": [
-          "02-Requirements",
-          "03-Architect",
-          "04-Design",
-          "04g-Governance",
-          "05-IaC Planner",
-          "06b-Bicep CodeGen",
-          "07b-Bicep Deploy",
-          "08-As-Built",
-          "09-Diagnose",
-          "10-Challenger",
-          "06t-Terraform CodeGen",
-          "07t-Terraform Deploy"
-        ],
+        "subagents": [],
         "handoffTargets": [
           "01-Orchestrator",
           "02-Requirements",
@@ -112,10 +99,10 @@
           "10-Challenger"
         ],
         "skills": [
+          "apex-workflow-engine",
           "apex-golden-principles",
-          "apex-azure-defaults",
           "apex-azure-artifacts",
-          "apex-workflow-engine"
+          "apex-azure-defaults"
         ]
       }
     },
@@ -129,7 +116,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/02-requirements.agent.md"
       },
       "meta": {
-        "model": "Claude Sonnet 5",
+        "model": "gpt-5.6-sol",
         "invocable": true,
         "subagents": [
           "challenger-review-subagent"
@@ -156,7 +143,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/03-architect.agent.md"
       },
       "meta": {
-        "model": "Claude Opus 5",
+        "model": "gpt-5.6-sol",
         "invocable": true,
         "subagents": [
           "cost-estimate-subagent",
@@ -186,7 +173,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/04-design.agent.md"
       },
       "meta": {
-        "model": "Claude Sonnet 5",
+        "model": "GPT-5.6-Terra",
         "invocable": true,
         "subagents": [
           "challenger-review-subagent"
@@ -243,7 +230,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/05-iac-planner.agent.md"
       },
       "meta": {
-        "model": "Claude Opus 5",
+        "model": "gpt-5.6-sol",
         "invocable": true,
         "subagents": [
           "challenger-review-subagent"
@@ -276,7 +263,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/06b-bicep-codegen.agent.md"
       },
       "meta": {
-        "model": "Claude Sonnet 5",
+        "model": "GPT-5.6-Terra",
         "invocable": true,
         "subagents": [
           "bicep-validate-subagent",
@@ -306,7 +293,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/06t-terraform-codegen.agent.md"
       },
       "meta": {
-        "model": "Claude Sonnet 5",
+        "model": "GPT-5.6-Terra",
         "invocable": true,
         "subagents": [
           "terraform-validate-subagent",
@@ -341,8 +328,7 @@
         "subagents": [
           "bicep-whatif-subagent",
           "bicep-validate-subagent",
-          "policy-precheck-subagent",
-          "challenger-review-subagent"
+          "policy-precheck-subagent"
         ],
         "handoffTargets": [
           "07b-Bicep Deploy",
@@ -373,8 +359,7 @@
         "subagents": [
           "terraform-plan-subagent",
           "terraform-validate-subagent",
-          "policy-precheck-subagent",
-          "challenger-review-subagent"
+          "policy-precheck-subagent"
         ],
         "handoffTargets": [
           "07t-Terraform Deploy",
@@ -400,7 +385,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/08-as-built.agent.md"
       },
       "meta": {
-        "model": "Claude Sonnet 5",
+        "model": "GPT-5.6-Terra",
         "invocable": true,
         "subagents": [
           "cost-estimate-subagent"
@@ -452,7 +437,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/10-challenger.agent.md"
       },
       "meta": {
-        "model": "GPT-5.6-Luna",
+        "model": "GPT-5.6-Terra",
         "invocable": true,
         "subagents": [
           "challenger-review-subagent"
@@ -473,7 +458,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/11-context-optimizer.agent.md"
       },
       "meta": {
-        "model": "Claude Sonnet 5",
+        "model": "gpt-5.6-sol",
         "invocable": true,
         "subagents": [],
         "handoffTargets": [
@@ -482,42 +467,6 @@
         "skills": [
           "apex-golden-principles",
           "apex-context-management"
-        ]
-      }
-    },
-    {
-      "id": "agent:e2e-orchestrator",
-      "category": "agent",
-      "label": "E2E Orchestrator",
-      "description": "Autonomous E2E evaluation orchestrator for the RALPH-style workflow loop. Executes real workflow agents end-to-end with MCP-backed cost, Python diagram design, governance discovery, validation, and benchmark collection. Does NOT replace 01-Orchestrator.",
-      "path": ".github/agents/e2e-orchestrator.agent.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/e2e-orchestrator.agent.md"
-      },
-      "meta": {
-        "model": "GPT-5.6-Terra",
-        "invocable": true,
-        "subagents": [
-          "02-Requirements",
-          "03-Architect",
-          "04-Design",
-          "04g-Governance",
-          "05-IaC Planner",
-          "06b-Bicep CodeGen",
-          "06t-Terraform CodeGen",
-          "07b-Bicep Deploy",
-          "07t-Terraform Deploy",
-          "08-As-Built",
-          "challenger-review-subagent",
-          "bicep-validate-subagent",
-          "bicep-whatif-subagent",
-          "terraform-validate-subagent",
-          "terraform-plan-subagent"
-        ],
-        "handoffTargets": [],
-        "skills": [
-          "apex-azure-defaults",
-          "apex-azure-artifacts"
         ]
       }
     },
@@ -531,7 +480,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/_subagents/bicep-validate-subagent.agent.md"
       },
       "meta": {
-        "model": "Claude Sonnet 5",
+        "model": "GPT-5.6-Luna",
         "skills": [
           "apex-azure-defaults",
           "apex-iac-common"
@@ -548,7 +497,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/_subagents/bicep-whatif-subagent.agent.md"
       },
       "meta": {
-        "model": "Claude Sonnet 5",
+        "model": "GPT-5.6-Luna",
         "skills": []
       }
     },
@@ -593,7 +542,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/_subagents/policy-precheck-subagent.agent.md"
       },
       "meta": {
-        "model": "Claude Sonnet 5",
+        "model": "GPT-5.6-Luna",
         "skills": []
       }
     },
@@ -607,7 +556,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/_subagents/terraform-plan-subagent.agent.md"
       },
       "meta": {
-        "model": "Claude Sonnet 5",
+        "model": "GPT-5.6-Luna",
         "skills": []
       }
     },
@@ -621,7 +570,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/_subagents/terraform-validate-subagent.agent.md"
       },
       "meta": {
-        "model": "Claude Sonnet 5",
+        "model": "GPT-5.6-Luna",
         "skills": [
           "apex-azure-defaults",
           "apex-iac-common"
@@ -889,6 +838,50 @@
       "path": ".github/skills/apex-golden-principles/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-golden-principles/SKILL.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "skill:apex-host-debug-log-export",
+      "category": "skill",
+      "label": "apex-host-debug-log-export",
+      "description": "Bundle selected custom-agent debug logs locally for manual upload in Agent Host. Use /apex-host-debug-log-export after selecting the built-in agent owner and MAI-Code-1.1-Flash.",
+      "path": ".github/skills/apex-host-debug-log-export/SKILL.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-host-debug-log-export/SKILL.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "skill:apex-host-git-commit",
+      "category": "skill",
+      "label": "apex-host-git-commit",
+      "description": "Stage scoped changes, commit, push, and offer a PR in Agent Host. Use /apex-host-git-commit only after selecting the built-in agent owner and MAI-Code-1.1-Flash.",
+      "path": ".github/skills/apex-host-git-commit/SKILL.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-host-git-commit/SKILL.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "skill:apex-host-resume-workflow",
+      "category": "skill",
+      "label": "apex-host-resume-workflow",
+      "description": "Resume an APEX project in Agent Host with 01-Orchestrator selected. Use /apex-host-resume-workflow for recovery, checkpoints, and pending approval gates.",
+      "path": ".github/skills/apex-host-resume-workflow/SKILL.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-host-resume-workflow/SKILL.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "skill:apex-host-workflow-start",
+      "category": "skill",
+      "label": "apex-host-workflow-start",
+      "description": "Start an APEX workflow or named step in Agent Host after manual owner selection. Use /apex-host-workflow-start with an operation and project; not a model-routing substitute.",
+      "path": ".github/skills/apex-host-workflow-start/SKILL.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-host-workflow-start/SKILL.md"
       },
       "meta": {}
     },
@@ -1359,7 +1352,7 @@
       "id": "instruction:vendor-prompting",
       "category": "instruction",
       "label": "vendor-prompting",
-      "description": "Vendor prompting best-practice rules for Anthropic Claude and OpenAI GPT-5.6-Terra agents and prompts. Each rule cites a rule ID in the vendor-prompting skill rules.json registry. Validator: npm run lint:vendor-prompting.",
+      "description": "Sourced vendor advice and APEX authoring conventions for agent and prompt files. Rule IDs map to apex-vendor-prompting/rules.json; validator: npm run lint:vendor-prompting.",
       "path": ".github/instructions/vendor-prompting.instructions.md",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/instructions/vendor-prompting.instructions.md"
@@ -1482,7 +1475,7 @@
       "id": "prompt:execution-subagent",
       "category": "prompt",
       "label": "execution-subagent",
-      "description": "Canonical prompt shape for invoking execution subagents. Parent agents (Steps 1-7) MUST follow this contract when calling runSubagent for an execution-style subagent (validate, what-if, plan, policy-precheck, cost-estimate, challenger-review). Reference: issue #425, Wave 3a.",
+      "description": "Reference-only invocation contract for named execution workers; not an operational slash entrypoint.",
       "path": "tools/apex-prompts/utility-prompts/execution-subagent.prompt.md",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/tools/apex-prompts/utility-prompts/execution-subagent.prompt.md"
@@ -2682,20 +2675,6 @@
       "parent": "group:workflow-orphans"
     },
     {
-      "id": "workflow:e2e-validation",
-      "category": "workflow",
-      "label": "e2e-validation",
-      "description": "",
-      "path": ".github/workflows/e2e-validation.yml",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/workflows/e2e-validation.yml"
-      },
-      "meta": {
-        "orphan": true
-      },
-      "parent": "group:workflow-orphans"
-    },
-    {
       "id": "workflow:governance-policy-baseline",
       "category": "workflow",
       "label": "governance-policy-baseline",
@@ -2822,87 +2801,15 @@
     {
       "id": "group:workflow-orphans",
       "category": "workflow",
-      "label": "CI Workflow (unlinked, 7)",
-      "description": "7 ci workflow nodes with no cross-references in the current graph.",
+      "label": "CI Workflow (unlinked, 6)",
+      "description": "6 ci workflow nodes with no cross-references in the current graph.",
       "isGroup": true,
       "meta": {
-        "groupSize": 7
+        "groupSize": 6
       }
     }
   ],
   "edges": [
-    {
-      "id": "agent:01-orchestrator--delegates->agent:02-requirements",
-      "source": "agent:01-orchestrator",
-      "target": "agent:02-requirements",
-      "kind": "delegates"
-    },
-    {
-      "id": "agent:01-orchestrator--delegates->agent:03-architect",
-      "source": "agent:01-orchestrator",
-      "target": "agent:03-architect",
-      "kind": "delegates"
-    },
-    {
-      "id": "agent:01-orchestrator--delegates->agent:04-design",
-      "source": "agent:01-orchestrator",
-      "target": "agent:04-design",
-      "kind": "delegates"
-    },
-    {
-      "id": "agent:01-orchestrator--delegates->agent:04g-governance",
-      "source": "agent:01-orchestrator",
-      "target": "agent:04g-governance",
-      "kind": "delegates"
-    },
-    {
-      "id": "agent:01-orchestrator--delegates->agent:05-iac-planner",
-      "source": "agent:01-orchestrator",
-      "target": "agent:05-iac-planner",
-      "kind": "delegates"
-    },
-    {
-      "id": "agent:01-orchestrator--delegates->agent:06b-bicep-codegen",
-      "source": "agent:01-orchestrator",
-      "target": "agent:06b-bicep-codegen",
-      "kind": "delegates"
-    },
-    {
-      "id": "agent:01-orchestrator--delegates->agent:07b-bicep-deploy",
-      "source": "agent:01-orchestrator",
-      "target": "agent:07b-bicep-deploy",
-      "kind": "delegates"
-    },
-    {
-      "id": "agent:01-orchestrator--delegates->agent:08-as-built",
-      "source": "agent:01-orchestrator",
-      "target": "agent:08-as-built",
-      "kind": "delegates"
-    },
-    {
-      "id": "agent:01-orchestrator--delegates->agent:09-diagnose",
-      "source": "agent:01-orchestrator",
-      "target": "agent:09-diagnose",
-      "kind": "delegates"
-    },
-    {
-      "id": "agent:01-orchestrator--delegates->agent:10-challenger",
-      "source": "agent:01-orchestrator",
-      "target": "agent:10-challenger",
-      "kind": "delegates"
-    },
-    {
-      "id": "agent:01-orchestrator--delegates->agent:06t-terraform-codegen",
-      "source": "agent:01-orchestrator",
-      "target": "agent:06t-terraform-codegen",
-      "kind": "delegates"
-    },
-    {
-      "id": "agent:01-orchestrator--delegates->agent:07t-terraform-deploy",
-      "source": "agent:01-orchestrator",
-      "target": "agent:07t-terraform-deploy",
-      "kind": "delegates"
-    },
     {
       "id": "agent:02-requirements--delegates->subagent:challenger-review-subagent",
       "source": "agent:02-requirements",
@@ -2982,12 +2889,6 @@
       "kind": "delegates"
     },
     {
-      "id": "agent:07b-bicep-deploy--delegates->subagent:challenger-review-subagent",
-      "source": "agent:07b-bicep-deploy",
-      "target": "subagent:challenger-review-subagent",
-      "kind": "delegates"
-    },
-    {
       "id": "agent:07t-terraform-deploy--delegates->subagent:terraform-plan-subagent",
       "source": "agent:07t-terraform-deploy",
       "target": "subagent:terraform-plan-subagent",
@@ -3006,12 +2907,6 @@
       "kind": "delegates"
     },
     {
-      "id": "agent:07t-terraform-deploy--delegates->subagent:challenger-review-subagent",
-      "source": "agent:07t-terraform-deploy",
-      "target": "subagent:challenger-review-subagent",
-      "kind": "delegates"
-    },
-    {
       "id": "agent:08-as-built--delegates->subagent:cost-estimate-subagent",
       "source": "agent:08-as-built",
       "target": "subagent:cost-estimate-subagent",
@@ -3021,96 +2916,6 @@
       "id": "agent:10-challenger--delegates->subagent:challenger-review-subagent",
       "source": "agent:10-challenger",
       "target": "subagent:challenger-review-subagent",
-      "kind": "delegates"
-    },
-    {
-      "id": "agent:e2e-orchestrator--delegates->agent:02-requirements",
-      "source": "agent:e2e-orchestrator",
-      "target": "agent:02-requirements",
-      "kind": "delegates"
-    },
-    {
-      "id": "agent:e2e-orchestrator--delegates->agent:03-architect",
-      "source": "agent:e2e-orchestrator",
-      "target": "agent:03-architect",
-      "kind": "delegates"
-    },
-    {
-      "id": "agent:e2e-orchestrator--delegates->agent:04-design",
-      "source": "agent:e2e-orchestrator",
-      "target": "agent:04-design",
-      "kind": "delegates"
-    },
-    {
-      "id": "agent:e2e-orchestrator--delegates->agent:04g-governance",
-      "source": "agent:e2e-orchestrator",
-      "target": "agent:04g-governance",
-      "kind": "delegates"
-    },
-    {
-      "id": "agent:e2e-orchestrator--delegates->agent:05-iac-planner",
-      "source": "agent:e2e-orchestrator",
-      "target": "agent:05-iac-planner",
-      "kind": "delegates"
-    },
-    {
-      "id": "agent:e2e-orchestrator--delegates->agent:06b-bicep-codegen",
-      "source": "agent:e2e-orchestrator",
-      "target": "agent:06b-bicep-codegen",
-      "kind": "delegates"
-    },
-    {
-      "id": "agent:e2e-orchestrator--delegates->agent:06t-terraform-codegen",
-      "source": "agent:e2e-orchestrator",
-      "target": "agent:06t-terraform-codegen",
-      "kind": "delegates"
-    },
-    {
-      "id": "agent:e2e-orchestrator--delegates->agent:07b-bicep-deploy",
-      "source": "agent:e2e-orchestrator",
-      "target": "agent:07b-bicep-deploy",
-      "kind": "delegates"
-    },
-    {
-      "id": "agent:e2e-orchestrator--delegates->agent:07t-terraform-deploy",
-      "source": "agent:e2e-orchestrator",
-      "target": "agent:07t-terraform-deploy",
-      "kind": "delegates"
-    },
-    {
-      "id": "agent:e2e-orchestrator--delegates->agent:08-as-built",
-      "source": "agent:e2e-orchestrator",
-      "target": "agent:08-as-built",
-      "kind": "delegates"
-    },
-    {
-      "id": "agent:e2e-orchestrator--delegates->subagent:challenger-review-subagent",
-      "source": "agent:e2e-orchestrator",
-      "target": "subagent:challenger-review-subagent",
-      "kind": "delegates"
-    },
-    {
-      "id": "agent:e2e-orchestrator--delegates->subagent:bicep-validate-subagent",
-      "source": "agent:e2e-orchestrator",
-      "target": "subagent:bicep-validate-subagent",
-      "kind": "delegates"
-    },
-    {
-      "id": "agent:e2e-orchestrator--delegates->subagent:bicep-whatif-subagent",
-      "source": "agent:e2e-orchestrator",
-      "target": "subagent:bicep-whatif-subagent",
-      "kind": "delegates"
-    },
-    {
-      "id": "agent:e2e-orchestrator--delegates->subagent:terraform-validate-subagent",
-      "source": "agent:e2e-orchestrator",
-      "target": "subagent:terraform-validate-subagent",
-      "kind": "delegates"
-    },
-    {
-      "id": "agent:e2e-orchestrator--delegates->subagent:terraform-plan-subagent",
-      "source": "agent:e2e-orchestrator",
-      "target": "subagent:terraform-plan-subagent",
       "kind": "delegates"
     },
     {
@@ -3408,15 +3213,15 @@
       "kind": "hands-off"
     },
     {
-      "id": "agent:01-orchestrator--uses-skill->skill:apex-golden-principles",
+      "id": "agent:01-orchestrator--uses-skill->skill:apex-workflow-engine",
       "source": "agent:01-orchestrator",
-      "target": "skill:apex-golden-principles",
+      "target": "skill:apex-workflow-engine",
       "kind": "uses-skill"
     },
     {
-      "id": "agent:01-orchestrator--uses-skill->skill:apex-azure-defaults",
+      "id": "agent:01-orchestrator--uses-skill->skill:apex-golden-principles",
       "source": "agent:01-orchestrator",
-      "target": "skill:apex-azure-defaults",
+      "target": "skill:apex-golden-principles",
       "kind": "uses-skill"
     },
     {
@@ -3426,9 +3231,9 @@
       "kind": "uses-skill"
     },
     {
-      "id": "agent:01-orchestrator--uses-skill->skill:apex-workflow-engine",
+      "id": "agent:01-orchestrator--uses-skill->skill:apex-azure-defaults",
       "source": "agent:01-orchestrator",
-      "target": "skill:apex-workflow-engine",
+      "target": "skill:apex-azure-defaults",
       "kind": "uses-skill"
     },
     {
@@ -3678,18 +3483,6 @@
       "kind": "uses-skill"
     },
     {
-      "id": "agent:e2e-orchestrator--uses-skill->skill:apex-azure-defaults",
-      "source": "agent:e2e-orchestrator",
-      "target": "skill:apex-azure-defaults",
-      "kind": "uses-skill"
-    },
-    {
-      "id": "agent:e2e-orchestrator--uses-skill->skill:apex-azure-artifacts",
-      "source": "agent:e2e-orchestrator",
-      "target": "skill:apex-azure-artifacts",
-      "kind": "uses-skill"
-    },
-    {
       "id": "subagent:bicep-validate-subagent--uses-skill->skill:apex-azure-defaults",
       "source": "subagent:bicep-validate-subagent",
       "target": "skill:apex-azure-defaults",
@@ -3867,12 +3660,6 @@
       "id": "instruction:agent-authoring--applies-to->agent:11-context-optimizer",
       "source": "instruction:agent-authoring",
       "target": "agent:11-context-optimizer",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:agent-authoring--applies-to->agent:e2e-orchestrator",
-      "source": "instruction:agent-authoring",
-      "target": "agent:e2e-orchestrator",
       "kind": "applies-to"
     },
     {
@@ -4182,12 +3969,6 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:agent-operating-frame--applies-to->agent:e2e-orchestrator",
-      "source": "instruction:agent-operating-frame",
-      "target": "agent:e2e-orchestrator",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:agent-operating-frame--applies-to->subagent:bicep-validate-subagent",
       "source": "instruction:agent-operating-frame",
       "target": "subagent:bicep-validate-subagent",
@@ -4374,6 +4155,30 @@
       "kind": "applies-to"
     },
     {
+      "id": "instruction:agent-skills--applies-to->skill:apex-host-debug-log-export",
+      "source": "instruction:agent-skills",
+      "target": "skill:apex-host-debug-log-export",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-skills--applies-to->skill:apex-host-git-commit",
+      "source": "instruction:agent-skills",
+      "target": "skill:apex-host-git-commit",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-skills--applies-to->skill:apex-host-resume-workflow",
+      "source": "instruction:agent-skills",
+      "target": "skill:apex-host-resume-workflow",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-skills--applies-to->skill:apex-host-workflow-start",
+      "source": "instruction:agent-skills",
+      "target": "skill:apex-host-workflow-start",
+      "kind": "applies-to"
+    },
+    {
       "id": "instruction:agent-skills--applies-to->skill:apex-iac-common",
       "source": "instruction:agent-skills",
       "target": "skill:apex-iac-common",
@@ -4509,12 +4314,6 @@
       "id": "instruction:context-optimization--applies-to->agent:11-context-optimizer",
       "source": "instruction:context-optimization",
       "target": "agent:11-context-optimizer",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:context-optimization--applies-to->agent:e2e-orchestrator",
-      "source": "instruction:context-optimization",
-      "target": "agent:e2e-orchestrator",
       "kind": "applies-to"
     },
     {
@@ -4704,6 +4503,30 @@
       "kind": "applies-to"
     },
     {
+      "id": "instruction:context-optimization--applies-to->skill:apex-host-debug-log-export",
+      "source": "instruction:context-optimization",
+      "target": "skill:apex-host-debug-log-export",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->skill:apex-host-git-commit",
+      "source": "instruction:context-optimization",
+      "target": "skill:apex-host-git-commit",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->skill:apex-host-resume-workflow",
+      "source": "instruction:context-optimization",
+      "target": "skill:apex-host-resume-workflow",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->skill:apex-host-workflow-start",
+      "source": "instruction:context-optimization",
+      "target": "skill:apex-host-workflow-start",
+      "kind": "applies-to"
+    },
+    {
       "id": "instruction:context-optimization--applies-to->skill:apex-iac-common",
       "source": "instruction:context-optimization",
       "target": "skill:apex-iac-common",
@@ -4845,12 +4668,6 @@
       "id": "instruction:docs-trigger--applies-to->agent:11-context-optimizer",
       "source": "instruction:docs-trigger",
       "target": "agent:11-context-optimizer",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:docs-trigger--applies-to->agent:e2e-orchestrator",
-      "source": "instruction:docs-trigger",
-      "target": "agent:e2e-orchestrator",
       "kind": "applies-to"
     },
     {
@@ -5037,6 +4854,30 @@
       "id": "instruction:docs-trigger--applies-to->skill:apex-golden-principles",
       "source": "instruction:docs-trigger",
       "target": "skill:apex-golden-principles",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->skill:apex-host-debug-log-export",
+      "source": "instruction:docs-trigger",
+      "target": "skill:apex-host-debug-log-export",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->skill:apex-host-git-commit",
+      "source": "instruction:docs-trigger",
+      "target": "skill:apex-host-git-commit",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->skill:apex-host-resume-workflow",
+      "source": "instruction:docs-trigger",
+      "target": "skill:apex-host-resume-workflow",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->skill:apex-host-workflow-start",
+      "source": "instruction:docs-trigger",
+      "target": "skill:apex-host-workflow-start",
       "kind": "applies-to"
     },
     {
@@ -5346,12 +5187,6 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:lesson-collection--applies-to->agent:e2e-orchestrator",
-      "source": "instruction:lesson-collection",
-      "target": "agent:e2e-orchestrator",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:lesson-collection--applies-to->subagent:bicep-validate-subagent",
       "source": "instruction:lesson-collection",
       "target": "subagent:bicep-validate-subagent",
@@ -5538,6 +5373,30 @@
       "kind": "applies-to"
     },
     {
+      "id": "instruction:markdown--applies-to->skill:apex-host-debug-log-export",
+      "source": "instruction:markdown",
+      "target": "skill:apex-host-debug-log-export",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:markdown--applies-to->skill:apex-host-git-commit",
+      "source": "instruction:markdown",
+      "target": "skill:apex-host-git-commit",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:markdown--applies-to->skill:apex-host-resume-workflow",
+      "source": "instruction:markdown",
+      "target": "skill:apex-host-resume-workflow",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:markdown--applies-to->skill:apex-host-workflow-start",
+      "source": "instruction:markdown",
+      "target": "skill:apex-host-workflow-start",
+      "kind": "applies-to"
+    },
+    {
       "id": "instruction:markdown--applies-to->skill:apex-iac-common",
       "source": "instruction:markdown",
       "target": "skill:apex-iac-common",
@@ -5673,12 +5532,6 @@
       "id": "instruction:no-interactive-shell--applies-to->agent:11-context-optimizer",
       "source": "instruction:no-interactive-shell",
       "target": "agent:11-context-optimizer",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:no-interactive-shell--applies-to->agent:e2e-orchestrator",
-      "source": "instruction:no-interactive-shell",
-      "target": "agent:e2e-orchestrator",
       "kind": "applies-to"
     },
     {
@@ -5865,6 +5718,30 @@
       "id": "instruction:no-interactive-shell--applies-to->skill:apex-golden-principles",
       "source": "instruction:no-interactive-shell",
       "target": "skill:apex-golden-principles",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:no-interactive-shell--applies-to->skill:apex-host-debug-log-export",
+      "source": "instruction:no-interactive-shell",
+      "target": "skill:apex-host-debug-log-export",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:no-interactive-shell--applies-to->skill:apex-host-git-commit",
+      "source": "instruction:no-interactive-shell",
+      "target": "skill:apex-host-git-commit",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:no-interactive-shell--applies-to->skill:apex-host-resume-workflow",
+      "source": "instruction:no-interactive-shell",
+      "target": "skill:apex-host-resume-workflow",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:no-interactive-shell--applies-to->skill:apex-host-workflow-start",
+      "source": "instruction:no-interactive-shell",
+      "target": "skill:apex-host-workflow-start",
       "kind": "applies-to"
     },
     {
@@ -6372,12 +6249,6 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:vendor-prompting--applies-to->agent:e2e-orchestrator",
-      "source": "instruction:vendor-prompting",
-      "target": "agent:e2e-orchestrator",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:vendor-prompting--applies-to->subagent:bicep-validate-subagent",
       "source": "instruction:vendor-prompting",
       "target": "subagent:bicep-validate-subagent",
@@ -6696,21 +6567,9 @@
       "kind": "uses-mcp"
     },
     {
-      "id": "agent:01-orchestrator--uses-mcp->mcp:azure-mcp",
-      "source": "agent:01-orchestrator",
-      "target": "mcp:azure-mcp",
-      "kind": "uses-mcp"
-    },
-    {
       "id": "agent:02-requirements--uses-mcp->mcp:github",
       "source": "agent:02-requirements",
       "target": "mcp:github",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:02-requirements--uses-mcp->mcp:azure-mcp",
-      "source": "agent:02-requirements",
-      "target": "mcp:azure-mcp",
       "kind": "uses-mcp"
     },
     {
@@ -6735,12 +6594,6 @@
       "id": "agent:04g-governance--uses-mcp->mcp:github",
       "source": "agent:04g-governance",
       "target": "mcp:github",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:04g-governance--uses-mcp->mcp:azure-mcp",
-      "source": "agent:04g-governance",
-      "target": "mcp:azure-mcp",
       "kind": "uses-mcp"
     },
     {
@@ -6840,39 +6693,15 @@
       "kind": "uses-mcp"
     },
     {
-      "id": "agent:e2e-orchestrator--uses-mcp->mcp:github",
-      "source": "agent:e2e-orchestrator",
-      "target": "mcp:github",
-      "kind": "uses-mcp"
-    },
-    {
       "id": "subagent:bicep-validate-subagent--uses-mcp->mcp:github",
       "source": "subagent:bicep-validate-subagent",
       "target": "mcp:github",
       "kind": "uses-mcp"
     },
     {
-      "id": "subagent:bicep-validate-subagent--uses-mcp->mcp:azure-mcp",
-      "source": "subagent:bicep-validate-subagent",
-      "target": "mcp:azure-mcp",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "subagent:bicep-whatif-subagent--uses-mcp->mcp:azure-mcp",
-      "source": "subagent:bicep-whatif-subagent",
-      "target": "mcp:azure-mcp",
-      "kind": "uses-mcp"
-    },
-    {
       "id": "subagent:challenger-review-subagent--uses-mcp->mcp:github",
       "source": "subagent:challenger-review-subagent",
       "target": "mcp:github",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "subagent:challenger-review-subagent--uses-mcp->mcp:azure-mcp",
-      "source": "subagent:challenger-review-subagent",
-      "target": "mcp:azure-mcp",
       "kind": "uses-mcp"
     },
     {
@@ -6894,27 +6723,9 @@
       "kind": "uses-mcp"
     },
     {
-      "id": "subagent:policy-precheck-subagent--uses-mcp->mcp:azure-mcp",
-      "source": "subagent:policy-precheck-subagent",
-      "target": "mcp:azure-mcp",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "subagent:terraform-plan-subagent--uses-mcp->mcp:azure-mcp",
-      "source": "subagent:terraform-plan-subagent",
-      "target": "mcp:azure-mcp",
-      "kind": "uses-mcp"
-    },
-    {
       "id": "subagent:terraform-validate-subagent--uses-mcp->mcp:github",
       "source": "subagent:terraform-validate-subagent",
       "target": "mcp:github",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "subagent:terraform-validate-subagent--uses-mcp->mcp:azure-mcp",
-      "source": "subagent:terraform-validate-subagent",
-      "target": "mcp:azure-mcp",
       "kind": "uses-mcp"
     },
     {
@@ -6957,6 +6768,12 @@
       "id": "skill:apex-azure-artifacts--refs->skill:apex-azure-defaults",
       "source": "skill:apex-azure-artifacts",
       "target": "skill:apex-azure-defaults",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:apex-azure-artifacts--refs->skill:apex-iac-common",
+      "source": "skill:apex-azure-artifacts",
+      "target": "skill:apex-iac-common",
       "kind": "refs"
     },
     {
@@ -7200,6 +7017,12 @@
       "kind": "refs"
     },
     {
+      "id": "skill:apex-context-management--refs->skill:apex-host-debug-log-export",
+      "source": "skill:apex-context-management",
+      "target": "skill:apex-host-debug-log-export",
+      "kind": "refs"
+    },
+    {
       "id": "skill:apex-docs-writer--refs->skill:apex-agent-authoring",
       "source": "skill:apex-docs-writer",
       "target": "skill:apex-agent-authoring",
@@ -7221,6 +7044,36 @@
       "id": "skill:apex-entra-app-registration--refs->skill:apex-azure-rbac",
       "source": "skill:apex-entra-app-registration",
       "target": "skill:apex-azure-rbac",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:apex-github-operations--refs->skill:apex-host-git-commit",
+      "source": "skill:apex-github-operations",
+      "target": "skill:apex-host-git-commit",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:apex-host-debug-log-export--refs->skill:apex-context-management",
+      "source": "skill:apex-host-debug-log-export",
+      "target": "skill:apex-context-management",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:apex-host-git-commit--refs->skill:apex-github-operations",
+      "source": "skill:apex-host-git-commit",
+      "target": "skill:apex-github-operations",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:apex-host-resume-workflow--refs->skill:apex-workflow-engine",
+      "source": "skill:apex-host-resume-workflow",
+      "target": "skill:apex-workflow-engine",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:apex-host-workflow-start--refs->skill:apex-workflow-engine",
+      "source": "skill:apex-host-workflow-start",
+      "target": "skill:apex-workflow-engine",
       "kind": "refs"
     },
     {
@@ -7341,6 +7194,18 @@
       "id": "skill:apex-terraform-test--refs->skill:apex-azure-deploy",
       "source": "skill:apex-terraform-test",
       "target": "skill:apex-azure-deploy",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:apex-workflow-engine--refs->skill:apex-host-resume-workflow",
+      "source": "skill:apex-workflow-engine",
+      "target": "skill:apex-host-resume-workflow",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:apex-workflow-engine--refs->skill:apex-host-workflow-start",
+      "source": "skill:apex-workflow-engine",
+      "target": "skill:apex-host-workflow-start",
       "kind": "refs"
     }
   ]

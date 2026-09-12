@@ -108,6 +108,23 @@
       ],
       "notes": "Lightweight, cost-optimized model for utility prompts and CLI-only workflows. Suitable for straightforward git operations, file staging, and deterministic CLI parsing. Not for complex orchestration or reasoning-heavy tasks."
     },
+    "gpt-5.6-sol": {
+      "vendor": "OpenAI",
+      "tier": null,
+      "released": null,
+      "deprecated": false,
+      "provenance": {
+        "label_source": "user-confirmed",
+        "metadata_status": "unknown"
+      },
+      "use_for": [
+        "requirements",
+        "architecture",
+        "iac-planning",
+        "context-optimization"
+      ],
+      "notes": "Exact user-confirmed label. Release, capability tier, runtime cost tier and pricing are unverified. Outcome-first Markdown is an APEX repository convention, not Sol-specific vendor guidance. Native picker resolution remains a manual acceptance gate."
+    },
     "GPT-5.6-Terra": {
       "vendor": "OpenAI",
       "tier": "balanced",
@@ -189,29 +206,28 @@
     "description": "Auto-generated inventory of agent → model assignments derived from frontmatter (canonical source). Do not edit by hand; run `node tools/scripts/generate-model-catalog.mjs` or let the lefthook pre-commit hook refresh it when frontmatter changes.",
     "agents": {
       "01-orchestrator.agent.md": "MAI-Code-1.1-Flash",
-      "02-requirements.agent.md": "Claude Sonnet 5",
-      "03-architect.agent.md": "Claude Opus 5",
-      "04-design.agent.md": "Claude Sonnet 5",
+      "02-requirements.agent.md": "gpt-5.6-sol",
+      "03-architect.agent.md": "gpt-5.6-sol",
+      "04-design.agent.md": "GPT-5.6-Terra",
       "04g-governance.agent.md": "GPT-5.6-Luna",
-      "05-iac-planner.agent.md": "Claude Opus 5",
-      "06b-bicep-codegen.agent.md": "Claude Sonnet 5",
-      "06t-terraform-codegen.agent.md": "Claude Sonnet 5",
+      "05-iac-planner.agent.md": "gpt-5.6-sol",
+      "06b-bicep-codegen.agent.md": "GPT-5.6-Terra",
+      "06t-terraform-codegen.agent.md": "GPT-5.6-Terra",
       "07b-bicep-deploy.agent.md": "GPT-5.6-Luna",
       "07t-terraform-deploy.agent.md": "GPT-5.6-Luna",
-      "08-as-built.agent.md": "Claude Sonnet 5",
+      "08-as-built.agent.md": "GPT-5.6-Terra",
       "09-diagnose.agent.md": "GPT-5.6-Terra",
-      "10-challenger.agent.md": "GPT-5.6-Luna",
-      "11-context-optimizer.agent.md": "Claude Sonnet 5",
-      "e2e-orchestrator.agent.md": "GPT-5.6-Terra"
+      "10-challenger.agent.md": "GPT-5.6-Terra",
+      "11-context-optimizer.agent.md": "gpt-5.6-sol"
     },
     "subagents": {
-      "bicep-validate-subagent.agent.md": "Claude Sonnet 5",
-      "bicep-whatif-subagent.agent.md": "Claude Sonnet 5",
+      "bicep-validate-subagent.agent.md": "GPT-5.6-Luna",
+      "bicep-whatif-subagent.agent.md": "GPT-5.6-Luna",
       "challenger-review-subagent.agent.md": "GPT-5.6-Terra",
       "cost-estimate-subagent.agent.md": "GPT-5.6-Luna",
-      "policy-precheck-subagent.agent.md": "Claude Sonnet 5",
-      "terraform-plan-subagent.agent.md": "Claude Sonnet 5",
-      "terraform-validate-subagent.agent.md": "Claude Sonnet 5"
+      "policy-precheck-subagent.agent.md": "GPT-5.6-Luna",
+      "terraform-plan-subagent.agent.md": "GPT-5.6-Luna",
+      "terraform-validate-subagent.agent.md": "GPT-5.6-Luna"
     }
   }
 }

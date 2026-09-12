@@ -94,8 +94,6 @@ All scripts are in the `tools/scripts/` directory. Run via `npm run <command>`.
 | npm Command          | Script                   | Purpose                                                   |
 | -------------------- | ------------------------ | --------------------------------------------------------- |
 | `validate:artifacts` | `validate-artifacts.mjs` | H2 sync, template compliance, and auto-fix (with `--fix`) |
-| `e2e:validate`       | `validate-e2e-step.mjs`  | E2E pipeline structural validation                        |
-| `e2e:benchmark`      | `benchmark-e2e.mjs`      | 8-dimension benchmark scoring                             |
 
 ### Governance and Compliance Validators
 
@@ -193,7 +191,6 @@ All workflows are in `.github/workflows/`.
 | Branch Enforcement        | `branch-enforcement.yml`        | PR to `main`                 | Branch naming convention and scope validation                                                      |
 | Link Check                | `link-check.yml`                | Docs changes                 | URL validity in documentation                                                                      |
 | Docs                      | `docs.yml`                      | Docs changes                 | Build and deploy Astro Starlight site                                                              |
-| E2E Validation            | `e2e-validation.yml`            | Agent output changes         | E2E pipeline structural validation                                                                 |
 | Weekly Maintenance        | `weekly-maintenance.yml`        | Scheduled (weekly)           | Freshness audits, orphaned content, glob audit                                                     |
 | Azure Deprecation Tracker | `azure-deprecation-tracker.yml` | Scheduled                    | Track Azure service deprecations                                                                   |
 
@@ -220,6 +217,6 @@ npm run lint:python:fix            # Fix Python lint issues
 
 - [Contributing](../../project/contributing/) — branch naming and commit conventions
 - [Agent Hooks](../../guides/hooks/) — VS Code agent hooks (lifecycle automation)
-- [E2E Testing](../../guides/e2e-testing/) — Ralph Loop evaluation framework
+- [Workflow Validation](../../guides/e2e-testing/) — focused checks and manual acceptance
 
   :::

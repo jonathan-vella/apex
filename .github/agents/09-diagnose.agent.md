@@ -3,26 +3,9 @@ name: 09-Diagnose
 model: ["GPT-5.6-Terra"]
 description: Interactive diagnostic agent that guides users through Azure resource health assessment, issue identification, and remediation planning. Approval-first execution, single-resource scope, reports to agent-output/{project}/.
 user-invocable: true
+disable-model-invocation: true
 agents: []
-tools:
-  [
-    vscode,
-    execute,
-    read,
-    agent,
-    browser,
-    edit,
-    search,
-    web,
-    "azure-mcp/*",
-    todo,
-    vscode.mermaid-chat-features/renderMermaidDiagram,
-    ms-azuretools.vscode-azureresourcegroups/azureActivityLog,
-    ms-python.python/getPythonEnvironmentInfo,
-    ms-python.python/getPythonExecutableCommand,
-    ms-python.python/installPythonPackage,
-    ms-python.python/configurePythonEnvironment,
-  ]
+tools: [vscode/askQuestions, execute, read, edit, search, "azure-mcp/*", todo]
 handoffs:
   - label: "▶ Expand Scope"
     agent: 09-Diagnose
@@ -50,7 +33,7 @@ handoffs:
     send: false
 ---
 
-# Azure Resource Health Diagnostician Agent
+# Role
 
 This agent is **supplementary** to the multi-step workflow. Use it after Step 6 (Deploy) or
 for troubleshooting existing deployments.
@@ -73,6 +56,15 @@ report under `agent-output/{project}/`.
 
 # Constraints
 
+- Allowed filesystem writes: the diagnostic report, approved diagnostic scratch and
+  recall findings only. No IaC, upstream artifacts or tool installation. Azure changes
+  are limited to each separately approved remediation command for the confirmed target.
+  `execute` is not inherently read-only; approval must name the command and scope.
+- Recover current target, symptoms, time window and evidence after resume; prior approval
+  does not authorize a changed command, resource or remediation. Preserve user report edits.
+- Local uses human handoffs; Host requires explicit selection of the named next owner.
+  Skills execute inline, do not select model/tools, and never authorize parent-model
+  execution of another agent. No subagent calls are permitted.
 - This is a single-resource diagnostic flow by default. Expand scope only when the user selects the
   `▶ Expand Scope` handoff or explicitly asks for related resources.
 - Read skills and templates only after Phase 1 resource confirmation; premature loading can bias
@@ -102,6 +94,9 @@ finding registration does not write the report. Return its path and a one-line s
 
 # Stop rules
 
+- Missing essential tools/model or required approval returns `blocked` with the missing
+  capability. No automatic fallback model or silent skipped check. Use #tool:vscode/askQuestions
+  for confirmations; an unavailable question tool blocks the interactive workflow.
 - Stop and ask for the target resource when the user has not identified one resource, resource
   group, or resource ID to investigate.
 - Stop before skill reads or templates until Phase 1 confirms the diagnostic target.
@@ -168,7 +163,7 @@ diagnostics (e.g., which resources were deployed, which SKUs were chosen).
 
 **After Phase 1 resource confirmation**, read:
 
-Batch independent skill reads into one parallel `read_file` call.
+Batch independent phase-required reads with available tools; refresh missing or changed guidance.
 
 1. **Read** `.github/skills/apex-azure-defaults/SKILL.md` — regions, tags, security baseline
 2. **Read** `.github/skills/apex-azure-diagnostics/SKILL.md` — KQL templates, per-resource health checks,
@@ -288,7 +283,7 @@ Save to `agent-output/{project}/08-resource-health-report.md`:
 | Insufficient permissions | List required RBAC roles           |
 | No logs available        | Suggest enabling diagnostics       |
 | Query timeout            | Break into smaller time windows    |
-| MCP tool unavailable     | Fall back to Azure CLI             |
+| Essential tool unavailable | Report blocked; no silent fallback |
 
 ## Boundaries
 

@@ -26,6 +26,17 @@ Use the workflow graph as canonical topology rather than duplicating a step tabl
 Pass required paths, decisions, and output contracts explicitly because
 subagents do not inherit parent history.
 
+Check explicit caller permissions and actual tool availability before dispatch.
+`disable-model-invocation: true` on a target does not deny an explicit allowlist.
+Handoff-only mains and leaf workers use `agents: []`; do not add an `agent` tool
+merely because that empty list exists. Use human handoffs for unsupported routes.
+
+For Sol/Terra/Luna mains, retain a concise Markdown Role, Goal, Success criteria,
+Constraints, Output, and Stop rules contract plus existing workflow H2 anchors.
+Removing XML wrappers must preserve their constraints and approval gates. Workers
+need a role contract with inputs, activities, outputs, and failure/return rules,
+not obligatory personality or main-agent headings.
+
 ## Canonical Owners
 
 | Concern | Owner |

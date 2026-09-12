@@ -12,8 +12,9 @@ Every agent definition follows a standard structure:
 ---
 name: 06b-Bicep CodeGen
 description: Expert Azure Bicep IaC specialist...
-model: ["Claude Sonnet 5"] # (1)!
+model: ["GPT-5.6-Terra"] # (1)!
 tools: [list of allowed tools] # (2)!
+disable-model-invocation: true
 handoffs:
   - label: "Step 6: Deploy"
     agent: 07b-Bicep Deploy # (3)!
@@ -48,9 +49,24 @@ allowlist that restricts which tools it can call. Common tool categories:
 
 Agents do not communicate directly. Instead, each agent produces **artifact files**
 in `agent-output/{project}/` that the next agent reads as input. The Orchestrator
-orchestrates this by delegating to one agent at a time, collecting its output,
-and routing to the next step. At approval gates, the Orchestrator writes a
+routes through human handoffs to the next main agent, preserving user approval
+at each gate. At approval gates, the Orchestrator writes a
 `00-handoff.md` summary document that enables session resume.
+
+### Local And Agent Host Boundaries
+
+Local prompt files are adapters, not Agent Host entry points. On Agent Host, use
+the shared skill and explicitly select its owning main agent before consequential
+work. Skills inherit the caller's model/tools; they do not switch agents or grant
+permissions. Keep Local discovery settings where needed, but do not treat legacy
+discovery flags as a security boundary or proof of Host support.
+
+Production main agents, including `10-Challenger`, use
+`disable-model-invocation: true` and require human selection. Explicit caller
+allowlists must not override that boundary. Keep essential approval, security,
+output, and stop rules in main agent bodies: authoring `applyTo` matches do not
+prove runtime attachment. Local and Agent Host behavior need separate verification;
+source validation alone does not establish runtime support or model eligibility.
 
 ### APEX And Generic Application Workflows
 
@@ -83,7 +99,6 @@ When a project contains both workflow formats and the requested workflow is uncl
 | 09-Diagnose           | Azure resource troubleshooting                  | apex-azure-diagnostics                              |
 | 10-Challenger         | Standalone adversarial review                   | —                                              |
 | 11-Context Optimizer  | Context window audit and optimisation           | apex-context-management                             |
-| e2e-orchestrator      | Prompt-invoked end-to-end validation driver     | apex-workflow-engine, apex-recall                   |
 
 For a live, always-current roster, see the
 [Architecture Explorer](../../../reference/architecture-explorer/). The count is
@@ -233,10 +248,12 @@ After each review pass, only the `compact_for_parent` string (~200 characters) i
 forward — not the full JSON findings. This prevents context bloat across multi-pass reviews
 and is enforced by the output schema.
 
-:::tip[If a challenger review hangs]
-If a review takes >10 minutes with no output, restart the chat session and
-resume from the failed gate. Use `00-session-state.json` to verify the last
-completed step.
+:::caution[Unavailable Or Empty Review]
+If a required reviewer is unavailable, stop and request a human handoff to
+`10-Challenger`. Missing or empty reviewer output permits exactly one
+identical-input retry, then a human handoff. Never invoke a nested main-agent
+wrapper or fabricate an inline review. Resume from current evidence via
+`apex-recall show <project> --json`; missing evidence does not satisfy a gate.
 :::
 
 **New Challenger Checklists**: Two mandatory checklist categories were added:
@@ -247,7 +264,7 @@ completed step.
 ## Handoffs and Delegation
 
 Agents communicate through artefact files, not direct message passing. The Orchestrator
-delegates to a step agent, which produces output files in `agent-output/{project}/`.
+offers a human handoff to a step agent, which produces output files in `agent-output/{project}/`.
 The next agent reads those files as input. This design:
 
 - Eliminates context leakage between agents
@@ -273,21 +290,25 @@ This section walks through creating a new agent from scratch.
 | Top-level agent | `.github/agents/{name}.agent.md`            | Yes            | User-facing workflow steps                |
 | Subagent        | `.github/agents/_subagents/{name}.agent.md` | No             | Isolated tasks delegated by parent agents |
 
-Model selection depends on the task. Use `tools/registry/agent-registry.json` as the
-source of truth, but the current repo pattern is:
+Agent frontmatter is the canonical model assignment; `tools/registry/agent-registry.json`
+mirrors it. Model changes require explicit approval. The current approved main-agent map is:
 
-- **Planning agents** (accuracy-first) — `Claude Opus 5` at high reasoning effort
-- **Orchestrator** — `MAI-Code-1.1-Flash`, Microsoft's fast coding model. Standard
-  tier suits handoff-only routing without creative generation; the agent body
-  keeps its outcome-first skeleton (Role / Goal / Success / Constraints / Output /
-  Stop) as a sound routing structure.
-- **Design + Code generation** — `Claude Sonnet 5` for Anthropic XML-tagged
-  output contracts and stronger verbatim invariant retention (security baseline,
-  AVM contract, HARD GATE language)
-- **Governance, Deploy, and Challenger wrapper** — `GPT-5.6-Luna` for focused execution
-- **Diagnose, E2E, and challenger review** — `GPT-5.6-Terra` with outcome-first stopping conditions
-- **Execution, deploy, and validation subagents** — model varies; consult `tools/registry/agent-registry.json`
-- **Adversarial review** — use a different model family than the artifact author when possible
+| Main Agents | Model |
+| --- | --- |
+| Requirements, Architect, IaC Planner, Context Optimizer | `gpt-5.6-sol` |
+| Orchestrator | `MAI-Code-1.1-Flash` |
+| Design, Bicep CodeGen, Terraform CodeGen, As-Built, Diagnose, Challenger | `GPT-5.6-Terra` |
+| Governance, Bicep Deploy, Terraform Deploy | `GPT-5.6-Luna` |
+
+Subagent assignments also come from their own frontmatter; do not infer them from
+the parent's model. Labels do not establish runtime cost-tier eligibility,
+availability, or API support. Stop on unsupported routing rather than substituting
+models automatically; preserve unknown Sol metadata as unknown.
+
+Sol, Terra, and Luna main bodies use concise Markdown outcome contracts: Role,
+Goal, Success criteria, Constraints, Output, and Stop rules. This is an APEX
+authoring convention, not a vendor-specific XML requirement. Leaf workers use
+bounded role contracts and return to their parent without nested delegation.
 
 ### Step 2: Create the Agent File
 
@@ -296,17 +317,16 @@ Create a `.agent.md` file with the required frontmatter:
 ```yaml
 ---
 name: My Custom Agent
-description: >-
-  One-line description of what this agent does.
-  USE FOR: keyword triggers. DO NOT USE FOR: anti-triggers.
+description: "Describe the task. USE FOR: keyword triggers. DO NOT USE FOR: anti-triggers."
 model:
   - GPT-5.6-Terra
 tools:
-  - read_file
-  - create_file
-  - replace_string_in_file
-  - run_in_terminal
-  - runSubagent
+  - read
+  - edit
+  - execute
+agents: []
+user-invocable: true
+disable-model-invocation: true
 handoffs:
   - label: "Next Step"
     agent: next-agent-name
@@ -315,7 +335,9 @@ handoffs:
 ```
 
 Required frontmatter fields: `name`, `description`, `model`, `tools`.
-Optional: `handoffs`, `user-invocable` (defaults to `true` for top-level).
+Production main agents also set `disable-model-invocation: true` for human entry.
+Use `agents: []` when no leaf delegation is needed; a nonempty allowlist requires
+the `agent` tool and must not target production main agents. Handoffs are optional.
 
 See `.github/instructions/agent-authoring.instructions.md` for the
 complete frontmatter specification.

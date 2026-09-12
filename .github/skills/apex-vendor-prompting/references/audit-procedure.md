@@ -30,29 +30,19 @@ Open the target file. Capture:
 - `tools[]` count
 - `handoffs[]` count
 
-If `model:` is missing or in bareword form (`model: Claude Opus 4.7
-(High reasoning)` without quotes/array), STOP — verdict is REJECTED.
-Frontmatter parsing is broken.
+Parse actual YAML with the shared parser. Agent array and prompt string model
+forms are APEX conventions, not YAML parser limitations. Check every exact catalog
+label; documented platform-qualified handoff overrides are allowed. Missing
+prompt models may inherit a known custom agent or the Local picker. Unknown
+custom targets and malformed explicit labels fail; do not invent a model to pass.
 
 ### Step 2 — Classify model family
 
-Apply the algorithm from [SKILL.md](../SKILL.md) "Model-Family
-Detection":
-
-```python
-m = model.lower() if isinstance(model, str) else model[0].lower()
-if "claude opus" in m: family = "claude-opus"
-elif "claude sonnet" in m: family = "claude-sonnet"
-elif "claude haiku" in m: family = "claude-haiku"
-elif "claude" in m: family = "claude"
-elif "gpt-5.6-terra" in m: family = "gpt-5.6-terra"
-elif "gpt-5.6-luna" in m: family = "gpt-5.6-luna"
-elif "gpt-5.5" in m: family = "gpt-5.5"
-elif "gpt-5.4" in m: family = "gpt-5.4"
-elif "gpt-5.3" in m or "codex" in m: family = "gpt-codex"
-elif "gpt-4o" in m: family = "gpt-4o"
-else: family = "unknown"
-```
+Use `classifyModel()` from `tools/scripts/validate-agents.mjs` on every label in
+order, including custom-agent inheritance. Do not duplicate a first-entry-only
+classifier or add fallbacks. Sol/Terra/Luna use the APEX Markdown convention;
+the pinned generic advice is not model-specific vendor evidence. Preserve exact
+`gpt-5.6-sol` and unknown metadata.
 
 Cross-check the family's `status` from
 [family-support.md](family-support.md). If `out-of-scope`, stop and
@@ -64,7 +54,8 @@ Open [checklists.md](checklists.md). Use:
 
 - Agent column for `.agent.md`, prompt column for `.prompt.md`.
 - The cross-vendor section ALWAYS.
-- The family-specific section matching step 2.
+- Every applicable family-specific section from step 2. For workers use a bounded
+  role contract rather than mandatory personality or main-agent body sections.
 
 ### Step 4 — Run the validator
 
@@ -79,6 +70,10 @@ jq '.findings[] | select(.file == "<path>")' /tmp/lint-out.json
 ```
 
 Capture each finding's `ruleId`, `severity`, `message`, `sourceUrl`.
+
+During concurrent agent edits, use isolated fixture tests instead of treating a
+whole-tree scan as stable evidence. Offline review does not refresh vendor
+sources, probe models, or certify native Local/Host behavior.
 
 ### Step 5 — Manual pass
 

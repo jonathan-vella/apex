@@ -4,9 +4,10 @@ model: ["GPT-5.6-Luna"]
 description: Executes Azure deployments using generated Terraform configurations. Runs bootstrap and deploy scripts, performs terraform plan preview, manages phase-aware deployment lifecycle. Step 6 of the agentic workflow.
 argument-hint: Deploy the Terraform configuration for a specific project
 user-invocable: true
-agents: ["terraform-plan-subagent", "terraform-validate-subagent", "policy-precheck-subagent", "challenger-review-subagent"]
+disable-model-invocation: true
+agents: ["terraform-plan-subagent", "terraform-validate-subagent", "policy-precheck-subagent"]
 tools:
-  [vscode, execute, read, agent, browser, vscodeGeneral/rename, vscodeGeneral/usages, ms-azuretools.vscode-azureresourcegroups, edit, search, web, 'azure-mcp/*', todo]
+  [vscode/askQuestions, execute, read, agent, edit, search, 'azure-mcp/*', todo]
 handoffs:
   - label: "▶ Run Plan Only"
     agent: 07t-Terraform Deploy
@@ -46,7 +47,7 @@ handoffs:
     send: false
 ---
 
-# Terraform Deploy Agent
+# Role
 
 Role: Step 6 deployment executor for Terraform projects. Runs the bootstrap +
 phase-aware deploy workflow against `infra/terraform/{project}/`, gates each
@@ -77,6 +78,15 @@ operation surfaced by `- destroy` lines.
 
 # Constraints
 
+- Allowed writes: deployment outputs below, project README, `00-handoff.md`, resolved
+  environment manifest/tfvars values, azd/Terraform runtime state and saved plans,
+  recall state and user-approved Step 6 SKU substitutions. Source HCL, scripts, lockfile,
+  plan and governance remain locked; changed inputs require fresh handoff/check evidence.
+- Azure writes are limited to the approved deployment scope and phase after all gates;
+  bootstrap, workspace creation and force-unlock require separate explicit approval.
+  `execute` is not read-only. Never bootstrap during validation/preview-only requests.
+- Bind approval to the current tree, variables, backend/workspace, subscription, phase,
+  preview and L3 result. Changed evidence invalidates approval; rerun checks and ask again.
 - Require explicit approval for any destruction (`- destroy`) operation
   surfaced by `terraform plan`.
 - Verify the state-backend storage account exists and is accessible BEFORE
@@ -100,6 +110,8 @@ Execution` and `## Post-Deployment Verification` for the surrounding workflow.
 
 # Stop rules
 
+- Missing model/tool/input or worker eligibility returns `blocked`; never substitute a
+  model or skip a gate. Retain bounded retries; no inline replacement for missing workers.
 - Stop after `06-deployment-summary.md` is written and the success/failure
   handoff label is rendered. Do not loop back into another deployment without a
   fresh user prompt.
@@ -116,14 +128,15 @@ Context tiers: follow apex-context-management skill (Mode A: Runtime Compression
 
 Shared agent rules: see
 [`agent-operating-frame.instructions.md`](../instructions/agent-operating-frame.instructions.md).
-Subagent budget: this agent runs on `GPT-5.6-Luna`; `terraform-plan-subagent`
-runs on `Claude Sonnet 5` (cross-family call after the 2026-05 IaC
-subagent migration). The JSON-shaped plan-result contract is preserved
-verbatim — no parsing changes required here.
+Use #tool:agent only for allowlisted validation, preview and policy workers; preserve
+their JSON/status contracts. Step 6 has no Challenger review. Local uses human handoffs;
+Host requires explicit selection of the next named owner. Skills run inline and cannot
+choose model/tools. Do not infer runtime eligibility from a capability label.
 
 ## Read Skills First
 
-Batch independent skill reads into one parallel `read_file` call.
+Load the following at the consuming phase, after prerequisite checks. Batch independent
+reads with available tools; recover missing/changed evidence after compaction or resume.
 
 1. Read `.github/skills/apex-azure-defaults/SKILL.md` — regions, tags, security baseline, Terraform Conventions
 2. Read `.github/skills/apex-azure-artifacts/SKILL.md` — H2 template for `06-deployment-summary.md`
@@ -137,15 +150,15 @@ Batch independent skill reads into one parallel `read_file` call.
    matrix; consumed on every precheck result
 8. Read the execution-subagent prompt contract
    [tools/apex-prompts/utility-prompts/execution-subagent.prompt.md](../../tools/apex-prompts/utility-prompts/execution-subagent.prompt.md)
-   — every `runSubagent` call (terraform-plan, terraform-validate,
-   policy-precheck, challenger-review) MUST follow the three-H2 contract
+  — every #tool:agent call (terraform-plan, terraform-validate,
+  policy-precheck) MUST follow the three-H2 contract
    (issue #425).
 
 ## Shared Deploy Protocol
 
 Follow `apex-iac-common/references/deploy-shared-workflow.md` for:
 
-- Pre-deploy challenger review
+- No Step 6 challenger review; policy precheck remains mandatory
 - Security baseline preflight
 - Copy-then-fill artifact protocol (uses `06-deployment-summary.template.md`)
 - Post-deploy smart PR flow
@@ -425,7 +438,7 @@ Then use `askQuestions` to gather the decision:
 ### Step 4.6: Live Policy Precheck (L3 — MANDATORY before apply)
 
 Before executing `terraform apply` (or `azd provision` for azd
-projects), invoke `policy-precheck-subagent` via `#runSubagent`. This
+projects), invoke `policy-precheck-subagent` via #tool:agent. This
 is the L3 attestation in the four-layer governance stack — the only
 layer that talks to the live Azure Policy API, so the only layer that
 catches "discovery was wrong" failures.
@@ -491,6 +504,9 @@ Sources:
 - `cost_delta` ← `cost-estimate-subagent` delta vs the envelope in
   `02-architecture-assessment.md` (or `02-cost-estimate.json` when
   emitted).
+
+Use current existing cost-worker evidence only. Missing or stale pricing returns to
+`03-Architect`; this agent cannot call the cost worker or invent a zero delta.
 
 Block to render (exact shape; the `decision:` line is the human gate):
 

@@ -5,58 +5,18 @@ agent: "06b-Bicep CodeGen"
 
 # Step 5 — Bicep Code Generation
 
-Generate Bicep templates from the approved implementation plan.
+Local operational adapter for `06b-Bicep CodeGen`. Read
+[apex-workflow-engine](../../../.github/skills/apex-workflow-engine/SKILL.md),
+then follow the [shared entry contract][entry] for this named owner.
 
-# Goal
+Pass the supplied project, scope, and revision request unchanged. Require the
+owner and its configured model; stop if unavailable. Do not widen its tools or
+run the operation under a different agent. Validate current required inputs
+and graph prerequisites before work; preserve reviews and human approvals.
 
-Produce near-production-ready Bicep templates under `infra/bicep/{project}/`
-that deploy the architecture from the approved implementation plan while
-honouring all governance constraints and the security baseline.
+Return the canonical output artifacts, actual check results, and any blockers.
+The owner body and workflow graph control execution, completion, and handoffs.
+Agent Host uses the distinct /apex-host-workflow-start skill after manual owner
+selection; this Local file does not bind a Host session.
 
-# Success criteria
-
-- `infra/bicep/{project}/main.bicep`, `modules/*.bicep`, `main.bicepparam`,
-  `azure.yaml`, and `deploy.ps1` exist.
-- `bicep lint` and `bicep build` succeed for every file.
-- Every resource includes the 4 required tags (`Environment`, `ManagedBy`,
-  `Project`, `Owner`).
-- AVM modules are used where available; raw resource definitions are justified.
-- Adversarial review passes (per complexity matrix) have run; all `must_fix`
-  findings applied.
-- Session state has Step 5 `status = "complete"`.
-
-# Constraints
-
-- Read `agent-output/{project}/00-session-state.json`; confirm `iac_tool` is
-  `Bicep` and Step 4 is `complete`.
-- Read `agent-output/{project}/04-implementation-plan.md` (approved plan).
-- Read `agent-output/{project}/04-governance-constraints.json` — these
-  constraints always win over design preferences.
-- Read `.github/skills/apex-azure-bicep-patterns/SKILL.md` for Bicep patterns
-  and AVM conventions.
-- Read `.github/skills/apex-azure-defaults/SKILL.md` for naming, tags,
-  and security baseline.
-- Security baseline is non-negotiable: TLS 1.2, HTTPS-only, no public blob
-  access, Managed Identity over keys.
-- `uniqueSuffix` generated once in `main.bicep` (via
-  `uniqueString(resourceGroup().id)`) and passed to all modules.
-- `azure.yaml` is the primary deployment method; `deploy.ps1` is a deprecated
-  fallback retained for legacy projects.
-
-# Output
-
-- `infra/bicep/{project}/main.bicep`
-- `infra/bicep/{project}/modules/*.bicep` (one per resource type)
-- `infra/bicep/{project}/main.bicepparam` (Dev environment)
-- `infra/bicep/{project}/azure.yaml`
-- `infra/bicep/{project}/deploy.ps1` (fallback)
-- `agent-output/{project}/05-implementation-reference.md`
-- Updated `agent-output/{project}/00-session-state.json`
-
-# Stop rules
-
-- Stop if `iac_tool` is not `Bicep` — route to `06t-Terraform CodeGen` instead.
-- Stop if Step 4 is not complete or the implementation plan is missing.
-- Stop if `bicep lint` or `bicep build` fails after one self-correction
-  attempt; surface the diagnostics for human review.
-- Do not advance until every `must_fix` review finding is resolved.
+[entry]: ../../../.github/skills/apex-workflow-engine/references/workflow-entry.md

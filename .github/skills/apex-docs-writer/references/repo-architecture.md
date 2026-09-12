@@ -2,7 +2,8 @@
 
 # Repo Architecture Reference
 
-> For use by the `apex-docs-writer` skill. Last verified: 2026-03-23.
+> For use by the `apex-docs-writer` skill. Model and harness guidance updated: 2026-09-11.
+> Agent frontmatter owns assignments; inventories below are documentation, not runtime overrides.
 
 ## Workspace Root Structure
 
@@ -41,20 +42,23 @@ See `tools/registry/count-manifest.json` for canonical counts.
 | Agent             | File                             | Model                     | Step | Artifacts                       |
 | ----------------- | -------------------------------- | ------------------------- | ---- | ------------------------------- |
 | Orchestrator      | `01-orchestrator.agent.md`       | MAI-Code-1.1-Flash        | All  | Orchestration                   |
-| Requirements      | `02-requirements.agent.md`       | Claude Sonnet 5           | 1    | `01-requirements.md`            |
-| Architect         | `03-architect.agent.md`          | Claude Opus 5             | 2    | `02-architecture-assessment.md` |
-| Design            | `04-design.agent.md`             | Sonnet 5                  | 3    | `03-des-*.{py,png,svg,md}`      |
+| Requirements      | `02-requirements.agent.md`       | gpt-5.6-sol               | 1    | `01-requirements.md`            |
+| Architect         | `03-architect.agent.md`          | gpt-5.6-sol               | 2    | `02-architecture-assessment.md` |
+| Design            | `04-design.agent.md`             | GPT-5.6-Terra             | 3    | `03-des-*.{py,png,svg,md}`      |
 | Governance        | `04g-governance.agent.md`        | GPT-5.6-Luna              | 3.5  | `04-governance-constraints.md`  |
-| IaC Plan          | `05-iac-planner.agent.md`        | Claude Opus 5             | 4    | `04-implementation-plan.md`     |
-| Bicep Code        | `06b-bicep-codegen.agent.md`     | Claude Sonnet 5           | 5b   | Bicep in `infra/bicep/`         |
+| IaC Plan          | `05-iac-planner.agent.md`        | gpt-5.6-sol               | 4    | `04-implementation-plan.md`     |
+| Bicep Code        | `06b-bicep-codegen.agent.md`     | GPT-5.6-Terra             | 5b   | Bicep in `infra/bicep/`         |
 | Bicep Deploy      | `07b-bicep-deploy.agent.md`      | GPT-5.6-Luna              | 6b   | `06-deployment-summary.md`      |
-| Terraform Code    | `06t-terraform-codegen.agent.md` | Claude Sonnet 5           | 5t   | Terraform in `infra/terraform/` |
+| Terraform Code    | `06t-terraform-codegen.agent.md` | GPT-5.6-Terra             | 5t   | Terraform in `infra/terraform/` |
 | Terraform Deploy  | `07t-terraform-deploy.agent.md`  | GPT-5.6-Luna              | 6t   | `06-deployment-summary.md`      |
-| As-Built          | `08-as-built.agent.md`           | Claude Sonnet 5           | 7    | `07-ab-*.md` docs suite         |
+| As-Built          | `08-as-built.agent.md`           | GPT-5.6-Terra             | 7    | `07-ab-*.md` docs suite         |
 | Diagnose          | `09-diagnose.agent.md`           | GPT-5.6-Terra             | —    | Diagnostic reports              |
-| Challenger        | `10-challenger.agent.md`         | GPT-5.6-Luna              | —    | Challenge findings              |
-| Context Optimizer | `11-context-optimizer.agent.md`  | Claude Sonnet 5           | —    | Optimization reports            |
-| E2E Orchestrator  | `e2e-orchestrator.agent.md`      | GPT-5.6-Terra             | All  | E2E evaluation loop             |
+| Challenger        | `10-challenger.agent.md`         | GPT-5.6-Terra             | —    | Challenge findings              |
+| Context Optimizer | `11-context-optimizer.agent.md`  | gpt-5.6-sol               | —    | Optimization reports            |
+
+All production main agents, including `10-Challenger`, use `disable-model-invocation: true`.
+Use human handoffs; an unavailable reviewer is not permission for a nested wrapper fallback.
+The E2E launch subsystem is retired. Preserve production lessons and historical artifacts/schema compatibility.
 
 ### Validation Subagents (in `_subagents/`)
 
@@ -64,8 +68,13 @@ See `tools/registry/count-manifest.json` for canonical counts.
 | bicep-whatif-subagent       | `bicep-whatif-subagent.agent.md`       | Deployment preview (what-if)        |
 | challenger-review-subagent  | `challenger-review-subagent.agent.md`  | Adversarial artifact review         |
 | cost-estimate-subagent      | `cost-estimate-subagent.agent.md`      | ARM MCP pricing queries             |
+| policy-precheck-subagent    | `policy-precheck-subagent.agent.md`    | Live deployment policy precheck     |
 | terraform-plan-subagent     | `terraform-plan-subagent.agent.md`     | Deployment preview (terraform plan) |
 | terraform-validate-subagent | `terraform-validate-subagent.agent.md` | Lint + AVM-TF/security code review  |
+
+The review worker uses `GPT-5.6-Terra`; the other workers use `GPT-5.6-Luna`.
+Sol, Terra, and Luna labels are not evidence of runtime cost-tier eligibility,
+availability, or API support. Check actual harness capability; never infer a fallback model.
 
 ### Shared Knowledge (via Skills)
 
@@ -215,7 +224,7 @@ updating when agents or skills change:
 | `troubleshooting.md`         | Common issues and fixes                          |
 | `dev-containers.md`          | Dev container setup                              |
 | `faq.md`                     | Frequently asked questions                       |
-| `e2e-testing.md`             | E2E testing guide                                |
+| `e2e-testing.md`             | Workflow validation and E2E retirement notice    |
 | `cost-governance.md`         | Cost governance guide                            |
 | `security-baseline.md`       | Security baseline reference                      |
 | `session-debugging.md`       | Session debugging guide                          |
@@ -233,8 +242,12 @@ updating when agents or skills change:
 
 ## Skill Discovery & Auto-Invocation
 
-Skills are discovered by VS Code Copilot via **description keyword matching**
-in the SKILL.md frontmatter — not through `tools:` arrays in agent definitions.
+Skills are discovered from SKILL.md metadata and loaded on demand, not through
+`tools:` arrays in agent definitions. Local prompt files are adapters; Agent Host
+uses shared skills, which inherit the caller's model/tools rather than binding an
+agent or granting permissions. Select the owning main agent before consequential work.
+Legacy location/discovery settings are not a security boundary. Verify Local and
+Agent Host discovery and routing separately; source checks do not certify runtime behavior.
 
 ### Agent-Referenced Skills
 
@@ -259,6 +272,9 @@ references them:
 
 ### Instruction Files (Separate Mechanism)
 
-Instruction files (`.github/instructions/*.instructions.md`) load automatically
-via `.gitattributes` `applyTo` globs — this is a distinct mechanism from skill
-discovery. Instructions are file-type-scoped rules, not invokable skills.
+Instruction files (`.github/instructions/*.instructions.md`) use frontmatter
+`applyTo` globs, not `.gitattributes`. Authoring matches do not prove runtime
+attachment: keep essential role, security, approval, output, and stop rules in
+main agent bodies and explicitly load missing required guidance. Instructions
+are file-type-scoped rules, not invokable skills; vendor-authoring references
+are on-demand authoring/audit material, not automatic production reads.

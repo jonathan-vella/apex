@@ -58,8 +58,8 @@ still works using `edges[]` only.
 
 **Excluded as sources** (skipped entirely): `01-Orchestrator`,
 `09-Diagnose`, `11-Context Optimizer`,
-`10-Challenger`. **`E2E Orchestrator` is NOT excluded** (per
-S6 — its handoffs SHOULD align with the DAG).
+`10-Challenger`. The E2E launch subsystem is retired; historical evidence
+does not authorize a runnable workflow or automatic approval.
 
 ### B1b — REMOVED (kind taxonomy not viable)
 
@@ -116,6 +116,9 @@ from `handoffs[]`):
   `CROSS_CUTTING_ALLOWLIST` (initial: `11-Context Optimizer`).
 - Otherwise every entry must match a known top-level agent name OR a
   known subagent name.
+- Target-name validity is not production invocation permission. Production main
+  agents require human selection; explicit caller allowlists must not override
+  that boundary or enable a nested `10-Challenger` wrapper.
 - `challenger-review-subagent` requires an artifact-producing source
   (workflow node `produces[]` non-empty, or `handoffs[]` references
   `agent-output/`, or in `CHALLENGER_DISPATCHER_ALLOWLIST`).

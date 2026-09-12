@@ -6,57 +6,18 @@ argument-hint: "Discover governance constraints for a project"
 
 # Step 3.5 — Governance Discovery
 
-Discover Azure Policy assignments, classify their effects, and produce governance constraint
-artifacts before IaC planning begins.
+Local operational adapter for `04g-Governance`. Read
+[apex-workflow-engine](../../../.github/skills/apex-workflow-engine/SKILL.md),
+then follow the [shared entry contract][entry] for this named owner.
 
-# Goal
+Pass the supplied project, scope, and revision request unchanged. Require the
+owner and its configured model; stop if unavailable. Do not widen its tools or
+run the operation under a different agent. Validate current required inputs
+and graph prerequisites before work; preserve reviews and human approvals.
 
-Produce machine-readable and human-readable governance constraints for the
-project subscription so the IaC Planner can design within policy boundaries.
+Return the canonical output artifacts, actual check results, and any blockers.
+The owner body and workflow graph control execution, completion, and handoffs.
+Agent Host uses the distinct /apex-host-workflow-start skill after manual owner
+selection; this Local file does not bind a Host session.
 
-# Success criteria
-
-- `agent-output/{project}/04-governance-constraints.md` and `.json` exist and
-  cover every effective policy assignment at the target subscription scope
-  (including management group-inherited).
-- Each policy is classified by effect (`Deny`, `Audit`, `Modify`,
-  `DeployIfNotExists`, `Append`, `Disabled`).
-- Conflicts and blockers between architecture and policy are explicitly listed.
-- Adversarial review pass (1 pass) has run and `must_fix` findings are addressed.
-- Session state has `steps["3_5"].status = "complete"`.
-
-# Constraints
-
-- Read `agent-output/{project}/00-session-state.json` to identify the project,
-  subscription ID, and complexity; confirm Step 2 is complete.
-- Read `agent-output/{project}/02-architecture-assessment.md` for the resource
-  list and compliance requirements.
-- Read `.github/skills/apex-azure-defaults/SKILL.md` (Governance Discovery
-  section, regions, tags, security baseline).
-- Read `.github/skills/apex-azure-artifacts/SKILL.md` for the H2 template.
-- Read template
-  `.github/skills/apex-azure-artifacts/templates/04-governance-constraints.template.md`.
-- Use `.github/skills/apex-azure-governance-discovery/scripts/discover.py` (invoke
-  via `run_in_terminal`) to query Azure Policy REST API.
-- Map every policy constraint to planned resources from the architecture
-  assessment.
-- Run adversarial review via `challenger-review-subagent` with
-  `artifact_type=governance-constraints`, `review_focus=comprehensive`,
-  `pass_number=1`.
-
-# Output
-
-- `agent-output/{project}/04-governance-constraints.md` (human-readable)
-- `agent-output/{project}/04-governance-constraints.json` (machine-readable;
-  consumed by Step 4 IaC Planner)
-- Updated `agent-output/{project}/00-session-state.json`
-- Handoff: present findings summary and route to Step 4 (IaC Planning).
-
-# Stop rules
-
-- Stop if subscription ID is missing from session state — do not guess.
-- Stop if `discover.py` cannot reach the Azure Policy REST API; report the
-  error and do not synthesize policies.
-- Stop if architecture assessment is missing or empty — Step 2 must be
-  complete before governance discovery runs.
-- Do not advance to Step 4 if blocking policy conflicts remain unresolved.
+[entry]: ../../../.github/skills/apex-workflow-engine/references/workflow-entry.md

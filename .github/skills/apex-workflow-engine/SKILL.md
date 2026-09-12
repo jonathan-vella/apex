@@ -71,6 +71,24 @@ Use [Steps](#steps) as the routing protocol. Response fields are documented in
 
 ## Reference Index
 
+Operational Local and Host entrypoints share
+[workflow-entry.md](references/workflow-entry.md). For parent-to-worker calls,
+read [execution-subagent.md](references/execution-subagent.md).
+Manual Host commands use distinct names:
+[apex-host-workflow-start](../apex-host-workflow-start/SKILL.md) and
+[apex-host-resume-workflow](../apex-host-resume-workflow/SKILL.md).
+These skills require explicit owner selection; they do not bind models/tools.
+
+Other retained Local operations load only their requested procedure:
+[imported IaC](references/review-imported-iac.md),
+[existing Azure as-built](references/as-built-from-azure.md),
+[project review](references/project-wide-review.md),
+[docs peer review](references/plan-docs-peer-review.md),
+[Astro docs review](references/review-astro-docs.md), or
+[doc gardening](references/doc-gardening.md).
+For their shared execution boundary, read
+[operational-safety.md](references/operational-safety.md).
+
 | Reference                | File                                       | Content                                                 |
 | ------------------------ | ------------------------------------------ | ------------------------------------------------------- |
 | Workflow Graph           | `templates/workflow-graph.json`            | Full DAG for the multi-step workflow                    |

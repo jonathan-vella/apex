@@ -6,30 +6,28 @@
 > agent needs to revise an already-created artifact (challenger findings,
 > per-finding user decisions, approval-gate fixes, structural rewrites).
 
-First-time artifact creation uses `create_file`. **All subsequent
+First-time artifact creation uses an available file-creation capability. **All subsequent
 revisions** — including challenger-finding fixes, per-finding user
 decisions (Apply / Skip / Defer), and approval-gate revisions — MUST
 use targeted edit tools.
 
 | Situation                                   | Tool                             |
 | ------------------------------------------- | -------------------------------- |
-| Initial draft of the artifact               | `create_file`                    |
-| Single-spot fix                             | `replace_string_in_file`         |
-| Multiple fixes (one or more files)          | `multi_replace_string_in_file`   |
-| Restructuring ≥ 50 % of file or H2 ordering | `create_file` (rationale logged) |
+| Initial draft of the artifact               | File creation, only when absent |
+| Single-spot fix                             | Targeted edit, including `apply_patch` |
+| Multiple fixes (one or more files)          | Available batched edits or `apply_patch` |
+| Restructuring ≥ 50 % of file or H2 ordering | Editing tool (rationale logged) |
 
-**One pass, one tool call**: bundle every accepted fix from a review
-pass into a single `multi_replace_string_in_file` call. A 24-finding
-revision is one tool call, not 24.
+Batch independent accepted fixes where practical; validate before dependent follow-up edits.
+No particular tool name or single-call payload is required. Inspect existing content,
+preserve user work, and edit only authorized artifacts. If a write is partial, inspect
+and repair the confirmed partial content; do not overwrite unrelated changes.
+If no suitable editing capability is available, stop and report the blocker.
 
-**Why**: a full rewrite of a 200-line markdown artifact emits 8–18 K
-output tokens that re-enter the context on every subsequent turn; a
-multi-edit patch list emits 200–800 tokens. Empirically, a single
-rev-2 full rewrite of `02-architecture-assessment.md` plus
-`03-des-cost-estimate.md` consumed > 40 K output tokens of permanent
-conversation history and was the dominant cause of one Step-2 session
-breaching the 200 K context window. Targeted edits eliminate this
-bloat.
+Targeted edits avoid re-emitting unchanged content. Token or cost savings require
+recorded usage evidence, not fixed line-count multipliers or model-name inference.
+Follow the canonical [post-write checks](../SKILL.md#post-write-validation);
+artifact Markdown validation remains delegated to the hook and Challenger.
 
 **Exception**: structural rewrites (H2 reordering, template version
 bump, > 50 % of lines changed). When taking the exception, log it:

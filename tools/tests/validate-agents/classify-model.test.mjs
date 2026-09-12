@@ -39,6 +39,7 @@ test("classifyModel: GPT-5.5 → gpt-5.5 (legacy compatibility)", () => {
 });
 
 test("classifyModel: GPT-5.6 successors use distinct families", () => {
+  assert.equal(classifyModel("gpt-5.6-sol"), "gpt-5.6-sol");
   assert.equal(classifyModel("GPT-5.6-Luna"), "gpt-5.6-luna");
   assert.equal(classifyModel(["GPT-5.6-Terra"]), "gpt-5.6-terra");
 });
@@ -87,7 +88,8 @@ test("isGptOutcomeFamily: matches Terra and legacy outcome-first families", () =
   assert.equal(isGptOutcomeFamily("gpt-5.6-terra"), true);
   assert.equal(isGptOutcomeFamily("gpt-5.5"), true);
   assert.equal(isGptOutcomeFamily("gpt-5.4"), true);
-  assert.equal(isGptOutcomeFamily("gpt-5.6-luna"), false);
+  assert.equal(isGptOutcomeFamily("gpt-5.6-luna"), true);
+  assert.equal(isGptOutcomeFamily("gpt-5.6-sol"), true);
   assert.equal(isGptOutcomeFamily("claude-opus"), false);
 });
 

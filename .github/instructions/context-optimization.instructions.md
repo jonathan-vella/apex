@@ -22,15 +22,13 @@ targets as hard caps; the tables below now match what the validators in
 | ----------------------- | ------------------------------------------ | ------------------------------------------------------------ |
 | Agent body length       | ≤ 600 lines                                | `tools/scripts/_lib/paths.mjs` (`MAX_BODY_LINES`)            |
 | `description` length    | ≤ 350 chars (warn ≥ 300)                   | `validate-agents.mjs` frontmatter check                      |
-| Claude body > 350 lines | requires `<context_awareness>`             | `validate-agents.mjs` Check 3 (`legacy-003`)                 |
-| Claude research agent   | requires `<investigate_before_answering>`  | `validate-agents.mjs` Check 4 (`legacy-004`)                 |
 
 ### Soft guidelines (advisory — not CI-enforced)
 
 | Rule                     | Target           | Rationale                                                              |
 | ------------------------ | ---------------- | --------------------------------------------------------------------- |
 | Tool list size           | ≤ 30 tools       | Each tool adds ~75 tokens to prompt                                   |
-| Agent body length        | ≤ 350 lines      | Soft target; past it add `<context_awareness>` (hard cap is 600)      |
+| Agent body length        | ≤ 350 lines      | Preserve role contracts and stop rules (hard cap is 600)              |
 | Inline template size     | ≤ 50 lines       | Move larger templates to skills                                       |
 | Handoff count            | ≤ 8 handoffs     | Each adds ~40 tokens; orchestrators are exempt (they route every step) |
 | Skill references in body | ≤ 5 "Read" lines | Progressive load, not bulk load                                       |
@@ -75,13 +73,20 @@ attachment evidence or proof that every advisory limit is enforced.
 
 ## Hand-Off Decision Framework
 
-Introduce a subagent hand-off when ANY of these conditions are true:
+Consider delegation at a bounded task boundary when one of these signals applies:
 
 1. **Tool-heavy phase**: Agent makes > 5 tool calls in sequence for one subtask
 2. **Domain shift**: Agent transitions between distinct domains (infra → app → docs)
 3. **Context accumulation**: Estimated context > 60% of model limit
 4. **Latency signal**: Turn latency exceeds 15s consistently
 5. **Isolated validation**: Task produces a structured PASS/FAIL result
+
+These signals never authorize topology changes. Check explicit caller allowlists,
+available tools, and actual harness support first. Empty `agents: []` means no
+delegation and needs no `agent` tool. Leaf workers return to their parent without
+questions, todo management, or nested calls. Use a human handoff when required.
+Do not infer runtime cost-tier eligibility from model names or catalog capability
+descriptors; unknown Sol metadata remains unknown.
 
 ## Context Budget Template
 
@@ -101,11 +106,9 @@ Available for conversation: ~169,625 tokens
 Per-turn budget: ~169,625 / 20 turns = ~8,481 tokens/turn average
 ```
 
-Adjust per model. The 200,000-token figure above is the VS Code Copilot Chat
-per-turn budget for the Claude family (Opus 5, Sonnet 5, Haiku 4.5). The
-GPT-5 family (GPT-5.6-Terra, GPT-5.6-Luna) has a 400,000-token per-turn
-budget in VS Code Copilot Chat, so the available conversation pool roughly
-doubles. See
+This is illustrative arithmetic, not a guaranteed model or harness limit.
+Use observed context limits from the active Local or Agent Host session; do not
+infer Sol limits or multiply a conversation budget by an assumed model tier. See
 [`apex-context-management/references/token-estimation.md`](../skills/apex-context-management/references/token-estimation.md)
 for the per-model breakdown including request multipliers.
 
@@ -117,7 +120,7 @@ for the per-model breakdown including request multipliers.
 | Large JSON embedded in agent body    | Move to `references/` or external file     |
 | Repeating instructions across agents | Single instruction file + `applyTo` glob   |
 | Reading entire files when grep works | Use `grep_search` for targeted extraction  |
-| No hand-offs in 30+ turn sessions    | Split at logical boundaries with subagents |
+| Long sessions without a boundary     | Consider a permitted handoff or checkpoint |
 | `create_file` to revise a file       | Use an available editing tool (below) |
 
 ## Targeted Edits Over Full Rewrites
@@ -162,3 +165,9 @@ Refresh required content after edits, compaction, or a new chat rather than gues
 Load the skills required by the current phase; defer optional references.
 Runtime compression tiers apply to artifacts, not alternate skill digests.
 Compaction must not prevent loading missing required guidance for a later phase.
+
+Local prompt files and configured discovery locations are not Agent Host routing
+contracts. Shared skills inherit the caller's model/tools; select the owning agent
+before consequential work. Keep essential runtime rules reachable from agent bodies:
+authoring `applyTo` matches alone do not prove runtime attachment. Preview hooks
+are complementary checks, not the sole approval or security gate.

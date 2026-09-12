@@ -47,19 +47,11 @@ shared guidance when attached or explicitly loaded, not as an assumed inherited 
 
 Immediately after writing any non-markdown artifact, run the matching
 shape-check command. Fail closed: fix and re-run before handing off.
-The canonical table lives in the `apex-azure-artifacts` skill
-([Post-write validation](../skills/apex-azure-artifacts/SKILL.md#post-write-validation));
-the rows below are an inline cheat sheet so agents never need to chase
-the link mid-write.
-
-| Artifact type                              | Validator command (run after each write)                                |
-| ------------------------------------------ | ----------------------------------------------------------------------- |
-| `*.json`                                   | `python -m json.tool <file> >/dev/null`                                 |
-| `*.bicep`                                  | `bicep build --stdout <file> >/dev/null`                                |
-| `*.tf` (inside a module dir)               | `terraform fmt -check <file>` then `terraform validate`                 |
-| `challenge-findings-*.json` (sidecar JSON) | `node tools/scripts/validate-challenger-findings.mjs <file>`            |
-| `challenge-findings-*-decisions.json` (per-finding sidecar) | `node tools/scripts/validate-challenge-findings-decisions.mjs <file>` |
-| `*.md` artifact                            | Delegated to lefthook `artifact-validation` — do NOT invoke directly  |
+Load the canonical [Post-write validation](../skills/apex-azure-artifacts/SKILL.md#post-write-validation)
+commands before writing; do not duplicate the table in agent bodies.
+For incremental IaC, preserve the readiness checks and build cadence in
+[`codegen-shared-workflow.md`](../skills/apex-iac-common/references/codegen-shared-workflow.md).
+Deferred checks are not passes and block completion until resolved.
 
 Markdown artifacts are validated by the lefthook `artifact-validation`
 pre-commit hook — do not invoke `lint:artifact-templates` /
@@ -68,9 +60,18 @@ pre-commit hook — do not invoke `lint:artifact-templates` /
 ## Subagent budget — agent-specific
 
 - Follow the agent's declared subagent budget; the orchestrator uses handoff buttons only.
+- Main agents, including `10-Challenger`, use `disable-model-invocation: true`.
+  If a required worker is unavailable, stop and request a human handoff; never
+  invoke a main agent as a nested wrapper or widen the caller's allowlist.
+- Reviewer discovery failure requires a human handoff to `10-Challenger`.
+  Missing or empty reviewer output permits exactly one identical-input retry,
+  then a human handoff; follow the
+  [review protocol](../skills/apex-azure-defaults/references/adversarial-review-protocol.md#subagent-discovery-fallback-default--deep).
 - Preserve structured output contracts across model families.
 - Agent frontmatter owns model assignments; the registry mirrors them. Do not use
   repository memory or duplicated prose as an alternative model authority.
+- Model labels do not establish runtime cost-tier eligibility or API parameters.
+  If the active harness cannot honor required tools or model routing, stop.
 
 ## Out of scope for this file
 

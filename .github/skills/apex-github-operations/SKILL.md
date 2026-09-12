@@ -33,7 +33,8 @@ management, bulk GraphQL queries).
 3. **Fall back to MCP only** when `gh` cannot satisfy the operation (rich PR review threads, bulk GraphQL, Copilot review requests)
 4. **Validate branch name before any commit or PR** — `git rev-parse --abbrev-ref HEAD`; if invalid, stop and rename via `git branch -m`
 5. **Conventional Commits are mandatory** — enforced by commitlint
-6. **Devcontainer**: do not run `gh auth login`; `GH_TOKEN` is set via VS Code User Settings (`terminal.integrated.env.linux`)
+6. **Devcontainer**: do not run `gh auth` unless explicitly asked to troubleshoot authentication.
+  Use configured CLI credentials; never request tokens through chat or switch identity implicitly.
 7. **Never skip hooks** (`--no-verify`) unless the user explicitly asks
 
 ## Branch Naming Quick Reference
@@ -104,6 +105,11 @@ Full state machine, watchdog pattern, and auto-merge gates in
 [`references/smart-pr-flow.md`](references/smart-pr-flow.md).
 
 ## Reference Index
+
+Operational procedures: [commit/push/PR](references/git-commit.md) and
+[sensei-free PR](references/merge-sensei-free-pr.md). The manual Host entrypoint
+is [apex-host-git-commit](../apex-host-git-commit/SKILL.md); it requires explicit
+owner/model selection and does not change the Local slash name.
 
 | Reference          | File                               | Content                                             |
 | ------------------ | ---------------------------------- | --------------------------------------------------- |

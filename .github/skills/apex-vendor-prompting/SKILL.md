@@ -7,7 +7,7 @@ license: MIT
 # Vendor Prompting Best Practices
 
 Audit-grade reference for the prompting patterns published by Anthropic
-(Claude family) and OpenAI (GPT-5.6-Terra family). Used to author **and** audit
+(Claude family) and OpenAI, plus explicitly identified APEX conventions. Used to author **and** audit
 `.agent.md` and `.prompt.md` files in this repository.
 
 The machine-readable source of truth is
@@ -44,10 +44,10 @@ I am editing or reviewing a *.agent.md / *.prompt.md ...
 ├── Which model is in the frontmatter?
 │   ├── Claude Opus / Claude Sonnet → load references/claude-best-practices.md
 │   ├── Claude Haiku                → load references/claude-best-practices.md (warn-only)
-│   ├── GPT-5.6-Terra               → load references/gpt-5-prompting.md
+│   ├── Sol / Terra / Luna         → load references/gpt-5-prompting.md (APEX convention)
 │   ├── GPT-5.4                     → load references/gpt-5-prompting.md (shared OpenAI cohort)
 │   ├── GPT-Codex / GPT-4o          → reviewer-only; minimal automated rules
-│   └── Unknown / missing           → ERROR: force explicit model: in frontmatter
+│   └── Missing on prompt          → resolve custom-agent or picker inheritance
 │
 ├── Is this a .prompt.md (single string model:) or .agent.md (array)?
 │   ├── prompt → load references/checklists.md "prompt" column
@@ -61,9 +61,10 @@ I am editing or reviewing a *.agent.md / *.prompt.md ...
 
 `classifyModel()` lower-cases the `model:` value and matches substrings in priority order
 to assign a family (`claude-opus` / `claude-sonnet` / `claude-haiku` / `claude` / `gpt-5.6-terra`
-/ `gpt-5.4` / `gpt-codex` / `gpt-4o` / `unknown`). For agents with `model:` as an array,
-the first entry decides the family; bareword qualifiers (`Claude Foo (suffix)`) are
-forbidden — see rule `frontmatter-model-style-001` in [`rules.json`](rules.json).
+/ `gpt-5.6-sol` / `gpt-5.6-luna` / `gpt-5.4` / `gpt-codex` / `gpt-4o` /
+`mai-code` / `unknown`). Validate every ordered fallback label and distinct family.
+Classification does not authorize a label: ordinary labels must exactly match
+the catalog. Only handoff overrides allow documented platform qualification.
 
 Full match table, severity status per family (`enforced` / `warn-only` / `reviewer-only` /
 `out-of-scope`), and rule subsets per family live in
@@ -85,12 +86,21 @@ Load only the references your task needs. Most audits need 1-2.
 
 ## Rules
 
-- **Source of truth is `rules.json`** — every rule has an ID, severity, source citation, applies-to, and validator-check binding; this skill prose only references it
-- **Model family is decided by the FIRST entry** in a model array (agents); the table in [Model-Family Detection](#model-family-detection-mirrors-validate-agentsmjs-classifymodel) is canonical
-- **`unknown` family = ERROR** — always require an explicit `model:` value that the validator can classify
-- **Bareword YAML for parenthetical model labels is forbidden** (`model: Claude Foo (suffix)` — see rule `frontmatter-model-style-001`)
-- **Do NOT load this skill for routine edits** — the auto-loaded thin instruction `vendor-prompting.instructions.md` carries the hard-rule shortlist
-- **Run `npm run lint:vendor-prompting`** before opening a PR; every finding includes a `ruleId` that maps to a `rules.json` entry
+- **Source of truth is `rules.json`** — every rule has an ID, severity, source citation,
+  applies-to, and validator-check binding; this skill prose only references it.
+- **Check every fallback** without adding one; see [Model-Family Detection](#model-family-detection).
+- **Missing prompt models may be inherited**; unknown explicit labels and unknown custom-agent targets fail validation.
+- **Array agent models and string prompt models are APEX conventions**, not YAML limitations.
+  Parentheses are valid YAML scalar content.
+- **Sol/Terra/Luna Markdown is an APEX convention**, informed by pinned OpenAI advice,
+  not model-specific vendor evidence. Preserve exact user-confirmed `gpt-5.6-sol`;
+  unknown release/tier metadata stays unknown.
+- **Leaf workers use role contracts**, not mandatory personality or main-agent sections.
+  Convert XML wrappers without deleting their safety or workflow content.
+- **Do NOT load this skill for routine edits** — the auto-loaded thin instruction
+  `vendor-prompting.instructions.md` carries the hard-rule shortlist.
+- **Run `npm run lint:vendor-prompting`** before opening a PR; every finding includes
+  a `ruleId` that maps to a `rules.json` entry.
 - **Verdict thresholds** — APPROVED if zero `error`s and ≤ 5 `warn`s; otherwise NEEDS_REVISION with per-rule remediation
 - **Out of scope**: routine prompt edits where rules are already known, generic markdown style (see `markdown.instructions.md`)
 
@@ -102,7 +112,7 @@ in [audit-procedure.md](references/audit-procedure.md)).
 1. **Read frontmatter** of the target `.agent.md` / `.prompt.md`.
    Capture `name`, `model`, `user-invocable`, `agents`, `handoffs[]`.
 2. **Classify model family** using the table above. Note the family's
-   v1 status from [family-support.md](references/family-support.md).
+  status for every fallback from [family-support.md](references/family-support.md).
 3. **Load the matching checklist** from
    [checklists.md](references/checklists.md): pick the agent or prompt
    column, then the family-specific section.
@@ -124,12 +134,12 @@ Every rule in [rules.json](rules.json) cites the upstream source by
 
 - **Anthropic Claude prompting best practices** — live web doc at
   [platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices).
-  Refresh via `npm run audit:vendor-prompting`.
+  Refresh only with authorized network access via `node tools/scripts/fetch-vendor-prompting-guides.mjs`.
 - **Anthropic Claude Sonnet 5 prompting guide** — live web doc at
   [platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-sonnet-5](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-sonnet-5).
   Sonnet-5-specific deltas from Sonnet 4.6 (adaptive thinking default,
   effort/`xhigh`, new tokenizer, literal instruction following, review
-  harness coverage). Refresh via `npm run audit:vendor-prompting`.
+  harness coverage). Refresh via the same fetcher only when network access is authorized.
 - **OpenAI outcome-first prompting guide** — pinned to
   `openai/skills@724cd511c96593f642bddf13187217aa155d2554`,
   `prompting-guide.md`, sha256
@@ -139,12 +149,13 @@ Every rule in [rules.json](rules.json) cites the upstream source by
 
 ## Freshness
 
-Run `npm run audit:vendor-prompting` to refresh snapshots and emit a
-drift report. The fetch script
+With explicit network authorization, run `node tools/scripts/fetch-vendor-prompting-guides.mjs`
+to refresh snapshots and emit a drift report. The fetch script
 ([fetch-vendor-prompting-guides.mjs](../../../tools/scripts/fetch-vendor-prompting-guides.mjs))
 falls back from `gh api` (auth) → anonymous raw → cached committed
 prose if upstream is unavailable.
 
-When upstream changes, regenerate this skill via
-`node tools/scripts/generate-skill-digests.mjs` and update the cited
-sha256 values in [rules.json](rules.json).
+Review actual source diffs before updating normalized references and rule citations.
+There is no digest-generation step. Offline audits reuse cached sources without
+changing hashes, fetched timestamps, or claiming refreshed evidence. Source history
+does not establish Sol release, capabilities, cost tiers, or native harness behavior.

@@ -199,24 +199,6 @@ configuration.
 A visual diagram showing how data entities relate to each other. Used in the Design step
 (Step 3) to model data architectures.
 
-## E
-
-### E2E Benchmark
-
-The 8-dimension scoring model used to evaluate Ralph Loop runs. Dimensions: artifact completeness,
-structural compliance, code quality, review thoroughness, WAF coverage, cost accuracy, session
-state integrity, and timing performance. Composite score 0–100 with letter grades (A–F).
-
-📁 **Output**: `agent-output/{project}/08-benchmark-report.md`, `08-benchmark-scores.json`
-
-### E2E Orchestrator
-
-Orchestration agent that drives the Ralph Loop. Executes all APEX steps without human
-gates, with pre-validation, self-correction, challenger reviews, and benchmark collection.
-Supports both Bicep and Terraform IaC tracks. Invoked via prompt files, not direct @mention.
-
-📁 **See**: [.github/agents/e2e-orchestrator.agent.md](https://github.com/jonathan-vella/apex/blob/main/.github/agents/e2e-orchestrator.agent.md)
-
 ## G
 
 ### Governance Constraints
@@ -349,12 +331,10 @@ JSON-RPC, a lightweight RPC protocol encoded in JSON.
 
 ### Ralph Loop
 
-An autonomous, self-correcting E2E evaluation workflow based on the
-[RALPH pattern](https://ghuntley.com/ralph/). Runs all APEX pipeline steps without
-human gates, with built-in self-correction, challenger reviews, and benchmark scoring.
-Supports both Bicep and Terraform IaC tracks.
+A general iterative agent pattern based on the [RALPH pattern](https://ghuntley.com/ralph/).
+APEX production workflows retain human approval gates; this pattern does not authorize autonomous deployment.
 
-📁 **See**: [E2E Testing documentation](../../guides/e2e-testing/)
+📁 **See**: [Workflow Validation](../../guides/e2e-testing/)
 
 ## S
 

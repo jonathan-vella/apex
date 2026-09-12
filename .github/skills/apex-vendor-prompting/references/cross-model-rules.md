@@ -10,19 +10,19 @@ prompt↔agent sync, language calibration, decision logging.
 > Source: [openai/skills upgrade-guide.md](.snapshots/openai-upgrade-guide.md)
 > "Pair each model usage with its prompt surface."
 
-**Rule** (`legacy-001` / `prompt-model-sync-001`): a `.prompt.md`
-file's `model:` value must equal the target agent's `model:` value.
+**APEX rule** (`prompt-model-source-001`): a custom-agent `.prompt.md` inherits
+its target's model and does not duplicate it. Generic Local prompts may inherit
+the picker selection. Historical `legacy-001` still warns on mismatched duplicates.
 
 ```yaml
 # .prompt.md
 ---
 agent: 03-Architect
-model: "Claude Opus 5" # MUST match agent's model:
 ---
 ```
 
-**Verification**: `node tools/scripts/validate-agents.mjs --only=vendor-prompting`
-emits `legacy-001` warning on mismatch.
+**Verification**: `--only=vendor-prompting` checks inheritance and unknown targets;
+`--only=model-alignment` emits the legacy mismatch warning.
 
 ## Rule R-X-2 — No redundant handoff model overrides
 
@@ -55,10 +55,11 @@ handoffs:
 
 - `.agent.md` files: array form — `model: ["Claude Opus 4.7"]`
 - `.prompt.md` files: string form — `model: "Claude Opus 4.7"`
-- Bareword form for labels with parenthetical qualifiers (e.g.,
-  `model: Claude Foo (suffix)`) is **forbidden** — YAML misparses parens.
+- Ordinary labels must exactly match catalog keys; documented platform-qualified
+  `handoffs[].model` strings are allowed. Parentheses are valid YAML content.
+- Validate every fallback without changing order or adding fallbacks.
 
-**Severity**: error. This breaks frontmatter loading entirely.
+**Severity**: error for this repository convention, not proof of a YAML failure.
 
 ## Rule R-X-4 — Handoff prompt enrichment
 
@@ -97,8 +98,8 @@ handoffs:
 **Rule** (reviewer-only): when an agent makes a significant choice
 (architecture pattern, SKU/tier selection, deployment strategy, IaC
 tool choice, security approach, networking topology, rejected
-viable alternative), append an entry to `decision_log` in
-`00-session-state.json`. Format:
+viable alternative), record it through `apex-recall decide`; never write raw
+session-state JSON. Historical decision shape, not a direct-write template:
 
 ```json
 {
@@ -123,8 +124,8 @@ in [checklists.md](checklists.md).
 > on prompt examples.
 
 **Reviewer hint**: examples should appear at the END of the agent
-body (both vendors agree). Claude wraps in `<example>` /
-`<examples>`; GPT-5.6-Terra uses fenced code blocks. Keep examples under
+body when useful. Claude may wrap in `<example>` /
+`<examples>`; APEX Sol/Terra/Luna uses fenced code blocks. Keep examples under
 12 lines.
 
 ## Rule R-X-7 — Language calibration
@@ -154,7 +155,7 @@ Outside these, prefer decision rules over absolutes.
 
 **Rule** (`model-deprecation-001`): agents/prompts using a deprecated
 model label get warned. Cross-references the existing deprecation
-list. New deprecations land in
+catalog metadata. New deprecations land in `.github/model-catalog.json` and are checked by
 [validate-models.mjs](../../../../tools/scripts/validate-models.mjs) (`--only=deprecated`);
 this rule re-emits them as `apex-vendor-prompting` findings for unified
 audit reports.

@@ -6,52 +6,18 @@ argument-hint: "Deploy the Bicep templates for a specific project"
 
 # Step 6 — Bicep Deployment
 
-Execute Azure deployment using generated Bicep templates.
+Local operational adapter for `07b-Bicep Deploy`. Read
+[apex-workflow-engine](../../../.github/skills/apex-workflow-engine/SKILL.md),
+then follow the [shared entry contract][entry] for this named owner.
 
-# Goal
+Pass the supplied project, scope, and revision request unchanged. Require the
+owner and its configured model; stop if unavailable. Do not widen its tools or
+run the operation under a different agent. Validate current required inputs
+and graph prerequisites before work; preserve reviews and human approvals.
 
-Provision the Azure resources defined in `infra/bicep/{project}/` to the
-target subscription, gated on a what-if preview and explicit user approval,
-then capture a deployment summary.
+Return the canonical output artifacts, actual check results, and any blockers.
+The owner body and workflow graph control execution, completion, and handoffs.
+Agent Host uses the distinct /apex-host-workflow-start skill after manual owner
+selection; this Local file does not bind a Host session.
 
-# Success criteria
-
-- `az deployment group what-if` ran cleanly and was reviewed by the user.
-- User explicitly approved the apply.
-- `azd provision` (or `deploy.ps1` fallback) completed without errors.
-- Resource health verified post-deployment.
-- `agent-output/{project}/06-deployment-summary.md` exists and lists every
-  deployed resource with its status.
-- Session state has Step 6 `status = "complete"`.
-
-# Constraints
-
-- Read `agent-output/{project}/00-session-state.json`; confirm `iac_tool` is
-  `Bicep` and Step 5 is `complete`.
-- Read `.github/skills/apex-iac-common/SKILL.md` for deploy patterns and known issues.
-- Read `.github/skills/apex-iac-common/references/circuit-breaker.md` for failure
-  handling.
-- Validate Azure CLI authentication first (`az account show`).
-- Use `azd provision` as the default deployment method; fall back to
-  `deploy.ps1` (deprecated) only for legacy projects without `azure.yaml`.
-- Never deploy without explicit user approval after the what-if review.
-- If what-if shows policy violations, halt and report — do not attempt to
-  override.
-- All destructive operations (delete, replace) require separate user
-  confirmation.
-
-# Output
-
-- What-if preview presented to the user (terminal output captured)
-- `agent-output/{project}/06-deployment-summary.md` with deployed resources,
-  outputs, and verification results
-- Updated `agent-output/{project}/00-session-state.json`
-
-# Stop rules
-
-- Stop if `az account show` fails — do not proceed without verified auth.
-- Stop if what-if reports policy violations or unexpected destructive changes;
-  return control to the user.
-- Stop if deployment fails after the documented retry window in
-  `circuit-breaker.md`; surface the error and do not auto-retry indefinitely.
-- Do not mark Step 6 complete until resource health is verified.
+[entry]: ../../../.github/skills/apex-workflow-engine/references/workflow-entry.md

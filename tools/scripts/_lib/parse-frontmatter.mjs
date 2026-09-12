@@ -1,160 +1,42 @@
+import * as yaml from "js-yaml";
+
+const FRONTMATTER = /^---\r?\n((?:[^\r\n]*(?:\r?\n))*?)---(?:\r?\n|$)/;
+
 /**
- * Shared YAML-like Frontmatter Parser
- *
- * Handles arrays (inline and multi-line), multiline strings (> and |),
- * and quoted values. Not a full YAML parser — covers the subset used
- * in agent and skill frontmatter.
- *
+ * Parse YAML frontmatter, preserving nested values and lowercasing top-level keys.
  * @param {string} content - Markdown file content
- * @returns {Record<string, string | string[]> | null} Parsed frontmatter or null
+ * @returns {Record<string, unknown> | null} Parsed mapping, or null when absent
  */
 export function parseFrontmatter(content) {
-  const match = content.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+  const match = content.match(FRONTMATTER);
   if (!match) return null;
-
-  const frontmatter = {};
-  const lines = match[1].split(/\r?\n/);
-  let currentKey = null;
-  let currentValue = [];
-  let inArray = false;
-  let inMultilineString = false;
-  let pendingKey = null;
-
-  for (const line of lines) {
-    // Handle key with empty value followed by indented [ or - on next line
-    if (pendingKey && !inArray && !inMultilineString) {
-      const trimmed = line.trim();
-      if (trimmed === "[" || trimmed.startsWith("[")) {
-        currentKey = pendingKey;
-        inArray = true;
-        currentValue = [];
-        pendingKey = null;
-        if (trimmed.includes("]")) {
-          const values = trimmed
-            .replace(/[[\]]/g, "")
-            .split(",")
-            .map((v) => v.trim().replace(/"/g, ""))
-            .filter(Boolean);
-          frontmatter[currentKey] = values;
-          inArray = false;
-          currentKey = null;
-        }
-        continue;
-      } else if (trimmed.startsWith("-")) {
-        currentKey = pendingKey;
-        inArray = true;
-        currentValue = [];
-        pendingKey = null;
-        const value = trimmed
-          .replace(/^-\s*/, "")
-          .replace(/["[\],]/g, "")
-          .trim();
-        if (value) currentValue.push(value);
-        continue;
-      } else {
-        frontmatter[pendingKey] = "";
-        pendingKey = null;
-      }
-    }
-
-    if (inArray) {
-      if (line.trim().startsWith("-") || line.trim().startsWith('"')) {
-        const value = line
-          .trim()
-          .replace(/^-\s*/, "")
-          .replace(/["[\],]/g, "")
-          .trim();
-        if (value) currentValue.push(value);
-        continue;
-      } else if (line.trim() === "]" || line.trim().endsWith("]")) {
-        frontmatter[currentKey] = currentValue;
-        inArray = false;
-        currentKey = null;
-        currentValue = [];
-        continue;
-      } else if (line.trim() && !line.startsWith(" ") && line.includes(":")) {
-        frontmatter[currentKey] = currentValue;
-        inArray = false;
-        currentValue = [];
-      }
-    }
-
-    if (inMultilineString) {
-      if (line.startsWith("  ")) {
-        currentValue.push(line.trim());
-        continue;
-      } else {
-        frontmatter[currentKey] = currentValue.join(" ");
-        inMultilineString = false;
-        currentKey = null;
-        currentValue = [];
-      }
-    }
-
-    const keyMatch = line.match(/^([a-z-]+):\s*(.*)/i);
-    if (keyMatch) {
-      currentKey = keyMatch[1].toLowerCase();
-      const rawValue = keyMatch[2].trim();
-
-      if (rawValue === "[" || rawValue.startsWith("[")) {
-        inArray = true;
-        currentValue = [];
-        if (rawValue.includes("]")) {
-          const values = rawValue
-            .replace(/[[\]]/g, "")
-            .split(",")
-            .map((v) => v.trim().replace(/"/g, ""))
-            .filter(Boolean);
-          frontmatter[currentKey] = values;
-          inArray = false;
-          currentKey = null;
-        }
-        continue;
-      }
-
-      if (/^[>|][-+]?$/.test(rawValue)) {
-        inMultilineString = true;
-        currentValue = [];
-        continue;
-      }
-
-      frontmatter[currentKey] = rawValue.replace(/^["']|["']$/g, "");
-      if (rawValue === "") {
-        pendingKey = currentKey;
-        delete frontmatter[currentKey];
-      }
-    }
+  if (!match[1].trim()) return {};
+  const parsed = yaml.load(match[1], { schema: yaml.JSON_SCHEMA });
+  if (parsed == null) return {};
+  if (typeof parsed !== "object" || Array.isArray(parsed)) {
+    throw new TypeError("Frontmatter must be a YAML mapping");
   }
-
-  if (inArray && currentKey) {
-    frontmatter[currentKey] = currentValue;
+  const entries = Object.entries(parsed).map(([key, value]) => [key.toLowerCase(), value]);
+  if (new Set(entries.map(([key]) => key)).size !== entries.length) {
+    throw new TypeError("Frontmatter keys must be unique ignoring case");
   }
-  if (inMultilineString && currentKey) {
-    frontmatter[currentKey] = currentValue.join(" ");
-  }
-
-  return frontmatter;
+  return Object.fromEntries(entries);
 }
 
 /**
  * Extract body content after YAML frontmatter delimiters.
- * @param {string} content - Full file content with --- delimiters
- * @returns {string} Body text after closing ---
+ * @param {string} content - Full file content
+ * @returns {string} Body text, unchanged when frontmatter is absent
  */
 export function getBody(content) {
-  const match = content.match(/^---\r?\n[\s\S]*?\r?\n---\r?\n?([\s\S]*)$/);
-  return match ? match[1] : content;
+  return content.replace(FRONTMATTER, "");
 }
 
 /**
- * Extract the raw frontmatter YAML block (text between the --- delimiters)
- * without parsing it. Useful when validators need to run textual lint
- * checks (e.g. forbidden patterns) directly against the source YAML.
- *
- * @param {string} content - Full file content with --- delimiters
- * @returns {string} Raw frontmatter text, or "" if no frontmatter found
+ * Extract the raw YAML block without parsing it.
+ * @param {string} content - Full file content
+ * @returns {string} Raw frontmatter, or an empty string when absent
  */
 export function getRawFrontmatter(content) {
-  const match = content.match(/^---\r?\n([\s\S]*?)\r?\n---/);
-  return match ? match[1] : "";
+  return content.match(FRONTMATTER)?.[1].replace(/\r?\n$/, "") ?? "";
 }

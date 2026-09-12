@@ -116,6 +116,27 @@ Skills auto-discover via the `description` field in `.github/skills/{name}/SKILL
 Agents read `SKILL.md` files on demand and load `references/*.md` only when the
 body explicitly points to one. There is one tier — no digest, no minimal.
 
+## Harness And Runtime Boundaries
+
+- Local prompt files are adapters, not Agent Host entry points. On Agent Host,
+    use the shared skill and explicitly select its owning main agent before consequential work.
+    Skills inherit the caller's model/tools; they do not switch agents or confer permissions.
+- Main agents, including `10-Challenger`, use `disable-model-invocation: true`.
+    The Orchestrator routes through human handoffs only. Explicit caller allowlists
+    must not override that boundary; legacy discovery settings are not a security boundary.
+- If a required reviewer is unavailable, STOP and request a human handoff to `10-Challenger`;
+    never invoke a nested wrapper or fabricate an inline review. Missing/empty reviewer output
+    permits exactly one identical-input retry, then a human handoff under the
+    [review protocol](skills/apex-azure-defaults/references/adversarial-review-protocol.md#subagent-discovery-fallback-default--deep).
+- Keep essential role, approval, security, output, and stop rules in main agent bodies.
+    Authoring `applyTo` matches do not prove runtime attachment. Load required guidance
+    when missing; do not automatically load vendor-authoring guidance during production work.
+- Agent frontmatter owns model assignments. Sol, Terra, and Luna labels do not prove
+    runtime cost-tier eligibility, availability, or API support. Stop on unsupported routing;
+    do not substitute models automatically. Local and Agent Host behavior needs separate verification.
+- Use available editing tools for existing files, preserve user work, and validate before
+    dependent follow-up edits. No shared procedure requires a particular bulk-edit tool.
+
 ## Chat Triggers
 
 - Messages starting with `gh` are GitHub operations (e.g., `gh pr create`,

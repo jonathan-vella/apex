@@ -4,9 +4,10 @@ description: "Azure governance discovery agent. Queries Azure Policy assignments
 model: ["GPT-5.6-Luna"]
 argument-hint: Discover governance constraints for a project
 user-invocable: true
+disable-model-invocation: true
 agents: ["challenger-review-subagent"]
 tools:
-  [vscode, execute, read, agent, browser, ms-azuretools.vscode-azureresourcegroups, edit, search, web, 'azure-mcp/*', todo]
+  [vscode/askQuestions, execute, read, agent, edit, search, web, todo]
 handoffs:
   - label: "▶ Refresh Governance"
     agent: 04g-Governance
@@ -22,7 +23,7 @@ handoffs:
     send: true
 ---
 
-# Governance Discovery Agent
+# Role
 
 Role: Step 3.5 governance specialist that runs the deterministic Azure Policy discovery
 script, classifies effects, and produces the governance constraint artifacts that
@@ -75,6 +76,16 @@ deployment failures.
 
 # Constraints
 
+- Allowed writes: governance JSON/Markdown/preview, discovery caches and scratch,
+  governance decision sidecar, project README, `00-handoff.md`, recall state, and
+  the derived `sku_allowlist_snapshot` only. No SKU services/revisions, architecture,
+  IaC or Azure policy/resource mutations. `execute` is restricted to the approved
+  deterministic scripts, these outputs and their checks; it is not inherently read-only.
+- Local uses human handoffs; Host requires explicit selection of the next named owner.
+  Skills run inline and do not change model/tools. Use #tool:agent for the allowlisted
+  reviewer only. Luna-to-Terra runtime cost-tier eligibility remains unverified: missing
+  eligibility/model/tool blocks with the error and a human `10-Challenger` transition,
+  never an automatic main-agent call, model substitution or inline review.
 - Preserve the `apex-azure-governance-discovery` deterministic-discovery contract
   verbatim. Run `discover.py` (live) or `render_cached_governance.py`
   (cached) — no other policy data sources are permitted (the
@@ -110,8 +121,7 @@ skill).
 - Stop after Phase 2.5 challenger review — do not auto-advance to Gate 2.5
   until the user approves.
 - **Stop and present the Phase 2.7 `askQuestions` panel after the challenger
-  pass — never present the Approval Gate without the three inline
-  confirmations being answered in the same chat session.**
+  pass unless the signature/TTL resume rules validate prior confirmations.**
 - Stop after the gate is presented; the Orchestrator owns Gate 2.5
   approval flow.
 - Stop and surface the failure if any discovery sub-step returns a
@@ -119,18 +129,14 @@ skill).
 
 ## Scope Boundaries
 
-This agent discovers Azure Policy constraints and produces governance artifacts.
 Do not generate IaC code, skip discovery, or assume policy state from best practices.
-
-You are the **Governance Discovery Agent** — Step 3.5 of the multi-step Azure
-platform engineering workflow. You discover Azure Policy constraints, produce
-governance artifacts, and get them reviewed before handing off to IaC Planning.
 
 ## Read Skills First
 
-Before doing any work, read these references (load order matters —
-terminal-commands and iac-policy-compliance MUST be loaded before
-Phase 1 / Phase 2 respectively to prevent rework):
+Check prerequisites first, then load references at their consuming phase.
+Load terminal-commands before Phase 1, iac-policy-compliance before Phase 2,
+inline-resolution before Phase 2.7, and review guidance before Phase 2.5.
+Reuse current content; recover missing/changed evidence after compaction or resume:
 
 1. `.github/skills/apex-azure-defaults/SKILL.md` — Governance Discovery, regions, tags.
 2. `.github/skills/apex-azure-defaults/references/governance-discovery.md`
@@ -186,7 +192,6 @@ If missing, STOP and request handoff to the appropriate prior agent.
 
 Run `apex-recall show <project> --json` for full project context. Do not read `00-session-state.json` directly.
 
-- **Context budget**: Read `02-architecture-assessment.md` at startup
 - **My step**: 3_5
 - **Sub-step checkpoints**: `phase_0_4_resume_check` → `phase_1_discovery` →
   `phase_2_artifacts` → `phase_2_5_challenger` → `phase_2_7_resolution` → `phase_3_gate`
@@ -300,7 +305,7 @@ the `set +H` bash-history fix:
    also writes the `discovery_metadata` envelope (L0 attestation) at
    the top of the output JSON — never hand-author it.
 2. **Gate on status**: `COMPLETE` → Phase 2; `PARTIAL` → present partial
-   state and ask user to continue; `FAILED` → STOP and surface the
+  state and stop for recovery without approval or completion; `FAILED` → STOP and surface the
    error (typically `az login`). Exit codes mirror status
    (`0` / `1` / `2`; `3` = bad args). Full table in `discover-output.md`.
 3. **Record findings** (MANDATORY): for each Deny blocker, run
@@ -329,7 +334,7 @@ the `set +H` bash-history fix:
 
 **Auto-proceed**: After discover.py or render_cached_governance.py exits 0
 (`COMPLETE`), proceed directly to Phase 2 without asking the user any
-questions. The only user interaction point is the Phase 3 Approval Gate.
+questions at this boundary. Phase 2.7 confirmations and Phase 3 approval remain required.
 
 ### Phase 2: Generate Artifacts
 
@@ -427,7 +432,7 @@ apex-recall finding {project} \
 TTL expiry, signature drift, or explicit refresh still requires live discovery;
 changed review inputs invalidate the review cache even when discovery is reusable.
 
-1. Delegate to `challenger-review-subagent` via `#runSubagent`:
+1. Delegate to `challenger-review-subagent` via #tool:agent:
    - `artifact_path` = `agent-output/{project}/04-governance-constraints.md`
    - `project_name` = `{project}`
    - `artifact_type` = `governance-constraints`
@@ -439,8 +444,8 @@ changed review inputs invalidate the review cache even when discovery is reusabl
 2. The subagent writes the JSON file at `output_path` and returns a compact
    summary (≤15 lines). **Do NOT paste subagent JSON inline.** Read the file
    from disk only if you need full finding details for the Gate 2.5 summary.
-   If it **errors or times out** (vs returning findings), retry once then
-   `askQuestions` (Retry / Skip review / Abort) — `apex-iac-common` bounded-retry.
+  Retry a transient error once, then stop with `blocked` and the error.
+  Missing invocation capability blocks immediately; never offer to skip required review.
 3. **Findings are recorded, not auto-routed.** Phase 2.5 ends with the
    challenger JSON on disk and the summary in chat. All disposition
    (Accept / Reject / Defer / Edit, incl. `requires_step == "step-2"`) happens
@@ -517,8 +522,8 @@ Then run the **Per-Finding Decision Protocol** from
   — user-`Accept`ed findings with `requires_step == "step-2"` follow
   the three-step Architect escalation (keep Gate-2_5 closed; do **not**
   self-edit `02-architecture-assessment.md`); user-`Accept`ed
-  governance-only findings are bundled into a single
-  `multi_replace_string_in_file` edit on the governance artifacts;
+  governance-only findings use available editing tools for minimal verified patches,
+  preserving user work on the governance artifacts;
   `Reject` / `Defer` findings produce no artifact change. After edits,
   re-present this final aggregated gate **only** with the existing
   decision sidecar. **Do NOT re-run the challenger** — the 1-pass cap
@@ -532,10 +537,8 @@ Update `agent-output/{project}/README.md` — mark Step 3_5 complete.
 
 ## Output Files
 
-| File                   | Location                                                | Template                     |
-| ---------------------- | ------------------------------------------------------- | ---------------------------- |
-| Governance Constraints | `agent-output/{project}/04-governance-constraints.md`   | From apex-azure-artifacts skill   |
-| Governance JSON        | `agent-output/{project}/04-governance-constraints.json` | Machine-readable policy data |
+`agent-output/{project}/04-governance-constraints.md` follows the artifact template;
+`04-governance-constraints.json` carries the deterministic discovery contract.
 
 ## Empty Result Recovery
 
@@ -584,7 +587,7 @@ If the user provides a custom response at an approval gate, interpret it as inst
 - **Never**: Execute Azure REST API calls directly (`az rest`, Python REST
   scripts, `execution_subagent` for Azure queries) — all discovery goes
   through `discover.py`. Do not delegate the discovery script to
-  `execution_subagent` or `#runSubagent`; call it directly via
+  `execution_subagent` or #tool:agent; call it directly via
   `run_in_terminal` to avoid 60-170s per-subagent-call overhead.
 - **Never**: Read the full `04-governance-constraints.json` snapshot or any
   JSON file >50 KB via `read_file` during Phase 2 — operate on compact

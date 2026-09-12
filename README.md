@@ -1,7 +1,5 @@
 # APEX
 
-![E2E Benchmark — Bicep](https://img.shields.io/badge/E2E_Bicep-88%2F100_Grade_B-green) ![E2E Benchmark — Terraform](https://img.shields.io/badge/E2E_Terraform-tested-blue)
-
 Agentic Platform Engineering eXperience for Azure.
 
 This repository is the source project for a multi-agent workflow that turns Azure

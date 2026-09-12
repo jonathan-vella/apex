@@ -69,7 +69,10 @@ batching.
 
 ## Subagent invocation template (deep review)
 
-For each pass, invoke `challenger-review-subagent` via `#runSubagent`:
+For each pass, invoke `challenger-review-subagent` through the available
+delegation capability. If unavailable, stop and request a human handoff to
+`10-Challenger` under the parent protocol; never use a nested wrapper fallback.
+Keep the same per-pass inputs:
 
 - `artifact_path` = `agent-output/{project}/{artifact-filename}`
 - `project_name` = `{project}`

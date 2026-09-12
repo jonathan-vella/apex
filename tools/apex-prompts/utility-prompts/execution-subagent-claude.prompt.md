@@ -5,64 +5,26 @@ model: "Claude Sonnet 5"
 tools: [read, edit, search]
 ---
 
-# Execution-subagent invocation prompt — Claude variant
+# Execution-Subagent Invocation Contract
 
-> Reference template for invoking Claude-family subagents
-> (challenger-review-subagent, cost-estimate-subagent,
-> bicep-validate-subagent, terraform-validate-subagent). Three required
-> XML tags, in this order. Vendor compliance:
-> [`claude-best-practices.md`](../../../.github/skills/apex-vendor-prompting/references/claude-best-practices.md)
-> rule **R-CL-1** (XML structuring for complex prompts).
->
-> For GPT-family subagent recipients use
-> [`execution-subagent-gpt.prompt.md`](execution-subagent-gpt.prompt.md).
-> The canonical base contract lives at
-> [`execution-subagent.prompt.md`](execution-subagent.prompt.md).
+Reference-only Local compatibility adapter. Read the
+[canonical contract](../../../.github/skills/apex-workflow-engine/references/execution-subagent.md)
+before constructing a named worker invocation. This file's Local metadata does
+not select the worker or override its model/tools. Do not execute this template.
 
-```text
-<inputs>
-One paragraph (≤ 4 sentences) stating what the parent needs from the
-subagent. Name the artifact under review or the deployment target.
-State the success criterion in observable terms (file written, JSON
-shape returned, gate decision).
-</inputs>
+## Inputs
 
-<activities>
-The exact commands the subagent should run, in order. Include any
-`set -euo pipefail` prelude, environment exports, and output
-redirection. Use absolute paths or paths relative to the workspace
-root.
+Supply the canonical required inputs, current evidence, allowed writes, and
+observable success criterion. Return missing inputs to the parent.
 
-```bash
-set -euo pipefail
-cd /workspaces/<repo>
-# example
-```
-</activities>
+## Activities
 
-<outputs>
-A precise statement of what the subagent returns to the parent:
+Copy the canonical bounded activities contract. Workers do not ask user
+questions, manage parent todos, or dispatch nested subagents.
 
-- **Structured JSON** — name the schema (e.g. `deployment-preview-v1`)
-  and the path on disk where it was written. The parent reads from
-  disk, not from the chat transcript.
-- **Verdict** — one of a fixed enum (e.g. `PASS|FAIL`,
-  `PROCEED|BLOCK`, `APPROVED|NEEDS_REVISION|FAILED`).
-- **Summary** — a bounded markdown block (state the H2 contract or
-  line budget).
+## Outputs
 
-State the failure mode too: what does the subagent return if a command
-fails, if the inputs are malformed, or if an upstream service is
-unreachable?
-</outputs>
-```
-
-## Why XML for Claude
-
-Anthropic's prompt-engineering guidance prefers XML tags for content
-structuring when a prompt mixes instructions, context, examples, and
-variable inputs. The XML wrapper is easier for Claude to parse than
-markdown H2s and survives copy/paste-into-system-prompt rendering
-without ambiguity. See
-[`claude-best-practices.md`](../../../.github/skills/apex-vendor-prompting/references/claude-best-practices.md)
-R-CL-1.
+Use the named worker's source contract: file JSON with path/schema and compact
+summary, or its fixed verdict/text summary without a findings-file write. Preserve
+its exact failure shape. The parent persists evidence only if its own contract
+owns and authorizes that artifact; recovery and approvals remain with the parent.

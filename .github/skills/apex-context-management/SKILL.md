@@ -119,6 +119,16 @@ for the full output template.
 
 ## Reference Index
 
+Operational procedures (load only the requested one):
+
+- [Debug-log export](references/debug-log-export.md), with manual Host entrypoint
+  [apex-host-debug-log-export](../apex-host-debug-log-export/SKILL.md).
+- [Context audit](references/context-audit.md).
+- [Agent fleet assessment](references/assess-agents.md).
+- [.github assessment](references/assess-github-folder.md).
+- [Assessment design history](references/plan-four-layer-agent-assessment.md),
+  reference-only, not an execution instruction.
+
 Load on demand:
 
 | Reference                             | Mode    | When to Load                                                               |

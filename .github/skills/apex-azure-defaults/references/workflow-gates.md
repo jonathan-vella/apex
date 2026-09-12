@@ -210,8 +210,9 @@ missing or empty (zero bytes):
    `last_error_message`.
 2. **Retry exactly once** with identical inputs.
 3. **After the second failure**: STOP, surface the failure log to the
-   user inline. Do NOT advance to the Approval Gate. Do NOT invent
-   findings. Do NOT call the subagent a third time.
+  user inline and request a human handoff to `10-Challenger`. Do NOT
+  advance to the Approval Gate. Do NOT invent findings. Do NOT call
+  the subagent a third time or invoke `10-Challenger` as a nested wrapper.
 
 ## Design (Step 3) — Phase 00: Artifact scope (one-time gate)
 

@@ -13,13 +13,7 @@ export const AGENT_OUTPUT_DIR = "agent-output";
 // Tools prompts are attachable references; native operational slash prompts live in .github/prompts/.
 export const PROMPTS_DIR = "tools/apex-prompts";
 
-/**
- * Additional prompt-source directories scanned by `getPromptFiles()`.
- * `tools/tests/prompts/` holds E2E loop and benchmark prompts that ship
- * alongside production prompts and must satisfy the same vendor-prompting
- * rules (notably `prompt-model-source-001`).
- */
-export const PROMPT_SOURCE_DIRS = [".github/prompts", "tools/apex-prompts", "tools/tests/prompts"];
+export const PROMPT_SOURCE_DIRS = [".github/prompts", "tools/apex-prompts"];
 
 export const REGISTRY_PATH = "tools/registry/agent-registry.json";
 export const COUNT_MANIFEST_PATH = "tools/registry/count-manifest.json";

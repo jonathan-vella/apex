@@ -14,12 +14,9 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-// Namespace import (not `import yaml from "js-yaml"`): js-yaml 5.x is pure ESM
-// and exposes named exports only — no default export. A namespace import works
-// under both js-yaml 4.x (CommonJS) and 5.x (ESM).
-import * as yaml from "js-yaml";
 import { getAgents, getPromptFiles } from "./_lib/workspace-index.mjs";
-import { getBody } from "./_lib/parse-frontmatter.mjs";
+import { getBody, parseFrontmatter } from "./_lib/parse-frontmatter.mjs";
+import { modelLabels, catalogModelLabel } from "./_lib/model-helpers.mjs";
 import { Reporter } from "./_lib/reporter.mjs";
 import { MAX_BODY_LINES } from "./_lib/paths.mjs";
 import {
@@ -42,24 +39,9 @@ let suggestMode = false;
 /** Aggregated structured findings across all parts (used by --format=json). */
 const allFindings = [];
 
-/**
- * The repo's custom YAML-like parser flattens handoffs into a string array
- * (one entry per `key: value` line). For vendor-prompting checks that need
- * structured handoffs, re-parse the frontmatter with js-yaml.
- *
- * Returns an array of `{ label, agent, prompt, send, model }` objects, or
- * an empty array when the agent has no handoffs.
- */
 function parseStructuredHandoffs(content) {
-  const m = content.match(/^---\n([\s\S]*?)\n---/);
-  if (!m) return [];
-  try {
-    const parsed = yaml.load(m[1]);
-    if (parsed && Array.isArray(parsed.handoffs)) return parsed.handoffs;
-  } catch {
-    // js-yaml may fail on edge-case YAML; degrade to empty array.
-  }
-  return [];
+  const handoffs = parseFrontmatter(content)?.handoffs;
+  return Array.isArray(handoffs) ? handoffs : [];
 }
 
 // ============================================================================
@@ -76,14 +58,62 @@ const BLOCK_SCALAR_PATTERN = /^description:\s*[>|][-\s]*$/m;
 // every char here ships with every model call (~10x compounding cost).
 const DESCRIPTION_MAX_LEN = 350;
 const DESCRIPTION_WARN_LEN = 300;
+const PRODUCTION_AGENTS_DIR = fileURLToPath(new URL("../../.github/agents/", import.meta.url));
+const LEAF_WORKER_TOOL_PATTERN =
+  /^(?:\*|agent(?:\/|$)|todo(?:\/|$)|vscode$)|runSubagent|askQuestions|askUser|manage.?todo/i;
 
-const ALLOWED_NON_INVOCABLE_MAIN_AGENTS = new Set(["e2e-orchestrator.agent.md"]);
+function productionAgentKind(agent) {
+  const directory = path.dirname(path.resolve(agent.path));
+  if (directory === path.resolve(PRODUCTION_AGENTS_DIR)) return "main";
+  if (directory === path.join(PRODUCTION_AGENTS_DIR, "_subagents")) return "worker";
+  return null;
+}
 
-function runFrontmatterValidation() {
+function validateProductionAgentPolicy(agent, agents) {
+  const kind = productionAgentKind(agent);
+  if (!kind) return [];
+
+  const issues = [];
+  const frontmatter = agent.frontmatter;
+  const allowed = frontmatter.agents;
+  const tools = frontmatter.tools;
+  const mainNames = new Set(
+    [...agents.values()]
+      .filter((candidate) => productionAgentKind(candidate) === "main")
+      .map((candidate) => candidate.frontmatter?.name),
+  );
+  if (Array.isArray(allowed)) {
+    for (const name of allowed) {
+      if (name === "*" || mainNames.has(name)) {
+        issues.push(`Production agents cannot allowlist main agents or wildcard targets (got: ${name})`);
+      }
+    }
+  }
+  if (kind === "main" && frontmatter["disable-model-invocation"] !== true) {
+    issues.push("Production main agents require disable-model-invocation: true");
+  }
+  if (kind === "main" && frontmatter.name === "01-Orchestrator") {
+    if (!Array.isArray(allowed) || allowed.length !== 0) {
+      issues.push("Production Orchestrator requires agents: [] and human handoffs only");
+    }
+    if (Array.isArray(tools) && tools.some((tool) => /^(?:\*|agent(?:\/|$))|runSubagent/i.test(tool))) {
+      issues.push("Production Orchestrator cannot use delegation tools");
+    }
+  }
+  if (kind === "worker") {
+    if (frontmatter["user-invocable"] !== false) issues.push("Production workers require user-invocable: false");
+    if (!Array.isArray(allowed) || allowed.length !== 0) issues.push("Production workers require agents: []");
+    if (Array.isArray(tools) && tools.some((tool) => LEAF_WORKER_TOOL_PATTERN.test(tool))) {
+      issues.push("Production workers cannot delegate, ask user questions, or manage parent todos");
+    }
+  }
+  return issues;
+}
+
+export function runFrontmatterValidation({ agents = getAgents() } = {}) {
   const r = new Reporter("Agent Frontmatter Validator");
   r.header();
 
-  const agents = getAgents();
   let mainCount = 0;
   let subCount = 0;
 
@@ -134,8 +164,7 @@ function runFrontmatterValidation() {
       }
     } else {
       const ui = frontmatter["user-invocable"];
-      const filename = relativePath.split("/").pop();
-      if (ui !== "true" && ui !== "always" && ui !== true && !ALLOWED_NON_INVOCABLE_MAIN_AGENTS.has(filename)) {
+      if (ui !== "true" && ui !== "always" && ui !== true) {
         r.warn(relativePath, `Main agent should have user-invocable: true (got: ${ui})`);
       }
     }
@@ -150,6 +179,16 @@ function runFrontmatterValidation() {
 
     if ("agents" in frontmatter && !Array.isArray(frontmatter.agents)) {
       r.error(relativePath, `'agents' parsed as ${typeof frontmatter.agents}, expected array`);
+    }
+
+    for (const issue of validateAgentPermissions(frontmatter, { isSubagent, agents })) {
+      r.error(relativePath, issue);
+      r.record({ ruleId: "agent-permissions", severity: "error", file: relativePath, message: issue });
+    }
+
+    for (const issue of validateProductionAgentPolicy(agent, agents)) {
+      r.error(relativePath, issue);
+      r.record({ ruleId: "production-agent-policy", severity: "error", file: relativePath, message: issue });
     }
 
     if (content.includes("handoffs:")) {
@@ -186,6 +225,40 @@ function runFrontmatterValidation() {
   } else {
     console.log("✅ All agents passed frontmatter validation\n");
   }
+  allFindings.push(...r.findings);
+  return r;
+}
+
+export function validateAgentPermissions(frontmatter, { isSubagent = false, agents = new Map() } = {}) {
+  const issues = [];
+  const tools = frontmatter.tools;
+  const allowed = frontmatter.agents;
+  if (!Array.isArray(tools) || tools.some((tool) => typeof tool !== "string" || !tool.trim())) {
+    issues.push("tools must be an array of non-empty tool IDs");
+  }
+  const hasAgentTool = Array.isArray(tools) && tools.includes("agent");
+  if (Array.isArray(allowed)) {
+    if (allowed.some((name) => typeof name !== "string" || !name.trim())) {
+      issues.push("agents must contain non-empty names");
+    }
+    if (allowed.length > 0 && !hasAgentTool) issues.push("nonempty agents requires the agent tool");
+    const known = new Set([...agents.values()].map((agent) => agent.frontmatter?.name));
+    if (known.size > 0) {
+      for (const name of allowed) {
+        if (name !== "*" && !known.has(name)) issues.push(`unknown allowed agent: ${name}`);
+      }
+    }
+  }
+  for (const field of ["user-invocable", "disable-model-invocation"]) {
+    if (field in frontmatter && typeof frontmatter[field] !== "boolean") issues.push(`${field} must be boolean`);
+  }
+  if (isSubagent) {
+    if (!Array.isArray(allowed) || allowed.length !== 0) issues.push("leaf workers require agents: []");
+    if (Array.isArray(tools) && tools.some((tool) => LEAF_WORKER_TOOL_PATTERN.test(tool))) {
+      issues.push("leaf workers cannot delegate, ask user questions, or manage parent todos");
+    }
+  }
+  return issues;
 }
 
 // ============================================================================
@@ -346,9 +419,9 @@ function runAgentChecks() {
  * Shared by Check 1 (Prompt↔Agent model sync), Check 2 (handoff override
  * redundancy), and the prompt-model-source rule in vendor-prompting.
  */
-function buildAgentNameToModel() {
+function buildAgentNameToModel(agents = getAgents()) {
   const map = new Map();
-  for (const [, agent] of getAgents()) {
+  for (const [, agent] of agents) {
     if (agent.frontmatter?.name) {
       map.set(agent.frontmatter.name.toLowerCase(), {
         model: agent.frontmatter.model,
@@ -362,7 +435,7 @@ function buildAgentNameToModel() {
 function classifyModel(modelStr) {
   if (!modelStr) return "unknown";
   const s = Array.isArray(modelStr) ? modelStr[0] : modelStr;
-  if (!s) return "unknown";
+  if (typeof s !== "string" || !s) return "unknown";
   const lower = s.toLowerCase();
   if (lower.includes("claude opus")) return "claude-opus";
   if (lower.includes("claude sonnet")) return "claude-sonnet";
@@ -370,6 +443,7 @@ function classifyModel(modelStr) {
   if (lower.includes("claude")) return "claude";
   if (lower.includes("gpt-5.6-luna")) return "gpt-5.6-luna";
   if (lower.includes("gpt-5.6-terra")) return "gpt-5.6-terra";
+  if (lower.includes("gpt-5.6-sol")) return "gpt-5.6-sol";
   if (lower.includes("gpt-5.5")) return "gpt-5.5";
   if (lower.includes("gpt-5.4")) return "gpt-5.4";
   if (lower.includes("gpt-5.3") || lower.includes("codex")) return "gpt-codex";
@@ -383,7 +457,7 @@ function isClaude(family) {
 }
 
 function isGptOutcomeFamily(family) {
-  return family === "gpt-5.6-terra" || family === "gpt-5.5" || family === "gpt-5.4";
+  return ["gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna", "gpt-5.5", "gpt-5.4"].includes(family);
 }
 
 function isGptFamily(family) {
@@ -495,8 +569,7 @@ function runModelAlignment() {
 
     for (const [_filename, agent] of agents) {
       if (!agent.frontmatter?.model) continue;
-      const family = classifyModel(agent.frontmatter.model);
-      if (!isClaude(family)) continue;
+      if (!modelLabels(agent.frontmatter.model).some((label) => isClaude(classifyModel(label)))) continue;
       if (agent.isSubagent) continue;
 
       const bodyLines = countBodyLines(agent.content);
@@ -532,8 +605,7 @@ function runModelAlignment() {
 
     for (const [filename, agent] of agents) {
       if (!agent.frontmatter?.model) continue;
-      const family = classifyModel(agent.frontmatter.model);
-      if (!isClaude(family)) continue;
+      if (!modelLabels(agent.frontmatter.model).some((label) => isClaude(classifyModel(label)))) continue;
 
       const matchesKnown = INVESTIGATE_AGENTS.some((prefix) => filename.startsWith(prefix));
       if (!matchesKnown) continue;
@@ -574,7 +646,7 @@ function runModelAlignment() {
  * Inline rule registry. Each entry mirrors a row in
  * `.github/skills/apex-vendor-prompting/rules.json`. The validator does not load
  * that file at runtime (avoids circularity); instead `--list-rules` dumps
- * this catalog and `validate-vendor-rules.mjs` cross-checks both directions.
+ * this catalog and cross-checks both directions.
  *
  * Severity here is the DEFAULT; family overrides are applied at emit time.
  */
@@ -667,15 +739,16 @@ function ruleById(id) {
   return VENDOR_RULES.find((rule) => rule.id === id);
 }
 
-const FAMILY_STATUS = {
+export const FAMILY_STATUS = {
   "claude-opus": "enforced",
   "claude-sonnet": "enforced",
   "claude-haiku": "warn-only",
   claude: "warn-only",
   "gpt-5.5": "enforced",
-  "gpt-5.6-luna": "reviewer-only",
+  "gpt-5.6-luna": "enforced",
   "gpt-5.6-terra": "enforced",
-  "gpt-5.4": "deprecated",
+  "gpt-5.6-sol": "enforced",
+  "gpt-5.4": "enforced",
   "gpt-codex": "reviewer-only",
   "gpt-4o": "reviewer-only",
   "mai-code": "reviewer-only",
@@ -685,6 +758,7 @@ const FAMILY_STATUS = {
 /** Apply family-status downgrade to a rule's default severity. */
 function effectiveSeverity(rule, family) {
   const base = rule.severity;
+  if (base === "error" || rule.id === "model-deprecation-001") return base;
   const status = FAMILY_STATUS[family] || "enforced";
   if (status === "reviewer-only") return "info";
   if (status === "deprecated") return "info";
@@ -718,7 +792,7 @@ function effectiveSeverity(rule, family) {
  */
 const ONE_SHOT_AGENT_NAMES = new Set(["02-Requirements", "challenger-review-subagent"]);
 
-/** XML blocks that are Claude-only and forbidden in GPT agents. */
+/** Legacy XML wrappers replaced by the APEX Markdown convention. */
 const CLAUDE_ONLY_XML = [
   "<investigate_before_answering>",
   "<context_awareness>",
@@ -764,15 +838,23 @@ function checkClaudeOneShotNoInvestigate(r, agent, file, family) {
 function checkGpt55Skeleton(r, agent, file, family) {
   if (!isGptOutcomeFamily(family)) return;
   const body = getBody(agent.content);
+  if (agent.isSubagent) {
+    const missing = ["Inputs", "Outputs"].filter((section) => !new RegExp(`^#{1,3} ${section}\\b`, "im").test(body));
+    if (missing.length || !/\b(stop|fail(?:ure|ed)?|return.*parent|blocked)\b/i.test(body)) {
+      emit(
+        r,
+        "gpt55-skeleton-001",
+        family,
+        file,
+        "Leaf role contract needs Inputs, Outputs, and a bounded failure/return rule",
+      );
+    }
+    return;
+  }
   const missing = GPT55_REQUIRED_SECTIONS.filter((h) => !new RegExp(`^${h}\\b`, "m").test(body));
+  if (!/^(?:# Role\b|Role:)/m.test(body)) missing.unshift("Role");
   if (missing.length > 0) {
-    emit(
-      r,
-      "gpt55-skeleton-001",
-      family,
-      file,
-      `OpenAI outcome-first skeleton missing sections: ${missing.join(", ")}`,
-    );
+    emit(r, "gpt55-skeleton-001", family, file, `APEX outcome contract missing sections: ${missing.join(", ")}`);
   }
   // Personality scoping (rule personality-scoping-001 piggybacked)
   const ui = agent.frontmatter?.["user-invocable"];
@@ -796,7 +878,13 @@ function checkGptNoClaudeXml(r, agent, file, family) {
   const body = getBody(agent.content);
   for (const xml of CLAUDE_ONLY_XML) {
     if (body.includes(xml)) {
-      emit(r, "gpt-no-claude-xml-001", family, file, `GPT agent contains Claude-only XML block ${xml}`);
+      emit(
+        r,
+        "gpt-no-claude-xml-001",
+        family,
+        file,
+        `APEX Markdown convention: replace ${xml} while preserving its content`,
+      );
     }
   }
 }
@@ -830,9 +918,9 @@ function checkAbsoluteLanguageDensity(r, agent, file, family) {
 function checkModelDeprecation(r, agent, file, family, deprecatedSet) {
   const m = agent.frontmatter?.model;
   if (!m) return;
-  const norm = (Array.isArray(m) ? m[0] : m).toLowerCase();
+  const norm = m.toLowerCase();
   for (const dep of deprecatedSet) {
-    if (norm.includes(dep.toLowerCase())) {
+    if (norm === dep.toLowerCase()) {
       emit(
         r,
         "model-deprecation-001",
@@ -865,7 +953,7 @@ function checkClaudeNoPrefill(r, item, file, family) {
 
 /** Check 11: gpt55-stop-rules-non-empty-001 */
 function checkGpt55StopRulesNonEmpty(r, agent, file, family) {
-  if (family !== "gpt-5.6-terra" && family !== "gpt-5.5") return;
+  if (!isGptOutcomeFamily(family) || agent.isSubagent) return;
   const body = getBody(agent.content);
   // Match section body up to the next H1 heading or the end of the document.
   // (`$` with the `m` flag matches end-of-line; we need end-of-string here, hence the explicit alternative.)
@@ -886,8 +974,8 @@ function checkFrontmatterModelStyle(r, item, file, family, fileType) {
   if (m === undefined || m === null) return;
   if (fileType === "agent" && !Array.isArray(m)) {
     emit(r, "frontmatter-model-style-001", family, file, `.agent.md model: must be array form, got ${typeof m}`);
-  } else if (fileType === "prompt" && Array.isArray(m)) {
-    emit(r, "frontmatter-model-style-001", family, file, `.prompt.md model: must be string form, got array`);
+  } else if (fileType === "prompt" && typeof m !== "string") {
+    emit(r, "frontmatter-model-style-001", family, file, `.prompt.md model: must be string form, got ${typeof m}`);
   }
 }
 
@@ -932,9 +1020,7 @@ function checkHandoffEnrichment(r, agent, file, family) {
 /**
  * Check 15: prompt-model-source-001
  *
- * Enforces the prompt-frontmatter HARD rule:
- *   - `agent: "<custom-agent>"` → MUST NOT declare `model:` (let it inherit).
- *   - `agent: agent` (generic) or no `agent:` → MUST declare explicit `model:`.
+ * Custom-agent prompts inherit their target; built-in prompts may inherit the picker.
  *
  * Runs only on prompts. `agentNameToModel` is the lowercase-agent-name →
  * { model, path } map produced by `buildAgentNameToModel()`.
@@ -944,26 +1030,21 @@ function checkPromptModelSource(r, prompt, file, agentNameToModel) {
   if (!fm) return;
   const agentField = fm.agent;
   const modelField = fm.model;
-  const isGenericAgent = !agentField || (typeof agentField === "string" && agentField.toLowerCase() === "agent");
-
-  if (isGenericAgent) {
-    if (modelField === undefined || modelField === null || modelField === "") {
-      emit(
-        r,
-        "prompt-model-source-001",
-        "any",
-        file,
-        `prompt without a custom agent must declare an explicit \`model:\` (got agent="${agentField ?? "<missing>"}")`,
-      );
-    }
-    return;
-  }
+  const isGenericAgent =
+    agentField === undefined ||
+    (typeof agentField === "string" && ["agent", "ask", "edit", "plan"].includes(agentField.toLowerCase()));
+  if (isGenericAgent) return;
 
   // Custom-agent target.
   const targetKey = typeof agentField === "string" ? agentField.toLowerCase() : null;
   const isKnownCustomAgent = targetKey !== null && agentNameToModel.has(targetKey);
 
-  if (isKnownCustomAgent && modelField !== undefined && modelField !== null && modelField !== "") {
+  if (!isKnownCustomAgent) {
+    emit(r, "prompt-model-source-001", "any", file, `unknown custom agent target "${agentField}"`);
+    return;
+  }
+
+  if (modelField !== undefined) {
     emit(
       r,
       "prompt-model-source-001",
@@ -975,21 +1056,14 @@ function checkPromptModelSource(r, prompt, file, agentNameToModel) {
 }
 
 /**
- * Resolve a prompt's effective family using its own `model:` first, then
- * falling back to the target custom agent's `model:`. Generic prompts
- * (`agent: agent` or absent) classify only via their own `model:`.
+ * Resolve all effective model labels, retaining generic picker inheritance.
  */
-function resolvePromptFamily(prompt, agentNameToModel) {
+function resolvePromptModels(prompt, agentNameToModel) {
   const fm = prompt.frontmatter;
-  if (!fm) return "unknown";
-  if (fm.model) return classifyModel(fm.model);
+  if (!fm) return undefined;
+  if (fm.model !== undefined) return fm.model;
   const agentField = fm.agent;
-  if (!agentField || (typeof agentField === "string" && agentField.toLowerCase() === "agent")) {
-    return "unknown";
-  }
-  const entry = agentNameToModel.get(agentField.toLowerCase());
-  if (!entry) return "unknown";
-  return classifyModel(entry.model);
+  return typeof agentField === "string" ? agentNameToModel.get(agentField.toLowerCase())?.model : undefined;
 }
 
 /**
@@ -1014,62 +1088,75 @@ function emit(r, ruleId, family, file, message) {
   });
 }
 
-/**
- * Load the deprecated-model labels by parsing
- * tools/scripts/validate-models.mjs source. Light grep — avoids
- * importing the whole script.
- */
-function loadDeprecatedModels() {
-  const file = "tools/scripts/validate-models.mjs";
-  if (!fs.existsSync(file)) return new Set();
-  const src = fs.readFileSync(file, "utf-8");
-  // Patterns like: "Claude Opus 4.6", or DEPRECATED_MODELS = [...]
-  const out = new Set();
-  const re = /["']([A-Z][A-Za-z0-9. -]+\d[A-Za-z0-9. -]*)["']/g;
-  let m;
-  while ((m = re.exec(src)) !== null) {
-    if (/^(Claude|GPT)/.test(m[1])) out.add(m[1]);
-  }
-  return out;
+function loadModelCatalog() {
+  return JSON.parse(fs.readFileSync(".github/model-catalog.json", "utf8"));
 }
 
-function runVendorPrompting() {
+export function runVendorPrompting({
+  agents = getAgents(),
+  prompts = getPromptFiles(),
+  catalog = loadModelCatalog(),
+} = {}) {
   const r = new Reporter("Vendor Prompting Rules");
   r.header();
 
-  const agents = getAgents();
-  const prompts = getPromptFiles();
-  const deprecated = loadDeprecatedModels();
+  const deprecated = new Set(
+    Object.entries(catalog.models)
+      .filter(([, metadata]) => metadata.deprecated)
+      .map(([label]) => label),
+  );
   // lowercase-agent-name → { model, path }; used by the prompt loop to
   // resolve effective family and enforce prompt-model-source-001.
-  const agentNameToModel = buildAgentNameToModel();
+  const agentNameToModel = buildAgentNameToModel(agents);
+
+  function checkedLabels(raw, file, { inherited = false, handoff = false } = {}) {
+    try {
+      const labels = modelLabels(raw);
+      if (!labels.length && !inherited) throw new TypeError("agent requires an explicit model label");
+      for (const label of labels) {
+        if (!Object.hasOwn(catalog.models, catalogModelLabel(label, { handoff }))) {
+          emit(
+            r,
+            "frontmatter-model-style-001",
+            "any",
+            file,
+            `model "${label}" is not an exact catalog label${handoff ? " or qualified handoff label" : ""}`,
+          );
+        }
+      }
+      return labels.map((label) => catalogModelLabel(label, { handoff }));
+    } catch (error) {
+      emit(r, "frontmatter-model-style-001", "any", file, error.message);
+      return [];
+    }
+  }
 
   for (const [_file, agent] of agents) {
     r.tick();
     const relPath = path.relative(process.cwd(), agent.path);
-    const family = classifyModel(agent.frontmatter?.model);
-
-    // unknown model is itself an error (forces explicit model:)
-    if (family === "unknown" && agent.frontmatter?.model !== undefined) {
-      emit(
-        r,
-        "frontmatter-model-style-001",
-        family,
-        relPath,
-        `model "${agent.frontmatter.model}" did not classify into any known family`,
-      );
+    const labels = checkedLabels(agent.frontmatter?.model, relPath);
+    checkFrontmatterModelStyle(r, agent, relPath, "any", "agent");
+    checkAbsoluteLanguageDensity(r, agent, relPath, "any");
+    checkHandoffEnrichment(r, agent, relPath, "any");
+    for (const handoff of agent.frontmatter?.handoffs ?? []) {
+      if (handoff?.model !== undefined) {
+        const handoffLabels = checkedLabels(handoff.model, relPath, { handoff: true });
+        if (typeof handoff.model !== "string")
+          emit(r, "frontmatter-model-style-001", "any", relPath, "handoff model must be a string");
+        for (const label of handoffLabels)
+          checkModelDeprecation(r, { frontmatter: { model: label } }, relPath, classifyModel(label), deprecated);
+      }
     }
-
-    checkFrontmatterModelStyle(r, agent, relPath, family, "agent");
-    checkClaudeOneShotNoInvestigate(r, agent, relPath, family);
-    checkGpt55Skeleton(r, agent, relPath, family);
-    checkGptNoClaudeXml(r, agent, relPath, family);
-    checkAbsoluteLanguageDensity(r, agent, relPath, family);
-    checkModelDeprecation(r, agent, relPath, family, deprecated);
-    checkClaudeNoPrefill(r, agent, relPath, family);
-    checkGpt55StopRulesNonEmpty(r, agent, relPath, family);
-    checkClaudeOutputContract(r, agent, relPath, family);
-    checkHandoffEnrichment(r, agent, relPath, family);
+    for (const label of labels)
+      checkModelDeprecation(r, { frontmatter: { model: label } }, relPath, classifyModel(label), deprecated);
+    for (const family of new Set(labels.map(classifyModel))) {
+      checkClaudeOneShotNoInvestigate(r, agent, relPath, family);
+      checkGpt55Skeleton(r, agent, relPath, family);
+      checkGptNoClaudeXml(r, agent, relPath, family);
+      checkClaudeNoPrefill(r, agent, relPath, family);
+      checkGpt55StopRulesNonEmpty(r, agent, relPath, family);
+      checkClaudeOutputContract(r, agent, relPath, family);
+    }
   }
 
   for (const [_file, prompt] of prompts) {
@@ -1079,11 +1166,13 @@ function runVendorPrompting() {
     // then via the target custom agent's `model:`. This keeps per-prompt
     // vendor checks active even when `model:` is intentionally omitted on
     // prompts that target a custom agent (see prompt-model-source-001).
-    const family = resolvePromptFamily(prompt, agentNameToModel);
-
-    checkFrontmatterModelStyle(r, prompt, relPath, family, "prompt");
-    checkClaudeNoPrefill(r, prompt, relPath, family);
-    checkModelDeprecation(r, prompt, relPath, family, deprecated);
+    const labels = checkedLabels(resolvePromptModels(prompt, agentNameToModel), relPath, { inherited: true });
+    checkFrontmatterModelStyle(r, prompt, relPath, "any", "prompt");
+    for (const label of labels) {
+      const family = classifyModel(label);
+      checkClaudeNoPrefill(r, prompt, relPath, family);
+      checkModelDeprecation(r, { frontmatter: { model: label } }, relPath, family, deprecated);
+    }
     checkPromptModelSource(r, prompt, relPath, agentNameToModel);
   }
 
@@ -1095,6 +1184,7 @@ function runVendorPrompting() {
     console.log("✅ Vendor prompting check passed\n");
   }
   allFindings.push(...r.findings);
+  return r;
 }
 
 // ============================================================================
@@ -1212,10 +1302,6 @@ const CHALLENGER_DISPATCHER_ALLOWLIST = new Set([
   // Retirement decision pending (see
   // `tools/registry/challenger-effectiveness.md` + tracking issue per Phase 12).
   "10-Challenger",
-  // E2E Orchestrator runs the full pipeline unattended for benchmarks;
-  // it dispatches every step agent, including the challenger, on the
-  // user's behalf.
-  "E2E Orchestrator",
 ]);
 
 /** Lookup helper for the workflow-handoff rule registry. */

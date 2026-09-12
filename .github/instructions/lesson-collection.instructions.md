@@ -24,7 +24,9 @@ Create `09-lessons-learned.json` with file-editing tools only when absent:
 }
 ```
 
-Set `workflow_mode` to `"e2e"` for the E2E Orchestrator.
+New workflow logs use `"production"`. The schema's historical `"e2e"` value
+and existing lesson artifacts remain valid compatibility evidence; do not
+rewrite them or infer a runnable E2E workflow from that retained value.
 
 The CLI has no `apex-recall lessons` subcommand. Append schema-compliant entries
 to the lesson artifact with file-editing tools; session findings are not a
@@ -45,17 +47,6 @@ apex-recall checkpoint <project> <step> lessons \
 - Deployment what-if reveals Azure Policy violations
 - User explicitly flags an issue or concern during approval
 
-### E2E Orchestrator Triggers (superset of production)
-
-All production triggers PLUS:
-
-- Step needs >1 iteration (self-correction fired)
-- Validator fails on first pass
-- Pre-validation fails (agent returned empty/garbage)
-- `bicep build` or `terraform validate` fails with hallucinated properties
-  → category `factual-accuracy`
-- Step exceeds timing threshold → category `workflow-design`
-
 ## Lesson Schema
 
 Formal JSON Schema: `tools/schemas/lesson-log.schema.json`.
@@ -65,8 +56,8 @@ Required fields per entry: `id`, `step`, `category`,
 
 ## Completion Protocol
 
-After the final workflow step completes (Step 7 for production, Phase H
-for E2E), generate the lessons-learned artifacts:
+After the final production workflow step completes (Step 7), generate the
+lessons-learned artifacts:
 
 1. **Read** `09-lessons-learned.json` — the accumulated lesson entries
 2. **Generate** `09-lessons-learned.md` narrative using the H2 structure

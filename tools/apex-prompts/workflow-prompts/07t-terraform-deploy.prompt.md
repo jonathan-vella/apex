@@ -6,53 +6,18 @@ argument-hint: "Deploy the Terraform configuration for a specific project"
 
 # Step 6 — Terraform Deployment
 
-Execute Azure deployment using generated Terraform configurations.
+Local operational adapter for `07t-Terraform Deploy`. Read
+[apex-workflow-engine](../../../.github/skills/apex-workflow-engine/SKILL.md),
+then follow the [shared entry contract][entry] for this named owner.
 
-# Goal
+Pass the supplied project, scope, and revision request unchanged. Require the
+owner and its configured model; stop if unavailable. Do not widen its tools or
+run the operation under a different agent. Validate current required inputs
+and graph prerequisites before work; preserve reviews and human approvals.
 
-Provision the Azure resources defined in `infra/terraform/{project}/` to the
-target subscription, gated on a `terraform plan` preview and explicit user
-approval, then capture a deployment summary.
+Return the canonical output artifacts, actual check results, and any blockers.
+The owner body and workflow graph control execution, completion, and handoffs.
+Agent Host uses the distinct /apex-host-workflow-start skill after manual owner
+selection; this Local file does not bind a Host session.
 
-# Success criteria
-
-- `terraform init` succeeded with the configured backend.
-- `terraform plan -out=tfplan` ran cleanly and was reviewed by the user.
-- User explicitly approved the apply.
-- `terraform apply tfplan` completed without errors.
-- Resource health verified post-deployment.
-- `agent-output/{project}/06-deployment-summary.md` exists and lists every
-  deployed resource with its status.
-- Session state has Step 6 `status = "complete"`.
-
-# Constraints
-
-- Read `agent-output/{project}/00-session-state.json`; confirm `iac_tool` is
-  `Terraform` and Step 5 is `complete`.
-- Read `.github/skills/apex-iac-common/SKILL.md` for deploy patterns and known issues.
-- Read `.github/skills/apex-iac-common/references/circuit-breaker.md` for failure
-  handling.
-- Validate Azure CLI authentication first (`az account show`).
-- Never apply without explicit user approval after the plan review.
-- If plan shows policy violations, halt and report — do not attempt to
-  override.
-- All destructive operations (destroy, replace) require separate user
-  confirmation.
-
-# Output
-
-- `terraform plan` output captured for the user
-- `infra/terraform/{project}/tfplan` (binary plan file applied)
-- `agent-output/{project}/06-deployment-summary.md` with deployed resources,
-  outputs, and verification results
-- Updated `agent-output/{project}/00-session-state.json`
-
-# Stop rules
-
-- Stop if `az account show` fails — do not proceed without verified auth.
-- Stop if `terraform init` cannot reach the backend; surface the error.
-- Stop if plan shows policy violations or unexpected destructive changes;
-  return control to the user.
-- Stop if apply fails after the documented retry window in
-  `circuit-breaker.md`; surface the error and do not auto-retry indefinitely.
-- Do not mark Step 6 complete until resource health is verified.
+[entry]: ../../../.github/skills/apex-workflow-engine/references/workflow-entry.md

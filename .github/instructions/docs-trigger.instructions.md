@@ -32,6 +32,7 @@ Check if documentation updates are needed when any of these occur:
 - Configuration options or environment variables are modified
 - Code examples in documentation become outdated
 - Agent or skill definitions are added, renamed, or removed
+- Model assignments, invocation permissions, or Local / Agent Host entry points change
 - Bicep module structure changes (new modules, renamed parameters)
 
 ## What to Update
@@ -40,7 +41,7 @@ Check if documentation updates are needed when any of these occur:
 
 Update when:
 
-- New agents or skills are added (update tables and counts)
+- Agents or skills change (update inventory references; derive counts from `count-manifest.json`)
 - Project structure changes (update tree diagram)
 - New capabilities are introduced (update feature list)
 
@@ -65,9 +66,13 @@ Update when:
 Update when:
 
 - Instruction files are added or removed
-  (`references/repo-architecture.md` — instruction table and count)
+  (`references/repo-architecture.md` — instruction inventory)
 - Agent or skill inventory changes
-  (`references/freshness-checklist.md` — expected counts)
+  (`references/freshness-checklist.md` — inventory checks against `count-manifest.json`)
+- Retired entry points or commands disappear; remove live launch guidance but
+  preserve historical evidence and schema compatibility records
+- Harness behavior changes; distinguish Local prompt adapters from shared skills
+  on Agent Host, and document unverified model availability without cost-tier inference
 
 ## Verification
 
