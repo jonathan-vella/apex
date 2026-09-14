@@ -29,6 +29,12 @@ and network/DNS access to the approved SQL endpoint. Azure CLI does not provide 
 ODBC sqlcmd is a different interface; do not silently substitute it or use SQL passwords.
 If the binary, supported authentication method or credential is unavailable, stop and report a verification gap.
 
+On 2026-09-14, official Go sqlcmd `v1.10.0` Linux ARM64 help (`sqlcmd -?`) confirmed
+`--authentication-method ActiveDirectoryDefault`, `-S`, `-d`, `-b` and `-i`.
+The release archive matched published SHA-256
+`9faaa981f9c374f319ac796dedb4678499b8596c87d5b6c512e9b0e7a3b74f8e`.
+This verifies CLI availability at that version, not credentials, connectivity or SQL execution.
+
 Human approval must bind `SQL_APPROVED_TARGET` to `SQL_SERVER_FQDN/SQL_DATABASE`
 and `SQL_APPROVED_SHA256` to the reviewed SQL file. Do not auto-approve the current file by computing its hash.
 This applies to verification queries too: data-plane access is not authorized by deployment readiness.

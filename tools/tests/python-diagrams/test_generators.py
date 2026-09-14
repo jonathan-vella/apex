@@ -320,6 +320,24 @@ def test_multi_defaults_render(multi: ModuleType, tmp_path: Path, function: str)
     ElementTree.parse(f"{base}.svg")
 
 
+@pytest.mark.parametrize("wireframe_first", [True, False])
+def test_renderers_share_process(multi: ModuleType, tmp_path: Path, wireframe_first: bool) -> None:
+    pytest.importorskip("cairosvg", reason="Optional CairoSVG renderer is not installed")
+    from PIL import Image
+
+    functions = [multi.create_wireframe_svg, multi.create_gantt_chart]
+    if not wireframe_first:
+        functions.reverse()
+    for function in functions:
+        base = tmp_path / function.__name__
+        assert function("Combined renderers", str(base)) == f"{base}.png"
+        ElementTree.parse(f"{base}.svg")
+        with Image.open(f"{base}.png") as image:
+            assert image.format == "PNG"
+            assert image.width > 0 and image.height > 0
+            assert any(low != high for low, high in image.convert("RGB").getextrema())
+
+
 def test_custom_erd_labels_render(multi: ModuleType, tmp_path: Path) -> None:
     base = str(tmp_path / "custom")
     multi.create_erd(

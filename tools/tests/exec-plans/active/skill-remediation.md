@@ -408,6 +408,66 @@ pre-migration skill paths and failed there; those historical references were not
 is a repository-wide link pass. See `tmp/verification-continuation-links.log` and
 `tmp/verification-scoped-links.log`. New continuation links resolve to the existing local tracking documents.
 
+## Renderer And Interface Follow-Up (2026-09-14)
+
+This continuation supersedes the combined-renderer failure and missing SQL CLI interface evidence above.
+Baseline: `edfcc212`. The user approved remaining verification and an isolated current-release Rust SDK target;
+that approval did not waive package policies, approve Azure access or change application dependency pins.
+
+### Combined Rendering
+
+The isolated CairoSVG environment reproduced the original failure: 124 passes and one Gantt raster overflow.
+A regression using only real wireframe conversion and Gantt rendering reproduced it without the architecture tests.
+Gantt-first passed in a fresh process; initializing `matplotlib.ft2font` before Cairo conversion also passed.
+This isolates the failure to native renderer initialization order in the tested environment, not Gantt data or size.
+
+The wireframe conversion path now initializes that font module when Matplotlib is installed, before Cairo drawing.
+Matplotlib remains optional for wireframes; SVG fallback and conversion-error propagation remain unchanged.
+No dependency pins, image dimensions, DPI, required outputs or test expectations were weakened.
+With Matplotlib `3.11.1`, FreeType `2.14.3` and CairoSVG `2.8.2`, the generator suite passes all 127 tests.
+The base environment passes 122 with five expected CairoSVG-dependent skips, including the new order regressions.
+The new pair tests verify real PNG pixels and SVG parsing in both invocation orders.
+
+Logs: `tmp/renderer-next-baseline.log`, `tmp/renderer-pair-test.log`, `tmp/renderer-reverse-order.log`,
+`tmp/renderer-font-first.log` and `tmp/renderer-next-fixed.log`. Native-library internals beyond this initialization
+boundary and other library/platform combinations were not independently verified.
+
+### SQL CLI Interface
+
+The official Go sqlcmd `v1.10.0` Linux ARM64 archive was downloaded into `tmp/verification-sqlcmd-v1.10.0/`.
+Its SHA-256 matched the public release digest:
+`9faaa981f9c374f319ac796dedb4678499b8596c87d5b6c512e9b0e7a3b74f8e`.
+The real binary's `--version` and `-?` output confirm the executor's `-S`, `-d`, `-b`, `-i` and
+`--authentication-method ActiveDirectoryDefault` interface. Help evidence is in that directory's `legacy-help.txt`.
+No connection, credential acquisition, query or grant was attempted. Live database acceptance remains separate.
+Authenticated release lookup was rejected by a token-lifetime policy; public release metadata required no credentials.
+
+### Remaining External And Human Gates
+
+- Node MCP: existing `EALLOWREMOTE` denial remains. The approved npm feed references an `isexe@2.0.0` remote
+  tarball at `ms-feed-25.pkgs.visualstudio.com`; cache inspection found metadata, not an MCP SDK archive.
+  No install retry, alternate registry or policy override was attempted. Feed/policy owner remediation is needed.
+- Rust: no Cargo.lock or Cargo toolchain exists locally. The user approved a current compatible scratch target,
+  but `https://crates.io/api/v1/crates/azure_storage_blob` returned HTTP 403 with an empty body. The reason is unknown;
+  no alternate registry, guessed version set or compiler installation followed. Registry access remains prerequisite.
+  Evidence: `tmp/rust-registry-response-headers.txt` and `tmp/rust-registry-response.txt`.
+- Host Git credentials, host dotfiles auto-install and a real container rebuild require host-side acceptance.
+- Native Local/Host/model behavior, generated workload quality, SK-13/SK-18/SK-19 and live SQL remain unverified.
+  No paid model evaluation, Azure deployment, automatic approval or overall program signoff was performed.
+
+### Final Scoped Checks
+
+All diagram tests pass with CairoSVG enabled: 141 passed. The recipe regression suite with the existing
+Python MCP environment passes 62 tests, with only the policy-blocked Node SDK test skipped.
+Logs: `tmp/renderer-next-all-diagrams.log` and `tmp/sql-recipe-next-tests.log`.
+Ruff passes for the changed test file; the generator retains the same pre-existing Ruff diagnostics as HEAD.
+The tracking documents pass scoped Markdown checks. The SQL reference retains its existing long-line and
+unlabelled-fence diagnostics, with no new findings. Editor checks and `git diff --check` pass.
+
+The required `npm run lint:links` check encountered historical migration-reference failures outside the
+changed files and reached the 45-second bound (exit 124). It is not a repository-wide link pass;
+see `tmp/next-steps-links.log`. Those unrelated references were not rewritten.
+
 ## Batch Evidence Record
 
 Append one entry per actual batch. The recovery checkpoint above records current tests and repairs; formal

@@ -11,6 +11,7 @@ Usage:
 """
 
 import argparse
+import importlib.util
 import sys
 from html import escape
 from pathlib import Path
@@ -423,6 +424,8 @@ def create_wireframe_svg(title: str, filename: str, layout: str = 'dashboard') -
 
     Return the PNG path after successful conversion, otherwise the SVG path
     when CairoSVG is unavailable. Conversion errors propagate to the caller.
+    Initialize Matplotlib's optional native font module before Cairo drawing
+    to prevent a later Gantt render from failing on native font initialization order.
     """
     title = escape(title)
     width, height = 800, 600
@@ -603,6 +606,8 @@ def create_wireframe_svg(title: str, filename: str, layout: str = 'dashboard') -
         print(f"✅ Generated: {filename}.svg (install cairosvg for PNG)")
         return f"{filename}.svg"
 
+    if importlib.util.find_spec("matplotlib") is not None:
+        importlib.import_module("matplotlib.ft2font")
     cairosvg.svg2png(bytestring=svg.encode("utf-8"), write_to=f"{filename}.png", scale=2)
     print(f"✅ Generated: {filename}.png + {filename}.svg")
     return f"{filename}.png"

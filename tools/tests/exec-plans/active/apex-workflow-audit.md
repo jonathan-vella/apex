@@ -205,12 +205,12 @@ Shared candidate retentions are dispositions, not blanket correctness certificat
 | SK-19                                    | Implemented; verification pending                       | Heuristic deletion/prices removed; mixed intent, source evidence and explicit arithmetic rules tested as text. No executable arithmetic or generated report acceptance     |
 | SK-20, SK-23, SK-28                      | Verified (bounded follow-up)                            | Consumer load-balancer identity and Prepare quota evidence corrected; duplicate-name correlation and unknown-evidence fixtures pass                                        |
 | SK-21                                    | Verified (bounded exact-version interface)              | Published MCR workspace 0.15.1 schema and layer digest verified; string quota/default confirmed. Per-project schema checks and deployment acceptance remain separate       |
-| SK-22                                    | Implemented; verification pending                       | Backend/environment guidance and SQL execution wrapper repaired; stubbed commands pass, exact installed SQL interface and live integration unverified                      |
+| SK-22 | CLI verified; live integration pending | Official Go sqlcmd v1.10.0 ARM64 archive digest and real help confirm executor flags; no database connection or grant attempted |
 | SK-27, SK-38                             | Verified (bounded)                                      | Telemetry/resource identity, numeric metrics, severity and local links/anchors tested; no live diagnostics claim                                                           |
 | SK-32, SK-33, SK-34                      | Verified (bounded source/provenance)                    | Required-evidence recovery, timing/token distinction, hash-bound fetch provenance and canonical principles mapping; no source refresh or model-performance claim           |
 | SK-35                                    | Verified (bounded follow-up)                            | Catalog/DOM checks pass; actual Explorer Grid and Governance drawer checked at desktop/mobile widths. Native Copilot acceptance remains separate                           |
-| SK-36                                    | Conversion verified; combined execution unresolved      | All 11 wireframe tests pass with CairoSVG 2.8.2; combined isolated suite has 124 passes and a reproducible Gantt FreeType raster overflow. Base suite and Gantt alone pass |
-| SK-37                                    | Implemented; verification pending                       | Secrets metadata examples corrected and Rust owner/version gate explicit; actual Rust compiler/SDK compatibility remains unknown, not guessed                              |
+| SK-36 | Verified (bounded combined rendering) | Native font initialization order repaired; all 127 generator tests pass with CairoSVG, including real outputs in both renderer orders |
+| SK-37 | Implemented; Rust registry blocked | Current compatible scratch target approved, but crates.io metadata returns HTTP 403; no Cargo.lock or compiler, and no SDK version guessed |
 | SK-39, SK-40, SK-41                      | Verified (bounded migration)                            | Host start/resume consolidated; docs/authoring procedures moved; caller ownership, manual entry flags and output restrictions tested; native discovery still manual        |
 | SK-42                                    | Verified (bounded sharing)                              | Identity-preserving resource queries, shared auth and quota mechanics retained with interpretation owned by each skill; consumer gaps repaired                             |
 | SK-43, SK-44                             | Partial consolidation; remaining equivalence unverified | Distinct entrypoints retained, canonical template/language/ADR/diagnostic procedures shared where evidenced; do not close SK-13/14/19/21/22/36/37 by association           |
@@ -232,6 +232,10 @@ The later [scoped verification continuation](skill-remediation.md#scoped-verific
 supersedes the earlier AVM-unavailable and CairoSVG-skipped status. It records exact schema digests, successful
 conversion checks, the newly reproduced isolated-environment Gantt failure and browser evidence. The preceding
 full-suite pass remains historical evidence, not a pass for the newly enabled renderer environment.
+
+The [renderer and interface follow-up](skill-remediation.md#renderer-and-interface-follow-up-2026-09-14)
+supersedes that continuation's renderer failure and missing SQL CLI evidence. Node policy, Rust registry access,
+live database checks and native human acceptance remain open; bounded passes do not imply program completion.
 
 ## Agent Body Audit Backlog
 
