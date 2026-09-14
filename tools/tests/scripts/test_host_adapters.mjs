@@ -383,11 +383,25 @@ test("debug and commit Local adapters and Host prerequisites retain the built-in
     assert.deepEqual(metadata.tools, expectedTools);
     assert.ok(adapter.includes(`../skills/${sharedPath}`));
     assert.doesNotMatch(adapter, /```(?:bash|sh)/);
-    for (const contract of [host, shared]) {
+    for (const contract of operation === "git-commit" ? [host] : [host, shared]) {
       assert.match(contract, /built-in owner `agent`/);
       assert.match(contract, /`MAI-Code-1\.1-Flash`/);
       for (const tool of expectedTools) assert.ok(contract.includes(`\`${tool}\``));
       assert.match(contract, /within\s+the owner's permissions|intersected with the active owner's permissions/);
+    }
+    if (operation === "git-commit") {
+      assert.match(shared, /No specific agent or model selection is required/);
+      assert.match(shared, /caller's authorized tools/);
+      assert.doesNotMatch(shared, /Stop on unverifiable selection/);
+      assert.match(shared, /git var GIT_AUTHOR_IDENT/);
+      assert.match(shared, /git var GIT_COMMITTER_IDENT/);
+      assert.match(shared, /git commit[^\n]+&&\r?\ngit push/);
+      assert.match(shared, /First inspect the entire existing index/);
+      assert.match(shared, /With explicit\s+user authorization/);
+      assert.match(shared, /do not change persistent credential configuration/);
+      assert.match(shared, /Never commit to `main`/);
+      assert.match(shared, /Never force-push/);
+      assert.match(shared, /If a pre-commit hook fails, capture its output, summarize the error and stop/);
     }
     assert.match(host, /do not widen tools or inherit a different model/);
     assert.match(adapter, /never silently inherit a different model, widen access/);
