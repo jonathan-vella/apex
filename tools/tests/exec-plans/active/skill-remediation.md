@@ -468,6 +468,36 @@ The required `npm run lint:links` check encountered historical migration-referen
 changed files and reached the 45-second bound (exit 124). It is not a repository-wide link pass;
 see `tmp/next-steps-links.log`. Those unrelated references were not rewritten.
 
+## Local Picker And Rebuild Acceptance (2026-09-14)
+
+The user completed a real container rebuild and supplied successful lifecycle output through `Setup complete`
+and `Container ready`. Post-rebuild checks verified the dotfiles checkout and Git config symlink, author and
+committer identity from dotfiles, and ordinary Git access to the private dotfiles repository and feature branch
+without credential overrides. This closes the previously recorded host Git/dotfiles persistence checks,
+not comparative startup timing or Azure authentication. The reported missing azd login is not a local-work blocker.
+
+The user confirmed Local slash-command discovery and representative agent discovery, then reported that
+the configured Sol/Terra/Luna labels did not resolve in the model picker. User-edited Requirements, Design
+and Governance frontmatter supplied the exact working identifiers: `GPT-5.6 Sol (copilot)`,
+`GPT-5.6 Terra (copilot)` and `GPT-5.6 Luna (copilot)`. These supersede earlier hyphenated identifiers.
+All active assignments and registry mirrors now use those labels; Orchestrator remains `MAI-Code-1.1-Flash`.
+The generator preserves the provider suffix, exact catalog matches win over handoff qualifier stripping,
+and space-separated model names retain their family validation rules.
+
+On rechecking the agents, the user reported that all looked good. This is user-observed Local discovery and
+visible model-selection acceptance, not evidence of Agent Host execution, nested cost-tier eligibility,
+paid model evaluations or complete generated workload quality. Agent bodies, permissions and reviews are unchanged.
+
+The renderer/evidence follow-up and shared Git regression are published as `6284e2d5` and `85fc431a`.
+Picker correction checks: 71 model/family/vendor regressions pass; 399 tool-contract tests pass with one
+policy-blocked Node SDK skip; model, registry and Explorer validators pass; the docs site builds and all
+8103 internal links pass. Evidence: `tmp/picker-final-tests.log`, `tmp/picker-final-contracts.log` and
+`tmp/picker-site-links.log`. The repository-wide historical link-check limitations recorded above remain separate.
+
+Remaining gates: Node package policy, Rust registry access and compilation, Agent Host discovery/execution,
+both-track fresh/resume/revision behavior, live SQL acceptance and human generated-output review.
+Local picker acceptance does not waive these gates or authorize cloud operations.
+
 ## Batch Evidence Record
 
 Append one entry per actual batch. The recovery checkpoint above records current tests and repairs; formal

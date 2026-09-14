@@ -447,9 +447,9 @@ function classifyModel(modelStr) {
   if (lower.includes("claude sonnet")) return "claude-sonnet";
   if (lower.includes("claude haiku")) return "claude-haiku";
   if (lower.includes("claude")) return "claude";
-  if (lower.includes("gpt-5.6-luna")) return "gpt-5.6-luna";
-  if (lower.includes("gpt-5.6-terra")) return "gpt-5.6-terra";
-  if (lower.includes("gpt-5.6-sol")) return "gpt-5.6-sol";
+  if (/gpt-5\.6[- ]luna\b/.test(lower)) return "gpt-5.6-luna";
+  if (/gpt-5\.6[- ]terra\b/.test(lower)) return "gpt-5.6-terra";
+  if (/gpt-5\.6[- ]sol\b/.test(lower)) return "gpt-5.6-sol";
   if (lower.includes("gpt-5.5")) return "gpt-5.5";
   if (lower.includes("gpt-5.4")) return "gpt-5.4";
   if (lower.includes("gpt-5.3") || lower.includes("codex")) return "gpt-codex";
@@ -1198,7 +1198,7 @@ export function runVendorPrompting({
       const labels = modelLabels(raw);
       if (!labels.length && !inherited) throw new TypeError("agent requires an explicit model label");
       for (const label of labels) {
-        if (!Object.hasOwn(catalog.models, catalogModelLabel(label, { handoff }))) {
+        if (!Object.hasOwn(catalog.models, catalogModelLabel(label, { handoff, models: catalog.models }))) {
           emit(
             r,
             "frontmatter-model-style-001",
@@ -1208,7 +1208,7 @@ export function runVendorPrompting({
           );
         }
       }
-      return labels.map((label) => catalogModelLabel(label, { handoff }));
+      return labels.map((label) => catalogModelLabel(label, { handoff, models: catalog.models }));
     } catch (error) {
       emit(r, "frontmatter-model-style-001", "any", file, error.message);
       return [];

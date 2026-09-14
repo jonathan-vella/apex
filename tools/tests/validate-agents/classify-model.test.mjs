@@ -39,6 +39,9 @@ test("classifyModel: GPT-5.5 → gpt-5.5 (legacy compatibility)", () => {
 });
 
 test("classifyModel: GPT-5.6 successors use distinct families", () => {
+  assert.equal(classifyModel("GPT-5.6 Sol (copilot)"), "gpt-5.6-sol");
+  assert.equal(classifyModel("GPT-5.6 Luna (copilot)"), "gpt-5.6-luna");
+  assert.equal(classifyModel(["GPT-5.6 Terra (copilot)"]), "gpt-5.6-terra");
   assert.equal(classifyModel("gpt-5.6-sol"), "gpt-5.6-sol");
   assert.equal(classifyModel("GPT-5.6-Luna"), "gpt-5.6-luna");
   assert.equal(classifyModel(["GPT-5.6-Terra"]), "gpt-5.6-terra");

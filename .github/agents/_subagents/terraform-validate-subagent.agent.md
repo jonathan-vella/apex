@@ -1,7 +1,7 @@
 ---
 name: terraform-validate-subagent
 description: "Terraform validation subagent. Runs lint (fmt -check, validate) first, then code review (AVM-TF standards, naming, security baseline, RBAC, governance). Returns PASS/FAIL + APPROVED/NEEDS_REVISION/FAILED verdict."
-model: ["GPT-5.6-Luna"]
+model: ["GPT-5.6 Luna (copilot)"]
 user-invocable: false
 disable-model-invocation: false
 agents: []

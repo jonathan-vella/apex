@@ -1,7 +1,7 @@
 ---
 name: 06t-Terraform CodeGen
 description: "Expert Azure Terraform IaC specialist that creates near-production-ready Terraform configurations following Azure Verified Modules (AVM-TF) standards. Validates, tests, and ensures code quality."
-model: ["GPT-5.6-Terra"]
+model: ["GPT-5.6 Terra (copilot)"]
 user-invocable: true
 disable-model-invocation: true
 agents: ["terraform-validate-subagent", "challenger-review-subagent"]

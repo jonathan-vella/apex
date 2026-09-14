@@ -1,7 +1,7 @@
 ---
 name: 08-As-Built
 description: "Generates Step 7 as-built documentation suite after successful deployment. Reads all prior artifacts (Steps 1-6) and deployed resource state to produce: design document, operations runbook, cost estimate, compliance matrix, backup/DR plan, resource inventory, and documentation index."
-model: ["GPT-5.6-Terra"]
+model: ["GPT-5.6 Terra (copilot)"]
 user-invocable: true
 disable-model-invocation: true
 agents: ["cost-estimate-subagent"]

@@ -10,7 +10,7 @@ The validator's `classifyModel()` maps `model:` strings to families.
 Family status determines per-rule severity overrides.
 
 Apply checks to every ordered fallback and every inherited custom-agent fallback.
-Classification is not catalog authorization. Preserve exact `gpt-5.6-sol`; its
+Classification is not catalog authorization. Preserve exact picker labels; a
 user-confirmed label does not prove release metadata or runtime cost eligibility.
 
 ## Status definitions
@@ -30,9 +30,9 @@ user-confirmed label does not prove release metadata or runtime cost eligibility
 | `claude-sonnet` | enforced      | All Claude rules at default severity               | `Claude Sonnet 5`   |
 | `claude-haiku`  | warn-only     | XML structuring + few-shot rules; rest downgraded  | `Claude Haiku 4.5`  |
 | `claude`        | warn-only     | Generic Claude — flag at warn for explicit version | `Claude`            |
-| `gpt-5.6-sol`   | enforced      | APEX Markdown outcome convention; unknown metadata | `gpt-5.6-sol`       |
-| `gpt-5.6-terra` | enforced      | APEX Markdown outcome convention                   | `GPT-5.6-Terra`     |
-| `gpt-5.6-luna`  | enforced      | APEX Markdown outcome convention                   | `GPT-5.6-Luna`      |
+| `gpt-5.6-sol`   | enforced      | APEX Markdown outcome convention; unknown metadata | `GPT-5.6 Sol (copilot)` |
+| `gpt-5.6-terra` | enforced      | APEX Markdown outcome convention                   | `GPT-5.6 Terra (copilot)` |
+| `gpt-5.6-luna`  | enforced      | APEX Markdown outcome convention                   | `GPT-5.6 Luna (copilot)` |
 | `gpt-5.5`       | enforced      | Legacy OpenAI outcome-first compatibility          | `GPT-5.5`           |
 | `gpt-5.4`       | enforced      | Shared OpenAI outcome-first rules                  | `GPT-5.4`           |
 | `gpt-codex`     | reviewer-only | Legacy decision-log compatibility                  | `GPT-5.3-Codex`     |

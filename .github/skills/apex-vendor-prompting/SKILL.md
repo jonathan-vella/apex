@@ -96,7 +96,7 @@ Load only the references your task needs. Most audits need 1-2.
 - **Array agent models and string prompt models are APEX conventions**, not YAML limitations.
   Parentheses are valid YAML scalar content.
 - **Sol/Terra/Luna Markdown is an APEX convention**, informed by pinned OpenAI advice,
-  not model-specific vendor evidence. Preserve exact user-confirmed `gpt-5.6-sol`;
+  not model-specific vendor evidence. Preserve exact user-confirmed catalog labels;
   unknown release/tier metadata stays unknown.
 - **Leaf workers use role contracts**, not mandatory personality or main-agent sections.
   Convert XML wrappers without deleting their safety or workflow content.

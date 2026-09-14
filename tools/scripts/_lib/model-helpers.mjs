@@ -48,7 +48,8 @@ export function modelLabels(raw) {
   return [...values];
 }
 
-export function catalogModelLabel(label, { handoff = false } = {}) {
+export function catalogModelLabel(label, { handoff = false, models = {} } = {}) {
+  if (Object.hasOwn(models, label)) return label;
   return handoff ? label.replace(/ \([^()]+\)$/, "") : label;
 }
 
@@ -93,8 +94,9 @@ export function buildAssignments() {
   const subs = {};
   const sorted = [...agents.entries()].sort(([a], [b]) => a.localeCompare(b));
   for (const [file, a] of sorted) {
-    const model = normalizeModel(a.frontmatter?.model);
-    if (!model) continue;
+    const raw = a.frontmatter?.model;
+    const model = Array.isArray(raw) ? raw[0] : raw;
+    if (typeof model !== "string" || !model.trim()) continue;
     if (a.isSubagent) subs[file] = model;
     else main[file] = model;
   }

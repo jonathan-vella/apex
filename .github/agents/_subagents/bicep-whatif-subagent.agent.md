@@ -1,7 +1,7 @@
 ---
 name: bicep-whatif-subagent
 description: Bicep deployment preview subagent. Runs az deployment group what-if to preview changes. Analyzes policy violations, resource changes, cost impact. Returns structured summary.
-model: ["GPT-5.6-Luna"]
+model: ["GPT-5.6 Luna (copilot)"]
 user-invocable: false
 disable-model-invocation: false
 agents: []

@@ -12,7 +12,7 @@ Every agent definition follows a standard structure:
 ---
 name: 06b-Bicep CodeGen
 description: Expert Azure Bicep IaC specialist...
-model: ["GPT-5.6-Terra"] # (1)!
+model: ["GPT-5.6 Terra (copilot)"] # (1)!
 tools: [list of allowed tools] # (2)!
 disable-model-invocation: true
 handoffs:

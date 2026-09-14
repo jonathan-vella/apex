@@ -3,7 +3,7 @@ description: "Generate as-built documentation for an existing Azure deployment w
 agent: "agent"
 # Uses GPT-5.6-Terra for discovery and synthesis before handing off to the
 # target agent's configured model through a human handoff.
-model: "GPT-5.6-Terra"
+model: "GPT-5.6 Terra (copilot)"
 tools:
   - vscode
   - execute

@@ -12,8 +12,8 @@ consumable by `validate-agents.mjs`. Each rule references its ID in
 
 ## Applicable models
 
-APEX applies concise outcome-first Markdown to exact `gpt-5.6-sol`,
-`GPT-5.6-Terra`, and `GPT-5.6-Luna`. This is a repository convention, not
+APEX applies concise outcome-first Markdown to exact `GPT-5.6 Sol (copilot)`,
+`GPT-5.6 Terra (copilot)`, and `GPT-5.6 Luna (copilot)`. This is a repository convention, not
 model-specific vendor endorsement. Sol's label is user-confirmed; release,
 capability and cost metadata remain unknown. Legacy GPT-5.4/GPT-5.5 compatibility
 is separate from catalog deprecation. Historical upgrade notes remain in

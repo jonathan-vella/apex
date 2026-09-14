@@ -1,7 +1,7 @@
 ---
 name: cost-estimate-subagent
 description: Azure cost estimation subagent. Uses Azure Resource Manager MCP retail pricing and cost data, then returns a structured cost breakdown through a file-based contract.
-model: ["GPT-5.6-Luna"]
+model: ["GPT-5.6 Luna (copilot)"]
 user-invocable: false
 disable-model-invocation: false
 agents: []

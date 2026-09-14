@@ -1,7 +1,7 @@
 ---
 name: policy-precheck-subagent
 description: "Live Azure Policy precheck subagent (L3). Cross-checks live policy state vs governance constraints, runs what-if/plan validation, returns deterministic deploy_gate (PROCEED|BLOCK) + status (CLEAN|INFORMATIONAL|BLOCKED|FAILED) for Deploy agents (07b/07t)."
-model: ["GPT-5.6-Luna"]
+model: ["GPT-5.6 Luna (copilot)"]
 user-invocable: false
 disable-model-invocation: false
 agents: []

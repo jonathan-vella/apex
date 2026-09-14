@@ -20,8 +20,9 @@ These enforce the repository contract; not every violation is a platform parsing
 - **`frontmatter-model-style-001`** — `.agent.md` must use array
   form for `model:` (e.g., `model: ["Claude Opus 4.7"]`).
   `.prompt.md` uses string form when explicit. YAML parentheses are valid;
-  ordinary model labels still require exact catalog keys. Documented platform
-  qualifiers are allowed on handoff overrides only. Validate every fallback.
+  ordinary model labels still require exact catalog keys, including provider
+  suffixes present in those keys. Optional handoff qualifiers cannot override an
+  exact catalog match. Validate every fallback.
 
 ## Vendor rules
 
@@ -46,7 +47,7 @@ Applies when frontmatter `model:` matches `claude` (case-insensitive).
 
 Concise outcome-first Markdown is a repository convention informed by pinned
 generic OpenAI guidance, not a model-specific vendor claim. Preserve exact
-user-confirmed `gpt-5.6-sol`; release, capabilities, and runtime cost tiers remain
+user-confirmed catalog labels; release, capabilities, and runtime cost tiers remain
 unknown where unverified. No vendor source refresh is implied by local edits.
 
 - **`gpt55-skeleton-001`** — Nonempty outcome sections: Role, Goal,

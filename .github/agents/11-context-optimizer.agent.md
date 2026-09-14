@@ -1,6 +1,6 @@
 ---
 name: 11-Context Optimizer
-model: ["gpt-5.6-sol"]
+model: ["GPT-5.6 Sol (copilot)"]
 description: "Analyzes Copilot Chat debug logs to audit context-window utilization across agents. Identifies bloated prompts, redundant file reads, missing hand-off points, and wasted tokens. Produces actionable optimization reports. Recommendations only — never edits agents."
 user-invocable: true
 disable-model-invocation: true

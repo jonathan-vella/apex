@@ -20,6 +20,9 @@ for full details on this and all prior releases.
 
 ### Changed (Agent modernization)
 
+- Match active model identifiers to the picker: `GPT-5.6 Sol (copilot)`, `GPT-5.6 Terra (copilot)`
+  and `GPT-5.6 Luna (copilot)`, including prompt and registry mirrors. Preserve provider suffixes in generated
+  assignments and retain family-based validation for space-separated labels.
 - Apply the approved MAI, Sol, Terra and Luna agent/worker assignments, retaining unknown Sol metadata as unknown.
 - Preserve production roles, reviews and approval gates while making main-agent and leaf-worker invocation boundaries
   explicit and mechanically checked. Restore worker-specific file/text output contracts without nested wrapper fallback.

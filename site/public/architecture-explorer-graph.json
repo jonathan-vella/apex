@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-09-14T06:37:45.726Z",
+  "generatedAt": "2026-09-14T12:49:45.968Z",
   "categories": [
     {
       "id": "agent",
@@ -119,7 +119,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/02-requirements.agent.md"
       },
       "meta": {
-        "model": "gpt-5.6-sol",
+        "model": "GPT-5.6 Sol (copilot)",
         "invocable": true,
         "disableModelInvocation": true,
         "argumentHint": "Describe the Azure workload or project you want to gather requirements for",
@@ -149,7 +149,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/03-architect.agent.md"
       },
       "meta": {
-        "model": "gpt-5.6-sol",
+        "model": "GPT-5.6 Sol (copilot)",
         "invocable": true,
         "disableModelInvocation": true,
         "argumentHint": null,
@@ -182,7 +182,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/04-design.agent.md"
       },
       "meta": {
-        "model": "GPT-5.6-Terra",
+        "model": "GPT-5.6 Terra (copilot)",
         "invocable": true,
         "disableModelInvocation": true,
         "argumentHint": null,
@@ -214,7 +214,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/04g-governance.agent.md"
       },
       "meta": {
-        "model": "GPT-5.6-Luna",
+        "model": "GPT-5.6 Luna (copilot)",
         "invocable": true,
         "disableModelInvocation": true,
         "argumentHint": "Discover governance constraints for a project",
@@ -245,7 +245,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/05-iac-planner.agent.md"
       },
       "meta": {
-        "model": "gpt-5.6-sol",
+        "model": "GPT-5.6 Sol (copilot)",
         "invocable": true,
         "disableModelInvocation": true,
         "argumentHint": null,
@@ -281,7 +281,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/06b-bicep-codegen.agent.md"
       },
       "meta": {
-        "model": "GPT-5.6-Terra",
+        "model": "GPT-5.6 Terra (copilot)",
         "invocable": true,
         "disableModelInvocation": true,
         "argumentHint": null,
@@ -314,7 +314,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/06t-terraform-codegen.agent.md"
       },
       "meta": {
-        "model": "GPT-5.6-Terra",
+        "model": "GPT-5.6 Terra (copilot)",
         "invocable": true,
         "disableModelInvocation": true,
         "argumentHint": null,
@@ -347,7 +347,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/07b-bicep-deploy.agent.md"
       },
       "meta": {
-        "model": "GPT-5.6-Luna",
+        "model": "GPT-5.6 Luna (copilot)",
         "invocable": true,
         "disableModelInvocation": true,
         "argumentHint": "Deploy the Bicep templates for a specific project",
@@ -381,7 +381,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/07t-terraform-deploy.agent.md"
       },
       "meta": {
-        "model": "GPT-5.6-Luna",
+        "model": "GPT-5.6 Luna (copilot)",
         "invocable": true,
         "disableModelInvocation": true,
         "argumentHint": "Deploy the Terraform configuration for a specific project",
@@ -415,7 +415,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/08-as-built.agent.md"
       },
       "meta": {
-        "model": "GPT-5.6-Terra",
+        "model": "GPT-5.6 Terra (copilot)",
         "invocable": true,
         "disableModelInvocation": true,
         "argumentHint": null,
@@ -445,7 +445,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/09-diagnose.agent.md"
       },
       "meta": {
-        "model": "GPT-5.6-Terra",
+        "model": "GPT-5.6 Terra (copilot)",
         "invocable": true,
         "disableModelInvocation": true,
         "argumentHint": null,
@@ -473,7 +473,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/10-challenger.agent.md"
       },
       "meta": {
-        "model": "GPT-5.6-Terra",
+        "model": "GPT-5.6 Terra (copilot)",
         "invocable": true,
         "disableModelInvocation": true,
         "argumentHint": "Provide the path to the artifact to challenge (e.g. agent-output/my-project/04-implementation-plan.md)",
@@ -497,7 +497,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/11-context-optimizer.agent.md"
       },
       "meta": {
-        "model": "gpt-5.6-sol",
+        "model": "GPT-5.6 Sol (copilot)",
         "invocable": true,
         "disableModelInvocation": true,
         "argumentHint": null,
@@ -522,7 +522,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/_subagents/bicep-validate-subagent.agent.md"
       },
       "meta": {
-        "model": "GPT-5.6-Luna",
+        "model": "GPT-5.6 Luna (copilot)",
         "invocable": false,
         "disableModelInvocation": false,
         "argumentHint": null,
@@ -543,7 +543,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/_subagents/bicep-whatif-subagent.agent.md"
       },
       "meta": {
-        "model": "GPT-5.6-Luna",
+        "model": "GPT-5.6 Luna (copilot)",
         "invocable": false,
         "disableModelInvocation": false,
         "argumentHint": null,
@@ -561,7 +561,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/_subagents/challenger-review-subagent.agent.md"
       },
       "meta": {
-        "model": "GPT-5.6-Terra",
+        "model": "GPT-5.6 Terra (copilot)",
         "invocable": false,
         "disableModelInvocation": false,
         "argumentHint": null,
@@ -582,7 +582,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/_subagents/cost-estimate-subagent.agent.md"
       },
       "meta": {
-        "model": "GPT-5.6-Luna",
+        "model": "GPT-5.6 Luna (copilot)",
         "invocable": false,
         "disableModelInvocation": false,
         "argumentHint": null,
@@ -600,7 +600,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/_subagents/policy-precheck-subagent.agent.md"
       },
       "meta": {
-        "model": "GPT-5.6-Luna",
+        "model": "GPT-5.6 Luna (copilot)",
         "invocable": false,
         "disableModelInvocation": false,
         "argumentHint": null,
@@ -618,7 +618,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/_subagents/terraform-plan-subagent.agent.md"
       },
       "meta": {
-        "model": "GPT-5.6-Luna",
+        "model": "GPT-5.6 Luna (copilot)",
         "invocable": false,
         "disableModelInvocation": false,
         "argumentHint": null,
@@ -636,7 +636,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/_subagents/terraform-validate-subagent.agent.md"
       },
       "meta": {
-        "model": "GPT-5.6-Luna",
+        "model": "GPT-5.6 Luna (copilot)",
         "invocable": false,
         "disableModelInvocation": false,
         "argumentHint": null,

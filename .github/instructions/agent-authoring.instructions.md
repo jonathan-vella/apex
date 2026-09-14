@@ -53,9 +53,9 @@ Model selection is intentional. Do not change model order or assignments without
 explicit approval. Reasoning effort is a per-agent or per-call policy, never a
 model-label suffix.
 
-Preserve the user-confirmed exact label `gpt-5.6-sol`. Unknown release/cost/capability
-metadata stays unknown. Ordinary labels match the catalog exactly; documented
-platform qualifiers are permitted only for handoff model overrides.
+Preserve exact user-confirmed picker labels, including spaces and `(copilot)`,
+as recorded in the catalog. Unknown release/cost/capability metadata stays unknown.
+Exact catalog matches take precedence over stripping optional handoff qualifiers.
 
 ### Reasoning-Effort Policy
 

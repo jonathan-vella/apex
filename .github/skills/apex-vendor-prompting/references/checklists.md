@@ -20,7 +20,7 @@ Two parallel checklists: agent (`*.agent.md`) and prompt
 - [ ] **R-X-3** Frontmatter `model:` is array form, not bareword.
       _(rule `frontmatter-model-style-001`)_
       Hint: `head -10 <file>` and confirm `model: [...]`.
-- [ ] Every fallback is an exact catalog label, including exact `gpt-5.6-sol`.
+- [ ] Every fallback is an exact catalog label, including exact `GPT-5.6 Sol (copilot)`.
       Unknown release/cost metadata stays unknown; no fallback was added.
 - [ ] Empty `agents: []` needs no agent tool; nonempty lists require it.
       Workers have no question, parent-todo or nested-delegation tools. Explicit

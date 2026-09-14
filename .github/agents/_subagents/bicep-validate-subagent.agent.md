@@ -1,7 +1,7 @@
 ---
 name: bicep-validate-subagent
 description: "Bicep validation subagent. Runs lint (bicep lint + build) first, then code review (AVM standards, naming, security baseline, governance). Returns PASS/FAIL + APPROVED/NEEDS_REVISION/FAILED verdict."
-model: ["GPT-5.6-Luna"]
+model: ["GPT-5.6 Luna (copilot)"]
 user-invocable: false
 disable-model-invocation: false
 agents: []

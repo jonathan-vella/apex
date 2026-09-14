@@ -36,7 +36,7 @@ states the applicable rule.
   changing workflow topology.
 - Check `.github/model-catalog.json` before changing model labels.
 - Preserve user changes and existing runtime contracts.
-- Validate every model fallback; preserve exact `gpt-5.6-sol` and unknown metadata.
+- Validate every model fallback; preserve exact catalog labels and unknown metadata.
 - Distinguish Local prompt adapters from shared Host-compatible skills; neither
   static validation nor a catalog entry proves native model eligibility.
 

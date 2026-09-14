@@ -1,6 +1,6 @@
 ---
 name: 02-Requirements
-model: ["gpt-5.6-sol"]
+model: ["GPT-5.6 Sol (copilot)"]
 description: Researches and captures Azure platform engineering project requirements
 argument-hint: Describe the Azure workload or project you want to gather requirements for
 user-invocable: true

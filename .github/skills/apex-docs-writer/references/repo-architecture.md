@@ -38,19 +38,19 @@ See `tools/registry/count-manifest.json` for canonical counts.
 | Agent             | File                             | Model                     | Step | Artifacts                       |
 | ----------------- | -------------------------------- | ------------------------- | ---- | ------------------------------- |
 | Orchestrator      | `01-orchestrator.agent.md`       | MAI-Code-1.1-Flash        | All  | Orchestration                   |
-| Requirements      | `02-requirements.agent.md`       | gpt-5.6-sol               | 1    | `01-requirements.md`            |
-| Architect         | `03-architect.agent.md`          | gpt-5.6-sol               | 2    | `02-architecture-assessment.md` |
-| Design            | `04-design.agent.md`             | GPT-5.6-Terra             | 3    | `03-des-*.{py,png,svg,md}`      |
-| Governance        | `04g-governance.agent.md`        | GPT-5.6-Luna              | 3.5  | `04-governance-constraints.md`  |
-| IaC Plan          | `05-iac-planner.agent.md`        | gpt-5.6-sol               | 4    | `04-implementation-plan.md`     |
-| Bicep Code        | `06b-bicep-codegen.agent.md`     | GPT-5.6-Terra             | 5b   | Bicep in `infra/bicep/`         |
-| Bicep Deploy      | `07b-bicep-deploy.agent.md`      | GPT-5.6-Luna              | 6b   | `06-deployment-summary.md`      |
-| Terraform Code    | `06t-terraform-codegen.agent.md` | GPT-5.6-Terra             | 5t   | Terraform in `infra/terraform/` |
-| Terraform Deploy  | `07t-terraform-deploy.agent.md`  | GPT-5.6-Luna              | 6t   | `06-deployment-summary.md`      |
-| As-Built          | `08-as-built.agent.md`           | GPT-5.6-Terra             | 7    | `07-ab-*.md` docs suite         |
-| Diagnose          | `09-diagnose.agent.md`           | GPT-5.6-Terra             | —    | Diagnostic reports              |
-| Challenger        | `10-challenger.agent.md`         | GPT-5.6-Terra             | —    | Challenge findings              |
-| Context Optimizer | `11-context-optimizer.agent.md`  | gpt-5.6-sol               | —    | Optimization reports            |
+| Requirements      | `02-requirements.agent.md`       | GPT-5.6 Sol (copilot)               | 1    | `01-requirements.md`            |
+| Architect         | `03-architect.agent.md`          | GPT-5.6 Sol (copilot)               | 2    | `02-architecture-assessment.md` |
+| Design            | `04-design.agent.md`             | GPT-5.6 Terra (copilot)             | 3    | `03-des-*.{py,png,svg,md}`      |
+| Governance        | `04g-governance.agent.md`        | GPT-5.6 Luna (copilot)              | 3.5  | `04-governance-constraints.md`  |
+| IaC Plan          | `05-iac-planner.agent.md`        | GPT-5.6 Sol (copilot)               | 4    | `04-implementation-plan.md`     |
+| Bicep Code        | `06b-bicep-codegen.agent.md`     | GPT-5.6 Terra (copilot)             | 5b   | Bicep in `infra/bicep/`         |
+| Bicep Deploy      | `07b-bicep-deploy.agent.md`      | GPT-5.6 Luna (copilot)              | 6b   | `06-deployment-summary.md`      |
+| Terraform Code    | `06t-terraform-codegen.agent.md` | GPT-5.6 Terra (copilot)             | 5t   | Terraform in `infra/terraform/` |
+| Terraform Deploy  | `07t-terraform-deploy.agent.md`  | GPT-5.6 Luna (copilot)              | 6t   | `06-deployment-summary.md`      |
+| As-Built          | `08-as-built.agent.md`           | GPT-5.6 Terra (copilot)             | 7    | `07-ab-*.md` docs suite         |
+| Diagnose          | `09-diagnose.agent.md`           | GPT-5.6 Terra (copilot)             | —    | Diagnostic reports              |
+| Challenger        | `10-challenger.agent.md`         | GPT-5.6 Terra (copilot)             | —    | Challenge findings              |
+| Context Optimizer | `11-context-optimizer.agent.md`  | GPT-5.6 Sol (copilot)               | —    | Optimization reports            |
 
 All production main agents, including `10-Challenger`, use `disable-model-invocation: true`.
 Use human handoffs; an unavailable reviewer is not permission for a nested wrapper fallback.
@@ -68,7 +68,7 @@ The E2E launch subsystem is retired. Preserve production lessons and historical 
 | terraform-plan-subagent     | `terraform-plan-subagent.agent.md`     | Deployment preview (terraform plan) |
 | terraform-validate-subagent | `terraform-validate-subagent.agent.md` | Lint + AVM-TF/security code review  |
 
-The review worker uses `GPT-5.6-Terra`; the other workers use `GPT-5.6-Luna`.
+The review worker uses `GPT-5.6 Terra (copilot)`; the other workers use `GPT-5.6 Luna (copilot)`.
 Sol, Terra, and Luna labels are not evidence of runtime cost-tier eligibility,
 availability, or API support. Check actual harness capability; never infer a fallback model.
 

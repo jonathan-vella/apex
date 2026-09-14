@@ -16,7 +16,7 @@ approval. Explain approved changes in the pull request.
 ## Assignment Rationale
 
 The catalog and approved agent frontmatter own the active map; do not duplicate it
-here. Preserve exact `gpt-5.6-sol`, a user-confirmed label, without inventing public
+here. Preserve exact picker labels, including spaces and provider suffixes, without inventing public
 release dates, capability metadata, prices, or cost tiers. Unknown metadata is
 represented by null with explicit provenance. Capability descriptors are not
 runtime subagent cost tiers. No automatic model fallback is authorized.

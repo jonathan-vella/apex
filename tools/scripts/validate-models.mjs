@@ -76,14 +76,14 @@ function collectRegistryModels(registry, reporter) {
   return out;
 }
 
-function collectFrontmatterModels(reporter) {
+function collectFrontmatterModels(reporter, models) {
   const out = new Map();
   for (const [file, item] of [...getAgents(), ...getPromptFiles()]) {
     addModels(out, item.frontmatter?.model, file, reporter);
     const handoffs = item.frontmatter?.handoffs;
     if (!Array.isArray(handoffs)) continue;
     for (const [index, handoff] of handoffs.entries()) {
-      addModels(out, handoff?.model, `${file} handoffs[${index}]`, reporter, { handoff: true });
+      addModels(out, handoff?.model, `${file} handoffs[${index}]`, reporter, { handoff: true, models });
     }
   }
   return out;
@@ -113,7 +113,7 @@ function runCatalog() {
   );
 
   console.log("  Check 1: referenced labels exist in catalog.models");
-  const fmModels = collectFrontmatterModels(r);
+  const fmModels = collectFrontmatterModels(r, catalog.models);
   const registry = readJsonCached(REGISTRY_PATH);
   const regModels = collectRegistryModels(registry, r);
   for (const [model, origins] of fmModels) {

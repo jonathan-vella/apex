@@ -31,7 +31,35 @@ const fixtureCatalog = {
       deprecated: false,
       provenance: { label_source: "user-confirmed", metadata_status: "unknown" },
     },
-    "GPT-5.6-Luna": { vendor: "OpenAI", tier: "standard", released: "2026-07", deprecated: false },
+    "gpt-5.6-terra": {
+      vendor: "OpenAI",
+      tier: null,
+      released: null,
+      deprecated: false,
+      provenance: { label_source: "user-confirmed", metadata_status: "unknown" },
+    },
+    "gpt-5.6-luna": { vendor: "OpenAI", tier: "standard", released: "2026-07", deprecated: false },
+    "GPT-5.6 Sol (copilot)": {
+      vendor: "OpenAI",
+      tier: null,
+      released: null,
+      deprecated: false,
+      provenance: { label_source: "user-confirmed", metadata_status: "unknown" },
+    },
+    "GPT-5.6 Terra (copilot)": {
+      vendor: "OpenAI",
+      tier: null,
+      released: null,
+      deprecated: false,
+      provenance: { label_source: "user-confirmed", metadata_status: "unknown" },
+    },
+    "GPT-5.6 Luna (copilot)": {
+      vendor: "OpenAI",
+      tier: null,
+      released: null,
+      deprecated: false,
+      provenance: { label_source: "user-confirmed", metadata_status: "unknown" },
+    },
     "GPT-5.4 mini": { vendor: "OpenAI", tier: "mini", released: "2026-03", deprecated: false },
     "GPT-5.4": { vendor: "OpenAI", tier: "standard", released: "2026-03", deprecated: true },
   },
@@ -110,16 +138,16 @@ describe("model catalog metadata", () => {
 
 describe("ordered model normalization", () => {
   it("strict label validation preserves exact names while handoff qualification is contextual", () => {
-    assert.deepEqual(modelLabels(["gpt-5.6-sol", "GPT-5.6-Luna (copilot)"]), ["gpt-5.6-sol", "GPT-5.6-Luna (copilot)"]);
-    assert.equal(catalogModelLabel("GPT-5.6-Luna (copilot)"), "GPT-5.6-Luna (copilot)");
-    assert.equal(catalogModelLabel("GPT-5.6-Luna (copilot)", { handoff: true }), "GPT-5.6-Luna");
+    assert.deepEqual(modelLabels(["gpt-5.6-sol", "gpt-5.6-luna (copilot)"]), ["gpt-5.6-sol", "gpt-5.6-luna (copilot)"]);
+    assert.equal(catalogModelLabel("gpt-5.6-luna (copilot)"), "gpt-5.6-luna (copilot)");
+    assert.equal(catalogModelLabel("gpt-5.6-luna (copilot)", { handoff: true }), "gpt-5.6-luna");
     assert.throws(() => modelLabels(null), /non-empty/);
   });
   it("preserves every fallback and priority while retaining the scalar helper API", () => {
-    const models = ["gpt-5.6-sol", "GPT-5.6-Luna (copilot)", "GPT-5.6-Terra"];
-    assert.deepEqual(normalizeModels(models), ["gpt-5.6-sol", "GPT-5.6-Luna", "GPT-5.6-Terra"]);
+    const models = ["gpt-5.6-sol", "gpt-5.6-luna (copilot)", "gpt-5.6-terra"];
+    assert.deepEqual(normalizeModels(models), ["gpt-5.6-sol", "gpt-5.6-luna", "gpt-5.6-terra"]);
     assert.equal(normalizeModel(models), "gpt-5.6-sol");
-    assert.equal(models[1], "GPT-5.6-Luna (copilot)");
+    assert.equal(models[1], "gpt-5.6-luna (copilot)");
     assert.deepEqual(normalizeModels(undefined), []);
   });
 
@@ -152,8 +180,27 @@ describe("validate-models dispatcher", () => {
 });
 
 describe("model CLI negatives", () => {
+  for (const [identifier, formerLabel] of [
+    ["GPT-5.6 Sol (copilot)", "GPT-5.6-Sol"],
+    ["GPT-5.6 Terra (copilot)", "GPT-5.6-Terra"],
+    ["GPT-5.6 Luna (copilot)", "GPT-5.6-Luna"],
+  ]) {
+    it(`accepts ${identifier} and rejects its former display casing`, () => {
+      setupFixture({ models: [identifier], handoff: identifier });
+      assert.equal(run(["--only=catalog"]).code, 0);
+      const generated = JSON.parse(readFileSync(path.join(fixtureRoot, ".github/model-catalog.json"), "utf8"));
+      assert.equal(generated.assignments.agents["fixture.agent.md"], identifier);
+      assert.equal(catalogModelLabel(identifier, { handoff: true, models: fixtureCatalog.models }), identifier);
+      setupFixture({ models: [formerLabel] });
+      assert.notEqual(run(["--only=catalog"]).code, 0);
+      const catalog = JSON.parse(readFileSync(path.join(repoRoot, ".github/model-catalog.json"), "utf8"));
+      assert.ok(Object.hasOwn(catalog.models, identifier));
+      assert.equal(Object.hasOwn(catalog.models, formerLabel), false);
+    });
+  }
+
   it("validates later fallback catalog labels and deprecations", () => {
-    for (const fallback of ["unknown", "GPT-5.4", "GPT-5.6-Sol", "GPT-5.6-Luna (copilot)", false]) {
+    for (const fallback of ["unknown", "GPT-5.4", "GPT-5.6-Sol", "gpt-5.6-luna (copilot)", false]) {
       setupFixture({ models: ["gpt-5.6-sol", fallback] });
       const result = run(["--only=catalog"]);
       assert.equal(result.code, 1, result.stdout);
@@ -161,14 +208,14 @@ describe("model CLI negatives", () => {
   });
 
   it("rejects fallback order and secondary-model registry drift", () => {
-    setupFixture({ models: ["gpt-5.6-sol", "GPT-5.6-Luna"], registryModels: ["gpt-5.6-sol"] });
+    setupFixture({ models: ["gpt-5.6-sol", "gpt-5.6-luna"], registryModels: ["gpt-5.6-sol"] });
     assert.equal(run(["--only=consistency"]).code, 1);
-    setupFixture({ models: ["gpt-5.6-sol", "GPT-5.6-Luna"], registryModels: ["GPT-5.6-Luna", "gpt-5.6-sol"] });
+    setupFixture({ models: ["gpt-5.6-sol", "gpt-5.6-luna"], registryModels: ["gpt-5.6-luna", "gpt-5.6-sol"] });
     assert.equal(run(["--only=consistency"]).code, 1);
   });
 
   it("allows inherited prompts and qualified handoffs but rejects unknown overrides", () => {
-    setupFixture({ prompt: { agent: "Fixture" }, handoff: "GPT-5.6-Luna (copilot)" });
+    setupFixture({ prompt: { agent: "Fixture" }, handoff: "gpt-5.6-luna (copilot)" });
     assert.equal(run(["--only=catalog"]).code, 0);
     setupFixture({ prompt: { model: "unlisted" } });
     assert.equal(run(["--only=catalog"]).code, 1);

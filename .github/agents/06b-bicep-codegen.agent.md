@@ -1,7 +1,7 @@
 ---
 name: 06b-Bicep CodeGen
 description: Expert Azure Bicep IaC specialist that creates near-production-ready Bicep templates following Azure Verified Modules (AVM) standards. Validates, tests, and ensures code quality.
-model: ["GPT-5.6-Terra"]
+model: ["GPT-5.6 Terra (copilot)"]
 user-invocable: true
 disable-model-invocation: true
 agents: ["bicep-validate-subagent", "challenger-review-subagent"]

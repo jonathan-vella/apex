@@ -43,73 +43,101 @@
     {
       "family": "claude-opus",
       "status": "enforced",
-      "label_examples": ["Claude Opus 5", "Claude Opus 4.8", "Claude Opus 4.7"],
+      "label_examples": [
+        "Claude Opus 5",
+        "Claude Opus 4.8",
+        "Claude Opus 4.7"
+      ],
       "rule_subset_note": "All Claude rules apply at default severity."
     },
     {
       "family": "claude-sonnet",
       "status": "enforced",
-      "label_examples": ["Claude Sonnet 5", "Claude Sonnet 4.6", "Claude Sonnet 4.5"],
+      "label_examples": [
+        "Claude Sonnet 5",
+        "Claude Sonnet 4.6",
+        "Claude Sonnet 4.5"
+      ],
       "rule_subset_note": "All Claude rules apply at default severity."
     },
     {
       "family": "claude-haiku",
       "status": "warn-only",
-      "label_examples": ["Claude Haiku 4.5"],
+      "label_examples": [
+        "Claude Haiku 4.5"
+      ],
       "rule_subset_note": "Model advice is warn or below; structural errors and deprecation findings retain base severity."
     },
     {
       "family": "claude",
       "status": "warn-only",
-      "label_examples": ["Claude (unspecified variant)"],
+      "label_examples": [
+        "Claude (unspecified variant)"
+      ],
       "rule_subset_note": "Generic Claude label — flag at warn for explicit version."
     },
     {
       "family": "gpt-5.6-terra",
       "status": "enforced",
-      "label_examples": ["GPT-5.6-Terra"],
+      "label_examples": [
+        "GPT-5.6 Terra (copilot)"
+      ],
       "rule_subset_note": "APEX outcome-first Markdown convention informed by pinned generic OpenAI guidance; not model-specific vendor evidence."
     },
     {
       "family": "gpt-5.6-luna",
       "status": "enforced",
-      "label_examples": ["GPT-5.6-Luna"],
+      "label_examples": [
+        "GPT-5.6 Luna (copilot)"
+      ],
       "rule_subset_note": "APEX outcome-first Markdown convention; leaf workers use bounded role contracts."
     },
     {
       "family": "gpt-5.6-sol",
       "status": "enforced",
-      "label_examples": ["gpt-5.6-sol"],
+      "label_examples": [
+        "GPT-5.6 Sol (copilot)"
+      ],
       "rule_subset_note": "User-confirmed exact label with unknown public metadata. APEX outcome-first Markdown convention, not Sol-specific vendor evidence."
     },
     {
       "family": "gpt-5.4",
       "status": "enforced",
-      "label_examples": ["GPT-5.4"],
+      "label_examples": [
+        "GPT-5.4"
+      ],
       "rule_subset_note": "Legacy outcome-first compatibility; catalog separately determines deprecation."
     },
     {
       "family": "gpt-5.5",
       "status": "enforced",
-      "label_examples": ["GPT-5.5"],
+      "label_examples": [
+        "GPT-5.5"
+      ],
       "rule_subset_note": "All GPT-5.5 rules apply at default severity."
     },
     {
       "family": "gpt-codex",
       "status": "reviewer-only",
-      "label_examples": ["GPT-5.3-Codex"],
+      "label_examples": [
+        "GPT-5.3-Codex"
+      ],
       "rule_subset_note": "Decision-log only; no automated enforcement."
     },
     {
       "family": "gpt-4o",
       "status": "reviewer-only",
-      "label_examples": ["GPT-4o"],
+      "label_examples": [
+        "GPT-4o"
+      ],
       "rule_subset_note": "Legacy model; no new enforcement."
     },
     {
       "family": "mai-code",
       "status": "reviewer-only",
-      "label_examples": ["MAI-Code-1.1-Flash"],
+      "label_examples": [
+        "MAI-Code-1.1-Flash"
+      ],
       "rule_subset_note": "Microsoft coding model; no MAI-specific automated prompting rules yet. Used for handoff-only orchestration routing."
     },
     {
@@ -123,7 +151,9 @@
     {
       "id": "legacy-001",
       "vendor": "cross-vendor",
-      "model_families": ["any"],
+      "model_families": [
+        "any"
+      ],
       "applies_to": "prompt",
       "severity": "warn",
       "summary": "Prompt file model: must match its target agent's model: when both are present.",
@@ -137,7 +167,9 @@
     {
       "id": "legacy-002",
       "vendor": "cross-vendor",
-      "model_families": ["any"],
+      "model_families": [
+        "any"
+      ],
       "applies_to": "agent",
       "severity": "warn",
       "summary": "handoff entries should not redundantly set model: when it matches the target agent's own model.",
@@ -151,7 +183,12 @@
     {
       "id": "legacy-003",
       "vendor": "anthropic",
-      "model_families": ["claude-opus", "claude-sonnet", "claude-haiku", "claude"],
+      "model_families": [
+        "claude-opus",
+        "claude-sonnet",
+        "claude-haiku",
+        "claude"
+      ],
       "applies_to": "agent",
       "severity": "warn",
       "summary": "Large Claude agents (>350 body lines) should include <context_awareness> block.",
@@ -165,7 +202,10 @@
     {
       "id": "legacy-004",
       "vendor": "anthropic",
-      "model_families": ["claude-opus", "claude-sonnet"],
+      "model_families": [
+        "claude-opus",
+        "claude-sonnet"
+      ],
       "applies_to": "agent",
       "severity": "warn",
       "summary": "Claude research agents should include <investigate_before_answering> block.",
@@ -179,7 +219,12 @@
     {
       "id": "claude-oneshot-001",
       "vendor": "anthropic",
-      "model_families": ["claude-opus", "claude-sonnet", "claude-haiku", "claude"],
+      "model_families": [
+        "claude-opus",
+        "claude-sonnet",
+        "claude-haiku",
+        "claude"
+      ],
       "applies_to": "agent",
       "severity": "warn",
       "summary": "ONE-SHOT Claude agents (Requirements, Challenger subagent) MUST NOT contain <investigate_before_answering>.",
@@ -193,7 +238,13 @@
     {
       "id": "gpt55-skeleton-001",
       "vendor": "openai",
-      "model_families": ["gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna", "gpt-5.5", "gpt-5.4"],
+      "model_families": [
+        "gpt-5.6-sol",
+        "gpt-5.6-terra",
+        "gpt-5.6-luna",
+        "gpt-5.5",
+        "gpt-5.4"
+      ],
       "applies_to": "agent",
       "severity": "warn",
       "summary": "APEX mains use Role, Goal, Success criteria, Constraints, Output and Stop rules; leaf workers use Inputs, Outputs and bounded failure/return contracts.",
@@ -208,7 +259,15 @@
     {
       "id": "gpt-no-claude-xml-001",
       "vendor": "cross-vendor",
-      "model_families": ["gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna", "gpt-5.5", "gpt-5.4", "gpt-codex", "gpt-4o"],
+      "model_families": [
+        "gpt-5.6-sol",
+        "gpt-5.6-terra",
+        "gpt-5.6-luna",
+        "gpt-5.5",
+        "gpt-5.4",
+        "gpt-codex",
+        "gpt-4o"
+      ],
       "applies_to": "agent",
       "severity": "warn",
       "summary": "GPT-family agents MUST NOT contain Claude-specific XML blocks (<investigate_before_answering>, <context_awareness>, <scope_fencing>, <empty_result_recovery>, <subagent_budget>).",
@@ -223,7 +282,9 @@
     {
       "id": "cross-language-density-001",
       "vendor": "cross-vendor",
-      "model_families": ["any"],
+      "model_families": [
+        "any"
+      ],
       "applies_to": "agent",
       "severity": "info",
       "summary": "Absolute words (ALWAYS, NEVER, MUST, HARD RULE) density should not exceed 0.05 outside permitted prose contexts (security baseline / governance / approval gate / non-negotiable).",
@@ -237,7 +298,9 @@
     {
       "id": "model-deprecation-001",
       "vendor": "cross-vendor",
-      "model_families": ["any"],
+      "model_families": [
+        "any"
+      ],
       "applies_to": "both",
       "severity": "warn",
       "summary": "Agents/prompts using a deprecated model label (per validate-models.mjs --only=deprecated) should be migrated.",
@@ -251,7 +314,12 @@
     {
       "id": "claude-no-prefill-001",
       "vendor": "anthropic",
-      "model_families": ["claude-opus", "claude-sonnet", "claude-haiku", "claude"],
+      "model_families": [
+        "claude-opus",
+        "claude-sonnet",
+        "claude-haiku",
+        "claude"
+      ],
       "applies_to": "both",
       "severity": "warn",
       "summary": "Claude agents/prompts MUST NOT instruct prefilling the assistant turn.",
@@ -265,7 +333,13 @@
     {
       "id": "gpt55-stop-rules-non-empty-001",
       "vendor": "openai",
-      "model_families": ["gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna", "gpt-5.5", "gpt-5.4"],
+      "model_families": [
+        "gpt-5.6-sol",
+        "gpt-5.6-terra",
+        "gpt-5.6-luna",
+        "gpt-5.5",
+        "gpt-5.4"
+      ],
       "applies_to": "agent",
       "severity": "warn",
       "summary": "APEX outcome-first main agents need nonempty Stop rules; leaf workers use bounded failure/return contracts.",
@@ -280,7 +354,9 @@
     {
       "id": "frontmatter-model-style-001",
       "vendor": "cross-vendor",
-      "model_families": ["any"],
+      "model_families": [
+        "any"
+      ],
       "applies_to": "both",
       "severity": "error",
       "summary": ".agent.md must use array form for model:; .prompt.md must use string form.",
@@ -295,7 +371,10 @@
     {
       "id": "claude-output-contract-001",
       "vendor": "anthropic",
-      "model_families": ["claude-opus", "claude-sonnet"],
+      "model_families": [
+        "claude-opus",
+        "claude-sonnet"
+      ],
       "applies_to": "agent",
       "severity": "warn",
       "summary": "Claude agents that produce a formal artifact MUST include an <output_contract> block.",
@@ -309,7 +388,9 @@
     {
       "id": "handoff-enrichment-001",
       "vendor": "cross-vendor",
-      "model_families": ["any"],
+      "model_families": [
+        "any"
+      ],
       "applies_to": "agent",
       "severity": "warn",
       "summary": "Every handoffs[].prompt must contain BOTH an input reference (artifact path or 'Input:') AND an output reference (save path or 'Output:').",
@@ -323,7 +404,13 @@
     {
       "id": "personality-scoping-001",
       "vendor": "openai",
-      "model_families": ["gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna", "gpt-5.5", "gpt-5.4"],
+      "model_families": [
+        "gpt-5.6-sol",
+        "gpt-5.6-terra",
+        "gpt-5.6-luna",
+        "gpt-5.5",
+        "gpt-5.4"
+      ],
       "applies_to": "agent",
       "severity": "info",
       "summary": "# Personality block should appear only on user-facing agents (Orchestrator family); internal pipeline agents should omit it.",
@@ -337,7 +424,9 @@
     {
       "id": "prompt-model-source-001",
       "vendor": "cross-vendor",
-      "model_families": ["any"],
+      "model_families": [
+        "any"
+      ],
       "applies_to": "prompt",
       "severity": "error",
       "summary": "Custom-agent prompts inherit the known target's model; built-in/generic Local prompts may inherit picker selection. Unknown custom targets are errors.",
