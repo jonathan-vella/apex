@@ -53,10 +53,16 @@ Plan-only mode: if user selects plan/what-if only, generate `06-deployment-summa
 with preview results and mark status as simulated/not-applied, then stop before approval/apply.
 Validation-only returns passed, failed, and unperformed checks without invoking preview or deployment.
 Neither mode completes Step 6 as deployed or authorizes resource creation, backend bootstrap, or regeneration.
+If a prerequisite needs those mutations, report the blocked check or preview and stop; do not solicit
+bootstrap or deployment approval within the validation-only/preview-only request. A successful preview
+does not expand that scope. Explain future authorization requirements only as information, not an approval gate.
+Later setup/deployment requires an explicit user scope change and separate authorization for bootstrap
+when needed, followed by current preview/policy evidence and final apply approval. Changed inputs invalidate
+earlier approval; do not reuse it for new variables, state context or resource changes.
 
 ## Default Follow Through Policy
 
-When an approval gate is presented and the user approves, proceed immediately.
+Within an explicitly requested deployment, when an approval gate is presented and the user approves, proceed immediately.
 Do not re-confirm. If the user provides a custom response, interpret as instructions.
 
 ## Boundaries

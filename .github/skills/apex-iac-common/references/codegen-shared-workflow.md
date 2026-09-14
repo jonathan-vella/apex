@@ -119,6 +119,11 @@ If a prior turn aborted with the length-limit error:
 - Inspect the next file against approved inputs; existence alone does not prove a complete write.
   Preserve complete matching files. Stop for an ownership decision on unexpected user changes;
   repair a confirmed partial agent write with an editing tool before continuing.
+- Preserve ambiguous lines and custom wiring until ownership is established or the
+  user explicitly authorizes the specific edit. Syntax errors, validation failures
+  and plan conflicts do not establish ownership or authorize deletion or replacement.
+  If recovery requires changing that content, stop for clarification and keep the
+  affected validation and deployment handoff blocked; never repair by discarding it.
 - Resume by emitting **only the next single file** that is not on disk.
 - Do **not** re-emit any file already on disk.
 - Do **not** summarise what was lost — continue the per-file cadence.

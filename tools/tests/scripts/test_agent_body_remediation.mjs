@@ -16,6 +16,51 @@ import { MAX_BODY_LINES } from "../../scripts/_lib/paths.mjs";
 const root = fileURLToPath(new URL("../../../", import.meta.url));
 const agentRoot = path.join(root, ".github/agents");
 const read = (name) => readFileSync(path.join(agentRoot, `${name}.agent.md`), "utf8");
+test("Terraform preview-only stops at missing backend without soliciting expanded approval", () => {
+  const body = getBody(read("07t-terraform-deploy"));
+  assert.match(body, /For preview-only requests, do not solicit bootstrap or apply approval/);
+  assert.match(body, /report the blocked preview and stop/);
+  assert.match(
+    body,
+    /For an explicit setup\/deployment request, backend bootstrap is supported with separate user authorization/,
+  );
+  assert.match(body, /do not run initialization, solicit bootstrap\/apply approval, or claim a preview succeeded/);
+  const shared = readFileSync(
+    path.join(root, ".github/skills/apex-iac-common/references/deploy-shared-workflow.md"),
+    "utf8",
+  );
+  assert.match(shared, /A successful preview\s+does not expand that scope/);
+  assert.match(shared, /only as information, not an approval gate/);
+  assert.match(shared, /Changed inputs invalidate\s+earlier approval/);
+  assert.match(shared, /Within an explicitly requested deployment/);
+});
+
+test("CodeGen recovery does not infer edit permission from invalid or conflicting content", () => {
+  for (const agent of ["06b-bicep-codegen", "06t-terraform-codegen"]) {
+    const body = getBody(read(agent));
+    assert.match(
+      body,
+      /Preserve lines with uncertain ownership until ownership is established or the user\s+explicitly authorizes the specific edit/,
+    );
+    assert.match(
+      body,
+      /Syntax errors, validation failures and\s+plan conflicts do not establish ownership or authorize overwriting/,
+    );
+    assert.match(body, /If repair needs such edits, stop and ask; keep validation and handoff blocked/);
+  }
+  const shared = readFileSync(
+    path.join(root, ".github/skills/apex-iac-common/references/codegen-shared-workflow.md"),
+    "utf8",
+  );
+  assert.match(shared, /repair a confirmed partial agent write/);
+  assert.match(shared, /user explicitly authorizes the specific edit/);
+  assert.match(
+    shared,
+    /Syntax errors, validation failures\s+and plan conflicts do not establish ownership or authorize deletion or replacement/,
+  );
+  assert.match(shared, /stop for clarification and keep the\s+affected validation and deployment handoff blocked/);
+});
+
 test("Orchestrator distinguishes the Requirements owner from its step and artifact prefix", () => {
   const text = read("01-orchestrator");
   const requirements = parseFrontmatter(read("02-requirements"));

@@ -76,6 +76,10 @@ is satisfied, and every resource that has an AVM module uses it.
   `00-handoff.md`, code-review decisions and recall state. Preserve user edits and
   partial files; use available editing tools, inspect interrupted writes, then validate.
   No Azure resource mutations, upstream plan/governance or SKU manifest edits.
+- Preserve lines with uncertain ownership until ownership is established or the user
+  explicitly authorizes the specific edit. Syntax errors, validation failures and
+  plan conflicts do not establish ownership or authorize overwriting those lines.
+  If repair needs such edits, stop and ask; keep validation and handoff blocked.
 - `execute` is limited to scoped generation/formatting, checks and approved state updates;
   it is not read-only merely because deployment is forbidden. Retain compiled ARM
   evidence required by the validator, with provenance to the current source tree.

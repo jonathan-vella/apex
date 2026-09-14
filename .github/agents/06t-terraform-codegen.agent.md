@@ -79,6 +79,10 @@ resource that has an AVM-TF module uses it.
   isolated init scratch, listed CodeGen outputs, project README, `00-handoff.md`,
   code-review decisions and recall state. Preserve user edits and partial files;
   use available editing tools and validate interrupted-file recovery.
+- Preserve lines with uncertain ownership until ownership is established or the user
+  explicitly authorizes the specific edit. Syntax errors, validation failures and
+  plan conflicts do not establish ownership or authorize overwriting those lines.
+  If repair needs such edits, stop and ask; keep validation and handoff blocked.
 - No Azure resource mutations, backend bootstrap/state migration or upstream plan,
   governance or SKU manifest edits. `execute` permits only these scoped writes and
   required validation/plan checks; terminal access is not inherently read-only.

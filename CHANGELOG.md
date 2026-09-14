@@ -20,6 +20,10 @@ for full details on this and all prior releases.
 
 ### Changed (Agent modernization)
 
+- Clarify preview-only deployment stops: missing backends do not trigger bootstrap or apply approval requests.
+  Later setup/deployment requires explicit scope expansion, separate bootstrap authorization and fresh apply approval.
+- Clarify both CodeGen recovery contracts: syntax errors, failed validation and plan conflicts do not authorize
+  overwriting lines with uncertain ownership; preserve them and obtain clarification before a necessary edit.
 - Clarify exact Orchestrator owner names in routing-only answers: Step 1 belongs to `02-Requirements`,
   not an agent inferred from the requirements artifact prefix. A bounded Local routing retest passed.
 - Separate explanation-only routing from project setup; honor explicit no-tools requests without waiving
