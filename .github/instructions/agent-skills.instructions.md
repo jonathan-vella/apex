@@ -24,10 +24,11 @@ description: "Toolkit for testing local web apps using Playwright. Use when aske
 | Field                      | Required | Constraints                                                                        |
 | -------------------------- | -------- | ---------------------------------------------------------------------------------- |
 | `name`                     | Yes      | Lowercase, hyphens for spaces, max 64 chars. **Must match parent directory name.** |
-| `description`              | Yes      | State **WHAT** it does, **WHEN** to use it, and **KEYWORDS**; max 1024 chars       |
-| `argument-hint`            | No       | Hint text shown in chat input when invoked as a `/` slash command                  |
+| `description`              | Yes      | State **WHAT**, **WHEN**, and **KEYWORDS**; platform max 1024 chars, APEX max 500 |
+| `argument-hint`            | No       | Concise non-secret slash input hint; APEX: non-empty single line, max 160 chars |
 | `user-invocable`           | No       | Boolean, default `true`. Set `false` to hide from `/` menu                         |
 | `disable-model-invocation` | No       | Boolean, default `false`. Set `true` to require manual `/` invocation only         |
+| `context`                  | No       | `inline` (default) or experimental `fork`; omit for current APEX skills |
 | `license`                  | No       | Reference to `LICENSE.txt` or SPDX identifier                                      |
 
 **Name matching rule**: Repository-owned skills MUST use exactly one `apex-`
@@ -51,12 +52,39 @@ Block scalars break VS Code prompts-diagnostics-provider.
 In Local chat, skills are available as `/` slash commands alongside prompt files.
 Use `user-invocable` and `disable-model-invocation` to control access:
 
-| Configuration                    | In `/` menu | Auto-loaded by model | Use case               |
-| -------------------------------- | ----------- | -------------------- | ---------------------- |
-| Default (both omitted)           | Yes         | Yes                  | General-purpose skills |
-| `user-invocable: false`          | No          | Yes                  | Background knowledge   |
-| `disable-model-invocation: true` | Yes         | No                   | On-demand only         |
-| Both set                         | No          | No                   | Disabled               |
+| `user-invocable` | `disable-model-invocation` | In `/` menu | Model-loadable | APEX use |
+| --- | --- | --- | --- | --- |
+| `true` (default) | `false` (default) | Yes | Yes | Task skills |
+| `false` | `false` | No | Yes | Internal guidance |
+| `true` | `true` | Yes | No | Manual Host operations |
+| `false` | `true` | No | No | Forbidden for active skills: unreachable |
+
+Use actual YAML booleans, not quoted strings. Omitted fields retain their defaults.
+Keep internal `apex-azure-defaults`, `apex-azure-artifacts`,
+`apex-azure-bicep-patterns`, `apex-terraform-patterns`, `apex-iac-common`,
+`apex-golden-principles`, and `apex-workflow-engine` hidden but model-loadable.
+Preserve their required agent-body loading references. Task skills remain visible
+and model-loadable; Host adapters remain visible and manual-only.
+Hints do not validate arguments, confer permissions, or grant approval. Never
+request passwords, tokens, keys, or secret-bearing share links in hints. Omit
+hints for hidden guidance. Treat hiding a skill as a slash-access change and
+update live callers and public guidance; it does not prove reduced discovery tokens.
+
+### Context Policy
+
+Keep all current skills inline by omitting `context`. The validator accepts
+generic `inline`/`fork` syntax; production policy tests separately prohibit fork.
+`context: fork` is experimental and requires `github.copilot.chat.skillTool.enabled`;
+do not enable it or infer Local/Agent Host parity. Adoption requires a separately
+approved, fully specified read-only experiment with bounded output, citations,
+missing-input and unavailable-tool checks, permission tests and measured context
+evidence in each intended harness. Standalone docs lookup or VM comparison may
+qualify; mixed-purpose skills and parent-context guidance do not.
+Never move questions, approvals, workflow transitions or required parent rules
+into a fork, or bypass main-agent selection and existing review/pricing workers.
+Isolation does not authorize writes, export, authentication, secrets or network
+access. Unsupported execution must stop; never silently change mode or fabricate
+results. Current fork adoption remains deferred, not runtime-certified.
 
 ### Local And Agent Host
 

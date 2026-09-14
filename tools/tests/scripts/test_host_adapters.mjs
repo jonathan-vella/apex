@@ -326,9 +326,21 @@ test("complete synthetic export preserves raw logs, filters, redacts by default 
 const hostEntries = [
   ["apex-host-debug-log-export", "apex-context-management/references/debug-log-export.md"],
   ["apex-host-git-commit", "apex-github-operations/references/git-commit.md"],
-  ["apex-host-resume-workflow", "apex-workflow-engine/references/workflow-entry.md#resume"],
   ["apex-host-workflow-start", "apex-workflow-engine/references/workflow-entry.md"],
 ];
+
+test("recreated mixed-case references stay outside active discovery", () => {
+  for (const [retired, canonical] of [
+    [
+      "apex-context-management/references/plan-fourLayerAgentAssessment.md",
+      "apex-agent-authoring/references/plan-four-layer-agent-assessment.md",
+    ],
+    ["apex-workflow-engine/references/plan-docsPeerReview.md", "apex-docs-writer/references/plan-docs-peer-review.md"],
+  ]) {
+    assert.equal(existsSync(new URL(`.github/skills/${retired}`, repository)), false, retired);
+    assert.equal(existsSync(new URL(`.github/skills/${canonical}`, repository)), true, canonical);
+  }
+});
 
 for (const [entry, reference] of hostEntries) {
   test(`${entry} is manual-only and grants no model or tool overrides`, () => {
@@ -422,10 +434,22 @@ test("Host resume and workflow-start route to current human-selected owners", ()
   const orchestrator = agents.find((agent) => agent.name === "01-Orchestrator");
   assert.deepEqual(orchestrator.model, ["MAI-Code-1.1-Flash"]);
   assert.deepEqual(orchestrator.agents, []);
-  const resume = source(".github/skills/apex-host-resume-workflow/SKILL.md");
+  const resume = source(".github/skills/apex-host-workflow-start/SKILL.md");
   assert.match(resume, /selected owner `01-Orchestrator`/);
   assert.match(resume, /`MAI-Code-1\.1-Flash`/);
   assert.match(resume, /Never dispatch Sol or any step agent under MAI/);
+  assert.ok(resume.includes("../apex-workflow-engine/references/workflow-entry.md#resume"));
+  assert.match(resume, /explicit operation/);
+  assert.match(resume, /project except for `resume`/);
+  assert.match(resume, /supplied project without reconfirmation/);
+  assert.match(resume, /ask only when ambiguous/);
+  assert.match(resume, /Empty recall never authorizes a fresh start/);
+  assert.match(resume, /reviews, checkpoints and approvals/);
+  assert.match(resume, /human handoff, then stop/);
+  assert.match(entry, /If no operation is supplied, ask which operation/);
+  assert.match(entry, /Unsupported operations stop for clarification/);
+  assert.match(entry, /Git commit and\s+debug-log export retain their separate manual Host commands/);
+  assert.equal(existsSync(new URL(".github/skills/apex-host-resume-workflow/SKILL.md", repository)), false);
   const local = parseFrontmatter(source(".github/prompts/apex-resume-workflow.prompt.md"));
   assert.equal(local.agent, orchestrator.name);
   assert.equal(local.model, undefined);
@@ -442,7 +466,11 @@ test("workflow entry preserves current Design, Challenger and CodeGen source con
   const challenger = source(".github/agents/10-challenger.agent.md");
   for (const content of [entry, design]) {
     assert.match(content, /only when ADRs were produced and\s+`decisions\.review_depth == "deep"`/);
-    assert.match(content, /informational and does not block Step 3/);
+    assert.match(content, /or the user explicitly requested review/);
+    assert.match(content, /Review findings are informational for Step 3, not authority to change architecture/);
+    assert.match(content, /Log execution failures[\s\S]*stop with a human Challenger\s+handoff/);
+    assert.match(content, /Missing\/empty output permits exactly one identical-input retry/);
+    assert.match(content, /missing\s+capability blocks immediately/);
   }
   for (const content of [entry, challenger]) {
     assert.match(content, /Per-Finding Decision Protocol/);

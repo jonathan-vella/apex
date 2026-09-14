@@ -8,7 +8,9 @@ agents: []
 tools: [execute, read, edit, search, "azure-resource-manager-mcp/get_retail_prices", "azure-resource-manager-mcp/query_costs", "azure-resource-manager-mcp/query_aks_costs", "azure-resource-manager-mcp/forecast_costs", "azure-resource-manager-mcp/list_dimensions", "azure-resource-manager-mcp/list_benefit_utilization", "azure-resource-manager-mcp/get_benefit_recommendations"]
 ---
 
-# Cost Estimate Subagent
+# cost-estimate-subagent
+
+## Role
 
 Price planned Azure resources with the official Azure Resource Manager MCP
 server. Parent agents provide paths and receive only a compact summary; write the
@@ -172,10 +174,13 @@ Write this shape to `output_path`:
 }
 ```
 
-Mode B adds `manifest_writeback: [{ id, cost_estimate_monthly_usd,
-cost_estimated_at }]`. Mode C adds `decisions: [{ decision_id, winner_label,
-delta_monthly_usd, candidates }]`; choose the lowest complete estimate and break
-ties alphabetically.
+`manifest_path` mode adds `manifest_writeback: [{ id, cost_estimate_monthly_usd,
+cost_estimated_at }]`; persist it to the supplied manifest only on COMPLETE with
+`manifest_writeback: true`. `candidate_sets` mode adds
+`decisions: [{ decision_id, winner_label, delta_monthly_usd, candidates }]`;
+choose the lowest complete estimate and break ties alphabetically. The winner is
+comparison advice only; it is not SKU approval and never changes the manifest.
+`resource_list` mode emits the base shape without either mode-specific field.
 
 ## Parent summary
 

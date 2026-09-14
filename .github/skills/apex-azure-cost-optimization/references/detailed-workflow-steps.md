@@ -10,7 +10,15 @@ Get actual cost data from Azure Cost Management API (last 30 days):
 
 **Create cost query file:**
 
-Create `temp/cost-query.json` with:
+Create a unique run-owned scratch directory before creating the query:
+
+```powershell
+$runTemp = Join-Path ([System.IO.Path]::GetTempPath()) ("apex-cost-" + [guid]::NewGuid().ToString("N"))
+New-Item -ItemType Directory -Path $runTemp -ErrorAction Stop | Out-Null
+$queryPath = Join-Path $runTemp "cost-query.json"
+```
+
+Use the file editing tool to create `$queryPath` with:
 
 ```json
 {
@@ -43,13 +51,10 @@ Create `temp/cost-query.json` with:
 **Execute cost query:**
 
 ```powershell
-# Create temp folder
-New-Item -ItemType Directory -Path "temp" -Force
-
 # Query using REST API (more reliable than az costmanagement query)
 az rest --method post `
   --url "https://management.azure.com/subscriptions/<SUBSCRIPTION_ID>/resourceGroups/<RESOURCE_GROUP>/providers/Microsoft.CostManagement/query?api-version=2023-11-01" `
-  --body '@temp/cost-query.json'
+  --body "@$queryPath"
 ```
 
 **Important:** Save the query results to `output/cost-query-result<timestamp>.json` for audit trail.
@@ -138,9 +143,9 @@ Create a comprehensive cost optimization report in the `output/` folder:
 
 [Resources operating within free tiers showing $0 cost]
 
-## Orphaned Resources (Immediate Savings)
+## Orphaned Resource Candidates
 
-[From azqr - resources that can be deleted immediately]
+[From azqr - validate ownership, dependencies, retention and actual cost before recommending removal]
 
 - Resource name with Portal link - $X/month savings
 
@@ -189,7 +194,7 @@ Create a comprehensive cost optimization report in the `output/` folder:
 - **Pricing Sources**: [Links to Azure pricing pages]
 - **Free Tier Allowances**: [Applicable allowances]
 
-> **Note**: The `temp/cost-query.json` file (if present) is a temporary query template and can be safely deleted. All permanent audit data is in the `output/` folder.
+> **Note**: Record the exact run-owned query path separately from permanent audit data in `output/`.
 ```
 
 **Portal Link Format:**
@@ -222,11 +227,10 @@ Save all cost query results for validation:
 
 ## Step 9: Clean Up Temporary Files
 
-Remove temporary query files and folder after the report is generated:
+Retain scratch files on success, failure, and cancellation; report the exact
+`$runTemp` path to the user. Do not automatically delete any directory. Never
+delete generic `temp`, shared temporary roots, pre-existing files, or report evidence.
+If cleanup is separately requested, review the run's exact file manifest and
+delete only those approved files with editing tools, leaving all other files intact.
 
-```powershell
-# Delete entire temp folder (no longer needed)
-Remove-Item -Path "temp" -Recurse -Force -ErrorAction SilentlyContinue
-```
-
-> **Note**: The `temp/cost-query.json` file is only needed during API execution. The actual query and results are preserved in `output/cost-query-result*.json` for audit purposes.
+> **Note**: Preserve the actual query and results in `output/cost-query-result*.json` for audit purposes.

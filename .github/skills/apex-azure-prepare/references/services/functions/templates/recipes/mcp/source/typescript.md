@@ -1,169 +1,66 @@
 # TypeScript MCP Tools
 
-Replace the contents of `src/functions/` with these files.
-
-> ⚠️ **IMPORTANT**: Do NOT delete `src/index.ts` — it's required for function discovery. See [nodejs-entry-point.md](../../common/nodejs-entry-point.md).
-
-> 📦 **Build Required**: Run `npm run build` before deployment to compile TypeScript to `dist/`.
+Use `@azure/functions` **4.9.0** and TypeScript **5.9.3**. Keep the base
+src/index.ts discovery entry point; run the base project's build to emit dist/.
+Use the [shared host configuration](../README.md#verification-gate).
 
 ## src/functions/mcp.ts
 
 ```typescript
-import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
+import { app, InvocationContext } from "@azure/functions";
 
-interface McpTool {
-  name: string;
-  description: string;
-  parameters: {
-    type: string;
-    properties: Record<string, { type: string; description: string }>;
-    required: string[];
-  };
+function argument(context: InvocationContext, name: string): string {
+  const arguments_ = context.triggerMetadata.mcptoolargs as Record<string, unknown> | undefined;
+  const value = arguments_?.[name];
+  if (typeof value !== "string" || !value.trim()) throw new Error("A non-empty string is required");
+  return value;
 }
 
-const MCP_TOOLS: Record<string, McpTool> = {
+const tools: Record<string, { parameter: string; description: string; invoke: (value: string) => object }> = {
   get_weather: {
-    name: "get_weather",
-    description: "Get current weather for a city",
-    parameters: {
-      type: "object",
-      properties: {
-        city: { type: "string", description: "City name" },
-      },
-      required: ["city"],
-    },
+    parameter: "city",
+    description: "Demo weather; no live weather service",
+    invoke: (city) => ({ demo: true, city, temperature: 72, conditions: "sunny" }),
   },
   search_docs: {
-    name: "search_docs",
-    description: "Search documentation for a query",
-    parameters: {
-      type: "object",
-      properties: {
-        query: { type: "string", description: "Search query" },
-      },
-      required: ["query"],
-    },
+    parameter: "query",
+    description: "Demo documentation search",
+    invoke: (query) => ({ demo: true, results: [`Result for: ${query}`], count: 1 }),
   },
   run_query: {
-    name: "run_query",
-    description: "Execute a database query",
-    parameters: {
-      type: "object",
-      properties: {
-        sql: { type: "string", description: "SQL query to execute" },
-      },
-      required: ["sql"],
-    },
+    parameter: "sql",
+    description: "Demo only; never executes SQL",
+    invoke: (sql) => ({ demo: true, sql, rows: [], message: "Demo only; no database query executed" }),
   },
 };
 
-function handleToolCall(toolName: string, args: Record<string, unknown>): unknown {
-  switch (toolName) {
-    case "get_weather":
-      return { city: args.city, temperature: 72, conditions: "Sunny" };
-    case "search_docs":
-      return { results: [`Doc 1 about ${args.query}`, `Doc 2 about ${args.query}`] };
-    case "run_query":
-      return { rows: [], message: `Executed: ${String(args.sql).slice(0, 50)}...` };
-    default:
-      throw new Error(`Unknown tool: ${toolName}`);
-  }
+for (const [name, tool] of Object.entries(tools)) {
+  app.mcpTool(name, {
+    toolName: name,
+    description: tool.description,
+    toolProperties: [{
+      propertyName: tool.parameter,
+      propertyType: "string",
+      description: `Non-empty ${tool.parameter}`,
+      isRequired: true,
+      isArray: false,
+    }],
+    handler: async (_invocation: unknown, context: InvocationContext): Promise<string> =>
+      JSON.stringify(tool.invoke(argument(context, tool.parameter))),
+  });
 }
 
-export async function mcpHandler(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
-  try {
-    const body = (await request.json()) as {
-      method: string;
-      params?: { name?: string; arguments?: Record<string, unknown> };
-      id: string | number;
-    };
-
-    const { method, params = {}, id } = body;
-    let result: unknown;
-
-    if (method === "tools/list") {
-      result = { tools: Object.values(MCP_TOOLS) };
-    } else if (method === "tools/call") {
-      const { name, arguments: args = {} } = params;
-      if (!name) throw new Error("Tool name required");
-      result = handleToolCall(name, args);
-    } else {
-      return {
-        status: 400,
-        jsonBody: {
-          jsonrpc: "2.0",
-          error: { code: -32601, message: `Method not found: ${method}` },
-          id,
-        },
-      };
-    }
-
-    return {
-      jsonBody: { jsonrpc: "2.0", result, id },
-    };
-  } catch (error) {
-    context.log(`MCP error: ${error}`);
-    return {
-      status: 500,
-      jsonBody: {
-        jsonrpc: "2.0",
-        error: { code: -32603, message: String(error) },
-        id: null,
-      },
-    };
-  }
-}
-
-app.http("mcp", {
-  methods: ["POST"],
-  route: "mcp",
-  authLevel: "function",
-  handler: mcpHandler,
-});
-```
-
-## src/functions/healthCheck.ts
-
-```typescript
-import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
-
-export async function healthCheck(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
-  return {
-    jsonBody: {
-      status: "healthy",
-      type: "mcp",
-      tools: ["get_weather", "search_docs", "run_query"],
-    },
-  };
-}
-
-app.http("healthCheck", {
-  methods: ["GET"],
+app.http("health", {
   route: "health",
-  authLevel: "function",
-  handler: healthCheck,
+  methods: ["GET"],
+  authLevel: "anonymous",
+  handler: async () => ({ jsonBody: { status: "healthy", type: "mcp" } }),
 });
 ```
 
-## package.json additions
-
-```json
-{
-  "dependencies": {
-    "@azure/functions": "^4.0.0"
-  }
-}
-```
-
-## Local Testing
-
-Set these in `local.settings.json`:
-
-```json
-{
-  "Values": {
-    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
-    "FUNCTIONS_WORKER_RUNTIME": "node"
-  }
-}
-```
+The official extension owns initialization, notifications, JSON Schema
+`inputSchema`, `content` results, error conversion and Streamable HTTP.
+These callbacks receive tool arguments, never JSON-RPC requests.
+The SQL example only returns a demonstration result; it never opens a database.
+Transpilation and stubbed registration are not a native SDK typecheck or Functions
+host handshake. Both Bicep and Terraform packaging need those separate checks.

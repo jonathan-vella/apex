@@ -12,6 +12,7 @@ Usage:
 
 import argparse
 import sys
+from html import escape
 from pathlib import Path
 
 # Make the sibling `diagram_io` helper importable when this script is run
@@ -83,14 +84,15 @@ def create_process_flow(title: str, filename: str, steps: list = None):
     return f"{filename}.png"
 
 
-def create_swimlane_flow(title: str, filename: str, lanes: list = None):
+def create_swimlane_flow(title: str, filename: str, lanes: list | None = None) -> str:
     """
     Create a swimlane process flow with multiple actors.
 
     lanes: list of dicts with keys:
         - name: lane name (actor)
         - color: background color
-        - steps: list of step dicts
+                - steps: list of step dicts with id, label, and optional next
+                    (target_id, label) pairs, including targets in other lanes
     """
     from graphviz import Digraph
 
@@ -99,13 +101,13 @@ def create_swimlane_flow(title: str, filename: str, lanes: list = None):
     dot.attr('node', fontname='Segoe UI', fontsize='10')
 
     # Default example
-    if not lanes:
+    if lanes is None:
         lanes = [
             {
                 'name': 'User',
                 'color': '#F3E5F5',
                 'steps': [
-                    {'id': 'u1', 'label': 'Submit Request'},
+                    {'id': 'u1', 'label': 'Submit Request', 'next': [('s1', None)]},
                     {'id': 'u2', 'label': 'Review Result'},
                 ]
             },
@@ -113,9 +115,9 @@ def create_swimlane_flow(title: str, filename: str, lanes: list = None):
                 'name': 'System',
                 'color': '#E3F2FD',
                 'steps': [
-                    {'id': 's1', 'label': 'Validate Input'},
-                    {'id': 's2', 'label': 'Process Data'},
-                    {'id': 's3', 'label': 'Store Result'},
+                    {'id': 's1', 'label': 'Validate Input', 'next': [('s2', None)]},
+                    {'id': 's2', 'label': 'Process Data', 'next': [('s3', None)]},
+                    {'id': 's3', 'label': 'Store Result', 'next': [('u2', None)]},
                 ]
             }
         ]
@@ -127,11 +129,13 @@ def create_swimlane_flow(title: str, filename: str, lanes: list = None):
             for step in lane['steps']:
                 sub.node(step['id'], step['label'], shape='box', style='rounded,filled', fillcolor='white')
 
-    # Default connections
-    dot.edge('u1', 's1')
-    dot.edge('s1', 's2')
-    dot.edge('s2', 's3')
-    dot.edge('s3', 'u2')
+    step_ids = {step['id'] for lane in lanes for step in lane['steps']}
+    for lane in lanes:
+        for step in lane['steps']:
+            for target, label in step.get('next', []):
+                if target not in step_ids:
+                    raise ValueError(f"Unknown swimlane step: {target}")
+                dot.edge(step['id'], target, label=label)
 
     render_graphviz(dot, filename)
     print(f"✅ Generated: {filename}.png + {filename}.svg")
@@ -142,7 +146,13 @@ def create_swimlane_flow(title: str, filename: str, lanes: list = None):
 # ENTITY RELATIONSHIP DIAGRAMS (ERD)
 # ============================================================================
 
-def create_erd(title: str, filename: str, tables: list = None):
+def create_erd(
+    title: str,
+    filename: str,
+    tables: list | None = None,
+    *,
+    relationships: list[tuple[str, str]] | None = None,
+) -> str:
     """
     Create an ERD diagram.
 
@@ -150,6 +160,9 @@ def create_erd(title: str, filename: str, tables: list = None):
         - name: table name
         - columns: list of (name, type, key_type) where key_type is 'PK', 'FK', or None
         - color: header color (optional)
+
+    relationships: (source_table, target_table) pairs. Only the default
+        example includes implicit relationships; custom tables default to none.
     """
     from graphviz import Digraph
 
@@ -158,7 +171,7 @@ def create_erd(title: str, filename: str, tables: list = None):
     dot.attr('node', shape='none', fontname='Segoe UI', fontsize='10')
 
     # Default example
-    if not tables:
+    if tables is None:
         tables = [
             {
                 'name': 'Documents',
@@ -191,8 +204,11 @@ def create_erd(title: str, filename: str, tables: list = None):
             },
         ]
 
-    def make_table_html(table):
-        color = table.get('color', '#4472C4')
+        if relationships is None:
+            relationships = [('Documents', 'Accounts'), ('Documents', 'Users')]
+
+    def make_table_html(table: dict) -> str:
+        color = escape(table.get('color', '#4472C4'))
         rows = ""
         for col_name, col_type, key_type in table['columns']:
             key_icon = ''
@@ -200,10 +216,10 @@ def create_erd(title: str, filename: str, tables: list = None):
                 key_icon = '🔑 '
             elif key_type == 'FK':
                 key_icon = '🔗 '
-            rows += f'<TR><TD ALIGN="LEFT">{key_icon}{col_name}</TD><TD ALIGN="LEFT"><FONT COLOR="gray">{col_type}</FONT></TD></TR>'
+            rows += f'<TR><TD ALIGN="LEFT">{key_icon}{escape(col_name)}</TD><TD ALIGN="LEFT"><FONT COLOR="gray">{escape(col_type)}</FONT></TD></TR>'
 
         return f'''<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="4">
-            <TR><TD BGCOLOR="{color}" COLSPAN="2"><FONT COLOR="white"><B>{table["name"]}</B></FONT></TD></TR>
+            <TR><TD BGCOLOR="{color}" COLSPAN="2"><FONT COLOR="white"><B>{escape(table["name"])}</B></FONT></TD></TR>
             {rows}
         </TABLE>>'''
 
@@ -211,11 +227,11 @@ def create_erd(title: str, filename: str, tables: list = None):
     for table in tables:
         dot.node(table['name'], make_table_html(table))
 
-    # Add relationships (default example)
-    if len(tables) >= 2:
-        dot.edge('Documents', 'Accounts', arrowhead='none', arrowtail='crow')
-    if len(tables) >= 3:
-        dot.edge('Documents', 'Users', arrowhead='none', arrowtail='crow')
+    table_names = {table['name'] for table in tables}
+    for source, target in relationships or []:
+        if source not in table_names or target not in table_names:
+            raise ValueError(f"Unknown ERD table in relationship: {source} -> {target}")
+        dot.edge(source, target, arrowhead='none', arrowtail='crow')
 
     render_graphviz(dot, filename)
     print(f"✅ Generated: {filename}.png + {filename}.svg")
@@ -394,20 +410,27 @@ def create_phase_timeline(title: str, filename: str, phases: list = None):
 # UI WIREFRAMES
 # ============================================================================
 
-def create_wireframe_svg(title: str, filename: str, layout: str = 'dashboard'):
+_WIREFRAME_STYLES = """
+        .title { font: bold 14px sans-serif; fill: white; }
+        .label { font: 11px sans-serif; fill: #333; }
+        .small { font: 9px sans-serif; fill: #666; }
     """
-    Create a UI wireframe as SVG.
+
+
+def create_wireframe_svg(title: str, filename: str, layout: str = 'dashboard') -> str:
     """
+    Create an SVG wireframe, plus PNG when CairoSVG is installed.
+
+    Return the PNG path after successful conversion, otherwise the SVG path
+    when CairoSVG is unavailable. Conversion errors propagate to the caller.
+    """
+    title = escape(title)
     width, height = 800, 600
 
     if layout == 'dashboard':
         svg = f'''<?xml version="1.0" encoding="UTF-8"?>
 <svg width="{width}" height="{height}" xmlns="http://www.w3.org/2000/svg">
-    <style>
-        .title {{ font: bold 14px sans-serif; fill: white; }}
-        .label {{ font: 11px sans-serif; fill: #333; }}
-        .small {{ font: 9px sans-serif; fill: #666; }}
-    </style>
+    <style>{_WIREFRAME_STYLES}</style>
 
     <rect width="{width}" height="{height}" fill="#f5f5f5"/>
     <rect x="20" y="20" width="{width-40}" height="{height-40}" fill="white" stroke="#333" stroke-width="2" rx="8"/>
@@ -482,11 +505,7 @@ def create_wireframe_svg(title: str, filename: str, layout: str = 'dashboard'):
     elif layout == 'list':
         svg = f'''<?xml version="1.0" encoding="UTF-8"?>
 <svg width="{width}" height="{height}" xmlns="http://www.w3.org/2000/svg">
-    <style>
-        .title {{ font: bold 14px sans-serif; fill: white; }}
-        .label {{ font: 11px sans-serif; fill: #333; }}
-        .small {{ font: 9px sans-serif; fill: #666; }}
-    </style>
+    <style>{_WIREFRAME_STYLES}</style>
 
     <rect width="{width}" height="{height}" fill="#f5f5f5"/>
     <rect x="20" y="20" width="{width-40}" height="{height-40}" fill="white" stroke="#333" stroke-width="2" rx="8"/>
@@ -529,11 +548,7 @@ def create_wireframe_svg(title: str, filename: str, layout: str = 'dashboard'):
     else:  # detail
         svg = f'''<?xml version="1.0" encoding="UTF-8"?>
 <svg width="{width}" height="{height}" xmlns="http://www.w3.org/2000/svg">
-    <style>
-        .title {{ font: bold 14px sans-serif; fill: white; }}
-        .label {{ font: 11px sans-serif; fill: #333; }}
-        .small {{ font: 9px sans-serif; fill: #666; }}
-    </style>
+    <style>{_WIREFRAME_STYLES}</style>
 
     <rect width="{width}" height="{height}" fill="#f5f5f5"/>
     <rect x="20" y="20" width="{width-40}" height="{height-40}" fill="white" stroke="#333" stroke-width="2" rx="8"/>
@@ -577,18 +592,20 @@ def create_wireframe_svg(title: str, filename: str, layout: str = 'dashboard'):
 </svg>'''
 
     # Save SVG
-    with open(f"{filename}.svg", 'w') as f:
-        f.write(svg)
+    svg_path = Path(f"{filename}.svg")
+    svg_path.parent.mkdir(parents=True, exist_ok=True)
+    svg_path.write_text(svg, encoding="utf-8")
 
     # Try to convert to PNG
     try:
         import cairosvg
-        cairosvg.svg2png(bytestring=svg.encode(), write_to=f"{filename}.png", scale=2)
-        print(f"✅ Generated: {filename}.png")
-        return f"{filename}.png"
     except ImportError:
         print(f"✅ Generated: {filename}.svg (install cairosvg for PNG)")
         return f"{filename}.svg"
+
+    cairosvg.svg2png(bytestring=svg.encode("utf-8"), write_to=f"{filename}.png", scale=2)
+    print(f"✅ Generated: {filename}.png + {filename}.svg")
+    return f"{filename}.png"
 
 
 # ============================================================================

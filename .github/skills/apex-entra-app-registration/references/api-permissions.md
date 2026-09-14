@@ -276,7 +276,8 @@ Example:
 
 **Debug steps:**
 
-1. Decode access token: https://jwt.ms
+1. Follow the [identity and permission boundary](auth-best-practices.md#identity-and-permission-boundary);
+   inspect only redacted token metadata locally, never upload the token.
 2. Check `scp` claim (delegated) or `roles` claim (application)
 3. Verify permission is present in token
 4. Check if permission is correct type (delegated vs application)

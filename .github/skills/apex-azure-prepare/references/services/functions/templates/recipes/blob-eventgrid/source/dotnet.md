@@ -31,10 +31,10 @@ public class ProcessBlobUpload
 
     [Function("ProcessBlobUpload")]
     public async Task Run(
-        [BlobTrigger("unprocessed-pdf/{name}", Connection = "PDFProcessorSTORAGE", Source = BlobTriggerSource.EventGrid)]
+        [BlobTrigger("%BLOB_CONTAINER_NAME%/{name}", Connection = "PDFProcessorSTORAGE", Source = BlobTriggerSource.EventGrid)]
         BlobClient sourceBlobClient,
         string name,
-        [BlobInput("processed-pdf", Connection = "PDFProcessorSTORAGE")]
+        [BlobInput("%BLOB_PROCESSED_CONTAINER_NAME%", Connection = "PDFProcessorSTORAGE")]
         BlobContainerClient processedContainer)
     {
         var properties = await sourceBlobClient.GetPropertiesAsync();

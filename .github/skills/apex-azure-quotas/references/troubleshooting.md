@@ -4,30 +4,25 @@
 
 Common errors, unsupported providers, and resolution steps for Azure quota operations.
 
+Apply [quota evidence and fallback](commands.md#quota-evidence-and-fallback)
+for all failures; this table classifies errors without defining a second procedure.
+
 ## Common Errors
 
 | **Error**             | **Cause**                                      | **Solution**                                                                                                                                                                                    |
 | --------------------- | ---------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| REST API "No Limit"   | REST API showing misleading "unlimited" values | **CRITICAL: "No Limit" ≠ unlimited!** Use CLI instead. Check [service limits docs](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits) |
-| REST API failures     | REST API unreliable and misleading             | **Always use Azure CLI** - See [commands.md](./commands.md) for complete CLI reference                                                                                                          |
+| "No Limit" / "Unlimited" | Missing numeric quota evidence | Report unknown; follow canonical fallback |
+| REST API failures | Scope, permission, throttling or coverage error | Classify diagnostics; the same provider is not a coverage bypass |
 | `ExtensionNotFound`   | Quota extension not installed                  | `az extension add --name quota`                                                                                                                                                                 |
-| `BadRequest`          | Resource provider not supported by quota API   | Use CLI (preferred) or [service limits docs](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits)                                       |
-| `MissingRegistration` | Microsoft.Quota provider not registered        | `az provider register --namespace Microsoft.Quota`                                                                                                                                              |
-| `QuotaExceeded`       | Deployment would exceed quota                  | Request increase or choose different region                                                                                                                                                     |
+| `BadRequest` | Invalid arguments/scope or unsupported resource | Validate scope first; use documented fallback only when unsupported is confirmed |
+| `MissingRegistration` | Microsoft.Quota provider not registered | Request approval before registering in the selected subscription |
+| `QuotaExceeded` | Deployment would exceed quota | Propose an approved increase or region change; neither guarantees capacity |
 | `InvalidScope`        | Incorrect scope format                         | Use pattern: `/subscriptions/<id>/providers/<namespace>/locations/<region>`                                                                                                                     |
 
 ## Unsupported Resource Providers
 
-**Known unsupported providers:**
-
-- ❌ Microsoft.DocumentDB (Cosmos DB) - Use Portal or [Cosmos DB limits docs](https://learn.microsoft.com/en-us/azure/cosmos-db/concepts-limits)
-
-**Confirmed working providers:**
-
-- ✅ Microsoft.Compute (VMs, disks, cores)
-- ✅ Microsoft.Network (VNets, IPs, load balancers)
-- ✅ Microsoft.App (Container Apps)
-- ✅ Microsoft.Storage (storage accounts)
-- ✅ Microsoft.MachineLearningServices (ML compute)
-
-> **📖 See also:** [Troubleshooting Guide](./commands.md#troubleshooting)
+Coverage is resource-, region-, subscription- and API-version-specific. Do not
+treat a static provider catalog as proof of support for every resource type.
+Use current command evidence and official service limits; for Cosmos DB consult
+[Cosmos DB limits](https://learn.microsoft.com/azure/cosmos-db/concepts-limits).
+Unavailable evidence remains unknown, not unlimited capacity.

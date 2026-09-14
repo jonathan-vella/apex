@@ -5,9 +5,9 @@ Step-by-step algorithm for composing a base HTTP template with an integration re
 > **This is the authoritative process. Follow it exactly.**
 
 > ⛔ **CRITICAL: Read [common/uami-bindings.md](common/uami-bindings.md) before any deployment.**
-> Base templates use User Assigned Managed Identity (UAMI). ALL service bindings require
-> explicit `credential` and `clientId` app settings. Failure to include these causes
-> 500/401/403 errors at runtime.
+> Base templates use User Assigned Managed Identity (UAMI). Prefix-based bindings require
+> explicit `credential` and `clientId` app settings. SQL instead uses its identity-bearing
+> connection string. Follow the selected binding's contract.
 
 ## Algorithm
 
@@ -18,7 +18,7 @@ INPUT:
   - iac:         bicep | terraform
 
 OUTPUT:
-  - Complete project directory ready for `azd up`
+  - Complete project directory Ready for Validation; no resources deployed
 ```
 
 ### Step 1: Fetch Base Template
@@ -45,10 +45,9 @@ IF integration IN [timer]:
   → Source-only recipe. Skip to Step 5.
 
 IF integration IN [mcp]:
-  → Source-only recipe with storage configuration:
-    - Set `enableQueue: true` in main.bicep (required for MCP)
-    Note: These are minimal parameter toggles, not structural changes to IaC.
-  → Then skip to Step 5.
+  → STOP: apply the MCP verification gate in recipes/mcp/README.md first.
+  → Use a verified existing MCP SDK/template, not the legacy hand-written HTTP handlers.
+  → Missing SDK, template or protocol evidence blocks this language/IaC pair; do not synthesize support.
 
 IF integration IN [durable]:
   → Full recipe with Durable Task Scheduler backend:
@@ -87,7 +86,7 @@ IF integration IN [cosmosdb, sql, servicebus, eventhubs, blob]:
 **Terraform:**
 
 1. Copy `recipes/{integration}/terraform/*.tf` → `infra/`
-2. Merge `locals.{integration}_app_settings` into function app's `app_setting` block in `main.tf`
+2. Merge `locals.{integration}_app_settings` into function app's `app_settings` argument in `main.tf`
 3. Networking is conditional (uses `count = var.vnet_enabled ? 1 : 0`)
 
 ### Step 4: Add App Settings
@@ -138,12 +137,13 @@ appSettings: {
 **Terraform:** Merge recipe locals into function app:
 
 ```hcl
-app_setting = merge(local.base_app_settings, local.cosmos_app_settings)
+app_settings = merge(local.base_app_settings, local.cosmos_app_settings)
 ```
 
 ### Step 4.5: VALIDATE App Settings (MANDATORY)
 
-**Before proceeding, verify these UAMI settings exist for EVERY service binding:**
+**Before proceeding, verify the selected binding's [composition contract](common/uami-bindings.md#composition-contract).**
+The prefix settings below apply to non-SQL identity bindings. SQL uses its single identity-bearing connection string.
 
 | Setting Pattern                                                            | Required? | Example                                             |
 | -------------------------------------------------------------------------- | --------- | --------------------------------------------------- |
@@ -153,10 +153,10 @@ app_setting = merge(local.base_app_settings, local.cosmos_app_settings)
 
 **Validation Checklist:**
 
-- [ ] Each service binding has all THREE settings (namespace/endpoint + credential + clientId)
+- [ ] Each prefix-based binding has endpoint + credential + clientId; SQL has its managed-identity connection string
 - [ ] `credential` value is exactly `'managedidentity'` (not `'ManagedIdentity'` or other)
 - [ ] `clientId` references the UAMI from base template (e.g., `apiUserAssignedIdentity.outputs.clientId`)
-- [ ] No connection strings or SAS keys are used
+- [ ] No password/key/SAS connection strings are used; preserve SQL's managed-identity connection string
 
 > ⛔ **STOP if any check fails.** The function WILL fail at runtime with 500/Unauthorized errors.
 
@@ -207,33 +207,16 @@ hooks:
       run: ./infra/scripts/add-cosmos-firewall.ps1
 ```
 
-### Step 7: Validate and Deploy
+### Step 7: Readiness Handoff
 
-**Required Environment Setup:**
-
-```bash
-azd env set AZURE_LOCATION eastus2      # Required: deployment region
-azd env set VNET_ENABLED false          # Required: VNet isolation (true/false)
-```
-
-**Deployment Strategy — Two Options:**
-
-**Option A: Single command** (fast, may fail on first deploy due to RBAC propagation)
-
-```bash
-azd up --no-prompt
-```
-
-**Option B: Two-phase** (recommended for reliability)
-
-```bash
-azd provision --no-prompt     # Create resources + RBAC assignments
-sleep 60                       # Wait for RBAC propagation (Azure AD needs 30-60s)
-azd deploy --no-prompt        # Deploy code (RBAC now active)
-```
-
-> **CRITICAL: Never enable `allowSharedKeyAccess: true`** as a workaround for 403 errors.
-> The correct solution is waiting for RBAC propagation, not disabling security.
+Preserve the approved subscription, region, network isolation and governance constraints.
+Missing or conflicting values block readiness; do not choose a region or disable networking to make a recipe work.
+Run local source/configuration checks for the selected language and IaC track, and record unavailable SDKs or tools
+as verification gaps. Do not infer runtime success from text checks or historical evaluation notes.
+Mark the generic plan `Ready for Validation` and hand off to `apex-azure-validate`.
+For APEX, return evidence to the current step owner without modifying upstream artifacts.
+Stop here. Only `apex-azure-deploy`, after validation and explicit deployment approval, may provision or deploy.
+Never enable shared-key access or relax network controls to work around authentication failures.
 
 ## Base Template Lookup
 
@@ -334,7 +317,7 @@ Some integrations require additional storage endpoints. Toggle these in `main.bi
 6. **ALWAYS keep `allowSharedKeyAccess: false`** — never enable local auth on storage
 7. **ALWAYS keep `disableLocalAuth: true`** — never enable local auth on Cosmos DB/Event Hubs/Service Bus
 8. **ALWAYS wait for RBAC propagation** — use two-phase deploy if 403 errors occur
-9. **ALWAYS include ALL THREE UAMI settings for every binding** — see [common/uami-bindings.md](common/uami-bindings.md):
+9. **Use the service-specific UAMI contract** — SQL is the single-string exception; prefix bindings use:
    - `{Connection}__fullyQualifiedNamespace` or `{Connection}__accountEndpoint`
    - `{Connection}__credential: 'managedidentity'`
    - `{Connection}__clientId: apiUserAssignedIdentity.outputs.clientId`

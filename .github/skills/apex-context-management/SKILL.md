@@ -1,5 +1,8 @@
 ---
 name: apex-context-management
+user-invocable: true
+disable-model-invocation: false
+argument-hint: "compression or audit, artifact or log path and scope"
 description: '**UTILITY SKILL** — Two-mode context-window management. RUNTIME: artifact compression (full/summarized/minimal) used by orchestrator and codegen agents. AUDIT: post-mortem analysis of Copilot debug logs (token profiling, redundancy + hand-off gap detection) used by 11-Context Optimizer. WHEN: "context optimization", "token budget", "runtime compression", "log parsing". DO NOT USE FOR: infra, IaC code, deployments.'
 compatibility: Audit mode requires Python 3.14 for log parser script
 ---
@@ -35,14 +38,17 @@ your need.
 | ------------ | ------------- | ------------------------------------------ |
 | `full`       | < 60%         | Load entire artifact — no compression      |
 | `summarized` | 60-80%        | Load key H2 sections only                  |
-| `minimal`    | > 80%         | Load decision summaries only (< 500 chars) |
+| `minimal`    | > 80%         | Load compact decisions; retain required safety evidence losslessly |
 
 ### Hard Token Checkpoints
 
 Percentages are advisory; absolute input-token counts override them.
 GPT-5.6-Terra and Luna hard-checkpoints at ≥300K input; Claude Opus 5 at ≥160K. When
-hit, emit a compaction message and switch every further read to the
-`minimal` tier. Full per-model table, checkpoint procedure (4 steps), and
+hit, emit a compaction message and prefer the `minimal` artifact tier.
+Required missing guidance and safety evidence must still be recovered.
+These are repository trip-wires, not verified model API limits; use the
+active harness limit when known and do not infer it from a model name.
+Full per-model table, checkpoint procedure, and
 background context (nordic-foods saturation event) in
 [`references/hard-checkpoints.md`](references/hard-checkpoints.md).
 
@@ -58,19 +64,20 @@ background context (nordic-foods saturation event) in
 
 ```text
 1. Estimate current context usage (rough: 1 token ≈ 4 chars)
-2. Check model limit (Claude family: 200K, GPT-5 family: 400K)
+2. Check the active harness model limit; if unavailable, report it as unknown
 3. Calculate usage percentage and check hard-checkpoint table
 4. Select tier:
    < 60%  → full (no compression needed)
    60-80% → summarized (key sections only)
    > 80%  → minimal (decision summaries only)
-5. Load artifact/skill using the appropriate variant
+5. Load the artifact tier; skills remain single-tier and safety inputs remain complete
 ```
 
 ### Skill Loading
 
 Skills are single-tier — one file per skill, no digest / minimal variants.
-Load each `SKILL.md` only once per session; defer `references/*.md` until
+Reuse each `SKILL.md` while unchanged and available in context; reload missing
+required guidance after compaction, edits, or a new chat. Defer `references/*.md` until
 the SKILL.md body explicitly points to one. Full protocol in
 [`references/skill-loading.md`](references/skill-loading.md).
 
@@ -124,10 +131,10 @@ Operational procedures (load only the requested one):
 - [Debug-log export](references/debug-log-export.md), with manual Host entrypoint
   [apex-host-debug-log-export](../apex-host-debug-log-export/SKILL.md).
 - [Context audit](references/context-audit.md).
-- [Agent fleet assessment](references/assess-agents.md).
-- [.github assessment](references/assess-github-folder.md).
-- [Assessment design history](references/plan-four-layer-agent-assessment.md),
-  reference-only, not an execution instruction.
+
+For definition scorecards, static authoring-asset assessments, and their design history,
+use [`apex-agent-authoring`](../apex-agent-authoring/SKILL.md). This skill owns
+log capture, context audit, and runtime compression, not authoring assessment procedures.
 
 Load on demand:
 

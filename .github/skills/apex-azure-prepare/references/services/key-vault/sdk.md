@@ -11,7 +11,7 @@ const { DefaultAzureCredential } = require("@azure/identity");
 const client = new SecretClient(process.env.KEY_VAULT_URL, new DefaultAzureCredential());
 
 const secret = await client.getSecret("database-connection-string");
-console.log(secret.value);
+if (!secret.value) throw new Error("Required database secret is unavailable");
 ```
 
 ## Python
@@ -19,6 +19,7 @@ console.log(secret.value);
 > **Auth:** `DefaultAzureCredential` is for local development. See [auth-best-practices.md](../../../../apex-entra-app-registration/references/auth-best-practices.md) for production patterns.
 
 ```python
+import os
 from azure.keyvault.secrets import SecretClient
 from azure.identity import DefaultAzureCredential
 
@@ -28,7 +29,8 @@ client = SecretClient(
 )
 
 secret = client.get_secret("database-connection-string")
-print(secret.value)
+if not secret.value:
+  raise RuntimeError("Required database secret is unavailable")
 ```
 
 ## .NET
@@ -42,8 +44,12 @@ var client = new SecretClient(
 );
 
 KeyVaultSecret secret = await client.GetSecretAsync("database-connection-string");
-Console.WriteLine(secret.Value);
+if (string.IsNullOrWhiteSpace(secret.Value))
+  throw new InvalidOperationException("Required database secret is unavailable");
 ```
+
+Pass the value directly to the consuming client in memory. Never print it, include it in errors,
+or place it in a plan, transcript or output artifact. Metadata audits must list metadata, not fetch values.
 
 ## Event Grid Integration (Expiry Notifications)
 

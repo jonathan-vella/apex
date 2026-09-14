@@ -22,7 +22,8 @@ the discovery-signature persistence contract.
   of `agent-output/{project}/04-governance-constraints.json` (L0
   attestation). Do NOT hand-author this object. `discover.py` computes
   it deterministically (signature = `sha256` over stable-sorted
-  `(policy_id, effect, scope, params)` tuples). Every downstream
+  policy/effect/scope/parameter tuples with assignment/member identity
+  and a full-tuple tie-breaker). Every downstream
   consumer (Planner, CodeGen, Deploy) reads it first.
 
 ## Exit codes ↔ status
@@ -30,9 +31,26 @@ the discovery-signature persistence contract.
 | Exit | Status     | Action                                                                                  |
 | ---- | ---------- | --------------------------------------------------------------------------------------- |
 | 0    | `COMPLETE` | Proceed to Phase 2 (envelope self-check passed inside `discover.py`).                   |
-| 1    | `PARTIAL`  | Present partial state to the user; ask whether to continue. Also emitted when the end-of-discovery self-check (re-fetch page 1 of `policyAssignments`) detected a count drift — see `discover.py` stderr for the drifted surface. |
+| 1    | `PARTIAL`  | Present partial state to the user; ask whether to continue. Also emitted for unresolved definitions/effects or all-page assignment inventory drift; see stderr for the affected surface. |
 | 2    | `FAILED`   | STOP and surface the error (typically `az login` needed).                               |
 | 3    | bad args   | STOP and surface the error.                                                             |
+
+## Cache Identity
+
+Cache reuse requires a fresh, complete envelope with the requested project,
+resolved subscription ID, and exact `discovery_options.include_defender_auto`
+value. An explicit subscription can be checked without Azure calls; `default`
+must first resolve the current subscription rather than trust the cached ID.
+Legacy envelopes without collection options require discovery. `--refresh`
+always bypasses reuse, and an expired applied exemption invalidates the cache.
+
+`--arch` affects rendering, not policy collection. When supplied on a cache hit,
+the preview is regenerated from that input without refreshing the discovery
+timestamp. `--verbose` changes logging only and is not a collection option.
+
+Cached-baseline rendering requires an original timezone-aware discovery
+timestamp. A `discovery-provenance` error means the original age is unknown or
+invalid, not that the file's modification time can be used as a substitute.
 
 ## Bash history-expansion fix
 

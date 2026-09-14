@@ -1,5 +1,8 @@
 ---
 name: apex-azure-cost-optimization
+user-invocable: true
+disable-model-invocation: false
+argument-hint: "subscription scope and analysis period"
 description: '**ANALYSIS SKILL** — Identify cost savings across Azure subscriptions via cost + utilization analysis. WHEN: "optimize Azure costs", "reduce Azure spending", "find cost savings", "rightsize VMs", "find orphaned resources", "optimize Redis costs". DO NOT USE FOR: deploying (apex-azure-deploy), general diagnostics (apex-azure-diagnostics), security issues (apex-azure-compliance).'
 license: MIT
 metadata:
@@ -49,9 +52,10 @@ High-level step list (full procedure in
 |   3 | Discover resources cross-subscription via Azure Resource Graph                                 | [`azure-resource-graph.md`](./references/azure-resource-graph.md)       |
 | 4–9 | Cost queries, pricing validation, metrics, report, audit trail, cleanup                        | [`detailed-workflow-steps.md`](./references/detailed-workflow-steps.md) |
 
-> **Branching rule**: when the user mentions Redis, Azure Cache for Redis, or Azure Managed
-> Redis, follow the Redis-specific path (Steps 1.5 → 1.6 → Redis-only analysis) instead of
-> the general subscription workflow.
+> **Branching rule**: use Redis-only analysis only for an explicitly Redis-only request.
+> Mixed-service or subscription-wide requests retain the general workflow and add
+> Redis analysis for those resources. An ambiguous Redis mention never narrows scope;
+> clarify intent while preserving all requested services.
 
 ## Output
 

@@ -18,7 +18,7 @@ HTTP Base Template (per language, from AZD gallery)
        ├── IaC delta (new resource + RBAC + networking modules)
        └── App settings delta
        │
-       = Complete deployable project → `azd up`
+       = Complete project Ready for Validation; preparation stops here
 ```
 
 ## Common Patterns
@@ -40,7 +40,7 @@ All recipes should use these shared patterns:
 | [servicebus](servicebus/README.md)         | ✅ SB namespace + queue + RBAC + PE                | ✅ ServiceBusTrigger                | ✅ Available |
 | [timer](timer/README.md)                   | ❌ None                                            | ✅ TimerTrigger + cron              | ✅ Available |
 | [durable](durable/README.md)               | ⚠️ Storage flags (enableQueue/Table)               | ✅ Orchestrator + Activity + Client | ✅ Available |
-| [mcp](mcp/README.md)                       | ⚠️ Storage flag (enableQueue)                      | ✅ MCP JSON-RPC tools               | ✅ Available |
+| [mcp](mcp/README.md) | Verify SDK/template storage contract | Legacy sample tools retained | UNVERIFIED: STOP at protocol gate |
 | [sql](sql/README.md)                       | ✅ SQL server + DB + firewall + identity           | ✅ SqlTrigger                       | ✅ Available |
 | [blob-eventgrid](blob-eventgrid/README.md) | ✅ EventGrid subscription + system topic           | ✅ BlobTrigger (EG)                 | ✅ Available |
 
@@ -57,8 +57,7 @@ All recipes should use these shared patterns:
 # Java:       azd init -t azure-functions-java-flex-consumption-azd
 # PowerShell: azd init -t functions-quickstart-powershell-azd
 
-# Terraform base (append -tf)
-# Same names as above with -tf suffix
+# Terraform base selection requires the composition lookup; do not invent -tf template names.
 ```
 
 ### Step 2: Apply Recipe
@@ -76,25 +75,11 @@ The skill reads the recipe's README.md for:
 **Bicep:** Add `module` reference in `main.bicep`, pass `functionAppPrincipalId`
 **Terraform:** Copy `.tf` file into `infra/`, merge `locals.cosmos_app_settings` into function app
 
-### Step 4: Deploy
+### Step 4: Readiness Handoff
 
-**Set required environment variables:**
-
-```bash
-azd env set AZURE_LOCATION eastus2
-azd env set VNET_ENABLED false
-```
-
-**Deploy (two-phase recommended for reliability):**
-
-```bash
-azd provision --no-prompt     # Create resources + RBAC
-sleep 60                       # Wait for RBAC propagation
-azd deploy --no-prompt        # Deploy code
-```
-
-> **Note:** If `azd up` fails with 403 storage errors, RBAC hasn't propagated yet.
-> Never enable `allowSharedKeyAccess` — just wait and retry.
+Follow [composition readiness](composition.md#step-7-readiness-handoff). Preserve approved region/networking;
+do not provision, deploy or change security settings here. Record unavailable SDK/runtime checks as gaps.
+MCP requires the separate protocol gate. Deployment requires validation and explicit deployment approval.
 
 ## Design Principles
 
@@ -109,19 +94,5 @@ azd deploy --no-prompt        # Deploy code
 
 ## Base Templates
 
-| Language   | Bicep Template                              | Terraform Template                      |
-| ---------- | ------------------------------------------- | --------------------------------------- |
-| C# (.NET)  | `functions-quickstart-dotnet-azd`           | `functions-quickstart-dotnet-azd-tf`    |
-| TypeScript | `functions-quickstart-typescript-azd`       | `functions-quickstart-dotnet-azd-tf` \* |
-| JavaScript | `functions-quickstart-javascript-azd`       | `functions-quickstart-dotnet-azd-tf` \* |
-| Python     | `functions-quickstart-python-http-azd`      | `functions-quickstart-dotnet-azd-tf` \* |
-| Java       | `azure-functions-java-flex-consumption-azd` | `functions-quickstart-dotnet-azd-tf` \* |
-| PowerShell | `functions-quickstart-powershell-azd`       | `functions-quickstart-dotnet-azd-tf` \* |
-
-> \* **Terraform Note**: Only `functions-quickstart-dotnet-azd-tf` exists. For other languages:
->
-> 1. Initialize with `azd init -t functions-quickstart-dotnet-azd-tf`
-> 2. Change runtime settings in `main.tf`: `runtime = { name = "node", version = "22" }`
-> 3. Replace source code with your language's files
->
-> See [composition.md](composition.md) for the full algorithm.
+Use the single [base template lookup](composition.md#base-template-lookup) and its language/runtime adaptation rules.
+Check the chosen template version and runtime before composition; historical availability is not current verification.

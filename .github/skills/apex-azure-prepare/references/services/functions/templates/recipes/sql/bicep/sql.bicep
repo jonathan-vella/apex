@@ -47,6 +47,20 @@ param databaseName string = 'appdb'
 @description('SQL Database SKU')
 param sqlSku string = 'Basic'
 
+@description('Production environment; production SQL always requires private networking')
+param isProduction bool = true
+
+@description('Explicit non-production public access approval after governance reconciliation')
+param publicNetworkAccessApproved bool = false
+
+@description('Approved private endpoint subnet resource ID')
+param privateEndpointSubnetId string
+
+@description('Function integration VNet resource ID for private DNS')
+param virtualNetworkId string
+
+var publicAccessEnabled = !isProduction && publicNetworkAccessApproved
+
 // ============================================================================
 // Naming
 // ============================================================================
@@ -63,7 +77,7 @@ resource sqlServer 'Microsoft.Sql/servers@2023-05-01-preview' = {
   properties: {
     version: '12.0'
     minimalTlsVersion: '1.2'
-    publicNetworkAccess: 'Enabled'
+    publicNetworkAccess: publicAccessEnabled ? 'Enabled' : 'Disabled'
     administrators: {
       administratorType: 'ActiveDirectory'
       principalType: 'User'
@@ -96,7 +110,7 @@ resource sqlDatabase 'Microsoft.Sql/servers/databases@2023-05-01-preview' = {
 // ============================================================================
 // Firewall: Allow Azure Services
 // ============================================================================
-resource allowAzureServices 'Microsoft.Sql/servers/firewallRules@2023-05-01-preview' = {
+resource allowAzureServices 'Microsoft.Sql/servers/firewallRules@2023-05-01-preview' = if (publicAccessEnabled) {
   parent: sqlServer
   name: 'AllowAllAzureIps'
   properties: {
@@ -119,6 +133,49 @@ resource allowAzureServices 'Microsoft.Sql/servers/firewallRules@2023-05-01-prev
 // ============================================================================
 // Outputs
 // ============================================================================
+resource sqlPrivateDns 'Microsoft.Network/privateDnsZones@2020-06-01' = if (!publicAccessEnabled) {
+  name: 'privatelink${environment().suffixes.sqlServerHostname}'
+  location: 'global'
+  tags: tags
+}
+
+resource sqlDnsLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = if (!publicAccessEnabled) {
+  parent: sqlPrivateDns
+  name: 'sql-dns-link'
+  location: 'global'
+  properties: {
+    registrationEnabled: false
+    virtualNetwork: { id: virtualNetworkId }
+  }
+}
+
+resource sqlPrivateEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (!publicAccessEnabled) {
+  name: 'pe-${sqlServerName}'
+  location: location
+  tags: tags
+  properties: {
+    subnet: { id: privateEndpointSubnetId }
+    privateLinkServiceConnections: [{
+      name: 'sql'
+      properties: {
+        privateLinkServiceId: sqlServer.id
+        groupIds: ['sqlServer']
+      }
+    }]
+  }
+}
+
+resource sqlDnsGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2023-11-01' = if (!publicAccessEnabled) {
+  parent: sqlPrivateEndpoint
+  name: 'default'
+  properties: {
+    privateDnsZoneConfigs: [{
+      name: 'sql'
+      properties: { privateDnsZoneId: sqlPrivateDns.id }
+    }]
+  }
+}
+
 output sqlServerName string = sqlServer.name
 output sqlServerFqdn string = sqlServer.properties.fullyQualifiedDomainName
 output sqlDatabaseName string = sqlDatabase.name
@@ -128,10 +185,10 @@ output sqlServerId string = sqlServer.id
 // APP SETTINGS OUTPUT
 // ============================================================================
 @description('UAMI client ID from base template identity module - REQUIRED for UAMI auth')
-param uamiClientId string = ''
+param uamiClientId string
 
 output appSettings object = {
-  SQL_CONNECTION_STRING: 'Server=tcp:${sqlServer.properties.fullyQualifiedDomainName},1433;Database=${databaseName};Authentication=Active Directory Managed Identity;User Id=${uamiClientId};Encrypt=True;TrustServerCertificate=False;'
+  AZURE_SQL_CONNECTION_STRING_KEY: 'Server=tcp:${sqlServer.properties.fullyQualifiedDomainName},1433;Database=${databaseName};Authentication=Active Directory Managed Identity;User Id=${uamiClientId};Encrypt=True;TrustServerCertificate=False;'
   SQL_SERVER_NAME: sqlServer.name
   SQL_DATABASE_NAME: databaseName
 }

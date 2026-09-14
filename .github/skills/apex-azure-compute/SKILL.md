@@ -1,5 +1,8 @@
 ---
 name: apex-azure-compute
+user-invocable: true
+disable-model-invocation: false
+argument-hint: "workload requirements, region and budget"
 description: '**ANALYSIS SKILL** — Recommend Azure VM sizes and VMSS for workload, performance, and budget. Uses public docs and the Azure Retail Prices API. WHEN: "recommend VM size", "choose Azure VM", "GPU VM", "compare VM sizes", "VMSS vs VM", "autoscale VMs". DO NOT USE FOR: provisioning VMs (apex-azure-prepare), VM pricing for budgets (ARM MCP).'
 license: MIT
 metadata:
@@ -55,20 +58,12 @@ The full 6-step procedure (with all decision tables, dichotomy tree, and `web_fe
 | Unclear if VM or VMSS needed    | Ask about scaling and instance count; default to single VM if unsure                                                                    |
 | User asks VMSS pricing directly | Use same VM pricing API — VMSS has no extra charge; multiply by instance count                                                          |
 
-## References
+## Reference Index
+
+Load only the reference needed for the current decision; these links are the
+source catalog, not a requirement to load every file.
 
 - [Recommendation Workflow](references/recommendation-workflow.md) — Full 6-step procedure with decision tables and `web_fetch` URLs
 - [VM Family Guide](references/vm-families.md) — Family-to-workload mapping and selection
 - [Retail Prices API Guide](references/retail-prices-api.md) — Query patterns, filters, and examples
 - [VMSS Guide](references/vmss-guide.md) — When to use VMSS, orchestration modes, and autoscale patterns
-
-## Reference Index
-
-Load these on demand — do NOT read all at once:
-
-| Reference                               | When to Load                                     |
-| --------------------------------------- | ------------------------------------------------ |
-| `references/recommendation-workflow.md` | Full Steps 1–6 (decision tables, web_fetch URLs) |
-| `references/retail-prices-api.md`       | Pricing queries (Step 4)                         |
-| `references/vm-families.md`             | VM family selection (Step 3)                     |
-| `references/vmss-guide.md`              | VMSS vs VM decision (Step 2)                     |

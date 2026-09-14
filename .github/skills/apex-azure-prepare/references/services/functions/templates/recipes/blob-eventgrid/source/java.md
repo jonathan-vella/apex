@@ -36,14 +36,14 @@ public class BlobEventGridFunctions {
     public void processBlobUpload(
             @BlobTrigger(
                 name = "content",
-                path = "unprocessed-pdf/{name}",
+                path = "%BLOB_CONTAINER_NAME%/{name}",
                 connection = "PDFProcessorSTORAGE",
                 source = "EventGrid")
             byte[] content,
             @BindingName("name") String name,
             @BlobInput(
                 name = "processedContainer",
-                path = "processed-pdf",
+                path = "%BLOB_PROCESSED_CONTAINER_NAME%",
                 connection = "PDFProcessorSTORAGE")
             BlobContainerClient processedContainer,
             final ExecutionContext context) {

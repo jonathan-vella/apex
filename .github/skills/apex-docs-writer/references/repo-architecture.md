@@ -16,21 +16,17 @@ apex/  (APEX)
 ││   │   └── apex-azure-artifacts/templates/ # Artifact templates
 ││   ├── instructions/        # File-type instruction files
 ├── agent-output/{project}/  # Agent-generated artifacts (01-07)
-├── docs/                    # User-facing documentation
-│   ├── how-it-works/        # Architecture explanations
-│   ├── migration/           # Migration guides
-│   ├── prompt-guide/        # Agent & skill prompt examples
-│   └── presenter/           # Presentation materials
-├── tests/                   # Test checklists and exec plans
-│   └── exec-plans/          # Execution plans and tech debt tracker
+├── site/src/content/docs/   # Published documentation
+├── site/public/             # Explorer graph, images, and static assets
 ├── infra/bicep/             # Bicep module library
 ├── tools/
 │   ├── apex-recall/        # Progressive session recall CLI
+│   ├── apex-prompts/       # Local prompt adapters and reference material
 │   ├── registry/           # Agent registry + count manifest
 │   ├── schemas/            # JSON schemas
-│   └── scripts/            # Validation and maintenance scripts
-├── scripts/                 # Validation and automation scripts
-└── temp/                    # Scratch space (gitignored for outputs)
+│   ├── scripts/            # Validation and maintenance scripts
+│   └── tests/              # Regression tests and execution plans
+└── tmp/                    # Scratch space (gitignored for outputs)
 ```
 
 ## Agent Inventory
@@ -92,9 +88,8 @@ Each subdirectory under `.github/skills/` with a `SKILL.md` is one skill.
 
 | Skill                         | Folder                         | Category            | Triggers                                   |
 | ----------------------------- | ------------------------------ | ------------------- | ------------------------------------------ |
-| `appinsights-instrumentation` | `appinsights-instrumentation/` | Observability       | "instrument app", "App Insights"           |
+| `apex-agent-authoring` | `apex-agent-authoring/` | Authoring | "assess agents", "assess .github" |
 | `apex-azure-adr`                   | `apex-azure-adr/`                   | Document Creation   | "create ADR", "document decision"          |
-| `azure-ai`                    | `azure-ai/`                    | AI Services         | "AI Search", "speech-to-text", "OCR"       |
 | `apex-azure-artifacts`             | `apex-azure-artifacts/`             | Artifact Generation | "generate documentation"                   |
 | `apex-azure-bicep-patterns`        | `apex-azure-bicep-patterns/`        | IaC Patterns        | "bicep pattern", "hub-spoke"               |
 | `apex-azure-cloud-migrate`         | `apex-azure-cloud-migrate/`         | Migration           | "migrate to Azure", "cross-cloud"          |
@@ -124,6 +119,18 @@ Each subdirectory under `.github/skills/` with a `SKILL.md` is one skill.
 | `apex-terraform-search-import`     | `apex-terraform-search-import/`     | IaC Import          | "import resources", "terraform import"     |
 | `apex-terraform-test`              | `apex-terraform-test/`              | IaC Testing         | "terraform test", ".tftest.hcl"            |
 | `apex-workflow-engine`             | `apex-workflow-engine/`             | Workflow            | "workflow DAG", "step routing"             |
+
+This grouped index is not a routing override. Enumerate current `SKILL.md` files for
+the complete inventory, including manual Host entries. Procedure ownership:
+
+- [Doc gardening](doc-gardening.md), [peer review](plan-docs-peer-review.md), and
+    [Astro review](review-astro-docs.md) belong to docs-writer and retain their distinct modes.
+- [Agent assessment](../../apex-agent-authoring/references/assess-agents.md) and
+    [.github assessment](../../apex-agent-authoring/references/assess-github-folder.md)
+    belong to agent-authoring; assessment plans do not authorize edits.
+- [Context-management](../../apex-context-management/SKILL.md) retains runtime compression,
+    context audit, and log export. A supplied profile is evidence, not a new runtime owner.
+- [Workflow-engine](../../apex-workflow-engine/SKILL.md) retains workflow entry and recovery.
 
 ## Template Inventory
 
@@ -214,31 +221,15 @@ updating when agents or skills change:
 | `CHANGELOG.md`                                | Release history                         |
 | `README.md` (root)                            | Overview, project structure, tech stack |
 
-## docs/ Folder Contents
+## Published Source Index
 
-| File                         | Purpose                                          |
-| ---------------------------- | ------------------------------------------------ |
-| `index.md`                   | Documentation hub / landing page                 |
-| `quickstart.md`              | Getting started guide                            |
-| `workflow.md`                | Detailed multi-step workflow reference           |
-| `troubleshooting.md`         | Common issues and fixes                          |
-| `dev-containers.md`          | Dev container setup                              |
-| `faq.md`                     | Frequently asked questions                       |
-| `e2e-testing.md`             | Workflow validation and E2E retirement notice    |
-| `cost-governance.md`         | Cost governance guide                            |
-| `security-baseline.md`       | Security baseline reference                      |
-| `session-debugging.md`       | Session debugging guide                          |
-| `hooks.md`                   | Git hooks documentation                          |
-| `validation-reference.md`    | Validation and linting reference                 |
-| `GLOSSARY.md`                | Terms and definitions                            |
-| `CHANGELOG.md`               | Documentation changelog                          |
-| `CONTRIBUTING.md`            | Contribution guidelines                          |
-| `architecture-explorer.html` | Interactive architecture explorer                |
-| `assets/`                    | Static assets (images, etc.)                     |
-| `how-it-works/`              | Architecture explanations                        |
-| `migration/`                 | Migration guides                                 |
-| `prompt-guide/`              | Agent & skill prompt examples and best practices |
-| `presenter/`                 | Presentation materials                           |
+Use [the site sidebar](../../../../site/astro.config.mjs) for navigation and
+walk [the content directory](../../../../site/src/content/docs/) for source files.
+The [prompt reference](../../../../site/src/content/docs/reference/prompts/repository-prompts.md)
+distinguishes Local adapters from manual Host entries. The
+[Explorer source](../../../../tools/scripts/generate-explorer-graph.mjs) emits source
+invocation flags and declared context, with explicit defaults for skills. Its metadata
+does not establish runtime discovery, model eligibility, or instruction attachment.
 
 ## Skill Discovery & Auto-Invocation
 
@@ -264,11 +255,14 @@ These skills are explicitly referenced in agent body text via mandatory
 
 ### General-Purpose Skills
 
-Discovered purely by prompt keyword matching — no agent explicitly
-references them:
+Descriptions support discovery subject to invocation flags. `user-invocable` defaults
+to `true`, and `disable-model-invocation` defaults to `false`. Manual Host entries set
+the latter to `true`; select their required owner before invoking them.
 
-- `apex-docs-writer` — Triggered by "update docs", "check staleness" prompts
-- `sensei` — Triggered by "run sensei", "improve skill", "fix frontmatter" prompts
+- `apex-docs-writer`: documentation maintenance, gardening, and reviews.
+- `apex-agent-authoring`: agent authoring and gated authoring-asset assessments.
+- `apex-host-workflow-start`: explicit start or `resume` operation; recovery is not a separate skill.
+- `apex-host-git-commit` and `apex-host-debug-log-export`: separate manual operational entries.
 
 ### Instruction Files (Separate Mechanism)
 

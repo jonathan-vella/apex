@@ -133,8 +133,17 @@ function asArray(v) {
 
 // ---------- Node collectors ----------
 
-function collectAgents() {
-  const dir = join(REPO_ROOT, ".github/agents");
+function invocationMetadata(frontmatter) {
+  return {
+    invocable: frontmatter["user-invocable"] ?? true,
+    disableModelInvocation: frontmatter["disable-model-invocation"] ?? false,
+    argumentHint: frontmatter["argument-hint"] ?? null,
+    context: frontmatter.context ?? null,
+  };
+}
+
+export function collectAgents(root = REPO_ROOT) {
+  const dir = join(root, ".github/agents");
   const files = listFiles(dir, (f) => f.endsWith(".agent.md"));
   return files.map((path) => {
     const content = readFileSync(path, "utf8");
@@ -145,13 +154,13 @@ function collectAgents() {
       category: "agent",
       label: name,
       description: fm.description || "",
-      path: relative(REPO_ROOT, path),
+      path: relative(root, path),
       links: {
-        source: GITHUB_BASE + relative(REPO_ROOT, path),
+        source: GITHUB_BASE + relative(root, path),
       },
       meta: {
         model: asArray(fm.model)[0] || null,
-        invocable: fm["user-invocable"] !== "false",
+        ...invocationMetadata(fm),
         subagents: asArray(fm.agents),
         handoffTargets: extractHandoffAgents(content),
         skills: extractSkillReferences(content),
@@ -160,8 +169,8 @@ function collectAgents() {
   });
 }
 
-function collectSubagents() {
-  const dir = join(REPO_ROOT, ".github/agents/_subagents");
+export function collectSubagents(root = REPO_ROOT) {
+  const dir = join(root, ".github/agents/_subagents");
   const files = listFiles(dir, (f) => f.endsWith(".agent.md"));
   return files.map((path) => {
     const content = readFileSync(path, "utf8");
@@ -172,15 +181,19 @@ function collectSubagents() {
       category: "subagent",
       label: name,
       description: fm.description || "",
-      path: relative(REPO_ROOT, path),
-      links: { source: GITHUB_BASE + relative(REPO_ROOT, path) },
-      meta: { model: asArray(fm.model)[0] || null, skills: extractSkillReferences(content) },
+      path: relative(root, path),
+      links: { source: GITHUB_BASE + relative(root, path) },
+      meta: {
+        model: asArray(fm.model)[0] || null,
+        ...invocationMetadata(fm),
+        skills: extractSkillReferences(content),
+      },
     };
   });
 }
 
-function collectSkills() {
-  const skillsDir = join(REPO_ROOT, ".github/skills");
+export function collectSkills(root = REPO_ROOT) {
+  const skillsDir = join(root, ".github/skills");
   let dirs;
   try {
     dirs = readdirSync(skillsDir).filter((d) => statSync(join(skillsDir, d)).isDirectory());
@@ -198,9 +211,9 @@ function collectSkills() {
           category: "skill",
           label: fm.name || d,
           description: fm.description || "",
-          path: relative(REPO_ROOT, skillPath),
-          links: { source: GITHUB_BASE + relative(REPO_ROOT, skillPath) },
-          meta: {},
+          path: relative(root, skillPath),
+          links: { source: GITHUB_BASE + relative(root, skillPath) },
+          meta: invocationMetadata(fm),
         };
       } catch {
         return null;

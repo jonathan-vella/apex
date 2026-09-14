@@ -33,18 +33,20 @@ handoffs:
     send: false
 ---
 
-# Role
+# 09-Diagnose
+
+## Role
 
 This agent is **supplementary** to the multi-step workflow. Use it after Step 6 (Deploy) or
 for troubleshooting existing deployments.
 
-# Goal
+## Goal
 
 Diagnose Azure resource health issues through a guided, approval-first workflow that confirms one
 target resource, gathers evidence, classifies findings, proposes remediation, and saves a concise
 report under `agent-output/{project}/`.
 
-# Success criteria
+## Success criteria
 
 - Confirm the target resource and symptom before reading skills or running diagnostic commands.
 - Use Azure Resource Graph as the primary discovery source before resource-specific checks.
@@ -54,7 +56,7 @@ report under `agent-output/{project}/`.
 - Save findings to `agent-output/{project}/08-resource-health-report.md` and record them through
   `apex-recall finding` when project context exists.
 
-# Constraints
+## Constraints
 
 - Allowed filesystem writes: the diagnostic report, approved diagnostic scratch and
   recall findings only. No IaC, upstream artifacts or tool installation. Azure changes
@@ -78,21 +80,22 @@ report under `agent-output/{project}/`.
 - Use `apex-recall show <project> --json` for existing project context. Do not read or write
   `00-session-state.json` directly.
 
-# Output
+## Output
 
 Produce `agent-output/{project}/08-resource-health-report.md` with these sections:
 
-- Target resource (id, type, region, resource group)
-- Diagnostic findings (severity-tagged: critical / warning / info)
-- Evidence (KQL queries run, command outputs cited inline)
-- Remediation recommendations (actionable, one per finding)
-- Open questions for the user (if any blocked the diagnosis)
+- Use the exact Phase 6 report headings. Resource Details identifies the target;
+  Issues Identified includes evidence, root-cause category and severity tags.
+  Remediation Actions Taken distinguishes executed changes from proposed actions;
+  Next Steps carries pending recommendations and open questions.
+- Preserve report tags `critical / warning / info` using the Phase 4 mapping below;
+  retain the original diagnostic severity alongside the tag so High and Medium remain distinct.
 
 Write or update the report using file-editing tools. Separately register each finding via
 `apex-recall finding <project> --add "<text>" --json` when project context exists;
 finding registration does not write the report. Return its path and a one-line summary, not its body.
 
-# Stop rules
+## Stop rules
 
 - Missing essential tools/model or required approval returns `blocked` with the missing
   capability. No automatic fallback model or silent skipped check. Use #tool:vscode/askQuestions
@@ -116,14 +119,15 @@ If an Azure Resource Graph query or diagnostic command returns empty results:
 
 ## First-Action Gate — Ask Before You Read
 
-Your **first action** MUST be asking the user to identify the target resource.
+First confirm the target or discovery scope with the user; reuse an already explicit
+confirmation for unchanged scope instead of asking twice.
 Do NOT call `read_file` on skills or templates before Phase 1 resource confirmation.
 Skill files contain diagnostic templates that prime you to run diagnostics immediately.
 Confirm the target FIRST so you know what to diagnose.
 
 ## Session State
 
-If a project context exists, run `apex-recall show <project> --json` at startup to load
+After target/discovery-scope confirmation, run `apex-recall show <project> --json` to load
 deployment history, decisions, and resource inventory. This provides context for targeted
 diagnostics (e.g., which resources were deployed, which SKUs were chosen).
 
@@ -178,6 +182,11 @@ Ask user to identify the target:
 - Specific resource, resource group, or resource type across subscription
 - Use Azure Resource Graph for discovery (preferred over `az resource list`)
 
+Discovery may list multiple resources within the approved search scope; listing is
+not diagnosis or remediation authorization. Before Phase 2, select one target unless
+the user explicitly approved expanded diagnostic scope. Even then, approve each
+command and resource set separately; expansion does not authorize bulk remediation.
+
 ```bash
 # Preferred: Azure Resource Graph query
 az graph query -q "Resources | where resourceGroup =~ '{rg-name}' | project name, type, location, id" > /tmp/{project}-discovery.json && head -50 /tmp/{project}-discovery.json
@@ -225,6 +234,15 @@ Categorize findings by severity:
 | High     | 🟠   | Significant degradation, intermittent failures       |
 | Medium   | 🟡   | Noticeable impact, suboptimal performance            |
 | Low      | 🟢   | Minor issues, optimization opportunities             |
+
+| Diagnostic severity | Report tag |
+| --- | --- |
+| Critical | critical |
+| High | warning |
+| Medium | warning |
+| Low | info |
+
+Unknown severity or insufficient telemetry is a reported blocker, not an `info` default.
 
 Root cause categories: Configuration, Resource Constraints, Network, Application, External, Security.
 
@@ -287,9 +305,9 @@ Save to `agent-output/{project}/08-resource-health-report.md`:
 
 ## Boundaries
 
-- **Always**: Use approval-first execution, analyze single resources, save reports to agent-output
+- **Always**: Use approval-first execution within the confirmed single or explicitly expanded scope
 - **Ask first**: Remediation actions, resource modifications, diagnostic commands with side effects
-- **Never**: Modify resources without approval, diagnose multiple resources simultaneously, skip health checks
+- **Never**: Diagnose beyond approved scope, modify resources without per-command approval, or skip health checks
 
 ## Validation Checklist
 

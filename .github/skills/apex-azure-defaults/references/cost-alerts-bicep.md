@@ -8,6 +8,11 @@ Loaded on-demand by 06b-Bicep CodeGen at Wave 4. See
 > Module version numbers are placeholders (`<latest-stable>`) — resolve
 > at plan time via MCR lookup; never hardcode from this file.
 
+The snippets are illustrative until exact module/API metadata is verified.
+Do not assume the pattern-module path below exists; if it cannot be verified,
+retain an explicit version-validation blocker or obtain the documented raw
+resource exception. Subscription-scope writes require explicit authorization.
+
 ## 1. Budget — RG scope (AVM preferred)
 
 ```bicep
@@ -131,8 +136,10 @@ subscription deployment.
    scheduled action") — even though it builds, lints, and passes
    what-if. Microsoft's anomaly-alert guidance uses the
    `ms:DailyAnomalyByResourceGroup` view with a `/scope/providers/...`
-   prefix. Verified-working value (deployed + confirmed `status: Enabled`):
+  prefix. Historical working example (not reverified by this offline remediation):
    - `${subscription().id}/providers/Microsoft.CostManagement/views/ms:DailyAnomalyByResourceGroup`
+  `ByResourceGroup` is a grouping name, not an RG scope. Compare full Azure
+  resource IDs, including subscription, and validate support for the chosen API.
 4. **`schedule.endDate` must be a near-future UTC datetime.** The
    provider rejects `endDate` values more than ~1 year after
    `startDate` and rejects non-midnight times for `InsightAlert`
@@ -160,7 +167,7 @@ param utcNowDate string = utcNow('yyyy-MM-dd')
 var anomalyStartDate = '${utcNowDate}T00:00:00Z'
 var anomalyEndDate   = '${dateTimeAdd(utcNowDate, 'P1Y', 'yyyy-MM-dd')}T00:00:00Z'
 
-// API minimum 2022-10-01; 2024-08-01 is current GA (see baseline reference).
+// Verify the approved API version; this example does not attest current GA support.
 resource anomaly 'Microsoft.CostManagement/scheduledActions@2024-08-01' = {
   name: 'anomaly-${project}'                            // unique per subscription
   kind: 'InsightAlert'                                  // subscription scope only

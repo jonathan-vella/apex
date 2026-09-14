@@ -17,8 +17,25 @@
 # ============================================================================
 variable "vnet_enabled" {
   type        = bool
-  default     = false
+  default     = true
   description = "Enable VNet integration and private endpoints"
+}
+
+variable "is_production" {
+  type        = bool
+  default     = true
+  description = "Production SQL always requires private networking"
+}
+
+variable "sql_public_network_access_approved" {
+  type        = bool
+  default     = false
+  description = "Explicit non-production public access approval after governance reconciliation"
+}
+
+variable "uami_client_id" {
+  type        = string
+  description = "Function user-assigned managed identity client ID"
 }
 
 variable "environment_name" {
@@ -70,7 +87,14 @@ resource "azurerm_mssql_server" "main" {
   location                      = azurerm_resource_group.main.location
   version                       = "12.0"
   minimum_tls_version           = "1.2"
-  public_network_access_enabled = true
+  public_network_access_enabled = !var.is_production && var.sql_public_network_access_approved
+
+  lifecycle {
+    precondition {
+      condition     = var.vnet_enabled || (!var.is_production && var.sql_public_network_access_approved)
+      error_message = "Private SQL requires approved VNet integration, private endpoint and DNS."
+    }
+  }
 
   azuread_administrator {
     login_username              = var.sql_admin_login
@@ -99,6 +123,7 @@ resource "azurerm_mssql_database" "main" {
 # Firewall: Allow Azure Services
 # ============================================================================
 resource "azurerm_mssql_firewall_rule" "allow_azure" {
+  count            = !var.is_production && var.sql_public_network_access_approved ? 1 : 0
   name             = "AllowAllAzureIps"
   server_id        = azurerm_mssql_server.main.id
   start_ip_address = "0.0.0.0"
@@ -161,9 +186,9 @@ resource "azurerm_private_endpoint" "sql" {
 # ============================================================================
 locals {
   sql_app_settings = {
-    "SQL_CONNECTION_STRING" = "Server=tcp:${azurerm_mssql_server.main.fully_qualified_domain_name},1433;Database=${var.sql_database_name};Authentication=Active Directory Managed Identity;Encrypt=True;TrustServerCertificate=False;"
-    "SQL_SERVER_NAME"       = azurerm_mssql_server.main.name
-    "SQL_DATABASE_NAME"     = var.sql_database_name
+    "AZURE_SQL_CONNECTION_STRING_KEY" = "Server=tcp:${azurerm_mssql_server.main.fully_qualified_domain_name},1433;Database=${var.sql_database_name};Authentication=Active Directory Managed Identity;User Id=${var.uami_client_id};Encrypt=True;TrustServerCertificate=False;"
+    "SQL_SERVER_NAME"                 = azurerm_mssql_server.main.name
+    "SQL_DATABASE_NAME"               = var.sql_database_name
   }
 }
 

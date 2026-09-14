@@ -72,11 +72,10 @@ Ensure the secret being sent in the request is the client secret value, not the 
    ```bash
    az ad app credential list --id $APP_ID
    ```
-2. **Create new secret:**
-   ```bash
-   az ad app credential reset --id $APP_ID --years 1
-   ```
-   Copy the `password` value (not the `keyId`)
+2. **Rotate additively after approval:** Follow the canonical
+   [client credential procedure](cli-commands.md#client-credentials-secrets--certificates).
+   Preserve old credentials until the intended client succeeds; transfer the new
+   value privately, never through chat, tool output or diagnostic logs.
 
 ### User Consent Required
 
@@ -191,25 +190,24 @@ This can happen if the client you are using isn't compatible with Entra. Consult
 
 ## Token Issues
 
-Unless the the access token is encrypted, you can decode and view its claims securely at https://jwt.ms. **Don't** use any other website to decode an access token. Compare the claims in the token with the app registration's configuration to identify issues.
+Follow the [identity and permission boundary](auth-best-practices.md#identity-and-permission-boundary).
+Inspect necessary redacted claims locally; never upload live tokens to a decoder
+or expose tokens, client secrets or authorization headers through chat or logs.
 
 ## Debugging Tools
 
 ### JWT Token Decoder
 
-**Tool:** https://jwt.ms
+Use a trusted local diagnostic in the application's private runtime, not an
+external decoding site. Decoding alone does not validate a token's signature.
+Review only redacted metadata:
 
-**How to use:**
-
-1. Copy your access token
-2. Paste into jwt.ms
-3. Review claims:
-   - `aud` - Audience (should match your API)
-   - `iss` - Issuer (should be login.microsoftonline.com)
-   - `scp` - Delegated permissions
-   - `roles` - Application permissions
-   - `exp` - Expiration timestamp
-   - `oid` - User object ID
+- `aud` - Audience (should match your API)
+- `iss` - Issuer (should be login.microsoftonline.com)
+- `scp` - Delegated permissions
+- `roles` - Application permissions
+- `exp` - Expiration timestamp
+- `oid` - User object ID
 
 ---
 
@@ -271,10 +269,10 @@ Unless the the access token is encrypted, you can decode and view its claims sec
    - Secrets/certificates valid
 
 3. **Use debugging tools:**
-   - Decode tokens (jwt.ms)
+   - Inspect redacted token metadata locally under the canonical auth boundary
    - Check sign-in logs
-   - Enable MSAL logging
-   - Use network inspector
+   - Enable MSAL logging only with PII/secret logging disabled
+   - Use a private network inspector; never export authorization headers or credentials
 
 4. **Test incrementally:**
    - Test with minimal permissions

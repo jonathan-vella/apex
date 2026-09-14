@@ -16,8 +16,8 @@ argument-hint: "Optional: scope path under site/src/content/docs/ (e.g., 'gettin
 # Review Astro Docs (Deep)
 
 Local operational adapter. Preserve this prompt's agent, model, and tool routing.
-Read [apex-workflow-engine](../../../.github/skills/apex-workflow-engine/SKILL.md), then
-follow the [canonical procedure](../../../.github/skills/apex-workflow-engine/references/review-astro-docs.md).
+Read [apex-docs-writer](../../../.github/skills/apex-docs-writer/SKILL.md), then
+follow the [canonical procedure](../../../.github/skills/apex-docs-writer/references/review-astro-docs.md).
 
 Pass supplied inputs, scope, and options unchanged. Preserve the procedure's
 required inputs, activities, output paths, approval gates, and bounded failures.

@@ -1,5 +1,8 @@
 ---
 name: apex-microsoft-docs
+user-invocable: true
+disable-model-invocation: false
+argument-hint: "query or documentation URL"
 description: '**ANALYSIS SKILL** — Query official Microsoft documentation to understand concepts, find tutorials, and learn how services work. WHEN: "Microsoft Learn", "Azure docs", "quickstart guide", "limits and quotas", "WAF reference", "architecture pattern docs". DO NOT USE FOR: Azure pricing; route pricing through the cost-estimate subagent.'
 compatibility: Works through the Azure MCP `documentation` namespace (`mcp_azure-mcp_documentation`), which proxies the Microsoft Learn MCP backend at `https://learn.microsoft.com/api/mcp`. Can also use the `mslearn` CLI as a fallback.
 license: MIT

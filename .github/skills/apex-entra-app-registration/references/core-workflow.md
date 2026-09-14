@@ -52,18 +52,10 @@ Grant your application permission to access Microsoft APIs or your own APIs.
 For confidential client applications (web apps, services), create a client secret,
 certificate, or federated identity credential.
 
-**Client Secret:**
-
-- Navigate to "Certificates & secrets"
-- Create new client secret
-- Copy the value immediately (only shown once)
-- Store securely (Key Vault recommended)
-
-**Certificate:** For production environments, use certificates instead of secrets for
-enhanced security. Upload certificate via "Certificates & secrets" section.
-
-**Federated Identity Credential:** For dynamically authenticating the confidential client
-to the Entra platform.
+Use the [canonical authentication and permission boundary](auth-best-practices.md#identity-and-permission-boundary)
+and [additive credential procedure](cli-commands.md#client-credentials-secrets--certificates).
+Prefer certificates or federated identity where supported. Require explicit creation
+approval, private secret handoff and consumer validation before retiring old credentials.
 
 ## Step 5: Implement OAuth Flow
 

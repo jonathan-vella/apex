@@ -52,8 +52,8 @@ Expectations.
 - Always show the full Tier 1/2/3 file classification to the user and wait
   for approval before running `git rm`.
 - Always require user approval before `git push` and before `gh pr create`.
-  Other reversible actions (branch creation, `git checkout origin/{target} -- <file>`)
-  may proceed without prompting.
+  Branch creation may proceed within the approved scope. Exclusion approval
+  authorizes only the classified entries or hunks, never whole-file restoration.
 - Sensei coupling is detected dynamically by path patterns AND content scan
   for the literal string `sensei` (case-insensitive). Do not rely on a
   static exclusion list.
@@ -82,9 +82,10 @@ The discovery step (Workflow §3) classifies every changed path into one tier:
 | Tier 3 | Skill content + unrelated features (SKILL.md edits,    | **Include** |
 |        | archive renames, MCP code, agent refinements)          |             |
 
-A file is **Tier 1** if its path contains `sensei` OR it is the sensei
-submodule pointer / `.gitmodules` / sensei npm script entries / sensei
-devcontainer bootstrap lines.
+A dedicated Sensei file is **Tier 1**. For mixed-purpose files, classify entries
+or hunks: only the Sensei submodule section in `.gitmodules`, Sensei npm scripts,
+and Sensei devcontainer bootstrap lines are Tier 1. Preserve other submodules,
+scripts, bootstrap changes, ignore rules and unrelated user hunks in those files.
 
 A file is **Tier 2** if it does not match Tier 1 but its diff against
 `origin/${input:targetBranch}` contains the literal string `sensei`
@@ -136,7 +137,7 @@ Also check:
 - `package.json` for `audit:skills*` or any script entry whose value
   contains `sensei` → Tier 1 (the lines, not the file).
 - `.devcontainer/post-create.sh` for sensei bootstrap blocks → Tier 1
-  (revert to `origin/${input:targetBranch}` version).
+  (remove only the approved blocks; preserve unrelated source-branch changes).
 - `.gitignore` for negations of paths under `_audits/` → Tier 2.
 
 ### 4. Present the classification and ask for approval
@@ -157,27 +158,19 @@ ambiguous entries.
 
 Sequence matters; follow this order:
 
-1. Restore Tier 1 modified files to their `origin/${input:targetBranch}` state:
-   ```bash
-   git checkout origin/${input:targetBranch} -- <file>
-   ```
-   Targets typically include `package.json`, `.devcontainer/post-create.sh`,
-   `.gitignore`.
-2. Drop the sensei submodule cleanly:
-   ```bash
-   git rm --cached .github/skills/sensei
-   rm -rf .github/skills/sensei
-   git rm .gitmodules
-   ```
-3. `git rm` every other Tier 1 path.
-4. `git rm` every Tier 2 path (use `git rm -r` for directories).
-5. Run a final sweep to confirm zero sensei residue:
-   ```bash
-   git diff origin/${input:targetBranch} --name-only | \
-     xargs -I{} sh -c 'grep -l -i "sensei" "{}" 2>/dev/null' | head -10
-   ```
-   Output must be empty. If not, classify the survivors and re-ask the
-   user (back to §4).
+1. Capture the pre-exclusion diff and approved entry/hunk list. For mixed files,
+  use editing tools to remove only approved Sensei entries. Parse JSON/config
+  structure when selecting entries; never restore a mixed file from the target.
+2. Inspect the Sensei submodule for local/untracked work and stop if any exists.
+  After explicit removal approval, remove only its gitlink and working directory
+  with Git's submodule-aware removal. Remove only its `.gitmodules` section;
+  preserve other submodule sections and local configuration. Do not recursively
+  force-delete the checkout. Delete `.gitmodules` only if empty and approved.
+3. Remove other Tier 1/2 files only when the entire file is exclusively Sensei
+  content and specifically approved for deletion. Mixed files require hunk edits.
+4. Compare pre/post diffs and verify every unrelated hunk and submodule survives.
+  Review remaining Sensei matches as candidates, not permission to delete them.
+  Ambiguous matches or lost unrelated hunks require stopping and returning to §4.
 
 ### 6. Validate, commit, push
 
@@ -248,12 +241,12 @@ The PR body must include:
 - A single squash-recommended PR against `${input:targetBranch}`.
 - Final report in chat: PR URL, file-count delta vs `${input:targetBranch}`,
   top-level area breakdown, validator results, and a final confirmation
-  that `grep -i sensei` against the diff is empty.
+  that approved Sensei exclusions are absent and unrelated changes are preserved.
 
 ## Quality Assurance
 
-- [ ] No file in the final diff contains the literal `sensei` (case-insensitive).
-- [ ] `.gitmodules` and `.github/skills/sensei` are absent.
+- [ ] No unapproved Sensei tooling remains; retained mentions have a reviewed disposition.
+- [ ] The Sensei gitlink/section is absent; unrelated `.gitmodules` sections survive.
 - [ ] `package.json` and `.devcontainer/post-create.sh` match
       `origin/${input:targetBranch}` (or carry only non-sensei changes).
 - [ ] `npm run validate:skills` passes with 0 errors, 0 warnings.

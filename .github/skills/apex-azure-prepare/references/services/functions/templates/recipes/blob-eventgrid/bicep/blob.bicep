@@ -38,10 +38,13 @@ param functionAppPrincipalId string
 param functionAppId string
 
 @description('Container name for blob triggers')
-param containerName string = 'uploads'
+param containerName string = 'unprocessed-pdf'
+
+@description('Output container used by the source binding')
+param processedContainerName string = 'processed-pdf'
 
 @description('UAMI client ID from base template identity module - REQUIRED for UAMI auth')
-param uamiClientId string = ''
+param uamiClientId string
 
 // ============================================================================
 // Naming
@@ -124,7 +127,7 @@ resource eventGridSubscription 'Microsoft.EventGrid/systemTopics/eventSubscripti
     destination: {
       endpointType: 'AzureFunction'
       properties: {
-        resourceId: '${functionAppId}/functions/BlobTrigger'
+        resourceId: '${functionAppId}/functions/ProcessBlobUpload'
         maxEventsPerBatch: 1
         preferredBatchSizeInKilobytes: 64
       }
@@ -155,8 +158,17 @@ output blobEndpoint string = storageAccount.properties.primaryEndpoints.blob
 // APP SETTINGS OUTPUT
 // ============================================================================
 output appSettings object = {
-  BLOB_STORAGE__blobServiceUri: storageAccount.properties.primaryEndpoints.blob
-  BLOB_STORAGE__credential: 'managedidentity'
-  BLOB_STORAGE__clientId: uamiClientId
+  PDFProcessorSTORAGE__blobServiceUri: storageAccount.properties.primaryEndpoints.blob
+  PDFProcessorSTORAGE__credential: 'managedidentity'
+  PDFProcessorSTORAGE__clientId: uamiClientId
   BLOB_CONTAINER_NAME: containerName
+  BLOB_PROCESSED_CONTAINER_NAME: processedContainerName
+}
+
+resource processedContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2023-01-01' = {
+  parent: blobService
+  name: processedContainerName
+  properties: {
+    publicAccess: 'None'
+  }
 }

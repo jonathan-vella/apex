@@ -1,5 +1,8 @@
 ---
 name: apex-azure-compliance
+user-invocable: true
+disable-model-invocation: false
+argument-hint: "Azure resource scope and compliance checks"
 description: '**ANALYSIS SKILL** — Azure compliance and security auditing: best practices, Key Vault expiration monitoring, resource validation. WHEN: "compliance scan", "security audit", "Key Vault expiration check", "expired certificates", "orphaned resources". DO NOT USE FOR: cost analysis (apex-azure-cost-optimization), governance discovery (apex-azure-governance-discovery).'
 license: MIT
 metadata:
@@ -43,6 +46,7 @@ Activate this skill when user wants to:
 
 - Authentication: user is logged in to Azure via `az login`
 - Permissions to read resource configuration and Key Vault metadata
+- Follow the [identity and permission boundary](../apex-entra-app-registration/references/auth-best-practices.md#identity-and-permission-boundary)
 
 ## Assessments
 
@@ -62,7 +66,6 @@ Activate this skill when user wants to:
 | `keyvault_key_list`               | List all keys in vault                       |
 | `keyvault_key_get`                | Get key details including expiration         |
 | `keyvault_secret_list`            | List all secrets in vault                    |
-| `keyvault_secret_get`             | Get secret details including expiration      |
 | `keyvault_certificate_list`       | List all certificates in vault               |
 | `keyvault_certificate_get`        | Get certificate details including expiration |
 
@@ -87,8 +90,8 @@ Activate this skill when user wants to:
 
 | Error                   | Message        | Remediation                                      |
 | ----------------------- | -------------- | ------------------------------------------------ |
-| Authentication required | "Please login" | Run `az login` and retry                         |
-| Access denied           | "Forbidden"    | Confirm permissions and fix role assignments     |
+| Authentication required | "Please login" | Request user sign-in for the intended identity; do not switch automatically |
+| Access denied           | "Forbidden"    | Report missing metadata access; assignments require separate approval |
 | Missing resource        | "Not found"    | Verify subscription and resource group selection |
 
 ## Rules
@@ -96,6 +99,9 @@ Activate this skill when user wants to:
 - Run compliance scans on a regular schedule (weekly or monthly)
 - Track findings over time and verify remediation effectiveness
 - Separate compliance reporting from remediation execution
+- Audit metadata only: never retrieve secret values, including certificate backing
+  secrets. Verify installed tool contracts; unknown tools and denied pages are
+  coverage gaps, not permission to fetch contents or broaden access.
 - Keep Key Vault expiration policies documented and enforced
 
 ## SDK Quick References

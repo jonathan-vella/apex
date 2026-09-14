@@ -2,7 +2,7 @@
 # Review Astro Docs (Deep)
 
 Routing source: [Local adapter](../../../../tools/apex-prompts/utility-prompts/review-astro-docs.prompt.md).
-Apply the [operational boundary](operational-safety.md) before activities.
+Apply the [operational boundary](../../apex-workflow-engine/references/operational-safety.md) before activities.
 It controls owner selection, tool limits, worker permissions, state, and gates.
 
 

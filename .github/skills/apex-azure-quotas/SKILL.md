@@ -1,18 +1,21 @@
 ---
 name: apex-azure-quotas
-description: '**UTILITY SKILL** — Check and manage Azure quotas and usage across providers for deployment planning, capacity validation, and region selection. WHEN: "check quotas", "service limits", "request quota increase", "quota exceeded", "validate capacity", "regional availability", "vCPU limit". DO NOT USE FOR: deployment execution (apex-azure-deploy), cost analysis (apex-azure-cost-optimization).'
+user-invocable: true
+disable-model-invocation: false
+argument-hint: "subscription, region, services and planned quantities"
+description: '**UTILITY SKILL** — Check Azure quota limits, usage and headroom for deployment planning; quota is not regional capacity. WHEN: "check quotas", "service limits", "request quota increase", "quota exceeded", "validate capacity", "regional availability", "vCPU limit". DO NOT USE FOR: deployment execution (apex-azure-deploy), cost analysis (apex-azure-cost-optimization).'
 license: MIT
 metadata:
   author: Microsoft
   version: "1.0.5"
 ---
 
-# Azure Quotas — Service Limits & Capacity Management
+# Azure Quotas — Service Limits & Headroom
 
-Azure quotas (service limits) are the maximum number of resources you can
-deploy in a subscription. **Quotas = available capacity** — if you do not
-have quota, you cannot deploy. Always check before planning deployments
-or selecting regions.
+Azure quotas constrain usage in provider-specific units and scopes. Sufficient
+quota headroom does not establish SKU availability or regional capacity. Check
+family and total regional vCPU limits, SKU restrictions and allocation capacity
+separately; quota success is not deployment approval.
 
 ## Prerequisites
 
@@ -28,38 +31,29 @@ or selecting regions.
 | Extension           | `az extension add --name quota` (install once)                                                                |
 | Key commands        | `az quota list`, `az quota show`, `az quota usage list`, `az quota usage show`                                |
 | Full CLI reference  | [`references/commands.md`](references/commands.md)                                                            |
-| Azure Portal        | [My quotas](https://portal.azure.com/#blade/Microsoft_Azure_Capacity/QuotaMenuBlade/myQuotas) — fallback only |
-| REST API            | Microsoft.Quota provider — **unreliable, do NOT use first**                                                   |
+| Azure Portal        | [My quotas](https://portal.azure.com/#blade/Microsoft_Azure_Capacity/QuotaMenuBlade/myQuotas) — request/support follow-up |
+| REST API            | Same provider coverage constraints; not a bypass for unsupported quota types |
 | Required permission | Reader (view) or Quota Request Operator (manage)                                                              |
 
-> **CLI-first is mandatory.** REST API and Portal report `"No Limit"` /
-> `"Unlimited"` when the API does not cover a resource type — **not**
-> when capacity is unlimited. Service-specific hard limits still apply.
-> If CLI returns `BadRequest`, fall back to
-> [Azure service limits docs](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits)
-> — never to REST API or Portal.
+Read [quota evidence and fallback](references/commands.md#quota-evidence-and-fallback)
+before checks. It owns scope, units, numeric validation and failure handling.
 
 ## Rules
 
 1. ✅ Always check quotas before deployment
 2. ✅ Run `az quota list` first to discover correct quota resource names
    (ARM resource type ≠ quota resource name — there is **no 1:1 mapping**)
-3. ✅ Compare regions to find available capacity
-4. ✅ Request a 20% buffer above immediate needs
-5. ✅ CLI-first; REST API and Portal are fallback-only
+3. ✅ Compare quota headroom across approved candidate regions, not regional capacity
+4. ✅ Propose an agreed buffer; submit increases only with explicit approval
+5. ✅ CLI-first; follow the canonical failure classification and fallback
 6. ✅ Monitor usage; alert at 80% threshold (Portal)
 
 ## Steps
 
-1. Install: `az extension add --name quota`
-2. Discover quota resource names: `az quota list --scope ...` (match by `localizedValue`)
-3. Check current usage: `az quota usage show --resource-name <name>`
-4. Check quota limit: `az quota show --resource-name <name>`
-5. Validate capacity: `Available = Limit − (Usage + Need)`
-6. If sufficient → proceed; if insufficient → request increase or change region
-
-For the 4 detailed workflows (specific check, region compare, increase request,
-list-all), read [`references/core-workflows.md`](references/core-workflows.md).
+Read [core workflows](references/core-workflows.md) for checks, region comparison,
+approved increase requests and listing. Preserve selected subscription and region
+on every command. Installation, registration, region changes and quota requests
+require appropriate authorization; a read-only check does not grant it.
 
 For ARM-to-quota name mapping examples and discovery workflow, read
 [`references/resource-name-mapping.md`](references/resource-name-mapping.md).

@@ -143,53 +143,57 @@ az ad app update --id $APP_ID \
 
 ### Create client secret
 
+Require explicit approval for the intended tenant, application ID, credential
+type and expiry. Prefer federated identity or certificates when supported.
+The following is a **user-run private-terminal operation**, not an agent tool call:
+
 ```bash
-# Create secret with default expiration
-az ad app credential reset --id $APP_ID
-
-# Create secret with custom expiration
-az ad app credential reset --id $APP_ID --years 1
-
-# Create secret with specific end date
-az ad app credential reset --id $APP_ID --end-date "2025-12-31"
+az ad app credential reset --id "$APP_ID" --append --years 1
 ```
 
-**Save the output:**
+The command returns a new secret once. The user must transfer it directly to an
+approved secret store outside chat/tool output and logs. Do not ask for the value,
+print it in reports, or use `--debug`. If no private handoff exists, stop before
+creation. Do not suppress the only copy with `--output none` and create an unusable secret.
 
-```json
-{
-  "appId": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-  "password": "your-secret-value-SAVE-THIS",
-  "tenant": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-}
-```
-
-**⚠️ Important:** Resetting Client credential will delete all existing credentials.
-**⚠️ Important:** The secret value is only shown once. Store it securely (e.g., Azure Key Vault).
+`--append` preserves existing credentials. Record credential metadata before and
+after, validate the new credential with the intended client, and only then seek
+separate approval to retire an exact old key ID. Replacement without `--append`
+removes existing credentials and requires explicit replacement approval and a
+consumer migration/recovery plan; it is never an additive rotation fallback.
 
 ### List client credentials
 
 ```bash
-# List all credentials (secrets and certificates)
-az ad app credential list --id $APP_ID
+# Snapshot secret metadata
+az ad app credential list --id "$APP_ID" --query "[].{keyId:keyId,displayName:displayName,startDateTime:startDateTime,endDateTime:endDateTime}" --output json
+
+# Snapshot certificate metadata separately
+az ad app credential list --id "$APP_ID" --cert --query "[].{keyId:keyId,displayName:displayName,startDateTime:startDateTime,endDateTime:endDateTime}" --output json
 ```
 
 ### Delete client secret
 
 ```bash
 # Get key ID from credential list
-az ad app credential list --id $APP_ID --query "[].{KeyId:keyId, Type:type}" -o table
+az ad app credential list --id "$APP_ID" --query "[].{KeyId:keyId,Name:displayName}" -o table
 
 # Delete specific credential
-az ad app credential delete --id $APP_ID --key-id "KEY_ID_HERE"
+az ad app credential delete --id "$APP_ID" --key-id "APPROVED_OLD_KEY_ID"
 ```
+
+For a certificate, list with `--cert` and use `--cert` on deletion of its separately
+approved key ID. Never delete by display name or retire credentials before consumer validation.
 
 ### Upload certificate
 
 ```bash
 # Upload certificate from file
-az ad app credential reset --id $APP_ID --cert "@path/to/cert.pem"
+az ad app credential reset --id "$APP_ID" --append --cert "@path/to/public-cert.pem" --output none
 ```
+
+Upload only the public certificate after explicit approval. Keep its private key
+outside the repository and tool output; preserve existing credentials during validation.
 
 ## API Permissions
 

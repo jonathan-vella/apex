@@ -32,9 +32,9 @@ and the Orchestrator.
 
 1. **HALT** — do NOT retry further
 2. Record finding via `apex-recall finding <project> --add "circuit_breaker: {category} - {error message} (3 consecutive failures)" --json`
-3. Set step status to `blocked` in session state
-4. Increment `claim.retry_count` for the affected step
-5. Notify via PR comment (if in PR context)
+3. Checkpoint the blocked phase via `apex-recall`; never edit session JSON directly
+4. Track the attempt count in the active loop and persist a finding; do not invent state fields
+5. Notify via PR comment only when that external write is authorized
 6. Present findings to user and wait for guidance
 
 ## Escalation Protocol
@@ -42,26 +42,32 @@ and the Orchestrator.
 When the circuit breaker trips:
 
 ```text
-1. Log the failure pattern to session state event_log
-2. Set steps.{N}.status = "blocked"
-3. Add finding to open_findings[]
+1. Record the failure pattern through apex-recall finding
+2. Checkpoint the blocked phase through apex-recall checkpoint
+3. Preserve all unresolved findings and completed evidence
 4. Present to user:
    "⚠️ Circuit breaker triggered: {failure_category}
     {consecutive_count} consecutive failures detected.
     Last error: {last_error}
     Action: Manual intervention required."
 5. Wait for user decision:
-   a. Reset and retry (clears retry_count, tries again)
-   b. Skip step (marks as skipped, advances)
-   c. Abort workflow (marks as blocked, halts)
+   a. proceed-with-substitute: propose a substitute for explicit approval and owner reconciliation
+   b. change-region: propose a region change for explicit approval and refreshed evidence
+   c. abort: halt and return control to the user
 ```
+
+Follow [Bounded retry](../SKILL.md#bounded-retry). Neither substitution nor a
+region change authorizes immediate apply: update approved inputs through their
+owners, rerun affected checks/reviews, and obtain evidence-bound approval.
+No skip-step or reset bypass is permitted. Policy, governance and budget
+violations stop immediately; stricter operation-specific retry limits prevail.
 
 ## Deploy Agent Integration
 
 Before starting any deployment:
 
 1. **Read this document** for failure taxonomy awareness
-2. **Track retry count** — increment `claim.retry_count` on each failure
+2. **Track retry count** in the active loop and record failure evidence through `apex-recall`
 3. **Check for anomaly patterns** after each operation
 4. **Apply stopping rule**: same error 3 times → halt, write blocked finding
 

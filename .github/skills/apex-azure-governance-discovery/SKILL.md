@@ -1,5 +1,8 @@
 ---
 name: apex-azure-governance-discovery
+user-invocable: true
+disable-model-invocation: false
+argument-hint: "project, subscription scope and discovery or refresh"
 description: "**ANALYSIS SKILL** — Azure Policy discovery: effective assignments (incl. MG-inherited), definitions/exemptions, effect classification, emits governance-constraints JSON. WHEN: 'Azure policy discovery', 'effective policy assignments', 'governance constraints', '04g-Governance Phase 1', 'refresh governance JSON'. DO NOT USE FOR: artifact writing, architecture mapping."
 compatibility: Requires Python 3.14, Azure CLI on PATH, read access to the target subscription.
 ---
@@ -29,13 +32,14 @@ pulling raw Azure REST responses into LLM context.
 ## Rules
 
 - **Stay deterministic** — the discovery script is a single batched REST traversal; no LLM calls, no retries that hide errors, no inferred policy effects
-- **Never pull raw Azure REST responses into LLM context** — stdout is exactly one machine-readable JSON status line; the parent agent reads only this line
+- **Use compact status for routing**, then targeted envelope reads for decisions; recover all required evidence and diagnostics
 - **Schema compliance is mandatory** — envelope MUST conform to `tools/schemas/governance-constraints.schema.json` (`schema_version: governance-constraints-v1`)
 - **Property paths are always strings** — use `""` for unresolvable paths, never `null`
-- **Filter Defender auto-assignments by default** — they create policy noise that masks real governance constraints; opt-in via `--include-defender-auto`
-- **Exit codes are contract** — `0` = COMPLETE, `1` = PARTIAL, `2` = FAILED, `3` = invalid args; the parent agent routes solely on these codes
+- **Defender filtering is narrow** — the collector retains enforcement-bearing assignments; `--include-defender-auto` retains all
+- **Exit codes are contract** — `0` = COMPLETE, `1` = PARTIAL, `2` = FAILED; argparse errors also return nonzero. COMPLETE is collection status, not planning approval
 - **No artifact writing** — the script emits JSON + a `.preview.md`; the agent owns the final `04-governance-constraints.md` content and traffic-light rendering
-- **Re-run with `--refresh`** when policy state has changed; otherwise honor the existing JSON
+- **Reuse only current scoped evidence** — project, subscription, options, schema, COMPLETE status, valid TTL and exemptions must match
+- **Resolve confirmations before review** — all topics require current evidence-bound answers; unknowns block. See [inline resolution](references/inline-resolution-gate.md)
 
 ## Steps
 
@@ -62,7 +66,7 @@ Exit codes:
 | `0`  | `COMPLETE` — discovery succeeded                                |
 | `1`  | `PARTIAL` — partial data written; parent should surface to user |
 | `2`  | `FAILED` — auth/network/permission error                        |
-| `3`  | Invalid arguments                                               |
+| `2`  | Invalid arguments (argparse), distinguished from failures by diagnostics |
 
 Stdout — always exactly one machine-readable JSON line first, optional
 human-readable preview after:
@@ -136,14 +140,15 @@ reached):
 
 ## Design Notes
 
-- Three batched REST list calls only: `policyAssignments?$filter=atScope()`,
-  `policyDefinitions` (subscription + tenant built-ins), `policySetDefinitions`.
-  One more list for `policyExemptions?$filter=atScope()`.
-- In-process classification and property-path extraction; no per-assignment GETs.
-- Caches on the presence of `<out>` unless `--refresh` passed.
-- Defender auto-assignments (`properties.metadata.assignedBy == "Security Center"`)
-  are filtered by default — matches EPAC's default and trims typical tenant row
-  counts by 30-60%. Every filtered assignment is logged to stderr.
+- The collector traverses paginated assignments, definitions, initiatives and
+  exemptions, resolving referenced definitions as needed; do not assume a fixed call count.
+- Cache reuse checks project/subscription/options and COMPLETE envelope freshness,
+  including positive TTL, nonfuture timestamp and still-valid scoped exemptions.
+  `--arch` regenerates the preview from current architecture even on a cache hit.
+- Signature verification, confirmation bindings and current review inputs remain
+  consumer gates; the collector's cache hit alone cannot attest them.
+- Filtering is based on assignment metadata and effective enforcement, not display-name claims.
+  Review discovery_summary and diagnostics; do not claim an unmeasured reduction.
 
 ## Testing
 

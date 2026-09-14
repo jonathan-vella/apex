@@ -5,27 +5,24 @@ Grant Azure managed identities database permissions on Azure SQL with Entra auth
 ## Prerequisites
 
 - Azure SQL Server with Entra ID admin configured
-- App Service/Container App with system-assigned managed identity
+- Verified system-assigned or user-assigned application identity
 - Your account is Entra ID admin on SQL Server
-- Azure CLI: `az login`
+- [Reviewed SQL execution contract](sql-entra-auth.md#reviewed-sql-execution), including Go sqlcmd and target/file approval
 
 ## Quick Grant
 
-```bash
-eval $(azd env get-values)
-APP_NAME=$(echo "$SERVICE_API_NAME")  # or SERVICE_WEB_NAME
+Create a reviewed `grant-runtime.sql` using the verified identity name, escaping SQL identifiers/literals.
+Do not interpolate untrusted shell values. Resolve duplicate display names before granting access.
 
-az sql db query \
-  --server "$SQL_SERVER" \
-  --database "$SQL_DATABASE" \
-  --resource-group "$AZURE_RESOURCE_GROUP" \
-  --auth-mode ActiveDirectoryDefault \
-  --queries "
-    CREATE USER [$APP_NAME] FROM EXTERNAL PROVIDER;
-    ALTER ROLE db_datareader ADD MEMBER [$APP_NAME];
-    ALTER ROLE db_datawriter ADD MEMBER [$APP_NAME];
-    ALTER ROLE db_ddladmin ADD MEMBER [$APP_NAME];
-  "
+```sql
+IF NOT EXISTS (SELECT 1 FROM sys.database_principals WHERE name = N'approved-runtime-identity')
+  CREATE USER [approved-runtime-identity] FROM EXTERNAL PROVIDER;
+ALTER ROLE db_datareader ADD MEMBER [approved-runtime-identity];
+ALTER ROLE db_datawriter ADD MEMBER [approved-runtime-identity];
+```
+
+```bash
+bash ./scripts/run-sql.sh grant-runtime.sql
 ```
 
 ## Database Roles
@@ -37,81 +34,41 @@ az sql db query \
 | `db_ddladmin`   | CREATE, ALTER, DROP schema | EF migrations         |
 | `db_owner`      | Full control               | Admin (use sparingly) |
 
-**Standard app (read/write/migrations):** All three roles above.
+**Standard app:** Reader/writer as required. Grant DDL separately to an approved migration identity, not runtime by default.
 **Read-only app:** Only `db_datareader`.
 
 ## Automate with azd Hook
 
+Only add a grant hook when explicitly approved in the deployment plan. Copy the shared executor to the project;
+supply target/file approval through the human-approved deployment process, never compute approval in the hook.
 Add `postprovision` hook to `azure.yaml` (per-project: `infra/{iac}/{project}/azure.yaml`):
 
 ```yaml
 hooks:
   postprovision:
     shell: sh
-    run: ./scripts/grant-sql-access.sh
+    run: bash ./scripts/run-sql.sh grant-runtime.sql
 ```
 
-**scripts/grant-sql-access.sh:**
-
-```bash
-#!/bin/bash
-set -e
-eval $(azd env get-values)
-
-az sql db query \
-  --server "$SQL_SERVER" \
-  --database "$SQL_DATABASE" \
-  --resource-group "$AZURE_RESOURCE_GROUP" \
-  --auth-mode ActiveDirectoryDefault \
-  --queries "
-    IF NOT EXISTS (SELECT * FROM sys.database_principals WHERE name = '$SERVICE_API_NAME')
-      CREATE USER [$SERVICE_API_NAME] FROM EXTERNAL PROVIDER;
-
-    IF NOT EXISTS (
-      SELECT 1 FROM sys.database_role_members drm
-      JOIN sys.database_principals r ON drm.role_principal_id = r.principal_id
-      JOIN sys.database_principals m ON drm.member_principal_id = m.principal_id
-      WHERE r.name = 'db_datareader' AND m.name = '$SERVICE_API_NAME'
-    )
-      ALTER ROLE db_datareader ADD MEMBER [$SERVICE_API_NAME];
-
-    IF NOT EXISTS (
-      SELECT 1 FROM sys.database_role_members drm
-      JOIN sys.database_principals r ON drm.role_principal_id = r.principal_id
-      JOIN sys.database_principals m ON drm.member_principal_id = m.principal_id
-      WHERE r.name = 'db_datawriter' AND m.name = '$SERVICE_API_NAME'
-    )
-      ALTER ROLE db_datawriter ADD MEMBER [$SERVICE_API_NAME];
-
-    IF NOT EXISTS (
-      SELECT 1 FROM sys.database_role_members drm
-      JOIN sys.database_principals r ON drm.role_principal_id = r.principal_id
-      JOIN sys.database_principals m ON drm.member_principal_id = m.principal_id
-      WHERE r.name = 'db_ddladmin' AND m.name = '$SERVICE_API_NAME'
-    )
-      ALTER ROLE db_ddladmin ADD MEMBER [$SERVICE_API_NAME];
-  "
-```
-
-> 💡 Make executable: `chmod +x scripts/*.sh`. For PowerShell: Use `azd env get-values | ForEach-Object` pattern.
+The shared executor fails on missing/stale approval or SQL errors. Never use `continueOnError` for grants.
 
 ## Verification
 
-```bash
-eval $(azd env get-values)
-APP_NAME=$SERVICE_API_NAME  # or SERVICE_WEB_NAME
+Place this read-only query in a separately reviewed `verify-roles.sql`:
 
-az sql db query --server "$SQL_SERVER" --database "$SQL_DATABASE" \
-  --auth-mode ActiveDirectoryDefault --queries "
+```sql
     SELECT dp.name AS UserName, dr.name AS RoleName
     FROM sys.database_principals dp
     JOIN sys.database_role_members drm ON dp.principal_id = drm.member_principal_id
     JOIN sys.database_principals dr ON drm.role_principal_id = dr.principal_id
-    WHERE dp.name = '$APP_NAME'
-  "
+    WHERE dp.name = N'approved-runtime-identity';
+  ```
+
+  ```bash
+  bash ./scripts/run-sql.sh verify-roles.sql
 ```
 
-Expected: UserName matches `$APP_NAME`, RoleName includes `db_datareader`, `db_datawriter`, `db_ddladmin`.
+Expected: identity and roles match the approved set, with no unintended schema permissions.
 
 ## Troubleshooting
 

@@ -4,6 +4,12 @@
 
 ## Canonical Example — Azure Resource Group Test
 
+The tag map below represents a synthetic discovered policy contract, not the
+greenfield fallback. Replace it with the effective policy map, preserving key
+casing and values; only use the canonical greenfield map when no tag policy applies.
+Assertions compare the supplied contract, not a hardcoded key list. Use a mock
+provider for offline runs; plan mode alone can still read Azure data sources.
+
 ```hcl
 # tests/resource_group_unit_test.tftest.hcl
 
@@ -12,10 +18,8 @@ variables {
   environment = "test"
   location    = "swedencentral"
   tags = {
-    Environment = "test"
-    ManagedBy   = "Terraform"
-    Project     = "contoso"
-    Owner       = "platform-team"
+    CostCenter  = "policy-fixture"
+    environment = "test"
   }
 }
 
@@ -39,10 +43,10 @@ run "test_mandatory_tags" {
 
   assert {
     condition = alltrue([
-      for tag in ["environment", "owner", "costcenter", "application", "workload", "sla", "backup-policy", "maint-window", "technical-contact"] :
-      contains(keys(azurerm_resource_group.this.tags), tag)
+      for tag, expected in var.tags :
+      lookup(azurerm_resource_group.this.tags, tag, null) == expected
     ])
-    error_message = "All 9 mandatory tags must be present"
+    error_message = "Every policy tag must retain its required casing and value"
   }
 }
 
@@ -82,18 +86,9 @@ run "test_nat_gateway_not_created" {
 
 ### Tag Validation
 
-```hcl
-run "test_mandatory_tags" {
-  command = plan
-  assert {
-    condition = alltrue([
-      for tag in ["environment", "owner", "costcenter", "application", "workload", "sla", "backup-policy", "maint-window", "technical-contact"] :
-      contains(keys(azurerm_resource_group.this.tags), tag)
-    ])
-    error_message = "All mandatory tags must be present"
-  }
-}
-```
+Reuse `test_mandatory_tags` in the [canonical example](#canonical-example--azure-resource-group-test).
+Test missing keys, wrong casing and incorrect values as negative fixtures; optional
+extra tags must not replace the expected policy contract.
 
 ### Resource Count with for_each
 

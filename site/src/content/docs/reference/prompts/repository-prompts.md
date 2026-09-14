@@ -5,8 +5,9 @@ sidebar:
   order: 4
 ---
 
-APEX includes repository-scoped slash prompts in `.github/prompts/`. These are
-available from the Copilot Chat slash menu when the workspace is open.
+APEX includes Local slash adapters in `.github/prompts/`. Their shared procedures
+also support explicit manual Host entries. Local discovery settings do not prove
+Agent Host discovery or execution support.
 
 Use them for repeatable operational tasks where the prompt needs a precise tool
 sequence, predictable exclusions, or a safe confirmation gate.
@@ -21,6 +22,12 @@ sequence, predictable exclusions, or a safe confirmation gate.
   Source: `.github/prompts/apex-debug-log-export.prompt.md`.
 
 ## Resume Workflow
+
+On Agent Host, select `01-Orchestrator` with its configured model and invoke
+`/apex-host-workflow-start resume [project]`. The `resume` operation is explicit;
+it is not inferred from an empty request or failed recall. With no project supplied,
+the procedure discovers candidates and asks only when selection is ambiguous.
+No separate Host resume skill is needed. Local `/apex-resume-workflow` remains unchanged.
 
 Use `/apex-resume-workflow` after `/clear` or whenever you need to re-enter an
 existing APEX workflow without carrying old chat context forward.
@@ -49,6 +56,9 @@ The prompt does not re-run completed steps by itself, change recorded decisions,
 or call `#runSubagent`. It only gets you back to the right orchestrator handoff.
 
 ## Git Commit
+
+On Host, use `/apex-host-git-commit` with the required owner and tools already selected.
+Commit and debug-log capture are separate operations, not workflow-start modes.
 
 Use `/apex-git-commit` when you want the repository's standard commit workflow:
 inspect scoped changes, stage allowed paths, create a conventional commit, push
@@ -79,6 +89,10 @@ confirmation gate.
 
 ## Debug Log Export
 
+On Host, use `/apex-host-debug-log-export` with confirmed workspace/session paths.
+Do not substitute Local log variables for Host paths. Skills inherit the caller's
+model/tools and do not grant new permissions; unavailable prerequisites stop the operation.
+
 Use `/apex-debug-log-export` when you need to package Copilot Chat debug logs
 for review. It is especially useful when investigating custom-agent loading,
 skill loading, tool behavior, latency, token use, or unexpected retries.
@@ -105,6 +119,9 @@ The prompt does not upload anything. It preserves raw session logs for auditing,
 so you should review the bundle before sharing it outside the repository team.
 
 ## Choosing The Right Prompt
+
+Host entries are manual-only (`disable-model-invocation: true`). The source flags
+and static tests do not establish native runtime support; verify each harness separately.
 
 | Need                                        | Use                         |
 | ------------------------------------------- | --------------------------- |

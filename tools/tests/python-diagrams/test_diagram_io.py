@@ -5,6 +5,7 @@ from __future__ import annotations
 import importlib.util
 import sys
 from pathlib import Path
+from types import ModuleType
 
 import pytest
 
@@ -134,3 +135,30 @@ def test_render_graphviz_writes_both_formats(diagram_io, tmp_path):
     assert (tmp_path / "process-flow.png").exists()
     assert (tmp_path / "process-flow.svg").exists()
     assert {p.suffix for p in written} == {".png", ".svg"}
+
+
+@pytest.mark.parametrize("formats", [("png",), ("svg",), ("pdf",), ("png", "svg")])
+def test_explicit_output_formats(diagram_io: ModuleType, tmp_path: Path, formats: tuple[str, ...]) -> None:
+    import graphviz
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    figure, axes = plt.subplots()
+    axes.plot([0, 1], [1, 0])
+    graph = graphviz.Digraph("formats")
+    graph.edge("source", "target")
+    try:
+        for name, render in (
+            ("chart", lambda base: diagram_io.save_figure(figure, base, formats=formats)),
+            ("graph", lambda base: diagram_io.render_graphviz(graph, base, formats=formats)),
+        ):
+            base = tmp_path / name
+            written = render(base)
+            assert written == [base.with_suffix(f".{extension}") for extension in formats]
+            assert {path.suffix for path in tmp_path.glob(f"{name}.*")} == {f".{extension}" for extension in formats}
+            assert all(path.stat().st_size > 0 for path in written)
+    finally:
+        plt.close(figure)
+    assert diagram_io.diagram_kwargs("architecture", formats=formats)["outformat"] == list(formats)

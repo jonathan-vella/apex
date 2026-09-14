@@ -103,45 +103,12 @@ resource "azurerm_storage_account" "this" {
 
 ## Module Composition
 
-Root module wires multiple AVM child modules, passing outputs as inputs:
-
-```hcl
-# main.tf — root module orchestration
-module "resource_group" {
-  source  = "Azure/avm-res-resources-resourcegroup/azurerm"
-  version = "~> 0.1"
-
-  name     = "rg-${var.project}-${var.environment}"
-  location = var.location
-  tags     = local.tags
-}
-
-module "key_vault" {
-  source  = "Azure/avm-res-keyvault-vault/azurerm"
-  version = "~> 0.9"
-
-  name                = local.kv_name
-  resource_group_name = module.resource_group.name   # ← output from previous module
-  location            = var.location
-  tenant_id           = data.azurerm_client_config.current.tenant_id
-  tags                = local.tags
-}
-
-module "app_service" {
-  source  = "Azure/avm-res-web-site/azurerm"
-  version = "~> 0.13"
-
-  name                = "app-${var.project}-${var.environment}-${local.suffix}"
-  resource_group_name = module.resource_group.name   # ← shared output
-  location            = var.location
-  service_plan_id     = module.app_service_plan.resource_id  # ← chained output
-  tags                = local.tags
-
-  app_settings = {
-    KEY_VAULT_URI = module.key_vault.uri  # ← chained output
-  }
-}
-```
+Use [module-composition.md](module-composition.md) as the canonical pinned root
+composition. It owns Resource Group and Key Vault output wiring; do not maintain
+another copy here. For App Service, additionally wire the approved service plan's
+resource ID and expose the vault URI in `KEY_VAULT_URI` through the approved
+module's application settings. Verify the exact input/output names in its pinned
+interface, including the vault URI output; do not infer them from service names.
 
 Rules:
 

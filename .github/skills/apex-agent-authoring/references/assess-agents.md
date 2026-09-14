@@ -24,17 +24,17 @@ This repo is APEX (Azure Agentic Platform Engineering eXperience). Scope is the 
 - `.github/agents/*.agent.md` (main, user-invocable)
 - `.github/agents/_subagents/*.agent.md` (subagents, non-invocable)
 
-The four layers (see `references/agent-scorecard-rubric.md` for bands + weights):
+The four layers (see the [scorecard rubric][scorecard-rubric] for bands + weights):
 
 - L1 Mechanical — validator contract (frontmatter, structural, handoffs). Deterministic.
 - L2 Static — body/tool/handoff/skill-read limits, frontmatter & model integrity, apex-vendor-prompting
   blocks (deterministic) **plus** role clarity & boundary (judgment).
 - L3 Runtime — token cost, duplicate reads, latency, subagent wall-time from a debug-log profile.
-- L4 Adversarial — red-team pass against `references/agent-adversarial-checklist.md` (judgment).
+- L4 Adversarial — red-team pass against the [adversarial checklist][adversarial-checklist] (judgment).
 
 The deterministic slices are produced by `tools/scripts/assess-agents.mjs`
 (`npm run assess:agents`). The judgment slices (L2 role clarity, L4 adversarial) fan out to `Explore`
-subagents against the fixed rubric + checklist references next to this prompt.
+subagents against the fixed rubric and checklist linked here.
 
 Why L4 is a generic adversarial pass: the `challenger-review-subagent` is artifact-type scoped to
 `agent-output/` infrastructure artifacts and **cannot target `.agent.md`**. So Layer 4 uses an
@@ -43,7 +43,7 @@ schema.
 
 Authoritative rule sources (read on demand, do not restate):
 
-- `references/agent-scorecard-rubric.md`, `references/agent-adversarial-checklist.md`
+- [Scorecard rubric][scorecard-rubric], [adversarial checklist][adversarial-checklist]
 - `.github/instructions/context-optimization.instructions.md`,
   `.github/instructions/agent-authoring.instructions.md`,
   `.github/instructions/vendor-prompting.instructions.md`
@@ -91,7 +91,7 @@ logging, then `npm run profile:debug-log -- <log.json> --json > profile.json` an
 
 ## Phase 3 — L4 adversarial (Explore fan-out)
 
-For each in-scope agent, dispatch one `Explore` against `references/agent-adversarial-checklist.md`
+For each in-scope agent, dispatch one `Explore` against the [adversarial checklist][adversarial-checklist]
 (all eight lenses; subagents use the reduced variant). Require each Explore to return JSON findings:
 
 ```json
@@ -132,3 +132,6 @@ and explicitly starts an execution pass.
 - Batch `Explore` calls and keep each scoped to the rubric / checklist — do not let a subagent edit.
 - L3 stays `na` unless a debug-log profile is supplied; never fabricate runtime numbers.
   </rules>
+
+[scorecard-rubric]: ../../../../tools/apex-prompts/utility-prompts/references/agent-scorecard-rubric.md
+[adversarial-checklist]: ../../../../tools/apex-prompts/utility-prompts/references/agent-adversarial-checklist.md

@@ -18,6 +18,8 @@ import {
   runVendorPrompting,
   runFrontmatterValidation,
   validateAgentPermissions,
+  validateProductionAgentBody,
+  getAgentBodyStructure,
   FAMILY_STATUS,
 } from "../../scripts/validate-agents.mjs";
 import { parseFrontmatter } from "../../scripts/_lib/parse-frontmatter.mjs";
@@ -215,6 +217,99 @@ test("main outcome contracts require role and nonempty stop rules across Sol, Te
     assert.ok(findings.some((finding) => finding.ruleId === "gpt55-skeleton-001"));
     assert.ok(findings.some((finding) => finding.ruleId === "gpt55-stop-rules-non-empty-001"));
   }
+});
+
+for (const heading of ["Role", "Goal", "Success criteria", "Constraints", "Output", "Stop rules"]) {
+  test(`H2 ${heading} must be present and substantive, not borrowed from the next section or a fence`, () => {
+    const normalized = contract.replace(/^# /gm, "## ");
+    const target = new RegExp(`^## ${heading}\\n[^\\n]*`, "m");
+    for (const model of ["gpt-5.6-sol", "GPT-5.6-Luna", "GPT-5.6-Terra"]) {
+      for (const replacement of [
+        "",
+        `## ${heading}\n`,
+        `## ${heading}\n<!--\nNot content.\n-->`,
+        `## ${heading}\n### Empty child`,
+        `## ${heading}\n\x60\x60\x60text\n## Fake\nFake contract.\n\x60\x60\x60`,
+        `~~~markdown\n## ${heading}\nExample only.\n~~~`,
+      ]) {
+        const body = `# Reviewer\n${normalized.replace(target, replacement)}\n## Next section\nUnrelated content.`;
+        const findings = lint({ agents: new Map([["main", item({ model: [model] }, body)]]) });
+        assert.ok(
+          findings.some((finding) => finding.ruleId === "gpt55-skeleton-001"),
+          `${model}: ${replacement}`,
+        );
+      }
+    }
+  });
+}
+
+test("output heading variants and H2 personality checks preserve enforcement", () => {
+  for (const heading of ["Output", "Outputs", "Output Contract", "Output Format"]) {
+    const body = contract.replace(/^# /gm, "## ").replace("## Output\n", `## ${heading}\n`);
+    const agent = item({ model: ["GPT-5.6-Terra"] }, `# Reviewer\n${body}`);
+    assert.equal(lint({ agents: new Map([["main", agent]]) }).length, 0);
+    agent.content += "\n## Personality\nBe friendly.";
+    assert.ok(
+      lint({ agents: new Map([["main", agent]]) }).some((finding) => finding.ruleId === "personality-scoping-001"),
+    );
+  }
+});
+
+test("leaf contracts reject empty or fenced inputs, outputs and failure rules", () => {
+  for (const body of [
+    "# Worker\n## Inputs\n## Outputs\nFindings. Return to parent.",
+    "# Worker\n## Inputs\nEvidence.\n## Outputs\n<!-- Empty -->\n## Failure\nReturn to parent.",
+    "# Worker\n~~~markdown\n## Inputs\nEvidence.\n## Outputs\nFindings. Return to parent.\n~~~",
+    "# Worker\n## Inputs\nEvidence.\n## Outputs\nFindings.\n```text\nReturn to parent.\n```",
+  ]) {
+    assert.ok(
+      lint({ agents: new Map([["leaf", item({ model: ["GPT-5.6-Luna"] }, body, true)]]) }).some(
+        (finding) => finding.ruleId === "gpt55-skeleton-001",
+      ),
+    );
+  }
+});
+
+test("production title validation counts all real H1s but ignores fenced examples", () => {
+  const agent = item(
+    { name: "Example", model: ["MAI-Code-1.1-Flash"] },
+    `# Example\n${contract.replace(/^# /gm, "## ")}`,
+  );
+  agent.path = path.resolve(__dirname, "../../../.github/agents/example.agent.md");
+  for (const example of [
+    "```markdown\n# Example heading\n```",
+    "~~~markdown\n# Example heading\n~~~",
+    "````markdown\n```\n# Example heading\n````",
+  ]) {
+    const content = `${agent.content}\n${example}`;
+    assert.equal(getAgentBodyStructure(content).headings.filter((heading) => heading.level === 1).length, 1);
+    assert.deepEqual(validateProductionAgentBody({ ...agent, content }), []);
+  }
+  for (const extra of [
+    "# Role",
+    "# Unrecognized title",
+    "Extra title\n===========",
+    "> # Quoted title",
+    "   # Indented title",
+  ]) {
+    assert.ok(
+      validateProductionAgentBody({ ...agent, content: `${agent.content}\n\n${extra}` }).some((issue) =>
+        issue.includes("exactly one H1"),
+      ),
+      extra,
+    );
+  }
+  assert.ok(validateProductionAgentBody({ ...agent, content: agent.content.replace("# Example", "# Wrong") }).length);
+  assert.ok(validateProductionAgentBody({ ...agent, content: agent.content.replace("# Example\n", "") }).length);
+  assert.ok(validateProductionAgentBody({ ...agent, content: agent.content.replace("## Goal", "# Goal") }).length);
+  assert.deepEqual(
+    validateProductionAgentBody({
+      ...agent,
+      path: path.join(__dirname, "generic.agent.md"),
+      content: "# Generic\n# Platform-valid",
+    }),
+    [],
+  );
 });
 
 test("empty agents needs no tool; explicit allowlists override target disable-model-invocation", () => {

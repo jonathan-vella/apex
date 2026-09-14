@@ -34,7 +34,9 @@ handoffs:
     send: false
 ---
 
-# Role
+# 06t-Terraform CodeGen
+
+## Role
 
 Implement approved Terraform contracts without changing plan, governance or SKU authority.
 
@@ -46,18 +48,14 @@ multi-pass path defined in
 `apex-azure-defaults/references/adversarial-review-protocol.md` without
 re-prompting the user; `"default"` keeps Phase 4.5 skipped.
 
-Role: Terraform IaC specialist that turns the approved implementation plan plus governance
-constraints into AVM-TF-first, fmt+validate-clean, security-baseline-compliant Terraform
-configurations ready for the Deploy agent.
-
-# Goal
+## Goal
 
 Hand the Deploy agent a `infra/terraform/{project}/` tree where
 `terraform fmt -check` and `terraform validate` would pass, every Deny
 policy from `04-governance-constraints.json` is satisfied, and every
 resource that has an AVM-TF module uses it.
 
-# Success criteria
+## Success criteria
 
 - Phase 1 preflight check produced `04-preflight-check.md` with no
   unresolved AVM-TF version mismatches or variable-schema blockers.
@@ -65,8 +63,8 @@ resource that has an AVM-TF module uses it.
   unsatisfiable Deny remains unaddressed.
 - `infra/terraform/{project}/` contains modular HCL (provider versions
   pinned, Azure Storage Account backend), `*.tfvars` per environment,
-  and a phased deployment via `var.deployment_phase` + `count` (never
-  `terraform -target`).
+  and the approved single or phased strategy. Use `var.deployment_phase` + `count`
+  only for phased plans, never `terraform -target` or invented phase inputs.
 - Security baseline holds for every resource (TLS 1.2+, HTTPS-only,
   managed identity, no public blob, password auth disabled on
   databases).
@@ -75,7 +73,7 @@ resource that has an AVM-TF module uses it.
 - `05-implementation-reference.md` exists and lists files + validation
   status; project README updated.
 
-# Constraints
+## Constraints
 
 - Allowed writes: `infra/terraform/{project}/` including CodeGen-owned lockfile,
   isolated init scratch, listed CodeGen outputs, project README, `00-handoff.md`,
@@ -86,14 +84,9 @@ resource that has an AVM-TF module uses it.
   required validation/plan checks; terminal access is not inherently read-only.
 - Load required skills at the consuming phase; recover missing or changed source and
   guidance after compaction. Retrieval budgets never justify guessing contract fields.
-- Preserve every entry in the Do / Don't lists verbatim — they encode the
-  security baseline (TLS 1.2+, HTTPS-only, managed identity, password
-  auth disabled, no public blob, network ACL bypass for Key Vault) and
-  AVM-TF-pitfall rules. Do not soften or summarise.
-- Preserve the AVM-TF-first contract verbatim: every resource that has
-  an AVM-TF module MUST use it; raw `azurerm_*` resources only when no
-  AVM-TF exists.
-- Preserve the HCP GUARDRAIL verbatim: never write `terraform { cloud { } }`
+- Apply the security and AVM-TF-pitfall rules in Do / Don't below.
+- Use AVM-TF when available; raw resources only when no suitable AVM-TF exists.
+- Enforce the HCP GUARDRAIL: never write `terraform { cloud { } }`
   blocks or reference `TFE_TOKEN`; always generate Azure Storage Account
   backend; never use `terraform -target` for phased deployment — use
   `var.deployment_phase` with `count` conditionals.
@@ -110,16 +103,15 @@ resource that has an AVM-TF module uses it.
     not chat back-and-forth.
   - When `04-implementation-plan.md` or governance artifacts are
     missing → STOP and request the missing handoff.
-- Reasoning effort: rely on the Copilot runtime default. CodeGen
-  benefits from systematic execution, not deeper reasoning.
+- Reasoning effort: use the runtime default; model labels do not establish effort controls.
 
-# Output
+## Output
 
 Per the `## Output Contract` section below: preflight artifact, IaC tree, implementation
 reference. Update `agent-output/{project}/README.md` to mark Step 5
 complete and list the artifacts (per the apex-azure-artifacts skill).
 
-# Stop rules
+## Stop rules
 
 - Missing required model/tool/input or worker eligibility returns `blocked`; no model
   fallback, skipped validation or fabricated findings. Retry transient worker failures
@@ -209,7 +201,7 @@ Before starting, validate these files exist in `agent-output/{project}/`:
   to its existing Refresh Governance handoff; neither Planner nor CodeGen generates governance artifacts.
 3. **Wave 1+ contract artifacts** — `04-iac-contract.json`,
    `04-policy-property-map.json`, and `04-environment-manifest.json`
-   (when identity / app regs / alerts / budgets are used). See
+  (environment context required; identity/alert entries conditional). See
    [`apex-iac-common/references/contract-emission-and-handoff.md`](../skills/apex-iac-common/references/contract-emission-and-handoff.md)
    → "Inputs from Step 4". `azuread_*` rules:
    [`azuread-pattern.md`](../skills/apex-terraform-patterns/references/azuread-pattern.md).
@@ -258,6 +250,10 @@ Run `apex-recall show <project> --json` for full project context. Do not read `0
 - **Sub-steps**: `phase_1_preflight` → `phase_1.5_governance` →
   `phase_1.6_compacted` → `phase_2_scaffold` → `phase_3_modules` → `phase_4_lint` →
   `phase_5_challenger` → `phase_6_artifact`
+- Preserve checkpoint compatibility: `phase_5_challenger` and
+  `phase_4_5_challenger_pass{N}` identify optional review; `phase_6_artifact` and
+  `phase_6_handoff` identify output work. `phase_4.6_validate_gate` remains unchanged.
+  Resume checks evidence, not numeric phase order; never migrate persisted keys silently.
 - **Resume**: Use the `apex-recall show` output to detect resume point.
 - **Checkpoints**: `apex-recall checkpoint <project> 5 <phase_name> --json`
 - **Decisions**: `apex-recall decide <project> --decision "<text>" --rationale "<why>" --step 5 --json`
@@ -347,14 +343,13 @@ from scratch.**
    `.github/instructions/references/iac-policy-compliance.md`. Record
    the required value — these become the L2 attestations the
    `terraform-validate-subagent` will check after code generation.
-4. Merge governance tags with the 9 baseline defaults (governance wins).
+4. Use the discovered tag contract; canonical fallback applies only when no tag policy exists.
 5. If `04-governance-constraints.json` contains a structured `override` block
    for a Deny finding (see `04g-governance.agent.md` → Policy Override Pattern),
    validate that `reason`, `issue_link`, and a future-dated `expiry` are all
-   present. If valid, treat the finding as informational and emit
-   `# OVERRIDE <policy_id> until <expiry> — see <issue_link>` above the
-   affected resource block. If any override field is missing or expired,
-   fail closed (return to user via `askQuestions`).
+  present. This is audit intent, not an effective Azure Policy exemption. Keep
+  Deny blocking until current governance evidence proves an authorized applicable
+  exemption or compliant configuration; otherwise return through Planner to Governance.
 
 > **GOVERNANCE GATE** — Never proceed to code generation with unresolved Deny
 > policy violations. Always use the `askQuestions` tool for user decisions.
@@ -462,15 +457,6 @@ plan (e.g. "resource missing", "wrong SKU per architecture",
 Fix only code-level issues (variable wiring, AVM-TF version, security
 baseline) inline; the plan is frozen.
 
-**Mechanical auto-fix before exit**: before declaring Step 5 complete,
-apply the mechanical-fix pass from
-`apex-iac-common/references/codegen-shared-workflow.md` →
-"Mechanical Auto-Fix Before Exiting" (LAW `depends_on` wiring, CIDR
-parameterization via `variables.tf`, missing `description` on variables,
-tag map completion) and re-run `terraform-validate-subagent` until it
-returns `APPROVED`. Exiting Step 5 with `NEEDS_REVISION` for any
-mechanical MEDIUM finding is a defect.
-
 For each pass, pass these inputs to the subagent:
 
 - `output_path` = `agent-output/{project}/challenge-findings-iac-code-pass{N}.json`
@@ -488,6 +474,12 @@ from disk only if you need full finding details for fix triage. Fix any
 Save validation status in `05-implementation-reference.md`. Artifact lint owned by lefthook + `10-Challenger` (see [`agent-authoring.instructions.md`](../instructions/agent-authoring.instructions.md#no-direct-markdownlint-on-agent-output-rule)).
 
 ### Phase 4.6 + Phase 6: Validate Gate & IaC Handoff (MANDATORY, Wave 1+)
+
+These completion checks run even when Phase 4.5 is skipped. Apply the shared
+Mechanical Auto-Fix Before Exiting checks (dependency wiring, CIDRs, descriptions,
+tags), then rerun changed validation until APPROVED within the existing retry cap.
+No mechanical NEEDS_REVISION or deferred validation may leave Step 5 complete.
+Save `05-implementation-reference.md` in every mode; optional review is not its owner.
 
 Documented end-to-end in
 [`apex-iac-common/references/contract-emission-and-handoff.md`](../skills/apex-iac-common/references/contract-emission-and-handoff.md).

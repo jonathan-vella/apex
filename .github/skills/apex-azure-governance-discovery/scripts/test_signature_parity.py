@@ -125,3 +125,18 @@ def test_signature_is_order_independent() -> None:
     """Permuting input findings does not change the resulting digest."""
     permuted = list(reversed(SAMPLE_FINDINGS))
     assert render_governance._completeness_signature(SAMPLE_FINDINGS) == render_governance._completeness_signature(permuted)
+
+
+def test_r1_signature_duplicate_policy_total_order() -> None:
+    findings = [
+        {**SAMPLE_FINDINGS[0], "assignment_id": "second", "assignment_parameters": {"effect": "Audit"}},
+        {**SAMPLE_FINDINGS[0], "assignment_id": "first"},
+        {**SAMPLE_FINDINGS[0], "assignment_id": "first", "scope": "/subscriptions/other"},
+    ]
+    assert discover._completeness_signature(findings) == render_cached_governance._completeness_signature(list(reversed(findings)))
+
+
+def test_r1_signature_binds_assignment_identity() -> None:
+    original = [{**SAMPLE_FINDINGS[0], "assignment_id": "first"}]
+    replacement = [{**SAMPLE_FINDINGS[0], "assignment_id": "replacement"}]
+    assert discover._completeness_signature(original) != discover._completeness_signature(replacement)

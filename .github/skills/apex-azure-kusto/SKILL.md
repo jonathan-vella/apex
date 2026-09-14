@@ -1,5 +1,8 @@
 ---
 name: apex-azure-kusto
+user-invocable: true
+disable-model-invocation: false
+argument-hint: "cluster, database and query goal"
 description: '**ANALYSIS SKILL** — Query and analyze data in Azure Data Explorer (Kusto/ADX) using KQL. WHEN: "KQL queries", "Kusto database queries", "Azure Data Explorer", "ADX clusters", "time series data", "IoT telemetry", "anomaly detection". DO NOT USE FOR: App Insights / Log Analytics troubleshooting (apex-azure-diagnostics), cost analysis (apex-azure-cost-optimization).'
 license: MIT
 metadata:
@@ -42,13 +45,17 @@ For full KQL syntax, examples, best practices, and performance tips, read
 
 ## Rules
 
-- Always include a time-range filter (`where Timestamp > ago(...)`) on time-series tables
+- Always bound time-series scans with start/end timestamps, including both join inputs
 - Use `take`/`limit` for exploratory queries
 - Filter early (`where` before `join` / `summarize`)
 - Use `summarize` for aggregations; `bin()` for time bucketing
 - Use `project` to select only needed columns
 
 ## MCP Tools
+
+These names are capability hints, not proof of installation. Inspect available
+tools and their current schemas before use; do not invent a missing tool or silently
+substitute ARG/Monitor for ADX execution.
 
 | Tool                     | Purpose                                                 |
 | ------------------------ | ------------------------------------------------------- |

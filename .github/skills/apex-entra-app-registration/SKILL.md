@@ -1,5 +1,8 @@
 ---
 name: apex-entra-app-registration
+user-invocable: true
+disable-model-invocation: false
+argument-hint: "application type and authentication requirements"
 description: '**WORKFLOW SKILL** — Guides Microsoft Entra ID app registration, OAuth 2.0 authentication, and MSAL integration. WHEN: "create app registration", "register Azure AD app", "configure OAuth", "add API permissions", "generate service principal", "MSAL example", "Entra ID setup". DO NOT USE FOR: Azure RBAC (apex-azure-rbac), Key Vault audits (apex-azure-compliance), resource security scanning (apex-azure-compliance).'
 license: MIT
 metadata:
@@ -21,7 +24,12 @@ registration, console app with user auth, service-to-service), read
 
 - **Prefer IaC** for managing app registrations when the project uses IaC, scales to many apps, or needs audit history (see [`references/BICEP-EXAMPLE.bicep`](references/BICEP-EXAMPLE.bicep))
 - **Prefer certificates or federated identity credentials over client secrets** in production
-- **Store client secrets in Key Vault** — never commit them; rotate regularly; copy the value immediately on creation (only shown once)
+- **Protect credential handoff** — follow the
+  [additive credential procedure](references/cli-commands.md#client-credentials-secrets--certificates);
+  never expose values to chat, tool output or logs
+- **Bind identity and approval** — use the
+  [identity and permission boundary](references/auth-best-practices.md#identity-and-permission-boundary)
+  before authentication, creation, rotation or consent; instructions are not write authorization
 - **Grant least-privilege API permissions** — only the scopes the app actually uses
 - **CLI for ad-hoc**, **IaC for production** — see [`references/cli-commands.md`](references/cli-commands.md)
 - **Out of scope**: Azure RBAC (apex-azure-rbac), Key Vault audits (apex-azure-compliance), resource security scanning (apex-azure-compliance)

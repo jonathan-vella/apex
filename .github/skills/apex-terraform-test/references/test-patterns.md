@@ -67,15 +67,25 @@ run "test_invalid_environment" {
 
 ### Complex Conditions
 
+Check every prefix, not a textual prefix or only the first subnet range. Both
+network endpoints must fall inside the allowed IPv4 parent `10.0.0.0/8`.
+For a different governed parent, change the mask and network in both comparisons.
+
 ```hcl
 run "test_all_subnets_in_vnet_range" {
   command = plan
   assert {
     condition = alltrue([
       for subnet in azurerm_subnet.this :
-      can(regex("^10\\.0\\.", subnet.address_prefixes[0]))
+      length(subnet.address_prefixes) > 0 && alltrue([
+        for prefix in subnet.address_prefixes : try(
+          cidrhost("${cidrhost(prefix, 0)}/8", 0) == "10.0.0.0" &&
+          cidrhost("${cidrhost(prefix, -1)}/8", 0) == "10.0.0.0",
+          false
+        )
+      ])
     ])
-    error_message = "All subnets should use 10.0.0.0/8 CIDR range"
+    error_message = "Every subnet prefix must be a valid IPv4 CIDR contained in 10.0.0.0/8"
   }
 }
 ```

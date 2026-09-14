@@ -1,7 +1,7 @@
 ---
 name: apex-host-debug-log-export
 description: "Bundle selected custom-agent debug logs locally for manual upload in Agent Host. Use /apex-host-debug-log-export after selecting the built-in agent owner and MAI-Code-1.1-Flash."
-argument-hint: "Optional OneDrive share link, displayed only; never uploaded automatically"
+argument-hint: "session scope and optional export choices"
 user-invocable: true
 disable-model-invocation: true
 ---

@@ -49,12 +49,14 @@ generic OpenAI guidance, not a model-specific vendor claim. Preserve exact
 user-confirmed `gpt-5.6-sol`; release, capabilities, and runtime cost tiers remain
 unknown where unverified. No vendor source refresh is implied by local edits.
 
-- **`gpt55-skeleton-001`** — Required H1 sections present (any order):
-  `# Goal`, `# Success criteria`, `# Constraints`, `# Output`,
-  `# Stop rules`, with a Role declaration. Leaf workers instead keep a bounded
-  role contract with Inputs, Outputs, and failure/return rules. Personality is
-  optional and never required for a leaf worker.
-- **`gpt55-stop-rules-non-empty-001`** — `# Stop rules` body must
+- **`gpt55-skeleton-001`** — Nonempty outcome sections: Role, Goal,
+  Success criteria, Constraints, Output, and Stop rules. Production agent normalization
+  requires exactly one H1 matching the frontmatter `name`, followed by H2 contract sections
+  (`## Role`, `## Goal`, `## Success criteria`, `## Constraints`, `## Output`, `## Stop rules`).
+  The generic outcome check accepts H1/H2 aliases; it does not waive production normalization.
+  Production leaf workers require nonempty H2 Role, Inputs, and Output sections plus a
+  bounded failure/return rule, not the full main-agent skeleton. Personality is optional.
+- **`gpt55-stop-rules-non-empty-001`** — `## Stop rules` body must
   contain ≥1 non-blank line.
 - **`gpt-no-claude-xml-001`** — Replace legacy Claude-style
   XML blocks (`<investigate_before_answering>`,
@@ -62,7 +64,7 @@ unknown where unverified. No vendor source refresh is implied by local edits.
   `<empty_result_recovery>`, `<subagent_budget>`,
   `<output_contract>`) with Markdown while preserving their content and H2 anchors.
   This is not a claim that GPT cannot interpret XML.
-- **`personality-scoping-001`** — `# Personality` block forbidden
+- **`personality-scoping-001`** — Personality section forbidden
   on internal pipeline agents (info-only).
 
 ### Cross-vendor

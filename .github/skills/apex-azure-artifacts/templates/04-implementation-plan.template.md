@@ -284,11 +284,13 @@ Source: [04-runtime-diagram.py](./04-runtime-diagram.py) (Python `diagrams` libr
 > | Governance constraints addressed | ✅ / ❌ |
 > | CAF naming conventions applied   | ✅ / ❌ |
 >
-> - [ ] **Approved** — proceed to bicep-code
+> - [ ] Required plan reviews are current and blocking findings resolved
+> - [ ] **Approved** — offer the graph-selected Bicep or Terraform CodeGen human handoff
 > - **Approver**: **\*\***\_\_\_**\*\***
 > - **Date**: **\*\***\_\_\_**\*\***
 >
-> Reply **"approve"** to proceed to bicep-code, or provide feedback.
+> Request approval only with current plan-readiness evidence; route using
+> `decisions.iac_tool`. Template completion alone does not complete Step 4.
 
 ---
 

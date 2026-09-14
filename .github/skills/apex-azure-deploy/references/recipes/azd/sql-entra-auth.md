@@ -21,16 +21,24 @@ properties: {
 
 ## Connection Patterns
 
-### Azure CLI (Recommended for Scripts)
+### Reviewed SQL Execution
+
+Use [run-sql.sh](../../../scripts/run-sql.sh), copied to the project's `scripts/` directory with editing tools.
+Prerequisite: Go sqlcmd supporting `--authentication-method ActiveDirectoryDefault`, an Entra-authorized identity,
+and network/DNS access to the approved SQL endpoint. Azure CLI does not provide a database query command.
+ODBC sqlcmd is a different interface; do not silently substitute it or use SQL passwords.
+If the binary, supported authentication method or credential is unavailable, stop and report a verification gap.
+
+Human approval must bind `SQL_APPROVED_TARGET` to `SQL_SERVER_FQDN/SQL_DATABASE`
+and `SQL_APPROVED_SHA256` to the reviewed SQL file. Do not auto-approve the current file by computing its hash.
+This applies to verification queries too: data-plane access is not authorized by deployment readiness.
+The helper preserves SQL failure exit status (`-b`) and never disables certificate checks.
 
 ```bash
-az sql db query \
-  --server "$SQL_SERVER" \
-  --database "$SQL_DATABASE" \
-  --resource-group "$AZURE_RESOURCE_GROUP" \
-  --auth-mode ActiveDirectoryDefault \
-  --queries "SELECT 1"
+bash ./scripts/run-sql.sh verify.sql
 ```
+
+For connectivity checks, the reviewed `verify.sql` contains `SELECT 1;`. Never log tokens or full environments.
 
 ### Connection Strings
 
@@ -63,10 +71,10 @@ CREATE USER [app-name] FROM EXTERNAL PROVIDER;
 -- Grant standard application permissions
 ALTER ROLE db_datareader ADD MEMBER [app-name];
 ALTER ROLE db_datawriter ADD MEMBER [app-name];
-ALTER ROLE db_ddladmin ADD MEMBER [app-name];
 ```
 
-> 💡 **Tip:** The managed identity name matches the App Service or Container App name.
+Resolve the actual approved identity; a UAMI may have a different name from the application.
+Schema permissions belong to a separately approved migration identity, not the runtime identity by default.
 
 ## Verify Current Admin
 

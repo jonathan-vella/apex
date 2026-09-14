@@ -1,5 +1,8 @@
 ---
 name: apex-azure-prepare
+user-invocable: true
+disable-model-invocation: false
+argument-hint: "project path and preparation scope"
 description: '**WORKFLOW SKILL** — Prepare Azure apps for deployment (Bicep/Terraform, azure.yaml, Dockerfiles). WHEN: "create app", "build web app", "create API", "deploy to Azure", "generate Bicep", "generate Terraform", "function app", "add authentication", "managed identity". DO NOT USE FOR: cross-cloud migration (apex-azure-cloud-migrate), executing deploys (apex-azure-deploy), preflight (apex-azure-validate).'
 license: MIT
 metadata:

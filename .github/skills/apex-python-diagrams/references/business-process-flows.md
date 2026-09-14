@@ -9,6 +9,17 @@ Generate professional business process flow diagrams showing user actions, syste
 > [`scripts/diagram_io.py`](../scripts/diagram_io.py) so both `.png` and
 > `.svg` siblings are emitted. Do not call `dot.render()` directly.
 
+## Bundled Custom Models
+
+Use `create_process_flow(title, filename, steps)` or
+`create_swimlane_flow(title, filename, lanes)` from
+[`multi_diagram_generator.py`](../scripts/multi_diagram_generator.py).
+For swimlanes, each step's optional `next` list contains `(target_id, label)`
+pairs, including cross-lane targets. Missing `next` means no outgoing edges;
+unknown targets raise `ValueError` before rendering. Only omitted (`None`)
+lanes select the sample model; an empty list remains empty. Both functions
+retain PNG+SVG outputs and return the PNG path.
+
 ## Approach: Graphviz with Custom Styling (Recommended)
 
 For business process flows, we use Graphviz directly for more control over shapes and styling.
@@ -190,33 +201,11 @@ with Diagram("Document Processing Flow", show=False, filename="process-flow", di
 
 ## Approach 2: Mermaid Flowcharts (Alternative)
 
-For simpler flows, generate Mermaid syntax that can be rendered.
-
-```python
-def generate_mermaid_flowchart(title, steps):
-    """Generate Mermaid flowchart syntax."""
-    mermaid = f"---\ntitle: {title}\n---\nflowchart TD\n"
-    for step in steps:
-        mermaid += f"    {step}\n"
-    return mermaid
-
-# Example usage
-steps = [
-    "A[Start] --> B{Document Received?}",
-    "B -->|Yes| C[Validate Format]",
-    "B -->|No| D[Wait for Input]",
-    "C --> E{Valid?}",
-    "E -->|Yes| F[Process Document]",
-    "E -->|No| G[Return Error]",
-    "F --> H[Store in Database]",
-    "H --> I[Send Confirmation]",
-    "I --> J[End]",
-    "G --> J",
-    "D --> B",
-]
-
-mermaid_code = generate_mermaid_flowchart("Document Processing", steps)
-```
+For inline process flowcharts, use the canonical
+[`apex-mermaid` skill](../../apex-mermaid/SKILL.md) for syntax, styling, and
+validation. Keep document receipt, format validation, wait/retry, error, storage,
+and confirmation branches in the supplied model. Inline Mermaid is an
+alternative output, not a replacement for required PNG+SVG artifacts.
 
 ## Approach 3: Graphviz Direct (Maximum Control)
 

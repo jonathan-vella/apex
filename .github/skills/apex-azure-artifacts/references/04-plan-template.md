@@ -2,6 +2,13 @@
 
 # Step 4: Implementation Plan Templates
 
+Navigation summary only. Read the corresponding full template before current
+writes: [governance](../templates/04-governance-constraints.template.md),
+[implementation plan](../templates/04-implementation-plan.template.md), or
+[preflight](../templates/04-preflight-check.template.md). The heading registry
+owns required H2s; preserve additional full-template headings too. Routing and
+completion follow the workflow graph and current approval/review state.
+
 ### 04-governance-constraints.md
 
 ```text
@@ -15,6 +22,9 @@
 ## 🌐 Network Policies
 ## References
 ```
+
+The full governance template also includes `## 📜 Compliance Frameworks`;
+preserve that additional section when writing the artifact.
 
 ### 04-implementation-plan.md
 

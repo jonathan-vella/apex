@@ -2,7 +2,11 @@
 
 # Console Application Examples
 
-This document provides complete working examples of console applications that authenticate with Microsoft Entra ID using MSAL (Microsoft Authentication Library).
+These MSAL console examples illustrate delegated and app-only flows. Verify the
+installed SDK/version before execution; these snippets do not prove API currency.
+Apply the [identity and permission boundary](auth-best-practices.md#identity-and-permission-boundary).
+Device-code/browser prompts and secret input belong in a user-controlled terminal,
+not agent tool output. Do not log raw tokens or SDK/HTTP error objects.
 
 ## Table of Contents
 
@@ -265,11 +269,14 @@ npm install @azure/msal-node axios
 const msal = require("@azure/msal-node");
 const axios = require("axios");
 
-// Configuration - replace with your values
+const clientId = process.env.AZURE_CLIENT_ID;
+const tenantId = process.env.AZURE_TENANT_ID;
+if (!clientId || !tenantId) throw new Error("Intended client ID and tenant ID are required");
+
 const config = {
   auth: {
-    clientId: "YOUR_APPLICATION_CLIENT_ID",
-    authority: "https://login.microsoftonline.com/YOUR_TENANT_ID",
+    clientId,
+    authority: `https://login.microsoftonline.com/${tenantId}`,
   },
 };
 
@@ -306,11 +313,12 @@ async function acquireTokenDeviceCode() {
 
 // Client credentials flow (service-to-service, no user)
 async function acquireTokenClientCredentials() {
+  const clientSecret = process.env.AZURE_CLIENT_SECRET;
+  if (!clientSecret) throw new Error("Private client credential is required");
   const confidentialConfig = {
     auth: {
-      clientId: "YOUR_APPLICATION_CLIENT_ID",
-      authority: "https://login.microsoftonline.com/YOUR_TENANT_ID",
-      clientSecret: "YOUR_CLIENT_SECRET", // From app registration
+      ...config.auth,
+      clientSecret,
     },
   };
 
@@ -325,7 +333,12 @@ async function acquireTokenClientCredentials() {
 }
 
 // Call Microsoft Graph API
-async function callGraphApi(accessToken) {
+async function callGraphApi(accessToken, flow, targetUserId) {
+  if (flow !== "delegated" && flow !== "app-only") throw new Error("Unsupported authentication flow");
+  if (flow === "app-only" && !targetUserId) throw new Error("App-only Graph access requires a target user ID");
+  const endpoint = flow === "app-only"
+    ? `https://graph.microsoft.com/v1.0/users/${encodeURIComponent(targetUserId)}`
+    : "https://graph.microsoft.com/v1.0/me";
   const options = {
     headers: {
       Authorization: `Bearer ${accessToken}`,
@@ -333,11 +346,11 @@ async function callGraphApi(accessToken) {
   };
 
   try {
-    const response = await axios.get("https://graph.microsoft.com/v1.0/me", options);
-    console.log("\nUser profile from Microsoft Graph:");
-    console.log(JSON.stringify(response.data, null, 2));
+    await axios.get(endpoint, options);
+    console.log("Microsoft Graph request succeeded");
   } catch (error) {
-    console.error("API call failed:", error.response?.status, error.message);
+    console.error("API call failed:", error.response?.status ?? "unknown");
+    throw new Error("Graph request failed");
   }
 }
 
@@ -358,6 +371,8 @@ async function main() {
       result = await acquireTokenDeviceCode();
     } else if (choice === "2") {
       result = await acquireTokenClientCredentials();
+    } else {
+      throw new Error("Unsupported authentication choice");
     }
 
     if (result.accessToken) {
@@ -365,12 +380,13 @@ async function main() {
       console.log(`Token expires: ${new Date(result.expiresOn)}`);
 
       // Call Microsoft Graph API
-      await callGraphApi(result.accessToken);
+      await callGraphApi(result.accessToken, choice === "2" ? "app-only" : "delegated", process.env.GRAPH_USER_ID);
     } else {
       console.error("Failed to acquire token");
     }
   } catch (error) {
-    console.error("Error:", error.message);
+    console.error("Authentication or Graph request failed; inspect redacted diagnostics privately");
+    process.exitCode = 1;
   }
 }
 
@@ -382,6 +398,12 @@ main();
 ```bash
 node console_app.js
 ```
+
+Use delegated `User.Read` for device code. App-only mode uses `.default` and needs
+admin-consented application permission for the selected `/users/{id}` operation
+(for example, `User.Read.All`), plus an explicit `GRAPH_USER_ID`. Do not add broader
+permissions automatically. Provision `AZURE_CLIENT_SECRET` privately only when that
+flow is approved; prefer supported certificate/federated credentials in production.
 
 ## Next Steps
 

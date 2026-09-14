@@ -117,11 +117,11 @@ For each resource type:
    - **If quota CLI is supported**:
      - Get limit: `az quota show --resource-name {quota-resource-name} --scope /subscriptions/{subscription-id}/providers/{ProviderNamespace}/locations/{region}`
      - Get current usage: `az quota usage show --resource-name {quota-resource-name} --scope /subscriptions/{subscription-id}/providers/{ProviderNamespace}/locations/{region}`
-   - **If quota CLI is NOT supported** (returns `BadRequest`):
-     - Get current usage: `az graph query -q "resources | where type == '{resource-type}' and location == '{location}' | count"` (requires `az extension add --name resource-graph`)
+  - **If unsupported capability is confirmed** (not merely a generic `BadRequest`):
+    - Get count usage: `az graph query --subscriptions "{subscription-id}" -q "resources | where type == '{resource-type}' and location == '{location}' | count"` only for a documented regional count quota. For subscription-wide limits omit the location filter. This is not a vCPU usage query.
      - Get limit: [Azure service limits documentation](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits)
-3. **Calculate total** - Add "Number to Deploy" + current usage = "Total After Deployment"
-4. **Verify capacity** - Ensure "Total After Deployment" ≤ "Limit/Quota"
+3. **Calculate total in matching units** - For count quotas, add resource counts. For vCPU quotas, sum each VM/pool's maximum planned instance count times its SKU vCPUs (including autoscale/surge); then add current vCPU usage. Check both family and regional total vCPU quotas, with subscription, region, quota name and units recorded.
+4. **Verify quota headroom** - Ensure normalized total is at most the quota. Quota headroom does not prove SKU availability or physical regional capacity; missing usage, scope, units or SKU size blocks readiness.
 5. **Document source** - Note whether data came from "apex-azure-quotas (resource-name)" or "Azure Resource Graph + Official docs"
 
 **Completed example:**
@@ -129,9 +129,9 @@ For each resource type:
 | Resource Type                                       | Number to Deploy | Total After Deployment | Limit/Quota    | Notes                                                 |
 | --------------------------------------------------- | ---------------- | ---------------------- | -------------- | ----------------------------------------------------- |
 | Microsoft.App/managedEnvironments                   | 1                | 1                      | 50             | Fetched from: apex-azure-quotas (ManagedEnvironmentCount)  |
-| Microsoft.Compute/virtualMachines (Standard_D4s_v3) | 3                | 15                     | 350 vCPUs      | Fetched from: apex-azure-quotas (standardDSv3Family)       |
+| Microsoft.Compute/virtualMachines (Standard_D4s_v3) | 3 VMs = 12 vCPUs | 24 vCPUs               | 350 vCPUs      | Example: 12 existing + 3 x 4 planned; verify family AND regional totals |
 | Microsoft.Network/publicIPAddresses                 | 2                | 5                      | 100            | Fetched from: apex-azure-quotas (PublicIPAddresses)        |
-| Microsoft.DocumentDB/databaseAccounts               | 1                | 1                      | 50 per region  | Fetched from: Official docs (quota CLI not supported) |
+| Microsoft.DocumentDB/databaseAccounts | 1 | Current count + 1 | Verified count limit | Record documented scope; omit region for subscription-wide limits |
 | Microsoft.Storage/storageAccounts                   | 2                | 8                      | 250 per region | Fetched from: Official docs                           |
 
 **Status:** ✅ All resources within limits | ⚠️ Near limit (>80%) | ❌ Insufficient capacity
@@ -142,8 +142,9 @@ For each resource type:
 
 - **MUST use apex-azure-quotas skill first** to check providers via quota CLI (`az quota` commands) - Microsoft.Compute, Microsoft.Network, Microsoft.App, etc.
 - Azure quota CLI is **ALWAYS preferred over REST API** for checking quotas
-- **ONLY for unsupported providers** (e.g., Microsoft.DocumentDB returns `BadRequest`), use fallback methods: [Azure service limits documentation](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits)
-- If any resource exceeds limits, return to Step 2 to select a different region or request quota increase
+- **ONLY for confirmed unsupported providers**, use scope- and unit-matched fallback methods from official service limits.
+  Diagnose `BadRequest`, authorization and malformed scopes before classifying capability.
+- If any resource exceeds limits, obtain approval before changing region or requesting a quota increase.
 
 ---
 

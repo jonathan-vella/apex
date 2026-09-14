@@ -19,7 +19,8 @@ UAMI requires **explicit credential configuration** — the runtime cannot auto-
 
 ## The Solution: Three Required Settings
 
-For **every** service binding using UAMI, you MUST configure THREE app settings:
+For identity-based bindings using a connection prefix, configure these settings. SQL is the explicit exception:
+it consumes one identity-bearing connection string, not split `__credential`/`__clientId` settings.
 
 | Setting                                                                    | Purpose          | Example                                |
 | -------------------------------------------------------------------------- | ---------------- | -------------------------------------- |
@@ -62,18 +63,37 @@ COSMOS_CONTAINER_NAME: 'items'
 ### Blob Storage
 
 ```bicep
-BlobConnection__serviceUri: 'https://${storageAccount}.blob.core.windows.net'
-BlobConnection__credential: 'managedidentity'
-BlobConnection__clientId: uamiClientId
+PDFProcessorSTORAGE__blobServiceUri: 'https://${storageAccount}.blob.core.windows.net'
+PDFProcessorSTORAGE__credential: 'managedidentity'
+PDFProcessorSTORAGE__clientId: uamiClientId
 ```
 
 ### SQL Database
 
 ```bicep
-SqlConnection__connectionString: 'Server=${sqlServer}.database.windows.net;Database=${database};Authentication=Active Directory Managed Identity;User Id=${uamiClientId}'
+AZURE_SQL_CONNECTION_STRING_KEY: 'Server=${sqlServer}.database.windows.net;Database=${database};Authentication=Active Directory Managed Identity;User Id=${uamiClientId};Encrypt=True;TrustServerCertificate=False;'
 ```
 
 > **Note:** SQL uses connection string format with `Authentication=Active Directory Managed Identity`
+
+## Composition Contract
+
+Use these contracts for every bundled language and both IaC tracks. Merge the recipe's emitted settings rather
+than retyping them. A migration may retain an existing binding name only by explicitly mapping it to the same
+emitted setting value; never silently rename just the application or just the infrastructure.
+
+| Recipe | Source contract | IaC contract |
+| --- | --- | --- |
+| SQL | `AZURE_SQL_CONNECTION_STRING_KEY` | Same key; managed identity authentication plus UAMI client ID |
+| Blob/Event Grid | `PDFProcessorSTORAGE`; `ProcessBlobUpload` | Same prefix; Event Grid destination ends in `/functions/ProcessBlobUpload` |
+| Blob input/output | `unprocessed-pdf/{name}` and `processed-pdf` | Create both containers; filter events to the input container only |
+
+If container parameters change, update selected-language source binding paths and the Event Grid filter together.
+Keep output and input containers distinct to avoid recursion. Preserve host queue endpoints and poison-message
+RBAC from the selected Blob extension/template. Compile/index the actual runtime; string checks do not verify
+SDK-type bindings, extension support or Event Grid delivery.
+Production data networking follows governance and remains private. Use AVM-first adaptation or an explicitly
+approved raw-resource exception; unavailable module interfaces block verification, not policy.
 
 ## Recipe Module Pattern
 
@@ -113,8 +133,8 @@ Before deploying, verify:
 
 - [ ] Recipe module has `uamiClientId` parameter
 - [ ] Recipe module exports `appSettings` output
-- [ ] `appSettings` includes `__credential: 'managedidentity'`
-- [ ] `appSettings` includes `__clientId` referencing the UAMI
+- [ ] Prefix-based settings include `__credential: 'managedidentity'` and `__clientId` referencing the UAMI
+- [ ] SQL instead includes its identity-bearing connection string with `User Id` referencing the UAMI
 - [ ] main.bicep passes `apiUserAssignedIdentity.outputs.clientId` to recipe
 - [ ] main.bicep merges recipe's `appSettings` into function config
 

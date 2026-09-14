@@ -1,112 +1,72 @@
 # C# (.NET) MCP Tools
 
-## Dependencies
-
-**.csproj:**
+Use .NET 8 isolated worker, not the in-process model. Keep the base project's
+Worker SDK build configuration and discovery entry point. Merge these pinned
+references into its ItemGroup; System.Text.Json is provided by .NET 8.
 
 ```xml
-<PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.*" />
-<PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http" Version="3.*" />
-<PackageReference Include="System.Text.Json" Version="8.*" />
+<ItemGroup>
+  <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="2.1.0" />
+  <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http" Version="3.3.0" />
+  <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Mcp" Version="1.0.0" />
+</ItemGroup>
 ```
 
-## Source Code
+## Program.cs
 
-**McpTools.cs:**
+For a base using the standard isolated HTTP model (HttpRequestData), its entry
+point must configure the worker. Retain any existing service registrations.
 
 ```csharp
+using Microsoft.Extensions.Hosting;
+
+var host = new HostBuilder()
+    .ConfigureFunctionsWorkerDefaults()
+    .Build();
+host.Run();
+```
+
+## McpTools.cs
+
+```csharp
+using System;
+using System.Net;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Extensions.Mcp;
 using Microsoft.Azure.Functions.Worker.Http;
-using Microsoft.Extensions.Logging;
 
 namespace McpFunctions;
 
 public class McpTools
 {
-    private readonly ILogger<McpTools> _logger;
-
-    private static readonly object[] Tools = new[]
+    private static string RequireText(string value)
     {
-        new {
-            name = "get_weather",
-            description = "Get weather for a city",
-            inputSchema = new {
-                type = "object",
-                properties = new { city = new { type = "string", description = "City name" } },
-                required = new[] { "city" }
-            }
-        },
-        new {
-            name = "search_docs",
-            description = "Search documentation",
-            inputSchema = new {
-                type = "object",
-                properties = new { query = new { type = "string", description = "Search query" } },
-                required = new[] { "query" }
-            }
-        }
-    };
-
-    public McpTools(ILogger<McpTools> logger)
-    {
-        _logger = logger;
+        if (string.IsNullOrWhiteSpace(value)) throw new ArgumentException("A non-empty string is required");
+        return value;
     }
 
-    [Function("mcp")]
-    public async Task<HttpResponseData> Run(
-        [HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequestData req)
+    [Function("GetWeather")]
+    public string GetWeather(
+        [McpToolTrigger("get_weather", "Demo weather; no live weather service")] ToolInvocationContext context,
+        [McpToolProperty("city", "Non-empty city", isRequired: true)] string city)
     {
-        var body = await JsonSerializer.DeserializeAsync<JsonElement>(req.Body);
-        var method = body.GetProperty("method").GetString();
-        var id = body.GetProperty("id").GetInt32();
+        return JsonSerializer.Serialize(new { demo = true, city = RequireText(city), temperature = 72, conditions = "sunny" });
+    }
 
-        var response = req.CreateResponse();
-        response.Headers.Add("Content-Type", "application/json");
-
-        if (method == "tools/list")
-        {
-            var result = new { jsonrpc = "2.0", id, result = new { tools = Tools } };
-            await response.WriteAsJsonAsync(result);
-            return response;
-        }
-
-        if (method == "tools/call")
-        {
-            var toolParams = body.GetProperty("params");
-            var toolName = toolParams.GetProperty("name").GetString();
-            var args = toolParams.GetProperty("arguments");
-
-            object toolResult = toolName switch
-            {
-                "get_weather" => new { temperature = 72, conditions = "sunny", city = args.GetProperty("city").GetString() },
-                "search_docs" => new { results = new[] { $"Result for: {args.GetProperty("query").GetString()}" }, count = 1 },
-                _ => null
-            };
-
-            if (toolResult == null)
-            {
-                response.StatusCode = System.Net.HttpStatusCode.BadRequest;
-                await response.WriteAsJsonAsync(new { jsonrpc = "2.0", id, error = new { code = -32601, message = "Tool not found" } });
-                return response;
-            }
-
-            var content = new[] { new { type = "text", text = JsonSerializer.Serialize(toolResult) } };
-            await response.WriteAsJsonAsync(new { jsonrpc = "2.0", id, result = new { content } });
-            return response;
-        }
-
-        response.StatusCode = System.Net.HttpStatusCode.BadRequest;
-        await response.WriteAsJsonAsync(new { jsonrpc = "2.0", id, error = new { code = -32601, message = "Method not found" } });
-        return response;
+    [Function("SearchDocs")]
+    public string SearchDocs(
+        [McpToolTrigger("search_docs", "Demo documentation search")] ToolInvocationContext context,
+        [McpToolProperty("query", "Non-empty query", isRequired: true)] string query)
+    {
+        return JsonSerializer.Serialize(new { demo = true, results = new[] { $"Result for: {RequireText(query)}" }, count = 1 });
     }
 
     [Function("health")]
     public HttpResponseData Health(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "health")] HttpRequestData request)
     {
-        var response = req.CreateResponse();
+        var response = request.CreateResponse(HttpStatusCode.OK);
         response.Headers.Add("Content-Type", "application/json");
         response.WriteString("{\"status\":\"healthy\",\"type\":\"mcp\"}");
         return response;
@@ -114,6 +74,8 @@ public class McpTools
 }
 ```
 
-## Files to Remove
-
-- HTTP trigger file from base template
+Use the [shared MCP host settings](../README.md#verification-gate), omitting
+extensionBundle for this compiled project. The extension owns initialization,
+notifications, inputSchema generation, content results, tool errors and transport.
+Build and Core Tools handshake remain manual checks where .NET is unavailable;
+that is a verification gap, not a reason to retain a broken protocol dispatcher.

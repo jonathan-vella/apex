@@ -1,5 +1,8 @@
 ---
 name: apex-terraform-search-import
+user-invocable: true
+disable-model-invocation: false
+argument-hint: "resource scope and search or import task"
 description: '**WORKFLOW SKILL** — Discover existing Azure resources and bulk import them into Terraform management. WHEN: "terraform import", "import Azure resources", "bring unmanaged infra under Terraform", "adopt Terraform for existing resources", "generate import blocks". DO NOT USE FOR: Bicep code (apex-azure-bicep-patterns), new resource creation (apex-terraform-patterns), architecture decisions (apex-azure-adr).'
 compatibility: Manual workflow requires azurerm ~> 4.0 + Azure CLI. Search workflow requires Terraform >= 1.14 (experimental for azurerm).
 ---
@@ -40,12 +43,17 @@ is TBD. Use Manual Discovery as the reliable default.
 
 ## Rules
 
-- **Manual Discovery is the primary path** — always works with `azurerm ~> 4.0` and Azure CLI; Terraform Search is experimental and provider support is TBD
-- **Pin provider to `~> 4.0`** — azurerm 4.x renamed many attributes (`allow_blob_public_access` → `allow_nested_items_to_be_public`, etc.); pinning to anything else causes drift after import
-- **Plan before apply** — always run `terraform plan` after generating import blocks; the plan should show import actions ONLY (no creates / destroys)
-- **Adopt AVM modules post-import** — raw `azurerm_*` is acceptable as a temporary state; refactor to `Azure/avm-res-*` modules with `moved {}` blocks (see `apex-terraform-patterns` `references/refactor-module.md`)
-- **Document the source** — in the imported `resource` block, comment the originating `az resource list` query so future runs can be reproduced
-- **Out of scope**: Bicep code (use `apex-azure-bicep-patterns`), new resource creation (use `apex-terraform-patterns`), architecture decisions (use `apex-azure-adr`)
+- **Manual Discovery is the primary path** with `azurerm ~> 4.0` and Azure CLI;
+   Terraform Search is experimental and provider support is TBD.
+- **Pin provider to `~> 4.0`** and retain the lockfile. Validate renamed 4.x attributes
+   against the approved provider schema before import.
+- **Plan before apply**: save and review an import-only plan, with no creates, updates,
+   deletes or replacements; state adoption/apply requires explicit human authorization.
+- **Adopt AVM modules post-import**: raw `azurerm_*` is acceptable as a temporary state;
+   refactor with `moved {}` blocks per `apex-terraform-patterns` `references/refactor-module.md`.
+- **Document the source**: record the originating `az resource list` query so discovery can be reproduced.
+- **Out of scope**: Bicep (`apex-azure-bicep-patterns`), new resources (`apex-terraform-patterns`),
+   architecture decisions (`apex-azure-adr`).
 
 ## Manual Discovery Workflow (Primary)
 
@@ -54,6 +62,8 @@ group, tag, or type-specific commands like `az vm list`); (2) generate `resource
 blocks for each (full examples and bulk import scripts in
 [`references/manual-import.md`](references/manual-import.md)); (3) `terraform plan` (review:
 imports only — no creates / destroys) → `terraform apply`.
+Use the saved-plan check in the manual reference before requesting approval;
+discovery or generated import blocks do not authorize state changes.
 
 Import ID format:
 `/subscriptions/{sub}/resourceGroups/{rg}/providers/{type}/{name}`. The Azure-type ↔
@@ -69,7 +79,12 @@ See `apex-terraform-patterns` skill `references/refactor-module.md` for guidance
 
 Use Azure MCP or Azure CLI to discover deployed resource IDs. Use the public
 Terraform Registry API for provider/module search and versions, then run
-`terraform init` and `terraform providers schema -json` for resource schemas.
+caller-approved `terraform init` preserving the lockfile, and
+`terraform providers schema -json` for resource schemas. The
+[list helper](scripts/list_resources.sh) only inspects schemas; it never initializes
+or upgrades dependencies. A nonzero result means schema/initialization failure:
+stop and diagnose it, not "Search unsupported". Only a successful empty list means
+no list capability for the selected initialized provider.
 The canonical commands and source boundaries are in
 [`terraform-conventions.md`](../apex-azure-defaults/references/terraform-conventions.md).
 

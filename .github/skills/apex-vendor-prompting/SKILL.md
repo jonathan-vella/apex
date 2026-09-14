@@ -1,5 +1,8 @@
 ---
 name: apex-vendor-prompting
+user-invocable: true
+disable-model-invocation: false
+argument-hint: "agent or prompt path, model family and audit scope"
 description: '**ANALYSIS SKILL** — Audit-grade reference for Anthropic Claude and OpenAI GPT-5.6 prompting best practices. WHEN: "claude prompting", "gpt-5.6 prompting", "audit agent", "review prompt", "vendor best practices", "anthropic best practices", "openai prompting". DO NOT USE FOR: routine prompt edits where rules are already known, generic markdown style (markdown.instructions.md).'
 license: MIT
 ---
@@ -154,6 +157,11 @@ to refresh snapshots and emit a drift report. The fetch script
 ([fetch-vendor-prompting-guides.mjs](../../../tools/scripts/fetch-vendor-prompting-guides.mjs))
 falls back from `gh api` (auth) → anonymous raw → cached committed
 prose if upstream is unavailable.
+
+Cached fallback preserves the last successful `fetched_at` and freshness date;
+`attempted_at` and the failure reason record the separate refresh attempt.
+Missing successful provenance remains unknown. An unchanged successful network
+response may advance freshness; cached reuse cannot establish upstream currency.
 
 Review actual source diffs before updating normalized references and rule citations.
 There is no digest-generation step. Offline audits reuse cached sources without

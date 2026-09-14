@@ -66,7 +66,7 @@ test("policy precheck fails closed without fresh or explicitly stale envelope ev
   }
   const project = path.join(root, "agent-output/demo");
   mkdirSync(project, { recursive: true });
-  const run = (envelopeStatus, status, deployGate) => {
+  const run = (envelopeStatus, status, deployGate, severity = "NONE") => {
     writeFileSync(
       path.join(project, "06-policy-precheck.json"),
       JSON.stringify({
@@ -76,6 +76,7 @@ test("policy precheck fails closed without fresh or explicitly stale envelope ev
         policies_that_will_block_deploy: [],
         what_if_summary: { policy_violations_in_what_if: 0 },
         attestation: { envelope_status: envelopeStatus },
+        drift_signal: { severity, accepted_by_residual_drift_policy: false },
       }),
     );
     return spawnSync(process.execPath, [path.join(scripts, "validate-policy-precheck.mjs")], { encoding: "utf8" });
@@ -87,7 +88,7 @@ test("policy precheck fails closed without fresh or explicitly stale envelope ev
     assert.equal(run(envelope, "FAILED", "BLOCK").status, 0);
   }
   assert.equal(run("FRESH", "CLEAN", "PROCEED").status, 0);
-  assert.equal(run("FRESH", "INFORMATIONAL", "PROCEED").status, 0);
+  assert.equal(run("FRESH", "INFORMATIONAL", "PROCEED", "INFORMATIONAL").status, 0);
   assert.equal(run("STALE", "INFORMATIONAL", "BLOCK").status, 0);
   assert.equal(run("STALE", "CLEAN", "PROCEED").status, 1);
 });

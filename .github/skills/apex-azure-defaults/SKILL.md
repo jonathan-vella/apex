@@ -1,5 +1,7 @@
 ---
 name: apex-azure-defaults
+user-invocable: false
+disable-model-invocation: false
 description: '**UTILITY SKILL** — Applies canonical Azure defaults through an IaC workflow covering governance precedence, CAF naming, AVM-first composition, unique suffixes, cost monitoring, VNet planning, and lifecycle checks. WHEN: "Azure naming convention", "CAF naming", "resource tags", "AVM module", "security baseline", "region default". DO NOT USE FOR: artifact templates or pricing lookups.'
 compatibility: Works with Claude Code, GitHub Copilot, VS Code, and any Agent Skills compatible tool.
 license: MIT
@@ -18,7 +20,8 @@ always overrides repository defaults.
 
 ## Prerequisites
 
-- Read the canonical Azure Defaults section once per session.
+- Reuse the canonical Azure Defaults section while current and available;
+  reload missing required guidance after edits, compaction or a new chat.
 - Read `04-governance-constraints.json` when it exists.
 - Read `sku-manifest.json` for creative SKU decisions; do not derive SKUs from
   artifact prose.

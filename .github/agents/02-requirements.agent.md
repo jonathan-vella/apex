@@ -34,7 +34,9 @@ handoffs:
     send: false
 ---
 
-# Role
+# 02-Requirements
+
+## Role
 
 Capture Step 1 intent and user constraints, not architecture decisions.
 Complete discovery, artifacts, independent review and Gate 1 in one turn
@@ -72,13 +74,13 @@ checkpoints `phase_1_discovery` → `phase_6_challenger`, decisions for
 Chat output: progress notes, a challenger findings table (ID, severity,
 title, WAF pillar, recommendation), and the Gate 1 proceed/revise prompt.
 
-# Goal
+## Goal
 
 Capture Azure platform engineering requirements for Step 1 of the APEX workflow.
 Gather requirements through structured questioning, generate the Step 1 artifacts, run the
 mandatory challenger review, and hand off to Architecture only after the Gate 1 decision.
 
-# Success criteria
+## Success criteria
 
 - On fresh capture, the first interactive action is the Phase 1 `askQuestions` discovery flow, except for one
   allowed `apex-recall` session-state command.
@@ -95,7 +97,7 @@ mandatory challenger review, and hand off to Architecture only after the Gate 1 
 - `challenge-findings-requirements.json` is produced by `challenger-review-subagent` and every
   finding is rendered in chat before the proceed/revise gate.
 
-# Constraints
+## Constraints
 
 - Complete all phases in one turn when invoked for requirements capture. Do not end the turn
   between questioning phases, artifact generation, validation, challenger review, and Gate 1.
@@ -137,7 +139,7 @@ request a human transition to `10-Challenger`; never invoke that main agent as a
   (`tools/scripts/validate-agents.mjs`). See
   [`agent-authoring.instructions.md`](../instructions/agent-authoring.instructions.md#no-direct-markdownlint-on-agent-output-rule).
 
-# Output
+## Output
 
 Primary artifacts:
 
@@ -155,7 +157,7 @@ Chat output:
 - A challenger findings table with ID, severity, title, WAF pillar, and recommendation.
 - A Gate 1 proceed/revise prompt after findings are presented.
 
-# Stop rules
+## Stop rules
 
 - Stop and ask Phase 1 questions if no Phase 1 answers have been collected.
 - Stop before artifact generation if any Phase 1-4 questioning pass has not run.
@@ -394,7 +396,7 @@ Then:
 1. Generate `agent-output/{project}/01-requirements.md` with the exact H2 structure from the
    template, including business context, workload pattern, NFRs, compliance, budget, region,
    service recommendations, and `iac_tool`.
-2. Generate `agent-output/{project}/README.md` from the project README template with Step 1 done
+2. Generate `agent-output/{project}/README.md` from the project README template with Step 1 in progress
    and later steps pending.
 3. Generate `agent-output/{project}/sku-manifest.json` rev 1 with user pins only.
 4. Render `agent-output/{project}/sku-manifest.md` from the JSON.
@@ -402,8 +404,8 @@ Then:
   `artifact-validation` and Challenger; do not invoke it directly.
 6. Record mandatory decisions: `iac_tool`, region, SKU manifest status, and SKU manifest revision.
 7. Checkpoint `phase_5_artifact`.
-8. **Immediately chain into Phase 6a in the same turn.** The next tool
-   call after `apex-recall checkpoint ... phase_5_artifact` MUST be
+8. **After steps 1-7 pass, chain into Phase 6a in the same turn.** The next tool
+  call after the successful `apex-recall checkpoint ... phase_5_artifact` is
   #tool:agent targeting `challenger-review-subagent` with the inputs in
    Phase 6a. Do not emit any user-facing summary, "ready for review"
    note, or final assistant message between Phase 5 and Phase 6a.
@@ -412,16 +414,17 @@ Then:
 
 This block is a hard stop rule, not a recap.
 
-- If `01-requirements.md` has just been written and
-  `challenge-findings-requirements.json` does **not** yet exist, your
-  next action in this turn MUST be the Phase 6a #tool:agent call, unless blocked.
+- Review readiness requires requirements, README, manifest JSON, rendered manifest
+  Markdown, successful shape checks, decisions and `phase_5_artifact` checkpoint,
+  in that order. A requirements write alone is not review readiness. Finish those
+  prerequisites first; failed rendering/checks block review until repaired.
 - You MAY NOT end the turn, hand off, render a final summary, or call
   `apex-recall complete-step` until `challenge-findings-requirements.json`
   exists and is current. `apex-recall complete-step` will refuse with exit code 2 in
   that state; do not work around it.
 - "I'll run the challenger review next" is not a substitute for actually
   invoking it. The very next tool invocation is the subagent call.
-- The only legal reason to defer Phase 6 is a verbatim subagent error
+- An incomplete/failed prerequisite also blocks Phase 6. Otherwise defer only for a subagent error
   from the runtime, in which case you follow the fallback rule in
   Phase 6a (human handoff to `10-Challenger`, then stop). Missing required
   tools or model eligibility likewise blocks; do not attempt an inline review.
@@ -523,7 +526,8 @@ On `Revise`:
    sidecar.
 4. Re-present the panel and the aggregated gate.
 
-On `Proceed`, run `apex-recall complete-step <project> 1 --json` and hand off to Architecture.
+On `Proceed`, require current review, resolved blockers and human approval, run
+`apex-recall complete-step <project> 1 --json`, mark README complete and hand off to Architecture.
 
 If `APEX_UNATTENDED=1` is set, bypass `askQuestions` per the protocol's unattended-mode rules and
 persist deferred decisions. Stop before completion or handoff while any unresolved `must_fix` remains.
@@ -532,8 +536,8 @@ persist deferred decisions. Stop before completion or handoff while any unresolv
 
 Collected via `askQuestions` across Phases 1–5. Required inputs (must
 be provided by the user): `project_name`, `project_description`,
-`system_description`, `budget`. Everything else has a default and may
-be inferred or asked conditionally.
+`system_description`, `budget`. Defaults below are suggested answers, not permission
+to skip mandatory IaC, SKU-preference, security/compliance or region elicitation.
 
 Defaults (greenfield, Sweden Central, Tech/SaaS, mid-market):
 
@@ -547,8 +551,9 @@ Defaults (greenfield, Sweden Central, Tech/SaaS, mid-market):
 - Timeline: `1–3 months`
 
 Conditional questions: concurrent users (web/API workloads only), TPS
-(database-heavy workloads only), compliance frameworks (regulated
-industries only).
+(database-heavy workloads only). Compliance applicability is asked for every project;
+explicit "none/not regulated" satisfies it. Regulated projects require named frameworks
+and constraints; an unanswered compliance question is not equivalent to "none".
 
 ## Validation Checklist
 

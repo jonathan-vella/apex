@@ -1,12 +1,14 @@
 ---
 name: apex-iac-common
-description: '**UTILITY SKILL** — Shared IaC deploy patterns for Bicep + Terraform agents: deployment strategies, circuit breaker, known deploy issues. WHEN: "phased deployment", "circuit breaker", "deploy strategy", "deploy issue", "shared IaC pattern". DO NOT USE FOR: preflight (apex-azure-validate), code generation (apex-azure-bicep-patterns / apex-terraform-patterns).'
+user-invocable: false
+disable-model-invocation: false
+description: '**UTILITY SKILL** — Shared Bicep/Terraform workflow contracts: planning, codegen cadence, handoffs, deployment strategies and bounded recovery. WHEN: "shared IaC workflow", "phased deployment", "circuit breaker", "deploy strategy", "deploy issue", "shared IaC pattern". DO NOT USE FOR: language-specific modules (apex-azure-bicep-patterns / apex-terraform-patterns) or standalone preflight (apex-azure-validate).'
 ---
 
 # IaC Common Skill
 
-Shared deployment patterns used by both Bicep and Terraform deploy agents
-(07b, 07t) and review subagents.
+Shared planning, codegen and deployment contracts used by Bicep and Terraform
+agents and their explicitly authorized leaf workers.
 
 > **Preflight validation** (CLI auth, governance mapping, stop rules, known issues)
 > has moved to the **apex-azure-validate** skill. See `apex-azure-validate/references/infraops-preflight.md`.
@@ -86,7 +88,7 @@ any deployment. It defines:
 
 ## Bounded retry
 
-Any retry loop in `04g-governance`, `07b-bicep-deploy`, `07t-terraform-deploy`,
+Unless a stricter operation-specific cap applies, any retry loop in `04g-governance`, `07b-bicep-deploy`, `07t-terraform-deploy`,
 or the deploy-time subagents (`bicep-whatif`, `terraform-plan`, `policy-precheck`,
 `cost-estimate`) is capped at **3 attempts**. On the third failure the
 agent escalates to the user with these three fixed options (and no
@@ -94,12 +96,16 @@ others):
 
 | Option                    | When to choose                                                                            |
 | ------------------------- | ----------------------------------------------------------------------------------------- |
-| `proceed-with-substitute` | A safe substitute exists (alternate SKU, alternate AVM module, alternate parameter set). |
-| `change-region`           | The failure is region-scoped (capacity, regional service gap, regional pricing spike).   |
+| `proceed-with-substitute` | Propose a substitute for explicit approval and owning-agent reconciliation; never apply it automatically. |
+| `change-region`           | Propose a region change for explicit approval; refresh affected policy, capacity, pricing and plan evidence. |
 | `abort`                   | None of the above is safe — return control to the user.                                  |
 
-Use the same options across all four loops so the user's mental model
-is consistent. The challenger-review-subagent checklist enforces
+Neither choice bypasses a required step, security rule, unresolved blocker,
+frozen plan, SKU manifest, or review. Route revisions to the owning agent,
+regenerate affected evidence, rerun required validation/reviews and obtain final
+evidence-bound approval before retrying. No skip-step or unlimited reset option.
+Missing/empty reviewer output has the stricter one identical-input retry cap.
+Use the same options across these loops. The challenger-review-subagent checklist enforces
 "retry loop bounded ≤3 with named escalation options"; unbounded loops
 are flagged as `HIGH`.
 

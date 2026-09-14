@@ -11,6 +11,9 @@ plus the standard six-phase diagnostic workflow and report template.
 
 ### Phase 1 — Discovery
 
+Confirm symptoms, UTC incident window, selected resource IDs and approved scope.
+Related-resource discovery is not permission to diagnose unrelated workloads.
+
 ```bash
 az resource show --ids "$resourceId" \
   --query "{name:name, type:type, location:location, sku:sku, tags:tags}"
@@ -18,19 +21,31 @@ az resource show --ids "$resourceId" \
 
 ### Phase 2 — Health Assessment
 
-Run the resource-type-specific health checks from `references/health-checks.md`.
+Run the resource-type-specific [health checks](infraops-health-checks.md).
 
 ### Phase 3 — Log Analysis
 
-Run KQL queries from `references/kql-templates.md` (Generic Error Search).
+Run [KQL templates](infraops-kql-templates.md) (Generic Error Search).
 
 ### Phase 4 — Activity Log Review
 
-Run the Activity Log failed-operations query from `references/kql-templates.md`.
+Run the Activity Log failed-operations query from [KQL templates](infraops-kql-templates.md).
+Compare recent configuration/deployment changes with the incident window; temporal
+proximity alone is not proof of causation.
 
 ### Phase 5 — Classification
 
-Rate each finding using the severity table in SKILL.md. Include:
+Rate each finding using this mapping; severity does not authorize remediation:
+
+| Severity | Evidence-based impact | Report priority |
+| -------- | --------------------- | --------------- |
+| Critical | Active outage, data loss or confirmed security compromise | P0 |
+| High | Major degradation or imminent outage with observed impact | P1 |
+| Medium | Limited degradation or material risk without current outage | P2 |
+| Low | Minor issue or improvement without material current impact | P3 |
+
+Unknown impact remains unclassified pending evidence, not automatically Low.
+Keep this diagnostic severity distinct from challenger review severity. Include:
 
 - **Finding**: What is wrong
 - **Severity**: Critical / High / Medium / Low
@@ -68,6 +83,10 @@ Structure the diagnostic report as:
 ---
 
 ## Common Remediation Playbooks
+
+These are recommendations only. Obtain separate approval for the exact resource,
+change, cost and downtime before modifying configuration, scale, indexes or data.
+Discovery of related resources does not authorize expanding diagnosis scope.
 
 ### High CPU on App Service
 

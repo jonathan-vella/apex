@@ -48,8 +48,8 @@ def _completeness_signature(findings: list[dict[str, Any]]) -> str:
     (Planner, CodeGen, Deploy) to detect that a constraints file has
     drifted from the snapshot they validated against. Algorithm:
 
-    1. Build `(policy_id, effect, scope, params)` tuples for each finding.
-    2. Sort by `policy_id`.
+    1. Build policy/effect/scope/params tuples, retaining assignment/member identity when present.
+    2. Sort by `policy_id` and the entire canonical JSON tuple as a tie-breaker.
     3. Serialise each tuple as a compact JSON object with sorted keys.
     4. Join with `\\n` and sha256.
     """
@@ -63,7 +63,10 @@ def _completeness_signature(findings: list[dict[str, Any]]) -> str:
                 "params": f.get("assignment_parameters") or {},
             }
         )
-    tuples.sort(key=lambda t: t["policy_id"])
+        for key in ("assignment_id", "policy_definition_reference_id"):
+            if key in f:
+                tuples[-1][key] = f[key]
+    tuples.sort(key=lambda item: (item["policy_id"], json.dumps(item, sort_keys=True, separators=(",", ":"))))
     serialized = "\n".join(json.dumps(t, sort_keys=True, separators=(",", ":")) for t in tuples)
     return "sha256:" + hashlib.sha256(serialized.encode("utf-8")).hexdigest()
 

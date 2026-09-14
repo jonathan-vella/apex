@@ -1,172 +1,74 @@
 # PowerShell MCP Tools
 
-## Dependencies
+**Native Functions PowerShell MCP trigger: unsupported.** Microsoft explicitly
+excludes PowerShell apps from the
+[MCP extension](https://learn.microsoft.com/en-us/azure/azure-functions/functions-bindings-mcp).
+This applies to both Bicep and Terraform; changing IaC cannot add a runtime binding.
 
-**host.json:**
+The demo capabilities remain available through the official Node MCP SDK host
+from [javascript.md](javascript.md#local-sdk-host-sdk-servermjs), invoking a fixed
+PowerShell 7 script. This is a local Node-hosted MCP server with PowerShell tool
+logic, not a supported native PowerShell Functions deployment. A remote host
+containing both runtimes would need a separately approved hosting design.
 
-```json
-{
-  "version": "2.0",
-  "extensionBundle": {
-    "id": "Microsoft.Azure.Functions.ExtensionBundle",
-    "version": "[4.*, 5.0.0)"
-  }
-}
-```
-
-## Source Code
-
-**mcp/function.json:**
-
-```json
-{
-  "bindings": [
-    {
-      "authLevel": "function",
-      "type": "httpTrigger",
-      "direction": "in",
-      "name": "Request",
-      "methods": ["post"]
-    },
-    {
-      "type": "http",
-      "direction": "out",
-      "name": "Response"
-    }
-  ]
-}
-```
-
-**mcp/run.ps1:**
+## demo-tools.ps1
 
 ```powershell
-using namespace System.Net
+param([Parameter(Mandatory)][ValidateSet('get_weather', 'search_docs')][string]$ToolName)
 
-param($Request, $TriggerMetadata)
+$ErrorActionPreference = 'Stop'
+$arguments = [Console]::In.ReadToEnd() | ConvertFrom-Json -AsHashtable
+$propertyName = if ($ToolName -eq 'get_weather') { 'city' } else { 'query' }
+$value = $arguments[$propertyName]
+if ($value -isnot [string] -or [string]::IsNullOrWhiteSpace($value)) {
+        throw 'A non-empty string is required'
+}
+$result = if ($ToolName -eq 'get_weather') {
+        @{ demo = $true; city = $value; temperature = 72; conditions = 'sunny' }
+} else {
+        @{ demo = $true; results = @("Result for: $value"); count = 1 }
+}
+$result | ConvertTo-Json -Depth 5 -Compress
+```
 
-$body = $Request.Body
-$method = $body.method
-$id = $body.id
+## powershell-server.mjs
 
-$tools = @(
-    @{
-        name = "get_weather"
-        description = "Get weather for a city"
-        inputSchema = @{
-            type = "object"
-            properties = @{
-                city = @{ type = "string"; description = "City name" }
-            }
-            required = @("city")
-        }
+Place alongside demo-tools.ps1, tools.mjs and sdk-server.mjs from the JavaScript
+example. Use its exact dependency pins and local token prerequisites.
+
+```javascript
+import { spawnSync } from "node:child_process";
+import { fileURLToPath, pathToFileURL } from "node:url";
+import { tools, requireText } from "./tools.mjs";
+import { createHttpApp } from "./sdk-server.mjs";
+
+const script = fileURLToPath(new URL("./demo-tools.ps1", import.meta.url));
+export const definitions = Object.fromEntries(Object.entries(tools).map(([name, tool]) => [name, {
+    ...tool,
+    handler: (arguments_) => {
+        requireText(arguments_[tool.parameter]);
+        const result = spawnSync("pwsh", ["-NoLogo", "-NoProfile", "-NonInteractive", "-File", script, "-ToolName", name], {
+            input: JSON.stringify(arguments_),
+            encoding: "utf8",
+            shell: false,
+            timeout: 5000,
+            maxBuffer: 16384,
+        });
+        if (result.error || result.status !== 0) throw new Error("PowerShell demo failed");
+        return JSON.parse(result.stdout);
     },
-    @{
-        name = "search_docs"
-        description = "Search documentation"
-        inputSchema = @{
-            type = "object"
-            properties = @{
-                query = @{ type = "string"; description = "Search query" }
-            }
-            required = @("query")
-        }
-    }
-)
+}]));
 
-if ($method -eq "tools/list") {
-    $result = @{
-        jsonrpc = "2.0"
-        id = $id
-        result = @{ tools = $tools }
-    }
-    Push-OutputBinding -Name Response -Value ([HttpResponseContext]@{
-        StatusCode = [HttpStatusCode]::OK
-        Body = ($result | ConvertTo-Json -Depth 10)
-        ContentType = 'application/json'
-    })
-    return
-}
-
-if ($method -eq "tools/call") {
-    $toolName = $body.params.name
-    $args = $body.params.arguments
-
-    $toolResult = switch ($toolName) {
-        "get_weather" {
-            @{ temperature = 72; conditions = "sunny"; city = $args.city }
-        }
-        "search_docs" {
-            @{ results = @("Result for: $($args.query)"); count = 1 }
-        }
-        default {
-            Push-OutputBinding -Name Response -Value ([HttpResponseContext]@{
-                StatusCode = [HttpStatusCode]::BadRequest
-                Body = (@{ jsonrpc = "2.0"; id = $id; error = @{ code = -32601; message = "Tool not found" } } | ConvertTo-Json)
-                ContentType = 'application/json'
-            })
-            return
-        }
-    }
-
-    $result = @{
-        jsonrpc = "2.0"
-        id = $id
-        result = @{
-            content = @(
-                @{ type = "text"; text = ($toolResult | ConvertTo-Json) }
-            )
-        }
-    }
-    Push-OutputBinding -Name Response -Value ([HttpResponseContext]@{
-        StatusCode = [HttpStatusCode]::OK
-        Body = ($result | ConvertTo-Json -Depth 10)
-        ContentType = 'application/json'
-    })
-    return
-}
-
-Push-OutputBinding -Name Response -Value ([HttpResponseContext]@{
-    StatusCode = [HttpStatusCode]::BadRequest
-    Body = (@{ jsonrpc = "2.0"; id = $id; error = @{ code = -32601; message = "Method not found" } } | ConvertTo-Json)
-    ContentType = 'application/json'
-})
-```
-
-**health/function.json:**
-
-```json
-{
-  "bindings": [
-    {
-      "authLevel": "anonymous",
-      "type": "httpTrigger",
-      "direction": "in",
-      "name": "Request",
-      "methods": ["get"]
-    },
-    {
-      "type": "http",
-      "direction": "out",
-      "name": "Response"
-    }
-  ]
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+    const app = createHttpApp({ token: process.env.MCP_DEMO_TOKEN, definitions });
+    const listener = app.listen(Number(process.env.PORT ?? 3000), "127.0.0.1");
+    for (const signal of ["SIGINT", "SIGTERM"]) process.once(signal, () => listener.close());
 }
 ```
 
-**health/run.ps1:**
-
-```powershell
-param($Request, $TriggerMetadata)
-
-Push-OutputBinding -Name Response -Value ([HttpResponseContext]@{
-    StatusCode = [HttpStatusCode]::OK
-    Body = '{"status":"healthy","type":"mcp"}'
-    ContentType = 'application/json'
-})
-```
-
-## Storage Flags
-
-```bicep
-enableQueue: true   // Required for MCP state management and backplane
-```
+Run `node powershell-server.mjs`. The SDK handles initialization, notifications,
+inputSchema validation, content, errors and authentication, with a separate
+anonymous `/health`. Tool failure, timeout and non-JSON output become SDK tool
+errors. User values travel only as JSON on stdin, never as executable PowerShell.
+The short synchronous demo is bounded; production concurrency needs an approved
+async worker design. No model, weather, search or Azure API is called.

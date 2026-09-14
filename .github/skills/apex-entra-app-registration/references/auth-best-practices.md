@@ -8,6 +8,33 @@
 
 Use **managed identities** and **Azure RBAC** in production. Reserve `DefaultAzureCredential` for **local development only**.
 
+## Identity And Permission Boundary
+
+Before authentication, bind the intended tenant, client/application ID, principal,
+resource/audience, flow and scope to the user's request. Reuse an approved context;
+do not sign in, switch identity or grant consent merely to make a probe succeed.
+Never return access tokens, refresh tokens, client secrets, private keys or secret
+values through chat, tool results, diagnostics or external token-decoding sites.
+
+Azure CLI interactive login authenticates the Azure CLI application, not an arbitrary
+`CLIENT_ID` variable. Test a registration with MSAL configured with that actual client
+ID and tenant; use [console examples](console-app-example.md) for the selected flow.
+Report only success, expiry and redacted identity/permission metadata, never raw tokens.
+If the required SDK/version or flow is unavailable, report the blocker; do not silently
+substitute a different client, credential, SDK or permission model.
+
+| Access model | Permission and endpoint contract |
+| --- | --- |
+| Delegated user | Consented delegated scopes; Graph `/me` requires a signed-in user |
+| App-only | Application permissions with admin consent and `.default`; Graph `/users/{id}` needs an explicit target and suitable application permission, never `/me` |
+| Azure resource | Azure RBAC at the intended resource scope; Graph consent is independent |
+| Key Vault audit | Metadata-only listing; no secret-value read permission needed or requested |
+
+Credential rotation follows the [additive credential procedure](cli-commands.md#client-credentials-secrets--certificates).
+New credentials preserve existing credentials until consumer validation and separate
+retirement approval. Generated setup/consent/assignment instructions are not execution
+approval, for generic users or APEX workflows alike.
+
 ## Authentication by Environment
 
 | Environment                   | Recommended Credential                                        | Why                                                             |

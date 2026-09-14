@@ -1,5 +1,8 @@
 ---
 name: apex-azure-deploy
+user-invocable: true
+disable-model-invocation: false
+argument-hint: "prepared project, target environment and deployment scope"
 description: "**WORKFLOW SKILL** — Execute Azure deployments (azd up, azd deploy, terraform apply) for already-prepared apps with built-in error recovery. WHEN: 'run azd up', 'run azd deploy', 'push to production', 'go live', 'bicep deploy', 'terraform apply', 'publish to Azure'. DO NOT USE FOR: creating new apps (apex-azure-prepare), pre-deploy checks (apex-azure-validate)."
 license: MIT
 metadata:

@@ -18,19 +18,35 @@ Accept any of these identifiers to identify subscriptions for analysis:
 
 ## Cost Optimization Rules
 
-When analyzing each cache, apply these prioritized rules:
+Treat state, age, SKU and tags as investigation signals, not deletion or savings evidence.
 
-| Priority    | Rule              | Detection Logic                                                            | Recommendation                | Avg Savings  |
-| ----------- | ----------------- | -------------------------------------------------------------------------- | ----------------------------- | ------------ |
-| 🔴 Critical | Failed Cache      | `provisioningState == 'Failed'`                                            | Delete immediately            | $50-300/mo   |
-| 🔴 Critical | Stuck Creating    | `provisioningState == 'Creating'` AND age >4 hours                         | Delete/support ticket         | $50-300/mo   |
-| 🟠 High     | Premium in Dev    | `sku.name == 'Premium'` AND `tags.environment in ['dev','test','staging']` | Downgrade to Standard         | $175/mo      |
-| 🟠 High     | Enterprise Unused | `sku.name startsWith 'Enterprise'` AND no modules/clustering               | Downgrade to Premium/Standard | $300-1000/mo |
-| 🟠 High     | Old Test Cache    | `tags.purpose == 'test'` AND age >60 days                                  | Delete or downgrade           | $50-150/mo   |
-| 🟡 Medium   | Large Dev Cache   | `sku.capacity >3` AND `tags.environment == 'dev'`                          | Reduce size                   | $100-300/mo  |
-| 🟡 Medium   | No Expiration Tag | Missing `expirationDate` or `ttl` tag                                      | Add cleanup policy            | N/A          |
-| 🟢 Low      | Untagged Resource | Missing required tags (`environment`, `owner`)                             | Apply tags                    | N/A          |
-| 🟢 Low      | Old Cache         | Age >365 days                                                              | Review if still needed        | Variable     |
+| Signal | Required investigation |
+| --- | --- |
+| Failed or long-running creation | Check deployment history, health, dependencies and owner intent |
+| Premium/Enterprise or large development cache | Check peak memory, server load, connections, latency and required features |
+| Old or test-tagged cache | Confirm ownership, recent usage, retention, recovery and dependency requirements |
+| Missing tags | Reconcile with live governance; missing tags do not imply an unused cache |
+
+Keep the assessment read-only. Do not infer a deletion, downgrade, safe status, or
+fixed-dollar saving from any signal above. Before recommending a change, correlate
+full resource ID and subscription ID with actual costs and representative utilization;
+check feature compatibility, availability requirements, migration costs and owner intent.
+Redis Cache and Managed Redis have different APIs/SKUs; verify the installed tool and
+service contract, and report unsupported coverage instead of substituting commands.
+
+Use the shared [cost, pricing, metrics and audit procedure](detailed-workflow-steps.md#step-4-query-actual-costs).
+Unknown cost or utilization remains unknown, not zero. Label actual baseline cost,
+validated target estimate and estimated saving separately, with period, currency,
+region and source timestamps. Remediation requires separate explicit approval for
+exact resource IDs and an implementation/recovery plan; analysis never executes it.
+
+Sum distinct resource IDs over the same period and currency. For each evaluated
+resource, estimated saving = baseline - target; retain negative savings. Sum only
+non-overlapping recommendations. Total target = total baseline - total saving;
+savings percentage = 100 * total saving / total baseline (undefined for a zero
+baseline). If any input is missing, mark the overall estimate incomplete and show
+only a labeled known subtotal. Do not annualize a partial-period actual cost without
+disclosing the normalization and assumptions.
 
 ## Report Templates
 
@@ -53,4 +69,4 @@ See [redis-detailed-cache-analysis.md](../templates/redis-detailed-cache-analysi
 - `az account list` - List subscriptions
 - `az redis list --subscription <id>` - List Redis caches
 - `az redis show` - Get cache details
-- `az redis delete` - Remove cache
+- Mutation commands belong only in a separately approved remediation plan, never an assessment scan

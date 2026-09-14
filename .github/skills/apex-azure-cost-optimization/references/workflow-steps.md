@@ -52,7 +52,7 @@ mcp_azure-mcp_get_azure_bestpractices({
 
 **When to use Redis-specific analysis:**
 
-- User mentions "Redis", "Azure Cache for Redis", or "Azure Managed Redis"
+- User explicitly requests Redis-only analysis; a Redis mention alone does not narrow scope
 - Focus is on Redis resource optimization, not general subscription analysis
 - User wants Redis-specific recommendations (SKU downgrade, failed caches, etc.)
 
@@ -82,7 +82,8 @@ mcp_azure-mcp_get_azure_bestpractices({
 4. **All My Subscriptions** — Scan all accessible subscriptions
 5. **Tenant-wide** — Analyze entire organization
 
-Wait for user response before proceeding to Step 2.
+Reuse a previously confirmed scope; ask only when missing or ambiguous. Mixed-service
+requests keep their original service and subscription scope.
 
 ## Step 2: Run Azure Quick Review
 

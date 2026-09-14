@@ -1,5 +1,8 @@
 ---
 name: apex-azure-validate
+user-invocable: true
+disable-model-invocation: false
+argument-hint: "project path, environment and validation scope"
 description: "**WORKFLOW SKILL** — Pre-deployment validation for Azure: config, infrastructure (Bicep/Terraform), permissions, prerequisites. WHEN: 'validate my app', 'check deployment readiness', 'run preflight checks', 'validate azure.yaml', 'validate Bicep', 'test before deploying', 'validate Azure Functions'. DO NOT USE FOR: post-deploy troubleshooting (apex-azure-diagnostics), executing deploys (apex-azure-deploy)."
 license: MIT
 metadata:

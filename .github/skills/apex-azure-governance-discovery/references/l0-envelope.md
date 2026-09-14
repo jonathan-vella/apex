@@ -56,8 +56,8 @@ object FIRST and STOPS if any field is missing or stale.
 | `scope.subscription_id`   | yes      | Target subscription ID. `"unknown"` when discovery ran offline against a fixture.                        |
 | `scope.management_groups` | yes      | Ordered ancestry; empty array allowed only when the subscription has no MG ancestry.                     |
 | `api_versions.*`          | yes      | API version actually used for each REST surface. Pin to the constants in `render_governance.py`.         |
-| `page_counts.*`           | yes      | Number of pages traversed per REST surface. Used by the end-of-discovery self-check (re-fetch page 1).   |
-| `completeness_signature`  | yes      | `sha256:<hex>` of the stable-sorted hash of `(policy_id, effect, scope, params)` tuples.                 |
+| `page_counts.*`           | yes      | Collected item totals per REST surface, retained under the historical field name; not page totals.      |
+| `completeness_signature`  | yes      | `sha256:<hex>` over canonically sorted policy tuples, including assignment/member identity when present. |
 | `ttl_days`                | yes      | Staleness threshold. Default `7`. Downstream consumers compute `age_days = (now - discovered_at)/86400`. |
 
 ## Completeness signature
@@ -67,8 +67,10 @@ Algorithm (must be deterministic across runs — implemented once in
 cached paths per the F2 decision in plan-optimiseGovernanceAgent):
 
 1. Build a list of tuples `(policy_id, effect, scope, params)` for every
-   entry in `findings[]`. Sort by `policy_id`.
-2. Serialise each tuple as a compact JSON object with sorted keys.
+  entry in `findings[]`. Include `assignment_id` and
+  `policy_definition_reference_id` when those fields are present.
+2. Serialise each tuple as a compact JSON object with sorted keys. Sort
+  by `policy_id`, then by the entire serialised tuple to break ties.
 3. Concatenate with `\n` separators.
 4. `sha256` the result. Emit as `sha256:<hex>`.
 
@@ -81,13 +83,19 @@ mismatch.
 
 ## End-of-discovery self-check
 
-After writing the envelope, `discover.py` MUST:
+Before writing the envelope, `discover.py` MUST:
 
-1. Re-fetch page 1 of `policyAssignments` (cheapest call).
-2. Confirm the assignment count on that page matches what was recorded
-   in `page_counts.policyAssignments` for page 1.
-3. On mismatch → set `discovery_status: "PARTIAL"` and append a
+1. Re-fetch all pages of `policyAssignments` using the original scope/filter.
+2. Compare the complete count and canonical assignment records with the
+  original collection. Reordering alone is not drift; changed identities
+  or parameters are drift even when counts match.
+3. On mismatch or an invalid, failed, or cyclic pagination response, set
+  `discovery_status: "PARTIAL"` and append a
    stderr warning naming the drifted REST surface.
+
+Initial malformed list responses fail discovery instead of becoming empty
+successful inventories. Missing referenced definitions or unresolved effects
+also produce `PARTIAL`; resolved findings and assignment inventory are retained.
 
 ## Refresh handoff is non-skippable
 
@@ -115,7 +123,13 @@ consumer agents (warning only) for 30 days after rollout. After 30 days,
 absence is a hard stop. Migration is non-destructive: re-run
 04g-Governance with `--refresh`.
 
-The cached renderer (`render_cached_governance.py`) synthesises a
-complete envelope for historical baselines that pre-date the
-per-subscription `discovery_metadata` contract — so consumers never
-see an envelope-less cached output.
+The cached renderer (`render_cached_governance.py`) can synthesise metadata
+for historical baselines only when an original, timezone-aware discovery
+timestamp is present. It preserves that timestamp, including its original
+age. File mtime and render time are never discovery evidence. Missing,
+malformed, timezone-less, or future timestamps return `FAILED` with
+`error: discovery-provenance` without overwriting existing output.
+
+Assignment-aware signature ordering can change a digest from older collectors.
+An existing non-empty baseline signature is preserved, not silently rewritten
+as a new attestation. A live refresh computes the current canonical signature.

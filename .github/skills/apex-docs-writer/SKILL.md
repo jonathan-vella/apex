@@ -1,5 +1,8 @@
 ---
 name: apex-docs-writer
+user-invocable: true
+disable-model-invocation: false
+argument-hint: "documentation path and update or review scope"
 description: '**WORKFLOW SKILL** — Maintains repository documentation accuracy and freshness across the docs site, agent files, and changelog. WHEN: "update docs", "doc gardening", "staleness check", "changelog entry", "repo explanation", "agent change docs", "skill change docs". DO NOT USE FOR: agent definitions (edit `.agent.md` directly), SKILL.md content authoring, site theme/build.'
 license: MIT
 compatibility: Works with GitHub Copilot, VS Code, and any Agent Skills compatible tool; no external dependencies required.
@@ -106,6 +109,14 @@ one-line summary so the agent knows which one to load.
 - `references/freshness-checklist.md` — Audit targets and auto-fix rules
 
 ## Reference Index
+
+Load only the requested maintenance procedure; preserve its mode and approval gates:
+
+- [Doc gardening](references/doc-gardening.md): inspect freshness and drift;
+  quality-score and debt updates require human review.
+- [Docs peer review](references/plan-docs-peer-review.md): independent read-only reviews and triage.
+- [Astro docs review](references/review-astro-docs.md): report-only by default;
+  `--apply-fixes` permits only the documented allow-list.
 
 | Reference                           | When to Load                                      |
 | ----------------------------------- | ------------------------------------------------- |

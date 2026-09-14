@@ -4,6 +4,10 @@
 
 Detailed step-by-step workflows for common quota management scenarios.
 
+First apply [quota evidence and fallback](commands.md#quota-evidence-and-fallback).
+All scopes and candidate regions below are illustrative and must be replaced with
+approved values. Do not infer deployment or change approval from a quota check.
+
 ## Workflow 1: Check Quota for a Specific Resource
 
 **Scenario:** Verify quota limit and current usage before deployment
@@ -31,19 +35,22 @@ az quota usage show \
 
 - Quota limit: 350 vCPUs
 - Current usage: 50 vCPUs
-- Available capacity: 300 vCPUs (350 - 50)
+- Quota headroom: 300 vCPUs (350 - 50); regional capacity remains unknown
 
 > **📖 See also:** [az quota show](./commands.md#az-quota-show), [az quota usage show](./commands.md#az-quota-usage-show)
 
 ## Workflow 2: Compare Quotas Across Regions
 
-**Scenario:** Find the best region for deployment based on available capacity
+**Scenario:** Compare quota headroom in approved candidate regions. First define
+`quota_headroom` from [Checked Headroom](commands.md#checked-headroom) in the same
+shell. SKU restrictions and actual allocation capacity are separate checks.
 
 ```bash
 # Define candidate regions
 REGIONS=("eastus" "eastus2" "westus2" "centralus")
 VM_FAMILY="standardDSv3Family"
 SUBSCRIPTION_ID="<subscription-id>"
+NEED_VCPUS="<normalized-vcpu-demand>"
 
 # Check quota availability across regions
 for region in "${REGIONS[@]}"; do
@@ -51,28 +58,29 @@ for region in "${REGIONS[@]}"; do
 
   # Get limit
   LIMIT=$(az quota show \
-    --resource-name $VM_FAMILY \
+    --resource-name "$VM_FAMILY" \
     --scope "/subscriptions/$SUBSCRIPTION_ID/providers/Microsoft.Compute/locations/$region" \
-    --query "properties.limit.value" -o tsv)
+    --query "properties.limit.value" -o tsv) || { echo "Unknown quota: limit query failed" >&2; continue; }
 
   # Get current usage
   USAGE=$(az quota usage show \
-    --resource-name $VM_FAMILY \
+    --resource-name "$VM_FAMILY" \
     --scope "/subscriptions/$SUBSCRIPTION_ID/providers/Microsoft.Compute/locations/$region" \
-    --query "properties.usages.value" -o tsv)
+    --query "properties.usages.value" -o tsv) || { echo "Unknown quota: usage query failed" >&2; continue; }
 
-  # Calculate available
-  AVAILABLE=$((LIMIT - USAGE))
-
-  echo "Region: $region | Limit: $LIMIT | Usage: $USAGE | Available: $AVAILABLE"
+  quota_headroom \
+    "/subscriptions/$SUBSCRIPTION_ID/providers/Microsoft.Compute/locations/$region" \
+    "$LIMIT" "$USAGE" "$NEED_VCPUS" || continue
 done
 ```
 
-> **📖 See also:** [Multi-region comparison scripts](./commands.md#multi-region-comparison) (Bash & PowerShell)
+> **📖 See also:** [Checked Headroom](commands.md#checked-headroom).
 
 ## Workflow 3: Request Quota Increase
 
 **Scenario:** Current quota is insufficient for deployment
+
+Obtain explicit approval for the target scope and requested limit before submitting.
 
 ```bash
 # Request increase for VM quota
@@ -93,7 +101,7 @@ az quota request status list \
 - Some requests require manual review (hours to days)
 - Non-adjustable quotas require Azure Support ticket
 
-> **📖 See also:** [az quota update](./commands.md#az-quota-update), [az quota request status](./commands.md#az-quota-request-status-list)
+> **📖 See also:** [az quota update](./commands.md#az-quota-update), [az quota request status](advanced-commands.md#az-quota-request-status-list)
 
 ## Workflow 4: List All Quotas for Planning
 

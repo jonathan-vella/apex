@@ -7,6 +7,7 @@ Deployment workflows for Azure Functions using AZD.
 - Azure Functions project prepared with azd template
 - `azure.yaml` exists and validated
 - `infra/{iac}/{project}/.azure/plan.md` status = `Validated`
+- Explicit approval for the selected AZD operation, exact target/artifacts and current recipe-aware preflight
 - Azure Functions Core Tools (optional, for local debugging or when using `func` commands outside azd workflows)
 
 ## AZD Deployment
@@ -46,9 +47,15 @@ azd provision --preview
 These are for azd provisioning, not application runtime:
 
 ```bash
-azd env set AZURE_LOCATION eastus2
-azd env set VNET_ENABLED false
+set -euo pipefail
+: "${AZURE_LOCATION:?Approved region is required}"
+: "${VNET_ENABLED:?Approved network setting is required}"
+azd env set AZURE_LOCATION "$AZURE_LOCATION"
+azd env set VNET_ENABLED "$VNET_ENABLED"
 ```
+
+Do not change either value during recovery without approval and revalidation. Production data services retain
+private access under governance. Preparation-only and preview-only requests never run deployment commands above.
 
 > ⚠️ **Important**: `azd env set` sets variables for the azd provisioning process, NOT application environment variables.
 

@@ -40,9 +40,10 @@ Authoritative rule sources to check against (read on demand, do not restate):
 Do NOT hard-code entity counts — read them from `count-manifest.json`.
 
 This prompt is the lean `.github`-only complement to
-`tools/apex-prompts/utility-prompts/project-wide-review.prompt.md` (whole-repo,
-dependency-aware sweep) and `context-audit.prompt.md` (token/context audit from
-debug logs). Reuse their patterns; do NOT duplicate their phases.
+[project-wide review](../../apex-workflow-engine/references/project-wide-review.md)
+(whole-repo, dependency-aware sweep) and
+[context audit](../../apex-context-management/references/context-audit.md)
+(token/context audit from debug logs). Reuse their patterns; do NOT duplicate their phases.
 
 `{ts}` in output paths is a UTC timestamp: `$(date -u +%Y%m%dT%H%M%SZ)`.
 </context>

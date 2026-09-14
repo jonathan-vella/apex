@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-09-12T05:03:57.337Z",
+  "generatedAt": "2026-09-14T06:37:45.726Z",
   "categories": [
     {
       "id": "agent",
@@ -24,7 +24,7 @@
       "label": "Skill",
       "color": "#10b981",
       "shape": "ellipse",
-      "count": 37
+      "count": 36
     },
     {
       "id": "instruction",
@@ -67,8 +67,8 @@
       "count": 3
     }
   ],
-  "nodeCount": 196,
-  "edgeCount": 733,
+  "nodeCount": 195,
+  "edgeCount": 729,
   "nodes": [
     {
       "id": "agent:01-orchestrator",
@@ -82,6 +82,9 @@
       "meta": {
         "model": "MAI-Code-1.1-Flash",
         "invocable": true,
+        "disableModelInvocation": true,
+        "argumentHint": "Describe the Azure platform engineering project you want to build end-to-end",
+        "context": null,
         "subagents": [],
         "handoffTargets": [
           "01-Orchestrator",
@@ -118,6 +121,9 @@
       "meta": {
         "model": "gpt-5.6-sol",
         "invocable": true,
+        "disableModelInvocation": true,
+        "argumentHint": "Describe the Azure workload or project you want to gather requirements for",
+        "context": null,
         "subagents": [
           "challenger-review-subagent"
         ],
@@ -145,6 +151,9 @@
       "meta": {
         "model": "gpt-5.6-sol",
         "invocable": true,
+        "disableModelInvocation": true,
+        "argumentHint": null,
+        "context": null,
         "subagents": [
           "cost-estimate-subagent",
           "challenger-review-subagent"
@@ -175,6 +184,9 @@
       "meta": {
         "model": "GPT-5.6-Terra",
         "invocable": true,
+        "disableModelInvocation": true,
+        "argumentHint": null,
+        "context": null,
         "subagents": [
           "challenger-review-subagent"
         ],
@@ -204,6 +216,9 @@
       "meta": {
         "model": "GPT-5.6-Luna",
         "invocable": true,
+        "disableModelInvocation": true,
+        "argumentHint": "Discover governance constraints for a project",
+        "context": null,
         "subagents": [
           "challenger-review-subagent"
         ],
@@ -232,6 +247,9 @@
       "meta": {
         "model": "gpt-5.6-sol",
         "invocable": true,
+        "disableModelInvocation": true,
+        "argumentHint": null,
+        "context": null,
         "subagents": [
           "challenger-review-subagent"
         ],
@@ -265,6 +283,9 @@
       "meta": {
         "model": "GPT-5.6-Terra",
         "invocable": true,
+        "disableModelInvocation": true,
+        "argumentHint": null,
+        "context": null,
         "subagents": [
           "bicep-validate-subagent",
           "challenger-review-subagent"
@@ -295,6 +316,9 @@
       "meta": {
         "model": "GPT-5.6-Terra",
         "invocable": true,
+        "disableModelInvocation": true,
+        "argumentHint": null,
+        "context": null,
         "subagents": [
           "terraform-validate-subagent",
           "challenger-review-subagent"
@@ -325,6 +349,9 @@
       "meta": {
         "model": "GPT-5.6-Luna",
         "invocable": true,
+        "disableModelInvocation": true,
+        "argumentHint": "Deploy the Bicep templates for a specific project",
+        "context": null,
         "subagents": [
           "bicep-whatif-subagent",
           "bicep-validate-subagent",
@@ -356,6 +383,9 @@
       "meta": {
         "model": "GPT-5.6-Luna",
         "invocable": true,
+        "disableModelInvocation": true,
+        "argumentHint": "Deploy the Terraform configuration for a specific project",
+        "context": null,
         "subagents": [
           "terraform-plan-subagent",
           "terraform-validate-subagent",
@@ -387,6 +417,9 @@
       "meta": {
         "model": "GPT-5.6-Terra",
         "invocable": true,
+        "disableModelInvocation": true,
+        "argumentHint": null,
+        "context": null,
         "subagents": [
           "cost-estimate-subagent"
         ],
@@ -414,6 +447,9 @@
       "meta": {
         "model": "GPT-5.6-Terra",
         "invocable": true,
+        "disableModelInvocation": true,
+        "argumentHint": null,
+        "context": null,
         "subagents": [],
         "handoffTargets": [
           "09-Diagnose",
@@ -439,6 +475,9 @@
       "meta": {
         "model": "GPT-5.6-Terra",
         "invocable": true,
+        "disableModelInvocation": true,
+        "argumentHint": "Provide the path to the artifact to challenge (e.g. agent-output/my-project/04-implementation-plan.md)",
+        "context": null,
         "subagents": [
           "challenger-review-subagent"
         ],
@@ -460,6 +499,9 @@
       "meta": {
         "model": "gpt-5.6-sol",
         "invocable": true,
+        "disableModelInvocation": true,
+        "argumentHint": null,
+        "context": null,
         "subagents": [],
         "handoffTargets": [
           "01-Orchestrator"
@@ -481,6 +523,10 @@
       },
       "meta": {
         "model": "GPT-5.6-Luna",
+        "invocable": false,
+        "disableModelInvocation": false,
+        "argumentHint": null,
+        "context": null,
         "skills": [
           "apex-azure-defaults",
           "apex-iac-common"
@@ -498,6 +544,10 @@
       },
       "meta": {
         "model": "GPT-5.6-Luna",
+        "invocable": false,
+        "disableModelInvocation": false,
+        "argumentHint": null,
+        "context": null,
         "skills": []
       }
     },
@@ -512,6 +562,10 @@
       },
       "meta": {
         "model": "GPT-5.6-Terra",
+        "invocable": false,
+        "disableModelInvocation": false,
+        "argumentHint": null,
+        "context": null,
         "skills": [
           "apex-golden-principles",
           "apex-azure-defaults"
@@ -529,6 +583,10 @@
       },
       "meta": {
         "model": "GPT-5.6-Luna",
+        "invocable": false,
+        "disableModelInvocation": false,
+        "argumentHint": null,
+        "context": null,
         "skills": []
       }
     },
@@ -543,6 +601,10 @@
       },
       "meta": {
         "model": "GPT-5.6-Luna",
+        "invocable": false,
+        "disableModelInvocation": false,
+        "argumentHint": null,
+        "context": null,
         "skills": []
       }
     },
@@ -557,6 +619,10 @@
       },
       "meta": {
         "model": "GPT-5.6-Luna",
+        "invocable": false,
+        "disableModelInvocation": false,
+        "argumentHint": null,
+        "context": null,
         "skills": []
       }
     },
@@ -571,6 +637,10 @@
       },
       "meta": {
         "model": "GPT-5.6-Luna",
+        "invocable": false,
+        "disableModelInvocation": false,
+        "argumentHint": null,
+        "context": null,
         "skills": [
           "apex-azure-defaults",
           "apex-iac-common"
@@ -586,7 +656,12 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-agent-authoring/SKILL.md"
       },
-      "meta": {}
+      "meta": {
+        "invocable": true,
+        "disableModelInvocation": false,
+        "argumentHint": "agent or prompt path and authoring scope",
+        "context": null
+      }
     },
     {
       "id": "skill:apex-azure-adr",
@@ -597,7 +672,12 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-adr/SKILL.md"
       },
-      "meta": {}
+      "meta": {
+        "invocable": true,
+        "disableModelInvocation": false,
+        "argumentHint": "project and architecture decision",
+        "context": null
+      }
     },
     {
       "id": "skill:apex-azure-artifacts",
@@ -608,7 +688,12 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-artifacts/SKILL.md"
       },
-      "meta": {}
+      "meta": {
+        "invocable": false,
+        "disableModelInvocation": false,
+        "argumentHint": null,
+        "context": null
+      }
     },
     {
       "id": "skill:apex-azure-bicep-patterns",
@@ -619,7 +704,12 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-bicep-patterns/SKILL.md"
       },
-      "meta": {}
+      "meta": {
+        "invocable": false,
+        "disableModelInvocation": false,
+        "argumentHint": null,
+        "context": null
+      }
     },
     {
       "id": "skill:apex-azure-cloud-migrate",
@@ -630,7 +720,12 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-cloud-migrate/SKILL.md"
       },
-      "meta": {}
+      "meta": {
+        "invocable": true,
+        "disableModelInvocation": false,
+        "argumentHint": "source provider, workload path and migration scope",
+        "context": null
+      }
     },
     {
       "id": "skill:apex-azure-compliance",
@@ -641,7 +736,12 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-compliance/SKILL.md"
       },
-      "meta": {}
+      "meta": {
+        "invocable": true,
+        "disableModelInvocation": false,
+        "argumentHint": "Azure resource scope and compliance checks",
+        "context": null
+      }
     },
     {
       "id": "skill:apex-azure-compute",
@@ -652,7 +752,12 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-compute/SKILL.md"
       },
-      "meta": {}
+      "meta": {
+        "invocable": true,
+        "disableModelInvocation": false,
+        "argumentHint": "workload requirements, region and budget",
+        "context": null
+      }
     },
     {
       "id": "skill:apex-azure-cost-optimization",
@@ -663,7 +768,12 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-cost-optimization/SKILL.md"
       },
-      "meta": {}
+      "meta": {
+        "invocable": true,
+        "disableModelInvocation": false,
+        "argumentHint": "subscription scope and analysis period",
+        "context": null
+      }
     },
     {
       "id": "skill:apex-azure-defaults",
@@ -674,7 +784,12 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-defaults/SKILL.md"
       },
-      "meta": {}
+      "meta": {
+        "invocable": false,
+        "disableModelInvocation": false,
+        "argumentHint": null,
+        "context": null
+      }
     },
     {
       "id": "skill:apex-azure-deploy",
@@ -685,7 +800,12 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-deploy/SKILL.md"
       },
-      "meta": {}
+      "meta": {
+        "invocable": true,
+        "disableModelInvocation": false,
+        "argumentHint": "prepared project, target environment and deployment scope",
+        "context": null
+      }
     },
     {
       "id": "skill:apex-azure-diagnostics",
@@ -696,7 +816,12 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-diagnostics/SKILL.md"
       },
-      "meta": {}
+      "meta": {
+        "invocable": true,
+        "disableModelInvocation": false,
+        "argumentHint": "resource scope, symptom and time range",
+        "context": null
+      }
     },
     {
       "id": "skill:apex-azure-governance-discovery",
@@ -707,7 +832,12 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-governance-discovery/SKILL.md"
       },
-      "meta": {}
+      "meta": {
+        "invocable": true,
+        "disableModelInvocation": false,
+        "argumentHint": "project, subscription scope and discovery or refresh",
+        "context": null
+      }
     },
     {
       "id": "skill:apex-azure-kusto",
@@ -718,7 +848,12 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-kusto/SKILL.md"
       },
-      "meta": {}
+      "meta": {
+        "invocable": true,
+        "disableModelInvocation": false,
+        "argumentHint": "cluster, database and query goal",
+        "context": null
+      }
     },
     {
       "id": "skill:apex-azure-prepare",
@@ -729,18 +864,28 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-prepare/SKILL.md"
       },
-      "meta": {}
+      "meta": {
+        "invocable": true,
+        "disableModelInvocation": false,
+        "argumentHint": "project path and preparation scope",
+        "context": null
+      }
     },
     {
       "id": "skill:apex-azure-quotas",
       "category": "skill",
       "label": "apex-azure-quotas",
-      "description": "**UTILITY SKILL** — Check and manage Azure quotas and usage across providers for deployment planning, capacity validation, and region selection. WHEN: \"check quotas\", \"service limits\", \"request quota increase\", \"quota exceeded\", \"validate capacity\", \"regional availability\", \"vCPU limit\". DO NOT USE FOR: deployment execution (apex-azure-deploy), cost analysis (apex-azure-cost-optimization).",
+      "description": "**UTILITY SKILL** — Check Azure quota limits, usage and headroom for deployment planning; quota is not regional capacity. WHEN: \"check quotas\", \"service limits\", \"request quota increase\", \"quota exceeded\", \"validate capacity\", \"regional availability\", \"vCPU limit\". DO NOT USE FOR: deployment execution (apex-azure-deploy), cost analysis (apex-azure-cost-optimization).",
       "path": ".github/skills/apex-azure-quotas/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-quotas/SKILL.md"
       },
-      "meta": {}
+      "meta": {
+        "invocable": true,
+        "disableModelInvocation": false,
+        "argumentHint": "subscription, region, services and planned quantities",
+        "context": null
+      }
     },
     {
       "id": "skill:apex-azure-rbac",
@@ -751,7 +896,12 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-rbac/SKILL.md"
       },
-      "meta": {}
+      "meta": {
+        "invocable": true,
+        "disableModelInvocation": false,
+        "argumentHint": "identity, resource scope and required access",
+        "context": null
+      }
     },
     {
       "id": "skill:apex-azure-resources",
@@ -762,7 +912,12 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-resources/SKILL.md"
       },
-      "meta": {}
+      "meta": {
+        "invocable": true,
+        "disableModelInvocation": false,
+        "argumentHint": "resource scope and inventory query",
+        "context": null
+      }
     },
     {
       "id": "skill:apex-azure-storage",
@@ -773,7 +928,12 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-storage/SKILL.md"
       },
-      "meta": {}
+      "meta": {
+        "invocable": true,
+        "disableModelInvocation": false,
+        "argumentHint": "storage service, resource scope and task",
+        "context": null
+      }
     },
     {
       "id": "skill:apex-azure-validate",
@@ -784,7 +944,12 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-validate/SKILL.md"
       },
-      "meta": {}
+      "meta": {
+        "invocable": true,
+        "disableModelInvocation": false,
+        "argumentHint": "project path, environment and validation scope",
+        "context": null
+      }
     },
     {
       "id": "skill:apex-context-management",
@@ -795,7 +960,12 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-context-management/SKILL.md"
       },
-      "meta": {}
+      "meta": {
+        "invocable": true,
+        "disableModelInvocation": false,
+        "argumentHint": "compression or audit, artifact or log path and scope",
+        "context": null
+      }
     },
     {
       "id": "skill:apex-docs-writer",
@@ -806,7 +976,12 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-docs-writer/SKILL.md"
       },
-      "meta": {}
+      "meta": {
+        "invocable": true,
+        "disableModelInvocation": false,
+        "argumentHint": "documentation path and update or review scope",
+        "context": null
+      }
     },
     {
       "id": "skill:apex-entra-app-registration",
@@ -817,7 +992,12 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-entra-app-registration/SKILL.md"
       },
-      "meta": {}
+      "meta": {
+        "invocable": true,
+        "disableModelInvocation": false,
+        "argumentHint": "application type and authentication requirements",
+        "context": null
+      }
     },
     {
       "id": "skill:apex-github-operations",
@@ -828,7 +1008,12 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-github-operations/SKILL.md"
       },
-      "meta": {}
+      "meta": {
+        "invocable": true,
+        "disableModelInvocation": false,
+        "argumentHint": "GitHub operation and repository or branch scope",
+        "context": null
+      }
     },
     {
       "id": "skill:apex-golden-principles",
@@ -839,7 +1024,12 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-golden-principles/SKILL.md"
       },
-      "meta": {}
+      "meta": {
+        "invocable": false,
+        "disableModelInvocation": false,
+        "argumentHint": null,
+        "context": null
+      }
     },
     {
       "id": "skill:apex-host-debug-log-export",
@@ -850,7 +1040,12 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-host-debug-log-export/SKILL.md"
       },
-      "meta": {}
+      "meta": {
+        "invocable": true,
+        "disableModelInvocation": true,
+        "argumentHint": "session scope and optional export choices",
+        "context": null
+      }
     },
     {
       "id": "skill:apex-host-git-commit",
@@ -861,40 +1056,44 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-host-git-commit/SKILL.md"
       },
-      "meta": {}
-    },
-    {
-      "id": "skill:apex-host-resume-workflow",
-      "category": "skill",
-      "label": "apex-host-resume-workflow",
-      "description": "Resume an APEX project in Agent Host with 01-Orchestrator selected. Use /apex-host-resume-workflow for recovery, checkpoints, and pending approval gates.",
-      "path": ".github/skills/apex-host-resume-workflow/SKILL.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-host-resume-workflow/SKILL.md"
-      },
-      "meta": {}
+      "meta": {
+        "invocable": true,
+        "disableModelInvocation": true,
+        "argumentHint": "Optional conventional commit subject",
+        "context": null
+      }
     },
     {
       "id": "skill:apex-host-workflow-start",
       "category": "skill",
       "label": "apex-host-workflow-start",
-      "description": "Start an APEX workflow or named step in Agent Host after manual owner selection. Use /apex-host-workflow-start with an operation and project; not a model-routing substitute.",
+      "description": "Start or resume an APEX workflow or named step in Agent Host after manual owner selection. Use /apex-host-workflow-start with an explicit operation; resume can discover the project. Not a model-routing substitute.",
       "path": ".github/skills/apex-host-workflow-start/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-host-workflow-start/SKILL.md"
       },
-      "meta": {}
+      "meta": {
+        "invocable": true,
+        "disableModelInvocation": true,
+        "argumentHint": "operation project (resume [project] to recover)",
+        "context": null
+      }
     },
     {
       "id": "skill:apex-iac-common",
       "category": "skill",
       "label": "apex-iac-common",
-      "description": "**UTILITY SKILL** — Shared IaC deploy patterns for Bicep + Terraform agents: deployment strategies, circuit breaker, known deploy issues. WHEN: \"phased deployment\", \"circuit breaker\", \"deploy strategy\", \"deploy issue\", \"shared IaC pattern\". DO NOT USE FOR: preflight (apex-azure-validate), code generation (apex-azure-bicep-patterns / apex-terraform-patterns).",
+      "description": "**UTILITY SKILL** — Shared Bicep/Terraform workflow contracts: planning, codegen cadence, handoffs, deployment strategies and bounded recovery. WHEN: \"shared IaC workflow\", \"phased deployment\", \"circuit breaker\", \"deploy strategy\", \"deploy issue\", \"shared IaC pattern\". DO NOT USE FOR: language-specific modules (apex-azure-bicep-patterns / apex-terraform-patterns) or standalone preflight (apex-azure-validate).",
       "path": ".github/skills/apex-iac-common/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-iac-common/SKILL.md"
       },
-      "meta": {}
+      "meta": {
+        "invocable": false,
+        "disableModelInvocation": false,
+        "argumentHint": null,
+        "context": null
+      }
     },
     {
       "id": "skill:apex-mermaid",
@@ -905,7 +1104,12 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-mermaid/SKILL.md"
       },
-      "meta": {}
+      "meta": {
+        "invocable": true,
+        "disableModelInvocation": false,
+        "argumentHint": "diagram type, subject and output path",
+        "context": null
+      }
     },
     {
       "id": "skill:apex-microsoft-docs",
@@ -916,7 +1120,12 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-microsoft-docs/SKILL.md"
       },
-      "meta": {}
+      "meta": {
+        "invocable": true,
+        "disableModelInvocation": false,
+        "argumentHint": "query or documentation URL",
+        "context": null
+      }
     },
     {
       "id": "skill:apex-python-diagrams",
@@ -927,7 +1136,12 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-python-diagrams/SKILL.md"
       },
-      "meta": {}
+      "meta": {
+        "invocable": true,
+        "disableModelInvocation": false,
+        "argumentHint": "diagram or chart type, project and output path",
+        "context": null
+      }
     },
     {
       "id": "skill:apex-terraform-patterns",
@@ -938,7 +1152,12 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-terraform-patterns/SKILL.md"
       },
-      "meta": {}
+      "meta": {
+        "invocable": false,
+        "disableModelInvocation": false,
+        "argumentHint": null,
+        "context": null
+      }
     },
     {
       "id": "skill:apex-terraform-search-import",
@@ -949,7 +1168,12 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-terraform-search-import/SKILL.md"
       },
-      "meta": {}
+      "meta": {
+        "invocable": true,
+        "disableModelInvocation": false,
+        "argumentHint": "resource scope and search or import task",
+        "context": null
+      }
     },
     {
       "id": "skill:apex-terraform-test",
@@ -960,7 +1184,12 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-terraform-test/SKILL.md"
       },
-      "meta": {}
+      "meta": {
+        "invocable": true,
+        "disableModelInvocation": false,
+        "argumentHint": "test path and plan or mock mode",
+        "context": null
+      }
     },
     {
       "id": "skill:apex-vendor-prompting",
@@ -971,7 +1200,12 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-vendor-prompting/SKILL.md"
       },
-      "meta": {}
+      "meta": {
+        "invocable": true,
+        "disableModelInvocation": false,
+        "argumentHint": "agent or prompt path, model family and audit scope",
+        "context": null
+      }
     },
     {
       "id": "skill:apex-workflow-engine",
@@ -982,7 +1216,12 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-workflow-engine/SKILL.md"
       },
-      "meta": {}
+      "meta": {
+        "invocable": false,
+        "disableModelInvocation": false,
+        "argumentHint": null,
+        "context": null
+      }
     },
     {
       "id": "instruction:agent-authoring",
@@ -4167,12 +4406,6 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:agent-skills--applies-to->skill:apex-host-resume-workflow",
-      "source": "instruction:agent-skills",
-      "target": "skill:apex-host-resume-workflow",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:agent-skills--applies-to->skill:apex-host-workflow-start",
       "source": "instruction:agent-skills",
       "target": "skill:apex-host-workflow-start",
@@ -4512,12 +4745,6 @@
       "id": "instruction:context-optimization--applies-to->skill:apex-host-git-commit",
       "source": "instruction:context-optimization",
       "target": "skill:apex-host-git-commit",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:context-optimization--applies-to->skill:apex-host-resume-workflow",
-      "source": "instruction:context-optimization",
-      "target": "skill:apex-host-resume-workflow",
       "kind": "applies-to"
     },
     {
@@ -4866,12 +5093,6 @@
       "id": "instruction:docs-trigger--applies-to->skill:apex-host-git-commit",
       "source": "instruction:docs-trigger",
       "target": "skill:apex-host-git-commit",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:docs-trigger--applies-to->skill:apex-host-resume-workflow",
-      "source": "instruction:docs-trigger",
-      "target": "skill:apex-host-resume-workflow",
       "kind": "applies-to"
     },
     {
@@ -5385,12 +5606,6 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:markdown--applies-to->skill:apex-host-resume-workflow",
-      "source": "instruction:markdown",
-      "target": "skill:apex-host-resume-workflow",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:markdown--applies-to->skill:apex-host-workflow-start",
       "source": "instruction:markdown",
       "target": "skill:apex-host-workflow-start",
@@ -5730,12 +5945,6 @@
       "id": "instruction:no-interactive-shell--applies-to->skill:apex-host-git-commit",
       "source": "instruction:no-interactive-shell",
       "target": "skill:apex-host-git-commit",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:no-interactive-shell--applies-to->skill:apex-host-resume-workflow",
-      "source": "instruction:no-interactive-shell",
-      "target": "skill:apex-host-resume-workflow",
       "kind": "applies-to"
     },
     {
@@ -6963,6 +7172,12 @@
       "kind": "refs"
     },
     {
+      "id": "skill:apex-azure-rbac--refs->skill:apex-entra-app-registration",
+      "source": "skill:apex-azure-rbac",
+      "target": "skill:apex-entra-app-registration",
+      "kind": "refs"
+    },
+    {
       "id": "skill:apex-azure-resources--refs->skill:apex-azure-compliance",
       "source": "skill:apex-azure-resources",
       "target": "skill:apex-azure-compliance",
@@ -7017,6 +7232,12 @@
       "kind": "refs"
     },
     {
+      "id": "skill:apex-context-management--refs->skill:apex-agent-authoring",
+      "source": "skill:apex-context-management",
+      "target": "skill:apex-agent-authoring",
+      "kind": "refs"
+    },
+    {
       "id": "skill:apex-context-management--refs->skill:apex-host-debug-log-export",
       "source": "skill:apex-context-management",
       "target": "skill:apex-host-debug-log-export",
@@ -7062,12 +7283,6 @@
       "id": "skill:apex-host-git-commit--refs->skill:apex-github-operations",
       "source": "skill:apex-host-git-commit",
       "target": "skill:apex-github-operations",
-      "kind": "refs"
-    },
-    {
-      "id": "skill:apex-host-resume-workflow--refs->skill:apex-workflow-engine",
-      "source": "skill:apex-host-resume-workflow",
-      "target": "skill:apex-workflow-engine",
       "kind": "refs"
     },
     {
@@ -7197,9 +7412,9 @@
       "kind": "refs"
     },
     {
-      "id": "skill:apex-workflow-engine--refs->skill:apex-host-resume-workflow",
+      "id": "skill:apex-workflow-engine--refs->skill:apex-docs-writer",
       "source": "skill:apex-workflow-engine",
-      "target": "skill:apex-host-resume-workflow",
+      "target": "skill:apex-docs-writer",
       "kind": "refs"
     },
     {

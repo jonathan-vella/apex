@@ -26,8 +26,10 @@ az deployment group what-if \
 | Modify      | yellow | Property change — check for breaking changes |
 | Delete      | red    | Resource removal — confirm intentional       |
 | NoChange    | grey   | Idempotent — no action needed                |
-| Deploy      | blue   | Child resource deployment                    |
-| Ignore      | grey   | Read-only property change — safe to ignore   |
+| Deploy      | blue   | Change details unknown; inspect before approval |
+| Ignore      | grey   | Not evaluated/deployed by this operation; do not infer compliance |
+
+Unknown change types require review, never automatic no-op classification.
 
 Red flags to catch: unexpected deletes, SKU downgrades, public access changes,
 authentication mode changes, or identity removal.
@@ -60,27 +62,22 @@ schema inside the cached MCR tarball is the only source of truth.
 ### Mandatory pre-author rule
 
 For every AVM module pinned in `04-iac-contract.json`, before writing the
-module call, **inspect the compiled JSON schema** in the local MCR cache:
+module call, **inspect the compiled JSON schema** for that exact module and
+version in the local MCR cache. Use its actual path, not a guessed cache layout:
 
 ```bash
-# Cache path follows: ~/.bicep/br/mcr.microsoft.com/bicep$<module-path-$-encoded>/<version>$/main.json
-python3 - <<'EOF'
-import json, sys
-target = '/home/vscode/.bicep/br/mcr.microsoft.com/bicep$avm$res$<module>/$<version>$/main.json'
-d = json.load(open(target))
-# Top-level params:
-for k, v in d['parameters'].items():
-    print(f"  {k}: type={v.get('type')} nullable={v.get('nullable', False)}")
-# Nested object types:
-for tn, td in d.get('definitions', {}).items():
-    print(f"\n=== {tn} ===")
-    for k, v in td.get('properties', {}).items():
-        print(f"  {k}: {json.dumps(v)[:120]}")
-EOF
+jq '{parameters, definitions}' "$approved_module_cache_path"
 ```
 
-If the cache file does not exist, run a throwaway `bicep build` of a one-line
-module call to force MCR to populate it, then re-inspect.
+Read all required nested definitions, including output types; do not truncate
+schema properties. If the exact cache entry is absent, restore only with
+authorized network access using the approved pin, then inspect it. Otherwise
+record the interface as unknown and STOP affected generation pending explicit
+version validation. Do not fetch, change versions or infer types automatically.
+
+The catalog below retains historical exact-version observations, not current
+API verification. The workspace `0.15.1` module was unavailable during the
+offline remediation; its string quota observation must be checked before use.
 
 ### Catalogue of drift we have hit (extend on every new occurrence)
 
@@ -103,9 +100,9 @@ module call to force MCR to populate it, then re-inspect.
 
 ### Why what-if and lint don't catch this
 
-`bicep build` catches roughly half of these (missing required props,
-wrong types). The rest only fail during actual deploy or `what-if`. The
-**only deterministic guard** is the pre-author schema inspection above.
+`bicep build` catches missing required properties and many type errors;
+provider/runtime constraints may still fail later. Schema inspection plus scoped
+build checks are necessary but do not establish live deployment success.
 
 ### How to avoid in the future
 

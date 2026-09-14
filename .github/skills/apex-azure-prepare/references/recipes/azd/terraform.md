@@ -92,10 +92,7 @@ terraform {
 
   # Optional: Remote state for team collaboration
   backend "azurerm" {
-    resource_group_name  = "rg-terraform-state"
-    storage_account_name = "tfstate${var.state_suffix}"
-    container_name       = "tfstate"
-    key                  = "app.terraform.tfstate"
+    use_azuread_auth = true
   }
 }
 
@@ -132,7 +129,6 @@ variable "environment_name" {
 variable "location" {
   type        = string
   description = "Azure region"
-  default     = "eastus2"
 }
 
 variable "principal_id" {
@@ -209,7 +205,7 @@ resource "azurerm_resource_group" "main" {
 }
 ```
 
-## Deployment Workflow
+## Preparation Workflow
 
 ### Initial Setup
 
@@ -217,53 +213,49 @@ resource "azurerm_resource_group" "main" {
 # 1. Create azd environment
 azd env new dev
 
-# 2. Set required variables
-azd env set AZURE_LOCATION eastus2
-
-# 3. Provision infrastructure (runs terraform init, plan, apply)
-azd provision
-
-# 4. Deploy services
-azd deploy
-
-# Or do both with single command
-azd up
+# 2. Use the already approved region
+azd env set AZURE_LOCATION "$AZURE_LOCATION"
 ```
+
+Stop at `Ready for Validation`. Only the deploy owner may provision after explicit approval.
 
 ### Variables and State
 
 **azd environment variables** → **Terraform variables**
 
-```bash
-# Set azd variable
-azd env set DATABASE_NAME mydb
-
-# Access in Terraform
+```hcl
 variable "database_name" {
   type    = string
-  default = env("DATABASE_NAME")
 }
 ```
 
-**Remote state setup:**
+Terraform has no `env()` function. Map non-secret azd values into Terraform's standard environment variables
+in the same process environment that will invoke Terraform or azd. Stop if a required value is absent:
 
 ```bash
-# Create state storage (one-time setup)
-az group create --name rg-terraform-state --location eastus2
-
-az storage account create \
-  --name tfstate<unique> \
-  --resource-group rg-terraform-state \
-  --sku Standard_LRS
-
-az storage container create \
-  --name tfstate \
-  --account-name tfstate<unique>
-
-# Set backend variables for azd
-azd env set TF_STATE_RESOURCE_GROUP rg-terraform-state
-azd env set TF_STATE_STORAGE_ACCOUNT tfstate<unique>
+set -euo pipefail
+database_name=$(azd env get-value DATABASE_NAME)
+location=$(azd env get-value AZURE_LOCATION)
+environment_name=$(azd env get-value AZURE_ENV_NAME)
+: "${database_name:?DATABASE_NAME is required}"
+: "${location:?AZURE_LOCATION is required}"
+: "${environment_name:?AZURE_ENV_NAME is required}"
+export TF_VAR_database_name="$database_name"
+export TF_VAR_location="$location"
+export TF_VAR_environment_name="$environment_name"
 ```
+
+This mapping does not authorize init, plan or apply. Do not print full azd environments or put secrets in tfvars.
+
+**Remote state setup:**
+
+Use an existing approved backend. Put literal, non-secret resource group, storage account, container and key
+values in a reviewed backend configuration file; Terraform backend blocks cannot reference variables.
+For direct Terraform, the deploy owner passes that file to `terraform init -backend-config=backend.hcl` only
+after backend access/state approval. For azd, resolve its version-specific backend parameter file contract from
+the selected template before handoff; do not invent `TF_STATE_*` mappings. An unavailable azd/template is a
+verification gap, not permission to create storage or migrate state. If bootstrap is needed, use the approved
+[backend bootstrap procedure](../../../../apex-terraform-patterns/references/bootstrap-backend-template.md).
 
 ## Generation Steps
 
@@ -298,7 +290,7 @@ Converting existing Terraform project to use azd:
 2. Place `.tf` files in the same directory as `azure.yaml`
 3. Add `azd-service-name` tags to hosting resources
 4. Ensure outputs include service URLs in UPPERCASE
-5. Test with `azd provision` and `azd deploy`
+5. Validate locally and hand off; provisioning and service deployment require separate approval.
 
 ## CI/CD Integration
 

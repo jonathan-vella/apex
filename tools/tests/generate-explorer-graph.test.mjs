@@ -4,8 +4,84 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
+import { createAjv } from "../scripts/_lib/ajv-validator.mjs";
 
-import { collectPrompts, selectGeneratedAt } from "../scripts/generate-explorer-graph.mjs";
+import {
+  collectAgents,
+  collectSubagents,
+  collectSkills,
+  collectPrompts,
+  selectGeneratedAt,
+} from "../scripts/generate-explorer-graph.mjs";
+
+test("agent and skill collectors preserve invocation flags, hints and declared context", (context) => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "apex-invocation-"));
+  context.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const variants = [
+    { name: "defaults", fields: "", invocable: true, disabled: false, hint: null, context: null },
+    { name: "hidden", fields: "user-invocable: false\n", invocable: false, disabled: false, hint: null, context: null },
+    {
+      name: "manual",
+      fields: 'user-invocable: true\ndisable-model-invocation: true\nargument-hint: "scope"\ncontext: fork\n',
+      invocable: true,
+      disabled: true,
+      hint: "scope",
+      context: "fork",
+    },
+    {
+      name: "disabled",
+      fields: "user-invocable: false\ndisable-model-invocation: true\n",
+      invocable: false,
+      disabled: true,
+      hint: null,
+      context: null,
+    },
+  ];
+  for (const variant of variants) {
+    for (const relative of [
+      `.github/agents/${variant.name}.agent.md`,
+      `.github/agents/_subagents/${variant.name}.agent.md`,
+      `.github/skills/${variant.name}/SKILL.md`,
+    ]) {
+      const file = path.join(root, relative);
+      fs.mkdirSync(path.dirname(file), { recursive: true });
+      fs.writeFileSync(file, `---\nname: ${variant.name}\n${variant.fields}---\n# Fixture\n`);
+    }
+  }
+  for (const collect of [collectAgents, collectSubagents, collectSkills]) {
+    const nodes = collect(root);
+    assert.equal(nodes.length, variants.length);
+    for (const variant of variants) {
+      const node = nodes.find((entry) => entry.label === variant.name);
+      assert.equal(node.meta.invocable, variant.invocable);
+      assert.equal(node.meta.disableModelInvocation, variant.disabled);
+      assert.equal(node.meta.argumentHint, variant.hint);
+      assert.equal(node.meta.context, variant.context);
+      assert.ok(fs.existsSync(path.join(root, node.path)));
+    }
+  }
+});
+
+test("explorer schema validates invocation metadata without constraining unrelated metadata", () => {
+  const schema = JSON.parse(fs.readFileSync(new URL("../schemas/explorer-graph.schema.json", import.meta.url), "utf8"));
+  const validate = createAjv().compile(schema.properties.nodes.items.properties.meta);
+  for (const metadata of [
+    {},
+    { invocable: true, disableModelInvocation: false, argumentHint: null, context: null },
+    { invocable: false, disableModelInvocation: true, argumentHint: "scope", context: "fork" },
+    { model: "unchanged", skills: [], applyTo: "**/*.md" },
+  ]) {
+    assert.equal(validate(metadata), true, JSON.stringify(validate.errors));
+  }
+  for (const metadata of [
+    { invocable: "false" },
+    { disableModelInvocation: "true" },
+    { argumentHint: false },
+    { context: {} },
+  ]) {
+    assert.equal(validate(metadata), false, JSON.stringify(metadata));
+  }
+});
 
 test("prompt collection preserves cross-root and nested same-basename identities", (context) => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "apex-prompt-"));

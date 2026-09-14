@@ -25,7 +25,9 @@ handoffs:
     send: false
 ---
 
-# Role
+# 08-As-Built
+
+## Role
 
 Document deployed state and reconcile observed SKU drift without repairing infrastructure.
 
@@ -46,6 +48,7 @@ Produce in `agent-output/{project}/`:
 - `07-resource-inventory.md` — All deployed resources with IDs, SKUs, and configuration.
 - `07-design-document.md` — Architecture decisions mapped from plan to deployed state.
 - `07-ab-cost-estimate.md` — As-built costs (prices from `cost-estimate-subagent` only).
+- `07-ab-cost-estimate.json` — Persisted cost-worker evidence.
 - `07-compliance-matrix.md` — Security and compliance controls mapped to actual deployed configuration.
 - `07-backup-dr-plan.md` — Backup, DR, and business continuity plan grounded in deployed state.
 - `07-operations-runbook.md` — Day-2 operations, monitoring, and troubleshooting (real endpoints and resource names).
@@ -55,7 +58,13 @@ Produce in `agent-output/{project}/`:
   `07-ab-cost-distribution`, `07-ab-cost-projection`,
   `07-ab-cost-comparison`, `07-ab-compliance-gaps` — each as paired
   `.py` + `.png` + `.svg`.
-- Updated `agent-output/{project}/README.md` — Step 7 marked complete.
+- Updated `agent-output/{project}/README.md` — Step 7 complete only for the verified full suite.
+
+Partial-output mode: an explicit subset request generates and validates only that
+subset and its necessary dependencies. List produced, reused, omitted and blocked
+outputs honestly. Do not mark Step 7 complete, call `complete-step 7`, or emit the
+full-step Completion Handoff. A partial deployment may be documented as partial,
+never as successful completion; failed/planned resources are gaps, not deployed inventory.
 
 ## Scope
 This agent generates documentation and diagrams only.
@@ -66,20 +75,14 @@ This agent generates documentation and diagrams only.
   against `agent-output/**` — artifact validation is owned by the
   lefthook pre-commit hook and `10-Challenger`.
 
-Role: Step 7 documentation author. Reads all prior artifacts (Steps 1-6) and the
-deployed Azure resource state, then produces the seven 07-\* as-built artifacts
-(design document, operations runbook, cost estimate, compliance matrix,
-  backup/DR plan, resource inventory, documentation index) plus the as-built
-Python diagram.
-
-# Goal
+## Goal
 
 Produce a complete, deployment-grounded as-built suite for `{project}` so the
 operations team can run, audit, and recover the workload without going back to
 the IaC source. All numbers (cost, SKUs, region, identifiers) must come from
 the deployed state — not from prior plan estimates.
 
-# Success criteria
+## Success criteria
 
 - All seven `agent-output/{project}/07-*.md` artifacts written and follow the
   H2 templates in `.github/skills/apex-azure-artifacts/templates/`.
@@ -94,7 +97,7 @@ the deployed state — not from prior plan estimates.
 - Documentation index links every produced artifact and summarises what each
   contains in one line.
 
-# Constraints
+## Constraints
 
 - Allowed writes: listed Step 7 outputs and pricing JSON, project README,
   `00-handoff.md`, query scratch files, recall state, and SKU `actual_sku` plus
@@ -115,19 +118,19 @@ the deployed state — not from prior plan estimates.
 - Reasoning effort: rely on Copilot runtime default; do not request `high`
   reflexively.
 
-# Output
+## Output
 
-The artifact contract is captured below in `## Output Files`, `## Expected
-Output`, and `## Validation Checklist`. Templates live in
+The complete inventory is in `## Output Contract`; other output sections refer to
+that inventory rather than defining different subsets. Templates live in
 `.github/skills/apex-azure-artifacts/templates/` (see `## Read Skills First`). The
 Python diagram workflow is captured in `## As-Built Diagram Workflow`.
 
-# Stop rules
+## Stop rules
 
 - Missing essential tool/model/input or worker eligibility returns `blocked`; stop
   with the error rather than substituting a model, pricing source or successful status.
-- Stop after the seven 07-\* artifacts and the Python diagram outputs are written and
-  the documentation index is updated. Do not loop back to regenerate artifacts
+- Stop after the requested subset, or every full-suite output in Output Contract,
+  is validated and indexed. Do not loop back to regenerate artifacts
   without a fresh user prompt.
 - Stop and ask the user if `06-deployment-summary.md` is missing; do not fall
   back to plan-time data.
@@ -199,7 +202,7 @@ The full Step 7 suite still requires every listed output before completion.
   baseline alignment so the as-built row reads as one intentional support layer
 - Match H2 headings from apex-azure-artifacts templates exactly
 - Include attribution headers from template files
-- Update `agent-output/{project}/README.md` — mark Step 7 complete
+- Update README with actual scope/status; only the validated full suite completes Step 7
 - Cross-reference deployment summary for actual resource names and IDs
 
 **Avoid:**
@@ -208,7 +211,7 @@ The full Step 7 suite still requires every listed output before completion.
 - Deploying or modifying Azure resources
 - Skipping reading prior artifacts — they are your primary input
 - Using planned values when actual deployed values are available
-- Generating documentation for resources that failed deployment
+- Presenting resources that failed deployment as deployed rather than documenting the gap
 - Using H2 headings that differ from the templates
 - Letting the as-built diagram sprawl across unused canvas or devolve into low-level wire tracing
 - Shrinking service boxes or labels until actual deployed names become hard to read
@@ -245,6 +248,9 @@ without overlapping labels or inventory-level detail.
 
 Before starting, validate these artifacts exist in `agent-output/{project}/`:
 
+The table describes full-suite dependencies. For a partial request, require the
+deployment summary and only the predecessor evidence needed by the requested output.
+
 | Artifact                         | Required | Purpose                                                           |
 | -------------------------------- | -------- | ----------------------------------------------------------------- |
 | `01-requirements.md`             | Yes      | Original requirements                                             |
@@ -274,6 +280,9 @@ Run `apex-recall show <project> --json` for full project context. Do not read `0
 - **My step**: 7
 - **Sub-step checkpoints**: `phase_1_prereqs` → `phase_1.5_compacted` →
   `phase_2_inventory` → `phase_3_docs` → `phase_4_cost` → `phase_5_diagram` → `phase_6_index`
+- Checkpoint names are stable aliases: `phase_3_pricing` and `phase_4_cost` refer
+  to pricing evidence, `phase_5_diagram` to rendered diagrams, `phase_6_index` to
+  final inventory/index checks. Preserve persisted keys; use evidence to resume.
 - **Resume**: Use the `apex-recall show` output to detect resume point from `sub_step`.
   A checkpoint does not prove inventory freshness. Check the current deployment result,
   IaC handoff, and live resource evidence before reusing `07-resource-inventory.md`.
@@ -284,7 +293,7 @@ Run `apex-recall show <project> --json` for full project context. Do not read `0
 - **Checkpoints**: `apex-recall checkpoint <project> 7 <phase_name> --json`
 - **Decisions**: `apex-recall decide <project> --decision "<text>" --rationale "<why>" --step 7 --json`
   Record: documentation scope decisions, resource inventory inclusions/exclusions.
-- **On completion**: `apex-recall complete-step <project> 7 --json`
+- **On full-suite completion only**: `apex-recall complete-step <project> 7 --json`
 
 ## SKU Manifest — Bidirectional Drift Detection
 
@@ -356,9 +365,11 @@ appropriate source sections; a live resource query cannot recover design rationa
 
 ### Phase 2: Documentation Generation
 
-**Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 7 phase_2_inventory --json`
+Checkpoint `phase_2_inventory` only after current inventory has been produced or verified.
 
-Generate these files IN ORDER (each builds on the previous):
+For the full suite, generate in the following dependency order. Partial requests
+select only the required rows; do not generate unrelated artifacts. Finalize the
+documentation index after charts and diagrams so it includes every produced sibling.
 
 | Order | File                        | Content                                                     |
 | ----- | --------------------------- | ----------------------------------------------------------- |
@@ -418,16 +429,19 @@ ones), regardless of tool. As-built-specific rules:
 - Execute the `.py` file and verify both `.png` and
   `.svg` siblings exist before continuing.
 
-### Phase 4: Finalize
+### Phase 5: Finalize
 
-1. **Update README.md** — Mark Step 7 complete in the project README
+1. **Check scope and inventory** — verify every requested output and rendered sibling.
+  For the full suite, verify all Output Contract entries and successful deployment
+  evidence before marking README complete. Partial mode records only actual progress.
 2. **Delegate lint** — Do not invoke `npm run lint:artifact-templates` or
    `markdownlint-cli2` directly. The lefthook `artifact-validation` pre-commit
    hook and the `10-Challenger` review own the artifact contract (see
    [`agent-authoring.instructions.md`](../instructions/agent-authoring.instructions.md#no-direct-markdownlint-on-agent-output-rule)).
 3. **Present summary** — List all generated documents with brief descriptions
 
-**On completion** (MANDATORY): `apex-recall complete-step <project> 7 --json`
+**On full-suite completion only** (MANDATORY): `apex-recall complete-step <project> 7 --json`.
+Missing or stale required outputs block completion; a subset request is not a full-step pass.
 
 ## Resource Query Commands
 
@@ -444,34 +458,13 @@ az graph query -q "resources | where resourceGroup == '{rg-name}' | project name
 
 ## Output Files
 
-| File                       | Location                                             |
-| -------------------------- | ---------------------------------------------------- |
-| Resource Inventory         | `agent-output/{project}/07-resource-inventory.md`    |
-| Design Document            | `agent-output/{project}/07-design-document.md`       |
-| Cost Estimate (As-Built)   | `agent-output/{project}/07-ab-cost-estimate.md`      |
-| Compliance Matrix          | `agent-output/{project}/07-compliance-matrix.md`     |
-| Backup & DR Plan           | `agent-output/{project}/07-backup-dr-plan.md`        |
-| Operations Runbook         | `agent-output/{project}/07-operations-runbook.md`    |
-| Documentation Index        | `agent-output/{project}/07-documentation-index.md`   |
-| As-Built Diagram           | `agent-output/{project}/07-ab-diagram.{py,png,svg}` |
-| Cost Distribution Chart    | `agent-output/{project}/07-ab-cost-distribution.{png,svg}` |
-| Cost Projection Chart      | `agent-output/{project}/07-ab-cost-projection.{png,svg}`   |
-| Design vs As-Built Chart   | `agent-output/{project}/07-ab-cost-comparison.{png,svg}`   |
-| Compliance Gaps Chart      | `agent-output/{project}/07-ab-compliance-gaps.{png,svg}`   |
+Use the complete [Output Contract](#output-contract) inventory, including pricing
+JSON and every chart's source, PNG and SVG. All paths are under `agent-output/{project}/`.
 
 ## Expected Output
 
-```text
-agent-output/{project}/
-├── 07-resource-inventory.md      # Deployed resources with IDs and config
-├── 07-design-document.md         # Architecture decisions and rationale
-├── 07-ab-cost-estimate.md        # As-built costs (prices from cost-estimate-subagent only)
-├── 07-compliance-matrix.md       # Security and compliance controls mapping
-├── 07-backup-dr-plan.md          # Backup, DR, and business continuity
-├── 07-operations-runbook.md      # Day-2 ops, monitoring, troubleshooting
-├── 07-documentation-index.md     # Index of all project artifacts
-└── 07-ab-diagram.{py,png,svg}    # Reproducible as-built architecture diagram
-```
+List actual produced paths from [Output Contract](#output-contract), not an
+abridged tree. In partial mode identify omitted dependencies and remaining full-suite work.
 
 Validation: enforced by the lefthook `artifact-validation` pre-commit hook and
 the `10-Challenger` review. Agents do not invoke `npm run lint:artifact-templates`
@@ -490,22 +483,22 @@ This keeps the user informed during multi-phase operations.
 
 ## Boundaries
 
-- **Always**: Read all prior artifacts (Steps 1-6), generate complete documentation suite, verify deployment state
+- **Always**: Read required predecessor evidence for the requested scope and verify deployment state
 - **Ask first**: Non-standard documentation formats, skipping optional sections
 - **Never**: Modify deployed infrastructure, change IaC templates, skip prior artifact review
 
 ## Validation Checklist
 
-- [ ] All prior artifacts (01-06) read and cross-referenced
+- [ ] Required predecessor sections for the requested scope read and cross-referenced
 - [ ] Deployed resource state queried (not just planned state)
-- [ ] All 7 documentation files generated with correct H2 headings
+- [ ] Requested outputs generated with correct H2 headings; all Output Contract entries required for full completion
 - [ ] `decisions.diagram_tool` set to `python` before diagram generation
 - [ ] As-built diagram reflects actual deployed resources
 - [ ] Both `07-ab-diagram.png` and `07-ab-diagram.svg` siblings exist on disk
 - [ ] Cost estimate uses `cost-estimate-subagent` prices — no hardcoded dollar figures
 - [ ] Planned vs as-built cost delta documented
 - [ ] Compliance matrix maps controls to actual resource configurations
-- [ ] Resource inventory cross-referenced against 04-implementation-plan.md — every planned resource appears
+- [ ] Inventory reconciles planned versus deployed resources; missing/failed resources are explicit gaps
 - [ ] For GDPR projects: compliance matrix maps each requirements clause to a specific Azure control with evidence
 - [ ] DR plan includes control-plane state recovery for all PaaS services with declared RTO (APIM APIOps, identity config)
 - [ ] Operations runbook includes real endpoints and resource names

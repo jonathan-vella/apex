@@ -1,5 +1,7 @@
 ---
 name: apex-workflow-engine
+user-invocable: false
+disable-model-invocation: false
 description: '**UTILITY SKILL** — Machine-readable workflow DAG for the multi-step agent pipeline. Defines node types, edge conditions, gates, and fan-out patterns. WHEN: "orchestrator step routing", "resume from graph", "workflow validation", "workflow DAG", "workflow gate", "fan-out pattern". USE FOR: orchestrator step routing, resume-from-graph, workflow validation. DO NOT USE FOR: Azure infrastructure, code generation, troubleshooting.'
 ---
 
@@ -21,7 +23,8 @@ reads instead of relying on hardcoded step logic.
 - **Source of truth is `templates/workflow-graph.json`** — the orchestrator reads this directly; do not encode workflow logic in agent prose
 - **Gates are blocking** — a `gate` node halts downstream execution until human approval is recorded in session state
 - **IaC routing** — `step-4` is the shared planner; select CodeGen and Deploy nodes using `decisions.iac_tool`.
-- **Fan-out children execute in parallel** — Step 7 docs is the canonical example; do not serialize parallel children
+- **Fan-out is logical work structure**, not permission to invoke main agents or unavailable workers.
+   The owning main agent handles its outputs; parallelize only independent, authorized work.
 - **Edge conditions** — follow the graph's declared conditions, including refinement returns; the schema allows a string or array.
 - **Schema evolution** — bump `metadata.version` and follow `references/schema-evolution.md` rollback rules when changing the graph
 
@@ -41,13 +44,14 @@ Orchestrator protocol for routing the next step:
 4. **Check node status**:
    - `complete` → follow `on_complete` edges → find next node
    - `in_progress` → resume from `sub_step` checkpoint
-   - `pending` → execute this node
+   - `pending` → offer the declared human handoff to the owning main agent
    - `skipped` → follow `on_skip` edges
    - failed or blocked → stop and follow the applicable declared recovery or refinement route
 5. **Apply edge and node conditions** — honor optional Design selection and the IaC track;
    do not execute every outgoing edge when alternatives are present.
 6. **If next is a `gate`** — check its preconditions, present to the user, wait for approval, and record the decision.
-7. **If next is a `subagent-fan-out`** — dispatch all children in parallel; collect results before continuing
+7. **If next is a `subagent-fan-out`** — use the owning agent's actual role/tool contract;
+   never infer callable workers from graph children. Collect required outputs before continuing.
 8. **Repeat** until all nodes are complete or blocked
 
 ## Core Concepts
@@ -74,18 +78,16 @@ Use [Steps](#steps) as the routing protocol. Response fields are documented in
 Operational Local and Host entrypoints share
 [workflow-entry.md](references/workflow-entry.md). For parent-to-worker calls,
 read [execution-subagent.md](references/execution-subagent.md).
-Manual Host commands use distinct names:
-[apex-host-workflow-start](../apex-host-workflow-start/SKILL.md) and
-[apex-host-resume-workflow](../apex-host-resume-workflow/SKILL.md).
-These skills require explicit owner selection; they do not bind models/tools.
+Manual Host workflow entry uses
+[apex-host-workflow-start](../apex-host-workflow-start/SKILL.md), including
+`resume [project]`. This skill requires explicit owner selection; it does not bind models/tools.
 
 Other retained Local operations load only their requested procedure:
 [imported IaC](references/review-imported-iac.md),
 [existing Azure as-built](references/as-built-from-azure.md),
-[project review](references/project-wide-review.md),
-[docs peer review](references/plan-docs-peer-review.md),
-[Astro docs review](references/review-astro-docs.md), or
-[doc gardening](references/doc-gardening.md).
+[project review](references/project-wide-review.md).
+Documentation gardening, peer review, and Astro review belong to
+[`apex-docs-writer`](../apex-docs-writer/SKILL.md).
 For their shared execution boundary, read
 [operational-safety.md](references/operational-safety.md).
 

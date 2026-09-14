@@ -22,7 +22,7 @@ require("@azure/functions-extensions-blob");
 const { app, input } = require("@azure/functions");
 
 const blobInput = input.storageBlob({
-  path: "processed-pdf",
+  path: "%BLOB_PROCESSED_CONTAINER_NAME%",
   connection: "PDFProcessorSTORAGE",
   sdkBinding: true,
 });
@@ -60,8 +60,8 @@ async function processBlobUpload(sourceStorageBlobClient, context) {
   }
 }
 
-app.storageBlob("processBlobUpload", {
-  path: "unprocessed-pdf/{name}",
+app.storageBlob("ProcessBlobUpload", {
+  path: "%BLOB_CONTAINER_NAME%/{name}",
   connection: "PDFProcessorSTORAGE",
   extraInputs: [blobInput],
   source: "EventGrid",

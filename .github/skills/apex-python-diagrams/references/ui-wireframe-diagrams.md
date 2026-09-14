@@ -4,6 +4,20 @@
 
 Generate professional UI wireframe mockups showing screen layouts and components.
 
+## Bundled SVG Generator
+
+Use `create_wireframe_svg(title, filename, layout)` from
+[`multi_diagram_generator.py`](../scripts/multi_diagram_generator.py) for
+`dashboard`, `list`, and `detail` layouts. SVG is always written; CairoSVG is
+an optional dependency for the PNG sibling. The function returns the PNG path
+on conversion success, or the SVG path when CairoSVG cannot be imported.
+Conversion failures propagate rather than being reported as success.
+
+Keep the returned path when embedding the image. If the caller requires PNG,
+missing CairoSVG is a prerequisite blocker, not successful PNG generation.
+The HTML/CSS, diagrams-library, and custom SVG examples below are distinct
+layout approaches, not interchangeable implementations of this API.
+
 ## Approach 1: HTML/CSS to PNG (Recommended)
 
 Generate HTML wireframes and convert to PNG using a headless browser.

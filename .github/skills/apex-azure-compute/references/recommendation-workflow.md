@@ -32,7 +32,7 @@ Ask the user for (infer when possible):
 
 **Workflow:**
 
-1. Review [VMSS Guide](references/vmss-guide.md) to understand when VMSS vs single VM is appropriate
+1. Review [VMSS Guide](vmss-guide.md) to understand when VMSS vs single VM is appropriate
 2. Use the gathered requirements to decide which approach fits best
 3. **REQUIRED: If recommending VMSS**, fetch current documentation to verify capabilities:
    ```bash
@@ -71,7 +71,7 @@ Needs autoscaling?
 
 **Workflow:**
 
-1. Review [VM Family Guide](references/vm-families.md) to identify 2-3 candidate VM families that match the workload requirements
+1. Review [VM Family Guide](vm-families.md) to identify 2-3 candidate VM families that match the workload requirements
 2. **REQUIRED: verify specifications** for your chosen candidates by fetching current documentation:
 
    ```bash
@@ -96,7 +96,7 @@ This step applies to both single VMs and VMSS since scale sets use the same VM S
 
 ### Step 4: Look Up Pricing
 
-Query the Azure Retail Prices API — [Retail Prices API Guide](references/retail-prices-api.md)
+Query the Azure Retail Prices API — [Retail Prices API Guide](retail-prices-api.md)
 
 > **Tip:** VMSS has no extra charge — pricing is per-VM instance. Use the same VM pricing from the API and multiply by the expected instance count to estimate VMSS cost. For autoscaling workloads, estimate cost at both the minimum and maximum instance count.
 

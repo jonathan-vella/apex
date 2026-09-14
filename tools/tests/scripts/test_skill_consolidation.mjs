@@ -37,6 +37,41 @@ const kqlBlocks = (source) => [...source.matchAll(/```kql\n([\s\S]*?)```/g)].map
 const validator = fileURLToPath(new URL("../../scripts/validate-skills.mjs", import.meta.url));
 const retiredName = ["azure", "troubleshooting"].join("-");
 
+test("active skill metadata preserves reachability and the approved inline visibility policy", () => {
+  const hidden = new Set([
+    "apex-azure-defaults",
+    "apex-azure-artifacts",
+    "apex-azure-bicep-patterns",
+    "apex-terraform-patterns",
+    "apex-iac-common",
+    "apex-golden-principles",
+    "apex-workflow-engine",
+  ]);
+  const foundHidden = new Set();
+  const agentsRoot = new URL("../../../.github/agents/", import.meta.url);
+  const agentBodies = readdirSync(agentsRoot, { recursive: true })
+    .filter((file) => file.endsWith(".agent.md"))
+    .map((file) => read(new URL(file, agentsRoot)))
+    .join("\n");
+  for (const entry of readdirSync(skillsRoot, { withFileTypes: true })) {
+    if (!entry.isDirectory()) continue;
+    const metadata = parseFrontmatter(read(new URL(`${entry.name}/SKILL.md`, skillsRoot)));
+    assert.equal(metadata["user-invocable"], !hidden.has(entry.name), entry.name);
+    assert.equal(metadata["disable-model-invocation"], entry.name.startsWith("apex-host-"), entry.name);
+    assert.equal(Object.hasOwn(metadata, "context"), false, `${entry.name}: production must remain inline`);
+    if (hidden.has(entry.name)) {
+      foundHidden.add(entry.name);
+      assert.equal(metadata["argument-hint"], undefined, entry.name);
+      assert.ok(agentBodies.includes(`.github/skills/${entry.name}/SKILL.md`), `${entry.name}: required caller`);
+    } else {
+      assert.equal(typeof metadata["argument-hint"], "string", entry.name);
+      assert.ok(metadata["argument-hint"].length <= 160, entry.name);
+      assert.doesNotMatch(metadata["argument-hint"], /password|secret|token|api.key|share.link/i, entry.name);
+    }
+  }
+  assert.deepEqual(foundHidden, hidden);
+});
+
 test("skill descriptions use installed identifiers for cross-skill redirects", () => {
   const installed = readdirSync(skillsRoot, { withFileTypes: true })
     .filter((entry) => entry.isDirectory() && entry.name.startsWith("apex-"))
@@ -85,6 +120,41 @@ function cliFixture(context) {
   };
   return { root, write, skill, run };
 }
+
+test("skill CLI validates invocation metadata without confusing defaults with explicit values", (context) => {
+  const fixture = cliFixture(context);
+  for (const metadata of [
+    "",
+    "user-invocable: false\ndisable-model-invocation: false",
+    "user-invocable: true\ndisable-model-invocation: false",
+    "user-invocable: true\ndisable-model-invocation: true",
+    "disable-model-invocation: true",
+    "context: inline",
+    "context: fork",
+    'argument-hint: "query or documentation URL"',
+  ]) {
+    fixture.skill("apex-example", `name: apex-example\n${metadata}`);
+    const result = fixture.run();
+    assert.equal(result.status, 0, `${metadata}\n${result.output}`);
+  }
+  for (const metadata of [
+    'user-invocable: "false"',
+    'disable-model-invocation: "true"',
+    "user-invocable: null",
+    "disable-model-invocation: []",
+    "user-invocable: false\ndisable-model-invocation: true",
+    "context: nested",
+    "context: null",
+    'argument-hint: ""',
+    "argument-hint: true",
+    `argument-hint: "${"x".repeat(161)}"`,
+  ]) {
+    fixture.skill("apex-example", `name: apex-example\n${metadata}`);
+    const result = fixture.run();
+    assert.equal(result.status, 1, `${metadata}\n${result.output}`);
+    assert.match(result.output, /must be|unreachable/);
+  }
+});
 
 test("skill CLI rejects invalid canonical names", async (context) => {
   const cases = [
@@ -218,6 +288,31 @@ test("skill CLI excludes history, schemas, vendor snapshots and execution eviden
   assert.equal(result.status, 0, result.output);
 });
 
+test("skill CLI rejects retired Host callers and accepts the explicit resume operation", (context) => {
+  const fixture = cliFixture(context);
+  fixture.skill("apex-host-workflow-start");
+  const retiredHost = ["apex", "host", "resume", "workflow"].join("-");
+  for (const file of [
+    ".github/prompts/resume.prompt.md",
+    ".github/skills/apex-example/SKILL.md",
+    "tools/registry/entries.json",
+    "tools/scripts/entry.mjs",
+    "site/src/content/docs/resume.mdx",
+  ]) {
+    const original = file.endsWith("SKILL.md")
+      ? '---\nname: apex-example\ndescription: "Valid workflow caller."\n---\n'
+      : "";
+    fixture.write(file, `${original}Use /${retiredHost} demo.\n`);
+    const failed = fixture.run();
+    assert.equal(failed.status, 1, failed.output);
+    assert.ok(failed.output.includes(file), failed.output);
+    assert.match(failed.output, /apex-host-workflow-start resume \[project\]/);
+    fixture.write(file, `${original}Use /apex-host-workflow-start resume demo.\n`);
+    const passed = fixture.run();
+    assert.equal(passed.status, 0, passed.output);
+  }
+});
+
 test("skill CLI checks canonical example names without requiring installation", (context) => {
   const fixture = cliFixture(context);
   fixture.skill("apex-example");
@@ -316,15 +411,15 @@ test("cost orphan discovery loads only named canonical patterns with exact KQL f
   const expected = [
     [
       "Unattached managed disks",
-      "Resources\n| where type =~ 'microsoft.compute/disks'\n| where isempty(managedBy)\n| project name, resourceGroup, location, diskSizeGb=properties.diskSizeGB, sku=sku.name\n",
+      "Resources\n| where type =~ 'microsoft.compute/disks'\n| where isempty(managedBy)\n| project id, subscriptionId, name, resourceGroup, location, diskSizeGb=properties.diskSizeGB, sku=sku.name\n",
     ],
     [
       "Unused public IP addresses",
-      "Resources\n| where type =~ 'microsoft.network/publicipaddresses'\n| where isempty(properties.ipConfiguration)\n| project name, resourceGroup, location, sku=sku.name\n",
+      "Resources\n| where type =~ 'microsoft.network/publicipaddresses'\n| where isempty(properties.ipConfiguration)\n| project id, subscriptionId, name, resourceGroup, location, sku=sku.name\n",
     ],
     [
       "Orphaned network interfaces",
-      "Resources\n| where type =~ 'microsoft.network/networkinterfaces'\n| where isempty(properties.virtualMachine)\n| project name, resourceGroup, location\n",
+      "Resources\n| where type =~ 'microsoft.network/networkinterfaces'\n| where isempty(properties.virtualMachine)\n| project id, subscriptionId, name, resourceGroup, location\n",
     ],
   ];
   for (const [label, query] of expected) {

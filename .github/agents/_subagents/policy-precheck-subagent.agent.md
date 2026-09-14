@@ -8,7 +8,7 @@ agents: []
 tools: [execute, read, edit, search]
 ---
 
-# Policy Precheck Subagent (L3)
+# policy-precheck-subagent
 
 ## Role
 Live Azure Policy precheck subagent — the L3 attestation in the four-layer
@@ -114,9 +114,9 @@ Recommendation: {specific next action}
 
 `deploy_gate` and `status` derivation (deterministic, in order):
 
-1. Render or REST-stage failure, or missing/invalid envelope evidence
+1. Render or REST-stage failure, unknown drift/effect/coverage, or missing/invalid envelope evidence
   (envelope status is neither `FRESH` nor `STALE`) → `deploy_gate=BLOCK`, `status=FAILED`.
-2. `Policies that will block deploy` non-empty OR
+2. `Drift signal.Severity == BLOCKING` OR `Policies that will block deploy` non-empty OR
    `Policy violations in what-if > 0` →
    `deploy_gate=BLOCK`, `status=BLOCKED`.
 3. Envelope `STALE` → `deploy_gate=BLOCK`, `status=INFORMATIONAL`,
@@ -128,7 +128,22 @@ Recommendation: {specific next action}
    `deploy_gate=PROCEED`, `status=INFORMATIONAL`. The parent deploy
    agent surfaces the drift as informational context only; it does not
    block apply on this alone.
-6. Otherwise → `deploy_gate=PROCEED`, `status=CLEAN`.
+6. Only verified `NONE` drift with fresh, complete evidence → `deploy_gate=PROCEED`, `status=CLEAN`.
+
+Decision truth table (first matching row wins; acceptance never overrides BLOCK):
+
+| Evidence | Envelope | Drift | Violations | Accepted | Gate | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| invalid/unknown | any | any | any | any | BLOCK | FAILED |
+| valid | any | BLOCKING | any | any | BLOCK | BLOCKED |
+| valid | any | any | present | any | BLOCK | BLOCKED |
+| valid | STALE | nonblocking | none | any | BLOCK | INFORMATIONAL |
+| valid | FRESH | INFORMATIONAL | none | true | PROCEED | CLEAN |
+| valid | FRESH | INFORMATIONAL | none | false | PROCEED | INFORMATIONAL |
+| valid | FRESH | NONE | none | any | PROCEED | CLEAN |
+
+Apply this stricter gate if older reference pseudocode falls through on BLOCKING.
+Validate the v2 file and cross-check these rules before returning; do not add schema fields.
 
 Legacy `Status: DRIFT` (schema_version `policy-precheck-v1`) is
 deprecated. Emit `schema_version: "policy-precheck-v2"` and the new
@@ -184,11 +199,18 @@ Follow the contract in
 [`apex-iac-common/references/policy-precheck-contract.md`](../../skills/apex-iac-common/references/policy-precheck-contract.md)
 exactly — that file is the canonical I/O spec. Summary:
 
-1. **Render the deployment** —
-   - Bicep: `bicep build {template_path} --stdout > /tmp/{project}-rendered.json`.
-   - Terraform: `cd {template_path} && terraform plan -out=/tmp/{project}.tfplan
-     -var="deployment_phase={phase}" && terraform show -json /tmp/{project}.tfplan
-     > /tmp/{project}-rendered.json`.
+1. **Render the deployment** in a unique invocation directory, never predictable
+   project-level temporary files. Allocate once:
+
+   ```bash
+   scratch_dir=$(mktemp -d "${TMPDIR:-/tmp}/apex-policy.XXXXXXXX") || exit 1
+   ```
+
+   - Bicep: `bicep build {template_path} --stdout > "$scratch_dir/rendered.json"`.
+   - Terraform: `cd {template_path} && terraform plan -input=false -out="$scratch_dir/preview.tfplan"
+     && terraform show -json "$scratch_dir/preview.tfplan" > "$scratch_dir/rendered.json"`.
+   Pass current approved variable-file and phase arguments when applicable; do not
+   invent `deployment_phase` for a single deployment. Put policy query scratch here too.
    Bind rendering to the parent's current parameters, environment and phase. For
    Terraform, verify current backend/workspace/init and supplied variables before
    planning; never bootstrap or update pins. Omit phase arguments for single deployment.
@@ -200,14 +222,20 @@ exactly — that file is the canonical I/O spec. Summary:
    present live but missing from constraints; flag any live `lastModified`
    newer than the envelope's `discovered_at`.
 4. **What-if validation** —
-   - Bicep: `az deployment {scope} what-if --validation-level Provider ...`.
-   - Terraform: reuse the plan from Phase 1; ARM-level policy violations
-     surface as provider errors.
+   - Bicep: `az deployment {scope} what-if --subscription {subscription_id} --validation-level Provider ...`.
+     Bind all policy queries to that same subscription and target scope.
+   - Terraform: reuse the plan from Phase 1; provider errors can expose policy
+     failures, but plan success does not validate ARM deployment-time Deny effects.
+     Cross-check effective policies against planned values. Unknown values or
+     unsupported evaluation coverage return BLOCK/FAILED, not a zero-violation PASS.
 5. **Envelope freshness** — read `discovery_metadata`, compute
    `age_days = (now - discovered_at) / 86400`; status `FRESH` /
    `STALE` / `MISSING` per `policy-precheck-contract.md`.
-6. **Emit JSON** to `output_path` with the schema in the contract, then
-   the compact text block above to the parent agent. Stop.
+6. **Emit JSON** to `output_path` with the schema in the contract, validate it,
+  then return the text block above. Record subscription/scope, parameters, phase
+  and source evidence using existing fields. Clean only this invocation's scratch
+  after evidence is consumed; preserve failed evidence when requested, identifying
+  its path. Never delete caller paths or another invocation's files. Stop.
 
 ## Boundaries
 

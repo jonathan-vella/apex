@@ -11,7 +11,8 @@
 2. Walk through each audit target below.
 3. For each issue found, note: file path, line, issue, suggested fix.
 4. Present all issues in a summary table.
-5. Apply fixes after user confirmation (or immediately if told "fix all").
+5. Apply only authorized fixes. Gardening findings and peer review are report-only;
+	Astro review's `--apply-fixes` permits only its documented allow-list.
 
 ## Audit Targets
 
@@ -23,8 +24,8 @@
 
 | File                                        | What to look for                   |
 | ------------------------------------------- | ---------------------------------- |
-| `docs/*.md`                                 | `> Version X.Y.Z` in header line   |
-| `.github/instructions/docs.instructions.md` | Version in header template example |
+| `site/src/content/docs/**/*.{md,mdx}` | Version claims; no repository-style version banner |
+| `README.md` | Version claims or links to the canonical version source |
 
 **Auto-fix**: Replace old version string with current from `VERSION.md`.
 
@@ -40,11 +41,10 @@
 
 | File                                        | What to verify                   |
 | ------------------------------------------- | -------------------------------- |
-| `.github/instructions/docs.instructions.md` | `### Agents (N total)` and table |
+| `site/src/content/docs/concepts/how-it-works/agents.md` | Names and roles match agent frontmatter |
 
-**Auto-fix**: Update count in heading. Add missing agents to table
-matching the existing column format. Remove entries for agents that
-no longer exist.
+**Authorized fix**: Add missing agents and remove deleted entries. Use descriptive
+headings and the count manifest, not numeric entity counts in prose.
 
 ### 3. Skill Count and Table
 
@@ -58,14 +58,17 @@ no longer exist.
 
 | File                                        | What to verify                   |
 | ------------------------------------------- | -------------------------------- |
-| `.github/instructions/docs.instructions.md` | `### Skills (N total)` and table |
+| `.github/skills/README.md` | Current ownership and invocation guidance |
+| `site/src/content/docs/reference/prompts/skills-subagents.md` | Current names and procedures |
+| `site/src/content/docs/concepts/how-it-works/skills-and-instructions.md` | Domains and harness boundaries |
 
-**Auto-fix**: Update count in heading. Add missing skills to the
-appropriate category table. Remove entries for deleted skills.
+**Authorized fix**: Update representative catalog entries and links without hard-coded
+counts. Preserve canonical names, invocation flags, and source model assignments.
 
 ### 4. Prompt Guide Currency
 
-**Source of truth**: `site/src/content/docs/reference/prompts/` pages.
+**Source of truth**: Local adapters under `.github/prompts/` and `tools/apex-prompts/`,
+plus the owning `.github/skills/*/SKILL.md` and referenced procedures.
 
 **Files to check**:
 
@@ -73,7 +76,10 @@ appropriate category table. Remove entries for deleted skills.
 | ------------------------------------------------ | --------------------------------------- |
 | `site/src/content/docs/reference/prompts/*.md` | Agent and skill tables match filesystem |
 
-**Auto-fix**: Update tables to match current agent/skill inventory.
+**Authorized fix**: Update tables to match current agent/skill inventory. Keep Local
+adapters distinct from manual Host entries. Host recovery uses an explicit `resume`
+operation in `apex-host-workflow-start`; skill loading does not change the caller's
+model/tools or bypass reviews and approvals. Static checks do not prove runtime support.
 
 ### 5. Prohibited References
 
@@ -105,11 +111,11 @@ appropriate category table. Remove entries for deleted skills.
 
 **Source of truth**: List `.github/instructions/*.instructions.md` files.
 
-**Expected count** (as of 2026-02-26): computed dynamically from `tools/registry/count-manifest.json`
+**Expected count**: computed dynamically from `tools/registry/count-manifest.json`
 (run `validate:no-hardcoded-counts` to verify)
 
-**Files to check**: Only relevant if the root
-`README.md` lists instruction files.
+**Files to check**: The published skills-and-instructions page and
+`references/repo-architecture.md`; inspect exact `applyTo` values in source.
 
 **Auto-fix**: Update table entries.
 
@@ -117,7 +123,7 @@ appropriate category table. Remove entries for deleted skills.
 
 **Source of truth**: List `.github/skills/apex-azure-artifacts/templates/*.template.md` files.
 
-**Expected count** (as of 2026-02-09): computed dynamically from `tools/registry/count-manifest.json`
+**Expected count**: computed dynamically from `tools/registry/count-manifest.json`
 (run `validate:no-hardcoded-counts` to verify)
 
 **Files to check**: Only relevant if documentation references
@@ -149,16 +155,14 @@ When reporting audit results, use this format:
 | 1   | docs.instructions.md | 34   | Missing `design` and `orchestrator` agents | Add table rows |
 ```
 
-## Known Issues
+## Reference Ownership Checks
 
-No known issues. Last audit: 2026-03-23.
+For a moved procedure, verify the owning skill's Reference Index, Local adapter,
+relative links (including reference-style links), canary marker, and Git ignore status.
+Docs maintenance belongs here; authoring assessments belong to `apex-agent-authoring`.
+Keep log/runtime references in `apex-context-management` and workflow entry in `apex-workflow-engine`.
+Preserve reference-only history and review/fix permissions when updating links.
 
-All 21 discrepancies identified during the initial audit have been
-resolved (Tasks A–D). Fixes included:
-
-- Version headers migrated to `[Current Version](../VERSION.md)` links
-- Agent counts corrected to 8, skill counts to 8
-- Orchestrator model corrected to Claude Opus 4.6, approval gates to 5
-- MCP path fixed, broken link removed
-- Glossary cross-references fixed, keyboard shortcut corrected, new terms added
-- Scenarios directory removed; replaced by prompt-guide section in published site
+Use `node --test tools/tests/scripts/test_skill_ownership.mjs` for the ownership regressions.
+Regenerate the Explorer graph after source metadata or inventory changes; its schema
+is independent of artifact schemas. Record actual check results, not inherited audit claims.

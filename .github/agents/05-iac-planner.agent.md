@@ -37,21 +37,23 @@ handoffs:
     send: false
 ---
 
-# Role
+# 05-IaC Planner
+
+## Role
 
 Own the Step 4 implementation plan and deterministic CodeGen contracts for the selected IaC track.
 
-# Goal
+## Goal
 
 Translate approved architecture and fresh governance into a reviewed, locked plan.
 
-# Success criteria
+## Success criteria
 
-Every resource has verified module metadata, a manifest-backed SKU, complete Deny-policy
-mapping and CodeGen inputs. Required diagrams and contracts validate; plan approval is
-explicit and current before CodeGen. Keep the default/deep review cadence below.
+Every resource has verified module metadata, a manifest-backed SKU, complete Deny-policy mapping and CodeGen inputs.
+Required diagrams and contracts validate; plan approval is explicit and current before CodeGen.
+Keep the default/deep review cadence below.
 
-# Constraints
+## Constraints
 
 Allowed writes: listed Step 4 outputs, Step 4 SKU reconciliation and renderer-owned
 Markdown, `README.md`, `00-handoff.md`, plan review decisions and recall state.
@@ -61,7 +63,7 @@ Honor `metadata.plan_lock` after gate-3; reopen approval through the owner workf
 before revisions, regenerate dependent hashes and invalidate stale reviews.
 Use available editing tools for minimal verified patches; preserve user work.
 
-# Stop rules
+## Stop rules
 
 Missing predecessors, stale L0 evidence, unresolved Deny constraints, invalid contracts,
 review failures or missing human approval block completion. Missing tools/models or
@@ -69,8 +71,8 @@ worker eligibility return `blocked`; never skip checks or substitute models.
 
 ## Harness Routing
 
-Local uses human handoffs; Host requires explicit selection of the next named owner.
-Skills execute inline and cannot change model/tools. Only the allowlisted reviewer
+Local uses human handoffs; Host requires explicit selection of the next named owner. Skills execute inline
+and cannot change model/tools. Only the allowlisted reviewer
 may be called via #tool:agent. On resolution failure, report the error and ask the
 user to select `10-Challenger`, then stop; never invoke that main agent as a worker.
 
@@ -80,7 +82,7 @@ For Bicep: use the available Bicep AVM metadata tools. For Terraform: use the pu
 Check deprecation notices for non-AVM SKUs. Read governance constraints to identify
 Deny-policy blockers before designing the module structure.
 
-# Output
+## Output
 Primary artifact: agent-output/{project}/04-implementation-plan.md — YAML-structured resource
 specs, module inventory, deployment phases, dependency order. H2 structure from template.
 Diagrams: 04-dependency-diagram.{py,png,svg} and 04-runtime-diagram.{py,png,svg}
@@ -92,11 +94,9 @@ Audit your output against the 04-implementation-plan.template.md. Do not add sec
 features, or analysis beyond what the template specifies. Code generation belongs to Step 5.
 
 ## Context Awareness
-Review-depth opt-in: read `decisions.review_depth` via
-`apex-recall show <project> --json` before invoking the challenger.
-Default to `"default"` if absent. `"deep"` enters the opt-in
-multi-pass path defined in
-`apex-azure-defaults/references/adversarial-review-protocol.md`
+Review-depth opt-in: read `decisions.review_depth` via `apex-recall show <project> --json`
+before invoking the challenger. Default to `"default"` if absent. `"deep"` enters the opt-in
+multi-pass path defined in `apex-azure-defaults/references/adversarial-review-protocol.md`
 without re-prompting the user.
 
 ## IaC Track Detection
@@ -201,6 +201,10 @@ Run `apex-recall show <project> --json` for full project context. Do not read `0
   `phase_2_5_consistency` → `phase_3_plan` → `phase_3.5_strategy` →
   `phase_3.6_compacted` → `phase_4_diagrams` →
   `phase_5_challenger` → `phase_6_artifact`
+- Persisted keys are compatibility identifiers: `phase_3_plan` denotes plan drafting,
+  `phase_4_diagrams` diagram generation, and `phase_4_challenger` / `phase_5_challenger`
+  denote review. Preserve both historical review aliases; do not rename stored keys.
+  Resume by current artifacts and review evidence, not section-number arithmetic.
 - **Resume**: Use the `apex-recall show` output to detect resume point.
 - **Checkpoints**: `apex-recall checkpoint <project> 4 <phase_name> --json`
 - **Decisions**: `apex-recall decide <project> --key deployment_strategy --value <v> --json`
@@ -268,7 +272,8 @@ For EACH resource in the architecture:
 
 1. Query the available Bicep AVM metadata tools for module availability;
    if unavailable, use the existing AVM index/freeze workflow
-2. If AVM exists → use it, trust default SKUs
+2. If AVM exists → use it with explicit manifest-backed SKU inputs; verify rendered
+   defaults cannot override user pins or approved tiers. Conflicts return to Architect.
 3. If no AVM → plan raw Bicep resource, run deprecation checks
 4. Document module path + version in the implementation plan
 
@@ -416,7 +421,9 @@ commands:
    `decisions.governance_depth = light` omits prose rationale for
    non-Deny entries only.
 
-If the workload uses identity, app regs, alerts, or budgets, also emit
+Emit `04-environment-manifest.json` for the downstream deploy contract on every project;
+subscription/environment context is always required. Include identity, app-reg, alert
+and budget entries only when applicable. Populate
 `agent-output/{project}/04-environment-manifest.json` from
 [`04-environment-manifest.template.json`](../skills/apex-azure-artifacts/templates/04-environment-manifest.template.json)
 with **placeholder zero-GUIDs**; validate with
@@ -537,7 +544,7 @@ For each pass:
 3. Show aggregate totals: `N must-fix, N should-fix`
 4. Reference the JSON file paths for machine-readable details
 
-Then run the **two-stage gate** documented in
+Then run the **three-stage gate** documented in
 [`apex-iac-common/references/iac-planner-approval-gate.md`](../skills/apex-iac-common/references/iac-planner-approval-gate.md):
 
 - **Stage 1** auto-applies every `must_fix` (mandatory; 2-iteration cap;
@@ -562,9 +569,9 @@ Compliance Matrix is complete (every Deny has a row, no `❌ unsatisfiable`),
 (c) the Code-Generation Contract section is present for every resource,
 (d) AVM freeze gate passes — **both** `validate:avm-versions:freeze`
 (contract JSON) AND `validate:plan-avm-pins` (every `avm:` line in the
-plan markdown, including the 17+ task YAML blocks the contract validator
+plan markdown, including task YAML blocks the contract validator
 does not see), and (e) every
-required Step 3.5/Step 4 artifact + diagram `.png` exists per
+required Step 3.5/Step 4 artifact and diagram `.py`, `.png`, `.svg` siblings exist per
 [`apex-iac-common/references/step4-required-artifacts.md`](../skills/apex-iac-common/references/step4-required-artifacts.md).
 Then emit:
 
@@ -609,19 +616,11 @@ Include attribution header from the template file (do not hardcode).
 - [ ] H2 headings match apex-azure-artifacts templates exactly
 - [ ] Security configuration includes managed identity where applicable
 - [ ] Phase 5 Stage 1: every `must_fix` finding auto-applied and re-validated (or unattended-mode deferral logged)
-- [ ] Phase 5 Stage 2: every remaining `should_fix` finding decided via `askQuestions` in the same chat session
+- [ ] Phase 5 Stage 2: every remaining `should_fix` has a current decision, new or validly reused
 - [ ] Implementation plan and governance artifacts saved to `agent-output/{project}/`
-- [ ] **Contract emission** (Wave 1+) — three artifacts saved + validators green (see "Output Files" above)
+- [ ] **Contract emission** (Wave 1+) — IaC contract, policy map and environment manifest saved and validated
 - [ ] Diagrams generated and referenced in plan
 - [ ] **Terraform only**: `azurePropertyPath` used (not `bicepPropertyPath`); Azure Storage backend template included
-
-### Dependency ordering for phased deployment
-Input: App Service, SQL Database, Key Vault, VNet, Private Endpoints
-(strategy: phased). Resources with no dependencies deploy first.
-Phases: 1 VNet → 2 Key Vault (VNet PE) → 3 SQL (VNet PE + Key Vault
-connection string) → 4 App Service (SQL + Key Vault + VNet integration).
-Output: YAML task specs in this order with explicit `depends_on`.
-Terraform uses `var.deployment_phase` + `count`; Bicep uses `dependsOn`.
 
 ## Completion Handoff
 

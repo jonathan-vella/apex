@@ -28,21 +28,14 @@ from render_governance import (
 )
 
 
-def _baseline_mtime_iso(in_path: Path) -> str:
-    """Return the baseline file's mtime as ISO-8601 UTC.
-
-    Used as the `discovered_at` fallback when an older baseline envelope
-    pre-dates the per-subscription `discovery_metadata` contract (see
-    plan-optimiseGovernanceAgent.prompt.md Phase 3b). The workflow update
-    in `.github/workflows/governance-policy-baseline.yml` populates the
-    field on new runs; this fallback covers historical baselines until
-    the next scheduled refresh.
-    """
+def _discovery_timestamp(value: object) -> str:
     try:
-        ts = in_path.stat().st_mtime
-    except OSError:
-        ts = datetime.now(UTC).timestamp()
-    return datetime.fromtimestamp(ts, tz=UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
+        timestamp = datetime.fromisoformat(value.replace("Z", "+00:00")) if isinstance(value, str) else None
+    except ValueError as error:
+        raise ValueError("Invalid original discovery timestamp; refresh required") from error
+    if timestamp is None or timestamp.tzinfo is None or timestamp > datetime.now(UTC):
+        raise ValueError("Missing or untrustworthy original discovery timestamp; refresh required")
+    return str(value)
 
 
 def _synthesise_discovery_metadata(envelope: dict, in_path: Path) -> dict:
@@ -63,7 +56,7 @@ def _synthesise_discovery_metadata(envelope: dict, in_path: Path) -> dict:
     pseudo_assignments = [{"properties": {"scope": f.get("scope", "")}} for f in findings if f.get("scope")]
     management_groups = _extract_management_groups(pseudo_assignments)
 
-    discovered_at = envelope.get("discovered_at") or _baseline_mtime_iso(in_path)
+    discovered_at = _discovery_timestamp(envelope.get("discovered_at"))
     page_counts = {
         "policyAssignments": len(envelope.get("findings", []) or []),
         "policyDefinitions": len(envelope.get("assignment_inventory", []) or []),
@@ -110,6 +103,15 @@ def main(argv: list[str] | None = None) -> int:
 
     if not isinstance(envelope, dict) or envelope.get("schema_version") != "governance-constraints-v1":
         status = {"status": "FAILED", "error": "schema-mismatch", "detail": "Not a governance-constraints-v1 envelope"}
+        sys.stdout.write(json.dumps(status, separators=(",", ":")) + "\n")
+        return 2
+
+    try:
+        metadata = envelope.get("discovery_metadata")
+        timestamp = metadata.get("discovered_at") if isinstance(metadata, dict) else envelope.get("discovered_at")
+        envelope["discovered_at"] = _discovery_timestamp(timestamp)
+    except ValueError as error:
+        status = {"status": "FAILED", "error": "discovery-provenance", "detail": str(error)}
         sys.stdout.write(json.dumps(status, separators=(",", ":")) + "\n")
         return 2
 

@@ -78,6 +78,24 @@ function runFormatValidation() {
       r.error(skillName, "Missing required frontmatter field 'description'");
     }
 
+    for (const field of ["user-invocable", "disable-model-invocation"]) {
+      if (Object.hasOwn(frontmatter, field) && typeof frontmatter[field] !== "boolean") {
+        r.error(skillName, `Frontmatter '${field}' must be a boolean`);
+      }
+    }
+    if (frontmatter["user-invocable"] === false && frontmatter["disable-model-invocation"] === true) {
+      r.error(skillName, "Active skill is unreachable: user-invocable false with disable-model-invocation true");
+    }
+    if (Object.hasOwn(frontmatter, "context") && !["inline", "fork"].includes(frontmatter.context)) {
+      r.error(skillName, "Frontmatter 'context' must be inline or fork when supplied");
+    }
+    if (Object.hasOwn(frontmatter, "argument-hint")) {
+      const hint = frontmatter["argument-hint"];
+      if (typeof hint !== "string" || !hint.trim() || hint.length > 160 || /[\r\n]/.test(hint)) {
+        r.error(skillName, "Frontmatter 'argument-hint' must be a non-empty single-line string (max 160)");
+      }
+    }
+
     for (const { pattern, message } of FORBIDDEN_PATTERNS) {
       if (pattern.test(rawFrontmatter)) {
         r.error(skillName, message);
@@ -241,6 +259,11 @@ function runReferencesValidation() {
 // ============================================================================
 
 const RETIRED_SKILLS = [
+  {
+    old: "apex-host-resume-workflow",
+    new: "apex-host-workflow-start resume [project]",
+    since: "SK-39 Host workflow entry consolidation",
+  },
   {
     old: "azure-troubleshooting",
     new: "apex-azure-diagnostics",

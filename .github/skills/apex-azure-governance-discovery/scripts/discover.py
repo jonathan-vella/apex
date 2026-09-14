@@ -13,6 +13,7 @@ preview follows on later lines. Stderr carries warnings and filter notes.
 from __future__ import annotations
 
 import argparse
+import copy
 import json
 import os
 import re
@@ -163,9 +164,17 @@ def _list_all(az_rest: Callable[[str], dict[str, Any]], url: str) -> list[dict[s
     """Follow `nextLink` pagination and return the union of `value` arrays."""
     items: list[dict[str, Any]] = []
     next_url: str | None = url
+    visited: set[str] = set()
     while next_url:
+        if not isinstance(next_url, str) or next_url in visited:
+            raise ValueError("Invalid or cyclic ARM pagination link")
+        visited.add(next_url)
         page = az_rest(next_url)
-        items.extend(page.get("value", []))
+        if not isinstance(page, dict) or not isinstance(page.get("value"), list):
+            raise ValueError(f"Missing ARM list value: {next_url}")
+        if not all(isinstance(item, dict) for item in page["value"]):
+            raise ValueError(f"Invalid ARM list item: {next_url}")
+        items.extend(page["value"])
         next_url = page.get("nextLink")
     return items
 
@@ -216,13 +225,45 @@ def _parallel_fetch_items(
                 for item in resp["value"]:
                     if (item.get("id") or "").lower() == expected_id.lower():
                         return item
-            return resp["value"][0] if resp["value"] else None
+            return None if expected_id else (resp["value"][0] if resp["value"] else None)
         if resp.get("id"):
-            return resp
+            return resp if not expected_id or resp["id"].lower() == expected_id.lower() else None
         return None
 
     with ThreadPoolExecutor(max_workers=min(_PARALLEL_WORKERS, len(urls))) as pool:
         return list(pool.map(_fetch, urls, expected_ids))
+
+
+def _resolve_parameters(value: Any, parameters: dict[str, Any]) -> Any:
+    if isinstance(value, str):
+        match = re.fullmatch(r"\[parameters\('([^']+)'\)\]", value.strip(), re.IGNORECASE)
+        if match:
+            normalized = {key.lower(): item for key, item in parameters.items()}
+            return normalized.get(match.group(1).lower(), value)
+    if isinstance(value, dict):
+        return {key: _resolve_parameters(item, parameters) for key, item in value.items()}
+    if isinstance(value, list):
+        return [_resolve_parameters(item, parameters) for item in value]
+    return value
+
+
+def _effective_parameters(defn: dict[str, Any], supplied: dict[str, Any]) -> dict[str, Any]:
+    defaults = (defn.get("properties") or {}).get("parameters") or {}
+    names = {key.lower(): key for key in defaults}
+    result = {key: item["defaultValue"] for key, item in defaults.items() if "defaultValue" in item}
+    result.update({names.get(key.lower(), key): item["value"] for key, item in supplied.items() if "value" in item})
+    return result
+
+
+def _effective_definition(defn: dict[str, Any], parameters: dict[str, Any]) -> dict[str, Any]:
+    resolved = copy.deepcopy(defn)
+    props = resolved.setdefault("properties", {})
+    props["policyRule"] = _resolve_parameters(props.get("policyRule") or {}, parameters)
+    normalized = {key.lower(): value for key, value in parameters.items()}
+    for key, item in (props.get("parameters") or {}).items():
+        if key.lower() in normalized:
+            item["defaultValue"] = normalized[key.lower()]
+    return resolved
 
 
 def _effect_of(defn: dict[str, Any]) -> str | None:
@@ -424,21 +465,57 @@ def _is_defender_auto(assignment: dict[str, Any]) -> bool:
     return False
 
 
-def _build_exemption_map(exemptions: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
-    """Map lowercase policyAssignmentId → exemption summary."""
-    out: dict[str, dict[str, Any]] = {}
+def _build_exemption_map(exemptions: list[dict[str, Any]]) -> dict[str, list[dict[str, Any]]]:
+    """Retain every exemption and its scope for each assignment."""
+    out: dict[str, list[dict[str, Any]]] = {}
     for ex in exemptions:
         props = ex.get("properties") or {}
         aid = (props.get("policyAssignmentId") or "").lower()
         if not aid:
             continue
-        out[aid] = {
+        exemption_id = ex.get("id") or ""
+        scope = exemption_id.lower().rsplit("/providers/microsoft.authorization/policyexemptions/", 1)[0]
+        out.setdefault(aid, []).append({
+            "id": exemption_id,
+            "scope": scope,
             "exemptionCategory": props.get("exemptionCategory"),
             "expiresOn": props.get("expiresOn"),
             "description": props.get("description"),
             "policyDefinitionReferenceIds": props.get("policyDefinitionReferenceIds") or [],
-        }
+            "resourceSelectors": props.get("resourceSelectors") or [],
+        })
+    for candidates in out.values():
+        candidates.sort(key=lambda candidate: json.dumps(candidate, sort_keys=True))
     return out
+
+
+def _covering_exemption(
+    candidates: list[dict[str, Any]], subscription_id: str, assignment_scope: str,
+    member_ref_id: str | None, now: datetime,
+) -> dict[str, Any] | None:
+    target_scope = f"/subscriptions/{subscription_id}".lower()
+    for candidate in candidates:
+        if candidate["exemptionCategory"] not in {"Waiver", "Mitigated"} or candidate["resourceSelectors"]:
+            continue
+        scope = candidate["scope"].rstrip("/")
+        if scope != target_scope and not (
+            scope == assignment_scope.lower().rstrip("/")
+            and re.fullmatch(r"/providers/microsoft.management/managementgroups/[^/]+", scope)
+        ):
+            continue
+        ref_ids = candidate["policyDefinitionReferenceIds"]
+        if ref_ids and member_ref_id not in ref_ids:
+            continue
+        expiry = candidate["expiresOn"]
+        if expiry is not None:
+            try:
+                expires_at = datetime.fromisoformat(expiry.replace("Z", "+00:00"))
+            except (ValueError, AttributeError):
+                continue
+            if expires_at.tzinfo is None or expires_at <= now:
+                continue
+        return candidate
+    return None
 
 
 # --------------------------------------------------------------------------- #
@@ -515,36 +592,44 @@ def _extract_tags_required(findings: list[dict[str, Any]]) -> list[dict[str, str
     return tags
 
 
+def _location_constraint(condition: Any) -> tuple[list[str] | None, bool]:
+    if not isinstance(condition, dict):
+        return None, False
+    if condition.get("field") == "location" and isinstance(condition.get("notIn"), list):
+        values = condition["notIn"]
+        if all(isinstance(value, str) and value and not value.startswith("[") for value in values):
+            return sorted({value.lower() for value in values}), True
+    if set(condition) == {"not"}:
+        inner = condition["not"]
+        if isinstance(inner, dict) and set(inner) == {"field", "in"}:
+            return _location_constraint({"field": inner["field"], "notIn": inner["in"]})
+    if set(condition) == {"allOf"} and isinstance(condition["allOf"], list):
+        constraints = []
+        universal = True
+        for child in condition["allOf"]:
+            locations, applies_globally = _location_constraint(child)
+            if locations is not None:
+                constraints.append(set(locations))
+            elif child not in (
+                {"field": "location", "notEquals": "global"},
+                {"field": "type", "notEquals": "Microsoft.Resources/deployments"},
+            ):
+                universal = False
+            if locations is not None and not applies_globally:
+                universal = False
+        if constraints:
+            return sorted(set.union(*constraints)), universal
+    return None, False
+
+
 def _extract_allowed_locations(findings: list[dict[str, Any]]) -> list[str]:
-    """Extract allowed-location values from findings with location constraints.
-
-    Checks both required_value (from definition defaults) and assignment_parameters
-    (which carry the actual configured location list).
-    """
-    locations: set[str] = set()
-    for f in findings:
-        dn = (f.get("display_name") or "").lower()
-        cat = (f.get("category") or "").lower()
-        is_location = "location" in dn or "region" in dn or "location" in cat
-
-        # Check required_value from definition
-        rv = f.get("required_value")
-        if is_location:
-            if isinstance(rv, list):
-                locations.update(str(v) for v in rv)
-            elif isinstance(rv, str) and rv:
-                locations.add(rv)
-
-        # Check assignment parameters for location lists
-        params = f.get("assignment_parameters") or {}
-        for pname in (
-            "listOfAllowedLocations", "allowedLocations",
-            "listofallowedlocations", "allowedlocations",
-        ):
-            val = params.get(pname)
-            if isinstance(val, list):
-                locations.update(str(v) for v in val if v)
-    return sorted(locations)
+    """Intersect only proven subscription-wide, enforced Deny allowlists."""
+    if any("location_constraint_global" in finding and not finding["location_constraint_global"]
+           and finding.get("classification") == "blocker" for finding in findings):
+        return []
+    constraints = [set(finding["required_value"]) for finding in findings
+                   if finding.get("location_constraint_global") and finding.get("classification") == "blocker"]
+    return sorted(set.intersection(*constraints)) if constraints else []
 
 
 # --------------------------------------------------------------------------- #
@@ -565,8 +650,9 @@ def _self_check_assignments(
     az_rest: Callable[[str], dict[str, Any]],
     subscription_id: str,
     expected_count: int,
+    expected_assignments: list[dict[str, Any]] | None = None,
 ) -> tuple[bool, int]:
-    """Re-fetch the first page of policyAssignments and verify count.
+    """Re-fetch all assignment pages and compare inventory and count.
 
     Returns (ok, actual_count). On any network/parse failure, returns
     (False, -1) so the caller can downgrade `discovery_status` to
@@ -577,12 +663,11 @@ def _self_check_assignments(
             f"{ARM}/subscriptions/{subscription_id}/providers/Microsoft.Authorization/"
             f"policyAssignments?$filter=atScope()&api-version={API_ASSIGNMENTS}"
         )
-        # We deliberately re-use _default_az_rest here via the caller's
-        # az_rest, which is the same surface that just produced the original
-        # list — any drift now is real (filter change, RBAC drop, paging bug).
-        first = az_rest(url) or {}
-        items = first.get("value") or []
-        return len(items) == expected_count, len(items)
+        items = _list_all(az_rest, url)
+        same_inventory = expected_assignments is None or sorted(
+            json.dumps(item, sort_keys=True) for item in items
+        ) == sorted(json.dumps(item, sort_keys=True) for item in expected_assignments)
+        return len(items) == expected_count and same_inventory, len(items)
     except Exception:  # noqa: BLE001 — self-check must never crash discovery
         return False, -1
 
@@ -647,7 +732,7 @@ def discover(
     for a in assignments:
         pid_original = (a.get("properties") or {}).get("policyDefinitionId") or ""
         pid = pid_original.lower()
-        if not pid or not pid.startswith("/providers/microsoft.authorization/"):
+        if not pid:
             continue
         if "/policysetdefinitions/" in pid and pid not in sets:
             tenant_set_ids.setdefault(pid, pid_original)
@@ -664,15 +749,12 @@ def discover(
         for s in fetched_sets:
             if s:
                 sets.setdefault((s.get("id") or "").lower(), s)
-                for m in (s.get("properties") or {}).get("policyDefinitions") or []:
-                    mid_original = (m.get("policyDefinitionId") or "")
-                    mid = mid_original.lower()
-                    if (
-                        mid
-                        and mid.startswith("/providers/microsoft.authorization/")
-                        and mid not in defs
-                    ):
-                        tenant_def_ids.setdefault(mid, mid_original)
+
+    for policy_set in sets.values():
+        for member in (policy_set.get("properties") or {}).get("policyDefinitions") or []:
+            member_id = member.get("policyDefinitionId") or ""
+            if member_id and member_id.lower() not in defs:
+                tenant_def_ids.setdefault(member_id.lower(), member_id)
 
     if tenant_def_ids:
         ordered = sorted(tenant_def_ids.items())
@@ -709,6 +791,8 @@ def discover(
     findings: list[dict[str, Any]] = []
     audit_count = 0
     disabled_count = 0
+    unresolved: list[str] = []
+    evaluated_at = datetime.now(UTC)
 
     for a in kept_assignments:
         props = a.get("properties") or {}
@@ -729,22 +813,34 @@ def discover(
         )
 
         if not pid:
+            unresolved.append(assignment_id)
             continue
 
         # Resolve to member definitions (initiative → its members; policy → itself).
-        members: list[tuple[dict[str, Any], str | None]] = []
+        members: list[tuple[dict[str, Any], str | None, dict[str, Any]]] = []
         if "/policysetdefinitions/" in pid and pid in sets:
-            for m in (sets[pid].get("properties") or {}).get("policyDefinitions") or []:
+            set_parameters = _effective_parameters(sets[pid], props.get("parameters") or {})
+            set_members = (sets[pid].get("properties") or {}).get("policyDefinitions") or []
+            if not set_members:
+                unresolved.append(pid)
+            for m in set_members:
                 mid = (m.get("policyDefinitionId") or "").lower()
                 if mid in defs:
-                    members.append((defs[mid], m.get("policyDefinitionReferenceId")))
+                    supplied = _resolve_parameters(m.get("parameters") or {}, set_parameters)
+                    members.append((defs[mid], m.get("policyDefinitionReferenceId"), supplied))
+                else:
+                    unresolved.append(mid or pid)
         elif pid in defs:
-            members.append((defs[pid], None))
-        # Unknown definition id — nothing to emit; still counted in inventory.
+            members.append((defs[pid], None, props.get("parameters") or {}))
+        else:
+            unresolved.append(pid)
 
-        for defn, member_ref_id in members:
+        for original_defn, member_ref_id, supplied in members:
+            effective_parameters = _effective_parameters(original_defn, supplied)
+            defn = _effective_definition(original_defn, effective_parameters)
             eff = _effect_of(defn)
             if eff is None:
+                unresolved.append(original_defn.get("id") or pid)
                 continue
             if eff == "Disabled":
                 disabled_count += 1
@@ -753,6 +849,8 @@ def discover(
                 audit_count += 1
                 continue
             if eff not in RELEVANT_EFFECTS:
+                if eff != "Append":
+                    unresolved.append(original_defn.get("id") or pid)
                 continue
 
             rtypes = _resource_types(defn)
@@ -761,15 +859,13 @@ def discover(
                 "category"
             ) or "Uncategorized"
 
-            exemption = None
-            if assignment_id in exemption_map:
-                candidate = exemption_map[assignment_id]
-                ref_ids = candidate.get("policyDefinitionReferenceIds") or []
-                if not ref_ids or member_ref_id in ref_ids:
-                    exemption = candidate
+            exemption_candidates = exemption_map.get(assignment_id, [])
+            exemption = _covering_exemption(exemption_candidates, subscription_id, scope, member_ref_id, evaluated_at)
 
             classification = _classify(eff)
             if exemption is not None and classification == "blocker":
+                classification = "informational"
+            if props.get("enforcementMode") == "DoNotEnforce":
                 classification = "informational"
 
             finding = {
@@ -781,6 +877,10 @@ def discover(
                 "scope": scope,
                 "assignment_display_name": display,
                 "assignment_id": a.get("id"),
+                "policy_definition_reference_id": member_ref_id,
+                "not_scopes": props.get("notScopes") or [],
+                "resource_selectors": props.get("resourceSelectors") or [],
+                "enforcement_mode": props.get("enforcementMode") or "Default",
                 "classification": classification,
                 "category": category,
                 "resource_types": rtypes,
@@ -790,14 +890,21 @@ def discover(
                 "exemption": exemption,
                 "override": None,
             }
+            if exemption_candidates:
+                finding["exemption_candidates"] = exemption_candidates
+            condition = ((defn.get("properties") or {}).get("policyRule") or {}).get("if")
+            locations, universal = _location_constraint(condition)
+            if locations is not None:
+                finding["required_value"] = locations
+                finding["location_condition"] = condition
+                finding["location_constraint_global"] = bool(
+                    universal and not rtypes and not finding["not_scopes"] and not finding["resource_selectors"]
+                    and (scope.lower().rstrip("/") == f"/subscriptions/{subscription_id}".lower()
+                         or re.fullmatch(r"/providers/microsoft.management/managementgroups/[^/]+", scope.lower()))
+                )
             # Carry assignment-level parameter values (tag keys, location lists).
-            assignment_params = props.get("parameters") or {}
-            if assignment_params:
-                finding["assignment_parameters"] = {
-                    k: (v or {}).get("value")
-                    for k, v in assignment_params.items()
-                    if (v or {}).get("value") is not None
-                }
+            if effective_parameters:
+                finding["assignment_parameters"] = effective_parameters
             if paths.get("pathSemantics"):
                 finding["pathSemantics"] = paths["pathSemantics"]
             # For Tags-category policies, extract enforced tag keys from the
@@ -820,15 +927,14 @@ def discover(
 
     # L0 envelope: signature, scope, and self-check.
     management_groups = _extract_management_groups(kept_assignments)
-    discovery_status = "COMPLETE"
-    # Re-fetch page 1 of assignments and verify the count matches the
-    # initial pull. Drift here indicates RBAC change, filter mutation, or
-    # a paginated REST surface change between the two calls.
-    self_check_ok, self_check_count = _self_check_assignments(az_rest, subscription_id, len(assignments))
+    discovery_status = "PARTIAL" if unresolved else "COMPLETE"
+    for policy_id in sorted(set(unresolved)):
+        print(f"unresolved policy definition or effect: {policy_id}", file=sys.stderr)
+    self_check_ok, self_check_count = _self_check_assignments(az_rest, subscription_id, len(assignments), assignments)
     if not self_check_ok:
         discovery_status = "PARTIAL"
         print(
-            f"self-check: policyAssignments count drift "
+            f"self-check: policyAssignments inventory drift "
             f"(expected={len(assignments)}, observed={self_check_count}); "
             f"marking discovery_status=PARTIAL",
             file=sys.stderr,
@@ -840,9 +946,6 @@ def discover(
         subscription_id=subscription_id,
         management_groups=management_groups,
         page_counts={
-            # `_parallel_list` collapses pagination, so we record the
-            # final item counts per REST surface. The self-check above
-            # validates these against a fresh page-1 fetch.
             "policyAssignments": len(assignments),
             "policyDefinitions": len(defs),
             "policyExemptions": len(exemptions),
@@ -855,6 +958,7 @@ def discover(
     envelope = {
         "schema_version": "governance-constraints-v1",
         "project": project,
+        "discovery_options": {"include_defender_auto": include_defender_auto},
         "subscription_id": subscription_id,
         "discovered_at": discovered_at,
         "source": "azure-policy-rest-api",
@@ -955,7 +1059,20 @@ def _cache_is_fresh(cached: dict[str, Any], now: datetime | None = None) -> bool
         return False
     if discovered_at.tzinfo is None:
         return False
-    age = ((now or datetime.now(UTC)) - discovered_at).total_seconds()
+    evaluated_at = now or datetime.now(UTC)
+    for finding in cached.get("findings") or []:
+        exemption = finding.get("exemption")
+        if exemption is not None:
+            try:
+                covering = _covering_exemption(
+                    [exemption], cached.get("subscription_id", ""), finding.get("scope", ""),
+                    finding.get("policy_definition_reference_id"), evaluated_at,
+                )
+            except (KeyError, TypeError, AttributeError):
+                return False
+            if covering is None:
+                return False
+    age = (evaluated_at - discovered_at).total_seconds()
     return 0 <= age <= ttl_days * 86400
 
 
@@ -988,6 +1105,13 @@ def main(argv: list[str] | None = None) -> int:
 
     out_path = Path(args.out)
 
+    try:
+        sub_id = _default_get_subscription() if args.subscription == "default" else args.subscription
+    except (subprocess.CalledProcessError, subprocess.TimeoutExpired, OSError) as error:
+        _emit_status({"status": "FAILED", "error": "subscription-resolution", "detail": str(error)})
+        print("ERROR: could not resolve subscription via `az account show`.", file=sys.stderr)
+        return 2
+
     # Cache reuse must satisfy the same freshness clock as downstream L0 checks.
     if out_path.exists() and not args.refresh:
         try:
@@ -996,10 +1120,18 @@ def main(argv: list[str] | None = None) -> int:
             cached = None
         if (
             isinstance(cached, dict)
+            and cached.get("schema_version") == "governance-constraints-v1"
+            and cached.get("project") == args.project
+            and str(cached.get("subscription_id", "")).lower() == sub_id.lower()
+            and cached.get("discovery_options") == {"include_defender_auto": args.include_defender_auto}
             and cached.get("discovery_status") == "COMPLETE"
             and isinstance(cached.get("findings"), list)
             and _cache_is_fresh(cached)
+            and isinstance(cached["discovery_metadata"].get("scope"), dict)
+            and str(cached["discovery_metadata"]["scope"].get("subscription_id", "")).lower() == sub_id.lower()
         ):
+            if args.arch:
+                _emit_preview_md(cached, out_path, arch_resources=_extract_arch_resources(args.arch))
             summary = cached.get("discovery_summary") or {}
             status = {
                 "status": "COMPLETE",
@@ -1016,14 +1148,6 @@ def main(argv: list[str] | None = None) -> int:
                 f"pass --refresh to re-discover)"
             )
             return 0
-
-    # Resolve subscription id.
-    try:
-        sub_id = _default_get_subscription() if args.subscription == "default" else args.subscription
-    except subprocess.CalledProcessError as e:
-        _emit_status({"status": "FAILED", "error": "subscription-resolution", "detail": str(e)})
-        print("ERROR: could not resolve subscription via `az account show`.", file=sys.stderr)
-        return 2
 
     try:
         _default_check_auth()

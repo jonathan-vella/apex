@@ -20,15 +20,16 @@ import azurefunctions.extensions.bindings.blob as blob
 
 app = func.FunctionApp()
 
+@app.function_name(name="ProcessBlobUpload")
 @app.blob_trigger(
     arg_name="source_blob_client",
-    path="unprocessed-pdf/{name}",
+    path="%BLOB_CONTAINER_NAME%/{name}",
     connection="PDFProcessorSTORAGE",
     source=func.BlobSource.EVENT_GRID
 )
 @app.blob_input(
     arg_name="processed_container",
-    path="processed-pdf",
+    path="%BLOB_PROCESSED_CONTAINER_NAME%",
     connection="PDFProcessorSTORAGE"
 )
 def process_blob_upload(

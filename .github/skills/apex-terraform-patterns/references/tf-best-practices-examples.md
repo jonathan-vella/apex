@@ -14,6 +14,7 @@ Generate ONCE in the root module, pass to ALL child modules:
 # versions.tf or locals.tf
 resource "random_string" "suffix" {
   length  = 4
+  upper   = false
   lower   = true
   numeric = true
   special = false
@@ -73,6 +74,7 @@ terraform {
     storage_account_name = "sttfstate{suffix}"
     container_name       = "tfstate"
     key                  = "{project}.terraform.tfstate"
+    use_azuread_auth      = true
   }
 }
 ```
@@ -82,16 +84,13 @@ terraform {
 ```hcl
 # locals.tf
 locals {
-  tags = merge(var.tags, {
-    Environment = var.environment
-    ManagedBy   = "Terraform"
-    Project     = var.project
-    Owner       = var.owner
-  })
+  tags = merge(var.additional_tags, var.policy_tags)
 }
 ```
 
-Pass `local.tags` to every resource and AVM module.
+Pass `local.tags` to every resource and AVM module. Populate `policy_tags` from
+effective governance, preserving casing and values. Optional tags cannot override
+that contract. Use the canonical greenfield fallback only when no tag policy applies.
 
 ## Security Defaults
 
@@ -118,29 +117,13 @@ resource "azurerm_mssql_server" "this" {
 
 ## AVM-TF Examples
 
-```hcl
-# Use AVM-TF for Key Vault
-module "key_vault" {
-  source  = "Azure/avm-res-keyvault-vault/azurerm"
-  version = "~> 0.9"
-
-  name                = local.kv_name
-  resource_group_name = azurerm_resource_group.this.name
-  location            = var.location
-  tenant_id           = data.azurerm_client_config.current.tenant_id
-  tags                = local.tags
-}
-
-# Only use raw azurerm_* if no AVM module exists
-# Requires explicit user approval: "approve raw terraform"
-```
+Use the pinned [canonical composition](module-composition.md) for Resource Group
+and Key Vault. Raw `azurerm_*` requires approval when no suitable AVM module exists.
 
 ### Module Source Format
 
-```hcl
-source  = "Azure/avm-res-{service}-{resource}/azurerm"
-version = "~> {major}.{minor}"
-```
+Registry sources use `Azure/avm-res-{service}-{resource}/azurerm` with an exact
+approved semantic version, not a module version range.
 
 ### Common AVM Modules
 
@@ -154,6 +137,9 @@ version = "~> {major}.{minor}"
 Use the public Terraform Registry API per
 `apex-azure-defaults/references/terraform-conventions.md`, then pin the resolved
 stable version as exact semver.
+
+Never replace an approved project pin with an example's version or an
+unreviewed latest version.
 
 ## Variables
 
@@ -184,8 +170,13 @@ variable "environment" {
   }
 }
 
-variable "tags" {
-  description = "Additional tags to merge with baseline tags."
+variable "policy_tags" {
+  description = "Effective policy tag keys and values, or approved greenfield contract."
+  type        = map(string)
+}
+
+variable "additional_tags" {
+  description = "Optional tags; cannot override policy tags."
   type        = map(string)
   default     = {}
 }
@@ -317,7 +308,7 @@ resource "azurerm_nat_gateway" "this" {
 - [ ] All variables have `type` and `description`
 - [ ] All outputs have `description`
 - [ ] Resource names use descriptive nouns with underscores
-- [ ] Version constraints pinned explicitly (`~> X.Y`)
+- [ ] AVM module versions are exact approved semver; provider constraints retain the approved major series and lockfile
 - [ ] Sensitive values marked with `sensitive = true`
 - [ ] No hardcoded credentials or secrets
 - [ ] Security best practices applied (TLS 1.2, HTTPS-only, managed identity)

@@ -35,20 +35,15 @@ For deployments with Azure SQL Database and managed identity:
 
 ### Verify SQL Access
 
-```bash
-# Load environment variables safely (parse key=value pairs with proper quoting)
-while IFS='=' read -r key value; do
-  [[ -z "$key" || "$key" =~ ^# ]] && continue
-  export "$key"="$value"
-done < <(azd env get-values)
+Use the [reviewed SQL executor](sql-entra-auth.md#reviewed-sql-execution) with explicit data-plane approval.
+Put this query in `verify-identity.sql`:
 
-# Check managed identity user exists in database
-az sql db query \
-  --server "$SQL_SERVER" \
-  --database "$SQL_DATABASE" \
-  --resource-group "$AZURE_RESOURCE_GROUP" \
-  --auth-mode ActiveDirectoryDefault \
-  --queries "SELECT name, type_desc FROM sys.database_principals WHERE type = 'E'"
+```sql
+SELECT name, type_desc FROM sys.database_principals WHERE type = 'E';
+```
+
+```bash
+bash ./scripts/run-sql.sh verify-identity.sql
 ```
 
 **Expected:** Should list the App Service or Container App managed identity.
@@ -57,14 +52,14 @@ az sql db query \
 
 For EF Core applications:
 
+Put this query in a separately reviewed `verify-schema.sql`:
+
+```sql
+SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE='BASE TABLE';
+```
+
 ```bash
-# Check tables exist
-az sql db query \
-  --server "$SQL_SERVER" \
-  --database "$SQL_DATABASE" \
-  --resource-group "$AZURE_RESOURCE_GROUP" \
-  --auth-mode ActiveDirectoryDefault \
-  --queries "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE='BASE TABLE'"
+bash ./scripts/run-sql.sh verify-schema.sql
 ```
 
 **Expected:** Should list application tables (not just `__EFMigrationsHistory`).

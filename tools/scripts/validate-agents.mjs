@@ -14,6 +14,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { createRequire } from "node:module";
 import { getAgents, getPromptFiles } from "./_lib/workspace-index.mjs";
 import { getBody, parseFrontmatter } from "./_lib/parse-frontmatter.mjs";
 import { modelLabels, catalogModelLabel } from "./_lib/model-helpers.mjs";
@@ -189,6 +190,11 @@ export function runFrontmatterValidation({ agents = getAgents() } = {}) {
     for (const issue of validateProductionAgentPolicy(agent, agents)) {
       r.error(relativePath, issue);
       r.record({ ruleId: "production-agent-policy", severity: "error", file: relativePath, message: issue });
+    }
+
+    for (const issue of validateProductionAgentBody(agent)) {
+      r.error(relativePath, issue);
+      r.record({ ruleId: "production-agent-body", severity: "error", file: relativePath, message: issue });
     }
 
     if (content.includes("handoffs:")) {
@@ -802,8 +808,80 @@ const CLAUDE_ONLY_XML = [
   "<output_contract>",
 ];
 
-/** Required H1 sections for the OpenAI outcome-first skeleton. */
-const GPT55_REQUIRED_SECTIONS = ["# Goal", "# Success criteria", "# Constraints", "# Output", "# Stop rules"];
+const BODY_CONTRACT_SECTIONS = {
+  Role: ["role"],
+  Goal: ["goal"],
+  "Success criteria": ["success criteria"],
+  Constraints: ["constraints"],
+  Output: ["output", "outputs", "output contract", "output format"],
+  "Stop rules": ["stop rules"],
+};
+const markdownToolingRequire = createRequire(import.meta.resolve("markdownlint-cli2"));
+const MarkdownIt = markdownToolingRequire("markdown-it");
+const bodyMarkdown = new MarkdownIt({ html: true });
+
+export function getAgentBodyStructure(content) {
+  const tokens = bodyMarkdown.parse(getBody(content), {});
+  const headings = [];
+  const prose = [];
+  for (const [index, token] of tokens.entries()) {
+    if (token.type === "inline" && tokens[index - 1]?.type !== "heading_open") prose.push(inlineProse(token));
+    if (token.type !== "heading_open") continue;
+    const level = Number(token.tag.slice(1));
+    const paragraphs = [];
+    for (let cursor = index + 3; cursor < tokens.length; cursor++) {
+      const next = tokens[cursor];
+      if (next.type === "heading_open" && Number(next.tag.slice(1)) <= level) break;
+      if (next.type === "inline" && tokens[cursor - 1]?.type !== "heading_open") paragraphs.push(inlineProse(next));
+    }
+    headings.push({
+      level,
+      title: tokens[index + 1].content,
+      nested: token.level !== 0,
+      content: paragraphs.join("\n").trim(),
+    });
+  }
+  return { headings, prose: prose.join("\n") };
+}
+
+function inlineProse(token) {
+  return (token.children ?? [])
+    .filter((child) => child.type !== "html_inline")
+    .map((child) => child.content)
+    .join("");
+}
+
+function contractSections(structure, names, levels = [1, 2]) {
+  return structure.headings.filter(
+    (heading) => !heading.nested && levels.includes(heading.level) && names.includes(heading.title.toLowerCase()),
+  );
+}
+
+export function validateProductionAgentBody(agent) {
+  const kind = productionAgentKind(agent);
+  if (!kind) return [];
+  const structure = getAgentBodyStructure(agent.content);
+  const titles = structure.headings.filter((heading) => heading.level === 1);
+  const issues = [];
+  if (titles.length !== 1 || titles[0].nested || titles[0].title !== agent.frontmatter.name) {
+    issues.push("Production body requires exactly one H1 matching the frontmatter name");
+  }
+  const contracts =
+    kind === "main"
+      ? BODY_CONTRACT_SECTIONS
+      : {
+          Role: BODY_CONTRACT_SECTIONS.Role,
+          Inputs: ["inputs", "input contract"],
+          Output: BODY_CONTRACT_SECTIONS.Output,
+        };
+  for (const [name, aliases] of Object.entries(contracts)) {
+    const sections = contractSections(structure, aliases, [2]);
+    if (!sections.length || sections.some((section) => !section.content)) {
+      issues.push(`Production body requires nonempty H2 ${name} sections`);
+    }
+  }
+  return issues;
+}
 
 /** Permitted absolute-language paragraph keywords (Check 8R). */
 const PERMITTED_ABSOLUTE_CONTEXTS = [/security baseline/i, /governance/i, /approval gate/i, /non-negotiable/i];
@@ -837,10 +915,13 @@ function checkClaudeOneShotNoInvestigate(r, agent, file, family) {
 /** Check 6: gpt55-skeleton-001 */
 function checkGpt55Skeleton(r, agent, file, family) {
   if (!isGptOutcomeFamily(family)) return;
-  const body = getBody(agent.content);
+  const structure = getAgentBodyStructure(agent.content);
   if (agent.isSubagent) {
-    const missing = ["Inputs", "Outputs"].filter((section) => !new RegExp(`^#{1,3} ${section}\\b`, "im").test(body));
-    if (missing.length || !/\b(stop|fail(?:ure|ed)?|return.*parent|blocked)\b/i.test(body)) {
+    const missing = [["inputs", "input contract"], BODY_CONTRACT_SECTIONS.Output].filter((names) => {
+      const sections = contractSections(structure, names, [1, 2, 3]);
+      return !sections.length || sections.some((section) => !section.content);
+    });
+    if (missing.length || !/\b(stop|fail(?:ure|ed)?|return.*parent|blocked)\b/i.test(structure.prose)) {
       emit(
         r,
         "gpt55-skeleton-001",
@@ -851,16 +932,27 @@ function checkGpt55Skeleton(r, agent, file, family) {
     }
     return;
   }
-  const missing = GPT55_REQUIRED_SECTIONS.filter((h) => !new RegExp(`^${h}\\b`, "m").test(body));
-  if (!/^(?:# Role\b|Role:)/m.test(body)) missing.unshift("Role");
+  const missing = Object.entries(BODY_CONTRACT_SECTIONS)
+    .filter(([name, aliases]) => {
+      const sections = contractSections(structure, aliases);
+      if (!sections.length && name === "Role" && /^Role:[ \t]*\S.+/m.test(structure.prose)) return false;
+      return !sections.length || sections.some((section) => !section.content);
+    })
+    .map(([name]) => name);
   if (missing.length > 0) {
-    emit(r, "gpt55-skeleton-001", family, file, `APEX outcome contract missing sections: ${missing.join(", ")}`);
+    emit(
+      r,
+      "gpt55-skeleton-001",
+      family,
+      file,
+      `APEX outcome contract missing or empty sections: ${missing.join(", ")}`,
+    );
   }
   // Personality scoping (rule personality-scoping-001 piggybacked)
   const ui = agent.frontmatter?.["user-invocable"];
   const isUserFacing =
     (ui === true || ui === "true" || ui === "always") && /Orchestrator/i.test(agent.frontmatter?.name || "");
-  const hasPersonality = /^# Personality\b/m.test(body);
+  const hasPersonality = contractSections(structure, ["personality"]).length > 0;
   if (hasPersonality && !isUserFacing && !agent.isSubagent) {
     emit(
       r,
@@ -954,17 +1046,9 @@ function checkClaudeNoPrefill(r, item, file, family) {
 /** Check 11: gpt55-stop-rules-non-empty-001 */
 function checkGpt55StopRulesNonEmpty(r, agent, file, family) {
   if (!isGptOutcomeFamily(family) || agent.isSubagent) return;
-  const body = getBody(agent.content);
-  // Match section body up to the next H1 heading or the end of the document.
-  // (`$` with the `m` flag matches end-of-line; we need end-of-string here, hence the explicit alternative.)
-  const m = body.match(/^# Stop rules\s*\n([\s\S]*?)(?=^# |$(?![\s\S]))/m);
-  if (!m) return; // Missing section is caught by skeleton check
-  const sectionBody = m[1]
-    .split("\n")
-    .map((l) => l.trim())
-    .filter((l) => l && !l.startsWith("<!--"));
-  if (sectionBody.length === 0) {
-    emit(r, "gpt55-stop-rules-non-empty-001", family, file, `# Stop rules section is empty (header only)`);
+  const sections = contractSections(getAgentBodyStructure(agent.content), BODY_CONTRACT_SECTIONS["Stop rules"]);
+  if (sections.some((section) => !section.content)) {
+    emit(r, "gpt55-stop-rules-non-empty-001", family, file, "Stop rules section is empty (header only)");
   }
 }
 

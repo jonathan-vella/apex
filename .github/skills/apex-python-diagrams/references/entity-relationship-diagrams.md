@@ -4,6 +4,18 @@
 
 Generate professional database entity relationship diagrams showing tables, columns, and relationships.
 
+## Bundled Custom Models
+
+Use `create_erd(title, filename, tables, relationships=[(source, target), ...])`
+from [`multi_diagram_generator.py`](../scripts/multi_diagram_generator.py).
+Table dictionaries retain `name`, `columns` (name/type/key tuples), and optional
+`color`. Relationships refer to table names; unknown names raise `ValueError`
+before rendering. Custom tables never inherit sample relationships. Omitted
+(`None`) tables use the sample; an empty list stays empty. Pass
+`relationships=[]` to suppress even the sample's edges. The function still
+emits PNG+SVG and returns the PNG path. The examples below retain their distinct
+schemas, styling, cardinality labels, and column-port relationships.
+
 ## Approach 1: Graphviz Direct (Recommended for ERDs)
 
 Graphviz provides the most control for ERD layouts.
@@ -112,51 +124,12 @@ with Diagram("Database Schema", show=False, filename="erd-simple", direction="LR
 
 ## Approach 3: Mermaid ERD
 
-```python
-def generate_mermaid_erd(entities):
-    """Generate Mermaid ERD syntax."""
-    mermaid = "erDiagram\n"
-
-    for entity in entities:
-        name = entity['name']
-        mermaid += f"    {name} {{\n"
-        for col in entity['columns']:
-            mermaid += f"        {col['type']} {col['name']}"
-            if col.get('pk'):
-                mermaid += " PK"
-            if col.get('fk'):
-                mermaid += " FK"
-            mermaid += "\n"
-        mermaid += "    }\n"
-
-    return mermaid
-
-# Example
-entities = [
-    {
-        'name': 'Documents',
-        'columns': [
-            {'name': 'DocumentId', 'type': 'int', 'pk': True},
-            {'name': 'AccountId', 'type': 'int', 'fk': True},
-            {'name': 'Title', 'type': 'string'},
-        ]
-    },
-    {
-        'name': 'Accounts',
-        'columns': [
-            {'name': 'AccountId', 'type': 'int', 'pk': True},
-            {'name': 'Name', 'type': 'string'},
-        ]
-    }
-]
-
-# Relationships in Mermaid
-relationships = """
-    Documents }|--|| Accounts : "belongs to"
-    Documents }|--|| Users : "created by"
-    Users ||--o{ Roles : "has"
-"""
-```
+For inline ERDs, use the canonical
+[`apex-mermaid` skill](../../apex-mermaid/SKILL.md) for entity syntax,
+PK/FK annotations, cardinalities, styling, and validation. Retain the supplied
+columns and explicit relationships (for example, Documents belongs to Accounts,
+Documents is created by Users, and Users has Roles). Inline Mermaid does not
+replace required rendered PNG+SVG artifacts.
 
 ## Relationship Notation
 

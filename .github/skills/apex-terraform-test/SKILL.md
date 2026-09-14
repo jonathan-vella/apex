@@ -1,5 +1,8 @@
 ---
 name: apex-terraform-test
+user-invocable: true
+disable-model-invocation: false
+argument-hint: "test path and plan or mock mode"
 description: '**WORKFLOW SKILL** — Write and run Terraform tests (.tftest.hcl). WHEN: "create terraform test", "write tftest", ".tftest.hcl", "mock provider", "test module", "test assertion". USE FOR: test files, run blocks, assertions, mock providers, plan-mode unit tests, apply-mode integration tests, test troubleshooting. DO NOT USE FOR: Bicep code, architecture decisions, deployment (use apex-azure-deploy).'
 compatibility: Requires Terraform >= 1.6 (test blocks), >= 1.7 (mock providers), >= 1.9 (parallel execution)
 ---

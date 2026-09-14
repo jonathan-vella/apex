@@ -175,10 +175,10 @@ Some permissions require admin consent:
 - You cannot retrieve it later
 - If you lose it, create a new one
 
-```bash
-# Save this securely (example)
-CLIENT_SECRET="abc123~defGHI456jklMNO789pqrSTU"
-```
+Transfer the value privately to the approved secret store. Never paste it into chat,
+tool output, diagnostic logs or repository files. Follow the
+[additive credential procedure](cli-commands.md#client-credentials-secrets--certificates)
+when rotating an existing registration.
 
 **Security tips:**
 
@@ -188,23 +188,14 @@ CLIENT_SECRET="abc123~defGHI456jklMNO789pqrSTU"
 
 ## Step 7: Test Your App Registration
 
-### Option A: Quick Test with Azure CLI
+### Test the Intended Client with MSAL
 
-```bash
-# Set your values
-CLIENT_ID="your-client-id-here"
-TENANT_ID="your-tenant-id-here"
-
-# Interactive login
-az login --scope "https://graph.microsoft.com/.default"
-
-# Get an access token
-az account get-access-token --resource "https://graph.microsoft.com"
-```
-
-### Option B: Test with MSAL Library
-
-See the complete code example in [console-app-example.md](console-app-example.md)
+Follow the [identity and permission boundary](auth-best-practices.md#identity-and-permission-boundary).
+Interactive Azure CLI login tests the CLI application, not your registration.
+Configure MSAL with the intended client ID and tenant ID using the selected
+flow in [console-app-example.md](console-app-example.md). Verify the registered
+redirect/public-client settings and consent for that flow. App-only calls require
+application permissions and cannot use Graph `/me`.
 
 ### Expected Results
 
@@ -212,7 +203,7 @@ See the complete code example in [console-app-example.md](console-app-example.md
 
 - Browser opens for authentication (or device code shown)
 - You authenticate with your Azure AD account
-- Access token is returned
+- The configured client acquires a token internally; report no token values
 - You can call Microsoft Graph API
 
 **Common first-time issues:**
@@ -221,7 +212,8 @@ See the complete code example in [console-app-example.md](console-app-example.md
 - Insufficient permissions → Add required API permissions
 - User consent required → Grant admin consent or user must consent
 
-**Tip:** Once you get the access token, you can use [jwt.ms](https://jwt.ms) to decode it and inspect its claims.
+Inspect only necessary redacted identity/permission metadata locally. Never upload
+live tokens to a decoding site or paste them into chat or logs.
 
 ## Step 8: Review Configuration
 

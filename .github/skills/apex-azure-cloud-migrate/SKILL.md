@@ -1,5 +1,8 @@
 ---
 name: apex-azure-cloud-migrate
+user-invocable: true
+disable-model-invocation: false
+argument-hint: "source provider, workload path and migration scope"
 description: '**WORKFLOW SKILL** — Assess and migrate cross-cloud workloads to Azure. Generates assessment reports and converts code from AWS, GCP, or other providers to Azure services. WHEN: "migrate Lambda to Azure Functions", "migrate AWS to Azure", "convert AWS serverless to Azure", "migration readiness report", "cross-cloud migration". DO NOT USE FOR: greenfield Azure deployment (apex-azure-prepare), Azure-only refactor (apex-azure-prepare).'
 license: MIT
 metadata:

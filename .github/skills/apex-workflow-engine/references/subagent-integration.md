@@ -2,27 +2,17 @@
 
 # Subagent Integration Matrix
 
-Subagents are wired into their parent agents automatically:
+The [workflow graph](../templates/workflow-graph.json) owns review requirements;
+current parent frontmatter and worker bodies own permitted calls and outputs.
+Discovery does not wire or authorize a call. Read the
+[execution contract](execution-subagent.md) before delegating.
 
-| Subagent                      | Parent Agent       | When Used                                              | Passes |
-| ----------------------------- | ------------------ | ------------------------------------------------------ | ------ |
-| `challenger-review-subagent`  | Requirements       | Step 1 — adversarial review of requirements            | 1x     |
-| `challenger-review-subagent`  | Architect          | Step 2 — adversarial review of architecture (3 lenses) | 3x     |
-| `challenger-review-subagent`  | Architect          | Step 2 — adversarial review of cost estimate           | 1x     |
-| `challenger-review-subagent`  | IaC Planner        | Step 4 — adversarial review of governance constraints  | 1x     |
-| `challenger-review-subagent`  | IaC Planner        | Step 4 — adversarial review of implementation plan     | 3x     |
-| `challenger-review-subagent`  | Bicep Code         | Step 5 — adversarial review of IaC code                | 3x     |
-| `challenger-review-subagent`  | Terraform Code Gen | Step 5† — adversarial review of IaC code               | 3x     |
-| `challenger-review-subagent`  | Deploy             | Step 6 — pre-deploy adversarial review                 | 1x     |
-| `challenger-review-subagent`  | Terraform Deploy   | Step 6† — pre-deploy adversarial review                | 1x     |
-| `cost-estimate-subagent`      | Architect          | Step 2 — pricing isolation + accuracy validation       | —      |
-| `cost-estimate-subagent`      | As-Built           | Step 7 — as-built pricing for deployed SKUs            | —      |
-| `bicep-validate-subagent`     | Bicep Code         | Step 5 Phase 4 — lint + code review                    | —      |
-| `bicep-whatif-subagent`       | Deploy             | Step 6 — deployment preview                            | —      |
-| `terraform-validate-subagent` | Terraform Code Gen | Step 5† — lint + AVM-TF/security review                | —      |
-| `terraform-plan-subagent`     | Terraform Deploy   | Step 6† — deployment preview                           | —      |
-
-† Terraform path only.
+- Step 1 requires comprehensive review.
+- Step 2 requires architecture review plus separate independent cost-feasibility review in every mode.
+- Step 3 ADR review is opt-in; Step 3.5 governance reconciliation is required unless there are no constraints.
+- Step 4 requires plan review. Deep review at Steps 2 and 4 requires explicit opt-in, never complexity alone.
+- Step 5 code review is opt-in; Step 6 has no Challenger review over deployment tool output.
+- Cost workers serve Architect and As-Built; validation and preview workers serve their authorized IaC parents.
 
 > [!NOTE]
 > **Pricing Accuracy Gate (Steps 2 & 7)**: No agent writes dollar figures from
@@ -32,33 +22,25 @@ Subagents are wired into their parent agents automatically:
 > agents. Established after model evaluation found pricing hallucinations
 > (see `agent-output/model-eval-scoring.md`).
 
-Optional manual validation (power users only):
-If user explicitly requests extra validation at Step 5, delegate to lint/review/whatif subagents directly.
+Extra validation requests still require an authorized caller, suitable phase,
+available tools, and all preview/approval gates. Unknown model cost-tier
+eligibility is a blocker, not permission to substitute a model.
 
 ## Interactive vs Autonomous Delegation
 
 > [!CAUTION]
-> **`askQuestions` does NOT work in subagents.** The `askQuestions` tool presents
-> interactive UI panels requiring direct user participation. Subagents run
-> autonomously — any `askQuestions` calls are silently skipped.
+> Leaf workers cannot ask user questions, manage todos, or call nested agents.
+> Return missing-input diagnostics to the parent; never fabricate defaults.
 
-Steps that use `askQuestions` must be delegated via **handoff buttons**
-(direct user interaction), NOT via `#runSubagent`:
+All production main agents, including `10-Challenger`, are human-selected
+entry points with `disable-model-invocation: true`. The Orchestrator has
+`agents: []` and uses human handoffs only. An allowlist must not override this
+boundary. This applies even when all inputs exist and no questions are needed.
 
-| Step | Agent           | Uses `askQuestions`      | Delegation Method |
-| ---- | --------------- | ------------------------ | ----------------- |
-| 1    | 02-Requirements | Phases 1-4 (mandatory)   | **Handoff only**  |
-| 2    | 03-Architect    | If NFRs/budget missing   | `#runSubagent` OK |
-| 3    | 04-Design       | No                       | `#runSubagent` OK |
-| 4    | 05-IaC Planner  | Deployment Strategy Gate | **Handoff only**  |
-| 5    | 06b/06t CodeGen | No                       | `#runSubagent` OK |
-| 6    | 07b/07t Deploy  | No                       | `#runSubagent` OK |
-| 7    | 08-As-Built     | No                       | `#runSubagent` OK |
-
-For Step 2 (Architect): `askQuestions` is a fallback for missing info.
-If `01-requirements.md` is complete, `#runSubagent` works fine. If the
-Architect detects missing info with no upstream requirements, consider
-sending the user back to Step 1 instead.
+If a required reviewer is unavailable, STOP and request a human handoff to
+`10-Challenger`; never nest a main-agent wrapper or fabricate inline review.
+Missing or empty output permits exactly one identical-input retry, then human
+escalation under the [review protocol](../../apex-azure-defaults/references/adversarial-review-protocol.md).
 
 ## File-Mode Contract for Subagent Output (Phase 1 of Context-Window Optimization)
 
@@ -76,19 +58,17 @@ never invents or guesses a path.
 | Subagent                     | Caller (step)                 | Canonical `output_path`                                                       |
 | ---------------------------- | ----------------------------- | ----------------------------------------------------------------------------- |
 | `challenger-review-subagent` | Requirements (1)              | `agent-output/{project}/challenge-findings-requirements.json`                 |
-| `challenger-review-subagent` | Architect (2) — architecture  | `agent-output/{project}/challenge-findings-architecture-pass{N}.json`         |
+| `challenger-review-subagent` | Architect (2) — architecture  | `agent-output/{project}/challenge-findings-architecture.json` (default); `architecture-pass{N}` stem for deep |
 | `challenger-review-subagent` | Architect (2) — cost          | `agent-output/{project}/challenge-findings-cost-estimate.json`                |
 | `challenger-review-subagent` | Governance (3.5)              | `agent-output/{project}/challenge-findings-governance-constraints-pass1.json` |
-| `challenger-review-subagent` | IaC Planner (4)               | `agent-output/{project}/challenge-findings-plan-pass{N}.json`                 |
+| `challenger-review-subagent` | IaC Planner (4)               | `agent-output/{project}/challenge-findings-plan.json` (default); `plan-pass{N}` stem for deep |
 | `challenger-review-subagent` | Bicep / Terraform CodeGen (5) | `agent-output/{project}/challenge-findings-iac-code-pass{N}.json`             |
 | `cost-estimate-subagent`     | Architect (2)                 | `agent-output/{project}/02-cost-estimate.json`                                |
 | `cost-estimate-subagent`     | As-Built (7)                  | `agent-output/{project}/07-ab-cost-estimate.json`                             |
 
-Pass numbering uses `pass{N}` for multi-pass reviews; single-pass artifacts
-omit the suffix. Backward compatibility: the legacy
-`nordic-foods/challenge-findings-requirements.json` (no `-pass` suffix) is
-grandfathered. Parents may read either name; new writes always use the new
-convention.
+Resolve exact filenames through the current reviewer contract and requested mode;
+Governance retains its explicit `-pass1` filename. Preserve historical evidence
+but never treat a legacy filename alone as proof of a current valid review.
 
 ### Atomic write + refuse-on-exists
 

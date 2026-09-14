@@ -19,7 +19,7 @@ the agents through VS Code Copilot Chat to design, build, and deploy Azure
 infrastructure.
 
 **Prerequisites**: Complete the [Quickstart](../../getting-started/quickstart/) first
-(Dev Container running, subagent invocation enabled).
+(Dev Container running and the owning agent selected).
 
 <CardGrid>
   <LinkCard
@@ -84,8 +84,14 @@ validation or preview output.
 | `apex-terraform-patterns`   | Reusable Terraform patterns (hub-spoke, PE, AVM-TF)                                |
 | `apex-azure-diagnostics`    | KQL templates, health checks, remediation playbooks                                |
 | `apex-github-operations`    | Branch naming, conventional commits, issues, PRs, CLI, Actions, and releases       |
-| `apex-docs-writer`          | Documentation generation and maintenance                                           |
-| `sensei`               | Iteratively improve skill frontmatter compliance (Ralph loop)                      |
+| `apex-docs-writer` | Documentation maintenance, gardening, peer review, and Astro review |
+| `apex-agent-authoring` | Agent authoring and gated authoring-asset assessments |
+| `apex-context-management` | Runtime compression, log export, and context audits |
+| `apex-workflow-engine` | Workflow entry, recovery, and DAG routing |
+
+Skill invocation flags govern automatic loading and slash-menu visibility. Manual Host
+entries inherit the caller's model/tools; select the owning agent before consequential work.
+Static validation does not prove runtime support or model eligibility.
 
 ### Subagents
 
@@ -99,14 +105,17 @@ validation or preview output.
 
 ### Prompt Files
 
-Reusable `.prompt.md` files in `tools/apex-prompts/` provide one-click access
-to pre-configured agent workflows. Open a prompt file and use **Attach** (the
-paper-clip icon) in Copilot Chat to load it — these files live outside
-`.github/prompts/` and are not discoverable via the `/` slash menu.
+Reusable `.prompt.md` files in `tools/apex-prompts/` are Local adapters to shared procedures.
+Attach the requested file in Local Copilot Chat; configured prompt locations control discovery.
+They do not establish Agent Host support. On Host, use the owning skill instead.
 
 Repository-scoped prompts in `.github/prompts/` are available from the Copilot
 Chat slash menu. See [Repository Slash Prompts](/reference/prompts/repository-prompts/) for the
 resume, commit, and debug-log export workflows.
+
+On Host, use `apex-host-workflow-start` for start or explicit `resume`,
+`apex-host-git-commit` for requested commit operations, and `apex-host-debug-log-export`
+for confirmed log capture. See the same reference for owner-selection and approval boundaries.
 
 #### Core Workflow Prompts
 

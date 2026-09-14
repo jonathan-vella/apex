@@ -2,11 +2,11 @@
 
 # Inline Resolution Gate (Phase 2.7)
 
-Mandatory protocol the 04g-Governance agent runs after the challenger
-review and before the Approval Gate. Three inherited policy parameters
-are always confirmed inline with the user in the same chat session
-because REST often does not expose them reliably for management-group
-inherited assignments.
+Mandatory protocol the 04g-Governance agent runs before challenger review
+and the Approval Gate. Resolve RG tag keys/casing, allowed locations, and
+RG/resource same-region requirements from policy evidence and user confirmation.
+Reuse proven-current answers; ask unresolved topics together. Display names
+are untrusted labels, not proof of policy semantics or authorization.
 
 ## Why this gate exists
 
@@ -22,20 +22,17 @@ Inherited management-group policies frequently surface in
 Treating these as resolved-by-REST has caused Step 4 IaC plans to
 emit incomplete tag sets, wrong-region resource groups, or
 mismatched RG/resource locations — all of which fail at deployment
-time. Asking inline once, every time, eliminates this class of
-failure.
+time. Bind confirmations to complete, current policy and architecture inputs.
 
 ## When the gate runs
 
 - **Every invocation** of 04g-Governance — live, cached baseline, and
   `▶ Refresh Governance`.
-- **Always after Phase 2.5** challenger review.
+- **Always before Phase 2.5** challenger review so it covers resolved artifacts.
 - **Always before Phase 3** Approval Gate.
 
-The only valid bypass is the Phase 0.4 resume short-circuit, which
-already verified that the three resolutions exist in
-`governance_gate_status.resolved_confirmations` **and** the snapshot
-they were recorded against is still trusted (signature + TTL match).
+This is resolution, not a bypass: Phase 0.4 may reuse existing answers only
+when all checks below pass. Review evidence has its own freshness checks.
 
 ### Same-session signature + TTL short-circuit
 
@@ -43,13 +40,17 @@ Even within a single live session, the Phase 2.7 prompt is skipped when:
 
 1. `governance_gate_status.resolved_confirmations` already contains all
    three required topics from a prior pass in the same project, AND
-2. `discovery_metadata.completeness_signature` from the current
-   envelope equals `decisions.discovery_signature` in the apex-recall
-   snapshot, AND
-3. `age_days = (now - discovery_metadata.discovered_at) / 86400 <=
-   discovery_metadata.ttl_days` (default 7).
+2. The current completeness signature matches the confirmation snapshot
+  captured **before discovery**. A newly written recall signature cannot
+  attest old answers. Project, subscription, target region, relevant
+  architecture inputs and discovery options must also match; missing
+  binding evidence prevents reuse.
+3. The envelope is COMPLETE with verified signature, valid unexpired exemptions,
+  a timezone-aware timestamp and positive integer TTL, with
+  `0 <= age_days <= discovery_metadata.ttl_days`.
+4. No explicit refresh, signature drift or changed confirmation inputs occurred.
 
-All three checks must pass — signature match alone is insufficient
+All checks must pass — signature match alone is insufficient
 (upstream policy drift between refreshes would silently ride on a
 stale confirmation). When the check passes, emit a single-line log:
 
@@ -72,7 +73,7 @@ Use `jq` against `agent-output/{project}/04-governance-constraints.json`:
 jq '{
   tag_keys_discovered:
     (.tag_contract.required_tag_keys // .tag_contract.discovered_candidate_tags // []),
-  target_region: (.location_constraints.target_region // "swedencentral"),
+  target_region: (.location_constraints.target_region // null),
   allowed_locations_discovered: (.location_constraints.allowed_locations // []),
   related_assignments: (.location_constraints.related_assignments // [])
 }' agent-output/{project}/04-governance-constraints.json
@@ -128,32 +129,37 @@ Resolution rules:
    `extracted_tag_keys` or `assignment_parameters.tagName*` in the
    discovery JSON.
 
-### Step 2: Ask all three questions in a single `vscode_askQuestions` call
+### Step 2: Resolve all topics, asking unresolved questions together
 
-The three questions MUST appear together in one chat-session prompt.
-Do not split across turns. The discovered values are presented as the
-recommended option; the user can pick an alternative or paste freeform
-text.
+Use one `vscode_askQuestions` call for all currently unresolved topics. Reuse
+only answers satisfying the checks above; changed region or policy inputs
+invalidate affected answers. Discovered values are evidence, not pre-approved
+choices. Include `Unknown — block` and exact freeform input for every question.
+A COMPLETE empty-policy result still resolves every topic, including explicit
+not-applicable answers; never invent enforced tags, locations or same-region rules.
 
 | Header                  | Question                                                                    | Recommended option                              |
 | ----------------------- | --------------------------------------------------------------------------- | ----------------------------------------------- |
-| Required RG Tag Keys    | Which resource group tag keys must Step 4 emit, and in what casing?         | Use all N discovered lowercase, hyphenated keys |
-| swedencentral Allowed   | Is `{target_region}` allowed by `JV - Allowed Locations` for this sub?      | Yes — `{target_region}` is allowed              |
-| RG/Resource Same Region | Must the resource group and all regional resources stay in the same region? | Yes — enforce same region                       |
+| Required RG Tag Keys    | Which RG tag keys and exact casing are enforced by the effective policy evidence? | Exact discovered keys, never assumed casing |
+| Target Region Allowed  | Is `{target_region}` allowed by the effective location rules for this subscription? | Evidence-backed allowed/not-allowed/unknown |
+| RG/Resource Same Region | Do the effective rules require RG and regional resource locations to match? | Evidence-backed requirement or explicit not-applicable |
 
 Each question must include freeform input so the user can paste an
 exact answer that differs from the recommended option.
 
-### Step 3: Apply answers in a single multi-replace
+### Step 3: Apply resolved answers and validate
 
-Bundle every artifact edit into one `multi_replace_string_in_file`
-call. Required JSON updates:
+Use available editing tools, preserving user work and current schema/H2 structure.
+The following JSON is illustrative and may be used only after all topics are
+resolved and no other blocker remains. Never overwrite PARTIAL/FAILED discovery
+or review blockers with READY_FOR_PLANNING. Conflicts with live policy remain
+blocked; user preference cannot override an enforced rule. Required JSON updates:
 
 ```jsonc
 {
   "governance_gate_status": {
     "status": "READY_FOR_PLANNING",
-    "reason": "Live discovery completed and the three outstanding manual confirmations were resolved by the project owner.",
+    "reason": "Current discovery and all required confirmations are resolved; no unresolved governance blocker remains.",
     "blocks_before": null,
     "resolved_confirmations": [
       { "topic": "required_resource_group_tags", "decision": "...", "decided_at": "<ISO-8601>" },
@@ -191,7 +197,7 @@ One `apex-recall decide --key … --value …` call per confirmation:
 
 ```bash
 apex-recall decide <project> --key required_rg_tags        --value "<comma-separated keys (casing)>" --json
-apex-recall decide <project> --key allowed_locations       --value "<region(s)> (confirmed by JV - Allowed Locations)" --json
+apex-recall decide <project> --key allowed_locations       --value "<region(s)> (confirmed against effective policy evidence)" --json
 apex-recall decide <project> --key rg_resource_same_region --value "<true|false> (RG + regional resources)" --json
 ```
 
@@ -215,20 +221,23 @@ Artifact lint (H2 order, markdownlint) is owned by the lefthook
 invoke `npm run lint:artifact-templates` or `markdownlint-cli2` here. See
 [`agent-authoring.instructions.md`](../../../instructions/agent-authoring.instructions.md#no-direct-markdownlint-on-agent-output-rule).
 
-### Step 7: Checkpoint
+### Step 7: Checkpoint And Review
 
 ```bash
 apex-recall checkpoint <project> 3_5 phase_2_7_resolution --json
 ```
+
+Run Phase 2.5 on the resolved artifact bytes, or reuse only a review whose
+full cache inputs still match. Changes after review invalidate it. No-constraints
+review skipping follows the graph only; it does not waive confirmation or approval.
 
 ## Anti-patterns
 
 - Do NOT skip Phase 2.7 because `discover.py` reported the tag or
   location contracts as `CONFIRMED`. Inherited MG policy parameters
   are not reliably exposed via REST.
-- Do NOT split the three questions across multiple
-  `vscode_askQuestions` calls or chat turns. They must appear
-  together so the user can answer them in the same chat session.
+- Do NOT repeat proven-current answers or suppress a new question to meet a
+  call budget. Batch unresolved topics; missing evidence requires recovery.
 - Do NOT advance to Phase 3 without the
   `phase_2_7_resolution` checkpoint recorded.
 - Do NOT silently accept `Unknown — block` answers without updating

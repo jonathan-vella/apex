@@ -100,6 +100,12 @@ azd provision --preview --no-prompt
 
 Build the project and verify there are no errors. If the build fails, fix the issues and re-build until it succeeds. Do NOT proceed to packaging or deployment with build errors.
 
+For Functions recipes, check the shared [SQL/Blob binding contract](../../../../apex-azure-prepare/references/services/functions/templates/recipes/common/uami-bindings.md#composition-contract)
+against actual source registrations and emitted settings on the selected language/IaC pair. Check production SQL
+private networking and UAMI identity. MCP must pass its [protocol gate](../../../../apex-azure-prepare/references/services/functions/templates/recipes/mcp/README.md#verification-gate)
+with an SDK client. Missing SDKs, Core Tools or template evidence block those checks; do not claim `Validated`.
+Report code defects to preparation; a validation-only request does not authorize regeneration or deployment.
+
 ### 8. Package Validation
 
 Confirm all services package successfully:

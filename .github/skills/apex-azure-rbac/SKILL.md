@@ -1,5 +1,8 @@
 ---
 name: apex-azure-rbac
+user-invocable: true
+disable-model-invocation: false
+argument-hint: "identity, resource scope and required access"
 description: '**ANALYSIS SKILL** — Find the right Azure RBAC role for an identity with least-privilege access; generate CLI, Bicep, and Terraform code to assign it. WHEN: "what role should I assign", "least privilege role", "RBAC role for", "role for managed identity", "custom role definition", "assign role to identity". DO NOT USE FOR: deploying (apex-azure-deploy), security audits (apex-azure-compliance).'
 license: MIT
 metadata:
@@ -22,25 +25,48 @@ built-in fits.
 - **Verify with `az role definition list`** — cross-check the discovered role against the live Azure RBAC catalogue
 - **Use `guid()` in Bicep** for `Microsoft.Authorization/roleAssignments` names so assignments are idempotent across re-deploys; set `principalType: 'ServicePrincipal'` for managed identities
 - **Granting roles requires elevated permission** — see [Prerequisites for Granting Roles](#prerequisites-for-granting-roles) below
+- **Generate before executing** — require explicit approval for the exact principal, role and scope;
+  generic role guidance does not confer write permission for role creation or assignment
+- **Authentication is separate** — use
+  [canonical auth guidance](../apex-entra-app-registration/references/auth-best-practices.md);
+  Azure RBAC does not grant Microsoft Graph API consent
 - **Out of scope**: deploying resources (use `apex-azure-deploy`), security audits (use `apex-azure-compliance`)
 
 ## Steps
 
 1. **Identify the operation** — what action does the identity need (read storage, manage keys, deploy resources, etc.)?
 2. **Search Microsoft docs** — invoke `mcp_azure-mcp_documentation` with `command: "microsoft_docs_search"` and a query such as `"Azure built-in role <operation>"` (e.g., `"Azure built-in role read blob storage"`); collect candidate role names + role IDs
-3. **Verify against the live catalogue** — `az role definition list --query "[?roleName=='<RoleName>'].{name:roleName,id:name,actions:permissions[0].actions}" -o table`
-4. **If no built-in fits** — scaffold a custom role definition with only the required `actions` / `dataActions`:
+3. **Verify against the live catalogue** — preserve every permission block and scope:
 
    ```bash
-   cat > custom-role.json <<'JSON'
+   az role definition list --name "<RoleNameOrId>" --query "[].{name:roleName,id:name,permissions:permissions,assignableScopes:assignableScopes}" --output json
+   ```
+
+   Evaluate all `permissions[]`: `actions` minus `notActions` for management-plane
+   operations, and `dataActions` minus `notDataActions` for data-plane operations,
+   with wildcard matching against the requested provider operation. Combine grants
+   across blocks and applicable assignments; exclusions subtract only from their own
+   grant, not other roles. Management `*/read` does not grant blob/secret data access.
+   Check assignment scope/inheritance, conditions, deny assignments and active PIM
+   state separately. A role definition alone does not prove effective access. Missing
+   permissions or unavailable catalogue evidence means unverified, not granted.
+4. **If no built-in fits** — scaffold a custom role definition with only the required `actions` / `dataActions`:
+
+   Use editing tools to create `custom-role.json`; generate the command separately.
+
+   ```json
    {
      "Name": "<CustomRoleName>",
      "Description": "<purpose>",
      "Actions": ["<provider>/<resource>/<action>"],
+     "NotActions": [],
      "DataActions": [],
+     "NotDataActions": [],
      "AssignableScopes": ["/subscriptions/<sub-id>"]
    }
-   JSON
+   ```
+
+   ```bash
    az role definition create --role-definition custom-role.json
    ```
 

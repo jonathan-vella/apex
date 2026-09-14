@@ -26,7 +26,10 @@
  * (§ Per-Finding Decision Protocol).
  *
  * Usage:
- *   node tools/scripts/validate-challenger-findings.mjs
+ *   node tools/scripts/validate-challenger-findings.mjs [--root <directory>]
+ *   node tools/scripts/validate-challenger-findings.mjs [--path <path>] [<path> ...]
+ *   Explicit files (including .tmp) are validated regardless of filename.
+ *   Paths resolve from cwd; --root selects the scan directory (default: agent-output).
  *
  * Exit codes:
  *   0  all sidecars conform to v1.0 (or no sidecars present)
@@ -35,6 +38,7 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import { parseArgs } from "node:util";
 import { Reporter } from "./_lib/reporter.mjs";
 
 const ROOT = "agent-output";
@@ -165,10 +169,45 @@ function validateFindings(file, doc) {
 
 console.log("\n🔍 Validating challenger findings sidecars...\n");
 
-const files = walk(ROOT);
+const files = new Set();
+try {
+  const { values, positionals } = parseArgs({
+    options: {
+      root: { type: "string" },
+      path: { type: "string", multiple: true },
+    },
+    allowPositionals: true,
+  });
+  const requested = [...(values.path ?? []), ...positionals];
+  if (values.root !== undefined) requested.unshift(values.root);
+  if (requested.length === 0) {
+    for (const file of walk(ROOT)) files.add(file);
+  } else {
+    for (const target of requested) {
+      try {
+        if (!target) throw new Error("input path must not be empty");
+        const stat = fs.statSync(target);
+        if (target === values.root && !stat.isDirectory()) {
+          throw new Error("--root must be a directory");
+        }
+        if (stat.isFile()) {
+          files.add(path.resolve(target));
+        } else if (stat.isDirectory()) {
+          for (const file of walk(target)) files.add(path.resolve(file));
+        } else {
+          throw new Error("input must be a regular file or directory");
+        }
+      } catch (error) {
+        r.error(target, `cannot inspect input (${error.message})`);
+      }
+    }
+  }
+} catch (error) {
+  r.error(`Invalid arguments or scan failure: ${error.message}`);
+}
 
-if (files.length === 0) {
-  console.log("  ⚠️  No challenger findings sidecars found under agent-output/ — nothing to validate.\n");
+if (files.size === 0 && r.errors === 0) {
+  console.log("  ⚠️  No challenger findings sidecars found in scan directories — nothing to validate.\n");
 }
 
 for (const file of files) {
@@ -186,12 +225,16 @@ for (const file of files) {
     r.error(`${file}: invalid JSON (${e.message})`);
     continue;
   }
-  validateFindings(file, doc);
+  try {
+    validateFindings(file, doc);
+  } catch (error) {
+    r.error(`${file}: invalid findings payload (${error.message})`);
+  }
 }
 
-console.log(`  ✅ Validated ${files.length} findings sidecar(s)`);
+console.log(`  Scanned ${files.size} findings sidecar(s)`);
 r.summary();
 r.exitOnError(
   "All challenger findings sidecars conform to schema v1.0",
-  `${files.length} sidecar(s) scanned, validation failed`,
+  `${files.size} sidecar(s) scanned, validation failed`,
 );

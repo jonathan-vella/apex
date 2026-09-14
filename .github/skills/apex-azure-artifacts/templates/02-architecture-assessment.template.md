@@ -223,9 +223,13 @@ flowchart TB
 
 ## 🚀 Implementation Handoff
 
-### Ready for iac-planner
+### Handoff Readiness
 
-The architecture is approved for implementation with the following key parameters:
+Record actual readiness, required architecture and independent cost-feasibility
+review evidence, and approval status. An assessment write is not approval.
+After the gate, derive the next human handoff from the workflow graph and
+`decisions.skip_design`: optional Design (Step 3), then Governance (Step 3.5),
+or Governance directly. Never route directly to implementation planning.
 
 | Parameter      | Value                                  |
 | -------------- | -------------------------------------- |
@@ -258,7 +262,7 @@ The architecture is approved for implementation with the following key parameter
 ## 🔒 Approval Gate
 
 > [!IMPORTANT]
-> **🏗️ Architecture Assessment Complete**
+> **🏗️ Architecture Assessment: {actual-status}**
 >
 > | Pillar      | Score |
 > | ----------- | ----- |
@@ -272,11 +276,13 @@ The architecture is approved for implementation with the following key parameter
 >
 > **Confidence Level**: {High / Medium / Low}
 >
-> - [ ] **Approved** — proceed to iac-planner
+> - [ ] Required architecture and separate cost-feasibility reviews are current; blockers resolved
+> - [ ] **Approved** — offer the graph-selected Design or Governance human handoff
 > - Approver: {name}
 > - Date: {date}
 >
-> Reply **"approve"** to proceed to iac-planner, or provide feedback for revisions.
+> Request approval only after required review evidence is ready. Otherwise record
+> the blocked state and return to the owning agent; do not mark Step 2 complete.
 
 ---
 

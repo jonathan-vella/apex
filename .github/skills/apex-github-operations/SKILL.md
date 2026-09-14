@@ -1,5 +1,8 @@
 ---
 name: apex-github-operations
+user-invocable: true
+disable-model-invocation: false
+argument-hint: "GitHub operation and repository or branch scope"
 description: '**WORKFLOW SKILL** — Full GitHub contribution lifecycle: branches, conventional commits, issues, PRs, Actions, releases. gh CLI-first with MCP fallback. WHEN: "commit", "push", "open PR", "create branch", "create issue", "cut release", "GitHub operation". DO NOT USE FOR: Azure infrastructure, Bicep/Terraform code, architecture decisions. INVOKES: gh CLI (primary), GitHub MCP (fallback).'
 license: MIT
 metadata:

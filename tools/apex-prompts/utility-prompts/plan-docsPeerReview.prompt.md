@@ -16,9 +16,9 @@ argument-hint: "Optional: scope to a specific docs section (e.g., 'how-it-works 
 # Docs Peer Review
 
 Local operational adapter. Preserve this prompt's agent, model, and tool routing.
-Read [apex-workflow-engine](../../../.github/skills/apex-workflow-engine/SKILL.md), then
+Read [apex-docs-writer](../../../.github/skills/apex-docs-writer/SKILL.md), then
 follow the
-[canonical procedure](../../../.github/skills/apex-workflow-engine/references/plan-docs-peer-review.md).
+[canonical procedure](../../../.github/skills/apex-docs-writer/references/plan-docs-peer-review.md).
 
 Pass supplied inputs, scope, and options unchanged. Preserve the procedure's
 required inputs, activities, output paths, approval gates, and bounded failures.

@@ -19,28 +19,30 @@ measured end-to-end token savings and final generated-output quality are not cla
 
 Updated 2026-09-14. Start here for the overall program status. This section supersedes older whole-program
 completion language; completed batches remain complete, but do not close newly discovered defects.
-The user authorized consolidation of tracking before starting the next remediation effort.
-This tracking update does not authorize implementation of the new skill backlog.
+The user first authorized tracking, then approved autonomous remediation, and requested recovery after skipped
+tool calls. The current [recovery checkpoint](skill-remediation.md#recovery-checkpoint) supersedes the initial
+tracking-only state. Preserve the distinction between current test evidence, full finding completion and publication.
 
-| Workstream                                           | Current Status                                        | Authoritative Detail / Evidence                                                                                | Next Action                                                                          |
-| ---------------------------------------------------- | ----------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| Workflow correctness and initial skill consolidation | Published; manual acceptance pending                  | A01-D03 below; commits `ea6db336`, `d41507cc`, `c3246ea1`, `d6d3614f`, closeout `05d694ce`                     | Retain delivered history; address new findings separately                            |
-| Devcontainer and extension optimization              | Published; actual rebuild/timing unverified           | [Devcontainer guide](../../../../.devcontainer/README.md); `5d8ec6bc`, checkpoint `5fbfebd4`                   | User rebuild and startup acceptance                                                  |
-| Agent modernization and E2E retirement               | Published; manual Local/Host/model acceptance pending | [Modernization plan](agent-modernization.md); `5dac72bb`, closeout `536354b4`                                  | Execute its manual acceptance matrix when implementation is ready                    |
-| Deep skill correctness and consolidation             | Proposed; not implemented                             | [Finding ledger](apex-workflow-audit.md#deep-skill-audit-backlog) and [remediation plan](skill-remediation.md) | Review/approve scope, reproduce high-priority findings, then execute ordered batches |
-| Broader role and workflow redesign                   | Proposed; separate approval required                  | [Redesign proposals](agent-modernization.md#separately-approval-gated-proposals)                               | Do not mix into contract-preserving remediation                                      |
-| Final quality acceptance                             | Pending user testing and remediation                  | Manual matrices in both execution plans                                                                        | Never infer signoff from lint, compilation, or publication                           |
+| Workstream                                           | Current Status                                                     | Authoritative Detail / Evidence                                                                                                         | Next Action                                                                                                 |
+| ---------------------------------------------------- | ------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| Workflow correctness and initial skill consolidation | Published; manual acceptance pending                               | A01-D03 below; commits `ea6db336`, `d41507cc`, `c3246ea1`, `d6d3614f`, closeout `05d694ce`                                              | Retain delivered history; address new findings separately                                                   |
+| Devcontainer and extension optimization              | Published; actual rebuild/timing unverified                        | [Devcontainer guide](../../../../.devcontainer/README.md); `5d8ec6bc`, checkpoint `5fbfebd4`                                            | User rebuild and startup acceptance                                                                         |
+| Agent modernization and E2E retirement               | Published; manual Local/Host/model acceptance pending              | [Modernization plan](agent-modernization.md); `5dac72bb`, closeout `536354b4`                                                           | Execute its manual acceptance matrix when implementation is ready                                           |
+| Deep skill and agent-contract remediation            | Approved; recovery locally verified with skips; source uncommitted | [Recovery checkpoint](skill-remediation.md#recovery-checkpoint) and [finding ledger](apex-workflow-audit.md#recovery-update-2026-09-14) | Finish per-item reconciliation and combined review; resolve required dependency verification before release |
+| Broader role and workflow redesign                   | Proposed; separate approval required                               | [Redesign proposals](agent-modernization.md#separately-approval-gated-proposals)                                                        | Do not mix into contract-preserving remediation                                                             |
+| Final quality acceptance                             | Pending user testing and remediation                               | Manual matrices in both execution plans                                                                                                 | Never infer signoff from lint, compilation, or publication                                                  |
 
 ### Tracking Ownership
 
 The latest [agent-body findings](apex-workflow-audit.md#agent-body-audit-backlog), AB-01 through AB-22,
 are now linked to the same [execution roadmap](skill-remediation.md#agent-body-remediation) as SK-01 through SK-47.
-On 2026-09-14 the user authorized completing and committing this tracking checkpoint only. Source remediation
-has not started; pending merge, visibility, policy and runtime-evaluation decisions remain pending.
+The step-1 planning checkpoint is committed as `3b034112`. Subsequent autonomous approval permits the recorded
+source work and consolidation within protected contracts; current recovery evidence is linked above.
 
 The skill roadmap also includes [invocation and context policy](skill-remediation.md#skill-invocation-and-context-policy)
 under SK-46/SK-47: internal menu visibility, manual Host commands, metadata validation and a gated fork assessment.
-These are proposed planning additions; current skill settings and the offline-only evaluation boundary are unchanged.
+The visibility policy is approved and current edits require verification; fork experiments remain deferred.
+The offline-only evaluation boundary is unchanged.
 
 - This document owns workstream status, ordering, dependencies and links, not copies of every finding.
 - [The audit ledger](apex-workflow-audit.md#deep-skill-audit-backlog) owns stable finding IDs, evidence,

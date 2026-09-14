@@ -10,6 +10,15 @@ Validation-only and preview-only requests do not authorize any provisioning or a
 >
 > ⛔ **DO NOT** run `azd up` until ALL steps are complete. Trial-and-error wastes time and creates orphan resources.
 
+## Step 0: Resolve Recipe And Approval
+
+Read the approved plan and select AZD, Terraform, Bicep or AZCLI before running any checklist command.
+Missing plan, recipe, validation evidence or explicit deployment approval blocks execution.
+Preparation-only, validation-only and preview-only requests stop at their respective boundaries.
+This checklist never provisions or deploys. AZD-specific steps apply only to the AZD recipe;
+pure Terraform/Bicep/AZCLI callers skip environment initialization and AZD variables entirely.
+Missing infrastructure or manifest returns to preparation with separate authorization, not automatic regeneration.
+
 ## Step 1: Check Current Subscription
 
 Use the Azure MCP tool to get current subscription:
@@ -52,7 +61,7 @@ ask_user(
 )
 ```
 
-## Step 3: Ensure AZD Environment Exists FIRST
+## Step 3: Ensure AZD Environment Exists FIRST (AZD Only)
 
 Reuse the selected environment when it matches the confirmed project context.
 Run initialization below only when an environment is missing or the user requested a new one.
@@ -62,11 +71,7 @@ Run initialization below only when an environment is missing or the user request
 > ⛔ **DO NOT** manually create `.azure/` folder with `mkdir` or `New-Item`. Let `azd` create it.
 > The `.azure/` folder is created per-project inside `infra/{iac}/{project}/` when you run `azd env new`.
 
-**For new projects (no azure.yaml):**
-
-```bash
-azd init -e <environment-name>
-```
+**For new projects (no azure.yaml):** Stop and return to preparation; do not initialize from deployment preflight.
 
 **For existing projects (azure.yaml exists):**
 
@@ -92,12 +97,13 @@ mcp_azure-mcp_group_list
   subscription: <subscription-id>
 ```
 
-Then check if `rg-<environment-name>` exists in the results.
+Resolve the exact resource group from the approved recipe and plan; never infer it from an AZD environment
+for a pure Terraform, Bicep or AZCLI deployment. Check that exact group in the selected subscription.
 
 **CLI fallback:**
 
 ```bash
-az group show --name rg-<environment-name> --query "{location:location}" -o json 2>&1
+az group show --subscription <approved-subscription-id> --name <approved-resource-group> --query "{location:location}" -o json
 ```
 
 **If RG exists:**
@@ -108,7 +114,8 @@ az group show --name rg-<environment-name> --query "{location:location}" -o json
   2. Choose a different environment name
   3. Delete the existing RG and start fresh
 
-**If RG doesn't exist:** Proceed to location confirmation/reuse.
+**If RG doesn't exist:** Proceed to location confirmation/reuse only after a confirmed not-found response.
+Authorization, connectivity and malformed-request failures block readiness; they do not mean the group is absent.
 
 ## Step 5: Check for Tag Conflicts (AZD only)
 
@@ -120,7 +127,7 @@ az resource list --resource-group rg-<env-name> --tag azd-service-name=<service-
 
 Check for each service in `azure.yaml`. If duplicates exist **in the target RG**:
 
-1. **Preferred — Fresh environment**: Run `azd env new <new-name>` and restart from Step 4. Non-destructive, no user confirmation needed, avoids orphan risks.
+1. **Fresh environment**: Obtain approval for the changed target and cost scope before creating another environment; restart validation.
 2. **Alternative — Delete conflicts**: Use `ask_user` to confirm deletion of old resources (required by global rules).
 
 ## Step 6: Verify Location Confirmation
@@ -131,44 +138,30 @@ in the architecture. Service and capacity changes still require affected checks.
 
 See [Region Availability](region-availability.md) for service-specific limitations.
 
-## Step 7: Set Environment Variables
+## Step 7: Verify Environment Variables (AZD Only)
 
 > ⚠️ **Set ALL variables BEFORE running `azd up`** — not during error recovery.
 
-Environment should already be configured during **apex-azure-validate**. Run `azd env get-values` to confirm.
+Environment should already be configured during **apex-azure-validate**. Inspect only non-secret context keys.
 
 Verify settings:
 
 ```bash
-azd env get-values
+azd env get-value AZURE_SUBSCRIPTION_ID
+azd env get-value AZURE_LOCATION
 ```
 
-## Step 8: Only NOW Run Deployment
+## Step 8: Complete Service Checks Before Handoff
 
-```bash
-azd up --no-prompt
-```
+Complete the service-specific checks below and verify that approval still covers these exact artifacts and target.
+Return readiness evidence to the selected [deployment recipe](recipes/README.md); execute nothing in this checklist.
 
 ---
 
-## Quick Reference: Correct AZD Sequence
+## Quick Reference: Correct Sequence
 
-```bash
-# 1. Create environment FIRST
-azd env new myapp-dev
-
-# 2. Set subscription
-azd env set AZURE_SUBSCRIPTION_ID 25fd0362-...
-
-# 3. Set location (after checking RG doesn't conflict)
-azd env set AZURE_LOCATION westus2
-
-# 4. Verify
-azd env get-values
-
-# 5. Deploy
-azd up --no-prompt
-```
+Approved recipe and target -> recipe-specific environment checks -> service checks -> current validation evidence
+-> explicit deployment approval -> selected recipe handoff. No preflight command applies infrastructure.
 
 ## Common Mistakes to Avoid
 
@@ -187,14 +180,17 @@ azd up --no-prompt
 
 > **⛔ MANDATORY**: If the plan includes Durable Functions, verify infrastructure uses **Durable Task Scheduler** (DTS), NOT Azure Storage.
 
-Check that `infra/` Bicep files contain:
+Check the selected IaC track's actual DTS resources or verified module outputs, not only Bicep text:
 
 - `Microsoft.DurableTask/schedulers` resource
 - `Microsoft.DurableTask/schedulers/taskHubs` child resource
 - `Durable Task Data Contributor` RBAC role assignment
 - `DURABLE_TASK_SCHEDULER_CONNECTION_STRING` app setting
 
-If any are missing, **STOP** and invoke **apex-azure-prepare** to regenerate with the durable recipe.
+For Terraform, validate the approved provider/module's scheduler and task-hub interface, identity role and emitted
+connection setting. A missing supported interface is a blocker; never create Bicep files to satisfy this checklist.
+
+If any are missing, **STOP** and report the preparation gap. Regeneration requires separate preparation authorization.
 
 ---
 

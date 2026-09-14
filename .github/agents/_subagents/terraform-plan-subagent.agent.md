@@ -8,7 +8,7 @@ agents: []
 tools: [execute, read, search]
 ---
 
-# Terraform Plan Subagent
+# terraform-plan-subagent
 
 ## Role
 Deployment-preview subagent that runs `terraform plan` against generated
@@ -82,6 +82,7 @@ Resource Changes:
   [~] {resource-address} — update
   [-] {resource-address} — DESTROY
   [-/+] {resource-address} — REPLACE (destroy then create)
+  [+/-] {resource-address} — REPLACE (create then destroy)
 
 Plan File: {path/to/tfplan}
 
@@ -183,8 +184,13 @@ guess defaults.
    | `+`                   | Create            | New resource being provisioned     | Low        |
    | `~`                   | Update (in-place) | Existing resource modified         | Low–Medium |
    | `-`                   | Destroy           | Resource being permanently deleted | High       |
-   | `-/+`                 | Replace           | Resource destroyed then re-created | High       |
+    | `-/+`                 | `["delete","create"]` | Destroy then create replacement | High |
+    | `+/-`                 | `["create","delete"]` | Create then destroy replacement | High |
    | `(known after apply)` | Pending           | Value computed at apply time       | Note only  |
+
+    Preserve action-array order and exact address in each Resource Changes entry.
+    Count either replacement once under Replace, not again under Create/Destroy.
+    Missing/malformed or unrecognized actions return FAIL rather than an empty PASS.
 
 6. **Apply destructive-operations policy** — every destroy and replace
    is surfaced under `⚠️ DESTRUCTIVE OPERATIONS`. When at least one

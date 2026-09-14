@@ -15,32 +15,33 @@
 
 ### Parameter Type Mismatches
 
-Known issues when using AVM modules — verify before coding:
+The language-owned [Bicep AVM catalog](../../apex-azure-bicep-patterns/references/avm-pitfalls.md#schema-drift-in-pinned-avm-versions-mandatory-pre-author-check)
+owns exact-version observations. Verify the approved pinned module schema before
+coding; ARM property types are not necessarily AVM parameter types. If neither
+local metadata nor authorized lookup is available, the interface remains unknown:
+STOP affected generation and request version validation, never guess or upgrade.
 
 **Log Analytics Workspace** (`operational-insights/workspace`):
 
-- `dailyQuotaGb` is `int` in AVM, not `string`
-- **DO**: `dailyQuotaGb: 5`
-- **DON'T**: `dailyQuotaGb: '5'`
+- The catalog records `avm/res/operational-insights/workspace:0.15.1`
+  accepting `dailyQuotaGb` as a string (`'5'`), not an integer.
+- This is an exact-version observation, not a rule for every AVM version.
+  Confirm against the approved module metadata; do not coerce based on ARM alone.
 
 **Container Apps Managed Environment** (`app/managed-environment`):
 
-- `appLogsConfiguration` deprecated in newer versions
-- **DO**: Use `logsConfiguration` with destination object
-- **DON'T**: Use `appLogsConfiguration.destination: 'log-analytics'`
+- Verify whether the pinned interface uses `appLogsConfiguration` or
+  `logsConfiguration` and its destination shape; neither name is universal.
 
 **Container Apps** (`app/container-app`):
 
-- `scaleSettings` is an object, not array of rules
-- **DO**: Check AVM schema for exact object shape
-- **DON'T**: Assume `scaleRules: [...]` array format
+- Check the pinned schema for `scaleSettings`, rules and nesting. Do not assume
+  either a module-level object or a `scaleRules` array from another version.
 
 **SQL Server** (`sql/server`):
 
-- `sku` parameter is a typed object `{name, tier, capacity}`
-- **DO**: Pass full SKU object matching schema
-- **DON'T**: Pass just string `'S0'`
-- `availabilityZone` requires specific format per region
+- Resolve SKU and zone fields on the exact database/module interface, not from
+  a server-wide generic object. Preserve the manifest SKU and required zone fields.
 
 **App Service** (`web/site`):
 
@@ -57,7 +58,7 @@ Known issues when using AVM modules — verify before coding:
 **Static Web App** (`web/static-site`):
 
 - Free SKU may not be deployable via ARM in all regions
-- **DO**: Use `Standard` SKU for reliable ARM deployment
+- **DO**: Verify the approved SKU/region combination; propose changes through the owner and approval gates
 - **DON'T**: Assume Free tier works everywhere via Bicep
 
 **Container Registry** (`container-registry/registry`, AVM ≥ 0.12.x):
@@ -68,8 +69,9 @@ Known issues when using AVM modules — verify before coding:
   ARM still contains `networkRuleSet` and apply fails with
   `NetworkRuleNotSupported` — even though `bicep build`, lint, and what-if
   pass.
-- **DO**: Pass `networkRuleSetDefaultAction: 'Allow'` explicitly when the SKU
-  is `Basic`, or upgrade to Premium.
+- **DO**: Verify the exact pinned interface and governance requirements. An
+  `Allow` default or Premium upgrade is a proposed change, never an automatic
+  fix; keep required private networking and route SKU changes for approval.
 - **DON'T**: Rely on `what-if` to catch SKU/feature mismatches — see the
   `SKU-Default Mismatch` section in
   [`../../apex-azure-bicep-patterns/references/avm-pitfalls.md`](../../apex-azure-bicep-patterns/references/avm-pitfalls.md)
@@ -81,9 +83,10 @@ Known issues when using AVM modules — verify before coding:
 
 When using AVM modules with default SKU parameters:
 
-- Trust the AVM default — Microsoft maintains these
-- No additional deprecation research needed for defaults
-- If overriding SKU parameter, run deprecation research
+- Validate defaults against the approved SKU manifest, effective policy,
+  region availability and current lifecycle evidence just like explicit values.
+- AVM provenance does not prove SKU compatibility or current service support.
+- Missing lifecycle evidence stays unknown and blocks affected production choices.
 
 ### Deprecation Research (For Non-AVM or Custom SKUs)
 

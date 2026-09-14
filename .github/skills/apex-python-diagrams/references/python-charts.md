@@ -15,11 +15,15 @@ python3 agent-output/{project}/03-des-cost-distribution.py
 # → 03-des-cost-distribution.png  +  03-des-cost-distribution.svg
 ```
 
-Every `.py` generator must import `save_figure` (matplotlib charts),
+Every library-backed `.py` generator must import `save_figure` (matplotlib charts),
 `diagram_kwargs` (the `diagrams` library), or `render_graphviz` (graphviz
 `Digraph`) from `diagram_io` instead of calling `plt.savefig`,
 `Diagram(outformat=...)`, or `dot.render()` directly. See
 [`waf-cost-charts.md`](waf-cost-charts.md) for the canonical import preamble.
+
+Standalone SVG wireframes have an optional CairoSVG-to-PNG conversion, not a
+`diagram_io` render. See the [output contract](../SKILL.md#execution--output-standards).
+This exception does not waive required PNG+SVG workflow chart outputs.
 
 ## Professional Output Standards
 

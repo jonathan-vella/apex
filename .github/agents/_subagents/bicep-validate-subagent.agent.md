@@ -8,7 +8,7 @@ agents: []
 tools: [execute, read, search, "bicep/*"]
 ---
 
-# Bicep Validate Subagent
+# bicep-validate-subagent
 
 ## Role
 Validation subagent that lint/builds Bicep templates, then reviews them against
@@ -137,7 +137,7 @@ Before composing findings:
 
 1. Read every `.bicep` and `.bicepparam` file under the supplied directory.
 2. Re-read the lint and build console output collected in Phase 1.
-3. Inspect the project's governance JSON and relevant Markdown details, plus required
+3. When `project` is supplied, inspect its governance JSON and relevant Markdown details, plus required
   `apex-azure-defaults/SKILL.md` sections. Reuse current content still available; there is no skill digest tier.
 4. For every finding, quote the exact resource block, parameter declaration,
    or diagnostic line that triggered it. Paraphrasing in `Detailed Findings`
@@ -161,8 +161,9 @@ The parent agent supplies:
 - `project` — APEX project slug used to locate
   `agent-output/{project}/04-governance-constraints.md`. Optional; absence is
   surfaced in findings.
-- For the conditional validate-gate call: explicit region and matching parameter
-  path are required; missing values return FAILED, not guessed deployment inputs.
+- Project context is required for an APEX L2 request. Without it, perform static
+  validation only: retain the text fields, use zero checked rows and state
+  `L2 not evaluated: project not supplied` in Detailed Findings. Never imply L2 approval.
 
 If any required input is missing, return `Overall Status: FAILED` with a `Detailed
 Findings` entry naming the missing field — do not guess.
@@ -191,23 +192,17 @@ Findings` entry naming the missing field — do not guess.
 2. **Timeout-retry policy (Wave 1+)**: if either command times out or
    exits with a transient network/HTTP error (5xx, ETIMEDOUT,
    ECONNRESET, registry unreachable), retry **at most 2 times** with
-   exponential backoff (5s, 15s). After 2 retries, emit `Lint
-Status: FAIL` with `transient: true` in the JSON output and return.
+  exponential backoff (5s, 15s). After 2 retries, emit `Phase 1 - Lint: FAIL`,
+  `Phase 2 - Review: SKIPPED`, `Overall Status: FAILED` and `Verdict: FAILED`
+  in the declared text block. Describe the transient failure and attempts in
+  Detailed Findings; do not emit JSON-only fields or an alternate failure shape.
    Persistent compile errors are NOT retried.
 
-3. **Validate-gate command (Wave 1+, when invoked by CodeGen Phase 4.6
-   or Deploy hash-mismatch rerun)** — also run:
-
-   ```bash
-   az deployment sub validate \
-     --location <region> \
-     --template-file {template_path} \
-     --parameters <bicepparam_path>
-   ```
-
-   Same retry policy. Record `exit_code` and `stdout_sha256` in the
-   structured output's `validate_gate` block so it can be lifted into
-   `05-iac-handoff.json#validation_summary.validate_gate`.
+3. **Validate-gate ownership**: return only the declared lint/review text.
+  CodeGen owns Phase 4.6's scope-bound Azure validation and captures its
+  `exit_code` and `stdout_sha256` in the existing handoff contract. Do not run
+  that command here or invent a `validate_gate` block. Deploy hash-mismatch
+  recovery returns to CodeGen for the gate and handoff re-emission.
 
 4. Classify the result using the table below. When `Phase 1 - Lint` is
    `FAIL`, set `Phase 2 - Review: SKIPPED`, `Overall Status: FAILED`, and
@@ -251,6 +246,10 @@ generic statements.
    `Overall Status: FAILED`.
 
 ### 7. Governance Compliance
+
+This section is mandatory only with project context or a requested APEX L2
+attestation. An L2 request without `project` returns FAILED; static-only calls
+report the coverage limitation above, without treating absent project files as defects.
 
 Read `04-governance-constraints.md` from `agent-output/{project}/` and
 verify the resource config against every Deny policy listed in the

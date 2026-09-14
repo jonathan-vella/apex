@@ -29,6 +29,22 @@ Use the smallest suite covering a change. These tests do not establish native ag
 model availability, generated-output quality, or deployment readiness.
 Production artifact Markdown validation remains owned by the commit hook and Challenger review.
 
+## Ownership And Explorer Checks
+
+```bash
+node --test tools/tests/scripts/test_skill_ownership.mjs tools/tests/generate-explorer-graph.test.mjs
+```
+
+The ownership tests check procedure destinations, skill indexes, Local adapter links,
+canaries, trackability, and preserved review modes. Docs maintenance belongs to
+`apex-docs-writer`; authoring assessments belong to `apex-agent-authoring`.
+Context audits and log/runtime procedures stay in `apex-context-management`.
+
+Explorer fixtures check invocation defaults and explicit flags for agents, workers, and skills.
+Only the Explorer graph schema describes this metadata; artifact schemas are unchanged.
+`context: null` means no declared context override, not verified harness support.
+Skills continue to inherit the caller's model/tools.
+
 ## E2E Retirement
 
 The autonomous RALPH evaluation subsystem is retired. Its runner, launch and analysis prompts,

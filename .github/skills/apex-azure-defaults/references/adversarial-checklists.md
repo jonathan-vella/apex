@@ -352,11 +352,14 @@ Merged from `security-governance` + `architecture-reliability` +
       2. `properties.displayName` is ≤ 25 characters when fully
          interpolated (verify against the resolved `project` /
          `environment` values, not the template literal).
-      3. `properties.viewId` is a subscription-scope built-in
-         (`ms:DailyAnomalyByResource`,
-         `ms:DailyAnomalyBySubscription`, or `MS-DailyCosts`).
-         RG-scope views (e.g. `ms:DailyAnomalyByResourceGroup`) are
-         rejected.
+            3. Validate the full Azure resource ID, not the view's display name
+                  or grouping suffix. The view scope must match the scheduled action's
+                  subscription scope. The canonical example is
+                  `${subscription().id}/providers/Microsoft.CostManagement/views/ms:DailyAnomalyByResourceGroup`;
+                  `ByResourceGroup` describes grouping, not resource-group scope.
+                  A bare `/providers/...` or different subscription is not scope-matched.
+                  Verify provider support for the selected view/API; offline ID checks
+                  do not establish live acceptance.
       4. `schedule.startDate` and `schedule.endDate` are UTC
          midnight (`T00:00:00Z`) and `endDate − startDate` ≤ 1 year.
          Hard-coded far-future dates (`2099-…`, `2036-…` with

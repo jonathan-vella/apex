@@ -23,8 +23,12 @@ without user questions, parent todo management, or nested dispatch.
 
 ## Entry Contract
 
-Input: requested operation, project, and any supplied scope or revision request.
+Input: explicit requested operation, project, and any supplied scope or revision request.
 If no operation is supplied, ask which operation; do not infer authorization.
+Require a project except for `resume`; if absent for resume, follow [Resume](#resume)
+to discover candidates before looking up project state. A supplied project needs
+no reconfirmation. Unsupported operations stop for clarification; Git commit and
+debug-log export retain their separate manual Host commands.
 For a fresh workflow, select `01-Orchestrator`. For a direct step start, select
 that step's owner and validate its graph prerequisites first. Selection is not
 approval to skip prior steps or gates.
@@ -42,7 +46,7 @@ SKU manifest authority, required templates, bounded retries, and approval gates.
 
 | Operation | Exact Owner | Required Inputs | Outputs |
 | --- | --- | --- | --- |
-| fresh or resume | `01-Orchestrator` | Project or project candidates; existing handoff/state evidence | Status and applicable approval gate or exact human handoff |
+| fresh or resume | `01-Orchestrator` | Project required for fresh; optional project/candidates for resume; existing handoff/state evidence | Status and applicable approval gate or exact human handoff |
 | requirements | `02-Requirements` | Workload and project; current partial discovery when resuming | `01-requirements.md`, `sku-manifest.{json,md}` revision 1, review evidence |
 | architecture | `03-Architect` | Approved `01-requirements.md`, SKU manifest, budget and non-functional targets | `02-architecture-assessment.md`, `03-des-cost-estimate.md`, updated SKU manifest, separate comprehensive and cost-feasibility reviews |
 | design | `04-Design` | Approved architecture and explicit optional-step choice | `03-des-diagram.{py,png,svg}`, cost chart, `03-des-adr-*.md`, or recorded skip |
@@ -67,7 +71,11 @@ Update state only through `apex-recall`; a start command never marks a step done
 - Architecture requires both comprehensive and independent cost-feasibility
   review. Complexity alone never enables deep review; use explicit opt-in only.
 - Design remains optional. Review runs only when ADRs were produced and
-  `decisions.review_depth == "deep"`; it is informational and does not block Step 3.
+  `decisions.review_depth == "deep"` or the user explicitly requested review.
+  Review findings are informational for Step 3, not authority to change architecture.
+  Log execution failures through `apex-recall finding` and stop with a human Challenger
+  handoff. Missing/empty output permits exactly one identical-input retry; missing
+  capability blocks immediately. Never treat an execution failure as completed review findings.
 - Governance discovers real effective policy, including inherited assignments;
   do not synthesize policies when authentication or discovery fails. Its SKU
   input is read-only. Unresolved conflicts block planning.

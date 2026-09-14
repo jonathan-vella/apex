@@ -1,5 +1,8 @@
 ---
 name: apex-azure-resources
+user-invocable: true
+disable-model-invocation: false
+argument-hint: "resource scope and inventory query"
 description: "**ANALYSIS SKILL** — List, find, and visualize Azure resources via Resource Graph or Mermaid. WHEN: 'list resources', 'list VMs', 'find orphaned resources', 'resource inventory', 'cross-subscription query', 'visualize Azure resources', 'diagram my resources'. DO NOT USE FOR: deploys (apex-azure-deploy), cost (apex-azure-cost-optimization), security (apex-azure-compliance), troubleshooting (apex-azure-diagnostics)."
 license: MIT
 metadata:
@@ -18,6 +21,12 @@ related capabilities:
   architecture diagram. Replaces the legacy `azure-resource-visualizer` skill.
 
 Both modes share `references/azure-resource-graph.md` for KQL patterns.
+
+## Prerequisites
+
+Confirm authorized subscription IDs and read access. Use installed Azure CLI with
+Resource Graph support or an available MCP tool; tool names below are routing hints,
+not proof of runtime availability. Installation requires authorization.
 
 ---
 
@@ -80,7 +89,7 @@ JMESPath shaping. Full per-resource-type tool table and example commands in
 ## Lookup Constraints
 
 - ✅ **Always** use `=~` for case-insensitive type matching (types are lowercase)
-- ✅ **Always** scope queries with `--subscriptions` or `--first` for large tenants
+- ✅ **Always** scope queries with `--subscriptions`; `--first` limits rows, not authorization scope
 - ✅ **Prefer** dedicated MCP tools for single-resource-type queries
 - ❌ **Never** use ARG for real-time monitoring (data has slight delay)
 - ❌ **Never** attempt mutations through ARG (read-only)
@@ -120,6 +129,7 @@ Load these on demand — do NOT read all at once:
 | Reference                            | Mode      | When to Load                                          |
 | ------------------------------------ | --------- | ----------------------------------------------------- |
 | `references/azure-resource-graph.md` | Both      | KQL patterns, ARG query examples                      |
+| [Lookup workflow](references/lookup-workflow.md) | Lookup | Dedicated-tool routing and scoped ARG fallback |
 | `references/visualize.md`            | Visualize | Full Visualize-mode workflow (Steps 2–4, constraints) |
 | `assets/example-diagram.md`          | Visualize | Sample completed Mermaid architecture diagram         |
 | `assets/template-architecture.md`    | Visualize | Markdown template for the generated documentation     |

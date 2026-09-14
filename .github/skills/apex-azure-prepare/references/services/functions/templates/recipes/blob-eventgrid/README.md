@@ -39,6 +39,17 @@ Use these templates directly instead of composing from HTTP base:
 
 ## Composition Steps (Alternative)
 
+Read the shared [composition contract](../common/uami-bindings.md#composition-contract).
+Both IaC tracks emit the source's `PDFProcessorSTORAGE` prefix, create input/output containers and target
+`ProcessBlobUpload`. Keep container overrides synchronized with the chosen source and Event Grid filter.
+All bundled source bindings consume `%BLOB_CONTAINER_NAME%` and `%BLOB_PROCESSED_CONTAINER_NAME%`.
+Merge both emitted settings; defaults are `unprocessed-pdf` and `processed-pdf`. Keep their values distinct.
+Verify SDK-type binding support and host queue/poison-message configuration in the actual selected template.
+Retain governed private networking; unavailable runtime or delivery tests are explicit verification gaps.
+
+PowerShell uses a binary output binding at `processed-{name}`, not a container SDK input or Az.Storage commands.
+It overwrites that deterministic destination on redelivery; other language examples skip existing destinations.
+
 If composing from HTTP base template:
 
 | #   | Step                       | Details                                                    |
@@ -62,6 +73,8 @@ If composing from HTTP base template:
 PDFProcessorSTORAGE__blobServiceUri: 'https://${storage.name}.blob.${environment().suffixes.storage}/'
 PDFProcessorSTORAGE__credential: 'managedidentity'
 PDFProcessorSTORAGE__clientId: uamiClientId
+BLOB_CONTAINER_NAME: containerName
+BLOB_PROCESSED_CONTAINER_NAME: processedContainerName
 ```
 
 ## Files

@@ -2,7 +2,7 @@
 # Doc Gardening
 
 Routing source: [Local adapter](../../../../tools/apex-prompts/utility-prompts/doc-gardening.prompt.md).
-Apply the [operational boundary](operational-safety.md) before activities.
+Apply the [operational boundary](../../apex-workflow-engine/references/operational-safety.md) before activities.
 It controls owner selection, tool limits, worker permissions, state, and gates.
 
 
@@ -96,7 +96,7 @@ stop and ask the user (do not create them silently):
    `site/public/architecture-explorer-graph.json` exists, compare its `generatedAt`
    timestamp (or file mtime as fallback) against the newest mtime across
    `.github/agents/**`, `.github/agents/_subagents/**`, `.github/skills/**`,
-   `.github/instructions/**`, `.github/prompts/**`, `.vscode/mcp.json`,
+   `.github/instructions/**`, `.github/prompts/**`, `tools/apex-prompts/**`, `.vscode/mcp.json`,
    `tools/registry/agent-registry.json`. Flag as stale if any
    source is newer than the graph. Recommend running `npm run build:explorer-graph`.
 

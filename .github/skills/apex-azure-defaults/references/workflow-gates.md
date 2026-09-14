@@ -139,20 +139,22 @@ Honors `decisions.vnet_planning_mode ∈ {guided, fast, deferred}`
 
 **Existing-VNet validation (two-step)**:
 
-1. **Auth preamble**: `az account show -o none 2>/dev/null`. On
-   non-zero exit, fall back to "trust user input, defer validation
-   to Planner Phase 4" and record an informational finding
+1. **Auth preamble**: `az account show -o none`. On
+  non-zero exit, mark inputs unverified and block confirmation,
+  codegen and deployment pending Planner reconciliation; record a finding
    (`existing_vnet_validation_deferred`). See
    [`azure-cli-auth-validation.md`](azure-cli-auth-validation.md) for
    the canonical auth-fallback pattern.
 2. **Resource probe**:
+
    ```bash
    az network vnet show --ids "${existing_vnet_id}" \
      --query "{addr:addressSpace.addressPrefixes,loc:location,name:name}" \
      -o json
    ```
-   On success, overwrite `vnet_address_space` with live
-   `addressSpace.addressPrefixes[0]`. On NotFound/Forbidden,
+
+  On success, preserve all live `addressSpace.addressPrefixes` and explicitly
+  select a containing prefix per subnet. On NotFound/Forbidden,
    re-prompt Q3. On tenant/subscription/region mismatch, block.
 
 **Round 2 — per-row askMe loop**: present the proposed subnet table
@@ -239,28 +241,17 @@ When diagrams are in scope, record
 
 ## Governance (Step 3.5) — Phase 2.7: Inline Resolution Gate
 
-Two inherited policy parameters require user confirmation in the same
-chat session: required RG tag keys + casing, and allowed locations
-(`swedencentral` allow-list status). These are unreliable in REST
-output for inherited MG assignments. The only valid bypass is the
-Phase 0.4 short-circuit when prior resolutions are already in
-`governance_gate_status.resolved_confirmations`.
-
-- **Same-region (silent default)**: `location_constraints.same_region`
-  set to `true` by `discover.py` with `same_region_source: "default-assumption"`
-  and `auditable: true`. NOT in the panel. Raise only when discovery
-  finds a policy that explicitly **allows cross-region** AND the
-  assessment includes multi-region resources.
-- **Tag schema (policy-only)**: `tag_contract.source` is **always**
-  `"policy"`. Empty tag policy → `tags: []` with `source: "policy"`.
-  Greenfield lowercase fallback lives in
-  [`tag-strategy.md`](./tag-strategy.md); it is guidance, not a silent
-  default.
-
-Anti-patterns (banned by
-`tools/scripts/validate-banned-phrases.mjs`): the legacy same-region
-question text in the panel; `Minimum baseline (PascalCase, exact
-casing)` in copilot-instructions.
+Resolve RG tag keys/casing, allowed locations, and RG/resource same-region
+requirements before Phase 2.5 review. The canonical procedure is
+[inline-resolution-gate.md](../../apex-azure-governance-discovery/references/inline-resolution-gate.md).
+Ask unresolved topics together; reuse answers only with verified current
+snapshot bindings, subscription/region/architecture inputs and TTL. Explicit
+refresh invalidates prior confirmations even when the signature is unchanged.
+Unknown answers block. No silent same-region default and no invented enforced
+tags for an empty policy result. Greenfield fallback remains separately owned by
+[tag-strategy.md](tag-strategy.md), not an assertion about discovered policy.
+Updated confirmations must be validated and reviewed before approval; file
+existence and COMPLETE discovery alone do not open the gate.
 
 ## SKU Manifest MD ↔ JSON sync (Steps 2, 4, 6, 7)
 

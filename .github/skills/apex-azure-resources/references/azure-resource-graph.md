@@ -76,13 +76,19 @@ Resources
 
 ## Orphaned Resource Patterns
 
+Keep full `id` and `subscriptionId` in every resource-level result. Correlate
+Cost Management `ResourceId` with `id` case-insensitively, never with `name` or
+resource group alone. Names can repeat across groups and subscriptions. Discovery
+identifies candidates, not confirmed waste; verify ownership, attachment semantics
+and utilization before recommending any separately approved removal.
+
 **Unattached managed disks:**
 
 ```kql
 Resources
 | where type =~ 'microsoft.compute/disks'
 | where isempty(managedBy)
-| project name, resourceGroup, location, diskSizeGb=properties.diskSizeGB, sku=sku.name
+| project id, subscriptionId, name, resourceGroup, location, diskSizeGb=properties.diskSizeGB, sku=sku.name
 ```
 
 **Unused public IP addresses:**
@@ -91,7 +97,7 @@ Resources
 Resources
 | where type =~ 'microsoft.network/publicipaddresses'
 | where isempty(properties.ipConfiguration)
-| project name, resourceGroup, location, sku=sku.name
+| project id, subscriptionId, name, resourceGroup, location, sku=sku.name
 ```
 
 **Orphaned network interfaces:**
@@ -100,7 +106,7 @@ Resources
 Resources
 | where type =~ 'microsoft.network/networkinterfaces'
 | where isempty(properties.virtualMachine)
-| project name, resourceGroup, location
+| project id, subscriptionId, name, resourceGroup, location
 ```
 
 **Idle load balancers (no backends):**
@@ -109,24 +115,32 @@ Resources
 Resources
 | where type =~ 'microsoft.network/loadbalancers'
 | where array_length(properties.backendAddressPools) == 0
-| project name, resourceGroup, location
+| project id, subscriptionId, name, resourceGroup, location
 ```
 
 ## Tag & Compliance Patterns
+
+Select the exact case-sensitive tag key from the discovered policy contract and
+evaluate only applicable scopes, resource types and exemptions. Substitute
+`<required-tag-key>` below; repeat for each applicable key. Empty values count as
+missing. With no tag policy, use the canonical greenfield fallback in
+[Azure defaults](../../../copilot-instructions.md#required-tags-azure-policy-enforced),
+not a universal legacy `Environment`/`CostCenter` contract. Resource-group tag
+requirements must be evaluated on `ResourceContainers`, not all resources.
 
 **Resources missing a required tag:**
 
 ```kql
 Resources
-| where isnull(tags['Environment']) or isnull(tags['CostCenter'])
-| project name, type, resourceGroup, tags
+| where isempty(tags['<required-tag-key>'])
+| project id, subscriptionId, name, type, resourceGroup, tags
 ```
 
 **Tag coverage analysis by type:**
 
 ```kql
 Resources
-| extend hasTag = isnotnull(tags['Environment'])
+| extend hasTag = isnotempty(tags['<required-tag-key>'])
 | summarize total=count(), tagged=countif(hasTag) by type
 | extend coverage=round(100.0 * tagged / total, 1)
 | order by coverage asc

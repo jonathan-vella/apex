@@ -12,7 +12,8 @@ Fetch recent records from a table with simple filtering.
 
 ```kql
 Events
-| where Timestamp > ago(1h)
+| where Timestamp between (ago(1h) .. now())
+| order by Timestamp desc
 | take 100
 ```
 
@@ -26,8 +27,10 @@ Summarize data by dimensions for insights and reporting.
 
 ```kql
 Events
+| where Timestamp between (ago(24h) .. now())
 | summarize count() by EventType, bin(Timestamp, 1h)
 | order by count_ desc
+| take 100
 ```
 
 **Use for**: Event counting, distribution analysis, top-N queries
@@ -40,8 +43,10 @@ Analyze data over time windows for trends and patterns.
 
 ```kql
 Telemetry
-| where Timestamp > ago(24h)
+| where Timestamp between (ago(24h) .. now())
 | summarize avg(ResponseTime), percentiles(ResponseTime, 50, 95, 99) by bin(Timestamp, 5m)
+| order by Timestamp asc
+| take 1000
 | render timechart
 ```
 
@@ -54,13 +59,20 @@ Combine multiple tables for cross-dataset analysis.
 **Example KQL**:
 
 ```kql
+let windowEnd = now();
+let windowStart = windowEnd - 1h;
 Events
+| where Timestamp between (windowStart .. windowEnd)
 | where EventType == "Error"
 | join kind=inner (
     Logs
+    | where Timestamp between (windowStart .. windowEnd)
     | where Severity == "Critical"
+    | project CorrelationId, LogTimestamp=Timestamp, LogMessage, Severity
 ) on CorrelationId
-| project Timestamp, EventType, LogMessage, Severity
+| project Timestamp, LogTimestamp, CorrelationId, EventType, LogMessage, Severity
+| order by Timestamp desc
+| take 100
 ```
 
 **Use for**: Root cause analysis, correlated event tracking
@@ -80,6 +92,10 @@ Explore table structure before querying.
 - Filter early: Use `where` before joins and aggregations
 - Limit result size: Use `take` or `limit` to reduce data transfer
 - Time filters: Always filter by time range for time series data
+- Bound both join inputs before joining, then cap output; correlation IDs may repeat
+- Output limits bound transfer, not scan cost or join cardinality; narrow the time
+    window and keys before running high-cardinality joins. Report truncation and use
+    explicit time-window paging when complete results are needed
 - Indexed columns: Filter on indexed columns first
 
 **🔵 Query Patterns:**

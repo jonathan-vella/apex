@@ -8,7 +8,7 @@ agents: []
 tools: [execute, read, search]
 ---
 
-# Bicep What-If Subagent
+# bicep-whatif-subagent
 
 ## Role
 Deployment-preview subagent that runs `az deployment group what-if` against
@@ -86,17 +86,18 @@ Estimated Cost Impact:
 Recommendation: {proceed/review/block}
 ```
 
-Status mapping: any policy violation → `FAIL`; otherwise any unexpected
-delete or large cost delta → `WARNING`; otherwise → `PASS`. An empty diff
-is `PASS`, not `FAIL`.
+Status mapping: any policy violation or failed/unparseable preview → `FAIL`;
+otherwise `Deploy`, an unrecognized changeType, unexpected delete or large cost
+delta → `WARNING` with recommendation `review`; otherwise → `PASS`.
+Only a successfully parsed empty diff or all-`NoChange` result is no-change PASS.
 
 ## Evidence Before Findings
 Before composing the response:
 
 1. Validate the CLI token first (see Workflow step 2). Do not run what-if
    against a stale session — it will succeed with confusing output.
-2. Run what-if with `--out json` and parse the structured payload; fall back
-   to the human view only when the JSON form errors.
+2. Run what-if with `--out json` and parse the structured payload. Human-readable
+  diagnostics may explain a failure but cannot replace parsed preview evidence.
 3. Quote the exact `changeType` and resource id from the JSON output for
    each entry under `Resource Changes`. Paraphrasing is a defect.
 4. For every entry under `Policy Compliance.Details`, copy the policy code
@@ -130,11 +131,14 @@ naming the missing field — do not guess defaults.
 
 ## Workflow
 
-1. **Receive inputs** from the parent agent.
+1. **Receive inputs and resolve subscription** before token validation. Resolve the
+  supplied subscription to its ID, or capture the active ID once when omitted.
+  Failure returns FAIL; all subsequent commands use this bound ID.
 2. **Validate CLI token** — run
 
    ```bash
    az account get-access-token \
+     --subscription {subscription} \
      --resource https://management.azure.com/ \
      --output none
    ```
@@ -144,18 +148,28 @@ naming the missing field — do not guess defaults.
    `az account show`, which can succeed against a stale MSAL cache in
    devcontainers and WSL.
 
-3. **Run what-if** at the appropriate scope:
+3. **Run what-if** at the appropriate scope with the already bound subscription ID.
+   The output Subscription field records the bound ID, not an assumed display name.
 
    ```bash
    az deployment group what-if \
+     --subscription {subscription} \
      --resource-group {resource_group} \
      --template-file {template_path} \
      --parameters {parameters_path} \
      --out json
    ```
 
-   For subscription-scoped deployments substitute `az deployment sub
-what-if --location {location}`.
+   For subscription-scoped deployments use:
+
+   ```bash
+   az deployment sub what-if \
+     --subscription {subscription} \
+     --location {location} \
+     --template-file {template_path} \
+     --parameters {parameters_path} \
+     --out json
+   ```
 
 4. **Classify changes** using the table below.
 

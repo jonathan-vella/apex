@@ -1,5 +1,8 @@
 ---
 name: apex-azure-storage
+user-invocable: true
+disable-model-invocation: false
+argument-hint: "storage service, resource scope and task"
 description: '**UTILITY SKILL** — Azure Storage Services: Blob, File Shares, Queue, Table, and Data Lake. Object storage, SMB shares, async messaging, NoSQL key-value, big-data analytics. Access tiers + lifecycle management. WHEN: "blob storage", "file shares", "queue storage", "table storage", "data lake", "access tiers", "lifecycle management". DO NOT USE FOR: SQL databases, Cosmos DB (use apex-azure-prepare), Event Hubs / Service Bus messaging.'
 license: MIT
 metadata:
@@ -8,6 +11,13 @@ metadata:
 ---
 
 # Azure Storage Services
+
+## Prerequisites
+
+Confirm account, service, authorized operation and data-plane access. Use installed
+CLI/SDK capabilities; follow the language leaf's version requirements. Obtain
+separate authorization before uploads, overwrites, lifecycle changes or downloads
+that replace local files.
 
 ## Services
 
@@ -109,10 +119,6 @@ For building applications with Azure Storage SDKs, see the condensed guides:
 - **Tables**: [Python](references/sdk/azure-data-tables-py.md) | [Java](references/sdk/azure-data-tables-java.md)
 
 For full package listing across all languages, see [SDK Usage Guide](references/sdk-usage.md).
-
-## Azure SDKs
-
-For building applications that interact with Azure Storage programmatically, Azure provides SDK packages in multiple languages (.NET, Java, JavaScript, Python, Go, Rust). See [SDK Usage Guide](references/sdk-usage.md) for package names, installation commands, and quick start examples.
 
 ## Reference Index
 

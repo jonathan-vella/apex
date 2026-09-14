@@ -1,5 +1,7 @@
 ---
 name: apex-terraform-patterns
+user-invocable: false
+disable-model-invocation: false
 description: '**UTILITY SKILL** — Reusable Azure Terraform patterns: hub-spoke, private endpoints, diagnostics, AVM-TF modules. WHEN: "hub-spoke Terraform", "private endpoint module", "AVM-TF composition", "diagnostic settings", "plan interpretation". DO NOT USE FOR: Bicep code (apex-azure-bicep-patterns), ADRs (apex-azure-adr), diagrams (apex-python-diagrams).'
 compatibility: Requires Terraform >= 1.9, azurerm ~> 4.0, Azure CLI
 ---

@@ -5,13 +5,18 @@ description: "Complete skills and subagent reference"
 
 ## Skills
 
-Skills are invoked automatically by agents, but you can also reference them
-directly in prompts.
+Skills load according to their invocation flags. Eligible skills can load automatically;
+manual-only skills require explicit invocation. Skills inherit the caller's model/tools,
+not a new agent identity or permissions. See [Repository Slash Prompts](../repository-prompts/)
+for Local adapters and manual Host entries.
 
 ### apex-agent-authoring
 
 Creates, restructures, and audits Copilot agents while keeping enforceable
-rules in thin auto-loaded instructions and optional guidance on demand.
+rules in thin authoring instructions and optional guidance on demand. Owns agent fleet
+and `.github` authoring assessments; each produces a plan and stops before edits.
+Assessment design history is reference-only. Supplied runtime profiles inform scores,
+but log capture and context audits remain with `apex-context-management`.
 
 ```text
 Use the apex-agent-authoring skill to reduce the fixed context cost of
@@ -75,7 +80,8 @@ Application Gateway as an ADR.
 ### apex-github-operations
 
 Full contribution lifecycle: branch naming, conventional commits, GitHub issues,
-PRs, Actions, and releases. Uses MCP tools first, falls back to `gh` CLI.
+PRs, Actions, and releases. Uses `gh` CLI first for GitHub operations, with MCP fallback
+under the owning skill's tool contract. Commit and push remain explicitly requested operations.
 
 ```text
 @workspace What commit message format does this repo use?
@@ -88,20 +94,12 @@ Label it with 'enhancement' and 'infrastructure'.
 
 ### apex-docs-writer
 
-Generates and maintains documentation following repository standards.
+Maintains documentation and owns doc gardening, docs peer review, and Astro docs review.
+Peer review is read-only; Astro review is report-only unless `--apply-fixes` explicitly
+enables its narrow allow-list. Quality-score and debt updates require human review.
 
 ```text
 Update the docs to reflect the new Diagnose agent we added.
-```
-
-### sensei
-
-Iteratively improves skill frontmatter compliance using the Ralph loop pattern.
-Use this skill after scaffolding a new skill, or to bring an existing skill
-back to compliance.
-
-```text
-Run sensei on the apex-azure-validate skill to fix its frontmatter.
 ```
 
 ### apex-azure-artifacts
@@ -113,22 +111,14 @@ styling for all agent outputs (all steps).
 @workspace What H2 headings are required in the implementation plan template?
 ```
 
-### context-optimizer
-
-Audits agent context window usage via debug logs, token profiling,
-and redundancy detection. Produces optimisation recommendations.
-
-```text
-Analyse the last Copilot Chat debug log and identify context waste.
-```
-
 ### apex-context-management
 
 Unified context-window management. Two modes: **runtime compression**
 (full / summarised / minimal artefact tiers used by orchestrator and
 codegen agents) and **diagnostic audit** (post-mortem token profiling
 and hand-off gap analysis used by the 11-Context Optimizer agent).
-Replaces the legacy `context-shredding` and `context-optimizer` skills.
+Owns debug-log export and context-audit procedures. Authoring assessments live in
+`apex-agent-authoring`; runtime data is never inferred from static checks.
 
 ```text
 @workspace What compression tiers does apex-context-management define
@@ -156,7 +146,10 @@ strategies, known issues, and governance-to-code property mapping.
 ### apex-workflow-engine
 
 Machine-readable workflow DAG for the multi-step pipeline. Defines node
-types, edge conditions, gates, and fan-out patterns.
+types, edge conditions, gates, and fan-out patterns. Owns shared workflow entry and
+recovery. On Host, select `01-Orchestrator`, invoke `apex-host-workflow-start`, and
+explicitly choose `resume` to recover an existing project. It does not approve or
+advance gates automatically. Docs procedures belong to `apex-docs-writer`.
 
 ```text
 @workspace Show the workflow graph edges and gate conditions.

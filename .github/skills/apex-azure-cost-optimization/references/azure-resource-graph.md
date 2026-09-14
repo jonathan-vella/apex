@@ -16,6 +16,10 @@
 Use their exact KQL, including projected fields. Do not proceed if the patterns cannot be loaded.
 Do not invoke the `apex-azure-resources` skill or run its inventory workflow; return here for the cost-only queries below.
 Discovery alone is not savings evidence: correlate findings with actual Cost Management data and utilization metrics.
+Canonical resource-level results must preserve full `id` and `subscriptionId` for correlation;
+never join costs by resource name or resource group alone. If the canonical query or a local
+candidate query omits identity, stop that correlation and report the missing fields to the
+query owner. Aggregated SKU/tag summaries are not resource-level savings evidence.
 Continue the [cost, pricing, metrics, report, and audit procedure](detailed-workflow-steps.md#step-4-query-actual-costs).
 
 **Resource count by SKU/tier (spot oversized resources):**

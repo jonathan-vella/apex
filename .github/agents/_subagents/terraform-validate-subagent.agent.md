@@ -8,7 +8,7 @@ agents: []
 tools: [execute, read, search]
 ---
 
-# Terraform Validate Subagent
+# terraform-validate-subagent
 
 ## Role
 Validation subagent that runs `terraform fmt -check` and `terraform
@@ -121,7 +121,7 @@ Before composing findings:
 1. Read every `.tf` and `.tfvars` file under the supplied module path.
 2. Re-read the `terraform fmt` and `terraform validate` console
    output collected in Phase 1.
-3. Inspect the project's governance JSON and relevant Markdown details, plus required
+3. When `project` is supplied, inspect its governance JSON and relevant Markdown details, plus required
   `apex-azure-defaults/SKILL.md` sections. Reuse current content still available; there is no skill digest tier.
 4. For every finding, quote the exact resource block, variable
    declaration, or diagnostic line that triggered it. Paraphrasing inside
@@ -148,6 +148,10 @@ The parent agent supplies:
 - `project` — APEX project slug used to locate
   `agent-output/{project}/04-governance-constraints.json`. Optional;
   absence is surfaced in findings.
+
+Project context is required for an APEX L2 request. Without it, perform static
+validation only: retain the text fields, use zero checked rows and state
+`L2 not evaluated: project not supplied` in Detailed Findings. Never imply L2 approval.
 
 If `module_path` is missing or does not exist, return `Overall Status:
 FAILED` with a `Detailed Findings` entry naming the missing field — do
@@ -176,8 +180,10 @@ not guess defaults.
   `terraform validate` times out or exits with a
    transient network/HTTP error (5xx, ETIMEDOUT, ECONNRESET, registry
    unreachable), retry **at most 2 times** with exponential backoff
-   (5s, 15s). After 2 retries, emit `Lint Status: FAIL` with
-   `transient: true` in the JSON output and return. Persistent
+  (5s, 15s). After 2 retries, emit `Phase 1 - Lint: FAIL`,
+  `Phase 2 - Review: SKIPPED`, `Overall Status: FAILED` and `Verdict: FAILED`
+  in the declared text block. Describe the transient failure and attempts in
+  Detailed Findings; do not emit JSON-only fields or an alternate failure shape. Persistent
    validation/parsing errors are NOT retried.
 
 3. **Validate-gate ownership**: return only the declared lint/review output
@@ -245,6 +251,10 @@ Run the checklist below over every `.tf` file under `module_path`.
    CRITICAL → `FAILED`.
 
 ### 7. Governance Compliance
+
+This section is mandatory only with project context or a requested APEX L2
+attestation. An L2 request without `project` returns FAILED; static-only calls
+report the coverage limitation above, without treating absent project files as defects.
 
 Read `04-governance-constraints.json` from `agent-output/{project}/`,
 translate every `azurePropertyPath` entry to its Terraform attribute

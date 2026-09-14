@@ -28,7 +28,9 @@ lifecycle {
 }
 ```
 
-For full analysis, use the set-diff analyzer skill in `docs/tf-support/SKILL.md`.
+Inspect the actual before/after values using the saved-plan JSON in
+[plan-interpretation.md](plan-interpretation.md). Do not suppress Terraform-owned
+changes merely to hide set reordering.
 
 ## Provider Version Constraint Pitfalls
 
@@ -44,7 +46,8 @@ version = "~> 4.0"
 ```
 
 `~> 4.0` allows `4.0.1`, `4.1.0`, `4.9.x` but NOT `5.0.0`.
-`~> 4.1` allows `4.1.0`, `4.1.1` but NOT `4.2.0`.
+`~> 4.1` also allows `4.2.0` through the remainder of 4.x; use `~> 4.1.0`
+only when a deliberately approved patch-only constraint is needed.
 
 ## Ignore Changes for Externally-Managed Tags
 
@@ -113,7 +116,7 @@ To disable in environments where outbound network is restricted:
 ```hcl
 module "key_vault" {
   source           = "Azure/avm-res-keyvault-vault/azurerm"
-  version          = "~> 0.9"
+  version          = "0.9.0"
   enable_telemetry = false
   # ...
 }

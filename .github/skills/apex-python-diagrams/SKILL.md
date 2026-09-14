@@ -1,5 +1,8 @@
 ---
 name: apex-python-diagrams
+user-invocable: true
+disable-model-invocation: false
+argument-hint: "diagram or chart type, project and output path"
 description: "**UTILITY SKILL** — Python diagram generation for Azure architectures, WAF/cost/compliance charts, ERDs, swimlanes, timelines, and wireframes. WHEN: 'architecture diagram', 'WAF bar chart', 'cost chart', 'ERD', 'swimlane', 'timeline', 'wireframe'. DO NOT USE FOR: inline Mermaid diagrams (apex-mermaid)."
 compatibility: Works with VS Code Copilot, Claude Code, and any tool capable of running Python scripts.
 license: MIT
@@ -22,9 +25,10 @@ pip install diagrams matplotlib pillow && apt-get install -y graphviz
 
 ## Routing Guide
 
-Every Python diagram emits **both PNG and SVG** siblings via the shared
+Workflow charts and library-rendered diagrams emit **both PNG and SVG** siblings via the shared
 [`scripts/diagram_io.py`](scripts/diagram_io.py) helper — PNG for raster
-preview, SVG for scalable / accessible / diff-friendly review.
+preview, SVG for scalable / accessible / diff-friendly review. Standalone SVG
+wireframes are the exception below; they do not use this helper.
 
 | Diagram type                        | Library    | Output                |
 | ----------------------------------- | ---------- | --------------------- |
@@ -35,7 +39,7 @@ preview, SVG for scalable / accessible / diff-friendly review.
 | Swimlane / business process         | graphviz   | `.py` + `.png` + `.svg` |
 | Entity-relationship diagrams        | graphviz   | `.py` + `.png` + `.svg` |
 | Timeline / Gantt charts             | matplotlib | `.py` + `.png` + `.svg` |
-| UI wireframes                       | graphviz   | `.py` + `.png` + `.svg` |
+| UI wireframes                       | SVG / graphviz | `.py` + `.svg`; PNG optional for SVG generator |
 
 ## Required Outputs (Workflow Integration)
 
@@ -51,10 +55,18 @@ Suffix rules: `-des` for design (Step 3), `-ab` for as-built (Step 7).
 ## Execution & Output Standards
 
 Save `.py` source in `agent-output/{project}/`, then run with `python3` to
-produce the `.png` + `.svg` sibling pair. Every generator must import the
+produce the `.png` + `.svg` sibling pair. Library-backed generators must import the
 shared helpers from [`scripts/diagram_io.py`](scripts/diagram_io.py)
 (`save_figure`, `diagram_kwargs`, `render_graphviz`) — never call
 `plt.savefig`, `Diagram(outformat=...)`, or `dot.render()` directly.
+
+The standalone `create_wireframe_svg(title, filename, layout)` writes SVG
+and, when CairoSVG is installed, a PNG sibling. It returns the PNG path
+after conversion or the SVG path when CairoSVG is unavailable; conversion
+errors propagate. Inspect the returned path. Missing PNG does not satisfy
+a workflow or caller that requires PNG: report the missing converter instead
+of claiming completion. Existing helper `formats=` overrides remain available
+for standalone callers; do not use them to omit required workflow siblings.
 
 For the full conventions — design tokens (Azure blue, WAF pillar colours,
 DPI 150), `graph_attr` / `node_attr` / `cluster_style` settings,
@@ -67,7 +79,7 @@ template, read [`references/common-patterns.md`](references/common-patterns.md).
 
 ## Rules
 
-**DO:** Import `save_figure` / `diagram_kwargs` / `render_graphviz` from
+**DO:** For library-backed diagrams, import `save_figure` / `diagram_kwargs` / `render_graphviz` from
 [`scripts/diagram_io.py`](scripts/diagram_io.py) so every chart emits both
 `.png` and `.svg` siblings · Set `show=False` · Use `direction="TB"` ·
 Group in `Cluster` blocks · Set explicit `filename` · Use DPI ≥150 ·

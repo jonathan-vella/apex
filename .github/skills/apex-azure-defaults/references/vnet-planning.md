@@ -26,8 +26,9 @@ architecture:
 2. Any `services[].service_name` is in the **vnet-attached service
    whitelist** below.
 
-Public-edge-only workloads (Static Web Apps + Functions Consumption +
-Storage public + Front Door) do **not** trigger the gate.
+Public-edge-only workloads do not trigger the gate unless effective governance
+or the security baseline requires private networking. A public example never
+waives production data-service network restrictions.
 
 ## vnet-attached service whitelist
 
@@ -100,8 +101,8 @@ az account show -o none 2>/dev/null
 ```
 
 - **Exit 0**: continue to Step 2.
-- **Non-zero** (no `az login`, expired token, missing CLI): fall back
-  to "trust user input, defer validation to Planner Phase 4" and
+- **Non-zero** (no `az login`, expired token, missing CLI): mark the input
+  unverified, block confirmation/codegen/deployment, and
   record a Challenger-tagged informational finding via
   `apex-recall finding <project> --add "existing_vnet_validation_deferred: az auth unavailable; Planner Phase 4 owns reconciliation" --json`.
   Mirrors the auth-fallback pattern in
@@ -122,8 +123,8 @@ Three outcomes:
 
 | Outcome                                | Action                                                                                                                                                                                                |
 | -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Exists + reachable                     | Store `vnet_address_space` from live `addressSpace.addressPrefixes[0]` (overrides any user-typed value — becomes authoritative for subnet-overlap math).                                              |
-| `NotFound` / `Forbidden`               | Re-prompt Q3 with the error inline. After two failures, fall back to "defer to Planner Phase 4" with a Challenger-tagged informational finding.                                                       |
+| Exists + reachable                     | Validate identity and preserve all live `addressSpace.addressPrefixes`; select a containing prefix explicitly for each subnet. Never silently discard secondary prefixes. |
+| `NotFound` / `Forbidden`               | Re-prompt Q3 with the error. After two failures, stop and return to the owner for reconciliation; unverified input is not confirmed. |
 | Tenant / subscription / region mismatch | Block until user supplies a correct ID or switches to `create-new`. Do not proceed.                                                                                                                   |
 
 ## Subnet sizing matrix
@@ -135,10 +136,10 @@ Three outcomes:
 | ----------------------------------------- | ---- | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **App Gateway v2**                        | `/26` | `/24`              | Microsoft Learn — [Application Gateway infrastructure subnet sizing](https://learn.microsoft.com/en-us/azure/application-gateway/configuration-infrastructure#size-of-the-subnet). `/26` = non-autoscale; `/24` = autoscale headroom.                                                                                                                                                                        |
 | **APIM stv2**                             | `/28` | `/27`              | Microsoft Learn — [API Management virtual network — subnet size requirements](https://learn.microsoft.com/en-us/azure/api-management/virtual-network-concepts#subnet-size). `/28` single-instance; `/27` multi-instance / zone-redundant.                                                                                                                                                                   |
-| **AKS (Azure CNI Overlay)**               | formula | `/24` per system node pool | Microsoft Learn — [Plan IP addressing for your cluster — Azure CNI Overlay](https://learn.microsoft.com/en-us/azure/aks/azure-cni-overlay). Formula: `IPs = (max_pods × node_count) + (node_count × 1) + 1`, round up to nearest CIDR.                                                                                                                                                                        |
+| **AKS (Azure CNI Overlay)** | formula | Size for maximum nodes and surge | Node subnet: maximum simultaneous node IPs plus service/private frontend IPs and five Azure-reserved addresses. Pods use a separate non-overlapping pod CIDR, not VNet IPs; size its per-node allocations for maximum nodes and surge. [Azure CNI Overlay](https://learn.microsoft.com/en-us/azure/aks/azure-cni-overlay). |
 | **AKS (Azure CNI, non-overlay)**          | `/22` | `/22`               | Each pod consumes a VNet IP. Surface a warning to prefer Overlay for new clusters. Microsoft Learn — [Configure Azure CNI networking](https://learn.microsoft.com/en-us/azure/aks/configure-azure-cni).                                                                                                                                                                                                      |
 | **AKS (kubenet)**                         | `/24` | **DEPRECATED**      | Retirement March 2028. Do **not** recommend for greenfield. If user pins kubenet, emit a `should_fix` Challenger finding referencing [`deprecated-services.md`](deprecated-services.md). Microsoft Learn — [Kubenet networking retirement](https://learn.microsoft.com/en-us/azure/aks/upgrade-azure-cni).                                                                                                   |
-| **Private Endpoint subnet**               | `/29` | `/27`               | Min `/29` = 5 usable IPs (3 PE headroom). Recommend `/27` for PE-heavy boundaries (≥8 PEs). NSG support GA since Sept 2021; route-table support GA likewise. Microsoft Learn — [Manage network policies for private endpoints](https://learn.microsoft.com/en-us/azure/private-link/disable-private-endpoint-network-policy).                                                                                |
+| **Private Endpoint subnet** | `/29` | `/27` | `/29` = 8 total / 3 usable IPs; `/27` = 32 total / 27 usable. Count endpoint IP configurations, not just endpoint resources; reserve growth headroom. [Private endpoint network policies](https://learn.microsoft.com/en-us/azure/private-link/disable-private-endpoint-network-policy). |
 | **App Service VNet integration**          | `/28` | `/26`               | Regional VNet integration. 5 reserved Azure IPs. Delegation: `Microsoft.Web/serverFarms`. Microsoft Learn — [Integrate your app with an Azure virtual network — subnet](https://learn.microsoft.com/en-us/azure/app-service/configure-vnet-integration-enable).                                                                                                                                              |
 | **VM/VMSS workload**                      | `/29` | `/27`               | General-purpose compute subnet. Size up to `/24` when VMSS has high scale.                                                                                                                                                                                                                                                                                                                                  |
 | **Bastion — Basic**                       | `/26` | `/26`               | `AzureBastionSubnet` reserved name. Microsoft hardened minimum across SKUs. Microsoft Learn — [Azure Bastion configuration settings — AzureBastionSubnet](https://learn.microsoft.com/en-us/azure/bastion/configuration-settings#subnet).                                                                                                                                                                    |
@@ -156,8 +157,11 @@ Three outcomes:
 - **5 Azure-reserved IPs** per subnet (network, default gateway, two
   DNS, broadcast). Important when sizing `/29` and smaller subnets —
   a `/29` has 8 total / 3 usable.
+- IPv4 usable capacity is `2^(32-prefix) - 5`; reject prefixes outside
+  Azure/service-supported subnet sizes and require demand plus growth to fit.
+  Check parsed network containment and pairwise overlap, not textual prefixes.
 - Reserved-name subnets (`AzureBastionSubnet`, `AzureFirewallSubnet`,
-  `GatewaySubnet`, `RouteServerSubnet`, `AzureBastionSubnet`) MUST
+  `GatewaySubnet`, `RouteServerSubnet`) MUST
   use the exact case-sensitive name and may **only** appear when the
   respective resource is in scope.
 

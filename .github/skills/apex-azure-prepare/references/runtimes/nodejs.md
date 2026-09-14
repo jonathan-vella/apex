@@ -23,9 +23,12 @@ app.set("trust proxy", true);
 Azure's infrastructure requires specific cookie settings:
 
 ```javascript
+const sessionSecret = process.env.SESSION_SECRET;
+if (!sessionSecret?.trim()) throw new Error("SESSION_SECRET is required");
+
 app.use(
   session({
-    secret: process.env.SESSION_SECRET,
+    secret: sessionSecret,
     resave: false,
     saveUninitialized: false,
     cookie: {
@@ -117,9 +120,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Session (if using)
+const sessionSecret = process.env.SESSION_SECRET;
+if (!sessionSecret?.trim()) throw new Error("SESSION_SECRET is required");
+
 app.use(
   session({
-    secret: process.env.SESSION_SECRET || "dev-secret-change-in-prod",
+    secret: sessionSecret,
     resave: false,
     saveUninitialized: false,
     cookie: {

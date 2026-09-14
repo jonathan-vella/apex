@@ -12,32 +12,56 @@ Comprehensive reference for Azure CLI quota commands.
 az extension add --name quota
 ```
 
-> **⚠️ CRITICAL: ALWAYS USE CLI FIRST**
->
-> Azure CLI is the **ONLY reliable method** for quota checks. **Use `az quota` commands FIRST, always.**
->
-> **DO NOT use REST API or Azure Portal as your first approach.** They are unreliable.
->
-> **Required workflow:**
->
-> 1. **FIRST:** Try `az quota list` / `az quota show` / `az quota usage show`
-> 2. **If CLI returns `BadRequest`:** Resource provider doesn't support quota API → use [Azure service limits docs](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits)
-> 3. **Never start with REST API or Portal** - only use as fallback
->
-> **Why REST API/Portal are unreliable:**
->
-> - REST API returns "No Limit" or "Unlimited" values that are **MISLEADING**
-> - "No Limit" **DOES NOT mean unlimited capacity** - usually means resource doesn't support quota API
-> - Service-specific limits still apply even when REST API shows "No Limit"
-> - Portal may show incomplete or cached quota data
-> - REST API lacks proper error handling for unsupported providers
->
-> **If you see "No Limit" in REST API/Portal:**
->
-> - ❌ This is NOT unlimited capacity
-> - ✅ It means quota API doesn't support that resource type
-> - ✅ Check [Azure service limits docs](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits) for actual limits
-> - ✅ Regional capacity constraints may still exist
+## Quota Evidence and Fallback
+
+Use CLI first with the confirmed subscription, provider and region. All examples
+contain illustrative scopes; substitute the approved scope, never the CLI default.
+Keep limit and usage from the same scope, quota name, units and collection window.
+Normalize demand first: instance count times vCPUs per instance, including surge;
+check both VM-family and total regional vCPU quotas. Other quotas use their own units.
+
+1. Discover names with `az quota list`; fetch limit and usage with the commands below.
+2. On command failure, do not calculate. Classify scope/argument, authorization,
+   registration, throttling or unsupported-resource errors from actual diagnostics.
+   `BadRequest` alone does not prove an unsupported provider. Repair a malformed
+   scope before retrying; registration or permission changes require approval.
+3. For confirmed unsupported types, consult
+   [service limits](https://learn.microsoft.com/azure/azure-resource-manager/management/azure-subscription-service-limits)
+   and a documented service-specific usage command for the same subscription/region
+   (for Compute: `az vm list-usage --subscription <subscription-id> --location <region>`).
+   If current usage cannot be established, report headroom as unknown. Published
+   defaults are not observed subscription limits. Portal/support may clarify or
+   handle approved requests; REST against the same provider is not a coverage bypass.
+4. Missing, nonnumeric, `No Limit` or `Unlimited` values are unknown evidence,
+   never zero or proof of unlimited quota. Preserve the diagnostic and source.
+5. Sufficient headroom is quota-only. Check SKU restrictions and regional capacity
+   separately; even an unrestricted SKU listing does not guarantee allocation.
+
+### Checked Headroom
+
+Define this Bash helper before the region-comparison workflow. It validates
+nonnegative integral quota units, rejects missing evidence and reports quota only.
+Exit 0 means sufficient quota, 1 insufficient quota, 2 invalid/unknown evidence.
+
+```bash
+quota_headroom() {
+  local scope="$1" limit="$2" usage="$3" need="$4"
+  if [[ ! "$scope" =~ ^/subscriptions/[[:xdigit:]]{8}-[[:xdigit:]]{4}-[[:xdigit:]]{4}-[[:xdigit:]]{4}-[[:xdigit:]]{12}/providers/Microsoft\.[[:alnum:]]+/locations/[[:alnum:]-]+$ ]]; then
+    echo "Unknown quota: invalid scope" >&2
+    return 2
+  fi
+  local value
+  for value in "$limit" "$usage" "$need"; do
+    if [[ ! "$value" =~ ^[0-9]{1,9}$ ]]; then
+      echo "Unknown quota: expected nonnegative integer units" >&2
+      return 2
+    fi
+  done
+  local remaining=$((10#$limit - 10#$usage - 10#$need))
+  echo "Quota remaining after demand: $remaining; regional capacity: unknown"
+  ((remaining >= 0))
+}
+```
 
 ## Resource Name Mapping
 
@@ -207,7 +231,7 @@ az quota usage list --scope /subscriptions/{id}/providers/Microsoft.Compute/loca
 **Key output**:
 
 - `properties.usages.value` - Current usage count
-- Use with `az quota show` to calculate available capacity
+- Use with `az quota show` to calculate quota headroom
 
 ---
 
@@ -234,17 +258,17 @@ az quota usage show \
   --scope /subscriptions/{id}/providers/Microsoft.Compute/locations/eastus
 ```
 
-**Calculate available capacity**:
+**Calculate quota headroom**:
 
 1. Get limit: `az quota show --resource-name {name} --scope {scope}` → limit value
 2. Get usage: `az quota usage show --resource-name {name} --scope {scope}` → current usage
-3. Available = Limit - Usage
+3. Headroom = Limit - Usage; remaining after demand = Limit - Usage - Need
 
 **Example calculation**:
 
 - Limit (from `az quota show`): 350 vCPUs
 - Usage (from `az quota usage show`): 12 vCPUs
-- **Available**: 338 vCPUs
+- **Quota headroom**: 338 vCPUs; regional capacity remains unknown
 
 ---
 

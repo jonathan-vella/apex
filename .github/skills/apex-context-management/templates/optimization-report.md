@@ -93,7 +93,8 @@
 
 ## Methodology Notes
 
-- Latency-to-token estimates are heuristic (see SKILL.md § Latency Heuristics)
+- Never infer tokens from latency; report timing and recorded usage separately
+- Missing telemetry is unknown, not zero; source-only audits cannot claim measured savings
 - Token counts for files use ~1 token per 4 characters approximation
 - Tool schema costs estimated at ~75 tokens per tool definition
 - Analysis covers debug logs only — does not access model-level usage APIs

@@ -1,7 +1,7 @@
 # Skills
 
 This directory contains Agent Skills for GitHub Copilot. Skills are reusable,
-domain-specific knowledge modules that activate automatically based on prompt keywords.
+domain-specific procedures and knowledge loaded according to their invocation flags.
 
 ## Skill Name Migration
 
@@ -55,11 +55,33 @@ name to its prefixed local directory and review the diff to retain APEX adaptati
 | `apex-docs-writer`       | Repo-aware documentation maintenance      | "update docs", "check staleness"                                                |
 | `apex-vendor-prompting`  | Audit Claude / GPT-5.6 agents and prompts | "audit agent", "claude prompting", "gpt-5.6 prompting", "vendor best practices" |
 
+### Procedure Ownership
+
+- [apex-docs-writer](apex-docs-writer/SKILL.md) owns doc gardening, docs peer review,
+   and Astro docs review. Review-only and opt-in fix modes remain procedure-specific.
+- [apex-agent-authoring](apex-agent-authoring/SKILL.md) owns agent fleet and `.github`
+   authoring assessments, plus reference-only assessment design history.
+- [apex-context-management](apex-context-management/SKILL.md) owns log export, context audit,
+   and runtime compression. A supplied profile can inform an authoring scorecard without moving runtime ownership.
+- [apex-workflow-engine](apex-workflow-engine/SKILL.md) owns workflow entry, recovery, and DAG routing.
+
+### Local And Agent Host
+
+Local `.prompt.md` files are adapters; they are not Host entry points. Agent Host uses
+manual skills such as `apex-host-workflow-start`, `apex-host-git-commit`, and
+`apex-host-debug-log-export`. Select the required owning agent first. For recovery,
+explicitly request the `resume` operation through `apex-host-workflow-start`.
+Skills inherit the caller's model/tools and never grant permissions or select an agent.
+Source checks do not prove runtime availability, attachment, or model eligibility.
+
 ## Usage
 
 ### Automatic Activation
 
-Skills activate when your prompt matches their trigger keywords:
+Eligible skills can load when your request matches their description.
+`disable-model-invocation: true` requires manual invocation; `user-invocable: false`
+hides a skill from the slash menu. Defaults are `false` and `true`, respectively.
+Neither flag overrides production human-selection or approval gates.
 
 ```text
 "Create an architecture diagram for the ecommerce project"
@@ -101,7 +123,7 @@ Follow the structure in
 2. Update the frontmatter (`name`, `description`, `compatibility`) per
    the instruction file's rules.
 3. Place deep reference material under `references/` (loaded on demand).
-4. Run `npm run lint:skills-format` and `npm run validate:agents` to verify.
+4. Run `npm run validate:skills` and `npm run validate:agents` to verify.
 
 Use the authoring instructions to review frontmatter quality. For
 documentation-side updates, invoke the `apex-docs-writer` skill.

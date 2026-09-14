@@ -29,22 +29,33 @@ infra/terraform/{project}/
 ## Key Pattern: `locals.tf`
 
 ```hcl
-locals {
-  unique_suffix = substr(md5(azurerm_resource_group.this.id), 0, 6)
+resource "random_string" "suffix" {
+  length  = 4
+  upper   = false
+  lower   = true
+  numeric = true
+  special = false
+}
 
-  tags = merge(
-    {
-      Environment = var.environment
-      ManagedBy   = "Terraform"
-      Project     = var.project_name
-      Owner       = var.owner
-    },
-    var.additional_tags  # extra tags from governance constraints
-  )
+locals {
+  unique_suffix = random_string.suffix.result
+  tags          = merge(var.additional_tags, var.policy_tags)
 }
 ```
 
+Declare `policy_tags` as a required `map(string)` of effective policy keys and
+values; `additional_tags` is an optional `map(string)` defaulting to `{}`. Preserve
+policy casing and prevent optional values overriding it. Use the canonical
+greenfield tag contract only when discovery confirms no tag policy. Generate the
+suffix once per root and pass it to children; do not replace existing deployed
+names or suffix state without an approved migration.
+
 ## Key Pattern: Phased Deployment
+
+Phases sharing state must be cumulative. Never move existing state backwards to
+an earlier phase. Review saved plans for deletes and replacements; unexpected
+destruction blocks progression. Preserve existing count addresses when correcting
+conditions; switching to for_each requires an explicit state migration.
 
 ```hcl
 variable "deployment_phase" {
@@ -60,11 +71,17 @@ variable "deployment_phase" {
 
 module "key_vault" {
   source  = "Azure/avm-res-keyvault-vault/azurerm"
-  version = "~> 0.9"
-  count   = var.deployment_phase == "all" || var.deployment_phase == "security" ? 1 : 0
+  version = "0.9.0"
+  count   = contains(["security", "data", "compute", "edge", "all"], var.deployment_phase) ? 1 : 0
   # ...
 }
 ```
+
+This is a partial count example using the same pinned Key Vault version as
+[module composition](module-composition.md); complete its required inputs from
+the approved plan. Foundation is unconditional; each later module uses all phases
+at or after its own phase, plus `all`. Do not use this condition for data/compute/edge
+modules without moving their inclusion boundary to the corresponding phase.
 
 ## Output Files
 

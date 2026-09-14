@@ -566,6 +566,32 @@ class TestDiscoverReExports:
 
 
 class TestCachedRenderer:
+    def test_r1_preserves_original_timestamp(self, tmp_path, envelope):
+        baseline = copy.deepcopy(envelope)
+        baseline.pop("discovery_metadata", None)
+        original_time = "2020-01-01T00:00:00Z"
+        baseline["discovered_at"] = original_time
+        in_path = tmp_path / "baseline.json"
+        in_path.write_text(json.dumps(baseline))
+        out_path = tmp_path / "out.json"
+        assert render_cached_governance.main(["--in", str(in_path), "--out", str(out_path)]) == 0
+        written = json.loads(out_path.read_text())
+        assert written["discovered_at"] == original_time
+        assert written["discovery_metadata"]["discovered_at"] == original_time
+
+    @pytest.mark.parametrize("timestamp", [None, "invalid", "2026-01-01T00:00:00"])
+    def test_r1_missing_timestamp_never_uses_mtime(self, tmp_path, envelope, capsys, timestamp):
+        baseline = copy.deepcopy(envelope)
+        baseline.pop("discovery_metadata", None)
+        baseline["discovered_at"] = timestamp
+        in_path = tmp_path / "baseline.json"
+        in_path.write_text(json.dumps(baseline))
+        out_path = tmp_path / "out.json"
+        out_path.write_text("preserved output")
+        assert render_cached_governance.main(["--in", str(in_path), "--out", str(out_path)]) == 2
+        assert json.loads(capsys.readouterr().out.splitlines()[0])["error"] == "discovery-provenance"
+        assert out_path.read_text() == "preserved output"
+
     def test_no_network_calls(self):
         """Verify render_cached_governance imports no network/subprocess modules at module level."""
         import render_cached_governance as mod

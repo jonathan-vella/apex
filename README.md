@@ -132,6 +132,11 @@ directly.
 - `apex-recall` CLI for progressive session recall across agent-output projects
 - Source content for the published documentation site
 
+The [skill catalog](.github/skills/README.md) describes procedure ownership and invocation flags.
+Local prompt files are adapters. On Agent Host, select the owning agent and use the shared
+manual entry skill; `apex-host-workflow-start` supports an explicit `resume` operation.
+Skills inherit the caller's model/tools and do not bypass human approval gates.
+
 ## License
 
 MIT. See [LICENSE](LICENSE).

@@ -1,5 +1,8 @@
 ---
 name: apex-azure-diagnostics
+user-invocable: true
+disable-model-invocation: false
+argument-hint: "resource scope, symptom and time range"
 description: "**WORKFLOW SKILL** — Debug and troubleshoot Azure production issues: Container Apps + Function Apps diagnostics, KQL log analysis, health checks. WHEN: 'debug production issues', 'troubleshoot container apps', 'troubleshoot function apps', 'image pull failures', 'cold start issues', 'health probe failures'. DO NOT USE FOR: pre-deployment validation (apex-azure-validate), cost analysis (apex-azure-cost-optimization)."
 license: MIT
 metadata:
@@ -33,16 +36,22 @@ Activate this skill when user wants to:
 3. Check resource health before deep-diving into logs
 4. Select appropriate troubleshooting guide based on service type
 5. Document findings and attempted remediation steps
+6. Diagnose only the approved scope; obtain separate approval before remediation
+
+## Prerequisites
+
+- Confirm resource IDs, subscription, incident window and read access.
+- Use available Azure CLI or MCP capabilities; unavailable telemetry is a gap,
+  not a healthy result. Do not dump credentials or app settings into reports.
 
 ---
 
 ## Steps
 
-1. **Identify symptoms** - What's failing?
-2. **Check resource health** - Is Azure healthy?
-3. **Review logs** - What do logs show?
-4. **Analyze metrics** - Performance patterns?
-5. **Investigate recent changes** - What changed?
+Follow the [diagnostic workflow](references/infraops-remediation-playbooks.md#diagnostic-workflow-six-phases)
+for discovery, health/metrics, logs, recent changes, severity classification and
+reporting. That procedure owns phase order and the severity-to-priority mapping.
+Load only the health checks and query templates needed for the selected service.
 
 ---
 
@@ -60,7 +69,7 @@ Activate this skill when user wants to:
 ### Common Diagnostic Commands
 
 ```bash
-# Check resource health
+# Inspect resource metadata (not Resource Health availability)
 az resource show --ids RESOURCE_ID
 
 # View activity log
@@ -120,19 +129,13 @@ mcp_azure-mcp_resourcehealth
     resourceId: "<resource-id>"
 ```
 
-### Using CLI
-
-```bash
-# Check specific resource health
-az resource show --ids RESOURCE_ID
-
-# Check recent activity
-az monitor activity-log list -g RG --max-events 20
-```
+Metadata/provisioning state from `az resource show` is not Resource Health
+availability. If the Resource Health tool is unavailable, report that check as
+unavailable and continue the approved [health checks](references/infraops-health-checks.md).
 
 ---
 
-## References
+## Reference Index
 
 - [KQL Query Library](references/kql-queries.md)
 - [Azure Resource Graph Queries](references/azure-resource-graph.md)
@@ -141,14 +144,4 @@ az monitor activity-log list -g RG --max-events 20
 - [InfraOps Remediation Playbooks](references/infraops-remediation-playbooks.md) — 6-phase diagnostic workflow
 - [Function Apps Troubleshooting](references/functions/README.md)
 
-## Reference Index
-
-Load these on demand — do NOT read all at once:
-
-| Reference                                      | When to Load                   |
-| ---------------------------------------------- | ------------------------------ |
-| `references/azure-resource-graph.md`           | Azure Resource Graph           |
-| `references/infraops-health-checks.md`         | Infraops Health Checks         |
-| `references/infraops-kql-templates.md`         | Infraops Kql Templates         |
-| `references/infraops-remediation-playbooks.md` | Infraops Remediation Playbooks |
-| `references/kql-queries.md`                    | Kql Queries                    |
+Load these references on demand, not all at once.

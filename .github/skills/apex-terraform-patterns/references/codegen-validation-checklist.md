@@ -12,6 +12,8 @@ Verify ALL items before marking Step 5 complete.
 ## AVM & Code Structure
 
 - [ ] AVM-TF modules used for all available resources
+- [ ] Module versions match exact semver pins in the approved plan/contract; no implicit upgrades
+- [ ] One root random suffix is passed to children; effective policy tag keys, casing and values are preserved
 - [ ] `project_name` is a required variable with no default value
 - [ ] Zero hardcoded project-specific values (see `iac-terraform-best-practices.instructions.md`)
 
@@ -21,11 +23,17 @@ Verify ALL items before marking Step 5 complete.
 
 ## Deployment Artifacts
 
-- [ ] Bootstrap + deploy scripts generated (bash + PS)
+- [ ] Bootstrap templates provided where required, but never executed during CodeGen or validation-only
+- [ ] Deployment entrypoint matches the approved plan; legacy deploy scripts only for existing consumers
+- [ ] Shared-state phase conditions are cumulative, preserving earlier resource addresses and resources
 - [ ] `05-implementation-reference.md` saved
-- [ ] Budget resource, notifications, Action Group routing, and anomaly detection comply with the canonical cost-monitoring contract
+- [ ] Budget, notifications, Action Group routing and anomaly detection satisfy the canonical cost-monitoring contract
 
 ## Review Gates
 
-- [ ] `terraform-validate-subagent` PASS + APPROVED
-- [ ] Adversarial review completed (pass 2 conditional on pass 1 severity; pass 3 conditional on pass 2 must_fix)
+- [ ] Required Terraform validation passed; a validator PASS does not grant deployment approval
+- [ ] Adversarial code review is skipped by default
+- [ ] Opt in only for `decisions.review_depth == "deep"` or explicit user request/invocation of `10-Challenger`
+- [ ] When opted in, follow the current graph and review protocol and resolve blocking findings
+- [ ] Request a human handoff if a required reviewer is unavailable; never fabricate approval
+- [ ] Complete `05-implementation-reference.md` and the handoff even when optional review is skipped

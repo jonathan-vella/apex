@@ -69,19 +69,24 @@ When generating a project README, agents MUST:
 
 <!-- Visual progress bar -->
 
+Derive each status and the percentage from verified workflow graph/session state.
+Generated files are not completed steps: required validation, reviews, blocker
+resolution and human approvals must be current. Preserve partial and skipped states.
+
 ```text
 [{progress-bar}] {completion-percentage}% Complete
 ```
 
 | Step | Phase          |                                Status                                 | Artifact                                                           |
 | :--: | -------------- | :-------------------------------------------------------------------: | ------------------------------------------------------------------ |
-|  1   | Requirements   | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | [01-requirements.md](./01-requirements.md)                         |
-|  2   | Architecture   | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | [02-architecture-assessment.md](./02-architecture-assessment.md)   |
-|  3   | Design         | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | [03-des-\*.md](.)                                                  |
-|  4   | Planning       | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | [04-implementation-plan.md](./04-implementation-plan.md)           |
-|  5   | Implementation | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | [05-implementation-reference.md](./05-implementation-reference.md) |
-|  6   | Deployment     | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | [06-deployment-summary.md](./06-deployment-summary.md)             |
-|  7   | Documentation  | ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) | [07-documentation-index.md](./07-documentation-index.md)           |
+|  1   | Requirements   | {requirements-status} | [01-requirements.md](./01-requirements.md) |
+|  2   | Architecture   | {architecture-status} | [02-architecture-assessment.md](./02-architecture-assessment.md) |
+|  3   | Design         | {design-status} | [03-des-\*.md](.) |
+| 3.5  | Governance     | {governance-status} | [04-governance-constraints.md](./04-governance-constraints.md) |
+|  4   | Planning       | {planning-status} | [04-implementation-plan.md](./04-implementation-plan.md) |
+|  5   | Implementation | {implementation-status} | [05-implementation-reference.md](./05-implementation-reference.md) |
+|  6   | Deployment     | {deployment-status} | [06-deployment-summary.md](./06-deployment-summary.md) |
+|  7   | Documentation  | {documentation-status} | [07-documentation-index.md](./07-documentation-index.md) |
 
 > **Legend**:
 > ![Done](https://img.shields.io/badge/-Done-success?style=flat-square) Complete

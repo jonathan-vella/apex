@@ -1,5 +1,8 @@
 ---
 name: apex-mermaid
+user-invocable: true
+disable-model-invocation: false
+argument-hint: "diagram type, subject and output path"
 description: '**UTILITY SKILL** — Mermaid diagrams for inline markdown: flowcharts, sequence, Gantt, class, state, ER. WHEN: "mermaid flowchart", "sequence diagram", "Gantt chart", "state diagram", "ER diagram", "inline markdown diagram". DO NOT USE FOR: rendered architecture diagrams or WAF/cost charts (apex-python-diagrams).'
 compatibility: Works with VS Code Copilot, Claude Code, and any tool that renders Mermaid in markdown.
 license: MIT

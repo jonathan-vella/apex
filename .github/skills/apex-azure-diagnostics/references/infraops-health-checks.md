@@ -17,8 +17,8 @@ az monitor diagnostic-settings list \
   --output table
 ```
 
-If no diagnostic settings exist, create them using the pattern from the
-`apex-azure-bicep-patterns` skill (Diagnostic Settings section).
+If no diagnostic settings exist, report the gap. Propose the pattern from the
+`apex-azure-bicep-patterns` skill; creating settings requires separate approval.
 
 ---
 
@@ -54,8 +54,13 @@ If no diagnostic settings exist, create them using the pattern from the
 | Availability      | KQL: `AzureMetrics \| where MetricName == "Availability"`              | > 99.9%                    |
 | E2E latency       | KQL: `AzureMetrics \| where MetricName == "SuccessE2ELatency"`         | < 100 ms (hot), <1s (cool) |
 | Throttling        | KQL: `StorageBlobLogs \| where StatusCode == 503`                      | 0 in normal operation      |
-| Used capacity     | `az storage account show --name {name} --query primaryEndpoints`       | < 80% quota                |
+| Used capacity     | `az monitor metrics list --resource {storage-account-id} --metric UsedCapacity --aggregation Average --interval PT1H --start-time {start-utc} --end-time {end-utc}` | Numeric bytes; compare with applicable byte limit |
 | HTTPS enforcement | `az storage account show --name {name} --query enableHttpsTrafficOnly` | `true`                     |
+
+Read numeric `average` samples from `value[].timeseries[].data[]` and retain their
+timestamps and unit (`Bytes`). Missing, null, nonnumeric or stale samples are
+unknown, not zero. Calculate percentage only against a verified applicable limit
+in bytes; endpoint URLs are not capacity and no universal 80% quota is assumed.
 
 ---
 

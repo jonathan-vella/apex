@@ -1,5 +1,7 @@
 ---
 name: apex-azure-bicep-patterns
+user-invocable: false
+disable-model-invocation: false
 description: '**UTILITY SKILL** — Reusable Azure Bicep patterns: hub-spoke, private endpoints, diagnostics, AVM composition. WHEN: "hub-spoke Bicep", "private endpoint module", "diagnostic settings", "AVM Bicep composition". USE FOR: Bicep template design, hub-spoke networking, private endpoint patterns, AVM modules. DO NOT USE FOR: Terraform code (use apex-terraform-patterns), architecture decisions (use apex-azure-adr), troubleshooting, diagrams (use apex-python-diagrams).'
 compatibility: Requires Azure CLI with Bicep extension
 ---

@@ -3,7 +3,9 @@
 **Date:** 2026-02-19T04:35:00Z
 **Recipe:** mcp
 **Language:** Python
-**Status:** ✅ PASS
+**Status:** Historical direct-call result, superseded for protocol readiness. **UNVERIFIED: STOP.**
+See the [verification gate](../README.md#verification-gate). This record did not test MCP initialization,
+standard `inputSchema`, content results or SDK client negotiation. Preserve it as historical evidence only.
 
 ## Deployment
 
@@ -78,9 +80,9 @@
 
 ## Verdict
 
-✅ **PASS** - MCP recipe works correctly:
+Historical claims below are not current acceptance evidence:
 
 - JSON-RPC 2.0 protocol implemented
 - `tools/list` returns tool definitions with schemas
 - `tools/call` executes tools and returns results
-- Ready for AI agent integration (Copilot, Claude, etc.)
+- AI agent integration remains blocked pending an actual SDK client handshake and transport tests.

@@ -19,7 +19,8 @@ signals. These are approximations — actual tokenization varies by model.
 
 ## VS Code Copilot System Prompt Costs
 
-These components are always present in the context window:
+These illustrative components depend on the actual harness and attachments;
+the values below are source estimates, not measured usage:
 
 | Component                       | Estimated Tokens | Source                |
 | ------------------------------- | ---------------- | --------------------- |
@@ -55,26 +56,16 @@ total_fixed = base_cost + tool_cost + handoff_cost + body_cost + instruction_cos
 | Claude Sonnet 5   | 200K tokens    | ~160K tokens          |
 | gpt-4o-mini       | 128K tokens    | ~102K tokens          |
 
-The "practical limit" accounts for output generation headroom.
-Quality typically degrades before hitting the hard limit.
+These are historical planning assumptions, not verified API limits. Use the
+active harness limit and measured tokenizer when available; otherwise keep
+limits and measured usage unknown. Do not infer Sol metadata or cost tiers.
 
-Sonnet 5 uses a new tokenizer that produces ~30% more tokens for the same
-text vs. Sonnet 4.6 — budgets tuned against 4.6 word/line counts under-count
-on Sonnet 5; re-verify headroom rather than reusing 4.6-era estimates.
+## Measurement Boundaries
 
-## Latency-to-Context Correlation
-
-Based on empirical observation of streaming responses:
-
-| Model           | Latency < 5s | 5-10s      | 10-20s      | 20-30s      | > 30s      |
-| --------------- | ------------ | ---------- | ----------- | ----------- | ---------- |
-| GPT-5.6-Terra   | < 40K in     | 40-120K in | 120-240K in | 240-320K in | Near limit |
-| GPT-5.6-Luna    | < 40K in     | 40-120K in | 120-240K in | 240-320K in | Near limit |
-| Claude Opus 5   | < 20K in     | 20-60K in  | 60-120K in  | 120-160K in | Near limit |
-| gpt-4o-mini     | < 10K in     | 10-30K in  | 30-60K in   | 60-80K in   | Near limit |
-
-"in" = input tokens. These are rough bands — output length, streaming
-overhead, and server load all affect latency.
+Never infer tokens from latency. Timing includes output generation, tool work,
+queueing and server load. Report measured tokens, source estimates, and elapsed
+time separately, with provenance and missing telemetry explicitly unknown.
+Source-only audits may recommend changes but cannot claim measured savings.
 
 ## Warning Thresholds
 

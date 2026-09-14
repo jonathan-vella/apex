@@ -6,6 +6,11 @@ Use this workflow when Terraform Search is not available (TF < 1.14 or
 provider lacks `list_resource_schemas` support). This is the **primary**
 import workflow for Azure.
 
+Read-only discovery does not authorize state adoption. Initialize only after
+approval, preserving the reviewed provider constraints and lockfile without
+`-upgrade`. A schema command error is a blocker, not evidence of missing Search
+support. Use [the helper](../scripts/list_resources.sh) for that distinction.
+
 ---
 
 ## 1. Discover Resources Using az CLI
@@ -96,12 +101,7 @@ Use config-driven import (Terraform 1.5+):
 resource "azurerm_resource_group" "contoso" {
   name     = "rg-contoso-prod"
   location = "swedencentral"
-  tags = {
-    Environment = "prod"
-    ManagedBy   = "Terraform"
-    Project     = "contoso"
-    Owner       = "platform-team"
-  }
+  tags     = var.existing_tags
 }
 
 import {
@@ -109,6 +109,32 @@ import {
   id = "/subscriptions/SUBSCRIPTION_ID/resourceGroups/rg-contoso-prod"
 }
 ```
+
+Declare `existing_tags` as a `map(string)` populated from the actual resource,
+including its original casing. Do not rename or retag during import. Reconcile
+policy/tag drift as a separately approved change after adoption.
+
+### Saved Import Plan Gate
+
+Review the full plan, including import IDs. The machine check below rejects
+managed creates, updates, deletes and both replacement orders, and requires an
+actual import. Data reads and unchanged managed resources are permitted.
+
+```bash
+set -euo pipefail
+terraform plan -out=import.tfplan
+terraform show -json import.tfplan | jq -e '
+  (.resource_changes | type == "array") and
+  any(.resource_changes[]; .mode == "managed" and .change.importing != null) and
+  all(.resource_changes[];
+    if .mode == "data" then (.change.actions == ["read"] or .change.actions == ["no-op"])
+    elif .mode == "managed" then .change.actions == ["no-op"]
+    else false end)
+' >/dev/null
+```
+
+Only after this succeeds and a human approves that exact plan may the deploy
+owner run `terraform apply import.tfplan`. A failed check never falls through to apply.
 
 ## 4. Bulk Import Script
 
@@ -146,7 +172,7 @@ echo "$RESOURCES" | jq -c '.[]' | while IFS= read -r resource; do
 done
 
 echo "# Map ARM types to Terraform types using the reference table"
-echo "# then run: terraform plan && terraform apply"
+echo "# then create and review a saved import-only plan; apply requires separate approval"
 ```
 
 ## 5. Post-Import Cleanup
@@ -155,9 +181,9 @@ After successful import:
 
 1. Run `terraform plan` — should show zero changes
 2. Replace hardcoded values with variables
-3. Apply CAF naming patterns
-4. Add mandatory tags
-5. Refactor to AVM modules (see `apex-terraform-patterns` skill, `references/refactor-module.md`)
+3. Propose naming/tag policy remediation separately; changing names may replace resources
+4. Preserve original tags until that change is reviewed and approved
+5. Refactor to AVM modules only with an approved state migration (see `apex-terraform-patterns` skill, `references/refactor-module.md`)
 
 ## Troubleshooting
 

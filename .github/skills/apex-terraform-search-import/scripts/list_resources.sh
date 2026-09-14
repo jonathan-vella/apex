@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Extract list resources supported by Terraform providers
 # Usage: ./list_resources.sh [provider_name]
 # Requires: terraform, jq
@@ -7,32 +7,33 @@
 # Primary use case: azurerm provider — verify which resource types support
 # Terraform Search (list_resource_schemas). If empty, use Manual Import.
 
-set -e
+set -euo pipefail
 
-PROVIDER=$1
-
-# Ensure terraform is initialized
-if [ ! -d ".terraform" ]; then
-    echo "Initializing Terraform..." >&2
-    terraform init -upgrade > /dev/null 2>&1
+if [[ $# -gt 1 ]]; then
+    echo "Usage: $0 [provider_name]" >&2
+    exit 2
 fi
-
-# Get provider schema and extract list_resource_schemas
-if [ -n "$PROVIDER" ]; then
-    # Specific provider
-    provider_key=$(terraform providers schema -json 2>/dev/null | jq -r '.provider_schemas | keys[]' | grep "/${PROVIDER}$" || true)
-    if [ -n "$provider_key" ]; then
-        terraform providers schema -json 2>/dev/null | jq -r \
-            "{\"$PROVIDER\": (.provider_schemas.\"${provider_key}\" | .list_resource_schemas // {} | keys | sort)}"
-    else
-        echo "{\"$PROVIDER\": []}"
-    fi
-else
-    # All providers
-    terraform providers schema -json 2>/dev/null | jq -r '
-        .provider_schemas
-        | to_entries
-        | map({key: (.key | split("/")[-1]), value: (.value.list_resource_schemas // {} | keys | sort)})
-        | from_entries
-    '
+PROVIDER="${1:-}"
+if [[ "$PROVIDER" == "--help" || "$PROVIDER" == "-h" ]]; then
+    echo "Usage: $0 [provider_name]"
+    echo "Inspect schemas after caller-approved terraform init; never initializes or upgrades."
+    exit 0
 fi
+command -v terraform >/dev/null
+command -v jq >/dev/null
+
+schema=$(terraform providers schema -json)
+jq -e --arg provider "$PROVIDER" '
+    if (.provider_schemas | type) != "object" then
+        error("Missing or invalid provider_schemas")
+    else .provider_schemas end
+    | to_entries
+    | map(select($provider == "" or (.key | split("/")[-1]) == $provider))
+    | if $provider != "" and length == 0 then error("Provider not initialized") else . end
+    | map({key: (.key | split("/")[-1]), value: (
+        .value.list_resource_schemas
+        | if . == null then {} else . end
+        | if type != "object" then error("Invalid list_resource_schemas") else keys | sort end
+    )})
+    | from_entries
+' <<< "$schema"

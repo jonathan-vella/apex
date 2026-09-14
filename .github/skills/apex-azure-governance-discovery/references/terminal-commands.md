@@ -3,28 +3,32 @@
 # Terminal Command Reference — Governance Phase
 
 Pre-built terminal commands for each phase of the governance workflow.
-Copy-paste with `{project}` substituted. Target: **≤8 terminal calls total**
-(Phase 2.7 inline confirmations add 3 `apex-recall decide` calls).
+Substitute the confirmed project and subscription. Call budgets are advisory;
+required evidence recovery, validation and approval always take precedence.
 
 ## Cmd 1: Phase 1 — Run discovery
 
 ```bash
 set +H && python .github/skills/apex-azure-governance-discovery/scripts/discover.py \
     --project {project} \
+    --subscription {subscription-id} \
     --out agent-output/{project}/04-governance-constraints.json \
     --arch agent-output/{project}/02-architecture-assessment.md
 ```
 
-Append `--refresh` only if user requested re-discovery.
-Read **only the first stdout line** (JSON status). Ignore the rest.
+Append `--refresh` for explicit refresh, stale/invalid evidence, signature drift,
+or changed discovery inputs. Read the first stdout JSON line and exit status
+for routing; capture diagnostics and inspect the envelope for decisions.
+COMPLETE collection alone does not establish governance readiness or approval.
 
 ## Cmd 2: Phase 2 — Combined JSON verification + annotation data
 
-Run **once** after discover.py completes. Returns everything needed for
-annotation decisions in a single query — do NOT issue follow-up jq queries.
+Run after discovery. This is an index, not complete annotation evidence.
+Read required sections and every blocker, including overflow beyond the first page.
+Targeted follow-up queries are required when evidence is missing, stale or truncated.
 
 > **Capture overflow**: redirect the jq output to `/tmp/{project}-gov-cmd2.json`
-> and read the first ~120 lines with `sed`. The combined query returns
+> and read it in bounded ranges until required evidence is complete. The combined query returns
 > 2000+ lines on real subscriptions, which overflows VS Code's terminal
 > capture buffer and silently truncates the model's view.
 
@@ -44,38 +48,31 @@ jq '{
   categories: ([.findings[] | .category] | unique),
   assignment_count: (.assignment_inventory | length)
 }' agent-output/{project}/04-governance-constraints.json > /tmp/{project}-gov-cmd2.json \
-  && sed -n '1,120p' /tmp/{project}-gov-cmd2.json
+  && wc -l /tmp/{project}-gov-cmd2.json
 ```
 
-## Cmd 3: Phase 2 — Copy preview.md (do NOT read it first)
+Use the file-reading tool to recover all required ranges; never treat a preview
+or truncated terminal response as the complete blocker set.
 
-```bash
-\cp -f agent-output/{project}/04-governance-constraints.preview.md \
-       agent-output/{project}/04-governance-constraints.md
-```
+## Cmd 3: Phase 2 — Prepare The Governed Markdown
 
-> **Why `\cp -f`**: the dev container ships a `cp -i` shell alias that
-> still prompts even when `-f` is passed (the alias adds `-i` after your
-> flags). The leading backslash bypasses the alias entirely so the
-> command is non-interactive. Apply the same `\mv` pattern wherever
-> `mv` appears.
+Read the current preview and existing destination before editing. Use file-editing
+tools to create or update the final artifact, preserving user annotations and the
+canonical H2 schema. A changed architecture can regenerate the preview even on
+a collector cache hit; do not overwrite an existing final artifact blindly.
 
 ## Cmd 4: Phase 2 — Find annotation placeholders
 
-Run **once** after cp. Shows exactly which lines need annotation.
+Check the current artifact for annotation placeholders; propagate read errors.
 
 ```bash
 grep -n 'AGENT: annotate\|<!-- annotate -->\|<!-- check applicability -->' \
-  agent-output/{project}/04-governance-constraints.md || echo "No placeholders found"
+  agent-output/{project}/04-governance-constraints.md
 ```
 
-> **Why the `|| echo ...` suffix is mandatory**: `grep` returns exit code
-> `1` on "no match", which under `set -e` aborts the entire batch.
-> The `|| echo "No placeholders found"` clause turns the no-match exit
-> into a successful zero exit so the runbook continues. See the
-> Anti-patterns section below.
-
-Use the output to plan your `apply_patch` calls (max 3 patches total).
+Interpret grep status explicitly: 0 means placeholders found, 1 means no matches,
+and 2 means a read/command error that blocks validation. Do not hide errors with
+`|| true` or claim missing files contain zero placeholders. Use targeted edits.
 
 ## Cmd 5: Phase 2 — Validate artifacts
 
@@ -86,28 +83,20 @@ review — do not run `npm run lint:artifact-templates` here (see
 [`agent-authoring.instructions.md`](../../../instructions/agent-authoring.instructions.md#no-direct-markdownlint-on-agent-output-rule)).
 
 ```bash
-python3 -m json.tool agent-output/{project}/04-governance-constraints.json > /dev/null \
-  && echo "=== Remaining placeholders ===" \
-  && (grep -c 'AGENT: annotate\|<!-- annotate -->' \
-       agent-output/{project}/04-governance-constraints.md 2>/dev/null || echo 0)
+python3 -m json.tool agent-output/{project}/04-governance-constraints.json > /dev/null
 ```
 
-The `2>/dev/null || echo 0` suffix protects against a missing artifact
-file or zero matches (both would otherwise exit 1 and abort `set -e`
-batches). If the JSON parse fails or placeholders remain, fix and re-run
-this command (count as cmd 6).
+Then repeat Cmd 4 with explicit exit-status handling. JSON parsing alone is not
+schema, signature, completeness, policy, confirmation, or review validation.
+Missing files, invalid JSON, unresolved placeholders or blockers prevent progression.
 
 ## Cmd 6: Phase 3 — Gate summary
 
 Run **once** to prepare the approval gate presentation.
 
-> Phase 2.7 (Inline Resolution Gate) must run before this command. The
-> three required confirmations (RG tag keys + casing, allowed
-> locations, RG/resource same-region) are asked via
-> `vscode_askQuestions` in a single call and the answers are written
-> back to the JSON before this summary is read. The agent records each
-> decision with `apex-recall decide --key … --value …` (3 calls), then
-> runs this `jq` summary to drive the Approval Gate presentation.
+> Resolve Phase 2.7 topics (new answers or proven-current reuse), validate edits,
+> then run/revalidate Phase 2.5 review before this summary. Follow
+> [inline-resolution-gate.md](inline-resolution-gate.md); unknown answers block.
 
 ```bash
 jq '{
@@ -126,6 +115,9 @@ jq '{
 ```
 
 ## Cmd 7: Phase 3 — Update session state
+
+Only after current required evidence/reviews, resolved blockers and explicit
+human approval. A summary, file presence or zero blocker count is not completion.
 
 ```bash
 apex-recall complete-step {project} 3_5 --json
@@ -150,16 +142,8 @@ are append-only — no de-duplication against existing entries.
 
 ## Anti-patterns
 
-- Do NOT run `jq '.tags_required'` and `jq '.allowed_locations'` as separate
-  commands — they are both in Cmd 2.
-- Do NOT query individual blockers one at a time (`jq '.findings[] | select(.display_name=="X")'`).
-  Cmd 2 already returns all blockers.
-- Do NOT `sed` or `grep` the preview.md before copying — just run Cmd 3.
-- Do NOT run lint more than once unless the first run failed and you fixed something.
-- Do NOT run the JSON summary query (Cmd 2) more than once — cache the output mentally.
-- Do NOT use bare `grep` at the end of a `set -e` bash block — grep returns
-  exit 1 on no-match, which under `set -e` aborts the entire batch. Always
-  append `|| true`, `|| echo "<fallback>"`, or pipe to another command.
-- Do NOT use bare `cp` / `mv` in dev container runbooks — the `cp -i` /
-  `mv -i` shell aliases will prompt for overwrite even with `-f`. Use
-  `\cp -f` and `\mv -f` (leading backslash) to bypass aliases.
+- Reuse unchanged available query results, but recover missing required evidence
+  after compaction, truncation or source changes.
+- Do not suppress command failures or treat a zero-match query as proof of completeness.
+- Do not overwrite user annotations or change governed H2 headings.
+- Do not invoke artifact lint directly; hooks and Challenger own that check.

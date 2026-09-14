@@ -146,7 +146,7 @@ Opt-in triggers: `decisions.review_depth == "deep"` OR an explicit
 `10-Challenger` invocation.
 
 When opted in, follow the recommended shape from
-`step-5b.opt_in_matrix` / `step-5t.opt_in_matrix` in `workflow-graph.json`
+`step-5b.challenger.opt_in_matrix` / `step-5t.challenger.opt_in_matrix` in `workflow-graph.json`
 for the current `decisions.complexity`:
 
 - `simple` → 1× `comprehensive`
@@ -180,9 +180,11 @@ do NOT issue sequential prompts. Pattern:
 3. Persist the answers via `apex-recall decide --key <header> --value <choice>`
    for each non-skipped answer.
 
-Two `askQuestions` calls inside a single Step 5 run is a defect — fold the
-second into the first. The 06b/06t agents must batch their preflight,
-governance, and code-review prompts the same way.
+Batch currently known findings within each pass. New blockers, changed inputs
+or a later review may require another question; never suppress a required gate
+to meet a call budget. Persist per-finding actions under the canonical review
+protocol, including explicit Edit rationale; unresolved must-fix findings block
+in every mode, including unattended execution.
 
 ### Preflight Blocker Form
 

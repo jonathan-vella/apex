@@ -20,10 +20,10 @@
  *   what_if_summary.policy_violations_in_what_if: 0
  *   residual_drift_accepted_route.present: false
  *
- * — a precheck that reads BLOCKED but has nothing to block on. Under
- * the v2 contract this MUST be either PROCEED+CLEAN, PROCEED+INFORMATIONAL,
- * or BLOCK+INFORMATIONAL (envelope stale). Any other combination is a
- * contradiction.
+ * Under the current body contract, BLOCKING drift independently requires
+ * BLOCK+BLOCKED, even without listed violations. Unknown or malformed
+ * evidence requires BLOCK+FAILED; otherwise the ordered drift/envelope
+ * rules determine both the gate and status.
  *
  * Usage:
  *   node tools/scripts/validate-policy-precheck.mjs [--strict]
@@ -80,14 +80,27 @@ for (const file of precheckFiles) {
     continue;
   }
 
+  if (!data || typeof data !== "object" || Array.isArray(data)) {
+    r.error(relPath, "Policy precheck must be a JSON object");
+    continue;
+  }
+
   const status = data.status;
   const deployGate = data.deploy_gate;
-  const schemaVersion = data.schema_version || "policy-precheck-v1";
+  const schemaVersion = data.schema_version === undefined ? "policy-precheck-v1" : data.schema_version;
+  if (!["policy-precheck-v1", "policy-precheck-v2"].includes(schemaVersion)) {
+    r.error(relPath, `Unsupported schema_version: ${JSON.stringify(schemaVersion)}`);
+    continue;
+  }
   const blockers = Array.isArray(data.policies_that_will_block_deploy) ? data.policies_that_will_block_deploy : [];
-  const whatIfViolations = data.what_if_summary?.policy_violations_in_what_if ?? 0;
+  const reportedViolations = data.what_if_summary?.policy_violations_in_what_if;
+  const whatIfViolations = schemaVersion === "policy-precheck-v2" ? reportedViolations : (reportedViolations ?? 0);
   const envelopeStatus = data.attestation?.envelope_status;
-  const hasBlocker = blockers.length > 0 || whatIfViolations > 0;
   const driftSeverity = data.drift_signal?.severity;
+  const hasBlocker =
+    blockers.length > 0 ||
+    whatIfViolations > 0 ||
+    (schemaVersion === "policy-precheck-v2" && driftSeverity === "BLOCKING");
   const driftAccepted = data.drift_signal?.accepted_by_residual_drift_policy === true;
 
   // ── Mandatory fields ──────────────────────────────────────────
@@ -111,75 +124,38 @@ for (const file of precheckFiles) {
       continue;
     }
 
-    // Deterministic derivation (per policy-precheck-contract.md):
-    //   1. failure → BLOCK + FAILED
-    //   2. real blocker → BLOCK + BLOCKED
-    //   3. STALE envelope → BLOCK + INFORMATIONAL
-    //   4. informational drift, accepted → PROCEED + CLEAN
-    //   5. informational drift, not accepted → PROCEED + INFORMATIONAL
-    //   6. otherwise → PROCEED + CLEAN
     const isStale = envelopeStatus === "STALE";
     const invalidEnvelope = !["FRESH", "STALE"].includes(envelopeStatus);
-    if (invalidEnvelope && status !== "FAILED") {
+    const invalidEvidence =
+      invalidEnvelope ||
+      !["NONE", "INFORMATIONAL", "BLOCKING"].includes(driftSeverity) ||
+      !Array.isArray(data.policies_that_will_block_deploy) ||
+      !Number.isSafeInteger(whatIfViolations) ||
+      whatIfViolations < 0 ||
+      (data.drift_signal?.accepted_by_residual_drift_policy !== undefined &&
+        typeof data.drift_signal.accepted_by_residual_drift_policy !== "boolean");
+    if (invalidEnvelope && (status !== "FAILED" || deployGate !== "BLOCK")) {
       r.error(relPath, "Missing or invalid envelope evidence requires status=FAILED and deploy_gate=BLOCK");
       continue;
     }
-    const expectedBlock = status === "FAILED" || hasBlocker || isStale || invalidEnvelope;
-    const expectedProceed = !expectedBlock;
-
-    if (expectedBlock && deployGate !== "BLOCK") {
+    const expectedStatus =
+      status === "FAILED" || invalidEvidence
+        ? "FAILED"
+        : hasBlocker
+          ? "BLOCKED"
+          : isStale || (driftSeverity === "INFORMATIONAL" && !driftAccepted)
+            ? "INFORMATIONAL"
+            : "CLEAN";
+    const expectedGate = ["FAILED", "BLOCKED"].includes(expectedStatus) || isStale ? "BLOCK" : "PROCEED";
+    if (deployGate !== expectedGate || status !== expectedStatus) {
       r.error(
         relPath,
-        `deploy_gate=${deployGate} contradicts status=${status} ` +
-          `(blockers=${blockers.length}, whatIfViolations=${whatIfViolations}, ` +
-          `envelopeStatus=${envelopeStatus}); expected BLOCK`,
+        `deploy_gate=${deployGate}, status=${status} contradicts derivation rules ` +
+          `(invalidEvidence=${invalidEvidence}, driftSeverity=${driftSeverity}, ` +
+          `blockers=${blockers.length}, whatIfViolations=${whatIfViolations}, envelopeStatus=${envelopeStatus}); ` +
+          `expected deploy_gate=${expectedGate}, status=${expectedStatus}`,
       );
       continue;
-    }
-    if (expectedProceed && deployGate !== "PROCEED") {
-      r.error(
-        relPath,
-        `deploy_gate=${deployGate} contradicts derivation rules ` +
-          `(no blockers, no what-if violations, envelope FRESH); expected PROCEED`,
-      );
-      continue;
-    }
-
-    // Status ↔ deploy_gate consistency
-    if (status === "BLOCKED" && deployGate !== "BLOCK") {
-      r.error(relPath, "status=BLOCKED requires deploy_gate=BLOCK");
-      continue;
-    }
-    if (status === "FAILED" && deployGate !== "BLOCK") {
-      r.error(relPath, "status=FAILED requires deploy_gate=BLOCK");
-      continue;
-    }
-    if (status === "CLEAN" && deployGate !== "PROCEED") {
-      r.error(relPath, "status=CLEAN requires deploy_gate=PROCEED");
-      continue;
-    }
-    if (status === "BLOCKED" && !hasBlocker) {
-      r.error(
-        relPath,
-        "status=BLOCKED but policies_that_will_block_deploy=[] AND policy_violations_in_what_if=0 (contradiction)",
-      );
-      continue;
-    }
-
-    // drift_signal sanity
-    if (driftSeverity && !["NONE", "INFORMATIONAL", "BLOCKING"].includes(driftSeverity)) {
-      r.error(relPath, `drift_signal.severity invalid: ${driftSeverity}`);
-      continue;
-    }
-    if (driftSeverity === "BLOCKING" && !hasBlocker) {
-      r.error(
-        relPath,
-        "drift_signal.severity=BLOCKING requires policies_that_will_block_deploy[] or what-if violations",
-      );
-      continue;
-    }
-    if (driftAccepted && status === "INFORMATIONAL") {
-      r.warn(relPath, "drift_signal.accepted_by_residual_drift_policy=true but status=INFORMATIONAL; expected CLEAN");
     }
 
     r.ok(relPath, `v2 OK (deploy_gate=${deployGate}, status=${status})`);

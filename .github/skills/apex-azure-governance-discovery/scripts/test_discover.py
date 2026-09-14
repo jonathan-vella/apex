@@ -46,6 +46,284 @@ def _router(mapping: dict[str, dict[str, Any]]) -> Callable[[str], dict[str, Any
 EMPTY = {"value": []}
 
 
+def _r1_location_policy(name: str = "locations") -> tuple[dict[str, Any], dict[str, Any]]:
+    policy_id = f"/providers/Microsoft.Authorization/policyDefinitions/{name}"
+    return ({
+        "id": f"/subscriptions/s/providers/Microsoft.Authorization/policyAssignments/{name}",
+        "properties": {"scope": "/subscriptions/s", "policyDefinitionId": policy_id},
+    }, {
+        "id": policy_id,
+        "properties": {
+            "displayName": "Allowed locations",
+            "parameters": {"allowedLocations": {"defaultValue": ["eastus", "westeurope"]}},
+            "policyRule": {
+                "if": {"field": "location", "notIn": "[parameters('allowedLocations')]"},
+                "then": {"effect": "Deny"},
+            },
+        },
+    })
+
+
+@pytest.mark.parametrize("expiry,scope,expected", [
+    ("2000-01-01T00:00:00Z", "/subscriptions/s", "blocker"),
+    ("invalid", "/subscriptions/s", "blocker"),
+    ("2099-01-01T00:00:00", "/subscriptions/s", "blocker"),
+    ("2099-01-01T00:00:00Z", "/subscriptions/s/resourceGroups/one", "blocker"),
+    (None, "/subscriptions/other", "blocker"),
+    (None, "/subscriptions/s", "informational"),
+    ("2099-01-01T00:00:00+02:00", "/SUBSCRIPTIONS/S", "informational"),
+])
+def test_r1_exemption_validity(expiry: str | None, scope: str, expected: str) -> None:
+    assignment, definition = _r1_location_policy()
+    exemption = {
+        "id": f"{scope}/providers/Microsoft.Authorization/policyExemptions/waiver",
+        "properties": {
+            "policyAssignmentId": assignment["id"].upper(),
+            "exemptionCategory": "Waiver", "expiresOn": expiry,
+        },
+    }
+    envelope = discover.discover("s", project="p", az_rest=_router({
+        "policyAssignments": {"value": [assignment]}, definition["id"] + "?": definition,
+        "policyExemptions": {"value": [exemption]},
+    }))
+    assert envelope["findings"][0]["classification"] == expected
+    assert bool(envelope["findings"][0]["exemption"]) == (expected == "informational")
+
+
+def test_r1_overlapping_initiative_exemptions_and_parameters() -> None:
+    assignment, definition = _r1_location_policy()
+    set_id = "/providers/Microsoft.Management/managementGroups/corp/providers/Microsoft.Authorization/policySetDefinitions/set"
+    assignment["properties"].update({
+        "policyDefinitionId": set_id,
+        "parameters": {"mode": {"value": "Deny"}, "regions": {"value": ["swedencentral"]}},
+    })
+    definition["properties"]["policyRule"]["then"]["effect"] = "[parameters('effect')]"
+    definition["properties"]["parameters"]["effect"] = {"defaultValue": "Audit"}
+    initiative = {"id": set_id, "properties": {"policyDefinitions": [
+        {"policyDefinitionId": definition["id"], "policyDefinitionReferenceId": member,
+         "parameters": {"effect": {"value": "[parameters('mode')]"},
+                        "allowedLocations": {"value": "[parameters('regions')]"}}}
+        for member in ["one", "two", "three"]
+    ]}}
+    exemptions = [{
+        "id": f"/subscriptions/s/providers/Microsoft.Authorization/policyExemptions/{member}",
+        "properties": {"policyAssignmentId": assignment["id"], "exemptionCategory": "Waiver",
+                       "policyDefinitionReferenceIds": [member]},
+    } for member in ["one", "two"]]
+    mapping = {"policyAssignments": {"value": [assignment]}, definition["id"] + "?": definition,
+               set_id + "?": initiative, "policyExemptions": {"value": exemptions}}
+    for ordered in [exemptions, list(reversed(exemptions))]:
+        mapping["policyExemptions"] = {"value": ordered}
+        envelope = discover.discover("s", project="p", az_rest=_router(mapping))
+        assert envelope["discovery_status"] == "COMPLETE"
+        assert envelope["discovery_summary"]["exempted_count"] == 2
+        assert envelope["discovery_summary"]["blocker_count"] == 1
+        assert all(finding["required_value"] == ["swedencentral"] for finding in envelope["findings"])
+
+
+@pytest.mark.parametrize("second_locations,expected", [(["westeurope"], []), (["swedencentral"], ["swedencentral"])])
+def test_r1_location_precedence_and_intersection(second_locations: list[str], expected: list[str]) -> None:
+    assignment, definition = _r1_location_policy()
+    assignment["properties"]["parameters"] = {"allowedLocations": {"value": ["swedencentral"]}}
+    second, second_definition = _r1_location_policy("second")
+    second["properties"]["parameters"] = {"allowedLocations": {"value": second_locations}}
+    envelope = discover.discover("s", project="p", az_rest=_router({
+        "policyAssignments": {"value": [assignment, second]},
+        definition["id"] + "?": definition, second_definition["id"] + "?": second_definition,
+    }))
+    assert envelope["allowed_locations"] == expected
+    assert envelope["findings"][0]["required_value"] == ["swedencentral"]
+
+
+@pytest.mark.parametrize("restriction", ["scope", "notScopes", "resourceSelectors", "type", "enforcementMode"])
+def test_r1_locations_preserve_applicability(restriction: str) -> None:
+    assignment, definition = _r1_location_policy()
+    if restriction == "scope":
+        assignment["properties"]["scope"] += "/resourceGroups/one"
+    elif restriction == "type":
+        definition["properties"]["policyRule"]["if"] = {"allOf": [
+            definition["properties"]["policyRule"]["if"],
+            {"field": "type", "equals": "Microsoft.Storage/storageAccounts"},
+        ]}
+    else:
+        assignment["properties"][restriction] = {
+            "notScopes": ["/subscriptions/s/resourceGroups/one"],
+            "resourceSelectors": [{"name": "one", "selectors": [{"kind": "resourceLocation", "in": ["eastus"]}]}],
+            "enforcementMode": "DoNotEnforce",
+        }[restriction]
+    envelope = discover.discover("s", project="p", az_rest=_router({
+        "policyAssignments": {"value": [assignment]}, definition["id"] + "?": definition,
+    }))
+    assert envelope["allowed_locations"] == []
+    assert envelope["findings"][0]["required_value"] == ["eastus", "westeurope"]
+    assert envelope["findings"][0]["scope"] == assignment["properties"]["scope"]
+
+
+@pytest.mark.parametrize("definition_scope", ["/providers/Microsoft.Authorization", "/providers/Microsoft.Management/managementGroups/corp/providers/Microsoft.Authorization"])
+def test_r1_parameterized_deny_and_missing_definition(definition_scope: str) -> None:
+    policy_id = f"{definition_scope}/policyDefinitions/parameterized"
+    assignment = {
+        "id": "/subscriptions/s/providers/Microsoft.Authorization/policyAssignments/parameterized",
+        "properties": {
+            "scope": "/subscriptions/s",
+            "policyDefinitionId": policy_id,
+            "parameters": {"effect": {"value": "Deny"}},
+        },
+    }
+    definition = {
+        "id": policy_id,
+        "properties": {
+            "parameters": {"effect": {"defaultValue": "Audit"}},
+            "policyRule": {"if": {"field": "location", "equals": "x"}, "then": {"effect": "[parameters('effect')]"}},
+        },
+    }
+    mapping = {"policyAssignments": {"value": [assignment]}, policy_id + "?": definition}
+    envelope = discover.discover("s", project="p", az_rest=_router(mapping))
+    assert envelope["discovery_status"] == "COMPLETE"
+    assert envelope["discovery_summary"]["blocker_count"] == 1
+    del mapping[policy_id + "?"]
+    envelope = discover.discover("s", project="p", az_rest=_router(mapping))
+    assert envelope["discovery_status"] == "PARTIAL"
+
+
+@pytest.mark.parametrize("effect,expected", [("[parameters('effect')]", "PARTIAL"), ("[concat('D', 'eny')]", "PARTIAL"), (None, "PARTIAL")])
+def test_r1_unresolved_effect_is_partial(effect: str | None, expected: str) -> None:
+    assignment, definition = _r1_location_policy()
+    definition["properties"]["policyRule"]["then"]["effect"] = effect
+    envelope = discover.discover("s", project="p", az_rest=_router({
+        "policyAssignments": {"value": [assignment]}, definition["id"] + "?": definition,
+    }))
+    assert envelope["discovery_status"] == expected
+    assert envelope["discovery_metadata"]["discovery_status"] == expected
+
+
+@pytest.mark.parametrize("set_scope", ["/subscriptions/s", "/providers/Microsoft.Management/managementGroups/corp"])
+@pytest.mark.parametrize("missing_member", [False, True])
+def test_r1_custom_initiative_member_resolution(set_scope: str, missing_member: bool) -> None:
+    assignment, definition = _r1_location_policy()
+    definition["id"] = "/providers/Microsoft.Management/managementGroups/root/providers/Microsoft.Authorization/policyDefinitions/custom"
+    set_id = f"{set_scope}/providers/Microsoft.Authorization/policySetDefinitions/custom"
+    assignment["properties"]["policyDefinitionId"] = set_id
+    initiative = {"id": set_id, "properties": {"policyDefinitions": [
+        {"policyDefinitionId": definition["id"], "policyDefinitionReferenceId": "one"},
+    ]}}
+    mapping = {"policyAssignments": {"value": [assignment]}, set_id + "?": initiative}
+    if set_scope == "/subscriptions/s":
+        mapping[set_scope + "/providers/Microsoft.Authorization/policySetDefinitions?"] = {"value": [initiative]}
+    if not missing_member:
+        mapping[definition["id"] + "?"] = definition
+    envelope = discover.discover("s", project="p", az_rest=_router(mapping))
+    assert envelope["discovery_status"] == ("PARTIAL" if missing_member else "COMPLETE")
+    assert envelope["discovery_summary"]["blocker_count"] == (0 if missing_member else 1)
+
+
+def test_r1_effective_parameters_preserve_names() -> None:
+    assignment, definition = _r1_location_policy()
+    assignment["properties"]["parameters"] = {"allowedLocations": {"value": ["swedencentral"]}}
+    envelope = discover.discover("s", project="p", az_rest=_router({
+        "policyAssignments": {"value": [assignment]}, definition["id"] + "?": definition,
+    }))
+    assert envelope["findings"][0]["assignment_parameters"] == {"allowedLocations": ["swedencentral"]}
+
+
+def test_r1_missing_initiative_members_is_partial() -> None:
+    assignment, _ = _r1_location_policy()
+    set_id = "/providers/Microsoft.Authorization/policySetDefinitions/missing-members"
+    assignment["properties"]["policyDefinitionId"] = set_id
+    envelope = discover.discover("s", project="p", az_rest=_router({
+        "policyAssignments": {"value": [assignment]}, set_id + "?": {"id": set_id, "properties": {}},
+    }))
+    assert envelope["discovery_status"] == "PARTIAL"
+
+
+def test_r1_unrelated_definition_response_is_not_substituted() -> None:
+    assignment, definition = _r1_location_policy()
+    requested_id = definition["id"]
+    definition["id"] += "-unrelated"
+    envelope = discover.discover("s", project="p", az_rest=_router({
+        "policyAssignments": {"value": [assignment]}, requested_id + "?": {"value": [definition]},
+    }))
+    assert envelope["discovery_status"] == "PARTIAL"
+    assert envelope["findings"] == []
+
+
+def test_r1_cache_expired_exemption_is_not_fresh() -> None:
+    assignment, definition = _r1_location_policy()
+    exemption = {"id": "/subscriptions/s/providers/Microsoft.Authorization/policyExemptions/one", "properties": {
+        "policyAssignmentId": assignment["id"], "exemptionCategory": "Waiver", "expiresOn": "2099-01-01T00:00:00Z",
+    }}
+    envelope = discover.discover("s", project="p", az_rest=_router({
+        "policyAssignments": {"value": [assignment]}, definition["id"] + "?": definition,
+        "policyExemptions": {"value": [exemption]},
+    }))
+    assert discover._cache_is_fresh(envelope)
+    envelope["findings"][0]["exemption"]["expiresOn"] = "2000-01-01T00:00:00Z"
+    assert not discover._cache_is_fresh(envelope)
+
+
+def test_r1_later_page_change_is_partial() -> None:
+    assignment, definition = _r1_location_policy()
+    second, _ = _r1_location_policy("second")
+    second["properties"]["policyDefinitionId"] = definition["id"]
+    later_calls = 0
+
+    def fake(url: str) -> dict[str, Any]:
+        nonlocal later_calls
+        if "page-two" in url:
+            later_calls += 1
+            return {"value": [second] if later_calls == 1 else []}
+        if "policyAssignments" in url:
+            return {"value": [assignment], "nextLink": "https://management.azure.com/page-two"}
+        if definition["id"] + "?" in url:
+            return definition
+        return EMPTY
+
+    assert discover.discover("s", project="p", az_rest=fake)["discovery_status"] == "PARTIAL"
+
+
+def test_r1_location_name_is_not_evidence() -> None:
+    assignment, definition = _r1_location_policy()
+    definition["properties"]["policyRule"]["if"] = {"field": "type", "equals": "Microsoft.Storage/storageAccounts"}
+    envelope = discover.discover("s", project="p", az_rest=_router({
+        "policyAssignments": {"value": [assignment]}, definition["id"] + "?": definition,
+    }))
+    assert envelope["allowed_locations"] == []
+
+
+def test_r1_mixed_location_scopes_have_no_universal_allowlist() -> None:
+    assignment, definition = _r1_location_policy()
+    second, second_definition = _r1_location_policy("scoped")
+    second["properties"]["scope"] += "/resourceGroups/one"
+    second["properties"]["parameters"] = {"allowedLocations": {"value": ["swedencentral"]}}
+    envelope = discover.discover("s", project="p", az_rest=_router({
+        "policyAssignments": {"value": [assignment, second]},
+        definition["id"] + "?": definition, second_definition["id"] + "?": second_definition,
+    }))
+    assert envelope["allowed_locations"] == []
+    assert [finding["required_value"] for finding in envelope["findings"]] == [["eastus", "westeurope"], ["swedencentral"]]
+
+
+@pytest.mark.parametrize("expiry", ["2026-09-14T12:00:00Z", "2026-09-14T14:00:00+02:00"])
+def test_r1_exemption_expiry_boundary(expiry: str) -> None:
+    exemption = {"id": "/subscriptions/s/providers/Microsoft.Authorization/policyExemptions/one", "properties": {
+        "policyAssignmentId": "assignment", "exemptionCategory": "Waiver", "expiresOn": expiry,
+    }}
+    candidates = discover._build_exemption_map([exemption])["assignment"]
+    now = discover.datetime.fromisoformat("2026-09-14T12:00:00+00:00")
+    assert discover._covering_exemption(candidates, "s", "/subscriptions/s", None, now) is None
+
+
+def test_r1_cache_preview_uses_current_architecture(tmp_path: Path, monkeypatch: Any) -> None:
+    out = tmp_path / "constraints.json"
+    out.write_text(json.dumps(discover.discover("s", project="p", az_rest=_router({}))))
+    monkeypatch.setattr(discover, "_default_check_auth", lambda: pytest.fail("cache must not authenticate"))
+    monkeypatch.setattr(discover, "_extract_arch_resources", lambda path: [{"name": path}])
+    rendered = []
+    monkeypatch.setattr(discover, "_emit_preview_md", lambda envelope, path, **kwargs: rendered.append(kwargs))
+    assert discover.main(["--project", "p", "--subscription", "s", "--out", str(out), "--arch", "changed.md"]) == 0
+    assert rendered == [{"arch_resources": [{"name": "changed.md"}]}]
+
+
 # --------------------------------------------------------------------------- #
 # Pure-classification tests                                                   #
 # --------------------------------------------------------------------------- #
@@ -420,6 +698,39 @@ def test_pagination_follows_next_link():
     assert len(env["assignment_inventory"]) == 2
     assert len(env["findings"]) == 2
     assert any("next-page-2" in u for u in calls)
+    assert env["discovery_status"] == "COMPLETE"
+
+
+@pytest.mark.parametrize("change", ["id", "parameters", "missing-page", "cycle", "malformed"])
+def test_r1_assignment_self_check_detects_drift(change: str) -> None:
+    assignment, definition = _r1_location_policy()
+    calls = 0
+
+    def fake(url: str) -> dict[str, Any]:
+        nonlocal calls
+        if "policyAssignments" in url:
+            calls += 1
+            if calls == 1:
+                return {"value": [assignment]}
+            changed = json.loads(json.dumps(assignment))
+            if change == "id":
+                changed["id"] += "-replacement"
+            elif change == "parameters":
+                changed["properties"]["parameters"] = {"allowedLocations": {"value": ["eastus"]}}
+            elif change == "missing-page":
+                return {"value": []}
+            elif change == "cycle":
+                return {"value": [changed], "nextLink": url}
+            elif change == "malformed":
+                return {}
+            return {"value": [changed]}
+        if definition["id"] + "?" in url:
+            return definition
+        return EMPTY
+
+    envelope = discover.discover("s", project="p", az_rest=fake)
+    assert envelope["discovery_status"] == "PARTIAL"
+    assert envelope["discovery_metadata"]["discovery_status"] == "PARTIAL"
 
 
 def test_property_path_extraction_for_storage_tls():
@@ -480,12 +791,15 @@ def test_cli_cache_hit_short_circuits(tmp_path, capsys, monkeypatch):
         json.dumps(
             {
                 "schema_version": "governance-constraints-v1",
+                "project": "p",
+                "discovery_options": {"include_defender_auto": False},
                 "subscription_id": "s",
                 "discovered_at": discover.datetime.now(discover.timezone.utc).isoformat(),
                 "discovery_metadata": {
                     "discovery_status": "COMPLETE",
                     "discovered_at": discover.datetime.now(discover.timezone.utc).isoformat(),
                     "ttl_days": 7,
+                    "scope": {"subscription_id": "s", "management_groups": []},
                 },
                 "discovery_status": "COMPLETE",
                 "discovery_summary": {
@@ -502,7 +816,7 @@ def test_cli_cache_hit_short_circuits(tmp_path, capsys, monkeypatch):
     monkeypatch.setattr(discover, "_default_get_subscription", lambda: pytest.fail("should not call az"))
     monkeypatch.setattr(discover, "_default_check_auth", lambda: pytest.fail("should not call az"))
 
-    rc = discover.main(["--project", "p", "--out", str(out)])
+    rc = discover.main(["--project", "p", "--subscription", "s", "--out", str(out)])
     captured = capsys.readouterr()
     first_line = captured.out.splitlines()[0]
     status = json.loads(first_line)
@@ -546,6 +860,30 @@ def test_cli_refresh_bypasses_cache_and_writes_fresh_envelope(tmp_path, capsys, 
     fresh = json.loads(out.read_text())
     assert fresh["schema_version"] == "governance-constraints-v1"
     assert fresh["project"] == "p"
+
+
+@pytest.mark.parametrize("change", ["unchanged", "project", "subscription", "metadata-subscription", "default-subscription", "filter", "refresh", "legacy-options"])
+def test_r1_cache_identity(tmp_path: Path, capsys: Any, monkeypatch: Any, change: str) -> None:
+    out = tmp_path / "constraints.json"
+    cached = discover.discover("s", project="p", az_rest=_router({}))
+    if change == "legacy-options":
+        cached.pop("discovery_options", None)
+    if change == "metadata-subscription":
+        cached["discovery_metadata"]["scope"]["subscription_id"] = "other"
+    out.write_text(json.dumps(cached))
+    monkeypatch.setattr(discover, "_default_get_subscription", lambda: "other" if change == "default-subscription" else "s")
+    monkeypatch.setattr(discover, "_default_check_auth", lambda: None)
+    monkeypatch.setattr(discover, "_default_az_rest", _router({}))
+    args = ["--out", str(out), "--project", "other" if change == "project" else "p"]
+    if change != "default-subscription":
+        args += ["--subscription", "other" if change == "subscription" else "s"]
+    if change == "filter":
+        args += ["--include-defender-auto"]
+    if change == "refresh":
+        args += ["--refresh"]
+    assert discover.main(args) == 0
+    status = json.loads(capsys.readouterr().out.splitlines()[0])
+    assert status["cache_hit"] is (change == "unchanged")
 
 
 @pytest.mark.parametrize("metadata", [

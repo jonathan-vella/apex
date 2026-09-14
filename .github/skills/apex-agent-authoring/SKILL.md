@@ -1,5 +1,8 @@
 ---
 name: apex-agent-authoring
+user-invocable: true
+disable-model-invocation: false
+argument-hint: "agent or prompt path and authoring scope"
 description: '**WORKFLOW SKILL** — Creates, restructures, and audits GitHub Copilot `.agent.md` and `.prompt.md` files with correct frontmatter, handoffs, model policy, context budgets, and validation. WHEN: "create agent", "author custom agent", "edit agent definition", "agent architecture", "reduce agent tokens", "agent prompt audit". DO NOT USE FOR: routine edits covered by auto-loaded instructions.'
 license: MIT
 metadata:
@@ -133,6 +136,14 @@ Return:
 | Context remains large | Remove duplicated instruction prose and move phase-specific detail to references |
 
 ## Reference Index
+
+- [Agent fleet assessment](references/assess-agents.md): definition scorecards and a gated remediation plan.
+- [.github assessment](references/assess-github-folder.md): static authoring-asset inventory and review.
+- [Assessment design history](references/plan-four-layer-agent-assessment.md): reference-only, not executable.
+
+Assessments never edit authoring assets in the review pass. Optional supplied log profiles
+inform scorecards; log capture, context audit, and runtime compression remain owned by
+[`apex-context-management`](../apex-context-management/SKILL.md).
 
 - [Agent file structure](references/agent-file-structure.md)
 - [Authoring workflow](references/authoring-workflow.md)

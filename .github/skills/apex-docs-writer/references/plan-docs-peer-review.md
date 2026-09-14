@@ -2,7 +2,7 @@
 # Docs Peer Review
 
 Routing source: [Local adapter](../../../../tools/apex-prompts/utility-prompts/plan-docsPeerReview.prompt.md).
-Apply the [operational boundary](operational-safety.md) before activities.
+Apply the [operational boundary](../../apex-workflow-engine/references/operational-safety.md) before activities.
 It controls owner selection, tool limits, worker permissions, state, and gates.
 
 
@@ -117,6 +117,7 @@ time.
 | `.github/skills/*/SKILL.md`                    | Skill names                                                    |
 | `.github/instructions/*.instructions.md`       | Instruction file names                                         |
 | `.github/prompts/*.prompt.md`                  | Prompt names                                                   |
+| `tools/apex-prompts/**/*.prompt.md` | Local attachable adapters and their canonical procedure links |
 | `tools/registry/agent-registry.json`           | Agent → file/model/skills mapping                              |
 | `.vscode/mcp.json`                             | MCP server names and config                                    |
 | `package.json`                                 | Validation script names                                        |

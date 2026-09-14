@@ -26,7 +26,11 @@ This skill monitors Azure Key Vault resources (keys, secrets, certificates) for 
 
 Check one Key Vault for all expiration issues with configurable day threshold (default: 30 days).
 
-**Tools**: `keyvault_key_list`, `keyvault_key_get`, `keyvault_secret_list`, `keyvault_secret_get`, `keyvault_certificate_list`, `keyvault_certificate_get`
+Use metadata-only list operations for keys, secrets, and certificates. Follow all
+pages and use version-list metadata when version coverage is requested. Never
+retrieve secret values, including certificate backing secrets, for an audit.
+Verify the installed tool's output contract before use; an unknown MCP operation
+is not a metadata-safe substitute. Report denied or incomplete coverage explicitly.
 
 ### Pattern 2: Multi-Vault Compliance Report
 
@@ -68,10 +72,10 @@ Organize findings into:
 
 ## Remediation Priority
 
-**🔴 Critical** - Expired (< 0 days): Rotate immediately  
-**🟠 High** - Expiring 0-7 days: Schedule rotation within 24 hours  
-**🟡 Medium** - Expiring 8-30 days: Plan rotation within 1 week  
-**🟡 Medium** - No expiration set: Apply expiration policy  
+**🔴 Critical** - Expired (< 0 days): Rotate immediately
+**🟠 High** - Expiring 0-7 days: Schedule rotation within 24 hours
+**🟡 Medium** - Expiring 8-30 days: Plan rotation within 1 week
+**🟡 Medium** - No expiration set: Apply expiration policy
 **🟢 Low** - Active (> 30 days): Monitor on regular schedule
 
 ## Best Practices
@@ -90,11 +94,10 @@ Organize findings into:
 | `keyvault_key_list`         | List all keys in a vault                     |
 | `keyvault_key_get`          | Get key details including expiration         |
 | `keyvault_secret_list`      | List all secrets in a vault                  |
-| `keyvault_secret_get`       | Get secret details including expiration      |
 | `keyvault_certificate_list` | List all certificates in a vault             |
 | `keyvault_certificate_get`  | Get certificate details including expiration |
 
-**Required**: `vault` (Key Vault name)  
+**Required**: `vault` (Key Vault name)
 **Optional**: `subscription`, `tenant`
 
 ## Fallback Strategy: Azure CLI Commands
@@ -105,14 +108,18 @@ If Azure MCP Key Vault tools fail, timeout, or are unavailable, use Azure CLI co
 
 | Operation               | Azure CLI Command                                                           |
 | ----------------------- | --------------------------------------------------------------------------- |
-| List secrets            | `az keyvault secret list --vault-name <vault-name>`                         |
-| Get secret details      | `az keyvault secret show --vault-name <vault-name> --name <secret-name>`    |
+| List secret metadata    | `az keyvault secret list --vault-name <vault-name> --query "[].{id:id,attributes:attributes}"` |
+| List secret versions    | `az keyvault secret list-versions --vault-name <vault-name> --name <secret-name> --query "[].{id:id,attributes:attributes}"` |
 | List keys               | `az keyvault key list --vault-name <vault-name>`                            |
 | Get key details         | `az keyvault key show --vault-name <vault-name> --name <key-name>`          |
 | List certificates       | `az keyvault certificate list --vault-name <vault-name>`                    |
 | Get certificate details | `az keyvault certificate show --vault-name <vault-name> --name <cert-name>` |
 
 ### When to Fallback
+
+Listing secrets may omit certificate-managed secrets by default. Use certificate
+metadata for certificate expiry; never fetch backing secret values. Explicitly
+document version, managed-item and pagination coverage in the report.
 
 Switch to Azure CLI when:
 
@@ -123,7 +130,8 @@ Switch to Azure CLI when:
 
 ## Common Issues
 
-- **Access Denied**: Verify RBAC permissions (Key Vault Reader + data plane access)
+- **Access Denied**: Request metadata-only access such as Key Vault Reader at the
+  approved vault scope. Do not escalate to secret-value access; report the gap.
 - **Vault Not Found**: Check vault name and subscription context
 - **Null expiresOn**: Resource has no expiration (security risk - requires policy)
 - **Time zones**: All timestamps are UTC

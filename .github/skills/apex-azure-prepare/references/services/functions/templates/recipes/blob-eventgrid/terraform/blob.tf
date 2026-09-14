@@ -17,7 +17,7 @@
 # ============================================================================
 variable "blob_container_name" {
   type        = string
-  default     = "uploads"
+  default     = "unprocessed-pdf"
   description = "Container name for blob triggers"
 }
 
@@ -88,7 +88,7 @@ resource "azurerm_eventgrid_system_topic_event_subscription" "blob_created" {
   resource_group_name = azurerm_resource_group.main.name
 
   azure_function_endpoint {
-    function_id                       = "${azurerm_linux_function_app.main.id}/functions/BlobTrigger"
+    function_id                       = "${azurerm_linux_function_app.main.id}/functions/ProcessBlobUpload"
     max_events_per_batch              = 1
     preferred_batch_size_in_kilobytes = 64
   }
@@ -149,9 +149,24 @@ resource "azurerm_private_endpoint" "blob" {
 # ============================================================================
 locals {
   blob_app_settings = {
-    "BLOB_STORAGE__blobServiceUri" = azurerm_storage_account.blob.primary_blob_endpoint
-    "BLOB_CONTAINER_NAME"          = var.blob_container_name
+    "PDFProcessorSTORAGE__blobServiceUri" = azurerm_storage_account.blob.primary_blob_endpoint
+    "PDFProcessorSTORAGE__credential"     = "managedidentity"
+    "PDFProcessorSTORAGE__clientId"       = azurerm_user_assigned_identity.func_identity.client_id
+    "BLOB_CONTAINER_NAME"                 = var.blob_container_name
+    "BLOB_PROCESSED_CONTAINER_NAME"       = var.blob_processed_container_name
   }
+}
+
+variable "blob_processed_container_name" {
+  type        = string
+  default     = "processed-pdf"
+  description = "Output container used by the source binding"
+}
+
+resource "azurerm_storage_container" "processed" {
+  name                  = var.blob_processed_container_name
+  storage_account_id    = azurerm_storage_account.blob.id
+  container_access_type = "private"
 }
 
 # ============================================================================

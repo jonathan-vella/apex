@@ -8,8 +8,8 @@ tools: [vscode, execute, read, agent, browser, edit, search, web, azure-mcp/sear
 # Doc Gardening
 
 Local operational adapter. Preserve this prompt's agent, model, and tool routing.
-Read [apex-workflow-engine](../../../.github/skills/apex-workflow-engine/SKILL.md), then
-follow the [canonical procedure](../../../.github/skills/apex-workflow-engine/references/doc-gardening.md).
+Read [apex-docs-writer](../../../.github/skills/apex-docs-writer/SKILL.md), then
+follow the [canonical procedure](../../../.github/skills/apex-docs-writer/references/doc-gardening.md).
 
 Pass supplied inputs, scope, and options unchanged. Preserve the procedure's
 required inputs, activities, output paths, approval gates, and bounded failures.

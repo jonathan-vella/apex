@@ -27,13 +27,19 @@ Use these templates directly instead of composing from HTTP base:
 
 ## Composition Steps (Alternative)
 
+Read the shared [composition contract](../common/uami-bindings.md#composition-contract) before composing.
+Production SQL is private regardless of public-access inputs. Supply approved subnet/VNet IDs to Bicep,
+or VNet integration/private endpoint/DNS in Terraform; missing reachability blocks readiness, not permission
+to enable public access. Non-production public access requires explicit governance reconciliation and approval.
+Retain approved policy tags and resolve AVM interfaces or a raw-resource exception before generation.
+
 If composing from HTTP base template:
 
 | #   | Step                       | Details                                                |
 | --- | -------------------------- | ------------------------------------------------------ |
 | 1   | **Add IaC**                | Add SQL Server, Database, firewall rules from `bicep/` |
 | 2   | **Add extension**          | Add SQL binding extension package                      |
-| 3   | **Enable change tracking** | Run SQL script to enable on table                      |
+| 3   | **Prepare change tracking** | Generate a reviewed SQL script; execution belongs to approved deployment |
 | 4   | **Replace source code**    | Add trigger + output from `source/{lang}.md`           |
 | 5   | **Configure app settings** | Add `AZURE_SQL_CONNECTION_STRING_KEY`                  |
 
@@ -86,7 +92,7 @@ ALTER TABLE [dbo].[ToDo] ENABLE CHANGE_TRACKING;
 
 **Cause:** Change tracking not enabled on table.
 
-**Solution:** Run the SQL scripts above to enable change tracking.
+**Solution:** Prepare the SQL above and hand it to the deploy owner for explicit target/file approval.
 
 ### Connection String Format Error
 
@@ -98,4 +104,4 @@ ALTER TABLE [dbo].[ToDo] ENABLE CHANGE_TRACKING;
 
 **Cause:** Function App IP not allowed through SQL firewall.
 
-**Solution:** Add Function App outbound IPs to SQL firewall rules or use VNet integration with private endpoint.
+**Solution:** Verify approved VNet integration, private endpoint and DNS first. Do not enable public access for production.

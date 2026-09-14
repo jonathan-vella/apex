@@ -24,7 +24,7 @@ SDK packages and quick start examples for Azure Storage services.
 | JavaScript | `npm install @azure/storage-blob @azure/identity`                                                              |
 | Python     | `pip install azure-storage-blob azure-identity`                                                                |
 | Go         | `go get github.com/Azure/azure-sdk-for-go/sdk/storage/azblob github.com/Azure/azure-sdk-for-go/sdk/azidentity` |
-| Rust       | `cargo add azure_storage_blob azure_identity`                                                                  |
+| Rust       | Follow the [Rust leaf version gate](sdk/azure-storage-blob-rust.md#version-gate) before selecting exact crate versions |
 
 ## Quick Start Examples
 
@@ -105,18 +105,8 @@ func main() {
 
 **Rust** - Upload Blob:
 
-```rust
-use azure_identity::DeveloperToolsCredential;
-use azure_storage_blob::{BlobClient, BlobClientOptions};
-
-let credential = DeveloperToolsCredential::new(None)?;
-let blob_client = BlobClient::new(
-    "https://ACCOUNT.blob.core.windows.net/",
-    "my-container",
-    "my-blob.txt",
-    Some(credential),
-    Some(BlobClientOptions::default()),
-)?;
-let data = b"Hello, Azure Storage!";
-blob_client.upload(None, data.to_vec().into()).await?;
-```
+Use the [Rust SDK leaf](sdk/azure-storage-blob-rust.md), the sole owner of Rust
+construction and upload examples. Its version gate must be satisfied before use;
+do not mix this API with the older plural `azure_storage_blobs` crate or infer
+compatibility from another language. Uploads and overwrites require explicit scope
+and authorization. SDK compilation has not been verified in this offline workspace.

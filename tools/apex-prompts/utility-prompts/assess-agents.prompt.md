@@ -14,8 +14,8 @@ argument-hint: "Optional: a scope filter (main | subagents | all) and/or --profi
 # 4-Layer Per-Agent Assessment → Fleet Plan
 
 Local operational adapter. Preserve this prompt's agent, model, and tool routing.
-Read [apex-context-management](../../../.github/skills/apex-context-management/SKILL.md), then
-follow the [canonical procedure](../../../.github/skills/apex-context-management/references/assess-agents.md).
+Read [apex-agent-authoring](../../../.github/skills/apex-agent-authoring/SKILL.md), then
+follow the [canonical procedure](../../../.github/skills/apex-agent-authoring/references/assess-agents.md).
 
 Pass supplied inputs, scope, and options unchanged. Preserve the procedure's
 required inputs, activities, output paths, approval gates, and bounded failures.

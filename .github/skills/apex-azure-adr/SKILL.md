@@ -1,5 +1,8 @@
 ---
 name: apex-azure-adr
+user-invocable: true
+disable-model-invocation: false
+argument-hint: "project and architecture decision"
 description: '**ANALYSIS SKILL** — Creates Azure Architecture Decision Records (ADRs) with WAF pillar mapping, alternatives, and consequences. WHEN: "create ADR", "document decision", "architecture decision record", "record why we chose", "WAF pillar justification", "trade-off analysis". DO NOT USE FOR: IaC code (06b/06t agents), diagrams (apex-python-diagrams), cost estimates (cost-estimate-subagent).'
 compatibility: Works with Claude Code, GitHub Copilot, VS Code, and any Agent Skills compatible tool; no external dependencies required.
 license: MIT

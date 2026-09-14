@@ -25,15 +25,16 @@
       "name": "InputBlob",
       "type": "blobTrigger",
       "direction": "in",
-      "path": "unprocessed-pdf/{name}",
+      "path": "%BLOB_CONTAINER_NAME%/{name}",
       "connection": "PDFProcessorSTORAGE",
       "source": "EventGrid"
     },
     {
-      "name": "ProcessedContainer",
+      "name": "ProcessedBlob",
       "type": "blob",
-      "direction": "in",
-      "path": "processed-pdf",
+      "direction": "out",
+      "dataType": "binary",
+      "path": "%BLOB_PROCESSED_CONTAINER_NAME%/processed-{name}",
       "connection": "PDFProcessorSTORAGE"
     }
   ]
@@ -43,7 +44,7 @@
 **ProcessBlobUpload/run.ps1:**
 
 ```powershell
-param([byte[]] $InputBlob, $TriggerMetadata, $ProcessedContainer)
+param([byte[]] $InputBlob, $TriggerMetadata)
 
 $name = $TriggerMetadata.Name
 $size = $InputBlob.Length
@@ -54,18 +55,8 @@ Write-Host " Size: $size bytes"
 
 $processedBlobName = "processed-$name"
 
-# Check if already exists
-$existingBlob = Get-AzStorageBlob -Container "processed-pdf" -Blob $processedBlobName -Context $ProcessedContainer.Context -ErrorAction SilentlyContinue
-
-if ($existingBlob) {
-    Write-Host "Blob $processedBlobName already exists. Skipping."
-    return
-}
-
 try {
-    # Upload to processed container
-    $stream = [System.IO.MemoryStream]::new($InputBlob)
-    Set-AzStorageBlobContent -Container "processed-pdf" -Blob $processedBlobName -BlobType Block -Context $ProcessedContainer.Context -Stream $stream -Force
+  Push-OutputBinding -Name ProcessedBlob -Value $InputBlob -ErrorAction Stop
     Write-Host "Processing complete for $name. Copied to $processedBlobName."
 }
 catch {
@@ -73,6 +64,9 @@ catch {
     throw
 }
 ```
+
+The output binding rewrites the same destination on redelivery; it does not require Az.Storage or a container object.
+Merge `BLOB_CONTAINER_NAME` and `BLOB_PROCESSED_CONTAINER_NAME` from the recipe's app settings.
 
 **health/function.json:**
 

@@ -2,20 +2,32 @@
 
 ## Status And Authority
 
-Created 2026-09-14. Status: **proposed roadmap; implementation not started**.
-The user authorized fixing tracking before starting the changes. No new remediation, deletion, public-command
-change, model change or cloud operation is approved solely by this plan.
+Created 2026-09-14. Status: **recovery verified locally; remediation uncommitted; dependency checks still blocked**.
+On 2026-09-14 the user approved the recommended autonomous defaults for all recorded SK/AB work.
+This supersedes the earlier tracking-only authorization and pending decision rows below within these boundaries.
+Reproduce findings before fixing them; retain inconclusive optimizations with evidence rather than invented equivalence.
+Evidence-backed merges/reference moves, clean retirement of Host resume into workflow-start, and the proposed
+hidden-guidance/manual-Host policy are approved. Keep commit/export separate and all production skills inline;
+fork experiments are deferred. Preserve duplicate originals with hashes outside discovery before approved removal.
+Resolve conflicting prose against current production contracts and stricter safety requirements; a genuine
+change to approved roles, schemas, models, cadence or review/approval floors still requires human input.
+Automated tests, independent source review, repairs, tracking, commits and pushes on the existing feature branch
+are approved. No PR, main merge, force-push, hook bypass, Azure writes/deployments or paid/model evaluations.
+Native Local/Host execution, actual model eligibility and full-output acceptance remain manual.
+Continue all safe unblocked work; report actual access/credential/contract barriers without claiming completion.
 Program index: [master roadmap](apex-workflow-optimization.md#master-roadmap-and-tracking).
 Stable findings, evidence and per-skill rationale: [SK ledger](apex-workflow-audit.md#deep-skill-audit-backlog).
 Earlier delivered migration: [agent modernization](agent-modernization.md). Preserve its completed history.
-On 2026-09-14 the user authorized step 1 only: record the latest body findings, cross-link the backlog,
-validate tracking and commit the planning documents. This does not start R1 or approve pending implementation choices.
+The earlier step-1-only authorization was superseded by the user's subsequent autonomous approval above.
+On 2026-09-14 the user requested a recovery pass after skipped tool calls. Its current evidence and remaining
+verification limits are recorded under Recovery Checkpoint below; prior chat summaries are not completion evidence.
 
 ## Completion Rules
 
 The audit owns finding definitions and per-ID status. This plan owns batch order and dependencies.
 Use the master's status vocabulary; track approval separately from implementation, publication and manual acceptance.
-All batches below start `proposed`, approval `pending`, implementation commit `none`.
+All batches are approved within the autonomous boundaries above; implementation starts with no remediation commit.
+The historical proposed/pending wording elsewhere records pre-approval assessment, not a renewed routine decision gate.
 SK-01 through SK-47 must each end in a verified fix or an explicit evidence-backed disposition, never silent omission.
 The same rule applies to AB-01 through AB-22 in the [agent-body ledger](apex-workflow-audit.md#agent-body-audit-backlog).
 An inconclusive consolidation can be retained; an unresolved correctness defect cannot be marked fixed that way.
@@ -42,18 +54,18 @@ Within every batch, use small edits and immediate focused checks instead of wait
 ## Agent Body Remediation
 
 This extends the existing roadmap; it is not a second implementation queue. Related SK and AB IDs share
-one reproduction/fix when they describe the same contract. Approval remains pending for source changes.
+one reproduction/fix when they describe the same contract. Source changes are approved within the boundaries above.
 
-| Batch | Additional Body IDs | Acceptance / Ordering |
-| --- | --- | --- |
-| R0 | All AB items | Record current body and canonical consumer before implementation; preserve user changes and models |
-| R1 | AB-06, AB-07, AB-16 | Reconcile governance freshness, confirmations and policy truth tables alongside SK-01-SK-06 |
-| R2 | AB-17, AB-19, AB-20 | Bind preview scope, preserve replacement order and isolate scratch evidence alongside state/file safety fixes |
-| R3 | AB-02, AB-03, AB-04, AB-05, AB-08, AB-09, AB-10, AB-11, AB-12, AB-13, AB-18, AB-21, AB-22 | Resolve ordering, ownership, outputs and failure channels before cosmetic normalization; review any policy choice explicitly |
-| R5 | AB-14 | Align source-only auditing and measured evidence requirements alongside SK-32 |
-| R6 | AB-01, AB-15 | Normalize headings and remove redundant authoring prose only after the applicable semantic fixes pass |
-| R7 | All affected AB items | Cross-agent/skill contract tests, independent source review and complete integration suite |
-| R8 | All verified AB items | Commit/publication evidence and separate manual acceptance; no static claim of native behavior |
+| Batch | Additional Body IDs                                                                       | Acceptance / Ordering                                                                                                        |
+| ----- | ----------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| R0    | All AB items                                                                              | Record current body and canonical consumer before implementation; preserve user changes and models                           |
+| R1    | AB-06, AB-07, AB-16                                                                       | Reconcile governance freshness, confirmations and policy truth tables alongside SK-01-SK-06                                  |
+| R2    | AB-17, AB-19, AB-20                                                                       | Bind preview scope, preserve replacement order and isolate scratch evidence alongside state/file safety fixes                |
+| R3    | AB-02, AB-03, AB-04, AB-05, AB-08, AB-09, AB-10, AB-11, AB-12, AB-13, AB-18, AB-21, AB-22 | Resolve ordering, ownership, outputs and failure channels before cosmetic normalization; review any policy choice explicitly |
+| R5    | AB-14                                                                                     | Align source-only auditing and measured evidence requirements alongside SK-32                                                |
+| R6    | AB-01, AB-15                                                                              | Normalize headings and remove redundant authoring prose only after the applicable semantic fixes pass                        |
+| R7    | All affected AB items                                                                     | Cross-agent/skill contract tests, independent source review and complete integration suite                                   |
+| R8    | All verified AB items                                                                     | Commit/publication evidence and separate manual acceptance; no static claim of native behavior                               |
 
 The body audit found no remaining XML operating wrappers. Do not perform blanket angle-bracket removal:
 command placeholders, fenced schemas and intentional HTML/XML examples are content. Use one H1 and consistent
@@ -61,19 +73,21 @@ peer H2s for runtime instructions; preserve worker-specific output modes and all
 Do not solve mismatched outputs by silently changing artifact schemas or broadening worker authority.
 The next implementation candidate is R0 approval/reproduction followed by R1, not another broad audit.
 
-## Decisions Before Implementation
+## Approved Decisions And Remaining Limits
 
-| Decision                               | Recommended Default                                                                                   | State                                                                                 |
-| -------------------------------------- | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
-| Remediation scope                      | Correct reported defects after current reproduction; retain protected production contracts            | Pending user authorization                                                            |
-| Host merge                             | Merge resume into workflow-start with explicit resume mode; retain commit and export separately       | Proposed, not approved                                                                |
-| Public slash compatibility             | Record old-to-new command map and deliberate alias/clean-retirement choice                            | Pending; do not infer consent from earlier skill-prefix migration                     |
-| Skill menu visibility                  | Hide internal guidance only; retain model loading and public task skills                              | Proposed in SK-46; review slash consumers before changing visibility                  |
-| Forked skill context                   | Keep current skills inline; evaluate only bounded standalone read-only candidates                     | SK-47 proposed; experimental feature and runtime evaluation require separate approval |
-| Canonical principles and retry choices | Preserve unique safety requirements; present contradictory alternatives for explicit policy selection | Pending                                                                               |
-| Recreated duplicate files              | Recompare current content and preserve originals before any approved removal                          | Pending; user/editor changes remain untouched                                         |
-| Evaluation                             | Start with offline fixtures/local compilation; report unavailable SDKs and unresolved external claims | No live Azure/model evaluations authorized by tracking work                           |
-| Publishing                             | Existing feature branch, normal hooks, no PR/main merge/force push                                    | Confirm batch execution/publication scope at start                                    |
+The autonomous approval supersedes the earlier pending entries. Scope changes remain subject to the stated boundaries.
+
+| Decision                               | Recommended Default                                                      | State                                                                             |
+| -------------------------------------- | ------------------------------------------------------------------------ | --------------------------------------------------------------------------------- |
+| Remediation scope                      | Correct reproduced defects; retain protected production contracts        | Approved; per-finding completion still needs evidence                             |
+| Host merge                             | Merge resume into workflow-start; keep commit/export separate            | Approved; current Host fixtures pass, native acceptance pending                   |
+| Public slash compatibility             | Clean Host resume retirement with documented replacement                 | Approved; not permission to remove unrelated commands                             |
+| Skill menu visibility                  | Hidden automatic guidance and manual Host commands                       | Approved; preserve required loading and verify consumers                          |
+| Forked skill context                   | All production skills remain inline                                      | Deferred; no fork experiment or runtime evaluation approved                       |
+| Canonical principles and retry choices | Current production contracts and stricter safety requirements win        | Approved reconciliation only; actual contract changes require escalation          |
+| Recreated duplicate files              | Preserve originals with hashes before removing verified redundant copies | Approved; recovery snapshot records superseded originals                          |
+| Evaluation                             | Offline fixtures, local compilation and independent source review        | Approved; denied dependency access remains denied; no live Azure/model evaluation |
+| Publishing                             | Feature branch with normal hooks, no PR/merge/force push                 | Approved for reviewed, verified batches; recovery bundle is not yet a release     |
 
 Model assignments, agent roles, production artifact schemas, mandatory reviews, separate Step 2 cost review,
 governance precedence, frozen-plan ownership, one-file cadence and human approvals remain unchanged unless
@@ -193,9 +207,82 @@ cannot prove the router loads a skill. Fork runtime evaluations remain deferred 
 - Obtain independent source review before publication, repair confirmed findings and rerun affected checks.
   Static tests, source size and invocation counts do not establish runtime token savings or full output quality.
 
+## Recovery Checkpoint
+
+Recovery performed 2026-09-14 against local HEAD `3b034112`; remote feature checkpoint remained `536354b4`.
+The remediation source is uncommitted. No reset, wholesale restore, credential change, dependency download,
+Azure operation, runtime model probe, commit or push was performed during this recovery pass.
+
+### Preserved Work
+
+Local recovery snapshot: `tmp/remediation-recovery-2026-09-14T06-46-25-322Z/`.
+Its manifest records 229 changed/new/deleted paths, content SHA-256 values, file modes, branch and base revisions.
+Working-tree and staged Git diffs are included separately. Existing ignored logs, caches and secrets are not copied
+or removed. This is private local recovery material, not a publication artifact or a verified release.
+Preservation was checked before recovery edits; never restore the snapshot over newer work wholesale.
+
+### Attempt And Result Reconciliation
+
+| Operation / Evidence                        | Recovery Classification                                                          | Current Disposition                                                                                                          |
+| ------------------------------------------- | -------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| Previous agent summaries and pass logs      | Supporting historical evidence only                                              | Do not use them to mark current files verified                                                                               |
+| First current focused rerun                 | Five failures; recipe SDK cases skipped                                          | Found old reference paths plus stale Design/index assertions                                                                 |
+| Three docs reference retirements, SK-40     | Old paths existed; cause unknown                                                 | Snapshot hashes verified; current destinations compared; live callers migrated; old paths removed; nine ownership tests pass |
+| Shared Design entry and test, AB-05 / SK-10 | Real entry/body mismatch and stale wording test                                  | Explicit review requests and execution-failure stops aligned; Host/service combined tests pass                               |
+| Service index expectations, SK-35           | Test contradicted freshness-required heading                                     | Require exactly one reference index; freshness and service checks pass                                                       |
+| Older policy fixture, AB-16                 | Missing required drift evidence                                                  | Add explicit NONE/INFORMATIONAL inputs, retain invalid-envelope negatives; combined policy/review tests pass                 |
+| Agent Markdown checks                       | Indentation and long-line failures                                               | Correct formatting without changing gates; Governance overwrite refusal retained in numbered instruction; body tests pass    |
+| MCP SDK downloads / SK-14                   | Earlier denial reported in test skip reasons; dependencies currently unavailable | Not retried or bypassed. Real SDK verification remains blocked pending authorized dependencies                               |
+| Historical optional Markdown comparison     | Reported policy block, no current pass inferred                                  | Current repository Markdown gate passes; exhaustive skill-reference style audit is not claimed                               |
+| Unknown/skipped previous terminal actions   | No reliable execution result                                                     | Do not replay automatically; inspect current side effects and rerun only safe necessary checks                               |
+
+The exact prior approval/tool-request history was not exhaustively reconstructed. A reappeared file proves
+its current existence, not whether a prior deletion was denied, skipped, ineffective or later undone.
+Recovery establishes the current filesystem and test outcomes; it does not manufacture historical execution evidence.
+
+### Current Offline Verification
+
+| Check                                      | Result / Evidence Scope                                                                                   |
+| ------------------------------------------ | --------------------------------------------------------------------------------------------------------- |
+| Agent-body remediation                     | 47 passed; no TODO/skipped cases in that suite                                                            |
+| Guidance remediation                       | 17 passed; includes cached-provenance fixtures, not a live source refresh                                 |
+| Operational skill remediation              | 15 passed                                                                                                 |
+| Terraform skill remediation                | 10 passed; bounded local/mock evidence only                                                               |
+| Recipe remediation                         | 61 passed, two real-SDK cases skipped; no protocol acceptance claim                                       |
+| Host and service suites after repair       | 32 passed                                                                                                 |
+| Reference ownership after repair           | Nine passed; current destinations and old-path absence checked                                            |
+| Policy parent/review fixtures after repair | 20 passed, including negative truth-table cases                                                           |
+| Governance and diagram Python suites       | 272 passed, three CairoSVG cases skipped                                                                  |
+| `npm run validate:all`                     | 54 Node tasks passed and external group passed; tool-contract SDK and renderer skips remain               |
+| Independent recovery source review         | No introduced regressions found in the recovery slice; not a full review of every remediation change      |
+| Protected comparison against HEAD          | Model catalog, registry, production lesson/iteration/session schemas, agent-output and archives unchanged |
+
+Saved current logs: `tmp/recovery-verified-integration.log`, `tmp/recovery-python-final.log`,
+`tmp/recovery-contract-repairs.log`, `tmp/recovery-ownership-repair.log`, `tmp/recovery-policy-fixtures.log`,
+`tmp/recovery-body-after-format.log` and per-file `tmp/recovery-test_*.log`.
+Some validators found no real project artifacts; those passes are tooling checks, not workload acceptance.
+Earlier logs named final are superseded wherever a newer current-source rerun exists.
+
+### Remaining Verification And Continuation
+
+1. Reconcile each SK/AB item's actual diff and acceptance criteria before claiming batch completion. Work spans
+   R1-R6, but passing aggregate tests alone does not prove every recorded finding was fully implemented.
+2. SK-14 real Node SDK and Python SDK checks need an authorized dependency environment. Current Node test names
+   MCP SDK 1.26.0, Zod 3.25.76 and Express 5.1.0; Python names MCP 1.26.0. Do not install or retry denied downloads
+   without specific authorization. Even SDK fixture success does not certify every Azure Functions language binding.
+3. Optional CairoSVG output checks remain unverified while that renderer is absent. The three skips are not failures
+   of tested generators and are not passes for the optional conversion behavior.
+4. Complete changed-file lint/format checks and independent review of the combined remediation, recording external
+   SDK/provider/AVM limits. Re-run affected checks after any repair; do not weaken assertions to hide real defects.
+5. Commit and publish only reviewed, verified batches with their exact findings and remaining limitations. Do not
+   publish the entire recovery bundle as complete while required protocol acceptance or per-item coverage is missing.
+6. Continue from the remaining item list rather than restarting audits. Native Local/Host/model eligibility and
+   full generated-output acceptance remain manual, as previously agreed.
+
 ## Batch Evidence Record
 
-Append one entry per actual batch; none has been executed yet.
+Append one entry per actual batch. The recovery checkpoint above records current tests and repairs; formal
+per-item completion, independent whole-batch review and remediation publication remain pending.
 
 | Field                     | Required Content                                                                                     |
 | ------------------------- | ---------------------------------------------------------------------------------------------------- |
