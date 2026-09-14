@@ -316,19 +316,19 @@ This is local ASGI SDK evidence, not Azure Functions deployment or every languag
 
 ### Follow-Up Checks And Remaining Limits
 
-| Check | Result / Boundary |
-| --- | --- |
-| Governance Python suite | 170 passed, no skips; includes expiry transitions, unsupported location scope and output preservation |
-| Agent-body source fixtures | 49 passed, no skips; includes explicit subscription arguments for normal/refresh commands |
-| Combined recipe/body/service/consolidation/Explorer tests | 175 passed, one Node SDK skip with Python SDK enabled |
-| Full repository suite with `MCP_PYTHON` set | 54 Node tasks plus external group passed; Node SDK and optional renderer skips remain explicit |
-| Explorer | DOM rendering and escaping fixtures pass; site build and internal links pass; visual/interactive native acceptance unverified |
-| Governance Ruff comparison | No new diagnostics; existing file-level diagnostics remain, not a clean-file claim |
-| SK-18 / SK-19 | Source safeguards and static assertions verified; manual mixed-hunk editing and prose arithmetic are not executable acceptance tests |
-| SK-21 | Exact AVM interface needs its approved module/version evidence; current guidance stops affected generation rather than guessing |
-| SK-22 / SK-37 | Mocked SQL/SDK paths pass; actual installed SQL interface, real Rust crate compatibility and cloud integration remain unverified |
-| SK-36 | Model-specific diagram checks pass; optional CairoSVG conversions remain skipped without that dependency |
-| Native acceptance | Local/Host discovery, actual model tiers, generated workloads and human signoff remain manual |
+| Check                                                     | Result / Boundary                                                                                                                    |
+| --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| Governance Python suite                                   | 170 passed, no skips; includes expiry transitions, unsupported location scope and output preservation                                |
+| Agent-body source fixtures                                | 49 passed, no skips; includes explicit subscription arguments for normal/refresh commands                                            |
+| Combined recipe/body/service/consolidation/Explorer tests | 175 passed, one Node SDK skip with Python SDK enabled                                                                                |
+| Full repository suite with `MCP_PYTHON` set               | 54 Node tasks plus external group passed; Node SDK and optional renderer skips remain explicit                                       |
+| Explorer                                                  | DOM rendering and escaping fixtures pass; site build and internal links pass; visual/interactive native acceptance unverified        |
+| Governance Ruff comparison                                | No new diagnostics; existing file-level diagnostics remain, not a clean-file claim                                                   |
+| SK-18 / SK-19                                             | Source safeguards and static assertions verified; manual mixed-hunk editing and prose arithmetic are not executable acceptance tests |
+| SK-21                                                     | Exact AVM interface needs its approved module/version evidence; current guidance stops affected generation rather than guessing      |
+| SK-22 / SK-37                                             | Mocked SQL/SDK paths pass; actual installed SQL interface, real Rust crate compatibility and cloud integration remain unverified     |
+| SK-36                                                     | Model-specific diagram checks pass; optional CairoSVG conversions remain skipped without that dependency                             |
+| Native acceptance                                         | Local/Host discovery, actual model tiers, generated workloads and human signoff remain manual                                        |
 
 Logs: `tmp/recovery-checkpoint-{commit-success,push}.log`, `tmp/recovery-sdk-node-install.log`,
 `tmp/recovery-sdk-python-install-final.log`, `tmp/recovery-sdk-python-tests-verified.log`,
@@ -339,14 +339,74 @@ current coverage. Pending checks are not converted to fixed/accepted results by 
 
 Available preserved originals under `tmp/remediation-preserved/` were hashed during this follow-up:
 
-| File | SHA-256 |
-| --- | --- |
-| original-plan-fourLayerAgentAssessment.md | 599851e9fb025512f391177ad1533f9b6dde6a71c4b73a2ba7a4c9ab4175c038 |
-| original-plan-docsPeerReview.md | 4a2ebbcf2099f1fd3c1eda861ec3a5a32835c1bd2012426f65ff0ed2a35f39e0 |
+| File                                        | SHA-256                                                          |
+| ------------------------------------------- | ---------------------------------------------------------------- |
+| original-plan-fourLayerAgentAssessment.md   | 599851e9fb025512f391177ad1533f9b6dde6a71c4b73a2ba7a4c9ab4175c038 |
+| original-plan-docsPeerReview.md             | 4a2ebbcf2099f1fd3c1eda861ec3a5a32835c1bd2012426f65ff0ed2a35f39e0 |
 | original-apex-host-resume-workflow/SKILL.md | cfd900ede87fc899413ef06d486dc3c4e84aff5995d975a1ad901fa4e8f10a86 |
 
 The originals are recoverable and active duplicates are absent. These current hashes do not reconstruct missing
 pre-removal chronology or prove who performed a prior operation. Never restore old copies over newer canonical work.
+
+## Scoped Verification Continuation (2026-09-14)
+
+The reviewed follow-up is published as `4498b251`. On continuation, the user approved isolated CairoSVG installation
+and read-only retrieval of the pinned AVM module. Existing tracking-file edits were preserved. This approval did
+not authorize registry-policy overrides, system tools, Azure operations or model runtime evaluations.
+
+### Exact AVM Interface
+
+SK-21's missing exact-version evidence is now resolved for
+`br:mcr.microsoft.com/bicep/avm/res/operational-insights/workspace:0.15.1`.
+The public MCR manifest and module layer were downloaded without Azure account access. The layer's SHA-256
+was checked against its manifest descriptor before parsing. The compiled schema confirms `dailyQuotaGb` is
+`string`, defaults to `'-1'`, and documents decimal string inputs. The tagged upstream Bicep source agrees.
+
+- Manifest SHA-256: `1882785494ab9374aec84ab249f4be5b0b1ba1f09047bd582f81fe22149b832e`.
+- Module layer SHA-256: `0835a8e28dfe4675f130ab42931e8e53c07c616a60bc7c451a9f197b725afd09`.
+- Local evidence: `tmp/verification-avm-workspace-0.15.1/{manifest,main}.json`
+  and `tmp/verification-avm-workspace.log`.
+- The owning AVM catalog now records this verification; its existing guidance suite passes all 17 tests.
+
+This closes the missing interface observation, not deployment acceptance, another version's interface,
+or a project's mandatory pre-author schema check. No production pin or generated infrastructure changed.
+
+### Renderer And Browser Checks
+
+CairoSVG `2.8.2` was installed under `tmp/verification-renderer/`, using existing system Python packages plus
+isolated renderer dependencies. All 11 wireframe tests pass, including real PNG generation for dashboard,
+list and detail: valid SVG, PNG dimensions of 1600 by 1200, nonblank pixels, fallback and conversion errors.
+The former three optional conversion skips are now exercised successfully in this environment.
+
+The combined diagram suite is **not green with CairoSVG enabled**: two runs each produced 124 passes and
+one Gantt failure, `FT_Render_Glyph ... error 0x62: raster overflow`. The unchanged base environment passes
+122 tests with the original three renderer skips. The Gantt case passes alone in both environments and
+after importing CairoSVG alone. This bounds the issue to combined execution in the isolated environment;
+it does not establish the root cause. Retain this integration failure under SK-36, without weakening tests,
+changing production dependencies or calling the whole renderer verification complete.
+
+Logs: `tmp/verification-renderer-{install,tests,repeat}.log`, `tmp/verification-wireframes.log`,
+`tmp/verification-diagrams-base-full.log`, `tmp/verification-gantt-{base,isolated,after-cairo}.log`.
+
+Explorer browser checks exercised the Grid tab and Governance drawer through the actual page. Desktop and
+mobile screenshots show the metadata, argument hint and source-only permissions caveat; metadata fields
+have no horizontal overflow and the close control remains visible. Effective CSS viewport widths were
+1152 and 312 pixels in the integrated browser. This verifies the sampled Explorer UI, not native Copilot
+skill discovery, Host routing or model availability. No Explorer source changes were needed.
+
+### Remaining Barriers
+
+- Node MCP remains blocked by the recorded `EALLOWREMOTE` policy. No retry or bypass was attempted.
+- Cargo, `sqlcmd` and Docker are absent from PATH; Rust/SQL execution and a real devcontainer rebuild remain open.
+- SK-13, SK-18 and SK-19 still need their recorded runtime or generated-output acceptance.
+- SK-36 retains the combined CairoSVG/Gantt failure above; SK-43/SK-44 cannot be closed by association.
+- Local/Host/model acceptance and both-track end-to-end output quality remain human-controlled.
+
+Documentation validation: Markdown lint and editor diagnostics pass. The full repository link command was
+stopped after stalling in a vendor snapshot. A scoped check reached existing historical audit links to
+pre-migration skill paths and failed there; those historical references were not rewritten. Neither run
+is a repository-wide link pass. See `tmp/verification-continuation-links.log` and
+`tmp/verification-scoped-links.log`. New continuation links resolve to the existing local tracking documents.
 
 ## Batch Evidence Record
 

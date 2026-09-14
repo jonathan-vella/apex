@@ -75,9 +75,13 @@ authorized network access using the approved pin, then inspect it. Otherwise
 record the interface as unknown and STOP affected generation pending explicit
 version validation. Do not fetch, change versions or infer types automatically.
 
-The catalog below retains historical exact-version observations, not current
-API verification. The workspace `0.15.1` module was unavailable during the
-offline remediation; its string quota observation must be checked before use.
+The catalog below retains historical exact-version observations unless verification
+is recorded explicitly. On 2026-09-14, the published MCR schema for workspace
+`0.15.1` confirmed `dailyQuotaGb` is `string`, with default `'-1'`. Its downloaded
+module layer matched SHA-256
+`0835a8e28dfe4675f130ab42931e8e53c07c616a60bc7c451a9f197b725afd09`.
+This verifies that interface observation, not deployment behavior or another pin;
+the mandatory per-project schema check above still applies.
 
 ### Catalogue of drift we have hit (extend on every new occurrence)
 

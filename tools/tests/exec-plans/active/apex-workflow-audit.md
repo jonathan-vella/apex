@@ -192,41 +192,46 @@ authorization; no new model, schema or approval-floor change is inferred.
 workflow/SDK/cloud acceptance. `Implemented; verification pending` remains open against the stronger acceptance criteria.
 Shared candidate retentions are dispositions, not blanket correctness certification of all linked examples.
 
-| IDs | Current Disposition | Evidence And Remaining Limit |
-| --- | --- | --- |
-| SK-01, SK-05, SK-06 | Verified (bounded) | Effective-policy resolution, original timestamp/total-order signatures and full-page completeness fixtures; governance suite passes |
-| SK-02, SK-03, SK-04 | Verified (bounded follow-up) | Cached expiry/TTL, unsupported-location applicability and explicit caller subscription repaired; 170 governance and 49 body tests pass |
-| SK-07, SK-16, SK-26, SK-30, SK-31 | Verified (bounded) | Cumulative phase/state fixtures, approved bootstrap failures, exact pins/tags/review policy, import failures and bounded KQL/CIDR tests |
-| SK-08, SK-09, SK-15, SK-17, SK-29 | Verified (bounded) | Run-owned scratch/sentinels, literal diagram inputs, metadata-only secret audit, additive credentials and full role/identity-flow fixtures |
-| SK-10, SK-11, SK-12, SK-24, SK-25 | Verified (bounded source contracts) | Human routing/review floors, non-applying preparation, secret/network guards, confirmation recovery and template/state ownership tests |
-| SK-13 | Implemented; verification pending | Cross-language/track settings tested with local stubs/compilation; actual Functions bindings and full application runtime not certified |
-| SK-14 | Implemented; Node verification blocked | Real Python MCP 1.26.0 lifecycle/auth test passes; Node install refused by EALLOWREMOTE. No bypass; native Functions acceptance remains separate |
-| SK-18 | Implemented; verification pending | Whole-file reset removed; approval and mixed-hunk/submodule preservation instructions verified. Human edit execution is not covered by a mixed-file fixture |
-| SK-19 | Implemented; verification pending | Heuristic deletion/prices removed; mixed intent, source evidence and explicit arithmetic rules tested as text. No executable arithmetic or generated report acceptance |
-| SK-20, SK-23, SK-28 | Verified (bounded follow-up) | Consumer load-balancer identity and Prepare quota evidence corrected; duplicate-name correlation and unknown-evidence fixtures pass |
-| SK-21 | Implemented; verification pending | Version-qualified interface owner and anomaly-view guidance aligned; exact approved AVM module interface unavailable and must be checked before affected generation |
-| SK-22 | Implemented; verification pending | Backend/environment guidance and SQL execution wrapper repaired; stubbed commands pass, exact installed SQL interface and live integration unverified |
-| SK-27, SK-38 | Verified (bounded) | Telemetry/resource identity, numeric metrics, severity and local links/anchors tested; no live diagnostics claim |
-| SK-32, SK-33, SK-34 | Verified (bounded source/provenance) | Required-evidence recovery, timing/token distinction, hash-bound fetch provenance and canonical principles mapping; no source refresh or model-performance claim |
-| SK-35 | Verified (bounded follow-up) | Source catalogs corrected and Explorer invocation fields rendered safely; DOM tests/site internal links pass, browser/manual acceptance remains |
-| SK-36 | Implemented; verification pending | Custom diagram relationships corrected and default paths tested; optional CairoSVG conversion tests remain skipped |
-| SK-37 | Implemented; verification pending | Secrets metadata examples corrected and Rust owner/version gate explicit; actual Rust compiler/SDK compatibility remains unknown, not guessed |
-| SK-39, SK-40, SK-41 | Verified (bounded migration) | Host start/resume consolidated; docs/authoring procedures moved; caller ownership, manual entry flags and output restrictions tested; native discovery still manual |
-| SK-42 | Verified (bounded sharing) | Identity-preserving resource queries, shared auth and quota mechanics retained with interpretation owned by each skill; consumer gaps repaired |
-| SK-43, SK-44 | Partial consolidation; remaining equivalence unverified | Distinct entrypoints retained, canonical template/language/ADR/diagnostic procedures shared where evidenced; do not close SK-13/14/19/21/22/36/37 by association |
-| SK-45 | Preserved; removal chronology unverified | Originals exist outside discovery; current hashes in execution plan and active duplicates absent. No fabricated pre-removal evidence |
-| SK-46 | Verified (bounded metadata) | Hidden guidance/manual Host policy, hints, parser validation, consumers and rendered metadata checked; actual router/menu behavior manual |
-| SK-47 | Deferred by approved policy | All production skills inline; no fork experiment or runtime evaluation; revisit only with specific authorization and supported harness evidence |
-| AB-01, AB-02, AB-03, AB-04, AB-05 | Verified (bounded source contracts) | Uniform framing, one setup owner, review input ordering, candidate pricing and Design approval/failure boundaries |
-| AB-06, AB-07, AB-16 | Verified (bounded) | Review cache/cap reconciliation, confirmation/refresh routing and fail-closed policy truth tables; caller subscription follow-up included |
-| AB-08, AB-09, AB-10, AB-11 | Verified (bounded source contracts) | Manifest/pin authority, final evidence-bound apply approval, compatible phase checkpoints and full/subset output distinctions |
-| AB-12, AB-13, AB-14, AB-15 | Verified (bounded source contracts) | Severity/scope mapping, resolved finding/pass channels, source-only auditing and normalized non-vendor-specific body structure |
-| AB-17, AB-18, AB-19, AB-20, AB-21, AB-22 | Verified (bounded) | Preview scope and unknown changes, text/file failure modes, replacement order, unique scratch, parent failure channels and pricing input-mode contracts |
+| IDs                                      | Current Disposition                                     | Evidence And Remaining Limit                                                                                                                                               |
+| ---------------------------------------- | ------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| SK-01, SK-05, SK-06                      | Verified (bounded)                                      | Effective-policy resolution, original timestamp/total-order signatures and full-page completeness fixtures; governance suite passes                                        |
+| SK-02, SK-03, SK-04                      | Verified (bounded follow-up)                            | Cached expiry/TTL, unsupported-location applicability and explicit caller subscription repaired; 170 governance and 49 body tests pass                                     |
+| SK-07, SK-16, SK-26, SK-30, SK-31        | Verified (bounded)                                      | Cumulative phase/state fixtures, approved bootstrap failures, exact pins/tags/review policy, import failures and bounded KQL/CIDR tests                                    |
+| SK-08, SK-09, SK-15, SK-17, SK-29        | Verified (bounded)                                      | Run-owned scratch/sentinels, literal diagram inputs, metadata-only secret audit, additive credentials and full role/identity-flow fixtures                                 |
+| SK-10, SK-11, SK-12, SK-24, SK-25        | Verified (bounded source contracts)                     | Human routing/review floors, non-applying preparation, secret/network guards, confirmation recovery and template/state ownership tests                                     |
+| SK-13                                    | Implemented; verification pending                       | Cross-language/track settings tested with local stubs/compilation; actual Functions bindings and full application runtime not certified                                    |
+| SK-14                                    | Implemented; Node verification blocked                  | Real Python MCP 1.26.0 lifecycle/auth test passes; Node install refused by EALLOWREMOTE. No bypass; native Functions acceptance remains separate                           |
+| SK-18                                    | Implemented; verification pending                       | Whole-file reset removed; approval and mixed-hunk/submodule preservation instructions verified. Human edit execution is not covered by a mixed-file fixture                |
+| SK-19                                    | Implemented; verification pending                       | Heuristic deletion/prices removed; mixed intent, source evidence and explicit arithmetic rules tested as text. No executable arithmetic or generated report acceptance     |
+| SK-20, SK-23, SK-28                      | Verified (bounded follow-up)                            | Consumer load-balancer identity and Prepare quota evidence corrected; duplicate-name correlation and unknown-evidence fixtures pass                                        |
+| SK-21                                    | Verified (bounded exact-version interface)              | Published MCR workspace 0.15.1 schema and layer digest verified; string quota/default confirmed. Per-project schema checks and deployment acceptance remain separate       |
+| SK-22                                    | Implemented; verification pending                       | Backend/environment guidance and SQL execution wrapper repaired; stubbed commands pass, exact installed SQL interface and live integration unverified                      |
+| SK-27, SK-38                             | Verified (bounded)                                      | Telemetry/resource identity, numeric metrics, severity and local links/anchors tested; no live diagnostics claim                                                           |
+| SK-32, SK-33, SK-34                      | Verified (bounded source/provenance)                    | Required-evidence recovery, timing/token distinction, hash-bound fetch provenance and canonical principles mapping; no source refresh or model-performance claim           |
+| SK-35                                    | Verified (bounded follow-up)                            | Catalog/DOM checks pass; actual Explorer Grid and Governance drawer checked at desktop/mobile widths. Native Copilot acceptance remains separate                           |
+| SK-36                                    | Conversion verified; combined execution unresolved      | All 11 wireframe tests pass with CairoSVG 2.8.2; combined isolated suite has 124 passes and a reproducible Gantt FreeType raster overflow. Base suite and Gantt alone pass |
+| SK-37                                    | Implemented; verification pending                       | Secrets metadata examples corrected and Rust owner/version gate explicit; actual Rust compiler/SDK compatibility remains unknown, not guessed                              |
+| SK-39, SK-40, SK-41                      | Verified (bounded migration)                            | Host start/resume consolidated; docs/authoring procedures moved; caller ownership, manual entry flags and output restrictions tested; native discovery still manual        |
+| SK-42                                    | Verified (bounded sharing)                              | Identity-preserving resource queries, shared auth and quota mechanics retained with interpretation owned by each skill; consumer gaps repaired                             |
+| SK-43, SK-44                             | Partial consolidation; remaining equivalence unverified | Distinct entrypoints retained, canonical template/language/ADR/diagnostic procedures shared where evidenced; do not close SK-13/14/19/21/22/36/37 by association           |
+| SK-45                                    | Preserved; removal chronology unverified                | Originals exist outside discovery; current hashes in execution plan and active duplicates absent. No fabricated pre-removal evidence                                       |
+| SK-46                                    | Verified (bounded metadata)                             | Flags/hints/parsers and sampled desktop/mobile Explorer metadata checked; actual Copilot router/menu behavior remains manual                                               |
+| SK-47                                    | Deferred by approved policy                             | All production skills inline; no fork experiment or runtime evaluation; revisit only with specific authorization and supported harness evidence                            |
+| AB-01, AB-02, AB-03, AB-04, AB-05        | Verified (bounded source contracts)                     | Uniform framing, one setup owner, review input ordering, candidate pricing and Design approval/failure boundaries                                                          |
+| AB-06, AB-07, AB-16                      | Verified (bounded)                                      | Review cache/cap reconciliation, confirmation/refresh routing and fail-closed policy truth tables; caller subscription follow-up included                                  |
+| AB-08, AB-09, AB-10, AB-11               | Verified (bounded source contracts)                     | Manifest/pin authority, final evidence-bound apply approval, compatible phase checkpoints and full/subset output distinctions                                              |
+| AB-12, AB-13, AB-14, AB-15               | Verified (bounded source contracts)                     | Severity/scope mapping, resolved finding/pass channels, source-only auditing and normalized non-vendor-specific body structure                                             |
+| AB-17, AB-18, AB-19, AB-20, AB-21, AB-22 | Verified (bounded)                                      | Preview scope and unknown changes, text/file failure modes, replacement order, unique scratch, parent failure channels and pricing input-mode contracts                    |
 
 Reviews inspected current source and existing fixtures; the parent reran the full suite with Python MCP enabled:
 all 54 Node tasks and external checks passed. Final combined affected tests: 175 passed, one Node SDK skip.
 No review or test establishes complete generated-output equivalence. Each verification-pending row is a live
 remaining item, not an accepted risk or completed investigation. The execution plan records publishing and rollback.
+
+The later [scoped verification continuation](skill-remediation.md#scoped-verification-continuation-2026-09-14)
+supersedes the earlier AVM-unavailable and CairoSVG-skipped status. It records exact schema digests, successful
+conversion checks, the newly reproduced isolated-environment Gantt failure and browser evidence. The preceding
+full-suite pass remains historical evidence, not a pass for the newly enabled renderer environment.
 
 ## Agent Body Audit Backlog
 

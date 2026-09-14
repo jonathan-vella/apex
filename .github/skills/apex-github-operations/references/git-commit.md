@@ -1,10 +1,10 @@
 <!-- ref:git-commit-v1 -->
 # Git Commit, Push & PR (CLI-only)
 
-Local and Host share this procedure. Require built-in owner `agent`, model
-`MAI-Code-1.1-Flash`, and only `vscode/askQuestions`, `execute/runInTerminal`,
-`read`, `todo` within the owner's permissions. Stop on unverifiable selection
-or missing tools. This procedure neither binds the model nor widens access.
+Local and Host share this procedure using the caller's authorized tools.
+No specific agent or model selection is required by this shared Git procedure.
+Entrypoint model preferences do not require runtime attestation here. This
+procedure neither changes the model nor widens access.
 
 Stage all changes **except** anything under `agent-output/`, `infra/`, or
 `.github/skills/sensei/` (the sensei exclusion is lifted only when the
@@ -17,6 +17,14 @@ update an existing one. Uses `git` and `gh` only — no MCP tools.
 - Workspace must be a git repository with `origin` configured.
 - `gh` CLI must already be authenticated. Do not run `gh auth` or request secrets
   through chat; report authentication failures without switching credentials.
+- Verify author identity with `git var GIT_AUTHOR_IDENT` and
+  `git var GIT_COMMITTER_IDENT` before staging. If either fails, restore the
+  user's intended dotfiles configuration; never invent an author or overwrite
+  their identity with repository-local defaults.
+- Git author identity and push credentials are separate. On an account mismatch,
+  compare `gh api user --jq .login` with the account in Git's denial. With explicit
+  user authorization, use the command-scoped GitHub CLI helper shown in Step 4;
+  do not change persistent credential configuration.
 - Excluded paths (always): `agent-output/`, `infra/`.
 - Excluded path (conditional): `.github/skills/sensei/` — included only
   when `git branch --show-current` returns `feat/skills-sensei`.
@@ -123,8 +131,16 @@ confirmation gate is the PR decision in Step 5.
 ### Step 4 — Commit and push
 
 ```bash
-git commit -m "<auto subject>" -m "<auto body>"
+git commit -m "<auto subject>" -m "<auto body>" &&
 git push origin "$BRANCH"
+```
+
+Never join commit and push with `;`: a failed commit must prevent the push.
+For an explicitly authorized account-mismatch recovery, replace only the push
+command with this command-scoped helper (keep the commit-success condition):
+
+```bash
+git -c credential.helper= -c credential.helper='!gh auth git-credential' push origin "$BRANCH"
 ```
 
 If a pre-commit hook fails, capture its output, summarize the error and stop. Do not retry.
