@@ -2,7 +2,7 @@
 
 ## Status
 
-**State**: Implementation verified and published on the feature branch; ready for user manual testing
+**State**: Earlier batches published; skill and agent-contract remediation proposed; manual acceptance remains pending
 **Owner**: Jonathan Vella with GitHub Copilot
 **Created**: 2026-09-10
 **Branch**: `perf/apex-workflow-optimization`
@@ -15,7 +15,71 @@ Commits and pushes are authorized only on the feature branch. Never merge into m
 No Azure resources have been created. Local guidance improvements use risk-based verification;
 measured end-to-end token savings and final generated-output quality are not claimed.
 
-## Authoritative Remaining Work
+## Master Roadmap And Tracking
+
+Updated 2026-09-14. Start here for the overall program status. This section supersedes older whole-program
+completion language; completed batches remain complete, but do not close newly discovered defects.
+The user authorized consolidation of tracking before starting the next remediation effort.
+This tracking update does not authorize implementation of the new skill backlog.
+
+| Workstream                                           | Current Status                                        | Authoritative Detail / Evidence                                                                                | Next Action                                                                          |
+| ---------------------------------------------------- | ----------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| Workflow correctness and initial skill consolidation | Published; manual acceptance pending                  | A01-D03 below; commits `ea6db336`, `d41507cc`, `c3246ea1`, `d6d3614f`, closeout `05d694ce`                     | Retain delivered history; address new findings separately                            |
+| Devcontainer and extension optimization              | Published; actual rebuild/timing unverified           | [Devcontainer guide](../../../../.devcontainer/README.md); `5d8ec6bc`, checkpoint `5fbfebd4`                   | User rebuild and startup acceptance                                                  |
+| Agent modernization and E2E retirement               | Published; manual Local/Host/model acceptance pending | [Modernization plan](agent-modernization.md); `5dac72bb`, closeout `536354b4`                                  | Execute its manual acceptance matrix when implementation is ready                    |
+| Deep skill correctness and consolidation             | Proposed; not implemented                             | [Finding ledger](apex-workflow-audit.md#deep-skill-audit-backlog) and [remediation plan](skill-remediation.md) | Review/approve scope, reproduce high-priority findings, then execute ordered batches |
+| Broader role and workflow redesign                   | Proposed; separate approval required                  | [Redesign proposals](agent-modernization.md#separately-approval-gated-proposals)                               | Do not mix into contract-preserving remediation                                      |
+| Final quality acceptance                             | Pending user testing and remediation                  | Manual matrices in both execution plans                                                                        | Never infer signoff from lint, compilation, or publication                           |
+
+### Tracking Ownership
+
+The latest [agent-body findings](apex-workflow-audit.md#agent-body-audit-backlog), AB-01 through AB-22,
+are now linked to the same [execution roadmap](skill-remediation.md#agent-body-remediation) as SK-01 through SK-47.
+On 2026-09-14 the user authorized completing and committing this tracking checkpoint only. Source remediation
+has not started; pending merge, visibility, policy and runtime-evaluation decisions remain pending.
+
+The skill roadmap also includes [invocation and context policy](skill-remediation.md#skill-invocation-and-context-policy)
+under SK-46/SK-47: internal menu visibility, manual Host commands, metadata validation and a gated fork assessment.
+These are proposed planning additions; current skill settings and the offline-only evaluation boundary are unchanged.
+
+- This document owns workstream status, ordering, dependencies and links, not copies of every finding.
+- [The audit ledger](apex-workflow-audit.md#deep-skill-audit-backlog) owns stable finding IDs, evidence,
+  rationale, proposed dispositions and verification criteria. Later evidence amends a finding without reusing its ID.
+- [The skill plan](skill-remediation.md) owns execution batches, dependencies, decisions and completion evidence.
+  The modernization plan retains its own delivered contract and acceptance history.
+- `CHANGELOG.md` summarizes delivered changes; Git commits identify exact implementation snapshots.
+- Chat todos mirror the current work slice only. Session memory, temporary logs and delegated review output
+  aid recovery but are not the durable source of truth. Summarize important evidence in these tracked documents.
+
+### Status And Approval Rules
+
+Track implementation status separately from scope approval and manual acceptance:
+
+| Status              | Required Meaning                                                                   |
+| ------------------- | ---------------------------------------------------------------------------------- |
+| Proposed            | Recorded finding or candidate; no implementation claim                             |
+| Approved            | User-approved scope with recorded constraints and decision date                    |
+| In progress         | Named batch is being changed; tests/evidence not complete                          |
+| Blocked             | Exact dependency or access barrier recorded; not completed                         |
+| Implemented         | Source changed; verification may still be pending                                  |
+| Verified            | Applicable focused/full checks and review completed; commands and results recorded |
+| Published           | Verified commit pushed and remote branch equality confirmed                        |
+| Deferred / Rejected | Reason, owner and revisit condition recorded; not a fixed defect                   |
+
+Manual acceptance remains a separate pending/accepted result. Approval to investigate is not approval to merge
+skills or change public entrypoints. A reported defect becomes confirmed only through a current source check or
+reproduction; disproven hypotheses retain an evidence-backed rejected disposition. Do not weaken a test to close an item.
+
+For each verified batch, update finding statuses, the batch record, this roadmap and the chat tracker together.
+Record affected IDs, decision/rationale, tests, review findings, commit SHA, publication and residual limitations.
+Only update the changelog after implementation. Preserve user edits, historical artifacts and existing approval gates.
+
+<a id="authoritative-remaining-work"></a>
+
+## Delivered Workflow Batch (A01-D05)
+
+The checklist below governs the earlier published workstream only. Its authorizations and completed statuses
+do not automatically approve or close the later [deep skill remediation](skill-remediation.md).
 
 Updated 2026-09-11 following the user's sequencing clarification and skill-prefix request.
 This checklist supersedes older pending/proposal statuses below and in the audit ledger.

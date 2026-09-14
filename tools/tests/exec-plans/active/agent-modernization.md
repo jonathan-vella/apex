@@ -1,5 +1,12 @@
 # Agent Modernization And E2E Retirement
 
+Program index: [master roadmap](apex-workflow-optimization.md#master-roadmap-and-tracking).
+New deep skill findings are tracked in [the audit ledger](apex-workflow-audit.md#deep-skill-audit-backlog)
+and [skill remediation plan](skill-remediation.md). P0-P8 completion applies to this delivered migration,
+not to those newly discovered defects or to user manual acceptance.
+The later [agent-body audit](apex-workflow-audit.md#agent-body-audit-backlog) records AB-01 through AB-22
+for residual structure and contract conflicts; its findings are scheduled in the shared remediation roadmap.
+
 ## Status And Authorization
 
 Implementation started 2026-09-11 on `perf/apex-workflow-optimization`.
@@ -80,40 +87,40 @@ No agent changes were included in the checkpoint.
 This matrix describes preserved ownership, not new runtime authority. Agent bodies and the existing workflow
 graph remain authoritative; an entry adapter never supplies missing review evidence or approval.
 
-| Owner | Inputs / Freshness | Permitted Outputs | Gate / Recovery |
-| --- | --- | --- | --- |
-| 01-Orchestrator | Project, recall and current handoff/reviews | Recall state and handoff summaries | Human handoffs only; recover existing work before fresh initialization |
-| 02-Requirements | User constraints and recorded answers | Requirements and initial SKU manifest | Elicitation, required review and human approval; preserve revision scope |
-| 03-Architect | Approved requirements, manifest and budget | Architecture, pricing and manifest decisions | Comprehensive plus separate cost-feasibility review |
-| 04-Design | Approved architecture and requested optional scope | Diagrams, charts and ADRs | Optional/deep review follows graph; skip never bypasses Governance |
-| 04g-Governance | Target subscription, architecture, current policy evidence | Governance constraints and reconciliation evidence | Expired/incomplete evidence refreshes at owner; downstream consumers do not edit it |
-| 05-IaC Planner | Approved architecture, governance, SKU manifest and track | Frozen plan, diagrams and planning contracts | Required review and approval before CodeGen |
-| 06b/06t CodeGen | Frozen plan, exact pins and current governance | Track-specific code, implementation reference and JSON handoff | One-file cadence; build/validation gates; return upstream changes to owner |
-| 07b/07t Deploy | Current handoff/hash, target, policy and preview evidence | Preview/deploy evidence and deployment summary | Validation-only/preview-only stop; explicit apply/destructive approval |
-| 08-As-Built | Deployment evidence and predecessor artifacts | Complete as-built suite and reconciled inventory | No invented live evidence; retain SKU drift and provenance checks |
-| 09-Diagnose | Confirmed symptom, target and authorization | Health report and findings | Read-only diagnosis; remediation separately approved |
-| 10-Challenger | Artifact, type and current review context | Decisions and authorized accepted edits; worker owns findings | Frozen artifacts return to owner; unavailable worker requires human handoff |
-| 11-Context Optimizer | Explicit audit scope and available logs | Requested report or read-only chat findings | No writes in read-only mode; missing telemetry remains unknown |
-| Validate workers | Current code, pins and governance inputs | Bounded lint/review results | No source repair, plan approval or deployment authority |
-| Preview workers | Approved target/inputs and initialization evidence | Exact preview evidence and change classification | No apply, state migration or user approval fabrication |
-| Policy worker | Current envelope, mapping and live-check inputs | Policy result with deterministic gate | Missing/stale evidence fails closed; no discovery ownership transfer |
-| Cost worker | Explicit input mode, scope/usage and authorized output | Meter-backed estimate and authorized manifest cost fields | Ambiguous/missing meters fail; no cloud writes or guessed prices |
-| Challenger worker | Explicit artifact/lenses and output path | Findings JSON and compact summary | No challenged-source edits, questions, nested calls or fabricated pass |
+| Owner                | Inputs / Freshness                                         | Permitted Outputs                                              | Gate / Recovery                                                                     |
+| -------------------- | ---------------------------------------------------------- | -------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| 01-Orchestrator      | Project, recall and current handoff/reviews                | Recall state and handoff summaries                             | Human handoffs only; recover existing work before fresh initialization              |
+| 02-Requirements      | User constraints and recorded answers                      | Requirements and initial SKU manifest                          | Elicitation, required review and human approval; preserve revision scope            |
+| 03-Architect         | Approved requirements, manifest and budget                 | Architecture, pricing and manifest decisions                   | Comprehensive plus separate cost-feasibility review                                 |
+| 04-Design            | Approved architecture and requested optional scope         | Diagrams, charts and ADRs                                      | Optional/deep review follows graph; skip never bypasses Governance                  |
+| 04g-Governance       | Target subscription, architecture, current policy evidence | Governance constraints and reconciliation evidence             | Expired/incomplete evidence refreshes at owner; downstream consumers do not edit it |
+| 05-IaC Planner       | Approved architecture, governance, SKU manifest and track  | Frozen plan, diagrams and planning contracts                   | Required review and approval before CodeGen                                         |
+| 06b/06t CodeGen      | Frozen plan, exact pins and current governance             | Track-specific code, implementation reference and JSON handoff | One-file cadence; build/validation gates; return upstream changes to owner          |
+| 07b/07t Deploy       | Current handoff/hash, target, policy and preview evidence  | Preview/deploy evidence and deployment summary                 | Validation-only/preview-only stop; explicit apply/destructive approval              |
+| 08-As-Built          | Deployment evidence and predecessor artifacts              | Complete as-built suite and reconciled inventory               | No invented live evidence; retain SKU drift and provenance checks                   |
+| 09-Diagnose          | Confirmed symptom, target and authorization                | Health report and findings                                     | Read-only diagnosis; remediation separately approved                                |
+| 10-Challenger        | Artifact, type and current review context                  | Decisions and authorized accepted edits; worker owns findings  | Frozen artifacts return to owner; unavailable worker requires human handoff         |
+| 11-Context Optimizer | Explicit audit scope and available logs                    | Requested report or read-only chat findings                    | No writes in read-only mode; missing telemetry remains unknown                      |
+| Validate workers     | Current code, pins and governance inputs                   | Bounded lint/review results                                    | No source repair, plan approval or deployment authority                             |
+| Preview workers      | Approved target/inputs and initialization evidence         | Exact preview evidence and change classification               | No apply, state migration or user approval fabrication                              |
+| Policy worker        | Current envelope, mapping and live-check inputs            | Policy result with deterministic gate                          | Missing/stale evidence fails closed; no discovery ownership transfer                |
+| Cost worker          | Explicit input mode, scope/usage and authorized output     | Meter-backed estimate and authorized manifest cost fields      | Ambiguous/missing meters fail; no cloud writes or guessed prices                    |
+| Challenger worker    | Explicit artifact/lenses and output path                   | Findings JSON and compact summary                              | No challenged-source edits, questions, nested calls or fabricated pass              |
 
 Production main agents are human-selected, including Challenger. Workers are hidden, callable leaf agents.
 The Orchestrator has no subagent dispatch. Generic platform allowlist behavior does not authorize production
 callers to override these boundaries. Broad terminal permission is not described as inherently read-only.
 
-| Entry Class | Local Surface | Shared Owner / Host Surface | Permission Boundary |
-| --- | --- | --- | --- |
-| Resume | Native and tools resume prompt adapters | Workflow engine; `apex-host-resume-workflow` | Select 01 before state changes; evidence-based recovery |
-| Git commit | Native commit adapter | GitHub operations commit reference; `apex-host-git-commit` | Explicit repository action; preserve credentials and branch restrictions |
-| Debug export | Native export adapter | Context-management export reference; `apex-host-debug-log-export` | Confirm actual Host paths and capture choices; no Local-variable assumption |
-| Named workflow steps | Workflow prompt adapters from Requirements through Challenger | Workflow entry reference; `apex-host-workflow-start` | Explicit operation and exact owner/model/tools; no inherited-model substitute |
-| Assessment utilities | Thin assessment/context adapters | Context-management references | Requested read/write scope and bounded audit evidence |
-| Maintenance/review utilities | Thin tools prompt adapters | Workflow-engine or GitHub-operations references | Original task permissions, explicit consequential operations |
-| Execution contracts | Local reference adapters | Shared execution-subagent reference | Explicit worker input/output/failure contract; no nested wrapper fallback |
-| E2E launch and analysis | Retired | No replacement Host skill | No automatic approvals or runnable E2E entry point |
+| Entry Class                  | Local Surface                                                 | Shared Owner / Host Surface                                       | Permission Boundary                                                           |
+| ---------------------------- | ------------------------------------------------------------- | ----------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| Resume                       | Native and tools resume prompt adapters                       | Workflow engine; `apex-host-resume-workflow`                      | Select 01 before state changes; evidence-based recovery                       |
+| Git commit                   | Native commit adapter                                         | GitHub operations commit reference; `apex-host-git-commit`        | Explicit repository action; preserve credentials and branch restrictions      |
+| Debug export                 | Native export adapter                                         | Context-management export reference; `apex-host-debug-log-export` | Confirm actual Host paths and capture choices; no Local-variable assumption   |
+| Named workflow steps         | Workflow prompt adapters from Requirements through Challenger | Workflow entry reference; `apex-host-workflow-start`              | Explicit operation and exact owner/model/tools; no inherited-model substitute |
+| Assessment utilities         | Thin assessment/context adapters                              | Context-management references                                     | Requested read/write scope and bounded audit evidence                         |
+| Maintenance/review utilities | Thin tools prompt adapters                                    | Workflow-engine or GitHub-operations references                   | Original task permissions, explicit consequential operations                  |
+| Execution contracts          | Local reference adapters                                      | Shared execution-subagent reference                               | Explicit worker input/output/failure contract; no nested wrapper fallback     |
+| E2E launch and analysis      | Retired                                                       | No replacement Host skill                                         | No automatic approvals or runnable E2E entry point                            |
 
 Host skills inherit the caller and never bind model/tool metadata. Local-only location settings remain
 compatibility aids, not security controls. No experimental nesting or forked skill context is enabled.
@@ -181,12 +188,12 @@ These checks remain user-owned. Offline tests do not establish runtime support o
 
 ## Separately Approval-Gated Proposals
 
-| Proposal | Expected Benefit | Risk / Required Evidence | Rollback |
-| --- | --- | --- | --- |
-| Deterministic gate-evidence evaluation | Reduce repeated interpretation of hashes, reviews and freshness | Must preserve every refusal/approval case in both tracks; no new approval authority | Revert extractor/caller integration together |
-| Deterministic pricing arithmetic | Reproducible quantities, tiers and totals from selected meters | Meter selection remains specialist-owned; test units, environment/stamp expansion and ambiguous meters | Restore existing calculation procedure and consumers |
-| Separate review decisions from applying fixes | Clearer read-only reviewer boundary | Changes role/ownership; requires revised handoffs and proof of accepted-edit/re-review behavior | Restore wrapper and its caller contract together |
-| Separate read-only audit from report writing | Reduce audit write exposure | Extra entrypoints can add complexity; demonstrate actual permission benefit in both harnesses | Restore combined agent with explicit write modes |
+| Proposal                                      | Expected Benefit                                                | Risk / Required Evidence                                                                               | Rollback                                             |
+| --------------------------------------------- | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ | ---------------------------------------------------- |
+| Deterministic gate-evidence evaluation        | Reduce repeated interpretation of hashes, reviews and freshness | Must preserve every refusal/approval case in both tracks; no new approval authority                    | Revert extractor/caller integration together         |
+| Deterministic pricing arithmetic              | Reproducible quantities, tiers and totals from selected meters  | Meter selection remains specialist-owned; test units, environment/stamp expansion and ambiguous meters | Restore existing calculation procedure and consumers |
+| Separate review decisions from applying fixes | Clearer read-only reviewer boundary                             | Changes role/ownership; requires revised handoffs and proof of accepted-edit/re-review behavior        | Restore wrapper and its caller contract together     |
+| Separate read-only audit from report writing  | Reduce audit write exposure                                     | Extra entrypoints can add complexity; demonstrate actual permission benefit in both harnesses          | Restore combined agent with explicit write modes     |
 
 None of these redesigns is implemented by this contract-preserving migration. E2E retirement is approved
 and implemented, not an optional proposal. Production CodeGen cadence and mandatory review floors are unchanged.
