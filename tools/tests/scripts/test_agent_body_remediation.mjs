@@ -16,6 +16,21 @@ import { MAX_BODY_LINES } from "../../scripts/_lib/paths.mjs";
 const root = fileURLToPath(new URL("../../../", import.meta.url));
 const agentRoot = path.join(root, ".github/agents");
 const read = (name) => readFileSync(path.join(agentRoot, `${name}.agent.md`), "utf8");
+test("Orchestrator distinguishes the Requirements owner from its step and artifact prefix", () => {
+  const text = read("01-orchestrator");
+  const requirements = parseFrontmatter(read("02-requirements"));
+  const handoff = parseFrontmatter(text).handoffs.find((entry) => entry.label === "Step 1: Gather Requirements");
+  assert.equal(handoff.agent, requirements.name);
+  assert.ok(getBody(text).includes(`Step 1 uses \`${requirements.name}\``));
+  assert.match(getBody(text), /including in\s+routing-only answers/);
+  assert.match(getBody(text), /Step numbers and artifact prefixes are not agent IDs/);
+  assert.match(getBody(text), /explanation-only or hypothetical routing question/);
+  assert.match(getBody(text), /When the user prohibits tools, answer only from\s+available context/);
+  assert.match(getBody(text), /do not search, read files, load skills, or call todo tools/);
+  assert.match(getBody(text), /state the limitation and stop/);
+  assert.match(getBody(text), /does not\s+waive required discovery, reviews, or approvals/);
+});
+
 const blocks = (text, language) =>
   [...text.matchAll(new RegExp(String.raw`\x60{3}${language}\n([\s\S]*?)\x60{3}`, "g"))].map((match) => match[1]);
 const section = (text, start, end) => {

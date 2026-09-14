@@ -498,6 +498,71 @@ Remaining gates: Node package policy, Rust registry access and compilation, Agen
 both-track fresh/resume/revision behavior, live SQL acceptance and human generated-output review.
 Local picker acceptance does not waive these gates or authorize cloud operations.
 
+### Agent Host Blocker (2026-09-14)
+
+After publication of the picker correction as `e7fca638`, the user tested the Copilot Agent Host
+target in VS Code `1.137.0` (`645f29cc3176500b4b5762ba887cf2a7f0ffdf2c`), with a Windows client
+and Linux ARM64 dev container. Agent discovery works, but the user reports incorrect model selection
+across agents, including in a brand-new session. The screenshot shows `03-Architect` with Luna while
+the workspace declaration specifies `GPT-5.6 Sol (copilot)`. Local selection remains user-verified.
+This establishes a visible selection mismatch, not the actual model used by an executed request.
+
+Opening Architect through Host configuration fails with file-not-found. The same file opens through
+the workspace link and is readable in the container. The failed tab's copied path uses Windows separators:
+`\workspaces\apex\.github\agents\03-architect.agent.md`.
+[VS Code PR #331871](https://github.com/microsoft/vscode/pull/331871) describes this remote-window
+URI failure, including POSIX paths displayed with Windows separators. At research time it was open and
+unmerged; the installed revision retains the reported local-file passthrough. This is a strong symptom
+match, not proof that the path defect also causes model selection to fail.
+
+The installed source handles agent references and session models separately. Model precedence and cached
+selection remain possible explanations, not confirmed root causes. Related model-caching issue
+[#330687](https://github.com/microsoft/vscode/issues/330687) is not an exact Host-specific reproduction.
+Do not rewrite the working Local labels, create duplicate agent files, patch the editor installation,
+or treat manual model selection as proof of automatic routing. Use Local for APEX; Agent Host workflow
+acceptance is blocked pending an upstream resolution and successful retest. No model requests or Azure
+operations were performed during this diagnostic check.
+
+### Local Routing Probe: Owner Name (2026-09-14)
+
+The user approved a user-run Local Orchestrator routing check with no tools, writes or Azure operations.
+The first supplied response named `01-Requirements` rather than `02-Requirements`, but the user later
+clarified that the earlier runs were not Local. They cannot establish a Local failure or repair outcome.
+The actual Local response correctly named `02-Requirements` and preserved requirements approval before
+architecture and code generation.
+
+The existing frontmatter handoff already targeted `02-Requirements`. The Orchestrator body now explicitly
+distinguishes step numbers and artifact prefixes from agent IDs, including in routing-only answers.
+A source-contract regression cross-checks that explanation against the real Requirements frontmatter
+and handoff target. The agent-body suite passes 50 tests and agent validation passes.
+These are static/source checks, not evidence of a causal runtime repair; the initial harness attribution
+was incorrect. No workflow topology, model assignment or approval gate changed.
+
+The user supplied debug session `a282324d-6181-4d3d-8b73-07f28506c734`, exported on 2026-09-14.
+Its events include a Local session URI and three `mai-code-1.1-flash` requests. It records a todo read
+before the first model request (possibly harness-generated), a workflow `grep_search`, and a `read_file`
+of root AGENTS.md lines 72-140. No edit, deployment or Azure tool calls appear. Original prompt and
+response text are absent from this export, so exact prompt equality is not independently verified.
+Assuming the supplied no-tools prompt was unchanged, the Local run passes owner/sequencing checks but
+fails the no-tools criterion. Raw export contents must not be committed or treated as public evidence.
+
+The Orchestrator now distinguishes explanation-only routing from project setup. Explicit no-tools questions
+use available context or return an information limitation; actual workflow discovery, reviews and approvals
+remain required. The same 50 source tests and agent validation pass after this clarification.
+
+The subsequent user-run Local retest is session `f41ff34f-7f11-4e40-bc13-a151c2e6c006`, exported
+on 2026-09-14. It records one `mai-code-1.1-flash` request and no search, file-read, edit or Azure calls.
+The only tool event is a todo read before the model request, consistent with harness initialization;
+no agent-requested tools are recorded. The separately supplied response names `02-Requirements` and
+places the requirements gate before architecture and code. Together these support a bounded pass for
+Local owner naming, sequencing and no-agent-tools behavior, assuming the original test prompt was unchanged.
+The export itself omits prompt/response text. This is not full workflow acceptance or a measured savings claim.
+
+Residual wording: the response describes Terraform versus Bicep as a choice even though Terraform was supplied.
+No decision was actually changed or re-asked in this run; verify preservation of supplied decisions during
+the next approved Requirements acceptance test. Agent Host remains blocked separately. No additional model
+request was launched by this maintenance session, and raw exports remain outside publication scope.
+
 ## Batch Evidence Record
 
 Append one entry per actual batch. The recovery checkpoint above records current tests and repairs; formal

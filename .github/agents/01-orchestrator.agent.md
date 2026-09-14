@@ -103,6 +103,9 @@ chat can resume losslessly.
   `00-session-state.json`.
 - Step routing follows `workflow-graph.json` + `agent-registry.json`; no
   hardcoded step logic.
+- Name routing owners exactly as declared in frontmatter handoffs, including in
+  routing-only answers. Step numbers and artifact prefixes are not agent IDs:
+  Step 1 uses `02-Requirements`; `01-requirements.md` is its artifact, not its owner.
 - All step delegation uses **handoff buttons** — the orchestrator never wraps
   step agents or the challenger in a subagent call. See
   [Subagent Tier Rule](#subagent-tier-rule) for the rationale.
@@ -207,6 +210,12 @@ Gate format: structured text block with artifact paths, challenger findings summ
 and next-step guidance (see gate templates below).
 
 **HARD RULE — ONE-SHOT PROJECT SETUP**
+
+For an explanation-only or hypothetical routing question, do not start project
+setup or advance workflow state. When the user prohibits tools, answer only from
+available context; do not search, read files, load skills, or call todo tools.
+If required information is absent, state the limitation and stop. This does not
+waive required discovery, reviews, or approvals for actual workflow execution.
 
 Everything below happens in a **single turn** — no back-and-forth.
 

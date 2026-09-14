@@ -20,6 +20,10 @@ for full details on this and all prior releases.
 
 ### Changed (Agent modernization)
 
+- Clarify exact Orchestrator owner names in routing-only answers: Step 1 belongs to `02-Requirements`,
+  not an agent inferred from the requirements artifact prefix. A bounded Local routing retest passed.
+- Separate explanation-only routing from project setup; honor explicit no-tools requests without waiving
+  discovery, reviews or approvals during actual workflow execution.
 - Match active model identifiers to the picker: `GPT-5.6 Sol (copilot)`, `GPT-5.6 Terra (copilot)`
   and `GPT-5.6 Luna (copilot)`, including prompt and registry mirrors. Preserve provider suffixes in generated
   assignments and retain family-based validation for space-separated labels.
