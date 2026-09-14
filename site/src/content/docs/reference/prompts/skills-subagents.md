@@ -127,8 +127,10 @@ for the architecture assessment artifact?
 
 ### apex-golden-principles
 
-The 10 agent-first operating principles governing how agents work in
-this repository. Defines governance invariants and philosophy.
+The agent-first operating principles governing how agents work in
+this repository. See the [canonical principles][golden-principles] for governance invariants and philosophy.
+
+[golden-principles]: https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-golden-principles/SKILL.md
 
 ```text
 @workspace What are the golden principles for agent behaviour?

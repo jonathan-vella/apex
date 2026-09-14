@@ -2,7 +2,7 @@
 
 ## Status
 
-**State**: Earlier batches published; skill and agent-contract remediation proposed; manual acceptance remains pending
+**State**: Recovery checkpoint published; follow-up verified offline; required dependency and manual acceptance gaps remain
 **Owner**: Jonathan Vella with GitHub Copilot
 **Created**: 2026-09-10
 **Branch**: `perf/apex-workflow-optimization`
@@ -28,7 +28,7 @@ tracking-only state. Preserve the distinction between current test evidence, ful
 | Workflow correctness and initial skill consolidation | Published; manual acceptance pending                               | A01-D03 below; commits `ea6db336`, `d41507cc`, `c3246ea1`, `d6d3614f`, closeout `05d694ce`                                              | Retain delivered history; address new findings separately                                                   |
 | Devcontainer and extension optimization              | Published; actual rebuild/timing unverified                        | [Devcontainer guide](../../../../.devcontainer/README.md); `5d8ec6bc`, checkpoint `5fbfebd4`                                            | User rebuild and startup acceptance                                                                         |
 | Agent modernization and E2E retirement               | Published; manual Local/Host/model acceptance pending              | [Modernization plan](agent-modernization.md); `5dac72bb`, closeout `536354b4`                                                           | Execute its manual acceptance matrix when implementation is ready                                           |
-| Deep skill and agent-contract remediation            | Approved; recovery locally verified with skips; source uncommitted | [Recovery checkpoint](skill-remediation.md#recovery-checkpoint) and [finding ledger](apex-workflow-audit.md#recovery-update-2026-09-14) | Finish per-item reconciliation and combined review; resolve required dependency verification before release |
+| Deep skill and agent-contract remediation | Checkpoint `b98f4df1` published; reviewed follow-up verified offline | [Current disposition](apex-workflow-audit.md#post-checkpoint-per-id-disposition) and [follow-up record](skill-remediation.md#published-checkpoint-and-follow-up-2026-09-14) | Resolve Node package-policy block and documented version/runtime gaps; complete manual acceptance |
 | Broader role and workflow redesign                   | Proposed; separate approval required                               | [Redesign proposals](agent-modernization.md#separately-approval-gated-proposals)                                                        | Do not mix into contract-preserving remediation                                                             |
 | Final quality acceptance                             | Pending user testing and remediation                               | Manual matrices in both execution plans                                                                                                 | Never infer signoff from lint, compilation, or publication                                                  |
 

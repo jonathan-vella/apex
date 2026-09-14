@@ -352,6 +352,9 @@
         margin: 18px 0 8px;
       }
       .drawer .desc { font-size: 13px; color: var(--text-dim); line-height: 1.6; }
+      .drawer .metadata { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 6px 12px; font-size: 12px; }
+      .drawer .metadata dt { color: var(--text-dim); }
+      .drawer .metadata dd { margin: 0; overflow-wrap: anywhere; }
       .drawer ul { list-style: none; }
       .drawer li {
         padding: 6px 10px;
@@ -640,6 +643,8 @@
         const outgoing = edgesBySource.get(node.id) || [];
         const incoming = edgesByTarget.get(node.id) || [];
         const sourceUrl = node.links && node.links.source;
+        const meta = node.meta || {};
+        const hasInvocationMetadata = ["agent", "subagent", "skill"].includes(node.category);
 
         $("drawer-body").innerHTML = `
           <p class="desc">${escape(node.description || "")}</p>
@@ -651,6 +656,15 @@
           </div>
 
           ${node.path ? `<h5>Source path</h5><div class="chips"><span class="chip">${escape(node.path)}</span></div>` : ""}
+
+          ${hasInvocationMetadata ? `<h5>Source metadata (effective defaults)</h5>
+          <dl class="metadata">
+            <dt>User invocable</dt><dd>${escape(String(meta.invocable ?? true))}</dd>
+            <dt>Model invocation disabled</dt><dd>${escape(String(meta.disableModelInvocation ?? false))}</dd>
+            <dt>Declared context</dt><dd>${escape(meta.context ?? "Not declared")}</dd>
+            <dt>Argument hint</dt><dd>${escape(meta.argumentHint ?? "Not declared")}</dd>
+          </dl>
+          <p class="desc">Source declarations and defaults, not runtime permissions.</p>` : ""}
 
           ${skills.length ? `<h5>Skills (${skills.length})</h5><ul>${skills.map((s) => `<li>${escape(s)}</li>`).join("")}</ul>` : ""}
 

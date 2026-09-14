@@ -108,6 +108,13 @@ List all resources to be deployed with their types and quantities. Leave quota/l
 
 **Action:** **MUST invoke apex-azure-quotas skill first** to populate the remaining columns with actual quota data using Azure quota CLI. Only use fallback methods if quota CLI is not supported.
 
+Read the canonical [quota evidence and fallback contract](../../apex-azure-quotas/references/commands.md#quota-evidence-and-fallback).
+Published defaults are not observed subscription limits. Preserve live usage and the actual applicable limit,
+source command/API or confirmation, collection time, scope, quota name, units and diagnostics.
+Static catalogs and unrestricted SKU listings do not prove regional capacity or guarantee allocation.
+Unknown or insufficient quota blocks readiness and infrastructure generation; record the missing evidence.
+A blocked draft is not a validated plan.
+
 > **⚠️ IMPORTANT:** Process **ONE resource type at a time**. Do NOT try to apply all steps to all resources at once. Complete steps 1-7 for the first resource, then move to the next resource, and so on.
 
 For each resource type:
@@ -119,10 +126,12 @@ For each resource type:
      - Get current usage: `az quota usage show --resource-name {quota-resource-name} --scope /subscriptions/{subscription-id}/providers/{ProviderNamespace}/locations/{region}`
   - **If unsupported capability is confirmed** (not merely a generic `BadRequest`):
     - Get count usage: `az graph query --subscriptions "{subscription-id}" -q "resources | where type == '{resource-type}' and location == '{location}' | count"` only for a documented regional count quota. For subscription-wide limits omit the location filter. This is not a vCPU usage query.
-     - Get limit: [Azure service limits documentation](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits)
+     - Get the actual applicable subscription limit from a live service-specific source or Portal/support confirmation.
+       Service documentation defines scope and units; published defaults alone leave headroom unknown.
 3. **Calculate total in matching units** - For count quotas, add resource counts. For vCPU quotas, sum each VM/pool's maximum planned instance count times its SKU vCPUs (including autoscale/surge); then add current vCPU usage. Check both family and regional total vCPU quotas, with subscription, region, quota name and units recorded.
 4. **Verify quota headroom** - Ensure normalized total is at most the quota. Quota headroom does not prove SKU availability or physical regional capacity; missing usage, scope, units or SKU size blocks readiness.
-5. **Document source** - Note whether data came from "apex-azure-quotas (resource-name)" or "Azure Resource Graph + Official docs"
+5. **Document evidence** - Record usage and limit provenance, collection window, normalized demand and diagnostics.
+  Missing, stale or invalid usage, limit, scope, quota name, units or SKU size means unknown headroom, not zero.
 
 **Completed example:**
 
@@ -132,11 +141,13 @@ For each resource type:
 | Microsoft.Compute/virtualMachines (Standard_D4s_v3) | 3 VMs = 12 vCPUs | 24 vCPUs               | 350 vCPUs      | Example: 12 existing + 3 x 4 planned; verify family AND regional totals |
 | Microsoft.Network/publicIPAddresses                 | 2                | 5                      | 100            | Fetched from: apex-azure-quotas (PublicIPAddresses)        |
 | Microsoft.DocumentDB/databaseAccounts | 1 | Current count + 1 | Verified count limit | Record documented scope; omit region for subscription-wide limits |
-| Microsoft.Storage/storageAccounts                   | 2                | 8                      | 250 per region | Fetched from: Official docs                           |
+| Microsoft.Storage/storageAccounts | 2 | 8 | Unknown until observed | Published default alone blocks readiness |
 
-**Status:** ✅ All resources within limits | ⚠️ Near limit (>80%) | ❌ Insufficient capacity
+**Status:** Quota sufficient | Near quota limit (>80%) | Insufficient quota | Unknown (blocked)
 
-> **⛔ CRITICAL:** You **CANNOT** present this plan to the customer if ANY cells contain "_TBD_" or "_To be filled in Phase 2_". Phase 2 **MUST** be completed with actual quota data before user presentation.
+> **CRITICAL:** Replace "_TBD_" and "_To be filled in Phase 2_" with observed evidence or explicit unknowns.
+> A blocked draft may be shown to request missing evidence, but Phase 2 cannot be marked complete and the plan
+> cannot be presented as validated until quota evidence is complete. Track SKU restrictions and capacity separately.
 
 **Notes:**
 

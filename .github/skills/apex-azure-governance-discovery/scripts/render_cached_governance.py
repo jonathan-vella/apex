@@ -15,6 +15,7 @@ import sys
 from datetime import UTC, datetime
 from pathlib import Path
 
+from discover import _cache_is_fresh
 from governance_baseline import load_governance_json
 
 # Import shared renderer (no Azure dependencies)
@@ -156,6 +157,14 @@ def main(argv: list[str] | None = None) -> int:
         meta = envelope["discovery_metadata"]
         if not meta.get("completeness_signature"):
             meta["completeness_signature"] = _completeness_signature(envelope.get("findings", []) or [])
+
+    if envelope.get("discovery_status") != "COMPLETE" or not _cache_is_fresh(envelope):
+        status = {
+            "status": "FAILED", "error": "refresh-required",
+            "detail": "Cached governance is incomplete, outside TTL, or has an invalid exemption; refresh required",
+        }
+        sys.stdout.write(json.dumps(status, separators=(",", ":")) + "\n")
+        return 2
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(envelope, indent=2, sort_keys=False) + "\n")

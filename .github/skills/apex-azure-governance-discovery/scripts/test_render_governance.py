@@ -11,6 +11,7 @@ import copy
 import importlib
 import json
 import sys
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from unittest.mock import patch
 
@@ -566,10 +567,27 @@ class TestDiscoverReExports:
 
 
 class TestCachedRenderer:
+    @pytest.fixture(autouse=True)
+    def cached_clock(self, monkeypatch):
+        import discover
+
+        class Clock(datetime):
+            current = datetime(2026, 4, 20, 5, tzinfo=UTC)
+
+            @classmethod
+            def now(cls, tz=None):
+                return cls.current.astimezone(tz)
+
+        monkeypatch.setattr(discover, "datetime", Clock)
+        monkeypatch.setattr(render_cached_governance, "datetime", Clock)
+        monkeypatch.setattr("subprocess.check_output", lambda *args, **kwargs: pytest.fail("unexpected subprocess"))
+        monkeypatch.setattr("urllib.request.urlopen", lambda *args, **kwargs: pytest.fail("unexpected network"))
+        return Clock
+
     def test_r1_preserves_original_timestamp(self, tmp_path, envelope):
         baseline = copy.deepcopy(envelope)
         baseline.pop("discovery_metadata", None)
-        original_time = "2020-01-01T00:00:00Z"
+        original_time = "2026-04-20T03:00:00Z"
         baseline["discovered_at"] = original_time
         in_path = tmp_path / "baseline.json"
         in_path.write_text(json.dumps(baseline))
@@ -578,6 +596,61 @@ class TestCachedRenderer:
         written = json.loads(out_path.read_text())
         assert written["discovered_at"] == original_time
         assert written["discovery_metadata"]["discovered_at"] == original_time
+
+    @pytest.mark.parametrize("with_metadata", [False, True])
+    @pytest.mark.parametrize("expiry", ["2026-04-20T06:00:00Z", "2026-04-20T08:00:00+02:00"])
+    def test_r1_exemption_expiring_since_collection_requires_refresh(
+        self, tmp_path, envelope, capsys, cached_clock, with_metadata, expiry,
+    ):
+        finding = envelope["findings"][0]
+        finding["classification"] = "informational"
+        finding["exemption"] = {
+            "id": "waiver", "scope": f"/subscriptions/{envelope['subscription_id']}",
+            "exemptionCategory": "Waiver", "expiresOn": expiry,
+            "policyDefinitionReferenceIds": [], "resourceSelectors": [],
+        }
+        envelope["discovery_summary"].update({"blocker_count": 0, "exempted_count": 1})
+        in_path = tmp_path / "baseline.json"
+        if with_metadata:
+            envelope["discovery_metadata"] = render_cached_governance._synthesise_discovery_metadata(envelope, in_path)
+        in_path.write_text(json.dumps(envelope))
+        out_path = tmp_path / "out.json"
+        args = ["--in", str(in_path), "--out", str(out_path)]
+        assert render_cached_governance.main(args) == 0
+        assert json.loads(capsys.readouterr().out.splitlines()[0])["exempted"] == 1
+        original = out_path.read_bytes()
+        original_preview = out_path.with_suffix(".preview.md").read_bytes()
+        for expired_at in [datetime(2026, 4, 20, 6, tzinfo=UTC), datetime(2026, 4, 20, 7, tzinfo=UTC)]:
+            cached_clock.current = expired_at
+            assert render_cached_governance.main(args) == 2
+            status = json.loads(capsys.readouterr().out.splitlines()[0])
+            assert status["status"] == "FAILED"
+            assert status["error"] == "refresh-required"
+            assert out_path.read_bytes() == original
+            assert out_path.with_suffix(".preview.md").read_bytes() == original_preview
+
+    @pytest.mark.parametrize("with_metadata", [False, True])
+    @pytest.mark.parametrize("ttl,age_seconds,expected", [
+        (7, 7 * 86400, 0), (7, 7 * 86400 + 1, 2),
+        (0, 0, 2), (-1, 0, 2), (True, 0, 2), ("7", 0, 2), (None, 0, 2),
+    ])
+    def test_r1_cached_ttl_matches_collector(
+        self, tmp_path, envelope, capsys, cached_clock, with_metadata, ttl, age_seconds, expected,
+    ):
+        envelope["discovered_at"] = (cached_clock.current - timedelta(seconds=age_seconds)).isoformat()
+        envelope["ttl_days"] = ttl
+        in_path = tmp_path / "baseline.json"
+        if with_metadata:
+            envelope["discovery_metadata"] = render_cached_governance._synthesise_discovery_metadata(envelope, in_path)
+        in_path.write_text(json.dumps(envelope))
+        out_path = tmp_path / "new" / "out.json"
+        assert render_cached_governance.main(["--in", str(in_path), "--out", str(out_path)]) == expected
+        status = json.loads(capsys.readouterr().out.splitlines()[0])
+        if expected:
+            assert status["error"] == "refresh-required"
+            assert not out_path.parent.exists()
+        else:
+            assert status["status"] == "COMPLETE"
 
     @pytest.mark.parametrize("timestamp", [None, "invalid", "2026-01-01T00:00:00"])
     def test_r1_missing_timestamp_never_uses_mtime(self, tmp_path, envelope, capsys, timestamp):
@@ -692,8 +765,8 @@ class TestCachedRenderer:
         """Phase 3b: when the baseline already carries `discovery_metadata`, leave it alone."""
         baseline = copy.deepcopy(envelope)
         baseline["discovery_metadata"] = {
-            "discovery_status": "PARTIAL",
-            "discovered_at": "2025-01-01T00:00:00Z",
+            "discovery_status": "COMPLETE",
+            "discovered_at": baseline["discovered_at"],
             "scope": {"subscription_id": "preset", "management_groups": ["mg-preset"]},
             "api_versions": {"policyAssignments": "2099-01-01"},
             "page_counts": {"policyAssignments": 999},
@@ -716,7 +789,7 @@ class TestCachedRenderer:
         # envelope but `completeness_signature` left blank for Python to fill.
         baseline["discovery_metadata"] = {
             "discovery_status": "COMPLETE",
-            "discovered_at": "2026-05-17T05:00:00Z",
+            "discovered_at": baseline["discovered_at"],
             "scope": {"subscription_id": baseline["subscription_id"], "management_groups": ["mg-root"]},
             "api_versions": {
                 "policyAssignments": "2022-06-01",
@@ -736,5 +809,5 @@ class TestCachedRenderer:
         sig = written["discovery_metadata"]["completeness_signature"]
         assert sig.startswith("sha256:") and sig != "sha256:"
         # Other preset fields must be preserved verbatim.
-        assert written["discovery_metadata"]["discovered_at"] == "2026-05-17T05:00:00Z"
+        assert written["discovery_metadata"]["discovered_at"] == baseline["discovered_at"]
         assert written["discovery_metadata"]["scope"]["management_groups"] == ["mg-root"]

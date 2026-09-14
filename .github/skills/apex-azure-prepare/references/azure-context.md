@@ -146,18 +146,23 @@ Choices: [
 2. **Determine limits for each resource type** using the user-selected subscription and region:
    - Reference [./resources-limits-quotas.md](./resources-limits-quotas.md) for documented limits
    - Use **apex-azure-quotas** skill to check current quotas and usage for the selected subscription and region
-   - If `az quota list` returns `BadRequest` error, the resource provider doesn't support quota API
+   - Follow the canonical [quota evidence and fallback contract](../../apex-azure-quotas/references/commands.md#quota-evidence-and-fallback).
+     `BadRequest` alone does not prove unsupported capability; diagnose scope, arguments, authorization and provider support.
 
-3. **For resources that don't support quota API** (e.g., Microsoft.DocumentDB, or when you get `BadRequest` from `az quota list`):
-   - Invoke **apex-azure-resources** skill (Mode A: Lookup) to count existing deployments of that resource type in the selected subscription and region
-   - Use the count to calculate: `Total After Deployment = Current Count + Planned Deployment`
-   - Reference [Azure service limits documentation](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits) for the limit value
-   - Document in provisioning checklist as "Fetched from: apex-azure-resources (Mode A: Lookup) + Official docs"
+3. **Only after unsupported capability is established**:
+   - Use documented service-specific live usage and an actual applicable subscription limit, matching quota name,
+     scope, units and collection window. Published defaults are not observed subscription limits.
+   - Inventory counts apply only to documented count quotas; omit region filtering for subscription-wide quotas.
+     For vCPU quotas normalize demand by SKU size, including autoscale/surge, and check family and regional totals.
+   - Preserve source command/API or confirmation, collection time, scope, quota name, units and diagnostics.
+     Missing, stale or invalid evidence means unknown headroom, not zero or unlimited quota.
 
-4. **Validate deployment capacity**:
-   - Compare planned deployment quantities against available quota (limit - current usage)
-   - If **insufficient capacity** is found, notify the customer and return to **Step 4** to select a different region
-   - Use **apex-azure-quotas** skill to compare capacity across multiple regions and recommend alternatives
+4. **Validate quota readiness separately from SKU restrictions and regional capacity**:
+  - Compare normalized demand against observed limit minus current usage only when evidence is complete.
+  - Unknown or insufficient quota blocks readiness and infrastructure generation; record explicit unknowns and
+    next evidence needed in the plan. A blocked draft is not a validated plan.
+  - Static catalogs and unrestricted SKU listings do not prove regional capacity or guarantee allocation.
+  - Obtain approval before requesting an increase or changing region; compare quota headroom, not physical capacity.
 
 ## Record in Plan
 

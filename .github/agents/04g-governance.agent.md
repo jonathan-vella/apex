@@ -253,8 +253,8 @@ or its prior confirmations. Use baseline selection only when no refresh override
 > prompt contains `Refresh Governance`, `re-run`, or `rediscover`, or
 > when a downstream agent traversed the refresh handoff per
 > `governance-drift-routing.md`, this short-circuit is **disabled**.
-> Skip to Phase 1 and call `discover.py --refresh` regardless of cache
-> state.
+> Skip to Phase 1 and call `discover.py --subscription "<confirmed-subscription-id>" --refresh`
+> regardless of cache state; retain the confirmed project subscription.
 
 ### Phase 0.45: Baseline Check
 
@@ -281,9 +281,14 @@ Run the deterministic discovery script via `run_in_terminal`. Do NOT
 delegate this phase to a subagent — the script is pure ETL and adds no
 LLM value in a subagent wrapper.
 
+Bind `<confirmed-subscription-id>` to the confirmed architecture subscription
+on every invocation, including refresh. If missing or ambiguous, STOP for
+confirmation; never default to the active Azure CLI subscription.
+
 ```bash
 set +H && python .github/skills/apex-azure-governance-discovery/scripts/discover.py \
     --project {project} \
+  --subscription "<confirmed-subscription-id>" \
     --out agent-output/{project}/04-governance-constraints.json \
     --arch agent-output/{project}/02-architecture-assessment.md
 ```

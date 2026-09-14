@@ -47,7 +47,7 @@ Resources
 Resources
 | where type =~ 'microsoft.network/loadbalancers'
 | where array_length(properties.backendAddressPools) == 0
-| project name, resourceGroup, location, sku=sku.name
+| project id, subscriptionId, name, resourceGroup, location, sku=sku.name
 ```
 
 **Get Advisor cost recommendations:**

@@ -303,6 +303,38 @@ def test_r1_mixed_location_scopes_have_no_universal_allowlist() -> None:
     assert [finding["required_value"] for finding in envelope["findings"]] == [["eastus", "westeurope"], ["swedencentral"]]
 
 
+@pytest.mark.parametrize("condition", [
+    {"field": "location", "equals": "eastus"},
+    {"anyOf": [{"field": "location", "equals": "eastus"}, {"field": "location", "equals": "westus"}]},
+    {"not": {"field": "location", "equals": "eastus"}},
+    {"allOf": [{"field": "location", "notIn": ["eastus", "westeurope"]},
+               {"field": "location", "equals": "eastus"}]},
+])
+@pytest.mark.parametrize("scope", ["/subscriptions/s", "/subscriptions/s/resourceGroups/one"])
+@pytest.mark.parametrize("mixed", [False, True])
+def test_r1_unsupported_location_conditions_preserve_scope(condition: dict[str, Any], scope: str, mixed: bool) -> None:
+    assignment, definition = _r1_location_policy("unsupported")
+    assignment["properties"]["scope"] = scope
+    definition["properties"]["policyRule"]["if"] = condition
+    known_assignment, known_definition = _r1_location_policy("known")
+    envelope = discover.discover("s", project="p", az_rest=_router({
+        "policyAssignments": {"value": [assignment, known_assignment] if mixed else [assignment]},
+        definition["id"] + "?": definition, known_definition["id"] + "?": known_definition,
+    }))
+    assert envelope["discovery_status"] == "COMPLETE"
+    assert envelope["allowed_locations"] == []
+    finding = envelope["findings"][0]
+    assert finding["classification"] == "blocker"
+    assert finding["location_constraint_global"] is False
+    assert finding["location_condition"] == condition
+    assert finding["scope"] == scope
+    if mixed:
+        known_finding = envelope["findings"][1]
+        assert known_finding["required_value"] == ["eastus", "westeurope"]
+        assert known_finding["location_constraint_global"] is True
+        assert known_finding["scope"] == "/subscriptions/s"
+
+
 @pytest.mark.parametrize("expiry", ["2026-09-14T12:00:00Z", "2026-09-14T14:00:00+02:00"])
 def test_r1_exemption_expiry_boundary(expiry: str) -> None:
     exemption = {"id": "/subscriptions/s/providers/Microsoft.Authorization/policyExemptions/one", "properties": {

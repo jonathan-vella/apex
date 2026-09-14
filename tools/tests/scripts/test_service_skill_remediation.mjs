@@ -3,6 +3,7 @@ import { spawnSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { test } from "node:test";
+import { runInNewContext } from "node:vm";
 
 const linkCheckRequire = createRequire(import.meta.resolve("markdown-link-check"));
 const extractorRequire = createRequire(linkCheckRequire.resolve("markdown-link-extractor"));
@@ -65,10 +66,15 @@ test("SK-35 SK-38 all owned service links, anchors and reference-index paths res
   assert.deepEqual(failures, []);
 });
 
-test("SK-20 orphan projections preserve identity for ResourceId cost correlation", () => {
+test("SK-20 SK-42 owner and cost consumer projections preserve cross-subscription ResourceId correlation", () => {
   const source = read("apex-azure-resources/references/azure-resource-graph.md");
   const orphanQueries = blocks(source.split("## Orphaned Resource Patterns")[1].split("\n## ")[0]);
   assert.equal(orphanQueries.length, 4);
+  const consumer = read("apex-azure-cost-optimization/references/azure-resource-graph.md");
+  const consumerQueries = blocks(consumer).filter((query) => query.includes("microsoft.network/loadbalancers"));
+  assert.equal(consumerQueries.length, 1);
+  assert.match(consumer, /preserve full `id` and `subscriptionId`/);
+  assert.match(consumer, /never join costs by resource name or resource group alone/);
   const resources = [
     {
       id: "/subscriptions/one/resourceGroups/alpha/providers/example/disks/shared",
@@ -90,7 +96,7 @@ test("SK-20 orphan projections preserve identity for ResourceId cost correlation
     },
   ];
   const costs = resources.map((resource, index) => ({ ResourceId: resource.id.toUpperCase(), cost: index + 1 }));
-  for (const query of orphanQueries) {
+  for (const query of [...orphanQueries, ...consumerQueries]) {
     const columns = query
       .match(/\| project (.+)/)[1]
       .split(",")
@@ -201,6 +207,43 @@ test("SK-28 documented quota helper rejects invalid evidence and never establish
       consumer,
       /Quotas = available capacity|Confirmed working providers|never to REST API or Portal/,
     );
+  }
+});
+
+test("SK-23 SK-28 SK-42 prepare quota callers retain the canonical evidence and unknown-readiness contract", () => {
+  for (const relative of ["resources-limits-quotas.md", "azure-context.md", "plan-template.md"]) {
+    const source = read(`apex-azure-prepare/references/${relative}`);
+    assert.match(source, /apex-azure-quotas\/references\/commands.md#quota-evidence-and-fallback/);
+    assert.match(source, /Published defaults are not observed subscription limits/);
+    assert.match(source, /collection time/);
+    assert.match(source, /quota name, units/);
+    assert.match(source, /Unknown or insufficient quota blocks readiness and infrastructure generation/);
+    assert.match(source, /blocked draft is not a validated plan/i);
+    assert.match(source, /Static catalogs and unrestricted SKU listings do not prove regional capacity/);
+    assert.doesNotMatch(source, /Available = Documented Limit|calculate available capacity|it likely means/);
+    assert.doesNotMatch(source, /If `az quota list` returns `BadRequest` error, the resource provider doesn't support/);
+  }
+});
+
+test("SK-23 SK-28 prepare arithmetic rejects unknown evidence and keeps quota distinct from capacity", () => {
+  const source = read("apex-azure-prepare/references/resources-limits-quotas.md");
+  const helper = source.split("### Offline Arithmetic")[1].match(/```javascript\n([\s\S]*?)```/)[1];
+  const calculate = runInNewContext(`${helper}\nplannedQuotaTotal`);
+  const evidence = { scope: "/subscriptions/one", quotaName: "cores", unit: "vCPU", current: 8, limit: 16 };
+  const addition = { ...evidence, instances: 2, unitsPerInstance: 4 };
+  const result = calculate(evidence, [addition]);
+  assert.equal(result.total, 16);
+  assert.equal(result.headroom, 0);
+  assert.equal(result.withinQuota, true);
+  assert.equal(result.capacityVerified, false);
+  assert.equal(calculate({ ...evidence, limit: 15 }, [addition]).withinQuota, false);
+  for (const value of [undefined, null, "", "No Limit", "Unlimited", "16", NaN, Infinity, -1]) {
+    for (const field of ["current", "limit"]) {
+      assert.throws(() => calculate({ ...evidence, [field]: value }, [addition]), /Incomplete quota evidence/);
+    }
+  }
+  for (const override of [{ scope: "/subscriptions/two" }, { unit: "count" }, { quotaName: "other-family" }]) {
+    assert.throws(() => calculate(evidence, [{ ...addition, ...override }]), /do not match/);
   }
 });
 

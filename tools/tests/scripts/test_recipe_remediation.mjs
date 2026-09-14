@@ -876,10 +876,14 @@ async def main():
                     assert (await client.call_tool("unknown_tool", {})).isError
             for request_id in [7, "string-id"]:
                 response = await http.post("/mcp", json={"jsonrpc": "2.0", "id": request_id, "method": "unknown_method"})
-                assert response.json()["id"] == request_id and response.json()["error"]["code"] == -32601
-            assert (await http.post("/mcp", content="{")).status_code == 400
+                payload = response.json()
+                assert response.status_code == 200 and payload["id"] == request_id, (response.status_code, response.text)
+                assert "result" not in payload and payload["error"]["code"] == -32602, payload
+                assert payload["error"]["message"] == "Invalid request parameters", payload
+            parse_error = await http.post("/mcp", content="{")
+            assert parse_error.status_code == 400 and parse_error.json()["error"]["code"] == -32700
             malformed = await http.post("/mcp", json={"jsonrpc": "2.0", "id": 9, "method": 42})
-            assert malformed.status_code == 400 and malformed.json()["error"]["code"] == -32600
+            assert malformed.status_code == 400 and malformed.json()["error"]["code"] == -32602, malformed.text
             assert (await http.post("/mcp", headers={"MCP-Protocol-Version": "2099-01-01"}, json={"jsonrpc": "2.0", "id": 8, "method": "tools/list"})).status_code == 400
             negotiation = await http.post("/mcp", json={"jsonrpc": "2.0", "id": "future", "method": "initialize", "params": {"protocolVersion": "2099-01-01", "capabilities": {}, "clientInfo": {"name": "fixture", "version": "1"}}})
             assert negotiation.json()["result"]["protocolVersion"] in SUPPORTED_PROTOCOL_VERSIONS

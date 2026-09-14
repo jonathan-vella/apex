@@ -160,50 +160,33 @@ See `tools/registry/count-manifest.json` for canonical counts.
 
 ## Instruction File Map
 
-See `tools/registry/count-manifest.json` for canonical counts.
-
-| Instruction                                    | Applies To (glob)                                               |
-| ---------------------------------------------- | --------------------------------------------------------------- |
-| `agent-authoring.instructions.md`              | `**/*.agent.md, **/*.prompt.md`                                 |
-| `agent-skills.instructions.md`                 | `**/.github/skills/**/SKILL.md`                                 |
-| `astro.instructions.md`                        | `site/**/*.astro, site/**/*.ts, site/**/*.mdx, site/**/*.md`    |
-| `azure-artifacts.instructions.md`              | `**/agent-output/**/*.md`                                       |
-| `iac-bicep-best-practices.instructions.md`     | `**/*.bicep`                                                    |
-| `iac-terraform-best-practices.instructions.md` | `**/*.tf`                                                       |
-| `iac-plan-best-practices.instructions.md`      | `**/04-implementation-plan.md`                                  |
-| `code-quality.instructions.md`                 | `**/*.{js,mjs,cjs,ts,tsx,jsx,py,ps1,sh,bicep,tf}`               |
-| `context-optimization.instructions.md`         | `.github/agents/**/*.agent.md, .github/skills/**/SKILL.md`      |
-| `docs.instructions.md`                         | `site/src/content/docs/**/*.md, site/src/content/docs/**/*.mdx` |
-| `docs-trigger.instructions.md`                 | `**/*.agent.md, **/SKILL.md, **/scripts/*.mjs`                  |
-| `github-actions.instructions.md`               | `.github/workflows/*.yml`                                       |
-| `governance-discovery.instructions.md`         | `**/04-governance-*.md`                                         |
-| `instructions.instructions.md`                 | `**/*.instructions.md`                                          |
-| `javascript.instructions.md`                   | `**/*.{js,mjs,cjs}`                                             |
-| `json.instructions.md`                         | `**/*.{json,jsonc}`                                             |
-| `lesson-collection.instructions.md`            | `**/*orchestrator*.agent.md`                                    |
-| `markdown.instructions.md`                     | `**/*.md`                                                       |
-| `no-hardcoded-counts.instructions.md`          | `**/*.md, **/*.json, **/*.mjs`                                  |
-| `no-heredoc.instructions.md`                   | `**`                                                            |
-| `powershell.instructions.md`                   | `**/*.ps1, **/*.psm1`                                           |
-| `prompt.instructions.md`                       | `**/*.prompt.md`                                                |
-| `python.instructions.md`                       | `**/*.py`                                                       |
-| `shell.instructions.md`                        | `**/*.sh`                                                       |
+Use the [instruction directory](../../../instructions/) for the current inventory and
+each file's `applyTo` frontmatter for authoritative scopes. The
+[count manifest](../../../../tools/registry/count-manifest.json) owns inventory counts;
+the [published instruction reference](../../../../site/src/content/docs/concepts/how-it-works/skills-and-instructions.md)
+explains their role. Authoring scope matches do not prove runtime instruction attachment.
 
 ## Artifact Flow (Multi-Step Workflow)
 
-```text
-Step 1          Step 2            Step 3         Step 4
-Requirements → Architecture →  Design       → Planning
-(01-*.md)     (02-*.md)       (03-des-*)     (04-*.md)
-                                  │
-                                  ├─ Diagrams (03-des-diagram.{py,png,svg})
-                                  ├─ ADRs (03-des-adr-*.md)
-                                  └─ Cost Estimate (03-des-cost-estimate.md)
+The [workflow graph](../../apex-workflow-engine/templates/workflow-graph.json) owns routing;
+the [workflow table](../../../../AGENTS.md#agent-workflow) defines review and human approval requirements.
+This artifact-flow summary does not replace those gates.
 
-Step 5            Step 6          Step 7
-Implementation → Deploy       → Documentation
-(infra/bicep/)  (06-*.md)      (07-*.md × 7 types)
-(05-*.md)
+```mermaid
+%%{init: {'theme':'neutral'}}%%
+graph TB
+    requirements["Step 1: Requirements + SKU manifest"] --> architecture["Step 2: Architecture + cost estimate"]
+    architecture -->|"Optional design"| design["Step 3: Diagrams + ADRs"]
+    architecture -->|"Skip design"| governance["Step 3.5: Governance constraints"]
+    design --> governance
+    governance --> planning["Step 4: IaC implementation plan"]
+    planning -->|"Bicep track"| bicep["Step 5b: infra/bicep/{project}/"]
+    planning -->|"Terraform track"| terraform["Step 5t: infra/terraform/{project}/"]
+    bicep --> deployBicep["Step 6b: Bicep deployment summary"]
+    terraform --> deployTerraform["Step 6t: Terraform deployment summary"]
+    deployBicep --> asBuilt["Step 7: As-built documentation"]
+    deployTerraform --> asBuilt
+    asBuilt --> lessons["Post: Lessons learned"]
 ```
 
 ## Key Files for Documentation Maintenance

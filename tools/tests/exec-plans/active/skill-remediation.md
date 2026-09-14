@@ -2,7 +2,7 @@
 
 ## Status And Authority
 
-Created 2026-09-14. Status: **recovery verified locally; remediation uncommitted; dependency checks still blocked**.
+Created 2026-09-14. Status: **recovery checkpoint published; reviewed follow-up verified offline; Node SDK policy-blocked**.
 On 2026-09-14 the user approved the recommended autonomous defaults for all recorded SK/AB work.
 This supersedes the earlier tracking-only authorization and pending decision rows below within these boundaries.
 Reproduce findings before fixing them; retain inconclusive optimizations with evidence rather than invented equivalence.
@@ -26,7 +26,8 @@ verification limits are recorded under Recovery Checkpoint below; prior chat sum
 
 The audit owns finding definitions and per-ID status. This plan owns batch order and dependencies.
 Use the master's status vocabulary; track approval separately from implementation, publication and manual acceptance.
-All batches are approved within the autonomous boundaries above; implementation starts with no remediation commit.
+All batches are approved within the autonomous boundaries above. Recovery checkpoint `b98f4df1` is published;
+it is an implementation checkpoint with recorded verification gaps, not final quality acceptance.
 The historical proposed/pending wording elsewhere records pre-approval assessment, not a renewed routine decision gate.
 SK-01 through SK-47 must each end in a verified fix or an explicit evidence-backed disposition, never silent omission.
 The same rule applies to AB-01 through AB-22 in the [agent-body ledger](apex-workflow-audit.md#agent-body-audit-backlog).
@@ -278,6 +279,74 @@ Earlier logs named final are superseded wherever a newer current-source rerun ex
    publish the entire recovery bundle as complete while required protocol acceptance or per-item coverage is missing.
 6. Continue from the remaining item list rather than restarting audits. Native Local/Host/model eligibility and
    full generated-output acceptance remain manual, as previously agreed.
+
+## Published Checkpoint And Follow-Up (2026-09-14)
+
+The user requested commit/push before continuation. Commit `b98f4df191f5253197b923ef664c1c19307c459f`
+published the recovered work and preceding planning commit `3b034112` on the feature branch. Normal hooks passed.
+The hook found TypeScript was used by recipe tests without a direct declaration; `typescript: 6.0.2` is now
+declared, matching the already locked package. The offline lock update preserved all package versions, URLs
+and integrity hashes. A stale ESLint cache was cleared and the unchanged lint hook rerun, not bypassed.
+
+After publication, the user explicitly approved isolated Node and Python MCP test dependency downloads.
+Node installation failed with `EALLOWREMOTE`: the configured feed redirected `isexe` to a prohibited remote
+tarball URL. No alternate registry, policy override or direct-tarball bypass was attempted. This remains an
+environment policy blocker even though the user approved the download. No further Node retry is authorized by success elsewhere.
+
+Python MCP `1.26.0` installed successfully in `tmp/recovery-sdk-python/`. Its actual Streamable HTTP client/server
+test now passes, including initialization, negotiation, tool schemas/results/errors, authentication, scope/expiry,
+parse errors and health checks. Two assertions were corrected against the installed SDK source: unknown methods
+are rejected by request validation as `-32602`, and malformed envelopes use `-32602` while malformed JSON uses
+`-32700`. Exact status, error and ID checks remain; no arbitrary error response is accepted.
+This is local ASGI SDK evidence, not Azure Functions deployment or every language binding acceptance.
+
+### Follow-Up Review And Repairs
+
+- Three independent source reviews reconciled all SK/AB IDs at checkpoint `b98f4df1` against the earlier plan.
+  They distinguished supported source corrections from unverified examples and identified bounded residual defects.
+- SK-02: cached rendering now rejects exemptions that expired after collection and invalid TTL before writing outputs.
+- SK-03: unsupported location restrictions retain unresolved applicability rather than creating a false global allowlist.
+- SK-04: the main Governance command explicitly passes the confirmed subscription on normal and refresh paths.
+- SK-20/SK-42: the cost consumer's load-balancer query now retains resource/subscription identity, not only owner queries.
+- SK-23/SK-28/SK-42: Prepare's documented-limit fallback no longer manufactures quota/capacity evidence from static catalogs.
+- SK-35/SK-46: Explorer renders declared/effective invocation metadata as text, with a permissions caveat; stale principle
+  and instruction inventories were corrected, and the documentation diagram includes Governance and both IaC tracks.
+- Final bounded source re-review found no introduced regressions in these repairs. No model, production gate,
+  runtime approval or artifact schema change was introduced by the follow-up.
+
+### Follow-Up Checks And Remaining Limits
+
+| Check | Result / Boundary |
+| --- | --- |
+| Governance Python suite | 170 passed, no skips; includes expiry transitions, unsupported location scope and output preservation |
+| Agent-body source fixtures | 49 passed, no skips; includes explicit subscription arguments for normal/refresh commands |
+| Combined recipe/body/service/consolidation/Explorer tests | 175 passed, one Node SDK skip with Python SDK enabled |
+| Full repository suite with `MCP_PYTHON` set | 54 Node tasks plus external group passed; Node SDK and optional renderer skips remain explicit |
+| Explorer | DOM rendering and escaping fixtures pass; site build and internal links pass; visual/interactive native acceptance unverified |
+| Governance Ruff comparison | No new diagnostics; existing file-level diagnostics remain, not a clean-file claim |
+| SK-18 / SK-19 | Source safeguards and static assertions verified; manual mixed-hunk editing and prose arithmetic are not executable acceptance tests |
+| SK-21 | Exact AVM interface needs its approved module/version evidence; current guidance stops affected generation rather than guessing |
+| SK-22 / SK-37 | Mocked SQL/SDK paths pass; actual installed SQL interface, real Rust crate compatibility and cloud integration remain unverified |
+| SK-36 | Model-specific diagram checks pass; optional CairoSVG conversions remain skipped without that dependency |
+| Native acceptance | Local/Host discovery, actual model tiers, generated workloads and human signoff remain manual |
+
+Logs: `tmp/recovery-checkpoint-{commit-success,push}.log`, `tmp/recovery-sdk-node-install.log`,
+`tmp/recovery-sdk-python-install-final.log`, `tmp/recovery-sdk-python-tests-verified.log`,
+`tmp/post-checkpoint-final-integration.log` and `tmp/residual-focused-final.log`.
+These are local supporting logs; this durable summary does not require them to remain available.
+The [per-ID disposition update](apex-workflow-audit.md#post-checkpoint-per-id-disposition) is authoritative for
+current coverage. Pending checks are not converted to fixed/accepted results by checkpoint publication.
+
+Available preserved originals under `tmp/remediation-preserved/` were hashed during this follow-up:
+
+| File | SHA-256 |
+| --- | --- |
+| original-plan-fourLayerAgentAssessment.md | 599851e9fb025512f391177ad1533f9b6dde6a71c4b73a2ba7a4c9ab4175c038 |
+| original-plan-docsPeerReview.md | 4a2ebbcf2099f1fd3c1eda861ec3a5a32835c1bd2012426f65ff0ed2a35f39e0 |
+| original-apex-host-resume-workflow/SKILL.md | cfd900ede87fc899413ef06d486dc3c4e84aff5995d975a1ad901fa4e8f10a86 |
+
+The originals are recoverable and active duplicates are absent. These current hashes do not reconstruct missing
+pre-removal chronology or prove who performed a prior operation. Never restore old copies over newer canonical work.
 
 ## Batch Evidence Record
 

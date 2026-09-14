@@ -436,7 +436,7 @@ test("cost-specific queries and cost evidence/report obligations survive sharing
   assert.deepEqual(kqlBlocks(source), [
     "Resources\n| where isnotempty(sku.name)\n| summarize count() by type, tostring(sku.name)\n| order by count_ desc\n",
     "Resources\n| extend hasCostCenter = isnotnull(tags['CostCenter'])\n| summarize total=count(), tagged=countif(hasCostCenter) by type\n| extend coverage=round(100.0 * tagged / total, 1)\n| order by total desc\n",
-    "Resources\n| where type =~ 'microsoft.network/loadbalancers'\n| where array_length(properties.backendAddressPools) == 0\n| project name, resourceGroup, location, sku=sku.name\n",
+    "Resources\n| where type =~ 'microsoft.network/loadbalancers'\n| where array_length(properties.backendAddressPools) == 0\n| project id, subscriptionId, name, resourceGroup, location, sku=sku.name\n",
     "AdvisorResources\n| where properties.category == 'Cost'\n| project name, impact=properties.impact, description=properties.shortDescription.solution\n",
   ]);
   assert.match(

@@ -2,14 +2,18 @@
 
 # Azure Resource Limits and Quotas
 
-Check Azure resource availability during apex-azure-prepare workflow. Validate after customer selects region.
+Check Azure quota evidence during apex-azure-prepare workflow after the customer selects a region.
+Read the canonical [quota evidence and fallback contract](../../apex-azure-quotas/references/commands.md#quota-evidence-and-fallback).
+Quota headroom, SKU restrictions and physical regional capacity are separate checks.
+Static catalogs and unrestricted SKU listings do not prove regional capacity or guarantee allocation.
 
 ## Types
 
 1. **Hard Limits** - Fixed constraints that cannot be changed
 2. **Quotas** - Subscription limits that can be increased via support request
 
-**CLI First:** Always use `az quota` CLI for quota checks. Provides better error handling and consistent output. "No Limit" in REST/Portal doesn't mean unlimited - verify with service docs.
+**CLI First:** Start with `az quota` discovery at the approved scope. Missing, nonnumeric, `No Limit`
+or `Unlimited` values are unknown evidence, not zero, unlimited quota or proof of unsupported capability.
 
 ## Hard Limits
 
@@ -45,7 +49,7 @@ Subscription/regional limits that can be increased via support request.
 2. Discover quota names: `az quota list --scope /subscriptions/{id}/providers/{Provider}/locations/{region}`
 3. Check usage: `az quota usage show --resource-name {name} --scope ...`
 4. Check limit: `az quota show --resource-name {name} --scope ...`
-5. Calculate: Available = Limit - Current Usage
+5. Calculate quota headroom = observed limit - current usage, only with complete matching evidence.
 6. If exceeded: report the blocker; a quota increase or region change needs explicit approval.
 
 Use matching units and scope as defined in the [plan quota contract](plan-template.md#phase-2-fetch-quotas-and-validate-capacity).
@@ -53,7 +57,7 @@ Counts cannot substitute for vCPU usage. Check VM-family and regional totals inc
 Quota headroom is not physical capacity. An authorization error or generic BadRequest is not evidence of unsupported
 quota capability; diagnose the error and use fallback only when lack of support is established.
 
-**Confirmed Unsupported Providers**:
+**Confirmed Unsupported Capability**:
 
 Not all providers support the quota API. Diagnose `BadRequest` against the exact provider, scope and parameters.
 Only after unsupported capability is established, use the following fallback for a documented count quota:
@@ -69,9 +73,17 @@ Only after unsupported capability is established, use the following fallback for
     az resource list --subscription "{id}" --resource-type "{Type}" --query "[?location=='{loc}'] | length(@)" -o json
    ```
 
-2. Verify the documented limit's unit and scope. Omit the region filter for subscription-wide count quotas.
-  Get the limit from [service documentation](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits).
-3. Calculate: Available = Documented Limit - Current Usage
+2. Verify usage against a documented service-specific usage source with matching quota name, unit and scope.
+  Counts are valid only for documented count quotas; omit the region filter for subscription-wide quotas.
+3. Establish the actual applicable subscription limit through a live service-specific source or Portal/support
+  confirmation. Published defaults are not observed subscription limits and cannot fill missing evidence.
+4. Record source command/API or confirmation, collection time, subscription/provider/region (or subscription-wide
+  scope), quota name, units, current usage, limit and normalized demand. Keep limit and usage in the same
+  collection window. If any evidence is missing, stale or invalid, report headroom as unknown; do not calculate.
+
+Unknown or insufficient quota blocks readiness and infrastructure generation. Record explicit unknowns and the
+next evidence needed in `infra/{iac}/{project}/.azure/plan.md`; a blocked draft is not a validated plan.
+Do not substitute a static catalog or SKU availability for quota evidence or regional capacity.
 
 Provider support is version- and scope-specific. Use current discovery evidence, not a static support list.
 
@@ -194,9 +206,9 @@ az quota update --resource-name {quota-name} --scope /subscriptions/{id}/provide
 - **Must invoke apex-azure-quotas skill** - Process ONE resource type at a time:
   a. Try `az quota list` first (required)
   b. If supported: Use `az quota usage show` and `az quota show`
-  c. If unsupported capability is confirmed: use a scope-matched count query + service docs
+  c. If unsupported capability is confirmed: follow the canonical fallback above for live usage and applicable limit
   d. Calculate quota headroom; regional capacity remains independently unverified
-  e. Document in checklist (no "_TBD_" entries allowed)
+  e. Document evidence and provenance; replace "_TBD_" with explicit unknowns and blockers when evidence is incomplete
   f. If insufficient: obtain approval before requesting an increase or changing region
 
 **Phase 3 - Generate Artifacts**:
@@ -220,14 +232,14 @@ az quota update --resource-name {quota-name} --scope /subscriptions/{id}/provide
 
 1. **Use Azure CLI quota discovery first**: fallback requires evidence that the exact provider/scope lacks support,
    not just a `BadRequest` or authorization failure.
-2. **Don't trust "No Limit" values**: If REST API or Portal shows "No Limit" or unlimited, verify with official service documentation - it likely means the quota API doesn't support that resource type, not that capacity is unlimited
-3. **Always check after customer selects region**: Validates availability and allows time for quota requests
+2. **Don't trust "No Limit" values**: unknown evidence requires diagnosis; it proves neither unlimited quota nor unsupported capability.
+3. **Always check after customer selects region**: establishes scoped quota evidence and allows time for approved requests.
 4. **Use the discovery workflow**: Never assume quota resource names - always run `az quota list` first to discover correct names
-5. **Check both usage and limit**: Run `az quota usage show` AND `az quota show` to calculate available capacity
-6. **Handle unsupported providers explicitly**: document support evidence and fallback count units/scope.
+5. **Check both usage and limit**: use live, scope-matched observations to calculate quota headroom, not regional capacity.
+6. **Handle unsupported providers explicitly**: preserve diagnostics, source, collection time, quota name and units/scope.
 7. **Request quota increases only with approval**: quota and regional capacity are independent constraints.
 8. **Have alternative regions ready**: If quota increase denied, suggest backup regions
-9. **Document capacity assumptions**: Note quota availability and source in `infra/{iac}/{project}/.azure/plan.md`
+9. **Document unknowns and gate readiness**: incomplete quota evidence blocks readiness; record SKU restrictions and regional capacity separately in `infra/{iac}/{project}/.azure/plan.md`.
 10. **Design for limits**: Architecture should account for both hard limits and quotas
 11. **Monitor usage trends**: Regular quota checks help predict future needs
 12. **Use lower environments wisely**: Dev/test environments count against quotas
@@ -304,8 +316,8 @@ az resource list \
 # Result: 3
 
 # This example counts subscription-wide accounts. Use it only for a documented subscription-wide count quota.
-# Get the current limit from documentation; subtract the count in the same scope and units.
-# Document as: "Fetched from: Azure Resource Graph + Official docs"
+# Establish the actual applicable limit from a live service-specific source or Portal/support confirmation.
+# Published defaults alone leave headroom unknown. Record sources, scope, quota name, units and collection time.
 
 # 3b. Storage Accounts
 # Step 1: Discover resource name
@@ -344,8 +356,8 @@ az quota show \
 # Limit: 50
 # Available: 50 - 8 = 42 ✓
 
-# 4. Validate Availability
-# ✅ All services have sufficient quota in East US
+# 4. Validate Quota Evidence
+# Cosmos DB headroom remains unknown until its actual applicable limit is established; readiness is blocked.
 # Return quota evidence to validation; this does not authorize deployment or prove physical capacity.
 
 # Alternative: If quotas were insufficient

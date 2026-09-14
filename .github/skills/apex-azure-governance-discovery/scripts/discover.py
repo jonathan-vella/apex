@@ -592,6 +592,16 @@ def _extract_tags_required(findings: list[dict[str, Any]]) -> list[dict[str, str
     return tags
 
 
+def _has_location_condition(condition: Any) -> bool:
+    if isinstance(condition, dict):
+        return condition.get("field", "").lower() == "location" or any(
+            _has_location_condition(value) for value in condition.values()
+        )
+    if isinstance(condition, list):
+        return any(_has_location_condition(child) for child in condition)
+    return False
+
+
 def _location_constraint(condition: Any) -> tuple[list[str] | None, bool]:
     if not isinstance(condition, dict):
         return None, False
@@ -894,8 +904,9 @@ def discover(
                 finding["exemption_candidates"] = exemption_candidates
             condition = ((defn.get("properties") or {}).get("policyRule") or {}).get("if")
             locations, universal = _location_constraint(condition)
-            if locations is not None:
-                finding["required_value"] = locations
+            if locations is not None or _has_location_condition(condition):
+                if locations is not None:
+                    finding["required_value"] = locations
                 finding["location_condition"] = condition
                 finding["location_constraint_global"] = bool(
                     universal and not rtypes and not finding["not_scopes"] and not finding["resource_selectors"]

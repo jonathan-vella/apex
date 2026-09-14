@@ -184,6 +184,39 @@ test("AB-06/07 governance final inputs precede review; exhausted stale review bl
   );
 });
 
+for (const refresh of [false, true]) {
+  test(`SK-02 governance binds confirmed subscription in source command (refresh=${refresh})`, (context) => {
+    const body = read("04g-governance");
+    const phase = section(body, "### Phase 1: Governance Discovery", "### Phase 2: Generate Artifacts");
+    assert.match(phase, /If missing or ambiguous, STOP for\s+confirmation/);
+    assert.match(phase, /never default to the active Azure CLI subscription/);
+    assert.match(body, /discover\.py --subscription "<confirmed-subscription-id>" --refresh/);
+    const command = blocks(phase, "bash").find((block) => block.includes("scripts/discover.py"));
+    assert.ok(command);
+    const directory = scratch(context);
+    const env = stub(directory, "python", "console.log(JSON.stringify(process.argv.slice(2))); ");
+    const invocation = command
+      .trim()
+      .replaceAll("{project}", "fixture-project")
+      .replaceAll("<confirmed-subscription-id>", "confirmed-subscription");
+    const result = shell(`${invocation}${refresh ? " --refresh" : ""}`, directory, env);
+    assert.equal(result.status, 0, result.stderr);
+    const args = JSON.parse(result.stdout);
+    assert.deepEqual(args, [
+      ".github/skills/apex-azure-governance-discovery/scripts/discover.py",
+      "--project",
+      "fixture-project",
+      "--subscription",
+      "confirmed-subscription",
+      "--out",
+      "agent-output/fixture-project/04-governance-constraints.json",
+      "--arch",
+      "agent-output/fixture-project/02-architecture-assessment.md",
+      ...(refresh ? ["--refresh"] : []),
+    ]);
+  });
+}
+
 test("AB-08 Planner pins override defaults and persisted aliases remain compatible", () => {
   const body = read("05-iac-planner");
   assert.doesNotMatch(body, /trust default SKUs|two-stage gate/);
