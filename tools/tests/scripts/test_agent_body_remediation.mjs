@@ -1,5 +1,14 @@
 import assert from "node:assert/strict";
-import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import {
+  copyFileSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+  symlinkSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { spawn, spawnSync } from "node:child_process";
@@ -12,6 +21,7 @@ import {
   validateProductionAgentBody,
 } from "../../scripts/validate-agents.mjs";
 import { MAX_BODY_LINES } from "../../scripts/_lib/paths.mjs";
+import { cacheInputs, findingId } from "../../scripts/validate-challenger-findings.mjs";
 
 const root = fileURLToPath(new URL("../../../", import.meta.url));
 const agentRoot = path.join(root, ".github/agents");
@@ -609,4 +619,88 @@ test("AB-21 parent follow-up: explicit temporary-file validation must not scan z
     { cwd: directory, encoding: "utf8" },
   );
   assert.equal(result.status, 1, result.stdout + result.stderr);
+});
+
+test("review metadata is deterministic, read-only and detects source, identity and count drift", (context) => {
+  const directory = scratch(context);
+  const sources = [
+    ".github/agents/_subagents/challenger-review-subagent.agent.md",
+    ".github/skills/apex-azure-defaults/references/adversarial-checklists.md",
+    ".github/skills/apex-azure-defaults/references/adversarial-review-protocol.md",
+  ];
+  for (const source of sources) {
+    mkdirSync(path.dirname(path.join(directory, source)), { recursive: true });
+    copyFileSync(path.join(root, source), path.join(directory, source));
+  }
+  const artifact = path.join(directory, "requirements.md");
+  writeFileSync(artifact, "# Requirements\nPrivate API\n");
+  const payload = JSON.parse(
+    readFileSync(
+      path.join(root, "tools/tests/fixtures/subagent-file-contract/challenger-review.findings.json"),
+      "utf8",
+    ),
+  );
+  payload.challenged_artifact = artifact;
+  payload.cache_inputs = cacheInputs(artifact, directory);
+  for (const finding of payload.findings) finding.id = findingId(finding);
+  for (const severity of ["must_fix", "should_fix", "suggestion"]) {
+    payload[`${severity}_count`] = payload.findings.filter((finding) => finding.severity === severity).length;
+  }
+  const draft = path.join(directory, "review.json.tmp");
+  const write = (value) => writeFileSync(draft, JSON.stringify(value));
+  write(payload);
+  const original = readFileSync(draft, "utf8");
+  const run = (...args) =>
+    spawnSync(process.execPath, [path.join(root, "tools/scripts/validate-challenger-findings.mjs"), ...args], {
+      cwd: directory,
+      encoding: "utf8",
+    });
+  const metadata = run("--metadata", artifact, "--finding-ids", draft);
+  assert.equal(metadata.status, 0, metadata.stdout + metadata.stderr);
+  assert.deepEqual(JSON.parse(metadata.stdout).cache_inputs, payload.cache_inputs);
+  assert.equal(payload.cache_inputs.model, parseFrontmatter(read("_subagents/challenger-review-subagent")).model[0]);
+  assert.deepEqual(
+    JSON.parse(metadata.stdout).finding_ids,
+    payload.findings.map((finding, index) => ({
+      index,
+      id: finding.id,
+    })),
+  );
+  assert.equal(readFileSync(draft, "utf8"), original);
+  assert.equal(run("--verify-cache", draft).status, 0);
+  write({ batch_results: [payload, { ...payload, pass_number: 2 }] });
+  assert.equal(run("--verify-cache", draft).status, 0);
+  write(payload);
+  for (const source of [artifact, ...sources.map((source) => path.join(directory, source))]) {
+    const before = readFileSync(source);
+    writeFileSync(source, Buffer.concat([before, Buffer.from("\nchanged\n")]));
+    assert.equal(run("--verify-cache", draft).status, 1, source);
+    assert.equal(readFileSync(draft, "utf8"), original);
+    writeFileSync(source, before);
+  }
+  for (const bad of [
+    { ...payload, cache_inputs: { ...payload.cache_inputs, model: "wrong-model" } },
+    { ...payload, must_fix_count: 999 },
+    { ...payload, findings: [{ ...payload.findings[0], id: "00000000" }] },
+    { batch_results: [] },
+    { findings: [null] },
+  ]) {
+    write(bad);
+    assert.equal(run("--verify-cache", draft).status, 1);
+  }
+  const code = path.join(directory, "iac");
+  mkdirSync(code);
+  assert.equal(run("--metadata", code).status, 1);
+  writeFileSync(path.join(code, "main.tf"), "terraform {}\n");
+  const directoryHash = cacheInputs(code, directory).artifact_sha;
+  assert.equal(run("--metadata", code).status, 0);
+  mkdirSync(path.join(code, ".terraform"));
+  writeFileSync(path.join(code, ".terraform", "cache"), "not authored source");
+  assert.equal(cacheInputs(code, directory).artifact_sha, directoryHash);
+  writeFileSync(path.join(code, "module.tf"), "resource {}\n");
+  assert.notEqual(cacheInputs(code, directory).artifact_sha, directoryHash);
+  symlinkSync(artifact, path.join(code, "linked.md"));
+  assert.equal(run("--metadata", code).status, 1);
+  assert.equal(run("--metadata", "missing.md").status, 1);
+  assert.equal(run("--metadata", artifact, "--verify-cache", draft).status, 1);
 });

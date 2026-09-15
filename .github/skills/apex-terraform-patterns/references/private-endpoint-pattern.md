@@ -4,6 +4,10 @@
 
 Standard three-resource pattern using AVM-TF private endpoint module.
 
+Apply the [canonical networking contract](../../../instructions/references/iac-security-baseline.md#private-networking-and-dns)
+before selecting this project-owned DNS pattern. Reuse verified central zones and avoid provisioning
+components owned by effective DINE policy. DNS resolution and private-client reachability remain required.
+
 ## Private Endpoint + DNS Zone + VNet Link
 
 ```hcl

@@ -34,7 +34,9 @@ Verify ALL items before marking Step 5 complete.
 - [ ] Front Door uses separate location params (profile=global, privateLinkLocation=resource region)
 - [ ] All `existing` resource references have explicit `dependsOn` to the creating module
 - [ ] AKS service CIDR does not overlap VNet/subnet CIDRs; node RG name ≤80 chars
-- [ ] PE modules create their own private DNS zones (not bare `resourceId()` to non-existent zones)
+- [ ] PE DNS components have verified project, central or DINE ownership per the
+  [canonical contract](../../../instructions/references/iac-security-baseline.md#private-networking-and-dns);
+  no duplicate provisioning or bare references to nonexistent zones
 - [ ] Subscription-scope entrypoints use `resourceId(subscription().subscriptionId, resourceGroupName, 'Microsoft.Foo/bars', name)` for cross-RG references
 
 ## Runtime Validation (Pre-Challenger)

@@ -234,6 +234,17 @@ Machine-readable detail is in `challenge-findings-{type}.json`.
 
 ## Findings Cache (REVISE-loop optimization)
 
+Use the existing validator's read-only metadata mode before review:
+`node tools/scripts/validate-challenger-findings.mjs --metadata <artifact_path>`.
+It computes byte hashes and the exact frontmatter model without opening source files in chat.
+Use `--finding-ids <draft.json.tmp>` for deterministic finding identities; copy results with editing tools.
+Validate the temporary payload with `--verify-cache <draft.json.tmp>` before publication, and use the
+same flag on a saved file before cache reuse. A mismatch blocks reuse; never refresh hashes on an old review.
+Default scans remain schema-only for historical evidence. Directory artifacts hash UTF-8 JSON of sorted
+`[relative/posix/path, file_sha256]` pairs, walking each directory in lexical order. Exclude `.git`, `.terraform`,
+`node_modules`, `.venv` and `__pycache__`; reject symlinks, special files and empty trees. All remaining files count.
+File artifacts retain the byte-hash contract. A previously different directory hash requires a fresh review.
+
 Subagent output includes a `cache_inputs` block:
 
 ```json
@@ -314,7 +325,8 @@ by the parent agent. Schema:
 
 **Atomic write**: write to `{path}.tmp`, then `os.rename` over the target.
 **Append on Revise re-runs**: never overwrite. Existing entries with a
-matching `issue_id` are kept and skipped on the next panel build.
+matching `issue_id` are kept. Reuse the decision only while the finding and mitigation are unchanged;
+a prior acceptance is not evidence of resolution. Changed guidance requires a new explicit decision.
 
 ### 2b. Stable issue identity
 
@@ -327,7 +339,9 @@ Use the normalized title for identity and sidecar title; do not require nonexist
 issue_id = sha256(category + "|" + title + "|" + artifact_section).hexdigest()[0:8]
 ```
 
-Computed by the parent agent at panel-build time. The challenger
+Use the persisted canonical finding `id` as `issue_id` after current verification;
+for legacy payloads compute via `--finding-ids` using canonical presentation fields.
+Computed deterministically at panel-build time. The challenger
 subagent's JSON schema is **not** modified — `issue_id` is a parent-side
 derivation. Re-running against the same finding produces the same hash,
 which makes Resume / Revise idempotent.
@@ -338,8 +352,8 @@ Before building the panel:
 
 1. If `challenge-findings-{type}-decisions.json` exists, read it.
 2. Compute `issue_id` for every finding in the merged source set (2e).
-3. Skip any issue whose `issue_id` is already present in
-   `decisions[].issue_id`.
+3. Reuse an existing decision only for an unchanged issue and mitigation. Verify closure independently;
+  unresolved blockers remain blocking even when previously accepted, rejected or deferred.
 
 If the sidecar is absent, treat as "no prior decisions" — legacy
 artifacts that pre-date this protocol work unchanged.
@@ -373,8 +387,9 @@ Source order for Architect:
 `cost-estimate → architecture pass 1 → pass 2 → pass 3`.
 Source order for Planner: `pass 1 → pass 2 → pass 3`.
 
-**No dedup logic** — the challenger subagent's existing `prior_findings`
-contract already prevents cross-pass duplicates.
+Across lenses of unchanged artifacts, `prior_findings` avoids duplicate reports.
+Across artifact revisions, the reviewer must verify prior findings and retain unresolved issues.
+Do not remove a blocker from the merged set just because it appeared before.
 
 ### 2f. Soft cap on panel size
 
@@ -435,6 +450,14 @@ For each answered question:
   Use an empty final field when the note is empty.
 
 ### 2j. No-op gate clarification
+
+For Requirements revisions, `Accept (apply mitigation)` authorizes the stated edit to owned artifacts.
+Apply compatible accepted fixes as a batch and validate before independent re-review; ask only about
+conflicts or expanded scope. Supply prior compact findings, dispositions and changed sections as context,
+not proof of closure. Keep the final human gate separate from mitigation authorization.
+If the accepted mitigation leaves the same blocker unresolved, checkpoint and request human direction;
+do not repeat an unchanged edit/review loop or infer approval. Technical reviewer failures retain the
+existing identical-input retry limit; revisions do not reset that allowance.
 
 If `must_fix + should_fix == 0`:
 

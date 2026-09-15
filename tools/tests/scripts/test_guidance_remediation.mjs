@@ -3,6 +3,8 @@ import { readFileSync, mkdtempSync, mkdirSync, writeFileSync, rmSync } from "nod
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { createHash } from "node:crypto";
+import { spawnSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
 import test from "node:test";
 import { runFetcher } from "../../scripts/fetch-vendor-prompting-guides.mjs";
 import { ARTIFACT_HEADINGS } from "../../scripts/_lib/artifact-headings.mjs";
@@ -10,6 +12,89 @@ import { ARTIFACT_HEADINGS } from "../../scripts/_lib/artifact-headings.mjs";
 const root = new URL("../../../", import.meta.url);
 const read = (file) => readFileSync(new URL(file, root), "utf8");
 const skill = (file) => read(`.github/skills/${file}`);
+
+test("private networking defaults distinguish public web, private APIs and verified DNS ownership", () => {
+  const baseline = read(".github/instructions/references/iac-security-baseline.md");
+  assert.match(baseline, /every environment/);
+  assert.match(baseline, /App Service hosting an API.*Private endpoint and public network access disabled/);
+  assert.match(baseline, /public-facing web application.*Public HTTPS ingress permitted/);
+  assert.match(baseline, /Private DNS resolution is mandatory/);
+  assert.match(baseline, /zone groups does not prove zones or VNet links exist/);
+  assert.match(baseline, /existing noncompliant resources may require an authorized remediation task/);
+  for (const file of [
+    "apex-azure-defaults/SKILL.md",
+    "apex-azure-defaults/references/adversarial-checklists.md",
+    "apex-azure-defaults/references/policy-effect-decision-tree.md",
+    "apex-azure-bicep-patterns/references/private-endpoint-pattern.md",
+    "apex-terraform-patterns/references/private-endpoint-pattern.md",
+  ]) {
+    assert.match(skill(file), /iac-security-baseline\.md/, file);
+  }
+});
+
+test("Requirements reuses supplied facts and batches authorized fixes without waiving review", () => {
+  const agent = read(".github/agents/02-requirements.agent.md");
+  assert.match(agent, /Explicit brief answers satisfy their fields without reconfirmation/);
+  assert.match(agent, /suggestions and inferred defaults do not/);
+  assert.match(agent, /unanswered classes require questions/);
+  assert.match(agent, /not an opt-out menu/);
+  assert.match(agent, /deployable host\/image/);
+  assert.match(agent, /Do not ask again whether to apply it/);
+  assert.match(agent, /comprehensive regression review/);
+  assert.match(agent, /same blocker persists/);
+  assert.match(agent, /no unresolved `must_fix` remains/);
+  assert.doesNotMatch(agent, /the question must always be asked|still let\s+the user confirm/);
+  const worker = read(".github/agents/_subagents/challenger-review-subagent.agent.md");
+  assert.match(worker, /retain unresolved prior issues/);
+  assert.match(worker, /Never interpret a parent's disposition as proof/);
+});
+
+test("network scanner blocks public data and unapproved APIs while allowing scoped public web files", (context) => {
+  const directory = mkdtempSync(path.join(tmpdir(), "private-network-baseline-"));
+  context.after(() => rmSync(directory, { recursive: true, force: true }));
+  const validator = fileURLToPath(new URL("tools/scripts/validate-iac-security-baseline.mjs", root));
+  const cases = [
+    {
+      extension: "bicep",
+      web: "resource web 'Microsoft.Web/sites@2024-04-01' = {\n properties: {\n publicNetworkAccess: 'Enabled'\n }\n}",
+      data: "resource data 'Microsoft.Storage/storageAccounts@2023-05-01' = {\n properties: {\n publicNetworkAccess: 'Enabled'\n }\n}",
+    },
+    {
+      extension: "tf",
+      web: 'resource "azurerm_linux_web_app" "web" {\n public_network_access_enabled = true\n}',
+      data: 'resource "azurerm_storage_account" "data" {\n public_network_access_enabled = true\n}',
+    },
+  ];
+  for (const { extension, web, data } of cases) {
+    const track = extension === "tf" ? "terraform" : "bicep";
+    const relative = `infra/${track}/test/main.${extension}`;
+    const target = path.join(directory, relative);
+    mkdirSync(path.dirname(target), { recursive: true });
+    const run = (...args) => spawnSync(process.execPath, [validator, ...args], { cwd: directory, encoding: "utf8" });
+    for (const content of [web, data, `${web}\n${data}`]) {
+      writeFileSync(target, content);
+      assert.equal(run().status, 1, content);
+      const result = run("--public-web-app", relative);
+      assert.equal(result.status, content === web ? 0 : 1, result.stdout + result.stderr);
+    }
+    writeFileSync(target, web.replace("'Enabled'", "'Disabled'").replace("= true", "= false"));
+    assert.equal(run().status, 0);
+    const avm =
+      extension === "bicep"
+        ? "module web 'br/public:avm/res/web/site:1.0.0' = {\n params: {\n publicNetworkAccess: 'Enabled'\n }\n}"
+        : 'module "web" {\n source = "Azure/avm-res-web-site/azurerm"\n public_network_access_enabled = true\n}';
+    writeFileSync(target, avm);
+    assert.equal(run("--public-web-app", relative).status, 0);
+    writeFileSync(
+      target,
+      avm.replace("web/site", "storage/storage-account").replace("res-web-site", "res-storage-storageaccount"),
+    );
+    assert.equal(run("--public-web-app", relative).status, 1);
+    writeFileSync(target, `${web}\n${extension === "bicep" ? "httpsOnly: false" : "https_only = false"}`);
+    assert.equal(run("--public-web-app", relative).status, 1);
+    rmSync(target);
+  }
+});
 
 test("SK25: templates preserve governed headings without deciding completion or routing", () => {
   for (const name of [

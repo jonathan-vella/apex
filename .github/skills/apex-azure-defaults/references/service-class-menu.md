@@ -10,7 +10,9 @@ Referenced by [`02-Requirements`](../../../agents/02-requirements.agent.md)
 Phase 3. Externalised from the agent body to keep per-turn system-prompt
 replay small (per `tmp/plan-input-token-reduction-v3.md` Phase 8).
 
-This phase is required. Use **batched `askQuestions` calls** to gather
+This phase is required. Explicit supplied answers satisfy the corresponding fields;
+ask only for missing/conflicting choices. Do not reopen a settled service list or
+add optional platform resources without a stated need. Use **batched `askQuestions` calls** to gather
 service-class decisions. Group questions whose options / multiSelect /
 recommendations do not depend on a prior answer into a single batched call
 (the `questions[]` array accepts multiple entries). Only split into separate
@@ -28,10 +30,10 @@ Required batching (saves ~10 turns per Phase 3):
   `multiSelect: true`); otherwise omit it.
 - **Batch C — Integration + platform** (Steps 3g–3h): messaging_events and
   supporting_services in one batched call. supporting_services pre-checks
-  defaults (Monitor, App Insights, Log Analytics, Key Vault) plus ACR when
+  defaults (Monitor, App Insights, Log Analytics) plus Key Vault for a stated secrets/certificates need and ACR when
   a container host was selected in Batch B.
-- **Confirm step** (Step 3i): one final batched call with the consolidated
-  service list (`multiSelect: true`, all chosen preselected).
+- **Confirm step** (Step 3i): present the consolidated service list; ask only
+  when inferred additions or scope conflicts require a decision.
 - **Batch D — SKU & sizing preferences** (Step 3j): one batched call per
   service class confirmed at 3i, asking for pinned SKU/size, tier floor,
   or explicit "no preference". Mandatory for every project (see
@@ -130,26 +132,26 @@ Use `askQuestions` for required supporting platform services with
 
 - Azure Monitor + Application Insights (recommended).
 - Log Analytics workspace (recommended).
-- Key Vault for secrets/certs (recommended).
+- Key Vault for a stated secrets/certificates need (not automatically preselected).
 - Azure Container Registry (only if container hosts are selected).
 - Azure Front Door / Application Gateway / CDN for edge ingress.
 - API Management (only when an external API surface is explicit).
 
 ## 3i. Confirm Azure services in scope
 
-After collecting per-class answers, present a final `askQuestions` summary
-list with `multiSelect: true`, preselected with all chosen services, so the
-user can add or remove items before artifact generation.
+Summarize the captured service list without reconfirming explicit choices.
+Use `askQuestions` only for inferred additions or scope conflicts; resolve dependent
+hosting, identity, monitoring and private-access implications together.
 
 ## 3j. SKU and sizing preferences (mandatory for every project)
 
-This step is **required** for every project — the user must be asked, even
-when the expected answer is "no preference". The goal is to capture **hard
+This step is **required** for every project. Reuse explicit supplied preferences;
+ask for every uncovered class, never infer "no preference". The goal is to capture **hard
 preferences** the user already knows so Architect treats them as locked
 user-pins; everything else is left for Architect to evaluate at Step 2.
 
 Use one **batched `askQuestions` call (Batch D)** with one question per
-service class confirmed at 3i. For each in-scope class, present three
+unanswered service class confirmed at 3i. For each such class, present three
 options plus a freeform field:
 
 - **Pinned SKU/size** — freeform (e.g. `P1v3`, `GP_Standard_D2s_v3`,
@@ -175,8 +177,8 @@ Question mapping (only ask for classes confirmed in 3i):
 | Per-environment override        | `sku_env_override`      | Apply preferences to all environments, or different SKU for `dev` / `prod`?  |
 
 Skip rows whose class was not selected in 3i. If no creative-SKU class was
-selected (e.g. static site only), still issue Batch D with just
-`sku_commitment` and `sku_env_override` so the elicitation is recorded.
+selected (e.g. static site only), cover `sku_commitment` and `sku_env_override`;
+ask only when these preferences were not explicitly supplied.
 
 After the batch returns, persist outcomes:
 

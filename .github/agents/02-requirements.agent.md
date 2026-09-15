@@ -82,10 +82,9 @@ mandatory challenger review, and hand off to Architecture only after the Gate 1 
 
 ## Success criteria
 
-- On fresh capture, the first interactive action is the Phase 1 `askQuestions` discovery flow, except for one
-  allowed `apex-recall` session-state command.
-- On fresh capture, Phases 1-4 collect user answers before artifact generation;
-  the Phase 3 service-class runbook is the only early file-read exception.
+- On fresh capture, map explicit brief answers to Phases 1-4 before asking only for missing or conflicting inputs.
+  Load the canonical networking/security baseline before offering security choices.
+- Phases 1-4 have evidenced user answers before artifact generation; supplied answers count as captured.
 - `agent-output/{project}/01-requirements.md` matches the Azure artifacts template H2 structure.
 - `agent-output/{project}/README.md` is created from the project README template.
 - `agent-output/{project}/sku-manifest.json` and `.md` are created at rev 1. Phase 3j SKU
@@ -99,17 +98,15 @@ mandatory challenger review, and hand off to Architecture only after the Gate 1 
 
 ## Constraints
 
-- Complete all phases in one turn when invoked for requirements capture. Do not end the turn
-  between questioning phases, artifact generation, validation, challenger review, and Gate 1.
+- Continue through capture, generation, validation, review and Gate 1 unless a blocker or user pause requires a stop.
 - Before fresh Phase 1 questioning, run at most one session-state command: `apex-recall show <project> --json`
   or, when no session exists, `apex-recall init <project> --json`.
-- During fresh capture, before Phases 1-4 are complete, do not read skills, templates, source files, existing artifacts,
-  or create files, except for the required Phase 3 service-class runbook at that phase.
+- Before capture, load the [security baseline](../instructions/references/iac-security-baseline.md#private-networking-and-dns).
+  Before Phases 1-4 are complete, defer other reads and writes except recall and the Phase 3 service-class runbook.
 - Step 1 captures intent and constraints. Architecture decisions, service SKU derivation, IaC code,
   Bicep snippets, and deployment actions belong to later steps. **SKU and sizing preferences
-  are a constraint, not an architecture decision**, and MUST be elicited via the mandatory
-  Phase 3j batch — the user's answer may be "no preference" (which defers the decision to
-  Architect at Step 2), but the question must always be asked.
+  are a constraint, not an architecture decision**. Phase 3j requires explicit preferences or
+  "no preference" for every applicable class; use supplied answers and ask only for uncovered classes.
 - Use `apex-recall` for session state. Do not read or write `00-session-state.json` directly.
 - Use `askQuestions` for structured discovery. **Batch independent questions** into a single
   `askQuestions` call via the `questions[]` array — issue separate calls only when a later
@@ -159,8 +156,8 @@ Chat output:
 
 ## Stop rules
 
-- Stop and ask Phase 1 questions if no Phase 1 answers have been collected.
-- Stop before artifact generation if any Phase 1-4 questioning pass has not run.
+- Stop and ask Phase 1 questions if no Phase 1 answers have been supplied or collected.
+- Stop before artifact generation if required Phase 1-4 answers remain missing or contradictory.
 - Stop and ask only for missing fields if project name, workload description, budget, scale,
   data sensitivity, `iac_tool`, SLA/RTO/RPO, compliance, authentication, or region remains unknown.
 - Stop before Architecture handoff until challenger findings are rendered and the user chooses
@@ -171,21 +168,12 @@ Chat output:
 
 ## One-Shot Gate
 
-For fresh capture, this agent completes all work in one turn. Call `askQuestions` for each phase sequentially
-(Phases 1 -> 2 -> 3 -> 4), then generate the document, save it, run validation, run the
-Challenger review, and present Gate 1. Do not end your turn between phases.
-
-For fresh capture, your first interactive tool call is `askQuestions` with Phase 1 Round 1 unless one session-state
-command is needed first. If you are considering `read_file`, `create_file`, `semantic_search`,
-`list_dir`, #tool:agent, or any other tool before Phase 1 questioning, stop and call
-`askQuestions` instead.
-
-Allowed session-state exception before questioning:
-
-- No project found: run `apex-recall init <project> --json`, then ask Phase 1.
-- `steps.1.status = "pending"`: run `apex-recall checkpoint <project> 1 phase_1_start --json`,
-  then ask Phase 1.
-- `steps.1.status = "in_progress"`: use the current sub-step to resume at the relevant phase.
+Cover Phases 1 -> 2 -> 3 -> 4, then generate, validate, review and present Gate 1.
+Explicit brief answers satisfy their fields without reconfirmation; suggestions and inferred defaults do not.
+Keep a compact captured/missing/conflicting input summary, not a second questionnaire.
+Ask only for genuine gaps, conflicts or changed scope, batching independent questions across phases when possible.
+Do not reopen settled service choices or offer optional resources merely to fill the service menu.
+Preserve explicit IaC, SKU, compliance and cost-monitoring choices; missing answers never imply consent.
 
 ### Resume and refinement
 
@@ -220,8 +208,8 @@ Run `apex-recall show <project> --json` for project context when needed. Do not 
 
 Step 1 creates `agent-output/{project}/sku-manifest.json` and renders `sku-manifest.md`.
 
-- **Always run Phase 3j (SKU and sizing preferences elicitation)** for every project. The
-  user must be asked even when the expected answer is "no preference". See
+- **Always cover Phase 3j (SKU and sizing preferences elicitation)** for every project.
+  Explicit supplied preferences count; ask for missing classes, never assume "no preference". See
   [`service-class-menu.md` § 3j](../skills/apex-azure-defaults/references/service-class-menu.md#3j-sku-and-sizing-preferences-mandatory-for-every-project).
 - Capture hard preferences the user volunteers: pinned SKUs/sizes, tier floors driven by
   compliance or existing commitments, reserved-instance purchases, and per-environment
@@ -285,8 +273,8 @@ If migration or modernization is selected, use `askQuestions` for Round 2:
 - Pain points with `multiSelect: true`.
 - Parts to preserve with `multiSelect: true`.
 
-When the initial prompt provides known answers, present them as recommended choices and still let
-the user confirm or override. `askQuestions` options must follow the API rule: either no options
+When the initial prompt provides explicit answers, capture them without asking again.
+`askQuestions` options must follow the API rule: either no options
 for pure freeform or two or more options; one option with freeform is invalid.
 
 ## Phase 2: Workload Pattern Detection
@@ -345,8 +333,7 @@ runbook in
 (Batches A → B → C → 3i confirm → **3j SKU/sizing preferences (mandatory)**).
 Externalised to keep per-turn system-prompt replay small; the full per-class
 question set, options, and batching rules live in that reference. Step 3j
-MUST run for every project — the user's answer may be "no preference" but
-the question must always be asked.
+must be covered for every project; supplied preferences count, unanswered classes require questions.
 
 After the `relational_db` answer comes back, record it:
 
@@ -362,13 +349,15 @@ apex-recall decide <project> --key sku_preferences_captured --value true --json
 
 ## Phase 4: Security and Compliance
 
-This phase is required. Always ask about compliance, security controls, authentication, and region.
-Preselect compliance frameworks using industry signals, but let the user confirm or deselect them.
+This phase is required. Capture compliance, authentication, region and the application boundary;
+ask only for missing or conflicting answers. The canonical security baseline is mandatory, not an opt-out menu.
+Distinguish public-facing web applications from APIs and identify private-client access needs.
+Do not offer "private networking only when policy requires". DNS ownership remains pending governance verification.
 
 Use `askQuestions` for:
 
 - Compliance frameworks with `multiSelect: true`.
-- Security measures with `multiSelect: true`.
+- Additional security measures beyond the baseline with `multiSelect: true`, only when relevant.
 - Authentication method.
 - Region, defaulting to `swedencentral` unless service availability requires an exception.
 
@@ -392,6 +381,11 @@ Read these references once, after questioning:
 5. `.github/instructions/sku-manifest.instructions.md`
 
 Then:
+
+Reconcile the selected scope before writing and after accepted fixes: deployable host/image,
+workload identity and grants, app/auth scope, monitoring endpoint, private access/DNS and SKU/budget constraints.
+When removing an application, remove or explicitly defer its dependent runtime assumptions together.
+Ask once for any resulting scope decision; do not invent images, credentials or user approval.
 
 1. Generate `agent-output/{project}/01-requirements.md` with the exact H2 structure from the
    template, including business context, workload pattern, NFRs, compliance, budget, region,
@@ -442,7 +436,7 @@ Delegate to `challenger-review-subagent` with:
 - `artifact_type`: `requirements`
 - `review_focus`: `comprehensive`
 - `pass_number`: `1`
-- `prior_findings`: `null`
+- `prior_findings`: `null` initially; on revision, supply prior compact findings and their dispositions
 - `output_path`: `agent-output/{project}/challenge-findings-requirements.json`
 - `overwrite`: `false`, except when re-running after revisions
 
@@ -510,21 +504,19 @@ For each answer:
   `apex-recall finding <project> --add "{severity}|{action}|{issue_id}|{title}|{note}" --json`.
 - Map user input to action + note per the protocol's deterministic table.
 
-### 6e. Aggregated proceed/revise gate
+### 6e. Apply accepted fixes and final gate
 
-After the per-finding panel completes, present a final two-option `askQuestions` for the overall
-gate:
+`Accept (apply mitigation)` authorizes the stated mitigation, not step completion.
+Apply compatible accepted fixes together to owned Step 1 artifacts; reconcile dependent sections and validate.
+Clarify only conflicting/custom guidance or changes beyond accepted scope. Do not ask again whether to apply it.
+Re-review changed requirements with `overwrite: true`, prior compact findings/dispositions and changed sections.
+Require explicit resolution checks and a comprehensive regression review; prior decisions never suppress blockers.
+Present new or changed findings; do not silently reapply an ineffective accepted fix.
+If the same blocker persists after its accepted mitigation, checkpoint and request human direction with the
+failed resolution evidence instead of repeating an unchanged edit/review loop. No forced approval or new retry allowance.
 
-- `Proceed` (advance to the Architecture handoff).
-- `Revise` (apply accepted fixes and re-run the challenger).
-
-On `Revise`:
-
-1. Apply accepted fixes to `01-requirements.md`.
-2. Re-run `challenger-review-subagent` with `overwrite: true`.
-3. Rebuild the panel, skipping any finding whose `issue_id` already exists in the decisions
-   sidecar.
-4. Re-present the panel and the aggregated gate.
+Once accepted changes have current review evidence and no unresolved `must_fix` remains, present Gate 1:
+`Proceed` (Architecture handoff) or `Revise` (collect the requested change, apply, validate and re-review).
 
 On `Proceed`, require current review, resolved blockers and human approval, run
 `apex-recall complete-step <project> 1 --json`, mark README complete and hand off to Architecture.
@@ -534,10 +526,10 @@ persist deferred decisions. Stop before completion or handoff while any unresolv
 
 ## Required Information
 
-Collected via `askQuestions` across Phases 1–5. Required inputs (must
+Collected from explicit supplied answers or `askQuestions` across Phases 1–5. Required inputs (must
 be provided by the user): `project_name`, `project_description`,
 `system_description`, `budget`. Defaults below are suggested answers, not permission
-to skip mandatory IaC, SKU-preference, security/compliance or region elicitation.
+to infer unanswered IaC, SKU-preference, security/compliance or region choices.
 
 Defaults (greenfield, Sweden Central, Tech/SaaS, mid-market):
 
@@ -547,17 +539,17 @@ Defaults (greenfield, Sweden Central, Tech/SaaS, mid-market):
 - Scale / Sensitivity: `100–1,000 users` / `internal business data`
 - IaC tool: `bicep` · Service tier: `balanced` · SLA: `99.9%`
 - RTO/RPO: `4h / 1h` · Region: `swedencentral`
-- Security baseline: `Managed Identity + Key Vault + TLS 1.2`
+- Security baseline: canonical security guidance; Key Vault only for a stated secrets/certificates requirement
 - Timeline: `1–3 months`
 
 Conditional questions: concurrent users (web/API workloads only), TPS
-(database-heavy workloads only). Compliance applicability is asked for every project;
+(database-heavy workloads only). Compliance applicability is captured for every project;
 explicit "none/not regulated" satisfies it. Regulated projects require named frameworks
 and constraints; an unanswered compliance question is not equivalent to "none".
 
 ## Validation Checklist
 
-- [ ] Phase 1, Phase 2, Phase 3, and Phase 4 each used `askQuestions`.
+- [ ] Phase 1-4 required fields have explicit supplied or elicited answers; no unresolved conflicts.
 - [ ] Phase 3j SKU/sizing preference elicitation ran (Batch D) and
       `decisions.sku_preferences_captured = true` is recorded in apex-recall.
 - [ ] All H2 headings from the Azure artifacts template are present and in order.

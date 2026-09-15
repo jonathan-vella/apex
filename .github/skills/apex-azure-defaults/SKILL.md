@@ -38,7 +38,9 @@ always overrides repository defaults.
    differ by service.
 4. **Resolve AVM modules live** — prefer AVM, pin the latest stable version at
    plan time, and record justified stale-pin exceptions in the IaC contract.
-5. **Apply canonical security defaults** — use the canonical baseline and load
+5. **Apply canonical security defaults** — load the
+  [networking and security baseline](../../instructions/references/iac-security-baseline.md)
+  before security elicitation or design; do not offer baseline opt-outs. Load
    [AVM pitfalls](references/security-baseline-full.md) only when module
    parameters or lifecycle constraints require detail.
 6. **Run conditional planning gates** — apply VNet and cost-monitoring workflows
@@ -58,6 +60,8 @@ always overrides repository defaults.
   evidence of currency.
 - **Governance wins**: discovered policy overrides every fallback in the
   canonical defaults and this workflow.
+- **Security is a floor**: missing policy does not relax the baseline. Conflicting
+  policy/security requirements block the affected design for human resolution.
 - **VNet planning is interactive**: confirm CIDRs when a workload requires VNet
   integration, private endpoints, or a VNet-attached service. Production cannot
   defer the gate.

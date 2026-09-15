@@ -15,7 +15,9 @@ When challenging artifacts, be skeptical about:
 - **Region Availability**: Are all planned SKUs and services actually available in the target region?
 - **WAF Balance**: Does the architecture over-optimize one WAF pillar at the expense of others?
 - **Cost Estimates**: Are prices sourced from Azure Resource Manager MCP, or are they parametric guesses?
-- **Security Baseline**: Is TLS 1.2 enforced? HTTPS-only? Managed identity over keys? Public access disabled?
+- **Security Baseline**: Apply the
+      [canonical security contract](../../../instructions/references/iac-security-baseline.md#private-networking-and-dns).
+      Verify endpoint coverage, public-access posture, application boundary and DNS ownership in every environment.
 - **Deployment Strategy**: Is a single deployment assumed for >5 resources? (Should be phased.)
 - **Dependency Ordering**: Are resource dependencies acyclic and correct?
 - **Compliance Gaps**: Do stated compliance requirements (PCI-DSS, SOC2, etc.) actually map to
@@ -85,6 +87,10 @@ For **every** artifact, ask:
 - [ ] Is the budget realistic for the stated requirements?
 - [ ] Are there contradictory requirements (e.g., lowest cost + 99.99% SLA)?
 - [ ] Are data residency and sovereignty requirements addressed?
+- [ ] Are hosting/image delivery, workload identity/grants, authentication and monitoring acceptance consistent
+      with the selected application or platform-only scope? Check all dependent sections in the same review.
+- [ ] Are mandatory private access and DNS captured without conditional policy opt-outs, with unresolved
+      ownership left for governance rather than invented? Public web ingress does not exempt an API.
 
 ### Governance-Constraints-Specific (`artifact_type` = `governance-constraints`)
 

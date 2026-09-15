@@ -27,12 +27,43 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import { parseArgs } from "node:util";
 import { Reporter } from "./_lib/reporter.mjs";
 import { walkFiles } from "./_lib/glob-helpers.mjs";
 import { findAllMatches } from "./_lib/regex-helpers.mjs";
 
 const ROOT = process.cwd();
 const r = new Reporter("IaC Security Baseline");
+const publicWebFiles = new Set();
+try {
+  const { values } = parseArgs({ options: { "public-web-app": { type: "string", multiple: true } } });
+  for (const file of values["public-web-app"] ?? []) {
+    const resolved = path.resolve(file);
+    if (!fs.statSync(resolved).isFile() || !/\.(bicep|tf)$/.test(file)) {
+      throw new Error(`Public web exception requires a Bicep or Terraform file: ${file}`);
+    }
+    publicWebFiles.add(resolved);
+  }
+} catch (error) {
+  r.error(`Invalid public web scope: ${error.message}`);
+}
+
+function isDedicatedWebApp(content, filePath) {
+  const declarations = content.match(/^\s*(?:resource|module)\s+[^\n]+/gm) ?? [];
+  if (declarations.length !== 1) return false;
+  const declaration = declarations[0];
+  if (filePath.endsWith(".bicep")) {
+    return (
+      /^\s*resource\s+\w+\s+'Microsoft\.Web\/sites@[^']+'\s*=/i.test(declaration) ||
+      /^\s*module\s+\w+\s+'br\/public:avm\/res\/web\/site:[^']+'\s*=/.test(declaration)
+    );
+  }
+  if (/^\s*resource\s+"azurerm_(linux|windows)_web_app"\s+"[^"]+"\s*\{/.test(declaration)) return true;
+  return (
+    /^\s*module\s+"[^"]+"\s*\{/.test(declaration) &&
+    /^\s*source\s*=\s*"Azure\/avm-res-web-site\/azurerm"\s*$/m.test(content)
+  );
+}
 
 // --- Bicep security anti-patterns ---
 // Each entry: [regex, description]
@@ -43,7 +74,10 @@ const BICEP_VIOLATIONS = [
   [/minTlsVersion\s*:\s*'TLS1_1'/i, "TLS 1.1 is NOT allowed — MUST be TLS1_2 or higher"],
   [/supportsHttpsTrafficOnly\s*:\s*false/i, "HTTPS-only traffic MUST be true"],
   [/allowBlobPublicAccess\s*:\s*true/i, "Public blob access MUST be disabled (false)"],
-  [/publicNetworkAccess\s*:\s*'Enabled'/i, "Public network access SHOULD be disabled for production data services"],
+  [
+    /publicNetworkAccess\s*:\s*'Enabled'/i,
+    "Public network access MUST be disabled except for explicitly reviewed public-facing web applications",
+  ],
   [/httpsOnly\s*:\s*false/i, "HTTPS-only MUST be enabled"],
   // --- MUST-FAIL: SQL Entra-only auth ---
   [/azureADOnlyAuthentication\s*:\s*false/i, "SQL Entra-only auth required (azureADOnlyAuthentication must be true)"],
@@ -92,7 +126,7 @@ const TERRAFORM_VIOLATIONS = [
   [/allow_nested_items_to_be_public\s*=\s*true/i, "Public blob access MUST be disabled (false)"],
   [
     /public_network_access_enabled\s*=\s*true/i,
-    "Public network access SHOULD be disabled for production data services",
+    "Public network access MUST be disabled except for explicitly reviewed public-facing web applications",
   ],
   [/allow_blob_public_access\s*=\s*true/i, "Public blob access MUST be disabled (legacy attribute)"],
   [/https_only\s*=\s*false/i, "HTTPS-only MUST be enabled"],
@@ -143,11 +177,21 @@ function scanFile(filePath, violations, warningPatterns = []) {
   const content = fs.readFileSync(filePath, "utf-8");
   const lines = content.split("\n");
   let fileHasViolation = false;
+  const publicWebRequested = publicWebFiles.delete(path.resolve(filePath));
+  const publicWebAllowed = publicWebRequested && isDedicatedWebApp(content, filePath);
+  if (publicWebRequested && !publicWebAllowed) {
+    r.error(
+      relPath,
+      "Public web exception requires a dedicated known Web App resource/module file; mixed or unknown files are blocked",
+    );
+    fileHasViolation = true;
+  }
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     for (const [pattern, message] of violations) {
       if (pattern.test(line)) {
+        if (publicWebAllowed && message.startsWith("Public network access MUST")) continue;
         r.error(`${relPath}:${i + 1}`, message);
         fileHasViolation = true;
       }
@@ -235,8 +279,13 @@ if (tfFiles.length > 0) {
 }
 
 // --- Summary ---
+for (const file of publicWebFiles)
+  r.error(file, "Public web exception file was not scanned under infra/bicep or infra/terraform");
+console.log(
+  "Source checks do not prove private endpoint coverage or DNS resolution. Verify the approved plan and connectivity evidence.",
+);
 r.summary("Security baseline");
 r.exitOnError(
   "Security baseline validation passed.",
-  `${r.errors} security baseline violation(s) found. Fix violations or document exceptions in 04-governance-constraints.md.`,
+  `${r.errors} security baseline violation(s) found. Fix violations; public web scope must come from the approved plan.`,
 );

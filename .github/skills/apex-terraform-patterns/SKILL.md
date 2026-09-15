@@ -56,7 +56,8 @@ will be flagged by `npm run validate:avm-versions`. Full code sample
 - **AVM-first**: Use `Azure/avm-res-*` registry modules over raw `azurerm_*` resources
 - **AVM-TF version pins**: Use exact semver resolved from the Registry API at plan time; follow the `apex-azure-defaults` exception policy
 - **Hub-spoke**: Spokes peer to hub only; never spoke-to-spoke
-- **Private endpoints**: Three resources per service — PE, DNS zone, VNet link
+- **Private endpoints**: Apply the canonical private-networking baseline and resolve DNS component ownership
+  per [the private-endpoint pattern](references/private-endpoint-pattern.md); do not duplicate central or DINE resources.
 - **Diagnostics**: Every resource MUST have a diagnostic setting → Log Analytics
 - **Conditional**: Use `for_each` (keyed) over `count` (indexed) for named resources
 - **Identity**: SystemAssigned managed identity + RBAC; avoid keys/connection strings

@@ -44,6 +44,17 @@ The Orchestrator resolves agent paths and models via `tools/registry/agent-regis
 
 ## Agent Architecture
 
+### Requirements Capture And Revision
+
+Supply known requirements in the initial brief. Requirements reuses explicit answers and asks only about missing
+or conflicting inputs; suggested defaults do not count as consent. SKU preferences still need an explicit answer
+for each applicable class. The [security baseline](/reference/security-baseline/) applies before questioning.
+
+Scope changes are reconciled across hosting, identity, authentication, monitoring and private connectivity before
+independent review. Accepting a finding authorizes its stated mitigation, followed by validation and re-review;
+it does not approve the workflow transition. Prior findings are checked for resolution, and persistent blockers
+return for human direction. Gate 1 remains a separate human approval after current review evidence is available.
+
 ### The Orchestrator Pattern
 
 The Orchestrator orchestrates the entire workflow by delegating

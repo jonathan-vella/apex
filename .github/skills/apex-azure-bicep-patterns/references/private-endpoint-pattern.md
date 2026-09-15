@@ -46,8 +46,10 @@ resource privateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneG
 
 ## DNS Zone Provisioning Rule
 
-If a module needs a private DNS zone and the project does NOT provision
-shared DNS zones centrally, the module MUST:
+Resolve ownership under the
+[canonical networking contract](../../../instructions/references/iac-security-baseline.md#private-networking-and-dns)
+first. Do not duplicate verified central or DINE-owned DNS components.
+For project-owned DNS, if the project does NOT provision shared zones centrally, the module MUST:
 
 1. Create the `privatelink.*` DNS zone within the module
 2. Create a VNet link to the foundation VNet

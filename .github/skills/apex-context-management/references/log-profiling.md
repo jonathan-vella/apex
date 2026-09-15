@@ -56,6 +56,13 @@ in ignored scratch storage, never agent-discovery folders or public commits.
 
 ## Compliance thresholds
 
+Invocation totals count attempts, including failures. Modern `runSubagent` tool spans use the recorded
+`agentName`; malformed or absent arguments leave identity unknown. Linked legacy wrapper/child spans count
+once using trace/parent IDs, not timing guesses. Unlinked events cannot be assumed to describe the same invocation.
+Payload sizes are UTF-8 byte counts, not token counts. Cumulative input sums repeated context across observed
+requests; it is not a single context-window size or an uncached bill. Missing child requests and cache/billing
+fields remain unknown. Repeated reads after artifact edits are not automatically redundant.
+
 Two informational warnings drop into the output when a session
 violates a token-reduction contract — exit code stays 0.
 

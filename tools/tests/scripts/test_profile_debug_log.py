@@ -70,6 +70,61 @@ def test_profile_tool_counts(profiler):
     assert m["tool_call_counts"]["list_dir"] == 1
 
 
+@pytest.mark.parametrize("arguments", ['{"agentName":"challenger-review-subagent"}', "{", "[]", "{}"])
+def test_run_subagent_counts_attempts_without_inventing_identity(profiler, arguments):
+    span = {
+        "traceId": "review",
+        "spanId": "call",
+        "name": "runSubagent",
+        "startTimeUnixNano": "1000000000",
+        "endTimeUnixNano": "3000000000",
+        "attributes": [
+            {"key": "gen_ai.operation.name", "value": {"stringValue": "execute_tool"}},
+            {"key": "gen_ai.tool.call.arguments", "value": {"stringValue": arguments}},
+        ],
+    }
+    result = profiler.profile([span, span])
+    assert result["totals"]["subagent_invocations"] == 1
+    assert result["totals"]["challenger_invocations"] == int("challenger-review-subagent" in arguments)
+    assert result["wall_time_s"]["subagent"] == 2
+
+
+@pytest.mark.parametrize("tool_is_parent", [True, False])
+def test_subagent_tool_and_related_named_span_count_once(profiler, tool_is_parent):
+    tool = {
+        "traceId": "review",
+        "spanId": "tool",
+        "name": "runSubagent",
+        "attributes": [
+            {"key": "gen_ai.operation.name", "value": {"stringValue": "execute_tool"}},
+            {
+                "key": "gen_ai.tool.call.arguments",
+                "value": {"stringValue": '{"agentName":"challenger-review-subagent"}'},
+            },
+        ],
+    }
+    legacy = {"traceId": "review", "spanId": "legacy", "name": "challenger-review-subagent"}
+    if tool_is_parent:
+        legacy["parentSpanId"] = "tool"
+    else:
+        tool["parentSpanId"] = "legacy"
+    independent = {"traceId": "other", "spanId": "legacy", "name": "execution_subagent"}
+    result = profiler.profile([legacy, tool, independent])
+    assert result["totals"]["subagent_invocations"] == 2
+    assert result["totals"]["challenger_invocations"] == 1
+
+
+def test_tool_payload_sizes_use_utf8_bytes(profiler):
+    span = {
+        "name": "read_file",
+        "attributes": [
+            {"key": "gen_ai.operation.name", "value": {"stringValue": "execute_tool"}},
+            {"key": "gen_ai.tool.call.result", "value": {"stringValue": "\u00e9"}},
+        ],
+    }
+    assert profiler.profile([span])["top_tool_payloads"][0]["bytes"] == 2
+
+
 def test_cli_text_and_json(profiler, capsys):
     rc = profiler.main([str(FIXTURE)])
     assert rc == 0

@@ -56,7 +56,8 @@ Applying a pattern in a Bicep template:
 ## Rules
 
 - **Hub-Spoke**: Hub holds shared infra; spokes peer to hub only; NSGs per subnet
-- **Private Endpoints**: Always wire PE + DNS Zone Group + DNS Zone; see group ID table in reference
+- **Private Endpoints**: Apply the canonical private-networking baseline; resolve DNS ownership before wiring
+  zone groups, zones and links per [the private-endpoint pattern](references/private-endpoint-pattern.md).
 - **Diagnostics**: `categoryGroup: 'allLogs'` + `AllMetrics`; pass workspace **name** not ID
 - **Conditional**: `bool` params with defaults; guard outputs with ternary
 - **Identity**: `guid()` for idempotent role names; `principalType: 'ServicePrincipal'`; scope narrowly

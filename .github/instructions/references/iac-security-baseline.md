@@ -9,6 +9,50 @@ Referenced by `iac-bicep-best-practices.instructions.md` and
 Azure Policy always wins. Current Azure Policy implementation cannot
 be changed. Code adapts to policy, never the reverse.
 
+## Private Networking And DNS
+
+These defaults apply in every environment, including development and synthetic-data tests.
+Policy discovery may add constraints; absence of a Deny policy does not relax this baseline.
+
+| Boundary | Required posture |
+| --- | --- |
+| PaaS data services supporting Private Link | Private endpoints for consumed subresources; public network access disabled |
+| App Service hosting an API | Private endpoint and public network access disabled |
+| App Service hosting a public-facing web application | Public HTTPS ingress permitted; authentication and other security controls still apply |
+
+Classify the application boundary during Requirements. For mixed web/API hosting, clarify the API
+exposure before architecture; do not use the web exception to silently expose an API. An App Service
+Plan has no application endpoint. App Service VNet integration provides outbound connectivity and is
+not an inbound private endpoint. Private services require a reachable client/runner path as well as DNS.
+Unsupported services, SKU incompatibility or budget conflicts are blockers for an explicit design decision,
+not permission to substitute public access. Do not attach private endpoints to resource types that cannot support them.
+
+Private DNS resolution is mandatory for every private endpoint. The plan must account for the service-correct
+zone, records/zone group, VNet links and any required forwarding. Reuse verified central DNS where present;
+never point at a zone that no owner provisions.
+
+Project IaC owns the required DNS components unless an effective DeployIfNotExists (DINE) assignment
+is verified to own those specific components. Record its assignment/definition, applicable resource scope,
+parameters and zone IDs, exclusions/exemptions, deployment template, managed identity/RBAC and remediation
+behavior. A policy that only creates zone groups does not prove zones or VNet links exist. Do not duplicate
+policy-owned resources; explicitly provide or obtain approval for missing components. Unknown ownership blocks
+affected planning. Confirm DNS resolution and policy deployment completion before claiming connectivity.
+
+DINE evaluates asynchronously; existing noncompliant resources may require an authorized remediation task.
+An assignment alone is not evidence that DNS was deployed successfully. See
+[DINE evaluation](https://learn.microsoft.com/en-us/azure/governance/policy/concepts/effect-deploy-if-not-exists)
+and [private endpoint DNS](https://learn.microsoft.com/en-us/azure/private-link/private-endpoint-dns).
+
+The source security scanner rejects explicit enabled-public-access literals by default in both IaC tracks.
+For an approved public-facing Web App isolated in its own known resource/AVM-module file, pass
+`npm run validate:iac-security-baseline -- --public-web-app <infra/path/to/web-app.bicep>`
+(or the corresponding `.tf` file; repeat the flag for additional public web files).
+Never use this flag for an API. Mixed-resource or unknown-module files cannot receive this exception.
+This is an explicit reviewed-scope declaration, not automatic approval or proof of the application's role.
+The scanner is single-line source checking: it cannot establish PE coverage, evaluate expressions,
+prove module internals, or test DNS. Plan/code review must check those contracts, and connectivity validation
+must verify actual resolution from the intended private client before claiming operational readiness.
+
 ## Zone Redundancy SKUs
 
 | SKU       | Zone Redundancy | Use Case            |

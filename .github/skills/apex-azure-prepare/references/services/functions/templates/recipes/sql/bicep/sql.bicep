@@ -47,10 +47,11 @@ param databaseName string = 'appdb'
 @description('SQL Database SKU')
 param sqlSku string = 'Basic'
 
-@description('Production environment; production SQL always requires private networking')
+@description('Retained for caller compatibility; SQL requires private networking in every environment')
 param isProduction bool = true
 
-@description('Explicit non-production public access approval after governance reconciliation')
+@description('Deprecated compatibility parameter; public SQL access is not permitted')
+@allowed([false])
 param publicNetworkAccessApproved bool = false
 
 @description('Approved private endpoint subnet resource ID')
@@ -58,8 +59,6 @@ param privateEndpointSubnetId string
 
 @description('Function integration VNet resource ID for private DNS')
 param virtualNetworkId string
-
-var publicAccessEnabled = !isProduction && publicNetworkAccessApproved
 
 // ============================================================================
 // Naming
@@ -77,7 +76,7 @@ resource sqlServer 'Microsoft.Sql/servers@2023-05-01-preview' = {
   properties: {
     version: '12.0'
     minimalTlsVersion: '1.2'
-    publicNetworkAccess: publicAccessEnabled ? 'Enabled' : 'Disabled'
+    publicNetworkAccess: 'Disabled'
     administrators: {
       administratorType: 'ActiveDirectory'
       principalType: 'User'
@@ -108,18 +107,6 @@ resource sqlDatabase 'Microsoft.Sql/servers/databases@2023-05-01-preview' = {
 }
 
 // ============================================================================
-// Firewall: Allow Azure Services
-// ============================================================================
-resource allowAzureServices 'Microsoft.Sql/servers/firewallRules@2023-05-01-preview' = if (publicAccessEnabled) {
-  parent: sqlServer
-  name: 'AllowAllAzureIps'
-  properties: {
-    startIpAddress: '0.0.0.0'
-    endIpAddress: '0.0.0.0'
-  }
-}
-
-// ============================================================================
 // NOTE: SQL RBAC for managed identity requires T-SQL
 // The function app's managed identity must be added as a database user:
 //
@@ -133,13 +120,13 @@ resource allowAzureServices 'Microsoft.Sql/servers/firewallRules@2023-05-01-prev
 // ============================================================================
 // Outputs
 // ============================================================================
-resource sqlPrivateDns 'Microsoft.Network/privateDnsZones@2020-06-01' = if (!publicAccessEnabled) {
+resource sqlPrivateDns 'Microsoft.Network/privateDnsZones@2020-06-01' = {
   name: 'privatelink${environment().suffixes.sqlServerHostname}'
   location: 'global'
   tags: tags
 }
 
-resource sqlDnsLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = if (!publicAccessEnabled) {
+resource sqlDnsLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
   parent: sqlPrivateDns
   name: 'sql-dns-link'
   location: 'global'
@@ -149,7 +136,7 @@ resource sqlDnsLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-
   }
 }
 
-resource sqlPrivateEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (!publicAccessEnabled) {
+resource sqlPrivateEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = {
   name: 'pe-${sqlServerName}'
   location: location
   tags: tags
@@ -165,7 +152,7 @@ resource sqlPrivateEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if
   }
 }
 
-resource sqlDnsGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2023-11-01' = if (!publicAccessEnabled) {
+resource sqlDnsGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2023-11-01' = {
   parent: sqlPrivateEndpoint
   name: 'default'
   properties: {

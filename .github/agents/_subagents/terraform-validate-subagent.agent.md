@@ -281,8 +281,9 @@ Any of the three forces `Overall Status: FAILED`.
 
 - Required tag keys, values, and casing satisfy governance constraints; counts alone are insufficient.
 - Every Deny policy is satisfied in the resource config.
-- `public_network_access_enabled = false` for production data services
-  (dev/test environments may exempt per project policy).
+- Verify the [canonical private networking and DNS contract](../../instructions/references/iac-security-baseline.md#private-networking-and-dns)
+  in every environment, including endpoint coverage and DNS ownership. Public-facing web ingress is the only
+  App Service exception; APIs remain private. Any scanner `--public-web-app` scope must match the approved plan.
 - SKU restriction policies respected.
 
 An unresolved policy violation forces `Overall Status: FAILED`.

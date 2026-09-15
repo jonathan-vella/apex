@@ -167,6 +167,25 @@ def profile(
     tool_payload_bytes: dict[str, int] = defaultdict(int)
     read_file_paths: Counter[str] = Counter()
 
+    spans_by_id = {(span.get("traceId"), span.get("spanId")): span for span in spans if span.get("spanId")}
+    delegation_spans = {
+        identity
+        for identity, span in spans_by_id.items()
+        if _attrs(span).get("gen_ai.operation.name") == "execute_tool"
+        and (_attrs(span).get("gen_ai.tool.name") or span.get("name")) == "runSubagent"
+    }
+    delegation_ancestors = set()
+    for identity in delegation_spans:
+        current = spans_by_id[identity]
+        visited = set()
+        while current.get("parentSpanId"):
+            parent = (current.get("traceId"), current["parentSpanId"])
+            if parent in visited or parent not in spans_by_id:
+                break
+            visited.add(parent)
+            delegation_ancestors.add(parent)
+            current = spans_by_id[parent]
+
     # Subagent stats.
     subagent_wall = 0.0
     subagent_calls: list[dict[str, Any]] = []
@@ -264,7 +283,7 @@ def profile(
             tool_calls[tname] += 1
             args_blob = str(attrs.get("gen_ai.tool.call.arguments", ""))
             result_blob = str(attrs.get("gen_ai.tool.call.result", ""))
-            tool_payload_bytes[tname] += len(args_blob) + len(result_blob)
+            tool_payload_bytes[tname] += len(args_blob.encode("utf-8")) + len(result_blob.encode("utf-8"))
             if tname == "read_file":
                 # Pull filePath out of the JSON arguments to map dupes.
                 try:
@@ -276,9 +295,33 @@ def profile(
             elif tname == "vscode_askQuestions":
                 ask_durations.append(_duration_s(span))
                 ask_in_phase += 1
+            elif tname == "runSubagent":
+                try:
+                    arguments = json.loads(args_blob) if args_blob else {}
+                    agent_name = arguments.get("agentName") if isinstance(arguments, dict) else None
+                except json.JSONDecodeError, TypeError:
+                    agent_name = None
+                if not isinstance(agent_name, str) or not agent_name.strip():
+                    agent_name = "(unknown)"
+                duration = _duration_s(span)
+                subagent_wall += duration
+                subagent_calls.append({"name": agent_name, "duration_s": round(duration, 2)})
+                continue
 
         # Subagent invocations.
         if name in ("challenger-review-subagent", "execution_subagent"):
+            current = span
+            visited = set()
+            covered = identity in delegation_ancestors
+            while not covered and current.get("parentSpanId"):
+                parent = (current.get("traceId"), current["parentSpanId"])
+                if parent in visited or parent not in spans_by_id:
+                    break
+                covered = parent in delegation_spans
+                visited.add(parent)
+                current = spans_by_id[parent]
+            if covered:
+                continue
             dur = _duration_s(span)
             subagent_wall += dur
             subagent_calls.append({"name": name, "duration_s": round(dur, 2)})

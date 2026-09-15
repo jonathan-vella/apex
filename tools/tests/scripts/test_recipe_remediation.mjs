@@ -309,12 +309,17 @@ for (const recipe of ["sql", "blob-eventgrid"]) {
       assert.match(settings.AZURE_SQL_CONNECTION_STRING_KEY, /Managed Identity;User Id=/);
       assert.equal(template.parameters.isProduction.defaultValue, true);
       assert.equal(template.parameters.publicNetworkAccessApproved.defaultValue, false);
+      assert.deepEqual(template.parameters.publicNetworkAccessApproved.allowedValues, [false]);
       const server = template.resources.find((resource) => resource.type === "Microsoft.Sql/servers");
       assert.equal(server.properties.administrators.azureADOnlyAuthentication, true);
+      assert.equal(server.properties.publicNetworkAccess, "Disabled");
       assert.equal(
-        server.properties.publicNetworkAccess,
-        "[if(variables('publicAccessEnabled'), 'Enabled', 'Disabled')]",
+        template.resources.some((resource) => resource.type.endsWith("/firewallRules")),
+        false,
       );
+      for (const resource of template.resources.filter((resource) => resource.type.startsWith("Microsoft.Network/"))) {
+        assert.equal(resource.condition, undefined);
+      }
     } else {
       assert.equal(settings.BLOB_CONTAINER_NAME, "[parameters('containerName')]");
       assert.equal(settings.BLOB_PROCESSED_CONTAINER_NAME, "[parameters('processedContainerName')]");
@@ -941,17 +946,16 @@ for (const language of languages) {
   }
 }
 
-test("SK-12 production SQL cannot enable public networking on either track", () => {
+test("SK-12 SQL cannot enable public networking in any environment on either track", () => {
   const bicep = read(`${recipes}sql/bicep/sql.bicep`);
   const terraform = read(`${recipes}sql/terraform/sql.tf`);
-  assert.match(bicep, /var publicAccessEnabled = !isProduction && publicNetworkAccessApproved/);
-  assert.match(bicep, /publicNetworkAccess: publicAccessEnabled \? 'Enabled' : 'Disabled'/);
+  assert.match(bicep, /@allowed\(\[false\]\)/);
+  assert.match(bicep, /publicNetworkAccess: 'Disabled'/);
   assert.match(bicep, /privateDnsZoneGroups/);
-  assert.match(
-    terraform,
-    /public_network_access_enabled = !var.is_production && var.sql_public_network_access_approved/,
-  );
-  assert.match(terraform, /precondition/);
+  assert.match(terraform, /public_network_access_enabled = false/);
+  assert.match(terraform, /condition\s+= !var.sql_public_network_access_approved/);
+  assert.match(terraform, /condition\s+= var.vnet_enabled/);
+  assert.doesNotMatch(bicep + terraform, /AllowAllAzureIps|firewallRules|azurerm_mssql_firewall_rule/);
 });
 
 for (const language of languages) {

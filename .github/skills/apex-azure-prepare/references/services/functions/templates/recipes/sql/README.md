@@ -28,16 +28,20 @@ Use these templates directly instead of composing from HTTP base:
 ## Composition Steps (Alternative)
 
 Read the shared [composition contract](../common/uami-bindings.md#composition-contract) before composing.
-Production SQL is private regardless of public-access inputs. Supply approved subnet/VNet IDs to Bicep,
+SQL is private in every environment. Legacy public-access parameters accept only `false`.
+Supply approved subnet/VNet IDs to Bicep,
 or VNet integration/private endpoint/DNS in Terraform; missing reachability blocks readiness, not permission
-to enable public access. Non-production public access requires explicit governance reconciliation and approval.
+to enable public access. These templates show project-owned DNS. Before copying them, reconcile each DNS component
+with verified central/DINE ownership under the
+[canonical networking contract](../../../../../../../../instructions/references/iac-security-baseline.md#private-networking-and-dns).
+Adapt only the components whose ownership is verified; never duplicate policy-managed DNS or omit resolution.
 Retain approved policy tags and resolve AVM interfaces or a raw-resource exception before generation.
 
 If composing from HTTP base template:
 
 | #   | Step                       | Details                                                |
 | --- | -------------------------- | ------------------------------------------------------ |
-| 1   | **Add IaC**                | Add SQL Server, Database, firewall rules from `bicep/` |
+| 1   | **Add IaC**                | Add SQL Server, Database, private endpoint and resolved DNS ownership |
 | 2   | **Add extension**          | Add SQL binding extension package                      |
 | 3   | **Prepare change tracking** | Generate a reviewed SQL script; execution belongs to approved deployment |
 | 4   | **Replace source code**    | Add trigger + output from `source/{lang}.md`           |
@@ -104,4 +108,4 @@ ALTER TABLE [dbo].[ToDo] ENABLE CHANGE_TRACKING;
 
 **Cause:** Function App IP not allowed through SQL firewall.
 
-**Solution:** Verify approved VNet integration, private endpoint and DNS first. Do not enable public access for production.
+**Solution:** Verify approved VNet integration, private endpoint and DNS. Do not enable public access in any environment.

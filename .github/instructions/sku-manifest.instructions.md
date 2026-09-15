@@ -93,8 +93,9 @@ checkpoints — **not** a free-form changelog.
 
 `02-Requirements` MUST elicit SKU and sizing preferences from the user
 for every project, regardless of complexity, workload pattern, or whether
-the user has any pins. The elicitation is the Phase 3j batched
-`askQuestions` call defined in
+the user has any pins. Explicit preferences or "no preference" supplied in the brief satisfy
+their applicable classes; never reconfirm them or infer unanswered preferences.
+Ask only for missing/conflicting classes via the Phase 3j batched `askQuestions` call defined in
 [`service-class-menu.md` § 3j](../skills/apex-azure-defaults/references/service-class-menu.md#3j-sku-and-sizing-preferences-mandatory-for-every-project).
 
 Outcomes:

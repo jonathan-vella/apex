@@ -20,6 +20,14 @@ for full details on this and all prior releases.
 
 ### Changed (Agent modernization)
 
+- Make PaaS data services and App Service APIs private in every environment; retain public HTTPS ingress
+  for public-facing web applications. Require private DNS and verified component ownership before relying on DINE.
+- Remove non-production public-access execution paths and broad firewall rules from both SQL recipes;
+  legacy public-access parameters now accept only `false`.
+- Reuse explicit Requirements inputs, reconcile scope dependencies before review, and apply accepted mitigations
+  without redundant confirmation. Preserve independent re-review, unresolved blockers and final human approval.
+- Add read-only review metadata generation and strict cache verification to the findings validator; count modern
+  `runSubagent` spans in the profiler without double-counting linked wrappers. Runtime token savings remain unmeasured.
 - Consolidate acceptance lessons in the existing verification procedure: distinguish decisions from execution,
   verify harness provenance and check scope, and stop redundant probes. Add targeted Git troubleshooting
   and representative picker verification guidance without new agents, schemas or mandatory runtime reads.

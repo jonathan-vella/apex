@@ -18,19 +18,27 @@
 variable "vnet_enabled" {
   type        = bool
   default     = true
-  description = "Enable VNet integration and private endpoints"
+  description = "VNet integration and private endpoints are required for SQL in every environment"
+  validation {
+    condition     = var.vnet_enabled
+    error_message = "SQL requires private networking; vnet_enabled must be true."
+  }
 }
 
 variable "is_production" {
   type        = bool
   default     = true
-  description = "Production SQL always requires private networking"
+  description = "Retained for caller compatibility; SQL requires private networking in every environment"
 }
 
 variable "sql_public_network_access_approved" {
   type        = bool
   default     = false
-  description = "Explicit non-production public access approval after governance reconciliation"
+  description = "Deprecated compatibility parameter; public SQL access is not permitted"
+  validation {
+    condition     = !var.sql_public_network_access_approved
+    error_message = "Public SQL access is not permitted in any environment."
+  }
 }
 
 variable "uami_client_id" {
@@ -87,11 +95,11 @@ resource "azurerm_mssql_server" "main" {
   location                      = azurerm_resource_group.main.location
   version                       = "12.0"
   minimum_tls_version           = "1.2"
-  public_network_access_enabled = !var.is_production && var.sql_public_network_access_approved
+  public_network_access_enabled = false
 
   lifecycle {
     precondition {
-      condition     = var.vnet_enabled || (!var.is_production && var.sql_public_network_access_approved)
+      condition     = var.vnet_enabled
       error_message = "Private SQL requires approved VNet integration, private endpoint and DNS."
     }
   }
@@ -117,17 +125,6 @@ resource "azurerm_mssql_database" "main" {
   max_size_gb = 2
 
   tags = local.tags
-}
-
-# ============================================================================
-# Firewall: Allow Azure Services
-# ============================================================================
-resource "azurerm_mssql_firewall_rule" "allow_azure" {
-  count            = !var.is_production && var.sql_public_network_access_approved ? 1 : 0
-  name             = "AllowAllAzureIps"
-  server_id        = azurerm_mssql_server.main.id
-  start_ip_address = "0.0.0.0"
-  end_ip_address   = "0.0.0.0"
 }
 
 # ============================================================================

@@ -45,8 +45,8 @@ summary that lets the parent decide gates without loading the full payload.
 - The chat message returned to the parent is ≤15 lines and ≤2 KB and
   carries `file_path`, `overall_assessment`, `risk_level`, and the
   must/should/suggestion counts — never the full JSON.
-- `prior_findings` is consulted (when provided) to avoid duplicating
-  issues across passes.
+- `prior_findings` avoids duplicates across unchanged-artifact lens passes;
+  revisions verify closure and retain unresolved findings.
 - All claims verified against apex-azure-defaults, iac-policy-compliance, and
   governance-discovery instructions — not trusted at face value.
 
@@ -109,6 +109,12 @@ current content and recover missing/changed evidence after compaction or source 
   per-category and per-artifact-type checklists
 4. **Read** `.github/instructions/references/iac-policy-compliance.md` — governance enforcement rules
 
+Snapshot review inputs before analysis with
+`node tools/scripts/validate-challenger-findings.mjs --metadata <artifact_path>`.
+Retain that `cache_inputs` snapshot; the model comes from frontmatter, not a guessed runtime label.
+Directory inputs use the deterministic tree hash documented in the review protocol; symlinks block hashing.
+Never hash a path string as if it were artifact bytes.
+
 > **Context optimization**: Do NOT read the full `apex-azure-artifacts/SKILL.md`.
 > Only read `adversarial-checklists.md` for H2 structural validation.
 > Apply context shredding (from `adversarial-review-protocol.md`) when loading
@@ -137,7 +143,8 @@ The parent agent provides:
   `cost-feasibility`, `comprehensive`, `governance-reconciliation` (required for single-lens mode)
 - `pass_number`: 1, 2, or 3 — which adversarial pass this is (required for single-lens mode)
 - `prior_findings`: Compact string from previous `compact_for_parent` values, or null (optional).
-  Read saved findings when detail beyond that current summary is required.
+  On revision include dispositions and changed sections; read saved findings before overwrite when needed.
+  Verify closure against the current artifact and report unresolved issues even if previously accepted.
 - `output_path`: **REQUIRED**. The full file path where the findings JSON will be
   written. Canonical pattern (caller's responsibility):
   `agent-output/{project}/challenge-findings-{artifact_type}-pass{N}.json`
@@ -162,16 +169,17 @@ After completing analysis, persist findings before returning to the parent:
    (no file written) and stop.
 2. **Refuse-on-exists** — if the file already exists and `overwrite` is
    not `true`, return an explicit error (no file written) and stop.
-3. **Atomic write** — write the full JSON payload to `{output_path}.tmp`,
-  validate JSON and the findings schema, then rename to `{output_path}`. Use
-  The existing validator scans `agent-output/` under its working directory; it does
-  not validate a positional `.tmp` argument. Check the temporary payload's syntax
-  and every declared schema field explicitly. If a required validation capability
-  cannot inspect this payload, block and report the validator-owner follow-up;
-  a no-files-scanned success is not validation evidence.
+3. **Atomic write** — write the full JSON payload to `{output_path}.tmp` with file-editing tools,
+  using the pre-review `cache_inputs` snapshot. Obtain finding IDs with
+  `node tools/scripts/validate-challenger-findings.mjs --finding-ids <output_path>.tmp`
+  and apply them using editing tools. Validate the explicit temporary file with
+  `node tools/scripts/validate-challenger-findings.mjs --verify-cache <output_path>.tmp`.
+  A cache mismatch means inputs changed: stop and return the error, never regenerate hashes to bless stale analysis.
+  Repair only local payload defects, then rerun validation; a no-files-scanned success is not validation evidence.
   Recheck refuse-on-exists before rename. Never write directly to the canonical
    path; a crash mid-write must leave only `.tmp`, not a partial canonical
    file.
+  Use a noninteractive rename (`command mv -f -- <output_path>.tmp <output_path>`) only after the overwrite check.
 4. **Emit compact summary** — see `## Parent-Facing Summary` below.
 
 ## Parent-Facing Summary
@@ -216,8 +224,9 @@ Batch mode is used for complex projects where passes 2+3 run together.
    choices — challenge the reasoning, not just the outcome.
 3. **Verify claims against skills and instructions** — cross-reference apex-azure-defaults, iac-policy-compliance,
    and governance-discovery instructions. Do not trust claims like "all policies covered" — verify them
-4. **If `prior_findings` provided**, read them and avoid duplicating existing issues. Focus
-   your adversarial energy on the `review_focus` lens
+4. **If `prior_findings` provided**, use them to focus the requested lens. On revisions with `overwrite: true`,
+  read the existing findings before overwriting and verify every prior issue against the current artifact.
+  Retain unresolved issues; only deduplicate lens passes over unchanged artifacts.
 5. **Challenge every assumption** — what is taken for granted that could be wrong?
 6. **Find failure modes** — where could deployment fail? What edge cases would break it?
 7. **Uncover hidden dependencies** — what unstated requirements exist?
@@ -405,7 +414,9 @@ Format:  Pass {N} ({review_focus}) | {RISK_LEVEL} | {N} must_fix, {N} should_fix
 Keep under 200 characters. Include only the top 3 `must_fix` titles.
 
 If no significant risks found, persist an empty `findings` array with `risk_level: "low"` and zero counts.
-Do NOT repeat issues already in `prior_findings`.
+For unchanged-artifact lens passes, do not duplicate issues already in `prior_findings`.
+For revisions, retain unresolved prior issues and summarize verified closures in `challenge_summary`.
+Never interpret a parent's disposition as proof of remediation or skip the requested comprehensive review.
 
 > **Per-finding decisions are out of scope for this subagent.** Parent
 > agents may compute and persist `issue_id` and `user_decision` fields
@@ -448,7 +459,7 @@ lens bias severity calibration of another. For subsequent lenses, append the pre
 8. **Verify before claiming** — use search tools to confirm assumptions before labelling as risks
 9. **Read prior artifacts** — avoid challenging something already resolved
 10. **Cross-reference governance** — verify artifact respects ALL discovered policies in `04-governance-constraints.json`
-11. **Do NOT duplicate prior_findings** — skip issues already identified in previous passes
+11. **Prior findings** — deduplicate unchanged-artifact lens passes, but verify closure and retain blockers on revisions
 
 ## You Are NOT Responsible For
 
