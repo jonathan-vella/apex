@@ -13,6 +13,140 @@ const root = new URL("../../../", import.meta.url);
 const read = (file) => readFileSync(new URL(file, root), "utf8");
 const skill = (file) => read(`.github/skills/${file}`);
 
+test("policy map validation recognizes emitted Deny effects and rejects empty explicit targets", (context) => {
+  const directory = mkdtempSync(path.join(tmpdir(), "policy-map-coverage-"));
+  context.after(() => rmSync(directory, { recursive: true, force: true }));
+  const validator = fileURLToPath(new URL("tools/scripts/validate-policy-property-map.mjs", root));
+  const target = path.join(directory, "04-policy-property-map.json");
+  const source = path.join(directory, "04-governance-constraints.json");
+  const map = {
+    schema_version: "policy-property-map-v1",
+    project: "fixture",
+    generated_at: "2026-09-15T00:00:00Z",
+    governance_depth: "light",
+    policies: [],
+  };
+  const run = (input = target) => spawnSync(process.execPath, [validator, input], { encoding: "utf8" });
+  writeFileSync(target, JSON.stringify(map));
+  for (const effect of ["Deny", "deny", "DENY"]) {
+    writeFileSync(source, JSON.stringify({ policies: [{ effect, policy_id: "required-policy" }] }));
+    assert.equal(run().status, 1, `Missing ${effect} policy must fail`);
+  }
+  assert.equal(run(path.join(directory, "missing.json")).status, 1);
+  for (const shape of ["policies", "effective_policies", "findings"]) {
+    writeFileSync(source, JSON.stringify({ [shape]: [{ effect: "deny", policy_id: "required-policy" }] }));
+    assert.equal(run().status, 1);
+  }
+  map.policies = [
+    {
+      policy_id: "required-policy",
+      display_name: "Required control",
+      effect: "Deny",
+      target_property: {
+        resource_type: "Microsoft.Storage/storageAccounts",
+        property_path: "properties.allowBlobPublicAccess",
+      },
+      evidence_required: "CodeGen property assertion",
+    },
+  ];
+  writeFileSync(target, JSON.stringify(map));
+  assert.equal(run().status, 0);
+  map.policies[0].effect = "Audit";
+  writeFileSync(target, JSON.stringify(map));
+  assert.equal(run().status, 1, "A required Deny policy cannot be mapped as Audit");
+  map.policies[0].effect = "Deny";
+  writeFileSync(target, JSON.stringify(map));
+  for (const invalid of ["{", "{}", '{"policies":[{"effect":"deny"}]}']) {
+    writeFileSync(source, invalid);
+    assert.equal(run().status, 1);
+  }
+});
+
+test("planning validators reject nonexistent explicit targets rather than claiming zero-file success", () => {
+  for (const name of ["iac-contract", "iac-contract-consistency", "environment-manifest", "policy-property-map"]) {
+    const validator = fileURLToPath(new URL(`tools/scripts/validate-${name}.mjs`, root));
+    const result = spawnSync(process.execPath, [validator, "nonexistent-planning-fixture-42"], { encoding: "utf8" });
+    assert.equal(result.status, 1, name);
+    assert.match(result.stderr, /Explicit target matched no files/);
+  }
+});
+
+test("scheduled-action contracts reject incomplete provider constraints before review", (context) => {
+  const directory = mkdtempSync(path.join(tmpdir(), "scheduled-action-contract-"));
+  context.after(() => rmSync(directory, { recursive: true, force: true }));
+  const validator = fileURLToPath(new URL("tools/scripts/validate-iac-contract.mjs", root));
+  const target = path.join(directory, "04-iac-contract.json");
+  const contract = {
+    schema_version: "iac-contract-v0",
+    project: "fixture",
+    iac_tool: "Bicep",
+    generated_at: "2026-09-15T00:00:00Z",
+    plan_ref: { path: "plan.md", sha256: "0".repeat(64) },
+    l1m_ref: { path: "map.json" },
+    resources: [{ logical_name: "cost-anomaly", type: "Microsoft.CostManagement/scheduledActions", sku: null }],
+    modules: {},
+    identity: { type: "none" },
+    params: [{ name: "workspaceId", type: "string" }],
+    diagnostics: { mode: "avm", workspace_id_param: "workspaceId", log_categories: [], metric_categories: [] },
+  };
+  const deployment = {
+    kind: "InsightAlert",
+    scope: "subscription",
+    module_scope: "subscription",
+    display_name_max_length: 25,
+    view_scope: "same-subscription",
+    schedule: { anchor: "deployment-date", start_time: "00:00:00Z", end_time: "00:00:00Z", max_duration_days: 365 },
+  };
+  const run = () => {
+    writeFileSync(target, JSON.stringify(contract));
+    return spawnSync(process.execPath, [validator, target], { encoding: "utf8" });
+  };
+  assert.equal(run().status, 1);
+  for (const track of ["Bicep", "Terraform"]) {
+    contract.iac_tool = track;
+    contract.resources[0].deployment = structuredClone(deployment);
+    if (track === "Terraform") delete contract.resources[0].deployment.module_scope;
+    const valid = run();
+    assert.equal(valid.status, 0, valid.stdout + valid.stderr);
+    for (const key of ["schedule", "display_name_max_length", "view_scope"]) {
+      contract.resources[0].deployment = structuredClone(deployment);
+      delete contract.resources[0].deployment[key];
+      assert.equal(run().status, 1, `${track}: missing ${key}`);
+    }
+    for (const invalid of [
+      { scope: "resourceGroup" },
+      { display_name_max_length: 26 },
+      { schedule: { ...deployment.schedule, end_time: "23:59:59Z" } },
+      { schedule: { ...deployment.schedule, max_duration_days: 366 } },
+      { schedule: { ...deployment.schedule, anchor: "hardcoded-date" } },
+    ]) {
+      contract.resources[0].deployment = { ...structuredClone(deployment), ...invalid };
+      assert.equal(run().status, 1, JSON.stringify(invalid));
+    }
+  }
+  contract.iac_tool = "Bicep";
+  contract.resources[0].deployment = { ...deployment, module_scope: "resourceGroup" };
+  assert.equal(run().status, 1);
+  contract.resources[0].deployment = { kind: "Email", scope: "resourceGroup" };
+  assert.equal(run().status, 0, "Non-anomaly scheduled actions retain their own provider contract");
+  assert.equal(spawnSync(process.execPath, [validator, path.join(directory, "missing.json")]).status, 1);
+});
+
+test("Planner batches provider feasibility checks before spending its bounded review allowance", () => {
+  const agent = read(".github/agents/05-iac-planner.agent.md");
+  const contract = skill("apex-iac-common/references/contract-emission-and-handoff.md");
+  assert.match(agent, /pre-review feasibility gate \(read and run before review\)/);
+  assert.match(contract, /every allowed environment with the full shared suffix/);
+  assert.match(contract, /remaining name budget/);
+  assert.match(contract, /separate subscription module/);
+  assert.match(contract, /"max_duration_days": 365/);
+  assert.match(contract, /'P365D'/);
+  assert.match(contract, /actual plan path for `validate:plan-avm-pins`/);
+  assert.match(contract, /apex-recall decisions --project <project> --json/);
+  assert.match(contract, /return all substantiated findings together/);
+  assert.match(contract, /Do not increase the auto-fix cap/);
+});
+
 test("private networking defaults distinguish public web, private APIs and verified DNS ownership", () => {
   const baseline = read(".github/instructions/references/iac-security-baseline.md");
   assert.match(baseline, /every environment/);

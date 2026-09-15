@@ -104,6 +104,37 @@ function checkDiagnosticsParam(data, fileRel, r) {
   }
 }
 
+function checkScheduledActions(data, fileRel, reporter) {
+  for (const resource of data.resources ?? []) {
+    if (resource.type.toLowerCase() !== "microsoft.costmanagement/scheduledactions") continue;
+    const deployment = resource.deployment;
+    const label = `resources["${resource.logical_name}"].deployment`;
+    if (!deployment) {
+      reporter.error(fileRel, `${label} is required: record scheduled-action kind, scope and provider constraints`);
+      continue;
+    }
+    if (deployment.kind !== "InsightAlert") continue;
+    if (deployment.scope !== "subscription")
+      reporter.error(fileRel, `${label}.scope must be subscription for InsightAlert`);
+    if (data.iac_tool === "Bicep" && deployment.module_scope !== "subscription") {
+      reporter.error(
+        fileRel,
+        `${label}.module_scope must be subscription; an RG-scoped module cannot host InsightAlert`,
+      );
+    }
+    if (!deployment.display_name_max_length)
+      reporter.error(fileRel, `${label} must bound displayName to 25 characters`);
+    if (deployment.view_scope !== "same-subscription")
+      reporter.error(fileRel, `${label} must bind the view to the same subscription`);
+    if (!deployment.schedule) {
+      reporter.error(
+        fileRel,
+        `${label}.schedule must require deployment-date UTC midnight and a window of at most 365 days`,
+      );
+    }
+  }
+}
+
 function checkDependsOn(data, fileRel, r) {
   const names = new Set((data.resources ?? []).map((res) => res.logical_name));
   const graph = new Map();
@@ -181,6 +212,7 @@ function main() {
   let files = [];
   for (const pat of patterns) {
     const matched = globSync(pat, { cwd: ROOT, absolute: true });
+    if (args.length > 0 && matched.length === 0) r.error(pat, "Explicit target matched no files; use an artifact path");
     files = files.concat(matched);
   }
   files = [...new Set(files)];
@@ -188,7 +220,8 @@ function main() {
   if (files.length === 0) {
     r.info("(no 04-iac-contract.json files found)");
     r.summary();
-    process.exit(0);
+    r.exitOnError("No IaC contracts selected");
+    return;
   }
 
   for (const filePath of files) {
@@ -207,16 +240,20 @@ function main() {
       }
       continue;
     }
+    const errorsBefore = r.errors;
     checkUniqueLogicalNames(data, fileRel, r);
     checkModuleRefs(data, fileRel, r);
     checkIdentity(data, fileRel, r);
     checkDiagnosticsParam(data, fileRel, r);
+    checkScheduledActions(data, fileRel, r);
     checkDependsOn(data, fileRel, r);
     checkRefHashes(data, fileRel, r);
-    r.ok(
-      fileRel,
-      `iac-contract ${data.schema_version} (${data.resources.length} resources, iac_tool=${data.iac_tool})`,
-    );
+    if (r.errors === errorsBefore) {
+      r.ok(
+        fileRel,
+        `iac-contract ${data.schema_version} (${data.resources.length} resources, iac_tool=${data.iac_tool})`,
+      );
+    }
   }
 
   r.summary();

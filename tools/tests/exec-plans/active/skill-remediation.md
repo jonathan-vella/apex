@@ -1159,6 +1159,36 @@ the empty query was not proof that no policy existed. The filename search also m
 so the pending planner state is the reliable evidence that planning has not started. Existing schema-aware lookup
 guidance applies; these observations do not justify reopening approved artifacts or adding another workflow gate.
 
+### Planner Feasibility Review Churn (2026-09-15)
+
+Local export `f4431de9-b000-48ba-bb55-f86eff88ef90` shows a comprehensive review followed by two confirming reviews.
+They successively found unbounded Storage/Key Vault names (`4d986691`), an RG module containing a subscription-only
+anomaly resource (`706b63b7`), then missing UTC-midnight/window bounds (`e95f6577`). The parent stopped after the
+existing auto-fix allowance was exhausted. That stop was correct; provider constraints should have been checked as
+a group before spending independent reviews, not discovered one per confirmation.
+
+Root fixes applied in APEX:
+
+- Add scheduled-action `resources[].deployment` constraints and validate all InsightAlert scope, module scope,
+  display-name, view and deployment-date schedule prerequisites together. The 365-day limit is conservative across
+  leap years. Both IaC tracks are covered; non-anomaly Email actions retain their separate contract.
+- Planner loads a pre-review feasibility gate via its existing contract reference. Naming checks cover every
+  allowed environment with the full suffix; the naming template requires evaluated bounds. Review briefs carry
+  all coupled constraints and exact commands. These source checks do not prove native instruction compliance.
+- Policy-map coverage recognizes lowercase/mixed-case Deny effects, rejects invalid source shapes or missing IDs,
+  and requires mapped Deny effects rather than accepting an Audit row with the same ID. The actual project map
+  covers its effective Deny definitions with the corrected validator.
+- Explicit nonexistent paths now fail contract, consistency, policy-map and environment-manifest validation instead
+  of succeeding with no files checked. The log repeatedly supplied bare project names to path-based commands.
+  Contract/map validators no longer print per-file success after semantic errors.
+
+The pasted mailto formatting was not present in the saved environment manifest; its email value is plain text.
+No speculative email rewrite was applied. The live project contract is now correctly blocked on the missing
+deployment block; its plan/map hashes also differ from current bytes and require owner synchronization. Maintenance
+does not edit reviewed project files, restamp findings, renew allowances, approve planning or generate/deploy IaC.
+The pre-existing AVM cache change is preserved. Next: explicit human authorization for one owner repair batch and
+one confirming comprehensive review; retain the exhausted-loop history and the separate final approval gate.
+
 ## Batch Evidence Record
 
 Append one entry per actual batch. The recovery checkpoint above records current tests and repairs; formal

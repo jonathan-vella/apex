@@ -67,6 +67,7 @@ function main() {
   let files = [];
   for (const pat of patterns) {
     const matched = globSync(pat, { cwd: ROOT, absolute: true });
+    if (args.length > 0 && matched.length === 0) r.error(pat, "Explicit target matched no files; use an artifact path");
     files = files.concat(matched);
   }
   files = [...new Set(files)];
@@ -74,7 +75,8 @@ function main() {
   if (files.length === 0) {
     r.info("(no 04-iac-contract.json files found)");
     r.summary();
-    process.exit(0);
+    r.exitOnError("No IaC contracts selected");
+    return;
   }
 
   for (const contractPath of files) {

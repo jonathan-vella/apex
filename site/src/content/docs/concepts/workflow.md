@@ -90,6 +90,20 @@ If accepted edits invalidate Governance's review after its single pass, keep the
 handoff to Challenger and the owning agent. Do not reset the review allowance. On resume, Governance findings
 and current review hashes must support the `05-IaC Planner` handoff; copied Architecture status is not sufficient.
 
+### Planning Feasibility
+
+Before independent review, Planner checks resource-name bounds for every allowed environment, module/resource scope,
+and the full cost-anomaly provider requirements together. Scheduled actions carry `resources[].deployment` in the
+IaC contract. `InsightAlert` requires subscription scope, a bounded display name, a same-subscription view and a
+deployment-date UTC-midnight schedule of at most 365 days; Bicep also declares the owning module scope.
+These are CodeGen obligations, not proof of provider acceptance or generated-code validation.
+
+Use full artifact paths for contract, consistency, policy-map and environment-manifest validators. Explicit targets
+matching no files now fail. Policy-map coverage recognizes the discovery envelope's lowercase Deny effects and rejects
+missing or downgraded Deny mappings. The review and repair limits remain unchanged; exhausted retries require human
+authorization, not an automatic reset. Existing scheduled-action contracts need their owning Planner to add the
+deployment block and synchronize affected inputs before another authorized review.
+
 ### The Orchestrator Pattern
 
 The Orchestrator orchestrates the entire workflow by delegating

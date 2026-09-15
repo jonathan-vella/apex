@@ -401,9 +401,9 @@ refuses to invent parameters absent from this section.
 addition to the prose H2 section above, emit two JSON artifacts so
 CodeGen agents (06b/06t) consume a deterministic shape instead of
 re-extracting from prose. Full schemas, templates, and validator
-commands:
+pre-review feasibility gate (read and run before review):
 [`apex-iac-common/references/contract-emission-and-handoff.md`](../skills/apex-iac-common/references/contract-emission-and-handoff.md)
-→ "Inputs from Step 4".
+→ "Step 4 — Pre-review feasibility gate"; include all provider constraints and exact validator commands in the review brief.
 
 1. `agent-output/{project}/04-iac-contract.json` —
    schema [`iac-contract-v0`/`v1`](../../tools/schemas/iac-contract.schema.json),

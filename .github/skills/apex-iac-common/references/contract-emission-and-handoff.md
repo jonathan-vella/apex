@@ -22,6 +22,69 @@ from `04-implementation-plan.md` prose:
 If any contract is missing or fails its validator, STOP and traverse
 `↩ Return to Step 4`. CodeGen never patches the contract.
 
+## Step 4 — Pre-review feasibility gate
+
+Before the first independent review and after each authorized repair, validate the complete provider constraint set,
+not only the last reported finding. This is author validation, not a replacement for independent review. Keep the
+existing review/repair limits; finding another mechanical defect does not renew them.
+
+### Names and scope
+
+- Evaluate global-name derivations for every allowed environment with the full shared suffix, separators and
+  maximum project segment. Storage and Key Vault must stay within 24 characters and their service-specific character
+  rules. Bound the project segment using the remaining name budget, not a hard-coded assumption that every environment
+  is `dev`. Preserve the approved suffix strategy. Check the same expression in plan and contract descriptions.
+- For every raw resource, record resource scope, owning module target scope and caller scope. An RG module cannot
+  contain a subscription-scoped `InsightAlert`; use a separate subscription module called by the subscription root.
+  Keep budget/Action Group ownership independent from anomaly scope and direct email delivery.
+- Read the selected track's cost guidance before authoring the cost task. For Bicep, load
+  [all anomaly hard prerequisites](../../apex-azure-defaults/references/cost-alerts-bicep.md#6-cost-anomaly-alert-subscription-scoped)
+  together: subscription module/call site, display-name limit, scope-matched view ID and bounded UTC-midnight schedule.
+  Terraform implementations must satisfy the same Azure provider constraints using their supported resource API.
+
+### Scheduled-action deployment contract
+
+For each `Microsoft.CostManagement/scheduledActions` row, populate `resources[].deployment` with its actual kind
+and scope. An `InsightAlert` requires all fields below (Bicep also requires `module_scope`); the existing
+`validate:iac-contract` gate rejects incomplete or invalid values in both contract revisions and IaC tracks.
+
+```json
+{
+  "kind": "InsightAlert",
+  "scope": "subscription",
+  "module_scope": "subscription",
+  "display_name_max_length": 25,
+  "view_scope": "same-subscription",
+  "schedule": {
+    "anchor": "deployment-date",
+    "start_time": "00:00:00Z",
+    "end_time": "00:00:00Z",
+    "max_duration_days": 365
+  }
+}
+```
+
+These fields are CodeGen obligations, not proof of generated code or provider acceptance. Use the same values in
+the task, raw-resource exception and code-generation bindings. Derive dates at deployment, not planning; Bicep can
+use a `utcNow('yyyy-MM-dd')` parameter default and `dateTimeAdd(..., 'P365D', 'yyyy-MM-dd')` with midnight suffixes.
+The 365-day bound is conservative across leap years. Preserve the full subscription ID in the view resource ID.
+Do not invent an `Email` kind to bypass anomaly requirements. Retain provider/version verification at CodeGen/deploy.
+
+### Validation and review brief
+
+Run the explicit artifact-path commands below on the finalized batch, not a bare project name. A zero-file result
+does not validate a project. For related checks use the actual plan path for `validate:plan-avm-pins`, contract path
+for `validate:avm-versions:freeze`, and project directory for `validate:sku-iac-coverage`.
+Use `apex-recall decisions --project <project> --json` and `.session.open_findings` from `show`; do not guess aliases.
+Keep terminal programs explicit (`python3 -c`, `node --input-type=module -e`); bare language snippets are not shell code.
+Confirm installed diagram icon classes before writing imports; preserve embedded SVG assets and inspect rendered output.
+Recipient arrays contain plain email addresses, not Markdown links.
+
+The review brief includes these provider constraints, exact input/output paths and actual validator commands/results.
+Ask the first comprehensive reviewer to examine all coupled constraints and return all substantiated findings together,
+not stop at the first issue. Confirmations check prior closure plus the same complete set; a clean schema is not
+semantic feasibility. Do not increase the auto-fix cap or suppress later valid findings to reduce review counts.
+
 ## Phase 1 — Contract Integrity Gate (MANDATORY)
 
 Run before any code-generation work:

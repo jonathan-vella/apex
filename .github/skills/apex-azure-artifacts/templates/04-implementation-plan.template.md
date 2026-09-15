@@ -245,6 +245,10 @@ Source: [04-runtime-diagram.py](./04-runtime-diagram.py) (Python `diagrams` libr
 
 ## 🏷️ Naming Conventions
 
+Evaluate each generated name with the complete uniqueness suffix and every allowed environment before review.
+Record character rules, maximum length and the bounded project segment in the pattern; a generic prefix pattern
+is not proof that Storage or Key Vault fits its 24-character limit. Mirror the derivation in the IaC contract.
+
 | Resource       | Pattern                  | Example            | Generated Name |
 | -------------- | ------------------------ | ------------------ | -------------- |
 | Resource Group | rg-{project}-{env}       | rg-project-dev     | {actual name}  |

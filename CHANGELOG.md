@@ -20,6 +20,10 @@ for full details on this and all prior releases.
 
 ### Changed (Agent modernization)
 
+- Catch scheduled-action scope, display-name, view and schedule omissions in the IaC contract before review.
+  Require Planner's complete feasibility check and name bounds without increasing reviewer or auto-fix allowances.
+- Validate lowercase Deny coverage and reject explicit planning-validator targets that match no files.
+  Stop emitting per-file success for invalid contracts or policy maps.
 - Support explicit, audited selection of a later authorized Governance review at completion without overwriting history.
   Preserve strict freshness, artifact/lens/pass checks and separate human approval; never infer the newest review.
   Name the exact pre-approval cache validator and prevent stale recall confirmations from overriding reviewed policy facts.
