@@ -20,6 +20,9 @@ for full details on this and all prior releases.
 
 ### Changed (Agent modernization)
 
+- Consolidate acceptance lessons in the existing verification procedure: distinguish decisions from execution,
+  verify harness provenance and check scope, and stop redundant probes. Add targeted Git troubleshooting
+  and representative picker verification guidance without new agents, schemas or mandatory runtime reads.
 - Add payload-free probe evidence to the existing debug-log profiler, with optional operator-reviewed text,
   explicit unknown invocation attribution and preserved log provenance; add offline review-gate reload coverage.
 - Prevent Challenger self-handoffs after reviewer failure; request human intervention and preserve exhausted

@@ -30,6 +30,24 @@ update an existing one. Uses `git` and `gh` only — no MCP tools.
   when `git branch --show-current` returns `feat/skills-sensei`.
 - Never commit to `main`. Never force-push.
 
+### Identity And Access Troubleshooting
+
+Run this sequence only when identity or access fails, not before every healthy commit:
+
+1. Identify the environment of the failing command: Windows, WSL and the container
+  have separate paths and configuration. Confirm a file exists there before recreating it.
+2. Use the author checks above and `git config --show-origin --get-regexp '^user\.(name|email)$'`
+  to locate missing dotfiles configuration. Author identity does not authenticate a push.
+3. Test ordinary Git access with `git ls-remote <intended-private-repository> HEAD`.
+  Inspect the active credential helper and compare the denied account with the intended account;
+  a successful `gh` lookup does not establish that Git uses the same credentials.
+4. For dev containers, test host access before forwarded container access. After an authorized
+  repair, repeat the original command without overrides and verify dotfiles persistence after rebuild.
+
+Do not repeatedly reauthenticate without identifying the failing layer. Any account refresh or
+credential-route change requires explicit authorization; preserve other accounts and never expose secrets.
+A read-only lookup verifies repository access, not write permission; only the authorized push proves publication.
+
 ## Inputs
 
 | Variable | Source                                  | Default        |

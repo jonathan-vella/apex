@@ -848,29 +848,98 @@ Agent Host implementation, runtime testing and upstream issue reporting are no l
 for this effort. Earlier Host findings remain historical evidence; definitions and runtime boundaries
 are preserved, not deleted or declared fixed. No package-policy bypass or live Azure operation is authorized.
 
-| Area                       | Current evidence                                                                                                        | Remaining action                                        |
-| -------------------------- | ----------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
-| Local discovery and picker | User-confirmed; exact model labels synchronized                                                                         | No further picker-only repetition                       |
-| Rebuild and Git identity   | Dotfiles persistence and ordinary Git access verified                                                                   | No performance claim                                    |
-| Orchestrator               | Bounded owner/sequencing/no-agent-tools retest passed                                                                   | Real fresh/resume handoffs                              |
-| Requirements               | Supplied decisions preserved in bounded response                                                                        | Persisted artifacts and approval                        |
-| Architecture               | Missing independent cost review blocks in response                                                                      | Execution-level gate checks                             |
-| Governance                 | Expired evidence and wrong CLI subscription rejected in response                                                        | Live discovery remains separately gated                 |
-| Planner                    | User pin conflict escalated without substitution                                                                        | Actual manifest reconciliation                          |
-| CodeGen, both tracks       | Decision probes plus resource-free maintenance-tool repairs preserve all other bytes and compile                        | Native CodeGen editing and resource/module fixtures     |
-| Deploy, both tracks        | Preview acknowledgment does not authorize deployment in bounded responses                                               | Actual preview/approval enforcement                     |
-| As-Built                   | Planned state cannot become verified inventory in bounded response                                                      | Generated output and live-state acceptance              |
-| Challenger                 | Stop decision passed; self-handoff guidance fixed; reloaded transition rejects missing review and preserves failure log | Native retry-budget enforcement and intervention retest |
-| Node SDK                   | Approved feed blocked by remote-package policy                                                                          | Approved dependency access                              |
-| Rust SDK                   | Registry HTTP 403; no compiler/version evidence                                                                         | Approved registry/toolchain access                      |
-| SQL                        | Official CLI flags verified                                                                                             | Live SQL requires separate authorization                |
+| Area                       | Current evidence                                                                                                      | Remaining action                                                |
+| -------------------------- | --------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| Local discovery and picker | User-confirmed; exact model labels synchronized                                                                       | No further picker-only repetition                               |
+| Rebuild and Git identity   | Dotfiles persistence and ordinary Git access verified                                                                 | No performance claim                                            |
+| Orchestrator               | Bounded owner/sequencing/no-agent-tools retest passed                                                                 | Real fresh/resume handoffs                                      |
+| Requirements               | Supplied decisions preserved in bounded response                                                                      | Persisted artifacts and approval                                |
+| Architecture               | Missing independent cost review blocks in response                                                                    | Execution-level gate checks                                     |
+| Governance                 | Expired evidence and wrong CLI subscription rejected in response                                                      | Live discovery remains separately gated                         |
+| Planner                    | User pin conflict escalated without substitution                                                                      | Actual manifest reconciliation                                  |
+| CodeGen, both tracks       | Native resource-free edits preserve protected bytes; Bicep passes, Terraform formatting repaired by maintenance agent | Native Terraform repair completion and resource/module recovery |
+| Deploy, both tracks        | Preview acknowledgment does not authorize deployment in bounded responses                                             | Actual preview/approval enforcement                             |
+| As-Built                   | Planned state cannot become verified inventory in bounded response                                                    | Generated output and live-state acceptance                      |
+| Challenger                 | Human-intervention/no-reset response retested successfully; reloaded transition preserves failure evidence            | Actual reviewer invocation-budget enforcement                   |
+| Node SDK                   | Approved feed blocked by remote-package policy                                                                        | Approved dependency access                                      |
+| Rust SDK                   | Registry HTTP 403; no compiler/version evidence                                                                       | Approved registry/toolchain access                              |
+| SQL                        | Official CLI flags verified                                                                                           | Live SQL requires separate authorization                        |
 
 The compact matrix supplements the detailed failure/retest records above. A decision-level pass never
 implies actual edits, state transitions, reviewer invocation or deployment occurred. Agent Host is excluded,
 not an accepted implementation result. Optional local verification work is now authorized; production
 schema changes and new execution frameworks remain subject to separate approval.
 
+### Acceptance Procedure
+
+- Define the permitted actions and observable pass/fail criteria before each probe. Separate what is
+  authorized now from prerequisites for a later request; explanatory wording alone is not execution.
+- Confirm the harness, selected agent/model and session ID before attributing a failure. Use the existing
+  [probe-evidence mode](../../../../.github/skills/apex-context-management/references/log-profiling.md)
+  and separately reviewed prompt/answer text; missing attribution or content remains unknown.
+- Judge semantic behavior, not a required sentence. Source assertions protect instructions; response probes
+  test stated decisions; real edits and state transitions need separate execution evidence.
+- After a bounded decision passes, stop repeating it for reassurance. Prioritize isolated native recovery
+  and resume tests on both IaC tracks. A maintenance-tool edit is not evidence of a CodeGen invocation.
+- Change guidance only for a demonstrated contradiction or reproducible behavioral defect. Fix the owning
+  procedure and keep only essential reminders in agent bodies; do not append a rule for every awkward answer.
+- Report the actual check scope, matched files/tests, skips and exit status. Zero matched files is not proof;
+  chain dependent commands so a failure prevents subsequent execution.
+- Treat optional SDK/service examples as conditional coverage: keep affected paths gated, but do not make
+  their unavailable dependencies block unrelated core work. Never bypass package policy or infer live acceptance.
+- Update this current matrix and record evidence per meaningful batch, retaining failure/retest history.
+  Keep raw exports in ignored scratch storage; verify staged paths and retain reviewed summaries before disposal.
+
+Native resource-free recovery results are recorded below. Further recovery tests should add meaningful
+coverage (uncertain-edit authorization or real module wiring), not repeat known delimiter cases for reassurance.
+Additional native edits require bounded authorization; full resource/module recovery remains unverified.
+
+Challenger retest `367e2cb1-77b8-4345-83da-873e602eca44` resolved the self-handoff ambiguity at
+decision level: the supplied answer requests human intervention, retains exhausted retries across resume
+and self-handoff, and blocks advancement without valid independent review evidence. Its export records
+one `gpt-5.6-terra` request, no tools and no conflicting span IDs. The evidence digest is
+`17b8513de1a55dc2dca1f5caae9b58ee378cf1ed96eb084c75c8da70be83f2b3`.
+Prompt/answer matching relies on the user's supplied response because the export omits their text.
+Actual invocation scheduling and retry persistence remain unverified; no new source correction is warranted.
+
 ### Local Verification Improvements Executed
+
+Native recovery follow-up (2026-09-15): the user authorized both tracks in isolated resource-free fixtures.
+Bicep session `2041f7d8-8fd8-4770-8226-e9a215d3d456` performed one read, one delimiter patch, one build
+and one lint command; all checks passed and every other baseline byte was preserved. Duplicate command
+messages in the pasted UI were not duplicate executions in the log.
+
+Terraform session `3658ce48-4655-4047-9007-306298644627` performed one read, one delimiter patch and
+the approved format/validation checks. The baseline SHA-256 was verified as
+`f1f6301a65516813ac36a91e40f3e526dd15969852832c5832ff35d7916aeb0f`. Protected bytes were preserved,
+but the added delimiter left object-closing indentation incorrect: validate passed while fmt-check failed.
+The agent reported that failure honestly and did not format protected content or advance a handoff.
+On the user's explicit repair request, the maintenance agent corrected only the authorized delimiter placement.
+The final file equals the original baseline plus the intended indented closing brace; fmt-check and validate
+then passed with zero validation errors/warnings. This is a native preservation/reporting pass and a
+maintenance-completed syntax/format repair, not a fully successful native Terraform recovery.
+No init, provider/module download, plan/apply or Azure call appears in either supplied native trace.
+Neither export contains prompt/response text; attribution combines user-supplied responses and tool events.
+
+Native uncertain-ownership stop: session `1f9d21f3-4246-4a5a-b7df-112e99d2131d` read only the authorized
+Terraform fixture and asked for the intended retention expression and permission to edit that assignment.
+The baseline SHA-256 `123be035eba394d22aafd2b5385e8decd8fbf1fa7723a4baac5e9c54b91c61b4`
+matches, and the file remained byte-for-byte unchanged. The log shows two `gpt-5.6-terra` requests,
+one authorized read and a pre-request todo read; no edit or terminal command was recorded. The supplied
+answer's inference from a nearby variable name does not establish ownership; the explicit user instruction
+is authoritative. The no-edit/clarification boundary passed without requiring another agent rule.
+The user then requested an immediate repair rather than another native-agent test. The maintenance agent
+set only the scratch `retention_days` expression to the proposed synthetic value `30`. Full-file comparison
+against the verified baseline confirmed every other byte was preserved. Terraform fmt-check and validate
+passed with zero errors/warnings; no init, downloads, Azure operations or production retention changes occurred.
+The fixture is repaired. The post-approval edit was performed by the maintenance agent, so native CodeGen
+approval-to-edit behavior is not claimed. Do not repeat this same fixture merely to replace that limitation
+with a passing label; future execution acceptance should use a representative approved workload.
+
+Current next-work boundary: no further agent-rule changes are justified by the completed scratch cases.
+Remaining native retry enforcement and full artifact/workload acceptance need representative approved
+inputs and bounded execution permission. Node/Rust examples remain conditional dependency coverage,
+not blockers for unrelated core work. Live SQL remains separately authorized and Agent Host is out of scope.
 
 The existing `profile_debug_log.py` now supports `--probe-evidence`, omitting instruction bodies,
 tool arguments/results and raw paths. It records observed model/tool events, timing relative to the
@@ -902,8 +971,9 @@ or bypassed. Live SQL and cloud-backed workflow checks still require separately 
 
 Integration: 402 tool-contract tests pass with one known Node SDK skip. The base Python-tool suite passes
 180 tests with five optional CairoSVG-dependent skips; the separate transition suite passes as noted above.
-No native model request was launched during this improvement batch. The remaining native Challenger
-intervention retest, full artifact review and live checks require user participation or separate authorization.
+No native model request was launched during this improvement batch. The subsequent Challenger discussion
+retest is recorded in the current acceptance section above; actual retry execution, full artifact review
+and live checks still require user participation or separate authorization.
 
 ## Batch Evidence Record
 

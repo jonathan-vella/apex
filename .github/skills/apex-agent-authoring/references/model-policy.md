@@ -13,6 +13,12 @@
 Do not reorder prioritized models or change assignments without explicit
 approval. Explain approved changes in the pull request.
 
+Before propagating an unfamiliar identifier, verify one representative selection
+in the supported harness and use its exact picker value. A catalog-consistency
+pass proves only that local declarations agree, not runtime availability.
+Keep family classification separate from identifier matching; do not normalize
+spaces or provider suffixes away to make validation pass.
+
 ## Assignment Rationale
 
 The catalog and approved agent frontmatter own the active map; do not duplicate it
