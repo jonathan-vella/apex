@@ -18,7 +18,8 @@ are locked and must never appear as answer options. Call
 and three options: `Approve all` / `Revise SKUs` / `Discuss`. Wait for
 the user; do not auto-default.
 
-- **Approve**: `apex-recall decide <project> --key sku_confirmation_status --value approved --step 2 --json`, continue to pricing delegation.
+- **Approve**: `apex-recall decide <project> --key sku_confirmation_status --value approved --step 2 --json`,
+  continue to pricing delegation.
 - **Revise / Discuss**: record `--value revising`, loop back to
   candidate-set authoring. Do **not** invoke `cost-estimate-subagent`
   while status is `revising`.
@@ -42,7 +43,12 @@ budget)**: propose `round(monthly_total × 1.2)` and call
   (freeform numeric follow-up) / `Defer — escalate to user`.
 - On `Confirm` or numeric entry: record
   `apex-recall decide --key budget_cap_known --value true --step 2`
-  and `apex-recall decide --decision "budget_cap=${value}" --rationale "Phase 9a proposed from monthly_total × 1.2" --step 2`.
+  and the following decision:
+
+  ```bash
+  apex-recall decide --decision "budget_cap=${value}" --rationale "Phase 9a proposed from monthly_total × 1.2" --step 2
+  ```
+
 - On `Defer`: hard-stop and surface to the user. Do not proceed to
   the cost-feasibility lens until a budget exists. This is **not** an
   opt-out for prod.
@@ -215,6 +221,9 @@ missing or empty (zero bytes):
   user inline and request a human handoff to `10-Challenger`. Do NOT
   advance to the Approval Gate. Do NOT invent findings. Do NOT call
   the subagent a third time or invoke `10-Challenger` as a nested wrapper.
+  If `10-Challenger` is already active, request human intervention instead of a
+  self-handoff. Preserve the exhausted retry status across handoffs and resumed
+  sessions; neither human selection nor a new wrapper renews the retry allowance.
 
 ## Design (Step 3) — Phase 00: Artifact scope (one-time gate)
 

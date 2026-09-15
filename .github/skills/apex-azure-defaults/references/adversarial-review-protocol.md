@@ -55,6 +55,11 @@ For a successful call that produces missing or empty output, follow
 log the failure, retry exactly once with identical inputs, then STOP and request a human
 handoff after the second failure. Do not reset this budget by changing wrappers or models.
 
+If `10-Challenger` is already the active owner, request human intervention instead
+of a self-handoff. Report the failure and missing evidence without restarting the
+review. Preserve exhausted retry status across handoffs and resumed sessions;
+human intervention does not itself satisfy the review gate or renew the retry allowance.
+
 Tier annotations in `workflow-graph.json` (`opt_in_matrix`) are
 **recommendations only** — they never auto-fire. The Orchestrator never
 auto-triggers a multi-pass run based on `decisions.complexity`. The user
@@ -412,7 +417,8 @@ Deterministic — no agent-level interpretation:
 ### 2i. Persist decisions (sidecar + apex-recall)
 
 The current sidecar schema has no `edit` action and requires string notes.
-Keep the Edit UI choice, persist it as `accept` with the `Edit: ` note prefix, and apply that custom guidance
+Keep the Edit UI choice, persist it as `accept` with the `Edit:` note prefix followed by a space,
+and apply that custom guidance
 instead of the suggested mitigation. Do not add schema fields or emit null notes.
 
 For each answered question:

@@ -17,6 +17,11 @@ measured end-to-end token savings and final generated-output quality are not cla
 
 ## Master Roadmap And Tracking
 
+**2026-09-15 scope update:** Agent Host is excluded by user decision. Historical Host findings below
+do not block this Local-only effort and do not authorize further Host investigation or issue filing.
+Current priorities and bounded results are in the
+[Local acceptance matrix](skill-remediation.md#active-local-acceptance-scope-2026-09-15).
+
 Updated 2026-09-14. Start here for the overall program status. This section supersedes older whole-program
 completion language; completed batches remain complete, but do not close newly discovered defects.
 The user first authorized tracking, then approved autonomous remediation, and requested recovery after skipped

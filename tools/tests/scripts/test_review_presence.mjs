@@ -37,7 +37,7 @@ test("decision presentation maps canonical fields and persists schema-valid Edit
   );
   assert.match(protocol, /title = claim/);
   assert.match(protocol, /description = evidence/);
-  assert.match(protocol, /persist it as `accept` with the `Edit: ` note prefix/);
+  assert.match(protocol, /persist it as `accept` with the `Edit:` note prefix followed by a space/);
   const validate = loadValidator(
     fileURLToPath(new URL("../../schemas/challenge-findings-decisions.schema.json", import.meta.url)),
   );
@@ -120,6 +120,13 @@ test("unavailable reviewers require human handoff without nested wrapper or retr
   assert.match(protocol, /Do not invoke it as a subagent/);
   assert.match(protocol, /retry exactly once with identical inputs/);
   assert.match(protocol, /Do not reset this budget by changing wrappers or models/);
+  assert.match(protocol, /already the active owner, request human intervention instead\s+of a self-handoff/);
+  assert.match(protocol, /Preserve exhausted retry status across handoffs and resumed sessions/);
+  assert.match(protocol, /does not itself satisfy the review gate or renew the retry allowance/);
+  const challenger = read(".github/agents/10-challenger.agent.md");
+  assert.match(challenger, /do not hand off to yourself/);
+  assert.match(challenger, /Preserve the exhausted retry\s+status across handoffs and resumed sessions/);
+  assert.match(challenger, /missing evidence still blocks advancement/);
   assert.doesNotMatch(protocol, /Retry once via the `10-Challenger`|#runSubagent|doubles input-token cost/);
   const gates = read(".github/skills/apex-azure-defaults/references/workflow-gates.md");
   assert.match(gates, /Before any retry/);
@@ -127,6 +134,11 @@ test("unavailable reviewers require human handoff without nested wrapper or retr
   assert.match(gates, /After the second failure\*\*: STOP/);
   assert.match(gates, /request a human handoff to `10-Challenger`/);
   assert.match(gates, /Do NOT call\s+the subagent a third time/);
+  assert.match(gates, /already active, request human intervention instead of a\s+self-handoff/);
+  assert.match(gates, /neither human selection nor a new wrapper renews the retry allowance/);
+  const guardrails = read(".github/skills/apex-agent-authoring/references/runtime-guardrails.md");
+  assert.match(guardrails, /already active, stop and request human intervention/);
+  assert.match(guardrails, /human selection does not renew the retry allowance/);
 });
 
 test("Planner finding choices agree with its canonical approval reference", () => {

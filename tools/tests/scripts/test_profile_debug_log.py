@@ -95,6 +95,84 @@ def test_main_module_path():
     assert SCRIPT.exists()
 
 
+def test_probe_evidence_omits_payloads_and_does_not_guess_attribution(profiler):
+    def event(name, operation, start, **extra):
+        return {
+            "traceId": "probe",
+            "spanId": name,
+            "name": name,
+            "startTimeUnixNano": str(start),
+            "attributes": [{"key": "gen_ai.operation.name", "value": {"stringValue": operation}}]
+            + [{"key": key, "value": {"stringValue": value}} for key, value in extra.items()],
+        }
+
+    todo = event("manage_todo_list", "execute_tool", 10, **{"gen_ai.tool.call.arguments": "PRIVATE_SENTINEL"})
+    chat = event("chat", "chat", 20, **{"gen_ai.request.model": "test-model"})
+    read = event("read_file", "execute_tool", 30, **{"gen_ai.tool.call.result": "PRIVATE_SENTINEL"})
+    result = profiler.probe_evidence([read, todo, chat, todo])
+    assert "PRIVATE_SENTINEL" not in json.dumps(result)
+    assert result["duplicate_spans_omitted"] == 1
+    assert [item["before_first_model_request"] for item in result["tool_events"]] == [False, True]
+    assert all(item["invocation_attribution"] == "unknown" for item in result["tool_events"])
+    assert result["model_requests"][0]["model"] == "test-model"
+    assert result["verdict"] == "requires review"
+
+
+def test_probe_evidence_missing_timing_is_unknown(profiler):
+    result = profiler.probe_evidence(
+        [
+            {
+                "name": "read_file",
+                "attributes": [{"key": "gen_ai.operation.name", "value": {"stringValue": "execute_tool"}}],
+            }
+        ]
+    )
+    assert result["tool_events"][0]["before_first_model_request"] is None
+    assert result["model_requests"] == []
+
+
+def test_probe_evidence_retains_conflicting_span_ids(profiler):
+    first = {
+        "traceId": "probe",
+        "spanId": "same",
+        "name": "read_file",
+        "attributes": [{"key": "gen_ai.operation.name", "value": {"stringValue": "execute_tool"}}],
+    }
+    second = {**first, "name": "run_in_terminal"}
+    result = profiler.probe_evidence([first, second])
+    assert result["conflicting_span_ids"] == 1
+    assert [item["tool"] for item in result["tool_events"]] == ["read_file", "run_in_terminal"]
+    assert result["duplicate_spans_omitted"] == 0
+
+
+def test_probe_cli_omits_unsupplied_text(profiler, capsys):
+    assert profiler.main([str(FIXTURE), "--probe-evidence"]) == 0
+    result = json.loads(capsys.readouterr().out)
+    assert "supplied_text" not in result
+    assert result["prompt_response_source"] == "not extracted"
+    assert result["verdict"] == "requires review"
+
+
+def test_probe_cli_links_separately_reviewed_text(profiler, capsys, tmp_path):
+    prompt = tmp_path / "prompt.txt"
+    response = tmp_path / "response.txt"
+    prompt.write_text("Reviewed hypothetical prompt")
+    response.write_text("Reviewed hypothetical answer")
+    assert (
+        profiler.main(
+            [str(FIXTURE), "--probe-evidence", "--reviewed-prompt", str(prompt), "--reviewed-response", str(response)]
+        )
+        == 0
+    )
+    result = json.loads(capsys.readouterr().out)
+    assert len(result["log_sha256"]) == 64
+    assert result["supplied_text"]["prompt"] == prompt.read_text()
+    assert "not verified" in result["supplied_text"]["source"]
+    assert "tool_payload_bytes" not in result
+    with pytest.raises(SystemExit):
+        profiler.main([str(FIXTURE), "--probe-evidence", "--reviewed-prompt", str(prompt)])
+
+
 def test_partial_usage_preserves_observed_values_without_zero_denominator(profiler):
     complete = {
         "name": "chat:test",

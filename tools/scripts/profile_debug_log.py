@@ -40,6 +40,7 @@ from __future__ import annotations
 
 import argparse
 import contextlib
+import hashlib
 import json
 import sys
 from collections import Counter, defaultdict
@@ -111,7 +112,7 @@ def _duration_s(span: dict[str, Any]) -> float:
     try:
         start = int(span["startTimeUnixNano"])
         end = int(span["endTimeUnixNano"])
-    except (KeyError, ValueError, TypeError):
+    except KeyError, ValueError, TypeError:
         return 0.0
     return max(0.0, (end - start) / 1e9)
 
@@ -208,7 +209,7 @@ def profile(
             e = int(span["endTimeUnixNano"])
             session_start = s if session_start is None else min(session_start, s)
             session_end = e if session_end is None else max(session_end, e)
-        except (KeyError, ValueError, TypeError):
+        except KeyError, ValueError, TypeError:
             pass
 
         # Error spans (status.code == 2). Counted up front because the
@@ -269,7 +270,7 @@ def profile(
                 try:
                     args_obj = json.loads(args_blob) if args_blob else {}
                     fpath = args_obj.get("filePath") or "(unknown)"
-                except (json.JSONDecodeError, TypeError):
+                except json.JSONDecodeError, TypeError:
                     fpath = "(unparseable)"
                 read_file_paths[fpath] += 1
             elif tname == "vscode_askQuestions":
@@ -315,9 +316,7 @@ def profile(
         key=lambda r: r["bytes"],
         reverse=True,
     )[:10]
-    duplicate_reads = [
-        {"path": p, "count": c} for p, c in read_file_paths.most_common(20) if c > 1
-    ]
+    duplicate_reads = [{"path": p, "count": c} for p, c in read_file_paths.most_common(20) if c > 1]
 
     return {
         "usage_coverage": {
@@ -337,9 +336,7 @@ def profile(
             "max_input_per_call": max_input_per_call,
             "askquestions_count": len(ask_durations),
             "subagent_invocations": len(subagent_calls),
-            "challenger_invocations": sum(
-                1 for c in subagent_calls if c["name"] == "challenger-review-subagent"
-            ),
+            "challenger_invocations": sum(1 for c in subagent_calls if c["name"] == "challenger-review-subagent"),
             "error_spans_total": error_spans_raw_count,
             "error_spans_non_benign": len(error_spans),
         },
@@ -427,10 +424,64 @@ def render_text(metrics: dict[str, Any], path: Path) -> str:
     return "\n".join(lines)
 
 
+def probe_evidence(spans: list[dict[str, Any]]) -> dict[str, Any]:
+    """Summarize observed events without exporting instructions or tool payloads."""
+    calls = []
+    tools = []
+    seen = {}
+    duplicates = 0
+    conflicts = 0
+    for span in spans:
+        identity = (span.get("traceId"), span.get("spanId"))
+        if all(identity):
+            fingerprint = hashlib.sha256(json.dumps(span, sort_keys=True).encode("utf-8")).hexdigest()
+            if seen.get(identity) == fingerprint:
+                duplicates += 1
+                continue
+            if identity in seen:
+                conflicts += 1
+            seen[identity] = fingerprint
+        attributes = _attrs(span)
+        operation = attributes.get("gen_ai.operation.name")
+        timestamp = _token_count(span.get("startTimeUnixNano"))
+        if operation == "chat":
+            calls.append({"model": attributes.get("gen_ai.request.model"), "start_time_ns": timestamp})
+        elif operation == "execute_tool":
+            tools.append(
+                {
+                    "tool": attributes.get("gen_ai.tool.name") or span.get("name"),
+                    "start_time_ns": timestamp,
+                    "invocation_attribution": "unknown",
+                }
+            )
+    first_chat = min((call["start_time_ns"] for call in calls if call["start_time_ns"] is not None), default=None)
+    for tool in tools:
+        start = tool["start_time_ns"]
+        tool["before_first_model_request"] = (
+            start < first_chat if start is not None and first_chat is not None else None
+        )
+    return {
+        "model_requests": calls,
+        "tool_events": tools,
+        "duplicate_spans_omitted": duplicates,
+        "conflicting_span_ids": conflicts,
+        "prompt_response_source": "not extracted",
+        "verdict": "requires review",
+        "limitations": [
+            "Timing does not establish whether a tool was invoked by the model or harness.",
+            "Missing events do not prove export completeness or successful workflow enforcement.",
+            "Model and tool names remain visible; review all output before sharing.",
+        ],
+    }
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("log", type=Path, help="Path to OTel debug log JSON")
     parser.add_argument("--json", action="store_true", help="Emit JSON instead of text")
+    parser.add_argument("--probe-evidence", action="store_true", help="Emit payload-free probe evidence as JSON")
+    parser.add_argument("--reviewed-prompt", type=Path, help="Separately supplied, manually redacted prompt text")
+    parser.add_argument("--reviewed-response", type=Path, help="Separately supplied, manually redacted response text")
     parser.add_argument(
         "--max-spans-between-clears",
         type=int,
@@ -444,10 +495,26 @@ def main(argv: list[str] | None = None) -> int:
         help="Warn when askQuestions count between turn_start:N markers exceeds N (default: 3)",
     )
     args = parser.parse_args(argv)
+    if bool(args.reviewed_prompt) != bool(args.reviewed_response):
+        parser.error("--reviewed-prompt and --reviewed-response must be supplied together")
+    if args.reviewed_prompt and not args.probe_evidence:
+        parser.error("reviewed text requires --probe-evidence")
 
     try:
         spans = load_spans(args.log)
-    except (FileNotFoundError, ValueError) as exc:
+        if args.probe_evidence:
+            evidence = probe_evidence(spans)
+            evidence["log_sha256"] = hashlib.sha256(args.log.read_bytes()).hexdigest()
+            if args.reviewed_prompt:
+                evidence["supplied_text"] = {
+                    "source": "separately supplied; redaction and matching asserted by operator, not verified",
+                    "prompt": args.reviewed_prompt.read_text(encoding="utf-8"),
+                    "response": args.reviewed_response.read_text(encoding="utf-8"),
+                }
+            json.dump(evidence, sys.stdout, indent=2, sort_keys=True)
+            sys.stdout.write("\n")
+            return 0
+    except (OSError, ValueError) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1
 

@@ -152,6 +152,36 @@ def test_complete_blocked_when_sidecar_missing(tmp_path):
     assert state["steps"]["2"]["status"] == "not_started"
 
 
+def test_exhausted_review_evidence_survives_reloaded_transition_attempts(tmp_path):
+    project = _seed_project(tmp_path, "demo", with_step_2_gating=True, with_sidecar=False)
+    failure_path = project / "_meta" / "challenger-failures.json"
+    failure_path.parent.mkdir()
+    failures = [{
+        "timestamp": timestamp,
+        "review_focus": "comprehensive",
+        "output_path": "challenge-findings-requirements.json",
+        "return_summary_verbatim": "No output",
+        "output_file_size_bytes": 0,
+        "last_error_message": "Missing findings payload",
+    } for timestamp in ["2026-09-15T05:00:00Z", "2026-09-15T05:01:00Z"]]
+    failure_path.write_text(json.dumps(failures), encoding="utf-8")
+    state_path = project / "00-session-state.json"
+    original_state = state_path.read_bytes()
+    original_failures = failure_path.read_bytes()
+    args = SimpleNamespace(
+        project="demo", from_step="1", to_step="2", decision=["iac_tool=terraform"],
+        complete=True, allow_missing_challenger=False, challenger_skip_reason=None, json=True,
+    )
+    for _attempt in range(2):
+        transition_mod = _reimport_with_root(tmp_path)
+        status, payload = _capture(transition_mod, args)
+        assert status == 2
+        assert payload["error"] == "challenger_findings_missing"
+        assert state_path.read_bytes() == original_state
+        assert failure_path.read_bytes() == original_failures
+        assert not (project / "challenge-findings-requirements.json").exists()
+
+
 def test_complete_bypass_with_audit_reason(tmp_path):
     transition_mod = _reimport_with_root(tmp_path)
     _seed_project(tmp_path, "demo", with_step_2_gating=True, with_sidecar=False)

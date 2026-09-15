@@ -22,6 +22,24 @@ npm run profile:debug-log -- logs/test04-01.json
 
 ## What it extracts
 
+For a discussion-only acceptance probe, use the payload-free JSON mode:
+
+```sh
+python3 tools/scripts/profile_debug_log.py tmp/probe.json --probe-evidence
+```
+
+This omits instructions, tool arguments/results and paths, records the input log's SHA-256,
+and reports observed model/tool events. Invocation attribution remains unknown: timestamps alone
+cannot distinguish a harness-generated todo read from a model request. Missing events do not prove
+export completeness, and the tool never assigns a pass verdict. Model/tool names remain visible;
+inspect the output before sharing it.
+
+To pair separately supplied text, manually redact both files first, then add
+`--reviewed-prompt tmp/prompt.txt --reviewed-response tmp/response.txt`.
+Those contents are included verbatim with operator-supplied provenance, not represented as extracted
+log text. Redaction and matching are not automatically verified. Keep raw exports and evidence bundles
+in ignored scratch storage, never agent-discovery folders or public commits.
+
 | Section                  | Field                                                                 |
 | ------------------------ | --------------------------------------------------------------------- |
 | Totals                   | `input_tokens`, `output_tokens`, `chat_calls`, avg/p50/max input/call |

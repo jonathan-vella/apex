@@ -106,6 +106,10 @@ the Orchestrator with an apply summary.
     missing/empty output permits exactly one identical-input retry. Missing capability
     or other failed execution blocks with its error. Never fabricate findings
     or hand off as if the review passed.
+  - If the reviewer is unavailable or the identical-input retry is exhausted,
+    stop and request human intervention with the failure details. You are already
+    `10-Challenger`: do not hand off to yourself. Preserve the exhausted retry
+    status across handoffs and resumed sessions; missing evidence still blocks advancement.
   - If an edit fails, inspect the actual partial result, preserve user changes, and
     report which Accepted findings remain unapplied. Never assume atomic rollback or
     recreate the artifact; repair only confirmed agent-written partial edits and validate.

@@ -20,6 +20,10 @@ for full details on this and all prior releases.
 
 ### Changed (Agent modernization)
 
+- Add payload-free probe evidence to the existing debug-log profiler, with optional operator-reviewed text,
+  explicit unknown invocation attribution and preserved log provenance; add offline review-gate reload coverage.
+- Prevent Challenger self-handoffs after reviewer failure; request human intervention and preserve exhausted
+  retry status across handoffs and resumed sessions without fabricating review evidence.
 - Clarify preview-only deployment stops: missing backends do not trigger bootstrap or apply approval requests.
   Later setup/deployment requires explicit scope expansion, separate bootstrap authorization and fresh apply approval.
 - Clarify both CodeGen recovery contracts: syntax errors, failed validation and plan conflicts do not authorize

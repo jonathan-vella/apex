@@ -41,6 +41,9 @@ Use `tools/apex-prompts/utility-prompts/execution-subagent.prompt.md`:
 3. Never invoke a nested main-agent wrapper or fabricate an inline review.
     Production main agents, including `10-Challenger`, require human selection;
     explicit caller allowlists must not override this production boundary.
+4. If `10-Challenger` is already active, stop and request human intervention
+    rather than a self-handoff. Preserve exhausted retry status across handoffs
+    and resumed sessions; human selection does not renew the retry allowance.
 
 ## User-Scope Discovery
 
