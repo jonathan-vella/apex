@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+import base64
 import importlib.util
 import sys
 from pathlib import Path
 from types import ModuleType
+from xml.etree import ElementTree
 
 import pytest
 
@@ -32,6 +34,59 @@ def test_formats_includes_png_and_svg(diagram_io):
     assert "svg" in diagram_io.FORMATS
 
 
+def test_svg_embeds_absolute_and_relative_icons_and_is_idempotent(diagram_io, tmp_path):
+    icon = tmp_path / "icon space.png"
+    content = b"\x89PNG\r\n\x1a\nfixture"
+    icon.write_bytes(content)
+    svg = tmp_path / "diagram.svg"
+    svg.write_text(
+        '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 100 100">'
+        f'<image xlink:href="{icon}" width="10" height="10"/>'
+        '<image href="icon%20space.png"/><text>Keep label</text></svg>'
+    )
+    diagram_io.embed_svg_images(svg)
+    first = svg.read_bytes()
+    root = ElementTree.fromstring(first)
+    assert root.get("viewBox") == "0 0 100 100"
+    images = list(root.iter("{http://www.w3.org/2000/svg}image"))
+    for image in images:
+        reference = image.get("href") or image.get("{http://www.w3.org/1999/xlink}href")
+        assert reference.startswith("data:image/png;base64,")
+        assert base64.b64decode(reference.split(",", 1)[1], validate=True) == content
+    icon.unlink()
+    diagram_io.embed_svg_images(svg)
+    assert svg.read_bytes() == first
+
+
+@pytest.mark.parametrize(
+    "reference", ["missing.png", "https://example.test/icon.png", "file:///tmp/icon.png", "secret.txt"]
+)
+def test_svg_bad_image_reference_leaves_original_unchanged(diagram_io, tmp_path, reference):
+    (tmp_path / "secret.txt").write_text("not an image")
+    svg = tmp_path / "bad.svg"
+    original = f'<svg xmlns="http://www.w3.org/2000/svg"><image href="{reference}"/></svg>'
+    svg.write_text(original)
+    with pytest.raises((ValueError, FileNotFoundError)):
+        diagram_io.embed_svg_images(svg)
+    assert svg.read_text() == original
+
+
+def test_real_diagrams_svg_contains_portable_icon(diagram_io, tmp_path):
+    from diagrams import Diagram
+    from diagrams.azure.compute import AppServices
+
+    base = tmp_path / "real-icons"
+    with Diagram("Portable", **diagram_io.diagram_kwargs(base)):
+        AppServices("Web")
+    diagram_io.embed_svg_images(base.with_suffix(".svg"))
+    images = list(ElementTree.parse(base.with_suffix(".svg")).iter("{http://www.w3.org/2000/svg}image"))
+    assert images
+    assert all(
+        image.get("{http://www.w3.org/1999/xlink}href", "").startswith("data:image/png;base64,") for image in images
+    )
+    assert base.with_suffix(".png").stat().st_size > 0
+
+
 def test_formats_is_immutable_tuple(diagram_io):
     # tuple, not list — guards against accidental mutation from a call site.
     assert isinstance(diagram_io.FORMATS, tuple)
@@ -54,9 +109,7 @@ def test_diagram_kwargs_strips_known_extension(diagram_io):
 
 
 def test_diagram_kwargs_overrides_win(diagram_io):
-    kw = diagram_io.diagram_kwargs(
-        "04-x", direction="LR", graph_attr={"dpi": "150"}, show=True
-    )
+    kw = diagram_io.diagram_kwargs("04-x", direction="LR", graph_attr={"dpi": "150"}, show=True)
     assert kw["direction"] == "LR"
     assert kw["graph_attr"] == {"dpi": "150"}
     assert kw["show"] is True
@@ -135,6 +188,24 @@ def test_render_graphviz_writes_both_formats(diagram_io, tmp_path):
     assert (tmp_path / "process-flow.png").exists()
     assert (tmp_path / "process-flow.svg").exists()
     assert {p.suffix for p in written} == {".png", ".svg"}
+
+
+def test_render_graphviz_embeds_real_raster_icon(diagram_io, tmp_path):
+    import graphviz
+    from PIL import Image
+
+    icon = tmp_path / "icon.png"
+    Image.new("RGB", (20, 20), "red").save(icon)
+    dot = graphviz.Digraph("portable")
+    dot.node("service", "Service", image=str(icon), shape="none")
+    base = tmp_path / "portable"
+    diagram_io.render_graphviz(dot, base)
+    icon.unlink()
+    images = list(ElementTree.parse(base.with_suffix(".svg")).iter("{http://www.w3.org/2000/svg}image"))
+    assert images
+    assert all(
+        image.get("{http://www.w3.org/1999/xlink}href", "").startswith("data:image/png;base64,") for image in images
+    )
 
 
 @pytest.mark.parametrize("formats", [("png",), ("svg",), ("pdf",), ("png", "svg")])

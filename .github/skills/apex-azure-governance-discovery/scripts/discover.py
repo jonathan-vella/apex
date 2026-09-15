@@ -336,16 +336,30 @@ def _required_value(defn: dict[str, Any]) -> Any:
 def _property_paths(defn: dict[str, Any], resource_types: list[str]) -> dict[str, str | None]:
     """Best-effort extraction of azurePropertyPath / bicepPropertyPath.
 
-    Walks the policyRule looking for `field: "<Type>/<path>"` patterns, which
-    is how Azure Policy addresses resource properties. Falls back to the
-    `Modify` / `DeployIfNotExists` operation field when the top-level rule
-    does not name a field.
+    Prefer the explicit Modify operation over applicability conditions.
+    Multiple targets are unresolved by this single-property contract.
+    Without operations, use typed fields from the applicability rule before
+    falling back to tag semantics. DINE templates are not property assignments.
     """
     rule = (defn.get("properties") or {}).get("policyRule") or {}
 
-    # Tag policies address `tags['<name>']`, often without any `field: type`.
-    # Check before the resource-type short-circuit below.
-    if _looks_like_tag_policy(rule):
+    then = rule.get("then") or {}
+    operations = (then.get("details") or {}).get("operations")
+    operation_fields = []
+    if operations is not None:
+        if not isinstance(operations, list) or not operations:
+            return {"azurePropertyPath": "", "bicepPropertyPath": ""}
+        for operation in operations:
+            field = operation.get("field") if isinstance(operation, dict) else None
+            if not isinstance(field, str) or not field:
+                return {"azurePropertyPath": "", "bicepPropertyPath": ""}
+            if field not in operation_fields:
+                operation_fields.append(field)
+        if len(operation_fields) != 1:
+            return {"azurePropertyPath": "", "bicepPropertyPath": ""}
+
+    tag_operation = bool(operation_fields and operation_fields[0].lower().startswith("tags["))
+    if tag_operation or (not operation_fields and not resource_types and _looks_like_tag_policy(rule)):
         return {
             "azurePropertyPath": "resourceGroup.tags",
             "bicepPropertyPath": "resourceGroups::tags",
@@ -356,29 +370,34 @@ def _property_paths(defn: dict[str, Any], resource_types: list[str]) -> dict[str
         return {"azurePropertyPath": "", "bicepPropertyPath": ""}
 
     primary_type = resource_types[0]
+    if operation_fields:
+        matches = [kind for kind in resource_types if operation_fields[0].lower().startswith(kind.lower() + "/")]
+        if not matches:
+            return {"azurePropertyPath": "", "bicepPropertyPath": ""}
+        primary_type = max(matches, key=len)
 
     candidate_fields: list[str] = []
-    stack = [rule.get("if"), rule.get("then")]
+    stack = [rule.get("if")]
     while stack:
         node = stack.pop()
         if isinstance(node, dict):
             f = node.get("field")
-            if isinstance(f, str) and "/" in f and f.startswith(primary_type):
+            if isinstance(f, str) and f.startswith(primary_type + "/"):
                 candidate_fields.append(f)
             stack.extend(node.values())
         elif isinstance(node, list):
             stack.extend(node)
 
-    # Also check modify operations for their `field` property.
-    then = rule.get("then") or {}
-    ops = (then.get("details") or {}).get("operations") or []
-    if isinstance(ops, list):
-        for op in ops:
-            f = (op or {}).get("field")
-            if isinstance(f, str) and f.startswith(primary_type):
-                candidate_fields.append(f)
+    if operation_fields:
+        candidate_fields = [primary_type + "/" + operation_fields[0][len(primary_type) + 1:]]
 
     if not candidate_fields:
+        if not operation_fields and _looks_like_tag_policy(rule):
+            return {
+                "azurePropertyPath": "resourceGroup.tags",
+                "bicepPropertyPath": "resourceGroups::tags",
+                "pathSemantics": "tag-policy-non-property",
+            }
         return {"azurePropertyPath": "", "bicepPropertyPath": ""}
 
     # Prefer the field that names the deepest property path (most slashes

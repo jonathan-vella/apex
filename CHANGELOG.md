@@ -20,6 +20,26 @@ for full details on this and all prior releases.
 
 ### Changed (Agent modernization)
 
+- Support explicit, audited selection of a later authorized Governance review at completion without overwriting history.
+  Preserve strict freshness, artifact/lens/pass checks and separate human approval; never infer the newest review.
+  Name the exact pre-approval cache validator and prevent stale recall confirmations from overriding reviewed policy facts.
+- Keep bounded Challenger verification separate from artifact editing; return corrections to their owner.
+  Trace Governance location claims to policy evidence before review and check freshness independently of formatting.
+- Check Governance handoffs for the exact artifact, compact length, pending finding IDs and immediate recovery owner.
+  Report structure, review freshness and blocker closure separately instead of blanket validation success.
+  Require the checklist read on blocked recovery; verify complete command outcomes and reconcile decision summaries.
+- Reject stale, malformed, wrong-target or blocking review evidence before recall completion/transition writes;
+  retain audited missing-review skips without allowing them to waive invalid present findings.
+- Resolve Governance's revision-cap contradiction and require verified closure before the exact Planner handoff.
+  Prioritize Modify operation properties over tag selectors; leave multiple-property mappings unresolved.
+- Audit the manual-testing lessons against current code and tests, separating source fixes, native evidence,
+  publication and remaining acceptance gaps in the existing remediation ledger.
+- Make docs-writer, vendor-prompting and Terraform search/import manual-only; retain explicit documentation adapters,
+  required docs updates, vendor validators and state-change approval gates. Production dependency skills remain available.
+- Add manual-only `/apex-unslop` prose cleanup, adapted with MIT attribution from Cursor's pstack plugin.
+  Preserve technical facts, artifact structure and review boundaries; do not add automatic agent loads.
+- Embed local raster icons in generated SVG diagrams instead of container-specific image paths. Require standalone
+  SVG icon validation alongside PNG visual checks; preserve the reproducible generator and both output formats.
 - Finalize Step 2 content before reviews and keep mutable approval status outside reviewed bytes. Preserve exact-hash
   drift checks on completion/resume and route stale evidence to its owner without restamping prior reviews.
 - Standardize interrupted pricing publication recovery and invocation-local request accounting while preserving

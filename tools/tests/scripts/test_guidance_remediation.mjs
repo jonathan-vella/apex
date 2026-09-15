@@ -165,17 +165,68 @@ test("SK21: exact AVM interfaces and full anomaly-view IDs control validation", 
 });
 
 test("SK24: governance confirms current inputs before review and recovers full blocker evidence", () => {
+  const disposition = skill("apex-azure-governance-discovery/references/reconciliation-disposition.md");
+  assert.match(disposition, /Keep Gate-2_5 closed; acceptance is not verified closure/);
+  assert.match(disposition, /request a human handoff to `10-Challenger`/);
+  assert.match(disposition, /cannot be deferred to Planner/);
+  assert.match(disposition, /05-IaC Planner/);
+  assert.doesNotMatch(disposition, /Re-present the Phase 3 final/);
+  assert.match(disposition, /check:h2-order -- <project> 04-governance-constraints\.md/);
+  assert.match(disposition, /wc -l < agent-output\/<project>\/00-handoff\.md/);
+  assert.match(disposition, /-lt 60/);
+  assert.match(disposition, /immediate\s+owner is `10-Challenger`/);
+  assert.match(disposition, /Structure: PASS\/FAIL/);
+  assert.match(disposition, /Review freshness: CURRENT\/STALE\/UNAVAILABLE/);
+  assert.match(disposition, /Blocker closure: VERIFIED\/AWAITING VERIFICATION/);
+  assert.match(disposition, /do not emit "None"/);
+  assert.match(read(".github/agents/04g-governance.agent.md"), /reconciliation-disposition.md#final-handoff-checklist/);
   const resolution = skill("apex-azure-governance-discovery/references/inline-resolution-gate.md");
   assert.match(resolution, /before challenger review/);
   assert.match(resolution, /captured \*\*before discovery\*\*/);
   assert.match(resolution, /subscription, target region/);
   assert.match(resolution, /0 <= age_days/);
   assert.match(resolution, /Unknown — block/);
+  assert.match(resolution, /deny rule for one region does not establish an allow-list for another/);
+  assert.match(resolution, /not evidence that Azure\s+Policy mandates it/);
+  assert.match(resolution, /without populating policy-derived fields from preference alone/);
+  assert.match(resolution, /reconcile every prior finding ID/);
+  assert.match(resolution, /do not copy its allow-list or `true`/);
+  assert.match(disposition, /independently of formatting checks/);
+  assert.match(disposition, /untracked artifacts, `git diff --check` has no content coverage/);
+  assert.match(disposition, /return to `04g-Governance` first/);
+  assert.match(disposition, /inside existing sections, not new H2 sections/);
+  assert.match(disposition, /Reconcile Key Decisions/);
+  assert.match(disposition, /final exit status, not an earlier `OK`/);
+  assert.match(disposition, /absent success marker or empty output is not a pass/);
+  assert.match(disposition, /Never probe an invented file/);
+  assert.match(disposition, /before\/after byte hashes/);
+  assert.match(disposition, /Decisions, open findings and per-step status live under `\.session`/);
+  assert.match(disposition, /Prior recall confirmations are historical assertions, not policy evidence/);
+  assert.match(disposition, /not reintroduce a\s+policy allow-list or co-location mandate from stale recall/);
+  assert.match(disposition, /validate-challenger-findings\.mjs --verify-cache <selected-findings-path>/);
+  assert.match(disposition, /before presenting the approval gate/);
+  assert.match(disposition, /If a required reference read returns no content, recover the named section/);
+  assert.match(read(".github/agents/04g-governance.agent.md"), /blocked handoff, read the required/);
+  assert.match(read(".github/agents/04g-governance.agent.md"), /handoff below 60 lines and `--verify-cache`/);
+  assert.match(read(".github/agents/04g-governance.agent.md"), /Before spending the pass, trace policy claims/);
   const commands = skill("apex-azure-governance-discovery/references/terminal-commands.md");
   assert.match(commands, /every blocker, including overflow/);
   assert.match(commands, /Targeted follow-up queries are required/);
   assert.doesNotMatch(commands, /sed -n '1,120p'|2>\/dev\/null \|\| echo 0|do NOT issue follow-up/);
   assert.match(commands, /explicit\s+human approval/);
+});
+
+test("Challenger verification-only requests preserve reviewed bytes and return corrections to the owner", () => {
+  const agent = read(".github/agents/10-challenger.agent.md");
+  assert.match(agent, /Resolve verification-only scope before delegation/);
+  assert.match(agent, /takes precedence over the default Apply workflow/);
+  assert.match(agent, /without offering\s+Accept\/apply or Revise panels/);
+  assert.match(agent, /later explicit user request may authorize edits/);
+  assert.match(agent, /any byte change invalidates the review/);
+  assert.match(agent, /report closure against each prior finding ID/);
+  assert.match(agent, /should-fix is not automatically a must-fix/);
+  assert.match(agent, /Stop without the decision\/apply panels below or artifact mutation/);
+  assert.match(agent, /Only findings with `action: "accept"` are applied/);
 });
 
 test("shared retries cannot reset, skip gates or apply unapproved substitutions", () => {

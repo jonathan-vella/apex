@@ -18,7 +18,7 @@ from pathlib import Path
 _scripts_dir = str(Path(__file__).parent)
 if _scripts_dir not in sys.path:
     sys.path.insert(0, _scripts_dir)
-from diagram_io import FORMATS  # noqa: E402
+from diagram_io import FORMATS, embed_svg_images  # noqa: E402
 PATTERNS = {
     "api-led": {
         "description": "API-Led Connectivity (3-tier: Experience, Process, System)",
@@ -397,6 +397,8 @@ def generate_diagram(name: str, pattern: str, output: str | Path) -> None:
 
     # Execute the generated code
     exec(code)
+    if "svg" in FORMATS:
+        embed_svg_images(Path(f"{output}.svg"))
     print(f"✅ Generated: {output}.png + {output}.svg")
 
 

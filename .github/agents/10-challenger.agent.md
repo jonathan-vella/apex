@@ -50,7 +50,7 @@ the Orchestrator with an apply summary.
   Category, Recommendation), `must_fix` first; use canonical finding fields.
 - Per-Finding Decision Protocol panel run for every in-scope finding
   (`must_fix` + `should_fix`) per protocol section 2 — unless the user
-  explicitly opts out at the start of the turn.
+  requests verification-only scope or explicitly opts out at the start of the turn.
 - The resolved `decisions_path` sidecar is
   written atomically per protocol section 2a.
 - On `Revise (apply Accepted findings)`: every Accepted finding's
@@ -61,6 +61,13 @@ the Orchestrator with an apply summary.
 
 ## Constraints
 
+- Resolve verification-only scope before delegation: requests to verify closure and return corrections to the owner
+  authorize review output, not artifact edits. This mode takes precedence over the default Apply workflow below.
+  Preserve the reviewed bytes and original review history; record only authorized review/state outputs.
+- In verification-only mode, report remaining findings and return them to the named owner without offering
+  Accept/apply or Revise panels. Do not manufacture an editing decision from a bounded review request.
+  A later explicit user request may authorize edits, but first explain that any byte change invalidates the review
+  and requires separately authorized verification when the review allowance is exhausted.
 - Allowed writes: resolved decisions sidecar, accepted in-place edits to the challenged
   artifact only, and recall findings. Worker-owned findings are never fabricated or patched.
   `execute` permits inspection, output validation and these state updates, not arbitrary writes.
@@ -259,6 +266,11 @@ Invoke `challenger-review-subagent` with:
 After rendering the findings table, run the shared **Per-Finding
 Decision Protocol** so the user can apply selected fixes and proceed.
 
+For verification-only scope, instead validate current review freshness, report closure against each prior finding ID,
+and return remaining corrections to the owner. Stop without the decision/apply panels below or artifact mutation.
+Distinguish review severity from workflow closure: a should-fix is not automatically a must-fix, and neither an
+accepted disposition nor a lower severity independently proves a prior blocker closed. Keep required gates intact.
+
 1. **Run the Per-Finding Decision Protocol** from
    [.github/skills/apex-azure-defaults/references/adversarial-review-protocol.md](../skills/apex-azure-defaults/references/adversarial-review-protocol.md#per-finding-decision-protocol):
    - Build the panel from in-scope findings (`must_fix` + `should_fix`)
@@ -332,4 +344,4 @@ Do not call the reviewer until required inputs and output paths are resolved.
 - Out of scope: approving artifacts on the user's behalf, editing files outside
   the explicit write allowlist, auto-rerunning the
   challenger after applying fixes, skipping the Per-Finding Decision
-  Protocol when running in attended mode.
+  Protocol in attended apply workflows without an explicit opt-out. Verification-only scope uses the return path above.

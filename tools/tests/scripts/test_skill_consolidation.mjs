@@ -36,6 +36,12 @@ const kqlBlocks = (source) => [...source.matchAll(/```kql\n([\s\S]*?)```/g)].map
 
 const validator = fileURLToPath(new URL("../../scripts/validate-skills.mjs", import.meta.url));
 const retiredName = ["azure", "troubleshooting"].join("-");
+const manualSkills = new Set([
+  "apex-unslop",
+  "apex-docs-writer",
+  "apex-vendor-prompting",
+  "apex-terraform-search-import",
+]);
 
 test("active skill metadata preserves reachability and the approved inline visibility policy", () => {
   const hidden = new Set([
@@ -57,7 +63,11 @@ test("active skill metadata preserves reachability and the approved inline visib
     if (!entry.isDirectory()) continue;
     const metadata = parseFrontmatter(read(new URL(`${entry.name}/SKILL.md`, skillsRoot)));
     assert.equal(metadata["user-invocable"], !hidden.has(entry.name), entry.name);
-    assert.equal(metadata["disable-model-invocation"], entry.name.startsWith("apex-host-"), entry.name);
+    assert.equal(
+      metadata["disable-model-invocation"],
+      entry.name.startsWith("apex-host-") || manualSkills.has(entry.name),
+      entry.name,
+    );
     assert.equal(Object.hasOwn(metadata, "context"), false, `${entry.name}: production must remain inline`);
     if (hidden.has(entry.name)) {
       foundHidden.add(entry.name);
@@ -70,6 +80,58 @@ test("active skill metadata preserves reachability and the approved inline visib
     }
   }
   assert.deepEqual(foundHidden, hidden);
+});
+
+test("manual maintenance skills retain validation and import approval boundaries", () => {
+  for (const name of manualSkills) {
+    const source = read(new URL(`${name}/SKILL.md`, skillsRoot));
+    const metadata = parseFrontmatter(source);
+    assert.equal(metadata["user-invocable"], true, name);
+    assert.equal(metadata["disable-model-invocation"], true, name);
+    assert.ok(source.includes(`/${name}`), name);
+  }
+  assert.match(read(new URL("apex-docs-writer/SKILL.md", skillsRoot)), /Required documentation updates/);
+  assert.match(
+    read(new URL("apex-vendor-prompting/SKILL.md", skillsRoot)),
+    /required vendor validators remain mandatory/,
+  );
+  assert.match(
+    read(new URL("apex-terraform-search-import/SKILL.md", skillsRoot)),
+    /Invocation does not authorize state adoption or apply/,
+  );
+  for (const name of ["apex-agent-authoring", "apex-azure-cloud-migrate", "apex-github-operations"]) {
+    assert.equal(parseFrontmatter(read(new URL(`${name}/SKILL.md`, skillsRoot)))["disable-model-invocation"], false);
+  }
+  const authoring = read(new URL("apex-agent-authoring/SKILL.md", skillsRoot));
+  assert.match(authoring, /Ask the user to invoke `\/apex-vendor-prompting`/);
+  assert.doesNotMatch(authoring, /\| Vendor-specific prompt audit \| `\.\.\/apex-vendor-prompting\/SKILL.md`/);
+  const modelPolicy = read(new URL("apex-agent-authoring/references/model-policy.md", skillsRoot));
+  assert.match(modelPolicy, /Do not load that manual-only skill automatically/);
+  const docsTriggers = read(new URL("../../../.github/instructions/docs-trigger.instructions.md", import.meta.url));
+  assert.match(docsTriggers, /Required documentation updates do not depend on loading a skill/);
+});
+
+test("unslop is manual-only and preserves technical and reviewed content", () => {
+  const source = read(new URL("apex-unslop/SKILL.md", skillsRoot));
+  const metadata = parseFrontmatter(source);
+  assert.equal(metadata.name, "apex-unslop");
+  assert.equal(metadata["user-invocable"], true);
+  assert.equal(metadata["disable-model-invocation"], true);
+  assert.match(source, /not an AI-authorship detector/);
+  assert.match(source, /Review requests produce suggestions without file changes/);
+  assert.match(source, /numbers, units, currencies, dates, SKU names/);
+  assert.match(source, /Preserve uncertainty, evidence limits, accepted risks/);
+  assert.match(source, /Preserve required H2 text\/order/);
+  assert.match(source, /Do not edit approved or hash-reviewed artifacts/);
+  assert.match(source, /never hash restamping/);
+  assert.match(source, /EUR 200/);
+  assert.match(source, /`P0v4`, `Standard_LRS`/);
+  assert.match(source, /e8d856f0273b42ebafe0ec3546bd645709e7c1b0/);
+  assert.match(read(new URL("apex-unslop/LICENSE.txt", skillsRoot)), /Copyright \(c\) 2026 Lauren Tan/);
+  const agentsRoot = new URL("../../../.github/agents/", import.meta.url);
+  for (const file of readdirSync(agentsRoot, { recursive: true }).filter((file) => file.endsWith(".agent.md"))) {
+    assert.doesNotMatch(read(new URL(file, agentsRoot)), /apex-unslop/, file);
+  }
 });
 
 test("skill descriptions use installed identifiers for cross-skill redirects", () => {

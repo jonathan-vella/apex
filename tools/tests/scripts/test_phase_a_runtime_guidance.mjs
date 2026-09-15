@@ -7,12 +7,13 @@ import { test } from "node:test";
 
 const readAgent = (file) => readFileSync(new URL(`../../../.github/agents/${file}`, import.meta.url), "utf8");
 
-test("A02 permits only the Phase 3 runbook before artifact guidance", () => {
+test("A02 permits early canonical security and service guidance without repeating supplied answers", () => {
   const source = readAgent("02-requirements.agent.md");
-  assert.match(source, /only early file-read exception/);
-  assert.match(source, /except for the required Phase 3 service-class runbook at that phase/);
+  assert.match(source, /Before capture, load the \[security baseline\]/);
+  assert.match(source, /defer other reads and writes except recall and the Phase 3 service-class runbook/);
   assert.doesNotMatch(source, /Phases 1-4 each collect answers before any file/);
-  assert.match(source, /Phase 3j batch/);
+  assert.match(source, /Phase 3j requires explicit preferences/);
+  assert.match(source, /Explicit brief answers satisfy their fields without reconfirmation/);
   assert.match(source, /Phase 5 \(artifact generation\), not earlier/);
   assert.match(source, /Fresh-capture read restrictions do not prohibit this bounded recovery path/);
 });

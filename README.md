@@ -133,6 +133,8 @@ directly.
 - Source content for the published documentation site
 
 The [skill catalog](.github/skills/README.md) describes procedure ownership and invocation flags.
+For explicit prose cleanup, use [/apex-unslop](.github/skills/apex-unslop/SKILL.md); it is manual-only,
+preserves technical content, and is not part of the automatic workflow.
 Local prompt files are adapters. On Agent Host, select the owning agent and use the shared
 manual entry skill; `apex-host-workflow-start` supports an explicit `resume` operation.
 Skills inherit the caller's model/tools and do not bypass human approval gates.

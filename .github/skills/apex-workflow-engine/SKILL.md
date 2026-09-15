@@ -87,7 +87,8 @@ Other retained Local operations load only their requested procedure:
 [existing Azure as-built](references/as-built-from-azure.md),
 [project review](references/project-wide-review.md).
 Documentation gardening, peer review, and Astro review belong to
-[`apex-docs-writer`](../apex-docs-writer/SKILL.md).
+[`apex-docs-writer`](../apex-docs-writer/SKILL.md), invoked explicitly by the user or a user-selected documentation
+prompt adapter. Do not auto-load that manual-only skill when advancing infrastructure steps.
 For their shared execution boundary, read
 [operational-safety.md](references/operational-safety.md).
 

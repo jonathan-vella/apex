@@ -88,8 +88,11 @@ def test_generated_inputs_are_only_literals(
         captured.append(source)
 
     monkeypatch.setattr(generator, "exec", inspect_source, raising=False)
+    finalized = []
+    monkeypatch.setattr(generator, "embed_svg_images", lambda filename: finalized.append(filename))
     generator.generate_diagram(text, pattern, Path(output) if path_object else output)
     assert len(captured) == 1
+    assert finalized == [Path(f"{output}.svg")]
     assert not list(tmp_path.iterdir())
 
 

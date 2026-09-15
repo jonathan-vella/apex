@@ -175,6 +175,18 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p_tr.add_argument("--json", action="store_true", help="Output as JSON")
 
+    for completion_parser in (p_complete, p_tr):
+        completion_parser.add_argument(
+            "--governance-review",
+            default=None,
+            help="Explicit later Governance review path (absolute or workspace-relative); Step 3.5 completion only.",
+        )
+        completion_parser.add_argument(
+            "--governance-review-reason",
+            default=None,
+            help="Required audit reason for selecting a separately authorized replacement review; not human approval.",
+        )
+
     return parser
 
 

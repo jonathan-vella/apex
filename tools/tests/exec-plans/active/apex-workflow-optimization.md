@@ -22,6 +22,11 @@ do not block this Local-only effort and do not authorize further Host investigat
 Current priorities and bounded results are in the
 [Local acceptance matrix](skill-remediation.md#active-local-acceptance-scope-2026-09-15).
 
+The [manual-testing lesson audit](skill-remediation.md#manual-testing-lesson-audit-2026-09-15) reconciles later
+FreshConnect execution with the earlier probes. Governance completion exposed a presence-only recall gate and
+a contradictory revision reference; current maintenance fixes enforce review validity and correct operation-property
+extraction. The production Governance discrepancy still requires owner reconciliation; no live deployment is implied.
+
 Updated 2026-09-15. Start here for the overall program status. This section supersedes older whole-program
 completion language; completed batches remain complete, but do not close newly discovered defects.
 The user first authorized tracking, then approved autonomous remediation, and requested recovery after skipped

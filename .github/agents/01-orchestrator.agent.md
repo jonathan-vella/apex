@@ -173,6 +173,9 @@ chat — always paths.
   `node tools/scripts/validate-challenger-findings.mjs --verify-cache <review-path>` before routing forward.
   Use the actual paths from the current handoff. A completed recall step does not override stale review hashes;
   report the mismatch and return to Architect for reconciliation, preserving prior approvals and unrelated decisions.
+- On resume after Governance, inspect the Governance findings, not copied Architecture status. Require no unresolved
+  must-fix findings and verify its review with `--verify-cache` before the `05-IaC Planner` handoff.
+  A stale or blocking completed step returns to `04g-Governance` and human `10-Challenger`; preserve the review cap.
 - At every approved-gate boundary that ALSO records decisions, advance
   via `apex-recall transition` (atomic). Refuse to mix
   `apex-recall decide` + `apex-recall complete-step` + manual

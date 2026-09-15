@@ -12,6 +12,10 @@ sidecar is missing or unreadable, this command **refuses** to mark the
 step complete (exit code 2) — blocking every downstream agent until the
 review is run.
 
+Present reviews must also match the expected artifact/lens, contain no
+must-fix findings, and pass the workspace Node validator's strict freshness
+check. Invalid present evidence cannot be waived with a missing-review skip.
+
 Opt-out: ``--allow-missing-challenger`` together with
 ``--challenger-skip-reason "<text>"`` records an auditable skip in session
 state. Both flags are required for opt-out; the reason persists in
@@ -20,7 +24,11 @@ state. Both flags are required for opt-out; the reason persists in
 
 from __future__ import annotations
 
+import hashlib
 import json
+import re
+import subprocess
+from pathlib import Path
 
 from ..state_writer import (
     _iso_now,
@@ -44,11 +52,10 @@ _CHALLENGER_GATE: dict[str, tuple[str, str]] = {
 }
 
 
-def _challenger_findings_missing(project: str, step: str) -> tuple[bool, str | None, str | None]:
-    """Return (blocked, gating_path, sidecar_path)."""
+def _review_paths(project: str, step: str, governance_review: Path | None = None) -> list[tuple[Path, Path]]:
     gate = _CHALLENGER_GATE.get(step)
     if not gate:
-        return (False, None, None)
+        return []
     gates = [gate]
     if step in ("2", "4"):
         state = read_state(session_state_path(project))
@@ -58,12 +65,22 @@ def _challenger_findings_missing(project: str, step: str) -> tuple[bool, str | N
     if step == "2":
         gates.append(("03-des-cost-estimate.md", "challenge-findings-cost-estimate.json"))
     project_dir = session_state_path(project).parent
+    if step == "3_5" and governance_review is not None:
+        return [(project_dir / gate[0], governance_review)]
     produced = any((project_dir / gating_name).is_file() for gating_name, _ in gates)
-    for gating_name, sidecar_name in gates:
-        gating_path = project_dir / gating_name
-        sidecar_path = project_dir / sidecar_name
-        if not gating_path.is_file() and not (step == "2" and produced):
-            continue
+    return [
+        (project_dir / gating_name, project_dir / sidecar_name)
+        for gating_name, sidecar_name in gates
+        if (project_dir / gating_name).is_file() or (step == "2" and produced)
+    ]
+
+
+def _challenger_findings_missing(
+    project: str, step: str, governance_review: Path | None = None
+) -> tuple[bool, str | None, str | None]:
+    """Return (blocked, gating_path, sidecar_path) for missing/unreadable evidence."""
+    gating_path = sidecar_path = None
+    for gating_path, sidecar_path in _review_paths(project, step, governance_review):
         if not sidecar_path.is_file():
             return (True, str(gating_path), str(sidecar_path))
         try:
@@ -71,10 +88,78 @@ def _challenger_findings_missing(project: str, step: str) -> tuple[bool, str | N
             if not text:
                 return (True, str(gating_path), str(sidecar_path))
             json.loads(text)
-        except (OSError, UnicodeError, json.JSONDecodeError):
+        except OSError, UnicodeError, json.JSONDecodeError:
             return (True, str(gating_path), str(sidecar_path))
 
-    return (False, str(gating_path), str(sidecar_path))
+    return (False, str(gating_path) if gating_path else None, str(sidecar_path) if sidecar_path else None)
+
+
+def _challenger_findings_invalid(project: str, step: str, governance_review: Path | None = None) -> str | None:
+    """Validate present reviews before mutation; missing-review bypass cannot waive these checks."""
+    root = session_state_path(project).parent.parent.parent.resolve()
+    validator = root / "tools/scripts/validate-challenger-findings.mjs"
+    for artifact, sidecar in _review_paths(project, step, governance_review):
+        if not sidecar.is_file():
+            continue
+        try:
+            document = json.loads(sidecar.read_text(encoding="utf-8"))
+            if not isinstance(document, dict) or not isinstance(document.get("findings"), list):
+                return f"{sidecar}: invalid single-review findings payload"
+            if not artifact.is_file():
+                return f"{artifact}: required reviewed artifact is missing"
+            challenged = document.get("challenged_artifact")
+            if not isinstance(challenged, str) or (root / challenged).resolve() != artifact.resolve():
+                return f"{sidecar}: challenged_artifact does not match the gating artifact"
+            expected_type = {
+                "1": "requirements",
+                "2": "architecture",
+                "3_5": "governance-constraints",
+                "4": "implementation-plan",
+            }[step]
+            expected_focus = "governance-reconciliation" if step == "3_5" else "comprehensive"
+            if artifact.name == "03-des-cost-estimate.md":
+                expected_type, expected_focus = "cost-estimate", "cost-feasibility"
+            elif sidecar.name.endswith("-pass1.json") and step in ("2", "4"):
+                expected_focus = "security-governance"
+            if document.get("artifact_type") != expected_type or document.get("review_focus") != expected_focus:
+                return f"{sidecar}: review type/focus does not match the required gate"
+            expected_pass = int(sidecar.stem.rsplit("-pass", 1)[1]) if governance_review is not None else 1
+            if type(document.get("pass_number")) is not int or document["pass_number"] != expected_pass:
+                return f"{sidecar}: required pass-{expected_pass} review is invalid"
+            if document.get("overall_assessment") in ("BLOCKED", "FAILED"):
+                return f"{sidecar}: reviewer reported blocked/failed"
+            if document.get("must_fix_count") != 0 or any(
+                not isinstance(finding, dict) or finding.get("severity") == "must_fix"
+                for finding in document["findings"]
+            ):
+                return f"{sidecar}: unresolved must_fix findings; decisions are not closure evidence"
+            if not validator.is_file():
+                return f"{validator}: required strict review validator unavailable"
+            result = subprocess.run(
+                ["node", str(validator.resolve()), "--verify-cache", str(sidecar.resolve())],
+                cwd=root,
+                capture_output=True,
+                text=True,
+                timeout=30,
+                check=False,
+            )
+            if result.returncode != 0:
+                return f"{sidecar}: strict review validation failed: {(result.stdout + result.stderr)[-3000:]}"
+        except (OSError, UnicodeError, ValueError, subprocess.SubprocessError) as error:
+            return f"{sidecar}: review verification unavailable or invalid ({error})"
+    return None
+
+
+def _report_invalid_review(project: str, step: str, reason: str, as_json: bool) -> int:
+    message = {
+        "project": project,
+        "step": step,
+        "error": "challenger_findings_invalid",
+        "reason": reason,
+        "remediation": "Return to the artifact owner and 10-Challenger for current review and blocker closure. Preserve retry limits; do not restamp hashes.",
+    }
+    print(json.dumps(message) if as_json else f"Refusing completion: {reason}\n{message['remediation']}")
+    return 2
 
 
 def _record_skip(data: dict, step: str, reason: str, now: str) -> None:
@@ -84,6 +169,36 @@ def _record_skip(data: dict, step: str, reason: str, now: str) -> None:
     skips.append({"step": step, "reason": reason, "recorded": now})
 
 
+def _select_governance_review(project: str, step: str, args) -> tuple[Path | None, dict | None]:
+    selected = getattr(args, "governance_review", None)
+    reason = (getattr(args, "governance_review_reason", None) or "").strip()
+    if selected is None and not reason:
+        return None, None
+    if step != "3_5" or not selected or not reason:
+        raise ValueError("Governance replacement selection requires Step 3.5, --governance-review and its audit reason")
+    if getattr(args, "allow_missing_challenger", False):
+        raise ValueError("A selected Governance review cannot use the missing-review bypass")
+    project_dir = session_state_path(project).parent.resolve()
+    candidate = Path(selected)
+    if not candidate.is_absolute():
+        candidate = project_dir.parent.parent / candidate
+    if candidate.is_symlink() or candidate.parent.resolve() != project_dir or not candidate.is_file():
+        raise ValueError("Selected Governance review must be a regular, non-symlink file in the current project")
+    match = re.fullmatch(r"challenge-findings-governance-constraints-pass([2-9][0-9]*|1[0-9]+)\.json", candidate.name)
+    if not match:
+        raise ValueError("Select an explicitly authorized later Governance pass using its canonical filename")
+    original = project_dir / _CHALLENGER_GATE["3_5"][1]
+    if not original.is_file():
+        raise ValueError("Preserve the original Governance pass-one review before selecting a replacement")
+    digest = hashlib.sha256(candidate.read_bytes()).hexdigest()
+    entry = {
+        "decision": "Select Governance replacement review for completion",
+        "rationale": f"{reason}; review={candidate.name}; pass={match[1]}; sha256={digest}",
+        "step": "3_5",
+    }
+    return candidate.resolve(), entry
+
+
 def run(args) -> int:
     project = args.project
     step = validate_step_key(args.step)
@@ -91,7 +206,11 @@ def run(args) -> int:
     allow_missing = getattr(args, "allow_missing_challenger", False)
     skip_reason = (getattr(args, "challenger_skip_reason", None) or "").strip()
 
-    blocked, gating_path, sidecar_path = _challenger_findings_missing(project, step)
+    try:
+        governance_review, selection = _select_governance_review(project, step, args)
+    except (OSError, ValueError) as error:
+        return _report_invalid_review(project, step, str(error), as_json)
+    blocked, gating_path, sidecar_path = _challenger_findings_missing(project, step, governance_review)
     if blocked and not allow_missing:
         msg = {
             "project": project,
@@ -104,7 +223,7 @@ def run(args) -> int:
                 "against the gating artifact and produce the required findings "
                 "sidecar, then re-run `apex-recall complete-step`. To bypass "
                 "intentionally, pass --allow-missing-challenger "
-                "--challenger-skip-reason \"...\""
+                '--challenger-skip-reason "..."'
             ),
         }
         if as_json:
@@ -122,16 +241,17 @@ def run(args) -> int:
             "project": project,
             "step": step,
             "error": "challenger_skip_reason_required",
-            "remediation": "Provide --challenger-skip-reason \"<auditable reason>\"",
+            "remediation": 'Provide --challenger-skip-reason "<auditable reason>"',
         }
         if as_json:
             print(json.dumps(msg))
         else:
-            print(
-                "--allow-missing-challenger requires --challenger-skip-reason "
-                "\"<reason>\" for the audit trail."
-            )
+            print('--allow-missing-challenger requires --challenger-skip-reason "<reason>" for the audit trail.')
         return 2
+
+    invalid = _challenger_findings_invalid(project, step, governance_review)
+    if invalid:
+        return _report_invalid_review(project, step, invalid, as_json)
 
     path = session_state_path(project)
     data = read_state(path)
@@ -146,6 +266,8 @@ def run(args) -> int:
 
     if blocked and allow_missing:
         _record_skip(data, step, skip_reason, now)
+    if selection:
+        data.setdefault("decision_log", []).append({**selection, "timestamp": now})
 
     write_state(project, data)
 

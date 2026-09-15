@@ -60,6 +60,14 @@ shared helpers from [`scripts/diagram_io.py`](scripts/diagram_io.py)
 (`save_figure`, `diagram_kwargs`, `render_graphviz`) — never call
 `plt.savefig`, `Diagram(outformat=...)`, or `dot.render()` directly.
 
+For the `diagrams` library, call `embed_svg_images(Path(filename).with_suffix(".svg"))` after the
+`with Diagram(...)` block exits, importing it from the same helper. Graphviz otherwise emits absolute
+icon paths into the Python installation, which disappear in browser/editor previews or on another machine.
+`render_graphviz` embeds icons automatically. Missing or unsupported icon files fail finalization;
+do not claim completion from non-empty files alone. Inspect both the PNG and the standalone SVG, verify
+every SVG image uses a `data:image/` URI, and confirm icons render without access to local package paths.
+For explicit PNG-only standalone callers, skip SVG finalization; required workflow siblings remain mandatory.
+
 The standalone `create_wireframe_svg(title, filename, layout)` writes SVG
 and, when CairoSVG is installed, a PNG sibling. It returns the PNG path
 after conversion or the SVG path when CairoSVG is unavailable; conversion

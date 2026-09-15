@@ -1,13 +1,17 @@
 ---
 name: apex-vendor-prompting
 user-invocable: true
-disable-model-invocation: false
+disable-model-invocation: true
 argument-hint: "agent or prompt path, model family and audit scope"
-description: '**ANALYSIS SKILL** — Audit-grade reference for Anthropic Claude and OpenAI GPT-5.6 prompting best practices. WHEN: "claude prompting", "gpt-5.6 prompting", "audit agent", "review prompt", "vendor best practices", "anthropic best practices", "openai prompting". DO NOT USE FOR: routine prompt edits where rules are already known, generic markdown style (markdown.instructions.md).'
+description: '**ANALYSIS SKILL** — Manual-only audit of Anthropic Claude and OpenAI GPT-5.6 prompting guidance and APEX conventions. WHEN: explicitly invoked as /apex-vendor-prompting for a vendor-specific prompt audit. DO NOT USE FOR: automatic authoring loads, routine edits covered by instructions, generic Markdown style.'
 license: MIT
 ---
 
 # Vendor Prompting Best Practices
+
+Manual-only: use `/apex-vendor-prompting` explicitly for this audit workflow.
+Do not load this skill automatically or read its body to bypass the invocation flag.
+The thin authoring instructions and required vendor validators remain mandatory without this skill.
 
 Audit-grade reference for the prompting patterns published by Anthropic
 (Claude family) and OpenAI, plus explicitly identified APEX conventions. Used to author **and** audit

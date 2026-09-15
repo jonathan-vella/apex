@@ -389,6 +389,8 @@ Reuse current results; refresh missing or changed sections when needed for corre
 
 Run Phase 2.7 first and validate its artifact updates before this review. An old
 review of pre-confirmation inputs is stale. Execution order is 2 → 2.7 → 2.5 → 3.
+Before spending the pass, trace policy claims to rules, parameters, scope and exemptions, not user choices.
+Reconcile prior finding IDs and finalize bytes; a denied alternative proves no allow-list or co-location mandate.
 
 Run a single-pass `governance-reconciliation` adversarial review on the
 governance artifacts. The lens asks: "**does the approved architecture
@@ -522,10 +524,18 @@ Then run the **Per-Finding Decision Protocol** from
 - **On Refresh governance**: go directly to Phase 1 with `--refresh`.
 - **On Proceed**: require no unresolved blocking findings, current evidence and
   explicit approval before completing and presenting the IaC Planner handoff.
+  Validate current review hashes and derive open findings from the Governance review, not Architecture prose.
+  Accepted dispositions are not verified closure. Do not defer Step 3.5 must-fix work to Step 4.
+  Use the registry's exact next owner `05-IaC Planner`; never infer an agent name from artifact numbering.
 
 **On approval** (MANDATORY): `apex-recall complete-step <project> 3_5 --json`
 
 Update `agent-output/{project}/README.md` — mark Step 3_5 complete.
+
+Before any completion or blocked handoff, read the required
+[final handoff checklist](../skills/apex-azure-governance-discovery/references/reconciliation-disposition.md#final-handoff-checklist).
+Verify the explicit Governance path, handoff below 60 lines and `--verify-cache`; report each actual command outcome.
+After corrections, an exhausted allowance goes to `10-Challenger`, not the later `05-IaC Planner` destination.
 
 ## Output Files
 

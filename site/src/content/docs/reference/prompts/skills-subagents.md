@@ -95,12 +95,52 @@ Label it with 'enhancement' and 'infrastructure'.
 ### apex-docs-writer
 
 Maintains documentation and owns doc gardening, docs peer review, and Astro docs review.
+Manual-only: invoke `/apex-docs-writer` or explicitly select its documentation prompt adapter.
+Routine changes still require documentation updates under the file instructions; no automatic skill load is needed.
 Peer review is read-only; Astro review is report-only unless `--apply-fixes` explicitly
 enables its narrow allow-list. Quality-score and debt updates require human review.
 
 ```text
-Update the docs to reflect the new Diagnose agent we added.
+/apex-docs-writer Update the docs to reflect the new Diagnose agent we added.
 ```
+
+### apex-vendor-prompting
+
+Manual-only vendor-specific prompt audits. The thin authoring instructions and automated vendor validators remain
+mandatory during ordinary agent edits; they do not require loading this extended audit workflow.
+
+```text
+/apex-vendor-prompting Audit .github/agents/03-architect.agent.md without editing it.
+```
+
+### apex-terraform-search-import
+
+Manual-only discovery and import planning for existing Azure resources. Invocation does not authorize Terraform
+state changes or apply; scope confirmation and import-only plan approval remain separate gates.
+
+```text
+/apex-terraform-search-import Plan adoption of the selected resource group. Do not apply or change state.
+```
+
+### apex-unslop
+
+Manual-only prose cleanup, adapted from Lauren Tan's MIT-licensed Unslop skill in Cursor's pstack plugin.
+Invoke it explicitly; it is not automatically loaded by agents or included as a required workflow step.
+Its small discovery metadata may still be available to the editor; manual-only does not mean zero context overhead.
+
+```text
+/apex-unslop Review README.md for filler and unclear sentences. Do not edit files.
+```
+
+```text
+/apex-unslop Edit the selected draft paragraph for a technical audience.
+Preserve facts, citations, qualifications and terminology.
+```
+
+The skill preserves required headings, identifiers, numbers and uncertainty. It does not edit approved or
+hash-reviewed artifacts as a style pass; proposed changes return to the owning agent for normal review.
+It neither detects AI authorship nor replaces technical validation. Source tests verify configuration and
+guardrail wording; native slash discovery and editing behavior still require runtime verification.
 
 ### apex-azure-artifacts
 

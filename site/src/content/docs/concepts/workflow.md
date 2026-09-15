@@ -68,6 +68,28 @@ repeat pricing merely because the final command was canceled. Historical request
 resuming an interrupted attempt retains its remaining allowance. Reviewers receive the exact successful cost JSON
 and evidence paths, including versioned outputs, rather than guessing conventional filenames.
 
+### Governance Closure
+
+Accepting a Governance mitigation does not close its finding. Resolve Step 3.5 blockers with the owning agent;
+do not defer a required property-mapping fix to planning. A tag used to select resources is not necessarily the
+property a Modify policy changes. Correct extraction defects in discovery tooling and regenerate from verified
+policy evidence rather than editing generated constraints from a review suggestion alone.
+
+Both `apex-recall complete-step` and `transition --complete` reject present reviews with unresolved must-fix
+findings, wrong artifact/lens bindings or failed freshness checks before changing state. Strict validation requires
+Node and the workspace review validator; unavailable checks fail closed. Missing-review audit flags cannot waive
+invalid present evidence. This gate supplements, rather than replaces, independent review and human approval.
+
+For a separately authorized later Governance pass, explicitly select its same-project review file with
+`--governance-review <path>` and `--governance-review-reason "<reason>"` on either completion command.
+The selected review must pass all strict checks; selection cannot use a missing-review bypass. Completion records
+the filename, pass, byte hash and reason while preserving earlier reviews. No newest-file selection, review-budget
+renewal or human approval is implied. Keep the reviewed artifact unchanged when recording approval.
+
+If accepted edits invalidate Governance's review after its single pass, keep the gate closed and request human
+handoff to Challenger and the owning agent. Do not reset the review allowance. On resume, Governance findings
+and current review hashes must support the `05-IaC Planner` handoff; copied Architecture status is not sufficient.
+
 ### The Orchestrator Pattern
 
 The Orchestrator orchestrates the entire workflow by delegating

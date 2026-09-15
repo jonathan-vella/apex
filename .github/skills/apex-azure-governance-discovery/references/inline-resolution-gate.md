@@ -129,6 +129,21 @@ Resolution rules:
    `extracted_tag_keys` or `assignment_parameters.tagName*` in the
    discovery JSON.
 
+### Step 1b: Separate policy evidence from project choices
+
+Before questions or review, trace each claimed location restriction to an effective assignment/definition,
+resolved rule parameters, applicable scope and exemptions. Distinguish a policy-enforced restriction, an approved
+project choice, and an unknown policy requirement in existing artifact prose and recall rationale.
+
+- A deny rule for one region does not establish an allow-list for another. An empty extracted allow-list is not
+  proof of unrestricted deployment; unresolved extraction or applicability remains unknown and blocks confirmation.
+- User confirmation of the target region or same-region alignment is a project choice, not evidence that Azure
+  Policy mandates it. Retain the approved choice without populating policy-derived fields from preference alone.
+- For refreshed evidence, reconcile every prior finding ID with its actual source before spending another
+  authorized review. Update all affected summaries together, including Network Policies and Plan Adaptations.
+- Distinguish regional workload choices from policy-created resource locations and verified exceptions; do not
+  turn a workload alignment decision into a blanket rule that contradicts policy-owned resources.
+
 ### Step 2: Resolve all topics, asking unresolved questions together
 
 Use one `vscode_askQuestions` call for all currently unresolved topics. Reuse
@@ -190,6 +205,8 @@ blocked; user preference cannot override an enforced rule. Required JSON updates
 Required Markdown updates: Discovery Source counts, Required Tags
 section, Network Policies section, and any caution banners that
 previously said the gate was blocked.
+The example's policy-derived values require evidence from Step 1b; do not copy its allow-list or `true`
+co-location flag from a project preference. Confirmed project choices do not resolve missing policy evidence.
 
 ### Step 4: Record decisions in `apex-recall`
 

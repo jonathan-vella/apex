@@ -11,16 +11,19 @@ re-author its own `plt.savefig(...)` / `Diagram(..., outformat=...)`
 boilerplate. Drift was inevitable. With `diagram_io`, the output-format
 contract toggles in one place and every call site inherits SVG for free.
 
-This module has zero hard dependencies beyond `pathlib`. matplotlib,
+This module uses only the Python standard library. matplotlib,
 `diagrams`, and graphviz are only touched by call sites that already
 import them — `diagram_io` itself stays import-light.
 """
 
 from __future__ import annotations
 
+import base64
 from collections.abc import Iterable
 from pathlib import Path
 from typing import Any
+from urllib.parse import unquote, urlsplit
+from xml.etree import ElementTree
 
 FORMATS: tuple[str, ...] = ("png", "svg")
 """Default output formats every diagram emits.
@@ -42,6 +45,44 @@ def _strip_known_suffix(base_path: str | Path) -> Path:
     if p.suffix.lower().lstrip(".") in FORMATS:
         return p.with_suffix("")
     return p
+
+
+def embed_svg_images(svg_path: str | Path) -> Path:
+    """Embed local raster icons in a generated SVG; reject unresolved references before writing."""
+    output = Path(svg_path)
+    tree = ElementTree.parse(output)
+    changed = False
+    for image in tree.iter("{http://www.w3.org/2000/svg}image"):
+        for attribute in ("href", "{http://www.w3.org/1999/xlink}href"):
+            reference = image.get(attribute)
+            if reference is None:
+                continue
+            if reference.startswith("data:image/"):
+                continue
+            parsed = urlsplit(reference)
+            if parsed.scheme or parsed.netloc or parsed.query or parsed.fragment or not parsed.path:
+                raise ValueError(f"Unsupported SVG image reference: {reference}")
+            source = Path(unquote(parsed.path))
+            if not source.is_absolute():
+                source = output.parent / source
+            content = source.read_bytes()
+            if content.startswith(b"\x89PNG\r\n\x1a\n"):
+                mime = "image/png"
+            elif content.startswith(b"\xff\xd8\xff"):
+                mime = "image/jpeg"
+            elif content.startswith((b"GIF87a", b"GIF89a")):
+                mime = "image/gif"
+            elif content.startswith(b"RIFF") and content[8:12] == b"WEBP":
+                mime = "image/webp"
+            else:
+                raise ValueError(f"Unsupported raster icon: {source}")
+            image.set(attribute, f"data:{mime};base64,{base64.b64encode(content).decode('ascii')}")
+            changed = True
+    if changed:
+        ElementTree.register_namespace("", "http://www.w3.org/2000/svg")
+        ElementTree.register_namespace("xlink", "http://www.w3.org/1999/xlink")
+        tree.write(output, encoding="utf-8", xml_declaration=True)
+    return output
 
 
 def save_figure(
@@ -85,14 +126,16 @@ def diagram_kwargs(
     Usage::
 
         from diagrams import Diagram
-        from diagram_io import diagram_kwargs
+        from diagram_io import diagram_kwargs, embed_svg_images
 
         with Diagram(**diagram_kwargs("04-architecture-diagram", direction="LR")):
             ...
+        embed_svg_images("04-architecture-diagram.svg")
 
     The `diagrams` library accepts `outformat` as a list to emit multiple
     formats from a single render. Explicit `overrides` (e.g. `direction`,
     `graph_attr`, `node_attr`) win over the defaults.
+    Finalize the SVG after the context exits to embed container-local icons.
     """
     base = str(_strip_known_suffix(filename))
     defaults: dict[str, Any] = {
@@ -126,6 +169,8 @@ def render_graphviz(
     for ext in formats:
         dot.format = ext
         dot.render(cleanup=cleanup)
+        if ext == "svg":
+            embed_svg_images(base.with_suffix(".svg"))
         saved.append(base.with_suffix(f".{ext}"))
     return saved
 
@@ -136,4 +181,5 @@ __all__ = [
     "save_figure",
     "diagram_kwargs",
     "render_graphviz",
+    "embed_svg_images",
 ]

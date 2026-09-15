@@ -52,11 +52,14 @@ name to its prefixed local directory and review the diff to retain APEX adaptati
 | --------------------- | ----------------------------------------- | ------------------------------------------------------------------------------- |
 | `apex-agent-authoring`   | Create and restructure Copilot agents     | "create agent", "agent architecture", "reduce agent tokens"                  |
 | `apex-github-operations` | Branch naming, commits, PRs, CLI, Actions | "commit", "create PR", "gh command"                                             |
-| `apex-docs-writer`       | Repo-aware documentation maintenance      | "update docs", "check staleness"                                                |
-| `apex-vendor-prompting`  | Audit Claude / GPT-5.6 agents and prompts | "audit agent", "claude prompting", "gpt-5.6 prompting", "vendor best practices" |
+| `apex-docs-writer`       | Manual documentation maintenance | `/apex-docs-writer` or a user-selected docs prompt adapter |
+| `apex-vendor-prompting`  | Manual vendor prompting audit | `/apex-vendor-prompting` |
+| `apex-terraform-search-import` | Manual Terraform discovery/import workflow | `/apex-terraform-search-import` |
 
 ### Procedure Ownership
 
+- [apex-unslop](apex-unslop/SKILL.md) provides manual-only prose cleanup via `/apex-unslop`.
+   It preserves technical facts and file contracts; no production agent loads it as a required step.
 - [apex-docs-writer](apex-docs-writer/SKILL.md) owns doc gardening, docs peer review,
    and Astro docs review. Review-only and opt-in fix modes remain procedure-specific.
 - [apex-agent-authoring](apex-agent-authoring/SKILL.md) owns agent fleet and `.github`
@@ -89,6 +92,11 @@ Neither flag overrides production human-selection or approval gates.
 ```
 
 ### Explicit Invocation
+
+Manual-only maintenance skills: `/apex-unslop`, `/apex-docs-writer`, `/apex-vendor-prompting` and
+`/apex-terraform-search-import`. They are not required production-agent loads. Documentation obligations,
+vendor validators and import/apply approval gates still apply. Skill metadata may remain discoverable;
+manual-only does not guarantee a measured token reduction.
 
 Reference the skill by name for explicit activation:
 
@@ -125,5 +133,5 @@ Follow the structure in
 3. Place deep reference material under `references/` (loaded on demand).
 4. Run `npm run validate:skills` and `npm run validate:agents` to verify.
 
-Use the authoring instructions to review frontmatter quality. For
-documentation-side updates, invoke the `apex-docs-writer` skill.
+Use the authoring instructions to review frontmatter quality. Required documentation updates use the applicable
+file instructions; the user may invoke `/apex-docs-writer` explicitly for its extended maintenance workflow.

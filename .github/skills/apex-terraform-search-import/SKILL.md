@@ -1,13 +1,17 @@
 ---
 name: apex-terraform-search-import
 user-invocable: true
-disable-model-invocation: false
+disable-model-invocation: true
 argument-hint: "resource scope and search or import task"
-description: '**WORKFLOW SKILL** — Discover existing Azure resources and bulk import them into Terraform management. WHEN: "terraform import", "import Azure resources", "bring unmanaged infra under Terraform", "adopt Terraform for existing resources", "generate import blocks". DO NOT USE FOR: Bicep code (apex-azure-bicep-patterns), new resource creation (apex-terraform-patterns), architecture decisions (apex-azure-adr).'
+description: '**WORKFLOW SKILL** — Manual-only discovery and import of existing Azure resources into Terraform management. WHEN: explicitly invoked as /apex-terraform-search-import for resource discovery or import planning. DO NOT USE FOR: automatic Terraform routing, Bicep code, new resource creation, architecture decisions. State changes require separate approval.'
 compatibility: Manual workflow requires azurerm ~> 4.0 + Azure CLI. Search workflow requires Terraform >= 1.14 (experimental for azurerm).
 ---
 
 # Terraform Search & Import for Azure
+
+Manual-only: use `/apex-terraform-search-import` explicitly before this search/import workflow.
+Do not auto-invoke it from a generic Terraform request. Invocation does not authorize state adoption or apply;
+retain scope confirmation, import-only plan review and separate human authorization for state changes.
 
 Discover existing Azure resources and generate Terraform configuration for bulk import.
 

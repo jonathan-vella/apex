@@ -12,7 +12,11 @@ complements the existing documentation standards:
 
 - **docs.instructions.md** — content principles, architecture tables
 - **markdown.instructions.md** — formatting, line limits, validation
-- **apex-docs-writer skill** — full doc maintenance workflows
+- **apex-docs-writer skill** — manually invoked full doc maintenance workflows
+
+Required documentation updates do not depend on loading a skill. Apply these triggers and the file's writing
+instructions during routine code work. Use `/apex-docs-writer` only when the user explicitly requests that skill
+or its manually selected documentation prompt adapter; do not auto-load it for every documentation change.
 
 ## Trigger Conditions
 

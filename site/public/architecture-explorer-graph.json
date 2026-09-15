@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-09-14T12:49:45.968Z",
+  "generatedAt": "2026-09-15T13:01:31.302Z",
   "categories": [
     {
       "id": "agent",
@@ -24,7 +24,7 @@
       "label": "Skill",
       "color": "#10b981",
       "shape": "ellipse",
-      "count": 36
+      "count": 37
     },
     {
       "id": "instruction",
@@ -67,8 +67,8 @@
       "count": 3
     }
   ],
-  "nodeCount": 195,
-  "edgeCount": 729,
+  "nodeCount": 196,
+  "edgeCount": 735,
   "nodes": [
     {
       "id": "agent:01-orchestrator",
@@ -971,14 +971,14 @@
       "id": "skill:apex-docs-writer",
       "category": "skill",
       "label": "apex-docs-writer",
-      "description": "**WORKFLOW SKILL** — Maintains repository documentation accuracy and freshness across the docs site, agent files, and changelog. WHEN: \"update docs\", \"doc gardening\", \"staleness check\", \"changelog entry\", \"repo explanation\", \"agent change docs\", \"skill change docs\". DO NOT USE FOR: agent definitions (edit `.agent.md` directly), SKILL.md content authoring, site theme/build.",
+      "description": "**WORKFLOW SKILL** — Manual-only repository documentation maintenance: accuracy, freshness, gardening and changelog updates. WHEN: explicitly invoked as /apex-docs-writer or through a user-selected documentation prompt adapter. DO NOT USE FOR: automatic documentation loads, agent definitions, SKILL.md authoring, site theme/build.",
       "path": ".github/skills/apex-docs-writer/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-docs-writer/SKILL.md"
       },
       "meta": {
         "invocable": true,
-        "disableModelInvocation": false,
+        "disableModelInvocation": true,
         "argumentHint": "documentation path and update or review scope",
         "context": null
       }
@@ -1163,14 +1163,14 @@
       "id": "skill:apex-terraform-search-import",
       "category": "skill",
       "label": "apex-terraform-search-import",
-      "description": "**WORKFLOW SKILL** — Discover existing Azure resources and bulk import them into Terraform management. WHEN: \"terraform import\", \"import Azure resources\", \"bring unmanaged infra under Terraform\", \"adopt Terraform for existing resources\", \"generate import blocks\". DO NOT USE FOR: Bicep code (apex-azure-bicep-patterns), new resource creation (apex-terraform-patterns), architecture decisions (apex-azure-adr).",
+      "description": "**WORKFLOW SKILL** — Manual-only discovery and import of existing Azure resources into Terraform management. WHEN: explicitly invoked as /apex-terraform-search-import for resource discovery or import planning. DO NOT USE FOR: automatic Terraform routing, Bicep code, new resource creation, architecture decisions. State changes require separate approval.",
       "path": ".github/skills/apex-terraform-search-import/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-terraform-search-import/SKILL.md"
       },
       "meta": {
         "invocable": true,
-        "disableModelInvocation": false,
+        "disableModelInvocation": true,
         "argumentHint": "resource scope and search or import task",
         "context": null
       }
@@ -1192,17 +1192,33 @@
       }
     },
     {
+      "id": "skill:apex-unslop",
+      "category": "skill",
+      "label": "apex-unslop",
+      "description": "**UTILITY SKILL** — Manually polish authorized prose for clarity and concrete language while preserving technical facts and APEX contracts. WHEN: explicitly invoked as /apex-unslop for prose review or cleanup. DO NOT USE FOR: code changes, technical validation, or automatic workflow finalization.",
+      "path": ".github/skills/apex-unslop/SKILL.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-unslop/SKILL.md"
+      },
+      "meta": {
+        "invocable": true,
+        "disableModelInvocation": true,
+        "argumentHint": "text or document path, audience, and review or edit scope",
+        "context": null
+      }
+    },
+    {
       "id": "skill:apex-vendor-prompting",
       "category": "skill",
       "label": "apex-vendor-prompting",
-      "description": "**ANALYSIS SKILL** — Audit-grade reference for Anthropic Claude and OpenAI GPT-5.6 prompting best practices. WHEN: \"claude prompting\", \"gpt-5.6 prompting\", \"audit agent\", \"review prompt\", \"vendor best practices\", \"anthropic best practices\", \"openai prompting\". DO NOT USE FOR: routine prompt edits where rules are already known, generic markdown style (markdown.instructions.md).",
+      "description": "**ANALYSIS SKILL** — Manual-only audit of Anthropic Claude and OpenAI GPT-5.6 prompting guidance and APEX conventions. WHEN: explicitly invoked as /apex-vendor-prompting for a vendor-specific prompt audit. DO NOT USE FOR: automatic authoring loads, routine edits covered by instructions, generic Markdown style.",
       "path": ".github/skills/apex-vendor-prompting/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-vendor-prompting/SKILL.md"
       },
       "meta": {
         "invocable": true,
-        "disableModelInvocation": false,
+        "disableModelInvocation": true,
         "argumentHint": "agent or prompt path, model family and audit scope",
         "context": null
       }
@@ -4454,6 +4470,12 @@
       "kind": "applies-to"
     },
     {
+      "id": "instruction:agent-skills--applies-to->skill:apex-unslop",
+      "source": "instruction:agent-skills",
+      "target": "skill:apex-unslop",
+      "kind": "applies-to"
+    },
+    {
       "id": "instruction:agent-skills--applies-to->skill:apex-vendor-prompting",
       "source": "instruction:agent-skills",
       "target": "skill:apex-vendor-prompting",
@@ -4793,6 +4815,12 @@
       "id": "instruction:context-optimization--applies-to->skill:apex-terraform-test",
       "source": "instruction:context-optimization",
       "target": "skill:apex-terraform-test",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->skill:apex-unslop",
+      "source": "instruction:context-optimization",
+      "target": "skill:apex-unslop",
       "kind": "applies-to"
     },
     {
@@ -5141,6 +5169,12 @@
       "id": "instruction:docs-trigger--applies-to->skill:apex-terraform-test",
       "source": "instruction:docs-trigger",
       "target": "skill:apex-terraform-test",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->skill:apex-unslop",
+      "source": "instruction:docs-trigger",
+      "target": "skill:apex-unslop",
       "kind": "applies-to"
     },
     {
@@ -5654,6 +5688,12 @@
       "kind": "applies-to"
     },
     {
+      "id": "instruction:markdown--applies-to->skill:apex-unslop",
+      "source": "instruction:markdown",
+      "target": "skill:apex-unslop",
+      "kind": "applies-to"
+    },
+    {
       "id": "instruction:markdown--applies-to->skill:apex-vendor-prompting",
       "source": "instruction:markdown",
       "target": "skill:apex-vendor-prompting",
@@ -5993,6 +6033,12 @@
       "id": "instruction:no-interactive-shell--applies-to->skill:apex-terraform-test",
       "source": "instruction:no-interactive-shell",
       "target": "skill:apex-terraform-test",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:no-interactive-shell--applies-to->skill:apex-unslop",
+      "source": "instruction:no-interactive-shell",
+      "target": "skill:apex-unslop",
       "kind": "applies-to"
     },
     {
@@ -7253,6 +7299,12 @@
       "id": "skill:apex-docs-writer--refs->skill:apex-azure-artifacts",
       "source": "skill:apex-docs-writer",
       "target": "skill:apex-azure-artifacts",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:apex-docs-writer--refs->skill:apex-unslop",
+      "source": "skill:apex-docs-writer",
+      "target": "skill:apex-unslop",
       "kind": "refs"
     },
     {

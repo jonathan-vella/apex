@@ -5,9 +5,10 @@ applyTo: "**/*.agent.md, **/*.prompt.md"
 
 # Vendor Prompting Rules
 
-This file is the **enforcement** thin layer. For full audit
-guidance, examples, and source citations, load the
-[apex-vendor-prompting skill](../skills/apex-vendor-prompting/SKILL.md).
+This file is the **enforcement** thin layer. For full audit guidance, examples and source citations,
+the user explicitly invokes `/apex-vendor-prompting` using the
+[manual-only skill](../skills/apex-vendor-prompting/SKILL.md).
+Do not automatically load its body to bypass the invocation flag. These rules and their validators still apply.
 
 The machine-readable rule registry is
 [rules.json](../skills/apex-vendor-prompting/rules.json). Validator:
@@ -145,5 +146,5 @@ node tools/scripts/validate-agents.mjs \
 node tools/scripts/validate-agents.mjs --list-rules
 ```
 
-For deep guidance, audit procedures, and source citations, load the
-[apex-vendor-prompting skill](../skills/apex-vendor-prompting/SKILL.md).
+For deep guidance, audit procedures and source citations, ask the user to invoke
+[/apex-vendor-prompting](../skills/apex-vendor-prompting/SKILL.md) explicitly.

@@ -113,12 +113,20 @@ lesson/schema compatibility, and existing evidence remain supported; historical
 **Mandatory challenger reviews are enforced at runtime, not just at commit.**
 `apex-recall complete-step` refuses to mark Steps 1, 2, 3.5, or 4 as complete
 when the gating artifact exists but the matching `challenge-findings-*.json`
-sidecar is missing (exit code 2). Intentional bypass requires
+sidecar is missing (exit code 2). Both `complete-step` and `transition --complete` also reject
+present reviews with unresolved must-fix findings, mismatched artifact/lens, or failed strict freshness validation,
+before any state mutation. This requires Node and the workspace review validator; unavailable validation fails closed.
+An accepted decision is not verified closure. Invalid present evidence cannot use a missing-review bypass.
+For a separately authorized later Governance review, `complete-step` and `transition --complete` accept
+`--governance-review <path>` with `--governance-review-reason "<reason>"`. Selection is explicit, Step 3.5-only,
+strictly validated and logged with its byte hash; earlier reviews remain untouched. No latest-file inference,
+review-budget reset or human approval is implied. The selected review cannot use the missing-review bypass.
+An intentional missing-review bypass requires
 `--allow-missing-challenger --challenger-skip-reason "<text>"`, which
 persists an audit entry in `decisions.challenger_skip[]`. A CI/commit
 fallback (`npm run validate:challenger-presence`, also wired into the
-lefthook `artifact-validation` hook) catches the same drift if session
-state was edited by hand.
+lefthook `artifact-validation` hook) checks presence if session state was edited by hand;
+it does not replace the runtime validity gate or independent approval checks.
 
 Artifact lint is enforced by the lefthook `artifact-validation` pre-commit
 hook and the `10-Challenger` review — agents do not call

@@ -590,6 +590,58 @@ def test_initiative_inherited_from_management_group():
     assert f["pathSemantics"] == "tag-policy-non-property"
 
 
+def test_modify_property_is_not_masked_by_tag_targeting_condition():
+    definition = {"properties": {"policyRule": {
+        "if": {"allOf": [
+            {"field": "type", "equals": "Microsoft.Storage/storageAccounts"},
+            {"field": "tags['SecurityControl']", "exists": "true"},
+            {"field": "Microsoft.Storage/storageAccounts/networkAcls/defaultAction", "equals": "Allow"},
+        ]},
+        "then": {"effect": "modify", "details": {"operations": [
+            {"operation": "addOrReplace", "field": "Microsoft.Storage/storageAccounts/allowBlobPublicAccess", "value": False},
+        ]}},
+    }}}
+    result = discover._property_paths(definition, ["Microsoft.Storage/storageAccounts"])
+    assert result == {
+        "azurePropertyPath": "storageAccounts.allowBlobPublicAccess",
+        "bicepPropertyPath": "storageAccounts::allowBlobPublicAccess",
+    }
+    assert discover._resource_types(definition) == ["Microsoft.Storage/storageAccounts"]
+
+
+def test_deny_property_with_tag_condition_stays_resource_property():
+    definition = {"properties": {"policyRule": {
+        "if": {"allOf": [
+            {"field": "tags['SecurityControl']", "exists": "true"},
+            {"field": "Microsoft.Storage/storageAccounts/allowBlobPublicAccess", "equals": True},
+        ]}, "then": {"effect": "Deny"},
+    }}}
+    assert discover._property_paths(definition, ["Microsoft.Storage/storageAccounts"])["azurePropertyPath"] == "storageAccounts.allowBlobPublicAccess"
+
+
+def test_multiple_modify_properties_do_not_silently_select_one():
+    definition = {"properties": {"policyRule": {
+        "if": {"field": "tags['SecurityControl']", "exists": "true"},
+        "then": {"effect": "modify", "details": {"operations": [
+            {"field": "Microsoft.Storage/storageAccounts/allowBlobPublicAccess", "value": False},
+            {"field": "Microsoft.Storage/storageAccounts/allowSharedKeyAccess", "value": False},
+        ]}},
+    }}}
+    assert discover._property_paths(definition, ["Microsoft.Storage/storageAccounts"]) == {
+        "azurePropertyPath": "", "bicepPropertyPath": "",
+    }
+
+
+def test_modify_tag_operation_remains_tag_mapping():
+    definition = {"properties": {"policyRule": {
+        "if": {"field": "type", "equals": "Microsoft.Resources/subscriptions/resourceGroups"},
+        "then": {"effect": "modify", "details": {"operations": [
+            {"field": "tags['SecurityControl']", "value": "enabled"},
+        ]}},
+    }}}
+    assert discover._property_paths(definition, ["Microsoft.Resources/subscriptions/resourceGroups"])["pathSemantics"] == "tag-policy-non-property"
+
+
 def test_category_defaults_to_uncategorized_when_missing():
     assignment = {
         "id": "/subscriptions/s/providers/Microsoft.Authorization/policyAssignments/custom",

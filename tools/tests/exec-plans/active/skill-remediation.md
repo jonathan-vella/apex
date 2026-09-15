@@ -843,6 +843,10 @@ These are improvements to verification and maintainability, not permission to wa
 
 ## Active Local Acceptance Scope (2026-09-15)
 
+The [manual testing lesson audit](#manual-testing-lesson-audit-2026-09-15) below supersedes the early probe-only
+status in this matrix where FreshConnect supplied later execution evidence. Historical limits remain historical;
+Agent Host remains excluded. Do not interpret a fixed source contract as a verified production workflow.
+
 The user removed Agent Host from scope and authorized the other listed verification improvements.
 Agent Host implementation, runtime testing and upstream issue reporting are no longer acceptance gates
 for this effort. Earlier Host findings remain historical evidence; definitions and runtime boundaries
@@ -974,6 +978,186 @@ Integration: 402 tool-contract tests pass with one known Node SDK skip. The base
 No native model request was launched during this improvement batch. The subsequent Challenger discussion
 retest is recorded in the current acceptance section above; actual retry execution, full artifact review
 and live checks still require user participation or separate authorization.
+
+## Manual Testing Lesson Audit (2026-09-15)
+
+Scope: the conversation from initial Local picker/probe testing through FreshConnect Requirements, Architecture,
+Design, Governance and the optional manual skill changes. Checked the supplied run exports, prior acceptance
+records and current owning implementations/tests. This is a repository maintenance audit, not a production review
+or permission to mutate project artifacts. Raw logs and project evidence remain outside publication scope.
+
+| Lesson                                                               | Applied owner and evidence                                                       | Current disposition                                                                                                       |
+| -------------------------------------------------------------------- | -------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Verify exact picker labels, not inferred model families              | Model helpers/catalog tests; `e7fca638`; user-confirmed Local picker             | Applied; runtime cost-tier claims remain unknown                                                                          |
+| Respect explanation-only/no-tools intent                             | Orchestrator body and `test_agent_body_remediation.mjs`; `ae4b55c2`              | Bounded Local retest passed; no redundant probe needed                                                                    |
+| Preserve uncertain user edits even when syntax fails                 | Both CodeGen bodies and shared recovery; `b724e82e`; native scratch logs above   | Applied; full resource/module recovery remains unverified                                                                 |
+| Preview permission is not apply or bootstrap permission              | Both deployment tracks and shared deployment procedure; native decision probes   | Applied; no production deployment acceptance claimed                                                                      |
+| Reviewer failure cannot invoke wrappers or renew retries             | Challenger and shared protocol; `2c819743`; reloaded transition tests            | Applied guidance; no deterministic invocation scheduler exists                                                            |
+| Preserve dotfiles identity and commit-success-before-push            | Shared Git procedure; ordinary pushes through `b55f386a`                         | Verified publication history; no credential override needed                                                               |
+| Reuse supplied Requirements answers and batch coherent fixes         | Requirements body/service menu; `be0a10a2`; reference tests                      | Applied; fresh equivalent-run token savings not measured                                                                  |
+| Secure PaaS defaults, public-web/API distinction and DNS ownership   | Canonical security baseline, both IaC validators/patterns and SQL recipes        | Applied; live policy can add constraints, never silently relax security                                                   |
+| Do not map every deployment tier to catalog ARM SKU                  | Pricing guidance and exact query recipe tests                                    | ACR/Key Vault and endpoint pricing recovered in user-run workers                                                          |
+| DNS MCP empty results require bounded first-party fallback           | `fetch-retail-price-evidence.mjs`, raw evidence and focused tests                | Live DNS retrieval and v4 publication recovered; host/query/budget guards retained                                        |
+| Historical pricing requests are not new invocation calls             | Pricing worker and parent recovery contract                                      | Applied after the erroneous 21/20 v3 run; ledger supplied by caller, not scheduler-enforced                               |
+| Cancellation is not publication                                      | Explicit draft/evidence recovery and concrete paths                              | v4 recovered without repricing; do not infer cancellation actor from logs                                                 |
+| Freeze reviewer inputs; keep mutable approval outside reviewed bytes | Step 2 templates, shared protocol, Architecture/Orchestrator                     | Reconciliation log `90a8fab0` passed both current hashes with no retries; no OS write lock claimed                        |
+| Use actual versioned pricing paths, not guessed aliases              | `supporting_paths` and reviewer checklist                                        | Applied; supporting-file semantic/source checks still require the reviewer                                                |
+| Summaries do not evict accumulated tool results                      | Bounded research and fresh-context resume guidance                               | Applied; large fetches explained measured jumps, not an end-to-end savings benchmark                                      |
+| Cache tokens differ from total input                                 | Profiler usage caveats; worker log supplied cached-token values                  | Modern invocation counting fixed; cached-token aggregation in the general profiler remains unimplemented                  |
+| MCP package installation is not Azure authentication                 | JSON-only stable pin and process-scoped npm exception; MCP initialize/tools list | Verified 2.0.5; startup and weekly freshness checks tested, schedule needs default-branch publication                     |
+| Non-empty SVG is not portable SVG                                    | `diagram_io.embed_svg_images`, generator/Design contract, tests                  | All project icons embedded; independent render passed, integrated browser transport failed                                |
+| Optional prose/audit tools need not load automatically               | Manual flags, caller guidance and `test_skill_consolidation.mjs`                 | Unslop adaptation (`apex-unslop`), docs-writer, vendor audit and Terraform import are manual-only; native menu unverified |
+| Governance dispositions do not close findings                        | Reconciliation-disposition and Governance/Orchestrator bodies                    | Contradiction removed in this batch; one-pass cap preserved with human escalation                                         |
+| Presence-only runtime enforcement is insufficient                    | Shared recall validity gate using strict Node validator                          | Both completion commands reject invalid present evidence before writes; no missing-review skip can waive it               |
+| Policy applicability tags are not necessarily modified properties    | `discover._property_paths` and representative policy-rule fixtures               | Operation target wins; ambiguous multiple targets unresolved; actual project envelope needs owner regeneration            |
+| Handoff findings and owner must match the step                       | Governance-specific findings and exact `05-IaC Planner` rule                     | Applied; existing FreshConnect handoff intentionally not rewritten by maintenance                                         |
+
+### Evidence and limits
+
+- Requirements run `c12dfb81` observed 81 requests and 7,366,234 cumulative input tokens. That is repeated
+  context processing, not a single context window or bill. Its reviewer cycles exposed dependency-reconciliation gaps.
+- Architecture export `a74d06ec` included repeated recovery attempts. The completed export observed 76 parent requests,
+  12,222,876 input tokens and eight reviewer invocations. Separate worker log evidence reported cached input; do not
+  combine parent/child sums or infer billing without verified coverage and cache semantics.
+- The bounded reconciliation `90a8fab0` observed 18 requests, two reviewers, no questions/repricing and current final
+  hashes. It is narrower than the original Architecture task and does not establish a percentage token reduction.
+- FreshConnect reached approved Architecture and Design. Governance was recorded complete with stale review and
+  three must-fix findings; that production discrepancy remains blocked for owner/Challenger reconciliation. This
+  batch does not rewrite generated policy evidence, change approvals, restamp reviews or deploy resources.
+- No end-to-end live workload, deployed managed-identity SQL CRUD, resource/module CodeGen recovery, or production
+  preview/apply acceptance was demonstrated. The user explicitly chose platform-only delivery, which cannot prove CRUD.
+- The diagram skill's missing runtime registry entry was recoverable by direct guide reads but its discovery cause
+  is not fixed. New manual skill slash discovery remains a native check. Agent Host is excluded, not repaired.
+- Node/Rust optional SDK coverage remains bounded by the earlier evidence. The approved Azure MCP-only npm exception
+  does not authorize unrelated package-policy bypasses. CairoSVG checks use the existing isolated environment.
+- A combined-process run of the separate recall test trees exposed root/module-cache leakage. The repository's
+  separate-process test sequence passes; do not report that combined invocation as a production gate failure.
+- Scope-limited strict completion checks are not a complete approval engine: caller authorization, review scheduling,
+  optional/deep-pass decisions and supporting-evidence semantics remain owned by the workflow and independent reviewer.
+  Missing gating artifacts retain the established no-produced-artifact behavior; this batch does not infer completion.
+
+### Verification for this batch
+
+- `node --test tools/tests/scripts/test_guidance_remediation.mjs`: Governance closure contract passed.
+- `python3 -m pytest tools/apex-recall/tests/test_transition.py`: strict gate fixtures use real generated cache metadata,
+  test both commands, byte-preserved failure state/evidence, wrong targets/lenses, stale inputs and bypass rejection.
+- `python3 -m pytest .github/skills/apex-azure-governance-discovery/scripts/test_discover.py`: operation-vs-tag,
+  resource-property Deny, true tag operations and ambiguous multi-operation cases pass with the existing discovery suite.
+- Publication is not implied: this batch and the recent SVG/manual-skill changes remain uncommitted until requested.
+- Final regression results: 425 tool-contract tests passed with two optional SDK skips; 51 recall package tests and
+  78 CLI tests passed in separate processes; 167 discovery/render/baseline tests passed. Agent/model/skill/handoff
+  checks passed. The read-only runtime gate reports FreshConnect's unresolved must-fix findings without mutating state.
+- Whole-file Ruff reports pre-existing issues in the discovery script/test outside the changed extraction slice;
+  touched recall code/tests pass Ruff. The full contract run found and repaired the old A02 test that still prohibited
+  early canonical-security loading, so the accepted Requirements lesson is now covered by the broad suite too.
+
+### Governance Verification Follow-Up (2026-09-15)
+
+Source: user-supplied Local export `a94e28d0-09da-438b-9a06-4fe5be7b246a`. The parent made 20 model requests,
+one reviewer invocation and two decision panels; recorded cumulative input was 1,163,438 tokens with a 65,325-token
+peak. These are parent-only usage measurements, not cost or demonstrated savings.
+
+The additional review passed strict freshness validation before editing. It reported no must-fix and one should-fix,
+`7cd5681d`, tracing to the earlier location finding `cb1d3d5a`: project region/alignment choices were described as
+effective policy requirements without supporting rules. The user then accepted the mitigation and chose Revise.
+The resulting edit legitimately invalidated the review; the agent preserved both review files, recorded the changed
+hash and stopped. This was not an unauthorized edit, automatic retry, false approval or failed freshness gate.
+
+Applied lessons:
+
+- Challenger resolves verification-only scope before delegation and bypasses its default Apply panels for requests
+  to verify closure and return corrections. Later explicit editing remains possible with a freshness/budget warning.
+- Governance traces location claims to rules, parameters, scope and exemptions before review. Project choices cannot
+  populate policy-derived allow-lists or co-location flags. Prior finding IDs and affected prose are reconciled together.
+- Remaining corrections return to Governance for finalization before another explicitly authorized verification.
+  A should-fix remains distinct from a must-fix; acceptance or severity reduction alone is not verified prior closure.
+- Freshness checks run independently of formatting. The log's whole-file line-length check short-circuited its metadata
+  command; a later Git diff check had no content coverage for the untracked artifact. Check edited prose directly and
+  report unrelated existing formatting issues separately, without reformatting reviewed artifacts for reassurance.
+
+Focused source-contract regressions cover these branches in `test_guidance_remediation.mjs`. Native behavior with
+the updated guidance remains unverified. No project artifacts, review history, recall state, approvals or allowances
+were changed by this follow-up; the existing post-edit review is still stale and planning remains blocked.
+No new reviewer invocation, policy mutation, deployment, commit or publication was performed.
+
+### Governance Finalization Follow-Up (2026-09-15)
+
+Local export `6e7f161c-7ec3-44cc-aa45-7f9807777489` preserved the review budget and kept Step 3.5 blocked, but
+final validation was overstated. The recorded H2 command checked Requirements by default, not Governance. Its retry
+passed H2 order but left a 76-line handoff, so the chained under-60 check could not pass. No strict freshness check
+was invoked. A fabricated `/tmp/nonexistent` recall lookup suppressed its error, and empty Git diffs did not establish
+preservation of untracked artifacts. A post-edit hash without an earlier baseline does not prove preservation either.
+
+The handoff retained a policy-enforcement claim in Key Decisions despite corrected project-choice prose below it,
+replaced pending IDs with "None newly opened", and omitted the Pass 2 path. Maintenance corrected only the handoff:
+59 lines, canonical H2 order, prior IDs and successor `7cd5681d` with its should-fix severity, the actual Pass 2 path,
+and consistent region provenance. Governance content, reviews, decisions and recall state were not edited here.
+
+Applied source lesson: Governance explicitly reads the final checklist on blocked recovery; the existing reference
+requires compact status within existing sections, complete command exit results, consistent Key Decisions, real
+schema-aware recall queries and before/after hash evidence. Focused SK24 and Governance body-budget tests pass.
+These are source-contract tests, not proof that the next native invocation will follow every instruction.
+
+Read-only checks confirm Governance H2 order and all three review/decision hashes match the supplied log's recorded
+hashes. That establishes preservation since that recorded point, not a missing pre-edit baseline. Strict Pass 2
+verification fails on changed artifact hashes, as expected. Independent closure and human approval remain outstanding;
+no reviewer was invoked, allowance renewed, finding restamped, deployment started or source committed.
+
+### Governance Pass 3 Acceptance (2026-09-15)
+
+The refreshed `6e7f161c-7ec3-44cc-aa45-7f9807777489` export includes the single authorized verification-only Pass 3.
+The resulting review has no findings and explicitly verifies `cb1d3d5a`, `627df77b`, `180cb290` and `7cd5681d` closed.
+Strict cache verification passes for the current Governance artifact. The run performed no apply panel or additional
+review loop and recognized that an untracked Git diff cannot establish preservation. Supporting-evidence preservation
+still needs actual pre/post byte evidence, not a blanket inference from a tool allowlist.
+
+The remaining runtime defect was deterministic: completion selected only Governance Pass 1 and required pass number 1,
+so a current Pass 3 could not close the gate without replacing history. Added explicit `--governance-review` and
+`--governance-review-reason` flags to both completion commands. Selection is restricted to Step 3.5, a canonical later
+pass in the same project, preserved Pass 1, and strict current review validation. No file discovery, review restamping,
+automatic selection, missing-review bypass, budget renewal or human approval is implied. Selection metadata is appended
+to the existing decision log only in the successful atomic state write. It must be explicit again on later commands.
+
+Both commands were reproduced failing on stale Pass 1 despite valid Pass 3 before the fix. The completion suite now
+passes 89 tests, including selection, preservation and fail-closed path/pass/freshness/bypass cases. Updated the handoff
+to Governance for human approval, still below 60 lines. Maintenance did not complete the step, approve planning,
+invoke another reviewer, change Governance bytes or modify any review file. Source changes remain uncommitted.
+
+### Governance Human Approval Acceptance (2026-09-15)
+
+Local export `94016396-a3fa-4c82-a83d-2f1c9ab4bdd5` records the user's explicit Proceed choice, followed by
+`complete-step` selecting Pass 3 with an audit reason. Read-only verification confirms Step 3.5 complete at
+14:35 UTC, Step 4 pending, the approval and selection audit present, and current strict Pass 3 verification passing.
+The runtime gate validated the review before mutation even though the agent's standalone strict check ran later.
+This is native evidence for the replacement-selection and separate-human-approval path, not planning acceptance.
+
+The run guessed recall fields at the root, later recovered `.session`, read an out-of-range checklist segment,
+and tried `apex-recall show --verify-cache` before recovering the actual Node validator. Added the exact command
+and canonical schema pointer to the existing final checklist, including recovery of empty required reads.
+
+Approval narration repeated old `allowed_locations` and `rg_resource_same_region` recall entries as policy facts,
+contradicting the corrected reviewed artifact and handoff. The checklist now treats historical recall assertions
+as evidence to reconcile, not authority over current policy. These production recall entries still need owner
+reconciliation through `apex-recall`; maintenance does not silently rewrite decisions or invalidate recorded approval.
+The correct interpretation remains Sweden Central/alignment as project choices, with no evidenced policy allow-list
+or co-location mandate. No new review, project edit, state mutation or completion rerun was performed in this audit.
+
+### Governance Recall Reconciliation Accepted (2026-09-15)
+
+The refreshed `94016396-a3fa-4c82-a83d-2f1c9ab4bdd5` export (14:43 UTC) includes the completed recall-only
+reconciliation. `allowed_locations` and `rg_resource_same_region` now distinguish project choices from policy
+requirements. An audit entry records the correction; the human approval, Pass 3 selection and Step 3.5 completion
+timestamp are preserved. This closes the recall cleanup identified in the preceding acceptance entry.
+
+The log contains matching pre/post SHA-256 values for Governance Markdown, its JSON envelope and Pass 3. Current
+strict review verification passes; Step 4 remains pending. No further Governance cycle or review is required while
+the evidence remains current. Maintenance made no project or state changes during this acceptance check.
+
+A nonblocking lookup error remains visible: the policy query tried `displayName`/`policy_display_name` instead of
+the envelope's `display_name`, producing an empty filtered array. The reviewed Markdown supplied the needed facts;
+the empty query was not proof that no policy existed. The filename search also matched a debug-log identifier,
+so the pending planner state is the reliable evidence that planning has not started. Existing schema-aware lookup
+guidance applies; these observations do not justify reopening approved artifacts or adding another workflow gate.
 
 ## Batch Evidence Record
 

@@ -53,9 +53,11 @@ Choose the smallest applicable path:
 | Model assignment or effort policy | [Model policy](references/model-policy.md) |
 | Tool-heavy runtime or fallback behavior | [Runtime guardrails](references/runtime-guardrails.md) |
 | Decision capture behavior | [Decision logging](references/decision-logging.md) |
-| Vendor-specific prompt audit | `../apex-vendor-prompting/SKILL.md` |
+| Vendor-specific prompt audit | Ask the user to invoke `/apex-vendor-prompting`; do not load it automatically |
 
 Load only the references needed for the selected path.
+The vendor audit skill is manual-only. Its thin instructions and required validators still apply during authoring;
+do not read the skill body as a workaround for its invocation flag.
 
 ### 2. Establish Ownership
 

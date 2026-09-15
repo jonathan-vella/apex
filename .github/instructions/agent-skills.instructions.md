@@ -56,15 +56,17 @@ Use `user-invocable` and `disable-model-invocation` to control access:
 | --- | --- | --- | --- | --- |
 | `true` (default) | `false` (default) | Yes | Yes | Task skills |
 | `false` | `false` | No | Yes | Internal guidance |
-| `true` | `true` | Yes | No | Manual Host operations |
+| `true` | `true` | Yes | No | Explicit manual workflows |
 | `false` | `true` | No | No | Forbidden for active skills: unreachable |
 
 Use actual YAML booleans, not quoted strings. Omitted fields retain their defaults.
 Keep internal `apex-azure-defaults`, `apex-azure-artifacts`,
 `apex-azure-bicep-patterns`, `apex-terraform-patterns`, `apex-iac-common`,
 `apex-golden-principles`, and `apex-workflow-engine` hidden but model-loadable.
-Preserve their required agent-body loading references. Task skills remain visible
-and model-loadable; Host adapters remain visible and manual-only.
+Preserve their required agent-body loading references. Task skills are normally visible and model-loadable.
+Explicit exceptions `apex-unslop`, `apex-docs-writer`, `apex-vendor-prompting` and `apex-terraform-search-import`
+remain visible and manual-only, as do Host adapters. Do not read a manual-only skill body automatically to bypass
+its flag. Explicit user-selected prompt adapters may load their owning manual skill for that requested operation.
 Hints do not validate arguments, confer permissions, or grant approval. Never
 request passwords, tokens, keys, or secret-bearing share links in hints. Omit
 hints for hidden guidance. Treat hiding a skill as a slash-access change and

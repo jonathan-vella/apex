@@ -152,6 +152,9 @@ Use [`apex-python-diagrams`](../skills/apex-python-diagrams/SKILL.md) for every 
    `scripts/diagram_io.py`; never render directly.
 5. Use `show=False`, explicit filenames, readable labels, and logical clusters.
 6. Run the source and verify that non-empty PNG and SVG siblings exist.
+  For `diagrams`, call `embed_svg_images` after the Diagram context exits, per the skill's helper contract.
+  Verify SVG image references are embedded data URIs, not local package paths. Inspect both formats;
+  a PNG-only visual check or an SVG header/file-size check does not prove SVG icons render.
 7. Check that resources, trust boundaries, regions, and important flows match the
    assessment and remain legible at normal zoom.
 8. Checkpoint with

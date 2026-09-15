@@ -54,4 +54,5 @@ missing context or validation.
   return behavior. No mandatory personality or main-agent section boilerplate.
 - MAI Code Flash: concise orchestrator routing structure.
 
-Load `../../apex-vendor-prompting/SKILL.md` for a vendor-specific audit.
+For a vendor-specific audit, ask the user to invoke `/apex-vendor-prompting` explicitly.
+Do not load that manual-only skill automatically; required model and vendor validators remain in force.

@@ -15,8 +15,13 @@ Ready-to-use patterns for Azure architecture diagrams.
 > import sys
 > from pathlib import Path
 > sys.path.insert(0, str(Path(".github/skills/apex-python-diagrams/scripts").resolve()))
-> from diagram_io import diagram_kwargs  # noqa: E402
+> from diagram_io import diagram_kwargs, embed_svg_images  # noqa: E402
 > ```
+
+After each `with Diagram(...)` block exits, finalize its SVG with
+`embed_svg_images(Path(filename).with_suffix(".svg"))`, where `filename` is the same explicit output base.
+This embeds the Azure icon files rather than leaving container-local image paths. Non-empty SVG output alone
+does not prove icons are portable; inspect the SVG as well as the PNG before completing a workflow diagram.
 
 ## 1. Web Application (3-Tier)
 

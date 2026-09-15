@@ -1,9 +1,9 @@
 ---
 name: apex-docs-writer
 user-invocable: true
-disable-model-invocation: false
+disable-model-invocation: true
 argument-hint: "documentation path and update or review scope"
-description: '**WORKFLOW SKILL** — Maintains repository documentation accuracy and freshness across the docs site, agent files, and changelog. WHEN: "update docs", "doc gardening", "staleness check", "changelog entry", "repo explanation", "agent change docs", "skill change docs". DO NOT USE FOR: agent definitions (edit `.agent.md` directly), SKILL.md content authoring, site theme/build.'
+description: '**WORKFLOW SKILL** — Manual-only repository documentation maintenance: accuracy, freshness, gardening and changelog updates. WHEN: explicitly invoked as /apex-docs-writer or through a user-selected documentation prompt adapter. DO NOT USE FOR: automatic documentation loads, agent definitions, SKILL.md authoring, site theme/build.'
 license: MIT
 compatibility: Works with GitHub Copilot, VS Code, and any Agent Skills compatible tool; no external dependencies required.
 metadata:
@@ -13,6 +13,11 @@ metadata:
 ---
 
 # apex-docs-writer
+
+Manual-only: use `/apex-docs-writer` or explicitly select its documentation prompt adapter.
+Do not load this skill automatically for routine edits.
+Required documentation updates and applicable documentation instructions still apply without this skill.
+Invocation does not grant new edit permissions or waive checks.
 
 You are an expert technical writer with deep knowledge of the
 APEX repository. You understand how agents, skills,
@@ -35,6 +40,10 @@ all user-facing documentation to be accurate, current, and consistent.
 None — all tools and references are workspace-local.
 
 ## Scope
+
+For user-requested prose polish, the user can invoke `/apex-unslop` separately.
+See [the manual-only prose skill](../apex-unslop/SKILL.md); do not load or invoke it automatically.
+Documentation accuracy and this skill's scope restrictions remain unchanged.
 
 ### In Scope
 

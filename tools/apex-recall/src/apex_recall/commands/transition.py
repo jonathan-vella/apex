@@ -51,7 +51,13 @@ from ..state_writer import (
     validate_step_key,
     write_state,
 )
-from .complete_step import _challenger_findings_missing, _record_skip
+from .complete_step import (
+    _challenger_findings_invalid,
+    _challenger_findings_missing,
+    _record_skip,
+    _report_invalid_review,
+    _select_governance_review,
+)
 
 
 def _parse_decisions(raw_pairs: list[str] | None) -> dict[str, str]:
@@ -92,10 +98,17 @@ def run(args) -> int:  # noqa: C901 — one CLI dispatcher, branchy by design
             print(f"Error: {exc}", file=sys.stderr)
         return 1
 
+    try:
+        governance_review, selection = _select_governance_review(project, from_step, args)
+        if governance_review is not None and not complete:
+            raise ValueError("--governance-review requires transition --complete")
+    except (OSError, ValueError) as error:
+        return _report_invalid_review(project, from_step, str(error), as_json)
+
     # Challenger gate (only when completing from_step). Read-only; runs
     # before any state mutation so a gate failure does not partially write.
     if complete:
-        blocked, gating_path, sidecar_path = _challenger_findings_missing(project, from_step)
+        blocked, gating_path, sidecar_path = _challenger_findings_missing(project, from_step, governance_review)
         if blocked and not allow_missing:
             msg = {
                 "project": project,
@@ -130,13 +143,15 @@ def run(args) -> int:  # noqa: C901 — one CLI dispatcher, branchy by design
             if as_json:
                 print(json.dumps(msg))
             else:
-                print(
-                    "--allow-missing-challenger requires --challenger-skip-reason "
-                    '"<reason>" for the audit trail.'
-                )
+                print('--allow-missing-challenger requires --challenger-skip-reason "<reason>" for the audit trail.')
             return 2
     else:
         blocked = False
+
+    if complete:
+        invalid = _challenger_findings_invalid(project, from_step, governance_review)
+        if invalid:
+            return _report_invalid_review(project, from_step, invalid, as_json)
 
     # Single atomic mutation.
     path = session_state_path(project)
@@ -172,6 +187,8 @@ def run(args) -> int:  # noqa: C901 — one CLI dispatcher, branchy by design
     data["steps"][to_step] = to_data
     data["current_step"] = step_to_int(to_step)
 
+    if selection:
+        data.setdefault("decision_log", []).append({**selection, "timestamp": now})
     write_state(project, data)
 
     result = {
