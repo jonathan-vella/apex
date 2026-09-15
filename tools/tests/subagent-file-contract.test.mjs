@@ -17,6 +17,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { execFileSync, spawnSync } from "node:child_process";
 
 const FIXTURE_DIR = new URL("./fixtures/subagent-file-contract/", import.meta.url).pathname;
 
@@ -72,6 +73,43 @@ describe("subagent file-mode contract", () => {
 
   after(() => {
     fs.rmSync(tmpDir, { recursive: true, force: true });
+  });
+
+  it("reviewer allocates isolated drafts without touching stale siblings or publishing invalid JSON", () => {
+    const worker = fs.readFileSync(
+      new URL("../../.github/agents/_subagents/challenger-review-subagent.agent.md", import.meta.url),
+      "utf8",
+    );
+    const commands = [...worker.matchAll(/```bash\n([\s\S]*?)```/g)]
+      .map((match) => match[1])
+      .find((block) => block.includes("scratch_dir=$(mktemp -d"));
+    assert.ok(commands, "Use the actual worker allocation command");
+    assert.match(worker, /overwrite: true` applies only to the canonical output/);
+    assert.match(worker, /do not salvage an apparently valid prefix/);
+    const output = path.join(tmpDir, "review with spaces.json");
+    const canonical = JSON.stringify(loadFixture("challenger-review").findings);
+    const stale = `${canonical}${canonical}`;
+    fs.writeFileSync(output, canonical);
+    fs.writeFileSync(`${output}.tmp`, stale);
+    const allocate = () =>
+      execFileSync("bash", ["-c", commands], {
+        env: { ...process.env, output_path: output },
+        encoding: "utf8",
+      }).trim();
+    const first = allocate();
+    const second = allocate();
+    assert.notEqual(first, second);
+    assert.equal(path.dirname(path.dirname(first)), tmpDir);
+    assert.equal(fs.existsSync(first), false);
+    fs.writeFileSync(first, stale, { flag: "wx" });
+    fs.writeFileSync(second, canonical, { flag: "wx" });
+    const validator = new URL("../scripts/validate-challenger-findings.mjs", import.meta.url).pathname;
+    const invalid = spawnSync(process.execPath, [validator, first], { encoding: "utf8" });
+    assert.equal(invalid.status, 1);
+    assert.match(invalid.stdout + invalid.stderr, /invalid JSON/);
+    assert.deepEqual(JSON.parse(fs.readFileSync(second, "utf8")), JSON.parse(canonical));
+    assert.equal(fs.readFileSync(`${output}.tmp`, "utf8"), stale);
+    assert.equal(fs.readFileSync(output, "utf8"), canonical);
   });
 
   describe("challenger-review-subagent fixture", () => {

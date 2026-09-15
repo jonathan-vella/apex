@@ -169,6 +169,10 @@ chat — always paths.
   pre-fetch project context.
 - Stop and surface findings if any subagent step returns `status: blocked`.
 - Stop after the accepted-gate `/clear` handoff; do not continue the next step in the same chat.
+- On resume after Step 2, verify the architecture and cost review sidecars with
+  `node tools/scripts/validate-challenger-findings.mjs --verify-cache <review-path>` before routing forward.
+  Use the actual paths from the current handoff. A completed recall step does not override stale review hashes;
+  report the mismatch and return to Architect for reconciliation, preserving prior approvals and unrelated decisions.
 - At every approved-gate boundary that ALSO records decisions, advance
   via `apex-recall transition` (atomic). Refuse to mix
   `apex-recall decide` + `apex-recall complete-step` + manual

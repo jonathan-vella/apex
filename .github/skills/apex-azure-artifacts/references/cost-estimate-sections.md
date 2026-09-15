@@ -43,7 +43,7 @@ If no budget: `Budget: No fixed budget (explain in one sentence)`
 
 Immediately after Cost At-a-Glance, include 2-3 bullet summary:
 
-- What's approved now
+- Confirmed scope/SKU inputs, distinguished from final architecture approval
 - What's deferred (intentionally not paying for yet)
 - What requirement change would trigger a redesign
 
@@ -93,7 +93,7 @@ Include a confidence line:
 ```markdown
 ## ✅ Decision Summary
 
-- ✅ Approved: {what is in-scope and funded}
+- ✅ Confirmed inputs: {scope and SKU choices approved before pricing; not final architecture approval}
 - ⏳ Deferred: {what is explicitly not included yet}
 - 🔁 Redesign Trigger: {what change forces SKU/region redesign}
 

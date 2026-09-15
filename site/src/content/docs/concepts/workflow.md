@@ -55,6 +55,19 @@ independent review. Accepting a finding authorizes its stated mitigation, follow
 it does not approve the workflow transition. Prior findings are checked for resolution, and persistent blockers
 return for human direction. Gate 1 remains a separate human approval after current review evidence is available.
 
+### Review Finalization And Recovery
+
+Architecture and cost documents are finalized before independent review. While reviewers run, their inputs must
+remain unchanged. Approval and review status live in recall, decision sidecars and the project index, linked from
+the reviewed documents. Updating a badge after review would change the reviewed bytes and require fresh evidence.
+The Orchestrator verifies Step 2 review hashes on resume; a completed step does not override later artifact drift.
+
+If pricing publication is interrupted, preserve the draft and evidence. The pricing worker validates the saved
+scope, source provenance, totals and request allowance before publishing and returning its summary. It does not
+repeat pricing merely because the final command was canceled. Historical requests remain provenance, not new calls;
+resuming an interrupted attempt retains its remaining allowance. Reviewers receive the exact successful cost JSON
+and evidence paths, including versioned outputs, rather than guessing conventional filenames.
+
 ### The Orchestrator Pattern
 
 The Orchestrator orchestrates the entire workflow by delegating

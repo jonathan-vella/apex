@@ -32,7 +32,8 @@ provides domain-specific risk dimensions beyond the 7 core categories.
 - **SKU-to-requirement mismatch**: over/under-provisioned SKUs for the stated workload
 - **Free-tier production risk**: features or limits that don't scale to production
 - **Missing line items**: services in architecture but absent from cost estimate
-- **Price source verification**: are figures from Azure Resource Manager MCP or guessed?
+- **Price source verification**: are figures backed by worker-owned MCP or
+	[validated direct-API evidence](pricing-guidance.md#constrained-direct-api-fallback), with truthful provenance?
 
 ## `deployment-preview`
 

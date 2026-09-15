@@ -26,6 +26,7 @@
     "lint:version-sync": "node tools/scripts/validate-version-sync.mjs",
     "lint:deprecated-refs": "node tools/scripts/validate-no-deprecated-refs.mjs",
     "lint:mcp-config": "node tools/scripts/validate-mcp-config.mjs",
+    "check:mcp-release": "node .devcontainer/configure-mcp.mjs --check-release",
     "validate:extension-bloat": "node tools/scripts/validate-extension-bloat.mjs",
     "lint:docs-freshness": "node tools/scripts/check-docs-freshness.mjs",
     "lint:docs-frontmatter": "node tools/scripts/lint-docs-frontmatter.mjs",

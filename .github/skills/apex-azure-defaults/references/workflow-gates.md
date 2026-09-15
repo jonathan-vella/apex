@@ -117,6 +117,12 @@ and review inputs. An old `cost_feasibility_review: skip` decision is not an exe
 obtain the missing review before Step 2 approval and completion. Record
 `apex-recall decide <project> --key cost_feasibility_review --value run --json`.
 
+Follow [review input finalization](adversarial-review-protocol.md#review-input-finalization) before dispatch.
+Supply the actual COMPLETE cost JSON and raw evidence via `supporting_paths`; a versioned output does not need
+a conventional filename alias. Final human approval is recorded in recall and the project index, not by rewriting
+reviewed artifact badges. On resume, verify both Step 2 review hashes before routing to Design or Governance;
+stale evidence returns to Architect for reconciliation without resetting unrelated approvals.
+
 ## Architect (Step 2) — Phase 6b: VNet planning gate
 
 Runs **after Phase 6a (SKU confirmation)** and **before Step 7

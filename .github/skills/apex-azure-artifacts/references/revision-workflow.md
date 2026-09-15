@@ -24,6 +24,12 @@ preserve user work, and edit only authorized artifacts. If a write is partial, i
 and repair the confirmed partial content; do not overwrite unrelated changes.
 If no suitable editing capability is available, stop and report the blocker.
 
+For Step 2 review targets, follow
+[review input finalization](../../apex-azure-defaults/references/adversarial-review-protocol.md#review-input-finalization).
+Complete all edits and formatting before review. Keep mutable approval/review status in recall, sidecars and the
+project index; do not revise reviewed content merely to update badges or checkboxes. Substantive revisions require
+current reviews before approval, and any post-review byte change invalidates exact-hash evidence.
+
 Targeted edits avoid re-emitting unchanged content. Token or cost savings require
 recorded usage evidence, not fixed line-count multipliers or model-name inference.
 Follow the canonical [post-write checks](../SKILL.md#post-write-validation);

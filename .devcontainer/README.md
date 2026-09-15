@@ -57,6 +57,43 @@ Setup adds only missing default server entries. It preserves JSONC comments, cus
 existing defaults, and custom or retired server entries. Malformed configuration fails setup and
 is left untouched; setup does not perform automatic server migrations.
 
+#### Azure MCP Runtime And Release Checks
+
+Azure MCP uses an exact stable npm package version in the JSON configuration, with no editor-extension dependency.
+The npm `latest` tag may point to a prerelease; it is not a stable-channel guarantee.
+The server entry sets `NPM_CONFIG_ALLOW_REMOTE=all` for that child process only because npm 12 otherwise
+rejects cross-host tarball URLs returned by the configured package feed. This permits any remote dependency URL
+within that process, not a hostname allowlist. It does not change the registry or global npm settings.
+
+`post-start.sh` runs the release check automatically on every container start, including the start after a rebuild.
+It prints the result in the Dev Containers startup output. The registry request has a 30-second timeout;
+outdated, offline, timeout or missing-dependency results produce a warning without blocking container startup.
+No package installation, configuration rewrite, automatic upgrade or MCP restart happens in this hook.
+An editor-window reload alone is not a container start. For a long-running container or to retry a warning, run:
+
+```bash
+npm run check:mcp-release
+```
+
+This read-only check queries the configured feed, selects the highest stable semantic version, and compares it
+with both the workspace pin and the defaults in `configure-mcp.mjs`. It exits nonzero when an update is needed,
+the pins differ, the package is not exactly pinned to a stable release, or metadata cannot be verified.
+Feed lag remains possible; `CURRENT` means current according to that registry, not proof of upstream completeness.
+The existing Weekly Maintenance workflow runs the same check on schedule and manual dispatch after publication
+to the default branch. Monitor failed workflow notifications; it neither opens nor merges upgrade PRs automatically.
+
+| Owner | When | Outcome |
+| --- | --- | --- |
+| Dev Containers `postStartCommand` | Every container start | Automatic advisory check; warnings keep the container usable |
+| GitHub Actions Weekly Maintenance | Monday 06:00 UTC or manual dispatch | Failing job on outdated or unverifiable pins |
+| Maintainer | After a warning or failed maintenance job | Review and validate the upgrade, then restart the MCP server |
+
+For an upgrade, review release notes, update the package pin in `.vscode/mcp.json` and `configure-mcp.mjs` together,
+then run `node --test tools/tests/scripts/test_devcontainer_setup.mjs` and `npm run lint:mcp-config`.
+Restart Azure MCP from VS Code's `MCP: List Servers` command. Verify the reported runtime version, MCP initialization
+and tool discovery before resuming APEX. Downloaded updates do not replace an already-running server.
+Keep the previous pin available for rollback; do not auto-promote a beta or silently change versions during a workflow.
+
 ### VS Code Extensions
 
 - **GitHub Copilot** — Copilot Chat
@@ -97,7 +134,7 @@ settings if packages return. The extension validator guards repository declarati
 | Git authentication | Existing credentials preserved; optional token forwarding uses the VS Code host process |
 | Validation and timing | Actual image build and cold/warm timing remain unverified; Docker/devcontainer executables unavailable in the validation environment |
 
-Startup is already lightweight: `post-start.sh` does no installs or upgrades. Retain that boundary.
+Startup performs a bounded, read-only MCP release query; `post-start.sh` does no installs or upgrades.
 No extension-removal token savings or rebuild-time improvement is claimed without measurements.
 
 ## Quick Start

@@ -47,6 +47,21 @@ permissions:
   issues: write
 
 jobs:
+  azure-mcp-release:
+    name: Check Azure MCP Stable Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Setup Node
+        uses: ./.github/actions/setup-node-repo
+
+      - name: Check pinned Azure MCP against newest stable release
+        run: npm run check:mcp-release
+
   refresh-avm-module-index:
     name: Refresh AVM Module Index
     runs-on: ubuntu-latest

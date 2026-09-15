@@ -20,6 +20,24 @@ for full details on this and all prior releases.
 
 ### Changed (Agent modernization)
 
+- Finalize Step 2 content before reviews and keep mutable approval status outside reviewed bytes. Preserve exact-hash
+  drift checks on completion/resume and route stale evidence to its owner without restamping prior reviews.
+- Standardize interrupted pricing publication recovery and invocation-local request accounting while preserving
+  remaining allowances. Pass explicit successful pricing/evidence paths to reviewers, including versioned outputs.
+- Permit a pricing-worker-only public Retail Prices API fallback after documented MCP empty results or exhausted
+  transient retries. Preserve raw evidence and source labels; enforce request/host limits and existing approval gates.
+- Pin JSON-launched Azure MCP to the verified stable release and scope npm's cross-host tarball exception
+  to that server process. Add `check:mcp-release` and a weekly/manual freshness check without automatic upgrades.
+- Run the same release check automatically at each devcontainer start; warn on outdated or unknown versions
+  without blocking container access, installing packages, changing pins or restarting MCP.
+- Correct retail pricing discovery for services whose catalog ARM SKU is empty, including Container Registry
+  and Key Vault. Reuse service results across tiers and keep meter, usage, region and currency checks explicit.
+- Add verified Private Endpoint and private DNS query recipes, global billing-region mappings, zone-month unit
+  interpretation and variable-usage inputs. Prevent duplicate billing-zone charges and retain pricing failure gates.
+- Exclude infeasible SKU alternatives before pricing and bound Architecture research payloads; a saved checkpoint
+  no longer claims to compact the live transcript. Resume expensive phases in a fresh context when needed.
+- Isolate Challenger drafts per invocation instead of reusing a shared temporary sibling;
+  preserve stale files and reject concatenated JSON before canonical publication.
 - Make PaaS data services and App Service APIs private in every environment; retain public HTTPS ingress
   for public-facing web applications. Require private DNS and verified component ownership before relying on DINE.
 - Remove non-production public-access execution paths and broad firewall rules from both SQL recipes;

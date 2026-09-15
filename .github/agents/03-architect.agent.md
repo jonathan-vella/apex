@@ -182,7 +182,9 @@ the bulk is authored.
 1. **Build `candidate_sets[]`** — for each creative SKU decision (App
    Service plan, VM, SQL, Cosmos, AKS pools, Redis, APIM, App Gateway,
    Storage replication), enumerate 2–3 viable SKUs across base + per-env
-   shapes.
+  shapes only when a genuine choice exists. Exclude tiers that violate required capabilities or user pins
+  before pricing; record rejection reasons without requesting irrelevant rates. If one tier is forced,
+  document why and include it in the confirmed full estimate; do not invent alternatives to satisfy a count.
 2. **Call `cost-estimate-subagent` in `candidate_sets[]` mode** to price
   A-vs-B _before_ committing. This comparison-only mode does not require SKU
   approval and cannot write back the manifest or count as approved pricing.
@@ -279,13 +281,14 @@ in your WAF assessment recommendations (still produce the identical artifact str
 
 1. **Read requirements** — Parse `01-requirements.md` for scope, NFRs, compliance,
    and `iac_tool` value (note Terraform-specific WAF considerations above if applicable)
-2. **Search docs** — Query Microsoft docs for each Azure service and architecture pattern
+2. **Search docs** — Query unresolved service/pattern claims using
+  [bounded research](../skills/apex-azure-defaults/references/research-workflow.md#bounded-tool-results).
 3. **Assess trade-offs** — Evaluate all 5 WAF pillars, identify primary optimization
 4. **Compare candidate SKUs** through the manifest authoring workflow above;
   leave committed cost columns blank until SKU confirmation and approved pricing.
 5. **Checkpoint to disk** — Save research notes to `agent-output/{project}/02-waf-research.tmp.md`
-   (scratch file, deleted after final artifact is generated). This prevents holding both
-   research context AND final output in memory simultaneously.
+  (scratch file, deleted after final artifact is generated). Persist sources, findings and unresolved items.
+  Writing a summary does not evict previous messages or reduce the next request's input tokens.
    **Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 2 phase_2_waf --json`
 6. **Context checkpoint (MANDATORY)** — Before pricing delegation, summarize the
   research and apply the runtime compression tier appropriate to observed context usage:
@@ -296,6 +299,10 @@ in your WAF assessment recommendations (still produce the identical artifact str
      the needed sections from source or `02-waf-research.tmp.md`; do not guess missing constraints
    - Update session state: `sub_step: "phase_2.5_compacted"`
      **Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 2 phase_2.5_compacted --json`
+
+  If oversized research results remain in context, checkpoint and request `/clear` plus resume on `03-Architect`
+  before pricing. The checkpoint name does not prove actual compaction. Resume from saved research and the failed
+  boundary without re-running completed discovery; verify freshness and recover only missing evidence.
 
 6a. **SKU confirmation gate (MANDATORY — before committed pricing, after candidate comparison)** — follow the
     protocol in
@@ -437,6 +444,12 @@ from disk only if you need full finding details for the Gate presentation.
 
 ### Parallel Execution Strategy
 
+Before dispatch, follow [review input finalization](../skills/apex-azure-defaults/references/adversarial-review-protocol.md#review-input-finalization).
+Finalize and validate both documents first; do not write either target or shared evidence while reviewers run.
+Approval and review-status changes belong in recall, decision sidecars, README and handoff, not reviewed documents.
+Pass `supporting_paths` with the actual COMPLETE worker JSON and its referenced evidence paths to both reviewers.
+Use the recorded successful output path even when versioned; never infer success from a conventional filename.
+
 > **Architecture comprehensive review** and **Cost Estimate review** are
 > independent (different artifacts, both `prior_findings=null`). Invoke
 > both via #tool:agent **in parallel**, then await both results
@@ -500,9 +513,12 @@ Architect-step-2 specifics only below.
 5. **On Revise**: apply accepted edits with available editing tools, preserving
   unrelated user work; validate the changed outputs. Do not recreate existing
   files with `create_file`. Then re-run all relevant passes (`overwrite: true`)
-   and rebuild the panel skipping `issue_id`s already in the sidecar.
+  with prior findings/dispositions and rebuild the panel. Reuse decisions only for unchanged issues and mitigations;
+  prior acceptance is not remediation. Keep unchanged reviews only when all their inputs remain current.
 6. **On Proceed**: routing is **always** Design or Governance, never
    IaC Planner directly (enforced by `validate-banned-phrases.mjs`).
+  Verify both current reviews before completion; record human approval outside reviewed documents.
+  Never edit a status badge, review table or approval checkbox in those documents after review to close the gate.
 
 ## Output Files
 
@@ -536,7 +552,7 @@ Include attribution header from the template file (do not hardcode).
 
 - [ ] All 5 WAF pillars scored with rationale and confidence level
 - [ ] Service Maturity Assessment table included
-- [ ] Cost estimate generated with real Pricing MCP data
+- [ ] Cost estimate uses worker-verified MCP data or the documented direct-API evidence fallback, with truthful sources
 - [ ] **Every dollar figure** in 02 and 03 artifacts traces back to `cost-estimate-subagent` response — no hardcoded prices
 - [ ] Line-item totals sum correctly to reported monthly total
 - [ ] H2 headings match apex-azure-artifacts templates exactly

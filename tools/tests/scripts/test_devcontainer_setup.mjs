@@ -4,14 +4,65 @@ import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import test from "node:test";
-import { configureMcp } from "../../../.devcontainer/configure-mcp.mjs";
+import { configureMcp, azureMcpReleaseStatus, checkAzureMcpRelease } from "../../../.devcontainer/configure-mcp.mjs";
 import { parseJsonc } from "../../scripts/_lib/parse-jsonc.mjs";
 
 const setup = fs.readFileSync(new URL("../../../.devcontainer/post-create.sh", import.meta.url), "utf8");
+const startup = new URL("../../../.devcontainer/post-start.sh", import.meta.url).pathname;
 function fixture(context) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "apex-setup-"));
   context.after(() => fs.rmSync(root, { recursive: true, force: true }));
   return root;
+}
+
+for (const scenario of ["current", "outdated", "offline", "timeout", "missing-npm"]) {
+  test(`startup release check is advisory and read-only: ${scenario}`, (context) => {
+    const root = fixture(context);
+    const bin = path.join(root, "bin");
+    fs.mkdirSync(bin);
+    const calls = path.join(root, "calls");
+    fs.writeFileSync(calls, "");
+    if (scenario !== "missing-npm") {
+      fs.writeFileSync(
+        path.join(bin, "npm"),
+        '#!/bin/bash\nprintf "%s\\n" "$*" >> "$CALL_LOG"\nprintf "%s\\n" "$RELEASE_RESULT"\nexit "$RELEASE_EXIT"\n',
+        { mode: 0o755 },
+      );
+    }
+    fs.writeFileSync(path.join(bin, "azd"), '#!/bin/bash\nprintf "azd %s\\n" "$*" >> "$CALL_LOG"\nexit 0\n', {
+      mode: 0o755,
+    });
+    fs.mkdirSync(path.join(root, ".vscode"));
+    const config = path.join(root, ".vscode", "mcp.json");
+    fs.writeFileSync(config, '{"servers":{"azure-mcp":{"command":"custom"}}}\n');
+    const original = fs.readFileSync(config, "utf8");
+    const result = spawnSync("/bin/bash", [startup], {
+      cwd: root,
+      encoding: "utf8",
+      env: {
+        ...process.env,
+        PATH: bin,
+        CALL_LOG: calls,
+        RELEASE_RESULT: scenario === "current" ? '{"status":"CURRENT"}' : `fixture ${scenario}`,
+        RELEASE_EXIT: scenario === "current" ? "0" : "1",
+      },
+    });
+    assert.equal(result.status, 0, result.stderr);
+    assert.match(result.stdout, /Container ready/);
+    assert.match(result.stdout, /azd auth\s+authenticated/);
+    if (scenario === "current") {
+      assert.match(result.stdout, /Azure MCP release\s+current/);
+      assert.doesNotMatch(result.stdout, /WARNING/);
+    } else {
+      assert.match(result.stdout, /WARNING/);
+      assert.match(result.stdout, /npm run check:mcp-release/);
+    }
+    assert.deepEqual(fs.readFileSync(calls, "utf8").trim().split("\n"), [
+      ...(scenario === "missing-npm" ? [] : ["run --silent check:mcp-release"]),
+      "azd auth token --output json",
+    ]);
+    assert.equal(fs.readFileSync(config, "utf8"), original);
+  });
 }
 
 test("MCP updates preserve comments, custom values, unrelated servers and repeat-run bytes", (context) => {
@@ -46,6 +97,40 @@ test("MCP initializes missing configuration without touching credentials", (cont
   const file = path.join(fixture(context), ".vscode/mcp.json");
   configureMcp(file);
   assert.equal(Object.keys(parseJsonc(fs.readFileSync(file, "utf8")).servers).length, 3);
+});
+
+test("Azure MCP release checks reject outdated, prerelease, malformed and unavailable metadata without writes", (context) => {
+  const file = path.join(fixture(context), "mcp.json");
+  configureMcp(file);
+  const original = fs.readFileSync(file, "utf8");
+  const config = parseJsonc(original);
+  const server = config.servers["azure-mcp"];
+  const pinned = server.args[1].slice("@azure/mcp@".length);
+  assert.deepEqual(server.env, { NPM_CONFIG_ALLOW_REMOTE: "all" });
+  const workspace = parseJsonc(fs.readFileSync(new URL("../../../.vscode/mcp.json", import.meta.url), "utf8"));
+  assert.deepEqual(workspace.servers["azure-mcp"], server);
+  assert.equal(checkAzureMcpRelease(file, () => JSON.stringify(["0.1.0", "999.0.0-beta.1", pinned])).status, "CURRENT");
+  const newer = `${Number(pinned.split(".")[0]) + 1}.0.0`;
+  assert.equal(azureMcpReleaseStatus(config, [pinned, newer]).status, "UPDATE_REQUIRED");
+  assert.equal(azureMcpReleaseStatus(config, ["2.9.0", "2.10.0"]).latestStable, "2.10.0");
+  for (const value of [[], [null], {}, ["3.0.0-beta.1"]]) {
+    assert.throws(() => azureMcpReleaseStatus(config, value));
+  }
+  for (const version of ["latest", "next", "3.0.0-beta.1", "^2.0.0"]) {
+    const changed = structuredClone(config);
+    changed.servers["azure-mcp"].args[1] = `@azure/mcp@${version}`;
+    assert.throws(() => azureMcpReleaseStatus(changed, [pinned]));
+  }
+  const drift = structuredClone(config);
+  drift.servers["azure-mcp"].args[1] = `@azure/mcp@${newer}`;
+  assert.equal(azureMcpReleaseStatus(drift, [newer]).status, "UPDATE_REQUIRED");
+  assert.throws(() => checkAzureMcpRelease(file, () => "invalid JSON"));
+  assert.throws(() =>
+    checkAzureMcpRelease(file, () => {
+      throw new Error("network unavailable");
+    }),
+  );
+  assert.equal(fs.readFileSync(file, "utf8"), original);
 });
 
 test("MCP validator accepts preserved commands but rejects malformed and retired entries", (context) => {

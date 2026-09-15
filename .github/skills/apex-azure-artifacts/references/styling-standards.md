@@ -59,6 +59,9 @@
 
 Every artifact opens with badges after the title:
 
+Step 2 assessment and cost templates replace the mutable status badge with a stable project-index link.
+Follow those templates and keep approval state outside reviewed bytes; do not reintroduce status badges on finalization.
+
 ```markdown
 ![Step](https://img.shields.io/badge/Step-{n}-blue?style=for-the-badge)
 ![Status](https://img.shields.io/badge/Status-{Draft|Complete}-{orange|brightgreen}?style=for-the-badge)

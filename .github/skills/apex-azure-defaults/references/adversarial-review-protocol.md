@@ -234,6 +234,25 @@ Machine-readable detail is in `challenge-findings-{type}.json`.
 
 ## Findings Cache (REVISE-loop optimization)
 
+### Review input finalization
+
+Before taking review metadata, finish all content edits, rendering, permitted formatting and validation.
+Wait for pending writers to finish; then dispatch reviewers against those final saved bytes. While any review
+is running, the parent must not edit its target or shared evidence. Parallel independent reviews are allowed
+only when their complete input sets remain unchanged. This is a workflow discipline, not an operating-system lock.
+
+For Step 2, keep mutable approval/review status in recall, decision sidecars, the project index and handoff.
+The assessment and cost document use a stable pointer to those records, not a badge or checkbox that must change
+after review. Do not mark a document approved before the human gate, or rewrite it afterward merely to reflect approval.
+If substantive findings require changes, batch the authorized edits and validation before re-reviewing affected inputs.
+An accepted risk is a recorded disposition, not proof of remediation; do not suppress unresolved findings.
+
+Verify current review hashes immediately before completion and again when the next owner resumes. A completed
+recall step is not proof of current artifact bytes. On drift, stop the affected handoff and return to the artifact owner
+with the mismatch; preserve prior approvals and evidence. Compare the actual changes without assuming formatting.
+Even formatting-only changes invalidate exact-byte evidence: never normalize hashes or restamp an old review.
+Do not edit upstream artifacts or invalidate unrelated project decisions as part of drift recovery.
+
 Use the existing validator's read-only metadata mode before review:
 `node tools/scripts/validate-challenger-findings.mjs --metadata <artifact_path>`.
 It computes byte hashes and the exact frontmatter model without opening source files in chat.

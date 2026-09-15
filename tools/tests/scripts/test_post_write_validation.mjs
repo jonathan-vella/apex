@@ -44,6 +44,14 @@ test("pricing preserves deployment quantities and reuses only current equivalent
   assert.match(guidance, /planned versus deployed scope/);
   assert.match(guidance, /recalculate every affected total/);
   assert.match(guidance, /Region comparisons and\s+candidate alternatives are not additional deployed resources/);
+  assert.match(guidance, /catalog field and can be empty/);
+  assert.match(guidance, /remove unverified SKU\/meter filters first/);
+  assert.match(guidance, /Reuse the same service response across candidate tiers/);
+  assert.match(guidance, /corresponding `<Tier> Registry Unit` meter/);
+  assert.match(guidance, /Key Vault is operation\/key-type billing/);
+  assert.match(guidance, /billable_days/);
+  assert.doesNotMatch(guidance, /`armSkuName` is the deployed ARM SKU/);
+  assert.match(worker, /removing unverified SKU\/meter/);
   const parent = fs.readFileSync(
     path.join(ROOT, ".github/skills/apex-azure-defaults/references/cost-estimate-parent-contract.md"),
     "utf8",
@@ -51,6 +59,133 @@ test("pricing preserves deployment quantities and reuses only current equivalent
   assert.match(parent, /full-input equivalence checks/);
   assert.match(parent, /preserves the independent cost-feasibility review/);
   assert.match(parent, /effective overrides and explicit usage/);
+});
+
+test("network pricing recipes use verified billing mappings without omitting variable charges", () => {
+  const guidance = fs.readFileSync(
+    path.join(ROOT, ".github/skills/apex-azure-defaults/references/pricing-guidance.md"),
+    "utf8",
+  );
+  const section = guidance.split("## Private Endpoint and private DNS meters\n")[1].split("## Meter selection")[0];
+  const queries = [...section.matchAll(/```json\n([\s\S]*?)```/g)].map((match) => JSON.parse(match[1]));
+  assert.deepEqual(queries, [
+    {
+      serviceName: "Virtual Network",
+      armRegionName: "Global",
+      meterName: "Standard Private Endpoint",
+      priceType: "Consumption",
+      currencyCode: "USD",
+    },
+    { serviceName: "Azure DNS", meterName: "Private Zone", priceType: "Consumption", currencyCode: "USD" },
+    { serviceName: "Azure DNS", meterName: "Private Queries", priceType: "Consumption", currencyCode: "USD" },
+  ]);
+  assert.match(section, /Virtual Network Private Link/);
+  assert.match(section, /Standard Data Processed - Ingress/);
+  assert.match(section, /Standard Data Processed - Egress/);
+  assert.match(section, /No internet egress does not imply zero/);
+  assert.match(section, /whether totals cover all endpoints or are per endpoint/);
+  assert.match(section, /not additive resources/);
+  assert.match(section, /preserve distinct `tierMinimumUnits` bands/);
+  assert.match(section, /per hosted zone per month, not hourly or a one-time purchase/);
+  assert.match(section, /including existing zones where required/);
+  assert.match(section, /explicit monthly query count/);
+  assert.match(section, /document shared-cost allocation or exclusion/);
+  assert.match(section, /Resolver endpoints\/rulesets and DNS security policy are separate products/);
+  assert.match(section, /actual parameters, response\/error, pagination state/);
+  assert.match(section, /do not reset retry allowances/);
+  assert.match(section, /Do not hardcode observed rates/);
+  assert.match(section, /keep the affected estimate blocked/);
+  const parent = fs.readFileSync(
+    path.join(ROOT, ".github/skills/apex-azure-defaults/references/cost-estimate-parent-contract.md"),
+    "utf8",
+  );
+  assert.match(parent, /pricing-guidance\.md#private-endpoint-and-private-dns-meters/);
+  assert.match(parent, /endpoint count\/hours, inbound\/outbound GB with aggregation scope/);
+  assert.match(parent, /do not invent zero usage/);
+});
+
+test("retail fallback stays worker-owned with shared budgets, source evidence and approval gates", () => {
+  const read = (file) => fs.readFileSync(path.join(ROOT, file), "utf8");
+  const worker = read(".github/agents/_subagents/cost-estimate-subagent.agent.md");
+  const guidance = read(".github/skills/apex-azure-defaults/references/pricing-guidance.md");
+  const parent = read(".github/skills/apex-azure-defaults/references/cost-estimate-parent-contract.md");
+  assert.match(worker, /fetch-retail-price-evidence\.mjs/);
+  assert.match(worker, /MCP calls plus direct requests must not exceed 20/);
+  assert.match(worker, /do not repeat successful or empty identical requests/);
+  assert.match(worker, /Do not label direct API data as MCP-verified/);
+  assert.match(worker, /retail_api_evidence\[\]/);
+  assert.match(guidance, /Authentication\/authorization failures, missing usage, ambiguous meter selection/);
+  assert.match(guidance, /raw response strings and SHA-256/);
+  assert.match(guidance, /Both independent reviews and final human approval remain/);
+  assert.match(parent, /does not authorize parent-side pricing/);
+  assert.match(parent, /No fallback to parametric knowledge or the Azure Pricing Calculator/);
+  const checklist = read(".github/skills/apex-azure-defaults/references/adversarial-checklists.md");
+  assert.match(checklist, /missing evidence blocks approval/);
+  assert.match(checklist, /raw responses\/hashes, selected meter IDs and tier bands/);
+});
+
+test("review finalization freezes inputs while keeping mutable approval outside reviewed Step 2 documents", () => {
+  const protocol = fs.readFileSync(
+    path.join(ROOT, ".github/skills/apex-azure-defaults/references/adversarial-review-protocol.md"),
+    "utf8",
+  );
+  assert.match(protocol, /finish all content edits, rendering, permitted formatting and validation/);
+  assert.match(protocol, /parent must not edit its target or shared evidence/);
+  assert.match(protocol, /complete input sets remain unchanged/);
+  assert.match(protocol, /stable pointer to those records/);
+  assert.match(protocol, /immediately before completion and again when the next owner resumes/);
+  assert.match(protocol, /Even formatting-only changes invalidate exact-byte evidence/);
+  assert.match(protocol, /never normalize hashes or restamp an old review/);
+  const read = (file) => fs.readFileSync(path.join(ROOT, file), "utf8");
+  const architect = read(".github/agents/03-architect.agent.md");
+  assert.match(architect, /do not write either target or shared evidence while reviewers run/);
+  assert.match(architect, /Pass `supporting_paths`/);
+  assert.match(architect, /record human approval outside reviewed documents/);
+  const reviewer = read(".github/agents/_subagents/challenger-review-subagent.agent.md");
+  assert.match(reviewer, /supporting_paths.*Optional array/);
+  assert.match(reviewer, /do not require an absent/);
+  for (const name of ["02-architecture-assessment", "03-des-cost-estimate"]) {
+    const template = read(`.github/skills/apex-azure-artifacts/templates/${name}.template.md`);
+    assert.match(template, /\[Review and approval status\]\(README.md#-workflow-progress\)/);
+    assert.doesNotMatch(template, /badge\/Status-|\[ \] \*\*Approved\*\*/);
+  }
+  const orchestrator = read(".github/agents/01-orchestrator.agent.md");
+  assert.match(orchestrator, /On resume after Step 2, verify the architecture and cost review sidecars/);
+  assert.match(orchestrator, /completed recall step does not override stale review hashes/);
+});
+
+test("pricing recovery distinguishes historical evidence from current requests and preserves interrupted allowances", () => {
+  const read = (file) => fs.readFileSync(path.join(ROOT, file), "utf8");
+  const worker = read(".github/agents/_subagents/cost-estimate-subagent.agent.md");
+  const parent = read(".github/skills/apex-azure-defaults/references/cost-estimate-parent-contract.md");
+  assert.match(worker, /Counts describe requests actually issued by this invocation/);
+  assert.match(worker, /new invocation counts\s+do not create a fresh allowance/);
+  assert.match(worker, /Publication-only recovery makes zero new requests/);
+  assert.match(worker, /Optional `recovery` supplies `draft_path`, `evidence_paths`, `remaining_requests`/);
+  assert.match(parent, /existing retry allowance or explicit human authorization/);
+  assert.match(parent, /finite nonnegative line-item costs/);
+  assert.match(parent, /hashes, exact query and selected meter IDs\/tiers/);
+  assert.match(parent, /do not rely on a shared terminal's cwd/);
+  assert.match(parent, /A listed command is not a result/);
+  assert.match(parent, /then emit the required compact summary/);
+  assert.match(parent, /No alias named `02-cost-estimate.json` is needed/);
+});
+
+test("Architecture bounds research payloads and prices only viable alternatives", () => {
+  const architect = fs.readFileSync(path.join(ROOT, ".github/agents/03-architect.agent.md"), "utf8");
+  const research = fs.readFileSync(
+    path.join(ROOT, ".github/skills/apex-azure-defaults/references/research-workflow.md"),
+    "utf8",
+  );
+  assert.match(architect, /Exclude tiers that violate required capabilities or user pins/);
+  assert.match(architect, /do not invent alternatives to satisfy a count/);
+  assert.match(architect, /does not evict previous messages/);
+  assert.match(architect, /request `\/clear` plus resume on `03-Architect`/);
+  assert.match(research, /do not fan out more calls to that server/);
+  assert.match(research, /Start with one necessary page/);
+  assert.match(research, /resume only from verified state/);
+  const headings = research.match(/^## .+$/gm);
+  assert.equal(new Set(headings).size, headings.length);
 });
 
 test("research routes by service and availability, not shared query language", () => {

@@ -1,7 +1,7 @@
 # 💰 Azure Cost Estimate: {project-name}
 
 ![Step](https://img.shields.io/badge/Step-3-blue?style=for-the-badge)
-![Status](https://img.shields.io/badge/Status-Draft-orange?style=for-the-badge)
+[Review and approval status](README.md#-workflow-progress)
 ![Agent](https://img.shields.io/badge/Agent-Architect-purple?style=for-the-badge)
 
 <details open>
@@ -32,6 +32,10 @@
 **Environment**: {Production|Staging|Development}
 **MCP Tools Used**: {get_retail_prices, forecast_costs, get_benefit_recommendations}
 **Architecture Reference**: {relative link to assessment doc, if available}
+**Pricing Evidence**: {relative link to the actual COMPLETE worker JSON and its referenced evidence}
+
+Review and human approval are recorded in recall, decision sidecars and the project index.
+Finalize this document before review; do not change its status text afterward merely to record approval.
 
 ## 💵 Cost At-a-Glance
 
@@ -49,7 +53,7 @@
 
 ## ✅ Decision Summary
 
-- ✅ Approved: {what is in-scope and funded}
+- ✅ Confirmed inputs: {scope and SKU choices approved before pricing; not final architecture approval}
 - ⏳ Deferred: {what is explicitly not included yet}
 - 🔁 Redesign Trigger: {what requirement change forces SKU/region redesign}
 

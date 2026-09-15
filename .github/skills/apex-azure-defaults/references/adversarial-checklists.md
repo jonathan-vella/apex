@@ -14,7 +14,8 @@ When challenging artifacts, be skeptical about:
 - **Naming**: Do naming conventions follow CAF patterns from apex-azure-defaults skill, or are they ad-hoc?
 - **Region Availability**: Are all planned SKUs and services actually available in the target region?
 - **WAF Balance**: Does the architecture over-optimize one WAF pillar at the expense of others?
-- **Cost Estimates**: Are prices sourced from Azure Resource Manager MCP, or are they parametric guesses?
+- **Cost Estimates**: Are prices worker-verified under the
+      [pricing evidence contract](pricing-guidance.md#constrained-direct-api-fallback), rather than parametric guesses?
 - **Security Baseline**: Apply the
       [canonical security contract](../../../instructions/references/iac-security-baseline.md#private-networking-and-dns).
       Verify endpoint coverage, public-access posture, application boundary and DNS ownership in every environment.
@@ -111,7 +112,9 @@ For **every** artifact, ask:
 
 ### Cost-Estimate-Specific (`artifact_type` = `cost-estimate`)
 
-- [ ] Are all prices sourced from Azure Resource Manager MCP (not guessed)?
+- [ ] Are all prices traceable to MCP records or validated direct-API fallback evidence, with truthful source labels?
+- [ ] For fallback lines, verify recorded MCP failure, raw responses/hashes, selected meter IDs and tier bands,
+      timestamps, quantities, calculations and shared request budget; missing evidence blocks approval.
 - [ ] Are egress, transaction, and log ingestion costs included?
 - [ ] Do SKU selections match the stated workload requirements?
 - [ ] Are free-tier limitations documented for production use?
@@ -251,14 +254,16 @@ Merged from `security-governance` + `architecture-reliability` +
       (zone-redundant SKU, paired-region replication, queueing in front
       of single instances).
 - [ ] **Cost — pricing source** — every line item references a price
-      pulled from Azure Resource Manager MCP, not a guessed dollar amount.
+      from the worker's MCP or validated direct-API fallback evidence, not a guessed dollar amount.
 - [ ] **Cost — RI / Savings-Plan math** — for compute resources running
       ≥ 730 hours / month, 1-year Reserved Instance or Savings Plan
       math is shown (% saving + breakeven) OR an explicit "pay-as-you-go
       is intentional because …" note is attached.
-- [ ] **Cost — 02-cost-estimate.json baseline reconciliation** —
+- [ ] **Cost — canonical pricing evidence reconciliation** —
       monthly total in the architecture matches the line-item sum in
-      `02-cost-estimate.json`. No drift > 5 % without an explanation.
+      the actual COMPLETE worker JSON supplied via `supporting_paths` or the current handoff.
+      Do not require a conventional filename alias or substitute an older FAILED draft.
+      No drift > 5 % without an explanation.
 - [ ] **Governance compliance** — every Deny policy in
       `04-governance-constraints.json` is reflected in an architecture
       decision (or an exemption is explicitly noted).
@@ -385,8 +390,8 @@ Merged from `security-governance` + `architecture-reliability` +
 - [ ] **Cost — RI / Savings-Plan math** — same rule as architecture
       lens; quantitative saving + breakeven calculation is shown for
       eligible workloads.
-- [ ] **Cost — 02-cost-estimate.json reconciliation** — the plan's
-      total reconciles with `02-cost-estimate.json` (≤ 5 % drift
+- [ ] **Cost — canonical pricing evidence reconciliation** — the plan's
+      total reconciles with the actual COMPLETE worker JSON referenced by the handoff (≤ 5 % drift
       without explanation).
 - [ ] **SKU availability per region** — every SKU declared in the plan
       is available in the chosen primary region (and secondary, if

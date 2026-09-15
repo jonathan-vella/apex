@@ -1,7 +1,7 @@
 # 🏛️ Step 2: Architecture Assessment - {project-name}
 
 ![Step](https://img.shields.io/badge/Step-2-blue?style=for-the-badge)
-![Status](https://img.shields.io/badge/Status-Draft-orange?style=for-the-badge)
+[Review and approval status](README.md#-workflow-progress)
 ![Agent](https://img.shields.io/badge/Agent-Architect-purple?style=for-the-badge)
 
 <details open>
@@ -225,8 +225,10 @@ flowchart TB
 
 ### Handoff Readiness
 
-Record actual readiness, required architecture and independent cost-feasibility
-review evidence, and approval status. An assessment write is not approval.
+Record substantive readiness and prerequisites here. Current architecture and independent cost-feasibility
+review evidence and human approval are recorded in recall, decision sidecars and the project index.
+Use stable links to those records; do not rewrite this assessment after review to update status.
+An assessment write is not approval.
 After the gate, derive the next human handoff from the workflow graph and
 `decisions.skip_design`: optional Design (Step 3), then Governance (Step 3.5),
 or Governance directly. Never route directly to implementation planning.
@@ -262,7 +264,7 @@ or Governance directly. Never route directly to implementation planning.
 ## 🔒 Approval Gate
 
 > [!IMPORTANT]
-> **🏗️ Architecture Assessment: {actual-status}**
+> **🏗️ Architecture Assessment: approval tracked separately**
 >
 > | Pillar      | Score |
 > | ----------- | ----- |
@@ -276,13 +278,14 @@ or Governance directly. Never route directly to implementation planning.
 >
 > **Confidence Level**: {High / Medium / Low}
 >
-> - [ ] Required architecture and separate cost-feasibility reviews are current; blockers resolved
-> - [ ] **Approved** — offer the graph-selected Design or Governance human handoff
-> - Approver: {name}
-> - Date: {date}
+> Current status: [project workflow progress](README.md#-workflow-progress) and recall Step 2 decisions.
+> Review evidence: [architecture findings](challenge-findings-architecture.json) and
+> [cost-feasibility findings](challenge-findings-cost-estimate.json); use actual pass paths in deep mode.
+> Per-finding dispositions: [decision sidecar](challenge-findings-architecture-decisions.json), when findings exist.
 >
 > Request approval only after required review evidence is ready. Otherwise record
 > the blocked state and return to the owning agent; do not mark Step 2 complete.
+> Record the approver and decision timestamp outside this reviewed document. Do not toggle checkboxes or badges here.
 
 ---
 

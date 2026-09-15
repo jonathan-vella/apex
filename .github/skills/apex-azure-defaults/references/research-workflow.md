@@ -32,6 +32,21 @@
 - **DON'T**: Re-validate previous agent's work (trust artifact
   chain)
 
+## Bounded Tool Results
+
+- Once a shared MCP server returns a process-start failure, do not fan out more calls to that server in the
+   same research phase. Use an available authorized fallback or report the missing capability.
+- Prefer targeted documentation search and the specific section needed for a claim. Avoid multi-page full-content
+   fetches that replay entire service guides into every subsequent model request. A narrow query does not guarantee
+   the fetch tool truncates its response. Start with one necessary page; inspect output size before fetching more.
+- If a fetch still returns a full guide, persist the useful claims, source URLs and unresolved gaps in the existing
+   research checkpoint. Use bounded local excerpts for subsequent evidence recovery, not repeated complete reads.
+   Preserve required security and capability evidence; do not treat smaller context as permission to guess.
+- A checkpoint or summary does not clear the transcript. When oversized results remain, checkpoint and request
+   a fresh chat or `/clear` at the current agent before the next expensive phase; resume only from verified state.
+- Tool invocation or package-policy failure is not evidence of an Azure service capability limitation. Do not
+   repeatedly attempt unavailable installers or infer availability from unrelated provider-wide region counts.
+
 ## Agent-Specific Research Focus
 
 | Agent        | Primary Research                   | Skip                    |

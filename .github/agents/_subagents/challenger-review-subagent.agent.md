@@ -145,6 +145,9 @@ The parent agent provides:
 - `prior_findings`: Compact string from previous `compact_for_parent` values, or null (optional).
   On revision include dispositions and changed sections; read saved findings before overwrite when needed.
   Verify closure against the current artifact and report unresolved issues even if previously accepted.
+- `supporting_paths`: Optional array of explicit evidence file paths, including the actual COMPLETE cost JSON
+  and its referenced raw evidence. Read these for the requested review; do not substitute guessed filenames.
+  Missing or inconsistent supplied evidence blocks the review. Paths grant read access, not mutation authority.
 - `output_path`: **REQUIRED**. The full file path where the findings JSON will be
   written. Canonical pattern (caller's responsibility):
   `agent-output/{project}/challenge-findings-{artifact_type}-pass{N}.json`
@@ -169,17 +172,28 @@ After completing analysis, persist findings before returning to the parent:
    (no file written) and stop.
 2. **Refuse-on-exists** — if the file already exists and `overwrite` is
    not `true`, return an explicit error (no file written) and stop.
-3. **Atomic write** — write the full JSON payload to `{output_path}.tmp` with file-editing tools,
-  using the pre-review `cache_inputs` snapshot. Obtain finding IDs with
-  `node tools/scripts/validate-challenger-findings.mjs --finding-ids <output_path>.tmp`
-  and apply them using editing tools. Validate the explicit temporary file with
-  `node tools/scripts/validate-challenger-findings.mjs --verify-cache <output_path>.tmp`.
+3. **Isolated draft** — allocate a unique sibling directory before writing. Set `output_path` to the
+  caller-supplied canonical path, then run:
+
+   ```bash
+   scratch_dir=$(mktemp -d -- "${output_path}.review-XXXXXX") || exit 1
+   draft_path="${scratch_dir}/findings.json.tmp"
+   printf '%s\n' "$draft_path"
+   ```
+
+  Use the returned absolute/resolved `draft_path` with file-editing tools to create exactly one JSON document,
+  using the pre-review `cache_inputs` snapshot. Never reuse, append to, truncate or delete a pre-existing
+  `{output_path}.tmp` or another invocation's draft. `overwrite: true` applies only to the canonical output.
+  Obtain finding IDs with `node tools/scripts/validate-challenger-findings.mjs --finding-ids <draft_path>`
+  and apply them using editing tools. Validate the explicit draft with
+  `node tools/scripts/validate-challenger-findings.mjs --verify-cache <draft_path>`.
   A cache mismatch means inputs changed: stop and return the error, never regenerate hashes to bless stale analysis.
   Repair only local payload defects, then rerun validation; a no-files-scanned success is not validation evidence.
   Recheck refuse-on-exists before rename. Never write directly to the canonical
-   path; a crash mid-write must leave only `.tmp`, not a partial canonical
-   file.
-  Use a noninteractive rename (`command mv -f -- <output_path>.tmp <output_path>`) only after the overwrite check.
+  path; a crash mid-write leaves only this invocation's draft, not a partial canonical file.
+  Use a noninteractive rename (`command mv -f -- <draft_path> <output_path>`) only after the overwrite check.
+  Remove only this invocation's empty scratch directory after success. On failure preserve its draft and
+  report the path for recovery; do not salvage an apparently valid prefix from concatenated JSON.
 4. **Emit compact summary** — see `## Parent-Facing Summary` below.
 
 ## Parent-Facing Summary
@@ -219,7 +233,10 @@ Batch mode is used for complex projects where passes 2+3 run together.
 ## Adversarial Review Workflow
 
 1. **Read the artifact completely** — understand the proposed approach end to end
-2. **Read prior artifacts** — check `agent-output/{project}/` for context from earlier steps.
+2. **Read prior artifacts** — use `supporting_paths` and current handoff references for relevant evidence.
+  A versioned COMPLETE cost output is valid when explicitly supplied and verified; do not require an absent
+  `02-cost-estimate.json` alias or consume an older FAILED draft instead. If the authoritative path is unknown,
+  return the missing-input blocker rather than inventorying unrelated project files.
    Read `decision_log` via `apex-recall decisions --project {project} --json` to understand rationale behind prior
    choices — challenge the reasoning, not just the outcome.
 3. **Verify claims against skills and instructions** — cross-reference apex-azure-defaults, iac-policy-compliance,
