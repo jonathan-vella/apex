@@ -44,6 +44,15 @@ existing review/repair limits; finding another mechanical defect does not renew 
 
 ### Monitoring access paths
 
+For new or explicitly migrated readiness-mode contracts, mirror the approved Architecture dependency matrix into
+`capability_checks` and run `validate:iac-contract -- <artifact-path> --readiness`. Each entry records its ID,
+owner, required-now/security obligation, design status, consumers, dependencies, evidence references and runtime status.
+Deferred entries need `approval_ref` and `revisit_condition`; security obligations cannot be deferred. A designed
+entry requires dependency/evidence references but may remain runtime-unverified until authorized deployment checks.
+Schema validation cannot prove evidence truth: the owning independent review verifies source and scope. Legacy
+contracts without this optional map retain schema validation but cannot claim readiness-mode coverage or silently
+migrate at read time. Preserve original reviewed bytes and use owner-approved successor inputs for migration.
+
 Before freezing private Log Analytics/Application Insights settings, include the required query and ingestion paths
 in the plan and resource inventory. Disabled public access does not create an AMPLS, resource association, private
 endpoint, DNS configuration or client-network route. Establish ownership of existing shared monitoring connectivity

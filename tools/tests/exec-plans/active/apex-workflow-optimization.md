@@ -95,7 +95,7 @@ Only update the changelog after implementation. Preserve user edits, historical 
 
 ## End-to-End Reliability Plan (2026-09-16)
 
-Status: **RY0 inventory authorized and completed; selector-specific RY1 decisions and implementation pending**.
+Status: **offline reliability implementation verified; native acceptance pending**.
 Owner: Jonathan Vella with GitHub Copilot.
 Scope: Local Copilot, both Bicep and Terraform, Requirements through As-Built and Lessons. This is a repository
 reliability program, not authorization to resume FreshConnect production work or alter its approved artifacts.
@@ -104,6 +104,23 @@ Source checkpoints `456cba76` and `abcb908b` are published; later working-tree c
 accepted or published by this proposal. Inventory the exact starting revision and dirty worktree in RY0.
 
 ### Problem And Success Definition
+
+Execution authorization update (2026-09-16): the user authorized all remaining repository reliability work with the
+recommended RY1 decisions, and requested a source commit/push before implementation. Checkpoint `5028b659` and
+publication-hook repair `a7fb51ed` are pushed. FreshConnect artifacts/infra remain local; protected boundaries below
+remain in force. No more routine per-batch approval requests are needed. Native acceptance requiring the user's
+Local picker or live Azure operations remains separately scoped and must not be fabricated.
+
+RY1 first-slice contract: retain session schema 3.0 and public selector flags; add a versioned `review_selections`
+map keyed by step with `review-selection-v1` records (path, review byte hash, lens, pass and selection timestamp).
+It is evidence selection, not approval. Readers revalidate on consumption; absent legacy selections use established
+defaults or explicit owner flags, never parse rationale prose. Writers use revision-aware state dictionaries,
+per-project nonblocking writer locks, unique temporary files and compare-before-replace. Unsupported selection
+versions fail closed. Primary corruption is recovery-required; normal reads never restore backups. Repeat completion
+of unchanged inputs returns already-applied without changing timestamps or destination progress. Index failure after
+replacement reports committed-but-index-stale and the committed hash; explicit reindex repairs it. The primary-state
+backup recovery command requires an explicit reason and retains corrupt input. These changes introduce no new
+review budget or permission to deploy, and no automatic production migration.
 
 Local checks validate shapes and hashes more consistently than cross-stage usability. Requirements can omit an
 operator path; Architecture can leave a dependency unresolved; Planner can omit provider constraints; CodeGen can
@@ -409,6 +426,68 @@ the selected-review continuity slice in RY2. Amending this document does not aut
 contract proposal before adding new fields. If RY1 reveals a role/model/cadence/security change is necessary, stop for explicit
 approval rather than expanding this plan's execution authority. Estimate implementation effort after the RY0 inventory;
 do not promise a calendar completion date or quantified savings from incomplete baseline evidence.
+
+### Authorized Delivery Record (2026-09-16)
+
+The user authorized the remaining repository program and directed a source commit/push first. Checkpoints
+`5028b659` and `a7fb51ed` were pushed before runtime implementation. The initial pre-push failure was caused by
+scanning unpublished local Bicep drafts; the scoped fix validates all tracked entrypoints and preserves any project
+failure. Its behavioral tests verify that an untracked draft does not suppress or contaminate tracked checks.
+
+The following table supersedes earlier pending implementation language for the explicitly delivered offline scope;
+it does not mark native/live acceptance, FreshConnect recovery, global capability modelling or unsupported review
+mode migrations complete. All project artifacts, generated Bicep, approval history and current monitoring decisions
+were left untouched by this implementation effort.
+
+| Batch | Delivered offline outcome | Remaining acceptance or deliberate limit |
+| --- | --- | --- |
+| RY0 | Entry revision/dirty hashes, isolated reproductions and retained regression inventory | Native concurrency frequency remains unknown |
+| RY1 | Additive selection/attempt and opt-in capability contracts; documented owner/migration and recovery semantics | No automatic migration of approved projects; older writers must not be used on new contracts |
+| RY2 | Shared explicit/stored selection; revalidated read-only show; revision/lock safeguards; idempotent completion and next-step transitions; explicit backup recovery/index outcome | Legacy primary-only coverage is labeled; no general approval engine, cross-file or power-loss transaction |
+| RY3 | Architecture capability dependency matrix and opt-in readiness validation, transitive declared dependency checks and approved non-security deferral handling | Evidence truth, capability completeness and operational observations remain owner/reviewer duties |
+| RY4 | Exact help and invalid-target behavior, explicit L1-only trace, strict discovery timestamp/TTL checks, stdout-only draft hash synchronization | Not a general Azure provider rules engine; service-specific deployment validation remains required |
+| RY5 | Immutable attempt identities/outcomes, no cross-step/chained retry renewal, optional supporting-input hashes and membership snapshots | Attempt logging is not a scheduler or authorization; legacy histories are not inferred or backfilled |
+| RY6 | Canonical owner-invoked renderer with all open findings, no truncation, exact owner checks and guarded atomic handoff replacement | State and handoff are separate commits; uncooperative editors are not serialized |
+| RY7 | Two-track synthetic lifecycle, review/operation preservation, existing compiler and deployment-boundary regressions | Synthetic completion is not generated-code end-to-end acceptance or observed deployed/As-Built correctness |
+| RY8 | Independent source reviews and repaired findings; required offline regression/lint/docs gates | Native Local acceptance, Windows locking, real Terraform/Bicep lifecycle and live operational checks remain unverified |
+
+**Canonical interfaces:** see `tools/apex-recall/docs/show-schema.md` for effective selections, metadata, attempts,
+commit outcomes and recovery. New tools are `tools/scripts/render-session-handoff.mjs` and
+`tools/scripts/sync-draft-contract-hashes.mjs`; both default to read-only output. The handoff renderer writes only
+under explicit `--write` plus an expected current SHA for replacement. The hash-sync preview never writes; owners
+apply its full digests to an explicitly reopened, unapproved draft and validate before review. Capability readiness
+is opt-in with `validate-iac-contract --readiness`; ordinary legacy validation does not claim capability coverage.
+
+**Independent review closure:** the first state review found create-only initialization races, inconsistent selected
+hash snapshots, unchecked no-op paths, replay resets, omitted existence watches, stale/index-backed views and weak
+recovery validation. These were repaired and tested. The combined review then found dropped handoff findings,
+supporting-directory additions, dangling symlinks, retry chains, malformed backups and unresolved transitive capability
+dependencies. These were repaired with behavioral regressions. A follow-up isolated one stored-selection transition
+bug; the correction was independently **APPROVED** after source inspection. This is source review, not Rubberduck
+identity or a production Challenger verdict. One review accidentally wrote an ignored scratch diff; it changed no
+source/project state, was disclosed, and is excluded from publication.
+
+**Verification:** final regression run reported 166 recall package tests and 78 CLI tests passed in separate processes;
+440 script tests passed, two optional tests skipped. New reliability tests include actual cross-process lock conflict,
+public CLI stored selection on both tracks, input/directory drift during validation, duplicate and conflicting replay,
+post-commit index failure, explicit recovery with damaged-byte preservation, renderer CLI replacement, retry-chain
+rejection and a clearly synthetic Requirements-to-Lessons state lifecycle. Required Python/JavaScript lint, agent,
+instruction, safe-shell, Markdown and documentation link checks passed. The supporting-input tests were rerun after
+the final identical-branch simplification. No production state command or Azure operation was used for this evidence.
+
+**Rollback/migration:** retain public flags and legacy read paths only where their evidence is sufficient. Structured
+selection has no automatic rationale parser; absent legacy coverage requires explicit owner selection or a scoped
+successor-contract decision. Do not roll back to an older writer that ignores new fields and concurrency rules.
+Keep all reviewed bytes/audits. Reindex is explicit after exit 3; primary recovery requires its own reason and refuses
+healthy state. Participating writes are serialized, but arbitrary editors, process termination and storage power loss
+are outside the guarantee. Renderer locks abandoned by process termination require explicit investigation/removal.
+
+**Release boundary:** this is an offline-ready source deliverable, not full end-to-end acceptance. The remaining
+manual checks are grouped at stage boundaries: a Local clean path and bounded resume/failure on each IaC track,
+with user-approved model/runtime access; platform-specific lock tests on Windows; and separately authorized live
+preview/deploy/As-Built checks only if desired. Do not ask for logs after every successful module. No further Azure
+or production review activity is authorized merely by the repository work. FreshConnect stays at monitoring design
+reconciliation until its owner presents options and the user approves the required scope/cost/capability decision.
 
 ### RY0 Baseline And Findings (2026-09-16)
 

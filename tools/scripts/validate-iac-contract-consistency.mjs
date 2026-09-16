@@ -62,6 +62,12 @@ function main() {
   const r = new Reporter("IaC Contract ↔ Plan Consistency Validator");
   r.header();
   const args = process.argv.slice(2);
+  if (args.includes("--help")) {
+    console.log(
+      "Usage: validate-iac-contract-consistency.mjs [contract-path-or-glob ...]\nNo paths: scan project contracts.",
+    );
+    return;
+  }
   const patterns = args.length > 0 ? args : defaultGlobs();
 
   let files = [];

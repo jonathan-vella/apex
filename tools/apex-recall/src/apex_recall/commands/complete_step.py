@@ -32,6 +32,8 @@ from pathlib import Path
 
 from ..state_writer import (
     _iso_now,
+    check_state_revision,
+    file_revision,
     migrate_to_v3,
     read_state,
     session_state_path,
@@ -169,7 +171,9 @@ def _record_skip(data: dict, step: str, reason: str, now: str) -> None:
     skips.append({"step": step, "reason": reason, "recorded": now})
 
 
-def _select_replacement_review(project: str, step: str, args) -> tuple[Path | None, dict | None]:
+def _select_replacement_review(
+    project: str, step: str, args, state: dict | None = None
+) -> tuple[Path | None, dict | None]:
     governance = getattr(args, "governance_review", None) is not None or bool(
         getattr(args, "governance_review_reason", None)
     )
@@ -184,13 +188,39 @@ def _select_replacement_review(project: str, step: str, args) -> tuple[Path | No
     selected = getattr(args, option, None)
     reason = (getattr(args, f"{option}_reason", None) or "").strip()
     if selected is None and not reason:
-        return None, None
+        state = state if state is not None else read_state(session_state_path(project))
+        stored = state.get("review_selections", {}).get(step)
+        if stored is None:
+            return None, None
+        if not isinstance(stored, dict) or stored.get("schema_version") != "review-selection-v1":
+            raise ValueError("Unsupported review selection; explicit owner migration required")
+        from types import SimpleNamespace
+
+        prefix = "plan" if step == "4" else "governance"
+        selected_path, selection = _select_replacement_review(
+            project,
+            step,
+            SimpleNamespace(
+                **{
+                    f"{prefix}_review": stored.get("path"),
+                    f"{prefix}_review_reason": "Reuse explicitly stored review selection",
+                    "allow_missing_challenger": getattr(args, "allow_missing_challenger", False),
+                }
+            ),
+            state,
+        )
+        if file_revision(selected_path) != stored.get("sha256"):
+            raise ValueError("Selected review bytes changed; explicit owner resolution required")
+        if any(stored.get(key) != selection["stored"].get(key) for key in ("pass_number", "review_focus", "path")):
+            raise ValueError("Stored selection metadata does not match selected evidence")
+        selection["stored"] = stored
+        return selected_path, selection
     if step != expected_step or not selected or not reason:
         raise ValueError(
             f"{label} replacement selection requires Step {expected_step}, a review path and its audit reason"
         )
     if plan:
-        state = read_state(session_state_path(project))
+        state = state if state is not None else read_state(session_state_path(project))
         if state.get("decisions", {}).get("review_depth") == "deep":
             raise ValueError(
                 "--plan-review selects a default comprehensive confirmation, not a deep-review lens replacement"
@@ -215,11 +245,63 @@ def _select_replacement_review(project: str, step: str, args) -> tuple[Path | No
         "rationale": f"{reason}; review={candidate.name}; pass={match[1]}; sha256={digest}",
         "step": expected_step,
     }
+    entry["stored"] = {
+        "schema_version": "review-selection-v1",
+        "path": str(candidate.resolve().relative_to(project_dir.parent.parent)),
+        "sha256": digest,
+        "pass_number": int(match[1]),
+        "review_focus": "comprehensive" if plan else "governance-reconciliation",
+        "input_coverage": "primary-and-review-guidance",
+    }
     return candidate.resolve(), entry
 
 
 def _select_governance_review(project: str, step: str, args) -> tuple[Path | None, dict | None]:
     return _select_replacement_review(project, step, args)
+
+
+def watch_review_inputs(data, project: str, step: str, selected: Path | None) -> None:
+    root = session_state_path(project).parent.parent.parent
+    paths = [path for pair in _review_paths(project, step, selected) for path in pair]
+    for _, sidecar in _review_paths(project, step, selected):
+        if sidecar.is_file():
+            try:
+                document = json.loads(sidecar.read_text(encoding="utf-8"))
+                for supporting in document.get("supporting_inputs", []):
+                    supporting_path = root / supporting["path"]
+                    paths.append(supporting_path)
+            except ValueError, TypeError, KeyError, AttributeError:
+                pass
+    if step in _CHALLENGER_GATE:
+        paths += [session_state_path(project).parent / name for name in _CHALLENGER_GATE[step]]
+    if step == "2":
+        paths += [
+            session_state_path(project).parent / name
+            for name in ("03-des-cost-estimate.md", "challenge-findings-cost-estimate.json")
+        ]
+    paths += [
+        root / name
+        for name in [
+            ".github/agents/_subagents/challenger-review-subagent.agent.md",
+            ".github/skills/apex-azure-defaults/references/adversarial-checklists.md",
+            ".github/skills/apex-azure-defaults/references/adversarial-review-protocol.md",
+            "tools/scripts/validate-challenger-findings.mjs",
+        ]
+    ]
+    data.input_revisions.update({path: file_revision(path) for path in paths})
+
+
+def record_selection(data: dict, step: str, selection: dict | None, now: str) -> None:
+    if selection:
+        stored = {**selection["stored"]}
+        stored.setdefault("selected_at", now)
+        data.setdefault("review_selections", {})[step] = stored
+        data.setdefault("decision_log", []).append(
+            {
+                **{key: value for key, value in selection.items() if key != "stored"},
+                "timestamp": now,
+            }
+        )
 
 
 def run(args) -> int:
@@ -228,9 +310,13 @@ def run(args) -> int:
     as_json = getattr(args, "json", False)
     allow_missing = getattr(args, "allow_missing_challenger", False)
     skip_reason = (getattr(args, "challenger_skip_reason", None) or "").strip()
+    data = read_state(session_state_path(project))
 
     try:
-        governance_review, selection = _select_replacement_review(project, step, args)
+        governance_review, selection = _select_replacement_review(project, step, args, data)
+        watch_review_inputs(data, project, step, governance_review)
+        if selection and data.input_revisions[governance_review] != selection["stored"]["sha256"]:
+            raise ValueError("Selected review changed before validation")
     except (OSError, ValueError) as error:
         return _report_invalid_review(project, step, str(error), as_json)
     blocked, gating_path, sidecar_path = _challenger_findings_missing(project, step, governance_review)
@@ -275,9 +361,30 @@ def run(args) -> int:
     invalid = _challenger_findings_invalid(project, step, governance_review)
     if invalid:
         return _report_invalid_review(project, step, invalid, as_json)
+    check_state_revision(data, session_state_path(project))
 
-    path = session_state_path(project)
-    data = read_state(path)
+    prior = data.get("review_selections", {}).get(step)
+    selected = selection.get("stored") if selection else None
+    same_selection = (
+        not selected
+        or prior
+        and all(prior.get(key) == value for key, value in selected.items() if key != "selected_at")
+    )
+    if data.get("steps", {}).get(step, {}).get("status") == "complete" and same_selection:
+        print(
+            json.dumps(
+                {
+                    "project": project,
+                    "step": step,
+                    "status": "complete",
+                    "outcome": "already_applied",
+                    "completed": data["steps"][step].get("completed"),
+                }
+            )
+            if as_json
+            else f"Step {step} already complete"
+        )
+        return 0
     data = migrate_to_v3(data)
 
     step_data = data["steps"].get(step, {})
@@ -289,8 +396,7 @@ def run(args) -> int:
 
     if blocked and allow_missing:
         _record_skip(data, step, skip_reason, now)
-    if selection:
-        data.setdefault("decision_log", []).append({**selection, "timestamp": now})
+    record_selection(data, step, selection, now)
 
     write_state(project, data)
 

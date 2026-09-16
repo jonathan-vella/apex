@@ -13,6 +13,37 @@ const root = new URL("../../../", import.meta.url);
 const read = (file) => readFileSync(new URL(file, root), "utf8");
 const skill = (file) => read(`.github/skills/${file}`);
 
+test("design-only governance trace checks L0/L1 without waiving the full chain", (context) => {
+  const directory = mkdtempSync(path.join(tmpdir(), "governance-stage-"));
+  context.after(() => rmSync(directory, { recursive: true, force: true }));
+  const project = path.join(directory, "agent-output/synthetic");
+  mkdirSync(project, { recursive: true });
+  const constraints = {
+    discovery_metadata: {
+      discovery_status: "COMPLETE",
+      discovered_at: new Date().toISOString(),
+      ttl_days: 7,
+      completeness_signature: `sha256:${"0".repeat(64)}`,
+    },
+  };
+  const source = path.join(project, "04-governance-constraints.json");
+  writeFileSync(source, JSON.stringify(constraints));
+  writeFileSync(
+    path.join(project, "04-implementation-plan.md"),
+    "## 🛡️ Governance Compliance Matrix\n\n| Resource ID | Status |\n| --- | --- |\n| fixture | ✅ satisfied |\n",
+  );
+  const script = fileURLToPath(new URL("tools/scripts/validate-governance-trace.mjs", root));
+  const run = (...args) =>
+    spawnSync(process.execPath, [script, "--project", "synthetic", ...args], { cwd: directory, encoding: "utf8" });
+  const design = run("--through", "L1");
+  assert.equal(design.status, 0, design.stdout + design.stderr);
+  assert.match(design.stdout, /L2\/L3 are not evaluated/);
+  assert.equal(run().status, 1);
+  constraints.discovery_metadata.discovered_at = "invalid";
+  writeFileSync(source, JSON.stringify(constraints));
+  assert.equal(run("--through", "L1").status, 1);
+});
+
 test("policy map validation recognizes emitted Deny effects and rejects empty explicit targets", (context) => {
   const directory = mkdtempSync(path.join(tmpdir(), "policy-map-coverage-"));
   context.after(() => rmSync(directory, { recursive: true, force: true }));
@@ -68,6 +99,9 @@ test("planning validators reject nonexistent explicit targets rather than claimi
     const result = spawnSync(process.execPath, [validator, "nonexistent-planning-fixture-42"], { encoding: "utf8" });
     assert.equal(result.status, 1, name);
     assert.match(result.stderr, /Explicit target matched no files/);
+    const help = spawnSync(process.execPath, [validator, "--help"], { encoding: "utf8" });
+    assert.equal(help.status, 0);
+    assert.match(help.stdout, /Usage:/);
   }
 });
 
@@ -129,6 +163,50 @@ test("scheduled-action contracts reject incomplete provider constraints before r
   assert.equal(run().status, 1);
   contract.resources[0].deployment = { kind: "Email", scope: "resourceGroup" };
   assert.equal(run().status, 0, "Non-anomaly scheduled actions retain their own provider contract");
+  contract.capability_checks = [
+    {
+      id: "operator-query",
+      owner: "Architect",
+      required_now: true,
+      security_obligation: false,
+      status: "unresolved",
+      consumers: ["operator"],
+      dependencies: [],
+      evidence: [],
+      runtime_status: "unverified",
+    },
+  ];
+  assert.equal(run().status, 1);
+  const capability = contract.capability_checks[0];
+  capability.status = "designed";
+  capability.dependencies = ["approved client route", "DNS", "identity"];
+  capability.evidence = ["reviewed design section"];
+  assert.equal(run().status, 0, "Design readiness need not claim live runtime verification");
+  capability.status = "deferred";
+  assert.equal(run().status, 1);
+  capability.approval_ref = "synthetic explicit capability decision";
+  capability.revisit_condition = "Before operational query use";
+  assert.equal(run().status, 0);
+  capability.security_obligation = true;
+  assert.equal(run().status, 1, "Mandatory security cannot be deferred");
+  capability.status = "designed";
+  capability.dependencies = ["capability:private-route"];
+  contract.capability_checks.push({
+    id: "private-route",
+    owner: "Platform",
+    required_now: false,
+    security_obligation: false,
+    status: "unresolved",
+    consumers: ["operator"],
+    dependencies: [],
+    evidence: [],
+    runtime_status: "unverified",
+  });
+  assert.equal(run().status, 1, "Required design cannot depend on an unresolved declared capability");
+  contract.capability_checks[1].status = "designed";
+  contract.capability_checks[1].dependencies = ["existing network"];
+  contract.capability_checks[1].evidence = ["approved route design"];
+  assert.equal(run().status, 0);
   assert.equal(spawnSync(process.execPath, [validator, path.join(directory, "missing.json")]).status, 1);
 });
 

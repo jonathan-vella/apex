@@ -124,6 +124,12 @@ review-budget reset or human approval is implied. The selected review cannot use
 Step 4 default-mode comprehensive confirmations use `--plan-review <path>` and `--plan-review-reason "<reason>"`
 under the same strict checks and audit rules. The original Plan review stays intact. This option cannot replace
 deep-review lenses, combine with a Governance selector or waive any approval/review requirement.
+New selections are persisted as structured `review-selection-v1` records and revalidated by completion and
+`apex-recall show`; legacy audit prose is not automatically migrated. Unchanged repeat completion preserves timestamps.
+State writers reject revision conflicts. Index failure after commit returns `committed_but_index_stale` with the
+committed hash; explicitly reindex instead of repeating the mutation. Normal reads never restore backups; use the
+owner-authorized `recover-state` command. Compatibility, attempt accounting and exact view fields:
+[`show-schema.md`](tools/apex-recall/docs/show-schema.md).
 An intentional missing-review bypass requires
 `--allow-missing-challenger --challenger-skip-reason "<text>"`, which
 persists an audit entry in `decisions.challenger_skip[]`. A CI/commit

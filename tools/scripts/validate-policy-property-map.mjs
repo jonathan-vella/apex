@@ -135,6 +135,12 @@ function main() {
   r.header();
   const validate = loadValidator(SCHEMA_PATH);
   const args = process.argv.slice(2);
+  if (args.includes("--help")) {
+    console.log(
+      "Usage: validate-policy-property-map.mjs [artifact-path-or-glob ...]\nNo paths: scan project policy maps. Explicit unmatched targets fail.",
+    );
+    return;
+  }
   const patterns = args.length > 0 ? args : defaultGlobs();
 
   let files = [];

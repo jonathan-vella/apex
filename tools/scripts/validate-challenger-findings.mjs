@@ -131,6 +131,26 @@ function verifyCache(file, doc) {
   for (const [field, value] of Object.entries(expected)) {
     if (doc.cache_inputs?.[field] !== value) r.error(`${file}: stale cache_inputs.${field}`);
   }
+  if (doc.supporting_inputs !== undefined) {
+    if (!Array.isArray(doc.supporting_inputs) || doc.supporting_inputs.length === 0) {
+      r.error(`${file}: supporting_inputs must be a nonempty array when declared`);
+    } else {
+      const seen = new Set();
+      for (const input of doc.supporting_inputs) {
+        try {
+          if (!input || typeof input.path !== "string" || !/^[a-f0-9]{64}$/.test(input.sha256 || "")) {
+            throw new Error("invalid supporting input record");
+          }
+          const resolved = path.resolve(input.path);
+          if (seen.has(resolved)) throw new Error("duplicate supporting input");
+          seen.add(resolved);
+          if (cacheInputs(input.path).artifact_sha !== input.sha256) throw new Error("supporting bytes changed");
+        } catch (error) {
+          r.error(`${file}: invalid supporting input: ${error.message}`);
+        }
+      }
+    }
+  }
   for (const [index, finding] of doc.findings.entries()) {
     if (finding.id !== findingId(finding)) r.error(`${file}: findings[${index}].id does not match identity`);
   }
@@ -244,6 +264,7 @@ export function runValidator(args = process.argv.slice(2)) {
         metadata: { type: "string" },
         "finding-ids": { type: "string" },
         "verify-cache": { type: "boolean" },
+        "supporting-input": { type: "string", multiple: true },
         help: { type: "boolean" },
       },
       allowPositionals: true,
@@ -251,7 +272,7 @@ export function runValidator(args = process.argv.slice(2)) {
     if (values.help) {
       console.log(
         "Usage: validate-challenger-findings.mjs [--root DIR | --path FILE | FILE ...] [--verify-cache]\n" +
-          "Read-only metadata: --metadata ARTIFACT [--finding-ids DRAFT.json.tmp]\n" +
+          "Read-only metadata: --metadata ARTIFACT [--supporting-input PATH ...] [--finding-ids DRAFT.json.tmp]\n" +
           "Metadata hashes file bytes or sorted directory entries using the reviewer frontmatter model.\n" +
           "Use --verify-cache for current review gates, not historical schema-only scans.",
       );
@@ -263,6 +284,13 @@ export function runValidator(args = process.argv.slice(2)) {
       }
       const metadata = {};
       if (values.metadata !== undefined) metadata.cache_inputs = cacheInputs(values.metadata);
+      if (values["supporting-input"]) {
+        if (values.metadata === undefined) throw new Error("--supporting-input requires --metadata");
+        metadata.supporting_inputs = [...new Set(values["supporting-input"])].map((input) => ({
+          path: input,
+          sha256: cacheInputs(input).artifact_sha,
+        }));
+      }
       if (values["finding-ids"] !== undefined) {
         const draft = JSON.parse(fs.readFileSync(values["finding-ids"], "utf8"));
         const identities = (entry) => entry.findings.map((finding, index) => ({ index, id: findingId(finding) }));
@@ -272,6 +300,7 @@ export function runValidator(args = process.argv.slice(2)) {
       console.log(JSON.stringify(metadata, null, 2));
       return 0;
     }
+    if (values["supporting-input"]) throw new Error("--supporting-input requires --metadata");
     verifyCurrent = values["verify-cache"] ?? false;
     const requested = [...(values.path ?? []), ...positionals];
     if (values.root !== undefined) requested.unshift(values.root);

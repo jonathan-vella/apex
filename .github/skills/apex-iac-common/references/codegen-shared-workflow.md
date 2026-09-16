@@ -32,6 +32,9 @@ Step 4` handoff. Do not patch the plan in place.
   review evidence. Use the explicitly selected, audited confirmation when present;
   preserved superseded findings are history, not current blockers. Deep-mode required
   lenses still apply. Missing/stale selected evidence or current blockers return to Planner.
+  Use `session.review_selections` and `session.effective_reviews` from `apex-recall show --json` for newly persisted
+  selections. Review selection does not authorize operations. Missing legacy structured selection requires explicit
+  owner selection, not parsing audit prose; separately required contract and operational checks still apply.
 
 ## Phase 1: Preflight Check
 

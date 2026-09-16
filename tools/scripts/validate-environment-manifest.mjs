@@ -70,6 +70,12 @@ function main() {
   r.header();
   const validate = loadValidator(SCHEMA_PATH);
   const rawArgs = process.argv.slice(2);
+  if (rawArgs.includes("--help")) {
+    console.log(
+      "Usage: validate-environment-manifest.mjs [artifact-path-or-glob ...] [--redact]\nNo paths: scan project manifests.",
+    );
+    return;
+  }
   const redact = rawArgs.includes("--redact");
   const args = rawArgs.filter((a) => a !== "--redact");
   const patterns = args.length > 0 ? args : defaultGlobs();

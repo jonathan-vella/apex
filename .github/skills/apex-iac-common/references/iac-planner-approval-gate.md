@@ -91,6 +91,10 @@ is Step 4/default-comprehensive-only and validates the same-project file, pass, 
 It records the selected filename, byte hash and reason in the completion write. Deep-review lens replacement remains
 unsupported; stop for owner resolution instead of weakening that contract. Selection grants neither a review-budget
 reset nor human approval. It cannot combine with a Governance selector or missing-review bypass.
+New successful selections persist as `review-selection-v1` in `review_selections`; `show --json` exposes revalidated
+`session.effective_reviews`. Legacy audit prose is never parsed into selection. Explicitly select it once through
+the existing owner completion path; unchanged subsequent completion returns `already_applied`. Do not retry mutations
+after `committed_but_index_stale`; repair the index with explicit `reindex` instead. Conflicts require rereading state.
 
 If a tooling failure occurs after human approval, retain that approval and resume completion against unchanged
 validated inputs without asking the same approval again. `plan_status=APPROVED` is not completed Step 4; require
@@ -104,6 +108,11 @@ Context for Next Step, Skill Context, Artifacts. Put locked inputs and review ev
 replace them with custom Status, Locked Plan, Review Evidence or Next Action headings. Keep the handoff below 60 lines.
 Editor diagnostics and a line-width scan do not verify this artifact contract. Run these explicit agent-safe checks
 after the final README/handoff edit, from the verified workspace root:
+
+Prefer `node tools/scripts/render-session-handoff.mjs --project <project> --owner "<exact agent name>" --operation
+"<authorized scope>"` to preview the canonical handoff. `--write` is an explicit edit; replacing an existing handoff
+requires `--expected-sha <current file SHA>`. Review user-owned content before authorizing replacement. Overflow or
+unresolved selected evidence blocks rendering; reconcile the owner inputs instead of dropping blockers.
 
 ```bash
 npm run check:h2-order -- <project> README.md
@@ -121,11 +130,21 @@ Before approval, run the explicit-path contract, consistency, policy-map and env
 the [pre-review feasibility gate](contract-emission-and-handoff.md#step-4--pre-review-feasibility-gate), plus current
 review verification. Confirm valid Governance evidence separately. `validate:governance-trace -- --project <project>`
 checks the full L0-L3 chain; it is not a Step 4 completion gate because L2 CodeGen and L3 Deploy do not exist yet.
+Use `--through L1` for the explicit design-only trace; the default full-chain check remains required at its owner phase.
 Do not call that full-chain failure a pass or add `--allow-legacy` to bypass missing future attestations.
 
 Record executed review invocations separately from filename/pass labels: a later pass number is not the total
 review count across revisions or sessions. Preserve existing audit entries and exhausted repair allowances; a
 confirmation does not reset either. Reuse available unchanged skill content rather than repeatedly loading it.
+For new invocations use `review-audit --attempt-id <id> --attempt-kind invocation --input-digest <sha256>
+--attempt-outcome started` before dispatch, then record the actual terminal outcome with the same identity/input.
+The command records evidence, not permission to invoke a worker. Unknown outcomes require owner reconciliation;
+do not reuse the identity for changed inputs or infer a retry allowance. Existing historical counters remain history.
+
+New reviews can obtain metadata with `validate-challenger-findings.mjs --metadata <primary> --supporting-input
+<consumed-contract>`, repeating the supporting-input option for the complete consumed set. Include the emitted
+`supporting_inputs` unchanged in the findings payload. Strict verification checks every declared supporting digest;
+legacy reviews lacking this map do not gain that coverage automatically. Never restamp historical findings to migrate.
 Resolve terminal working-directory problems using the verified workspace root before interpreting missing-file output.
 For hash synchronization, use the entire tool-computed digest, not a displayed prefix or reconstructed value;
 validate immediately and freeze only after every referenced hash matches.

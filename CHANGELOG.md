@@ -20,6 +20,14 @@ for full details on this and all prior releases.
 
 ### Changed (Agent modernization)
 
+- Persist and revalidate explicit Governance/Plan review selections across completion and resume; preserve timestamps
+  and destination progress on identical retries, and reject conflicts instead of losing concurrent updates.
+- Make `apex-recall show` independent of index mutation and stale primary fallback. Add explicit audited backup
+  recovery and report committed-but-index-stale outcomes with the committed primary hash.
+- Add immutable review-attempt accounting, optional supporting-input review digests, a guarded canonical handoff
+  renderer and read-only owner-draft hash synchronization. These interfaces do not grant workflow approval.
+- Add opt-in capability dependency readiness and design-only governance tracing; retain default full-chain gates.
+  Provide explicit help for path-based validators and preserve legacy review coverage limitations.
 - Bound shared-monitoring discovery conclusions by inspected scope and keep read-only approval separate from redesign.
   Route new pricing through the cost owner and qualify AMPLS capacity, ingestion and budget claims by actual evidence.
 - Require an approved Azure Monitor client access path before treating disabled public query/ingestion flags as ready.

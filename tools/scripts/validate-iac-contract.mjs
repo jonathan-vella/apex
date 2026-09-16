@@ -135,6 +135,57 @@ function checkScheduledActions(data, fileRel, reporter) {
   }
 }
 
+function checkCapabilityReadiness(data, fileRel, reporter, required) {
+  if (!data.capability_checks) {
+    if (required) reporter.error(fileRel, "Capability coverage absent; owner migration required for readiness mode");
+    return;
+  }
+  const checks = new Map(data.capability_checks.map((entry) => [entry.id, entry]));
+  const visit = (capability, trail = new Set()) => {
+    if (trail.has(capability.id)) {
+      reporter.error(fileRel, `Capability dependency cycle: ${capability.id}`);
+      return;
+    }
+    const next = new Set([...trail, capability.id]);
+    for (const reference of capability.dependencies) {
+      const id = reference.startsWith("capability:") ? reference.slice("capability:".length) : reference;
+      const dependency = checks.get(id);
+      if (!dependency && reference.startsWith("capability:"))
+        reporter.error(fileRel, `Missing capability dependency: ${id}`);
+      if (dependency) {
+        if (dependency.status !== "designed")
+          reporter.error(fileRel, `Required path ${capability.id} depends on ${dependency.status} capability ${id}`);
+        else visit(dependency, next);
+      }
+    }
+  };
+  const seen = new Set();
+  for (const capability of data.capability_checks) {
+    if (seen.has(capability.id)) reporter.error(fileRel, `Duplicate capability: ${capability.id}`);
+    seen.add(capability.id);
+    if (capability.status === "designed" && (capability.required_now || capability.security_obligation))
+      visit(capability);
+    if ((capability.required_now || capability.security_obligation) && capability.status === "unresolved") {
+      reporter.error(fileRel, `Required design path unresolved: ${capability.id}`);
+    }
+    if (
+      capability.status === "deferred" &&
+      (capability.security_obligation || !capability.approval_ref || !capability.revisit_condition)
+    ) {
+      reporter.error(
+        fileRel,
+        `Invalid deferral: ${capability.id}; security cannot be deferred, other deferrals require approval and revisit condition`,
+      );
+    }
+    if (capability.status === "designed" && (!capability.dependencies.length || !capability.evidence.length)) {
+      reporter.error(fileRel, `Designed capability lacks dependencies/evidence: ${capability.id}`);
+    }
+    if (capability.runtime_status === "verified" && !capability.evidence.length) {
+      reporter.error(fileRel, `Runtime verification lacks evidence: ${capability.id}`);
+    }
+  }
+}
+
 function checkDependsOn(data, fileRel, r) {
   const names = new Set((data.resources ?? []).map((res) => res.logical_name));
   const graph = new Map();
@@ -206,7 +257,15 @@ function main() {
   const r = new Reporter("IaC Contract Validator");
   r.header();
   const validate = loadValidator(SCHEMA_PATH);
-  const args = process.argv.slice(2);
+  const rawArgs = process.argv.slice(2);
+  if (rawArgs.includes("--help")) {
+    console.log(
+      "Usage: validate-iac-contract.mjs [artifact-path-or-glob ...] [--readiness]\nNo paths: scan project contracts. Readiness requires capability coverage; it does not grant approval.",
+    );
+    return;
+  }
+  const readiness = rawArgs.includes("--readiness");
+  const args = rawArgs.filter((arg) => arg !== "--readiness");
   const patterns = args.length > 0 ? args : defaultGlobs();
 
   let files = [];
@@ -246,6 +305,7 @@ function main() {
     checkIdentity(data, fileRel, r);
     checkDiagnosticsParam(data, fileRel, r);
     checkScheduledActions(data, fileRel, r);
+    checkCapabilityReadiness(data, fileRel, r, readiness);
     checkDependsOn(data, fileRel, r);
     checkRefHashes(data, fileRel, r);
     if (r.errors === errorsBefore) {

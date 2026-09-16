@@ -44,6 +44,7 @@ import sys
 
 from ..state_writer import (
     _iso_now,
+    check_state_revision,
     migrate_to_v3,
     read_state,
     session_state_path,
@@ -57,6 +58,8 @@ from .complete_step import (
     _record_skip,
     _report_invalid_review,
     _select_replacement_review,
+    record_selection,
+    watch_review_inputs,
 )
 
 
@@ -87,6 +90,7 @@ def run(args) -> int:  # noqa: C901 — one CLI dispatcher, branchy by design
     allow_missing = bool(getattr(args, "allow_missing_challenger", False))
     skip_reason = (getattr(args, "challenger_skip_reason", None) or "").strip()
     as_json = bool(getattr(args, "json", False))
+    data = read_state(session_state_path(project))
 
     try:
         decisions = _parse_decisions(getattr(args, "decision", None))
@@ -99,9 +103,22 @@ def run(args) -> int:  # noqa: C901 — one CLI dispatcher, branchy by design
         return 1
 
     try:
-        governance_review, selection = _select_replacement_review(project, from_step, args)
-        if governance_review is not None and not complete:
+        governance_review, selection = _select_replacement_review(project, from_step, args, data)
+        explicit_selection = any(
+            getattr(args, name, None) is not None
+            for name in (
+                "plan_review",
+                "plan_review_reason",
+                "governance_review",
+                "governance_review_reason",
+            )
+        )
+        if explicit_selection and not complete:
             raise ValueError("Replacement review selection requires transition --complete")
+        if complete or governance_review is not None:
+            watch_review_inputs(data, project, from_step, governance_review)
+            if selection and data.input_revisions[governance_review] != selection["stored"]["sha256"]:
+                raise ValueError("Selected review changed before validation")
     except (OSError, ValueError) as error:
         return _report_invalid_review(project, from_step, str(error), as_json)
 
@@ -148,14 +165,35 @@ def run(args) -> int:  # noqa: C901 — one CLI dispatcher, branchy by design
     else:
         blocked = False
 
-    if complete:
+    if complete or governance_review is not None:
         invalid = _challenger_findings_invalid(project, from_step, governance_review)
         if invalid:
             return _report_invalid_review(project, from_step, invalid, as_json)
+    check_state_revision(data, session_state_path(project))
 
     # Single atomic mutation.
-    path = session_state_path(project)
-    data = read_state(path)
+    prior_selection = data.get("review_selections", {}).get(from_step)
+    selected = selection.get("stored") if selection else None
+    same_selection = (
+        not selected
+        or prior_selection
+        and all(prior_selection.get(key) == value for key, value in selected.items() if key != "selected_at")
+    )
+    if (
+        data.get("steps", {}).get(to_step, {}).get("started")
+        and data.get("current_step", 0) >= step_to_int(to_step)
+        and (not complete or data.get("steps", {}).get(from_step, {}).get("status") == "complete")
+        and all(data.get("decisions", {}).get(key) == value for key, value in decisions.items())
+        and same_selection
+    ):
+        print(
+            json.dumps({"project": project, "from_step": from_step, "to_step": to_step, "outcome": "already_applied"})
+            if as_json
+            else "Transition already applied"
+        )
+        return 0
+    if data.get("steps", {}).get(to_step, {}).get("started"):
+        raise ValueError("Transition conflict: destination already started; replay cannot reset progress or decisions")
     data = migrate_to_v3(data)
     now = _iso_now()
 
@@ -163,7 +201,7 @@ def run(args) -> int:  # noqa: C901 — one CLI dispatcher, branchy by design
     from_data = data["steps"].get(from_step, {})
     if complete:
         from_data["status"] = "complete"
-        from_data["completed"] = now
+        from_data["completed"] = from_data.get("completed") or now
         from_data["sub_step"] = None
         if blocked and allow_missing:
             _record_skip(data, from_step, skip_reason, now)
@@ -187,8 +225,8 @@ def run(args) -> int:  # noqa: C901 — one CLI dispatcher, branchy by design
     data["steps"][to_step] = to_data
     data["current_step"] = step_to_int(to_step)
 
-    if selection:
-        data.setdefault("decision_log", []).append({**selection, "timestamp": now})
+    if complete:
+        record_selection(data, from_step, selection, now)
     write_state(project, data)
 
     result = {

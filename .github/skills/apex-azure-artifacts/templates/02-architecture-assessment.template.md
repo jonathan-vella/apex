@@ -38,6 +38,22 @@
 > [!WARNING]
 > Any ❌ items above must be resolved before proceeding to implementation.
 
+### Required Capability Dependencies
+
+Capture only capabilities required by the approved brief. Identify the consumer and every dependency needed for
+that capability, including operator/client origin, identity, routing, DNS, ownership and cost where applicable.
+Do not infer missing requirements from a generic resource list or assume every workload requires private monitoring.
+
+| Required capability | Consumer/producer | Dependency and owner | Evidence scope/date | Design status | Runtime status |
+| --- | --- | --- | --- | --- | --- |
+| {capability} | {client or service} | {dependency and accountable owner} | {source, observation date, assumptions} | Designed / Unresolved / Approved deferral | Unverified / Verified / Not applicable |
+
+Missing required design paths block implementation approval, not specifically authorized review of alternatives.
+Capability deferrals need the accepting owner, approval reference, affected consumers and revisit condition;
+mandatory security obligations cannot be deferred. Runtime status stays unverified until an authorized observation.
+Planner mirrors this matrix into `capability_checks` for readiness-mode contracts; never rewrite approved legacy
+artifacts automatically. Shared-resource absence and capacity/pricing estimates retain their scope and assumptions.
+
 ---
 
 ## 💎 Executive Summary

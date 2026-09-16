@@ -43,6 +43,18 @@ import { Reporter } from "./_lib/reporter.mjs";
 const args = process.argv.slice(2);
 const projectIdx = args.indexOf("--project");
 const allowLegacy = args.includes("--allow-legacy");
+const throughIndex = args.indexOf("--through");
+const through = throughIndex === -1 ? "L3" : args[throughIndex + 1];
+if (args.includes("--help")) {
+  console.log(
+    "Usage: validate-governance-trace.mjs --project NAME [--through L1|L3] [--allow-legacy]\nL1 checks design evidence only; L3 checks the full deployment chain. Or pass a debug-log path.",
+  );
+  process.exit(0);
+}
+if (!["L1", "L3"].includes(through) || (throughIndex !== -1 && projectIdx === -1)) {
+  console.error("--through requires --project and must be L1 or L3");
+  process.exit(2);
+}
 
 if (projectIdx !== -1) {
   // Attestation-chain mode.
@@ -238,7 +250,9 @@ function runAttestationChain(project, allowLegacy) {
       console.log(`  ✅ L0 discovery_status=COMPLETE`);
     }
     const ageDays = (Date.now() - new Date(envelope.discovered_at).getTime()) / 86_400_000;
-    if (Number.isFinite(ageDays) && ageDays > (envelope.ttl_days ?? 7)) {
+    if (!Number.isFinite(ageDays) || ageDays < 0 || !Number.isInteger(envelope.ttl_days) || envelope.ttl_days < 1) {
+      reporter.error("L0", "Invalid discovery timestamp or TTL; freshness is unknown");
+    } else if (ageDays > envelope.ttl_days) {
       reporter.error("L0", `envelope age ${ageDays.toFixed(1)}d > ttl_days ${envelope.ttl_days}`);
     } else {
       console.log(`  ✅ L0 envelope age ${ageDays.toFixed(1)}d <= ttl ${envelope.ttl_days}d`);
@@ -297,6 +311,12 @@ function runAttestationChain(project, allowLegacy) {
     }
   }
   reporter.tick();
+
+  if (through === "L1") {
+    reporter.summary();
+    console.log("L2/L3 are not evaluated in design-only mode; no deployment readiness is implied.");
+    return reporter.errors > 0 ? 1 : 0;
+  }
 
   // L2 — validator output recorded (look for matrix verdict in 05-implementation-reference.md
   // or a 06-policy-precheck.json that shows zero mismatches).
