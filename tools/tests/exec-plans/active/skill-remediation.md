@@ -1189,6 +1189,137 @@ does not edit reviewed project files, restamp findings, renew allowances, approv
 The pre-existing AVM cache change is preserved. Next: explicit human authorization for one owner repair batch and
 one confirming comprehensive review; retain the exhausted-loop history and the separate final approval gate.
 
+### Plan Confirmation Selection Recovery (2026-09-16)
+
+The supplied Planner output reports a bounded repair, a clean comprehensive confirmation saved separately as
+`challenge-findings-plan-pass2.json`, explicit human Proceed approval, then a failed completion because the default
+gate still selected stale `challenge-findings-plan.json`. Current recall independently confirms `plan_status=APPROVED`,
+the human-approval audit and incomplete Step 4. Current Pass 2 strict cache verification and plan/contract consistency
+checks pass. The supplied `dc166c03-8a52-4410-93b3-8d738ff2d6a4` export contains earlier maintenance-session events,
+not the pasted Planner run; do not attribute that pasted sequence or its invocation counts to verified log events.
+
+The deterministic gate failure was reproduced for both completion commands before the fix. Added `--plan-review`
+and `--plan-review-reason` through the shared audited replacement selector while preserving Governance compatibility.
+Plan selection is Step 4/default-comprehensive-only: same-project canonical later filename, matching artifact/lens/pass,
+strict freshness and no unresolved must-fix. Preserve the original review. Missing reasons/files, malformed or stale
+evidence, mismatched bindings, symlinks, skipped validation, mixed selectors, non-completing transitions and deep-mode
+replacement fail before state mutation. The selected file hash and rationale are appended only on successful completion.
+
+Planner's gate now resolves the selected confirmation before approval and reuses recorded approval after a tooling
+repair when inputs are unchanged. Full L0-L3 governance-trace validation is not a Step 4 gate: its future CodeGen/Deploy
+attestations remain required at their owning phases, never silently skipped. Review counts must reflect executed
+invocations, not filename numbers; hash synchronization uses complete computed digests, not prefixes.
+
+Verification: 143 recall package tests, 78 separate CLI tests and 78 guidance/body tests passed; Python lint and
+agent/vendor/model checks pass. Read-only selection of FreshConnect's actual Pass 2 passes with current contract
+hashes. Maintenance did not complete Step 4, generate IaC, change approvals, restamp any review, or modify project
+artifacts. The existing AVM cache changes were preserved. Next action is Planner completion using the recorded approval
+and explicitly selected current confirmation, with no additional review while the inputs remain current.
+
+### Plan Completion Native Acceptance (2026-09-16)
+
+Export `d64300b8-90a0-46be-9c98-13bea5c0f37c` includes the preceding repair and final completion sequence.
+It confirms native `--plan-review` completion at 06:52:49 UTC using the recorded Proceed approval and preserved
+Pass 2 confirmation. Current recall agrees: Step 4 complete, plan approved, Step 5 pending, selected review hash
+audited. The logged final plan, contract and review hashes match current evidence; strict review verification passes.
+This supplies native acceptance missing from the earlier maintenance-session export.
+
+One post-completion defect remained: the handoff replaced canonical H2s with Status, Locked Plan, Review Evidence
+and Next Action. Its width scan and editor diagnostics passed, but the actual H2 validator failed. Maintenance
+restored the required sections in a 42-line handoff without changing reviewed inputs, approval or completion state.
+Planner's existing approval reference now requires explicit README/handoff H2 checks and the under-60-line check
+after the final edit. A failed handoff is repaired locally, not by rerunning completion or reopening approval.
+Focused source-contract coverage was added to the existing guidance tests. No new reviewer, CodeGen, deployment
+or SQL grant was invoked; no changes to the user's in-progress runtime gate edits were needed for this correction.
+
+### Bicep Root Preflight Acceptance And Repair (2026-09-16)
+
+Local export `bf4dbb56-dde6-442d-bac1-78e3ffa0bf91` shows exact-pin AVM restore, successful explicit-path contract
+validation after an initial bare-project argument failure, and one emitted root file. Its build failed on missing
+approved local modules (BCP091) and a dependent foundation reference (BCP062); deferring complete build validation
+and stopping at the one-file response boundary was correct. The unused deployment-principal warning remains visible.
+
+Two root defects were independent of missing files: constructed prerequisite IDs supplied no dependency edges for
+most RG-scoped modules in `all` mode, and the resource-group output used an overload without its resource type.
+Maintenance added the approved RG/network/DNS/workspace prerequisite edges and used subscriptionResourceId for the
+resource-group output. Focused source assertions pass; the real build still has only the expected absent-module and
+dependent-reference errors. Full emitted-ARM graph and actual wrapper interfaces remain unverified until generation.
+
+Preflight claims were narrowed: the log demonstrated schema availability and top-level parameter names, not complete
+nested binding validation. Each next wrapper must inspect required/defaulted fields, types, allowed values and consumed
+outputs at its exact pin before authoring. Targeted cached reads confirmed workspace 0.16.1 quota is string and
+serverfarm 0.7.0 exposes virtualNetworkSubnetId; no guessed fixes were made to those interfaces.
+
+Shared CodeGen guidance now specifies explicit artifact-path validators, actual catalog/cache shape inspection,
+authorized exact-pin restore without forcing healthy cache entries, and honest partial-evidence reporting. It also
+uses the explicitly selected current Plan confirmation rather than treating superseded review failures as blockers.
+Bicep instruction guidance distinguishes redundant dependencies from required explicit edges for constructed IDs.
+The root dependency check occurs even when compilation is deferred; declarations and phase labels do not order Azure
+deployments. No remaining module, approved plan/contract, review sidecar, state transition, Azure deployment or SQL grant
+was created or changed by this maintenance slice. Existing runtime-gate edits and AVM cache changes were preserved.
+
+### Foundation Module Native Acceptance (2026-09-16)
+
+The refreshed `bf4dbb56-dde6-442d-bac1-78e3ffa0bf91` export records exact identity/NSG/VNet schema inspection,
+foundation generation, successful focused compilation, and a root symbol repair. Once the child interface existed,
+the root reported BCP265/BCP134 because `module resourceGroup` shadowed `resourceGroup()`. The agent renamed the
+symbol and its dependency references to `projectResourceGroup`, preserving the earlier resource-group ID correction.
+Reproduced locally: the foundation builds; root errors now concern only remaining absent modules. Unused
+`deployerObjectId` and guarded conditional-module output warnings remain outstanding, not a full lint pass.
+
+No additional project edit was required for this slice. APEX now explicitly avoids scope-function/namespace symbol
+collisions and explains that missing module interfaces can mask semantic errors. The offline compiler regression
+reproduces BCP265, validates the symbol-only correction and checks that compiled dependency wiring remains present.
+Mechanical root repair does not waive the one-new-source-file response cadence. No frozen plan, contract, review,
+approval or workflow state was modified, and no Azure deployment or SQL grant was performed.
+
+### Observability Module Review (2026-09-16)
+
+The refreshed `bf4dbb56-dde6-442d-bac1-78e3ffa0bf91` export includes observability generation and its focused build.
+Some historical tool-argument strings are truncated, so they cannot all be reparsed as JSON; current files and actual
+build results were checked directly. The module compiles, links Application Insights to the workspace via a symbolic
+output, preserves pinned interfaces and disables public ingestion/query. Root errors concern the remaining missing
+modules; unused deployerObjectId and conditional foundation-output warnings remain. This is not a root build pass.
+
+A functional readiness gap remains: the approved contract contains the workspace, Application Insights and four
+data-service private endpoints but no AMPLS/association/endpoint or verified shared Monitor query path. Disabled public
+query access does not create private connectivity. Microsoft Learn's Azure Monitor private-link configuration page
+(checked 2026-09-16) requires a scope, associations, private endpoint, DNS and reachable clients. No live subscription
+inventory was performed; an existing shared path is unverified, not proven absent. Ingestion must be assessed per
+producer; platform diagnostic delivery is not interchangeable with SDK/agent traffic.
+
+Added Planner and CodeGen guidance plus regression assertions for this boundary. Existing private flags and Bicep
+were preserved: no public fallback or new infrastructure was authorized. The non-frozen preflight now reports the
+monitoring-path discrepancy and the handoff routes it to Planner. The handoff also had noncanonical H2s and an obsolete
+Step 5-pending title; repaired to canonical order in 48 lines. Approved plan/contract/review bytes and recall state
+remain unchanged. Owner reconciliation must establish the required path or obtain explicit approved deferral of the
+capability, accounting for scope, DNS reuse, capacity and costs; no approval or review allowance is silently renewed.
+
+Source: https://learn.microsoft.com/en-us/azure/azure-monitor/fundamentals/private-link-configure
+
+### Shared Monitoring Discovery Audit (2026-09-16)
+
+Export `bf4dbb56-dde6-442d-bac1-78e3ffa0bf91` under the local Bicep modules folder includes the user selecting
+"Verify shared path, then reconcile". That authorized read-only discovery, not a project-owned monitoring or operator
+network design. The run correctly preserved frozen artifacts and stopped CodeGen, but "Resolution Approved" overstated
+the decision. Resource-group listings support no usable shared path found in inspected results, not tenant-wide
+absence or verified effective routing. Cross-subscription ownership, child resources and client connectivity need
+separate evidence; no additional Azure inventory was run during maintenance.
+
+The first direct pricing request failed with HTTP 400; the next queried broad Standard Networking products. Its
+response is truncated in the export, so matching current Private Link meter evidence cannot be established here.
+The endpoint-only USD 7.30 illustration is not a complete incremental estimate or proof of EUR budget breach.
+DNS zones/queries, processing, operator connectivity and dated FX must be included by the cost-estimate owner.
+AMPLS minimum IP allocation plus assumed current usage supports conditional arithmetic only, not proven fit.
+Supported diagnostic-setting delivery is not observed ingestion or proof of private-endpoint traversal.
+
+Added bounded evidence/approval/pricing rules to the existing Planner and CodeGen monitoring references, with
+regression assertions. Updated only the non-frozen handoff to Architect for option approval, followed by Planner;
+canonical headings pass in 54 lines. The handoff qualifies discovery, traffic, capacity and cost claims. Original
+recall entries remain historical and were not rewritten; no infrastructure, reviewed input, approval or review budget
+was changed. Selected Plan Pass 2 still passes strict freshness validation. The monitoring path remains unresolved,
+and this maintenance work does not authorize redesign, public access, new pricing calls or another review.
+
 ## Batch Evidence Record
 
 Append one entry per actual batch. The recovery checkpoint above records current tests and repairs; formal

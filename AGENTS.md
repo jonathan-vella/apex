@@ -121,6 +121,9 @@ For a separately authorized later Governance review, `complete-step` and `transi
 `--governance-review <path>` with `--governance-review-reason "<reason>"`. Selection is explicit, Step 3.5-only,
 strictly validated and logged with its byte hash; earlier reviews remain untouched. No latest-file inference,
 review-budget reset or human approval is implied. The selected review cannot use the missing-review bypass.
+Step 4 default-mode comprehensive confirmations use `--plan-review <path>` and `--plan-review-reason "<reason>"`
+under the same strict checks and audit rules. The original Plan review stays intact. This option cannot replace
+deep-review lenses, combine with a Governance selector or waive any approval/review requirement.
 An intentional missing-review bypass requires
 `--allow-missing-challenger --challenger-skip-reason "<text>"`, which
 persists an audit entry in `decisions.challenger_skip[]`. A CI/commit

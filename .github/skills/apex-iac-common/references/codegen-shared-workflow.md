@@ -28,26 +28,71 @@ Rules:
    unsatisfiable governance), STOP Step 5 and traverse the `↩ Return to
 Step 4` handoff. Do not patch the plan in place.
 4. **Plan readiness precondition.** Before entering Phase 1, confirm
-   `apex-recall show <project> --json` shows Step 4 complete AND every
-   plan-level challenger pass returned APPROVED. If any plan-level pass is
-   open (NEEDS_REVISION / BLOCKED), STOP and return to Planner.
+  `apex-recall show <project> --json` shows Step 4 complete with current required
+  review evidence. Use the explicitly selected, audited confirmation when present;
+  preserved superseded findings are history, not current blockers. Deep-mode required
+  lenses still apply. Missing/stale selected evidence or current blockers return to Planner.
 
 ## Phase 1: Preflight Check
 
 For each resource in `04-iac-contract.json` (with the implementation plan as its prose mirror):
 
 1. Verify the approved AVM module and version using the supported metadata workflow:
-  - Bicep: available AVM metadata tools or the existing AVM index/resolver.
-  - Terraform: public Terraform Registry API metadata for the approved exact version.
-  Preserve the plan's exact module pins; failed lookup or a required version change
-  returns to the Planner, not a new version selection in CodeGen.
+
+   - Bicep: available AVM metadata tools or the existing AVM index/resolver.
+   - Terraform: public Terraform Registry API metadata for the approved exact version.
+
+   Preserve the plan's exact module pins; failed lookup or a required version change
+   returns to the Planner, not a new version selection in CodeGen.
+
 2. Cross-check planned parameters against the module schema; flag type mismatches
 3. Check region limitations
 4. Save results to `agent-output/{project}/04-preflight-check.md`
 5. If blockers found, use `askQuestions` to present them and collect the user's decision
    (fix and re-run, or abort and return to Planner)
 
+### Exact inputs and AVM evidence
+
+Read and run the explicit artifact-path commands in
+[Contract Integrity Gate](contract-emission-and-handoff.md#phase-1--contract-integrity-gate-mandatory).
+Do not pass a bare project name to contract, consistency, policy-map or environment-manifest validators.
+An unsupported `--help` argument is not validation; consult that command's Usage section instead of guessing flags.
+Run from the verified workspace root. Reuse unchanged required guidance still in context rather than reloading skills.
+
+Bicep module catalogs establish published pins, not parameter compatibility. Inspect the returned JSON shape before
+filtering: a wrapped `modules[]` response is not a top-level array. Never substitute the latest catalog pin for the
+approved version. If exact interfaces are missing, restore only approved references from an isolated temporary Bicep
+manifest with authorized network access; no project module or upstream artifact need be created to restore metadata.
+Do not use `--force` for healthy cached pins. Discover actual cache files before selecting the approved module/version;
+do not construct escaped dollar-sign paths from memory. The cache layout is CLI-specific, not a public API.
+
+For each upcoming module, inspect parameter types, required/defaulted fields, allowed values, nested definitions and
+outputs actually used by its planned bindings. Listing `parameters | keys` verifies names only. Record that limited
+evidence as such; do not claim full parameter/type compatibility until those checks pass. Schema availability does
+not verify service-side deployment rules or regional capacity. Reuse inspected exact-version evidence while current.
+
 ## Phase 1.5: Governance Compliance Mapping
+### Azure Monitor reachability
+
+For Log Analytics and Application Insights, disabled public ingestion/query flags are access restrictions, not
+proof of private connectivity. Before claiming observability readiness, reconcile each required producer and query
+client with the approved access path. Private querying requires an Azure Monitor Private Link Scope (AMPLS),
+resource associations, its private endpoint, service-correct DNS and a reachable authorized client network.
+Reuse an existing shared scope only with verified ownership, associations and connectivity evidence.
+
+If these dependencies are absent from frozen inputs, stop the affected observability readiness claim and return
+the discrepancy to Planner. Do not enable public access, add AMPLS/resources or change scope/budget in CodeGen.
+An explicitly approved deferred telemetry/query capability must be reported as deferred, not operationally ready.
+Evaluate ingestion paths separately: service-delivered platform diagnostics and SDK/agent traffic need not have
+the same network behavior. Do not infer that every ingestion path is blocked, or that successful resource creation
+proves query access. Verify service-specific exceptions before relying on them.
+Read-only shared-path discovery does not authorize redesign or establish tenant-wide absence. Carry the scope,
+remaining unknowns and conditional capacity/cost estimates from the
+[reconciliation evidence rules](contract-emission-and-handoff.md#shared-path-reconciliation-evidence) into the handoff.
+
+Reference: [Azure Monitor private-link configuration](https://learn.microsoft.com/en-us/azure/azure-monitor/fundamentals/private-link-configure).
+
+### Policy mapping
 
 Gate: do not proceed to code generation with unresolved Deny policy violations.
 
@@ -108,6 +153,27 @@ Provider/module initialization must be ready before Terraform validate; never in
 the existence of `.terraform/` alone. A real compile/validation failure blocks further unrelated generation
 until repaired and rechecked. Per-write applicable shape checks still run, including Terraform formatting.
 Perform a final build for the last partial group; no completion or handoff with deferred checks.
+
+### Root dependency checks before deferring a build
+
+A missing-module build cannot validate the deployment graph. Inspect root wiring against the approved dependency
+contract even when the scaffold is incomplete. Module declaration order, `resourceId(...)`, and names passed to
+`resourceGroup(...)` do not create deployment dependencies. In `all` mode, every RG-scoped module must wait for the
+resource-group creation, and consumers must wait for network, DNS, identity and diagnostics prerequisites.
+Prefer actual module outputs for implicit edges when their interfaces are verified; when using constructed IDs for
+phase-safe reuse, add explicit prerequisite `dependsOn` edges. Do not serialize unrelated resources or alter scope.
+Validate both `all` and separately selected phases; prerequisites omitted by a phase must already exist, not be
+silently created. Check emitted ARM dependencies once the scaffold builds. Terraform follows the same ownership
+graph using output references or explicit dependencies where needed, not Bicep syntax.
+
+If an early build is attempted, defer only errors traced to known, not-yet-emitted approved module files (and their
+dependent invalid references). Missing external modules, syntax/type errors and unrelated diagnostics are real
+failures. Report outstanding warnings separately; never infer provider correctness from a deferred build. Preserve
+the one-source-file-per-turn cadence and continue the next approved module, not a repeat full preflight.
+Missing module interfaces can mask additional semantic errors. Reclassify all diagnostics whenever a module is
+added; BCP265 function shadowing and BCP134 scope mismatch are real source failures even alongside BCP091.
+Use role-specific module symbols rather than names of Bicep scope functions. A mechanical repair to an existing
+root after its child compiles does not authorize generating another new module in the same response.
 
 This is in addition to — not a replacement for — the full
 `bicep-validate-subagent` / `terraform-validate-subagent` runs in Phase 4.

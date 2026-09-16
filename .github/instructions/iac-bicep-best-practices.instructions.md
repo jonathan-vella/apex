@@ -31,6 +31,9 @@ translation rules.
 | SQL Server | 63  | `sql-{project}-{env}-{suffix}` | `sql-contoso-dev-abc123` |
 
 Use lowerCamelCase for parameters, variables, resources, modules.
+Avoid symbols named `resourceGroup`, `subscription`, `managementGroup`, `tenant`, `az` or `sys` when those
+functions/namespaces are used. Prefer role-specific names such as `projectResourceGroup`; rename all references
+together. Scope-function shadowing is a source defect, not a missing-module error that can be deferred.
 
 ## Unique Names
 
@@ -57,6 +60,10 @@ freeze policy lives in [`apex-azure-defaults`](../skills/apex-azure-defaults/SKI
 ## Module Outputs
 
 Every module outputs: `resourceId`, `resourceName`, `principalId` (if identity exists).
+For a resource-group ID at subscription scope, use
+`subscriptionResourceId('Microsoft.Resources/resourceGroups', resourceGroupName)`; do not omit the resource type.
+Constructed IDs and module declaration order do not establish dependencies. Preserve approved prerequisite edges
+in both phased and `all` deployments; prefer symbolic outputs, or explicit `dependsOn` when IDs must remain phase-safe.
 
 ## Diagnostic Settings
 
@@ -79,7 +86,7 @@ for the dynamic tag list rule.
 | ---------------------- | ------------------------------- |
 | Hardcoded names        | Use `uniqueString()` suffix     |
 | Missing `@description` | Document all parameters         |
-| Explicit `dependsOn`   | Use symbolic references         |
+| Redundant `dependsOn` | Prefer symbolic outputs; add explicit edges when constructed IDs hide dependencies |
 | Resource ID for scope  | Use `existing` + names          |
 | S1 for zone redundancy | Use P1v3+                       |
 | Raw Bicep (no AVM)     | Use AVM modules or get approval |

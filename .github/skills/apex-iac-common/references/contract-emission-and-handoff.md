@@ -42,6 +42,41 @@ existing review/repair limits; finding another mechanical defect does not renew 
   together: subscription module/call site, display-name limit, scope-matched view ID and bounded UTC-midnight schedule.
   Terraform implementations must satisfy the same Azure provider constraints using their supported resource API.
 
+### Monitoring access paths
+
+Before freezing private Log Analytics/Application Insights settings, include the required query and ingestion paths
+in the plan and resource inventory. Disabled public access does not create an AMPLS, resource association, private
+endpoint, DNS configuration or client-network route. Establish ownership of existing shared monitoring connectivity
+or plan the required resources and costs; preserve security defaults and get approval for scope changes.
+Distinguish platform diagnostic delivery from application/agent ingestion, and required query access from an explicitly
+approved deferred capability. Validate DNS-zone reuse and subnet capacity rather than adding duplicate zones.
+See the [CodeGen reachability gate](codegen-shared-workflow.md#azure-monitor-reachability) and its official reference.
+
+#### Shared-path reconciliation evidence
+
+Approval to verify a shared path authorizes only the agreed read-only discovery, not a project-owned AMPLS,
+operator-network design, extra spending or changes to frozen artifacts. Report "shared-path check completed" rather
+than "resolution approved" unless the user actually approved the proposed design. If no usable path is verified,
+return options to Architect, then Planner; do not turn the discovery result into automatic redesign approval.
+
+- **Inventory coverage**: record subscription/RG scope, permissions, pagination and failed requests. Prefer a
+  subscription-wide typed inventory or Resource Graph query when authorized; do not guess relevant RGs by name.
+  No match means "not found within the inspected scope", not tenant-wide absence. Generic resource listings do not
+  prove effective routes, DNS forwarding, peering child-resource state, client reachability or cross-subscription ownership.
+  Verify any candidate path's associations, endpoint approval, DNS links/forwarders and actual client network separately.
+- **Traffic evidence**: supported Azure diagnostic-setting service delivery can work without AMPLS, but this does not
+  establish private-endpoint traversal, configured diagnostics or successful ingestion for this project. Verify each
+  producer/destination and service exception; distinguish support from observed delivery. AMPLS requirements for
+  SDK/agent ingestion and queries apply under the selected private-access posture, not to every Azure Monitor deployment.
+- **Capacity**: a `/27` has 27 usable addresses, but the AMPLS minimum allocation is a lower bound, not a reservation
+  or maximum. Count actual/planned endpoint IP configurations (including service subresources), existing allocations
+  and growth headroom. Report assumed-fit arithmetic conditionally; do not claim verified capacity from minimums alone.
+- **Pricing**: route new estimates through `cost-estimate-subagent` under the caller's delegation/approval contract;
+  otherwise return the pricing task to its owner. Do not query pricing directly or broaden to unrelated networking
+  products after a failed lookup. Existing approved meter evidence may support a clearly labeled historical illustration,
+  not a fresh quote. Include additional DNS zones/queries, endpoint processing and operator connectivity, with a dated
+  currency conversion before comparing USD costs to EUR headroom. No identified AMPLS meter is not proof of no charge.
+
 ### Scheduled-action deployment contract
 
 For each `Microsoft.CostManagement/scheduledActions` row, populate `resources[].deployment` with its actual kind

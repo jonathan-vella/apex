@@ -177,6 +177,16 @@ def build_parser() -> argparse.ArgumentParser:
 
     for completion_parser in (p_complete, p_tr):
         completion_parser.add_argument(
+            "--plan-review",
+            default=None,
+            help="Explicit later comprehensive Plan review path; Step 4 default-mode completion only.",
+        )
+        completion_parser.add_argument(
+            "--plan-review-reason",
+            default=None,
+            help="Required audit reason for selecting an authorized Plan confirmation; not human approval.",
+        )
+        completion_parser.add_argument(
             "--governance-review",
             default=None,
             help="Explicit later Governance review path (absolute or workspace-relative); Step 3.5 completion only.",

@@ -498,6 +498,36 @@ def test_current_governance_review_allows_completion(tmp_path, command):
 
 
 @pytest.mark.parametrize("command", ["transition", "complete_step"])
+def test_explicit_plan_replacement_preserves_history_and_records_selection(tmp_path, command):
+    _reimport_with_root(tmp_path)
+    module = importlib.import_module(f"apex_recall.commands.{command}")
+    project = _seed_project(tmp_path, "demo")
+    original = project / "challenge-findings-plan.json"
+    _seed_review(project, original.name)
+    (project / "04-implementation-plan.md").write_text("# Corrected plan\n", encoding="utf-8")
+    replacement = project / "challenge-findings-plan-pass2.json"
+    review = _seed_review(project, replacement.name)
+    review["pass_number"] = 2
+    replacement.write_text(json.dumps(review), encoding="utf-8")
+    original_bytes, replacement_bytes = original.read_bytes(), replacement.read_bytes()
+    args = SimpleNamespace(project="demo", step="4", from_step="4", to_step="5", complete=True, json=True)
+    assert _capture(module, args)[0] == 2
+    args.plan_review = str(replacement.relative_to(tmp_path))
+    args.plan_review_reason = "Explicit confirmation and recorded human approval"
+    result, payload = _capture(module, args)
+    assert result == 0, payload
+    state = json.loads((project / "00-session-state.json").read_text(encoding="utf-8"))
+    selection = state["decision_log"][-1]
+    assert selection["decision"] == "Select Plan replacement review for completion"
+    assert selection["step"] == "4"
+    assert replacement.name in selection["rationale"]
+    assert hashlib.sha256(replacement_bytes).hexdigest() in selection["rationale"]
+    assert args.plan_review_reason in selection["rationale"]
+    assert original.read_bytes() == original_bytes
+    assert replacement.read_bytes() == replacement_bytes
+
+
+@pytest.mark.parametrize("command", ["transition", "complete_step"])
 def test_explicit_governance_replacement_preserves_history_and_records_selection(tmp_path, command):
     _reimport_with_root(tmp_path)
     module = importlib.import_module(f"apex_recall.commands.{command}")
@@ -527,6 +557,7 @@ def test_explicit_governance_replacement_preserves_history_and_records_selection
 
 
 @pytest.mark.parametrize("command", ["transition", "complete_step"])
+@pytest.mark.parametrize("review_kind", ["governance", "plan"])
 @pytest.mark.parametrize(
     "defect",
     [
@@ -551,43 +582,50 @@ def test_explicit_governance_replacement_preserves_history_and_records_selection
         "blocked_verdict",
     ],
 )
-def test_selected_governance_review_fails_closed_without_mutation(tmp_path, command, defect):
+def test_selected_governance_review_fails_closed_without_mutation(tmp_path, command, defect, review_kind):
     _reimport_with_root(tmp_path)
     module = importlib.import_module(f"apex_recall.commands.{command}")
     project = _seed_project(tmp_path, "demo")
-    original = project / "challenge-findings-governance-constraints-pass1.json"
+    is_plan = review_kind == "plan"
+    step = "4" if is_plan else "3_5"
+    artifact = "04-implementation-plan.md" if is_plan else "04-governance-constraints.md"
+    original = project / (
+        "challenge-findings-plan.json" if is_plan else "challenge-findings-governance-constraints-pass1.json"
+    )
     _seed_review(project, original.name)
-    replacement = project / "challenge-findings-governance-constraints-pass3.json"
+    replacement = project / (
+        "challenge-findings-plan-pass3.json" if is_plan else "challenge-findings-governance-constraints-pass3.json"
+    )
     review = _seed_review(project, replacement.name)
     review["pass_number"] = 3
     args = SimpleNamespace(
         project="demo",
-        step="3_5",
-        from_step="3_5",
-        to_step="4",
+        step=step,
+        from_step=step,
+        to_step="5",
         complete=True,
         json=True,
-        governance_review=str(replacement),
-        governance_review_reason="Authorized replacement",
     )
+    setattr(args, f"{review_kind}_review", str(replacement))
+    setattr(args, f"{review_kind}_review_reason", "Authorized replacement")
     if defect == "missing_reason":
-        args.governance_review_reason = " "
+        setattr(args, f"{review_kind}_review_reason", " ")
     elif defect == "reason_only":
-        args.governance_review = None
+        setattr(args, f"{review_kind}_review", None)
     elif defect == "wrong_step":
         args.step = args.from_step = "2"
     elif defect == "wrong_filename":
         replacement = project / "arbitrary-pass3.json"
-        args.governance_review = str(replacement)
+        setattr(args, f"{review_kind}_review", str(replacement))
     elif defect == "outside_project":
         replacement = tmp_path / replacement.name
-        args.governance_review = str(replacement)
+        setattr(args, f"{review_kind}_review", str(replacement))
     elif defect == "wrong_pass":
         review["pass_number"] = 2
     elif defect == "stale":
-        (project / "04-governance-constraints.md").write_text("changed\n", encoding="utf-8")
+        (project / artifact).write_text("changed\n", encoding="utf-8")
     elif defect == "wrong_focus":
-        review["review_focus"] = "comprehensive"
+        review["review_focus"] = "security-governance" if is_plan else "comprehensive"
     elif defect == "wrong_type":
         review["artifact_type"] = "requirements"
     elif defect == "wrong_target":
@@ -619,30 +657,37 @@ def test_selected_governance_review_fails_closed_without_mutation(tmp_path, comm
     assert all(file.read_bytes() == content for file, content in before.items())
 
 
-def test_governance_selection_requires_completing_transition(tmp_path):
+@pytest.mark.parametrize("review_kind", ["governance", "plan"])
+def test_governance_selection_requires_completing_transition(tmp_path, review_kind):
     module = _reimport_with_root(tmp_path)
     project = _seed_project(tmp_path, "demo")
-    _seed_review(project, "challenge-findings-governance-constraints-pass1.json")
-    replacement = project / "challenge-findings-governance-constraints-pass3.json"
+    is_plan = review_kind == "plan"
+    _seed_review(
+        project, "challenge-findings-plan.json" if is_plan else "challenge-findings-governance-constraints-pass1.json"
+    )
+    replacement = project / (
+        "challenge-findings-plan-pass3.json" if is_plan else "challenge-findings-governance-constraints-pass3.json"
+    )
     review = _seed_review(project, replacement.name)
     review["pass_number"] = 3
     replacement.write_text(json.dumps(review), encoding="utf-8")
     before = (project / "00-session-state.json").read_bytes()
     args = SimpleNamespace(
         project="demo",
-        from_step="3_5",
+        from_step="4" if is_plan else "3_5",
         to_step="4",
         complete=False,
         json=True,
-        governance_review=str(replacement),
-        governance_review_reason="Authorized replacement",
     )
+    setattr(args, f"{review_kind}_review", str(replacement))
+    setattr(args, f"{review_kind}_review_reason", "Authorized replacement")
     assert _capture(module, args)[0] == 2
     assert (project / "00-session-state.json").read_bytes() == before
 
 
 @pytest.mark.parametrize("command", ["complete-step", "transition"])
-def test_cli_parses_governance_review_selection(tmp_path, command):
+@pytest.mark.parametrize("review_kind", ["governance", "plan"])
+def test_cli_parses_governance_review_selection(tmp_path, command, review_kind):
     _reimport_with_root(tmp_path)
     parser = importlib.import_module("apex_recall.__main__").build_parser()
     step_args = ["3_5"] if command == "complete-step" else ["--from-step", "3_5", "--to-step", "4", "--complete"]
@@ -651,14 +696,50 @@ def test_cli_parses_governance_review_selection(tmp_path, command):
             command,
             "demo",
             *step_args,
-            "--governance-review",
+            f"--{review_kind}-review",
             "agent-output/demo/review.json",
-            "--governance-review-reason",
+            f"--{review_kind}-review-reason",
             "Explicit authorization",
         ]
     )
-    assert args.governance_review == "agent-output/demo/review.json"
-    assert args.governance_review_reason == "Explicit authorization"
+    assert getattr(args, f"{review_kind}_review") == "agent-output/demo/review.json"
+    assert getattr(args, f"{review_kind}_review_reason") == "Explicit authorization"
+
+
+@pytest.mark.parametrize("command", ["transition", "complete_step"])
+@pytest.mark.parametrize("defect", ["deep", "both_selectors", "wrong_governance_step"])
+def test_plan_replacement_cannot_change_review_mode_or_mix_selectors(tmp_path, command, defect):
+    _reimport_with_root(tmp_path)
+    module = importlib.import_module(f"apex_recall.commands.{command}")
+    project = _seed_project(tmp_path, "demo")
+    _seed_review(project, "challenge-findings-plan.json")
+    replacement = project / "challenge-findings-plan-pass2.json"
+    review = _seed_review(project, replacement.name)
+    review["pass_number"] = 2
+    replacement.write_text(json.dumps(review), encoding="utf-8")
+    state_path = project / "00-session-state.json"
+    args = SimpleNamespace(
+        project="demo",
+        step="4",
+        from_step="4",
+        to_step="5",
+        complete=True,
+        json=True,
+        plan_review=str(replacement),
+        plan_review_reason="Explicit confirmation",
+    )
+    if defect == "deep":
+        state = json.loads(state_path.read_text(encoding="utf-8"))
+        state["decisions"]["review_depth"] = "deep"
+        state_path.write_text(json.dumps(state), encoding="utf-8")
+    else:
+        args.governance_review = str(replacement)
+        args.governance_review_reason = "Wrong selector"
+        if defect == "wrong_governance_step":
+            args.plan_review = args.plan_review_reason = None
+    before = state_path.read_bytes()
+    assert _capture(module, args)[0] == 2
+    assert state_path.read_bytes() == before
 
 
 @pytest.mark.parametrize("command", ["transition", "complete_step"])

@@ -211,7 +211,7 @@ Run `apex-recall show <project> --json` for full project context. Do not read `0
   Append significant decisions to `decision_log`:
   `apex-recall decide <project> --decision "<text>" --rationale "<why>" --step 4 --json`
 - **Review audit**: `apex-recall review-audit <project> 4 ... --json`
-- **On completion**: `apex-recall complete-step <project> 4 --json`
+- **On completion**: `apex-recall complete-step <project> 4 --json`; Stage 3 covers `--plan-review` selection.
 
 ## SKU Manifest — Reconciliation + Feature Cross-Check
 

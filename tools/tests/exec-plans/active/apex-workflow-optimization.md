@@ -17,6 +17,11 @@ measured end-to-end token savings and final generated-output quality are not cla
 
 ## Master Roadmap And Tracking
 
+**2026-09-16 program proposal:** [End-to-end reliability plan](#end-to-end-reliability-plan-2026-09-16)
+governs the next proposed reliability work. Its planning and second-opinion review are authorized; implementation,
+contract migrations and rollout require approval of that plan. Earlier permissions do not implicitly approve its
+schema or workflow changes. Historical completion claims below remain evidence for their original batches only.
+
 **2026-09-15 scope update:** Agent Host is excluded by user decision. Historical Host findings below
 do not block this Local-only effort and do not authorize further Host investigation or issue filing.
 Current priorities and bounded results are in the
@@ -87,6 +92,467 @@ Record affected IDs, decision/rationale, tests, review findings, commit SHA, pub
 Only update the changelog after implementation. Preserve user edits, historical artifacts and existing approval gates.
 
 <a id="authoritative-remaining-work"></a>
+
+## End-to-End Reliability Plan (2026-09-16)
+
+Status: **RY0 inventory authorized and completed; selector-specific RY1 decisions and implementation pending**.
+Owner: Jonathan Vella with GitHub Copilot.
+Scope: Local Copilot, both Bicep and Terraform, Requirements through As-Built and Lessons. This is a repository
+reliability program, not authorization to resume FreshConnect production work or alter its approved artifacts.
+Evidence: [manual testing and follow-up records](skill-remediation.md#manual-testing-lesson-audit-2026-09-15).
+Source checkpoints `456cba76` and `abcb908b` are published; later working-tree corrections are not automatically
+accepted or published by this proposal. Inventory the exact starting revision and dirty worktree in RY0.
+
+### Problem And Success Definition
+
+Local checks validate shapes and hashes more consistently than cross-stage usability. Requirements can omit an
+operator path; Architecture can leave a dependency unresolved; Planner can omit provider constraints; CodeGen can
+introduce settings not established by the plan. Review, completion and handoff consumers can interpret the same
+evidence differently. This produces repeated correction cycles despite locally passing checks.
+
+Examples include original-only review filenames, false zero-file validation passes, lowercase Deny omissions,
+anomaly scope/schedule constraints, malformed handoffs, root dependencies and private-monitoring access. Existing
+fixes are useful inputs, not evidence that the whole workflow is reliable. A compiled module is not an operational
+service, a current hash is not semantic completeness, and an accepted finding is not verified closure.
+
+The incident records support related but distinct causes: deterministic validation gaps, inconsistent evidence
+consumption, and missing operational requirements or overstated evidence. RY0 separates repaired defects needing
+regression coverage from remaining work. Stopping on genuinely stale evidence, exhausted repair allowances or absent
+approved modules is correct behavior, not avoidable churn. Source assertions do not establish native compliance.
+
+Success means known deterministic defects fail before a scarce independent review, every stage consumes the same
+selected evidence and approved decisions, and the next owner receives complete inputs or a specific unresolved item.
+New legitimate findings still block; zero findings or an arbitrary low review count is not a release objective.
+
+### Protected Boundaries
+
+- Preserve current human-selected roles/models, tool allowlists, one-new-source-file cadence and both IaC tracks.
+- Preserve security/governance precedence, mandatory independent reviews, separate Step 2 cost-feasibility review,
+  explicit deep-review opt-in and existing repair ceilings. Do not reduce safety to improve throughput metrics.
+- Keep reviewed artifacts immutable. No restamping, copying clean findings over history, inferred latest-review
+  selection, automatic approval or silently reopening an approved stage. Use only apex-recall for project state.
+- No Azure changes, deployment, SQL grants, tenant-wide discovery, model changes, paid evaluation or new Agent Host
+  work is authorized. Do not revive the retired E2E launch subsystem or introduce another orchestrator framework.
+- FreshConnect artifacts, logs and infrastructure remain local. Publish sanitized fixtures and source only under
+  separate commit/push approval; preserve all user changes and make rollback possible without resetting their work.
+
+### Contract Ownership
+
+Extend existing schemas and owning APIs only where a concrete consumer needs a field. Do not introduce a universal
+mega-manifest, duplicate approvals across documents or build a new policy/rules engine.
+
+| Concern                                      | Canonical owner                                             | Consumer obligation                                                                          |
+| -------------------------------------------- | ----------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| Required capabilities and accepted deferrals | Requirements owner; existing requirements artifact/contract | Distinguish user statements, defaults, assumptions and unresolved questions                  |
+| Capability dependency closure                | Architect; existing assessment, SKU and cost artifacts      | Bind client/producer paths, identities, DNS, ownership and cost to required capabilities     |
+| Effective policy facts                       | Governance; generated envelope and discovery provenance     | Separate policy from project choices; incomplete evidence stays unknown                      |
+| Implementable bindings and constraints       | Planner; versioned IaC/environment/policy-map contracts     | Cover resource identities, dependency edges, scope, required inputs and provider constraints |
+| Selected reviews and operation approvals     | Shared apex-recall APIs and existing audit/state structures | Every reader uses the same selection, validity and operation-scope rules                     |
+| Generated code and validation evidence       | CodeGen/Deploy and existing IaC handoff                     | Prove conformance to frozen inputs; scope validation to the current phase                    |
+| Resume presentation                          | Handoff renderer and canonical headings registry            | Derive status and owner from validated state; retain blockers and evidence paths             |
+
+Proposal: use a compact dependency checklist with references in the Architecture artifact first, not a new mandatory
+standalone file. Add stable capability IDs or structured fields only when a concrete downstream consumer demonstrates
+the need. Defer universal capability registries and generalized service-rule catalogues. RY1 version-documents the
+minimal additions; it does not authorize a cross-stage schema redesign.
+
+### Approval, Readiness And Invalidation
+
+Keep historical completion/approval, current evidence validity, effective decisions and permission for the requested
+operation distinct. A completed step is not current readiness; a valid review neither grants approval nor extends
+preview permission to apply. Effective decisions reference their authoritative source and any superseding correction.
+Historical recall assertions never override corrected policy evidence. Store this in existing owner contracts and
+state/audit structures, not a second approval ledger.
+
+| Change | Evidence and approval treatment | Recovery boundary |
+| ------ | ------------------------------- | ----------------- |
+| Primary or consumed supporting bytes change | Preserve historical approval; exact-byte review reuse fails | Block affected consumption; owner-authorized revision and applicable review/approval |
+| Recall-only correction to match unchanged authoritative inputs | Audit supersession; do not rewrite reviewed bytes or renew completion | Owner reconciles through recall; reuse unchanged valid approval without repeating it |
+| Policy/discovery/capacity evidence expires or lacks scope | Matching hashes do not establish operational validity | Block the operation needing that evidence; request scoped refresh or an allowed capability decision |
+| Protocol, checklist, reviewer/model or validator contract changes | Evaluate compatibility explicitly; never suppress existing freshness failures | Follow the approved migration matrix before consequential consumption |
+| Handoff presentation changes only | Preserve reviewed inputs, approval and timestamps | Repair and validate the handoff; do not rerun completion |
+| Requested operation or accepted design scope changes | Prior permission remains historical and limited to its original scope | Obtain the relevant human decision before the new operation |
+
+RY1 must define the consumed-input boundary without hash cycles: mutable approval records remain outside reviewed
+bytes. Enumerate affected consumers and justify which remain unaffected; do not reopen unrelated stages. Defining
+this matrix is not permission to mutate approved artifacts or reconcile FreshConnect state.
+
+### Ordered Implementation Batches
+
+| Batch | Deliverable and owner surface                                                                                    | Dependency    | Exit check                                                                                                      |
+| ----- | ---------------------------------------------------------------------------------------------------------------- | ------------- | --------------------------------------------------------------------------------------------------------------- |
+| RY0   | Inventory current fixes, reproduce representative failures, sanitize fixtures; existing test/lesson owners       | Plan approval | Baseline paths, hashes, native evidence, dirty changes and missing evidence recorded                            |
+| RY1   | Define slice-specific contracts and migration rules; existing schemas, workflow graph where needed, recall       | RY0           | Human approves ownership, invalidation, compatibility and recovery matrix before changed consumers/writers     |
+| RY2   | Extend existing shared review selection and state semantics; recall completion/transition/show                   | Approved RY1 slice | Selection agrees across consumers; retries preserve history; conflict/commit outcomes are explicit          |
+| RY3   | Add capability/dependency closure; Requirements, Architect, cost, Governance                                      | Approved RY1 capability contract | Incomplete required designs block readiness; authorized review of alternatives remains possible       |
+| RY4   | Complete deterministic feasibility and command interfaces; existing validators and contract emitters             | RY0 and each affected input contract | Known defects fail offline; valid near-neighbours pass; no zero-file false successes               |
+| RY5   | Make review/revision convergence explicit; parent agents, reviewer contract, review audit                        | RY2 attempt/input contract and relevant RY4 checks | Bounded repair/resume retains attempt history, closure and allowances                    |
+| RY6   | Render/validate handoffs and shrink duplicated runtime guidance; recall views, heading registry, agents          | RY2 validated view for renderer; existing registry for isolated fixes | Exact headings, bounded length, selected evidence and operation limits       |
+| RY7   | Verify CodeGen through Deploy and As-Built boundaries; existing validation/handoff/drift contracts               | RY3-RY6       | Both tracks preserve dependencies, permissions and plan conformance through non-deploying completion fixtures   |
+| RY8   | Independent source review, Local acceptance and staged publication                                               | RY0-RY7       | Required safety/compatibility gates and bounded native scenarios pass; residual limits acknowledged             |
+
+RY2 and RY3 may use separate implementation branches only if explicitly approved; default is small serial changes
+on the existing feature branch. No concurrent writes to fixtures, state or the Git index. Start with one failing
+test, make the smallest owning change, run it immediately, then expand only to required integration gates.
+Batch labels group outcomes, not blanket dependencies. Isolated deterministic checks and handoff fixes need not wait
+for capability modelling or review-convergence work. The implementation-session no-concurrent-write rule does not
+replace RY2's runtime concurrency contract for separate Local sessions.
+
+### Batch Specifications
+
+**RY0: Baseline and evidence.** Reuse the supplied incident records; do not ask the user to repeat successful
+module turns. Catalogue applied/published/uncommitted fixes separately, distinguishing retained regressions from
+remaining defects and unverified hypotheses. Capture current review-selection APIs,
+validator CLI signatures and schema versions. Create synthetic scenarios from observed failures without personal
+data, subscription IDs, private policy definitions or raw chat logs. Include a clean successful path as a control.
+
+**RY1: Contract design.** Specify each stage's required inputs, producer, validator, approval action, hash scope,
+unknown/deferred states, permitted mutation and return owner. Distinguish completion from approval and deployment
+from preview, code generation, discovery and read-only review. Identify the monitoring issue's originating decision:
+whether Architecture omitted a required dependency or CodeGen introduced unapproved access flags. Do not assume
+every Azure Monitor workload needs AMPLS. First classify the required producer/query paths and approved posture.
+Contract changes require an explicit schema/version decision and test migration before consumer edits.
+The relevant contract, compatibility matrix and owner recovery path require human approval before that slice's
+consumer/writer changes or stricter gates. Resolve only that slice's decisions; do not require all-stage design first.
+
+**RY2: Shared evidence/state semantics.** Extend the existing shared Governance/Plan replacement-selection helper
+while retaining public flags. Store explicit selection per step/lens in the existing state/audit model;
+resume readers consume that selection rather than parsing free-text rationale or guessing filenames. Bind reviews
+to the exact consumed input set, including supporting contracts/evidence, not only the primary Markdown file.
+Track approval scope separately from review validity. Design for changed files during validation, atomic writes,
+duplicate completion calls, retries after interruption and preservation of original completion timestamps. Test
+deep-lens completeness, historical invalid reviews, current blockers and selected-review drift independently.
+Selection resolves the required review set, not one global "clean" file: independent Step 2 cost review and every
+required deep lens remain mandatory. Previously selected evidence is revalidated on consumption.
+
+Define `not committed`, `committed but index stale`, `already applied` and `conflict` outcomes. A failed precondition
+leaves authoritative state and evidence unchanged; an index failure after commit must report the committed revision
+and recovery action, never imply no write occurred. Repeated identical completion preserves timestamps and does not
+reset the destination step. Specify a bounded concurrency strategy across participating writers, unique temporary
+files and state/input revision checks through commit. Read-only validation must not silently restore a backup.
+Index repair and primary-state recovery are explicit, separately scoped actions.
+
+The current implementation separates state replacement from index updates, can restore backup state while reading,
+and overwrites timestamps on repeat completion. These are source-verified properties, not reproduced concurrency
+incidents. Test interruption and competing writers rather than claiming atomic rename solves the whole transaction.
+
+**RY3: Dependency closure.** At Requirements, capture who needs each capability now: workload clients, operators,
+telemetry producers, query users, deploy runners and identity administrators. Do not repeat known answers. Architect
+must identify dependencies, owner and evidence for required capabilities: private access includes endpoints, DNS,
+routes/client origin, authorization, subnet/IP capacity and cost. Shared resources require scoped discovery and
+owner confirmation; a missing result is not tenant-wide absence. Deferrals require explicit capability acceptance,
+not a network-security exception. Governance reconciles live rules without converting user preferences into policy.
+Cost owner provides complete incremental scenarios, units, timestamp and FX; feasibility feedback returns before
+Architecture approval. Security obligations and scope/budget conflicts go to the human, not automatic public fallback.
+Evidence for discovery, access, capacity and cost includes scope, observation time, source, assumptions, owner and
+verification status in the existing contracts. Byte freshness and operational evidence validity are separate results.
+Design completeness gates approval/code generation; runtime reachability or observed ingestion may remain explicitly
+unverified until separately authorized execution. A known missing required design path cannot use that distinction
+to pass readiness. Permit specifically authorized read-only review of alternatives without implying approval.
+Capability deferrals identify affected consumers, accepting owner and revisit condition; mandatory security obligations
+cannot be deferred.
+
+**RY4: Deterministic feasibility.** Reuse existing validators for name budgets across environments, scope compatibility,
+dependency graphs, policy normalization, required provider constraints, exact module interfaces and parameter inputs.
+Version service-specific rules with their source/API assumptions; avoid scraping prose for a generic proof of cloud
+correctness. Add explicit CLI help and common path handling only where needed, preserving aliases and intentional
+no-project behavior. Every targeted invocation returns checked inputs, PASS/FAIL/DEFERRED and actual diagnostics;
+nonexistent explicit targets cannot pass. Provide an owner-invoked structured hash-sync operation restricted to
+authorized draft bindings; it must not rewrite findings or approved artifacts. Validate all references afterward.
+Use phase-scoped governance checks rather than ignoring future-stage failures from a full-chain validator.
+
+**RY5: Review convergence.** Freeze content, formatting and supporting inputs before dispatch. Supply one compact
+brief with consumed paths, validated constraints, prior IDs/dispositions and exact commands. The first comprehensive
+review covers coupled prerequisites together; deterministic tool passes do not excuse semantic omissions. Persist
+immutable per-invocation findings and explicit closure links without inflating pass numbers into invocation counts.
+Batch authorized compatible repairs and rerun affected checks before a confirmation only within the applicable
+remaining allowance or separately recorded explicit authorization. This proposal grants no new confirmation allowance.
+Preserve ceilings across new chats and interruptions. New substantiated findings remain valid; no "confirm only"
+instruction may hide regressions. Review-only requests cannot mutate artifacts or offer edit panels unless the user
+expands scope.
+Define durable attempt identity, input digest and interrupted/unknown outcomes in existing audit structures.
+Distinguish reviewer invocations, artifact-repair allowances and identical-input empty-output retries. Unknown attempt
+outcomes require conservative human reconciliation, not an automatic retry or inferred unused allowance. A selected
+clean review must explicitly close or supersede prior blocking findings; their omission is not closure.
+Do not introduce a scheduler. Document what Local Copilot can enforce and what remains human-controlled; source-text
+ceiling checks and post-action log analysis are not runtime enforcement.
+
+**RY6: Handoffs and runtime guidance.** Add an owner-invoked renderer/updater based on the existing heading registry
+and validated recall view. Required content: completed/current steps, effective decisions, selected review paths,
+open blockers, next human-selected owner and operation limits. Enforce the line bound without dropping safety facts;
+if required content cannot fit, fail with a precise diagnostic rather than silently truncating. Preserve user-authored
+content under an explicit ownership policy; do not rewrite files automatically on every state read. Generate command
+reference snippets from actual parser contracts where practical. Keep essential stop/approval rules in agent bodies;
+replace duplicate detailed procedures with one required phase-specific reference and tests of actual execution paths.
+
+**RY7: Code to operations.** Preserve one-new-source-file cadence. Compile each eligible module, classify missing
+scaffold dependencies accurately and test the full emitted graph when complete. Compare code with frozen contracts:
+names, SKUs, scope, conditions, DNS, diagnostics, security and output bindings. A clean compiler cannot establish
+service usability. The deployment gate consumes a validated IaC handoff plus resolved environment identities, current
+policy evidence and explicit preview/apply permission; it never repairs upstream plans itself. As-Built compares
+authorized observed state with intended contracts in both directions and reports unverified operations honestly.
+No live deployment is part of the automatic program; any live acceptance needs separate user authorization.
+
+### First Implementation Slice: Selected-Review Continuity
+
+After approved RY0 inventory and a selector-specific RY1 decision, extend existing selection for Governance and
+default-mode Plan only. Expose a structured effective-selection result for completion and validated resume
+presentation. Retain public flags, historical audits, approvals and evidence. Legacy free-text audit entries require
+explicit owner selection, never guessed parsing, filename ordering or automatic read-time backfill.
+
+Reuse current freshness checks. Report unsupported legacy supporting-input coverage honestly; do not claim complete
+binding or waive a required downstream check. Defer global review-hash changes, other review-mode extensions, capability
+schemas and automatic handoff rewriting. Existing deep-mode restrictions and independent review requirements remain.
+Implement only the approved slice's necessary writer/retry safeguards; wider runtime work stays in RY2.
+
+Acceptance tests exercise the actual commands and consumers in isolated synthetic projects:
+
+- Valid explicit Governance/Plan confirmations resolve identically for completion and resume; original evidence stays
+  byte-identical. Revalidate stored selection rather than trusting its previous acceptance.
+- No selection is inferred from names, timestamps or free-text rationale. Legacy insufficient evidence returns an
+  actionable owner-migration requirement without mutating the project.
+- Wrong project/lens/pass, stale inputs, missing files, unresolved blockers and unauthorized replacement fail closed.
+  Preserve existing deep-mode replacement rejection and independent Step 2 cost-review requirements.
+- Review validity creates no approval or operation permission; unchanged valid approval is not requested redundantly.
+- Repeated identical completion preserves timestamps and destination progress. Input/state conflicts reject before
+  commit; post-commit index failure reports the committed revision and does not repeat advancement on recovery.
+- Bicep and Terraform consumers use the same selection semantics. Tests distinguish existing verified hash coverage
+  from unsupported coverage; a matching primary hash alone cannot satisfy missing required evidence.
+
+### Compatibility And Rollout
+
+For every changed schema/selector, implement readers before writers and migrate synthetic fixtures before projects.
+Existing approved projects remain byte-preserved. Compatibility readers may support old shapes only with sufficient
+evidence for the same safety checks; otherwise return an actionable owner-migration requirement, never infer approval.
+New mandatory fields are opt-in on fixture/pilot schema versions first, then enabled for new projects after approval.
+Do not silently enforce an incompatible schema on a current approved project or silently grandfather an unsafe state.
+Document the affected projects and explicit owner recovery path before enabling stricter gates.
+
+| Legacy condition | Required treatment |
+| ---------------- | ------------------ |
+| Sufficient evidence under an explicitly supported contract | Continue only through its documented compatibility path |
+| Newly required evidence absent or insufficient | Preserve history; block the affected operation with an owner recovery action |
+| Known unsafe condition | Explicit blocker; no grandfathering |
+| Unsupported schema or rollback tool version | Reject consequential writes; preserve readable evidence |
+
+RY1 names supported contract/validator versions and the operation triggering migration. Checklist, protocol,
+reviewer/model and validator changes need an explicit impact decision: existing review hashes include tooling inputs,
+so unchanged project bytes alone do not guarantee reuse. Compatibility is not permission to ignore freshness failure.
+Owner-authorized successor revisions or another approved versioned preservation mechanism must retain original bytes,
+review links and approvals. Never edit old findings, restamp evidence or silently rewrite approved inputs to migrate.
+Test rollback readers against newer fixtures before rollout; a source revert alone does not establish compatibility.
+
+Roll out each batch as a separately reviewable change, retaining public CLI aliases and protected invariants.
+Do not combine unrelated AVM cache churn with semantic changes. Publish only after focused tests and required hooks
+pass, with local/remote SHA confirmation. Roll back through ordinary reviewed reverts and compatible readers;
+preserve all project evidence and decision history, and never use force-push or destructive worktree reset.
+
+### Human Decisions And Remaining Evidence
+
+Before the affected slice, obtain explicit decisions on supported legacy contract versions and migration triggers,
+the versioned preservation mechanism for approved-artifact revisions, and Local runtime concurrency policy
+(single authorized writer or supported competing writers). Also approve treatment of ambiguous reviewer attempts
+without automatic allowance renewal, and pilot acceptance scope: offline-ready versus Local end-to-end accepted.
+Recording these as open decisions does not select an implementation or authorize production recovery.
+
+Still unverified: native recurrence after the latest source fixes, Terraform runtime parity for the Bicep incidents,
+the full emitted Bicep graph and wrapper interfaces, shared monitoring connectivity/capacity/complete incremental cost,
+and the frequency of competing Local sessions or enforceability of attempt accounting. Reuse supplied evidence;
+do not launch Azure discovery, new reviews or native production runs merely to fill this inventory.
+
+### Verification And Release Criteria
+
+- Behavioral tests, not only regex assertions: lowercase Deny omission, explicit zero-match target, invalid names,
+  anomaly scope/date constraints, scope-function collision, missing dependency edges and missing client-path evidence.
+- State tests on both completion commands: stale primary/supporting hashes, wrong artifact/lens/pass, missing approval,
+  selected historical review, deep mode, interrupted/duplicate transition, concurrent change and no-write failure.
+- Test oracles invoke public commands and actual consumers, assert exit status and output meaning, and compare
+  before/after state/evidence bytes. Preloaded success flags or regex-only instruction checks do not prove transitions.
+  Pair seeded failures with valid near-neighbours that must pass; test both IaC tracks.
+- Additional negative cases: corrected policy facts versus obsolete recall assertions; insufficient discovery,
+  conditional capacity and incomplete pricing; missing versus expired supporting evidence; interrupted attempts and
+  exhausted allowances; index failure after commit; preview-only history rejected as deployment evidence.
+- Lifecycle fixtures: clean Requirements-to-Lessons path for each track; one owner correction; one approved deferral;
+  one resumed preserved review; one unavailable reviewer; one read-only discovery with incomplete scope. Use existing
+  test harnesses, not a reintroduced E2E launcher. Fixtures must not manufacture production approval or Azure outputs.
+  Offline As-Built tests use clearly labelled synthetic observed state and test intended/observed drift both ways;
+  they are not deployment acceptance. Include Lessons output and retention of unresolved limitations.
+- Current required suites: recall CLI/package tests in separate processes, script tests, agent/model/instruction
+  checks, schema/Markdown/template checks through their designated owners, and relevant docs/link checks. Run Bicep
+  and Terraform compiler/provider checks only with their actual prerequisites; skipped checks remain explicitly skipped.
+- Independent source review must find no unresolved security, ownership, evidence-loss or compatibility blocker.
+  Rubberduck is the requested second opinion on this plan, not the production Challenger approval for user artifacts.
+- Local acceptance: one user-run end-to-end code-generation path per track and one bounded resume/failure case,
+  grouped at stage boundaries. Avoid asking for logs after each successful module. Deployment acceptance remains
+  separately opt-in. If runtime testing is unavailable, call the result offline-ready, not end-to-end accepted.
+
+Measure before/after on comparable sanitized workloads and identical stage scope: avoidable user interventions,
+failed commands from syntax/path mistakes, repeated reads, first-review detection of seeded defects, reopenings,
+review invocations, elapsed time and recorded input/cache tokens. Do not turn token totals into billing or compare
+partial tasks as full-workflow savings. Release requires zero unauthorized mutation/approval/bypass, all seeded
+deterministic defects caught before approval-seeking review, and clean paths without redundant approval requests for
+unchanged scope/inputs or failed command guesses. Distinct mandatory human gates remain required. Valid near-neighbours
+must pass, and authorized read-only reviews of alternatives remain available. Correct stops for stale evidence,
+exhausted allowances or incomplete modules are not avoidable-intervention failures.
+Any remaining intervention must identify a genuine missing decision, unavailable dependency or new valid finding.
+
+### FreshConnect Recovery And Next Action
+
+Keep FreshConnect at its current monitoring reconciliation boundary. Do not widen access or fabricate shared-path
+evidence to finish testing. The Architect must first present options matching current capability requirements and
+qualified inventory/cost evidence; user approval precedes plan/contract changes and the required reviews. Preserve
+already-built modules and revalidate only affected consumers after the owner-approved revision. This production
+decision proceeds separately from implementing this repository plan.
+
+Next repository action after explicit implementation approval: RY0, then the selector-specific RY1 approval gate and
+the selected-review continuity slice in RY2. Amending this document does not authorize those actions. Review the smallest
+contract proposal before adding new fields. If RY1 reveals a role/model/cadence/security change is necessary, stop for explicit
+approval rather than expanding this plan's execution authority. Estimate implementation effort after the RY0 inventory;
+do not promise a calendar completion date or quantified savings from incomplete baseline evidence.
+
+### RY0 Baseline And Findings (2026-09-16)
+
+Authorization: the user approved the immediately preceding proposal to execute RY0 baseline inventory only.
+This record does not approve RY1 contracts, runtime implementation, schema migration, publication or project recovery.
+No FreshConnect state commands, Azure requests, production reviews, code generation or Git mutations ran in RY0.
+
+**Source baseline:** `abcb908b7c35be06449730faa55da036cd8abee4` on `perf/apex-workflow-optimization`.
+The index was empty. Dirty tracked sources at entry are recorded below; untracked project artifacts and infrastructure
+under `agent-output/freshconnect-mini/` and `infra/bicep/freshconnect-mini/` are protected, excluded from fixtures and
+publication, and were not read as production session state. Existing AVM cache changes remain separate user/generated work.
+Hashes describe entry bytes before this RY0 documentation update, not a clean checkout or final publication snapshot.
+
+| Dirty tracked path | Entry SHA-256 |
+| --- | --- |
+| `.github/agents/05-iac-planner.agent.md` | `09e0825e023a06dacd0cd7dd3a28ad244f91d6d45ef90713d5fe8bf18478b67c` |
+| `.github/instructions/iac-bicep-best-practices.instructions.md` | `dd5dce769982cac83e69d3d6e2843f9a85f4cbbf3bccb34bf219f53e94107546` |
+| `.github/skills/apex-iac-common/references/codegen-shared-workflow.md` | `4d77e935f595bfe70019770d7c7d525e8bf40de32987c7c7f582ca88c34ffa06` |
+| `.github/skills/apex-iac-common/references/contract-emission-and-handoff.md` | `a07dd13d71979233bc54e1332a753c0fdad965b3f75ac9ff77518f72f0fecf1e` |
+| `.github/skills/apex-iac-common/references/iac-planner-approval-gate.md` | `4740f0d05d692f7563db0600c5d8cceb1d2acf1687b4f4092f5cffc8c3c4778a` |
+| `AGENTS.md` | `f8e95d9a6e428374866b33c25de786e27845fa60045576ba88c48ad67ce31e1c` |
+| `CHANGELOG.md` | `95747cbcdc3308996a513f8dbb400e7681ebc5183d206df36af23ab62bb8496d` |
+| `site/src/content/docs/concepts/workflow.md` | `8108a17ecdfb48a683eb49e70556a3be1d29ccb6dd30426d86a5eb47fb5e9d67` |
+| `tools/apex-recall/src/apex_recall/__main__.py` | `8006a814688a276d466bd0b2264dca6163b91575a1c966bf2c4c7ea50ccec2a2` |
+| `tools/apex-recall/src/apex_recall/commands/complete_step.py` | `34fa969e2931a76d393f9af3aa5d6f5c7852e395477195797c299bcbc28b17d4` |
+| `tools/apex-recall/src/apex_recall/commands/transition.py` | `746c784e209fe87401aed2ef2cfc2891e76e4a7ca395a56ce1210b78bed749fc` |
+| `tools/apex-recall/tests/test_transition.py` | `71685f611856066084d5f80c28333240415c871e1277f815bd704612f10ce59e` |
+| `tools/scripts/_data/avm-module-cache.json` | `3f8b4eaf152d4cf4acee2c6bf622ab53a126a2db9f4deb789889de24b982e7b5` |
+| `tools/tests/exec-plans/active/apex-workflow-optimization.md` | `73ace99f607db610993ddd5b4f997193501afa3aad04fb9d9fb5aff4e75cf192` |
+| `tools/tests/exec-plans/active/skill-remediation.md` | `0c1e43832b373aea5b87a832309707b90e59d6c7f8d979994e8879a5ef769c67` |
+| `tools/tests/scripts/test_guidance_remediation.mjs` | `923ed4a76e1a9c9b711168abd4c4a00c461d7f62639e0b3b77c877ab64434bda` |
+
+Additional read-only anchors at the baseline revision: `state_writer.py`, `commands/show.py` and
+`tools/scripts/validate-challenger-findings.mjs` were unchanged from HEAD. Toolchain: Node 24.21.0, Python 3.14.7,
+Bicep 0.47.16 and Terraform 1.16.2 on Linux ARM64. Runtime model eligibility and production concurrency remain untested.
+
+#### Current Contract Inventory
+
+- State writer emits `schema_version: "3.0"`; existing fixtures also exercise legacy migration. There is no new
+  schema/version introduced by RY0. `show --json` reads the index and exposes `.session.steps`, `.session.decisions`,
+  `.session.open_findings` and `.session.decision_log`, not a structured effective-review selection or validity result.
+- `complete-step` and `transition --complete` share `_select_replacement_review`: explicit Governance and default-Plan
+  paths/reasons are accepted; Plan deep-mode substitution and mixed selectors are rejected. Selection is stored as
+  filename/pass/hash text inside an audit rationale, not a structured value read by `show` or future completion calls.
+- The strict findings validator binds primary artifact/directory bytes, checklist, protocol, reviewer source/model
+  and combined hash. It does not bind a declared complete set of separately consumed supporting files. This is a
+  coverage limit, not proof those files changed. IaC contract references independently bind plan/policy-map content.
+- Reviewed contract generations in the current workflow include `iac-contract-v0/v1`, `policy-property-map-v1`,
+  `environment-manifest-v1` and findings `1.0`; supporting-input migration must not silently mutate approved examples.
+- Orchestrator and both CodeGen bodies consume recall/artifact evidence through instructions. They do not receive a
+  common machine-computed effective-selection view. Existing shared guidance already recognizes explicit confirmations;
+  RY2 must connect actual readers to that view, not merely add another reminder.
+- Existing commands remain authoritative: artifact-path contract/consistency/map/environment checks; `--verify-cache`
+  belongs to the findings validator; recall `show <project>` and `decisions --project <project>` have different syntax.
+
+#### Reproduction Results And Disposition
+
+| ID | Observation | Evidence class | Disposition |
+| --- | --- | --- | --- |
+| RY0-01 | Explicit Governance/Plan replacement, wrong bindings, missing reason, bypass and deep-mode rejection | Existing isolated command fixtures pass | Retain current safety checks; extend continuity, do not rebuild selectors |
+| RY0-02 | Selection remains free-text audit data; show has no effective-selection result | Current source inspected | Remaining RY1/RY2 contract gap |
+| RY0-03 | Repeating valid completion changes the original completion timestamp | Synthetic CLI reproduction with controlled clock | Remaining idempotency defect |
+| RY0-04 | Injected index failure returns CLI exit 1 after primary state already says complete | Synthetic CLI reproduction with index fault | Remaining ambiguous commit outcome; not a precondition failure |
+| RY0-05 | Review validation on corrupt primary state restores its valid backup | Synthetic validation-path reproduction | Remaining read-side mutation; needs explicit recovery contract |
+| RY0-06 | Primary review hash excludes separately consumed supporting artifacts | Current validator source inspected | Explicit legacy coverage limit; migration decision required |
+| RY0-07 | Concurrent writers can contend over shared temp path and read/write windows | Current source inspected only | Race frequency/outcome unverified; no claim of reproduced lost updates |
+| RY0-08 | Lowercase Deny, zero-target CLI and anomaly deployment constraints | Existing behavioral fixtures pass with valid controls | Retain implemented fixes; do not count as remaining defects |
+| RY0-09 | Scope-function collision reproduces and role-specific symbol compiles | Existing real Bicep compiler fixture passes | Retain regression; no need for repeated native probe |
+| RY0-10 | Handoff and monitoring-path guidance assertions pass | Source-contract tests and supplied native incident records | Native recurrence prevention and general semantic detection remain unverified |
+
+Existing regression runs: recall package **143 passed**, separate recall CLI **78 passed**, guidance suite **28 passed**.
+The guidance suite contains both behavioral/compiler checks and regex assertions; its total is not a count of runtime
+guarantees. No full deployment, native user-agent replay, network discovery or new independent review was performed.
+
+Scratch-only probe `tmp/ry0_baseline_test.py` reused synthetic-project helpers from `test_transition.py`, set
+`APEX_ROOT` to pytest temporary roots, and ran actual CLI entrypoints for RY0-03/04 and the current review-validation
+function for RY0-05. **Three observation tests passed** after correcting an initial probe assumption: the CLI catches
+the injected index exception and returns 1 rather than propagating it. These tests assert current undesirable behavior
+for inventory; they are not regression gates declaring that behavior correct. Probe SHA-256:
+`b24745fe3f9d59810d08945e0f9ec52dc3ceae3b74f7cfb63c5d29a6b6182519`.
+
+Reproduction recipes retained here if ignored scratch files are unavailable:
+
+1. Seed a synthetic project plus a valid Plan review using existing metadata fixtures; invoke `complete-step` twice
+   with different controlled `_iso_now` values. Both return 0; the completed timestamp changes.
+2. Seed the same valid project; inject failure in `state_writer._reindex_file`; invoke the public CLI completion.
+   It returns 1 with an index error, while the primary JSON has already committed complete status.
+3. Seed valid state and review; retain a valid `.json.bak`, corrupt only the synthetic primary, and invoke
+   `_challenger_findings_invalid` for Step 4. The review passes and the primary is restored during the read path.
+
+#### RY1 Decision Packet: Proposed, Not Authorized
+
+Recommended first contract decisions, to be approved before implementing changed readers/writers:
+
+| Decision | Recommendation | Boundary |
+| --- | --- | --- |
+| Selection storage | Add a versioned structured per-step/lens selection to the existing state contract; audit remains append-only | Governance/default Plan only; no global hash or deep-mode redesign in first slice |
+| Legacy compatibility | Preserve existing supported review validation; legacy audit text requires explicit owner selection | No rationale parsing, latest-file inference or read-time backfill |
+| Read semantics | Show/validation never repair primary state; report recovery-required and expose committed/index status | Backup restore and reindex are explicit owner actions |
+| Repeat calls | Revalidate evidence, then return already-applied for identical completion without timestamp/destination reset | Changed inputs or requested operation require a distinct decision, not idempotent success |
+| Writer conflicts | Per-project serialization for participating writers plus revision/input rechecks and unique temporary files | No claim of protection from uncooperative external editors; mutation during validation must block |
+| Approval handling | Preserve historical approval and require the owner to establish current operation scope | Review selection alone cannot mint approval; old free-text history is not silently migrated |
+| Pilot | Isolated fixtures and offline-ready consumer tests first, then separately authorized Local acceptance | FreshConnect migration/design recovery and deployment remain excluded |
+
+No option above is implemented or selected by recording it. Before RY2 work, RY1 must specify exact fields/version,
+failure outcomes, affected writers/readers, backward/rollback behavior and acceptance tests for the approved choices.
+RY0 is complete as an inventory/reproduction batch, not as a repaired runtime or whole-program approval. The next
+human gate is authorization of the selector-specific RY1 design and its decisions; no further RY0 log collection is needed.
+
+### Second Opinion
+
+Requested reviewer: **GitHub Copilot Rubberduck**. Review only after this draft is complete. Ask for failures in the
+root-cause diagnosis, overlooked authority/compatibility risks, unnecessary abstractions, weak success metrics,
+missing negative tests, sequencing flaws and a smaller viable first implementation batch. Require prioritized
+findings and concrete amendments; do not treat reviewer preference as permission to change scope. Record the actual
+invocation/result below and reconcile findings before calling the plan reviewed. If unavailable, retain the draft
+and report the limitation; do not substitute another agent and label it Rubberduck.
+
+**Attempt recorded 2026-09-16:** Tool discovery did not expose a Rubberduck capability. After completing and
+validating this draft, the named invocation `github copilot rubberduck` returned `Requested agent ... not found`.
+No second-opinion findings were produced by that invocation and no fallback reviewer was substituted.
+
+**Direct second opinion recorded 2026-09-16:** The user subsequently requested a direct review with `/rubber-duck`,
+prohibiting additional agents. The current assistant reviewed this section, linked incident records and relevant
+local implementation without edits, project-state operations, tests or Azure operations. Verdict: **NEEDS REVISION**.
+This was a direct second opinion, not a successful invocation of the unavailable standalone Rubberduck capability
+and not a production Challenger review. Native observations came from supplied audit records; current source checks
+supported the stated implementation properties, not new runtime reproductions.
+
+The user then authorized amendment of this plan only. Findings are incorporated as follows:
+
+| Finding | Priority | Amendment |
+| ------- | -------- | --------- |
+| Historical approval versus current readiness | High | Approval/readiness/invalidation matrix and decision provenance |
+| Executable compatibility, not only preserved bytes | High | Versioned migration matrix and explicit RY1 human gate |
+| Narrow transaction guarantees | High | Commit/index/conflict outcomes, idempotency, recovery and concurrency tests |
+| Review convergence and durable allowances | High | Attempt identity/outcomes, distinct budgets and explicit prior-finding closure |
+| Hash freshness versus operational validity | High | Scoped evidence qualifiers and design/runtime readiness distinction |
+| Over-broad sequencing | Medium | Output-specific dependencies and selected-review continuity first slice |
+| Weak or ambiguous test oracles | Medium | Real command assertions, valid controls, synthetic As-Built and Lessons coverage |
+
+Disposition: addressed in the proposed design, not implemented or independently reverified. Open human decisions
+remain listed above. The earlier verdict is retained as history; no new READY verdict, implementation approval,
+production approval, review allowance, commit or publication is implied by this amendment.
 
 ## Delivered Workflow Batch (A01-D05)
 

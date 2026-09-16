@@ -145,6 +145,98 @@ test("Planner batches provider feasibility checks before spending its bounded re
   assert.match(contract, /apex-recall decisions --project <project> --json/);
   assert.match(contract, /return all substantiated findings together/);
   assert.match(contract, /Do not increase the auto-fix cap/);
+  const approval = skill("apex-iac-common/references/iac-planner-approval-gate.md");
+  assert.match(approval, /--plan-review-reason/);
+  assert.match(approval, /without asking the same approval again/);
+  assert.match(approval, /not a Step 4 completion gate because L2 CodeGen and L3 Deploy do not exist yet/);
+  assert.match(approval, /a later pass number is not the total/);
+  assert.match(approval, /entire tool-computed digest/);
+  assert.match(approval, /check:h2-order -- <project> README\.md/);
+  assert.match(approval, /check:h2-order -- <project> 00-handoff\.md/);
+  assert.match(approval, /wc -l < agent-output\/<project>\/00-handoff\.md/);
+  assert.match(approval, /-lt 60/);
+  assert.match(approval, /Editor diagnostics and a line-width scan do not verify/);
+  assert.match(approval, /do not rerun completion, reopen approval or edit reviewed inputs/);
+});
+
+test("CodeGen preflight distinguishes cached names, verified types and deferred graph validation", () => {
+  const workflow = skill("apex-iac-common/references/codegen-shared-workflow.md");
+  assert.match(workflow, /explicitly selected, audited confirmation/);
+  assert.match(workflow, /Do not pass a bare project name/);
+  assert.match(workflow, /wrapped `modules\[\]` response is not a top-level array/);
+  assert.match(workflow, /Discover actual cache files/);
+  assert.match(workflow, /Listing `parameters \| keys` verifies names only/);
+  assert.match(workflow, /required\/defaulted fields, allowed values, nested definitions/);
+  assert.match(workflow, /do not create deployment dependencies/);
+  assert.match(workflow, /add explicit prerequisite `dependsOn` edges/);
+  assert.match(workflow, /Check emitted ARM dependencies once the scaffold builds/);
+  assert.match(workflow, /defer only errors traced to known, not-yet-emitted approved module files/);
+  assert.match(workflow, /one-source-file-per-turn cadence/);
+  const bicep = read(".github/instructions/iac-bicep-best-practices.instructions.md");
+  assert.match(bicep, /add explicit edges when constructed IDs hide dependencies/);
+  assert.match(bicep, /subscriptionResourceId\('Microsoft.Resources\/resourceGroups', resourceGroupName\)/);
+  assert.match(bicep, /Constructed IDs and module declaration order do not establish dependencies/);
+});
+
+test("Bicep scope-function symbols must not shadow resourceGroup calls", (context) => {
+  const available = spawnSync("bicep", ["--version"], { encoding: "utf8" });
+  if (available.error?.code === "ENOENT") return context.skip("Bicep CLI unavailable");
+  assert.equal(available.status, 0, available.stderr);
+  const directory = mkdtempSync(path.join(tmpdir(), "bicep-scope-shadow-"));
+  context.after(() => rmSync(directory, { recursive: true, force: true }));
+  writeFileSync(
+    path.join(directory, "group.bicep"),
+    "targetScope = 'subscription'\noutput marker string = 'fixture'\n",
+  );
+  writeFileSync(
+    path.join(directory, "child.bicep"),
+    "targetScope = 'resourceGroup'\noutput marker string = 'fixture'\n",
+  );
+  const target = path.join(directory, "main.bicep");
+  const source = (symbol) => `targetScope = 'subscription'
+module ${symbol} 'group.bicep' = {
+  name: 'group-fixture'
+}
+module foundation 'child.bicep' = {
+  name: 'foundation-fixture'
+  scope: resourceGroup('fixture-rg')
+  dependsOn: [${symbol}]
+}
+`;
+  writeFileSync(target, source("resourceGroup"));
+  const broken = spawnSync("bicep", ["build", "--stdout", target], { encoding: "utf8" });
+  assert.notEqual(broken.status, 0);
+  assert.match(broken.stderr, /BCP265/);
+  writeFileSync(target, source("projectResourceGroup"));
+  const fixed = spawnSync("bicep", ["build", "--stdout", target], { encoding: "utf8" });
+  assert.equal(fixed.status, 0, fixed.stderr);
+  const arm = JSON.parse(fixed.stdout);
+  const deployments = Array.isArray(arm.resources) ? arm.resources : Object.values(arm.resources);
+  assert.ok(deployments.find((resource) => resource.name === "foundation-fixture").dependsOn.length > 0);
+  assert.match(read(".github/instructions/iac-bicep-best-practices.instructions.md"), /Prefer role-specific names/);
+  assert.match(skill("apex-iac-common/references/codegen-shared-workflow.md"), /Missing module interfaces can mask/);
+});
+
+test("private observability requires an approved client path rather than disabled flags alone", () => {
+  const workflow = skill("apex-iac-common/references/codegen-shared-workflow.md");
+  const planning = skill("apex-iac-common/references/contract-emission-and-handoff.md");
+  assert.match(workflow, /disabled public ingestion\/query flags are access restrictions/);
+  assert.match(workflow, /resource associations, its private endpoint, service-correct DNS/);
+  assert.match(workflow, /return\s+the discrepancy to Planner/);
+  assert.match(workflow, /Do not enable public access, add AMPLS\/resources/);
+  assert.match(workflow, /platform diagnostics and SDK\/agent traffic/);
+  assert.match(workflow, /reported as deferred, not operationally ready/);
+  assert.match(planning, /Before freezing private Log Analytics\/Application Insights settings/);
+  assert.match(planning, /Establish ownership of existing shared monitoring connectivity/);
+  assert.match(planning, /not a project-owned AMPLS/);
+  assert.match(planning, /not found within the inspected scope/);
+  assert.match(planning, /Generic resource listings do not\s+prove effective routes/);
+  assert.match(planning, /distinguish support from observed delivery/);
+  assert.match(planning, /minimum allocation is a lower bound/);
+  assert.match(planning, /route new estimates through `cost-estimate-subagent`/);
+  assert.match(planning, /additional DNS zones\/queries/);
+  assert.match(planning, /dated\s+currency conversion/);
+  assert.match(planning, /No identified AMPLS meter is not proof of no charge/);
 });
 
 test("private networking defaults distinguish public web, private APIs and verified DNS ownership", () => {

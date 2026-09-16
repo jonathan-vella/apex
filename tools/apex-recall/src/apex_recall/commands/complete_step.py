@@ -65,7 +65,7 @@ def _review_paths(project: str, step: str, governance_review: Path | None = None
     if step == "2":
         gates.append(("03-des-cost-estimate.md", "challenge-findings-cost-estimate.json"))
     project_dir = session_state_path(project).parent
-    if step == "3_5" and governance_review is not None:
+    if step in ("3_5", "4") and governance_review is not None:
         return [(project_dir / gate[0], governance_review)]
     produced = any((project_dir / gating_name).is_file() for gating_name, _ in gates)
     return [
@@ -169,34 +169,57 @@ def _record_skip(data: dict, step: str, reason: str, now: str) -> None:
     skips.append({"step": step, "reason": reason, "recorded": now})
 
 
-def _select_governance_review(project: str, step: str, args) -> tuple[Path | None, dict | None]:
-    selected = getattr(args, "governance_review", None)
-    reason = (getattr(args, "governance_review_reason", None) or "").strip()
+def _select_replacement_review(project: str, step: str, args) -> tuple[Path | None, dict | None]:
+    governance = getattr(args, "governance_review", None) is not None or bool(
+        getattr(args, "governance_review_reason", None)
+    )
+    plan = getattr(args, "plan_review", None) is not None or bool(getattr(args, "plan_review_reason", None))
+    if governance and plan:
+        raise ValueError("Select only one step-specific replacement review")
+    option, expected_step, label, stem = (
+        ("plan_review", "4", "Plan", "plan")
+        if plan
+        else ("governance_review", "3_5", "Governance", "governance-constraints")
+    )
+    selected = getattr(args, option, None)
+    reason = (getattr(args, f"{option}_reason", None) or "").strip()
     if selected is None and not reason:
         return None, None
-    if step != "3_5" or not selected or not reason:
-        raise ValueError("Governance replacement selection requires Step 3.5, --governance-review and its audit reason")
+    if step != expected_step or not selected or not reason:
+        raise ValueError(
+            f"{label} replacement selection requires Step {expected_step}, a review path and its audit reason"
+        )
+    if plan:
+        state = read_state(session_state_path(project))
+        if state.get("decisions", {}).get("review_depth") == "deep":
+            raise ValueError(
+                "--plan-review selects a default comprehensive confirmation, not a deep-review lens replacement"
+            )
     if getattr(args, "allow_missing_challenger", False):
-        raise ValueError("A selected Governance review cannot use the missing-review bypass")
+        raise ValueError("A selected review cannot use the missing-review bypass")
     project_dir = session_state_path(project).parent.resolve()
     candidate = Path(selected)
     if not candidate.is_absolute():
         candidate = project_dir.parent.parent / candidate
     if candidate.is_symlink() or candidate.parent.resolve() != project_dir or not candidate.is_file():
-        raise ValueError("Selected Governance review must be a regular, non-symlink file in the current project")
-    match = re.fullmatch(r"challenge-findings-governance-constraints-pass([2-9][0-9]*|1[0-9]+)\.json", candidate.name)
+        raise ValueError("Selected review must be a regular, non-symlink file in the current project")
+    match = re.fullmatch(rf"challenge-findings-{stem}-pass([2-9][0-9]*|1[0-9]+)\.json", candidate.name)
     if not match:
-        raise ValueError("Select an explicitly authorized later Governance pass using its canonical filename")
-    original = project_dir / _CHALLENGER_GATE["3_5"][1]
+        raise ValueError(f"Select an explicitly authorized later {label} pass using its canonical filename")
+    original = project_dir / _CHALLENGER_GATE[expected_step][1]
     if not original.is_file():
-        raise ValueError("Preserve the original Governance pass-one review before selecting a replacement")
+        raise ValueError(f"Preserve the original {label} review before selecting a replacement")
     digest = hashlib.sha256(candidate.read_bytes()).hexdigest()
     entry = {
-        "decision": "Select Governance replacement review for completion",
+        "decision": f"Select {label} replacement review for completion",
         "rationale": f"{reason}; review={candidate.name}; pass={match[1]}; sha256={digest}",
-        "step": "3_5",
+        "step": expected_step,
     }
     return candidate.resolve(), entry
+
+
+def _select_governance_review(project: str, step: str, args) -> tuple[Path | None, dict | None]:
+    return _select_replacement_review(project, step, args)
 
 
 def run(args) -> int:
@@ -207,7 +230,7 @@ def run(args) -> int:
     skip_reason = (getattr(args, "challenger_skip_reason", None) or "").strip()
 
     try:
-        governance_review, selection = _select_governance_review(project, step, args)
+        governance_review, selection = _select_replacement_review(project, step, args)
     except (OSError, ValueError) as error:
         return _report_invalid_review(project, step, str(error), as_json)
     blocked, gating_path, sidecar_path = _challenger_findings_missing(project, step, governance_review)

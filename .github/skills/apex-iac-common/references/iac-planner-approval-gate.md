@@ -69,3 +69,63 @@ on the remaining `should_fix` set only:
 Present the final aggregated summary (counts of accept/reject/defer/edit
 for must_fix + should_fix) and the handoff to the appropriate CodeGen
 agent (Bicep or Terraform based on `decisions.iac_tool`).
+
+### Preserved confirming reviews
+
+Resolve the review path before presenting approval. If a separately authorized default-mode comprehensive
+confirmation was saved as `challenge-findings-plan-pass<N>.json` (N greater than 1), retain the original
+`challenge-findings-plan.json` and use the confirming file explicitly at completion. Do not copy a clean review over
+history, restamp stale hashes, infer the newest filename or switch to deep mode because its filename contains `pass2`.
+
+Validate the selected review with `node tools/scripts/validate-challenger-findings.mjs --verify-cache <review-path>`.
+After explicit human approval, complete with:
+
+```bash
+apex-recall complete-step <project> 4 \
+  --plan-review agent-output/<project>/challenge-findings-plan-pass<N>.json \
+  --plan-review-reason "<actual confirmation authorization and recorded approval reference>" --json
+```
+
+`transition --complete` accepts the same flags only when starting the next step is separately approved. The selector
+is Step 4/default-comprehensive-only and validates the same-project file, pass, artifact, lens and strict freshness.
+It records the selected filename, byte hash and reason in the completion write. Deep-review lens replacement remains
+unsupported; stop for owner resolution instead of weakening that contract. Selection grants neither a review-budget
+reset nor human approval. It cannot combine with a Governance selector or missing-review bypass.
+
+If a tooling failure occurs after human approval, retain that approval and resume completion against unchanged
+validated inputs without asking the same approval again. `plan_status=APPROVED` is not completed Step 4; require
+successful `complete-step` before updating completion status or handing off to CodeGen. Keep reviewed plan/contract
+bytes frozen; update only recall, the project index and compact handoff after successful completion.
+
+### Post-completion handoff checks
+
+Keep the canonical `00-handoff.md` headings: Completed Steps, Key Decisions, Open Challenger Findings (must_fix only),
+Context for Next Step, Skill Context, Artifacts. Put locked inputs and review evidence under those sections; do not
+replace them with custom Status, Locked Plan, Review Evidence or Next Action headings. Keep the handoff below 60 lines.
+Editor diagnostics and a line-width scan do not verify this artifact contract. Run these explicit agent-safe checks
+after the final README/handoff edit, from the verified workspace root:
+
+```bash
+npm run check:h2-order -- <project> README.md
+npm run check:h2-order -- <project> 00-handoff.md
+test "$(wc -l < agent-output/<project>/00-handoff.md)" -lt 60
+```
+
+Inspect each exit result before claiming success. If handoff validation fails after successful completion, repair
+only the handoff; do not rerun completion, reopen approval or edit reviewed inputs. Verify Step 5 remains pending
+when the user requested a stop before CodeGen. Preserve selected-review paths and compare reviewed input hashes.
+
+### Phase-aware final checks
+
+Before approval, run the explicit-path contract, consistency, policy-map and environment-manifest validators from
+the [pre-review feasibility gate](contract-emission-and-handoff.md#step-4--pre-review-feasibility-gate), plus current
+review verification. Confirm valid Governance evidence separately. `validate:governance-trace -- --project <project>`
+checks the full L0-L3 chain; it is not a Step 4 completion gate because L2 CodeGen and L3 Deploy do not exist yet.
+Do not call that full-chain failure a pass or add `--allow-legacy` to bypass missing future attestations.
+
+Record executed review invocations separately from filename/pass labels: a later pass number is not the total
+review count across revisions or sessions. Preserve existing audit entries and exhausted repair allowances; a
+confirmation does not reset either. Reuse available unchanged skill content rather than repeatedly loading it.
+Resolve terminal working-directory problems using the verified workspace root before interpreting missing-file output.
+For hash synchronization, use the entire tool-computed digest, not a displayed prefix or reconstructed value;
+validate immediately and freeze only after every referenced hash matches.

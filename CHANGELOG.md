@@ -20,6 +20,19 @@ for full details on this and all prior releases.
 
 ### Changed (Agent modernization)
 
+- Bound shared-monitoring discovery conclusions by inspected scope and keep read-only approval separate from redesign.
+  Route new pricing through the cost owner and qualify AMPLS capacity, ingestion and budget claims by actual evidence.
+- Require an approved Azure Monitor client access path before treating disabled public query/ingestion flags as ready.
+  Distinguish compilation, platform diagnostics and application telemetry; return missing private connectivity to Planner.
+- Avoid Bicep symbols that shadow scope functions; reclassify scaffold diagnostics as module interfaces become available.
+  Add an offline compiler regression for resource-group symbol shadowing and dependency-preserving repair.
+- Clarify CodeGen exact-path validation and cached-schema evidence; require dependency checks before scaffold deferral.
+  Preserve audited confirming reviews and distinguish restored parameter names from verified nested module bindings.
+- Correct Bicep guidance for resource-group IDs and explicit dependencies when constructed IDs hide prerequisite edges.
+- Preserve canonical compact handoff headings after Plan completion and verify H2 order and length explicitly.
+  Editor diagnostics and line-width checks alone do not establish artifact structure compliance.
+- Let Step 4 completion explicitly select an authorized comprehensive confirmation while preserving the original review.
+  Retain strict validity checks, audit the selection, reject deep-mode substitution, and reuse unchanged human approval.
 - Catch scheduled-action scope, display-name, view and schedule omissions in the IaC contract before review.
   Require Planner's complete feasibility check and name bounds without increasing reviewer or auto-fix allowances.
 - Validate lowercase Deny coverage and reject explicit planning-validator targets that match no files.

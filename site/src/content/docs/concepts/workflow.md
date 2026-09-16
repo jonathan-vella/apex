@@ -92,6 +92,13 @@ and current review hashes must support the `05-IaC Planner` handoff; copied Arch
 
 ### Planning Feasibility
 
+If an authorized default-mode comprehensive confirmation is saved separately from the original Plan review,
+select it at completion with `--plan-review <path>` and `--plan-review-reason "<reason>"`. The original review is
+preserved and the selected review must pass strict validation. The filename does not enable deep review or renew
+repair allowances. These flags do not replace deep-review lenses or authorize approval or CodeGen.
+An approved plan remains incomplete until the completion command succeeds; unchanged recorded approval can be
+reused after a tooling repair without repeating the human gate.
+
 Before independent review, Planner checks resource-name bounds for every allowed environment, module/resource scope,
 and the full cost-anomaly provider requirements together. Scheduled actions carry `resources[].deployment` in the
 IaC contract. `InsightAlert` requires subscription scope, a bounded display name, a same-subscription view and a

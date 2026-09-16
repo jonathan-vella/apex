@@ -56,7 +56,7 @@ from .complete_step import (
     _challenger_findings_missing,
     _record_skip,
     _report_invalid_review,
-    _select_governance_review,
+    _select_replacement_review,
 )
 
 
@@ -99,9 +99,9 @@ def run(args) -> int:  # noqa: C901 — one CLI dispatcher, branchy by design
         return 1
 
     try:
-        governance_review, selection = _select_governance_review(project, from_step, args)
+        governance_review, selection = _select_replacement_review(project, from_step, args)
         if governance_review is not None and not complete:
-            raise ValueError("--governance-review requires transition --complete")
+            raise ValueError("Replacement review selection requires transition --complete")
     except (OSError, ValueError) as error:
         return _report_invalid_review(project, from_step, str(error), as_json)
 
