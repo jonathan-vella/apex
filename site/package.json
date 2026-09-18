@@ -22,7 +22,7 @@
     "starlight-links-validator": "^0.25.3"
   },
   "overrides": {
-    "devalue": "^5.8.1",
+    "devalue": "^5.9.2",
     "nanoid": "3.3.18"
   }
 }
