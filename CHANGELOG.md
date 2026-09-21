@@ -18,8 +18,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 See the [published changelog](https://apexops.pro/project/changelog/)
 for full details on this and all prior releases.
 
+### Security
+
+- Update Astro, sharp, devalue, SVGO, js-yaml, fast-uri and smol-toml to resolve dependency advisories.
+  Override markdownlint-cli2's pinned smol-toml dependency with the patched release until its upstream pin is updated.
+
 ### Changed (Agent modernization)
 
+- Validate publication Markdown and artifact contracts from an isolated Git-index snapshot, retaining tracked
+  template coverage without scanning unrelated untracked projects. Resolve local tools and propagate validator failures.
+- Unify current-review lifecycle guidance and replace routine CodeGen per-file stops with bounded validated batches.
+- Add read-only input resolution, canonical handoff hashing, structured preview summaries and bounded provider-payload
+  regression checks. Reject mismatched preview/policy evidence and keep runtime input approval separate from discovery.
 - Permit authenticated public Log Analytics and workspace-based Application Insights endpoints when policy and
   approved requirements allow them. Require AMPLS for private-only monitoring, not as a blanket PaaS default;
   preserve private networking for other data services and cover both IaC tracks with scanner regressions.

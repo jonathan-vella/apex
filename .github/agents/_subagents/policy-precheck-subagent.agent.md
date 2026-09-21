@@ -218,21 +218,23 @@ exactly — that file is the canonical I/O spec. Summary:
 2. **Query live policy state** via `az policy state list` (RG-scope or
    subscription-scope per `target_scope`). Cache ≤ 5 minutes per
    invocation.
+    Retain query limits and effect/assignment identity; observations are not complete effective-assignment coverage.
 3. **Cross-check live vs constraints** — flag any `policy_definition_id`
    present live but missing from constraints; flag any live `lastModified`
    newer than the envelope's `discovered_at`.
-4. **What-if validation** —
-   - Bicep: `az deployment {scope} what-if --subscription {subscription_id} --validation-level Provider ...`.
-     Bind all policy queries to that same subscription and target scope.
-   - Terraform: reuse the plan from Phase 1; provider errors can expose policy
-     failures, but plan success does not validate ARM deployment-time Deny effects.
-     Cross-check effective policies against planned values. Unknown values or
-     unsupported evaluation coverage return BLOCK/FAILED, not a zero-violation PASS.
+4. **What-if validation**: Bicep uses `az deployment {scope} what-if --subscription {subscription_id}`
+   with `--validation-level Provider --no-pretty-print --output json` and approved template/parameter arguments.
+   Bind policy queries to the same subscription and scope. Terraform reuses the Phase 1 plan; provider errors may
+   expose policy failures, but plan success does not validate ARM deployment-time Deny effects. Cross-check effective
+   policies against planned values. Unknown values or unsupported coverage return BLOCK/FAILED, not a zero-violation PASS.
 5. **Envelope freshness** — read `discovery_metadata`, compute
    `age_days = (now - discovered_at) / 86400`; status `FRESH` /
    `STALE` / `MISSING` per `policy-precheck-contract.md`.
 6. **Emit JSON** to `output_path` with the schema in the contract, validate it,
-  then return the text block above. Record subscription/scope, parameters, phase
+    using `validate-policy-precheck.mjs <output_path> --preview <raw-json> --tool bicep|terraform`
+    with `--expected-ids <approved-expanded-identities.json>` from the approved bindings, not copied preview IDs.
+    Reported missing/newer counts must match retained detail records; invalid preview evidence blocks the gate.
+    Then return the text block above. Record subscription/scope, parameters, phase
   and source evidence using existing fields. Clean only this invocation's scratch
   after evidence is consumed; preserve failed evidence when requested, identifying
   its path. Never delete caller paths or another invocation's files. Stop.

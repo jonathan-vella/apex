@@ -113,6 +113,7 @@ Always specify Azure Storage Account backend only.
 
 ## Read Skills First
 
+Before environment bindings, follow [input resolution](../skills/apex-azure-defaults/references/identity-resolution.md#resolve-before-asking).
 First run [Prerequisites Check](#prerequisites-check) and inspect the saved
 session checkpoint. Missing inputs return to their owner before bulk skill reads.
 Then load the guidance below for the current phase; reuse unchanged content
@@ -499,9 +500,7 @@ Invoke `challenger-review-subagent` once with:
 - `output_path` = `agent-output/{project}/challenge-findings-plan.json`
 - `overwrite` = `false` (set to `true` only when re-running after revisions)
 
-The subagent writes the JSON file at `output_path` and returns a compact
-summary (≤15 lines). **Do NOT paste subagent JSON inline.** Read the file
-from disk only if you need full finding details for the Gate presentation.
+The subagent writes `output_path` and returns ≤15 lines. Do not paste JSON inline; read full findings only when needed.
 For transient worker errors, retry once, then return `blocked`. Resolution or model
 eligibility failure blocks immediately and requires human Challenger routing.
 Do not reach Phase 5 on an unresolved error or replace independent review inline.
@@ -564,7 +563,9 @@ Then run the **three-stage gate** documented in
 - **Stage 3** presents the final proceed gate + handoff to 06b/06t.
 
 **Plan-status attestation (MANDATORY)** — before completing the step,
-verify (a) every challenger pass returned `APPROVED`, (b) the Governance
+verify (a) current required reviews pass the
+[review lifecycle](../skills/apex-azure-defaults/references/adversarial-review-protocol.md#review-lifecycle),
+(b) the Governance
 Compliance Matrix is complete (every Deny has a row, no `❌ unsatisfiable`),
 (c) the Code-Generation Contract section is present for every resource,
 (d) AVM freeze gate passes — **both** `validate:avm-versions:freeze`

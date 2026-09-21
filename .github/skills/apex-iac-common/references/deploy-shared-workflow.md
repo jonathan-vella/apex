@@ -13,12 +13,30 @@ An explicit standalone Challenger request remains separate from the deployment g
 
 ## Preflight: Security Baseline Check
 
+Before asking for runtime values, load and follow
+[input resolution](../../apex-azure-defaults/references/identity-resolution.md#resolve-before-asking).
+Reuse manifest and `session.decision_log` approvals; redacted placeholders and unset variables are different cases.
+
 Run `npm run validate:iac-security-baseline` before preview/what-if.
 If violations found, hand back to Code agent.
 Reuse `security_validation_status: PASSED` only when its inputs match the current
 IaC tree, baseline and tool/version evidence. Missing or stale evidence requires revalidation.
 
 ## Copy-Then-Fill Artifact Protocol
+
+### Structured preview evidence
+
+Bicep preview capture requires `--no-pretty-print --output json`; `--output json` alone may still emit human text.
+Read Azure's actual top-level `changes`, `diagnostics`, `potentialChanges` and `status` (or explicit REST properties).
+Use `node tools/scripts/summarize-deployment-preview.mjs --input <raw-json> --tool bicep|terraform
+--expected-ids <approved-expanded-identities.json>`. Reconcile exact expected IDs, including child resources, from
+approved bindings, not by copying the preview itself. Exit 0 is checked coverage, 2 requires review, 1 is invalid or blocked.
+None grants apply permission. Unknown actions, diagnostics and incomplete expansion cannot become zero-change success.
+Retain the raw payload and input/scope binding. Do not strip arbitrary text until JSON parsing happens to succeed.
+Run `validate-policy-precheck.mjs <result> --preview <raw-json> --tool bicep|terraform
+--expected-ids <approved-expanded-identities.json>` on that same evidence.
+Policy-state observations are not complete effective assignments; retain query caps and missing/newer details.
+Policy PROCEED is not approval of destructive changes or a substitute for preview coverage and human approval.
 
 Start `06-deployment-summary.md` from the template, never from memory.
 
@@ -88,8 +106,8 @@ offer, `terraform validate`/`fmt -check`, no `-target`).
 
 - Run preflight validation (auth + governance + plan check) BEFORE any
   deployment command.
-- Scan param / tfvars file for placeholders and use `askQuestions` to
-  collect missing values from the user.
+- Scan parameter/tfvars inputs for placeholders; resolve approved/discoverable values first, then batch only
+  genuine missing-value or conflict questions under the input-resolution procedure above.
 - Check `04-implementation-plan.md` for the chosen deployment strategy
   (single shot vs. phased).
 - Deploy phases one at a time with an explicit user approval gate

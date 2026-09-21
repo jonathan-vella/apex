@@ -5,15 +5,13 @@
 Per-tool file emission order for Phase 2 of the CodeGen agents
 (`06b-bicep-codegen` / `06t-terraform-codegen`).
 
-Each listed file is emitted in **its own response turn** — the table is
-dependency ordering only, not a batch boundary. Full cadence rule
-(per-file announce → create_file → end turn, plus anti-patterns and
-resume-after-abort flow):
+The table defines dependency ordering, not response boundaries. Use bounded batches
+with focused validation after each edit and a root check/checkpoint at the batch boundary.
+Continue routine approved work without a per-file user prompt. Full cadence and recovery rule:
 [`codegen-shared-workflow.md` → Phase 2: Output Cadence](./codegen-shared-workflow.md).
 
 Adjust each set to match the project's Code-Generation Contract — drop
-unused files, add project-specific ones. **Cadence stays one file per
-response turn regardless of how the set is trimmed.**
+unused files, add only approved project-specific ones. Explicit user stop requests still apply.
 
 ## Bicep
 
@@ -23,7 +21,7 @@ Count actual files written after trimming this table; table ordinals are not che
 | #  | File                                                                                                                                                       | Round (dep) |
 | -- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
 | 1  | `main.bicep` (params, vars, `uniqueSuffix`, module composition)                                                                                            | 1           |
-| 2  | `main.bicepparam` (or per-environment `.bicepparam` files, one turn each)                                                                                  | 1           |
+| 2  | `main.bicepparam` (or per-environment `.bicepparam` files)                                                                                                | 1           |
 | 3  | `modules/networking.bicep`                                                                                                                                 | 2           |
 | 4  | `modules/keyvault.bicep`                                                                                                                                   | 2           |
 | 5  | `modules/observability.bicep` (Log Analytics + Application Insights)                                                                                       | 2           |

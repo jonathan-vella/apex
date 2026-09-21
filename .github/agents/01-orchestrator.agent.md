@@ -161,6 +161,9 @@ chat — always paths.
 
 ## Stop rules
 
+At gates, use the
+[review lifecycle](../skills/apex-azure-defaults/references/adversarial-review-protocol.md#review-lifecycle).
+
 - Stop and wait for user input after every gate presentation.
 - Stop after presenting **any** step handoff button — the user clicks the
   button to enter the target agent. The orchestrator never auto-invokes a

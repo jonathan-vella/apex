@@ -169,9 +169,9 @@ metadata for the approved exact version); pin mismatches block Phase 2.
 
 ## Phase 4.6 — Validate Gate (MANDATORY)
 
-Run an Azure-side validate **before** the challenger pass and **before**
-handoff emission. This catches policy violations and template/provider
-errors that local lint cannot.
+Run the Azure-side validate after local checks and **before** completion or handoff emission in every mode.
+Optional review does not own or waive this gate. It catches some policy/template/provider errors that local lint
+cannot; partial nested expansion and successful validate are not proof of successful apply.
 
 ### Bicep
 
@@ -209,10 +209,12 @@ existing approval/recovery path; never silently add migration or upgrade flags.
 `-refresh=false` does not make a plan offline: providers/data sources may still
 require Azure access. No access means no successful plan evidence.
 
-Re-render the env-specific bicepparam / tfvars from
-`04-environment-manifest.json` via
-`tools/scripts/validate-environment-manifest.mjs --redact` before
-invoking.
+Resolve environment-specific inputs through
+[identity resolution](../../apex-azure-defaults/references/identity-resolution.md#resolve-before-asking) before invoking.
+`validate-environment-manifest.mjs --redact` produces a redacted display, not usable deployment parameters.
+Build parameters using approved process-local values and put generated output in invocation-owned scratch outside
+the IaC tree. Capture parameter-build and provider-validation command, exit code and output hash separately.
+An unexecuted provider command has no observed exit code; never borrow parameter-build evidence for it.
 
 **Timeout-retry policy** (applied by the gate executor; Terraform: CodeGen parent): retry
 **at most 2 times** with exponential backoff (5s, 15s) on transient
@@ -236,6 +238,8 @@ tree unless `tree_hash` mismatches.
 - `tree_hash` — sha256 of sorted file hashes over the IaC root
   (`infra/bicep/{project}/` or `infra/terraform/{project}/`).
   Computed by `validate-iac-handoff.mjs`.
+  Obtain it with `node tools/scripts/validate-iac-handoff.mjs --tree-hash infra/<tool>/<project>`;
+  never copy the algorithm into shell snippets. This read-only mode emits the canonical digest and file count.
 - `entrypoint`:
   - Bicep: `kind: bicep-main`, path to `main.bicep`, `scope: subscription`
   - Terraform: `kind: terraform-root`, path to module dir, `scope: subscription`

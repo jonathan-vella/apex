@@ -313,7 +313,7 @@ for (const track of ["bicep", "terraform"]) {
     assert.match(completion, /These completion checks run even when Phase 4.5 is skipped/);
     assert.match(completion, /Mechanical Auto-Fix Before Exiting/);
     assert.match(completion, /Save `05-implementation-reference.md` in every mode/);
-    assert.match(body, /one file per response turn/);
+    assert.match(body, /bounded validated batches/);
     assert.match(body, /never migrate persisted keys silently/);
     assert.doesNotMatch(body, /If valid, treat the finding as informational/);
   });
@@ -587,7 +587,7 @@ test("AB-16 parent follow-up: policy validator must accept BLOCKING drift withou
   const directory = scratch(context);
   const scripts = path.join(directory, "tools/scripts");
   mkdirSync(path.join(scripts, "_lib"), { recursive: true });
-  for (const file of ["validate-policy-precheck.mjs", "_lib/reporter.mjs"])
+  for (const file of ["validate-policy-precheck.mjs", "summarize-deployment-preview.mjs", "_lib/reporter.mjs"])
     copyFileSync(path.join(root, "tools/scripts", file), path.join(scripts, file));
   const output = path.join(directory, "agent-output/demo");
   mkdirSync(output, { recursive: true });
@@ -598,9 +598,11 @@ test("AB-16 parent follow-up: policy validator must accept BLOCKING drift withou
       status: "BLOCKED",
       deploy_gate: "BLOCK",
       policies_that_will_block_deploy: [],
+      live_policies_missing_from_constraints: [],
+      live_policies_newer_than_envelope: [],
       what_if_summary: { policy_violations_in_what_if: 0 },
       attestation: { envelope_status: "FRESH" },
-      drift_signal: { severity: "BLOCKING" },
+      drift_signal: { severity: "BLOCKING", missing_from_constraints_count: 0, newer_than_envelope_count: 0 },
     }),
   );
   const result = spawnSync(process.execPath, [path.join(scripts, "validate-policy-precheck.mjs")], {

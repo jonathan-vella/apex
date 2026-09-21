@@ -238,6 +238,16 @@ test("Planner batches provider feasibility checks before spending its bounded re
 });
 
 test("CodeGen preflight distinguishes cached names, verified types and deferred graph validation", () => {
+  for (const track of ["06b-bicep", "06t-terraform"]) {
+    const body = read(`.github/agents/${track}-codegen.agent.md`);
+    assert.match(body, /Explicitly selected confirmations supersede historical failures/);
+    assert.doesNotMatch(body, /Every plan-level challenger pass|every challenger pass returned APPROVED/);
+    assert.match(body, /adversarial-review-protocol\.md#review-lifecycle/);
+  }
+  const lifecycle = skill("apex-azure-defaults/references/adversarial-review-protocol.md");
+  assert.match(lifecycle, /A findings verdict is not an execution retry/);
+  assert.match(lifecycle, /Selection, approval, successful completion and permission/);
+  assert.match(lifecycle, /Fix the finding without inventing topology/);
   const workflow = skill("apex-iac-common/references/codegen-shared-workflow.md");
   assert.match(workflow, /explicitly selected, audited confirmation/);
   assert.match(workflow, /Do not pass a bare project name/);
@@ -249,7 +259,7 @@ test("CodeGen preflight distinguishes cached names, verified types and deferred 
   assert.match(workflow, /add explicit prerequisite `dependsOn` edges/);
   assert.match(workflow, /Check emitted ARM dependencies once the scaffold builds/);
   assert.match(workflow, /defer only errors traced to known, not-yet-emitted approved module files/);
-  assert.match(workflow, /one-source-file-per-turn cadence/);
+  assert.match(workflow, /bounded validated batch cadence/);
   const bicep = read(".github/instructions/iac-bicep-best-practices.instructions.md");
   assert.match(bicep, /add explicit edges when constructed IDs hide dependencies/);
   assert.match(bicep, /subscriptionResourceId\('Microsoft.Resources\/resourceGroups', resourceGroupName\)/);

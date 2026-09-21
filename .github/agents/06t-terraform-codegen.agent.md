@@ -225,12 +225,12 @@ Run `apex-recall show <project> --json` and verify, in order:
 1. `session.current_step` is at or past Step 4.
 2. `decisions.iac_tool == "Terraform"`.
 3. `decisions.plan_status == "APPROVED"` (recorded by Planner Phase 5
-   Stage 3 after every challenger pass returned APPROVED and the
+  Stage 3 after current required reviews passed and the
    Governance Compliance Matrix + Code-Generation Contract sections
    are complete). If absent, the plan is not gate-3 approved.
-4. Every plan-level challenger pass under
-   `review_audit[step=4]` returned `overall_assessment == "APPROVED"` (no
-   `NEEDS_REVISION` or `BLOCKED` plan-level entries remain open).
+4. Step 4 is complete with current required review evidence. Follow the shared
+  [review lifecycle](../skills/apex-azure-defaults/references/adversarial-review-protocol.md#review-lifecycle).
+  Explicitly selected confirmations supersede historical failures; unresolved current blockers do not.
 5. `metadata.plan_lock.frozen_artifacts` exist on disk (the three Step 4
    artifacts above).
 6. **L0 envelope cross-check** — read `discovery_metadata` from
@@ -380,11 +380,11 @@ Build configurations in dependency order from `04-implementation-plan.md`.
 If **phased**: add `variable "deployment_phase"` with `count` conditionals per module.
 If **single**: no `deployment_phase` variable needed.
 
-**Output cadence (MANDATORY)**: one file per response turn. Full rule,
+**Output cadence (MANDATORY)**: bounded validated batches. Full rule,
 anti-patterns, and resume-after-abort flow: `codegen-shared-workflow.md`
 → Phase 2: Output Cadence. Per-file emission order + build cadence:
 `codegen-file-order.md` → Terraform. Adjust the set to match the plan's
-Code-Generation Contract; cadence stays one file per turn regardless.
+Code-Generation Contract; continue automatically within scope after each focused check.
 
 ### Phase 2.5: Bootstrap Scripts
 

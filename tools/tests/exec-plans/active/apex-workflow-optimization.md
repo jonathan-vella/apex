@@ -2,16 +2,30 @@
 
 ## Status
 
-**State**: Promotion blocked; stabilization scope recorded; implementation approval and runtime acceptance pending
+**State**: Stabilization implemented and verified offline; native acceptance and FreshConnect owner gate remain open
 **Owner**: Jonathan Vella with GitHub Copilot
 **Created**: 2026-09-10
 **Branch**: `perf/apex-workflow-optimization`
 **Original APEX revision**: `836966355354946d9fc3b78606bebbd9d08dc7d4`
 **Curated AKS reference**: `bb7ae9021a0fc59d10d129710a8a260b573d9dcc`
 
+### Current Authority Summary (2026-09-21)
+
+Use this summary for the current proposal; historical authorizations below retain their original scope only.
+
+| Area                             | Current authority                                                             | Next permitted action                                                               |
+| -------------------------------- | ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| Roadmap and second opinion       | Tracking approved; user supplied Rubber Duck feedback                         | Preserve the bounded acceptance matrix                                              |
+| ST-01 through ST-06 and ST-08    | Implementation, tests and independent reviews approved; acceptance unverified | Execute in dependency order; repair within scope without repeated approval          |
+| FC-02 broad body migration       | Deferred                                                                      | No fleet rewrite during current recovery                                            |
+| FC-04 wider interaction policies | Deferred except approved ST-06 bounded batching                               | Implement checked CodeGen batches; retain unrelated human gates                     |
+| Dependency vulnerabilities       | Separately authorized remediation; local checks passed                        | Keep its diff/evidence distinct from stabilization approval                         |
+| FreshConnect / ST-07             | Scoped deploy/delete authorized; required owner and preview gates retained    | Planner correction blocks retry; no Azure writes during maintenance                 |
+| Publication                      | Commit, push and open/update PR approved after agreed checks pass             | Include dependency/roadmap changes; exclude private project evidence; no main merge |
+
 Reference repository: <https://github.com/jonathan-vella/aks-basic>.
 The pinned reference is a qualitative output reference, not a deployment prerequisite for this phase.
-Commits and pushes are authorized only on the feature branch. Never merge into main or enable auto-merge.
+Any authorized commits and pushes are limited to the feature branch. Never merge into main or enable auto-merge.
 No Azure resources were created by the original maintenance campaign. The later user-run FreshConnect deployment
 partially provisioned resources before failing; recovery or an explicitly approved cost/cleanup disposition remains open.
 Local guidance improvements use risk-based verification;
@@ -19,10 +33,12 @@ measured end-to-end token savings and final generated-output quality are not cla
 
 ## Master Roadmap And Tracking
 
-**2026-09-21 promotion proposal:** The [bounded stabilization plan](#bounded-stabilization-and-main-promotion-2026-09-21)
-defines the proposed release-blocking subset and promotion criteria. Recording it is approved; implementation,
-cadence changes, live operations and promotion are not authorized by this documentation update.
-It proposes prioritizing focused FC-01/FC-03/FC-05 work while retaining broad FC-02 consolidation as deferred.
+**2026-09-21 execution approval:** The user approved implementing and testing the bounded stabilization scope,
+checked CodeGen batches, in-scope repairs, automated tests and independent reviews. Commit/push/PR is approved
+after agreed checks pass. These explicit decisions supersede tracking-only deferral for the selected
+[stabilization work](#bounded-stabilization-and-main-promotion-2026-09-21), not the full deferred backlog.
+FreshConnect scoped deploy/delete was subsequently authorized; current owner/review/preview gates still apply.
+Scope expansion, directory privileges and main merge remain human-gated.
 
 **2026-09-21 deferral:** Finish the current FreshConnect workflow before starting the
 [fleet procedure and body consolidation backlog](#deferred-fleet-procedure-and-body-consolidation-2026-09-21).
@@ -60,11 +76,43 @@ tracking-only state. Preserve the distinction between current test evidence, ful
 
 ## Bounded Stabilization And Main Promotion (2026-09-21)
 
-Status: **Proposed; roadmap update approved, execution not started**.
+Status: **Implemented in working tree; offline verification passed; native acceptance and operational closure pending**.
 Owner: Jonathan Vella with GitHub Copilot.
 Goal: close known reliability blockers in one coordinated maintenance task and prepare a reviewable release PR,
 without another feature expansion or supervisor chat composing routine continuation prompts.
 This is the current promotion proposal, not a declaration that the repository or FreshConnect is release-ready.
+
+### Recorded Human Decisions (2026-09-21)
+
+The user selected these answers in one consolidated decision panel:
+
+1. Implement and test the agreed ST-01 through ST-06 scope and available ST-08 checks without per-file approval.
+2. Replace mandatory per-file CodeGen stops with bounded dependency-ordered batches and validation after each edit.
+3. Fix defects inside the agreed scope automatically; ask before scope expansion. Stop and explain a repeated
+   ineffective repair or exhausted allowance instead of silently looping or resetting counters.
+4. Run local tests and independent reviewer agents with available tools/models. Do not create cloud test resources
+   or substitute unavailable models. Main-agent selection and required real human gates remain human-controlled.
+5. Prepare to finish FreshConnect through its owners. The user subsequently authorized scoped Azure deployment and
+   deletion, not directory privilege changes. This does not bypass required owner selection, current review/preview
+   gates or scope-bound apply approval. No Azure writes occurred during this maintenance pass.
+6. After agreed checks pass, commit, push and open/update a feature-branch PR, including dependency fixes and roadmap
+   updates. Exclude local project artifacts, generated infrastructure, raw logs, secrets and scratch. Do not merge.
+
+These decisions authorize work, not successful completion. Reuse them across resume without asking again unless
+scope or assumptions change. Broad FC-02 migration and other FC-04 interaction changes remain deferred.
+
+### Second Opinion And Causal Hypothesis
+
+On 2026-09-21 the user supplied a Rubber Duck plan-level second opinion supporting the direction but requesting
+finite scenarios, execution dependencies, measurable oracles, separate operational disposition and clear authority.
+This is a user-supplied review report, not an independently reproduced agent invocation or source/runtime verification.
+The changes below address that feedback; they do not imply approval by the reviewer of the revised plan.
+
+Primary hypothesis: inconsistent consumption of existing contracts causes repeated recovery loops. Body size and
+duplicate reads are contributing factors, not the success criterion. Test actual callers on equivalent state:
+an explicitly selected replacement review with valid supporting inputs permits only the caller's authorized next
+action, without reviving superseded failures or granting deployment approval. A stale-input near-neighbour must block.
+Referencing a canonical procedure is necessary but does not demonstrate this behavior.
 
 ### Operating Boundaries
 
@@ -74,8 +122,8 @@ This is the current promotion proposal, not a declaration that the repository or
   Production agents retain their artifact ownership; maintenance cannot rewrite project approvals or deploy resources.
 - Preserve policy enforcement, authentication, least privilege, independent reviews, immutable historical evidence,
   explicit main-agent selection and approval for deployment, destructive actions and privileged directory mutations.
-- Routine work continues only within approved scope. Changing the current one-file-per-turn rule requires an
-  explicit batching decision before implementation; recording this proposal does not waive the existing rule.
+- Routine work continues within approved scope. The ST-06 batching decision is approved above; implement and
+  validate the updated procedure before production agents use it. Existing unrelated approval gates remain intact.
 - Reuse successful evidence only while its relevant inputs and freshness remain valid. Do not repeat successful
   provider calls merely for timing or presentation. Never restamp old reviews or invent missing command evidence.
 - Runtime tests do not authorize live resources or spending. FreshConnect recovery and cleanup remain separately
@@ -83,7 +131,7 @@ This is the current promotion proposal, not a declaration that the repository or
 
 ### Consolidated Release Blockers
 
-All items below are **open**, with acceptance unverified. Existing fixes must be inspected before adding more code.
+Promotion acceptance remains open; implementation and offline results are recorded separately below.
 
 | ID    | Work                                                       | Required exit evidence                                                               |
 | ----- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------ |
@@ -95,6 +143,97 @@ All items below are **open**, with acceptance unverified. Existing fixes must be
 | ST-06 | Routine continuation decision (FC-04 subset)               | Explicit policy decision, then tested bounded batches or accepted residual pauses    |
 | ST-07 | FreshConnect partial-deployment disposition                | Verified recovery or explicit stop with resource inventory and cost/cleanup decision |
 | ST-08 | Controlled runtime and release acceptance (FC-03)          | Fresh/resume evidence and independent release review; limitations acknowledged       |
+
+### Stabilization Delivery Record (2026-09-21)
+
+Starting source revision: `c77c6fcad7912087df341b40542d0989b80c7e41`. Existing dirty changes were dependency fixes,
+their changelog entry and roadmap refinements; private FreshConnect output/IaC directories were untracked and preserved.
+The bounded matrix below governed implementation. Synthetic executable scenarios live in
+`tools/tests/scripts/test_stabilization.mjs`; existing recall and agent fixtures retain their original valid controls.
+No schema migration, production main-agent invocation or automatic approval was introduced.
+
+| Item  | Implementation and evidence                                                                                                                       | Remaining acceptance                                                                                  |
+| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| ST-01 | Canonical review lifecycle; both CodeGen historical-review rules corrected; Planner/Orchestrator linked; recall reliability/transition tests pass | Native caller fresh/resume exercise                                                                   |
+| ST-02 | Pure input resolver with source provenance, tenant/principal/group checks, placeholder/email rejection; consuming guidance updated                | Native input handoff; helper trusts caller-supplied approval/discovery provenance                     |
+| ST-03 | Structured CLI/REST/Terraform preview parser; explicit identity coverage; count/detail checks and unknown-action handling                         | Native preview capture and expected-ID preparation                                                    |
+| ST-04 | Known S2/default and ordinary serverfarm-network regression checker with valid controls                                                           | Wider provider coverage excluded; actual deployment acceptance unverified                             |
+| ST-05 | Canonical hash CLI; invalid path/root/target checks; distinct provider evidence; corrected redaction/sequencing guidance                          | Native support-artifact execution; evidence semantics cannot prove a command really ran               |
+| ST-06 | Checked batches of up to three new source files; redundant per-file stops removed from both tracks and shared callers                             | Native batching/resume run; source/probe tests are not harness enforcement                            |
+| ST-07 | Read-only recall/handoff inspection confirms outstanding frozen Plan VNet-integration conflict                                                    | Human-selected 05-IaC Planner correction, then CodeGen/current preview and scope-bound recovery gates |
+| ST-08 | Independent source reviews, controlled read-only decision probe and offline suites completed                                                      | Native Local acceptance and final human release acceptance; no token-savings claim                    |
+
+Verified commands/results:
+
+- `node --test --test-reporter=tap tools/tests/scripts/*.mjs`: 450 tests, 448 passed, 2 skipped, no failures.
+- `npm run test:validator-runner`: 55 passed. Recall reliability/transition pytest selection: 161 passed.
+- `npm run validate:agents`, `validate:skills`, `validate:instruction-checks`, `lint:md`: passed.
+- `npm run docs:build`: passed, with internal links valid. `npm run lint:docs-freshness`: passed.
+- Dependency remediation: root/site npm audits reported zero vulnerabilities; patched version checks covered the
+  reported advisories. Site build and sharp native AVIF encode/decode passed. No persistent npm policy was changed.
+- Independent Explore reviewers identified exit-status, path-boundary, preview-shape and missing-detail issues;
+  these were repaired and corresponding focused tests passed. This is repository review, not project Challenger evidence.
+- A read-only Explore decision probe returned the intended selected-review, stale-input, approved-input reuse,
+  batching, exhausted-retry and frozen-owner decisions. Its numerical question estimates are not observed UI metrics.
+
+Local verification logs are scratch evidence under `/tmp/apex-st-*`; they are not committed or durable CI records.
+The PR/commit identifies the reproducible test sources. The installed Copilot CLI reports 1.0.83, which does not
+prove production model eligibility or authorize invoking human-selected main agents. No native fresh project,
+Terraform deployment or production-equivalent Local acceptance was performed. Do not turn these limits into pass claims.
+Do not run the broad `validate:all` against private partial-project artifacts as a substitute for owner validation;
+the scoped repository gates above and standard publication hooks remain the release evidence for this batch.
+
+FreshConnect's recorded repaired code still conflicts with the frozen Plan/manifest VNet-integration binding.
+Its handoff points toward Deploy while also retaining that Planner blocker. Maintenance did not rewrite those
+owner artifacts or use generic agents to bypass production main-agent selection. ST-07 and promotion remain blocked
+until the owner path resolves this inconsistency. A draft PR may publish verified source work without claiming readiness.
+
+Initial publication attempt (2026-09-21): **blocked before commit**. The normal pre-commit
+artifact-validation hook, triggered by the shared artifact-skill change, scanned local untracked FreshConnect output
+and rejected `06-deployment-summary.md` for missing required template headings. The handoff also has heading warnings.
+These are private production-owner artifacts, not publication scope; maintenance did not rewrite them or bypass hooks.
+The hook's Markdown command separately reported `markdownlint-cli2: No such file or directory` despite marking its
+wrapper successful; explicit `npm run lint:md` had passed. The user subsequently authorized the narrow hook correction,
+regression tests, independent review and normal publication retries. No private artifact repair or hook bypass was used.
+
+Publication-hook follow-up: `check-publication-scope.mjs` validates an isolated Git-index snapshot. Template/guidance
+changes retain tracked template/artifact and reviewer-presence coverage; unrelated untracked projects are absent.
+Markdown resolves the installed local executable and propagates its exit status. Partial staging, paths with spaces,
+template-only changes over invalid tracked artifacts, staged deletion of review evidence, missing tools and index
+immutability have executable coverage. Both real Lefthook jobs passed using `--job markdown-lint --job artifact-validation`.
+Independent read-only review found no blockers. Latest tooling run: 453 tests, 451 passed, 2 skipped; all 29 Bats
+hook tests passed. Site build and Markdown lint passed. Native acceptance, ST-07 and main promotion remain open.
+
+### Native Acceptance Run Cards
+
+These prepared runs remain **pending**, not replaced by source tests or the read-only decision probe. Use isolated
+synthetic project copies, not FreshConnect. Do not copy secrets/real identities, invoke main agents as workers, or run
+Azure mutations. Record source revision, model/tool availability, inputs and hashes, questions, writes and outcomes.
+
+1. Human selects `06b-Bicep CodeGen` for a Bicep fixture, then `06t-Terraform CodeGen` for an equivalent Terraform
+  fixture. Prompt: "Exercise the approved stabilization scenarios on the isolated fixture only. Start from a complete
+  approved Plan with an explicit current replacement review; preserve the old failed review. Generate the next approved
+  dependency batch with per-edit validation, checkpoint and continue without routine next-file questions. No Azure calls
+  or deployment. Report unavailable gates as unperformed." Expected: selected current review controls readiness;
+  no historical-failure revival, no implicit apply permission, no unapproved writes and no per-file question.
+2. Resume each fixture with approved normalized runtime inputs and verified mock discovery evidence, but unset shell
+  variables. Prompt: "Resolve the recorded approved inputs using the shared helper; do not ask again for known values.
+  Use only supplied synthetic discovery evidence. Stop before live provider checks." Expected: zero redundant input
+  questions. Repeat with one missing tag/group decision, then a tenant conflict; only the unresolved decision is asked,
+  and a scope conflict blocks rather than switching context.
+3. Use a fresh fixture copy with a changed supporting review input, then an exhausted review retry and a generated
+  module defect. Prompt: "Resume from current evidence without resetting allowances. Repair owned local defects only;
+  stop before dependent work while checks fail and route frozen-input defects to their owner." Expected: stale review
+  and exhausted allowances block, a successful in-scope repair resumes its batch, and no reviewer output is fabricated.
+4. Human selects the appropriate Deploy owner on a preview fixture. Prompt: "Validate the supplied structured preview,
+  independently approved expected identities and policy result; do not contact Azure or apply. Report unknown actions,
+  missing identities and incomplete coverage explicitly." Expected: valid control passes the evidence checks without
+  granting apply; formatted text, inconsistent details and unknown coverage never become zero-change success.
+
+FreshConnect's separate next human gate is `05-IaC Planner`: reconcile only the recorded ordinary App Service Plan
+network-binding conflict and capability-backed S2 size, preserve resource names/SKUs/partial state, review affected
+owned artifacts and return to CodeGen. Expected result: current approved contracts match repaired source before a
+fresh deployment preview. This operational recovery is not one of the synthetic native acceptance runs above.
 
 ST-01 reconciles bodies, shared protocols and recall completion semantics. Separate transient worker retries,
 empty-output retries, repairs and separately authorized reviews. Preserve ownership and required lenses; a selected
@@ -130,11 +269,85 @@ Pause for genuine blockers, decisions, scope changes and required approval, not 
 If batching is declined, record that per-file interaction remains intentional and do not claim low-touch completion.
 Diagnose per-command approvals and global session-break policy remain separate deferred decisions under FC-04.
 
+### Execution Dependencies
+
+Initial triage freezes scenario IDs, actual entrypoints, expected results and allowed paths before implementation.
+An unlisted defect or improvement requires explicit triage and scope approval; it does not expand an ST item silently.
+New evidence of a mandatory safety blocker stops the affected action without authorizing unrelated implementation.
+
+| Work package                  | Prerequisite                                      | Concurrency and exit                                                         |
+| ----------------------------- | ------------------------------------------------- | ---------------------------------------------------------------------------- |
+| Triage and ST-06 decision     | Explicit stabilization execution authorization    | Freeze the matrix and choose batching or retained pauses                     |
+| ST-01 lifecycle contract      | Frozen scenarios and current caller inventory     | May proceed alongside ST-04 evidence fixtures                                |
+| ST-02 input resolution        | ST-01 ownership and approval semantics agreed     | Coordinate runtime-input interface with ST-05 before editing callers         |
+| ST-05 evidence/sequencing     | ST-01 contract and ST-02 interface agreed         | Shared helpers first; avoid parallel edits to the same consumers             |
+| ST-04 provider semantics      | Captured provider evidence and frozen fixtures    | Independent fixtures; integrate after ST-05 payload/evidence path stabilizes |
+| ST-03 preview evidence        | ST-02 resolved inputs and ST-05 capture interface | Integrate structured preview and policy result checks                        |
+| ST-06 batching implementation | Batching approved; ST-01/ST-05 gates stable       | Otherwise record retained pauses and omit low-touch claims                   |
+| ST-07 operational disposition | Separate project-owner authority                  | Independent operational track; no dependency for repository unit tests       |
+| ST-08 acceptance              | Repository items integrated; chosen ST-06 outcome | Runtime acceptance then final release review; promotion also checks ST-07    |
+
+### Bounded Acceptance Matrix
+
+Each scenario record must contain fixture/input hashes, concrete public command or agent entrypoint, expected
+result/action, allowed writes, expected questions and retained evidence. Bind these fields during initial triage;
+unbound fields mean the scenario is not executable, not passed. The finite scenario sets below define the scope.
+Shared oracle: no extra questions for approved unchanged inputs, no unlisted writes, no invented success evidence.
+Mutation tests use isolated fixtures; runtime logs and fixture results remain distinct evidence types.
+
+| Item  | Finite inputs and valid control                                                                                                                                  | Public consumer and expected oracle                                                                                                                                           |
+| ----- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ST-01 | Valid selected replacement with failed history; stale supporting input; exhausted retry; accepted but unresolved repair                                          | Recall completion/transition and Orchestrator/Planner/CodeGen: valid case advances only to permitted action; stale/unresolved/exhausted cases block without state advancement |
+| ST-02 | Fully approved inputs after resume; placeholder inputs; tenant mismatch; query denied; existing/new SQL group; missing tag value; malformed email                | Planner, both CodeGen/Deploy callers: valid case asks nothing; unresolved decisions are batched; failed discovery never invents values or silently switches tenant            |
+| ST-03 | Valid structured Bicep/Terraform previews; formatted text; malformed/unknown shape; diagnostics/potential changes; child-ID mismatch; capped policy observations | Deploy and policy/preview workers: derive actual changes; reject invalid evidence; disclose incomplete coverage; missing-policy records agree with counts                     |
+| ST-04 | Captured invalid/valid S2 sizes; ordinary Plan with/without network binding; independently checked identity; Bastion repair with/without invented subnet         | Planner/CodeGen/validation workers: reject known invalid payloads, accept matched supported controls; frozen contract change routes to owner without extra resources          |
+| ST-05 | Complete support files; missing parameter artifact; changed source hash; separate successful/failed/unrun command records; PowerShell parsing; existing user log | CodeGen, canonical helpers and handoff validator: valid case passes; incomplete/stale cases fail for the right reason; no borrowed exit codes or deleted user evidence        |
+| ST-06 | Approved batch completes; local defect repaired; unresolved defect; scope-changing fix; retained single-file policy                                              | Both CodeGen callers: chosen cadence enforced; validate before dependent work; stop only at specified boundaries; no second-chat continuation for batching control            |
+| ST-07 | Verified recovery; explicit operational stop; stale approval or unverified partial inventory                                                                     | Production owners: only authorized operation proceeds; unresolved disposition remains open; neither outcome establishes fresh-run reliability                                 |
+| ST-08 | Fresh and interrupted-resume paths in both tracks; representative repair/review/input handoffs; unavailable runtime capability                                   | Actual selected callers: satisfy frozen oracles without supervisor-chat prompts; unavailable capability is unperformed/blocked, never counted as pass                         |
+
+Per-item write, question and evidence contracts:
+
+- ST-01: isolated state/index and declared review outputs only; questions only for missing owner decisions or new
+  authority. Retain before/after state hashes, selected review identity, exit codes and caller next-action traces.
+- ST-02: runtime environment and explicitly owned resolution records only; no Azure/Entra mutations. Group creation
+  remains an authorized-owner request. Retain redacted provenance, missing-input reasons and actual question counts.
+- ST-03: preview/policy outputs and scratch only, never apply. Approval is asked only after a valid preview is presented;
+  invalid evidence reports its blocker. Retain raw structured response, scope/input binding, diagnostics and result hash.
+- ST-04: owned source or synthetic fixtures only; no silent frozen-artifact rewrite. Ask only for a real owner/scope
+  decision, not to verify a documented provider fact. Retain capability source, exact generated payload and verdict.
+- ST-05: declared support/evidence artifacts and invocation-owned scratch only. Ask only for unresolved inputs or
+  ownership. Retain command, exit status, output hash and inclusion rules; successful timing alone is not an oracle.
+- ST-06: approved CodeGen files/checkpoints only. Known safe local repair needs no repeated approval; scope changes do.
+  Retain per-edit validation, dependency order, stop reason and interaction count for the selected cadence.
+- ST-07: only separately authorized production operations and owner artifacts. Recovery/cleanup requires its own
+  current approval. Retain failed-operation history, resource-specific inventory, remaining costs and disposition.
+- ST-08: authorized test outputs/report only. No forced runtime fallback or live resource creation. Retain frozen
+  inputs, caller/model/tool availability, exact outcomes and redacted traces; measure tokens only when observable.
+
+Every negative scenario needs its named valid control; failure-only tests cannot establish usable behavior.
+ST-01/ST-02/ST-03/ST-05 exclude schema redesign, new frameworks and unrelated policy changes. ST-04 excludes
+SKU changes, regional generalization and mandatory live proofs. ST-06 excludes other agents' interaction policies.
+ST-07 excludes treating the recovery run as a clean baseline. ST-08 excludes Host, model comparisons and a new
+benchmark platform. Wider work stays in FC backlog and is not pulled into stabilization by test failures.
+
+### Separate Readiness Tracks
+
+- **Repository verification**: ST-01 through ST-06 and ST-08 evidence, with unavailable checks stated explicitly.
+  Repository tests and controlled caller checks may proceed while FreshConnect disposition remains open.
+- **FreshConnect operations**: ST-07 owner-managed recovery or explicit stop with inventory and cost/cleanup decision.
+  A stopped project is not a successful deployment; a recovered project is not fresh-run repository acceptance.
+- **Promotion**: the proposed gate requires repository acceptance plus an explicit ST-07 disposition. This coupling
+  prevents silently abandoning chargeable partial resources; it does not make Azure recovery a unit-test prerequisite.
+  Changing that promotion prerequisite requires a human release decision, not a rewritten completion claim.
+
 ### Delivery And Promotion Checklist
 
-1. Confirm stabilization scope and batching decision; snapshot the starting revision, dirty worktree and known failures.
-2. Implement the approved release-blocking fixes in coherent batches with focused validation immediately after edits.
-3. Close ST-07 through the production owners. Retain failed deployment evidence; do not retry under stale approval.
+1. Confirm scope and batching decision; snapshot the starting revision, dirty worktree and known failures. Freeze the
+   bounded scenario records and dependency interfaces before implementation; numeric ST order is not execution order.
+2. Implement the approved packages in dependency order with focused validation immediately after edits. Independent
+   work may proceed concurrently only when it does not change shared inputs or the same files.
+3. Track ST-07 separately through production owners. Retain failure evidence; do not retry under stale approval.
 4. Run required repository checks and controlled fresh/resume scenarios across both IaC tracks and representative
    author/reviewer/input-resolution paths. Record actual interventions, duplicate reads and tokens where observable.
 5. Run one final independent repository release review over the finalized diff and evidence. This does not replace
@@ -158,10 +371,10 @@ The earlier FC-01/FC-02 estimate does not cover this expanded release plan; re-e
 Status: **Deferred; tracking approved, implementation not started**.
 Owner: Jonathan Vella with GitHub Copilot.
 Revisit after FreshConnect completion or an explicit user decision to pause it for maintenance.
-The stabilization proposal above selects focused subsets for possible earlier execution; until approved, these
-items remain deferred. Full body consolidation is not a prerequisite for every targeted release fix.
-This deferral supersedes earlier broad maintenance authorization for the work below. It does not waive current
-project gates or authorize deployment, commits, publication, or changes to agent behavior.
+The execution approval above activates the selected ST subsets, including FC-05 input resolution, but not this entire
+backlog. Full body consolidation remains deferred and is not a prerequisite for targeted release fixes.
+Older broad maintenance authorization does not activate remaining deferred work. Current project gates remain intact;
+the recorded publication approval does not authorize deployment or main merge.
 
 ### Problem And Evidence
 
@@ -221,7 +434,7 @@ Diagnose's per-command approvals, main-agent human selection, deployment approva
 
 ### FC-05: Deployment-Input Resolution
 
-Status: **Deferred; backlog addition approved 2026-09-21, implementation not authorized**.
+Status: **Implemented through ST-02; offline fixtures pass; native handoff acceptance pending**.
 The FreshConnect parameter-build incident treated unset `APEX_*` variables as missing user decisions and requested
 subscription, deployer, SQL authentication and tag inputs together. Manifest field presence does not establish a
 usable value: zero GUIDs, redaction markers and placeholders must be classified as unresolved, not passed to validation.

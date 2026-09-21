@@ -58,6 +58,7 @@ For each resource in `04-iac-contract.json` (with the implementation plan as its
 
 Read and run the explicit artifact-path commands in
 [Contract Integrity Gate](contract-emission-and-handoff.md#phase-1--contract-integrity-gate-mandatory).
+Before parameter checks, follow [input resolution](../../apex-azure-defaults/references/identity-resolution.md#resolve-before-asking).
 Do not pass a bare project name to contract, consistency, policy-map or environment-manifest validators.
 An unsupported `--help` argument is not validation; consult that command's Usage section instead of guessing flags.
 Run from the verified workspace root. Reuse unchanged required guidance still in context rather than reloading skills.
@@ -73,6 +74,13 @@ For each upcoming module, inspect parameter types, required/defaulted fields, al
 outputs actually used by its planned bindings. Listing `parameters | keys` verifies names only. Record that limited
 evidence as such; do not claim full parameter/type compatibility until those checks pass. Schema availability does
 not verify service-side deployment rules or regional capacity. Reuse inspected exact-version evidence while current.
+
+For SQL S2 and ordinary App Service Plans, inspect concrete generated provider properties, not AVM parameter names alone.
+Use `node tools/scripts/validate-provider-payload.mjs --input <resolved-resource-array> --s2-max-bytes <approved-bytes>`
+on a provenance-backed extraction. Unresolved expressions are unverified, not passes. Verify the SQL byte-size against
+current target-region capabilities and approved requirements; do not assume the module's 32-GiB default works for S2.
+Ordinary serverfarm network properties are not application VNet integration. Do not enable custom mode or add an ASE/Web
+App to repair that mismatch. Verify identity separately. Plan/manifest conflicts require one consolidated owner correction.
 
 ## Phase 1.5: Governance Compliance Mapping
 ### Azure Monitor reachability
@@ -123,27 +131,25 @@ Before code generation, select runtime compression from observed context usage:
   compaction, or a new chat, refresh only the needed sections; never infer missing contract fields.
 4. Update session state: `sub_step: "phase_1.6_compacted"`
 
-## Phase 2: Output Cadence (MANDATORY — ONE FILE PER TURN)
+## Phase 2: Output Cadence (Bounded Validated Batches)
 
-Generate **exactly one file per response turn** throughout Phase 2.
-This is the production recovery and validation cadence, not a claim about
-a universal model or harness output limit. Preserve it on both Local and
-Agent Host; changing models does not authorize batching file bodies.
-
-The per-tool file-order tables in `06b-bicep-codegen.agent.md` /
-`06t-terraform-codegen.agent.md` define **dependency ordering only**.
-Each listed file is a separate response turn — never collapse a row
-into one response.
+Continue approved generation in bounded dependency-ordered batches without asking for routine next-file permission.
+Use at most three new source files per batch, validate each edit before dependent work, then checkpoint the batch.
+Continue the next batch in the same turn while scope, tools and context remain valid. A batch boundary is not a
+human approval gate. An explicit user request for one file or an earlier stop takes precedence.
+The per-tool file-order tables define dependency order, not response boundaries. No live deployment is authorized.
 
 ### Cadence per file
 
 1. Announce on one short line: `Generating: <path> (n/total)`.
-2. Call the file-creation tool with the full file body.
-3. End the turn. Wait for the runtime to return control before the next file.
+2. Use editing tools, preserving existing user work; run the focused build/shape check immediately.
+3. Repair a confirmed local defect within existing caps and rerun that check. Do not move to dependent work on failure.
+4. Continue automatically; stop only for an unresolved blocker, ownership/scope change, required approval or context loss.
 
 ### Build cadence (early-warning, not full validation)
 
-After every **3 files written**, check build readiness and run the toolchain build
+After each edit, check build readiness and run the narrowest available toolchain check;
+at each batch boundary and on completion run the root build
 using the execution mechanism allowed by the agent's tool/subagent budget:
 
 - Bicep: `bicep build infra/bicep/{project}/main.bicep`
@@ -172,11 +178,11 @@ graph using output references or explicit dependencies where needed, not Bicep s
 If an early build is attempted, defer only errors traced to known, not-yet-emitted approved module files (and their
 dependent invalid references). Missing external modules, syntax/type errors and unrelated diagnostics are real
 failures. Report outstanding warnings separately; never infer provider correctness from a deferred build. Preserve
-the one-source-file-per-turn cadence and continue the next approved module, not a repeat full preflight.
+the bounded validated batch cadence and continue the next approved module, not a repeat full preflight.
 Missing module interfaces can mask additional semantic errors. Reclassify all diagnostics whenever a module is
 added; BCP265 function shadowing and BCP134 scope mismatch are real source failures even alongside BCP091.
 Use role-specific module symbols rather than names of Bicep scope functions. A mechanical repair to an existing
-root after its child compiles does not authorize generating another new module in the same response.
+root after its child compiles remains in scope; validate it before the next approved dependent module.
 
 This is in addition to — not a replacement for — the full
 `bicep-validate-subagent` / `terraform-validate-subagent` runs in Phase 4.
@@ -193,9 +199,9 @@ If a prior turn aborted with the length-limit error:
   and plan conflicts do not establish ownership or authorize deletion or replacement.
   If recovery requires changing that content, stop for clarification and keep the
   affected validation and deployment handoff blocked; never repair by discarding it.
-- Resume by emitting **only the next single file** that is not on disk.
+- Resume at the next missing or confirmed incomplete file, validate it, then continue the bounded batch.
 - Do **not** re-emit any file already on disk.
-- Do **not** summarise what was lost — continue the per-file cadence.
+- Do not reconstruct lost content from memory; recover the relevant contract and continue the validated batch.
 - If state is unclear, list `infra/{tool}/{project}/` first to confirm
   which files exist, then resume from the first missing entry in the
   file-order table.
@@ -204,13 +210,16 @@ If a prior turn aborted with the length-limit error:
 
 - Emitting `main.bicep` plus 5 modules plus `azure.yaml` plus `deploy.ps1`
   in one response.
-- Treating a numbered "Round" in the file-order table as a single turn —
-  rounds are dependency groupings, not response units.
-- Calling `create_file` more than once in the same response turn.
+- Treating a numbered "Round" as permission to skip per-edit checks or exceed the batch bound.
+- Asking for routine continuation after each file when no approval or decision is needed.
 - Bundling file creation with verbose narration of all files at once
   ("Here are all the modules: ...").
 
 ## Phase 4.5: Adversarial Code Review (opt-in, default-skip)
+
+Before final validation, finish approved parameter and deployment-support artifacts. Missing generated files are
+unfinished CodeGen work, not a reason to hand a blocked package to Deploy. Resolve inputs before requesting values;
+do not run the independent validator again merely because the prior successful run had untidy output or timing.
 
 Read `apex-azure-defaults/references/adversarial-review-protocol.md` for the
 lens table and invocation template.

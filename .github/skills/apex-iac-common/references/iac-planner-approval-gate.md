@@ -5,6 +5,9 @@
 Detailed prose for the 05-IaC Planner Phase 5 approval gate. The agent
 references this file rather than inlining the full text.
 
+Apply the canonical [review lifecycle](../../apex-azure-defaults/references/adversarial-review-protocol.md#review-lifecycle)
+before the step-specific stages below. Verify proposed mitigations; automatic must-fix repair does not authorize redesign.
+
 ## Stage 1 — Auto-apply every `must_fix` (mandatory)
 
 All `must_fix` findings would block deployment, violate the security

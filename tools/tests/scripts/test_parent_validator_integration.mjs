@@ -18,7 +18,7 @@ function policyRunner(context) {
   const directory = scratch(context);
   const scripts = path.join(directory, "tools/scripts");
   mkdirSync(path.join(scripts, "_lib"), { recursive: true });
-  for (const file of ["validate-policy-precheck.mjs", "_lib/reporter.mjs"]) {
+  for (const file of ["validate-policy-precheck.mjs", "summarize-deployment-preview.mjs", "_lib/reporter.mjs"]) {
     copyFileSync(path.join(root, "tools/scripts", file), path.join(scripts, file));
   }
   const output = path.join(directory, "agent-output/demo/06-policy-precheck.json");
@@ -37,9 +37,16 @@ const policy = () => ({
   status: "CLEAN",
   deploy_gate: "PROCEED",
   policies_that_will_block_deploy: [],
+  live_policies_missing_from_constraints: [],
+  live_policies_newer_than_envelope: [],
   what_if_summary: { policy_violations_in_what_if: 0 },
   attestation: { envelope_status: "FRESH" },
-  drift_signal: { severity: "NONE", accepted_by_residual_drift_policy: false },
+  drift_signal: {
+    severity: "NONE",
+    accepted_by_residual_drift_policy: false,
+    missing_from_constraints_count: 0,
+    newer_than_envelope_count: 0,
+  },
 });
 
 function expectStatus(result, expected, label = "") {
@@ -62,7 +69,7 @@ test("AB-16 parent policy validator enforces the body's first-match gate and sta
   for (const [envelope, severity, accepted, listed, violations, gate, status] of rows) {
     const payload = policy();
     payload.attestation.envelope_status = envelope;
-    payload.drift_signal = { severity, accepted_by_residual_drift_policy: accepted };
+    payload.drift_signal = { ...payload.drift_signal, severity, accepted_by_residual_drift_policy: accepted };
     payload.policies_that_will_block_deploy = listed ? [{ effect: "deny" }] : [];
     payload.what_if_summary.policy_violations_in_what_if = violations;
     for (const candidateGate of ["PROCEED", "BLOCK"]) {

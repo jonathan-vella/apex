@@ -25,6 +25,37 @@ description: "All validation scripts, linting, and CI workflows"
 
 ## Validation Architecture
 
+### Stabilization checks
+
+CodeGen proceeds in dependency-ordered batches of up to three new source files, with focused validation after
+each edit and a root check at each batch boundary. Routine next-file permission is not required. Explicit user
+stop requests, unresolved errors, ownership changes and human approval gates still stop progression.
+
+Use these read-only commands from the repository root:
+
+```bash
+node tools/scripts/resolve-deployment-inputs.mjs --input approved-discovery-snapshot.json
+node tools/scripts/validate-iac-handoff.mjs --tree-hash infra/bicep/example
+node tools/scripts/summarize-deployment-preview.mjs --input preview.json --tool bicep --expected-ids expected.json
+node tools/scripts/validate-policy-precheck.mjs precheck.json --preview preview.json --expected-ids expected.json
+node tools/scripts/validate-provider-payload.mjs --input resolved-resources.json --s2-max-bytes 268435456000
+```
+
+The input resolver consumes approved values and read-only discovery snapshots; it performs no Azure calls or
+identity mutations. Its default report omits resolved values. See the [input snapshot contract][input-snapshot].
+An unset environment variable is not a reason to ask again for an already approved value.
+
+Capture Bicep what-if with `--no-pretty-print --output json`. The summarizer returns exit 0 for checked evidence,
+2 for required review and 1 for invalid or blocked evidence. Expected IDs come from approved resource bindings,
+including child resources, not from copying the observed result. A passing preview never grants apply permission.
+
+Provider-payload checks cover known SQL S2 and App Service Plan regressions only. Supply a concrete resource array
+extracted from generated payloads with recorded provenance; unresolved expressions remain unverified. The example
+SQL byte size must be checked against the target region's capabilities and approved configuration before use.
+Compilation, provider validation, preview and successful deployment are distinct outcomes.
+
+[input-snapshot]: https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-defaults/references/identity-resolution.md#resolve-before-asking
+
 Validation runs at three stages, catching issues progressively earlier:
 
 ```mermaid
@@ -36,7 +67,7 @@ flowchart LR
     style C fill:#ffebee,stroke:#f44336,color:#000
 ```
 
-1. **Pre-commit** — validates staged files only (fast, file-type scoped, parallel)
+1. **Pre-commit** — serialized checks; publication Markdown/artifact checks use the staged index
 2. **Pre-push** — validates all changed files vs `main` (domain-scoped, parallel)
 3. **CI** — validates the full repository on every PR and push to `main`
 
@@ -46,12 +77,17 @@ All hooks are defined in `lefthook.yml` at the repository root.
 
 ### Pre-Commit Hooks
 
+Markdown and artifact checks run through `node tools/scripts/check-publication-scope.mjs markdown|artifacts`.
+They materialize an isolated index snapshot, so partially staged files are checked as committed. Unrelated untracked
+projects cannot block publication. Template, artifact-guidance and validator changes still run H2/template and review
+presence checks across all tracked artifacts in that snapshot. Markdown uses the installed local executable; failures
+propagate without filtering away exit codes. These checks never format, stage or rewrite project files.
+
 | Hook                    | Trigger (glob)                                      | Purpose                                               |
 | ----------------------- | --------------------------------------------------- | ----------------------------------------------------- |
 | `markdown-lint`         | `*.md`                                              | markdownlint on staged markdown files                 |
 | `link-check`            | `site/src/content/docs/**/*.{md,mdx}`               | Verify URLs in staged docs files                      |
-| `h2-sync`               | SKILL.md, apex-azure-artifacts files                     | Check H2 heading sync across sources                  |
-| `artifact-validation`   | `agent-output/**/*.md`                              | Validate artifact H2 structure against templates      |
+| `artifact-validation`   | Staged artifacts, templates, guidance and validators | H2/template and review presence checks on tracked snapshot |
 | `agents`                | `**/*.agent.md`, `**/*.prompt.md`                   | Agent frontmatter, model alignment, body size         |
 | `instructions`          | `**/*.instructions.md`, agents, skills              | Instruction frontmatter and cross-reference validity  |
 | `secrets-baseline`      | _(all staged files)_                                | gitleaks secret scan (soft-skip if not installed)     |

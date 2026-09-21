@@ -98,8 +98,8 @@ project README or hand off to the next step until it passes.
 For incremental IaC, apply the readiness-aware build checkpoints in
 [`codegen-shared-workflow.md`](../apex-iac-common/references/codegen-shared-workflow.md).
 An incomplete scaffold has deferred checks, not successful validation;
-all deferred checks must pass before completion or handoff. This does not
-change the one-file-per-turn generation cadence.
+all deferred checks must pass before completion or handoff. Use bounded validated batches
+under the shared workflow; no routine per-file approval is required.
 
 ## Placeholder Syntax
 

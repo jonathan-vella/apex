@@ -96,8 +96,9 @@ Before composing the response:
 
 1. Validate the CLI token first (see Workflow step 2). Do not run what-if
    against a stale session — it will succeed with confusing output.
-2. Run what-if with `--out json` and parse the structured payload. Human-readable
+2. Run what-if with `--no-pretty-print --out json` and parse the structured payload. Human-readable
   diagnostics may explain a failure but cannot replace parsed preview evidence.
+  Use `summarize-deployment-preview.mjs` per the shared deploy procedure; a REVIEW result is not an apply gate.
 3. Quote the exact `changeType` and resource id from the JSON output for
    each entry under `Resource Changes`. Paraphrasing is a defect.
 4. For every entry under `Policy Compliance.Details`, copy the policy code
@@ -157,7 +158,7 @@ naming the missing field — do not guess defaults.
      --resource-group {resource_group} \
      --template-file {template_path} \
      --parameters {parameters_path} \
-     --out json
+    --no-pretty-print --out json
    ```
 
    For subscription-scoped deployments use:
@@ -168,7 +169,7 @@ naming the missing field — do not guess defaults.
      --location {location} \
      --template-file {template_path} \
      --parameters {parameters_path} \
-     --out json
+    --no-pretty-print --out json
    ```
 
 4. **Classify changes** using the table below.

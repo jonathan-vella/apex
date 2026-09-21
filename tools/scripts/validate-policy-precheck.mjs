@@ -37,33 +37,72 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { Reporter } from "./_lib/reporter.mjs";
+import { parseArgs } from "node:util";
+import { summarizePreview } from "./summarize-deployment-preview.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const REPO_ROOT = path.resolve(__dirname, "..", "..");
 
-const args = process.argv.slice(2);
-const strict = args.includes("--strict");
+const { values, positionals } = parseArgs({
+  allowPositionals: true,
+  options: {
+    strict: { type: "boolean" },
+    preview: { type: "string" },
+    "expected-ids": { type: "string" },
+    tool: { type: "string", default: "bicep" },
+    help: { type: "boolean" },
+  },
+});
+const strict = values.strict;
+if (values.help) {
+  console.log(
+    "Usage: validate-policy-precheck.mjs [path-or-glob] [--strict] [--preview raw.json --expected-ids ids.json --tool bicep|terraform]",
+  );
+  process.exit(0);
+}
+let preview;
+if (values.preview) {
+  try {
+    if (!values["expected-ids"]) throw new Error("--preview requires --expected-ids from approved expanded bindings");
+    preview = summarizePreview(
+      JSON.parse(fs.readFileSync(values.preview, "utf8")),
+      values.tool,
+      JSON.parse(fs.readFileSync(values["expected-ids"], "utf8")),
+    );
+  } catch (error) {
+    console.error(`Invalid preview evidence: ${error.message}`);
+    process.exit(1);
+  }
+}
 
 const r = new Reporter("Policy Precheck Output Validator");
 r.header();
 
 const agentOutputDir = path.join(REPO_ROOT, "agent-output");
-if (!fs.existsSync(agentOutputDir)) {
+if (!positionals.length && !fs.existsSync(agentOutputDir)) {
   console.log("  ℹ️  No agent-output/ directory — nothing to validate.\n");
   process.exit(0);
 }
 
-const projectDirs = fs
-  .readdirSync(agentOutputDir, { withFileTypes: true })
-  .filter((entry) => entry.isDirectory())
-  .map((entry) => entry.name);
+const projectDirs = positionals.length
+  ? []
+  : fs
+      .readdirSync(agentOutputDir, { withFileTypes: true })
+      .filter((entry) => entry.isDirectory())
+      .map((entry) => entry.name);
 
-const precheckFiles = projectDirs
-  .map((name) => path.join(agentOutputDir, name, "06-policy-precheck.json"))
-  .filter((file) => fs.existsSync(file));
+const precheckFiles = positionals.length
+  ? [...new Set(positionals.flatMap((pattern) => fs.globSync(pattern, { cwd: REPO_ROOT, absolute: true })))]
+  : projectDirs
+      .map((name) => path.join(agentOutputDir, name, "06-policy-precheck.json"))
+      .filter((file) => fs.existsSync(file));
 
 if (precheckFiles.length === 0) {
+  if (positionals.length) {
+    console.error("Explicit target matched no files");
+    process.exit(1);
+  }
   console.log("  ℹ️  No 06-policy-precheck.json files found.\n");
   process.exit(0);
 }
@@ -111,6 +150,51 @@ for (const file of precheckFiles) {
 
   // ── v2 schema enforcement ─────────────────────────────────────
   if (schemaVersion === "policy-precheck-v2") {
+    let inconsistent = false;
+    for (const [countKey, listKey] of [
+      ["missing_from_constraints_count", "live_policies_missing_from_constraints"],
+      ["newer_than_envelope_count", "live_policies_newer_than_envelope"],
+    ]) {
+      const count = data.drift_signal?.[countKey];
+      if (
+        !(status === "FAILED" && deployGate === "BLOCK") &&
+        (!Number.isSafeInteger(count) || count < 0 || !Array.isArray(data[listKey]) || data[listKey].length !== count)
+      ) {
+        r.error(relPath, `${countKey} must match the retained ${listKey} records`);
+        inconsistent = true;
+      }
+    }
+    if (preview) {
+      if (!preview.coverage.verified && deployGate === "PROCEED") {
+        r.error(relPath, "Preview resource identities do not match approved expanded bindings");
+        inconsistent = true;
+      }
+      if (preview.counts.destroys || preview.counts.replaces || preview.diagnostics.length) {
+        r.warn(
+          relPath,
+          "Preview requires separate review; policy clearance does not approve changes or dismiss diagnostics",
+        );
+      }
+      for (const key of ["creates", "updates", "destroys", "replaces"]) {
+        if (data.what_if_summary?.[key] !== preview.counts[key]) {
+          r.error(relPath, `${key} does not match structured preview evidence`);
+          inconsistent = true;
+        }
+      }
+      if (preview.verdict === "BLOCKED" && deployGate !== "BLOCK") {
+        r.error(relPath, "Structured preview contains blocking diagnostics");
+        inconsistent = true;
+      }
+      if ((preview.counts.unknown || preview.potentialChanges.length) && deployGate === "PROCEED") {
+        r.error(relPath, "Unknown or incomplete preview expansion cannot establish a PROCEED gate");
+        inconsistent = true;
+      }
+      if (reportedViolations !== preview.policy_violations) {
+        r.error(relPath, "Policy violation count does not match structured preview diagnostics");
+        inconsistent = true;
+      }
+    }
+    if (inconsistent) continue;
     if (!deployGate) {
       r.error(relPath, "schema v2 requires deploy_gate (PROCEED|BLOCK)");
       continue;

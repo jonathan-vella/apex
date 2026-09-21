@@ -7,6 +7,34 @@ all agents. Each agent specifies its own `artifact_path`,
 `artifact_type`, pass count, and review focus — this reference
 defines the shared mechanics.
 
+## Review Lifecycle
+
+Use this procedure in every producing agent, reviewer wrapper and completion consumer. Step-specific ownership,
+required lenses, human gates and existing repair caps remain authoritative; this procedure grants no new permission.
+
+1. Resolve current required evidence from the explicit owner selection and `apex-recall show --json` fields
+  `session.review_selections` and `session.effective_reviews`. Without a selection, use the step's canonical path.
+  Do not infer newest files or parse legacy audit prose into a selection. Unsupported replacement scopes return
+  to their owner. Preserved superseded failures are history, not current blockers; missing deep lenses still block.
+2. Verify primary and declared supporting inputs with `--verify-cache`, review identity/lens and unresolved findings.
+  A current hash alone is not semantic approval. An accepted mitigation is not verified closure. Missing/stale
+  evidence or unresolved current must-fix findings block advancement, regardless of historical step completion.
+3. Before an authorized repair, compare the proposed change with approved resource types, SKUs, subnet placement,
+  access modes and cost basis. Verify the reviewer's recommendation against provider or recorded proof evidence.
+  Fix the finding without inventing topology. A proof establishes tested behavior, not authority to copy all its
+  resources. Changed design or upstream ownership requires the named owner's approval, not automatic application.
+4. Apply coherent owned repairs, run focused validation, finalize inputs, then re-review only affected reviews.
+  Reuse unchanged valid evidence and unchanged user decisions. Do not rerun successful commands for nicer timing.
+  Repeated ineffective repairs or exhausted caps stop with evidence; changing filenames/sessions resets no allowance.
+5. Distinguish command retries from worker retries and repair iterations. Transient command failures follow the
+  tool's declared cap; only permitted worker execution failures may retry. Missing/empty reviewer output permits
+  one identical-input retry under the fallback below. A findings verdict is not an execution retry. Preserve attempt
+  identity, inputs and actual outcome through `review-audit`; new review authorization must be explicit.
+6. Require the existing human gate for current inputs, then call the owner completion/transition command.
+  Selection, approval, successful completion and permission for a later operation are separate facts. Preserve
+  unchanged approval on bookkeeping recovery; index-stale writes need reindex, not repeated mutation. Update the
+  mutable index/handoff after completion and validate them without editing reviewed inputs to change status.
+
 ## Lenses
 
 Single source of truth for adversarial review lenses. Agents and the

@@ -62,11 +62,9 @@ file first.
   every open decision into one inline form (see
   [`codegen-shared-workflow.md`](codegen-shared-workflow.md) →
   Batched User Decisions).
-- Bundle multiple file bodies in a single response — exceeds VS Code's
-  per-response output-token ceiling and aborts the turn with
-  _"the response hit the length limit"_. Emit ONE file per response
-  turn (see [`codegen-shared-workflow.md`](codegen-shared-workflow.md) →
-  Phase 2: Output Cadence).
+- Emit unbounded file bodies without validation or checkpointing. Use bounded validated batches
+  (see [`codegen-shared-workflow.md`](codegen-shared-workflow.md) → Phase 2: Output Cadence).
+  A context/tool limitation requires a truthful checkpoint, not an invented universal output limit.
 - Hardcode unique strings (use the shared suffix).
 - Use hardcoded tag lists / maps that ignore governance.
 - Skip governance compliance mapping (HARD GATE). The

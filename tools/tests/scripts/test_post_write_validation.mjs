@@ -318,12 +318,13 @@ test("CodeGen has one build-checkpoint owner and never passes an incomplete scaf
     path.join(ROOT, ".github/skills/apex-iac-common/references/codegen-shared-workflow.md"),
     "utf8",
   );
-  assert.match(shared, /After every \*\*3 files written\*\*/);
+  assert.match(shared, /After each edit, check build readiness/);
   assert.match(shared, /deferred \(not passed\)/);
   assert.match(shared, /no completion or handoff with deferred checks/);
   assert.match(shared, /existence alone does not prove a complete write/);
-  assert.match(shared, /exactly one file per response turn/);
-  assert.match(shared, /changing models does not authorize batching file bodies/);
+  assert.match(shared, /at most three new source files per batch/);
+  assert.match(shared, /A batch boundary is not a\s+human approval gate/);
+  assert.doesNotMatch(shared, /End the turn\. Wait|exactly one file per response turn/);
   assert.doesNotMatch(shared, /wasting the entire 200K\+ output/);
 });
 
@@ -726,7 +727,7 @@ test("shared CodeGen reference matches supported discovery, exact pins and compa
   assert.match(body, /returns to the Planner/);
   assert.match(body, /load missing required phase guidance/);
   assert.match(body, /refresh only the needed sections/);
-  assert.match(body, /ONE FILE PER TURN/);
+  assert.match(body, /Bounded Validated Batches/);
   assert.match(body, /No self-edit/);
   const contract = fs.readFileSync(
     path.join(ROOT, ".github/skills/apex-iac-common/references/contract-emission-and-handoff.md"),

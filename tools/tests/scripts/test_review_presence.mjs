@@ -61,7 +61,7 @@ test("policy precheck fails closed without fresh or explicitly stale envelope ev
   context.after(() => rmSync(root, { recursive: true, force: true }));
   const scripts = path.join(root, "tools/scripts");
   mkdirSync(path.join(scripts, "_lib"), { recursive: true });
-  for (const file of ["validate-policy-precheck.mjs", "_lib/reporter.mjs"]) {
+  for (const file of ["validate-policy-precheck.mjs", "summarize-deployment-preview.mjs", "_lib/reporter.mjs"]) {
     copyFileSync(new URL(`../../scripts/${file}`, import.meta.url), path.join(scripts, file));
   }
   const project = path.join(root, "agent-output/demo");
@@ -74,9 +74,16 @@ test("policy precheck fails closed without fresh or explicitly stale envelope ev
         status,
         deploy_gate: deployGate,
         policies_that_will_block_deploy: [],
+        live_policies_missing_from_constraints: [],
+        live_policies_newer_than_envelope: [],
         what_if_summary: { policy_violations_in_what_if: 0 },
         attestation: { envelope_status: envelopeStatus },
-        drift_signal: { severity, accepted_by_residual_drift_policy: false },
+        drift_signal: {
+          severity,
+          accepted_by_residual_drift_policy: false,
+          missing_from_constraints_count: 0,
+          newer_than_envelope_count: 0,
+        },
       }),
     );
     return spawnSync(process.execPath, [path.join(scripts, "validate-policy-precheck.mjs")], { encoding: "utf8" });

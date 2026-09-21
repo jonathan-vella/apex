@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 import test from "node:test";
 import { load, dump } from "js-yaml";
 import { parseJsonc } from "../../scripts/_lib/parse-jsonc.mjs";
+import { artifactTrigger } from "../../scripts/check-publication-scope.mjs";
 
 const { scripts } = JSON.parse(readFileSync(new URL("../../../package.json", import.meta.url), "utf8"));
 
@@ -101,7 +102,7 @@ test("docs CI retains event coverage, status jobs and same-run build provenance"
   assert.ok(!build.some((step) => step.uses?.startsWith("actions/download-artifact@")));
 });
 
-test("lefthook selects artifact, template and H2 source paths through the combined glob", (context) => {
+test("lefthook always invokes the index selector, which covers artifact and template changes", (context) => {
   const root = fixture(context);
   assert.equal(spawnSync("git", ["init", "-q", root]).status, 0);
   const hooks = load(readFileSync(new URL("../../../lefthook.yml", import.meta.url), "utf8"));
@@ -121,7 +122,10 @@ test("lefthook selects artifact, template and H2 source paths through the combin
     [".github/instructions/azure-artifacts.instructions.md", true],
     ["tools/scripts/validate-artifacts.mjs", true],
     ["README.md", false],
-    [".github/skills/apex-azure-artifacts/references/example.md", false],
+    [".github/skills/apex-azure-artifacts/references/example.md", true],
+    ["tools/scripts/_lib/artifact-headings.mjs", true],
+    ["agent-output/example/challenge-findings-plan.json", true],
+    ["lefthook.yml", true],
   ]) {
     const result = spawnSync(
       lefthook,
@@ -132,7 +136,8 @@ test("lefthook selects artifact, template and H2 source paths through the combin
       },
     );
     assert.equal(result.status, 0, result.stderr);
-    assert.equal(result.stdout.includes("HOOK_SELECTED"), selected, `${file}: ${result.stdout}`);
+    assert.equal(result.stdout.includes("HOOK_SELECTED"), true, `${file}: ${result.stdout}`);
+    assert.equal(artifactTrigger(file), selected, file);
   }
 });
 
@@ -141,58 +146,13 @@ test("artifact hook validates template-only and output changes and propagates ga
   const hooks = load(readFileSync(new URL("../../../lefthook.yml", import.meta.url), "utf8"));
   assert.equal(hooks["pre-commit"].commands["h2-sync"], undefined);
   const command = hooks["pre-commit"].commands["artifact-validation"].run;
-  writeFileSync(
-    path.join(root, "bin/git"),
-    `#!${process.execPath}\nconsole.log(process.env.STAGED_FILES); process.exit(Number(process.env.GIT_EXIT || 0));\n`,
-    {
-      mode: 0o755,
-    },
-  );
-  writeFileSync(
-    path.join(root, "bin/npm"),
-    `#!${process.execPath}\nconsole.log("CALL " + process.argv[3]); process.exit(process.argv[3] === process.env.FAIL_SCRIPT ? 1 : 0);\n`,
-    { mode: 0o755 },
-  );
-  const check = (files, failure = "", gitExit = "0") =>
-    spawnSync("/bin/sh", ["-c", command], {
-      cwd: root,
-      encoding: "utf8",
-      env: {
-        ...process.env,
-        PATH: `${root}/bin:${process.env.PATH}`,
-        STAGED_FILES: files,
-        FAIL_SCRIPT: failure,
-        GIT_EXIT: gitExit,
-      },
-    });
-  for (const files of [
-    ".github/skills/apex-azure-artifacts/templates/01-requirements.template.md",
-    "agent-output/example/01-requirements.md",
-    ".github/skills/apex-azure-artifacts/templates/01-requirements.template.md\nagent-output/example/01-requirements.md",
-    ".github/skills/apex-azure-artifacts/SKILL.md\nagent-output/example/01-requirements.md",
-  ]) {
-    const result = check(files);
-    assert.equal(result.status, 0, result.stderr);
-    assert.deepEqual(result.stdout.match(/CALL .+/g), ["CALL validate:artifacts", "CALL validate:challenger-presence"]);
-    for (const failure of ["validate:artifacts", "validate:challenger-presence"]) {
-      assert.notEqual(check(files, failure).status, 0, failure);
-    }
-  }
-  for (const source of [
-    ".github/skills/apex-azure-artifacts/SKILL.md",
-    ".github/instructions/azure-artifacts.instructions.md",
-    "tools/scripts/validate-artifacts.mjs",
-  ]) {
-    const result = check(source);
-    assert.equal(result.status, 0);
-    assert.deepEqual(result.stdout.match(/CALL .+/g), ["CALL validate:artifacts"]);
-    assert.notEqual(check(source, "validate:artifacts").status, 0);
-  }
-  assert.notEqual(check("", "", "1").status, 0);
-  for (const files of ["", "README.md", ".github/skills/apex-azure-artifacts/references/example.md"]) {
-    const result = check(files);
-    assert.equal(result.status, 0);
-    assert.doesNotMatch(result.stdout, /CALL /);
+  assert.equal(command, "node tools/scripts/check-publication-scope.mjs artifacts");
+  assert.equal(hooks["pre-commit"].commands["markdown-lint"].stage_fixed, undefined);
+  mkdirSync(path.join(root, "tools/scripts"), { recursive: true });
+  for (const code of [0, 1, 7]) {
+    writeFileSync(path.join(root, "tools/scripts/check-publication-scope.mjs"), `process.exit(${code});\n`);
+    const result = spawnSync("/bin/sh", ["-c", command], { cwd: root, encoding: "utf8" });
+    assert.equal(result.status, code);
   }
 });
 

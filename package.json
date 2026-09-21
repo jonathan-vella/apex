@@ -190,6 +190,9 @@
   "author": "Jonathan Vella",
   "license": "MIT",
   "overrides": {
+    "markdownlint-cli2": {
+      "smol-toml": "1.7.1"
+    },
     "brace-expansion": "5.0.9",
     "undici": "8.10.0",
     "dompurify": ">=3.3.2",
