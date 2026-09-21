@@ -11,6 +11,17 @@ import { artifactTrigger } from "../../scripts/check-publication-scope.mjs";
 
 const { scripts } = JSON.parse(readFileSync(new URL("../../../package.json", import.meta.url), "utf8"));
 
+test("npm lockfiles retain portable registry URLs rather than environment-specific feed addresses", () => {
+  for (const file of ["package-lock.json", "site/package-lock.json"]) {
+    const lock = JSON.parse(readFileSync(new URL(`../../../${file}`, import.meta.url), "utf8"));
+    for (const [name, entry] of Object.entries(lock.packages)) {
+      if (!entry.resolved?.startsWith("https://")) continue;
+      assert.equal(new URL(entry.resolved).origin, "https://registry.npmjs.org", `${file}: ${name}`);
+      assert.ok(entry.integrity, `${file}: ${name} must retain integrity evidence`);
+    }
+  }
+});
+
 test("devcontainer remote features match locked versions", () => {
   const config = parseJsonc(readFileSync(new URL("../../../.devcontainer/devcontainer.json", import.meta.url), "utf8"));
   const lock = JSON.parse(

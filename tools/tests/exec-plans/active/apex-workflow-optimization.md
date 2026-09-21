@@ -221,6 +221,11 @@ Remote CI run `35628667209` passed both main and external-Python jobs on `b2d98d
 two test-fixture expressions: an unescaped hostname regex and one-pass HTML-tag stripping. Literal string matching
 and the existing DOM parser replace those expressions; 48 focused tests passed. Alerts were not dismissed;
 remote code-scanning results remain authoritative for the follow-up revision.
+On `5e492aec`, main CI, Python CI and CodeQL passed. The candidate ARM64 devcontainer leg then exposed
+environment-specific Microsoft-feed URLs in the security-updated npm lockfiles: default proxy policy rejected those
+as remote tarballs. Normalize only registry URL metadata back to portable npm URLs, preserving versions/integrities.
+A clean root install through the existing proxy passed without relaxing package policy; the site install and
+lockfile-origin regression are checked before publishing the correction. No persistent registry setting changes.
 
 ### Native Acceptance Run Cards
 
