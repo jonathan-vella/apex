@@ -102,6 +102,20 @@ test("docs CI retains event coverage, status jobs and same-run build provenance"
   assert.ok(!build.some((step) => step.uses?.startsWith("actions/download-artifact@")));
 });
 
+test("Python CI installs diagram dependencies and renderer before running tooling tests", () => {
+  const workflow = load(readFileSync(new URL("../../../.github/workflows/ci.yml", import.meta.url), "utf8"));
+  const steps = workflow.jobs["external-tests"].steps;
+  const testIndex = steps.findIndex((step) => step.run === "npm run test:python-tools");
+  const dependencies = steps.findIndex((step) => step.run?.includes("python -m pip install -r requirements.txt"));
+  const renderer = steps.findIndex((step) => step.run?.includes("apt-get install -y graphviz"));
+  assert.ok(dependencies >= 0 && dependencies < testIndex);
+  assert.ok(renderer >= 0 && renderer < testIndex);
+  const requirements = readFileSync(new URL("../../../requirements.txt", import.meta.url), "utf8");
+  for (const name of ["diagrams", "matplotlib", "pillow", "pytest", "ruff"]) {
+    assert.match(requirements, new RegExp(`^${name}==`, "m"));
+  }
+});
+
 test("lefthook always invokes the index selector, which covers artifact and template changes", (context) => {
   const root = fixture(context);
   assert.equal(spawnSync("git", ["init", "-q", root]).status, 0);

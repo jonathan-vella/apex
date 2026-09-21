@@ -209,6 +209,11 @@ hooks passing. [Draft PR #696](https://github.com/jonathan-vella/apex/pull/696) 
 stabilization work and hook repair. Private FreshConnect artifacts/IaC and raw logs remain excluded. No main merge
 or auto-merge is authorized. Native acceptance and FreshConnect recovery are explicitly pending in the PR.
 
+Initial PR CI exposed roadmap Prettier drift and missing diagram dependencies in the Python tooling job.
+The follow-up formats the roadmap and installs existing pinned `requirements.txt` dependencies plus system Graphviz
+before the unchanged tests. A workflow-order regression test passed; local Python tooling tests passed
+(194 passed, 5 skipped). Remote CI acceptance must be checked on the follow-up revision, not inferred from local success.
+
 ### Native Acceptance Run Cards
 
 These prepared runs remain **pending**, not replaced by source tests or the read-only decision probe. Use isolated
@@ -216,24 +221,24 @@ synthetic project copies, not FreshConnect. Do not copy secrets/real identities,
 Azure mutations. Record source revision, model/tool availability, inputs and hashes, questions, writes and outcomes.
 
 1. Human selects `06b-Bicep CodeGen` for a Bicep fixture, then `06t-Terraform CodeGen` for an equivalent Terraform
-  fixture. Prompt: "Exercise the approved stabilization scenarios on the isolated fixture only. Start from a complete
-  approved Plan with an explicit current replacement review; preserve the old failed review. Generate the next approved
-  dependency batch with per-edit validation, checkpoint and continue without routine next-file questions. No Azure calls
-  or deployment. Report unavailable gates as unperformed." Expected: selected current review controls readiness;
-  no historical-failure revival, no implicit apply permission, no unapproved writes and no per-file question.
+   fixture. Prompt: "Exercise the approved stabilization scenarios on the isolated fixture only. Start from a complete
+   approved Plan with an explicit current replacement review; preserve the old failed review. Generate the next approved
+   dependency batch with per-edit validation, checkpoint and continue without routine next-file questions. No Azure calls
+   or deployment. Report unavailable gates as unperformed." Expected: selected current review controls readiness;
+   no historical-failure revival, no implicit apply permission, no unapproved writes and no per-file question.
 2. Resume each fixture with approved normalized runtime inputs and verified mock discovery evidence, but unset shell
-  variables. Prompt: "Resolve the recorded approved inputs using the shared helper; do not ask again for known values.
-  Use only supplied synthetic discovery evidence. Stop before live provider checks." Expected: zero redundant input
-  questions. Repeat with one missing tag/group decision, then a tenant conflict; only the unresolved decision is asked,
-  and a scope conflict blocks rather than switching context.
+   variables. Prompt: "Resolve the recorded approved inputs using the shared helper; do not ask again for known values.
+   Use only supplied synthetic discovery evidence. Stop before live provider checks." Expected: zero redundant input
+   questions. Repeat with one missing tag/group decision, then a tenant conflict; only the unresolved decision is asked,
+   and a scope conflict blocks rather than switching context.
 3. Use a fresh fixture copy with a changed supporting review input, then an exhausted review retry and a generated
-  module defect. Prompt: "Resume from current evidence without resetting allowances. Repair owned local defects only;
-  stop before dependent work while checks fail and route frozen-input defects to their owner." Expected: stale review
-  and exhausted allowances block, a successful in-scope repair resumes its batch, and no reviewer output is fabricated.
+   module defect. Prompt: "Resume from current evidence without resetting allowances. Repair owned local defects only;
+   stop before dependent work while checks fail and route frozen-input defects to their owner." Expected: stale review
+   and exhausted allowances block, a successful in-scope repair resumes its batch, and no reviewer output is fabricated.
 4. Human selects the appropriate Deploy owner on a preview fixture. Prompt: "Validate the supplied structured preview,
-  independently approved expected identities and policy result; do not contact Azure or apply. Report unknown actions,
-  missing identities and incomplete coverage explicitly." Expected: valid control passes the evidence checks without
-  granting apply; formatted text, inconsistent details and unknown coverage never become zero-change success.
+   independently approved expected identities and policy result; do not contact Azure or apply. Report unknown actions,
+   missing identities and incomplete coverage explicitly." Expected: valid control passes the evidence checks without
+   granting apply; formatted text, inconsistent details and unknown coverage never become zero-change success.
 
 FreshConnect's separate next human gate is `05-IaC Planner`: reconcile only the recorded ordinary App Service Plan
 network-binding conflict and capability-backed S2 size, preserve resource names/SKUs/partial state, review affected
