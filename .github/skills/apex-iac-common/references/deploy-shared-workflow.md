@@ -38,6 +38,64 @@ Run `validate-policy-precheck.mjs <result> --preview <raw-json> --tool bicep|ter
 Policy-state observations are not complete effective assignments; retain query caps and missing/newer details.
 Policy PROCEED is not approval of destructive changes or a substitute for preview coverage and human approval.
 
+#### Accounted ignored resources
+
+An existing child or service-linked resource may appear as `Ignore` outside the approved managed-ID set.
+Do not copy it into that set or call it harmless based on its type. Both preview commands accept optional
+`--ignored-evidence <bundle/ignored.json>` for exact unexpected Bicep `Ignore` IDs only. Leave this flag absent
+when not needed; unaccounted Ignore entries still require review. Terraform behavior is unchanged.
+
+Create this local evidence document with editing tools; retain the original preview and expected-ID bytes:
+
+```json
+{
+  "schema_version": "preview-ignored-evidence-v1",
+  "preview_sha256": "<full SHA-256 of raw preview file>",
+  "expected_ids_sha256": "<full SHA-256 of independently derived expected-ID file>",
+  "resources": [
+    {
+      "resource_id": "<exact ignored Azure resource ID>",
+      "owner_id": "<exact approved parent resource ID>",
+      "relationship": "private-endpoint-nic",
+      "reason": "<why this verified related resource remains unmanaged by this deployment>",
+      "evidence": { "path": "observations/endpoint.json", "sha256": "<full observation-file SHA-256>" }
+    }
+  ]
+}
+```
+
+Supported relationship observations are read-only Azure response JSON, preserved in regular files inside the bundle:
+
+- `private-endpoint-nic`: endpoint `id` equals `owner_id`; `networkInterfaces[].id` (or
+  `properties.networkInterfaces[].id`) contains the ignored NIC ID.
+- `sql-system-database`: database `id` equals the ignored ID, `name` is `master`, and the ID is exactly the
+  approved SQL server ID followed by `/databases/master`.
+- `storage-system-topic`: topic `id` equals the ignored ID; `properties.source` equals the approved Storage ID;
+  `properties.topicType` is `Microsoft.Storage.StorageAccounts`. This proves association, not creation/ownership.
+
+Reuse already captured observations while valid; if a prior command output was not saved, obtain only the missing
+read-only observation instead of repeating discovery or what-if. Record collection scope/time and review provenance.
+Hashes prove unchanged bytes, not truthful origin, current live state, approval or ownership; the owner must verify
+those facts and record why the resource may remain unmanaged. Never synthesize observations to satisfy a check.
+Record account checks without tokens (`az account get-access-token --output none`).
+
+Absolute/traversing evidence paths, duplicate/stale entries, unknown relationships, approved managed IDs, actions
+other than `Ignore`, and non-null `unsupportedReason` records cannot be excluded (absent/null means no reported reason).
+The summary retains every change and emits
+`coverage.accounted_ignored`, `counts.ignored` and evidence hashes. Missing expected resources, policy errors,
+unknown actions, diagnostics and potential changes retain their normal gates. Use the same bundle in both commands:
+
+```bash
+node tools/scripts/summarize-deployment-preview.mjs --input preview.json --tool bicep \
+  --expected-ids expected.json --ignored-evidence bundle/ignored.json
+node tools/scripts/validate-policy-precheck.mjs precheck.json --preview preview.json --tool bicep \
+  --expected-ids expected.json --ignored-evidence bundle/ignored.json
+```
+
+Passing this check establishes accounted resource coverage, not full provider validation or deployment approval.
+Keep policy-definition freshness unverified when definition modification metadata is unavailable. Do not change an
+existing policy verdict or overwrite previous evidence merely to obtain a passing result.
+
 Start `06-deployment-summary.md` from the template, never from memory.
 
 1. Read `.github/skills/apex-azure-artifacts/templates/06-deployment-summary.template.md`

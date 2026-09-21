@@ -49,12 +49,19 @@ Capture Bicep what-if with `--no-pretty-print --output json`. The summarizer ret
 2 for required review and 1 for invalid or blocked evidence. Expected IDs come from approved resource bindings,
 including child resources, not from copying the observed result. A passing preview never grants apply permission.
 
+For unexpected Bicep `Ignore` records only, both preview commands support `--ignored-evidence bundle/ignored.json`.
+The [ignored-resource evidence contract][ignored-evidence] binds exact preview/expected-ID hashes to saved
+parent/child observations. It supports private-endpoint NICs, SQL `master` and Storage-linked system topics,
+with exact IDs and reasons, not wildcard exclusions. The records remain visible in the summary. Changed actions,
+missing managed resources and unknown coverage still block; relationship evidence does not confer apply approval.
+
 Provider-payload checks cover known SQL S2 and App Service Plan regressions only. Supply a concrete resource array
 extracted from generated payloads with recorded provenance; unresolved expressions remain unverified. The example
 SQL byte size must be checked against the target region's capabilities and approved configuration before use.
 Compilation, provider validation, preview and successful deployment are distinct outcomes.
 
 [input-snapshot]: https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-defaults/references/identity-resolution.md#resolve-before-asking
+[ignored-evidence]: https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-iac-common/references/deploy-shared-workflow.md#accounted-ignored-resources
 
 Validation runs at three stages, catching issues progressively earlier:
 

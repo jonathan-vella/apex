@@ -38,7 +38,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { Reporter } from "./_lib/reporter.mjs";
 import { parseArgs } from "node:util";
-import { summarizePreview } from "./summarize-deployment-preview.mjs";
+import { readPreviewEvidence } from "./summarize-deployment-preview.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -50,6 +50,7 @@ const { values, positionals } = parseArgs({
     strict: { type: "boolean" },
     preview: { type: "string" },
     "expected-ids": { type: "string" },
+    "ignored-evidence": { type: "string" },
     tool: { type: "string", default: "bicep" },
     help: { type: "boolean" },
   },
@@ -57,19 +58,19 @@ const { values, positionals } = parseArgs({
 const strict = values.strict;
 if (values.help) {
   console.log(
-    "Usage: validate-policy-precheck.mjs [path-or-glob] [--strict] [--preview raw.json --expected-ids ids.json --tool bicep|terraform]",
+    "Usage: validate-policy-precheck.mjs [path-or-glob] [--strict] [--preview raw.json --expected-ids ids.json --tool bicep|terraform [--ignored-evidence bound.json]]",
   );
   process.exit(0);
 }
 let preview;
+if (values["ignored-evidence"] && !values.preview) {
+  console.error("--ignored-evidence requires --preview");
+  process.exit(1);
+}
 if (values.preview) {
   try {
     if (!values["expected-ids"]) throw new Error("--preview requires --expected-ids from approved expanded bindings");
-    preview = summarizePreview(
-      JSON.parse(fs.readFileSync(values.preview, "utf8")),
-      values.tool,
-      JSON.parse(fs.readFileSync(values["expected-ids"], "utf8")),
-    );
+    preview = readPreviewEvidence(values.preview, values.tool, values["expected-ids"], values["ignored-evidence"]);
   } catch (error) {
     console.error(`Invalid preview evidence: ${error.message}`);
     process.exit(1);

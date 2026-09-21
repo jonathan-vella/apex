@@ -25,6 +25,8 @@ for full details on this and all prior releases.
 
 ### Changed (Agent modernization)
 
+- Account for exact Bicep `Ignore` resources using preview-bound, hash-checked parent/child observations. Retain
+  visible ignored records and block stale evidence, managed actions, missing declared resources and unknown coverage.
 - Validate publication Markdown and artifact contracts from an isolated Git-index snapshot, retaining tracked
   template coverage without scanning unrelated untracked projects. Resolve local tools and propagate validator failures.
 - Unify current-review lifecycle guidance and replace routine CodeGen per-file stops with bounded validated batches.

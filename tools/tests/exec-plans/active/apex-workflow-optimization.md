@@ -229,6 +229,17 @@ lockfile-origin regression are checked before publishing the correction. No pers
 
 ### Native Acceptance Run Cards
 
+Recovery preview follow-up (2026-09-21): the exact-ID helper blocked a valid class of incremental-deployment evidence:
+ignored provider/service-linked resources outside the managed set. Add bounded `--ignored-evidence` support to both
+preview consumers. Records bind raw preview, independent expected IDs and individual observations by SHA-256; only
+unexpected exact `Ignore` IDs with an approved parent and supported relationship qualify. No action other than Ignore,
+missing managed resource, policy diagnostic or incomplete expansion is suppressed. Source provenance, continued
+unmanaged status and freshness remain owner-reviewed, not inferred from resource type. No project outputs or Azure
+resources are changed by the maintenance fix. Native apply/recovery remains gated on the refreshed evidence.
+Verification: 459 tooling tests, 457 passed and 2 skipped; site build/internal links, skill checks and lint passed.
+Independent review fixes confined evidence paths and clarified absent/null versus malformed unsupported-reason fields.
+Both public CLIs reject stale observation/preview/expected-ID hashes; synthetic controls cover all supported relationships.
+
 These prepared runs remain **pending**, not replaced by source tests or the read-only decision probe. Use isolated
 synthetic project copies, not FreshConnect. Do not copy secrets/real identities, invoke main agents as workers, or run
 Azure mutations. Record source revision, model/tool availability, inputs and hashes, questions, writes and outcomes.

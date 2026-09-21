@@ -12,7 +12,7 @@ import {
   validationEvidenceErrors,
 } from "../../scripts/validate-iac-handoff.mjs";
 import { resolveDeploymentInputs } from "../../scripts/resolve-deployment-inputs.mjs";
-import { summarizePreview } from "../../scripts/summarize-deployment-preview.mjs";
+import { summarizePreview, readPreviewEvidence } from "../../scripts/summarize-deployment-preview.mjs";
 import { validateProviderPayload } from "../../scripts/validate-provider-payload.mjs";
 
 test("ST-04: known provider defects fail and valid neighbouring payloads pass without inventing topology", () => {
@@ -132,6 +132,225 @@ test("ST-03: public precheck CLI checks the requested file, retained policy reco
 });
 
 const subscription = "11111111-1111-4111-8111-111111111111";
+test("ST-03: ignored extras require exact linked observations and cannot hide managed actions or gaps", () => {
+  const scope = "/subscriptions/fixture/resourceGroups/test/providers/";
+  const parent = `${scope}Microsoft.Network/privateEndpoints/endpoint`;
+  const extra = `${scope}Microsoft.Network/networkInterfaces/nic`;
+  const expected = [parent];
+  const input = {
+    status: "Succeeded",
+    changes: [
+      { resourceId: parent, changeType: "NoChange" },
+      { resourceId: extra, changeType: "Ignore" },
+    ],
+  };
+  const record = {
+    resource_id: extra,
+    owner_id: parent,
+    relationship: "private-endpoint-nic",
+    reason: "Observed PE interface",
+    observation: { id: parent, networkInterfaces: [{ id: extra }] },
+  };
+  assert.equal(summarizePreview(input, "bicep", expected).verdict, "REVIEW");
+  const result = summarizePreview(input, "bicep", expected, [record]);
+  assert.equal(result.verdict, "PASS");
+  assert.equal(result.counts.ignored, 1);
+  assert.equal(result.changes.length, 2);
+  assert.equal(result.deployment_authorized, false);
+  for (const unsupportedReason of ["", false, 0, "Expansion unavailable"]) {
+    assert.throws(() =>
+      summarizePreview(
+        { ...input, changes: [input.changes[0], { ...input.changes[1], unsupportedReason }] },
+        "bicep",
+        expected,
+        [record],
+      ),
+    );
+  }
+  assert.equal(
+    summarizePreview(
+      { ...input, changes: [input.changes[0], { ...input.changes[1], unsupportedReason: null }] },
+      "bicep",
+      expected,
+      [record],
+    ).verdict,
+    "PASS",
+  );
+  for (const changeType of ["Create", "Modify", "Delete", "Deploy", "NoChange", "Unknown"]) {
+    assert.throws(() =>
+      summarizePreview(
+        { ...input, changes: [input.changes[0], { resourceId: extra, changeType }] },
+        "bicep",
+        expected,
+        [record],
+      ),
+    );
+  }
+  for (const bad of [
+    { ...record, reason: "" },
+    { ...record, owner_id: `${parent}-wrong` },
+    { ...record, observation: { id: parent, networkInterfaces: [] } },
+    { ...record, resource_id: `${extra}*` },
+  ]) {
+    assert.throws(() => summarizePreview(input, "bicep", expected, [bad]));
+  }
+  assert.throws(() => summarizePreview(input, "bicep", expected, [record, record]));
+  assert.throws(() => summarizePreview(input, "bicep", [parent, extra], [record]));
+  assert.equal(summarizePreview(input, "bicep", [parent, `${parent}-missing`], [record]).verdict, "REVIEW");
+  assert.equal(summarizePreview({ ...input, potentialChanges: [{}] }, "bicep", expected, [record]).verdict, "REVIEW");
+  assert.throws(() =>
+    summarizePreview(
+      { ...input, changes: [input.changes[0], { ...input.changes[1], unsupportedReason: "Expansion unavailable" }] },
+      "bicep",
+      expected,
+      [record],
+    ),
+  );
+  assert.equal(
+    summarizePreview({ ...input, diagnostics: [{ level: "Error" }] }, "bicep", expected, [record]).verdict,
+    "BLOCKED",
+  );
+  for (const [owner, id, relationship, observation] of [
+    [
+      `${scope}Microsoft.Sql/servers/sql`,
+      `${scope}Microsoft.Sql/servers/sql/databases/master`,
+      "sql-system-database",
+      { id: `${scope}Microsoft.Sql/servers/sql/databases/master`, name: "master" },
+    ],
+    [
+      `${scope}Microsoft.Storage/storageAccounts/storage`,
+      `${scope}Microsoft.EventGrid/systemTopics/topic`,
+      "storage-system-topic",
+      {
+        id: `${scope}Microsoft.EventGrid/systemTopics/topic`,
+        properties: {
+          source: `${scope}Microsoft.Storage/storageAccounts/storage`,
+          topicType: "Microsoft.Storage.StorageAccounts",
+        },
+      },
+    ],
+  ]) {
+    const payload = {
+      status: "Succeeded",
+      changes: [
+        { resourceId: owner, changeType: "NoChange" },
+        { resourceId: id, changeType: "Ignore" },
+      ],
+    };
+    assert.equal(
+      summarizePreview(
+        payload,
+        "bicep",
+        [owner],
+        [{ resource_id: id, owner_id: owner, relationship, reason: "Observed linked resource", observation }],
+      ).verdict,
+      "PASS",
+    );
+  }
+});
+
+test("ST-03: ignored-evidence file binds preview, expected IDs and observation bytes in both CLIs", (context) => {
+  const directory = mkdtempSync(path.join(tmpdir(), "apex-ignored-"));
+  context.after(() => rmSync(directory, { recursive: true, force: true }));
+  const owner = "/subscriptions/fixture/resourceGroups/test/providers/Microsoft.Sql/servers/sql";
+  const id = `${owner}/databases/master`;
+  const save = (name, value) => {
+    const raw = JSON.stringify(value);
+    writeFileSync(path.join(directory, name), raw);
+    return createHash("sha256").update(raw).digest("hex");
+  };
+  const preview = {
+    status: "Succeeded",
+    changes: [
+      { resourceId: owner, changeType: "Create" },
+      { resourceId: id, changeType: "Ignore" },
+    ],
+  };
+  const previewHash = save("preview.json", preview);
+  const expectedHash = save("expected.json", [owner]);
+  const observationHash = save("observation.json", { id, name: "master" });
+  const document = {
+    schema_version: "preview-ignored-evidence-v1",
+    preview_sha256: previewHash,
+    expected_ids_sha256: expectedHash,
+    resources: [
+      {
+        resource_id: id,
+        owner_id: owner,
+        relationship: "sql-system-database",
+        reason: "Existing system database",
+        evidence: { path: "observation.json", sha256: observationHash },
+      },
+    ],
+  };
+  save("ignored.json", document);
+  const paths = ["preview.json", "expected.json", "ignored.json"].map((name) => path.join(directory, name));
+  assert.equal(readPreviewEvidence(paths[0], "bicep", paths[1], paths[2]).verdict, "PASS");
+  const script = (name) => fileURLToPath(new URL(`../../scripts/${name}.mjs`, import.meta.url));
+  const args = ["--expected-ids", paths[1], "--ignored-evidence", paths[2]];
+  assert.equal(
+    spawnSync(process.execPath, [script("summarize-deployment-preview"), "--input", paths[0], ...args]).status,
+    0,
+  );
+  const policy = {
+    schema_version: "policy-precheck-v2",
+    status: "CLEAN",
+    deploy_gate: "PROCEED",
+    drift_signal: { severity: "NONE", missing_from_constraints_count: 0, newer_than_envelope_count: 0 },
+    live_policies_missing_from_constraints: [],
+    live_policies_newer_than_envelope: [],
+    policies_that_will_block_deploy: [],
+    attestation: { envelope_status: "FRESH" },
+    what_if_summary: { creates: 1, updates: 0, destroys: 0, replaces: 0, policy_violations_in_what_if: 0 },
+  };
+  save("policy.json", policy);
+  assert.equal(
+    spawnSync(process.execPath, [
+      script("validate-policy-precheck"),
+      path.join(directory, "policy.json"),
+      "--preview",
+      paths[0],
+      ...args,
+    ]).status,
+    0,
+  );
+  const originalEvidencePath = document.resources[0].evidence.path;
+  document.resources[0].evidence.path = path.join(directory, "observation.json");
+  save("ignored.json", document);
+  assert.throws(() => readPreviewEvidence(paths[0], "bicep", paths[1], paths[2]), /inside the evidence bundle/);
+  document.resources[0].evidence.path = "../outside-observation.json";
+  save("ignored.json", document);
+  assert.throws(() => readPreviewEvidence(paths[0], "bicep", paths[1], paths[2]));
+  document.resources[0].evidence.path = originalEvidencePath;
+  save("ignored.json", { ...document, preview_sha256: "0".repeat(64) });
+  assert.equal(
+    spawnSync(process.execPath, [script("summarize-deployment-preview"), "--input", paths[0], ...args]).status,
+    1,
+  );
+  policy.deploy_gate = "BLOCK";
+  policy.status = "FAILED";
+  save("policy.json", policy);
+  assert.equal(
+    spawnSync(process.execPath, [
+      script("validate-policy-precheck"),
+      path.join(directory, "policy.json"),
+      "--preview",
+      paths[0],
+      ...args,
+    ]).status,
+    1,
+  );
+  save("ignored.json", document);
+  assert.throws(() => readPreviewEvidence(paths[0], "terraform", paths[1], paths[2]), /exact preview/);
+  save("observation.json", { id, name: "other" });
+  assert.throws(() => readPreviewEvidence(paths[0], "bicep", paths[1], paths[2]), /hash mismatch/);
+  save("observation.json", { id, name: "master" });
+  save("preview.json", { ...preview, diagnostics: [{}] });
+  assert.throws(() => readPreviewEvidence(paths[0], "bicep", paths[1], paths[2]), /exact preview/);
+  save("preview.json", preview);
+  save("expected.json", [owner, id]);
+  assert.throws(() => readPreviewEvidence(paths[0], "bicep", paths[1], paths[2]), /exact preview/);
+});
 test("ST-05: parameter-build success cannot stand in for provider-validation evidence", () => {
   const data = {
     iac_tool: "Bicep",

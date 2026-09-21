@@ -4,7 +4,68 @@ import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
 import { createHash } from "node:crypto";
 
-export function summarizePreview(data, tool = "bicep", expectedIds) {
+function verifyIgnoredResources(changes, expected, records, tool) {
+  if (!Array.isArray(records)) throw new Error("Ignored evidence resources must be an array");
+  if (records.length && (tool !== "bicep" || !expected))
+    throw new Error("Ignored evidence requires Bicep expected IDs");
+  const verified = new Map();
+  const lower = (value) => (typeof value === "string" ? value.toLowerCase() : "");
+  for (const record of records) {
+    const id = lower(record?.resource_id);
+    const owner = lower(record?.owner_id);
+    const change = changes.find((item) => lower(item.id) === id);
+    if (
+      !id ||
+      !owner ||
+      /[*?]/.test(id + owner) ||
+      verified.has(id) ||
+      expected.includes(id) ||
+      !expected.includes(owner) ||
+      change?.action !== "Ignore" ||
+      Object.hasOwn(change, "unsupportedReason") ||
+      typeof record.reason !== "string" ||
+      !record.reason.trim()
+    ) {
+      throw new Error(
+        "Ignored evidence must identify a unique unexpected Ignore ID and an approved parent with a reason",
+      );
+    }
+    const observation = record.observation;
+    let linked = false;
+    if (record.relationship === "private-endpoint-nic") {
+      linked =
+        /\/providers\/microsoft\.network\/privateendpoints\/[^/]+$/.test(owner) &&
+        /\/providers\/microsoft\.network\/networkinterfaces\/[^/]+$/.test(id) &&
+        lower(observation?.id) === owner &&
+        (observation.networkInterfaces ?? observation.properties?.networkInterfaces)?.some(
+          (nic) => lower(nic.id) === id,
+        );
+    } else if (record.relationship === "sql-system-database") {
+      linked =
+        /\/providers\/microsoft\.sql\/servers\/[^/]+$/.test(owner) &&
+        id === `${owner}/databases/master` &&
+        lower(observation?.id) === id &&
+        lower(observation?.name) === "master";
+    } else if (record.relationship === "storage-system-topic") {
+      linked =
+        /\/providers\/microsoft\.storage\/storageaccounts\/[^/]+$/.test(owner) &&
+        /\/providers\/microsoft\.eventgrid\/systemtopics\/[^/]+$/.test(id) &&
+        lower(observation?.id) === id &&
+        lower(observation?.properties?.source) === owner &&
+        lower(observation?.properties?.topicType) === "microsoft.storage.storageaccounts";
+    }
+    if (!linked) throw new Error(`Ignored resource relationship is not established: ${record.relationship}`);
+    verified.set(id, {
+      resource_id: record.resource_id,
+      owner_id: record.owner_id,
+      relationship: record.relationship,
+      reason: record.reason,
+    });
+  }
+  return verified;
+}
+
+export function summarizePreview(data, tool = "bicep", expectedIds, ignoredRecords = []) {
   if (!data || typeof data !== "object" || Array.isArray(data)) throw new Error("Preview must be a JSON object");
   const counts = { creates: 0, updates: 0, destroys: 0, replaces: 0, no_change: 0, unknown: 0 };
   let diagnostics = [];
@@ -40,7 +101,13 @@ export function summarizePreview(data, tool = "bicep", expectedIds) {
         change.changeType
       ];
       counts[key ?? "unknown"]++;
-      return { id: change.resourceId, action: change.changeType };
+      return {
+        id: change.resourceId,
+        action: change.changeType,
+        ...(change.unsupportedReason !== undefined && change.unsupportedReason !== null
+          ? { unsupportedReason: change.unsupportedReason }
+          : {}),
+      };
     });
   } else if (tool === "terraform") {
     if (
@@ -78,10 +145,16 @@ export function summarizePreview(data, tool = "bicep", expectedIds) {
     throw new Error("Expected identities must be an explicit array of approved resource IDs/addresses");
   }
   const expected = expectedIds?.map(normalize);
+  const ignored = verifyIgnoredResources(changes, expected, ignoredRecords, tool);
+  if (ignored.size) {
+    counts.unknown -= ignored.size;
+    counts.ignored = ignored.size;
+  }
   const coverage = {
     verified: expected !== undefined,
     missing: expected?.filter((id) => !ids.includes(id)) ?? [],
-    unexpected: expected ? ids.filter((id) => !expected.includes(id)) : [],
+    unexpected: expected ? ids.filter((id) => !expected.includes(id) && !ignored.has(id)) : [],
+    accounted_ignored: [...ignored.values()],
   };
   coverage.verified &&= coverage.missing.length === 0 && coverage.unexpected.length === 0;
   const violations = diagnostics.filter((item) => /policy/i.test(item.code ?? "")).length;
@@ -108,6 +181,59 @@ export function summarizePreview(data, tool = "bicep", expectedIds) {
   };
 }
 
+export function readPreviewEvidence(inputPath, tool, expectedPath, ignoredPath) {
+  const read = (file) => {
+    if (!fs.lstatSync(file).isFile()) throw new Error("Evidence must be a regular file");
+    const raw = fs.readFileSync(file, "utf8");
+    return { value: JSON.parse(raw), sha256: createHash("sha256").update(raw).digest("hex") };
+  };
+  const input = read(inputPath);
+  const expected = expectedPath ? read(expectedPath) : undefined;
+  const ignored = ignoredPath ? read(ignoredPath) : undefined;
+  let records = [];
+  if (ignored) {
+    const document = ignored.value;
+    if (
+      tool !== "bicep" ||
+      !expected ||
+      document?.schema_version !== "preview-ignored-evidence-v1" ||
+      document.preview_sha256 !== input.sha256 ||
+      document.expected_ids_sha256 !== expected.sha256 ||
+      !Array.isArray(document.resources) ||
+      !document.resources.length
+    ) {
+      throw new Error("Ignored evidence must bind the exact preview and expected-ID file hashes");
+    }
+    records = document.resources.map((record) => {
+      if (
+        typeof record?.evidence?.path !== "string" ||
+        !record.evidence.path ||
+        !/^[a-f0-9]{64}$/.test(record.evidence.sha256)
+      )
+        throw new Error("Observation path and SHA-256 required");
+      const base = fs.realpathSync(path.dirname(path.resolve(ignoredPath)));
+      const observationPath = path.resolve(base, record.evidence.path);
+      const relative = path.relative(base, fs.realpathSync(observationPath));
+      if (
+        path.isAbsolute(record.evidence.path) ||
+        relative === ".." ||
+        relative.startsWith(`..${path.sep}`) ||
+        path.isAbsolute(relative)
+      )
+        throw new Error("Observation must remain inside the evidence bundle");
+      const observation = read(observationPath);
+      if (observation.sha256 !== record.evidence.sha256) throw new Error("Ignored observation hash mismatch");
+      return { ...record, observation: observation.value };
+    });
+  }
+  return {
+    ...summarizePreview(input.value, tool, expected?.value, records),
+    input_sha256: input.sha256,
+    expected_ids_sha256: expected?.sha256 ?? null,
+    ignored_evidence_sha256: ignored?.sha256 ?? null,
+  };
+}
+
 export function main(args = process.argv.slice(2)) {
   const { values } = parseArgs({
     args,
@@ -115,20 +241,19 @@ export function main(args = process.argv.slice(2)) {
       input: { type: "string" },
       tool: { type: "string", default: "bicep" },
       "expected-ids": { type: "string" },
+      "ignored-evidence": { type: "string" },
       help: { type: "boolean" },
     },
   });
   if (values.help) {
     console.log(
-      "Usage: summarize-deployment-preview.mjs --input <raw-json> --tool bicep|terraform [--expected-ids <json-array>]",
+      "Usage: summarize-deployment-preview.mjs --input <raw-json> --tool bicep|terraform [--expected-ids <json-array>] [--ignored-evidence <bound-json>]",
     );
     return 0;
   }
   if (!values.input) throw new Error("--input is required; formatted text is not preview evidence");
-  const raw = fs.readFileSync(values.input, "utf8");
-  const expected = values["expected-ids"] ? JSON.parse(fs.readFileSync(values["expected-ids"], "utf8")) : undefined;
-  const result = summarizePreview(JSON.parse(raw), values.tool, expected);
-  console.log(JSON.stringify({ ...result, input_sha256: createHash("sha256").update(raw).digest("hex") }, null, 2));
+  const result = readPreviewEvidence(values.input, values.tool, values["expected-ids"], values["ignored-evidence"]);
+  console.log(JSON.stringify(result, null, 2));
   return result.verdict === "PASS" ? 0 : result.verdict === "REVIEW" ? 2 : 1;
 }
 
