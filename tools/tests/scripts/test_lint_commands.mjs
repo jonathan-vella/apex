@@ -116,6 +116,16 @@ test("Python CI installs diagram dependencies and renderer before running toolin
   }
 });
 
+test("Node CI provides a native Terraform CLI before executable validator tests", () => {
+  const workflow = load(readFileSync(new URL("../../../.github/workflows/ci.yml", import.meta.url), "utf8"));
+  const steps = workflow.jobs.ci.steps;
+  const setup = steps.findIndex((step) => step.uses === "hashicorp/setup-terraform@v4");
+  const tests = steps.findIndex((step) => step.run === "npm run validate:_node-ci");
+  assert.ok(setup >= 0 && setup < tests);
+  assert.equal(steps[setup].with.terraform_wrapper, false);
+  assert.match(steps[setup].with.terraform_version, /^\d+\.\d+\.\d+$/);
+});
+
 test("lefthook always invokes the index selector, which covers artifact and template changes", (context) => {
   const root = fixture(context);
   assert.equal(spawnSync("git", ["init", "-q", root]).status, 0);

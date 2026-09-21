@@ -213,6 +213,10 @@ Initial PR CI exposed roadmap Prettier drift and missing diagram dependencies in
 The follow-up formats the roadmap and installs existing pinned `requirements.txt` dependencies plus system Graphviz
 before the unchanged tests. A workflow-order regression test passed; local Python tooling tests passed
 (194 passed, 5 skipped). Remote CI acceptance must be checked on the follow-up revision, not inferred from local success.
+The next remote run confirmed Python and formatting success, then exposed missing Terraform in the Node job and
+a missing explicit `publicNetworkAccess` review anchor. The follow-up installs the native Terraform CLI before
+executable tool tests and restores the property-level policy check without changing the Azure Monitor allowance.
+The exact governance guardrail and affected Terraform test suites pass locally; no tests were disabled.
 
 ### Native Acceptance Run Cards
 
