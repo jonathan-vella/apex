@@ -4,6 +4,7 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { test } from "node:test";
 import { runInNewContext } from "node:vm";
+import { JSDOM } from "jsdom";
 
 const linkCheckRequire = createRequire(import.meta.resolve("markdown-link-check"));
 const extractorRequire = createRequire(linkCheckRequire.resolve("markdown-link-extractor"));
@@ -28,9 +29,8 @@ function anchors(source) {
   const duplicates = new Map();
   marked.walkTokens(marked.lexer(source), (token) => {
     if (token.type !== "heading") return;
-    const base = token.text
-      .toLowerCase()
-      .replace(/<[^>]*>/g, "")
+    const base = JSDOM.fragment(token.text)
+      .textContent.toLowerCase()
       .replace(/[^\p{L}\p{N}\p{M}_\- ]/gu, "")
       .replaceAll(" ", "-");
     const count = duplicates.get(base) ?? 0;
@@ -40,6 +40,12 @@ function anchors(source) {
   for (const match of source.matchAll(/<(?:a|h[1-6])\b[^>]*\b(?:id|name)=["']([^"']+)["']/g)) result.add(match[1]);
   return result;
 }
+
+test("heading anchors extract text with an HTML parser rather than tag-stripping substitutions", () => {
+  assert.ok(anchors("## <em>Available</em> Resources\n").has("available-resources"));
+  assert.ok(anchors("## Plain Heading\n").has("plain-heading"));
+  for (const anchor of anchors("## <scrip<script>t>content</script>\n")) assert.doesNotMatch(anchor, /[<>]/);
+});
 
 test("SK-35 SK-38 all owned service links, anchors and reference-index paths resolve locally", () => {
   const failures = [];

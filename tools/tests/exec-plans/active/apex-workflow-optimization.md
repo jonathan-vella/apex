@@ -217,6 +217,10 @@ The next remote run confirmed Python and formatting success, then exposed missin
 a missing explicit `publicNetworkAccess` review anchor. The follow-up installs the native Terraform CLI before
 executable tool tests and restores the property-level policy check without changing the Azure Monitor allowance.
 The exact governance guardrail and affected Terraform test suites pass locally; no tests were disabled.
+Remote CI run `35628667209` passed both main and external-Python jobs on `b2d98d6e`. CodeQL then reported
+two test-fixture expressions: an unescaped hostname regex and one-pass HTML-tag stripping. Literal string matching
+and the existing DOM parser replace those expressions; 48 focused tests passed. Alerts were not dismissed;
+remote code-scanning results remain authoritative for the follow-up revision.
 
 ### Native Acceptance Run Cards
 

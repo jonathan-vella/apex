@@ -273,7 +273,7 @@ describe("devcontainer workflow base-image consumers", () => {
     const setup = fixture(context, buildConfig, dockerfile, buildConfig, `FROM ${oldImage}${layers}`);
     const result = setup.run(resolve);
     assert.equal(result.status, 0, result.stderr);
-    assert.match(setup.read("outputs"), new RegExp(`baseline_image=${oldImage}\\nbaseline_os=24.04`));
+    assert.ok(setup.read("outputs").includes(`baseline_image=${oldImage}\nbaseline_os=24.04`));
     assert.deepEqual(setup.read("git-calls.jsonl").trim().split("\n").map(JSON.parse), [
       ["show", "baseline-fixture:.devcontainer/devcontainer.json"],
       ["show", "baseline-fixture:.devcontainer/layers/Base.Dockerfile"],
