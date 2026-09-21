@@ -54,9 +54,12 @@ no longer duplicates the tables.
 The non-negotiable security baseline (TLS 1.2 minimum, HTTPS-only, no public
 blob, no shared key, Managed Identity, Entra-only SQL, App Service HTTP/2,
 Container Registry admin disabled, MySQL/PostgreSQL SSL, no public network
-access for PaaS data services in any environment, private App Service APIs,
+access for PaaS data services except the Azure Monitor allowance below, private App Service APIs,
 mandatory private DNS, no hardcoded secrets) is documented in
 [.github/instructions/references/iac-policy-compliance.md](.github/instructions/references/iac-policy-compliance.md).
+Log Analytics and workspace-based Application Insights may use authenticated public query/ingestion when
+effective policy and approved requirements permit it. AMPLS is not required by default; private-only monitoring
+requirements still apply. See the [networking baseline](.github/instructions/references/iac-security-baseline.md).
 This is the source of truth for IaC validators (`validate:iac-security-baseline`)
 and the Architect / IaC Planner / CodeGen agents. Always cross-check
 `04-governance-constraints.md` for subscription-level Azure Policy

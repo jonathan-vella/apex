@@ -28,20 +28,20 @@ repairs an index after a committed write; it is not a state rollback.
 Always present. When no `00-session-state.json` exists, `session` is `{}`
 (empty object) — callers must guard for empty.
 
-| Field           | Type    | Notes                                                                      |
-| --------------- | ------- | -------------------------------------------------------------------------- |
-| `current_step`  | integer | 0–7 (3_5 maps to 3 for `current_step`; use `steps` for sub-step status).   |
-| `iac_tool`      | string  | `"Bicep"`, `"Terraform"`, or empty.                                        |
-| `region`        | string  | Azure region key (e.g. `"swedencentral"`).                                 |
-| `updated`       | string  | ISO-8601 timestamp (UTC).                                                  |
-| `decisions`     | object  | Free-form decision-key map. See `decision-keys.md` for canonical keys.     |
-| `open_findings` | array   | Live findings recorded via `apex-recall finding`.                          |
-| `decision_log`  | array   | Append-only decision history.                                              |
-| `steps`         | object  | **Per-step status map keyed by string IDs**. Defaults to `{}` when absent. |
-| `metadata` | object | Existing metadata, including plan locks; absent defaults to `{}`. |
-| `review_selections` | object | Optional step-keyed `review-selection-v1` records for Governance/default Plan. |
-| `effective_reviews` | object | Revalidated status/error for stored selections, never approval or operation permission. |
-| `review_attempts` | array | Append-only attempt lifecycle events, not a reviewer scheduler or authorization. |
+| Field               | Type    | Notes                                                                                   |
+| ------------------- | ------- | --------------------------------------------------------------------------------------- |
+| `current_step`      | integer | 0–7 (3_5 maps to 3 for `current_step`; use `steps` for sub-step status).                |
+| `iac_tool`          | string  | `"Bicep"`, `"Terraform"`, or empty.                                                     |
+| `region`            | string  | Azure region key (e.g. `"swedencentral"`).                                              |
+| `updated`           | string  | ISO-8601 timestamp (UTC).                                                               |
+| `decisions`         | object  | Free-form decision-key map. See `decision-keys.md` for canonical keys.                  |
+| `open_findings`     | array   | Live findings recorded via `apex-recall finding`.                                       |
+| `decision_log`      | array   | Append-only decision history.                                                           |
+| `steps`             | object  | **Per-step status map keyed by string IDs**. Defaults to `{}` when absent.              |
+| `metadata`          | object  | Existing metadata, including plan locks; absent defaults to `{}`.                       |
+| `review_selections` | object  | Optional step-keyed `review-selection-v1` records for Governance/default Plan.          |
+| `effective_reviews` | object  | Revalidated status/error for stored selections, never approval or operation permission. |
+| `review_attempts`   | array   | Append-only attempt lifecycle events, not a reviewer scheduler or authorization.        |
 
 ### Review Selection And Compatibility
 

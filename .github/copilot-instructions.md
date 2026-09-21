@@ -46,7 +46,9 @@ deployment is denied). Citation + greenfield decision checklist:
 
 Non-negotiable: HTTPS-only, TLS 1.2 minimum, no public blob, Managed Identity
 over keys, AVM-first. PaaS data services use private endpoints and disabled
-public access in every environment. App Service APIs are private; public-facing
+public access in every environment, except Log Analytics and workspace-based Application Insights:
+authenticated public query/ingestion is permitted when policy and approved requirements allow it;
+AMPLS is required for mandated private monitoring, not by default. App Service APIs are private; public-facing
 web applications may use public HTTPS ingress. Private DNS resolution is required;
 verified DINE ownership avoids duplicate DNS deployment, not DNS itself.
 Full rules:

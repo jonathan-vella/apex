@@ -68,6 +68,18 @@ operator-network design, extra spending or changes to frozen artifacts. Report "
 than "resolution approved" unless the user actually approved the proposed design. If no usable path is verified,
 return options to Architect, then Planner; do not turn the discovery result into automatic redesign approval.
 
+Before calling a candidate approval-ready, reconcile the whole operator workflow, not just its network diagram:
+
+- Adding a resource type invalidates any policy-map justification based on that type being absent from the plan.
+  Re-evaluate its effective assignments and resolved parameters; an unrestricted SKU listing is not Azure Policy
+  compliance. Reuse current evidence where sufficient rather than restarting all discovery.
+- Verify the chosen SKU's provisioning method, operator authentication and VM login, query API/tool authentication,
+  and software-installation/patching egress. List unsupported or unknown combinations as unresolved prerequisites.
+  A conditional design choice may be approved, but do not call it implementation-ready until those gaps are resolved.
+- Entra directory permissions and group creation gate provisioning, not drafting with explicitly unresolved identity
+  inputs. Record group ownership, intended membership and assignment scopes; create groups or roles only with the
+  required permission and operation authorization. Preserve a recorded budget/design decision during reconciliation.
+
 - **Inventory coverage**: record subscription/RG scope, permissions, pagination and failed requests. Prefer a
   subscription-wide typed inventory or Resource Graph query when authorized; do not guess relevant RGs by name.
   No match means "not found within the inspected scope", not tenant-wide absence. Generic resource listings do not
@@ -80,11 +92,20 @@ return options to Architect, then Planner; do not turn the discovery result into
 - **Capacity**: a `/27` has 27 usable addresses, but the AMPLS minimum allocation is a lower bound, not a reservation
   or maximum. Count actual/planned endpoint IP configurations (including service subresources), existing allocations
   and growth headroom. Report assumed-fit arithmetic conditionally; do not claim verified capacity from minimums alone.
+  With 27 usable addresses and at least 11 consumed, at most 16 remain, not at least 16; actual allocations decide fit.
 - **Pricing**: route new estimates through `cost-estimate-subagent` under the caller's delegation/approval contract;
   otherwise return the pricing task to its owner. Do not query pricing directly or broaden to unrelated networking
   products after a failed lookup. Existing approved meter evidence may support a clearly labeled historical illustration,
   not a fresh quote. Include additional DNS zones/queries, endpoint processing and operator connectivity, with a dated
   currency conversion before comparing USD costs to EUR headroom. No identified AMPLS meter is not proof of no charge.
+  Include deallocation ownership and runtime sensitivity, retained disks and applicable transactions, outbound access
+  and free-tier eligibility. Show rounded decision totals with explicit assumptions, not arithmetic precision as confidence.
+  Use existing notes/evidence to state each meter's actual unit and usage; never calculate per-GB or monthly charges
+  as hourly rates. A documented no-charge service may be disclosed separately with its official source rather than
+  repeatedly searching for a zero-price meter. Share current, identical common-meter evidence across comparisons;
+  preserve per-option quantities, original timestamps and cumulative request allowances.
+- **Preservation**: capture and compare full before/after hashes of the frozen input set. Timestamps and untracked
+  Git status do not prove unchanged bytes. Record missing baseline evidence as unverified, not preserved.
 
 ### Scheduled-action deployment contract
 

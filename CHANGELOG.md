@@ -20,6 +20,9 @@ for full details on this and all prior releases.
 
 ### Changed (Agent modernization)
 
+- Permit authenticated public Log Analytics and workspace-based Application Insights endpoints when policy and
+  approved requirements allow them. Require AMPLS for private-only monitoring, not as a blanket PaaS default;
+  preserve private networking for other data services and cover both IaC tracks with scanner regressions.
 - Persist and revalidate explicit Governance/Plan review selections across completion and resume; preserve timestamps
   and destination progress on identical retries, and reject conflicts instead of losing concurrent updates.
 - Make `apex-recall show` independent of index mutation and stale primary fallback. Add explicit audited backup
@@ -30,6 +33,8 @@ for full details on this and all prior releases.
   Provide explicit help for path-based validators and preserve legacy review coverage limitations.
 - Bound shared-monitoring discovery conclusions by inspected scope and keep read-only approval separate from redesign.
   Route new pricing through the cost owner and qualify AMPLS capacity, ingestion and budget claims by actual evidence.
+  Recheck policy exclusions when adding resource types, verify operator provisioning/login/egress, and distinguish
+  conditional design approval from implementation readiness. Correct minimum-IP headroom arithmetic and reuse common pricing.
 - Require an approved Azure Monitor client access path before treating disabled public query/ingestion flags as ready.
   Distinguish compilation, platform diagnostics and application telemetry; return missing private connectivity to Planner.
 - Avoid Bicep symbols that shadow scope functions; reclassify scaffold diagnostics as module interfaces become available.

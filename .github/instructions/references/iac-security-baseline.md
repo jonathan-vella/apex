@@ -16,9 +16,22 @@ Policy discovery may add constraints; absence of a Deny policy does not relax th
 
 | Boundary | Required posture |
 | --- | --- |
-| PaaS data services supporting Private Link | Private endpoints for consumed subresources; public network access disabled |
+| PaaS data services supporting Private Link, except Azure Monitor below | Private endpoints; public access disabled |
+| Log Analytics and workspace-based Application Insights | Authenticated public query/ingestion permitted as below |
 | App Service hosting an API | Private endpoint and public network access disabled |
 | App Service hosting a public-facing web application | Public HTTPS ingress permitted; authentication and other security controls still apply |
+
+Log Analytics workspaces and workspace-based Application Insights do not require AMPLS solely because they
+support Private Link. Public query and ingestion endpoints are permitted when effective Azure Policy and
+approved requirements allow them. Record query and ingestion settings separately for each resource in the
+Plan and IaC contract. Preserve HTTPS/TLS, Entra authentication for queries, least-privilege RBAC and supported
+authenticated ingestion; public network reachability does not mean anonymous access or waive local-auth controls.
+This exception does not extend to Storage, SQL, Key Vault, ACR or other PaaS data services.
+
+Require AMPLS when effective Azure Policy or approved isolation requirements mandate private Azure Monitor access.
+In that case, plan scoped resources, private endpoints, DNS and reachable ingestion/query clients before disabling
+public endpoints. Do not add Bastion, a jump VM, NAT or monitoring subnets solely to satisfy the generic PaaS rule
+when public monitoring is approved. Existing private-only requirements are not automatically relaxed.
 
 Classify the application boundary during Requirements. For mixed web/API hosting, clarify the API
 exposure before architecture; do not use the web exception to silently expose an API. An App Service

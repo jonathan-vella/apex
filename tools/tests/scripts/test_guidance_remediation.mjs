@@ -315,6 +315,14 @@ test("private observability requires an approved client path rather than disable
   assert.match(planning, /additional DNS zones\/queries/);
   assert.match(planning, /dated\s+currency conversion/);
   assert.match(planning, /No identified AMPLS meter is not proof of no charge/);
+  assert.match(planning, /Adding a resource type invalidates any policy-map justification/);
+  assert.match(planning, /unrestricted SKU listing is not Azure Policy/);
+  assert.match(planning, /software-installation\/patching egress/);
+  assert.match(planning, /group creation gate provisioning, not drafting/);
+  assert.match(planning, /at most 16 remain, not at least 16/);
+  assert.match(planning, /deallocation ownership and runtime sensitivity/);
+  assert.match(planning, /Share current, identical common-meter evidence/);
+  assert.match(planning, /Timestamps and untracked\s+Git status do not prove unchanged bytes/);
 });
 
 test("private networking defaults distinguish public web, private APIs and verified DNS ownership", () => {
@@ -325,6 +333,13 @@ test("private networking defaults distinguish public web, private APIs and verif
   assert.match(baseline, /Private DNS resolution is mandatory/);
   assert.match(baseline, /zone groups does not prove zones or VNet links exist/);
   assert.match(baseline, /existing noncompliant resources may require an authorized remediation task/);
+  assert.match(baseline, /do not require AMPLS solely because they\s+support Private Link/);
+  assert.match(baseline, /effective Azure Policy and\s+approved requirements allow them/);
+  assert.match(baseline, /Require AMPLS when effective Azure Policy or approved isolation requirements/);
+  assert.match(baseline, /does not extend to Storage, SQL, Key Vault, ACR/);
+  for (const file of ["AGENTS.md", ".github/copilot-instructions.md"]) {
+    assert.match(read(file), /authenticated public query\/ingestion/);
+  }
   for (const file of [
     "apex-azure-defaults/SKILL.md",
     "apex-azure-defaults/references/adversarial-checklists.md",
@@ -362,19 +377,28 @@ test("network scanner blocks public data and unapproved APIs while allowing scop
       extension: "bicep",
       web: "resource web 'Microsoft.Web/sites@2024-04-01' = {\n properties: {\n publicNetworkAccess: 'Enabled'\n }\n}",
       data: "resource data 'Microsoft.Storage/storageAccounts@2023-05-01' = {\n properties: {\n publicNetworkAccess: 'Enabled'\n }\n}",
+      monitoring:
+        "resource workspace 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {\n properties: {\n publicNetworkAccessForQuery: 'Enabled'\n publicNetworkAccessForIngestion: 'Enabled'\n }\n}\nresource insights 'Microsoft.Insights/components@2020-02-02' = {\n properties: {\n publicNetworkAccessForQuery: 'Enabled'\n publicNetworkAccessForIngestion: 'Enabled'\n DisableLocalAuth: true\n }\n}",
     },
     {
       extension: "tf",
       web: 'resource "azurerm_linux_web_app" "web" {\n public_network_access_enabled = true\n}',
       data: 'resource "azurerm_storage_account" "data" {\n public_network_access_enabled = true\n}',
+      monitoring:
+        'resource "azurerm_log_analytics_workspace" "workspace" {\n internet_query_enabled = true\n internet_ingestion_enabled = true\n local_authentication_disabled = true\n}\nresource "azurerm_application_insights" "insights" {\n internet_query_enabled = true\n internet_ingestion_enabled = true\n local_authentication_disabled = true\n}',
     },
   ];
-  for (const { extension, web, data } of cases) {
+  for (const { extension, web, data, monitoring } of cases) {
     const track = extension === "tf" ? "terraform" : "bicep";
     const relative = `infra/${track}/test/main.${extension}`;
     const target = path.join(directory, relative);
     mkdirSync(path.dirname(target), { recursive: true });
     const run = (...args) => spawnSync(process.execPath, [validator, ...args], { cwd: directory, encoding: "utf8" });
+    writeFileSync(target, monitoring);
+    const publicMonitoring = run();
+    assert.equal(publicMonitoring.status, 0, publicMonitoring.stdout + publicMonitoring.stderr);
+    writeFileSync(target, `${monitoring}\n${data}`);
+    assert.equal(run().status, 1, "Public monitoring must not exempt adjacent private data services");
     for (const content of [web, data, `${web}\n${data}`]) {
       writeFileSync(target, content);
       assert.equal(run().status, 1, content);

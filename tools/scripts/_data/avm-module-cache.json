@@ -35,7 +35,7 @@
         "0.1.0"
       ],
       "source": "mcr",
-      "lookup_timestamp": "2026-09-16T07:48:30.438Z"
+      "lookup_timestamp": "2026-09-21T12:56:15.003Z"
     },
     "bicep::br/public:avm/res/network/network-security-group": {
       "latest": "0.5.3",
@@ -54,7 +54,7 @@
         "0.1.0"
       ],
       "source": "mcr",
-      "lookup_timestamp": "2026-09-16T07:48:30.031Z"
+      "lookup_timestamp": "2026-09-21T12:56:14.572Z"
     },
     "bicep::br/public:avm/res/operational-insights/workspace": {
       "latest": "0.16.1",
@@ -94,7 +94,7 @@
         "0.1.0"
       ],
       "source": "mcr",
-      "lookup_timestamp": "2026-09-16T07:48:31.046Z"
+      "lookup_timestamp": "2026-09-21T12:56:15.042Z"
     },
     "bicep::br/public:avm/res/insights/component": {
       "latest": "0.8.0",
@@ -118,7 +118,7 @@
         "0.1.0"
       ],
       "source": "mcr",
-      "lookup_timestamp": "2026-09-16T07:48:31.507Z"
+      "lookup_timestamp": "2026-09-21T12:56:15.460Z"
     },
     "bicep::br/public:avm/res/managed-identity/user-assigned-identity": {
       "latest": "0.6.0",
@@ -140,7 +140,7 @@
         "0.1.0"
       ],
       "source": "mcr",
-      "lookup_timestamp": "2026-09-16T07:48:29.990Z"
+      "lookup_timestamp": "2026-09-21T12:56:14.412Z"
     },
     "bicep::br/public:avm/res/key-vault/vault": {
       "latest": "0.14.2",
@@ -180,7 +180,7 @@
         "0.2.0"
       ],
       "source": "mcr",
-      "lookup_timestamp": "2026-09-16T07:48:32.602Z"
+      "lookup_timestamp": "2026-09-21T12:56:16.414Z"
     },
     "bicep::br/public:avm/res/network/private-dns-zone": {
       "latest": "0.8.1",
@@ -202,7 +202,7 @@
         "0.2.0"
       ],
       "source": "mcr",
-      "lookup_timestamp": "2026-09-16T07:48:31.005Z"
+      "lookup_timestamp": "2026-09-21T12:56:15.499Z"
     },
     "bicep::br/public:avm/res/network/private-endpoint": {
       "latest": "0.12.1",
@@ -238,8 +238,9 @@
       "lookup_timestamp": "2026-05-22T10:35:22.261Z"
     },
     "bicep::br/public:avm/res/storage/storage-account": {
-      "latest": "0.33.0",
+      "latest": "0.33.1",
       "known_versions": [
+        "0.33.1",
         "0.33.0",
         "0.32.1",
         "0.32.0",
@@ -307,7 +308,7 @@
         "0.5.0"
       ],
       "source": "mcr",
-      "lookup_timestamp": "2026-09-16T07:48:32.567Z"
+      "lookup_timestamp": "2026-09-21T12:56:16.377Z"
     },
     "bicep::br/public:avm/res/sql/server": {
       "latest": "0.22.1",
@@ -366,11 +367,12 @@
         "0.1.0"
       ],
       "source": "mcr",
-      "lookup_timestamp": "2026-09-16T07:48:32.124Z"
+      "lookup_timestamp": "2026-09-21T12:56:15.938Z"
     },
     "bicep::br/public:avm/res/container-registry/registry": {
-      "latest": "0.13.0",
+      "latest": "0.13.1",
       "known_versions": [
+        "0.13.1",
         "0.13.0",
         "0.12.1",
         "0.12.0",
@@ -401,7 +403,7 @@
         "0.1.0"
       ],
       "source": "mcr",
-      "lookup_timestamp": "2026-09-16T07:48:32.081Z"
+      "lookup_timestamp": "2026-09-21T12:56:15.902Z"
     },
     "bicep::br/public:avm/res/web/serverfarm": {
       "latest": "0.7.0",
@@ -421,7 +423,7 @@
         "0.1.0"
       ],
       "source": "mcr",
-      "lookup_timestamp": "2026-09-16T07:48:31.675Z"
+      "lookup_timestamp": "2026-09-21T12:56:16.818Z"
     },
     "bicep::br/public:avm/res/web/site": {
       "latest": "0.23.0",
@@ -492,7 +494,7 @@
         "0.2.0"
       ],
       "source": "mcr",
-      "lookup_timestamp": "2026-09-16T07:48:32.760Z"
+      "lookup_timestamp": "2026-09-21T12:56:16.855Z"
     },
     "bicep::br/public:avm/res/insights/metric-alert": {
       "latest": "0.4.1",
@@ -1750,7 +1752,7 @@
         "0.1.0"
       ],
       "source": "mcr",
-      "lookup_timestamp": "2026-05-20T15:41:07.667Z"
+      "lookup_timestamp": "2026-09-21T12:43:28.715Z"
     },
     "bicep::br/public:avm/res/network/dns-resolver/inbound-endpoint": {
       "latest": "0.1.0",
@@ -2942,8 +2944,9 @@
       "lookup_timestamp": "2026-06-01T11:40:33.558Z"
     },
     "bicep::br/public:avm/res/network/nat-gateway": {
-      "latest": "2.1.0",
+      "latest": "2.1.1",
       "known_versions": [
+        "2.1.1",
         "2.1.0",
         "2.0.1",
         "2.0.0",
@@ -2960,11 +2963,12 @@
         "1.0.0"
       ],
       "source": "mcr",
-      "lookup_timestamp": "2026-06-01T11:40:33.657Z"
+      "lookup_timestamp": "2026-09-21T12:43:27.542Z"
     },
     "bicep::br/public:avm/res/network/public-ip-address": {
-      "latest": "0.12.0",
+      "latest": "0.13.0",
       "known_versions": [
+        "0.13.0",
         "0.12.0",
         "0.11.0",
         "0.10.0",
@@ -2989,7 +2993,7 @@
         "0.2.0"
       ],
       "source": "mcr",
-      "lookup_timestamp": "2026-06-01T11:40:33.692Z"
+      "lookup_timestamp": "2026-09-21T12:43:27.107Z"
     },
     "bicep::br/public:avm/res/network/virtual-network/subnet": {
       "latest": "0.2.0",
@@ -3771,7 +3775,74 @@
         "0.1.0"
       ],
       "source": "mcr",
-      "lookup_timestamp": "2026-09-16T07:48:29.468Z"
+      "lookup_timestamp": "2026-09-21T12:56:09.537Z"
+    },
+    "bicep::br/public:avm/res/insights/private-link-scope": {
+      "latest": "0.7.3",
+      "known_versions": [
+        "0.7.3",
+        "0.7.2",
+        "0.7.1",
+        "0.7.0",
+        "0.6.0",
+        "0.5.2",
+        "0.5.1",
+        "0.5.0",
+        "0.4.0",
+        "0.3.2",
+        "0.3.1",
+        "0.3.0",
+        "0.2.0",
+        "0.1.0"
+      ],
+      "source": "mcr",
+      "lookup_timestamp": "2026-09-21T12:43:28.676Z"
+    },
+    "bicep::br/public:avm/res/compute/virtual-machine": {
+      "latest": "0.22.3",
+      "known_versions": [
+        "0.22.3",
+        "0.22.2",
+        "0.22.1",
+        "0.22.0",
+        "0.21.0",
+        "0.20.0",
+        "0.19.0",
+        "0.18.0",
+        "0.17.0",
+        "0.16.0",
+        "0.15.1",
+        "0.15.0",
+        "0.14.0",
+        "0.13.1",
+        "0.13.0",
+        "0.12.3",
+        "0.12.2",
+        "0.12.1",
+        "0.12.0",
+        "0.11.1",
+        "0.11.0",
+        "0.10.1",
+        "0.10.0",
+        "0.9.0",
+        "0.8.0",
+        "0.7.0",
+        "0.6.0",
+        "0.5.3",
+        "0.5.2",
+        "0.5.1",
+        "0.5.0",
+        "0.4.2",
+        "0.4.1",
+        "0.4.0",
+        "0.2.3",
+        "0.2.2",
+        "0.2.1",
+        "0.2.0",
+        "0.1.0"
+      ],
+      "source": "mcr",
+      "lookup_timestamp": "2026-09-21T12:43:28.751Z"
     }
   }
 }
