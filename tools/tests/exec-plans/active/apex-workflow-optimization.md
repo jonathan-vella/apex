@@ -204,6 +204,11 @@ immutability have executable coverage. Both real Lefthook jobs passed using `--j
 Independent read-only review found no blockers. Latest tooling run: 453 tests, 451 passed, 2 skipped; all 29 Bats
 hook tests passed. Site build and Markdown lint passed. Native acceptance, ST-07 and main promotion remain open.
 
+Published source checkpoint: `d8afd551` on `perf/apex-workflow-optimization`, with normal commit and pre-push
+hooks passing. [Draft PR #696](https://github.com/jonathan-vella/apex/pull/696) includes the dependency fixes,
+stabilization work and hook repair. Private FreshConnect artifacts/IaC and raw logs remain excluded. No main merge
+or auto-merge is authorized. Native acceptance and FreshConnect recovery are explicitly pending in the PR.
+
 ### Native Acceptance Run Cards
 
 These prepared runs remain **pending**, not replaced by source tests or the read-only decision probe. Use isolated
