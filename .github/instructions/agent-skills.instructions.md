@@ -64,7 +64,7 @@ Keep internal `apex-azure-defaults`, `apex-azure-artifacts`,
 `apex-azure-bicep-patterns`, `apex-terraform-patterns`, `apex-iac-common`,
 `apex-golden-principles`, and `apex-workflow-engine` hidden but model-loadable.
 Preserve their required agent-body loading references. Task skills are normally visible and model-loadable.
-Explicit exceptions `apex-unslop`, `apex-docs-writer`, `apex-vendor-prompting` and `apex-terraform-search-import`
+Explicit exceptions `apex-unslop`, `apex-vendor-prompting` and `apex-terraform-search-import`
 remain visible and manual-only, as do Host adapters. Do not read a manual-only skill body automatically to bypass
 its flag. Explicit user-selected prompt adapters may load their owning manual skill for that requested operation.
 Hints do not validate arguments, confer permissions, or grant approval. Never

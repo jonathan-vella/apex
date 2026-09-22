@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-09-22T08:53:58.892Z",
+  "generatedAt": "2026-09-22T10:15:22.292Z",
   "categories": [
     { "id": "agent", "key": "agents", "label": "Agent", "color": "#3b82f6", "shape": "round-rectangle", "count": 14 },
     {
@@ -11,16 +11,16 @@
       "shape": "round-diamond",
       "count": 7
     },
-    { "id": "skill", "key": "skills", "label": "Skill", "color": "#10b981", "shape": "ellipse", "count": 37 },
+    { "id": "skill", "key": "skills", "label": "Skill", "color": "#10b981", "shape": "ellipse", "count": 36 },
     {
       "id": "instruction",
       "key": "instructions",
       "label": "Instruction",
       "color": "#f59e0b",
       "shape": "rectangle",
-      "count": 29
+      "count": 27
     },
-    { "id": "prompt", "key": "prompts", "label": "Prompt", "color": "#ec4899", "shape": "tag", "count": 30 },
+    { "id": "prompt", "key": "prompts", "label": "Prompt", "color": "#ec4899", "shape": "tag", "count": 27 },
     {
       "id": "validator",
       "key": "validators",
@@ -35,12 +35,12 @@
       "label": "CI Workflow",
       "color": "#06b6d4",
       "shape": "cut-rectangle",
-      "count": 6
+      "count": 5
     },
     { "id": "mcp", "key": "mcp_servers", "label": "MCP Server", "color": "#f43f5e", "shape": "barrel", "count": 3 }
   ],
-  "nodeCount": 189,
-  "edgeCount": 728,
+  "nodeCount": 182,
+  "edgeCount": 702,
   "nodes": [
     {
       "id": "agent:01-orchestrator",
@@ -771,22 +771,6 @@
       }
     },
     {
-      "id": "skill:apex-docs-writer",
-      "category": "skill",
-      "label": "apex-docs-writer",
-      "description": "**WORKFLOW SKILL** — Manual-only repository documentation maintenance: accuracy, freshness, gardening and changelog updates. WHEN: explicitly invoked as /apex-docs-writer or through a user-selected documentation prompt adapter. DO NOT USE FOR: automatic documentation loads, agent definitions, SKILL.md authoring, site theme/build.",
-      "path": ".github/skills/apex-docs-writer/SKILL.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-docs-writer/SKILL.md"
-      },
-      "meta": {
-        "invocable": true,
-        "disableModelInvocation": true,
-        "argumentHint": "documentation path and update or review scope",
-        "context": null
-      }
-    },
-    {
       "id": "skill:apex-entra-app-registration",
       "category": "skill",
       "label": "apex-entra-app-registration",
@@ -1050,17 +1034,6 @@
       "meta": { "applyTo": "**/.github/skills/**/SKILL.md, **/.claude/skills/**/SKILL.md" }
     },
     {
-      "id": "instruction:astro",
-      "category": "instruction",
-      "label": "astro",
-      "description": "Astro Starlight development standards for the documentation site",
-      "path": ".github/instructions/astro.instructions.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/instructions/astro.instructions.md"
-      },
-      "meta": { "applyTo": "site/**/*.astro, site/**/*.ts, site/**/*.mjs, site/**/*.mdx, site/**/*.md" }
-    },
-    {
       "id": "instruction:azure-artifacts",
       "category": "instruction",
       "label": "azure-artifacts",
@@ -1112,23 +1085,12 @@
       "id": "instruction:docs-trigger",
       "category": "instruction",
       "label": "docs-trigger",
-      "description": "Trigger conditions for updating documentation when code changes. Defines WHEN docs need updating — not HOW to write them (see docs.instructions.md and markdown.instructions.md for formatting).",
+      "description": "Required documentation updates for product changes; published documentation belongs to apex-docs.",
       "path": ".github/instructions/docs-trigger.instructions.md",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/instructions/docs-trigger.instructions.md"
       },
       "meta": { "applyTo": "**/*.agent.md, **/.github/skills/**/SKILL.md, **/tools/scripts/*.mjs" }
-    },
-    {
-      "id": "instruction:docs",
-      "category": "instruction",
-      "label": "docs",
-      "description": "Standards for user-facing documentation in the site/src/content/docs/ folder",
-      "path": ".github/instructions/docs.instructions.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/instructions/docs.instructions.md"
-      },
-      "meta": { "applyTo": "site/src/content/docs/**/*.md, site/src/content/docs/**/*.mdx" }
     },
     {
       "id": "instruction:github-actions",
@@ -1423,17 +1385,6 @@
       "meta": {}
     },
     {
-      "id": "prompt:doc-gardening",
-      "category": "prompt",
-      "label": "doc-gardening",
-      "description": "Scan for stale docs, instruction drift, quality score degradation, and tech debt. Updates QUALITY_SCORE.md and tech-debt-tracker.md.",
-      "path": "tools/apex-prompts/utility-prompts/doc-gardening.prompt.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/tools/apex-prompts/utility-prompts/doc-gardening.prompt.md"
-      },
-      "meta": {}
-    },
-    {
       "id": "prompt:execution-subagent-claude",
       "category": "prompt",
       "label": "execution-subagent-claude",
@@ -1478,17 +1429,6 @@
       "meta": {}
     },
     {
-      "id": "prompt:plan-docspeerreview",
-      "category": "prompt",
-      "label": "plan-docsPeerReview",
-      "description": "Review all published docs for accuracy, UX, and contradictions using three independent reviewers, then consolidate into an actionable triage report.",
-      "path": "tools/apex-prompts/utility-prompts/plan-docsPeerReview.prompt.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/tools/apex-prompts/utility-prompts/plan-docsPeerReview.prompt.md"
-      },
-      "meta": {}
-    },
-    {
       "id": "prompt:plan-fourlayeragentassessment",
       "category": "prompt",
       "label": "plan-fourLayerAgentAssessment",
@@ -1507,17 +1447,6 @@
       "path": "tools/apex-prompts/utility-prompts/project-wide-review.prompt.md",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/tools/apex-prompts/utility-prompts/project-wide-review.prompt.md"
-      },
-      "meta": {}
-    },
-    {
-      "id": "prompt:review-astro-docs",
-      "category": "prompt",
-      "label": "review-astro-docs",
-      "description": "Single deep-reviewer audit of the Astro Starlight docs site covering completeness, accuracy, errors, grammar, visuals, Microsoft terminology, site standards, and information architecture. Report-only by default; safe auto-fix gated behind --apply-fixes.",
-      "path": "tools/apex-prompts/utility-prompts/review-astro-docs.prompt.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/tools/apex-prompts/utility-prompts/review-astro-docs.prompt.md"
       },
       "meta": {}
     },
@@ -1692,7 +1621,8 @@
       "description": "node tools/scripts/validate-agents.mjs",
       "path": "package.json",
       "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
-      "meta": { "command": "node tools/scripts/validate-agents.mjs" }
+      "meta": { "command": "node tools/scripts/validate-agents.mjs", "orphan": true },
+      "parent": "group:validator-orphans"
     },
     {
       "id": "validator:validate-orchestrator-handoff",
@@ -1731,7 +1661,8 @@
       "description": "node tools/scripts/validate-skills.mjs",
       "path": "package.json",
       "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
-      "meta": { "command": "node tools/scripts/validate-skills.mjs" }
+      "meta": { "command": "node tools/scripts/validate-skills.mjs", "orphan": true },
+      "parent": "group:validator-orphans"
     },
     {
       "id": "validator:lint-version-sync",
@@ -2336,17 +2267,6 @@
       "parent": "group:workflow-orphans"
     },
     {
-      "id": "workflow:sensei-branch-maintenance",
-      "category": "workflow",
-      "label": "sensei-branch-maintenance",
-      "description": "",
-      "path": ".github/workflows/sensei-branch-maintenance.yml",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/workflows/sensei-branch-maintenance.yml"
-      },
-      "meta": {}
-    },
-    {
       "id": "workflow:validate-devcontainer-base",
       "category": "workflow",
       "label": "validate-devcontainer-base",
@@ -2388,10 +2308,10 @@
     {
       "id": "group:validator-orphans",
       "category": "validator",
-      "label": "Validator (unlinked, 55)",
-      "description": "55 validator nodes with no cross-references in the current graph.",
+      "label": "Validator (unlinked, 57)",
+      "description": "57 validator nodes with no cross-references in the current graph.",
       "isGroup": true,
-      "meta": { "groupSize": 55 }
+      "meta": { "groupSize": 57 }
     },
     {
       "id": "group:workflow-orphans",
@@ -3340,12 +3260,6 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:agent-authoring--applies-to->prompt:doc-gardening",
-      "source": "instruction:agent-authoring",
-      "target": "prompt:doc-gardening",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:agent-authoring--applies-to->prompt:execution-subagent-claude",
       "source": "instruction:agent-authoring",
       "target": "prompt:execution-subagent-claude",
@@ -3370,12 +3284,6 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:agent-authoring--applies-to->prompt:plan-docspeerreview",
-      "source": "instruction:agent-authoring",
-      "target": "prompt:plan-docspeerreview",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:agent-authoring--applies-to->prompt:plan-fourlayeragentassessment",
       "source": "instruction:agent-authoring",
       "target": "prompt:plan-fourlayeragentassessment",
@@ -3385,12 +3293,6 @@
       "id": "instruction:agent-authoring--applies-to->prompt:project-wide-review",
       "source": "instruction:agent-authoring",
       "target": "prompt:project-wide-review",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:agent-authoring--applies-to->prompt:review-astro-docs",
-      "source": "instruction:agent-authoring",
-      "target": "prompt:review-astro-docs",
       "kind": "applies-to"
     },
     {
@@ -3721,12 +3623,6 @@
       "id": "instruction:agent-skills--applies-to->skill:apex-context-management",
       "source": "instruction:agent-skills",
       "target": "skill:apex-context-management",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:agent-skills--applies-to->skill:apex-docs-writer",
-      "source": "instruction:agent-skills",
-      "target": "skill:apex-docs-writer",
       "kind": "applies-to"
     },
     {
@@ -4069,12 +3965,6 @@
       "id": "instruction:context-optimization--applies-to->skill:apex-context-management",
       "source": "instruction:context-optimization",
       "target": "skill:apex-context-management",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:context-optimization--applies-to->skill:apex-docs-writer",
-      "source": "instruction:context-optimization",
-      "target": "skill:apex-docs-writer",
       "kind": "applies-to"
     },
     {
@@ -4426,12 +4316,6 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:docs-trigger--applies-to->skill:apex-docs-writer",
-      "source": "instruction:docs-trigger",
-      "target": "skill:apex-docs-writer",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:docs-trigger--applies-to->skill:apex-entra-app-registration",
       "source": "instruction:docs-trigger",
       "target": "skill:apex-entra-app-registration",
@@ -4546,12 +4430,6 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:instructions--applies-to->instruction:astro",
-      "source": "instruction:instructions",
-      "target": "instruction:astro",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:instructions--applies-to->instruction:azure-artifacts",
       "source": "instruction:instructions",
       "target": "instruction:azure-artifacts",
@@ -4579,12 +4457,6 @@
       "id": "instruction:instructions--applies-to->instruction:docs-trigger",
       "source": "instruction:instructions",
       "target": "instruction:docs-trigger",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:instructions--applies-to->instruction:docs",
-      "source": "instruction:instructions",
-      "target": "instruction:docs",
       "kind": "applies-to"
     },
     {
@@ -4942,12 +4814,6 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:markdown--applies-to->skill:apex-docs-writer",
-      "source": "instruction:markdown",
-      "target": "skill:apex-docs-writer",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:markdown--applies-to->skill:apex-entra-app-registration",
       "source": "instruction:markdown",
       "target": "skill:apex-entra-app-registration",
@@ -5290,12 +5156,6 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:no-interactive-shell--applies-to->skill:apex-docs-writer",
-      "source": "instruction:no-interactive-shell",
-      "target": "skill:apex-docs-writer",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:no-interactive-shell--applies-to->skill:apex-entra-app-registration",
       "source": "instruction:no-interactive-shell",
       "target": "skill:apex-entra-app-registration",
@@ -5434,12 +5294,6 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:no-interactive-shell--applies-to->prompt:doc-gardening",
-      "source": "instruction:no-interactive-shell",
-      "target": "prompt:doc-gardening",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:no-interactive-shell--applies-to->prompt:execution-subagent-claude",
       "source": "instruction:no-interactive-shell",
       "target": "prompt:execution-subagent-claude",
@@ -5464,12 +5318,6 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:no-interactive-shell--applies-to->prompt:plan-docspeerreview",
-      "source": "instruction:no-interactive-shell",
-      "target": "prompt:plan-docspeerreview",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:no-interactive-shell--applies-to->prompt:plan-fourlayeragentassessment",
       "source": "instruction:no-interactive-shell",
       "target": "prompt:plan-fourlayeragentassessment",
@@ -5479,12 +5327,6 @@
       "id": "instruction:no-interactive-shell--applies-to->prompt:project-wide-review",
       "source": "instruction:no-interactive-shell",
       "target": "prompt:project-wide-review",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:no-interactive-shell--applies-to->prompt:review-astro-docs",
-      "source": "instruction:no-interactive-shell",
-      "target": "prompt:review-astro-docs",
       "kind": "applies-to"
     },
     {
@@ -5620,12 +5462,6 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:prompt--applies-to->prompt:doc-gardening",
-      "source": "instruction:prompt",
-      "target": "prompt:doc-gardening",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:prompt--applies-to->prompt:execution-subagent-claude",
       "source": "instruction:prompt",
       "target": "prompt:execution-subagent-claude",
@@ -5650,12 +5486,6 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:prompt--applies-to->prompt:plan-docspeerreview",
-      "source": "instruction:prompt",
-      "target": "prompt:plan-docspeerreview",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:prompt--applies-to->prompt:plan-fourlayeragentassessment",
       "source": "instruction:prompt",
       "target": "prompt:plan-fourlayeragentassessment",
@@ -5665,12 +5495,6 @@
       "id": "instruction:prompt--applies-to->prompt:project-wide-review",
       "source": "instruction:prompt",
       "target": "prompt:project-wide-review",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:prompt--applies-to->prompt:review-astro-docs",
-      "source": "instruction:prompt",
-      "target": "prompt:review-astro-docs",
       "kind": "applies-to"
     },
     {
@@ -5926,12 +5750,6 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:vendor-prompting--applies-to->prompt:doc-gardening",
-      "source": "instruction:vendor-prompting",
-      "target": "prompt:doc-gardening",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:vendor-prompting--applies-to->prompt:execution-subagent-claude",
       "source": "instruction:vendor-prompting",
       "target": "prompt:execution-subagent-claude",
@@ -5956,12 +5774,6 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:vendor-prompting--applies-to->prompt:plan-docspeerreview",
-      "source": "instruction:vendor-prompting",
-      "target": "prompt:plan-docspeerreview",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:vendor-prompting--applies-to->prompt:plan-fourlayeragentassessment",
       "source": "instruction:vendor-prompting",
       "target": "prompt:plan-fourlayeragentassessment",
@@ -5971,12 +5783,6 @@
       "id": "instruction:vendor-prompting--applies-to->prompt:project-wide-review",
       "source": "instruction:vendor-prompting",
       "target": "prompt:project-wide-review",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:vendor-prompting--applies-to->prompt:review-astro-docs",
-      "source": "instruction:vendor-prompting",
-      "target": "prompt:review-astro-docs",
       "kind": "applies-to"
     },
     {
@@ -6091,24 +5897,6 @@
       "id": "workflow:ci--runs->validator:test-python-tools",
       "source": "workflow:ci",
       "target": "validator:test-python-tools",
-      "kind": "runs"
-    },
-    {
-      "id": "workflow:sensei-branch-maintenance--runs->validator:validate-skills",
-      "source": "workflow:sensei-branch-maintenance",
-      "target": "validator:validate-skills",
-      "kind": "runs"
-    },
-    {
-      "id": "workflow:sensei-branch-maintenance--runs->validator:validate-agents",
-      "source": "workflow:sensei-branch-maintenance",
-      "target": "validator:validate-agents",
-      "kind": "runs"
-    },
-    {
-      "id": "workflow:sensei-branch-maintenance--runs->validator:lint-md",
-      "source": "workflow:sensei-branch-maintenance",
-      "target": "validator:lint-md",
       "kind": "runs"
     },
     {
@@ -6586,24 +6374,6 @@
       "kind": "refs"
     },
     {
-      "id": "skill:apex-docs-writer--refs->skill:apex-agent-authoring",
-      "source": "skill:apex-docs-writer",
-      "target": "skill:apex-agent-authoring",
-      "kind": "refs"
-    },
-    {
-      "id": "skill:apex-docs-writer--refs->skill:apex-azure-artifacts",
-      "source": "skill:apex-docs-writer",
-      "target": "skill:apex-azure-artifacts",
-      "kind": "refs"
-    },
-    {
-      "id": "skill:apex-docs-writer--refs->skill:apex-unslop",
-      "source": "skill:apex-docs-writer",
-      "target": "skill:apex-unslop",
-      "kind": "refs"
-    },
-    {
       "id": "skill:apex-entra-app-registration--refs->skill:apex-azure-compliance",
       "source": "skill:apex-entra-app-registration",
       "target": "skill:apex-azure-compliance",
@@ -6757,12 +6527,6 @@
       "id": "skill:apex-terraform-test--refs->skill:apex-azure-deploy",
       "source": "skill:apex-terraform-test",
       "target": "skill:apex-azure-deploy",
-      "kind": "refs"
-    },
-    {
-      "id": "skill:apex-workflow-engine--refs->skill:apex-docs-writer",
-      "source": "skill:apex-workflow-engine",
-      "target": "skill:apex-docs-writer",
       "kind": "refs"
     },
     {

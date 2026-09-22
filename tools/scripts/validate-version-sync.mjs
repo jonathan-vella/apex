@@ -2,7 +2,7 @@
  * Version Synchronization Validator
  *
  * Ensures VERSION.md is the single source of truth and all other files match.
- * Checks: package.json, CHANGELOG.md
+ * Checks: package.json; archived changelogs are historical, not current version authorities.
  */
 
 import fs from "node:fs";
@@ -11,10 +11,7 @@ import { Reporter } from "./_lib/reporter.mjs";
 
 const ROOT = process.cwd();
 const VERSION_FILE = "VERSION.md";
-const FILES_TO_CHECK = [
-  { path: "package.json", pattern: /"version":\s*"(\d+\.\d+\.\d+)"/ },
-  { path: "CHANGELOG.md", pattern: /##\s*\[?v?(\d+\.\d+\.\d+)\]?/i },
-];
+const FILES_TO_CHECK = [{ path: "package.json", pattern: /"version":\s*"(\d+\.\d+\.\d+)"/ }];
 
 const r = new Reporter("Version Sync Validator");
 r.header();

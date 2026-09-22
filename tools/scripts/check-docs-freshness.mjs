@@ -192,7 +192,7 @@ async function checkVersionHeaders(cachedSiteMdFiles) {
 async function main() {
   console.log("📋 Docs Freshness Checker\n");
 
-  const productDocs = ["README.md", "AGENTS.md", "CONTRIBUTING.md", "VERSION.md"].map((file) => join(ROOT, file));
+  const productDocs = ["README.md", "AGENTS.md", "VERSION.md"].map((file) => join(ROOT, file));
 
   console.log("─── Prohibited References ───");
   await checkProhibitedRefs(productDocs);

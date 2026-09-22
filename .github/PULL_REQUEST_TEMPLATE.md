@@ -119,7 +119,7 @@ If YES, expected impact:
 - [ ] Markdown linting passes: `npm run lint:md`
 - [ ] All internal links verified
 - [ ] CI workflow passes
-- [ ] CHANGELOG.md updated (for releases)
+- [ ] Release notes recorded in the PR and published documentation (for releases)
 
 ## Screenshots / Architecture Diagram
 
