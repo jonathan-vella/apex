@@ -3,6 +3,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
+import { spawnSync } from "node:child_process";
 import * as yaml from "js-yaml";
 import { Lexer, Parser, Evaluator, data } from "@actions/expressions";
 import { CONSUMER_WORKFLOWS, syncWorkflows } from "../../scripts/sync-workflows.mjs";
@@ -80,6 +81,28 @@ function remote(version = "one", fail = "") {
     };
   };
 }
+
+test("terminology validation ignores scratch checkouts but rejects active deprecated text", () =>
+  fixture(async (root) => {
+    fs.mkdirSync(path.join(root, ".github"));
+    fs.writeFileSync(
+      path.join(root, ".github/terminology-blocklist.json"),
+      JSON.stringify({
+        fileExtensions: [".md"],
+        rules: [{ id: "fixture", pattern: "obsolete-fixture", severity: "error" }],
+      }),
+    );
+    fs.mkdirSync(path.join(root, "tmp"));
+    fs.writeFileSync(path.join(root, "tmp/old.md"), "obsolete-fixture");
+    const run = () =>
+      spawnSync(process.execPath, [path.join(rootDirectory, "tools/scripts/validate-terminology.mjs")], {
+        cwd: root,
+        encoding: "utf8",
+      });
+    assert.equal(run().status, 0);
+    fs.writeFileSync(path.join(root, "active.md"), "obsolete-fixture");
+    assert.notEqual(run().status, 0);
+  }));
 
 test("preview does not write; install and repeat are idempotent; updates bind a commit", () =>
   fixture(async (root) => {

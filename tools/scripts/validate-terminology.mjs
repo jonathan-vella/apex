@@ -69,6 +69,7 @@ function collectFiles(extensions, excludePatterns) {
       if (
         entry.name === "node_modules" ||
         entry.name === ".git" ||
+        entry.name === "tmp" ||
         entry.name === "dist" ||
         entry.name === ".venv" ||
         entry.name === "venv"
