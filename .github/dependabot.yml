@@ -68,27 +68,6 @@ updates:
           - "minor"
           - "patch"
 
-  # ─── npm: docs site (Astro/Starlight) ──────────────────────────────────────
-  - package-ecosystem: "npm"
-    directory: "/site"
-    schedule:
-      interval: "weekly"
-      day: "tuesday"
-    open-pull-requests-limit: 3
-    commit-message:
-      prefix: "chore(site)"
-    labels:
-      - "dependencies"
-      - "site"
-    groups:
-      astro-ecosystem:
-        patterns:
-          - "astro"
-          - "@astrojs/*"
-          - "@astrolibs/*"
-          - "starlight*"
-          - "@starlight/*"
-
   # ─── Python: apex-recall CLI ───────────────────────────────────────────────
   - package-ecosystem: "pip"
     directory: "/tools/apex-recall"

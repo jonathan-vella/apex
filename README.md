@@ -9,6 +9,10 @@ gates across the lifecycle.
 The full documentation for this repository lives here:
 
 - [APEX documentation](https://apexops.pro/)
+- [Documentation source and publishing](https://github.com/jonathan-vella/apex-docs)
+
+APEX contains product tooling and runtime guidance. Astro, documentation assets and Pages publishing
+are maintained in `apex-docs`; the accelerator distributes consumer workflow templates.
 
 Key entry points:
 

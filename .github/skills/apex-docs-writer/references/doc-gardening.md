@@ -32,7 +32,7 @@ must come from `tools/registry/count-manifest.json` — never hard-code numbers.
   `tools/scripts/validate-agents.mjs`,
   `tools/scripts/validate-no-hardcoded-counts.mjs`.
 - Architecture Explorer graph at
-  `site/public/architecture-explorer-graph.json` is regenerated via
+  `tools/registry/architecture-explorer-graph.json` is regenerated via
   `npm run build:explorer-graph`.
 </context>
 
@@ -93,7 +93,7 @@ stop and ask the user (do not create them silently):
    the exact file + line.
 
 5. **Architecture Explorer graph freshness** — if
-   `site/public/architecture-explorer-graph.json` exists, compare its `generatedAt`
+   `tools/registry/architecture-explorer-graph.json` exists, compare its `generatedAt`
    timestamp (or file mtime as fallback) against the newest mtime across
    `.github/agents/**`, `.github/agents/_subagents/**`, `.github/skills/**`,
    `.github/instructions/**`, `.github/prompts/**`, `tools/apex-prompts/**`, `.vscode/mcp.json`,

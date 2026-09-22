@@ -57,7 +57,10 @@ Update when:
 - Use conventional commit type to determine section (Added, Changed,
   Fixed, Removed, Deprecated, Security)
 
-### Site docs (`site/src/content/docs/`)
+### Published Docs (Separate `apex-docs` Repository)
+
+Use `src/content/docs/` in a separate `jonathan-vella/apex-docs` checkout.
+Do not create or edit a local `site/` directory in APEX.
 
 Update when:
 

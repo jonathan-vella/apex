@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-09-22T08:06:38.246Z",
+  "generatedAt": "2026-09-22T08:53:58.892Z",
   "categories": [
     {
       "id": "agent",
@@ -48,7 +48,7 @@
       "label": "Validator",
       "color": "#8b5cf6",
       "shape": "hexagon",
-      "count": 64
+      "count": 63
     },
     {
       "id": "workflow",
@@ -56,7 +56,7 @@
       "label": "CI Workflow",
       "color": "#06b6d4",
       "shape": "cut-rectangle",
-      "count": 10
+      "count": 6
     },
     {
       "id": "mcp",
@@ -67,8 +67,8 @@
       "count": 3
     }
   ],
-  "nodeCount": 194,
-  "edgeCount": 729,
+  "nodeCount": 189,
+  "edgeCount": 728,
   "nodes": [
     {
       "id": "agent:01-orchestrator",
@@ -2863,21 +2863,6 @@
       "parent": "group:validator-orphans"
     },
     {
-      "id": "validator:lint-site-links",
-      "category": "validator",
-      "label": "lint:site-links",
-      "description": "npm run docs:build --silent && node site/check-links.mjs",
-      "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
-      "meta": {
-        "command": "npm run docs:build --silent && node site/check-links.mjs",
-        "orphan": true
-      },
-      "parent": "group:validator-orphans"
-    },
-    {
       "id": "workflow:branch-enforcement",
       "category": "workflow",
       "label": "branch-enforcement",
@@ -2910,59 +2895,6 @@
       "path": ".github/workflows/consumer-template-checks.yml",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/workflows/consumer-template-checks.yml"
-      },
-      "meta": {
-        "orphan": true
-      },
-      "parent": "group:workflow-orphans"
-    },
-    {
-      "id": "workflow:docs-checks",
-      "category": "workflow",
-      "label": "docs-checks",
-      "description": "",
-      "path": ".github/workflows/docs-checks.yml",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/workflows/docs-checks.yml"
-      },
-      "meta": {}
-    },
-    {
-      "id": "workflow:docs-gardening",
-      "category": "workflow",
-      "label": "docs-gardening",
-      "description": "",
-      "path": ".github/workflows/docs-gardening.yml",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/workflows/docs-gardening.yml"
-      },
-      "meta": {
-        "orphan": true
-      },
-      "parent": "group:workflow-orphans"
-    },
-    {
-      "id": "workflow:docs",
-      "category": "workflow",
-      "label": "docs",
-      "description": "",
-      "path": ".github/workflows/docs.yml",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/workflows/docs.yml"
-      },
-      "meta": {
-        "orphan": true
-      },
-      "parent": "group:workflow-orphans"
-    },
-    {
-      "id": "workflow:link-check",
-      "category": "workflow",
-      "label": "link-check",
-      "description": "",
-      "path": ".github/workflows/link-check.yml",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/workflows/link-check.yml"
       },
       "meta": {
         "orphan": true
@@ -3036,21 +2968,21 @@
     {
       "id": "group:validator-orphans",
       "category": "validator",
-      "label": "Validator (unlinked, 56)",
-      "description": "56 validator nodes with no cross-references in the current graph.",
+      "label": "Validator (unlinked, 55)",
+      "description": "55 validator nodes with no cross-references in the current graph.",
       "isGroup": true,
       "meta": {
-        "groupSize": 56
+        "groupSize": 55
       }
     },
     {
       "id": "group:workflow-orphans",
       "category": "workflow",
-      "label": "CI Workflow (unlinked, 6)",
-      "description": "6 ci workflow nodes with no cross-references in the current graph.",
+      "label": "CI Workflow (unlinked, 3)",
+      "description": "3 ci workflow nodes with no cross-references in the current graph.",
       "isGroup": true,
       "meta": {
-        "groupSize": 6
+        "groupSize": 3
       }
     }
   ],
@@ -6743,12 +6675,6 @@
       "id": "workflow:ci--runs->validator:test-python-tools",
       "source": "workflow:ci",
       "target": "validator:test-python-tools",
-      "kind": "runs"
-    },
-    {
-      "id": "workflow:docs-checks--runs->validator:lint-md",
-      "source": "workflow:docs-checks",
-      "target": "validator:lint-md",
       "kind": "runs"
     },
     {

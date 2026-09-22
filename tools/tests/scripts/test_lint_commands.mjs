@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { cpSync, symlinkSync, mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } from "node:fs";
+import { cpSync, symlinkSync, mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync, existsSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
@@ -12,7 +12,7 @@ import { artifactTrigger } from "../../scripts/check-publication-scope.mjs";
 const { scripts } = JSON.parse(readFileSync(new URL("../../../package.json", import.meta.url), "utf8"));
 
 test("npm lockfiles retain portable registry URLs rather than environment-specific feed addresses", () => {
-  for (const file of ["package-lock.json", "site/package-lock.json"]) {
+  for (const file of ["package-lock.json"]) {
     const lock = JSON.parse(readFileSync(new URL(`../../../${file}`, import.meta.url), "utf8"));
     for (const [name, entry] of Object.entries(lock.packages)) {
       if (!entry.resolved?.startsWith("https://")) continue;
@@ -70,47 +70,28 @@ test("extension guard rejects Azure Copilot and bundling extensions", (context) 
   }
 });
 
-test("docs CI retains event coverage, status jobs and same-run build provenance", () => {
+test("product CI retains coverage while migrated docs automation stays retired", () => {
   const workflow = (name) =>
     load(readFileSync(new URL(`../../../.github/workflows/${name}.yml`, import.meta.url), "utf8"));
   const ci = workflow("ci");
-  const checks = workflow("docs-checks");
-  const pages = workflow("docs");
   assert.equal(ci.jobs.ci.name, "ci");
   assert.deepEqual(ci.on.pull_request.branches, ["main"]);
   assert.ok(ci.on.push.branches.includes("main"));
   assert.ok(ci.jobs.ci.steps.some((step) => step.run === "npm run lint:md" && !step.if));
-  assert.deepEqual(checks.on.pull_request.paths, ["site/**", ".github/workflows/docs-checks.yml"]);
-  assert.deepEqual(checks.on.push, { branches: ["main"], paths: ["site/**"] });
-  const steps = checks.jobs["link-check-and-build"].steps;
-  assert.equal(
-    steps.find((step) => step.run === "npm run lint:md").if,
-    "github.event_name == 'pull_request' && github.base_ref != 'main'",
-  );
-  for (const command of [
-    "node tools/scripts/lint-docs-frontmatter.mjs",
-    "npm run build",
-    "node site/check-links.mjs",
-  ]) {
-    assert.ok(
-      steps.some((step) => step.run === command && !step.if),
-      command,
-    );
+  for (const name of ["docs", "docs-checks", "docs-gardening", "link-check"]) {
+    assert.equal(existsSync(new URL(`../../../.github/workflows/${name}.yml`, import.meta.url)), false);
   }
-  assert.deepEqual(pages.on.push, {
-    branches: ["main"],
-    paths: ["site/src/**", "site/public/**", "site/astro.config.mjs", "site/package.json", "site/package-lock.json"],
-  });
-  assert.ok(Object.hasOwn(pages.on, "workflow_dispatch"));
-  const build = pages.jobs.build.steps;
-  assert.ok(build.some((step) => step.uses?.startsWith("actions/checkout@") && !step.with?.ref));
-  const buildIndex = build.findIndex((step) => step.run === "npm run build" && step["working-directory"] === "site");
-  const uploadIndex = build.findIndex((step) => step.uses?.startsWith("actions/upload-pages-artifact@"));
-  assert.ok(buildIndex >= 0 && uploadIndex > buildIndex);
-  assert.equal(build[uploadIndex].with.path, "site/dist");
-  assert.equal(pages.jobs.deploy.needs, "build");
-  assert.ok(pages.jobs.deploy.steps.some((step) => step.uses?.startsWith("actions/deploy-pages@")));
-  assert.ok(!build.some((step) => step.uses?.startsWith("actions/download-artifact@")));
+  assert.equal(existsSync(new URL("../../../site/package.json", import.meta.url)), false);
+  for (const name of [
+    "docs:dev",
+    "docs:build",
+    "docs:preview",
+    "lint:site-links",
+    "lint:docs-frontmatter",
+    "lint:links:docs",
+  ]) {
+    assert.equal(scripts[name], undefined);
+  }
 });
 
 test("Python CI installs diagram dependencies and renderer before running tooling tests", () => {
