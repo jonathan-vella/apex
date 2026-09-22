@@ -11,14 +11,19 @@ The full documentation for this repository lives here:
 - [APEX documentation](https://apexops.pro/)
 - [Documentation source and publishing](https://github.com/jonathan-vella/apex-docs)
 
-APEX contains product tooling and runtime guidance. Astro, documentation assets and Pages publishing
+APEX contains product tooling and runtime guidance. Documentation assets and publishing
 are maintained in `apex-docs`; the accelerator distributes consumer workflow templates.
+
+This README is the general documentation entrypoint. `AGENTS.md`, `VERSION.md`, runtime references,
+templates and technical CLI contracts remain here because agents and validation depend on them.
+Historical human documentation and retired site tooling are preserved in
+[the cleanup archive](.archive/docs-cleanup-2026-09-22/README.md).
 
 Key entry points:
 
 - [Accelerator template](https://github.com/jonathan-vella/apex-accelerator)
 - [MicroHack](https://microhack.apexops.pro/)
-- [Contributing guide](CONTRIBUTING.md)
+- [Contributing guide](https://apexops.pro/project/contributing/)
 
 ## Workflow
 

@@ -52,7 +52,7 @@ omit theme directives · embed Azure service icons.
 | File                                | When to Load                                                   |
 | ----------------------------------- | -------------------------------------------------------------- |
 | `references/syntax-cheatsheet.md`   | Authoring any diagram type (flowchart, sequence, Gantt, ER, state) |
-| `references/styling.md`             | Adding theming, node `classDef` styling, or Astro/Starlight integration |
+| `references/styling.md`             | Adding theming and node `classDef` styling |
 
 ## Scope Exclusions
 

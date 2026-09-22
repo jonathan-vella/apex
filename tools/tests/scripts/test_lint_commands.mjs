@@ -78,7 +78,7 @@ test("product CI retains coverage while migrated docs automation stays retired",
   assert.deepEqual(ci.on.pull_request.branches, ["main"]);
   assert.ok(ci.on.push.branches.includes("main"));
   assert.ok(ci.jobs.ci.steps.some((step) => step.run === "npm run lint:md" && !step.if));
-  for (const name of ["docs", "docs-checks", "docs-gardening", "link-check"]) {
+  for (const name of ["docs", "docs-checks", "docs-gardening", "link-check", "sensei-branch-maintenance"]) {
     assert.equal(existsSync(new URL(`../../../.github/workflows/${name}.yml`, import.meta.url)), false);
   }
   assert.equal(existsSync(new URL("../../../site/package.json", import.meta.url)), false);
@@ -211,7 +211,10 @@ test("root workflow diagram uses declared participants and current artifact name
   assert.doesNotMatch(diagram, /02-assessment.md|03-cost-estimate.md|04-plan.md|challenge-findings.json/);
   assert.ok(diagram.indexOf("challenge-findings-cost-estimate.json") < diagram.indexOf("Approve architecture"));
   assert.match(diagram, /C->>G: Discover policy constraints/);
-  const quality = readFileSync(new URL("../../../QUALITY_SCORE.md", import.meta.url), "utf8");
+  const quality = readFileSync(
+    new URL("../../../.archive/docs-cleanup-2026-09-22/QUALITY_SCORE.md", import.meta.url),
+    "utf8",
+  );
   assert.match(quality, /historical, not a current validation result/);
   assert.doesNotMatch(quality.split("## Change Log")[0], /\d+ primary|\d+ subagents|\d+ skills|\d+ instructions/);
 });
@@ -222,7 +225,6 @@ test("version sync fails on missing or malformed required version evidence", (co
   const valid = {
     "VERSION.md": "**Current Version:** 1.2.3\n",
     "package.json": '{"version":"1.2.3"}',
-    "CHANGELOG.md": "## [1.2.3]\n",
   };
   const check = (overrides = {}) => {
     for (const [name, content] of Object.entries({ ...valid, ...overrides })) {
@@ -239,7 +241,7 @@ test("version sync fails on missing or malformed required version evidence", (co
   }
   assert.notEqual(check({ "VERSION.md": "**Current Version:** unknown\nhttps://semver.org/spec/v2.0.0.html" }), 0);
   assert.notEqual(check({ "package.json": "{}" }), 0);
-  assert.notEqual(check({ "CHANGELOG.md": "# Changelog" }), 0);
+  assert.equal(check({ "CHANGELOG.md": "# Historical changelog" }), 0);
   assert.notEqual(check({ "package.json": '{"version":"1.2.4"}' }), 0);
 });
 

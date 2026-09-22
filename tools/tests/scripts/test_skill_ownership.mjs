@@ -4,13 +4,11 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
 import test from "node:test";
+import { createHash } from "node:crypto";
 
 const root = fileURLToPath(new URL("../../../", import.meta.url));
 const source = (file) => readFileSync(path.join(root, file), "utf8");
 const moves = [
-  ["apex-workflow-engine", "apex-docs-writer", "doc-gardening", "doc-gardening"],
-  ["apex-workflow-engine", "apex-docs-writer", "plan-docs-peer-review", "plan-docsPeerReview"],
-  ["apex-workflow-engine", "apex-docs-writer", "review-astro-docs", "review-astro-docs"],
   ["apex-context-management", "apex-agent-authoring", "assess-agents", "assess-agents"],
   ["apex-context-management", "apex-agent-authoring", "assess-github-folder", "assess-github-folder"],
   [
@@ -54,18 +52,13 @@ test("context runtime and log audits stay with context-management", () => {
   }
 });
 
-test("owning skill and documentation source indexes resolve", () => {
-  for (const owner of ["apex-docs-writer", "apex-agent-authoring", "apex-workflow-engine", "apex-context-management"]) {
+test("remaining owning skill indexes resolve", () => {
+  for (const owner of ["apex-agent-authoring", "apex-workflow-engine", "apex-context-management"]) {
     checkRelativeLinks(`.github/skills/${owner}/SKILL.md`);
   }
-  checkRelativeLinks(".github/skills/apex-docs-writer/references/repo-architecture.md");
-  checkRelativeLinks(".github/skills/apex-docs-writer/references/freshness-checklist.md");
 });
 
 test("moved procedures retain review modes and optional runtime evidence boundaries", () => {
-  assert.match(source(".github/skills/apex-docs-writer/references/doc-gardening.md"), /do not auto-fix findings/);
-  assert.match(source(".github/skills/apex-docs-writer/references/plan-docs-peer-review.md"), /Read-only review/);
-  assert.match(source(".github/skills/apex-docs-writer/references/review-astro-docs.md"), /Default: report-only/);
   for (const name of ["assess-agents", "assess-github-folder"]) {
     assert.match(
       source(`.github/skills/apex-agent-authoring/references/${name}.md`),
@@ -80,4 +73,32 @@ test("moved procedures retain review modes and optional runtime evidence boundar
     source(".github/skills/apex-agent-authoring/references/plan-four-layer-agent-assessment.md"),
     /Do not execute this/,
   );
+});
+
+test("retired site tooling is outside active discovery", () => {
+  for (const file of [
+    ".github/skills/apex-docs-writer/SKILL.md",
+    ".github/instructions/astro.instructions.md",
+    ".github/instructions/docs.instructions.md",
+    "tools/apex-prompts/utility-prompts/doc-gardening.prompt.md",
+    "tools/apex-prompts/utility-prompts/plan-docsPeerReview.prompt.md",
+    "tools/apex-prompts/utility-prompts/review-astro-docs.prompt.md",
+  ]) {
+    assert.equal(existsSync(path.join(root, file)), false, file);
+    assert.ok(existsSync(path.join(root, ".archive/docs-cleanup-2026-09-22", file)), file);
+  }
+});
+
+test("archive retains original bytes and functional root guidance remains active", () => {
+  const manifest = JSON.parse(source(".archive/docs-cleanup-2026-09-22/manifest.json"));
+  assert.match(manifest.source_commit, /^[a-f0-9]{40}$/);
+  for (const entry of manifest.files) {
+    assert.equal(existsSync(path.join(root, entry.original)), false, entry.original);
+    const bytes = readFileSync(path.join(root, entry.archived));
+    assert.equal(createHash("sha256").update(bytes).digest("hex"), entry.sha256, entry.original);
+  }
+  for (const file of ["README.md", "AGENTS.md", "VERSION.md", "LICENSE"])
+    assert.ok(existsSync(path.join(root, file)), file);
+  const skills = JSON.parse(source("tools/registry/count-manifest.json")).counts.skills;
+  assert.equal(skills.computed_from, ".github/skills/*/SKILL.md");
 });

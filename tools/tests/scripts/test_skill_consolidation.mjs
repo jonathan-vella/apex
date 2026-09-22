@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { cpSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync, existsSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -36,12 +36,7 @@ const kqlBlocks = (source) => [...source.matchAll(/```kql\n([\s\S]*?)```/g)].map
 
 const validator = fileURLToPath(new URL("../../scripts/validate-skills.mjs", import.meta.url));
 const retiredName = ["azure", "troubleshooting"].join("-");
-const manualSkills = new Set([
-  "apex-unslop",
-  "apex-docs-writer",
-  "apex-vendor-prompting",
-  "apex-terraform-search-import",
-]);
+const manualSkills = new Set(["apex-unslop", "apex-vendor-prompting", "apex-terraform-search-import"]);
 
 test("active skill metadata preserves reachability and the approved inline visibility policy", () => {
   const hidden = new Set([
@@ -90,7 +85,7 @@ test("manual maintenance skills retain validation and import approval boundaries
     assert.equal(metadata["disable-model-invocation"], true, name);
     assert.ok(source.includes(`/${name}`), name);
   }
-  assert.match(read(new URL("apex-docs-writer/SKILL.md", skillsRoot)), /Required documentation updates/);
+  assert.equal(existsSync(new URL("apex-docs-writer/SKILL.md", skillsRoot)), false);
   assert.match(
     read(new URL("apex-vendor-prompting/SKILL.md", skillsRoot)),
     /required vendor validators remain mandatory/,

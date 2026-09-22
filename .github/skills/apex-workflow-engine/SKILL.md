@@ -86,9 +86,8 @@ Other retained Local operations load only their requested procedure:
 [imported IaC](references/review-imported-iac.md),
 [existing Azure as-built](references/as-built-from-azure.md),
 [project review](references/project-wide-review.md).
-Documentation gardening, peer review, and Astro review belong to
-[`apex-docs-writer`](../apex-docs-writer/SKILL.md), invoked explicitly by the user or a user-selected documentation
-prompt adapter. Do not auto-load that manual-only skill when advancing infrastructure steps.
+Published documentation maintenance belongs to the separate `jonathan-vella/apex-docs` repository.
+Do not load retired documentation tooling when advancing infrastructure steps.
 For their shared execution boundary, read
 [operational-safety.md](references/operational-safety.md).
 

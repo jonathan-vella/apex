@@ -34,7 +34,6 @@ This repo is APEX (Azure Agentic Platform Engineering eXperience). It contains:
 - MCP servers under `tools/mcp-servers/`
 - Validators under `tools/scripts/`
 - Tests under `tools/tests/`
-- Astro docs site under `site/`
 - Registries: `tools/registry/agent-registry.json`,
   `tools/registry/count-manifest.json`,
   `.github/model-catalog.json`,
@@ -137,8 +136,6 @@ re-reading every body. This is the "knowledge graph" for this session.
      AVM modules they reference.
    - `mcp_servers[]` — directories under `tools/mcp-servers/` with
      entry points and dependent npm/python packages.
-   - `site_pages[]` — files under `site/src/content/docs/` with their
-     `astro.config.mjs` sidebar position.
 4. Compute cross-domain edges:
    - prompt → agent → skill → instruction
    - validator → rule registry (`apex-vendor-prompting/rules.json`)
@@ -301,17 +298,10 @@ For each `tools/mcp-servers/<server>/`:
 
 Domain report: `07-mcp.md`.
 
-## Phase 8 — Site (Astro docs)
+## Phase 8 — Documentation Boundary
 
-1. Confirm `astro.config.mjs` sidebar matches `site/src/content/docs/`
-   tree.
-2. Run `npm run docs:build` to detect broken refs.
-3. Confirm count-driven pages (e.g., agent count) read from
-   `count-manifest.json` instead of hard-coded numbers.
-4. Cross-check key claims against the review-index (number of agents,
-   skills, validators).
-
-Domain report: `08-site.md`.
+Published-site review belongs to `jonathan-vella/apex-docs` and is not run from APEX.
+Record this boundary in `08-documentation-boundary.md`; retain checks on product README and runtime references.
 
 ## Phase 9 — Tests & CI hooks
 
@@ -332,7 +322,7 @@ Use the review-index to detect issues no single-domain pass can find:
 - An agent declaring a skill that no agent registry entry includes.
 - A validator emitting a rule ID not in any registry.
 - An npm script that no hook or workflow runs.
-- A site doc page citing a count that drifts from `count-manifest.json`.
+- Product guidance citing a count that drifts from `count-manifest.json`.
 - An instruction file with `applyTo` matching files that no other
   domain references.
 

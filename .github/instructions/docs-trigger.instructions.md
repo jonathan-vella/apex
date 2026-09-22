@@ -1,5 +1,5 @@
 ---
-description: Trigger conditions for updating documentation when code changes. Defines WHEN docs need updating — not HOW to write them (see docs.instructions.md and markdown.instructions.md for formatting).
+description: Required documentation updates for product changes; published documentation belongs to apex-docs.
 applyTo: "**/*.agent.md, **/.github/skills/**/SKILL.md, **/tools/scripts/*.mjs"
 ---
 
@@ -10,13 +10,10 @@ applyTo: "**/*.agent.md, **/.github/skills/**/SKILL.md, **/tools/scripts/*.mjs"
 Detect when code changes require documentation updates. This instruction
 complements the existing documentation standards:
 
-- **docs.instructions.md** — content principles, architecture tables
 - **markdown.instructions.md** — formatting, line limits, validation
-- **apex-docs-writer skill** — manually invoked full doc maintenance workflows
 
 Required documentation updates do not depend on loading a skill. Apply these triggers and the file's writing
-instructions during routine code work. Use `/apex-docs-writer` only when the user explicitly requests that skill
-or its manually selected documentation prompt adapter; do not auto-load it for every documentation change.
+instructions during routine code work. Published documentation is maintained in `jonathan-vella/apex-docs`.
 
 ## Trigger Conditions
 
@@ -49,11 +46,11 @@ Update when:
 - Project structure changes (update tree diagram)
 - New capabilities are introduced (update feature list)
 
-### [CHANGELOG.md](../../CHANGELOG.md)
+### Release Notes
 
 Update when:
 
-- Any user-facing change is made (follow Keep a Changelog format)
+- Any user-facing change is made (record it in the PR and the published documentation repository)
 - Use conventional commit type to determine section (Added, Changed,
   Fixed, Removed, Deprecated, Security)
 
@@ -68,14 +65,12 @@ Update when:
 - Agent capabilities change significantly
 - New documentation files are added
 
-### apex-docs-writer References
+### Runtime References
 
 Update when:
 
-- Instruction files are added or removed
-  (`references/repo-architecture.md` — instruction inventory)
-- Agent or skill inventory changes
-  (`references/freshness-checklist.md` — inventory checks against `count-manifest.json`)
+- Instruction files are added or removed; update affected callers and tests
+- Agent or skill inventory changes; regenerate the product Explorer registry
 - Retired entry points or commands disappear; remove live launch guidance but
   preserve historical evidence and schema compatibility records
 - Harness behavior changes; distinguish Local prompt adapters from shared skills

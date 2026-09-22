@@ -31,8 +31,6 @@ desktop.ini
 # Logs
 *.log
 logs/
-# Astro docs review audit trail is committable
-!logs/copilot/docs-review/
 
 # Root decision snapshots are generated artifacts, not source files.
 decisions*.json
@@ -97,10 +95,8 @@ freshness-report.json
 # that single committed deliverables can be re-included with `!`.
 agent-output/_baselines/*
 
-# Astro Starlight (site/ is source code; only ignore build artifacts)
-site/dist/
-site/node_modules/
-site/.astro/
+# Preserve ignored local residue from the retired site checkout.
+site/
 
 # Terraform
 *.tfstate

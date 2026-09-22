@@ -4,7 +4,7 @@
 
 APEX runs product CI, branch enforcement, consumer-template validation and devcontainer checks.
 Read each active workflow for its exact triggers and permissions.
-The long-lived Sensei branch maintenance remains separate from consumer infrastructure operations.
+Sensei branch maintenance is retired; no workflow merges or monitors that branch automatically.
 
 ## Consumer Automation
 

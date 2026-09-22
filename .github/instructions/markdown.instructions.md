@@ -42,9 +42,7 @@ Use the appropriate diagram skill for each output type:
 - **WAF/cost/compliance charts** → `apex-python-diagrams` skill (`.py` + `.png`)
 - **Inline markdown diagrams** → `apex-mermaid` skill (fenced code blocks)
 
-> **Audience-specific guidance** — for human-authored documentation in
-> `site/src/content/docs/**`, additional visual + template
-> rules live in `docs.instructions.md`. For agent-generated
+> Published documentation standards live in `jonathan-vella/apex-docs`. For agent-generated
 > artifacts in `agent-output/**`, H2 template compliance is enforced by
 > `azure-artifacts.instructions.md`.
 

@@ -1,6 +1,6 @@
 <!-- ref:mermaid-styling-v1 -->
 
-# Mermaid Styling, Theming, and Astro Integration
+# Mermaid Styling and Theming
 
 ## Theming (Dark Mode Compatible)
 
@@ -35,15 +35,3 @@ graph TB
     S1["Step 1"]
     G1{{"Gate"}}:::gate
 ```
-
-## Astro / Starlight Integration
-
-In this project, Mermaid is rendered client-side by `rehype-mermaid-lite`.
-Use fenced code blocks with `mermaid` language:
-
-````markdown
-```mermaid
-graph LR
-  A --> B
-```
-````
