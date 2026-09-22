@@ -34,6 +34,7 @@ concurrency:
 
 jobs:
   terraform:
+    if: github.repository != 'jonathan-vella/apex' && github.repository != 'jonathan-vella/apex-accelerator' && github.repository != 'jonathan-vella/apex-docs' && github.event.repository.is_template != true
     name: Terraform fmt + validate
     runs-on: ubuntu-latest
     steps:
@@ -60,6 +61,7 @@ jobs:
         run: npm run validate:terraform
 
   bicep:
+    if: github.repository != 'jonathan-vella/apex' && github.repository != 'jonathan-vella/apex-accelerator' && github.repository != 'jonathan-vella/apex-docs' && github.event.repository.is_template != true
     name: Bicep fmt
     runs-on: ubuntu-latest
     steps:

@@ -33,29 +33,25 @@ permissions:
 
 jobs:
   collect-baseline:
+    if: github.repository != 'jonathan-vella/apex' && github.repository != 'jonathan-vella/apex-accelerator' && github.repository != 'jonathan-vella/apex-docs' && github.event.repository.is_template != true && vars.GOVERNANCE_BASELINE_ENABLED == 'true'
     runs-on: ubuntu-latest
     steps:
-      # Kill switch — exit cleanly if disabled
-      - name: Check kill switch
-        if: vars.GOVERNANCE_BASELINE_ENABLED == 'false'
+      - name: Check governance configuration
+        env:
+          GOVERNANCE_MG_ID: ${{ vars.GOVERNANCE_MG_ID }}
         run: |
-          echo "::notice::Governance baseline collection is disabled (GOVERNANCE_BASELINE_ENABLED=false). Exiting."
-          exit 0
-
-      - name: Skip remaining steps if disabled
-        if: vars.GOVERNANCE_BASELINE_ENABLED == 'false'
-        id: disabled
-        run: echo "skip=true" >> "$GITHUB_OUTPUT"
+          if [[ -z "$GOVERNANCE_MG_ID" ]]; then
+            echo "::error::Set GOVERNANCE_MG_ID before enabling governance collection."
+            exit 1
+          fi
 
       - name: Checkout repository
-        if: steps.disabled.outputs.skip != 'true'
         uses: actions/checkout@v7
         with:
           ref: ${{ github.ref_name }}
           fetch-depth: 2
 
       - name: Azure Login (OIDC)
-        if: steps.disabled.outputs.skip != 'true'
         uses: azure/login@v3
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
@@ -63,18 +59,18 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Create data directory
-        if: steps.disabled.outputs.skip != 'true'
         run: mkdir -p .github/data
 
       - name: Collect governance baseline
-        if: steps.disabled.outputs.skip != 'true'
+        env:
+          GOVERNANCE_MG_ID: ${{ vars.GOVERNANCE_MG_ID }}
+          GOVERNANCE_MAX_SUBSCRIPTIONS: ${{ vars.GOVERNANCE_MAX_SUBSCRIPTIONS || '100' }}
         run: |
           pwsh tools/scripts/collect-governance-baseline.ps1 \
-            -ManagementGroupId "${{ vars.GOVERNANCE_MG_ID }}" \
-            -MaxSubscriptions "${{ vars.GOVERNANCE_MAX_SUBSCRIPTIONS || '100' }}"
+            -ManagementGroupId "$GOVERNANCE_MG_ID" \
+            -MaxSubscriptions "$GOVERNANCE_MAX_SUBSCRIPTIONS"
 
       - name: Stage baseline file
-        if: steps.disabled.outputs.skip != 'true'
         id: changes
         run: |
           git add .github/data/governance-policy-baseline.json.gz
@@ -85,7 +81,7 @@ jobs:
           fi
 
       - name: Detect MG ID change
-        if: steps.disabled.outputs.skip != 'true' && steps.changes.outputs.changed == 'true'
+        if: steps.changes.outputs.changed == 'true'
         id: mg-check
         run: |
           LOADER=.github/skills/apex-azure-governance-discovery/scripts/governance_baseline.py
@@ -104,7 +100,7 @@ jobs:
           fi
 
       - name: Read baseline summary
-        if: steps.disabled.outputs.skip != 'true' && steps.changes.outputs.changed == 'true'
+        if: steps.changes.outputs.changed == 'true'
         id: summary
         run: |
           LOADER=.github/skills/apex-azure-governance-discovery/scripts/governance_baseline.py
@@ -121,7 +117,7 @@ jobs:
           echo "mg_id=$MG_ID" >> "$GITHUB_OUTPUT"
 
       - name: Create pull request
-        if: (steps.changes.outputs.changed == 'true' || github.event.inputs.force_update == 'true') && steps.disabled.outputs.skip != 'true'
+        if: (steps.changes.outputs.changed == 'true' || github.event.inputs.force_update == 'true')
         uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -163,5 +159,5 @@ jobs:
           echo "🔗 ${{ steps.cpr.outputs.pull-request-url }}"
 
       - name: Log no changes
-        if: steps.changes.outputs.changed == 'false' && steps.disabled.outputs.skip != 'true'
+        if: steps.changes.outputs.changed == 'false'
         run: echo "ℹ️ No governance baseline changes detected — no PR created."

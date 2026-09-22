@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-09-15T13:01:31.302Z",
+  "generatedAt": "2026-09-22T08:06:38.246Z",
   "categories": [
     {
       "id": "agent",
@@ -56,7 +56,7 @@
       "label": "CI Workflow",
       "color": "#06b6d4",
       "shape": "cut-rectangle",
-      "count": 12
+      "count": 10
     },
     {
       "id": "mcp",
@@ -67,8 +67,8 @@
       "count": 3
     }
   ],
-  "nodeCount": 196,
-  "edgeCount": 735,
+  "nodeCount": 194,
+  "edgeCount": 729,
   "nodes": [
     {
       "id": "agent:01-orchestrator",
@@ -2297,8 +2297,10 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
       },
       "meta": {
-        "command": "node tools/scripts/validate-glob-audit.mjs"
-      }
+        "command": "node tools/scripts/validate-glob-audit.mjs",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
     },
     {
       "id": "validator:lint-orphaned-content",
@@ -2310,8 +2312,10 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
       },
       "meta": {
-        "command": "node tools/scripts/validate-orphaned-content.mjs"
-      }
+        "command": "node tools/scripts/validate-orphaned-content.mjs",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
     },
     {
       "id": "validator:lint-docs-freshness",
@@ -2323,8 +2327,10 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
       },
       "meta": {
-        "command": "node tools/scripts/check-docs-freshness.mjs"
-      }
+        "command": "node tools/scripts/check-docs-freshness.mjs",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
     },
     {
       "id": "validator:validate-no-hardcoded-counts",
@@ -2780,8 +2786,10 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
       },
       "meta": {
-        "command": "terraform fmt -check -recursive infra/terraform/"
-      }
+        "command": "terraform fmt -check -recursive infra/terraform/",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
     },
     {
       "id": "validator:lint-bicep-fmt",
@@ -2793,8 +2801,10 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
       },
       "meta": {
-        "command": "bash tools/scripts/check-bicep-fmt.sh"
-      }
+        "command": "bash tools/scripts/check-bicep-fmt.sh",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
     },
     {
       "id": "validator:validate-terraform",
@@ -2806,8 +2816,10 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
       },
       "meta": {
-        "command": "status=0; for dir in infra/terraform/*/; do if [ -f \"$dir/main.tf\" ]; then echo \"Validating $dir\"; (cd \"$dir\" && terraform init -backend=false -input=false && terraform validate) || status=1; fi; done; exit \"$status\""
-      }
+        "command": "status=0; for dir in infra/terraform/*/; do if [ -f \"$dir/main.tf\" ]; then echo \"Validating $dir\"; (cd \"$dir\" && terraform init -backend=false -input=false && terraform validate) || status=1; fi; done; exit \"$status\"",
+        "orphan": true
+      },
+      "parent": "group:validator-orphans"
     },
     {
       "id": "validator:test-apex-recall",
@@ -2891,6 +2903,20 @@
       "meta": {}
     },
     {
+      "id": "workflow:consumer-template-checks",
+      "category": "workflow",
+      "label": "consumer-template-checks",
+      "description": "",
+      "path": ".github/workflows/consumer-template-checks.yml",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/workflows/consumer-template-checks.yml"
+      },
+      "meta": {
+        "orphan": true
+      },
+      "parent": "group:workflow-orphans"
+    },
+    {
       "id": "workflow:docs-checks",
       "category": "workflow",
       "label": "docs-checks",
@@ -2930,31 +2956,6 @@
       "parent": "group:workflow-orphans"
     },
     {
-      "id": "workflow:governance-policy-baseline",
-      "category": "workflow",
-      "label": "governance-policy-baseline",
-      "description": "",
-      "path": ".github/workflows/governance-policy-baseline.yml",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/workflows/governance-policy-baseline.yml"
-      },
-      "meta": {
-        "orphan": true
-      },
-      "parent": "group:workflow-orphans"
-    },
-    {
-      "id": "workflow:iac-checks",
-      "category": "workflow",
-      "label": "iac-checks",
-      "description": "",
-      "path": ".github/workflows/iac-checks.yml",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/workflows/iac-checks.yml"
-      },
-      "meta": {}
-    },
-    {
       "id": "workflow:link-check",
       "category": "workflow",
       "label": "link-check",
@@ -2992,17 +2993,6 @@
         "orphan": true
       },
       "parent": "group:workflow-orphans"
-    },
-    {
-      "id": "workflow:weekly-maintenance",
-      "category": "workflow",
-      "label": "weekly-maintenance",
-      "description": "",
-      "path": ".github/workflows/weekly-maintenance.yml",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/workflows/weekly-maintenance.yml"
-      },
-      "meta": {}
     },
     {
       "id": "mcp:github",
@@ -3046,11 +3036,11 @@
     {
       "id": "group:validator-orphans",
       "category": "validator",
-      "label": "Validator (unlinked, 50)",
-      "description": "50 validator nodes with no cross-references in the current graph.",
+      "label": "Validator (unlinked, 56)",
+      "description": "56 validator nodes with no cross-references in the current graph.",
       "isGroup": true,
       "meta": {
-        "groupSize": 50
+        "groupSize": 56
       }
     },
     {
@@ -6762,24 +6752,6 @@
       "kind": "runs"
     },
     {
-      "id": "workflow:iac-checks--runs->validator:lint-terraform-fmt",
-      "source": "workflow:iac-checks",
-      "target": "validator:lint-terraform-fmt",
-      "kind": "runs"
-    },
-    {
-      "id": "workflow:iac-checks--runs->validator:validate-terraform",
-      "source": "workflow:iac-checks",
-      "target": "validator:validate-terraform",
-      "kind": "runs"
-    },
-    {
-      "id": "workflow:iac-checks--runs->validator:lint-bicep-fmt",
-      "source": "workflow:iac-checks",
-      "target": "validator:lint-bicep-fmt",
-      "kind": "runs"
-    },
-    {
       "id": "workflow:sensei-branch-maintenance--runs->validator:validate-skills",
       "source": "workflow:sensei-branch-maintenance",
       "target": "validator:validate-skills",
@@ -6795,24 +6767,6 @@
       "id": "workflow:sensei-branch-maintenance--runs->validator:lint-md",
       "source": "workflow:sensei-branch-maintenance",
       "target": "validator:lint-md",
-      "kind": "runs"
-    },
-    {
-      "id": "workflow:weekly-maintenance--runs->validator:lint-glob-audit",
-      "source": "workflow:weekly-maintenance",
-      "target": "validator:lint-glob-audit",
-      "kind": "runs"
-    },
-    {
-      "id": "workflow:weekly-maintenance--runs->validator:lint-orphaned-content",
-      "source": "workflow:weekly-maintenance",
-      "target": "validator:lint-orphaned-content",
-      "kind": "runs"
-    },
-    {
-      "id": "workflow:weekly-maintenance--runs->validator:lint-docs-freshness",
-      "source": "workflow:weekly-maintenance",
-      "target": "validator:lint-docs-freshness",
       "kind": "runs"
     },
     {
