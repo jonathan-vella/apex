@@ -122,7 +122,7 @@ time.
 | `.vscode/mcp.json`                             | MCP server names and config                                    |
 | `package.json`                                 | Validation script names                                        |
 | `site/astro.config.mjs`                        | Sidebar structure and published page list                      |
-| `site/public/architecture-explorer-graph.json` | Graph node/edge canonical data (if present)                    |
+| `tools/registry/architecture-explorer-graph.json` | Graph node/edge canonical data (if present)                    |
 | `tools/tests/exec-plans/tech-debt-tracker.md`  | Known tech-debt items (cross-check "stale promise" findings)   |
 | `AGENTS.md`                                    | Project conventions table of contents                          |
 

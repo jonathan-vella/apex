@@ -7,6 +7,10 @@ applyTo: "site/**/*.astro, site/**/*.ts, site/**/*.mjs, site/**/*.mdx, site/**/*
 
 Standards for the `site/` Astro Starlight documentation project.
 
+The published project now lives in `jonathan-vella/apex-docs`. In that checkout,
+remove the historical `site/` prefix from paths below and use its local build/test commands.
+Do not recreate the site in APEX. Docs edit links target `apex-docs/edit/main/`.
+
 ## Project Context
 
 - Use the Astro version declared in `site/package.json` with `@astrojs/starlight` (SSG only, no SSR)

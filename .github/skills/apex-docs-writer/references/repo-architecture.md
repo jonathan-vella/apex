@@ -163,7 +163,7 @@ See `tools/registry/count-manifest.json` for canonical counts.
 Use the [instruction directory](../../../instructions/) for the current inventory and
 each file's `applyTo` frontmatter for authoritative scopes. The
 [count manifest](../../../../tools/registry/count-manifest.json) owns inventory counts;
-the [published instruction reference](../../../../site/src/content/docs/concepts/how-it-works/skills-and-instructions.md)
+the [published instruction reference](https://github.com/jonathan-vella/apex-docs/blob/main/src/content/docs/concepts/how-it-works/skills-and-instructions.md)
 explains their role. Authoring scope matches do not prove runtime instruction attachment.
 
 ## Artifact Flow (Multi-Step Workflow)
@@ -206,9 +206,9 @@ updating when agents or skills change:
 
 ## Published Source Index
 
-Use [the site sidebar](../../../../site/astro.config.mjs) for navigation and
-walk [the content directory](../../../../site/src/content/docs/) for source files.
-The [prompt reference](../../../../site/src/content/docs/reference/prompts/repository-prompts.md)
+Use [the site sidebar](https://github.com/jonathan-vella/apex-docs/blob/main/astro.config.mjs) for navigation and
+walk [the content directory](https://github.com/jonathan-vella/apex-docs/blob/main/src/content/docs/) for source files.
+The [prompt reference](https://github.com/jonathan-vella/apex-docs/blob/main/src/content/docs/reference/prompts/repository-prompts.md)
 distinguishes Local adapters from manual Host entries. The
 [Explorer source](../../../../tools/scripts/generate-explorer-graph.mjs) emits source
 invocation flags and declared context, with explicit defaults for skills. Its metadata

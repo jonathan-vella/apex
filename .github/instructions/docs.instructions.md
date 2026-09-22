@@ -7,6 +7,10 @@ applyTo: "site/src/content/docs/**/*.md, site/src/content/docs/**/*.mdx"
 
 Instructions for creating and maintaining user-facing documentation in the `site/src/content/docs/` folder.
 
+Published documentation is now in `jonathan-vella/apex-docs` at `src/content/docs/`.
+Interpret historical `site/` paths below relative to that checkout, without the prefix.
+APEX retains runtime references and product entrypoints; it does not build or publish Astro.
+
 ## Structure Requirements
 
 ### File Header

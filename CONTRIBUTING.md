@@ -7,6 +7,9 @@ validation steps, and PR checklist — lives on the published site:
 
 **<https://apexops.pro/project/contributing/>**
 
+Published documentation changes belong in [apex-docs](https://github.com/jonathan-vella/apex-docs).
+This repository owns product code, runtime guidance and consumer workflow templates, not the Astro site.
+
 ## Quick links
 
 | Resource             | Link                                                                                                              |

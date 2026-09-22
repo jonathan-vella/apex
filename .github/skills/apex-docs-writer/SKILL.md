@@ -37,7 +37,8 @@ all user-facing documentation to be accurate, current, and consistent.
 
 ## Prerequisites
 
-None — all tools and references are workspace-local.
+Product guidance is workspace-local. Published-site edits require a separate
+`jonathan-vella/apex-docs` checkout and its instructions and tests; never recreate `site/` in APEX.
 
 ## Scope
 
@@ -49,7 +50,7 @@ Documentation accuracy and this skill's scope restrictions remain unchanged.
 
 All markdown documentation **except** `agent-output/**/*.md`:
 
-- `site/src/content/docs/` — published user-facing docs (quickstart, workflow, troubleshooting, etc.)
+- `apex-docs/src/content/docs/` — published user-facing docs in the separate documentation repository
 - `tools/tests/exec-plans/tech-debt-tracker.md` — tech debt inventory
 - `README.md` — repo root README
 - `CONTRIBUTING.md` — contribution guidelines

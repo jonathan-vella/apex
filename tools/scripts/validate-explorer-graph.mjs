@@ -3,7 +3,7 @@
  * Validate the architecture explorer graph JSON.
  *
  * Checks:
- *  1. File exists at site/public/architecture-explorer-graph.json
+ *  1. File exists at the explicit input or product registry path
  *  2. Schema shape (required fields, non-empty arrays)
  *  3. Every node.path referenced (when present) exists on disk
  *  4. Every edge source/target resolves to a node id
@@ -18,7 +18,11 @@ import { fileURLToPath } from "node:url";
 
 const __filename = fileURLToPath(import.meta.url);
 const REPO_ROOT = resolve(dirname(__filename), "../..");
-const GRAPH_PATH = join(REPO_ROOT, "site/public/architecture-explorer-graph.json");
+const args = process.argv.slice(2);
+if (args.length && (args.length !== 2 || args[0] !== "--input" || !args[1])) {
+  throw new Error("Usage: validate-explorer-graph.mjs [--input FILE]");
+}
+const GRAPH_PATH = args.length ? resolve(args[1]) : join(REPO_ROOT, "tools/registry/architecture-explorer-graph.json");
 
 const SOURCE_DIRS = [
   ".github/agents",

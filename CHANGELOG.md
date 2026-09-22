@@ -25,6 +25,9 @@ for full details on this and all prior releases.
 
 ### Changed (Agent modernization)
 
+- Retire the migrated Astro site and docs-only workflows after verified live acceptance in `apex-docs`.
+  Retain runtime guidance and product validation. Export Explorer metadata through explicit output/input paths,
+  with the product snapshot under `tools/registry`; documentation builds no longer require a local APEX site.
 - Move project governance, IaC checks and consumer maintenance into inactive consumer workflow templates.
   Governance requires explicit opt-in. Workflow updates now preview an allowlisted, commit-pinned change set,
   preserve customizations and report retired files instead of overwriting arbitrary repository workflows.
