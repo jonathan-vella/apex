@@ -1,146 +1,125 @@
 #!/usr/bin/env node
-/**
- * Fetches GitHub Actions workflow files from the upstream repository.
- *
- * The weekly-upstream-sync workflow excludes .github/workflows/ because
- * GITHUB_TOKEN cannot push workflow file changes. This script provides
- * a local alternative: it downloads workflow files from upstream and
- * places them in .github/workflows/, skipping the sync workflow itself
- * (which is accelerator-specific).
- *
- * @example
- * npm run sync:workflows
- * npm run sync:workflows -- --dry-run
- */
+/** Install reviewed consumer templates without overwriting local customizations. */
+import crypto from "node:crypto";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import * as yaml from "js-yaml";
 
-import { mkdirSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
-
-const UPSTREAM_OWNER = "jonathan-vella";
-const UPSTREAM_REPO = "apex";
-const UPSTREAM_REF = "main";
-const WORKFLOWS_DIR = ".github/workflows";
-
-// Workflows that should NOT be synced from upstream into accelerator-derived
-// repositories. Two categories:
-//   1. Accelerator-only — exists in accelerator, never overwrite from upstream
-//      (e.g. the sync workflow itself).
-//   2. Upstream-only — relevant only to the upstream repo's own infrastructure
-//      (docs site deploy, link-check, sensei-branch maintenance);
-//      consumer projects should not run them.
-const SKIP_FILES = new Set([
-  // Accelerator-only
-  "weekly-upstream-sync.yml",
-  // Upstream-only (docs site, link-check, sensei branch lifecycle).
-  // The accelerator sync excludes site/, so every docs-site workflow would fail
-  // in consumer repos (no site/src/content/docs to lint or build).
-  "docs.yml",
-  "docs-checks.yml",
-  "docs-gardening.yml",
-  "link-check.yml",
-  "sensei-branch-maintenance.yml",
-  // Retired: prevent older upstream revisions from reinstalling this workflow.
-  "e2e-validation.yml",
+export const CONSUMER_WORKFLOWS = Object.freeze([
+  "governance-policy-baseline.yml",
+  "iac-checks.yml",
+  "weekly-maintenance.yml",
 ]);
+const REPOSITORY = "jonathan-vella/apex";
+const STATE_PATH = ".github/consumer-workflows-state.json";
+const digest = (content) => crypto.createHash("sha256").update(content).digest("hex");
 
-const args = process.argv.slice(2);
-const dryRun = args.includes("--dry-run") || args.includes("--dry");
-const showHelp = args.includes("--help") || args.includes("-h");
-
-if (showHelp) {
-  console.log(`
-Usage: npm run sync:workflows [-- --dry-run]
-
-Fetches GitHub Actions workflow files from the upstream repository
-(${UPSTREAM_OWNER}/${UPSTREAM_REPO}) into ${WORKFLOWS_DIR}/.
-
-Options:
-  --dry-run   Show what would be fetched without writing files
-  --help      Show this help message
-
-Skipped files (accelerator-only or upstream-only — not relevant to consumer projects):
-  ${[...SKIP_FILES].join(", ")}
-`);
-  process.exit(0);
-}
-
-console.log(`\n🔄 Sync Workflows from ${UPSTREAM_OWNER}/${UPSTREAM_REPO}@${UPSTREAM_REF}\n`);
-
-async function fetchJSON(url) {
-  const res = await fetch(url);
-  if (!res.ok) {
-    throw new Error(`Failed to fetch ${url}: ${res.status} ${res.statusText}`);
-  }
-  return res.json();
-}
-
-async function fetchText(url) {
-  const res = await fetch(url);
-  if (!res.ok) {
-    throw new Error(`Failed to fetch ${url}: ${res.status} ${res.statusText}`);
-  }
-  return res.text();
-}
-
-async function main() {
-  // List workflow files from upstream via GitHub API (no auth required for public repos)
-  const apiUrl = `https://api.github.com/repos/${UPSTREAM_OWNER}/${UPSTREAM_REPO}/contents/${WORKFLOWS_DIR}?ref=${UPSTREAM_REF}`;
-  let files;
-  try {
-    files = await fetchJSON(apiUrl);
-  } catch (err) {
-    console.error(`❌ Could not list upstream workflows: ${err.message}`);
-    process.exit(1);
-  }
-
-  if (!Array.isArray(files)) {
-    console.error("❌ Unexpected API response (not an array). Check the upstream repo path.");
-    process.exit(1);
-  }
-
-  const ymlFiles = files.filter((f) => f.type === "file" && (f.name.endsWith(".yml") || f.name.endsWith(".yaml")));
-
-  if (ymlFiles.length === 0) {
-    console.log("No workflow files found in upstream.");
-    process.exit(0);
-  }
-
-  // Ensure local workflows directory exists
-  if (!dryRun) {
-    mkdirSync(WORKFLOWS_DIR, { recursive: true });
-  }
-
-  let synced = 0;
-  let skipped = 0;
-
-  for (const file of ymlFiles) {
-    if (SKIP_FILES.has(file.name)) {
-      console.log(`  ⏭️  ${file.name} (skipped — not synced to consumer projects)`);
-      skipped++;
-      continue;
-    }
-
-    if (dryRun) {
-      console.log(`  📋 ${file.name} (would fetch)`);
-      synced++;
-      continue;
-    }
-
+function regularPath(root, relative) {
+  let target = root;
+  for (const component of relative.split("/")) {
+    target = path.join(target, component);
     try {
-      const content = await fetchText(file.download_url);
-      const dest = join(WORKFLOWS_DIR, file.name);
-      writeFileSync(dest, content, "utf8");
-      console.log(`  ✅ ${file.name}`);
-      synced++;
-    } catch (err) {
-      console.error(`  ❌ ${file.name}: ${err.message}`);
+      if (fs.lstatSync(target).isSymbolicLink()) throw new Error(`Refusing symlink: ${relative}`);
+    } catch (error) {
+      if (error.code !== "ENOENT") throw error;
     }
   }
-
-  console.log(`\n${dryRun ? "Dry run: " : ""}${synced} synced, ${skipped} skipped\n`);
+  return target;
 }
 
-main().catch((err) => {
-  console.error(`❌ ${err.message}`);
-  process.exit(1);
-});
+export async function syncWorkflows({ root = process.cwd(), ref = "main", dryRun = true, fetchImpl = fetch } = {}) {
+  const get = async (url, json = false) => {
+    const response = await fetchImpl(url);
+    if (!response.ok) throw new Error(`Download failed (${response.status}): ${url}`);
+    return json ? response.json() : response.text();
+  };
+  const commit = await get(`https://api.github.com/repos/${REPOSITORY}/commits/${encodeURIComponent(ref)}`, true);
+  if (!/^[a-f0-9]{40}$/.test(commit.sha ?? "")) throw new Error("Upstream did not resolve to a commit SHA");
+  const statePath = regularPath(root, STATE_PATH);
+  const prior = fs.existsSync(statePath) ? JSON.parse(fs.readFileSync(statePath, "utf8")) : { files: {} };
+  if (prior.schema_version && (prior.schema_version !== "consumer-workflows-v1" || prior.repository !== REPOSITORY))
+    throw new Error("Unsupported workflow provenance");
+  if (!prior.files || typeof prior.files !== "object" || Array.isArray(prior.files))
+    throw new Error("Invalid workflow provenance files");
+  const entries = [];
+  for (const name of CONSUMER_WORKFLOWS) {
+    const content = await get(
+      `https://raw.githubusercontent.com/${REPOSITORY}/${commit.sha}/.github/consumer-workflows/${name}`,
+    );
+    const workflow = yaml.load(content);
+    if (
+      !workflow ||
+      typeof workflow !== "object" ||
+      !workflow.on ||
+      !workflow.jobs ||
+      !Object.values(workflow.jobs).every((job) => typeof job.if === "string" && Array.isArray(job.steps))
+    )
+      throw new Error(`Invalid consumer workflow template: ${name}`);
+    const target = regularPath(root, `.github/workflows/${name}`);
+    const current = fs.existsSync(target) ? fs.readFileSync(target, "utf8") : null;
+    const hash = digest(content);
+    const status =
+      current === content
+        ? "unchanged"
+        : current === null
+          ? "add"
+          : digest(current) === prior.files[name]
+            ? "update"
+            : "conflict";
+    entries.push({ name, target, content, hash, status });
+  }
+  const retired = Object.keys(prior.files).filter((name) => !CONSUMER_WORKFLOWS.includes(name));
+  const report = {
+    repository: REPOSITORY,
+    commit: commit.sha,
+    dryRun,
+    changes: entries.map(({ name, status }) => ({ name, status })),
+    retired,
+  };
+  if (entries.some(({ status }) => status === "conflict")) return { ...report, exitCode: 2 };
+  if (!dryRun) {
+    for (const entry of entries) {
+      if (entry.status === "unchanged") continue;
+      fs.mkdirSync(path.dirname(entry.target), { recursive: true });
+      fs.writeFileSync(entry.target, entry.content);
+    }
+    const state = {
+      schema_version: "consumer-workflows-v1",
+      repository: REPOSITORY,
+      commit: commit.sha,
+      files: { ...prior.files, ...Object.fromEntries(entries.map(({ name, hash }) => [name, hash])) },
+    };
+    fs.mkdirSync(path.dirname(statePath), { recursive: true });
+    fs.writeFileSync(statePath, `${JSON.stringify(state, null, 2)}\n`);
+  }
+  return { ...report, exitCode: 0 };
+}
+
+export async function main(args = process.argv.slice(2)) {
+  const options = {};
+  for (let index = 0; index < args.length; index++) {
+    const arg = args[index];
+    if (arg === "--apply") options.dryRun = false;
+    else if (arg === "--dry-run" || arg === "--dry") options.dryRun = true;
+    else if (arg === "--ref" && args[index + 1]) options.ref = args[++index];
+    else if (arg === "--help" || arg === "-h") {
+      console.log(
+        "Usage: npm run sync:workflows -- [--dry-run | --apply] [--ref COMMIT]\nDefaults to preview. Review changes before applying; conflicts and retirements require human review.",
+      );
+      return 0;
+    } else throw new Error(`Unknown or incomplete argument: ${arg}`);
+  }
+  const report = await syncWorkflows(options);
+  console.log(JSON.stringify(report, null, 2));
+  return report.exitCode;
+}
+
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  try {
+    process.exitCode = await main();
+  } catch (error) {
+    console.error(error.message);
+    process.exitCode = 1;
+  }
+}

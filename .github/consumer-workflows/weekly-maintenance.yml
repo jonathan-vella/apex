@@ -2,8 +2,6 @@
 # Consolidated umbrella for low-frequency maintenance:
 #   - AVM module index refresh         (refresh-avm-module-index)
 #   - Azure deprecation tracking       (track-deprecations)
-#   - Quarterly docs / orphan audit    (docs-freshness)
-#   - Weekly docs link safety net      (link-check)
 # Replaces standalone azure-deprecation-tracker.yml (folded Aug 2025) and the
 # standalone weekly cron of link-check.yml (folded May 2026).
 # Some jobs open PRs (data refresh); others fail loudly or open issues.
@@ -16,11 +14,6 @@ on:
     - cron: "0 6 * * 1"
   workflow_dispatch:
     inputs:
-      create_issue:
-        description: "Create GitHub issues for findings (audit jobs only)"
-        required: false
-        default: true
-        type: boolean
       force_update:
         description: "Force PR creation for refresh jobs even when no changes"
         required: false
@@ -44,10 +37,10 @@ env:
 # their own elevated permissions block.
 permissions:
   contents: read
-  issues: write
 
 jobs:
   azure-mcp-release:
+    if: github.repository != 'jonathan-vella/apex' && github.repository != 'jonathan-vella/apex-accelerator' && github.repository != 'jonathan-vella/apex-docs' && github.event.repository.is_template != true
     name: Check Azure MCP Stable Release
     runs-on: ubuntu-latest
     permissions:
@@ -63,6 +56,7 @@ jobs:
         run: npm run check:mcp-release
 
   refresh-avm-module-index:
+    if: github.repository != 'jonathan-vella/apex' && github.repository != 'jonathan-vella/apex-accelerator' && github.repository != 'jonathan-vella/apex-docs' && github.event.repository.is_template != true
     name: Refresh AVM Module Index
     runs-on: ubuntu-latest
     permissions:
@@ -127,6 +121,7 @@ jobs:
           echo "🔗 ${{ steps.cpr.outputs.pull-request-url }}"
 
   track-deprecations:
+    if: github.repository != 'jonathan-vella/apex' && github.repository != 'jonathan-vella/apex-accelerator' && github.repository != 'jonathan-vella/apex-docs' && github.event.repository.is_template != true
     name: Track Azure Deprecations
     runs-on: ubuntu-latest
     permissions:
@@ -191,63 +186,3 @@ jobs:
         run: |
           echo "📋 Deprecation data updated"
           jq '.totalCount, .lastUpdated' .github/data/azure-deprecations.json
-
-  docs-freshness:
-    name: Quarterly Audit (glob, orphans, freshness)
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v7
-
-      - name: Setup Node
-        uses: ./.github/actions/setup-node-repo
-
-      - name: Run quarterly audit (glob-audit + orphan-content + docs-freshness)
-        id: freshness
-        run: |
-          npm run audit:quarterly 2>&1 | tee freshness-output.txt
-          EXIT_CODE=${PIPESTATUS[0]}
-          echo "exit_code=$EXIT_CODE" >> "$GITHUB_OUTPUT"
-
-      - name: Create issue for audit failures
-        if: steps.freshness.outputs.exit_code != '0' && github.event.inputs.create_issue != 'false'
-        run: |
-          BODY=$(cat freshness-output.txt)
-          {
-            echo "## Quarterly Audit Failed"
-            echo ""
-            echo "The weekly run of \`npm run audit:quarterly\` found issues. This"
-            echo "aggregates three checkers: \`lint:glob-audit\`, \`lint:orphaned-content\`,"
-            echo "and \`lint:docs-freshness\`."
-            echo ""
-            echo '```'
-            echo "$BODY"
-            echo '```'
-            echo ""
-            echo "**Action required**: Review the findings above and address"
-            echo "stale documentation, orphan content, or glob drift."
-            echo ""
-            echo 'Run `npm run audit:quarterly` locally to reproduce.'
-          } > issue-body.md
-          gh issue create \
-            --title "Quarterly audit: issues detected ($(date +%Y-%m-%d))" \
-            --body-file issue-body.md \
-            --label "documentation,maintenance"
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  link-check:
-    # Folded in from the retired weekly cron of link-check.yml (May 2026).
-    # link-check.yml still runs on PR/push for docs paths — this job is the
-    # safety net that catches external link rot between docs edits.
-    name: Check docs links
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v7
-
-      - name: Setup Node
-        uses: ./.github/actions/setup-node-repo
-
-      - name: Check links in docs/
-        run: npm run lint:links:docs

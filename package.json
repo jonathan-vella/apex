@@ -153,6 +153,7 @@
     "format:bicep": "bash tools/scripts/format-bicep-tree.sh"
   },
   "devDependencies": {
+    "@actions/expressions": "^0.3.61",
     "@commitlint/cli": "^21.2.2",
     "@commitlint/config-conventional": "^21.0.1",
     "@eslint/js": "^10.0.1",
