@@ -69,10 +69,19 @@ function fixture(run) {
 }
 function remote(version = "one", fail = "") {
   return async (url) => {
-    if (url.includes("api.github.com")) return { ok: true, json: async () => ({ sha }) };
-    assert.ok(url.includes(`/${sha}/.github/consumer-workflows/`));
-    const name = url.split("/").at(-1);
+    const parsed = new URL(url);
+    assert.equal(parsed.protocol, "https:");
+    assert.equal(parsed.username, "");
+    assert.equal(parsed.password, "");
+    assert.equal(parsed.port, "");
+    if (parsed.hostname === "api.github.com") {
+      assert.equal(parsed.pathname, "/repos/jonathan-vella/apex/commits/main");
+      return { ok: true, json: async () => ({ sha }) };
+    }
+    assert.equal(parsed.hostname, "raw.githubusercontent.com");
+    const name = parsed.pathname.split("/").at(-1);
     assert.ok(CONSUMER_WORKFLOWS.includes(name));
+    assert.equal(parsed.pathname, `/jonathan-vella/apex/${sha}/.github/consumer-workflows/${name}`);
     return {
       ok: name !== fail,
       status: 404,
@@ -81,6 +90,20 @@ function remote(version = "one", fail = "") {
     };
   };
 }
+
+test("mock transport rejects deceptive hosts, paths and insecure URLs", async () => {
+  const fetchImpl = remote();
+  for (const url of [
+    "https://api.github.com.example.com/repos/jonathan-vella/apex/commits/main",
+    "https://example.com/api.github.com",
+    "https://api.github.com@evil.example/repos/jonathan-vella/apex/commits/main",
+    "http://api.github.com/repos/jonathan-vella/apex/commits/main",
+    "https://api.github.com/repos/another/repo/commits/main",
+    `https://raw.githubusercontent.com/another/repo/${sha}/.github/consumer-workflows/iac-checks.yml`,
+  ]) {
+    await assert.rejects(fetchImpl(url), { name: "AssertionError" });
+  }
+});
 
 test("terminology validation ignores scratch checkouts but rejects active deprecated text", () =>
   fixture(async (root) => {
