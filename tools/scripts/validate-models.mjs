@@ -260,7 +260,6 @@ const ALLOWED_FILES = new Set([
   "docs/CHANGELOG.md",
   "site/src/content/docs/project/changelog.md",
   "QUALITY_SCORE.md",
-  ".github/skills/apex-docs-writer/references/freshness-checklist.md",
   "tools/scripts/validate-models.mjs",
 ]);
 

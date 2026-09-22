@@ -1,8 +1,7 @@
 # Paths Prettier should ignore. Keep in sync with eslint.config.mjs ignores.
 node_modules/
-# Adopt-narrow: site/ is deferred for eslint AND prettier (90-day reassessment).
-# It also contains *.astro files that require prettier-plugin-astro (not installed),
-# so formatting site/ would hard-error. Mirror the eslint ignore here.
+.archive/docs-cleanup-2026-09-22/
+# Retired local site residue is not product source.
 site/
 agent-output/
 tmp/

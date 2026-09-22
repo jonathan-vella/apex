@@ -335,7 +335,6 @@ test("recreated mixed-case references stay outside active discovery", () => {
       "apex-context-management/references/plan-fourLayerAgentAssessment.md",
       "apex-agent-authoring/references/plan-four-layer-agent-assessment.md",
     ],
-    ["apex-workflow-engine/references/plan-docsPeerReview.md", "apex-docs-writer/references/plan-docs-peer-review.md"],
   ]) {
     assert.equal(existsSync(new URL(`.github/skills/${retired}`, repository)), false, retired);
     assert.equal(existsSync(new URL(`.github/skills/${canonical}`, repository)), true, canonical);

@@ -5,7 +5,7 @@
  * the actual filesystem. Produces human-readable output and an optional
  * JSON report for CI consumption.
  *
- * Canonical documentation source: site/src/content/docs/
+ * Scope: product entrypoints and runtime references; published site checks live in apex-docs.
  * Entity counts validated against: tools/registry/count-manifest.json computed_from globs
  */
 
@@ -192,21 +192,19 @@ async function checkVersionHeaders(cachedSiteMdFiles) {
 async function main() {
   console.log("📋 Docs Freshness Checker\n");
 
-  // Scan the canonical site docs tree
-  const siteDocsDir = join(ROOT, "site", "src", "content", "docs");
-  const siteMdFiles = await collectMdFiles(siteDocsDir, []);
+  const productDocs = ["README.md", "AGENTS.md", "VERSION.md"].map((file) => join(ROOT, file));
 
   console.log("─── Prohibited References ───");
-  await checkProhibitedRefs(siteMdFiles);
+  await checkProhibitedRefs(productDocs);
 
   console.log("─── Superseded Links ───");
-  await checkSupersededLinks(siteMdFiles);
+  await checkSupersededLinks(productDocs);
 
   console.log("─── Skill References Freshness ───");
   await checkSkillReferences();
 
   console.log("─── Version Header Check ───");
-  await checkVersionHeaders(siteMdFiles);
+  await checkVersionHeaders(productDocs);
 
   // Print findings
   console.log("");

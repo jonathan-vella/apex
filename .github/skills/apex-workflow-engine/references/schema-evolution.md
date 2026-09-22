@@ -38,7 +38,7 @@ When making an additive change (most common case):
    - `tools/scripts/generate-explorer-graph.mjs`
    - `tools/scripts/validate-workflow-table-sync.mjs`
    - `tools/scripts/validate-agent-registry.mjs`
-   - `site/public/architecture-explorer-graph.json` (rebuild + diff)
+   - `tools/registry/architecture-explorer-graph.json` (rebuild + diff)
    - `grep -rn "workflow-graph.json" .` to find any other readers
 5. Run `npm run validate:workflow-graph && npm run build:explorer-graph`.
 

@@ -36,8 +36,8 @@ node --test tools/tests/scripts/test_skill_ownership.mjs tools/tests/generate-ex
 ```
 
 The ownership tests check procedure destinations, skill indexes, Local adapter links,
-canaries, trackability, and preserved review modes. Docs maintenance belongs to
-`apex-docs-writer`; authoring assessments belong to `apex-agent-authoring`.
+canaries, trackability, and preserved review modes. Published docs maintenance belongs to
+`jonathan-vella/apex-docs`; authoring assessments belong to `apex-agent-authoring`.
 Context audits and log/runtime procedures stay in `apex-context-management`.
 
 Explorer fixtures check invocation defaults and explicit flags for agents, workers, and skills.

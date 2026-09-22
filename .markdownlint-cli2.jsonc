@@ -181,11 +181,7 @@
     // Test prompt files (long-form examples, not production docs)
     "tools/tests/prompts/**",
 
-    // Demo walkthrough content (rendered agent output, validated by artifact-templates)
-    "site/src/content/docs/demo/**",
-
-    // Astro Starlight build output (also in .gitignore — belt-and-suspenders)
-    "site/dist/**",
-    "site/.astro/**",
+    // Retired local site residue is not product source.
+    "site/**",
   ],
 }

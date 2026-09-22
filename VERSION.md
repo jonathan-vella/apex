@@ -16,7 +16,7 @@
 
 ## Version History
 
-See [CHANGELOG.md](CHANGELOG.md) for detailed release notes.
+See the [published changelog](https://apexops.pro/project/changelog/) for detailed release notes.
 
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>
 

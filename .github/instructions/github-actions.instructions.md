@@ -69,9 +69,11 @@ concurrency:
 | Workflow                        | Purpose                                          | Trigger                     |
 | ------------------------------- | ------------------------------------------------ | --------------------------- |
 | `ci.yml`                        | Required PR check: lint + all Node.js validators | PR + push to main/feature   |
-| `link-check.yml`                | Broken link detection in site docs               | Changes to site/ + weekly   |
-| `docs.yml`                      | Astro Starlight site deployment to Pages         | Push to main (site/)        |
-| `weekly-maintenance.yml`        | AVM version audit + docs freshness + Azure deprecation tracking (folds the retired `azure-deprecation-tracker.yml`) | Weekly (Mon 07:00) + manual |
+| `consumer-template-checks.yml` | Validate inactive consumer workflows | Template changes + manual |
+
+Documentation build, link checks and Pages publishing belong to `jonathan-vella/apex-docs`.
+Governance, IaC and weekly maintenance sources live under `.github/consumer-workflows/`;
+their operational jobs run only in eligible consumer repositories, not APEX or the accelerator.
 
 ## Validation Scripts
 

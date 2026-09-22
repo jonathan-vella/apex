@@ -383,13 +383,7 @@ test("review reuse and deployment routing cannot bypass current evidence", () =>
   assert.doesNotMatch(asBuilt, /Read ALL prior artifacts/);
 });
 
-test("shared references preserve consolidated documentation and deployment rules", () => {
-  const docs = fs.readFileSync(
-    path.join(ROOT, ".github/skills/apex-docs-writer/references/extended-workflows.md"),
-    "utf8",
-  );
-  assert.match(docs, /Starlight supplies the H1/);
-  assert.doesNotMatch(docs, /File header: `# \{Title\}`/);
+test("shared references preserve consolidated deployment rules", () => {
   const strategies = fs.readFileSync(
     path.join(ROOT, ".github/skills/apex-iac-common/references/deployment-strategies.md"),
     "utf8",
@@ -480,32 +474,9 @@ test("pattern and Storage examples retain drift and identity safeguards", () => 
   assert.match(storage, /Storage Blob Data Contributor/);
 });
 
-test("site guidance consolidation preserves Markdown/MDX scope without absorbing update triggers", () => {
+test("retired site guidance leaves product documentation triggers intact", () => {
   assert.equal(fs.existsSync(path.join(ROOT, ".github/instructions/markdown-docs.instructions.md")), false);
-  const body = fs.readFileSync(path.join(ROOT, ".github/instructions/docs.instructions.md"), "utf8");
-  const patterns = parseFrontmatter(body)
-    .applyto.split(",")
-    .map((pattern) => pattern.trim());
-  for (const file of [
-    "site/src/content/docs/index.mdx",
-    "site/src/content/docs/guides/example.md",
-    "site/src/content/docs/deep/nested/example.mdx",
-    "site/src/components/Example.astro",
-    "docs/example.md",
-    "agent-output/example/01-requirements.md",
-    ".github/agents/example.agent.md",
-  ]) {
-    assert.equal(
-      patterns.some((pattern) => path.matchesGlob(file, pattern)),
-      path.matchesGlob(file, "site/src/content/docs/**/*.{md,mdx}"),
-      file,
-    );
-  }
-  assert.match(body, /Starlight renders the frontmatter title/);
-  assert.match(body, /preserve canonical template H2 order/);
-  assert.match(body, /component imports after frontmatter/);
-  assert.match(body, /badge rows, collapsible TOCs/);
-  assert.doesNotMatch(body, /# \{Title\}|Current Version|npm run (?:check:links|build:site)/);
+  assert.equal(fs.existsSync(path.join(ROOT, ".github/instructions/docs.instructions.md")), false);
   const triggers = fs.readFileSync(path.join(ROOT, ".github/instructions/docs-trigger.instructions.md"), "utf8");
   assert.match(parseFrontmatter(triggers).applyto, /agent\.md/);
   assert.match(triggers, /Agent or skill definitions are added, renamed, or removed/);
@@ -551,11 +522,7 @@ test("Operating frame links to the Post-write validation section", () => {
 });
 
 test("shared harness guidance preserves human selection and does not infer model permissions", () => {
-  for (const file of [
-    "AGENTS.md",
-    ".github/copilot-instructions.md",
-    ".github/skills/apex-docs-writer/references/repo-architecture.md",
-  ]) {
+  for (const file of ["AGENTS.md", ".github/copilot-instructions.md"]) {
     const body = fs.readFileSync(path.join(ROOT, file), "utf8");
     assert.match(body, /disable-model-invocation: true/, file);
     assert.match(body, /Local prompt files are adapters/, file);
@@ -563,16 +530,6 @@ test("shared harness guidance preserves human selection and does not infer model
     assert.match(body, /not a security boundary/, file);
     assert.match(body, /runtime cost-tier/, file);
   }
-  const inventory = fs.readFileSync(
-    path.join(ROOT, ".github/skills/apex-docs-writer/references/repo-architecture.md"),
-    "utf8",
-  );
-  for (const match of inventory.matchAll(/\|[^\n|]+\| `(\d[^`]+\.agent\.md)`\s+\| ([^|]+)\|/g)) {
-    const header = parseFrontmatter(fs.readFileSync(path.join(ROOT, ".github/agents", match[1]), "utf8"));
-    assert.equal(match[2].trim(), header.model[0], match[1]);
-    assert.equal(header["disable-model-invocation"], true, match[1]);
-  }
-  assert.doesNotMatch(inventory, /e2e-orchestrator\.agent\.md|Claude (?:Sonnet|Opus) 5/);
   const parent = fs.readFileSync(
     path.join(ROOT, ".github/skills/apex-azure-defaults/references/cost-estimate-parent-contract.md"),
     "utf8",
