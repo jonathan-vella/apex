@@ -8,7 +8,7 @@ import { Reporter } from "./_lib/reporter.mjs";
 
 const REPO_ROOT = path.resolve(import.meta.dirname, "../..");
 const CANONICAL_PATH = path.join(REPO_ROOT, ".github/copilot-instructions.md");
-const SKILL_PATH = path.join(REPO_ROOT, ".github/skills/azure-defaults/SKILL.md");
+const SKILL_PATH = path.join(REPO_ROOT, ".github/skills/apex-azure-defaults/SKILL.md");
 const CANONICAL_LINK = "../../copilot-instructions.md#azure-defaults-canonical";
 
 const REQUIRED_CANONICAL_HEADINGS = [

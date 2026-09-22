@@ -18,6 +18,214 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 See the [published changelog](https://apexops.pro/project/changelog/)
 for full details on this and all prior releases.
 
+### Security
+
+- Update Astro, sharp, devalue, SVGO, js-yaml, fast-uri and smol-toml to resolve dependency advisories.
+  Override markdownlint-cli2's pinned smol-toml dependency with the patched release until its upstream pin is updated.
+
+### Changed (Agent modernization)
+
+- Account for exact Bicep `Ignore` resources using preview-bound, hash-checked parent/child observations. Retain
+  visible ignored records and block stale evidence, managed actions, missing declared resources and unknown coverage.
+- Validate publication Markdown and artifact contracts from an isolated Git-index snapshot, retaining tracked
+  template coverage without scanning unrelated untracked projects. Resolve local tools and propagate validator failures.
+- Unify current-review lifecycle guidance and replace routine CodeGen per-file stops with bounded validated batches.
+- Add read-only input resolution, canonical handoff hashing, structured preview summaries and bounded provider-payload
+  regression checks. Reject mismatched preview/policy evidence and keep runtime input approval separate from discovery.
+- Permit authenticated public Log Analytics and workspace-based Application Insights endpoints when policy and
+  approved requirements allow them. Require AMPLS for private-only monitoring, not as a blanket PaaS default;
+  preserve private networking for other data services and cover both IaC tracks with scanner regressions.
+- Persist and revalidate explicit Governance/Plan review selections across completion and resume; preserve timestamps
+  and destination progress on identical retries, and reject conflicts instead of losing concurrent updates.
+- Make `apex-recall show` independent of index mutation and stale primary fallback. Add explicit audited backup
+  recovery and report committed-but-index-stale outcomes with the committed primary hash.
+- Add immutable review-attempt accounting, optional supporting-input review digests, a guarded canonical handoff
+  renderer and read-only owner-draft hash synchronization. These interfaces do not grant workflow approval.
+- Add opt-in capability dependency readiness and design-only governance tracing; retain default full-chain gates.
+  Provide explicit help for path-based validators and preserve legacy review coverage limitations.
+- Bound shared-monitoring discovery conclusions by inspected scope and keep read-only approval separate from redesign.
+  Route new pricing through the cost owner and qualify AMPLS capacity, ingestion and budget claims by actual evidence.
+  Recheck policy exclusions when adding resource types, verify operator provisioning/login/egress, and distinguish
+  conditional design approval from implementation readiness. Correct minimum-IP headroom arithmetic and reuse common pricing.
+- Require an approved Azure Monitor client access path before treating disabled public query/ingestion flags as ready.
+  Distinguish compilation, platform diagnostics and application telemetry; return missing private connectivity to Planner.
+- Avoid Bicep symbols that shadow scope functions; reclassify scaffold diagnostics as module interfaces become available.
+  Add an offline compiler regression for resource-group symbol shadowing and dependency-preserving repair.
+- Clarify CodeGen exact-path validation and cached-schema evidence; require dependency checks before scaffold deferral.
+  Preserve audited confirming reviews and distinguish restored parameter names from verified nested module bindings.
+- Correct Bicep guidance for resource-group IDs and explicit dependencies when constructed IDs hide prerequisite edges.
+- Preserve canonical compact handoff headings after Plan completion and verify H2 order and length explicitly.
+  Editor diagnostics and line-width checks alone do not establish artifact structure compliance.
+- Let Step 4 completion explicitly select an authorized comprehensive confirmation while preserving the original review.
+  Retain strict validity checks, audit the selection, reject deep-mode substitution, and reuse unchanged human approval.
+- Catch scheduled-action scope, display-name, view and schedule omissions in the IaC contract before review.
+  Require Planner's complete feasibility check and name bounds without increasing reviewer or auto-fix allowances.
+- Validate lowercase Deny coverage and reject explicit planning-validator targets that match no files.
+  Stop emitting per-file success for invalid contracts or policy maps.
+- Support explicit, audited selection of a later authorized Governance review at completion without overwriting history.
+  Preserve strict freshness, artifact/lens/pass checks and separate human approval; never infer the newest review.
+  Name the exact pre-approval cache validator and prevent stale recall confirmations from overriding reviewed policy facts.
+- Keep bounded Challenger verification separate from artifact editing; return corrections to their owner.
+  Trace Governance location claims to policy evidence before review and check freshness independently of formatting.
+- Check Governance handoffs for the exact artifact, compact length, pending finding IDs and immediate recovery owner.
+  Report structure, review freshness and blocker closure separately instead of blanket validation success.
+  Require the checklist read on blocked recovery; verify complete command outcomes and reconcile decision summaries.
+- Reject stale, malformed, wrong-target or blocking review evidence before recall completion/transition writes;
+  retain audited missing-review skips without allowing them to waive invalid present findings.
+- Resolve Governance's revision-cap contradiction and require verified closure before the exact Planner handoff.
+  Prioritize Modify operation properties over tag selectors; leave multiple-property mappings unresolved.
+- Audit the manual-testing lessons against current code and tests, separating source fixes, native evidence,
+  publication and remaining acceptance gaps in the existing remediation ledger.
+- Make docs-writer, vendor-prompting and Terraform search/import manual-only; retain explicit documentation adapters,
+  required docs updates, vendor validators and state-change approval gates. Production dependency skills remain available.
+- Add manual-only `/apex-unslop` prose cleanup, adapted with MIT attribution from Cursor's pstack plugin.
+  Preserve technical facts, artifact structure and review boundaries; do not add automatic agent loads.
+- Embed local raster icons in generated SVG diagrams instead of container-specific image paths. Require standalone
+  SVG icon validation alongside PNG visual checks; preserve the reproducible generator and both output formats.
+- Finalize Step 2 content before reviews and keep mutable approval status outside reviewed bytes. Preserve exact-hash
+  drift checks on completion/resume and route stale evidence to its owner without restamping prior reviews.
+- Standardize interrupted pricing publication recovery and invocation-local request accounting while preserving
+  remaining allowances. Pass explicit successful pricing/evidence paths to reviewers, including versioned outputs.
+- Permit a pricing-worker-only public Retail Prices API fallback after documented MCP empty results or exhausted
+  transient retries. Preserve raw evidence and source labels; enforce request/host limits and existing approval gates.
+- Pin JSON-launched Azure MCP to the verified stable release and scope npm's cross-host tarball exception
+  to that server process. Add `check:mcp-release` and a weekly/manual freshness check without automatic upgrades.
+- Run the same release check automatically at each devcontainer start; warn on outdated or unknown versions
+  without blocking container access, installing packages, changing pins or restarting MCP.
+- Correct retail pricing discovery for services whose catalog ARM SKU is empty, including Container Registry
+  and Key Vault. Reuse service results across tiers and keep meter, usage, region and currency checks explicit.
+- Add verified Private Endpoint and private DNS query recipes, global billing-region mappings, zone-month unit
+  interpretation and variable-usage inputs. Prevent duplicate billing-zone charges and retain pricing failure gates.
+- Exclude infeasible SKU alternatives before pricing and bound Architecture research payloads; a saved checkpoint
+  no longer claims to compact the live transcript. Resume expensive phases in a fresh context when needed.
+- Isolate Challenger drafts per invocation instead of reusing a shared temporary sibling;
+  preserve stale files and reject concatenated JSON before canonical publication.
+- Make PaaS data services and App Service APIs private in every environment; retain public HTTPS ingress
+  for public-facing web applications. Require private DNS and verified component ownership before relying on DINE.
+- Remove non-production public-access execution paths and broad firewall rules from both SQL recipes;
+  legacy public-access parameters now accept only `false`.
+- Reuse explicit Requirements inputs, reconcile scope dependencies before review, and apply accepted mitigations
+  without redundant confirmation. Preserve independent re-review, unresolved blockers and final human approval.
+- Add read-only review metadata generation and strict cache verification to the findings validator; count modern
+  `runSubagent` spans in the profiler without double-counting linked wrappers. Runtime token savings remain unmeasured.
+- Consolidate acceptance lessons in the existing verification procedure: distinguish decisions from execution,
+  verify harness provenance and check scope, and stop redundant probes. Add targeted Git troubleshooting
+  and representative picker verification guidance without new agents, schemas or mandatory runtime reads.
+- Add payload-free probe evidence to the existing debug-log profiler, with optional operator-reviewed text,
+  explicit unknown invocation attribution and preserved log provenance; add offline review-gate reload coverage.
+- Prevent Challenger self-handoffs after reviewer failure; request human intervention and preserve exhausted
+  retry status across handoffs and resumed sessions without fabricating review evidence.
+- Clarify preview-only deployment stops: missing backends do not trigger bootstrap or apply approval requests.
+  Later setup/deployment requires explicit scope expansion, separate bootstrap authorization and fresh apply approval.
+- Clarify both CodeGen recovery contracts: syntax errors, failed validation and plan conflicts do not authorize
+  overwriting lines with uncertain ownership; preserve them and obtain clarification before a necessary edit.
+- Clarify exact Orchestrator owner names in routing-only answers: Step 1 belongs to `02-Requirements`,
+  not an agent inferred from the requirements artifact prefix. A bounded Local routing retest passed.
+- Separate explanation-only routing from project setup; honor explicit no-tools requests without waiving
+  discovery, reviews or approvals during actual workflow execution.
+- Match active model identifiers to the picker: `GPT-5.6 Sol (copilot)`, `GPT-5.6 Terra (copilot)`
+  and `GPT-5.6 Luna (copilot)`, including prompt and registry mirrors. Preserve provider suffixes in generated
+  assignments and retain family-based validation for space-separated labels.
+- Apply the approved MAI, Sol, Terra and Luna agent/worker assignments, retaining unknown Sol metadata as unknown.
+- Preserve production roles, reviews and approval gates while making main-agent and leaf-worker invocation boundaries
+  explicit and mechanically checked. Restore worker-specific file/text output contracts without nested wrapper fallback.
+- Share operational procedures between thin Local prompt adapters and manual Agent Host skill entry points;
+  preserve explicit owner/model/tool selection and capture consent. Native harness acceptance remains manual.
+- Replace the limited frontmatter parser with structured YAML parsing and align model, vendor-rule and registry checks.
+  Distinguish sourced advice from repository conventions; do not infer runtime model eligibility or token savings.
+- Retire the E2E agent, launch/analysis prompts, scoring scripts, workflow and exclusive tests/commands.
+  Removed commands: `e2e:validate`, `e2e:benchmark`, `e2e:combine`, `test:lib-e2e`.
+  Production validation, lessons, recall, historical schemas and existing evidence remain supported.
+
+### Changed (Devcontainer documentation)
+
+- Align setup documentation with build-time tool pins, fail-fast dependency installation,
+  preservation of existing MCP configuration, and cache persistence. Image-build and timing validation remain pending.
+- Correct GitHub credential forwarding guidance and document user-authorized, per-command identity recovery
+  without automatic login, credential switching, or persistent Git configuration changes.
+
+### Changed (Workflow guidance simplification)
+
+- Rename repository skills with exactly one `apex-` prefix and migrate live callers, discovery redirects,
+  tooling, documentation and Explorer views. This breaks explicit old-name integrations; no wrappers remain.
+  Preserve upstream attribution, public npm aliases, schema bytes and immutable historical evidence.
+- Share equivalent deployment safety rules and orphan-resource queries while retaining distinct skill entrypoints.
+- Resolve Requirements runbook timing, Design skip prerequisites and deployment-script ownership.
+  Preserve compiled ARM evidence and refresh Terraform initialization without transferring plan authority to reviewers.
+- Price environment/region/stamp quantities explicitly, reuse only current equivalent evidence, and preserve
+  confirmed Azure context without bypassing readiness checks. Correct research routing and instruction inaccuracies.
+- Honor read-only context audits, cover leaf workers, fix template-only hook coverage, and avoid duplicate Markdown
+  execution where required CI owns it. Preserve Pages build provenance and native aggregate-runner semantics.
+- Consolidate native and attachable resume prompts into the Orchestrator's canonical recovery procedure.
+  Include native/nested prompts in validation, registry checks, Explorer and context snapshots; preserve unique identities.
+- Repair JSONC literal and prototype-key handling, lint failure propagation, ignored-aware link selection,
+  and missing-version validation. Retain public npm command aliases and original dependency integrity metadata.
+- Run both recall test suites in isolated processes and correct retirement-scanner producer/test ownership.
+- Clarify historical root health grades and current workflow/version guidance; retain legal and attribution records.
+- Separate APEX handoff-based validation/deployment from generic application preparation plans and validation proof.
+  Validation-only and preview-only stop at their requested boundary; missing APEX inputs return to their owner.
+- Align Diagnose report paths and Challenger finding types, filenames, field presentation, compact responses,
+  and Edit decision serialization with existing contracts. No artifact schema changes.
+- Unify CodeGen build checkpoints and partial-scaffold recovery while retaining one-file production cadence.
+  A matched AVM-backed batching experiment failed cadence/recovery acceptance and was not adopted.
+- Remove duplicate aggregate handoff validation and repair the pre-commit serialization test.
+- Consolidate same-scope site instructions, preserving template/styling rules and separate source-change triggers.
+  Correct Starlight title ownership in instructions, review prompts, and docs-writer references.
+- Use one combined CodeGen validation worker and policy-first tag checks; preserve required reviews and security gates.
+- Remove repeated artifact validation within E2E checks without changing diagnostic scoring weights or public aliases.
+- Keep handoffs path-based and As-Built reads scoped to requested outputs; preserve full-suite completion requirements.
+- Make unattended reviews fail closed on unresolved blockers, including benchmark runs, following explicit user approval.
+- Validate existing review-cache inputs rather than treating a newly updated discovery signature as review evidence.
+- Correct Terraform test CLI examples, externally managed drift exceptions, and Entra-authenticated Storage examples.
+- Remove latency-to-token inference and unsupported rewrite-cost multipliers; use editing tools for existing artifacts.
+- Reject unknown validation suites and missing policy-envelope evidence; preserve valid informational policy drift.
+- Keep the Terraform azd path behind the existing preview, approval, and live-policy gates.
+  Classify Bicep what-if `Deploy` as unknown changes rather than a no-op.
+- Consolidate workflow routing instructions around the shared IaC planner and declared refinement returns.
+  Resume guidance now uses per-step state and track decisions instead of numeric step arithmetic.
+- Reconcile Orchestrator review and handoff rules: keep Plan and separate cost review mandatory,
+  reuse current specialist reviews, preserve accepted-gate session breaks, and require evidence when recovering progress.
+- Make shared prerequisite reads phase-specific and cached reads freshness-aware. Clarify that authoring globs
+  do not prove runtime attachment; preserve critical agent-body safeguards and canonical root ownership.
+- Keep local verification proportional to risk; live Azure testing is no longer a prerequisite for guidance-only fixes.
+- Align the Architect's gate reference with mandatory cost review and reviews-before-completion ordering.
+  Reuse the canonical batched finding panel while preserving separate decisions and rationales.
+- Check Planner and CodeGen prerequisites before bulk skill reads, defer phase-specific Planner references,
+  and use the SKU manifest instead of repeatedly reconstructing selections from architecture prose.
+- Remove unrelated explicit notebook tools from workflow agents and code-refactoring tools from non-code roles.
+  Preserve discovery groups and role-relevant execution, diagnostics, and IaC refactoring capabilities.
+- Replace retired Terraform MCP calls with Registry API and provider-schema workflows;
+  CodeGen preserves approved exact pins.
+- Recover recorded Requirements answers on resume instead of forcing a fresh questionnaire, retaining required elicitation.
+- Permit required deferred guidance after compaction and verify current deployment/inventory evidence on As-Built resume.
+- Recognize deep Plan review sidecars in runtime and CI presence checks, with atomic failure tests.
+- Align shared CodeGen and contract-handoff references with supported module discovery,
+  approved exact pins, and required guidance recovery after compaction.
+- Align Planner finding questions with the canonical four-choice approval panel and individual notes.
+- Reject expired or invalid governance discovery cache metadata and force live refresh for TTL expiry or signature drift.
+  Add mocked expiry regressions and reconcile the agent's cache-first instructions.
+- Clarify exact missing-prerequisite handoff targets and governance ownership based on isolated custom-agent probes.
+  Budget-only Requirements refinement preserves existing SKU-manifest fields and pins.
+
+### Fixed (Workflow optimization prerequisites)
+
+- Fix context snapshot and diff repository roots, include Copilot, model,
+  registry, and IaC folder inputs, and verify captured content hashes.
+  Missing required inputs and altered snapshots now fail instead of producing
+  misleading baseline comparisons. New captures include source revision and working-tree provenance.
+- Preserve unknown telemetry rather than averaging it as zero. Baseline
+  measurement now covers all recorded phases and reports per-metric sample sizes.
+- Propagate Terraform initialization and validation failures across projects.
+- Require the existing separate cost-estimate review at Step 2 completion
+  and in the CI presence fallback, including explicit deep-review sessions.
+  Historical records are unchanged on refusal; resumed sessions must supply missing evidence.
+- Align CodeGen handoffs with their pre-completion validation duties and stop
+  E2E runs after exhausted governance retries. Approval and artifact schemas remain unchanged.
+- Exclude nested generated pytest caches from Markdown lint so package-local test runs do not break the repository gate.
+- Classify overlapping reads using trace, range, request, timing, and result evidence instead of filenames alone.
+  Incomplete evidence remains advisory; duplicate exported spans no longer inflate read or token totals.
+- Report missing OTel token usage explicitly and compute averages only over observed values.
+
 ### Changed (MCP consolidation)
 
 - feat(audit): add a read-only whole-repository retirement scanner that classifies every baseline-tracked file,

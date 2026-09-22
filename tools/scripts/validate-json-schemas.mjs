@@ -20,17 +20,12 @@ import { readFileSync, globSync } from "node:fs";
 import { resolve, dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createAjv } from "./_lib/ajv-validator.mjs";
+import { parseJsonc } from "./_lib/parse-jsonc.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 
-function readJson(path) {
-  const raw = readFileSync(path, "utf8");
-  // Strip leading line comments (tolerate JSONC in .vscode/settings.json).
-  const stripped = raw.replace(/^\s*\/\/[^\n]*\n/gm, "");
-  return JSON.parse(stripped);
-}
-
-const settings = readJson(join(ROOT, ".vscode/settings.json"));
+const readJson = (path) => JSON.parse(readFileSync(path, "utf8"));
+const settings = parseJsonc(readFileSync(join(ROOT, ".vscode/settings.json"), "utf8"));
 const mappings = settings["json.schemas"] ?? [];
 if (mappings.length === 0) {
   console.log("No json.schemas mappings in .vscode/settings.json — nothing to validate.");

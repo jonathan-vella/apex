@@ -62,10 +62,10 @@
     {
       "id": "e2e-conductor-filename",
       "pattern": "e2e-conductor\\.agent\\.md",
-      "replacement": "e2e-orchestrator.agent.md",
+      "replacement": "(remove retired E2E launch reference)",
       "severity": "error",
       "isRegex": true,
-      "reason": "Agent file renamed to e2e-orchestrator.agent.md"
+      "reason": "The E2E launch subsystem is retired; preserve historical evidence without redirecting to a runnable agent"
     },
     {
       "id": "maestro-emoji",

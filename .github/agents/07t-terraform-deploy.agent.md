@@ -1,12 +1,13 @@
 ---
 name: 07t-Terraform Deploy
-model: ["GPT-5.6-Luna"]
+model: ["GPT-5.6 Luna (copilot)"]
 description: Executes Azure deployments using generated Terraform configurations. Runs bootstrap and deploy scripts, performs terraform plan preview, manages phase-aware deployment lifecycle. Step 6 of the agentic workflow.
 argument-hint: Deploy the Terraform configuration for a specific project
 user-invocable: true
-agents: ["terraform-plan-subagent", "terraform-validate-subagent", "policy-precheck-subagent", "challenger-review-subagent"]
+disable-model-invocation: true
+agents: ["terraform-plan-subagent", "terraform-validate-subagent", "policy-precheck-subagent"]
 tools:
-  [vscode, execute, read, agent, browser, vscodeGeneral/rename, vscodeGeneral/usages, vscodeNotebooks/createJupyterNotebook, vscodeNotebooks/editNotebook, ms-azuretools.vscode-azureresourcegroups, edit, search, web, 'azure-mcp/*', todo]
+  [vscode/askQuestions, execute, read, agent, edit, search, 'azure-mcp/*', todo]
 handoffs:
   - label: "▶ Run Plan Only"
     agent: 07t-Terraform Deploy
@@ -46,13 +47,15 @@ handoffs:
     send: false
 ---
 
-# Terraform Deploy Agent
+# 07t-Terraform Deploy
 
-Role: Step 6 deployment executor for Terraform projects. Runs the bootstrap +
-phase-aware deploy workflow against `infra/terraform/{project}/`, gates each
-apply on a fresh plan preview, and produces the deployment summary handoff.
+## Role
 
-# Goal
+Step 6 deployment executor for Terraform projects. Runs the approved single or
+phased workflow against `infra/terraform/{project}/`; bootstrap is separately
+approved. Gate each apply on current preview, L3 and final approval evidence.
+
+## Goal
 
 Take an approved Terraform workspace at `infra/terraform/{project}/` and bring
 the target Azure subscription to the desired state for the next uncompleted
@@ -61,10 +64,10 @@ signal (success → 08-As-Built; failure → 06t-Terraform CodeGen). The user mu
 always retain explicit approval at the plan-preview gate and at any destructive
 operation surfaced by `- destroy` lines.
 
-# Success criteria
+## Success criteria
 
 - `06-deployment-summary.md` written with deployed resource IDs, the
-  `var.deployment_phase` value used, duration, and subscription/resource-group
+  phase value when the approved plan is phased (otherwise single), duration, and subscription/resource-group
   context.
 - `terraform plan` ran cleanly against the configured backend and the user
   explicitly approved before `terraform apply`.
@@ -75,8 +78,17 @@ operation surfaced by `- destroy` lines.
 - A handoff label is rendered: success path → 08-As-Built; failure path →
   06t-Terraform CodeGen with a structured error excerpt.
 
-# Constraints
+## Constraints
 
+- Allowed writes: deployment outputs below, project README, `00-handoff.md`, resolved
+  environment manifest/tfvars values, azd/Terraform runtime state and saved plans,
+  recall state and user-approved Step 6 SKU substitutions. Source HCL, scripts, lockfile,
+  plan and governance remain locked; changed inputs require fresh handoff/check evidence.
+- Azure writes are limited to the approved deployment scope and phase after all gates;
+  bootstrap, workspace creation and force-unlock require separate explicit approval.
+  `execute` is not read-only. Never bootstrap during validation/preview-only requests.
+- Bind approval to the current tree, variables, backend/workspace, subscription, phase,
+  preview and L3 result. Changed evidence invalidates approval; rerun checks and ask again.
 - Require explicit approval for any destruction (`- destroy`) operation
   surfaced by `terraform plan`.
 - Verify the state-backend storage account exists and is accessible BEFORE
@@ -91,15 +103,17 @@ operation surfaced by `- destroy` lines.
 - Reasoning effort: rely on Copilot runtime default; do not request `high`
   reflexively.
 
-# Output
+## Output
 
 The artifact contract is captured below in `## Output` and `## Validation
-Checklist`. Use the templates in `.github/skills/azure-artifacts/templates/`
+Checklist`. Use the templates in `.github/skills/apex-azure-artifacts/templates/`
 for `06-deployment-summary.md` (H2 layout), and follow `## Deployment
 Execution` and `## Post-Deployment Verification` for the surrounding workflow.
 
-# Stop rules
+## Stop rules
 
+- Missing model/tool/input or worker eligibility returns `blocked`; never substitute a
+  model or skip a gate. Retain bounded retries; no inline replacement for missing workers.
 - Stop after `06-deployment-summary.md` is written and the success/failure
   handoff label is rendered. Do not loop back into another deployment without a
   fresh user prompt.
@@ -110,42 +124,43 @@ Execution` and `## Post-Deployment Verification` for the surrounding workflow.
 - Stop and surface the verification failure verbatim if Azure Resource Graph
   does not confirm the deployed resource state.
 
-Context tiers: follow context-management skill (Mode A: Runtime Compression).
+Context tiers: follow apex-context-management skill (Mode A: Runtime Compression).
 
 ## Operating frame
 
 Shared agent rules: see
 [`agent-operating-frame.instructions.md`](../instructions/agent-operating-frame.instructions.md).
-Subagent budget: this agent runs on `GPT-5.6-Luna`; `terraform-plan-subagent`
-runs on `Claude Sonnet 5` (cross-family call after the 2026-05 IaC
-subagent migration). The JSON-shaped plan-result contract is preserved
-verbatim — no parsing changes required here.
+Use #tool:agent only for allowlisted validation, preview and policy workers; preserve
+their JSON/status contracts. Step 6 has no Challenger review. Local uses human handoffs;
+Host requires explicit selection of the next named owner. Skills run inline and cannot
+choose model/tools. Do not infer runtime eligibility from a capability label.
 
 ## Read Skills First
 
-Batch independent skill reads into one parallel `read_file` call.
+Load the following at the consuming phase, after prerequisite checks. Batch independent
+reads with available tools; recover missing/changed evidence after compaction or resume.
 
-1. Read `.github/skills/azure-defaults/SKILL.md` — regions, tags, security baseline, Terraform Conventions
-2. Read `.github/skills/azure-artifacts/SKILL.md` — H2 template for `06-deployment-summary.md`
-3. Read `.github/skills/iac-common/references/circuit-breaker.md` — failure taxonomy and stopping rules
-4. Read `.github/skills/iac-common/SKILL.md` `## Bounded retry` — 3-attempt cap with
+1. Read `.github/skills/apex-azure-defaults/SKILL.md` — regions, tags, security baseline, Terraform Conventions
+2. Read `.github/skills/apex-azure-artifacts/SKILL.md` — H2 template for `06-deployment-summary.md`
+3. Read `.github/skills/apex-iac-common/references/circuit-breaker.md` — failure taxonomy and stopping rules
+4. Read `.github/skills/apex-iac-common/SKILL.md` `## Bounded retry` — 3-attempt cap with
    `proceed-with-substitute` / `change-region` / `abort` escalation (issue #425)
-5. Read `.github/skills/iac-common/references/deploy-shared-workflow.md` — shared deploy protocol
-6. Read `.github/skills/iac-common/references/policy-precheck-contract.md` — L3 subagent I/O contract
+5. Read `.github/skills/apex-iac-common/references/deploy-shared-workflow.md` — shared deploy protocol
+6. Read `.github/skills/apex-iac-common/references/policy-precheck-contract.md` — L3 subagent I/O contract
    (required before invoking `policy-precheck-subagent`)
-7. Read `.github/skills/iac-common/references/governance-drift-routing.md` — four-layer drift routing
+7. Read `.github/skills/apex-iac-common/references/governance-drift-routing.md` — four-layer drift routing
    matrix; consumed on every precheck result
 8. Read the execution-subagent prompt contract
    [tools/apex-prompts/utility-prompts/execution-subagent.prompt.md](../../tools/apex-prompts/utility-prompts/execution-subagent.prompt.md)
-   — every `runSubagent` call (terraform-plan, terraform-validate,
-   policy-precheck, challenger-review) MUST follow the three-H2 contract
+  — every #tool:agent call (terraform-plan, terraform-validate,
+  policy-precheck) MUST follow the three-H2 contract
    (issue #425).
 
 ## Shared Deploy Protocol
 
-Follow `iac-common/references/deploy-shared-workflow.md` for:
+Follow `apex-iac-common/references/deploy-shared-workflow.md` for:
 
-- Pre-deploy challenger review
+- No Step 6 challenger review; policy precheck remains mandatory
 - Security baseline preflight
 - Copy-then-fill artifact protocol (uses `06-deployment-summary.template.md`)
 - Post-deploy smart PR flow
@@ -156,7 +171,7 @@ Attribution line: `> Generated by 07t-Terraform Deploy agent`
 ## Do
 
 > **Read**
-> [`iac-common/references/deploy-shared-workflow.md`](../skills/iac-common/references/deploy-shared-workflow.md)
+> [`apex-iac-common/references/deploy-shared-workflow.md`](../skills/apex-iac-common/references/deploy-shared-workflow.md)
 > §Deploy Agent — Shared DO / Pitfalls for the rules that apply to both
 > 07b and 07t (preflight, askQuestions placeholders, phased approval
 > gates, destructive-op approval, summary + RG verification, no template
@@ -164,17 +179,25 @@ Attribution line: `> Generated by 07t-Terraform Deploy agent`
 
 - Validate Azure CLI token FIRST (`az account get-access-token`)
 - Verify state backend storage account BEFORE `terraform init`
-- Offer `bootstrap-backend.sh/.ps1` if backend missing
+- Offer `bootstrap-backend.sh/.ps1` if backend missing only within explicitly authorized setup/deployment scope
 - Run `terraform validate` and `terraform fmt -check` before planning
-- Deploy phases one at a time with `var.deployment_phase` + approval gates
+- Follow single or phased deployment as approved; phase variables apply only when declared
 - Run `terraform output` + Azure Resource Graph post-deployment
 
 ## Pitfalls
 
-- Do not use `terraform -target` — code is phase-gated via `var.deployment_phase`
+- Do not use `terraform -target` to bypass the approved single/phased plan
 - Do not run `terraform init` without verifying backend exists
 
 ## Prerequisites Check
+
+This is the APEX deployment path: no generic `.azure/plan.md` or generic auto-prepare is required.
+Resolve requested action first. Validation-only returns checks and stops before preview or apply;
+preview-only records not-applied results and stops before deployment approval/apply. Neither completes Step 6 as deployed.
+For preview-only requests, do not solicit bootstrap or apply approval. If the backend is missing,
+report the blocked preview and stop. Later bootstrap or deployment requires the user to explicitly
+expand the requested scope, separate bootstrap authorization, and fresh evidence-bound apply approval.
+Do not create resources, bootstrap, or regenerate code merely to satisfy a validation-only request.
 
 Before starting, validate:
 
@@ -182,18 +205,20 @@ Before starting, validate:
 2. **`05-iac-handoff.json`** exists in `agent-output/{project}/` (Wave 3+
    — slim deploy loop). Schema:
    [`iac-handoff-v1`](../../tools/schemas/iac-handoff.schema.json).
-   If missing, fall back to `05-implementation-reference.md` (legacy projects).
+  Legacy fallback to `05-implementation-reference.md` requires actual validation evidence and current applicable checks.
+  Use it for validation/recovery only. If JSON is absent, CodeGen must re-emit the handoff before preview or apply;
+  never claim a hash match without recorded hashes or force migration of the approved deployment method.
 3. **`04-environment-manifest.json`** exists in `agent-output/{project}/`
    for env-specific values (subscription_id, deployer_object_id,
    principal IDs, alert emails).
-4. If `main.tf` or `05-iac-handoff.json` is missing, STOP and request
-   handoff to Terraform Code agent
+4. If `main.tf` is missing or neither handoff path is usable, STOP and return to `06t-Terraform CodeGen`.
+  Missing expected azure.yaml also returns to CodeGen; retain an already-approved legacy/standalone method.
 
 ### Slim Deploy Loop (Wave 3+, all workloads)
 
 The full 8-step loop is documented in
-[`iac-common/references/deploy-shared-workflow.md`](../skills/iac-common/references/deploy-shared-workflow.md)
-→ "Slim Deploy Loop". This agent reads ONLY:
+[`apex-iac-common/references/deploy-shared-workflow.md`](../skills/apex-iac-common/references/deploy-shared-workflow.md)
+→ "Slim Deploy Loop". Primary inputs (read required referenced evidence as needed):
 
 - `05-iac-handoff.json` — entrypoint, validate_gate result, governance
   attestation, `required_inputs[]`.
@@ -209,11 +234,11 @@ The full 8-step loop is documented in
 npm run validate:iac-handoff -- agent-output/{project}/05-iac-handoff.json
 ```
 
-- **Match** ⇒ proceed to Phase 2 (plan preview). Skip re-validation;
-  trust the handoff's `validate_gate` record.
+- **Match** ⇒ verify the successful validate_gate and current L1m/environment evidence.
+  Return validation-only results and stop; otherwise proceed to the requested preview with existing approvals intact.
 - **Mismatch** ⇒ tree has drifted since Step 5. Invoke
   `terraform-validate-subagent` for a compact re-run; if it returns
-  `APPROVED`, update `05-iac-handoff.json` (CodeGen owner) and retry.
+  `APPROVED`, have CodeGen re-emit `05-iac-handoff.json` and retry.
   Never deploy with a mismatched tree.
 
 ## Session State
@@ -223,6 +248,8 @@ Run `apex-recall show <project> --json` for full project context. Do not read `0
 - **My step**: 6
 - **Sub-steps**: `phase_1_auth` → `phase_2_preview` →
   `phase_3_deploy` → `phase_4_verify` → `phase_5_artifact`
+- Section step numbers are display labels; persist these checkpoint keys unchanged.
+  `phase_2_preview` is not apply approval; `phase_3_deploy` follows final approval only.
 - **Checkpoints**: `apex-recall checkpoint <project> 6 <phase_name> --json`
 - **Decisions**: `apex-recall decide <project> --decision "<text>" --rationale "<why>" --step 6 --json`
   Record: deployment strategy, target subscription, backend config, skip-validation decisions.
@@ -257,7 +284,7 @@ Before `terraform apply` / `azd provision`, for every entry in
 `agent-output/{project}/sku-manifest.json` `services[]`:
 
 1. For each `(env, region)` pair (base `regions[]` + per-env
-   `environment_overrides`), call the **`azure-quotas` skill** to confirm
+   `environment_overrides`), call the **`apex-azure-quotas` skill** to confirm
    the SKU is available and quota is sufficient.
 2. Set `decisions.sku_manifest_status = "deploying"` via `apex-recall decide`.
 
@@ -267,7 +294,7 @@ When a quota / region SKU check fails, do **not** silently substitute.
 Escalate via the orchestrator:
 
 1. Surface the conflict to the human with the available substitutes
-   (call `azure-quotas` for the same service family in the same region
+   (call `apex-azure-quotas` for the same service family in the same region
    and the failover region).
 2. The human (via the Orchestrator) responds with one of the four
    `sku_conflict_resolution` enum values:
@@ -285,7 +312,7 @@ On full success, set `decisions.sku_manifest_status = "deployed"`.
 
 ### Step 1: Azure CLI Authentication Validation
 
-Read `azure-defaults/references/azure-cli-auth-validation.md` for the
+Read `apex-azure-defaults/references/azure-cli-auth-validation.md` for the
 full two-step validation procedure and recovery steps.
 Key rule: `az account show` alone is NOT sufficient — always validate
 with `az account get-access-token`.
@@ -301,7 +328,10 @@ az storage account show \
   --output none 2>/dev/null && echo "Backend exists" || echo "Backend missing"
 ```
 
-**If backend is missing:** Prompt user to run `bootstrap-backend.sh` (or `bootstrap-backend.ps1` on Windows). On approval:
+**If backend is missing:** For validation-only or preview-only, report the missing prerequisite and stop;
+do not run initialization, solicit bootstrap/apply approval, or claim a preview succeeded.
+For an explicit setup/deployment request, backend bootstrap is supported with separate user authorization.
+Explain the scoped changes in `bootstrap-backend.sh` (or `bootstrap-backend.ps1` on Windows). On approval:
 
 ```bash
 cd infra/terraform/{project}
@@ -310,10 +340,20 @@ chmod +x bootstrap-backend.sh && ./bootstrap-backend.sh
 
 ### Step 3: Scan for Unresolved Placeholders
 
-Follow `iac-common/references/placeholder-scan-protocol.md`.
+Follow `apex-iac-common/references/placeholder-scan-protocol.md`.
 Scan `*.tfvars` files, collect values via `askQuestions`, confirm none remain.
 
 ### Step 4: Detect Deployment Method and Validate
+
+Before either deployment method, verify initialization for the current provider
+requirements, lockfile selections, module sources/versions, backend configuration,
+and target workspace. `.terraform/` existence or a matching IaC tree hash alone
+is insufficient. Rerun init when dependency or backend inputs changed or prior
+evidence is missing; select and verify the approved workspace before planning.
+Backend-disabled validation init does not establish deployment readiness. A
+backend/workspace/environment change invalidates prior plan and approval evidence;
+rerun the existing preview and approval gates. Never use `-upgrade`, create a
+workspace, migrate state, or bootstrap resources without the required approval.
 
 ```bash
 cd infra/terraform/{project}
@@ -331,18 +371,18 @@ azd env set AZURE_LOCATION swedencentral
 
 # Preview changes
 azd provision --preview
-
-# Deploy (after approval)
-azd provision
 ```
 
-Skip to Step 6 (Post-Deployment Verification) after `azd provision` completes.
+Do not provision yet. Use this preview for the Step 5 change classification, then complete
+the deployment approval, live policy precheck, and deploy approval block below.
+Only then run `azd provision` and continue to Step 6 (Post-Deployment Verification).
+The azd path does not bypass any gate required by the pure Terraform path.
 
 **If pure Terraform** (no `azure.yaml` — fallback):
 
 ```bash
 # Initialize with backend configuration
-terraform init
+terraform init -input=false -lockfile=readonly
 
 # Validate syntax and configuration
 terraform validate
@@ -373,16 +413,17 @@ terraform plan \
 | `-`         | Destroy     | **STOP — Requires explicit user approval** |
 | `~`         | Update      | Review in-place property changes           |
 | `-/+`       | Replace     | **STOP — Resource recreation, data risk**  |
+| `+/-`       | Replace     | **STOP — Create before destroy, same approval requirement** |
 | `<=>`       | Move        | Review — usually safe                      |
 | (no symbol) | Read        | Safe — data source refresh                 |
 
 **Deprecation scan**: scan plan output for the canonical regex (see
-[`preflight-policy-checks.md`](../skills/iac-common/references/preflight-policy-checks.md)
+[`preflight-policy-checks.md`](../skills/apex-iac-common/references/preflight-policy-checks.md)
 §Deprecation scan regex). If matched, STOP and report.
 
 Present the plan summary table.
 
-### Step 4.5: Deployment Approval Gate
+### Step 5.1: Preview Acceptance
 
 **Present plan results directly in chat** before asking the user to decide:
 
@@ -395,33 +436,34 @@ Then use `askQuestions` to gather the decision:
   `"Plan: N creates, N updates, N destroys. Proceed?"`
 - Ask a single-select question: _"How would you like to proceed?"_
   with options:
-  1. **Deploy** — apply the changes
+  1. **Deploy** — accept preview and continue to policy precheck, not apply
   2. **Abort** — stop deployment and review
      (recommended if any Destroy/Replace operations exist,
      mark as `recommended`)
 - If the user chooses to abort: stop and present details for review
-- If the user chooses to deploy: proceed with deployment execution
+- If the user chooses Deploy: continue to L3, then the final Deploy Approval Block.
   **Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 6 phase_2_preview --json`
   **Decisions** (MANDATORY):
-  `apex-recall decide <project> --decision "Deploy approved after plan review" --rationale "<change summary>" --step 6 --json`
+  Record `Preview accepted; apply not yet approved` through `apex-recall decide`
+  with the change summary as rationale and `--step 6 --json`.
 
-### Step 4.6: Live Policy Precheck (L3 — MANDATORY before apply)
+### Step 5.2: Live Policy Precheck (L3 — MANDATORY before apply)
 
 Before executing `terraform apply` (or `azd provision` for azd
-projects), invoke `policy-precheck-subagent` via `#runSubagent`. This
+projects), invoke `policy-precheck-subagent` via #tool:agent. This
 is the L3 attestation in the four-layer governance stack — the only
 layer that talks to the live Azure Policy API, so the only layer that
 catches "discovery was wrong" failures.
 
 Pass these inputs per
-[`iac-common/references/policy-precheck-contract.md`](../skills/iac-common/references/policy-precheck-contract.md):
+[`apex-iac-common/references/policy-precheck-contract.md`](../skills/apex-iac-common/references/policy-precheck-contract.md):
 
 - `project` = `{project}`
 - `iac_tool` = `terraform`
 - `template_path` = `infra/terraform/{project}` (working directory)
 - `target_scope` = `resourceGroup` / `subscription` (per provider config)
 - `resource_group` = chosen target (rg-scope only)
-- `subscription_id` = `az account show --query id -o tsv`
+- `subscription_id` = approved environment subscription ID, verified against provider and preview evidence
 - `location` = chosen deploy region
 - `constraints_path` = `agent-output/{project}/04-governance-constraints.json`
 - `phase` = current `deployment_phase` value (when phased)
@@ -434,11 +476,15 @@ authoritative apply decision**. `Status` is informational and may show
 when non-deny drift exists without an acceptance policy). Full routing
 matrix (5 rows: PROCEED·CLEAN, PROCEED·INFORMATIONAL, BLOCK·INFORMATIONAL,
 BLOCK·BLOCKED, BLOCK·FAILED) lives in
-[`preflight-policy-checks.md`](../skills/iac-common/references/preflight-policy-checks.md)
+[`preflight-policy-checks.md`](../skills/apex-iac-common/references/preflight-policy-checks.md)
 §L3 precheck routing matrix; cross-reference with
-[`governance-drift-routing.md`](../skills/iac-common/references/governance-drift-routing.md)
+[`governance-drift-routing.md`](../skills/apex-iac-common/references/governance-drift-routing.md)
 (L3 rows) for handoff destinations. Terraform-specific BLOCK·BLOCKED
 routing hands back to `06t-Terraform CodeGen`.
+
+Validate the returned v2 JSON. Missing/invalid evidence, unknown policy coverage,
+BLOCKING drift or a text/JSON gate mismatch blocks even if a stale worker says PROCEED.
+Terraform plan success alone is not ARM Deny coverage; follow the strict worker truth table.
 
 **Governance trace attestation (MANDATORY on `CLEAN`)** — before
 `terraform apply` or `azd provision`, emit the full L0→L3 attestation
@@ -458,7 +504,7 @@ Replace `<N>` with the matrix row count from
 `validate-governance-trace.mjs` enforces the chain before
 `complete-step 6`.
 
-### Step 4.5: Deploy Approval Block
+### Step 5.3: Deploy Approval Block
 
 Before any `terraform apply` (or `azd provision`), render the deploy
 approval block to the chat surface. The block is five lines, populated
@@ -474,6 +520,9 @@ Sources:
 - `cost_delta` ← `cost-estimate-subagent` delta vs the envelope in
   `02-architecture-assessment.md` (or `02-cost-estimate.json` when
   emitted).
+
+Use current existing cost-worker evidence only. Missing or stale pricing returns to
+`03-Architect`; this agent cannot call the cost worker or invent a zero delta.
 
 Block to render (exact shape; the `decision:` line is the human gate):
 
@@ -495,24 +544,28 @@ Rules:
   approval citing the new monthly total.
 - The block MUST appear AFTER `terraform plan` + policy-precheck and
   BEFORE `terraform apply`.
+- Only explicit approval of this current block authorizes apply. Record that
+  decision after L3; an early Deploy choice or old approval does not satisfy it.
 
 Persist the composed block as `agent-output/{project}/06-deploy-approval.json`
 conforming to `deployment-preview-v1` so 08-As-Built can cite the
 pre-deploy state in the as-built record.
 
-### Step 5: Phase-Aware Deployment
+### Step 5.4: Phase-Aware Deployment
 
 Read `04-implementation-plan.md` `## Deployment Phases` to determine phased vs single deployment.
 
 **Phased**: Deploy each phase sequentially:
 
-1. `terraform plan -out=tfplan -var="deployment_phase={phase}"` — present summary, get approval
+1. `terraform plan -out=tfplan -var="deployment_phase={phase}"` — present summary, run L3, obtain final approval
 2. `terraform apply tfplan` — run `terraform output`, verify via ARG, present completion gate
 3. Repeat for next phase
 
 Or use deploy scripts (deprecated): `bash deploy.sh --phase {name}` / `pwsh -File deploy.ps1 -Phase {name}`
 
-**Single**: `terraform plan -out=tfplan` → get approval → `terraform apply tfplan`
+**Single**: `terraform plan -out=tfplan` → L3 → final approval → `terraform apply tfplan`.
+Every phase repeats the evidence-bound gates. Apply the exact approved saved plan;
+if L3 or azd re-planning changes that preview, re-present it and obtain fresh approval.
 
 ### Step 6: Post-Deployment Verification
 
@@ -528,7 +581,7 @@ If plan fails due to missing backend, offer to run bootstrap scripts and retry o
 
 ## Known Issues
 
-See `iac-common/references/known-deploy-issues.md` for shared issues (auth, MSAL, backend).
+See `apex-iac-common/references/known-deploy-issues.md` for shared issues (auth, MSAL, backend).
 Terraform-specific: `terraform init` fails if backend missing (run bootstrap first);
 backend state lock → `terraform force-unlock` (requires approval).
 
@@ -549,7 +602,7 @@ After deployment completes (or fails), fold the
 purely traceability for deploy-time drift between Step 3.5 discovery
 (L0) and live Azure Policy state (L3). Fields to include:
 
-- Verdict (`CLEAN` / `DRIFT` / `BLOCKED` / `FAILED`).
+- Verdict (`CLEAN` / `INFORMATIONAL` / `BLOCKED` / `FAILED`) and the actual deploy gate.
 - Count of policies evaluated vs. blocked vs. drifted.
 - Per-blocked-policy: policy display name, scope, the resource(s) that
   tripped it, and the matrix-row reference (if any) from
@@ -560,18 +613,20 @@ purely traceability for deploy-time drift between Step 3.5 discovery
 The H2 is **never** gated on user approval — it is informational and
 read by the As-Built agent (Step 7) to populate the compliance matrix.
 
-**On completion** (MANDATORY): `apex-recall complete-step <project> 6 --json`
+**On successful deployment and verification only** (MANDATORY):
+`apex-recall complete-step <project> 6 --json`. Failed, partial and preview-only
+summaries do not complete Step 6.
 
 ## Validation Checklist
 
-See `iac-common/references/deploy-validation-checklist.md`.
+See `apex-iac-common/references/deploy-validation-checklist.md`.
 
 ## Completion Handoff
 
 After `apex-recall complete-step` + writing `00-handoff.md`, end the
 final chat message with this line, **verbatim**, on its own final line
 (full contract:
-[`compression-templates.md`](../skills/context-management/references/compression-templates.md#gate-boundary-clear-handoff-contract);
+[`compression-templates.md`](../skills/apex-context-management/references/compression-templates.md#gate-boundary-clear-handoff-contract);
 validator: `npm run validate:orchestrator-handoff`):
 
 ```text

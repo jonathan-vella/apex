@@ -3,29 +3,12 @@
 # https://github.com/evilmartians/lefthook
 
 pre-commit:
-  # SAFETY: serial because two commands now use stage_fixed (markdown-lint
-  # touches *.md; model-catalog-sync touches .github/model-catalog.json).
-  # Although their file sets are disjoint today, parallel + stage_fixed
-  # races on git index lock when both try to re-stage. Keep serial unless
-  # an explicit file-lock coordination layer is introduced.
+  # Keep index-writing generators serialized. Publication checks inspect an
+  # isolated index snapshot and never stage worktree formatting changes.
   parallel: false
   commands:
     markdown-lint:
-      glob: "*.md"
-      run: |
-        # Get staged markdown files
-        STAGED_MD=$(git diff --cached --name-only --diff-filter=ACM | grep '\.md$' || true)
-        if [ -n "$STAGED_MD" ]; then
-          COUNT=$(echo "$STAGED_MD" | wc -l | tr -d ' ')
-          echo "📝 Validating $COUNT markdown file(s)..."
-          # Lint staged files only, suppress verbose Finding: output
-          RESULT=$(echo "$STAGED_MD" | xargs markdownlint-cli2 --no-globs 2>&1)
-          # Show only Summary and errors, skip Finding/Linting lines
-          echo "$RESULT" | grep -v -E '^(Finding:|Linting:)' || true
-        else
-          echo "ℹ️  No markdown files to validate"
-        fi
-      stage_fixed: true
+      run: node tools/scripts/check-publication-scope.mjs markdown
 
     link-check:
       glob: "site/src/content/docs/**/*.{md,mdx}"
@@ -40,59 +23,8 @@ pre-commit:
           echo "ℹ️  No docs to check links"
         fi
 
-    h2-sync:
-      glob: "{.github/skills/azure-artifacts/SKILL.md,.github/instructions/azure-artifacts*,tools/scripts/validate-artifacts*}"
-      run: |
-        STAGED_SYNC=$(git diff --cached --name-only --diff-filter=ACM | grep -E '(SKILL\.md|azure-artifacts|validate-artifacts)' || true)
-        if [ -n "$STAGED_SYNC" ]; then
-          echo "🔄 Checking H2 heading sync across sources..."
-          npm run validate:artifacts
-        else
-          echo "ℹ️  No H2-source files to sync-check"
-        fi
-      fail_text: |
-        ❌ H2 heading sync failed!
-
-        Sources must match: SKILL.md ↔ azure-artifacts ↔ validator
-        🔧 Run: npm run lint:h2-sync
-
     artifact-validation:
-      glob: "{agent-output,.github/skills/azure-artifacts/templates}/**/*.md"
-      run: |
-        # Check if any agent-output artifacts are staged
-        STAGED_ARTIFACTS=$(git diff --cached --name-only --diff-filter=ACM | grep -E '^agent-output/.*\.md$' || true)
-        if [ -n "$STAGED_ARTIFACTS" ]; then
-          COUNT=$(echo "$STAGED_ARTIFACTS" | wc -l | tr -d ' ')
-          echo "📋 Validating $COUNT artifact(s) against templates..."
-          # Run full artifact validation - blocks on any H2 mismatch
-          if ! npm run validate:artifacts; then
-            echo ""
-            echo "❌ Artifact template validation failed!"
-            echo ""
-            echo "🔧 To fix:"
-            echo "   1. Check .github/instructions/azure-artifacts.instructions.md"
-            echo "   2. Use EXACT H2 headings from that file"
-            echo "   3. Run: npm run fix:artifacts -- <file> --apply"
-            echo "   4. Re-stage and commit"
-            echo ""
-            exit 1
-          fi
-          # Mandatory challenger-findings presence gate (Steps 1, 2, 3.5, 4).
-          # Primary enforcement is at runtime via `apex-recall complete-step`;
-          # this is the commit-time fallback so the same drift cannot land
-          # via direct edits.
-          if ! npm run validate:challenger-presence --silent; then
-            echo ""
-            echo "❌ Mandatory challenger review missing for one or more steps."
-            echo "   Run the challenger-review-subagent against the gating"
-            echo "   artifact, or record an audited skip via:"
-            echo "   apex-recall complete-step <project> <step> \\"
-            echo "       --allow-missing-challenger --challenger-skip-reason \"...\""
-            exit 1
-          fi
-        else
-          echo "ℹ️  No agent-output artifacts to validate"
-        fi
+      run: node tools/scripts/check-publication-scope.mjs artifacts
       fail_text: |
         ❌ Artifact H2 structure or challenger-review presence check failed!
 

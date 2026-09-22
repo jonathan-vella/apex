@@ -144,7 +144,7 @@
     "**/.terraform/**",
     "**/*.egg-info/**",
     "__pycache__/**",
-    ".pytest_cache/**",
+    "**/.pytest_cache/**",
     "coverage/**",
 
     // Presenter/demo content and planning docs (intentionally less strict)

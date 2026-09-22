@@ -78,18 +78,23 @@ if (invokedAsScript) process.exit(await runValidator());
 
 ## Frontmatter Parsing
 
-Many scripts parse YAML-like frontmatter from markdown:
+Reuse `parseFrontmatter` from `tools/scripts/_lib/parse-frontmatter.mjs`
+for repository YAML frontmatter, using the existing `js-yaml` dependency:
 
 ```javascript
-function parseFrontmatter(content) {
-  const match = content.match(/^---\n([\s\S]*?)\n---/);
-  if (!match) return null;
-  // Parse key-value pairs...
-}
+import { parseFrontmatter } from "./_lib/parse-frontmatter.mjs";
+
+const frontmatter = parseFrontmatter(content);
 ```
 
-Keep frontmatter parsers simple — this project uses basic key-value YAML, not
-full YAML parsing. Do not add a YAML library dependency.
+Adjust the relative import for the caller. The shared parser returns null when
+frontmatter is absent and an empty object for an empty header. It uses
+`yaml.JSON_SCHEMA`, lowercases only top-level keys, and preserves booleans,
+arrays, multiline strings, and nested maps. Malformed YAML, non-mapping roots,
+and duplicate keys (including case-insensitive top-level collisions) throw;
+catch and report those errors with the source path at the validator boundary.
+Do not treat parse errors as absent frontmatter or duplicate a regex parser.
+Extend the shared parser only with focused tests; reuse existing dependencies.
 
 ## Dependencies
 

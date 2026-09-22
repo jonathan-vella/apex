@@ -20,7 +20,7 @@
  */
 
 import fs from "node:fs";
-import { getAgents } from "./_lib/workspace-index.mjs";
+import { getAgents, getPromptFiles } from "./_lib/workspace-index.mjs";
 import { Reporter } from "./_lib/reporter.mjs";
 import { REGISTRY_PATH } from "./_lib/paths.mjs";
 import { readJsonCached } from "./_lib/json.mjs";
@@ -122,6 +122,20 @@ for (const [key, entry] of allEntries) {
 }
 
 r.ok(`Validated ${agentCount} agents and ${subagentCount} subagents`);
+
+const prompts = new Map([...getPromptFiles().values()].map((prompt) => [prompt.path, prompt]));
+for (const [key, entry] of Object.entries(registry.prompts ?? {})) {
+  r.tick();
+  const prompt = prompts.get(entry.prompt);
+  if (!prompt) {
+    r.error(`Prompt "${key}"`, `undiscovered or missing prompt: ${entry.prompt}`);
+    continue;
+  }
+  if (entry.model !== (prompt.frontmatter?.model ?? null)) {
+    r.error(`Prompt "${key}"`, "registry model must mirror prompt frontmatter, or null for agent inheritance");
+  }
+  if (typeof entry.invokable !== "boolean") r.error(`Prompt "${key}"`, "invokable must be boolean");
+}
 
 console.log(`\n📊 Results: ${r.errors} error(s), ${r.warnings} warning(s)\n`);
 

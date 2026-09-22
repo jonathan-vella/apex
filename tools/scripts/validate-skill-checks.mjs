@@ -21,11 +21,11 @@ r.header();
 
 // Pre-existing oversized skills (tracked for future remediation).
 const KNOWN_OVERSIZED = new Set([
-  "azure-adr",
-  "github-operations",
-  "azure-kusto",
-  "azure-cost-optimization",
-  "azure-quotas",
+  "apex-azure-adr",
+  "apex-github-operations",
+  "apex-azure-kusto",
+  "apex-azure-cost-optimization",
+  "apex-azure-quotas",
 ]);
 
 // Pattern: matches `<!-- ref:any-slug-v1 -->` on the first non-blank line.

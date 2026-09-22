@@ -4,7 +4,7 @@
  *
  * Fetches the canonical Anthropic + OpenAI prompting source documents,
  * stores hashed snapshots under
- * `.github/skills/vendor-prompting/references/.snapshots/`, and compares
+ * `.github/skills/apex-vendor-prompting/references/.snapshots/`, and compares
  * them against what `rules.json` expects.
  *
  * Fetch fallback chain (per F-15):
@@ -27,8 +27,9 @@ import path from "node:path";
 import crypto from "node:crypto";
 import { execFileSync } from "node:child_process";
 import https from "node:https";
+import { fileURLToPath } from "node:url";
 
-const SKILL_DIR = ".github/skills/vendor-prompting";
+const SKILL_DIR = ".github/skills/apex-vendor-prompting";
 const RULES_PATH = path.join(SKILL_DIR, "rules.json");
 const SNAPSHOT_DIR = path.join(SKILL_DIR, "references", ".snapshots");
 const MANIFEST_PATH = path.join(SNAPSHOT_DIR, "manifest.json");
@@ -127,45 +128,60 @@ async function fetchGithub(source) {
   }
 }
 
-function loadCachedSnapshot(name) {
-  const p = path.join(SNAPSHOT_DIR, name);
+function loadCachedSnapshot(name, snapshotDir) {
+  const p = path.join(snapshotDir, name);
   if (!fs.existsSync(p)) return null;
   return fs.readFileSync(p, "utf-8");
 }
 
-async function main() {
-  const args = process.argv.slice(2);
+export async function runFetcher({
+  rootDir = ".",
+  sources = SOURCES,
+  now = () => new Date().toISOString(),
+  args = [],
+} = {}) {
   const failOnDrift = args.includes("--fail-on-drift");
+  const snapshotDir = path.resolve(rootDir, SNAPSHOT_DIR);
+  const rulesPath = path.resolve(rootDir, RULES_PATH);
+  const manifestPath = path.resolve(rootDir, MANIFEST_PATH);
+  const freshnessPath = path.resolve(rootDir, FRESHNESS_MANIFEST);
 
-  fs.mkdirSync(SNAPSHOT_DIR, { recursive: true });
+  fs.mkdirSync(snapshotDir, { recursive: true });
 
-  if (!fs.existsSync(RULES_PATH)) {
+  if (!fs.existsSync(rulesPath)) {
     console.error(`Cannot find ${RULES_PATH}. Run from repo root.`);
-    process.exit(2);
+    return 2;
   }
-  const registry = JSON.parse(fs.readFileSync(RULES_PATH, "utf-8"));
+  const registry = JSON.parse(fs.readFileSync(rulesPath, "utf-8"));
+  const previous = fs.existsSync(manifestPath) ? JSON.parse(fs.readFileSync(manifestPath, "utf-8")) : [];
+  const freshness = fs.existsSync(freshnessPath)
+    ? JSON.parse(fs.readFileSync(freshnessPath, "utf-8"))
+    : { sources: [] };
   const expectedHashes = Object.fromEntries(registry.sources.map((s) => [s.id, s.sha256]));
 
   const manifest = [];
   const drift = [];
   let allFailed = true;
 
-  for (const source of SOURCES) {
+  for (const source of sources) {
+    const attemptedAt = now();
     process.stdout.write(`→ ${source.id} ... `);
     let result = await source.fetch(source);
+    const fetchError = result.ok ? null : result.error;
 
     if (!result.ok) {
-      const cached = loadCachedSnapshot(source.snapshotName);
+      const cached = loadCachedSnapshot(source.snapshotName, snapshotDir);
       if (cached) {
         result = { ok: true, body: cached, method: "cached" };
         console.log(`\u26a0\ufe0f  fallback to cached (${source.id})`);
       } else {
         console.log(`\u274c failed (${result.error})`);
         manifest.push({
+          ...previous.find((entry) => entry.source_id === source.id),
           source_id: source.id,
           fetch_method: "failed",
           error: result.error,
-          fetched_at: new Date().toISOString(),
+          attempted_at: attemptedAt,
         });
         continue;
       }
@@ -175,15 +191,19 @@ async function main() {
 
     allFailed = false;
     const sha = sha256(result.body);
-    const snapshotPath = path.join(SNAPSHOT_DIR, source.snapshotName);
-    fs.writeFileSync(snapshotPath, result.body, "utf-8");
+    const snapshotPath = path.join(snapshotDir, source.snapshotName);
+    if (result.method !== "cached") fs.writeFileSync(snapshotPath, result.body, "utf-8");
+    const prior = previous.find((entry) => entry.source_id === source.id && entry.sha256 === sha);
+    const priorFreshness = freshness.sources.find((entry) => entry.source_id === source.id && entry.sha256 === sha);
 
     const entry = {
       source_id: source.id,
       url: source.url || `https://github.com/${source.repo}/blob/${source.ref}/${source.apiPath}`,
       ref: source.ref || null,
       sha256: sha,
-      fetched_at: new Date().toISOString(),
+      fetched_at: result.method === "cached" ? (prior?.fetched_at ?? priorFreshness?.last_fetched ?? null) : now(),
+      attempted_at: attemptedAt,
+      ...(fetchError ? { error: fetchError } : {}),
       bytes: Buffer.byteLength(result.body, "utf-8"),
       fetch_method: result.method,
     };
@@ -196,25 +216,17 @@ async function main() {
     }
   }
 
-  fs.writeFileSync(MANIFEST_PATH, `${JSON.stringify(manifest, null, 2)}\n`, "utf-8");
+  fs.writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf-8");
 
   // Update source-freshness manifest
-  fs.mkdirSync(path.dirname(FRESHNESS_MANIFEST), { recursive: true });
-  let freshness = { sources: [] };
-  if (fs.existsSync(FRESHNESS_MANIFEST)) {
-    try {
-      freshness = JSON.parse(fs.readFileSync(FRESHNESS_MANIFEST, "utf-8"));
-      if (!freshness.sources) freshness.sources = [];
-    } catch {
-      // start fresh
-    }
-  }
+  fs.mkdirSync(path.dirname(freshnessPath), { recursive: true });
   for (const entry of manifest) {
-    if (entry.fetch_method === "failed") continue;
+    if (entry.fetch_method === "failed" || entry.fetch_method === "cached") continue;
     const existing = freshness.sources.findIndex((s) => s.source_id === entry.source_id);
     const fresh = {
+      ...(existing >= 0 ? freshness.sources[existing] : {}),
       source_id: entry.source_id,
-      owner: "vendor-prompting",
+      owner: "apex-vendor-prompting",
       max_age_days: 90,
       last_fetched: entry.fetched_at,
       sha256: entry.sha256,
@@ -223,7 +235,7 @@ async function main() {
     if (existing >= 0) freshness.sources[existing] = fresh;
     else freshness.sources.push(fresh);
   }
-  fs.writeFileSync(FRESHNESS_MANIFEST, `${JSON.stringify(freshness, null, 2)}\n`, "utf-8");
+  fs.writeFileSync(freshnessPath, `${JSON.stringify(freshness, null, 2)}\n`, "utf-8");
 
   console.log(`\nSnapshots: ${SNAPSHOT_DIR}`);
   console.log(`Manifest:  ${MANIFEST_PATH}`);
@@ -231,12 +243,12 @@ async function main() {
 
   if (allFailed) {
     console.error("\n\u274c All sources failed to fetch (no cached fallback).");
-    process.exit(2);
+    return 2;
   }
 
   if (drift.length === 0) {
     console.log("\n\u2705 No drift detected.");
-    process.exit(0);
+    return 0;
   }
 
   console.log("\n\u26a0\ufe0f  Drift detected:");
@@ -246,11 +258,14 @@ async function main() {
     console.log(`    actual:   ${d.actual}`);
   }
   console.log(`\nReview rules.json sources[] sha256 values.`);
-  if (failOnDrift) process.exit(1);
-  process.exit(0);
+  return failOnDrift ? 1 : 0;
 }
 
-main().catch((e) => {
-  console.error(`Fatal: ${e.message}`);
-  process.exit(2);
-});
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  runFetcher({ args: process.argv.slice(2) })
+    .then((code) => process.exit(code))
+    .catch((error) => {
+      console.error(`Fatal: ${error.message}`);
+      process.exit(2);
+    });
+}

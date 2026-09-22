@@ -1,0 +1,286 @@
+<!-- ref:workflow-gates-v1 -->
+
+# Workflow Gates (cross-agent reference)
+
+Canonical specification for the user-facing gates introduced by the
+nordic-foods lessons plan. Agent files cite this document with a
+short pointer rather than inlining the protocols, keeping each agent
+body within the 500-line budget. **Always-read** when an agent
+implements one of the gates below.
+
+## Architect (Step 2) — Phase 6a: SKU confirmation gate
+
+Run before any `cost-estimate-subagent` invocation. Read
+`agent-output/{project}/sku-manifest.json`. Build a read-only chat
+context block listing user-pinned rows (`source: "user-pin"`) — they
+are locked and must never appear as answer options. Call
+`vscode_askQuestions` exactly once with ONLY architect-derived rows
+and three options: `Approve all` / `Revise SKUs` / `Discuss`. Wait for
+the user; do not auto-default.
+
+- **Approve**: `apex-recall decide <project> --key sku_confirmation_status --value approved --step 2 --json`,
+  continue to pricing delegation.
+- **Revise / Discuss**: record `--value revising`, loop back to
+  candidate-set authoring. Do **not** invoke `cost-estimate-subagent`
+  while status is `revising`.
+
+The pricing step's precondition guard refuses to invoke the subagent
+unless `sku_confirmation_status == "approved"`.
+
+## Architect (Step 2) — Phase 9a: Budget gate
+
+Run after pricing receive. Three cases:
+
+**Case A — `decisions.budget_cap_known == false` (no user-supplied
+budget)**: propose `round(monthly_total × 1.2)` and call
+`vscode_askQuestions` with **one blocking** question:
+
+- Question: "No budget cap was captured at requirements. Pricing
+  estimate is ${monthly_total}/month. Proposed budget cap:
+  ${round(monthly_total × 1.2)}/month (estimate × 1.2). Confirm,
+  revise, or defer?"
+- Options: `Confirm proposed cap` / `Enter a different amount`
+  (freeform numeric follow-up) / `Defer — escalate to user`.
+- On `Confirm` or numeric entry: record
+  `apex-recall decide --key budget_cap_known --value true --step 2`
+  and the following decision:
+
+  ```bash
+  apex-recall decide --decision "budget_cap=${value}" --rationale "Phase 9a proposed from monthly_total × 1.2" --step 2
+  ```
+
+- On `Defer`: hard-stop and surface to the user. Do not proceed to
+  the cost-feasibility lens until a budget exists. This is **not** an
+  opt-out for prod.
+
+**Case B — `monthly_total <= budget_cap`**: skip silently and
+continue.
+
+**Case C — `monthly_total > budget_cap` (overage)**: call
+`vscode_askQuestions` with three options:
+
+1. `Approve overage` — record and continue to charts/artifact write.
+2. `Revise SKUs (loop to 6a)` — record, increment
+   `decisions.budget_revise_count`, loop back to candidate-set authoring.
+3. `Revise requirements (return to 02-Requirements)` — record, emit a
+   handoff to 02-Requirements and stop.
+
+Record via `apex-recall decide --key budget_decision --value <approve_overage|revise_sku|revise_reqs> --step 2 --json`.
+
+**Loop cap**: the `revise_sku` branch may iterate at most **3 times**.
+Track via `decisions.budget_revise_count`. After the 3rd `revise_sku`
+decision, hard-stop and surface to the user — do not re-prompt.
+
+## Architect (Step 2) — Cost-monitoring routing in artifact
+
+When writing `02-architecture-assessment.md`, the **WAF Cost** /
+**WAF Operational Excellence** sections must include a "Cost
+monitoring routing" sub-block stating, in plain prose, how alerts
+will be delivered for this project:
+
+- Budget at `<cost_monitoring_scope>` scope (derived by Planner; if not
+  yet set, state "scope TBD at Step 4").
+- Notifications carry `contactRoles: ["Owner"]` (RBAC `Owner`
+  assignees at the budget scope) plus the project Action Group
+  (`ag-cost-${project}`).
+- Action Group will be created (new email receivers from
+  `cost_alert_emails`) or reused (discovered at Planner preflight).
+- Anomaly alert is subscription-scoped, daily.
+- Opt-down available in non-prod via `cost_monitoring_mode ∈
+  {minimal, deferred}`.
+
+This is the **only** place the routing prose appears in agent output —
+do **not** duplicate it in 02-Requirements. Source contract:
+[`cost-alerts-baseline.md`](cost-alerts-baseline.md).
+
+## Architect (Step 2) — Per-finding askMe (Approval Gate)
+
+After the WAF + cost summary and findings table, follow the
+[Per-Finding Decision Protocol](adversarial-review-protocol.md#per-finding-decision-protocol).
+Use one batched `vscode_askQuestions` panel with a separate question per
+actionable finding, canonical action options, and individual free-form notes.
+Keep the protocol's ordering, panel cap, persisted decisions, and final
+proceed/revise gate. Do not combine findings into one `multiSelect` question
+or repeat a decision already recorded for the current finding.
+
+## Architect (Step 2) — Cost-feasibility review gate
+
+The separate cost-estimate review is mandatory in default and deep modes,
+regardless of budget utilization. Resolve the budget gate above first, then
+run `challenger-review-subagent` with `artifact_type: cost-estimate`,
+`review_focus: cost-feasibility`, and
+`output_path: agent-output/{project}/challenge-findings-cost-estimate.json`.
+It does not replace architecture review or count as an architecture cascade pass.
+
+Reuse a completed cost review only when it is valid for the current cost artifact
+and review inputs. An old `cost_feasibility_review: skip` decision is not an exemption;
+obtain the missing review before Step 2 approval and completion. Record
+`apex-recall decide <project> --key cost_feasibility_review --value run --json`.
+
+Follow [review input finalization](adversarial-review-protocol.md#review-input-finalization) before dispatch.
+Supply the actual COMPLETE cost JSON and raw evidence via `supporting_paths`; a versioned output does not need
+a conventional filename alias. Final human approval is recorded in recall and the project index, not by rewriting
+reviewed artifact badges. On resume, verify both Step 2 review hashes before routing to Design or Governance;
+stale evidence returns to Architect for reconciliation without resetting unrelated approvals.
+
+## Architect (Step 2) — Phase 6b: VNet planning gate
+
+Runs **after Phase 6a (SKU confirmation)** and **before Step 7
+(pricing)** when the trigger contract holds (see
+[`vnet-planning.md`](vnet-planning.md#trigger-contract)).
+Honors `decisions.vnet_planning_mode ∈ {guided, fast, deferred}`
+(default `guided`; `deferred` is blocked for prod).
+
+**Branch by mode**:
+
+- `guided` — run Round 1 + Round 2 (full askQuestions flow).
+- `fast` — Round 1 only; Round 2 auto-confirms the proposed subnet
+  table with a Challenger-tagged informational finding
+  (`subnet plan auto-confirmed in fast mode`).
+- `deferred` — write `subnet_plan = []` + informational finding
+  (`VNet planning deferred; sandbox/exploration mode`). Block when
+  the inferred environment is `prod`.
+
+**Round 1 — `vscode_askQuestions` (single batched call)**:
+
+- Q1 — `vnet_mode`: `create-new` (default) | `use-existing`.
+- Q2 (when `create-new`) — `vnet_address_space`: freeform CIDR
+  (default `10.0.0.0/16`; at least `/22`).
+- Q3 (when `use-existing`) — `existing_vnet_id`: freeform Azure
+  resource ID. Run the two-step validation below **before** Round 2.
+
+**Existing-VNet validation (two-step)**:
+
+1. **Auth preamble**: `az account show -o none`. On
+  non-zero exit, mark inputs unverified and block confirmation,
+  codegen and deployment pending Planner reconciliation; record a finding
+   (`existing_vnet_validation_deferred`). See
+   [`azure-cli-auth-validation.md`](azure-cli-auth-validation.md) for
+   the canonical auth-fallback pattern.
+2. **Resource probe**:
+
+   ```bash
+   az network vnet show --ids "${existing_vnet_id}" \
+     --query "{addr:addressSpace.addressPrefixes,loc:location,name:name}" \
+     -o json
+   ```
+
+  On success, preserve all live `addressSpace.addressPrefixes` and explicitly
+  select a containing prefix per subnet. On NotFound/Forbidden,
+   re-prompt Q3. On tenant/subscription/region mismatch, block.
+
+**Round 2 — per-row askMe loop**: present the proposed subnet table
+(`purpose / size / address_prefix / delegation / NSG / route-table`)
+then run one `vscode_askQuestions` per row with three options:
+`Apply edit (freeform diff)` / `Skip this row` / `Done`. Soft warning
+("3 edit rounds — consider Done") after 3 consecutive edits; never
+auto-defer.
+
+**Recall write-backs** (MANDATORY at gate completion):
+
+```bash
+apex-recall decide <project> --key vnet_planning_mode --value <guided|fast|deferred> --step 2 --json
+apex-recall decide <project> --key vnet_mode --value <create-new|use-existing> --step 2 --json
+apex-recall decide <project> --key vnet_address_space --value "<cidr>" --step 2 --json
+apex-recall decide <project> --key subnet_plan --value "$(cat plan.json)" --step 2 --json
+apex-recall decide <project> --key vnet_plan_decision --value <confirmed|edited|deferred> --step 2 --json
+```
+
+**Pricing handoff**: append any `subnet_plan` rows of type `bastion`,
+`azure-firewall`, `nat-gateway`, `vpn-gateway`, `expressroute-gateway`,
+`application-gateway`, `application-gateway-for-containers` to the
+Step 7 `cost-estimate-subagent` `resource_list` — these are priced
+live, not via the static-fallback whitelist. Full contract +
+sizing matrix: [`vnet-planning.md`](vnet-planning.md).
+
+## Architect (Step 2) — Approval gate handoff template
+
+On Proceed, emit one of these two templates verbatim, routed by
+`decisions.skip_design`:
+
+- `skip_design == true`: "Reply **approve** and I'll run
+  `apex-recall complete-step <project> 2` and hand off to
+  **04g-Governance Discovery (Step 3.5)**."
+- `skip_design == false` (default): "Reply **approve** and I'll run
+  `apex-recall complete-step <project> 2` and hand off to **04-Design
+  (Step 3)** for diagrams/ADRs, then continue to Governance Discovery
+  (Step 3.5)."
+
+The literal strings `"IaC Planner"` and `"Step 4"` MUST NOT appear in
+this approval gate output. Next-step routing is **always** Design or
+Governance — never Planner directly. Enforced by
+`tools/scripts/validate-banned-phrases.mjs`.
+
+## Challenger empty-output diagnostic + bounded retry
+
+Applies to every `challenger-review-subagent` invocation. When the
+subagent returns successfully but the expected `output_path` JSON is
+missing or empty (zero bytes):
+
+1. **Before any retry**, append a structured failure entry to
+   `agent-output/{project}/_meta/challenger-failures.json` with
+   `timestamp`, `review_focus`, `output_path`,
+   `return_summary_verbatim`, `output_file_size_bytes`,
+   `last_error_message`.
+2. **Retry exactly once** with identical inputs.
+3. **After the second failure**: STOP, surface the failure log to the
+  user inline and request a human handoff to `10-Challenger`. Do NOT
+  advance to the Approval Gate. Do NOT invent findings. Do NOT call
+  the subagent a third time or invoke `10-Challenger` as a nested wrapper.
+  If `10-Challenger` is already active, request human intervention instead of a
+  self-handoff. Preserve the exhausted retry status across handoffs and resumed
+  sessions; neither human selection nor a new wrapper renews the retry allowance.
+
+## Design (Step 3) — Phase 00: Artifact scope (one-time gate)
+
+Runs **before** Phase 0. Read `decisions.design_scope`. If set, skip
+silently. If absent, raise a single `vscode_askQuestions` with three
+options:
+
+- **Diagrams only** — produce `03-des-diagram.py` with `.png` and `.svg`;
+  skip ADR generation.
+- **ADRs only** — produce `03-des-adr-NNNN-{slug}.md` for each
+  non-trivial decision; skip Phase 0 and diagram generation entirely.
+- **Both (diagrams + ADRs)** — full Step 3 output.
+
+Record `apex-recall decide --key design_scope --value <diagrams|adrs|both> --step 3 --json`.
+
+Routing rules after the gate:
+
+- `design_scope == "adrs"` → skip diagram generation and run ADRs only.
+- `design_scope == "diagrams"` → generate the Python diagram only.
+- `design_scope == "both"` → generate the Python diagram and ADRs.
+
+When diagrams are in scope, record
+`apex-recall decide --key diagram_tool --value python --step 3 --json`.
+
+## Governance (Step 3.5) — Phase 2.7: Inline Resolution Gate
+
+Resolve RG tag keys/casing, allowed locations, and RG/resource same-region
+requirements before Phase 2.5 review. The canonical procedure is
+[inline-resolution-gate.md](../../apex-azure-governance-discovery/references/inline-resolution-gate.md).
+Ask unresolved topics together; reuse answers only with verified current
+snapshot bindings, subscription/region/architecture inputs and TTL. Explicit
+refresh invalidates prior confirmations even when the signature is unchanged.
+Unknown answers block. No silent same-region default and no invented enforced
+tags for an empty policy result. Greenfield fallback remains separately owned by
+[tag-strategy.md](tag-strategy.md), not an assertion about discovered policy.
+Updated confirmations must be validated and reviewed before approval; file
+existence and COMPLETE discovery alone do not open the gate.
+
+## SKU Manifest MD ↔ JSON sync (Steps 2, 4, 6, 7)
+
+After any rev-N JSON mutation, run
+`node tools/scripts/render-sku-manifest-md.mjs <project>`. The renderer
+is the only legitimate writer of `sku-manifest.md` and fails hard on
+`current_revision` mismatch. Lefthook pre-commit auto-re-renders and
+re-stages when JSON is staged; CI runs the renderer + `git diff
+--exit-code`. Agents MUST NOT hand-edit the MD.
+
+## Decision-key registry
+
+Every `apex-recall decide --key <name>` reference in an agent file
+MUST appear in
+[`tools/apex-recall/docs/decision-keys.md`](../../../../tools/apex-recall/docs/decision-keys.md).
+Validator: `node tools/scripts/validate-decision-keys.mjs`. Add new
+keys to the registry before using them in an agent file.

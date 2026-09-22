@@ -32,7 +32,7 @@ describe your project. The Orchestrator handles all steps with approval gates.
 ### Formalized Workflow Engine
 
 A machine-readable DAG (Directed Acyclic Graph) in
-`.github/skills/workflow-engine/templates/workflow-graph.json` encodes the workflow.
+`.github/skills/apex-workflow-engine/templates/workflow-graph.json` encodes the workflow.
 The Orchestrator reads this graph instead of relying on hardcoded step logic:
 
 - **Nodes**: agent-step, gate, subagent-fan-out, validation
@@ -43,6 +43,73 @@ The Orchestrator reads this graph instead of relying on hardcoded step logic:
 The Orchestrator resolves agent paths and models via `tools/registry/agent-registry.json`.
 
 ## Agent Architecture
+
+### Requirements Capture And Revision
+
+Supply known requirements in the initial brief. Requirements reuses explicit answers and asks only about missing
+or conflicting inputs; suggested defaults do not count as consent. SKU preferences still need an explicit answer
+for each applicable class. The [security baseline](/reference/security-baseline/) applies before questioning.
+
+Scope changes are reconciled across hosting, identity, authentication, monitoring and private connectivity before
+independent review. Accepting a finding authorizes its stated mitigation, followed by validation and re-review;
+it does not approve the workflow transition. Prior findings are checked for resolution, and persistent blockers
+return for human direction. Gate 1 remains a separate human approval after current review evidence is available.
+
+### Review Finalization And Recovery
+
+Architecture and cost documents are finalized before independent review. While reviewers run, their inputs must
+remain unchanged. Approval and review status live in recall, decision sidecars and the project index, linked from
+the reviewed documents. Updating a badge after review would change the reviewed bytes and require fresh evidence.
+The Orchestrator verifies Step 2 review hashes on resume; a completed step does not override later artifact drift.
+
+If pricing publication is interrupted, preserve the draft and evidence. The pricing worker validates the saved
+scope, source provenance, totals and request allowance before publishing and returning its summary. It does not
+repeat pricing merely because the final command was canceled. Historical requests remain provenance, not new calls;
+resuming an interrupted attempt retains its remaining allowance. Reviewers receive the exact successful cost JSON
+and evidence paths, including versioned outputs, rather than guessing conventional filenames.
+
+### Governance Closure
+
+Accepting a Governance mitigation does not close its finding. Resolve Step 3.5 blockers with the owning agent;
+do not defer a required property-mapping fix to planning. A tag used to select resources is not necessarily the
+property a Modify policy changes. Correct extraction defects in discovery tooling and regenerate from verified
+policy evidence rather than editing generated constraints from a review suggestion alone.
+
+Both `apex-recall complete-step` and `transition --complete` reject present reviews with unresolved must-fix
+findings, wrong artifact/lens bindings or failed freshness checks before changing state. Strict validation requires
+Node and the workspace review validator; unavailable checks fail closed. Missing-review audit flags cannot waive
+invalid present evidence. This gate supplements, rather than replaces, independent review and human approval.
+
+For a separately authorized later Governance pass, explicitly select its same-project review file with
+`--governance-review <path>` and `--governance-review-reason "<reason>"` on either completion command.
+The selected review must pass all strict checks; selection cannot use a missing-review bypass. Completion records
+the filename, pass, byte hash and reason while preserving earlier reviews. No newest-file selection, review-budget
+renewal or human approval is implied. Keep the reviewed artifact unchanged when recording approval.
+
+If accepted edits invalidate Governance's review after its single pass, keep the gate closed and request human
+handoff to Challenger and the owning agent. Do not reset the review allowance. On resume, Governance findings
+and current review hashes must support the `05-IaC Planner` handoff; copied Architecture status is not sufficient.
+
+### Planning Feasibility
+
+If an authorized default-mode comprehensive confirmation is saved separately from the original Plan review,
+select it at completion with `--plan-review <path>` and `--plan-review-reason "<reason>"`. The original review is
+preserved and the selected review must pass strict validation. The filename does not enable deep review or renew
+repair allowances. These flags do not replace deep-review lenses or authorize approval or CodeGen.
+An approved plan remains incomplete until the completion command succeeds; unchanged recorded approval can be
+reused after a tooling repair without repeating the human gate.
+
+Before independent review, Planner checks resource-name bounds for every allowed environment, module/resource scope,
+and the full cost-anomaly provider requirements together. Scheduled actions carry `resources[].deployment` in the
+IaC contract. `InsightAlert` requires subscription scope, a bounded display name, a same-subscription view and a
+deployment-date UTC-midnight schedule of at most 365 days; Bicep also declares the owning module scope.
+These are CodeGen obligations, not proof of provider acceptance or generated-code validation.
+
+Use full artifact paths for contract, consistency, policy-map and environment-manifest validators. Explicit targets
+matching no files now fail. Policy-map coverage recognizes the discovery envelope's lowercase Deny effects and rejects
+missing or downgraded Deny mappings. The review and repair limits remain unchanged; exhausted retries require human
+authorization, not an automatic reset. Existing scheduled-action contracts need their owning Planner to add the
+deployment block and synchronize affected inputs before another authorized review.
 
 ### The Orchestrator Pattern
 
@@ -244,11 +311,11 @@ Output: agent-output/{project}/02-architecture-assessment.md
 - Architecture decisions with rationale
 - Risk identification and mitigation
 
-**Handoff**: Suggests `python-diagrams` or the IaC planning agent.
+**Handoff**: Suggests `apex-python-diagrams` or the IaC planning agent.
 
 ### Step 3: Design Artifacts (🎨 Artisan | Optional)
 
-**Skills**: `python-diagrams`, `azure-adr`
+**Skills**: `apex-python-diagrams`, `apex-azure-adr`
 
 Create visual and textual design documentation.
 
@@ -418,7 +485,7 @@ Invoke: Ctrl+Shift+A → as-built
 Output: agent-output/{project}/07-*.md
 ```
 
-The As-Built agent uses the `azure-artifacts` skill and prior workflow artifacts
+The As-Built agent uses the `apex-azure-artifacts` skill and prior workflow artifacts
 to assemble the final documentation suite.
 
 **Document Suite**:
@@ -500,14 +567,14 @@ Reviews target AI-generated creative decisions (architecture, plan, code)
 **Automatic**: Skills activate based on prompt keywords:
 
 ```text
-"Create an architecture diagram" → python-diagrams skill
-"Document the decision to use AKS" → azure-adr skill
+"Create an architecture diagram" → apex-python-diagrams skill
+"Document the decision to use AKS" → apex-azure-adr skill
 ```
 
 **Explicit**: Reference the skill by name:
 
 ```text
-"Use the azure-artifacts skill to generate documentation"
+"Use the apex-azure-artifacts skill to generate documentation"
 ```
 
 ## Artifact Naming Convention

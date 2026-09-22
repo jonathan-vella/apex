@@ -3,14 +3,61 @@
 from __future__ import annotations
 
 import json
+from types import SimpleNamespace
 
-from ..indexer import _parse_json_safe, ensure_fresh
+from ..indexer import classify_artifact, extract_step
+from ..state_writer import check_state_revision, read_state, session_state_path
+from .complete_step import (
+    _challenger_findings_invalid,
+    _challenger_findings_missing,
+    _select_replacement_review,
+    watch_review_inputs,
+)
+
+
+class ProjectInventory:
+    """Read-only adapter for the existing show presentation; never opens the index."""
+
+    def __init__(self, project):
+        self.primary = session_state_path(project)
+        self.rows = []
+
+    def execute(self, query, params):
+        if "SELECT content" in query:
+            self.rows = [(json.dumps(read_state(self.primary)),)] if self.primary.exists() else []
+        else:
+            self.rows = []
+            for artifact in sorted(self.primary.parent.rglob("*")):
+                if (
+                    artifact.is_file()
+                    and not artifact.is_symlink()
+                    and not artifact.name.startswith(".")
+                    and artifact.suffix not in (".bak", ".lock", ".tmp")
+                ):
+                    self.rows.append(
+                        (
+                            str(artifact.relative_to(self.primary.parent.parent.parent)),
+                            classify_artifact(artifact.name),
+                            extract_step(artifact.name),
+                            artifact.stat().st_mtime,
+                        )
+                    )
+        return self
+
+    def fetchone(self):
+        return self.rows[0] if self.rows else None
+
+    def fetchall(self):
+        return self.rows
+
+    def close(self):
+        pass
 
 
 def run(args) -> int:
     """Full context dump for one project: decisions, findings, current step, key artifacts."""
     project = args.project
-    conn = ensure_fresh()
+    conn = ProjectInventory(project)
     try:
         # Get session state
         row = conn.execute(
@@ -19,8 +66,9 @@ def run(args) -> int:
         ).fetchone()
 
         session = {}
-        if row:
-            data = _parse_json_safe(row[0])
+        primary = session_state_path(project)
+        if row or primary.exists():
+            data = read_state(primary)
             if data and isinstance(data, dict):
                 session = {
                     "current_step": data.get("current_step", 0),
@@ -36,7 +84,33 @@ def run(args) -> int:
                     # never iterates over null. Schema documented in
                     # tools/apex-recall/docs/show-schema.md.
                     "steps": data.get("steps", {}),
+                    "review_selections": data.get("review_selections", {}),
+                    "metadata": data.get("metadata", {}),
+                    "review_attempts": data.get("review_attempts", []),
                 }
+                effective = {}
+                for step in data.get("review_selections", {}):
+                    try:
+                        selected, selection = _select_replacement_review(project, step, SimpleNamespace(), data)
+                        watch_review_inputs(data, project, step, selected)
+                        if data.input_revisions[selected] != selection["stored"]["sha256"]:
+                            raise ValueError("Selected review changed during validation")
+                        missing, _, _ = _challenger_findings_missing(project, step, selected)
+                        error = (
+                            "Selected review missing"
+                            if missing
+                            else _challenger_findings_invalid(project, step, selected)
+                        )
+                        check_state_revision(data, primary)
+                        effective[step] = {
+                            "status": "invalid" if error else "current",
+                            "error": error,
+                            "input_coverage": "primary-and-review-guidance",
+                        }
+                    except (OSError, ValueError) as error:
+                        effective[step] = {"status": "invalid", "error": str(error)}
+                session["effective_reviews"] = effective
+                check_state_revision(data, primary)
 
         # Get all artifacts for this project
         artifacts = conn.execute(
@@ -46,16 +120,14 @@ def run(args) -> int:
             (project,),
         ).fetchall()
 
-        artifact_list = [
-            {"file": a[0], "type": a[1], "step": a[2], "modified": a[3]}
-            for a in artifacts
-        ]
+        artifact_list = [{"file": a[0], "type": a[1], "step": a[2], "modified": a[3]} for a in artifacts]
 
         result = {
             "project": project,
             "session": session,
             "artifacts": artifact_list,
             "artifact_count": len(artifact_list),
+            "state_status": "present" if session else "missing",
         }
 
         if args.json:

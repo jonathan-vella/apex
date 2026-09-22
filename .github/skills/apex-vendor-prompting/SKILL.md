@@ -1,0 +1,173 @@
+---
+name: apex-vendor-prompting
+user-invocable: true
+disable-model-invocation: true
+argument-hint: "agent or prompt path, model family and audit scope"
+description: '**ANALYSIS SKILL** — Manual-only audit of Anthropic Claude and OpenAI GPT-5.6 prompting guidance and APEX conventions. WHEN: explicitly invoked as /apex-vendor-prompting for a vendor-specific prompt audit. DO NOT USE FOR: automatic authoring loads, routine edits covered by instructions, generic Markdown style.'
+license: MIT
+---
+
+# Vendor Prompting Best Practices
+
+Manual-only: use `/apex-vendor-prompting` explicitly for this audit workflow.
+Do not load this skill automatically or read its body to bypass the invocation flag.
+The thin authoring instructions and required vendor validators remain mandatory without this skill.
+
+Audit-grade reference for the prompting patterns published by Anthropic
+(Claude family) and OpenAI, plus explicitly identified APEX conventions. Used to author **and** audit
+`.agent.md` and `.prompt.md` files in this repository.
+
+The machine-readable source of truth is
+[rules.json](rules.json) — every rule has an ID, source citation,
+severity, applies-to, and validator-check binding. The skill prose, the
+thin enforcement instruction
+[vendor-prompting.instructions.md](../../instructions/vendor-prompting.instructions.md),
+and `validate-agents.mjs` all reference rule IDs from that file.
+
+---
+
+## When to Use This Skill
+
+- Authoring a new `.agent.md` or `.prompt.md` and wanting the right
+  vendor patterns up front.
+- Auditing an existing agent against vendor best practices (the
+  audit procedure is in [audit-procedure.md](references/audit-procedure.md)).
+- Investigating a finding from `npm run lint:vendor-prompting` —
+  every finding includes a `ruleId` that maps to a rule in
+  [rules.json](rules.json) and back to a reference here.
+- Choosing the right model family for a new agent (decision rules in
+  [family-support.md](references/family-support.md)).
+
+**Do NOT load this skill** for routine edits where the format is
+already known. The thin instruction
+[vendor-prompting.instructions.md](../../instructions/vendor-prompting.instructions.md)
+auto-loads on `*.agent.md` / `*.prompt.md` edits and carries the
+hard-rule shortlist.
+
+## Decision Tree
+
+```text
+I am editing or reviewing a *.agent.md / *.prompt.md ...
+├── Which model is in the frontmatter?
+│   ├── Claude Opus / Claude Sonnet → load references/claude-best-practices.md
+│   ├── Claude Haiku                → load references/claude-best-practices.md (warn-only)
+│   ├── Sol / Terra / Luna         → load references/gpt-5-prompting.md (APEX convention)
+│   ├── GPT-5.4                     → load references/gpt-5-prompting.md (shared OpenAI cohort)
+│   ├── GPT-Codex / GPT-4o          → reviewer-only; minimal automated rules
+│   └── Missing on prompt          → resolve custom-agent or picker inheritance
+│
+├── Is this a .prompt.md (single string model:) or .agent.md (array)?
+│   ├── prompt → load references/checklists.md "prompt" column
+│   └── agent  → load references/checklists.md "agent" column
+│
+└── Want the full audit procedure (5-15 min, produces written report)?
+    → load references/audit-procedure.md and assets/audit-template.md
+```
+
+## Model-Family Detection
+
+`classifyModel()` lower-cases the `model:` value and matches substrings in priority order
+to assign a family (`claude-opus` / `claude-sonnet` / `claude-haiku` / `claude` / `gpt-5.6-terra`
+/ `gpt-5.6-sol` / `gpt-5.6-luna` / `gpt-5.4` / `gpt-codex` / `gpt-4o` /
+`mai-code` / `unknown`). Validate every ordered fallback label and distinct family.
+Classification does not authorize a label: ordinary labels must exactly match
+the catalog. Only handoff overrides allow documented platform qualification.
+
+Full match table, severity status per family (`enforced` / `warn-only` / `reviewer-only` /
+`out-of-scope`), and rule subsets per family live in
+[`references/family-support.md`](references/family-support.md).
+
+## Reference Index
+
+Load only the references your task needs. Most audits need 1-2.
+
+| Reference                                                       | Load when                                                              |
+| --------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| [claude-best-practices.md](references/claude-best-practices.md) | Authoring or auditing a Claude agent                                   |
+| [gpt-5-prompting.md](references/gpt-5-prompting.md)             | Authoring or auditing a GPT-5.6-Terra agent                            |
+| [gpt-5-upgrade.md](references/gpt-5-upgrade.md)                 | Historical GPT-5.4 → GPT-5.5 prompt-style migration patterns              |
+| [cross-model-rules.md](references/cross-model-rules.md)         | Handoff design, prompt↔agent sync, language calibration                |
+| [family-support.md](references/family-support.md)               | Picking a model family for a new agent                                 |
+| [checklists.md](references/checklists.md)                       | Performing a manual pass-through audit                                 |
+| [audit-procedure.md](references/audit-procedure.md)             | Executing the full 6-step audit                                        |
+
+## Rules
+
+- **Source of truth is `rules.json`** — every rule has an ID, severity, source citation,
+  applies-to, and validator-check binding; this skill prose only references it.
+- **Check every fallback** without adding one; see [Model-Family Detection](#model-family-detection).
+- **Missing prompt models may be inherited**; unknown explicit labels and unknown custom-agent targets fail validation.
+- **Array agent models and string prompt models are APEX conventions**, not YAML limitations.
+  Parentheses are valid YAML scalar content.
+- **Sol/Terra/Luna Markdown is an APEX convention**, informed by pinned OpenAI advice,
+  not model-specific vendor evidence. Preserve exact user-confirmed catalog labels;
+  unknown release/tier metadata stays unknown.
+- **Leaf workers use role contracts**, not mandatory personality or main-agent sections.
+  Convert XML wrappers without deleting their safety or workflow content.
+- **Do NOT load this skill for routine edits** — the auto-loaded thin instruction
+  `vendor-prompting.instructions.md` carries the hard-rule shortlist.
+- **Run `npm run lint:vendor-prompting`** before opening a PR; every finding includes
+  a `ruleId` that maps to a `rules.json` entry.
+- **Verdict thresholds** — APPROVED if zero `error`s and ≤ 5 `warn`s; otherwise NEEDS_REVISION with per-rule remediation
+- **Out of scope**: routine prompt edits where rules are already known, generic markdown style (see `markdown.instructions.md`)
+
+## Steps
+
+This is the canonical audit procedure (full version with templates lives
+in [audit-procedure.md](references/audit-procedure.md)).
+
+1. **Read frontmatter** of the target `.agent.md` / `.prompt.md`.
+   Capture `name`, `model`, `user-invocable`, `agents`, `handoffs[]`.
+2. **Classify model family** using the table above. Note the family's
+  status for every fallback from [family-support.md](references/family-support.md).
+3. **Load the matching checklist** from
+   [checklists.md](references/checklists.md): pick the agent or prompt
+   column, then the family-specific section.
+4. **Run the validator**:
+   `node tools/scripts/validate-agents.mjs --only=vendor-prompting --format=json`
+   and filter by file path. Capture rule IDs + severities.
+5. **Manual pass**: walk the checklist. Each Yes/No carries a rule ID
+   and a verification hint (grep pattern, command, or visual cue).
+6. **Produce a report** using
+   [assets/audit-template.md](assets/audit-template.md). Combine
+   automated findings (step 4) + manual findings (step 5). Verdict =
+   APPROVED if zero `error`s and ≤ 5 `warn`s; otherwise NEEDS_REVISION
+   with per-rule remediation.
+
+## Source Citations
+
+Every rule in [rules.json](rules.json) cites the upstream source by
+`source_id`. The current source set:
+
+- **Anthropic Claude prompting best practices** — live web doc at
+  [platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices).
+  Refresh only with authorized network access via `node tools/scripts/fetch-vendor-prompting-guides.mjs`.
+- **Anthropic Claude Sonnet 5 prompting guide** — live web doc at
+  [platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-sonnet-5](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-sonnet-5).
+  Sonnet-5-specific deltas from Sonnet 4.6 (adaptive thinking default,
+  effort/`xhigh`, new tokenizer, literal instruction following, review
+  harness coverage). Refresh via the same fetcher only when network access is authorized.
+- **OpenAI outcome-first prompting guide** — pinned to
+  `openai/skills@724cd511c96593f642bddf13187217aa155d2554`,
+  `prompting-guide.md`, sha256
+  `ecdf49b4a824a87367c7a6ec3c0218e2c5783dff951b30a101c3b6a95152aafa`.
+- **OpenAI upgrade guide** — same pin, `upgrade-guide.md`, sha256
+  `563784eb13ad1b44c3a592f940aa7ac2086ebeb97df3f4a09ba038b2f1564d39`.
+
+## Freshness
+
+With explicit network authorization, run `node tools/scripts/fetch-vendor-prompting-guides.mjs`
+to refresh snapshots and emit a drift report. The fetch script
+([fetch-vendor-prompting-guides.mjs](../../../tools/scripts/fetch-vendor-prompting-guides.mjs))
+falls back from `gh api` (auth) → anonymous raw → cached committed
+prose if upstream is unavailable.
+
+Cached fallback preserves the last successful `fetched_at` and freshness date;
+`attempted_at` and the failure reason record the separate refresh attempt.
+Missing successful provenance remains unknown. An unchanged successful network
+response may advance freshness; cached reuse cannot establish upstream currency.
+
+Review actual source diffs before updating normalized references and rule citations.
+There is no digest-generation step. Offline audits reuse cached sources without
+changing hashes, fetched timestamps, or claiming refreshed evidence. Source history
+does not establish Sol release, capabilities, cost tiers, or native harness behavior.

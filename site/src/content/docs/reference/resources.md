@@ -34,6 +34,10 @@ The full demo workspace from The Perspectives 2026 session. Includes the React a
 Bicep infrastructure (10 AVM modules), agent output artifacts, and the complete
 malta-catering project that powers the [demo walkthrough](/demo/).
 
+This download is a historical session snapshot, not the current skill distribution.
+Its original skill names and artifacts are preserved. Use the current repository
+for `apex-` skill names and the latest workflow guidance.
+
 <a
   href="/downloads/bmit-2026.zip"
   download

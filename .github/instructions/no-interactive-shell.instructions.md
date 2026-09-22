@@ -1,6 +1,6 @@
 ---
 description: "Prevents interactive shell prompts and long-output terminal replays from being injected into chat. Forbids -i flags on mv/rm/cp, read -p, and confirm prompts (incl. inside bash -c '...'). Pipe long output to files. Scoped to chat-context-loaded files; skill references/ and templates/ are exempt because they hold standalone scripts users run locally."
-applyTo: "**/.github/agents/**/*.agent.md, **/.github/skills/**/SKILL.md, **/.github/instructions/**/*.instructions.md, **/tools/apex-prompts/**/*.prompt.md, **/AGENTS.md, **/.github/copilot-instructions.md, **/README.md"
+applyTo: "**/.github/agents/**/*.agent.md, **/.github/skills/**/SKILL.md, **/.github/instructions/**/*.instructions.md, **/.github/prompts/**/*.prompt.md, **/tools/apex-prompts/**/*.prompt.md, **/AGENTS.md, **/.github/copilot-instructions.md, **/README.md"
 ---
 
 # MANDATORY: No Interactive Shell, No Long-Output Replay
@@ -75,7 +75,10 @@ echo "wrote /tmp/rg-resources.json ($(wc -l </tmp/rg-resources.json) lines)"
 If a >50-line output was produced by mistake, do **not** attempt to
 clear the terminal — the transcript already captured it and `clear`
 does not remove it from the chat history. Note the bloat in
-`apex-recall lessons` and avoid repeating the same command.
+the structured lesson log per
+[`lesson-collection.instructions.md`](lesson-collection.instructions.md)
+and avoid repeating the same command. Register the artifact via recall;
+there is no `apex-recall lessons` subcommand.
 
 ## Rule 4 — Command portability
 

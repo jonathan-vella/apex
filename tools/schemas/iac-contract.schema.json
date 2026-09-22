@@ -18,6 +18,38 @@
   ],
   "additionalProperties": false,
   "properties": {
+    "capability_checks": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "owner",
+          "required_now",
+          "security_obligation",
+          "status",
+          "consumers",
+          "dependencies",
+          "evidence",
+          "runtime_status"
+        ],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "owner": { "type": "string", "minLength": 1 },
+          "required_now": { "type": "boolean" },
+          "security_obligation": { "type": "boolean" },
+          "status": { "enum": ["designed", "unresolved", "deferred"] },
+          "consumers": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+          "dependencies": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+          "evidence": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+          "approval_ref": { "type": "string", "minLength": 1 },
+          "revisit_condition": { "type": "string", "minLength": 1 },
+          "runtime_status": { "enum": ["unverified", "verified", "not-applicable"] }
+        }
+      }
+    },
     "$schema": {
       "type": "string",
       "description": "Optional JSON-Schema reference for editor tooling."
@@ -74,6 +106,30 @@
           "purpose": {
             "type": "string",
             "description": "One-sentence WAF-pillar justification mirrored from 02-architecture-assessment.md."
+          },
+          "deployment": {
+            "type": "object",
+            "description": "Executable CodeGen constraints for scheduled actions; validate before independent review. Bicep module_scope must match the declared resource scope.",
+            "required": ["kind", "scope"],
+            "additionalProperties": false,
+            "properties": {
+              "kind": { "type": "string", "enum": ["InsightAlert", "Email"] },
+              "scope": { "type": "string", "enum": ["subscription", "resourceGroup"] },
+              "module_scope": { "type": "string", "enum": ["subscription", "resourceGroup"] },
+              "display_name_max_length": { "type": "integer", "minimum": 1, "maximum": 25 },
+              "view_scope": { "type": "string", "enum": ["same-subscription"] },
+              "schedule": {
+                "type": "object",
+                "required": ["anchor", "start_time", "end_time", "max_duration_days"],
+                "additionalProperties": false,
+                "properties": {
+                  "anchor": { "type": "string", "const": "deployment-date" },
+                  "start_time": { "type": "string", "const": "00:00:00Z" },
+                  "end_time": { "type": "string", "const": "00:00:00Z" },
+                  "max_duration_days": { "type": "integer", "minimum": 1, "maximum": 365 }
+                }
+              }
+            }
           },
           "tags_inherit": {
             "type": "boolean",

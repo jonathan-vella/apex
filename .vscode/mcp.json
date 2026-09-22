@@ -16,10 +16,13 @@
       "command": "npx",
       "args": [
         "-y",
-        "@azure/mcp@latest",
+        "@azure/mcp@2.0.5",
         "server",
         "start"
-      ]
+      ],
+      "env": {
+        "NPM_CONFIG_ALLOW_REMOTE": "all"
+      }
     }
   }
 }

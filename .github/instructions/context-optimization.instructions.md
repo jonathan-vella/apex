@@ -22,15 +22,13 @@ targets as hard caps; the tables below now match what the validators in
 | ----------------------- | ------------------------------------------ | ------------------------------------------------------------ |
 | Agent body length       | ≤ 600 lines                                | `tools/scripts/_lib/paths.mjs` (`MAX_BODY_LINES`)            |
 | `description` length    | ≤ 350 chars (warn ≥ 300)                   | `validate-agents.mjs` frontmatter check                      |
-| Claude body > 350 lines | requires `<context_awareness>`             | `validate-agents.mjs` Check 3 (`legacy-003`)                 |
-| Claude research agent   | requires `<investigate_before_answering>`  | `validate-agents.mjs` Check 4 (`legacy-004`)                 |
 
 ### Soft guidelines (advisory — not CI-enforced)
 
 | Rule                     | Target           | Rationale                                                              |
 | ------------------------ | ---------------- | --------------------------------------------------------------------- |
 | Tool list size           | ≤ 30 tools       | Each tool adds ~75 tokens to prompt                                   |
-| Agent body length        | ≤ 350 lines      | Soft target; past it add `<context_awareness>` (hard cap is 600)      |
+| Agent body length        | ≤ 350 lines      | Preserve role contracts and stop rules (hard cap is 600)              |
 | Inline template size     | ≤ 50 lines       | Move larger templates to skills                                       |
 | Handoff count            | ≤ 8 handoffs     | Each adds ~40 tokens; orchestrators are exempt (they route every step) |
 | Skill references in body | ≤ 5 "Read" lines | Progressive load, not bulk load                                       |
@@ -40,8 +38,8 @@ targets as hard caps; the tables below now match what the validators in
 | Rule                      | Limit / Target       | Enforced?                                                            |
 | ------------------------- | -------------------- | ------------------------------------------------------------------- |
 | File size                 | ≤ 150 lines (target) | Guideline — split heavy content into a skill `references/` file      |
-| `applyTo: "**"` body size | ≤ 50 lines           | **Enforced** — `validate-glob-audit.mjs` (`MAX_LINES_WITH_WILDCARD`) |
-| Broad-markdown body size  | ≤ 200 lines          | **Enforced** — `validate-glob-audit.mjs` (`MAX_LINES_WITH_BROAD_MD`) |
+| `applyTo: "**"` file size | ≤ 50 lines           | **Warning only** — `validate-glob-audit.mjs`; wildcard always warns, size adds a note |
+| Broad-markdown file size  | ≤ 200 lines          | **Warning only** — `validate-glob-audit.mjs` for an exact recognized broad glob |
 | `applyTo` specificity     | Narrow globs         | Guideline — `**/*.ts` not `**` when possible                         |
 | Avoid `applyTo: "**"`     | Exceptional only     | Loads for every single file match                                   |
 
@@ -63,20 +61,32 @@ applyTo: "**"
 
 | Rule                               | Limit           | Enforced?                                                   |
 | ---------------------------------- | --------------- | ---------------------------------------------------------- |
-| SKILL.md body (no `references/`)   | ≤ 200 lines     | **Enforced** — `paths.mjs` (`MAX_SKILL_LINES_WITHOUT_REFS`) |
-| SKILL.md body (with `references/`) | ≤ 500 lines     | Skill-spec ceiling (guideline)                             |
+| SKILL.md file (no `references/`)   | ≤ 200 lines     | **Error**, except tracked oversized skills warn; `validate-skills.mjs` |
+| SKILL.md body (with `references/`) | ≤ 500 lines     | Skill-spec ceiling (guideline); validator warns when the file exceeds 200 lines |
 | Heavy content                      | → `references/` | Level 3: loaded only when needed                           |
 | Prerequisites section              | Required        | Declare deps, don't surprise agent                         |
 
+These are source checks, not runtime read/token enforcement. The glob auditor
+counts full-file lines and recognizes exact broad-glob values, not every
+equivalent compound pattern. Do not interpret a passing check as runtime
+attachment evidence or proof that every advisory limit is enforced.
+
 ## Hand-Off Decision Framework
 
-Introduce a subagent hand-off when ANY of these conditions are true:
+Consider delegation at a bounded task boundary when one of these signals applies:
 
 1. **Tool-heavy phase**: Agent makes > 5 tool calls in sequence for one subtask
 2. **Domain shift**: Agent transitions between distinct domains (infra → app → docs)
 3. **Context accumulation**: Estimated context > 60% of model limit
 4. **Latency signal**: Turn latency exceeds 15s consistently
 5. **Isolated validation**: Task produces a structured PASS/FAIL result
+
+These signals never authorize topology changes. Check explicit caller allowlists,
+available tools, and actual harness support first. Empty `agents: []` means no
+delegation and needs no `agent` tool. Leaf workers return to their parent without
+questions, todo management, or nested calls. Use a human handoff when required.
+Do not infer runtime cost-tier eligibility from model names or catalog capability
+descriptors; unknown Sol metadata remains unknown.
 
 ## Context Budget Template
 
@@ -96,12 +106,10 @@ Available for conversation: ~169,625 tokens
 Per-turn budget: ~169,625 / 20 turns = ~8,481 tokens/turn average
 ```
 
-Adjust per model. The 200,000-token figure above is the VS Code Copilot Chat
-per-turn budget for the Claude family (Opus 5, Sonnet 5, Haiku 4.5). The
-GPT-5 family (GPT-5.6-Terra, GPT-5.6-Luna) has a 400,000-token per-turn
-budget in VS Code Copilot Chat, so the available conversation pool roughly
-doubles. See
-[`context-management/references/token-estimation.md`](../skills/context-management/references/token-estimation.md)
+This is illustrative arithmetic, not a guaranteed model or harness limit.
+Use observed context limits from the active Local or Agent Host session; do not
+infer Sol limits or multiply a conversation budget by an assumed model tier. See
+[`apex-context-management/references/token-estimation.md`](../skills/apex-context-management/references/token-estimation.md)
 for the per-model breakdown including request multipliers.
 
 ## Anti-Patterns
@@ -112,36 +120,24 @@ for the per-model breakdown including request multipliers.
 | Large JSON embedded in agent body    | Move to `references/` or external file     |
 | Repeating instructions across agents | Single instruction file + `applyTo` glob   |
 | Reading entire files when grep works | Use `grep_search` for targeted extraction  |
-| No hand-offs in 30+ turn sessions    | Split at logical boundaries with subagents |
-| `create_file` to revise a file       | Use `multi_replace_string_in_file` (below) |
+| Long sessions without a boundary     | Consider a permitted handoff or checkpoint |
+| `create_file` to revise a file       | Use an available editing tool (below) |
 
 ## Targeted Edits Over Full Rewrites
 
 **Rule**: Use `create_file` only for first-time artifact creation.
-All revisions MUST use `replace_string_in_file` or
-`multi_replace_string_in_file`.
+Use an available editing tool, including `apply_patch`, for existing files.
 
 | Situation                                       | Correct tool                    |
 | ----------------------------------------------- | ------------------------------- |
 | Initial draft of any file                       | `create_file`                   |
-| Single-spot fix                                 | `replace_string_in_file`        |
-| Multiple fixes across one or more files         | `multi_replace_string_in_file`  |
-| Structural rewrite (≥ 50 % lines or H2 reorder) | `create_file` (with logged ADR) |
+| Single-spot fix                                 | Targeted edit or `apply_patch`  |
+| Multiple independent fixes                      | Batched edits or `apply_patch` |
+| Structural rewrite (≥ 50 % lines or H2 reorder) | Editing tool with logged rationale |
 
-**Bundle all accepted findings into one call.** A 24-finding revision
-is one `multi_replace_string_in_file` call, not 24 sequential edits.
-
-**Cost model** (measured empirically against a Step-2 Architect run
-that consumed 200 K of input tokens):
-
-- Full rewrite of a 200-line artifact: **8–18 K output tokens**, all of
-  which re-enter the context window as input on every subsequent turn.
-- Equivalent multi-edit patch (24 findings): **200–800 tokens** total.
-- Multiplier: **20–60× cheaper per revision**.
-
-For any agent that runs adversarial review and applies fixes
-(`03-Architect`, `05-IaC Planner`, `04g-Governance`), the revision
-phase is the dominant context-bloat risk. Use targeted edits.
+Batch independent accepted fixes where practical; validate before dependent follow-up edits.
+Targeted edits avoid re-emitting unchanged content. Actual token costs depend on the payload,
+model, and runtime; quantify savings only from recorded, reproducible usage, not fixed line-count multipliers.
 
 **Exception logging**: when a full rewrite is genuinely required
 (template bump, > 50 % of lines changed, H2 reordering), record the
@@ -152,18 +148,26 @@ so the choice is auditable.
 
 When loading an artifact file (under `agent-output/`), check conversation length.
 If estimated context usage exceeds 60% of the model limit, use the artifact
-compression tier system from the `context-management` skill (Mode A: Runtime
+compression tier system from the `apex-context-management` skill (Mode A: Runtime
 Compression):
 
-1. **Read** `.github/skills/context-management/SKILL.md` for artifact tier definitions
+1. **Read** `.github/skills/apex-context-management/SKILL.md` for artifact tier definitions
 2. Select tier: `full` (<60%), `summarized` (60-80%), `minimal` (>80%)
 3. Apply compression template for the specific artifact being loaded
 4. Compress older/less-critical artifacts first when loading multiple files
 
 The tier system applies to artifacts in `agent-output/`. Skills are
-single-tier (`SKILL.md`); never re-read a skill that is already in context.
+single-tier (`SKILL.md`); reuse unchanged content still available in context.
+Refresh required content after edits, compaction, or a new chat rather than guessing.
 
 ## Skill Loading
 
-Load skills referenced in the agent body's "Read Skills" section.
-Use context-management runtime tiers to select the right compression level.
+Load the skills required by the current phase; defer optional references.
+Runtime compression tiers apply to artifacts, not alternate skill digests.
+Compaction must not prevent loading missing required guidance for a later phase.
+
+Local prompt files and configured discovery locations are not Agent Host routing
+contracts. Shared skills inherit the caller's model/tools; select the owning agent
+before consequential work. Keep essential runtime rules reachable from agent bodies:
+authoring `applyTo` matches alone do not prove runtime attachment. Preview hooks
+are complementary checks, not the sole approval or security gate.

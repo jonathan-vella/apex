@@ -372,7 +372,12 @@ class TestAtomicWrite:
         # Corrupt the primary file
         primary = workspace / "agent-output" / "bak" / "00-session-state.json"
         primary.write_text("{bad json///")
-        # Next command should recover from .bak
+        rc, out = _run(workspace, ["complete-step", "bak", "1", "--json"])
+        assert rc == 1
+        assert primary.read_text() == "{bad json///"
+        rc, out = _run(workspace, ["recover-state", "bak", "--reason", "Explicit fixture recovery", "--json"])
+        assert rc == 0
+        assert json.loads(out)["outcome"] == "recovered"
         rc, out = _run(workspace, ["complete-step", "bak", "1", "--json"])
         assert rc == 0
         assert json.loads(out)["status"] == "complete"

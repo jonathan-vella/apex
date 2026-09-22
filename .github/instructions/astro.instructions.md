@@ -9,9 +9,9 @@ Standards for the `site/` Astro Starlight documentation project.
 
 ## Project Context
 
-- Astro 6.x with `@astrojs/starlight` — static docs site (SSG only, no SSR)
+- Use the Astro version declared in `site/package.json` with `@astrojs/starlight` (SSG only, no SSR)
 - Site URL: `https://apexops.pro/`
-- Base path: `/apex`
+- Base path: resolve `SITE_BASE` from `site/src/data/siteConfig.mjs`; the current deployment uses `/`
 - Trailing slashes: always (`trailingSlash: "always"`)
 - TypeScript for type safety with auto-generated types
 - Content-driven documentation using Starlight content collections

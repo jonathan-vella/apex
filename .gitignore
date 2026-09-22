@@ -120,7 +120,7 @@ crash.*.log
 .github/data/governance-policy-raw.json
 
 # Vendor-prompting raw fetched snapshots (committed canonical prose lives one level up)
-.github/skills/vendor-prompting/references/.snapshots/
+.github/skills/apex-vendor-prompting/references/.snapshots/
 
 # ESLint + Prettier caches
 .eslintcache

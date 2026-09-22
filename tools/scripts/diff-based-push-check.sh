@@ -73,6 +73,20 @@ run_check() {
   fi
 }
 
+check_tracked_bicep() {
+  local tracked file failed=0
+  tracked=$(git ls-files -- 'infra/bicep/*/main.bicep') || return 1
+  while IFS= read -r file; do
+    [[ -n "$file" ]] || continue
+    if ! bicep build "$file" --stdout > /dev/null; then
+      failed=1
+    elif ! bicep lint "$file"; then
+      failed=1
+    fi
+  done <<< "$tracked"
+  return "$failed"
+}
+
 # Launch all checks in background
 
 # ── Unconditional checks (migrated from post-commit) ──
@@ -82,7 +96,7 @@ run_check "Terminology" "1" "npm run validate:terminology" "terminology" &
 run_check "Safe shell (no interactive prompts)" "1" "npm run lint:safe-shell" "safe-shell" &
 
 # ── File-type-scoped checks ──
-run_check "Bicep lint" "$BICEP_COUNT" "shopt -s nullglob; for f in infra/bicep/*/main.bicep; do bicep build \"\$f\" && bicep lint \"\$f\"; done" "bicep" &
+run_check "Bicep lint" "$BICEP_COUNT" "check_tracked_bicep" "bicep" &
 run_check "Terraform fmt" "$TF_COUNT" "npm run lint:terraform-fmt" "tf-fmt" &
 run_check "Terraform validate" "$TF_COUNT" "npm run validate:terraform" "tf-validate" &
 run_check "Artifact templates" "$MD_ARTIFACT_COUNT" "npm run validate:artifacts" "artifacts" &

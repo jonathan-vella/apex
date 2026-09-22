@@ -12,6 +12,10 @@ sidecar is missing or unreadable, this command **refuses** to mark the
 step complete (exit code 2) — blocking every downstream agent until the
 review is run.
 
+Present reviews must also match the expected artifact/lens, contain no
+must-fix findings, and pass the workspace Node validator's strict freshness
+check. Invalid present evidence cannot be waived with a missing-review skip.
+
 Opt-out: ``--allow-missing-challenger`` together with
 ``--challenger-skip-reason "<text>"`` records an auditable skip in session
 state. Both flags are required for opt-out; the reason persists in
@@ -20,10 +24,16 @@ state. Both flags are required for opt-out; the reason persists in
 
 from __future__ import annotations
 
+import hashlib
 import json
+import re
+import subprocess
+from pathlib import Path
 
 from ..state_writer import (
     _iso_now,
+    check_state_revision,
+    file_revision,
     migrate_to_v3,
     read_state,
     session_state_path,
@@ -44,37 +54,114 @@ _CHALLENGER_GATE: dict[str, tuple[str, str]] = {
 }
 
 
-def _challenger_findings_missing(project: str, step: str) -> tuple[bool, str | None, str | None]:
-    """Return (blocked, gating_path, sidecar_path)."""
+def _review_paths(project: str, step: str, governance_review: Path | None = None) -> list[tuple[Path, Path]]:
     gate = _CHALLENGER_GATE.get(step)
     if not gate:
-        return (False, None, None)
-    gating_name, sidecar_name = gate
-
+        return []
+    gates = [gate]
+    if step in ("2", "4"):
+        state = read_state(session_state_path(project))
+        decisions = state.get("decisions")
+        if isinstance(decisions, dict) and decisions.get("review_depth") == "deep":
+            gates[0] = (gate[0], gate[1].removesuffix(".json") + "-pass1.json")
+    if step == "2":
+        gates.append(("03-des-cost-estimate.md", "challenge-findings-cost-estimate.json"))
     project_dir = session_state_path(project).parent
-    gating_path = project_dir / gating_name
-    sidecar_path = project_dir / sidecar_name
+    if step in ("3_5", "4") and governance_review is not None:
+        return [(project_dir / gate[0], governance_review)]
+    produced = any((project_dir / gating_name).is_file() for gating_name, _ in gates)
+    return [
+        (project_dir / gating_name, project_dir / sidecar_name)
+        for gating_name, sidecar_name in gates
+        if (project_dir / gating_name).is_file() or (step == "2" and produced)
+    ]
 
-    # Skip gate when the step's gating artifact was never produced (e.g.
-    # governance step legitimately skipped because no constraints existed).
-    if not gating_path.is_file():
-        return (False, str(gating_path), str(sidecar_path))
 
-    if not sidecar_path.is_file():
-        return (True, str(gating_path), str(sidecar_path))
-
-    # Sidecar must be non-empty, parseable JSON. Schema shape is enforced
-    # separately by `npm run validate:challenger-findings`; we keep the
-    # runtime gate fast and decoupled (presence + parseability only).
-    try:
-        text = sidecar_path.read_text(encoding="utf-8").strip()
-        if not text:
+def _challenger_findings_missing(
+    project: str, step: str, governance_review: Path | None = None
+) -> tuple[bool, str | None, str | None]:
+    """Return (blocked, gating_path, sidecar_path) for missing/unreadable evidence."""
+    gating_path = sidecar_path = None
+    for gating_path, sidecar_path in _review_paths(project, step, governance_review):
+        if not sidecar_path.is_file():
             return (True, str(gating_path), str(sidecar_path))
-        json.loads(text)
-    except (OSError, json.JSONDecodeError):
-        return (True, str(gating_path), str(sidecar_path))
+        try:
+            text = sidecar_path.read_text(encoding="utf-8").strip()
+            if not text:
+                return (True, str(gating_path), str(sidecar_path))
+            json.loads(text)
+        except OSError, UnicodeError, json.JSONDecodeError:
+            return (True, str(gating_path), str(sidecar_path))
 
-    return (False, str(gating_path), str(sidecar_path))
+    return (False, str(gating_path) if gating_path else None, str(sidecar_path) if sidecar_path else None)
+
+
+def _challenger_findings_invalid(project: str, step: str, governance_review: Path | None = None) -> str | None:
+    """Validate present reviews before mutation; missing-review bypass cannot waive these checks."""
+    root = session_state_path(project).parent.parent.parent.resolve()
+    validator = root / "tools/scripts/validate-challenger-findings.mjs"
+    for artifact, sidecar in _review_paths(project, step, governance_review):
+        if not sidecar.is_file():
+            continue
+        try:
+            document = json.loads(sidecar.read_text(encoding="utf-8"))
+            if not isinstance(document, dict) or not isinstance(document.get("findings"), list):
+                return f"{sidecar}: invalid single-review findings payload"
+            if not artifact.is_file():
+                return f"{artifact}: required reviewed artifact is missing"
+            challenged = document.get("challenged_artifact")
+            if not isinstance(challenged, str) or (root / challenged).resolve() != artifact.resolve():
+                return f"{sidecar}: challenged_artifact does not match the gating artifact"
+            expected_type = {
+                "1": "requirements",
+                "2": "architecture",
+                "3_5": "governance-constraints",
+                "4": "implementation-plan",
+            }[step]
+            expected_focus = "governance-reconciliation" if step == "3_5" else "comprehensive"
+            if artifact.name == "03-des-cost-estimate.md":
+                expected_type, expected_focus = "cost-estimate", "cost-feasibility"
+            elif sidecar.name.endswith("-pass1.json") and step in ("2", "4"):
+                expected_focus = "security-governance"
+            if document.get("artifact_type") != expected_type or document.get("review_focus") != expected_focus:
+                return f"{sidecar}: review type/focus does not match the required gate"
+            expected_pass = int(sidecar.stem.rsplit("-pass", 1)[1]) if governance_review is not None else 1
+            if type(document.get("pass_number")) is not int or document["pass_number"] != expected_pass:
+                return f"{sidecar}: required pass-{expected_pass} review is invalid"
+            if document.get("overall_assessment") in ("BLOCKED", "FAILED"):
+                return f"{sidecar}: reviewer reported blocked/failed"
+            if document.get("must_fix_count") != 0 or any(
+                not isinstance(finding, dict) or finding.get("severity") == "must_fix"
+                for finding in document["findings"]
+            ):
+                return f"{sidecar}: unresolved must_fix findings; decisions are not closure evidence"
+            if not validator.is_file():
+                return f"{validator}: required strict review validator unavailable"
+            result = subprocess.run(
+                ["node", str(validator.resolve()), "--verify-cache", str(sidecar.resolve())],
+                cwd=root,
+                capture_output=True,
+                text=True,
+                timeout=30,
+                check=False,
+            )
+            if result.returncode != 0:
+                return f"{sidecar}: strict review validation failed: {(result.stdout + result.stderr)[-3000:]}"
+        except (OSError, UnicodeError, ValueError, subprocess.SubprocessError) as error:
+            return f"{sidecar}: review verification unavailable or invalid ({error})"
+    return None
+
+
+def _report_invalid_review(project: str, step: str, reason: str, as_json: bool) -> int:
+    message = {
+        "project": project,
+        "step": step,
+        "error": "challenger_findings_invalid",
+        "reason": reason,
+        "remediation": "Return to the artifact owner and 10-Challenger for current review and blocker closure. Preserve retry limits; do not restamp hashes.",
+    }
+    print(json.dumps(message) if as_json else f"Refusing completion: {reason}\n{message['remediation']}")
+    return 2
 
 
 def _record_skip(data: dict, step: str, reason: str, now: str) -> None:
@@ -84,14 +171,155 @@ def _record_skip(data: dict, step: str, reason: str, now: str) -> None:
     skips.append({"step": step, "reason": reason, "recorded": now})
 
 
+def _select_replacement_review(
+    project: str, step: str, args, state: dict | None = None
+) -> tuple[Path | None, dict | None]:
+    governance = getattr(args, "governance_review", None) is not None or bool(
+        getattr(args, "governance_review_reason", None)
+    )
+    plan = getattr(args, "plan_review", None) is not None or bool(getattr(args, "plan_review_reason", None))
+    if governance and plan:
+        raise ValueError("Select only one step-specific replacement review")
+    option, expected_step, label, stem = (
+        ("plan_review", "4", "Plan", "plan")
+        if plan
+        else ("governance_review", "3_5", "Governance", "governance-constraints")
+    )
+    selected = getattr(args, option, None)
+    reason = (getattr(args, f"{option}_reason", None) or "").strip()
+    if selected is None and not reason:
+        state = state if state is not None else read_state(session_state_path(project))
+        stored = state.get("review_selections", {}).get(step)
+        if stored is None:
+            return None, None
+        if not isinstance(stored, dict) or stored.get("schema_version") != "review-selection-v1":
+            raise ValueError("Unsupported review selection; explicit owner migration required")
+        from types import SimpleNamespace
+
+        prefix = "plan" if step == "4" else "governance"
+        selected_path, selection = _select_replacement_review(
+            project,
+            step,
+            SimpleNamespace(
+                **{
+                    f"{prefix}_review": stored.get("path"),
+                    f"{prefix}_review_reason": "Reuse explicitly stored review selection",
+                    "allow_missing_challenger": getattr(args, "allow_missing_challenger", False),
+                }
+            ),
+            state,
+        )
+        if file_revision(selected_path) != stored.get("sha256"):
+            raise ValueError("Selected review bytes changed; explicit owner resolution required")
+        if any(stored.get(key) != selection["stored"].get(key) for key in ("pass_number", "review_focus", "path")):
+            raise ValueError("Stored selection metadata does not match selected evidence")
+        selection["stored"] = stored
+        return selected_path, selection
+    if step != expected_step or not selected or not reason:
+        raise ValueError(
+            f"{label} replacement selection requires Step {expected_step}, a review path and its audit reason"
+        )
+    if plan:
+        state = state if state is not None else read_state(session_state_path(project))
+        if state.get("decisions", {}).get("review_depth") == "deep":
+            raise ValueError(
+                "--plan-review selects a default comprehensive confirmation, not a deep-review lens replacement"
+            )
+    if getattr(args, "allow_missing_challenger", False):
+        raise ValueError("A selected review cannot use the missing-review bypass")
+    project_dir = session_state_path(project).parent.resolve()
+    candidate = Path(selected)
+    if not candidate.is_absolute():
+        candidate = project_dir.parent.parent / candidate
+    if candidate.is_symlink() or candidate.parent.resolve() != project_dir or not candidate.is_file():
+        raise ValueError("Selected review must be a regular, non-symlink file in the current project")
+    match = re.fullmatch(rf"challenge-findings-{stem}-pass([2-9][0-9]*|1[0-9]+)\.json", candidate.name)
+    if not match:
+        raise ValueError(f"Select an explicitly authorized later {label} pass using its canonical filename")
+    original = project_dir / _CHALLENGER_GATE[expected_step][1]
+    if not original.is_file():
+        raise ValueError(f"Preserve the original {label} review before selecting a replacement")
+    digest = hashlib.sha256(candidate.read_bytes()).hexdigest()
+    entry = {
+        "decision": f"Select {label} replacement review for completion",
+        "rationale": f"{reason}; review={candidate.name}; pass={match[1]}; sha256={digest}",
+        "step": expected_step,
+    }
+    entry["stored"] = {
+        "schema_version": "review-selection-v1",
+        "path": str(candidate.resolve().relative_to(project_dir.parent.parent)),
+        "sha256": digest,
+        "pass_number": int(match[1]),
+        "review_focus": "comprehensive" if plan else "governance-reconciliation",
+        "input_coverage": "primary-and-review-guidance",
+    }
+    return candidate.resolve(), entry
+
+
+def _select_governance_review(project: str, step: str, args) -> tuple[Path | None, dict | None]:
+    return _select_replacement_review(project, step, args)
+
+
+def watch_review_inputs(data, project: str, step: str, selected: Path | None) -> None:
+    root = session_state_path(project).parent.parent.parent
+    paths = [path for pair in _review_paths(project, step, selected) for path in pair]
+    for _, sidecar in _review_paths(project, step, selected):
+        if sidecar.is_file():
+            try:
+                document = json.loads(sidecar.read_text(encoding="utf-8"))
+                for supporting in document.get("supporting_inputs", []):
+                    supporting_path = root / supporting["path"]
+                    paths.append(supporting_path)
+            except ValueError, TypeError, KeyError, AttributeError:
+                pass
+    if step in _CHALLENGER_GATE:
+        paths += [session_state_path(project).parent / name for name in _CHALLENGER_GATE[step]]
+    if step == "2":
+        paths += [
+            session_state_path(project).parent / name
+            for name in ("03-des-cost-estimate.md", "challenge-findings-cost-estimate.json")
+        ]
+    paths += [
+        root / name
+        for name in [
+            ".github/agents/_subagents/challenger-review-subagent.agent.md",
+            ".github/skills/apex-azure-defaults/references/adversarial-checklists.md",
+            ".github/skills/apex-azure-defaults/references/adversarial-review-protocol.md",
+            "tools/scripts/validate-challenger-findings.mjs",
+        ]
+    ]
+    data.input_revisions.update({path: file_revision(path) for path in paths})
+
+
+def record_selection(data: dict, step: str, selection: dict | None, now: str) -> None:
+    if selection:
+        stored = {**selection["stored"]}
+        stored.setdefault("selected_at", now)
+        data.setdefault("review_selections", {})[step] = stored
+        data.setdefault("decision_log", []).append(
+            {
+                **{key: value for key, value in selection.items() if key != "stored"},
+                "timestamp": now,
+            }
+        )
+
+
 def run(args) -> int:
     project = args.project
     step = validate_step_key(args.step)
     as_json = getattr(args, "json", False)
     allow_missing = getattr(args, "allow_missing_challenger", False)
     skip_reason = (getattr(args, "challenger_skip_reason", None) or "").strip()
+    data = read_state(session_state_path(project))
 
-    blocked, gating_path, sidecar_path = _challenger_findings_missing(project, step)
+    try:
+        governance_review, selection = _select_replacement_review(project, step, args, data)
+        watch_review_inputs(data, project, step, governance_review)
+        if selection and data.input_revisions[governance_review] != selection["stored"]["sha256"]:
+            raise ValueError("Selected review changed before validation")
+    except (OSError, ValueError) as error:
+        return _report_invalid_review(project, step, str(error), as_json)
+    blocked, gating_path, sidecar_path = _challenger_findings_missing(project, step, governance_review)
     if blocked and not allow_missing:
         msg = {
             "project": project,
@@ -104,7 +332,7 @@ def run(args) -> int:
                 "against the gating artifact and produce the required findings "
                 "sidecar, then re-run `apex-recall complete-step`. To bypass "
                 "intentionally, pass --allow-missing-challenger "
-                "--challenger-skip-reason \"...\""
+                '--challenger-skip-reason "..."'
             ),
         }
         if as_json:
@@ -122,19 +350,41 @@ def run(args) -> int:
             "project": project,
             "step": step,
             "error": "challenger_skip_reason_required",
-            "remediation": "Provide --challenger-skip-reason \"<auditable reason>\"",
+            "remediation": 'Provide --challenger-skip-reason "<auditable reason>"',
         }
         if as_json:
             print(json.dumps(msg))
         else:
-            print(
-                "--allow-missing-challenger requires --challenger-skip-reason "
-                "\"<reason>\" for the audit trail."
-            )
+            print('--allow-missing-challenger requires --challenger-skip-reason "<reason>" for the audit trail.')
         return 2
 
-    path = session_state_path(project)
-    data = read_state(path)
+    invalid = _challenger_findings_invalid(project, step, governance_review)
+    if invalid:
+        return _report_invalid_review(project, step, invalid, as_json)
+    check_state_revision(data, session_state_path(project))
+
+    prior = data.get("review_selections", {}).get(step)
+    selected = selection.get("stored") if selection else None
+    same_selection = (
+        not selected
+        or prior
+        and all(prior.get(key) == value for key, value in selected.items() if key != "selected_at")
+    )
+    if data.get("steps", {}).get(step, {}).get("status") == "complete" and same_selection:
+        print(
+            json.dumps(
+                {
+                    "project": project,
+                    "step": step,
+                    "status": "complete",
+                    "outcome": "already_applied",
+                    "completed": data["steps"][step].get("completed"),
+                }
+            )
+            if as_json
+            else f"Step {step} already complete"
+        )
+        return 0
     data = migrate_to_v3(data)
 
     step_data = data["steps"].get(step, {})
@@ -146,6 +396,7 @@ def run(args) -> int:
 
     if blocked and allow_missing:
         _record_skip(data, step, skip_reason, now)
+    record_selection(data, step, selection, now)
 
     write_state(project, data)
 
@@ -173,7 +424,7 @@ def run(args) -> int:
 
 
 # Step ordering for the JSON hint. Mirrors the workflow graph at
-# .github/skills/workflow-engine/templates/workflow-graph.json. Keep in
+# .github/skills/apex-workflow-engine/templates/workflow-graph.json. Keep in
 # sync if the workflow changes.
 _STEP_ORDER = ["1", "2", "3", "3_5", "4", "5", "6", "7"]
 

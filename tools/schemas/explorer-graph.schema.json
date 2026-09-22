@@ -44,7 +44,20 @@
             "type": "string",
             "description": "Relative file path (must exist on disk)."
           },
-          "description": { "type": "string" }
+          "description": { "type": "string" },
+          "meta": {
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "invocable": { "type": "boolean" },
+              "disableModelInvocation": { "type": "boolean" },
+              "argumentHint": { "type": ["string", "null"] },
+              "context": {
+                "type": ["string", "null"],
+                "description": "Declared source context, or null when absent; not proof of runtime support."
+              }
+            }
+          }
         }
       }
     },

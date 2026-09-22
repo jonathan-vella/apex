@@ -2,7 +2,7 @@
 
 Snapshot-diff evidence that the single-pass `comprehensive` lens covers
 ≥ 80 % of the must_fix-eligible line items from each per-lens checklist
-in [.github/skills/azure-defaults/references/adversarial-checklists.md](../../.github/skills/azure-defaults/references/adversarial-checklists.md)
+in [.github/skills/apex-azure-defaults/references/adversarial-checklists.md](../../.github/skills/apex-azure-defaults/references/adversarial-checklists.md)
 for the `architecture` and `implementation-plan` artifact types.
 
 Produced as part of Phase 2 of `plan-simplifyChallengerReviews.prompt.md`.

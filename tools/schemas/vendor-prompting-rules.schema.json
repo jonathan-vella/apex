@@ -56,6 +56,7 @@
               "claude",
               "gpt-5.6-terra",
               "gpt-5.6-luna",
+              "gpt-5.6-sol",
               "gpt-5.5",
               "gpt-5.4",
               "gpt-codex",
@@ -114,6 +115,7 @@
                 "claude",
                 "gpt-5.6-terra",
                 "gpt-5.6-luna",
+                "gpt-5.6-sol",
                 "gpt-5.5",
                 "gpt-5.4",
                 "gpt-codex",
@@ -135,6 +137,11 @@
           },
           "summary": { "type": "string", "maxLength": 240 },
           "rationale": { "type": "string" },
+          "policy_origin": {
+            "type": "string",
+            "enum": ["repository-convention"],
+            "description": "Identifies an APEX convention informed by the cited source, not a model-specific vendor requirement."
+          },
           "source_id": {
             "type": "string",
             "description": "References sources[].id"

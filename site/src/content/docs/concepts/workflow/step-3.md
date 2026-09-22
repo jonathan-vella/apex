@@ -18,9 +18,9 @@ straight to Step 3.5 Governance.
 
 [`04-Design`](https://github.com/jonathan-vella/apex/blob/main/.github/agents/04-design.agent.md)
 — delegates to the
-[`python-diagrams`](https://github.com/jonathan-vella/apex/blob/main/.github/skills/python-diagrams/SKILL.md)
+[`apex-python-diagrams`](https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-python-diagrams/SKILL.md)
 and
-[`azure-adr`](https://github.com/jonathan-vella/apex/blob/main/.github/skills/azure-adr/SKILL.md)
+[`apex-azure-adr`](https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-adr/SKILL.md)
 skills.
 
 ## Invocation
@@ -35,10 +35,10 @@ Output: agent-output/{project}/03-des-diagram.py + .png + .svg
 
 | Artifact            | Tooling                | Purpose                                            |
 | ------------------- | ---------------------- | -------------------------------------------------- |
-| Architecture diagram | python-diagrams        | Reproducible Azure system view                     |
-| Runtime-flow diagram | python-diagrams        | Request paths and async messaging                  |
-| Dependency diagram   | python-diagrams        | Resource dependency tree                           |
-| ADR                  | azure-adr skill        | WAF-mapped decisions with alternatives             |
+| Architecture diagram | apex-python-diagrams        | Reproducible Azure system view                     |
+| Runtime-flow diagram | apex-python-diagrams        | Request paths and async messaging                  |
+| Dependency diagram   | apex-python-diagrams        | Resource dependency tree                           |
+| ADR                  | apex-azure-adr skill        | WAF-mapped decisions with alternatives             |
 
 ## Review
 
@@ -51,7 +51,7 @@ Governance`](/concepts/workflow/step-3-5/).
 
 ## See also
 
-- [`python-diagrams`
-  skill](https://github.com/jonathan-vella/apex/blob/main/.github/skills/python-diagrams/SKILL.md)
-- [`azure-adr`
-  skill](https://github.com/jonathan-vella/apex/blob/main/.github/skills/azure-adr/SKILL.md)
+- [`apex-python-diagrams`
+  skill](https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-python-diagrams/SKILL.md)
+- [`apex-azure-adr`
+  skill](https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-adr/SKILL.md)

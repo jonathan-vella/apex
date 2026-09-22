@@ -26,20 +26,21 @@ const WORKFLOWS_DIR = ".github/workflows";
 //   1. Accelerator-only — exists in accelerator, never overwrite from upstream
 //      (e.g. the sync workflow itself).
 //   2. Upstream-only — relevant only to the upstream repo's own infrastructure
-//      (docs site deploy, link-check, e2e validation, sensei-branch maintenance);
+//      (docs site deploy, link-check, sensei-branch maintenance);
 //      consumer projects should not run them.
 const SKIP_FILES = new Set([
   // Accelerator-only
   "weekly-upstream-sync.yml",
-  // Upstream-only (docs site, link-check, e2e tests, sensei branch lifecycle).
+  // Upstream-only (docs site, link-check, sensei branch lifecycle).
   // The accelerator sync excludes site/, so every docs-site workflow would fail
   // in consumer repos (no site/src/content/docs to lint or build).
   "docs.yml",
   "docs-checks.yml",
   "docs-gardening.yml",
   "link-check.yml",
-  "e2e-validation.yml",
   "sensei-branch-maintenance.yml",
+  // Retired: prevent older upstream revisions from reinstalling this workflow.
+  "e2e-validation.yml",
 ]);
 
 const args = process.argv.slice(2);

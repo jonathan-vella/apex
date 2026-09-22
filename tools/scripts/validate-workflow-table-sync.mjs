@@ -21,7 +21,7 @@
 import fs from "node:fs";
 import { Reporter } from "./_lib/reporter.mjs";
 
-const GRAPH_PATH = ".github/skills/workflow-engine/templates/workflow-graph.json";
+const GRAPH_PATH = ".github/skills/apex-workflow-engine/templates/workflow-graph.json";
 const TABLE_FILES = ["AGENTS.md"];
 const LINK_FILES = [
   {

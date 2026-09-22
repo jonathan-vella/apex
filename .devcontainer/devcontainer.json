@@ -1,6 +1,9 @@
 {
   "name": "APEX",
-  "image": "mcr.microsoft.com/devcontainers/base:ubuntu26.04",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": "."
+  },
 
   "features": {
     "ghcr.io/devcontainers/features/azure-cli:1": {
@@ -14,7 +17,7 @@
       "version": "3.14",
       "installTools": false
     },
-    "ghcr.io/devcontainers/features/node:": {
+    "ghcr.io/devcontainers/features/node:2": {
       "version": "lts",
       "pnpmVersion": "none"
     },
@@ -25,9 +28,9 @@
     "ghcr.io/azure/azure-dev/azd:latest": {}
   },
 
-  // Lifecycle commands - chain apt operations to avoid lock conflicts
-  // Lifecycle: onCreateCommand runs first (system packages + uv), then postCreateCommand (tools), then postStartCommand (updates)
-  "onCreateCommand": "set -e; sudo rm -f /etc/apt/sources.list.d/yarn.list 2>/dev/null; sudo apt-get update; sudo apt-get install -y graphviz dos2unix bats; sudo install -d -m 0755 -o vscode -g vscode \"$HOME/.cache\" \"$HOME/.local/bin\"; dos2unix .devcontainer/*.sh 2>/dev/null || true; npm install --global npm@12.0.2; curl -LsSf https://astral.sh/uv/install.sh | sh; if ! command -v az >/dev/null 2>&1; then curl -fsSL -o /tmp/install-azure-cli.sh https://aka.ms/InstallAzureCLIDeb; sudo DIST_CODE=noble bash /tmp/install-azure-cli.sh; rm -f /tmp/install-azure-cli.sh; fi",
+  // OS tools, uv and gitleaks are installed in the image before features run.
+  // Locked Azure CLI 1.3.0 supports resolute; fail if its installation is unusable.
+  "onCreateCommand": "az version --output none",
   "postCreateCommand": "bash .devcontainer/post-create.sh",
   "postStartCommand": "bash .devcontainer/post-start.sh",
 
@@ -45,11 +48,9 @@
   "remoteEnv": {
     "PATH": "/home/vscode/.local/bin:${containerEnv:PATH}",
     "AZURE_DEFAULTS_LOCATION": "swedencentral",
-    // Pass GH_TOKEN from host → container. gh CLI uses it automatically, no `gh auth login` needed.
-    // Each user sets this once in VS Code User Settings (Ctrl+,):
-    //   "terminal.integrated.env.linux": { "GH_TOKEN": "ghp_yourTokenHere" }
-    // This is the ONLY supported method — shell exports (.bashrc/.profile) do NOT propagate reliably.
-    // Value is empty string if not set — gh CLI falls back to its normal auth flow.
+    // Forward GH_TOKEN from the host process environment inherited by VS Code.
+    // terminal.integrated.env.* configures terminals, not this localEnv substitution.
+    // If unset, gh can use credentials in its mounted config volume.
     "GH_TOKEN": "${localEnv:GH_TOKEN}"
   },
 
@@ -136,6 +137,7 @@
   // - Azure CLI: Host's ~/.azure (Linux/macOS) or %USERPROFILE%\.azure (Windows)
   // - GitHub CLI: Docker volume (Windows uses keyring, can't be mounted; Linux/macOS use files)
   // - UV cache: Docker volume for Python package cache
+  // - Terraform providers: Docker volume for downloaded provider packages
   "mounts": [
     {
       "source": "${localEnv:USERPROFILE}${localEnv:HOME}/.azure",
@@ -150,6 +152,11 @@
     {
       "source": "devcontainer-uv-cache-${devcontainerId}",
       "target": "/home/vscode/.cache/uv",
+      "type": "volume"
+    },
+    {
+      "source": "devcontainer-tf-cache-${devcontainerId}",
+      "target": "/home/vscode/.terraform.d/plugin-cache",
       "type": "volume"
     }
   ],

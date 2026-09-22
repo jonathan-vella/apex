@@ -10,42 +10,42 @@
     },
     "requirements": {
       "agent": ".github/agents/02-requirements.agent.md",
-      "model": "Claude Sonnet 5",
+      "model": "GPT-5.6 Sol (copilot)",
       "invokable": true,
       "step": 1
     },
     "architect": {
       "agent": ".github/agents/03-architect.agent.md",
-      "model": "Claude Opus 5",
+      "model": "GPT-5.6 Sol (copilot)",
       "invokable": true,
       "step": 2
     },
     "design": {
       "agent": ".github/agents/04-design.agent.md",
-      "model": "Claude Sonnet 5",
+      "model": "GPT-5.6 Terra (copilot)",
       "invokable": true,
       "step": 3
     },
     "governance": {
       "agent": ".github/agents/04g-governance.agent.md",
-      "model": "GPT-5.6-Luna",
+      "model": "GPT-5.6 Luna (copilot)",
       "invokable": true,
       "step": 3.5
     },
     "iac-plan": {
       "agent": ".github/agents/05-iac-planner.agent.md",
-      "model": "Claude Opus 5",
+      "model": "GPT-5.6 Sol (copilot)",
       "invokable": true,
       "step": 4
     },
     "iac-code": {
       "bicep": {
         "agent": ".github/agents/06b-bicep-codegen.agent.md",
-        "model": "Claude Sonnet 5"
+        "model": "GPT-5.6 Terra (copilot)"
       },
       "terraform": {
         "agent": ".github/agents/06t-terraform-codegen.agent.md",
-        "model": "Claude Sonnet 5"
+        "model": "GPT-5.6 Terra (copilot)"
       },
       "invokable": true,
       "step": 5
@@ -53,99 +53,93 @@
     "deploy": {
       "bicep": {
         "agent": ".github/agents/07b-bicep-deploy.agent.md",
-        "model": "GPT-5.6-Luna"
+        "model": "GPT-5.6 Luna (copilot)"
       },
       "terraform": {
         "agent": ".github/agents/07t-terraform-deploy.agent.md",
-        "model": "GPT-5.6-Luna"
+        "model": "GPT-5.6 Luna (copilot)"
       },
       "invokable": true,
       "step": 6
     },
     "as-built": {
       "agent": ".github/agents/08-as-built.agent.md",
-      "model": "Claude Sonnet 5",
+      "model": "GPT-5.6 Terra (copilot)",
       "invokable": true,
       "step": 7
     },
     "diagnose": {
       "agent": ".github/agents/09-diagnose.agent.md",
-      "model": "GPT-5.6-Terra",
+      "model": "GPT-5.6 Terra (copilot)",
       "invokable": true,
       "step": null
     },
     "challenger": {
       "agent": ".github/agents/10-challenger.agent.md",
-      "model": "GPT-5.6-Luna",
+      "model": "GPT-5.6 Terra (copilot)",
       "invokable": true,
       "step": null
     },
     "context-optimizer": {
       "agent": ".github/agents/11-context-optimizer.agent.md",
-      "model": "Claude Sonnet 5",
+      "model": "GPT-5.6 Sol (copilot)",
       "invokable": true,
-      "step": null
-    },
-    "e2e-orchestrator": {
-      "agent": ".github/agents/e2e-orchestrator.agent.md",
-      "model": "GPT-5.6-Terra",
-      "invokable": false,
       "step": null
     }
   },
   "subagents": {
     "challenger-review-subagent": {
       "agent": ".github/agents/_subagents/challenger-review-subagent.agent.md",
-      "model": "GPT-5.6-Terra",
+      "model": "GPT-5.6 Terra (copilot)",
       "invokable": false
     },
     "cost-estimate-subagent": {
       "agent": ".github/agents/_subagents/cost-estimate-subagent.agent.md",
-      "model": "GPT-5.6-Luna",
+      "model": "GPT-5.6 Luna (copilot)",
       "invokable": false
     },
     "bicep-validate-subagent": {
       "agent": ".github/agents/_subagents/bicep-validate-subagent.agent.md",
-      "model": "Claude Sonnet 5",
+      "model": "GPT-5.6 Luna (copilot)",
       "invokable": false
     },
     "bicep-whatif-subagent": {
       "agent": ".github/agents/_subagents/bicep-whatif-subagent.agent.md",
-      "model": "Claude Sonnet 5",
+      "model": "GPT-5.6 Luna (copilot)",
       "invokable": false
     },
     "terraform-validate-subagent": {
       "agent": ".github/agents/_subagents/terraform-validate-subagent.agent.md",
-      "model": "Claude Sonnet 5",
+      "model": "GPT-5.6 Luna (copilot)",
       "invokable": false
     },
     "terraform-plan-subagent": {
       "agent": ".github/agents/_subagents/terraform-plan-subagent.agent.md",
-      "model": "Claude Sonnet 5",
+      "model": "GPT-5.6 Luna (copilot)",
       "invokable": false
     },
     "policy-precheck-subagent": {
       "agent": ".github/agents/_subagents/policy-precheck-subagent.agent.md",
-      "model": "Claude Sonnet 5",
+      "model": "GPT-5.6 Luna (copilot)",
       "invokable": false
     }
   },
   "prompts": {
     "apex-git-commit": {
       "prompt": ".github/prompts/apex-git-commit.prompt.md",
-      "model": "GPT-5.4 mini",
+      "model": "MAI-Code-1.1-Flash",
       "description": "Stage, commit, push, and optionally open a PR. CLI-only (git + gh).",
       "invokable": true
     },
     "apex-resume-workflow": {
       "prompt": ".github/prompts/apex-resume-workflow.prompt.md",
       "model": null,
-      "description": "Resume the multi-step workflow after /clear. Detects project and next step from session state.",
+      "description": "Entrypoint to canonical Orchestrator recovery after /clear.",
       "invokable": true
     },
     "apex-debug-log-export": {
       "prompt": ".github/prompts/apex-debug-log-export.prompt.md",
-      "model": "GPT-5.4 mini",
+      "model": "MAI-Code-1.1-Flash",
       "description": "Extract and compress custom-agent Copilot debug logs into .apex-logs/ for manual upload.",
       "invokable": true
     }

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 
 from . import __version__
@@ -140,6 +141,11 @@ def build_parser() -> argparse.ArgumentParser:
     p_ra.add_argument("--skip", action="append", default=None, help="Skip pass number (repeatable)")
     p_ra.add_argument("--skip-reason", action="append", default=None, help="Skip reason (repeatable)")
     p_ra.add_argument("--json", action="store_true", help="Output as JSON")
+    p_ra.add_argument("--attempt-id", default=None, help="Caller-assigned durable attempt identity")
+    p_ra.add_argument("--attempt-kind", choices=["invocation", "repair", "empty-output-retry"], default=None)
+    p_ra.add_argument("--input-digest", default=None, help="SHA-256 of the frozen input set")
+    p_ra.add_argument("--attempt-outcome", choices=["started", "completed", "failed", "unknown"], default=None)
+    p_ra.add_argument("--retry-of", default=None, help="Original attempt ID for an identical-input empty-output retry")
 
     # transition — composite checkpoint + decide + complete-step + start next
     # (#425, Wave 4). Atomic across a single 00-session-state.json write.
@@ -174,6 +180,33 @@ def build_parser() -> argparse.ArgumentParser:
         help="Required audit reason when --allow-missing-challenger is used.",
     )
     p_tr.add_argument("--json", action="store_true", help="Output as JSON")
+
+    for completion_parser in (p_complete, p_tr):
+        completion_parser.add_argument(
+            "--plan-review",
+            default=None,
+            help="Explicit later comprehensive Plan review path; Step 4 default-mode completion only.",
+        )
+        completion_parser.add_argument(
+            "--plan-review-reason",
+            default=None,
+            help="Required audit reason for selecting an authorized Plan confirmation; not human approval.",
+        )
+        completion_parser.add_argument(
+            "--governance-review",
+            default=None,
+            help="Explicit later Governance review path (absolute or workspace-relative); Step 3.5 completion only.",
+        )
+        completion_parser.add_argument(
+            "--governance-review-reason",
+            default=None,
+            help="Required audit reason for selecting a separately authorized replacement review; not human approval.",
+        )
+
+    recovery = sub.add_parser("recover-state", help="Explicitly restore valid backup of corrupt/missing primary state")
+    recovery.add_argument("project")
+    recovery.add_argument("--reason", required=True, help="Audit reason; healthy state is never rolled back")
+    recovery.add_argument("--json", action="store_true")
 
     return parser
 
@@ -217,6 +250,16 @@ def main(argv: list[str] | None = None) -> int:
         from .commands.review_audit import run
     elif args.command == "transition":
         from .commands.transition import run
+    elif args.command == "recover-state":
+
+        def run(options):
+            from .state_writer import recover_state
+
+            if not options.reason.strip():
+                raise ValueError("Recovery requires a non-empty audit reason")
+            result = recover_state(options.project, options.reason.strip())
+            print(json.dumps(result) if options.json else f"Recovered {options.project}; revision {result['revision']}")
+            return 0
     else:
         parser.print_help()
         return 1
@@ -224,6 +267,20 @@ def main(argv: list[str] | None = None) -> int:
     try:
         return run(args)
     except Exception as e:
+        from .state_writer import IndexCommitError, StateConflict
+
+        if isinstance(e, IndexCommitError):
+            payload = {
+                "outcome": "committed_but_index_stale",
+                "revision": e.revision,
+                "error": str(e),
+                "recovery": "Run apex-recall reindex; do not repeat the completed mutation",
+            }
+            print(json.dumps(payload) if getattr(args, "json", False) else str(e))
+            return 3
+        if isinstance(e, StateConflict):
+            print(json.dumps({"outcome": "conflict", "error": str(e)}) if getattr(args, "json", False) else str(e))
+            return 2
         print(f"Error: {e}", file=sys.stderr)
         return 1
 

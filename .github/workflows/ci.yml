@@ -35,6 +35,12 @@ jobs:
       - name: Install bats
         run: sudo apt-get install -y bats
 
+      - name: Setup Terraform for executable tool tests
+        uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: "1.16.2"
+          terraform_wrapper: false
+
       - name: Lint Markdown
         run: npm run lint:md
 
@@ -92,7 +98,10 @@ jobs:
           # apex-recall ships its own deps via pyproject; install in editable mode
           # so its tests can import the package without sys.path hacks.
           python -m pip install -e tools/apex-recall
-          python -m pip install pytest ruff
+          python -m pip install -r requirements.txt
+
+      - name: Install Graphviz renderer
+        run: sudo apt-get update && sudo apt-get install -y graphviz
 
       - name: Lint Python (ruff)
         run: npm run lint:python

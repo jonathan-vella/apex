@@ -1,0 +1,320 @@
+<!-- ref:codegen-shared-workflow-v1 -->
+
+# Codegen Shared Workflow
+
+Shared workflow phases for both Bicep and Terraform code generation agents.
+Each agent reads this reference and substitutes its IaC-specific tools.
+
+## Plan-Lock Contract (HARD GATE, applies to all phases)
+
+After gate-3 (Plan Approval), these artifacts are **read-only** for the
+CodeGen agents (06b / 06t):
+
+- `agent-output/{project}/04-implementation-plan.md`
+- `agent-output/{project}/04-governance-constraints.md`
+- `agent-output/{project}/04-governance-constraints.json`
+
+Rules:
+
+1. **No self-edit.** CodeGen agents MUST NOT write to any frozen artifact via
+   `apply_patch`, `replace_string_in_file`, `multi_replace_string_in_file`, or
+   `create_file`. Apex-recall `decide` / `finding` entries are allowed (they
+   write to session state, not the artifacts).
+2. **No plan-level challenger.** Challenger subagents invoked from Step 5 MUST
+   use `artifact_type = "iac-code"` and target `infra/{tool}/{project}/`. Do
+   NOT pass `artifact_type = "implementation-plan"` from Step 5.
+3. **Plan must_fix → Return to Planner.** If a code-review pass surfaces a
+   finding whose root cause is in the plan (missing resource, wrong topology,
+   unsatisfiable governance), STOP Step 5 and traverse the `↩ Return to
+Step 4` handoff. Do not patch the plan in place.
+4. **Plan readiness precondition.** Before entering Phase 1, confirm
+  `apex-recall show <project> --json` shows Step 4 complete with current required
+  review evidence. Use the explicitly selected, audited confirmation when present;
+  preserved superseded findings are history, not current blockers. Deep-mode required
+  lenses still apply. Missing/stale selected evidence or current blockers return to Planner.
+  Use `session.review_selections` and `session.effective_reviews` from `apex-recall show --json` for newly persisted
+  selections. Review selection does not authorize operations. Missing legacy structured selection requires explicit
+  owner selection, not parsing audit prose; separately required contract and operational checks still apply.
+
+## Phase 1: Preflight Check
+
+For each resource in `04-iac-contract.json` (with the implementation plan as its prose mirror):
+
+1. Verify the approved AVM module and version using the supported metadata workflow:
+
+   - Bicep: available AVM metadata tools or the existing AVM index/resolver.
+   - Terraform: public Terraform Registry API metadata for the approved exact version.
+
+   Preserve the plan's exact module pins; failed lookup or a required version change
+   returns to the Planner, not a new version selection in CodeGen.
+
+2. Cross-check planned parameters against the module schema; flag type mismatches
+3. Check region limitations
+4. Save results to `agent-output/{project}/04-preflight-check.md`
+5. If blockers found, use `askQuestions` to present them and collect the user's decision
+   (fix and re-run, or abort and return to Planner)
+
+### Exact inputs and AVM evidence
+
+Read and run the explicit artifact-path commands in
+[Contract Integrity Gate](contract-emission-and-handoff.md#phase-1--contract-integrity-gate-mandatory).
+Before parameter checks, follow [input resolution](../../apex-azure-defaults/references/identity-resolution.md#resolve-before-asking).
+Do not pass a bare project name to contract, consistency, policy-map or environment-manifest validators.
+An unsupported `--help` argument is not validation; consult that command's Usage section instead of guessing flags.
+Run from the verified workspace root. Reuse unchanged required guidance still in context rather than reloading skills.
+
+Bicep module catalogs establish published pins, not parameter compatibility. Inspect the returned JSON shape before
+filtering: a wrapped `modules[]` response is not a top-level array. Never substitute the latest catalog pin for the
+approved version. If exact interfaces are missing, restore only approved references from an isolated temporary Bicep
+manifest with authorized network access; no project module or upstream artifact need be created to restore metadata.
+Do not use `--force` for healthy cached pins. Discover actual cache files before selecting the approved module/version;
+do not construct escaped dollar-sign paths from memory. The cache layout is CLI-specific, not a public API.
+
+For each upcoming module, inspect parameter types, required/defaulted fields, allowed values, nested definitions and
+outputs actually used by its planned bindings. Listing `parameters | keys` verifies names only. Record that limited
+evidence as such; do not claim full parameter/type compatibility until those checks pass. Schema availability does
+not verify service-side deployment rules or regional capacity. Reuse inspected exact-version evidence while current.
+
+For SQL S2 and ordinary App Service Plans, inspect concrete generated provider properties, not AVM parameter names alone.
+Use `node tools/scripts/validate-provider-payload.mjs --input <resolved-resource-array> --s2-max-bytes <approved-bytes>`
+on a provenance-backed extraction. Unresolved expressions are unverified, not passes. Verify the SQL byte-size against
+current target-region capabilities and approved requirements; do not assume the module's 32-GiB default works for S2.
+Ordinary serverfarm network properties are not application VNet integration. Do not enable custom mode or add an ASE/Web
+App to repair that mismatch. Verify identity separately. Plan/manifest conflicts require one consolidated owner correction.
+
+## Phase 1.5: Governance Compliance Mapping
+### Azure Monitor reachability
+
+For Log Analytics and Application Insights, disabled public ingestion/query flags are access restrictions, not
+proof of private connectivity. Before claiming observability readiness, reconcile each required producer and query
+client with the approved access path. Private querying requires an Azure Monitor Private Link Scope (AMPLS),
+resource associations, its private endpoint, service-correct DNS and a reachable authorized client network.
+Reuse an existing shared scope only with verified ownership, associations and connectivity evidence.
+
+If these dependencies are absent from frozen inputs, stop the affected observability readiness claim and return
+the discrepancy to Planner. Do not enable public access, add AMPLS/resources or change scope/budget in CodeGen.
+An explicitly approved deferred telemetry/query capability must be reported as deferred, not operationally ready.
+Evaluate ingestion paths separately: service-delivered platform diagnostics and SDK/agent traffic need not have
+the same network behavior. Do not infer that every ingestion path is blocked, or that successful resource creation
+proves query access. Verify service-specific exceptions before relying on them.
+Read-only shared-path discovery does not authorize redesign or establish tenant-wide absence. Carry the scope,
+remaining unknowns and conditional capacity/cost estimates from the
+[reconciliation evidence rules](contract-emission-and-handoff.md#shared-path-reconciliation-evidence) into the handoff.
+
+Reference: [Azure Monitor private-link configuration](https://learn.microsoft.com/en-us/azure/azure-monitor/fundamentals/private-link-configure).
+
+### Policy mapping
+
+Gate: do not proceed to code generation with unresolved Deny policy violations.
+
+1. Read `04-governance-constraints.json` — extract all `Deny` policies
+2. Map policy property paths to IaC-specific arguments:
+   - Bicep: use `azurePropertyPath` (fall back to `bicepPropertyPath`), drop leading resource-type segment
+   - Terraform: use `azurePropertyPath`, translate via the resource type mapping table in `.github/instructions/references/iac-policy-compliance.md`
+3. Build compliance map: resource type → IaC property → required value
+4. Merge governance tags with baseline defaults (governance wins)
+5. Validate every planned resource can comply
+6. If any Deny policy is unsatisfiable, use `askQuestions` to present the unresolved
+   policies and collect user decision (return to Planner or override)
+
+Policy Effect Reference: `apex-azure-defaults/references/policy-effect-decision-tree.md`
+
+## Phase 1.6: Context Compaction
+
+Before code generation, select runtime compression from observed context usage:
+
+1. Summarize prior phases in a single concise message (preflight result, governance map,
+   deployment strategy, resource list with module paths/sources)
+2. Avoid optional or redundant reads; load missing required phase guidance before using it.
+  Skills remain single-tier, with no digest/minimal variants.
+3. Reuse unchanged predecessor content still available in context. After edits,
+  compaction, or a new chat, refresh only the needed sections; never infer missing contract fields.
+4. Update session state: `sub_step: "phase_1.6_compacted"`
+
+## Phase 2: Output Cadence (Bounded Validated Batches)
+
+Continue approved generation in bounded dependency-ordered batches without asking for routine next-file permission.
+Use at most three new source files per batch, validate each edit before dependent work, then checkpoint the batch.
+Continue the next batch in the same turn while scope, tools and context remain valid. A batch boundary is not a
+human approval gate. An explicit user request for one file or an earlier stop takes precedence.
+The per-tool file-order tables define dependency order, not response boundaries. No live deployment is authorized.
+
+### Cadence per file
+
+1. Announce on one short line: `Generating: <path> (n/total)`.
+2. Use editing tools, preserving existing user work; run the focused build/shape check immediately.
+3. Repair a confirmed local defect within existing caps and rerun that check. Do not move to dependent work on failure.
+4. Continue automatically; stop only for an unresolved blocker, ownership/scope change, required approval or context loss.
+
+### Build cadence (early-warning, not full validation)
+
+After each edit, check build readiness and run the narrowest available toolchain check;
+at each batch boundary and on completion run the root build
+using the execution mechanism allowed by the agent's tool/subagent budget:
+
+- Bicep: `bicep build infra/bicep/{project}/main.bicep`
+- Terraform: `terraform -chdir=infra/terraform/{project} validate`
+
+Use actual emitted-file count, not file-order table ordinals. If the entrypoint or required
+local dependencies have not yet been emitted, record the check as deferred (not passed), continue
+the approved dependency order, and run it as soon as the scaffold is buildable.
+Provider/module initialization must be ready before Terraform validate; never infer readiness from
+the existence of `.terraform/` alone. A real compile/validation failure blocks further unrelated generation
+until repaired and rechecked. Per-write applicable shape checks still run, including Terraform formatting.
+Perform a final build for the last partial group; no completion or handoff with deferred checks.
+
+### Root dependency checks before deferring a build
+
+A missing-module build cannot validate the deployment graph. Inspect root wiring against the approved dependency
+contract even when the scaffold is incomplete. Module declaration order, `resourceId(...)`, and names passed to
+`resourceGroup(...)` do not create deployment dependencies. In `all` mode, every RG-scoped module must wait for the
+resource-group creation, and consumers must wait for network, DNS, identity and diagnostics prerequisites.
+Prefer actual module outputs for implicit edges when their interfaces are verified; when using constructed IDs for
+phase-safe reuse, add explicit prerequisite `dependsOn` edges. Do not serialize unrelated resources or alter scope.
+Validate both `all` and separately selected phases; prerequisites omitted by a phase must already exist, not be
+silently created. Check emitted ARM dependencies once the scaffold builds. Terraform follows the same ownership
+graph using output references or explicit dependencies where needed, not Bicep syntax.
+
+If an early build is attempted, defer only errors traced to known, not-yet-emitted approved module files (and their
+dependent invalid references). Missing external modules, syntax/type errors and unrelated diagnostics are real
+failures. Report outstanding warnings separately; never infer provider correctness from a deferred build. Preserve
+the bounded validated batch cadence and continue the next approved module, not a repeat full preflight.
+Missing module interfaces can mask additional semantic errors. Reclassify all diagnostics whenever a module is
+added; BCP265 function shadowing and BCP134 scope mismatch are real source failures even alongside BCP091.
+Use role-specific module symbols rather than names of Bicep scope functions. A mechanical repair to an existing
+root after its child compiles remains in scope; validate it before the next approved dependent module.
+
+This is in addition to — not a replacement for — the full
+`bicep-validate-subagent` / `terraform-validate-subagent` runs in Phase 4.
+
+### Resume after a length-limit abort
+
+If a prior turn aborted with the length-limit error:
+
+- Inspect the next file against approved inputs; existence alone does not prove a complete write.
+  Preserve complete matching files. Stop for an ownership decision on unexpected user changes;
+  repair a confirmed partial agent write with an editing tool before continuing.
+- Preserve ambiguous lines and custom wiring until ownership is established or the
+  user explicitly authorizes the specific edit. Syntax errors, validation failures
+  and plan conflicts do not establish ownership or authorize deletion or replacement.
+  If recovery requires changing that content, stop for clarification and keep the
+  affected validation and deployment handoff blocked; never repair by discarding it.
+- Resume at the next missing or confirmed incomplete file, validate it, then continue the bounded batch.
+- Do **not** re-emit any file already on disk.
+- Do not reconstruct lost content from memory; recover the relevant contract and continue the validated batch.
+- If state is unclear, list `infra/{tool}/{project}/` first to confirm
+  which files exist, then resume from the first missing entry in the
+  file-order table.
+
+### Anti-patterns (root causes of length-limit aborts)
+
+- Emitting `main.bicep` plus 5 modules plus `azure.yaml` plus `deploy.ps1`
+  in one response.
+- Treating a numbered "Round" as permission to skip per-edit checks or exceed the batch bound.
+- Asking for routine continuation after each file when no approval or decision is needed.
+- Bundling file creation with verbose narration of all files at once
+  ("Here are all the modules: ...").
+
+## Phase 4.5: Adversarial Code Review (opt-in, default-skip)
+
+Before final validation, finish approved parameter and deployment-support artifacts. Missing generated files are
+unfinished CodeGen work, not a reason to hand a blocked package to Deploy. Resolve inputs before requesting values;
+do not run the independent validator again merely because the prior successful run had untidy output or timing.
+
+Read `apex-azure-defaults/references/adversarial-review-protocol.md` for the
+lens table and invocation template.
+
+**Default**: Phase 4.5 is skipped (`step-5b/5t.challenger.default_passes = 0`).
+Opt-in triggers: `decisions.review_depth == "deep"` OR an explicit
+`10-Challenger` invocation.
+
+When opted in, follow the recommended shape from
+`step-5b.challenger.opt_in_matrix` / `step-5t.challenger.opt_in_matrix` in `workflow-graph.json`
+for the current `decisions.complexity`:
+
+- `simple` → 1× `comprehensive`
+- `standard` → 2 passes (`security-governance` → `architecture-reliability`)
+- `complex` → 3 passes (`security-governance` → `architecture-reliability` → `cost-feasibility`)
+
+Apply the cascade early-exit rules from
+`adversarial-review-protocol.md → ## Opt-in: Deep adversarial review`.
+
+Invoke challenger subagents with `artifact_type = "iac-code"`, rotating `review_focus` per protocol.
+
+Write results to `challenge-findings-iac-code-pass{N}.json`.
+Fix any `must_fix` items, re-validate, re-run failing pass.
+Save validation status in `05-implementation-reference.md`. Artifact lint is
+owned by the lefthook `artifact-validation` pre-commit hook and the
+`10-Challenger` review — do not invoke `npm run lint:artifact-templates` here
+(see
+[`agent-authoring.instructions.md`](../../../instructions/agent-authoring.instructions.md#no-direct-markdownlint-on-agent-output-rule)).
+
+### Batched User Decisions
+
+When a challenger pass surfaces findings that require user input, build a
+**single** `vscode_askQuestions` invocation with one question per decision —
+do NOT issue sequential prompts. Pattern:
+
+1. Group findings into decision buckets (e.g. `must_fix_A`, `must_fix_B`,
+   `should_fix_C`, …) and assign each a stable `header` slug for answer
+   mapping.
+2. Emit one `askQuestions` call with the full list. The user fills the
+   inline form once.
+3. Persist the answers via `apex-recall decide --key <header> --value <choice>`
+   for each non-skipped answer.
+
+Batch currently known findings within each pass. New blockers, changed inputs
+or a later review may require another question; never suppress a required gate
+to meet a call budget. Persist per-finding actions under the canonical review
+protocol, including explicit Edit rationale; unresolved must-fix findings block
+in every mode, including unattended execution.
+
+### Preflight Blocker Form
+
+When Phase 1 preflight finds blockers (AVM schema mismatch, region
+limitation, version pin conflict), surface them via a single
+`askQuestions` call:
+
+- **header**: `Preflight Blockers Found`
+- **question**: 1-line summary referencing `04-preflight-check.md` for
+  details (e.g. "2 AVM schema mismatches, 1 region limitation. See
+  04-preflight-check.md for details.")
+- **options**:
+  - `Fix and re-run preflight` (recommended) — for plan-input revisions or
+    module substitutions, STOP and present the Return to Step 4 human handoff
+    to Planner. CodeGen must not edit plan inputs or substitute modules itself.
+    Await Planner's revised, approved inputs before re-entering Phase 1.
+  - `Abort — return to Planner` — STOP, present the Return to Step 4
+    handoff, leave session state at Step 5 awaiting Planner rev.
+
+Never enumerate the blockers in chat prose and ask the user to reply;
+always use the form so a single-shot answer captures intent.
+
+### Mechanical Auto-Fix Before Exiting (MANDATORY)
+
+Before emitting the Step 5 completion handoff, run a mechanical fix pass on
+the IaC tree. NEEDS_REVISION must not exit Step 5 if any MEDIUM finding is
+in this set — fix them in place and re-validate:
+
+- **LAW `dependsOn` wiring** — when a module reads from
+  `logAnalyticsWorkspaceResourceId` but the module is not in `dependsOn`,
+  inject the dependency. Same rule for App Insights → LAW and any
+  diagnostic-settings consumer.
+- **CIDR parameterization** — replace hardcoded `10.x.x.x/yy` strings in
+  module bodies with parameters declared in `main.bicep` /
+  `variables.tf`, defaulted to the original value so callers stay
+  unchanged.
+- **Missing `@description` on parameters** — add a one-line description
+  derived from the parameter name.
+- **Tag map / object completion** — when a tag key in the baseline (four
+  defaults + governance) is missing on a resource, inject it from the
+  central `tags` map / variable rather than asking the user.
+
+These fixes are mechanical and do not change the architecture; they DO
+NOT trigger a return to Planner. After applying, re-run
+`bicep-validate-subagent` / `terraform-validate-subagent`. Re-run the
+failing challenger pass only if any non-mechanical finding remains.
+
+Exit-state contract: Step 5 may exit only when the validator returns
+`APPROVED`, or when remaining findings are explicitly accepted via an
+`apex-recall decide` override entry with `--rationale`.

@@ -5,65 +5,70 @@ description: "Complete skills and subagent reference"
 
 ## Skills
 
-Skills are invoked automatically by agents, but you can also reference them
-directly in prompts.
+Skills load according to their invocation flags. Eligible skills can load automatically;
+manual-only skills require explicit invocation. Skills inherit the caller's model/tools,
+not a new agent identity or permissions. See [Repository Slash Prompts](../repository-prompts/)
+for Local adapters and manual Host entries.
 
-### agent-authoring
+### apex-agent-authoring
 
 Creates, restructures, and audits Copilot agents while keeping enforceable
-rules in thin auto-loaded instructions and optional guidance on demand.
+rules in thin authoring instructions and optional guidance on demand. Owns agent fleet
+and `.github` authoring assessments; each produces a plan and stops before edits.
+Assessment design history is reference-only. Supplied runtime profiles inform scores,
+but log capture and context audits remain with `apex-context-management`.
 
 ```text
-Use the agent-authoring skill to reduce the fixed context cost of
+Use the apex-agent-authoring skill to reduce the fixed context cost of
 .github/agents/03-architect.agent.md without changing its runtime contract.
 ```
 
-### azure-defaults
+### apex-azure-defaults
 
 Provides regions, tags, naming conventions, AVM module references, and
 security baselines. This is the foundational skill — agents read it before
 every task.
 
 ```text
-@workspace What are the default required tags from azure-defaults?
+@workspace What are the default required tags from apex-azure-defaults?
 ```
 
-### python-diagrams
+### apex-python-diagrams
 
 Generates architecture diagrams and WAF/cost/compliance charts with Python.
 
 ```text
-Generate an architecture diagram for infra/bicep/my-project/ using python-diagrams.
+Generate an architecture diagram for infra/bicep/my-project/ using apex-python-diagrams.
 ```
 
-### azure-bicep-patterns
+### apex-azure-bicep-patterns
 
 Provides reusable Bicep patterns: hub-spoke networking, private endpoints,
 diagnostic settings, conditional deployments, and AVM module composition.
 
 ```text
-@workspace Show me the private endpoint pattern from azure-bicep-patterns.
+@workspace Show me the private endpoint pattern from apex-azure-bicep-patterns.
 ```
 
-### terraform-patterns
+### apex-terraform-patterns
 
 Provides reusable Terraform patterns: hub-spoke networking, private endpoints,
 diagnostic settings, AVM-TF module composition, and known AVM pitfalls.
 
 ```text
-@workspace Show me the hub-spoke pattern from terraform-patterns.
+@workspace Show me the hub-spoke pattern from apex-terraform-patterns.
 ```
 
-### azure-diagnostics
+### apex-azure-diagnostics
 
 KQL templates, metric thresholds, health checks, and remediation playbooks
 for diagnosing Azure resource issues.
 
 ```text
-@workspace What KQL queries are available in azure-diagnostics?
+@workspace What KQL queries are available in apex-azure-diagnostics?
 ```
 
-### azure-adr
+### apex-azure-adr
 
 Creates Architecture Decision Records following a structured template.
 
@@ -72,10 +77,11 @@ Document the decision to use Azure Front Door instead of
 Application Gateway as an ADR.
 ```
 
-### github-operations
+### apex-github-operations
 
 Full contribution lifecycle: branch naming, conventional commits, GitHub issues,
-PRs, Actions, and releases. Uses MCP tools first, falls back to `gh` CLI.
+PRs, Actions, and releases. Uses `gh` CLI first for GitHub operations, with MCP fallback
+under the owning skill's tool contract. Commit and push remain explicitly requested operations.
 
 ```text
 @workspace What commit message format does this repo use?
@@ -86,25 +92,57 @@ Create a GitHub issue for adding monitoring to the payment gateway.
 Label it with 'enhancement' and 'infrastructure'.
 ```
 
-### docs-writer
+### apex-docs-writer
 
-Generates and maintains documentation following repository standards.
-
-```text
-Update the docs to reflect the new Diagnose agent we added.
-```
-
-### sensei
-
-Iteratively improves skill frontmatter compliance using the Ralph loop pattern.
-Use this skill after scaffolding a new skill, or to bring an existing skill
-back to compliance.
+Maintains documentation and owns doc gardening, docs peer review, and Astro docs review.
+Manual-only: invoke `/apex-docs-writer` or explicitly select its documentation prompt adapter.
+Routine changes still require documentation updates under the file instructions; no automatic skill load is needed.
+Peer review is read-only; Astro review is report-only unless `--apply-fixes` explicitly
+enables its narrow allow-list. Quality-score and debt updates require human review.
 
 ```text
-Run sensei on the azure-validate skill to fix its frontmatter.
+/apex-docs-writer Update the docs to reflect the new Diagnose agent we added.
 ```
 
-### azure-artifacts
+### apex-vendor-prompting
+
+Manual-only vendor-specific prompt audits. The thin authoring instructions and automated vendor validators remain
+mandatory during ordinary agent edits; they do not require loading this extended audit workflow.
+
+```text
+/apex-vendor-prompting Audit .github/agents/03-architect.agent.md without editing it.
+```
+
+### apex-terraform-search-import
+
+Manual-only discovery and import planning for existing Azure resources. Invocation does not authorize Terraform
+state changes or apply; scope confirmation and import-only plan approval remain separate gates.
+
+```text
+/apex-terraform-search-import Plan adoption of the selected resource group. Do not apply or change state.
+```
+
+### apex-unslop
+
+Manual-only prose cleanup, adapted from Lauren Tan's MIT-licensed Unslop skill in Cursor's pstack plugin.
+Invoke it explicitly; it is not automatically loaded by agents or included as a required workflow step.
+Its small discovery metadata may still be available to the editor; manual-only does not mean zero context overhead.
+
+```text
+/apex-unslop Review README.md for filler and unclear sentences. Do not edit files.
+```
+
+```text
+/apex-unslop Edit the selected draft paragraph for a technical audience.
+Preserve facts, citations, qualifications and terminology.
+```
+
+The skill preserves required headings, identifiers, numbers and uncertainty. It does not edit approved or
+hash-reviewed artifacts as a style pass; proposed changes return to the owning agent for normal review.
+It neither detects AI authorship nor replaces technical validation. Source tests verify configuration and
+guardrail wording; native slash discovery and editing behavior still require runtime verification.
+
+### apex-azure-artifacts
 
 Artifact template structures, H2 compliance rules, and documentation
 styling for all agent outputs (all steps).
@@ -113,50 +151,47 @@ styling for all agent outputs (all steps).
 @workspace What H2 headings are required in the implementation plan template?
 ```
 
-### context-optimizer
-
-Audits agent context window usage via debug logs, token profiling,
-and redundancy detection. Produces optimisation recommendations.
-
-```text
-Analyse the last Copilot Chat debug log and identify context waste.
-```
-
-### context-management
+### apex-context-management
 
 Unified context-window management. Two modes: **runtime compression**
 (full / summarised / minimal artefact tiers used by orchestrator and
 codegen agents) and **diagnostic audit** (post-mortem token profiling
 and hand-off gap analysis used by the 11-Context Optimizer agent).
-Replaces the legacy `context-shredding` and `context-optimizer` skills.
+Owns debug-log export and context-audit procedures. Authoring assessments live in
+`apex-agent-authoring`; runtime data is never inferred from static checks.
 
 ```text
-@workspace What compression tiers does context-management define
+@workspace What compression tiers does apex-context-management define
 for the architecture assessment artifact?
 ```
 
-### golden-principles
+### apex-golden-principles
 
-The 10 agent-first operating principles governing how agents work in
-this repository. Defines governance invariants and philosophy.
+The agent-first operating principles governing how agents work in
+this repository. See the [canonical principles][golden-principles] for governance invariants and philosophy.
+
+[golden-principles]: https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-golden-principles/SKILL.md
 
 ```text
 @workspace What are the golden principles for agent behaviour?
 ```
 
-### iac-common
+### apex-iac-common
 
 Shared IaC patterns for deploy agents: CLI auth validation, deployment
 strategies, known issues, and governance-to-code property mapping.
 
 ```text
-@workspace What are the known deployment issues in iac-common?
+@workspace What are the known deployment issues in apex-iac-common?
 ```
 
-### workflow-engine
+### apex-workflow-engine
 
 Machine-readable workflow DAG for the multi-step pipeline. Defines node
-types, edge conditions, gates, and fan-out patterns.
+types, edge conditions, gates, and fan-out patterns. Owns shared workflow entry and
+recovery. On Host, select `01-Orchestrator`, invoke `apex-host-workflow-start`, and
+explicitly choose `resume` to recover an existing project. It does not approve or
+advance gates automatically. Docs procedures belong to `apex-docs-writer`.
 
 ```text
 @workspace Show the workflow graph edges and gate conditions.

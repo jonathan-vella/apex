@@ -1,13 +1,13 @@
 # Quality Score
 
-> Project health at a glance. Updated by the doc-gardening workflow and manual review.
-> Exact entity counts are computed dynamically — see `tools/registry/count-manifest.json`.
+> Grades and pass/freshness claims below are historical, not a current validation result.
+> Entity inventory definitions are maintained in `tools/registry/count-manifest.json`.
 
 | Domain          | Grade | Status                                                                  | Next Action                                |
 | --------------- | ----- | ----------------------------------------------------------------------- | ------------------------------------------ |
-| Agents          | A     | 16 primary + 6 subagents; all pass structural + model-prompt checks     | Monitor via `validate:agents`              |
-| Skills          | A     | 46 skills; all lint clean; references and canary markers present        | Monitor via `lint:skills-format`           |
-| Instructions    | A     | 26 instructions; 0 orphaned refs; all applyTo globs have matching files | Monitor via `lint:glob-audit`              |
+| Agents          | A     | Primary agents and subagents | Monitor via `validate:agents` |
+| Skills          | A     | Discoverable skills | Monitor via `lint:skills-format` |
+| Instructions    | A     | Scoped instruction files | Monitor via `lint:glob-audit` |
 | Infrastructure  | A-    | Bicep + Terraform merged; IaC content archived as .tar.gz (by design)   | Expand Terraform E2E templates when needed |
 | Documentation   | A     | Docs fresh; no stale files; lint:md 0 errors; freshness report clean    | Run doc-gardening after structural changes |
 | CI / Validation | A     | Core repository validation is clean                                    | Monitor via `validate:all`                 |
@@ -153,7 +153,7 @@
 
 ## How to Update
 
-1. Run the doc-gardening prompt: `.github/prompts/doc-gardening.prompt.md`
+1. Run the [doc-gardening prompt](tools/apex-prompts/utility-prompts/doc-gardening.prompt.md).
 2. Review findings and update grades above
 3. Log changes in the Change Log table
-4. Update `docs/exec-plans/tech-debt-tracker.md` for tracked debt items
+4. Update the [debt tracker](tools/tests/exec-plans/tech-debt-tracker.md) for tracked debt items.

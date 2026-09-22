@@ -71,6 +71,7 @@ def patch_workspace(workspace: Path):
     """Patch config to use the test workspace."""
     with (
         patch("apex_recall.config.find_workspace_root", return_value=workspace),
+        patch("apex_recall.state_writer.find_workspace_root", return_value=workspace),
         patch("apex_recall.indexer.get_db_path", return_value=workspace / "tmp" / ".apex-recall.db"),
         patch(
             "apex_recall.indexer.get_agent_output_dir",

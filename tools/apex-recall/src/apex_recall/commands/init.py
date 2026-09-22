@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import sys
 
-from ..state_writer import make_template, session_state_path, write_state
+from ..state_writer import StateDocument, file_revision, make_template, session_state_path, write_state
 
 
 def run(args) -> int:
@@ -24,6 +24,8 @@ def run(args) -> int:
         return 1
 
     data = make_template(project)
+    if force and path.exists():
+        data = StateDocument(data, path, file_revision(path))
     written = write_state(project, data)
 
     if as_json:

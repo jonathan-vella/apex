@@ -38,7 +38,7 @@ State lives in three deliberately separate places:
 | -------------------------------------------------------------- | -------------------------------------------------- | ---------------------- |
 | `agent-output/{project}/`                                      | Versioned artifacts (markdown, JSON, diagrams)     | Per-project, on disk   |
 | `apex-recall` session store                                    | Decisions, findings, step status, governance trace | Per-project, queryable |
-| `.github/skills/workflow-engine/templates/workflow-graph.json` | DAG — nodes, edges, gates, return edges, plan-lock | Repo-wide, read-only   |
+| `.github/skills/apex-workflow-engine/templates/workflow-graph.json` | DAG — nodes, edges, gates, return edges, plan-lock | Repo-wide, read-only   |
 
 ```mermaid
 flowchart LR
@@ -149,7 +149,7 @@ file syntax. Hooks and the challenger never overlap responsibilities.
 
 Every stage section follows the same sub-template so it is scannable. Counts
 of resources, lenses, or passes come from
-[`workflow-graph.json`](https://github.com/jonathan-vella/apex/blob/main/.github/skills/workflow-engine/templates/workflow-graph.json)
+[`workflow-graph.json`](https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-workflow-engine/templates/workflow-graph.json)
 — treat that file as authoritative.
 
 ### Step 0 — Project Init (Orchestrator boot)
@@ -182,9 +182,9 @@ decisions.review_depth`](https://github.com/jonathan-vella/apex/blob/main/.githu
   manifest revision 1. `requires: []`; `produces: 01-requirements.md`,
   `sku-manifest.json`, `sku-manifest.md`.
 - **Driving agent** — `02-Requirements` (no subagents).
-- **Skills auto-loaded** — `azure-defaults` (regions, tags, naming),
-  `azure-artifacts` (H2 templates).
-- **Instructions activated** — `agent-operating-frame`, `azure-artifacts`,
+- **Skills auto-loaded** — `apex-azure-defaults` (regions, tags, naming),
+  `apex-azure-artifacts` (H2 templates).
+- **Instructions activated** — `agent-operating-frame`, `apex-azure-artifacts`,
   `sku-manifest`, `no-interactive-shell`.
 - **Data sources** — none beyond user answers; lessons from prior runs are
   optionally surfaced by Orchestrator init.
@@ -208,9 +208,9 @@ decisions.review_depth`](https://github.com/jonathan-vella/apex/blob/main/.githu
 - **Purpose & inputs** — Produce WAF-pillar-scored architecture and a
   cost estimate. `requires: gate-1`; mutates `sku-manifest`.
 - **Driving agent** — `03-Architect` with `cost-estimate-subagent`.
-- **Skills auto-loaded** — `azure-defaults`, `azure-artifacts`,
-  `microsoft-docs` (on demand), `context-management`.
-- **Instructions activated** — `agent-operating-frame`, `azure-artifacts`,
+- **Skills auto-loaded** — `apex-azure-defaults`, `apex-azure-artifacts`,
+  `apex-microsoft-docs` (on demand), `apex-context-management`.
+- **Instructions activated** — `agent-operating-frame`, `apex-azure-artifacts`,
   `sku-manifest`.
 - **Data sources** — `avm-module-index.json` (lifecycle status),
   `azure-deprecations.json`, Azure Resource Manager MCP (via subagent).
@@ -236,9 +236,9 @@ decisions.review_depth`](https://github.com/jonathan-vella/apex/blob/main/.githu
   `requires: gate-2`; produces `03-des-diagram.{py,png,svg}`, `03-des-adr-*.md`.
 - **Driving agent** — `04-Design`. Optional — users can skip directly to
   Step 3.5 governance.
-- **Skills auto-loaded** — `python-diagrams`, `azure-adr`,
-  `azure-defaults`, `azure-artifacts`.
-- **Instructions activated** — `azure-artifacts`,
+- **Skills auto-loaded** — `apex-python-diagrams`, `apex-azure-adr`,
+  `apex-azure-defaults`, `apex-azure-artifacts`.
+- **Instructions activated** — `apex-azure-artifacts`,
   `agent-operating-frame`.
 - **Data sources** — `avm-module-index.json` for module-aware diagrams.
 - **`apex-recall`** — `checkpoint`, `complete-step 3`.
@@ -256,11 +256,11 @@ decisions.review_depth`](https://github.com/jonathan-vella/apex/blob/main/.githu
   (incl. management-group-inherited) for the target subscription and
   reconcile them with the approved architecture. `requires: gate-2`.
 - **Driving agent** — `04g-Governance`, invoking
-  `.github/skills/azure-governance-discovery/scripts/discover.py`.
-- **Skills auto-loaded** — `azure-governance-discovery`, `azure-defaults`,
-  `azure-artifacts`, `iac-common` (drift routing).
+  `.github/skills/apex-azure-governance-discovery/scripts/discover.py`.
+- **Skills auto-loaded** — `apex-azure-governance-discovery`, `apex-azure-defaults`,
+  `apex-azure-artifacts`, `apex-iac-common` (drift routing).
 - **Instructions activated** — `governance-discovery` (mandatory policy
-  contract), `azure-artifacts`.
+  contract), `apex-azure-artifacts`.
 - **Data sources** — Azure Policy REST API (live);
   `governance-policy-baseline.json.gz` as documented fallback.
 - **`apex-recall`** — `checkpoint`, `decide --key governance_depth`,
@@ -287,12 +287,12 @@ decisions.review_depth`](https://github.com/jonathan-vella/apex/blob/main/.githu
   `sku-manifest`.
 - **Driving agent** — `05-IaC Planner` (a Sonnet 4.6 agent that branches
   Bicep vs Terraform via `decisions.iac_tool`).
-- **Skills auto-loaded** — `azure-defaults`, `azure-artifacts`,
-  `python-diagrams`, `iac-common` (plan-consistency-checks +
+- **Skills auto-loaded** — `apex-azure-defaults`, `apex-azure-artifacts`,
+  `apex-python-diagrams`, `apex-iac-common` (plan-consistency-checks +
   governance-drift-routing), and **track-specific**
-  `azure-bicep-patterns` or `terraform-patterns`.
+  `apex-azure-bicep-patterns` or `apex-terraform-patterns`.
 - **Instructions activated** — `iac-plan-best-practices`,
-  `azure-artifacts`, `sku-manifest`.
+  `apex-azure-artifacts`, `sku-manifest`.
 - **Data sources** — `avm-bicep-modules.csv` /
   `avm-terraform-modules.csv` (pinning), `avm-module-index.json`
   (lifecycle), `azure-deprecations.json`, governance constraints from
@@ -324,9 +324,9 @@ Compliance Matrix` and `## 📤 Code-Generation Contract` H2s),
   inputs are **frozen** (plan-lock) and read-only.
 - **Driving agents** — `06b-Bicep CodeGen` or `06t-Terraform CodeGen`,
   each calling its track's validate subagent.
-- **Skills auto-loaded** — `azure-defaults`, `azure-artifacts`,
-  `azure-bicep-patterns` or `terraform-patterns`, `iac-common`,
-  `context-management`.
+- **Skills auto-loaded** — `apex-azure-defaults`, `apex-azure-artifacts`,
+  `apex-azure-bicep-patterns` or `apex-terraform-patterns`, `apex-iac-common`,
+  `apex-context-management`.
 - **Instructions activated** — `iac-bicep-best-practices` or
   `iac-terraform-best-practices`, `agent-operating-frame`.
 - **Data sources** — same AVM CSV + index; policy-property-map and
@@ -354,8 +354,8 @@ Compliance Matrix` and `## 📤 Code-Generation Contract` H2s),
   or `07t-Terraform Deploy`. Each calls `policy-precheck-subagent`
   (L3 live policy check) plus `bicep-whatif-subagent` /
   `terraform-plan-subagent`.
-- **Skills auto-loaded** — `azure-defaults`, `azure-artifacts`,
-  `iac-common` (circuit-breaker, deploy-shared-workflow,
+- **Skills auto-loaded** — `apex-azure-defaults`, `apex-azure-artifacts`,
+  `apex-iac-common` (circuit-breaker, deploy-shared-workflow,
   policy-precheck-contract, governance-drift-routing).
 - **Instructions activated** — `azure-yaml` if `azure.yaml` is edited;
   `iac-bicep-best-practices` or `iac-terraform-best-practices`.
@@ -376,7 +376,7 @@ Compliance Matrix` and `## 📤 Code-Generation Contract` H2s),
 - **Hooks on commit** — `markdown-lint`, `artifact-validation`.
 - **Common failures** — quota exhaustion (handled via
   block-with-escalation substitution + `sku-manifest` mutation), policy
-  Deny at apply time, transient ARM 5xx (handled by the `iac-common`
+  Deny at apply time, transient ARM 5xx (handled by the `apex-iac-common`
   circuit breaker).
 
 ### Step 7 — As-Built
@@ -387,9 +387,9 @@ Compliance Matrix` and `## 📤 Code-Generation Contract` H2s),
   challenger). Seven parallel substeps: design document, operations
   runbook, cost estimate, compliance matrix, backup/DR plan, resource
   inventory, documentation index.
-- **Skills auto-loaded** — `azure-defaults`, `azure-artifacts`,
-  `python-diagrams`, `context-management` (Mode A compression).
-- **Instructions activated** — `azure-artifacts`,
+- **Skills auto-loaded** — `apex-azure-defaults`, `apex-azure-artifacts`,
+  `apex-python-diagrams`, `apex-context-management` (Mode A compression).
+- **Instructions activated** — `apex-azure-artifacts`,
   `markdown-docs` (for any docs-site copy).
 - **Data sources** — live Azure Resource Manager (resource inventory);
   `sku-manifest` for bidirectional drift detection.
@@ -493,7 +493,7 @@ word:
 - **Application-greenfield (APEX sense)** — no prior app code, no prior IaC for
   this workload. APEX is designed for this case, and the "greenfield CAF tag
   fallback" in
-  [`azure-defaults/references/tag-strategy.md`](https://github.com/jonathan-vella/apex/blob/main/.github/skills/azure-defaults/references/tag-strategy.md)
+  [`apex-azure-defaults/references/tag-strategy.md`](https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-defaults/references/tag-strategy.md)
   uses this sense.
 - **Environment-greenfield** — no ALZ, no inherited policy, an empty
   subscription. APEX handles this separately via the no-ALZ fallback documented
@@ -536,14 +536,14 @@ artifact or decision key where the value lands.
 | **Pre-populated governance**      | Policy assignments inherited from management-group scopes.                                                                      | Step 3.5 (`04g-Governance`) discovers required tags, denied public endpoints, mandatory encryption directly — challenger review becomes a reconciliation pass against known facts, not a speculative audit. |
 | **Overlapping security baseline** | Tenant-wide Azure Policy enforces TLS, public-access denials, and stricter rules (e.g. deny public network access on all PaaS). | APEX's non-negotiable baseline (TLS 1.2+, HTTPS-only, no public blob, Managed Identity) is a _subset_; when ALZ is stricter, Step 3.5 captures the stricter rule and the IaC Planner honours it at Step 4.  |
 | **Known network boundaries**      | Address spaces, peering topology, DNS resolution, firewall rules pre-established.                                               | The VNet planning gate (Architect Phase 6b) slots a spoke into the existing topology instead of designing one from scratch — selected via `decisions.vnet_mode = use-existing`.                             |
-| **Scoped RBAC**                   | Platform team pre-assigns roles at subscription / resource-group scope.                                                         | APEX records `decisions.identity_model` and generates least-privilege role assignments that fit within the existing RBAC structure, validated by the `azure-rbac` skill.                                    |
+| **Scoped RBAC**                   | Platform team pre-assigns roles at subscription / resource-group scope.                                                         | APEX records `decisions.identity_model` and generates least-privilege role assignments that fit within the existing RBAC structure, validated by the `apex-azure-rbac` skill.                                    |
 | **Compounding cost governance**   | Subscription-level budget alerts + cost-management policies.                                                                    | APEX's per-project cost-monitoring baseline (Wave 4 of CodeGen) stacks beneath ALZ: ALZ catches subscription-wide anomalies, APEX catches project-level overruns.                                           |
 
 ### When there is no landing zone
 
 If the target subscription has no inherited policies (the `governance-policy-baseline`
 workflow returns an empty envelope), APEX falls back to the **no-ALZ defaults**
-documented in `azure-defaults`: lowercase 4-tag set, `swedencentral` region,
+documented in `apex-azure-defaults`: lowercase 4-tag set, `swedencentral` region,
 and the full non-negotiable security baseline. The challenger review flags the
 absence of inherited guardrails as an informational finding so the team is
 aware they are operating without platform-level safety nets. This is the
@@ -602,7 +602,7 @@ the spoke and assumes connectivity to the hub is established via peering
 at Phase 6b accounts for hub-side constraints such as forced-tunnel UDRs and
 NSG rules inherited from ALZ policy. The canonical subnet sizing matrix and
 the two-step existing-VNet validation live in
-[`azure-defaults/references/vnet-planning.md`](https://github.com/jonathan-vella/apex/blob/main/.github/skills/azure-defaults/references/vnet-planning.md).
+[`apex-azure-defaults/references/vnet-planning.md`](https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-defaults/references/vnet-planning.md).
 
 ### Private DNS Zones — enumeration and reuse
 
@@ -717,7 +717,7 @@ onboarded yet.
 ## Appendix A — Artifact contract reference
 
 The full H2 templates for every `agent-output/` artifact live in
-[`azure-artifacts/SKILL.md`](https://github.com/jonathan-vella/apex/blob/main/.github/skills/azure-artifacts/SKILL.md)
+[`apex-azure-artifacts/SKILL.md`](https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-artifacts/SKILL.md)
 and its `templates/` folder. The SKU manifest contract lives in
 [`sku-manifest.instructions.md`](https://github.com/jonathan-vella/apex/blob/main/.github/instructions/sku-manifest.instructions.md);
 the governance JSON shape is documented inside
@@ -728,21 +728,21 @@ This page deliberately links rather than duplicates.
 
 | Step | Always-loaded skills                                                                             | On-demand skills                                   |
 | ---- | ------------------------------------------------------------------------------------------------ | -------------------------------------------------- |
-| 1    | `azure-defaults`, `azure-artifacts`                                                              | `microsoft-docs`                                   |
-| 2    | `azure-defaults`, `azure-artifacts`, `context-management`                                        | `microsoft-docs`, `azure-compute`, `azure-storage` |
-| 3    | `azure-defaults`, `azure-artifacts`, `azure-adr`                                                 | `python-diagrams`                                  |
-| 3.5  | `azure-defaults`, `azure-artifacts`, `azure-governance-discovery`, `iac-common`                  | `microsoft-docs`                                   |
-| 4    | `azure-defaults`, `azure-artifacts`, `iac-common`, `python-diagrams`, track-specific patterns    | `microsoft-docs`, `azure-rbac`                     |
-| 5    | `azure-defaults`, `azure-artifacts`, track-specific patterns, `iac-common`, `context-management` | `azure-rbac`, `entra-app-registration`             |
-| 6    | `azure-defaults`, `azure-artifacts`, `iac-common`                                                | `azure-quotas`, `azure-validate`, `azure-deploy`   |
-| 7    | `azure-defaults`, `azure-artifacts`, `python-diagrams`, `context-management`                     | `azure-resources`, `azure-compliance`              |
+| 1    | `apex-azure-defaults`, `apex-azure-artifacts`                                                              | `apex-microsoft-docs`                                   |
+| 2    | `apex-azure-defaults`, `apex-azure-artifacts`, `apex-context-management`                                        | `apex-microsoft-docs`, `apex-azure-compute`, `apex-azure-storage` |
+| 3    | `apex-azure-defaults`, `apex-azure-artifacts`, `apex-azure-adr`                                                 | `apex-python-diagrams`                                  |
+| 3.5  | `apex-azure-defaults`, `apex-azure-artifacts`, `apex-azure-governance-discovery`, `apex-iac-common`                  | `apex-microsoft-docs`                                   |
+| 4    | `apex-azure-defaults`, `apex-azure-artifacts`, `apex-iac-common`, `apex-python-diagrams`, track-specific patterns    | `apex-microsoft-docs`, `apex-azure-rbac`                     |
+| 5    | `apex-azure-defaults`, `apex-azure-artifacts`, track-specific patterns, `apex-iac-common`, `apex-context-management` | `apex-azure-rbac`, `apex-entra-app-registration`             |
+| 6    | `apex-azure-defaults`, `apex-azure-artifacts`, `apex-iac-common`                                                | `apex-azure-quotas`, `apex-azure-validate`, `apex-azure-deploy`   |
+| 7    | `apex-azure-defaults`, `apex-azure-artifacts`, `apex-python-diagrams`, `apex-context-management`                     | `apex-azure-resources`, `apex-azure-compliance`              |
 
 ## Appendix C — Instruction ↔ trigger matrix
 
 | Instruction                    | `applyTo` glob                            | Effective at step  |
 | ------------------------------ | ----------------------------------------- | ------------------ |
 | `agent-operating-frame`        | `.github/agents/*.agent.md`               | All                |
-| `azure-artifacts`              | `**/agent-output/**/*.md`                 | 1–7                |
+| `apex-azure-artifacts`              | `**/agent-output/**/*.md`                 | 1–7                |
 | `sku-manifest`                 | `**/sku-manifest.{md,json}`               | 1, 2, 3.5, 4, 6, 7 |
 | `governance-discovery`         | `**/04-governance-constraints.{md,json}`  | 3.5                |
 | `iac-plan-best-practices`      | `**/04-implementation-plan.md`            | 4                  |
@@ -764,7 +764,7 @@ Terse pointers only — full definitions live in the linked concept docs.
 | Gate              | [Workflow Engine & Quality](../how-it-works/workflow-engine/)                                                                                                                   |
 | Fan-out           | [Agent Architecture](../how-it-works/agents/)                                                                                                                                   |
 | Frozen inputs     | `workflow-graph.json` `plan_lock` block (linked above)                                                                                                                       |
-| L0–L3 attestation | [`workflow-graph.json` `attestation_chain`](https://github.com/jonathan-vella/apex/blob/main/.github/skills/workflow-engine/templates/workflow-graph.json) |
+| L0–L3 attestation | [`workflow-graph.json` `attestation_chain`](https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-workflow-engine/templates/workflow-graph.json) |
 | Skill tiers       | [Skills & Instructions](../how-it-works/skills-and-instructions/)                                                                                                               |
 
 ## Appendix E — Further reading

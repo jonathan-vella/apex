@@ -1,26 +1,29 @@
 ---
-description: "Vendor prompting best-practice rules for Anthropic Claude and OpenAI GPT-5.6-Terra agents and prompts. Each rule cites a rule ID in the vendor-prompting skill rules.json registry. Validator: npm run lint:vendor-prompting."
+description: "Sourced vendor advice and APEX authoring conventions for agent and prompt files. Rule IDs map to apex-vendor-prompting/rules.json; validator: npm run lint:vendor-prompting."
 applyTo: "**/*.agent.md, **/*.prompt.md"
 ---
 
 # Vendor Prompting Rules
 
-This file is the **enforcement** thin layer. For full audit
-guidance, examples, and source citations, load the
-[vendor-prompting skill](../skills/vendor-prompting/SKILL.md).
+This file is the **enforcement** thin layer. For full audit guidance, examples and source citations,
+the user explicitly invokes `/apex-vendor-prompting` using the
+[manual-only skill](../skills/apex-vendor-prompting/SKILL.md).
+Do not automatically load its body to bypass the invocation flag. These rules and their validators still apply.
 
 The machine-readable rule registry is
-[rules.json](../skills/vendor-prompting/rules.json). Validator:
+[rules.json](../skills/apex-vendor-prompting/rules.json). Validator:
 `npm run lint:vendor-prompting`.
 
 ## Hard rules (errors)
 
-These break runtime if violated:
+These enforce the repository contract; not every violation is a platform parsing failure:
 
 - **`frontmatter-model-style-001`** — `.agent.md` must use array
   form for `model:` (e.g., `model: ["Claude Opus 4.7"]`).
-  `.prompt.md` must use string form. Bareword form for labels with
-  parenthetical qualifiers (e.g., `model: Claude Foo (suffix)`) breaks YAML.
+  `.prompt.md` uses string form when explicit. YAML parentheses are valid;
+  ordinary model labels still require exact catalog keys, including provider
+  suffixes present in those keys. Optional handoff qualifiers cannot override an
+  exact catalog match. Validate every fallback.
 
 ## Vendor rules
 
@@ -41,22 +44,29 @@ Applies when frontmatter `model:` matches `claude` (case-insensitive).
 - **`claude-output-contract-001`** — Artifact-producing agents
   (handoffs reference `agent-output/`) include `<output_contract>`.
 
-### OpenAI GPT-5.6-Terra
+### Sol, Terra, And Luna: APEX Convention
 
-Applies when frontmatter `model:` matches `gpt-5.6-terra`.
+Concise outcome-first Markdown is a repository convention informed by pinned
+generic OpenAI guidance, not a model-specific vendor claim. Preserve exact
+user-confirmed catalog labels; release, capabilities, and runtime cost tiers remain
+unknown where unverified. No vendor source refresh is implied by local edits.
 
-- **`gpt55-skeleton-001`** — Required H1 sections present (any order):
-  `# Goal`, `# Success criteria`, `# Constraints`, `# Output`,
-  `# Stop rules`. `# Personality` only on user-facing Orchestrator
-  agents.
-- **`gpt55-stop-rules-non-empty-001`** — `# Stop rules` body must
+- **`gpt55-skeleton-001`** — Nonempty outcome sections: Role, Goal,
+  Success criteria, Constraints, Output, and Stop rules. Production agent normalization
+  requires exactly one H1 matching the frontmatter `name`, followed by H2 contract sections
+  (`## Role`, `## Goal`, `## Success criteria`, `## Constraints`, `## Output`, `## Stop rules`).
+  The generic outcome check accepts H1/H2 aliases; it does not waive production normalization.
+  Production leaf workers require nonempty H2 Role, Inputs, and Output sections plus a
+  bounded failure/return rule, not the full main-agent skeleton. Personality is optional.
+- **`gpt55-stop-rules-non-empty-001`** — `## Stop rules` body must
   contain ≥1 non-blank line.
-- **`gpt-no-claude-xml-001`** — MUST NOT contain Claude-specific
+- **`gpt-no-claude-xml-001`** — Replace legacy Claude-style
   XML blocks (`<investigate_before_answering>`,
   `<context_awareness>`, `<scope_fencing>`,
   `<empty_result_recovery>`, `<subagent_budget>`,
-  `<output_contract>`).
-- **`personality-scoping-001`** — `# Personality` block forbidden
+  `<output_contract>`) with Markdown while preserving their content and H2 anchors.
+  This is not a claim that GPT cannot interpret XML.
+- **`personality-scoping-001`** — Personality section forbidden
   on internal pipeline agents (info-only).
 
 ### Cross-vendor
@@ -77,8 +87,9 @@ Applies when frontmatter `model:` matches `gpt-5.6-terra`.
 - **`prompt-model-source-001`** — HARD rule (severity `error`):
   prompts targeting a custom agent (e.g. `agent: "02-Requirements"`)
   MUST NOT declare `model:` — let the agent's `model:` apply.
-  Prompts using `agent: agent` (or no `agent:`) MUST declare an
-  explicit `model:`. The validator resolves a prompt's effective
+  Prompts using a built-in agent (or no `agent:`) may declare an
+  explicit `model:` to override picker selection; omission is valid inheritance.
+  Unknown custom-agent targets remain errors. The validator resolves a prompt's effective
   family via its target agent when `model:` is omitted, so the
   per-prompt rules above (`claude-no-prefill-001`,
   `model-deprecation-001`) keep firing on agent-targeting prompts.
@@ -90,13 +101,19 @@ Applies when frontmatter `model:` matches `gpt-5.6-terra`.
 | `claude-opus`   | enforced      | All Claude rules at default severity           |
 | `claude-sonnet` | enforced      | All Claude rules at default severity           |
 | `claude-haiku`  | warn-only     | Severity downgrades to warn                    |
-| `gpt-5.6-terra` | enforced      | OpenAI outcome-first rules at default severity |
-| `gpt-5.6-luna`  | reviewer-only | No automated model-specific enforcement        |
+| `gpt-5.6-sol`   | enforced      | APEX outcome contract; unknown vendor metadata |
+| `gpt-5.6-terra` | enforced      | APEX outcome contract at default severity      |
+| `gpt-5.6-luna`  | enforced      | APEX outcome contract at default severity      |
 | `gpt-5.5`       | enforced      | Legacy compatibility                           |
 | `gpt-5.4`       | enforced      | Shared OpenAI outcome-first rules              |
 | `gpt-codex`     | reviewer-only | Legacy compatibility                           |
 | `gpt-4o`        | reviewer-only | No new enforcement                             |
-| `unknown`       | enforced      | ERROR — force explicit `model:` in frontmatter |
+| `unknown`       | enforced      | Explicit labels need catalog authorization; inherited prompts are valid |
+
+Structural errors and catalog deprecation findings never downgrade because of
+family status. Style warnings are advisory; do not remove safety invariants to
+satisfy density or formatting heuristics. Historical promotion dates do not
+automatically change the current rule severity.
 
 ## When this instruction applies vs other instructions
 
@@ -118,7 +135,7 @@ for the full ordering.
 ## Verifying compliance
 
 ```bash
-# All vendor-prompting rules across all agents/prompts
+# All apex-vendor-prompting rules across all agents/prompts
 npm run lint:vendor-prompting
 
 # JSON output for tooling
@@ -129,5 +146,5 @@ node tools/scripts/validate-agents.mjs \
 node tools/scripts/validate-agents.mjs --list-rules
 ```
 
-For deep guidance, audit procedures, and source citations, load the
-[vendor-prompting skill](../skills/vendor-prompting/SKILL.md).
+For deep guidance, audit procedures and source citations, ask the user to invoke
+[/apex-vendor-prompting](../skills/apex-vendor-prompting/SKILL.md) explicitly.

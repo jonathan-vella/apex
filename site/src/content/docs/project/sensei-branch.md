@@ -121,6 +121,6 @@ non-obvious ways otherwise.
 ## Related references
 
 - Contributor guide: [Contributing](../contributing/)
-- Branch naming and PR flow: `.github/skills/github-operations/SKILL.md`
+- Branch naming and PR flow: `.github/skills/apex-github-operations/SKILL.md`
 - Prompt file conventions: `.github/instructions/prompt.instructions.md`
 - Sensei upstream: [spboyer/sensei](https://github.com/spboyer/sensei)

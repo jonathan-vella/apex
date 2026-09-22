@@ -12,8 +12,9 @@ Every agent definition follows a standard structure:
 ---
 name: 06b-Bicep CodeGen
 description: Expert Azure Bicep IaC specialist...
-model: ["Claude Sonnet 5"] # (1)!
+model: ["GPT-5.6 Terra (copilot)"] # (1)!
 tools: [list of allowed tools] # (2)!
+disable-model-invocation: true
 handoffs:
   - label: "Step 6: Deploy"
     agent: 07b-Bicep Deploy # (3)!
@@ -21,11 +22,11 @@ handoffs:
 ---
 # Body (≤ 500 lines)
 ## MANDATORY: Read Skills First
-1. **Read** `.github/skills/azure-defaults/SKILL.md` # (4)!
-2. **Read** `.github/skills/azure-artifacts/SKILL.md`
+1. **Read** `.github/skills/apex-azure-defaults/SKILL.md` # (4)!
+2. **Read** `.github/skills/apex-azure-artifacts/SKILL.md`
 ```
 
-1. Model selection — the Orchestrator can override this based on task complexity
+1. Model selection — agent frontmatter is authoritative; changes require explicit approval
 2. Tool allowlist — agents only access tools they need
 3. Handoff target — the next agent in the workflow
 4. Skills are loaded on demand to preserve context budget
@@ -48,29 +49,56 @@ allowlist that restricts which tools it can call. Common tool categories:
 
 Agents do not communicate directly. Instead, each agent produces **artifact files**
 in `agent-output/{project}/` that the next agent reads as input. The Orchestrator
-orchestrates this by delegating to one agent at a time, collecting its output,
-and routing to the next step. At approval gates, the Orchestrator writes a
+routes through human handoffs to the next main agent, preserving user approval
+at each gate. At approval gates, the Orchestrator writes a
 `00-handoff.md` summary document that enables session resume.
+
+### Local And Agent Host Boundaries
+
+Local prompt files are adapters, not Agent Host entry points. On Agent Host, use
+the shared skill and explicitly select its owning main agent before consequential
+work. Skills inherit the caller's model/tools; they do not switch agents or grant
+permissions. Keep Local discovery settings where needed, but do not treat legacy
+discovery flags as a security boundary or proof of Host support.
+
+Production main agents, including `10-Challenger`, use
+`disable-model-invocation: true` and require human selection. Explicit caller
+allowlists must not override that boundary. Keep essential approval, security,
+output, and stop rules in main agent bodies: authoring `applyTo` matches do not
+prove runtime attachment. Local and Agent Host behavior need separate verification;
+source validation alone does not establish runtime support or model eligibility.
+
+### APEX And Generic Application Workflows
+
+APEX deployment agents consume approved IaC handoff and environment artifacts. They do not restart
+the generic `apex-azure-prepare` workflow or require its application preparation plan. Missing APEX code,
+an expected manifest, or a usable handoff returns to CodeGen; legacy evidence must be converted to
+a current JSON handoff before preview or apply. Generic application workflows retain their own approved
+preparation plan and recorded Validation Proof.
+
+A validation-only request returns check results and stops. A preview-only request returns not-applied
+results and stops. Neither starts preparation, creates infrastructure, or marks deployment complete.
+An explicit deployment request still requires current policy checks, preview review, and apply approval.
+When a project contains both workflow formats and the requested workflow is unclear, the agent asks first.
 
 ## Top-Level Agents
 
 | Agent                 | Role                                            | Primary Skills                                 |
 | --------------------- | ----------------------------------------------- | ---------------------------------------------- |
-| 01-Orchestrator       | Master orchestrator                             | workflow-engine, apex-recall                   |
-| 02-Requirements       | Captures project requirements                   | azure-defaults, azure-artifacts                |
-| 03-Architect          | WAF assessment and cost estimation              | azure-defaults                                 |
-| 04-Design             | Diagrams and ADRs                               | python-diagrams, azure-adr                     |
-| 04g-Governance        | Policy discovery and compliance                 | azure-defaults                                 |
-| 05-IaC Planner        | IaC implementation planning (Bicep & Terraform) | azure-bicep-patterns, terraform-patterns       |
-| 06b-Bicep CodeGen     | Bicep template generation                       | azure-bicep-patterns                           |
-| 06t-Terraform CodeGen | Terraform configuration generation              | terraform-patterns                             |
-| 07b-Bicep Deploy      | Bicep deployment execution                      | azure-validate, iac-common                     |
-| 07t-Terraform Deploy  | Terraform deployment execution                  | azure-validate, iac-common, terraform-patterns |
-| 08-As-Built           | Post-deployment documentation                   | azure-artifacts, python-diagrams               |
-| 09-Diagnose           | Azure resource troubleshooting                  | azure-diagnostics                              |
+| 01-Orchestrator       | Master orchestrator                             | apex-workflow-engine, apex-recall                   |
+| 02-Requirements       | Captures project requirements                   | apex-azure-defaults, apex-azure-artifacts                |
+| 03-Architect          | WAF assessment and cost estimation              | apex-azure-defaults                                 |
+| 04-Design             | Diagrams and ADRs                               | apex-python-diagrams, apex-azure-adr                     |
+| 04g-Governance        | Policy discovery and compliance                 | apex-azure-defaults                                 |
+| 05-IaC Planner        | IaC implementation planning (Bicep & Terraform) | apex-azure-bicep-patterns, apex-terraform-patterns       |
+| 06b-Bicep CodeGen     | Bicep template generation                       | apex-azure-bicep-patterns                           |
+| 06t-Terraform CodeGen | Terraform configuration generation              | apex-terraform-patterns                             |
+| 07b-Bicep Deploy      | Bicep deployment execution                      | apex-azure-validate, apex-iac-common                     |
+| 07t-Terraform Deploy  | Terraform deployment execution                  | apex-azure-validate, apex-iac-common, apex-terraform-patterns |
+| 08-As-Built           | Post-deployment documentation                   | apex-azure-artifacts, apex-python-diagrams               |
+| 09-Diagnose           | Azure resource troubleshooting                  | apex-azure-diagnostics                              |
 | 10-Challenger         | Standalone adversarial review                   | —                                              |
-| 11-Context Optimizer  | Context window audit and optimisation           | context-management                             |
-| e2e-orchestrator      | Prompt-invoked end-to-end validation driver     | workflow-engine, apex-recall                   |
+| 11-Context Optimizer  | Context window audit and optimisation           | apex-context-management                             |
 
 For a live, always-current roster, see the
 [Architecture Explorer](../../../reference/architecture-explorer/). The count is
@@ -93,10 +121,10 @@ every downstream agent reads them via `apex-recall show <project>
 **`review_depth` values**:
 
 - `default` — one comprehensive challenger pass at Steps 1, 2, 4 (plus
-  `governance-reconciliation` at Step 3.5). Right for most workshops,
+  a separate cost-feasibility review at Step 2 and `governance-reconciliation` at Step 3.5). Right for most workshops,
   MVPs, and single-region projects.
 - `deep` — rotating-lens multi-pass cascade per
-  [`adversarial-review-protocol.md`](https://github.com/jonathan-vella/apex/blob/main/.github/skills/azure-defaults/references/adversarial-review-protocol.md)
+  [`adversarial-review-protocol.md`](https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-defaults/references/adversarial-review-protocol.md)
   (Pass 1 security-governance → Pass 2 architecture-reliability →
   conditional Pass 3 cost-feasibility). Worth the ~3× challenger
   cost for regulated workloads (HIPAA/PCI), prod migrations, or
@@ -129,7 +157,7 @@ silently assumes a non-default value.
 | ---- | --------------------------------- | ---------------------------------------------------------------- | ----------------------------------- |
 | 2    | SKU confirmation (before pricing) | Approve / Revise / Discuss                                       | `sku_confirmation_status`           |
 | 2    | Budget gate (after pricing)       | Approve / Revise SKUs / Revise requirements                      | `budget_decision`                   |
-| 2    | Per-finding decisions             | Accept / Skip / Defer (one question per finding — never batched) | `decision_log`                      |
+| 2    | Per-finding decisions             | Accept / Reject / Defer / Edit; independent questions in a batched panel | `decision_log` |
 | 3    | Diagram generator                 | Python diagrams                                                  | `diagram_tool`                      |
 | 3.5  | Phase 2.7 resolution              | RG tag keys + casing, allowed locations (two questions)          | `tag_contract`, `governance_status` |
 
@@ -139,13 +167,10 @@ The full registry of valid decision keys lives at
 `apex-recall decide --key` reference in an agent file appears in the
 registry.
 
-**Tag schema (greenfield projects)**: when Governance Discovery finds
-no tag policy at any inherited scope, projects use the lowercase
-`environment, owner, costcenter, project` set per CAF tag-strategy
-guidance (see `.github/skills/azure-defaults/references/tag-strategy.md`).
-The legacy PascalCase 4-tag set (`Environment`, `ManagedBy`,
-`Project`, `Owner`) is a deprecated convention retained only for
-backward compatibility on existing projects.
+**Tag schema**: discovered Azure Policy defines required keys, values, and casing.
+When no inherited tag policy applies, use the canonical greenfield fallback in
+`.github/copilot-instructions.md` rather than another tag list.
+Legacy casing is preserved only under that source's compatibility rule; `ManagedBy` is optional provenance.
 
 **SKU manifest MD ↔ JSON sync**: the human-readable
 `agent-output/{project}/sku-manifest.md` is rendered deterministically
@@ -162,7 +187,7 @@ specific tasks:
 
 | Subagent                    | Purpose                            | Invoked By          |
 | --------------------------- | ---------------------------------- | ------------------- |
-| challenger-review-subagent  | Adversarial review of artifacts    | Steps 1, 2, 4, 5, 6 |
+| challenger-review-subagent  | Adversarial review of artifacts    | Required at Steps 1, 2, 3.5, 4; opt-in at Design and CodeGen |
 | cost-estimate-subagent      | ARM MCP pricing queries            | Steps 2, 7          |
 | bicep-validate-subagent     | Lint + AVM/security code review    | Step 5 (Bicep)      |
 | bicep-whatif-subagent       | `az deployment what-if` preview    | Step 6 (Bicep)      |
@@ -183,14 +208,14 @@ It operates with rotating lenses:
 Pass 1 (security-governance) always uses `challenger-review-subagent`.
 Additional passes also use `challenger-review-subagent` for
 architecture-reliability and cost-feasibility lenses.
-See `.github/skills/azure-defaults/references/adversarial-review-protocol.md`
+See `.github/skills/apex-azure-defaults/references/adversarial-review-protocol.md`
 (`## Lenses`, `## Default flow`, `## Opt-in: Deep adversarial review`) for
 the full routing table and conditional skip rules.
 :::
 
-- **1-pass review** (comprehensive): A single review covering all dimensions. This is the
-  **default for all steps**. Used for requirements (Step 1), architecture (Step 2), deploy (Step 6),
-  and optionally for planning (Step 4) and code (Step 5).
+- **Default review**: comprehensive review is mandatory for Requirements, Architecture, and IaC Plan.
+  Architecture also requires an independent cost-feasibility review. Governance uses reconciliation;
+  Design and CodeGen review are opt-in. Deploy has no Challenger review; live policy precheck remains required.
 - **Multi-pass review** (rotating lenses, opt-in): Multiple separate reviews, each focused on a
   specific dimension (security, reliability, cost). Available for architecture (Step 2),
   planning (Step 4), and code (Step 5) when explicitly requested. Recommended for complex projects.
@@ -200,7 +225,7 @@ Findings are classified as `must_fix` (blocking) or `should_fix` (advisory). Onl
 
 **Conditional passes (when multi-pass is opted in)**: Pass 3 of the rotating lens review is
 conditional — it only runs if Pass 2 returned ≥1 `must_fix` finding. If Pass 2 returns zero
-`must_fix` items, Pass 3 is skipped entirely, saving approximately 4 minutes per review cycle.
+  `must_fix` items, Pass 3 is skipped entirely. Runtime savings depend on the actual review.
 
 **Context Shredding for Challenger Inputs**: The challenger is instructed to apply
 context compression tiers when loading predecessor artefacts for review:
@@ -223,10 +248,12 @@ After each review pass, only the `compact_for_parent` string (~200 characters) i
 forward — not the full JSON findings. This prevents context bloat across multi-pass reviews
 and is enforced by the output schema.
 
-:::tip[If a challenger review hangs]
-If a review takes >10 minutes with no output, restart the chat session and
-resume from the failed gate. Use `00-session-state.json` to verify the last
-completed step.
+:::caution[Unavailable Or Empty Review]
+If a required reviewer is unavailable, stop and request a human handoff to
+`10-Challenger`. Missing or empty reviewer output permits exactly one
+identical-input retry, then a human handoff. Never invoke a nested main-agent
+wrapper or fabricate an inline review. Resume from current evidence via
+`apex-recall show <project> --json`; missing evidence does not satisfy a gate.
 :::
 
 **New Challenger Checklists**: Two mandatory checklist categories were added:
@@ -237,7 +264,7 @@ completed step.
 ## Handoffs and Delegation
 
 Agents communicate through artefact files, not direct message passing. The Orchestrator
-delegates to a step agent, which produces output files in `agent-output/{project}/`.
+offers a human handoff to a step agent, which produces output files in `agent-output/{project}/`.
 The next agent reads those files as input. This design:
 
 - Eliminates context leakage between agents
@@ -263,21 +290,25 @@ This section walks through creating a new agent from scratch.
 | Top-level agent | `.github/agents/{name}.agent.md`            | Yes            | User-facing workflow steps                |
 | Subagent        | `.github/agents/_subagents/{name}.agent.md` | No             | Isolated tasks delegated by parent agents |
 
-Model selection depends on the task. Use `tools/registry/agent-registry.json` as the
-source of truth, but the current repo pattern is:
+Agent frontmatter is the canonical model assignment; `tools/registry/agent-registry.json`
+mirrors it. Model changes require explicit approval. The current approved main-agent map is:
 
-- **Planning agents** (accuracy-first) — `Claude Opus 5` at high reasoning effort
-- **Orchestrator** — `MAI-Code-1.1-Flash`, Microsoft's fast coding model. Standard
-  tier suits handoff-only routing without creative generation; the agent body
-  keeps its outcome-first skeleton (Role / Goal / Success / Constraints / Output /
-  Stop) as a sound routing structure.
-- **Design + Code generation** — `Claude Sonnet 5` for Anthropic XML-tagged
-  output contracts and stronger verbatim invariant retention (security baseline,
-  AVM contract, HARD GATE language)
-- **Governance, Deploy, and Challenger wrapper** — `GPT-5.6-Luna` for focused execution
-- **Diagnose, E2E, and challenger review** — `GPT-5.6-Terra` with outcome-first stopping conditions
-- **Execution, deploy, and validation subagents** — model varies; consult `tools/registry/agent-registry.json`
-- **Adversarial review** — use a different model family than the artifact author when possible
+| Main Agents | Model |
+| --- | --- |
+| Requirements, Architect, IaC Planner, Context Optimizer | `gpt-5.6-sol` |
+| Orchestrator | `MAI-Code-1.1-Flash` |
+| Design, Bicep CodeGen, Terraform CodeGen, As-Built, Diagnose, Challenger | `GPT-5.6-Terra` |
+| Governance, Bicep Deploy, Terraform Deploy | `GPT-5.6-Luna` |
+
+Subagent assignments also come from their own frontmatter; do not infer them from
+the parent's model. Labels do not establish runtime cost-tier eligibility,
+availability, or API support. Stop on unsupported routing rather than substituting
+models automatically; preserve unknown Sol metadata as unknown.
+
+Sol, Terra, and Luna main bodies use concise Markdown outcome contracts: Role,
+Goal, Success criteria, Constraints, Output, and Stop rules. This is an APEX
+authoring convention, not a vendor-specific XML requirement. Leaf workers use
+bounded role contracts and return to their parent without nested delegation.
 
 ### Step 2: Create the Agent File
 
@@ -286,17 +317,16 @@ Create a `.agent.md` file with the required frontmatter:
 ```yaml
 ---
 name: My Custom Agent
-description: >-
-  One-line description of what this agent does.
-  USE FOR: keyword triggers. DO NOT USE FOR: anti-triggers.
+description: "Describe the task. USE FOR: keyword triggers. DO NOT USE FOR: anti-triggers."
 model:
   - GPT-5.6-Terra
 tools:
-  - read_file
-  - create_file
-  - replace_string_in_file
-  - run_in_terminal
-  - runSubagent
+  - read
+  - edit
+  - execute
+agents: []
+user-invocable: true
+disable-model-invocation: true
 handoffs:
   - label: "Next Step"
     agent: next-agent-name
@@ -305,7 +335,9 @@ handoffs:
 ```
 
 Required frontmatter fields: `name`, `description`, `model`, `tools`.
-Optional: `handoffs`, `user-invocable` (defaults to `true` for top-level).
+Production main agents also set `disable-model-invocation: true` for human entry.
+Use `agents: []` when no leaf delegation is needed; a nonempty allowlist requires
+the `agent` tool and must not target production main agents. Handoffs are optional.
 
 See `.github/instructions/agent-authoring.instructions.md` for the
 complete frontmatter specification.
@@ -317,7 +349,7 @@ The body (below the frontmatter) is the agent's operating manual:
 ```markdown
 ## MANDATORY: Read Skills First
 
-1. **Read** `.github/skills/azure-defaults/SKILL.md`
+1. **Read** `.github/skills/apex-azure-defaults/SKILL.md`
 
 ## DO (required behaviours)
 

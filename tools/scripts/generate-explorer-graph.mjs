@@ -28,6 +28,7 @@
 import { existsSync, readFileSync, writeFileSync, readdirSync, statSync } from "node:fs";
 import { join, basename, relative, resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { createHash } from "node:crypto";
 import { parseFrontmatter } from "./_lib/parse-frontmatter.mjs";
 import { expandScript } from "./_lib/npm-script-graph.mjs";
 import { extractSkillReferences } from "./_lib/skill-references.mjs";
@@ -107,9 +108,9 @@ const CATEGORIES = [
   },
 ];
 
-function listFiles(dir, filter) {
+function listFiles(dir, filter, recursive = false) {
   try {
-    return readdirSync(dir)
+    return readdirSync(dir, { recursive })
       .filter(filter)
       .map((f) => join(dir, f))
       .filter((f) => statSync(f).isFile());
@@ -132,8 +133,17 @@ function asArray(v) {
 
 // ---------- Node collectors ----------
 
-function collectAgents() {
-  const dir = join(REPO_ROOT, ".github/agents");
+function invocationMetadata(frontmatter) {
+  return {
+    invocable: frontmatter["user-invocable"] ?? true,
+    disableModelInvocation: frontmatter["disable-model-invocation"] ?? false,
+    argumentHint: frontmatter["argument-hint"] ?? null,
+    context: frontmatter.context ?? null,
+  };
+}
+
+export function collectAgents(root = REPO_ROOT) {
+  const dir = join(root, ".github/agents");
   const files = listFiles(dir, (f) => f.endsWith(".agent.md"));
   return files.map((path) => {
     const content = readFileSync(path, "utf8");
@@ -144,13 +154,13 @@ function collectAgents() {
       category: "agent",
       label: name,
       description: fm.description || "",
-      path: relative(REPO_ROOT, path),
+      path: relative(root, path),
       links: {
-        source: GITHUB_BASE + relative(REPO_ROOT, path),
+        source: GITHUB_BASE + relative(root, path),
       },
       meta: {
         model: asArray(fm.model)[0] || null,
-        invocable: fm["user-invocable"] !== "false",
+        ...invocationMetadata(fm),
         subagents: asArray(fm.agents),
         handoffTargets: extractHandoffAgents(content),
         skills: extractSkillReferences(content),
@@ -159,8 +169,8 @@ function collectAgents() {
   });
 }
 
-function collectSubagents() {
-  const dir = join(REPO_ROOT, ".github/agents/_subagents");
+export function collectSubagents(root = REPO_ROOT) {
+  const dir = join(root, ".github/agents/_subagents");
   const files = listFiles(dir, (f) => f.endsWith(".agent.md"));
   return files.map((path) => {
     const content = readFileSync(path, "utf8");
@@ -171,15 +181,19 @@ function collectSubagents() {
       category: "subagent",
       label: name,
       description: fm.description || "",
-      path: relative(REPO_ROOT, path),
-      links: { source: GITHUB_BASE + relative(REPO_ROOT, path) },
-      meta: { model: asArray(fm.model)[0] || null, skills: extractSkillReferences(content) },
+      path: relative(root, path),
+      links: { source: GITHUB_BASE + relative(root, path) },
+      meta: {
+        model: asArray(fm.model)[0] || null,
+        ...invocationMetadata(fm),
+        skills: extractSkillReferences(content),
+      },
     };
   });
 }
 
-function collectSkills() {
-  const skillsDir = join(REPO_ROOT, ".github/skills");
+export function collectSkills(root = REPO_ROOT) {
+  const skillsDir = join(root, ".github/skills");
   let dirs;
   try {
     dirs = readdirSync(skillsDir).filter((d) => statSync(join(skillsDir, d)).isDirectory());
@@ -197,9 +211,9 @@ function collectSkills() {
           category: "skill",
           label: fm.name || d,
           description: fm.description || "",
-          path: relative(REPO_ROOT, skillPath),
-          links: { source: GITHUB_BASE + relative(REPO_ROOT, skillPath) },
-          meta: {},
+          path: relative(root, skillPath),
+          links: { source: GITHUB_BASE + relative(root, skillPath) },
+          meta: invocationMetadata(fm),
         };
       } catch {
         return null;
@@ -227,22 +241,30 @@ function collectInstructions() {
   });
 }
 
-function collectPrompts() {
-  // Prompts live in tools/apex-prompts/ (not .github/prompts/) so they are
-  // never auto-loaded by VS Code Copilot's prompt-file discovery.
-  const dir = join(REPO_ROOT, "tools/apex-prompts");
-  const files = listFiles(dir, (f) => f.endsWith(".prompt.md"));
+export function collectPrompts(root = REPO_ROOT) {
+  const files = [".github/prompts", "tools/apex-prompts"].flatMap((directory) =>
+    listFiles(join(root, directory), (file) => file.endsWith(".prompt.md"), true),
+  );
+  const counts = new Map();
+  for (const file of files) {
+    const key = slug(basename(file, ".prompt.md"));
+    counts.set(key, (counts.get(key) ?? 0) + 1);
+  }
   return files.map((path) => {
     const content = readFileSync(path, "utf8");
     const fm = parseFrontmatter(content) || {};
     const name = basename(path, ".prompt.md");
+    const suffix =
+      counts.get(slug(name)) > 1
+        ? `:${createHash("sha256").update(relative(root, path)).digest("hex").slice(0, 12)}`
+        : "";
     return {
-      id: `prompt:${slug(name)}`,
+      id: `prompt:${slug(name)}${suffix}`,
       category: "prompt",
       label: name,
       description: fm.description || "",
-      path: relative(REPO_ROOT, path),
-      links: { source: GITHUB_BASE + relative(REPO_ROOT, path) },
+      path: relative(root, path),
+      links: { source: GITHUB_BASE + relative(root, path) },
       meta: {},
     };
   });
@@ -523,7 +545,8 @@ function buildEdges(nodes) {
     for (const [otherSlug, otherNode] of skillSlugMap) {
       if (otherSlug === nSlug || seen.has(otherNode.id)) continue;
       // Match word-boundary backtick or plain reference
-      const re = new RegExp(`\\b${otherSlug}\\b`);
+      const sourceSlug = otherSlug.replace(/^apex-/, "");
+      const re = new RegExp(`\\b(?:${otherSlug}|${sourceSlug})\\b`);
       if (re.test(body)) {
         seen.add(otherNode.id);
         edges.push({

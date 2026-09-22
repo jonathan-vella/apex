@@ -42,7 +42,9 @@ const GATES = {
   },
   2: {
     gatingArtifact: "02-architecture-assessment.md",
+    alternativeArtifact: "03-des-cost-estimate.md",
     requiredSidecar: "challenge-findings-architecture.json",
+    additionalSidecar: "challenge-findings-cost-estimate.json",
     label: "Step 2 Architecture",
   },
   "3_5": {
@@ -93,6 +95,16 @@ function sidecarOk(sidecarPath) {
   }
 }
 
+function reviewSidecar(sessionStatePath, defaultSidecar) {
+  try {
+    const state = JSON.parse(fs.readFileSync(sessionStatePath, "utf8"));
+    if (state?.decisions?.review_depth === "deep") return defaultSidecar.replace(/\.json$/, "-pass1.json");
+  } catch {
+    return defaultSidecar;
+  }
+  return defaultSidecar;
+}
+
 const projects = listProjects(ROOT);
 if (projects.length === 0) {
   console.log("  ℹ️  No projects under agent-output/ — nothing to validate.\n");
@@ -103,10 +115,17 @@ for (const project of projects) {
   const sessionState = path.join(projectDir, "00-session-state.json");
   for (const [stepKey, gate] of Object.entries(GATES)) {
     r.tick();
-    const gatingPath = path.join(projectDir, gate.gatingArtifact);
-    if (!fs.existsSync(gatingPath)) continue; // step not produced
-    const sidecarPath = path.join(projectDir, gate.requiredSidecar);
-    if (sidecarOk(sidecarPath)) continue;
+    const gatingArtifact = [gate.gatingArtifact, gate.alternativeArtifact].find(
+      (artifact) => artifact && fs.existsSync(path.join(projectDir, artifact)),
+    );
+    if (!gatingArtifact) continue;
+    const requiredSidecar = ["2", "4"].includes(stepKey)
+      ? reviewSidecar(sessionState, gate.requiredSidecar)
+      : gate.requiredSidecar;
+    const missingSidecars = [requiredSidecar, gate.additionalSidecar].filter(
+      (sidecar) => sidecar && !sidecarOk(path.join(projectDir, sidecar)),
+    );
+    if (missingSidecars.length === 0) continue;
 
     const skipReason = skipReasonFor(sessionState, stepKey);
     if (skipReason) {
@@ -116,8 +135,8 @@ for (const project of projects) {
 
     r.error(
       `${project}/${gate.label}`,
-      `gating artifact ${gate.gatingArtifact} exists but required findings ` +
-        `sidecar ${gate.requiredSidecar} is missing or unreadable. Run the ` +
+      `gating artifact ${gatingArtifact} exists but required findings ` +
+        `sidecar(s) ${missingSidecars.join(", ")} are missing or unreadable. Run the ` +
         `challenger-review-subagent (or 10-Challenger agent) to produce it.`,
     );
   }

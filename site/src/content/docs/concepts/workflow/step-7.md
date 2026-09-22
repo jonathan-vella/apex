@@ -16,7 +16,7 @@ the artifact future operators reach for first.
 
 [`08-As-Built`](https://github.com/jonathan-vella/apex/blob/main/.github/agents/08-as-built.agent.md)
 — uses the
-[`azure-artifacts`](https://github.com/jonathan-vella/apex/blob/main/.github/skills/azure-artifacts/SKILL.md)
+[`apex-azure-artifacts`](https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-artifacts/SKILL.md)
 skill and reads every prior artifact in `agent-output/{project}/`.
 
 ## Invocation

@@ -19,7 +19,7 @@ name: Sensei Branch Maintenance
 on:
   schedule:
     # Mondays at 08:00 UTC. See .github/workflows/README.md#weekly-cron-schedule
-    # for the full Monday stagger (05:00 governance → 06:00 maintenance → 08:00 sensei → 09:00 e2e).
+    # for the full Monday stagger (05:00 governance → 06:00 maintenance → 08:00 sensei).
     - cron: "0 8 * * 1"
   workflow_dispatch:
     inputs:

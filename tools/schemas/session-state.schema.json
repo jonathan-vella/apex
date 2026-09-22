@@ -18,6 +18,34 @@
   ],
   "additionalProperties": true,
   "properties": {
+    "review_selections": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^(3_5|4)$": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "schema_version",
+            "path",
+            "sha256",
+            "pass_number",
+            "review_focus",
+            "input_coverage",
+            "selected_at"
+          ],
+          "properties": {
+            "schema_version": { "const": "review-selection-v1" },
+            "path": { "type": "string", "minLength": 1 },
+            "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+            "pass_number": { "type": "integer", "minimum": 2 },
+            "review_focus": { "enum": ["comprehensive", "governance-reconciliation"] },
+            "input_coverage": { "const": "primary-and-review-guidance" },
+            "selected_at": { "type": "string", "format": "date-time" }
+          }
+        }
+      }
+    },
     "schema_version": {
       "type": "string",
       "enum": ["1.0", "2.0", "3.0"],

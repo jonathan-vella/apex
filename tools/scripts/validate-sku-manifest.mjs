@@ -51,7 +51,7 @@ import { readJson } from "./_lib/json.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const SCHEMA_PATH = path.join(ROOT, "tools/schemas/sku-manifest.schema.json");
-const VNET_PLANNING_REF = path.join(ROOT, ".github/skills/azure-defaults/references/vnet-planning.md");
+const VNET_PLANNING_REF = path.join(ROOT, ".github/skills/apex-azure-defaults/references/vnet-planning.md");
 
 const PRICING_TTL_DAYS = Number(process.env.APEX_SKU_PRICING_TTL_DAYS ?? 30);
 const MANIFEST_TTL_DAYS = Number(process.env.APEX_SKU_MANIFEST_TTL_DAYS ?? 90);

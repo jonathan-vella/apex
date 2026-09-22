@@ -21,7 +21,7 @@ discovered policies always win and may add or rename keys.
 ### Example
 
 ```text
-Defaults (azure-defaults skill):  9 tags (APEX standard, lowercase)
+Defaults (apex-azure-defaults skill):  9 tags (APEX standard, lowercase)
 Governance constraints discovered: 9 tags (environment, owner,
   costcenter, application, workload, sla, backup-policy,
   maint-window, tech-contact)   ← note: tech-contact, not technical-contact
@@ -47,8 +47,13 @@ For every policy in `04-governance-constraints.json`:
 
 ### DeployIfNotExists Policies
 
-1. Document auto-deployed resources in the implementation reference
-2. Include expected resources in cost estimates
+1. Verify effective assignment scope, parameters, identity permissions, deployment template and remediation behavior
+2. Document precisely which components policy owns; include expected resources in cost estimates
+3. Avoid duplicate provisioning only for verified ownership; check completion before claiming dependent connectivity
+
+For private DNS, follow the [canonical networking contract](iac-security-baseline.md#private-networking-and-dns).
+DINE assignment alone does not prove zones, records or VNet links exist. Existing noncompliance may need
+an explicitly authorized remediation task.
 
 ### Audit Policies
 

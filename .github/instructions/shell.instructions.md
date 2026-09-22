@@ -21,7 +21,7 @@ applyTo: "**/*.sh"
 ## Script Structure
 
 - Header comment explaining purpose
-- `set -euo pipefail` immediately after shebang
+- Use `set -euo pipefail` for Bash; use `set -eu` for POSIX sh
 - `trap cleanup EXIT` for resource teardown
 - Default variables at top; functions next; `main` called at bottom
 - Validate required parameters before execution
@@ -36,5 +36,6 @@ applyTo: "**/*.sh"
 
 ## Argument Parsing
 
-Use `while [[ $# -gt 0 ]]; do case $1 in ...` pattern with
-`shift` for each option. Include `-h|--help` with a `usage()` function.
+For Bash, use `while [[ $# -gt 0 ]]; do case $1 in ...`; for POSIX sh,
+use `while [ "$#" -gt 0 ]; do case $1 in ...`. Use `shift` for each
+option and include `-h|--help` with a `usage()` function.

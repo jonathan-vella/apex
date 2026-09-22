@@ -25,6 +25,44 @@ description: "All validation scripts, linting, and CI workflows"
 
 ## Validation Architecture
 
+### Stabilization checks
+
+CodeGen proceeds in dependency-ordered batches of up to three new source files, with focused validation after
+each edit and a root check at each batch boundary. Routine next-file permission is not required. Explicit user
+stop requests, unresolved errors, ownership changes and human approval gates still stop progression.
+
+Use these read-only commands from the repository root:
+
+```bash
+node tools/scripts/resolve-deployment-inputs.mjs --input approved-discovery-snapshot.json
+node tools/scripts/validate-iac-handoff.mjs --tree-hash infra/bicep/example
+node tools/scripts/summarize-deployment-preview.mjs --input preview.json --tool bicep --expected-ids expected.json
+node tools/scripts/validate-policy-precheck.mjs precheck.json --preview preview.json --expected-ids expected.json
+node tools/scripts/validate-provider-payload.mjs --input resolved-resources.json --s2-max-bytes 268435456000
+```
+
+The input resolver consumes approved values and read-only discovery snapshots; it performs no Azure calls or
+identity mutations. Its default report omits resolved values. See the [input snapshot contract][input-snapshot].
+An unset environment variable is not a reason to ask again for an already approved value.
+
+Capture Bicep what-if with `--no-pretty-print --output json`. The summarizer returns exit 0 for checked evidence,
+2 for required review and 1 for invalid or blocked evidence. Expected IDs come from approved resource bindings,
+including child resources, not from copying the observed result. A passing preview never grants apply permission.
+
+For unexpected Bicep `Ignore` records only, both preview commands support `--ignored-evidence bundle/ignored.json`.
+The [ignored-resource evidence contract][ignored-evidence] binds exact preview/expected-ID hashes to saved
+parent/child observations. It supports private-endpoint NICs, SQL `master` and Storage-linked system topics,
+with exact IDs and reasons, not wildcard exclusions. The records remain visible in the summary. Changed actions,
+missing managed resources and unknown coverage still block; relationship evidence does not confer apply approval.
+
+Provider-payload checks cover known SQL S2 and App Service Plan regressions only. Supply a concrete resource array
+extracted from generated payloads with recorded provenance; unresolved expressions remain unverified. The example
+SQL byte size must be checked against the target region's capabilities and approved configuration before use.
+Compilation, provider validation, preview and successful deployment are distinct outcomes.
+
+[input-snapshot]: https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-defaults/references/identity-resolution.md#resolve-before-asking
+[ignored-evidence]: https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-iac-common/references/deploy-shared-workflow.md#accounted-ignored-resources
+
 Validation runs at three stages, catching issues progressively earlier:
 
 ```mermaid
@@ -36,7 +74,7 @@ flowchart LR
     style C fill:#ffebee,stroke:#f44336,color:#000
 ```
 
-1. **Pre-commit** — validates staged files only (fast, file-type scoped, parallel)
+1. **Pre-commit** — serialized checks; publication Markdown/artifact checks use the staged index
 2. **Pre-push** — validates all changed files vs `main` (domain-scoped, parallel)
 3. **CI** — validates the full repository on every PR and push to `main`
 
@@ -46,12 +84,17 @@ All hooks are defined in `lefthook.yml` at the repository root.
 
 ### Pre-Commit Hooks
 
+Markdown and artifact checks run through `node tools/scripts/check-publication-scope.mjs markdown|artifacts`.
+They materialize an isolated index snapshot, so partially staged files are checked as committed. Unrelated untracked
+projects cannot block publication. Template, artifact-guidance and validator changes still run H2/template and review
+presence checks across all tracked artifacts in that snapshot. Markdown uses the installed local executable; failures
+propagate without filtering away exit codes. These checks never format, stage or rewrite project files.
+
 | Hook                    | Trigger (glob)                                      | Purpose                                               |
 | ----------------------- | --------------------------------------------------- | ----------------------------------------------------- |
 | `markdown-lint`         | `*.md`                                              | markdownlint on staged markdown files                 |
 | `link-check`            | `site/src/content/docs/**/*.{md,mdx}`               | Verify URLs in staged docs files                      |
-| `h2-sync`               | SKILL.md, azure-artifacts files                     | Check H2 heading sync across sources                  |
-| `artifact-validation`   | `agent-output/**/*.md`                              | Validate artifact H2 structure against templates      |
+| `artifact-validation`   | Staged artifacts, templates, guidance and validators | H2/template and review presence checks on tracked snapshot |
 | `agents`                | `**/*.agent.md`, `**/*.prompt.md`                   | Agent frontmatter, model alignment, body size         |
 | `instructions`          | `**/*.instructions.md`, agents, skills              | Instruction frontmatter and cross-reference validity  |
 | `secrets-baseline`      | _(all staged files)_                                | gitleaks secret scan (soft-skip if not installed)     |
@@ -94,8 +137,6 @@ All scripts are in the `tools/scripts/` directory. Run via `npm run <command>`.
 | npm Command          | Script                   | Purpose                                                   |
 | -------------------- | ------------------------ | --------------------------------------------------------- |
 | `validate:artifacts` | `validate-artifacts.mjs` | H2 sync, template compliance, and auto-fix (with `--fix`) |
-| `e2e:validate`       | `validate-e2e-step.mjs`  | E2E pipeline structural validation                        |
-| `e2e:benchmark`      | `benchmark-e2e.mjs`      | 8-dimension benchmark scoring                             |
 
 ### Governance and Compliance Validators
 
@@ -193,7 +234,6 @@ All workflows are in `.github/workflows/`.
 | Branch Enforcement        | `branch-enforcement.yml`        | PR to `main`                 | Branch naming convention and scope validation                                                      |
 | Link Check                | `link-check.yml`                | Docs changes                 | URL validity in documentation                                                                      |
 | Docs                      | `docs.yml`                      | Docs changes                 | Build and deploy Astro Starlight site                                                              |
-| E2E Validation            | `e2e-validation.yml`            | Agent output changes         | E2E pipeline structural validation                                                                 |
 | Weekly Maintenance        | `weekly-maintenance.yml`        | Scheduled (weekly)           | Freshness audits, orphaned content, glob audit                                                     |
 | Azure Deprecation Tracker | `azure-deprecation-tracker.yml` | Scheduled                    | Track Azure service deprecations                                                                   |
 
@@ -220,6 +260,6 @@ npm run lint:python:fix            # Fix Python lint issues
 
 - [Contributing](../../project/contributing/) — branch naming and commit conventions
 - [Agent Hooks](../../guides/hooks/) — VS Code agent hooks (lifecycle automation)
-- [E2E Testing](../../guides/e2e-testing/) — Ralph Loop evaluation framework
+- [Workflow Validation](../../guides/e2e-testing/) — focused checks and manual acceptance
 
   :::

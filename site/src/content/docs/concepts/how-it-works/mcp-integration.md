@@ -111,7 +111,7 @@ identity credentials as supported by the extension.
 | --- | --- | --- |
 | GitHub MCP | HTTP | Repository, issue, and pull-request context |
 
-Architecture diagrams are generated locally through the `python-diagrams` skill,
+Architecture diagrams are generated locally through the `apex-python-diagrams` skill,
 not through MCP. Terraform provider and module metadata comes from the public
 Terraform Registry API; initialized provider schemas come from Terraform CLI.
 

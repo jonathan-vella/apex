@@ -40,7 +40,7 @@ When multiple instruction files apply to the same file type (via overlapping
 
 | Instruction                         | Priority   | Key Rules                              |
 | ----------------------------------- | ---------- | -------------------------------------- |
-| azure-artifacts (for agent-output/) | 1          | H2 heading compliance, template-first  |
+| apex-azure-artifacts (for agent-output/) | 1          | H2 heading compliance, template-first  |
 | docs (for docs/)                    | 2          | Single H1, relative links, DRY         |
 | markdown                            | 3 (lowest) | 120-char lines, ATX headings, alt text |
 
@@ -48,8 +48,8 @@ When multiple instruction files apply to the same file type (via overlapping
 
 | Instruction                    | Priority    | Key Rules                                                      |
 | ------------------------------ | ----------- | -------------------------------------------------------------- |
-| agent-authoring                | 1 (highest) | Frontmatter schema, handoff structure, model assignment table  |
-| vendor-prompting               | 2           | Claude/GPT-5.6 vendor rules, rule-ID-tagged validator findings |
+| apex-agent-authoring                | 1 (highest) | Frontmatter schema, handoff structure, model assignment table  |
+| apex-vendor-prompting               | 2           | Claude/GPT-5.6 vendor rules, rule-ID-tagged validator findings |
 | prompt (for `.prompt.md` only) | 3           | Prompt-file frontmatter (`agent`, `argument-hint`, `tools`)    |
 | markdown                       | 4 (lowest)  | 120-char lines, ATX headings, alt text                         |
 

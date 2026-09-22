@@ -6,7 +6,7 @@
  * `proposed_aliases[]` entries emitted by the cost-estimate-subagent's
  * `<unresolved_sku_triage>` flow, and proposes additions to the
  * Canonical SKU Aliases table in
- * `.github/skills/azure-defaults/references/pricing-guidance.md`.
+ * `.github/skills/apex-azure-defaults/references/pricing-guidance.md`.
  *
  * Phase C4 of the nordic-foods lessons plan. Run monthly via cron + on
  * demand. Intentionally does NOT auto-merge; emits a patch file +
@@ -29,7 +29,7 @@ import { spawnSync } from "node:child_process";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const AGENT_OUTPUT = path.join(ROOT, "agent-output");
-const PRICING_GUIDANCE = path.join(ROOT, ".github/skills/azure-defaults/references/pricing-guidance.md");
+const PRICING_GUIDANCE = path.join(ROOT, ".github/skills/apex-azure-defaults/references/pricing-guidance.md");
 
 // 30-day default lookback — long enough to capture a typical project arc.
 const LOOKBACK_DAYS = Number(process.env.APEX_ALIAS_LOOKBACK_DAYS ?? 30);
@@ -116,7 +116,7 @@ function renderProposalReport(proposals) {
     `## SKU alias promotion proposal (${proposals.length} new candidate${proposals.length === 1 ? "" : "s"})`,
     "",
     "Review and append to the Canonical SKU Aliases table in",
-    "`.github/skills/azure-defaults/references/pricing-guidance.md`.",
+    "`.github/skills/apex-azure-defaults/references/pricing-guidance.md`.",
     "",
     "| Input from cost JSON | Proposed canonical `sku_name` | `product_filter` | Sources |",
     "| -------------------- | ----------------------------- | ---------------- | ------- |",

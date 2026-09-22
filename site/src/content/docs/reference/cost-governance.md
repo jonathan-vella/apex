@@ -24,9 +24,9 @@ defaults.
 
 The canonical contract and implementation examples are maintained in one place:
 
-- [Cost monitoring baseline](https://github.com/jonathan-vella/apex/blob/main/.github/skills/azure-defaults/references/cost-alerts-baseline.md)
-- [Bicep implementation](https://github.com/jonathan-vella/apex/blob/main/.github/skills/azure-defaults/references/cost-alerts-bicep.md)
-- [Terraform implementation](https://github.com/jonathan-vella/apex/blob/main/.github/skills/azure-defaults/references/cost-alerts-terraform.md)
+- [Cost monitoring baseline](https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-defaults/references/cost-alerts-baseline.md)
+- [Bicep implementation](https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-defaults/references/cost-alerts-bicep.md)
+- [Terraform implementation](https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-defaults/references/cost-alerts-terraform.md)
 
 Budget amounts and notification recipients remain parameters. Do not copy
 thresholds or notification blocks into documentation; the canonical contract
@@ -115,8 +115,8 @@ az consumption budget show \
   (`.github/instructions/iac-bicep-best-practices.instructions.md` and `iac-terraform-best-practices.instructions.md`)
   enforce these patterns automatically via glob matching
 - **Reusable budget patterns** are available in the IaC pattern skills:
-  - Bicep: `.github/skills/azure-bicep-patterns/references/budget-pattern.md`
-  - Terraform: `.github/skills/terraform-patterns/references/budget-pattern.md`
+  - Bicep: `.github/skills/apex-azure-bicep-patterns/references/budget-pattern.md`
+  - Terraform: `.github/skills/apex-terraform-patterns/references/budget-pattern.md`
 - [MCP Integration](/concepts/how-it-works/mcp-integration/)
   — Azure Resource Manager MCP pricing and cost tools
 - [Workflow](/concepts/workflow/) — how cost estimation fits into the agent workflow

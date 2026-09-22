@@ -80,7 +80,7 @@ If Mermaid is used, include a neutral theme directive for dark mode compatibilit
 ### Callout Types
 
 Supported: `> [!NOTE]`, `> [!TIP]`, `> [!IMPORTANT]`, `> [!WARNING]`, `> [!CAUTION]`.
-Full examples and emoji tables are in the azure-artifacts SKILL.md.
+Full examples and emoji tables are in the apex-azure-artifacts SKILL.md.
 
 ## Lists and Formatting
 

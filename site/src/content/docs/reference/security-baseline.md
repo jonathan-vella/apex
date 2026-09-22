@@ -18,16 +18,24 @@ review gates. Violations block code generation and deployment.
 | 3   | No public blob access                  | `allowBlobPublicAccess: false`         | `allow_nested_items_to_be_public = false` | SE:05      |
 | 4   | Managed Identity preferred             | `identity: { type: 'SystemAssigned' }` | `identity { type = "SystemAssigned" }`    | SE:05      |
 | 5   | Microsoft Entra ID-only SQL auth       | `azureADOnlyAuthentication: true`      | `azuread_authentication_only = true`      | SE:05      |
-| 6   | Public network disabled (prod only)    | `publicNetworkAccess: 'Disabled'`      | `public_network_access_enabled = false`   | SE:06      |
+| 6   | Private PaaS data services and APIs    | `publicNetworkAccess: 'Disabled'`      | `public_network_access_enabled = false`   | SE:06      |
 | 7   | No shared key access on storage        | `allowSharedKeyAccess: false`          | `shared_access_key_enabled = false`       | SE:05      |
 | 8   | App Service HTTP/2 enabled             | `http20Enabled: true`                  | `http2_enabled = true`                    | SE:07      |
 | 9   | Container Registry admin user disabled | `adminUserEnabled: false`              | `admin_enabled = false`                   | SE:05      |
 
-:::caution[Rule 6 — production-only]
-Public network access is only required to be disabled for **production**
-environments. Dev/test environments may keep public access enabled for
-developer convenience, but must still enforce every other rule above.
-:::
+## Private Networking
+
+PaaS data services use private endpoints and disabled public access in every environment, including development.
+App Service APIs must be private. App Service hosting a public-facing web application may use public HTTPS ingress;
+the remaining identity and security controls still apply. VNet integration is outbound connectivity, not an
+inbound private endpoint. Unsupported services or incompatible SKUs require an explicit design decision,
+not a silent public fallback.
+
+Private DNS resolution is mandatory. Project IaC provisions DNS unless verified central infrastructure or an
+effective DeployIfNotExists policy owns the specific components. Check assignment scope, parameters, zone IDs,
+permissions, deployment behavior and remediation before omitting those components. A zone-group policy does not
+prove the DNS zone or VNet link exists. Do not duplicate policy-owned DNS; verify resolution from intended clients.
+See [DINE evaluation][dine] and [private endpoint DNS][private-dns].
 
 > **WAF pillar key**: SE:05 = Identity & access, SE:06 = Network security, SE:07 = Encryption.
 
@@ -65,6 +73,9 @@ The security baseline is checked at multiple points in the workflow:
 # Check all IaC files
 npm run validate:iac-security-baseline
 
+# Explicitly reviewed public web application, isolated in a known Web App resource/module file
+npm run validate:iac-security-baseline -- --public-web-app infra/bicep/project/web-app.bicep
+
 # Full validation suite (includes security baseline)
 npm run validate:all
 ```
@@ -76,6 +87,15 @@ property assignments (e.g., a property split across multiple lines) may not be c
 The challenger-review-subagent provides a second layer of defense for patterns the
 regex cannot detect.
 
+The public-web flag accepts a dedicated known Web App resource or AVM-module file, not mixed-resource files.
+Use the corresponding `.tf` path for Terraform. The flag declares reviewed scope; it does not approve an API's
+public exposure. Automated runs without that scope remain fail-closed. Source scans cannot prove endpoint coverage,
+module internals or DNS resolution. Those require plan/code review and actual connectivity evidence.
+
+When refining previously approved requirements under this baseline, return to Requirements for reconciliation,
+independent review and renewed approval. Do not silently rewrite approved project artifacts or treat old findings
+as current evidence for changed inputs.
+
 ## Further Reading
 
 - [Microsoft Cloud Security Benchmark][mcsb] — per-service security baselines
@@ -86,6 +106,8 @@ regex cannot detect.
 
 [mcsb]: https://learn.microsoft.com/security/benchmark/azure/overview
 [waf-sec]: https://learn.microsoft.com/azure/well-architected/security/
+[dine]: https://learn.microsoft.com/en-us/azure/governance/policy/concepts/effect-deploy-if-not-exists
+[private-dns]: https://learn.microsoft.com/en-us/azure/private-link/private-endpoint-dns
 
 ## Related
 

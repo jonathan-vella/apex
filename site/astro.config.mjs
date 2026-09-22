@@ -246,7 +246,7 @@ export default defineConfig({
             { label: "Dev Container Hygiene", slug: "guides/devcontainer-hygiene" },
             { label: "azd Deployment", slug: "guides/azd-deployment" },
             { label: "Agent Hooks", slug: "guides/hooks" },
-            { label: "E2E Testing", slug: "guides/e2e-testing" },
+            { label: "Workflow Validation", slug: "guides/e2e-testing" },
           ],
         },
         {

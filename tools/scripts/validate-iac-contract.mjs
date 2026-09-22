@@ -104,6 +104,88 @@ function checkDiagnosticsParam(data, fileRel, r) {
   }
 }
 
+function checkScheduledActions(data, fileRel, reporter) {
+  for (const resource of data.resources ?? []) {
+    if (resource.type.toLowerCase() !== "microsoft.costmanagement/scheduledactions") continue;
+    const deployment = resource.deployment;
+    const label = `resources["${resource.logical_name}"].deployment`;
+    if (!deployment) {
+      reporter.error(fileRel, `${label} is required: record scheduled-action kind, scope and provider constraints`);
+      continue;
+    }
+    if (deployment.kind !== "InsightAlert") continue;
+    if (deployment.scope !== "subscription")
+      reporter.error(fileRel, `${label}.scope must be subscription for InsightAlert`);
+    if (data.iac_tool === "Bicep" && deployment.module_scope !== "subscription") {
+      reporter.error(
+        fileRel,
+        `${label}.module_scope must be subscription; an RG-scoped module cannot host InsightAlert`,
+      );
+    }
+    if (!deployment.display_name_max_length)
+      reporter.error(fileRel, `${label} must bound displayName to 25 characters`);
+    if (deployment.view_scope !== "same-subscription")
+      reporter.error(fileRel, `${label} must bind the view to the same subscription`);
+    if (!deployment.schedule) {
+      reporter.error(
+        fileRel,
+        `${label}.schedule must require deployment-date UTC midnight and a window of at most 365 days`,
+      );
+    }
+  }
+}
+
+function checkCapabilityReadiness(data, fileRel, reporter, required) {
+  if (!data.capability_checks) {
+    if (required) reporter.error(fileRel, "Capability coverage absent; owner migration required for readiness mode");
+    return;
+  }
+  const checks = new Map(data.capability_checks.map((entry) => [entry.id, entry]));
+  const visit = (capability, trail = new Set()) => {
+    if (trail.has(capability.id)) {
+      reporter.error(fileRel, `Capability dependency cycle: ${capability.id}`);
+      return;
+    }
+    const next = new Set([...trail, capability.id]);
+    for (const reference of capability.dependencies) {
+      const id = reference.startsWith("capability:") ? reference.slice("capability:".length) : reference;
+      const dependency = checks.get(id);
+      if (!dependency && reference.startsWith("capability:"))
+        reporter.error(fileRel, `Missing capability dependency: ${id}`);
+      if (dependency) {
+        if (dependency.status !== "designed")
+          reporter.error(fileRel, `Required path ${capability.id} depends on ${dependency.status} capability ${id}`);
+        else visit(dependency, next);
+      }
+    }
+  };
+  const seen = new Set();
+  for (const capability of data.capability_checks) {
+    if (seen.has(capability.id)) reporter.error(fileRel, `Duplicate capability: ${capability.id}`);
+    seen.add(capability.id);
+    if (capability.status === "designed" && (capability.required_now || capability.security_obligation))
+      visit(capability);
+    if ((capability.required_now || capability.security_obligation) && capability.status === "unresolved") {
+      reporter.error(fileRel, `Required design path unresolved: ${capability.id}`);
+    }
+    if (
+      capability.status === "deferred" &&
+      (capability.security_obligation || !capability.approval_ref || !capability.revisit_condition)
+    ) {
+      reporter.error(
+        fileRel,
+        `Invalid deferral: ${capability.id}; security cannot be deferred, other deferrals require approval and revisit condition`,
+      );
+    }
+    if (capability.status === "designed" && (!capability.dependencies.length || !capability.evidence.length)) {
+      reporter.error(fileRel, `Designed capability lacks dependencies/evidence: ${capability.id}`);
+    }
+    if (capability.runtime_status === "verified" && !capability.evidence.length) {
+      reporter.error(fileRel, `Runtime verification lacks evidence: ${capability.id}`);
+    }
+  }
+}
+
 function checkDependsOn(data, fileRel, r) {
   const names = new Set((data.resources ?? []).map((res) => res.logical_name));
   const graph = new Map();
@@ -175,12 +257,21 @@ function main() {
   const r = new Reporter("IaC Contract Validator");
   r.header();
   const validate = loadValidator(SCHEMA_PATH);
-  const args = process.argv.slice(2);
+  const rawArgs = process.argv.slice(2);
+  if (rawArgs.includes("--help")) {
+    console.log(
+      "Usage: validate-iac-contract.mjs [artifact-path-or-glob ...] [--readiness]\nNo paths: scan project contracts. Readiness requires capability coverage; it does not grant approval.",
+    );
+    return;
+  }
+  const readiness = rawArgs.includes("--readiness");
+  const args = rawArgs.filter((arg) => arg !== "--readiness");
   const patterns = args.length > 0 ? args : defaultGlobs();
 
   let files = [];
   for (const pat of patterns) {
     const matched = globSync(pat, { cwd: ROOT, absolute: true });
+    if (args.length > 0 && matched.length === 0) r.error(pat, "Explicit target matched no files; use an artifact path");
     files = files.concat(matched);
   }
   files = [...new Set(files)];
@@ -188,7 +279,8 @@ function main() {
   if (files.length === 0) {
     r.info("(no 04-iac-contract.json files found)");
     r.summary();
-    process.exit(0);
+    r.exitOnError("No IaC contracts selected");
+    return;
   }
 
   for (const filePath of files) {
@@ -207,16 +299,21 @@ function main() {
       }
       continue;
     }
+    const errorsBefore = r.errors;
     checkUniqueLogicalNames(data, fileRel, r);
     checkModuleRefs(data, fileRel, r);
     checkIdentity(data, fileRel, r);
     checkDiagnosticsParam(data, fileRel, r);
+    checkScheduledActions(data, fileRel, r);
+    checkCapabilityReadiness(data, fileRel, r, readiness);
     checkDependsOn(data, fileRel, r);
     checkRefHashes(data, fileRel, r);
-    r.ok(
-      fileRel,
-      `iac-contract ${data.schema_version} (${data.resources.length} resources, iac_tool=${data.iac_tool})`,
-    );
+    if (r.errors === errorsBefore) {
+      r.ok(
+        fileRel,
+        `iac-contract ${data.schema_version} (${data.resources.length} resources, iac_tool=${data.iac_tool})`,
+      );
+    }
   }
 
   r.summary();

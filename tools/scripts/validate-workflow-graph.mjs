@@ -17,7 +17,7 @@ import fs from "node:fs";
 import { getAgents } from "./_lib/workspace-index.mjs";
 import { Reporter } from "./_lib/reporter.mjs";
 
-const GRAPH_PATH = ".github/skills/workflow-engine/templates/workflow-graph.json";
+const GRAPH_PATH = ".github/skills/apex-workflow-engine/templates/workflow-graph.json";
 
 const r = new Reporter("Workflow Graph Validator");
 
@@ -256,7 +256,7 @@ for (const edge of graph.edges) {
 
 // Validate metadata.version
 const expectedMajor = "2";
-const knownVersions = new Set(["2.1", "2.2", "2.3"]);
+const knownVersions = new Set(["2.1", "2.2", "2.3", "2.4"]);
 const metaVersion = graph.metadata?.version;
 if (metaVersion === undefined) {
   r.warn("metadata.version missing — older consumers may rely on it");

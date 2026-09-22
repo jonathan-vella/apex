@@ -29,6 +29,63 @@ on:
 permissions:
   contents: read
 
+env:
+  DEVCONTAINER_BASE_SCRIPT: |
+    import fs from "node:fs";
+    import path from "node:path";
+    import { execFileSync } from "node:child_process";
+    import { modify, applyEdits } from "jsonc-parser";
+    import { parseJsonc } from "./tools/scripts/_lib/parse-jsonc.mjs";
+
+    const [operation, revision] = process.argv.slice(1);
+    if (!["extract", "rewrite"].includes(operation)) throw new Error("Unknown base-image operation");
+    const readSource = (file) => revision
+      ? execFileSync("git", ["show", `${revision}:${file}`], { encoding: "utf8" })
+      : fs.readFileSync(file, "utf8");
+    const configFile = ".devcontainer/devcontainer.json";
+    const configText = readSource(configFile);
+    const config = parseJsonc(configText);
+    if (!config || typeof config !== "object" || Array.isArray(config)) throw new Error("Invalid devcontainer config");
+    if (Object.hasOwn(config, "image") === Object.hasOwn(config, "build")) {
+      throw new Error("Expected exactly one of image or build");
+    }
+
+    let sourceFile = configFile;
+    let sourceText = configText;
+    let baseImage = config.image;
+    let from;
+    if (Object.hasOwn(config, "build")) {
+      const dockerfile = config.build?.dockerfile;
+      if (typeof dockerfile !== "string" || !dockerfile || /[\r\n]/.test(dockerfile) || path.isAbsolute(dockerfile)) {
+        throw new Error("Expected a repository-relative build.dockerfile");
+      }
+      sourceFile = path.posix.normalize(path.posix.join(".devcontainer", dockerfile));
+      if (sourceFile.startsWith("../")) throw new Error("Dockerfile must remain in the repository");
+      sourceText = readSource(sourceFile);
+      const declarations = [...sourceText.matchAll(/^[\t ]*FROM\b[^\r\n]*/gim)];
+      from = /^([\t ]*FROM[\t ]+(?:--platform=[^\s]+[\t ]+)?)([^\s]+)(?:[\t ]+AS[\t ]+[\w.-]+)?[\t ]*$/i.exec(declarations[0]?.[0] ?? "");
+      if (declarations.length !== 1 || !from) throw new Error("Expected one literal Dockerfile FROM instruction");
+      from.index = declarations[0].index + from[1].length;
+      baseImage = from[2];
+    }
+    const validImage = (image) => typeof image === "string" && /^[a-zA-Z0-9][a-zA-Z0-9._/:@-]*$/.test(image);
+    if (!validImage(baseImage)) throw new Error("Expected a literal base image, not an ARG or empty value");
+    if (operation === "extract") {
+      process.stdout.write(baseImage);
+    } else {
+      const selected = process.env.SELECTED_IMAGE;
+      if (!validImage(selected)) throw new Error("Invalid selected base image");
+      const updated = from
+        ? sourceText.slice(0, from.index) + selected + sourceText.slice(from.index + baseImage.length)
+        : applyEdits(configText, modify(configText, ["image"], selected, {}));
+      fs.writeFileSync(path.join(process.env.RUNNER_TEMP, "devcontainer-backup.json"), JSON.stringify([
+        { file: configFile, text: configText },
+        ...(from ? [{ file: sourceFile, text: sourceText }] : []),
+      ]));
+      fs.writeFileSync(sourceFile, updated);
+      if (!from && parseJsonc(updated).image !== selected) throw new Error("Base image rewrite failed");
+    }
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
@@ -51,6 +108,9 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
 
+      - name: Setup Node
+        uses: ./.github/actions/setup-node-repo
+
       - name: Resolve baseline and candidate images
         id: images
         env:
@@ -60,31 +120,29 @@ jobs:
           INPUT_CANDIDATE_OS: ${{ inputs.candidate_os }}
         run: |
           extract_image() {
-            node --input-type=module -e '
-              import fs from "node:fs";
-              import { parseJsonc } from "./tools/scripts/_lib/parse-jsonc.mjs";
-              const value = parseJsonc(fs.readFileSync(process.argv[1], "utf8")).image;
-              if (typeof value !== "string" || value.length === 0) process.exit(1);
-              process.stdout.write(value);
-            ' "$1"
+            node --input-type=module -e "$DEVCONTAINER_BASE_SCRIPT" extract "$@"
           }
 
           image_os() {
-            case "$1" in
-              *:ubuntu-*) printf '%s' "${1##*:ubuntu-}" ;;
-              *:ubuntu[0-9]*) printf '%s' "${1##*:ubuntu}" ;;
+            local image="${1%%@*}"
+            local version
+            case "$image" in
+              *:ubuntu-*) version="${image##*:ubuntu-}" ;;
+              *:ubuntu[0-9]*) version="${image##*:ubuntu}" ;;
+              ubuntu:*|*/ubuntu:*) version="${image##*:}" ;;
               *) return 1 ;;
             esac
+            [[ "$version" =~ ^[0-9]{2}\.[0-9]{2}$ ]] || return 1
+            printf '%s' "$version"
           }
 
           if [[ "$EVENT_NAME" == "pull_request" ]]; then
-            git show "${BASE_SHA}:.devcontainer/devcontainer.json" > "${RUNNER_TEMP}/baseline-devcontainer.json"
-            baseline_image=$(extract_image "${RUNNER_TEMP}/baseline-devcontainer.json")
-            candidate_image=$(extract_image ".devcontainer/devcontainer.json")
+            baseline_image=$(extract_image "$BASE_SHA")
+            candidate_image=$(extract_image)
             baseline_os=$(image_os "$baseline_image")
             candidate_os=$(image_os "$candidate_image")
           else
-            baseline_image=$(extract_image ".devcontainer/devcontainer.json")
+            baseline_image=$(extract_image)
             candidate_image="$INPUT_CANDIDATE_IMAGE"
             baseline_os=$(image_os "$baseline_image")
             candidate_os="$INPUT_CANDIDATE_OS"
@@ -152,34 +210,17 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
 
+      - name: Setup Node
+        uses: ./.github/actions/setup-node-repo
+
       - name: Create repo-relative validation config
         env:
           SELECTED_IMAGE: >-
             ${{ matrix.variant == 'baseline' && needs.preflight.outputs.baseline_image || needs.preflight.outputs.candidate_image }}
         run: |
-          cp .devcontainer/devcontainer.json "${RUNNER_TEMP}/devcontainer.original.json"
-          current_image=$(node --input-type=module -e '
-            import fs from "node:fs";
-            import { parseJsonc } from "./tools/scripts/_lib/parse-jsonc.mjs";
-            process.stdout.write(parseJsonc(fs.readFileSync(".devcontainer/devcontainer.json", "utf8")).image);
-          ')
-          CURRENT_IMAGE="$current_image" node -e '
-            const fs = require("node:fs");
-            const file = ".devcontainer/devcontainer.json";
-            const text = fs.readFileSync(file, "utf8");
-            const before = `"image": "${process.env.CURRENT_IMAGE}"`;
-            const after = `"image": "${process.env.SELECTED_IMAGE}"`;
-            const imageChanged = process.env.CURRENT_IMAGE !== process.env.SELECTED_IMAGE;
-            const updated = imageChanged ? text.replace(before, after) : text;
-            if (imageChanged && updated === text) throw new Error("top-level image property was not replaced");
-            fs.writeFileSync(file, updated);
-          '
-          SELECTED_IMAGE="$SELECTED_IMAGE" node --input-type=module -e '
-            import fs from "node:fs";
-            import { parseJsonc } from "./tools/scripts/_lib/parse-jsonc.mjs";
-            const actual = parseJsonc(fs.readFileSync(".devcontainer/devcontainer.json", "utf8")).image;
-            if (actual !== process.env.SELECTED_IMAGE) throw new Error(`expected ${process.env.SELECTED_IMAGE}, got ${actual}`);
-          '
+          node --input-type=module -e "$DEVCONTAINER_BASE_SCRIPT" rewrite
+          actual=$(node --input-type=module -e "$DEVCONTAINER_BASE_SCRIPT" extract)
+          [[ "$actual" == "$SELECTED_IMAGE" ]]
 
       - name: Prepare host bind mounts
         run: mkdir -p "$HOME/.azure"
@@ -195,6 +236,7 @@ jobs:
           useNativeRunner: true
           push: never
           runCmd: >-
+            env APEX_EXPECTED_BASE_IMAGE='${{ matrix.variant == 'baseline' && needs.preflight.outputs.baseline_image || needs.preflight.outputs.candidate_image }}'
             bash tools/scripts/validate-devcontainer.sh
             --variant ${{ matrix.variant }}
             --expected-os ${{ matrix.variant == 'baseline' && needs.preflight.outputs.baseline_os || needs.preflight.outputs.candidate_os }}
@@ -213,9 +255,14 @@ jobs:
       - name: Restore original dev container config
         if: always()
         run: |
-          if [[ -f "${RUNNER_TEMP}/devcontainer.original.json" ]]; then
-            cp "${RUNNER_TEMP}/devcontainer.original.json" .devcontainer/devcontainer.json
-          fi
+          node --input-type=module -e '
+            import fs from "node:fs";
+            import path from "node:path";
+            const backup = path.join(process.env.RUNNER_TEMP, "devcontainer-backup.json");
+            if (fs.existsSync(backup)) {
+              for (const { file, text } of JSON.parse(fs.readFileSync(backup, "utf8"))) fs.writeFileSync(file, text);
+            }
+          '
 
   compare:
     name: Compare base-image verdicts
