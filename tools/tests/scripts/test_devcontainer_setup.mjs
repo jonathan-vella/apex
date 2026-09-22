@@ -15,6 +15,35 @@ function fixture(context) {
   return root;
 }
 
+test("VS Code cross-check distinguishes exclusions from recommendations", (context) => {
+  const root = fixture(context);
+  fs.mkdirSync(path.join(root, "tools/scripts"), { recursive: true });
+  fs.mkdirSync(path.join(root, ".devcontainer"));
+  fs.mkdirSync(path.join(root, ".vscode"));
+  fs.cpSync(new URL("../../scripts/_lib", import.meta.url), path.join(root, "tools/scripts/_lib"), { recursive: true });
+  const validator = path.join(root, "tools/scripts/validate-vscode-config.mjs");
+  fs.copyFileSync(new URL("../../scripts/validate-vscode-config.mjs", import.meta.url), validator);
+  fs.symlinkSync(new URL("../../../node_modules", import.meta.url), path.join(root, "node_modules"), "dir");
+  const config = parseJsonc(
+    fs.readFileSync(new URL("../../../.devcontainer/devcontainer.json", import.meta.url), "utf8"),
+  );
+  const recommendations = JSON.parse(
+    fs.readFileSync(new URL("../../../.vscode/extensions.json", import.meta.url), "utf8"),
+  );
+  const check = () => {
+    fs.writeFileSync(path.join(root, ".devcontainer/devcontainer.json"), JSON.stringify(config));
+    fs.writeFileSync(path.join(root, ".vscode/extensions.json"), JSON.stringify(recommendations));
+    return spawnSync(process.execPath, [validator], { encoding: "utf8" });
+  };
+  const valid = check();
+  assert.equal(valid.status, 0, valid.stdout + valid.stderr);
+  recommendations.recommendations.push("ms-azuretools.vscode-azure-mcp-server@2.0.0");
+  assert.equal(check().status, 1);
+  recommendations.recommendations.pop();
+  config.customizations.vscode.extensions.push("example.unexpected");
+  assert.equal(check().status, 1);
+});
+
 test("extension policy requires exclusions and rejects direct or pinned duplicate providers", (context) => {
   const root = fixture(context);
   fs.mkdirSync(path.join(root, "tools/scripts"), { recursive: true });

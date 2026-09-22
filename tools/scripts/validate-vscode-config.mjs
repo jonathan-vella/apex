@@ -178,8 +178,18 @@ function crossCheckExtensions(devcontainerExts, extensionsJsonExts) {
 
   console.log("\n🔗 Cross-checking extension lists...");
 
-  const devSet = new Set(devcontainerExts.map(normalizeExtensionId));
+  const normalizedDev = devcontainerExts.map(normalizeExtensionId);
+  const excluded = normalizedDev
+    .filter((extension) => extension.startsWith("-"))
+    .map((extension) => extension.slice(1));
+  const devSet = new Set(normalizedDev.filter((extension) => !extension.startsWith("-")));
   const extSet = new Set(extensionsJsonExts.map(normalizeExtensionId));
+
+  for (const extension of excluded) {
+    if ([...devSet, ...extSet].some((entry) => entry.split("@")[0] === extension)) {
+      errors.push(`❌ Excluded extension is also installed or recommended: ${extension}`);
+    }
+  }
 
   const onlyInDevcontainer = [...devSet].filter((extension) => !extSet.has(extension)).sort();
   const onlyInExtensionsJson = [...extSet].filter((extension) => !devSet.has(extension)).sort();
