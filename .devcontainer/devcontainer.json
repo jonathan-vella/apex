@@ -59,6 +59,11 @@
       // Keep editor extensions limited to core APEX language and GitHub UX.
       // Azure MCP runs from .vscode/mcp.json rather than an extension pack.
       "extensions": [
+        "-ms-vscode.vscode-node-azure-pack",
+        "-ms-azuretools.vscode-azure-github-copilot",
+        "-ms-azuretools.vscode-azure-mcp-server",
+        "-ms-windows-ai-studio.windows-ai-studio",
+        "-teamsdevapp.vscode-ai-foundry",
         "GitHub.copilot-chat",
         "ms-python.python",
         "ms-python.vscode-pylance",

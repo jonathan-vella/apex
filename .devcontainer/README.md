@@ -118,8 +118,18 @@ Terraform, PowerShell, or the configured MCP servers. Keep the .NET runtime requ
 Python debugger/environment tooling when using Python development features.
 
 Workspace `unwantedRecommendations` discourage installation; they do not uninstall existing extensions
-or override personal Settings Sync. After removal, reload the VS Code window and check host/profile extension
-settings if packages return. The extension validator guards repository declarations, not personal installations.
+or override personal Settings Sync. The devcontainer also uses `-publisher.extension` entries to remove
+the unwanted packages from the automatic container install list. `npm run validate:extension-bloat`
+requires those exclusions and rejects direct additions, including version-pinned entries.
+These exclusions are not an extension security policy and do not block manual or dependency-driven installs.
+
+For an existing container, uninstall GitHub Copilot for Azure and AI Toolkit before uninstalling Azure MCP Server.
+Remove the Azure Tools pack as well, retaining unrelated service explorers when offered the choice.
+Reload the VS Code window, then use `MCP: List Servers` to verify that only the workspace Azure MCP provider remains.
+Keep Azure Resource Manager MCP and Bicep MCP; they provide different capabilities.
+If packages return, check the host/profile extensions and `dev.containers.defaultExtensions` for the Azure Tools pack
+or its dependencies. Rebuild the container to apply changed devcontainer exclusions.
+The extension validator guards repository declarations, not personal installations.
 
 #### Further Setup Optimization
 

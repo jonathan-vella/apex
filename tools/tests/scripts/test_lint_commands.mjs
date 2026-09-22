@@ -45,10 +45,13 @@ test("extension guard rejects Azure Copilot and bundling extensions", (context) 
     path.join(root, "tools/scripts/validate-extension-bloat.mjs"),
   );
   symlinkSync(fileURLToPath(new URL("../../../node_modules", import.meta.url)), path.join(root, "node_modules"), "dir");
+  const exclusions = parseJsonc(
+    readFileSync(new URL("../../../.devcontainer/devcontainer.json", import.meta.url), "utf8"),
+  ).customizations.vscode.extensions.filter((entry) => entry.startsWith("-"));
   const check = (extension) => {
     writeFileSync(
       path.join(root, ".devcontainer/devcontainer.json"),
-      JSON.stringify({ customizations: { vscode: { extensions: [extension] } } }),
+      JSON.stringify({ customizations: { vscode: { extensions: [...exclusions, extension] } } }),
     );
     return spawnSync(process.execPath, [path.join(root, "tools/scripts/validate-extension-bloat.mjs")], {
       encoding: "utf8",

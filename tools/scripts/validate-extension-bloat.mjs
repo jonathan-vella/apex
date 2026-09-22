@@ -69,10 +69,17 @@ const lowerDenylist = new Map(Array.from(DENYLIST, ([k, v]) => [k.toLowerCase(),
 
 for (const ext of extensions) {
   if (typeof ext !== "string") continue;
-  const hit = lowerDenylist.get(ext.toLowerCase());
+  const hit = lowerDenylist.get(ext.toLowerCase().split("@")[0]);
   if (hit) {
     r.errorAnnotation(".devcontainer/devcontainer.json", `Bloat extension declared: ${hit.id} — ${hit.reason}`);
     console.log(`  Fix: Remove "${hit.id}" from customizations.vscode.extensions[]. See .devcontainer/README.md.`);
+  }
+}
+
+const exclusions = new Set(extensions.filter((ext) => typeof ext === "string").map((ext) => ext.toLowerCase()));
+for (const id of lowerDenylist.keys()) {
+  if (!exclusions.has(`-${id}`)) {
+    r.errorAnnotation(".devcontainer/devcontainer.json", `Missing extension install exclusion: -${id}`);
   }
 }
 
