@@ -2,14 +2,7 @@
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
   "generatedAt": "2026-09-22T08:53:58.892Z",
   "categories": [
-    {
-      "id": "agent",
-      "key": "agents",
-      "label": "Agent",
-      "color": "#3b82f6",
-      "shape": "round-rectangle",
-      "count": 14
-    },
+    { "id": "agent", "key": "agents", "label": "Agent", "color": "#3b82f6", "shape": "round-rectangle", "count": 14 },
     {
       "id": "subagent",
       "key": "subagents",
@@ -18,14 +11,7 @@
       "shape": "round-diamond",
       "count": 7
     },
-    {
-      "id": "skill",
-      "key": "skills",
-      "label": "Skill",
-      "color": "#10b981",
-      "shape": "ellipse",
-      "count": 37
-    },
+    { "id": "skill", "key": "skills", "label": "Skill", "color": "#10b981", "shape": "ellipse", "count": 37 },
     {
       "id": "instruction",
       "key": "instructions",
@@ -34,14 +20,7 @@
       "shape": "rectangle",
       "count": 29
     },
-    {
-      "id": "prompt",
-      "key": "prompts",
-      "label": "Prompt",
-      "color": "#ec4899",
-      "shape": "tag",
-      "count": 30
-    },
+    { "id": "prompt", "key": "prompts", "label": "Prompt", "color": "#ec4899", "shape": "tag", "count": 30 },
     {
       "id": "validator",
       "key": "validators",
@@ -58,14 +37,7 @@
       "shape": "cut-rectangle",
       "count": 6
     },
-    {
-      "id": "mcp",
-      "key": "mcp_servers",
-      "label": "MCP Server",
-      "color": "#f43f5e",
-      "shape": "barrel",
-      "count": 3
-    }
+    { "id": "mcp", "key": "mcp_servers", "label": "MCP Server", "color": "#f43f5e", "shape": "barrel", "count": 3 }
   ],
   "nodeCount": 189,
   "edgeCount": 728,
@@ -76,9 +48,7 @@
       "label": "01-Orchestrator",
       "description": "Master orchestrator for the multi-step Azure platform engineering workflow. Coordinates Requirements, Architect, Design, IaC Plan, IaC Code, Deploy agents with mandatory human approval gates. Routes Bicep or Terraform tracks via decisions.iac_tool.",
       "path": ".github/agents/01-orchestrator.agent.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/01-orchestrator.agent.md"
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/01-orchestrator.agent.md" },
       "meta": {
         "model": "MAI-Code-1.1-Flash",
         "invocable": true,
@@ -101,12 +71,7 @@
           "09-Diagnose",
           "10-Challenger"
         ],
-        "skills": [
-          "apex-workflow-engine",
-          "apex-golden-principles",
-          "apex-azure-artifacts",
-          "apex-azure-defaults"
-        ]
+        "skills": ["apex-workflow-engine", "apex-golden-principles", "apex-azure-artifacts", "apex-azure-defaults"]
       }
     },
     {
@@ -115,28 +80,16 @@
       "label": "02-Requirements",
       "description": "Researches and captures Azure platform engineering project requirements",
       "path": ".github/agents/02-requirements.agent.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/02-requirements.agent.md"
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/02-requirements.agent.md" },
       "meta": {
         "model": "GPT-5.6 Sol (copilot)",
         "invocable": true,
         "disableModelInvocation": true,
         "argumentHint": "Describe the Azure workload or project you want to gather requirements for",
         "context": null,
-        "subagents": [
-          "challenger-review-subagent"
-        ],
-        "handoffTargets": [
-          "02-Requirements",
-          "10-Challenger",
-          "03-Architect",
-          "01-Orchestrator"
-        ],
-        "skills": [
-          "apex-azure-defaults",
-          "apex-azure-artifacts"
-        ]
+        "subagents": ["challenger-review-subagent"],
+        "handoffTargets": ["02-Requirements", "10-Challenger", "03-Architect", "01-Orchestrator"],
+        "skills": ["apex-azure-defaults", "apex-azure-artifacts"]
       }
     },
     {
@@ -145,31 +98,16 @@
       "label": "03-Architect",
       "description": "Expert Architect providing guidance using Azure Well-Architected Framework principles and Microsoft best practices. Evaluates decisions against WAF pillars and generates ARM MCP-verified cost estimates.",
       "path": ".github/agents/03-architect.agent.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/03-architect.agent.md"
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/03-architect.agent.md" },
       "meta": {
         "model": "GPT-5.6 Sol (copilot)",
         "invocable": true,
         "disableModelInvocation": true,
         "argumentHint": null,
         "context": null,
-        "subagents": [
-          "cost-estimate-subagent",
-          "challenger-review-subagent"
-        ],
-        "handoffTargets": [
-          "03-Architect",
-          "04-Design",
-          "04g-Governance",
-          "02-Requirements",
-          "01-Orchestrator"
-        ],
-        "skills": [
-          "apex-azure-defaults",
-          "apex-azure-artifacts",
-          "apex-context-management"
-        ]
+        "subagents": ["cost-estimate-subagent", "challenger-review-subagent"],
+        "handoffTargets": ["03-Architect", "04-Design", "04g-Governance", "02-Requirements", "01-Orchestrator"],
+        "skills": ["apex-azure-defaults", "apex-azure-artifacts", "apex-context-management"]
       }
     },
     {
@@ -178,30 +116,16 @@
       "label": "04-Design",
       "description": "Step 3 — Design Artifacts. Generates code-based Python architecture diagrams and Architecture Decision Records for approved Azure designs. Optional step before governance and IaC planning.",
       "path": ".github/agents/04-design.agent.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/04-design.agent.md"
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/04-design.agent.md" },
       "meta": {
         "model": "GPT-5.6 Terra (copilot)",
         "invocable": true,
         "disableModelInvocation": true,
         "argumentHint": null,
         "context": null,
-        "subagents": [
-          "challenger-review-subagent"
-        ],
-        "handoffTargets": [
-          "04-Design",
-          "03-Architect",
-          "04g-Governance",
-          "01-Orchestrator"
-        ],
-        "skills": [
-          "apex-azure-defaults",
-          "apex-python-diagrams",
-          "apex-azure-adr",
-          "apex-azure-artifacts"
-        ]
+        "subagents": ["challenger-review-subagent"],
+        "handoffTargets": ["04-Design", "03-Architect", "04g-Governance", "01-Orchestrator"],
+        "skills": ["apex-azure-defaults", "apex-python-diagrams", "apex-azure-adr", "apex-azure-artifacts"]
       }
     },
     {
@@ -210,29 +134,16 @@
       "label": "04g-Governance",
       "description": "Azure governance discovery agent. Queries Azure Policy assignments via REST API (incl. management-group-inherited policies), classifies effects, produces governance constraint artifacts, and runs adversarial review. Step 3.5: after Architecture, before IaC Planning.",
       "path": ".github/agents/04g-governance.agent.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/04g-governance.agent.md"
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/04g-governance.agent.md" },
       "meta": {
         "model": "GPT-5.6 Luna (copilot)",
         "invocable": true,
         "disableModelInvocation": true,
         "argumentHint": "Discover governance constraints for a project",
         "context": null,
-        "subagents": [
-          "challenger-review-subagent"
-        ],
-        "handoffTargets": [
-          "04g-Governance",
-          "05-IaC Planner",
-          "01-Orchestrator"
-        ],
-        "skills": [
-          "apex-azure-defaults",
-          "apex-azure-governance-discovery",
-          "apex-azure-artifacts",
-          "apex-iac-common"
-        ]
+        "subagents": ["challenger-review-subagent"],
+        "handoffTargets": ["04g-Governance", "05-IaC Planner", "01-Orchestrator"],
+        "skills": ["apex-azure-defaults", "apex-azure-governance-discovery", "apex-azure-artifacts", "apex-iac-common"]
       }
     },
     {
@@ -241,18 +152,14 @@
       "label": "05-IaC Planner",
       "description": "Expert Azure IaC planner that creates comprehensive machine-readable implementation plans. Consults Microsoft documentation, evaluates Azure Verified Modules (Bicep or Terraform), designs full infrastructure solutions with architecture diagrams. Routes by decisions.iac_tool.",
       "path": ".github/agents/05-iac-planner.agent.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/05-iac-planner.agent.md"
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/05-iac-planner.agent.md" },
       "meta": {
         "model": "GPT-5.6 Sol (copilot)",
         "invocable": true,
         "disableModelInvocation": true,
         "argumentHint": null,
         "context": null,
-        "subagents": [
-          "challenger-review-subagent"
-        ],
+        "subagents": ["challenger-review-subagent"],
         "handoffTargets": [
           "04g-Governance",
           "05-IaC Planner",
@@ -286,16 +193,8 @@
         "disableModelInvocation": true,
         "argumentHint": null,
         "context": null,
-        "subagents": [
-          "bicep-validate-subagent",
-          "challenger-review-subagent"
-        ],
-        "handoffTargets": [
-          "06b-Bicep CodeGen",
-          "07b-Bicep Deploy",
-          "05-IaC Planner",
-          "01-Orchestrator"
-        ],
+        "subagents": ["bicep-validate-subagent", "challenger-review-subagent"],
+        "handoffTargets": ["06b-Bicep CodeGen", "07b-Bicep Deploy", "05-IaC Planner", "01-Orchestrator"],
         "skills": [
           "apex-azure-defaults",
           "apex-azure-artifacts",
@@ -319,22 +218,9 @@
         "disableModelInvocation": true,
         "argumentHint": null,
         "context": null,
-        "subagents": [
-          "terraform-validate-subagent",
-          "challenger-review-subagent"
-        ],
-        "handoffTargets": [
-          "06t-Terraform CodeGen",
-          "07t-Terraform Deploy",
-          "05-IaC Planner",
-          "01-Orchestrator"
-        ],
-        "skills": [
-          "apex-azure-defaults",
-          "apex-azure-artifacts",
-          "apex-terraform-patterns",
-          "apex-context-management"
-        ]
+        "subagents": ["terraform-validate-subagent", "challenger-review-subagent"],
+        "handoffTargets": ["06t-Terraform CodeGen", "07t-Terraform Deploy", "05-IaC Planner", "01-Orchestrator"],
+        "skills": ["apex-azure-defaults", "apex-azure-artifacts", "apex-terraform-patterns", "apex-context-management"]
       }
     },
     {
@@ -352,23 +238,9 @@
         "disableModelInvocation": true,
         "argumentHint": "Deploy the Bicep templates for a specific project",
         "context": null,
-        "subagents": [
-          "bicep-whatif-subagent",
-          "bicep-validate-subagent",
-          "policy-precheck-subagent"
-        ],
-        "handoffTargets": [
-          "07b-Bicep Deploy",
-          "08-As-Built",
-          "06b-Bicep CodeGen",
-          "03-Architect",
-          "01-Orchestrator"
-        ],
-        "skills": [
-          "apex-azure-defaults",
-          "apex-azure-artifacts",
-          "apex-iac-common"
-        ]
+        "subagents": ["bicep-whatif-subagent", "bicep-validate-subagent", "policy-precheck-subagent"],
+        "handoffTargets": ["07b-Bicep Deploy", "08-As-Built", "06b-Bicep CodeGen", "03-Architect", "01-Orchestrator"],
+        "skills": ["apex-azure-defaults", "apex-azure-artifacts", "apex-iac-common"]
       }
     },
     {
@@ -386,11 +258,7 @@
         "disableModelInvocation": true,
         "argumentHint": "Deploy the Terraform configuration for a specific project",
         "context": null,
-        "subagents": [
-          "terraform-plan-subagent",
-          "terraform-validate-subagent",
-          "policy-precheck-subagent"
-        ],
+        "subagents": ["terraform-plan-subagent", "terraform-validate-subagent", "policy-precheck-subagent"],
         "handoffTargets": [
           "07t-Terraform Deploy",
           "08-As-Built",
@@ -398,11 +266,7 @@
           "03-Architect",
           "01-Orchestrator"
         ],
-        "skills": [
-          "apex-azure-defaults",
-          "apex-azure-artifacts",
-          "apex-iac-common"
-        ]
+        "skills": ["apex-azure-defaults", "apex-azure-artifacts", "apex-iac-common"]
       }
     },
     {
@@ -411,28 +275,16 @@
       "label": "08-As-Built",
       "description": "Generates Step 7 as-built documentation suite after successful deployment. Reads all prior artifacts (Steps 1-6) and deployed resource state to produce: design document, operations runbook, cost estimate, compliance matrix, backup/DR plan, resource inventory, and documentation index.",
       "path": ".github/agents/08-as-built.agent.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/08-as-built.agent.md"
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/08-as-built.agent.md" },
       "meta": {
         "model": "GPT-5.6 Terra (copilot)",
         "invocable": true,
         "disableModelInvocation": true,
         "argumentHint": null,
         "context": null,
-        "subagents": [
-          "cost-estimate-subagent"
-        ],
-        "handoffTargets": [
-          "08-As-Built",
-          "01-Orchestrator"
-        ],
-        "skills": [
-          "apex-azure-defaults",
-          "apex-azure-artifacts",
-          "apex-python-diagrams",
-          "apex-context-management"
-        ]
+        "subagents": ["cost-estimate-subagent"],
+        "handoffTargets": ["08-As-Built", "01-Orchestrator"],
+        "skills": ["apex-azure-defaults", "apex-azure-artifacts", "apex-python-diagrams", "apex-context-management"]
       }
     },
     {
@@ -441,9 +293,7 @@
       "label": "09-Diagnose",
       "description": "Interactive diagnostic agent that guides users through Azure resource health assessment, issue identification, and remediation planning. Approval-first execution, single-resource scope, reports to agent-output/{project}/.",
       "path": ".github/agents/09-diagnose.agent.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/09-diagnose.agent.md"
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/09-diagnose.agent.md" },
       "meta": {
         "model": "GPT-5.6 Terra (copilot)",
         "invocable": true,
@@ -451,16 +301,8 @@
         "argumentHint": null,
         "context": null,
         "subagents": [],
-        "handoffTargets": [
-          "09-Diagnose",
-          "08-As-Built",
-          "03-Architect",
-          "01-Orchestrator"
-        ],
-        "skills": [
-          "apex-azure-defaults",
-          "apex-azure-diagnostics"
-        ]
+        "handoffTargets": ["09-Diagnose", "08-As-Built", "03-Architect", "01-Orchestrator"],
+        "skills": ["apex-azure-defaults", "apex-azure-diagnostics"]
       }
     },
     {
@@ -469,21 +311,15 @@
       "label": "10-Challenger",
       "description": "Standalone adversarial review wrapper. Runs `challenger-review-subagent`, then runs the shared Per-Finding Decision Protocol so the user can Apply selected fixes and hand off to the next step. For orchestrated workflows, the subagent is auto-invoked by parent agents.",
       "path": ".github/agents/10-challenger.agent.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/10-challenger.agent.md"
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/10-challenger.agent.md" },
       "meta": {
         "model": "GPT-5.6 Terra (copilot)",
         "invocable": true,
         "disableModelInvocation": true,
         "argumentHint": "Provide the path to the artifact to challenge (e.g. agent-output/my-project/04-implementation-plan.md)",
         "context": null,
-        "subagents": [
-          "challenger-review-subagent"
-        ],
-        "handoffTargets": [
-          "01-Orchestrator"
-        ],
+        "subagents": ["challenger-review-subagent"],
+        "handoffTargets": ["01-Orchestrator"],
         "skills": []
       }
     },
@@ -503,13 +339,8 @@
         "argumentHint": null,
         "context": null,
         "subagents": [],
-        "handoffTargets": [
-          "01-Orchestrator"
-        ],
-        "skills": [
-          "apex-golden-principles",
-          "apex-context-management"
-        ]
+        "handoffTargets": ["01-Orchestrator"],
+        "skills": ["apex-golden-principles", "apex-context-management"]
       }
     },
     {
@@ -527,10 +358,7 @@
         "disableModelInvocation": false,
         "argumentHint": null,
         "context": null,
-        "skills": [
-          "apex-azure-defaults",
-          "apex-iac-common"
-        ]
+        "skills": ["apex-azure-defaults", "apex-iac-common"]
       }
     },
     {
@@ -566,10 +394,7 @@
         "disableModelInvocation": false,
         "argumentHint": null,
         "context": null,
-        "skills": [
-          "apex-golden-principles",
-          "apex-azure-defaults"
-        ]
+        "skills": ["apex-golden-principles", "apex-azure-defaults"]
       }
     },
     {
@@ -641,10 +466,7 @@
         "disableModelInvocation": false,
         "argumentHint": null,
         "context": null,
-        "skills": [
-          "apex-azure-defaults",
-          "apex-iac-common"
-        ]
+        "skills": ["apex-azure-defaults", "apex-iac-common"]
       }
     },
     {
@@ -669,9 +491,7 @@
       "label": "apex-azure-adr",
       "description": "**ANALYSIS SKILL** — Creates Azure Architecture Decision Records (ADRs) with WAF pillar mapping, alternatives, and consequences. WHEN: \"create ADR\", \"document decision\", \"architecture decision record\", \"record why we chose\", \"WAF pillar justification\", \"trade-off analysis\". DO NOT USE FOR: IaC code (06b/06t agents), diagrams (apex-python-diagrams), cost estimates (cost-estimate-subagent).",
       "path": ".github/skills/apex-azure-adr/SKILL.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-adr/SKILL.md"
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-adr/SKILL.md" },
       "meta": {
         "invocable": true,
         "disableModelInvocation": false,
@@ -688,12 +508,7 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-artifacts/SKILL.md"
       },
-      "meta": {
-        "invocable": false,
-        "disableModelInvocation": false,
-        "argumentHint": null,
-        "context": null
-      }
+      "meta": { "invocable": false, "disableModelInvocation": false, "argumentHint": null, "context": null }
     },
     {
       "id": "skill:apex-azure-bicep-patterns",
@@ -704,12 +519,7 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-bicep-patterns/SKILL.md"
       },
-      "meta": {
-        "invocable": false,
-        "disableModelInvocation": false,
-        "argumentHint": null,
-        "context": null
-      }
+      "meta": { "invocable": false, "disableModelInvocation": false, "argumentHint": null, "context": null }
     },
     {
       "id": "skill:apex-azure-cloud-migrate",
@@ -784,12 +594,7 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-defaults/SKILL.md"
       },
-      "meta": {
-        "invocable": false,
-        "disableModelInvocation": false,
-        "argumentHint": null,
-        "context": null
-      }
+      "meta": { "invocable": false, "disableModelInvocation": false, "argumentHint": null, "context": null }
     },
     {
       "id": "skill:apex-azure-deploy",
@@ -893,9 +698,7 @@
       "label": "apex-azure-rbac",
       "description": "**ANALYSIS SKILL** — Find the right Azure RBAC role for an identity with least-privilege access; generate CLI, Bicep, and Terraform code to assign it. WHEN: \"what role should I assign\", \"least privilege role\", \"RBAC role for\", \"role for managed identity\", \"custom role definition\", \"assign role to identity\". DO NOT USE FOR: deploying (apex-azure-deploy), security audits (apex-azure-compliance).",
       "path": ".github/skills/apex-azure-rbac/SKILL.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-rbac/SKILL.md"
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-rbac/SKILL.md" },
       "meta": {
         "invocable": true,
         "disableModelInvocation": false,
@@ -1024,12 +827,7 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-golden-principles/SKILL.md"
       },
-      "meta": {
-        "invocable": false,
-        "disableModelInvocation": false,
-        "argumentHint": null,
-        "context": null
-      }
+      "meta": { "invocable": false, "disableModelInvocation": false, "argumentHint": null, "context": null }
     },
     {
       "id": "skill:apex-host-debug-log-export",
@@ -1085,15 +883,8 @@
       "label": "apex-iac-common",
       "description": "**UTILITY SKILL** — Shared Bicep/Terraform workflow contracts: planning, codegen cadence, handoffs, deployment strategies and bounded recovery. WHEN: \"shared IaC workflow\", \"phased deployment\", \"circuit breaker\", \"deploy strategy\", \"deploy issue\", \"shared IaC pattern\". DO NOT USE FOR: language-specific modules (apex-azure-bicep-patterns / apex-terraform-patterns) or standalone preflight (apex-azure-validate).",
       "path": ".github/skills/apex-iac-common/SKILL.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-iac-common/SKILL.md"
-      },
-      "meta": {
-        "invocable": false,
-        "disableModelInvocation": false,
-        "argumentHint": null,
-        "context": null
-      }
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-iac-common/SKILL.md" },
+      "meta": { "invocable": false, "disableModelInvocation": false, "argumentHint": null, "context": null }
     },
     {
       "id": "skill:apex-mermaid",
@@ -1101,9 +892,7 @@
       "label": "apex-mermaid",
       "description": "**UTILITY SKILL** — Mermaid diagrams for inline markdown: flowcharts, sequence, Gantt, class, state, ER. WHEN: \"mermaid flowchart\", \"sequence diagram\", \"Gantt chart\", \"state diagram\", \"ER diagram\", \"inline markdown diagram\". DO NOT USE FOR: rendered architecture diagrams or WAF/cost charts (apex-python-diagrams).",
       "path": ".github/skills/apex-mermaid/SKILL.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-mermaid/SKILL.md"
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-mermaid/SKILL.md" },
       "meta": {
         "invocable": true,
         "disableModelInvocation": false,
@@ -1152,12 +941,7 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-terraform-patterns/SKILL.md"
       },
-      "meta": {
-        "invocable": false,
-        "disableModelInvocation": false,
-        "argumentHint": null,
-        "context": null
-      }
+      "meta": { "invocable": false, "disableModelInvocation": false, "argumentHint": null, "context": null }
     },
     {
       "id": "skill:apex-terraform-search-import",
@@ -1197,9 +981,7 @@
       "label": "apex-unslop",
       "description": "**UTILITY SKILL** — Manually polish authorized prose for clarity and concrete language while preserving technical facts and APEX contracts. WHEN: explicitly invoked as /apex-unslop for prose review or cleanup. DO NOT USE FOR: code changes, technical validation, or automatic workflow finalization.",
       "path": ".github/skills/apex-unslop/SKILL.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-unslop/SKILL.md"
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-unslop/SKILL.md" },
       "meta": {
         "invocable": true,
         "disableModelInvocation": true,
@@ -1232,12 +1014,7 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-workflow-engine/SKILL.md"
       },
-      "meta": {
-        "invocable": false,
-        "disableModelInvocation": false,
-        "argumentHint": null,
-        "context": null
-      }
+      "meta": { "invocable": false, "disableModelInvocation": false, "argumentHint": null, "context": null }
     },
     {
       "id": "instruction:agent-authoring",
@@ -1248,9 +1025,7 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/instructions/agent-authoring.instructions.md"
       },
-      "meta": {
-        "applyTo": "**/*.agent.md, **/*.prompt.md"
-      }
+      "meta": { "applyTo": "**/*.agent.md, **/*.prompt.md" }
     },
     {
       "id": "instruction:agent-operating-frame",
@@ -1261,9 +1036,7 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/instructions/agent-operating-frame.instructions.md"
       },
-      "meta": {
-        "applyTo": ".github/agents/*.agent.md"
-      }
+      "meta": { "applyTo": ".github/agents/*.agent.md" }
     },
     {
       "id": "instruction:agent-skills",
@@ -1274,9 +1047,7 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/instructions/agent-skills.instructions.md"
       },
-      "meta": {
-        "applyTo": "**/.github/skills/**/SKILL.md, **/.claude/skills/**/SKILL.md"
-      }
+      "meta": { "applyTo": "**/.github/skills/**/SKILL.md, **/.claude/skills/**/SKILL.md" }
     },
     {
       "id": "instruction:astro",
@@ -1287,9 +1058,7 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/instructions/astro.instructions.md"
       },
-      "meta": {
-        "applyTo": "site/**/*.astro, site/**/*.ts, site/**/*.mjs, site/**/*.mdx, site/**/*.md"
-      }
+      "meta": { "applyTo": "site/**/*.astro, site/**/*.ts, site/**/*.mjs, site/**/*.mdx, site/**/*.md" }
     },
     {
       "id": "instruction:azure-artifacts",
@@ -1300,9 +1069,7 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/instructions/azure-artifacts.instructions.md"
       },
-      "meta": {
-        "applyTo": "**/agent-output/**/*.md"
-      }
+      "meta": { "applyTo": "**/agent-output/**/*.md" }
     },
     {
       "id": "instruction:azure-yaml",
@@ -1313,9 +1080,7 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/instructions/azure-yaml.instructions.md"
       },
-      "meta": {
-        "applyTo": "**/azure.yaml"
-      }
+      "meta": { "applyTo": "**/azure.yaml" }
     },
     {
       "id": "instruction:code-quality",
@@ -1352,9 +1117,7 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/instructions/docs-trigger.instructions.md"
       },
-      "meta": {
-        "applyTo": "**/*.agent.md, **/.github/skills/**/SKILL.md, **/tools/scripts/*.mjs"
-      }
+      "meta": { "applyTo": "**/*.agent.md, **/.github/skills/**/SKILL.md, **/tools/scripts/*.mjs" }
     },
     {
       "id": "instruction:docs",
@@ -1365,9 +1128,7 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/instructions/docs.instructions.md"
       },
-      "meta": {
-        "applyTo": "site/src/content/docs/**/*.md, site/src/content/docs/**/*.mdx"
-      }
+      "meta": { "applyTo": "site/src/content/docs/**/*.md, site/src/content/docs/**/*.mdx" }
     },
     {
       "id": "instruction:github-actions",
@@ -1378,9 +1139,7 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/instructions/github-actions.instructions.md"
       },
-      "meta": {
-        "applyTo": ".github/workflows/*.yml,.github/workflows/*.yaml"
-      }
+      "meta": { "applyTo": ".github/workflows/*.yml,.github/workflows/*.yaml" }
     },
     {
       "id": "instruction:governance-discovery",
@@ -1391,9 +1150,7 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/instructions/governance-discovery.instructions.md"
       },
-      "meta": {
-        "applyTo": "**/04-governance-constraints.md, **/04-governance-constraints.json"
-      }
+      "meta": { "applyTo": "**/04-governance-constraints.md, **/04-governance-constraints.json" }
     },
     {
       "id": "instruction:iac-bicep-best-practices",
@@ -1404,9 +1161,7 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/instructions/iac-bicep-best-practices.instructions.md"
       },
-      "meta": {
-        "applyTo": "**/*.bicep"
-      }
+      "meta": { "applyTo": "**/*.bicep" }
     },
     {
       "id": "instruction:iac-plan-best-practices",
@@ -1417,9 +1172,7 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/instructions/iac-plan-best-practices.instructions.md"
       },
-      "meta": {
-        "applyTo": "**/04-implementation-plan.md"
-      }
+      "meta": { "applyTo": "**/04-implementation-plan.md" }
     },
     {
       "id": "instruction:iac-terraform-best-practices",
@@ -1430,9 +1183,7 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/instructions/iac-terraform-best-practices.instructions.md"
       },
-      "meta": {
-        "applyTo": "**/*.tf"
-      }
+      "meta": { "applyTo": "**/*.tf" }
     },
     {
       "id": "instruction:instructions",
@@ -1443,9 +1194,7 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/instructions/instructions.instructions.md"
       },
-      "meta": {
-        "applyTo": "**/*.instructions.md"
-      }
+      "meta": { "applyTo": "**/*.instructions.md" }
     },
     {
       "id": "instruction:javascript",
@@ -1456,9 +1205,7 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/instructions/javascript.instructions.md"
       },
-      "meta": {
-        "applyTo": "**/*.{js,mjs,cjs}"
-      }
+      "meta": { "applyTo": "**/*.{js,mjs,cjs}" }
     },
     {
       "id": "instruction:json",
@@ -1469,9 +1216,7 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/instructions/json.instructions.md"
       },
-      "meta": {
-        "applyTo": "**/*.{json,jsonc}"
-      }
+      "meta": { "applyTo": "**/*.{json,jsonc}" }
     },
     {
       "id": "instruction:lesson-collection",
@@ -1482,9 +1227,7 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/instructions/lesson-collection.instructions.md"
       },
-      "meta": {
-        "applyTo": "**/*orchestrator*.agent.md"
-      }
+      "meta": { "applyTo": "**/*orchestrator*.agent.md" }
     },
     {
       "id": "instruction:markdown",
@@ -1521,9 +1264,7 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/instructions/no-heredoc.instructions.md"
       },
-      "meta": {
-        "applyTo": "**/*.{js,mjs,cjs,ts,tsx,jsx,py,ps1,sh,bicep,tf}"
-      }
+      "meta": { "applyTo": "**/*.{js,mjs,cjs,ts,tsx,jsx,py,ps1,sh,bicep,tf}" }
     },
     {
       "id": "instruction:no-interactive-shell",
@@ -1547,9 +1288,7 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/instructions/powershell.instructions.md"
       },
-      "meta": {
-        "applyTo": "**/*.ps1,**/*.psm1"
-      }
+      "meta": { "applyTo": "**/*.ps1,**/*.psm1" }
     },
     {
       "id": "instruction:prompt",
@@ -1560,9 +1299,7 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/instructions/prompt.instructions.md"
       },
-      "meta": {
-        "applyTo": "**/*.prompt.md"
-      }
+      "meta": { "applyTo": "**/*.prompt.md" }
     },
     {
       "id": "instruction:python",
@@ -1573,9 +1310,7 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/instructions/python.instructions.md"
       },
-      "meta": {
-        "applyTo": "**/*.py"
-      }
+      "meta": { "applyTo": "**/*.py" }
     },
     {
       "id": "instruction:shell",
@@ -1586,9 +1321,7 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/instructions/shell.instructions.md"
       },
-      "meta": {
-        "applyTo": "**/*.sh"
-      }
+      "meta": { "applyTo": "**/*.sh" }
     },
     {
       "id": "instruction:sku-manifest",
@@ -1599,9 +1332,7 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/instructions/sku-manifest.instructions.md"
       },
-      "meta": {
-        "applyTo": "**/sku-manifest.{md,json}"
-      }
+      "meta": { "applyTo": "**/sku-manifest.{md,json}" }
     },
     {
       "id": "instruction:vendor-prompting",
@@ -1612,9 +1343,7 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/instructions/vendor-prompting.instructions.md"
       },
-      "meta": {
-        "applyTo": "**/*.agent.md, **/*.prompt.md"
-      }
+      "meta": { "applyTo": "**/*.agent.md, **/*.prompt.md" }
     },
     {
       "id": "prompt:apex-debug-log-export",
@@ -1952,13 +1681,8 @@
       "label": "validate:artifacts",
       "description": "node tools/scripts/validate-artifacts.mjs",
       "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
-      "meta": {
-        "command": "node tools/scripts/validate-artifacts.mjs",
-        "orphan": true
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "node tools/scripts/validate-artifacts.mjs", "orphan": true },
       "parent": "group:validator-orphans"
     },
     {
@@ -1967,12 +1691,8 @@
       "label": "validate:agents",
       "description": "node tools/scripts/validate-agents.mjs",
       "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
-      "meta": {
-        "command": "node tools/scripts/validate-agents.mjs"
-      }
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "node tools/scripts/validate-agents.mjs" }
     },
     {
       "id": "validator:validate-orchestrator-handoff",
@@ -1980,13 +1700,8 @@
       "label": "validate:orchestrator-handoff",
       "description": "python3 tools/scripts/validate_orchestrator_handoff.py",
       "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
-      "meta": {
-        "command": "python3 tools/scripts/validate_orchestrator_handoff.py",
-        "orphan": true
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "python3 tools/scripts/validate_orchestrator_handoff.py", "orphan": true },
       "parent": "group:validator-orphans"
     },
     {
@@ -1995,13 +1710,8 @@
       "label": "validate:review-ceiling",
       "description": "python3 tools/scripts/validate_review_ceiling.py",
       "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
-      "meta": {
-        "command": "python3 tools/scripts/validate_review_ceiling.py",
-        "orphan": true
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "python3 tools/scripts/validate_review_ceiling.py", "orphan": true },
       "parent": "group:validator-orphans"
     },
     {
@@ -2010,13 +1720,8 @@
       "label": "validate:question-batching",
       "description": "python3 tools/scripts/validate_question_batching.py",
       "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
-      "meta": {
-        "command": "python3 tools/scripts/validate_question_batching.py",
-        "orphan": true
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "python3 tools/scripts/validate_question_batching.py", "orphan": true },
       "parent": "group:validator-orphans"
     },
     {
@@ -2025,12 +1730,8 @@
       "label": "validate:skills",
       "description": "node tools/scripts/validate-skills.mjs",
       "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
-      "meta": {
-        "command": "node tools/scripts/validate-skills.mjs"
-      }
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "node tools/scripts/validate-skills.mjs" }
     },
     {
       "id": "validator:lint-version-sync",
@@ -2038,13 +1739,8 @@
       "label": "lint:version-sync",
       "description": "node tools/scripts/validate-version-sync.mjs",
       "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
-      "meta": {
-        "command": "node tools/scripts/validate-version-sync.mjs",
-        "orphan": true
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "node tools/scripts/validate-version-sync.mjs", "orphan": true },
       "parent": "group:validator-orphans"
     },
     {
@@ -2053,13 +1749,8 @@
       "label": "lint:deprecated-refs",
       "description": "node tools/scripts/validate-no-deprecated-refs.mjs",
       "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
-      "meta": {
-        "command": "node tools/scripts/validate-no-deprecated-refs.mjs",
-        "orphan": true
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "node tools/scripts/validate-no-deprecated-refs.mjs", "orphan": true },
       "parent": "group:validator-orphans"
     },
     {
@@ -2068,13 +1759,8 @@
       "label": "lint:mcp-config",
       "description": "node tools/scripts/validate-mcp-config.mjs",
       "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
-      "meta": {
-        "command": "node tools/scripts/validate-mcp-config.mjs",
-        "orphan": true
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "node tools/scripts/validate-mcp-config.mjs", "orphan": true },
       "parent": "group:validator-orphans"
     },
     {
@@ -2083,13 +1769,8 @@
       "label": "validate:extension-bloat",
       "description": "node tools/scripts/validate-extension-bloat.mjs",
       "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
-      "meta": {
-        "command": "node tools/scripts/validate-extension-bloat.mjs",
-        "orphan": true
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "node tools/scripts/validate-extension-bloat.mjs", "orphan": true },
       "parent": "group:validator-orphans"
     },
     {
@@ -2098,13 +1779,8 @@
       "label": "validate:headings-summary",
       "description": "node tools/scripts/validate-headings-summary.mjs",
       "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
-      "meta": {
-        "command": "node tools/scripts/validate-headings-summary.mjs",
-        "orphan": true
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "node tools/scripts/validate-headings-summary.mjs", "orphan": true },
       "parent": "group:validator-orphans"
     },
     {
@@ -2113,13 +1789,8 @@
       "label": "validate:instruction-checks",
       "description": "node tools/scripts/validate-instruction-checks.mjs",
       "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
-      "meta": {
-        "command": "node tools/scripts/validate-instruction-checks.mjs",
-        "orphan": true
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "node tools/scripts/validate-instruction-checks.mjs", "orphan": true },
       "parent": "group:validator-orphans"
     },
     {
@@ -2128,13 +1799,8 @@
       "label": "lint:governance-refs",
       "description": "node tools/scripts/validate-governance-refs.mjs",
       "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
-      "meta": {
-        "command": "node tools/scripts/validate-governance-refs.mjs",
-        "orphan": true
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "node tools/scripts/validate-governance-refs.mjs", "orphan": true },
       "parent": "group:validator-orphans"
     },
     {
@@ -2143,13 +1809,8 @@
       "label": "validate:session-state",
       "description": "node tools/scripts/validate-session-state.mjs",
       "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
-      "meta": {
-        "command": "node tools/scripts/validate-session-state.mjs",
-        "orphan": true
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "node tools/scripts/validate-session-state.mjs", "orphan": true },
       "parent": "group:validator-orphans"
     },
     {
@@ -2158,13 +1819,8 @@
       "label": "validate:workflow-graph",
       "description": "node tools/scripts/validate-workflow-graph.mjs",
       "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
-      "meta": {
-        "command": "node tools/scripts/validate-workflow-graph.mjs",
-        "orphan": true
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "node tools/scripts/validate-workflow-graph.mjs", "orphan": true },
       "parent": "group:validator-orphans"
     },
     {
@@ -2173,13 +1829,8 @@
       "label": "validate:lens-references",
       "description": "node tools/scripts/validate-lens-references.mjs",
       "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
-      "meta": {
-        "command": "node tools/scripts/validate-lens-references.mjs",
-        "orphan": true
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "node tools/scripts/validate-lens-references.mjs", "orphan": true },
       "parent": "group:validator-orphans"
     },
     {
@@ -2188,13 +1839,8 @@
       "label": "validate:challenger-findings",
       "description": "node tools/scripts/validate-challenger-findings.mjs",
       "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
-      "meta": {
-        "command": "node tools/scripts/validate-challenger-findings.mjs",
-        "orphan": true
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "node tools/scripts/validate-challenger-findings.mjs", "orphan": true },
       "parent": "group:validator-orphans"
     },
     {
@@ -2203,13 +1849,8 @@
       "label": "validate:challenger-presence",
       "description": "node tools/scripts/validate-challenger-presence.mjs",
       "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
-      "meta": {
-        "command": "node tools/scripts/validate-challenger-presence.mjs",
-        "orphan": true
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "node tools/scripts/validate-challenger-presence.mjs", "orphan": true },
       "parent": "group:validator-orphans"
     },
     {
@@ -2218,13 +1859,8 @@
       "label": "lint:workflow-table-sync",
       "description": "node tools/scripts/validate-workflow-table-sync.mjs",
       "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
-      "meta": {
-        "command": "node tools/scripts/validate-workflow-table-sync.mjs",
-        "orphan": true
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "node tools/scripts/validate-workflow-table-sync.mjs", "orphan": true },
       "parent": "group:validator-orphans"
     },
     {
@@ -2233,13 +1869,8 @@
       "label": "validate:agent-registry",
       "description": "node tools/scripts/validate-agent-registry.mjs",
       "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
-      "meta": {
-        "command": "node tools/scripts/validate-agent-registry.mjs",
-        "orphan": true
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "node tools/scripts/validate-agent-registry.mjs", "orphan": true },
       "parent": "group:validator-orphans"
     },
     {
@@ -2248,13 +1879,8 @@
       "label": "validate:skill-checks",
       "description": "node tools/scripts/validate-skill-checks.mjs",
       "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
-      "meta": {
-        "command": "node tools/scripts/validate-skill-checks.mjs",
-        "orphan": true
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "node tools/scripts/validate-skill-checks.mjs", "orphan": true },
       "parent": "group:validator-orphans"
     },
     {
@@ -2263,13 +1889,8 @@
       "label": "lint:json",
       "description": "node tools/scripts/lint-json.mjs",
       "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
-      "meta": {
-        "command": "node tools/scripts/lint-json.mjs",
-        "orphan": true
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "node tools/scripts/lint-json.mjs", "orphan": true },
       "parent": "group:validator-orphans"
     },
     {
@@ -2278,13 +1899,8 @@
       "label": "lint:json-schemas",
       "description": "node tools/scripts/validate-json-schemas.mjs",
       "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
-      "meta": {
-        "command": "node tools/scripts/validate-json-schemas.mjs",
-        "orphan": true
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "node tools/scripts/validate-json-schemas.mjs", "orphan": true },
       "parent": "group:validator-orphans"
     },
     {
@@ -2293,13 +1909,8 @@
       "label": "lint:glob-audit",
       "description": "node tools/scripts/validate-glob-audit.mjs",
       "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
-      "meta": {
-        "command": "node tools/scripts/validate-glob-audit.mjs",
-        "orphan": true
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "node tools/scripts/validate-glob-audit.mjs", "orphan": true },
       "parent": "group:validator-orphans"
     },
     {
@@ -2308,13 +1919,8 @@
       "label": "lint:orphaned-content",
       "description": "node tools/scripts/validate-orphaned-content.mjs",
       "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
-      "meta": {
-        "command": "node tools/scripts/validate-orphaned-content.mjs",
-        "orphan": true
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "node tools/scripts/validate-orphaned-content.mjs", "orphan": true },
       "parent": "group:validator-orphans"
     },
     {
@@ -2323,13 +1929,8 @@
       "label": "lint:docs-freshness",
       "description": "node tools/scripts/check-docs-freshness.mjs",
       "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
-      "meta": {
-        "command": "node tools/scripts/check-docs-freshness.mjs",
-        "orphan": true
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "node tools/scripts/check-docs-freshness.mjs", "orphan": true },
       "parent": "group:validator-orphans"
     },
     {
@@ -2338,13 +1939,8 @@
       "label": "validate:no-hardcoded-counts",
       "description": "node tools/scripts/validate-no-hardcoded-counts.mjs",
       "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
-      "meta": {
-        "command": "node tools/scripts/validate-no-hardcoded-counts.mjs",
-        "orphan": true
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "node tools/scripts/validate-no-hardcoded-counts.mjs", "orphan": true },
       "parent": "group:validator-orphans"
     },
     {
@@ -2353,12 +1949,8 @@
       "label": "validate:hooks",
       "description": "node tools/scripts/validate-hooks.mjs",
       "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
-      "meta": {
-        "command": "node tools/scripts/validate-hooks.mjs"
-      }
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "node tools/scripts/validate-hooks.mjs" }
     },
     {
       "id": "validator:validate-context-budget",
@@ -2366,13 +1958,8 @@
       "label": "validate:context-budget",
       "description": "node tools/scripts/validate-context-budget.mjs",
       "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
-      "meta": {
-        "command": "node tools/scripts/validate-context-budget.mjs",
-        "orphan": true
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "node tools/scripts/validate-context-budget.mjs", "orphan": true },
       "parent": "group:validator-orphans"
     },
     {
@@ -2381,13 +1968,8 @@
       "label": "validate:iac-security-baseline",
       "description": "node tools/scripts/validate-iac-security-baseline.mjs",
       "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
-      "meta": {
-        "command": "node tools/scripts/validate-iac-security-baseline.mjs",
-        "orphan": true
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "node tools/scripts/validate-iac-security-baseline.mjs", "orphan": true },
       "parent": "group:validator-orphans"
     },
     {
@@ -2396,13 +1978,8 @@
       "label": "validate:governance-baseline",
       "description": "node tools/scripts/validate-governance-baseline.mjs",
       "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
-      "meta": {
-        "command": "node tools/scripts/validate-governance-baseline.mjs",
-        "orphan": true
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "node tools/scripts/validate-governance-baseline.mjs", "orphan": true },
       "parent": "group:validator-orphans"
     },
     {
@@ -2411,13 +1988,8 @@
       "label": "validate:policy-precheck",
       "description": "node tools/scripts/validate-policy-precheck.mjs",
       "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
-      "meta": {
-        "command": "node tools/scripts/validate-policy-precheck.mjs",
-        "orphan": true
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "node tools/scripts/validate-policy-precheck.mjs", "orphan": true },
       "parent": "group:validator-orphans"
     },
     {
@@ -2426,13 +1998,8 @@
       "label": "validate:sku-manifest",
       "description": "node tools/scripts/validate-sku-manifest.mjs",
       "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
-      "meta": {
-        "command": "node tools/scripts/validate-sku-manifest.mjs",
-        "orphan": true
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "node tools/scripts/validate-sku-manifest.mjs", "orphan": true },
       "parent": "group:validator-orphans"
     },
     {
@@ -2441,13 +2008,8 @@
       "label": "validate:sku-iac-coverage",
       "description": "node tools/scripts/validate-sku-iac-coverage.mjs",
       "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
-      "meta": {
-        "command": "node tools/scripts/validate-sku-iac-coverage.mjs",
-        "orphan": true
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "node tools/scripts/validate-sku-iac-coverage.mjs", "orphan": true },
       "parent": "group:validator-orphans"
     },
     {
@@ -2456,13 +2018,8 @@
       "label": "validate:decision-keys",
       "description": "node tools/scripts/validate-decision-keys.mjs",
       "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
-      "meta": {
-        "command": "node tools/scripts/validate-decision-keys.mjs",
-        "orphan": true
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "node tools/scripts/validate-decision-keys.mjs", "orphan": true },
       "parent": "group:validator-orphans"
     },
     {
@@ -2471,13 +2028,8 @@
       "label": "validate:banned-phrases",
       "description": "node tools/scripts/validate-banned-phrases.mjs",
       "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
-      "meta": {
-        "command": "node tools/scripts/validate-banned-phrases.mjs",
-        "orphan": true
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "node tools/scripts/validate-banned-phrases.mjs", "orphan": true },
       "parent": "group:validator-orphans"
     },
     {
@@ -2486,13 +2038,8 @@
       "label": "validate:vscode",
       "description": "node tools/scripts/validate-vscode-config.mjs",
       "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
-      "meta": {
-        "command": "node tools/scripts/validate-vscode-config.mjs",
-        "orphan": true
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "node tools/scripts/validate-vscode-config.mjs", "orphan": true },
       "parent": "group:validator-orphans"
     },
     {
@@ -2501,13 +2048,8 @@
       "label": "validate:terminology",
       "description": "node tools/scripts/validate-terminology.mjs",
       "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
-      "meta": {
-        "command": "node tools/scripts/validate-terminology.mjs",
-        "orphan": true
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "node tools/scripts/validate-terminology.mjs", "orphan": true },
       "parent": "group:validator-orphans"
     },
     {
@@ -2516,13 +2058,8 @@
       "label": "validate:model-consistency",
       "description": "node tools/scripts/validate-models.mjs --only=consistency",
       "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
-      "meta": {
-        "command": "node tools/scripts/validate-models.mjs --only=consistency",
-        "orphan": true
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "node tools/scripts/validate-models.mjs --only=consistency", "orphan": true },
       "parent": "group:validator-orphans"
     },
     {
@@ -2531,13 +2068,8 @@
       "label": "validate:deprecated-models",
       "description": "node tools/scripts/validate-models.mjs --only=deprecated",
       "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
-      "meta": {
-        "command": "node tools/scripts/validate-models.mjs --only=deprecated",
-        "orphan": true
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "node tools/scripts/validate-models.mjs --only=deprecated", "orphan": true },
       "parent": "group:validator-orphans"
     },
     {
@@ -2546,13 +2078,8 @@
       "label": "validate:model-catalog",
       "description": "node tools/scripts/validate-models.mjs --only=catalog",
       "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
-      "meta": {
-        "command": "node tools/scripts/validate-models.mjs --only=catalog",
-        "orphan": true
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "node tools/scripts/validate-models.mjs --only=catalog", "orphan": true },
       "parent": "group:validator-orphans"
     },
     {
@@ -2561,13 +2088,8 @@
       "label": "validate:explorer-graph",
       "description": "EXPLORER_GRAPH_STRICT=1 node tools/scripts/validate-explorer-graph.mjs",
       "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
-      "meta": {
-        "command": "EXPLORER_GRAPH_STRICT=1 node tools/scripts/validate-explorer-graph.mjs",
-        "orphan": true
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "EXPLORER_GRAPH_STRICT=1 node tools/scripts/validate-explorer-graph.mjs", "orphan": true },
       "parent": "group:validator-orphans"
     },
     {
@@ -2576,13 +2098,8 @@
       "label": "validate:region-canonical",
       "description": "node tools/scripts/validate-region-canonical.mjs",
       "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
-      "meta": {
-        "command": "node tools/scripts/validate-region-canonical.mjs",
-        "orphan": true
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "node tools/scripts/validate-region-canonical.mjs", "orphan": true },
       "parent": "group:validator-orphans"
     },
     {
@@ -2591,9 +2108,7 @@
       "label": "validate:retirement-scan",
       "description": "node tools/scripts/audit-retirement-candidates.mjs --check .archive/retirement-scan-2026-08-27.json",
       "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
       "meta": {
         "command": "node tools/scripts/audit-retirement-candidates.mjs --check .archive/retirement-scan-2026-08-27.json",
         "orphan": true
@@ -2606,13 +2121,8 @@
       "label": "test:retirement-scan",
       "description": "node --test tools/tests/audit-retirement-candidates.test.mjs",
       "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
-      "meta": {
-        "command": "node --test tools/tests/audit-retirement-candidates.test.mjs",
-        "orphan": true
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "node --test tools/tests/audit-retirement-candidates.test.mjs", "orphan": true },
       "parent": "group:validator-orphans"
     },
     {
@@ -2621,13 +2131,8 @@
       "label": "test:azure-defaults-canonical",
       "description": "node --test tools/tests/validate-region-canonical.test.mjs",
       "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
-      "meta": {
-        "command": "node --test tools/tests/validate-region-canonical.test.mjs",
-        "orphan": true
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "node --test tools/tests/validate-region-canonical.test.mjs", "orphan": true },
       "parent": "group:validator-orphans"
     },
     {
@@ -2636,13 +2141,8 @@
       "label": "test:governance-baseline-loader",
       "description": "node --test tools/tests/lib/governance-baseline.test.mjs",
       "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
-      "meta": {
-        "command": "node --test tools/tests/lib/governance-baseline.test.mjs",
-        "orphan": true
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "node --test tools/tests/lib/governance-baseline.test.mjs", "orphan": true },
       "parent": "group:validator-orphans"
     },
     {
@@ -2651,13 +2151,8 @@
       "label": "test:classify-model",
       "description": "node --test tools/tests/validate-agents/classify-model.test.mjs",
       "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
-      "meta": {
-        "command": "node --test tools/tests/validate-agents/classify-model.test.mjs",
-        "orphan": true
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "node --test tools/tests/validate-agents/classify-model.test.mjs", "orphan": true },
       "parent": "group:validator-orphans"
     },
     {
@@ -2666,13 +2161,8 @@
       "label": "test:devcontainer-verdicts",
       "description": "node --test tools/tests/compare-devcontainer-verdicts.test.mjs",
       "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
-      "meta": {
-        "command": "node --test tools/tests/compare-devcontainer-verdicts.test.mjs",
-        "orphan": true
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "node --test tools/tests/compare-devcontainer-verdicts.test.mjs", "orphan": true },
       "parent": "group:validator-orphans"
     },
     {
@@ -2681,9 +2171,7 @@
       "label": "test:validator-runner",
       "description": "node --test tools/tests/validate-all.test.mjs tools/tests/generate-explorer-graph.test.mjs tools/tests/lib/json.test.mjs tools/tests/lib/ajv-validator.test.mjs tools/tests/lib/npm-script-graph.test.mjs tools/tests/lib/parse-frontmatter.test.mjs tools/tests/lib/parsing-helpers.test.mjs",
       "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
       "meta": {
         "command": "node --test tools/tests/validate-all.test.mjs tools/tests/generate-explorer-graph.test.mjs tools/tests/lib/json.test.mjs tools/tests/lib/ajv-validator.test.mjs tools/tests/lib/npm-script-graph.test.mjs tools/tests/lib/parse-frontmatter.test.mjs tools/tests/lib/parsing-helpers.test.mjs",
         "orphan": true
@@ -2696,13 +2184,8 @@
       "label": "test:tool-contracts",
       "description": "node --test tools/tests/scripts/*.mjs",
       "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
-      "meta": {
-        "command": "node --test tools/tests/scripts/*.mjs",
-        "orphan": true
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "node --test tools/tests/scripts/*.mjs", "orphan": true },
       "parent": "group:validator-orphans"
     },
     {
@@ -2711,13 +2194,8 @@
       "label": "test:sku-manifest",
       "description": "node --test tools/tests/validate-sku-manifest.test.mjs",
       "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
-      "meta": {
-        "command": "node --test tools/tests/validate-sku-manifest.test.mjs",
-        "orphan": true
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "node --test tools/tests/validate-sku-manifest.test.mjs", "orphan": true },
       "parent": "group:validator-orphans"
     },
     {
@@ -2726,13 +2204,8 @@
       "label": "lint:safe-shell",
       "description": "node tools/scripts/safe-shell.mjs",
       "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
-      "meta": {
-        "command": "node tools/scripts/safe-shell.mjs",
-        "orphan": true
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "node tools/scripts/safe-shell.mjs", "orphan": true },
       "parent": "group:validator-orphans"
     },
     {
@@ -2741,13 +2214,8 @@
       "label": "validate:tool-versions",
       "description": "node tools/scripts/validate-tool-versions.mjs",
       "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
-      "meta": {
-        "command": "node tools/scripts/validate-tool-versions.mjs",
-        "orphan": true
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "node tools/scripts/validate-tool-versions.mjs", "orphan": true },
       "parent": "group:validator-orphans"
     },
     {
@@ -2756,12 +2224,8 @@
       "label": "lint:md",
       "description": "markdownlint-cli2",
       "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
-      "meta": {
-        "command": "markdownlint-cli2"
-      }
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "markdownlint-cli2" }
     },
     {
       "id": "validator:lint-python",
@@ -2769,12 +2233,8 @@
       "label": "lint:python",
       "description": "cd tools/apex-recall && python3 -m ruff check src/",
       "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
-      "meta": {
-        "command": "cd tools/apex-recall && python3 -m ruff check src/"
-      }
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "cd tools/apex-recall && python3 -m ruff check src/" }
     },
     {
       "id": "validator:lint-terraform-fmt",
@@ -2782,13 +2242,8 @@
       "label": "lint:terraform-fmt",
       "description": "terraform fmt -check -recursive infra/terraform/",
       "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
-      "meta": {
-        "command": "terraform fmt -check -recursive infra/terraform/",
-        "orphan": true
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "terraform fmt -check -recursive infra/terraform/", "orphan": true },
       "parent": "group:validator-orphans"
     },
     {
@@ -2797,13 +2252,8 @@
       "label": "lint:bicep-fmt",
       "description": "bash tools/scripts/check-bicep-fmt.sh",
       "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
-      "meta": {
-        "command": "bash tools/scripts/check-bicep-fmt.sh",
-        "orphan": true
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "bash tools/scripts/check-bicep-fmt.sh", "orphan": true },
       "parent": "group:validator-orphans"
     },
     {
@@ -2812,9 +2262,7 @@
       "label": "validate:terraform",
       "description": "status=0; for dir in infra/terraform/*/; do if [ -f \"$dir/main.tf\" ]; then echo \"Validating $dir\"; (cd \"$dir\" && terraform init -backend=false -input=false && terraform validate) || status=1; fi; done; exit \"$status\"",
       "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
       "meta": {
         "command": "status=0; for dir in infra/terraform/*/; do if [ -f \"$dir/main.tf\" ]; then echo \"Validating $dir\"; (cd \"$dir\" && terraform init -backend=false -input=false && terraform validate) || status=1; fi; done; exit \"$status\"",
         "orphan": true
@@ -2827,9 +2275,7 @@
       "label": "test:apex-recall",
       "description": "python3 -m pytest tools/tests/test_apex_recall/ -q && python3 -m pytest tools/apex-recall/tests/ -q",
       "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
       "meta": {
         "command": "python3 -m pytest tools/tests/test_apex_recall/ -q && python3 -m pytest tools/apex-recall/tests/ -q"
       }
@@ -2840,12 +2286,8 @@
       "label": "test:python-tools",
       "description": "python3 -m pytest tools/tests/scripts tools/tests/python-diagrams -q",
       "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
-      "meta": {
-        "command": "python3 -m pytest tools/tests/scripts tools/tests/python-diagrams -q"
-      }
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "python3 -m pytest tools/tests/scripts tools/tests/python-diagrams -q" }
     },
     {
       "id": "validator:test-governance-baseline-python",
@@ -2853,9 +2295,7 @@
       "label": "test:governance-baseline-python",
       "description": "python3 -m pytest .github/skills/apex-azure-governance-discovery/scripts/test_governance_baseline.py -q",
       "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/package.json"
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
       "meta": {
         "command": "python3 -m pytest .github/skills/apex-azure-governance-discovery/scripts/test_governance_baseline.py -q",
         "orphan": true
@@ -2871,9 +2311,7 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/workflows/branch-enforcement.yml"
       },
-      "meta": {
-        "orphan": true
-      },
+      "meta": { "orphan": true },
       "parent": "group:workflow-orphans"
     },
     {
@@ -2882,9 +2320,7 @@
       "label": "ci",
       "description": "",
       "path": ".github/workflows/ci.yml",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/workflows/ci.yml"
-      },
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/.github/workflows/ci.yml" },
       "meta": {}
     },
     {
@@ -2896,9 +2332,7 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/workflows/consumer-template-checks.yml"
       },
-      "meta": {
-        "orphan": true
-      },
+      "meta": { "orphan": true },
       "parent": "group:workflow-orphans"
     },
     {
@@ -2921,9 +2355,7 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/workflows/validate-devcontainer-base.yml"
       },
-      "meta": {
-        "orphan": true
-      },
+      "meta": { "orphan": true },
       "parent": "group:workflow-orphans"
     },
     {
@@ -2932,12 +2364,8 @@
       "label": "github",
       "description": "HTTP: https://api.githubcopilot.com/mcp/",
       "path": ".vscode/mcp.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.vscode/mcp.json"
-      },
-      "meta": {
-        "type": "http"
-      }
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/.vscode/mcp.json" },
+      "meta": { "type": "http" }
     },
     {
       "id": "mcp:azure-resource-manager-mcp",
@@ -2945,12 +2373,8 @@
       "label": "azure-resource-manager-mcp",
       "description": "HTTP: https://mcp.management.azure.com",
       "path": ".vscode/mcp.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.vscode/mcp.json"
-      },
-      "meta": {
-        "type": "http"
-      }
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/.vscode/mcp.json" },
+      "meta": { "type": "http" }
     },
     {
       "id": "mcp:azure-mcp",
@@ -2958,12 +2382,8 @@
       "label": "azure-mcp",
       "description": "stdio: npx",
       "path": ".vscode/mcp.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.vscode/mcp.json"
-      },
-      "meta": {
-        "type": "stdio"
-      }
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/.vscode/mcp.json" },
+      "meta": { "type": "stdio" }
     },
     {
       "id": "group:validator-orphans",
@@ -2971,9 +2391,7 @@
       "label": "Validator (unlinked, 55)",
       "description": "55 validator nodes with no cross-references in the current graph.",
       "isGroup": true,
-      "meta": {
-        "groupSize": 55
-      }
+      "meta": { "groupSize": 55 }
     },
     {
       "id": "group:workflow-orphans",
@@ -2981,9 +2399,7 @@
       "label": "CI Workflow (unlinked, 3)",
       "description": "3 ci workflow nodes with no cross-references in the current graph.",
       "isGroup": true,
-      "meta": {
-        "groupSize": 3
-      }
+      "meta": { "groupSize": 3 }
     }
   ],
   "edges": [

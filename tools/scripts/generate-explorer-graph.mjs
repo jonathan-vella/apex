@@ -29,6 +29,7 @@ import { existsSync, readFileSync, writeFileSync, readdirSync, statSync, mkdirSy
 import { join, basename, relative, resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createHash } from "node:crypto";
+import { format, resolveConfig } from "prettier";
 import { parseFrontmatter } from "./_lib/parse-frontmatter.mjs";
 import { expandScript } from "./_lib/npm-script-graph.mjs";
 import { extractSkillReferences } from "./_lib/skill-references.mjs";
@@ -570,7 +571,7 @@ function buildEdges(nodes) {
 
 // ---------- Main ----------
 
-export function main(args = process.argv.slice(2)) {
+export async function main(args = process.argv.slice(2)) {
   if (args.length && (args.length !== 2 || args[0] !== "--output" || !args[1])) {
     throw new Error("Usage: generate-explorer-graph.mjs [--output FILE]");
   }
@@ -648,10 +649,11 @@ export function main(args = process.argv.slice(2)) {
   graph.generatedAt = selectGeneratedAt(previousGraph, graph);
 
   mkdirSync(dirname(outputPath), { recursive: true });
-  writeFileSync(outputPath, `${JSON.stringify(graph, null, 2)}\n`);
+  const formatting = await resolveConfig(join(REPO_ROOT, ".prettierrc.json"));
+  writeFileSync(outputPath, await format(JSON.stringify(graph), { ...formatting, parser: "json" }));
   console.log(`✅ Generated ${relative(REPO_ROOT, outputPath)} — ${nodes.length} nodes, ${edges.length} edges`);
   console.log(`   ${categories.map((c) => `${c.label}:${c.count}`).join("  ")}`);
 }
 
 const invokedAsScript = process.argv[1] && resolve(process.argv[1]) === resolve(fileURLToPath(import.meta.url));
-if (invokedAsScript) main();
+if (invokedAsScript) await main();
