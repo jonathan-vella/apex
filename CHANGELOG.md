@@ -18,6 +18,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 See the [published changelog](https://apexops.pro/project/changelog/)
 for full details on this and all prior releases.
 
+### Fixed (Azure MCP setup)
+
+- Prevent automatic duplicate Azure MCP provider installation with explicit devcontainer
+  extension exclusions, regression validation, and documented cleanup of existing extension dependencies.
+
 ### Security
 
 - Update Astro, sharp, devalue, SVGO, js-yaml, fast-uri and smol-toml to resolve dependency advisories.

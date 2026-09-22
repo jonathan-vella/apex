@@ -15,6 +15,46 @@ function fixture(context) {
   return root;
 }
 
+test("extension policy requires exclusions and rejects direct or pinned duplicate providers", (context) => {
+  const root = fixture(context);
+  fs.mkdirSync(path.join(root, "tools/scripts"), { recursive: true });
+  fs.mkdirSync(path.join(root, ".devcontainer"));
+  fs.cpSync(new URL("../../scripts/_lib", import.meta.url), path.join(root, "tools/scripts/_lib"), { recursive: true });
+  const validator = path.join(root, "tools/scripts/validate-extension-bloat.mjs");
+  fs.copyFileSync(new URL("../../scripts/validate-extension-bloat.mjs", import.meta.url), validator);
+  fs.symlinkSync(new URL("../../../node_modules", import.meta.url), path.join(root, "node_modules"), "dir");
+  const config = parseJsonc(
+    fs.readFileSync(new URL("../../../.devcontainer/devcontainer.json", import.meta.url), "utf8"),
+  );
+  const extensions = config.customizations.vscode.extensions;
+  const check = (entries) => {
+    fs.writeFileSync(
+      path.join(root, ".devcontainer/devcontainer.json"),
+      JSON.stringify({ customizations: { vscode: { extensions: entries } } }),
+    );
+    return spawnSync(process.execPath, [validator], { encoding: "utf8" });
+  };
+  const valid = check(extensions);
+  assert.equal(valid.status, 0, valid.stdout + valid.stderr);
+  assert.equal(check(extensions.map((entry) => entry.toUpperCase())).status, 0);
+  for (const id of [
+    "ms-vscode.vscode-node-azure-pack",
+    "ms-azuretools.vscode-azure-github-copilot",
+    "ms-azuretools.vscode-azure-mcp-server",
+    "ms-windows-ai-studio.windows-ai-studio",
+    "teamsdevapp.vscode-ai-foundry",
+  ]) {
+    const missing = check(extensions.filter((entry) => entry !== `-${id}`));
+    assert.equal(missing.status, 1, missing.stdout + missing.stderr);
+    assert.match(missing.stdout, /Missing extension install exclusion/);
+    for (const entry of [id, `${id}@2.0.46`, `${id.toUpperCase()}@prerelease`]) {
+      const duplicate = check([...extensions, entry]);
+      assert.equal(duplicate.status, 1, duplicate.stdout + duplicate.stderr);
+      assert.match(duplicate.stdout, /Bloat extension declared/);
+    }
+  }
+});
+
 for (const scenario of ["current", "outdated", "offline", "timeout", "missing-npm"]) {
   test(`startup release check is advisory and read-only: ${scenario}`, (context) => {
     const root = fixture(context);
