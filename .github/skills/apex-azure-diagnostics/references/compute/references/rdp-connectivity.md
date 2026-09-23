@@ -21,6 +21,7 @@ Use for Windows VM RDP timeouts, refused connections, black screen, or RDP error
 ## Quick Commands
 
 > Commands marked by reset/update use VM agent/extensions. Run [Pre-Flight Safety Checks](cannot-connect-to-vm.md#pre-flight-safety-checks) first.
+> Password resets use the portal's **Reset password** blade; never pass a password on a command line.
 
 ```bash
 az vm get-instance-view --name <vm> -g <rg> --query "instanceView.statuses" -o table
@@ -28,7 +29,6 @@ az network nsg rule list --nsg-name <nsg> -g <rg> -o table
 az network watcher test-ip-flow --direction Inbound --protocol TCP \
   --local <vm-private-ip>:3389 --remote <your-public-ip>:* --vm <vm> -g <rg>
 az vm user reset-remote-desktop --name <vm> -g <rg>
-az vm user update --name <vm> -g <rg> -u <user> -p '<new-password>'
 ```
 
 [RDP NSG]: https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/windows/troubleshoot-rdp-nsg-problem

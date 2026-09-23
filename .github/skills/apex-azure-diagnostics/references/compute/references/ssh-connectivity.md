@@ -13,22 +13,22 @@ Use for Linux VM SSH failures.
 | server closed connection | Check disk, PAM, sshd config | [SSH detail] |
 | hangs with no response | Check firewall, routes, NIC | [SSH overview] |
 | Debian-specific failure | Check Debian networking/sshd doc | [Debian] |
-| SELinux blocks sshd | Fix SELinux policy or temporarily permissive | [SELinux] |
+| SELinux blocks sshd | Fix the SELinux policy or file contexts; don't switch the VM to permissive mode | [SELinux] |
 | Entra ID SSH denied | Assign VM Admin/User Login role | [SSH overview] |
 | VM not booting/UEFI failure | Use boot diagnostics and repair VM | [UEFI] |
 
 ## Quick Commands
 
 > Commands use VM agent/extensions. Run [Pre-Flight Safety Checks](cannot-connect-to-vm.md#pre-flight-safety-checks) first.
+> Password resets use the portal's **Reset password** blade; never pass a password on a command line.
 
 ```bash
 az vm user reset-ssh --name <vm> -g <rg>
 az vm user update --name <vm> -g <rg> -u <user> --ssh-key-value "<ssh-public-key>"
-az vm user update --name <vm> -g <rg> -u <user> -p '<new-password>'
 az vm run-command invoke --name <vm> -g <rg> --command-id RunShellScript \
   --scripts "systemctl status sshd; getenforce"
 az vm run-command invoke --name <vm> -g <rg> --command-id RunShellScript \
-  --scripts "setenforce 0"
+  --scripts "grep -i denied /var/log/audit/audit.log | tail -n 20"
 ```
 
 [SSH overview]: https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/linux/troubleshoot-ssh-connection

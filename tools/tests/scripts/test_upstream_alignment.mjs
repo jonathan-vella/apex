@@ -271,6 +271,9 @@ test("imported diagnostics guides follow APEX tool names, secrets and routing ru
       assert.match(command, /--query "\[\]\.name"/, file);
     }
     assert.doesNotMatch(source, /\]\(auth-best-practices\.md\)/, file);
+    for (const block of codeBlocks(source)) {
+      assert.doesNotMatch(block, / -p '|--(?:repair-|admin-)?password\b|setenforce 0/, file);
+    }
   }
   for (const link of [
     "references/app-service/README.md",

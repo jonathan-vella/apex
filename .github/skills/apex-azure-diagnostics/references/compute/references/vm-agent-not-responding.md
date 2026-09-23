@@ -28,9 +28,9 @@ az vm boot-diagnostics enable --name <vm-name> -g <resource-group>
 # Get boot diagnostics screenshot/log
 az vm boot-diagnostics get-boot-log --name <vm-name> -g <resource-group>
 
-# Create repair VM for offline fixes
-az vm repair create --name <vm-name> -g <resource-group> \
-  --repair-username repairadmin --repair-password '<password>'
+# Create repair VM for offline fixes; the user runs this in their own terminal and enters any requested
+# credentials at the prompt, never on the command line or in chat
+az vm repair create --name <vm-name> -g <resource-group> --verbose
 
 # Restore after offline fix
 az vm repair restore --name <vm-name> -g <resource-group>

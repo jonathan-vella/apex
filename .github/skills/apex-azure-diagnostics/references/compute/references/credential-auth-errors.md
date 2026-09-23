@@ -19,17 +19,15 @@ Use when the VM is reachable but sign-in fails.
 
 > Commands use VM agent/extensions. Run [Pre-Flight Safety Checks](cannot-connect-to-vm.md#pre-flight-safety-checks) first.
 >
-> Credential resets change access: get explicit approval, and have the user run password resets locally with
-> their own value. Never put a new password in chat, logs or a command an agent runs.
+> Credential resets change access: get explicit approval, and have the user reset passwords through the portal's
+> **Reset password** blade. Never put a password in chat, logs or a command line.
 
 ```bash
-# Windows password / RDP reset
-az vm user update --name <vm> -g <rg> -u <user> -p '<new-password>'
+# Windows: reset the RDP configuration (password resets use the portal)
 az vm user reset-remote-desktop --name <vm> -g <rg>
 
-# Linux key/password reset or unlock
+# Linux: replace the SSH key or unlock the account (password resets use the portal)
 az vm user update --name <vm> -g <rg> -u <user> --ssh-key-value "<ssh-public-key>"
-az vm user update --name <vm> -g <rg> -u <user> -p '<new-password>'
 az vm run-command invoke --name <vm> -g <rg> --command-id RunShellScript --scripts "passwd -u <user>"
 ```
 
