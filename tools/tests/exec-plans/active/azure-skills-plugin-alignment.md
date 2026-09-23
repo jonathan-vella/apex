@@ -426,9 +426,10 @@ standalone `azure-cost` plugin and split it into `cost-analysis`, `cost-estimati
       `azure-resource-lookup` changes only rename upstream cost-skill cross-references; nothing to port.
 - [x] Move the reviewed tag to `v1.2.70`; a live run reports no drift.
 - [x] Merge as #712 (`516c745e`). A manual drift workflow run after the merge reported no drift and closed #711.
-- [ ] apex-docs: update the cost skill text for MCP-first query and forecast and the new tool and safety reference.
-- [ ] Not ported, owner decision: the Advisor-first rewrite of the optimization workflow, commitments analysis,
-      `cost-governance` budgets, AI cost analysis and cost investigation.
+- [ ] apex-docs: update the cost skill text for MCP-first query and forecast and the new tool and safety reference
+      (apex-docs #16, CI green, awaiting merge).
+- [x] Declined by the owner on 2026-09-23, revisit on a future drift report: the Advisor-first rewrite of the
+      optimization workflow, commitments analysis, `cost-governance` budgets, AI cost analysis and cost investigation.
 
 ## Pull Request Split
 
