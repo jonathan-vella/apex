@@ -349,10 +349,10 @@ changes are needed.
 
 ### Phase 8: WAF Service Guides In 03-Architect
 
-- [ ] Add a "WAF Service Guides" section to
+- [x] Add a "WAF Service Guides" section to
       [research-workflow.md](../../../../.github/skills/apex-azure-defaults/references/research-workflow.md) and a
       one-line pointer in the 03-Architect evidence rules, following the procedure below.
-- [ ] Keep the assessment template unchanged; guides are cited in the existing pillar evidence.
+- [x] Keep the assessment template unchanged; guides are cited in the existing pillar evidence.
 
 #### WAF Guide Procedure
 

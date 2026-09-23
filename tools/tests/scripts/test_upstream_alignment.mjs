@@ -431,3 +431,20 @@ test("new service skills are pinned and wired into the owning agents", () => {
   }
   assert.match(read("apex-azure-diagnostics/SKILL.md"), /AKS design \(apex-azure-kubernetes\)/);
 });
+
+test("03-Architect uses WAF service guides with bounded fetches and Learn citations", () => {
+  const research = read("apex-azure-defaults/references/research-workflow.md");
+  assert.match(research, /^## WAF Service Guides$/m);
+  assert.match(
+    research,
+    /`mcp_azure-mcp_wellarchitectedframework` \(command `wellarchitectedframework_serviceguide_get`\)/,
+  );
+  assert.match(research, /learn\.microsoft\.com\/azure\/well-architected\/service-guides\/<slug>/);
+  assert.match(research, /never the same guide twice/);
+  assert.match(research, /`02-waf-research\.tmp\.md`/);
+  assert.match(research, /record the gap and lower the\s+confidence/);
+  const architect = readFileSync(new URL("../../../.github/agents/03-architect.agent.md", import.meta.url), "utf8");
+  assert.match(architect, /research-workflow\.md#waf-service-guides/);
+  assert.match(architect, /WAF\s+service guide procedure/);
+  assert.doesNotMatch(read("apex-azure-artifacts/templates/02-architecture-assessment.template.md"), /service guide/i);
+});
