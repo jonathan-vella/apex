@@ -13,8 +13,8 @@
 
 | Resource Name | Type | Tier/SKU | Location | Notes |
 |--------------|------|----------|----------|-------|
-| app-prod-001 | App Service | P1v2 | East US | Production web app |
-| func-prod-001 | Function App | Y1 | East US | Consumption plan |
+| app-prod-001 | App Service | P1v2 | Sweden Central | Production web app |
+| func-prod-001 | Function App | Y1 | Sweden Central | Consumption plan |
 
 ## Architecture Diagram
 

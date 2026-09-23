@@ -91,3 +91,5 @@ services:
 - [Trigger Types](triggers.md)
 - [Durable Functions](durable.md)
 - [Aspire + Container Apps](aspire-containerapps.md)
+- [Hosting Plans](hosting-plans.md)
+- [Cold Start](cold-start.md)

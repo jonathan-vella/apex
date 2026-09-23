@@ -288,3 +288,78 @@ test("imported diagnostics guides follow APEX tool names, secrets and routing ru
   }
   assert.match(skill, /node debug pods \(`run-ig` with `--approve`\)/);
 });
+
+test("imported prepare guides are linked and carry the APEX network baseline", () => {
+  const services = "apex-azure-prepare/references/services";
+  for (const [folder, guides] of [
+    ["app-service", ["sku-selection", "networking", "custom-domains"]],
+    ["container-apps", ["networking", "revisions", "day2-operations", "terraform"]],
+    ["functions", ["hosting-plans", "cold-start"]],
+  ]) {
+    const readme = read(`${services}/${folder}/README.md`);
+    for (const guide of guides) assert.ok(readme.includes(`](${guide}.md)`), `${folder}/${guide}`);
+  }
+  assert.match(read(`${services}/app-service/networking.md`), /APEX baseline:\*\* App Service APIs are private/);
+  assert.match(read(`${services}/container-apps/networking.md`), /use internal ingress for APIs and back ends/);
+  assert.match(read(`${services}/container-apps/terraform.md`), /APEX Terraform CodeGen is AVM-first/);
+});
+
+test("cost query and forecast use ARM MCP without temp folders or attribution headers", () => {
+  const cost = "apex-azure-cost-optimization";
+  for (const [workflow, tool] of [
+    ["cost-query", "query_costs"],
+    ["cost-forecast", "forecast_costs"],
+  ]) {
+    for (const file of markdownFiles(`${cost}/references/${workflow}/`)) {
+      const source = read(file);
+      assert.doesNotMatch(source, /ClientType=|New-Item -ItemType Directory -Path "temp"|@temp\//, file);
+    }
+    assert.match(read(`${cost}/references/${workflow}/workflow.md`), new RegExp(`ARM MCP \`${tool}\``));
+  }
+  const skill = read(`${cost}/SKILL.md`);
+  assert.match(skill, /## Scope Reference \(Shared Across All Workflows\)/);
+  assert.match(skill, /\*\*Show the total bill\*\*/);
+  const storage = read(`${cost}/references/azure-storage-tiers.md`);
+  assert.doesNotMatch(storage, /\$\d/);
+  assert.doesNotMatch(storage, /"delete"\s*:/);
+  for (const block of codeBlocks(storage).filter((query) => query.startsWith("Resources"))) {
+    assert.match(block, /\| project id, subscriptionId,/);
+  }
+});
+
+test("cloud-migrate scenarios hand off to prepare instead of CLI deployment guides", () => {
+  const skill = read("apex-azure-cloud-migrate/SKILL.md");
+  for (const scenario of [
+    "beanstalk-to-app-service",
+    "heroku-to-app-service",
+    "app-engine-to-app-service",
+    "fargate-to-container-apps",
+    "k8s-to-container-apps",
+    "cloudrun-to-container-apps",
+    "spring-apps-to-aca",
+  ]) {
+    assert.ok(skill.includes(`${scenario}.md`), scenario);
+  }
+  assert.match(skill, /Kubernetes DNS names/);
+  for (const file of markdownFiles("apex-azure-cloud-migrate/references/")) {
+    const source = read(file);
+    assert.doesNotMatch(
+      source,
+      /deployment-guide\.md|mcp_azure_mcp_|preparation-manifest|az (acr|containerapp) create/,
+      file,
+    );
+  }
+});
+
+test("resources, storage and compute keep secrets out and delegate availability checks", () => {
+  const resources = read("apex-azure-resources/SKILL.md");
+  assert.match(resources, /No secrets in diagrams or inventories/);
+  assert.match(resources, /List web apps, websites or App Services/);
+  assert.match(read("apex-azure-resources/references/visualize.md"), /in `agent-output\/\{project\}\/`/);
+  assert.match(read("apex-azure-storage/SKILL.md"), /"hot vs cool vs archive"/);
+  const compute = read("apex-azure-compute/SKILL.md");
+  assert.match(compute, /apex-azure-quotas\/references\/sku-availability\.md/);
+  for (const file of ["apex-azure-compute/SKILL.md", ...markdownFiles("apex-azure-compute/references/")]) {
+    assert.doesNotMatch(read(file), /eastus|westus/, file);
+  }
+});

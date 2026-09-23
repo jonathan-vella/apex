@@ -72,7 +72,8 @@ See [example-diagram.md](../assets/example-diagram.md) for a complete sample.
 ### Step 4: File Creation
 
 Use [template-architecture.md](../assets/template-architecture.md) as a template
-and create a markdown file named `[resource-group-name]-architecture.md` with:
+and create a markdown file named `[resource-group-name]-architecture.md` in `agent-output/{project}/`, or in
+the folder the user names, with:
 
 1. **Header**: Resource group name, subscription, region
 2. **Summary**: Brief overview of the architecture (2-3 paragraphs)
@@ -100,6 +101,7 @@ and create a markdown file named `[resource-group-name]-architecture.md` with:
 - ✅ Group resources logically with subgraphs
 - ✅ Label all connections descriptively
 - ✅ Create a complete markdown file with the embedded diagram
+- ✅ Use placeholder names for secret values (keys, connection strings, Key Vault secrets)
 
 **Never Do:**
 

@@ -25,6 +25,42 @@
         {
           "from": "azure-prepare/references/services/sql-database/auth.md",
           "to": "references/services/sql-database/auth.md"
+        },
+        {
+          "from": "azure-prepare/references/services/app-service/sku-selection.md",
+          "to": "references/services/app-service/sku-selection.md"
+        },
+        {
+          "from": "azure-prepare/references/services/app-service/networking.md",
+          "to": "references/services/app-service/networking.md"
+        },
+        {
+          "from": "azure-prepare/references/services/app-service/custom-domains.md",
+          "to": "references/services/app-service/custom-domains.md"
+        },
+        {
+          "from": "azure-prepare/references/services/container-apps/networking.md",
+          "to": "references/services/container-apps/networking.md"
+        },
+        {
+          "from": "azure-prepare/references/services/container-apps/revisions.md",
+          "to": "references/services/container-apps/revisions.md"
+        },
+        {
+          "from": "azure-prepare/references/services/container-apps/day2-operations.md",
+          "to": "references/services/container-apps/day2-operations.md"
+        },
+        {
+          "from": "azure-prepare/references/services/container-apps/terraform.md",
+          "to": "references/services/container-apps/terraform.md"
+        },
+        {
+          "from": "azure-prepare/references/services/functions/hosting-plans.md",
+          "to": "references/services/functions/hosting-plans.md"
+        },
+        {
+          "from": "azure-prepare/references/services/functions/cold-start.md",
+          "to": "references/services/functions/cold-start.md"
         }
       ]
     },
@@ -50,13 +86,35 @@
         { "from": "azure-deploy/references/recipes/azd/errors.md", "to": "references/recipes/azd/errors.md" }
       ]
     },
-    { "apex": "apex-azure-cloud-migrate", "upstream": ["azure-cloud-migrate"], "status": "fork", "imports": [] },
+    {
+      "apex": "apex-azure-cloud-migrate",
+      "upstream": ["azure-cloud-migrate"],
+      "status": "fork",
+      "note": "Container Apps *-deployment-guide.md files are not imported; scenarios hand off to apex-azure-prepare.",
+      "imports": [
+        {
+          "from": "azure-cloud-migrate/references/services/app-service/",
+          "to": "references/services/app-service/"
+        },
+        {
+          "from": "azure-cloud-migrate/references/services/container-apps/",
+          "to": "references/services/container-apps/"
+        }
+      ]
+    },
     {
       "apex": "apex-azure-cost-optimization",
       "upstream": ["azure-cost"],
       "status": "fork",
       "note": "Upstream renamed azure-cost-optimization to azure-cost; APEX keeps its name.",
-      "imports": []
+      "imports": [
+        { "from": "azure-cost/cost-query/", "to": "references/cost-query/" },
+        { "from": "azure-cost/cost-forecast/", "to": "references/cost-forecast/" },
+        {
+          "from": "azure-cost/cost-optimization/services/storage/azure-storage.md",
+          "to": "references/azure-storage-tiers.md"
+        }
+      ]
     },
     { "apex": "apex-azure-compliance", "upstream": ["azure-compliance"], "status": "fork", "imports": [] },
     {
@@ -80,12 +138,20 @@
     },
     { "apex": "apex-azure-compute", "upstream": ["azure-compute"], "status": "fork", "imports": [] },
     { "apex": "apex-azure-quotas", "upstream": ["azure-quotas"], "status": "fork", "imports": [] },
-    { "apex": "apex-azure-storage", "upstream": ["azure-storage"], "status": "fork", "imports": [] },
+    {
+      "apex": "apex-azure-storage",
+      "upstream": ["azure-storage"],
+      "status": "fork",
+      "imports": [{ "from": "azure-storage/SKILL.md", "to": "SKILL.md" }]
+    },
     {
       "apex": "apex-azure-resources",
       "upstream": ["azure-resource-lookup", "azure-resource-visualizer"],
       "status": "apex-merge",
-      "imports": []
+      "imports": [
+        { "from": "azure-resource-lookup/SKILL.md", "to": "SKILL.md" },
+        { "from": "azure-resource-visualizer/SKILL.md", "to": "references/visualize.md" }
+      ]
     },
     { "apex": "apex-entra-app-registration", "upstream": ["entra-app-registration"], "status": "fork", "imports": [] },
     {

@@ -289,15 +289,15 @@ safety rule gets a focused test.
 
 ### Phase 6: Other Upstream Imports
 
-- [ ] prepare: App Service (SKU selection, networking, custom domains), Container Apps (networking, revisions, day-2
+- [x] prepare: App Service (SKU selection, networking, custom domains), Container Apps (networking, revisions, day-2
       operations, Terraform) and Functions (hosting plans, cold start) guides, each checked against the
       private-endpoint baseline.
-- [ ] cost: query and forecast workflows with guardrails and 429 handling, mapped to the ARM MCP `query_costs`,
+- [x] cost: query and forecast workflows with guardrails and 429 handling, mapped to the ARM MCP `query_costs`,
       `forecast_costs` and `list_dimensions` tools; the total bill shown with savings; storage tier guidance without
       deletion rules of thumb.
-- [ ] cloud-migrate: App Service and Container Apps assessment and mapping guides and the Kubernetes DNS rule,
+- [x] cloud-migrate: App Service and Container Apps assessment and mapping guides and the Kubernetes DNS rule,
       without the CLI deployment guides.
-- [ ] resources: web-app triggers, no secrets in diagrams, the .NET 10 example and an output location. storage:
+- [x] resources: web-app triggers, no secrets in diagrams, the .NET 10 example and an output location. storage:
       access-tier triggers. compute: quota and SKU checks through `apex-azure-quotas`, tool-neutral fetch wording and
       region placeholders.
 
