@@ -6,9 +6,14 @@ Steps for cost query execution, pricing validation, metrics collection, report g
 
 ## Step 4: Query Actual Costs
 
-Get actual cost data from Azure Cost Management API (last 30 days):
+Get actual cost data for the last 30 days with the ARM MCP `query_costs` tool: `from`/`to` as `YYYY-MM-DD`,
+`granularity=None`, `groupBy=ResourceId`, `top=5000`, at subscription or resource-group scope. Follow the
+[cost query guardrails](cost-query/guardrails.md) and label partial results.
 
-**Create cost query file:**
+Use the Cost Management Query API below only when `query_costs` is unavailable, as defined in the
+[tool and safety guidance](tools-and-safety.md#tool-preference).
+
+**Create cost query file (fallback):**
 
 Create a unique run-owned scratch directory before creating the query:
 
@@ -48,10 +53,9 @@ Use the file editing tool to create `$queryPath` with:
 
 > **Action Required**: Calculate `<START_DATE>` (30 days ago) and `<END_DATE>` (today) in ISO 8601 format (e.g., `2025-11-03T00:00:00Z`).
 
-**Execute cost query:**
+**Execute cost query (fallback):**
 
 ```powershell
-# Query using REST API (more reliable than az costmanagement query)
 az rest --method post `
   --url "https://management.azure.com/subscriptions/<SUBSCRIPTION_ID>/resourceGroups/<RESOURCE_GROUP>/providers/Microsoft.CostManagement/query?api-version=2023-11-01" `
   --body "@$queryPath"

@@ -1,127 +1,49 @@
 # Cost Forecast Workflow
 
-Use this workflow when the user wants to **project future costs**.
+Use this workflow to project costs for an existing Azure scope. For historical
+cost, use the [cost query workflow](../cost-query/workflow.md); to reduce cost,
+use the [optimization workflow](../workflow-steps.md).
 
-> ⚠️ **Warning:** If the user wants **historical** cost data, use the [Cost Query Workflow](../cost-query/workflow.md). If they want to **reduce** costs, use the [Cost Optimization Workflow](../workflow-steps.md).
+## 1. Determine scope and period
 
-## Key Differences from Query API
+`forecast_costs` defaults to the current month: first day through last day. For
+custom dates, supply `from` and `to` together in `YYYY-MM-DD`. `from` must be
+within the rolling 92-day lookback; `to` may be in the future.
 
-| Aspect | Query API | Forecast API |
-|--------|-----------|--------------|
-| Purpose | Historical cost data | Projected future costs |
-| Time period | Past dates only | Must include future dates |
-| Grouping | Up to 2 dimensions | **Not supported** |
-| `includeActualCost` | N/A | Include historical alongside forecast |
-| Response columns | Cost, Date, Currency | Cost, Date, **CostStatus**, Currency |
-| Max response rows | 5,000/page | 40 rows recommended |
-| Timeframe | Multiple presets + Custom | Typically `Custom` only |
+## 2. Configure the tool call
 
-## Step 1: Determine Scope
+| Parameter | Contract |
+|---|---|
+| `scope` | Azure scope path from the [Scope Reference](../../SKILL.md#scope-reference-shared-across-all-workflows); never a tenant ID |
+| `from`, `to` | Optional pair; defaults to current month |
+| `granularity` | `Daily` (default) or `Monthly` |
+| `filterDimension` + `filterValues` | Optional pair using one exact-match dimension |
+| `metric` | `PreTaxCost` (default), `Cost`, or `AmortizedCost` |
 
-Use the same scope patterns from the Scope Reference table in the main [SKILL.md](../../SKILL.md#scope-reference-shared-across-all-workflows).
+The MCP tool does not expose grouping, sorting, arbitrary aggregations,
+`includeActualCost`, or `includeFreshPartialCost`.
 
-## Step 2: Choose Report Type
+## 3. Execute and interpret
 
-`ActualCost` is most common for forecasting. `AmortizedCost` for reservation/savings plan projections.
+Call the ARM MCP `forecast_costs` tool. If it is unavailable, use the Cost
+Management Forecast API through the [fallback process](../tools-and-safety.md#tool-preference).
+Preserve currency, date, scope, actual-versus-forecast status, and the 100-row
+response limit. Empty or unavailable forecast data is not zero.
 
-## Step 3: Set Time Period
+For grouped historical data, use the [cost query workflow](../cost-query/workflow.md).
+If the requested forecast cannot fit the supported contract, explain the
+limitation; fallback does not relax it.
 
-> ⚠️ **Warning:** The `to` date **MUST** be in the future.
+## Error handling
 
-- Set `timeframe` to `Custom` and provide `timePeriod` with `from` and `to` dates
-- `from` can be in the past — shows actual costs up to today, then forecast to `to`
-- Minimum 28 days of historical cost data required
-- Maximum forecast period: 10 years
+| Error | Action |
+|---|---|
+| Missing date or filter pair | Supply both fields. |
+| Historical start older than 92 days | Move `from` inside the supported window. |
+| Unsupported metric, granularity, or dimension | Use an exposed value. |
+| Forecast unavailable | Report unavailable data and offer historical analysis. |
+| Throttled | Honor tool retry guidance and reduce fan-out. |
 
-> **Full rules:** [Forecast Guardrails](./guardrails.md)
-
-## Step 4: Configure Dataset
-
-- **Granularity**: `Daily` or `Monthly` recommended
-- **Aggregation**: Typically `Sum` of `Cost`
-- See [Forecast Request Body Schema](./request-body-schema.md) for full schema
-
-> ⚠️ **Warning:** Grouping is **NOT supported** for forecast. Suggest using the [Cost Query Workflow](../cost-query/workflow.md) for grouped historical data instead.
-
-## Step 5: Set Forecast-Specific Options
-
-| Field | Default | Description |
-|-------|---------|-------------|
-| `includeActualCost` | `true` | Include historical actual costs alongside forecast |
-| `includeFreshPartialCost` | `true` | Include partial cost data for recent days. **Requires `includeActualCost: true`** |
-
-## Step 6: Construct and Execute
-
-Run the forecast with the ARM MCP `forecast_costs` tool, passing the scope and the request body below. If the
-tool is unavailable, fall back to `az rest` with a run-owned scratch file created as in
-[Step 4 of the optimization workflow](../detailed-workflow-steps.md#step-4-query-actual-costs); never write to a
-shared `temp/` folder.
-
-**Request body** (create `$forecastPath` with the file editing tool for the fallback):
-
-```json
-{
-  "type": "ActualCost",
-  "timeframe": "Custom",
-  "timePeriod": {
-    "from": "<first-of-month>",
-    "to": "<last-of-month>"
-  },
-  "dataset": {
-    "granularity": "Daily",
-    "aggregation": {
-      "totalCost": { "name": "Cost", "function": "Sum" }
-    },
-    "sorting": [{ "direction": "Ascending", "name": "UsageDate" }]
-  },
-  "includeActualCost": true,
-  "includeFreshPartialCost": true
-}
-```
-
-**Fallback:**
-
-```powershell
-az rest --method post `
-  --url "/subscriptions/<subscription-id>/providers/Microsoft.CostManagement/forecast?api-version=2023-11-01" `
-  --body "@$forecastPath"
-```
-
-## Step 7: Interpret Response
-
-| CostStatus | Meaning |
-|------------|---------|
-| `Actual` | Historical actual cost (when `includeActualCost: true`) |
-| `Forecast` | Projected future cost |
-
-> 💡 **Tip:** "Forecast is unavailable for the specified time period" is not an error — it means the scope has insufficient historical data. Suggest using the [Cost Query Workflow](../cost-query/workflow.md) for available data.
-
-## Key Guardrails
-
-| Rule | Constraint |
-|------|-----------|
-| `to` date | Must be in the future |
-| Grouping | Not supported |
-| Min training data | 28 days of historical cost data |
-| Max forecast period | 10 years |
-| Response row limit | 40 rows recommended |
-| `includeFreshPartialCost` | Requires `includeActualCost: true` |
-| Monthly + includeActualCost | Requires explicit `timePeriod` |
-
-> **Full details:** [Forecast Guardrails](./guardrails.md)
-
-## Error Handling
-
-| Status | Error | Remediation |
-|--------|-------|-------------|
-| 400 | Can't forecast on the past | Ensure `to` date is in the future. |
-| 400 | Missing dataset | Add required `dataset` field. |
-| 400 | Invalid dependency | Set `includeActualCost: true` when using `includeFreshPartialCost`. |
-| 403 | Forbidden | Needs **Cost Management Reader** role on scope. |
-| 424 | Bad training data | Insufficient history; falls back to actual costs if available. |
-| 429 | Rate limited | Check all `x-ms-ratelimit-microsoft.costmanagement-*-retry-after` headers (`qpu`, `entity`, `tenant`). Wait for the **longest** value. **Max 3 retries.** |
-| 503 | Service unavailable | Check [Azure Status](https://status.azure.com). |
-
-> **Full details:** [Forecast Error Handling](./error-handling.md)
-
-For more forecast examples, see [forecast examples](./examples.md).
+See [examples](examples.md), [parameter contract](request-body-schema.md), and
+[guardrails](guardrails.md). Use [forecast errors](error-handling.md) for
+tool-specific remediation.

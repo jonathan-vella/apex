@@ -16,7 +16,7 @@ for cost optimization workflows.
 
 - Always query actual costs first - never estimate or assume
 - Validate pricing from official sources - account for free tiers
-- Use REST API for cost queries (more reliable than `az costmanagement query`)
+- Use the ARM MCP `query_costs` tool for cost queries; fall back to the REST API only when it is unavailable
 - Save audit trail - include all queries and responses
 - Include Azure Portal links for all resources
 - Use UTF-8 encoding when creating report files
@@ -29,7 +29,8 @@ for cost optimization workflows.
 - **Ignoring free tiers**: Many services have generous allowances (e.g., Container Apps: 180K vCPU-sec free/month)
 - **Using wrong date ranges**: 30 days for costs, 14 days for utilization
 - **Broken Portal links**: Verify tenant ID and resource ID format
-- **Cost query failures**: Use `az rest` with JSON body, not `az costmanagement query`
+- **Cost query failures**: Fix the input for validation errors; for an unavailable `query_costs`, use `az rest` with a
+  JSON body, not `az costmanagement query`
 
 ## Safety Requirements
 

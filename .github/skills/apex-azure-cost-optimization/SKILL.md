@@ -47,6 +47,7 @@ Use this skill when the user asks to:
 - **Read-only analysis first** — never delete or modify resources during the assessment phase; remediation is a separate user-approved step
 - **Validate prerequisites** before starting (Azure CLI authenticated, `costmanagement` + `resource-graph` extensions, `azqr` installed, Cost Management Reader + Monitoring Reader + Reader roles)
 - **Use real data** — recommendations must be grounded in actual cost queries and utilization metrics, not assumptions
+- **ARM MCP first** — use API fallbacks only when an operation is unavailable, never to bypass invalid input, denied access, throttling or empty data ([tool and safety guidance](references/tools-and-safety.md))
 - **Cite sources** — every savings estimate must reference the underlying cost query or pricing API result (audit trail in `agent-output/{project}/cost-query-result<timestamp>.json`)
 - **Classify safely** — mark recommendations as Safe / Review / Risky; never auto-apply destructive operations
 - **Show the total bill** — present savings next to the scope's total actual cost for the same period, so each saving reads against the whole bill
@@ -109,6 +110,7 @@ Load these on demand — do NOT read all at once:
 | `references/workflow-steps.md`          | Steps 0–3: prerequisites, best practices, azqr, resource discovery |
 | `references/detailed-workflow-steps.md` | Steps 4-9: cost queries, pricing, metrics, report, audit, cleanup  |
 | `references/best-practices-notes.md`    | Data classification, best practices, pitfalls, safety              |
-| `references/cost-query/workflow.md`     | Cost breakdowns, trends and totals; guardrails and 429 handling    |
-| `references/cost-forecast/workflow.md`  | Forecasts; training-data and time-window guardrails                |
+| `references/cost-query/workflow.md`     | Cost breakdowns, trends and totals; `query_costs` limits and errors |
+| `references/cost-forecast/workflow.md`  | Forecasts; `forecast_costs` period and row limits                  |
+| `references/tools-and-safety.md`        | ARM MCP fallback APIs, evidence labels and approval rules          |
 | `references/azure-storage-tiers.md`     | Storage access tiers, lifecycle tiering and review signals         |

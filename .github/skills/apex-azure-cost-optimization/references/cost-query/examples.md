@@ -1,127 +1,22 @@
-# Cost Management Query Examples
+# Cost Query Examples
 
-Common query patterns with request bodies. Use the [query workflow](workflow.md) to run them through `query_costs` or the `az rest` fallback.
+Pass these parameters to `query_costs`. If that operation is unavailable, use
+the official Cost Management Query API schema and preserve these constraints.
 
-## 1. Monthly Cost by Service
+| Scenario | Parameters |
+|---|---|
+| Month-to-date cost by service | `timeframe=MonthToDate`, `granularity=None`, `groupBy=ServiceName`, `metric=Cost` |
+| Daily trend for a custom period | `from=<YYYY-MM-DD>`, `to=<YYYY-MM-DD>`, `granularity=Daily`, `metric=Cost` |
+| Cost by resource group | `timeframe=MonthToDate`, `groupBy=ResourceGroupName`, `sortDirection=desc` |
+| Amortized commitment cost | `timeframe=TheLastMonth`, `groupBy=BenefitName`, `metric=AmortizedCost` |
+| Ten most expensive resources | subscription scope, `groupBy=ResourceId`, `top=10`, `sortDirection=desc` |
+| One service only | `filterDimension=ServiceName`, `filterValues=<exact-service-name>` |
 
-```json
-{
-  "type": "ActualCost",
-  "timeframe": "MonthToDate",
-  "dataset": {
-    "granularity": "None",
-    "aggregation": {
-      "totalCost": { "name": "Cost", "function": "Sum" }
-    },
-    "grouping": [
-      { "type": "Dimension", "name": "ServiceName" }
-    ],
-    "sorting": [
-      { "direction": "Descending", "name": "Cost" }
-    ]
-  }
-}
-```
+Use `list_dimensions` when an exact filter value or available dimension is
+unknown. It belongs to the opt-in `CostManagement` toolset.
 
----
-
-## 2. Daily Cost Trend (Last 30 Days)
-
-```json
-{
-  "type": "ActualCost",
-  "timeframe": "Custom",
-  "timePeriod": {
-    "from": "2024-01-01T00:00:00Z",
-    "to": "2024-01-31T23:59:59Z"
-  },
-  "dataset": {
-    "granularity": "Daily",
-    "aggregation": {
-      "totalCost": { "name": "Cost", "function": "Sum" }
-    }
-  }
-}
-```
-
-> ⚠️ **Warning:** Daily granularity supports a maximum of 31 days.
-
----
-
-## 3. Cost by Resource Group with Tag Filter
-
-```json
-{
-  "type": "ActualCost",
-  "timeframe": "MonthToDate",
-  "dataset": {
-    "granularity": "None",
-    "aggregation": {
-      "totalCost": { "name": "Cost", "function": "Sum" }
-    },
-    "grouping": [
-      { "type": "Dimension", "name": "ResourceGroupName" }
-    ],
-    "filter": {
-      "tags": {
-        "name": "Environment",
-        "operator": "In",
-        "values": ["production", "staging"]
-      }
-    },
-    "sorting": [
-      { "direction": "Descending", "name": "Cost" }
-    ]
-  }
-}
-```
-
----
-
-## 4. Amortized Cost for Reservation Analysis
-
-```json
-{
-  "type": "AmortizedCost",
-  "timeframe": "TheLastMonth",
-  "dataset": {
-    "granularity": "None",
-    "aggregation": {
-      "totalCost": { "name": "Cost", "function": "Sum" }
-    },
-    "grouping": [
-      { "type": "Dimension", "name": "BenefitName" }
-    ],
-    "sorting": [
-      { "direction": "Descending", "name": "Cost" }
-    ]
-  }
-}
-```
-
-> 💡 **Tip:** `AmortizedCost` spreads reservation purchases across the term for accurate daily/monthly effective cost.
-
----
-
-## 5. Top 10 Most Expensive Resources
-
-```json
-{
-  "type": "ActualCost",
-  "timeframe": "MonthToDate",
-  "dataset": {
-    "granularity": "None",
-    "aggregation": {
-      "totalCost": { "name": "Cost", "function": "Sum" }
-    },
-    "grouping": [
-      { "type": "Dimension", "name": "ResourceId" }
-    ],
-    "sorting": [
-      { "direction": "Descending", "name": "Cost" }
-    ]
-  }
-}
-```
-
-> 💡 **Tip:** Append `&$top=10` to the URL to limit results: `...query?api-version=2023-11-01&$top=10`
+Tag queries are unsupported. For resource tag inventory, use the Resource Graph
+`generate_query`, `validate_query`, and `execute_query` sequence, then correlate
+resource IDs with cost results. Use the tag keys from `tag_contract` in
+`04-governance-constraints.json`, as in the
+[Resource Graph queries](../azure-resource-graph.md).
