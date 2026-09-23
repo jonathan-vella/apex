@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-09-23T16:25:10.123Z",
+  "generatedAt": "2026-09-23T18:16:16.880Z",
   "categories": [
     { "id": "agent", "key": "agents", "label": "Agent", "color": "#3b82f6", "shape": "round-rectangle", "count": 14 },
     {
@@ -35,11 +35,11 @@
       "label": "CI Workflow",
       "color": "#06b6d4",
       "shape": "cut-rectangle",
-      "count": 5
+      "count": 6
     },
     { "id": "mcp", "key": "mcp_servers", "label": "MCP Server", "color": "#f43f5e", "shape": "barrel", "count": 3 }
   ],
-  "nodeCount": 184,
+  "nodeCount": 185,
   "edgeCount": 733,
   "nodes": [
     {
@@ -2315,6 +2315,18 @@
       "parent": "group:workflow-orphans"
     },
     {
+      "id": "workflow:upstream-skill-drift",
+      "category": "workflow",
+      "label": "upstream-skill-drift",
+      "description": "",
+      "path": ".github/workflows/upstream-skill-drift.yml",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/workflows/upstream-skill-drift.yml"
+      },
+      "meta": { "orphan": true },
+      "parent": "group:workflow-orphans"
+    },
+    {
       "id": "workflow:validate-devcontainer-base",
       "category": "workflow",
       "label": "validate-devcontainer-base",
@@ -2364,10 +2376,10 @@
     {
       "id": "group:workflow-orphans",
       "category": "workflow",
-      "label": "CI Workflow (unlinked, 3)",
-      "description": "3 ci workflow nodes with no cross-references in the current graph.",
+      "label": "CI Workflow (unlinked, 4)",
+      "description": "4 ci workflow nodes with no cross-references in the current graph.",
       "isGroup": true,
-      "meta": { "groupSize": 3 }
+      "meta": { "groupSize": 4 }
     }
   ],
   "edges": [
