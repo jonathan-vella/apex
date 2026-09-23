@@ -180,6 +180,5 @@
 
     // Test prompt files (long-form examples, not production docs)
     "tools/tests/prompts/**",
-
   ],
 }
