@@ -70,6 +70,7 @@ concurrency:
 | ------------------------------- | ------------------------------------------------ | --------------------------- |
 | `ci.yml`                        | Required PR check: lint + all Node.js validators | PR + push to main/feature   |
 | `consumer-template-checks.yml` | Validate inactive consumer workflows | Template changes + manual |
+| `upstream-skill-drift.yml` | Keep one issue with upstream azure-skills drift | Weekly schedule + manual |
 
 Documentation build, link checks and Pages publishing belong to `jonathan-vella/apex-docs`.
 Governance, IaC and weekly maintenance sources live under `.github/consumer-workflows/`;

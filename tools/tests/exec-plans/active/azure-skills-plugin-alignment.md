@@ -379,13 +379,13 @@ Caching guide summaries in the repository would go stale. Neither is planned.
 
 ### Phase 10: Drift Report Tooling (Pull Request 2)
 
-- [ ] Add `tools/scripts/report-upstream-skill-drift.mjs`. It finds the latest tag with Git, because the REST API
+- [x] Add `tools/scripts/report-upstream-skill-drift.mjs`. It finds the latest tag with Git, because the REST API
       rate-limits, fetches only the pinned and latest plugin trees, and reports changed files per skill, changelog
       lines, new or retired skills, and whether each SK defect is still present upstream or fixed there (a
       retirement candidate). It never writes to `.github/skills`. Model it on
       [fetch-vendor-prompting-guides.mjs](../../../../tools/scripts/fetch-vendor-prompting-guides.mjs), and add a
       `report:upstream-skills` npm script and an offline fixture test.
-- [ ] Add `.github/workflows/upstream-skill-drift.yml`: weekly and manual runs, Node 24, `npm ci`, `contents: read`
+- [x] Add `.github/workflows/upstream-skill-drift.yml`: weekly and manual runs, Node 24, `npm ci`, `contents: read`
       and `issues: write`, concurrency, the current action major versions, and one labelled issue updated in place
       with `gh`. Keep it out of `CONSUMER_WORKFLOWS` in
       [sync-workflows.mjs](../../../../tools/scripts/sync-workflows.mjs), and add it to the workflow table in

@@ -80,6 +80,7 @@
     "validate:challenger-decisions": "node tools/scripts/validate-challenge-findings-decisions.mjs --all",
     "validate:lens-references": "node tools/scripts/validate-lens-references.mjs",
     "report:challenger-gaps": "node tools/scripts/lessons-to-checklists.mjs",
+    "report:upstream-skills": "node tools/scripts/report-upstream-skill-drift.mjs",
     "challenger-telemetry": "node tools/scripts/challenger-telemetry.mjs",
     "lint:workflow-table-sync": "node tools/scripts/validate-workflow-table-sync.mjs",
     "validate:agent-registry": "node tools/scripts/validate-agent-registry.mjs",
