@@ -76,7 +76,8 @@ descriptions:
 
 Recommend the option that matches the inferred workload pattern. Avoid
 recommending AKS for a small MVP team unless the user explicitly asks for
-Kubernetes.
+Kubernetes. When AKS is chosen, `apex-azure-kubernetes` covers the Day-0
+cluster decisions.
 
 ## 3d. Relational data store
 
@@ -99,7 +100,7 @@ Record the answer with
 Use `askQuestions` for a non-relational data store, if any (single-select):
 
 - Azure Cosmos DB (NoSQL, multi-model).
-- Azure Cache for Redis (cache layer; pair with a primary store).
+- Azure Managed Redis (cache layer; pair with a primary store).
 - Azure Table Storage (cheap key/value, simple needs).
 - None or not needed.
 - Other / unsure.

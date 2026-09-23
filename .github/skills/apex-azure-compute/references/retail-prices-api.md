@@ -23,15 +23,15 @@ https://prices.azure.com/api/retail/prices?api-version=2023-01-01-preview
 ### Basic VM price lookup
 
 ```http
-GET https://prices.azure.com/api/retail/prices?$filter=serviceName eq 'Virtual Machines' and armRegionName eq 'eastus' and armSkuName eq 'Standard_D4s_v5' and priceType eq 'Consumption'
+GET https://prices.azure.com/api/retail/prices?$filter=serviceName eq 'Virtual Machines' and armRegionName eq 'swedencentral' and armSkuName eq 'Standard_D4s_v5' and priceType eq 'Consumption'
 ```
 
 ```bash
-curl -s "https://prices.azure.com/api/retail/prices?\$filter=serviceName%20eq%20'Virtual%20Machines'%20and%20armRegionName%20eq%20'eastus'%20and%20armSkuName%20eq%20'Standard_D4s_v5'%20and%20priceType%20eq%20'Consumption'"
+curl -s "https://prices.azure.com/api/retail/prices?\$filter=serviceName%20eq%20'Virtual%20Machines'%20and%20armRegionName%20eq%20'swedencentral'%20and%20armSkuName%20eq%20'Standard_D4s_v5'%20and%20priceType%20eq%20'Consumption'"
 ```
 
 ```powershell
-$filter = "serviceName eq 'Virtual Machines' and armRegionName eq 'eastus' and armSkuName eq 'Standard_D4s_v5' and priceType eq 'Consumption'"
+$filter = "serviceName eq 'Virtual Machines' and armRegionName eq 'swedencentral' and armSkuName eq 'Standard_D4s_v5' and priceType eq 'Consumption'"
 $response = Invoke-RestMethod "https://prices.azure.com/api/retail/prices?`$filter=$filter"
 $response.Items | Select-Object armSkuName, retailPrice, unitOfMeasure, meterName
 ```
@@ -39,15 +39,15 @@ $response.Items | Select-Object armSkuName, retailPrice, unitOfMeasure, meterNam
 ### Filter by family (all D-series in a region)
 
 ```http
-GET https://prices.azure.com/api/retail/prices?$filter=serviceName eq 'Virtual Machines' and armRegionName eq 'eastus' and contains(armSkuName, 'Standard_D') and priceType eq 'Consumption'
+GET https://prices.azure.com/api/retail/prices?$filter=serviceName eq 'Virtual Machines' and armRegionName eq 'swedencentral' and contains(armSkuName, 'Standard_D') and priceType eq 'Consumption'
 ```
 
 ```bash
-curl -s "https://prices.azure.com/api/retail/prices?\$filter=serviceName%20eq%20'Virtual%20Machines'%20and%20armRegionName%20eq%20'eastus'%20and%20contains(armSkuName,%20'Standard_D')%20and%20priceType%20eq%20'Consumption'"
+curl -s "https://prices.azure.com/api/retail/prices?\$filter=serviceName%20eq%20'Virtual%20Machines'%20and%20armRegionName%20eq%20'swedencentral'%20and%20contains(armSkuName,%20'Standard_D')%20and%20priceType%20eq%20'Consumption'"
 ```
 
 ```powershell
-$filter = "serviceName eq 'Virtual Machines' and armRegionName eq 'eastus' and contains(armSkuName, 'Standard_D') and priceType eq 'Consumption'"
+$filter = "serviceName eq 'Virtual Machines' and armRegionName eq 'swedencentral' and contains(armSkuName, 'Standard_D') and priceType eq 'Consumption'"
 $response = Invoke-RestMethod "https://prices.azure.com/api/retail/prices?`$filter=$filter"
 $response.Items | Select-Object armSkuName, retailPrice, meterName
 ```
@@ -91,7 +91,7 @@ $response.Items | Select-Object armSkuName, retailPrice, currencyCode, meterName
 | Filter          | Example Value                    | Notes                          |
 | --------------- | -------------------------------- | ------------------------------ |
 | `serviceName`   | `'Virtual Machines'`             | Case-sensitive in preview API  |
-| `armRegionName` | `'eastus'`, `'westeurope'`       | ARM region name                |
+| `armRegionName` | `'swedencentral'`, `'germanywestcentral'` | ARM region name                |
 | `armSkuName`    | `'Standard_D4s_v5'`              | Full ARM SKU name              |
 | `priceType`     | `'Consumption'`, `'Reservation'` | Pay-as-you-go vs reserved      |
 | `serviceFamily` | `'Compute'`                      | Broad category                 |

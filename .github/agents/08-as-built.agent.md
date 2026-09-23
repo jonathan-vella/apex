@@ -176,7 +176,9 @@ The full Step 7 suite still requires every listed output before completion.
    - `07-backup-dr-plan.template.md`
    - `07-resource-inventory.template.md`
    - `07-documentation-index.template.md`
-6. Read the execution-subagent prompt contract
+6. When the deployment includes App Service or Azure Functions, read `.github/skills/apex-azure-reliability/SKILL.md`
+   — read-only reliability findings for `07-backup-dr-plan.md` and `07-design-document.md` section 8
+7. Read the execution-subagent prompt contract
    [tools/apex-prompts/utility-prompts/execution-subagent.prompt.md](../../tools/apex-prompts/utility-prompts/execution-subagent.prompt.md)
   — every #tool:agent call (cost-estimate-subagent) MUST follow the
    three-H2 contract (issue #425).

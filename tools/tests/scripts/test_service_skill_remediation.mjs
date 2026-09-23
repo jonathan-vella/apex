@@ -13,9 +13,17 @@ const { marked } = await import(extractorRequire.resolve("marked"));
 const skillsRoot = new URL("../../../.github/skills/", import.meta.url);
 const read = (relative) => readFileSync(new URL(relative, skillsRoot), "utf8");
 const blocks = (source) => [...source.matchAll(/```kql\n([\s\S]*?)```/g)].map((match) => match[1]);
-const ownedSkills = ["resources", "diagnostics", "quotas", "kusto", "storage", "compute"].map(
-  (service) => `apex-azure-${service}`,
-);
+const ownedSkills = [
+  "resources",
+  "diagnostics",
+  "quotas",
+  "kusto",
+  "storage",
+  "compute",
+  "kubernetes",
+  "reliability",
+  "upgrade",
+].map((service) => `apex-azure-${service}`);
 
 function markdownFiles(directory) {
   return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {

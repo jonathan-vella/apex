@@ -33,9 +33,12 @@ Resources
 
 **Tag coverage for cost allocation:**
 
+Use the tag key casing from the `tag_contract` in `04-governance-constraints.json`; `costcenter` is the APEX
+greenfield default.
+
 ```kql
 Resources
-| extend hasCostCenter = isnotnull(tags['CostCenter'])
+| extend hasCostCenter = isnotnull(tags['costcenter'])
 | summarize total=count(), tagged=countif(hasCostCenter) by type
 | extend coverage=round(100.0 * tagged / total, 1)
 | order by total desc

@@ -43,7 +43,7 @@ const DEPRECATED_PATTERNS = [
   },
 ];
 
-const KNOWN_OVERSIZED = new Set(["apex-azure-adr", "apex-github-operations"]);
+const KNOWN_OVERSIZED = new Set([]);
 
 function runFormatValidation() {
   const r = new Reporter("Skills Format Validator");

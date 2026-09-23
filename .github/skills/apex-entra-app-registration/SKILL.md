@@ -54,7 +54,8 @@ Recommended library for integrating with the Microsoft identity platform:
 - Python — `msal`
 
 Examples: [`references/console-app-example.md`](references/console-app-example.md).
-SDK quick references in `references/sdk/` (azure-identity + key-vault, per language).
+SDK quick references in `references/sdk/`: Azure Identity for Rust and the Functions authentication-events
+extension for .NET. Azure Identity for other languages lives in `apex-azure-deploy/references/sdk/`.
 
 ## Security Best Practices
 

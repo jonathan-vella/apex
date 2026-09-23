@@ -6,7 +6,7 @@ Migrate AWS Lambda function code to Azure Functions.
 
 - Assessment report completed
 - Azure Functions tooling supported by the actual host; the VS Code extension is required only for extension-driven actions
-- Best practices loaded via `mcp_azure-mcp_get_bestpractices` tool
+- Best practices loaded via `mcp_azure-mcp_get_azure_bestpractices` tool
 
 ## Rules
 
@@ -20,7 +20,7 @@ Migrate AWS Lambda function code to Azure Functions.
 ## Steps
 
 1. **Check Host Capability** — Use available Functions tooling. Require the VS Code extension only for local editor actions; missing compiler/runtime capability is a verification gap, not invented Host support.
-2. **Load Best Practices** — Use `mcp_azure-mcp_get_bestpractices` tool for code generation guidance
+2. **Load Best Practices** — Use `mcp_azure-mcp_get_azure_bestpractices` tool for code generation guidance
 3. **Create Project Structure** — Set up the Azure Functions project inside the output directory (`<aws-folder>-azure/`). Do NOT create files inside the original AWS directory
 4. **Migrate Functions** — Convert each Lambda function to Azure Functions equivalent
 5. **Update Dependencies** — Replace AWS SDKs with Azure SDKs in package.json / requirements.txt
@@ -130,9 +130,12 @@ See [lambda-to-functions.md](lambda-to-functions.md) for detailed trigger mappin
 After code migration is complete:
 
 1. Update `migration-status.md` — mark Code Migration as ✅ Complete
-2. Invoke **apex-azure-prepare** — pass the assessment report context so it can:
+2. Ask before invoking **apex-azure-prepare**, then pass the assessment report context so it can:
    - Use the service mapping as requirements input (skips manual gather-requirements)
    - Generate IaC (Bicep/Terraform) for the mapped Azure services
-   - Create `azure.yaml` and `.azure/preparation-manifest.md`
+   - Create `azure.yaml` and its plan at `infra/{iac}/{project}/.azure/plan.md`
    - Apply security hardening
-3. apex-azure-prepare will then chain to **apex-azure-validate** → **apex-azure-deploy**
+3. apex-azure-prepare then hands off to **apex-azure-validate**; deploying through **apex-azure-deploy** needs
+   separate approval
+
+For an APEX project, follow the skill's [Workflow Routing](../../../SKILL.md#workflow-routing) instead.

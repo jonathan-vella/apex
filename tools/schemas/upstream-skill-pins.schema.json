@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/jonathan-vella/apex/schemas/upstream-skill-pins.schema.json",
+  "title": "APEX Upstream Skill Pins",
+  "description": "Provenance of the Microsoft-derived APEX skills: the reviewed upstream plugin pin, each skill's upstream source, the upstream files imported or adapted since the fork base, and probes that show whether known SK defects are still present upstream. Read by tools/scripts/report-upstream-skill-drift.mjs; never used to write skills.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "upstream", "skills", "defect_probes"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "schema_version": { "const": 1 },
+    "upstream": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repository", "plugin_path", "fork_base", "reviewed"],
+      "properties": {
+        "repository": { "$ref": "#/$defs/repository" },
+        "source_of_truth": { "$ref": "#/$defs/repository" },
+        "plugin_path": { "type": "string", "pattern": "^[^/\\s][^\\s]*[^/\\s]$" },
+        "fork_base": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["commit", "date"],
+          "properties": {
+            "commit": { "$ref": "#/$defs/sha" },
+            "date": { "type": "string", "format": "date" },
+            "apex_import_commit": { "type": "string", "pattern": "^[0-9a-f]{7,40}$" }
+          }
+        },
+        "reviewed": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["tag", "commit", "reviewed_on"],
+          "properties": {
+            "tag": { "type": "string", "pattern": "^v\\d+\\.\\d+\\.\\d+$" },
+            "commit": { "$ref": "#/$defs/sha" },
+            "reviewed_on": { "type": "string", "format": "date" }
+          }
+        }
+      }
+    },
+    "skills": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["apex", "upstream", "status", "imports"],
+        "properties": {
+          "apex": { "type": "string", "pattern": "^apex-[a-z0-9-]+$" },
+          "upstream": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": { "$ref": "#/$defs/upstreamSkill" }
+          },
+          "status": {
+            "description": "fork: APEX copy of an upstream skill. new-fork: narrowed copy added during upstream alignment. apex-merge: one APEX skill covering several upstream skills. retired-upstream: upstream removed the skill.",
+            "enum": ["fork", "new-fork", "apex-merge", "retired-upstream"]
+          },
+          "note": { "type": "string", "minLength": 1 },
+          "imports": {
+            "description": "Upstream files imported or adapted after the fork base. `from` is relative to the upstream plugin skills folder; `to` is relative to the APEX skill folder. Paths ending in `/` map a whole folder.",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["from", "to"],
+              "properties": {
+                "from": { "$ref": "#/$defs/upstreamPath" },
+                "to": { "type": "string", "pattern": "^[^/\\s][^\\s]*$" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "defect_probes": {
+      "description": "A match at the latest upstream tag means the defect is still present upstream; no match or a missing file means the upstream fix needs review.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "path", "pattern", "defect"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^SK-\\d{2}$" },
+          "path": { "$ref": "#/$defs/upstreamPath" },
+          "pattern": { "type": "string", "minLength": 1 },
+          "flags": { "type": "string", "pattern": "^[imsu]*$" },
+          "defect": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "sha": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "repository": { "type": "string", "pattern": "^[A-Za-z0-9-]+/[A-Za-z0-9._-]+$" },
+    "upstreamSkill": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+    "upstreamPath": { "type": "string", "pattern": "^[a-z0-9-]+/[^\\s]+$" }
+  }
+}

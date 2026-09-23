@@ -7,25 +7,34 @@ Related evidence: [audit ledger](apex-workflow-audit.md#deep-skill-audit-backlog
 
 ## Status
 
-- **State**: Deferred; saved 2026-09-23 for later re-evaluation. Not started and no implementation approved.
-- **Owner**: Jonathan Vella with GitHub Copilot.
+- **State**: Planned. Phase 0 is done (branch created, plan saved); implementation starts at Phase 1 on request.
+- **Owner**: Jonathan Vella ([@jonathan-vella](https://github.com/jonathan-vella)) with GitHub Copilot.
 - **Created**: 2026-09-23 against `main` at `a656e66d`, after the `apex-` rename and SK remediation merge.
+- **Updated**: 2026-09-23 against `main` at `5fef0f82`, when this implementation plan replaced the deferred plan.
+- **Branch**: `feat/azure-skills-upstream-alignment`. Commit and push after each phase; no pull request until the
+  owner approves. Commits are authored as Jonathan Vella (GitHub `jonathan-vella`).
+- **Upstream pin**: `microsoft/azure-skills` tag `v1.2.51`, commit `cbf7c8b0`.
 - **Scope**: The Microsoft-derived `apex-azure-*` and `apex-entra-app-registration` skills, the Microsoft `azure`
   plugin (skills, MCP server and hooks), and the APEX Azure MCP configuration.
 - **Question**: Can the plugin replace or complement APEX skills and the APEX Azure MCP configuration?
-- **Answer at save time**: Don't replace. Keep the APEX copies, import useful upstream work, track upstream drift
-  weekly, and use the plugin only as an optional complement after a coexistence spike. Keep the pinned MCP server.
+- **Answer**: Don't replace. Keep the APEX copies, import useful upstream work with local adaptations, add three
+  narrowed skills and track upstream drift weekly. Keep the pinned MCP server. The plugin coexistence spike is
+  deferred.
 
-## Re-evaluation Checklist
+## Before Starting
 
-Refresh this evidence before acting; upstream and VS Code change quickly.
+Upstream and `main` change quickly; refresh these before Phase 1.
 
-1. Upstream: compare the latest plugin tag with `v1.2.51`, re-run the table A defect checks on upstream `main`, and
-   note renamed, retired or new skills.
-2. VS Code: check whether plugin skills and plugin MCP servers can be disabled individually, whether plugin MCP
-   arguments can be pinned or overridden, the `chat.plugins.enabled` default, and marketplace ref pinning.
-3. APEX: confirm the verdicts still hold after later edits to skills, remediation tests, consumers and validators.
-4. Owner: confirm the decisions below, especially the plugin relationship and the safety trade-off.
+1. Upstream: compare the latest plugin tag with `v1.2.51`. If it is newer, re-run the table A defect checks and
+   update the pin before importing anything.
+2. APEX: confirm the verdicts still hold after `main` changes since `5fef0f82`.
+3. Azure MCP: on the pinned server, confirm that the WAF service guide tool returns only a link, and record its
+   exact tool name.
+4. Workflows: use the action major versions the current workflows use (`actions/checkout@v7` and
+   `actions/setup-node@v7` on 2026-09-23).
+
+Checked 2026-09-23: `v1.2.51` is still the latest tag, `main` is unchanged since `5fef0f82`, and the WAF tool
+(`wellarchitectedframework_serviceguide_get` with a `service` parameter) returned only a link.
 
 ## Evidence Snapshot (2026-09-23)
 
@@ -66,8 +75,14 @@ Refresh this evidence before acting; upstream and VS Code change quickly.
   [validate-skill-checks.mjs](../../../../tools/scripts/validate-skill-checks.mjs), the Reference Index check in
   [check-docs-freshness.mjs](../../../../tools/scripts/check-docs-freshness.mjs), `apex-` naming, the orphan
   allowlist and the SK remediation tests.
+- **WAF service guide tool**: Azure MCP `wellarchitectedframework serviceguide get` returns only a link to the
+  guide's markdown file, or the list of supported services, so the call itself is small. The size risk is fetching
+  a whole guide afterwards, and a checkpoint doesn't clear the chat
+  ([bounded tool results](../../../../.github/skills/apex-azure-defaults/references/research-workflow.md#bounded-tool-results)).
 
 ## Owner Decisions (2026-09-23)
+
+### Round 1: Assessment
 
 | Question                      | Answer                                                                                                                            |
 | ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
@@ -77,6 +92,27 @@ Refresh this evidence before acting; upstream and VS Code change quickly.
 | Upstream contributions        | No pull requests to Microsoft                                                                                                     |
 | Upstream-only skills          | Harvest ideas; narrowed forks of `azure-kubernetes` (advisory), `azure-reliability` (assessment) and `azure-upgrade` (assessment) |
 | Refresh mechanism             | Scheduled drift report                                                                                                            |
+
+### Rounds 2 To 5: Implementation
+
+These supersede round 1 where they differ.
+
+- **Safety versus maintenance**: fix the local defects and import upstream work, with focused tests for every new
+  safety rule.
+- **Scope**: the three new skills, upstream improvements to existing skills, the local fixes, the drift report, a
+  SKU availability check for 07b and 07t, and apex-docs updates. The plugin coexistence spike is deferred.
+- **Names**: every new skill uses the `apex-` prefix.
+- **Branch and Git**: all work on `feat/azure-skills-upstream-alignment`, committed and pushed after each phase,
+  with no pull request until the owner approves.
+- **Diagnostics scripts**: import all of them after a security review; `run-ig` runs only with explicit approval.
+- **Agent wiring**: reference the new skills the same way existing skills are referenced, through conditional
+  **Read** entries and cross-skill links, without trial runs.
+- **Infra-planner ideas**: only the WAF service guide tool in 03-Architect. Referenced workloads and the checkov scan
+  are out of scope.
+- **Reliability findings**: written into existing artifacts; no new artifact type.
+- **Branch size**: content first and tooling last, so the branch can split into two pull requests.
+- **WAF guide size**: the tool finds the guide, bounded Learn search answers the questions, and whole-guide fetches
+  are the exception.
 
 ## Assessment
 
@@ -166,13 +202,250 @@ pin or override plugin MCP arguments.
 
 ## Plan
 
-### Phase 0: Decision Record
+Phases run in order. Content comes first and tooling last, so the branch can split into two pull requests (see
+[Pull Request Split](#pull-request-split)). Each phase commits its own tests. Every import keeps reference markers,
+Reference Index entries, working links, MIT attribution and a description of at most 500 characters, and every new
+safety rule gets a focused test.
 
-- [ ] When re-evaluation approves work, add an "Upstream Alignment" backlog (UP-xx IDs, ledger status vocabulary)
-      to the [audit ledger](apex-workflow-audit.md) with the fork base, the reviewed version, the verdicts and the
-      rejected options.
+### Phase 0: Branch And Baseline
 
-### Phase 1: Coexistence Spike (Throwaway Branch; Parallel With Phases 2 And 3)
+- [x] Set this repository's Git author to Jonathan Vella (GitHub `jonathan-vella`).
+- [x] Create `feat/azure-skills-upstream-alignment` from `main` and save this plan on it.
+- [x] Run the [Before Starting](#before-starting) checks.
+
+### Phase 1: Pin Manifest
+
+- [x] Add `tools/registry/upstream-skill-pins.json` and its schema in `tools/schemas/`. For each APEX skill, record
+      the upstream skill and path, fork base `90fcf6de`, reviewed tag `v1.2.51`, status (fork, new fork, retired
+      upstream or APEX-only merge), the upstream files imported or adapted, and one upstream check per SK defect.
+- [x] Test the manifest against its schema.
+- [x] Add an "Upstream Alignment" backlog (UP-xx IDs, ledger status vocabulary) to the
+      [audit ledger](apex-workflow-audit.md), pointing to the manifest and this plan.
+
+### Phase 2: Local Fixes
+
+- [x] prepare: remove the legacy `administratorLogin` block and the allow-all firewall rule in
+      [sql-database/bicep.md](../../../../.github/skills/apex-azure-prepare/references/services/sql-database/bicep.md);
+      adopt the Entra-only rules (no admin login, `Active Directory Default` connection strings, `principalType`);
+      and fix the SDK pointer in [SKILL.md](../../../../.github/skills/apex-azure-prepare/SKILL.md).
+- [x] deploy: add environment approval to
+      [github-bicep.yml](../../../../.github/skills/apex-azure-deploy/references/recipes/cicd/examples/github-bicep.yml)
+      and make the generic Step 0 in [SKILL.md](../../../../.github/skills/apex-azure-deploy/SKILL.md) ask before
+      running.
+- [x] validate: replace `cd infra` and `./main.bicep` in the
+      [recipes](../../../../.github/skills/apex-azure-validate/references/recipes/README.md) with the per-project
+      `infra/{iac}/{project}/` path.
+- [x] cost: write reports to `agent-output/{project}/`, use tag keys from policy, link the pricing guidance, and
+      update [test_skill_consolidation.mjs](../../../../tools/tests/scripts/test_skill_consolidation.mjs).
+- [x] quotas: delete the legacy section at the end of
+      [commands.md](../../../../.github/skills/apex-azure-quotas/references/commands.md) and replace US example
+      regions with placeholders.
+- [x] entra: add a preview and approval to the bulk-delete script in
+      [cli-commands.md](../../../../.github/skills/apex-entra-app-registration/references/cli-commands.md) and fix
+      the SDK pointer.
+- [x] compliance: remove the duplicate trigger sections and use tag keys from policy in
+      [azure-resource-graph.md](../../../../.github/skills/apex-azure-compliance/references/azure-resource-graph.md).
+- [x] kusto: restore "Common Issues" as a reference. rbac: fix the Bicep snippet, checked with `bicep build` in
+      `tmp/`, and add AVM `roleAssignments` guidance.
+- [x] Remove stale `KNOWN_OVERSIZED` entries in
+      [validate-skill-checks.mjs](../../../../tools/scripts/validate-skill-checks.mjs).
+- [x] cloud-migrate: add the Workflow Routing preamble that prepare, validate and deploy use, and remove the leftover
+      `.azure/preparation-manifest.md` step in
+      [code-migration.md](../../../../.github/skills/apex-azure-cloud-migrate/references/services/functions/code-migration.md).
+
+### Phase 3: SKU Availability Check
+
+- [x] Add a `sku-availability.md` reference to
+      [apex-azure-quotas](../../../../.github/skills/apex-azure-quotas/SKILL.md) covering VM, VMSS and AKS node
+      sizes (restrictions, subscription availability and zones), App Service, SQL, PostgreSQL and MySQL flexible
+      server, Container Apps workload profiles, Storage, and other services by resource-type regions.
+- [x] Report each result as `AVAILABLE`, `RESTRICTED`, `NOT_OFFERED` or `UNKNOWN`. Missing data is never treated
+      as available, and zones are checked when zone redundancy is required.
+- [x] Add a documented helper, tested with sample JSON like the SK-28 quota helper test.
+- [x] Update the scope and triggers in the quotas SKILL.md; quota headroom still doesn't mean regional capacity.
+- [x] Point the pre-flight checks in [07b](../../../../.github/agents/07b-bicep-deploy.agent.md),
+      [07t](../../../../.github/agents/07t-terraform-deploy.agent.md) and
+      [sku-manifest.instructions.md](../../../../.github/instructions/sku-manifest.instructions.md) at the new
+      section, and suggest only substitutes that are available and have enough quota.
+
+### Phase 4: Role Checks And Deploy Safety
+
+- [x] validate: add a report-only role check (missing roles, control plane versus data plane, and scope) that hands
+      findings to 06b and 06t, plus the `{{ .Env.* }}` scan for azd and Terraform projects.
+- [x] deploy: add a read-only live role check; `AcrPull` before a Container Apps deploy, inside the approved 07b and
+      07t phases; an existing Container Apps environment check; and the Principal Type Mismatch and Container App
+      Revision Timeout error entries.
+
+### Phase 5: Diagnostics Import
+
+- [x] Import the upstream AKS, VM, messaging and App Service guides with reference markers, all linked from
+      [SKILL.md](../../../../.github/skills/apex-azure-diagnostics/SKILL.md). Keep the infraops files and the SK-27
+      fix.
+- [x] Import all bash and PowerShell scripts after a security review. `run-ig` refuses to run without an explicit
+      approval flag, keeps its dry run and documents debug-pod cleanup. Set executable bits and syntax-check every
+      script.
+- [x] Update the SKILL.md routing, keep the description at 500 characters or fewer, and send AKS design questions
+      to `apex-azure-kubernetes`.
+
+### Phase 6: Other Upstream Imports
+
+- [x] prepare: App Service (SKU selection, networking, custom domains), Container Apps (networking, revisions, day-2
+      operations, Terraform) and Functions (hosting plans, cold start) guides, each checked against the
+      private-endpoint baseline.
+- [x] cost: query and forecast workflows with guardrails and 429 handling, mapped to the ARM MCP `query_costs`,
+      `forecast_costs` and `list_dimensions` tools; the total bill shown with savings; storage tier guidance without
+      deletion rules of thumb.
+- [x] cloud-migrate: App Service and Container Apps assessment and mapping guides and the Kubernetes DNS rule,
+      without the CLI deployment guides.
+- [x] resources: web-app triggers, no secrets in diagrams, the .NET 10 example and an output location. storage:
+      access-tier triggers. compute: quota and SKU checks through `apex-azure-quotas`, tool-neutral fetch wording and
+      region placeholders.
+
+### Phase 7: New Skills And Agent Wiring
+
+- [x] `apex-azure-kubernetes`: Day-0 AKS design with autoscaling, rightsizing, spot, VPA, read-only CLI, safeguards
+      and workload identity references. No `az aks create` and no app deployment templates; AKS Automatic readiness
+      is deferred.
+- [x] `apex-azure-reliability`: assessment only (zone redundancy, storage redundancy, health probes, multi-region,
+      App Service and Functions), with no "Fix now" or self-deploy. It returns findings and never creates its own
+      report file; see [Reliability Findings](#reliability-findings).
+- [x] `apex-azure-upgrade`: Functions assessment, the Consumption to Flex Consumption mapping, and Azure Cache for
+      Redis to Azure Managed Redis. No automation scripts and no Java tree.
+- [x] For all three: `license: MIT`, `metadata.author: Microsoft`, the upstream `metadata.version`, loadable by users
+      and agents, reference markers, one Reference Index, an entry in the pin manifest and in `ownedSkills` in
+      [test_service_skill_remediation.mjs](../../../../tools/tests/scripts/test_service_skill_remediation.mjs).
+      Import review found four upstream defects, recorded in the manifest notes: a printed `AzureWebJobsStorage`
+      value, a wrong Terraform attribute, a removed Redis retirement page and an outdated Flex certificate claim.
+- [x] Add conditional **Read** entries: [03-Architect](../../../../.github/agents/03-architect.agent.md)
+      (kubernetes when AKS is in scope, upgrade for existing Functions or Redis workloads),
+      [05-IaC Planner](../../../../.github/agents/05-iac-planner.agent.md) (kubernetes), and
+      [08-As-Built](../../../../.github/agents/08-as-built.agent.md) and
+      [09-Diagnose](../../../../.github/agents/09-diagnose.agent.md) (reliability).
+- [x] Add links from
+      [service-class-menu.md](../../../../.github/skills/apex-azure-defaults/references/service-class-menu.md),
+      [deprecated-services.md](../../../../.github/skills/apex-azure-defaults/references/deprecated-services.md),
+      prepare's [aks/README.md](../../../../.github/skills/apex-azure-prepare/references/services/aks/README.md) and
+      the diagnostics "do not use for" line. The menu now offers Azure Managed Redis, and the deprecation table lists
+      the Learn retirement dates for Azure Cache for Redis and Linux Consumption.
+- [x] Add the new skills to the `KNOWN_UNLINKED_SKILLS` allowlist in
+      [validate-orphaned-content.mjs](../../../../tools/scripts/validate-orphaned-content.mjs) only if the check still
+      flags them after wiring. Not needed: the check doesn't flag them.
+- [x] Test for forbidden commands in the new skills and for any standalone reliability artifact path.
+
+#### Reliability Findings
+
+The skill returns findings; the calling agent writes them under existing headings, so no template or validator
+changes are needed.
+
+- **08-As-Built** writes to `07-backup-dr-plan.md`
+  ([template](../../../../.github/skills/apex-azure-artifacts/templates/07-backup-dr-plan.template.md)): the
+  Availability row in the Executive Summary, "1. Recovery Objectives", geo-redundancy rows in "2. Backup Strategy",
+  region failover to `germanywestcentral` in "3. Disaster Recovery Procedures" and failover drills in "4. Testing
+  Schedule". It adds a short summary to "8. Backup & Disaster Recovery" in `07-design-document.md`
+  ([template](../../../../.github/skills/apex-azure-artifacts/templates/07-design-document.template.md)).
+- **09-Diagnose** writes to `08-resource-health-report.md`: gaps under "Issues Identified (by severity)" with
+  evidence and critical, warning or info tags; fixes under "Prevention Recommendations" as proposals only, never
+  executed, with IaC changes routed to 06b and 06t; and open items under "Next Steps".
+
+### Phase 8: WAF Service Guides In 03-Architect
+
+- [x] Add a "WAF Service Guides" section to
+      [research-workflow.md](../../../../.github/skills/apex-azure-defaults/references/research-workflow.md) and a
+      one-line pointer in the 03-Architect evidence rules, following the procedure below.
+- [x] Keep the assessment template unchanged; guides are cited in the existing pillar evidence.
+
+#### WAF Guide Procedure
+
+1. List the supported services once per step, then get the link once for each listed in-scope service.
+2. Search that guide on Microsoft Learn for the pillar and SKU questions, following the "search first, fetch
+   second" rule in [apex-microsoft-docs](../../../../.github/skills/apex-microsoft-docs/SKILL.md).
+3. Fetch a whole guide only when search can't answer a scoring claim: one guide at a time, with a size check, the
+   useful points saved to `02-waf-research.tmp.md` straight away, and never the same guide twice.
+4. After a whole-guide fetch, checkpoint and ask for a fresh chat before the assessment, chart, cost and review
+   phases, because a checkpoint doesn't clear the chat.
+5. Cite the Learn page, not the GitHub link. If the tool fails or has no guide, use Learn search, record the gap
+   and lower the confidence.
+
+A research subagent would isolate large results best, but it adds a new agent and search results are already small.
+Caching guide summaries in the repository would go stale. Neither is planned.
+
+### Phase 9: Content Close-Out (End Of Pull Request 1)
+
+- [x] Update the [skills catalog](../../../../.github/skills/README.md) and the root README if they list skills.
+      Not needed: the catalog shows representative skills only and the root README lists none.
+- [x] Regenerate the Explorer graph in its own commit (`7e51a21d`).
+- [x] Run full validation and push. Content ends at `7e51a21d`; pull request 1 uses branch
+      `feat/azure-skills-upstream-content`, cut from the commit that records this close-out.
+
+### Phase 10: Drift Report Tooling (Pull Request 2)
+
+- [ ] Add `tools/scripts/report-upstream-skill-drift.mjs`. It finds the latest tag with Git, because the REST API
+      rate-limits, fetches only the pinned and latest plugin trees, and reports changed files per skill, changelog
+      lines, new or retired skills, and whether each SK defect is still present upstream or fixed there (a
+      retirement candidate). It never writes to `.github/skills`. Model it on
+      [fetch-vendor-prompting-guides.mjs](../../../../tools/scripts/fetch-vendor-prompting-guides.mjs), and add a
+      `report:upstream-skills` npm script and an offline fixture test.
+- [ ] Add `.github/workflows/upstream-skill-drift.yml`: weekly and manual runs, Node 24, `npm ci`, `contents: read`
+      and `issues: write`, concurrency, the current action major versions, and one labelled issue updated in place
+      with `gh`. Keep it out of `CONSUMER_WORKFLOWS` in
+      [sync-workflows.mjs](../../../../tools/scripts/sync-workflows.mjs), and add it to the workflow table in
+      [github-actions.instructions.md](../../../../.github/instructions/github-actions.instructions.md).
+- [ ] Regenerate the Explorer graph in its own commit, run full validation and push.
+
+### Phase 11: apex-docs (After Pull Request 1)
+
+- [ ] In [apex-docs](https://github.com/jonathan-vella/apex-docs), on a branch with the same name, add the new skills
+      to the Azure Plugin Skills row in `skills-and-instructions.md` and sections with example prompts to
+      `skills-subagents.md`; update the diagnostics, quotas, cost, cloud-migrate and 03-Architect text; run its
+      checks; commit and push.
+- [ ] Merge after pull request 1. The docs update automation then moves the pinned APEX commit and refreshes the
+      Explorer graph.
+
+## Pull Request Split
+
+- Tests travel with their phase.
+- Tooling commits never touch skills or agents, and content commits never touch the drift script or workflow.
+- The Explorer graph is always its own commit. After a rebase it is regenerated, never cherry-picked.
+- Pull request 1 comes from a new branch created at the end of Phase 9. Pull request 2 holds the tooling commits,
+  rebased onto `main` after pull request 1 merges or stacked on it. It depends on pull request 1 because the drift
+  report reads the pin manifest.
+- apex-docs waits only for pull request 1. A single pull request is still possible.
+
+## Verification
+
+1. After each phase: `npm run validate:skills`, `validate:skill-checks`, `test:tool-contracts`,
+   `lint:orphaned-content`, `test:orphan-skill-discovery`, `lint:docs-freshness`, `lint:safe-shell`, `lint:md`,
+   `lint:json` and `lint:prose`; for agent edits also `validate:agents`, `lint:vendor-prompting` and
+   `validate:context-budget`.
+2. Before each push: `npm run validate:all`, `npm run build:explorer-graph`, `npm run validate:explorer-graph` and
+   `npm run check:mcp-release`. Hooks pass without bypasses.
+3. `bicep build` of the RBAC snippet in `tmp/`, bash and PowerShell syntax checks for every imported script, and a
+   test that `run-ig` refuses to run without approval.
+4. The drift report's offline test passes, and a live run from the base to `v1.2.51` reproduces this assessment,
+   for example SK-12 still present upstream and the new diagnostics AKS folder.
+5. Two manual workflow runs produce exactly one issue, updated in place.
+6. The WAF tool's exact name and link-only output are confirmed on the pinned server.
+
+## Decisions And Boundaries
+
+- No wholesale replacement, consistent with the recorded refresh rule.
+- No upstream pull requests; the drift report tracks convergence instead.
+- Keep the `apex-azure-cost-optimization` and `apex-azure-rbac` names and the pinned `azure-mcp` 2.0.5 server.
+- Left out from upstream: Kubernetes app deployment and AKS Automatic readiness; reliability live-change and
+  IaC-patching guides; upgrade automation and Java; cloud-migrate deployment guides; prepare MCP templates, the root
+  plan file, SQL grant scripts and automatic `azd up`; the cost attribution header and the `temp/` and `output/`
+  folders; and the compute VM creator.
+- From infra-planner, only the WAF service guide tool.
+- Out of scope: agent roles, approval gates, existing artifact and session schemas, model assignments, Azure writes
+  and the plugin coexistence spike.
+
+## Deferred Work
+
+Not scheduled. Before picking this up, re-check the VS Code plugin controls: whether plugin skills and plugin MCP
+servers can be disabled individually, whether plugin MCP arguments can be pinned or overridden, the
+`chat.plugins.enabled` default, and marketplace ref pinning.
+
+### Plugin Coexistence Spike (Throwaway Branch)
 
 - [ ] Install `azure@azure-skills` and confirm plugin skills appear as `/azure:*` beside `apex-*` skills.
 - [ ] Check whether individual plugin skills can be disabled, especially infra-planner, app-onboard and Foundry.
@@ -183,46 +456,7 @@ pin or override plugin MCP arguments.
       container app failing) in the default agent and in agents 01, 05, 06b, 06t and 09. Pass when APEX agents
       always load `apex-*` skills, then record a go or no-go.
 
-### Phase 2: Cherry-Picks And Local Fixes (Independent; Small PRs; Keep SK Tests Passing)
-
-- [ ] Security first: the prepare SQL block; approval in the deploy CI sample; cost reports moved to
-      `agent-output/{project}/` with [test_skill_consolidation.mjs](../../../../tools/tests/scripts/test_skill_consolidation.mjs)
-      updated; approval in the entra cleanup script.
-- [ ] Role verification: a report-only static check in validate and a read-only live check in deploy.
-- [ ] Imports: diagnostics guides and scripts after a security review (`run-ig` approval-only); cloud-migrate
-      assessments without the CLI provisioning guides; cost query and forecast rules mapped to ARM MCP; prepare
-      Functions, App Service and Container Apps guides.
-- [ ] Small fixes: the rest of table B; validate recipe paths that `cd infra`; a deploy Step 0 that asks first; the
-      prepare SDK pointer; compute quota delegation, region placeholders and tool-neutral fetch wording.
-- [ ] Remove stale `KNOWN_OVERSIZED` entries in
-      [validate-skill-checks.mjs](../../../../tools/scripts/validate-skill-checks.mjs).
-- [ ] Every import keeps canary markers, Reference Index entries, working links, MIT attribution and a description
-      of at most 500 characters, and gets focused tests for new safety rules.
-
-### Phase 3: Upstream Drift Report (After Phase 0; Parallel With Phase 2)
-
-- [ ] Pin manifest `tools/registry/upstream-skill-pins.json` with a schema: upstream path, `apex-` directory, base
-      SHA, reviewed tag, status (fork, new fork or retired upstream) and one upstream check per SK defect.
-- [ ] Script `tools/scripts/report-upstream-skill-drift.mjs`: fetch tags with Git because the REST API rate-limits;
-      report changed files, changelog lines, new or retired skills, and whether each defect is still present or
-      fixed upstream (a retirement candidate); never write to `.github/skills`. Model it on
-      [fetch-vendor-prompting-guides.mjs](../../../../tools/scripts/fetch-vendor-prompting-guides.mjs), and add an npm
-      script and an offline fixture test.
-- [ ] Workflow `.github/workflows/upstream-skill-drift.yml`: weekly and manual runs; `contents: read` and
-      `issues: write`; one issue updated in place; pinned actions. Keep it out of `CONSUMER_WORKFLOWS` in
-      [sync-workflows.mjs](../../../../tools/scripts/sync-workflows.mjs).
-
-### Phase 4: Narrowed Forks And Harvested Ideas (Parallel With Phases 2 And 3)
-
-- [ ] `apex-azure-kubernetes`: Day-0 decisions only; no `az aks create` and no app deployment.
-- [ ] `apex-azure-reliability`: assessment phases only; no "Fix now" or self-deploy; failover `germanywestcentral`.
-- [ ] `apex-azure-upgrade`: Functions-to-Flex and Redis-to-Azure-Managed-Redis assessment only; no Java or scripts.
-- [ ] Record fork provenance in the pin manifest, add the forks to the allowlist in
-      [validate-orphaned-content.mjs](../../../../tools/scripts/validate-orphaned-content.mjs), and add link tests.
-- [ ] Record infra-planner ideas as proposals only: a referenced-workload brownfield mode,
-      `wellarchitectedframework_serviceguide_get` for the Architect agent, and an optional checkov scan.
-
-### Phase 5: Plugin Decision (After Phase 1)
+### Plugin Decision (After The Spike)
 
 - [ ] Go: document an optional per-user install; decide the telemetry opt-out in
       [devcontainer.json](../../../../.devcontainer/devcontainer.json), which also silences APEX's own Azure MCP
@@ -232,31 +466,7 @@ pin or override plugin MCP arguments.
       the rationale in [validate-extension-bloat.mjs](../../../../tools/scripts/validate-extension-bloat.mjs) and the
       [devcontainer README](../../../../.devcontainer/README.md).
 
-### Phase 6: Integration
-
-- [ ] Regenerate the Explorer graph and update the [skills catalog](../../../../.github/skills/README.md) if the skill
-      set changes. Track published-doc updates in apex-docs.
-
-## Verification
-
-1. `npm run validate:all`
-2. `npm run test:tool-contracts`
-3. `npm run validate:skills`, `npm run validate:skill-checks`, `npm run lint:orphaned-content`,
-   `npm run test:orphan-skill-discovery`, `npm run lint:safe-shell`, `npm run lint:md` and `npm run lint:json`
-4. `npm run check:mcp-release` still passes.
-5. The drift report from the base to `v1.2.51` reproduces this assessment, for example SK-12 still present upstream
-   and the new diagnostics AKS folder.
-6. Two manual workflow runs produce exactly one issue, updated in place.
-7. Spike results are recorded in this plan.
-
-## Decisions And Boundaries
-
-- No wholesale replacement, consistent with the recorded refresh rule.
-- No upstream pull requests; the drift report tracks convergence instead.
-- Keep `apex-azure-cost-optimization` and `apex-azure-rbac` for now.
-- Out of scope: agent roles, schemas and approval gates, model assignments, Azure writes and apex-docs content.
-
-## Further Considerations
+### Further Considerations
 
 1. If APEX becomes infra-only, the largest saving is pruning the generic Functions template tree in
    `apex-azure-prepare` in favor of the plugin's template tool. SK-12, SK-13 and SK-14 tests pin that tree, so do
@@ -271,3 +481,5 @@ pin or override plugin MCP arguments.
 - [Upstream plugin changelog](https://github.com/microsoft/azure-skills/blob/main/.github/plugins/azure-skills/CHANGELOG.md)
 - [VS Code agent plugins](https://code.visualstudio.com/docs/agent-customization/agent-plugins)
 - [VS Code agent skills](https://code.visualstudio.com/docs/agent-customization/agent-skills)
+- [Upstream tag `v1.2.51`](https://github.com/microsoft/azure-skills/tree/v1.2.51)
+- [Azure MCP WAF service guide command](https://github.com/microsoft/mcp/blob/main/tools/Azure.Mcp.Tools.WellArchitectedFramework/src/Commands/ServiceGuide/ServiceGuideGetCommand.cs)

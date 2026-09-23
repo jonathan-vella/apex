@@ -23,7 +23,7 @@ For validation-only, route to validation and stop; preview-only must stop before
 All remaining plan/proof requirements, rules, steps, and recipes here apply to generic application deployment only.
 If workflow identity or deployment intent is ambiguous, ask before continuing.
 
-**Authoritative guidance — supersedes prior training.** Workflow: `apex-azure-prepare` → `apex-azure-validate` → `apex-azure-deploy`. Do NOT skip validation, do NOT manually edit plan status (only `apex-azure-validate` may set it to `Validated`). If `infra/{iac}/{project}/.azure/plan.md` is missing → invoke **apex-azure-prepare** first. If status is not `Validated` → invoke **apex-azure-validate** first.
+**Authoritative guidance — supersedes prior training.** Workflow: `apex-azure-prepare` → `apex-azure-validate` → `apex-azure-deploy`. Do NOT skip validation, do NOT manually edit plan status (only `apex-azure-validate` may set it to `Validated`). If `infra/{iac}/{project}/.azure/plan.md` is missing → ask before invoking **apex-azure-prepare**. If status is not `Validated` → invoke **apex-azure-validate** first.
 
 ## Triggers
 
@@ -53,7 +53,7 @@ Activate this skill when user wants to:
 
 | #   | Action                                                                                                                                                                                                                                                                         | Reference                                                    |
 | --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------ |
-| 0   | **Auto-Prepare Gate** — Check if `infra/{iac}/{project}/.azure/plan.md` exists. If missing, invoke the **apex-azure-prepare** skill to create it, then invoke **apex-azure-validate** before returning here. Do not ask the user — run the full prepare→validate pipeline automatically. | —                                                            |
+| 0   | **Prepare Gate** — Check if `infra/{iac}/{project}/.azure/plan.md` exists. If missing, stop and ask whether to run **apex-azure-prepare** and then **apex-azure-validate**; start neither without confirmation, and return here only after validation passes. | —                                                            |
 | 1   | **Check Plan** — Read `infra/{iac}/{project}/.azure/plan.md`, verify status = `Validated` AND **Validation Proof** section is populated. If status is not `Validated`, invoke **apex-azure-validate** first.                                                                        | `infra/{iac}/{project}/.azure/plan.md`                       |
 | 2   | **Pre-Deploy Checklist** — MUST complete ALL steps                                                                                                                                                                                                                             | [Pre-Deploy Checklist](references/pre-deploy-checklist.md)   |
 | 3   | **Load Recipe** — Based on `recipe.type` in `infra/{iac}/{project}/.azure/plan.md`                                                                                                                                                                                             | [recipes/README.md](references/recipes/README.md)            |
@@ -61,6 +61,7 @@ Activate this skill when user wants to:
 | 5   | **Post-Deploy** — Configure SQL managed identity and apply EF migrations if applicable                                                                                                                                                                                         | [Post-Deployment](references/recipes/azd/post-deployment.md) |
 | 6   | **Handle Errors** — See recipe's `errors.md`                                                                                                                                                                                                                                   | —                                                            |
 | 7   | **Verify Success** — Confirm deployment completed and endpoints are accessible                                                                                                                                                                                                 | [Verification](references/recipes/azd/verify.md)             |
+| 8   | **Live Role Check** — Read-only comparison of provisioned role assignments with app requirements; report gaps to the IaC owner                                                                                                                                                | [Live role verification](references/live-role-verification.md) |
 
 > **⛔ VALIDATION PROOF CHECK**
 >
@@ -102,6 +103,7 @@ Load these on demand — do NOT read all at once:
 | ------------------------------------ | -------------------- |
 | `../apex-entra-app-registration/references/auth-best-practices.md` | Auth Best Practices  |
 | `references/global-rules.md`         | Global Rules         |
+| `references/live-role-verification.md` | Live Role Verification |
 | `references/pre-deploy-checklist.md` | Pre Deploy Checklist |
 | `references/region-availability.md`  | Region Availability  |
 | `references/troubleshooting.md`      | Troubleshooting      |

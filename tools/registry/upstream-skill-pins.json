@@ -1,0 +1,307 @@
+{
+  "$schema": "../schemas/upstream-skill-pins.schema.json",
+  "schema_version": 1,
+  "upstream": {
+    "repository": "microsoft/azure-skills",
+    "source_of_truth": "microsoft/GitHub-Copilot-for-Azure",
+    "plugin_path": ".github/plugins/azure-skills/skills",
+    "fork_base": {
+      "commit": "90fcf6de8ceef59e28b34714785a52d19aab071c",
+      "date": "2026-03-12",
+      "apex_import_commit": "c61794c8"
+    },
+    "reviewed": {
+      "tag": "v1.2.51",
+      "commit": "cbf7c8b08ead35fe7d99e9e7c274f19631421a2f",
+      "reviewed_on": "2026-09-23"
+    }
+  },
+  "skills": [
+    {
+      "apex": "apex-azure-prepare",
+      "upstream": ["azure-prepare"],
+      "status": "fork",
+      "imports": [
+        {
+          "from": "azure-prepare/references/services/sql-database/auth.md",
+          "to": "references/services/sql-database/auth.md"
+        },
+        {
+          "from": "azure-prepare/references/services/app-service/sku-selection.md",
+          "to": "references/services/app-service/sku-selection.md"
+        },
+        {
+          "from": "azure-prepare/references/services/app-service/networking.md",
+          "to": "references/services/app-service/networking.md"
+        },
+        {
+          "from": "azure-prepare/references/services/app-service/custom-domains.md",
+          "to": "references/services/app-service/custom-domains.md"
+        },
+        {
+          "from": "azure-prepare/references/services/container-apps/networking.md",
+          "to": "references/services/container-apps/networking.md"
+        },
+        {
+          "from": "azure-prepare/references/services/container-apps/revisions.md",
+          "to": "references/services/container-apps/revisions.md"
+        },
+        {
+          "from": "azure-prepare/references/services/container-apps/day2-operations.md",
+          "to": "references/services/container-apps/day2-operations.md"
+        },
+        {
+          "from": "azure-prepare/references/services/container-apps/terraform.md",
+          "to": "references/services/container-apps/terraform.md"
+        },
+        {
+          "from": "azure-prepare/references/services/functions/hosting-plans.md",
+          "to": "references/services/functions/hosting-plans.md"
+        },
+        {
+          "from": "azure-prepare/references/services/functions/cold-start.md",
+          "to": "references/services/functions/cold-start.md"
+        }
+      ]
+    },
+    {
+      "apex": "apex-azure-validate",
+      "upstream": ["azure-validate"],
+      "status": "fork",
+      "imports": [
+        { "from": "azure-validate/references/role-verification.md", "to": "references/role-verification.md" },
+        {
+          "from": "azure-validate/references/recipes/terraform/README.md",
+          "to": "references/recipes/terraform/README.md"
+        }
+      ]
+    },
+    {
+      "apex": "apex-azure-deploy",
+      "upstream": ["azure-deploy"],
+      "status": "fork",
+      "imports": [
+        { "from": "azure-deploy/references/live-role-verification.md", "to": "references/live-role-verification.md" },
+        { "from": "azure-deploy/references/pre-deploy-checklist.md", "to": "references/pre-deploy-checklist.md" },
+        { "from": "azure-deploy/references/recipes/azd/errors.md", "to": "references/recipes/azd/errors.md" }
+      ]
+    },
+    {
+      "apex": "apex-azure-cloud-migrate",
+      "upstream": ["azure-cloud-migrate"],
+      "status": "fork",
+      "note": "Container Apps *-deployment-guide.md files are not imported; scenarios hand off to apex-azure-prepare.",
+      "imports": [
+        {
+          "from": "azure-cloud-migrate/references/services/app-service/",
+          "to": "references/services/app-service/"
+        },
+        {
+          "from": "azure-cloud-migrate/references/services/container-apps/",
+          "to": "references/services/container-apps/"
+        }
+      ]
+    },
+    {
+      "apex": "apex-azure-cost-optimization",
+      "upstream": ["azure-cost"],
+      "status": "fork",
+      "note": "Upstream renamed azure-cost-optimization to azure-cost; APEX keeps its name.",
+      "imports": [
+        { "from": "azure-cost/cost-query/", "to": "references/cost-query/" },
+        { "from": "azure-cost/cost-forecast/", "to": "references/cost-forecast/" },
+        {
+          "from": "azure-cost/cost-optimization/services/storage/azure-storage.md",
+          "to": "references/azure-storage-tiers.md"
+        }
+      ]
+    },
+    { "apex": "apex-azure-compliance", "upstream": ["azure-compliance"], "status": "fork", "imports": [] },
+    {
+      "apex": "apex-azure-diagnostics",
+      "upstream": ["azure-diagnostics"],
+      "status": "fork",
+      "note": "Messaging auth-best-practices.md is not imported; the guides link to apex-entra-app-registration's canonical copy.",
+      "imports": [
+        { "from": "azure-diagnostics/troubleshooting/aks/", "to": "references/aks/" },
+        { "from": "azure-diagnostics/troubleshooting/compute/", "to": "references/compute/" },
+        { "from": "azure-diagnostics/troubleshooting/messaging/", "to": "references/messaging/" },
+        { "from": "azure-diagnostics/references/app-service/", "to": "references/app-service/" },
+        { "from": "azure-diagnostics/scripts/", "to": "scripts/" }
+      ]
+    },
+    {
+      "apex": "apex-azure-kusto",
+      "upstream": ["azure-kusto"],
+      "status": "fork",
+      "imports": [{ "from": "azure-kusto/SKILL.md", "to": "references/common-issues.md" }]
+    },
+    { "apex": "apex-azure-compute", "upstream": ["azure-compute"], "status": "fork", "imports": [] },
+    { "apex": "apex-azure-quotas", "upstream": ["azure-quotas"], "status": "fork", "imports": [] },
+    {
+      "apex": "apex-azure-storage",
+      "upstream": ["azure-storage"],
+      "status": "fork",
+      "imports": [{ "from": "azure-storage/SKILL.md", "to": "SKILL.md" }]
+    },
+    {
+      "apex": "apex-azure-resources",
+      "upstream": ["azure-resource-lookup", "azure-resource-visualizer"],
+      "status": "apex-merge",
+      "imports": [
+        { "from": "azure-resource-lookup/SKILL.md", "to": "SKILL.md" },
+        { "from": "azure-resource-visualizer/SKILL.md", "to": "references/visualize.md" }
+      ]
+    },
+    { "apex": "apex-entra-app-registration", "upstream": ["entra-app-registration"], "status": "fork", "imports": [] },
+    {
+      "apex": "apex-azure-rbac",
+      "upstream": ["azure-rbac"],
+      "status": "retired-upstream",
+      "note": "Retired upstream in v1.1.95; revisit after role verification is ported.",
+      "imports": []
+    },
+    {
+      "apex": "apex-azure-kubernetes",
+      "upstream": ["azure-kubernetes"],
+      "status": "new-fork",
+      "note": "Design advice only; cluster-changing commands are IaC targets. The CLI reference is read-only and safeguards.md no longer depends on the upstream readiness spec.",
+      "imports": [
+        { "from": "azure-kubernetes/SKILL.md", "to": "SKILL.md" },
+        { "from": "azure-kubernetes/references/", "to": "references/" },
+        {
+          "from": "azure-kubernetes/azure-kubernetes-app-deploy/references/safeguards.md",
+          "to": "references/safeguards.md"
+        },
+        {
+          "from": "azure-kubernetes/azure-kubernetes-app-deploy/references/workload-identity.md",
+          "to": "references/workload-identity.md"
+        }
+      ]
+    },
+    {
+      "apex": "apex-azure-reliability",
+      "upstream": ["azure-reliability"],
+      "status": "new-fork",
+      "note": "Assessment only; configure and IaC-patching guides are not imported. Upstream prints the AzureWebJobsStorage value and names a non-existent Terraform attribute (minimum_elastic_instance_count; the provider uses elastic_instance_minimum).",
+      "imports": [
+        { "from": "azure-reliability/SKILL.md", "to": "SKILL.md" },
+        {
+          "from": "azure-reliability/references/zone-redundancy-checks.md",
+          "to": "references/zone-redundancy-checks.md"
+        },
+        {
+          "from": "azure-reliability/references/storage-redundancy-checks.md",
+          "to": "references/storage-redundancy-checks.md"
+        },
+        { "from": "azure-reliability/references/health-probe-checks.md", "to": "references/health-probe-checks.md" },
+        { "from": "azure-reliability/references/multi-region-checks.md", "to": "references/multi-region-checks.md" },
+        {
+          "from": "azure-reliability/references/services/app-service/reliability.md",
+          "to": "references/services/app-service/reliability.md"
+        },
+        {
+          "from": "azure-reliability/references/services/functions/reliability.md",
+          "to": "references/services/functions/reliability.md"
+        }
+      ]
+    },
+    {
+      "apex": "apex-azure-upgrade",
+      "upstream": ["azure-upgrade"],
+      "status": "new-fork",
+      "note": "Assessment and IaC mapping only; automation.md, workflow-details.md and the Java SDK flow are not imported. Upstream links a removed Redis retirement page (cache-retired-tiers) and says Flex Consumption lacks certificates, which Learn now documents as site-scoped.",
+      "imports": [
+        { "from": "azure-upgrade/SKILL.md", "to": "SKILL.md" },
+        { "from": "azure-upgrade/references/global-rules.md", "to": "references/global-rules.md" },
+        {
+          "from": "azure-upgrade/references/services/functions/assessment.md",
+          "to": "references/services/functions/assessment.md"
+        },
+        {
+          "from": "azure-upgrade/references/services/functions/consumption-to-flex.md",
+          "to": "references/services/functions/consumption-to-flex.md"
+        },
+        {
+          "from": "azure-upgrade/references/services/redis/redis-to-amr.md",
+          "to": "references/services/redis/redis-to-amr.md"
+        }
+      ]
+    }
+  ],
+  "defect_probes": [
+    {
+      "id": "SK-08",
+      "path": "azure-cost/cost-optimization/report-template.md",
+      "pattern": "Remove-Item -Path \"temp\" -Recurse -Force",
+      "defect": "Cleanup recursively deletes a temp folder that may hold user files"
+    },
+    {
+      "id": "SK-11",
+      "path": "azure-deploy/references/pre-deploy-checklist.md",
+      "pattern": "azd env new <environment-name> --no-prompt",
+      "defect": "The checklist creates environments before a recipe is chosen"
+    },
+    {
+      "id": "SK-12",
+      "path": "azure-prepare/references/runtimes/nodejs.md",
+      "pattern": "process\\.env\\.SESSION_SECRET \\|\\| '",
+      "defect": "Built-in fallback session secret"
+    },
+    {
+      "id": "SK-15",
+      "path": "azure-compliance/references/azure-keyvault-expiration-audit.md",
+      "pattern": "az keyvault secret show --vault-name <vault-name> --name <secret-name>`",
+      "defect": "The expiry audit retrieves secret values instead of metadata"
+    },
+    {
+      "id": "SK-17",
+      "path": "entra-app-registration/references/cli-commands.md",
+      "pattern": "^az ad app credential reset --id \\$APP_ID$",
+      "flags": "m",
+      "defect": "Adding a credential without --append replaces existing credentials"
+    },
+    {
+      "id": "SK-19",
+      "path": "azure-cost/cost-optimization/services/redis/azure-cache-for-redis.md",
+      "pattern": "Failed Cache.*Delete immediately",
+      "defect": "Failed caches are marked for immediate deletion with savings claims"
+    },
+    {
+      "id": "SK-20",
+      "path": "azure-cost/cost-optimization/services/storage/azure-storage.md",
+      "pattern": "\\| project name, resourceGroup",
+      "defect": "Unused-resource queries omit resource and subscription IDs"
+    },
+    {
+      "id": "SK-22",
+      "path": "azure-deploy/references/recipes/azd/sql-entra-auth.md",
+      "pattern": "az sql db query",
+      "defect": "Uses the undocumented az sql db query command"
+    },
+    {
+      "id": "SK-23",
+      "path": "azure-prepare/references/resources-limits-quotas.md",
+      "pattern": "Calculate available capacity",
+      "defect": "Quota headroom is treated as regional capacity"
+    },
+    {
+      "id": "SK-27",
+      "path": "azure-diagnostics/references/functions/README.md",
+      "pattern": "rg=resourceGroup",
+      "defect": "Function App telemetry is matched by resource group"
+    },
+    {
+      "id": "SK-28",
+      "path": "azure-quotas/scripts/check-quota.sh",
+      "pattern": "az quota usage list[^\\n]*2>/dev/null",
+      "defect": "The quota helper discards CLI errors"
+    },
+    {
+      "id": "SK-29",
+      "path": "entra-app-registration/references/troubleshooting.md",
+      "pattern": "Paste into jwt\\.ms",
+      "defect": "Tokens are pasted into a third-party decoder"
+    }
+  ]
+}

@@ -18,6 +18,48 @@ These errors occur **during** `azd up` execution:
 
 > ℹ️ **Pre-flight validation**: Run `apex-azure-validate` before deployment to catch configuration errors early. See [Pre-Deploy Checklist](../../pre-deploy-checklist.md).
 
+| Error                                                                                              | Cause                                                              | Resolution                                                    |
+| -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ | ------------------------------------------------------------- |
+| `PrincipalId '...' has type 'ServicePrincipal', which is different from specified PrincipalType 'User'` | A template assigns roles to the deploying identity with `principalType: 'User'`, but CI/CD deploys as a service principal | See [Principal Type Mismatch](#principal-type-mismatch) |
+| `Operation expired` or a Container App revision timeout (about 900 s)                             | The app's managed identity doesn't have `AcrPull` on the registry yet | See [Container App Revision Timeout](#container-app-revision-timeout) |
+
+## Principal Type Mismatch
+
+Many azd templates assign roles to the deploying user with a hard-coded
+`principalType: 'User'`, often behind an `allowUserIdentityPrincipal` flag. In
+CI/CD the deploying identity is a service principal, so provisioning fails.
+
+Report it to the IaC owner: parameterize `principalType` (see
+[SQL auth](../../../../apex-azure-prepare/references/services/sql-database/auth.md)) or set the
+template's `allowUserIdentityPrincipal` flag to `false` for service principal
+deployments. Clearing `AZURE_PRINCIPAL_ID` with `azd env set` has no effect, because
+azd repopulates it from the current sign-in.
+
+## Container App Revision Timeout
+
+**Symptom:** provisioning succeeds, then revision creation times out and the
+Container App shows `Failed` with no active revision.
+
+**Cause:** `azd up` provisions and deploys in one run. The revision pulls the
+image before the new `AcrPull` assignment has propagated, which can take several
+minutes.
+
+**Check (read-only):**
+
+```bash
+az containerapp show --name <app-name> --resource-group <resource-group> \
+  --query "{provisioningState:properties.provisioningState, latestRevision:properties.latestRevisionName}" -o json
+PRINCIPAL_ID=$(az containerapp identity show --name <app-name> --resource-group <resource-group> --query principalId -o tsv)
+az role assignment list --scope "$(az acr show --name <acr-name> --resource-group <resource-group> --query id -o tsv)" \
+  --assignee-object-id "$PRINCIPAL_ID" --query "[].roleDefinitionName" -o tsv
+```
+
+**Resolution:** if `AcrPull` is present, redeploy once with `azd deploy`. If it
+is missing, report it to the IaC owner; the IaC must declare `AcrPull` with
+`principalType: 'ServicePrincipal'`. Assigning it by CLI needs explicit approval.
+Prevent it with the [two-phase order](../../pre-deploy-checklist.md#container-apps-with-acr--acrpull-before-app-deploy),
+and don't keep polling a hanging `azd up`.
+
 ## Missing Container Registry Variables
 
 **Symptom:** Errors during `azd deploy` about missing container registry or managed identity environment variables:

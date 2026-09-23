@@ -30,10 +30,10 @@ az quota request status list --scope SCOPE [--filter FILTER] [--max-items N] [--
 
 ```bash
 # List compute quota requests
-az quota request status list --scope /subscriptions/{id}/providers/Microsoft.Compute/locations/eastus
+az quota request status list --scope /subscriptions/{id}/providers/Microsoft.Compute/locations/{region}
 
 # List network quota requests
-az quota request status list --scope /subscriptions/{id}/providers/Microsoft.Network/locations/eastus
+az quota request status list --scope /subscriptions/{id}/providers/Microsoft.Network/locations/{region}
 ```
 
 ## az quota request status show
@@ -56,7 +56,7 @@ az quota request status show --id REQUEST_ID --scope SCOPE
 ```bash
 az quota request status show \
   --id 2B5C8515-37D8-4B6A-879B-CD641A2CF605 \
-  --scope /subscriptions/{id}/providers/Microsoft.Compute/locations/eastus
+  --scope /subscriptions/{id}/providers/Microsoft.Compute/locations/{region}
 ```
 
 ## az quota operation list

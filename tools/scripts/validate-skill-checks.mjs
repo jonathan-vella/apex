@@ -20,13 +20,7 @@ const r = new Reporter("Skill Checks Validator");
 r.header();
 
 // Pre-existing oversized skills (tracked for future remediation).
-const KNOWN_OVERSIZED = new Set([
-  "apex-azure-adr",
-  "apex-github-operations",
-  "apex-azure-kusto",
-  "apex-azure-cost-optimization",
-  "apex-azure-quotas",
-]);
+const KNOWN_OVERSIZED = new Set([]);
 
 // Pattern: matches `<!-- ref:any-slug-v1 -->` on the first non-blank line.
 // The closing `-->` may be preceded by additional commentary, e.g.

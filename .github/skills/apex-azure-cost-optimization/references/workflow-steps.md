@@ -105,7 +105,7 @@ extension_azqr({
 - Over-provisioned resources: excessive retention periods, oversized SKUs
 - Missing cost tags: resources without proper cost allocation
 
-> **Note**: The Azure Quick Review reference document includes instructions for creating filter configurations, saving output to the `output/` folder, and interpreting results for cost optimization.
+> **Note**: The Azure Quick Review reference document includes instructions for creating filter configurations, saving output to `agent-output/{project}/`, and interpreting results for cost optimization.
 
 ## Step 3: Discover Resources
 

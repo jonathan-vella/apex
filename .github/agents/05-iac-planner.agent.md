@@ -125,8 +125,7 @@ still available in context and batch independent missing reads.
    Governance artifacts are prerequisite inputs, not outputs to regenerate from a template.
 4. **Before Phase 4 diagrams**, read `.github/skills/apex-python-diagrams/SKILL.md` — diagram conventions and imports.
 5. **Before Phase 2.5 checks**, read `.github/skills/apex-iac-common/references/plan-consistency-checks.md` — the deterministic
-   rules (zone-redundancy, RBAC ordering, deployment-script identity/image, public-edge auth, phased-param
-   wiring, phase monotonicity)
+   rules (zone redundancy, RBAC ordering, script identity/image, public-edge auth, phased params, phase monotonicity)
 6. **On an L0/L1 drift signal, before choosing a return route**, read
    `.github/skills/apex-iac-common/references/governance-drift-routing.md`. Stop the current phase while resolving drift.
 7. **Before Phase 3.5 decisions**, read `.github/skills/apex-azure-defaults/references/plan-design-decisions.md` — canonical
@@ -136,6 +135,7 @@ still available in context and batch independent missing reads.
 9. **IaC-specific skill** (read on-demand during Phase 2):
    - Bicep → `.github/skills/apex-azure-bicep-patterns/SKILL.md` — hub-spoke, PE, diagnostics, module composition
    - Terraform → `.github/skills/apex-terraform-patterns/SKILL.md` — hub-spoke, PE, diagnostics, AVM-TF patterns
+10. **When AKS is in scope**, read `.github/skills/apex-azure-kubernetes/SKILL.md` during Phase 2 for Day-0 decisions
 
 ### Required IaC Authoring References (mandate-load, every project)
 

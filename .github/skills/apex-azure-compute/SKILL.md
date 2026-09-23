@@ -27,7 +27,8 @@ Recommend Azure VM sizes, VM Scale Sets (VMSS), and configurations by analyzing 
 
 ## Rules
 
-- **Always verify against live docs** — call `web_fetch` against `learn.microsoft.com` before finalizing recommendations; warn the user when `web_fetch` fails
+- **Always verify against live docs** — call `web_fetch` against `learn.microsoft.com` before finalizing recommendations; warn the user when `web_fetch` fails. `web_fetch` means any available page-fetch tool; prefer `mcp_azure-mcp_documentation` (`microsoft_docs_fetch`) for Learn pages
+- **Availability and quota** — before recommending a size for a deployment, confirm SKU availability and quota headroom with `apex-azure-quotas` ([SKU availability](../apex-azure-quotas/references/sku-availability.md)); neither guarantees allocation capacity
 - **Default to General Purpose D-series** when workload type is unclear
 - **Default region** follows the canonical declaration in [copilot-instructions.md](../../copilot-instructions.md#azure-defaults-canonical); prices vary by region
 - **Default to single VM** when scaling needs are unclear; recommend VMSS only when autoscale, fleet, or mixed-size requirements are explicit

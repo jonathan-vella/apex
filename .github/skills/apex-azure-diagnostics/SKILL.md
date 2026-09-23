@@ -3,7 +3,7 @@ name: apex-azure-diagnostics
 user-invocable: true
 disable-model-invocation: false
 argument-hint: "resource scope, symptom and time range"
-description: "**WORKFLOW SKILL** — Debug and troubleshoot Azure production issues: Container Apps + Function Apps diagnostics, KQL log analysis, health checks. WHEN: 'debug production issues', 'troubleshoot container apps', 'troubleshoot function apps', 'image pull failures', 'cold start issues', 'health probe failures'. DO NOT USE FOR: pre-deployment validation (apex-azure-validate), cost analysis (apex-azure-cost-optimization)."
+description: "**WORKFLOW SKILL** — Debug Azure production issues: Container Apps, Functions, App Service, AKS, VMs and messaging, with KQL log analysis. WHEN: 'troubleshoot container apps', 'troubleshoot AKS', 'pod crashloop', 'VM RDP or SSH failure', 'app service high CPU', 'service bus errors'. DO NOT USE FOR: pre-deploy validation (apex-azure-validate), cost (apex-azure-cost-optimization), AKS design (apex-azure-kubernetes)."
 license: MIT
 metadata:
   author: Microsoft
@@ -28,6 +28,10 @@ Activate this skill when user wants to:
 - Find root cause of application errors
 - Troubleshoot Azure Function Apps (invocation failures, timeouts, binding errors)
 - Find the App Insights or Log Analytics workspace linked to a Function App
+- Troubleshoot App Service issues (high CPU, deployment failures, crashes, slow responses, TLS/custom domains)
+- Troubleshoot AKS clusters, nodes, pods, ingress, DNS or upgrades
+- Troubleshoot Azure VM connectivity (RDP/SSH failures, NSG or firewall blocks, VM agent issues)
+- Troubleshoot Event Hubs and Service Bus SDK errors (AMQP failures, lock lost, connectivity)
 
 ## Rules
 
@@ -37,6 +41,9 @@ Activate this skill when user wants to:
 4. Select appropriate troubleshooting guide based on service type
 5. Document findings and attempted remediation steps
 6. Diagnose only the approved scope; obtain separate approval before remediation
+7. Default to read-only. Restarts, redeploys, `run-command`, credential resets, NSG changes,
+   cordon/drain and node debug pods (`run-ig` with `--approve`) each need explicit approval
+8. Never print secret values: list app setting names only, and never pass passwords through chat
 
 ## Prerequisites
 
@@ -60,7 +67,27 @@ Load only the health checks and query templates needed for the selected service.
 | Service            | Common Issues                                                                                 | Reference                                              |
 | ------------------ | --------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
 | **Container Apps** | Image pull failures, cold starts, health probes, port mismatches                              | [container-apps/](references/container-apps/README.md) |
+| **App Service**    | High CPU, deployment failures, crashes, slow responses, TLS/custom domains                    | [app-service/](references/app-service/README.md)       |
 | **Function Apps**  | App details, invocation failures, timeouts, binding errors, cold starts, missing app settings | [functions/](references/functions/README.md)           |
+| **AKS**            | Cluster access, nodes, `kube-system`, scheduling, crash loops, ingress, DNS, upgrades          | [AKS troubleshooting](references/aks/aks-troubleshooting.md) |
+| **Compute (VM)**   | RDP/SSH connectivity, NSG/firewall blocks, credential resets, VM agent issues                 | [VM connectivity](references/compute/vm-troubleshooting.md) |
+| **Messaging**      | Event Hubs and Service Bus SDK errors, AMQP failures, message lock, connectivity              | [Messaging troubleshooting](references/messaging/README.md) |
+
+Route active AKS incidents, VM connectivity and messaging SDK problems to their guides above;
+keep Container Apps, App Service and Function Apps diagnostics in this skill.
+
+## Scripts
+
+Bash and PowerShell pairs in `scripts/` gather evidence in one pass. All are read-only except `run-ig`.
+
+| Script                        | Purpose                                                                                       |
+| ----------------------------- | --------------------------------------------------------------------------------------------- |
+| `aks-baseline`                | AKS provisioning state, node pools, recent activity, node readiness and `kube-system` health   |
+| `pod-evidence`                | Status, describe, current and previous logs, and resource usage for unhealthy pods            |
+| `run-ig`                      | Inspektor Gadget trace through a privileged node debug pod; runs only with `--approve`/`-Approve` |
+| `appservice-diagnostics`      | App Service config, recent deployments, app setting names and custom domains                  |
+| `containerapp-diagnostics`    | Container App revisions, registry and ingress config, and recent logs                         |
+| `test-messaging-connectivity` | DNS, HTTPS and AMQP/Kafka port reachability for a Service Bus or Event Hubs namespace          |
 
 ---
 
@@ -143,5 +170,9 @@ unavailable and continue the approved [health checks](references/infraops-health
 - [InfraOps Health Checks](references/infraops-health-checks.md) — per-resource-type diagnostic commands
 - [InfraOps Remediation Playbooks](references/infraops-remediation-playbooks.md) — 6-phase diagnostic workflow
 - [Function Apps Troubleshooting](references/functions/README.md)
+- [App Service Troubleshooting](references/app-service/README.md)
+- [AKS Troubleshooting](references/aks/aks-troubleshooting.md) — intake, evidence, per-symptom guides and Inspektor Gadget
+- [VM Connectivity Troubleshooting](references/compute/vm-troubleshooting.md) — RDP/SSH, NSG/firewall, credentials, VM agent
+- [Messaging Troubleshooting](references/messaging/README.md) — Event Hubs and Service Bus SDK guides
 
 Load these references on demand, not all at once.

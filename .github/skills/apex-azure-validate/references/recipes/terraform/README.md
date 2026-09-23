@@ -4,6 +4,7 @@ Validation steps for Terraform deployments.
 
 ## Prerequisites
 
+- Working directory is the project's IaC folder, `infra/terraform/{project}/` (never the repository root)
 - `./main.tf` exists
 - State backend accessible
 
@@ -49,7 +50,7 @@ az account set --subscription <subscription-id>
 ### 4. Initialize
 
 ```bash
-cd infra
+cd infra/terraform/{project}
 terraform init
 ```
 
@@ -88,6 +89,21 @@ terraform state list
 ### 9. Azure Policy Validation
 
 See [Policy Validation Guide](../../policy-validation.md) for instructions on retrieving and validating Azure policies for your subscription.
+
+### 10. Template Variables (azd + Terraform)
+
+azd substitutes `${VAR}` references in `main.tfvars.json`, but not Go-style
+`{{ .Env.* }}` templates. Unresolved templates reach Terraform as literal strings
+and cause failed deployments and state conflicts. Scan for them:
+
+```bash
+grep -n '{{ *\.Env\.' main.tfvars.json && echo "FAIL: Go-style template variables found" || echo "PASS"
+```
+
+On `FAIL`, report the file and lines. The IaC owner replaces `{{ .Env.VAR }}`
+with `${VAR}`, or passes extra values as `TF_VAR_*` environment variables
+(`azd env set TF_VAR_environment_name "$(azd env get-value AZURE_ENV_NAME)"`), and
+confirms `variables.tf` declares every variable. Re-run validation afterwards.
 
 ## References
 

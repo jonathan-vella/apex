@@ -77,12 +77,11 @@ No model overrides or fallback. On reviewer resolution failure, report `blocked`
 the verbatim error, request human selection of `10-Challenger`, then stop.
 
 ## Evidence Before Assessment
-Before scoring any WAF pillar, search Microsoft Learn for each Azure
-service in scope and verify SKU availability, AVM module versions, and
-service lifecycle status in the target region. Never score from
-parametric knowledge, and never quote pricing you did not obtain from
-`cost-estimate-subagent`. When an NFR, compliance, or budget value is
-missing, gather it via `askQuestions` before assessing.
+Before scoring any WAF pillar, search Microsoft Learn for each Azure service in scope and verify SKU availability,
+AVM module versions, and service lifecycle status in the target region. Start from each service's
+[WAF service guide](../skills/apex-azure-defaults/references/research-workflow.md#waf-service-guides).
+Never score from parametric knowledge, and never quote pricing you did not obtain from `cost-estimate-subagent`.
+When an NFR, compliance, or budget value is missing, gather it via `askQuestions` before assessing.
 
 ## Operating frame
 
@@ -91,10 +90,9 @@ Shared agent rules (read each SKILL.md once, use `apex-recall show
 investigate before answering) live in
 [`agent-operating-frame.instructions.md`](../instructions/agent-operating-frame.instructions.md).
 
-- **Investigate first**: search Microsoft Learn for each Azure service in
-  scope before scoring WAF; verify SKU availability, AVM module versions,
-  and service lifecycle status. Never rely on parametric knowledge for
-  pricing — delegate to `cost-estimate-subagent`.
+- **Investigate first**: search Microsoft Learn for each Azure service in scope before scoring WAF, using the WAF
+  service guide procedure; verify SKU availability, AVM module versions, and service lifecycle status. Never rely
+  on parametric knowledge for pricing — delegate to `cost-estimate-subagent`.
 - **Subagent budget (2)**: `cost-estimate-subagent` (all dollar figures);
   `challenger-review-subagent` (comprehensive + cost-feasibility passes).
   Review-depth opt-in: read `decisions.review_depth` via
@@ -170,6 +168,9 @@ when needed. Reuse unchanged content still in context; batch independent missing
   — every #tool:agent call (cost-estimate-subagent,
    challenger-review-subagent) MUST follow the three-H2 contract
    (issue #425).
+6. **When AKS is a candidate compute host**, read `.github/skills/apex-azure-kubernetes/SKILL.md` — Day-0 decisions
+7. **When the workload keeps an existing Functions Consumption app or Azure Cache for Redis instance**, read
+   `.github/skills/apex-azure-upgrade/SKILL.md` — upgrade readiness and IaC target mapping
 
 These skills are your single source of truth. Do NOT use hardcoded values.
 

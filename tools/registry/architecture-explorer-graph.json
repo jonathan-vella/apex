@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-09-23T09:08:16.782Z",
+  "generatedAt": "2026-09-23T16:25:10.123Z",
   "categories": [
     { "id": "agent", "key": "agents", "label": "Agent", "color": "#3b82f6", "shape": "round-rectangle", "count": 14 },
     {
@@ -11,7 +11,7 @@
       "shape": "round-diamond",
       "count": 7
     },
-    { "id": "skill", "key": "skills", "label": "Skill", "color": "#10b981", "shape": "ellipse", "count": 36 },
+    { "id": "skill", "key": "skills", "label": "Skill", "color": "#10b981", "shape": "ellipse", "count": 39 },
     {
       "id": "instruction",
       "key": "instructions",
@@ -39,8 +39,8 @@
     },
     { "id": "mcp", "key": "mcp_servers", "label": "MCP Server", "color": "#f43f5e", "shape": "barrel", "count": 3 }
   ],
-  "nodeCount": 181,
-  "edgeCount": 702,
+  "nodeCount": 184,
+  "edgeCount": 733,
   "nodes": [
     {
       "id": "agent:01-orchestrator",
@@ -107,7 +107,13 @@
         "context": null,
         "subagents": ["cost-estimate-subagent", "challenger-review-subagent"],
         "handoffTargets": ["03-Architect", "04-Design", "04g-Governance", "02-Requirements", "01-Orchestrator"],
-        "skills": ["apex-azure-defaults", "apex-azure-artifacts", "apex-context-management"]
+        "skills": [
+          "apex-azure-defaults",
+          "apex-azure-artifacts",
+          "apex-context-management",
+          "apex-azure-kubernetes",
+          "apex-azure-upgrade"
+        ]
       }
     },
     {
@@ -174,6 +180,7 @@
           "apex-python-diagrams",
           "apex-azure-bicep-patterns",
           "apex-terraform-patterns",
+          "apex-azure-kubernetes",
           "apex-context-management"
         ]
       }
@@ -284,7 +291,13 @@
         "context": null,
         "subagents": ["cost-estimate-subagent"],
         "handoffTargets": ["08-As-Built", "01-Orchestrator"],
-        "skills": ["apex-azure-defaults", "apex-azure-artifacts", "apex-python-diagrams", "apex-context-management"]
+        "skills": [
+          "apex-azure-defaults",
+          "apex-azure-artifacts",
+          "apex-python-diagrams",
+          "apex-context-management",
+          "apex-azure-reliability"
+        ]
       }
     },
     {
@@ -302,7 +315,7 @@
         "context": null,
         "subagents": [],
         "handoffTargets": ["09-Diagnose", "08-As-Built", "03-Architect", "01-Orchestrator"],
-        "skills": ["apex-azure-defaults", "apex-azure-diagnostics"]
+        "skills": ["apex-azure-defaults", "apex-azure-diagnostics", "apex-azure-reliability"]
       }
     },
     {
@@ -525,7 +538,7 @@
       "id": "skill:apex-azure-cloud-migrate",
       "category": "skill",
       "label": "apex-azure-cloud-migrate",
-      "description": "**WORKFLOW SKILL** — Assess and migrate cross-cloud workloads to Azure. Generates assessment reports and converts code from AWS, GCP, or other providers to Azure services. WHEN: \"migrate Lambda to Azure Functions\", \"migrate AWS to Azure\", \"convert AWS serverless to Azure\", \"migration readiness report\", \"cross-cloud migration\". DO NOT USE FOR: greenfield Azure deployment (apex-azure-prepare), Azure-only refactor (apex-azure-prepare).",
+      "description": "**WORKFLOW SKILL** — Assess and migrate cross-cloud workloads to Azure: assessments and code conversion from AWS, GCP, Heroku, Kubernetes or Spring. WHEN: \"migrate Lambda to Azure Functions\", \"migrate AWS to Azure\", \"migrate Heroku to App Service\", \"migrate GKE to Container Apps\", \"migration readiness report\". DO NOT USE FOR: greenfield deployment or Azure-only refactor (apex-azure-prepare).",
       "path": ".github/skills/apex-azure-cloud-migrate/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-cloud-migrate/SKILL.md"
@@ -573,7 +586,7 @@
       "id": "skill:apex-azure-cost-optimization",
       "category": "skill",
       "label": "apex-azure-cost-optimization",
-      "description": "**ANALYSIS SKILL** — Identify cost savings across Azure subscriptions via cost + utilization analysis. WHEN: \"optimize Azure costs\", \"reduce Azure spending\", \"find cost savings\", \"rightsize VMs\", \"find orphaned resources\", \"optimize Redis costs\". DO NOT USE FOR: deploying (apex-azure-deploy), general diagnostics (apex-azure-diagnostics), security issues (apex-azure-compliance).",
+      "description": "**ANALYSIS SKILL** — Query, forecast and optimize Azure costs via cost + utilization analysis. WHEN: \"optimize Azure costs\", \"find cost savings\", \"what did we spend\", \"cost forecast\", \"rightsize VMs\", \"find orphaned resources\", \"optimize Redis costs\". DO NOT USE FOR: deploying (apex-azure-deploy), general diagnostics (apex-azure-diagnostics), security issues (apex-azure-compliance).",
       "path": ".github/skills/apex-azure-cost-optimization/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-cost-optimization/SKILL.md"
@@ -616,7 +629,7 @@
       "id": "skill:apex-azure-diagnostics",
       "category": "skill",
       "label": "apex-azure-diagnostics",
-      "description": "**WORKFLOW SKILL** — Debug and troubleshoot Azure production issues: Container Apps + Function Apps diagnostics, KQL log analysis, health checks. WHEN: 'debug production issues', 'troubleshoot container apps', 'troubleshoot function apps', 'image pull failures', 'cold start issues', 'health probe failures'. DO NOT USE FOR: pre-deployment validation (apex-azure-validate), cost analysis (apex-azure-cost-optimization).",
+      "description": "**WORKFLOW SKILL** — Debug Azure production issues: Container Apps, Functions, App Service, AKS, VMs and messaging, with KQL log analysis. WHEN: 'troubleshoot container apps', 'troubleshoot AKS', 'pod crashloop', 'VM RDP or SSH failure', 'app service high CPU', 'service bus errors'. DO NOT USE FOR: pre-deploy validation (apex-azure-validate), cost (apex-azure-cost-optimization), AKS design (apex-azure-kubernetes).",
       "path": ".github/skills/apex-azure-diagnostics/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-diagnostics/SKILL.md"
@@ -641,6 +654,22 @@
         "invocable": true,
         "disableModelInvocation": false,
         "argumentHint": "project, subscription scope and discovery or refresh",
+        "context": null
+      }
+    },
+    {
+      "id": "skill:apex-azure-kubernetes",
+      "category": "skill",
+      "label": "apex-azure-kubernetes",
+      "description": "**ANALYSIS SKILL** — Day-0 AKS design advice: Automatic vs Standard, networking, identity, observability, upgrades, node pools, autoscaling and Spot. WHEN: \"design AKS\", \"AKS Automatic or Standard\", \"AKS networking\", \"AKS node pools\", \"rightsize AKS pods\", \"AKS spot nodes\". DO NOT USE FOR: AKS troubleshooting (apex-azure-diagnostics), provisioning or IaC (05-IaC Planner, 06b/06t).",
+      "path": ".github/skills/apex-azure-kubernetes/SKILL.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-kubernetes/SKILL.md"
+      },
+      "meta": {
+        "invocable": true,
+        "disableModelInvocation": false,
+        "argumentHint": "workload requirements, environment type, region and constraints",
         "context": null
       }
     },
@@ -680,7 +709,7 @@
       "id": "skill:apex-azure-quotas",
       "category": "skill",
       "label": "apex-azure-quotas",
-      "description": "**UTILITY SKILL** — Check Azure quota limits, usage and headroom for deployment planning; quota is not regional capacity. WHEN: \"check quotas\", \"service limits\", \"request quota increase\", \"quota exceeded\", \"validate capacity\", \"regional availability\", \"vCPU limit\". DO NOT USE FOR: deployment execution (apex-azure-deploy), cost analysis (apex-azure-cost-optimization).",
+      "description": "**UTILITY SKILL** — Check Azure quota headroom and SKU availability (region, zones, restrictions) for deployment planning; neither proves allocation capacity. WHEN: \"check quotas\", \"service limits\", \"request quota increase\", \"quota exceeded\", \"SKU availability\", \"SKU restrictions\", \"vCPU limit\". DO NOT USE FOR: deployment execution (apex-azure-deploy), cost analysis (apex-azure-cost-optimization).",
       "path": ".github/skills/apex-azure-quotas/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-quotas/SKILL.md"
@@ -707,6 +736,22 @@
       }
     },
     {
+      "id": "skill:apex-azure-reliability",
+      "category": "skill",
+      "label": "apex-azure-reliability",
+      "description": "**ANALYSIS SKILL** — Read-only reliability assessment for App Service and Azure Functions: zone redundancy, ZRS storage, health probes and multi-region failover. WHEN: \"assess reliability\", \"zone redundant\", \"multi-region failover\", \"single points of failure\", \"disaster recovery readiness\". DO NOT USE FOR: fixes or deploys (06b/06t), troubleshooting (apex-azure-diagnostics).",
+      "path": ".github/skills/apex-azure-reliability/SKILL.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-reliability/SKILL.md"
+      },
+      "meta": {
+        "invocable": true,
+        "disableModelInvocation": false,
+        "argumentHint": "resource group, subscription or app name to assess",
+        "context": null
+      }
+    },
+    {
       "id": "skill:apex-azure-resources",
       "category": "skill",
       "label": "apex-azure-resources",
@@ -726,7 +771,7 @@
       "id": "skill:apex-azure-storage",
       "category": "skill",
       "label": "apex-azure-storage",
-      "description": "**UTILITY SKILL** — Azure Storage Services: Blob, File Shares, Queue, Table, and Data Lake. Object storage, SMB shares, async messaging, NoSQL key-value, big-data analytics. Access tiers + lifecycle management. WHEN: \"blob storage\", \"file shares\", \"queue storage\", \"table storage\", \"data lake\", \"access tiers\", \"lifecycle management\". DO NOT USE FOR: SQL databases, Cosmos DB (use apex-azure-prepare), Event Hubs / Service Bus messaging.",
+      "description": "**UTILITY SKILL** — Azure Storage: Blob, File Shares, Queue, Table and Data Lake, including access tiers and lifecycle management. WHEN: \"blob storage\", \"file shares\", \"queue storage\", \"table storage\", \"data lake\", \"which storage tier\", \"hot vs cool vs archive\", \"lifecycle management\". DO NOT USE FOR: SQL databases, Cosmos DB (use apex-azure-prepare), Event Hubs / Service Bus messaging.",
       "path": ".github/skills/apex-azure-storage/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-storage/SKILL.md"
@@ -735,6 +780,22 @@
         "invocable": true,
         "disableModelInvocation": false,
         "argumentHint": "storage service, resource scope and task",
+        "context": null
+      }
+    },
+    {
+      "id": "skill:apex-azure-upgrade",
+      "category": "skill",
+      "label": "apex-azure-upgrade",
+      "description": "**ANALYSIS SKILL** — Assess in-Azure upgrades of existing workloads: Functions Consumption to Flex Consumption, and Azure Cache for Redis to Azure Managed Redis. WHEN: \"upgrade Consumption to Flex\", \"Flex Consumption readiness\", \"Linux Consumption retirement\", \"migrate Redis to AMR\", \"Redis retirement\". DO NOT USE FOR: cross-cloud migration (apex-azure-cloud-migrate), deploying (07b/07t).",
+      "path": ".github/skills/apex-azure-upgrade/SKILL.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-upgrade/SKILL.md"
+      },
+      "meta": {
+        "invocable": true,
+        "disableModelInvocation": false,
+        "argumentHint": "existing app or cache, current plan or SKU, and target",
         "context": null
       }
     },
@@ -2767,6 +2828,18 @@
       "kind": "uses-skill"
     },
     {
+      "id": "agent:03-architect--uses-skill->skill:apex-azure-kubernetes",
+      "source": "agent:03-architect",
+      "target": "skill:apex-azure-kubernetes",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "agent:03-architect--uses-skill->skill:apex-azure-upgrade",
+      "source": "agent:03-architect",
+      "target": "skill:apex-azure-upgrade",
+      "kind": "uses-skill"
+    },
+    {
       "id": "agent:04-design--uses-skill->skill:apex-azure-defaults",
       "source": "agent:04-design",
       "target": "skill:apex-azure-defaults",
@@ -2842,6 +2915,12 @@
       "id": "agent:05-iac-planner--uses-skill->skill:apex-terraform-patterns",
       "source": "agent:05-iac-planner",
       "target": "skill:apex-terraform-patterns",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "agent:05-iac-planner--uses-skill->skill:apex-azure-kubernetes",
+      "source": "agent:05-iac-planner",
+      "target": "skill:apex-azure-kubernetes",
       "kind": "uses-skill"
     },
     {
@@ -2959,6 +3038,12 @@
       "kind": "uses-skill"
     },
     {
+      "id": "agent:08-as-built--uses-skill->skill:apex-azure-reliability",
+      "source": "agent:08-as-built",
+      "target": "skill:apex-azure-reliability",
+      "kind": "uses-skill"
+    },
+    {
       "id": "agent:09-diagnose--uses-skill->skill:apex-azure-defaults",
       "source": "agent:09-diagnose",
       "target": "skill:apex-azure-defaults",
@@ -2968,6 +3053,12 @@
       "id": "agent:09-diagnose--uses-skill->skill:apex-azure-diagnostics",
       "source": "agent:09-diagnose",
       "target": "skill:apex-azure-diagnostics",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "agent:09-diagnose--uses-skill->skill:apex-azure-reliability",
+      "source": "agent:09-diagnose",
+      "target": "skill:apex-azure-reliability",
       "kind": "uses-skill"
     },
     {
@@ -3565,6 +3656,12 @@
       "kind": "applies-to"
     },
     {
+      "id": "instruction:agent-skills--applies-to->skill:apex-azure-kubernetes",
+      "source": "instruction:agent-skills",
+      "target": "skill:apex-azure-kubernetes",
+      "kind": "applies-to"
+    },
+    {
       "id": "instruction:agent-skills--applies-to->skill:apex-azure-kusto",
       "source": "instruction:agent-skills",
       "target": "skill:apex-azure-kusto",
@@ -3589,6 +3686,12 @@
       "kind": "applies-to"
     },
     {
+      "id": "instruction:agent-skills--applies-to->skill:apex-azure-reliability",
+      "source": "instruction:agent-skills",
+      "target": "skill:apex-azure-reliability",
+      "kind": "applies-to"
+    },
+    {
       "id": "instruction:agent-skills--applies-to->skill:apex-azure-resources",
       "source": "instruction:agent-skills",
       "target": "skill:apex-azure-resources",
@@ -3598,6 +3701,12 @@
       "id": "instruction:agent-skills--applies-to->skill:apex-azure-storage",
       "source": "instruction:agent-skills",
       "target": "skill:apex-azure-storage",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-skills--applies-to->skill:apex-azure-upgrade",
+      "source": "instruction:agent-skills",
+      "target": "skill:apex-azure-upgrade",
       "kind": "applies-to"
     },
     {
@@ -3907,6 +4016,12 @@
       "kind": "applies-to"
     },
     {
+      "id": "instruction:context-optimization--applies-to->skill:apex-azure-kubernetes",
+      "source": "instruction:context-optimization",
+      "target": "skill:apex-azure-kubernetes",
+      "kind": "applies-to"
+    },
+    {
       "id": "instruction:context-optimization--applies-to->skill:apex-azure-kusto",
       "source": "instruction:context-optimization",
       "target": "skill:apex-azure-kusto",
@@ -3931,6 +4046,12 @@
       "kind": "applies-to"
     },
     {
+      "id": "instruction:context-optimization--applies-to->skill:apex-azure-reliability",
+      "source": "instruction:context-optimization",
+      "target": "skill:apex-azure-reliability",
+      "kind": "applies-to"
+    },
+    {
       "id": "instruction:context-optimization--applies-to->skill:apex-azure-resources",
       "source": "instruction:context-optimization",
       "target": "skill:apex-azure-resources",
@@ -3940,6 +4061,12 @@
       "id": "instruction:context-optimization--applies-to->skill:apex-azure-storage",
       "source": "instruction:context-optimization",
       "target": "skill:apex-azure-storage",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->skill:apex-azure-upgrade",
+      "source": "instruction:context-optimization",
+      "target": "skill:apex-azure-upgrade",
       "kind": "applies-to"
     },
     {
@@ -4255,6 +4382,12 @@
       "kind": "applies-to"
     },
     {
+      "id": "instruction:docs-trigger--applies-to->skill:apex-azure-kubernetes",
+      "source": "instruction:docs-trigger",
+      "target": "skill:apex-azure-kubernetes",
+      "kind": "applies-to"
+    },
+    {
       "id": "instruction:docs-trigger--applies-to->skill:apex-azure-kusto",
       "source": "instruction:docs-trigger",
       "target": "skill:apex-azure-kusto",
@@ -4279,6 +4412,12 @@
       "kind": "applies-to"
     },
     {
+      "id": "instruction:docs-trigger--applies-to->skill:apex-azure-reliability",
+      "source": "instruction:docs-trigger",
+      "target": "skill:apex-azure-reliability",
+      "kind": "applies-to"
+    },
+    {
       "id": "instruction:docs-trigger--applies-to->skill:apex-azure-resources",
       "source": "instruction:docs-trigger",
       "target": "skill:apex-azure-resources",
@@ -4288,6 +4427,12 @@
       "id": "instruction:docs-trigger--applies-to->skill:apex-azure-storage",
       "source": "instruction:docs-trigger",
       "target": "skill:apex-azure-storage",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->skill:apex-azure-upgrade",
+      "source": "instruction:docs-trigger",
+      "target": "skill:apex-azure-upgrade",
       "kind": "applies-to"
     },
     {
@@ -4753,6 +4898,12 @@
       "kind": "applies-to"
     },
     {
+      "id": "instruction:markdown--applies-to->skill:apex-azure-kubernetes",
+      "source": "instruction:markdown",
+      "target": "skill:apex-azure-kubernetes",
+      "kind": "applies-to"
+    },
+    {
       "id": "instruction:markdown--applies-to->skill:apex-azure-kusto",
       "source": "instruction:markdown",
       "target": "skill:apex-azure-kusto",
@@ -4777,6 +4928,12 @@
       "kind": "applies-to"
     },
     {
+      "id": "instruction:markdown--applies-to->skill:apex-azure-reliability",
+      "source": "instruction:markdown",
+      "target": "skill:apex-azure-reliability",
+      "kind": "applies-to"
+    },
+    {
       "id": "instruction:markdown--applies-to->skill:apex-azure-resources",
       "source": "instruction:markdown",
       "target": "skill:apex-azure-resources",
@@ -4786,6 +4943,12 @@
       "id": "instruction:markdown--applies-to->skill:apex-azure-storage",
       "source": "instruction:markdown",
       "target": "skill:apex-azure-storage",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:markdown--applies-to->skill:apex-azure-upgrade",
+      "source": "instruction:markdown",
+      "target": "skill:apex-azure-upgrade",
       "kind": "applies-to"
     },
     {
@@ -5095,6 +5258,12 @@
       "kind": "applies-to"
     },
     {
+      "id": "instruction:no-interactive-shell--applies-to->skill:apex-azure-kubernetes",
+      "source": "instruction:no-interactive-shell",
+      "target": "skill:apex-azure-kubernetes",
+      "kind": "applies-to"
+    },
+    {
       "id": "instruction:no-interactive-shell--applies-to->skill:apex-azure-kusto",
       "source": "instruction:no-interactive-shell",
       "target": "skill:apex-azure-kusto",
@@ -5119,6 +5288,12 @@
       "kind": "applies-to"
     },
     {
+      "id": "instruction:no-interactive-shell--applies-to->skill:apex-azure-reliability",
+      "source": "instruction:no-interactive-shell",
+      "target": "skill:apex-azure-reliability",
+      "kind": "applies-to"
+    },
+    {
       "id": "instruction:no-interactive-shell--applies-to->skill:apex-azure-resources",
       "source": "instruction:no-interactive-shell",
       "target": "skill:apex-azure-resources",
@@ -5128,6 +5303,12 @@
       "id": "instruction:no-interactive-shell--applies-to->skill:apex-azure-storage",
       "source": "instruction:no-interactive-shell",
       "target": "skill:apex-azure-storage",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:no-interactive-shell--applies-to->skill:apex-azure-upgrade",
+      "source": "instruction:no-interactive-shell",
+      "target": "skill:apex-azure-upgrade",
       "kind": "applies-to"
     },
     {
@@ -6139,6 +6320,12 @@
       "kind": "refs"
     },
     {
+      "id": "skill:apex-azure-cloud-migrate--refs->skill:apex-azure-validate",
+      "source": "skill:apex-azure-cloud-migrate",
+      "target": "skill:apex-azure-validate",
+      "kind": "refs"
+    },
+    {
       "id": "skill:apex-azure-compliance--refs->skill:apex-azure-cost-optimization",
       "source": "skill:apex-azure-compliance",
       "target": "skill:apex-azure-cost-optimization",
@@ -6169,6 +6356,12 @@
       "kind": "refs"
     },
     {
+      "id": "skill:apex-azure-compute--refs->skill:apex-azure-quotas",
+      "source": "skill:apex-azure-compute",
+      "target": "skill:apex-azure-quotas",
+      "kind": "refs"
+    },
+    {
       "id": "skill:apex-azure-cost-optimization--refs->skill:apex-azure-compliance",
       "source": "skill:apex-azure-cost-optimization",
       "target": "skill:apex-azure-compliance",
@@ -6184,6 +6377,12 @@
       "id": "skill:apex-azure-cost-optimization--refs->skill:apex-azure-diagnostics",
       "source": "skill:apex-azure-cost-optimization",
       "target": "skill:apex-azure-diagnostics",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:apex-azure-cost-optimization--refs->skill:apex-azure-storage",
+      "source": "skill:apex-azure-cost-optimization",
+      "target": "skill:apex-azure-storage",
       "kind": "refs"
     },
     {
@@ -6223,6 +6422,12 @@
       "kind": "refs"
     },
     {
+      "id": "skill:apex-azure-diagnostics--refs->skill:apex-azure-kubernetes",
+      "source": "skill:apex-azure-diagnostics",
+      "target": "skill:apex-azure-kubernetes",
+      "kind": "refs"
+    },
+    {
       "id": "skill:apex-azure-diagnostics--refs->skill:apex-azure-validate",
       "source": "skill:apex-azure-diagnostics",
       "target": "skill:apex-azure-validate",
@@ -6232,6 +6437,24 @@
       "id": "skill:apex-azure-governance-discovery--refs->skill:apex-azure-artifacts",
       "source": "skill:apex-azure-governance-discovery",
       "target": "skill:apex-azure-artifacts",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:apex-azure-kubernetes--refs->skill:apex-azure-defaults",
+      "source": "skill:apex-azure-kubernetes",
+      "target": "skill:apex-azure-defaults",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:apex-azure-kubernetes--refs->skill:apex-azure-diagnostics",
+      "source": "skill:apex-azure-kubernetes",
+      "target": "skill:apex-azure-diagnostics",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:apex-azure-kubernetes--refs->skill:apex-azure-quotas",
+      "source": "skill:apex-azure-kubernetes",
+      "target": "skill:apex-azure-quotas",
       "kind": "refs"
     },
     {
@@ -6283,6 +6506,12 @@
       "kind": "refs"
     },
     {
+      "id": "skill:apex-azure-rbac--refs->skill:apex-azure-defaults",
+      "source": "skill:apex-azure-rbac",
+      "target": "skill:apex-azure-defaults",
+      "kind": "refs"
+    },
+    {
       "id": "skill:apex-azure-rbac--refs->skill:apex-azure-deploy",
       "source": "skill:apex-azure-rbac",
       "target": "skill:apex-azure-deploy",
@@ -6292,6 +6521,12 @@
       "id": "skill:apex-azure-rbac--refs->skill:apex-entra-app-registration",
       "source": "skill:apex-azure-rbac",
       "target": "skill:apex-entra-app-registration",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:apex-azure-reliability--refs->skill:apex-azure-diagnostics",
+      "source": "skill:apex-azure-reliability",
+      "target": "skill:apex-azure-diagnostics",
       "kind": "refs"
     },
     {
@@ -6331,6 +6566,12 @@
       "kind": "refs"
     },
     {
+      "id": "skill:apex-azure-upgrade--refs->skill:apex-azure-cloud-migrate",
+      "source": "skill:apex-azure-upgrade",
+      "target": "skill:apex-azure-cloud-migrate",
+      "kind": "refs"
+    },
+    {
       "id": "skill:apex-azure-validate--refs->skill:apex-azure-deploy",
       "source": "skill:apex-azure-validate",
       "target": "skill:apex-azure-deploy",
@@ -6364,6 +6605,12 @@
       "id": "skill:apex-entra-app-registration--refs->skill:apex-azure-compliance",
       "source": "skill:apex-entra-app-registration",
       "target": "skill:apex-azure-compliance",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:apex-entra-app-registration--refs->skill:apex-azure-deploy",
+      "source": "skill:apex-entra-app-registration",
+      "target": "skill:apex-azure-deploy",
       "kind": "refs"
     },
     {

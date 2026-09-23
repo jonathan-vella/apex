@@ -68,11 +68,13 @@ Required parameters: `subscription`, `cluster`, `database`, `query` (or `table`)
 Optional: `resource-group`, `tenant`.
 
 For CLI fallback (timeouts, auth failures), read
-[`references/fallback-strategy.md`](references/fallback-strategy.md).
+[`references/fallback-strategy.md`](references/fallback-strategy.md). For access, timeout, empty-result and
+ingestion problems, read [`references/common-issues.md`](references/common-issues.md).
 
 ## Reference Index
 
-| Reference                         | When to Load                                             |
-| --------------------------------- | -------------------------------------------------------- |
+| Reference                         | When to Load                                            |
+| --------------------------------- | ------------------------------------------------------- |
 | `references/query-patterns.md`    | KQL patterns, examples, best practices, common functions |
 | `references/fallback-strategy.md` | CLI commands and REST API fallback when MCP tools fail   |
+| `references/common-issues.md`     | Access, timeout, syntax, empty-result and ingestion issues |

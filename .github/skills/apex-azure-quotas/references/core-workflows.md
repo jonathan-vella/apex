@@ -18,17 +18,17 @@ az extension add --name quota
 
 # 2. List all quotas for the provider to find the quota resource name
 az quota list \
-  --scope /subscriptions/<subscription-id>/providers/Microsoft.Compute/locations/eastus
+  --scope /subscriptions/<subscription-id>/providers/Microsoft.Compute/locations/<region>
 
 # 3. Show quota limit for a specific resource
 az quota show \
   --resource-name standardDSv3Family \
-  --scope /subscriptions/<subscription-id>/providers/Microsoft.Compute/locations/eastus
+  --scope /subscriptions/<subscription-id>/providers/Microsoft.Compute/locations/<region>
 
 # 4. Show current usage
 az quota usage show \
   --resource-name standardDSv3Family \
-  --scope /subscriptions/<subscription-id>/providers/Microsoft.Compute/locations/eastus
+  --scope /subscriptions/<subscription-id>/providers/Microsoft.Compute/locations/<region>
 ```
 
 **Example Output Analysis:**
@@ -46,8 +46,8 @@ az quota usage show \
 shell. SKU restrictions and actual allocation capacity are separate checks.
 
 ```bash
-# Define candidate regions
-REGIONS=("eastus" "eastus2" "westus2" "centralus")
+# Approved candidate regions (APEX default and failover)
+REGIONS=("swedencentral" "germanywestcentral")
 VM_FAMILY="standardDSv3Family"
 SUBSCRIPTION_ID="<subscription-id>"
 NEED_VCPUS="<normalized-vcpu-demand>"
@@ -86,13 +86,13 @@ Obtain explicit approval for the target scope and requested limit before submitt
 # Request increase for VM quota
 az quota update \
   --resource-name standardDSv3Family \
-  --scope /subscriptions/<subscription-id>/providers/Microsoft.Compute/locations/eastus \
+  --scope /subscriptions/<subscription-id>/providers/Microsoft.Compute/locations/<region> \
   --limit-object value=500 \
   --resource-type dedicated
 
 # Check request status
 az quota request status list \
-  --scope /subscriptions/<subscription-id>/providers/Microsoft.Compute/locations/eastus
+  --scope /subscriptions/<subscription-id>/providers/Microsoft.Compute/locations/<region>
 ```
 
 **Approval Process:**
@@ -108,19 +108,19 @@ az quota request status list \
 **Scenario:** Understand all quotas for a resource provider in a region
 
 ```bash
-# List all compute quotas in East US (table format)
+# List all compute quotas in the target region (table format)
 az quota list \
-  --scope /subscriptions/<subscription-id>/providers/Microsoft.Compute/locations/eastus \
+  --scope /subscriptions/<subscription-id>/providers/Microsoft.Compute/locations/<region> \
   --output table
 
 # List all network quotas
 az quota list \
-  --scope /subscriptions/<subscription-id>/providers/Microsoft.Network/locations/eastus \
+  --scope /subscriptions/<subscription-id>/providers/Microsoft.Network/locations/<region> \
   --output table
 
 # List all Container Apps quotas
 az quota list \
-  --scope /subscriptions/<subscription-id>/providers/Microsoft.App/locations/eastus \
+  --scope /subscriptions/<subscription-id>/providers/Microsoft.App/locations/<region> \
   --output table
 ```
 

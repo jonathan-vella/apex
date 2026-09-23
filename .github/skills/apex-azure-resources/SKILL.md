@@ -44,6 +44,8 @@ Use this mode when the user wants to **list / find / show** Azure resources.
 - Get a **resource inventory** spanning multiple types
 - Find resources in a **specific state** (unhealthy, failed provisioning, stopped)
 - Answer "**what resources do I have?**" or "**show me my Azure resources**"
+- **List web apps, websites or App Services** — there is no dedicated MCP `list` command for App
+  Service, so these prompts go to Azure Resource Graph
 
 > 💡 **Tip:** For single-resource-type queries, first check if a dedicated MCP
 > tool can handle it (see routing table below). If none exists, use Azure
@@ -75,6 +77,8 @@ Use this mode when the user wants to **list / find / show** Azure resources.
 - **Shape output with `--query` JMESPath** for tabular display; do not load raw JSON dumps into context
 - **Mode A is read-only** — lookup never modifies resources; remediation is out of scope (use `apex-azure-deploy`)
 - **Mode B (Visualize) is for documentation** — emit Mermaid only when the user explicitly asks for a diagram; do not auto-visualize lookup results
+- **No secrets in diagrams or inventories** — represent keys, connection strings and Key Vault secrets with
+  placeholder names only; never copy values from app settings or outputs
 - **Out of scope**: deploying resources (use `apex-azure-deploy`), cost optimization (use `apex-azure-cost-optimization`), security scanning (use `apex-azure-compliance`), troubleshooting (use `apex-azure-diagnostics`)
 
 ## Lookup Workflow

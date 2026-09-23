@@ -34,10 +34,10 @@ azqr scan --subscription "<SUBSCRIPTION_ID>" --resource-group "<RESOURCE_GROUP>"
 
 ## Save Output
 
-Save all generated files to the `output/` folder:
+Save all generated files to `agent-output/{project}/`:
 
-1. Create the folder: `mkdir output` (if it doesn't exist)
-2. Save the azqr report as: `output/azqr_report_<YYYYMMDD_HHMMSS>.json`
+1. Create the folder: `mkdir -p "agent-output/{project}"` (if it doesn't exist)
+2. Save the azqr report as: `agent-output/{project}/azqr_report_<YYYYMMDD_HHMMSS>.json`
 3. After the scan completes, delete the temporary `filters.yaml` file
 
 ## Report Output
@@ -54,4 +54,4 @@ The scan generates a JSON report with recommendations categorized by impact leve
 - azqr provides qualitative governance recommendations
 - Always validate findings with actual cost data before making changes
 - The tool requires Reader role on the subscription or resource group
-- Save reports to `output/` folder with timestamps for audit trail
+- Save reports to `agent-output/{project}/` with timestamps for audit trail
