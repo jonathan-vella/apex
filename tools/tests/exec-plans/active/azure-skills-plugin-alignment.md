@@ -371,9 +371,11 @@ Caching guide summaries in the repository would go stale. Neither is planned.
 
 ### Phase 9: Content Close-Out (End Of Pull Request 1)
 
-- [ ] Update the [skills catalog](../../../../.github/skills/README.md) and the root README if they list skills.
-- [ ] Regenerate the Explorer graph in its own commit.
-- [ ] Run full validation and push.
+- [x] Update the [skills catalog](../../../../.github/skills/README.md) and the root README if they list skills.
+      Not needed: the catalog shows representative skills only and the root README lists none.
+- [x] Regenerate the Explorer graph in its own commit (`7e51a21d`).
+- [x] Run full validation and push. Content ends at `7e51a21d`; pull request 1 uses branch
+      `feat/azure-skills-upstream-content`, cut from the commit that records this close-out.
 
 ### Phase 10: Drift Report Tooling (Pull Request 2)
 
