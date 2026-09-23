@@ -61,7 +61,7 @@ resource webApp 'Microsoft.Web/sites@2024-11-01' = {
 ### CLI - VNet Integration
 
 ```bash
-# Configure virtual network integration 
+# Configure virtual network integration
 az webapp vnet-integration add --resource-group RG --name APP --vnet VNET --subnet SUBNET
 
 # Update app configuration to route all outbound traffic through the virtual network integration

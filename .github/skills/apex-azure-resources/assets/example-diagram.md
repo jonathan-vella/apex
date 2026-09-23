@@ -14,23 +14,23 @@ graph TB
             SUBNET2[Subnet: data<br/>10.0.2.0/24]
             NSG[Network Security Group]
         end
-        
+
         subgraph "Compute Layer"
             APP[App Service<br/>Plan: P1v2]
             FUNC[Function App<br/>Runtime: .NET 10]
         end
-        
+
         subgraph "Data Layer"
             SQL[Azure SQL Database<br/>DTU: S1]
             STORAGE[Storage Account<br/>Type: Standard LRS]
         end
-        
+
         subgraph "Security & Identity"
             KV[Key Vault]
             MI[Managed Identity]
         end
     end
-    
+
     %% Define relationships with descriptive labels
     APP -->|"HTTPS requests"| FUNC
     FUNC -->|"SQL connection"| SQL
