@@ -17,9 +17,39 @@
     }
   },
   "skills": [
-    { "apex": "apex-azure-prepare", "upstream": ["azure-prepare"], "status": "fork", "imports": [] },
-    { "apex": "apex-azure-validate", "upstream": ["azure-validate"], "status": "fork", "imports": [] },
-    { "apex": "apex-azure-deploy", "upstream": ["azure-deploy"], "status": "fork", "imports": [] },
+    {
+      "apex": "apex-azure-prepare",
+      "upstream": ["azure-prepare"],
+      "status": "fork",
+      "imports": [
+        {
+          "from": "azure-prepare/references/services/sql-database/auth.md",
+          "to": "references/services/sql-database/auth.md"
+        }
+      ]
+    },
+    {
+      "apex": "apex-azure-validate",
+      "upstream": ["azure-validate"],
+      "status": "fork",
+      "imports": [
+        { "from": "azure-validate/references/role-verification.md", "to": "references/role-verification.md" },
+        {
+          "from": "azure-validate/references/recipes/terraform/README.md",
+          "to": "references/recipes/terraform/README.md"
+        }
+      ]
+    },
+    {
+      "apex": "apex-azure-deploy",
+      "upstream": ["azure-deploy"],
+      "status": "fork",
+      "imports": [
+        { "from": "azure-deploy/references/live-role-verification.md", "to": "references/live-role-verification.md" },
+        { "from": "azure-deploy/references/pre-deploy-checklist.md", "to": "references/pre-deploy-checklist.md" },
+        { "from": "azure-deploy/references/recipes/azd/errors.md", "to": "references/recipes/azd/errors.md" }
+      ]
+    },
     { "apex": "apex-azure-cloud-migrate", "upstream": ["azure-cloud-migrate"], "status": "fork", "imports": [] },
     {
       "apex": "apex-azure-cost-optimization",
@@ -30,7 +60,12 @@
     },
     { "apex": "apex-azure-compliance", "upstream": ["azure-compliance"], "status": "fork", "imports": [] },
     { "apex": "apex-azure-diagnostics", "upstream": ["azure-diagnostics"], "status": "fork", "imports": [] },
-    { "apex": "apex-azure-kusto", "upstream": ["azure-kusto"], "status": "fork", "imports": [] },
+    {
+      "apex": "apex-azure-kusto",
+      "upstream": ["azure-kusto"],
+      "status": "fork",
+      "imports": [{ "from": "azure-kusto/SKILL.md", "to": "references/common-issues.md" }]
+    },
     { "apex": "apex-azure-compute", "upstream": ["azure-compute"], "status": "fork", "imports": [] },
     { "apex": "apex-azure-quotas", "upstream": ["azure-quotas"], "status": "fork", "imports": [] },
     { "apex": "apex-azure-storage", "upstream": ["azure-storage"], "status": "fork", "imports": [] },

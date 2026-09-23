@@ -176,6 +176,35 @@ Approved recipe and target -> recipe-specific environment checks -> service chec
 
 ## Service-Specific Checks
 
+### Container Apps — Existing Environments
+
+If the plan includes Container Apps and the target resource group already
+exists, list its environments before deploying (read-only):
+
+```bash
+az containerapp env list --resource-group rg-<env-name> \
+  --query "[].{name:name, location:location, provisioningState:properties.provisioningState}" -o table
+```
+
+Without this check, azd can create an extra environment with an unexpected name.
+If a usable environment (`Succeeded`) exists, use `ask_user` to choose between
+reusing it and creating a new one; `Failed` or `Deleting` environments are not
+reusable. The choice changes the target, so the approval must cover it.
+
+### Container Apps With ACR — AcrPull Before App Deploy
+
+When a Container App pulls from Azure Container Registry with a managed identity,
+confirm the IaC declares `AcrPull` on the registry with
+`principalType: 'ServicePrincipal'`, then deploy in two phases:
+
+1. `azd provision --no-prompt` (the app starts from a placeholder image).
+2. Confirm `AcrPull` has propagated with the read-only check in
+   [Container App Revision Timeout](recipes/azd/errors.md#container-app-revision-timeout).
+3. `azd deploy --no-prompt`.
+
+APEX deploy agents apply the same order inside their already-approved phases; the
+check adds no approval gate.
+
 ### Durable Functions — Verify DTS Backend
 
 > **⛔ MANDATORY**: If the plan includes Durable Functions, verify infrastructure uses **Durable Task Scheduler** (DTS), NOT Azure Storage.

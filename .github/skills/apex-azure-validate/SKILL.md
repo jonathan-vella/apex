@@ -83,6 +83,7 @@ project's IaC tool.
 | 1   | **Load Plan** — Read the generic plan for recipe/configuration; if missing, follow the request-scoped prerequisite rule above | `infra/{iac}/{project}/.azure/plan.md` |
 | 2   | **Run Validation** — Execute recipe-specific validation commands                                                               | [recipes/README.md](references/recipes/README.md) |
 | 3   | **Build Verification** — Build the project and fix any errors before proceeding                                                | See recipe                                        |
+| 3a  | **Verify Roles** — Static, report-only review of role assignments; findings go to the IaC owner                               | [role-verification.md](references/role-verification.md) |
 | 4   | **Record Proof** — Populate **Section 7: Validation Proof** with commands run and results                                      | `infra/{iac}/{project}/.azure/plan.md`            |
 | 5   | **Resolve Errors** — Fix failures before proceeding                                                                            | See recipe's `errors.md`                          |
 | 6   | **Update Status** — Only after ALL checks pass, set status to `Validated`                                                      | `infra/{iac}/{project}/.azure/plan.md`            |
@@ -108,6 +109,7 @@ project's IaC tool.
 ## APEX-Specific References
 
 - [InfraOps Preflight Validation](references/infraops-preflight.md) — CLI auth checks, known issues, governance-to-code mapping, stop rules
+- [Role Assignment Verification](references/role-verification.md) — report-only role review; APEX findings return to 06b/06t
   > If any validation failed, fix the issues and re-run apex-azure-validate before proceeding.
 
 ## Reference Index
@@ -120,3 +122,4 @@ Load these on demand — do NOT read all at once:
 | `references/infraops-preflight.md`  | Infraops Preflight  |
 | `references/policy-validation.md`   | Policy Validation   |
 | `references/region-availability.md` | Region Availability |
+| `references/role-verification.md`   | Role Verification   |

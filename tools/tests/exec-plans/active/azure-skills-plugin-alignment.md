@@ -270,9 +270,9 @@ safety rule gets a focused test.
 
 ### Phase 4: Role Checks And Deploy Safety
 
-- [ ] validate: add a report-only role check (missing roles, control plane versus data plane, and scope) that hands
+- [x] validate: add a report-only role check (missing roles, control plane versus data plane, and scope) that hands
       findings to 06b and 06t, plus the `{{ .Env.* }}` scan for azd and Terraform projects.
-- [ ] deploy: add a read-only live role check; `AcrPull` before a Container Apps deploy, inside the approved 07b and
+- [x] deploy: add a read-only live role check; `AcrPull` before a Container Apps deploy, inside the approved 07b and
       07t phases; an existing Container Apps environment check; and the Principal Type Mismatch and Container App
       Revision Timeout error entries.
 

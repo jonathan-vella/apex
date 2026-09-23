@@ -187,3 +187,34 @@ test("deploy pre-flight and SKU escalation use the SKU availability contract", (
   assert.match(read("apex-azure-quotas/SKILL.md"), /\| `references\/sku-availability\.md`/);
   assert.match(read("apex-azure-quotas/references/sku-availability.md"), /^<!-- ref:sku-availability-v1 -->/);
 });
+
+test("role checks report gaps and never change assignments", () => {
+  for (const [skill, reference] of [
+    ["apex-azure-validate", "role-verification"],
+    ["apex-azure-deploy", "live-role-verification"],
+  ]) {
+    const source = read(`${skill}/references/${reference}.md`);
+    assert.match(source, new RegExp(`^<!-- ref:${reference}-v1 -->`));
+    for (const block of codeBlocks(source)) assert.doesNotMatch(block, /az role assignment (create|delete|update)/);
+    assert.match(source, /06b-Bicep CodeGen/);
+    const entry = read(`${skill}/SKILL.md`);
+    assert.match(entry, new RegExp(`\\(references/${reference}\\.md\\)`));
+    assert.match(entry, new RegExp(`\\| \`references/${reference}\\.md\``));
+  }
+  assert.match(read("apex-azure-validate/references/role-verification.md"), /static, report-only review/);
+  assert.match(read("apex-azure-deploy/references/live-role-verification.md"), /never creates, changes or deletes/);
+});
+
+test("deploy guidance covers template variables, ACR pulls and existing environments", () => {
+  const terraform = read("apex-azure-validate/references/recipes/terraform/README.md");
+  assert.match(terraform, /grep -n '\{\{ \*\\\.Env\\\.' main\.tfvars\.json/);
+  const checklist = read("apex-azure-deploy/references/pre-deploy-checklist.md");
+  assert.match(checklist, /### Container Apps — Existing Environments/);
+  assert.match(checklist, /### Container Apps With ACR — AcrPull Before App Deploy/);
+  assert.ok(checklist.indexOf("azd provision --no-prompt") < checklist.indexOf("azd deploy --no-prompt"));
+  const errors = read("apex-azure-deploy/references/recipes/azd/errors.md");
+  for (const heading of ["## Principal Type Mismatch", "## Container App Revision Timeout"]) {
+    assert.ok(errors.includes(heading), heading);
+  }
+  assert.match(errors, /Assigning it by CLI needs explicit approval/);
+});

@@ -248,7 +248,7 @@ The owner approved end-to-end execution on 2026-09-23. Scope, phases and verific
 | UP-01 | Pin manifest, schema and fork provenance | 1          | Verified (bounded) |
 | UP-02 | Local skill fixes from the assessment    | 2          | Verified (bounded) |
 | UP-03 | SKU availability check for 07b and 07t   | 3          | Verified (bounded) |
-| UP-04 | Role checks and deploy safety            | 4          | Approved; pending  |
+| UP-04 | Role checks and deploy safety            | 4          | Verified (bounded) |
 | UP-05 | Diagnostics import                       | 5          | Approved; pending  |
 | UP-06 | Other upstream imports                   | 6          | Approved; pending  |
 | UP-07 | New skills and agent wiring              | 7          | Approved; pending  |

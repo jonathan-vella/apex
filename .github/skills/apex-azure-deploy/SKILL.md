@@ -61,6 +61,7 @@ Activate this skill when user wants to:
 | 5   | **Post-Deploy** — Configure SQL managed identity and apply EF migrations if applicable                                                                                                                                                                                         | [Post-Deployment](references/recipes/azd/post-deployment.md) |
 | 6   | **Handle Errors** — See recipe's `errors.md`                                                                                                                                                                                                                                   | —                                                            |
 | 7   | **Verify Success** — Confirm deployment completed and endpoints are accessible                                                                                                                                                                                                 | [Verification](references/recipes/azd/verify.md)             |
+| 8   | **Live Role Check** — Read-only comparison of provisioned role assignments with app requirements; report gaps to the IaC owner                                                                                                                                                | [Live role verification](references/live-role-verification.md) |
 
 > **⛔ VALIDATION PROOF CHECK**
 >
@@ -102,6 +103,7 @@ Load these on demand — do NOT read all at once:
 | ------------------------------------ | -------------------- |
 | `../apex-entra-app-registration/references/auth-best-practices.md` | Auth Best Practices  |
 | `references/global-rules.md`         | Global Rules         |
+| `references/live-role-verification.md` | Live Role Verification |
 | `references/pre-deploy-checklist.md` | Pre Deploy Checklist |
 | `references/region-availability.md`  | Region Availability  |
 | `references/troubleshooting.md`      | Troubleshooting      |
