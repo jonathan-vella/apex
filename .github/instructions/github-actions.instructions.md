@@ -33,15 +33,16 @@ For general GitHub Actions best practices, rely on
 
 ### Action Versions
 
-- Pin to **major version tags** (e.g., `@v6`), not `@main` or `@latest`
+- Pin to **major version tags** (e.g., `@v7`), not `@main` or `@latest`
 - Use current versions:
 
 | Action                            | Version |
 | --------------------------------- | ------- |
-| `actions/checkout`                | `@v6`   |
-| `actions/setup-node`              | `@v6`   |
-| `actions/upload-artifact`         | `@v4`   |
-| `actions/download-artifact`       | `@v4`   |
+| `actions/checkout`                | `@v7`   |
+| `actions/setup-node`              | `@v7`   |
+| `actions/setup-python`            | `@v7`   |
+| `actions/upload-artifact`         | `@v7`   |
+| `actions/download-artifact`       | `@v8`   |
 | `actions/cache`                   | `@v4`   |
 | `actions/github-script`           | `@v8`   |
 | `peter-evans/create-pull-request` | `@v8`   |
@@ -70,6 +71,7 @@ concurrency:
 | ------------------------------- | ------------------------------------------------ | --------------------------- |
 | `ci.yml`                        | Required PR check: lint + all Node.js validators | PR + push to main/feature   |
 | `consumer-template-checks.yml` | Validate inactive consumer workflows | Template changes + manual |
+| `upstream-skill-drift.yml` | Keep one issue with upstream azure-skills drift | Weekly schedule + manual |
 
 Documentation build, link checks and Pages publishing belong to `jonathan-vella/apex-docs`.
 Governance, IaC and weekly maintenance sources live under `.github/consumer-workflows/`;
@@ -99,10 +101,10 @@ Workflows run these project validators:
 
 | Anti-Pattern                    | Solution                                                  |
 | ------------------------------- | --------------------------------------------------------- |
-| Pinning to `@main` or `@latest` | Use `@v6` major version tags                              |
+| Pinning to `@main` or `@latest` | Use major version tags from the table above               |
 | `npm install` in CI             | Use `npm ci` for deterministic installs                   |
 | Missing `permissions` block     | Always declare least-privilege permissions                |
 | Broad triggers (no path filter) | Scope with `paths:` to relevant files                     |
 | Duplicate validation logic      | Reuse existing validator scripts                          |
-| `actions/upload-artifact@v3`    | Use `@v4` (v3 is deprecated)                              |
+| `actions/upload-artifact@v3`    | Use `@v7` (v3 is deprecated)                              |
 | `node-version: "20"` or older   | Use `node-version: "24"` — Node.js 20 is EOL (April 2026) |

@@ -1,0 +1,72 @@
+# Weekly report of upstream azure-skills changes since the reviewed tag in
+# tools/registry/upstream-skill-pins.json. Read-only for the repository: it
+# keeps one labelled issue up to date and never edits skills.
+# Triggers: weekly schedule and manual dispatch.
+name: Upstream Skill Drift
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  report:
+    name: Report upstream skill drift
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Build drift report
+        id: report
+        run: |
+          set +e
+          node tools/scripts/report-upstream-skill-drift.mjs --output "$RUNNER_TEMP/upstream-drift.md" --fail-on-drift
+          status=$?
+          set -e
+          if [ "$status" -eq 1 ]; then
+            echo "drift=true" >> "$GITHUB_OUTPUT"
+          elif [ "$status" -eq 0 ]; then
+            echo "drift=false" >> "$GITHUB_OUTPUT"
+          else
+            exit "$status"
+          fi
+
+      - name: Update drift issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          LABEL: upstream-skill-drift
+          DRIFT: ${{ steps.report.outputs.drift }}
+        run: |
+          number=$(gh issue list --label "$LABEL" --state open --json number --jq '.[0].number // empty')
+          if [ "$DRIFT" != "true" ]; then
+            if [ -n "$number" ]; then
+              gh issue close "$number" --comment "The latest drift report is clean; closing."
+            fi
+            exit 0
+          fi
+          gh label create "$LABEL" --color FBCA04 \
+            --description "Upstream azure-skills changes to review" --force
+          if [ -n "$number" ]; then
+            gh issue edit "$number" --body-file "$RUNNER_TEMP/upstream-drift.md"
+          else
+            gh issue create --title "Upstream azure-skills drift" --label "$LABEL" \
+              --body-file "$RUNNER_TEMP/upstream-drift.md"
+          fi

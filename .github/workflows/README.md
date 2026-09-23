@@ -2,7 +2,8 @@
 
 ## Product Automation
 
-APEX runs product CI, branch enforcement, consumer-template validation and devcontainer checks.
+APEX runs product CI, branch enforcement, consumer-template validation, devcontainer checks and a weekly
+upstream skill drift report that updates one labelled issue.
 Read each active workflow for its exact triggers and permissions.
 Sensei branch maintenance is retired; no workflow merges or monitors that branch automatically.
 

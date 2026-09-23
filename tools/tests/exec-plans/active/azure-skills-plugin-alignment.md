@@ -7,7 +7,9 @@ Related evidence: [audit ledger](apex-workflow-audit.md#deep-skill-audit-backlog
 
 ## Status
 
-- **State**: Planned. Phase 0 is done (branch created, plan saved); implementation starts at Phase 1 on request.
+- **State**: Implemented through Phase 11. Pull request 1 (#709) merged as `73467dc2` on 2026-09-23 and
+  apex-docs #15 merged after it. The tooling ships as pull request 2 from `feat/azure-skills-upstream-tooling`,
+  cut from `main` after the squash merge.
 - **Owner**: Jonathan Vella ([@jonathan-vella](https://github.com/jonathan-vella)) with GitHub Copilot.
 - **Created**: 2026-09-23 against `main` at `a656e66d`, after the `apex-` rename and SK remediation merge.
 - **Updated**: 2026-09-23 against `main` at `5fef0f82`, when this implementation plan replaced the deferred plan.
@@ -379,27 +381,30 @@ Caching guide summaries in the repository would go stale. Neither is planned.
 
 ### Phase 10: Drift Report Tooling (Pull Request 2)
 
-- [ ] Add `tools/scripts/report-upstream-skill-drift.mjs`. It finds the latest tag with Git, because the REST API
+- [x] Add `tools/scripts/report-upstream-skill-drift.mjs`. It finds the latest tag with Git, because the REST API
       rate-limits, fetches only the pinned and latest plugin trees, and reports changed files per skill, changelog
       lines, new or retired skills, and whether each SK defect is still present upstream or fixed there (a
       retirement candidate). It never writes to `.github/skills`. Model it on
       [fetch-vendor-prompting-guides.mjs](../../../../tools/scripts/fetch-vendor-prompting-guides.mjs), and add a
       `report:upstream-skills` npm script and an offline fixture test.
-- [ ] Add `.github/workflows/upstream-skill-drift.yml`: weekly and manual runs, Node 24, `npm ci`, `contents: read`
+- [x] Add `.github/workflows/upstream-skill-drift.yml`: weekly and manual runs, Node 24, `npm ci`, `contents: read`
       and `issues: write`, concurrency, the current action major versions, and one labelled issue updated in place
       with `gh`. Keep it out of `CONSUMER_WORKFLOWS` in
       [sync-workflows.mjs](../../../../tools/scripts/sync-workflows.mjs), and add it to the workflow table in
       [github-actions.instructions.md](../../../../.github/instructions/github-actions.instructions.md).
-- [ ] Regenerate the Explorer graph in its own commit, run full validation and push.
+- [x] Regenerate the Explorer graph in its own commit (`faff9313`), run full validation and push.
 
 ### Phase 11: apex-docs (After Pull Request 1)
 
-- [ ] In [apex-docs](https://github.com/jonathan-vella/apex-docs), on a branch with the same name, add the new skills
+- [x] In [apex-docs](https://github.com/jonathan-vella/apex-docs), on a branch with the same name, add the new skills
       to the Azure Plugin Skills row in `skills-and-instructions.md` and sections with example prompts to
       `skills-subagents.md`; update the diagnostics, quotas, cost, cloud-migrate and 03-Architect text; run its
-      checks; commit and push.
-- [ ] Merge after pull request 1. The docs update automation then moves the pinned APEX commit and refreshes the
-      Explorer graph.
+      checks; commit and push. Pushed as `73adc77`. A full `npm ci` waits on six lockfile versions held in CFS
+      quarantine (longest `verkit@0.4.1`, about two days from 2026-09-23). With only the check dependencies
+      restored through the proxy, `check:docs` and 12 of 13 runnable tests pass; the migration test needs the
+      `.apex-source` checkout. Re-run the full `npm ci` and `npm test` once the holds clear.
+- [x] Merge after pull request 1. The docs update automation then moves the pinned APEX commit and refreshes the
+      Explorer graph. Merged as apex-docs #15 on 2026-09-23.
 
 ## Pull Request Split
 

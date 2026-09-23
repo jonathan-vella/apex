@@ -253,8 +253,8 @@ The owner approved end-to-end execution on 2026-09-23. Scope, phases and verific
 | UP-06 | Other upstream imports                   | 6          | Verified (bounded) |
 | UP-07 | New skills and agent wiring              | 7          | Verified (bounded) |
 | UP-08 | WAF service guides in 03-Architect       | 8          | Verified (bounded) |
-| UP-09 | Upstream drift report and workflow       | 10         | Approved; pending  |
-| UP-10 | apex-docs updates                        | 11         | Approved; pending  |
+| UP-09 | Upstream drift report and workflow       | 10         | Verified (bounded) |
+| UP-10 | apex-docs updates                        | 11         | Verified (bounded) |
 
 ## Agent Body Audit Backlog
 
