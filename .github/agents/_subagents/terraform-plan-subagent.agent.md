@@ -1,7 +1,7 @@
 ---
 name: terraform-plan-subagent
 description: Terraform deployment preview subagent. Runs terraform plan to preview changes before deployment. Classifies resources into create/update/destroy/replace, highlights destructive ops, returns structured change summary.
-model: ["GPT-5.6 Luna (copilot)"]
+model: ["GPT-6-Luna"]
 user-invocable: false
 disable-model-invocation: false
 agents: []

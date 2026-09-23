@@ -447,6 +447,8 @@ function classifyModel(modelStr) {
   if (lower.includes("claude sonnet")) return "claude-sonnet";
   if (lower.includes("claude haiku")) return "claude-haiku";
   if (lower.includes("claude")) return "claude";
+  if (lower.includes("gpt-6-sol")) return "gpt-6-sol";
+  if (lower.includes("gpt-6-luna")) return "gpt-6-luna";
   if (/gpt-5\.6[- ]luna\b/.test(lower)) return "gpt-5.6-luna";
   if (/gpt-5\.6[- ]terra\b/.test(lower)) return "gpt-5.6-terra";
   if (/gpt-5\.6[- ]sol\b/.test(lower)) return "gpt-5.6-sol";
@@ -463,7 +465,9 @@ function isClaude(family) {
 }
 
 function isGptOutcomeFamily(family) {
-  return ["gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna", "gpt-5.5", "gpt-5.4"].includes(family);
+  return ["gpt-6-sol", "gpt-6-luna", "gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna", "gpt-5.5", "gpt-5.4"].includes(
+    family,
+  );
 }
 
 function isGptFamily(family) {
@@ -754,6 +758,8 @@ export const FAMILY_STATUS = {
   "gpt-5.6-luna": "enforced",
   "gpt-5.6-terra": "enforced",
   "gpt-5.6-sol": "enforced",
+  "gpt-6-sol": "reviewer-only",
+  "gpt-6-luna": "reviewer-only",
   "gpt-5.4": "enforced",
   "gpt-codex": "reviewer-only",
   "gpt-4o": "reviewer-only",
@@ -764,7 +770,12 @@ export const FAMILY_STATUS = {
 /** Apply family-status downgrade to a rule's default severity. */
 function effectiveSeverity(rule, family) {
   const base = rule.severity;
-  if (base === "error" || rule.id === "model-deprecation-001") return base;
+  if (
+    base === "error" ||
+    rule.id === "model-deprecation-001" ||
+    ["gpt55-skeleton-001", "gpt55-stop-rules-non-empty-001"].includes(rule.id)
+  )
+    return base;
   const status = FAMILY_STATUS[family] || "enforced";
   if (status === "reviewer-only") return "info";
   if (status === "deprecated") return "info";

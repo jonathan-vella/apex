@@ -104,6 +104,8 @@ unknown where unverified. No vendor source refresh is implied by local edits.
 | `gpt-5.6-sol`   | enforced      | APEX outcome contract; unknown vendor metadata |
 | `gpt-5.6-terra` | enforced      | APEX outcome contract at default severity      |
 | `gpt-5.6-luna`  | enforced      | APEX outcome contract at default severity      |
+| `gpt-6-sol`     | reviewer-only | Structural checks run; model advice is unverified |
+| `gpt-6-luna`    | reviewer-only | Structural checks run; model advice is unverified |
 | `gpt-5.5`       | enforced      | Legacy compatibility                           |
 | `gpt-5.4`       | enforced      | Shared OpenAI outcome-first rules              |
 | `gpt-codex`     | reviewer-only | Legacy compatibility                           |

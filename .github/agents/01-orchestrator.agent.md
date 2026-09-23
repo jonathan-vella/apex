@@ -131,8 +131,7 @@ chat can resume losslessly.
   - If a step status returns `blocked`, halt and surface findings to the user
     before continuing (circuit breaker — see Core Principles).
   - At every accepted gate, follow the mandatory [Session Break Protocol](#session-break-protocol).
-- Reasoning effort: rely on the Copilot runtime default. Do not request `high`
-  reflexively; escalate only when a gate carries unresolved tradeoffs.
+- Reasoning effort: medium when supported by the active runtime.
 - Allowed writes: project directory creation, `00-handoff.md`, project `README.md`,
   `09-lessons-learned.json/.md`, and session updates exclusively through `apex-recall`.
   Use file-editing tools for artifacts and preserve user work. No specialist artifact,

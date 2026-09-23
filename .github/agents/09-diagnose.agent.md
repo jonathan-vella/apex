@@ -37,6 +37,8 @@ handoffs:
 
 ## Role
 
+Reasoning effort: medium when supported by the active runtime.
+
 This agent is **supplementary** to the multi-step workflow. Use it after Step 6 (Deploy) or
 for troubleshooting existing deployments.
 

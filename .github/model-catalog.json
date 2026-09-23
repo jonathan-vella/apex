@@ -1,8 +1,56 @@
 {
   "$schema": "../tools/schemas/model-catalog.schema.json",
   "description": "Authorized Copilot Chat model labels for APEX agents. Two-part design: `models` is hand-maintained metadata that authorizes which labels may appear in agent frontmatter; `assignments` is auto-generated from frontmatter (the canonical source) so the catalog can never drift from the agents themselves. The agent registry mirrors frontmatter via validate-models.mjs --only=consistency; the catalog enforces the label allow-list and assignment integrity via validate-models.mjs --only=catalog.",
-  "last_updated": "2026-07-28",
+  "last_updated": "2026-09-23",
   "models": {
+    "GPT-6-Sol": {
+      "vendor": "OpenAI",
+      "tier": null,
+      "released": null,
+      "deprecated": false,
+      "provenance": {
+        "label_source": "user-confirmed",
+        "metadata_status": "unknown"
+      },
+      "use_for": [
+        "requirements",
+        "architecture",
+        "iac-planning"
+      ],
+      "notes": "Requested exact label; availability and runtime effort controls require manual verification."
+    },
+    "GPT-6-Luna": {
+      "vendor": "OpenAI",
+      "tier": null,
+      "released": null,
+      "deprecated": false,
+      "provenance": {
+        "label_source": "user-confirmed",
+        "metadata_status": "unknown"
+      },
+      "use_for": [
+        "governance",
+        "iac-codegen",
+        "deployment",
+        "review",
+        "validation"
+      ],
+      "notes": "Requested exact label; availability and runtime effort controls require manual verification."
+    },
+    "Claude Opus 5.5": {
+      "vendor": "Anthropic",
+      "tier": null,
+      "released": null,
+      "deprecated": false,
+      "provenance": {
+        "label_source": "user-confirmed",
+        "metadata_status": "unknown"
+      },
+      "use_for": [
+        "context-optimization"
+      ],
+      "notes": "Requested exact label; availability and runtime effort controls require manual verification."
+    },
     "Claude Opus 5": {
       "vendor": "Anthropic",
       "tier": "frontier",
@@ -206,28 +254,28 @@
     "description": "Auto-generated inventory of agent → model assignments derived from frontmatter (canonical source). Do not edit by hand; run `node tools/scripts/generate-model-catalog.mjs` or let the lefthook pre-commit hook refresh it when frontmatter changes.",
     "agents": {
       "01-orchestrator.agent.md": "MAI-Code-1.1-Flash",
-      "02-requirements.agent.md": "GPT-5.6 Sol (copilot)",
-      "03-architect.agent.md": "GPT-5.6 Sol (copilot)",
+      "02-requirements.agent.md": "GPT-6-Sol",
+      "03-architect.agent.md": "GPT-6-Sol",
       "04-design.agent.md": "GPT-5.6 Terra (copilot)",
-      "04g-governance.agent.md": "GPT-5.6 Luna (copilot)",
-      "05-iac-planner.agent.md": "GPT-5.6 Sol (copilot)",
-      "06b-bicep-codegen.agent.md": "GPT-5.6 Terra (copilot)",
-      "06t-terraform-codegen.agent.md": "GPT-5.6 Terra (copilot)",
-      "07b-bicep-deploy.agent.md": "GPT-5.6 Luna (copilot)",
-      "07t-terraform-deploy.agent.md": "GPT-5.6 Luna (copilot)",
+      "04g-governance.agent.md": "GPT-6-Luna",
+      "05-iac-planner.agent.md": "GPT-6-Sol",
+      "06b-bicep-codegen.agent.md": "GPT-6-Luna",
+      "06t-terraform-codegen.agent.md": "GPT-6-Luna",
+      "07b-bicep-deploy.agent.md": "GPT-6-Luna",
+      "07t-terraform-deploy.agent.md": "GPT-6-Luna",
       "08-as-built.agent.md": "GPT-5.6 Terra (copilot)",
       "09-diagnose.agent.md": "GPT-5.6 Terra (copilot)",
-      "10-challenger.agent.md": "GPT-5.6 Terra (copilot)",
-      "11-context-optimizer.agent.md": "GPT-5.6 Sol (copilot)"
+      "10-challenger.agent.md": "GPT-6-Luna",
+      "11-context-optimizer.agent.md": "Claude Opus 5.5"
     },
     "subagents": {
-      "bicep-validate-subagent.agent.md": "GPT-5.6 Luna (copilot)",
-      "bicep-whatif-subagent.agent.md": "GPT-5.6 Luna (copilot)",
-      "challenger-review-subagent.agent.md": "GPT-5.6 Terra (copilot)",
-      "cost-estimate-subagent.agent.md": "GPT-5.6 Luna (copilot)",
-      "policy-precheck-subagent.agent.md": "GPT-5.6 Luna (copilot)",
-      "terraform-plan-subagent.agent.md": "GPT-5.6 Luna (copilot)",
-      "terraform-validate-subagent.agent.md": "GPT-5.6 Luna (copilot)"
+      "bicep-validate-subagent.agent.md": "GPT-6-Luna",
+      "bicep-whatif-subagent.agent.md": "GPT-6-Luna",
+      "challenger-review-subagent.agent.md": "GPT-6-Luna",
+      "cost-estimate-subagent.agent.md": "GPT-6-Luna",
+      "policy-precheck-subagent.agent.md": "GPT-6-Luna",
+      "terraform-plan-subagent.agent.md": "GPT-6-Luna",
+      "terraform-validate-subagent.agent.md": "GPT-6-Luna"
     }
   }
 }

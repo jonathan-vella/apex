@@ -51,7 +51,8 @@ I am editing or reviewing a *.agent.md / *.prompt.md ...
 ├── Which model is in the frontmatter?
 │   ├── Claude Opus / Claude Sonnet → load references/claude-best-practices.md
 │   ├── Claude Haiku                → load references/claude-best-practices.md (warn-only)
-│   ├── Sol / Terra / Luna         → load references/gpt-5-prompting.md (APEX convention)
+│   ├── GPT-5.6 Sol / Terra / Luna → load references/gpt-5-prompting.md (APEX convention)
+│   ├── GPT-6 Sol / Luna           → reviewer-only; structural checks still run
 │   ├── GPT-5.4                     → load references/gpt-5-prompting.md (shared OpenAI cohort)
 │   ├── GPT-Codex / GPT-4o          → reviewer-only; minimal automated rules
 │   └── Missing on prompt          → resolve custom-agent or picker inheritance
@@ -67,8 +68,9 @@ I am editing or reviewing a *.agent.md / *.prompt.md ...
 ## Model-Family Detection
 
 `classifyModel()` lower-cases the `model:` value and matches substrings in priority order
-to assign a family (`claude-opus` / `claude-sonnet` / `claude-haiku` / `claude` / `gpt-5.6-terra`
-/ `gpt-5.6-sol` / `gpt-5.6-luna` / `gpt-5.4` / `gpt-codex` / `gpt-4o` /
+to assign a family (`claude-opus` / `claude-sonnet` / `claude-haiku` / `claude` / `gpt-6-sol`
+/ `gpt-6-luna` / `gpt-5.6-terra` / `gpt-5.6-sol` / `gpt-5.6-luna` /
+`gpt-5.5` / `gpt-5.4` / `gpt-codex` / `gpt-4o` /
 `mai-code` / `unknown`). Validate every ordered fallback label and distinct family.
 Classification does not authorize a label: ordinary labels must exactly match
 the catalog. Only handoff overrides allow documented platform qualification.

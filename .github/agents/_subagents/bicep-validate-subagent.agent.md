@@ -1,7 +1,7 @@
 ---
 name: bicep-validate-subagent
 description: "Bicep validation subagent. Runs lint (bicep lint + build) first, then code review (AVM standards, naming, security baseline, governance). Returns PASS/FAIL + APPROVED/NEEDS_REVISION/FAILED verdict."
-model: ["GPT-5.6 Luna (copilot)"]
+model: ["GPT-6-Luna"]
 user-invocable: false
 disable-model-invocation: false
 agents: []
@@ -147,9 +147,7 @@ Before composing findings:
 
 ## Effort calibration
 
-Use medium effort when supported for structured checks. Raise to
-`high` only when the parent agent passes more than ten resources at once or
-notes a deployment with mixed Add/Update/Delete changes.
+Use max reasoning effort when supported by the active runtime.
 
 ## Inputs
 

@@ -101,6 +101,18 @@
       "rule_subset_note": "User-confirmed exact label with unknown public metadata. APEX outcome-first Markdown convention, not Sol-specific vendor evidence."
     },
     {
+      "family": "gpt-6-sol",
+      "status": "reviewer-only",
+      "label_examples": ["GPT-6-Sol"],
+      "rule_subset_note": "Model-specific guidance is unverified; structural checks remain enforced."
+    },
+    {
+      "family": "gpt-6-luna",
+      "status": "reviewer-only",
+      "label_examples": ["GPT-6-Luna"],
+      "rule_subset_note": "Model-specific guidance is unverified; structural checks remain enforced."
+    },
+    {
       "family": "gpt-5.4",
       "status": "enforced",
       "label_examples": [
@@ -239,6 +251,8 @@
       "id": "gpt55-skeleton-001",
       "vendor": "openai",
       "model_families": [
+        "gpt-6-sol",
+        "gpt-6-luna",
         "gpt-5.6-sol",
         "gpt-5.6-terra",
         "gpt-5.6-luna",
@@ -260,6 +274,8 @@
       "id": "gpt-no-claude-xml-001",
       "vendor": "cross-vendor",
       "model_families": [
+        "gpt-6-sol",
+        "gpt-6-luna",
         "gpt-5.6-sol",
         "gpt-5.6-terra",
         "gpt-5.6-luna",
@@ -334,6 +350,8 @@
       "id": "gpt55-stop-rules-non-empty-001",
       "vendor": "openai",
       "model_families": [
+        "gpt-6-sol",
+        "gpt-6-luna",
         "gpt-5.6-sol",
         "gpt-5.6-terra",
         "gpt-5.6-luna",
@@ -405,6 +423,8 @@
       "id": "personality-scoping-001",
       "vendor": "openai",
       "model_families": [
+        "gpt-6-sol",
+        "gpt-6-luna",
         "gpt-5.6-sol",
         "gpt-5.6-terra",
         "gpt-5.6-luna",
