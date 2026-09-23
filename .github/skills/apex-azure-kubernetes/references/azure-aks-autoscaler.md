@@ -91,5 +91,3 @@ az aks update \
 > ```bash
 > kubectl get pdb --all-namespaces
 > ```
-
-
