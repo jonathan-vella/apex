@@ -8,8 +8,8 @@ Related evidence: [audit ledger](apex-workflow-audit.md#deep-skill-audit-backlog
 ## Status
 
 - **State**: Implemented through Phase 12. Pull request 1 (#709) merged as `73467dc2` on 2026-09-23 and
-  apex-docs #15 merged after it. Pull request 2 (#710, tooling) merged as `8a81a361`. The v1.2.70 refresh ships
-  as pull request 3 from `feat/azure-skills-upstream-v1.2.70`.
+  apex-docs #15 merged after it. Pull request 2 (#710, tooling) merged as `8a81a361`. Pull request 3 (#712, the
+  v1.2.70 refresh) merged as `516c745e`.
 - **Owner**: Jonathan Vella ([@jonathan-vella](https://github.com/jonathan-vella)) with GitHub Copilot.
 - **Created**: 2026-09-23 against `main` at `a656e66d`, after the `apex-` rename and SK remediation merge.
 - **Updated**: 2026-09-23 against `main` at `5fef0f82`, when this implementation plan replaced the deferred plan.
@@ -425,6 +425,8 @@ standalone `azure-cost` plugin and split it into `cost-analysis`, `cost-estimati
       optimization workflow is MCP-first with the REST body as fallback. The `azure-prepare` and
       `azure-resource-lookup` changes only rename upstream cost-skill cross-references; nothing to port.
 - [x] Move the reviewed tag to `v1.2.70`; a live run reports no drift.
+- [x] Merge as #712 (`516c745e`). A manual drift workflow run after the merge reported no drift and closed #711.
+- [ ] apex-docs: update the cost skill text for MCP-first query and forecast and the new tool and safety reference.
 - [ ] Not ported, owner decision: the Advisor-first rewrite of the optimization workflow, commitments analysis,
       `cost-governance` budgets, AI cost analysis and cost investigation.
 
