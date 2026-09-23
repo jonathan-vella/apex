@@ -237,6 +237,25 @@ The [renderer and interface follow-up](skill-remediation.md#renderer-and-interfa
 supersedes that continuation's renderer failure and missing SQL CLI evidence. Node policy, Rust registry access,
 live database checks and native human acceptance remain open; bounded passes do not imply program completion.
 
+### Upstream Alignment Backlog (2026-09-23)
+
+The owner approved end-to-end execution on 2026-09-23. Scope, phases and verification live in the
+[upstream alignment plan](azure-skills-plugin-alignment.md); fork provenance and upstream defect probes live in
+[upstream-skill-pins.json](../../../registry/upstream-skill-pins.json). Update a row when its phase lands.
+
+| ID    | Scope                                    | Plan phase | Status                            |
+| ----- | ---------------------------------------- | ---------- | --------------------------------- |
+| UP-01 | Pin manifest, schema and fork provenance | 1          | Implemented; verification pending |
+| UP-02 | Local skill fixes from the assessment    | 2          | Approved; pending                 |
+| UP-03 | SKU availability check for 07b and 07t   | 3          | Approved; pending                 |
+| UP-04 | Role checks and deploy safety            | 4          | Approved; pending                 |
+| UP-05 | Diagnostics import                       | 5          | Approved; pending                 |
+| UP-06 | Other upstream imports                   | 6          | Approved; pending                 |
+| UP-07 | New skills and agent wiring              | 7          | Approved; pending                 |
+| UP-08 | WAF service guides in 03-Architect       | 8          | Approved; pending                 |
+| UP-09 | Upstream drift report and workflow       | 10         | Approved; pending                 |
+| UP-10 | apex-docs updates                        | 11         | Approved; pending                 |
+
 ## Agent Body Audit Backlog
 
 Recorded 2026-09-14 from complete reads of the current main-agent and worker bodies.

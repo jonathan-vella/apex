@@ -52,6 +52,10 @@
         ".github/skills/apex-azure-artifacts/templates/sku-manifest.template.json"
       ],
       "url": "./tools/schemas/sku-manifest.schema.json"
+    },
+    {
+      "fileMatch": ["tools/registry/upstream-skill-pins.json"],
+      "url": "./tools/schemas/upstream-skill-pins.schema.json"
     }
   ],
   "editor.formatOnSave": true,

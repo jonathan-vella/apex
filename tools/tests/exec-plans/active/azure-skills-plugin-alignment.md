@@ -33,6 +33,9 @@ Upstream and `main` change quickly; refresh these before Phase 1.
 4. Workflows: use the action major versions the current workflows use (`actions/checkout@v7` and
    `actions/setup-node@v7` on 2026-09-23).
 
+Checked 2026-09-23: `v1.2.51` is still the latest tag, `main` is unchanged since `5fef0f82`, and the WAF tool
+(`wellarchitectedframework_serviceguide_get` with a `service` parameter) returned only a link.
+
 ## Evidence Snapshot (2026-09-23)
 
 - **Fork base**: `microsoft/azure-skills` commit
@@ -208,15 +211,15 @@ safety rule gets a focused test.
 
 - [x] Set this repository's Git author to Jonathan Vella (GitHub `jonathan-vella`).
 - [x] Create `feat/azure-skills-upstream-alignment` from `main` and save this plan on it.
-- [ ] Run the [Before Starting](#before-starting) checks.
+- [x] Run the [Before Starting](#before-starting) checks.
 
 ### Phase 1: Pin Manifest
 
-- [ ] Add `tools/registry/upstream-skill-pins.json` and its schema in `tools/schemas/`. For each APEX skill, record
+- [x] Add `tools/registry/upstream-skill-pins.json` and its schema in `tools/schemas/`. For each APEX skill, record
       the upstream skill and path, fork base `90fcf6de`, reviewed tag `v1.2.51`, status (fork, new fork, retired
       upstream or APEX-only merge), the upstream files imported or adapted, and one upstream check per SK defect.
-- [ ] Test the manifest against its schema.
-- [ ] Add an "Upstream Alignment" backlog (UP-xx IDs, ledger status vocabulary) to the
+- [x] Test the manifest against its schema.
+- [x] Add an "Upstream Alignment" backlog (UP-xx IDs, ledger status vocabulary) to the
       [audit ledger](apex-workflow-audit.md), pointing to the manifest and this plan.
 
 ### Phase 2: Local Fixes
