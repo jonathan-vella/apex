@@ -49,7 +49,7 @@ test("defect probes target pinned upstream skills and compile", () => {
     const skill = `${probe.plugin ?? primary}/${probe.path.split("/")[0]}`;
     assert.ok(upstreamSkills.has(skill), `${probe.id}: ${skill} is not a pinned skill`);
     assert.doesNotThrow(() => new RegExp(probe.pattern, probe.flags ?? ""), probe.id);
-    const key = `${probe.id}:${probe.path}`;
+    const key = `${probe.id}:${skill}:${probe.path}`;
     assert.ok(!seen.has(key), `duplicate probe ${key}`);
     seen.add(key);
   }

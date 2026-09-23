@@ -236,12 +236,15 @@ function compareTrees({ git, workdir, manifest, pinned, latest }) {
     probes: manifest.defect_probes.map((probe) => {
       const plugin = probe.plugin ?? primary;
       const file = `${skillsPath(plugin)}/${probe.path}`;
+      // A fix reviewed at a later tag does not apply when comparing against an older --tag.
+      const fixed = version(probe.fixed_upstream_in);
+      const fixedIn = fixed && compareVersions(version(latest), fixed) >= 0 ? probe.fixed_upstream_in : null;
       const base = {
         id: probe.id,
         path: label(plugin, probe.path),
         defect: probe.defect,
-        fixedIn: probe.fixed_upstream_in ?? null,
-        expected: probe.fixed_upstream_in ? "fixed upstream" : "still present",
+        fixedIn,
+        expected: fixedIn ? "fixed upstream" : "still present",
       };
       if (!exists(file)) return { ...base, result: "file removed" };
       const present = new RegExp(probe.pattern, probe.flags ?? "").test(read(file));

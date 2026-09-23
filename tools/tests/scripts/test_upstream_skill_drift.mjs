@@ -190,6 +190,11 @@ test("drift report flags a reviewed upstream fix that regressed and rejects unkn
   assert.equal(regressed.result, "still present");
   assert.match(run().stdout, /\| SK-98 \| .* \| still present \(was fixed in v1\.1\.0\) \|/);
 
+  manifest.defect_probes[1].fixed_upstream_in = "v1.2.0";
+  writeFileSync(manifestPath, JSON.stringify(manifest));
+  const early = JSON.parse(run("--json").stdout).probes[1];
+  assert.deepEqual([early.result, early.expected, early.fixedIn], ["still present", "still present", null]);
+
   manifest.skills[1].plugin = "azure-unknown";
   writeFileSync(manifestPath, JSON.stringify(manifest));
   const invalid = run();
