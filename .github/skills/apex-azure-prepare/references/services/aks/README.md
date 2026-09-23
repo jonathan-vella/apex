@@ -2,6 +2,8 @@
 
 Full Kubernetes orchestration for complex containerized workloads.
 
+For Day-0 cluster design (Automatic vs Standard, networking, identity, node pools), use `apex-azure-kubernetes`.
+
 ## When to Use
 
 - Complex microservices requiring Kubernetes orchestration

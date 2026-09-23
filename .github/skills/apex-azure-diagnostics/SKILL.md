@@ -3,7 +3,7 @@ name: apex-azure-diagnostics
 user-invocable: true
 disable-model-invocation: false
 argument-hint: "resource scope, symptom and time range"
-description: "**WORKFLOW SKILL** — Debug Azure production issues: Container Apps, Function Apps, App Service, AKS, VM connectivity and messaging diagnostics, KQL log analysis, health checks. WHEN: 'debug production issues', 'troubleshoot container apps', 'troubleshoot AKS', 'pod crashloop', 'VM RDP or SSH failure', 'app service high CPU', 'service bus errors'. DO NOT USE FOR: pre-deployment validation (apex-azure-validate), cost analysis (apex-azure-cost-optimization)."
+description: "**WORKFLOW SKILL** — Debug Azure production issues: Container Apps, Functions, App Service, AKS, VMs and messaging, with KQL log analysis. WHEN: 'troubleshoot container apps', 'troubleshoot AKS', 'pod crashloop', 'VM RDP or SSH failure', 'app service high CPU', 'service bus errors'. DO NOT USE FOR: pre-deploy validation (apex-azure-validate), cost (apex-azure-cost-optimization), AKS design (apex-azure-kubernetes)."
 license: MIT
 metadata:
   author: Microsoft

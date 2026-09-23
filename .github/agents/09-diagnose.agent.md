@@ -174,6 +174,8 @@ Batch independent phase-required reads with available tools; refresh missing or 
 1. **Read** `.github/skills/apex-azure-defaults/SKILL.md` — regions, tags, security baseline
 2. **Read** `.github/skills/apex-azure-diagnostics/SKILL.md` — KQL templates, per-resource health checks,
    severity classification, remediation playbooks
+3. **Read** `.github/skills/apex-azure-reliability/SKILL.md` when an App Service or Azure Functions target has
+   availability or resilience symptoms — findings feed `08-resource-health-report.md`
 
 ## 6-Phase Diagnostic Workflow
 

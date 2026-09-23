@@ -303,31 +303,34 @@ safety rule gets a focused test.
 
 ### Phase 7: New Skills And Agent Wiring
 
-- [ ] `apex-azure-kubernetes`: Day-0 AKS design with autoscaling, rightsizing, spot, VPA, read-only CLI, safeguards
+- [x] `apex-azure-kubernetes`: Day-0 AKS design with autoscaling, rightsizing, spot, VPA, read-only CLI, safeguards
       and workload identity references. No `az aks create` and no app deployment templates; AKS Automatic readiness
       is deferred.
-- [ ] `apex-azure-reliability`: assessment only (zone redundancy, storage redundancy, health probes, multi-region,
+- [x] `apex-azure-reliability`: assessment only (zone redundancy, storage redundancy, health probes, multi-region,
       App Service and Functions), with no "Fix now" or self-deploy. It returns findings and never creates its own
       report file; see [Reliability Findings](#reliability-findings).
-- [ ] `apex-azure-upgrade`: Functions assessment, the Consumption to Flex Consumption mapping, and Azure Cache for
+- [x] `apex-azure-upgrade`: Functions assessment, the Consumption to Flex Consumption mapping, and Azure Cache for
       Redis to Azure Managed Redis. No automation scripts and no Java tree.
-- [ ] For all three: `license: MIT`, `metadata.author: Microsoft`, the upstream `metadata.version`, loadable by users
+- [x] For all three: `license: MIT`, `metadata.author: Microsoft`, the upstream `metadata.version`, loadable by users
       and agents, reference markers, one Reference Index, an entry in the pin manifest and in `ownedSkills` in
       [test_service_skill_remediation.mjs](../../../../tools/tests/scripts/test_service_skill_remediation.mjs).
-- [ ] Add conditional **Read** entries: [03-Architect](../../../../.github/agents/03-architect.agent.md)
+      Import review found four upstream defects, recorded in the manifest notes: a printed `AzureWebJobsStorage`
+      value, a wrong Terraform attribute, a removed Redis retirement page and an outdated Flex certificate claim.
+- [x] Add conditional **Read** entries: [03-Architect](../../../../.github/agents/03-architect.agent.md)
       (kubernetes when AKS is in scope, upgrade for existing Functions or Redis workloads),
       [05-IaC Planner](../../../../.github/agents/05-iac-planner.agent.md) (kubernetes), and
       [08-As-Built](../../../../.github/agents/08-as-built.agent.md) and
       [09-Diagnose](../../../../.github/agents/09-diagnose.agent.md) (reliability).
-- [ ] Add links from
+- [x] Add links from
       [service-class-menu.md](../../../../.github/skills/apex-azure-defaults/references/service-class-menu.md),
       [deprecated-services.md](../../../../.github/skills/apex-azure-defaults/references/deprecated-services.md),
       prepare's [aks/README.md](../../../../.github/skills/apex-azure-prepare/references/services/aks/README.md) and
-      the diagnostics "do not use for" line.
-- [ ] Add the new skills to the `KNOWN_UNLINKED_SKILLS` allowlist in
+      the diagnostics "do not use for" line. The menu now offers Azure Managed Redis, and the deprecation table lists
+      the Learn retirement dates for Azure Cache for Redis and Linux Consumption.
+- [x] Add the new skills to the `KNOWN_UNLINKED_SKILLS` allowlist in
       [validate-orphaned-content.mjs](../../../../tools/scripts/validate-orphaned-content.mjs) only if the check still
-      flags them after wiring.
-- [ ] Test for forbidden commands in the new skills and for any standalone reliability artifact path.
+      flags them after wiring. Not needed: the check doesn't flag them.
+- [x] Test for forbidden commands in the new skills and for any standalone reliability artifact path.
 
 #### Reliability Findings
 

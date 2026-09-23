@@ -160,6 +160,73 @@
       "status": "retired-upstream",
       "note": "Retired upstream in v1.1.95; revisit after role verification is ported.",
       "imports": []
+    },
+    {
+      "apex": "apex-azure-kubernetes",
+      "upstream": ["azure-kubernetes"],
+      "status": "new-fork",
+      "note": "Design advice only; cluster-changing commands are IaC targets. The CLI reference is read-only and safeguards.md no longer depends on the upstream readiness spec.",
+      "imports": [
+        { "from": "azure-kubernetes/SKILL.md", "to": "SKILL.md" },
+        { "from": "azure-kubernetes/references/", "to": "references/" },
+        {
+          "from": "azure-kubernetes/azure-kubernetes-app-deploy/references/safeguards.md",
+          "to": "references/safeguards.md"
+        },
+        {
+          "from": "azure-kubernetes/azure-kubernetes-app-deploy/references/workload-identity.md",
+          "to": "references/workload-identity.md"
+        }
+      ]
+    },
+    {
+      "apex": "apex-azure-reliability",
+      "upstream": ["azure-reliability"],
+      "status": "new-fork",
+      "note": "Assessment only; configure and IaC-patching guides are not imported. Upstream prints the AzureWebJobsStorage value and names a non-existent Terraform attribute (minimum_elastic_instance_count; the provider uses elastic_instance_minimum).",
+      "imports": [
+        { "from": "azure-reliability/SKILL.md", "to": "SKILL.md" },
+        {
+          "from": "azure-reliability/references/zone-redundancy-checks.md",
+          "to": "references/zone-redundancy-checks.md"
+        },
+        {
+          "from": "azure-reliability/references/storage-redundancy-checks.md",
+          "to": "references/storage-redundancy-checks.md"
+        },
+        { "from": "azure-reliability/references/health-probe-checks.md", "to": "references/health-probe-checks.md" },
+        { "from": "azure-reliability/references/multi-region-checks.md", "to": "references/multi-region-checks.md" },
+        {
+          "from": "azure-reliability/references/services/app-service/reliability.md",
+          "to": "references/services/app-service/reliability.md"
+        },
+        {
+          "from": "azure-reliability/references/services/functions/reliability.md",
+          "to": "references/services/functions/reliability.md"
+        }
+      ]
+    },
+    {
+      "apex": "apex-azure-upgrade",
+      "upstream": ["azure-upgrade"],
+      "status": "new-fork",
+      "note": "Assessment and IaC mapping only; automation.md, workflow-details.md and the Java SDK flow are not imported. Upstream links a removed Redis retirement page (cache-retired-tiers) and says Flex Consumption lacks certificates, which Learn now documents as site-scoped.",
+      "imports": [
+        { "from": "azure-upgrade/SKILL.md", "to": "SKILL.md" },
+        { "from": "azure-upgrade/references/global-rules.md", "to": "references/global-rules.md" },
+        {
+          "from": "azure-upgrade/references/services/functions/assessment.md",
+          "to": "references/services/functions/assessment.md"
+        },
+        {
+          "from": "azure-upgrade/references/services/functions/consumption-to-flex.md",
+          "to": "references/services/functions/consumption-to-flex.md"
+        },
+        {
+          "from": "azure-upgrade/references/services/redis/redis-to-amr.md",
+          "to": "references/services/redis/redis-to-amr.md"
+        }
+      ]
     }
   ],
   "defect_probes": [

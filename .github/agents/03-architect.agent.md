@@ -170,6 +170,9 @@ when needed. Reuse unchanged content still in context; batch independent missing
   — every #tool:agent call (cost-estimate-subagent,
    challenger-review-subagent) MUST follow the three-H2 contract
    (issue #425).
+6. **When AKS is a candidate compute host**, read `.github/skills/apex-azure-kubernetes/SKILL.md` — Day-0 decisions
+7. **When the workload keeps an existing Functions Consumption app or Azure Cache for Redis instance**, read
+   `.github/skills/apex-azure-upgrade/SKILL.md` — upgrade readiness and IaC target mapping
 
 These skills are your single source of truth. Do NOT use hardcoded values.
 

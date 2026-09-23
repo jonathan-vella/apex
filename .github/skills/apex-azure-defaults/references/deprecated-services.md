@@ -6,13 +6,15 @@
 > that may be deprecated or facing retirement. Keep the deprecation list
 > here so the SKILL.md stays focused on the IaC workflow.
 
-| Deprecated Service     | Replacement                      | Retires/EOL | Notes                         |
-| ---------------------- | -------------------------------- | ----------- | ----------------------------- |
-| Azure AD B2C           | Microsoft Entra External ID      | May 2025    | Not available for new tenants |
-| Redis Enterprise E50   | Azure Managed Redis (Enterprise) | March 2027  | Plan migration before EOL     |
-| CDN WAF (classic)      | Front Door Standard/Premium WAF  | 2025        | CDN WAF creation blocked      |
-| App Gateway v1         | App Gateway v2                   | April 2026  | Classic SKU retiring          |
-| CDN Standard Microsoft | Front Door Standard              | 2027        | Migration required            |
+| Deprecated Service                           | Replacement                     | Retires/EOL        | Notes                            |
+| -------------------------------------------- | ------------------------------- | ------------------ | -------------------------------- |
+| Azure AD B2C                                 | Microsoft Entra External ID     | May 2025           | Not available for new tenants    |
+| Azure Cache for Redis Enterprise / Flash     | Azure Managed Redis             | March 31, 2027     | Assess with `apex-azure-upgrade` |
+| Azure Cache for Redis Basic/Standard/Premium | Azure Managed Redis             | September 30, 2028 | Assess with `apex-azure-upgrade` |
+| Azure Functions Linux Consumption (Y1)       | Functions Flex Consumption      | September 30, 2028 | Assess with `apex-azure-upgrade` |
+| CDN WAF (classic)                            | Front Door Standard/Premium WAF | 2025               | CDN WAF creation blocked         |
+| App Gateway v1                               | App Gateway v2                  | April 2026         | Classic SKU retiring             |
+| CDN Standard Microsoft                       | Front Door Standard             | 2027               | Migration required               |
 
 **Rule**: Never recommend deprecated services for greenfield projects. Before recommending
 any service with a multi-year RI commitment, verify the service retirement timeline extends

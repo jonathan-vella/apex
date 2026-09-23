@@ -363,3 +363,71 @@ test("resources, storage and compute keep secrets out and delegate availability 
     assert.doesNotMatch(read(file), /eastus|westus/, file);
   }
 });
+
+test("AKS design skill inspects read-only and marks cluster changes as IaC targets", () => {
+  const cli = read("apex-azure-kubernetes/references/cli-reference.md");
+  assert.doesNotMatch(cli, /az aks (create|update|delete|enable-addons)|get-credentials[^\n]*--admin/);
+  assert.match(cli, /avm\/res\/container-service\/managed-cluster/);
+  for (const file of markdownFiles("apex-azure-kubernetes/references/")) {
+    const source = read(file);
+    assert.match(source.split("\n")[0], /^<!-- ref:[a-z0-9-]+-v1 -->$/, file);
+    if (/az aks (update|nodepool (add|update))|kubectl apply/.test(source)) {
+      assert.match(source, /This skill doesn't run them/, file);
+    }
+    assert.doesNotMatch(source, /automatic-readiness|\d+-\d+% cost/, file);
+  }
+  const skill = read("apex-azure-kubernetes/SKILL.md");
+  assert.match(skill, /Never run `az aks` or `kubectl` commands that change state/);
+  assert.match(skill, /cost-estimate-subagent/);
+});
+
+test("reliability skill assesses without fixing, deploying or printing secrets", () => {
+  const files = ["apex-azure-reliability/SKILL.md", ...markdownFiles("apex-azure-reliability/references/")];
+  assert.ok(!files.some((file) => /configure-|iac-patching/.test(file)));
+  for (const file of files) {
+    const source = read(file);
+    for (const block of codeBlocks(source)) {
+      assert.doesNotMatch(block, /az [a-z -]+ (update|create|delete)\b|config set|azd up|terraform apply/, file);
+      assert.doesNotMatch(block, /AzureWebJobsStorage'\]\.value/, file);
+    }
+    assert.doesNotMatch(source, /minimum_elastic_instance_count|Fix now|eastus/, file);
+  }
+  const skill = read("apex-azure-reliability/SKILL.md");
+  assert.match(skill, /never write a standalone reliability artifact/);
+  for (const artifact of ["07-backup-dr-plan.md", "07-design-document.md", "08-resource-health-report.md"]) {
+    assert.match(skill, new RegExp(artifact.replaceAll(".", "\\.")));
+  }
+});
+
+test("upgrade skill assesses and maps without automation or setting values", () => {
+  const files = ["apex-azure-upgrade/SKILL.md", ...markdownFiles("apex-azure-upgrade/references/")];
+  assert.ok(!files.some((file) => /automation|workflow-details|languages\/java/.test(file)));
+  for (const file of files) {
+    const source = read(file);
+    assert.doesNotMatch(source, /ask_user|upgrade-status\.md|cache-retired-tiers|mcp_azure_mcp_/, file);
+    for (const block of codeBlocks(source)) assert.doesNotMatch(block, /flex-migration start|functionapp delete/, file);
+  }
+  const assessment = read("apex-azure-upgrade/references/services/functions/assessment.md");
+  assert.match(assessment, /\| Setting name \| Migrate\? \| Notes \|/);
+  assert.match(assessment, /agent-output\/\{project\}\/upgrade-assessment-report\.md/);
+  assert.match(read("apex-azure-upgrade/references/services/redis/redis-to-amr.md"), /September 30, 2028/);
+  const deprecated = read("apex-azure-defaults/references/deprecated-services.md");
+  assert.match(deprecated, /Azure Cache for Redis Basic\/Standard\/Premium .*September 30, 2028.*apex-azure-upgrade/);
+  assert.doesNotMatch(read("apex-azure-defaults/references/service-class-menu.md"), /- Azure Cache for Redis/);
+});
+
+test("new service skills are pinned and wired into the owning agents", () => {
+  const pins = JSON.parse(readFileSync(new URL("../../registry/upstream-skill-pins.json", import.meta.url), "utf8"));
+  const agents = new URL("../../../.github/agents/", import.meta.url);
+  const agent = (name) => readFileSync(new URL(name, agents), "utf8");
+  for (const name of ["apex-azure-kubernetes", "apex-azure-reliability", "apex-azure-upgrade"]) {
+    const entry = pins.skills.find((skill) => skill.apex === name);
+    assert.equal(entry?.status, "new-fork", name);
+  }
+  assert.match(agent("03-architect.agent.md"), /apex-azure-kubernetes\/SKILL\.md[\s\S]*apex-azure-upgrade\/SKILL\.md/);
+  assert.match(agent("05-iac-planner.agent.md"), /apex-azure-kubernetes\/SKILL\.md/);
+  for (const name of ["08-as-built.agent.md", "09-diagnose.agent.md"]) {
+    assert.match(agent(name), /apex-azure-reliability\/SKILL\.md/, name);
+  }
+  assert.match(read("apex-azure-diagnostics/SKILL.md"), /AKS design \(apex-azure-kubernetes\)/);
+});
