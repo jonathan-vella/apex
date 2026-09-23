@@ -7,15 +7,16 @@ Related evidence: [audit ledger](apex-workflow-audit.md#deep-skill-audit-backlog
 
 ## Status
 
-- **State**: Implemented through Phase 11. Pull request 1 (#709) merged as `73467dc2` on 2026-09-23 and
-  apex-docs #15 merged after it. The tooling ships as pull request 2 from `feat/azure-skills-upstream-tooling`,
-  cut from `main` after the squash merge.
+- **State**: Implemented through Phase 12. Pull request 1 (#709) merged as `73467dc2` on 2026-09-23 and
+  apex-docs #15 merged after it. Pull request 2 (#710, tooling) merged as `8a81a361`. The v1.2.70 refresh ships
+  as pull request 3 from `feat/azure-skills-upstream-v1.2.70`.
 - **Owner**: Jonathan Vella ([@jonathan-vella](https://github.com/jonathan-vella)) with GitHub Copilot.
 - **Created**: 2026-09-23 against `main` at `a656e66d`, after the `apex-` rename and SK remediation merge.
 - **Updated**: 2026-09-23 against `main` at `5fef0f82`, when this implementation plan replaced the deferred plan.
 - **Branch**: `feat/azure-skills-upstream-alignment`. Commit and push after each phase; no pull request until the
   owner approves. Commits are authored as Jonathan Vella (GitHub `jonathan-vella`).
-- **Upstream pin**: `microsoft/azure-skills` tag `v1.2.51`, commit `cbf7c8b0`.
+- **Upstream pin**: `microsoft/azure-skills` tag `v1.2.70`, commit `91848818` (reviewed 2026-09-23; was `v1.2.51`,
+  `cbf7c8b0`).
 - **Scope**: The Microsoft-derived `apex-azure-*` and `apex-entra-app-registration` skills, the Microsoft `azure`
   plugin (skills, MCP server and hooks), and the APEX Azure MCP configuration.
 - **Question**: Can the plugin replace or complement APEX skills and the APEX Azure MCP configuration?
@@ -405,6 +406,27 @@ Caching guide summaries in the repository would go stale. Neither is planned.
       `.apex-source` checkout. Re-run the full `npm ci` and `npm test` once the holds clear.
 - [x] Merge after pull request 1. The docs update automation then moves the pinned APEX commit and refreshes the
       Explorer graph. Merged as apex-docs #15 on 2026-09-23.
+
+### Phase 12: v1.2.70 Refresh (Pull Request 3)
+
+The first drift run after #710 reported `azure-cost` as retired. Upstream had moved it in v1.2.68 into a
+standalone `azure-cost` plugin and split it into `cost-analysis`, `cost-estimation`, `cost-governance` and
+`cost-optimization`.
+
+- [x] Pins schema version 2: `plugins_root`, `primary_plugin` and `plugins[]` replace `plugin_path`; skills and
+      probes take an optional `plugin`; probes take `fixed_upstream_in`. The drift script compares every listed
+      plugin, reports new and retired plugins, and counts a probe as drift only when it leaves its reviewed state.
+- [x] Repoint `apex-azure-cost-optimization` (now `apex-merge` over `cost-analysis`, `cost-estimation` and
+      `cost-optimization`) and SK-08, SK-19 and SK-20. SK-08 and SK-19 are fixed upstream at v1.2.70; SK-20 is
+      still present. The local fixes stay.
+- [x] Port the imported changes: `cost-query/` and `cost-forecast/` now follow the ARM MCP `query_costs` and
+      `forecast_costs` contracts (92-day lookback, five `groupBy` dimensions, no tags or continuation), add
+      `tools-and-safety.md`, and make the storage review Advisor-first with no age-based tiering. Step 4 of the
+      optimization workflow is MCP-first with the REST body as fallback. The `azure-prepare` and
+      `azure-resource-lookup` changes only rename upstream cost-skill cross-references; nothing to port.
+- [x] Move the reviewed tag to `v1.2.70`; a live run reports no drift.
+- [ ] Not ported, owner decision: the Advisor-first rewrite of the optimization workflow, commitments analysis,
+      `cost-governance` budgets, AI cost analysis and cost investigation.
 
 ## Pull Request Split
 
