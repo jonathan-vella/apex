@@ -117,10 +117,13 @@ tightened to enforce this; until then, missing flags trigger a WARN.
 
 ## Block-with-Escalation Pattern (Step 6)
 
-When a pre-flight quota or region SKU check fails:
+When a pre-flight quota or SKU availability check fails (`RESTRICTED`,
+`NOT_OFFERED` or insufficient quota, per the
+[SKU availability](../skills/apex-azure-quotas/references/sku-availability.md)
+status contract):
 
-1. Surface to human via the orchestrator. Include available substitutes
-   from `apex-azure-quotas` skill.
+1. Surface to human via the orchestrator. Include only substitutes that are
+   `AVAILABLE` with sufficient quota, from the `apex-azure-quotas` skill.
 2. Human responds with one of four `sku_conflict_resolution` enum
    values:
    - `revert_to_plan` — restart deploy with original SKU after quota fix

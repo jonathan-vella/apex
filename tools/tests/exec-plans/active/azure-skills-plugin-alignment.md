@@ -255,15 +255,15 @@ safety rule gets a focused test.
 
 ### Phase 3: SKU Availability Check
 
-- [ ] Add a `sku-availability.md` reference to
+- [x] Add a `sku-availability.md` reference to
       [apex-azure-quotas](../../../../.github/skills/apex-azure-quotas/SKILL.md) covering VM, VMSS and AKS node
       sizes (restrictions, subscription availability and zones), App Service, SQL, PostgreSQL and MySQL flexible
       server, Container Apps workload profiles, Storage, and other services by resource-type regions.
-- [ ] Report each result as `AVAILABLE`, `RESTRICTED`, `NOT_OFFERED` or `UNKNOWN`. Missing data is never treated
+- [x] Report each result as `AVAILABLE`, `RESTRICTED`, `NOT_OFFERED` or `UNKNOWN`. Missing data is never treated
       as available, and zones are checked when zone redundancy is required.
-- [ ] Add a documented helper, tested with sample JSON like the SK-28 quota helper test.
-- [ ] Update the scope and triggers in the quotas SKILL.md; quota headroom still doesn't mean regional capacity.
-- [ ] Point the pre-flight checks in [07b](../../../../.github/agents/07b-bicep-deploy.agent.md),
+- [x] Add a documented helper, tested with sample JSON like the SK-28 quota helper test.
+- [x] Update the scope and triggers in the quotas SKILL.md; quota headroom still doesn't mean regional capacity.
+- [x] Point the pre-flight checks in [07b](../../../../.github/agents/07b-bicep-deploy.agent.md),
       [07t](../../../../.github/agents/07t-terraform-deploy.agent.md) and
       [sku-manifest.instructions.md](../../../../.github/instructions/sku-manifest.instructions.md) at the new
       section, and suggest only substitutes that are available and have enough quota.

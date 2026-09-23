@@ -3,7 +3,7 @@ name: apex-azure-quotas
 user-invocable: true
 disable-model-invocation: false
 argument-hint: "subscription, region, services and planned quantities"
-description: '**UTILITY SKILL** — Check Azure quota limits, usage and headroom for deployment planning; quota is not regional capacity. WHEN: "check quotas", "service limits", "request quota increase", "quota exceeded", "validate capacity", "regional availability", "vCPU limit". DO NOT USE FOR: deployment execution (apex-azure-deploy), cost analysis (apex-azure-cost-optimization).'
+description: '**UTILITY SKILL** — Check Azure quota headroom and SKU availability (region, zones, restrictions) for deployment planning; neither proves allocation capacity. WHEN: "check quotas", "service limits", "request quota increase", "quota exceeded", "SKU availability", "SKU restrictions", "vCPU limit". DO NOT USE FOR: deployment execution (apex-azure-deploy), cost analysis (apex-azure-cost-optimization).'
 license: MIT
 metadata:
   author: Microsoft
@@ -16,6 +16,10 @@ Azure quotas constrain usage in provider-specific units and scopes. Sufficient
 quota headroom does not establish SKU availability or regional capacity. Check
 family and total regional vCPU limits, SKU restrictions and allocation capacity
 separately; quota success is not deployment approval.
+
+For whether a SKU is offered in the region and zones, read
+[SKU availability](references/sku-availability.md). It owns the `AVAILABLE`,
+`RESTRICTED`, `NOT_OFFERED` and `UNKNOWN` statuses used by the deploy pre-flight.
 
 ## Prerequisites
 
@@ -71,3 +75,4 @@ For common errors (`ExtensionNotFound`, `BadRequest`, `QuotaExceeded`,
 | `references/core-workflows.md`        | Detailed check, compare, increase, and list workflows       |
 | `references/troubleshooting.md`       | Common errors and unsupported providers                     |
 | `references/resource-name-mapping.md` | ARM-to-quota resource name mapping and discovery            |
+| `references/sku-availability.md`      | SKU availability by region and zone, statuses and helper    |

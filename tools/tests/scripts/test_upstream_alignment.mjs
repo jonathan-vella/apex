@@ -1,5 +1,8 @@
 import assert from "node:assert/strict";
-import { readdirSync, readFileSync } from "node:fs";
+import { spawnSync } from "node:child_process";
+import { mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { test } from "node:test";
 
 const skills = new URL("../../../.github/skills/", import.meta.url);
@@ -101,4 +104,86 @@ test("kusto common issues are indexed and bounded", () => {
   const issues = read("apex-azure-kusto/references/common-issues.md");
   assert.match(issues, /^<!-- ref:common-issues-v1 -->/);
   assert.match(issues, /Timestamp between \(\.\.\.\)` filter and `take`/);
+});
+
+test("SKU availability helper separates available, restricted, not offered and unknown", () => {
+  const source = read("apex-azure-quotas/references/sku-availability.md");
+  const helper = source.split("## Checked SKU Availability")[1].match(/```bash\n([\s\S]*?)```/)[1];
+  const dir = mkdtempSync(join(tmpdir(), "sku-availability-"));
+  const write = (name, value) => {
+    const file = join(dir, name);
+    writeFileSync(file, typeof value === "string" ? value : JSON.stringify(value));
+    return file;
+  };
+  const listing = (restrictions = [], zones = ["1", "2", "3"]) => [
+    {
+      name: "Standard_D4s_v5",
+      locations: ["swedencentral"],
+      locationInfo: [{ location: "swedencentral", zones }],
+      restrictions,
+    },
+  ];
+  const restriction = (type, zones) => ({
+    type,
+    values: ["swedencentral"],
+    restrictionInfo: { locations: ["swedencentral"], ...(zones ? { zones } : {}) },
+    reasonCode: "NotAvailableForSubscription",
+  });
+  const run = (file, ...args) =>
+    spawnSync("bash", ["-c", `${helper}\nsku_availability "$@"`, "sku-test", file, ...args], { encoding: "utf8" });
+  try {
+    const open = write("open.json", listing());
+    let result = run(open, "swedencentral", "standard_d4s_v5", "1,2,3");
+    assert.equal(result.status, 0, result.stderr);
+    assert.match(result.stdout, /^AVAILABLE; allocation capacity: unknown$/m);
+
+    result = run(write("blocked.json", listing([restriction("Location")])), "swedencentral", "Standard_D4s_v5");
+    assert.equal(result.status, 1);
+    assert.match(result.stdout, /RESTRICTED: NotAvailableForSubscription/);
+
+    const zonal = write("zonal.json", listing([restriction("Zone", ["2"])]));
+    result = run(zonal, "swedencentral", "Standard_D4s_v5", "1,2,3");
+    assert.equal(result.status, 1);
+    assert.match(result.stdout, /RESTRICTED: zones 2 unavailable/);
+    assert.equal(run(zonal, "swedencentral", "Standard_D4s_v5", "1,3").status, 0);
+    assert.equal(run(write("regional.json", listing([], [])), "swedencentral", "Standard_D4s_v5", "1").status, 1);
+
+    result = run(open, "germanywestcentral", "Standard_D4s_v5");
+    assert.equal(result.status, 1);
+    assert.match(result.stdout, /NOT_OFFERED/);
+
+    for (const file of [
+      write("broken.json", "not json"),
+      write("object.json", {}),
+      write("unnamed.json", [{ locations: ["swedencentral"] }]),
+    ]) {
+      const unknown = run(file, "swedencentral", "Standard_D4s_v5");
+      assert.equal(unknown.status, 2, file);
+      assert.doesNotMatch(unknown.stdout, /AVAILABLE/);
+    }
+    for (const args of [
+      ["Sweden Central", "Standard_D4s_v5"],
+      ["swedencentral", "Standard D4"],
+      ["swedencentral", "Standard_D4s_v5", "a"],
+    ]) {
+      assert.equal(run(open, ...args).status, 2, args.join(" "));
+    }
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("deploy pre-flight and SKU escalation use the SKU availability contract", () => {
+  const github = new URL("../../../.github/", import.meta.url);
+  for (const relative of [
+    "agents/07b-bicep-deploy.agent.md",
+    "agents/07t-terraform-deploy.agent.md",
+    "instructions/sku-manifest.instructions.md",
+  ]) {
+    const source = readFileSync(new URL(relative, github), "utf8");
+    assert.match(source, /apex-azure-quotas\/references\/sku-availability\.md/, relative);
+    assert.match(source, /`RESTRICTED`/, relative);
+  }
+  assert.match(read("apex-azure-quotas/SKILL.md"), /\| `references\/sku-availability\.md`/);
+  assert.match(read("apex-azure-quotas/references/sku-availability.md"), /^<!-- ref:sku-availability-v1 -->/);
 });
