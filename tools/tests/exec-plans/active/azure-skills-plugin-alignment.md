@@ -399,8 +399,10 @@ Caching guide summaries in the repository would go stale. Neither is planned.
 - [x] In [apex-docs](https://github.com/jonathan-vella/apex-docs), on a branch with the same name, add the new skills
       to the Azure Plugin Skills row in `skills-and-instructions.md` and sections with example prompts to
       `skills-subagents.md`; update the diagnostics, quotas, cost, cloud-migrate and 03-Architect text; run its
-      checks; commit and push. Pushed as `73adc77`. The local npm policy blocked installing the docs
-      dependencies, so `check:docs` ran as an equivalent local check (frontmatter, headings, identifier casing).
+      checks; commit and push. Pushed as `73adc77`. A full `npm ci` waits on six lockfile versions held in CFS
+      quarantine (longest `verkit@0.4.1`, about two days from 2026-09-23). With only the check dependencies
+      restored through the proxy, `check:docs` and 12 of 13 runnable tests pass; the migration test needs the
+      `.apex-source` checkout. Re-run the full `npm ci` and `npm test` once the holds clear.
 - [ ] Merge after pull request 1. The docs update automation then moves the pinned APEX commit and refreshes the
       Explorer graph.
 
