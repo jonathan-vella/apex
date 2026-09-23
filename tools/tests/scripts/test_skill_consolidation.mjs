@@ -275,7 +275,7 @@ test("skill CLI accepts every surviving skill and its descriptor without alterin
   assert.match(result.output, new RegExp(`Found ${survivors.length} skill directories`));
 });
 
-test("skill CLI scans live guidance, tooling and MDX without blanket migration or site exemptions", async (context) => {
+test("skill CLI scans live guidance, tooling and MDX without blanket migration exemptions", async (context) => {
   const liveFiles = [
     ".github/agents/example.agent.md",
     ".github/instructions/example.instructions.md",
@@ -286,8 +286,8 @@ test("skill CLI scans live guidance, tooling and MDX without blanket migration o
     "tools/tests/prompts/example.prompt.md",
     "tools/tests/fixtures-guide.md",
     "tools/schemas-guide.md",
-    "site/src/content/docs/guide.mdx",
-    "site/src/content/docs/migration/guide.md",
+    "tools/guides/guide.mdx",
+    "tools/guides/migration/guide.md",
     "AGENTS.md",
     "README.md",
     "CONTRIBUTING.md",
@@ -337,7 +337,6 @@ test("skill CLI excludes history, schemas, vendor snapshots and execution eviden
     "agent-output/example/legacy.md",
     "tmp/evidence.md",
     "logs/copilot/evidence.txt",
-    "site/public/downloads/legacy.md",
   ]) {
     fixture.write(file, `${retiredName}\nRead skills/example/SKILL.md\n`);
   }
@@ -354,7 +353,7 @@ test("skill CLI rejects retired Host callers and accepts the explicit resume ope
     ".github/skills/apex-example/SKILL.md",
     "tools/registry/entries.json",
     "tools/scripts/entry.mjs",
-    "site/src/content/docs/resume.mdx",
+    "tools/guides/resume.mdx",
   ]) {
     const original = file.endsWith("SKILL.md")
       ? '---\nname: apex-example\ndescription: "Valid workflow caller."\n---\n'

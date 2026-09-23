@@ -109,12 +109,11 @@ const DEPRECATED_PATTERNS = [
   },
 
   // Detect stale references to the retired top-level docs/ tree.
-  // The canonical documentation source is site/src/content/docs/.
-  // Historical references in changelogs and archival records are excluded
-  // via EXCLUDE_PATTERNS.
+  // Published documentation is maintained in apex-docs, not this repository.
+  // Historical references in changelogs and plans remain excluded.
   {
     pattern: /(?<![\w/])docs\/(?!tf-support|adr\/|diagrams\/)[\w-]+/gi,
-    message: "Reference to retired docs/ tree (canonical source is site/src/content/docs/)",
+    message: "Reference to retired docs/ tree (published documentation is maintained in apex-docs)",
     severity: "warn",
   },
 
@@ -152,7 +151,6 @@ const DEPRECATED_PATTERNS = [
 
 // Folders to scan
 const _SCAN_FOLDERS = [
-  "site/src/content/docs",
   ".github/agents",
   ".github/skills",
   ".github/instructions",
@@ -265,9 +263,7 @@ async function main() {
 
   // Scan additional directories not covered by workspace-index — in parallel.
   await Promise.all(
-    ["site/src/content/docs", ".github/skills/apex-azure-artifacts/templates"].map((folder) =>
-      scanDirectoryAsync(path.join(ROOT, folder)),
-    ),
+    [".github/skills/apex-azure-artifacts/templates"].map((folder) => scanDirectoryAsync(path.join(ROOT, folder))),
   );
 
   // Scan root files in parallel.

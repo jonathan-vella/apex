@@ -2,7 +2,7 @@
 
 ## Learn More
 
-- [Durable Task Scheduler documentation](https://learn.microsoft.com/azure/durable-task-scheduler/)
+- [Durable Task Scheduler documentation](https://learn.microsoft.com/azure/durable-task/scheduler/durable-task-scheduler)
 - [Durable Functions Java guide](https://learn.microsoft.com/azure/azure-functions/durable/durable-functions-overview?tabs=java)
 
 ## Durable Functions Setup

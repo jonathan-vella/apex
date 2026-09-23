@@ -4,7 +4,7 @@
  *
  * @example
  * node tools/scripts/audit-retirement-candidates.mjs --baseline HEAD --write
- * node tools/scripts/audit-retirement-candidates.mjs --check .archive/retirement-scan-2026-08-27.json
+ * node tools/scripts/audit-retirement-candidates.mjs --check .archive/retirement-scan.json
  */
 
 import { execFileSync, spawnSync } from "node:child_process";
@@ -18,8 +18,8 @@ import { loadValidator } from "./_lib/ajv-validator.mjs";
 
 const REPO_ROOT = path.resolve(fileURLToPath(import.meta.url), "..", "..", "..");
 const SCHEMA_PATH = path.join(REPO_ROOT, "tools/schemas/retirement-scan.schema.json");
-const DEFAULT_JSON = ".archive/retirement-scan-2026-08-27.json";
-const DEFAULT_MARKDOWN = ".archive/retirement-scan-2026-08-27.md";
+const DEFAULT_JSON = ".archive/retirement-scan.json";
+const DEFAULT_MARKDOWN = ".archive/retirement-scan.md";
 const SCAN_DATE = new Date().toISOString().slice(0, 10);
 const TEXT_EXTENSIONS = new Set([
   ".astro",

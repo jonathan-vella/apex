@@ -324,7 +324,7 @@ fi
 | `environment not found`                      | No azd env created       | `azd env new {project}-{env}`                                                                        |
 | `.azure/` at repo root                       | Breaks multi-project     | Move to `infra/{iac}/{project}/.azure/`                                                              |
 | RBAC "already exists" in hooks               | Idempotent runs          | Add `\|\| true` to role assignment commands                                                          |
-| `Logged in to Azure as...` but preview fails | az vs azd auth mismatch  | Both `az` and `azd` need separate auth — see [infra/bicep/AGENTS.md](../../../infra/bicep/AGENTS.md) |
+| `Logged in to Azure as...` but preview fails | az vs azd auth mismatch  | Both `az` and `azd` need separate auth — see [infra/bicep/AGENTS.md](../../../../infra/bicep/AGENTS.md) |
 
 > **Deep troubleshooting**: See recipe-specific error guides at
 > `apex-azure-deploy/references/recipes/{recipe}/errors.md`.

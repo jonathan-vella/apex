@@ -271,7 +271,7 @@ const RETIRED_SKILLS = [
   },
 ];
 
-const SCAN_DIRS = [".github", "tools", "site/src/content/docs"];
+const SCAN_DIRS = [".github", "tools"];
 const SCAN_ROOT_FILES = ["AGENTS.md", "README.md", "CONTRIBUTING.md", "CONTRIBUTORS.md", "QUALITY_SCORE.md"];
 
 const NON_LIVE_DIRECTORIES = [

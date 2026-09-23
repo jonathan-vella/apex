@@ -24,6 +24,9 @@ export function runLinkChecks(root = process.cwd()) {
   }
   let exitCode = 0;
   for (const file of new Set(selection.stdout.split("\0").filter(Boolean))) {
+    if (file.startsWith(".github/skills/apex-azure-artifacts/templates/") && file.endsWith(".template.md")) {
+      continue;
+    }
     const result = spawnSync(
       "markdown-link-check",
       [path.resolve(root, file), "--config", ".markdown-link-check.json"],

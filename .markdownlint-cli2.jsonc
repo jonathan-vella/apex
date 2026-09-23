@@ -181,7 +181,5 @@
     // Test prompt files (long-form examples, not production docs)
     "tools/tests/prompts/**",
 
-    // Retired local site residue is not product source.
-    "site/**",
   ],
 }

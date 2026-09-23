@@ -57,7 +57,7 @@ The retirement regression lives in [lib/npm-script-graph.test.mjs](lib/npm-scrip
 and runs under `test:validator-runner`. It rejects retired files and commands while preserving
 production lesson compatibility, recall, artifact/policy/security validators, and devcontainer tests.
 
-Historical outputs, archives, and baselines remain unchanged. The lesson schema retains historical
+Historical outputs and baselines remain unchanged. The lesson schema retains historical
 `workflow_mode: "e2e"` records, and the iteration-log schema remains historical compatibility evidence.
 Production lesson collection and `report:challenger-gaps` remain supported.
 
@@ -67,5 +67,4 @@ configuration, and workflow together from the pre-retirement revision. Do not re
 ## Related
 
 - [Repository conventions](../../AGENTS.md)
-- [Validation reference](../../site/src/content/docs/reference/validation-reference.md)
-- [Workflow validation guide](../../site/src/content/docs/guides/e2e-testing.md)
+- [Validation reference](https://apexops.pro/reference/validation-reference/)

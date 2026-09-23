@@ -12,7 +12,7 @@
 Microsoft's Cloud Adoption Framework documents tag strategy at:
 
 - [Define your tagging strategy](https://learn.microsoft.com/azure/cloud-adoption-framework/ready/azure-best-practices/resource-tagging)
-- [Enforce resource tagging rules](https://learn.microsoft.com/azure/cloud-adoption-framework/govern/cost-management/enforce-resource-tagging)
+- [Enforce tagging](https://learn.microsoft.com/azure/cloud-adoption-framework/govern/enforce-cloud-governance-policies)
 
 Key facts Microsoft states explicitly:
 

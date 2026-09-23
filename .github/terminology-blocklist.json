@@ -99,7 +99,6 @@
   "excludePatterns": [
     "CHANGELOG.md",
     "docs/CHANGELOG.md",
-    "site/src/content/docs/project/changelog.md",
     "QUALITY_SCORE.md",
     "package-lock.json",
     "node_modules/",

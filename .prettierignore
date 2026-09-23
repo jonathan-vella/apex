@@ -1,8 +1,6 @@
 # Paths Prettier should ignore. Keep in sync with eslint.config.mjs ignores.
 node_modules/
-.archive/docs-cleanup-2026-09-22/
-# Retired local site residue is not product source.
-site/
+.archive/
 agent-output/
 tmp/
 infra/

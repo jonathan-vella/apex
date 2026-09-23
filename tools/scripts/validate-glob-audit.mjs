@@ -53,7 +53,7 @@ for (const [file, instr] of instructions) {
       instr.path,
       `${file} applies to all markdown (${trimmed}) and is ${lineCount} lines (>${MAX_LINES_WITH_BROAD_MD})`,
     );
-    console.log("  Fix: Scope to specific folders (site/src/content/docs/**, .github/**, root *.md)");
+    console.log("  Fix: Scope to specific folders (.github/**, tools/**, root *.md)");
   }
 }
 

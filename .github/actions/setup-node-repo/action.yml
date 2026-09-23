@@ -26,7 +26,7 @@
 #
 # Not used by:
 #   - governance-policy-baseline.yml — pwsh + azure/login, no Node
-#   - docs.yml — uses a non-root working-directory (site/)
+#   - Documentation publishing — maintained in the separate apex-docs repository
 #   - branch-enforcement.yml — neither job needs Node
 
 name: Setup Node Repo

@@ -367,4 +367,4 @@ Directory.ReadWrite.All       : 19dbc75e-c2e2-444c-a770-ec69d8559fc7
 - [Microsoft Graph Permissions Reference](https://learn.microsoft.com/en-us/graph/permissions-reference)
 - [Permission Types](https://learn.microsoft.com/en-us/entra/identity-platform/permissions-consent-overview)
 - [Admin Consent Workflow](https://learn.microsoft.com/en-us/entra/identity/enterprise-apps/configure-admin-consent-workflow)
-- [Consent Framework](https://learn.microsoft.com/en-us/entra/identity-platform/consent-framework)
+- [Consent types and developer guidance](https://learn.microsoft.com/entra/identity-platform/consent-types-developer)

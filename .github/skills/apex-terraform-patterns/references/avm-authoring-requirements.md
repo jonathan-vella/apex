@@ -8,7 +8,7 @@ For runtime issues (set-type diffs, provider pins, 4.x changes) see `avm-pitfall
 **References:**
 
 - [Azure Verified Modules](https://azure.github.io/Azure-Verified-Modules/)
-- [AVM Terraform Requirements](https://azure.github.io/Azure-Verified-Modules/specs/terraform/)
+- [AVM Terraform Requirements](https://azure.github.io/Azure-Verified-Modules/specs/tf)
 
 ---
 

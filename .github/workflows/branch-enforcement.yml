@@ -62,8 +62,8 @@ jobs:
           # Determine allowed file patterns per domain prefix
           case "$PREFIX" in
             docs)
-              ALLOWED='^(site/|README\.md|CONTRIBUTING\.md|CHANGELOG\.md|GLOSSARY\.md)'
-              LABEL="site/, README.md, CONTRIBUTING.md, CHANGELOG.md"
+              ALLOWED='^(README\.md|CONTRIBUTING\.md|CHANGELOG\.md|GLOSSARY\.md)'
+              LABEL="README.md, CONTRIBUTING.md, CHANGELOG.md, GLOSSARY.md"
               ;;
             agents)
               ALLOWED='^(\.github/agents/|tools/registry/agent-registry\.json)'

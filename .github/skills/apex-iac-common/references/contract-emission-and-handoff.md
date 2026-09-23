@@ -15,9 +15,9 @@ from `04-implementation-plan.md` prose:
 
 | Artifact                       | Schema                                                                               | Purpose                                                      |
 | ------------------------------ | ------------------------------------------------------------------------------------ | ------------------------------------------------------------ |
-| `04-iac-contract.json`         | [`iac-contract-v0`/`v1`](../../../tools/schemas/iac-contract.schema.json)            | Resource list, module pins, diagnostics + identity contract  |
-| `04-policy-property-map.json`  | [`policy-property-map-v1`](../../../tools/schemas/policy-property-map.schema.json)   | L1m governance attestation map (one row per Deny policy)     |
-| `04-environment-manifest.json` | [`environment-manifest-v1`](../../../tools/schemas/environment-manifest.schema.json) | Per-environment values (subscription_id, identities, alerts) |
+| `04-iac-contract.json`         | [`iac-contract-v0`/`v1`](../../../../tools/schemas/iac-contract.schema.json)            | Resource list, module pins, diagnostics + identity contract  |
+| `04-policy-property-map.json`  | [`policy-property-map-v1`](../../../../tools/schemas/policy-property-map.schema.json)   | L1m governance attestation map (one row per Deny policy)     |
+| `04-environment-manifest.json` | [`environment-manifest-v1`](../../../../tools/schemas/environment-manifest.schema.json) | Per-environment values (subscription_id, identities, alerts) |
 
 If any contract is missing or fails its validator, STOP and traverse
 `↩ Return to Step 4`. CodeGen never patches the contract.
@@ -227,7 +227,7 @@ Record `exit_code` and `stdout_sha256` in the upcoming
 ## Phase 6 — IaC Handoff Emission (MANDATORY, Wave 3+)
 
 Emit `agent-output/{project}/05-iac-handoff.json` (schema:
-[`iac-handoff-v1`](../../../tools/schemas/iac-handoff.schema.json)). This
+[`iac-handoff-v1`](../../../../tools/schemas/iac-handoff.schema.json)). This
 compact record replaces the legacy prose `05-implementation-reference.md`
 as the deploy agent's input — `07b/07t` reads ONLY the handoff and
 `04-environment-manifest.json`, never re-reading the plan or the IaC

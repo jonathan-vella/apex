@@ -142,7 +142,6 @@ const ALLOWLIST_PATHS = [
   /\.diff$/,
   /\.prompt\.md$/, // Prompt files contain historical execution plans with point-in-time counts
   /e2e-test-plan/, // E2E test plans contain point-in-time counts
-  /archived_skills\//, // Archived skill content is frozen
 ];
 
 // Lines containing these phrases are exempt (historical context, version refs)

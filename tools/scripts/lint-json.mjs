@@ -17,8 +17,7 @@ const files = fs
   .globSync("**/*.json", {
     exclude: (p) => EXCLUDE_DIRS.includes(p.name) && p.isDirectory(),
   })
-  // fs.globSync exclude may not filter nested node_modules (e.g. site/node_modules);
-  // apply a path-level guard to ensure all node_modules trees are excluded.
+  // Apply a path-level guard to ensure nested node_modules trees are excluded.
   .filter((f) => !f.split("/").includes("node_modules"));
 
 let failures = 0;

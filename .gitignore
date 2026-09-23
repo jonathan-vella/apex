@@ -95,9 +95,6 @@ freshness-report.json
 # that single committed deliverables can be re-included with `!`.
 agent-output/_baselines/*
 
-# Preserve ignored local residue from the retired site checkout.
-site/
-
 # Terraform
 *.tfstate
 *.tfstate.backup

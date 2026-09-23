@@ -2,7 +2,7 @@
 
 ## Learn More
 
-- [Durable Task Scheduler documentation](https://learn.microsoft.com/azure/durable-task-scheduler/)
+- [Durable Task Scheduler documentation](https://learn.microsoft.com/azure/durable-task/scheduler/durable-task-scheduler)
 - [Durable Functions .NET isolated worker guide](https://learn.microsoft.com/azure/azure-functions/durable/durable-functions-dotnet-isolated-overview)
 
 ## Durable Functions Setup

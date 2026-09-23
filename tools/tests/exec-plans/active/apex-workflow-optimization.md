@@ -23,8 +23,8 @@ Use this summary for the current proposal; historical authorizations below retai
 | FreshConnect / ST-07             | Scoped deploy/delete authorized; required owner and preview gates retained    | Planner correction blocks retry; no Azure writes during maintenance                 |
 | Publication                      | Commit, push and open/update PR approved after agreed checks pass             | Include dependency/roadmap changes; exclude private project evidence; no main merge |
 
-Reference repository: <https://github.com/jonathan-vella/aks-basic>.
-The pinned reference is a qualitative output reference, not a deployment prerequisite for this phase.
+Reference repository (historical): `https://github.com/jonathan-vella/aks-basic` (currently returns 404).
+The pinned reference was a qualitative output reference, not a deployment prerequisite for this phase.
 Any authorized commits and pushes are limited to the feature branch. Never merge into main or enable auto-merge.
 No Azure resources were created by the original maintenance campaign. The later user-run FreshConnect deployment
 partially provisioned resources before failing; recovery or an explicitly approved cost/cleanup disposition remains open.
@@ -72,6 +72,7 @@ tracking-only state. Preserve the distinction between current test evidence, ful
 | Agent modernization and E2E retirement               | Local discovery/picker confirmed; Agent Host excluded by user decision                                  | [Local acceptance matrix](skill-remediation.md#active-local-acceptance-scope-2026-09-15) and [modernization plan](agent-modernization.md)              | Verify Local workflow execution; no further Host work                                        |
 | Deep skill and agent-contract remediation            | Local verification checkpoint `2c819743` published; bounded decision probes and offline checks recorded | [Current disposition](apex-workflow-audit.md#post-checkpoint-per-id-disposition) and [acceptance procedure](skill-remediation.md#acceptance-procedure) | Prioritize native recovery; keep optional SDK coverage gated without blocking unrelated work |
 | Broader role and workflow redesign                   | Proposed; separate approval required                                                                    | [Redesign proposals](agent-modernization.md#separately-approval-gated-proposals)                                                                       | Do not mix into contract-preserving remediation                                              |
+| Azure skills plugin alignment                        | Deferred; saved 2026-09-23 for later re-evaluation                                                      | [Plugin alignment plan](azure-skills-plugin-alignment.md)                                                                                              | Run its re-evaluation checklist before any work                                              |
 | Final quality acceptance                             | Pending user testing and remediation                                                                    | Manual matrices in both execution plans                                                                                                                | Never infer signoff from lint, compilation, or publication                                   |
 
 ## Bounded Stabilization And Main Promotion (2026-09-21)

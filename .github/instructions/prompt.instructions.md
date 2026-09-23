@@ -126,9 +126,9 @@ separately; source validation is not runtime evidence.
 ## Additional Resources
 
 - [Prompt Files Documentation][prompt-docs]
-- [Awesome Copilot Prompt Files][awesome-prompts]
+- [Awesome Copilot community examples][awesome-prompts]
 - [Tool Configuration][tool-config]
 
-[prompt-docs]: https://code.visualstudio.com/docs/copilot/customization/prompt-files#_prompt-file-format
-[awesome-prompts]: https://github.com/github/awesome-copilot/tree/main/prompts
-[tool-config]: https://code.visualstudio.com/docs/copilot/chat/chat-agent-mode#_agent-mode-tools
+[prompt-docs]: https://code.visualstudio.com/docs/agent-customization/prompt-files#_prompt-file-format
+[awesome-prompts]: https://github.com/github/awesome-copilot
+[tool-config]: https://code.visualstudio.com/docs/agents/run/tools
