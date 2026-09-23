@@ -3,9 +3,10 @@
  * Upstream Skill Drift Report
  *
  * Compares the reviewed azure-skills tag pinned in tools/registry/upstream-skill-pins.json with the latest
- * upstream tag. Reports changed upstream files per pinned APEX skill (flagging imported files), changelog
- * lines since the reviewed tag, new or retired upstream skills, and whether each defect probe still matches
- * upstream. It clones into a temporary directory and never writes under .github/skills.
+ * upstream tag. Reports changed upstream files per pinned APEX skill across every tracked upstream plugin
+ * (flagging imported files), changelog lines since the reviewed tag, new or retired upstream plugins and
+ * skills, and whether each defect probe still matches its reviewed state. It clones into a temporary
+ * directory and never writes under .github/skills.
  *
  * Exit codes:
  *   0 — report produced (no drift, or drift without --fail-on-drift)
@@ -135,8 +136,11 @@ function isProtected(rootDir, target) {
 
 function manifestError(manifest) {
   const upstream = manifest?.upstream;
-  if (typeof upstream?.repository !== "string" || typeof upstream?.plugin_path !== "string") {
-    return "upstream.repository and upstream.plugin_path are required";
+  if (typeof upstream?.repository !== "string" || typeof upstream?.plugins_root !== "string") {
+    return "upstream.repository and upstream.plugins_root are required";
+  }
+  if (!Array.isArray(upstream.plugins) || !upstream.plugins.includes(upstream.primary_plugin)) {
+    return "upstream.plugins[] must list upstream.primary_plugin";
   }
   if (typeof upstream.reviewed?.tag !== "string" || typeof upstream.reviewed?.commit !== "string") {
     return "upstream.reviewed.tag and upstream.reviewed.commit are required";
@@ -146,6 +150,10 @@ function manifestError(manifest) {
     return "skills[] entries need upstream[] and imports[]";
   }
   if (!Array.isArray(manifest.defect_probes)) return "defect_probes[] is required";
+  const unknown = [...skills, ...manifest.defect_probes].find(
+    (entry) => entry.plugin !== undefined && !upstream.plugins.includes(entry.plugin),
+  );
+  if (unknown) return `plugin ${unknown.plugin} is not listed in upstream.plugins[]`;
   return null;
 }
 
@@ -154,29 +162,57 @@ function isImported(skill, file) {
 }
 
 function compareTrees({ git, workdir, manifest, pinned, latest }) {
-  const pluginPath = manifest.upstream.plugin_path;
+  const { plugins_root: pluginsRoot, primary_plugin: primary, plugins } = manifest.upstream;
+  const skillsPath = (plugin) => `${pluginsRoot}/${plugin}/skills`;
+  // Paths in the manifest are relative to a plugin's skills folder; non-primary plugins get a prefix.
+  const label = (plugin, name) => (plugin === primary ? name : `${plugin}:${name}`);
   const pinnedCommit = git(["rev-parse", `refs/tags/${pinned}^{commit}`], workdir).trim();
   const latestCommit = git(["rev-parse", "HEAD"], workdir).trim();
-  const changed = git(["diff", "--no-renames", "--name-status", pinnedCommit, latestCommit, "--", pluginPath], workdir)
-    .split("\n")
-    .filter(Boolean)
-    .map((line) => {
-      const [status, file] = line.split("\t");
-      return { status, file: file.slice(pluginPath.length + 1) };
-    });
-  const skillDirs = (commit) =>
-    new Set(
-      git(["ls-tree", "-d", "--name-only", `${commit}:${pluginPath}`], workdir)
+  const changed = new Map(
+    plugins.map((plugin) => {
+      const dir = skillsPath(plugin);
+      const lines = git(["diff", "--no-renames", "--name-status", pinnedCommit, latestCommit, "--", dir], workdir);
+      const changes = lines
         .split("\n")
-        .filter(Boolean),
+        .filter(Boolean)
+        .map((line) => {
+          const [status, file] = line.split("\t");
+          return { status, file: file.slice(dir.length + 1) };
+        });
+      return [plugin, changes];
+    }),
+  );
+  // A missing folder lists as empty, so plugins that appear or disappear between tags still compare.
+  const subdirs = (commit, dir) =>
+    new Set(
+      git(["ls-tree", "-d", "--name-only", commit, "--", `${dir}/`], workdir)
+        .split("\n")
+        .filter(Boolean)
+        .map((entry) => path.posix.basename(entry)),
     );
-  const before = skillDirs(pinnedCommit);
-  const after = skillDirs(latestCommit);
-  const tracked = new Set(manifest.skills.flatMap((skill) => skill.upstream));
+  const diffSets = (before, after, tracked) => ({
+    added: [...after].filter((name) => !before.has(name)).map((name) => ({ name, tracked: tracked(name) })),
+    retired: [...before].filter((name) => !after.has(name)).map((name) => ({ name, tracked: tracked(name) })),
+  });
+  const trackedSkills = new Set(
+    manifest.skills.flatMap((skill) => skill.upstream.map((name) => `${skill.plugin ?? primary}/${name}`)),
+  );
+  const skillSets = plugins.map((plugin) => {
+    const { added, retired } = diffSets(
+      subdirs(pinnedCommit, skillsPath(plugin)),
+      subdirs(latestCommit, skillsPath(plugin)),
+      (name) => trackedSkills.has(`${plugin}/${name}`),
+    );
+    const relabel = (items) => items.map((item) => ({ ...item, name: label(plugin, item.name) }));
+    return { added: relabel(added), retired: relabel(retired) };
+  });
+  const pluginSets = diffSets(subdirs(pinnedCommit, pluginsRoot), subdirs(latestCommit, pluginsRoot), (name) =>
+    plugins.includes(name),
+  );
   const read = (file) => git(["show", `${latestCommit}:${file}`], workdir);
   const exists = (file) => git(["ls-tree", latestCommit, "--", file], workdir).trim() !== "";
 
-  const changelogPath = `${path.posix.dirname(pluginPath)}/CHANGELOG.md`;
+  const changelogPath = `${pluginsRoot}/${primary}/CHANGELOG.md`;
   return {
     pinnedCommit,
     latestCommit,
@@ -185,24 +221,31 @@ function compareTrees({ git, workdir, manifest, pinned, latest }) {
       .map((skill) => ({
         apex: skill.apex,
         status: skill.status,
+        plugin: skill.plugin ?? primary,
         upstream: skill.upstream,
         changes: changed
+          .get(skill.plugin ?? primary)
           .filter(({ file }) => skill.upstream.includes(file.split("/")[0]))
           .map((change) => ({ ...change, imported: isImported(skill, change.file) })),
       }))
       .filter((skill) => skill.changes.length > 0),
-    added: [...after].filter((name) => !before.has(name)).map((name) => ({ name, tracked: tracked.has(name) })),
-    retired: [...before].filter((name) => !after.has(name)).map((name) => ({ name, tracked: tracked.has(name) })),
+    added: skillSets.flatMap((set) => set.added),
+    retired: skillSets.flatMap((set) => set.retired),
+    pluginsAdded: pluginSets.added,
+    pluginsRetired: pluginSets.retired,
     probes: manifest.defect_probes.map((probe) => {
-      const file = `${pluginPath}/${probe.path}`;
-      if (!exists(file)) return { id: probe.id, path: probe.path, defect: probe.defect, result: "file removed" };
-      const present = new RegExp(probe.pattern, probe.flags ?? "").test(read(file));
-      return {
+      const plugin = probe.plugin ?? primary;
+      const file = `${skillsPath(plugin)}/${probe.path}`;
+      const base = {
         id: probe.id,
-        path: probe.path,
+        path: label(plugin, probe.path),
         defect: probe.defect,
-        result: present ? "still present" : "fixed upstream",
+        fixedIn: probe.fixed_upstream_in ?? null,
+        expected: probe.fixed_upstream_in ? "fixed upstream" : "still present",
       };
+      if (!exists(file)) return { ...base, result: "file removed" };
+      const present = new RegExp(probe.pattern, probe.flags ?? "").test(read(file));
+      return { ...base, result: present ? "still present" : "fixed upstream" };
     }),
   };
 }
@@ -214,8 +257,17 @@ function hasDrift(report) {
     report.skills.length > 0 ||
     report.added.length > 0 ||
     report.retired.length > 0 ||
-    report.probes.some((probe) => probe.result !== "still present")
+    report.pluginsAdded.length > 0 ||
+    report.pluginsRetired.length > 0 ||
+    report.probes.some((probe) => probe.result !== probe.expected)
   );
+}
+
+function probeResult(probe) {
+  if (!probe.fixedIn) return probe.result;
+  return probe.result === probe.expected
+    ? `fixed upstream (reviewed in ${probe.fixedIn})`
+    : `${probe.result} (was fixed in ${probe.fixedIn})`;
 }
 
 /** Renders the report as Markdown suitable for an issue body. */
@@ -249,13 +301,14 @@ export function renderMarkdown(report) {
     return lines.join("\n");
   }
   const importedChanges = report.skills.flatMap((skill) => skill.changes).filter((change) => change.imported);
-  const fixed = report.probes.filter((probe) => probe.result !== "still present");
+  const unexpected = report.probes.filter((probe) => probe.result !== probe.expected);
   lines.push(
     "## Summary",
     "",
     `- ${report.skills.length} pinned skills have upstream changes (${importedChanges.length} imported files changed)`,
+    `- ${report.pluginsAdded.length} new and ${report.pluginsRetired.length} retired upstream plugins`,
     `- ${report.added.length} new and ${report.retired.length} retired upstream skills`,
-    `- ${fixed.length} defect probes no longer match upstream (review before retiring the local fix)`,
+    `- ${unexpected.length} defect probes differ from their reviewed state (review before changing the local fix)`,
     "",
     `## Changelog Since ${report.pinned.tag}`,
     "",
@@ -276,7 +329,7 @@ export function renderMarkdown(report) {
     lines.push(
       `### ${skill.apex}`,
       "",
-      `Status \`${skill.status}\`; upstream ${skill.upstream.map((name) => `\`${name}\``).join(", ")}.`,
+      `Status \`${skill.status}\`; plugin \`${skill.plugin}\`; upstream ${skill.upstream.map((name) => `\`${name}\``).join(", ")}.`,
       "",
       "| Change | Upstream file | Imported |",
       "| --- | --- | --- |",
@@ -289,21 +342,22 @@ export function renderMarkdown(report) {
     }
     lines.push("");
   }
-  lines.push("## New And Retired Upstream Skills", "");
-  const skillRows = [
-    ...report.added.map((skill) => ({ ...skill, change: "new" })),
-    ...report.retired.map((skill) => ({ ...skill, change: "retired" })),
+  lines.push("## New And Retired Upstream Plugins And Skills", "");
+  const rows = [
+    ...report.pluginsAdded.map((item) => ({ ...item, change: "new plugin" })),
+    ...report.pluginsRetired.map((item) => ({ ...item, change: "retired plugin" })),
+    ...report.added.map((item) => ({ ...item, change: "new" })),
+    ...report.retired.map((item) => ({ ...item, change: "retired" })),
   ];
-  if (skillRows.length === 0) lines.push("None.", "");
+  if (rows.length === 0) lines.push("None.", "");
   else {
-    lines.push("| Upstream skill | Change | Pinned in APEX |", "| --- | --- | --- |");
-    for (const skill of skillRows)
-      lines.push(`| \`${skill.name}\` | ${skill.change} | ${skill.tracked ? "yes" : "no"} |`);
+    lines.push("| Upstream item | Change | Tracked in APEX |", "| --- | --- | --- |");
+    for (const item of rows) lines.push(`| \`${item.name}\` | ${item.change} | ${item.tracked ? "yes" : "no"} |`);
     lines.push("");
   }
   lines.push("## Defect Probes", "", "| ID | Upstream file | Result | Defect |", "| --- | --- | --- | --- |");
   for (const probe of report.probes) {
-    lines.push(`| ${probe.id} | \`${probe.path}\` | ${probe.result} | ${probe.defect} |`);
+    lines.push(`| ${probe.id} | \`${probe.path}\` | ${probeResult(probe)} | ${probe.defect} |`);
   }
   lines.push("", "This report is read-only. Port upstream changes into `.github/skills` by hand after review.", "");
   return lines.join("\n");

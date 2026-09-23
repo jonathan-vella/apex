@@ -1,10 +1,12 @@
 {
   "$schema": "../schemas/upstream-skill-pins.schema.json",
-  "schema_version": 1,
+  "schema_version": 2,
   "upstream": {
     "repository": "microsoft/azure-skills",
     "source_of_truth": "microsoft/GitHub-Copilot-for-Azure",
-    "plugin_path": ".github/plugins/azure-skills/skills",
+    "plugins_root": ".github/plugins",
+    "primary_plugin": "azure-skills",
+    "plugins": ["azure-skills", "azure-cost"],
     "fork_base": {
       "commit": "90fcf6de8ceef59e28b34714785a52d19aab071c",
       "date": "2026-03-12",
@@ -104,16 +106,14 @@
     },
     {
       "apex": "apex-azure-cost-optimization",
-      "upstream": ["azure-cost"],
-      "status": "fork",
-      "note": "Upstream renamed azure-cost-optimization to azure-cost; APEX keeps its name.",
+      "plugin": "azure-cost",
+      "upstream": ["cost-analysis", "cost-estimation", "cost-optimization"],
+      "status": "apex-merge",
+      "note": "Upstream moved azure-cost into the standalone azure-cost plugin in v1.2.68 and split it; cost-governance (budgets) is not covered. tools-and-safety.md also carries the cost-estimation tool-fallback rows, and azure-storage-tiers.md keeps a tiering-only form of services/storage-lifecycle.md.",
       "imports": [
-        { "from": "azure-cost/cost-query/", "to": "references/cost-query/" },
-        { "from": "azure-cost/cost-forecast/", "to": "references/cost-forecast/" },
-        {
-          "from": "azure-cost/cost-optimization/services/storage/azure-storage.md",
-          "to": "references/azure-storage-tiers.md"
-        }
+        { "from": "cost-analysis/references/cost-query/", "to": "references/cost-query/" },
+        { "from": "cost-estimation/references/cost-forecast/", "to": "references/cost-forecast/" },
+        { "from": "cost-optimization/references/services/storage.md", "to": "references/azure-storage-tiers.md" }
       ]
     },
     { "apex": "apex-azure-compliance", "upstream": ["azure-compliance"], "status": "fork", "imports": [] },
@@ -232,9 +232,11 @@
   "defect_probes": [
     {
       "id": "SK-08",
-      "path": "azure-cost/cost-optimization/report-template.md",
+      "plugin": "azure-cost",
+      "path": "cost-optimization/references/report-template.md",
       "pattern": "Remove-Item -Path \"temp\" -Recurse -Force",
-      "defect": "Cleanup recursively deletes a temp folder that may hold user files"
+      "defect": "Cleanup recursively deletes a temp folder that may hold user files",
+      "fixed_upstream_in": "v1.2.70"
     },
     {
       "id": "SK-11",
@@ -263,13 +265,16 @@
     },
     {
       "id": "SK-19",
-      "path": "azure-cost/cost-optimization/services/redis/azure-cache-for-redis.md",
+      "plugin": "azure-cost",
+      "path": "cost-optimization/references/services/redis.md",
       "pattern": "Failed Cache.*Delete immediately",
-      "defect": "Failed caches are marked for immediate deletion with savings claims"
+      "defect": "Failed caches are marked for immediate deletion with savings claims",
+      "fixed_upstream_in": "v1.2.70"
     },
     {
       "id": "SK-20",
-      "path": "azure-cost/cost-optimization/services/storage/azure-storage.md",
+      "plugin": "azure-cost",
+      "path": "cost-optimization/references/services/storage.md",
       "pattern": "\\| project name, resourceGroup",
       "defect": "Unused-resource queries omit resource and subscription IDs"
     },

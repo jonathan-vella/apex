@@ -9,6 +9,7 @@ import { changelogSince, latestTag, tagCommits } from "../../scripts/report-upst
 
 const script = fileURLToPath(new URL("../../scripts/report-upstream-skill-drift.mjs", import.meta.url));
 const plugin = ".github/plugins/azure-skills";
+const extra = ".github/plugins/azure-extra";
 
 function git(cwd, ...args) {
   const result = spawnSync(
@@ -35,6 +36,7 @@ function fixture(context) {
   write(upstream, `${plugin}/skills/azure-demo/SKILL.md`, "demo\n");
   write(upstream, `${plugin}/skills/azure-demo/references/guide.md`, 'Remove-Item -Path "temp" -Recurse\n');
   write(upstream, `${plugin}/skills/azure-old/SKILL.md`, "old\n");
+  write(upstream, `${plugin}/skills/azure-moved/SKILL.md`, "Remove-Item -Path temp\n");
   git(upstream, "add", "-A");
   git(upstream, "commit", "-q", "-m", "first");
   git(upstream, "tag", "v1.0.0");
@@ -48,6 +50,9 @@ function fixture(context) {
   write(upstream, `${plugin}/skills/azure-demo/notes.md`, "not imported\n");
   write(upstream, `${plugin}/skills/azure-new/SKILL.md`, "new\n");
   git(upstream, "rm", "-q", "-r", `${plugin}/skills/azure-old`);
+  git(upstream, "rm", "-q", "-r", `${plugin}/skills/azure-moved`);
+  write(upstream, `${extra}/skills/moved-split/SKILL.md`, "Clean up only your files.\n");
+  write(upstream, `${extra}/skills/moved-extra/SKILL.md`, "untracked\n");
   git(upstream, "add", "-A");
   git(upstream, "commit", "-q", "-m", "second");
   git(upstream, "tag", "v1.1.0");
@@ -57,9 +62,12 @@ function fixture(context) {
   writeFileSync(
     manifest,
     JSON.stringify({
+      schema_version: 2,
       upstream: {
         repository: "fixture/azure-skills",
-        plugin_path: `${plugin}/skills`,
+        plugins_root: ".github/plugins",
+        primary_plugin: "azure-skills",
+        plugins: ["azure-skills", "azure-extra"],
         reviewed: { tag: "v1.0.0", commit: reviewed },
       },
       skills: [
@@ -69,9 +77,24 @@ function fixture(context) {
           status: "fork",
           imports: [{ from: "azure-demo/references/", to: "references/" }],
         },
+        {
+          apex: "apex-azure-moved",
+          plugin: "azure-extra",
+          upstream: ["moved-split"],
+          status: "fork",
+          imports: [{ from: "moved-split/SKILL.md", to: "SKILL.md" }],
+        },
       ],
       defect_probes: [
         { id: "SK-99", path: "azure-demo/references/guide.md", pattern: "Remove-Item -Path", defect: "Deletes temp" },
+        {
+          id: "SK-98",
+          plugin: "azure-extra",
+          path: "moved-split/SKILL.md",
+          pattern: "Remove-Item",
+          defect: "Deletes temp",
+          fixed_upstream_in: "v1.1.0",
+        },
       ],
     }),
   );
@@ -112,12 +135,30 @@ test("drift report compares pinned and latest trees offline and flags imports an
   assert.match(report, /\| A \| `azure-demo\/notes\.md` \| no \|/);
   assert.match(report, /\| `azure-new` \| new \| no \|/);
   assert.match(report, /\| `azure-old` \| retired \| no \|/);
+  assert.match(report, /\| `azure-moved` \| retired \| no \|/);
+  assert.match(report, /\| `azure-extra` \| new plugin \| yes \|/);
+  assert.match(report, /\| `azure-extra:moved-split` \| new \| yes \|/);
+  assert.match(report, /\| `azure-extra:moved-extra` \| new \| no \|/);
+  assert.match(report, /### apex-azure-moved\n\nStatus `fork`; plugin `azure-extra`; upstream `moved-split`\./);
+  assert.match(report, /\| A \| `moved-split\/SKILL\.md` \| yes \|/);
   assert.match(report, /\| SK-99 \| `azure-demo\/references\/guide\.md` \| fixed upstream \|/);
+  assert.match(
+    report,
+    /\| SK-98 \| `azure-extra:moved-split\/SKILL\.md` \| fixed upstream \(reviewed in v1\.1\.0\) \|/,
+  );
+  assert.match(report, /- 1 defect probes differ from their reviewed state/);
   assert.doesNotMatch(report, /Tag v1\.0\.0 now points/);
 
   const json = JSON.parse(run("--json").stdout);
   assert.equal(json.drift, true);
   assert.equal(json.skills[0].changes.length, 2);
+  assert.deepEqual(
+    json.probes.map(({ id, result, expected }) => [id, result, expected]),
+    [
+      ["SK-99", "fixed upstream", "still present"],
+      ["SK-98", "fixed upstream", "fixed upstream"],
+    ],
+  );
 });
 
 test("drift report skips the clone when no newer tag exists and never writes under .github/skills", (context) => {
@@ -137,6 +178,23 @@ test("drift report skips the clone when no newer tag exists and never writes und
   });
   assert.equal(unreachable.status, 2);
   assert.match(unreachable.stderr, /Cannot list upstream tags/);
+});
+
+test("drift report flags a reviewed upstream fix that regressed and rejects unknown plugins", (context) => {
+  const { root, run } = fixture(context);
+  const manifestPath = path.join(root, "pins.json");
+  const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+  manifest.defect_probes[1].pattern = "Clean up only";
+  writeFileSync(manifestPath, JSON.stringify(manifest));
+  const regressed = JSON.parse(run("--json").stdout).probes[1];
+  assert.equal(regressed.result, "still present");
+  assert.match(run().stdout, /\| SK-98 \| .* \| still present \(was fixed in v1\.1\.0\) \|/);
+
+  manifest.skills[1].plugin = "azure-unknown";
+  writeFileSync(manifestPath, JSON.stringify(manifest));
+  const invalid = run();
+  assert.equal(invalid.status, 2);
+  assert.match(invalid.stderr, /plugin azure-unknown is not listed/);
 });
 
 test("drift report flags a force-moved reviewed tag even without a newer release", (context) => {

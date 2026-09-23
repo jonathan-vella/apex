@@ -27,7 +27,9 @@ test("every Microsoft-derived skill is pinned exactly once", () => {
 });
 
 test("imports come from the skill's upstream sources and exist locally", () => {
+  const plugins = manifest.upstream.plugins;
   for (const skill of manifest.skills) {
+    assert.ok(!skill.plugin || plugins.includes(skill.plugin), `${skill.apex}: unknown plugin ${skill.plugin}`);
     const targets = skill.imports.map(({ to }) => to);
     assert.equal(new Set(targets).size, targets.length, `${skill.apex}: duplicate import targets`);
     for (const { from, to } of skill.imports) {
@@ -38,10 +40,14 @@ test("imports come from the skill's upstream sources and exist locally", () => {
 });
 
 test("defect probes target pinned upstream skills and compile", () => {
-  const upstreamSkills = new Set(manifest.skills.flatMap((skill) => skill.upstream));
+  const primary = manifest.upstream.primary_plugin;
+  const upstreamSkills = new Set(
+    manifest.skills.flatMap((skill) => skill.upstream.map((name) => `${skill.plugin ?? primary}/${name}`)),
+  );
   const seen = new Set();
   for (const probe of manifest.defect_probes) {
-    assert.ok(upstreamSkills.has(probe.path.split("/")[0]), `${probe.id}: ${probe.path} is not a pinned skill`);
+    const skill = `${probe.plugin ?? primary}/${probe.path.split("/")[0]}`;
+    assert.ok(upstreamSkills.has(skill), `${probe.id}: ${skill} is not a pinned skill`);
     assert.doesNotThrow(() => new RegExp(probe.pattern, probe.flags ?? ""), probe.id);
     const key = `${probe.id}:${probe.path}`;
     assert.ok(!seen.has(key), `duplicate probe ${key}`);
