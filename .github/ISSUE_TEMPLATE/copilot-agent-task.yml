@@ -20,8 +20,8 @@ body:
       label: Context
       description: Where is the code? What currently exists? Why is this change needed?
       placeholder: |
-        The patient portal infrastructure in `infra/bicep/contoso-patient-portal/` 
-        needs monitoring before production go-live. Currently there are no alert 
+        The patient portal infrastructure in `infra/bicep/contoso-patient-portal/`
+        needs monitoring before production go-live. Currently there are no alert
         rules configured.
     validations:
       required: true

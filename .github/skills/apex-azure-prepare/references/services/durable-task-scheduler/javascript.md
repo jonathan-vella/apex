@@ -2,7 +2,7 @@
 
 ## Learn More
 
-- [Durable Task Scheduler documentation](https://learn.microsoft.com/azure/durable-task-scheduler/)
+- [Durable Task Scheduler documentation](https://learn.microsoft.com/azure/durable-task/scheduler/durable-task-scheduler)
 - [Durable Functions JavaScript guide](https://learn.microsoft.com/azure/azure-functions/durable/durable-functions-overview?tabs=javascript)
 
 ## Durable Functions Setup
@@ -18,7 +18,7 @@
 }
 ```
 
-> **💡 Finding latest versions**: Run `npm view durable-functions version` or check [npmjs.com/package/durable-functions](https://www.npmjs.com/package/durable-functions) for the latest stable release.
+> **💡 Finding latest versions**: Run `npm view durable-functions version` or check the [Durable Functions JavaScript repository](https://github.com/Azure/azure-functions-durable-js) for the latest stable release.
 
 ### host.json
 

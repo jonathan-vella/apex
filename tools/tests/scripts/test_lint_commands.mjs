@@ -214,12 +214,6 @@ test("root workflow diagram uses declared participants and current artifact name
   assert.doesNotMatch(diagram, /02-assessment.md|03-cost-estimate.md|04-plan.md|challenge-findings.json/);
   assert.ok(diagram.indexOf("challenge-findings-cost-estimate.json") < diagram.indexOf("Approve architecture"));
   assert.match(diagram, /C->>G: Discover policy constraints/);
-  const quality = readFileSync(
-    new URL("../../../.archive/docs-cleanup-2026-09-22/QUALITY_SCORE.md", import.meta.url),
-    "utf8",
-  );
-  assert.match(quality, /historical, not a current validation result/);
-  assert.doesNotMatch(quality.split("## Change Log")[0], /\d+ primary|\d+ subagents|\d+ skills|\d+ instructions/);
 });
 
 test("version sync fails on missing or malformed required version evidence", (context) => {
@@ -300,7 +294,7 @@ test("YAML selection prunes dependencies and scratch without hiding source files
   for (const file of [
     ".github/workflows/check.yml",
     "a space.yaml",
-    "site/node_modules/pkg/a.yml",
+    "fixture/node_modules/pkg/a.yml",
     ".venv/a.yml",
     "tmp/a.yml",
   ]) {
@@ -314,7 +308,7 @@ test("YAML selection prunes dependencies and scratch without hiding source files
   assert.doesNotMatch(result.stdout, /node_modules|\.venv|tmp\/a/);
 });
 
-test("link selection includes tracked and active untracked files but not ignored residue", (context) => {
+test("link selection checks active Markdown but skips ignored residue and generated artifact templates", (context) => {
   const root = fixture(context);
   assert.equal(spawnSync("git", ["init", "-q", root]).status, 0);
   stub(root, "markdown-link-check");
@@ -322,6 +316,8 @@ test("link selection includes tracked and active untracked files but not ignored
   for (const file of [
     "README.md",
     "new guide.md",
+    ".github/skills/apex-azure-artifacts/templates/07-backup-dr-plan.template.md",
+    ".github/skills/apex-azure-artifacts/templates/ordinary.md",
     ".venv/README.md",
     "tmp/run.md",
     ".archive/old.md",
@@ -335,6 +331,8 @@ test("link selection includes tracked and active untracked files but not ignored
   assert.equal(result.status, 0);
   assert.match(result.stdout, /README.md/);
   assert.match(result.stdout, /new guide.md/);
+  assert.match(result.stdout, /templates\/ordinary\.md/);
+  assert.doesNotMatch(result.stdout, /\.template\.md/);
   assert.doesNotMatch(result.stdout, /\.venv|tmp\/run|\.archive|infra\/demo/);
   assert.notEqual(run(root, "lint:links", { LINT_EXIT: "3" }).status, 0);
 });

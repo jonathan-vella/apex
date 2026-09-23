@@ -2,7 +2,7 @@
 
 # Execution Plans
 
-> [Current Version](../../VERSION.md) | Structured plans for multi-step work
+> [Current Version](../../../VERSION.md) | Structured plans for multi-step work
 
 Execution plans track significant changes that span multiple steps or sessions.
 They provide decision history and progress visibility for both humans and agents.
@@ -44,7 +44,7 @@ initiative. Not every task needs one — use them for work that:
 ## Directory Structure
 
 ```text
-docs/exec-plans/
+tools/tests/exec-plans/
 ├── README.md                  # This file
 ├── tech-debt-tracker.md       # Running inventory of known debt
 ├── active/                    # Currently in-progress plans
@@ -57,8 +57,7 @@ docs/exec-plans/
 
 ## Tech Debt Tracker
 
-The [tech-debt-tracker.md](tech-debt-tracker.md) maintains a running inventory of known quality
-gaps, technical debt, and planned remediation. It is updated by the doc-gardening workflow and
-referenced by `QUALITY_SCORE.md`.
+The [tech-debt-tracker.md](tech-debt-tracker.md) maintains a historical inventory of repository
+quality gaps and remediation status.
 
 <div align="right"><a href="#top"><b>⬆️ Back to Top</b></a></div>

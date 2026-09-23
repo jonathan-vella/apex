@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-09-23T06:56:26.878Z",
+  "generatedAt": "2026-09-23T09:08:16.782Z",
   "categories": [
     { "id": "agent", "key": "agents", "label": "Agent", "color": "#3b82f6", "shape": "round-rectangle", "count": 14 },
     {
@@ -27,7 +27,7 @@
       "label": "Validator",
       "color": "#8b5cf6",
       "shape": "hexagon",
-      "count": 63
+      "count": 62
     },
     {
       "id": "workflow",
@@ -39,7 +39,7 @@
     },
     { "id": "mcp", "key": "mcp_servers", "label": "MCP Server", "color": "#f43f5e", "shape": "barrel", "count": 3 }
   ],
-  "nodeCount": 182,
+  "nodeCount": 181,
   "edgeCount": 702,
   "nodes": [
     {
@@ -1065,7 +1065,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/instructions/code-quality.instructions.md"
       },
       "meta": {
-        "applyTo": ".github/**/*.{js,mjs,cjs,ts,tsx,jsx,py,ps1,sh,bicep,tf}, tools/scripts/**/*.{js,mjs,cjs,ts,py,sh}, infra/**/*.{bicep,tf}, tools/mcp-servers/**/*.{py,ts,js,mjs}, site/**/*.{ts,mjs,js}"
+        "applyTo": ".github/**/*.{js,mjs,cjs,ts,tsx,jsx,py,ps1,sh,bicep,tf}, tools/scripts/**/*.{js,mjs,cjs,ts,py,sh}, infra/**/*.{bicep,tf}, tools/mcp-servers/**/*.{py,ts,js,mjs}"
       }
     },
     {
@@ -1201,7 +1201,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/instructions/markdown.instructions.md"
       },
       "meta": {
-        "applyTo": "site/src/content/docs/**/*.{md,mdx}, .github/copilot-instructions.md, .github/PULL_REQUEST_TEMPLATE.md, .github/plugins/**/*.md, tools/apex-prompts/**/*.md, .github/skills/**/templates/**/*.md, agent-output/**/*.md, docs/**/*.md, infra/**/*.md, tools/mcp-servers/**/*.md, tools/scripts/**/*.md, tests/**/*.md, AGENTS.md, README.md, CHANGELOG.md, CONTRIBUTING.md, CONTRIBUTORS.md, QUALITY_SCORE.md, VERSION.md"
+        "applyTo": ".github/copilot-instructions.md, .github/PULL_REQUEST_TEMPLATE.md, .github/plugins/**/*.md, tools/apex-prompts/**/*.md, .github/skills/**/templates/**/*.md, agent-output/**/*.md, docs/**/*.md, infra/**/*.md, tools/mcp-servers/**/*.md, tools/scripts/**/*.md, tests/**/*.md, AGENTS.md, README.md, CHANGELOG.md, CONTRIBUTING.md, CONTRIBUTORS.md, QUALITY_SCORE.md, VERSION.md"
       }
     },
     {
@@ -1214,7 +1214,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/instructions/no-hardcoded-counts.instructions.md"
       },
       "meta": {
-        "applyTo": ".github/**/*.{md,json}, tools/scripts/**/*.mjs, site/src/content/docs/**/*.{md,mdx}, AGENTS.md, README.md, CHANGELOG.md, QUALITY_SCORE.md, VERSION.md"
+        "applyTo": ".github/**/*.{md,json}, tools/scripts/**/*.mjs, AGENTS.md, README.md, CHANGELOG.md, QUALITY_SCORE.md, VERSION.md"
       }
     },
     {
@@ -2034,19 +2034,6 @@
       "parent": "group:validator-orphans"
     },
     {
-      "id": "validator:validate-retirement-scan",
-      "category": "validator",
-      "label": "validate:retirement-scan",
-      "description": "node tools/scripts/audit-retirement-candidates.mjs --check .archive/retirement-scan-2026-08-27.json",
-      "path": "package.json",
-      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
-      "meta": {
-        "command": "node tools/scripts/audit-retirement-candidates.mjs --check .archive/retirement-scan-2026-08-27.json",
-        "orphan": true
-      },
-      "parent": "group:validator-orphans"
-    },
-    {
       "id": "validator:test-retirement-scan",
       "category": "validator",
       "label": "test:retirement-scan",
@@ -2308,10 +2295,10 @@
     {
       "id": "group:validator-orphans",
       "category": "validator",
-      "label": "Validator (unlinked, 57)",
-      "description": "57 validator nodes with no cross-references in the current graph.",
+      "label": "Validator (unlinked, 56)",
+      "description": "56 validator nodes with no cross-references in the current graph.",
       "isGroup": true,
-      "meta": { "groupSize": 57 }
+      "meta": { "groupSize": 56 }
     },
     {
       "id": "group:workflow-orphans",

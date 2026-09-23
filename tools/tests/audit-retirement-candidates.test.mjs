@@ -1,4 +1,7 @@
 import assert from "node:assert/strict";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
 import test from "node:test";
 
 import {
@@ -7,6 +10,7 @@ import {
   parseLsFiles,
   protectionFor,
   renderMarkdown,
+  runCli,
   stableFileId,
   validateCoverage,
   validateScan,
@@ -117,6 +121,33 @@ test("repeated scans have deterministic semantic output", () => {
   const second = buildInventory({ baseline: BASELINE, branch: BRANCH });
   assert.deepEqual(second, first);
   assert.equal(renderMarkdown(second), renderMarkdown(first));
+});
+
+test("writes default reports when the destination directory is absent", () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "apex-retirement-output-"));
+  try {
+    const jsonPath = path.join(directory, "tmp", "retirement-scan.json");
+    const markdownPath = path.join(directory, "tmp", "retirement-scan.md");
+    assert.equal(fs.existsSync(path.dirname(jsonPath)), false);
+    const result = runCli([
+      "--baseline",
+      BASELINE,
+      "--branch",
+      BRANCH,
+      "--json",
+      jsonPath,
+      "--markdown",
+      markdownPath,
+      "--write",
+    ]);
+
+    assert.equal(result, 0);
+    assert.equal(fs.existsSync(jsonPath), true);
+    assert.equal(fs.existsSync(markdownPath), true);
+    assert.equal(validateScan(JSON.parse(fs.readFileSync(jsonPath, "utf8"))).valid, true);
+  } finally {
+    fs.rmSync(directory, { recursive: true, force: true });
+  }
 });
 
 test("coverage validation rejects missing and duplicate paths", () => {

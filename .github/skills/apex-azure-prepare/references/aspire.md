@@ -161,10 +161,9 @@ azd env get-values
 
 | Sample         | Repository                                                                                         | Notes                           |
 | -------------- | -------------------------------------------------------------------------------------------------- | ------------------------------- |
-| orleans-voting | [dotnet/aspire-samples](https://github.com/dotnet/aspire-samples/tree/main/samples/orleans-voting) | Orleans cluster with voting app |
-| AspireYarp     | [dotnet/aspire-samples](https://github.com/dotnet/aspire-samples/tree/main/samples/AspireYarp)     | YARP reverse proxy              |
-| AspireWithDapr | [dotnet/aspire-samples](https://github.com/dotnet/aspire-samples/tree/main/samples/AspireWithDapr) | Dapr integration                |
-| eShop          | [dotnet/eShop](https://github.com/dotnet/eShop)                                                    | Reference microservices app     |
+| orleans-voting   | [microsoft/aspire-samples](https://github.com/microsoft/aspire-samples/tree/main/samples/orleans-voting) | Orleans cluster with voting app |
+| vite-yarp-static | [microsoft/aspire-samples](https://github.com/microsoft/aspire-samples/tree/main/samples/vite-yarp-static) | Vite frontend served through YARP |
+| eShop            | [dotnet/eShop](https://github.com/dotnet/eShop)                                                       | Reference microservices app     |
 
 ## Troubleshooting
 
@@ -295,7 +294,7 @@ azd env get-values
 
 - [.NET Aspire Documentation](https://learn.microsoft.com/en-us/dotnet/aspire/)
 - [Azure Developer CLI (azd)](https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/)
-- [Aspire Samples Repository](https://github.com/dotnet/aspire-samples)
+- [Aspire Samples Repository](https://github.com/microsoft/aspire-samples)
 - [azd + Aspire Integration](https://learn.microsoft.com/en-us/dotnet/aspire/deployment/azure/aca-deployment-azd-in-depth)
 
 ## Next Steps

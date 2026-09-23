@@ -4,7 +4,6 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
 import test from "node:test";
-import { createHash } from "node:crypto";
 
 const root = fileURLToPath(new URL("../../../", import.meta.url));
 const source = (file) => readFileSync(path.join(root, file), "utf8");
@@ -85,18 +84,10 @@ test("retired site tooling is outside active discovery", () => {
     "tools/apex-prompts/utility-prompts/review-astro-docs.prompt.md",
   ]) {
     assert.equal(existsSync(path.join(root, file)), false, file);
-    assert.ok(existsSync(path.join(root, ".archive/docs-cleanup-2026-09-22", file)), file);
   }
 });
 
-test("archive retains original bytes and functional root guidance remains active", () => {
-  const manifest = JSON.parse(source(".archive/docs-cleanup-2026-09-22/manifest.json"));
-  assert.match(manifest.source_commit, /^[a-f0-9]{40}$/);
-  for (const entry of manifest.files) {
-    assert.equal(existsSync(path.join(root, entry.original)), false, entry.original);
-    const bytes = readFileSync(path.join(root, entry.archived));
-    assert.equal(createHash("sha256").update(bytes).digest("hex"), entry.sha256, entry.original);
-  }
+test("functional root guidance remains active", () => {
   for (const file of ["README.md", "AGENTS.md", "VERSION.md", "LICENSE"])
     assert.ok(existsSync(path.join(root, file)), file);
   const skills = JSON.parse(source("tools/registry/count-manifest.json")).counts.skills;

@@ -4,7 +4,7 @@
  *
  * @example
  * node tools/scripts/audit-retirement-candidates.mjs --baseline HEAD --write
- * node tools/scripts/audit-retirement-candidates.mjs --check .archive/retirement-scan-2026-08-27.json
+ * node tools/scripts/audit-retirement-candidates.mjs --check tmp/retirement-scan.json
  */
 
 import { execFileSync, spawnSync } from "node:child_process";
@@ -18,8 +18,8 @@ import { loadValidator } from "./_lib/ajv-validator.mjs";
 
 const REPO_ROOT = path.resolve(fileURLToPath(import.meta.url), "..", "..", "..");
 const SCHEMA_PATH = path.join(REPO_ROOT, "tools/schemas/retirement-scan.schema.json");
-const DEFAULT_JSON = ".archive/retirement-scan-2026-08-27.json";
-const DEFAULT_MARKDOWN = ".archive/retirement-scan-2026-08-27.md";
+const DEFAULT_JSON = "tmp/retirement-scan.json";
+const DEFAULT_MARKDOWN = "tmp/retirement-scan.md";
 const SCAN_DATE = new Date().toISOString().slice(0, 10);
 const TEXT_EXTENSIONS = new Set([
   ".astro",
@@ -795,8 +795,12 @@ export function runCli(argv = process.argv.slice(2)) {
       return 1;
     }
     if (options.write) {
-      fs.writeFileSync(path.resolve(REPO_ROOT, options.jsonPath), `${JSON.stringify(scan, null, 2)}\n`);
-      fs.writeFileSync(path.resolve(REPO_ROOT, options.markdownPath), renderMarkdown(scan));
+      const jsonAbsPath = path.resolve(REPO_ROOT, options.jsonPath);
+      const markdownAbsPath = path.resolve(REPO_ROOT, options.markdownPath);
+      fs.mkdirSync(path.dirname(jsonAbsPath), { recursive: true });
+      fs.mkdirSync(path.dirname(markdownAbsPath), { recursive: true });
+      fs.writeFileSync(jsonAbsPath, `${JSON.stringify(scan, null, 2)}\n`);
+      fs.writeFileSync(markdownAbsPath, renderMarkdown(scan));
     }
     console.log(
       `✅ Retirement scan generated: ${scan.statistics.total_files} files, ${scan.statistics.by_status.defer ?? 0} review items`,

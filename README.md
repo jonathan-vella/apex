@@ -16,8 +16,6 @@ are maintained in `apex-docs`; the accelerator distributes consumer workflow tem
 
 This README is the general documentation entrypoint. `AGENTS.md`, `VERSION.md`, runtime references,
 templates and technical CLI contracts remain here because agents and validation depend on them.
-Historical human documentation and retired site tooling are preserved in
-[the cleanup archive](.archive/docs-cleanup-2026-09-22/README.md).
 
 Key entry points:
 
