@@ -14,8 +14,8 @@ Detailed guidance for migrating AWS Elastic Beanstalk applications to Azure App 
 | RDS (PostgreSQL) | Azure Database for PostgreSQL Flexible Server |
 | RDS (MySQL) | Azure Database for MySQL Flexible Server |
 | RDS (SQL Server) | Azure SQL Database |
-| ElastiCache (Redis) | Azure Cache for Redis |
-| ElastiCache (Memcached) | Azure Cache for Redis |
+| ElastiCache (Redis) | Azure Managed Redis |
+| ElastiCache (Memcached) | Azure Managed Redis |
 | S3 | Azure Blob Storage |
 | ALB / ELB | App Service built-in LB / Azure Front Door |
 | Route 53 | Azure DNS |

@@ -111,10 +111,11 @@ An existing Consumption app can't be converted to Flex Consumption in place. 05-
 
 ## Deprecated Settings (Do NOT Migrate)
 
-These app settings are NOT supported in Flex Consumption and should be filtered out:
+These settings from the source app are NOT copied to the Flex Consumption app:
 
 - `WEBSITE_USE_PLACEHOLDER_DOTNETISOLATED`
-- `AzureWebJobsStorage*` (replaced by identity-based config)
+- `AzureWebJobsStorage` and the source app's `AzureWebJobsStorage__*` values (the IaC sets the new app's
+  identity-based storage settings, listed under Identity-First Configuration above)
 - `WEBSITE_MOUNT_ENABLED`
 - `ENABLE_ORYX_BUILD`
 - `FUNCTIONS_EXTENSION_VERSION` (set via `functionAppConfig`)

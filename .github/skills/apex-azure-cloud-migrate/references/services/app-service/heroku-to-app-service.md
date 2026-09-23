@@ -13,7 +13,7 @@ Detailed guidance for migrating Heroku applications to Azure App Service.
 | Buildpacks | Docker or App Service runtime stacks |
 | Config Vars | App Settings / App Configuration / Key Vault |
 | Heroku Postgres | Azure Database for PostgreSQL Flexible Server |
-| Heroku Redis | Azure Cache for Redis |
+| Heroku Redis | Azure Managed Redis |
 | Heroku Kafka | Azure Event Hubs (Kafka-compatible) |
 | Add-ons (general) | Azure managed services |
 | Heroku Pipelines | GitHub Actions / Azure DevOps |
@@ -66,13 +66,13 @@ Heroku worker dynos have no direct App Service equivalent. Migration paths:
 | Heroku Add-on | Azure Equivalent | Migration Notes |
 |--------------|------------------|-----------------|
 | Heroku Postgres | PostgreSQL Flexible Server | Use Azure DMS for data migration |
-| Heroku Redis | Azure Cache for Redis | Export/import RDB or use replication |
+| Heroku Redis | Azure Managed Redis | Export/import RDB or use replication |
 | Heroku Kafka | Azure Event Hubs (Kafka API) | Compatible Kafka protocol |
 | Papertrail | Application Insights | Structured logging migration |
 | New Relic | Application Insights | APM feature parity |
 | SendGrid | Azure Communication Services or SendGrid on Azure | SendGrid available via Azure Marketplace |
 | Cloudinary | Azure Blob Storage + CDN | Media storage + delivery |
-| Memcachier | Azure Cache for Redis | Redis supports memcache patterns |
+| Memcachier | Azure Managed Redis | Redis supports memcache patterns |
 | Bonsai (Elasticsearch) | Azure AI Search or Elastic on Azure | Search service migration |
 | Heroku Scheduler | Azure Functions Timer trigger | Cron-based scheduling |
 | Bucketeer (S3) | Azure Blob Storage | Object storage migration |
@@ -82,7 +82,7 @@ Heroku worker dynos have no direct App Service equivalent. Migration paths:
 | Config Var Type | Azure Target | Implementation |
 |----------------|--------------|----------------|
 | `DATABASE_URL` | App Setting (managed identity) | Use Entra auth, not connection string |
-| `REDIS_URL` | App Setting | Azure Cache connection string or managed identity |
+| `REDIS_URL` | App Setting | Azure Managed Redis host name with Microsoft Entra ID auth through managed identity |
 | `SECRET_KEY` | Key Vault reference | `@Microsoft.KeyVault(SecretUri=...)` |
 | `API_KEY` (third-party) | Key Vault reference | Store in Key Vault |
 | `NODE_ENV` / `RAILS_ENV` | App Setting | Add as a regular App Setting (e.g., `NODE_ENV=production`) — controls runtime behavior. Do NOT confuse with `WEBSITES_NODE_DEFAULT_VERSION`, which controls the Node.js engine version on Windows App Service. |

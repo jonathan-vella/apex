@@ -16,7 +16,7 @@ Detailed guidance for migrating Google App Engine applications to Azure App Serv
 | Cloud Storage | Azure Blob Storage |
 | Cloud Tasks | Azure Service Bus / Durable Functions |
 | Cloud Pub/Sub | Azure Service Bus / Event Grid |
-| Memcache / Memorystore | Azure Cache for Redis |
+| Memcache / Memorystore | Azure Managed Redis |
 | Cloud Scheduler | Azure Functions Timer trigger |
 | Cloud CDN | Azure Front Door / Azure CDN |
 | Cloud DNS | Azure DNS |
@@ -144,13 +144,13 @@ resource siteConfig 'Microsoft.Web/sites/config@2023-12-01' = {
 }
 ```
 
-## Memcache → Azure Cache for Redis
+## Memcache → Azure Managed Redis
 
-| Memcache Feature | Azure Cache for Redis |
+| Memcache Feature | Azure Managed Redis |
 |------------------|----------------------|
 | `memcache.get()` / `set()` | `redis.get()` / `redis.set()` |
-| Shared memcache | Azure Cache for Redis (Basic) |
-| Dedicated memcache | Azure Cache for Redis (Standard/Premium) |
+| Shared memcache | Azure Managed Redis (Balanced tier, smallest size that fits) |
+| Dedicated memcache | Azure Managed Redis (tier and size recorded in the SKU manifest) |
 | Session store | Redis session store |
 | Cache expiry | Redis TTL |
 

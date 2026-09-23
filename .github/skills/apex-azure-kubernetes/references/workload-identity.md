@@ -171,42 +171,34 @@ var client = new BlobServiceClient(
     new Uri("https://<account>.blob.core.windows.net"), credential);
 ```
 
-### Azure Cache for Redis (Microsoft Entra ID Token Auth)
+### Azure Managed Redis (Microsoft Entra ID Token Auth)
 
-Role assignment: `Redis Cache Contributor` or custom data-plane role.
+Access: add the managed identity as a Redis user on the cache (**Authentication** > **Microsoft Entra
+Authentication**, or an access policy assignment in IaC). This is a data access policy, not an Azure RBAC role.
+Connect over TLS to `<cache-name>.<region>.redis.azure.net:10000` with the identity's **object (principal) ID**
+as the user and a token for `https://redis.azure.com/.default` as the password. Refresh the token and send `AUTH`
+again before it expires. See [Microsoft Entra authentication for Azure Managed Redis](https://learn.microsoft.com/azure/redis/entra-for-authentication).
 
 ```python
-# Python — redis-py with Microsoft Entra ID token
+# Python — redis-py with a Microsoft Entra ID token; refresh it before expiry in long-running pods
 import os
 from azure.identity import DefaultAzureCredential
-import redis
+from redis.cluster import RedisCluster  # the default OSS cluster policy needs a cluster-aware client
 
 credential = DefaultAzureCredential()
 token = credential.get_token("https://redis.azure.com/.default")
 
-r = redis.Redis(
-    host="<cache-name>.redis.cache.windows.net",
-    port=6380,
+r = RedisCluster(
+    host="<cache-name>.<region>.redis.azure.net",
+    port=10000,
     ssl=True,
-    username=os.environ["AZURE_CLIENT_ID"],
+    username=os.environ["AZURE_PRINCIPAL_ID"],  # object ID set from IaC, not AZURE_CLIENT_ID
     password=token.token,
 )
 ```
 
-```csharp
-// C#
-var credential = new DefaultAzureCredential();
-var token = await credential.GetTokenAsync(
-    new TokenRequestContext(new[] { "https://redis.azure.com/.default" }));
-
-var muxer = await ConnectionMultiplexer.ConnectAsync(new ConfigurationOptions
-{
-    EndPoints = { "<cache-name>.redis.cache.windows.net:6380" },
-    Ssl = true,
-    User = Environment.GetEnvironmentVariable("AZURE_CLIENT_ID"),
-    Password = token.Token,
-});
-```
+For .NET, use the `Microsoft.Azure.StackExchangeRedis` extension, which sets the user and refreshes tokens
+([sample](https://github.com/Azure/Microsoft.Azure.StackExchangeRedis)).
 
 ---
 

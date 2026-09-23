@@ -71,4 +71,4 @@ After successful migration:
 2. Set up CI/CD pipeline with GitHub Actions / Azure DevOps
 3. Configure custom domains and SSL certificates
 4. Implement autoscaling rules
-5. Hand off to `azure-prepare` for infrastructure optimization
+5. Hand off to `apex-azure-prepare` for infrastructure optimization

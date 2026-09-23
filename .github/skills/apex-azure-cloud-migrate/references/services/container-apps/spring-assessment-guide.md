@@ -5,12 +5,12 @@
 | Issue | Impact | Solution |
 |-------|--------|----------|
 | Singleton patterns | Multiple instances may run during updates | Refactor to stateless design |
-| In-memory sessions | Lost during restarts/scaling | Migrate to Azure Cache for Redis |
-| Local caching | Not shared across replicas | Use Azure Cache for Redis with Spring Data Redis |
+| In-memory sessions | Lost during restarts/scaling | Migrate to Azure Managed Redis |
+| Local caching | Not shared across replicas | Use Azure Managed Redis with Spring Data Redis |
 | File-based state | Lost on restart | Migrate to Azure Cosmos DB, Azure SQL, or Azure Storage |
 
 **State Migration Options:**
-- **Azure Cache for Redis**: Session data, distributed caching
+- **Azure Managed Redis**: Session data, distributed caching
 - **Azure Cosmos DB**: NoSQL data, document storage
 - **Azure SQL/MySQL/PostgreSQL**: Relational data
 - **Azure Storage Blobs**: Unstructured data, serialized objects

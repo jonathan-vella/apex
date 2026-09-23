@@ -141,7 +141,7 @@ The report MUST be saved as `migration-assessment-report.md` inside the output d
 
 - [ ] Review and approve this assessment report
 - [ ] Proceed to code migration (azure-cloud-migrate Phase 2)
-- [ ] Hand off to azure-prepare for IaC generation
+- [ ] Hand off to apex-azure-prepare for IaC generation
 ```
 
-> 💡 **Tip:** Use `mcp_azure-mcp_get_bestpractices` tool to learn App Service best practices for the comparison.
+> 💡 **Tip:** Use `mcp_azure-mcp_get_azure_bestpractices` tool to learn App Service best practices for the comparison.

@@ -18,7 +18,7 @@ Review every resource-to-identity relationship in the Bicep or Terraform:
 
 | Check                                | How                                                                                               |
 | ------------------------------------ | ------------------------------------------------------------------------------------------------- |
-| **Every service identity has roles** | Each app with a managed identity has at least one role assignment                                 |
+| **Every data operation has a role**  | Each operation the app performs on another Azure resource has a matching role assignment; identities with no data dependency need none |
 | **Roles match data operations**      | Data access uses service-specific data-plane roles; generic Reader/Contributor/Owner are management-plane only |
 | **Scope is least privilege**         | Roles scoped to the target resource, not the resource group or subscription                       |
 | **No missing roles**                 | App code operations are covered by assigned roles (see the mapping below)                         |
@@ -26,7 +26,9 @@ Review every resource-to-identity relationship in the Bicep or Terraform:
 
 Find assignments in `Microsoft.Authorization/roleAssignments` resources, AVM
 `roleAssignments` parameters, `azurerm_role_assignment` resources and AVM
-Terraform `role_assignments` inputs.
+Terraform `role_assignments` inputs. Cosmos DB data access uses separate
+`Microsoft.DocumentDB/databaseAccounts/sqlRoleAssignments` resources (AVM `sqlRoleAssignments`,
+`azurerm_cosmosdb_sql_role_assignment`); check those too.
 
 ## Common Service-to-Role Mapping
 

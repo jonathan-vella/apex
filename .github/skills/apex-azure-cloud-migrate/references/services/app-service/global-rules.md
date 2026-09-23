@@ -22,7 +22,7 @@ Always use `ask_user` before:
 
 ## Best Practices
 
-- Always use `mcp_azure-mcp_get_bestpractices` tool before generating Azure code
+- Always use `mcp_azure-mcp_get_azure_bestpractices` tool before generating Azure code
 - Prefer managed identity over connection strings or API keys
 - **Always use the latest supported runtime stack** — see the App Service [language support policy](https://learn.microsoft.com/azure/app-service/language-support-policy) for the supported stacks page per language
 - Follow Azure naming conventions

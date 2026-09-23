@@ -50,7 +50,7 @@ Guidance for migrating AWS Fargate (ECS) containerized workloads to Azure Contai
 | SQS | Azure Service Bus / Queue Storage | SDK change |
 | SNS | Azure Event Grid / Service Bus Topics | SDK change |
 | RDS | Azure Database for PostgreSQL/MySQL/SQL | Connection string + managed identity |
-| ElastiCache (Redis) | Azure Cache for Redis | Connection string update |
+| ElastiCache (Redis) | Azure Managed Redis | Host name, port 10000 and Microsoft Entra ID auth |
 | Parameter Store | Azure App Configuration / Key Vault | SDK change |
 | EventBridge | Azure Event Grid | SDK change required |
 | Step Functions | Azure Logic Apps / Durable Functions | Workflow redesign |

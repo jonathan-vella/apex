@@ -47,7 +47,8 @@ Detailed guidance for migrating containerized workloads from Kubernetes (GKE, EK
 Follow these phases sequentially:
 
 ### Phase 1: Export Kubernetes Resources
-- Use `kubectl get deployment,service,configmap,secret -o yaml` to export manifests
+- Use `kubectl get deployment,service,configmap -o yaml` to export manifests; Secret data is never exported
+- Inventory Secrets by name only: `kubectl get secrets -o custom-columns=NAME:.metadata.name,TYPE:.type`
 - Document current configuration (replicas, resources, env vars)
 - Identify external dependencies (databases, message queues, storage)
 

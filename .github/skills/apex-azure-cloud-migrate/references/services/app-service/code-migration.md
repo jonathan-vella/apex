@@ -5,7 +5,7 @@ Migrate source platform web application code to Azure App Service.
 ## Prerequisites
 
 - Assessment report completed
-- Best practices loaded via `mcp_azure-mcp_get_bestpractices` tool
+- Best practices loaded via `mcp_azure-mcp_get_azure_bestpractices` tool
 
 ## Rules
 
@@ -17,7 +17,7 @@ Migrate source platform web application code to Azure App Service.
 
 ## Steps
 
-1. **Load Best Practices** — Use `mcp_azure-mcp_get_bestpractices` tool for App Service guidance
+1. **Load Best Practices** — Use `mcp_azure-mcp_get_azure_bestpractices` tool for App Service guidance
 2. **Create Project Structure** — Set up the project inside the output directory
 3. **Migrate Application Code** — Adapt source code for App Service runtime
 4. **Update Dependencies** — Replace platform-specific SDKs with Azure equivalents

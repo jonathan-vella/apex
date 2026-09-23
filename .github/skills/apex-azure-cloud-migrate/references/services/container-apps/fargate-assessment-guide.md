@@ -26,7 +26,7 @@
 
 ### 5. Dependencies
 - **Databases**: RDS → Azure Database for PostgreSQL/MySQL/SQL
-- **Cache**: ElastiCache → Azure Cache for Redis
+- **Cache**: ElastiCache → Azure Managed Redis
 - **Storage**: S3 → Azure Blob Storage (SDK: boto3 → azure-storage-blob)
 - **Messaging**: SQS/SNS → Service Bus / Event Grid
 - **Monitoring**: CloudWatch → Azure Monitor / Log Analytics (requires Log Analytics workspace on Container Apps environment)

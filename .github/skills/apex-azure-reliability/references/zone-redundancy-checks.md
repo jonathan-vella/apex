@@ -27,7 +27,7 @@ Resources
 | where type in~ ('microsoft.web/serverfarms', 'microsoft.app/managedenvironments')
 | extend zoneRedundant = tobool(properties.zoneRedundant)
 | where zoneRedundant == false or isnull(zoneRedundant)
-| project name, type, resourceGroup, location, sku=sku.name
+| project name, type, kind, resourceGroup, location, sku=sku.name
 | order by type asc
 " --query "data[]" -o json
 ```

@@ -36,7 +36,7 @@ azqr scan --subscription "<SUBSCRIPTION_ID>" --resource-group "<RESOURCE_GROUP>"
 
 Save all generated files to `agent-output/{project}/`:
 
-1. Create the folder: `mkdir output` (if it doesn't exist)
+1. Create the folder: `mkdir -p "agent-output/{project}"` (if it doesn't exist)
 2. Save the azqr report as: `agent-output/{project}/azqr_report_<YYYYMMDD_HHMMSS>.json`
 3. After the scan completes, delete the temporary `filters.yaml` file
 

@@ -402,6 +402,27 @@ test("reliability skill assesses without fixing, deploying or printing secrets",
   }
 });
 
+test("PR 709 review fixes: tool names, Redis targets, secret exports and role discovery", () => {
+  const migrate = ["apex-azure-cloud-migrate/SKILL.md", ...markdownFiles("apex-azure-cloud-migrate/references/")];
+  for (const file of [...migrate, ...markdownFiles("apex-azure-prepare/references/")]) {
+    const source = read(file);
+    assert.doesNotMatch(source, /mcp_azure-mcp_get_bestpractices/, file);
+    assert.doesNotMatch(source, /Azure Cache for Redis|`azure-prepare`|off to azure-prepare/, file);
+  }
+  const k8s = read("apex-azure-cloud-migrate/references/services/container-apps/k8s-to-container-apps.md");
+  assert.doesNotMatch(k8s, /kubectl get [^`]*secret[^`]*-o yaml/);
+  const roles = read("apex-azure-validate/references/role-verification.md");
+  assert.match(roles, /sqlRoleAssignments/);
+  assert.doesNotMatch(roles, /at least one role assignment/);
+  assert.match(read("apex-azure-reliability/references/zone-redundancy-checks.md"), /project name, type, kind,/);
+  assert.match(
+    read("apex-entra-app-registration/references/cli-commands.md"),
+    /az ad app list --filter "\$FILTER" --all/,
+  );
+  const redis = read("apex-azure-kubernetes/references/workload-identity.md");
+  assert.doesNotMatch(redis, /redis\.cache\.windows\.net|Redis Cache Contributor/);
+});
+
 test("upgrade skill assesses and maps without automation or setting values", () => {
   const files = ["apex-azure-upgrade/SKILL.md", ...markdownFiles("apex-azure-upgrade/references/")];
   assert.ok(!files.some((file) => /automation|workflow-details|languages\/java/.test(file)));

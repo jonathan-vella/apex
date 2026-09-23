@@ -27,7 +27,7 @@ Assessment-only requests stop after the report.
 1. Follow phases sequentially — do not skip
 2. Generate assessment before any code migration
 3. Load the scenario reference and follow its rules
-4. Use `mcp_azure-mcp_get_bestpractices` and `mcp_azure-mcp_documentation` MCP tools
+4. Use `mcp_azure-mcp_get_azure_bestpractices` (command `get_bestpractices`) and `mcp_azure-mcp_documentation` MCP tools
 5. Use the latest supported runtime for the target service
 6. Destructive actions require `ask_user` — [global-rules](references/services/functions/global-rules.md)
 7. Audit service discovery in app code — Kubernetes DNS names (for example `http://order-service:3001`) don't
@@ -56,7 +56,7 @@ App Service scenarios share [assessment](references/services/app-service/assessm
 [global rules](references/services/app-service/global-rules.md); Container Apps scenarios share the
 [assessment guide](references/services/container-apps/assessment-guide.md).
 
-> No matching scenario? Use `mcp_azure-mcp_documentation` and `mcp_azure-mcp_get_bestpractices` tools.
+> No matching scenario? Use `mcp_azure-mcp_documentation` and `mcp_azure-mcp_get_azure_bestpractices` tools.
 
 ## Output Directory
 

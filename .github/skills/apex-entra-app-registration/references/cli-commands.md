@@ -423,8 +423,9 @@ registrations can be restored for 30 days.
 #!/bin/bash
 set -euo pipefail
 PREFIX="${1:?Usage: cleanup.sh <display-name-prefix> [--confirm]}"
+FILTER="startswith(displayName,'${PREFIX//\'/\'\'}')"
 
-mapfile -t APPS < <(az ad app list --display-name "$PREFIX" --query "[].[appId, displayName]" -o tsv)
+mapfile -t APPS < <(az ad app list --filter "$FILTER" --all --query "[].[appId, displayName]" -o tsv)
 if [[ ${#APPS[@]} -eq 0 ]]; then
   echo "No app registrations start with '$PREFIX'."
   exit 0

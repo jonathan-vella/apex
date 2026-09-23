@@ -38,7 +38,7 @@ Detailed guidance for migrating Cloud Run serverless containers to Azure Contain
 | Cloud SQL (MySQL) | Azure Database for MySQL | Connection string + managed identity |
 | Firestore | Azure Cosmos DB | SDK change required |
 | Cloud Storage | Azure Blob Storage | SDK change required |
-| Cloud Memorystore (Redis) | Azure Cache for Redis | Connection string update |
+| Cloud Memorystore (Redis) | Azure Managed Redis | Host name, port 10000 and Microsoft Entra ID auth |
 | Pub/Sub | Azure Service Bus / Event Grid | SDK change required |
 | Cloud Tasks | Azure Queue Storage / Service Bus | SDK change required |
 | Secret Manager | Azure Key Vault | Managed identity integration |
