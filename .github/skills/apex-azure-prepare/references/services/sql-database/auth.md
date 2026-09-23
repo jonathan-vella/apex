@@ -7,6 +7,8 @@
 ```bicep
 param principalId string
 param principalName string
+@allowed(['User', 'Group', 'Application'])
+param principalType string = 'User'
 
 resource sqlServer 'Microsoft.Sql/servers@2022-05-01-preview' = {
   name: '${resourcePrefix}-sql-${uniqueHash}'
@@ -14,7 +16,7 @@ resource sqlServer 'Microsoft.Sql/servers@2022-05-01-preview' = {
   properties: {
     administrators: {
       administratorType: 'ActiveDirectory'
-      principalType: 'User'
+      principalType: principalType
       login: principalName
       sid: principalId
       tenantId: subscription().tenantId
@@ -24,6 +26,8 @@ resource sqlServer 'Microsoft.Sql/servers@2022-05-01-preview' = {
   }
 }
 ```
+
+> ⚠️ **Warning:** If deploying from CI/CD with a service principal, set `principalType` to `'Application'`. The default `'User'` only works for interactive (human) deployments.
 
 **Get signed-in user info:**
 
@@ -86,6 +90,13 @@ ALTER ROLE db_datawriter ADD MEMBER [my-container-app];
 
 ### Entra ID Authentication (Recommended)
 
+Always include an `Authentication` parameter in SQL connection strings for apps with Entra-only auth. Use
+`Authentication=Active Directory Default` for general scenarios (App Service, local development), or
+`Authentication=Active Directory Managed Identity` when a user-assigned managed identity with a specific `User Id`
+is required (for example, Azure Functions SQL bindings). Don't assign `AccessToken` manually, call
+`DefaultAzureCredential().GetToken()`, or omit the parameter. It is required both in the IaC output (for example,
+the App Service `connectionStrings` property) and in application configuration such as `appsettings.json`.
+
 ```
 Server=tcp:{server}.database.windows.net,1433;Database={database};Authentication=Active Directory Default;Encrypt=True;TrustServerCertificate=False;
 ```
@@ -95,14 +106,8 @@ Server=tcp:{server}.database.windows.net,1433;Database={database};Authentication
 - `Microsoft.Data.SqlClient` (v5.1.0+)
 - `Azure.Identity` (for local development)
 
-### Legacy SQL Authentication (⛔ DO NOT USE)
+### Legacy SQL Authentication (⛔ Prohibited)
 
-> ❌ **DEPRECATED - DO NOT USE FOR NEW DEPLOYMENTS**
->
-> This authentication method is included for reference only. **DO NOT use SQL authentication for new Azure SQL deployments.** It will fail in any subscription with Entra-only authentication policies and violates Azure security best practices.
->
-> **Always use Entra-only authentication (documented above) for all new deployments.**
-
-```
-Server=tcp:{server}.database.windows.net,1433;Database={database};User ID={username};Password={password};Encrypt=True;
-```
+Never generate connection strings with `User ID` and `Password`, and never generate `administratorLogin` or
+`administratorLoginPassword` properties, including in conditional, ternary or optional branches. SQL
+authentication is disabled in subscriptions with Entra-only policies and breaks the APEX security baseline.

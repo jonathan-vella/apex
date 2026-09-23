@@ -224,32 +224,32 @@ safety rule gets a focused test.
 
 ### Phase 2: Local Fixes
 
-- [ ] prepare: remove the legacy `administratorLogin` block and the allow-all firewall rule in
+- [x] prepare: remove the legacy `administratorLogin` block and the allow-all firewall rule in
       [sql-database/bicep.md](../../../../.github/skills/apex-azure-prepare/references/services/sql-database/bicep.md);
       adopt the Entra-only rules (no admin login, `Active Directory Default` connection strings, `principalType`);
       and fix the SDK pointer in [SKILL.md](../../../../.github/skills/apex-azure-prepare/SKILL.md).
-- [ ] deploy: add environment approval to
+- [x] deploy: add environment approval to
       [github-bicep.yml](../../../../.github/skills/apex-azure-deploy/references/recipes/cicd/examples/github-bicep.yml)
       and make the generic Step 0 in [SKILL.md](../../../../.github/skills/apex-azure-deploy/SKILL.md) ask before
       running.
-- [ ] validate: replace `cd infra` and `./main.bicep` in the
+- [x] validate: replace `cd infra` and `./main.bicep` in the
       [recipes](../../../../.github/skills/apex-azure-validate/references/recipes/README.md) with the per-project
       `infra/{iac}/{project}/` path.
-- [ ] cost: write reports to `agent-output/{project}/`, use tag keys from policy, link the pricing guidance, and
+- [x] cost: write reports to `agent-output/{project}/`, use tag keys from policy, link the pricing guidance, and
       update [test_skill_consolidation.mjs](../../../../tools/tests/scripts/test_skill_consolidation.mjs).
-- [ ] quotas: delete the legacy section at the end of
+- [x] quotas: delete the legacy section at the end of
       [commands.md](../../../../.github/skills/apex-azure-quotas/references/commands.md) and replace US example
       regions with placeholders.
-- [ ] entra: add a preview and approval to the bulk-delete script in
+- [x] entra: add a preview and approval to the bulk-delete script in
       [cli-commands.md](../../../../.github/skills/apex-entra-app-registration/references/cli-commands.md) and fix
       the SDK pointer.
-- [ ] compliance: remove the duplicate trigger sections and use tag keys from policy in
+- [x] compliance: remove the duplicate trigger sections and use tag keys from policy in
       [azure-resource-graph.md](../../../../.github/skills/apex-azure-compliance/references/azure-resource-graph.md).
-- [ ] kusto: restore "Common Issues" as a reference. rbac: fix the Bicep snippet, checked with `bicep build` in
+- [x] kusto: restore "Common Issues" as a reference. rbac: fix the Bicep snippet, checked with `bicep build` in
       `tmp/`, and add AVM `roleAssignments` guidance.
-- [ ] Remove stale `KNOWN_OVERSIZED` entries in
+- [x] Remove stale `KNOWN_OVERSIZED` entries in
       [validate-skill-checks.mjs](../../../../tools/scripts/validate-skill-checks.mjs).
-- [ ] cloud-migrate: add the Workflow Routing preamble that prepare, validate and deploy use, and remove the leftover
+- [x] cloud-migrate: add the Workflow Routing preamble that prepare, validate and deploy use, and remove the leftover
       `.azure/preparation-manifest.md` step in
       [code-migration.md](../../../../.github/skills/apex-azure-cloud-migrate/references/services/functions/code-migration.md).
 

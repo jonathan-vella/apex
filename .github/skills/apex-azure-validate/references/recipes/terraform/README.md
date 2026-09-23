@@ -4,6 +4,7 @@ Validation steps for Terraform deployments.
 
 ## Prerequisites
 
+- Working directory is the project's IaC folder, `infra/terraform/{project}/` (never the repository root)
 - `./main.tf` exists
 - State backend accessible
 
@@ -49,7 +50,7 @@ az account set --subscription <subscription-id>
 ### 4. Initialize
 
 ```bash
-cd infra
+cd infra/terraform/{project}
 terraform init
 ```
 

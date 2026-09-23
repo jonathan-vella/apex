@@ -6,19 +6,22 @@
 
 ## Compliance Query Patterns
 
+Use the tag keys and casing from the `tag_contract` in `04-governance-constraints.json`. Without one, use the
+lowercase APEX greenfield keys shown here.
+
 **Find resources missing a required tag:**
 
 ```kql
 Resources
-| where isnull(tags['Environment']) or isnull(tags['CostCenter'])
-| project name, type, resourceGroup, tags
+| where isnull(tags['environment']) or isnull(tags['costcenter'])
+| project id, subscriptionId, name, type, resourceGroup, tags
 ```
 
 **Tag coverage analysis:**
 
 ```kql
 Resources
-| extend hasEnvTag = isnotnull(tags['Environment'])
+| extend hasEnvTag = isnotnull(tags['environment'])
 | summarize total=count(), tagged=countif(hasEnvTag) by type
 | extend coverage=round(100.0 * tagged / total, 1)
 | order by coverage asc

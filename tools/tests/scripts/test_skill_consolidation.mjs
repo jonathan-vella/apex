@@ -503,7 +503,7 @@ test("cost-specific queries and cost evidence/report obligations survive sharing
   const source = read(costQueries);
   assert.deepEqual(kqlBlocks(source), [
     "Resources\n| where isnotempty(sku.name)\n| summarize count() by type, tostring(sku.name)\n| order by count_ desc\n",
-    "Resources\n| extend hasCostCenter = isnotnull(tags['CostCenter'])\n| summarize total=count(), tagged=countif(hasCostCenter) by type\n| extend coverage=round(100.0 * tagged / total, 1)\n| order by total desc\n",
+    "Resources\n| extend hasCostCenter = isnotnull(tags['costcenter'])\n| summarize total=count(), tagged=countif(hasCostCenter) by type\n| extend coverage=round(100.0 * tagged / total, 1)\n| order by total desc\n",
     "Resources\n| where type =~ 'microsoft.network/loadbalancers'\n| where array_length(properties.backendAddressPools) == 0\n| project id, subscriptionId, name, resourceGroup, location, sku=sku.name\n",
     "AdvisorResources\n| where properties.category == 'Cost'\n| project name, impact=properties.impact, description=properties.shortDescription.solution\n",
   ]);
@@ -525,8 +525,11 @@ test("cost-specific queries and cost evidence/report obligations survive sharing
   assert.equal(query.type, "ActualCost");
   assert.deepEqual(query.dataset.grouping, [{ type: "Dimension", name: "ResourceId" }]);
   assert.match(section(workflow, "Step 6: Collect Utilization Metrics"), /Query Azure Monitor for utilization data/);
-  assert.match(section(workflow, "Step 7: Generate Optimization Report"), /output\/costoptimizereport/);
-  assert.match(section(workflow, "Step 8: Save Audit Trail"), /output\/cost-query-result/);
+  assert.match(
+    section(workflow, "Step 7: Generate Optimization Report"),
+    /agent-output\/\{project\}\/costoptimizereport/,
+  );
+  assert.match(section(workflow, "Step 8: Save Audit Trail"), /agent-output\/\{project\}\/cost-query-result/);
 });
 
 test("shared procedure relative links and section anchors resolve locally", () => {

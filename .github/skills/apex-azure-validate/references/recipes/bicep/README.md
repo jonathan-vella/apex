@@ -4,6 +4,7 @@ Validation steps for standalone Bicep deployments.
 
 ## Prerequisites
 
+- Working directory is the project's IaC folder, `infra/bicep/{project}/` (never the repository root)
 - `./main.bicep` exists
 - `./main.parameters.json` exists
 - Azure CLI authenticated

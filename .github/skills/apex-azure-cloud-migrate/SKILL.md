@@ -14,6 +14,14 @@ metadata:
 
 > This skill handles **assessment and code migration** of existing cloud workloads to Azure.
 
+## Workflow Routing
+
+Resolve workflow identity and requested action first, per
+[`apex-azure-validate`](../apex-azure-validate/SKILL.md#workflow-and-requested-action).
+This skill assesses and converts application code only. For an APEX project, return infrastructure work to the
+current step owner through `01-Orchestrator`; do not create `.azure/plan.md` or generate IaC here.
+Assessment-only requests stop after the report.
+
 ## Rules
 
 1. Follow phases sequentially — do not skip

@@ -4,10 +4,21 @@ on:
   push:
     branches: [main]
     paths: ["infra/bicep/**"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: deploy-${{ vars.ENVIRONMENT }}
+  cancel-in-progress: false
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    # Add required reviewers to this GitHub environment so every deployment waits for approval.
+    environment: ${{ vars.ENVIRONMENT }}
     defaults:
       run:
         working-directory: infra/bicep/${{ vars.PROJECT_NAME }}

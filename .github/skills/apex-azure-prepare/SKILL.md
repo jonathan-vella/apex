@@ -104,7 +104,8 @@ Two-phase workflow (full step tables in [`references/phases.md`](references/phas
 
 ## SDK References
 
-See [references/sdk/](references/sdk/) for `azd`, Azure Identity, and App Configuration SDKs across Python / .NET / TypeScript / Java.
+See [references/sdk/](references/sdk/) for `azd` deployment and App Configuration (Java, Python, TypeScript).
+Azure Identity quick references live in [apex-azure-deploy](../apex-azure-deploy/references/sdk/).
 
 ---
 

@@ -416,12 +416,28 @@ echo "Redirect URI: $REDIRECT_URI"
 
 ### Cleanup script
 
+Preview first, and get the owner's approval for the listed apps before re-running with `--confirm`. Deleted
+registrations can be restored for 30 days.
+
 ```bash
 #!/bin/bash
+set -euo pipefail
+PREFIX="${1:?Usage: cleanup.sh <display-name-prefix> [--confirm]}"
 
-# Delete all apps matching pattern
-az ad app list --display-name "Test*" --query "[].appId" -o tsv | while read APP_ID; do
-  echo "Deleting app: $APP_ID"
-  az ad app delete --id $APP_ID
+mapfile -t APPS < <(az ad app list --display-name "$PREFIX" --query "[].[appId, displayName]" -o tsv)
+if [[ ${#APPS[@]} -eq 0 ]]; then
+  echo "No app registrations start with '$PREFIX'."
+  exit 0
+fi
+printf 'Would delete: %s\n' "${APPS[@]}"
+
+if [[ "${2:-}" != "--confirm" ]]; then
+  echo "Preview only. Re-run with --confirm after approval."
+  exit 0
+fi
+
+for APP in "${APPS[@]}"; do
+  echo "Deleting app: $APP"
+  az ad app delete --id "${APP%%$'\t'*}"
 done
 ```

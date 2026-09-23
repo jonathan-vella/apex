@@ -114,13 +114,13 @@ az quota list --scope SCOPE [--max-items N] [--next-token TOKEN]
 
 ```bash
 # List compute quotas
-az quota list --scope /subscriptions/{id}/providers/Microsoft.Compute/locations/eastus
+az quota list --scope /subscriptions/{id}/providers/Microsoft.Compute/locations/{region}
 
 # List network quotas
-az quota list --scope /subscriptions/{id}/providers/Microsoft.Network/locations/eastus
+az quota list --scope /subscriptions/{id}/providers/Microsoft.Network/locations/{region}
 
 # Table format
-az quota list --scope /subscriptions/{id}/providers/Microsoft.Compute/locations/eastus --output table
+az quota list --scope /subscriptions/{id}/providers/Microsoft.Compute/locations/{region} --output table
 ```
 
 **Key output fields**:
@@ -152,7 +152,7 @@ az quota show --resource-name NAME --scope SCOPE
 # Get DSv3 family vCPU limit
 az quota show \
   --resource-name standardDSv3Family \
-  --scope /subscriptions/{id}/providers/Microsoft.Compute/locations/eastus
+  --scope /subscriptions/{id}/providers/Microsoft.Compute/locations/{region}
 ```
 
 **Key output fields**:
@@ -190,14 +190,14 @@ az quota update --resource-name NAME --scope SCOPE --limit-object value=N [--res
 # Increase FSv2 family vCPUs to 100
 az quota update \
   --resource-name standardFSv2Family \
-  --scope /subscriptions/{id}/providers/Microsoft.Compute/locations/eastus \
+  --scope /subscriptions/{id}/providers/Microsoft.Compute/locations/{region} \
   --limit-object value=100 \
   --resource-type dedicated
 
 # Non-blocking request
 az quota update \
   --resource-name standardFSv2Family \
-  --scope /subscriptions/{id}/providers/Microsoft.Compute/locations/eastus \
+  --scope /subscriptions/{id}/providers/Microsoft.Compute/locations/{region} \
   --limit-object value=100 \
   --no-wait true
 ```
@@ -222,10 +222,10 @@ az quota usage list --scope SCOPE [--max-items N] [--next-token TOKEN]
 
 ```bash
 # List compute usage
-az quota usage list --scope /subscriptions/{id}/providers/Microsoft.Compute/locations/eastus
+az quota usage list --scope /subscriptions/{id}/providers/Microsoft.Compute/locations/{region}
 
 # Table format
-az quota usage list --scope /subscriptions/{id}/providers/Microsoft.Compute/locations/eastus --output table
+az quota usage list --scope /subscriptions/{id}/providers/Microsoft.Compute/locations/{region} --output table
 ```
 
 **Key output**:
@@ -255,7 +255,7 @@ az quota usage show --resource-name NAME --scope SCOPE
 ```bash
 az quota usage show \
   --resource-name standardDSv3Family \
-  --scope /subscriptions/{id}/providers/Microsoft.Compute/locations/eastus
+  --scope /subscriptions/{id}/providers/Microsoft.Compute/locations/{region}
 ```
 
 **Calculate quota headroom**:
@@ -294,14 +294,14 @@ az quota create --resource-name NAME --scope SCOPE --limit-object value=N [--res
 # Create network quota
 az quota create \
   --resource-name MinPublicIpInterNetworkPrefixLength \
-  --scope /subscriptions/{id}/providers/Microsoft.Network/locations/eastus \
+  --scope /subscriptions/{id}/providers/Microsoft.Network/locations/{region} \
   --limit-object value=10 \
   --resource-type MinPublicIpInterNetworkPrefixLength
 
 # Create ML quota
 az quota create \
   --resource-name TotalLowPriorityCores \
-  --scope /subscriptions/{id}/providers/Microsoft.MachineLearningServices/locations/eastus \
+  --scope /subscriptions/{id}/providers/Microsoft.MachineLearningServices/locations/{region} \
   --limit-object value=10 \
   --resource-type lowPriority
 ```
@@ -310,76 +310,6 @@ az quota create \
 
 ## Troubleshooting
 
-### Unsupported Resource Types
-
-Not all Azure resource providers support the quota API. If you receive a `BadRequest` error when running `az quota list`, the provider likely doesn't support quota commands.
-
-**Example - Microsoft.DocumentDB (Cosmos DB)**:
-
-```bash
-az quota list --scope /subscriptions/{id}/providers/Microsoft.DocumentDB/locations/eastus
-# Error: (BadRequest) Bad request
-```
-
-**Workarounds**:
-
-- Check [Azure subscription limits documentation](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits)
-- Use Azure Portal for quota management
-- Check service-specific documentation
-
-**Testing provider support**:
-
-```bash
-# Try listing quotas
-az quota list --scope /subscriptions/{id}/providers/{Provider}/locations/{region}
-
-# BadRequest error → not supported
-# List of quotas → supported
-```
-
-### REST API "No Limit" Warning
-
-> **⚠️ CRITICAL WARNING: REST API "No Limit" is MISLEADING**
->
-> If you see "No Limit", "Unlimited", or similar values in REST API or Azure Portal responses:
->
-> **This DOES NOT mean unlimited capacity!**
->
-> It most likely means:
->
-> - The resource provider doesn't support the quota API
-> - Quota information isn't available through this API
-> - The quota is managed at a different scope
->
-> **DO NOT assume unlimited capacity. Always:**
->
-> 1. Use `az quota` CLI commands first (preferred method)
-> 2. If CLI returns `BadRequest`, check [Azure service limits documentation](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits)
-> 3. Consult service-specific documentation for actual limits
-> 4. Consider regional capacity constraints even without quota enforcement
-
-### Common Error Codes
-
-| Error                          | Cause                                   | Solution                                                                                                                                                              |
-| ------------------------------ | --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `BadRequest`                   | Provider not supported by quota API     | Use CLI (preferred) or check [Azure service limits docs](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits) |
-| `ExtensionNotFound`            | Quota extension not installed           | Run `az extension add --name quota`                                                                                                                                   |
-| `MissingRegistration`          | Microsoft.Quota provider not registered | Run `az provider register --namespace Microsoft.Quota`                                                                                                                |
-| `InvalidScope`                 | Incorrect scope format                  | Verify: `/subscriptions/{id}/providers/{namespace}/locations/{region}`                                                                                                |
-| `QuotaNotAvailableForResource` | Resource not available in region        | Try different region                                                                                                                                                  |
-| `RequestThrottled`             | Too many API calls                      | Implement exponential backoff                                                                                                                                         |
-
-### Known Support Status
-
-**Unsupported**:
-
-- ❌ Microsoft.DocumentDB (Cosmos DB)
-
-**Supported**:
-
-- ✅ Microsoft.Compute (VMs, disks, cores)
-- ✅ Microsoft.Network (VNets, IPs, load balancers)
-- ✅ Microsoft.App (Container Apps)
-- ✅ Microsoft.Storage (storage accounts)
-- ✅ Microsoft.MachineLearningServices
-- ✅ Microsoft.ContainerService (AKS)
+Follow [quota evidence and fallback](#quota-evidence-and-fallback) and the
+[troubleshooting guide](troubleshooting.md). Missing or "No Limit" values are unknown quota evidence, never
+unlimited capacity.

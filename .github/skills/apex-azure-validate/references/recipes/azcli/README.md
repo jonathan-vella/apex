@@ -4,6 +4,7 @@ Validation steps for Azure CLI deployments.
 
 ## Prerequisites
 
+- Working directory is the project's IaC folder, `infra/bicep/{project}/` (never the repository root)
 - `./main.bicep` exists
 - Docker available (if containerized)
 

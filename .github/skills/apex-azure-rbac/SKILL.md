@@ -81,17 +81,42 @@ built-in fits.
 
 6. **Generate the IaC snippet** —
 
-   **Bicep:**
+   **Bicep (AVM, preferred):** AVM resource modules accept a `roleAssignments` array, so assign the role where the
+   module deploys the resource. Pin the module version per
+   [AVM modules](../apex-azure-defaults/references/avm-modules.md).
 
    ```bicep
+   module storage 'br/public:avm/res/storage/storage-account:<version>' = {
+     name: 'storage'
+     params: {
+       name: storageAccountName
+       roleAssignments: [
+         {
+           principalId: principalId
+           roleDefinitionIdOrName: 'Storage Blob Data Reader'
+           principalType: 'ServicePrincipal'
+         }
+       ]
+     }
+   }
+   ```
+
+   **Bicep (raw resource on an existing target):**
+
+   ```bicep
+   param principalId string
+   param roleDefinitionGuid string
+   param storageAccountName string
+
+   resource targetResource 'Microsoft.Storage/storageAccounts@2023-05-01' existing = {
+     name: storageAccountName
+   }
+
    resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-     name: guid(resourceId, principalId, roleDefinitionId)
+     name: guid(targetResource.id, principalId, roleDefinitionGuid)
      scope: targetResource
      properties: {
-       roleDefinitionId: subscriptionResourceId(
-         'Microsoft.Authorization/roleDefinitions',
-         '<role-id-guid>'
-       )
+       roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', roleDefinitionGuid)
        principalId: principalId
        principalType: 'ServicePrincipal'
      }

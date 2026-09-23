@@ -7,6 +7,8 @@
 ```bicep
 param principalId string
 param principalName string
+@allowed(['User', 'Group', 'Application'])
+param principalType string = 'User'
 
 resource sqlServer 'Microsoft.Sql/servers@2022-05-01-preview' = {
   name: '${resourcePrefix}-sql-${uniqueHash}'
@@ -14,13 +16,14 @@ resource sqlServer 'Microsoft.Sql/servers@2022-05-01-preview' = {
   properties: {
     administrators: {
       administratorType: 'ActiveDirectory'
-      principalType: 'User'
+      principalType: principalType
       login: principalName
       sid: principalId
       tenantId: subscription().tenantId
       azureADOnlyAuthentication: true
     }
     minimalTlsVersion: '1.2'
+    publicNetworkAccess: 'Disabled'
   }
 }
 
@@ -37,16 +40,12 @@ resource sqlDatabase 'Microsoft.Sql/servers/databases@2022-05-01-preview' = {
     maxSizeBytes: 2147483648  // 2 GB
   }
 }
-
-resource sqlFirewallAzure 'Microsoft.Sql/servers/firewallRules@2022-05-01-preview' = {
-  parent: sqlServer
-  name: 'AllowAzureServices'
-  properties: {
-    startIpAddress: '0.0.0.0'
-    endIpAddress: '0.0.0.0'
-  }
-}
 ```
+
+Apps reach the server through the [private endpoint](#private-endpoint). Don't add an `AllowAzureServices`
+(`0.0.0.0`) firewall rule: it admits traffic from every Azure tenant.
+
+> ⚠️ **Warning:** If deploying from CI/CD with a service principal, set `principalType` to `'Application'`. The default `'User'` only works for interactive (human) deployments.
 
 **Set Entra admin parameters:**
 
@@ -109,24 +108,8 @@ resource sqlPrivateEndpoint 'Microsoft.Network/privateEndpoints@2023-05-01' = {
 }
 ```
 
-## Legacy SQL Authentication (⛔ DO NOT USE)
+## Legacy SQL Authentication (⛔ Prohibited)
 
-> ❌ **DEPRECATED - DO NOT USE FOR NEW DEPLOYMENTS**
->
-> This authentication method is included for reference only. **DO NOT use SQL authentication for new Azure SQL deployments.** It will fail in any subscription with Entra-only authentication policies and violates Azure security best practices.
->
-> **Always use Entra-only authentication (documented above) for all new deployments.**
-
-```bicep
-param sqlAdminPassword string
-
-resource sqlServer 'Microsoft.Sql/servers@2022-05-01-preview' = {
-  name: '${resourcePrefix}-sql-${uniqueHash}'
-  location: location
-  properties: {
-    administratorLogin: 'sqladmin'
-    administratorLoginPassword: sqlAdminPassword
-    minimalTlsVersion: '1.2'
-  }
-}
-```
+Never generate `administratorLogin` or `administratorLoginPassword`, including in conditional or optional
+branches. SQL authentication fails in subscriptions with Entra-only policies and breaks the APEX security
+baseline. See [auth.md](auth.md#connection-strings) for the required connection strings.

@@ -31,10 +31,10 @@ Use this skill when the user asks to:
 - **Read-only analysis first** — never delete or modify resources during the assessment phase; remediation is a separate user-approved step
 - **Validate prerequisites** before starting (Azure CLI authenticated, `costmanagement` + `resource-graph` extensions, `azqr` installed, Cost Management Reader + Monitoring Reader + Reader roles)
 - **Use real data** — recommendations must be grounded in actual cost queries and utilization metrics, not assumptions
-- **Cite sources** — every savings estimate must reference the underlying cost query or pricing API result (audit trail in `output/cost-query-result<timestamp>.json`)
+- **Cite sources** — every savings estimate must reference the underlying cost query or pricing API result (audit trail in `agent-output/{project}/cost-query-result<timestamp>.json`)
 - **Classify safely** — mark recommendations as Safe / Review / Risky; never auto-apply destructive operations
 - **Redis-specific scope** — when the user asks about Redis only, follow [Azure Redis Cost Optimization](./references/azure-redis.md) instead of the general subscription workflow
-- **Save artifacts** to `output/costoptimizereport<timestamp>.md` and the audit trail JSON
+- **Save artifacts** to `agent-output/{project}/costoptimizereport<timestamp>.md` and the audit trail JSON; without a project, ask for its name before writing
 - **Out of scope**: deploying resources (use `apex-azure-deploy`), security issues (use `apex-azure-compliance`), general diagnostics (use `apex-azure-diagnostics`)
 
 ## Instructions
@@ -61,13 +61,13 @@ High-level step list (full procedure in
 
 The skill generates:
 
-1. **Cost Optimization Report** (`output/costoptimizereport<timestamp>.md`)
+1. **Cost Optimization Report** (`agent-output/{project}/costoptimizereport<timestamp>.md`)
    - Executive summary with total costs and top drivers
    - Detailed cost breakdown with Azure Portal links
    - Prioritized recommendations with actual data and estimated savings
    - Implementation commands with safety warnings
 
-2. **Cost Query Results** (`output/cost-query-result<timestamp>.json`)
+2. **Cost Query Results** (`agent-output/{project}/cost-query-result<timestamp>.json`)
    - Audit trail of all cost queries and responses
    - Validation evidence for recommendations
 

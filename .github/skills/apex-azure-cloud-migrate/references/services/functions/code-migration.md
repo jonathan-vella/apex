@@ -130,9 +130,12 @@ See [lambda-to-functions.md](lambda-to-functions.md) for detailed trigger mappin
 After code migration is complete:
 
 1. Update `migration-status.md` — mark Code Migration as ✅ Complete
-2. Invoke **apex-azure-prepare** — pass the assessment report context so it can:
+2. Ask before invoking **apex-azure-prepare**, then pass the assessment report context so it can:
    - Use the service mapping as requirements input (skips manual gather-requirements)
    - Generate IaC (Bicep/Terraform) for the mapped Azure services
-   - Create `azure.yaml` and `.azure/preparation-manifest.md`
+   - Create `azure.yaml` and its plan at `infra/{iac}/{project}/.azure/plan.md`
    - Apply security hardening
-3. apex-azure-prepare will then chain to **apex-azure-validate** → **apex-azure-deploy**
+3. apex-azure-prepare then hands off to **apex-azure-validate**; deploying through **apex-azure-deploy** needs
+   separate approval
+
+For an APEX project, follow the skill's [Workflow Routing](../../../SKILL.md#workflow-routing) instead.
