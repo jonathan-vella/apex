@@ -98,7 +98,8 @@ test("isGptOutcomeFamily: matches Terra and legacy outcome-first families", () =
   assert.equal(isGptOutcomeFamily("gpt-5.4"), true);
   assert.equal(isGptOutcomeFamily("gpt-5.6-luna"), true);
   assert.equal(isGptOutcomeFamily("gpt-5.6-sol"), true);
-  assert.equal(isGptOutcomeFamily("gpt-6-sol"), false);
+  assert.equal(isGptOutcomeFamily("gpt-6-sol"), true);
+  assert.equal(isGptOutcomeFamily("gpt-6-luna"), true);
   assert.equal(isGptOutcomeFamily("claude-opus"), false);
 });
 

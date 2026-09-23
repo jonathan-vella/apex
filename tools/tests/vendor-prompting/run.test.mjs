@@ -87,6 +87,8 @@ const catalog = {
       "gpt-5.6-sol",
       "GPT-5.6-Terra",
       "GPT-5.6-Luna",
+      "GPT-6-Sol",
+      "GPT-6-Luna",
       "GPT-5.5",
       "Claude Opus 4.7",
       "Claude Opus 5",
@@ -198,7 +200,7 @@ test("inherited custom prompt checks every family and generic picker inheritance
 });
 
 test("leaf workers need a role contract, not main body sections or personality", () => {
-  for (const model of ["gpt-5.6-sol", "GPT-5.6-Luna", "GPT-5.6-Terra"]) {
+  for (const model of ["gpt-5.6-sol", "GPT-5.6-Luna", "GPT-5.6-Terra", "GPT-6-Sol", "GPT-6-Luna"]) {
     const good = item(
       { model: [model] },
       "# Reviewer\n## Inputs\nEvidence.\n## Outputs\nFindings. Return to parent on failure.",
@@ -206,16 +208,33 @@ test("leaf workers need a role contract, not main body sections or personality",
     );
     assert.equal(lint({ agents: new Map([["leaf", good]]) }).length, 0);
     const bad = item({ model: [model] }, "# Reviewer\nDo things.", true);
-    assert.ok(lint({ agents: new Map([["leaf", bad]]) }).some((finding) => finding.ruleId === "gpt55-skeleton-001"));
+    assert.ok(
+      lint({ agents: new Map([["leaf", bad]]) }).some(
+        (finding) => finding.ruleId === "gpt55-skeleton-001" && finding.severity === "warn",
+      ),
+    );
   }
 });
 
 test("main outcome contracts require role and nonempty stop rules across Sol, Terra and Luna", () => {
-  for (const model of ["gpt-5.6-sol", "GPT-5.6-Luna", "GPT-5.6-Terra"]) {
+  for (const model of ["gpt-5.6-sol", "GPT-5.6-Luna", "GPT-5.6-Terra", "GPT-6-Sol", "GPT-6-Luna"]) {
     const body = contract.replace("# Role\nReviewer.\n", "").replace("Stop on missing evidence.", "");
     const findings = lint({ agents: new Map([["main", item({ model: [model] }, body)]]) });
-    assert.ok(findings.some((finding) => finding.ruleId === "gpt55-skeleton-001"));
-    assert.ok(findings.some((finding) => finding.ruleId === "gpt55-stop-rules-non-empty-001"));
+    assert.ok(findings.some((finding) => finding.ruleId === "gpt55-skeleton-001" && finding.severity === "warn"));
+    assert.ok(
+      findings.some((finding) => finding.ruleId === "gpt55-stop-rules-non-empty-001" && finding.severity === "warn"),
+    );
+  }
+});
+
+test("GPT-6 retains reviewer-only severity for model advice", () => {
+  for (const model of ["GPT-6-Sol", "GPT-6-Luna"]) {
+    const findings = lint({
+      agents: new Map([
+        ["main", item({ model: [model] }, `${contract}\n<context_awareness>Review.</context_awareness>`)],
+      ]),
+    });
+    assert.ok(findings.some((finding) => finding.ruleId === "gpt-no-claude-xml-001" && finding.severity === "info"));
   }
 });
 
@@ -346,8 +365,11 @@ test("shared authoring policy and family registry match the implemented contract
     assert.equal(rule.policy_origin, "repository-convention");
     for (const family of ["gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna"])
       assert.ok(rule.model_families.includes(family));
+    for (const family of ["gpt-6-sol", "gpt-6-luna"]) assert.ok(rule.model_families.includes(family));
     assert.ok(registry.sources.some(({ id }) => id === rule.source_id));
   }
+  const personality = registry.rules.find(({ id }) => id === "personality-scoping-001");
+  for (const family of ["gpt-6-sol", "gpt-6-luna"]) assert.ok(personality.model_families.includes(family));
   const skill = read(".github/skills/apex-vendor-prompting/SKILL.md");
   assert.doesNotMatch(skill, /audit:vendor-prompting|generate-skill-digests|FIRST entry|first entry decides/);
   assert.match(skill, /node tools\/scripts\/fetch-vendor-prompting-guides\.mjs/);
@@ -407,9 +429,35 @@ test("agent catalog and instructions preserve canonical models and human-selecte
   const authoring = fs.readFileSync(path.join(root, ".github/instructions/agent-authoring.instructions.md"), "utf8");
   const runtime = fs.readFileSync(path.join(root, ".github/copilot-instructions.md"), "utf8");
   const catalog = JSON.parse(fs.readFileSync(path.join(root, ".github/model-catalog.json"), "utf8"));
+  const expectedModels = {
+    "01-orchestrator.agent.md": "MAI-Code-1.1-Flash",
+    "02-requirements.agent.md": "GPT-6-Sol",
+    "03-architect.agent.md": "GPT-6-Sol",
+    "04-design.agent.md": "GPT-5.6 Terra (copilot)",
+    "04g-governance.agent.md": "GPT-6-Luna",
+    "05-iac-planner.agent.md": "GPT-6-Sol",
+    "06b-bicep-codegen.agent.md": "GPT-6-Luna",
+    "06t-terraform-codegen.agent.md": "GPT-6-Luna",
+    "07b-bicep-deploy.agent.md": "GPT-6-Luna",
+    "07t-terraform-deploy.agent.md": "GPT-6-Luna",
+    "08-as-built.agent.md": "GPT-5.6 Terra (copilot)",
+    "09-diagnose.agent.md": "GPT-5.6 Terra (copilot)",
+    "10-challenger.agent.md": "GPT-6-Luna",
+    "11-context-optimizer.agent.md": "Claude Opus 5.5",
+    "bicep-validate-subagent.agent.md": "GPT-6-Luna",
+    "bicep-whatif-subagent.agent.md": "GPT-6-Luna",
+    "challenger-review-subagent.agent.md": "GPT-6-Luna",
+    "cost-estimate-subagent.agent.md": "GPT-6-Luna",
+    "policy-precheck-subagent.agent.md": "GPT-6-Luna",
+    "terraform-plan-subagent.agent.md": "GPT-6-Luna",
+    "terraform-validate-subagent.agent.md": "GPT-6-Luna",
+  };
   assert.match(authoring, /Agent frontmatter is the canonical model assignment/);
-  for (const [filename, agent] of getAgents()) {
+  const agents = getAgents();
+  assert.deepEqual([...agents.keys()].sort(), Object.keys(expectedModels).sort());
+  for (const [filename, agent] of agents) {
     const assignments = agent.isSubagent ? catalog.assignments.subagents : catalog.assignments.agents;
+    assert.equal(agent.frontmatter.model[0], expectedModels[filename], filename);
     assert.equal(assignments[filename], agent.frontmatter.model[0], filename);
     assert.ok(catalog.models[agent.frontmatter.model[0]], filename);
   }

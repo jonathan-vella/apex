@@ -251,6 +251,8 @@
       "id": "gpt55-skeleton-001",
       "vendor": "openai",
       "model_families": [
+        "gpt-6-sol",
+        "gpt-6-luna",
         "gpt-5.6-sol",
         "gpt-5.6-terra",
         "gpt-5.6-luna",
@@ -272,6 +274,8 @@
       "id": "gpt-no-claude-xml-001",
       "vendor": "cross-vendor",
       "model_families": [
+        "gpt-6-sol",
+        "gpt-6-luna",
         "gpt-5.6-sol",
         "gpt-5.6-terra",
         "gpt-5.6-luna",
@@ -346,6 +350,8 @@
       "id": "gpt55-stop-rules-non-empty-001",
       "vendor": "openai",
       "model_families": [
+        "gpt-6-sol",
+        "gpt-6-luna",
         "gpt-5.6-sol",
         "gpt-5.6-terra",
         "gpt-5.6-luna",
@@ -417,6 +423,8 @@
       "id": "personality-scoping-001",
       "vendor": "openai",
       "model_families": [
+        "gpt-6-sol",
+        "gpt-6-luna",
         "gpt-5.6-sol",
         "gpt-5.6-terra",
         "gpt-5.6-luna",

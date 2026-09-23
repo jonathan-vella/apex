@@ -465,7 +465,9 @@ function isClaude(family) {
 }
 
 function isGptOutcomeFamily(family) {
-  return ["gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna", "gpt-5.5", "gpt-5.4"].includes(family);
+  return ["gpt-6-sol", "gpt-6-luna", "gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna", "gpt-5.5", "gpt-5.4"].includes(
+    family,
+  );
 }
 
 function isGptFamily(family) {
@@ -768,7 +770,12 @@ export const FAMILY_STATUS = {
 /** Apply family-status downgrade to a rule's default severity. */
 function effectiveSeverity(rule, family) {
   const base = rule.severity;
-  if (base === "error" || rule.id === "model-deprecation-001") return base;
+  if (
+    base === "error" ||
+    rule.id === "model-deprecation-001" ||
+    ["gpt55-skeleton-001", "gpt55-stop-rules-non-empty-001"].includes(rule.id)
+  )
+    return base;
   const status = FAMILY_STATUS[family] || "enforced";
   if (status === "reviewer-only") return "info";
   if (status === "deprecated") return "info";
