@@ -59,7 +59,19 @@
       "imports": []
     },
     { "apex": "apex-azure-compliance", "upstream": ["azure-compliance"], "status": "fork", "imports": [] },
-    { "apex": "apex-azure-diagnostics", "upstream": ["azure-diagnostics"], "status": "fork", "imports": [] },
+    {
+      "apex": "apex-azure-diagnostics",
+      "upstream": ["azure-diagnostics"],
+      "status": "fork",
+      "note": "Messaging auth-best-practices.md is not imported; the guides link to apex-entra-app-registration's canonical copy.",
+      "imports": [
+        { "from": "azure-diagnostics/troubleshooting/aks/", "to": "references/aks/" },
+        { "from": "azure-diagnostics/troubleshooting/compute/", "to": "references/compute/" },
+        { "from": "azure-diagnostics/troubleshooting/messaging/", "to": "references/messaging/" },
+        { "from": "azure-diagnostics/references/app-service/", "to": "references/app-service/" },
+        { "from": "azure-diagnostics/scripts/", "to": "scripts/" }
+      ]
+    },
     {
       "apex": "apex-azure-kusto",
       "upstream": ["azure-kusto"],

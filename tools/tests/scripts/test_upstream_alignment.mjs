@@ -218,3 +218,73 @@ test("deploy guidance covers template variables, ACR pulls and existing environm
   }
   assert.match(errors, /Assigning it by CLI needs explicit approval/);
 });
+
+test("run-ig creates the privileged debug pod only with explicit approval", () => {
+  const scripts = new URL("apex-azure-diagnostics/scripts/", skills);
+  const dir = mkdtempSync(join(tmpdir(), "run-ig-"));
+  const kubectl = join(dir, "kubectl");
+  writeFileSync(kubectl, '#!/bin/sh\necho "FAKE kubectl $*"\n', { mode: 0o755 });
+  const env = { ...process.env, PATH: `${dir}:${process.env.PATH}` };
+  const cases = [
+    [
+      "bash",
+      [new URL("run-ig.sh", scripts).pathname, "--gadget", "trace_dns", "--node", "n1"],
+      "--dry-run",
+      "--approve",
+    ],
+    [
+      "pwsh",
+      ["-NoProfile", "-File", new URL("run-ig.ps1", scripts).pathname, "-Gadget", "trace_dns", "-Node", "n1"],
+      "-DryRun",
+      "-Approve",
+    ],
+  ];
+  try {
+    for (const [shell, args, dryRun, approve] of cases) {
+      const run = (...extra) => spawnSync(shell, [...args, ...extra], { encoding: "utf8", env });
+      const refused = run();
+      assert.equal(refused.status, 3, `${shell}: ${refused.stderr}`);
+      assert.doesNotMatch(refused.stdout, /FAKE kubectl/);
+      assert.equal(run(dryRun).status, 0, shell);
+      const approved = run(approve);
+      assert.equal(approved.status, 0, `${shell}: ${approved.stderr}`);
+      assert.match(approved.stdout, /FAKE kubectl debug --profile=sysadmin node\/n1/);
+    }
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("imported diagnostics guides follow APEX tool names, secrets and routing rules", () => {
+  const skill = read("apex-azure-diagnostics/SKILL.md");
+  const guides = ["references/", "scripts/"].flatMap((folder) =>
+    folder === "scripts/"
+      ? readdirSync(new URL(`apex-azure-diagnostics/${folder}`, skills)).map(
+          (name) => `apex-azure-diagnostics/${folder}${name}`,
+        )
+      : markdownFiles(`apex-azure-diagnostics/${folder}`),
+  );
+  for (const file of guides) {
+    const source = read(file);
+    assert.doesNotMatch(source, /mcp_azure_mcp_/, file);
+    for (const [command] of source.matchAll(/appsettings list(?:[^\n]*\\\n)*[^\n]*/g)) {
+      assert.match(command, /--query "\[\]\.name"/, file);
+    }
+    assert.doesNotMatch(source, /\]\(auth-best-practices\.md\)/, file);
+  }
+  for (const link of [
+    "references/app-service/README.md",
+    "references/aks/aks-troubleshooting.md",
+    "references/compute/vm-troubleshooting.md",
+    "references/messaging/README.md",
+  ]) {
+    assert.ok(skill.includes(`](${link})`), link);
+  }
+  const shells = readdirSync(new URL("apex-azure-diagnostics/scripts/", skills));
+  for (const script of shells.filter((name) => name.endsWith(".sh"))) {
+    const base = script.replace(/\.sh$/, "");
+    assert.ok(shells.includes(`${base}.ps1`), `${base} lacks a PowerShell pair`);
+    assert.ok(skill.includes(`| \`${base}\``), `${base} missing from the scripts table`);
+  }
+  assert.match(skill, /node debug pods \(`run-ig` with `--approve`\)/);
+});

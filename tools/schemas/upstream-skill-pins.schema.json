@@ -60,7 +60,7 @@
           },
           "note": { "type": "string", "minLength": 1 },
           "imports": {
-            "description": "Upstream files imported or adapted after the fork base. `from` is relative to the upstream plugin skills folder; `to` is relative to the APEX skill folder.",
+            "description": "Upstream files imported or adapted after the fork base. `from` is relative to the upstream plugin skills folder; `to` is relative to the APEX skill folder. Paths ending in `/` map a whole folder.",
             "type": "array",
             "items": {
               "type": "object",

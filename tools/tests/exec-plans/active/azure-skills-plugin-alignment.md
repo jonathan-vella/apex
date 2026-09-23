@@ -278,13 +278,13 @@ safety rule gets a focused test.
 
 ### Phase 5: Diagnostics Import
 
-- [ ] Import the upstream AKS, VM, messaging and App Service guides with reference markers, all linked from
+- [x] Import the upstream AKS, VM, messaging and App Service guides with reference markers, all linked from
       [SKILL.md](../../../../.github/skills/apex-azure-diagnostics/SKILL.md). Keep the infraops files and the SK-27
       fix.
-- [ ] Import all bash and PowerShell scripts after a security review. `run-ig` refuses to run without an explicit
+- [x] Import all bash and PowerShell scripts after a security review. `run-ig` refuses to run without an explicit
       approval flag, keeps its dry run and documents debug-pod cleanup. Set executable bits and syntax-check every
       script.
-- [ ] Update the SKILL.md routing, keep the description at 500 characters or fewer, and send AKS design questions
+- [x] Update the SKILL.md routing, keep the description at 500 characters or fewer, and send AKS design questions
       to `apex-azure-kubernetes`.
 
 ### Phase 6: Other Upstream Imports
