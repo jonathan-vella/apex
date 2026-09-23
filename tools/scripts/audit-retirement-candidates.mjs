@@ -795,8 +795,12 @@ export function runCli(argv = process.argv.slice(2)) {
       return 1;
     }
     if (options.write) {
-      fs.writeFileSync(path.resolve(REPO_ROOT, options.jsonPath), `${JSON.stringify(scan, null, 2)}\n`);
-      fs.writeFileSync(path.resolve(REPO_ROOT, options.markdownPath), renderMarkdown(scan));
+      const jsonAbsPath = path.resolve(REPO_ROOT, options.jsonPath);
+      const markdownAbsPath = path.resolve(REPO_ROOT, options.markdownPath);
+      fs.mkdirSync(path.dirname(jsonAbsPath), { recursive: true });
+      fs.mkdirSync(path.dirname(markdownAbsPath), { recursive: true });
+      fs.writeFileSync(jsonAbsPath, `${JSON.stringify(scan, null, 2)}\n`);
+      fs.writeFileSync(markdownAbsPath, renderMarkdown(scan));
     }
     console.log(
       `✅ Retirement scan generated: ${scan.statistics.total_files} files, ${scan.statistics.by_status.defer ?? 0} review items`,

@@ -123,11 +123,12 @@ test("repeated scans have deterministic semantic output", () => {
   assert.equal(renderMarkdown(second), renderMarkdown(first));
 });
 
-test("writes default reports when the archive directory is absent", () => {
+test("writes default reports when the destination directory is absent", () => {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), "apex-retirement-output-"));
   try {
-    const jsonPath = path.join(directory, "retirement-scan.json");
-    const markdownPath = path.join(directory, "retirement-scan.md");
+    const jsonPath = path.join(directory, "tmp", "retirement-scan.json");
+    const markdownPath = path.join(directory, "tmp", "retirement-scan.md");
+    assert.equal(fs.existsSync(path.dirname(jsonPath)), false);
     const result = runCli([
       "--baseline",
       BASELINE,
