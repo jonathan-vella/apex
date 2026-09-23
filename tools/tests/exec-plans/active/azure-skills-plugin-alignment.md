@@ -7,7 +7,9 @@ Related evidence: [audit ledger](apex-workflow-audit.md#deep-skill-audit-backlog
 
 ## Status
 
-- **State**: Planned. Phase 0 is done (branch created, plan saved); implementation starts at Phase 1 on request.
+- **State**: Implemented through Phase 11 on 2026-09-23; awaiting owner review. No pull request is open.
+  Pull request 1 (content) uses `feat/azure-skills-upstream-content`; tooling commits follow on this branch.
+  The apex-docs branch merges after pull request 1.
 - **Owner**: Jonathan Vella ([@jonathan-vella](https://github.com/jonathan-vella)) with GitHub Copilot.
 - **Created**: 2026-09-23 against `main` at `a656e66d`, after the `apex-` rename and SK remediation merge.
 - **Updated**: 2026-09-23 against `main` at `5fef0f82`, when this implementation plan replaced the deferred plan.
@@ -390,14 +392,15 @@ Caching guide summaries in the repository would go stale. Neither is planned.
       with `gh`. Keep it out of `CONSUMER_WORKFLOWS` in
       [sync-workflows.mjs](../../../../tools/scripts/sync-workflows.mjs), and add it to the workflow table in
       [github-actions.instructions.md](../../../../.github/instructions/github-actions.instructions.md).
-- [ ] Regenerate the Explorer graph in its own commit, run full validation and push.
+- [x] Regenerate the Explorer graph in its own commit (`faff9313`), run full validation and push.
 
 ### Phase 11: apex-docs (After Pull Request 1)
 
-- [ ] In [apex-docs](https://github.com/jonathan-vella/apex-docs), on a branch with the same name, add the new skills
+- [x] In [apex-docs](https://github.com/jonathan-vella/apex-docs), on a branch with the same name, add the new skills
       to the Azure Plugin Skills row in `skills-and-instructions.md` and sections with example prompts to
       `skills-subagents.md`; update the diagnostics, quotas, cost, cloud-migrate and 03-Architect text; run its
-      checks; commit and push.
+      checks; commit and push. Pushed as `73adc77`. The local npm policy blocked installing the docs
+      dependencies, so `check:docs` ran as an equivalent local check (frontmatter, headings, identifier casing).
 - [ ] Merge after pull request 1. The docs update automation then moves the pinned APEX commit and refreshes the
       Explorer graph.
 
