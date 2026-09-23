@@ -8,15 +8,30 @@
   "required": ["schema_version", "upstream", "skills", "defect_probes"],
   "properties": {
     "$schema": { "type": "string" },
-    "schema_version": { "const": 1 },
+    "schema_version": { "const": 2 },
     "upstream": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["repository", "plugin_path", "fork_base", "reviewed"],
+      "required": ["repository", "plugins_root", "primary_plugin", "plugins", "fork_base", "reviewed"],
       "properties": {
         "repository": { "$ref": "#/$defs/repository" },
         "source_of_truth": { "$ref": "#/$defs/repository" },
-        "plugin_path": { "type": "string", "pattern": "^[^/\\s][^\\s]*[^/\\s]$" },
+        "plugins_root": {
+          "description": "Upstream folder holding one folder per plugin; each plugin keeps its skills in `<plugin>/skills`.",
+          "type": "string",
+          "pattern": "^[^/\\s][^\\s]*[^/\\s]$"
+        },
+        "primary_plugin": {
+          "description": "Plugin whose version the repository tags follow and whose CHANGELOG.md the drift report reads. Skills and probes without `plugin` belong to it.",
+          "$ref": "#/$defs/plugin"
+        },
+        "plugins": {
+          "description": "Upstream plugins the drift report compares. Must include primary_plugin.",
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/plugin" }
+        },
         "fork_base": {
           "type": "object",
           "additionalProperties": false,
@@ -48,6 +63,7 @@
         "required": ["apex", "upstream", "status", "imports"],
         "properties": {
           "apex": { "type": "string", "pattern": "^apex-[a-z0-9-]+$" },
+          "plugin": { "$ref": "#/$defs/plugin" },
           "upstream": {
             "type": "array",
             "minItems": 1,
@@ -60,7 +76,7 @@
           },
           "note": { "type": "string", "minLength": 1 },
           "imports": {
-            "description": "Upstream files imported or adapted after the fork base. `from` is relative to the upstream plugin skills folder; `to` is relative to the APEX skill folder. Paths ending in `/` map a whole folder.",
+            "description": "Upstream files imported or adapted after the fork base. `from` is relative to the skills folder of the entry's plugin; `to` is relative to the APEX skill folder. Paths ending in `/` map a whole folder.",
             "type": "array",
             "items": {
               "type": "object",
@@ -76,7 +92,7 @@
       }
     },
     "defect_probes": {
-      "description": "A match at the latest upstream tag means the defect is still present upstream; no match or a missing file means the upstream fix needs review.",
+      "description": "`path` is relative to the skills folder of the probe's plugin. Without `fixed_upstream_in`, a match at the latest tag means the defect is still present upstream. With it, the fix was reviewed and a match means the defect returned. Any other result needs review.",
       "type": "array",
       "items": {
         "type": "object",
@@ -84,10 +100,16 @@
         "required": ["id", "path", "pattern", "defect"],
         "properties": {
           "id": { "type": "string", "pattern": "^SK-\\d{2}$" },
+          "plugin": { "$ref": "#/$defs/plugin" },
           "path": { "$ref": "#/$defs/upstreamPath" },
           "pattern": { "type": "string", "minLength": 1 },
           "flags": { "type": "string", "pattern": "^[imsu]*$" },
-          "defect": { "type": "string", "minLength": 1 }
+          "defect": { "type": "string", "minLength": 1 },
+          "fixed_upstream_in": {
+            "description": "Upstream tag at which the fix was reviewed. The APEX fix stays; the probe now guards against a regression.",
+            "type": "string",
+            "pattern": "^v\\d+\\.\\d+\\.\\d+$"
+          }
         }
       }
     }
@@ -95,6 +117,7 @@
   "$defs": {
     "sha": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
     "repository": { "type": "string", "pattern": "^[A-Za-z0-9-]+/[A-Za-z0-9._-]+$" },
+    "plugin": { "type": "string", "pattern": "^[a-z0-9-]+$" },
     "upstreamSkill": { "type": "string", "pattern": "^[a-z0-9-]+$" },
     "upstreamPath": { "type": "string", "pattern": "^[a-z0-9-]+/[^\\s]+$" }
   }

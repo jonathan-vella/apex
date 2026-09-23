@@ -1,125 +1,15 @@
-# Forecast API Examples
+# Cost Forecast Examples
 
-Common forecast patterns with request bodies. Use the [forecast workflow](workflow.md) to run them through `forecast_costs` or the `az rest` fallback.
+Pass these parameters directly to `forecast_costs`.
 
-## 1. Forecast Rest of Current Month (Daily)
-
-```json
-{
-  "type": "ActualCost",
-  "timeframe": "Custom",
-  "timePeriod": {
-    "from": "<first-of-month>",
-    "to": "<last-of-month>"
-  },
-  "dataset": {
-    "granularity": "Daily",
-    "aggregation": {
-      "totalCost": { "name": "Cost", "function": "Sum" }
-    },
-    "sorting": [
-      { "direction": "Ascending", "name": "UsageDate" }
-    ]
-  },
-  "includeActualCost": true,
-  "includeFreshPartialCost": true
-}
-```
-
-> 💡 **Tip:** Set `from` to the first of the month — the response contains `Actual` rows up to today and `Forecast` rows for remaining days.
-
----
-
-## 2. Forecast Next 3 Months (Monthly)
-
-```json
-{
-  "type": "ActualCost",
-  "timeframe": "Custom",
-  "timePeriod": {
-    "from": "<first-of-month>",
-    "to": "<3-months-out>"
-  },
-  "dataset": {
-    "granularity": "Monthly",
-    "aggregation": {
-      "totalCost": { "name": "Cost", "function": "Sum" }
-    },
-    "sorting": [
-      { "direction": "Ascending", "name": "BillingMonth" }
-    ]
-  },
-  "includeActualCost": true,
-  "includeFreshPartialCost": true
-}
-```
-
-> 💡 **Tip:** Monthly granularity uses the `BillingMonth` column in the response.
-
----
-
-## 3. Forecast for Resource Group Scope
-
-```json
-{
-  "type": "ActualCost",
-  "timeframe": "Custom",
-  "timePeriod": {
-    "from": "<start-date>",
-    "to": "<end-date>"
-  },
-  "dataset": {
-    "granularity": "Daily",
-    "aggregation": {
-      "totalCost": { "name": "Cost", "function": "Sum" }
-    },
-    "sorting": [
-      { "direction": "Ascending", "name": "UsageDate" }
-    ]
-  },
-  "includeActualCost": true,
-  "includeFreshPartialCost": true
-}
-```
-
-> 💡 **Tip:** Scope is set at the URL level. Use the resource group scope URL to limit the forecast.
-
----
-
-## 4. Forecast for Billing Account Scope
-
-```json
-{
-  "type": "ActualCost",
-  "timeframe": "Custom",
-  "timePeriod": {
-    "from": "<start-date>",
-    "to": "<end-date>"
-  },
-  "dataset": {
-    "granularity": "Monthly",
-    "aggregation": {
-      "totalCost": { "name": "Cost", "function": "Sum" }
-    },
-    "sorting": [
-      { "direction": "Ascending", "name": "BillingMonth" }
-    ]
-  },
-  "includeActualCost": true,
-  "includeFreshPartialCost": true
-}
-```
-
-> 💡 **Tip:** Use URL pattern `/providers/Microsoft.Billing/billingAccounts/<id>/...`. Monthly granularity recommended for billing account forecasts.
-
----
-
-## Scope URL Reference
-
-| Scope | URL Pattern |
+| Scenario | Parameters |
 |---|---|
-| Subscription | `/subscriptions/<subscription-id>/providers/Microsoft.CostManagement/forecast` |
-| Resource Group | `/subscriptions/<subscription-id>/resourceGroups/<rg-name>/providers/Microsoft.CostManagement/forecast` |
-| Billing Account | `/providers/Microsoft.Billing/billingAccounts/<id>/providers/Microsoft.CostManagement/forecast` |
+| Rest of current month | `scope=<scope>`; omit dates; `granularity=Daily` |
+| Custom monthly projection | `from=<YYYY-MM-DD>`, `to=<future-YYYY-MM-DD>`, `granularity=Monthly` |
+| Resource-group forecast | `scope=/subscriptions/<id>/resourceGroups/<name>`, optional date pair |
+| Service-specific forecast | `filterDimension=ServiceName`, `filterValues=<exact-service-name>` |
+| Amortized commitment projection | `metric=AmortizedCost`, selected scope and date pair |
 
-> 💡 **Tip:** These are path-only patterns — not complete URLs. Append `?api-version=2023-11-01` when constructing the full request URL.
+Use only the Azure scope itself, not a
+`/providers/Microsoft.CostManagement/forecast` request URL. Do not add grouping
+or actual-cost flags because the MCP operation does not expose them.
