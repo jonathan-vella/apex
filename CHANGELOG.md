@@ -18,6 +18,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 See the [published changelog](https://apexops.pro/project/changelog/)
 for full details on this and all prior releases.
 
+### Changed
+
+- Update agent and subagent model assignments to GPT-6-Sol, GPT-6-Luna,
+  GPT-5.6-Terra, and Claude Opus 5.5 with the requested per-agent reasoning
+  effort guidance.
+
+### Removed
+
+- Retire the standalone E2E Orchestrator agent; E2E prompt and benchmark tools
+  remain available.
+
 ### Changed (MCP consolidation)
 
 - feat(audit): add a read-only whole-repository retirement scanner that classifies every baseline-tracked file,

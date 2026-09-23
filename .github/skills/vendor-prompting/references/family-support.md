@@ -28,6 +28,8 @@ Family status determines per-rule severity overrides.
 | `claude`        | warn-only     | Generic Claude — flag at warn for explicit version | `Claude`            |
 | `gpt-5.6-terra` | enforced      | OpenAI outcome-first rules at default severity     | `GPT-5.6-Terra`     |
 | `gpt-5.6-luna`  | reviewer-only | Decision-log only; no automated enforcement        | `GPT-5.6-Luna`      |
+| `gpt-6-sol`     | reviewer-only | No verified model-specific guidance yet            | `GPT-6-Sol`         |
+| `gpt-6-luna`    | reviewer-only | No verified model-specific guidance yet            | `GPT-6-Luna`        |
 | `gpt-5.5`       | enforced      | Legacy OpenAI outcome-first compatibility          | `GPT-5.5`           |
 | `gpt-5.4`       | enforced      | Shared OpenAI outcome-first rules                  | `GPT-5.4`           |
 | `gpt-codex`     | reviewer-only | Legacy decision-log compatibility                  | `GPT-5.3-Codex`     |

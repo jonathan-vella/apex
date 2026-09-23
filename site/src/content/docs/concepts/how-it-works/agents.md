@@ -70,7 +70,6 @@ and routing to the next step. At approval gates, the Orchestrator writes a
 | 09-Diagnose           | Azure resource troubleshooting                  | azure-diagnostics                              |
 | 10-Challenger         | Standalone adversarial review                   | —                                              |
 | 11-Context Optimizer  | Context window audit and optimisation           | context-management                             |
-| e2e-orchestrator      | Prompt-invoked end-to-end validation driver     | workflow-engine, apex-recall                   |
 
 For a live, always-current roster, see the
 [Architecture Explorer](../../../reference/architecture-explorer/). The count is
@@ -266,16 +265,16 @@ This section walks through creating a new agent from scratch.
 Model selection depends on the task. Use `tools/registry/agent-registry.json` as the
 source of truth, but the current repo pattern is:
 
-- **Planning agents** (accuracy-first) — `Claude Opus 5` at high reasoning effort
+- **Planning agents** — `GPT-6-Sol` at medium reasoning effort
 - **Orchestrator** — `MAI-Code-1.1-Flash`, Microsoft's fast coding model. Standard
   tier suits handoff-only routing without creative generation; the agent body
   keeps its outcome-first skeleton (Role / Goal / Success / Constraints / Output /
   Stop) as a sound routing structure.
-- **Design + Code generation** — `Claude Sonnet 5` for Anthropic XML-tagged
-  output contracts and stronger verbatim invariant retention (security baseline,
-  AVM contract, HARD GATE language)
-- **Governance, Deploy, and Challenger wrapper** — `GPT-5.6-Luna` for focused execution
-- **Diagnose, E2E, and challenger review** — `GPT-5.6-Terra` with outcome-first stopping conditions
+- **Design and As-Built** — `GPT-5.6-Terra` at medium reasoning effort
+- **Governance, CodeGen, Deploy, and Challenger** — `GPT-6-Luna` at max reasoning effort
+- **Diagnose** — `GPT-5.6-Terra` at medium reasoning effort
+- **Context Optimizer** — `Claude Opus 5.5` at medium reasoning effort
+- **E2E evaluation** — prompt-driven; the standalone E2E agent is retired
 - **Execution, deploy, and validation subagents** — model varies; consult `tools/registry/agent-registry.json`
 - **Adversarial review** — use a different model family than the artifact author when possible
 

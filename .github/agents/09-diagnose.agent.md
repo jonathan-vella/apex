@@ -52,6 +52,8 @@ handoffs:
 
 # Azure Resource Health Diagnostician Agent
 
+Reasoning effort: medium.
+
 This agent is **supplementary** to the multi-step workflow. Use it after Step 6 (Deploy) or
 for troubleshooting existing deployments.
 

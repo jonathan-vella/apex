@@ -1,6 +1,6 @@
 ---
 name: 07t-Terraform Deploy
-model: ["GPT-5.6-Luna"]
+model: ["GPT-6-Luna"]
 description: Executes Azure deployments using generated Terraform configurations. Runs bootstrap and deploy scripts, performs terraform plan preview, manages phase-aware deployment lifecycle. Step 6 of the agentic workflow.
 argument-hint: Deploy the Terraform configuration for a specific project
 user-invocable: true
@@ -88,8 +88,7 @@ operation surfaced by `- destroy` lines.
 - If `infra/terraform/{project}/` is missing, malformed, or fails
   `terraform validate`, STOP and request handoff to the Terraform Code agent.
   Do not attempt to author template fixes from this agent.
-- Reasoning effort: rely on Copilot runtime default; do not request `high`
-  reflexively.
+- Reasoning effort: max.
 
 # Output
 
@@ -116,9 +115,8 @@ Context tiers: follow context-management skill (Mode A: Runtime Compression).
 
 Shared agent rules: see
 [`agent-operating-frame.instructions.md`](../instructions/agent-operating-frame.instructions.md).
-Subagent budget: this agent runs on `GPT-5.6-Luna`; `terraform-plan-subagent`
-runs on `Claude Sonnet 5` (cross-family call after the 2026-05 IaC
-subagent migration). The JSON-shaped plan-result contract is preserved
+Subagent budget: this agent runs on `GPT-6-Luna`; `terraform-plan-subagent`
+also runs on `GPT-6-Luna`. The JSON-shaped plan-result contract is preserved
 verbatim — no parsing changes required here.
 
 ## Read Skills First

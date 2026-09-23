@@ -77,8 +77,6 @@ const BLOCK_SCALAR_PATTERN = /^description:\s*[>|][-\s]*$/m;
 const DESCRIPTION_MAX_LEN = 350;
 const DESCRIPTION_WARN_LEN = 300;
 
-const ALLOWED_NON_INVOCABLE_MAIN_AGENTS = new Set(["e2e-orchestrator.agent.md"]);
-
 function runFrontmatterValidation() {
   const r = new Reporter("Agent Frontmatter Validator");
   r.header();
@@ -134,8 +132,7 @@ function runFrontmatterValidation() {
       }
     } else {
       const ui = frontmatter["user-invocable"];
-      const filename = relativePath.split("/").pop();
-      if (ui !== "true" && ui !== "always" && ui !== true && !ALLOWED_NON_INVOCABLE_MAIN_AGENTS.has(filename)) {
+      if (ui !== "true" && ui !== "always" && ui !== true) {
         r.warn(relativePath, `Main agent should have user-invocable: true (got: ${ui})`);
       }
     }
@@ -368,6 +365,8 @@ function classifyModel(modelStr) {
   if (lower.includes("claude sonnet")) return "claude-sonnet";
   if (lower.includes("claude haiku")) return "claude-haiku";
   if (lower.includes("claude")) return "claude";
+  if (lower.includes("gpt-6-sol")) return "gpt-6-sol";
+  if (lower.includes("gpt-6-luna")) return "gpt-6-luna";
   if (lower.includes("gpt-5.6-luna")) return "gpt-5.6-luna";
   if (lower.includes("gpt-5.6-terra")) return "gpt-5.6-terra";
   if (lower.includes("gpt-5.5")) return "gpt-5.5";
@@ -675,6 +674,8 @@ const FAMILY_STATUS = {
   "gpt-5.5": "enforced",
   "gpt-5.6-luna": "reviewer-only",
   "gpt-5.6-terra": "enforced",
+  "gpt-6-sol": "reviewer-only",
+  "gpt-6-luna": "reviewer-only",
   "gpt-5.4": "deprecated",
   "gpt-codex": "reviewer-only",
   "gpt-4o": "reviewer-only",
@@ -1212,10 +1213,6 @@ const CHALLENGER_DISPATCHER_ALLOWLIST = new Set([
   // Retirement decision pending (see
   // `tools/registry/challenger-effectiveness.md` + tracking issue per Phase 12).
   "10-Challenger",
-  // E2E Orchestrator runs the full pipeline unattended for benchmarks;
-  // it dispatches every step agent, including the challenger, on the
-  // user's behalf.
-  "E2E Orchestrator",
 ]);
 
 /** Lookup helper for the workflow-handoff rule registry. */

@@ -144,8 +144,7 @@ chat can resume losslessly.
   - If a step status returns `blocked`, halt and surface findings to the user
     before continuing (circuit breaker — see Core Principles).
   - At Gates 2 and 3, recommend a session break unless context is below 40%.
-- Reasoning effort: rely on the Copilot runtime default. Do not request `high`
-  reflexively; escalate only when a gate carries unresolved tradeoffs.
+- Reasoning effort: medium.
 - Subagent budget: not applicable — the orchestrator does not invoke step
   agents or the challenger via `#runSubagent`. The cost-estimate, validate,
   what-if/plan, and challenger subagents are owned by the step agents that
@@ -198,12 +197,10 @@ subagent cannot exceed the cost tier of the parent. If the parent requests a
 higher-tier model, the subagent silently falls back to the parent's tier.
 [Reference](https://code.visualstudio.com/docs/copilot/agents/subagents).
 
-This orchestrator runs at **standard** tier (MAI-Code-1.1-Flash). The step agents and
-the challenger run at **medium** (GPT-5.6-Luna / GPT-5.6-Terra / Sonnet 5) or
-**high** (Claude Opus 5)
-tiers. Calling them via `#runSubagent` would silently downgrade them to
-standard tier and produce wrong-tier output for architecture, planning, and
-documentation work.
+This orchestrator runs on MAI-Code-1.1-Flash. Each agent's model and reasoning
+effort are defined by its own frontmatter and body. Calling a higher-cost
+subagent through `#runSubagent` can silently downgrade it to the parent's cost
+tier, so transitions to step agents use handoff buttons.
 
 The fix: **handoff-only routing**. Every transition out of the orchestrator
 is a handoff button (defined in this agent's `handoffs:` frontmatter). The
@@ -539,13 +536,13 @@ Orchestrator with the project name — no special resume prompt needed.
 
 ## Model Selection
 
-| Tier       | Model             | Used For                                                                                          |
-| ---------- | ----------------- | ------------------------------------------------------------------------------------------------- |
-| `high`     | Claude Opus 5     | Architecture, Planning                                                                           |
-| `medium`   | Claude Sonnet 5   | **Requirements**, Design, CodeGen, As-Built, Context Optimizer, validation + preview subagents    |
-| `medium`   | GPT-5.6-Terra     | Diagnose, E2E orchestrator, challenger review subagent                                            |
-| `standard` | MAI-Code-1.1-Flash  | **Orchestrator** (handoff-only routing)                                                           |
-| `codex`    | GPT-5.6-Luna      | Governance, Deploy, Challenger, cost estimate subagent                                            |
+| Reasoning effort | Model                         | Used For |
+| ---------------- | ----------------------------- | -------- |
+| `medium`         | MAI-Code-1.1-Flash            | **Orchestrator** (handoff-only routing) |
+| `medium`         | GPT-6-Sol / GPT-5.6-Terra      | Requirements, Architect, Design, IaC Planner, As-Built, Diagnose |
+| `max`            | GPT-6-Luna                    | Governance, CodeGen, Deploy, Challenger, review/cost/validation subagents |
+| `medium`         | GPT-6-Luna                    | Terraform plan and policy precheck subagents |
+| `medium`         | Claude Opus 5.5               | Context Optimizer |
 
 > The canonical assignments live in
 > [tools/registry/agent-registry.json](../../tools/registry/agent-registry.json) and
@@ -553,7 +550,7 @@ Orchestrator with the project name — no special resume prompt needed.
 > by `tools/scripts/generate-model-catalog.mjs`. Agent frontmatter is the single
 > source of truth.
 >
-> The orchestrator runs at **codex** tier deliberately so the routing layer is
+> The orchestrator uses a lightweight model deliberately so the routing layer is
 > cheap. To stay within the [Subagent Tier Rule](#subagent-tier-rule), the
 > orchestrator delegates exclusively via handoff buttons \u2014 never via
 > `#runSubagent`.

@@ -1,7 +1,7 @@
 ---
 name: "10-Challenger"
 description: "Standalone adversarial review wrapper. Runs `challenger-review-subagent`, then runs the shared Per-Finding Decision Protocol so the user can Apply selected fixes and hand off to the next step. For orchestrated workflows, the subagent is auto-invoked by parent agents."
-model: ["GPT-5.6-Luna"]
+model: ["GPT-6-Luna"]
 argument-hint: "Provide the path to the artifact to challenge (e.g. agent-output/my-project/04-implementation-plan.md)"
 user-invocable: true
 tools:
@@ -99,9 +99,7 @@ the Orchestrator with an apply summary.
     were not applied and leave the artifact untouched for a retry.
   - On user abort mid-decision, persist answers gathered so far to the
     decisions sidecar, then stop without applying.
-- Reasoning effort: rely on the Copilot runtime default. Adversarial
-  review is structured I/O around the subagent — elevated reasoning
-  is unnecessary.
+- Reasoning effort: max.
 
 # Output
 

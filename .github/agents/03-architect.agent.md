@@ -1,7 +1,7 @@
 ---
 name: 03-Architect
 description: Expert Architect providing guidance using Azure Well-Architected Framework principles and Microsoft best practices. Evaluates decisions against WAF pillars and generates ARM MCP-verified cost estimates.
-model: ["Claude Opus 5"]
+model: ["GPT-6-Sol"]
 user-invocable: true
 agents: ["cost-estimate-subagent", "challenger-review-subagent"]
 tools: [vscode, execute, read, agent, browser, vscodeGeneral/rename, vscodeGeneral/usages, vscodeNotebooks/createJupyterNotebook, vscodeNotebooks/editNotebook, edit, search, web, 'azure-mcp/*', todo]
@@ -37,6 +37,8 @@ handoffs:
 ---
 
 # Architect Agent
+
+Reasoning effort: medium.
 
 <context_awareness>
 This is a large multi-phase research agent — five WAF pillar scores plus

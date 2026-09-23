@@ -209,10 +209,8 @@ Depth 0: Prompt (orchestrates the full loop)
 ```
 
 Step agents are told that challenger reviews and validation subagents will be
-handled externally. The `E2E Orchestrator` agent
-(`.github/agents/e2e-orchestrator.agent.md`) is referenced for its state
-management and iteration tracking procedures, but is not used as a delegation
-target.
+handled externally. E2E prompt files define state management and iteration
+tracking while invoking the real workflow agents directly.
 
 ## Safety
 

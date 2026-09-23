@@ -7,7 +7,8 @@ license: MIT
 # Vendor Prompting Best Practices
 
 Audit-grade reference for the prompting patterns published by Anthropic
-(Claude family) and OpenAI (GPT-5.6-Terra family). Used to author **and** audit
+(Claude family) and OpenAI (GPT-5.6-Terra family). GPT-6 families are reviewer-only
+pending verified vendor guidance. Used to author **and** audit
 `.agent.md` and `.prompt.md` files in this repository.
 
 The machine-readable source of truth is
@@ -45,6 +46,7 @@ I am editing or reviewing a *.agent.md / *.prompt.md ...
 │   ├── Claude Opus / Claude Sonnet → load references/claude-best-practices.md
 │   ├── Claude Haiku                → load references/claude-best-practices.md (warn-only)
 │   ├── GPT-5.6-Terra               → load references/gpt-5-prompting.md
+│   ├── GPT-6-Sol / GPT-6-Luna      → reviewer-only; manual review
 │   ├── GPT-5.4                     → load references/gpt-5-prompting.md (shared OpenAI cohort)
 │   ├── GPT-Codex / GPT-4o          → reviewer-only; minimal automated rules
 │   └── Unknown / missing           → ERROR: force explicit model: in frontmatter
@@ -61,7 +63,7 @@ I am editing or reviewing a *.agent.md / *.prompt.md ...
 
 `classifyModel()` lower-cases the `model:` value and matches substrings in priority order
 to assign a family (`claude-opus` / `claude-sonnet` / `claude-haiku` / `claude` / `gpt-5.6-terra`
-/ `gpt-5.4` / `gpt-codex` / `gpt-4o` / `unknown`). For agents with `model:` as an array,
+/ `gpt-6-sol` / `gpt-6-luna` / `gpt-5.4` / `gpt-codex` / `gpt-4o` / `unknown`). For agents with `model:` as an array,
 the first entry decides the family; bareword qualifiers (`Claude Foo (suffix)`) are
 forbidden — see rule `frontmatter-model-style-001` in [`rules.json`](rules.json).
 

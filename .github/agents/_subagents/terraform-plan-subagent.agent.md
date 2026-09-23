@@ -1,7 +1,7 @@
 ---
 name: terraform-plan-subagent
 description: Terraform deployment preview subagent. Runs terraform plan to preview changes before deployment. Classifies resources into create/update/destroy/replace, highlights destructive ops, returns structured change summary.
-model: ["Claude Sonnet 5"]
+model: ["GPT-6-Luna"]
 user-invocable: false
 disable-model-invocation: false
 agents: []
@@ -129,12 +129,7 @@ Before composing the response:
 
 ## Effort calibration
 
-Pin reasoning effort to `medium`. Sonnet 5 defaults to `high` (adaptive
-thinking on by default);
-plan-output classification is structured I/O over a JSON payload, so
-`medium` matches the load. Raise to `high` only when the plan contains
-destroy or replace operations, since those require careful per-resource
-reasoning before the parent agent seeks approval.
+Pin reasoning effort to `medium`.
 
 ## Inputs
 

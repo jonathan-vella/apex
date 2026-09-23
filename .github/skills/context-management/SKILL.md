@@ -40,7 +40,8 @@ your need.
 ### Hard Token Checkpoints
 
 Percentages are advisory; absolute input-token counts override them.
-GPT-5.6-Terra and Luna hard-checkpoints at ≥300K input; Claude Opus 5 at ≥160K. When
+GPT-5.6-Terra and legacy GPT-5.6-Luna hard-checkpoint at ≥300K input; Claude Opus 5
+at ≥160K. GPT-6 context limits are not yet characterized. When a known limit is
 hit, emit a compaction message and switch every further read to the
 `minimal` tier. Full per-model table, checkpoint procedure (4 steps), and
 background context (nordic-foods saturation event) in

@@ -22,7 +22,7 @@ At workflow start (when creating `00-session-state.json`), also create:
 }
 ```
 
-Set `workflow_mode` to `"e2e"` for the E2E Orchestrator.
+Set `workflow_mode` to `"e2e"` for benchmark-driven end-to-end runs.
 
 ## When to Record a Lesson
 
@@ -34,9 +34,9 @@ Set `workflow_mode` to `"e2e"` for the E2E Orchestrator.
 - Deployment what-if reveals Azure Policy violations
 - User explicitly flags an issue or concern during approval
 
-### E2E Orchestrator Triggers (superset of production)
+### E2E Benchmark Triggers (superset of production)
 
-All production triggers PLUS:
+For benchmark-driven end-to-end runs, capture all production triggers plus:
 
 - Step needs >1 iteration (self-correction fired)
 - Validator fails on first pass

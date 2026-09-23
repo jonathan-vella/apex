@@ -41,20 +41,19 @@ See `tools/registry/count-manifest.json` for canonical counts.
 | Agent             | File                             | Model                     | Step | Artifacts                       |
 | ----------------- | -------------------------------- | ------------------------- | ---- | ------------------------------- |
 | Orchestrator      | `01-orchestrator.agent.md`       | MAI-Code-1.1-Flash        | All  | Orchestration                   |
-| Requirements      | `02-requirements.agent.md`       | Claude Sonnet 5           | 1    | `01-requirements.md`            |
-| Architect         | `03-architect.agent.md`          | Claude Opus 5             | 2    | `02-architecture-assessment.md` |
-| Design            | `04-design.agent.md`             | Sonnet 5                  | 3    | `03-des-*.{py,png,svg,md}`      |
-| Governance        | `04g-governance.agent.md`        | GPT-5.6-Luna              | 3.5  | `04-governance-constraints.md`  |
-| IaC Plan          | `05-iac-planner.agent.md`        | Claude Opus 5             | 4    | `04-implementation-plan.md`     |
-| Bicep Code        | `06b-bicep-codegen.agent.md`     | Claude Sonnet 5           | 5b   | Bicep in `infra/bicep/`         |
-| Bicep Deploy      | `07b-bicep-deploy.agent.md`      | GPT-5.6-Luna              | 6b   | `06-deployment-summary.md`      |
-| Terraform Code    | `06t-terraform-codegen.agent.md` | Claude Sonnet 5           | 5t   | Terraform in `infra/terraform/` |
-| Terraform Deploy  | `07t-terraform-deploy.agent.md`  | GPT-5.6-Luna              | 6t   | `06-deployment-summary.md`      |
-| As-Built          | `08-as-built.agent.md`           | Claude Sonnet 5           | 7    | `07-ab-*.md` docs suite         |
+| Requirements      | `02-requirements.agent.md`       | GPT-6-Sol                 | 1    | `01-requirements.md`            |
+| Architect         | `03-architect.agent.md`          | GPT-6-Sol                 | 2    | `02-architecture-assessment.md` |
+| Design            | `04-design.agent.md`             | GPT-5.6-Terra             | 3    | `03-des-*.{py,png,svg,md}`      |
+| Governance        | `04g-governance.agent.md`        | GPT-6-Luna                | 3.5  | `04-governance-constraints.md`  |
+| IaC Plan          | `05-iac-planner.agent.md`        | GPT-6-Sol                 | 4    | `04-implementation-plan.md`     |
+| Bicep Code        | `06b-bicep-codegen.agent.md`     | GPT-6-Luna                | 5b   | Bicep in `infra/bicep/`         |
+| Bicep Deploy      | `07b-bicep-deploy.agent.md`      | GPT-6-Luna                | 6b   | `06-deployment-summary.md`      |
+| Terraform Code    | `06t-terraform-codegen.agent.md` | GPT-6-Luna                | 5t   | Terraform in `infra/terraform/` |
+| Terraform Deploy  | `07t-terraform-deploy.agent.md`  | GPT-6-Luna                | 6t   | `06-deployment-summary.md`      |
+| As-Built          | `08-as-built.agent.md`           | GPT-5.6-Terra             | 7    | `07-ab-*.md` docs suite         |
 | Diagnose          | `09-diagnose.agent.md`           | GPT-5.6-Terra             | —    | Diagnostic reports              |
-| Challenger        | `10-challenger.agent.md`         | GPT-5.6-Luna              | —    | Challenge findings              |
-| Context Optimizer | `11-context-optimizer.agent.md`  | Claude Sonnet 5           | —    | Optimization reports            |
-| E2E Orchestrator  | `e2e-orchestrator.agent.md`      | GPT-5.6-Terra             | All  | E2E evaluation loop             |
+| Challenger        | `10-challenger.agent.md`         | GPT-6-Luna                | —    | Challenge findings              |
+| Context Optimizer | `11-context-optimizer.agent.md`  | Claude Opus 5.5           | —    | Optimization reports            |
 
 ### Validation Subagents (in `_subagents/`)
 

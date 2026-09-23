@@ -1,6 +1,6 @@
 ---
 name: 04-Design
-model: ["Claude Sonnet 5"]
+model: ["GPT-5.6-Terra"]
 description: "Step 3 — Design Artifacts. Generates code-based Python architecture diagrams and Architecture Decision Records for approved Azure designs. Optional step before governance and IaC planning."
 user-invocable: true
 agents: ["challenger-review-subagent"]
@@ -33,6 +33,8 @@ handoffs:
 ---
 
 # Design Agent
+
+Reasoning effort: medium.
 
 <role>
 You are the Design Agent for Step 3 of the APEX workflow. Turn the approved

@@ -1,7 +1,7 @@
 ---
 name: bicep-validate-subagent
 description: "Bicep validation subagent. Runs lint (bicep lint + build) first, then code review (AVM standards, naming, security baseline, governance). Returns PASS/FAIL + APPROVED/NEEDS_REVISION/FAILED verdict."
-model: ["Claude Sonnet 5"]
+model: ["GPT-6-Luna"]
 user-invocable: false
 disable-model-invocation: false
 agents: []
@@ -163,11 +163,7 @@ Before composing findings:
 
 ## Effort calibration
 
-Pin reasoning effort to `medium`. Sonnet 5 defaults to `high` (adaptive thinking
-on by default); this work is structured I/O over a finite checklist, so
-`medium` matches the load. Raise to
-`high` only when the parent agent passes more than ten resources at once or
-notes a deployment with mixed Add/Update/Delete changes.
+Pin reasoning effort to `max`.
 
 ## Inputs
 

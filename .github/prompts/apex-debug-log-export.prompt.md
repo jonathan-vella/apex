@@ -185,7 +185,7 @@ mapfile -t AGENT_FILES < <(ls -1 .github/agents/*.agent.md 2>/dev/null)
 mapfile -t AGENT_KEYS < <(node -e "const r=require('./tools/registry/agent-registry.json'); console.log(Object.keys(r.agents).join('\n'))" 2>/dev/null)
 
 # Combined alternation regex for grep.
-FILTER_RE="$(printf '%s\n' "${AGENT_FILES[@]}" "${AGENT_KEYS[@]}" .github/skills/ .github/instructions/ apex-recall '@01-Orchestrator' '@02-Requirements' '@03-Architect' '@04-Design' '@04g-Governance' '@05-IaC-Planner' '@06b-Bicep-CodeGen' '@06t-Terraform-CodeGen' '@07b-Bicep-Deploy' '@07t-Terraform-Deploy' '@08-As-Built' '@e2e-Orchestrator' | awk 'NF' | paste -sd'|' -)"
+FILTER_RE="$(printf '%s\n' "${AGENT_FILES[@]}" "${AGENT_KEYS[@]}" .github/skills/ .github/instructions/ apex-recall '@01-Orchestrator' '@02-Requirements' '@03-Architect' '@04-Design' '@04g-Governance' '@05-IaC-Planner' '@06b-Bicep-CodeGen' '@06t-Terraform-CodeGen' '@07b-Bicep-Deploy' '@07t-Terraform-Deploy' '@08-As-Built' | awk 'NF' | paste -sd'|' -)"
 echo "filter pattern length: ${#FILTER_RE}"
 ```
 

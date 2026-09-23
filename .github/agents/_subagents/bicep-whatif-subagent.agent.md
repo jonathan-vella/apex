@@ -1,7 +1,7 @@
 ---
 name: bicep-whatif-subagent
 description: Bicep deployment preview subagent. Runs az deployment group what-if to preview changes. Analyzes policy violations, resource changes, cost impact. Returns structured summary.
-model: ["Claude Sonnet 5"]
+model: ["GPT-6-Luna"]
 user-invocable: false
 disable-model-invocation: false
 agents: []
@@ -121,11 +121,7 @@ Before composing the response:
 
 ## Effort calibration
 
-Pin reasoning effort to `medium`. Sonnet 5 defaults to `high` (adaptive thinking
-on by default); what-if
-analysis is structured I/O over a small JSON payload, so `medium` matches
-the load. Raise to `high` only when the change set mixes Add, Modify, and
-Delete or when policy violations exceed five entries.
+Pin reasoning effort to `max`.
 
 ## Inputs
 

@@ -1,6 +1,6 @@
 ---
 name: 02-Requirements
-model: ["Claude Sonnet 5"]
+model: ["GPT-6-Sol"]
 description: Researches and captures Azure platform engineering project requirements
 argument-hint: Describe the Azure workload or project you want to gather requirements for
 user-invocable: true
@@ -34,6 +34,8 @@ handoffs:
 ---
 
 # Requirements Agent
+
+Reasoning effort: medium.
 
 <context_awareness>
 This is a ONE-SHOT Step 1 agent (per `claude-oneshot-001`): complete every

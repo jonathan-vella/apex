@@ -209,14 +209,6 @@ state integrity, and timing performance. Composite score 0–100 with letter gra
 
 📁 **Output**: `agent-output/{project}/08-benchmark-report.md`, `08-benchmark-scores.json`
 
-### E2E Orchestrator
-
-Orchestration agent that drives the Ralph Loop. Executes all APEX steps without human
-gates, with pre-validation, self-correction, challenger reviews, and benchmark collection.
-Supports both Bicep and Terraform IaC tracks. Invoked via prompt files, not direct @mention.
-
-📁 **See**: [.github/agents/e2e-orchestrator.agent.md](https://github.com/jonathan-vella/apex/blob/main/.github/agents/e2e-orchestrator.agent.md)
-
 ## G
 
 ### Governance Constraints

@@ -77,6 +77,18 @@
       "rule_subset_note": "Decision-log only; no automated model-specific enforcement."
     },
     {
+      "family": "gpt-6-sol",
+      "status": "reviewer-only",
+      "label_examples": ["GPT-6-Sol"],
+      "rule_subset_note": "No verified model-specific guidance yet; use manual review."
+    },
+    {
+      "family": "gpt-6-luna",
+      "status": "reviewer-only",
+      "label_examples": ["GPT-6-Luna"],
+      "rule_subset_note": "No verified model-specific guidance yet; use manual review."
+    },
+    {
       "family": "gpt-5.5",
       "status": "enforced",
       "label_examples": ["GPT-5.5"],

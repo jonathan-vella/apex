@@ -1,7 +1,7 @@
 ---
 name: 08-As-Built
 description: "Generates Step 7 as-built documentation suite after successful deployment. Reads all prior artifacts (Steps 1-6) and deployed resource state to produce: design document, operations runbook, cost estimate, compliance matrix, backup/DR plan, resource inventory, and documentation index."
-model: ["Claude Sonnet 5"]
+model: ["GPT-5.6-Terra"]
 user-invocable: true
 agents: ["cost-estimate-subagent"]
 tools: [vscode, execute, read, agent, browser, vscodeGeneral/rename, vscodeGeneral/usages, vscodeNotebooks/createJupyterNotebook, vscodeNotebooks/editNotebook, ms-python.python, edit, search, web, 'azure-mcp/*', todo]
@@ -105,8 +105,7 @@ the deployed state — not from prior plan estimates.
   and `.svg` siblings are emitted; missing either sibling is a hard fail.
 - Read deployed state via Azure Resource Graph + `az` CLI; do not infer state
   from IaC source when the deployment is reachable.
-- Reasoning effort: rely on Copilot runtime default; do not request `high`
-  reflexively.
+- Reasoning effort: medium.
 
 # Output
 
@@ -139,9 +138,8 @@ investigate before answering) live in
   plan, resource inventory, documentation index). Never modify
   deployed infrastructure, change IaC templates, or skip prior
   artifact review.
-- **Subagent budget (1)**: `cost-estimate-subagent` on `GPT-5.6-Luna`
-  (intentional cross-family call — Codex selected for numerical
-  reasoning over SKU pricing). The JSON-shaped contract is preserved
+- **Subagent budget (1)**: `cost-estimate-subagent` on `GPT-6-Luna`.
+  The JSON-shaped contract is preserved
   verbatim.
 
 ## Read Skills First

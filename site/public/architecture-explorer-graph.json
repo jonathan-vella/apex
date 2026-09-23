@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-08-27T14:22:27.543Z",
+  "generatedAt": "2026-09-23T06:30:18.563Z",
   "categories": [
     {
       "id": "agent",
@@ -8,7 +8,7 @@
       "label": "Agent",
       "color": "#3b82f6",
       "shape": "round-rectangle",
-      "count": 15
+      "count": 14
     },
     {
       "id": "subagent",
@@ -67,8 +67,8 @@
       "count": 3
     }
   ],
-  "nodeCount": 166,
-  "edgeCount": 623,
+  "nodeCount": 165,
+  "edgeCount": 598,
   "nodes": [
     {
       "id": "agent:01-orchestrator",
@@ -129,7 +129,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/02-requirements.agent.md"
       },
       "meta": {
-        "model": "Claude Sonnet 5",
+        "model": "GPT-6-Sol",
         "invocable": true,
         "subagents": [
           "challenger-review-subagent"
@@ -156,7 +156,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/03-architect.agent.md"
       },
       "meta": {
-        "model": "Claude Opus 5",
+        "model": "GPT-6-Sol",
         "invocable": true,
         "subagents": [
           "cost-estimate-subagent",
@@ -186,7 +186,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/04-design.agent.md"
       },
       "meta": {
-        "model": "Claude Sonnet 5",
+        "model": "GPT-5.6-Terra",
         "invocable": true,
         "subagents": [
           "challenger-review-subagent"
@@ -215,7 +215,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/04g-governance.agent.md"
       },
       "meta": {
-        "model": "GPT-5.6-Luna",
+        "model": "GPT-6-Luna",
         "invocable": true,
         "subagents": [
           "challenger-review-subagent"
@@ -243,7 +243,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/05-iac-planner.agent.md"
       },
       "meta": {
-        "model": "Claude Opus 5",
+        "model": "GPT-6-Sol",
         "invocable": true,
         "subagents": [
           "challenger-review-subagent"
@@ -276,7 +276,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/06b-bicep-codegen.agent.md"
       },
       "meta": {
-        "model": "Claude Sonnet 5",
+        "model": "GPT-6-Luna",
         "invocable": true,
         "subagents": [
           "bicep-validate-subagent",
@@ -306,7 +306,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/06t-terraform-codegen.agent.md"
       },
       "meta": {
-        "model": "Claude Sonnet 5",
+        "model": "GPT-6-Luna",
         "invocable": true,
         "subagents": [
           "terraform-validate-subagent",
@@ -336,7 +336,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/07b-bicep-deploy.agent.md"
       },
       "meta": {
-        "model": "GPT-5.6-Luna",
+        "model": "GPT-6-Luna",
         "invocable": true,
         "subagents": [
           "bicep-whatif-subagent",
@@ -368,7 +368,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/07t-terraform-deploy.agent.md"
       },
       "meta": {
-        "model": "GPT-5.6-Luna",
+        "model": "GPT-6-Luna",
         "invocable": true,
         "subagents": [
           "terraform-plan-subagent",
@@ -400,7 +400,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/08-as-built.agent.md"
       },
       "meta": {
-        "model": "Claude Sonnet 5",
+        "model": "GPT-5.6-Terra",
         "invocable": true,
         "subagents": [
           "cost-estimate-subagent"
@@ -452,7 +452,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/10-challenger.agent.md"
       },
       "meta": {
-        "model": "GPT-5.6-Luna",
+        "model": "GPT-6-Luna",
         "invocable": true,
         "subagents": [
           "challenger-review-subagent"
@@ -473,7 +473,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/11-context-optimizer.agent.md"
       },
       "meta": {
-        "model": "Claude Sonnet 5",
+        "model": "Claude Opus 5.5",
         "invocable": true,
         "subagents": [],
         "handoffTargets": [
@@ -482,42 +482,6 @@
         "skills": [
           "golden-principles",
           "context-management"
-        ]
-      }
-    },
-    {
-      "id": "agent:e2e-orchestrator",
-      "category": "agent",
-      "label": "E2E Orchestrator",
-      "description": "Autonomous E2E evaluation orchestrator for the RALPH-style workflow loop. Executes real workflow agents end-to-end with MCP-backed cost, Python diagram design, governance discovery, validation, and benchmark collection. Does NOT replace 01-Orchestrator.",
-      "path": ".github/agents/e2e-orchestrator.agent.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/e2e-orchestrator.agent.md"
-      },
-      "meta": {
-        "model": "GPT-5.6-Terra",
-        "invocable": true,
-        "subagents": [
-          "02-Requirements",
-          "03-Architect",
-          "04-Design",
-          "04g-Governance",
-          "05-IaC Planner",
-          "06b-Bicep CodeGen",
-          "06t-Terraform CodeGen",
-          "07b-Bicep Deploy",
-          "07t-Terraform Deploy",
-          "08-As-Built",
-          "challenger-review-subagent",
-          "bicep-validate-subagent",
-          "bicep-whatif-subagent",
-          "terraform-validate-subagent",
-          "terraform-plan-subagent"
-        ],
-        "handoffTargets": [],
-        "skills": [
-          "azure-defaults",
-          "azure-artifacts"
         ]
       }
     },
@@ -531,7 +495,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/_subagents/bicep-validate-subagent.agent.md"
       },
       "meta": {
-        "model": "Claude Sonnet 5",
+        "model": "GPT-6-Luna",
         "skills": [
           "azure-defaults",
           "iac-common"
@@ -548,7 +512,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/_subagents/bicep-whatif-subagent.agent.md"
       },
       "meta": {
-        "model": "Claude Sonnet 5",
+        "model": "GPT-6-Luna",
         "skills": []
       }
     },
@@ -562,7 +526,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/_subagents/challenger-review-subagent.agent.md"
       },
       "meta": {
-        "model": "GPT-5.6-Terra",
+        "model": "GPT-6-Luna",
         "skills": [
           "golden-principles",
           "azure-defaults"
@@ -579,7 +543,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/_subagents/cost-estimate-subagent.agent.md"
       },
       "meta": {
-        "model": "GPT-5.6-Luna",
+        "model": "GPT-6-Luna",
         "skills": []
       }
     },
@@ -593,7 +557,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/_subagents/policy-precheck-subagent.agent.md"
       },
       "meta": {
-        "model": "Claude Sonnet 5",
+        "model": "GPT-6-Luna",
         "skills": []
       }
     },
@@ -607,7 +571,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/_subagents/terraform-plan-subagent.agent.md"
       },
       "meta": {
-        "model": "Claude Sonnet 5",
+        "model": "GPT-6-Luna",
         "skills": []
       }
     },
@@ -621,7 +585,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/_subagents/terraform-validate-subagent.agent.md"
       },
       "meta": {
-        "model": "Claude Sonnet 5",
+        "model": "GPT-6-Luna",
         "skills": [
           "azure-defaults",
           "iac-common"
@@ -1372,7 +1336,7 @@
       "id": "instruction:vendor-prompting",
       "category": "instruction",
       "label": "vendor-prompting",
-      "description": "Vendor prompting best-practice rules for Anthropic Claude and OpenAI GPT-5.6-Terra agents and prompts. Each rule cites a rule ID in the vendor-prompting skill rules.json registry. Validator: npm run lint:vendor-prompting.",
+      "description": "Vendor prompting best-practice rules for Anthropic Claude and OpenAI GPT-5.6-Terra agents and prompts. GPT-6 families remain reviewer-only pending verified guidance. Each rule cites a rule ID in the vendor-prompting skill rules.json registry. Validator: npm run lint:vendor-prompting.",
       "path": ".github/instructions/vendor-prompting.instructions.md",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/instructions/vendor-prompting.instructions.md"
@@ -2722,96 +2686,6 @@
       "kind": "delegates"
     },
     {
-      "id": "agent:e2e-orchestrator--delegates->agent:02-requirements",
-      "source": "agent:e2e-orchestrator",
-      "target": "agent:02-requirements",
-      "kind": "delegates"
-    },
-    {
-      "id": "agent:e2e-orchestrator--delegates->agent:03-architect",
-      "source": "agent:e2e-orchestrator",
-      "target": "agent:03-architect",
-      "kind": "delegates"
-    },
-    {
-      "id": "agent:e2e-orchestrator--delegates->agent:04-design",
-      "source": "agent:e2e-orchestrator",
-      "target": "agent:04-design",
-      "kind": "delegates"
-    },
-    {
-      "id": "agent:e2e-orchestrator--delegates->agent:04g-governance",
-      "source": "agent:e2e-orchestrator",
-      "target": "agent:04g-governance",
-      "kind": "delegates"
-    },
-    {
-      "id": "agent:e2e-orchestrator--delegates->agent:05-iac-planner",
-      "source": "agent:e2e-orchestrator",
-      "target": "agent:05-iac-planner",
-      "kind": "delegates"
-    },
-    {
-      "id": "agent:e2e-orchestrator--delegates->agent:06b-bicep-codegen",
-      "source": "agent:e2e-orchestrator",
-      "target": "agent:06b-bicep-codegen",
-      "kind": "delegates"
-    },
-    {
-      "id": "agent:e2e-orchestrator--delegates->agent:06t-terraform-codegen",
-      "source": "agent:e2e-orchestrator",
-      "target": "agent:06t-terraform-codegen",
-      "kind": "delegates"
-    },
-    {
-      "id": "agent:e2e-orchestrator--delegates->agent:07b-bicep-deploy",
-      "source": "agent:e2e-orchestrator",
-      "target": "agent:07b-bicep-deploy",
-      "kind": "delegates"
-    },
-    {
-      "id": "agent:e2e-orchestrator--delegates->agent:07t-terraform-deploy",
-      "source": "agent:e2e-orchestrator",
-      "target": "agent:07t-terraform-deploy",
-      "kind": "delegates"
-    },
-    {
-      "id": "agent:e2e-orchestrator--delegates->agent:08-as-built",
-      "source": "agent:e2e-orchestrator",
-      "target": "agent:08-as-built",
-      "kind": "delegates"
-    },
-    {
-      "id": "agent:e2e-orchestrator--delegates->subagent:challenger-review-subagent",
-      "source": "agent:e2e-orchestrator",
-      "target": "subagent:challenger-review-subagent",
-      "kind": "delegates"
-    },
-    {
-      "id": "agent:e2e-orchestrator--delegates->subagent:bicep-validate-subagent",
-      "source": "agent:e2e-orchestrator",
-      "target": "subagent:bicep-validate-subagent",
-      "kind": "delegates"
-    },
-    {
-      "id": "agent:e2e-orchestrator--delegates->subagent:bicep-whatif-subagent",
-      "source": "agent:e2e-orchestrator",
-      "target": "subagent:bicep-whatif-subagent",
-      "kind": "delegates"
-    },
-    {
-      "id": "agent:e2e-orchestrator--delegates->subagent:terraform-validate-subagent",
-      "source": "agent:e2e-orchestrator",
-      "target": "subagent:terraform-validate-subagent",
-      "kind": "delegates"
-    },
-    {
-      "id": "agent:e2e-orchestrator--delegates->subagent:terraform-plan-subagent",
-      "source": "agent:e2e-orchestrator",
-      "target": "subagent:terraform-plan-subagent",
-      "kind": "delegates"
-    },
-    {
       "id": "agent:01-orchestrator--hands-off->agent:02-requirements",
       "source": "agent:01-orchestrator",
       "target": "agent:02-requirements",
@@ -3376,18 +3250,6 @@
       "kind": "uses-skill"
     },
     {
-      "id": "agent:e2e-orchestrator--uses-skill->skill:azure-defaults",
-      "source": "agent:e2e-orchestrator",
-      "target": "skill:azure-defaults",
-      "kind": "uses-skill"
-    },
-    {
-      "id": "agent:e2e-orchestrator--uses-skill->skill:azure-artifacts",
-      "source": "agent:e2e-orchestrator",
-      "target": "skill:azure-artifacts",
-      "kind": "uses-skill"
-    },
-    {
       "id": "subagent:bicep-validate-subagent--uses-skill->skill:azure-defaults",
       "source": "subagent:bicep-validate-subagent",
       "target": "skill:azure-defaults",
@@ -3505,12 +3367,6 @@
       "id": "instruction:agent-authoring--applies-to->agent:11-context-optimizer",
       "source": "instruction:agent-authoring",
       "target": "agent:11-context-optimizer",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:agent-authoring--applies-to->agent:e2e-orchestrator",
-      "source": "instruction:agent-authoring",
-      "target": "agent:e2e-orchestrator",
       "kind": "applies-to"
     },
     {
@@ -3637,12 +3493,6 @@
       "id": "instruction:agent-operating-frame--applies-to->agent:11-context-optimizer",
       "source": "instruction:agent-operating-frame",
       "target": "agent:11-context-optimizer",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:agent-operating-frame--applies-to->agent:e2e-orchestrator",
-      "source": "instruction:agent-operating-frame",
-      "target": "agent:e2e-orchestrator",
       "kind": "applies-to"
     },
     {
@@ -3967,12 +3817,6 @@
       "id": "instruction:context-optimization--applies-to->agent:11-context-optimizer",
       "source": "instruction:context-optimization",
       "target": "agent:11-context-optimizer",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:context-optimization--applies-to->agent:e2e-orchestrator",
-      "source": "instruction:context-optimization",
-      "target": "agent:e2e-orchestrator",
       "kind": "applies-to"
     },
     {
@@ -4303,12 +4147,6 @@
       "id": "instruction:docs-trigger--applies-to->agent:11-context-optimizer",
       "source": "instruction:docs-trigger",
       "target": "agent:11-context-optimizer",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:docs-trigger--applies-to->agent:e2e-orchestrator",
-      "source": "instruction:docs-trigger",
-      "target": "agent:e2e-orchestrator",
       "kind": "applies-to"
     },
     {
@@ -4810,12 +4648,6 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:lesson-collection--applies-to->agent:e2e-orchestrator",
-      "source": "instruction:lesson-collection",
-      "target": "agent:e2e-orchestrator",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:lesson-collection--applies-to->subagent:bicep-validate-subagent",
       "source": "instruction:lesson-collection",
       "target": "subagent:bicep-validate-subagent",
@@ -5137,12 +4969,6 @@
       "id": "instruction:no-interactive-shell--applies-to->agent:11-context-optimizer",
       "source": "instruction:no-interactive-shell",
       "target": "agent:11-context-optimizer",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:no-interactive-shell--applies-to->agent:e2e-orchestrator",
-      "source": "instruction:no-interactive-shell",
-      "target": "agent:e2e-orchestrator",
       "kind": "applies-to"
     },
     {
@@ -5476,12 +5302,6 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:vendor-prompting--applies-to->agent:e2e-orchestrator",
-      "source": "instruction:vendor-prompting",
-      "target": "agent:e2e-orchestrator",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:vendor-prompting--applies-to->subagent:bicep-validate-subagent",
       "source": "instruction:vendor-prompting",
       "target": "subagent:bicep-validate-subagent",
@@ -5760,12 +5580,6 @@
     {
       "id": "agent:11-context-optimizer--uses-mcp->mcp:github",
       "source": "agent:11-context-optimizer",
-      "target": "mcp:github",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:e2e-orchestrator--uses-mcp->mcp:github",
-      "source": "agent:e2e-orchestrator",
       "target": "mcp:github",
       "kind": "uses-mcp"
     },

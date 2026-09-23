@@ -71,11 +71,11 @@ Open VS Code Chat and use one of the prompt files:
 2. **Complex project (RFP-driven)**: Open `tools/tests/prompts/e2e-contoso-rfp.prompt.md`
 3. **Post-loop analysis**: Open `tools/tests/prompts/e2e-analyze-lessons.prompt.md`
 
-The E2E Orchestrator agent (`.github/agents/e2e-orchestrator.agent.md`)
-orchestrates the loop with conditional IaC routing based on session state. The
-Contoso prompt is intended to run the real workflow agents and tool paths,
-including Python diagram output, pricing-backed architecture assessment, live
-governance discovery when authenticated, and dry-run deployment validation.
+The standalone E2E Orchestrator agent has been retired. The prompt files drive
+the loop by invoking the real workflow agents and tool paths. The Contoso prompt
+includes conditional IaC routing based on session state and exercises Python
+diagram output, pricing-backed architecture assessment, live governance
+discovery when authenticated, and dry-run deployment validation.
 
 Use six runs for a full benchmark — three per IaC track:
 

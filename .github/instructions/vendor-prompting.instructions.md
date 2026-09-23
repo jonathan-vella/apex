@@ -1,5 +1,5 @@
 ---
-description: "Vendor prompting best-practice rules for Anthropic Claude and OpenAI GPT-5.6-Terra agents and prompts. Each rule cites a rule ID in the vendor-prompting skill rules.json registry. Validator: npm run lint:vendor-prompting."
+description: "Vendor prompting best-practice rules for Anthropic Claude and OpenAI GPT-5.6-Terra agents and prompts. GPT-6 families remain reviewer-only pending verified guidance. Each rule cites a rule ID in the vendor-prompting skill rules.json registry. Validator: npm run lint:vendor-prompting."
 applyTo: "**/*.agent.md, **/*.prompt.md"
 ---
 
@@ -92,6 +92,8 @@ Applies when frontmatter `model:` matches `gpt-5.6-terra`.
 | `claude-haiku`  | warn-only     | Severity downgrades to warn                    |
 | `gpt-5.6-terra` | enforced      | OpenAI outcome-first rules at default severity |
 | `gpt-5.6-luna`  | reviewer-only | No automated model-specific enforcement        |
+| `gpt-6-sol`     | reviewer-only | No verified model-specific guidance yet        |
+| `gpt-6-luna`    | reviewer-only | No verified model-specific guidance yet        |
 | `gpt-5.5`       | enforced      | Legacy compatibility                           |
 | `gpt-5.4`       | enforced      | Shared OpenAI outcome-first rules              |
 | `gpt-codex`     | reviewer-only | Legacy compatibility                           |

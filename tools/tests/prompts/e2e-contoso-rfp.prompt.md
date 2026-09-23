@@ -134,7 +134,8 @@ directly from this prompt between the appropriate step agent calls.
 
 ## Orchestration Procedures
 
-Read `.github/agents/e2e-orchestrator.agent.md` for detailed procedures:
+Follow the orchestration procedures below; the standalone E2E Orchestrator agent
+has been retired:
 
 - **State Management**: Session state, handoff, iteration log, lessons JSON
   initialization and update rules

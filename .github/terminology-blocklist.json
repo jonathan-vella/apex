@@ -60,12 +60,12 @@
       "reason": "Agent file renamed to 01-orchestrator.agent.md"
     },
     {
-      "id": "e2e-conductor-filename",
+      "id": "retired-e2e-agent-filename",
       "pattern": "e2e-conductor\\.agent\\.md",
-      "replacement": "e2e-orchestrator.agent.md",
+      "replacement": "E2E prompt-based benchmark workflow",
       "severity": "error",
       "isRegex": true,
-      "reason": "Agent file renamed to e2e-orchestrator.agent.md"
+      "reason": "The standalone E2E agent is retired; use the prompt-based benchmark workflow"
     },
     {
       "id": "maestro-emoji",
