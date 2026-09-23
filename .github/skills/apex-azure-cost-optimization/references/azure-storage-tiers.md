@@ -110,8 +110,8 @@ Keep `id` and `subscriptionId` so duplicate names across subscriptions stay dist
 AdvisorResources
 | where properties.category == 'Cost'
 | extend resourceId = tolower(tostring(properties.resourceMetadata.resourceId))
-| where resourceId has '/providers/microsoft.storage/storageaccounts/'
-    or resourceId has '/providers/microsoft.compute/disks/'
+| where resourceId contains '/providers/microsoft.storage/storageaccounts/'
+    or resourceId contains '/providers/microsoft.compute/disks/'
 | project id, subscriptionId, resourceId, impact=properties.impact,
     solution=properties.shortDescription.solution, extendedProperties=properties.extendedProperties
 ```
@@ -119,7 +119,7 @@ AdvisorResources
 ```kql
 Resources
 | where type =~ 'microsoft.storage/storageaccounts'
-| where sku.name contains 'Premium' or sku.name contains 'GRS'
+| where sku.name contains 'Premium' or sku.name contains 'GRS' or sku.name contains 'GZRS'
 | project id, subscriptionId, name, resourceGroup, location, kind, sku=sku.name, tags
 ```
 

@@ -61,6 +61,9 @@ az rest --method post `
   --body "@$queryPath"
 ```
 
+If the response has a `nextLink`, follow every page before using the results; the fallback is not bounded by the
+`query_costs` row limit.
+
 **Important:** Save the query results to `agent-output/{project}/cost-query-result<timestamp>.json` for audit trail.
 
 ## Step 5: Validate Pricing
