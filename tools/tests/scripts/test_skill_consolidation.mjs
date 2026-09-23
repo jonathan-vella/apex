@@ -102,6 +102,18 @@ test("manual maintenance skills retain validation and import approval boundaries
   assert.doesNotMatch(authoring, /\| Vendor-specific prompt audit \| `\.\.\/apex-vendor-prompting\/SKILL.md`/);
   const modelPolicy = read(new URL("apex-agent-authoring/references/model-policy.md", skillsRoot));
   assert.match(modelPolicy, /Do not load that manual-only skill automatically/);
+  assert.match(modelPolicy, /Architect and IaC Planner recommend medium/);
+  assert.match(modelPolicy, /Bicep and Terraform CodeGen agents recommend max/);
+  assert.doesNotMatch(modelPolicy, /High: architecture|Medium: structured code generation/);
+  for (const name of ["03-architect", "05-iac-planner"]) {
+    assert.match(
+      read(new URL(`../../../.github/agents/${name}.agent.md`, import.meta.url)),
+      /Reasoning effort: medium/,
+    );
+  }
+  for (const name of ["06b-bicep-codegen", "06t-terraform-codegen"]) {
+    assert.match(read(new URL(`../../../.github/agents/${name}.agent.md`, import.meta.url)), /Reasoning effort: max/);
+  }
   const docsTriggers = read(new URL("../../../.github/instructions/docs-trigger.instructions.md", import.meta.url));
   assert.match(docsTriggers, /Required documentation updates do not depend on loading a skill/);
 });
