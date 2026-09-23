@@ -7,9 +7,9 @@ Related evidence: [audit ledger](apex-workflow-audit.md#deep-skill-audit-backlog
 
 ## Status
 
-- **State**: Implemented through Phase 11 on 2026-09-23; awaiting owner review. No pull request is open.
-  Pull request 1 (content) uses `feat/azure-skills-upstream-content`; tooling commits follow on this branch.
-  The apex-docs branch merges after pull request 1.
+- **State**: Implemented through Phase 11. Pull request 1 (#709) merged as `73467dc2` on 2026-09-23 and
+  apex-docs #15 merged after it. The tooling ships as pull request 2 from `feat/azure-skills-upstream-tooling`,
+  cut from `main` after the squash merge.
 - **Owner**: Jonathan Vella ([@jonathan-vella](https://github.com/jonathan-vella)) with GitHub Copilot.
 - **Created**: 2026-09-23 against `main` at `a656e66d`, after the `apex-` rename and SK remediation merge.
 - **Updated**: 2026-09-23 against `main` at `5fef0f82`, when this implementation plan replaced the deferred plan.
@@ -403,8 +403,8 @@ Caching guide summaries in the repository would go stale. Neither is planned.
       quarantine (longest `verkit@0.4.1`, about two days from 2026-09-23). With only the check dependencies
       restored through the proxy, `check:docs` and 12 of 13 runnable tests pass; the migration test needs the
       `.apex-source` checkout. Re-run the full `npm ci` and `npm test` once the holds clear.
-- [ ] Merge after pull request 1. The docs update automation then moves the pinned APEX commit and refreshes the
-      Explorer graph.
+- [x] Merge after pull request 1. The docs update automation then moves the pinned APEX commit and refreshes the
+      Explorer graph. Merged as apex-docs #15 on 2026-09-23.
 
 ## Pull Request Split
 
