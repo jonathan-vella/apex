@@ -43,13 +43,24 @@ function compareVersions(left, right) {
   return 0;
 }
 
-/** Picks the highest `vX.Y.Z` tag from `git ls-remote --tags --refs` output. */
+/** Picks the highest `vX.Y.Z` tag from `git ls-remote --tags` output. */
 export function latestTag(lsRemoteOutput) {
   const tags = lsRemoteOutput
     .split("\n")
     .map((line) => line.split("\t")[1]?.replace(/^refs\/tags\//, ""))
     .filter((tag) => version(tag));
   return tags.sort((left, right) => compareVersions(version(left), version(right))).at(-1) ?? null;
+}
+
+/** Maps each tag to its commit, preferring the peeled `^{}` entry of annotated tags. */
+export function tagCommits(lsRemoteOutput) {
+  const commits = new Map();
+  for (const line of lsRemoteOutput.split("\n")) {
+    const [sha, ref] = line.split("\t");
+    const match = /^refs\/tags\/(.+?)(\^\{\})?$/.exec(ref ?? "");
+    if (match && (match[2] || !commits.has(match[1]))) commits.set(match[1], sha);
+  }
+  return commits;
 }
 
 /** Returns changelog lines for releases after `fromTag` up to and including `toTag`. */
@@ -104,10 +115,38 @@ function parseArgs(args) {
   };
 }
 
+function realPath(target) {
+  const missing = [];
+  let existing = target;
+  while (!fs.existsSync(existing) && path.dirname(existing) !== existing) {
+    missing.unshift(path.basename(existing));
+    existing = path.dirname(existing);
+  }
+  return path.join(fs.realpathSync(existing), ...missing);
+}
+
 function isProtected(rootDir, target) {
   const resolved = path.resolve(rootDir, target);
-  const protectedDir = path.resolve(rootDir, PROTECTED_DIR);
-  return resolved === protectedDir || resolved.startsWith(`${protectedDir}${path.sep}`);
+  if (fs.lstatSync(resolved, { throwIfNoEntry: false })?.isSymbolicLink()) return true;
+  const real = realPath(resolved);
+  const protectedDir = realPath(path.resolve(rootDir, PROTECTED_DIR));
+  return real === protectedDir || real.startsWith(`${protectedDir}${path.sep}`);
+}
+
+function manifestError(manifest) {
+  const upstream = manifest?.upstream;
+  if (typeof upstream?.repository !== "string" || typeof upstream?.plugin_path !== "string") {
+    return "upstream.repository and upstream.plugin_path are required";
+  }
+  if (typeof upstream.reviewed?.tag !== "string" || typeof upstream.reviewed?.commit !== "string") {
+    return "upstream.reviewed.tag and upstream.reviewed.commit are required";
+  }
+  const skills = manifest.skills;
+  if (!Array.isArray(skills) || !skills.every((s) => Array.isArray(s.upstream) && Array.isArray(s.imports))) {
+    return "skills[] entries need upstream[] and imports[]";
+  }
+  if (!Array.isArray(manifest.defect_probes)) return "defect_probes[] is required";
+  return null;
 }
 
 function isImported(skill, file) {
@@ -169,13 +208,13 @@ function compareTrees({ git, workdir, manifest, pinned, latest }) {
 }
 
 function hasDrift(report) {
+  if (report.pinnedCommit !== report.pinned.commit) return true;
   if (!report.newer) return false;
   return (
     report.skills.length > 0 ||
     report.added.length > 0 ||
     report.retired.length > 0 ||
-    report.probes.some((probe) => probe.result !== "still present") ||
-    report.pinnedCommit !== report.pinned.commit
+    report.probes.some((probe) => probe.result !== "still present")
   );
 }
 
@@ -193,15 +232,21 @@ export function renderMarkdown(report) {
     `| Generated | ${report.generatedAt} |`,
     "",
   ];
-  if (!report.newer) {
-    lines.push(`No upstream tag is newer than ${report.pinned.tag}.`, "");
-    return lines.join("\n");
-  }
-  if (report.pinnedCommit !== report.pinned.commit) {
+  if (!report.pinnedCommit) {
+    lines.push(`> ⚠️ Tag ${report.pinned.tag} no longer exists upstream.`, "");
+  } else if (report.pinnedCommit !== report.pinned.commit) {
     lines.push(
       `> ⚠️ Tag ${report.pinned.tag} now points to ${short(report.pinnedCommit)}, not the reviewed commit.`,
       "",
     );
+  }
+  if (!report.newer) {
+    lines.push(`No upstream tag is newer than ${report.pinned.tag}.`, "");
+    return lines.join("\n");
+  }
+  if (!report.skills) {
+    lines.push(`Tree comparison skipped: ${report.pinned.tag} is missing upstream. Re-review and update the pin.`, "");
+    return lines.join("\n");
   }
   const importedChanges = report.skills.flatMap((skill) => skill.changes).filter((change) => change.imported);
   const fixed = report.probes.filter((probe) => probe.result !== "still present");
@@ -280,23 +325,27 @@ export async function runDriftReport({
     status(`❌ Cannot read ${options.manifest}: ${error.message}`);
     return 2;
   }
+  const invalid = manifestError(manifest);
+  if (invalid) {
+    status(`❌ Invalid manifest ${options.manifest}: ${invalid}`);
+    return 2;
+  }
   if (options.output && isProtected(rootDir, options.output)) {
-    status(`❌ Refusing to write the report under ${PROTECTED_DIR}`);
+    status(`❌ Refusing to write the report under ${PROTECTED_DIR} or through a symlink`);
     return 2;
   }
 
   const repository = manifest.upstream.repository;
   const repo = options.repo ?? `https://github.com/${repository}.git`;
   const pinned = manifest.upstream.reviewed.tag;
-  let latest = options.tag;
-  if (!latest) {
-    try {
-      latest = latestTag(git(["ls-remote", "--tags", "--refs", repo], rootDir));
-    } catch (error) {
-      status(`❌ Cannot list upstream tags: ${firstLine(error)}`);
-      return 2;
-    }
+  let refs;
+  try {
+    refs = git(["ls-remote", "--tags", repo], rootDir);
+  } catch (error) {
+    status(`❌ Cannot list upstream tags: ${firstLine(error)}`);
+    return 2;
   }
+  const latest = options.tag ?? latestTag(refs);
   if (!version(latest) || !version(pinned)) {
     status(`❌ Expected vX.Y.Z tags; reviewed ${pinned}, latest ${latest ?? "none"}`);
     return 2;
@@ -307,9 +356,10 @@ export async function runDriftReport({
     generatedAt: now(),
     pinned: { tag: pinned, commit: manifest.upstream.reviewed.commit },
     latest: { tag: latest },
+    pinnedCommit: tagCommits(refs).get(pinned) ?? null,
     newer: compareVersions(version(latest), version(pinned)) > 0,
   };
-  if (report.newer) {
+  if (report.newer && report.pinnedCommit) {
     const workdir = fs.mkdtempSync(path.join(os.tmpdir(), "upstream-skills-"));
     try {
       // A blobless, depth-1 clone downloads trees only; blobs load on demand for the few files read.

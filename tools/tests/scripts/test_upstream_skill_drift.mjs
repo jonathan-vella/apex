@@ -1,11 +1,11 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
-import { changelogSince, latestTag } from "../../scripts/report-upstream-skill-drift.mjs";
+import { changelogSince, latestTag, tagCommits } from "../../scripts/report-upstream-skill-drift.mjs";
 
 const script = fileURLToPath(new URL("../../scripts/report-upstream-skill-drift.mjs", import.meta.url));
 const plugin = ".github/plugins/azure-skills";
@@ -80,13 +80,20 @@ function fixture(context) {
       cwd: root,
       encoding: "utf8",
     });
-  return { root, run };
+  return { root, run, upstream };
 }
 
 test("latestTag picks the highest release tag and ignores other refs", () => {
   const refs = ["a\trefs/tags/v1.9.9", "b\trefs/tags/v1.10.0", "c\trefs/tags/latest", "d\trefs/tags/v2.0.0-rc1"];
   assert.equal(latestTag(refs.join("\n")), "v1.10.0");
   assert.equal(latestTag(""), null);
+  assert.equal(latestTag("t\trefs/tags/v1.2.0\nc\trefs/tags/v1.2.0^{}"), "v1.2.0");
+});
+
+test("tagCommits resolves annotated tags to their peeled commit", () => {
+  const commits = tagCommits("tagobj\trefs/tags/v1.2.0\ncommit1\trefs/tags/v1.2.0^{}\ncommit2\trefs/tags/v1.3.0");
+  assert.equal(commits.get("v1.2.0"), "commit1");
+  assert.equal(commits.get("v1.3.0"), "commit2");
 });
 
 test("changelogSince keeps only releases after the reviewed tag", () => {
@@ -130,4 +137,26 @@ test("drift report skips the clone when no newer tag exists and never writes und
   });
   assert.equal(unreachable.status, 2);
   assert.match(unreachable.stderr, /Cannot list upstream tags/);
+});
+
+test("drift report flags a force-moved reviewed tag even without a newer release", (context) => {
+  const { run, upstream } = fixture(context);
+  git(upstream, "tag", "-f", "v1.0.0", "HEAD");
+  const moved = run("--tag", "v1.0.0", "--fail-on-drift");
+  assert.equal(moved.status, 1, moved.stderr);
+  assert.match(moved.stdout, /Tag v1\.0\.0 now points to `[0-9a-f]{8}`, not the reviewed commit/);
+});
+
+test("drift report refuses symlinked outputs into .github/skills and invalid manifests", (context) => {
+  const { root, run } = fixture(context);
+  mkdirSync(path.join(root, ".github/skills"), { recursive: true });
+  symlinkSync(path.join(root, ".github/skills"), path.join(root, "reports"));
+  const linked = run("--output", "reports/drift.md");
+  assert.equal(linked.status, 2);
+  assert.ok(!existsSync(path.join(root, ".github/skills/drift.md")));
+
+  writeFileSync(path.join(root, "bad.json"), JSON.stringify({ upstream: { repository: "x" } }));
+  const invalid = spawnSync(process.execPath, [script, "--manifest", "bad.json"], { cwd: root, encoding: "utf8" });
+  assert.equal(invalid.status, 2);
+  assert.match(invalid.stderr, /Invalid manifest bad\.json/);
 });
