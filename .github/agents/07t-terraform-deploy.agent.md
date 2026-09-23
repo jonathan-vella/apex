@@ -1,6 +1,6 @@
 ---
 name: 07t-Terraform Deploy
-model: ["GPT-5.6 Luna (copilot)"]
+model: ["GPT-6-Luna"]
 description: Executes Azure deployments using generated Terraform configurations. Runs bootstrap and deploy scripts, performs terraform plan preview, manages phase-aware deployment lifecycle. Step 6 of the agentic workflow.
 argument-hint: Deploy the Terraform configuration for a specific project
 user-invocable: true
@@ -100,8 +100,7 @@ operation surfaced by `- destroy` lines.
 - If `infra/terraform/{project}/` is missing, malformed, or fails
   `terraform validate`, STOP and request handoff to the Terraform Code agent.
   Do not attempt to author template fixes from this agent.
-- Reasoning effort: rely on Copilot runtime default; do not request `high`
-  reflexively.
+- Reasoning effort: max when supported by the active runtime.
 
 ## Output
 

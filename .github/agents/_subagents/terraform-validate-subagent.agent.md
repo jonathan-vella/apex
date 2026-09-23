@@ -1,7 +1,7 @@
 ---
 name: terraform-validate-subagent
 description: "Terraform validation subagent. Runs lint (fmt -check, validate) first, then code review (AVM-TF standards, naming, security baseline, RBAC, governance). Returns PASS/FAIL + APPROVED/NEEDS_REVISION/FAILED verdict."
-model: ["GPT-5.6 Luna (copilot)"]
+model: ["GPT-6-Luna"]
 user-invocable: false
 disable-model-invocation: false
 agents: []
@@ -135,9 +135,7 @@ Before composing findings:
 
 ## Effort calibration
 
-Use medium effort when supported for structured checks. Raise to high only when the parent passes more than ten
-resources at once or notes a module containing more than three
-`azurerm_role_assignment` resources to audit.
+Use max reasoning effort when supported by the active runtime.
 
 ## Inputs
 

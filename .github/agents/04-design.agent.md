@@ -99,8 +99,7 @@ Shared rules live in
 - Never generate IaC or edit the approved architecture. An ADR proposal requires
   Architect review and human approval before any architecture change; ADR creation alone is insufficient.
 - Read `decisions.review_depth`; `deep` or an explicit user request enables ADR review.
-- Use medium effort when supported for normal diagram and ADR work. Use high effort only for
-  unusually large topologies or comparison of ADR alternatives.
+- Reasoning effort: medium when supported by the active runtime.
 
 ## Output contract
 

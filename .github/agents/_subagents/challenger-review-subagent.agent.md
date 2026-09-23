@@ -1,7 +1,7 @@
 ---
 name: challenger-review-subagent
 description: "Unified adversarial review subagent that challenges Azure infrastructure artifacts. Finds untested assumptions, governance gaps, WAF blind spots, and architectural weaknesses. Returns structured JSON findings. Supports single-pass and multi-pass rotating-lens reviews; batches lenses per invocation."
-model: ["GPT-5.6 Terra (copilot)"]
+model: ["GPT-6-Luna"]
 disable-model-invocation: false
 user-invocable: false
 agents: []
@@ -79,7 +79,7 @@ summary that lets the parent decide gates without loading the full payload.
   `output_path` from disk only when it needs the details.
 - Validate the declared input fields; do not invent paths or execution modes.
 - Stay within the requested lens(es); do not silently expand scope.
-- Reasoning effort: use the runtime default; no unsupported effort-control claims.
+- Reasoning effort: max when supported by the active runtime.
 
 ## Output
 

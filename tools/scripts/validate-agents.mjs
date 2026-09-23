@@ -447,6 +447,8 @@ function classifyModel(modelStr) {
   if (lower.includes("claude sonnet")) return "claude-sonnet";
   if (lower.includes("claude haiku")) return "claude-haiku";
   if (lower.includes("claude")) return "claude";
+  if (lower.includes("gpt-6-sol")) return "gpt-6-sol";
+  if (lower.includes("gpt-6-luna")) return "gpt-6-luna";
   if (/gpt-5\.6[- ]luna\b/.test(lower)) return "gpt-5.6-luna";
   if (/gpt-5\.6[- ]terra\b/.test(lower)) return "gpt-5.6-terra";
   if (/gpt-5\.6[- ]sol\b/.test(lower)) return "gpt-5.6-sol";
@@ -754,6 +756,8 @@ export const FAMILY_STATUS = {
   "gpt-5.6-luna": "enforced",
   "gpt-5.6-terra": "enforced",
   "gpt-5.6-sol": "enforced",
+  "gpt-6-sol": "reviewer-only",
+  "gpt-6-luna": "reviewer-only",
   "gpt-5.4": "enforced",
   "gpt-codex": "reviewer-only",
   "gpt-4o": "reviewer-only",

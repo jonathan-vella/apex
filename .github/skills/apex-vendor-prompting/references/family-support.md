@@ -33,6 +33,8 @@ user-confirmed label does not prove release metadata or runtime cost eligibility
 | `gpt-5.6-sol`   | enforced      | APEX Markdown outcome convention; unknown metadata | `GPT-5.6 Sol (copilot)` |
 | `gpt-5.6-terra` | enforced      | APEX Markdown outcome convention                   | `GPT-5.6 Terra (copilot)` |
 | `gpt-5.6-luna`  | enforced      | APEX Markdown outcome convention                   | `GPT-5.6 Luna (copilot)` |
+| `gpt-6-sol`     | reviewer-only | Model-specific advice unverified                   | `GPT-6-Sol`        |
+| `gpt-6-luna`    | reviewer-only | Model-specific advice unverified                   | `GPT-6-Luna`       |
 | `gpt-5.5`       | enforced      | Legacy OpenAI outcome-first compatibility          | `GPT-5.5`           |
 | `gpt-5.4`       | enforced      | Shared OpenAI outcome-first rules                  | `GPT-5.4`           |
 | `gpt-codex`     | reviewer-only | Legacy decision-log compatibility                  | `GPT-5.3-Codex`     |

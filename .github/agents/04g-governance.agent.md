@@ -1,7 +1,7 @@
 ---
 name: 04g-Governance
 description: "Azure governance discovery agent. Queries Azure Policy assignments via REST API (incl. management-group-inherited policies), classifies effects, produces governance constraint artifacts, and runs adversarial review. Step 3.5: after Architecture, before IaC Planning."
-model: ["GPT-5.6 Luna (copilot)"]
+model: ["GPT-6-Luna"]
 argument-hint: Discover governance constraints for a project
 user-invocable: true
 disable-model-invocation: true
@@ -100,7 +100,7 @@ deployment failures.
     `discovery_status: success`).
   - When the cached baseline differs from a live re-discovery → prefer
     live and surface the diff to the user.
-- Reasoning effort: use the runtime default; no unsupported effort-control claims.
+- Reasoning effort: max when supported by the active runtime.
 
 ## Output
 

@@ -101,6 +101,18 @@
       "rule_subset_note": "User-confirmed exact label with unknown public metadata. APEX outcome-first Markdown convention, not Sol-specific vendor evidence."
     },
     {
+      "family": "gpt-6-sol",
+      "status": "reviewer-only",
+      "label_examples": ["GPT-6-Sol"],
+      "rule_subset_note": "Model-specific guidance is unverified; structural checks remain enforced."
+    },
+    {
+      "family": "gpt-6-luna",
+      "status": "reviewer-only",
+      "label_examples": ["GPT-6-Luna"],
+      "rule_subset_note": "Model-specific guidance is unverified; structural checks remain enforced."
+    },
+    {
       "family": "gpt-5.4",
       "status": "enforced",
       "label_examples": [

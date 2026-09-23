@@ -115,8 +115,7 @@ the deployed state — not from prior plan estimates.
   and `.svg` siblings are emitted; missing either sibling is a hard fail.
 - Read deployed state via Azure Resource Graph + `az` CLI; do not infer state
   from IaC source when the deployment is reachable.
-- Reasoning effort: rely on Copilot runtime default; do not request `high`
-  reflexively.
+- Reasoning effort: medium when supported by the active runtime.
 
 ## Output
 

@@ -402,18 +402,20 @@ test("production handoff and terminology guidance cannot revive retired E2E laun
   }
 });
 
-test("agent documentation preserves canonical models and human-selected harness boundaries", () => {
+test("agent catalog and instructions preserve canonical models and human-selected harness boundaries", () => {
   const root = path.resolve(__dirname, "../../..");
-  const docs = fs.readFileSync(path.join(root, "site/src/content/docs/concepts/how-it-works/agents.md"), "utf8");
-  assert.match(docs, /Agent frontmatter is the canonical model assignment/);
-  assert.match(docs, /Requirements, Architect, IaC Planner, Context Optimizer \| `gpt-5\.6-sol`/);
-  assert.match(docs, /Design, Bicep CodeGen, Terraform CodeGen, As-Built, Diagnose, Challenger \| `GPT-5\.6-Terra`/);
-  assert.match(docs, /Governance, Bicep Deploy, Terraform Deploy \| `GPT-5\.6-Luna`/);
-  assert.match(docs, /Orchestrator \| `MAI-Code-1\.1-Flash`/);
-  assert.match(docs, /Local prompt files are adapters, not Agent Host entry points/);
-  assert.match(docs, /Skills inherit the caller's model\/tools/);
-  assert.match(docs, /allowlists must not override that boundary/);
-  assert.doesNotMatch(docs, /Claude Opus 5|Claude Sonnet 5|Anthropic XML-tagged|delegates to a step agent/);
+  const authoring = fs.readFileSync(path.join(root, ".github/instructions/agent-authoring.instructions.md"), "utf8");
+  const runtime = fs.readFileSync(path.join(root, ".github/copilot-instructions.md"), "utf8");
+  const catalog = JSON.parse(fs.readFileSync(path.join(root, ".github/model-catalog.json"), "utf8"));
+  assert.match(authoring, /Agent frontmatter is the canonical model assignment/);
+  for (const [filename, agent] of getAgents()) {
+    const assignments = agent.isSubagent ? catalog.assignments.subagents : catalog.assignments.agents;
+    assert.equal(assignments[filename], agent.frontmatter.model[0], filename);
+    assert.ok(catalog.models[agent.frontmatter.model[0]], filename);
+  }
+  assert.match(runtime, /Local prompt files are adapters, not Agent Host entry points/);
+  assert.match(runtime, /Skills inherit the caller's model\/tools/);
+  assert.match(runtime, /allowlists\s+must not override that boundary/);
 });
 
 test("prompt and skill authoring distinguish Local adapters from Host execution", () => {
