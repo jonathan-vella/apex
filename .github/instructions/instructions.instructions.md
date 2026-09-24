@@ -5,13 +5,11 @@ applyTo: "**/*.instructions.md"
 
 # Custom Instructions File Guidelines
 
-For the complete official reference, see
-[VS Code Custom Instructions docs](https://code.visualstudio.com/docs/copilot/customization/custom-instructions).
-
 ## Frontmatter
 
-All frontmatter fields are optional. Without `applyTo`, the instructions file
-is not auto-applied but can still be manually attached to a chat request.
+Without `applyTo`, an instructions file is not auto-applied but can still be attached
+manually. APEX validators (`validate-instruction-checks.mjs`) require both `description`
+and `applyTo` on every file in this folder.
 
 ```yaml
 ---
@@ -46,38 +44,10 @@ When multiple instruction sources exist, higher priority wins on conflict:
 
 ## File Structure
 
-1. **Title** (`#`) with brief introduction
-2. **Core sections** organized by domain — prefer tables and bullet lists over prose
-3. **Examples** with `### Good Example` / `### Bad Example` labels and fenced code blocks
-4. **Validation** (optional) — build/lint/test commands
-
-Use `#tool:<tool-name>` to reference agent tools in body text.
-
-## Writing Rules
-
-| Rule                    | Details                                                |
-| ----------------------- | ------------------------------------------------------ |
-| Imperative mood         | "Use", "Implement", "Avoid" — not "You should"         |
-| Specific and actionable | Concrete examples > abstract concepts                  |
-| Concise and scannable   | Bullet points, tables; avoid verbose paragraphs        |
-| No ambiguity            | Avoid "should", "might", "possibly"                    |
-| Show why                | Explain reasoning only when it adds value              |
-| Stay current            | Reference current versions; remove deprecated patterns |
-
-## Patterns to Follow
-
-- **Tables** for structured rules, comparisons, parameter lists
-- **Code comparisons** with Good/Bad examples in fenced blocks
-- **Conditional guidance** for context-dependent rules (e.g., project size)
-- **Bullet lists** for sequential rules or checklists
-
-## Patterns to Avoid
-
-- Overly verbose explanations — keep it scannable
-- Outdated information or deprecated features
-- Missing examples — abstract rules without code
-- Contradictory advice within the same file
-- Copy-paste from documentation — distill and contextualize
+Start with a `#` title and a one-line purpose, then domain sections that prefer tables and
+bullets over prose. Use imperative mood, add Good/Bad examples only where a rule is ambiguous,
+and use `#tool:<tool-name>` to reference agent tools. Keep only repository-specific rules —
+do not restate general language or platform knowledge; link to the owning skill or reference.
 
 ## Maintenance
 
@@ -87,8 +57,9 @@ see `.github/instructions/references/precedence-matrix.md` for resolution rules.
 - Review when dependencies or frameworks are updated
 - Keep glob patterns accurate as project structure evolves
 - Target under 150 lines; split large content into a companion skill's `references/` folder
+- Adding, renaming or removing an instruction file requires updating callers, tests and the
+  Explorer registry (`docs-trigger.instructions.md`)
 
 ## Resources
 
 - [Custom Instructions docs](https://code.visualstudio.com/docs/copilot/customization/custom-instructions)
-- [Community examples](https://github.com/github/awesome-copilot)

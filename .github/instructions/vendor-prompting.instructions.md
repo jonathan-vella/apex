@@ -18,12 +18,9 @@ The machine-readable rule registry is
 
 These enforce the repository contract; not every violation is a platform parsing failure:
 
-- **`frontmatter-model-style-001`** — `.agent.md` must use array
-  form for `model:` (e.g., `model: ["Claude Opus 5.5"]`).
-  `.prompt.md` uses string form when explicit. YAML parentheses are valid;
-  ordinary model labels still require exact catalog keys, including provider
-  suffixes present in those keys. Optional handoff qualifiers cannot override an
-  exact catalog match. Validate every fallback.
+- **`frontmatter-model-style-001`** — `.agent.md` uses array form for `model:`;
+  `.prompt.md` uses string form when explicit. Labels must be exact catalog keys
+  (see [agent-authoring](agent-authoring.instructions.md#model-policy)); validate every fallback.
 
 ## Vendor rules
 
@@ -99,14 +96,9 @@ approval gates, the security baseline or governance constraints.
 - **`model-deprecation-001`** — Cross-references
   [validate-models.mjs](../../tools/scripts/validate-models.mjs) (`--only=deprecated`).
 - **`prompt-model-source-001`** — HARD rule (severity `error`):
-  prompts targeting a custom agent (e.g. `agent: "02-Requirements"`)
-  MUST NOT declare `model:` — let the agent's `model:` apply.
-  Prompts using a built-in agent (or no `agent:`) may declare an
-  explicit `model:` to override picker selection; omission is valid inheritance.
-  Unknown custom-agent targets remain errors. The validator resolves a prompt's effective
-  family via its target agent when `model:` is omitted, so the
-  per-prompt rules above (`claude-no-prefill-001`,
-  `model-deprecation-001`) keep firing on agent-targeting prompts.
+  prompts targeting a custom agent MUST NOT declare `model:`; built-in-agent prompts may.
+  Unknown custom-agent targets remain errors. The validator resolves an agent-targeting
+  prompt's family through its target agent, so per-prompt rules keep firing.
 
 ## Family overrides
 
@@ -154,6 +146,3 @@ node tools/scripts/validate-agents.mjs \
 # Show every registered rule (cross-checked against rules.json)
 node tools/scripts/validate-agents.mjs --list-rules
 ```
-
-For deep guidance, audit procedures and source citations, ask the user to invoke
-[/apex-vendor-prompting](../skills/apex-vendor-prompting/SKILL.md) explicitly.

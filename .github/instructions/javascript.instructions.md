@@ -5,40 +5,19 @@ applyTo: "**/*.{js,mjs,cjs}"
 
 # JavaScript Guidelines
 
-Instructions for writing clean, consistent JavaScript in this repository. All scripts
-target Node.js LTS (22+) and use ES modules (`.mjs`).
+Repository-specific rules for Node.js tooling. Scripts are ES modules (`.mjs`) and target
+Node.js `>=22` (`package.json` engines); CI runs Node 24. Prettier and ESLint own general
+style — run them instead of hand-formatting.
 
-## Module System
+## Modules and Structure
 
-- Use ES modules exclusively — all scripts use `.mjs` extension
-- Import Node.js built-ins with the `node:` protocol: `import fs from "node:fs"`
-- Prefer `node:fs/promises` over callback-based `node:fs` for async operations
-- Use named imports where practical: `import { readFile } from "node:fs/promises"`
-
-## Script Structure
-
-Follow the existing pattern in `tools/scripts/`:
+- Import built-ins with the `node:` protocol (`import fs from "node:fs"`).
+- Keep validator logic in an exported function and the CLI entrypoint thin. Async entrypoints
+  must be awaited so `validate-all.mjs` can isolate lifecycle and exit codes.
+- Return an exit code or result object from validator logic; call `process.exit` only in the
+  guarded CLI entrypoint:
 
 ```javascript
-#!/usr/bin/env node
-/**
- * Brief description of what the script validates or does.
- *
- * @example
- * node tools/scripts/my-script.mjs
- */
-
-import fs from "node:fs";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
-
-// Constants at top
-const SOME_DIR = ".github/agents";
-
-// Counters for validation scripts
-let errors = 0;
-let warnings = 0;
-
 export async function runValidator(options = {}) {
   // Accumulate findings and return an exit code or result object.
 }
@@ -48,35 +27,19 @@ const invokedAsScript =
 if (invokedAsScript) process.exit(await runValidator());
 ```
 
-## Conventions
-
-- Use `const` by default, `let` when reassignment is needed, never `var`
-- Use double quotes for strings (matches Prettier config)
-- Use template literals for string interpolation
-- Use `===` and `!==` for comparisons
-- Prefer arrow functions for callbacks
-- Use destructuring where it improves readability
-- Export validator logic and keep the CLI entrypoint thin. Async entrypoints must
-  be awaited so `validate-all.mjs` can isolate lifecycle and exit codes.
-- Return an exit code or result object from validator logic; call `process.exit`
-  only in the guarded CLI entrypoint.
-
 ## Error Handling
 
-- Validation scripts: accumulate errors in a counter, log all issues, then exit
-  with non-zero code — do not throw on first error
-- Use `try/catch` for file operations that may fail
-- Log errors to stderr with descriptive messages including the file path
-- Use emoji prefixes for log output: `❌` errors, `⚠️` warnings, `✅` pass
+- Validators accumulate findings, report every issue with its file path, then exit non-zero —
+  do not throw on the first error. Prefer the shared `tools/scripts/_lib/reporter.mjs`.
+- An explicit path argument that matches no files is an error, not a zero-file pass.
+- Use `path.join()`/`path.resolve()` for paths, never string concatenation.
 
-## File System Operations
+## Shared Helpers
 
-- Use `fs.readFileSync` for simple validation scripts (synchronous is fine)
-- Use `path.join()` or `path.resolve()` for paths — never string concatenation
-- Walk directories with `fs.readdirSync` and filter by extension
-- Check existence with `fs.existsSync` before reading
+Reuse `tools/scripts/_lib/` before writing new parsing code (`json.mjs`, `parse-jsonc.mjs`,
+`h2-parser.mjs`, `glob-helpers.mjs`, `avm-patterns.mjs`).
 
-## Frontmatter Parsing
+### Frontmatter Parsing
 
 Reuse `parseFrontmatter` from `tools/scripts/_lib/parse-frontmatter.mjs`
 for repository YAML frontmatter, using the existing `js-yaml` dependency:
@@ -98,7 +61,6 @@ Extend the shared parser only with focused tests; reuse existing dependencies.
 
 ## Dependencies
 
-- Minimize external dependencies — prefer Node.js built-ins
-- Current dev dependencies: `fast-xml-parser`, `markdownlint-cli2`, `lefthook`,
-  `commitlint`, `markdown-link-check`
-- Do not add runtime dependencies — this is a tooling-only `package.json`
+- `package.json` is tooling-only: no runtime `dependencies`.
+- Prefer Node built-ins and existing dev dependencies (for example `js-yaml`, `ajv`,
+  `jsonc-parser`); add a new one only when nothing present covers the need.

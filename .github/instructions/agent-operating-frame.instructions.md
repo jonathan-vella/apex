@@ -1,5 +1,5 @@
 ---
-description: "Shared operating frame for main step agents — read SKILL.md once, use apex-recall for cached lookups, never edit upstream artifacts. Pairs with each agent's body-level Operating frame H2."
+description: "Shared operating frame for main step agents — read SKILL.md once, use apex-recall for cached lookups, never edit upstream artifacts. Pairs with the agent's Operating frame or Constraints H2."
 applyTo: ".github/agents/*.agent.md"
 ---
 
@@ -42,7 +42,7 @@ shared guidance when attached or explicitly loaded, not as an assumed inherited 
   Do not generate substitutes or load all prior artifacts for an unrelated lookup.
 - Verify external contracts (AVM module schemas, Azure REST APIs,
   policy effects) via the preflight or validate subagent named in
-  the agent's `## Operating frame`. Do not assume.
+  the agent's `## Operating frame` or `## Constraints`. Do not assume.
 
 ## Never edit upstream artifacts
 
@@ -60,31 +60,24 @@ commands before writing; do not duplicate the table in agent bodies.
 For incremental IaC, preserve the readiness checks and build cadence in
 [`codegen-shared-workflow.md`](../skills/apex-iac-common/references/codegen-shared-workflow.md).
 Deferred checks are not passes and block completion until resolved.
-
-Markdown artifacts are validated by the lefthook `artifact-validation`
-pre-commit hook — do not invoke `lint:artifact-templates` /
-`markdownlint-cli2` directly.
+Markdown artifacts follow the
+[no-direct-markdownlint rule](agent-authoring.instructions.md#no-direct-markdownlint-on-agent-output-rule).
 
 ## Subagent budget — agent-specific
 
 - Follow the agent's declared subagent budget; the orchestrator uses handoff buttons only.
-- Main agents, including `10-Challenger`, use `disable-model-invocation: true`.
-  If a required worker is unavailable, stop and request a human handoff; never
-  invoke a main agent as a nested wrapper or widen the caller's allowlist.
-- Reviewer discovery failure requires a human handoff to `10-Challenger`.
-  Missing or empty reviewer output permits exactly one identical-input retry,
-  then a human handoff; follow the
-  [review protocol](../skills/apex-azure-defaults/references/adversarial-review-protocol.md#subagent-discovery-fallback-default--deep).
+- If a required worker is unavailable, stop and request a human handoff; never invoke a
+  main agent as a nested wrapper or widen the caller's allowlist. Reviewer failures follow the
+  [Challenger-subagent fallback rule](agent-authoring.instructions.md#challenger-subagent-fallback-rule)
+  and the [review protocol](../skills/apex-azure-defaults/references/adversarial-review-protocol.md#subagent-discovery-fallback-default--deep).
 - Preserve structured output contracts across model families.
-- Agent frontmatter owns model assignments; the registry mirrors them. Do not use
-  repository memory or duplicated prose as an alternative model authority.
-- Model labels do not establish runtime cost-tier eligibility or API parameters.
-  If the active harness cannot honor required tools or model routing, stop.
+- Model ownership and routing follow [agent-authoring](agent-authoring.instructions.md#model-policy);
+  if the active harness cannot honor required tools or model routing, stop.
 
 ## Out of scope for this file
 
 - Per-agent role boundaries — kept in each agent's own
-  `## Operating frame`.
+  `## Operating frame` or `## Constraints`.
 - The verbatim `## Completion Handoff` contract — owned by
   [`compression-templates.md`](../skills/apex-context-management/references/compression-templates.md#gate-boundary-clear-handoff-contract)
   and grep-locked by `tools/scripts/validate_orchestrator_handoff.py`.

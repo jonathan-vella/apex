@@ -5,8 +5,7 @@ applyTo: ".github/**/*.{md,json}, tools/scripts/**/*.mjs, AGENTS.md, README.md, 
 
 # No Hard-Coded Counts
 
-Hard-coded numeric counts for project entities drift silently and create maintenance
-nightmares. This instruction eliminates that class of bug.
+Hard-coded entity counts drift silently.
 
 ## Rule
 
@@ -20,12 +19,10 @@ Use **descriptive language** that stays true regardless of count changes:
 | Instead of                             | Write                                                |
 | -------------------------------------- | ---------------------------------------------------- |
 | "16 top-level agents and 11 subagents" | "a set of specialized agents and subagents"          |
-| "38 GA skills"                         | "the full skill catalog"                             |
 | "25 instruction files"                 | "instruction files with glob-based auto-application" |
 | "7-step workflow" or "8-step workflow" | "the multi-step workflow"                            |
-| "27 validators"                        | "the validation suite"                               |
-| "13 pricing tools"                     | "a suite of pricing query tools"                     |
-| "26 pre-installed extensions"          | "pre-installed VS Code extensions"                   |
+
+Apply the same pattern to skills, validators, pricing tools and extensions.
 
 ## When Exact Counts ARE Needed
 
@@ -41,6 +38,5 @@ Files **allowed** to contain counts (the allowlist):
 
 ## Workflow Steps
 
-The workflow includes Step 3.5 (Governance) which makes "7 steps" and "8 steps"
-both technically correct depending on counting method. To eliminate this ambiguity:
-always say **"multi-step workflow"** — never count steps.
+Step 3.5 (Governance) makes "7 steps" and "8 steps" both defensible, so always say
+**"multi-step workflow"** — never count steps.

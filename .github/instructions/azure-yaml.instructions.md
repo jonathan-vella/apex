@@ -42,20 +42,14 @@ cd infra/{iac}/{project} && azd up        # preferred
 azd -C infra/{iac}/{project} up           # alternative from repo root
 ```
 
-## Bicep Projects
+## Minimal Manifest
 
 ```yaml
 name: { project }
 infra:
-  provider: bicep
+  provider: bicep # or terraform, matching the parent directory
   path: .
 ```
 
-## Terraform Projects
-
-```yaml
-name: { project }
-infra:
-  provider: terraform
-  path: .
-```
+Track-specific azd details (authentication checks, environment commands, directory layout)
+live in `infra/bicep/AGENTS.md` and `infra/terraform/AGENTS.md`.

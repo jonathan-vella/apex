@@ -1,20 +1,11 @@
 <!-- ref:markdown-formatting-guide-v1 -->
 
-# Markdown Formatting — Detailed Guide
+# Markdown Formatting — Examples
 
-Examples and detailed formatting rules for `markdown.instructions.md`.
-Core rules and enforcement live in the instruction file.
+Good/bad examples for the rules in `markdown.instructions.md`, which owns the rules and
+their enforcement.
 
-## Line Length Guidelines
-
-The 120-character limit is strictly enforced. When lines exceed this limit:
-
-1. **Sentences**: Break after punctuation (period, comma, em-dash)
-2. **Lists**: Break after the list marker or continue on next line with indentation
-3. **Links**: Break before `[` or use reference-style links for long URLs
-4. **Code spans**: If unavoidable, use a code block instead
-
-**Example — Breaking long lines:**
+## Line Length
 
 ```markdown
 <!-- BAD: 130+ characters -->
@@ -28,8 +19,6 @@ and best practices that stays within the limit.
 ```
 
 ## Code Blocks
-
-Specify the language after opening backticks for syntax highlighting:
 
 ### Good Example
 
@@ -65,29 +54,15 @@ Source: `03-des-diagram.py`
 Mermaid is allowed only when explicitly required by template/instruction.
 If Mermaid is used, include a neutral theme directive for dark mode compatibility.
 
-## Visual Styling Standards
+## Visual Styling
 
-### Quick Reference
+Callouts (`> [!NOTE]`, `[!TIP]`, `[!IMPORTANT]`, `[!WARNING]`, `[!CAUTION]`), status emoji,
+category icons and collapsible sections follow the artifacts skill's
+[styling standards](../../skills/apex-azure-artifacts/references/styling-standards.md).
 
-| Element        | Usage               | Example                                        |
-| -------------- | ------------------- | ---------------------------------------------- |
-| Callouts       | Emphasis & warnings | `> [!NOTE]`, `> [!TIP]`, `> [!WARNING]`        |
-| Status Emoji   | Progress indicators | ✅ ⚠️ ❌ 💡                                    |
-| Category Icons | Resource sections   | 💻 💾 🌐 🔐 📊                                 |
-| Collapsible    | Long content        | `<details><summary>...</summary>...</details>` |
-| References     | Evidence links      | Microsoft Learn URLs at document bottom        |
+## Lists
 
-### Callout Types
-
-Supported: `> [!NOTE]`, `> [!TIP]`, `> [!IMPORTANT]`, `> [!WARNING]`, `> [!CAUTION]`.
-Full examples and emoji tables are in the apex-azure-artifacts SKILL.md.
-
-## Lists and Formatting
-
-- Use `-` for bullet points (not `*` or `+`)
-- Use `1.` for numbered lists (auto-increment)
-- Indent nested lists with 2 spaces
-- Add blank lines before and after lists
+Indent nested lists with 2 spaces and add blank lines before and after lists.
 
 ### Good Example
 
@@ -119,10 +94,6 @@ Prerequisites:
 
 ## Tables
 
-- Include header row with alignment
-- Keep columns aligned for readability
-- Use tables for structured comparisons
-
 ```markdown
 | Resource  | Purpose            | Example          |
 | --------- | ------------------ | ---------------- |
@@ -130,11 +101,7 @@ Prerequisites:
 | Storage   | Blob storage       | `stcontosodev`   |
 ```
 
-## Links and References
-
-- Use descriptive link text (not "click here")
-- Verify all links are valid and accessible
-- Prefer relative paths for internal links
+## Links
 
 ### Good Example
 
@@ -149,29 +116,3 @@ azure-resource-manager/bicep/) for syntax details.
 ```markdown
 Click [here](../../getting-started/quickstart/) for more info.
 ```
-
-## Front Matter (Optional)
-
-For blog posts or published content, include YAML front matter:
-
-```yaml
----
-post_title: "Article Title"
-author1: "Author Name"
-post_slug: "url-friendly-slug"
-post_date: "2025-01-15"
-summary: "Brief description of the content"
-categories: ["Azure", "Infrastructure"]
-tags: ["bicep", "iac", "azure"]
----
-```
-
-**Note**: Front matter fields are project-specific.
-General documentation files may not require all fields.
-
-## Maintenance
-
-- Review documentation when code changes
-- Update examples to reflect current patterns
-- Remove references to deprecated features
-- Verify all links remain valid

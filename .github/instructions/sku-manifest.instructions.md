@@ -12,6 +12,9 @@ JSON is canonical; the markdown is a rendering for human review.
 Schema: `tools/schemas/sku-manifest.schema.json`
 Validators: `npm run validate:sku-manifest` + `npm run validate:sku-iac-coverage`
 Templates: `.github/skills/apex-azure-artifacts/templates/sku-manifest.template.{md,json}`
+Tooling details (coverage rules, legacy opt-out, governance allowlist projection, pricing TTLs,
+multi-stamp manifests, MD/JSON sync enforcement):
+[`sku-manifest-details.md`](../skills/apex-azure-artifacts/references/sku-manifest-details.md)
 
 ## Scope — what belongs in `services[]`
 
@@ -162,102 +165,25 @@ only fields that differ from the base entry. Common patterns:
   `commitment` to a reserved instance.
 
 The `environments[]` top-level set is the allowlist. Override keys
-outside this set are a validator error.
+outside this set are a validator error. Optional `stamps[]` (per-tenant or per-region
+overlays) follow the multi-stamp rules in the tooling reference.
 
-## Coverage Rules
+## Derived Fields and Coverage
 
-`validate:sku-iac-coverage` checks both directions:
-
-- **Manifest → IaC**: every `services[].iac_logical_names.{bicep|terraform}`
-  must appear in `infra/{bicep|terraform}/{project}/` source.
-- **IaC → manifest**: every effective SKU (explicit literals **plus**
-  AVM module defaults when the consumer doesn't pass a SKU param) must
-  trace back to a manifest entry — unless the surrounding resource
-  matches the exclude list above.
-
-AVM-default resolution is wired through
-[`tools/scripts/_lib/avm-default-skus.mjs`](../../tools/scripts/_lib/avm-default-skus.mjs).
-Add a row to that table when a new AVM module ships with a default SKU.
-
-## Rollout
-
-Both validators are **hard-fail**. There is no warn-only window.
-
-Legacy projects that predate the manifest may opt out by placing a
-`.sku-manifest.skip` sentinel file in their `agent-output/{project}/`
-directory; the coverage validator will then skip-with-info instead of
-erroring. Remove the sentinel once the project has a real manifest.
-
-## Governance Allowlist Projection
-
-`04g-Governance` derives a normalized SKU allowlist projection from
-`04-governance-constraints.json` after Phase 2 by invoking
-`node tools/scripts/derive-sku-allowlist.mjs <project>`. The script
-walks `findings[]` for `effect: "deny"` entries whose
-`azurePropertyPath` ends in `.sku.name` / `.skuName` / `.sku_name` /
-`.vmSize`, maps `resource_types[]` to canonical service names, and
-writes the projection into the manifest's `sku_allowlist_snapshot`
-(allowed_skus + denied_skus, pattern-matched with `*`/`?` globs).
-
-`validate:sku-manifest` cross-checks every `services[].size` against
-the projection. The derive script is idempotent — re-running it on
-unchanged input is a no-op.
-
-## Pricing Freshness + Manifest Staleness
-
-`validate:sku-manifest` emits WARN when:
-
-- `services[].cost_estimated_at` is older than `APEX_SKU_PRICING_TTL_DAYS`
-  (default 30 days). `cost-estimate-subagent` writes both
-  `cost_estimate_monthly_usd` and `cost_estimated_at` atomically via
-  Mode B writeback, so this warning indicates pricing should be
-  refreshed.
-- The manifest's top-level `updated_at` is older than
-  `APEX_SKU_MANIFEST_TTL_DAYS` (default 90 days).
-
-These thresholds are env-tunable for projects with different cadence.
-
-## Multi-Stamp Manifests
-
-Optional `stamps[]` field at the manifest top level represents
-independent deployments of the same workload (per-tenant, per-region
-overlays). Each stamp has:
-
-- `id` (unique within `stamps[]`)
-- `regions[]` (may differ from `default_region`)
-- optional `environments[]` (subset of top-level `environments[]`)
-- optional `service_overrides` (map of `services[].id` → sparse
-  `envOverride` shape, applied on top of base entry + env override)
-
-The validator checks `id` uniqueness, environment subset, and that
-`service_overrides` keys reference real `services[].id` entries. When
-`stamps[]` is absent the manifest behaves as a single-stamp project.
+- `sku_allowlist_snapshot` is written by `node tools/scripts/derive-sku-allowlist.mjs <project>`
+  (run by `04g-Governance`); never hand-edit it. `services[].size` must satisfy it.
+- Pricing fields (`cost_estimate_monthly_usd`, `cost_estimated_at`) are written by
+  `cost-estimate-subagent`; stale pricing or manifests produce validator warnings.
+- `validate:sku-iac-coverage` is hard-fail in both directions (manifest ↔ IaC, including
+  AVM default SKUs); only the exclude list above is exempt.
 
 ## MD ↔ JSON Sync
 
-The companion `sku-manifest.md` is a **deterministic rendering** of
-`sku-manifest.json`, produced by
-[`tools/scripts/render-sku-manifest-md.mjs`](../../tools/scripts/render-sku-manifest-md.mjs).
-
-**Rules**:
-
-- Agents write **JSON only**. The renderer is the only legitimate writer
-  of `sku-manifest.md`. Hand-editing the MD is forbidden and will be
-  overwritten on the next commit (lefthook pre-commit auto-stages the
-  re-rendered MD).
-- After any rev-N JSON mutation (Architect at Step 2, Planner at Step 4,
-  Deploy at Step 6, As-Built at Step 7), the author MUST run
-  `node tools/scripts/render-sku-manifest-md.mjs <project>` and stage
-  the MD change in the same commit.
-- The renderer is idempotent: running it twice on the same JSON yields
-  byte-equal output.
-- `validate:sku-manifest` hard-fails when MD is missing, its "Current
-  revision" Overview cell is absent, or that cell does not equal the
-  JSON's `current_revision`. Re-render to fix.
-
-CI enforcement: a `.github/workflows/*` job runs the renderer and
-`git diff --exit-code` on `**/sku-manifest.md` — the PR fails if MD
-drifted out of sync with JSON.
+Agents write **JSON only**; `sku-manifest.md` is a deterministic rendering by
+`tools/scripts/render-sku-manifest-md.mjs` and hand edits are overwritten. After any rev-N
+JSON mutation (Architect at Step 2, Planner at Step 4, Deploy at Step 6, As-Built at Step 7),
+run `node tools/scripts/render-sku-manifest-md.mjs <project>` and stage the MD in the same
+commit. Pre-commit, validator and CI sync checks are described in the tooling reference.
 
 ## Anti-Patterns
 

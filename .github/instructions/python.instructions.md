@@ -5,26 +5,24 @@ applyTo: "**/*.py"
 
 # Python Guidelines
 
-Instructions for writing clean, consistent Python in this repository. Target Python 3.14
-(latest stable) with Ruff for linting and formatting.
+Repository-specific rules for Python tooling. Target Python 3.14 (`requires-python >=3.14`)
+with Ruff for linting and formatting; Ruff owns general style.
 
 ## Project Context
 
-Python is used for two purposes in this repo:
+Python is used for:
 
 1. **Architecture diagrams** — `diagrams` library scripts in `agent-output/` and `.github/skills/`
-2. **Utility scripts** — validation tooling and diagram verification
+2. **Tooling** — `tools/apex-recall/`, governance discovery scripts, and diagram verification
 
 ## Style & Formatting
 
-- **Formatter**: Ruff (`ruff format`) — double quotes, space indentation
-- **Linter**: Ruff with rules: E, W, F, I, B, C4, UP, SIM
-- **Line length**: 120 characters (matches project-wide setting)
-- **Imports**: sorted by isort rules via Ruff — stdlib, third-party, first-party
-- **Quotes**: double quotes for strings
+- Ruff config lives in root `pyproject.toml` (format, lint rules E, W, F, I, B, C4, UP, SIM,
+  120-character lines). Run `ruff format` and `ruff check` rather than restating style rules.
 - **Type hints**: use for function signatures. Root `pyproject.toml` configures
     Python/Ruff, not a type-checking mode; inspect the applicable package/editor
     configuration before claiming a Pyright/Pylance level is enforced.
+- Prefer `pathlib.Path` in new code; existing scripts may use `os.path`.
 
 ## Package Management
 
@@ -53,18 +51,9 @@ with Diagram("Diagram Title", show=False, filename="output-name", direction="TB"
 - Group resources in `Cluster` blocks matching Azure resource groups
 - Set explicit `filename` parameter to control output location
 
-## Conventions
-
-- Use `snake_case` for functions, variables, and modules
-- Use `PascalCase` for classes
-- Use `UPPER_SNAKE_CASE` for constants
-- Prefer f-strings over `.format()` or `%` formatting
-- Use pathlib `Path` for new code — existing scripts may use `os.path`
-- Use context managers (`with`) for file and network operations
-
 ## Testing
 
-- Test framework: `pytest` with `pytest-asyncio` for async tests
-- Mock framework: `pytest-mock`
-- Tests live alongside source in `tests/` subdirectories
-- Use `@pytest.mark.asyncio` for async test functions
+- Test framework: `pytest` (in root `requirements.txt`); no async or mock plugins are
+  installed, so use `unittest.mock` and synchronous tests unless a package adds its own.
+- Tests sit next to the code they cover: `test_*.py` beside skill scripts,
+  `tools/apex-recall/tests/`, and `tools/tests/python-diagrams/`.

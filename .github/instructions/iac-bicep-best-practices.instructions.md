@@ -9,18 +9,13 @@ Azure values are canonical in [Copilot instructions](../copilot-instructions.md#
 shared naming, AVM, and security procedures live in [apex-azure-defaults](../skills/apex-azure-defaults/SKILL.md).
 This file covers Bicep-specific patterns. Discovered policy constraints always take precedence.
 
-## Security
+## Policy and Security
 
 Azure Policy always wins. Code adapts to policy, never the reverse.
-See `references/iac-security-baseline.md` for shared security rules and
-`references/iac-policy-compliance.md` for the full policy compliance workflow.
-
-## Policy Compliance
-
-Cross-reference `04-governance-constraints.json` before writing templates.
-For Deny policies, prefer `azurePropertyPath`; fall back to `bicepPropertyPath`.
-See `references/iac-policy-compliance.md` for the full checklist and Bicep
-translation rules.
+Cross-reference `04-governance-constraints.json` before writing templates; for Deny policies
+prefer `azurePropertyPath` and fall back to `bicepPropertyPath`. Shared rules:
+`references/iac-security-baseline.md` (security, networking, diagnostics) and
+`references/iac-policy-compliance.md` (checklist, dynamic tags, Bicep translation).
 
 ## Naming
 
@@ -45,17 +40,10 @@ Pass to all modules. Use `take()` for length-constrained resources.
 Use AVM modules (`br/public:avm/res/{service}/{resource}:{version}`) for all
 resources where one exists. Raw Bicep only when no AVM exists and user approves.
 
-**Pin to the latest published stable version**, resolved at plan time:
-
-```bash
-curl -sf https://mcr.microsoft.com/v2/bicep/avm/res/{path}/tags/list \
-  | jq -r '.tags[]' | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1
-```
-
-Or use the `mcp_bicep_list_avm_metadata` MCP helper. Never copy a version
-from `apex-azure-defaults/references/avm-modules.md` — versions are
-intentionally stripped from that table. The shared stale-pin exception and
-freeze policy lives in [`apex-azure-defaults`](../skills/apex-azure-defaults/SKILL.md).
+**Pin to the latest published stable version**, resolved at plan time through MCR tags or
+the `mcp_bicep_list_avm_metadata` MCP helper (procedure and stale-pin/freeze policy in
+[`apex-azure-defaults`](../skills/apex-azure-defaults/SKILL.md)). Never copy a version
+from `apex-azure-defaults/references/avm-modules.md` — versions are intentionally stripped.
 
 ## Module Outputs
 
@@ -67,18 +55,14 @@ in both phased and `all` deployments; prefer symbolic outputs, or explicit `depe
 
 ## Diagnostic Settings
 
-Pass resource names (not IDs) to diagnostic modules. Use `existing` keyword
-for symbolic references inside the diagnostic module.
+Pass resource and workspace names (not IDs) to modules; resolve IDs with `existing`
+inside the module. Coverage requirements: `references/iac-security-baseline.md`.
 
-## Cost Monitoring
+## Cost Monitoring and Repeatability
 
-Every deployment includes a budget module. See `references/iac-cost-monitoring.md`.
-
-## Repeatability
-
-Zero hardcoded project-specific values. `projectName` parameter has no default.
-All tag values reference parameters. See `references/iac-policy-compliance.md`
-for the dynamic tag list rule.
+Every deployment includes a budget module (`references/iac-cost-monitoring.md`).
+Zero hardcoded project-specific values: `projectName` has no default and tag values
+reference parameters (dynamic tag rule in `references/iac-policy-compliance.md`).
 
 ## Anti-Patterns
 
@@ -100,9 +84,5 @@ bicep build main.bicep && bicep lint main.bicep
 
 ## Cross-References
 
-- Policy compliance: `references/iac-policy-compliance.md`
-- Security baseline: `references/iac-security-baseline.md`
-- Cost monitoring: `references/iac-cost-monitoring.md`
 - Governance discovery: `.github/instructions/governance-discovery.instructions.md`
-- Azure defaults: `.github/skills/apex-azure-defaults/SKILL.md`
 - Bicep patterns skill: `.github/skills/apex-azure-bicep-patterns/SKILL.md`

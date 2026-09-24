@@ -1,59 +1,61 @@
 # Instruction Precedence Matrix
 
 When multiple instruction files apply to the same file type (via overlapping
-`applyTo` globs), this matrix defines which rules take precedence.
+`applyTo` globs), this matrix defines which rules take precedence. Files under
+`references/` have no `applyTo`; they load only when an instruction or agent links
+to them, so they appear here as canonical sources, not as instruction layers.
 
 ## Precedence Order (highest wins)
 
-1. **Azure Policy constraints** — `references/iac-policy-compliance.md`
+1. **Azure Policy constraints** — discovered policy, whose rules are canonical in
+   `references/iac-policy-compliance.md` and `references/iac-security-baseline.md`
    - Azure Policy ALWAYS wins. If a governance Deny policy conflicts with
      any other instruction, the policy constraint takes precedence.
-2. **Domain-specific IaC instructions** — `iac-bicep-best-practices.instructions.md`
-   or `iac-terraform-best-practices.instructions.md`
-   - AVM-first, naming conventions, security baseline, file structure.
-3. **Cross-cutting IaC instructions** — `iac-plan-best-practices.instructions.md` / `references/iac-cost-monitoring.md`
-   - Budget resources, forecast alerts, parameterization rules.
-4. **General code quality** — `code-quality.instructions.md`
-   - Comment style (WHY not WHAT), review priority tiers, security checklist.
+2. **Domain-specific instructions** — for example `iac-bicep-best-practices`,
+   `iac-terraform-best-practices`, `azure-artifacts`, `agent-authoring`.
+3. **Cross-cutting instructions** — for example `iac-plan-best-practices`,
+   `context-optimization`, `no-interactive-shell`, `no-heredoc`, `docs-trigger`,
+   `no-hardcoded-counts`.
+4. **General style** — `code-quality`, `markdown` and the language files.
 
 ## Overlap Map
 
-### Files matching `**/*.bicep`
+### Files matching `**/*.bicep` or `**/*.tf`
 
-| Instruction              | Priority    | Key Rules                                               |
-| ------------------------ | ----------- | ------------------------------------------------------- |
-| iac-policy-compliance    | 1 (highest) | Governance Deny policies block deployment               |
-| iac-bicep-best-practices | 2           | AVM-first, CAF naming, unique suffix, security defaults |
-| iac-plan-best-practices  | 3           | Budget resources, forecast alerts, no hardcoded values  |
-| code-quality             | 4 (lowest)  | WHY comments, security review priority                  |
+| Instruction                                   | Priority   | Key Rules                                                     |
+| --------------------------------------------- | ---------- | ------------------------------------------------------------- |
+| iac-bicep / iac-terraform best practices      | 2          | Policy precedence, AVM-first, naming, track-specific rules    |
+| no-heredoc                                    | 3          | File-editing tools, never shell redirects                     |
+| code-quality                                  | 4 (lowest) | WHY comments, security review priority                        |
 
-### Files matching `**/*.tf`
+`iac-plan-best-practices` applies only to `04-implementation-plan.md`, not to IaC source.
 
-| Instruction                  | Priority    | Key Rules                                                 |
-| ---------------------------- | ----------- | --------------------------------------------------------- |
-| iac-policy-compliance        | 1 (highest) | Governance Deny policies block deployment                 |
-| iac-terraform-best-practices | 2           | AVM-TF, provider pin ~>4.0, CAF naming, security defaults |
-| iac-plan-best-practices      | 3           | Budget resources, forecast alerts, no hardcoded values    |
-| code-quality                 | 4 (lowest)  | WHY comments, security review priority                    |
+### Files matching `agent-output/**/*.md`
 
-### Files matching `**/*.md`
+| Instruction    | Priority   | Key Rules                              |
+| -------------- | ---------- | -------------------------------------- |
+| azure-artifacts | 2         | H2 heading compliance, template-first  |
+| markdown       | 4 (lowest) | 120-char lines, ATX headings, alt text |
 
-| Instruction                         | Priority   | Key Rules                              |
-| ----------------------------------- | ---------- | -------------------------------------- |
-| apex-azure-artifacts (for agent-output/) | 1          | H2 heading compliance, template-first  |
-| docs (for docs/)                    | 2          | Single H1, relative links, DRY         |
-| markdown                            | 3 (lowest) | 120-char lines, ATX headings, alt text |
+### Files matching `.github/agents/*.agent.md`
 
-### Files matching `**/*.agent.md` and `**/*.prompt.md`
+| Instruction           | Priority   | Key Rules                                                  |
+| --------------------- | ---------- | ---------------------------------------------------------- |
+| agent-authoring       | 2          | Frontmatter schema, handoffs, model ownership              |
+| vendor-prompting      | 2          | Rule-ID-tagged vendor and repository conventions           |
+| agent-operating-frame | 2          | Read-once skills, recall lookups, upstream immutability    |
+| lesson-collection     | 2          | Orchestrator agents only                                   |
+| context-optimization  | 3          | Body and context budgets                                   |
+| no-interactive-shell  | 3          | No prompts, bounded terminal output                        |
+| docs-trigger          | 3          | Required product documentation updates                     |
+| no-hardcoded-counts   | 3          | Descriptive counts, `count-manifest.json` as the source    |
 
-| Instruction                    | Priority    | Key Rules                                                      |
-| ------------------------------ | ----------- | -------------------------------------------------------------- |
-| apex-agent-authoring                | 1 (highest) | Frontmatter schema, handoff structure, model assignment table  |
-| apex-vendor-prompting               | 2           | Claude/GPT-5.6 vendor rules, rule-ID-tagged validator findings |
-| prompt (for `.prompt.md` only) | 3           | Prompt-file frontmatter (`agent`, `argument-hint`, `tools`)    |
-| markdown                       | 4 (lowest)  | 120-char lines, ATX headings, alt text                         |
-
-> `agent-skills.instructions.md` covers `**/.github/skills/**/SKILL.md` only — not in this glob.
+`_subagents/*.agent.md` receive the same set except `agent-operating-frame` and
+`lesson-collection`. `.prompt.md` files receive `agent-authoring`, `vendor-prompting`,
+`prompt`, `no-interactive-shell`, plus `no-hardcoded-counts` under `.github/` or `markdown`
+under `tools/apex-prompts/`.
+`SKILL.md` files receive `agent-skills`, `context-optimization`, `no-interactive-shell`,
+`docs-trigger` and `no-hardcoded-counts`.
 
 ## Conflict Resolution
 

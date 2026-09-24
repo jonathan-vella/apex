@@ -12,9 +12,7 @@ or modifying agent definitions, skills, and instruction files.
 
 Two tiers govern agent definitions: **hard limits** (CI-enforced — a breach
 fails `npm run validate:agents`) and **soft guidelines** (advisory — keep
-lean, but no validator blocks them). Earlier revisions listed the soft
-targets as hard caps; the tables below now match what the validators in
-`tools/scripts/` actually enforce.
+lean, but no validator blocks them).
 
 ### Hard limits (CI-enforced)
 
@@ -43,19 +41,7 @@ targets as hard caps; the tables below now match what the validators in
 | `applyTo` specificity     | Narrow globs         | Guideline — `**/*.ts` not `**` when possible                         |
 | Avoid `applyTo: "**"`     | Exceptional only     | Loads for every single file match                                   |
 
-### Good vs Bad `applyTo`
-
-```yaml
-# Good: Loads only for TypeScript files
-applyTo: "**/*.ts, **/*.tsx"
-
-# Good: Loads only for Bicep
-applyTo: "**/*.bicep"
-
-# Bad: Loads for every file in the workspace
-applyTo: "**"
-# Only acceptable for truly universal rules (comments, golden principles)
-```
+Prefer narrow globs such as `"**/*.bicep"`; `"**"` is acceptable only for truly universal rules.
 
 ## Skill Rules
 
@@ -73,44 +59,18 @@ attachment evidence or proof that every advisory limit is enforced.
 
 ## Hand-Off Decision Framework
 
-Consider delegation at a bounded task boundary when one of these signals applies:
-
-1. **Tool-heavy phase**: Agent makes > 5 tool calls in sequence for one subtask
-2. **Domain shift**: Agent transitions between distinct domains (infra → app → docs)
-3. **Context accumulation**: Estimated context > 60% of model limit
-4. **Latency signal**: Turn latency exceeds 15s consistently
-5. **Isolated validation**: Task produces a structured PASS/FAIL result
+Consider delegation only at a bounded task boundary; the signals (tool-heavy phase, domain
+shift, context accumulation, latency, isolated validation) and an illustrative context
+budget are in
+[`token-estimation.md`](../skills/apex-context-management/references/token-estimation.md#hand-off-signals).
 
 These signals never authorize topology changes. Check explicit caller allowlists,
 available tools, and actual harness support first. Empty `agents: []` means no
 delegation and needs no `agent` tool. Leaf workers return to their parent without
 questions, todo management, or nested calls. Use a human handoff when required.
 Do not infer runtime cost-tier eligibility from model names or catalog capability
-descriptors; unknown Sol metadata remains unknown.
-
-## Context Budget Template
-
-When designing a new agent, budget the context:
-
-```text
-Model limit:           200,000 tokens (Opus)
-─ System overhead:      -2,000 tokens
-─ Tool schemas (25):    -1,875 tokens
-─ Agent body (200 ln):  -1,500 tokens
-─ Instructions (5):     -3,000 tokens
-─ Skill (1 SKILL.md):   -2,000 tokens
-─ Output headroom:     -20,000 tokens
-────────────────────────────────────
-Available for conversation: ~169,625 tokens
-
-Per-turn budget: ~169,625 / 20 turns = ~8,481 tokens/turn average
-```
-
-This is illustrative arithmetic, not a guaranteed model or harness limit.
-Use observed context limits from the active Local or Agent Host session; do not
-infer Sol limits or multiply a conversation budget by an assumed model tier. See
-[`apex-context-management/references/token-estimation.md`](../skills/apex-context-management/references/token-estimation.md)
-for the per-model breakdown including request multipliers.
+descriptors; unknown Sol metadata remains unknown. Use observed context limits from the
+active session, not assumed model limits.
 
 ## Anti-Patterns
 
@@ -146,18 +106,10 @@ so the choice is auditable.
 
 ## Runtime Compression
 
-When loading an artifact file (under `agent-output/`), check conversation length.
-If estimated context usage exceeds 60% of the model limit, use the artifact
-compression tier system from the `apex-context-management` skill (Mode A: Runtime
-Compression):
-
-1. **Read** `.github/skills/apex-context-management/SKILL.md` for artifact tier definitions
-2. Select tier: `full` (<60%), `summarized` (60-80%), `minimal` (>80%)
-3. Apply compression template for the specific artifact being loaded
-4. Compress older/less-critical artifacts first when loading multiple files
-
-The tier system applies to artifacts in `agent-output/`. Skills are
-single-tier (`SKILL.md`); reuse unchanged content still available in context.
+When loading `agent-output/` artifacts under context pressure, use the artifact tiers
+(`full` / `summarized` / `minimal`) and compression templates from
+[`apex-context-management`](../skills/apex-context-management/SKILL.md) (Mode A).
+Skills are single-tier (`SKILL.md`); reuse unchanged content still available in context.
 Refresh required content after edits, compaction, or a new chat rather than guessing.
 
 ## Skill Loading

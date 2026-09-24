@@ -152,3 +152,4 @@ inform scorecards; log capture, context audit, and runtime compression remain ow
 - [Model policy](references/model-policy.md)
 - [Runtime guardrails](references/runtime-guardrails.md)
 - [Decision logging](references/decision-logging.md)
+- [Skill authoring](references/skill-authoring.md): locations, layout, loading and `context` policy detail.

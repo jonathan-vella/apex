@@ -41,6 +41,7 @@ No active debt items are currently tracked.
 | 24  | Documentation  | Explorer graph stale (2026-04-22)            | 2026-04-24 | Regenerated                                                       |
 | 25  | Agents         | Governance agent lacks context_awareness     | 2026-04-24 | Block added                                                       |
 | 23  | Agents/Skills  | E2E RALPH follow-up lessons                  | 2026-09-23 | Autonomous harness retired; production workflow remains supported |
+| 26  | Instructions   | Duplicated and stale instruction guidance    | 2026-09-24 | Deduped to canonical owners; backup in `.archive/`                |
 | —   | Repository     | Redundant active content retired             | 2026-08-27 | Archive later emptied; no local copy retained                     |
 | —   | Repository     | Whole-repository retirement scan completed   | 2026-08-27 | Report removed; duplicate content not retained                    |
 | —   | All            | Tracker created                              | 2026-02-26 | Initial seeding                                                   |

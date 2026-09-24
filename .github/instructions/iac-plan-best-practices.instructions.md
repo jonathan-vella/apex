@@ -8,24 +8,14 @@ applyTo: "**/04-implementation-plan.md"
 These rules apply when generating or reviewing implementation plans,
 regardless of whether the target IaC track is Bicep or Terraform.
 
-## Policy Compliance
+## Policy, Cost and Repeatability
 
-Azure Policy always wins. Cross-reference `04-governance-constraints.md`
-and `04-governance-constraints.json` before writing the plan.
-Tags come from governance constraints, not hardcoded defaults.
-See `references/iac-policy-compliance.md` for the full compliance checklist.
-
-## Cost Monitoring
-
-Every implementation plan includes budget resources, governed notifications,
-Action Group routing, and anomaly detection. See
-`references/iac-cost-monitoring.md` for the canonical contract.
-
-## Repeatability
-
-Generated templates deploy to any tenant, region, subscription, or
-customer without source code modification. Zero hardcoded project-specific
-values. `projectName`/`project_name` parameter has no default.
+Azure Policy always wins. Cross-reference `04-governance-constraints.md` and `.json` before
+writing the plan; tags come from governance constraints, not hardcoded defaults
+(`references/iac-policy-compliance.md`). Every plan includes budget resources, governed
+notifications, Action Group routing and anomaly detection (`references/iac-cost-monitoring.md`).
+Templates deploy to any tenant, region, subscription or customer without source changes;
+`projectName`/`project_name` has no default.
 
 ## Diagram Artifacts
 
@@ -43,7 +33,5 @@ done
 
 ## Cross-References
 
-- Policy compliance: `references/iac-policy-compliance.md`
 - Security baseline: `references/iac-security-baseline.md`
-- Cost monitoring: `references/iac-cost-monitoring.md`
 - Governance discovery: `.github/instructions/governance-discovery.instructions.md`
