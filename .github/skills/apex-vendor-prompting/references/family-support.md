@@ -24,23 +24,17 @@ user-confirmed label does not prove release metadata or runtime cost eligibility
 
 ## Matrix
 
-| Family          | v1 status     | Rule subset                                        | Examples            |
-| --------------- | ------------- | -------------------------------------------------- | ------------------- |
-| `claude-opus`   | enforced      | All Claude rules at default severity               | `Claude Opus 5`     |
-| `claude-sonnet` | enforced      | All Claude rules at default severity               | `Claude Sonnet 5`   |
-| `claude-haiku`  | warn-only     | XML structuring + few-shot rules; rest downgraded  | `Claude Haiku 4.5`  |
-| `claude`        | warn-only     | Generic Claude — flag at warn for explicit version | `Claude`            |
-| `gpt-5.6-sol`   | enforced      | APEX Markdown outcome convention; unknown metadata | `GPT-5.6 Sol (copilot)` |
-| `gpt-5.6-terra` | enforced      | APEX Markdown outcome convention                   | `GPT-5.6 Terra (copilot)` |
-| `gpt-5.6-luna`  | enforced      | APEX Markdown outcome convention                   | `GPT-5.6 Luna (copilot)` |
-| `gpt-6-sol`     | reviewer-only | Model-specific advice unverified                   | `GPT-6-Sol`        |
-| `gpt-6-luna`    | reviewer-only | Model-specific advice unverified                   | `GPT-6-Luna`       |
-| `gpt-5.5`       | enforced      | Legacy OpenAI outcome-first compatibility          | `GPT-5.5`           |
-| `gpt-5.4`       | enforced      | Shared OpenAI outcome-first rules                  | `GPT-5.4`           |
-| `gpt-codex`     | reviewer-only | Legacy decision-log compatibility                  | `GPT-5.3-Codex`     |
-| `gpt-4o`        | reviewer-only | Legacy; no new enforcement                         | `GPT-4o`            |
-| `mai-code`      | reviewer-only | Microsoft model; no MAI-specific prompting rules   | `MAI-Code-1.1-Flash` |
-| `unknown`       | enforced      | Require catalog authorization for explicit labels | (anything else)     |
+| Family            | Status        | Rule subset                                                     | Examples                  |
+| ----------------- | ------------- | --------------------------------------------------------------- | ------------------------- |
+| `claude-opus-5.5` | enforced      | All Claude rules, including Opus 5.5 thinking and stop guidance | `Claude Opus 5.5`         |
+| `gpt-6-sol`       | enforced      | GPT-6 family guidance + APEX outcome contract                   | `GPT-6-Sol`               |
+| `gpt-6-luna`      | enforced      | GPT-6 family guidance + APEX outcome contract                   | `GPT-6-Luna`              |
+| `gpt-5.6-terra`   | enforced      | GPT-5.6 prompt guidance + APEX outcome contract                 | `GPT-5.6 Terra (copilot)` |
+| `mai-code`        | reviewer-only | Microsoft model; no MAI-specific prompting rules                | `MAI-Code-1.1-Flash`      |
+| `unknown`         | enforced      | Require catalog authorization for explicit labels               | (anything else)           |
+
+Retired labels (earlier Claude Opus/Sonnet/Haiku, GPT-5.6 Sol/Luna, GPT-5.5 and older) classify as `unknown`
+and fail catalog authorization.
 
 ## How severity is computed
 
@@ -54,8 +48,8 @@ For a given rule + agent:
 The current validator has no date-driven promotion or per-rule override engine;
 historical `promotion_date` and empty `family_overrides` fields are provenance,
 not executable policy. Missing models on valid inherited prompts are not errors.
-Main outcome sections and leaf role contracts are repository requirements, not
-proof of Sol/Terra/Luna-specific vendor guidance or runtime behavior.
+Rules with `validator_check_id: "reviewer-only"` have no automated check; they are
+manual checklist items at their listed severity.
 
 ## Adding a new family
 

@@ -17,6 +17,14 @@ shared guidance when attached or explicitly loaded, not as an assumed inherited 
   compaction, or a new chat, load only the missing or changed material needed for the task.
 - Do not repeat a complete read for an already available section.
 
+## Skill and user precedence
+
+- User instructions outrank skill guidance on style, format, and workflow choices.
+  The security baseline, governance constraints, and approval gates are not waivable through chat.
+- If a skill makes you pause, ask for confirmation, leave work unfinished, or diverge from the
+  user's request, name the `SKILL.md`, quote the instruction, and separate explicit skill
+  requirements from your interpretation.
+
 ## Use `apex-recall` for cached lookups
 
 - Use `apex-recall show <project> --json` for decisions, findings, and artifact state.

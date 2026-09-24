@@ -221,6 +221,12 @@ Use `apex-recall show <project> --json`; never read session state directly.
 Stop after all requested artifacts are saved. Do not auto-advance without a user
 handoff.
 
+## User updates
+
+Before the first tool call, say in one sentence what you will do first. After that, update only
+when an artifact is finished or a finding changes the plan, and name any blocker.
+Do not narrate routine tool calls.
+
 ## Validation checklist
 
 - [ ] Architecture assessment read before artifact generation.

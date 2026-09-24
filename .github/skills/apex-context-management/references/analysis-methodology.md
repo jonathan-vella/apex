@@ -68,8 +68,10 @@ Group requests by session and analyze patterns:
   loops where context accumulates
 - **Latency escalation**: Investigate slower turns against recorded usage, output size,
   tool activity, and runtime conditions; do not infer context growth from timing alone
-- **Model mismatch**: Heavy turns on a low-tier model (e.g. GPT-5 mini, Claude Haiku 4.5) when an Opus/Sonnet agent was selected suggest wrong model routing;
-  fast turns on Opus suggest the task could use a lighter model
+- **Model mismatch**: Compare each turn's recorded model with the agent's frontmatter
+  assignment and declared role; a different recorded model suggests wrong routing. Do not
+  infer capability, cost tier or "lighter" models from names — catalog tiers may be unknown
+  (`.github/model-catalog.json`); recommend a model change only from measured evidence
 
 ### Step 3: Audit Agent Definitions
 

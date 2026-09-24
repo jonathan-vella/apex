@@ -62,6 +62,8 @@ Governance, requirements and architecture are read-only. No IaC or Azure writes.
 Honor `metadata.plan_lock` after gate-3; reopen approval through the owner workflow
 before revisions, regenerate dependent hashes and invalidate stale reviews.
 Use available editing tools for minimal verified patches; preserve user work.
+User instructions outrank skill guidance except the security baseline, governance constraints
+and approval gates. If a skill makes you pause or diverge, name the `SKILL.md` and quote the instruction.
 
 ## Stop rules
 
@@ -71,10 +73,9 @@ worker eligibility return `blocked`; never skip checks or substitute models.
 
 ## Harness Routing
 
-Local uses human handoffs; Host requires explicit selection of the next named owner. Skills execute inline
-and cannot change model/tools. Only the allowlisted reviewer
-may be called via #tool:agent. On resolution failure, report the error and ask the
-user to select `10-Challenger`, then stop; never invoke that main agent as a worker.
+Local uses human handoffs; Host requires explicit selection of the next named owner. Only the
+allowlisted reviewer may be called via #tool:agent; on resolution failure, report the error, ask the
+user to select `10-Challenger`, and stop.
 
 ## Evidence Before Planning
 Before writing the implementation plan, verify AVM module availability for every resource.
@@ -93,12 +94,6 @@ Session state: managed via `apex-recall` CLI — checkpoint after each phase.
 Audit your output against the 04-implementation-plan.template.md. Do not add sections,
 features, or analysis beyond what the template specifies. Code generation belongs to Step 5.
 
-## Context Awareness
-Review-depth opt-in: read `decisions.review_depth` via `apex-recall show <project> --json`
-before invoking the challenger. Default to `"default"` if absent. `"deep"` enters the opt-in
-multi-pass path defined in `apex-azure-defaults/references/adversarial-review-protocol.md`
-without re-prompting the user.
-
 ## IaC Track Detection
 
 Run `apex-recall show <project> --json` and check `decisions.iac_tool`:
@@ -107,9 +102,6 @@ Run `apex-recall show <project> --json` and check `decisions.iac_tool`:
 - **`"Terraform"`** → Use the public Terraform Registry API and Terraform patterns; no Terraform MCP server is required.
 
 If `decisions.iac_tool` is not set, ask the user which IaC tool to plan for.
-
-**Terraform-specific guardrail**: Never plan for `terraform { cloud { } }` or `TFE_TOKEN`.
-Always specify Azure Storage Account backend only.
 
 ## Read Skills First
 
@@ -256,14 +248,9 @@ unmet entries are `must_fix`. Set
 
 ### Phase 1.5: Deployment Context Discovery
 
-> [!NOTE]
-> The previous freeform Phase 1.5 `askQuestions` prompt is deprecated.
-> Structured deployment-design questions now live in the **Phase 3.5
-> batched panel** (see `apex-azure-defaults/references/plan-design-decisions.md`).
-> Skip Phase 1.5 entirely unless the user volunteers a deployment
-> constraint the architecture assessment did not capture (e.g., a
-> maintenance window). If they do, persist via
-> `apex-recall decide --key deployment_note --value "<text>" --step 4`.
+Deprecated: deployment-design questions live in the Phase 3.5 panel. If the user volunteers a
+constraint the architecture missed, persist it via
+`apex-recall decide --key deployment_note --value "<text>" --step 4`.
 
 ### Phase 2: AVM Module Verification
 
@@ -315,7 +302,8 @@ plan. For each triggered rule:
   the corresponding question from `plan-design-decisions.md` to the
   Phase 3.5 panel.
 
-Re-run all six checks once the Phase 3.5 panel resolves. The Phase 4.3
+Once the Phase 3.5 panel resolves, re-run the checks that were triggered or whose inputs
+the answers changed; unchanged passing checks keep their result. The Phase 4.3
 challenger comprehensive review verifies that no triggered rule remains
 unresolved.
 
@@ -456,7 +444,8 @@ lens table, prior_findings format, and invocation template.
 `opt_in_matrix` in `workflow-graph.json` is a recommendation, never an
 auto-trigger.
 
-**Deep-review opt-in**: if `decisions.review_depth == "deep"`, enter the
+**Deep-review opt-in**: read `decisions.review_depth` via `apex-recall show <project> --json`
+(default `"default"`). If `decisions.review_depth == "deep"`, enter the
 opt-in rotating-lens cascade defined in
 `adversarial-review-deep.md` (sibling of `adversarial-review-protocol.md`).
 Do NOT prompt — the project-scoped `review_depth` decision is the
@@ -605,9 +594,16 @@ Include attribution header from the template file (do not hardcode).
 
 - **Always**: Read governance constraints, verify AVM modules, ask deployment strategy, generate Python diagrams
 - **Always**: Auto-apply every `must_fix` finding in Phase 5 Stage 1 (mandatory) and re-run challenger to confirm
-- **Ask first**: `should_fix` findings (Stage 2 batched); non-standard phase grouping; deviation from arch assessment
+- **Needs approval** (other in-scope work proceeds without asking): `should_fix` findings (Stage 2 batched);
+  non-standard phase grouping; deviation from arch assessment
 - **Never**: Write IaC code, re-run governance discovery, assume deployment strategy, ask user about `must_fix` findings
-- **Terraform-specific never**: Plan HCP/cloud backends, use `terraform -target`
+- **Terraform-specific never**: Plan HCP/cloud backends (`terraform { cloud { } }`, `TFE_TOKEN`) or use
+  `terraform -target`; always plan the Azure Storage Account backend
+
+## User Updates
+
+Before the first tool call, say in one sentence what you will do first. After that, update only
+when a phase starts or a finding changes the plan: what finished, what is next, and any blocker.
 
 ## Validation Checklist
 

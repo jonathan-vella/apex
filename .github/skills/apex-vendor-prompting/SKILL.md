@@ -3,7 +3,7 @@ name: apex-vendor-prompting
 user-invocable: true
 disable-model-invocation: true
 argument-hint: "agent or prompt path, model family and audit scope"
-description: '**ANALYSIS SKILL** — Manual-only audit of Anthropic Claude and OpenAI GPT-5.6 prompting guidance and APEX conventions. WHEN: explicitly invoked as /apex-vendor-prompting for a vendor-specific prompt audit. DO NOT USE FOR: automatic authoring loads, routine edits covered by instructions, generic Markdown style.'
+description: '**ANALYSIS SKILL** — Manual-only audit of Anthropic Claude Opus 5.5 and OpenAI GPT-6 / GPT-5.6 prompting guidance and APEX conventions. WHEN: explicitly invoked as /apex-vendor-prompting for a vendor-specific prompt audit. DO NOT USE FOR: automatic authoring loads, routine edits covered by instructions, generic Markdown style.'
 license: MIT
 ---
 
@@ -14,7 +14,7 @@ Do not load this skill automatically or read its body to bypass the invocation f
 The thin authoring instructions and required vendor validators remain mandatory without this skill.
 
 Audit-grade reference for the prompting patterns published by Anthropic
-(Claude family) and OpenAI, plus explicitly identified APEX conventions. Used to author **and** audit
+(Claude Opus 5.5) and OpenAI (GPT-6, GPT-5.6), plus explicitly identified APEX conventions. Used to author **and** audit
 `.agent.md` and `.prompt.md` files in this repository.
 
 The machine-readable source of truth is
@@ -49,12 +49,10 @@ hard-rule shortlist.
 ```text
 I am editing or reviewing a *.agent.md / *.prompt.md ...
 ├── Which model is in the frontmatter?
-│   ├── Claude Opus / Claude Sonnet → load references/claude-best-practices.md
-│   ├── Claude Haiku                → load references/claude-best-practices.md (warn-only)
-│   ├── GPT-5.6 Sol / Terra / Luna → load references/gpt-5-prompting.md (APEX convention)
-│   ├── GPT-6 Sol / Luna           → reviewer-only; structural checks still run
-│   ├── GPT-5.4                     → load references/gpt-5-prompting.md (shared OpenAI cohort)
-│   ├── GPT-Codex / GPT-4o          → reviewer-only; minimal automated rules
+│   ├── Claude Opus 5.5            → load references/claude-best-practices.md
+│   ├── GPT-6-Sol / GPT-6-Luna     → load references/openai-prompting.md
+│   ├── GPT-5.6 Terra (copilot)    → load references/openai-prompting.md
+│   ├── MAI-Code-1.1-Flash         → reviewer-only; structural checks still run
 │   └── Missing on prompt          → resolve custom-agent or picker inheritance
 │
 ├── Is this a .prompt.md (single string model:) or .agent.md (array)?
@@ -67,11 +65,9 @@ I am editing or reviewing a *.agent.md / *.prompt.md ...
 
 ## Model-Family Detection
 
-`classifyModel()` lower-cases the `model:` value and matches substrings in priority order
-to assign a family (`claude-opus` / `claude-sonnet` / `claude-haiku` / `claude` / `gpt-6-sol`
-/ `gpt-6-luna` / `gpt-5.6-terra` / `gpt-5.6-sol` / `gpt-5.6-luna` /
-`gpt-5.5` / `gpt-5.4` / `gpt-codex` / `gpt-4o` /
-`mai-code` / `unknown`). Validate every ordered fallback label and distinct family.
+`classifyModel()` lower-cases the `model:` value and matches it to a family
+(`claude-opus-5.5` / `gpt-6-sol` / `gpt-6-luna` / `gpt-5.6-terra` / `mai-code` / `unknown`).
+Retired labels classify as `unknown`. Validate every ordered fallback label and distinct family.
 Classification does not authorize a label: ordinary labels must exactly match
 the catalog. Only handoff overrides allow documented platform qualification.
 
@@ -85,9 +81,8 @@ Load only the references your task needs. Most audits need 1-2.
 
 | Reference                                                       | Load when                                                              |
 | --------------------------------------------------------------- | ---------------------------------------------------------------------- |
-| [claude-best-practices.md](references/claude-best-practices.md) | Authoring or auditing a Claude agent                                   |
-| [gpt-5-prompting.md](references/gpt-5-prompting.md)             | Authoring or auditing a GPT-5.6-Terra agent                            |
-| [gpt-5-upgrade.md](references/gpt-5-upgrade.md)                 | Historical GPT-5.4 → GPT-5.5 prompt-style migration patterns              |
+| [claude-best-practices.md](references/claude-best-practices.md) | Authoring or auditing a Claude Opus 5.5 agent                          |
+| [openai-prompting.md](references/openai-prompting.md)           | Authoring or auditing a GPT-6 Sol/Luna or GPT-5.6 Terra agent          |
 | [cross-model-rules.md](references/cross-model-rules.md)         | Handoff design, prompt↔agent sync, language calibration                |
 | [family-support.md](references/family-support.md)               | Picking a model family for a new agent                                 |
 | [checklists.md](references/checklists.md)                       | Performing a manual pass-through audit                                 |
@@ -101,9 +96,11 @@ Load only the references your task needs. Most audits need 1-2.
 - **Missing prompt models may be inherited**; unknown explicit labels and unknown custom-agent targets fail validation.
 - **Array agent models and string prompt models are APEX conventions**, not YAML limitations.
   Parentheses are valid YAML scalar content.
-- **Sol/Terra/Luna Markdown is an APEX convention**, informed by pinned OpenAI advice,
-  not model-specific vendor evidence. Preserve exact user-confirmed catalog labels;
+- **Markdown outcome contracts for GPT are an APEX convention** that mirrors the GPT-5.6
+  suggested prompt structure and extends it to GPT-6. Preserve exact catalog labels;
   unknown release/tier metadata stays unknown.
+- **Vendor autonomy advice does not remove APEX gates** — approval gates, the security
+  baseline and governance constraints stay required stops; consolidate their wording instead.
 - **Leaf workers use role contracts**, not mandatory personality or main-agent sections.
   Convert XML wrappers without deleting their safety or workflow content.
 - **Do NOT load this skill for routine edits** — the auto-loaded thin instruction
@@ -139,30 +136,38 @@ in [audit-procedure.md](references/audit-procedure.md)).
 ## Source Citations
 
 Every rule in [rules.json](rules.json) cites the upstream source by
-`source_id`. The current source set:
+`source_id`. All sources are live vendor docs fetched as Markdown (`.md` suffix):
 
-- **Anthropic Claude prompting best practices** — live web doc at
-  [platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices).
-  Refresh only with authorized network access via `node tools/scripts/fetch-vendor-prompting-guides.mjs`.
-- **Anthropic Claude Sonnet 5 prompting guide** — live web doc at
-  [platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-sonnet-5](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-sonnet-5).
-  Sonnet-5-specific deltas from Sonnet 4.6 (adaptive thinking default,
-  effort/`xhigh`, new tokenizer, literal instruction following, review
-  harness coverage). Refresh via the same fetcher only when network access is authorized.
-- **OpenAI outcome-first prompting guide** — pinned to
-  `openai/skills@724cd511c96593f642bddf13187217aa155d2554`,
-  `prompting-guide.md`, sha256
-  `ecdf49b4a824a87367c7a6ec3c0218e2c5783dff951b30a101c3b6a95152aafa`.
-- **OpenAI upgrade guide** — same pin, `upgrade-guide.md`, sha256
-  `563784eb13ad1b44c3a592f940aa7ac2086ebeb97df3f4a09ba038b2f1564d39`.
+- **Anthropic Claude prompting best practices** —
+  [claude-prompting-best-practices](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices).
+- **Anthropic Prompting Claude Opus 5.5** —
+  [prompting-claude-opus-5-5](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-5-5):
+  effort calibration, thinking-disabled migration, unattended runs, pasted text, progress updates.
+- **Anthropic Prompting Claude Opus 5** —
+  [prompting-claude-opus-5](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-5):
+  baseline the Opus 5.5 guide defers to — over-verification, task scope, subagent spawning, deliverable length.
+- **OpenAI Using GPT-6** —
+  [latest-model/gpt-6-astra](https://developers.openai.com/api/docs/guides/latest-model/gpt-6-astra):
+  family prompting best practices (written for Astra, starting point for Sol and Luna).
+- **OpenAI Using GPT-5.6** —
+  [latest-model/gpt-5.6](https://developers.openai.com/api/docs/guides/latest-model/gpt-5.6):
+  Terra/Sol/Luna tiers, migration quickstart.
+- **OpenAI Prompting guidance for GPT-5.6** —
+  [prompt-guidance-gpt-5p6](https://developers.openai.com/api/docs/guides/prompt-guidance-gpt-5p6):
+  suggested prompt structure, autonomy boundaries, lean prompts.
+
+OpenAI sources use model-pinned paths; `latest-model` without a model segment moves to the
+next generation silently. Hashes and fetch timestamps live in `rules.json` `sources[]`.
 
 ## Freshness
 
 With explicit network authorization, run `node tools/scripts/fetch-vendor-prompting-guides.mjs`
 to refresh snapshots and emit a drift report. The fetch script
 ([fetch-vendor-prompting-guides.mjs](../../../tools/scripts/fetch-vendor-prompting-guides.mjs))
-falls back from `gh api` (auth) → anonymous raw → cached committed
-prose if upstream is unavailable.
+fetches each vendor Markdown page anonymously. Snapshots are a gitignored local cache: when
+upstream is unavailable it falls back to a snapshot from an earlier successful run on the same
+machine. A clean checkout has no cache, so an offline refresh fails (exit 2) rather than
+falling back; `rules.json` hashes are the committed record.
 
 Cached fallback preserves the last successful `fetched_at` and freshness date;
 `attempted_at` and the failure reason record the separate refresh attempt.
@@ -172,4 +177,4 @@ response may advance freshness; cached reuse cannot establish upstream currency.
 Review actual source diffs before updating normalized references and rule citations.
 There is no digest-generation step. Offline audits reuse cached sources without
 changing hashes, fetched timestamps, or claiming refreshed evidence. Source history
-does not establish Sol release, capabilities, cost tiers, or native harness behavior.
+does not establish model release, capabilities, cost tiers, or native harness behavior.

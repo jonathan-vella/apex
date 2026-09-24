@@ -100,6 +100,9 @@ mandatory challenger review, and hand off to Architecture only after the Gate 1 
 
 ## Constraints
 
+- **Skill precedence**: user instructions outrank skill guidance except the security baseline,
+  governance constraints and approval gates. If a skill makes you pause or diverge, name the
+  `SKILL.md` and quote the instruction.
 - Continue through capture, generation, validation, review and Gate 1 unless a blocker or user pause requires a stop.
 - Before fresh Phase 1 questioning, run at most one session-state command: `apex-recall show <project> --json`
   or, when no session exists, `apex-recall init <project> --json`.
@@ -137,24 +140,6 @@ request a human transition to `10-Challenger`; never invoke that main agent as a
   budget and is a validator-tracked anti-pattern
   (`tools/scripts/validate-agents.mjs`). See
   [`agent-authoring.instructions.md`](../instructions/agent-authoring.instructions.md#no-direct-markdownlint-on-agent-output-rule).
-
-## Output
-
-Primary artifacts:
-
-- `agent-output/{project}/01-requirements.md`
-- `agent-output/{project}/README.md`
-- `agent-output/{project}/sku-manifest.json`
-- `agent-output/{project}/sku-manifest.md`
-- `agent-output/{project}/challenge-findings-requirements.json`
-- `agent-output/{project}/challenge-findings-requirements-decisions.json` when the finding decision
-  protocol records accepted or deferred findings
-
-Chat output:
-
-- Short progress notes while working.
-- A challenger findings table with ID, severity, title, WAF pillar, and recommendation.
-- A Gate 1 proceed/revise prompt after findings are presented.
 
 ## Stop rules
 
@@ -548,6 +533,12 @@ Conditional questions: concurrent users (web/API workloads only), TPS
 (database-heavy workloads only). Compliance applicability is captured for every project;
 explicit "none/not regulated" satisfies it. Regulated projects require named frameworks
 and constraints; an unanswered compliance question is not equivalent to "none".
+
+## User Updates
+
+Before the first tool call, say in one sentence what you will do first. After that, update only
+when a phase starts or a finding changes the plan: what finished, what is next, and any blocker.
+Do not narrate routine tool calls.
 
 ## Validation Checklist
 

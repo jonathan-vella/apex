@@ -8,9 +8,8 @@
  * them against what `rules.json` expects.
  *
  * Fetch fallback chain (per F-15):
- *   1. `gh api` for openai/skills paths (uses GH_TOKEN)
- *   2. anonymous raw https://raw.githubusercontent.com/...
- *   3. cached committed normalized prose (audit still works, no drift)
+ *   1. anonymous HTTPS fetch of the vendor's Markdown page (`.md` suffix)
+ *   2. local snapshot from an earlier successful run (gitignored; absent on a clean checkout)
  *
  * Exit codes:
  *   0 — no drift detected (or --fail-on-drift not set)
@@ -25,7 +24,6 @@
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
-import { execFileSync } from "node:child_process";
 import https from "node:https";
 import { fileURLToPath } from "node:url";
 
@@ -35,41 +33,51 @@ const SNAPSHOT_DIR = path.join(SKILL_DIR, "references", ".snapshots");
 const MANIFEST_PATH = path.join(SNAPSHOT_DIR, "manifest.json");
 const FRESHNESS_MANIFEST = "tools/registry/source-freshness.json";
 
-const OPENAI_SKILLS_REPO = "openai/skills";
-const OPENAI_SKILLS_REF = "724cd511c96593f642bddf13187217aa155d2554";
-
+// Vendor docs serve Markdown when `.md` is appended; model-pinned OpenAI paths avoid
+// `latest-model.md` silently switching to the next model generation.
 const SOURCES = [
   {
     id: "anthropic-prompting-best-practices",
     vendor: "anthropic",
-    url: "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices",
+    url: "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices.md",
     snapshotName: "anthropic-prompting-best-practices.md",
     fetch: fetchAnonymous,
   },
   {
-    id: "anthropic-prompting-claude-sonnet-5",
+    id: "anthropic-prompting-claude-opus-5-5",
     vendor: "anthropic",
-    url: "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-sonnet-5",
-    snapshotName: "anthropic-prompting-claude-sonnet-5.md",
+    url: "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-5-5.md",
+    snapshotName: "anthropic-prompting-claude-opus-5-5.md",
     fetch: fetchAnonymous,
   },
   {
-    id: "openai-prompting-guide",
-    vendor: "openai",
-    repo: OPENAI_SKILLS_REPO,
-    ref: OPENAI_SKILLS_REF,
-    apiPath: "skills/.curated/openai-docs/references/prompting-guide.md",
-    snapshotName: "openai-prompting-guide.md",
-    fetch: fetchGithub,
+    // Opus 5.5 guide defers to this one as its baseline.
+    id: "anthropic-prompting-claude-opus-5",
+    vendor: "anthropic",
+    url: "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-5.md",
+    snapshotName: "anthropic-prompting-claude-opus-5.md",
+    fetch: fetchAnonymous,
   },
   {
-    id: "openai-upgrade-guide",
+    id: "openai-gpt-6-model-guide",
     vendor: "openai",
-    repo: OPENAI_SKILLS_REPO,
-    ref: OPENAI_SKILLS_REF,
-    apiPath: "skills/.curated/openai-docs/references/upgrade-guide.md",
-    snapshotName: "openai-upgrade-guide.md",
-    fetch: fetchGithub,
+    url: "https://developers.openai.com/api/docs/guides/latest-model/gpt-6-astra.md",
+    snapshotName: "openai-gpt-6-model-guide.md",
+    fetch: fetchAnonymous,
+  },
+  {
+    id: "openai-gpt-5-6-model-guide",
+    vendor: "openai",
+    url: "https://developers.openai.com/api/docs/guides/latest-model/gpt-5.6.md",
+    snapshotName: "openai-gpt-5-6-model-guide.md",
+    fetch: fetchAnonymous,
+  },
+  {
+    id: "openai-gpt-5-6-prompt-guidance",
+    vendor: "openai",
+    url: "https://developers.openai.com/api/docs/guides/prompt-guidance-gpt-5p6.md",
+    snapshotName: "openai-gpt-5-6-prompt-guidance.md",
+    fetch: fetchAnonymous,
   },
 ];
 
@@ -103,29 +111,6 @@ function collect(res, resolve) {
     else resolve({ ok: false, error: `HTTP ${res.statusCode}` });
   });
   res.on("error", (err) => resolve({ ok: false, error: err.message }));
-}
-
-async function fetchGithub(source) {
-  // Prefer gh api for auth + pinned SHA reproducibility.
-  try {
-    const out = execFileSync(
-      "gh",
-      [
-        "api",
-        `repos/${source.repo}/contents/${source.apiPath}?ref=${source.ref}`,
-        "-H",
-        "Accept: application/vnd.github.raw",
-      ],
-      { encoding: "utf-8" },
-    );
-    return { ok: true, body: out, method: "gh-api" };
-  } catch (_e) {
-    // Fall back to anonymous raw
-    const url = `https://raw.githubusercontent.com/${source.repo}/${source.ref}/${source.apiPath}`;
-    const result = await fetchAnonymous({ url });
-    if (result.ok) result.method = "raw";
-    return result;
-  }
 }
 
 function loadCachedSnapshot(name, snapshotDir) {
@@ -220,6 +205,10 @@ export async function runFetcher({
 
   // Update source-freshness manifest
   fs.mkdirSync(path.dirname(freshnessPath), { recursive: true });
+  const activeIds = new Set(sources.map((source) => source.id));
+  freshness.sources = freshness.sources.filter(
+    (entry) => entry.owner !== "apex-vendor-prompting" || activeIds.has(entry.source_id),
+  );
   for (const entry of manifest) {
     if (entry.fetch_method === "failed" || entry.fetch_method === "cached") continue;
     const existing = freshness.sources.findIndex((s) => s.source_id === entry.source_id);
@@ -242,7 +231,9 @@ export async function runFetcher({
   console.log(`Freshness: ${FRESHNESS_MANIFEST}`);
 
   if (allFailed) {
-    console.error("\n\u274c All sources failed to fetch (no cached fallback).");
+    console.error(
+      "\n\u274c All sources failed to fetch and no local snapshot cache exists; retry with network access.",
+    );
     return 2;
   }
 

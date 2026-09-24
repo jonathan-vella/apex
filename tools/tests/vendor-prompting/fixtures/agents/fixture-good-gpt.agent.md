@@ -1,13 +1,13 @@
 ---
-name: fixture-good-gpt55
-description: "Good GPT-5.6-Terra agent fixture — should produce no vendor-prompting findings."
+name: fixture-good-gpt
+description: "Good GPT agent fixture — should produce no vendor-prompting findings."
 model: ["GPT-5.6-Terra"]
 user-invocable: true
 agents: []
 tools: [read]
 handoffs:
   - label: "▶ Self"
-    agent: fixture-good-gpt55
+    agent: fixture-good-gpt
     prompt: "Read agent-output/{project}/04-implementation-plan.md. Output: 06-deployment-summary.md."
     send: true
 ---

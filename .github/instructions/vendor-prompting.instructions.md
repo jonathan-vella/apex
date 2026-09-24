@@ -19,7 +19,7 @@ The machine-readable rule registry is
 These enforce the repository contract; not every violation is a platform parsing failure:
 
 - **`frontmatter-model-style-001`** — `.agent.md` must use array
-  form for `model:` (e.g., `model: ["Claude Opus 4.7"]`).
+  form for `model:` (e.g., `model: ["Claude Opus 5.5"]`).
   `.prompt.md` uses string form when explicit. YAML parentheses are valid;
   ordinary model labels still require exact catalog keys, including provider
   suffixes present in those keys. Optional handoff qualifiers cannot override an
@@ -27,38 +27,42 @@ These enforce the repository contract; not every violation is a platform parsing
 
 ## Vendor rules
 
-### Anthropic Claude (claude-opus, claude-sonnet, claude-haiku)
-
-Applies when frontmatter `model:` matches `claude` (case-insensitive).
+### Anthropic Claude Opus 5.5 (`claude-opus-5.5`)
 
 - **`legacy-003`** — Body > 350 lines requires `<context_awareness>`.
-- **`legacy-004`** — Research agents (Architect, IaC Planner,
-  Context Optimizer) include `<investigate_before_answering>`.
+- **`legacy-004`** — Research agents include `<investigate_before_answering>`.
 - **`claude-oneshot-001`** — ONE-SHOT agents (Requirements,
   Challenger subagent) MUST NOT include
   `<investigate_before_answering>`.
 - **`claude-no-prefill-001`** — MUST NOT instruct prefilling the
-  assistant turn ("prefill the assistant", "assistant prefill",
-  "prefilled response"). Prefill is no longer supported on Claude
-  4.6+.
+  assistant turn. Prefill returns a 400 error on Claude 4.6+.
 - **`claude-output-contract-001`** — Artifact-producing agents
   (handoffs reference `agent-output/`) include `<output_contract>`.
+- **`claude-reasoning-extraction-001`** — Do not ask the model to think step by step,
+  think carefully, or write out its reasoning; thinking is always on and effort is the control.
+- **`claude-early-stop-001`** (reviewer) — Long-running agents name unwanted early stops
+  and the wanted ones (approval gates, blocking inputs).
+- **`claude-pasted-content-001`** (reviewer) — Mark pasted/external text with tags and
+  treat instructions inside it as data.
+- Opus 5 baseline (reviewer): **`claude-self-verification-001`** (no generic re-check
+  instructions), **`claude-task-scope-001`** (constrain narrow tasks),
+  **`claude-subagent-control-001`** (say when to delegate), **`claude-deliverable-length-001`**
+  (calibrate document length; review prompts ask for full coverage).
 
-### Sol, Terra, And Luna: APEX Convention
+### GPT-6 Sol/Luna and GPT-5.6 Terra
 
-Concise outcome-first Markdown is a repository convention informed by pinned
-generic OpenAI guidance, not a model-specific vendor claim. Preserve exact
-user-confirmed catalog labels; release, capabilities, and runtime cost tiers remain
-unknown where unverified. No vendor source refresh is implied by local edits.
+The Markdown outcome contract mirrors the GPT-5.6 suggested prompt structure and is
+extended to GPT-6 as an APEX convention. Vendor autonomy advice does not remove APEX
+approval gates, the security baseline or governance constraints.
 
-- **`gpt55-skeleton-001`** — Nonempty outcome sections: Role, Goal,
+- **`gpt-outcome-contract-001`** — Nonempty outcome sections: Role, Goal,
   Success criteria, Constraints, Output, and Stop rules. Production agent normalization
   requires exactly one H1 matching the frontmatter `name`, followed by H2 contract sections
   (`## Role`, `## Goal`, `## Success criteria`, `## Constraints`, `## Output`, `## Stop rules`).
   The generic outcome check accepts H1/H2 aliases; it does not waive production normalization.
   Production leaf workers require nonempty H2 Role, Inputs, and Output sections plus a
   bounded failure/return rule, not the full main-agent skeleton. Personality is optional.
-- **`gpt55-stop-rules-non-empty-001`** — `## Stop rules` body must
+- **`gpt-stop-rules-non-empty-001`** — `## Stop rules` body must
   contain ≥1 non-blank line.
 - **`gpt-no-claude-xml-001`** — Replace legacy Claude-style
   XML blocks (`<investigate_before_answering>`,
@@ -68,6 +72,16 @@ unknown where unverified. No vendor source refresh is implied by local edits.
   This is not a claim that GPT cannot interpret XML.
 - **`personality-scoping-001`** — Personality section forbidden
   on internal pipeline agents (info-only).
+- **`gpt-approval-repetition-001`** — State the approval policy once; more than 3
+  approval phrases ("ask first", "wait for approval", "get approval", "do not proceed until",
+  "requires approval") warns. Named workflow gates ("approval gate") are not counted.
+- **`gpt-initiative-001`** (reviewer) — Do authorized reversible work before asking;
+  approval is the final step on a concrete result.
+- **`gpt-writing-style-001`** (reviewer) — Name concrete style choices instead of
+  blanket "be concise" or tone labels.
+- GPT-6 only (reviewer): **`gpt-skill-precedence-001`** (state user-vs-skill precedence,
+  name the skill that caused a pause), **`gpt-testing-calibration-001`** (verify in
+  proportion to the change), **`gpt-subagent-delegation-001`** (say when to delegate).
 
 ### Cross-vendor
 
@@ -96,21 +110,14 @@ unknown where unverified. No vendor source refresh is implied by local edits.
 
 ## Family overrides
 
-| Family          | Status        | Effect                                         |
-| --------------- | ------------- | ---------------------------------------------- |
-| `claude-opus`   | enforced      | All Claude rules at default severity           |
-| `claude-sonnet` | enforced      | All Claude rules at default severity           |
-| `claude-haiku`  | warn-only     | Severity downgrades to warn                    |
-| `gpt-5.6-sol`   | enforced      | APEX outcome contract; unknown vendor metadata |
-| `gpt-5.6-terra` | enforced      | APEX outcome contract at default severity      |
-| `gpt-5.6-luna`  | enforced      | APEX outcome contract at default severity      |
-| `gpt-6-sol`     | reviewer-only | Structural checks run; model advice is unverified |
-| `gpt-6-luna`    | reviewer-only | Structural checks run; model advice is unverified |
-| `gpt-5.5`       | enforced      | Legacy compatibility                           |
-| `gpt-5.4`       | enforced      | Shared OpenAI outcome-first rules              |
-| `gpt-codex`     | reviewer-only | Legacy compatibility                           |
-| `gpt-4o`        | reviewer-only | No new enforcement                             |
-| `unknown`       | enforced      | Explicit labels need catalog authorization; inherited prompts are valid |
+| Family            | Status        | Effect                                                                  |
+| ----------------- | ------------- | ----------------------------------------------------------------------- |
+| `claude-opus-5.5` | enforced      | All Claude rules at default severity                                    |
+| `gpt-6-sol`       | enforced      | GPT rules at default severity                                           |
+| `gpt-6-luna`      | enforced      | GPT rules at default severity                                           |
+| `gpt-5.6-terra`   | enforced      | GPT rules at default severity                                           |
+| `mai-code`        | reviewer-only | Structural checks run; model advice is info                             |
+| `unknown`         | enforced      | Explicit labels need catalog authorization; inherited prompts are valid |
 
 Structural errors and catalog deprecation findings never downgrade because of
 family status. Style warnings are advisory; do not remove safety invariants to

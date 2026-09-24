@@ -98,6 +98,10 @@ Status mapping:
 - `FAIL` — plan error (auth, provider, config) or any policy
   violation surfaced by the provider.
 
+A transient failure (timeout, throttling, HTTP 429/5xx, truncated `terraform show -json`)
+gets exactly one identical retry before `FAIL`; authentication, state-lock, configuration
+and policy errors fail immediately.
+
 ## Evidence Before Findings
 Before composing the response:
 

@@ -474,6 +474,7 @@ or `markdownlint-cli2` directly against `agent-output/**` (see
 
 ## User Updates
 
+Before the first tool call, say in one sentence what you will do first.
 After completing each major phase, provide a brief status update in chat:
 
 - What was just completed (phase name, key results)
@@ -485,7 +486,8 @@ This keeps the user informed during multi-phase operations.
 ## Boundaries
 
 - **Always**: Read required predecessor evidence for the requested scope and verify deployment state
-- **Ask first**: Non-standard documentation formats, skipping optional sections
+- **Needs approval** (other in-scope work proceeds without asking): Non-standard documentation formats,
+  skipping optional sections
 - **Never**: Modify deployed infrastructure, change IaC templates, skip prior artifact review
 
 ## Validation Checklist

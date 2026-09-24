@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-09-23T18:16:16.880Z",
+  "generatedAt": "2026-09-24T14:37:30.563Z",
   "categories": [
     { "id": "agent", "key": "agents", "label": "Agent", "color": "#3b82f6", "shape": "round-rectangle", "count": 14 },
     {
@@ -20,7 +20,7 @@
       "shape": "rectangle",
       "count": 27
     },
-    { "id": "prompt", "key": "prompts", "label": "Prompt", "color": "#ec4899", "shape": "tag", "count": 27 },
+    { "id": "prompt", "key": "prompts", "label": "Prompt", "color": "#ec4899", "shape": "tag", "count": 26 },
     {
       "id": "validator",
       "key": "validators",
@@ -39,8 +39,8 @@
     },
     { "id": "mcp", "key": "mcp_servers", "label": "MCP Server", "color": "#f43f5e", "shape": "barrel", "count": 3 }
   ],
-  "nodeCount": 185,
-  "edgeCount": 733,
+  "nodeCount": 184,
+  "edgeCount": 729,
   "nodes": [
     {
       "id": "agent:01-orchestrator",
@@ -304,7 +304,7 @@
       "id": "agent:09-diagnose",
       "category": "agent",
       "label": "09-Diagnose",
-      "description": "Interactive diagnostic agent that guides users through Azure resource health assessment, issue identification, and remediation planning. Approval-first execution, single-resource scope, reports to agent-output/{project}/.",
+      "description": "Interactive diagnostic agent that guides users through Azure resource health assessment, issue identification, and remediation planning. Scope-first execution with approval for every change, single-resource scope, reports to agent-output/{project}/.",
       "path": ".github/agents/09-diagnose.agent.md",
       "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/09-diagnose.agent.md" },
       "meta": {
@@ -1038,7 +1038,7 @@
       "id": "skill:apex-vendor-prompting",
       "category": "skill",
       "label": "apex-vendor-prompting",
-      "description": "**ANALYSIS SKILL** — Manual-only audit of Anthropic Claude and OpenAI GPT-5.6 prompting guidance and APEX conventions. WHEN: explicitly invoked as /apex-vendor-prompting for a vendor-specific prompt audit. DO NOT USE FOR: automatic authoring loads, routine edits covered by instructions, generic Markdown style.",
+      "description": "**ANALYSIS SKILL** — Manual-only audit of Anthropic Claude Opus 5.5 and OpenAI GPT-6 / GPT-5.6 prompting guidance and APEX conventions. WHEN: explicitly invoked as /apex-vendor-prompting for a vendor-specific prompt audit. DO NOT USE FOR: automatic authoring loads, routine edits covered by instructions, generic Markdown style.",
       "path": ".github/skills/apex-vendor-prompting/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-vendor-prompting/SKILL.md"
@@ -1446,21 +1446,10 @@
       "meta": {}
     },
     {
-      "id": "prompt:execution-subagent-claude",
-      "category": "prompt",
-      "label": "execution-subagent-claude",
-      "description": "Claude-flavored variant of the execution-subagent invocation prompt contract. Wraps the three required slots in XML tags per claude-best-practices R-CL-1. Use this when invoking a Claude-family subagent. Reference: issue #425, Wave 3a follow-up.",
-      "path": "tools/apex-prompts/utility-prompts/execution-subagent-claude.prompt.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/tools/apex-prompts/utility-prompts/execution-subagent-claude.prompt.md"
-      },
-      "meta": {}
-    },
-    {
       "id": "prompt:execution-subagent-gpt",
       "category": "prompt",
       "label": "execution-subagent-gpt",
-      "description": "GPT-family variant of the execution-subagent invocation prompt contract. Markdown H2 form (outcome-first), matching the GPT-5.x prompting guide. Use this when invoking a GPT-family subagent. Reference: issue #425, Wave 3a follow-up.",
+      "description": "GPT-family variant of the execution-subagent invocation prompt contract. Markdown H2 form (outcome-first), matching the GPT-5.6 prompt guidance. Use this when invoking a GPT-family subagent. Reference: issue #425, Wave 3a follow-up.",
       "path": "tools/apex-prompts/utility-prompts/execution-subagent-gpt.prompt.md",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/tools/apex-prompts/utility-prompts/execution-subagent-gpt.prompt.md"
@@ -3347,12 +3336,6 @@
       "id": "instruction:agent-authoring--applies-to->prompt:context-audit",
       "source": "instruction:agent-authoring",
       "target": "prompt:context-audit",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:agent-authoring--applies-to->prompt:execution-subagent-claude",
-      "source": "instruction:agent-authoring",
-      "target": "prompt:execution-subagent-claude",
       "kind": "applies-to"
     },
     {
@@ -5474,12 +5457,6 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:no-interactive-shell--applies-to->prompt:execution-subagent-claude",
-      "source": "instruction:no-interactive-shell",
-      "target": "prompt:execution-subagent-claude",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:no-interactive-shell--applies-to->prompt:execution-subagent-gpt",
       "source": "instruction:no-interactive-shell",
       "target": "prompt:execution-subagent-gpt",
@@ -5639,12 +5616,6 @@
       "id": "instruction:prompt--applies-to->prompt:context-audit",
       "source": "instruction:prompt",
       "target": "prompt:context-audit",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:prompt--applies-to->prompt:execution-subagent-claude",
-      "source": "instruction:prompt",
-      "target": "prompt:execution-subagent-claude",
       "kind": "applies-to"
     },
     {
@@ -5927,12 +5898,6 @@
       "id": "instruction:vendor-prompting--applies-to->prompt:context-audit",
       "source": "instruction:vendor-prompting",
       "target": "prompt:context-audit",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:vendor-prompting--applies-to->prompt:execution-subagent-claude",
-      "source": "instruction:vendor-prompting",
-      "target": "prompt:execution-subagent-claude",
       "kind": "applies-to"
     },
     {

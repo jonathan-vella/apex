@@ -443,31 +443,22 @@ function classifyModel(modelStr) {
   const s = Array.isArray(modelStr) ? modelStr[0] : modelStr;
   if (typeof s !== "string" || !s) return "unknown";
   const lower = s.toLowerCase();
-  if (lower.includes("claude opus")) return "claude-opus";
-  if (lower.includes("claude sonnet")) return "claude-sonnet";
-  if (lower.includes("claude haiku")) return "claude-haiku";
-  if (lower.includes("claude")) return "claude";
-  if (lower.includes("gpt-6-sol")) return "gpt-6-sol";
-  if (lower.includes("gpt-6-luna")) return "gpt-6-luna";
-  if (/gpt-5\.6[- ]luna\b/.test(lower)) return "gpt-5.6-luna";
+  if (/claude opus 5\.5\b/.test(lower)) return "claude-opus-5.5";
+  if (/gpt-6[- ]sol\b/.test(lower)) return "gpt-6-sol";
+  if (/gpt-6[- ]luna\b/.test(lower)) return "gpt-6-luna";
   if (/gpt-5\.6[- ]terra\b/.test(lower)) return "gpt-5.6-terra";
-  if (/gpt-5\.6[- ]sol\b/.test(lower)) return "gpt-5.6-sol";
-  if (lower.includes("gpt-5.5")) return "gpt-5.5";
-  if (lower.includes("gpt-5.4")) return "gpt-5.4";
-  if (lower.includes("gpt-5.3") || lower.includes("codex")) return "gpt-codex";
-  if (lower.includes("gpt-4o")) return "gpt-4o";
   if (lower.includes("mai-code") || lower.includes("mai code")) return "mai-code";
   return "unknown";
 }
+
+const GPT_OUTCOME_FAMILIES = ["gpt-6-sol", "gpt-6-luna", "gpt-5.6-terra"];
 
 function isClaude(family) {
   return family.startsWith("claude");
 }
 
 function isGptOutcomeFamily(family) {
-  return ["gpt-6-sol", "gpt-6-luna", "gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna", "gpt-5.5", "gpt-5.4"].includes(
-    family,
-  );
+  return GPT_OUTCOME_FAMILIES.includes(family);
 }
 
 function isGptFamily(family) {
@@ -525,7 +516,7 @@ function runModelAlignment() {
           file,
           message: `prompt model "${promptModel}" does not match agent "${targetAgent}" model "${agentEntry.model}"`,
           sourceUrl:
-            "https://github.com/openai/skills/blob/724cd511c96593f642bddf13187217aa155d2554/skills/.curated/openai-docs/references/upgrade-guide.md",
+            "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices#model-self-knowledge",
         });
       }
     }
@@ -660,55 +651,55 @@ function runModelAlignment() {
  *
  * Severity here is the DEFAULT; family overrides are applied at emit time.
  */
+const ANTHROPIC_BEST_PRACTICES =
+  "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices";
+const ANTHROPIC_OPUS_5_5 =
+  "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-5-5";
+const OPENAI_GPT_5_6_GUIDANCE = "https://developers.openai.com/api/docs/guides/prompt-guidance-gpt-5p6";
+const OPENAI_GPT_5_6_MODEL = "https://developers.openai.com/api/docs/guides/latest-model/gpt-5.6";
+
 const VENDOR_RULES = [
   {
     id: "claude-oneshot-001",
     severity: "warn",
     appliesTo: "agent",
-    sourceUrl:
-      "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices",
+    sourceUrl: `${ANTHROPIC_BEST_PRACTICES}#minimizing-hallucinations-in-agentic-coding`,
   },
   {
-    id: "gpt55-skeleton-001",
+    id: "gpt-outcome-contract-001",
     severity: "warn",
     appliesTo: "agent",
-    sourceUrl:
-      "https://github.com/openai/skills/blob/724cd511c96593f642bddf13187217aa155d2554/skills/.curated/openai-docs/references/prompting-guide.md#suggested-prompt-structure",
+    sourceUrl: `${OPENAI_GPT_5_6_GUIDANCE}#suggested-prompt-structure`,
   },
   {
     id: "gpt-no-claude-xml-001",
     severity: "warn",
     appliesTo: "agent",
-    sourceUrl:
-      "https://github.com/openai/skills/blob/724cd511c96593f642bddf13187217aa155d2554/skills/.curated/openai-docs/references/prompting-guide.md",
+    sourceUrl: `${OPENAI_GPT_5_6_GUIDANCE}#suggested-prompt-structure`,
   },
   {
     id: "cross-language-density-001",
     severity: "info",
     appliesTo: "agent",
-    sourceUrl:
-      "https://github.com/openai/skills/blob/724cd511c96593f642bddf13187217aa155d2554/skills/.curated/openai-docs/references/prompting-guide.md#outcome-first-prompts-and-stopping-conditions",
+    sourceUrl: `${OPENAI_GPT_5_6_GUIDANCE}#outcome-first-prompts-and-stopping-conditions`,
   },
   {
     id: "model-deprecation-001",
     severity: "warn",
     appliesTo: "both",
-    sourceUrl:
-      "https://github.com/openai/skills/blob/724cd511c96593f642bddf13187217aa155d2554/skills/.curated/openai-docs/references/upgrade-guide.md",
+    sourceUrl: `${OPENAI_GPT_5_6_MODEL}#migration-quickstart`,
   },
   {
     id: "claude-no-prefill-001",
     severity: "warn",
     appliesTo: "both",
-    sourceUrl:
-      "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices#migrating-away-from-prefilled-responses",
+    sourceUrl: `${ANTHROPIC_BEST_PRACTICES}#migrating-away-from-prefilled-responses`,
   },
   {
-    id: "gpt55-stop-rules-non-empty-001",
+    id: "gpt-stop-rules-non-empty-001",
     severity: "warn",
     appliesTo: "agent",
-    sourceUrl:
-      "https://github.com/openai/skills/blob/724cd511c96593f642bddf13187217aa155d2554/skills/.curated/openai-docs/references/prompting-guide.md#outcome-first-prompts-and-stopping-conditions",
+    sourceUrl: `${OPENAI_GPT_5_6_GUIDANCE}#outcome-first-prompts-and-stopping-conditions`,
   },
   {
     id: "frontmatter-model-style-001",
@@ -720,8 +711,7 @@ const VENDOR_RULES = [
     id: "claude-output-contract-001",
     severity: "warn",
     appliesTo: "agent",
-    sourceUrl:
-      "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices#structure-prompts-with-xml-tags",
+    sourceUrl: `${ANTHROPIC_BEST_PRACTICES}#structure-prompts-with-xml-tags`,
   },
   {
     id: "handoff-enrichment-001",
@@ -733,8 +723,7 @@ const VENDOR_RULES = [
     id: "personality-scoping-001",
     severity: "info",
     appliesTo: "agent",
-    sourceUrl:
-      "https://github.com/openai/skills/blob/724cd511c96593f642bddf13187217aa155d2554/skills/.curated/openai-docs/references/prompting-guide.md#personality-and-behavior",
+    sourceUrl: `${OPENAI_GPT_5_6_GUIDANCE}#personality-collaboration-and-response-length`,
   },
   {
     id: "prompt-model-source-001",
@@ -743,6 +732,18 @@ const VENDOR_RULES = [
     sourceUrl:
       "https://github.com/jonathan-vella/apex/blob/main/.github/instructions/vendor-prompting.instructions.md#prompt-model-source",
   },
+  {
+    id: "claude-reasoning-extraction-001",
+    severity: "warn",
+    appliesTo: "both",
+    sourceUrl: `${ANTHROPIC_OPUS_5_5}#prompts-written-for-thinking-disabled`,
+  },
+  {
+    id: "gpt-approval-repetition-001",
+    severity: "warn",
+    appliesTo: "agent",
+    sourceUrl: `${OPENAI_GPT_5_6_GUIDANCE}#define-autonomy-and-approval-boundaries`,
+  },
 ];
 
 function ruleById(id) {
@@ -750,19 +751,10 @@ function ruleById(id) {
 }
 
 export const FAMILY_STATUS = {
-  "claude-opus": "enforced",
-  "claude-sonnet": "enforced",
-  "claude-haiku": "warn-only",
-  claude: "warn-only",
-  "gpt-5.5": "enforced",
-  "gpt-5.6-luna": "enforced",
+  "claude-opus-5.5": "enforced",
+  "gpt-6-sol": "enforced",
+  "gpt-6-luna": "enforced",
   "gpt-5.6-terra": "enforced",
-  "gpt-5.6-sol": "enforced",
-  "gpt-6-sol": "reviewer-only",
-  "gpt-6-luna": "reviewer-only",
-  "gpt-5.4": "enforced",
-  "gpt-codex": "reviewer-only",
-  "gpt-4o": "reviewer-only",
   "mai-code": "reviewer-only",
   unknown: "enforced",
 };
@@ -773,7 +765,7 @@ function effectiveSeverity(rule, family) {
   if (
     base === "error" ||
     rule.id === "model-deprecation-001" ||
-    ["gpt55-skeleton-001", "gpt55-stop-rules-non-empty-001"].includes(rule.id)
+    ["gpt-outcome-contract-001", "gpt-stop-rules-non-empty-001"].includes(rule.id)
   )
     return base;
   const status = FAMILY_STATUS[family] || "enforced";
@@ -907,6 +899,17 @@ const PREFILL_PATTERNS = [
   /assistant\s*:\s*\{\s*content\s*:\s*"</i,
 ];
 
+// Instructions that substitute visible reasoning for always-on thinking (Opus 5.5).
+const REASONING_EXTRACTION_PATTERNS = [
+  /\bthink (?:step[- ]by[- ]step|carefully|hard(?:er)?)\b/i,
+  /\b(?:show|write out|explain|output|include) (?:your|the) (?:full |complete |internal |step[- ]by[- ]step )?(?:reasoning|chain[- ]of[- ]thought|thought process)\b/i,
+];
+
+// Bare "approval gate" is excluded: it names required workflow gates rather than instructing a pause.
+const APPROVAL_PHRASE_PATTERN =
+  /\bask first\b|\bwait for (?:explicit |user |human )?(?:approval|confirmation)\b|\bask (?:the user )?for (?:explicit )?(?:approval|confirmation|permission)\b|\b(?:get|obtain|request) (?:explicit |user |human )?(?:approval|confirmation)\b|\bdo not mutate\b|\bwithout (?:explicit )?(?:user )?approval\b|\bdo not proceed until\b|\brequire[sd]? (?:explicit |separate )?(?:user |human )?approval\b|\bstop for (?:user |human )?approval\b/gi;
+const APPROVAL_PHRASE_THRESHOLD = 3;
+
 /** Check 5: claude-oneshot-001 */
 function checkClaudeOneShotNoInvestigate(r, agent, file, family) {
   if (!isClaude(family)) return;
@@ -923,8 +926,8 @@ function checkClaudeOneShotNoInvestigate(r, agent, file, family) {
   );
 }
 
-/** Check 6: gpt55-skeleton-001 */
-function checkGpt55Skeleton(r, agent, file, family) {
+/** Check 6: gpt-outcome-contract-001 */
+function checkGptOutcomeContract(r, agent, file, family) {
   if (!isGptOutcomeFamily(family)) return;
   const structure = getAgentBodyStructure(agent.content);
   if (agent.isSubagent) {
@@ -935,7 +938,7 @@ function checkGpt55Skeleton(r, agent, file, family) {
     if (missing.length || !/\b(stop|fail(?:ure|ed)?|return.*parent|blocked)\b/i.test(structure.prose)) {
       emit(
         r,
-        "gpt55-skeleton-001",
+        "gpt-outcome-contract-001",
         family,
         file,
         "Leaf role contract needs Inputs, Outputs, and a bounded failure/return rule",
@@ -953,7 +956,7 @@ function checkGpt55Skeleton(r, agent, file, family) {
   if (missing.length > 0) {
     emit(
       r,
-      "gpt55-skeleton-001",
+      "gpt-outcome-contract-001",
       family,
       file,
       `APEX outcome contract missing or empty sections: ${missing.join(", ")}`,
@@ -1054,12 +1057,46 @@ function checkClaudeNoPrefill(r, item, file, family) {
   }
 }
 
-/** Check 11: gpt55-stop-rules-non-empty-001 */
-function checkGpt55StopRulesNonEmpty(r, agent, file, family) {
+/** Check 16: claude-reasoning-extraction-001 */
+function checkClaudeReasoningExtraction(r, item, file, family) {
+  if (family !== "claude-opus-5.5") return;
+  const body = item.body || getBody(item.content);
+  for (const pat of REASONING_EXTRACTION_PATTERNS) {
+    const match = body.match(pat);
+    if (match) {
+      emit(
+        r,
+        "claude-reasoning-extraction-001",
+        family,
+        file,
+        `"${match[0]}" asks for visible reasoning; Opus 5.5 thinks by default and may refuse reasoning extraction — use effort instead`,
+      );
+      return;
+    }
+  }
+}
+
+/** Check 17: gpt-approval-repetition-001 */
+function checkGptApprovalRepetition(r, agent, file, family) {
+  if (!isGptOutcomeFamily(family)) return;
+  const count = getBody(agent.content).match(APPROVAL_PHRASE_PATTERN)?.length ?? 0;
+  if (count > APPROVAL_PHRASE_THRESHOLD) {
+    emit(
+      r,
+      "gpt-approval-repetition-001",
+      family,
+      file,
+      `${count} approval phrases (ask first / wait for approval / get approval) — state the approval policy once`,
+    );
+  }
+}
+
+/** Check 11: gpt-stop-rules-non-empty-001 */
+function checkGptStopRulesNonEmpty(r, agent, file, family) {
   if (!isGptOutcomeFamily(family) || agent.isSubagent) return;
   const sections = contractSections(getAgentBodyStructure(agent.content), BODY_CONTRACT_SECTIONS["Stop rules"]);
   if (sections.some((section) => !section.content)) {
-    emit(r, "gpt55-stop-rules-non-empty-001", family, file, "Stop rules section is empty (header only)");
+    emit(r, "gpt-stop-rules-non-empty-001", family, file, "Stop rules section is empty (header only)");
   }
 }
 
@@ -1246,11 +1283,13 @@ export function runVendorPrompting({
       checkModelDeprecation(r, { frontmatter: { model: label } }, relPath, classifyModel(label), deprecated);
     for (const family of new Set(labels.map(classifyModel))) {
       checkClaudeOneShotNoInvestigate(r, agent, relPath, family);
-      checkGpt55Skeleton(r, agent, relPath, family);
+      checkGptOutcomeContract(r, agent, relPath, family);
       checkGptNoClaudeXml(r, agent, relPath, family);
       checkClaudeNoPrefill(r, agent, relPath, family);
-      checkGpt55StopRulesNonEmpty(r, agent, relPath, family);
+      checkClaudeReasoningExtraction(r, agent, relPath, family);
+      checkGptStopRulesNonEmpty(r, agent, relPath, family);
       checkClaudeOutputContract(r, agent, relPath, family);
+      checkGptApprovalRepetition(r, agent, relPath, family);
     }
   }
 
@@ -1266,6 +1305,7 @@ export function runVendorPrompting({
     for (const label of labels) {
       const family = classifyModel(label);
       checkClaudeNoPrefill(r, prompt, relPath, family);
+      checkClaudeReasoningExtraction(r, prompt, relPath, family);
       checkModelDeprecation(r, { frontmatter: { model: label } }, relPath, family, deprecated);
     }
     checkPromptModelSource(r, prompt, relPath, agentNameToModel);
@@ -1831,10 +1871,12 @@ function listRules() {
   const inlineIds = new Set(VENDOR_RULES.map((r) => r.id));
   const registryIds = new Set(registry.rules.map((r) => r.id));
   const inlineOnly = [...inlineIds].filter((id) => !registryIds.has(id));
-  const registryOnly = [...registryIds].filter((id) => !inlineIds.has(id) && !id.startsWith("legacy-"));
+  const registryOnly = registry.rules
+    .filter((r) => !inlineIds.has(r.id) && !r.id.startsWith("legacy-") && r.validator_check_id !== "reviewer-only")
+    .map((r) => r.id);
   console.log("\nCross-check vs rules.json (vendor-prompting only — workflow-handoff rules intentionally separate):");
   if (inlineOnly.length === 0 && registryOnly.length === 0) {
-    console.log("  ✅ inline catalog and rules.json are in sync (legacy-* rules excluded)");
+    console.log("  ✅ inline catalog and rules.json are in sync (legacy-* and reviewer-only rules excluded)");
   } else {
     if (inlineOnly.length > 0) {
       console.log(`  ❌ in inline catalog but missing from rules.json: ${inlineOnly.join(", ")}`);

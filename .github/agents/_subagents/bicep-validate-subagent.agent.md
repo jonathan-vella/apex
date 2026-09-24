@@ -15,6 +15,8 @@ Validation subagent that lint/builds Bicep templates, then reviews them against
 AVM standards, CAF naming, the security baseline, and discovered governance
 constraints, returning a structured PASS/FAIL diagnostic and verdict for the
 parent IaC agent.
+The parent's invocation outranks skill guidance; report any conflict in the result
+with the `SKILL.md` path and a quote of the instruction.
 
 ## Input Contract
 The parent agent passes **artifact paths plus the explicit input fields
@@ -34,8 +36,10 @@ recover missing or changed evidence after compaction. There is no skill digest t
 - `.github/skills/apex-iac-common/SKILL.md` for shared deploy strategies and
   known issues.
 
-Read `04-governance-constraints.md` from `agent-output/{project}/` whenever
-the parent agent provides a project name; a missing required governance artifact
+Read `04-governance-constraints.json` from `agent-output/{project}/` whenever
+the parent agent provides a project name; translate every `azurePropertyPath`
+entry to the equivalent Bicep property. The `.md` view is human context only.
+A missing required governance artifact
 fails the review. Without optional project context, report static coverage only,
 not a project L2 pass.
 
@@ -157,7 +161,7 @@ The parent agent supplies:
 - `module_dir` — directory containing the modules to review (defaults to
   `dirname(template_path)`).
 - `project` — APEX project slug used to locate
-  `agent-output/{project}/04-governance-constraints.md`. Optional; absence is
+  `agent-output/{project}/04-governance-constraints.json`. Optional; absence is
   surfaced in findings.
 - Project context is required for an APEX L2 request. Without it, perform static
   validation only: retain the text fields, use zero checked rows and state
@@ -229,8 +233,8 @@ generic statements.
    secrets, per the `apex-azure-defaults` security baseline.
 4. **Unique suffix pattern** — `uniqueString(resourceGroup().id)` generated
    once in `main.bicep` and passed to modules (see `apex-iac-common`).
-5. **Code quality** — the table below is non-negotiable for the
-   listed severities:
+5. **Code quality** — report each check below at its listed severity; the verdict
+   mapping decides the outcome:
 
    | Check               | Severity | Detail                                  |
    | ------------------- | -------- | --------------------------------------- |
@@ -249,7 +253,7 @@ This section is mandatory only with project context or a requested APEX L2
 attestation. An L2 request without `project` returns FAILED; static-only calls
 report the coverage limitation above, without treating absent project files as defects.
 
-Read `04-governance-constraints.md` from `agent-output/{project}/` and
+Read `04-governance-constraints.json` from `agent-output/{project}/` and
 verify the resource config against every Deny policy listed in the
 constraints envelope. Translate each `azurePropertyPath` entry to its
 Bicep property and confirm the value satisfies the policy.

@@ -16,6 +16,8 @@ validate` against generated Terraform configurations, then reviews them
 against AVM-TF standards, CAF naming, the security baseline, RBAC least
 privilege, and discovered governance constraints, returning a structured
 PASS/FAIL diagnostic and verdict for the parent IaC agent.
+The parent's invocation outranks skill guidance; report any conflict in the result
+with the `SKILL.md` path and a quote of the instruction.
 
 ## Input Contract
 The parent agent passes **artifact paths plus the explicit input fields
@@ -218,8 +220,8 @@ Run the checklist below over every `.tf` file under `module_path`.
 4. **Unique suffix pattern** — one `random_string` resource declared
    with a `keepers` map and integrated into resource names (see
    `apex-iac-common`).
-5. **Code quality** — the table below is non-negotiable for the listed
-   severities:
+5. **Code quality** — report each check below at its listed severity; the verdict
+   mapping decides the outcome:
 
    | Check                      | Severity | Detail                                                                  |
    | -------------------------- | -------- | ----------------------------------------------------------------------- |

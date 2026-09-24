@@ -180,11 +180,7 @@ describe("validate-models dispatcher", () => {
 });
 
 describe("model CLI negatives", () => {
-  for (const [identifier, formerLabel] of [
-    ["GPT-5.6 Sol (copilot)", "GPT-5.6-Sol"],
-    ["GPT-5.6 Terra (copilot)", "GPT-5.6-Terra"],
-    ["GPT-5.6 Luna (copilot)", "GPT-5.6-Luna"],
-  ]) {
+  for (const [identifier, formerLabel] of [["GPT-5.6 Terra (copilot)", "GPT-5.6-Terra"]]) {
     it(`accepts ${identifier} and rejects its former display casing`, () => {
       setupFixture({ models: [identifier], handoff: identifier });
       assert.equal(run(["--only=catalog"]).code, 0);

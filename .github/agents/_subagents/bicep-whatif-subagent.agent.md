@@ -90,6 +90,9 @@ Status mapping: any policy violation or failed/unparseable preview → `FAIL`;
 otherwise `Deploy`, an unrecognized changeType, unexpected delete or large cost
 delta → `WARNING` with recommendation `review`; otherwise → `PASS`.
 Only a successfully parsed empty diff or all-`NoChange` result is no-change PASS.
+A transient failure (timeout, throttling, HTTP 429/5xx, truncated JSON) gets exactly one
+identical retry before `FAIL`; authentication, authorization, validation and policy errors
+fail immediately.
 
 ## Evidence Before Findings
 Before composing the response:

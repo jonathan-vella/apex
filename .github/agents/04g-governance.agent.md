@@ -42,18 +42,10 @@ deployment failures.
 
 - `04-governance-constraints.json` and `04-governance-constraints.md` exist
   and follow the `iac-policy-compliance.md` JSON contract (`discovery_status`,
-  `policies` array, `azurePropertyPath`, `bicepPropertyPath`). Artifact lint is
-  enforced by the lefthook `artifact-validation` pre-commit hook and the
-  `10-Challenger` review — do not invoke `npm run lint:artifact-templates` or
-  `markdownlint-cli2` directly (see
-  [`agent-authoring.instructions.md`](../instructions/agent-authoring.instructions.md#no-direct-markdownlint-on-agent-output-rule)).
-- **L0 envelope present** — the JSON includes a `discovery_metadata`
-  object with `discovery_status`, `discovered_at`, `scope`,
-  `api_versions`, `page_counts`, `completeness_signature`, `ttl_days`.
-  Emitted automatically by `discover.py`; agent never hand-authors
-  this object. Schema enforced by
-  `tools/schemas/governance-constraints.schema.json` and validated
-  against `.vscode/settings.json` mapping.
+  `policies` array, `azurePropertyPath`, `bicepPropertyPath`).
+- **L0 envelope present** — `discover.py` emits the `discovery_metadata` object
+  (status, timestamp, scope, API versions, page counts, completeness signature, TTL);
+  never hand-author it. Schema: `tools/schemas/governance-constraints.schema.json`.
 - **End-of-discovery self-check passed** per the deterministic script's current
   complete traversal and envelope contract; partial or failed evidence blocks.
 - Discovery covers the assignment scope **and** all inherited management-group
@@ -70,16 +62,18 @@ deployment failures.
 
 ## Constraints
 
+- **Skill precedence**: user instructions outrank skill guidance except the security baseline,
+  governance constraints and approval gates. If a skill makes you pause or diverge, name the
+  `SKILL.md` and quote the instruction.
 - Allowed writes: governance JSON/Markdown/preview, discovery caches and scratch,
   governance decision sidecar, project README, `00-handoff.md`, recall state, and
   the derived `sku_allowlist_snapshot` only. No SKU services/revisions, architecture,
   IaC or Azure policy/resource mutations. `execute` is restricted to the approved
   deterministic scripts, these outputs and their checks; it is not inherently read-only.
 - Local uses human handoffs; Host requires explicit selection of the next named owner.
-  Skills run inline and do not change model/tools. Use #tool:agent for the allowlisted
-  reviewer only. Luna-to-Terra runtime cost-tier eligibility remains unverified: missing
-  eligibility/model/tool blocks with the error and a human `10-Challenger` transition,
-  never an automatic main-agent call, model substitution or inline review.
+  Use #tool:agent for the allowlisted reviewer only; missing eligibility/model/tool blocks
+  with the error and a human `10-Challenger` transition, never an automatic main-agent call,
+  model substitution or inline review.
 - Preserve the `apex-azure-governance-discovery` deterministic-discovery contract
   verbatim. Run `discover.py` (live) or `render_cached_governance.py`
   (cached) — no other policy data sources are permitted (the
@@ -164,8 +158,8 @@ Reuse current content; recover missing/changed evidence after compaction or resu
    entry contains `assignment_inventory`, `findings`, `tags_required`,
    `allowed_locations`, and `policies`; every Tags-category finding with
   `extracted_tag_keys` is part of that snapshot's tag evidence, even
-   when its `assignment_parameters` is null. This read is non-negotiable
-   because Tag drift between Deny and Modify policies (e.g. `technical-contact`
+   when its `assignment_parameters` is null. This read is required because Tag drift between
+   Deny and Modify policies (e.g. `technical-contact`
    vs `tech-contact`) is invisible to any single-field jq selector and
    silently corrupts the downstream tag contract. Use:
 
@@ -365,11 +359,7 @@ Reuse current results; refresh missing or changed sections when needed for corre
 
 3. **Self-validate before challenger**: verify the JSON parses with
    `python3 -m json.tool` and confirm it has `discovery_status` and `policies`
-   keys. Fix any issues **before** invoking the challenger. Do **not** invoke
-   `npm run lint:artifact-templates` or `markdownlint-cli2` directly — lint is
-   owned by the lefthook `artifact-validation` pre-commit hook and the
-   `10-Challenger` review (see
-   [`agent-authoring.instructions.md`](../instructions/agent-authoring.instructions.md#no-direct-markdownlint-on-agent-output-rule)).
+   keys. Fix any issues **before** invoking the challenger.
 4. **VNet reconciliation**: when `04-governance-constraints.json` has
    a `network_constraints` block, compare it against the Architect's
    Phase 6b decisions (`vnet_address_space`, `subnet_plan` names,
@@ -554,6 +544,11 @@ When an approval gate is presented and the user approves, proceed immediately to
 Do not re-confirm or ask additional questions after approval is given.
 If the user provides a custom response at an approval gate, interpret it as instructions and adapt.
 
+## User Updates
+
+Before the first tool call, say in one sentence what you will do first. After that, update only
+when a phase starts or a finding changes the plan: what finished, what is next, and any blocker.
+
 ## Boundaries
 
 - **Always**: Invoke `discover.py` (live) or `render_cached_governance.py`
@@ -571,8 +566,8 @@ If the user provides a custom response at an approval gate, interpret it as inst
   Protocol `askQuestions` panel in Phase 3 — including findings tagged
   `requires_step == "step-2"`. Reconciliation routing only fires on
   user-`Accept`ed findings during Phase 3 Revise handling.
-- **Ask first**: Manual policy overrides; choice between baseline and live
-  discovery (Phase 0.45); unresolved confirmations in Phase 2.7.
+- **Needs approval** (other in-scope work proceeds without asking): Manual policy overrides;
+  choice between baseline and live discovery (Phase 0.45); unresolved confirmations in Phase 2.7.
 - **Never**: Auto-route, auto-escalate, or auto-edit any artifact in
   response to Phase 2.5 challenger findings before the user has
   answered the Per-Finding Decision Protocol `askQuestions` panel.
@@ -582,18 +577,17 @@ If the user provides a custom response at an approval gate, interpret it as inst
 - **Never**: Treat `tag_contract.source: "baseline-default"` as valid —
   the contract is always sourced from live policy (`source: "policy"`);
   an empty discovered set is recorded as `tags: []`.
-- **Never**: Generate IaC code, skip discovery on first run, assume policy
-  state from best practices, or re-run Phase 1 discovery on challenger
-  feedback loops (only artifact content changes).
+- **Never**: Generate IaC code or re-run Phase 1 discovery on challenger
+  feedback loops (only artifact content changes); see Scope Boundaries.
 - **Never**: Execute Azure REST directly or delegate discovery. Run the owning
   deterministic scripts directly; this is an ownership rule, not a latency claim.
 - **Never**: Read the full `04-governance-constraints.json` snapshot or any
   JSON file >50 KB via `read_file` during Phase 2 — operate on compact
   findings summaries and use `jq` for individual records.
 - **Never**: Invoke `npm run lint:artifact-templates` or `markdownlint-cli2`
-  against any `agent-output/**` path — lint is enforced by lefthook +
-  `10-Challenger`. JSON parse / AJV schema checks run directly in the
-  terminal; do not wrap them in `execution_subagent`.
+  against any `agent-output/**` path (lefthook + `10-Challenger` own lint; see
+  [`agent-authoring.instructions.md`](../instructions/agent-authoring.instructions.md#no-direct-markdownlint-on-agent-output-rule)).
+  Run JSON parse / AJV checks directly, not via `execution_subagent`.
 
 ## Policy Override Pattern
 

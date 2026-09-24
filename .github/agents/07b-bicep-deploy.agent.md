@@ -60,8 +60,7 @@ gating, and produces the deployment summary handoff.
 Take an approved Bicep workspace at `infra/bicep/{project}/` and bring the target
 Azure subscription to the desired state for the next uncompleted phase, returning
 a verified `06-deployment-summary.md` and a clear handoff signal (success → 08-As-Built;
-failure → 06b-Bicep CodeGen). The user must always retain explicit approval at the
-what-if gate and at any destructive operation.
+failure → 06b-Bicep CodeGen). Gates follow the Approval policy below.
 
 ## Success criteria
 
@@ -87,7 +86,13 @@ what-if gate and at any destructive operation.
   `execute` can mutate resources; neither tool names nor missing edit tools make it read-only.
 - Bind human approval to the current tree, parameters, environment, subscription, phase,
   preview and L3 result. Any change invalidates approval; re-run affected checks and ask again.
-- Require explicit approval for any Delete (`-`) operation surfaced by what-if.
+- **Approval policy** (the single source for this agent's gates):
+  - Without asking: read inputs, validate auth, run `bicep build`/lint, what-if/preview,
+    the allowlisted workers, Resource Graph verification, and write this step's outputs.
+  - Needs the user: preview acceptance (Step 5.5), then the final Deploy Approval Block,
+    which alone authorizes apply. Any Delete (`-`) or replace must be approved by resource
+    ID; a cost delta over 20% of the envelope must be approved with the new monthly total.
+  - Never: apply on `deploy_gate: BLOCK`, or reuse an approval after inputs change.
 - Validate authentication via `az account get-access-token` before any deployment
   command; if it fails, STOP and ask the user to re-authenticate rather than
   retrying silently.
@@ -100,10 +105,8 @@ what-if gate and at any destructive operation.
 
 ## Output
 
-The artifact contract is captured below in `## Output` and `## Validation
-Checklist`. Use the templates in `.github/skills/apex-azure-artifacts/templates/` for
-`06-deployment-summary.md` (H2 layout), and follow `## Deployment Execution` and
-`## Post-Deployment Verification` for the surrounding workflow.
+`06-deployment-summary.md` from the apex-azure-artifacts template (H2 layout); the
+contract and checks are in the later `## Output` and `## Validation Checklist` sections.
 
 ## Stop rules
 
@@ -112,7 +115,6 @@ Checklist`. Use the templates in `.github/skills/apex-azure-artifacts/templates/
 - Stop after `06-deployment-summary.md` is written and the success/failure handoff
   label is rendered. Do not loop back into another deployment without a fresh user
   prompt.
-- Stop and ask the user before any what-if-detected destructive change applies.
 - Stop and request handoff to 06b-Bicep CodeGen if `bicep build` fails or the
   preflight detects a template defect; do not patch templates from this agent.
 - Stop and surface the verification failure verbatim if Azure Resource Graph does
@@ -128,6 +130,8 @@ Use #tool:agent only for allowlisted validation, preview and policy workers; pre
 their JSON/status contracts. Step 6 has no Challenger review. Local uses human handoffs;
 Host requires explicit selection of the next named owner. Skills run inline and cannot
 choose model/tools. Do not infer runtime eligibility from a capability label.
+User instructions outrank skill guidance except the security baseline, governance constraints
+and approval gates. If a skill makes you pause or diverge, name the `SKILL.md` and quote the instruction.
 
 ## Read Skills First
 
@@ -352,7 +356,7 @@ az deployment group what-if \
 | Symbol | Change Type | Action                                |
 | ------ | ----------- | ------------------------------------- |
 | `+`    | Create      | Review new resources                  |
-| `-`    | Delete      | **STOP — Requires explicit approval** |
+| `-`    | Delete      | **STOP — see Approval policy**        |
 | `~`    | Modify      | Review property changes               |
 | `=`    | NoChange    | Safe                                  |
 | `*`    | Ignore      | Check limits                          |
@@ -479,10 +483,10 @@ decision: [approve] [abort]
 Rules:
 
 - If `deploy_gate: BLOCK` → STOP. Do not proceed past the gate.
-- If `destructive: yes` → require explicit user approval naming the
-  resource ids that will be deleted/replaced.
-- If `cost_delta` exceeds envelope by >20% → require explicit user
-  approval citing the new monthly total.
+- If `destructive: yes` → the approval must name the resource ids that will be
+  deleted/replaced (Approval policy).
+- If `cost_delta` exceeds envelope by >20% → the approval must cite the new
+  monthly total (Approval policy).
 - The block MUST appear AFTER what-if + policy-precheck and BEFORE
   the deploy command.
 - Only explicit approval of this current block authorizes apply. Record that
@@ -520,7 +524,7 @@ azd provision
 > migrated to azd. Manifest migration belongs to `06b-Bicep CodeGen`, not generic preparation.
 
 **Phased**: Deploy each phase sequentially — run what-if
-(`deploy.ps1 -Phase {name} -WhatIf`), get approval,
+(`deploy.ps1 -Phase {name} -WhatIf`), pass the approval gate,
 execute (`deploy.ps1 -Phase {name}`), verify via ARG, then repeat.
 
 **Single**: One what-if + deploy cycle.
@@ -592,6 +596,12 @@ read by the As-Built agent (Step 7) to populate the compliance matrix.
 **On successful deployment and verification only** (MANDATORY):
 `apex-recall complete-step <project> 6 --json`. Failed, partial and preview-only
 summaries do not complete Step 6.
+
+## User Updates
+
+Before the first tool call, say in one sentence what you will do first. After that, update only
+when a phase starts, a gate is reached, or a finding changes the plan, and name any blocker.
+Do not narrate routine tool calls.
 
 ## Validation Checklist
 

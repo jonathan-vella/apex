@@ -48,17 +48,17 @@ total_fixed = base_cost + tool_cost + handoff_cost + body_cost + instruction_cos
 
 ## Model Context Limits
 
-| Model             | Context Window | Practical Limit (80%) |
-| ----------------- | -------------- | --------------------- |
-| GPT-5.6-Terra     | 400K tokens    | ~320K tokens          |
-| GPT-5.6-Luna      | 400K tokens    | ~320K tokens          |
-| Claude Opus 5     | 200K tokens    | ~160K tokens          |
-| Claude Sonnet 5   | 200K tokens    | ~160K tokens          |
-| gpt-4o-mini       | 128K tokens    | ~102K tokens          |
+| Model                   | Vendor API window | APEX hard checkpoint |
+| ----------------------- | ----------------- | -------------------- |
+| GPT-6-Sol               | 1,050,000 tokens  | ≥300K input          |
+| GPT-6-Luna              | 1,050,000 tokens  | ≥300K input          |
+| GPT-5.6 Terra (copilot) | 1,050,000 tokens  | ≥300K input          |
+| Claude Opus 5.5         | 1M tokens         | ≥160K input          |
+| MAI-Code-1.1-Flash      | unknown           | ≥160K input          |
 
-These are historical planning assumptions, not verified API limits. Use the
-active harness limit and measured tokenizer when available; otherwise keep
-limits and measured usage unknown. Do not infer Sol metadata or cost tiers.
+Vendor windows are API limits from the OpenAI and Anthropic model pages, not Copilot harness limits. Use the
+active harness limit and measured tokenizer when available; otherwise keep limits and measured usage unknown.
+Checkpoints are defined in [hard-checkpoints.md](hard-checkpoints.md). Do not infer cost tiers from model names.
 
 ## Measurement Boundaries
 

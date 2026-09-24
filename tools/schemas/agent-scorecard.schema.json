@@ -74,8 +74,8 @@
         "has_output_contract": { "type": "boolean" },
         "uses_apex_recall": { "type": "boolean" },
         "reads_skill_md": { "type": "boolean" },
-        "gpt55_sections_present": { "type": "array", "items": { "type": "string" } },
-        "gpt55_sections_missing": { "type": "array", "items": { "type": "string" } },
+        "outcome_sections_present": { "type": "array", "items": { "type": "string" } },
+        "outcome_sections_missing": { "type": "array", "items": { "type": "string" } },
         "model_family": { "type": "string" }
       }
     },

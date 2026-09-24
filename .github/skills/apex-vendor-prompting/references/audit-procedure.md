@@ -40,9 +40,9 @@ custom targets and malformed explicit labels fail; do not invent a model to pass
 
 Use `classifyModel()` from `tools/scripts/validate-agents.mjs` on every label in
 order, including custom-agent inheritance. Do not duplicate a first-entry-only
-classifier or add fallbacks. Sol/Terra/Luna use the APEX Markdown convention;
-the pinned generic advice is not model-specific vendor evidence. Preserve exact
-`gpt-5.6-sol` and unknown metadata.
+classifier or add fallbacks. GPT-6 Sol/Luna and GPT-5.6 Terra use the APEX Markdown
+convention plus their family's vendor guidance; Claude Opus 5.5 uses the Anthropic
+guidance. Preserve exact catalog labels and unknown metadata.
 
 Cross-check the family's `status` from
 [family-support.md](family-support.md). If `out-of-scope`, stop and

@@ -1,7 +1,7 @@
 ---
 name: fixture-good-claude
 description: "Good Claude agent fixture — should produce no vendor-prompting findings. Used by tools/tests/vendor-prompting/run.test.mjs."
-model: ["Claude Opus 4.7"]
+model: ["Claude Opus 5.5"]
 user-invocable: true
 agents: []
 tools: [read]
@@ -29,4 +29,5 @@ This agent simulates a compliant Claude research agent. It should pass:
 - legacy-004 (has investigate block)
 - claude-output-contract-001 (has output_contract; handoff references agent-output/)
 - claude-no-prefill-001 (no prefill instructions)
+- claude-reasoning-extraction-001 (no visible-reasoning instructions)
 - handoff-enrichment-001 (handoff has both Input + Output references)
