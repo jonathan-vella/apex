@@ -9,7 +9,7 @@
  *
  * Fetch fallback chain (per F-15):
  *   1. anonymous HTTPS fetch of the vendor's Markdown page (`.md` suffix)
- *   2. cached committed snapshot (audit still works, no drift)
+ *   2. local snapshot from an earlier successful run (gitignored; absent on a clean checkout)
  *
  * Exit codes:
  *   0 — no drift detected (or --fail-on-drift not set)
@@ -231,7 +231,9 @@ export async function runFetcher({
   console.log(`Freshness: ${FRESHNESS_MANIFEST}`);
 
   if (allFailed) {
-    console.error("\n\u274c All sources failed to fetch (no cached fallback).");
+    console.error(
+      "\n\u274c All sources failed to fetch and no local snapshot cache exists; retry with network access.",
+    );
     return 2;
   }
 

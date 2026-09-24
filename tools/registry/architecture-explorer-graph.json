@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-09-24T13:46:06.274Z",
+  "generatedAt": "2026-09-24T14:37:30.563Z",
   "categories": [
     { "id": "agent", "key": "agents", "label": "Agent", "color": "#3b82f6", "shape": "round-rectangle", "count": 14 },
     {
@@ -20,7 +20,7 @@
       "shape": "rectangle",
       "count": 27
     },
-    { "id": "prompt", "key": "prompts", "label": "Prompt", "color": "#ec4899", "shape": "tag", "count": 27 },
+    { "id": "prompt", "key": "prompts", "label": "Prompt", "color": "#ec4899", "shape": "tag", "count": 26 },
     {
       "id": "validator",
       "key": "validators",
@@ -39,8 +39,8 @@
     },
     { "id": "mcp", "key": "mcp_servers", "label": "MCP Server", "color": "#f43f5e", "shape": "barrel", "count": 3 }
   ],
-  "nodeCount": 185,
-  "edgeCount": 733,
+  "nodeCount": 184,
+  "edgeCount": 729,
   "nodes": [
     {
       "id": "agent:01-orchestrator",
@@ -1442,17 +1442,6 @@
       "path": "tools/apex-prompts/utility-prompts/context-audit.prompt.md",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/tools/apex-prompts/utility-prompts/context-audit.prompt.md"
-      },
-      "meta": {}
-    },
-    {
-      "id": "prompt:execution-subagent-claude",
-      "category": "prompt",
-      "label": "execution-subagent-claude",
-      "description": "Claude-flavored variant of the execution-subagent invocation prompt contract. Wraps the three required slots in XML tags per claude-best-practices R-CL-1. Use this when invoking a Claude-family subagent. Reference: issue #425, Wave 3a follow-up.",
-      "path": "tools/apex-prompts/utility-prompts/execution-subagent-claude.prompt.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/main/tools/apex-prompts/utility-prompts/execution-subagent-claude.prompt.md"
       },
       "meta": {}
     },
@@ -3347,12 +3336,6 @@
       "id": "instruction:agent-authoring--applies-to->prompt:context-audit",
       "source": "instruction:agent-authoring",
       "target": "prompt:context-audit",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:agent-authoring--applies-to->prompt:execution-subagent-claude",
-      "source": "instruction:agent-authoring",
-      "target": "prompt:execution-subagent-claude",
       "kind": "applies-to"
     },
     {
@@ -5474,12 +5457,6 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:no-interactive-shell--applies-to->prompt:execution-subagent-claude",
-      "source": "instruction:no-interactive-shell",
-      "target": "prompt:execution-subagent-claude",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:no-interactive-shell--applies-to->prompt:execution-subagent-gpt",
       "source": "instruction:no-interactive-shell",
       "target": "prompt:execution-subagent-gpt",
@@ -5639,12 +5616,6 @@
       "id": "instruction:prompt--applies-to->prompt:context-audit",
       "source": "instruction:prompt",
       "target": "prompt:context-audit",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:prompt--applies-to->prompt:execution-subagent-claude",
-      "source": "instruction:prompt",
-      "target": "prompt:execution-subagent-claude",
       "kind": "applies-to"
     },
     {
@@ -5927,12 +5898,6 @@
       "id": "instruction:vendor-prompting--applies-to->prompt:context-audit",
       "source": "instruction:vendor-prompting",
       "target": "prompt:context-audit",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:vendor-prompting--applies-to->prompt:execution-subagent-claude",
-      "source": "instruction:vendor-prompting",
-      "target": "prompt:execution-subagent-claude",
       "kind": "applies-to"
     },
     {
