@@ -97,9 +97,14 @@ The diagnostic settings block (Bicep) lives on the AVM module call or as a
 sibling `Microsoft.Insights/diagnosticSettings` resource:
 
 ```bicep
+resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2023-09-01' existing = {
+  name: logAnalyticsWorkspaceName
+}
+
+// inside the AVM module params or the sibling resource
 diagnosticSettings: [
   {
-    workspaceResourceId: logAnalyticsWorkspaceId
+    workspaceResourceId: logAnalytics.id
     logs: [ /* service-specific categories */ ]
     metrics: [ { category: 'AllMetrics', enabled: true } ]
     logAnalyticsDestinationType: 'Dedicated'  // recommended over 'AzureDiagnostics'
@@ -107,13 +112,15 @@ diagnosticSettings: [
 ]
 ```
 
-The `logAnalyticsWorkspaceId` parameter must appear in every module's
-Code-Generation Contract that owns a diag-settings-bearing resource — not
-only the App Service module.
+Modules take the workspace **name** (`logAnalyticsWorkspaceName`, per the Bicep
+[module interface](../../skills/apex-azure-bicep-patterns/references/module-interface.md))
+and resolve its resource ID with `existing`. Terraform modules take the workspace ID.
+The workspace parameter must appear in every module's Code-Generation Contract that
+owns a diag-settings-bearing resource — not only the App Service module.
 
 ### Anti-pattern
 
-A plan whose Code-Generation Contract lists `logAnalyticsWorkspaceId` only
+A plan whose Code-Generation Contract lists the workspace parameter only
 on `compute.bicep` (App Service) and omits it from `keyvault.bicep`,
 `storage.bicep`, `database.bicep`, or `networking.bicep` fails this rule.
 The Challenger flags it as a `should_fix` (Operational Excellence).

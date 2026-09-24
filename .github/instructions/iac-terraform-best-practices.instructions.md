@@ -9,19 +9,13 @@ Azure values are canonical in [Copilot instructions](../copilot-instructions.md#
 shared naming, AVM, and security procedures live in [apex-azure-defaults](../skills/apex-azure-defaults/SKILL.md).
 This file covers Terraform-specific patterns. Discovered policy constraints always take precedence.
 
-## Security
+## Policy and Security
 
 Azure Policy always wins. Code adapts to policy, never the reverse.
-See `references/iac-security-baseline.md` for shared security rules and
-`references/iac-policy-compliance.md` for the full policy compliance workflow
-including `azurePropertyPath` → Terraform argument translation tables.
-
-## Policy Compliance
-
-Cross-reference `04-governance-constraints.json` before writing templates.
-Use `azurePropertyPath` (not `bicepPropertyPath`) for Terraform argument mapping.
-See `references/iac-policy-compliance.md` for the full checklist, resource type
-mapping table, and property path examples.
+Cross-reference `04-governance-constraints.json` before writing templates; use
+`azurePropertyPath` (not `bicepPropertyPath`) for Terraform argument mapping. Shared rules:
+`references/iac-security-baseline.md` and `references/iac-policy-compliance.md`
+(checklist, resource type mapping and `azurePropertyPath` → Terraform argument tables).
 
 ## Provider and Backend
 
@@ -55,16 +49,9 @@ Raw `azurerm_*` only with approval. Resolve versions through the public
 Terraform Registry API per `apex-azure-defaults/references/terraform-conventions.md`.
 
 **Pin AVM-TF modules to exact semver** (`version = "X.Y.Z"`), resolved at
-plan time. Range constraints (`~> X.Y`, `>= X.Y.Z`) are NOT allowed in
-APEX-generated `04-iac-contract.json` and are flagged by
-`npm run validate:avm-versions`. CLI lookup:
-
-```bash
-curl -sf https://registry.terraform.io/v1/modules/Azure/avm-res-{path}/azurerm/versions \
-  | jq -r '.modules[0].versions[0].version'
-```
-
-The shared stale-pin exception and freeze policy lives in
+plan time from the public Terraform Registry. Range constraints (`~> X.Y`, `>= X.Y.Z`)
+are NOT allowed in APEX-generated `04-iac-contract.json` and are flagged by
+`npm run validate:avm-versions`. Lookup procedure and the stale-pin/freeze policy live in
 [`apex-azure-defaults`](../skills/apex-azure-defaults/SKILL.md).
 
 > Provider-version pins (`azurerm`) are different — those use `~> 4.0`
@@ -86,15 +73,12 @@ Blocked for app runtime: `Owner`, `Contributor`, `User Access Administrator`.
 
 SQL: Prefer Entra DB roles. Never `Contributor` at server scope.
 
-## Cost Monitoring
+## Cost Monitoring and Repeatability
 
-Every deployment includes a budget resource. See `references/iac-cost-monitoring.md`.
-
-## Repeatability
-
-Zero hardcoded project-specific values. `var.project_name` has no default.
-All tag values reference variables. Unique suffix via `random_string` (4 chars,
-lower+numeric), generated once, passed everywhere.
+Every deployment includes a budget resource (`references/iac-cost-monitoring.md`).
+Zero hardcoded project-specific values: `var.project_name` has no default and tag values
+reference variables. Unique suffix via `random_string` (4 chars, lower+numeric), generated
+once, passed everywhere.
 
 ## Anti-Patterns
 
@@ -115,9 +99,5 @@ terraform fmt -recursive && terraform validate
 
 ## Cross-References
 
-- Policy compliance: `references/iac-policy-compliance.md`
-- Security baseline: `references/iac-security-baseline.md`
-- Cost monitoring: `references/iac-cost-monitoring.md`
 - Governance discovery: `.github/instructions/governance-discovery.instructions.md`
-- Azure defaults: `.github/skills/apex-azure-defaults/SKILL.md`
 - Terraform patterns skill: `.github/skills/apex-terraform-patterns/SKILL.md`

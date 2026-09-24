@@ -8,9 +8,7 @@ applyTo: "**/.github/agents/**/*.agent.md, **/.github/skills/**/SKILL.md, **/.gi
 > [!CAUTION]
 > Interactive shell prompts (`mv -i`, `rm -i`, `cp -i`, `read -p`,
 > `confirm` dialogs) and long-output terminal replays bloat the chat
-> transcript and re-inject 50+ lines into every subsequent turn. The
-> primary control is this instruction file; `safe-shell.mjs` is a
-> documentation aid that catches drift in committed snippets.
+> transcript and re-inject 50+ lines into every subsequent turn.
 
 ## Rule 1 — No interactive flags
 
@@ -35,8 +33,8 @@ to a file and report only the line count:
 
 ```bash
 # Good
-my-cmd > /tmp/my-cmd.out 2>&1 && \
-  echo "wrote /tmp/my-cmd.out ($(wc -l </tmp/my-cmd.out) lines)"
+my-cmd > tmp/my-cmd.out 2>&1 && \
+  echo "wrote tmp/my-cmd.out ($(wc -l <tmp/my-cmd.out) lines)"
 
 # Bad
 my-cmd            # spews 800 lines into chat → repeated every turn
@@ -53,22 +51,8 @@ tool, or extract the relevant lines (`grep`, `head`, `tail`, `awk`).
 | ---------------------------------------- | ----------------------------------------------------------- |
 | Fire-and-check exit code                 | `az <command> --output none && echo OK`                     |
 | Extract a single field                   | `az <command> --query "<jmespath>" --output tsv`            |
-| Capture full output for later inspection | `az <command> > /tmp/<name>.json && wc -l /tmp/<name>.json` |
+| Capture full output for later inspection | `az <command> > tmp/<name>.json && wc -l tmp/<name>.json`   |
 | Preview deployment changes               | `az deployment ... what-if --result-format ResourceIdOnly`  |
-
-Examples:
-
-```bash
-# Validate without dumping the deployment JSON
-az deployment sub validate --location swedencentral \
-  --template-file infra/bicep/<project>/main.bicep \
-  --parameters @infra/bicep/<project>/main.dev.bicepparam \
-  --output none && echo "validate OK"
-
-# Capture, then peek
-az resource list --resource-group myrg > /tmp/rg-resources.json
-echo "wrote /tmp/rg-resources.json ($(wc -l </tmp/rg-resources.json) lines)"
-```
 
 ## Rule 3 — If long output already escaped
 
@@ -94,30 +78,15 @@ The committed snippet must use one of:
 | `if command -v rg; then rg ...; else grep -R ...; fi`                       | Verbose guard with fallback.                                                       |
 | `grep -R "pattern" .` / `find . -name "*.md"` / `python -m json.tool file`  | Stdlib only — no portability tool used. Best when the snippet is for a wide audience. |
 
-Forbidden:
+Forbidden: bare `rg "pattern" file.md` or `fd -e md . | head -5`.
 
-```bash
-# ❌ Bare invocation — fails on machines without ripgrep installed.
-rg "pattern" file.md
-
-# ❌ Bare invocation in a pipeline — same problem.
-fd -e md . | head -5
-```
-
-The `safe-shell` linter (`tools/scripts/safe-shell.mjs`) enforces this
-rule via the `command-portability` check. For snippets that invoke an
-optional tool such as `rg`, `fd`, or `bat`, include a `command -v
-<tool>` guard in the same fenced code block. Stdlib-only alternatives
-(`grep -R`, `find`, `python -m json.tool`) are fine when shown as
-standalone commands, but they do not make an unguarded optional-tool
-invocation compliant — the linter only inspects the offending fence
-for a guard, not for parallel stdlib examples.
+The `safe-shell` linter (`tools/scripts/safe-shell.mjs`) enforces this via the
+`command-portability` check, which inspects only the offending fence: an optional-tool
+invocation needs a `command -v <tool>` guard in the same fenced block; separate stdlib
+examples elsewhere do not make it compliant.
 
 ## Why
 
-The original incident was a runtime chat behavior (an `mv -i` issued
-during a turn that hung waiting for input, then dumped its prompt into
-the transcript). The instruction file is the primary control; the
-linter (`tools/scripts/safe-shell.mjs`) catches drift in committed
-agent/skill/instruction snippets but cannot enforce runtime chat
-behavior. Both layers matter.
+An `mv -i` once hung a turn waiting for input and dumped its prompt into the transcript.
+This instruction is the primary control; `safe-shell.mjs` catches drift in committed
+snippets but cannot enforce runtime chat behavior.

@@ -11,9 +11,9 @@ completion artifacts** (same pattern as `00-handoff.md` and `00-session-state.js
 
 ## Initialization
 
-Initialize session state with `apex-recall init <project> --json`; never read or
-edit `00-session-state.json` directly. On resume, recover state with
-`apex-recall show <project> --json` and preserve existing lesson entries.
+Session state follows the `apex-recall` rules in `copilot-instructions.md` (`init` for new
+projects, `show` on resume); never read or edit `00-session-state.json` directly. On resume,
+preserve existing lesson entries. Initialize with `apex-recall init <project> --json`.
 Create `09-lessons-learned.json` with file-editing tools only when absent:
 
 ```json

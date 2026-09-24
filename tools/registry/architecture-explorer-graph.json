@@ -1076,7 +1076,7 @@
       "id": "instruction:agent-operating-frame",
       "category": "instruction",
       "label": "agent-operating-frame",
-      "description": "Shared operating frame for main step agents — read SKILL.md once, use apex-recall for cached lookups, never edit upstream artifacts. Pairs with each agent's body-level Operating frame H2.",
+      "description": "Shared operating frame for main step agents — read SKILL.md once, use apex-recall for cached lookups, never edit upstream artifacts. Pairs with the agent's Operating frame or Constraints H2.",
       "path": ".github/instructions/agent-operating-frame.instructions.md",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/instructions/agent-operating-frame.instructions.md"

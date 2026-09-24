@@ -6,11 +6,10 @@ applyTo: "**/.github/skills/**/SKILL.md, **/.claude/skills/**/SKILL.md"
 # Agent Skills File Guidelines
 
 Agent Skills are folders of instructions, scripts, and resources that Copilot
-loads on demand. They follow the [Agent Skills open standard](https://agentskills.io/)
-and work across VS Code, Copilot CLI, and Copilot coding agent.
-
-For the complete official reference, see
-[VS Code Agent Skills docs](https://code.visualstudio.com/docs/copilot/customization/agent-skills).
+loads on demand, following the [Agent Skills open standard](https://agentskills.io/).
+This file holds the enforced APEX rules; locations, body sections, directory layout,
+progressive loading, writing style and the full `context` policy live in the
+[skill authoring reference](../skills/apex-agent-authoring/references/skill-authoring.md).
 
 ## Required SKILL.md Frontmatter
 
@@ -74,19 +73,9 @@ update live callers and public guidance; it does not prove reduced discovery tok
 
 ### Context Policy
 
-Keep all current skills inline by omitting `context`. The validator accepts
-generic `inline`/`fork` syntax; production policy tests separately prohibit fork.
-`context: fork` is experimental and requires `github.copilot.chat.skillTool.enabled`;
-do not enable it or infer Local/Agent Host parity. Adoption requires a separately
-approved, fully specified read-only experiment with bounded output, citations,
-missing-input and unavailable-tool checks, permission tests and measured context
-evidence in each intended harness. Standalone docs lookup or VM comparison may
-qualify; mixed-purpose skills and parent-context guidance do not.
-Never move questions, approvals, workflow transitions or required parent rules
-into a fork, or bypass main-agent selection and existing review/pricing workers.
-Isolation does not authorize writes, export, authentication, secrets or network
-access. Unsupported execution must stop; never silently change mode or fabricate
-results. Current fork adoption remains deferred, not runtime-certified.
+Keep all current skills inline by omitting `context`. `context: fork` is experimental
+and not adopted; production policy tests prohibit it. Adoption conditions are in the
+[skill authoring reference](../skills/apex-agent-authoring/references/skill-authoring.md#context-policy).
 
 ### Local And Agent Host
 
@@ -96,58 +85,6 @@ work. Skills inherit the caller's model/tools; they do not switch agents or gran
 permissions. Skill discovery and invocation flags do not override production
 human-selection boundaries. Keep needed Local discovery settings and verify each
 harness separately; authoring checks do not prove runtime attachment or support.
-
-## Skill Locations
-
-| Scope        | Path                                                           |
-| ------------ | -------------------------------------------------------------- |
-| Workspace    | `.github/skills/`, `.claude/skills/`, `.agents/skills/`        |
-| User profile | `~/.copilot/skills/`, `~/.claude/skills/`, `~/.agents/skills/` |
-| Custom       | Configured via `chat.agentSkillsLocations` setting             |
-
-## Body Sections
-
-| Section                     | Purpose                                             |
-| --------------------------- | --------------------------------------------------- |
-| `# Title`                   | Brief overview of what this skill enables           |
-| `## When to Use This Skill` | List of scenarios (reinforces description triggers) |
-| `## Prerequisites`          | Required tools, dependencies, environment setup     |
-| `## Step-by-Step Workflows` | Numbered steps for common tasks                     |
-| `## Troubleshooting`        | Common issues and solutions table                   |
-| `## References`             | Links to bundled docs or external resources         |
-
-## Directory Structure
-
-```text
-.github/skills/<skill-name>/
-├── SKILL.md              # Required: Main instructions (≤500 lines)
-├── LICENSE.txt            # Recommended: License terms
-├── scripts/              # Executable automation (loaded when executed)
-├── references/           # Documentation (loaded when referenced by SKILL.md)
-├── assets/               # Static files used AS-IS in output (not loaded into context)
-└── templates/            # Starter code the AI agent MODIFIES and builds upon
-```
-
-**Assets vs Templates**: If the AI reads and builds upon it → `templates/`.
-If the file is used as-is in output → `assets/`.
-
-## Progressive Loading
-
-| Level           | What Loads                    | When                              |
-| --------------- | ----------------------------- | --------------------------------- |
-| 1. Discovery    | `name` and `description` only | Always (lightweight metadata)     |
-| 2. Instructions | Full `SKILL.md` body          | When request matches description  |
-| 3. Resources    | Scripts, examples, docs       | Only when Copilot references them |
-
-## Writing Rules
-
-- Imperative mood: "Run", "Create", "Configure"
-- Include exact commands with parameters
-- Keep SKILL.md body ≤500 lines; split large workflows into `references/`
-- Use relative paths for all resource references (e.g., `[script](./run-tests.js)`)
-- Use `#tool:<tool-name>` to reference agent tools in body text
-- No hardcoded credentials or secrets
-- Include `--help` documentation and error handling in scripts
 
 ## Wiring a Skill to an Agent
 
@@ -177,9 +114,9 @@ wiring form. Use the canonical `SKILL.md` pattern for explicit wiring.
 - [ ] Valid frontmatter with `name` and `description`
 - [ ] `name` is lowercase with hyphens, ≤64 characters, matches directory name
 - [ ] `description` states WHAT, WHEN, and KEYWORDS
-- [ ] Body ≤500 lines; large content in `references/`
+- [ ] Body ≤500 lines; large content in `references/` (each starting with a `<!-- ref:{slug}-v1 -->` marker)
 - [ ] Scripts include help docs and error handling
-- [ ] No hardcoded credentials
+- [ ] No hardcoded credentials or secrets
 
 ## Per-Step File Re-Read Budget (HARD LIMIT)
 
@@ -203,10 +140,8 @@ available in context. The rule:
   re-read unchanged source artifacts when the digest is sufficient and current.
   Missing or stale evidence requires a targeted source read or return to the parent;
   a digest cannot substitute for required schema, hash, or live governance checks.
-- The May 2026 nordic-foods retro showed `04-implementation-plan.md` read
-  6× and `04-governance-constraints.md` read 4× in a single Step 5 run.
-  Each redundant read shipped ~7 KB into a 200 K context. The cache
-  contract closes that hole.
+- Rationale (measured redundant reads): see the
+  [skill authoring reference](../skills/apex-agent-authoring/references/skill-authoring.md#why-the-re-read-budget-exists).
 
 **Validator**: `npm run validate:context-budget` enforces a structural
 floor for non-subagent consumers: a frozen artifact filename must occur on
@@ -216,9 +151,3 @@ the same line as `**REQUIRED**` to trigger the check. Those consumers need
 "plan-readiness precondition"). Headings alone do not trigger it. It does not
 count runtime reads, validate cache freshness, or prove instruction attachment;
 those remain execution/review responsibilities.
-
-## Resources
-
-- [Agent Skills Specification](https://agentskills.io/)
-- [VS Code Agent Skills Docs](https://code.visualstudio.com/docs/copilot/customization/agent-skills)
-- [Reference skills repository](https://github.com/anthropics/skills)

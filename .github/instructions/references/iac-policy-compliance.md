@@ -12,20 +12,18 @@ subscription.
 
 ## Dynamic Tag List
 
-Tags come from governance constraints, not hardcoded defaults.
-The 9 baseline defaults (`environment`, `owner`, `costcenter`,
-`application`, `workload`, `sla`, `backup-policy`, `maint-window`,
-`technical-contact` — the APEX standard, all lowercase) are a minimum —
+Tags come from governance constraints, not hardcoded defaults. The greenfield fallback set
+is defined once in
+[Copilot instructions](../../copilot-instructions.md#required-tags-azure-policy-enforced)
+and [`tag-strategy.md`](../../skills/apex-azure-defaults/references/tag-strategy.md);
 discovered policies always win and may add or rename keys.
 
 ### Example
 
 ```text
-Defaults (apex-azure-defaults skill):  9 tags (APEX standard, lowercase)
-Governance constraints discovered: 9 tags (environment, owner,
-  costcenter, application, workload, sla, backup-policy,
-  maint-window, tech-contact)   ← note: tech-contact, not technical-contact
-Required in generated code:       9 tags (governance wins on key names)
+Greenfield fallback:              technical-contact (+ the other APEX-standard keys)
+Governance constraints discovered: tech-contact     ← policy key name
+Required in generated code:       tech-contact     (governance wins on key names)
 ```
 
 ## Policy Compliance Checklist

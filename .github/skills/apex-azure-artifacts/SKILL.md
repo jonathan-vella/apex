@@ -167,3 +167,4 @@ When generating a Step N artifact, read the corresponding template:
 | `references/styling-standards.md`        | Applying callouts, badges, emoji, navigation         |
 | `references/cost-estimate-sections.md`   | Cost estimate H2 structure and formatting rules      |
 | `references/revision-workflow.md`        | Detailed targeted-edit revision procedure (Step 7+)  |
+| `references/sku-manifest-details.md`     | SKU manifest coverage, projection, TTL and sync tooling |

@@ -19,32 +19,9 @@ description: "PowerShell cmdlet and scripting best practices based on Microsoft 
 
 ### CmdletBinding and Comment-Based Help
 
-Every public function MUST have `[CmdletBinding()]` and comment-based help:
-
-```powershell
-function Get-UserProfile {
-    <#
-    .SYNOPSIS
-        Retrieves user profile details.
-    .DESCRIPTION
-        Fetches the profile for a given username with optional detail level.
-    .PARAMETER Username
-        The target user's login name.
-    .EXAMPLE
-        Get-UserProfile -Username 'jdoe' -ProfileType Detailed
-    #>
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory)]
-        [string]$Username,
-
-        [Parameter()]
-        [ValidateSet('Basic', 'Detailed')]
-        [string]$ProfileType = 'Basic'
-    )
-    process { <# logic #> }
-}
-```
+Every public function MUST have `[CmdletBinding()]` and comment-based help with at least
+`.SYNOPSIS`, `.DESCRIPTION`, `.PARAMETER` for each parameter, and `.EXAMPLE`. Validate
+parameters with `[Parameter(Mandatory)]`, `ValidateSet` and `ValidateNotNullOrEmpty`.
 
 ### ShouldProcess for Destructive Operations
 
@@ -55,12 +32,7 @@ function that modifies system state:
 [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'High')]
 ```
 
-### Pipeline Support
-
-- Use `ValueFromPipeline` / `ValueFromPipelineByPropertyName`
-- Implement `Begin`/`Process`/`End` blocks
-- Return rich objects (`[PSCustomObject]`), not formatted text
-- Implement `-PassThru` for action cmdlets that normally produce no output
+Return `[PSCustomObject]` results, not formatted text, so callers and tests can consume them.
 
 ### Error Handling
 
@@ -75,4 +47,6 @@ function that modifies system state:
 ### Non-Interactive Design
 
 - Accept input via parameters — never use `Read-Host` in scripts
-- Support automation scenarios; document all required inputs
+- Gate any mutating or cluster-affecting action behind an explicit approval switch and
+  keep a dry-run default, as the diagnostics scripts do
+- Document all required inputs

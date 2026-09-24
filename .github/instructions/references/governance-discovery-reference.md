@@ -3,39 +3,13 @@
 Deep domain knowledge for governance constraint discovery, policy effect
 handling, and plan adaptations. Loaded on-demand by Planner agents.
 
-## Policy Effect Decision Tree
-
-```text
-Policy with Deny Effect Discovered
-    ↓
-Extract: Policy Name, Scope, Enforcement Mode
-    ↓
-Does it apply to this deployment?
-    ↓
-├─ NO → Document for awareness, proceed
-└─ YES → Does it block proposed architecture?
-        ↓
-    ├─ NO → Document compliance, proceed
-    └─ YES → Can architecture be adapted to comply?
-            ↓
-        ├─ YES → Update implementation plan with compliant alternative
-        │        Document adaptation in "## Plan Adaptations" section
-        └─ NO → Flag as DEPLOYMENT BLOCKER
-                 Add to "## Deployment Blockers" section
-                 Status: "CANNOT PROCEED WITHOUT EXEMPTION"
-```
-
-## Policy Effect Handling (Shift-Left Enforcement)
+## Policy Effect Handling
 
 Discovered policies MUST influence the implementation plan, not just be documented.
-
-| Policy Effect         | Impact                                | Required Action                                  |
-| --------------------- | ------------------------------------- | ------------------------------------------------ |
-| **Deny**              | Deployment blocked if non-compliant   | Adapt architecture OR flag exemption requirement |
-| **DeployIfNotExists** | Missing resources auto-deployed       | Include expected resources in plan               |
-| **Modify**            | Resources auto-modified at deployment | Document expected modifications                  |
-| **Audit**             | Non-compliance logged but allowed     | Document compliance expectations                 |
-| **Disabled**          | Policy not enforced                   | Note for awareness                               |
+Per-effect Planner and Code Generator actions live in the canonical
+[policy effect decision tree](../../skills/apex-azure-defaults/references/policy-effect-decision-tree.md).
+A Deny that the architecture cannot satisfy is a deployment blocker
+("CANNOT PROCEED WITHOUT EXEMPTION"); an adaptable one is recorded under Plan Adaptations.
 
 ## Misleading Policy Names — Verify Definitions
 
@@ -71,7 +45,7 @@ may actually only block Classic resources.
 
 Before completing governance constraints, verify:
 
-- [ ] Subagent returned COMPLETE status (not PARTIAL or FAILED)
+- [ ] `discover.py` exited 0 and `discovery_status` is COMPLETE (not PARTIAL or FAILED)
 - [ ] Discovery Source section is populated with timestamps
 - [ ] REST API count matches Azure Portal count
 - [ ] All tag requirements match actual Azure Policy (case-sensitive!)
@@ -103,24 +77,13 @@ Discovered from Azure Policy assignment "JV-Inherit Multiple Tags" (effect: modi
 
 ## Governance Constraints File Format
 
-### JSON Schema (`04-governance-constraints.json`)
+### JSON (`04-governance-constraints.json`)
 
-- Root: envelope object with `discovery_status` and `policies` fields (NOT a bare array)
-- **`discovery_status`**: `"COMPLETE"`, `"PARTIAL"`, or `"FAILED"` — validated by Step 4 at startup
-- **`policies`**: array of policy objects
-- Required fields per policy: `displayName`, `policyDefinitionId`, `effect`, `scope`
-- For `Deny` policies, add machine-actionable fields:
-  - `bicepPropertyPath` (e.g., `"storageAccounts::properties.publicNetworkAccess"`)
-  - `azurePropertyPath` (e.g., `"storageAccount.properties.publicNetworkAccess"`)
-  - `requiredValue` (e.g., `"Disabled"`)
-  - `affectedResourceTypes` (e.g., `["Microsoft.Storage/storageAccounts"]`)
-- For tag-enforcement policies (Deny/Modify targeting tags, not resource properties):
-  - `bicepPropertyPath`: `"resourceGroups::tags"`
-  - `azurePropertyPath`: `"resourceGroup.tags"`
-  - `requiredTags`: array of exact tag key names
-  - `pathSemantics`: `"tag-policy-non-property"`
-- These fields enable programmatic compliance verification by Code Generators
-  and review subagents across both Bicep and Terraform
+`discover.py` writes this file; its envelope and per-finding fields
+(`discovery_status`, `azurePropertyPath`, `bicepPropertyPath`, `requiredValue`, tag-policy
+semantics) are defined in the skill's
+[schema reference](../../skills/apex-azure-governance-discovery/references/schema.md) and
+[`governance-constraints.schema.json`](../../../tools/schemas/governance-constraints.schema.json).
 
 ### Discovery Source Section (MANDATORY in `04-governance-constraints.md`)
 

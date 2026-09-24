@@ -69,7 +69,7 @@ Repository structure and sourced vendor advice are distinguished in
 ## Body Rules
 
 - The body is prepended to every turn; keep it concise and action-oriented.
-- Follow the limits in `context-optimization.instructions.md`.
+- Follow the size limits in [`context-optimization.instructions.md`](context-optimization.instructions.md).
 - Move long templates and phase-specific detail to references.
 - Use `#tool:<tool-name>` for tool references.
 - Prefer relative links and verify they resolve from the agent file.
@@ -84,8 +84,6 @@ Repository structure and sourced vendor advice are distinguished in
 
 Workflow, hierarchy, delegation, and PR checklist:
 [`apex-agent-authoring/SKILL.md`](../skills/apex-agent-authoring/SKILL.md).
-Context budgets and size limits:
-[`context-optimization.instructions.md`](context-optimization.instructions.md).
 
 ## Context Hygiene (Token Efficiency)
 

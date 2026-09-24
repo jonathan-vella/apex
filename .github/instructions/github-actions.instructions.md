@@ -15,26 +15,19 @@ For general GitHub Actions best practices, rely on
 
 - **Runner**: `ubuntu-latest` for all jobs
 - **Node.js**: Version `24` with `npm` caching — **never use `20` or older** (Node.js 20 reached EOL April 2026)
-- **Dependencies**: `npm ci` (not `npm install`)
+- **Dependencies**: `npm ci` (not `npm install`); reuse the composite
+  `./.github/actions/setup-node-repo` action instead of repeating setup steps
 
-### Permissions
+### Permissions and Triggers
 
-- Set `permissions` at workflow level (least privilege)
-- Default: `contents: read`
-- Add write permissions only when needed (e.g., `issues: write` for freshness checks)
-
-### Triggers
-
-- **PR validation**: Trigger on `pull_request` to `main`
-- **Post-merge**: Trigger on `push` to `main`
-- **Path filters**: Use `paths:` to scope workflows to relevant files
-- **Manual**: Include `workflow_dispatch` for on-demand runs
-- **Scheduled**: Use `schedule` with cron for periodic checks (e.g., weekly freshness)
+- Set `permissions` at workflow level (least privilege); default `contents: read`
+- Scope triggers with `paths:` and include `workflow_dispatch` for on-demand runs
+- Add `concurrency` (`${{ github.workflow }}-${{ github.ref }}`, `cancel-in-progress: true`)
 
 ### Action Versions
 
-- Pin to **major version tags** (e.g., `@v7`), not `@main` or `@latest`
-- Use current versions:
+- Pin to **major version tags** (e.g., `@v7`), never `@main` or `@latest`
+- Current versions:
 
 | Action                            | Version |
 | --------------------------------- | ------- |
@@ -46,24 +39,6 @@ For general GitHub Actions best practices, rely on
 | `actions/cache`                   | `@v4`   |
 | `actions/github-script`           | `@v8`   |
 | `peter-evans/create-pull-request` | `@v8`   |
-
-### Naming and Structure
-
-- **Workflow file**: Descriptive kebab-case (e.g., `ci.yml`, `weekly-maintenance.yml`)
-- **Workflow `name`**: Human-readable title
-- **Job `name`**: Clear, concise label
-- **Step `name`**: Descriptive action (e.g., "Validate agent frontmatter")
-- Start with a comment block describing purpose and trigger conditions
-
-### Concurrency
-
-Use `concurrency` to prevent duplicate runs:
-
-```yaml
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-```
 
 ## Existing Workflows
 
@@ -93,18 +68,6 @@ Workflows run these project validators:
 ## Security
 
 - Use OIDC for Azure authentication (no long-lived secrets)
-- Use `permissions: contents: read` as the default
-- Enable Dependabot for action version updates
+- Action version bumps come from `.github/dependabot.yml`; update the table above with them
 - Never print secrets or tokens in workflow logs
-
-## Patterns to Avoid
-
-| Anti-Pattern                    | Solution                                                  |
-| ------------------------------- | --------------------------------------------------------- |
-| Pinning to `@main` or `@latest` | Use major version tags from the table above               |
-| `npm install` in CI             | Use `npm ci` for deterministic installs                   |
-| Missing `permissions` block     | Always declare least-privilege permissions                |
-| Broad triggers (no path filter) | Scope with `paths:` to relevant files                     |
-| Duplicate validation logic      | Reuse existing validator scripts                          |
-| `actions/upload-artifact@v3`    | Use `@v7` (v3 is deprecated)                              |
-| `node-version: "20"` or older   | Use `node-version: "24"` — Node.js 20 is EOL (April 2026) |
+- Reuse the validator scripts above instead of duplicating validation logic in YAML
