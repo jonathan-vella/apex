@@ -164,8 +164,10 @@ next generation silently. Hashes and fetch timestamps live in `rules.json` `sour
 With explicit network authorization, run `node tools/scripts/fetch-vendor-prompting-guides.mjs`
 to refresh snapshots and emit a drift report. The fetch script
 ([fetch-vendor-prompting-guides.mjs](../../../tools/scripts/fetch-vendor-prompting-guides.mjs))
-fetches each vendor Markdown page anonymously and falls back to the cached snapshot
-if upstream is unavailable. The snapshot directory is gitignored; `rules.json` hashes are the committed record.
+fetches each vendor Markdown page anonymously. Snapshots are a gitignored local cache: when
+upstream is unavailable it falls back to a snapshot from an earlier successful run on the same
+machine. A clean checkout has no cache, so an offline refresh fails (exit 2) rather than
+falling back; `rules.json` hashes are the committed record.
 
 Cached fallback preserves the last successful `fetched_at` and freshness date;
 `attempted_at` and the failure reason record the separate refresh attempt.
