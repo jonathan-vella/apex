@@ -180,7 +180,7 @@ test("AB-01/15 one-H1 normalization supports nonempty H2 contracts", () => {
     catalog: { models: Object.fromEntries(frontmatter.model.map((model) => [model, { deprecated: false }])) },
   });
   const blockers = result.findings.filter((finding) =>
-    ["gpt55-skeleton-001", "gpt55-stop-rules-non-empty-001"].includes(finding.ruleId),
+    ["gpt-outcome-contract-001", "gpt-stop-rules-non-empty-001"].includes(finding.ruleId),
   );
   assert.deepEqual(blockers, []);
 });

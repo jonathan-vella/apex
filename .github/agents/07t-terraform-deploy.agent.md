@@ -60,9 +60,8 @@ approved. Gate each apply on current preview, L3 and final approval evidence.
 Take an approved Terraform workspace at `infra/terraform/{project}/` and bring
 the target Azure subscription to the desired state for the next uncompleted
 phase, returning a verified `06-deployment-summary.md` and a clear handoff
-signal (success → 08-As-Built; failure → 06t-Terraform CodeGen). The user must
-always retain explicit approval at the plan-preview gate and at any destructive
-operation surfaced by `- destroy` lines.
+signal (success → 08-As-Built; failure → 06t-Terraform CodeGen). Gates follow
+the Approval policy below.
 
 ## Success criteria
 
@@ -85,12 +84,20 @@ operation surfaced by `- destroy` lines.
   recall state and user-approved Step 6 SKU substitutions. Source HCL, scripts, lockfile,
   plan and governance remain locked; changed inputs require fresh handoff/check evidence.
 - Azure writes are limited to the approved deployment scope and phase after all gates;
-  bootstrap, workspace creation and force-unlock require separate explicit approval.
+  bootstrap, workspace creation and force-unlock follow the Approval policy below.
   `execute` is not read-only. Never bootstrap during validation/preview-only requests.
 - Bind approval to the current tree, variables, backend/workspace, subscription, phase,
   preview and L3 result. Changed evidence invalidates approval; rerun checks and ask again.
-- Require explicit approval for any destruction (`- destroy`) operation
-  surfaced by `terraform plan`.
+- **Approval policy** (the single source for this agent's gates):
+  - Without asking: read inputs, validate auth, run `terraform validate`/init for the
+    approved backend, `terraform plan`, the allowlisted workers, Resource Graph and
+    `terraform output` verification, and write this step's outputs.
+  - Needs the user: preview acceptance (Step 5.1), then the final Deploy Approval Block,
+    which alone authorizes apply. Bootstrap, workspace creation, state migration and
+    `force-unlock` each need their own approval. Any destroy or replace must be approved by
+    resource address; a cost delta over 20% of the envelope must be approved with the new
+    monthly total.
+  - Never: apply on `deploy_gate: BLOCK`, or reuse an approval after inputs change.
 - Verify the state-backend storage account exists and is accessible BEFORE
   running `terraform init`; if it does not, STOP and run/document the bootstrap
   step instead of letting `init` create surprise state.
@@ -104,10 +111,8 @@ operation surfaced by `- destroy` lines.
 
 ## Output
 
-The artifact contract is captured below in `## Output` and `## Validation
-Checklist`. Use the templates in `.github/skills/apex-azure-artifacts/templates/`
-for `06-deployment-summary.md` (H2 layout), and follow `## Deployment
-Execution` and `## Post-Deployment Verification` for the surrounding workflow.
+`06-deployment-summary.md` from the apex-azure-artifacts template (H2 layout); the
+contract and checks are in the later `## Output` and `## Validation Checklist` sections.
 
 ## Stop rules
 
@@ -116,7 +121,6 @@ Execution` and `## Post-Deployment Verification` for the surrounding workflow.
 - Stop after `06-deployment-summary.md` is written and the success/failure
   handoff label is rendered. Do not loop back into another deployment without a
   fresh user prompt.
-- Stop and ask the user before any plan-detected destructive change applies.
 - Stop and request handoff to 06t-Terraform CodeGen if `terraform validate`
   fails or the preflight detects a configuration defect; do not patch
   configurations from this agent.
@@ -133,6 +137,8 @@ Use #tool:agent only for allowlisted validation, preview and policy workers; pre
 their JSON/status contracts. Step 6 has no Challenger review. Local uses human handoffs;
 Host requires explicit selection of the next named owner. Skills run inline and cannot
 choose model/tools. Do not infer runtime eligibility from a capability label.
+User instructions outrank skill guidance except the security baseline, governance constraints
+and approval gates. If a skill makes you pause or diverge, name the `SKILL.md` and quote the instruction.
 
 ## Read Skills First
 
@@ -256,26 +262,8 @@ Run `apex-recall show <project> --json` for full project context. Do not read `0
   Record: deployment blockers, plan warnings, policy violations found during deploy.
 - **On completion**: `apex-recall complete-step <project> 6 --json`
 
-> Canonical jq query for step-status reads (keys are **strings** — no
-> `tonumber` coercion). Defaults safely on a fresh project because
-> `steps` is `{}`:
->
-> ```bash
-> apex-recall show <project> --json \
->   | jq -r '.session.steps["5"].status // "missing"'
-> ```
->
-> Returns `"complete"`, `"pending"`, or `"missing"`. Full schema:
-> [`tools/apex-recall/docs/show-schema.md`](../../tools/apex-recall/docs/show-schema.md).
-> For multi-step reads:
->
-> ```bash
-> apex-recall show <project> --json \
->   | jq '.session.steps
->         | to_entries[]
->         | select(.key == "5" or .key == "6")
->         | {step: .key, status: .value.status, sub_step: .value.sub_step}'
-> ```
+Step-status keys are strings (for example `.session.steps["5"].status // "missing"`); jq
+templates live in [`show-schema.md`](../../tools/apex-recall/docs/show-schema.md).
 
 ## SKU Manifest — Pre-Flight Quota / Region SKU Check
 
@@ -355,7 +343,7 @@ evidence is missing; select and verify the approved workspace before planning.
 Backend-disabled validation init does not establish deployment readiness. A
 backend/workspace/environment change invalidates prior plan and approval evidence;
 rerun the existing preview and approval gates. Never use `-upgrade`, create a
-workspace, migrate state, or bootstrap resources without the required approval.
+workspace, migrate state, or bootstrap resources without their own approval (Approval policy).
 
 ```bash
 cd infra/terraform/{project}
@@ -412,7 +400,7 @@ terraform plan \
 | Symbol      | Change Type | Action                                     |
 | ----------- | ----------- | ------------------------------------------ |
 | `+`         | Create      | Review new resources                       |
-| `-`         | Destroy     | **STOP — Requires explicit user approval** |
+| `-`         | Destroy     | **STOP — see Approval policy**             |
 | `~`         | Update      | Review in-place property changes           |
 | `-/+`       | Replace     | **STOP — Resource recreation, data risk**  |
 | `+/-`       | Replace     | **STOP — Create before destroy, same approval requirement** |
@@ -539,11 +527,11 @@ decision: [approve] [abort]
 Rules:
 
 - If `deploy_gate: BLOCK` → STOP. Do not proceed past the gate.
-- If `destructive: yes` (any `delete` or `replace`) → require explicit
-  user approval naming the resource addresses that will be destroyed
-  or replaced.
-- If `cost_delta` exceeds envelope by >20% → require explicit user
-  approval citing the new monthly total.
+- If `destructive: yes` (any `delete` or `replace`) → the approval must
+  name the resource addresses that will be destroyed or replaced
+  (Approval policy).
+- If `cost_delta` exceeds envelope by >20% → the approval must cite the
+  new monthly total (Approval policy).
 - The block MUST appear AFTER `terraform plan` + policy-precheck and
   BEFORE `terraform apply`.
 - Only explicit approval of this current block authorizes apply. Record that
@@ -585,7 +573,7 @@ If plan fails due to missing backend, offer to run bootstrap scripts and retry o
 
 See `apex-iac-common/references/known-deploy-issues.md` for shared issues (auth, MSAL, backend).
 Terraform-specific: `terraform init` fails if backend missing (run bootstrap first);
-backend state lock → `terraform force-unlock` (requires approval).
+backend state lock → `terraform force-unlock` (Approval policy).
 
 ## Output
 
@@ -618,6 +606,12 @@ read by the As-Built agent (Step 7) to populate the compliance matrix.
 **On successful deployment and verification only** (MANDATORY):
 `apex-recall complete-step <project> 6 --json`. Failed, partial and preview-only
 summaries do not complete Step 6.
+
+## User Updates
+
+Before the first tool call, say in one sentence what you will do first. After that, update only
+when a phase starts, a gate is reached, or a finding changes the plan, and name any blocker.
+Do not narrate routine tool calls.
 
 ## Validation Checklist
 

@@ -1,80 +1,86 @@
 {
-  "version": "1.1.0",
-  "generated_at": "2026-05-05T00:00:00Z",
+  "version": "2.0.0",
+  "generated_at": "2026-09-24T00:00:00Z",
   "sources": [
     {
       "id": "anthropic-prompting-best-practices",
       "vendor": "anthropic",
-      "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices",
+      "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices.md",
       "ref": null,
-      "fetched_at": "2026-05-04T17:27:35Z",
-      "sha256": "c65cc1e89a0d32c0b79be02df6b82c090a9411f98ab5a14a2ecf84bfd49858c5",
-      "fetch_method": "fetch-webpage"
+      "fetched_at": "2026-09-24T11:35:32.664Z",
+      "sha256": "d8da822f28a9df98f90c206466a5e808a561a3c6e9f948c3a44f27998f54cf12",
+      "fetch_method": "raw"
     },
     {
-      "id": "openai-prompting-guide",
-      "vendor": "openai",
-      "url": "https://github.com/openai/skills/blob/724cd511c96593f642bddf13187217aa155d2554/skills/.curated/openai-docs/references/prompting-guide.md",
-      "ref": "724cd511c96593f642bddf13187217aa155d2554",
-      "fetched_at": "2026-05-04T00:00:00Z",
-      "sha256": "ecdf49b4a824a87367c7a6ec3c0218e2c5783dff951b30a101c3b6a95152aafa",
-      "fetch_method": "gh-api"
-    },
-    {
-      "id": "openai-upgrade-guide",
-      "vendor": "openai",
-      "url": "https://github.com/openai/skills/blob/724cd511c96593f642bddf13187217aa155d2554/skills/.curated/openai-docs/references/upgrade-guide.md",
-      "ref": "724cd511c96593f642bddf13187217aa155d2554",
-      "fetched_at": "2026-05-04T00:00:00Z",
-      "sha256": "563784eb13ad1b44c3a592f940aa7ac2086ebeb97df3f4a09ba038b2f1564d39",
-      "fetch_method": "gh-api"
-    },
-    {
-      "id": "anthropic-prompting-claude-sonnet-5",
+      "id": "anthropic-prompting-claude-opus-5-5",
       "vendor": "anthropic",
-      "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-sonnet-5",
+      "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-5-5.md",
       "ref": null,
-      "fetched_at": "2026-06-30T20:01:04.090Z",
-      "sha256": "87f4ff8e5a530d8d3282044247cb8ddae857f1c89ee0735751109af2a22fda10",
-      "fetch_method": "fetch-webpage"
+      "fetched_at": "2026-09-24T11:35:32.907Z",
+      "sha256": "38355a519405b71173408c5c5f126c428eab61105eb92f38d950bf699ac5c215",
+      "fetch_method": "raw"
+    },
+    {
+      "id": "anthropic-prompting-claude-opus-5",
+      "vendor": "anthropic",
+      "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-5.md",
+      "ref": null,
+      "fetched_at": "2026-09-24T12:03:54.212Z",
+      "sha256": "643499b80e34139a5007226a31908d64a65a2d64f08275d502e64ccd43a8413e",
+      "fetch_method": "raw"
+    },
+    {
+      "id": "openai-gpt-6-model-guide",
+      "vendor": "openai",
+      "url": "https://developers.openai.com/api/docs/guides/latest-model/gpt-6-astra.md",
+      "ref": null,
+      "fetched_at": "2026-09-24T11:35:33.121Z",
+      "sha256": "8982485767fcefe9b4c588777de67683b4f56abe9c9af1121c9431eb9c305557",
+      "fetch_method": "raw"
+    },
+    {
+      "id": "openai-gpt-5-6-model-guide",
+      "vendor": "openai",
+      "url": "https://developers.openai.com/api/docs/guides/latest-model/gpt-5.6.md",
+      "ref": null,
+      "fetched_at": "2026-09-24T11:35:33.291Z",
+      "sha256": "bcbc002991e3ff6491ba5c4d38d8f5c497fa785c0b11ea27d92c9d34676ab460",
+      "fetch_method": "raw"
+    },
+    {
+      "id": "openai-gpt-5-6-prompt-guidance",
+      "vendor": "openai",
+      "url": "https://developers.openai.com/api/docs/guides/prompt-guidance-gpt-5p6.md",
+      "ref": null,
+      "fetched_at": "2026-09-24T11:35:33.367Z",
+      "sha256": "46181efec9fd1160ef537b0379282a14c1ba32380f2f8149a805128253c1115a",
+      "fetch_method": "raw"
     }
   ],
   "families": [
     {
-      "family": "claude-opus",
+      "family": "claude-opus-5.5",
       "status": "enforced",
       "label_examples": [
-        "Claude Opus 5",
-        "Claude Opus 4.8",
-        "Claude Opus 4.7"
+        "Claude Opus 5.5"
       ],
-      "rule_subset_note": "All Claude rules apply at default severity."
+      "rule_subset_note": "All Claude rules apply at default severity, including Opus 5.5-specific thinking, early-stop and pasted-content guidance."
     },
     {
-      "family": "claude-sonnet",
+      "family": "gpt-6-sol",
       "status": "enforced",
       "label_examples": [
-        "Claude Sonnet 5",
-        "Claude Sonnet 4.6",
-        "Claude Sonnet 4.5"
+        "GPT-6-Sol"
       ],
-      "rule_subset_note": "All Claude rules apply at default severity."
+      "rule_subset_note": "GPT-6 family guidance (written for Astra, published as the family starting point) plus the APEX outcome-first convention."
     },
     {
-      "family": "claude-haiku",
-      "status": "warn-only",
+      "family": "gpt-6-luna",
+      "status": "enforced",
       "label_examples": [
-        "Claude Haiku 4.5"
+        "GPT-6-Luna"
       ],
-      "rule_subset_note": "Model advice is warn or below; structural errors and deprecation findings retain base severity."
-    },
-    {
-      "family": "claude",
-      "status": "warn-only",
-      "label_examples": [
-        "Claude (unspecified variant)"
-      ],
-      "rule_subset_note": "Generic Claude label — flag at warn for explicit version."
+      "rule_subset_note": "GPT-6 family guidance (written for Astra, published as the family starting point) plus the APEX outcome-first convention; leaf workers use bounded role contracts."
     },
     {
       "family": "gpt-5.6-terra",
@@ -82,67 +88,7 @@
       "label_examples": [
         "GPT-5.6 Terra (copilot)"
       ],
-      "rule_subset_note": "APEX outcome-first Markdown convention informed by pinned generic OpenAI guidance; not model-specific vendor evidence."
-    },
-    {
-      "family": "gpt-5.6-luna",
-      "status": "enforced",
-      "label_examples": [
-        "GPT-5.6 Luna (copilot)"
-      ],
-      "rule_subset_note": "APEX outcome-first Markdown convention; leaf workers use bounded role contracts."
-    },
-    {
-      "family": "gpt-5.6-sol",
-      "status": "enforced",
-      "label_examples": [
-        "GPT-5.6 Sol (copilot)"
-      ],
-      "rule_subset_note": "User-confirmed exact label with unknown public metadata. APEX outcome-first Markdown convention, not Sol-specific vendor evidence."
-    },
-    {
-      "family": "gpt-6-sol",
-      "status": "reviewer-only",
-      "label_examples": ["GPT-6-Sol"],
-      "rule_subset_note": "Model-specific guidance is unverified; structural checks remain enforced."
-    },
-    {
-      "family": "gpt-6-luna",
-      "status": "reviewer-only",
-      "label_examples": ["GPT-6-Luna"],
-      "rule_subset_note": "Model-specific guidance is unverified; structural checks remain enforced."
-    },
-    {
-      "family": "gpt-5.4",
-      "status": "enforced",
-      "label_examples": [
-        "GPT-5.4"
-      ],
-      "rule_subset_note": "Legacy outcome-first compatibility; catalog separately determines deprecation."
-    },
-    {
-      "family": "gpt-5.5",
-      "status": "enforced",
-      "label_examples": [
-        "GPT-5.5"
-      ],
-      "rule_subset_note": "All GPT-5.5 rules apply at default severity."
-    },
-    {
-      "family": "gpt-codex",
-      "status": "reviewer-only",
-      "label_examples": [
-        "GPT-5.3-Codex"
-      ],
-      "rule_subset_note": "Decision-log only; no automated enforcement."
-    },
-    {
-      "family": "gpt-4o",
-      "status": "reviewer-only",
-      "label_examples": [
-        "GPT-4o"
-      ],
-      "rule_subset_note": "Legacy model; no new enforcement."
+      "rule_subset_note": "GPT-5.6 family prompt guidance (suggested structure, lean prompts, autonomy boundaries) plus the APEX outcome-first convention."
     },
     {
       "family": "mai-code",
@@ -185,9 +131,9 @@
       "applies_to": "agent",
       "severity": "warn",
       "summary": "handoff entries should not redundantly set model: when it matches the target agent's own model.",
-      "rationale": "Redundant overrides become stale and prevent global model rollouts.",
-      "source_id": "openai-upgrade-guide",
-      "source_anchor": "upgrade-posture",
+      "rationale": "Redundant overrides become stale and prevent global model rollouts; OpenAI's migration workflow isolates one change at a time.",
+      "source_id": "openai-gpt-5-6-prompt-guidance",
+      "source_anchor": "prompt-migration-workflow",
       "validator_check_id": "checkHandoffModelOverride",
       "promotion_date": null,
       "family_overrides": []
@@ -196,17 +142,14 @@
       "id": "legacy-003",
       "vendor": "anthropic",
       "model_families": [
-        "claude-opus",
-        "claude-sonnet",
-        "claude-haiku",
-        "claude"
+        "claude-opus-5.5"
       ],
       "applies_to": "agent",
       "severity": "warn",
       "summary": "Large Claude agents (>350 body lines) should include <context_awareness> block.",
       "rationale": "Anthropic recommends explicit context budgeting for long system prompts; <context_awareness> activates apex-context-management runtime-compression routing.",
       "source_id": "anthropic-prompting-best-practices",
-      "source_anchor": "context-awareness-and-multi-window-workflows",
+      "source_anchor": "context-awareness-and-multiwindow-workflows",
       "validator_check_id": "checkClaudeContextAwareness",
       "promotion_date": null,
       "family_overrides": []
@@ -215,8 +158,7 @@
       "id": "legacy-004",
       "vendor": "anthropic",
       "model_families": [
-        "claude-opus",
-        "claude-sonnet"
+        "claude-opus-5.5"
       ],
       "applies_to": "agent",
       "severity": "warn",
@@ -232,10 +174,7 @@
       "id": "claude-oneshot-001",
       "vendor": "anthropic",
       "model_families": [
-        "claude-opus",
-        "claude-sonnet",
-        "claude-haiku",
-        "claude"
+        "claude-opus-5.5"
       ],
       "applies_to": "agent",
       "severity": "warn",
@@ -248,25 +187,21 @@
       "family_overrides": []
     },
     {
-      "id": "gpt55-skeleton-001",
+      "id": "gpt-outcome-contract-001",
       "vendor": "openai",
       "model_families": [
         "gpt-6-sol",
         "gpt-6-luna",
-        "gpt-5.6-sol",
-        "gpt-5.6-terra",
-        "gpt-5.6-luna",
-        "gpt-5.5",
-        "gpt-5.4"
+        "gpt-5.6-terra"
       ],
       "applies_to": "agent",
       "severity": "warn",
       "summary": "APEX mains use Role, Goal, Success criteria, Constraints, Output and Stop rules; leaf workers use Inputs, Outputs and bounded failure/return contracts.",
-      "rationale": "Repository convention informed by the pinned generic OpenAI structure, not evidence of Sol/Terra/Luna-specific vendor requirements or behavior.",
+      "rationale": "Mirrors the GPT-5.6 'Suggested prompt structure' (Role, Personality, Goal, Success criteria, Constraints, Tools, Output, Stop rules). APEX extends it to GPT-6 as a repository convention; the GPT-6 guide publishes no structure of its own. Renamed from gpt55-skeleton-001.",
       "policy_origin": "repository-convention",
-      "source_id": "openai-prompting-guide",
+      "source_id": "openai-gpt-5-6-prompt-guidance",
       "source_anchor": "suggested-prompt-structure",
-      "validator_check_id": "checkGpt55Skeleton",
+      "validator_check_id": "checkGptOutcomeContract",
       "promotion_date": "2026-09-01",
       "family_overrides": []
     },
@@ -276,21 +211,15 @@
       "model_families": [
         "gpt-6-sol",
         "gpt-6-luna",
-        "gpt-5.6-sol",
-        "gpt-5.6-terra",
-        "gpt-5.6-luna",
-        "gpt-5.5",
-        "gpt-5.4",
-        "gpt-codex",
-        "gpt-4o"
+        "gpt-5.6-terra"
       ],
       "applies_to": "agent",
       "severity": "warn",
       "summary": "GPT-family agents MUST NOT contain Claude-specific XML blocks (<investigate_before_answering>, <context_awareness>, <scope_fencing>, <empty_result_recovery>, <subagent_budget>).",
-      "rationale": "APEX prefers concise Markdown; remove XML wrappers while preserving all content and workflow anchors. This does not claim GPT cannot interpret XML.",
+      "rationale": "APEX prefers concise Markdown section headings, matching the GPT-5.6 suggested prompt structure. This does not claim GPT cannot interpret XML; OpenAI's own examples use XML tags such as <tool_orchestration>.",
       "policy_origin": "repository-convention",
-      "source_id": "openai-prompting-guide",
-      "source_anchor": "personality-and-behavior",
+      "source_id": "openai-gpt-5-6-prompt-guidance",
+      "source_anchor": "suggested-prompt-structure",
       "validator_check_id": "checkGptNoClaudeXml",
       "promotion_date": null,
       "family_overrides": []
@@ -304,8 +233,8 @@
       "applies_to": "agent",
       "severity": "info",
       "summary": "Absolute words (ALWAYS, NEVER, MUST, HARD RULE) density should not exceed 0.05 outside permitted prose contexts (security baseline / governance / approval gate / non-negotiable).",
-      "rationale": "OpenAI guide: 'Avoid unnecessary absolute rules. Use those words for true invariants ... For judgment calls, prefer decision rules instead.' Anthropic 4.6+ models also overtrigger on aggressive language.",
-      "source_id": "openai-prompting-guide",
+      "rationale": "GPT-5.6 prompt guidance: 'Avoid unnecessary absolute rules. Use ALWAYS, NEVER, must, and only for true invariants ... For judgment calls ... prefer decision rules.' Anthropic's general guide also warns that aggressive language causes overtriggering.",
+      "source_id": "openai-gpt-5-6-prompt-guidance",
       "source_anchor": "outcome-first-prompts-and-stopping-conditions",
       "validator_check_id": "checkAbsoluteLanguageDensity",
       "promotion_date": "2026-09-01",
@@ -321,8 +250,8 @@
       "severity": "warn",
       "summary": "Agents/prompts using a deprecated model label (per validate-models.mjs --only=deprecated) should be migrated.",
       "rationale": "Deprecated models lose vendor support and security updates; migration windows are often time-bound.",
-      "source_id": "openai-upgrade-guide",
-      "source_anchor": "upgrade-workflow",
+      "source_id": "openai-gpt-5-6-model-guide",
+      "source_anchor": "migration-quickstart",
       "validator_check_id": "checkModelDeprecation",
       "promotion_date": null,
       "family_overrides": []
@@ -331,15 +260,12 @@
       "id": "claude-no-prefill-001",
       "vendor": "anthropic",
       "model_families": [
-        "claude-opus",
-        "claude-sonnet",
-        "claude-haiku",
-        "claude"
+        "claude-opus-5.5"
       ],
       "applies_to": "both",
       "severity": "warn",
       "summary": "Claude agents/prompts MUST NOT instruct prefilling the assistant turn.",
-      "rationale": "Anthropic doc explicitly states: 'Prefilled responses on the last assistant turn are no longer supported. Starting with Claude 4.6 models and Mythos Preview, requests with prefilled assistant messages return a 400 error.' Prefill instructions silently break Claude 4.6+ deployments.",
+      "rationale": "Anthropic doc: 'Starting with Claude 4.6 models ... prefilled responses ... on the last assistant turn are no longer supported. Requests with prefilled assistant messages to these models return a 400 error.'",
       "source_id": "anthropic-prompting-best-practices",
       "source_anchor": "migrating-away-from-prefilled-responses",
       "validator_check_id": "checkClaudeNoPrefill",
@@ -347,25 +273,21 @@
       "family_overrides": []
     },
     {
-      "id": "gpt55-stop-rules-non-empty-001",
+      "id": "gpt-stop-rules-non-empty-001",
       "vendor": "openai",
       "model_families": [
         "gpt-6-sol",
         "gpt-6-luna",
-        "gpt-5.6-sol",
-        "gpt-5.6-terra",
-        "gpt-5.6-luna",
-        "gpt-5.5",
-        "gpt-5.4"
+        "gpt-5.6-terra"
       ],
       "applies_to": "agent",
       "severity": "warn",
       "summary": "APEX outcome-first main agents need nonempty Stop rules; leaf workers use bounded failure/return contracts.",
       "policy_origin": "repository-convention",
-      "rationale": "OpenAI prompting guide: 'Add explicit stopping conditions ... Define missing-evidence behavior'. An empty Stop rules section is misleading scaffolding.",
-      "source_id": "openai-prompting-guide",
+      "rationale": "GPT-5.6 prompt guidance: 'Add stopping conditions' and name the missing fact when required evidence is absent. An empty Stop rules section is misleading scaffolding.",
+      "source_id": "openai-gpt-5-6-prompt-guidance",
       "source_anchor": "outcome-first-prompts-and-stopping-conditions",
-      "validator_check_id": "checkGpt55StopRulesNonEmpty",
+      "validator_check_id": "checkGptStopRulesNonEmpty",
       "promotion_date": null,
       "family_overrides": []
     },
@@ -380,8 +302,8 @@
       "summary": ".agent.md must use array form for model:; .prompt.md must use string form.",
       "rationale": "Array vs string is an APEX convention, not a YAML limitation. All explicit labels must match catalog keys exactly; documented platform-qualified handoff labels are allowed. Missing prompt models may inherit.",
       "policy_origin": "repository-convention",
-      "source_id": "openai-upgrade-guide",
-      "source_anchor": "upgrade-posture",
+      "source_id": "openai-gpt-5-6-model-guide",
+      "source_anchor": "migration-quickstart",
       "validator_check_id": "checkFrontmatterModelStyle",
       "promotion_date": null,
       "family_overrides": []
@@ -390,8 +312,7 @@
       "id": "claude-output-contract-001",
       "vendor": "anthropic",
       "model_families": [
-        "claude-opus",
-        "claude-sonnet"
+        "claude-opus-5.5"
       ],
       "applies_to": "agent",
       "severity": "warn",
@@ -413,7 +334,7 @@
       "severity": "warn",
       "summary": "Every handoffs[].prompt must contain BOTH an input reference (artifact path or 'Input:') AND an output reference (save path or 'Output:').",
       "rationale": "Multi-agent workflows lose state when handoffs omit input/output context; receiving agents waste tokens reconstructing what they need.",
-      "source_id": "openai-prompting-guide",
+      "source_id": "openai-gpt-5-6-prompt-guidance",
       "source_anchor": "outcome-first-prompts-and-stopping-conditions",
       "validator_check_id": "checkHandoffEnrichment",
       "promotion_date": null,
@@ -425,18 +346,14 @@
       "model_families": [
         "gpt-6-sol",
         "gpt-6-luna",
-        "gpt-5.6-sol",
-        "gpt-5.6-terra",
-        "gpt-5.6-luna",
-        "gpt-5.5",
-        "gpt-5.4"
+        "gpt-5.6-terra"
       ],
       "applies_to": "agent",
       "severity": "info",
       "summary": "# Personality block should appear only on user-facing agents (Orchestrator family); internal pipeline agents should omit it.",
-      "rationale": "OpenAI guide: 'For customer-facing assistants, support workflows, coaching experiences, and other conversational products, define both personality and collaboration style.' Pipeline subagents have no user-facing surface; personality is noise.",
-      "source_id": "openai-prompting-guide",
-      "source_anchor": "personality-and-behavior",
+      "rationale": "GPT-5.6 prompt guidance: 'For customer-facing assistants and collaborative products, define both personality and collaboration style.' Pipeline subagents have no user-facing surface; personality is noise.",
+      "source_id": "openai-gpt-5-6-prompt-guidance",
+      "source_anchor": "personality-collaboration-and-response-length",
       "validator_check_id": "checkPersonalityScoping",
       "promotion_date": null,
       "family_overrides": []
@@ -452,9 +369,226 @@
       "summary": "Custom-agent prompts inherit the known target's model; built-in/generic Local prompts may inherit picker selection. Unknown custom targets are errors.",
       "rationale": "APEX avoids duplicated custom-agent model assignments. Generic Local prompt inheritance is valid. Validate every explicit or inherited target fallback; no static check establishes native Host prompt support.",
       "policy_origin": "repository-convention",
-      "source_id": "openai-upgrade-guide",
-      "source_anchor": "upgrade-posture",
+      "source_id": "openai-gpt-5-6-model-guide",
+      "source_anchor": "migration-quickstart",
       "validator_check_id": "checkPromptModelSource",
+      "promotion_date": null,
+      "family_overrides": []
+    },
+    {
+      "id": "claude-reasoning-extraction-001",
+      "vendor": "anthropic",
+      "model_families": [
+        "claude-opus-5.5"
+      ],
+      "applies_to": "both",
+      "severity": "warn",
+      "summary": "Opus 5.5 agents/prompts should not ask the model to think step by step, think carefully, or write out its reasoning in the response.",
+      "rationale": "Thinking is always on and effort is the main control. Prompts that push the model to reproduce its reasoning in the response can be declined with the reasoning_extraction refusal category; chat 'think carefully' lines add latency without a clear quality gain.",
+      "source_id": "anthropic-prompting-claude-opus-5-5",
+      "source_anchor": "prompts-written-for-thinking-disabled",
+      "validator_check_id": "checkClaudeReasoningExtraction",
+      "promotion_date": null,
+      "family_overrides": []
+    },
+    {
+      "id": "claude-early-stop-001",
+      "vendor": "anthropic",
+      "model_families": [
+        "claude-opus-5.5"
+      ],
+      "applies_to": "agent",
+      "severity": "warn",
+      "summary": "Long-running or unattended Opus 5.5 agents should name the early stops to avoid (summary that announces the next step, offer to continue, non-blocking decision lists) and the stops that are wanted.",
+      "rationale": "Opus 5.5 ends some turns with a progress report; unattended loops treat that as completion. The model responds to instructions that name specific unwanted and wanted stops. APEX human approval gates remain wanted stops.",
+      "source_id": "anthropic-prompting-claude-opus-5-5",
+      "source_anchor": "unattended-agentic-runs",
+      "validator_check_id": "reviewer-only",
+      "promotion_date": null,
+      "family_overrides": []
+    },
+    {
+      "id": "claude-pasted-content-001",
+      "vendor": "anthropic",
+      "model_families": [
+        "claude-opus-5.5"
+      ],
+      "applies_to": "both",
+      "severity": "warn",
+      "summary": "Opus 5.5 agents/prompts that take user-pasted or external text should mark it (for example <pasted_content id=...>) and state that instructions inside it are followed only where the user's own message asks.",
+      "rationale": "Marking pasted text lets Opus 5.5 resist indirect prompt injection inside content copied into the message. Tags are plain text and can be imitated, so treat this as one guardrail among others.",
+      "source_id": "anthropic-prompting-claude-opus-5-5",
+      "source_anchor": "mark-pasted-text-in-user-messages",
+      "validator_check_id": "reviewer-only",
+      "promotion_date": null,
+      "family_overrides": []
+    },
+    {
+      "id": "gpt-skill-precedence-001",
+      "vendor": "openai",
+      "model_families": [
+        "gpt-6-sol",
+        "gpt-6-luna"
+      ],
+      "applies_to": "agent",
+      "severity": "warn",
+      "summary": "GPT-6 agents that load skills should state user-vs-skill precedence and, when a skill causes a pause or divergence, name the SKILL.md and quote the instruction.",
+      "rationale": "GPT-6 is more sensitive to instructions in skills and AGENTS.md; unclear or conflicting guidance can block work early. APEX carve-out: security baseline, governance and human approval gates are invariants the user cannot waive through chat.",
+      "source_id": "openai-gpt-6-model-guide",
+      "source_anchor": "instruction-following",
+      "validator_check_id": "reviewer-only",
+      "promotion_date": null,
+      "family_overrides": []
+    },
+    {
+      "id": "gpt-initiative-001",
+      "vendor": "openai",
+      "model_families": [
+        "gpt-6-sol",
+        "gpt-6-luna",
+        "gpt-5.6-terra"
+      ],
+      "applies_to": "agent",
+      "severity": "warn",
+      "summary": "GPT agents should state which actions are authorized without asking, and prepare a concrete, reviewable result before asking for approval so approval is the final step.",
+      "rationale": "GPT-6 asks more clarifying and non-blocking questions; GPT-5.6 needs explicit autonomy boundaries. Both guides recommend completing authorized reversible work before asking. Existing APEX approval gates stay in place.",
+      "source_id": "openai-gpt-6-model-guide",
+      "source_anchor": "initiative-and-follow-through",
+      "validator_check_id": "reviewer-only",
+      "promotion_date": null,
+      "family_overrides": []
+    },
+    {
+      "id": "gpt-approval-repetition-001",
+      "vendor": "openai",
+      "model_families": [
+        "gpt-6-sol",
+        "gpt-6-luna",
+        "gpt-5.6-terra"
+      ],
+      "applies_to": "agent",
+      "severity": "warn",
+      "summary": "State approval phrases ('ask first', 'wait for approval', 'get approval', 'do not proceed until', 'requires approval') once in one policy; more than 3 warns. Named 'approval gate' references are not counted.",
+      "rationale": "GPT-5.6 prompt guidance: 'Keep the policy in one place and state each rule once. Repeating instructions such as \"ask first,\" \"do not mutate,\" or \"wait for approval\" can cause unnecessary approval requests for safe, expected actions.'",
+      "source_id": "openai-gpt-5-6-prompt-guidance",
+      "source_anchor": "define-autonomy-and-approval-boundaries",
+      "validator_check_id": "checkGptApprovalRepetition",
+      "promotion_date": null,
+      "family_overrides": []
+    },
+    {
+      "id": "gpt-testing-calibration-001",
+      "vendor": "openai",
+      "model_families": [
+        "gpt-6-sol",
+        "gpt-6-luna"
+      ],
+      "applies_to": "agent",
+      "severity": "warn",
+      "summary": "GPT-6 agents that run tests or validators should calibrate verification to the change: run the required checks, then broaden only when new changes, failures or concerns justify it.",
+      "rationale": "GPT-6 tends to test broadly before finishing, which over-verifies small changes. APEX-mandated validators and challenger gates are required checks, not optional breadth.",
+      "source_id": "openai-gpt-6-model-guide",
+      "source_anchor": "testing-and-verification",
+      "validator_check_id": "reviewer-only",
+      "promotion_date": null,
+      "family_overrides": []
+    },
+    {
+      "id": "gpt-writing-style-001",
+      "vendor": "openai",
+      "model_families": [
+        "gpt-6-sol",
+        "gpt-6-luna",
+        "gpt-5.6-terra"
+      ],
+      "applies_to": "both",
+      "severity": "warn",
+      "summary": "User-facing GPT agents/prompts should specify writing style and structure, and say what a short answer must keep, instead of relying on broad 'be concise' or tone labels.",
+      "rationale": "GPT-6 defaults to heavily formatted responses with recurring stock phrases; GPT-5.6 is already more concise than GPT-5.5, so blanket brevity can make answers too short. Both guides recommend naming concrete writing choices.",
+      "source_id": "openai-gpt-6-model-guide",
+      "source_anchor": "personality-and-writing-style",
+      "validator_check_id": "reviewer-only",
+      "promotion_date": null,
+      "family_overrides": []
+    },
+    {
+      "id": "gpt-subagent-delegation-001",
+      "vendor": "openai",
+      "model_families": [
+        "gpt-6-sol",
+        "gpt-6-luna"
+      ],
+      "applies_to": "agent",
+      "severity": "warn",
+      "summary": "GPT-6 agents with a nonempty agents: allowlist should state when and how much to delegate to those subagents and require legible inter-agent messages.",
+      "rationale": "GPT-6 may delegate less often than a workflow needs and responds well to explicit delegation guidance. Inter-agent messages can contain spacing errors unless asked to be legible.",
+      "source_id": "openai-gpt-6-model-guide",
+      "source_anchor": "subagent-delegation",
+      "validator_check_id": "reviewer-only",
+      "promotion_date": null,
+      "family_overrides": []
+    },
+    {
+      "id": "claude-self-verification-001",
+      "vendor": "anthropic",
+      "model_families": [
+        "claude-opus-5.5"
+      ],
+      "applies_to": "both",
+      "severity": "warn",
+      "summary": "Claude agents/prompts should not add generic self-verification ('double-check your answer', 're-verify before responding', 'use a subagent to verify'); keep APEX-mandated validators and reviews.",
+      "rationale": "Opus 5 (baseline for Opus 5.5) verifies and self-corrects without being told; explicit re-check instructions compound with that behavior and add cost without improving results.",
+      "source_id": "anthropic-prompting-claude-opus-5",
+      "source_anchor": "task-scope-and-over-verification",
+      "validator_check_id": "reviewer-only",
+      "promotion_date": null,
+      "family_overrides": []
+    },
+    {
+      "id": "claude-task-scope-001",
+      "vendor": "anthropic",
+      "model_families": [
+        "claude-opus-5.5"
+      ],
+      "applies_to": "both",
+      "severity": "warn",
+      "summary": "Narrow Claude agents/prompts should constrain scope: deliver what was asked, flag a better approach in one sentence, and not quietly widen, narrow or transform the task.",
+      "rationale": "Opus 5 can expand a task's scope with unrequested steps; an explicit scope instruction keeps narrow tasks narrow.",
+      "source_id": "anthropic-prompting-claude-opus-5",
+      "source_anchor": "task-scope-and-over-verification",
+      "validator_check_id": "reviewer-only",
+      "promotion_date": null,
+      "family_overrides": []
+    },
+    {
+      "id": "claude-subagent-control-001",
+      "vendor": "anthropic",
+      "model_families": [
+        "claude-opus-5.5"
+      ],
+      "applies_to": "both",
+      "severity": "warn",
+      "summary": "Claude agents/prompts that can delegate should say which work warrants a subagent, cap spawn counts, and forbid subagents for verifying their own work.",
+      "rationale": "Opus 5 delegates more readily than prior models; delegation multiplies cost and time on small tasks.",
+      "source_id": "anthropic-prompting-claude-opus-5",
+      "source_anchor": "controlling-subagent-spawning",
+      "validator_check_id": "reviewer-only",
+      "promotion_date": null,
+      "family_overrides": []
+    },
+    {
+      "id": "claude-deliverable-length-001",
+      "vendor": "anthropic",
+      "model_families": [
+        "claude-opus-5.5"
+      ],
+      "applies_to": "both",
+      "severity": "warn",
+      "summary": "Claude agents/prompts that write reports or artifacts should calibrate document length to the task, and review prompts should ask for every finding and filter in a separate pass.",
+      "rationale": "Opus 5 writes longer documents than prior models, and follows 'only report high-severity' or 'be conservative' literally, which suppresses findings.",
+      "source_id": "anthropic-prompting-claude-opus-5",
+      "source_anchor": "written-deliverable-length",
+      "validator_check_id": "reviewer-only",
       "promotion_date": null,
       "family_overrides": []
     }

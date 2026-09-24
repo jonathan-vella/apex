@@ -28,7 +28,7 @@
           "url": { "type": "string", "format": "uri" },
           "ref": {
             "type": ["string", "null"],
-            "description": "Git SHA for openai/skills sources; null for live web docs."
+            "description": "Git SHA for pinned repository sources; null for live web docs."
           },
           "fetched_at": { "type": "string", "format": "date-time" },
           "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
@@ -49,23 +49,7 @@
         "properties": {
           "family": {
             "type": "string",
-            "enum": [
-              "claude-opus",
-              "claude-sonnet",
-              "claude-haiku",
-              "claude",
-              "gpt-5.6-terra",
-              "gpt-5.6-luna",
-              "gpt-5.6-sol",
-              "gpt-6-sol",
-              "gpt-6-luna",
-              "gpt-5.5",
-              "gpt-5.4",
-              "gpt-codex",
-              "gpt-4o",
-              "mai-code",
-              "unknown"
-            ]
+            "enum": ["claude-opus-5.5", "gpt-6-sol", "gpt-6-luna", "gpt-5.6-terra", "mai-code", "unknown"]
           },
           "status": {
             "type": "string",
@@ -98,7 +82,7 @@
         "properties": {
           "id": {
             "type": "string",
-            "pattern": "^(legacy|claude|gpt|gpt55|gpt-no-claude|cross-language|frontmatter|model|handoff|personality|prompt)-[a-z0-9-]+-\\d{3}$|^legacy-\\d{3}$",
+            "pattern": "^(legacy|claude|gpt|gpt-no-claude|cross-language|frontmatter|model|handoff|personality|prompt)-[a-z0-9-]+-\\d{3}$|^legacy-\\d{3}$",
             "description": "Rule ID. Must match a RULE_ID constant in validate-agents.mjs (or 'reviewer-only' check)."
           },
           "vendor": {
@@ -110,23 +94,7 @@
             "minItems": 1,
             "items": {
               "type": "string",
-              "enum": [
-                "claude-opus",
-                "claude-sonnet",
-                "claude-haiku",
-                "claude",
-                "gpt-5.6-terra",
-                "gpt-5.6-luna",
-                "gpt-5.6-sol",
-                "gpt-6-sol",
-                "gpt-6-luna",
-                "gpt-5.5",
-                "gpt-5.4",
-                "gpt-codex",
-                "gpt-4o",
-                "mai-code",
-                "any"
-              ]
+              "enum": ["claude-opus-5.5", "gpt-6-sol", "gpt-6-luna", "gpt-5.6-terra", "mai-code", "any"]
             }
           },
           "applies_to": {

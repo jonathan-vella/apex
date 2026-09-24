@@ -12,57 +12,20 @@ import assert from "node:assert/strict";
 
 import { classifyModel, isClaude, isGptOutcomeFamily, isGptFamily } from "../../scripts/validate-agents.mjs";
 
-test("classifyModel: Claude Opus 5 → claude-opus", () => {
-  assert.equal(classifyModel("Claude Opus 5"), "claude-opus");
-  assert.equal(classifyModel(["Claude Opus 5"]), "claude-opus");
+test("classifyModel: Claude Opus 5.5 → claude-opus-5.5", () => {
+  assert.equal(classifyModel("Claude Opus 5.5"), "claude-opus-5.5");
+  assert.equal(classifyModel(["Claude Opus 5.5"]), "claude-opus-5.5");
 });
 
-test("classifyModel: Claude Sonnet 5 → claude-sonnet", () => {
-  assert.equal(classifyModel("Claude Sonnet 5"), "claude-sonnet");
-});
-
-test("classifyModel: Claude Sonnet 4.6 → claude-sonnet (deprecated label, still classifies)", () => {
-  assert.equal(classifyModel("Claude Sonnet 4.6"), "claude-sonnet");
-});
-
-test("classifyModel: Claude Haiku 4.5 → claude-haiku", () => {
-  assert.equal(classifyModel("Claude Haiku 4.5"), "claude-haiku");
-});
-
-test("classifyModel: bare Claude → claude (generic)", () => {
-  assert.equal(classifyModel("Claude"), "claude");
-});
-
-test("classifyModel: GPT-5.5 → gpt-5.5 (legacy compatibility)", () => {
-  assert.equal(classifyModel("GPT-5.5"), "gpt-5.5");
-  assert.equal(classifyModel(["GPT-5.5"]), "gpt-5.5");
-});
-
-test("classifyModel: GPT-5.6 successors use distinct families", () => {
-  assert.equal(classifyModel("GPT-5.6 Sol (copilot)"), "gpt-5.6-sol");
-  assert.equal(classifyModel("GPT-5.6 Luna (copilot)"), "gpt-5.6-luna");
-  assert.equal(classifyModel(["GPT-5.6 Terra (copilot)"]), "gpt-5.6-terra");
-  assert.equal(classifyModel("gpt-5.6-sol"), "gpt-5.6-sol");
-  assert.equal(classifyModel("GPT-5.6-Luna"), "gpt-5.6-luna");
-  assert.equal(classifyModel(["GPT-5.6-Terra"]), "gpt-5.6-terra");
-});
-
-test("classifyModel: GPT-6 variants retain distinct families", () => {
+test("classifyModel: GPT-6 variants use distinct families", () => {
   assert.equal(classifyModel("GPT-6-Sol"), "gpt-6-sol");
   assert.equal(classifyModel(["GPT-6-Luna"]), "gpt-6-luna");
+  assert.equal(classifyModel("GPT-6 Sol (copilot)"), "gpt-6-sol");
 });
 
-test("classifyModel: GPT-5.4 → gpt-5.4", () => {
-  assert.equal(classifyModel("GPT-5.4"), "gpt-5.4");
-});
-
-test("classifyModel: GPT-5.3-Codex → gpt-codex (legacy compatibility)", () => {
-  assert.equal(classifyModel("GPT-5.3-Codex"), "gpt-codex");
-  assert.equal(classifyModel("My Codex Variant"), "gpt-codex");
-});
-
-test("classifyModel: GPT-4o → gpt-4o", () => {
-  assert.equal(classifyModel("GPT-4o"), "gpt-4o");
+test("classifyModel: GPT-5.6 Terra → gpt-5.6-terra", () => {
+  assert.equal(classifyModel(["GPT-5.6 Terra (copilot)"]), "gpt-5.6-terra");
+  assert.equal(classifyModel("GPT-5.6-Terra"), "gpt-5.6-terra");
 });
 
 test("classifyModel: MAI-Code-1.1-Flash → mai-code", () => {
@@ -70,47 +33,43 @@ test("classifyModel: MAI-Code-1.1-Flash → mai-code", () => {
   assert.equal(classifyModel(["MAI-Code-1.1-Flash"]), "mai-code");
 });
 
-test("classifyModel: unknown / missing → unknown", () => {
+test("classifyModel: retired labels → unknown", () => {
+  for (const label of [
+    "Claude Opus 5",
+    "Claude Opus 4.7",
+    "Claude Sonnet 5",
+    "Claude Haiku 4.5",
+    "GPT-5.6 Sol (copilot)",
+    "GPT-5.6 Luna (copilot)",
+    "GPT-5.5",
+    "GPT-5.4",
+    "GPT-5.3-Codex",
+    "GPT-4o",
+  ]) {
+    assert.equal(classifyModel(label), "unknown", label);
+  }
+});
+
+test("classifyModel: missing or unrecognized → unknown", () => {
   assert.equal(classifyModel(undefined), "unknown");
   assert.equal(classifyModel(null), "unknown");
   assert.equal(classifyModel(""), "unknown");
   assert.equal(classifyModel("Llama 3"), "unknown");
 });
 
-test("classifyModel: legacy GPT-5.5 ordering does not collide with GPT-5.4", () => {
-  // Substring 'gpt-5.5' must match BEFORE 'gpt-5.4' branch (no false 5.4 match).
-  assert.equal(classifyModel("GPT-5.5"), "gpt-5.5");
-  assert.notEqual(classifyModel("GPT-5.5"), "gpt-5.4");
-});
-
 test("isClaude: only matches claude-* families", () => {
-  assert.equal(isClaude("claude-opus"), true);
-  assert.equal(isClaude("claude-sonnet"), true);
-  assert.equal(isClaude("claude-haiku"), true);
-  assert.equal(isClaude("claude"), true);
-  assert.equal(isClaude("gpt-5.5"), false);
+  assert.equal(isClaude("claude-opus-5.5"), true);
+  assert.equal(isClaude("gpt-6-sol"), false);
   assert.equal(isClaude("unknown"), false);
 });
 
-test("isGptOutcomeFamily: matches Terra and legacy outcome-first families", () => {
-  assert.equal(isGptOutcomeFamily("gpt-5.6-terra"), true);
-  assert.equal(isGptOutcomeFamily("gpt-5.5"), true);
-  assert.equal(isGptOutcomeFamily("gpt-5.4"), true);
-  assert.equal(isGptOutcomeFamily("gpt-5.6-luna"), true);
-  assert.equal(isGptOutcomeFamily("gpt-5.6-sol"), true);
-  assert.equal(isGptOutcomeFamily("gpt-6-sol"), true);
-  assert.equal(isGptOutcomeFamily("gpt-6-luna"), true);
-  assert.equal(isGptOutcomeFamily("claude-opus"), false);
+test("isGptOutcomeFamily: matches GPT-6 Sol/Luna and GPT-5.6 Terra", () => {
+  for (const family of ["gpt-6-sol", "gpt-6-luna", "gpt-5.6-terra"]) assert.equal(isGptOutcomeFamily(family), true);
+  assert.equal(isGptOutcomeFamily("claude-opus-5.5"), false);
+  assert.equal(isGptOutcomeFamily("mai-code"), false);
 });
 
 test("isGptFamily: matches all gpt-* families", () => {
-  assert.equal(isGptFamily("gpt-5.5"), true);
-  assert.equal(isGptFamily("gpt-5.6-luna"), true);
-  assert.equal(isGptFamily("gpt-6-sol"), true);
-  assert.equal(isGptFamily("gpt-6-luna"), true);
-  assert.equal(isGptFamily("gpt-5.6-terra"), true);
-  assert.equal(isGptFamily("gpt-5.4"), true);
-  assert.equal(isGptFamily("gpt-codex"), true);
-  assert.equal(isGptFamily("gpt-4o"), true);
-  assert.equal(isGptFamily("claude-opus"), false);
+  for (const family of ["gpt-6-sol", "gpt-6-luna", "gpt-5.6-terra"]) assert.equal(isGptFamily(family), true);
+  assert.equal(isGptFamily("claude-opus-5.5"), false);
 });

@@ -18,6 +18,8 @@ queries live policy state via `az policy state list`, cross-checks against
 a structured CLEAN|INFORMATIONAL|BLOCKED|FAILED status and PROCEED|BLOCK gate so Deploy agents (07b/07t)
 can route via `apex-iac-common/references/governance-drift-routing.md` before
 `az deployment ... create` or `terraform apply`.
+The parent's invocation outranks skill guidance; report any conflict in the result
+with the `SKILL.md` path and a quote of the instruction.
 
 ## Input Contract
 The parent agent passes **artifact paths plus the explicit input fields
@@ -61,8 +63,8 @@ This subagent does not:
   `04-governance-constraints.json` only.
 - Refresh the L0 envelope — it reports stale or missing evidence and lets the parent
   invoke `▶ Refresh Governance`.
-- Retry on transient API failures more than once with exponential
-  backoff — it bubbles up `FAILED` instead of looping.
+- Retry a transient API failure (timeout, throttling, HTTP 429/5xx) more than once:
+  it retries exactly once with identical inputs, then bubbles up `FAILED` instead of looping.
 
 ## Output Contract
 Return results in this exact text shape. The `Deploy gate` keyword is

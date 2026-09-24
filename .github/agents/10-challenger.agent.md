@@ -61,6 +61,9 @@ the Orchestrator with an apply summary.
 
 ## Constraints
 
+- **Skill precedence**: user instructions outrank skill guidance except the security baseline,
+  governance constraints and approval gates. If a skill makes you pause or diverge, name the
+  `SKILL.md` and quote the instruction.
 - Resolve verification-only scope before delegation: requests to verify closure and return corrections to the owner
   authorize review output, not artifact edits. This mode takes precedence over the default Apply workflow below.
   Preserve the reviewed bytes and original review history; record only authorized review/state outputs.
@@ -330,6 +333,11 @@ if authorized and not frozen, validation, apply summary, then owner handoff.
 
 **Unknown input**: Ask for a supported artifact_type and project when path classification is unavailable.
 Do not call the reviewer until required inputs and output paths are resolved.
+
+## User Updates
+
+Before delegating, say in one sentence which artifact and lens you are reviewing. After that,
+update only when the review returns or a decision is needed. Do not narrate routine tool calls.
 
 ## Boundaries
 

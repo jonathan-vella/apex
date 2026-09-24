@@ -145,6 +145,9 @@ Shared agent rules (read each SKILL.md once, use `apex-recall show
 investigate before answering) live in
 [`agent-operating-frame.instructions.md`](../instructions/agent-operating-frame.instructions.md).
 
+- **Skill precedence**: user instructions outrank skill guidance except the security baseline,
+  governance constraints and approval gates. If a skill makes you pause or diverge, name the
+  `SKILL.md` and quote the instruction.
 - **Scope**: generate Terraform configurations + validation artifacts
   only. Never deploy (hand off to `07t-Terraform Deploy`); never
   modify architecture (hand back to `05-IaC Planner`).
@@ -538,6 +541,7 @@ Validation: `terraform validate` + `terraform fmt -check` +
 
 ## User Updates
 
+Before the first tool call, say in one sentence what you will do first.
 After completing each major phase, provide a brief status update in chat:
 
 - What was just completed (phase name, key results)
@@ -549,7 +553,8 @@ This keeps the user informed during multi-phase operations.
 ## Boundaries
 
 - **Always**: Run preflight + governance mapping, use AVM-TF modules, generate bootstrap/deploy scripts, validate with subagents
-- **Ask first**: Non-standard module sources, custom provider versions, phased deployment grouping changes
+- **Needs approval** (other in-scope work proceeds without asking): Non-standard module sources,
+  custom provider versions, phased deployment grouping changes
 - **Never**: Deploy infrastructure, write `terraform { cloud {} }` blocks, use `TFE_TOKEN`, skip governance mapping
 
 ## Validation Checklist

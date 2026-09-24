@@ -7,8 +7,7 @@ prompt↔agent sync, language calibration, decision logging.
 
 ## Rule R-X-1 — Prompt model must match target agent model
 
-> Source: [openai/skills upgrade-guide.md](.snapshots/openai-upgrade-guide.md)
-> "Pair each model usage with its prompt surface."
+> Source: APEX convention; see [agent-authoring.instructions.md](../../../instructions/agent-authoring.instructions.md).
 
 **APEX rule** (`prompt-model-source-001`): a custom-agent `.prompt.md` inherits
 its target's model and does not duplicate it. Generic Local prompts may inherit
@@ -26,8 +25,8 @@ agent: 03-Architect
 
 ## Rule R-X-2 — No redundant handoff model overrides
 
-> Source: same upgrade-guide; "do not automatically upgrade older or
-> ambiguous model usages that may be intentionally pinned."
+> Source: GPT-5.6 prompt guidance, "Prompt migration workflow" — change one thing at a time so model
+> rollouts stay attributable.
 
 **Rule** (`legacy-002`): `handoffs[].model` should NOT be set when it
 matches the target agent's own `model:`. Redundant overrides become
@@ -37,7 +36,7 @@ stale during model rollouts.
 # Bad
 handoffs:
   - agent: 03-Architect
-    model: "Claude Opus 5"   # redundant — matches Architect's own
+    model: "GPT-6-Sol"   # redundant — matches Architect's own
     prompt: "..."
 
 # Good
@@ -53,8 +52,8 @@ handoffs:
 
 **Rule** (`frontmatter-model-style-001`):
 
-- `.agent.md` files: array form — `model: ["Claude Opus 4.7"]`
-- `.prompt.md` files: string form — `model: "Claude Opus 4.7"`
+- `.agent.md` files: array form — `model: ["Claude Opus 5.5"]`
+- `.prompt.md` files: string form — `model: "Claude Opus 5.5"`
 - Ordinary labels must exactly match catalog keys; documented platform-qualified
   `handoffs[].model` strings are allowed. Parentheses are valid YAML content.
 - Validate every fallback without changing order or adding fallbacks.
@@ -120,19 +119,19 @@ in [checklists.md](checklists.md).
 
 ## Rule R-X-6 — Few-shot example placement
 
-> Source: Anthropic "Use examples effectively" + OpenAI guide
-> on prompt examples.
+> Source: Anthropic "Use examples effectively" + GPT-5.6 prompt guidance
+> ("examples that do not change behavior" are trimmed).
 
 **Reviewer hint**: examples should appear at the END of the agent
 body when useful. Claude may wrap in `<example>` /
-`<examples>`; APEX Sol/Terra/Luna uses fenced code blocks. Keep examples under
+`<examples>`; GPT agents use fenced code blocks. Keep examples under
 12 lines.
 
 ## Rule R-X-7 — Language calibration
 
 > Source: [Anthropic doc](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices)
 > "Tell Claude what to do instead of what not to do."
-> Plus [OpenAI guide](.snapshots/openai-prompting-guide.md)
+> Plus [GPT-5.6 prompt guidance](https://developers.openai.com/api/docs/guides/prompt-guidance-gpt-5p6)
 > "Avoid unnecessary absolute rules."
 
 **Rule** (`cross-language-density-001`, both vendors): density of

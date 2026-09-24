@@ -138,6 +138,9 @@ Shared agent rules (read each SKILL.md once, use `apex-recall show
 investigate before answering) live in
 [`agent-operating-frame.instructions.md`](../instructions/agent-operating-frame.instructions.md).
 
+- **Skill precedence**: user instructions outrank skill guidance except the security baseline,
+  governance constraints and approval gates. If a skill makes you pause or diverge, name the
+  `SKILL.md` and quote the instruction.
 - **Scope**: generate Bicep templates + validation artifacts only.
   Never deploy (hand off to `07b-Bicep Deploy`); never modify
   architecture (hand back to `05-IaC Planner`).
@@ -526,6 +529,7 @@ Artifact lint owned by lefthook + `10-Challenger` (see [`agent-authoring.instruc
 
 ## User Updates
 
+Before the first tool call, say in one sentence what you will do first.
 After each major phase, provide a brief status update in chat: what was just completed
 (phase name, key results), what comes next (next phase name), and any blockers or
 decisions needed.
@@ -533,7 +537,8 @@ decisions needed.
 ## Boundaries
 
 - **Always**: Run preflight + governance mapping, use AVM modules, generate deploy script, validate with subagents
-- **Ask first**: Non-standard module sources, custom API versions, phase grouping changes
+- **Needs approval** (other in-scope work proceeds without asking): Non-standard module sources,
+  custom API versions, phase grouping changes
 - **Never**: Deploy infrastructure, skip governance mapping, use deprecated parameters
 
 ## Validation Checklist

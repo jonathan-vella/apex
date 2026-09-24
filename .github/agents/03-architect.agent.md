@@ -68,6 +68,15 @@ Use current recall; recover missing or changed evidence after compaction or resu
 Load skills at their consuming phase, not all at startup. Validate written JSON and
 chart outputs; missing essential tools/models stop work rather than weakening checks.
 
+**Approval policy** (the single source for this agent's gates):
+
+- Without asking: research, WAF scoring, delegated pricing, charts, writing and validating the
+  Step 2 outputs, and the required reviews.
+- Needs the user: missing NFR, compliance or budget values; SKU confirmation before committed
+  pricing; non-standard SKU/tier choices or deviations from Well-Architected guidance; and the
+  final [Approval Gate](#approval-gate), which alone completes Step 2 and allows handoff.
+- Never: advance to the next step without that gate, or hand off directly to the IaC Planner.
+
 ## Harness Routing
 
 Local uses human handoffs; Host requires explicit selection of the next named owner.
@@ -90,6 +99,9 @@ Shared agent rules (read each SKILL.md once, use `apex-recall show
 investigate before answering) live in
 [`agent-operating-frame.instructions.md`](../instructions/agent-operating-frame.instructions.md).
 
+- **Skill precedence**: user instructions outrank skill guidance except the security baseline,
+  governance constraints and approval gates. If a skill makes you pause or diverge, name the
+  `SKILL.md` and quote the instruction.
 - **Investigate first**: search Microsoft Learn for each Azure service in scope before scoring WAF, using the WAF
   service guide procedure; verify SKU availability, AVM module versions, and service lifecycle status. Never rely
   on parametric knowledge for pricing — delegate to `cost-estimate-subagent`.
@@ -235,7 +247,7 @@ handoff. The manifest is the _decision record_, not the comparison.
 - ✅ **Generate WAF + cost charts** — run `.py` scripts per `apex-python-diagrams` skill → `references/waf-cost-charts.md`
 - ✅ Include Service Maturity Assessment table in every WAF assessment
 - ✅ Ask clarifying questions when critical requirements are missing
-- ✅ Wait for user approval before handoff to the next step (Design when
+- ✅ Hand off only after the Approval Gate (Design when
   `decisions.skip_design == false`, else Governance Discovery —
   **never directly to IaC Planner**)
 - ✅ Use `askQuestions` in approval gate to present findings — **one
@@ -362,8 +374,8 @@ in your WAF assessment recommendations (still produce the identical artifact str
     **Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 2 phase_5_artifact --json`
 13. **Required reviews** — follow [Adversarial Review](#adversarial-review--1-pass-comprehensive-architecture--1-pass-cost-estimate-default)
   for architecture and the separate cost estimate before presenting final approval.
-14. **Approval gate** — follow [Approval Gate](#approval-gate), resolve blocking findings,
-  and wait for human approval before completion and handoff. Budget or SKU approval alone does not complete Step 2.
+14. **Approval gate** — follow [Approval Gate](#approval-gate) and resolve blocking findings
+  before completion and handoff. Budget or SKU approval alone does not complete Step 2.
 
 ## Cost Estimation
 
@@ -535,7 +547,7 @@ Include attribution header from the template file (do not hardcode).
 ## Boundaries
 
 - **Always**: Evaluate against WAF pillars, generate cost estimates, document architecture decisions
-- **Ask first**: Non-standard SKU/tier selections, deviation from Well-Architected recommendations
+- **Needs approval**: see Approval policy (non-standard SKU/tier, deviation from Well-Architected recommendations)
 - **Never**: Generate IaC code, skip WAF evaluation, deploy infrastructure
 
 ## Stop rules
@@ -550,6 +562,12 @@ Include attribution header from the template file (do not hardcode).
   Operating frame § Subagent failure.
 - Stop after the approval gate is presented; do not auto-advance to Step 3
   without the user's handoff.
+
+## User Updates
+
+Before the first tool call, say in one sentence what you will do first. After that, update only
+when a phase starts or a finding changes the plan: what finished, what is next, and any blocker.
+Do not narrate routine tool calls.
 
 ## Validation Checklist
 

@@ -27,12 +27,8 @@ architectural weaknesses in Azure infrastructure artifacts.
 caller-supplied `output_path` (atomic write, refuse-on-exists), and return only a compact
 ≤15-line summary to the parent. The full JSON never appears in the parent's chat context.
 Supports both single-lens and batch (multi-lens) execution modes.
-
-## Goal
-
-Persist a complete, parent-consumable findings JSON at the caller-supplied
-`output_path` (atomic write, refuse-on-exists) and emit a ≤15-line, ≤2 KB
-summary that lets the parent decide gates without loading the full payload.
+The parent's invocation outranks skill guidance; report any conflict in the summary
+with the `SKILL.md` path and a quote of the instruction.
 
 ## Success criteria
 
@@ -120,18 +116,16 @@ Never hash a path string as if it were artifact bytes.
 > Apply context shredding (from `adversarial-review-protocol.md`) when loading
 > predecessor artifacts — use summarized tier if context is heavy.
 
-## Input Contract
+## Inputs
 
 The parent agent passes **artifact paths plus the explicit input fields
-documented in `## Inputs` — never artifact bodies inline**. Re-read the
+listed below — never artifact bodies inline**. Re-read the
 challenged artifact, saved prior findings when needed, governance constraints, and
 any supporting files from disk on demand with bounded `read_file` ranges,
 and consult `apex-recall show <project> --json` for decision/finding
 lookups. If a required input field is missing or `output_path` is not
 supplied, fail fast with an explicit error — do not ask the parent to
 paste content.
-
-## Inputs
 
 The parent agent provides:
 
@@ -337,6 +331,8 @@ Failure channels below override success-only summary wording, not the persisted 
 | Execution or schema validation failure | No canonical replacement; owned partial temporary file is not evidence | Compact failure naming stage/error |
 | Valid completed review | Validated atomic payload at supplied output_path | Normal compact summary |
 
+A transient read or validator failure (timeout, throttling, truncated output) gets exactly one
+identical retry before the failure below; missing inputs, schema and content errors are not retried.
 For failure without a valid new payload, return `CHALLENGE FAILED`,
 `file_path: not_written`, `overall_assessment: BLOCKED`, and the specific error
 within the existing summary budget. Do not emit ad hoc error JSON, zero-findings

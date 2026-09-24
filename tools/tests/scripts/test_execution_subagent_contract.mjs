@@ -21,12 +21,7 @@ const ROOT = path.resolve(HERE, "../../..");
 const TEMPLATE = path.join(ROOT, "tools/apex-prompts/utility-prompts/execution-subagent.prompt.md");
 const CONTRACT = path.join(ROOT, ".github/skills/apex-workflow-engine/references/execution-subagent.md");
 const contractBody = fs.readFileSync(CONTRACT, "utf8");
-const ADAPTERS = [
-  TEMPLATE,
-  ...["claude", "gpt"].map((family) =>
-    path.join(ROOT, `tools/apex-prompts/utility-prompts/execution-subagent-${family}.prompt.md`),
-  ),
-];
+const ADAPTERS = [TEMPLATE, path.join(ROOT, "tools/apex-prompts/utility-prompts/execution-subagent-gpt.prompt.md")];
 
 const WORKER_CONTRACTS = [
   {

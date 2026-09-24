@@ -333,7 +333,8 @@ test("Diagnose writes its report separately from session finding registration", 
   assert.match(body, /Write or update the report using file-editing tools/);
   assert.match(body, /finding registration does not write the report/);
   assert.doesNotMatch(body, /diagnose-report-\*|Save the file via/);
-  assert.match(body, /Stop before each Azure CLI, KQL, or remediation command until the user approves/);
+  assert.match(body, /Stop before each mutating Azure CLI or remediation command until the user approves/);
+  assert.match(body, /read-only queries within the confirmed scope run without asking/);
 });
 
 test("Challenger resolves canonical stems and consumes persisted schema fields", () => {
@@ -534,10 +535,10 @@ test("shared harness guidance preserves human selection and does not infer model
     path.join(ROOT, ".github/skills/apex-azure-defaults/references/cost-estimate-parent-contract.md"),
     "utf8",
   );
-  assert.match(parent, /`03-Architect` uses `GPT-5\.6 Sol \(copilot\)`/);
+  assert.match(parent, /`03-Architect` uses `GPT-6-Sol`/);
   assert.match(parent, /`08-As-Built` uses `GPT-5\.6 Terra \(copilot\)`/);
-  assert.match(parent, /`cost-estimate-subagent` uses `GPT-5\.6 Luna \(copilot\)`/);
-  assert.match(parent, /cost-feasibility review with `challenger-review-subagent` \(`GPT-5\.6 Terra \(copilot\)`\)/);
+  assert.match(parent, /`cost-estimate-subagent` uses `GPT-6-Luna`/);
+  assert.match(parent, /cost-feasibility review with `challenger-review-subagent` \(`GPT-6-Luna`\)/);
   assert.match(parent, /Do not infer effort settings/);
 });
 
