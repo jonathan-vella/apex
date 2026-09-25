@@ -34,15 +34,12 @@ picker resolution remain manual acceptance gates, not conclusions from static te
 
 ## Reasoning Effort
 
-- Follow the selected agent's current effort guidance; do not infer effort from a role or model family alone.
-- The current Architect and IaC Planner recommend medium when supported by the active runtime.
-- The current Bicep and Terraform CodeGen agents recommend max when supported by the active runtime.
-- Validation, preview, and diagnostic workers retain their own task-specific effort guidance.
+- Agent frontmatter `reasoning-effort` is the only effort setting; do not restate it in the body.
+- `GPT-6 Luna (copilot)` agents and subagents use `reasoning-effort: max`.
+- All other agents and subagents use `reasoning-effort: default`.
 
-These are recommendations only where the selected model and harness
-expose a supported effort control. Effort is not part of a model label; do not
-invent a Sol effort API. Re-evaluate before escalating; effort does not replace
-missing context or validation.
+Effort is not part of a model label. Re-evaluate before escalating; effort does not
+replace missing context or validation.
 
 ## Prompt Style
 

@@ -1,6 +1,7 @@
 ---
 name: 07b-Bicep Deploy
-model: ["GPT-6-Luna"]
+model: ["GPT-6 Luna (copilot)"]
+reasoning-effort: max
 description: "Executes Azure deployments using generated Bicep templates. Uses azd provision (default; deploy.ps1 retained only for legacy projects without azure.yaml). Performs what-if analysis and manages deployment lifecycle. Step 6 of the agentic workflow."
 argument-hint: Deploy the Bicep templates for a specific project
 user-invocable: true
@@ -101,7 +102,6 @@ failure → 06b-Bicep CodeGen). Gates follow the Approval policy below.
   fixes from this agent.
 - Prefer `azd` for projects with `azure.yaml`; fall back to `az deployment` only
   for legacy projects without an azd manifest. Do not introduce `deploy.ps1`.
-- Reasoning effort: max when supported by the active runtime.
 
 ## Output
 

@@ -50,7 +50,7 @@ hard-rule shortlist.
 I am editing or reviewing a *.agent.md / *.prompt.md ...
 ├── Which model is in the frontmatter?
 │   ├── Claude Opus 5.5            → load references/claude-best-practices.md
-│   ├── GPT-6-Sol / GPT-6-Luna     → load references/openai-prompting.md
+│   ├── GPT-6 Sol / Luna (copilot) → load references/openai-prompting.md
 │   ├── GPT-5.6 Terra (copilot)    → load references/openai-prompting.md
 │   ├── MAI-Code-1.1-Flash         → reviewer-only; structural checks still run
 │   └── Missing on prompt          → resolve custom-agent or picker inheritance

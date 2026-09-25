@@ -1,7 +1,8 @@
 ---
 name: policy-precheck-subagent
 description: "Live Azure Policy precheck subagent (L3). Cross-checks live policy state vs governance constraints, runs what-if/plan validation, returns deterministic deploy_gate (PROCEED|BLOCK) + status (CLEAN|INFORMATIONAL|BLOCKED|FAILED) for Deploy agents (07b/07t)."
-model: ["GPT-6-Luna"]
+model: ["GPT-6 Luna (copilot)"]
+reasoning-effort: max
 user-invocable: false
 disable-model-invocation: false
 agents: []
@@ -168,12 +169,6 @@ block deploy` entry — paraphrasing is a defect.
 5. Cache live policy state for ≤ 5 minutes keyed by
    `{subscription_id}+{resource_group}+{target_scope}`; never reuse
    across deploy invocations.
-
-## Effort calibration
-
-Use medium effort when supported for structured checks. Raise to high only
-when the parent deploy agent flags a deployment with >50 resource
-changes or a destructive replace (`-/+`).
 
 ## Inputs
 

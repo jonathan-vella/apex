@@ -1,6 +1,7 @@
 ---
 name: 09-Diagnose
 model: ["GPT-5.6 Terra (copilot)"]
+reasoning-effort: default
 description: Interactive diagnostic agent that guides users through Azure resource health assessment, issue identification, and remediation planning. Scope-first execution with approval for every change, single-resource scope, reports to agent-output/{project}/.
 user-invocable: true
 disable-model-invocation: true
@@ -36,8 +37,6 @@ handoffs:
 # 09-Diagnose
 
 ## Role
-
-Reasoning effort: medium when supported by the active runtime.
 
 This agent is **supplementary** to the multi-step workflow. Use it after Step 6 (Deploy) or
 for troubleshooting existing deployments.

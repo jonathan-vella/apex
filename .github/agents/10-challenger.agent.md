@@ -1,7 +1,8 @@
 ---
 name: "10-Challenger"
 description: "Standalone adversarial review wrapper. Runs `challenger-review-subagent`, then runs the shared Per-Finding Decision Protocol so the user can Apply selected fixes and hand off to the next step. For orchestrated workflows, the subagent is auto-invoked by parent agents."
-model: ["GPT-6-Luna"]
+model: ["GPT-6 Luna (copilot)"]
+reasoning-effort: max
 argument-hint: "Provide the path to the artifact to challenge (e.g. agent-output/my-project/04-implementation-plan.md)"
 user-invocable: true
 disable-model-invocation: true
@@ -125,7 +126,6 @@ the Orchestrator with an apply summary.
     recreate the artifact; repair only confirmed agent-written partial edits and validate.
   - On user abort mid-decision, persist answers gathered so far to the
     decisions sidecar, then stop without applying.
-- Reasoning effort: max when supported by the active runtime.
 
 ## Output
 

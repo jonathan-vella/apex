@@ -70,7 +70,7 @@
       "family": "gpt-6-sol",
       "status": "enforced",
       "label_examples": [
-        "GPT-6-Sol"
+        "GPT-6 Sol (copilot)"
       ],
       "rule_subset_note": "GPT-6 family guidance (written for Astra, published as the family starting point) plus the APEX outcome-first convention."
     },
@@ -78,7 +78,7 @@
       "family": "gpt-6-luna",
       "status": "enforced",
       "label_examples": [
-        "GPT-6-Luna"
+        "GPT-6 Luna (copilot)"
       ],
       "rule_subset_note": "GPT-6 family guidance (written for Astra, published as the family starting point) plus the APEX outcome-first convention; leaf workers use bounded role contracts."
     },

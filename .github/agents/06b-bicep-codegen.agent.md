@@ -1,7 +1,8 @@
 ---
 name: 06b-Bicep CodeGen
 description: Expert Azure Bicep IaC specialist that creates near-production-ready Bicep templates following Azure Verified Modules (AVM) standards. Validates, tests, and ensures code quality.
-model: ["GPT-6-Luna"]
+model: ["GPT-6 Luna (copilot)"]
+reasoning-effort: max
 user-invocable: true
 disable-model-invocation: true
 agents: ["bicep-validate-subagent", "challenger-review-subagent"]
@@ -101,7 +102,6 @@ is satisfied, and every resource that has an AVM module uses it.
     chat back-and-forth.
   - When `04-implementation-plan.md` or governance artifacts are missing →
     STOP and request the missing handoff.
-- Reasoning effort: max when supported by the active runtime.
 
 ## Output
 

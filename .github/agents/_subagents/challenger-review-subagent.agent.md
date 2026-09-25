@@ -1,7 +1,8 @@
 ---
 name: challenger-review-subagent
 description: "Unified adversarial review subagent that challenges Azure infrastructure artifacts. Finds untested assumptions, governance gaps, WAF blind spots, and architectural weaknesses. Returns structured JSON findings. Supports single-pass and multi-pass rotating-lens reviews; batches lenses per invocation."
-model: ["GPT-6-Luna"]
+model: ["GPT-6 Luna (copilot)"]
+reasoning-effort: max
 disable-model-invocation: false
 user-invocable: false
 agents: []
@@ -75,7 +76,6 @@ with the `SKILL.md` path and a quote of the instruction.
   `output_path` from disk only when it needs the details.
 - Validate the declared input fields; do not invent paths or execution modes.
 - Stay within the requested lens(es); do not silently expand scope.
-- Reasoning effort: max when supported by the active runtime.
 
 ## Output
 
