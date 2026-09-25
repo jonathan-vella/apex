@@ -2,7 +2,7 @@
 name: 05-IaC Planner
 description: "Expert Azure IaC planner that creates comprehensive machine-readable implementation plans. Consults Microsoft documentation, evaluates Azure Verified Modules (Bicep or Terraform), designs full infrastructure solutions with architecture diagrams. Routes by decisions.iac_tool."
 model: ["GPT-6 Sol (copilot)"]
-reasoning-effort: default
+reasoning-effort: medium
 user-invocable: true
 disable-model-invocation: true
 agents: ["challenger-review-subagent"]
