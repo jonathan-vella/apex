@@ -59,8 +59,8 @@ Exact catalog matches take precedence over stripping optional handoff qualifiers
 
 ### Reasoning-Effort Policy
 
-Use higher effort for creative, multi-artifact decisions and default or medium
-effort for structured execution. Assignments and rationale:
+Set effort only in frontmatter `reasoning-effort`: `max` for `GPT-6 Luna (copilot)`
+agents and subagents, `default` for all others. Do not restate effort in the body. Rationale:
 [`apex-agent-authoring/references/model-policy.md`](../skills/apex-agent-authoring/references/model-policy.md).
 
 Repository structure and sourced vendor advice are distinguished in

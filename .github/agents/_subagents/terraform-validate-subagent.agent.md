@@ -1,7 +1,8 @@
 ---
 name: terraform-validate-subagent
 description: "Terraform validation subagent. Runs lint (fmt -check, validate) first, then code review (AVM-TF standards, naming, security baseline, RBAC, governance). Returns PASS/FAIL + APPROVED/NEEDS_REVISION/FAILED verdict."
-model: ["GPT-6-Luna"]
+model: ["GPT-6 Luna (copilot)"]
+reasoning-effort: max
 user-invocable: false
 disable-model-invocation: false
 agents: []
@@ -134,10 +135,6 @@ Before composing findings:
    parent agent can audit the marker.
 6. Missing required files, skills or unresolved property evidence fail the affected
   check; name the missing evidence in Detailed Findings rather than silently skipping.
-
-## Effort calibration
-
-Use max reasoning effort when supported by the active runtime.
 
 ## Inputs
 

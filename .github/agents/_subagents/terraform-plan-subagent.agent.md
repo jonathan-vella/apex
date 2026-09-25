@@ -1,7 +1,8 @@
 ---
 name: terraform-plan-subagent
 description: Terraform deployment preview subagent. Runs terraform plan to preview changes before deployment. Classifies resources into create/update/destroy/replace, highlights destructive ops, returns structured change summary.
-model: ["GPT-6-Luna"]
+model: ["GPT-6 Luna (copilot)"]
+reasoning-effort: max
 user-invocable: false
 disable-model-invocation: false
 agents: []
@@ -118,12 +119,6 @@ Before composing the response:
 5. When the plan errors out, copy the first error line verbatim under
    `Recommendation` so the parent agent can route it to the correct
    remediation.
-
-## Effort calibration
-
-Use medium effort when supported for structured classification. Raise to high only when the plan contains
-destroy or replace operations, since those require careful per-resource
-reasoning before the parent agent seeks approval.
 
 ## Inputs
 

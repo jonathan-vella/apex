@@ -1,7 +1,8 @@
 ---
 name: 06t-Terraform CodeGen
 description: "Expert Azure Terraform IaC specialist that creates near-production-ready Terraform configurations following Azure Verified Modules (AVM-TF) standards. Validates, tests, and ensures code quality."
-model: ["GPT-6-Luna"]
+model: ["GPT-6 Luna (copilot)"]
+reasoning-effort: max
 user-invocable: true
 disable-model-invocation: true
 agents: ["terraform-validate-subagent", "challenger-review-subagent"]
@@ -107,7 +108,6 @@ resource that has an AVM-TF module uses it.
     not chat back-and-forth.
   - When `04-implementation-plan.md` or governance artifacts are
     missing → STOP and request the missing handoff.
-- Reasoning effort: max when supported by the active runtime.
 
 ## Output
 

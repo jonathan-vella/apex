@@ -102,17 +102,19 @@ test("manual maintenance skills retain validation and import approval boundaries
   assert.doesNotMatch(authoring, /\| Vendor-specific prompt audit \| `\.\.\/apex-vendor-prompting\/SKILL.md`/);
   const modelPolicy = read(new URL("apex-agent-authoring/references/model-policy.md", skillsRoot));
   assert.match(modelPolicy, /Do not load that manual-only skill automatically/);
-  assert.match(modelPolicy, /Architect and IaC Planner recommend medium/);
-  assert.match(modelPolicy, /Bicep and Terraform CodeGen agents recommend max/);
+  assert.match(modelPolicy, /`GPT-6 Luna \(copilot\)` agents and subagents use `reasoning-effort: max`/);
+  assert.match(modelPolicy, /All other agents and subagents use `reasoning-effort: default`/);
   assert.doesNotMatch(modelPolicy, /High: architecture|Medium: structured code generation/);
-  for (const name of ["03-architect", "05-iac-planner"]) {
-    assert.match(
-      read(new URL(`../../../.github/agents/${name}.agent.md`, import.meta.url)),
-      /Reasoning effort: medium/,
-    );
-  }
-  for (const name of ["06b-bicep-codegen", "06t-terraform-codegen"]) {
-    assert.match(read(new URL(`../../../.github/agents/${name}.agent.md`, import.meta.url)), /Reasoning effort: max/);
+  const agentsRoot = new URL("../../../.github/agents/", import.meta.url);
+  const agentFiles = [
+    ...readdirSync(agentsRoot).filter((name) => name.endsWith(".agent.md")),
+    ...readdirSync(new URL("_subagents/", agentsRoot)).map((name) => `_subagents/${name}`),
+  ];
+  for (const name of agentFiles) {
+    const source = read(new URL(name, agentsRoot));
+    const { model, "reasoning-effort": effort } = parseFrontmatter(source);
+    assert.equal(effort, model.includes("GPT-6 Luna (copilot)") ? "max" : "default", name);
+    assert.doesNotMatch(source, /reasoning effort/i, name);
   }
   const docsTriggers = read(new URL("../../../.github/instructions/docs-trigger.instructions.md", import.meta.url));
   assert.match(docsTriggers, /Required documentation updates do not depend on loading a skill/);

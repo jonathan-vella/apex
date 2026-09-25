@@ -1,6 +1,7 @@
 ---
 name: 04-Design
 model: ["GPT-5.6 Terra (copilot)"]
+reasoning-effort: default
 description: "Step 3 — Design Artifacts. Generates code-based Python architecture diagrams and Architecture Decision Records for approved Azure designs. Optional step before governance and IaC planning."
 user-invocable: true
 disable-model-invocation: true
@@ -99,7 +100,6 @@ Shared rules live in
 - Never generate IaC or edit the approved architecture. An ADR proposal requires
   Architect review and human approval before any architecture change; ADR creation alone is insufficient.
 - Read `decisions.review_depth`; `deep` or an explicit user request enables ADR review.
-- Reasoning effort: medium when supported by the active runtime.
 
 ## Output contract
 

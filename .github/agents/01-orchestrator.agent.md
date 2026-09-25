@@ -2,6 +2,7 @@
 name: 01-Orchestrator
 description: Master orchestrator for the multi-step Azure platform engineering workflow. Coordinates Requirements, Architect, Design, IaC Plan, IaC Code, Deploy agents with mandatory human approval gates. Routes Bicep or Terraform tracks via decisions.iac_tool.
 model: ["MAI-Code-1.1-Flash"]
+reasoning-effort: default
 argument-hint: Describe the Azure platform engineering project you want to build end-to-end
 user-invocable: true
 disable-model-invocation: true
@@ -131,7 +132,6 @@ chat can resume losslessly.
   - If a step status returns `blocked`, halt and surface findings to the user
     before continuing (circuit breaker — see Core Principles).
   - At every accepted gate, follow the mandatory [Session Break Protocol](#session-break-protocol).
-- Reasoning effort: medium when supported by the active runtime.
 - Allowed writes: project directory creation, `00-handoff.md`, project `README.md`,
   `09-lessons-learned.json/.md`, and session updates exclusively through `apex-recall`.
   Use file-editing tools for artifacts and preserve user work. No specialist artifact,

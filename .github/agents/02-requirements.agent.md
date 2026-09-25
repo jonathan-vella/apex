@@ -1,6 +1,7 @@
 ---
 name: 02-Requirements
-model: ["GPT-6-Sol"]
+model: ["GPT-6 Sol (copilot)"]
+reasoning-effort: default
 description: Researches and captures Azure platform engineering project requirements
 argument-hint: Describe the Azure workload or project you want to gather requirements for
 user-invocable: true
@@ -37,8 +38,6 @@ handoffs:
 # 02-Requirements
 
 ## Role
-
-Reasoning effort: medium when supported by the active runtime.
 
 Capture Step 1 intent and user constraints, not architecture decisions.
 Complete discovery, artifacts, independent review and Gate 1 in one turn

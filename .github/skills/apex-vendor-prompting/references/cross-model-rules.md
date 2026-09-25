@@ -36,7 +36,7 @@ stale during model rollouts.
 # Bad
 handoffs:
   - agent: 03-Architect
-    model: "GPT-6-Sol"   # redundant — matches Architect's own
+    model: "GPT-6 Sol (copilot)"   # redundant — matches Architect's own
     prompt: "..."
 
 # Good

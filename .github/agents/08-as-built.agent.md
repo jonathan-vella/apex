@@ -2,6 +2,7 @@
 name: 08-As-Built
 description: "Generates Step 7 as-built documentation suite after successful deployment. Reads all prior artifacts (Steps 1-6) and deployed resource state to produce: design document, operations runbook, cost estimate, compliance matrix, backup/DR plan, resource inventory, and documentation index."
 model: ["GPT-5.6 Terra (copilot)"]
+reasoning-effort: default
 user-invocable: true
 disable-model-invocation: true
 agents: ["cost-estimate-subagent"]
@@ -115,7 +116,6 @@ the deployed state — not from prior plan estimates.
   and `.svg` siblings are emitted; missing either sibling is a hard fail.
 - Read deployed state via Azure Resource Graph + `az` CLI; do not infer state
   from IaC source when the deployment is reachable.
-- Reasoning effort: medium when supported by the active runtime.
 
 ## Output
 
