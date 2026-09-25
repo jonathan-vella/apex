@@ -1,7 +1,7 @@
 ---
 name: 02-Requirements
 model: ["GPT-6 Sol (copilot)"]
-reasoning-effort: default
+reasoning-effort: medium
 description: Researches and captures Azure platform engineering project requirements
 argument-hint: Describe the Azure workload or project you want to gather requirements for
 user-invocable: true

@@ -2,7 +2,7 @@
 name: 03-Architect
 description: Expert Architect providing guidance using Azure Well-Architected Framework principles and Microsoft best practices. Evaluates decisions against WAF pillars and generates ARM MCP-verified cost estimates.
 model: ["GPT-6 Sol (copilot)"]
-reasoning-effort: default
+reasoning-effort: medium
 user-invocable: true
 disable-model-invocation: true
 agents: ["cost-estimate-subagent", "challenger-review-subagent"]

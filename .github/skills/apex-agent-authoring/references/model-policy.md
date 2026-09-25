@@ -36,7 +36,7 @@ picker resolution remain manual acceptance gates, not conclusions from static te
 
 - Agent frontmatter `reasoning-effort` is the only effort setting; do not restate it in the body.
 - `GPT-6 Luna (copilot)` agents and subagents use `reasoning-effort: max`.
-- All other agents and subagents use `reasoning-effort: default`.
+- All other agents and subagents use `reasoning-effort: medium`.
 
 Effort is not part of a model label. Re-evaluate before escalating; effort does not
 replace missing context or validation.
