@@ -166,7 +166,7 @@
     "markdownlint-cli2": "^0.23.2",
     "npm-run-all2": "^9.0.3",
     "prettier": "^3.9.6",
-    "typescript": "6.0.2"
+    "typescript": "7.0.2"
   },
   "repository": {
     "type": "git",
