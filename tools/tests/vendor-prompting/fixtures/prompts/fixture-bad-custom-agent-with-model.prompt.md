@@ -1,7 +1,7 @@
 ---
 description: "Bad prompt: targets a custom agent AND declares a redundant model:. Should fire prompt-model-source-001."
 agent: "02-Requirements"
-model: "Claude Opus 5.5"
+model: "Claude Opus 5.5 (copilot)"
 ---
 
 # Bad Custom-Agent Prompt Fixture

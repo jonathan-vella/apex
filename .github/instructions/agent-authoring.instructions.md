@@ -60,7 +60,8 @@ Exact catalog matches take precedence over stripping optional handoff qualifiers
 ### Reasoning-Effort Policy
 
 Set effort only in frontmatter `reasoning-effort`: `max` for `GPT-6 Luna (copilot)`
-agents and subagents, `medium` for all others. Do not restate effort in the body. Rationale:
+agents and subagents, `high` for `Claude Opus 5.5 (copilot)` agents, `medium` for all
+others. Do not restate effort in the body. Rationale:
 [`apex-agent-authoring/references/model-policy.md`](../skills/apex-agent-authoring/references/model-policy.md).
 
 Repository structure and sourced vendor advice are distinguished in
@@ -78,6 +79,9 @@ Repository structure and sourced vendor advice are distinguished in
 - For Sol, Terra, and Luna main agents, use concise Markdown: Role, Goal,
   Success criteria, Constraints, Output, and Stop rules. Keep existing H2 anchors
   and unique workflow contracts. Replace XML wrappers without deleting their content.
+- For Claude Opus 5.5 and Sonnet 5.5 main agents, use the Claude contract: one H1,
+  a nonempty `## Role`, and nonempty `<scope_fencing>`, `<output_contract>` and
+  `<stop_conditions>` blocks. Keep approval gates and workflow contracts in the body.
 - Leaf workers use a role-specific input/activity/output/failure contract, not
   mandatory main-agent sections or personality. Preserve checks and stop rules;
   optional style advice must not override safety or role requirements.

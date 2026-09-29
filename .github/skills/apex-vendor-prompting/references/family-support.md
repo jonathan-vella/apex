@@ -24,17 +24,23 @@ user-confirmed label does not prove release metadata or runtime cost eligibility
 
 ## Matrix
 
-| Family            | Status        | Rule subset                                                     | Examples                  |
-| ----------------- | ------------- | --------------------------------------------------------------- | ------------------------- |
-| `claude-opus-5.5` | enforced      | All Claude rules, including Opus 5.5 thinking and stop guidance | `Claude Opus 5.5`         |
-| `gpt-6-sol`       | enforced      | GPT-6 family guidance + APEX outcome contract                   | `GPT-6 Sol (copilot)`     |
-| `gpt-6-luna`      | enforced      | GPT-6 family guidance + APEX outcome contract                   | `GPT-6 Luna (copilot)`    |
-| `gpt-5.6-terra`   | enforced      | GPT-5.6 prompt guidance + APEX outcome contract                 | `GPT-5.6 Terra (copilot)` |
-| `mai-code`        | reviewer-only | Microsoft model; no MAI-specific prompting rules                | `MAI-Code-1.1-Flash`      |
-| `unknown`         | enforced      | Require catalog authorization for explicit labels               | (anything else)           |
+| Family              | Status        | Rule subset                                                           | Examples                      |
+| ------------------- | ------------- | --------------------------------------------------------------------- | ----------------------------- |
+| `claude-opus-5.5`   | enforced      | All Claude rules, including Opus 5.5 thinking and stop guidance       | `Claude Opus 5.5 (copilot)`   |
+| `claude-sonnet-5.5` | enforced      | General Claude rules; Opus-sourced rules applied as APEX convention   | `Claude Sonnet 5.5 (copilot)` |
+| `gpt-6-sol`         | enforced      | GPT-6 family guidance + APEX outcome contract                         | `GPT-6 Sol (copilot)`         |
+| `gpt-6-luna`        | enforced      | GPT-6 family guidance + APEX outcome contract                         | `GPT-6 Luna (copilot)`        |
+| `gpt-5.6-terra`     | enforced      | GPT-5.6 prompt guidance + APEX outcome contract                       | `GPT-5.6 Terra (copilot)`     |
+| `mai-code`          | reviewer-only | Microsoft model; no MAI-specific prompting rules                      | `MAI-Code-1.1-Flash`          |
+| `unknown`           | enforced      | Require catalog authorization for explicit labels                     | (anything else)               |
 
 Retired labels (earlier Claude Opus/Sonnet/Haiku, GPT-5.6 Sol/Luna, GPT-5.5 and older) classify as `unknown`
 and fail catalog authorization.
+
+Claude main agents (both families) use the APEX Claude body contract enforced by
+`validateProductionAgentBody`: one H1, a nonempty `## Role`, and nonempty
+`<scope_fencing>`, `<output_contract>` and `<stop_conditions>` blocks. GPT and MAI
+main agents keep the six-H2 outcome contract.
 
 ## How severity is computed
 
@@ -57,7 +63,9 @@ manual checklist items at their listed severity.
    [validate-agents.mjs](../../../../tools/scripts/validate-agents.mjs).
 2. Add a unit test in
    `tools/tests/validate-agents/classify-model.test.mjs`.
-3. Add a `families[]` entry in [rules.json](../rules.json).
-4. Add a row to the matrix above.
+3. Add a `families[]` entry in [rules.json](../rules.json), add the family to
+   `FAMILY_STATUS` in the validator, and extend the family enums in
+   `tools/schemas/vendor-prompting-rules.schema.json`.
+4. Add a row to the matrix above and the model to `.github/model-catalog.json`.
 5. (Optional) Add a `family_overrides` entry to specific rules where
    the new family needs different severity.
