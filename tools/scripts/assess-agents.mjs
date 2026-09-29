@@ -43,6 +43,7 @@ import { MAX_BODY_LINES, REGISTRY_PATH, AGENT_OUTPUT_DIR } from "./_lib/paths.mj
 import {
   classifyModel,
   claudeContractBlockIssues,
+  hasMixedBodyContractFamilies,
   isClaude,
   isGptFamily,
   isGptOutcomeFamily,
@@ -329,6 +330,10 @@ function scoreVendor(agent, metrics, vendorFindings) {
   }
   if (isClaude(family) && ONE_SHOT_AGENT_NAMES.has(name) && metrics.has_investigate_block) {
     evidence.push("ONE-SHOT agent must NOT include <investigate_before_answering> (claude-oneshot-001)");
+    severity = worst(severity, "medium");
+  }
+  if (!agent.isSubagent && hasMixedBodyContractFamilies(agent.frontmatter?.model)) {
+    evidence.push("Model fallbacks mix Claude and non-Claude body contracts");
     severity = worst(severity, "medium");
   }
   if (isClaude(family) && !agent.isSubagent) {

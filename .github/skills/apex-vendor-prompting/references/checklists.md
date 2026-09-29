@@ -139,7 +139,7 @@ After completing both columns, fill in:
 
 ```text
 File:            <path>
-Model family:    <claude-opus-5.5 | gpt-6-sol | gpt-6-luna | gpt-5.6-terra | mai-code>
+Model family:    <claude-opus-5.5 | claude-sonnet-5.5 | gpt-6-sol | gpt-6-luna | gpt-5.6-terra | mai-code>
 Errors:          <count>      ← rule IDs at severity error
 Warnings:        <count>      ← rule IDs at severity warn
 Info:            <count>      ← rule IDs at severity info

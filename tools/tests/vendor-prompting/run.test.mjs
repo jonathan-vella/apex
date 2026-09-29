@@ -334,6 +334,8 @@ test("Claude production main agents use the Claude contract, not the six-H2 cont
           `\x60\x60\x60text\n${open}\nx\n${close}\n\x60\x60\x60`,
         ),
         claudeContract.replace(new RegExp(`${open}\\n[^\\n]+\\n${close}`), `Inline \x60${open}x${close}\x60 mention.`),
+        claudeContract.replace(new RegExp(`${open}\\n[^\\n]+\\n${close}`), `<!-- ${open}disabled${close} -->`),
+        claudeContract.replace(new RegExp(`${open}\\n[^\\n]+\\n${close}`), `<!-- unterminated\n${open}\nx\n${close}`),
       ]) {
         assert.ok(
           validateProductionAgentBody({ ...agent, content: broken }).some((issue) => issue.includes(`<${tag}>`)),
@@ -350,6 +352,16 @@ test("Claude production main agents use the Claude contract, not the six-H2 cont
     path: productionPath,
   };
   assert.ok(validateProductionAgentBody(gpt).some((issue) => issue.includes("H2 Goal")));
+  for (const model of [
+    ["GPT-6-Sol", "Claude Opus 5.5 (copilot)"],
+    ["Claude Sonnet 5.5 (copilot)", "GPT-6-Luna"],
+  ]) {
+    const mixed = { ...gpt, frontmatter: { name: "Example", model } };
+    assert.ok(
+      validateProductionAgentBody(mixed).some((issue) => issue.includes("must not mix Claude")),
+      model.join(", "),
+    );
+  }
 });
 
 test("retired labels classify as unknown and fail catalog authorization", () => {

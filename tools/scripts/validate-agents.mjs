@@ -878,12 +878,18 @@ function contractSections(structure, names, levels = [1, 2]) {
   );
 }
 
-function primaryFamily(agent) {
+function modelFamilies(model) {
   try {
-    return classifyModel(modelLabels(agent.frontmatter?.model)[0]);
+    return modelLabels(model).map((label) => classifyModel(label));
   } catch {
-    return "unknown";
+    return [];
   }
+}
+
+// Fallbacks share one body, so Claude and non-Claude contracts cannot both be satisfied.
+export function hasMixedBodyContractFamilies(model) {
+  const claude = modelFamilies(model).map((family) => isClaude(family));
+  return claude.includes(true) && claude.includes(false);
 }
 
 // Fenced examples and inline code spans must not satisfy a contract block.
@@ -905,12 +911,30 @@ function stripCodeForXml(body) {
   return kept.join("\n");
 }
 
+// Commented-out blocks are not part of the prompt; an unterminated comment hides the rest.
+function stripHtmlComments(text) {
+  const kept = [];
+  let index = 0;
+  while (index < text.length) {
+    const start = text.indexOf("<!--", index);
+    if (start === -1) {
+      kept.push(text.slice(index));
+      break;
+    }
+    kept.push(text.slice(index, start));
+    const end = text.indexOf("-->", start + 4);
+    if (end === -1) break;
+    index = end + 3;
+  }
+  return kept.join("");
+}
+
 export function claudeContractBlockIssues(content) {
-  const text = stripCodeForXml(getBody(content));
+  const text = stripHtmlComments(stripCodeForXml(getBody(content)));
   const issues = [];
   for (const tag of CLAUDE_CONTRACT_BLOCKS) {
     const blocks = [...text.matchAll(new RegExp(`<${tag}>([\\s\\S]*?)</${tag}>`, "g"))];
-    const empty = blocks.some((block) => !block[1].replace(/<!--[\s\S]*?-->/g, "").trim());
+    const empty = blocks.some((block) => !block[1].trim());
     if (!blocks.length || empty) issues.push(`Claude production body requires a nonempty <${tag}> block`);
   }
   return issues;
@@ -925,7 +949,11 @@ export function validateProductionAgentBody(agent) {
   if (titles.length !== 1 || titles[0].nested || titles[0].title !== agent.frontmatter.name) {
     issues.push("Production body requires exactly one H1 matching the frontmatter name");
   }
-  const claudeMain = kind === "main" && isClaude(primaryFamily(agent));
+  const families = modelFamilies(agent.frontmatter?.model);
+  if (kind === "main" && hasMixedBodyContractFamilies(agent.frontmatter?.model)) {
+    issues.push("Production main agent model fallbacks must not mix Claude and non-Claude body contracts");
+  }
+  const claudeMain = kind === "main" && families.length > 0 && families.every((family) => isClaude(family));
   const contracts = claudeMain
     ? { Role: BODY_CONTRACT_SECTIONS.Role }
     : kind === "main"
