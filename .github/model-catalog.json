@@ -1,7 +1,7 @@
 {
   "$schema": "../tools/schemas/model-catalog.schema.json",
   "description": "Authorized Copilot Chat model labels for APEX agents. Two-part design: `models` is hand-maintained metadata that authorizes which labels may appear in agent frontmatter; `assignments` is auto-generated from frontmatter (the canonical source) so the catalog can never drift from the agents themselves. The agent registry mirrors frontmatter via validate-models.mjs --only=consistency; the catalog enforces the label allow-list and assignment integrity via validate-models.mjs --only=catalog.",
-  "last_updated": "2026-09-25",
+  "last_updated": "2026-09-29",
   "models": {
     "GPT-6 Sol (copilot)": {
       "vendor": "OpenAI",
@@ -12,12 +12,8 @@
         "label_source": "user-confirmed",
         "metadata_status": "unknown"
       },
-      "use_for": [
-        "requirements",
-        "architecture",
-        "iac-planning"
-      ],
-      "notes": "Requested exact label; availability and runtime effort controls require manual verification."
+      "use_for": [],
+      "notes": "Requested exact label; availability and runtime effort controls require manual verification. No active assignment since the 2026-09 Claude migration; stays authorized."
     },
     "GPT-6 Luna (copilot)": {
       "vendor": "OpenAI",
@@ -29,15 +25,14 @@
         "metadata_status": "unknown"
       },
       "use_for": [
-        "governance",
-        "iac-codegen",
-        "deployment",
-        "review",
-        "validation"
+        "subagent-validation",
+        "subagent-review",
+        "subagent-cost-estimation",
+        "subagent-policy-precheck"
       ],
       "notes": "Requested exact label; availability and runtime effort controls require manual verification."
     },
-    "Claude Opus 5.5": {
+    "Claude Opus 5.5 (copilot)": {
       "vendor": "Anthropic",
       "tier": null,
       "released": null,
@@ -47,10 +42,33 @@
         "metadata_status": "unknown"
       },
       "use_for": [
+        "requirements",
+        "architecture",
+        "iac-planning",
+        "review",
         "context-optimization",
         "utility-prompts"
       ],
-      "notes": "Requested exact label; availability and runtime effort controls require manual verification."
+      "notes": "Requested exact label; availability and runtime effort controls require manual verification. Agents use reasoning-effort: high."
+    },
+    "Claude Sonnet 5.5 (copilot)": {
+      "vendor": "Anthropic",
+      "tier": null,
+      "released": null,
+      "deprecated": false,
+      "provenance": {
+        "label_source": "user-confirmed",
+        "metadata_status": "unknown"
+      },
+      "use_for": [
+        "design-diagrams",
+        "governance",
+        "iac-codegen",
+        "deployment",
+        "as-built-documentation",
+        "diagnosis"
+      ],
+      "notes": "Requested exact label; availability and runtime effort controls require manual verification. Agents use reasoning-effort: medium."
     },
     "GPT-5.6 Terra (copilot)": {
       "vendor": "OpenAI",
@@ -58,12 +76,9 @@
       "released": "2026-07",
       "deprecated": false,
       "use_for": [
-        "design-diagrams",
-        "as-built-documentation",
-        "diagnosis",
         "utility-prompts"
       ],
-      "notes": "Balanced GPT-5.6 tier for Step 3 Design, Step 7 As-Built, Diagnose, and Local utility prompts. Prompting follows OpenAI's GPT-5.6 prompt guidance plus the APEX outcome-first convention."
+      "notes": "Balanced GPT-5.6 tier for Local utility prompts. Prompting follows OpenAI's GPT-5.6 prompt guidance plus the APEX outcome-first convention."
     },
     "MAI-Code-1.1-Flash": {
       "vendor": "Microsoft",
@@ -92,19 +107,19 @@
     "description": "Auto-generated inventory of agent → model assignments derived from frontmatter (canonical source). Do not edit by hand; run `node tools/scripts/generate-model-catalog.mjs` or let the lefthook pre-commit hook refresh it when frontmatter changes.",
     "agents": {
       "01-orchestrator.agent.md": "MAI-Code-1.1-Flash",
-      "02-requirements.agent.md": "GPT-6 Sol (copilot)",
-      "03-architect.agent.md": "GPT-6 Sol (copilot)",
-      "04-design.agent.md": "GPT-5.6 Terra (copilot)",
-      "04g-governance.agent.md": "GPT-6 Luna (copilot)",
-      "05-iac-planner.agent.md": "GPT-6 Sol (copilot)",
-      "06b-bicep-codegen.agent.md": "GPT-6 Luna (copilot)",
-      "06t-terraform-codegen.agent.md": "GPT-6 Luna (copilot)",
-      "07b-bicep-deploy.agent.md": "GPT-6 Luna (copilot)",
-      "07t-terraform-deploy.agent.md": "GPT-6 Luna (copilot)",
-      "08-as-built.agent.md": "GPT-5.6 Terra (copilot)",
-      "09-diagnose.agent.md": "GPT-5.6 Terra (copilot)",
-      "10-challenger.agent.md": "GPT-6 Luna (copilot)",
-      "11-context-optimizer.agent.md": "Claude Opus 5.5"
+      "02-requirements.agent.md": "Claude Opus 5.5 (copilot)",
+      "03-architect.agent.md": "Claude Opus 5.5 (copilot)",
+      "04-design.agent.md": "Claude Sonnet 5.5 (copilot)",
+      "04g-governance.agent.md": "Claude Sonnet 5.5 (copilot)",
+      "05-iac-planner.agent.md": "Claude Opus 5.5 (copilot)",
+      "06b-bicep-codegen.agent.md": "Claude Sonnet 5.5 (copilot)",
+      "06t-terraform-codegen.agent.md": "Claude Sonnet 5.5 (copilot)",
+      "07b-bicep-deploy.agent.md": "Claude Sonnet 5.5 (copilot)",
+      "07t-terraform-deploy.agent.md": "Claude Sonnet 5.5 (copilot)",
+      "08-as-built.agent.md": "Claude Sonnet 5.5 (copilot)",
+      "09-diagnose.agent.md": "Claude Sonnet 5.5 (copilot)",
+      "10-challenger.agent.md": "Claude Opus 5.5 (copilot)",
+      "11-context-optimizer.agent.md": "Claude Opus 5.5 (copilot)"
     },
     "subagents": {
       "bicep-validate-subagent.agent.md": "GPT-6 Luna (copilot)",

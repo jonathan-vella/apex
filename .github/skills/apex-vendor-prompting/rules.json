@@ -62,9 +62,17 @@
       "family": "claude-opus-5.5",
       "status": "enforced",
       "label_examples": [
-        "Claude Opus 5.5"
+        "Claude Opus 5.5 (copilot)"
       ],
       "rule_subset_note": "All Claude rules apply at default severity, including Opus 5.5-specific thinking, early-stop and pasted-content guidance."
+    },
+    {
+      "family": "claude-sonnet-5.5",
+      "status": "enforced",
+      "label_examples": [
+        "Claude Sonnet 5.5 (copilot)"
+      ],
+      "rule_subset_note": "General Claude best-practice rules apply at default severity. Opus-specific rules (reasoning extraction, early stop, pasted content, self-verification, task scope, subagent control, deliverable length) are sourced from Opus guides and are applied to Sonnet bodies as an APEX convention only."
     },
     {
       "family": "gpt-6-sol",
@@ -142,7 +150,8 @@
       "id": "legacy-003",
       "vendor": "anthropic",
       "model_families": [
-        "claude-opus-5.5"
+        "claude-opus-5.5",
+        "claude-sonnet-5.5"
       ],
       "applies_to": "agent",
       "severity": "warn",
@@ -158,7 +167,8 @@
       "id": "legacy-004",
       "vendor": "anthropic",
       "model_families": [
-        "claude-opus-5.5"
+        "claude-opus-5.5",
+        "claude-sonnet-5.5"
       ],
       "applies_to": "agent",
       "severity": "warn",
@@ -174,7 +184,8 @@
       "id": "claude-oneshot-001",
       "vendor": "anthropic",
       "model_families": [
-        "claude-opus-5.5"
+        "claude-opus-5.5",
+        "claude-sonnet-5.5"
       ],
       "applies_to": "agent",
       "severity": "warn",
@@ -215,7 +226,7 @@
       ],
       "applies_to": "agent",
       "severity": "warn",
-      "summary": "GPT-family agents MUST NOT contain Claude-specific XML blocks (<investigate_before_answering>, <context_awareness>, <scope_fencing>, <empty_result_recovery>, <subagent_budget>).",
+      "summary": "GPT-family agents MUST NOT contain Claude-specific XML blocks (<investigate_before_answering>, <context_awareness>, <scope_fencing>, <empty_result_recovery>, <subagent_budget>, <output_contract>, <stop_conditions>).",
       "rationale": "APEX prefers concise Markdown section headings, matching the GPT-5.6 suggested prompt structure. This does not claim GPT cannot interpret XML; OpenAI's own examples use XML tags such as <tool_orchestration>.",
       "policy_origin": "repository-convention",
       "source_id": "openai-gpt-5-6-prompt-guidance",
@@ -260,7 +271,8 @@
       "id": "claude-no-prefill-001",
       "vendor": "anthropic",
       "model_families": [
-        "claude-opus-5.5"
+        "claude-opus-5.5",
+        "claude-sonnet-5.5"
       ],
       "applies_to": "both",
       "severity": "warn",
@@ -312,7 +324,8 @@
       "id": "claude-output-contract-001",
       "vendor": "anthropic",
       "model_families": [
-        "claude-opus-5.5"
+        "claude-opus-5.5",
+        "claude-sonnet-5.5"
       ],
       "applies_to": "agent",
       "severity": "warn",

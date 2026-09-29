@@ -1,7 +1,7 @@
 ---
 name: fixture-good-claude
 description: "Good Claude agent fixture — should produce no vendor-prompting findings. Used by tools/tests/vendor-prompting/run.test.mjs."
-model: ["Claude Opus 5.5"]
+model: ["Claude Opus 5.5 (copilot)"]
 user-invocable: true
 agents: []
 tools: [read]

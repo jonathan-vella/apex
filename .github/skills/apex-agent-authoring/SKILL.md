@@ -65,7 +65,9 @@ Keep each concern in one place:
 
 - Agent body: role, goal, workflow-specific constraints, output, stop rules.
 - Sol/Terra/Luna main bodies use concise Markdown as an APEX convention, not a
-  model-specific vendor claim. Leaf workers use bounded role contracts instead of
+  model-specific vendor claim. Claude (Opus/Sonnet 5.5) main bodies use the Claude
+  contract: H1, `## Role`, `<scope_fencing>`, `<output_contract>`, `<stop_conditions>`.
+  Leaf workers use bounded role contracts instead of
   mandatory personality or main-agent sections. Preserve content when removing XML.
 - Instruction: enforceable rules that apply automatically by file type.
 - Skill: on-demand domain workflow and decision guidance.

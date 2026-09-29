@@ -95,10 +95,14 @@ const PROMPT_EXPECTATIONS = {
 
 const catalog = {
   models: Object.fromEntries(
-    ["GPT-5.6-Terra", "GPT-6-Sol", "GPT-6-Luna", "Claude Opus 5.5", "MAI-Code-1.1-Flash"].map((label) => [
-      label,
-      { deprecated: false },
-    ]),
+    [
+      "GPT-5.6-Terra",
+      "GPT-6-Sol",
+      "GPT-6-Luna",
+      "Claude Opus 5.5 (copilot)",
+      "Claude Sonnet 5.5 (copilot)",
+      "MAI-Code-1.1-Flash",
+    ].map((label) => [label, { deprecated: false }]),
   ),
 };
 catalog.models["Retired-Model"] = { deprecated: true };
@@ -117,7 +121,7 @@ function lintFixture(filePath) {
   if (filePath.endsWith(".agent.md")) return lint({ agents: new Map([[filePath, fixture]]) });
   const target = fixture.frontmatter.agent;
   const agents = new Map();
-  if (target && target !== "agent") agents.set("target", item({ name: target, model: ["Claude Opus 5.5"] }));
+  if (target && target !== "agent") agents.set("target", item({ name: target, model: ["Claude Opus 5.5 (copilot)"] }));
   return lint({ agents, prompts: new Map([[filePath, fixture]]) }).filter((finding) =>
     finding.file.endsWith(path.basename(filePath)),
   );
@@ -194,7 +198,7 @@ test("ordinary labels are exact; platform-qualified handoff labels are allowed",
 });
 
 test("inherited custom prompt checks every family and generic picker inheritance is valid", () => {
-  const agents = new Map([["parent", item({ name: "Parent", model: ["GPT-6-Sol", "Claude Opus 5.5"] })]]);
+  const agents = new Map([["parent", item({ name: "Parent", model: ["GPT-6-Sol", "Claude Opus 5.5 (copilot)"] })]]);
   const prompts = new Map([["prompt", item({ agent: "Parent" }, "prefill the assistant")]]);
   assert.ok(lint({ agents, prompts }).some((finding) => finding.ruleId === "claude-no-prefill-001"));
   for (const agent of [undefined, "agent", "ask", "edit", "plan"]) {
@@ -254,7 +258,7 @@ test("repeated approval phrases warn on GPT families only above the threshold", 
     const once = lint({ agents: new Map([["main", item({ model: [model] }, `${contract}\nAsk first.`)]]) });
     assert.ok(!once.some((finding) => finding.ruleId === "gpt-approval-repetition-001"));
   }
-  const claude = lint({ agents: new Map([["main", item({ model: ["Claude Opus 5.5"] }, approvals)]]) });
+  const claude = lint({ agents: new Map([["main", item({ model: ["Claude Opus 5.5 (copilot)"] }, approvals)]]) });
   assert.ok(!claude.some((finding) => finding.ruleId === "gpt-approval-repetition-001"));
   const widened = "Do not proceed until approved. Requires user approval. Stop for approval. Ask first.";
   const flagged = lint({ agents: new Map([["main", item({ model: ["GPT-6-Sol"] }, `${contract}\n${widened}`)]]) });
@@ -266,17 +270,86 @@ test("repeated approval phrases warn on GPT families only above the threshold", 
 
 test("Opus 5.5 flags visible-reasoning instructions in agents and inherited prompts", () => {
   for (const body of ["Think step by step.", "Think carefully before answering.", "Show your reasoning."]) {
-    const agent = lint({ agents: new Map([["main", item({ model: ["Claude Opus 5.5"] }, body)]]) });
+    const agent = lint({ agents: new Map([["main", item({ model: ["Claude Opus 5.5 (copilot)"] }, body)]]) });
     assert.ok(
       agent.some((finding) => finding.ruleId === "claude-reasoning-extraction-001"),
       body,
     );
+    const sonnet = lint({ agents: new Map([["main", item({ model: ["Claude Sonnet 5.5 (copilot)"] }, body)]]) });
+    assert.ok(!sonnet.some((finding) => finding.ruleId === "claude-reasoning-extraction-001"), body);
     const gpt = lint({ agents: new Map([["main", item({ model: ["GPT-6-Sol"] }, `${contract}\n${body}`)]]) });
     assert.ok(!gpt.some((finding) => finding.ruleId === "claude-reasoning-extraction-001"), body);
   }
-  const agents = new Map([["parent", item({ name: "Parent", model: ["Claude Opus 5.5"] })]]);
+  const agents = new Map([["parent", item({ name: "Parent", model: ["Claude Opus 5.5 (copilot)"] })]]);
   const prompts = new Map([["prompt", item({ agent: "Parent" }, "Write out your reasoning.")]]);
   assert.ok(lint({ agents, prompts }).some((finding) => finding.ruleId === "claude-reasoning-extraction-001"));
+});
+
+test("Sonnet 5.5 is a Claude family for general Claude rules", () => {
+  const findings = lint({
+    agents: new Map([["main", item({ model: ["Claude Sonnet 5.5 (copilot)"] }, "prefill the assistant")]]),
+  });
+  assert.ok(findings.some((finding) => finding.ruleId === "claude-no-prefill-001" && finding.severity === "warn"));
+  assert.ok(!findings.some((finding) => finding.ruleId === "gpt-outcome-contract-001"));
+  assert.ok(!findings.some((finding) => finding.severity === "error"));
+});
+
+test("GPT agents flag <stop_conditions> as Claude-only XML", () => {
+  const findings = lint({
+    agents: new Map([
+      ["main", item({ model: ["GPT-6-Luna"] }, `${contract}\n<stop_conditions>Stop.</stop_conditions>`)],
+    ]),
+  });
+  assert.ok(findings.some((finding) => finding.ruleId === "gpt-no-claude-xml-001"));
+});
+
+const claudeContract = [
+  "# Example",
+  "## Role",
+  "Own the step.",
+  "<scope_fencing>",
+  "Read-only upstream.",
+  "</scope_fencing>",
+  "<output_contract>",
+  "Write the artifact.",
+  "</output_contract>",
+  "<stop_conditions>",
+  "Stop at the approval gate.",
+  "</stop_conditions>",
+].join("\n");
+
+test("Claude production main agents use the Claude contract, not the six-H2 contract", () => {
+  const productionPath = path.resolve(__dirname, "../../../.github/agents/example.agent.md");
+  for (const model of ["Claude Opus 5.5 (copilot)", "Claude Sonnet 5.5 (copilot)"]) {
+    const agent = { frontmatter: { name: "Example", model: [model] }, content: claudeContract, path: productionPath };
+    assert.deepEqual(validateProductionAgentBody(agent), [], model);
+    for (const tag of ["scope_fencing", "output_contract", "stop_conditions"]) {
+      const open = `<${tag}>`;
+      const close = `</${tag}>`;
+      for (const broken of [
+        claudeContract.replace(new RegExp(`${open}\\n[^\\n]+\\n${close}`), ""),
+        claudeContract.replace(new RegExp(`${open}\\n[^\\n]+\\n`), `${open}\n<!-- empty -->\n`),
+        claudeContract.replace(
+          new RegExp(`${open}\\n[^\\n]+\\n${close}`),
+          `\x60\x60\x60text\n${open}\nx\n${close}\n\x60\x60\x60`,
+        ),
+        claudeContract.replace(new RegExp(`${open}\\n[^\\n]+\\n${close}`), `Inline \x60${open}x${close}\x60 mention.`),
+      ]) {
+        assert.ok(
+          validateProductionAgentBody({ ...agent, content: broken }).some((issue) => issue.includes(`<${tag}>`)),
+          `${model}: ${tag}`,
+        );
+      }
+    }
+    const noRole = claudeContract.replace("## Role\nOwn the step.\n", "");
+    assert.ok(validateProductionAgentBody({ ...agent, content: noRole }).some((issue) => issue.includes("Role")));
+  }
+  const gpt = {
+    frontmatter: { name: "Example", model: ["GPT-6-Sol"] },
+    content: claudeContract,
+    path: productionPath,
+  };
+  assert.ok(validateProductionAgentBody(gpt).some((issue) => issue.includes("H2 Goal")));
 });
 
 test("retired labels classify as unknown and fail catalog authorization", () => {
@@ -487,19 +560,19 @@ test("agent catalog and instructions preserve canonical models and human-selecte
   const catalog = JSON.parse(fs.readFileSync(path.join(root, ".github/model-catalog.json"), "utf8"));
   const expectedModels = {
     "01-orchestrator.agent.md": "MAI-Code-1.1-Flash",
-    "02-requirements.agent.md": "GPT-6 Sol (copilot)",
-    "03-architect.agent.md": "GPT-6 Sol (copilot)",
-    "04-design.agent.md": "GPT-5.6 Terra (copilot)",
-    "04g-governance.agent.md": "GPT-6 Luna (copilot)",
-    "05-iac-planner.agent.md": "GPT-6 Sol (copilot)",
-    "06b-bicep-codegen.agent.md": "GPT-6 Luna (copilot)",
-    "06t-terraform-codegen.agent.md": "GPT-6 Luna (copilot)",
-    "07b-bicep-deploy.agent.md": "GPT-6 Luna (copilot)",
-    "07t-terraform-deploy.agent.md": "GPT-6 Luna (copilot)",
-    "08-as-built.agent.md": "GPT-5.6 Terra (copilot)",
-    "09-diagnose.agent.md": "GPT-5.6 Terra (copilot)",
-    "10-challenger.agent.md": "GPT-6 Luna (copilot)",
-    "11-context-optimizer.agent.md": "Claude Opus 5.5",
+    "02-requirements.agent.md": "Claude Opus 5.5 (copilot)",
+    "03-architect.agent.md": "Claude Opus 5.5 (copilot)",
+    "04-design.agent.md": "Claude Sonnet 5.5 (copilot)",
+    "04g-governance.agent.md": "Claude Sonnet 5.5 (copilot)",
+    "05-iac-planner.agent.md": "Claude Opus 5.5 (copilot)",
+    "06b-bicep-codegen.agent.md": "Claude Sonnet 5.5 (copilot)",
+    "06t-terraform-codegen.agent.md": "Claude Sonnet 5.5 (copilot)",
+    "07b-bicep-deploy.agent.md": "Claude Sonnet 5.5 (copilot)",
+    "07t-terraform-deploy.agent.md": "Claude Sonnet 5.5 (copilot)",
+    "08-as-built.agent.md": "Claude Sonnet 5.5 (copilot)",
+    "09-diagnose.agent.md": "Claude Sonnet 5.5 (copilot)",
+    "10-challenger.agent.md": "Claude Opus 5.5 (copilot)",
+    "11-context-optimizer.agent.md": "Claude Opus 5.5 (copilot)",
     "bicep-validate-subagent.agent.md": "GPT-6 Luna (copilot)",
     "bicep-whatif-subagent.agent.md": "GPT-6 Luna (copilot)",
     "challenger-review-subagent.agent.md": "GPT-6 Luna (copilot)",

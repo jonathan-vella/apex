@@ -39,8 +39,11 @@ Two parallel checklists: agent (`*.agent.md`) and prompt
       _(rule `model-deprecation-001`)_
       Hint: `node tools/scripts/validate-models.mjs --only=deprecated`.
 
-### Claude Opus 5.5
+### Claude Opus 5.5 And Sonnet 5.5
 
+- [ ] **R-CL-0** Main agents: one H1, nonempty `## Role`, nonempty `<scope_fencing>`,
+      `<output_contract>` and `<stop_conditions>`. _(validator `production-agent-body`)_
+      Hint: `grep -E "^## Role|<(scope_fencing|output_contract|stop_conditions)>" <file>`.
 - [ ] **R-CL-3** If body > 350 lines, includes `<context_awareness>`.
       _(rule `legacy-003`)_
       Hint: `wc -l <file>` and `grep "<context_awareness>" <file>`.
@@ -55,7 +58,7 @@ Two parallel checklists: agent (`*.agent.md`) and prompt
 - [ ] **R-CL-5** Artifact-producing agents include `<output_contract>`.
       _(rule `claude-output-contract-001`)_
 - [ ] **R-CL-8** No "think step by step / think carefully / show your reasoning" lines.
-      _(rule `claude-reasoning-extraction-001`)_
+      _(rule `claude-reasoning-extraction-001`; validator on Opus, APEX convention on Sonnet)_
       Hint: `grep -iE "think (step|carefully|hard)|your reasoning|chain[- ]of[- ]thought" <file>`.
 - [ ] **R-CL-9** Long-running agents name unwanted early stops and the wanted ones
       (approval gates, blocking inputs). _(rule `claude-early-stop-001`, reviewer-only)_
@@ -115,7 +118,7 @@ Two parallel checklists: agent (`*.agent.md`) and prompt
 - [ ] **R-X-8** Model is not on the deprecation list.
       _(rule `model-deprecation-001`)_
 
-### Claude Opus 5.5 (when prompt resolves to Claude)
+### Claude Opus 5.5 And Sonnet 5.5 (when prompt resolves to Claude)
 
 - [ ] **R-CL-4** No prefill instructions.
       _(rule `claude-no-prefill-001`)_

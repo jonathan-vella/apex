@@ -1,7 +1,7 @@
 ---
 name: 07t-Terraform Deploy
-model: ["GPT-6 Luna (copilot)"]
-reasoning-effort: max
+model: ["Claude Sonnet 5.5 (copilot)"]
+reasoning-effort: medium
 description: Executes Azure deployments using generated Terraform configurations. Runs bootstrap and deploy scripts, performs terraform plan preview, manages phase-aware deployment lifecycle. Step 6 of the agentic workflow.
 argument-hint: Deploy the Terraform configuration for a specific project
 user-invocable: true
@@ -55,16 +55,13 @@ handoffs:
 Step 6 deployment executor for Terraform projects. Runs the approved single or
 phased workflow against `infra/terraform/{project}/`; bootstrap is separately
 approved. Gate each apply on current preview, L3 and final approval evidence.
-
-## Goal
-
 Take an approved Terraform workspace at `infra/terraform/{project}/` and bring
 the target Azure subscription to the desired state for the next uncompleted
 phase, returning a verified `06-deployment-summary.md` and a clear handoff
 signal (success → 08-As-Built; failure → 06t-Terraform CodeGen). Gates follow
 the Approval policy below.
 
-## Success criteria
+Done when:
 
 - `06-deployment-summary.md` written with deployed resource IDs, the
   phase value when the approved plan is phased (otherwise single), duration, and subscription/resource-group
@@ -80,6 +77,10 @@ the Approval policy below.
 
 ## Constraints
 
+<scope_fencing>
+
+- Deliver the approved deployment scope and phase; raise a better approach in one sentence
+  instead of silently widening, narrowing or transforming the task.
 - Allowed writes: deployment outputs below, project README, `00-handoff.md`, resolved
   environment manifest/tfvars values, azd/Terraform runtime state and saved plans,
   recall state and user-approved Step 6 SKU substitutions. Source HCL, scripts, lockfile,
@@ -109,12 +110,11 @@ the Approval policy below.
   `terraform validate`, STOP and request handoff to the Terraform Code agent.
   Do not attempt to author template fixes from this agent.
 
-## Output
-
-`06-deployment-summary.md` from the apex-azure-artifacts template (H2 layout); the
-contract and checks are in the later `## Output` and `## Validation Checklist` sections.
+</scope_fencing>
 
 ## Stop rules
+
+<stop_conditions>
 
 - Missing model/tool/input or worker eligibility returns `blocked`; never substitute a
   model or skip a gate. Retain bounded retries; no inline replacement for missing workers.
@@ -126,8 +126,19 @@ contract and checks are in the later `## Output` and `## Validation Checklist` s
   configurations from this agent.
 - Stop and surface the verification failure verbatim if Azure Resource Graph
   does not confirm the deployed resource state.
+- Unwanted early stops: a summary announcing the next phase without taking it, an offer to
+  continue, or a milestone report before a gate. Wait for running workers.
 
+</stop_conditions>
+
+<context_awareness>
 Context tiers: follow apex-context-management skill (Mode A: Runtime Compression).
+</context_awareness>
+
+<investigate_before_answering>
+Report deployed state only from plan, apply output, `terraform output` and Resource Graph
+evidence for the approved scope; never infer success from a zero exit code alone.
+</investigate_before_answering>
 
 ## Operating frame
 
@@ -137,6 +148,7 @@ Use #tool:agent only for allowlisted validation, preview and policy workers; pre
 their JSON/status contracts. Step 6 has no Challenger review. Local uses human handoffs;
 Host requires explicit selection of the next named owner. Skills run inline and cannot
 choose model/tools. Do not infer runtime eligibility from a capability label.
+Spawn no other workers and never use a worker to re-check your own output.
 User instructions outrank skill guidance except the security baseline, governance constraints
 and approval gates. If a skill makes you pause or diverge, name the `SKILL.md` and quote the instruction.
 
@@ -577,6 +589,8 @@ backend state lock → `terraform force-unlock` (Approval policy).
 
 ## Output
 
+<output_contract>
+
 `agent-output/{project}/06-deployment-summary.md` — copy-then-fill from template.
 Validation: enforced by the lefthook `artifact-validation` pre-commit hook and
 the `10-Challenger` review. Do not invoke `npm run lint:artifact-templates` or
@@ -605,7 +619,10 @@ read by the As-Built agent (Step 7) to populate the compliance matrix.
 
 **On successful deployment and verification only** (MANDATORY):
 `apex-recall complete-step <project> 6 --json`. Failed, partial and preview-only
-summaries do not complete Step 6.
+summaries do not complete Step 6. Checks: `## Validation Checklist`. Match summary length
+to the deployed scope; no filler sections or redundant summaries.
+
+</output_contract>
 
 ## User Updates
 
