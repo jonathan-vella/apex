@@ -2,8 +2,8 @@
 
 ## Product Automation
 
-APEX runs product CI, branch enforcement, consumer-template validation, devcontainer checks and a weekly
-upstream skill drift report that updates one labelled issue.
+APEX runs product CI, branch enforcement, consumer-template validation, devcontainer checks, dependency
+security checks and a weekly upstream skill drift report that updates one labelled issue.
 Read each active workflow for its exact triggers and permissions.
 Sensei branch maintenance is retired; no workflow merges or monitors that branch automatically.
 
@@ -13,6 +13,9 @@ Governance, project IaC and data refresh jobs are maintained as inactive
 [consumer templates](../consumer-workflows/). The accelerator distributes guarded copies;
 consumer repositories own execution and refreshed data. See
 [consumer workflow ownership](../../tools/scripts/consumer-workflows.md).
+
+APEX maintainers refresh APEX's own copy of the AVM module index manually with
+`npm run refresh:avm-module-index`, at least monthly and before each release.
 
 ## Documentation
 

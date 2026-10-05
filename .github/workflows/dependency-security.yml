@@ -1,0 +1,108 @@
+# Dependency Security Workflow
+# Product CI for APEX's own tooling dependencies:
+#   - dependency-review: block PRs that add high/critical advisories
+#   - npm-audit:         npm audit gate with recorded exceptions (tools/registry/npm-audit-exceptions.json)
+#   - pip-audit:         audit requirements.txt
+#   - secret-scan:       gitleaks over git history, installed from the pinned devcontainer manifest
+# The weekly schedule catches advisories published after a dependency was merged.
+
+name: Dependency Security
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "package.json"
+      - "package-lock.json"
+      - "requirements.txt"
+      - "tools/apex-recall/pyproject.toml"
+      - "tools/registry/npm-audit-exceptions.json"
+      - "tools/scripts/check-npm-audit.mjs"
+      - ".devcontainer/download-checksums.json"
+      - ".github/workflows/dependency-security.yml"
+  push:
+    branches: [main]
+    paths:
+      - "package.json"
+      - "package-lock.json"
+      - "requirements.txt"
+      - "tools/apex-recall/pyproject.toml"
+      - "tools/registry/npm-audit-exceptions.json"
+      - "tools/scripts/check-npm-audit.mjs"
+      - ".devcontainer/download-checksums.json"
+      - ".github/workflows/dependency-security.yml"
+  schedule:
+    # Mondays at 05:00 UTC.
+    - cron: "0 5 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# `npm ci` runs `lefthook install`; no commits are made here, so hooks are not needed.
+env:
+  LEFTHOOK: "0"
+
+jobs:
+  dependency-review:
+    name: Dependency review
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Review dependency changes
+        uses: actions/dependency-review-action@v5
+        with:
+          fail-on-severity: high
+
+  npm-audit:
+    name: npm audit gate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Setup Node
+        uses: ./.github/actions/setup-node-repo
+
+      - name: Audit npm dependencies against recorded exceptions
+        run: npm run audit:deps
+
+  pip-audit:
+    name: pip-audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Setup Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.14"
+
+      - name: Install pip-audit
+        run: python -m pip install pip-audit==2.10.1
+
+      - name: Audit Python requirements
+        run: pip-audit --requirement requirements.txt --progress-spinner off
+
+  secret-scan:
+    name: Secret scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Install pinned gitleaks
+        run: sudo bash .devcontainer/install-build-tools.sh
+
+      - name: Scan git history
+        run: gitleaks git --redact --no-banner .

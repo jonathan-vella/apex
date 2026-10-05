@@ -1,12 +1,11 @@
 # Dependabot configuration for automated dependency updates.
 #
-# Scope: dev container features, GitHub Actions, npm (root + site), and the
-# apex-recall Python package. Top-level
-# requirements.txt is intentionally out of scope (managed via uv pin in
-# .devcontainer/post-start.sh).
+# Scope: dev container features and base image, GitHub Actions, root npm,
+# root requirements.txt and the apex-recall Python package.
 #
-# Update cadence is weekly to balance freshness with PR noise. Open PR limit
-# is conservative (3 per ecosystem) to avoid review-queue overload.
+# Update cadence is weekly to balance freshness with PR noise. Open PR limits
+# are conservative (3 per ecosystem; 5 for npm, whose grouped and security
+# updates otherwise queue behind the limit) to avoid review-queue overload.
 #
 # Reference: https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
 
@@ -17,6 +16,20 @@ updates:
   # .devcontainer/devcontainer.json + regenerates devcontainer-lock.json.
   - package-ecosystem: "devcontainers"
     directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: "chore(devcontainer)"
+    labels:
+      - "dependencies"
+      - "devcontainer"
+
+  # ─── Dev container base image ─────────────────────────────────────────────
+  # Tracks the FROM line in .devcontainer/Dockerfile.
+  - package-ecosystem: "docker"
+    directory: "/.devcontainer"
     schedule:
       interval: "weekly"
       day: "monday"
@@ -55,7 +68,7 @@ updates:
     schedule:
       interval: "weekly"
       day: "tuesday"
-    open-pull-requests-limit: 3
+    open-pull-requests-limit: 5
     commit-message:
       prefix: "chore(deps)"
     labels:
@@ -80,3 +93,16 @@ updates:
     labels:
       - "dependencies"
       - "apex-recall"
+
+  # ─── Python: repository tooling (requirements.txt) ─────────────────────────
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "wednesday"
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: "chore(deps)"
+    labels:
+      - "dependencies"
+      - "python"
