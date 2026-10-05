@@ -44,12 +44,13 @@ other scope today). RG-scope anomaly is deferred.
 There is **no blanket carve-out** for budgets or Action Groups. At
 plan time (05-IaC Planner Phase 2), perform a live registry lookup:
 
-- **Bicep — Consumption Budget**:
-  `curl -sf https://mcr.microsoft.com/v2/bicep/avm/res/consumption/budget/tags/list`
-  (subscription-scoped; one `thresholdType`/`operator` per budget, so
-  it cannot carry the five-notification contract — record the raw
+- **Bicep — Consumption Budget** (use the variant for
+  `cost_monitoring_scope`: `rg-scope`, `sub-scope` or `mg-scope`):
+  `curl -sf https://mcr.microsoft.com/v2/bicep/avm/res/consumption/budget/{scope-variant}/tags/list`
+  Every variant takes one `thresholdType` and one `operator` per budget,
+  so none can carry the five-notification contract — record the raw
   resource exception unless the module has gained per-notification
-  settings).
+  settings.
 - **Bicep — Action Group**:
   `curl -sf https://mcr.microsoft.com/v2/bicep/avm/res/insights/action-group/tags/list`
 - **Terraform — Consumption Budget**:

@@ -13,14 +13,15 @@ Subscription-scope writes require explicit authorization.
 
 ## 1. Budget — RG scope
 
-The AVM resource module `avm/res/consumption/budget` deploys at
-subscription scope and accepts one `thresholdType` and one `operator`
-per budget. It cannot express the five-notification contract (mixed
-Actual/Forecasted thresholds and operators) in a single budget, so the
-raw resource is used **with an exception record** in the plan (see
-`cost-alerts-baseline.md` → "Raw resource exception record"). Re-check
-the module at plan time; switch to it if it gains per-notification
-settings.
+AVM publishes `avm/res/consumption/budget` plus scope-specific variants
+(`.../budget/rg-scope`, `.../sub-scope`, `.../mg-scope`). Each builds every
+notification from a single `operator` and a single `thresholdType`, so none
+can express the five-notification contract (mixed Actual/Forecasted
+thresholds, `GreaterThanOrEqualTo` at 100%) in one budget. The raw resource
+is used **with an exception record** in the plan (see
+`cost-alerts-baseline.md` → "Raw resource exception record"). Re-check the
+scope-specific module at plan time; switch to it if it gains
+per-notification settings.
 
 ```bicep
 // Raw resource — only with exception record in plan
@@ -46,13 +47,13 @@ resource budgetRaw 'Microsoft.Consumption/budgets@2026-06-01' = {
 
 Use `targetScope = 'subscription'` and `Microsoft.Consumption/budgets`
 at subscription scope with the same exception record (the AVM module
-has the same single-operator limit at this scope).
+`.../budget/sub-scope` has the same single-operator limit).
 
 ## 3. Budget — management-group scope
 
 Use `targetScope = 'managementGroup'` and `Microsoft.Consumption/budgets`
-at management-group scope with an exception record; no AVM module
-targets this scope.
+at management-group scope with an exception record (`.../budget/mg-scope`
+has the same single-operator limit).
 
 ## 4. Action Group — `create` mode (AVM)
 
