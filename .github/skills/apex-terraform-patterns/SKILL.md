@@ -3,7 +3,7 @@ name: apex-terraform-patterns
 user-invocable: false
 disable-model-invocation: false
 description: '**UTILITY SKILL** — Reusable Azure Terraform patterns: hub-spoke, private endpoints, diagnostics, AVM-TF modules. WHEN: "hub-spoke Terraform", "private endpoint module", "AVM-TF composition", "diagnostic settings", "plan interpretation". DO NOT USE FOR: Bicep code (apex-azure-bicep-patterns), ADRs (apex-azure-adr), diagrams (apex-python-diagrams).'
-compatibility: Requires Terraform >= 1.9, azurerm ~> 4.0, Azure CLI
+compatibility: Requires Terraform >= 1.11, azurerm ~> 4.0, Azure CLI
 ---
 
 # Azure Terraform Patterns Skill
@@ -33,6 +33,7 @@ Composable architecture building blocks for Azure Terraform. Complements
 | Budget & Cost Monitoring | Every deployment (mandatory)                     | `references/budget-pattern.md`             |
 | Plan Interpretation      | Pre-deployment validation and change analysis    | `references/plan-interpretation.md`        |
 | AVM Pitfalls             | Set-type diffs, provider pins, 4.x changes       | `references/avm-pitfalls.md`               |
+| Provider Compatibility   | Why azurerm 4.x / Terraform 1.11 floors          | `references/avm-provider-compatibility.md` |
 | AVM Authoring            | AVM certification requirements, compliance       | `references/avm-authoring-requirements.md` |
 | Module Refactoring       | Monolith → module extraction, state migration    | `references/refactor-module.md`            |
 
@@ -61,7 +62,7 @@ will be flagged by `npm run validate:avm-versions`. Full code sample
 - **Diagnostics**: Every resource MUST have a diagnostic setting → Log Analytics
 - **Conditional**: Use `for_each` (keyed) over `count` (indexed) for named resources
 - **Identity**: SystemAssigned managed identity + RBAC; avoid keys/connection strings
-- **Provider pin**: `~> 4.0` (allows 4.x patches, blocks 5.0)
+- **Provider pin**: `~> 4.0` (allows 4.x patches, blocks 5.0 until AVM modules accept it — see `references/avm-provider-compatibility.md`)
 - **Telemetry**: Set `enable_telemetry = false` in restricted-network environments
 - **Moved blocks**: Use `moved {}` when renaming resources to prevent destroy/recreate
 - **Budget**: Follow the canonical cost-monitoring contract; amount and notification inputs MUST be variables
@@ -109,6 +110,7 @@ Applying a Terraform pattern in a root module:
 | `references/budget-pattern.md`             | Consumption budget, forecast alerts, anomaly detection            |
 | `references/plan-interpretation.md`        | Plan commands, change symbols, red flags, summary script          |
 | `references/avm-pitfalls.md`               | Set-type diffs, provider pins, tag ignore, moved blocks, 4.x      |
+| `references/avm-provider-compatibility.md` | AVM-TF module provider/Core constraints, azurerm 5.x revisit      |
 | `references/tf-best-practices-examples.md` | Best-practice code examples, formatting, code review checklist    |
 | `references/bootstrap-backend-template.md` | Backend bootstrap template                                        |
 | `references/deploy-script-template.md`     | Deployment script template                                        |

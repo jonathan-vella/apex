@@ -82,6 +82,6 @@ module keyVault 'br/public:avm/res/key-vault/vault:<LATEST>' = {
 | Event Hub              | `Azure/avm-res-eventhub-namespace/azurerm`                   |
 | Log Analytics          | `Azure/avm-res-operationalinsights-workspace/azurerm`        |
 | App Insights           | `Azure/avm-res-insights-component/azurerm`                   |
-| Private DNS Zone       | `Azure/avm-res-network-privatednszones/azurerm`              |
+| Private DNS Zone       | `Azure/avm-res-network-privatednszone/azurerm`               |
 | User-Assigned Identity | `Azure/avm-res-managedidentity-userassignedidentity/azurerm` |
 | API Management         | `Azure/avm-res-apimanagement-service/azurerm`                |

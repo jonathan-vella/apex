@@ -32,7 +32,8 @@ const DEFAULT_PINS = {
     "Minimum tool versions required by the APEX Step 5 validate gate and Step 6 deploy. Bump pins via PR with rationale.",
   pins: {
     bicep: { min: "0.21.0", check_cmd: "bicep --version", parser: "bicep" },
-    terraform: { min: "1.6.0", check_cmd: "terraform version -json", parser: "terraform-json" },
+    // AVM-TF Key Vault and AKS modules declare required_version >= 1.11.
+    terraform: { min: "1.11.0", check_cmd: "terraform version -json", parser: "terraform-json" },
     az: { min: "2.55.0", check_cmd: "az version --output json", parser: "az-json" },
     node: { min: "20.0.0", check_cmd: "node --version", parser: "node" },
   },

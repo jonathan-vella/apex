@@ -8,13 +8,16 @@ Diagnostic settings, conditional deployment, module composition, and managed ide
 
 ## Diagnostic Settings
 
-Use the AVM-TF diagnostics module for every deployed resource. Pass the
-Log Analytics workspace ID via module outputs:
+There is no standalone AVM-TF diagnostic-setting module. Every AVM-TF
+resource module exposes the standard `diagnostic_settings` input (storage
+accounts split it per service, e.g. `diagnostic_settings_storage_account`
+and `diagnostic_settings_blob`). Pass the Log Analytics workspace ID via
+module outputs:
 
 ```hcl
 module "log_analytics" {
   source  = "Azure/avm-res-operationalinsights-workspace/azurerm"
-  version = "~> 0.4"
+  version = "0.5.1"
 
   name                = "log-${var.project}-${var.environment}-${local.suffix}"
   resource_group_name = azurerm_resource_group.this.name
@@ -22,19 +25,28 @@ module "log_analytics" {
   tags                = local.tags
 }
 
-# Attach diagnostics to each resource — pass workspace ID as output
-module "storage_diagnostics" {
-  source  = "Azure/avm-res-insights-diagnosticsetting/azurerm"
-  version = "~> 0.1"
+module "key_vault" {
+  source  = "Azure/avm-res-keyvault-vault/azurerm"
+  version = "0.11.0"
 
-  name                           = "diag-${local.st_name}"
-  target_resource_id             = module.storage.resource_id
-  log_analytics_workspace_id     = module.log_analytics.resource_id
-  log_analytics_destination_type = "Dedicated"
+  name                = local.kv_name
+  resource_group_name = azurerm_resource_group.this.name
+  location            = var.location
+  tenant_id           = data.azurerm_client_config.current.tenant_id
+  tags                = local.tags
 
-  logs_destinations_ids = [module.log_analytics.resource_id]
+  diagnostic_settings = {
+    to_law = {
+      name                  = "diag-${local.kv_name}"
+      workspace_resource_id = module.log_analytics.resource_id
+    }
+  }
 }
 ```
+
+Versions are examples from the compatibility matrix in
+[`avm-provider-compatibility.md`](avm-provider-compatibility.md);
+resolve the current version at plan time.
 
 Rule: Every resource in the deployment MUST have a diagnostic setting pointing
 to the central Log Analytics workspace.

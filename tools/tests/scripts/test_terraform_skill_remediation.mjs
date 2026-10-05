@@ -393,7 +393,7 @@ test("SK-26 exact known example pins, canonical suffix and optional review contr
   ]);
   assert.deepEqual(pins, [
     ["Azure/avm-res-resources-resourcegroup/azurerm", "0.4.0"],
-    ["Azure/avm-res-keyvault-vault/azurerm", "0.9.0"],
+    ["Azure/avm-res-keyvault-vault/azurerm", "0.11.0"],
   ]);
   for (const name of ["project-scaffold", "tf-best-practices-examples"]) {
     const text = read(`apex-terraform-patterns/references/${name}.md`);

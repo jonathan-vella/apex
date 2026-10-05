@@ -116,7 +116,7 @@ To disable in environments where outbound network is restricted:
 ```hcl
 module "key_vault" {
   source           = "Azure/avm-res-keyvault-vault/azurerm"
-  version          = "0.9.0"
+  version          = "0.11.0"
   enable_telemetry = false
   # ...
 }

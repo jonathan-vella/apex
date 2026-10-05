@@ -19,11 +19,14 @@ Cross-reference `04-governance-constraints.json` before writing templates; use
 
 ## Provider and Backend
 
-| Rule          | Standard                                          |
-| ------------- | ------------------------------------------------- |
-| Provider      | Pin `azurerm` to `~> 4.0`, `random ~> 3.0`        |
-| Terraform     | >= 1.9                                            |
-| State backend | Azure Storage Account — never HCP Terraform Cloud |
+| Rule          | Standard                                                                 |
+| ------------- | ------------------------------------------------------------------------ |
+| Provider      | Pin `azurerm` to `~> 4.0`, `azapi ~> 2.12` (when used), `random ~> 3.0`  |
+| Terraform     | >= 1.11 (current AVM-TF Key Vault and AKS modules require it)            |
+| State backend | Azure Storage Account — never HCP Terraform Cloud                        |
+
+azurerm stays on 4.x until the AVM-TF modules APEX composes accept 5.x; see
+[`avm-provider-compatibility.md`](../skills/apex-terraform-patterns/references/avm-provider-compatibility.md).
 
 Never use `terraform { cloud {} }` or reference `TFE_TOKEN`.
 

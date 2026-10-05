@@ -45,15 +45,21 @@ There is **no blanket carve-out** for budgets or Action Groups. At
 plan time (05-IaC Planner Phase 2), perform a live registry lookup:
 
 - **Bicep — Consumption Budget**:
-  `curl -sf https://mcr.microsoft.com/v2/bicep/avm/ptn/cost-management/budget/tags/list`
-  (pattern module variants exist for RG / sub / MG scopes; check the
-  module README for the scope target).
+  `curl -sf https://mcr.microsoft.com/v2/bicep/avm/res/consumption/budget/tags/list`
+  (subscription-scoped; one `thresholdType`/`operator` per budget, so
+  it cannot carry the five-notification contract — record the raw
+  resource exception unless the module has gained per-notification
+  settings).
 - **Bicep — Action Group**:
   `curl -sf https://mcr.microsoft.com/v2/bicep/avm/res/insights/action-group/tags/list`
 - **Terraform — Consumption Budget**:
-  `curl -sf https://registry.terraform.io/v1/modules/Azure/avm-ptn-cost-management-budget/azurerm/versions`
+  `curl -sf https://registry.terraform.io/v1/modules/Azure/avm-res-consumption-budget/azurerm/versions`
 - **Terraform — Action Group**:
   `curl -sf https://registry.terraform.io/v1/modules/Azure/avm-res-insights-actiongroup/azurerm/versions`
+
+Both Terraform modules are listed as `Proposed` (unpublished) in
+`.github/data/avm-module-index.json`; while that holds, a `404` from the
+lookup is expected and triggers the raw resource exception record below.
 
 Pin to the highest non-prerelease semver. Record the resolved
 versions in `04-iac-contract.json` modules list, identical to every
@@ -120,8 +126,9 @@ Each budget notification block:
 - **Bicep**: `contactRoles: ['Owner']` **and**
   `contactGroups: [actionGroup.outputs.resourceId]`.
 - **Terraform**: `contact_roles = ["Owner"]` **and**
-  `contact_groups = [module.action_group.resource_id]` (or
-  `data.azurerm_monitor_action_group.cost.id` when reusing).
+  `contact_groups = [local.action_group_id]` (the created
+  `azurerm_monitor_action_group.cost[0].id` or the reused
+  `data.azurerm_monitor_action_group.cost[0].id`).
 - `contact_emails` is **not** populated by the budget; emails live on
   the Action Group's email receivers.
 

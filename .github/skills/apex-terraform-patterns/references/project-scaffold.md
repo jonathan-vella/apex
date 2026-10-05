@@ -71,7 +71,7 @@ variable "deployment_phase" {
 
 module "key_vault" {
   source  = "Azure/avm-res-keyvault-vault/azurerm"
-  version = "0.9.0"
+  version = "0.11.0"
   count   = contains(["security", "data", "compute", "edge", "all"], var.deployment_phase) ? 1 : 0
   # ...
 }

@@ -17,22 +17,29 @@ Resolve an AVM-TF module version directly from the Registry API:
 
 ```bash
 curl -sf https://registry.terraform.io/v1/modules/Azure/avm-res-{path}/azurerm/versions \
-  | jq -r '.modules[0].versions[0].version'
+  | jq -r '[.modules[0].versions[].version | select(test("^[0-9]+\\.[0-9]+\\.[0-9]+$"))]
+           | sort_by(split(".") | map(tonumber)) | last'
 ```
 
-Use `https://registry.terraform.io/v1/providers/hashicorp/{provider}/versions`
-for provider versions. Run `terraform init` before `terraform providers schema
--json`. Do not claim Azure MCP exposes Terraform Registry metadata.
+The API does not return versions newest-first; always sort as above.
+
+Use `https://registry.terraform.io/v1/providers/{namespace}/{provider}/versions`
+for provider versions with the same sort (`hashicorp/azurerm`, `hashicorp/random`,
+`Azure/azapi` — azapi is not under `hashicorp`). Run `terraform init` before
+`terraform providers schema -json`. Do not claim Azure MCP exposes Terraform
+Registry metadata.
 
 ## Tag Syntax (HCL)
+
+Tag keys come from the governance tag contract (greenfield fallback: the
+lowercase set in [`tag-strategy.md`](tag-strategy.md)):
 
 ```hcl
 locals {
   tags = merge(var.tags, {
-    Environment = var.environment
-    ManagedBy   = "Terraform"
-    Project     = var.project
-    Owner       = var.owner
+    environment = var.environment
+    owner       = var.owner
+    application = var.project
   })
 }
 ```
