@@ -3,7 +3,7 @@
 ## Namespace
 
 ```bicep
-resource serviceBus 'Microsoft.ServiceBus/namespaces@2022-10-01-preview' = {
+resource serviceBus 'Microsoft.ServiceBus/namespaces@2026-01-01' = {
   name: '${resourcePrefix}-sb-${uniqueHash}'
   location: location
   sku: {
@@ -16,7 +16,7 @@ resource serviceBus 'Microsoft.ServiceBus/namespaces@2022-10-01-preview' = {
 ## Queue
 
 ```bicep
-resource queue 'Microsoft.ServiceBus/namespaces/queues@2022-10-01-preview' = {
+resource queue 'Microsoft.ServiceBus/namespaces/queues@2026-01-01' = {
   parent: serviceBus
   name: 'orders'
   properties: {
@@ -31,7 +31,7 @@ resource queue 'Microsoft.ServiceBus/namespaces/queues@2022-10-01-preview' = {
 ## Topic and Subscription
 
 ```bicep
-resource topic 'Microsoft.ServiceBus/namespaces/topics@2022-10-01-preview' = {
+resource topic 'Microsoft.ServiceBus/namespaces/topics@2026-01-01' = {
   parent: serviceBus
   name: 'events'
   properties: {
@@ -39,7 +39,7 @@ resource topic 'Microsoft.ServiceBus/namespaces/topics@2022-10-01-preview' = {
   }
 }
 
-resource subscription 'Microsoft.ServiceBus/namespaces/topics/subscriptions@2022-10-01-preview' = {
+resource subscription 'Microsoft.ServiceBus/namespaces/topics/subscriptions@2026-01-01' = {
   parent: topic
   name: 'order-processor'
   properties: {
@@ -55,7 +55,7 @@ resource subscription 'Microsoft.ServiceBus/namespaces/topics/subscriptions@2022
 ### SQL Filter
 
 ```bicep
-resource filterRule 'Microsoft.ServiceBus/namespaces/topics/subscriptions/rules@2022-10-01-preview' = {
+resource filterRule 'Microsoft.ServiceBus/namespaces/topics/subscriptions/rules@2026-01-01' = {
   parent: subscription
   name: 'high-priority'
   properties: {
@@ -70,7 +70,7 @@ resource filterRule 'Microsoft.ServiceBus/namespaces/topics/subscriptions/rules@
 ### Correlation Filter
 
 ```bicep
-resource correlationRule 'Microsoft.ServiceBus/namespaces/topics/subscriptions/rules@2022-10-01-preview' = {
+resource correlationRule 'Microsoft.ServiceBus/namespaces/topics/subscriptions/rules@2026-01-01' = {
   parent: subscription
   name: 'orders-only'
   properties: {

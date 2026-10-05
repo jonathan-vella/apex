@@ -24,7 +24,7 @@ module "resource_group" {
 
 module "key_vault" {
   source  = "Azure/avm-res-keyvault-vault/azurerm"
-  version = "0.9.0"
+  version = "0.11.0"
   name                = local.kv_name
   resource_group_name = module.resource_group.name
   location            = var.location

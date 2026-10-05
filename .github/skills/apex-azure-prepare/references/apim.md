@@ -75,7 +75,7 @@ param skuName string = 'StandardV2'
 @description('Number of scale units')
 param skuCapacity int = 1
 
-resource apim 'Microsoft.ApiManagement/service@2023-09-01-preview' = {
+resource apim 'Microsoft.ApiManagement/service@2024-05-01' = {
   name: apimName
   location: location
   sku: {
@@ -106,13 +106,13 @@ param aoaiName string
 param aoaiResourceGroup string = resourceGroup().name
 
 // Reference existing Azure OpenAI
-resource aoai 'Microsoft.CognitiveServices/accounts@2024-04-01-preview' existing = {
+resource aoai 'Microsoft.CognitiveServices/accounts@2026-07-01' existing = {
   name: aoaiName
   scope: resourceGroup(aoaiResourceGroup)
 }
 
 // APIM Backend pointing to Azure OpenAI
-resource openaiBackend 'Microsoft.ApiManagement/service/backends@2023-09-01-preview' = {
+resource openaiBackend 'Microsoft.ApiManagement/service/backends@2024-05-01' = {
   parent: apim
   name: 'openai-backend'
   properties: {

@@ -65,7 +65,7 @@ Valid language values: `python`, `js`, `ts`, `java`, `dotnet`, `go` (or omit for
 Add the tag to your bicep resource definition:
 
 ```bicep
-resource staticWebApp 'Microsoft.Web/staticSites@2022-09-01' = {
+resource staticWebApp 'Microsoft.Web/staticSites@2025-03-01' = {
   name: name
   location: location
   tags: union(tags, { 'azd-service-name': 'web' })  // Must match service name in azure.yaml

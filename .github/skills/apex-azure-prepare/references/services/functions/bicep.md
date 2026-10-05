@@ -16,7 +16,7 @@
 **Use Flex Consumption for new deployments with managed identity (no connection strings).**
 
 ```bicep
-resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+resource storageAccount 'Microsoft.Storage/storageAccounts@2026-04-01' = {
   name: '${resourcePrefix}func${uniqueHash}'
   location: location
   sku: { name: 'Standard_LRS' }
@@ -28,12 +28,12 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
   }
 }
 
-resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2023-01-01' = {
+resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2026-04-01' = {
   parent: storageAccount
   name: 'default'
 }
 
-resource deploymentContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2023-01-01' = {
+resource deploymentContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2026-04-01' = {
   parent: blobService
   name: 'deploymentpackage'
 }
@@ -47,7 +47,7 @@ resource appInsights 'Microsoft.Insights/components@2020-02-02' = {
   }
 }
 
-resource functionAppPlan 'Microsoft.Web/serverfarms@2024-04-01' = {
+resource functionAppPlan 'Microsoft.Web/serverfarms@2025-03-01' = {
   name: 'plan-${uniqueHash}'
   location: location
   sku: {
@@ -59,7 +59,7 @@ resource functionAppPlan 'Microsoft.Web/serverfarms@2024-04-01' = {
   }
 }
 
-resource functionApp 'Microsoft.Web/sites@2024-04-01' = {
+resource functionApp 'Microsoft.Web/sites@2025-03-01' = {
   name: '${resourcePrefix}-${serviceName}-${uniqueHash}'
   location: location
   kind: 'functionapp,linux'
@@ -139,21 +139,21 @@ resource storageRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-
 **⚠️ Not recommended for new deployments. Use Flex Consumption instead.**
 
 ```bicep
-resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+resource storageAccount 'Microsoft.Storage/storageAccounts@2026-04-01' = {
   name: '${resourcePrefix}func${uniqueHash}'
   location: location
   sku: { name: 'Standard_LRS' }
   kind: 'StorageV2'
 }
 
-resource functionAppPlan 'Microsoft.Web/serverfarms@2022-09-01' = {
+resource functionAppPlan 'Microsoft.Web/serverfarms@2025-03-01' = {
   name: '${resourcePrefix}-funcplan-${uniqueHash}'
   location: location
   sku: { name: 'Y1', tier: 'Dynamic' }
   properties: { reserved: true }
 }
 
-resource functionApp 'Microsoft.Web/sites@2022-09-01' = {
+resource functionApp 'Microsoft.Web/sites@2025-03-01' = {
   name: '${resourcePrefix}-${serviceName}-${uniqueHash}'
   location: location
   kind: 'functionapp,linux'
@@ -177,11 +177,11 @@ resource functionApp 'Microsoft.Web/sites@2022-09-01' = {
 ## Service Bus Integration (Managed Identity)
 
 ```bicep
-resource serviceBusNamespace 'Microsoft.ServiceBus/namespaces@2022-10-01-preview' existing = {
+resource serviceBusNamespace 'Microsoft.ServiceBus/namespaces@2026-01-01' existing = {
   name: serviceBusNamespaceName
 }
 
-resource functionApp 'Microsoft.Web/sites@2024-04-01' = {
+resource functionApp 'Microsoft.Web/sites@2025-03-01' = {
   // ... (Function App definition from above)
   properties: {
     // ... (other properties)
@@ -240,7 +240,7 @@ resource serviceBusSenderRole 'Microsoft.Authorization/roleAssignments@2022-04-0
 ## Premium Plan (No Cold Starts)
 
 ```bicep
-resource functionAppPlan 'Microsoft.Web/serverfarms@2022-09-01' = {
+resource functionAppPlan 'Microsoft.Web/serverfarms@2025-03-01' = {
   name: '${resourcePrefix}-funcplan-${uniqueHash}'
   location: location
   sku: { name: 'EP1', tier: 'ElasticPremium' }

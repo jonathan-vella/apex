@@ -33,7 +33,7 @@ az storage account update \
 **Bicep:**
 
 ```bicep
-resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-05-01' = {
+resource privateEndpoint 'Microsoft.Network/privateEndpoints@2025-09-01' = {
   name: 'pe-${storageAccount.name}'
   location: location
   properties: {
@@ -72,7 +72,7 @@ az storage account blob-service-properties update \
 **Bicep:**
 
 ```bicep
-resource blobServices 'Microsoft.Storage/storageAccounts/blobServices@2023-01-01' = {
+resource blobServices 'Microsoft.Storage/storageAccounts/blobServices@2026-04-01' = {
   parent: storageAccount
   name: 'default'
   properties: {
@@ -108,7 +108,7 @@ az keyvault update \
 **Bicep:**
 
 ```bicep
-resource keyVault 'Microsoft.KeyVault/vaults@2023-07-01' = {
+resource keyVault 'Microsoft.KeyVault/vaults@2026-02-01' = {
   name: keyVaultName
   location: location
   properties: {
@@ -216,7 +216,7 @@ az aks update \
 **Bicep:**
 
 ```bicep
-resource aksCluster 'Microsoft.ContainerService/managedClusters@2024-01-01' = {
+resource aksCluster 'Microsoft.ContainerService/managedClusters@2026-05-01' = {
   name: clusterName
   location: location
   properties: {
@@ -269,7 +269,7 @@ az sql server audit-policy update \
 **Bicep:**
 
 ```bicep
-resource sqlAudit 'Microsoft.Sql/servers/auditingSettings@2023-05-01-preview' = {
+resource sqlAudit 'Microsoft.Sql/servers/auditingSettings@2025-01-01' = {
   parent: sqlServer
   name: 'default'
   properties: {
@@ -323,7 +323,7 @@ az webapp identity assign \
 **Bicep:**
 
 ```bicep
-resource webApp 'Microsoft.Web/sites@2023-01-01' = {
+resource webApp 'Microsoft.Web/sites@2025-03-01' = {
   name: appName
   location: location
   identity: {

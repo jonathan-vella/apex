@@ -154,7 +154,7 @@ Do **NOT** create Event Grid event subscriptions via CLI. The `az eventgrid syst
 
 ```bicep
 // eventGrid.bicep
-resource systemTopic 'Microsoft.EventGrid/systemTopics@2024-06-01-preview' = {
+resource systemTopic 'Microsoft.EventGrid/systemTopics@2025-02-15' = {
   name: 'evgt-${storageAccountName}'
   location: location
   properties: {
@@ -163,7 +163,7 @@ resource systemTopic 'Microsoft.EventGrid/systemTopics@2024-06-01-preview' = {
   }
 }
 
-resource eventSubscription 'Microsoft.EventGrid/systemTopics/eventSubscriptions@2024-06-01-preview' = {
+resource eventSubscription 'Microsoft.EventGrid/systemTopics/eventSubscriptions@2025-02-15' = {
   parent: systemTopic
   name: 'blob-trigger-sub'
   properties: {
@@ -257,7 +257,7 @@ const faces = result.body.peopleResult.values.map((person) => ({
 
 ```bicep
 // computerVision.bicep
-resource computerVision 'Microsoft.CognitiveServices/accounts@2024-10-01' = {
+resource computerVision 'Microsoft.CognitiveServices/accounts@2026-07-01' = {
   kind: 'ComputerVision'
   properties: {
     disableLocalAuth: true  // Enterprise policy compliance — no API keys

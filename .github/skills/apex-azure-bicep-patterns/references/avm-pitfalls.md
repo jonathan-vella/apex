@@ -85,6 +85,13 @@ the mandatory per-project schema check above still applies.
 
 ### Catalogue of drift we have hit (extend on every new occurrence)
 
+Re-verified 2026-10-05 against each module's source at the newest published
+version (`key-vault/vault` 0.14.2, `web/site` 0.24.0, `sql/server` 0.22.1,
+`operational-insights/workspace` 0.16.1, `insights/scheduled-query-rule` 0.6.0,
+`consumption/budget` 0.3.8, `db-for-my-sql/flexible-server` 0.11.1,
+`automation/automation-account` 0.19.3): every entry below still applies. The
+"Pinned version" column records where each pitfall was first hit.
+
 | Module | Pinned version | Wrong (from docs/older versions) | Correct |
 |---|---|---|---|
 | `avm/res/key-vault/vault` | `0.13.3` | `enabledForDeployment` / `enabledForTemplateDeployment` / `enabledForDiskEncryption` | `enableVaultForDeployment` / `enableVaultForTemplateDeployment` / `enableVaultForDiskEncryption` |
@@ -143,20 +150,20 @@ than compute it.
 
 ```bicep
 // ❌ FAILS — BCP120: parent property must be calculable at deployment start
-resource existingWebApp 'Microsoft.Web/sites@2023-12-01' existing = {
+resource existingWebApp 'Microsoft.Web/sites@2025-03-01' existing = {
   name: webApp.outputs.name   // module output ≠ static
 }
-resource authSettings 'Microsoft.Web/sites/config@2023-12-01' = {
+resource authSettings 'Microsoft.Web/sites/config@2025-03-01' = {
   parent: existingWebApp
   name: 'authsettingsV2'
   properties: { ... }
 }
 
 // ✅ OK — static name, explicit dependsOn for ordering
-resource existingWebApp 'Microsoft.Web/sites@2023-12-01' existing = {
+resource existingWebApp 'Microsoft.Web/sites@2025-03-01' existing = {
   name: 'app-web-${projectName}-${env}'   // statically computable from params
 }
-resource authSettings 'Microsoft.Web/sites/config@2023-12-01' = {
+resource authSettings 'Microsoft.Web/sites/config@2025-03-01' = {
   parent: existingWebApp
   name: 'authsettingsV2'
   properties: { ... }

@@ -3,7 +3,7 @@
 ## Account
 
 ```bicep
-resource cosmosAccount 'Microsoft.DocumentDB/databaseAccounts@2023-04-15' = {
+resource cosmosAccount 'Microsoft.DocumentDB/databaseAccounts@2026-03-15' = {
   name: '${resourcePrefix}-cosmos-${uniqueHash}'
   location: location
   kind: 'GlobalDocumentDB'
@@ -31,7 +31,7 @@ resource cosmosAccount 'Microsoft.DocumentDB/databaseAccounts@2023-04-15' = {
 ## Database
 
 ```bicep
-resource cosmosDatabase 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2023-04-15' = {
+resource cosmosDatabase 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2026-03-15' = {
   parent: cosmosAccount
   name: 'appdb'
   properties: {
@@ -45,7 +45,7 @@ resource cosmosDatabase 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2023
 ## Container
 
 ```bicep
-resource cosmosContainer 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2023-04-15' = {
+resource cosmosContainer 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2026-03-15' = {
   parent: cosmosDatabase
   name: 'items'
   properties: {
@@ -69,7 +69,7 @@ resource cosmosContainer 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/con
 ## Autoscale Container
 
 ```bicep
-resource cosmosContainer 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2023-04-15' = {
+resource cosmosContainer 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2026-03-15' = {
   parent: cosmosDatabase
   name: 'items'
   properties: {

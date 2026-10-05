@@ -55,7 +55,7 @@ var storageAccountName = 'stblob${resourceSuffix}'
 // ============================================================================
 // Storage Account (for blob data - separate from function app storage)
 // ============================================================================
-resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+resource storageAccount 'Microsoft.Storage/storageAccounts@2026-04-01' = {
   name: storageAccountName
   location: location
   tags: tags
@@ -75,12 +75,12 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
 // ============================================================================
 // Blob Service and Container
 // ============================================================================
-resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2023-01-01' = {
+resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2026-04-01' = {
   parent: storageAccount
   name: 'default'
 }
 
-resource container 'Microsoft.Storage/storageAccounts/blobServices/containers@2023-01-01' = {
+resource container 'Microsoft.Storage/storageAccounts/blobServices/containers@2026-04-01' = {
   parent: blobService
   name: containerName
   properties: {
@@ -107,7 +107,7 @@ resource storageBlobDataContributor 'Microsoft.Authorization/roleAssignments@202
 // ============================================================================
 // Event Grid System Topic
 // ============================================================================
-resource eventGridTopic 'Microsoft.EventGrid/systemTopics@2023-12-15-preview' = {
+resource eventGridTopic 'Microsoft.EventGrid/systemTopics@2025-02-15' = {
   name: '${name}-blobtopic'
   location: location
   tags: tags
@@ -120,7 +120,7 @@ resource eventGridTopic 'Microsoft.EventGrid/systemTopics@2023-12-15-preview' = 
 // ============================================================================
 // Event Grid Subscription (to Function App)
 // ============================================================================
-resource eventGridSubscription 'Microsoft.EventGrid/systemTopics/eventSubscriptions@2023-12-15-preview' = {
+resource eventGridSubscription 'Microsoft.EventGrid/systemTopics/eventSubscriptions@2025-02-15' = {
   parent: eventGridTopic
   name: 'blob-created-subscription'
   properties: {
@@ -165,7 +165,7 @@ output appSettings object = {
   BLOB_PROCESSED_CONTAINER_NAME: processedContainerName
 }
 
-resource processedContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2023-01-01' = {
+resource processedContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2026-04-01' = {
   parent: blobService
   name: processedContainerName
   properties: {

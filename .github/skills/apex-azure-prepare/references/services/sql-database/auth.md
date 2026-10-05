@@ -10,7 +10,7 @@ param principalName string
 @allowed(['User', 'Group', 'Application'])
 param principalType string = 'User'
 
-resource sqlServer 'Microsoft.Sql/servers@2022-05-01-preview' = {
+resource sqlServer 'Microsoft.Sql/servers@2025-01-01' = {
   name: '${resourcePrefix}-sql-${uniqueHash}'
   location: location
   properties: {
@@ -50,7 +50,7 @@ azd env set AZURE_PRINCIPAL_NAME $(echo $PRINCIPAL_INFO | jq -r '.name')
 **Recommended for production** — Uses Entra group for admin access.
 
 ```bicep
-resource sqlServer 'Microsoft.Sql/servers@2022-05-01-preview' = {
+resource sqlServer 'Microsoft.Sql/servers@2025-01-01' = {
   name: '${resourcePrefix}-sql-${uniqueHash}'
   location: location
   properties: {

@@ -14,11 +14,12 @@ components owned by effective DINE policy. DNS resolution and private-client rea
 # Private endpoint for a PaaS service
 module "storage_private_endpoint" {
   source  = "Azure/avm-res-network-privateendpoint/azurerm"
-  version = "~> 0.1"
+  version = "0.2.0" # example; resolve the current exact version at plan time
 
-  name                = "pe-${local.st_name}-${local.suffix}"
-  resource_group_name = azurerm_resource_group.this.name
-  location            = var.location
+  name                   = "pe-${local.st_name}-${local.suffix}"
+  network_interface_name = "nic-pe-${local.st_name}-${local.suffix}"
+  resource_group_name    = azurerm_resource_group.this.name
+  location               = var.location
 
   private_connection_resource_id = module.storage.resource_id
   subnet_resource_id             = module.spoke_vnet.subnets["PrivateEndpoints"].resource_id

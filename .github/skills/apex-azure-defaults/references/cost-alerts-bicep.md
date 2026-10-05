@@ -9,42 +9,23 @@ Loaded on-demand by 06b-Bicep CodeGen at Wave 4. See
 > at plan time via MCR lookup; never hardcode from this file.
 
 The snippets are illustrative until exact module/API metadata is verified.
-Do not assume the pattern-module path below exists; if it cannot be verified,
-retain an explicit version-validation blocker or obtain the documented raw
-resource exception. Subscription-scope writes require explicit authorization.
+Subscription-scope writes require explicit authorization.
 
-## 1. Budget — RG scope (AVM preferred)
+## 1. Budget — RG scope
 
-```bicep
-// Preferred — AVM pattern module (resolve version live at plan time)
-module budget 'br/public:avm/ptn/cost-management/budget:<latest-stable>' = {
-  name: 'cost-budget'
-  scope: resourceGroup()
-  params: {
-    name: 'budget-${project}'
-    amount: budgetAmountUsd
-    timeGrain: 'Monthly'
-    category: 'Cost'
-    contactRoles: ['Owner']
-    contactGroups: [actionGroup.outputs.resourceId]
-    notifications: [
-      { thresholdType: 'Actual',   threshold: 80,  operator: 'GreaterThan' }
-      { thresholdType: 'Actual',   threshold: 100, operator: 'GreaterThanOrEqualTo' }
-      { thresholdType: 'Actual',   threshold: 125, operator: 'GreaterThan' }
-      { thresholdType: 'Forecasted', threshold: 100, operator: 'GreaterThan' }
-      { thresholdType: 'Forecasted', threshold: 125, operator: 'GreaterThan' }
-    ]
-  }
-}
-```
-
-If the AVM pattern module does not exist for the chosen scope at plan
-time, fall back to raw resource **with an exception record** in the
-plan (see `cost-alerts-baseline.md` → "Raw resource exception record"):
+AVM publishes `avm/res/consumption/budget` plus scope-specific variants
+(`.../budget/rg-scope`, `.../sub-scope`, `.../mg-scope`). Each builds every
+notification from a single `operator` and a single `thresholdType`, so none
+can express the five-notification contract (mixed Actual/Forecasted
+thresholds, `GreaterThanOrEqualTo` at 100%) in one budget. The raw resource
+is used **with an exception record** in the plan (see
+`cost-alerts-baseline.md` → "Raw resource exception record"). Re-check the
+scope-specific module at plan time; switch to it if it gains
+per-notification settings.
 
 ```bicep
-// Raw fallback — only with exception record in plan
-resource budgetRaw 'Microsoft.Consumption/budgets@2023-11-01' = {
+// Raw resource — only with exception record in plan
+resource budgetRaw 'Microsoft.Consumption/budgets@2026-06-01' = {
   name: 'budget-${project}'
   properties: {
     category: 'Cost'
@@ -64,15 +45,15 @@ resource budgetRaw 'Microsoft.Consumption/budgets@2023-11-01' = {
 
 ## 2. Budget — subscription scope
 
-Use `targetScope = 'subscription'` for the module file and either the
-AVM sub-scope pattern module (preferred) or
-`Microsoft.Consumption/budgets` at subscription scope.
+Use `targetScope = 'subscription'` and `Microsoft.Consumption/budgets`
+at subscription scope with the same exception record (the AVM module
+`.../budget/sub-scope` has the same single-operator limit).
 
 ## 3. Budget — management-group scope
 
-Use `targetScope = 'managementGroup'` and the AVM MG-scope pattern
-module (preferred). AVM coverage for MG scope is currently thin —
-exception record is often required.
+Use `targetScope = 'managementGroup'` and `Microsoft.Consumption/budgets`
+at management-group scope with an exception record (`.../budget/mg-scope`
+has the same single-operator limit).
 
 ## 4. Action Group — `create` mode (AVM)
 

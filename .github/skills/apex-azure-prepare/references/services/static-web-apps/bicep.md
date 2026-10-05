@@ -3,7 +3,7 @@
 ## Basic Resource
 
 ```bicep
-resource staticWebApp 'Microsoft.Web/staticSites@2022-09-01' = {
+resource staticWebApp 'Microsoft.Web/staticSites@2025-03-01' = {
   name: '${resourcePrefix}-${serviceName}-${uniqueHash}'
   location: location
   sku: {
@@ -23,7 +23,7 @@ resource staticWebApp 'Microsoft.Web/staticSites@2022-09-01' = {
 ## Custom Domain
 
 ```bicep
-resource customDomain 'Microsoft.Web/staticSites/customDomains@2022-09-01' = {
+resource customDomain 'Microsoft.Web/staticSites/customDomains@2025-03-01' = {
   parent: staticWebApp
   name: 'www.example.com'
   properties: {}
@@ -35,7 +35,7 @@ resource customDomain 'Microsoft.Web/staticSites/customDomains@2022-09-01' = {
 For the integrated API:
 
 ```bicep
-resource staticWebAppSettings 'Microsoft.Web/staticSites/config@2022-09-01' = {
+resource staticWebAppSettings 'Microsoft.Web/staticSites/config@2025-03-01' = {
   parent: staticWebApp
   name: 'appsettings'
   properties: {

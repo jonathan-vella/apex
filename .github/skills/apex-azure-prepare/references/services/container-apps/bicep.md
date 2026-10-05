@@ -5,7 +5,7 @@
 ## Basic Resource
 
 ```bicep
-resource containerApp 'Microsoft.App/containerApps@2023-05-01' = {
+resource containerApp 'Microsoft.App/containerApps@2026-01-01' = {
   name: '${resourcePrefix}-${serviceName}-${uniqueHash}'
   location: location
   properties: {
@@ -49,7 +49,7 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-01' = {
 ## With Managed Identity (Recommended)
 
 ```bicep
-resource containerApp 'Microsoft.App/containerApps@2023-05-01' = {
+resource containerApp 'Microsoft.App/containerApps@2026-01-01' = {
   name: appName
   location: location
   identity: {
@@ -64,7 +64,7 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-01' = {
 ## Container Apps Environment
 
 ```bicep
-resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2023-05-01' = {
+resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2026-01-01' = {
   name: '${resourcePrefix}-env'
   location: location
   properties: {

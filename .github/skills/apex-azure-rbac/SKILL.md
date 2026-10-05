@@ -108,7 +108,7 @@ built-in fits.
    param roleDefinitionGuid string
    param storageAccountName string
 
-   resource targetResource 'Microsoft.Storage/storageAccounts@2023-05-01' existing = {
+   resource targetResource 'Microsoft.Storage/storageAccounts@2026-04-01' existing = {
      name: storageAccountName
    }
 

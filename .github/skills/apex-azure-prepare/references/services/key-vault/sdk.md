@@ -54,7 +54,7 @@ or place it in a plan, transcript or output artifact. Metadata audits must list 
 ## Event Grid Integration (Expiry Notifications)
 
 ```bicep
-resource kvEventSubscription 'Microsoft.EventGrid/eventSubscriptions@2023-12-15-preview' = {
+resource kvEventSubscription 'Microsoft.EventGrid/eventSubscriptions@2025-02-15' = {
   name: 'secret-expiry-notification'
   scope: keyVault
   properties: {

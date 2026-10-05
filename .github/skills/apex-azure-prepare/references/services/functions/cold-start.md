@@ -41,7 +41,7 @@ az functionapp scale config always-ready set \
 #### Bicep — Always-Ready Configuration
 
 ```bicep
-resource functionApp 'Microsoft.Web/sites@2024-04-01' = {
+resource functionApp 'Microsoft.Web/sites@2025-03-01' = {
   name: appName
   location: location
   kind: 'functionapp,linux'
@@ -97,7 +97,7 @@ az functionapp config set -g $RG -n $APP --always-on true
 For new deployments, use the native `Microsoft.App/containerApps` integration and set `kind: 'functionapp'`. A generic container app without this kind doesn't enable the Functions integration. The older `Microsoft.Web/sites` integration is legacy and planned for future deprecation.
 
 ```bicep
-resource functionApp 'Microsoft.App/containerApps@2024-10-02-preview' = {
+resource functionApp 'Microsoft.App/containerApps@2026-01-01' = {
   name: appName
   location: location
   kind: 'functionapp'

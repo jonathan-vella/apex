@@ -12,7 +12,7 @@ Revisions are immutable snapshots of a Container App version. Use them for blue/
 ## Setting Revision Mode (Bicep)
 
 ```bicep
-resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
+resource containerApp 'Microsoft.App/containerApps@2026-01-01' = {
   name: appName
   location: location
   properties: {

@@ -39,13 +39,13 @@ param tags object = {}
 // ============================================================================
 // Private DNS Zone
 // ============================================================================
-resource privateDnsZone 'Microsoft.Network/privateDnsZones@2020-06-01' = {
+resource privateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = {
   name: 'privatelink.documents.azure.com'
   location: 'global'
   tags: tags
 }
 
-resource privateDnsZoneVnetLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
+resource privateDnsZoneVnetLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = {
   parent: privateDnsZone
   name: '${cosmosAccountName}-dns-link'
   location: 'global'
@@ -60,7 +60,7 @@ resource privateDnsZoneVnetLink 'Microsoft.Network/privateDnsZones/virtualNetwor
 // ============================================================================
 // Private Endpoint
 // ============================================================================
-resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = {
+resource privateEndpoint 'Microsoft.Network/privateEndpoints@2025-09-01' = {
   name: 'pe-${cosmosAccountName}'
   location: location
   tags: tags
@@ -80,7 +80,7 @@ resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = {
   }
 }
 
-resource privateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2023-11-01' = {
+resource privateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2025-09-01' = {
   parent: privateEndpoint
   name: 'cosmos-dns-group'
   properties: {

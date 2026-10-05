@@ -28,7 +28,7 @@ param location string
 
 var tags = { environment: environmentName }
 
-resource rg 'Microsoft.Resources/resourceGroups@2023-07-01' = {
+resource rg 'Microsoft.Resources/resourceGroups@2025-04-01' = {
   name: 'rg-${environmentName}'
   location: location
   tags: tags
@@ -89,7 +89,7 @@ var acrName = replace('cr${environmentName}${resourceToken}', '-', '')
 ### Log Analytics
 
 ```bicep
-resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2022-10-01' = {
+resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2026-03-01' = {
   name: 'log-${resourceToken}'
   location: location
   properties: {
@@ -116,7 +116,7 @@ resource appInsights 'Microsoft.Insights/components@2020-02-02' = {
 ### Key Vault
 
 ```bicep
-resource keyVault 'Microsoft.KeyVault/vaults@2023-07-01' = {
+resource keyVault 'Microsoft.KeyVault/vaults@2026-02-01' = {
   name: 'kv-${resourceToken}'
   location: location
   properties: {

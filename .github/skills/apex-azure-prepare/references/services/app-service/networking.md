@@ -31,7 +31,7 @@ Routes outbound traffic from the app through a VNet subnet, enabling access to p
 ### Bicep — VNet Integration
 
 ```bicep
-resource subnet 'Microsoft.Network/virtualNetworks/subnets@2023-11-01' = {
+resource subnet 'Microsoft.Network/virtualNetworks/subnets@2025-09-01' = {
   parent: vnet
   name: 'app-service-subnet'
   properties: {
@@ -45,7 +45,7 @@ resource subnet 'Microsoft.Network/virtualNetworks/subnets@2023-11-01' = {
   }
 }
 
-resource webApp 'Microsoft.Web/sites@2024-11-01' = {
+resource webApp 'Microsoft.Web/sites@2025-03-01' = {
   name: appName
   location: location
   properties: {
@@ -78,7 +78,7 @@ Expose the app on a private IP address within your VNet. Public access can be di
 ### Bicep — Private Endpoint
 
 ```bicep
-resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = {
+resource privateEndpoint 'Microsoft.Network/privateEndpoints@2025-09-01' = {
   name: '${appName}-pe'
   location: location
   properties: {
@@ -95,12 +95,12 @@ resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = {
   }
 }
 
-resource privateDnsZone 'Microsoft.Network/privateDnsZones@2020-06-01' = {
+resource privateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = {
   name: 'privatelink.azurewebsites.net'
   location: 'global'
 }
 
-resource dnsLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
+resource dnsLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = {
   parent: privateDnsZone
   name: '${vnet.name}-link'
   location: 'global'
@@ -110,7 +110,7 @@ resource dnsLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-
   }
 }
 
-resource privateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2023-11-01' = {
+resource privateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2025-09-01' = {
   parent: privateEndpoint
   name: 'default'
   properties: {

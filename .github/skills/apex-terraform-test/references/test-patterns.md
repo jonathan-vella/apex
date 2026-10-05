@@ -211,7 +211,7 @@ run "test_avm_key_vault" {
   command = plan
   module {
     source  = "Azure/avm-res-keyvault-vault/azurerm"
-    version = "0.9.0"
+    version = "0.11.0"
   }
   variables {
     name                = "kv-test-dev-a1b2"

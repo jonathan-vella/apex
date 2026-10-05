@@ -3,7 +3,7 @@
 ## Basic Vault
 
 ```bicep
-resource keyVault 'Microsoft.KeyVault/vaults@2023-07-01' = {
+resource keyVault 'Microsoft.KeyVault/vaults@2026-02-01' = {
   name: '${resourcePrefix}-kv-${uniqueHash}'
   location: location
   properties: {
@@ -23,7 +23,7 @@ resource keyVault 'Microsoft.KeyVault/vaults@2023-07-01' = {
 ## Storing Secrets
 
 ```bicep
-resource secret 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
+resource secret 'Microsoft.KeyVault/vaults/secrets@2026-02-01' = {
   parent: keyVault
   name: 'database-connection-string'
   properties: {
@@ -72,7 +72,7 @@ secrets: [
 ## Secret with Expiration
 
 ```bicep
-resource secret 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
+resource secret 'Microsoft.KeyVault/vaults/secrets@2026-02-01' = {
   parent: keyVault
   name: 'api-key'
   properties: {

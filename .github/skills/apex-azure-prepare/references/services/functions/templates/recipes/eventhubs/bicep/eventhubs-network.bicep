@@ -17,28 +17,28 @@ param subnetName string
 param eventHubNamespaceName string
 
 // Reference existing resources
-resource vnet 'Microsoft.Network/virtualNetworks@2023-05-01' existing = {
+resource vnet 'Microsoft.Network/virtualNetworks@2025-09-01' existing = {
   name: virtualNetworkName
 }
 
-resource subnet 'Microsoft.Network/virtualNetworks/subnets@2023-05-01' existing = {
+resource subnet 'Microsoft.Network/virtualNetworks/subnets@2025-09-01' existing = {
   parent: vnet
   name: subnetName
 }
 
-resource eventHubNamespace 'Microsoft.EventHub/namespaces@2024-01-01' existing = {
+resource eventHubNamespace 'Microsoft.EventHub/namespaces@2026-01-01' existing = {
   name: eventHubNamespaceName
 }
 
 // Private DNS Zone for Event Hubs
-resource privateDnsZone 'Microsoft.Network/privateDnsZones@2020-06-01' = {
+resource privateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = {
   name: 'privatelink.servicebus.windows.net'
   location: 'global'
   tags: tags
 }
 
 // Link DNS zone to VNet
-resource privateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
+resource privateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = {
   parent: privateDnsZone
   name: '${virtualNetworkName}-link'
   location: 'global'
@@ -51,7 +51,7 @@ resource privateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLin
 }
 
 // Private Endpoint for Event Hubs
-resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-05-01' = {
+resource privateEndpoint 'Microsoft.Network/privateEndpoints@2025-09-01' = {
   name: '${eventHubNamespaceName}-pe'
   location: location
   tags: tags
@@ -74,7 +74,7 @@ resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-05-01' = {
 }
 
 // DNS Zone Group for automatic DNS registration
-resource privateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2023-05-01' = {
+resource privateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2025-09-01' = {
   parent: privateEndpoint
   name: 'default'
   properties: {

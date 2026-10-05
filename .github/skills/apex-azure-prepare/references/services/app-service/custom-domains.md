@@ -57,7 +57,7 @@ az webapp config ssl bind -n $APP -g $RG \
 ## Bicep — Custom Domain with Managed Certificate
 
 ```bicep
-resource customDomain 'Microsoft.Web/sites/hostNameBindings@2022-09-01' = {
+resource customDomain 'Microsoft.Web/sites/hostNameBindings@2025-03-01' = {
   parent: webApp
   name: 'www.contoso.com'
   properties: {
@@ -67,7 +67,7 @@ resource customDomain 'Microsoft.Web/sites/hostNameBindings@2022-09-01' = {
   }
 }
 
-resource managedCert 'Microsoft.Web/certificates@2022-09-01' = {
+resource managedCert 'Microsoft.Web/certificates@2025-03-01' = {
   name: 'www.contoso.com'
   location: location
   properties: {
@@ -81,11 +81,11 @@ resource managedCert 'Microsoft.Web/certificates@2022-09-01' = {
 Then run a follow-up Bicep deployment to enable SNI and bind the managed certificate to the hostname:
 
 ```bicep
-resource managedCert 'Microsoft.Web/certificates@2022-09-01' existing = {
+resource managedCert 'Microsoft.Web/certificates@2025-03-01' existing = {
   name: 'www.contoso.com'
 }
 
-resource customDomainTlsBinding 'Microsoft.Web/sites/hostNameBindings@2022-09-01' = {
+resource customDomainTlsBinding 'Microsoft.Web/sites/hostNameBindings@2025-03-01' = {
   parent: webApp
   name: 'www.contoso.com'
   properties: {
@@ -130,7 +130,7 @@ resource "azurerm_app_service_certificate_binding" "binding" {
 ### Enforce HTTPS Only
 
 ```bicep
-resource webApp 'Microsoft.Web/sites@2022-09-01' = {
+resource webApp 'Microsoft.Web/sites@2025-03-01' = {
   name: appName
   location: location
   properties: {

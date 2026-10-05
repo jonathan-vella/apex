@@ -3,7 +3,7 @@
 ## Custom Topic
 
 ```bicep
-resource eventGridTopic 'Microsoft.EventGrid/topics@2023-12-15-preview' = {
+resource eventGridTopic 'Microsoft.EventGrid/topics@2025-02-15' = {
   name: '${resourcePrefix}-egt-${uniqueHash}'
   location: location
   properties: {
@@ -16,7 +16,7 @@ resource eventGridTopic 'Microsoft.EventGrid/topics@2023-12-15-preview' = {
 ## System Topic (Azure Resource Events)
 
 ```bicep
-resource storageSystemTopic 'Microsoft.EventGrid/systemTopics@2023-12-15-preview' = {
+resource storageSystemTopic 'Microsoft.EventGrid/systemTopics@2025-02-15' = {
   name: '${resourcePrefix}-storage-topic'
   location: location
   properties: {
@@ -29,7 +29,7 @@ resource storageSystemTopic 'Microsoft.EventGrid/systemTopics@2023-12-15-preview
 ## Event Domain
 
 ```bicep
-resource eventDomain 'Microsoft.EventGrid/domains@2023-12-15-preview' = {
+resource eventDomain 'Microsoft.EventGrid/domains@2025-02-15' = {
   name: '${resourcePrefix}-domain'
   location: location
   properties: {

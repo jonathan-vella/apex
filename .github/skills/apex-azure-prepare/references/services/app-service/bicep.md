@@ -3,7 +3,7 @@
 ## Basic Resource
 
 ```bicep
-resource appServicePlan 'Microsoft.Web/serverfarms@2022-09-01' = {
+resource appServicePlan 'Microsoft.Web/serverfarms@2025-03-01' = {
   name: '${resourcePrefix}-plan-${uniqueHash}'
   location: location
   sku: {
@@ -15,13 +15,13 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2022-09-01' = {
   }
 }
 
-resource webApp 'Microsoft.Web/sites@2022-09-01' = {
+resource webApp 'Microsoft.Web/sites@2025-03-01' = {
   name: '${resourcePrefix}-${serviceName}-${uniqueHash}'
   location: location
   properties: {
     serverFarmId: appServicePlan.id
     siteConfig: {
-      linuxFxVersion: 'NODE|18-lts'
+      linuxFxVersion: 'NODE|24-lts'
       alwaysOn: true
       healthCheckPath: '/health'
       appSettings: [

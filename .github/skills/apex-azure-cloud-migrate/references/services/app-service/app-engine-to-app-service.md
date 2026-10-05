@@ -73,12 +73,12 @@ env_variables:
 
 ```bicep
 // Bicep equivalent
-resource appServicePlan 'Microsoft.Web/serverfarms@2023-12-01' = {
+resource appServicePlan 'Microsoft.Web/serverfarms@2025-03-01' = {
   sku: { name: 'S2', capacity: 1 }
   properties: { reserved: true }
 }
 
-resource webApp 'Microsoft.Web/sites@2023-12-01' = {
+resource webApp 'Microsoft.Web/sites@2025-03-01' = {
   properties: {
     siteConfig: {
       linuxFxVersion: 'PYTHON|3.14'
@@ -130,7 +130,7 @@ resource webApp 'Microsoft.Web/sites@2023-12-01' = {
 
 ```bicep
 // Configure traffic routing: 90% production, 10% staging
-resource siteConfig 'Microsoft.Web/sites/config@2023-12-01' = {
+resource siteConfig 'Microsoft.Web/sites/config@2025-03-01' = {
   name: 'web'
   properties: {
     experiments: {

@@ -1,6 +1,6 @@
 # JavaScript MCP Tools
 
-Native Azure Functions uses `@azure/functions` **4.9.0** and the MCP extension.
+Native Azure Functions uses `@azure/functions` **4.16.5** and the MCP extension.
 Keep the base entry point and load the new .mjs registration file through its
 existing discovery pattern; do not delete unrelated HTTP functions.
 See [host configuration and evidence](../README.md#verification-gate).
@@ -66,7 +66,7 @@ Only tool arguments enter these handlers; they never process protocol envelopes.
 This alternative runs the same tools without Core Tools or Azure storage. It is
 not a Functions HTTP adapter and does not prove Functions host compatibility.
 Place it alongside tools.mjs in a separate local project, not in Functions discovery.
-Pin `@modelcontextprotocol/sdk` **1.26.0**, `zod` **3.25.76** and `express` **5.1.0**.
+Pin `@modelcontextprotocol/sdk` **1.30.1**, `zod` **3.25.76** and `express` **5.2.1**.
 The SDK's stateless Streamable HTTP transport owns the wire protocol. Its bearer
 middleware owns missing, invalid, expired and insufficient-scope rejection.
 

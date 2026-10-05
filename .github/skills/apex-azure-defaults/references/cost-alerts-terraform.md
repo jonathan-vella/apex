@@ -5,35 +5,17 @@
 Loaded on-demand by 06t-Terraform CodeGen at Wave 4. See
 `cost-alerts-baseline.md` for the contract these snippets satisfy.
 
-> Module version numbers are placeholders (`<latest-stable>`) — resolve
-> at plan time via `registry.terraform.io` lookup; never hardcode from
-> this file.
+> These snippets use raw resources because the matching AVM modules
+> are unpublished; re-check `.github/data/avm-module-index.json` and the
+> registry at plan time and switch to AVM once a module is `Available`.
 
-## 1. Budget — RG scope (AVM preferred)
+## 1. Budget — RG scope
 
-```hcl
-# Preferred — AVM pattern module (resolve version live at plan time)
-module "budget" {
-  source  = "Azure/avm-ptn-cost-management-budget/azurerm"
-  version = "<latest-stable>"
-
-  name              = "budget-${var.project}"
-  scope             = "resource_group"
-  resource_group_id = azurerm_resource_group.this.id
-  amount            = var.budget_amount_usd
-  time_grain        = "Monthly"
-
-  notifications = [
-    { threshold_type = "Actual",     threshold = 80,  operator = "GreaterThan",          contact_roles = ["Owner"], contact_groups = [local.action_group_id] },
-    { threshold_type = "Actual",     threshold = 100, operator = "GreaterThanOrEqualTo", contact_roles = ["Owner"], contact_groups = [local.action_group_id] },
-    { threshold_type = "Actual",     threshold = 125, operator = "GreaterThan",          contact_roles = ["Owner"], contact_groups = [local.action_group_id] },
-    { threshold_type = "Forecasted", threshold = 100, operator = "GreaterThan",          contact_roles = ["Owner"], contact_groups = [local.action_group_id] },
-    { threshold_type = "Forecasted", threshold = 125, operator = "GreaterThan",          contact_roles = ["Owner"], contact_groups = [local.action_group_id] },
-  ]
-}
-```
-
-Raw fallback (exception record required):
+`Azure/avm-res-consumption-budget/azurerm` is listed as `Proposed`
+(unpublished) in the AVM module index. Until it is published and can
+carry the five-notification contract, emit the raw resource **with an
+exception record** (see `cost-alerts-baseline.md` → "Raw resource
+exception record"):
 
 ```hcl
 resource "azurerm_consumption_budget_resource_group" "this" {
@@ -113,26 +95,28 @@ resource "azurerm_consumption_budget_management_group" "this" {
 }
 ```
 
-## 4. Action Group — `create` mode (AVM)
+## 4. Action Group — `create` mode
+
+`Azure/avm-res-insights-actiongroup/azurerm` is listed as `Proposed`
+(unpublished) in the AVM module index. Re-check at plan time; until it
+is published, emit the raw resource with an exception record:
 
 ```hcl
-module "action_group" {
-  count   = var.cost_action_group_mode == "create" ? 1 : 0
-  source  = "Azure/avm-res-insights-actiongroup/azurerm"
-  version = "<latest-stable>"
-
+resource "azurerm_monitor_action_group" "cost" {
+  count               = var.cost_action_group_mode == "create" ? 1 : 0
   name                = "ag-cost-${var.project}"
   resource_group_name = azurerm_resource_group.this.name
   short_name          = var.action_group_short_name  # <=12 chars, default cost${suffix}
   enabled             = true
 
-  email_receivers = [
-    for email in var.cost_alert_emails : {
-      name                    = replace(email, "@", "_at_")
-      email_address           = email
+  dynamic "email_receiver" {
+    for_each = var.cost_alert_emails
+    content {
+      name                    = replace(email_receiver.value, "@", "_at_")
+      email_address           = email_receiver.value
       use_common_alert_schema = true
     }
-  ]
+  }
 
   tags = local.tags
 }
@@ -150,7 +134,7 @@ data "azurerm_monitor_action_group" "cost" {
 locals {
   action_group_id = var.cost_action_group_mode == "existing" \
     ? data.azurerm_monitor_action_group.cost[0].id \
-    : module.action_group[0].resource_id
+    : azurerm_monitor_action_group.cost[0].id
 }
 ```
 
@@ -178,9 +162,9 @@ resource "azurerm_cost_anomaly_alert" "this" {
   resource address as `[0]` — always use `local.action_group_id`
   downstream so consumers don't break when the mode flips between
   rebuilds.
-- AVM pattern module versions move forward — refresh the pin every
-  time Planner Phase 2 runs; never bring a pin in from another
-  project.
+- AVM module status and versions move forward — re-check the module
+  index every time Planner Phase 2 runs; never bring a pin in from
+  another project.
 - The Bicep stack has **four provider-side hard prerequisites** for
   `Microsoft.CostManagement/scheduledActions` (sub-scope only,
   `displayName` ≤ 25 chars, valid sub-scope `viewId`, ≤ 1-year
