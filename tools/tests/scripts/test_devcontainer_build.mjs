@@ -129,8 +129,8 @@ test("build retains Ubuntu, feature locks, host paths and host-process token for
 });
 
 test("release manifest pins both architectures to versioned upstream assets and checksum sources", () => {
-  assert.equal(manifest.uv.version, "0.8.22");
-  assert.equal(manifest.gitleaks.version, "8.28.0");
+  assert.equal(manifest.uv.version, "0.12.23");
+  assert.equal(manifest.gitleaks.version, "8.30.1");
   for (const [tool, release] of Object.entries(manifest)) {
     assert.deepEqual(Object.keys(release.artifacts).sort(), ["amd64", "arm64"]);
     for (const artifact of Object.values(release.artifacts)) {

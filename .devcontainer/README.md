@@ -41,7 +41,7 @@ or installation errors fail setup. Setup does not change global Git settings or 
 ### Build-Time Tools (installed via `Dockerfile`)
 
 Stable APT dependencies (`ca-certificates`, `curl`, `jq`, `tar`, `gzip`, `graphviz`, `dos2unix`, and `bats`)
-are installed in the image layer. uv 0.8.22 and gitleaks 8.28.0 are pinned and SHA-256 verified for
+are installed in the image layer. uv 0.12.23 and gitleaks 8.30.1 are pinned and SHA-256 verified for
 `amd64` and `arm64` using [the download manifest](download-checksums.json).
 The existing tool updater does not update these pins; maintain their versions and checksums explicitly.
 

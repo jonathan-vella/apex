@@ -6,7 +6,8 @@
  * versions of bicep, terraform, az, and node. Mismatches block
  * Step 5 validation/Step 6 deploy because earlier versions miss the
  * built-in diagnostics path (bicep ≥ 0.21.0 for readEnvironmentVariable)
- * and AVM-TF v0.3+ semantics.
+ * and AVM-TF v0.3+ semantics. node ≥ 22 matches package.json engines
+ * (Node 20 is end-of-life).
  *
  * Pins are sourced from tools/registry/tool-version-pins.json (created
  * if missing with sane defaults). CI invokes this validator before any
@@ -34,7 +35,7 @@ const DEFAULT_PINS = {
     bicep: { min: "0.21.0", check_cmd: "bicep --version", parser: "bicep" },
     terraform: { min: "1.6.0", check_cmd: "terraform version -json", parser: "terraform-json" },
     az: { min: "2.55.0", check_cmd: "az version --output json", parser: "az-json" },
-    node: { min: "20.0.0", check_cmd: "node --version", parser: "node" },
+    node: { min: "22.0.0", check_cmd: "node --version", parser: "node" },
   },
 };
 
