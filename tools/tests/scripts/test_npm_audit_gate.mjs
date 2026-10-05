@@ -71,6 +71,29 @@ test("a changed installed version is a new finding", () => {
   assert.ok(result.errors.some((line) => /^braces /.test(line)));
 });
 
+test("a severity escalation is a new finding", () => {
+  const result = evaluate({
+    report: report({
+      braces: {
+        severity: "critical",
+        isDirect: false,
+        via: [advisory("braces", exception.advisory, "critical")],
+        nodes: ["node_modules/braces"],
+      },
+    }),
+  });
+  assert.ok(result.errors.some((line) => /^braces \(critical\)/.test(line)));
+});
+
+test("an advisory without resolvable installed nodes is not covered", () => {
+  const result = evaluate({
+    report: report({
+      braces: { severity: "high", isDirect: false, via: [advisory("braces", exception.advisory)], nodes: [] },
+    }),
+  });
+  assert.ok(result.errors.some((line) => /^braces /.test(line)));
+});
+
 test("an expired exception fails", () => {
   const result = evaluate({ today: "2027-01-06" });
   assert.ok(result.errors.some((line) => /expired on 2027-01-05/.test(line)));

@@ -69,7 +69,13 @@ export function evaluateAudit({ report, exceptions, lockPackages, today }) {
       const id = advisoryId(via.url);
       const exception = exceptions.find((e) => e.advisory === id && e.package === via.name);
       const versions = (entry.nodes ?? []).map((node) => lockPackages[node]?.version);
-      if (!exception || versions.some((v) => !exception.installed.includes(v))) {
+      // Fail closed: a severity change or an unresolvable installed version needs a fresh review.
+      if (
+        !exception ||
+        via.severity !== exception.severity ||
+        versions.length === 0 ||
+        versions.some((v) => !exception.installed.includes(v))
+      ) {
         ok = false;
         continue;
       }
