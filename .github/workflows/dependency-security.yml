@@ -3,8 +3,8 @@
 #   - dependency-review: block PRs that add high/critical advisories
 #   - npm-audit:         npm audit gate with recorded exceptions (tools/registry/npm-audit-exceptions.json)
 #   - pip-audit:         audit requirements.txt
-#   - secret-scan:       gitleaks over git history, installed from the pinned devcontainer manifest
 # The weekly schedule catches advisories published after a dependency was merged.
+# The gitleaks history scan runs in ci.yml so it covers every pull request.
 
 name: Dependency Security
 
@@ -19,7 +19,11 @@ on:
       - "tools/registry/npm-audit-exceptions.json"
       - "tools/scripts/check-npm-audit.mjs"
       - ".devcontainer/download-checksums.json"
-      - ".github/workflows/dependency-security.yml"
+      - ".devcontainer/Dockerfile"
+      - ".devcontainer/devcontainer.json"
+      - ".devcontainer/devcontainer-lock.json"
+      - ".github/workflows/**"
+      - ".github/actions/**"
   push:
     branches: [main]
     paths:
@@ -30,7 +34,11 @@ on:
       - "tools/registry/npm-audit-exceptions.json"
       - "tools/scripts/check-npm-audit.mjs"
       - ".devcontainer/download-checksums.json"
-      - ".github/workflows/dependency-security.yml"
+      - ".devcontainer/Dockerfile"
+      - ".devcontainer/devcontainer.json"
+      - ".devcontainer/devcontainer-lock.json"
+      - ".github/workflows/**"
+      - ".github/actions/**"
   schedule:
     # Mondays at 05:00 UTC.
     - cron: "0 5 * * 1"
@@ -91,18 +99,3 @@ jobs:
 
       - name: Audit Python requirements
         run: pip-audit --requirement requirements.txt --progress-spinner off
-
-  secret-scan:
-    name: Secret scan
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-
-      - name: Install pinned gitleaks
-        run: sudo bash .devcontainer/install-build-tools.sh
-
-      - name: Scan git history
-        run: gitleaks git --redact --no-banner .

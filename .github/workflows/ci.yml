@@ -111,3 +111,19 @@ jobs:
 
       - name: Run Python tooling test suite
         run: npm run test:python-tools
+
+  secret-scan:
+    name: Secret scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      # Installs uv and gitleaks from the checksum-pinned devcontainer manifest.
+      - name: Install pinned gitleaks
+        run: sudo bash .devcontainer/install-build-tools.sh
+
+      - name: Scan git history
+        run: gitleaks git --redact --no-banner .

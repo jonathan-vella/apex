@@ -45,10 +45,10 @@ For general GitHub Actions best practices, rely on
 
 | Workflow                        | Purpose                                          | Trigger                     |
 | ------------------------------- | ------------------------------------------------ | --------------------------- |
-| `ci.yml`                        | Required PR check: lint + all Node.js validators | PR + push to main/feature   |
+| `ci.yml`                        | Required PR check: lint + all Node.js validators + gitleaks history scan | PR + push to main/feature   |
 | `consumer-template-checks.yml` | Validate inactive consumer workflows | Template changes + manual |
 | `upstream-skill-drift.yml` | Keep one issue with upstream azure-skills drift | Weekly schedule + manual |
-| `dependency-security.yml` | Dependency review, npm/pip audit gates, gitleaks history scan | Dependency changes + weekly + manual |
+| `dependency-security.yml` | Dependency review and npm/pip audit gates | Dependency or workflow changes + weekly + manual |
 
 Documentation build, link checks and Pages publishing belong to `jonathan-vella/apex-docs`.
 Governance, IaC and weekly maintenance sources live under `.github/consumer-workflows/`;
