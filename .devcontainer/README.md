@@ -27,7 +27,7 @@ with AI agents.
 | Step | Setup                          | Method                                                        |
 | ---- | ------------------------------ | ------------------------------------------------------------- |
 | 1    | Mounted directories            | Ensure uv, gh config, and Terraform cache directories are writable |
-| 2    | npm and workspace dependencies | Ensure npm 12.0.2, then `npm ci` from `package-lock.json`       |
+| 2    | npm and workspace dependencies | Ensure npm 12.1.0, then `npm ci` from `package-lock.json`       |
 | 3    | Python and apex-recall         | One `uv pip install` for requirements and editable recall; import and CLI verification |
 | 4    | PowerShell Az modules          | Synchronous `Install-Module`, then verify each required module exists |
 | 5    | Build tools and Terraform      | Check gitleaks, uv, and Terraform versions                     |
@@ -41,7 +41,7 @@ or installation errors fail setup. Setup does not change global Git settings or 
 ### Build-Time Tools (installed via `Dockerfile`)
 
 Stable APT dependencies (`ca-certificates`, `curl`, `jq`, `tar`, `gzip`, `graphviz`, `dos2unix`, and `bats`)
-are installed in the image layer. uv 0.8.22 and gitleaks 8.28.0 are pinned and SHA-256 verified for
+are installed in the image layer. uv 0.12.23 and gitleaks 8.30.1 are pinned and SHA-256 verified for
 `amd64` and `arm64` using [the download manifest](download-checksums.json).
 The existing tool updater does not update these pins; maintain their versions and checksums explicitly.
 

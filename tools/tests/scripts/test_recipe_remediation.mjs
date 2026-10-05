@@ -6,6 +6,7 @@ import { spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { createHash } from "node:crypto";
+import { stripTypeScriptTypes } from "node:module";
 
 const skills = new URL("../../../.github/skills/", import.meta.url);
 const read = (relative) => readFileSync(new URL(relative, skills), "utf8");
@@ -565,7 +566,6 @@ for (const language of languages) {
 }
 
 test("SK-14 example syntax checks do not require SDK execution", async () => {
-  const typescript = await import("typescript");
   for (const language of ["javascript", "powershell"]) {
     for (const source of blocks(read(`${recipes}mcp/source/${language}.md`), "javascript")) {
       const result = spawnSync(process.execPath, ["--input-type=module", "--check"], {
@@ -575,11 +575,13 @@ test("SK-14 example syntax checks do not require SDK execution", async () => {
       assert.equal(result.status, 0, result.stderr);
     }
   }
+  // Node's built-in TypeScript parser throws ERR_INVALID_TYPESCRIPT_SYNTAX on parse errors.
   for (const source of blocks(read(`${recipes}mcp/source/typescript.md`), "typescript")) {
-    assert.equal(
-      typescript.createSourceFile("mcp.ts", source, typescript.ScriptTarget.Latest, true).parseDiagnostics.length,
-      0,
-    );
+    const result = spawnSync(process.execPath, ["--input-type=module", "--check"], {
+      input: stripTypeScriptTypes(source),
+      encoding: "utf8",
+    });
+    assert.equal(result.status, 0, result.stderr);
   }
   const python = spawnSync(
     "python3",

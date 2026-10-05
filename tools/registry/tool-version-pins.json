@@ -18,7 +18,7 @@
       "parser": "az-json"
     },
     "node": {
-      "min": "20.0.0",
+      "min": "22.0.0",
       "check_cmd": "node --version",
       "parser": "node"
     }
