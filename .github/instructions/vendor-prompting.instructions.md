@@ -24,7 +24,13 @@ These enforce the repository contract; not every violation is a platform parsing
 
 ## Vendor rules
 
-### Anthropic Claude Opus 5.5 (`claude-opus-5.5`)
+### Anthropic Claude Opus 5.5 and Sonnet 5.5 (`claude-opus-5.5`, `claude-sonnet-5.5`)
+
+Claude main agents use the APEX Claude contract enforced by `validateProductionAgentBody`:
+one H1 matching `name`, a nonempty `## Role`, and nonempty `<scope_fencing>`,
+`<output_contract>` and `<stop_conditions>` blocks. Opus-sourced reviewer rules below
+apply to Sonnet bodies as an APEX convention; `claude-reasoning-extraction-001` is
+validator-enforced on Opus only.
 
 - **`legacy-003`** — Body > 350 lines requires `<context_awareness>`.
 - **`legacy-004`** — Research agents include `<investigate_before_answering>`.
@@ -65,7 +71,7 @@ approval gates, the security baseline or governance constraints.
   XML blocks (`<investigate_before_answering>`,
   `<context_awareness>`, `<scope_fencing>`,
   `<empty_result_recovery>`, `<subagent_budget>`,
-  `<output_contract>`) with Markdown while preserving their content and H2 anchors.
+  `<output_contract>`, `<stop_conditions>`) with Markdown while preserving their content and H2 anchors.
   This is not a claim that GPT cannot interpret XML.
 - **`personality-scoping-001`** — Personality section forbidden
   on internal pipeline agents (info-only).
@@ -102,14 +108,15 @@ approval gates, the security baseline or governance constraints.
 
 ## Family overrides
 
-| Family            | Status        | Effect                                                                  |
-| ----------------- | ------------- | ----------------------------------------------------------------------- |
-| `claude-opus-5.5` | enforced      | All Claude rules at default severity                                    |
-| `gpt-6-sol`       | enforced      | GPT rules at default severity                                           |
-| `gpt-6-luna`      | enforced      | GPT rules at default severity                                           |
-| `gpt-5.6-terra`   | enforced      | GPT rules at default severity                                           |
-| `mai-code`        | reviewer-only | Structural checks run; model advice is info                             |
-| `unknown`         | enforced      | Explicit labels need catalog authorization; inherited prompts are valid |
+| Family              | Status        | Effect                                                                  |
+| ------------------- | ------------- | ----------------------------------------------------------------------- |
+| `claude-opus-5.5`   | enforced      | All Claude rules at default severity                                    |
+| `claude-sonnet-5.5` | enforced      | General Claude rules at default severity                                |
+| `gpt-6-sol`         | enforced      | GPT rules at default severity                                           |
+| `gpt-6-luna`        | enforced      | GPT rules at default severity                                           |
+| `gpt-5.6-terra`     | enforced      | GPT rules at default severity                                           |
+| `mai-code`          | reviewer-only | Structural checks run; model advice is info                             |
+| `unknown`           | enforced      | Explicit labels need catalog authorization; inherited prompts are valid |
 
 Structural errors and catalog deprecation findings never downgrade because of
 family status. Style warnings are advisory; do not remove safety invariants to

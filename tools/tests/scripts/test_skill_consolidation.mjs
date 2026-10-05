@@ -103,7 +103,8 @@ test("manual maintenance skills retain validation and import approval boundaries
   const modelPolicy = read(new URL("apex-agent-authoring/references/model-policy.md", skillsRoot));
   assert.match(modelPolicy, /Do not load that manual-only skill automatically/);
   assert.match(modelPolicy, /`GPT-6 Luna \(copilot\)` agents and subagents use `reasoning-effort: max`/);
-  assert.match(modelPolicy, /All other agents and subagents use `reasoning-effort: default`/);
+  assert.match(modelPolicy, /`Claude Opus 5\.5 \(copilot\)` agents use `reasoning-effort: high`/);
+  assert.match(modelPolicy, /All other agents and subagents use `reasoning-effort: medium`/);
   assert.doesNotMatch(modelPolicy, /High: architecture|Medium: structured code generation/);
   const agentsRoot = new URL("../../../.github/agents/", import.meta.url);
   const agentFiles = [
@@ -113,7 +114,12 @@ test("manual maintenance skills retain validation and import approval boundaries
   for (const name of agentFiles) {
     const source = read(new URL(name, agentsRoot));
     const { model, "reasoning-effort": effort } = parseFrontmatter(source);
-    assert.equal(effort, model.includes("GPT-6 Luna (copilot)") ? "max" : "default", name);
+    const expectedEffort = model.includes("GPT-6 Luna (copilot)")
+      ? "max"
+      : model.includes("Claude Opus 5.5 (copilot)")
+        ? "high"
+        : "medium";
+    assert.equal(effort, expectedEffort, name);
     assert.doesNotMatch(source, /reasoning effort/i, name);
   }
   const docsTriggers = read(new URL("../../../.github/instructions/docs-trigger.instructions.md", import.meta.url));

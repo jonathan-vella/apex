@@ -2,7 +2,7 @@
 name: 01-Orchestrator
 description: Master orchestrator for the multi-step Azure platform engineering workflow. Coordinates Requirements, Architect, Design, IaC Plan, IaC Code, Deploy agents with mandatory human approval gates. Routes Bicep or Terraform tracks via decisions.iac_tool.
 model: ["MAI-Code-1.1-Flash"]
-reasoning-effort: default
+reasoning-effort: medium
 argument-hint: Describe the Azure platform engineering project you want to build end-to-end
 user-invocable: true
 disable-model-invocation: true

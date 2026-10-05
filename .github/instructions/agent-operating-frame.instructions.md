@@ -1,5 +1,5 @@
 ---
-description: "Shared operating frame for main step agents — read SKILL.md once, use apex-recall for cached lookups, never edit upstream artifacts. Pairs with the agent's Operating frame or Constraints H2."
+description: "Shared operating frame for main step agents — read SKILL.md once, use apex-recall for cached lookups, never edit upstream artifacts. Pairs with the agent's Operating frame, Constraints H2 or <scope_fencing> block."
 applyTo: ".github/agents/*.agent.md"
 ---
 
@@ -42,7 +42,7 @@ shared guidance when attached or explicitly loaded, not as an assumed inherited 
   Do not generate substitutes or load all prior artifacts for an unrelated lookup.
 - Verify external contracts (AVM module schemas, Azure REST APIs,
   policy effects) via the preflight or validate subagent named in
-  the agent's `## Operating frame` or `## Constraints`. Do not assume.
+  the agent's `## Operating frame`, `## Constraints` or `<scope_fencing>` block. Do not assume.
 
 ## Never edit upstream artifacts
 

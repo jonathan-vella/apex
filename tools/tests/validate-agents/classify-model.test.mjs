@@ -14,7 +14,12 @@ import { classifyModel, isClaude, isGptOutcomeFamily, isGptFamily } from "../../
 
 test("classifyModel: Claude Opus 5.5 → claude-opus-5.5", () => {
   assert.equal(classifyModel("Claude Opus 5.5"), "claude-opus-5.5");
-  assert.equal(classifyModel(["Claude Opus 5.5"]), "claude-opus-5.5");
+  assert.equal(classifyModel(["Claude Opus 5.5 (copilot)"]), "claude-opus-5.5");
+});
+
+test("classifyModel: Claude Sonnet 5.5 → claude-sonnet-5.5", () => {
+  assert.equal(classifyModel("Claude Sonnet 5.5 (copilot)"), "claude-sonnet-5.5");
+  assert.equal(classifyModel(["Claude Sonnet 5.5"]), "claude-sonnet-5.5");
 });
 
 test("classifyModel: GPT-6 variants use distinct families", () => {
@@ -59,6 +64,7 @@ test("classifyModel: missing or unrecognized → unknown", () => {
 
 test("isClaude: only matches claude-* families", () => {
   assert.equal(isClaude("claude-opus-5.5"), true);
+  assert.equal(isClaude("claude-sonnet-5.5"), true);
   assert.equal(isClaude("gpt-6-sol"), false);
   assert.equal(isClaude("unknown"), false);
 });
@@ -66,6 +72,7 @@ test("isClaude: only matches claude-* families", () => {
 test("isGptOutcomeFamily: matches GPT-6 Sol/Luna and GPT-5.6 Terra", () => {
   for (const family of ["gpt-6-sol", "gpt-6-luna", "gpt-5.6-terra"]) assert.equal(isGptOutcomeFamily(family), true);
   assert.equal(isGptOutcomeFamily("claude-opus-5.5"), false);
+  assert.equal(isGptOutcomeFamily("claude-sonnet-5.5"), false);
   assert.equal(isGptOutcomeFamily("mai-code"), false);
 });
 

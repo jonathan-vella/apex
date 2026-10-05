@@ -1,7 +1,7 @@
 ---
 description: "Reference-only invocation contract for named execution workers; not an operational slash entrypoint."
 agent: agent
-model: "Claude Opus 5.5"
+model: "Claude Opus 5.5 (copilot)"
 tools: [read, edit, search]
 ---
 
