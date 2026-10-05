@@ -3,7 +3,7 @@
   "version": "0.10.0",
   "description": "APEX - Agentic Platform Engineering eXperience for Azure. Verified. Well-Architected. Deployable.",
   "private": true,
-  "packageManager": "npm@12.0.2",
+  "packageManager": "npm@12.2.0",
   "scripts": {
     "prepare": "lefthook install",
     "lint:md": "markdownlint-cli2",
@@ -32,6 +32,7 @@
     "test:tool-contracts": "node --test tools/tests/scripts/*.mjs",
     "test:python-tools": "python3 -m pytest tools/tests/scripts tools/tests/python-diagrams -q",
     "audit:retirement": "node tools/scripts/audit-retirement-candidates.mjs",
+    "audit:deps": "node tools/scripts/check-npm-audit.mjs",
     "test:retirement-scan": "node --test tools/tests/audit-retirement-candidates.test.mjs",
     "lint:skills-format": "node tools/scripts/validate-skills.mjs",
     "lint:governance-refs": "node tools/scripts/validate-governance-refs.mjs",
@@ -165,8 +166,7 @@
     "markdown-link-check": "^3.15.0",
     "markdownlint-cli2": "^0.23.2",
     "npm-run-all2": "^9.0.3",
-    "prettier": "^3.9.6",
-    "typescript": "6.0.2"
+    "prettier": "^3.9.6"
   },
   "repository": {
     "type": "git",
@@ -188,8 +188,10 @@
     "markdownlint-cli2": {
       "smol-toml": "1.7.1"
     },
-    "brace-expansion": "5.0.9",
-    "undici": "8.10.0",
+    "brace-expansion": "^5.0.12",
+    "undici": "^8.11.2",
+    "fast-uri": "^3.1.8",
+    "ip-address": "^10.7.2",
     "dompurify": ">=3.3.2",
     "nanoid": ">=3.3.8",
     "mermaid": ">=11.4.1"
