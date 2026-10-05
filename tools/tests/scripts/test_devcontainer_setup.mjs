@@ -309,7 +309,7 @@ for (const failure of [
     ]) {
       fs.writeFileSync(
         path.join(root, "bin", command),
-        `#!/bin/sh\nprintf '%s\\n' '${command}' >> "$CALL_LOG"\nif [ '${command}' = npm ] && [ "$1" = --version ]; then echo 12.2.0; exit 0; fi\nif [ '${command}' = "$FAIL_COMMAND" ]; then exit 17; fi\nexit 0\n`,
+        `#!/bin/sh\nprintf '%s\\n' '${command}' >> "$CALL_LOG"\nif [ '${command}' = npm ] && [ "$1" = --version ]; then echo 12.1.0; exit 0; fi\nif [ '${command}' = "$FAIL_COMMAND" ]; then exit 17; fi\nexit 0\n`,
         { mode: 0o755 },
       );
     }

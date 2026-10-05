@@ -27,7 +27,7 @@ with AI agents.
 | Step | Setup                          | Method                                                        |
 | ---- | ------------------------------ | ------------------------------------------------------------- |
 | 1    | Mounted directories            | Ensure uv, gh config, and Terraform cache directories are writable |
-| 2    | npm and workspace dependencies | Ensure npm 12.2.0, then `npm ci` from `package-lock.json`       |
+| 2    | npm and workspace dependencies | Ensure npm 12.1.0, then `npm ci` from `package-lock.json`       |
 | 3    | Python and apex-recall         | One `uv pip install` for requirements and editable recall; import and CLI verification |
 | 4    | PowerShell Az modules          | Synchronous `Install-Module`, then verify each required module exists |
 | 5    | Build tools and Terraform      | Check gitleaks, uv, and Terraform versions                     |

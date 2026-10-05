@@ -3,7 +3,7 @@
   "version": "0.10.0",
   "description": "APEX - Agentic Platform Engineering eXperience for Azure. Verified. Well-Architected. Deployable.",
   "private": true,
-  "packageManager": "npm@12.2.0",
+  "packageManager": "npm@12.1.0",
   "scripts": {
     "prepare": "lefthook install",
     "lint:md": "markdownlint-cli2",
