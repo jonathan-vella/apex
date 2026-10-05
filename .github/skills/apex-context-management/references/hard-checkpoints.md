@@ -15,6 +15,7 @@ unknown model limits remain unknown. Never truncate required safety evidence.
 | `gpt-6-luna`      | 1,050,000         | ≥300K input        | Same protocol.                                                                            |
 | `gpt-5.6-terra`   | 1,050,000         | ≥300K input        | Same protocol.                                                                            |
 | `claude-opus-5.5` | 1M                | ≥160K input        | Same protocol; prefer `references/` lookups over re-reading source artifacts.             |
+| `claude-sonnet-5.5` | unknown         | ≥160K input        | Same protocol; limit not verified, so use the conservative trip-wire.             |
 | `mai-code`        | unknown           | ≥160K input        | Same protocol; limit unknown, so use the most conservative trip-wire.                     |
 
 Vendor windows come from the OpenAI and Anthropic model pages (2026-09-24) and describe the API, not the
@@ -43,6 +44,7 @@ context_compacted_<threshold>K --json`.
 ## Background
 
 Step 5 CodeGen agents (`06b-Bicep CodeGen`, `06t-Terraform CodeGen`) must
-honour this rule — a GPT main agent saturated at very large inputs in
-the nordic-foods retro (May 2026); the 300K hard checkpoint is the trip-wire
-that prevents recurrence, set against the 400K budget in use at the time.
+honour this rule. They now run on Claude Sonnet 5.5 and use the 160K
+checkpoint. The rule originated when a GPT main agent saturated at very
+large inputs in the nordic-foods retro (May 2026); the 300K GPT checkpoint
+was set against the 400K budget in use at the time.

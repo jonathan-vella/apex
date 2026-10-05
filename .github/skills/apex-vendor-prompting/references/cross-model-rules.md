@@ -36,7 +36,7 @@ stale during model rollouts.
 # Bad
 handoffs:
   - agent: 03-Architect
-    model: "GPT-6 Sol (copilot)"   # redundant — matches Architect's own
+    model: "Claude Opus 5.5 (copilot)"   # redundant — matches Architect's own
     prompt: "..."
 
 # Good
@@ -52,8 +52,8 @@ handoffs:
 
 **Rule** (`frontmatter-model-style-001`):
 
-- `.agent.md` files: array form — `model: ["Claude Opus 5.5"]`
-- `.prompt.md` files: string form — `model: "Claude Opus 5.5"`
+- `.agent.md` files: array form — `model: ["Claude Opus 5.5 (copilot)"]`
+- `.prompt.md` files: string form — `model: "Claude Opus 5.5 (copilot)"`
 - Ordinary labels must exactly match catalog keys; documented platform-qualified
   `handoffs[].model` strings are allowed. Parentheses are valid YAML content.
 - Validate every fallback without changing order or adding fallbacks.
