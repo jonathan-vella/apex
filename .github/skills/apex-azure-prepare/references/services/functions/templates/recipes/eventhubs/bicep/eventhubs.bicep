@@ -31,7 +31,7 @@ param messageRetentionInDays int = 1
 param partitionCount int = 2
 
 // Event Hubs Namespace
-resource eventHubNamespace 'Microsoft.EventHub/namespaces@2024-01-01' = {
+resource eventHubNamespace 'Microsoft.EventHub/namespaces@2026-01-01' = {
   name: '${name}-ehns'
   location: location
   tags: tags
@@ -49,7 +49,7 @@ resource eventHubNamespace 'Microsoft.EventHub/namespaces@2024-01-01' = {
 }
 
 // Event Hub
-resource eventHub 'Microsoft.EventHub/namespaces/eventhubs@2024-01-01' = {
+resource eventHub 'Microsoft.EventHub/namespaces/eventhubs@2026-01-01' = {
   parent: eventHubNamespace
   name: eventHubName
   properties: {
@@ -60,7 +60,7 @@ resource eventHub 'Microsoft.EventHub/namespaces/eventhubs@2024-01-01' = {
 
 // Consumer Group for the Function App
 // Each consumer (function app instance) should have its own consumer group
-resource consumerGroup 'Microsoft.EventHub/namespaces/eventhubs/consumergroups@2024-01-01' = {
+resource consumerGroup 'Microsoft.EventHub/namespaces/eventhubs/consumergroups@2026-01-01' = {
   parent: eventHub
   name: consumerGroupName
 }

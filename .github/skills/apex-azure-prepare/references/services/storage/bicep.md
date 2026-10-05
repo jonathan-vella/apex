@@ -3,7 +3,7 @@
 ## Storage Account
 
 ```bicep
-resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+resource storageAccount 'Microsoft.Storage/storageAccounts@2026-04-01' = {
   name: '${resourcePrefix}stor${uniqueHash}'
   location: location
   sku: {
@@ -22,7 +22,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
 ## Blob Container
 
 ```bicep
-resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2023-01-01' = {
+resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2026-04-01' = {
   parent: storageAccount
   name: 'default'
   properties: {
@@ -33,7 +33,7 @@ resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2023-01-01'
   }
 }
 
-resource container 'Microsoft.Storage/storageAccounts/blobServices/containers@2023-01-01' = {
+resource container 'Microsoft.Storage/storageAccounts/blobServices/containers@2026-04-01' = {
   parent: blobService
   name: 'uploads'
   properties: {
@@ -45,12 +45,12 @@ resource container 'Microsoft.Storage/storageAccounts/blobServices/containers@20
 ## Queue
 
 ```bicep
-resource queueService 'Microsoft.Storage/storageAccounts/queueServices@2023-01-01' = {
+resource queueService 'Microsoft.Storage/storageAccounts/queueServices@2026-04-01' = {
   parent: storageAccount
   name: 'default'
 }
 
-resource queue 'Microsoft.Storage/storageAccounts/queueServices/queues@2023-01-01' = {
+resource queue 'Microsoft.Storage/storageAccounts/queueServices/queues@2026-04-01' = {
   parent: queueService
   name: 'orders'
 }
@@ -59,12 +59,12 @@ resource queue 'Microsoft.Storage/storageAccounts/queueServices/queues@2023-01-0
 ## Table
 
 ```bicep
-resource tableService 'Microsoft.Storage/storageAccounts/tableServices@2023-01-01' = {
+resource tableService 'Microsoft.Storage/storageAccounts/tableServices@2026-04-01' = {
   parent: storageAccount
   name: 'default'
 }
 
-resource table 'Microsoft.Storage/storageAccounts/tableServices/tables@2023-01-01' = {
+resource table 'Microsoft.Storage/storageAccounts/tableServices/tables@2026-04-01' = {
   parent: tableService
   name: 'logs'
 }
@@ -73,12 +73,12 @@ resource table 'Microsoft.Storage/storageAccounts/tableServices/tables@2023-01-0
 ## File Share
 
 ```bicep
-resource fileService 'Microsoft.Storage/storageAccounts/fileServices@2023-01-01' = {
+resource fileService 'Microsoft.Storage/storageAccounts/fileServices@2026-04-01' = {
   parent: storageAccount
   name: 'default'
 }
 
-resource fileShare 'Microsoft.Storage/storageAccounts/fileServices/shares@2023-01-01' = {
+resource fileShare 'Microsoft.Storage/storageAccounts/fileServices/shares@2026-04-01' = {
   parent: fileService
   name: 'shared'
   properties: {

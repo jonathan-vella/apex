@@ -24,7 +24,7 @@ When Aspire generates infrastructure, the Functions container app should include
 > **Note:** This example shows partial configuration. Assumes `containerAppEnv`, `storageAccount`, and `appInsights` resources are defined elsewhere in your Bicep templates.
 
 ```bicep
-resource functionsContainerApp 'Microsoft.App/containerApps@2024-03-01' = {
+resource functionsContainerApp 'Microsoft.App/containerApps@2026-01-01' = {
   name: '${resourcePrefix}-${serviceName}-${uniqueHash}'
   location: location
   identity: {

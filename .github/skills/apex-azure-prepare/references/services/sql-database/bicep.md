@@ -10,7 +10,7 @@ param principalName string
 @allowed(['User', 'Group', 'Application'])
 param principalType string = 'User'
 
-resource sqlServer 'Microsoft.Sql/servers@2022-05-01-preview' = {
+resource sqlServer 'Microsoft.Sql/servers@2025-01-01' = {
   name: '${resourcePrefix}-sql-${uniqueHash}'
   location: location
   properties: {
@@ -27,7 +27,7 @@ resource sqlServer 'Microsoft.Sql/servers@2022-05-01-preview' = {
   }
 }
 
-resource sqlDatabase 'Microsoft.Sql/servers/databases@2022-05-01-preview' = {
+resource sqlDatabase 'Microsoft.Sql/servers/databases@2025-01-01' = {
   parent: sqlServer
   name: 'appdb'
   location: location
@@ -68,7 +68,7 @@ azd env set AZURE_PRINCIPAL_NAME $(echo $PRINCIPAL_INFO | jq -r '.name')
 ## Serverless Configuration
 
 ```bicep
-resource sqlDatabase 'Microsoft.Sql/servers/databases@2022-05-01-preview' = {
+resource sqlDatabase 'Microsoft.Sql/servers/databases@2025-01-01' = {
   parent: sqlServer
   name: 'appdb'
   location: location
@@ -88,7 +88,7 @@ resource sqlDatabase 'Microsoft.Sql/servers/databases@2022-05-01-preview' = {
 ## Private Endpoint
 
 ```bicep
-resource sqlPrivateEndpoint 'Microsoft.Network/privateEndpoints@2023-05-01' = {
+resource sqlPrivateEndpoint 'Microsoft.Network/privateEndpoints@2025-09-01' = {
   name: '${sqlServer.name}-pe'
   location: location
   properties: {

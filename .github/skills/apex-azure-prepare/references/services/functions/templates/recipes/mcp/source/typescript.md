@@ -1,6 +1,6 @@
 # TypeScript MCP Tools
 
-Use `@azure/functions` **4.9.0** and TypeScript **5.9.3**. Keep the base
+Use `@azure/functions` **4.16.5** and TypeScript **5.9.3**. Keep the base
 src/index.ts discovery entry point; run the base project's build to emit dist/.
 Use the [shared host configuration](../README.md#verification-gate).
 

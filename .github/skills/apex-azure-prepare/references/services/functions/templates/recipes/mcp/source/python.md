@@ -6,7 +6,7 @@ The extension owns initialization, notifications, schemas, results, errors and t
 
 ## Dependencies
 
-Pin `azure-functions==1.24.0` in requirements.txt. Use Python 3.11 or later and
+Pin `azure-functions==1.25.0` in requirements.txt. Use Python 3.11 or later and
 the shared host configuration from the recipe README.
 
 ## tools.py
@@ -83,7 +83,7 @@ Python unit execution alone does not prove the extension's wire behavior.
 
 ## Local SDK Host: sdk_server.py
 
-This alternative uses `mcp==1.26.0` (the official MCP Python SDK, not the
+This alternative uses `mcp==1.30.0` (the official MCP Python SDK, not the
 separate fastmcp package). Put sdk_server.py alongside tools.py in a separate
 local project. It uses the same tool functions without Functions or Azure storage.
 The SDK owns schemas, content, exceptions, protocol negotiation and authentication.

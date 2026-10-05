@@ -208,7 +208,7 @@ services:
 Bicep must include the `azd-service-name` tag:
 
 ```bicep
-resource staticWebApp 'Microsoft.Web/staticSites@2022-09-01' = {
+resource staticWebApp 'Microsoft.Web/staticSites@2025-03-01' = {
   name: name
   location: location
   tags: union(tags, { 'azd-service-name': 'web' })}

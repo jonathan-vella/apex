@@ -14,7 +14,7 @@ Every resource must send logs and metrics to a workspace:
 // Pass workspace NAME (not ID) to modules — resolve inside with existing keyword
 param logAnalyticsWorkspaceName string
 
-resource workspace 'Microsoft.OperationalInsights/workspaces@2023-09-01' existing = {
+resource workspace 'Microsoft.OperationalInsights/workspaces@2026-03-01' existing = {
   name: logAnalyticsWorkspaceName
 }
 
@@ -156,7 +156,7 @@ scope child resources (diagnostic settings, PE DNS zone groups), always add
 explicit `dependsOn` to the module that creates the parent:
 
 ```bicep
-resource vnetExisting 'Microsoft.Network/virtualNetworks@2024-01-01' existing = {
+resource vnetExisting 'Microsoft.Network/virtualNetworks@2025-09-01' existing = {
   name: vnetName
 }
 

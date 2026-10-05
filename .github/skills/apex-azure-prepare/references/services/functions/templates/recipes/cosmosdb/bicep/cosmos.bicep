@@ -51,7 +51,7 @@ var cosmosAccountName = 'cosmos-${name}-${resourceSuffix}'
 // ============================================================================
 // Cosmos DB Account (Serverless)
 // ============================================================================
-resource cosmosAccount 'Microsoft.DocumentDB/databaseAccounts@2024-05-15' = {
+resource cosmosAccount 'Microsoft.DocumentDB/databaseAccounts@2026-03-15' = {
   name: cosmosAccountName
   location: location
   tags: tags
@@ -80,7 +80,7 @@ resource cosmosAccount 'Microsoft.DocumentDB/databaseAccounts@2024-05-15' = {
 // ============================================================================
 // Database
 // ============================================================================
-resource database 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2024-05-15' = {
+resource database 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2026-03-15' = {
   parent: cosmosAccount
   name: databaseName
   properties: {
@@ -93,7 +93,7 @@ resource database 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2024-05-15
 // ============================================================================
 // Containers
 // ============================================================================
-resource dataContainer 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2024-05-15' = {
+resource dataContainer 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2026-03-15' = {
   parent: database
   name: containerName
   properties: {
@@ -113,7 +113,7 @@ resource dataContainer 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/conta
   }
 }
 
-resource leasesContainer 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2024-05-15' = {
+resource leasesContainer 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2026-03-15' = {
   parent: database
   name: leasesContainerName
   properties: {
@@ -147,7 +147,7 @@ resource cosmosAccountReaderRole 'Microsoft.Authorization/roleAssignments@2022-0
 // RBAC: Cosmos Data Plane — SQL Data Contributor
 // (Cosmos DB uses its own role system for data operations)
 // ============================================================================
-resource cosmosSqlRoleAssignment 'Microsoft.DocumentDB/databaseAccounts/sqlRoleAssignments@2024-05-15' = {
+resource cosmosSqlRoleAssignment 'Microsoft.DocumentDB/databaseAccounts/sqlRoleAssignments@2026-03-15' = {
   parent: cosmosAccount
   name: guid(cosmosAccount.id, functionAppPrincipalId, '00000000-0000-0000-0000-000000000002')
   properties: {

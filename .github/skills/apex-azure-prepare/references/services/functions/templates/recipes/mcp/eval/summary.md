@@ -1,16 +1,16 @@
 # MCP Recipe Evaluation
 
-Updated 2026-09-14. The hand-written JSON-RPC servers have been replaced with
-official Functions bindings or SDK-hosted tool logic. Source remediation is
+Updated 2026-09-14; SDK pins refreshed and re-run 2026-10-05. The hand-written
+JSON-RPC servers have been replaced with official Functions bindings or SDK-hosted tool logic. Source remediation is
 implemented; native deployment and protocol acceptance are not yet verified.
 
 ## Evidence By Runtime
 
 | Runtime | Implemented source | Executed evidence | Remaining verification |
 | --- | --- | --- | --- |
-| Python | Functions 1.24.0 decorators; MCP 1.26.0 local host | Stubbed registration, required property metadata, demo/validation/health behavior, syntax | Real SDK suite skipped; native Functions indexing and HTTP/auth |
-| JavaScript | Functions 4.9.0 bindings; MCP SDK 1.26.0 local host | Syntax and stubbed registration/tool validation/health | Real SDK suite skipped; native Functions indexing and HTTP/auth |
-| TypeScript | Functions 4.9.0 bindings, compiler pin 5.9.3 | Non-executing parser and source contract checks | Execution denied; SDK typecheck/build and native HTTP/auth |
+| Python | Functions 1.25.0 decorators; MCP 1.30.0 local host | Stubbed registration, required property metadata, demo/validation/health behavior, syntax; real SDK suite passed with MCP 1.30.0; decorator indexing identical on Functions 1.24.0 and 1.25.0 | Native Functions host indexing and HTTP/auth |
+| JavaScript | Functions 4.16.5 bindings; MCP SDK 1.30.1 local host | Syntax and stubbed registration/tool validation/health; real SDK suite ran on SDK 1.26.0 and 1.30.1 | Real SDK suite fails one assertion on both versions: the SDK answers a non-string `method` with -32700, the test expects -32600; native Functions indexing and HTTP/auth |
+| TypeScript | Functions 4.16.5 bindings, compiler pin 5.9.3 | Non-executing parser and source contract checks | Execution denied; SDK typecheck/build and native HTTP/auth |
 | .NET | Worker 2.1.0, MCP extension 1.0.0 attributes | Source attribute and required-property checks | Native compiler unavailable; build and host/client checks |
 | Java | Library 3.2.2, Maven plugin 1.40.0 annotations | Source annotation and required-property checks | Native compiler unavailable; package/indexing and host/client checks |
 | PowerShell | PowerShell tool script behind Node MCP SDK | Actual script results, invalid inputs and literal shell-like data | SDK host handshake skipped; native Functions PowerShell MCP binding is unsupported |

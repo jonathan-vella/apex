@@ -364,7 +364,7 @@ resource "azurerm_linux_function_app" "function" {
 
 ```hcl
 resource "azapi_resource" "function_app" {
-  type      = "Microsoft.Web/sites@2023-12-01"
+  type      = "Microsoft.Web/sites@2025-03-01"
   name      = "func-${local.name}"
   location  = azurerm_resource_group.rg.location
   parent_id = azurerm_resource_group.rg.id

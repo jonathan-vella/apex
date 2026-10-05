@@ -545,7 +545,7 @@ for (const language of languages) {
     if (["javascript", "typescript"].includes(language)) {
       assert.match(code, /app\.mcpTool\(/);
       assert.match(code, /isRequired: true/);
-      assert.match(source, /4\.9\.0/);
+      assert.match(source, /4\.16\.5/);
     } else if (language === "dotnet") {
       assert.equal([...code.matchAll(/\[McpToolTrigger\(/g)].length, 2);
       assert.equal([...code.matchAll(/\[McpToolProperty\([^\n]+isRequired: true/g)].length, 2);
@@ -698,7 +698,7 @@ test("SK-14 real Node SDK HTTP lifecycle, schemas, errors and auth (optional dep
   );
   if (probe.status !== 0 && !process.env.MCP_NODE_DIR)
     return context.skip(
-      "MCP SDK 1.26.0, zod 3.25.76 and express 5.1.0 unavailable; download approval denied, not protocol acceptance",
+      "MCP SDK 1.30.1, zod 3.25.76 and express 5.2.1 unavailable; download approval denied, not protocol acceptance",
     );
   assert.equal(probe.status, 0, probe.stderr || probe.error?.message);
   const directory = mkdtempSync(path.join(tmpdir(), "sk14-node-sdk-"));
@@ -724,9 +724,9 @@ import { SUPPORTED_PROTOCOL_VERSIONS } from "@modelcontextprotocol/sdk/types.js"
 import { createHttpApp } from "./sdk-server.mjs";
 import { tools } from "./tools.mjs";
 import { definitions } from "./powershell-server.mjs";
-assert.equal(JSON.parse(readFileSync(new URL("../../../package.json", import.meta.resolve("@modelcontextprotocol/sdk/server/mcp.js")))).version, "1.26.0");
+assert.equal(JSON.parse(readFileSync(new URL("../../../package.json", import.meta.resolve("@modelcontextprotocol/sdk/server/mcp.js")))).version, "1.30.1");
 assert.equal(JSON.parse(readFileSync(new URL(import.meta.resolve("zod/package.json")))).version, "3.25.76");
-assert.equal(JSON.parse(readFileSync(new URL(import.meta.resolve("express/package.json")))).version, "5.1.0");
+assert.equal(JSON.parse(readFileSync(new URL(import.meta.resolve("express/package.json")))).version, "5.2.1");
 const token = "sk14-local-fixture-token-not-a-secret";
 const headers = { Authorization: "Bearer " + token, "Content-Type": "application/json", Accept: "application/json, text/event-stream" };
 const start = async (options = {}) => {
@@ -817,7 +817,7 @@ test("SK-14 real Python SDK HTTP lifecycle, schemas, errors and auth (optional d
   const python = process.env.MCP_PYTHON ?? "python3";
   const probe = spawnSync(python, ["-c", "import mcp, httpx"], { encoding: "utf8" });
   if (probe.status !== 0 && !process.env.MCP_PYTHON)
-    return context.skip("Python mcp 1.26.0 unavailable; download approval denied, not protocol acceptance");
+    return context.skip("Python mcp 1.30.0 unavailable; download approval denied, not protocol acceptance");
   assert.equal(probe.status, 0, probe.stderr || probe.error?.message);
   const directory = mkdtempSync(path.join(tmpdir(), "sk14-python-sdk-"));
   try {
@@ -832,7 +832,7 @@ from mcp.client.streamable_http import streamable_http_client
 from mcp.shared.version import SUPPORTED_PROTOCOL_VERSIONS
 from sdk_server import create_server
 
-assert importlib.metadata.version("mcp") == "1.26.0"
+assert importlib.metadata.version("mcp") == "1.30.0"
 TOKEN = "sk14-local-fixture-token-not-a-secret"
 URL = "http://127.0.0.1:3001"
 HEADERS = {"Authorization": "Bearer " + TOKEN, "Content-Type": "application/json", "Accept": "application/json, text/event-stream"}

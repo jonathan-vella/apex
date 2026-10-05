@@ -8,7 +8,7 @@ Standard three-resource pattern for private connectivity.
 
 ```bicep
 // Private endpoint for a PaaS service
-resource privateEndpoint 'Microsoft.Network/privateEndpoints@2024-01-01' = {
+resource privateEndpoint 'Microsoft.Network/privateEndpoints@2025-09-01' = {
   name: 'pe-${serviceName}-${uniqueSuffix}'
   location: location
   tags: tags
@@ -28,7 +28,7 @@ resource privateEndpoint 'Microsoft.Network/privateEndpoints@2024-01-01' = {
   }
 }
 
-resource privateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2024-01-01' = {
+resource privateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2025-09-01' = {
   parent: privateEndpoint
   name: 'default'
   properties: {

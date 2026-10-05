@@ -30,7 +30,7 @@ resource logicApp 'Microsoft.Logic/workflows@2019-05-01' = {
 ## Standard (Single-tenant)
 
 ```bicep
-resource logicAppPlan 'Microsoft.Web/serverfarms@2022-09-01' = {
+resource logicAppPlan 'Microsoft.Web/serverfarms@2025-03-01' = {
   name: '${resourcePrefix}-logicplan-${uniqueHash}'
   location: location
   sku: {
@@ -42,7 +42,7 @@ resource logicAppPlan 'Microsoft.Web/serverfarms@2022-09-01' = {
   }
 }
 
-resource logicAppStandard 'Microsoft.Web/sites@2022-09-01' = {
+resource logicAppStandard 'Microsoft.Web/sites@2025-03-01' = {
   name: '${resourcePrefix}-logic-${uniqueHash}'
   location: location
   kind: 'functionapp,workflowapp'

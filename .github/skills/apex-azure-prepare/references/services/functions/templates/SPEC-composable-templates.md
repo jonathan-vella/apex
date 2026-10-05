@@ -309,7 +309,7 @@ var containerName = 'documents'
 var leasesContainerName = 'leases'
 
 // Cosmos DB Account (Serverless)
-resource cosmosAccount 'Microsoft.DocumentDB/databaseAccounts@2024-05-15' = {
+resource cosmosAccount 'Microsoft.DocumentDB/databaseAccounts@2026-03-15' = {
   name: cosmosAccountName
   location: location
   tags: tags
@@ -325,14 +325,14 @@ resource cosmosAccount 'Microsoft.DocumentDB/databaseAccounts@2024-05-15' = {
 }
 
 // Database
-resource database 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2024-05-15' = {
+resource database 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2026-03-15' = {
   parent: cosmosAccount
   name: databaseName
   properties: { resource: { id: databaseName } }
 }
 
 // Application container
-resource container 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2024-05-15' = {
+resource container 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2026-03-15' = {
   parent: database
   name: containerName
   properties: {
@@ -344,7 +344,7 @@ resource container 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/container
 }
 
 // Leases container (for change feed tracking)
-resource leasesContainer 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2024-05-15' = {
+resource leasesContainer 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2026-03-15' = {
   parent: database
   name: leasesContainerName
   properties: {
@@ -367,7 +367,7 @@ resource cosmosAccountReader 'Microsoft.Authorization/roleAssignments@2022-04-01
 }
 
 // RBAC: Cosmos DB Built-in Data Contributor (SQL role)
-resource cosmosSqlRoleAssignment 'Microsoft.DocumentDB/databaseAccounts/sqlRoleAssignments@2024-05-15' = {
+resource cosmosSqlRoleAssignment 'Microsoft.DocumentDB/databaseAccounts/sqlRoleAssignments@2026-03-15' = {
   parent: cosmosAccount
   name: guid(cosmosAccount.id, functionAppPrincipalId, 'Cosmos SQL Data Contributor')
   properties: {

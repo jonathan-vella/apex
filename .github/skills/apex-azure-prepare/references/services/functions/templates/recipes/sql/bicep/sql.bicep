@@ -69,7 +69,7 @@ var sqlServerName = 'sql-${name}-${resourceSuffix}'
 // ============================================================================
 // SQL Server
 // ============================================================================
-resource sqlServer 'Microsoft.Sql/servers@2023-05-01-preview' = {
+resource sqlServer 'Microsoft.Sql/servers@2025-01-01' = {
   name: sqlServerName
   location: location
   tags: tags
@@ -91,7 +91,7 @@ resource sqlServer 'Microsoft.Sql/servers@2023-05-01-preview' = {
 // ============================================================================
 // SQL Database (Serverless for cost optimization)
 // ============================================================================
-resource sqlDatabase 'Microsoft.Sql/servers/databases@2023-05-01-preview' = {
+resource sqlDatabase 'Microsoft.Sql/servers/databases@2025-01-01' = {
   parent: sqlServer
   name: databaseName
   location: location
@@ -120,13 +120,13 @@ resource sqlDatabase 'Microsoft.Sql/servers/databases@2023-05-01-preview' = {
 // ============================================================================
 // Outputs
 // ============================================================================
-resource sqlPrivateDns 'Microsoft.Network/privateDnsZones@2020-06-01' = {
+resource sqlPrivateDns 'Microsoft.Network/privateDnsZones@2024-06-01' = {
   name: 'privatelink${environment().suffixes.sqlServerHostname}'
   location: 'global'
   tags: tags
 }
 
-resource sqlDnsLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
+resource sqlDnsLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = {
   parent: sqlPrivateDns
   name: 'sql-dns-link'
   location: 'global'
@@ -136,7 +136,7 @@ resource sqlDnsLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-
   }
 }
 
-resource sqlPrivateEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = {
+resource sqlPrivateEndpoint 'Microsoft.Network/privateEndpoints@2025-09-01' = {
   name: 'pe-${sqlServerName}'
   location: location
   tags: tags
@@ -152,7 +152,7 @@ resource sqlPrivateEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = {
   }
 }
 
-resource sqlDnsGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2023-11-01' = {
+resource sqlDnsGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2025-09-01' = {
   parent: sqlPrivateEndpoint
   name: 'default'
   properties: {

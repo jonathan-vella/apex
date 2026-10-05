@@ -3,7 +3,7 @@
 ## Cluster Resource
 
 ```bicep
-resource aks 'Microsoft.ContainerService/managedClusters@2023-07-01' = {
+resource aks 'Microsoft.ContainerService/managedClusters@2026-05-01' = {
   name: '${resourcePrefix}-aks-${uniqueHash}'
   location: location
   identity: {
@@ -11,7 +11,8 @@ resource aks 'Microsoft.ContainerService/managedClusters@2023-07-01' = {
   }
   properties: {
     dnsPrefix: '${resourcePrefix}-aks'
-    kubernetesVersion: '1.28'
+    // kubernetesVersion omitted: AKS uses the region's default supported version.
+    // To pin, pick a supported version from `az aks get-versions --location <location>`.
     agentPoolProfiles: [
       {
         name: 'default'

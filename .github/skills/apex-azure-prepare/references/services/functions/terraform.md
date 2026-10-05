@@ -137,36 +137,33 @@ For production deployments, use the official Azure Verified Module:
 ```hcl
 module "function_app" {
   source  = "Azure/avm-res-web-site/azurerm"
-  version = "~> 0.0"
+  version = "0.23.0" # example; resolve the current exact version at plan time
 
-  name                = "${var.resource_prefix}-${var.service_name}-${var.unique_hash}"
-  location            = var.location
-  resource_group_name = azurerm_resource_group.main.name
+  name                     = "${var.resource_prefix}-${var.service_name}-${var.unique_hash}"
+  location                 = var.location
+  parent_id                = azurerm_resource_group.main.id
+  service_plan_resource_id = azurerm_service_plan.function_plan.id
 
-  kind    = "functionapp"
-  os_type = "Linux"
+  kind                   = "functionapp"
+  os_type                = "Linux"
+  function_app_uses_fc1  = true
+  fc1_runtime_name       = "python"
+  fc1_runtime_version    = "3.11"
+  instance_memory_in_mb  = 2048
+  maximum_instance_count = 100
 
-  sku_name = "FC1"
+  storage_authentication_type = "SystemAssignedIdentity"
+  storage_container_endpoint  = "${azurerm_storage_account.function_storage.primary_blob_endpoint}${azurerm_storage_container.deployment_package.name}"
 
-  function_app_storage_account_name       = azurerm_storage_account.function_storage.name
-  function_app_storage_uses_managed_identity = true
+  application_insights_connection_string = azurerm_application_insights.function_insights.connection_string
 
-  site_config = {
-    application_insights_connection_string = azurerm_application_insights.function_insights.connection_string
-
-    application_stack = {
-      python_version = "3.11"
-    }
-  }
-
+  # FC1 sets FUNCTIONS_EXTENSION_VERSION and the worker runtime itself.
   app_settings = {
     "AzureWebJobsStorage__blobServiceUri" = azurerm_storage_account.function_storage.primary_blob_endpoint
-    "FUNCTIONS_EXTENSION_VERSION"         = "~4"
-    "FUNCTIONS_WORKER_RUNTIME"            = "python"
   }
 
-  identity = {
-    type = "SystemAssigned"
+  managed_identities = {
+    system_assigned = true
   }
 }
 ```

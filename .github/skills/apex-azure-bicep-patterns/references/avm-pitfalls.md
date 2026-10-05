@@ -143,20 +143,20 @@ than compute it.
 
 ```bicep
 // ❌ FAILS — BCP120: parent property must be calculable at deployment start
-resource existingWebApp 'Microsoft.Web/sites@2023-12-01' existing = {
+resource existingWebApp 'Microsoft.Web/sites@2025-03-01' existing = {
   name: webApp.outputs.name   // module output ≠ static
 }
-resource authSettings 'Microsoft.Web/sites/config@2023-12-01' = {
+resource authSettings 'Microsoft.Web/sites/config@2025-03-01' = {
   parent: existingWebApp
   name: 'authsettingsV2'
   properties: { ... }
 }
 
 // ✅ OK — static name, explicit dependsOn for ordering
-resource existingWebApp 'Microsoft.Web/sites@2023-12-01' existing = {
+resource existingWebApp 'Microsoft.Web/sites@2025-03-01' existing = {
   name: 'app-web-${projectName}-${env}'   // statically computable from params
 }
-resource authSettings 'Microsoft.Web/sites/config@2023-12-01' = {
+resource authSettings 'Microsoft.Web/sites/config@2025-03-01' = {
   parent: existingWebApp
   name: 'authsettingsV2'
   properties: { ... }

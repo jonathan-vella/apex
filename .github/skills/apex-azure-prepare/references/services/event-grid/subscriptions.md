@@ -3,7 +3,7 @@
 ## Event Subscription
 
 ```bicep
-resource eventGridSubscription 'Microsoft.EventGrid/topics/eventSubscriptions@2023-12-15-preview' = {
+resource eventGridSubscription 'Microsoft.EventGrid/topics/eventSubscriptions@2025-02-15' = {
   parent: eventGridTopic
   name: 'order-processor-subscription'
   properties: {

@@ -5,7 +5,7 @@ Zero-downtime deployments using staging slots.
 ## Basic Staging Slot
 
 ```bicep
-resource stagingSlot 'Microsoft.Web/sites/slots@2022-09-01' = {
+resource stagingSlot 'Microsoft.Web/sites/slots@2025-03-01' = {
   parent: webApp
   name: 'staging'
   location: location
@@ -36,7 +36,7 @@ resource stagingSlot 'Microsoft.Web/sites/slots@2022-09-01' = {
 Configure settings that should not swap:
 
 ```bicep
-resource slotConfigNames 'Microsoft.Web/sites/config@2022-09-01' = {
+resource slotConfigNames 'Microsoft.Web/sites/config@2025-03-01' = {
   parent: webApp
   name: 'slotConfigNames'
   properties: {

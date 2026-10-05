@@ -54,7 +54,7 @@ Container Apps run inside an environment that can be injected into a VNet subnet
 ### Bicep — VNet-Integrated Environment
 
 ```bicep
-resource subnet 'Microsoft.Network/virtualNetworks/subnets@2023-11-01' = {
+resource subnet 'Microsoft.Network/virtualNetworks/subnets@2025-09-01' = {
   parent: vnet
   name: 'container-apps-subnet'
   properties: {
@@ -68,7 +68,7 @@ resource subnet 'Microsoft.Network/virtualNetworks/subnets@2023-11-01' = {
   }
 }
 
-resource env 'Microsoft.App/managedEnvironments@2024-03-01' = {
+resource env 'Microsoft.App/managedEnvironments@2026-01-01' = {
   name: envName
   location: location
   properties: {

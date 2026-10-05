@@ -252,7 +252,7 @@ var functions = builder.AddAzureFunctionsProject<Projects.ImageGallery_Functions
 If you need to modify the generated Container Apps infrastructure directly, ensure the Functions container app has this environment variable:
 
 ```bicep
-resource functionsContainerApp 'Microsoft.App/containerApps@2024-03-01' = {
+resource functionsContainerApp 'Microsoft.App/containerApps@2026-01-01' = {
   properties: {
     template: {
       containers: [

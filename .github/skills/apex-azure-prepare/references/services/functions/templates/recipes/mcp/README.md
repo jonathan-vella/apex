@@ -8,9 +8,9 @@ Tools implement application logic only; the extension or official SDK owns the p
 
 | Language | Native Functions implementation | Local alternative without Core Tools |
 | --- | --- | --- |
-| [Python](source/python.md) | `azure-functions==1.24.0`, `mcp_tool_trigger` | Official `mcp==1.26.0` FastMCP host |
-| [JavaScript](source/javascript.md) | `@azure/functions@4.9.0`, `app.mcpTool` | Official `@modelcontextprotocol/sdk@1.26.0` HTTP host |
-| [TypeScript](source/typescript.md) | `@azure/functions@4.9.0`, TypeScript `5.9.3`, `app.mcpTool` | JavaScript SDK pattern; native TS build still required |
+| [Python](source/python.md) | `azure-functions==1.25.0`, `mcp_tool_trigger` | Official `mcp==1.30.0` FastMCP host |
+| [JavaScript](source/javascript.md) | `@azure/functions@4.16.5`, `app.mcpTool` | Official `@modelcontextprotocol/sdk@1.30.1` HTTP host |
+| [TypeScript](source/typescript.md) | `@azure/functions@4.16.5`, TypeScript `5.9.3`, `app.mcpTool` | JavaScript SDK pattern; native TS build still required |
 | [.NET](source/dotnet.md) | Isolated Worker `2.1.0`, Worker.Extensions.Mcp `1.0.0` | Native build/manual host check |
 | [Java](source/java.md) | Functions library `3.2.2`, Maven plugin `1.40.0`, MCP annotations | Native build/manual host check |
 | [PowerShell](source/powershell.md) | **Unsupported by the MCP extension** | PowerShell 7 tool logic behind the Node SDK host |
@@ -131,9 +131,9 @@ node --test --test-name-pattern='SK-14' tools/tests/scripts/test_recipe_remediat
 ```
 
 Tests never download dependencies. When provisioned with separate approval, set
-`MCP_NODE_DIR` to a directory whose node_modules contains SDK `1.26.0`, zod
-`3.25.76` and express `5.1.0`; set `MCP_PYTHON` to a Python executable with
-`mcp==1.26.0`. Explicit but invalid paths fail rather than silently skip. The Node
+`MCP_NODE_DIR` to a directory whose node_modules contains SDK `1.30.1`, zod
+`3.25.76` and express `5.2.1`; set `MCP_PYTHON` to a Python executable with
+`mcp==1.30.0`. Explicit but invalid paths fail rather than silently skip. The Node
 suite uses an ephemeral loopback port. Python uses the real SDK HTTP client through
 in-process ASGI transport, with no external network. Neither suite calls a model.
 
@@ -151,9 +151,9 @@ Read on 2026-09-14; these are upstream APIs/patterns, not evidence of local depl
   (published revision `5122a365a28eadb69aaa1cef6c686afda52e41ee`).
 - [Microsoft Learn: tool triggers and required properties](https://learn.microsoft.com/en-us/azure/azure-functions/functions-bindings-mcp-tool-trigger)
   (published revision `afc5a7b5c197b8ea2449d469ca8c6213123792ef`).
-- [Node Functions 4.9.0 MCP types](https://github.com/Azure/azure-functions-nodejs-library/blob/v4.9.0/types/mcpTool.d.ts).
+- [Node Functions 4.16.5 MCP types](https://github.com/Azure/azure-functions-nodejs-library/blob/v4.16.5/types/mcpTool.d.ts).
 - [Extension bundle 4.30.0 manifest](https://github.com/Azure/azure-functions-extension-bundles/blob/4.30.0/src/Microsoft.Azure.Functions.ExtensionBundle/extensions.json).
 - [.NET extension 1.0.0 property attribute](https://github.com/Azure/azure-functions-mcp-extension/blob/1.0.0/src/Microsoft.Azure.Functions.Worker.Extensions.Mcp/McpToolPropertyAttribute.cs).
-- [Node MCP SDK 1.26.0 stateless HTTP example](https://github.com/modelcontextprotocol/typescript-sdk/blob/v1.26.0/src/examples/server/simpleStatelessStreamableHttp.ts)
-  and [SDK bearer middleware](https://github.com/modelcontextprotocol/typescript-sdk/blob/v1.26.0/src/server/auth/middleware/bearerAuth.ts).
-- [Python MCP SDK 1.26.0: FastMCP, HTTP clients and token verification](https://github.com/modelcontextprotocol/python-sdk/tree/v1.26.0).
+- [Node MCP SDK 1.30.1 stateless HTTP example](https://github.com/modelcontextprotocol/typescript-sdk/blob/1.30.1/src/examples/server/simpleStatelessStreamableHttp.ts)
+  and [SDK bearer middleware](https://github.com/modelcontextprotocol/typescript-sdk/blob/1.30.1/src/server/auth/middleware/bearerAuth.ts).
+- [Python MCP SDK 1.30.0: FastMCP, HTTP clients and token verification](https://github.com/modelcontextprotocol/python-sdk/tree/v1.30.0).

@@ -308,6 +308,24 @@
       "path": "entra-app-registration/references/troubleshooting.md",
       "pattern": "Paste into jwt\\.ms",
       "defect": "Tokens are pasted into a third-party decoder"
+    },
+    {
+      "id": "SK-48",
+      "path": "azure-prepare/references/services/aks/bicep.md",
+      "pattern": "kubernetesVersion: '1\\.28'",
+      "defect": "AKS example pins Kubernetes 1.28, which is outside the AKS support window"
+    },
+    {
+      "id": "SK-48",
+      "path": "azure-prepare/references/services/functions/terraform.md",
+      "pattern": "version = \"~> 0\\.0\"",
+      "defect": "AVM web-site module pinned to ~> 0.0 with inputs from a retired module interface"
+    },
+    {
+      "id": "SK-48",
+      "path": "azure-prepare/references/services/app-service/networking.md",
+      "pattern": "privateDnsZones@2020-06-01",
+      "defect": "Private DNS zone examples use a 2020 API version where 2024-06-01 is GA"
     }
   ]
 }
