@@ -38,7 +38,7 @@ jobs:
       - name: Setup Terraform for executable tool tests
         uses: hashicorp/setup-terraform@v4
         with:
-          terraform_version: "1.16.2"
+          terraform_version: "1.16.5"
           terraform_wrapper: false
 
       - name: Lint Markdown
