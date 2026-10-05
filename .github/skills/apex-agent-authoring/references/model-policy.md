@@ -36,14 +36,19 @@ picker resolution remain manual acceptance gates, not conclusions from static te
 
 - Agent frontmatter `reasoning-effort` is the only effort setting; do not restate it in the body.
 - `GPT-6 Luna (copilot)` agents and subagents use `reasoning-effort: max`.
-- All other agents and subagents use `reasoning-effort: default`.
+- `Claude Opus 5.5 (copilot)` agents use `reasoning-effort: high`.
+- All other agents and subagents use `reasoning-effort: medium`.
 
 Effort is not part of a model label. Re-evaluate before escalating; effort does not
 replace missing context or validation.
 
 ## Prompt Style
 
-- Claude: role-first structured contracts and selective XML blocks.
+- Claude (Opus 5.5, Sonnet 5.5) main agents: the APEX Claude contract — one H1, a
+  nonempty `## Role`, and nonempty `<scope_fencing>`, `<output_contract>` and
+  `<stop_conditions>` blocks, plus selective XML blocks such as
+  `<investigate_before_answering>` and `<context_awareness>`. Enforced by
+  `validateProductionAgentBody`.
 - Sol, Terra, Luna: concise outcome-first Markdown and explicit stop rules as an
   APEX convention, informed by pinned generic OpenAI guidance, not a claim of
   model-specific vendor endorsement. Main agents retain Role, Goal, Success

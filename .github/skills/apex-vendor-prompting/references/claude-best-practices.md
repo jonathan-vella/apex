@@ -17,9 +17,25 @@ Each rule references its ID in [rules.json](../rules.json). Full vendor guidance
 
 ## Applicable models
 
-`Claude Opus 5.5` (family `claude-opus-5.5`). Anthropic states existing Opus 5 prompts should perform well
-without changes and that the Opus 5 patterns remain a reasonable starting point, so R-CL-12 to R-CL-15 carry
-the Opus 5 baseline and R-CL-8 to R-CL-11 the Opus 5.5 deltas. Other Claude labels are not in the catalog.
+`Claude Opus 5.5 (copilot)` (family `claude-opus-5.5`) and `Claude Sonnet 5.5 (copilot)` (family
+`claude-sonnet-5.5`). Anthropic states existing Opus 5 prompts should perform well without changes and that
+the Opus 5 patterns remain a reasonable starting point, so R-CL-12 to R-CL-15 carry the Opus 5 baseline and
+R-CL-8 to R-CL-11 the Opus 5.5 deltas. R-CL-1 to R-CL-7 come from the general best-practices guide and apply
+to both families. R-CL-8 is validator-enforced on Opus only; R-CL-9 to R-CL-15 are applied to Sonnet bodies
+as an APEX convention because no Sonnet 5.5-specific guide is sourced. Other Claude labels are not in the
+catalog.
+
+## APEX Claude body contract (main agents)
+
+`validateProductionAgentBody` enforces, for main agents whose first model is a Claude family:
+
+- exactly one H1 equal to the agent `name`;
+- a nonempty `## Role` section (fold the goal and success criteria into it);
+- nonempty `<scope_fencing>`, `<output_contract>` and `<stop_conditions>` blocks.
+
+`<stop_conditions>` carries R-CL-9: wanted stops (approval gates, blocking missing inputs, circuit
+breakers) and the unwanted early stops to avoid. Keep approval gates, security baseline, governance and
+reviewer-unavailable rules in the body. GPT and MAI main agents keep the six-H2 outcome contract.
 
 ## Rule R-CL-1 — XML structuring for complex prompts
 
@@ -29,7 +45,8 @@ the Opus 5 baseline and R-CL-8 to R-CL-11 the Opus 5.5 deltas. Other Claude labe
 in its own descriptive XML tag (`<instructions>`, `<context>`, `<input>`, `<example>`, `<examples>`).
 
 **Repo enforcement**: reviewer judgement. Existing repo patterns: `<investigate_before_answering>`,
-`<context_awareness>`, `<scope_fencing>`, `<empty_result_recovery>`, `<subagent_budget>`, `<output_contract>`.
+`<context_awareness>`, `<scope_fencing>`, `<empty_result_recovery>`, `<subagent_budget>`, `<output_contract>`,
+`<stop_conditions>`.
 
 ## Rule R-CL-2 — Investigate-before-answering for research agents
 
@@ -173,8 +190,8 @@ For explicit response-length control, prompt for it; lowering effort reduces thi
 
 XML blocks the repo uses for Claude that must not appear in GPT-family agents (`gpt-no-claude-xml-001`):
 `<investigate_before_answering>`, `<context_awareness>`, `<scope_fencing>`, `<empty_result_recovery>`,
-`<subagent_budget>`, `<output_contract>`. When migrating an agent to GPT, convert the wrappers to Markdown and
-keep their substantive constraints.
+`<subagent_budget>`, `<output_contract>`, `<stop_conditions>`. When migrating an agent to GPT, convert the
+wrappers to Markdown and keep their substantive constraints.
 
 ## Cross-references
 
