@@ -16,7 +16,9 @@ import { fileURLToPath } from "node:url";
 import { test } from "node:test";
 import { getBody, parseFrontmatter } from "../../scripts/_lib/parse-frontmatter.mjs";
 import {
+  classifyModel,
   getAgentBodyStructure,
+  isClaude,
   runVendorPrompting,
   validateProductionAgentBody,
 } from "../../scripts/validate-agents.mjs";
@@ -155,7 +157,14 @@ for (const name of agentFiles) {
     );
     assert.deepEqual(validateProductionAgentBody({ path: path.join(agentRoot, name), content: text, frontmatter }), []);
     assert.ok(Array.isArray(frontmatter.model), name);
-    assert.doesNotMatch(body, /<\/?(?:context_awareness|output_contract|scope_fencing)>/, name);
+    if (isClaude(classifyModel(frontmatter.model[0]))) {
+      assert.ok(!name.startsWith("_subagents/"), name);
+      for (const tag of ["scope_fencing", "output_contract", "stop_conditions"]) {
+        assert.match(body, new RegExp(`<${tag}>[\\s\\S]+?</${tag}>`), `${name}: ${tag}`);
+      }
+    } else {
+      assert.doesNotMatch(body, /<\/?(?:context_awareness|output_contract|scope_fencing|stop_conditions)>/, name);
+    }
     if (name.startsWith("_subagents/")) {
       assert.equal(frontmatter["user-invocable"], false, name);
       assert.deepEqual(frontmatter.agents, [], name);
@@ -165,7 +174,7 @@ for (const name of agentFiles) {
   });
 }
 
-test("AB-01/15 one-H1 normalization supports nonempty H2 contracts", () => {
+test("AB-01/15 one-H1 normalization supports the model-specific body contract", () => {
   const original = read("03-architect");
   const frontmatter = parseFrontmatter(original);
   const agent = {
@@ -180,7 +189,7 @@ test("AB-01/15 one-H1 normalization supports nonempty H2 contracts", () => {
     catalog: { models: Object.fromEntries(frontmatter.model.map((model) => [model, { deprecated: false }])) },
   });
   const blockers = result.findings.filter((finding) =>
-    ["gpt-outcome-contract-001", "gpt-stop-rules-non-empty-001"].includes(finding.ruleId),
+    ["gpt-outcome-contract-001", "gpt-stop-rules-non-empty-001", "claude-output-contract-001"].includes(finding.ruleId),
   );
   assert.deepEqual(blockers, []);
 });

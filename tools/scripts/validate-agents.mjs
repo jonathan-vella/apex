@@ -444,6 +444,7 @@ function classifyModel(modelStr) {
   if (typeof s !== "string" || !s) return "unknown";
   const lower = s.toLowerCase();
   if (/claude opus 5\.5\b/.test(lower)) return "claude-opus-5.5";
+  if (/claude sonnet 5\.5\b/.test(lower)) return "claude-sonnet-5.5";
   if (/gpt-6[- ]sol\b/.test(lower)) return "gpt-6-sol";
   if (/gpt-6[- ]luna\b/.test(lower)) return "gpt-6-luna";
   if (/gpt-5\.6[- ]terra\b/.test(lower)) return "gpt-5.6-terra";
@@ -598,7 +599,19 @@ function runModelAlignment() {
   }
 
   // Check 4: Claude non-ONE-SHOT research agents missing investigate block
-  const INVESTIGATE_AGENTS = ["03-architect", "05-iac-planner", "11-context-optimizer"];
+  const INVESTIGATE_AGENTS = [
+    "03-architect",
+    "04-design",
+    "04g-governance",
+    "05-iac-planner",
+    "06b-bicep-codegen",
+    "06t-terraform-codegen",
+    "07b-bicep-deploy",
+    "07t-terraform-deploy",
+    "08-as-built",
+    "09-diagnose",
+    "11-context-optimizer",
+  ];
 
   console.log("  Check 4: Claude investigate_before_answering");
   {
@@ -752,6 +765,7 @@ function ruleById(id) {
 
 export const FAMILY_STATUS = {
   "claude-opus-5.5": "enforced",
+  "claude-sonnet-5.5": "enforced",
   "gpt-6-sol": "enforced",
   "gpt-6-luna": "enforced",
   "gpt-5.6-terra": "enforced",
@@ -809,7 +823,11 @@ const CLAUDE_ONLY_XML = [
   "<empty_result_recovery>",
   "<subagent_budget>",
   "<output_contract>",
+  "<stop_conditions>",
 ];
+
+/** XML blocks every Claude main agent must carry with nonempty content. */
+const CLAUDE_CONTRACT_BLOCKS = ["scope_fencing", "output_contract", "stop_conditions"];
 
 const BODY_CONTRACT_SECTIONS = {
   Role: ["role"],
@@ -860,6 +878,68 @@ function contractSections(structure, names, levels = [1, 2]) {
   );
 }
 
+function modelFamilies(model) {
+  try {
+    return modelLabels(model).map((label) => classifyModel(label));
+  } catch {
+    return [];
+  }
+}
+
+// Fallbacks share one body, so Claude and non-Claude contracts cannot both be satisfied.
+export function hasMixedBodyContractFamilies(model) {
+  const claude = modelFamilies(model).map((family) => isClaude(family));
+  return claude.includes(true) && claude.includes(false);
+}
+
+// Fenced examples and inline code spans must not satisfy a contract block.
+function stripCodeForXml(body) {
+  const kept = [];
+  let fence = null;
+  for (const line of body.split("\n")) {
+    const marker = line.match(/^ {0,3}(`{3,}|~{3,})/)?.[1];
+    if (fence) {
+      if (marker && marker[0] === fence[0] && marker.length >= fence.length) fence = null;
+      continue;
+    }
+    if (marker) {
+      fence = marker;
+      continue;
+    }
+    kept.push(line.replace(/`[^`\n]*`/g, ""));
+  }
+  return kept.join("\n");
+}
+
+// Commented-out blocks are not part of the prompt; an unterminated comment hides the rest.
+function stripHtmlComments(text) {
+  const kept = [];
+  let index = 0;
+  while (index < text.length) {
+    const start = text.indexOf("<!--", index);
+    if (start === -1) {
+      kept.push(text.slice(index));
+      break;
+    }
+    kept.push(text.slice(index, start));
+    const end = text.indexOf("-->", start + 4);
+    if (end === -1) break;
+    index = end + 3;
+  }
+  return kept.join("");
+}
+
+export function claudeContractBlockIssues(content) {
+  const text = stripHtmlComments(stripCodeForXml(getBody(content)));
+  const issues = [];
+  for (const tag of CLAUDE_CONTRACT_BLOCKS) {
+    const blocks = [...text.matchAll(new RegExp(`<${tag}>([\\s\\S]*?)</${tag}>`, "g"))];
+    const empty = blocks.some((block) => !block[1].trim());
+    if (!blocks.length || empty) issues.push(`Claude production body requires a nonempty <${tag}> block`);
+  }
+  return issues;
+}
+
 export function validateProductionAgentBody(agent) {
   const kind = productionAgentKind(agent);
   if (!kind) return [];
@@ -869,8 +949,14 @@ export function validateProductionAgentBody(agent) {
   if (titles.length !== 1 || titles[0].nested || titles[0].title !== agent.frontmatter.name) {
     issues.push("Production body requires exactly one H1 matching the frontmatter name");
   }
-  const contracts =
-    kind === "main"
+  const families = modelFamilies(agent.frontmatter?.model);
+  if (kind === "main" && hasMixedBodyContractFamilies(agent.frontmatter?.model)) {
+    issues.push("Production main agent model fallbacks must not mix Claude and non-Claude body contracts");
+  }
+  const claudeMain = kind === "main" && families.length > 0 && families.every((family) => isClaude(family));
+  const contracts = claudeMain
+    ? { Role: BODY_CONTRACT_SECTIONS.Role }
+    : kind === "main"
       ? BODY_CONTRACT_SECTIONS
       : {
           Role: BODY_CONTRACT_SECTIONS.Role,
@@ -883,6 +969,7 @@ export function validateProductionAgentBody(agent) {
       issues.push(`Production body requires nonempty H2 ${name} sections`);
     }
   }
+  if (claudeMain) issues.push(...claudeContractBlockIssues(agent.content));
   return issues;
 }
 

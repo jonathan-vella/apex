@@ -3,7 +3,7 @@ name: apex-vendor-prompting
 user-invocable: true
 disable-model-invocation: true
 argument-hint: "agent or prompt path, model family and audit scope"
-description: '**ANALYSIS SKILL** — Manual-only audit of Anthropic Claude Opus 5.5 and OpenAI GPT-6 / GPT-5.6 prompting guidance and APEX conventions. WHEN: explicitly invoked as /apex-vendor-prompting for a vendor-specific prompt audit. DO NOT USE FOR: automatic authoring loads, routine edits covered by instructions, generic Markdown style.'
+description: '**ANALYSIS SKILL** — Manual-only audit of Anthropic Claude Opus 5.5 / Sonnet 5.5 and OpenAI GPT-6 / GPT-5.6 prompting guidance and APEX conventions. WHEN: explicitly invoked as /apex-vendor-prompting for a vendor-specific prompt audit. DO NOT USE FOR: automatic authoring loads, routine edits covered by instructions, generic Markdown style.'
 license: MIT
 ---
 
@@ -14,7 +14,7 @@ Do not load this skill automatically or read its body to bypass the invocation f
 The thin authoring instructions and required vendor validators remain mandatory without this skill.
 
 Audit-grade reference for the prompting patterns published by Anthropic
-(Claude Opus 5.5) and OpenAI (GPT-6, GPT-5.6), plus explicitly identified APEX conventions. Used to author **and** audit
+(Claude Opus 5.5, Sonnet 5.5) and OpenAI (GPT-6, GPT-5.6), plus explicitly identified APEX conventions. Used to author **and** audit
 `.agent.md` and `.prompt.md` files in this repository.
 
 The machine-readable source of truth is
@@ -49,7 +49,7 @@ hard-rule shortlist.
 ```text
 I am editing or reviewing a *.agent.md / *.prompt.md ...
 ├── Which model is in the frontmatter?
-│   ├── Claude Opus 5.5            → load references/claude-best-practices.md
+│   ├── Claude Opus / Sonnet 5.5   → load references/claude-best-practices.md
 │   ├── GPT-6 Sol / Luna (copilot) → load references/openai-prompting.md
 │   ├── GPT-5.6 Terra (copilot)    → load references/openai-prompting.md
 │   ├── MAI-Code-1.1-Flash         → reviewer-only; structural checks still run
@@ -66,7 +66,7 @@ I am editing or reviewing a *.agent.md / *.prompt.md ...
 ## Model-Family Detection
 
 `classifyModel()` lower-cases the `model:` value and matches it to a family
-(`claude-opus-5.5` / `gpt-6-sol` / `gpt-6-luna` / `gpt-5.6-terra` / `mai-code` / `unknown`).
+(`claude-opus-5.5` / `claude-sonnet-5.5` / `gpt-6-sol` / `gpt-6-luna` / `gpt-5.6-terra` / `mai-code` / `unknown`).
 Retired labels classify as `unknown`. Validate every ordered fallback label and distinct family.
 Classification does not authorize a label: ordinary labels must exactly match
 the catalog. Only handoff overrides allow documented platform qualification.
@@ -81,7 +81,7 @@ Load only the references your task needs. Most audits need 1-2.
 
 | Reference                                                       | Load when                                                              |
 | --------------------------------------------------------------- | ---------------------------------------------------------------------- |
-| [claude-best-practices.md](references/claude-best-practices.md) | Authoring or auditing a Claude Opus 5.5 agent                          |
+| [claude-best-practices.md](references/claude-best-practices.md) | Authoring or auditing a Claude Opus 5.5 or Sonnet 5.5 agent            |
 | [openai-prompting.md](references/openai-prompting.md)           | Authoring or auditing a GPT-6 Sol/Luna or GPT-5.6 Terra agent          |
 | [cross-model-rules.md](references/cross-model-rules.md)         | Handoff design, prompt↔agent sync, language calibration                |
 | [family-support.md](references/family-support.md)               | Picking a model family for a new agent                                 |
@@ -99,6 +99,8 @@ Load only the references your task needs. Most audits need 1-2.
 - **Markdown outcome contracts for GPT are an APEX convention** that mirrors the GPT-5.6
   suggested prompt structure and extends it to GPT-6. Preserve exact catalog labels;
   unknown release/tier metadata stays unknown.
+- **Claude main agents use the APEX Claude contract**: one H1, a nonempty `## Role`, and
+  nonempty `<scope_fencing>`, `<output_contract>` and `<stop_conditions>` XML blocks.
 - **Vendor autonomy advice does not remove APEX gates** — approval gates, the security
   baseline and governance constraints stay required stops; consolidate their wording instead.
 - **Leaf workers use role contracts**, not mandatory personality or main-agent sections.

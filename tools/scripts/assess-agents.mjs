@@ -40,7 +40,14 @@ import * as yaml from "js-yaml";
 import { getAgents } from "./_lib/workspace-index.mjs";
 import { getBody } from "./_lib/parse-frontmatter.mjs";
 import { MAX_BODY_LINES, REGISTRY_PATH, AGENT_OUTPUT_DIR } from "./_lib/paths.mjs";
-import { classifyModel, isClaude, isGptFamily, isGptOutcomeFamily } from "./validate-agents.mjs";
+import {
+  classifyModel,
+  claudeContractBlockIssues,
+  hasMixedBodyContractFamilies,
+  isClaude,
+  isGptFamily,
+  isGptOutcomeFamily,
+} from "./validate-agents.mjs";
 
 // ── Limits ──────────────────────────────────────────────────────────────────
 // Hard limit (MAX_BODY_LINES) is imported from _lib/paths.mjs. The rest are
@@ -62,9 +69,22 @@ const CLAUDE_ONLY_XML = [
   "<empty_result_recovery>",
   "<subagent_budget>",
   "<output_contract>",
+  "<stop_conditions>",
 ];
 // Claude research agents expected to carry an investigate block (file-prefix match).
-const INVESTIGATE_AGENT_PREFIXES = ["03-architect", "05-iac-planner", "11-context-optimizer"];
+const INVESTIGATE_AGENT_PREFIXES = [
+  "03-architect",
+  "04-design",
+  "04g-governance",
+  "05-iac-planner",
+  "06b-bicep-codegen",
+  "06t-terraform-codegen",
+  "07b-bicep-deploy",
+  "07t-terraform-deploy",
+  "08-as-built",
+  "09-diagnose",
+  "11-context-optimizer",
+];
 // ONE-SHOT agents (frontmatter name) that must NOT carry an investigate block.
 const ONE_SHOT_AGENT_NAMES = new Set(["02-Requirements", "challenger-review-subagent"]);
 
@@ -311,6 +331,17 @@ function scoreVendor(agent, metrics, vendorFindings) {
   if (isClaude(family) && ONE_SHOT_AGENT_NAMES.has(name) && metrics.has_investigate_block) {
     evidence.push("ONE-SHOT agent must NOT include <investigate_before_answering> (claude-oneshot-001)");
     severity = worst(severity, "medium");
+  }
+  if (!agent.isSubagent && hasMixedBodyContractFamilies(agent.frontmatter?.model)) {
+    evidence.push("Model fallbacks mix Claude and non-Claude body contracts");
+    severity = worst(severity, "medium");
+  }
+  if (isClaude(family) && !agent.isSubagent) {
+    const issues = claudeContractBlockIssues(agent.content);
+    if (issues.length > 0) {
+      evidence.push(`Claude body contract incomplete: ${issues.join("; ")}`);
+      severity = worst(severity, "medium");
+    }
   }
   if (isGptOutcomeFamily(family) && !agent.isSubagent && metrics.outcome_sections_missing.length > 0) {
     evidence.push(
