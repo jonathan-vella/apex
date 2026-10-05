@@ -3,7 +3,7 @@
 # IMPORTANT — local composite actions only resolve AFTER `actions/checkout`
 # has run in the calling job (the runner can't read `action.yml` from disk
 # before the repo is checked out). So this action deliberately does NOT
-# include the checkout step; every caller must run `actions/checkout@v6`
+# include the checkout step; every caller must run `actions/checkout@v7`
 # first. See https://github.com/actions/checkout#usage
 #
 # This action bundles the two steps that every Node-based job in
@@ -15,10 +15,10 @@
 # instead of a fan-out across every workflow.
 #
 # Use:
-#   - uses: actions/checkout@v6
+#   - uses: actions/checkout@v7
 #   - uses: ./.github/actions/setup-node-repo
 #   # Or with a custom Node version / skipping npm ci:
-#   - uses: actions/checkout@v6
+#   - uses: actions/checkout@v7
 #   - uses: ./.github/actions/setup-node-repo
 #     with:
 #       node-version: "22"
@@ -46,7 +46,7 @@ runs:
   using: composite
   steps:
     - name: Setup Node.js
-      uses: actions/setup-node@v6
+      uses: actions/setup-node@v7
       with:
         node-version: ${{ inputs.node-version }}
         cache: npm
