@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-09-25T06:13:17.641Z",
+  "generatedAt": "2026-10-05T11:31:49.130Z",
   "categories": [
     { "id": "agent", "key": "agents", "label": "Agent", "color": "#3b82f6", "shape": "round-rectangle", "count": 14 },
     {
@@ -35,11 +35,11 @@
       "label": "CI Workflow",
       "color": "#06b6d4",
       "shape": "cut-rectangle",
-      "count": 6
+      "count": 7
     },
     { "id": "mcp", "key": "mcp_servers", "label": "MCP Server", "color": "#f43f5e", "shape": "barrel", "count": 3 }
   ],
-  "nodeCount": 184,
+  "nodeCount": 185,
   "edgeCount": 729,
   "nodes": [
     {
@@ -2304,6 +2304,18 @@
       "parent": "group:workflow-orphans"
     },
     {
+      "id": "workflow:dependency-security",
+      "category": "workflow",
+      "label": "dependency-security",
+      "description": "",
+      "path": ".github/workflows/dependency-security.yml",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/workflows/dependency-security.yml"
+      },
+      "meta": { "orphan": true },
+      "parent": "group:workflow-orphans"
+    },
+    {
       "id": "workflow:upstream-skill-drift",
       "category": "workflow",
       "label": "upstream-skill-drift",
@@ -2365,10 +2377,10 @@
     {
       "id": "group:workflow-orphans",
       "category": "workflow",
-      "label": "CI Workflow (unlinked, 4)",
-      "description": "4 ci workflow nodes with no cross-references in the current graph.",
+      "label": "CI Workflow (unlinked, 5)",
+      "description": "5 ci workflow nodes with no cross-references in the current graph.",
       "isGroup": true,
-      "meta": { "groupSize": 4 }
+      "meta": { "groupSize": 5 }
     }
   ],
   "edges": [
