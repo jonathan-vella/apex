@@ -13,9 +13,9 @@
       "apex_import_commit": "c61794c8"
     },
     "reviewed": {
-      "tag": "v1.2.70",
-      "commit": "9184881885141eccbf8f6477db9689f861608a68",
-      "reviewed_on": "2026-09-23"
+      "tag": "v1.2.77",
+      "commit": "74f27068b21b85807e35ae69ab3976756b060c03",
+      "reviewed_on": "2026-10-05"
     }
   },
   "skills": [

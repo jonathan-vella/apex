@@ -15,8 +15,8 @@ Related evidence: [audit ledger](apex-workflow-audit.md#deep-skill-audit-backlog
 - **Updated**: 2026-09-23 against `main` at `5fef0f82`, when this implementation plan replaced the deferred plan.
 - **Branch**: `feat/azure-skills-upstream-alignment`. Commit and push after each phase; no pull request until the
   owner approves. Commits are authored as Jonathan Vella (GitHub `jonathan-vella`).
-- **Upstream pin**: `microsoft/azure-skills` tag `v1.2.70`, commit `91848818` (reviewed 2026-09-23; was `v1.2.51`,
-  `cbf7c8b0`).
+- **Upstream pin**: `microsoft/azure-skills` tag `v1.2.77`, commit `74f27068` (reviewed 2026-10-05; was `v1.2.70`,
+  `91848818`). See Phase 13.
 - **Scope**: The Microsoft-derived `apex-azure-*` and `apex-entra-app-registration` skills, the Microsoft `azure`
   plugin (skills, MCP server and hooks), and the APEX Azure MCP configuration.
 - **Question**: Can the plugin replace or complement APEX skills and the APEX Azure MCP configuration?
@@ -430,6 +430,19 @@ standalone `azure-cost` plugin and split it into `cost-analysis`, `cost-estimati
       (apex-docs #16, merged as `10f6daf1`).
 - [x] Declined by the owner on 2026-09-23, revisit on a future drift report: the Advisor-first rewrite of the
       optimization workflow, commitments analysis, `cost-governance` budgets, AI cost analysis and cost investigation.
+
+### Phase 13: v1.2.77 Review
+
+The weekly drift report (#723) flagged seven pinned skills. Reviewed 2026-10-05 with line endings ignored:
+
+- [x] No-op: imported files in `azure-validate`, `azure-deploy`, `azure-resource-lookup`,
+      `azure-resource-visualizer` and `azure-reliability` changed only in line endings (upstream #3313); the
+      remaining tracked `SKILL.md` changes are metadata version bumps.
+- [x] Already aligned: `azure-reliability` now excludes only Container Apps from deep dives; `apex-azure-reliability`
+      already assesses App Service and lists Container Apps as not assessed.
+- [x] Declined: telemetry install/report hooks (APEX does not import plugin hooks) and the new
+      `discover-azure-skills` skill (APEX discovers skills through `SKILL.md` descriptions).
+- [x] No defect probe left its reviewed state. Moved the reviewed tag to `v1.2.77`.
 
 ## Pull Request Split
 
