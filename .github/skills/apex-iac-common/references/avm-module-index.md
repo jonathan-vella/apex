@@ -19,9 +19,12 @@ indexes** maintained by the Azure Verified Modules team.
 | `.github/data/avm-module-index.json`       | Derived, agent-friendly | Generated from the two CSVs above by `tools/scripts/refresh-avm-module-index.mjs` |
 | `tools/scripts/_data/avm-module-cache.json` | Per-module version cache | MCR + `registry.terraform.io`, pre-warmed by the same refresh script               |
 
-The refresh script + the **Weekly Maintenance** workflow
-(`refresh-avm-module-index` job) keep all four files current via
-auto-merge PRs. There is no need to hand-edit them.
+The refresh script keeps all four files current; there is no need to
+hand-edit them. In consumer repositories the **Weekly Maintenance**
+template (`refresh-avm-module-index` job) runs it and opens a refresh PR.
+That template does not run in APEX: APEX maintainers run
+`npm run refresh:avm-module-index` manually at least monthly and before
+each release.
 
 ## What's in `avm-module-index.json`
 
@@ -73,7 +76,7 @@ codegen emits.
 ## Refresh contract
 
 ```bash
-# Index + version cache (full refresh, weekly cron):
+# Index + version cache (full refresh; weekly in consumers, monthly in APEX):
 npm run refresh:avm-module-index
 
 # CSV + JSON index only — skip MCR/registry calls (fast local sanity check):
@@ -104,13 +107,13 @@ single source of truth for "what modules exist"; mirroring it locally:
 
 - Removes a network call from the agent's hot path.
 - Lets the freeze gate be deterministic (`freeze` mode requires the
-  per-module cache to be ≤ 14 days old, which the weekly refresh
-  guarantees).
+  per-module cache to be ≤ 14 days old, which the consumer weekly
+  refresh guarantees; refresh first when running it in APEX).
 - Gives reviewers a stable artifact to diff in PRs (the index JSON is
   sorted, the cache JSON has a `_meta` block).
 
 ## See also
 
 - [`avm-version-freeze-gate.md`](avm-version-freeze-gate.md) — Phase 4.4 freeze gate that consumes the version cache populated by this refresh.
-- [`.github/workflows/README.md`](../../../workflows/README.md#weekly-maintenance) — workflow that schedules the refresh.
+- [`weekly-maintenance.yml`](../../../consumer-workflows/weekly-maintenance.yml) — consumer template that schedules the refresh.
 - `tools/scripts/refresh-avm-module-index.mjs` — implementation.
