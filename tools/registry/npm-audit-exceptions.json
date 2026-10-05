@@ -1,0 +1,26 @@
+{
+  "$schema": "../schemas/npm-audit-exceptions.schema.json",
+  "schema_version": 1,
+  "exceptions": [
+    {
+      "advisory": "GHSA-vfj7-8cjw-p6xm",
+      "package": "braces",
+      "installed": ["3.0.3"],
+      "via": ["markdownlint-cli2"],
+      "severity": "high",
+      "rationale": "No patched braces release exists (3.0.3 is the latest published version). Dev-only: markdownlint-cli2 expands repository-controlled glob patterns, not untrusted input.",
+      "accepted_on": "2026-10-05",
+      "review_by": "2027-01-05"
+    },
+    {
+      "advisory": "GHSA-c475-qrg2-pj4r",
+      "package": "basic-ftp",
+      "installed": ["5.3.1"],
+      "via": ["markdown-link-check"],
+      "severity": "high",
+      "rationale": "Fixed only in basic-ftp 6.x, outside the ^5.3.1 range declared by get-uri. Dev-only and unreachable: the Client.list() parser runs for ftp:// links and the repository link check covers no FTP links.",
+      "accepted_on": "2026-10-05",
+      "review_by": "2027-01-05"
+    }
+  ]
+}

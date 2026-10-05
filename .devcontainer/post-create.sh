@@ -15,8 +15,8 @@ for directory in "${HOME}/.cache/uv" "${HOME}/.config/gh" "${TF_PLUGIN_CACHE_DIR
 done
 
 printf "Installing workspace Node dependencies...\n"
-if [[ "$(npm --version)" != "12.0.2" ]]; then
-    npm install --global npm@12.0.2
+if [[ "$(npm --version)" != "12.1.0" ]]; then
+    npm install --global npm@12.1.0
 fi
 npm ci --loglevel=error
 

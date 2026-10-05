@@ -56,6 +56,10 @@
     {
       "fileMatch": ["tools/registry/upstream-skill-pins.json"],
       "url": "./tools/schemas/upstream-skill-pins.schema.json"
+    },
+    {
+      "fileMatch": ["tools/registry/npm-audit-exceptions.json"],
+      "url": "./tools/schemas/npm-audit-exceptions.schema.json"
     }
   ],
   "editor.formatOnSave": true,

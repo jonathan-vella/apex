@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/jonathan-vella/apex/schemas/npm-audit-exceptions.schema.json",
+  "title": "APEX npm Audit Exceptions",
+  "description": "Accepted residual npm advisories that have no non-breaking upstream fix. Read by tools/scripts/check-npm-audit.mjs; every other high or critical advisory fails the audit gate.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "exceptions"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "schema_version": { "const": 1 },
+    "exceptions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["advisory", "package", "installed", "via", "severity", "rationale", "accepted_on", "review_by"],
+        "properties": {
+          "advisory": {
+            "description": "GitHub advisory identifier as reported in the npm audit advisory URL.",
+            "type": "string",
+            "pattern": "^GHSA(-[23456789cfghjmpqrvwx]{4}){3}$"
+          },
+          "package": { "type": "string", "minLength": 1 },
+          "installed": {
+            "description": "Exact installed versions the exception covers; any other version is a new finding.",
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" }
+          },
+          "via": {
+            "description": "Direct dev dependencies that pull the vulnerable package in; audit findings for these parents caused only by this advisory are covered.",
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": { "type": "string", "minLength": 1 }
+          },
+          "severity": { "enum": ["low", "moderate", "high", "critical"] },
+          "rationale": { "type": "string", "minLength": 20 },
+          "accepted_on": { "type": "string", "format": "date" },
+          "review_by": {
+            "description": "Date after which the gate fails until the exception is re-reviewed.",
+            "type": "string",
+            "format": "date"
+          }
+        }
+      }
+    }
+  }
+}
