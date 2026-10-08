@@ -302,12 +302,20 @@ function renderActualSkus(services) {
     "| ---- | --- | ------ | -------------- | ------------ | ----- |",
   ];
   for (const svc of withActual) {
-    const env = svc.actual_environment ?? "prod";
-    const region = svc.actual_region ?? (svc.regions ?? [])[0] ?? "—";
-    const planned = `\`${svc.size}\``;
-    const actual = `\`${svc.actual_sku}\``;
-    const drift = svc.actual_sku === svc.size ? `${CHECK} match` : `⚠️ drift`;
-    lines.push(`| \`${svc.id}\` | \`${env}\` | \`${region}\` | ${planned} | ${actual} | ${drift} |`);
+    if (typeof svc.actual_sku !== "object" || Array.isArray(svc.actual_sku)) {
+      throw new Error(`services[${svc.id}].actual_sku must be an environment → region → SKU map (see schema)`);
+    }
+    for (const env of Object.keys(svc.actual_sku).sort()) {
+      const byRegion = svc.actual_sku[env] ?? {};
+      const plannedSize = svc.environment_overrides?.[env]?.size ?? svc.size;
+      for (const region of Object.keys(byRegion).sort()) {
+        const actualSku = byRegion[region];
+        const drift = actualSku === plannedSize ? `${CHECK} match` : `⚠️ drift`;
+        lines.push(
+          `| \`${svc.id}\` | \`${env}\` | \`${region}\` | \`${mdEscape(plannedSize)}\` | \`${mdEscape(actualSku)}\` | ${drift} |`,
+        );
+      }
+    }
   }
   lines.push("");
   return lines;

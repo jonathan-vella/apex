@@ -79,6 +79,8 @@ Resolve the review path before presenting approval. If a separately authorized d
 confirmation was saved as `challenge-findings-plan-pass<N>.json` (N greater than 1), retain the original
 `challenge-findings-plan.json` and use the confirming file explicitly at completion. Do not copy a clean review over
 history, restamp stale hashes, infer the newest filename or switch to deep mode because its filename contains `pass2`.
+Name each new confirmation with the next unused N (any integer ≥ 2, not capped at 3) and set its `pass_number` to N;
+never overwrite an earlier pass file to reuse its number.
 
 Validate the selected review with `node tools/scripts/validate-challenger-findings.mjs --verify-cache <review-path>`.
 After explicit human approval, complete with:

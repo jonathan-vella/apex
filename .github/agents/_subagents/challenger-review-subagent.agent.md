@@ -135,7 +135,8 @@ The parent agent provides:
   `governance-constraints`, `iac-code`, `cost-estimate`, `deployment-preview`, `design-adr` (required)
 - `review_focus`: One of `security-governance`, `architecture-reliability`,
   `cost-feasibility`, `comprehensive`, `governance-reconciliation` (required for single-lens mode)
-- `pass_number`: 1, 2, or 3 — which adversarial pass this is (required for single-lens mode)
+- `pass_number`: positive integer (required for single-lens mode). Lens rotation uses 1–3; a later
+  confirmation review uses the caller's next unused N ≥ 2, matching the `-pass{N}` output filename.
 - `prior_findings`: Compact string from previous `compact_for_parent` values, or null (optional).
   On revision include dispositions and changed sections; read saved findings before overwrite when needed.
   Verify closure against the current artifact and report unresolved issues even if previously accepted.
