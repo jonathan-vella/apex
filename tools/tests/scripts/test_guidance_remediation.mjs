@@ -637,10 +637,15 @@ test("assigned ADR guidance preserves alternative coverage and phase naming", ()
 });
 
 test("#739: IaC handoff inputs keep LF endings on every checkout", () => {
-  const attributes = read(".gitattributes");
+  const lfPatterns = new Set(
+    read(".gitattributes")
+      .split("\n")
+      .map((line) => line.trim().split(/\s+/))
+      .filter((tokens) => tokens.includes("text") && tokens.includes("eol=lf"))
+      .map(([pattern]) => pattern),
+  );
   for (const pattern of ["*.bicep", "*.bicepparam", "*.tf", "*.tfvars", "*.hcl", "*.json"]) {
-    const escaped = pattern.replace(/[.*]/g, "\\$&");
-    assert.match(attributes, new RegExp(`^${escaped}\\s+text\\s+eol=lf`, "m"), pattern);
+    assert.ok(lfPatterns.has(pattern), pattern);
   }
 });
 
