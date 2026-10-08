@@ -228,8 +228,8 @@ target artifact and each lens reference once; refresh only after compaction or a
      | cost, pricing, budget | `cost-feasibility` |
      | governance reconciliation, drift | `governance-reconciliation` |
    - `pass_number`: Default `1`. If the user says "pass N" or supplies a `-pass{N}` output path, use N.
-     A confirmation review after revisions uses the next unused N ≥ 2 with a `-pass{N}` suffix;
-     never overwrite an earlier pass file to reuse its number.
+     A separately authorized confirmation review uses the next unused N ≥ 2 with a `-pass{N}` suffix and
+     `overwrite: false`; never overwrite an earlier pass file to reuse its number.
    - `total_passes`: **Default `1` (comprehensive single pass)**. Multi-pass
      is an explicit user request. If user requests multi-pass or asks for a
      "deep review", set to requested count (max 3) and use the rotating-lens
@@ -246,7 +246,7 @@ Invoke `challenger-review-subagent` with:
 - `pass_number` = resolved requested pass from step 4 (default `1`, never reset a requested pass)
 - `prior_findings` = supplied current compact prior findings, or `null` when none
 - `output_path` = resolved `findings_path`
-- `overwrite` = `false` (set to `true` only when re-running after revisions)
+- `overwrite` = `false` (`true` only for the owner's bounded fix-loop rerun of the same pass, never a confirmation)
 
 ### Multi-Pass Review (total_passes = 2 or 3)
 

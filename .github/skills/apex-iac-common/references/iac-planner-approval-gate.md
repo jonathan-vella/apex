@@ -26,8 +26,9 @@ For every `must_fix` finding across all passes:
    `action: "accept"`,
    `note: "auto-applied (must_fix is mandatory)"`, following the sidecar
    schema in adversarial-review-protocol section 2a.
-3. Re-run every executed challenger pass with `overwrite: true` to
-   confirm the fixes landed (no new `must_fix` should remain). If any
+3. Re-run every executed challenger pass in place with `overwrite: true` to
+   confirm the fixes landed (no new `must_fix` should remain). This bounded fix-loop rerun
+   is not a Stage 3 confirmation review. If any
    `must_fix` returns, **repeat Stage 1** for the new findings — up to a
    hard cap of 2 auto-fix iterations, then STOP and surface a chat
    warning listing the unresolved finding(s) so the user can intervene.
@@ -79,8 +80,9 @@ Resolve the review path before presenting approval. If a separately authorized d
 confirmation was saved as `challenge-findings-plan-pass<N>.json` (N greater than 1), retain the original
 `challenge-findings-plan.json` and use the confirming file explicitly at completion. Do not copy a clean review over
 history, restamp stale hashes, infer the newest filename or switch to deep mode because its filename contains `pass2`.
-Name each new confirmation with the next unused N (any integer ≥ 2, not capped at 3) and set its `pass_number` to N;
-never overwrite an earlier pass file to reuse its number.
+Name each new confirmation with the next unused N (any integer ≥ 2, not capped at 3), set its `pass_number` to N and
+use `overwrite: false`; never overwrite an earlier pass file to reuse its number. Stage 1/2 in-place reruns are the
+bounded fix loop, not confirmations.
 
 Validate the selected review with `node tools/scripts/validate-challenger-findings.mjs --verify-cache <review-path>`.
 After explicit human approval, complete with:
