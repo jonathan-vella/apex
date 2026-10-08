@@ -85,9 +85,9 @@ Only services with non-empty `environment_overrides` appear below.
 > Populated by `08-As-Built` from deployed Azure state. Empty cells
 > indicate drift or undeployed environments.
 
-| `id`   | Env    | Region      | Planned `size` | `actual_sku`   | Drift               |
-| ------ | ------ | ----------- | -------------- | -------------- | ------------------- |
-| `{id}` | `prod` | `{primary}` | `{size}`       | `{actual_sku}` | ✅ match / ⚠️ drift |
+| `id`   | Env     | Region     | Planned `size` | `actual_sku`   | Drift               |
+| ------ | ------- | ---------- | -------------- | -------------- | ------------------- |
+| `{id}` | `{env}` | `{region}` | `{size}`       | `{actual_sku}` | ✅ match / ⚠️ drift |
 
 ## Revision History
 

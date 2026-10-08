@@ -636,6 +636,35 @@ test("assigned ADR guidance preserves alternative coverage and phase naming", ()
   assert.match(checklist, /WAF pillar analysis includes all 5 pillars/);
 });
 
+test("#739: IaC handoff inputs keep LF endings on every checkout", () => {
+  const lfPatterns = new Set(
+    read(".gitattributes")
+      .split("\n")
+      .map((line) => line.trim().split(/\s+/))
+      .filter((tokens) => tokens.includes("text") && tokens.includes("eol=lf"))
+      .map(([pattern]) => pattern),
+  );
+  for (const pattern of ["*.bicep", "*.bicepparam", "*.tf", "*.tfvars", "*.hcl", "*.json"]) {
+    assert.ok(lfPatterns.has(pattern), pattern);
+  }
+});
+
+test("#740: confirmation reviews may use pass numbers above 3", () => {
+  const subagent = read(".github/agents/_subagents/challenger-review-subagent.agent.md");
+  const challenger = read(".github/agents/10-challenger.agent.md");
+  assert.doesNotMatch(subagent, /`pass_number`: 1, 2, or 3/);
+  assert.match(subagent, /next unused N ≥ 2/);
+  assert.match(challenger, /next unused N ≥ 2/);
+  assert.match(skill("apex-iac-common/references/iac-planner-approval-gate.md"), /not capped at 3/);
+});
+
+test("#741: App Service managed-identity ACR pulls enable ARM audience tokens", () => {
+  const baseline = skill("apex-azure-defaults/references/security-baseline-full.md");
+  assert.match(baseline, /azureADAuthenticationAsArmPolicyStatus: 'enabled'/);
+  assert.match(baseline, /ARM audience token\s+authentication disabled/);
+  assert.match(skill("apex-azure-deploy/references/pre-deploy-checklist.md"), /authentication-as-arm show/);
+});
+
 test("SK32: compaction recovers required guidance without latency-derived tokens", () => {
   for (const file of ["SKILL.md", "references/skill-loading.md", "references/hard-checkpoints.md"]) {
     const body = skill(`apex-context-management/${file}`);

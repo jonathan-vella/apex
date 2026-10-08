@@ -150,7 +150,9 @@ apex-recall complete-step <project> 3_5 \
 ```
 
 The file must be a canonical later-pass file in the same project, not a symlink. Its pass number, artifact, lens,
-findings and strict freshness must validate; the original Pass 1 must remain present. Selection is not a missing-review
+findings and strict freshness must validate; the original Pass 1 must remain present. New confirmations take the next
+unused N ≥ 2 (not capped at 3) with `pass_number` equal to N; never overwrite an earlier pass to reuse its number.
+Selection is not a missing-review
 bypass, does not renew review allowances, and does not establish human approval. Successful completion appends the
 selected filename, pass, byte hash and reason to the existing decision log in the same state write.
 No newest-file inference or review copying is allowed. Repeated completion commands must explicitly select the review

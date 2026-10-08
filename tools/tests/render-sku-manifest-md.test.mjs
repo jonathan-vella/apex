@@ -120,17 +120,37 @@ describe("renderManifest", () => {
 
   it("renders As-built section when actual_sku is present on any service", () => {
     const withActual = JSON.parse(JSON.stringify(BASE_FIXTURE));
-    withActual.services[0].actual_sku = "GP_S_Gen5_2";
+    withActual.services[0].actual_sku = { prod: { swedencentral: "GP_S_Gen5_2" } };
     const out = renderManifest(withActual);
     assert.ok(out.includes("### As-built actual SKUs"));
-    assert.ok(out.includes("✅ match"));
+    assert.ok(out.includes("| `sql-db-core` | `prod` | `swedencentral` | `GP_S_Gen5_2` | `GP_S_Gen5_2` | ✅ match |"));
+    assert.ok(!out.includes("[object Object]"));
   });
 
   it("flags drift when actual_sku differs from planned size", () => {
     const drifted = JSON.parse(JSON.stringify(BASE_FIXTURE));
-    drifted.services[1].actual_sku = "S1"; // planned P1v3
+    drifted.services[1].actual_sku = { prod: { swedencentral: "S1" } }; // planned P1v3
     const out = renderManifest(drifted);
     assert.ok(out.includes("⚠️ drift"));
+  });
+
+  it("compares actual_sku against the environment override size, one row per env/region", () => {
+    const multi = JSON.parse(JSON.stringify(BASE_FIXTURE));
+    multi.services[1].actual_sku = {
+      dev: { swedencentral: "B1" },
+      prod: { swedencentral: "P1v3", germanywestcentral: "P1v3" },
+    };
+    const out = renderManifest(multi);
+    assert.ok(out.includes("| `app-plan-web` | `dev` | `swedencentral` | `B1` | `B1` | ✅ match |"));
+    assert.ok(out.includes("| `app-plan-web` | `prod` | `germanywestcentral` | `P1v3` | `P1v3` | ✅ match |"));
+    assert.ok(out.includes("| `app-plan-web` | `prod` | `swedencentral` | `P1v3` | `P1v3` | ✅ match |"));
+    assert.ok(!out.includes("⚠️ drift"));
+  });
+
+  it("rejects a non-map actual_sku", () => {
+    const legacy = JSON.parse(JSON.stringify(BASE_FIXTURE));
+    legacy.services[0].actual_sku = "GP_S_Gen5_2";
+    assert.throws(() => renderManifest(legacy), /environment → region → SKU map/);
   });
 
   it("renders 'None open' when open_substitutions is empty or absent", () => {

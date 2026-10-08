@@ -76,6 +76,15 @@ STOP affected generation and request version validation, never guess or upgrade.
   `SKU-Default Mismatch` section in
   [`../../apex-azure-bicep-patterns/references/avm-pitfalls.md`](../../apex-azure-bicep-patterns/references/avm-pitfalls.md)
   for the generic pattern and detection rule.
+- When App Service pulls images with a managed identity (`acrUseManagedIdentityCreds`), the registry must
+  accept ARM audience tokens, or pulls fail with `ACRTokenRetrievalFailure` / `UNAUTHORIZED` "token
+  validation failed". AVM defaults `azureADAuthenticationAsArmPolicyStatus: 'disabled'`.
+- **DO**: Set `azureADAuthenticationAsArmPolicyStatus: 'enabled'` (Terraform: registry
+  `policies.azureADAuthenticationAsArmPolicy.status = "enabled"`, via `azapi` if the provider has no
+  argument) and record the built-in Audit policy "Container registries should have ARM audience token
+  authentication disabled" as an accepted exception. A `Deny` effect blocks the design: escalate to the owner.
+  Verify after deploy with `az acr config authentication-as-arm show -r <registry>`.
+  Source: [Configure a custom container](https://learn.microsoft.com/azure/app-service/configure-custom-container).
 
 ## Service Lifecycle Validation
 

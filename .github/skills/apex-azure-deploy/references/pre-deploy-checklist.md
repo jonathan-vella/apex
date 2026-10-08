@@ -205,6 +205,18 @@ confirm the IaC declares `AcrPull` on the registry with
 APEX deploy agents apply the same order inside their already-approved phases; the
 check adds no approval gate.
 
+### App Service With ACR — ARM Audience Tokens
+
+When an App Service app pulls from ACR with a managed identity (`acrUseManagedIdentityCreds`), confirm the
+IaC enables the registry's ARM audience token policy (AVM `azureADAuthenticationAsArmPolicyStatus:
+'enabled'`). After provisioning, check it read-only before switching the app to a registry image:
+
+```bash
+az acr config authentication-as-arm show -r <registry-name>   # expect status: enabled
+```
+
+If it reports `disabled`, report the gap to the IaC owner instead of changing the registry out of band.
+
 ### Durable Functions — Verify DTS Backend
 
 > **⛔ MANDATORY**: If the plan includes Durable Functions, verify infrastructure uses **Durable Task Scheduler** (DTS), NOT Azure Storage.

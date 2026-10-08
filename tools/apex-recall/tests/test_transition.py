@@ -91,7 +91,7 @@ def _seed_review(project: Path, sidecar: str) -> dict:
         artifact, kind, focus = "04-implementation-plan.md", "implementation-plan", "comprehensive"
     else:
         artifact, kind, focus = "02-architecture-assessment.md", "architecture", "comprehensive"
-    if "pass1" in sidecar and kind in ("architecture", "implementation-plan"):
+    if sidecar.endswith("-pass1.json") and kind in ("architecture", "implementation-plan"):
         focus = "security-governance"
     artifact_path = project / artifact
     if not artifact_path.exists():
@@ -498,16 +498,17 @@ def test_current_governance_review_allows_completion(tmp_path, command):
 
 
 @pytest.mark.parametrize("command", ["transition", "complete_step"])
-def test_explicit_plan_replacement_preserves_history_and_records_selection(tmp_path, command):
+@pytest.mark.parametrize("pass_number", [2, 8, 12])
+def test_explicit_plan_replacement_preserves_history_and_records_selection(tmp_path, command, pass_number):
     _reimport_with_root(tmp_path)
     module = importlib.import_module(f"apex_recall.commands.{command}")
     project = _seed_project(tmp_path, "demo")
     original = project / "challenge-findings-plan.json"
     _seed_review(project, original.name)
     (project / "04-implementation-plan.md").write_text("# Corrected plan\n", encoding="utf-8")
-    replacement = project / "challenge-findings-plan-pass2.json"
+    replacement = project / f"challenge-findings-plan-pass{pass_number}.json"
     review = _seed_review(project, replacement.name)
-    review["pass_number"] = 2
+    review["pass_number"] = pass_number
     replacement.write_text(json.dumps(review), encoding="utf-8")
     original_bytes, replacement_bytes = original.read_bytes(), replacement.read_bytes()
     args = SimpleNamespace(project="demo", step="4", from_step="4", to_step="5", complete=True, json=True)
