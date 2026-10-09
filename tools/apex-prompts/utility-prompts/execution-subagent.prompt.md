@@ -1,7 +1,7 @@
 ---
 description: "Reference-only invocation contract for named execution workers; not an operational slash entrypoint."
 agent: agent
-model: "Claude Opus 5.5 (copilot)"
+model: "GPT-6.1 Sol (copilot)"
 tools: [read, edit, search]
 ---
 

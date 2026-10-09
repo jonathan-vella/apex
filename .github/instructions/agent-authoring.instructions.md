@@ -60,7 +60,7 @@ Exact catalog matches take precedence over stripping optional handoff qualifiers
 ### Reasoning-Effort Policy
 
 Set effort only in frontmatter `reasoning-effort`: `max` for `GPT-6 Luna (copilot)`
-agents and subagents, `high` for `Claude Opus 5.5 (copilot)` agents, `medium` for all
+agents and subagents, `high` for `GPT-6.1 Sol (copilot)` agents, `medium` for all
 others. Do not restate effort in the body. Rationale:
 [`apex-agent-authoring/references/model-policy.md`](../skills/apex-agent-authoring/references/model-policy.md).
 

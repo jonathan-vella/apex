@@ -26,6 +26,7 @@ test("classifyModel: GPT-6 variants use distinct families", () => {
   assert.equal(classifyModel("GPT-6-Sol"), "gpt-6-sol");
   assert.equal(classifyModel(["GPT-6-Luna"]), "gpt-6-luna");
   assert.equal(classifyModel("GPT-6 Sol (copilot)"), "gpt-6-sol");
+  assert.equal(classifyModel(["GPT-6.1 Sol (copilot)"]), "gpt-6-sol");
 });
 
 test("classifyModel: GPT-5.6 Terra → gpt-5.6-terra", () => {
