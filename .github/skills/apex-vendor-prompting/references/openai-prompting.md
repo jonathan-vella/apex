@@ -18,6 +18,7 @@ advice with repository policy; the rest restate vendor guidance.
 | Label                     | Family          | Primary source                  |
 | ------------------------- | --------------- | ------------------------------- |
 | `GPT-6 Sol (copilot)`     | `gpt-6-sol`     | GPT-6 guide + GPT-5.6 structure |
+| `GPT-6.1 Sol (copilot)`   | `gpt-6-sol`     | GPT-6 guide + GPT-5.6 structure |
 | `GPT-6 Luna (copilot)`    | `gpt-6-luna`    | GPT-6 guide + GPT-5.6 structure |
 | `GPT-5.6 Terra (copilot)` | `gpt-5.6-terra` | GPT-5.6 guide + prompt guidance |
 

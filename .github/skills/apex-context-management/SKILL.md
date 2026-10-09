@@ -43,7 +43,7 @@ your need.
 ### Hard Token Checkpoints
 
 Percentages are advisory; absolute input-token counts override them.
-GPT-6 Sol/Luna and GPT-5.6 Terra hard-checkpoint at ≥300K input; Claude Opus 5.5, Claude Sonnet 5.5 and MAI-Code at ≥160K. When
+GPT-6 Sol/Luna, GPT-6.1 Sol and GPT-5.6 Terra hard-checkpoint at ≥300K input; Claude Opus 5.5, Claude Sonnet 5.5 and MAI-Code at ≥160K. When
 hit, emit a compaction message and prefer the `minimal` artifact tier.
 Required missing guidance and safety evidence must still be recovered.
 These are repository trip-wires, not verified model API limits; use the

@@ -1,6 +1,6 @@
 ---
 description: "Score every agent (main + subagents) across the four assessment layers — deterministic L1/L2 via the assess-agents harness, judgment L2 role clarity + L4 adversarial via Explore fan-out, optional L3 runtime from a debug-log profile. Produces per-agent scorecards + a ranked fleet plan. Plans only — never edits an agent in the same pass."
-model: "Claude Opus 5.5 (copilot)"
+model: "GPT-6.1 Sol (copilot)"
 agent: agent
 tools:
   - read

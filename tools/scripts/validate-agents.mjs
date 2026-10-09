@@ -445,7 +445,7 @@ function classifyModel(modelStr) {
   const lower = s.toLowerCase();
   if (/claude opus 5\.5\b/.test(lower)) return "claude-opus-5.5";
   if (/claude sonnet 5\.5\b/.test(lower)) return "claude-sonnet-5.5";
-  if (/gpt-6[- ]sol\b/.test(lower)) return "gpt-6-sol";
+  if (/gpt-6(\.1)?[- ]sol\b/.test(lower)) return "gpt-6-sol";
   if (/gpt-6[- ]luna\b/.test(lower)) return "gpt-6-luna";
   if (/gpt-5\.6[- ]terra\b/.test(lower)) return "gpt-5.6-terra";
   if (lower.includes("mai-code") || lower.includes("mai code")) return "mai-code";

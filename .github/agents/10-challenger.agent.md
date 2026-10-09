@@ -1,7 +1,7 @@
 ---
 name: "10-Challenger"
 description: "Standalone adversarial review wrapper. Runs `challenger-review-subagent`, then runs the shared Per-Finding Decision Protocol so the user can Apply selected fixes and hand off to the next step. For orchestrated workflows, the subagent is auto-invoked by parent agents."
-model: ["Claude Opus 5.5 (copilot)"]
+model: ["GPT-6.1 Sol (copilot)"]
 reasoning-effort: high
 argument-hint: "Provide the path to the artifact to challenge (e.g. agent-output/my-project/04-implementation-plan.md)"
 user-invocable: true
@@ -27,17 +27,18 @@ handoffs:
 ## Role
 
 Standalone wrapper that runs adversarial review over a single
-artifact, emits structured findings, then runs the shared **Per-Finding
-Decision Protocol** so the user can Apply selected fixes and hand off
-to the next step in one turn.
+artifact and emits structured findings. Work at the review layer: delegate to the
+reviewer, run the decision panel and apply only Accepted fixes.
+
+## Goal
 
 Invoke `challenger-review-subagent` for the requested artifact, write
 its findings to the resolved `findings_path`, present the
-findings table, run the Per-Finding Decision Protocol, **apply any
-Accepted fixes to the challenged artifact**, and hand off back to
-the Orchestrator with an apply summary.
+findings table, run the Per-Finding Decision Protocol, apply any
+Accepted fixes to the challenged artifact, and hand off back to
+the Orchestrator with an apply summary, all in one turn.
 
-Done when:
+## Success criteria
 
 - The artifact path resolves to a known `artifact_type` via the lookup
   table, or the user supplies a supported type after clarification.
@@ -59,8 +60,6 @@ Done when:
   step-owning agent) with the apply summary.
 
 ## Constraints
-
-<scope_fencing>
 
 - **Skill precedence**: user instructions outrank skill guidance except the security baseline,
   governance constraints and approval gates. If a skill makes you pause or diverge, name the
@@ -129,11 +128,7 @@ Done when:
 - Review the requested artifact at the requested scope; raise a better approach in one sentence
   instead of silently widening, narrowing or transforming the review.
 
-</scope_fencing>
-
 ## Output
-
-<output_contract>
 
 Per Output Contract:
 
@@ -143,13 +138,9 @@ Per Output Contract:
 - Chat-rendered findings table + apply summary. Render every worker finding with its severity;
   do not filter to high severity unless the user asks.
 
-</output_contract>
-
 ## Stop rules
 
-<stop_conditions>
-
-Wanted stops:
+Stop conditions:
 
 - Missing model/tool/input or worker eligibility returns `blocked`; no fallback model,
   skipped required review or inline substitute. Load review guidance before review and
@@ -167,12 +158,10 @@ Unwanted early stops: do not end a turn with a summary that announces the next s
 it, an offer to continue, or a list of non-blocking decisions. Wait for the running reviewer before
 rendering findings.
 
-</stop_conditions>
-
 ## Subagent Budget
 
 This agent orchestrates 1 subagent — `challenger-review-subagent` (unified, supports single-lens and batch modes).
-Spawn no other workers and never use a worker to re-check your own apply edits.
+Spawn no other workers and do not use a worker to re-check your own apply edits.
 For simple single-pass reviews, invoke with review_focus + pass_number.
 For multi-pass reviews, invoke with batch_lenses array to run remaining lenses in one invocation.
 
@@ -185,14 +174,10 @@ For orchestrated workflows, parent agents invoke challenger subagents directly.
 
 ## Session State
 
-<context_awareness>
-
 If a project context exists, run `apex-recall show <project> --json` at startup to load
 workflow context (current step, decisions, prior findings). This helps the challenger
 understand what has already been reviewed and which decisions to scrutinize. Read the
 target artifact and each lens reference once; refresh only after compaction or an edit.
-
-</context_awareness>
 
 ## Workflow
 

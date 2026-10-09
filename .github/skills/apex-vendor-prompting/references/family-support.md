@@ -28,7 +28,7 @@ user-confirmed label does not prove release metadata or runtime cost eligibility
 | ------------------- | ------------- | --------------------------------------------------------------------- | ----------------------------- |
 | `claude-opus-5.5`   | enforced      | All Claude rules, including Opus 5.5 thinking and stop guidance       | `Claude Opus 5.5 (copilot)`   |
 | `claude-sonnet-5.5` | enforced      | General Claude rules; Opus-sourced rules applied as APEX convention   | `Claude Sonnet 5.5 (copilot)` |
-| `gpt-6-sol`         | enforced      | GPT-6 family guidance + APEX outcome contract                         | `GPT-6 Sol (copilot)`         |
+| `gpt-6-sol`         | enforced      | GPT-6 family guidance + APEX outcome contract                         | `GPT-6 Sol (copilot)`, `GPT-6.1 Sol (copilot)` |
 | `gpt-6-luna`        | enforced      | GPT-6 family guidance + APEX outcome contract                         | `GPT-6 Luna (copilot)`        |
 | `gpt-5.6-terra`     | enforced      | GPT-5.6 prompt guidance + APEX outcome contract                       | `GPT-5.6 Terra (copilot)`     |
 | `mai-code`          | reviewer-only | Microsoft model; no MAI-specific prompting rules                      | `MAI-Code-1.1-Flash`          |

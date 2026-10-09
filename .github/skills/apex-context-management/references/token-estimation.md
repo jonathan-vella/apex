@@ -51,6 +51,7 @@ total_fixed = base_cost + tool_cost + handoff_cost + body_cost + instruction_cos
 | Model                       | Vendor API window | APEX hard checkpoint |
 | --------------------------- | ----------------- | -------------------- |
 | GPT-6 Sol (copilot)         | 1,050,000 tokens  | ≥300K input          |
+| GPT-6.1 Sol (copilot)       | unknown           | ≥300K input          |
 | GPT-6 Luna (copilot)        | 1,050,000 tokens  | ≥300K input          |
 | GPT-5.6 Terra (copilot)     | 1,050,000 tokens  | ≥300K input          |
 | Claude Opus 5.5 (copilot)   | 1M tokens         | ≥160K input          |

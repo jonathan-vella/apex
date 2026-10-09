@@ -103,7 +103,7 @@ test("manual maintenance skills retain validation and import approval boundaries
   const modelPolicy = read(new URL("apex-agent-authoring/references/model-policy.md", skillsRoot));
   assert.match(modelPolicy, /Do not load that manual-only skill automatically/);
   assert.match(modelPolicy, /`GPT-6 Luna \(copilot\)` agents and subagents use `reasoning-effort: max`/);
-  assert.match(modelPolicy, /`Claude Opus 5\.5 \(copilot\)` agents use `reasoning-effort: high`/);
+  assert.match(modelPolicy, /`GPT-6\.1 Sol \(copilot\)` agents use `reasoning-effort: high`/);
   assert.match(modelPolicy, /All other agents and subagents use `reasoning-effort: medium`/);
   assert.doesNotMatch(modelPolicy, /High: architecture|Medium: structured code generation/);
   const agentsRoot = new URL("../../../.github/agents/", import.meta.url);
@@ -116,7 +116,7 @@ test("manual maintenance skills retain validation and import approval boundaries
     const { model, "reasoning-effort": effort } = parseFrontmatter(source);
     const expectedEffort = model.includes("GPT-6 Luna (copilot)")
       ? "max"
-      : model.includes("Claude Opus 5.5 (copilot)")
+      : model.includes("GPT-6.1 Sol (copilot)")
         ? "high"
         : "medium";
     assert.equal(effort, expectedEffort, name);

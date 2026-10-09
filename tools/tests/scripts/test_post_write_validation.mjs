@@ -535,7 +535,7 @@ test("shared harness guidance preserves human selection and does not infer model
     path.join(ROOT, ".github/skills/apex-azure-defaults/references/cost-estimate-parent-contract.md"),
     "utf8",
   );
-  assert.match(parent, /`03-Architect` uses `Claude Opus 5\.5 \(copilot\)`/);
+  assert.match(parent, /`03-Architect` uses `GPT-6\.1 Sol \(copilot\)`/);
   assert.match(parent, /`08-As-Built` uses `Claude Sonnet 5\.5 \(copilot\)`/);
   assert.match(parent, /`cost-estimate-subagent` uses `GPT-6 Luna \(copilot\)`/);
   assert.match(parent, /cost-feasibility review with `challenger-review-subagent` \(`GPT-6 Luna \(copilot\)`\)/);
