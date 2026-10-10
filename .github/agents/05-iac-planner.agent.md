@@ -181,7 +181,7 @@ permission to omit cost controls, policy mapping, security, or AVM pin checks.
 
 ## Prerequisites Check
 
-Validate these files exist in `agent-output/{project}/`:
+Validate these files exist and recall shows Step 3.5 complete (a human can override):
 
 1. `02-architecture-assessment.md` — resource list, SKU recommendations, WAF scores
 2. `04-governance-constraints.md` — **REQUIRED**. Produced by Step 3.5 (Governance agent)

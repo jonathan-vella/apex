@@ -40,6 +40,7 @@ from ..state_writer import (
     validate_step_key,
     write_state,
 )
+from ..step_order import check_order, report_order_error
 
 # Step -> (gating artifact, required findings sidecar) for review-mandated
 # steps. AGENTS.md "Agent Workflow" table is the source of truth; keep in
@@ -322,6 +323,11 @@ def run(args) -> int:
     allow_missing = getattr(args, "allow_missing_challenger", False)
     skip_reason = (getattr(args, "challenger_skip_reason", None) or "").strip()
     data = read_state(session_state_path(project))
+
+    try:
+        check_order(data, step, getattr(args, "allow_out_of_order", None), _iso_now(), completing=True)
+    except ValueError as error:
+        return report_order_error(project, step, error, as_json)
 
     try:
         governance_review, selection = _select_replacement_review(project, step, args, data)

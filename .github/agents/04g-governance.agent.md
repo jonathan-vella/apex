@@ -157,7 +157,7 @@ Reuse current content; recover missing/changed evidence after compaction or resu
 
 ## Prerequisites
 
-1. `02-architecture-assessment.md` must exist — read for resource list and compliance requirements
+1. `02-architecture-assessment.md` must exist and recall must show Step 2 complete (a human may override)
 2. Run `apex-recall show <project> --json` to verify project context exists (project name, complexity, decisions)
 3. **Read the committed baseline subscription entry when present**. It is
   comparison evidence, not live policy authority or a prerequisite for live discovery.

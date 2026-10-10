@@ -151,8 +151,8 @@ investigate before answering) live in
 
 Check prerequisites before reading skills or templates.
 
-Validate `01-requirements.md` exists in `agent-output/{project}/`.
-If missing, hand off to Requirements agent.
+Validate `01-requirements.md` exists and `apex-recall show <project> --json` reports Step 1 complete.
+If either fails, hand off to Requirements agent unless the human overrides.
 
 Verify these are documented. Use `askQuestions` to collect all missing values
 in a single form:

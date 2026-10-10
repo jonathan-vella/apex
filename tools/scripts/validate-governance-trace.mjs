@@ -383,6 +383,8 @@ function runAttestationChain(project, allowLegacy) {
   // L3 — apex-recall governance_trace decision at step 6.
   // Fallback: read 00-session-state.json directly when apex-recall CLI is not available.
   let l3Recorded = false;
+  let l3Failure = null;
+  let l3Override = null;
   if (fs.existsSync(sessionStatePath)) {
     try {
       const state = JSON.parse(fs.readFileSync(sessionStatePath, "utf-8"));
@@ -393,11 +395,17 @@ function runAttestationChain(project, allowLegacy) {
         (Array.isArray(decisionLog) &&
           decisionLog.some((d) => d?.key === "governance_trace" && (d?.step === 6 || d?.step === "6")));
       l3Recorded = Boolean(hasKey);
+      if (typeof decisions.governance_trace === "string" && /^\s*(FAILED|BLOCK)/i.test(decisions.governance_trace))
+        l3Failure = decisions.governance_trace;
+      if (typeof decisions.governance_override === "string" && decisions.governance_override.trim())
+        l3Override = decisions.governance_override.trim();
     } catch {
       /* ignore */
     }
   }
-  if (!l3Recorded) {
+  if (l3Override) {
+    console.log(`  ℹ️  L3 skipped by a human governance_override: ${l3Override}`);
+  } else if (!l3Recorded) {
     if (allowLegacy) {
       console.log("ℹ️  No L3 governance_trace decision found — skipping (--allow-legacy)");
     } else {
@@ -406,6 +414,8 @@ function runAttestationChain(project, allowLegacy) {
         "decisions.governance_trace not recorded at step 6 (Deploy agent must emit `apex-recall decide --key governance_trace ...` before complete-step 6)",
       );
     }
+  } else if (l3Failure) {
+    reporter.error("L3", `governance_trace reports a failure: ${l3Failure}`);
   } else {
     console.log("  ✅ L3 governance_trace decision recorded at step 6");
   }

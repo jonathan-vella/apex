@@ -195,6 +195,14 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p_gate.add_argument("--json", action="store_true")
 
+    for order_parser in (p_complete, p_tr, p_start):
+        order_parser.add_argument(
+            "--allow-out-of-order",
+            default=None,
+            metavar="REASON",
+            help="Human override: proceed although the previous step is not complete; the reason is logged.",
+        )
+
     for risk_parser in (p_complete, p_tr, p_start, p_gate):
         risk_parser.add_argument("--risk-authorization", help="Explicit signed lab risk authorization envelope")
         risk_parser.add_argument("--risk-approval", help="Separate signed human gate approval envelope")

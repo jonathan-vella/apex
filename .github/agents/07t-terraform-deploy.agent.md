@@ -218,7 +218,7 @@ Do not create resources, bootstrap, or regenerate code merely to satisfy a valid
 
 Before starting, validate:
 
-1. `infra/terraform/{project}/main.tf` exists
+1. `infra/terraform/{project}/main.tf` exists and recall shows Step 5 complete (a human can override)
 2. **`05-iac-handoff.json`** exists in `agent-output/{project}/` (Wave 3+
    — slim deploy loop). Schema:
    [`iac-handoff-v1`](../../tools/schemas/iac-handoff.schema.json).
