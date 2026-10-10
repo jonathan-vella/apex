@@ -233,9 +233,9 @@ Before starting, validate:
 
 ### Slim Deploy Loop (Wave 3+, all workloads)
 
-The full 8-step loop is documented in
-[`apex-iac-common/references/deploy-shared-workflow.md`](../skills/apex-iac-common/references/deploy-shared-workflow.md)
-→ "Slim Deploy Loop". Primary inputs (read required referenced evidence as needed):
+Follow [Explicit Lab Risk Entry](../skills/apex-iac-common/references/deploy-shared-workflow.md#explicit-lab-risk-entry)
+for risk-accepted inputs: separate adopter lab authority, never kit permission. Run `check-gate --action deploy`
+before entry/resume and every write. Production/failed gates block; final teardown evidence follows execution.
 
 - `05-iac-handoff.json` — entrypoint, validate_gate result, governance
   attestation, `required_inputs[]`.

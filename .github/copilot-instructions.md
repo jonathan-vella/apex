@@ -141,6 +141,9 @@ body explicitly points to one. There is one tier — no digest, no minimal.
   do not substitute models automatically. Local and Agent Host behavior needs separate verification.
 - Use available editing tools for existing files, preserve user work, and validate before
   dependent follow-up edits. No shared procedure requires a particular bulk-edit tool.
+- Explicit lab risk acceptance follows [the authorization contract](../tools/apex-recall/docs/risk-authorizations.md).
+  Keep review integrity separate, preserve NEEDS_REVISION and unresolved findings, and check current readiness for
+  each action. Ordinary consent establishes no risk-owner authority; kit permission never authorizes deployment.
 
 ## Chat Triggers
 

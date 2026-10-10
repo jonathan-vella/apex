@@ -42,6 +42,7 @@ from __future__ import annotations
 import json
 import sys
 
+from ..risk_gate import COMPLETION_ACTIONS, check_entry, evaluate_gate, ordinary_entry_warning, record_authorization
 from ..state_writer import (
     _iso_now,
     check_state_revision,
@@ -165,10 +166,42 @@ def run(args) -> int:  # noqa: C901 — one CLI dispatcher, branchy by design
     else:
         blocked = False
 
-    if complete or governance_review is not None:
-        invalid = _challenger_findings_invalid(project, from_step, governance_review)
-        if invalid:
-            return _report_invalid_review(project, from_step, invalid, as_json)
+    risk_result = entry_result = None
+    try:
+        if (data.get("risk_authorizations") or getattr(args, "risk_authorization", None)) and (
+            from_step,
+            to_step,
+        ) not in (("4", "5"), ("5", "6"), ("6", "7")):
+            raise ValueError("Exception-bearing transitions must follow the supported Plan/CodeGen/Deploy path")
+        if (
+            complete
+            and from_step in COMPLETION_ACTIONS
+            and (data.get("risk_authorizations") or getattr(args, "risk_authorization", None))
+        ):
+            risk_result = evaluate_gate(project, data, COMPLETION_ACTIONS[from_step], args, selected=governance_review)
+        elif complete or governance_review is not None:
+            invalid = _challenger_findings_invalid(project, from_step, governance_review)
+            if invalid:
+                raise ValueError(invalid)
+        if complete and from_step == "4":
+            if to_step == "6" and risk_result and risk_result.get("record"):
+                raise ValueError("Kit/Plan completion cannot skip CodeGen to authorize deployment")
+            if to_step == "5" and risk_result and risk_result.get("record"):
+                entry_result = evaluate_gate(
+                    project, data, "codegen", args, selected=governance_review, completing_plan=True
+                )
+        else:
+            if to_step == "7" and complete and from_step == "6" and risk_result:
+                entry_result = risk_result
+            else:
+                entry_result = check_entry(project, data, to_step, args, completing_code=complete and from_step == "5")
+        if (getattr(args, "risk_authorization", None) or getattr(args, "risk_approval", None)) and not (
+            risk_result or entry_result
+        ):
+            raise ValueError("Risk authorization requires a supported completion or downstream entry action")
+    except ValueError as error:
+        return _report_invalid_review(project, from_step, str(error), as_json)
+    warning = ordinary_entry_warning(project, data, to_step) if not entry_result else None
     check_state_revision(data, session_state_path(project))
 
     # Single atomic mutation.
@@ -185,6 +218,12 @@ def run(args) -> int:  # noqa: C901 — one CLI dispatcher, branchy by design
         and (not complete or data.get("steps", {}).get(from_step, {}).get("status") == "complete")
         and all(data.get("decisions", {}).get(key) == value for key, value in decisions.items())
         and same_selection
+        and all(
+            not result
+            or not result.get("record")
+            or data.get("risk_authorizations", {}).get(result["action"]) == result["record"]
+            for result in (risk_result, entry_result)
+        )
     ):
         print(
             json.dumps({"project": project, "from_step": from_step, "to_step": to_step, "outcome": "already_applied"})
@@ -227,6 +266,8 @@ def run(args) -> int:  # noqa: C901 — one CLI dispatcher, branchy by design
 
     if complete:
         record_selection(data, from_step, selection, now)
+    record_authorization(data, risk_result, now)
+    record_authorization(data, entry_result, now)
     write_state(project, data)
 
     result = {
@@ -237,7 +278,11 @@ def run(args) -> int:  # noqa: C901 — one CLI dispatcher, branchy by design
         "decisions_recorded": list(decisions.keys()),
         "challenger_skip_recorded": bool(blocked and allow_missing),
         "timestamp": now,
+        "review_gate": risk_result["status"] if risk_result else None,
+        "entry_gate": entry_result["status"] if entry_result else None,
     }
+    if warning:
+        result["warnings"] = [warning]
     if as_json:
         print(json.dumps(result))
     else:

@@ -146,6 +146,11 @@ Local prompt files are adapters. On Agent Host, select the owning agent and use 
 manual entry skill; `apex-host-workflow-start` supports an explicit `resume` operation.
 Skills inherit the caller's model/tools and do not bypass human approval gates.
 
+Explicit risk acceptance is supported only for authorized non-production labs, with externally verified authority,
+individual finding selection and separate human gate approval. Kit authoring permission never grants deployment
+permission; original review verdicts and unresolved findings remain intact. Maintainer and CLI contract:
+[risk-authorizations.md](tools/apex-recall/docs/risk-authorizations.md).
+
 ## License
 
 MIT. See [LICENSE](LICENSE).

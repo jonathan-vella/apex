@@ -246,13 +246,16 @@ Run `apex-recall show <project> --json` and verify, in order:
 
 1. `session.current_step` is at or past Step 4.
 2. `decisions.iac_tool == "Terraform"`.
-3. `decisions.plan_status == "APPROVED"` (recorded by Planner Phase 5
+3. `decisions.plan_status == "APPROVED"` normally; `EXCEPTION_AUTHORIZED` requires the current explicit lab gate below.
+  Ordinary approval is recorded by Planner Phase 5
   Stage 3 after current required reviews passed and the
    Governance Compliance Matrix + Code-Generation Contract sections
-   are complete). If absent, the plan is not gate-3 approved.
+  are complete. If absent, the plan is not gate-3 approved.
 4. Step 4 is complete with current required review evidence. Follow the shared
   [review lifecycle](../skills/apex-azure-defaults/references/adversarial-review-protocol.md#review-lifecycle).
   Explicitly selected confirmations supersede historical failures; unresolved current blockers do not.
+  For explicit lab risk acceptance, run `apex-recall check-gate <project> --action codegen --json` before entry/resume.
+  Only its current listed action with separate human approval permits covered findings; never relabel NEEDS_REVISION.
 5. `metadata.plan_lock.frozen_artifacts` exist on disk (the three Step 4
    artifacts above).
 6. **L0 envelope cross-check** — read `discovery_metadata` from
@@ -264,8 +267,8 @@ Run `apex-recall show <project> --json` and verify, in order:
    `apex-iac-common/references/governance-drift-routing.md` (L0 row).
 
 If any condition fails, STOP and present the `↩ Return to Step 4` handoff.
-Do not enter Phase 1 with an open plan-level finding — that is the defect
-the plan-lock contract exists to prevent.
+Open Plan findings block unless the explicit [lab contract](../../tools/apex-recall/docs/risk-authorizations.md)
+authorizes this exact action. No exception waives code validation or authorizes deployment.
 
 ## Session State
 

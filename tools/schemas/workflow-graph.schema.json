@@ -74,7 +74,8 @@
                     "complex": { "$ref": "#/$defs/challengerTier" }
                   }
                 },
-                "skip_condition": { "type": "string" }
+                "skip_condition": { "type": "string" },
+                "exception_exit_criteria": { "const": "current-explicit-lab-authorization-and-separate-human-approval" }
               },
               "additionalProperties": true
             }
@@ -167,8 +168,30 @@
       "properties": {
         "version": {
           "type": "string",
-          "enum": ["2.1", "2.2", "2.3", "2.4"],
+          "enum": ["2.1", "2.2", "2.3", "2.4", "2.5"],
           "description": "Workflow graph schema version. Validators refuse unknown majors per D2 (graceful degradation)."
+        },
+        "risk_acceptance": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "contract",
+            "eligibility",
+            "readiness_command",
+            "kit_actions",
+            "deployment_requires",
+            "review_verdicts_unchanged"
+          ],
+          "properties": {
+            "contract": { "const": "risk-authorization-v1" },
+            "eligibility": { "const": "non-production-lab" },
+            "readiness_command": { "const": "apex-recall check-gate" },
+            "kit_actions": { "const": ["plan-complete", "codegen", "code-complete"] },
+            "deployment_requires": {
+              "const": "separate-adopter-tenant-subscription-event-authorization-and-human-approval"
+            },
+            "review_verdicts_unchanged": { "const": true }
+          }
         }
       }
     }

@@ -11,6 +11,17 @@ The workflow graph assigns no Challenger review to Step 6. Do not repeat creativ
 Preserve required upstream reviews, current live policy precheck (L3), destructive-change review, and user approval.
 An explicit standalone Challenger request remains separate from the deployment gate.
 
+## Explicit Lab Risk Entry
+
+If upstream findings were risk-accepted, kit approval is insufficient. Require a separate adopter/risk-owner
+authorization under the [lab contract](../../../../tools/apex-recall/docs/risk-authorizations.md), with exact actual
+tenant, subscription, event, operation, tree, inputs and phase. Reconcile the deployment context with real account and
+handoff/runtime evidence, then run `apex-recall check-gate <project> --action deploy --deployment-context <path> --json`
+before entry/resume and again immediately before any write. Ordinary chat consent and historical completion cannot
+replace authority verification. Preserve the unresolved findings and verdict; production is ineligible.
+Security validators, L3 PROCEED, previews and separate final human deployment approval still apply. Never apply on BLOCK.
+Require cleanup owner and teardown commitments before deployment; collect actual teardown evidence only afterward.
+
 ## Preflight: Security Baseline Check
 
 Before asking for runtime values, load and follow
