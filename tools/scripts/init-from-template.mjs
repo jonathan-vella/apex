@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 /**
- * Replaces all accelerator template repository references with this repository's URL.
+ * Replaces accelerator template repository references with this repository's URL,
+ * leaving template-exclusion guards untouched, then formats the touched files.
  * Run once after creating a new repository from the accelerator template.
  * Auto-detects the new owner/repo from the git remote.
  *
@@ -9,9 +10,9 @@
  * npm run init -- --dry-run
  */
 
-import { execSync } from "node:child_process";
+import { execSync, spawnSync } from "node:child_process";
 import { readFileSync, writeFileSync, readdirSync, statSync } from "node:fs";
-import { join, relative } from "node:path";
+import { basename, join, relative } from "node:path";
 
 const TEMPLATE_OWNER = "jonathan-vella";
 const TEMPLATE_REPO = "apex-accelerator";
@@ -21,8 +22,14 @@ const TEMPLATE_URL = `https://github.com/${TEMPLATE_SLUG}`;
 const SKIP_DIRS = new Set([".git", "node_modules", "site", ".venv", "__pycache__"]);
 const SKIP_EXTS = new Set([".png", ".jpg", ".jpeg", ".gif", ".ico", ".svg", ".woff", ".woff2", ".zip", ".gz"]);
 
+// Template-exclusion guards (`github.repository != '<template>'`) must keep naming the template,
+// otherwise every guarded job runs/skips against the wrong repository.
+const GUARD_PATTERN = "github.repository !=";
+const SKIP_FILES = new Set(["test_consumer_workflows.mjs"]);
+
 const args = process.argv.slice(2);
 const dryRun = args.includes("--dry-run") || args.includes("--dry");
+const noFormat = args.includes("--no-format");
 const showHelp = args.includes("--help") || args.includes("-h");
 
 if (showHelp) {
@@ -36,8 +43,9 @@ with this repository's URL, auto-detected from the git remote.
 Run this once after creating a new repository from the accelerator template.
 
 Options:
-  --dry-run   Preview which files would be changed without modifying them
-  --help, -h  Show this help message
+  --dry-run    Preview which files would be changed without modifying them
+  --no-format  Skip the final 'npx prettier --write' on touched files
+  --help, -h   Show this help message
 `);
   process.exit(0);
 }
@@ -51,7 +59,20 @@ function parseSlug(remoteUrl) {
   return null;
 }
 
-/** Recursively collect files that contain the template slug (text files only). */
+/** Replace the template slug on every line except template-exclusion guard lines. */
+function replaceSlug(content, newSlug) {
+  return content
+    .split("\n")
+    .map((line) => (line.includes(GUARD_PATTERN) ? line : line.replaceAll(TEMPLATE_SLUG, newSlug)))
+    .join("\n");
+}
+
+/** True when at least one non-guard line references the template slug. */
+function hasReplaceableLine(content) {
+  return content.split("\n").some((line) => line.includes(TEMPLATE_SLUG) && !line.includes(GUARD_PATTERN));
+}
+
+/** Recursively collect files with replaceable template references (text files only). */
 function findAffected(dir, results = []) {
   for (const entry of readdirSync(dir)) {
     const fullPath = join(dir, entry);
@@ -60,10 +81,10 @@ function findAffected(dir, results = []) {
       if (!SKIP_DIRS.has(entry)) findAffected(fullPath, results);
     } else {
       const ext = entry.includes(".") ? `.${entry.split(".").pop()}` : "";
-      if (SKIP_EXTS.has(ext.toLowerCase())) continue;
+      if (SKIP_EXTS.has(ext.toLowerCase()) || SKIP_FILES.has(basename(fullPath))) continue;
       try {
         const content = readFileSync(fullPath, "utf8");
-        if (content.includes(TEMPLATE_SLUG)) results.push({ fullPath, content });
+        if (hasReplaceableLine(content)) results.push({ fullPath, content });
       } catch {
         // Binary or unreadable — skip silently
       }
@@ -123,11 +144,23 @@ if (dryRun) {
 }
 
 let count = 0;
+const touched = [];
 for (const { fullPath, content } of affected) {
-  const updated = content.replaceAll(TEMPLATE_SLUG, newSlug);
-  writeFileSync(fullPath, updated, "utf8");
+  writeFileSync(fullPath, replaceSlug(content, newSlug), "utf8");
+  touched.push(relative(".", fullPath));
   console.log(`  ✅ Updated: ${relative(".", fullPath)}`);
   count++;
+}
+
+if (!noFormat) {
+  console.log("");
+  console.log("🎨 Formatting touched files with prettier...");
+  const result = spawnSync("npx", ["prettier", "--write", "--ignore-unknown", "--log-level", "warn", ...touched], {
+    stdio: "inherit",
+    shell: process.platform === "win32",
+  });
+  if (result.status !== 0)
+    console.warn("⚠️  prettier failed — run 'npx prettier --write' on the files above manually.");
 }
 
 console.log("");

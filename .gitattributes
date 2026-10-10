@@ -1,5 +1,5 @@
-# Auto normalize line endings for all text files
-* text=auto
+# Auto normalize line endings for all text files and keep LF in the working tree
+* text=auto eol=lf
 
 # Explicitly declare text files to always use LF
 *.md text eol=lf
