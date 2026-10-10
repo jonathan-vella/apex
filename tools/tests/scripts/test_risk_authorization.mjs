@@ -536,6 +536,64 @@ test("teardown cannot certify a different execution run", (t) => {
   assert.throws(() => evaluateAuthorization(data.request, data.environment), /canonical execution/);
 });
 
+for (const overdue of [true, false]) {
+  test(`teardown finishing ${overdue ? "after" : "before"} the authorized deadline ${overdue ? "is blocked" : "passes"}`, (t) => {
+    const data = fixture(t);
+    deployment(data);
+    data.trust.grants[1].roles.push("lifecycle-verifier");
+    data.document.scope.event_expires_at = data.timestamp(-45000);
+    data.document.scope.teardown_due_at = data.timestamp(-25000);
+    data.refreshTrust();
+    data.refresh();
+    const receipt = {
+      schema_version: "risk-lifecycle-receipt-v1",
+      id: "execution-a",
+      project: "synthetic",
+      actions: data.document.actions,
+      ...data.window,
+      scope: data.document.scope,
+      context_sha256: data.document.scope.deployment_context.sha256,
+      execution_id: "execution-a",
+      phase: "execution",
+      started_at: data.timestamp(-50000),
+      finished_at: data.timestamp(-46000),
+      observed_at: data.timestamp(-44000),
+      source_evidence: [data.proof],
+    };
+    const execution = data.envelope("execution-a.json", receipt, true);
+    const teardown = data.envelope(
+      "teardown.json",
+      {
+        ...receipt,
+        id: "teardown",
+        phase: "teardown",
+        prior_execution: execution,
+        started_at: data.timestamp(-40000),
+        finished_at: data.timestamp(overdue ? -20000 : -30000),
+        observed_at: data.timestamp(-15000),
+      },
+      true,
+    );
+    data.request.action = "teardown-complete";
+    data.request.approval = data.envelope("completion.json", {
+      schema_version: "risk-gate-approval-v1",
+      id: "completion",
+      project: "synthetic",
+      authorization_sha256: sha(fs.readFileSync(path.join(data.root, data.request.authorization))),
+      actions: ["teardown-complete"],
+      approved_at: data.timestamp(-10000),
+      ...data.window,
+      verified_obligations: [
+        { id: "verify-scope", evidence: data.proof },
+        { id: "execution", evidence: execution },
+        { id: "teardown", evidence: teardown },
+      ],
+    }).path;
+    if (overdue) assert.throws(() => evaluateAuthorization(data.request, data.environment), /teardown deadline/);
+    else assert.equal(evaluateAuthorization(data.request, data.environment).status, "exception-authorized");
+  });
+}
+
 test("explicit kit authorization preserves unresolved verdict and permits listed actions only", (t) => {
   const fixtureData = fixture(t);
   for (const action of ["plan-complete", "codegen"]) {

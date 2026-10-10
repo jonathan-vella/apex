@@ -34,6 +34,7 @@ def evaluate_gate(
     require_approval: bool = True,
     completing_plan: bool = False,
     completing_code: bool = False,
+    review_cache: dict | None = None,
 ) -> dict:
     from .commands.complete_step import (
         _challenger_findings_invalid,
@@ -73,7 +74,13 @@ def evaluate_gate(
     )
     if missing and not audited_skip:
         raise ValueError("Required Plan review missing; risk authorization cannot waive review presence")
-    invalid = _challenger_findings_invalid(project, "4", selected, bool(authorization))
+    cache_key = (str(selected), bool(authorization))
+    if review_cache is not None and cache_key in review_cache:
+        invalid = review_cache[cache_key]
+    else:
+        invalid = _challenger_findings_invalid(project, "4", selected, bool(authorization))
+        if review_cache is not None:
+            review_cache[cache_key] = invalid
     if invalid:
         raise ValueError(invalid)
     if not authorization:

@@ -178,9 +178,10 @@ def run(args) -> int:
                 session["effective_reviews"] = effective
                 readiness = {}
                 if exception_bearing:
+                    review_cache: dict = {}
                     for action in ACTIONS:
                         try:
-                            result = evaluate_gate(project, data, action)
+                            result = evaluate_gate(project, data, action, review_cache=review_cache)
                             readiness[action] = {
                                 key: value for key, value in result.items() if key not in ("record", "watched_inputs")
                             }

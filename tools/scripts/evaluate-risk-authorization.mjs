@@ -446,6 +446,8 @@ export function evaluateAuthorization(request, environment = process.env) {
         );
         if (observation.phase === "teardown") {
           if (!observation.prior_execution) throw new Error("Teardown receipt requires prior execution evidence");
+          if (instant(observation.finished_at) > instant(scope.teardown_due_at))
+            throw new Error("Teardown finished after the authorized teardown deadline");
           const execution = validateReceipt(observation.prior_execution, "execution");
           if (
             execution.execution_id !== observation.execution_id ||

@@ -153,18 +153,23 @@ UTF-8 JSON of sorted
 Completion evidence for after-execution/after-teardown obligations must be a signed `risk-lifecycle-receipt-v1` from
 an independently provisioned `lifecycle-verifier`, not the accepting owner. Bind the exact scope, context hash,
 execution ID, phase, `started_at`, `finished_at`, `observed_at` and hashed real source observations. A teardown receipt
-also binds `prior_execution` to the same execution event. The verifier must observe actual completion before signing;
+also binds `prior_execution` to the same execution event. The verifier must observe actual completion before signing,
+and the separate human completion approval must be issued after those observations. Runtime completion also checks the
+receipt follows the recorded deployment start. Receipt signatures attest evidence provenance, not cloud execution
+by APEX; the externally accountable verifier owns truthful observation. No pre-existing general proof can substitute.
+
 All lifecycle obligations must reference the same canonical execution receipt, including teardown's prior execution.
 Different receipt bytes or execution IDs block regardless of verification-entry order.
 Successful Step 6 completion persists the canonical execution path, hash and ID in its `risk-selection-v1` record.
 Later completion replays and teardown checks must match that identity, even when a new action authorization is issued.
 Checking teardown remains read-only; it cannot silently replace the completed run or reactivate an old authority grant.
-A later completion authorization may acknowledge the already preserved execution receipt without requiring the old
-grant to remain active. This exception applies only to the exact saved execution path, hash and ID; it never permits
-first-time completion under retroactive deployment authority or substitution of another run.
-the separate human completion approval must be issued after those observations. Runtime completion also checks the
-receipt follows the recorded deployment start. Receipt signatures attest evidence provenance, not cloud execution
-by APEX; the externally accountable verifier owns truthful observation. No pre-existing general proof can substitute.
+A later completion authorization may acknowledge the already preserved execution receipt without requiring the prior
+authorization to remain active. Only that prior authorization ID may be inactive: the receipt signer's
+`lifecycle-verifier` grant must still exist, be current and not be revoked. This applies only to the exact saved
+execution path, hash and ID; it never permits first-time completion under retroactive deployment authority or
+substitution of another run.
+
+A teardown receipt must finish by the authorization's `teardown_due_at`; a later finish blocks the teardown gate.
 
 ## Reporting, Failure And Migration
 
