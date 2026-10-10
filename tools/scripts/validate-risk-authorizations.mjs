@@ -71,9 +71,9 @@ export function main(argv = process.argv.slice(2)) {
   for (const project of projects) {
     try {
       if (!/^[a-zA-Z0-9_-]+$/.test(project)) throw new Error("Invalid project identity");
-      for (const error of validateProject(root, project)) reporter.error(project, error);
+      for (const error of validateProject(root, project)) reporter.warn(project, `${error} (warning only)`);
     } catch (error) {
-      reporter.error(project, error.message);
+      reporter.warn(project, `${error.message} (warning only)`);
     }
   }
   reporter.summary();

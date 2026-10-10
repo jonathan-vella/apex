@@ -116,9 +116,9 @@ for (const project of projects) {
   const sessionState = path.join(projectDir, "00-session-state.json");
   if (fs.existsSync(sessionState)) {
     try {
-      for (const error of validateProject(path.resolve("."), project)) r.error(project, error);
+      for (const error of validateProject(path.resolve("."), project)) r.warn(project, `${error} (warning only)`);
     } catch (error) {
-      r.error(project, `Risk authorization check unavailable: ${error.message}`);
+      r.warn(project, `Risk authorization check unavailable (warning only): ${error.message}`);
     }
   }
   for (const [stepKey, gate] of Object.entries(GATES)) {

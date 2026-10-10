@@ -5,6 +5,7 @@ import { createHash, createPublicKey, verify } from "node:crypto";
 import { isDeepStrictEqual } from "node:util";
 import { fileURLToPath } from "node:url";
 import Ajv from "ajv";
+import { computeTreeHash } from "./validate-iac-handoff.mjs";
 
 const schemaPath = fileURLToPath(new URL("../schemas/risk-authorization.schema.json", import.meta.url));
 const schema = JSON.parse(fs.readFileSync(schemaPath, "utf8"));
@@ -206,7 +207,11 @@ export function evaluateAuthorization(request, environment = process.env) {
       !fs.lstatSync(path.resolve(root, treePath)).isDirectory()
     )
       throw new Error("Wrong project IaC tree");
-    if (reference(context.tree).sha256 !== context.tree_hash) throw new Error("Actual deployment tree changed");
+    if (
+      computeTreeHash(path.resolve(root, treePath)).value !== context.tree_hash ||
+      context.tree.sha256 !== context.tree_hash
+    )
+      throw new Error("Actual deployment tree changed");
     context.input_refs.forEach(reference);
     unique(
       context.input_refs.map((ref) => path.resolve(root, ref.path)),

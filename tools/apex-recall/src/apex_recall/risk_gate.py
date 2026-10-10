@@ -213,17 +213,31 @@ def check_entry(
     action = ENTRY_ACTIONS.get(step)
     if not action:
         return None
-    if step == "7" and not data.get("risk_authorizations") and not getattr(args, "risk_authorization", None):
+    if not data.get("risk_authorizations") and not getattr(args, "risk_authorization", None):
         return None
     if step == "7" and data.get("steps", {}).get("6", {}).get("status") != "complete":
         raise ValueError("Exception-bearing As-Built entry requires completed deployment")
-    plan = session_state_path(project).parent / "04-implementation-plan.md"
-    if not plan.exists() and not data.get("risk_authorizations") and not getattr(args, "risk_authorization", None):
-        return None
     result = evaluate_gate(project, data, action, args, completing_code=completing_code)
     if result["status"] == "exception-authorized" and data.get("steps", {}).get("4", {}).get("status") != "complete":
         raise ValueError("Exception-authorized downstream entry still requires completed Step 4")
     return result
+
+
+def ordinary_entry_warning(project: str, data: StateDocument, step: str) -> str | None:
+    """Warn-only freshness note for projects without a lab exception; never blocks."""
+    if step not in ("5", "6") or data.get("risk_authorizations"):
+        return None
+    if not (session_state_path(project).parent / "04-implementation-plan.md").exists():
+        return None
+    watched = dict(data.input_revisions)
+    try:
+        evaluate_gate(project, data, ENTRY_ACTIONS[step])
+    except (OSError, ValueError) as error:
+        return f"Plan review is not current (warning only): {' '.join(str(error).split())[:220]}"
+    finally:
+        data.input_revisions.clear()
+        data.input_revisions.update(watched)
+    return None
 
 
 def run(args: object) -> int:

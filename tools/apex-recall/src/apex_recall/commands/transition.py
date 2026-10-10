@@ -42,7 +42,7 @@ from __future__ import annotations
 import json
 import sys
 
-from ..risk_gate import COMPLETION_ACTIONS, check_entry, evaluate_gate, record_authorization
+from ..risk_gate import COMPLETION_ACTIONS, check_entry, evaluate_gate, ordinary_entry_warning, record_authorization
 from ..state_writer import (
     _iso_now,
     check_state_revision,
@@ -201,6 +201,7 @@ def run(args) -> int:  # noqa: C901 — one CLI dispatcher, branchy by design
             raise ValueError("Risk authorization requires a supported completion or downstream entry action")
     except ValueError as error:
         return _report_invalid_review(project, from_step, str(error), as_json)
+    warning = ordinary_entry_warning(project, data, to_step) if not entry_result else None
     check_state_revision(data, session_state_path(project))
 
     # Single atomic mutation.
@@ -280,6 +281,8 @@ def run(args) -> int:  # noqa: C901 — one CLI dispatcher, branchy by design
         "review_gate": risk_result["status"] if risk_result else None,
         "entry_gate": entry_result["status"] if entry_result else None,
     }
+    if warning:
+        result["warnings"] = [warning]
     if as_json:
         print(json.dumps(result))
     else:

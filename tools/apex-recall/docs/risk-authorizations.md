@@ -45,6 +45,12 @@ the previous snapshot at the agreed maximum offline interval. This is an offline
 identity or instantaneous revocation service. The threat boundary assumes trusted runtime code and operator launch
 configuration; it cannot defend against an administrator replacing the evaluator or both the trust file and its pin.
 
+Accepted limit for non-production labs: the trust file only needs to be owned by the running user and protected from
+group/world writes. An AI agent or script running as that same user and controlling the launch environment could
+create its own trust file and keys. The signatures therefore protect against honest mistakes and other users, not
+against a misbehaving agent on the same account. Keep the trust file and its pin outside the agent's control (a
+different account, a read-only mount or CI secrets) wherever that matters, and treat this feature as lab-only.
+
 ## Signed Contracts
 
 Authoritative shapes are in [risk-authorization.schema.json](../../schemas/risk-authorization.schema.json).
@@ -138,7 +144,10 @@ Never fabricate teardown success in advance. Event expiry prevents deployment; c
 own still-valid authorization window beyond the event and do not silently extend deployment permission.
 
 The deployment context also requires `tree: {path, sha256}` for the actual project IaC directory and `input_refs` for
-actual runtime input files. The evaluator recomputes tree hashes and `inputs_hash`: SHA-256 over UTF-8 JSON of sorted
+actual runtime input files. The evaluator recomputes the tree hash with the same rule as the deploy handoff gate
+(`validate-iac-handoff.mjs --tree-hash <dir>`), so tool output such as `tfplan`, `*.tfstate`, `.terraform/` and
+compiled JSON beside a Bicep file does not invalidate an approval. It also recomputes `inputs_hash`: SHA-256 over
+UTF-8 JSON of sorted
 `[workspaceRelativePath, sha256]` pairs. Placeholders, a different tree, changed inputs or a changed context block.
 
 Completion evidence for after-execution/after-teardown obligations must be a signed `risk-lifecycle-receipt-v1` from
@@ -173,7 +182,10 @@ returns `committed_but_index_stale`; reindex rather than repeating the mutation.
 Run `npm run validate:risk-authorizations -- example-lab` for CI checks; the existing challenger-presence hook also runs
 the shared read-only runtime gate for the current phase/action. Superseded grants remain audit history; consumers
 evaluate the requested action, never reuse a revoked grant or require an expired historical permission for a new action.
-Unavailable authority validation fails closed in CI.
+Unavailable authority validation blocks the runtime commands. In CI and the pre-commit hook, lab-exception problems
+(including an unavailable `apex-recall` or trust pin) are reported as warnings and do not fail the build, because
+those environments often lack the operator-pinned trust. `complete-step`, `transition`, `start-step` and `check-gate`
+still block progression on the same evidence.
 Historical review schema scans remain separate from present authorization evaluation.
 
 Contracts use explicit `*-v1` versions. State adds optional `risk-selection-v1` records without changing legacy records;

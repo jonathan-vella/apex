@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import sys
 
-from ..risk_gate import check_entry, record_authorization
+from ..risk_gate import check_entry, ordinary_entry_warning, record_authorization
 from ..state_writer import (
     _iso_now,
     migrate_to_v3,
@@ -32,6 +32,7 @@ def run(args) -> int:
     except ValueError as error:
         print(json.dumps({"status": "blocked", "error": str(error)}))
         return 2
+    warning = ordinary_entry_warning(project, data, step) if not entry_result else None
     data = migrate_to_v3(data)
 
     step_data = data["steps"].get(step, {})
@@ -54,9 +55,13 @@ def run(args) -> int:
     write_state(project, data)
 
     result = {"project": project, "step": step, "status": "in_progress", "started": now}
+    if warning:
+        result["warnings"] = [warning]
     if as_json:
         print(json.dumps(result))
     else:
         print(f"Step {step} started for {project}")
+        if warning:
+            print(f"Warning: {warning}", file=sys.stderr)
 
     return 0

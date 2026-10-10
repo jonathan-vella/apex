@@ -93,16 +93,21 @@ def run(args) -> int:
                     "risk_authorizations": data.get("risk_authorizations", {}),
                 }
                 effective = {}
-                review_steps = set(data.get("review_selections", {})) | {
-                    step for step, (artifact, _) in _CHALLENGER_GATE.items() if (primary.parent / artifact).is_file()
-                }
+                exception_bearing = bool(data.get("risk_authorizations"))
+                review_steps = set(data.get("review_selections", {}))
+                if exception_bearing:
+                    review_steps |= {
+                        step
+                        for step, (artifact, _) in _CHALLENGER_GATE.items()
+                        if (primary.parent / artifact).is_file()
+                    }
                 for step in sorted(review_steps):
                     try:
                         selected, selection = _select_replacement_review(project, step, SimpleNamespace(), data)
                         watch_review_inputs(data, project, step, selected)
                         if selection and data.input_revisions[selected] != selection["stored"]["sha256"]:
                             raise ValueError("Selected review changed during validation")
-                        if step == "4":
+                        if step == "4" and exception_bearing:
                             missing, _, _ = _challenger_findings_missing(project, step, selected)
                             if missing:
                                 skip_result = evaluate_gate(project, data, "plan-complete", selected=selected)
@@ -172,7 +177,7 @@ def run(args) -> int:
                         effective[step] = {"status": "invalid", "error": str(error)}
                 session["effective_reviews"] = effective
                 readiness = {}
-                if primary.parent.joinpath("04-implementation-plan.md").exists() or data.get("risk_authorizations"):
+                if exception_bearing:
                     for action in ACTIONS:
                         try:
                             result = evaluate_gate(project, data, action)

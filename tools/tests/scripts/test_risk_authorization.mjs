@@ -6,6 +6,7 @@ import path from "node:path";
 import { createHash, generateKeyPairSync, sign } from "node:crypto";
 import { evaluateAuthorization, requiredPlanInputs } from "../../scripts/evaluate-risk-authorization.mjs";
 import { validateProject } from "../../scripts/validate-risk-authorizations.mjs";
+import { computeTreeHash } from "../../scripts/validate-iac-handoff.mjs";
 
 const sha = (bytes) => createHash("sha256").update(bytes).digest("hex");
 const repoFile = (relative) => fs.readFileSync(new URL(`../../../${relative}`, import.meta.url), "utf8");
@@ -215,7 +216,7 @@ function deployment(data) {
   const tree = path.join(data.root, "infra", "bicep", "synthetic");
   fs.mkdirSync(tree, { recursive: true });
   fs.writeFileSync(path.join(tree, "main.bicep"), "param example string");
-  const treeHash = sha(JSON.stringify([["main.bicep", sha(fs.readFileSync(path.join(tree, "main.bicep")))]]));
+  const treeHash = computeTreeHash(tree).value;
   const inputs = data.write("parameters.json", { example: "lab" });
   const context = {
     tenant_id: "lab-tenant",
@@ -330,6 +331,16 @@ test("separate adopter lab approval permits deployment without premature teardow
   assert.equal(evaluateAuthorization(data.request, data.environment).status, "exception-authorized");
   data.request.action = "teardown-complete";
   assert.throws(() => evaluateAuthorization(data.request, data.environment), /verification missing/);
+});
+
+test("tool output in the IaC tree does not invalidate a lab deployment approval", (t) => {
+  const data = fixture(t);
+  const { tree } = deployment(data);
+  for (const name of ["main.json", "tfplan", "terraform.tfstate"])
+    fs.writeFileSync(path.join(tree, name), "tool output");
+  assert.equal(evaluateAuthorization(data.request, data.environment).status, "exception-authorized");
+  fs.writeFileSync(path.join(tree, "main.bicep"), "param changed string");
+  assert.throws(() => evaluateAuthorization(data.request, data.environment), /tree changed/);
 });
 
 test("post-execution completion requires independently verified chronology and a later human approval", (t) => {

@@ -288,7 +288,8 @@ def test_revoked_saved_authorization_blocks_every_consumer(tmp_path, monkeypatch
             text=True,
             check=False,
         )
-        assert result.returncode == 1, result.stdout + result.stderr
+        assert result.returncode == 0, result.stdout + result.stderr
+        assert "warning only" in result.stdout + result.stderr
     else:
         command = {
             "completion": ["complete-step", "synthetic", "4", "--json"],
@@ -401,7 +402,7 @@ def test_default_plan_missing_review_bypass_is_preserved(tmp_path, monkeypatch, 
     assert data["cli"].main(["start-step", "synthetic", "5", "--json"]) == 0
 
 
-def test_default_audited_skip_never_waives_invalid_present_review(tmp_path, monkeypatch, capsys):
+def test_default_audited_skip_entry_warns_instead_of_blocking(tmp_path, monkeypatch, capsys):
     data = fixture(tmp_path, monkeypatch)
     path = data["project"] / "challenge-findings-plan.json"
     original = path.read_bytes()
@@ -420,15 +421,32 @@ def test_default_audited_skip_never_waives_invalid_present_review(tmp_path, monk
         )
         == 0
     )
-    capsys.readouterr()
-    assert data["cli"].main(["show", "synthetic", "--json"]) == 0
-    shown = json.loads(capsys.readouterr().out)
-    assert shown["session"]["effective_reviews"]["4"]["review_skip"] is True
-    assert shown["session"]["gate_readiness"]["codegen"]["status"] == "current"
     path.write_bytes(original)
-    before = (data["project"] / "00-session-state.json").read_bytes()
-    assert data["cli"].main(["start-step", "synthetic", "5", "--json"]) == 2
-    assert (data["project"] / "00-session-state.json").read_bytes() == before
+    capsys.readouterr()
+    assert data["cli"].main(["start-step", "synthetic", "5", "--json"]) == 0
+    assert "warning only" in json.loads(capsys.readouterr().out)["warnings"][0]
+
+
+def test_ordinary_entry_only_warns_when_plan_review_is_stale(tmp_path, capsys):
+    root = tmp_path / "workspace"
+    _reimport_with_root(root)
+    project = _seed_project(root, "synthetic")
+    (project / "04-implementation-plan.md").write_text("# plan\n")
+    _seed_review(project, "challenge-findings-plan.json")
+    cli = importlib.import_module("apex_recall.__main__")
+    assert cli.main(["complete-step", "synthetic", "4", "--json"]) == 0
+    capsys.readouterr()
+    assert cli.main(["start-step", "synthetic", "5", "--json"]) == 0
+    assert "warnings" not in json.loads(capsys.readouterr().out)
+    guidance = root / ".github/skills/apex-azure-defaults/references/adversarial-checklists.md"
+    guidance.write_text(guidance.read_text() + "\nunrelated edit\n")
+    assert cli.main(["start-step", "synthetic", "6", "--json"]) == 0
+    assert "warning only" in json.loads(capsys.readouterr().out)["warnings"][0]
+    assert cli.main(["show", "synthetic", "--json"]) == 0
+    session = json.loads(capsys.readouterr().out)["session"]
+    assert session["effective_reviews"] == {}
+    assert session["gate_readiness"] == {}
+    assert "risk_authorizations" not in json.loads((project / "00-session-state.json").read_text())
 
 
 def test_selected_review_authorization_pins_preserved_original(tmp_path, monkeypatch):
@@ -533,7 +551,8 @@ def test_ci_and_runtime_reject_missing_exception_history(tmp_path, monkeypatch, 
         text=True,
         check=False,
     )
-    assert result.returncode == 1, result.stdout + result.stderr
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "warning only" in result.stdout + result.stderr
     assert path.read_bytes() == before
 
 
@@ -620,6 +639,19 @@ def test_completed_execution_cannot_be_substituted_during_teardown(tmp_path, mon
     tree = root / "infra/bicep/synthetic"
     tree.mkdir(parents=True)
     (tree / "main.bicep").write_text("param example string")
+    tree_hash = json.loads(
+        subprocess.run(
+            [
+                "node",
+                str(Path(__file__).resolve().parents[3] / "tools/scripts/validate-iac-handoff.mjs"),
+                "--tree-hash",
+                str(tree),
+            ],
+            capture_output=True,
+            text=True,
+            check=True,
+        ).stdout
+    )["value"]
     parameters = project / "parameters.json"
     parameters.write_text('{"example":"synthetic"}')
     parameter_ref = {"path": str(parameters.relative_to(root)), "sha256": writer.file_revision(parameters)}
@@ -630,8 +662,8 @@ def test_completed_execution_cannot_be_substituted_during_teardown(tmp_path, mon
         "environment": "non-production-lab",
         "operation": "deploy synthetic lab",
         "phase": "lab",
-        "tree": {"path": str(tree.relative_to(root)), "sha256": writer.file_revision(tree)},
-        "tree_hash": writer.file_revision(tree),
+        "tree": {"path": str(tree.relative_to(root)), "sha256": tree_hash},
+        "tree_hash": tree_hash,
         "input_refs": [parameter_ref],
         "inputs_hash": hashlib.sha256(
             json.dumps([[parameter_ref["path"], parameter_ref["sha256"]]], separators=(",", ":")).encode()
