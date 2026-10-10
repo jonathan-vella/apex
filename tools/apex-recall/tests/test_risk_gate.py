@@ -11,7 +11,7 @@ import pytest
 from .test_transition import _reimport_with_root, _seed_project, _seed_review
 
 
-def fixture(tmp_path, monkeypatch):
+def fixture(tmp_path, monkeypatch, verdict=None):
     root = tmp_path / "workspace"
     _reimport_with_root(root)
     project = _seed_project(root, "synthetic")
@@ -61,7 +61,9 @@ def fixture(tmp_path, monkeypatch):
         },
     }
     finding["id"] = hashlib.sha256(b"lab-capability|Limited teaching lab capability|Lab").hexdigest()[:8]
-    review.update(findings=[finding], must_fix_count=1, overall_assessment="NEEDS_REVISION", supporting_inputs=refs)
+    review.update(findings=[finding], must_fix_count=1, supporting_inputs=refs)
+    if verdict:
+        review["overall_assessment"] = verdict
     sidecar = project / "challenge-findings-plan.json"
     sidecar.write_text(json.dumps(review))
     keypairs = json.loads(
@@ -240,6 +242,41 @@ def test_explicit_completion_show_entry_and_replay_agree(tmp_path, monkeypatch, 
     state = (project / "00-session-state.json").read_bytes()
     assert cli.main(["start-step", "synthetic", "6", "--json"]) == 2
     assert (project / "00-session-state.json").read_bytes() == state
+
+
+def test_real_shaped_review_without_overall_assessment_passes_gate_completion_and_show(tmp_path, monkeypatch, capsys):
+    data = fixture(tmp_path, monkeypatch)
+    cli, project = data["cli"], data["project"]
+    persisted = json.loads((project / "challenge-findings-plan.json").read_text())
+    assert "overall_assessment" not in persisted and persisted["must_fix_count"] == 1
+    gate_only = ["check-gate", "synthetic", "--action", "plan-complete", "--authorization-only", *data["flags"][:2]]
+    assert cli.main(gate_only) == 0
+    capsys.readouterr()
+    assert cli.main(["complete-step", "synthetic", "4", *data["flags"], "--json"]) == 0
+    assert json.loads(capsys.readouterr().out)["review_gate"] == "exception-authorized"
+    assert cli.main(["check-gate", "synthetic", "--action", "codegen", "--json"]) == 0
+    capsys.readouterr()
+    assert cli.main(["show", "synthetic", "--json"]) == 0
+    shown = json.loads(capsys.readouterr().out)["session"]["effective_reviews"]["4"]
+    assert shown["review_verdicts"] == ["NEEDS_REVISION"]
+    assert shown["gate_status"] == "exception-authorized"
+
+
+def test_real_shaped_review_passes_atomic_transition(tmp_path, monkeypatch, capsys):
+    data = fixture(tmp_path, monkeypatch)
+    command = ["transition", "synthetic", "--from-step", "4", "--to-step", "5", "--complete", *data["flags"], "--json"]
+    assert data["cli"].main(command) == 0
+    assert json.loads(capsys.readouterr().out)["review_gate"] == "exception-authorized"
+
+
+def test_explicit_verdict_still_checked_when_present(tmp_path, monkeypatch):
+    approved = fixture(tmp_path / "approved", monkeypatch, verdict="APPROVED")
+    state = approved["project"] / "00-session-state.json"
+    before = state.read_bytes()
+    assert approved["cli"].main(["complete-step", "synthetic", "4", *approved["flags"], "--json"]) == 2
+    assert state.read_bytes() == before
+    legacy = fixture(tmp_path / "legacy", monkeypatch, verdict="NEEDS_REVISION")
+    assert legacy["cli"].main(["complete-step", "synthetic", "4", *legacy["flags"], "--json"]) == 0
 
 
 def test_atomic_transition_authorized_for_both_actions(tmp_path, monkeypatch, capsys):
