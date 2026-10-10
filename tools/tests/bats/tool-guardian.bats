@@ -113,6 +113,34 @@ HOOK="$HOOKS_DIR/tool-guardian/guard-tool.sh"
   [[ "$output" == *"infra_destruction"* ]]
 }
 
+@test "blocks risky Azure command variants" {
+  for cmd in \
+    "terraform -chdir=infra/terraform/app destroy" \
+    "terraform  apply -auto-approve" \
+    "terraform -chdir=infra/terraform/app apply -auto-approve" \
+    "az  group  delete --name rg" \
+    "azd down --force --purge" \
+    "az deployment group create --template-file main.bicep --mode Complete"; do
+    run bash "$HOOK" <<< "{\"toolName\":\"run_in_terminal\",\"toolInput\":\"$cmd\"}"
+    [ "$status" -eq 0 ]
+    [[ "$output" == *'"permissionDecision":"deny"'* ]] || { echo "not blocked: $cmd"; return 1; }
+  done
+}
+
+@test "still allows preview and normal deploy commands" {
+  for cmd in \
+    "terraform plan -destroy" \
+    "terraform -chdir=infra/terraform/app plan -out tfplan" \
+    "terraform apply tfplan" \
+    "azd up" \
+    "az deployment group what-if --mode Complete --template-file main.bicep" \
+    "az deployment group create --template-file main.bicep --mode Incremental"; do
+    run bash "$HOOK" <<< "{\"toolName\":\"run_in_terminal\",\"toolInput\":\"$cmd\"}"
+    [ "$status" -eq 0 ]
+    [[ "$output" != *'"permissionDecision":"deny"'* ]] || { echo "wrongly blocked: $cmd"; return 1; }
+  done
+}
+
 @test "blocks hook self-modification" {
   run bash "$HOOK" <<< '{"toolName":"replace_string_in_file","toolInput":{"filePath":".github/hooks/tool-guardian/guard-tool.sh","oldString":"foo","newString":"bar"}}'
   [[ "$output" == *"deny"* ]] || [ "$status" -ne 0 ]

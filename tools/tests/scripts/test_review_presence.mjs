@@ -98,6 +98,18 @@ test("policy precheck fails closed without fresh or explicitly stale envelope ev
   assert.equal(run("FRESH", "INFORMATIONAL", "PROCEED", "INFORMATIONAL").status, 0);
   assert.equal(run("STALE", "INFORMATIONAL", "BLOCK").status, 0);
   assert.equal(run("STALE", "CLEAN", "PROCEED").status, 1);
+  const legacy = (body) => {
+    writeFileSync(path.join(project, "06-policy-precheck.json"), JSON.stringify(body));
+    return spawnSync(process.execPath, [path.join(scripts, "validate-policy-precheck.mjs")], { encoding: "utf8" });
+  };
+  const withBlockers = legacy({
+    status: "CLEAN",
+    deploy_gate: "PROCEED",
+    policies_that_will_block_deploy: ["policy-1"],
+    what_if_summary: { policy_violations_in_what_if: 5 },
+  });
+  assert.equal(withBlockers.status, 1, "legacy CLEAN/PROCEED cannot list blocking policies");
+  assert.equal(legacy({ status: "CLEAN", policies_that_will_block_deploy: [] }).status, 0);
 });
 
 test("unattended production reviews fail closed on unresolved blockers", () => {

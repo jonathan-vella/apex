@@ -259,6 +259,8 @@ function runAttestationChain(project, allowLegacy) {
     }
     if (!envelope.completeness_signature || !/^sha256:[0-9a-f]{64}$/.test(envelope.completeness_signature)) {
       reporter.error("L0", "completeness_signature missing or malformed");
+    } else if (/^sha256:0{64}$/.test(envelope.completeness_signature)) {
+      reporter.error("L0", "completeness_signature is an all-zero placeholder");
     }
   }
   reporter.tick();
@@ -284,11 +286,7 @@ function runAttestationChain(project, allowLegacy) {
       const tableRows = section
         .split(/\r?\n/)
         .filter(
-          (line) =>
-            line.startsWith("| ") &&
-            !line.includes("---") &&
-            !/Resource ID/i.test(line) &&
-            !/satisfied_by_property/i.test(line),
+          (line) => line.startsWith("| ") && !/^\|[\s:|-]+$/.test(line) && !/^\|\s*resource[_ ]id\s*\|/i.test(line),
         );
       if (tableRows.length === 0) {
         if (allowLegacy) {
@@ -385,6 +383,15 @@ function runAttestationChain(project, allowLegacy) {
   let l3Recorded = false;
   let l3Failure = null;
   let l3Override = null;
+  let l3Blocked = false;
+  try {
+    const precheck = JSON.parse(
+      fs.readFileSync(path.join(root, "agent-output", project, "06-policy-precheck.json"), "utf-8"),
+    );
+    l3Blocked = precheck?.deploy_gate === "BLOCK";
+  } catch {
+    /* no precheck file yet */
+  }
   if (fs.existsSync(sessionStatePath)) {
     try {
       const state = JSON.parse(fs.readFileSync(sessionStatePath, "utf-8"));
@@ -416,6 +423,8 @@ function runAttestationChain(project, allowLegacy) {
     }
   } else if (l3Failure) {
     reporter.error("L3", `governance_trace reports a failure: ${l3Failure}`);
+  } else if (l3Blocked) {
+    reporter.error("L3", "06-policy-precheck.json reports deploy_gate=BLOCK");
   } else {
     console.log("  ✅ L3 governance_trace decision recorded at step 6");
   }

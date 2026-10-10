@@ -72,6 +72,8 @@ const BICEP_VIOLATIONS = [
   [/minimumTlsVersion\s*:\s*'TLS1_1'/i, "TLS 1.1 is NOT allowed — MUST be TLS1_2 or higher"],
   [/minTlsVersion\s*:\s*'TLS1_0'/i, "TLS 1.0 is NOT allowed — MUST be TLS1_2 or higher"],
   [/minTlsVersion\s*:\s*'TLS1_1'/i, "TLS 1.1 is NOT allowed — MUST be TLS1_2 or higher"],
+  [/(?:minimumTlsVersion|minTlsVersion)\s*:\s*'1[._][01]'/i, "TLS 1.0/1.1 is NOT allowed — MUST be 1.2 or higher"],
+  [/minimalTlsVersion\s*:\s*'(?:TLS)?1[._][01]'/i, "TLS 1.0/1.1 is NOT allowed — MUST be 1.2 or higher"],
   [/supportsHttpsTrafficOnly\s*:\s*false/i, "HTTPS-only traffic MUST be true"],
   [/allowBlobPublicAccess\s*:\s*true/i, "Public blob access MUST be disabled (false)"],
   [
@@ -121,6 +123,11 @@ const TERRAFORM_VIOLATIONS = [
   [/min_tls_version\s*=\s*"1\.1"/i, "TLS 1.1 is NOT allowed — MUST be 1.2 or higher"],
   [/minimum_tls_version\s*=\s*"1\.0"/i, "TLS 1.0 is NOT allowed — MUST be 1.2 or higher"],
   [/minimum_tls_version\s*=\s*"1\.1"/i, "TLS 1.1 is NOT allowed — MUST be 1.2 or higher"],
+  [
+    /(?:min_tls_version|minimum_tls_version|minimal_tls_version)\s*=\s*"TLS1_[01]"/i,
+    "TLS 1.0/1.1 is NOT allowed — MUST be TLS1_2 or higher",
+  ],
+  [/minimal_tls_version\s*=\s*"1\.[01]"/i, "TLS 1.0/1.1 is NOT allowed — MUST be 1.2 or higher"],
   [/https_traffic_only_enabled\s*=\s*false/i, "HTTPS-only traffic MUST be true"],
   [/enable_https_traffic_only\s*=\s*false/i, "HTTPS-only traffic MUST be true (legacy attribute)"],
   [/allow_nested_items_to_be_public\s*=\s*true/i, "Public blob access MUST be disabled (false)"],
@@ -253,8 +260,29 @@ function _findFiles(dir, ext) {
   return results;
 }
 
+// Bicep parameter files assign with '=' instead of ':'.
+const BICEPPARAM_VIOLATIONS = BICEP_VIOLATIONS.map(([pattern, message]) => [
+  new RegExp(pattern.source.replaceAll("\\s*:\\s*", "\\s*=\\s*"), pattern.flags),
+  message,
+]);
+
 // --- Main ---
 r.header();
+
+// Files directly under infra/ (outside infra/bicep and infra/terraform) are scanned too.
+for (const [ext, patterns, warnings] of [
+  [".bicep", BICEP_VIOLATIONS, BICEP_WARNINGS],
+  [".tf", TERRAFORM_VIOLATIONS, TERRAFORM_WARNINGS],
+]) {
+  if (!fs.existsSync("infra")) break;
+  for (const entry of fs.readdirSync("infra", { withFileTypes: true })) {
+    if (entry.isFile() && entry.name.endsWith(ext)) scanFile(path.resolve("infra", entry.name), patterns, warnings);
+  }
+}
+
+for (const f of walkFiles("infra/bicep", ".bicepparam")) {
+  scanFile(path.resolve(f), BICEPPARAM_VIOLATIONS, []);
+}
 
 // Scan Bicep files
 const bicepFiles = walkFiles("infra/bicep", ".bicep");
