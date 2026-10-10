@@ -126,8 +126,8 @@ raise a better approach in one sentence instead of silently widening, narrowing 
   Do not change planned SKU size/source or other upstream artifacts.
 - `execute` permits read-only Azure queries, rendering and validation of these outputs,
   not arbitrary writes. Validate JSON after writes; preserve unrelated user content.
-- If `06-deployment-summary.md` is missing, STOP and ask the user to run the
-  deploy step before generating as-built docs.
+- If `06-deployment-summary.md` is missing or recall does not show Step 6 complete, STOP and ask the user to
+  finish the deploy step. A human can override after confirming the deployment state in chat.
 - Hardcoding prices is prohibited: always delegate to `cost-estimate-subagent`.
 - Calling ARM MCP pricing tools directly from this agent is prohibited; the
   cost subagent owns all pricing queries.
@@ -294,7 +294,7 @@ mirrors** — `04-iac-contract.json` and `05-iac-handoff.json` are
 canonical and validator-checked. Fall back to prose only for legacy
 projects predating Wave 1.
 
-If `06-deployment-summary.md` is missing, STOP — deployment has not completed.
+If `06-deployment-summary.md` is missing or Step 6 is not complete, STOP (a human may override).
 
 ## Session State
 

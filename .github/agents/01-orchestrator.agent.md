@@ -374,7 +374,8 @@ Challenger handoff. When the ceiling would be exceeded, emit
 **"Accept findings"**, **"Override ceiling"**, **"Abort step"**. Persist
 via
 `apex-recall decide <project> --key challenger_decision_<step> --value <accept|override|abort> --json`
-(override flag: `challenger_override_<step>`). Keys registered in
+(override flag: `challenger_override_<step>`). Neither choice closes findings, resets the review budget or replaces
+risk authorization. Keys registered in
 [`decision-keys.md`](../../tools/apex-recall/docs/decision-keys.md).
 Lint: `npm run validate:review-ceiling`.
 

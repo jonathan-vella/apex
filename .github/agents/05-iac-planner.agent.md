@@ -32,6 +32,10 @@ handoffs:
     agent: 03-Architect
     prompt: "Returning to architecture assessment for re-evaluation. Review `agent-output/{project}/02-architecture-assessment.md` — WAF scores and recommendations may need adjustment."
     send: false
+  - label: "↩ Escalate to Architect"
+    agent: 03-Architect
+    prompt: "A Step 4 review finding needs an architecture-level change. Input: the finding with requires_step step-2 in `agent-output/{project}/challenge-findings-plan.json`. Output: revised `agent-output/{project}/02-architecture-assessment.md` for re-approval."
+    send: false
   - label: "↩ Return to Orchestrator"
     agent: 01-Orchestrator
     prompt: "Returning from Step 4 (IaC Planning). Artifacts at `agent-output/{project}/04-implementation-plan.md` and `agent-output/{project}/04-governance-constraints.md`. Advise on next steps."

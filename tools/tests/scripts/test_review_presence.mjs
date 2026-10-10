@@ -220,7 +220,7 @@ test("Architect batches independent finding questions without combining decision
   assert.match(protocol, /build one batched panel/);
   for (const option of [
     "Accept (apply mitigation)",
-    "Reject (accept risk)",
+    "Reject (do not apply)",
     "Defer (carry to handoff)",
     "Edit (custom guidance)",
   ]) {
