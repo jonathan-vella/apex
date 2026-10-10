@@ -174,7 +174,7 @@ PATTERNS=(
   "infra_destruction:::critical:::az[[:space:]]+group[[:space:]]+delete:::Use 'az group delete --no-wait' with confirmation, or use the portal"
   "infra_destruction:::critical:::az[[:space:]]+deployment[[:space:]]+sub[[:space:]]+delete:::Review deployment resources before deleting"
   "infra_destruction:::critical:::azd[[:space:]]+down:::Preview what will be deleted and get explicit human approval first"
-  "infra_destruction:::critical:::az[[:space:]]+deployment[[:space:]]+(sub|group|mg|tenant)[[:space:]]+create.*--mode[[:space:]]+complete:::Complete mode deletes resources missing from the template; use Incremental"
+  "infra_destruction:::critical:::az[[:space:]]+deployment[[:space:]]+(sub|group|mg|tenant)[[:space:]]+create.*--mode([[:space:]]+|=)complete:::Complete mode deletes resources missing from the template; use Incremental"
   "infra_destruction:::high:::mkfs\.:::Formatting disks is destructive — verify the target device"
   "infra_destruction:::high:::dd if=:::Verify source and destination before using 'dd'"
 

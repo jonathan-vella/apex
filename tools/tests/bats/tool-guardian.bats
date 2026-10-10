@@ -120,7 +120,8 @@ HOOK="$HOOKS_DIR/tool-guardian/guard-tool.sh"
     "terraform -chdir=infra/terraform/app apply -auto-approve" \
     "az  group  delete --name rg" \
     "azd down --force --purge" \
-    "az deployment group create --template-file main.bicep --mode Complete"; do
+    "az deployment group create --template-file main.bicep --mode Complete" \
+    "az deployment group create --template-file main.bicep --mode=Complete"; do
     run bash "$HOOK" <<< "{\"toolName\":\"run_in_terminal\",\"toolInput\":\"$cmd\"}"
     [ "$status" -eq 0 ]
     [[ "$output" == *'"permissionDecision":"deny"'* ]] || { echo "not blocked: $cmd"; return 1; }
@@ -134,6 +135,7 @@ HOOK="$HOOKS_DIR/tool-guardian/guard-tool.sh"
     "terraform apply tfplan" \
     "azd up" \
     "az deployment group what-if --mode Complete --template-file main.bicep" \
+    "az deployment group create --template-file main.bicep --mode=Incremental" \
     "az deployment group create --template-file main.bicep --mode Incremental"; do
     run bash "$HOOK" <<< "{\"toolName\":\"run_in_terminal\",\"toolInput\":\"$cmd\"}"
     [ "$status" -eq 0 ]
