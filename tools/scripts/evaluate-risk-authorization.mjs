@@ -21,13 +21,12 @@ const actionPhase = {
   "teardown-complete": 4,
 };
 const kitActions = new Set(["plan-complete", "codegen", "code-complete"]);
-const requiredPlanInputs = [
+export const requiredPlanInputs = [
   "04-iac-contract.json",
   "04-policy-property-map.json",
   "04-environment-manifest.json",
   "04-governance-constraints.md",
   "04-governance-constraints.json",
-  "sku-manifest.json",
 ];
 
 function shape(document, kind) {

@@ -108,6 +108,8 @@ current content and recover missing/changed evidence after compaction or source 
 Snapshot review inputs before analysis with
 `node tools/scripts/validate-challenger-findings.mjs --metadata <artifact_path>`.
 Retain that `cache_inputs` snapshot; the model comes from frontmatter, not a guessed runtime label.
+When `supporting_paths` is supplied, add one `--supporting-input <path>` per entry to that command and copy the emitted
+`supporting_inputs` array unchanged into the payload; never hash or list them by hand.
 Directory inputs use the deterministic tree hash documented in the review protocol; symlinks block hashing.
 Never hash a path string as if it were artifact bytes.
 
@@ -400,9 +402,12 @@ The on-disk JSON has no markdown wrapper:
     "subagent_sha": "<sha256 of challenger-review-subagent.agent.md bytes>",
     "model": "<challenger-review-subagent.frontmatter.model[0]>",
     "artifact_hash": "<sha256 of the concatenated string artifact_sha\\n---\\nchecklists_sha\\n---\\nprotocol_sha\\n---\\nsubagent_sha\\n---\\nmodel>"
-  }
+  },
+  "supporting_inputs": [{ "path": "agent-output/{project}/04-iac-contract.json", "sha256": "<from --metadata>" }]
 }
 ```
+
+> `supporting_inputs` is present only when `supporting_paths` was supplied; omit it otherwise.
 
 > **`schema_version` is required** and must equal `"1.0"` for the
 > current contract. Validators reject any sidecar that omits this field;

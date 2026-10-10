@@ -496,6 +496,7 @@ Invoke `challenger-review-subagent` once with:
 - `prior_findings` = `null`
 - `output_path` = `agent-output/{project}/challenge-findings-plan.json`
 - `overwrite` = `false` (set to `true` only when re-running after revisions)
+- `supporting_paths` = the frozen Step 4 inputs listed in the pre-review gate (finalize them before review)
 
 The subagent writes `output_path` and returns ≤15 lines. Do not paste JSON inline; read full findings only when needed.
 For transient worker errors, retry once, then return `blocked`. Resolution or model

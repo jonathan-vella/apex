@@ -145,6 +145,12 @@ Keep terminal programs explicit (`python3 -c`, `node --input-type=module -e`); b
 Confirm installed diagram icon classes before writing imports; preserve embedded SVG assets and inspect rendered output.
 Recipient arrays contain plain email addresses, not Markdown links.
 
+Pass the plan's frozen inputs as `supporting_paths` on the Plan review so the findings declare `supporting_inputs`:
+`04-iac-contract.json`, `04-policy-property-map.json`, `04-environment-manifest.json`,
+`04-governance-constraints.md` and `04-governance-constraints.json` under `agent-output/{project}/`. Exclude
+`sku-manifest.json`; later steps mutate it. Finalize these inputs first: any later byte change makes the review stale.
+The subagent generates the hashes with `--metadata`. Never restamp an older review to add them.
+
 The review brief includes these provider constraints, exact input/output paths and actual validator commands/results.
 Ask the first comprehensive reviewer to examine all coupled constraints and return all substantiated findings together,
 not stop at the first issue. Confirmations check prior closure plus the same complete set; a clean schema is not

@@ -78,7 +78,8 @@ APEX verifies envelopes; it does not issue authority or sign on an owner's behal
 Every binding must select exactly its current unresolved must-fix IDs. Extra/unlisted findings or reviews block.
 Partial acceptance can be recorded externally, but cannot make a gate ready while another blocker remains uncovered.
 Each Plan review must already declare supporting coverage for the IaC contract, policy property map, environment
-manifest, both governance artifacts and SKU manifest. Legacy reviews without that coverage remain unchanged and are
+manifest and both governance artifacts, the Plan's frozen inputs. The SKU manifest is excluded because Deploy and
+As-Built mutate it after Plan. Legacy reviews without that coverage remain unchanged and are
 ineligible until a separately authorized new review supplies it. Never restamp or expand a historical review's coverage.
 
 Each finding's `eligibility_evidence` references a signed `risk-eligibility-v1` assessment from an independently trusted

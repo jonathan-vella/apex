@@ -4,10 +4,22 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { createHash, generateKeyPairSync, sign } from "node:crypto";
-import { evaluateAuthorization } from "../../scripts/evaluate-risk-authorization.mjs";
+import { evaluateAuthorization, requiredPlanInputs } from "../../scripts/evaluate-risk-authorization.mjs";
 import { validateProject } from "../../scripts/validate-risk-authorizations.mjs";
 
 const sha = (bytes) => createHash("sha256").update(bytes).digest("hex");
+const repoFile = (relative) => fs.readFileSync(new URL(`../../../${relative}`, import.meta.url), "utf8");
+
+test("required Plan coverage matches frozen graph inputs and reviewer guidance", () => {
+  const graph = JSON.parse(repoFile(".github/skills/apex-workflow-engine/templates/workflow-graph.json"));
+  const frozen = graph.nodes["step-5b"].frozen_inputs.filter((name) => name !== "04-implementation-plan.md");
+  assert.deepEqual([...requiredPlanInputs].sort(), [...frozen].sort());
+  const reference = repoFile(".github/skills/apex-iac-common/references/contract-emission-and-handoff.md");
+  for (const name of requiredPlanInputs) assert.ok(reference.includes(`\`${name}\``), name);
+  assert.match(reference, /Exclude\s+`sku-manifest.json`/);
+  assert.match(repoFile(".github/agents/05-iac-planner.agent.md"), /`supporting_paths` = the frozen Step 4 inputs/);
+  assert.match(repoFile(".github/agents/_subagents/challenger-review-subagent.agent.md"), /--supporting-input <path>/);
+});
 
 function fixture(t) {
   const scratch = fs.mkdtempSync(path.join(os.tmpdir(), "apex-risk-"));
@@ -41,7 +53,6 @@ function fixture(t) {
     "04-environment-manifest.json",
     "04-governance-constraints.md",
     "04-governance-constraints.json",
-    "sku-manifest.json",
   ].map((name) => write(name, "{}"));
   const artifact = write("04-implementation-plan.md", "# Synthetic lab");
   const review = write("challenge-findings-plan.json", {

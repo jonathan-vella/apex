@@ -23,17 +23,30 @@ def fixture(tmp_path, monkeypatch):
     writer.write_state("synthetic", state)
     review = _seed_review(project, "challenge-findings-plan.json")
     refs = []
-    for name in (
+    names = (
         "04-iac-contract.json",
         "04-policy-property-map.json",
         "04-environment-manifest.json",
         "04-governance-constraints.md",
         "04-governance-constraints.json",
-        "sku-manifest.json",
-    ):
-        target = project / name
-        target.write_text("{}")
-        refs.append({"path": str(target.relative_to(root)), "sha256": writer.file_revision(target)})
+    )
+    for name in names:
+        (project / name).write_text("{}")
+    repo = Path(__file__).resolve().parents[3]
+    metadata = subprocess.run(
+        [
+            "node",
+            str(repo / "tools/scripts/validate-challenger-findings.mjs"),
+            "--metadata",
+            str(project / "04-implementation-plan.md"),
+            *[arg for name in names for arg in ("--supporting-input", f"agent-output/synthetic/{name}")],
+        ],
+        cwd=root,
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    refs = json.loads(metadata.stdout)["supporting_inputs"]
     finding = {
         "severity": "must_fix",
         "category": "lab-capability",
