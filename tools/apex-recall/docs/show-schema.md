@@ -73,6 +73,12 @@ of the revoked action. Resume and handoffs check `gate_readiness` for the actual
 CI checks the current phase/action using the same evaluator, not every superseded historical grant. All evidence
 records remain history; revocation never silently restores a previous authorization.
 
+Reviewers persist counts, not `overall_assessment`. A persisted review with unresolved `must_fix` findings is
+`NEEDS_REVISION` by definition, so the risk-acceptance path and `review_verdicts` derive that verdict when the field is
+absent. An explicit verdict is still checked: anything other than `NEEDS_REVISION` on such a review is refused, and
+`BLOCKED`/`FAILED` are refused everywhere. `review_verdicts` is `null` for a review with neither the field nor must-fix
+findings; the verdict is never invented.
+
 Participating state writers use a project lock, revision checks and unique temporary files. This detects competing
 writers and changed watched inputs; it does not lock arbitrary editors or provide a multi-file/power-loss transaction.
 Primary replacement and index update are separate. On index failure the CLI returns exit 3 with

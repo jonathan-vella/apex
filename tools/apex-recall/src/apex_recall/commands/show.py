@@ -14,6 +14,7 @@ from .complete_step import (
     _challenger_findings_missing,
     _review_paths,
     _select_replacement_review,
+    review_verdict,
     watch_review_inputs,
 )
 
@@ -156,7 +157,7 @@ def run(args) -> int:
                                 "status": "current",
                                 "gate_status": result["status"],
                                 "unresolved_findings": result["unresolved_findings"],
-                                "review_verdicts": [review.get("overall_assessment") for _, review in reviews],
+                                "review_verdicts": [review_verdict(review) for _, review in reviews],
                                 "gate_error": result.get("error"),
                                 "input_coverage": "primary-and-review-guidance",
                             }

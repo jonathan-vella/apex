@@ -97,6 +97,20 @@ def _challenger_findings_missing(
     return (False, str(gating_path) if gating_path else None, str(sidecar_path) if sidecar_path else None)
 
 
+def _has_must_fix(document: dict) -> bool:
+    return bool(document.get("must_fix_count")) or any(
+        isinstance(finding, dict) and finding.get("severity") == "must_fix" for finding in document["findings"]
+    )
+
+
+def review_verdict(document: dict) -> str | None:
+    """Reviewers persist counts, not overall_assessment; unresolved must_fix is NEEDS_REVISION by definition."""
+    explicit = document.get("overall_assessment")
+    if explicit is not None:
+        return explicit
+    return "NEEDS_REVISION" if _has_must_fix(document) else None
+
+
 def _challenger_findings_invalid(
     project: str, step: str, governance_review: Path | None = None, allow_unresolved: bool = False
 ) -> str | None:
@@ -141,12 +155,8 @@ def _challenger_findings_invalid(
                 )
             ):
                 return f"{sidecar}: unresolved must_fix findings; decisions are not closure evidence"
-            if (
-                allow_unresolved
-                and document.get("must_fix_count", 0)
-                and document.get("overall_assessment") != "NEEDS_REVISION"
-            ):
-                return f"{sidecar}: unresolved findings must retain NEEDS_REVISION, not APPROVED"
+            if allow_unresolved and _has_must_fix(document) and review_verdict(document) != "NEEDS_REVISION":
+                return f"{sidecar}: unresolved findings must retain NEEDS_REVISION, not {review_verdict(document)}"
             if not validator.is_file():
                 return f"{validator}: required strict review validator unavailable"
             result = subprocess.run(
