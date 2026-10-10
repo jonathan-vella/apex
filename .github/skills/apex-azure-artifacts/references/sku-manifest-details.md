@@ -25,8 +25,8 @@ Add a row to that table when a new AVM module ships with a default SKU.
 
 Both validators are **hard-fail**; there is no warn-only window.
 Legacy projects that predate the manifest may opt out by placing a
-`.sku-manifest.skip` sentinel file in `agent-output/{project}/`; the coverage validator
-then skips with info instead of erroring. Remove the sentinel once the project has a real manifest.
+`.sku-manifest.skip` sentinel file in `agent-output/{project}/` containing a short reason; the coverage validator
+then skips with info instead of erroring (an empty sentinel is an error). Remove the sentinel once the project has a real manifest.
 
 ## Governance Allowlist Projection
 

@@ -60,6 +60,7 @@ from .complete_step import (
     _record_skip,
     _report_invalid_review,
     _select_replacement_review,
+    is_audited_replay,
     record_selection,
     watch_review_inputs,
 )
@@ -139,6 +140,8 @@ def run(args) -> int:  # noqa: C901 — one CLI dispatcher, branchy by design
     # before any state mutation so a gate failure does not partially write.
     if complete:
         blocked, gating_path, sidecar_path = _challenger_findings_missing(project, from_step, governance_review)
+        if blocked and not allow_missing and is_audited_replay(data, from_step):
+            blocked = False
         if blocked and not allow_missing:
             msg = {
                 "project": project,

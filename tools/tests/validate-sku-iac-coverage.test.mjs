@@ -27,6 +27,7 @@ const PROJECT_OK = "_test-coverage-explicit";
 const PROJECT_AVM = "_test-coverage-avm-default";
 const PROJECT_GAP = "_test-coverage-gap";
 const PROJECT_CACHE_ONLY = "_test-coverage-cache-only";
+const PROJECT_SKIP = "_test-coverage-skip";
 
 const MANIFEST_BASE = {
   schema_version: "sku-manifest-v1",
@@ -102,8 +103,22 @@ describe("SKU ↔ IaC Coverage validator", () => {
     teardownProject(PROJECT_OK);
     teardownProject(PROJECT_AVM);
     teardownProject(PROJECT_GAP);
+    teardownProject(PROJECT_SKIP);
     fs.rmSync(path.join(ROOT, "infra/terraform", PROJECT_CACHE_ONLY), { recursive: true, force: true });
     fs.rmSync(TMP, { recursive: true, force: true });
+  });
+
+  it("requires a reason in the .sku-manifest.skip sentinel", () => {
+    const skipPath = path.join(ROOT, "agent-output", PROJECT_SKIP, ".sku-manifest.skip");
+    writeText(path.join(ROOT, "infra/bicep", PROJECT_SKIP, "main.bicep"), "param x string = 'a'\n");
+    writeText(skipPath, "\n");
+    const empty = runValidator(PROJECT_SKIP);
+    assert.notEqual(empty.exitCode, 0, `empty sentinel should fail:\n${empty.stdout}`);
+    assert.ok(/short reason/.test(empty.stdout), empty.stdout);
+    writeText(skipPath, "Legacy project; manifest backfill tracked in #123\n");
+    const withReason = runValidator(PROJECT_SKIP);
+    assert.equal(withReason.exitCode, 0, `sentinel with reason should pass:\n${withReason.stdout}`);
+    assert.ok(/backfill tracked/.test(withReason.stdout), withReason.stdout);
   });
 
   it("passes when AVM module receives an explicit SKU that matches the manifest", () => {

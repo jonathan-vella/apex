@@ -79,6 +79,26 @@ def test_normal_order_runs_through_every_step_and_replays(tmp_path, capsys, trac
     assert saved["steps"]["3"]["status"] == "pending"
 
 
+@pytest.mark.parametrize("via", ["complete-step", "transition"])
+def test_replay_of_logged_skip_needs_no_flags_again(tmp_path, capsys, via):
+    project, cli = fresh(tmp_path)
+    for source, target in (("1", "2"), ("2", "3_5"), ("3_5", "4")):
+        assert cli.main(["transition", "synthetic", "--from-step", source, "--to-step", target, "--complete"]) == 0
+    (project / "challenge-findings-plan.json").unlink()
+    skip = ["--allow-missing-challenger", "--challenger-skip-reason", "lab run, no reviewer"]
+    command = (
+        ["complete-step", "synthetic", "4"]
+        if via == "complete-step"
+        else ["transition", "synthetic", "--from-step", "4", "--to-step", "5", "--complete"]
+    )
+    assert cli.main([*command, *skip, "--json"]) == 0
+    capsys.readouterr()
+    assert cli.main([*command, "--json"]) == 0
+    assert json.loads(capsys.readouterr().out)["outcome"] == "already_applied"
+    saved = json.loads((project / "00-session-state.json").read_text())
+    assert len(saved["decisions"]["challenger_skip"]) == 1
+
+
 def test_decide_keeps_reason_and_step_for_key_value_decisions(tmp_path):
     project, cli = fresh(tmp_path)
     assert (

@@ -183,6 +183,14 @@ def _record_skip(data: dict, step: str, reason: str, now: str) -> None:
     skips.append({"step": step, "reason": reason, "recorded": now})
 
 
+def is_audited_replay(data: dict, step: str) -> bool:
+    """True when the step is already complete via a logged skip, so a replay needs no flags again."""
+    if data.get("steps", {}).get(step, {}).get("status") != "complete":
+        return False
+    skips = data.get("decisions", {}).get("challenger_skip", [])
+    return any(s.get("step") == step and str(s.get("reason", "")).strip() for s in skips)
+
+
 def _select_replacement_review(
     project: str, step: str, args, state: dict | None = None
 ) -> tuple[Path | None, dict | None]:
@@ -337,6 +345,8 @@ def run(args) -> int:
     except (OSError, ValueError) as error:
         return _report_invalid_review(project, step, str(error), as_json)
     blocked, gating_path, sidecar_path = _challenger_findings_missing(project, step, governance_review)
+    if blocked and not allow_missing and is_audited_replay(data, step):
+        blocked = False
     if blocked and not allow_missing:
         msg = {
             "project": project,
