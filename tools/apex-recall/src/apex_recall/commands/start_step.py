@@ -15,6 +15,7 @@ from ..state_writer import (
     validate_step_key,
     write_state,
 )
+from ..step_order import check_order, report_order_error
 
 
 def run(args) -> int:
@@ -25,6 +26,10 @@ def run(args) -> int:
 
     path = session_state_path(project)
     data = read_state(path)
+    try:
+        check_order(data, step, getattr(args, "allow_out_of_order", None), _iso_now(), completing=False)
+    except ValueError as error:
+        return report_order_error(project, step, error, as_json)
     try:
         entry_result = check_entry(project, data, step, args)
         if (getattr(args, "risk_authorization", None) or getattr(args, "risk_approval", None)) and not entry_result:

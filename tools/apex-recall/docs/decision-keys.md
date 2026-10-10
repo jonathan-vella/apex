@@ -44,6 +44,7 @@ Specifically:
 | `complexity`    | `low` \| `medium` \| `high`                                                                     | `medium`                        | 02-Requirements | Challenger lens selection                           |
 | `review_depth`  | `default` \| `deep`                                                                             | `default` (single-pass reviews) | 01-Orchestrator | All adversarial review invocations                  |
 | `skip_design`   | `true` \| `false`                                                                               | `false` (Design runs)           | 01-Orchestrator | 03-Architect approval gate routing message          |
+| `order_overrides` | list of `{step, problem, reason, recorded}`                                                   | n/a (no overrides)              | apex-recall (`--allow-out-of-order`) | Audit only                             |
 | `relational_db` | `azure-sql` \| `postgresql-flex` \| `mysql-flex` \| `sql-managed-instance` \| `none` \| `other` | n/a (Phase 3d question)         | 02-Requirements | 03-Architect (SKU), 05-IaC Planner, 06b/06t CodeGen |
 
 ### Challenger-loop keys (Plan 01 Phase 2b)
@@ -96,6 +97,7 @@ The `<step>` suffix is the integer step number (`1`, `2`, `3_5`, `4`).
 | `public_edge_auth`     | `entra-only` \| `app-gateway-waf` \| `front-door` \| `apim` \| `none`        | n/a                         | 05-IaC Planner                 | 06b/06t CodeGen                        |
 | `script_runtime_image` | container image ref (e.g. `mcr.microsoft.com/azure-cli:2.x`)                 | n/a                         | 05-IaC Planner                 | 06b/06t CodeGen (deployment scripts)   |
 | `az_posture`           | `private-only` \| `hybrid` \| `public-restricted`                            | n/a                         | 05-IaC Planner                 | 06b/06t CodeGen, 04g-Governance review |
+| `plan_status`          | `APPROVED` \| `EXCEPTION_AUTHORIZED`                                          | n/a (plan not approved)     | 05-IaC Planner, apex-recall    | 06b/06t CodeGen                        |
 
 ### Step 6 (Deploy) keys
 
@@ -103,6 +105,8 @@ The `<step>` suffix is the integer step number (`1`, `2`, `3_5`, `4`).
 | ------------------------- | --------------------------------------------------------------------- | --------------------------- | -------------- | --------------- |
 | `deployment_strategy`     | `azd_provision` \| `az_deployment` \| `terraform_apply`               | n/a                         | 07b/07t Deploy | Step 7 As-Built |
 | `sku_conflict_resolution` | `revert_to_plan` \| `accept_substitute` \| `change_region` \| `abort` | n/a (per-conflict)          | Orchestrator   | 07b/07t Deploy  |
+| `governance_trace`        | `PASSED` or `FAILED: <reason>` (L0 to L3 attestation result)          | n/a                         | 07b/07t Deploy | validate-governance-trace |
+| `governance_override`     | free-form reason recorded by a human                                  | n/a (no override)           | Human via agent | validate-governance-trace |
 
 ### Cost monitoring baseline keys
 

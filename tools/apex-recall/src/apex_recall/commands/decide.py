@@ -58,6 +58,13 @@ def run(args) -> int:
     if has_kv:
         # Mode A: key-value in decisions object
         data.setdefault("decisions", {})[key] = value
+        if rationale or step:
+            entry = {"decision": f"{key}={value}", "timestamp": _iso_now()}
+            if rationale:
+                entry["rationale"] = rationale
+            if step:
+                entry["step"] = step
+            data.setdefault("decision_log", []).append(entry)
         write_state(project, data)
         result = {"project": project, "key": key, "value": value}
         if as_json:

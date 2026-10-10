@@ -53,12 +53,14 @@ from ..state_writer import (
     validate_step_key,
     write_state,
 )
+from ..step_order import check_order, report_order_error
 from .complete_step import (
     _challenger_findings_invalid,
     _challenger_findings_missing,
     _record_skip,
     _report_invalid_review,
     _select_replacement_review,
+    is_audited_replay,
     record_selection,
     watch_review_inputs,
 )
@@ -104,6 +106,17 @@ def run(args) -> int:  # noqa: C901 — one CLI dispatcher, branchy by design
         return 1
 
     try:
+        override = getattr(args, "allow_out_of_order", None)
+        now_order = _iso_now()
+        if complete:
+            check_order(data, from_step, override, now_order, completing=True)
+        check_order(
+            data, to_step, override, now_order, completing=False, completed_now=(from_step,) if complete else ()
+        )
+    except ValueError as exc:
+        return report_order_error(project, to_step, exc, as_json)
+
+    try:
         governance_review, selection = _select_replacement_review(project, from_step, args, data)
         explicit_selection = any(
             getattr(args, name, None) is not None
@@ -127,6 +140,8 @@ def run(args) -> int:  # noqa: C901 — one CLI dispatcher, branchy by design
     # before any state mutation so a gate failure does not partially write.
     if complete:
         blocked, gating_path, sidecar_path = _challenger_findings_missing(project, from_step, governance_review)
+        if blocked and not allow_missing and is_audited_replay(data, from_step):
+            blocked = False
         if blocked and not allow_missing:
             msg = {
                 "project": project,

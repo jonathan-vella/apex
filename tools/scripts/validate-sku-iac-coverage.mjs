@@ -277,15 +277,20 @@ function validateProject(project, r) {
 
   if (!fs.existsSync(manifestPath)) {
     if (fs.existsSync(skipPath)) {
+      const reason = fs.readFileSync(skipPath, "utf-8").trim();
+      if (!reason) {
+        r.error(`agent-output/${project}`, ".sku-manifest.skip must contain a short reason for skipping coverage");
+        return;
+      }
       r.info(
         `agent-output/${project}`,
-        "Project predates SKU manifest (.sku-manifest.skip sentinel present) — coverage skipped",
+        `Project predates SKU manifest (.sku-manifest.skip: ${reason.split(/\r?\n/)[0].slice(0, 120)}) — coverage skipped`,
       );
       return;
     }
     r.error(
       `agent-output/${project}`,
-      `Missing sku-manifest.json. Add a manifest or place a .sku-manifest.skip sentinel for legacy projects.`,
+      `Missing sku-manifest.json. Add a manifest or place a .sku-manifest.skip sentinel (with a reason) for legacy projects.`,
     );
     return;
   }

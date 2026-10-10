@@ -32,6 +32,10 @@ handoffs:
     agent: 03-Architect
     prompt: "Returning to architecture assessment for re-evaluation. Review `agent-output/{project}/02-architecture-assessment.md` — WAF scores and recommendations may need adjustment."
     send: false
+  - label: "↩ Escalate to Architect"
+    agent: 03-Architect
+    prompt: "A Step 4 review finding needs an architecture-level change. Input: the finding with requires_step step-2 in `agent-output/{project}/challenge-findings-plan.json`. Output: revised `agent-output/{project}/02-architecture-assessment.md` for re-approval."
+    send: false
   - label: "↩ Return to Orchestrator"
     agent: 01-Orchestrator
     prompt: "Returning from Step 4 (IaC Planning). Artifacts at `agent-output/{project}/04-implementation-plan.md` and `agent-output/{project}/04-governance-constraints.md`. Advise on next steps."
@@ -181,7 +185,7 @@ permission to omit cost controls, policy mapping, security, or AVM pin checks.
 
 ## Prerequisites Check
 
-Validate these files exist in `agent-output/{project}/`:
+Validate these files exist and recall shows Step 3.5 complete (a human can override):
 
 1. `02-architecture-assessment.md` — resource list, SKU recommendations, WAF scores
 2. `04-governance-constraints.md` — **REQUIRED**. Produced by Step 3.5 (Governance agent)

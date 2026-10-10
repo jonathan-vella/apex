@@ -85,7 +85,9 @@ class TestStartStep:
 
     def test_governance_step_3_5(self, workspace: Path):
         _run(workspace, ["init", "sp", "--json"])
-        rc, out = _run(workspace, ["start-step", "sp", "3_5", "--json"])
+        rc, _ = _run(workspace, ["start-step", "sp", "3_5", "--json"])
+        assert rc == 2
+        rc, out = _run(workspace, ["start-step", "sp", "3_5", "--allow-out-of-order", "test setup", "--json"])
         assert rc == 0
         assert json.loads(out)["step"] == "3_5"
 

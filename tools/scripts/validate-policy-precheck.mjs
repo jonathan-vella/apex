@@ -253,6 +253,10 @@ for (const file of precheckFiles) {
     r.error(relPath, "status=BLOCKED but no blocking policies and no what-if violations (the contract contradiction)");
     continue;
   }
+  if ((status === "CLEAN" || deployGate === "PROCEED") && hasBlocker) {
+    r.error(relPath, "legacy result says CLEAN/PROCEED but blocking policies or what-if violations are listed");
+    continue;
+  }
   if (status === "DRIFT") {
     r.warn(
       relPath,

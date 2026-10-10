@@ -18,10 +18,14 @@ handoffs:
     agent: 05-IaC Planner
     prompt: "Create the implementation plan using the approved governance constraints in `agent-output/{project}/04-governance-constraints.md` and `agent-output/{project}/04-governance-constraints.json`. The planner routes internally based on decisions.iac_tool in session state."
     send: true
+  - label: "↩ Reconcile with Architect"
+    agent: 03-Architect
+    prompt: "Governance reconciliation found a conflict with the approved architecture. Input: `agent-output/{project}/04-governance-constraints.md` and the conflicting finding. Output: revised `agent-output/{project}/02-architecture-assessment.md` for re-approval; Gate 2.5 stays closed."
+    send: false
   - label: "↩ Return to Orchestrator"
     agent: 01-Orchestrator
-    prompt: "Governance discovery is complete. Resume the workflow. Input: current phase artifacts under agent-output/{project}/. Output: control returns to 01-Orchestrator (no new artifact)."
-    send: true
+    prompt: "Returning from governance; Gate 2.5 stays closed until reconciliation and approval complete. Input: current phase artifacts under agent-output/{project}/. Output: control returns to 01-Orchestrator (no new artifact)."
+    send: false
 ---
 
 # 04g-Governance
@@ -157,7 +161,7 @@ Reuse current content; recover missing/changed evidence after compaction or resu
 
 ## Prerequisites
 
-1. `02-architecture-assessment.md` must exist — read for resource list and compliance requirements
+1. `02-architecture-assessment.md` must exist and recall must show Step 2 complete (a human may override)
 2. Run `apex-recall show <project> --json` to verify project context exists (project name, complexity, decisions)
 3. **Read the committed baseline subscription entry when present**. It is
   comparison evidence, not live policy authority or a prerequisite for live discovery.
@@ -503,7 +507,7 @@ Then run the **Per-Finding Decision Protocol** from
 - **Mandatory `askQuestions` panel**: every `must_fix` and `should_fix`
   finding (no exceptions for `requires_step == "step-2"`) is presented
   as a question with the four fixed options `Accept (apply mitigation)`,
-  `Reject (accept risk)`, `Defer (carry to handoff)`, `Edit (custom
+  `Reject (do not apply)`, `Defer (carry to handoff)`, `Edit (custom
   guidance)`. Auto-defer / auto-escalate are forbidden — the only valid
   bypass is `APEX_UNATTENDED=1` (protocol section 2d).
 - **Final aggregated gate (per protocol section 2l)**: include the

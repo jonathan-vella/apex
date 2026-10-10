@@ -32,8 +32,8 @@ handoffs:
     send: true
   - label: "Step 7: As-Built Documentation"
     agent: 08-As-Built
-    prompt: "Generate the complete Step 7 documentation suite for the deployed project. Deployment succeeded; summary at `agent-output/{project}/06-deployment-summary.md`. Read all prior artifacts (01-06) in `agent-output/{project}/` and query deployed resources for actual state."
-    send: true
+    prompt: "Generate the complete Step 7 documentation suite once Step 6 shows complete in apex-recall; summary at `agent-output/{project}/06-deployment-summary.md`. Read all prior artifacts (01-06) in `agent-output/{project}/` and query deployed resources for actual state."
+    send: false
   - label: "↩ Fix Deployment Issues"
     agent: 06b-Bicep CodeGen
     prompt: "The deployment encountered errors. Review the error messages and fix the Bicep templates in `infra/bicep/{project}/` to resolve the issues. Input: deployment error log. Output: patched infra files + new what-if/plan preview."
@@ -211,7 +211,7 @@ Do not create resources, bootstrap, or regenerate code merely to satisfy a valid
 
 Before starting, validate:
 
-1. `infra/bicep/{project}/main.bicep` exists
+1. `infra/bicep/{project}/main.bicep` exists and recall shows Step 5 complete (a human can override)
 2. **`05-iac-handoff.json`** exists in `agent-output/{project}/` (Wave 3+
    — slim deploy loop). Schema:
    [`iac-handoff-v1`](../../tools/schemas/iac-handoff.schema.json).

@@ -60,6 +60,11 @@ of the consumed set and service-specific freshness/scope requirements; a current
 
 ### Mutation Outcomes And Recovery
 
+`start-step`, `complete-step` and `transition` check that the previous step is complete (or skipped) before moving on,
+and refuse with `step_out_of_order` otherwise. A human can proceed with `--allow-out-of-order "<reason>"`; the reason is
+logged in `decisions.order_overrides`. Optional Design (Step 3) never blocks Governance. A step that is already
+in progress, or already complete, is never blocked by this check.
+
 For explicit lab risk acceptance, see [risk-authorizations.md](risk-authorizations.md). `effective_reviews.status`
 describes review integrity independently of authorization. `gate_status`, `gate_error`, `review_verdicts` and
 `unresolved_findings` retain original NEEDS_REVISION evidence. A revoked historical Plan authorization does not

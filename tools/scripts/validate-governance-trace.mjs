@@ -259,6 +259,8 @@ function runAttestationChain(project, allowLegacy) {
     }
     if (!envelope.completeness_signature || !/^sha256:[0-9a-f]{64}$/.test(envelope.completeness_signature)) {
       reporter.error("L0", "completeness_signature missing or malformed");
+    } else if (/^sha256:0{64}$/.test(envelope.completeness_signature)) {
+      reporter.error("L0", "completeness_signature is an all-zero placeholder");
     }
   }
   reporter.tick();
@@ -284,11 +286,7 @@ function runAttestationChain(project, allowLegacy) {
       const tableRows = section
         .split(/\r?\n/)
         .filter(
-          (line) =>
-            line.startsWith("| ") &&
-            !line.includes("---") &&
-            !/Resource ID/i.test(line) &&
-            !/satisfied_by_property/i.test(line),
+          (line) => line.startsWith("| ") && !/^\|[\s:|-]+$/.test(line) && !/^\|\s*resource[_ ]id\s*\|/i.test(line),
         );
       if (tableRows.length === 0) {
         if (allowLegacy) {
@@ -383,6 +381,17 @@ function runAttestationChain(project, allowLegacy) {
   // L3 — apex-recall governance_trace decision at step 6.
   // Fallback: read 00-session-state.json directly when apex-recall CLI is not available.
   let l3Recorded = false;
+  let l3Failure = null;
+  let l3Override = null;
+  let l3Blocked = false;
+  try {
+    const precheck = JSON.parse(
+      fs.readFileSync(path.join(root, "agent-output", project, "06-policy-precheck.json"), "utf-8"),
+    );
+    l3Blocked = precheck?.deploy_gate === "BLOCK";
+  } catch {
+    /* no precheck file yet */
+  }
   if (fs.existsSync(sessionStatePath)) {
     try {
       const state = JSON.parse(fs.readFileSync(sessionStatePath, "utf-8"));
@@ -393,11 +402,17 @@ function runAttestationChain(project, allowLegacy) {
         (Array.isArray(decisionLog) &&
           decisionLog.some((d) => d?.key === "governance_trace" && (d?.step === 6 || d?.step === "6")));
       l3Recorded = Boolean(hasKey);
+      if (typeof decisions.governance_trace === "string" && /^\s*(FAILED|BLOCK)/i.test(decisions.governance_trace))
+        l3Failure = decisions.governance_trace;
+      if (typeof decisions.governance_override === "string" && decisions.governance_override.trim())
+        l3Override = decisions.governance_override.trim();
     } catch {
       /* ignore */
     }
   }
-  if (!l3Recorded) {
+  if (l3Override) {
+    console.log(`  ℹ️  L3 skipped by a human governance_override: ${l3Override}`);
+  } else if (!l3Recorded) {
     if (allowLegacy) {
       console.log("ℹ️  No L3 governance_trace decision found — skipping (--allow-legacy)");
     } else {
@@ -406,6 +421,10 @@ function runAttestationChain(project, allowLegacy) {
         "decisions.governance_trace not recorded at step 6 (Deploy agent must emit `apex-recall decide --key governance_trace ...` before complete-step 6)",
       );
     }
+  } else if (l3Failure) {
+    reporter.error("L3", `governance_trace reports a failure: ${l3Failure}`);
+  } else if (l3Blocked) {
+    reporter.error("L3", "06-policy-precheck.json reports deploy_gate=BLOCK");
   } else {
     console.log("  ✅ L3 governance_trace decision recorded at step 6");
   }

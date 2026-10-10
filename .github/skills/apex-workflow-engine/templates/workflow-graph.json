@@ -258,7 +258,7 @@
         {
           "id": "governance-trace",
           "description": "L0→L1→L2→L3 attestation chain present in apex-recall decisions (key: governance_trace) before az deployment create / azd provision. Validator: validate-governance-trace.mjs.",
-          "check": "decisions.governance_trace present at step-6 OR human-override decision recorded",
+          "check": "decisions.governance_trace present at step-6 and not FAILED/BLOCK, OR a human recorded decisions.governance_override with a reason",
           "on_fail": "stay-at-step-6b"
         }
       ],
@@ -278,7 +278,7 @@
         {
           "id": "governance-trace",
           "description": "L0→L1→L2→L3 attestation chain present in apex-recall decisions (key: governance_trace) before terraform apply / azd provision. Validator: validate-governance-trace.mjs.",
-          "check": "decisions.governance_trace present at step-6 OR human-override decision recorded",
+          "check": "decisions.governance_trace present at step-6 and not FAILED/BLOCK, OR a human recorded decisions.governance_override with a reason",
           "on_fail": "stay-at-step-6t"
         }
       ],
@@ -519,9 +519,9 @@
           "owners": ["04g-Governance", "05-IaC Planner"]
         },
         "review_depth": {
-          "enum": ["standard", "deep"],
-          "default": "standard",
-          "description": "`standard` runs single-pass comprehensive at mandatory gates. `deep` opts into multi-pass rotating lenses and enables Phase 4.5 challenger at step-5b/5t.",
+          "enum": ["default", "deep"],
+          "default": "default",
+          "description": "`default` runs single-pass comprehensive at mandatory gates. `deep` opts into multi-pass rotating lenses and enables Phase 4.5 challenger at step-5b/5t.",
           "owners": ["01-Orchestrator", "all challenger-invoking agents"]
         },
         "deployment_strategy": {

@@ -23,7 +23,7 @@ test("design-only governance trace checks L0/L1 without waiving the full chain",
       discovery_status: "COMPLETE",
       discovered_at: new Date().toISOString(),
       ttl_days: 7,
-      completeness_signature: `sha256:${"0".repeat(64)}`,
+      completeness_signature: `sha256:${"ab".repeat(32)}`,
     },
   };
   const source = path.join(project, "04-governance-constraints.json");
@@ -39,6 +39,16 @@ test("design-only governance trace checks L0/L1 without waiving the full chain",
   assert.equal(design.status, 0, design.stdout + design.stderr);
   assert.match(design.stdout, /L2\/L3 are not evaluated/);
   assert.equal(run().status, 1);
+  writeFileSync(
+    path.join(project, "04-implementation-plan.md"),
+    "## 🛡️ Governance Compliance Matrix\n\n| Resource ID | Status |\n| --- | --- |\n| fixture | ✅ satisfied |\n| other --- | ❌ unsatisfiable |\n",
+  );
+  const unsatisfied = run("--through", "L1");
+  assert.equal(unsatisfied.status, 1, "a failing row must not be dropped because it contains '---'");
+  constraints.discovery_metadata.completeness_signature = `sha256:${"0".repeat(64)}`;
+  writeFileSync(source, JSON.stringify(constraints));
+  assert.match(run("--through", "L1").stdout + run("--through", "L1").stderr, /all-zero placeholder/);
+  constraints.discovery_metadata.completeness_signature = `sha256:${"ab".repeat(32)}`;
   constraints.discovery_metadata.discovered_at = "invalid";
   writeFileSync(source, JSON.stringify(constraints));
   assert.equal(run("--through", "L1").status, 1);
@@ -431,6 +441,29 @@ test("network scanner blocks public data and unapproved APIs while allowing scop
     writeFileSync(target, `${web}\n${extension === "bicep" ? "httpsOnly: false" : "https_only = false"}`);
     assert.equal(run("--public-web-app", relative).status, 1);
     rmSync(target);
+  }
+});
+
+test("security baseline blocks alternative TLS spellings and scans bicepparam and top-level infra files", (context) => {
+  const validator = fileURLToPath(new URL("tools/scripts/validate-iac-security-baseline.mjs", root));
+  const cases = [
+    ["infra/bicep/t/main.bicep", "minTlsVersion: '1.0'", 1],
+    ["infra/bicep/t/main.bicep", "minimalTlsVersion: '1.1'", 1],
+    ["infra/bicep/t/main.bicep", "minimumTlsVersion: 'TLS1_2'", 0],
+    ["infra/terraform/t/main.tf", 'min_tls_version = "TLS1_0"', 1],
+    ["infra/terraform/t/main.tf", 'min_tls_version = "TLS1_2"', 0],
+    ["infra/bicep/t/main.bicepparam", "param publicNetworkAccess = 'Enabled'", 1],
+    ["infra/bicep/t/main.bicepparam", "param publicNetworkAccess = 'Disabled'", 0],
+    ["infra/main.bicep", "supportsHttpsTrafficOnly: false", 1],
+  ];
+  for (const [relative, content, expected] of cases) {
+    const directory = mkdtempSync(path.join(tmpdir(), "baseline-patterns-"));
+    context.after(() => rmSync(directory, { recursive: true, force: true }));
+    const target = path.join(directory, relative);
+    mkdirSync(path.dirname(target), { recursive: true });
+    writeFileSync(target, content);
+    const result = spawnSync(process.execPath, [validator], { cwd: directory, encoding: "utf8" });
+    assert.equal(result.status, expected, `${relative}: ${content}\n${result.stdout}${result.stderr}`);
   }
 });
 

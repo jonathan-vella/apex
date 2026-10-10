@@ -40,6 +40,7 @@ from ..state_writer import (
     validate_step_key,
     write_state,
 )
+from ..step_order import check_order, report_order_error
 
 # Step -> (gating artifact, required findings sidecar) for review-mandated
 # steps. AGENTS.md "Agent Workflow" table is the source of truth; keep in
@@ -180,6 +181,14 @@ def _record_skip(data: dict, step: str, reason: str, now: str) -> None:
     decisions = data.setdefault("decisions", {})
     skips = decisions.setdefault("challenger_skip", [])
     skips.append({"step": step, "reason": reason, "recorded": now})
+
+
+def is_audited_replay(data: dict, step: str) -> bool:
+    """True when the step is already complete via a logged skip, so a replay needs no flags again."""
+    if data.get("steps", {}).get(step, {}).get("status") != "complete":
+        return False
+    skips = data.get("decisions", {}).get("challenger_skip", [])
+    return any(s.get("step") == step and str(s.get("reason", "")).strip() for s in skips)
 
 
 def _select_replacement_review(
@@ -324,6 +333,11 @@ def run(args) -> int:
     data = read_state(session_state_path(project))
 
     try:
+        check_order(data, step, getattr(args, "allow_out_of_order", None), _iso_now(), completing=True)
+    except ValueError as error:
+        return report_order_error(project, step, error, as_json)
+
+    try:
         governance_review, selection = _select_replacement_review(project, step, args, data)
         watch_review_inputs(data, project, step, governance_review)
         if selection and data.input_revisions[governance_review] != selection["stored"]["sha256"]:
@@ -331,6 +345,8 @@ def run(args) -> int:
     except (OSError, ValueError) as error:
         return _report_invalid_review(project, step, str(error), as_json)
     blocked, gating_path, sidecar_path = _challenger_findings_missing(project, step, governance_review)
+    if blocked and not allow_missing and is_audited_replay(data, step):
+        blocked = False
     if blocked and not allow_missing:
         msg = {
             "project": project,

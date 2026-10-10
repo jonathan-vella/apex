@@ -195,5 +195,5 @@ commit. Pre-commit, validator and CI sync checks are described in the tooling re
 | Use dynamic keys like `sku_overrides.app_plan_web`   | Use the array form `sku_overrides[]`                |
 | Re-derive SKUs from plan prose in CodeGen agents     | Read `sku-manifest.json` programmatically           |
 | Edit `revisions[]` to "fix" history                  | Append a new revision documenting the correction    |
-| Skip the coverage validator on a legacy project      | Drop a `.sku-manifest.skip` sentinel until migrated |
+| Skip the coverage validator on a legacy project      | Drop a `.sku-manifest.skip` sentinel with a short reason until migrated |
 | Hand-edit `sku_allowlist_snapshot`                   | Re-run `derive-sku-allowlist.mjs`                   |
